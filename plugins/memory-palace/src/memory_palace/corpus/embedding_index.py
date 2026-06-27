@@ -17,7 +17,7 @@ try:
     import numpy as np
 
     _HAS_NUMPY = True
-except Exception:  # pragma: no cover - optional dependency
+except ImportError:  # pragma: no cover - optional dependency
     np = None
     _HAS_NUMPY = False
 
@@ -27,7 +27,7 @@ try:
     )
 
     _HAS_ST = True
-except Exception:  # pragma: no cover - optional dependency
+except ImportError:  # pragma: no cover - optional dependency
     SentenceTransformer = None
     _HAS_ST = False
 
@@ -128,7 +128,7 @@ class EmbeddingIndex:
         if _HAS_ST and SentenceTransformer is not None:
             try:
                 self.model = SentenceTransformer("all-MiniLM-L6-v2")
-            except Exception:
+            except (OSError, RuntimeError):
                 self.model = None
         else:
             self.model = None

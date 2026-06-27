@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import argparse
+import ast
 import importlib.util
 import json
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 SCRIPT_PATH = Path(__file__).parent.parent / "scripts" / "quality_checker.py"
 
@@ -166,6 +169,21 @@ def test_static_analysis_bdd_missing_keywords(tmp_path):
     assert any("missing BDD" in i.message for i in out["bdd_compliance"])
 
 
+def test_bdd_check_detects_missing_keywords_in_single_quoted_docstring(tmp_path):
+    """AST-based BDD check flags missing keywords even for single-quoted docstrings."""
+    qc = _load_script()
+    f = tmp_path / "test_single_quote.py"
+    f.write_text(
+        "import pytest\n\n"
+        "def test_some_thing_behavior():\n"
+        "    'No BDD keywords here.'\n"
+        "    assert True\n"
+    )
+    checker = qc.TestQualityChecker(f)
+    out = checker.run_static_analysis()
+    assert any("missing BDD" in i.message for i in out["bdd_compliance"])
+
+
 def test_static_analysis_documentation_lacks_module_docstring(tmp_path):
     qc = _load_script()
     f = tmp_path / "test_docs.py"
@@ -209,9 +227,7 @@ def test_calculate_metrics_counts_tests_and_assertions(tmp_path):
 
 def test_calculate_complexity_counts_branches():
     qc = _load_script()
-    import ast as _ast
-
-    tree = _ast.parse(
+    tree = ast.parse(
         "def f(x):\n"
         "    if x:\n"
         "        for i in range(2):\n"
@@ -530,3 +546,159 @@ def test_run_dynamic_validation_runs_against_self(tmp_path):
     out = c.run_dynamic_validation()
     assert "execution_result" in out
     assert "test_duration" in out
+
+
+# ---- SAN-008: _is_vague_result_assertion helper ----
+
+
+def test_is_vague_result_assertion_exists():
+    """_is_vague_result_assertion must be a callable on TestQualityChecker."""
+    qc = _load_script()
+    assert callable(getattr(qc.TestQualityChecker, "_is_vague_result_assertion", None))
+
+
+def test_is_vague_result_assertion_true_for_result_compare(tmp_path):
+    """Identifies 'assert result ==' as vague."""
+    qc = _load_script()
+    node = ast.parse("assert result == 5").body[0]
+    c = qc.TestQualityChecker(tmp_path / "t.py")
+    assert c._is_vague_result_assertion(node) is True
+
+
+def test_is_vague_result_assertion_false_for_specific_compare(tmp_path):
+    """Does not flag 'assert value.status == ok' as vague."""
+    qc = _load_script()
+    node = ast.parse("assert response.status == 'ok'").body[0]
+    c = qc.TestQualityChecker(tmp_path / "t.py")
+    assert c._is_vague_result_assertion(node) is False
+
+
+def test_is_vague_result_assertion_false_for_non_compare(tmp_path):
+    """Does not flag a bare bool assertion as vague."""
+    qc = _load_script()
+    node = ast.parse("assert result").body[0]
+    c = qc.TestQualityChecker(tmp_path / "t.py")
+    assert c._is_vague_result_assertion(node) is False
+
+
+def test_check_assertion_quality_still_flags_vague_result(tmp_path):
+    """Behavior guard: vague assertion is still reported after refactor."""
+    qc = _load_script()
+    f = tmp_path / "test_vague.py"
+    f.write_text(
+        "import x\ndef test_something_returns_correctly():\n"
+        "    result = do_thing()\n"
+        "    assert result == 5\n"
+    )
+    checker = qc.TestQualityChecker(f)
+    out = checker.run_static_analysis()
+    assert any("Vague assertion" in i.message for i in out["assertion_issues"])
+
+
+# ---- SAN-009: _parse_test_report helper ----
+
+
+def test_parse_test_report_exists():
+    """_parse_test_report must be a callable on TestQualityChecker."""
+    qc = _load_script()
+    assert callable(getattr(qc.TestQualityChecker, "_parse_test_report", None))
+
+
+def test_parse_test_report_reads_valid_json(tmp_path):
+    """Returns parsed summary dict from a valid JSON report file."""
+    qc = _load_script()
+    report_path = tmp_path / "report.json"
+    report_path.write_text(
+        json.dumps({"summary": {"passed": 3, "failed": 1, "error": 0, "skipped": 0}})
+    )
+    c = qc.TestQualityChecker(tmp_path / "t.py")
+    result = c._parse_test_report(report_path, fallback_returncode=0)
+    assert result["passed"] == 3
+    assert result["failures"] == 1
+
+
+def test_parse_test_report_falls_back_on_missing_file(tmp_path):
+    """Returns fallback dict when report file does not exist."""
+    qc = _load_script()
+    c = qc.TestQualityChecker(tmp_path / "t.py")
+    result = c._parse_test_report(tmp_path / "missing.json", fallback_returncode=0)
+    assert result["passed"] == 1
+    assert result["failures"] == 0
+
+
+def test_parse_test_report_falls_back_on_nonzero_rc(tmp_path):
+    """Returns failures=1 when fallback_returncode is non-zero."""
+    qc = _load_script()
+    c = qc.TestQualityChecker(tmp_path / "t.py")
+    result = c._parse_test_report(tmp_path / "missing.json", fallback_returncode=1)
+    assert result["failures"] == 1
+    assert result["passed"] == 0
+
+
+# ---- SAN-010: _run_check_or_validate helper ----
+
+
+def test_run_check_or_validate_exists():
+    """_run_check_or_validate must be a module-level callable."""
+    qc = _load_script()
+    assert callable(getattr(qc, "_run_check_or_validate", None))
+
+
+def test_run_check_or_validate_returns_report_str(monkeypatch, tmp_path):
+    """Behavior guard: check command still produces a human report via helper."""
+    qc = _load_script()
+    f = _good_test_file(tmp_path)
+
+    def _no_run(self):  # noqa: ARG001 - test stub
+        return {
+            "execution_result": 0,
+            "test_duration": 0.1,
+            "failures": [],
+            "errors": [],
+            "skipped": 0,
+            "passed": 2,
+        }
+
+    monkeypatch.setattr(qc.TestQualityChecker, "run_dynamic_validation", _no_run)
+    args = argparse.Namespace(
+        check=str(f), validate=None, output=None, output_json=False, coverage=None
+    )
+    checker = qc.TestQualityChecker(f)
+    # Must not raise
+    qc._run_check_or_validate(checker, args)
+
+
+# ---------------------------------------------------------------------------
+# SAN-019: cache file content to avoid double-reads
+# ---------------------------------------------------------------------------
+
+
+class TestSAN019FileCaching:
+    """TestQualityChecker must read test_path at most once per instance.
+
+    GIVEN a checker whose test file contains valid Python
+    WHEN run_static_analysis() and calculate_metrics() are both called
+    THEN the underlying file is opened exactly once.
+    """
+
+    def test_file_opened_once_across_static_and_metrics(self, tmp_path: Path) -> None:
+        qc = _load_script()
+        test_file = tmp_path / "test_sample.py"
+        test_file.write_text("def test_foo():\n    assert True\n")
+
+        checker = qc.TestQualityChecker(test_file)
+        open_calls: list[str] = []
+        real_open = open
+
+        def counting_open(path, *args, **kwargs):
+            open_calls.append(str(path))
+            return real_open(path, *args, **kwargs)
+
+        with patch("builtins.open", side_effect=counting_open):
+            checker.run_static_analysis()
+            checker.calculate_metrics()
+
+        file_reads = [c for c in open_calls if str(test_file) in c]
+        assert len(file_reads) <= 1, (
+            f"test_path opened {len(file_reads)} times; expected at most 1"
+        )

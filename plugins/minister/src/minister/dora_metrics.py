@@ -472,6 +472,16 @@ def collect_deployments_from_git(
             continue
         parts = line.split("|")
         if len(parts) != 3:
+            # A line with the wrong field count means the pretty-format
+            # broke or the output was truncated. Skipping it silently
+            # would let a corrupted log still classify as Elite, so
+            # flag partial like the malformed-timestamp branch below
+            # (issue #575, B3).
+            warnings.append(
+                f"skipped git log line with unexpected field count "
+                f"({len(parts)} != 3): {line!r}"
+            )
+            partial = True
             continue
         sha, author_iso, commit_iso = parts
         try:

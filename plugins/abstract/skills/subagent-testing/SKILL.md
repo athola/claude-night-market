@@ -96,3 +96,14 @@ For complete testing patterns, examples, and templates:
 - **skill-authoring**: Creating effective skills
 - **bulletproof-skill**: Anti-rationalization patterns
 - **test-skill**: Automated skill testing command
+
+## Exit Criteria
+
+- [ ] Baseline (RED) phase documents at least 5 diverse scenarios run in fresh Claude instances
+  without the skill active, with full response text recorded.
+- [ ] With-skill (GREEN) phase uses identical prompts in new fresh instances (not continuations
+  of the baseline conversation) and shows >= 50% improvement on skill-related metrics.
+- [ ] Rationalization (REFACTOR) phase shows skill guardrails blocking >= 80% of rationalization
+  attempts tested across at least 3 pressure scenarios.
+- [ ] Results are reproducible: the same prompts in a new fresh instance produce consistent
+  outcomes, confirming the effect is not conversation-history priming.

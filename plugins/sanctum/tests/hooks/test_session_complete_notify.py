@@ -468,6 +468,28 @@ class TestMainBlockArgumentParsing:
         mock_main.assert_called_once()
 
     @pytest.mark.integration
+    def test_clear_notification_state_silences_os_errors(self) -> None:
+        """OSError during state load is caught silently (hook must not crash)."""
+        with patch(
+            "session_complete_notify.NotificationState.load",
+            side_effect=OSError("disk full"),
+        ):
+            # Must not raise
+            clear_notification_state("any_session")
+
+    @pytest.mark.integration
+    def test_clear_notification_state_propagates_runtime_errors(self) -> None:
+        """Programming errors (RuntimeError) propagate from clear_notification_state."""
+        with (
+            patch(
+                "session_complete_notify.NotificationState.load",
+                side_effect=RuntimeError("unexpected"),
+            ),
+            pytest.raises(RuntimeError, match="unexpected"),
+        ):
+            clear_notification_state("any_session")
+
+    @pytest.mark.integration
     def test_clear_state_clears_input_flag(self, tmp_path: Path) -> None:
         """clear_notification_state() loads state and clears the input
         flag for the current session."""
@@ -917,6 +939,18 @@ class TestRunNotificationIntegration:
         ):
             # Should not raise
             run_notification("err_session", "/nonexistent/path")
+
+    @pytest.mark.integration
+    def test_run_notification_propagates_unexpected_errors(self) -> None:
+        """Programming errors (RuntimeError) are NOT swallowed by the handler."""
+        with (
+            patch(
+                "session_complete_notify.os.chdir",
+                side_effect=RuntimeError("unexpected"),
+            ),
+            pytest.raises(RuntimeError, match="unexpected"),
+        ):
+            run_notification("runtime_err_session", "/some/path")
 
 
 # ---------------------------------------------------------------------------

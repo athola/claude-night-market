@@ -189,8 +189,8 @@ class TestTaskState:
             completed_tasks=["t1"],
             pending_tasks=["t1", "t2"],
         )
-        assert "t1" not in state.in_progress_tasks
-        assert "t2" in state.in_progress_tasks
+        assert "t1" not in state.remaining_tasks
+        assert "t2" in state.remaining_tasks
 
 
 # ---------------------------------------------------------------------------

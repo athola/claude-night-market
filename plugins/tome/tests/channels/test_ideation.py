@@ -14,6 +14,8 @@ These tests pin that behavior.
 
 from __future__ import annotations
 
+import pytest as _pytest
+from tome.channels import ideation
 from tome.channels.ideation import (
     IDEATION_CRITERIA,
     get_method,
@@ -115,6 +117,35 @@ def test_rotation_plan_empty_catalogue_degrades_to_empty_passes(monkeypatch) -> 
     # guard. Graceful degradation returns one empty pass per requested pass.
     monkeypatch.setattr("tome.channels.ideation.load_methods", lambda: [])
     assert rotation_plan(passes=3, n_per_pass=2) == [[], [], []]
+
+
+# ---------------------------------------------------------------------------
+# load_methods: validate-on-load (issue #569)
+# ---------------------------------------------------------------------------
+
+
+def test_load_methods_raises_on_empty_catalogue(monkeypatch) -> None:
+    """An empty or typo'd bundled methods file must fail loudly.
+
+    Treating empty bundled data as a valid empty catalogue silently
+    disables the whole channel; a missing/empty data file is a packaging
+    bug, not a legitimate state.
+    """
+    monkeypatch.setattr(ideation, "_METHODS_CACHE", None)
+    monkeypatch.setattr(ideation.yaml, "safe_load", lambda *_a, **_k: None)
+    with _pytest.raises(ValueError, match="empty|missing"):
+        ideation.load_methods()
+
+
+def test_load_methods_raises_when_method_missing_id(monkeypatch) -> None:
+    """A method lacking an 'id' is rejected at load, so downstream
+    ``m["id"]`` access (rotation_plan) and ``m.get("id")`` (select_methods)
+    are consistently safe."""
+    bad = {"methods": [{"name": "x", "category": "c", "evidence": "weak"}]}
+    monkeypatch.setattr(ideation, "_METHODS_CACHE", None)
+    monkeypatch.setattr(ideation.yaml, "safe_load", lambda *_a, **_k: bad)
+    with _pytest.raises(ValueError, match="id"):
+        ideation.load_methods()
 
 
 # ---------------------------------------------------------------------------

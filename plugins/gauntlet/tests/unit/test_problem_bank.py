@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import pytest
 import yaml
+from gauntlet.challenges import generate_bank_challenge
 from gauntlet.models import BankProblem, ChallengeType, Difficulty
 from gauntlet.problem_bank import (
     bank_problem_to_challenge,
@@ -662,10 +665,6 @@ class TestGenerateBankChallenge:
         When generate_bank_challenge is called
         Then a Challenge object is returned with the correct prompt
         """
-        from unittest.mock import patch
-
-        from gauntlet.challenges import generate_bank_challenge
-
         problem = BankProblem(
             id="valid-parens",
             title="Valid Parentheses",

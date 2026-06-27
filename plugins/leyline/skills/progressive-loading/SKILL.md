@@ -113,16 +113,40 @@ Use progressive loading when building skills that:
 
 ### Context-Based Selection
 
-```python
-from leyline import ModuleSelector, MECWMonitor
+Modules are declared in the skill's YAML frontmatter and
+loaded on demand with a `@modules/` directive. The hub reads
+the detected context, then loads only the spokes that match:
 
-selector = ModuleSelector(skill_path="my-skill/")
-modules = selector.select_modules(
-    context={"intent": "git-catchup", "artifacts": ["git", "python"]},
-    max_tokens=MECWMonitor().get_safe_budget()
-)
+```markdown
+---
+modules:
+- modules/git-catchup-patterns.md
+- modules/python-testing.md
+---
+
+When the intent is a branch or PR catch-up, load
+`@modules/git-catchup-patterns.md`. When the artifacts include
+Python tests, also load `@modules/python-testing.md`.
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
+
+To keep loads within the MECW token budget, check whether a
+module fits before pulling it in. The `MECWMonitor` in
+`plugins/leyline/src/leyline/mecw.py` exposes the methods used
+here:
+
+```python
+from leyline.mecw import MECWMonitor
+
+monitor = MECWMonitor()
+monitor.track_usage(current_context_tokens)
+
+# module_estimated_tokens comes from the module frontmatter
+can_load, reasons = monitor.can_handle_additional(module_estimated_tokens)
+```
+
+Load the next module only when `can_load` is true. Each
+module records its cost in its frontmatter `estimated_tokens`
+field.
 
 ## Hub-and-Spoke Architecture
 

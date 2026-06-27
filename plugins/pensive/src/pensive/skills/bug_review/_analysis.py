@@ -75,10 +75,6 @@ class AnalysisMixin:
                 "Logic error: duplicate condition (dead code)",
             ),
             (
-                r"age\s*>\s*18",
-                "Logic error: age > 18 may exclude 18-year-olds (use >= 18)",
-            ),
-            (
                 r"if.*>=.*:\s*\n\s*return.*[Bb]elow",
                 "Logic error: >= with 'below' result suggests wrong operator",
             ),

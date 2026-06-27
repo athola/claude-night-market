@@ -112,3 +112,17 @@ Or invoke the uninstall skill directly via the command
 - **Watchdog not firing**: check the log output and verify
   the scheduler is loaded (`launchctl list` or
   `systemctl --user list-timers`).
+
+## Exit Criteria
+
+- [ ] On macOS: `~/Library/LaunchAgents/com.egregore.watchdog.plist`
+      exists after the install script completes
+- [ ] On Linux: `~/.config/systemd/user/egregore-watchdog.timer`
+      exists after the install script completes
+- [ ] Verification command confirms daemon is loaded: `launchctl list |
+      grep egregore` returns a line (macOS), or `systemctl --user
+      status egregore-watchdog.timer` shows `active (waiting)` (Linux)
+- [ ] Schedule interval (300 seconds / 5 minutes) and log file path
+      reported to the user after installation
+- [ ] If `permission denied` occurs, the error is reported with the
+      remediation step (run as current user, not root)

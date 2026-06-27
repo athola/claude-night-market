@@ -84,3 +84,17 @@ If rendering fails, fix syntax and retry (max 2 retries).
 
 Show the rendered diagram with a brief description of the
 flow depicted (2-3 sentences).
+
+## Exit Criteria
+
+- [ ] Mermaid `sequenceDiagram` syntax generated with participants
+      and at least one `->>` call arrow
+- [ ] `mcp__claude_ai_Mermaid_Chart__validate_and_render_mermaid_diagram`
+      called with `diagramType: "sequenceDiagram"` and returns without
+      error (or retry attempted on first failure)
+- [ ] Participant count is at most 10; if more components exist,
+      they are aggregated and the aggregation noted
+- [ ] A 2-3 sentence description of the depicted flow is shown
+      alongside the rendered diagram
+- [ ] Return arrows (`-->>`) are present for any request that has
+      a corresponding response in the traced flow

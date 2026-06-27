@@ -132,3 +132,17 @@ fix_issue:
 - **Phase 4**: See [modules/quality-gates.md](modules/quality-gates.md) for review patterns
 - **Phase 5-6**: See [modules/completion.md](modules/completion.md) for finalization
 - **Errors**: See [modules/troubleshooting.md](modules/troubleshooting.md) for common issues
+
+## Exit Criteria
+
+- [ ] All 6 required TodoWrite items (`do-issue:discovery-complete`
+      through `do-issue:issues-updated`) are created before execution
+      starts and each marked complete when its phase finishes
+- [ ] Issue requirements fetched using the correct forge CLI (`gh` for
+      GitHub, `glab` for GitLab) as detected in session context
+- [ ] Exactly one consolidated PR is opened covering all issues; no
+      per-issue PRs are created
+- [ ] Code review gate runs between parallel task batches and must
+      pass before the next batch is dispatched
+- [ ] All specified issues are commented on or closed with a reference
+      to the PR after it is ready for review

@@ -22,7 +22,6 @@ modules:
 - modules/narrative-structure.md
 - modules/reddit-format.md
 dependencies:
-- scribe:shared
 - scribe:slop-detector
 ---
 

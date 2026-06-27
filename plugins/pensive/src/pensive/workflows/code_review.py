@@ -112,6 +112,8 @@ class CodeReviewWorkflow:
                 else:
                     results.append(None)
             except Exception as e:
+                if isinstance(e, MemoryError):
+                    raise
                 # Partial failure - record error and continue
                 logger.warning(
                     "Skill %r failed during execute_skills: %s",

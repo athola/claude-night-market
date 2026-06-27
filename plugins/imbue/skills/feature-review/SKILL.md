@@ -384,3 +384,18 @@ These rules apply to all configurations:
 - **[research-enrichment.md](modules/research-enrichment.md)**: tome-driven score deltas, channel-to-factor mapping, graceful degradation.
 - **[multi-metric-evaluation-methodology.md](modules/multi-metric-evaluation-methodology.md)**: Combining RICE, WSJF, and Kano when no single model suffices.
 - **[configuration.md](modules/configuration.md)**: Customization options.
+
+## Exit Criteria
+
+- [ ] All 7 TodoWrite phases completed in order through
+  `feature-review:issues-created`; each phase marked complete
+  before the next begins
+- [ ] Every scored feature has a numeric Adjusted Score on the
+  Fibonacci scale and a Priority label (High/Medium/Low) matching
+  the configured thresholds (default: >2.5 High, 1.5-2.5 Medium)
+- [ ] Any suggestion with score >2.5 not acted on is captured via
+  `scripts/deferred_capture.py --source feature-review` without
+  prompting the user
+- [ ] GitHub issues created only after user confirmation; each issue
+  includes the `feature`, `enhancement`, and `priority/*` labels
+  and a link to related issues where applicable

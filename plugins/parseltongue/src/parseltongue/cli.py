@@ -8,11 +8,11 @@ import json
 import sys
 from pathlib import Path
 
-from parseltongue.analysis.async_analysis import AsyncAnalysisSkill
+from parseltongue.analysis.async_analysis import analyze_async_functions
 from parseltongue.analysis.code_transformation import CodeTransformationSkill
 from parseltongue.analysis.compatibility_checker import CompatibilityChecker
 from parseltongue.analysis.pattern_matching import PatternMatchingSkill
-from parseltongue.analysis.testing_guide import TestingGuideSkill
+from parseltongue.analysis.testing_guide import analyze_testing
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -74,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _run_command(command: str, code: str, target_version: str) -> dict:
     if command == "analyze-async":
-        return asyncio.run(AsyncAnalysisSkill().analyze_async_functions(code))
+        return asyncio.run(analyze_async_functions(code))
 
     if command == "check-compat":
         return CompatibilityChecker().check_compatibility(code, [target_version])
@@ -83,7 +83,7 @@ def _run_command(command: str, code: str, target_version: str) -> dict:
         return asyncio.run(PatternMatchingSkill().find_patterns(code))
 
     if command == "test-guide":
-        return asyncio.run(TestingGuideSkill().analyze_testing(code))
+        return asyncio.run(analyze_testing(code))
 
     if command == "transform":
         return asyncio.run(CodeTransformationSkill().transform_code(code))

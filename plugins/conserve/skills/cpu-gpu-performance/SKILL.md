@@ -105,3 +105,15 @@ adding a new test marker or profiling documentation, to simplify future sessions
 - Concrete example(s) of what ran (e.g.):
   - "reran `pytest tests/test_orders.py -k test_refund` instead of `pytest -m slow`"
   - "profiled `nvidia-smi dmon` output to prove GPU idle time before scaling"
+
+## Exit Criteria
+
+- [ ] `uptime` and `ps` baseline captured and recorded before any
+  build, training run, or test suite starts
+- [ ] Scope narrowed to diff-based or tag-based targets (e.g.,
+  `pytest -k`, `cargo test <module>`); full-suite justification
+  documented if selective approach was not feasible
+- [ ] Output summary includes: duration, CPU% or GPU% consumed, and
+  whether the run stayed within the per-task budget
+- [ ] Any follow-up tasks (new test markers, profiling docs) written
+  to a todo or issue so they survive the session

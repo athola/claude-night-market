@@ -35,8 +35,6 @@ modules:
 - modules/config-file.md
 - modules/reporting.md
 - modules/ci-integration.md
-dependencies:
-- scribe:shared
 role: library
 ---
 # AI Slop Detection

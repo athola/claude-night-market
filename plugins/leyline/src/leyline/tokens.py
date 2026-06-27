@@ -27,7 +27,7 @@ try:
 except ImportError:  # pragma: no cover - optional dependency
     tiktoken = None
     logger.debug("tiktoken not available, using heuristic estimation")
-except Exception as e:  # pragma: no cover - edge case
+except (ValueError, OSError) as e:  # pragma: no cover - edge case
     tiktoken = None
     logger.debug("Failed to import tiktoken: %s", e)
 
@@ -83,7 +83,7 @@ def _get_encoder() -> Any | None:
 
     try:
         return tiktoken.get_encoding("cl100k_base")
-    except Exception as e:  # pragma: no cover - edge case
+    except (ValueError, KeyError, OSError) as e:  # pragma: no cover - edge case
         logger.debug("Failed to load tiktoken encoder: %s", e)
         return None
 

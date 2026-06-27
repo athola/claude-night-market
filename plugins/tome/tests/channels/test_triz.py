@@ -9,6 +9,7 @@ So that agents can find non-obvious analogies from other fields
 from __future__ import annotations
 
 import pytest
+from tome.channels import triz
 from tome.channels.triz import (
     build_cross_domain_search_queries,
     format_bridge_statement,
@@ -887,7 +888,6 @@ class TestCanonicalMatrixLookup:
         Then it returns an empty dict and the public lookup returns []
              instead of raising
         """
-        from tome.channels import triz
 
         def _raise_missing(*_args: object, **_kwargs: object) -> object:
             raise FileNotFoundError("simulated missing vendored data file")
@@ -906,8 +906,6 @@ class TestCanonicalMatrixLookup:
         When the matrix loader parses it with a cleared cache
         Then the valid row loads and the malformed row is ignored
         """
-        from tome.channels import triz
-
         csv_text = (
             "improving_parameter,worsening_parameter,recommended_principles\n"
             "1,2,1;8;15\n"
@@ -927,6 +925,58 @@ class TestCanonicalMatrixLookup:
         assert triz._load_canonical_matrix() == {(1, 2): [1, 8, 15]}
 
     @pytest.mark.unit
+    def test_in_range_max_index_returns_a_list(self) -> None:
+        """
+        Scenario: improving=39, worsening=39 is in range and never raises
+        Given the boundary index 39 (the last valid engineering parameter)
+        When lookup_canonical_principles is called
+        Then it returns a list (empty or populated), not an error
+        """
+        result = lookup_canonical_principles(39, 39)
+        assert isinstance(result, list)
+
+    @pytest.mark.unit
+    def test_index_40_is_out_of_range(self) -> None:
+        """
+        Scenario: index 40 is just past the 39-parameter matrix boundary
+        Given improving=40 or worsening=40
+        When lookup_canonical_principles is called
+        Then it returns [] without raising (the off-by-one boundary)
+        """
+        assert lookup_canonical_principles(40, 1) == []
+        assert lookup_canonical_principles(1, 40) == []
+        assert lookup_canonical_principles(40, 40) == []
+
+    @pytest.mark.unit
+    def test_loader_skips_rows_missing_a_column(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Scenario: A CSV whose header omits a required column hits the KeyError
+        arm of the malformed-row guard and drops every row, not raising
+        Given a matrix CSV with no recommended_principles column
+        When the matrix loader parses it with a cleared cache
+        Then row["recommended_principles"] raises KeyError per row, each row
+             is skipped, and the matrix is empty
+        """
+        csv_text = (
+            "improving_parameter,worsening_parameter\n"  # missing principles column
+            "1,2\n"
+        )
+
+        class _FakeResource:
+            def joinpath(self, _name: str) -> _FakeResource:
+                return self
+
+            def read_text(self, encoding: str = "utf-8") -> str:
+                return csv_text
+
+        monkeypatch.setattr(triz, "_CANONICAL_MATRIX_CACHE", None)
+        monkeypatch.setattr(triz.resources, "files", lambda *_a, **_k: _FakeResource())
+
+        assert triz._load_canonical_matrix() == {}
+
+    @pytest.mark.unit
     def test_loader_skips_malformed_principles_cell(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -938,8 +988,6 @@ class TestCanonicalMatrixLookup:
         Then the valid row loads and the malformed row is ignored, honoring
              the documented "degrades gracefully rather than raising" contract
         """
-        from tome.channels import triz
-
         csv_text = (
             "improving_parameter,worsening_parameter,recommended_principles\n"
             "1,2,1;8;15\n"

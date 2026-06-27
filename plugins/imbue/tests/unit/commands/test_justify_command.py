@@ -6,6 +6,7 @@ and integration with the justify skill for additive bias detection.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -184,8 +185,6 @@ class TestJustifyCommandIntegration:
     @pytest.fixture
     def plugin_json(self) -> dict:
         """Load plugin.json."""
-        import json
-
         path = Path(__file__).parents[3] / ".claude-plugin" / "plugin.json"
         with path.open() as f:
             return json.load(f)

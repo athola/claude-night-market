@@ -146,10 +146,10 @@ the workflow runs. They map common pasted shapes (Python tracebacks, Rust
 compiler diagnostics, pytest output, JSON parse errors, frontend console
 output, build logs, etc.) to a triage record.
 
-```text
-TODO(user): Fill in 5-10 lines of classification rules for the failure shapes
-you paste most often. Each rule should produce a triage record with:
+This is a customization point: tune the rules below to the failure shapes
+you paste most often. Each rule produces a triage record with:
 
+```text
   failure_type:    one of [compile, type, test, runtime, output, hang, resource, behavior]
   language:        e.g., python | rust | typescript | go | shell | unknown
   framework:       e.g., pytest | cargo | tsc | jest | unknown
@@ -157,7 +157,7 @@ you paste most often. Each rule should produce a triage record with:
   scope_signals:   counts for the table in 1.2
   red_test_hint:   one-sentence shape of the failing test to write in step 5
 
-Example rule (delete and replace with your own):
+Starter rules (usable as-is; extend with the shapes you paste most):
 
   if input matches /Traceback \(most recent call last\)/:
       failure_type = "runtime"
@@ -165,6 +165,20 @@ Example rule (delete and replace with your own):
       framework    = detect_from_paths(artifacts.files)
       red_test_hint = "call <last_user_frame_function> with the inputs from the
                        traceback; assert it does not raise <exception_type>."
+
+  if input matches /error\[E\d{4}\]/:
+      failure_type = "compile"
+      language     = "rust"
+      framework    = "cargo"
+      red_test_hint = "construct the value the borrow checker rejected; assert it
+                       compiles and returns the expected type."
+
+  if input matches /FAILED .+::.+ - assert/:
+      failure_type = "test"
+      language     = "python"
+      framework    = "pytest"
+      red_test_hint = "isolate the failing assertion; assert the value the test
+                       expects, then watch it go red before fixing."
 
 Add rules for the formats you actually paste. Do not add rules for shapes
 you have never seen; speculative coverage is bloat. Three to five solid

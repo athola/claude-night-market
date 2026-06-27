@@ -22,6 +22,8 @@ from scribe.spelling import (
     to_american,
 )
 
+from scribe import spelling
+
 # ---------------------------------------------------------------------------
 # load_spelling_map
 # ---------------------------------------------------------------------------
@@ -48,6 +50,69 @@ def test_map_is_not_circular() -> None:
     keys = set(mapping)
     for american in mapping.values():
         assert american not in keys, f"value {american!r} is also a key"
+
+
+# ---------------------------------------------------------------------------
+# load_spelling_map: error branches (issue #569)
+# ---------------------------------------------------------------------------
+
+
+def test_load_raises_on_empty_data(monkeypatch) -> None:
+    """An empty or typo'd data file must fail loudly, not silently disable.
+
+    Treating an empty map as valid quietly turns the whole normalization
+    feature into a no-op; a missing/empty bundled file is a packaging bug.
+    """
+    monkeypatch.setattr(spelling, "_MAP_CACHE", None)
+    monkeypatch.setattr(spelling, "_REGEX_CACHE", None)
+    monkeypatch.setattr(spelling.yaml, "safe_load", lambda *_a, **_k: None)
+    with pytest.raises(ValueError, match="empty|unparseable"):
+        spelling.load_spelling_map()
+
+
+def test_load_raises_when_mappings_empty(monkeypatch) -> None:
+    """A file that parses but carries no entries is equally unusable."""
+    monkeypatch.setattr(spelling, "_MAP_CACHE", None)
+    monkeypatch.setattr(spelling, "_REGEX_CACHE", None)
+    monkeypatch.setattr(spelling.yaml, "safe_load", lambda *_a, **_k: {"mappings": {}})
+    with pytest.raises(ValueError, match="no entries|empty"):
+        spelling.load_spelling_map()
+
+
+def test_load_raises_when_file_missing(monkeypatch, tmp_path) -> None:
+    """A missing data file surfaces FileNotFoundError (loader error branch)."""
+    monkeypatch.setattr(spelling, "_MAP_CACHE", None)
+    monkeypatch.setattr(spelling, "_REGEX_CACHE", None)
+    monkeypatch.setattr(spelling, "DATA_FILE", tmp_path / "does_not_exist.yaml")
+    with pytest.raises(FileNotFoundError):
+        spelling.load_spelling_map()
+
+
+def test_load_raises_without_pyyaml(monkeypatch) -> None:
+    """When pyyaml is unavailable the loader raises a clear ImportError."""
+    monkeypatch.setattr(spelling, "_MAP_CACHE", None)
+    monkeypatch.setattr(spelling, "_REGEX_CACHE", None)
+    monkeypatch.setattr(spelling, "yaml", None)
+    with pytest.raises(ImportError, match="pyyaml"):
+        spelling.load_spelling_map()
+
+
+def test_find_reports_column_for_midline_match() -> None:
+    """The 1-based column points at the match start, not the line start."""
+    # "The colour" -> 'colour' starts at index 4, so column is 5 (1-based).
+    findings = find_british_spellings("The colour scheme.")
+    assert len(findings) == 1
+    assert findings[0]["column"] == 5
+    assert findings[0]["line"] == 1
+
+
+def test_find_reports_column_on_later_line() -> None:
+    """Column arithmetic is relative to the current line, not the document."""
+    findings = find_british_spellings("first line\n  colour here\n")
+    assert len(findings) == 1
+    # 'colour' is preceded by two spaces on line 2 -> column 3.
+    assert findings[0]["line"] == 2
+    assert findings[0]["column"] == 3
 
 
 # ---------------------------------------------------------------------------

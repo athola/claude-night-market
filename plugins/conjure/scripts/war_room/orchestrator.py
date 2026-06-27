@@ -8,12 +8,14 @@ Note: Uses asyncio.create_subprocess_exec (safe, no shell injection).
 from __future__ import annotations
 
 import asyncio
+import functools
 import subprocess  # nosec B404 - Used safely with create_subprocess_exec (no shell)
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from scripts.war_room import experts as _experts_mod
+from scripts.war_room.config import CLAUDE_HAIKU_45
 from scripts.war_room.delphi import (
     compute_convergence,
     convene_delphi,
@@ -190,7 +192,7 @@ class WarRoomOrchestrator:
             result = await self._invoke_external(expert, prompt)
         else:
             # Fallback to Haiku
-            actual_model = "claude-haiku-3"
+            actual_model = CLAUDE_HAIKU_45
             notice = (
                 f"{expert.role} ({expert.model}) unavailable, using Haiku as fallback"
             )
@@ -306,63 +308,31 @@ class WarRoomOrchestrator:
                 output[key] = str(result)
         return output
 
-    # --- Phase forwarders (thin wrappers kept for test patching compatibility) ---
-
-    async def _phase_intel(
-        self, session: WarRoomSession, context_files: list[str] | None
-    ) -> None:
-        """Forward to module-level phase_intel."""
-        await phase_intel(self, session, context_files)
-
-    async def _phase_assessment(self, session: WarRoomSession) -> None:
-        """Forward to module-level phase_assessment."""
-        await phase_assessment(self, session)
-
-    async def _phase_coa_development(self, session: WarRoomSession) -> None:
-        """Forward to module-level phase_coa_development."""
-        await phase_coa_development(self, session)
-
-    async def _phase_red_team(self, session: WarRoomSession) -> None:
-        """Forward to module-level phase_red_team."""
-        await phase_red_team(self, session)
-
-    async def _phase_voting(self, session: WarRoomSession) -> None:
-        """Forward to module-level phase_voting."""
-        await phase_voting(self, session)
-
-    async def _phase_premortem(self, session: WarRoomSession) -> None:
-        """Forward to module-level phase_premortem."""
-        await phase_premortem(self, session)
-
-    async def _phase_synthesis(self, session: WarRoomSession) -> None:
-        """Forward to module-level phase_synthesis."""
-        await phase_synthesis(self, session)
-
-    async def _should_escalate(self, session: WarRoomSession) -> bool:
-        """Forward to module-level should_escalate."""
-        return await should_escalate(session)
-
-    async def _escalate(
-        self, session: WarRoomSession, context_files: list[str] | None = None
-    ) -> None:
-        """Forward to module-level escalate."""
-        await escalate(self, session, context_files)
-
-    def _compute_convergence(self, session: WarRoomSession) -> float:
-        """Forward to module-level compute_convergence."""
-        return compute_convergence(session)
-
-    async def _delphi_revision_round(
-        self, session: WarRoomSession, round_number: int
-    ) -> None:
-        """Forward to module-level delphi_revision_round."""
-        await delphi_revision_round(self, session, round_number)
-
-    def _compute_borda_scores(
-        self, votes: dict[str, str], coa_labels: list[str]
-    ) -> dict[str, int]:
-        """Forward to module-level compute_borda_scores."""
-        return compute_borda_scores(votes, coa_labels)
+    def __getattr__(self, name: str) -> Any:
+        """Delegate phase and utility method lookups to module-level functions."""
+        _orch_bound: dict[str, Any] = {
+            "_phase_intel": phase_intel,
+            "_phase_assessment": phase_assessment,
+            "_phase_coa_development": phase_coa_development,
+            "_phase_red_team": phase_red_team,
+            "_phase_voting": phase_voting,
+            "_phase_premortem": phase_premortem,
+            "_phase_synthesis": phase_synthesis,
+            "_escalate": escalate,
+            "_delphi_revision_round": delphi_revision_round,
+        }
+        _plain: dict[str, Any] = {
+            "_should_escalate": should_escalate,
+            "_compute_convergence": compute_convergence,
+            "_compute_borda_scores": compute_borda_scores,
+        }
+        if name in _orch_bound:
+            return functools.partial(_orch_bound[name], self)
+        if name in _plain:
+            return _plain[name]
+        raise AttributeError(
+            f"{type(self).__name__!r} object has no attribute {name!r}"
+        )
 
     # --- Persistence delegations ---
 

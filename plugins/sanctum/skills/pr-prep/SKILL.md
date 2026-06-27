@@ -18,7 +18,6 @@ modules:
 - quality-gates.md
 - pr-template.md
 dependencies:
-- sanctum:shared
 - sanctum:git-workspace-review
 - imbue:proof-of-work
 - imbue:justify
@@ -167,3 +166,17 @@ Do not include tool or AI attribution in the PR text. If changes are required mi
 ## Troubleshooting
 
 If project-specific commands like `make` or `npm` are unavailable, verify the environment setup against the `README`. For permission errors, check write access to build directories. If a step fails without clear output, retry the command with verbose flags to inspect the logs.
+
+## Exit Criteria
+
+- [ ] All 7 TodoWrite items (`pr-prep:workspace-reviewed` through
+      `pr-prep:content-verified`) are marked complete before the
+      skill declares done
+- [ ] Quality gates (formatting, linting, tests) run and pass; any
+      failure is fixed before proceeding, not skipped
+- [ ] PR description file written to the specified path and its
+      contents displayed for confirmation
+- [ ] Additive bias score from `imbue:justify` is GREEN, or YELLOW
+      with each flagged signal explicitly justified
+- [ ] PR description contains none of the tier-1 slop words (delve,
+      comprehensive, leverage, robust, seamless, etc.)

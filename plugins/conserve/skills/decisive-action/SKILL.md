@@ -180,3 +180,18 @@ Combine with:
 | "Optimize query" | **Ask** if multiple approaches |
 | "Format code" | **Proceed** with project style |
 | "Deploy to prod" | **Ask** for confirmation |
+
+## Exit Criteria
+
+- [ ] Every proposed autonomous action checked against the Decision
+  Matrix: reversibility and ambiguity axes produce an explicit
+  "Proceed", "Proceed with preview", or "Ask" verdict
+- [ ] Irreversible operations (destructive deletes, data migrations,
+  breaking changes) never executed without at least one clarifying
+  question regardless of apparent intent clarity
+- [ ] When proceeding autonomously, one of the four safety mechanisms
+  is applied: dry-run/preview, backup, incremental commits, or
+  documented assumptions in the commit message
+- [ ] No clarifying question asked for scenarios in the "Default to
+  Action" table where standard approach exists and changes are
+  easily reversible via git

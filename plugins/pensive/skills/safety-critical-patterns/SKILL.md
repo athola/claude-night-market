@@ -15,7 +15,6 @@ complexity: intermediate
 model_hint: standard
 estimated_tokens: 600
 dependencies:
-- pensive:shared
 - pensive:code-refinement
 - imbue:review-core
 - imbue:structured-output

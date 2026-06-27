@@ -34,6 +34,7 @@ __all__ = [
     "HEAVY_PARAMETRIZE_THRESHOLD",
     "MIN_FUNCTIONS_FOR_PARAMETRIZE",
     "TestingGuideSkill",
+    "analyze_testing",
 ]
 
 
@@ -81,3 +82,12 @@ class TestingGuideSkill(TestStructureMixin):
         self, code: str, _tree: ast.Module | None = None
     ) -> dict[str, Any]:
         return _recommendations.generate_test_documentation(code, _tree=_tree)
+
+
+async def analyze_testing(code: str) -> dict[str, Any]:
+    """Module-level entry point: analyze test quality for ``code``.
+
+    Delegates to ``TestingGuideSkill().analyze_testing()`` so callers
+    do not need to instantiate the skill directly.
+    """
+    return await TestingGuideSkill().analyze_testing(code)

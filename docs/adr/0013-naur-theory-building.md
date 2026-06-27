@@ -1,7 +1,7 @@
 # ADR-0013: Operationalizing Naur Theory-Building for LLM-Assisted Code
 
 **Date**: 2026-05-06
-**Status**: Proposed (research, not yet adopted)
+**Status**: Superseded by ADR-0017
 **Deciders**: Claude Night Market maintainers
 **Source**: Issue #459, Discussion #448 Pattern 2
 

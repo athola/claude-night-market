@@ -23,7 +23,6 @@ modules:
 - modules/consolidation-integration.md
 - modules/capabilities-sync.md
 dependencies:
-- sanctum:shared
 - sanctum:git-workspace-review
 - imbue:proof-of-work
 - scribe:slop-detector

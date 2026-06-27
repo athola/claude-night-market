@@ -296,3 +296,16 @@ python scripts/palace_manager.py search "authentication" \
 - See `modules/capture-workflow.md` for detailed capture process
 - See `modules/evaluation-criteria.md` for knowledge worth assessment
 - See `modules/search-patterns.md` for query optimization
+
+## Exit Criteria
+
+- [ ] Knowledge detection checklist evaluated for each PR review
+      finding; findings scoring ≥ 60 are captured, < 60 are skipped
+- [ ] Each captured finding is routed to the correct room:
+      `decisions/`, `patterns/`, `standards/`, or `lessons/`
+- [ ] Every capture entry includes `source_pr`, `date`,
+      `palace_location`, and at least one `tag`
+- [ ] Bidirectional links added between the new entry and any related
+      existing palace rooms after capture
+- [ ] `palace_manager.py search "<topic>"` returns the captured entry
+      when queried by its tags or content after storage

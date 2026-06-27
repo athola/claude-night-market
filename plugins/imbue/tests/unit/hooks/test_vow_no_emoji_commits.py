@@ -59,10 +59,10 @@ class TestIsGitCommit:
         """
         Scenario: Correctly identify git commit invocations
         Given a Bash command string
-        When _is_git_commit is called
+        When is_git_commit is called
         Then it returns True only for git commit commands
         """
-        assert hook_module._is_git_commit(command) == expected
+        assert hook_module.is_git_commit(command) == expected
 
 
 class TestHasEmoji:
@@ -128,22 +128,22 @@ class TestShadowMode:
         """
         Scenario: Shadow mode active when VOW_SHADOW_MODE=1
         Given VOW_SHADOW_MODE=1
-        When _shadow_mode is called
+        When shadow_mode_active is called
         Then it returns True
         """
         with patch.dict("os.environ", {"VOW_SHADOW_MODE": "1"}):
-            assert hook_module._shadow_mode() is True
+            assert hook_module.shadow_mode_active() is True
 
     @pytest.mark.unit
     def test_shadow_mode_disabled_by_zero(self, hook_module):
         """
         Scenario: Shadow mode disabled when VOW_SHADOW_MODE=0
         Given VOW_SHADOW_MODE=0
-        When _shadow_mode is called
+        When shadow_mode_active is called
         Then it returns False
         """
         with patch.dict("os.environ", {"VOW_SHADOW_MODE": "0"}):
-            assert hook_module._shadow_mode() is False
+            assert hook_module.shadow_mode_active() is False
 
 
 class TestMainHook:

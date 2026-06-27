@@ -1,7 +1,7 @@
 ---
 name: code-quality-analysis
 description: Shared code quality analysis patterns for review skills
-parent_skill: pensive:shared
+parent_skill: pensive:code-refinement
 category: review-infrastructure
 tags: [code-quality, deduplication, redundancy, analysis, DRY]
 reusable_by: [pensive:code-refinement, pensive:unified-review, sanctum:pr-review, pensive:bug-review]

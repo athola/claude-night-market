@@ -126,7 +126,7 @@ findings to `.review/findings.json` and run
 
 ### Phase 5: Report
 
-Use `pensive:shared` output format templates.
+Use the output-format templates from `pensive:unified-review`.
 
 ```
 === Code Refinement Report ===

@@ -53,7 +53,7 @@ class ExecutionEngine:
 ```bash
 # Standard pattern
 gemini -p "@path/to/file Analyze this code"
-gemini --model gemini-2.5-pro-exp -p "..."
+gemini --model gemini-3-pro -p "..."
 gemini --output-format json -p "..."
 ```
 
@@ -113,7 +113,7 @@ result = delegator.delegate(
     service="gemini",
     prompt="Analyze these files for security issues",
     files=["src/main.py", "src/auth.py"],
-    options={"model": "gemini-2.0-pro-exp"}
+    options={"model": "gemini-3-pro"}
 )
 ```
 

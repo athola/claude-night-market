@@ -94,6 +94,95 @@ async def analyze_complex_scenarios(code: str) -> dict[str, Any]:
     return {"complex_analysis": complex_analysis}
 
 
+def _collect_blocking_issues(
+    blocking: dict[str, Any],
+    missing_await: dict[str, Any],
+) -> list[dict[str, str]]:
+    """Build improvement entries for blocking calls and missing awaits."""
+    issues: list[dict[str, str]] = []
+    if blocking.get("blocking_patterns"):
+        bp = blocking["blocking_patterns"]
+        if "time_sleep" in bp:
+            issues.append(
+                {
+                    "category": "blocking_call",
+                    "issue": "Blocking time.sleep() in async context",
+                    "recommendation": "Use asyncio.sleep() instead",
+                    "code_before": "time.sleep(1)",
+                    "code_after": "await asyncio.sleep(1)",
+                    "explanation": "Use asyncio.sleep() instead of "
+                    "time.sleep() to avoid blocking the event loop",
+                }
+            )
+        if "sync_function_call" in bp:
+            func_name = bp["sync_function_call"].get("function_name", "sync_func")
+            issues.append(
+                {
+                    "category": "blocking_call",
+                    "issue": f"Sync function '{func_name}' called in async",
+                    "recommendation": f"Make '{func_name}' async",
+                    "code_before": f"result = {func_name}()",
+                    "code_after": f"result = await {func_name}()",
+                    "explanation": f"Convert '{func_name}' to an async "
+                    f"function to avoid blocking",
+                }
+            )
+    for func_name in missing_await.get("missing_awaits", []):
+        issues.append(
+            {
+                "category": "missing_await",
+                "issue": f"Missing await in '{func_name}'",
+                "recommendation": "Add await keyword",
+                "code_before": "data = api_call()",
+                "code_after": "data = await api_call()",
+                "explanation": "Add await keyword before async "
+                "function calls to properly wait for the result",
+            }
+        )
+    return issues
+
+
+def _collect_performance_issues(
+    performance: dict[str, Any],
+) -> list[dict[str, str]]:
+    """Build improvement entries for performance anti-patterns."""
+    if not performance.get("performance_analysis", {}).get("issues"):
+        return []
+    return [
+        {
+            "category": "performance",
+            "issue": "Sequential async processing in loop",
+            "recommendation": "Use asyncio.gather()",
+            "code_before": "for item in items:\n    result = await process_item(item)",
+            "code_after": "results = await asyncio.gather("
+            "*[process_item(item) for item in items])",
+            "explanation": "Use asyncio.gather() to process items "
+            "concurrently instead of sequentially",
+        }
+    ]
+
+
+def _collect_race_conditions(
+    race_conditions: dict[str, Any],
+) -> list[dict[str, str]]:
+    """Build improvement entries for race condition risks."""
+    if not race_conditions.get("race_conditions", {}).get(
+        "unsynchronized_shared_state"
+    ):
+        return []
+    return [
+        {
+            "category": "race_condition",
+            "issue": "Shared state without synchronization",
+            "recommendation": "Use asyncio.Lock",
+            "code_before": "self.counter += 1",
+            "code_after": "async with self.lock:\n    self.counter += 1",
+            "explanation": "Protect shared state with asyncio.Lock "
+            "to prevent race conditions",
+        }
+    ]
+
+
 async def suggest_improvements(
     code: str,
     detect_blocking_calls_fn: Any,
@@ -121,81 +210,15 @@ async def suggest_improvements(
     if tree is None:
         return {"improvements": [], **(err or {})}
 
-    improvements: list[dict[str, str]] = []
-
     blocking = await detect_blocking_calls_fn(code, _tree=tree)
     performance = await analyze_performance_fn(code, _tree=tree)
     race_conditions = await detect_race_conditions_fn(code, _tree=tree)
     missing_await = await detect_missing_await_fn(code, _tree=tree)
 
-    if blocking.get("blocking_patterns"):
-        bp = blocking["blocking_patterns"]
-        if "time_sleep" in bp:
-            improvements.append(
-                {
-                    "category": "blocking_call",
-                    "issue": "Blocking time.sleep() in async context",
-                    "recommendation": "Use asyncio.sleep() instead",
-                    "code_before": "time.sleep(1)",
-                    "code_after": "await asyncio.sleep(1)",
-                    "explanation": "Use asyncio.sleep() instead of "
-                    "time.sleep() to avoid blocking the event loop",
-                }
-            )
-        if "sync_function_call" in bp:
-            func_name = bp["sync_function_call"].get("function_name", "sync_func")
-            improvements.append(
-                {
-                    "category": "blocking_call",
-                    "issue": f"Sync function '{func_name}' called in async",
-                    "recommendation": f"Make '{func_name}' async",
-                    "code_before": f"result = {func_name}()",
-                    "code_after": f"result = await {func_name}()",
-                    "explanation": f"Convert '{func_name}' to an async "
-                    f"function to avoid blocking",
-                }
-            )
-
-    if missing_await.get("missing_awaits"):
-        for func_name in missing_await["missing_awaits"]:
-            improvements.append(
-                {
-                    "category": "missing_await",
-                    "issue": f"Missing await in '{func_name}'",
-                    "recommendation": "Add await keyword",
-                    "code_before": "data = api_call()",
-                    "code_after": "data = await api_call()",
-                    "explanation": "Add await keyword before async "
-                    "function calls to properly wait for the result",
-                }
-            )
-
-    if performance.get("performance_analysis", {}).get("issues"):
-        improvements.append(
-            {
-                "category": "performance",
-                "issue": "Sequential async processing in loop",
-                "recommendation": "Use asyncio.gather()",
-                "code_before": "for item in items:\n"
-                "    result = await process_item(item)",
-                "code_after": "results = await asyncio.gather("
-                "*[process_item(item) for item in items])",
-                "explanation": "Use asyncio.gather() to process items "
-                "concurrently instead of sequentially",
-            }
-        )
-
-    if race_conditions.get("race_conditions", {}).get("unsynchronized_shared_state"):
-        improvements.append(
-            {
-                "category": "race_condition",
-                "issue": "Shared state without synchronization",
-                "recommendation": "Use asyncio.Lock",
-                "code_before": "self.counter += 1",
-                "code_after": "async with self.lock:\n    self.counter += 1",
-                "explanation": "Protect shared state with asyncio.Lock "
-                "to prevent race conditions",
-            }
-        )
+    improvements: list[dict[str, str]] = [
+        *_collect_blocking_issues(blocking, missing_await),
+        *_collect_performance_issues(performance),
+        *_collect_race_conditions(race_conditions),
+    ]
 
     return {"improvements": improvements}

@@ -69,3 +69,14 @@ discussions.
 - ``cloud-sdk``: AWS SDK, Google Cloud SDK, or Azure SDK; first-class platform integration
 - ``serverless-framework``: Serverless Framework, SAM, or CDK; declarative function deployment
 - ``IaC-tools``: Terraform, Pulumi, or platform-native IaC for shared infrastructure around functions
+
+## Exit Criteria
+
+- [ ] An ADR documents function triggers, runtime choices, state externalization strategy,
+  cold-start mitigation approach, and cost projections before any function is deployed.
+- [ ] A complete IaC definition (SAM, CDK, Terraform, or equivalent) exists for every function
+  and its supporting infrastructure, enabling repeatable deploys from scratch.
+- [ ] Every function handler is idempotent: repeated execution with the same event produces the
+  same outcome and no duplicate side effects (verified by unit test with replayed inputs).
+- [ ] Observability dashboards cover function duration, error rate, cold-start frequency, and
+  cost per invocation before the function reaches production traffic.

@@ -123,3 +123,19 @@ will fail with a hash mismatch. This is your strongest automatic defense.
   are the only automatic defense during the attack window
 - Safety/CVE databases lag behind real-world compromises
 - OSV provides broader coverage but is still reactive
+
+## Exit Criteria
+
+- [ ] `${CLAUDE_SKILL_DIR}/known-bad-versions.json` checked against
+  all lockfiles in scope; any match reported with package name,
+  bad version, severity, and advisory URL
+- [ ] When a new known-bad entry is added: version exclusion
+  (`!=x.y.z`) added to the affected `pyproject.toml`, entry
+  documented in `docs/dependency-audit.md`, and
+  `make supply-chain-scan` run to confirm detection works
+- [ ] `uv.lock` SHA256 hash integrity verified; `uv sync` failure
+  on hash mismatch surfaces as an explicit supply-chain warning
+  rather than a generic install error
+- [ ] Artifact scan checks for malicious file patterns (`.pth`
+  files, unexpected scripts) in virtualenv paths before the
+  session proceeds

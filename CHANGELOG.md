@@ -5,6 +5,75 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.13] - 2026-06-25
+
+A code-quality and hardening release: refactors that split
+god-class CLIs and collapse multi-pass algorithms, narrowed
+exception handling across the ecosystem, and two small features.
+
+### Added
+
+- **attune: language templates for init simplification.**
+  Per-language project templates with test coverage
+  (ATT-002/003/005).
+- **conserve: garbage collection for the CCR context-archive.**
+  Prunes stale `ccr-<hash>.txt` entries so the reversible
+  compression archive does not grow without bound.
+
+### Changed
+
+- **Split god-class CLIs into focused helpers.** Across sanctum,
+  conjure, parseltongue, and conserve, large `main()` functions
+  and multi-responsibility classes were decomposed. conjure's
+  `WarRoomOrchestrator` drops 14 forwarder methods via
+  `__getattr__` delegation, and sanctum's `consolidation_planner`
+  `main()` splits into a parser builder plus three handlers.
+- **Collapsed multi-pass algorithms to single-pass.** conjure's
+  Borda count is now O(n log n) via a score dict, memory-palace
+  `get_statistics` accumulates in one pass, and gauntlet's FTS
+  sanitizer uses a compiled `re.sub` instead of a char-by-char
+  scan.
+- **Removed dead code and redundant aliases.** Dropped the unused
+  Jaccard fallback in memory-palace's `SemanticDeduplicator` and
+  the attribute aliases in abstract's skills-eval classes.
+- **tome: research-grounded TRIZ and ideation skills.**
+  `triz-analyst` and `tome:triz` SKILL.md incorporate S-curve
+  evolutionary stage analysis for the IFR step (mature systems
+  get a next-generation IFR) and Function-Oriented Search (FOS)
+  for deep/maximum depths. Sources extended with TRIZ Agents
+  (arXiv 2506.18783, 2025) and Innovation Paradox (Shi et al.,
+  Design Science 2024; 31% originality decline across 4M+ patents
+  supports the diversity-by-selection framing in `tome:ideate`).
+- **scribe: research-grounded slop detection weights.**
+  `slop-detector` modules calibrated against an empirical baseline
+  from 23k posts across 55 subreddits (2020-2026):
+  boilerplate/tutorial-shaped code leads at 18.6%, hallucinated
+  APIs at 11.2%. New detectors cover sycophancy boilerplate,
+  reader sycophancy, and triad patterns. Data table mirrored in
+  `conserve:ai-hygiene-auditor` for agent-level visibility.
+
+### Fixed
+
+- **Narrowed bare `except Exception` handlers across the
+  ecosystem.** pensive, memory-palace, leyline, gauntlet, conjure,
+  sanctum, and hookify now catch specific exception types so real
+  errors surface instead of being swallowed.
+- **pensive: restored multi-hit integer-overflow detection.** A
+  `break` halted the scan after the first hit (PEN-013).
+- **conserve: raise instead of `sys.exit`** so callers can handle
+  file errors (CON-008).
+- **imbue: repaired the `vow_bounded_reads` hook output schema.**
+- **spec-kit: category-prefix cache invalidation** in
+  `CacheManager` (SML-004).
+- **Surfaced silent failures B1-B4** from PR #521.
+
+### Performance
+
+- **tome: skip cross-channel pair enumeration** when
+  `cross_channel=False`.
+- **sanctum: cache test-file content** to avoid a double read per
+  checker.
+
 ## [1.9.12] - 2026-06-18
 
 ### Added

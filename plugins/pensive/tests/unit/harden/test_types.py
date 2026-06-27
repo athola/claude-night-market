@@ -22,7 +22,7 @@ from pensive.harden.types import Citation, Finding, Severity
 
 class TestFindingContract:
     def test_finding_dataclass_importable(self) -> None:
-        from pensive.harden.types import Finding  # noqa: F401 - import is the assertion
+        assert Finding.__name__ == "Finding"
 
     def test_severity_literal_matches_skill_md(self) -> None:
         """Severity must match the SKILL.md classification:

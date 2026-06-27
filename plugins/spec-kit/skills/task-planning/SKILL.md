@@ -109,3 +109,17 @@ For fan-out/fan-in patterns, task ID conventions, and validation rules, see `mod
 
 - `spec-writing`: Creating source specifications
 - `speckit-orchestrator`: Workflow coordination
+
+## Exit Criteria
+
+- [ ] Every task has a unique ID in `TASK-NNN` format and includes
+      Description, Phase (0-4), Dependencies list, Parallel marker
+      (`[P]` or sequential), Files, and Criteria fields
+- [ ] Tasks marked `[P]` pass all 5 nonconflicting criteria: no file
+      overlap, no shared state, dependencies satisfied, no merge
+      conflicts possible, no output dependency on each other
+- [ ] Every functional requirement from the source spec is mapped to
+      at least one task; unmapped requirements are flagged
+- [ ] Quality checklist passes all items before output is finalized
+- [ ] Tasks within each phase are ordered so that no task depends on
+      one with a higher task number within the same phase

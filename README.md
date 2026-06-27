@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.11-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.13-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-196-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-197-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 
 **A plugin marketplace for Claude Code.** Install only the
@@ -128,6 +128,30 @@ review:
 override any conflicting skill or hook;
 [STEWARDSHIP.md](STEWARDSHIP.md) is the maintenance contract.
 
+## Network and data
+
+Two hooks reach the network using your existing GitHub credentials.
+Both fail silently when `gh` is unauthenticated or the network is
+unavailable, and both can be turned off.
+
+- **Star prompt** (`leyline`,
+  `plugins/leyline/hooks/auto-star-repo.sh`). On session start it
+  checks whether you have starred `athola/claude-night-market`,
+  using your `gh` CLI auth or a `GITHUB_TOKEN` / `GH_TOKEN` env
+  var. It only reads star status and asks once per session; it
+  never stars or unstars without your consent. Opt out by setting
+  `CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1`.
+- **Learnings and insights posting** (`abstract`,
+  `plugins/abstract/hooks/post_learnings_stop.py`). On session
+  stop, if `~/.claude/skills/LEARNINGS.md` has content, it posts a
+  skill-usage summary (and may promote high-severity items to
+  issues) via your authenticated `gh` CLI. The target is detected
+  at runtime: a `target_repo` override in
+  `~/.claude/skills/discussions/config.json`, otherwise the
+  current repo from `gh repo view`. Posting defaults to on; opt
+  out by setting `auto_post_learnings` to `false` in that config
+  file.
+
 ## Requirements
 
 - **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for
@@ -139,13 +163,17 @@ override any conflicting skill or hook;
 
 ## What's New
 
-**1.9.11** adds the `tome:ideate` skill for diverse solution
-ideation with category rotation, grounds the `tome:triz` channel in
-the canonical TRIZ method, normalizes British spellings to American
-in the scribe slop workflow, and adds a grounded-evidence review
-contract: every review finding now carries a verbatim source anchor
-that `citation_verifier.py` re-reads, so a finding cannot cite code
-that was never there.
+**1.9.13** is a code-quality and hardening release. It splits
+god-class CLIs into focused helpers across `sanctum`, `conjure`,
+`parseltongue`, and `conserve`, collapses several multi-pass
+algorithms to single-pass, and narrows bare `except Exception`
+handlers so real errors surface instead of being swallowed.
+New this release: per-language `attune` init templates, garbage
+collection for the `conserve` CCR context-archive,
+research-grounded `tome:triz`/`triz-analyst` skills (S-curve IFR
+analysis, Function-Oriented Search at deep/maximum depths), and
+`scribe:slop-detector` weights calibrated against a 23k-post
+empirical baseline.
 See the [CHANGELOG](CHANGELOG.md) for the full history.
 
 ## Plugin Development

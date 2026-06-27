@@ -54,10 +54,6 @@ class ImprovementSuggester:
     def __init__(self, skills_dir: Path) -> None:
         """Initialize the improvement suggester."""
         self.skills_dir = skills_dir
-        # Deprecated: use skills_dir directly
-        self.skills_root = skills_dir  # Add alias for compatibility
-        # Deprecated: use skills_dir directly
-        self.skill_root = skills_dir  # Add alias for test compatibility
 
     def _read_skill_content(self, skill_name: str) -> str | None:
         """Read the content of a skill's SKILL.md file.

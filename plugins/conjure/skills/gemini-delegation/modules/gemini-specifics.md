@@ -4,9 +4,8 @@
 
 | Model | Use Case | Context |
 |-------|----------|---------|
-| `gemini-2.5-flash-exp` | Fast, simple tasks | Up to 1M tokens |
-| `gemini-2.5-pro-exp` | Complex analysis | Up to 1M tokens |
-| `gemini-exp-1206` | Experimental features | Varies |
+| `gemini-3-flash` | Fast, simple tasks | Up to 1M tokens |
+| `gemini-3-pro` | Complex analysis | Up to 1M tokens |
 
 ## CLI Options
 
@@ -31,7 +30,7 @@
 
 ### Rate Limit (HTTP 429)
 - Free tier: ~60 RPM, ~1000 requests/day
-- Consider `gemini-2.5-flash` to reduce RPM usage
+- Consider `gemini-3-flash` to reduce RPM usage
 - Use `~/conjure/hooks/gemini/status.sh` for quick check
 
 ### Context Too Large

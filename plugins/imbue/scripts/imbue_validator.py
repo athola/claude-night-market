@@ -74,6 +74,91 @@ logger = logging.getLogger(__name__)
 # Constants
 FRONTMATTER_PARTS_COUNT = 3  # Expected parts when splitting by '---'
 
+_EVIDENCE_LOGGING_PATTERNS: tuple[str, ...] = (
+    "review-workflows",
+    "evidence-logging",
+    "structured-output",
+    "workflow-orchestration",
+)
+
+
+def _classify_skills(
+    skill_files: list[Path],
+) -> tuple[set[str], set[str], list[str], dict[str, str]]:
+    """Returns (skills_found, review_workflow_skills, scan_issues, content_map)."""
+    skills_found: set[str] = set()
+    review_workflow_skills: set[str] = set()
+    scan_issues: list[str] = []
+    content_map: dict[str, str] = {}
+
+    for skill_file in skill_files:
+        skill_name = skill_file.parent.name
+        skills_found.add(skill_name)
+
+        try:
+            content = skill_file.read_text()
+        except (OSError, UnicodeDecodeError) as e:
+            scan_issues.append(f"{skill_name}: Unable to read {skill_file}: {e}")
+            continue
+
+        content_map[skill_name] = content
+
+        frontmatter = None
+        if content.startswith("---"):
+            parts = content.split("---", 2)
+            if len(parts) >= FRONTMATTER_PARTS_COUNT:
+                frontmatter = parts[1]
+
+        if frontmatter:
+            has_review_category = re.search(
+                r"^\s*category:\s*review-patterns\b",
+                frontmatter,
+                re.MULTILINE,
+            )
+            has_review_usage = re.search(
+                r"^\s*-\s*review-workflow\b",
+                frontmatter,
+                re.MULTILINE,
+            )
+            if has_review_category or has_review_usage:
+                review_workflow_skills.add(skill_name)
+
+    return skills_found, review_workflow_skills, scan_issues, content_map
+
+
+def _check_evidence_patterns(
+    skill_data: tuple[str, str],
+    patterns: list[str],
+) -> list[str]:
+    """Returns validation issue strings for a single skill."""
+    skill_name, content = skill_data
+    issues: list[str] = []
+
+    if skill_name == "review-core":
+        review_components = [
+            r"checklist",
+            r"deliverable",
+            r"evidence",
+            r"structured",
+            r"workflow",
+        ]
+        missing_components = [
+            component
+            for component in review_components
+            if not re.search(component, content, re.IGNORECASE)
+        ]
+        if missing_components:
+            missing_str = ", ".join(missing_components)
+            issues.append(f"{skill_name}: Missing review components: {missing_str}")
+
+    has_evidence = any(
+        re.search(pattern, content, re.IGNORECASE) for pattern in patterns
+    )
+    if not has_evidence and skill_name != "review-core":
+        issues.append(f"{skill_name}: Should have evidence logging patterns")
+
+    return issues
+
 
 class ImbueValidationResult(TypedDict):
     """Result of imbue plugin validation."""
@@ -166,13 +251,10 @@ class ImbueValidator:
         self,
     ) -> tuple[ImbueValidationResult, list[str]]:
         """Run the actual scan and validation pass."""
-        skills_found: set[str] = set()
-        review_workflow_skills: set[str] = set()
         evidence_logging_patterns: set[str] = set()
         scan_issues: list[str] = []
         validation_issues: list[str] = []
 
-        # Load plugin configuration
         if self.plugin_config.exists():
             try:
                 plugin_config_content = self.plugin_config.read_text()
@@ -184,88 +266,25 @@ class ImbueValidator:
             except json.JSONDecodeError as e:
                 scan_issues.append(f"Invalid plugin.json at line {e.lineno}: {e.msg}")
             else:
-                evidence_logging_patterns.add("review-workflows")
-                evidence_logging_patterns.add("evidence-logging")
-                evidence_logging_patterns.add("structured-output")
-                evidence_logging_patterns.add("workflow-orchestration")
+                evidence_logging_patterns.update(_EVIDENCE_LOGGING_PATTERNS)
 
-        for skill_file in self.skill_files:
-            skill_name = skill_file.parent.name
-            skills_found.add(skill_name)
+        skills_found, review_workflow_skills, classify_issues, content_map = (
+            _classify_skills(self.skill_files)
+        )
+        scan_issues.extend(classify_issues)
 
-            try:
-                content = skill_file.read_text()
-            except (OSError, UnicodeDecodeError) as e:
-                scan_issues.append(f"{skill_name}: Unable to read {skill_file}: {e}")
-                continue
-
-            # --- Scan phase: classify skill ---
-            frontmatter = None
-            if content.startswith("---"):
-                parts = content.split("---", 2)
-                if len(parts) >= FRONTMATTER_PARTS_COUNT:
-                    frontmatter = parts[1]
-
-            is_review_skill = False
-            if frontmatter:
-                has_review_category = re.search(
-                    r"^\s*category:\s*review-patterns\b",
-                    frontmatter,
-                    re.MULTILINE,
-                )
-                has_review_usage = re.search(
-                    r"^\s*-\s*review-workflow\b",
-                    frontmatter,
-                    re.MULTILINE,
-                )
-                if has_review_category or has_review_usage:
-                    review_workflow_skills.add(skill_name)
-                    is_review_skill = True
-
-            if not is_review_skill:
-                review_pattern = re.compile(
-                    r"workflow|evidence|structured|output|orchestrat|checklist|deliverable",
-                    re.IGNORECASE,
-                )
-                if review_pattern.search(content):
-                    review_workflow_skills.add(skill_name)
-
-            # --- Validate phase: check review workflow compliance ---
-            if skill_name == "review-core":
-                review_components = [
-                    r"checklist",
-                    r"deliverable",
-                    r"evidence",
-                    r"structured",
-                    r"workflow",
-                ]
-                missing_components = [
-                    component
-                    for component in review_components
-                    if not re.search(component, content, re.IGNORECASE)
-                ]
-                if missing_components:
-                    missing_str = ", ".join(missing_components)
-                    validation_issues.append(
-                        f"{skill_name}: Missing review components: {missing_str}"
-                    )
-
-            evidence_patterns = [
-                r"log",
-                r"track",
-                r"record",
-                r"document",
-                r"capture",
-                r"evidence",
-            ]
-            has_evidence = any(
-                re.search(pattern, content, re.IGNORECASE)
-                for pattern in evidence_patterns
+        evidence_patterns = [
+            r"log",
+            r"track",
+            r"record",
+            r"document",
+            r"capture",
+            r"evidence",
+        ]
+        for skill_name, content in content_map.items():
+            validation_issues.extend(
+                _check_evidence_patterns((skill_name, content), evidence_patterns)
             )
-            if not has_evidence and skill_name not in ["review-core"]:
-                validation_issues.append(
-                    f"{skill_name}: Should have evidence logging patterns"
-                )
 
         scan_result = ImbueValidationResult(
             skills_found=skills_found,

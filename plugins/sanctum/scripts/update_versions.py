@@ -57,43 +57,44 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
                 try:
                     if "__version__" not in file.read_text(encoding="utf-8"):
                         continue
-                except Exception:
+                except (OSError, UnicodeDecodeError) as exc:
+                    print(
+                        f"[update_versions] cannot read {file}: {exc}",
+                        file=sys.stderr,
+                    )
                     continue
             version_files.append(file)
 
     return sorted(version_files)
 
 
+def update_version_field(
+    content: str, field: str, new_version: str, *, json_style: bool = False
+) -> str:
+    """Replace a semver string for the given field name.
+
+    Handles two common file formats:
+    - TOML (json_style=False): ``field = "MAJOR.MINOR.PATCH"`` line-anchored
+    - JSON  (json_style=True):  ``"field": "MAJOR.MINOR.PATCH"``
+    """
+    semver_pat = "[0-9]+\\.[0-9]+\\.[0-9]+"
+    if json_style:
+        pattern = rf'"{re.escape(field)}"\s*:\s*"{semver_pat}"'
+        replacement = f'"{field}": "{new_version}"'
+        return re.sub(pattern, replacement, content)
+    pattern = rf'^{re.escape(field)}\s*=\s*"{semver_pat}"'
+    replacement = f'{field} = "{new_version}"'
+    return re.sub(pattern, replacement, content, flags=re.MULTILINE)
+
+
 def update_pyproject_version(content: str, new_version: str) -> str:
-    """Update version in pyproject.toml content."""
-    # Match: version = "1.2.3"
-    pattern = r'^version\s*=\s*"[0-9]+\.[0-9]+\.[0-9]+"'
-    replacement = f'version = "{new_version}"'
-    return re.sub(pattern, replacement, content, flags=re.MULTILINE)
-
-
-def update_cargo_version(content: str, new_version: str) -> str:
-    """Update version in Cargo.toml content."""
-    # Match: version = "1.2.3"
-    pattern = r'^version\s*=\s*"[0-9]+\.[0-9]+\.[0-9]+"'
-    replacement = f'version = "{new_version}"'
-    return re.sub(pattern, replacement, content, flags=re.MULTILINE)
+    """Update version in TOML content (pyproject.toml, Cargo.toml, etc.)."""
+    return update_version_field(content, "version", new_version)
 
 
 def update_package_json_version(content: str, new_version: str) -> str:
-    """Update version in package.json content."""
-    # Match: "version": "1.2.3"
-    pattern = r'"version"\s*:\s*"[0-9]+\.[0-9]+\.[0-9]+"'
-    replacement = f'"version": "{new_version}"'
-    return re.sub(pattern, replacement, content)
-
-
-def update_plugin_json_version(content: str, new_version: str) -> str:
-    """Update version in plugin.json or marketplace.json content."""
-    # Match: "version": "1.2.3"
-    pattern = r'"version"\s*:\s*"[0-9]+\.[0-9]+\.[0-9]+"'
-    replacement = f'"version": "{new_version}"'
-    return re.sub(pattern, replacement, content)
+    """Update version in JSON content (package.json, plugin.json, etc.)."""
+    return update_version_field(content, "version", new_version, json_style=True)
 
 
 def update_init_py_version(content: str, new_version: str) -> str:
@@ -123,11 +124,11 @@ def update_version_file(
         if file_path.name == "pyproject.toml":
             content = update_pyproject_version(content, new_version)
         elif file_path.name == "Cargo.toml":
-            content = update_cargo_version(content, new_version)
+            content = update_pyproject_version(content, new_version)
         elif file_path.name == "package.json":
             content = update_package_json_version(content, new_version)
         elif file_path.name in ("plugin.json", "metadata.json", "marketplace.json"):
-            content = update_plugin_json_version(content, new_version)
+            content = update_package_json_version(content, new_version)
         elif file_path.name == "__init__.py":
             content = update_init_py_version(content, new_version)
         elif file_path.name == "openpackage.yml":

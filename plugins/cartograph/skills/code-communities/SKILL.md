@@ -101,3 +101,16 @@ file-based grouping otherwise.
 | IMPORTS_FROM | 0.5 |
 | TESTED_BY | 0.4 |
 | CONTAINS | 0.3 |
+
+## Exit Criteria
+
+- [ ] Community table rendered with columns Community, Nodes, Cohesion,
+      and Description for each detected cluster
+- [ ] Coupling warning surfaced for any pair of communities with more
+      than 10 cross-boundary edges, labelled with severity
+- [ ] Mermaid `flowchart TB` generated with one `subgraph` per community
+      showing cohesion score in the subgraph label
+- [ ] Improvement suggestions provided for any community with cohesion
+      < 0.5 or coupling > 20 cross-community edges
+- [ ] If gauntlet is not installed, directory-structure fallback runs and
+      absence of graph data is stated to the user

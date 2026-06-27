@@ -81,14 +81,17 @@ For diverse, category-spanning ideation with rotation, see
   empty-box convention, any of the 40 principles may apply.
 - The strongest, most portable parts of TRIZ are the 40
   principles as a divergence checklist and Ideality as a
-  framing question. ARIZ, Substance-Field analysis, and the
-  76 standard solutions are out of scope here.
+  framing question. ARIZ, Substance-Field analysis, the 76 standard
+  solutions, the Laws of Technical Systems Evolution (S-curves), and
+  Function-Oriented Search (FOS) are out of scope here.
 
 ## Sources
 
 - TRIZ Body of Knowledge (MATRIZ) and the classical
   contradiction matrix (matriz.org).
 - AutoTRIZ (arXiv 2403.13002, 2024): LLM-driven TRIZ ideation.
+- TRIZ Agents (arXiv 2506.18783, 2025): multi-agent LLM orchestration
+  across TRIZ steps; companion to AutoTRIZ.
 - The vendored canonical 39x39 matrix subset comes from
   NickScherbakov/Heinrich-The-Inventing-Machine (Apache-2.0);
   see `src/tome/channels/triz_data/NOTICE` for attribution and

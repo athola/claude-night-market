@@ -67,9 +67,10 @@ class TaskState:
     total_count: int = 0
 
     @property
-    def in_progress_tasks(self) -> list[str]:
-        """Tasks currently in progress."""
-        return [t for t in self.pending_tasks if t not in self.completed_tasks]
+    def remaining_tasks(self) -> list[str]:
+        """Pending tasks not yet in the completed set."""
+        completed = set(self.completed_tasks)
+        return [t for t in self.pending_tasks if t not in completed]
 
 
 @dataclass
@@ -433,6 +434,11 @@ class TasksManager:
 
         return task_id
 
+    def _load_fallback_state(self) -> dict:
+        """Load state from the fallback JSON file, returning empty dict on any error."""
+        state = safe_json_load(self.fallback_state_file)
+        return state if state is not None else {}
+
     def get_state(self) -> TaskState:
         """Get current task state.
 
@@ -451,8 +457,8 @@ class TasksManager:
                 total_count=len(tasks),
             )
         else:
-            state = safe_json_load(self.fallback_state_file)
-            if state is None:
+            state = self._load_fallback_state()
+            if not state:
                 return TaskState()
             tasks_dict: dict[str, dict[str, Any]] = state.get("tasks", {})
             completed = [
@@ -479,8 +485,8 @@ class TasksManager:
         if self._use_tasks and self._task_list:
             tasks = self._task_list()
         else:
-            state = safe_json_load(self.fallback_state_file)
-            if state is None:
+            state = self._load_fallback_state()
+            if not state:
                 return ResumeState()
             tasks = [
                 {"id": tid, **tdata} for tid, tdata in state.get("tasks", {}).items()

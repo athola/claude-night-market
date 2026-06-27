@@ -44,7 +44,155 @@ Traditional bloat detection finds dead code. AI hygiene detection finds *live bu
 4. **Verify Dependencies**: Check for hallucinated packages
 5. **Evaluate Test Quality**: Detect happy-path-only coverage
 
+## AI Code Tell Data: Reddit Citation Studies (2026)
+
+Source: JCarterJohnson/vibecoded-design-tells `unslop-ai-code/`.
+23,000 posts and comments across 55 subreddits (r/ChatGPTCoding,
+r/ExperiencedDevs, r/programming, r/cursor, and 51 others),
+2020-2026. LLM-classified then adversarially verified. Full
+data in `empirical-baseline.md` § "Code tells".
+
+**Verified top tells (comment share of those naming a code property):**
+
+| # | Tell | comment% | Notes |
+|---|------|----------:|-------|
+| 1 | Boilerplate / tutorial-shaped code | 18.6% | #1 by wide margin; 90% precision |
+| 2 | Hallucinated APIs / made-up methods | 11.2% | language-agnostic; bites at runtime |
+| 3 | Over-commenting (every line narrated) | 8.5% | inflated; only 48% of tags confirmed |
+| 4 | Over-engineering / needless abstraction | 7.8% | "KISS, YAGNI" in agent instructions fixes it |
+| 5 | Emoji in code / comments / commits | 3.9% | highest precision of any cosmetic tell |
+| 6 | Style mismatch (ignores codebase) | 3.5% | a 50-LoC PR becoming 2000-LoC because conventions ignored |
+| 7 | try/except wrapping everything | 3.1% | errors swallowed silently |
+| 10 | Generic placeholder names | 1.9% | `process_data()` that does 11 things; 100% precision |
+
+**Corrections (reduce weighting in detection):**
+
+- Verbose/robotic variable names: NOT a top tell. Only 1 in 6
+  tagged comments were actually mocking AI naming.
+- Reinventing stdlib: mostly misattributed after re-read.
+- Leftover print/console.log debugging: **rejected** as
+  keyword artifact; zero confirmed quotes. Remove if present
+  in detection logic.
+
+**Detection priority:** tutorial-shape (#1), hallucinated
+APIs (#2), and style-mismatch (#6) are the production-biting
+tells. Weight them more than comment-density or naming.
+
 ## Detection Categories
+
+### Category 0: Tutorial-Shape Detection
+
+**Reddit tell #1 (18.6% citation rate, 90% precision).**
+The single strongest code tell is that AI-generated code
+*looks like a textbook example*: one-page scope, placeholder
+data, no real backend, the most common design pattern for
+the task regardless of fit.
+
+```python
+def detect_tutorial_shape(code_path):
+    """Detect boilerplate / tutorial-shaped code (Reddit #1 tell)."""
+    findings = []
+
+    # Placeholder data signatures
+    placeholder_patterns = [
+        r'\bexample\.com\b', r'\bfoo@bar\b', r'\bhello[,\s]+world\b',
+        r'\b(?:dummy|fake|placeholder|sample|test)\s+data\b',
+        r'user(?:name)?["\s]*[:=]["\s]*["\']?admin["\']?',
+        r'"id"\s*:\s*["\']?(?:1|123|uuid-1234)',
+        r'\bLorem ipsum\b',
+    ]
+    for pat in placeholder_patterns:
+        hits = bash(f'rg -rl "{pat}" --type py --type js --type ts . 2>/dev/null')
+        if hits:
+            findings.append({
+                'type': 'placeholder_data',
+                'severity': 'MEDIUM',
+                'files': hits.strip().split('\n'),
+                'recommendation': 'Replace placeholder data with real config or env vars',
+            })
+
+    # Generic-function entry points with no real integration
+    generic_mains = bash(
+        r'rg -n "def main\(\)|if __name__ == .\"__main__\"" '
+        r'--type py . 2>/dev/null | head -20'
+    )
+    if generic_mains:
+        # Only flag if the file is < 100 lines (textbook demo size)
+        for hit in (generic_mains or '').splitlines():
+            filepath = hit.split(':')[0]
+            line_count = int(bash(f'wc -l < {filepath}').strip() or 0)
+            if line_count < 100:
+                findings.append({
+                    'type': 'tutorial_main',
+                    'severity': 'LOW',
+                    'file': filepath,
+                    'recommendation': 'Verify this is production entry point, not a demo stub',
+                })
+
+    return findings
+```
+
+### Category 6b: Style Mismatch Detection
+
+**Reddit tell #6 (3.5% citation rate).** A tell that
+scales with project size: AI ignores existing conventions
+and invents new ones mid-file. "A PR that should be 50
+LoC because it follows existing patterns, versus a 2000
+LoC PR that ignores codebase conventions."
+
+```python
+def detect_style_mismatch(changed_files, baseline_sample=None):
+    """Detect convention breaks vs. the rest of the codebase."""
+    findings = []
+
+    # --- Docstring style mismatch ---
+    # Detect if changed files use a different docstring format
+    # than the rest of the codebase (numpy vs google vs reST)
+    repo_docstyle = bash(
+        r'rg -l "Parameters\s*\n\s*----------" --type py . | '
+        r'head -5'
+    )
+    numpy_style = bool(repo_docstyle.strip())
+
+    for f in (changed_files or []):
+        if not f.endswith('.py'):
+            continue
+        file_has_google = bash(f'rg -l "Args:\\n" {f}').strip()
+        if numpy_style and file_has_google:
+            findings.append({
+                'type': 'docstring_style_mismatch',
+                'severity': 'LOW',
+                'file': f,
+                'recommendation': 'Use numpy-style docstrings to match the codebase',
+            })
+
+    # --- Import style mismatch ---
+    # If codebase uses relative imports, new file uses absolute?
+    relative_imports = bash(
+        r'rg -c "^from \." --type py . 2>/dev/null | '
+        r'awk -F: "NR>1{sum+=$2} END{print sum}"'
+    ).strip() or '0'
+    absolute_imports = bash(
+        r'rg -c "^from [a-z]" --type py . 2>/dev/null | '
+        r'awk -F: "NR>1{sum+=$2} END{print sum}"'
+    ).strip() or '0'
+    # Only flag if the imbalance is severe
+    if int(relative_imports) > 3 * int(absolute_imports):
+        for f in (changed_files or []):
+            if f.endswith('.py'):
+                uses_absolute = bash(
+                    f'rg -c "^from [a-z]" {f} 2>/dev/null'
+                ).strip() or '0'
+                if int(uses_absolute) > 2:
+                    findings.append({
+                        'type': 'import_style_mismatch',
+                        'severity': 'LOW',
+                        'file': f,
+                        'recommendation': 'Codebase uses relative imports; align new file',
+                    })
+
+    return findings
+```
 
 ### Category 1: Git History Analysis
 
@@ -372,13 +520,42 @@ Not all matches indicate AI debt. Skip these intentional patterns:
 - High comment ratios in teaching/tutorial code or configuration files
 - Log density in error handlers and middleware (logging is the job)
 
+**Reddit data corrections (verified 2026, lower confidence than assumed):**
+
+- **Comment density alone**: only 48% of "over-commented" claims
+  held up on re-read. Many were complaints about *something else*
+  entirely. Require comment_ratio > 30% AND at least one other
+  signal before flagging.
+- **Verbose variable names**: NOT an independent tell. Only 1 in 6
+  "naming" complaints were actually about AI naming. Remove from
+  primary detection. Keep as a secondary signal only.
+- **Print/console.log left in**: **rejected** as keyword artifact.
+  Zero confirmed quotes from 2026 corpus. Remove `log_density`
+  as a standalone finding; keep only when combined with
+  `happy_path_only` or `tutorial_shape` evidence.
+- **"Reinvents stdlib"**: too often misattributed. Surface only
+  when `hallucinated_dependency` or explicit duplication of a
+  documented stdlib function is confirmed.
+
+**Confirmed high-precision tells (increase weight):**
+
+- Generic placeholder names (`process_data`, `handle_request`)
+  have 100% precision in the Reddit corpus. Treat as HIGH
+  severity, not LOW.
+- Hallucinated APIs (`hallucinated_dependency` category) have
+  63% precision and directly cause production failures.
+- Tutorial shape (Category 0) has 90% precision and is the
+  single strongest signal.
+
 #### Thresholds
 
 | Signal | Normal | Elevated | Strong AI indicator |
 |--------|--------|----------|---------------------|
-| Comment ratio | < 15% | 15-30% | > 30% |
-| Log density | < 1.0 | 1.0-3.0 | > 3.0 per function |
+| Comment ratio | < 15% | 15-30% | > 30% AND another signal |
+| Log density | < 1.0 | 1.0-3.0 | > 3.0 AND another signal |
 | Guard density | < 1.0 | 1.0-2.0 | > 2.0 per function |
+| Generic placeholder names | 0 | 1 | 2+ (high precision) |
+| Tutorial-shape signals | 0 | 1 | 2+ (highest overall precision) |
 
 ## Report Format
 

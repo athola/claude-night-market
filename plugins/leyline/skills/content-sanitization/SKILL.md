@@ -105,3 +105,20 @@ External content must NEVER be:
 External content can never auto-promote to constitutional
 importance (score >= 90). Score changes >= 20 points from
 external sources require human confirmation.
+
+## Exit Criteria
+
+- [ ] All 8 sanitization checklist steps applied to every piece of
+  external content before it is used: size truncation at 2000
+  words, system tag stripping, instruction pattern removal, code
+  execution pattern removal, boundary marker wrapping, formatting
+  hiding removal, zero-width character removal, and instruction
+  HTML comment removal
+- [ ] External content wrapped in
+  `--- EXTERNAL CONTENT [source: <tool>] --- ... --- END EXTERNAL
+  CONTENT ---` markers before being passed to any downstream skill
+- [ ] No external content passed to `eval()`, `exec()`,
+  `yaml.load()`, `subprocess` with `shell=True`, or used as
+  import paths
+- [ ] External content with score change >=20 points triggers
+  human confirmation before the score update is applied

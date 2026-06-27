@@ -8,22 +8,15 @@ from __future__ import annotations
 
 import pytest
 
-# Import the skills we're testing
-from parseltongue.analysis.async_analysis import AsyncAnalysisSkill
+import parseltongue.analysis.async_analysis as _async_mod
 
 
 class TestAsyncAnalysisSkill:
-    """
-
-    Test suite for AsyncAnalysisSkill.
-    """
+    """Test suite for async analysis module-level functions."""
 
     def setup_method(self) -> None:
-        """
-
-        Set up test fixtures before each test.
-        """
-        self.skill = AsyncAnalysisSkill()
+        """Bind module to self.skill so all call-sites are unchanged."""
+        self.skill = _async_mod
 
     @pytest.mark.asyncio
     async def test_detects_async_functions(self, sample_async_code) -> None:

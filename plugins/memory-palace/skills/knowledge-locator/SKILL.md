@@ -172,3 +172,18 @@ Works with:
 - `session-palace-builder` - Searches session-specific palaces
 - `digital-garden-cultivator` - Finds garden content and links
 - `review-chamber` - Searches PR review knowledge in project palaces
+
+## Exit Criteria
+
+- [ ] `scripts/palace_manager.py search "<query>"` returns results
+      within 500ms for a cold query against an indexed palace
+- [ ] At least one of the five search modalities (spatial, semantic,
+      sensory, associative, temporal) returns ranked results for a
+      valid query against an existing palace
+- [ ] Top-3 accuracy target of ≥ 90% is met for semantic queries when
+      the queried concept is present in the indexed palace
+- [ ] Incomplete or partial queries return results rather than errors,
+      satisfying the ≥ 80% robustness target
+- [ ] If no palace exists to search, user is directed to
+      `memory-palace-architect` rather than returning an empty result
+      silently

@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from minister import dora_metrics
+
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 SKILL_DIR = PLUGIN_ROOT / "skills" / "dora-metrics"
 SKILL_FILE = SKILL_DIR / "SKILL.md"
@@ -86,8 +88,6 @@ class TestModuleWiring:
         When I import that module
         Then it succeeds and exposes ``compute_metrics``.
         """
-        from minister import dora_metrics
-
         assert hasattr(dora_metrics, "compute_metrics")
         assert hasattr(dora_metrics, "DORAMetrics")
 

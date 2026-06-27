@@ -275,3 +275,19 @@ When evaluating a feature, create these todos:
 - **[anti-overengineering.md](modules/anti-overengineering.md)** - Rules, patterns, red flags
 - **[branch-management.md](modules/branch-management.md)** - Thresholds, monitoring, zones
 - **[baseline-scenarios.md](modules/baseline-scenarios.md)** - Testing scenarios and validation
+
+## Exit Criteria
+
+- [ ] Every proposed feature has a Worthiness Score computed from the
+  formula `(Business Value + Time Criticality + Risk Reduction) /
+  (Complexity + Token Cost + Scope Drift)` and a disposition:
+  implement (>2.0), discuss (1.0-2.0), or defer (<1.0)
+- [ ] Deferred items have a GitHub issue created before
+  `scope-guard:decision-documented` is marked complete; the issue
+  URL is recorded in the todo
+- [ ] Branch budget checked: if at 3 major features, a new feature
+  requires dropping an existing one, splitting to a new branch, or
+  an explicit written override with justification
+- [ ] Branch threshold zones checked (lines 1000/1500/2000, commits
+  15/25/30, days 3/7/7+); Yellow zone triggers a warning, Red zone
+  blocks without justification

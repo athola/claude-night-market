@@ -4,7 +4,11 @@
 .claude/scheduled_tasks.lock
 .claude/state/
 .claude/worktrees/
+.claude/logs/
 *.txt
+
+# Transient PR-review findings cache (not source)
+.review/
 
 # Python
 **/*/__pycache__/
@@ -134,3 +138,9 @@ clawhub/
 
 # imbue scope-ramp token (a per-session demonstration marker, not source)
 .imbue/
+
+# conserve unbloat scan log (transient artifact, not source)
+.unbloat-log
+
+# transient code-refinement synthesis artifacts (local eval, not source)
+docs/refinement/

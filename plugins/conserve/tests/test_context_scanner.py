@@ -1423,3 +1423,92 @@ class TestSectionQueries:
 
         assert exit_code == 0
         assert "User" in captured.out
+
+
+# ---------------------------------------------------------------------------
+# CON-022: _parse_project_deps and _parse_poetry_deps sub-functions
+# ---------------------------------------------------------------------------
+
+
+class TestParseProjectDeps:
+    """_parse_project_deps parses [project.dependencies] sections.
+
+    GIVEN pyproject.toml text with [project.dependencies]
+    WHEN _parse_project_deps is called
+    THEN runtime deps are extracted; optional/group deps go to dev.
+    """
+
+    def test_extracts_runtime_deps_from_project_section(self) -> None:
+        text = textwrap.dedent("""\
+            [project]
+            name = "mypkg"
+            dependencies = [
+                "fastapi>=0.104",
+                "httpx",
+            ]
+        """)
+        runtime, dev = cs._parse_project_deps(text)
+        names = [d.name for d in runtime]
+        assert "fastapi" in names
+        assert "httpx" in names
+
+    def test_empty_input_returns_empty_lists(self) -> None:
+        runtime, dev = cs._parse_project_deps("")
+        assert runtime == []
+        assert dev == []
+
+
+class TestParsePoetryDeps:
+    """_parse_poetry_deps parses [tool.poetry.dependencies] sections.
+
+    GIVEN pyproject.toml text with [tool.poetry.dependencies]
+    WHEN _parse_poetry_deps is called
+    THEN runtime deps (excluding python) are returned.
+    """
+
+    def test_extracts_poetry_runtime_deps(self) -> None:
+        text = textwrap.dedent("""\
+            [tool.poetry.dependencies]
+            python = "^3.9"
+            requests = "^2.28"
+            click = ">=8.0"
+        """)
+        deps = cs._parse_poetry_deps(text)
+        names = [d.name for d in deps]
+        assert "requests" in names
+        assert "click" in names
+        assert "python" not in names
+
+    def test_empty_input_returns_empty_list(self) -> None:
+        assert cs._parse_poetry_deps("") == []
+
+
+# ---------------------------------------------------------------------------
+# CON-021: _scan_directory_structure and _enrich_with_detectors sub-functions
+# ---------------------------------------------------------------------------
+
+
+class TestScanDirectoryStructure:
+    """_scan_directory_structure walks tree and builds ScanResult skeleton.
+
+    GIVEN a project directory
+    WHEN _scan_directory_structure is called
+    THEN the returned ScanResult has project_name, directories, config_files.
+    """
+
+    def test_returns_scan_result_with_project_name(self, tmp_path: Path) -> None:
+        (tmp_path / "src").mkdir()
+        (tmp_path / "src" / "main.py").write_text("x = 1\n")
+        result = cs._scan_directory_structure(tmp_path)
+        assert result.project_name == tmp_path.name
+
+    def test_detects_config_files(self, tmp_path: Path) -> None:
+        (tmp_path / "pyproject.toml").write_text("[project]\nname='x'\n")
+        result = cs._scan_directory_structure(tmp_path)
+        assert any("pyproject.toml" in cf for cf in result.config_files)
+
+    def test_ecosystems_empty_before_enrichment(self, tmp_path: Path) -> None:
+        (tmp_path / "src").mkdir()
+        (tmp_path / "src" / "main.py").write_text("x = 1\n")
+        result = cs._scan_directory_structure(tmp_path)
+        assert result.ecosystems == []

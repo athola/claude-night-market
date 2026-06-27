@@ -87,3 +87,16 @@ error message and retry (max 2 retries).
 
 Show the rendered diagram to the user with a brief summary
 of what it depicts (2-3 sentences).
+
+## Exit Criteria
+
+- [ ] Mermaid `flowchart` syntax generated containing at least
+      one `subgraph` block grouping related modules
+- [ ] `mcp__claude_ai_Mermaid_Chart__validate_and_render_mermaid_diagram`
+      called and returns without error (or retry attempted on first
+      failure and result reported)
+- [ ] Diagram node count is between 3 and 20 (per skill rules)
+- [ ] A 2-3 sentence description of what the diagram depicts is shown
+      alongside the rendered output
+- [ ] If the MCP render fails after 2 retries, the Mermaid syntax is
+      still presented as a code block with the error surfaced

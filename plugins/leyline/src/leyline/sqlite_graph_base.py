@@ -49,7 +49,7 @@ class SqliteGraphBase:
         self._has_fts: bool = False
         try:
             self._init_schema()
-        except Exception:
+        except (OSError, sqlite3.Error):
             self._conn.close()
             raise
 

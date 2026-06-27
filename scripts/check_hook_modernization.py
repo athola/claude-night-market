@@ -84,9 +84,15 @@ def get_hook_event_types(hooks_json: Path) -> dict[str, list[str]]:
     Returns dict like {"security_check.py": ["PreToolUse"]}.
     """
     try:
-        data = json.loads(hooks_json.read_text())
-    except (json.JSONDecodeError, OSError):
+        raw = hooks_json.read_text()
+    except OSError:
+        # Missing/absent file: a plugin legitimately may have no
+        # hooks.json next to a script. Treat as "no events".
         return {}
+    # A malformed hooks.json is NOT "no events"; let JSONDecodeError
+    # propagate so run_audit can surface it as an error rather than
+    # silently skipping every event-gated check (issue #575, B1).
+    data = json.loads(raw)
 
     script_events: dict[str, list[str]] = {}
     hooks = data.get("hooks", {})
@@ -161,7 +167,22 @@ def check_python_source(
         # Count print/sys.stdout.write calls
         try:
             tree = ast.parse(source)
-        except SyntaxError:
+        except SyntaxError as exc:
+            # A source we cannot parse is unverifiable, not clean. Surface
+            # an error so the CI gate fails instead of silently passing
+            # (issue #575, B1).
+            findings.append(
+                Finding(
+                    plugin=plugin,
+                    file=filename,
+                    pattern="unparseable-source",
+                    severity="error",
+                    message=(
+                        f"Hook source could not be parsed: {exc}. "
+                        "The file was not checked; fix the syntax error."
+                    ),
+                )
+            )
             return findings
 
         print_count = 0
@@ -203,14 +224,50 @@ def run_audit(repo_root: Path) -> AuditResult:
     """Run the full modernization audit."""
     result = AuditResult()
 
+    reported_bad_json: set[Path] = set()
     for plugin_name, py_file in find_hook_scripts(repo_root):
         hooks_json = py_file.parent / "hooks.json"
-        event_map = get_hook_event_types(hooks_json)
+        try:
+            event_map = get_hook_event_types(hooks_json)
+        except json.JSONDecodeError as exc:
+            # A malformed hooks.json means we cannot know which events a
+            # script handles, so the event-gated checks are skipped. That
+            # is a checking failure, not a clean result (issue #575, B1).
+            if hooks_json not in reported_bad_json:
+                reported_bad_json.add(hooks_json)
+                result.findings.append(
+                    Finding(
+                        plugin=plugin_name,
+                        file="hooks.json",
+                        pattern="unparseable-hooks-json",
+                        severity="error",
+                        message=(
+                            f"hooks.json could not be parsed: {exc}. "
+                            "Event-gated checks were skipped for this "
+                            "plugin; fix the JSON."
+                        ),
+                    )
+                )
+            event_map = {}
         event_types = event_map.get(py_file.name, [])
 
         try:
             source = py_file.read_text()
-        except OSError:
+        except OSError as exc:
+            # Unreadable hook source is unverifiable, not clean. Surface
+            # an error rather than continuing silently (issue #575, B1).
+            result.findings.append(
+                Finding(
+                    plugin=plugin_name,
+                    file=py_file.name,
+                    pattern="unreadable-source",
+                    severity="error",
+                    message=(
+                        f"Hook source could not be read: {exc}. "
+                        "The file was not checked."
+                    ),
+                )
+            )
             continue
 
         findings = check_python_source(source, plugin_name, py_file.name, event_types)

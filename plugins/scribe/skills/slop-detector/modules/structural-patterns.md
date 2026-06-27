@@ -60,21 +60,36 @@ The audit threshold is empirical (tolerant of human writers
 who use em-dashes legitimately). The prevention threshold is
 agent-applied and strict.
 
-## Tricolon Detection
+## Tricolon Detection (Rule of Three)
 
-AI produces alliterative groups of three with suspicious frequency.
+AI produces groups of three with suspicious frequency:
+both alliterative tricolons and structurally parallel
+triads. Reddit citation data (2026) puts this at 1.2%
+of audited posts, likely under-ranked because auditors
+flag it in prose ("uses three-part structures
+constantly") rather than in keyword searches.
 
 Pattern examples:
-- "clear, concise, and compelling"
+- "clear, concise, and compelling" (alliterative)
 - "fast, flexible, and free"
 - "robust, reliable, and resilient"
+- "It's fast. It's cheap. It's reliable." (three-fragment burst)
+- "We tackle speed, cost, and quality" (reflexive tripling)
 
 Detection approach:
 ```python
 # Look for: adjective, adjective, and adjective
 tricolon_pattern = r'\b(\w+), (\w+),? and (\w+)\b'
 # Flag if words share first letter or similar endings
+
+# Count three-item lists of any kind per 500 words
+# > 2 triads in 500 words: signal (humans use one or two,
+#   not reflexively every paragraph)
 ```
+
+**Audit-mode threshold:** 2+ triads per 500 words is a
+signal. 4+ is a strong AI signal. See also
+`## Three-Fragment Burst` for the short-sentence variant.
 
 ## Sentence Length Uniformity
 
@@ -107,11 +122,20 @@ If most paragraphs cluster around the same length (e.g., 40-60 words), flag as A
 ## Bullet-to-Prose Ratio
 
 AI defaults to bullet points, especially with emojis.
+Reddit citation data (2026) puts excessive bullet use
+at 1.7% of audited posts (#6 most-cited tell),
+with both keyword and citation passes in agreement.
+"5 ways to…" / "7 signs…" scaffolding reads as AI
+even when the content is original.
 
 ```bash
 # Count bullet lines vs total lines
-bullet_lines=$(grep -c '^\s*[-*]' file.md)
-total_lines=$(wc -l < file.md)
+if command -v rg &>/dev/null; then
+  bullet_lines=$(rg -c '^\s*[-*]' "$file" || echo 0)
+else
+  bullet_lines=$(grep -c '^\s*[-*]' "$file" || echo 0)
+fi
+total_lines=$(wc -l < "$file")
 ratio=$((bullet_lines * 100 / total_lines))
 ```
 
@@ -122,16 +146,34 @@ ratio=$((bullet_lines * 100 / total_lines))
 | 50-70% | High (check context) |
 | 70%+ | Very high AI signal |
 
-**Emoji bullets** (e.g., lines starting with emoji) in technical documentation are a strong AI tell.
+**Emoji bullets** (lines starting with emoji) in
+technical documentation are a strong AI tell.
+
+**Numbered "N things" listicles** ("5 ways to…",
+"7 signs you might be…") are a format tell
+independent of bullet count. Flag when the heading
+encodes a count and the body is pure bullets.
 
 ## Five-Paragraph Essay Structure
 
-AI defaults to: intro, three body sections, and conclusion recap.
+AI defaults to intro, three body sections, and conclusion
+recap. Reddit citation data (2026) puts this at 2.5% of
+audited posts, the #5 most-cited tell. Auditors
+noted it is likely under-counted (keyword regex at 0.5%
+badly under-catches it because "formulaic-ness" requires
+reading the whole structure). The signal is structural,
+not lexical. A sentence-level scan will miss it.
 
 Check for:
-1. Opening paragraph that restates the question
-2. Three distinct middle sections
-3. Closing paragraph that summarizes without adding new information
+1. Opening paragraph that restates the prompt or question
+2. Exactly three distinct middle sections
+3. Closing paragraph that summarizes without adding new
+   information ("in conclusion, we have explored...")
+
+The "in conclusion" closer is the lexical handle
+(detected in `vocabulary-patterns.md` Tier 4). When
+combined with opener-restates-prompt and three-body,
+treat as a confirmed pattern regardless of vocabulary.
 
 ## Perfect Grammar Signals
 
@@ -575,7 +617,16 @@ awk '/^```/{c=!c}!c' file.md \
 
 ## Sentence Length Clustering (Refined)
 
-Beyond uniformity (tracked above), the specific AI cluster is **15-25 words per sentence**. Human writing ranges from 3-word fragments to 40+ word complex sentences. AI avoids both extremes.
+**Reddit citation data (2026) puts flat sentence rhythm
+at 4.0% — the #2 most-cited human tell**, behind only
+the em dash. It is also the most important regex-blind
+tell: no keyword scanner can catch it. Readers describe
+it as "the same cadence", "syntactic mad-lib",
+"recognizable rhythm even without looking at the words."
+
+The specific AI cluster is **15-25 words per sentence**.
+Human writing ranges from 3-word fragments to 40+
+word complex sentences. AI avoids both extremes.
 
 ```python
 def length_clustering(sentences):
@@ -584,7 +635,21 @@ def length_clustering(sentences):
     return in_range / len(lengths)
 
 # > 0.7 (70% of sentences in 15-25 range): strong AI signal
+# > 0.85: very strong; only a deliberate style choice
+#         would produce this in human writing
 ```
+
+**Detection note:** rhythm uniformity and the 15-25
+word cluster are complementary. A low `sentence_std_dev`
+(see `## Sentence Length Uniformity` above) catches
+uniform-but-short or uniform-but-long writing. The
+cluster ratio catches the specific medium-sentence band
+AI prefers. Run both.
+
+**Prevention rule:** vary sentence length deliberately.
+Let some sentences be 4-6 words. Let some run past 35
+words when the logic requires it. The test: read it
+aloud. If it sounds like a metronome, rewrite.
 
 ## Topic-Evidence-Summary Paragraph Template
 
@@ -603,6 +668,116 @@ AI introductions and conclusions are near-paraphrases of each other. Check cosin
 
 Human writing ends with specifics, callbacks to earlier points, questions, or simply stops.
 
+## Sycophancy / Position-Avoidance
+
+**Reddit citation data (2026): 2.5% — the #4 tell.**
+Auditors believe this is significantly under-ranked
+because it is hard to isolate in a keyword pass.
+One auditor found it rivals the em dash for citation
+density within long posts about AI writing quality.
+
+**Radar pattern (two behaviors, same root cause):**
+
+1. **Sycophancy** — agrees, flatters, or hedges instead
+   of taking a position. Opener-level: "Great question!",
+   "You're absolutely right!", "Absolutely!". Body-level:
+   qualifies every claim ("it depends", "it could be
+   argued", "there are several approaches").
+
+2. **Position-avoidance** — gives a menu instead of an
+   answer. "On one hand X, on the other hand Y" without
+   concluding. Listing every option when the user asked
+   for a recommendation. Ending with "it's up to you"
+   after presenting options.
+
+Both behaviors trace to the same RLHF pressure: the
+model is tuned toward agreement and safety, which
+produces a voice that never commits. One Reddit commenter
+quoted: *"Default Claude hedges everything. 'It depends
+on your needs.' 'There are several approaches.'"*
+
+**Detection (reader-level only; no regex can catch this):**
+
+Ask these questions after reading a document:
+
+- Does the author ever disagree with anything?
+- Does the author give a direct answer, or a menu?
+- When asked for a recommendation, does it arrive?
+- Is the tone uniformly positive? No friction anywhere?
+- Does every section end with a caveat or qualifier?
+
+4+ "yes" answers = strong sycophancy signal.
+
+**Boilerplate sycophancy phrases** (these ARE catchable):
+
+```python
+SYCOPHANCY_BOILERPLATE = [
+    r"\bgreat question\b",
+    r"\bexcellent question\b",
+    r"\bthank you for (?:asking|raising|bringing)\b",
+    r"\byou(?:'re| are) absolutely right\b",
+    r"\bwould you like me to\b",
+    r"\bI hope this helps\b",
+    r"\bfeel free to ask\b",
+    r"\blet me know if you (?:have|need)\b",
+    r"\bplease (?:let me know|feel free)\b",
+]
+```
+
+These are the lexical surface of a deeper pattern.
+Their presence confirms sycophancy; their absence does
+not rule it out. See also `identity-and-voice-leaks.md`
+for the full boilerplate artifact list.
+
+**Scoring:** in the structural score, 1+ boilerplate
+phrases = +2. Reader-detected position-avoidance = +3
+(flag in findings as `confidence: reader`).
+
+## Fluent-but-Empty Prose
+
+**Reddit citation data (2026): 0.7% — the #9 tell.**
+Multiple auditors flag it as under-counted because it
+is the hardest tell to isolate and the hardest to
+articulate: *"AI writes word salad — beautiful looking
+but has no nutritional value."* Another: *"No grammar
+mistakes on essays that use elevated language but
+ultimately say very little."*
+
+**Root cause:** the model is optimized for fluency and
+positive assessment, not for making claims. It produces
+sentences that are grammatically correct, confident in
+register, and contain no verifiable assertion.
+
+**Detection test per paragraph:**
+
+1. Identify the claim the paragraph makes.
+2. Could you replace it with a single concrete fact,
+   a number, or a named example?
+3. If yes, the original paragraph is likely empty —
+   the concrete version carries all the information.
+
+**Pattern indicators (no regex; requires reading):**
+
+- Every sentence is grammatically complete but none
+  makes a falsifiable claim.
+- Abstract nouns stack: "approach", "framework",
+  "methodology", "strategy", "solution", "value."
+- Sentences can be swapped between paragraphs without
+  changing meaning.
+- Removing a sentence does not change what the reader
+  learns.
+- The "word count" increases without the "information
+  count" increasing.
+
+**Prevention rule:** every paragraph must carry at
+least one concrete item — a named example, a number,
+a verifiable fact, or a specific decision. If it
+cannot, delete it or compress it to one sentence.
+
+**Scoring:** reader-detected; flag as `confidence:
+reader`, add +2 to structural score per confirmed
+empty paragraph (max 3 instances to cap at +6).
+
 ## Structural Score Calculation
 
 ```python
@@ -620,19 +795,25 @@ def structural_score(metrics):
         score += 1
     if metrics['emoji_bullets']:
         score += 3
-    # New patterns (2025-2026 research)
+    # 2025-2026 research patterns
     if metrics.get('participial_tail_count', 0) > 3:
         score += 2
+    # Sentence rhythm (#2 Reddit tell, 4.0% citation rate):
+    # weighted higher than in earlier versions.
     if metrics.get('sentence_length_cluster_ratio', 0) > 0.7:
-        score += 2
+        score += 3  # was 2; elevated to match empirical ranking
+    if metrics.get('sentence_length_cluster_ratio', 0) > 0.85:
+        score += 1  # extra point for extreme clustering
     if metrics.get('semicolon_count', 1) == 0 and metrics.get('em_dash_density', 0) > 3:
-        score += 1  # em dashes without semicolons
+        score += 1
     if metrics.get('correlative_pairs', 0) > 2:
         score += 1
     if metrics.get('arrow_connectors', 0) > 0:
         score += 1
     if metrics.get('plus_conjunctions', 0) > 1:
         score += 1
+    if metrics.get('triad_count', 0) > 2:
+        score += 1  # rule of three (#8 tell, 1.2% citation)
     # Tier 5 / 2026 structural patterns
     if metrics.get('spatial_copula_count', 0) >= 1:
         score += 2
@@ -648,6 +829,17 @@ def structural_score(metrics):
         score += 1
     if metrics.get('emphasis_crutch_count', 0) >= 1:
         score += 2
+    # Sycophancy / position-avoidance (#4 Reddit tell, 2.5% citation):
+    # boilerplate phrases are lexically detectable.
+    if metrics.get('sycophancy_boilerplate_count', 0) >= 1:
+        score += 2
+    # Reader-detected sycophancy / fluent-empty prose: surfaced with
+    # confidence:reader, not auto-scored. Callers may inject via:
+    #   metrics['reader_sycophancy'] = True  (from manual review)
+    #   metrics['reader_empty_prose_count'] = N (paragraphs)
+    if metrics.get('reader_sycophancy', False):
+        score += 3
+    score += min(6, metrics.get('reader_empty_prose_count', 0) * 2)
     # Prevention mode: any em-dash in fresh prose is a finding
     if metrics.get('mode') == 'prevention' and metrics.get('em_dash_count', 0) > 0:
         score += min(5, metrics['em_dash_count'])

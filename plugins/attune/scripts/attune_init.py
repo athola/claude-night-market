@@ -17,6 +17,9 @@ from template_engine import (
     get_default_variables,
 )
 
+_TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
+SUPPORTED_LANGUAGES = frozenset({"python", "rust", "typescript"})
+
 
 def initialize_git(project_path: Path, force: bool = False) -> bool:
     """Initialize git repository.
@@ -165,144 +168,26 @@ def _write_or_preview(
     return True
 
 
-# Vendored fallback scaffolds for the decision journal. The canonical source is
-# leyline:decision-journal; init prefers it when importable and falls back to
-# these so project-init never hard-depends on leyline being installed.
-_VENDORED_JOURNAL = {
-    "tradeoffs": """\
----
-maturity: growing
-type: tradeoffs
----
-
-# Tradeoffs
-
-Decisions made over this project's lifetime, and the alternatives we
-deliberately gave up. Records the *why*, not just the *what*.
-
-## Active index
-
-| ID | Status | Title | Date |
-|----|--------|-------|------|
-
-## Decisions
-
-## Archive
-
-Superseded or deprecated entries sink here; nothing is deleted.
-
-<!-- ENTRY TEMPLATE -- copy a block into Decisions above Archive, assign the
-next TR-NNN id, and fill it in.
-
-## TR-NNN: <short decision title>
-
-- Status: proposed
-- Date: YYYY-MM-DD
-- Phase: brainstorm | specify | plan | execute | review
-- Deciders: <names/roles>
-- Links: <PR/commit/issue>, <code paths>
-
-### Context & problem
-
-<the situation forcing a choice>
-
-### Decision drivers
-
-- <competing quality / constraint>
-
-### Options considered
-
-| Option | Pros | Cons / what it sacrifices |
-|--------|------|---------------------------|
-| A (chosen) | ... | ... |
-
-### Decision
-
-We chose A.
-
-### Y-statement
-
-In the context of <X>, facing <concern>, we chose A over B,
-to achieve <quality>, accepting <the sacrifice / road not taken>.
-
-### Consequences
-
-- Positive: <what gets easier>
-- Negative / debt accepted: <what gets harder>
--->
-""",
-    "lessons": """\
----
-maturity: growing
-type: lessons
----
-
-# Lessons Learned
-
-Insights, failed approaches, rework, and blockers, captured blamelessly so the
-team replicates what worked and avoids what did not.
-
-## Active index
-
-| ID | Status | Title | Date |
-|----|--------|-------|------|
-
-## Lessons
-
-## Archive
-
-Closed or superseded entries sink here; nothing is deleted.
-
-<!-- ENTRY TEMPLATE -- copy a block into Lessons above Archive, assign the next
-LL-NNN id, and fill it in.
-
-## LL-NNN: <short lesson title>
-
-- Status: open
-- Date: YYYY-MM-DD
-- Phase: execute | review
-- Category: process | technology | requirements | testing | communication
-- Owner: <who carries the follow-up>
-- Links: <PR/commit/issue>, <related TR-NNN>
-
-### What happened
-
-<blameless, factual: the situation/activity>
-
-### What went well / where we got lucky
-
-<successes worth replicating>
-
-### What did not work
-
-<the gap or failure>
-
-### Root cause
-
-<5 Whys / contributing factors>
-
-### Recommendation / action item
-
-- Action: <specific change> -- Owner: <name> -- Due: <date>
--->
-""",
-}
+# Decision-journal templates live in templates/decision_journal/. The canonical
+# source is leyline:decision-journal; init prefers it when importable and falls
+# back to these files so project-init never hard-depends on leyline being installed.
+_JOURNAL_TEMPLATES_DIR = _TEMPLATES_DIR / "decision_journal"
 
 
 def _journal_scaffold(kind: str) -> str:
     """Return a journal scaffold, preferring leyline's canonical template.
 
     leyline is an optional dependency; when it is not installed, fall back to
-    the vendored template so project-init never hard-depends on it. A leyline
-    that is present but fails to import (a real bug) is NOT masked: the error
-    propagates instead of silently degrading to the vendored template.
+    the file in templates/decision_journal/ so project-init never hard-depends
+    on it. A leyline that is present but fails to import (a real bug) is NOT
+    masked: the error propagates instead of silently degrading to the template.
     """
     try:
         module = importlib.import_module("leyline.decision_journal")
     except ModuleNotFoundError as exc:
         root = (exc.name or "").split(".")[0]
         if root == "leyline":
-            return _VENDORED_JOURNAL[kind]
+            return (_JOURNAL_TEMPLATES_DIR / f"{kind}.md").read_text(encoding="utf-8")
         raise
     return str(module.new_file_content(kind))
 
@@ -336,196 +221,37 @@ def _create_docs_scaffolding(
     return created
 
 
-def _create_python_structure(
-    project_path: Path,
-    module_name: str,
-    project_name: str,
+def _create_structure(
+    dirs: list[Path],
+    files: list[tuple[Path, str]],
     dry_run: bool,
 ) -> None:
-    """Create Python project directory structure.
+    """Create directory and file structure from a data-driven spec.
 
-    Args:
-        project_path: Path to the project root
-        module_name: Python module name (snake_case)
-        project_name: Human-readable project name
-        dry_run: Preview changes without writing files
-
+    Each directory in dirs is created with mkdir(parents=True, exist_ok=True).
+    Each file in files is written only when it does not already exist.
+    Both operations print a dry-run preview instead of writing when
+    dry_run is True, so callers do not need to repeat that logic.
     """
-    src_dir = project_path / "src" / module_name
-    if dry_run:
-        print(f"[DRY RUN] Would create directory: {src_dir}")
-    else:
-        src_dir.mkdir(parents=True, exist_ok=True)
-
-    init_file = src_dir / "__init__.py"
-    if not init_file.exists():
-        _write_or_preview(
-            init_file,
-            f'"""{module_name} package."""\n\n__version__ = "0.1.0"\n',
-            dry_run,
-        )
-
-    tests_dir = project_path / "tests"
-    if dry_run:
-        print(f"[DRY RUN] Would create directory: {tests_dir}")
-    else:
-        tests_dir.mkdir(parents=True, exist_ok=True)
-
-    test_init = tests_dir / "__init__.py"
-    if not test_init.exists():
-        _write_or_preview(test_init, "", dry_run)
-
-    readme = project_path / "README.md"
-    if not readme.exists():
-        readme_content = f"""# {project_name}
-
-A new Python project.
-
-## Installation
-
-```bash
-uv sync
-```
-
-## Usage
-
-```bash
-make help
-```
-"""
-        _write_or_preview(readme, readme_content, dry_run)
+    for d in dirs:
+        if dry_run:
+            print(f"[DRY RUN] Would create directory: {d}")
+        else:
+            d.mkdir(parents=True, exist_ok=True)
+    for file_path, file_content in files:
+        if not file_path.exists():
+            _write_or_preview(file_path, file_content, dry_run)
 
 
-def _create_rust_structure(
-    project_path: Path,
-    project_name: str,
-    dry_run: bool,
-) -> None:
-    """Create Rust project directory structure.
+def _load_seed(lang: str, filename: str, **kwargs: str) -> str:
+    """Load a seed file from the templates directory and format it.
 
-    Args:
-        project_path: Path to the project root
-        project_name: Human-readable project name
-        dry_run: Preview changes without writing files
-
+    Reads templates/{lang}/{filename} and applies str.format(**kwargs).
+    Template files use {variable_name} for substitution and {{ / }} for
+    literal braces required in Rust and TypeScript templates.
     """
-    src_dir = project_path / "src"
-    if dry_run:
-        print(f"[DRY RUN] Would create directory: {src_dir}")
-    else:
-        src_dir.mkdir(parents=True, exist_ok=True)
-
-    main_rs = src_dir / "main.rs"
-    if not main_rs.exists():
-        _write_or_preview(
-            main_rs,
-            'fn main() {\n    println!("Hello, world!");\n}\n',
-            dry_run,
-        )
-
-    lib_rs = src_dir / "lib.rs"
-    if not lib_rs.exists():
-        lib_content = f"""//! {project_name} library
-
-pub fn hello() -> String {{
-    "Hello from {project_name}!".to_string()
-}}
-
-#[cfg(test)]
-mod tests {{
-    use super::*;
-
-    #[test]
-    fn test_hello() {{
-        assert_eq!(hello(), "Hello from {project_name}!");
-    }}
-}}
-"""
-        _write_or_preview(lib_rs, lib_content, dry_run)
-
-    readme = project_path / "README.md"
-    if not readme.exists():
-        readme_content = f"""# {project_name}
-
-A new Rust project.
-
-## Build
-
-```bash
-cargo build
-```
-
-## Usage
-
-```bash
-make help
-```
-"""
-        _write_or_preview(readme, readme_content, dry_run)
-
-
-def _create_typescript_structure(
-    project_path: Path,
-    project_name: str,
-    dry_run: bool,
-) -> None:
-    """Create TypeScript project directory structure.
-
-    Args:
-        project_path: Path to the project root
-        project_name: Human-readable project name
-        dry_run: Preview changes without writing files
-
-    """
-    src_dir = project_path / "src"
-    if dry_run:
-        print(f"[DRY RUN] Would create directory: {src_dir}")
-    else:
-        src_dir.mkdir(parents=True, exist_ok=True)
-
-    index_ts = src_dir / "index.ts"
-    if not index_ts.exists():
-        index_content = (
-            'export function hello(): string {\n  return "Hello from TypeScript!";\n}\n'
-        )
-        _write_or_preview(index_ts, index_content, dry_run)
-
-    app_tsx = src_dir / "App.tsx"
-    if not app_tsx.exists():
-        app_content = f"""import React from "react";
-
-function App() {{
-  return (
-    <div className="App">
-      <h1>Welcome to {project_name}</h1>
-    </div>
-  );
-}}
-
-export default App;
-"""
-        _write_or_preview(app_tsx, app_content, dry_run)
-
-    readme = project_path / "README.md"
-    if not readme.exists():
-        readme_content = f"""# {project_name}
-
-A new TypeScript/React project.
-
-## Development
-
-```bash
-npm install
-npm run dev
-```
-
-## Usage
-
-```bash
-make help
-```
-"""
-        _write_or_preview(readme, readme_content, dry_run)
+    path = _TEMPLATES_DIR / lang / filename
+    return path.read_text(encoding="utf-8").format(**kwargs)
 
 
 def create_project_structure(
@@ -545,12 +271,68 @@ def create_project_structure(
         dry_run: Preview changes without writing files
 
     """
+    if language not in SUPPORTED_LANGUAGES:
+        raise ValueError(
+            f"Unsupported language: {language!r}. Supported: {sorted(SUPPORTED_LANGUAGES)}"
+        )
     if language == "python":
-        _create_python_structure(project_path, module_name, project_name, dry_run)
+        src_dir = project_path / "src" / module_name
+        tests_dir = project_path / "tests"
+        _create_structure(
+            [src_dir, tests_dir],
+            [
+                (
+                    src_dir / "__init__.py",
+                    _load_seed("python", "__init__.py", module_name=module_name),
+                ),
+                (tests_dir / "__init__.py", ""),
+                (
+                    project_path / "README.md",
+                    f"# {project_name}\n\nA new Python project.\n\n"
+                    "## Installation\n\n```bash\nuv sync\n```\n\n"
+                    "## Usage\n\n```bash\nmake help\n```\n",
+                ),
+            ],
+            dry_run,
+        )
     elif language == "rust":
-        _create_rust_structure(project_path, project_name, dry_run)
+        src_dir = project_path / "src"
+        _create_structure(
+            [src_dir],
+            [
+                (src_dir / "main.rs", _load_seed("rust", "main.rs")),
+                (
+                    src_dir / "lib.rs",
+                    _load_seed("rust", "lib.rs", project_name=project_name),
+                ),
+                (
+                    project_path / "README.md",
+                    f"# {project_name}\n\nA new Rust project.\n\n"
+                    "## Build\n\n```bash\ncargo build\n```\n\n"
+                    "## Usage\n\n```bash\nmake help\n```\n",
+                ),
+            ],
+            dry_run,
+        )
     elif language == "typescript":
-        _create_typescript_structure(project_path, project_name, dry_run)
+        src_dir = project_path / "src"
+        _create_structure(
+            [src_dir],
+            [
+                (src_dir / "index.ts", _load_seed("typescript", "index.ts")),
+                (
+                    src_dir / "App.tsx",
+                    _load_seed("typescript", "App.tsx", project_name=project_name),
+                ),
+                (
+                    project_path / "README.md",
+                    f"# {project_name}\n\nA new TypeScript/React project.\n\n"
+                    "## Development\n\n```bash\nnpm install\nnpm run dev\n```\n\n"
+                    "## Usage\n\n```bash\nmake help\n```\n",
+                ),
+            ],
+            dry_run,
+        )
 
 
 def _run_post_init_git(
@@ -605,7 +387,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--author", default="Your Name", help="Project author")
     parser.add_argument("--email", default="you@example.com", help="Author email")
     parser.add_argument(
-        "--python-version", default="3.10", help="Python version (for Python projects)"
+        "--python-version", default="3.9", help="Python version (for Python projects)"
     )
     parser.add_argument(
         "--rust-edition", default="2021", help="Rust edition (for Rust projects)"

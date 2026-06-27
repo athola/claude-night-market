@@ -1,7 +1,7 @@
 ---
 name: output-format-templates
 description: Standard output format templates for pensive review deliverables
-parent_skill: pensive:shared
+parent_skill: pensive:unified-review
 category: review-infrastructure
 tags: [templates, output, formatting, structure]
 reusable_by: [pensive:bug-review, pensive:api-review, pensive:architecture-review, pensive:test-review, pensive:rust-review, pensive:makefile-review, pensive:math-review, pensive:unified-review]

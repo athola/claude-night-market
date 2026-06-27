@@ -83,6 +83,13 @@ class TestQualityChecker:
         self.test_path = Path(test_path)
         self.source_path = Path(source_path) if source_path else None
         self.issues: list[QualityIssue] = []
+        self._cached_content: str | None = None
+
+    def _get_test_content(self) -> str:
+        if self._cached_content is None:
+            with open(self.test_path) as f:
+                self._cached_content = f.read()
+        return self._cached_content
 
     def run_full_validation(self) -> dict[str, Any]:
         """Run complete quality validation."""
@@ -123,8 +130,7 @@ class TestQualityChecker:
             )
             return analysis
 
-        with open(self.test_path) as f:
-            test_content = f.read()
+        test_content = self._get_test_content()
 
         try:
             tree = ast.parse(test_content)
@@ -144,7 +150,7 @@ class TestQualityChecker:
         self._check_test_structure(tree, analysis)
         self._check_naming_conventions(tree, analysis)
         self._check_assertion_quality(tree, analysis)
-        self._check_bdd_compliance(test_content, analysis)
+        self._check_bdd_compliance(tree, analysis)
         self._check_documentation(test_content, analysis)
 
         return analysis
@@ -162,13 +168,6 @@ class TestQualityChecker:
             analysis["structure_issues"].append(
                 QualityIssue("error", "structure", "No test functions found"),
             )
-
-        # Check for test classes
-        [
-            node
-            for node in ast.walk(tree)
-            if isinstance(node, ast.ClassDef) and node.name.startswith("Test")
-        ]
 
         # Check for imports
         imports = [
@@ -213,79 +212,72 @@ class TestQualityChecker:
                         ),
                     )
 
+    def _is_vague_result_assertion(self, assert_node: ast.Assert) -> bool:
+        """Return True when the assertion compares a bare ``result`` name.
+
+        Catches ``assert result == <value>`` patterns where the generic
+        variable name gives no information about what was verified.
+        """
+        return (
+            isinstance(assert_node.test, ast.Compare)
+            and isinstance(assert_node.test.left, ast.Name)
+            and assert_node.test.left.id == "result"
+        )
+
     def _check_assertion_quality(self, tree: ast.AST, analysis: dict) -> None:
         """Check assertion quality and patterns."""
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
-                assertions = [n for n in ast.walk(node) if isinstance(n, ast.Assert)]
+            if not (
+                isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+            ):
+                continue
+            assertions = [n for n in ast.walk(node) if isinstance(n, ast.Assert)]
 
-                if not assertions:
-                    analysis["assertion_issues"].append(
-                        QualityIssue(
-                            "error",
-                            "assertion",
-                            f"Test '{node.name}' has no assertions",
-                            node.lineno,
-                        ),
-                    )
-                elif len(assertions) == 1:
-                    # Check for specific assertions
-                    for assert_node in assertions:
-                        if isinstance(assert_node.test, ast.Compare):
-                            # Check for vague assertions
-                            if (
-                                isinstance(assert_node.test.left, ast.Name)
-                                and assert_node.test.left.id == "result"
-                            ):
-                                analysis["assertion_issues"].append(
-                                    QualityIssue(
-                                        "warning",
-                                        "assertion",
-                                        f"Vague assertion in '{node.name}' - "
-                                        f"be more specific",
-                                        assert_node.lineno,
-                                        "Example: assert result.status == 'success'",
-                                    ),
-                                )
+            if not assertions:
+                analysis["assertion_issues"].append(
+                    QualityIssue(
+                        "error",
+                        "assertion",
+                        f"Test '{node.name}' has no assertions",
+                        node.lineno,
+                    ),
+                )
+            elif len(assertions) == 1 and self._is_vague_result_assertion(
+                assertions[0]
+            ):
+                analysis["assertion_issues"].append(
+                    QualityIssue(
+                        "warning",
+                        "assertion",
+                        f"Vague assertion in '{node.name}' - be more specific",
+                        assertions[0].lineno,
+                        "Example: assert result.status == 'success'",
+                    ),
+                )
 
-    def _check_bdd_compliance(self, test_content: str, analysis: dict) -> None:
-        """Check BDD pattern compliance."""
-        bdd_patterns = {
-            "given": re.compile(r"(?i)given\s+"),
-            "when": re.compile(r"(?i)when\s+"),
-            "then": re.compile(r"(?i)then\s+"),
-            "and": re.compile(r"(?i)and\s+"),
-        }
+    _BDD_KEYWORDS = ("given", "when", "then", "and")
 
-        # Single pass: find each test function and its body together
-        func_pattern = re.compile(
-            r"def (test_[^(]+)\(.*?\):(.*?)(?=\ndef |\nclass |$)",
-            re.DOTALL,
-        )
-
-        for match in func_pattern.finditer(test_content):
-            test_name = match.group(1)
-            test_body = match.group(2)
-
-            # Check for BDD keywords in docstrings
-            docstring_match = re.search(r'"""(.*?)"""', test_body, re.DOTALL)
-            if docstring_match:
-                docstring = docstring_match.group(1)
-                missing_patterns = []
-
-                for pattern_name, pattern_regex in bdd_patterns.items():
-                    if not pattern_regex.search(docstring):
-                        missing_patterns.append(pattern_name.upper())
-
-                if missing_patterns:
-                    analysis["bdd_compliance"].append(
-                        QualityIssue(
-                            "warning",
-                            "bdd",
-                            f"Test '{test_name}' missing BDD patterns",
-                            suggestion=(f"Add {', '.join(missing_patterns)} patterns"),
-                        ),
-                    )
+    def _check_bdd_compliance(self, tree: ast.AST, analysis: dict) -> None:
+        """Check BDD pattern compliance using AST docstring extraction."""
+        for node in ast.walk(tree):
+            if not (
+                isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+            ):
+                continue
+            docstring = ast.get_docstring(node)
+            if not docstring:
+                continue
+            lower = docstring.lower()
+            missing = [kw.upper() for kw in self._BDD_KEYWORDS if kw not in lower]
+            if missing:
+                analysis["bdd_compliance"].append(
+                    QualityIssue(
+                        "warning",
+                        "bdd",
+                        f"Test '{node.name}' missing BDD patterns",
+                        suggestion=f"Add {', '.join(missing)} patterns",
+                    ),
+                )
 
     def _check_documentation(self, test_content: str, analysis: dict) -> None:
         """Check test documentation quality."""
@@ -360,26 +352,13 @@ class TestQualityChecker:
                 validation["test_duration"] = time.time() - start_time
                 validation["execution_result"] = result.returncode
 
-                # Parse results if available
-                try:
-                    with open(tmp_path) as f:
-                        report = json.load(f)
-                        validation["passed"] = report.get("summary", {}).get(
-                            "passed", 0
-                        )
-                        validation["failures"] = report.get("summary", {}).get(
-                            "failed", 0
-                        )
-                        validation["errors"] = report.get("summary", {}).get("error", 0)
-                        validation["skipped"] = report.get("summary", {}).get(
-                            "skipped", 0
-                        )
-                except (json.JSONDecodeError, FileNotFoundError, OSError):
-                    # Fallback to parsing output
-                    if result.returncode == 0:
-                        validation["passed"] = 1
-                    else:
-                        validation["failures"] = 1
+                parsed = self._parse_test_report(
+                    tmp_path, fallback_returncode=result.returncode
+                )
+                validation["passed"] = parsed["passed"]
+                validation["failures"] = parsed["failures"]
+                validation["errors"] = parsed["errors"]
+                validation["skipped"] = parsed["skipped"]
 
             except subprocess.TimeoutExpired:
                 validation["errors"].append("Test execution timed out (>30s)")
@@ -398,6 +377,29 @@ class TestQualityChecker:
 
         return validation
 
+    def _parse_test_report(
+        self, report_path, fallback_returncode: int
+    ) -> dict[str, Any]:
+        """Parse a pytest JSON report file into a summary dict.
+
+        Falls back to synthetic counts when the file is missing or unreadable.
+        fallback_returncode == 0 → treat as 1 pass; non-zero → treat as 1 failure.
+        """
+        try:
+            with open(report_path) as f:
+                report = json.load(f)
+            summary = report.get("summary", {})
+            return {
+                "passed": summary.get("passed", 0),
+                "failures": summary.get("failed", 0),
+                "errors": summary.get("error", 0),
+                "skipped": summary.get("skipped", 0),
+            }
+        except (json.JSONDecodeError, FileNotFoundError, OSError):
+            if fallback_returncode == 0:
+                return {"passed": 1, "failures": 0, "errors": 0, "skipped": 0}
+            return {"passed": 0, "failures": 1, "errors": 0, "skipped": 0}
+
     def calculate_metrics(self) -> dict[str, Any]:
         """Calculate quality metrics."""
         metrics = {
@@ -411,8 +413,7 @@ class TestQualityChecker:
         if not self.test_path.exists():
             return metrics
 
-        with open(self.test_path) as f:
-            content = f.read()
+        content = self._get_test_content()
 
         try:
             tree = ast.parse(content)
@@ -569,6 +570,20 @@ class TestQualityChecker:
         return recommendations
 
 
+def _run_check_or_validate(checker: TestQualityChecker, args) -> None:
+    """Run a check/validate command and emit output per args settings."""
+    results = checker.run_full_validation()
+    if args.output_json:
+        output_result(results, args)
+    else:
+        output = format_report(results)
+        if args.output:
+            with open(args.output, "w") as f:
+                f.write(output)
+        else:
+            print(output)
+
+
 def main() -> None:
     """CLI entry point."""
     parser = argparse.ArgumentParser(description="Check test quality")
@@ -592,17 +607,7 @@ def main() -> None:
                 return
 
             checker = TestQualityChecker(test_path)
-            results = checker.run_full_validation()
-
-            if args.output_json:
-                output_result(results, args)
-            else:
-                output = format_report(results)
-                if args.output:
-                    with open(args.output, "w") as f:
-                        f.write(output)
-                else:
-                    print(output)
+            _run_check_or_validate(checker, args)
 
         else:
             parser.print_help()

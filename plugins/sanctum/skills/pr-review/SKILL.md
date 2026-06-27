@@ -33,7 +33,6 @@ modules:
 - modules/insight-generation.md
 dependencies:
 - leyline:git-platform
-- sanctum:shared
 - sanctum:git-workspace-review
 - sanctum:version-updates
 - pensive:unified-review

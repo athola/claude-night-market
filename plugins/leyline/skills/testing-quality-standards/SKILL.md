@@ -112,3 +112,21 @@ Check that the module being tested is in `PYTHONPATH` or install with `pip insta
 
 **Async tests failing**
 Install pytest-asyncio and decorate test functions with `@pytest.mark.asyncio`
+
+## Exit Criteria
+
+- [ ] Coverage threshold met for the project tier: 60% minimum for
+  legacy code, 80% for normal development, 90% for critical
+  systems, 95%+ for safety-critical; measured with
+  `pytest --cov` and threshold enforced in `pyproject.toml`
+- [ ] All four quality metric checklists pass: Structure (clear
+  organization, meaningful names, setup/teardown, isolation),
+  Coverage (critical paths, edge cases, error conditions,
+  integration points), Maintainability (DRY fixtures, clear
+  assertions, minimal mocking), Reliability (no flaky tests,
+  deterministic execution, no order dependencies)
+- [ ] Test files match discovery pattern `test_*.py` or `*_test.py`
+  confirmed by `pytest --collect-only` returning no errors
+- [ ] No snapshot tests present on non-deterministic output (hash
+  maps, timestamps, UUIDs); any found flagged as anti-patterns
+  per `modules/anti-patterns.md`

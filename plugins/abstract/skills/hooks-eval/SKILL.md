@@ -184,3 +184,15 @@ Validate JSON/Python syntax before deployment
 
 **Permission denied**
 Check hook file permissions and ownership
+
+## Exit Criteria
+
+- [ ] Every hook in scope receives a composite quality score (0-100) across the five weighted
+  categories: Security (30), Performance (25), Compliance (20), Reliability (15),
+  Maintainability (10).
+- [ ] Any hook scoring below 60 on the Security category is flagged as a blocking issue before
+  the evaluation report is returned.
+- [ ] Shell commands referenced in `hooks.json` are verified to exist and be executable; missing
+  scripts are listed as FAIL findings.
+- [ ] The evaluation report distinguishes between JSON hooks (Claude Code) and Python SDK hooks
+  and applies the correct signature expectations for each type.

@@ -8,7 +8,10 @@ Covers:
 
 from __future__ import annotations
 
+import ast
+import inspect
 import json
+import textwrap
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -363,3 +366,25 @@ class TestComputeTendingActions:
         actions = cli._compute_tending_actions(plots, now, 2, 7, 30)
 
         assert all(len(v) == 0 for v in actions.values())
+
+
+class TestMP007EmitTendingReportPrometheus:
+    """MP-007: dead inner function 'line' in _emit_tending_report prometheus block."""
+
+    def test_emit_tending_report_prometheus_block_has_no_dead_inner_function(
+        self,
+    ) -> None:
+        """_emit_tending_report must not define an inner 'line' function.
+
+        When prometheus=True the method should return immediately.
+        The 'line' closure was defined but never called, making it dead code.
+        """
+        src = textwrap.dedent(inspect.getsource(MemoryPalaceCLI._emit_tending_report))
+        tree = ast.parse(src)
+        inner_fn_names = [
+            node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)
+        ]
+        assert "line" not in inner_fn_names, (
+            "_emit_tending_report still defines dead inner function 'line'; "
+            "delete it (MP-007)"
+        )

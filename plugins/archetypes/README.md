@@ -249,6 +249,13 @@ Ways to leave this plugin better than you found it:
 See [STEWARDSHIP.md](../../STEWARDSHIP.md) for the full
 stewardship principles guiding this project.
 
+## Design note
+
+Archetypes is a markdown-skill-only plugin: 14 skills, no Python
+`src/` module, no hooks. All functionality is expressed as skill
+prompts consumed by the AI at runtime. No Python package is
+installed or imported.
+
 ## License
 
 MIT License.

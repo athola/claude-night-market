@@ -214,3 +214,18 @@ This skill works with:
 - `conserve:token-conservation` - Budget tracking
 - `conserve:context-optimization` - MECW management
 - `sanctum:code-review` - Review feedback
+
+## Exit Criteria
+
+- [ ] Response contains none of the banned openers: "Great question!",
+  "I'd be happy to help", "Let's dive in", "Furthermore",
+  "Additionally", "In conclusion"
+- [ ] Response contains no trailing filler: "Let me know if...",
+  "Feel free to...", "Hope this helps!", "Next steps:" (unless
+  safety-critical)
+- [ ] Token count of final response is 150-400 tokens lower than a
+  naive version of the same content would be, verified by comparing
+  before/after examples when token impact is measurable
+- [ ] Safety warnings, technical precision, and factual uncertainty
+  markers are preserved intact; only decorative and conversational
+  content is removed

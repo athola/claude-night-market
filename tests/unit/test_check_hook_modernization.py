@@ -548,3 +548,114 @@ class TestMainCLI:
         (tmp_path / "plugins").mkdir()
         code = main(["--root", str(tmp_path)])
         assert code == 0
+
+
+# ============================================================================
+# Silent-drop surfacing (issue #575, B1)
+# ============================================================================
+
+
+class TestSilentDropSurfacing:
+    """Feature: 'could not check' must not become 'checked, fine'.
+
+    Three swallow points used to convert an unverifiable file into a
+    silent pass inside a CI gate: a malformed hooks.json, a Python
+    source that fails to parse, and an unreadable hook file. Each must
+    now surface an error Finding so the exit-1 path catches it.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_syntax_error_source_emits_error_finding(self) -> None:
+        """
+        Given a PostToolUse hook whose source does not parse,
+        When the source is checked,
+        Then an error Finding is emitted (not a silent return).
+        """
+        source = "def (oops this is not python:\n    print('x')\n"
+        findings = check_python_source(source, "test", "hook.py", ["PostToolUse"])
+        errors = [f for f in findings if f.severity == "error"]
+        assert len(errors) >= 1
+        assert any("pars" in f.message.lower() for f in errors)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_malformed_hooks_json_emits_error_finding(self, tmp_path) -> None:
+        """
+        Given a plugin whose hooks.json is not valid JSON,
+        When run_audit scans the tree,
+        Then an error Finding is emitted rather than skipping checks.
+        """
+        plugin = tmp_path / "plugins" / "broken" / "hooks"
+        plugin.mkdir(parents=True)
+        (plugin / "hooks.json").write_text("{ this is not json ]")
+        (plugin / "hook.py").write_text("import json\nprint('{}')\n")
+
+        result = run_audit(tmp_path)
+        assert result.error_count >= 1
+        assert any("hooks.json" in f.file for f in result.findings)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_malformed_hooks_json_makes_main_return_1(self, tmp_path) -> None:
+        """
+        Given a malformed hooks.json,
+        When main() runs in text mode,
+        Then it returns 1 (the CI gate fails, not silently passes).
+        """
+        plugin = tmp_path / "plugins" / "broken" / "hooks"
+        plugin.mkdir(parents=True)
+        (plugin / "hooks.json").write_text("{ nope")
+        (plugin / "hook.py").write_text("import json\nprint('{}')\n")
+
+        code = main(["--root", str(tmp_path)])
+        assert code == 1
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_unreadable_source_emits_error_finding(self, tmp_path) -> None:
+        """
+        Given a hook path that cannot be read (a directory named *.py),
+        When run_audit scans the tree,
+        Then an error Finding is emitted rather than a silent continue.
+        """
+        plugin = tmp_path / "plugins" / "weird" / "hooks"
+        plugin.mkdir(parents=True)
+        (plugin / "hooks.json").write_text(
+            json.dumps(
+                {
+                    "hooks": {
+                        "PostToolUse": [
+                            {
+                                "hooks": [
+                                    {
+                                        "type": "command",
+                                        "command": "hooks/unreadable.py",
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                }
+            )
+        )
+        # A directory whose name ends in .py: glob matches it, but
+        # read_text() raises IsADirectoryError (an OSError subclass).
+        (plugin / "unreadable.py").mkdir()
+
+        result = run_audit(tmp_path)
+        assert result.error_count >= 1
+        assert any("unreadable.py" in f.file for f in result.findings)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_get_hook_event_types_propagates_malformed_json(self, tmp_path) -> None:
+        """
+        Given a malformed hooks.json,
+        When get_hook_event_types parses it,
+        Then it raises (malformed != empty) rather than returning {}.
+        """
+        bad = tmp_path / "hooks.json"
+        bad.write_text("{ not json")
+        with pytest.raises(json.JSONDecodeError):
+            get_hook_event_types(bad)

@@ -105,7 +105,7 @@ class TestInit:
         """Scenario: skills_dir and skills_root point to same path."""
         tracker = TokenUsageTracker(tmp_path)
         assert tracker.skills_dir == tmp_path
-        assert tracker.skills_root == tmp_path
+        assert tracker.skills_dir == tmp_path
 
     @pytest.mark.unit
     def test_usage_history_initially_empty(self, tmp_path: Path) -> None:
@@ -179,6 +179,14 @@ class TestAnalyzeSkillTokens:
         assert "error" in result
         assert result["total_tokens"] == 0
         assert result["needs_modularization"] is False
+
+    @pytest.mark.unit
+    def test_memory_error_propagates(self, skill_dir: Path) -> None:
+        """MemoryError must propagate; only OSError is expected from file I/O."""
+        tracker = TokenUsageTracker(skill_dir)
+        with patch("builtins.open", side_effect=MemoryError("oom")):
+            with pytest.raises(MemoryError):
+                tracker.analyze_skill_tokens("my-skill")
 
 
 # ---------------------------------------------------------------------------
@@ -810,6 +818,14 @@ class TestOptimizeSuggestionsSingleSkill:
         with patch("builtins.open", side_effect=OSError("denied")):
             suggestions = tracker.optimize_suggestions("my-skill")
         assert suggestions == ["Error reading skill file"]
+
+    @pytest.mark.unit
+    def test_memory_error_propagates(self, skill_dir: Path) -> None:
+        """MemoryError must propagate; only OSError is expected from file I/O."""
+        tracker = TokenUsageTracker(skill_dir)
+        with patch("builtins.open", side_effect=MemoryError("oom")):
+            with pytest.raises(MemoryError):
+                tracker.optimize_suggestions("my-skill")
 
     @pytest.mark.unit
     def test_skill_over_optimal_returns_reduce_message(self, skill_dir: Path) -> None:

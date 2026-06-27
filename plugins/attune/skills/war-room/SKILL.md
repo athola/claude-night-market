@@ -3,7 +3,7 @@ name: war-room
 description: Convenes a multi-LLM expert panel to pressure-test hard-to-reverse decisions. Use when reversibility score is low and adversarial review is warranted.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model_preference: claude-opus-4
+model_preference: claude-opus-4-8
 category: strategic-planning
 tags: [deliberation, multi-llm, strategy, decision-making, council, reversibility]
 complexity: advanced
@@ -88,7 +88,7 @@ See `modules/reversibility-assessment.md` for full scoring guide.
 | Supreme Commander | Claude Opus | Final synthesis |
 | Chief Strategist | Claude Sonnet | Approach generation |
 | Intelligence Officer | Gemini 2.5 Pro | Large context analysis (1M+) |
-| Field Tactician | GLM-4.7 | Implementation feasibility |
+| Field Tactician | GLM-5.2 | Implementation feasibility |
 | Scout | Qwen Turbo | Quick data gathering |
 | Red Team Commander | Gemini Flash | Adversarial challenge |
 | Logistics Officer | Qwen Max | Resource estimation |
@@ -161,7 +161,7 @@ Sessions persist to the **Strategeion** (War Palace):
 Experts are invoked via conjure delegation:
 - `conjure:gemini-delegation` for Gemini models
 - `conjure:qwen-delegation` for Qwen models
-- Direct CLI for GLM-4.7 (`ccgd` or `claude-glm --dangerously-skip-permissions`)
+- Direct CLI for GLM-5.2 (`ccgd` or `claude-glm --dangerously-skip-permissions`)
 
 ## Usage
 

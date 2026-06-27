@@ -315,7 +315,7 @@ class TestHaikuFallback:
         with patch("shutil.which") as mock_which:
             mock_which.return_value = "/usr/local/bin/claude"
             cmd = get_haiku_command()
-            assert cmd == ["claude", "--model", "claude-haiku-3", "-p"]
+            assert cmd == ["claude", "--model", "claude-haiku-4-5", "-p"]
 
     def test_get_haiku_command_not_found(self) -> None:
         """get_haiku_command raises when claude not available."""
@@ -385,7 +385,7 @@ class TestHaikuFallback:
 
         # Verify model recorded is Haiku, not original
         node = list(session.merkle_dag.nodes.values())[0]
-        assert node.expert_model == "claude-haiku-3"
+        assert node.expert_model == "claude-haiku-4-5"
 
     @pytest.mark.asyncio
     async def test_invoke_haiku_fallback_prepends_role(

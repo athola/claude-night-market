@@ -37,19 +37,9 @@ _EMOJI_RE = re.compile(
 )
 
 
-def _is_git_commit(command: str) -> bool:
-    """Return True if the Bash command is a git commit invocation."""
-    return is_git_commit(command)
-
-
 def _has_emoji(command: str) -> bool:
     """Return True if *command* contains an emoji character."""
     return bool(_EMOJI_RE.search(command))
-
-
-def _shadow_mode() -> bool:
-    """Return True when shadow (warn-only) mode is active."""
-    return shadow_mode_active()
 
 
 def main() -> None:
@@ -66,13 +56,13 @@ def main() -> None:
             sys.exit(0)
 
         command = data.get("tool_input", {}).get("command", "")
-        if not _is_git_commit(command):
+        if not is_git_commit(command):
             sys.exit(0)
 
         if not _has_emoji(command):
             sys.exit(0)
 
-        shadow = _shadow_mode()
+        shadow = shadow_mode_active()
         decision = "warn" if shadow else "block"
         reason = (
             "Vow violation: emoji character detected in commit message. "

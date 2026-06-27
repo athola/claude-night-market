@@ -7,7 +7,6 @@ Supports multiple strategy types and implementation planning.
 
 import argparse
 import json
-import sys
 from datetime import datetime, timezone
 from typing import Any
 
@@ -25,34 +24,103 @@ _HIGH_SEVERITY = frozenset({"SEVERE", "CRITICAL"})
 class GrowthController:
     """Generates and manages context growth control strategies."""
 
+    _STRATEGY_TYPES: dict[str, dict[str, object]] = {
+        "conservative": {
+            "description": "Minimal disruption, gradual optimization",
+            "priority": ["Prevention", "Monitoring", "Manual Control"],
+            "implementation_speed": "Slow (5-10 turns)",
+            "risk_level": "Low",
+        },
+        "moderate": {
+            "description": "Balanced approach with automated controls",
+            "priority": ["Automated Control", "Prevention", "Manual Control"],
+            "implementation_speed": "Medium (3-7 turns)",
+            "risk_level": "Medium",
+        },
+        "aggressive": {
+            "description": "Immediate action with strong controls",
+            "priority": ["Automated Control", "Manual Control", "Prevention"],
+            "implementation_speed": "Fast (1-3 turns)",
+            "risk_level": "High",
+        },
+    }
+
+    _IMPLEMENTATION_PLANS: dict[str, dict[str, dict[str, object]]] = {
+        "conservative": {
+            "phase_1": {
+                "duration": "2-3 turns",
+                "actions": ["Setup monitoring", "Begin content structuring"],
+                "priority": "Low",
+            },
+            "phase_2": {
+                "duration": "5-7 turns",
+                "actions": [
+                    "Implement preventive strategies",
+                    "Begin manual optimization",
+                ],
+                "priority": "Medium",
+            },
+            "phase_3": {
+                "duration": "Ongoing",
+                "actions": ["Continuous monitoring", "Regular optimization"],
+                "priority": "Low",
+            },
+        },
+        "moderate": {
+            "phase_1": {
+                "duration": "1-2 turns",
+                "actions": [
+                    "Setup automated monitoring",
+                    "Implement progressive management",
+                ],
+                "priority": "High",
+            },
+            "phase_2": {
+                "duration": "2-4 turns",
+                "actions": [
+                    "Deploy automated controls",
+                    "Begin manual optimization",
+                ],
+                "priority": "High",
+            },
+            "phase_3": {
+                "duration": "Ongoing",
+                "actions": ["Monitoring and adjustment", "Preventive maintenance"],
+                "priority": "Medium",
+            },
+        },
+        "aggressive": {
+            "phase_1": {
+                "duration": "Immediate",
+                "actions": ["Emergency compression", "Real-time monitoring"],
+                "priority": "Critical",
+            },
+            "phase_2": {
+                "duration": "1-2 turns",
+                "actions": ["Aggressive pruning", "Automated control deployment"],
+                "priority": "Critical",
+            },
+            "phase_3": {
+                "duration": "2-3 turns",
+                "actions": ["Manual optimization", "Structural changes"],
+                "priority": "High",
+            },
+        },
+    }
+
     def __init__(self) -> None:
-        """Initialize the growth controller with strategy definitions."""
-        self.strategy_types = {
-            "conservative": {
-                "description": "Minimal disruption, gradual optimization",
-                "priority": ["Prevention", "Monitoring", "Manual Control"],
-                "implementation_speed": "Slow (5-10 turns)",
-                "risk_level": "Low",
-            },
-            "moderate": {
-                "description": "Balanced approach with automated controls",
-                "priority": ["Automated Control", "Prevention", "Manual Control"],
-                "implementation_speed": "Medium (3-7 turns)",
-                "risk_level": "Medium",
-            },
-            "aggressive": {
-                "description": "Immediate action with strong controls",
-                "priority": ["Automated Control", "Manual Control", "Prevention"],
-                "implementation_speed": "Fast (1-3 turns)",
-                "risk_level": "High",
-            },
-        }
+        """Initialize the growth controller."""
+
+    @property
+    def strategy_types(self) -> dict[str, dict[str, object]]:
+        """Backward-compatible access to strategy type definitions."""
+        return self._STRATEGY_TYPES
 
     def generate_control_strategies(
         self, analysis_results: dict, strategy_type: str = "moderate"
     ) -> dict:
         """Generate control strategies based on analysis results."""
-        if strategy_type not in self.strategy_types:
+        if strategy_type not in self._STRATEGY_TYPES:
             msg = f"Invalid strategy type: {strategy_type}"
             raise ValueError(msg)
 
@@ -251,73 +319,10 @@ class GrowthController:
         self, strategy_type: str
     ) -> dict[str, dict[str, object]]:
         """Generate implementation timeline and steps."""
-        _ = self.strategy_types[strategy_type]
-
-        if strategy_type == "conservative":
-            return {
-                "phase_1": {
-                    "duration": "2-3 turns",
-                    "actions": ["Setup monitoring", "Begin content structuring"],
-                    "priority": "Low",
-                },
-                "phase_2": {
-                    "duration": "5-7 turns",
-                    "actions": [
-                        "Implement preventive strategies",
-                        "Begin manual optimization",
-                    ],
-                    "priority": "Medium",
-                },
-                "phase_3": {
-                    "duration": "Ongoing",
-                    "actions": ["Continuous monitoring", "Regular optimization"],
-                    "priority": "Low",
-                },
-            }
-
-        if strategy_type == "moderate":
-            return {
-                "phase_1": {
-                    "duration": "1-2 turns",
-                    "actions": [
-                        "Setup automated monitoring",
-                        "Implement progressive management",
-                    ],
-                    "priority": "High",
-                },
-                "phase_2": {
-                    "duration": "2-4 turns",
-                    "actions": [
-                        "Deploy automated controls",
-                        "Begin manual optimization",
-                    ],
-                    "priority": "High",
-                },
-                "phase_3": {
-                    "duration": "Ongoing",
-                    "actions": ["Monitoring and adjustment", "Preventive maintenance"],
-                    "priority": "Medium",
-                },
-            }
-
-        # aggressive
-        return {
-            "phase_1": {
-                "duration": "Immediate",
-                "actions": ["Emergency compression", "Real-time monitoring"],
-                "priority": "Critical",
-            },
-            "phase_2": {
-                "duration": "1-2 turns",
-                "actions": ["Aggressive pruning", "Automated control deployment"],
-                "priority": "Critical",
-            },
-            "phase_3": {
-                "duration": "2-3 turns",
-                "actions": ["Manual optimization", "Structural changes"],
-                "priority": "High",
-            },
-        }
+        if strategy_type not in self._IMPLEMENTATION_PLANS:
+            msg = f"Invalid strategy type: {strategy_type}"
+            raise ValueError(msg)
+        return self._IMPLEMENTATION_PLANS[strategy_type]
 
     def _generate_monitoring_requirements(self, severity: str) -> dict[str, Any]:
         """Generate monitoring requirements based on severity."""
@@ -374,14 +379,9 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Load analysis results
-    try:
-        with open(args.analysis_file) as f:
-            analysis_results = json.load(f)
-    except FileNotFoundError:
-        sys.exit(1)
-    except json.JSONDecodeError:
-        sys.exit(1)
+    # Load analysis results — propagate errors so callers can handle them
+    with open(args.analysis_file) as f:
+        analysis_results = json.load(f)
 
     # Generate control strategies
     controller = GrowthController()

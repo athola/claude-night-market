@@ -29,25 +29,8 @@ from update_plugins_modules import (
 from update_plugins_modules.constants import CACHE_EXCLUDES
 
 
-class PluginAuditor:
-    """Audit and sync plugin.json registrations with disk contents."""
-
-    MODULE_DESCRIPTION_MAX_LEN = 80
-    QUEUE_DISPLAY_LIMIT = 10
-
-    def __init__(self, plugins_root: Path, dry_run: bool = True):
-        """Initialize auditor with plugins root and dry-run mode."""
-        self.plugins_root = plugins_root
-        self.dry_run = dry_run
-        self.discrepancies: dict[str, Any] = {}
-        self.module_issues: dict[
-            str, dict[str, Any]
-        ] = {}  # Track module issues separately
-
-        # Initialize Phase 2-4 analyzers
-        self.performance_analyzer = PerformanceAnalyzer()
-        self.meta_evaluator = MetaEvaluator()
-        self.queue_checker = KnowledgeQueueChecker()
+class _ScanningMixin:
+    """Disk scanning: enumerate commands/skills/agents/hooks/modules."""
 
     def _should_exclude(self, path: Path) -> bool:
         """Check if path should be excluded based on cache/temp patterns."""
@@ -226,55 +209,50 @@ class PluginAuditor:
         - plugins/plugin-name/skills/skill-name/modules/filename.md
         """
         references: set[str] = set()
+        content = self._safe_read(md_file)
+        if not content:
+            return references
 
-        try:
-            content = md_file.read_text(encoding="utf-8")
-
-            # Extract from YAML frontmatter modules: list
-            frontmatter_match = re.match(r"^---\n(.*?\n)---", content, re.DOTALL)
-            if frontmatter_match:
-                frontmatter = frontmatter_match.group(1)
-                # Find the modules: block and extract bare names
-                modules_match = re.search(
-                    r"^modules:\s*\n((?:- .+\n)*)", frontmatter, re.MULTILINE
-                )
-                if modules_match:
-                    for raw_name in re.findall(
-                        r"^- (.+)$", modules_match.group(1), re.MULTILINE
-                    ):
-                        entry = raw_name.strip()
-                        if entry and not entry.startswith("{"):
-                            # Normalize any path-prefixed entry to its
-                            # basename so the set comparison against
-                            # on-disk filenames in _scan_skill_modules
-                            # (which stores bare names) is apples-to-apples.
-                            # Handles: "modules/foo.md", "./modules/foo.md",
-                            # "../modules/foo.md", and bare "foo.md".
-                            if "/" in entry:
-                                entry = entry.rsplit("/", 1)[-1]
-                            # Convert bare name to filename: name -> name.md
-                            if not entry.endswith(".md"):
-                                entry = f"{entry}.md"
-                            references.add(entry)
-
-            # Content-level patterns
-            patterns = [
-                # Direct module references
-                r"@modules/([a-zA-Z0-9_-]+\.md)",
-                r"[`\s\(]modules/([a-zA-Z0-9_-]+\.md)",
-                r"See\s+`?modules/([a-zA-Z0-9_-]+\.md)",
-                # Full path references (captures entire path)
-                r"skills/[a-zA-Z0-9_-]+/modules/([a-zA-Z0-9_-]+\.md)",
-                r"plugins/[a-zA-Z0-9_-]+/skills/[a-zA-Z0-9_-]+/modules/([a-zA-Z0-9_-]+\.md)",
-            ]
-            for pattern in patterns:
-                matches = re.findall(pattern, content)
-                references.update(matches)
-        except (OSError, UnicodeDecodeError) as exc:
-            print(
-                f"[update_plugin_registrations] cannot read {md_file}: {exc}",
-                file=sys.stderr,
+        # Extract from YAML frontmatter modules: list
+        frontmatter_match = re.match(r"^---\n(.*?\n)---", content, re.DOTALL)
+        if frontmatter_match:
+            frontmatter = frontmatter_match.group(1)
+            # Find the modules: block and extract bare names
+            modules_match = re.search(
+                r"^modules:\s*\n((?:- .+\n)*)", frontmatter, re.MULTILINE
             )
+            if modules_match:
+                for raw_name in re.findall(
+                    r"^- (.+)$", modules_match.group(1), re.MULTILINE
+                ):
+                    entry = raw_name.strip()
+                    if entry and not entry.startswith("{"):
+                        # Normalize any path-prefixed entry to its
+                        # basename so the set comparison against
+                        # on-disk filenames in _scan_skill_modules
+                        # (which stores bare names) is apples-to-apples.
+                        # Handles: "modules/foo.md", "./modules/foo.md",
+                        # "../modules/foo.md", and bare "foo.md".
+                        if "/" in entry:
+                            entry = entry.rsplit("/", 1)[-1]
+                        # Convert bare name to filename: name -> name.md
+                        if not entry.endswith(".md"):
+                            entry = f"{entry}.md"
+                        references.add(entry)
+
+        # Content-level patterns
+        patterns = [
+            # Direct module references
+            r"@modules/([a-zA-Z0-9_-]+\.md)",
+            r"[`\s\(]modules/([a-zA-Z0-9_-]+\.md)",
+            r"See\s+`?modules/([a-zA-Z0-9_-]+\.md)",
+            # Full path references (captures entire path)
+            r"skills/[a-zA-Z0-9_-]+/modules/([a-zA-Z0-9_-]+\.md)",
+            r"plugins/[a-zA-Z0-9_-]+/skills/[a-zA-Z0-9_-]+/modules/([a-zA-Z0-9_-]+\.md)",
+        ]
+        for pattern in patterns:
+            matches = re.findall(pattern, content)
+            references.update(matches)
 
         return references
 
@@ -465,6 +443,43 @@ class PluginAuditor:
 
         return set(json_value) if json_value else set()
 
+    def _read_module_description(self, module_path: Path) -> str:
+        """Return the first prose line from a module file.
+
+        Skips YAML frontmatter (``---`` delimited), blank lines, and
+        heading lines (starting with ``#``).  If the resulting line
+        exceeds 80 characters it is truncated to 77 chars with an
+        ellipsis appended.  Returns an empty string when the file is
+        missing, unreadable, or contains no prose.
+        """
+        try:
+            lines = module_path.read_text(encoding="utf-8").splitlines()
+            in_frontmatter = False
+            for line in lines:
+                stripped = line.strip()
+                if stripped == "---":
+                    in_frontmatter = not in_frontmatter
+                    continue
+                if in_frontmatter or not stripped:
+                    continue
+                if stripped.startswith("#"):
+                    continue
+                if len(stripped) > self.MODULE_DESCRIPTION_MAX_LEN:
+                    return stripped[:77] + "..."
+                return stripped
+        except FileNotFoundError:
+            pass  # Expected: orphaned module may not exist on disk
+        except OSError as exc:
+            print(
+                f"[update_plugin_registrations] cannot read {module_path}: {exc}",
+                file=sys.stderr,
+            )
+        return ""
+
+
+class _ComparisonMixin:
+    """Compare disk vs plugin.json and apply registration fixes."""
+
     def compare_registrations(
         self,
         plugin_path: Path,
@@ -510,44 +525,92 @@ class PluginAuditor:
 
         return discrepancies
 
-    def audit_plugin(self, plugin_name: str) -> bool:
-        """Audit a single plugin and return True if discrepancies found."""
-        plugin_path = self.plugins_root / plugin_name
+    def _validate_registration(
+        self,
+        plugin_name: str,
+        plugin_path: Path,
+        plugin_data: dict[str, Any],
+    ) -> list[str]:
+        """Report hooks discrepancies that require manual fixes.
 
-        if not plugin_path.exists() or not plugin_path.is_dir():
-            print(f"[SKIP] {plugin_name}: not a directory")
-            return False
+        Pure query: does NOT mutate plugin_data.
+        Call _apply_non_hooks_mutations for non-hooks fixes.
 
-        # Read plugin.json
-        plugin_json_data = self.read_plugin_json(plugin_path)
-        if plugin_json_data is None:
-            print(f"[SKIP] {plugin_name}: no valid plugin.json")
-            return False
+        Returns:
+            List of warning strings for hooks discrepancies.
 
-        # Scan disk
-        on_disk = self.scan_disk_files(plugin_path)
+        """
+        disc = self.discrepancies[plugin_name]
+        standard_hooks_json = plugin_path / "hooks" / "hooks.json"
+        warnings: list[str] = []
 
-        # Compare registrations
-        discrepancies = self.compare_registrations(
-            plugin_path, on_disk, plugin_json_data
+        missing_hooks = disc["missing"].get("hooks", [])
+        stale_hooks = disc["stale"].get("hooks", [])
+
+        if missing_hooks:
+            if standard_hooks_json.exists() or isinstance(
+                plugin_data.get("hooks"), str
+            ):
+                hooks_ref = plugin_data.get("hooks", "./hooks/hooks.json")
+                warnings.append(
+                    f"[MANUAL] {plugin_name}: hooks are auto-loaded from hooks.json"
+                )
+                warnings.append(f"         Update {hooks_ref} to add missing hooks:")
+                for item in missing_hooks:
+                    warnings.append(f"           - {item}")
+            else:
+                warnings.append(
+                    f"[MANUAL] {plugin_name}: no hooks.json found, create one with:"
+                )
+                for item in missing_hooks:
+                    warnings.append(f"           - {item}")
+
+        if stale_hooks:
+            hooks_ref = plugin_data.get("hooks", "./hooks/hooks.json")
+            if not missing_hooks:
+                warnings.append(
+                    f"[MANUAL] {plugin_name}: hooks are auto-loaded from hooks.json"
+                )
+                warnings.append(f"         Update {hooks_ref} to remove stale hooks:")
+            for item in stale_hooks:
+                warnings.append(f"           - {item}")
+
+        return warnings
+
+    def _apply_fixes(
+        self,
+        plugin_name: str,
+        plugin_json_path: Path,
+        plugin_data: dict[str, Any],
+    ) -> bool:
+        """Write the updated plugin.json to disk when non-hooks changes exist.
+
+        Returns:
+            True on success (or when no write is needed).
+
+        """
+        disc = self.discrepancies[plugin_name]
+        non_hooks_changes = any(
+            cat != "hooks"
+            for cat in list(disc["missing"].keys()) + list(disc["stale"].keys())
         )
 
-        # Audit modules within skills
-        module_issues = self.audit_skill_modules(plugin_path)
+        if not non_hooks_changes:
+            return True
 
-        # Report
-        has_discrepancies = bool(discrepancies["missing"] or discrepancies["stale"])
-        has_module_issues = bool(module_issues)
+        if not self.dry_run:
+            with plugin_json_path.open("w", encoding="utf-8") as f:
+                json.dump(plugin_data, f, indent=2, ensure_ascii=False)
+                f.write("\n")  # Trailing newline
+            print(f"[FIXED] {plugin_name}: plugin.json updated")
+        else:
+            print(f"[DRY-RUN] {plugin_name}: would update plugin.json")
 
-        if has_discrepancies:
-            self.discrepancies[plugin_name] = discrepancies
-            self._print_discrepancies(plugin_name, discrepancies)
+        return True
 
-        if has_module_issues:
-            self.module_issues[plugin_name] = module_issues
-            self._print_module_issues(plugin_name, module_issues)
 
-        return has_discrepancies or has_module_issues
+class _ReportingMixin:
+    """Console reporting for discrepancies, modules, and summaries."""
 
     def _print_discrepancies(
         self, plugin_name: str, discrepancies: dict[str, Any]
@@ -570,39 +633,6 @@ class PluginAuditor:
                 print(f"  {category}:")
                 for item in items:
                     print(f"    - {item}")
-
-    def _read_module_description(self, module_path: Path) -> str:
-        """Return the first prose line from a module file.
-
-        Skips YAML frontmatter (``---`` delimited), blank lines, and
-        heading lines (starting with ``#``).  If the resulting line
-        exceeds 80 characters it is truncated to 77 chars with an
-        ellipsis appended.  Returns an empty string when the file is
-        missing, unreadable, or contains no prose.
-        """
-        try:
-            lines = module_path.read_text(encoding="utf-8").splitlines()
-            in_frontmatter = False
-            for line in lines:
-                stripped = line.strip()
-                if stripped == "---":
-                    in_frontmatter = not in_frontmatter
-                    continue
-                if in_frontmatter or not stripped:
-                    continue
-                if stripped.startswith("#"):
-                    continue
-                if len(stripped) > self.MODULE_DESCRIPTION_MAX_LEN:
-                    return stripped[:77] + "..."
-                return stripped
-        except FileNotFoundError:
-            pass  # Expected: orphaned module may not exist on disk
-        except OSError as exc:
-            print(
-                f"[update_plugin_registrations] cannot read {module_path}: {exc}",
-                file=sys.stderr,
-            )
-        return ""
 
     def _print_module_issues(
         self, plugin_name: str, module_issues: dict[str, Any]
@@ -638,168 +668,6 @@ class PluginAuditor:
                 print("    Missing (referenced but not found):")
                 for module in issues["missing"]:
                     print(f"      - modules/{module}")
-
-    def _discover_plugin(
-        self, plugin_name: str
-    ) -> tuple[Path, Path, dict[str, Any]] | None:
-        """Load plugin paths and current plugin.json data.
-
-        Returns:
-            Tuple of (plugin_path, plugin_json_path, plugin_data), or None if
-            there is nothing to fix for this plugin.
-
-        """
-        if plugin_name not in self.discrepancies:
-            return None
-
-        plugin_path = self.plugins_root / plugin_name
-        plugin_json_path = plugin_path / ".claude-plugin" / "plugin.json"
-
-        try:
-            with plugin_json_path.open(encoding="utf-8") as f:
-                plugin_data = json.load(f)
-        except (OSError, json.JSONDecodeError) as exc:
-            print(
-                f"[ERROR] {plugin_name}: failed to read {plugin_json_path}: {exc}",
-                file=sys.stderr,
-            )
-            return None
-
-        return plugin_path, plugin_json_path, plugin_data
-
-    def _validate_registration(
-        self,
-        plugin_name: str,
-        plugin_path: Path,
-        plugin_data: dict[str, Any],
-    ) -> tuple[dict[str, Any], bool]:
-        """Apply discrepancy rules to plugin_data and report hooks needing manual fixes.
-
-        Mutates plugin_data in place for non-hooks categories.
-
-        Returns:
-            Tuple of (updated plugin_data, hooks_need_manual_fix flag).
-
-        """
-        disc = self.discrepancies[plugin_name]
-        standard_hooks_json = plugin_path / "hooks" / "hooks.json"
-        hooks_need_manual_fix = False
-
-        # Fix missing entries (add them)
-        for category, items in disc["missing"].items():
-            # Hooks require manual update to hooks.json (NOT plugin.json)
-            # Claude Code auto-loads hooks/hooks.json; adding to plugin.json
-            # causes duplicate registrations
-            if category == "hooks":
-                if standard_hooks_json.exists() or isinstance(
-                    plugin_data.get("hooks"), str
-                ):
-                    hooks_ref = plugin_data.get("hooks", "./hooks/hooks.json")
-                    print(
-                        f"[MANUAL] {plugin_name}: hooks are auto-loaded from hooks.json"
-                    )
-                    print(f"         Update {hooks_ref} to add missing hooks:")
-                    for item in items:
-                        print(f"           - {item}")
-                    hooks_need_manual_fix = True
-                    continue
-                # No hooks.json exists, would need to create one or use array
-                # For now, skip and report
-                print(f"[MANUAL] {plugin_name}: no hooks.json found, create one with:")
-                for item in items:
-                    print(f"           - {item}")
-                hooks_need_manual_fix = True
-                continue
-
-            if category not in plugin_data:
-                plugin_data[category] = []
-            plugin_data[category].extend(items)
-            plugin_data[category].sort()
-
-        # Fix stale entries (remove them)
-        for category, items in disc["stale"].items():
-            # Hooks require manual update
-            if category == "hooks":
-                if not hooks_need_manual_fix:
-                    hooks_ref = plugin_data.get("hooks", "./hooks/hooks.json")
-                    print(
-                        f"[MANUAL] {plugin_name}: hooks are auto-loaded from hooks.json"
-                    )
-                    print(f"         Update {hooks_ref} to remove stale hooks:")
-                for item in items:
-                    print(f"           - {item}")
-                continue
-
-            if category in plugin_data:
-                plugin_data[category] = [
-                    item for item in plugin_data[category] if item not in items
-                ]
-
-        return plugin_data, hooks_need_manual_fix
-
-    def _apply_fixes(
-        self,
-        plugin_name: str,
-        plugin_json_path: Path,
-        plugin_data: dict[str, Any],
-    ) -> bool:
-        """Write the updated plugin.json to disk when non-hooks changes exist.
-
-        Returns:
-            True on success (or when no write is needed).
-
-        """
-        disc = self.discrepancies[plugin_name]
-        non_hooks_changes = any(
-            cat != "hooks"
-            for cat in list(disc["missing"].keys()) + list(disc["stale"].keys())
-        )
-
-        if not non_hooks_changes:
-            return True
-
-        if not self.dry_run:
-            with plugin_json_path.open("w", encoding="utf-8") as f:
-                json.dump(plugin_data, f, indent=2, ensure_ascii=False)
-                f.write("\n")  # Trailing newline
-            print(f"[FIXED] {plugin_name}: plugin.json updated")
-        else:
-            print(f"[DRY-RUN] {plugin_name}: would update plugin.json")
-
-        return True
-
-    def fix_plugin(self, plugin_name: str) -> bool:
-        """Fix discrepancies by updating plugin.json or hooks.json.
-
-        Note: For hooks, if hooks/hooks.json exists (auto-loaded by Claude Code),
-        discrepancies are reported but require manual fixes to hooks.json.
-        We do NOT add "hooks" key to plugin.json as that causes duplicates.
-        """
-        if plugin_name not in self.discrepancies:
-            return True  # Nothing to fix
-        discovered = self._discover_plugin(plugin_name)
-        if discovered is None:
-            return False  # I/O error reading plugin.json
-
-        plugin_path, plugin_json_path, plugin_data = discovered
-
-        plugin_data, _hooks_manual = self._validate_registration(
-            plugin_name, plugin_path, plugin_data
-        )
-
-        return self._apply_fixes(plugin_name, plugin_json_path, plugin_data)
-
-    def analyze_skill_performance(self, plugin_name: str) -> dict[str, Any]:
-        """Phase 2: Analyze skill execution metrics for performance issues."""
-        return self.performance_analyzer.analyze_plugin(plugin_name)
-
-    def check_meta_evaluation(self, plugin_path: Path) -> dict[str, Any]:
-        """Phase 3: Validate recursive quality of evaluation-related skills."""
-        return self.meta_evaluator.check_plugin(plugin_path)
-
-    def check_knowledge_queue(self) -> list[dict[str, Any]]:
-        """Phase 4: Scan memory-palace queue for pending research items."""
-        return self.queue_checker.check_queue()
 
     def _print_performance_summary(self, report: dict[str, Any]) -> None:
         """Print Phase 2 performance analysis summary."""
@@ -848,6 +716,153 @@ class PluginAuditor:
             print(f"  [{item['priority'].upper()}] {item['file']} ({age_str})")
         if len(queue_items) > limit:
             print(f"  ... and {len(queue_items) - limit} more")
+
+
+class PluginAuditor(_ScanningMixin, _ComparisonMixin, _ReportingMixin):
+    """Audit and sync plugin.json registrations with disk contents."""
+
+    MODULE_DESCRIPTION_MAX_LEN = 80
+    QUEUE_DISPLAY_LIMIT = 10
+
+    def __init__(self, plugins_root: Path, dry_run: bool = True):
+        """Initialize auditor with plugins root and dry-run mode."""
+        self.plugins_root = plugins_root
+        self.dry_run = dry_run
+        self.discrepancies: dict[str, Any] = {}
+        self.module_issues: dict[
+            str, dict[str, Any]
+        ] = {}  # Track module issues separately
+
+        # Initialize Phase 2-4 analyzers
+        self.performance_analyzer = PerformanceAnalyzer()
+        self.meta_evaluator = MetaEvaluator()
+        self.queue_checker = KnowledgeQueueChecker()
+
+    def audit_plugin(self, plugin_name: str) -> bool:
+        """Audit a single plugin and return True if discrepancies found."""
+        plugin_path = self.plugins_root / plugin_name
+
+        if not plugin_path.exists() or not plugin_path.is_dir():
+            print(f"[SKIP] {plugin_name}: not a directory")
+            return False
+
+        # Read plugin.json
+        plugin_json_data = self.read_plugin_json(plugin_path)
+        if plugin_json_data is None:
+            print(f"[SKIP] {plugin_name}: no valid plugin.json")
+            return False
+
+        # Scan disk
+        on_disk = self.scan_disk_files(plugin_path)
+
+        # Compare registrations
+        discrepancies = self.compare_registrations(
+            plugin_path, on_disk, plugin_json_data
+        )
+
+        # Audit modules within skills
+        module_issues = self.audit_skill_modules(plugin_path)
+
+        # Report
+        has_discrepancies = bool(discrepancies["missing"] or discrepancies["stale"])
+        has_module_issues = bool(module_issues)
+
+        if has_discrepancies:
+            self.discrepancies[plugin_name] = discrepancies
+            self._print_discrepancies(plugin_name, discrepancies)
+
+        if has_module_issues:
+            self.module_issues[plugin_name] = module_issues
+            self._print_module_issues(plugin_name, module_issues)
+
+        return has_discrepancies or has_module_issues
+
+    def _discover_plugin(
+        self, plugin_name: str
+    ) -> tuple[Path, Path, dict[str, Any]] | None:
+        """Load plugin paths and current plugin.json data.
+
+        Returns:
+            Tuple of (plugin_path, plugin_json_path, plugin_data), or None if
+            there is nothing to fix for this plugin.
+
+        """
+        if plugin_name not in self.discrepancies:
+            return None
+
+        plugin_path = self.plugins_root / plugin_name
+        plugin_json_path = plugin_path / ".claude-plugin" / "plugin.json"
+
+        try:
+            with plugin_json_path.open(encoding="utf-8") as f:
+                plugin_data = json.load(f)
+        except (OSError, json.JSONDecodeError) as exc:
+            print(
+                f"[ERROR] {plugin_name}: failed to read {plugin_json_path}: {exc}",
+                file=sys.stderr,
+            )
+            return None
+
+        return plugin_path, plugin_json_path, plugin_data
+
+    def _apply_non_hooks_mutations(
+        self,
+        plugin_name: str,
+        plugin_data: dict[str, Any],
+    ) -> None:
+        """Mutate plugin_data in place for non-hooks missing/stale discrepancies."""
+        disc = self.discrepancies[plugin_name]
+
+        for category, items in disc["missing"].items():
+            if category == "hooks":
+                continue
+            if category not in plugin_data:
+                plugin_data[category] = []
+            plugin_data[category].extend(items)
+            plugin_data[category].sort()
+
+        for category, items in disc["stale"].items():
+            if category == "hooks":
+                continue
+            if category in plugin_data:
+                plugin_data[category] = [
+                    item for item in plugin_data[category] if item not in items
+                ]
+
+    def fix_plugin(self, plugin_name: str) -> bool:
+        """Fix discrepancies by updating plugin.json or hooks.json.
+
+        Note: For hooks, if hooks/hooks.json exists (auto-loaded by Claude Code),
+        discrepancies are reported but require manual fixes to hooks.json.
+        We do NOT add "hooks" key to plugin.json as that causes duplicates.
+        """
+        if plugin_name not in self.discrepancies:
+            return True  # Nothing to fix
+        discovered = self._discover_plugin(plugin_name)
+        if discovered is None:
+            return False  # I/O error reading plugin.json
+
+        plugin_path, plugin_json_path, plugin_data = discovered
+
+        for warning in self._validate_registration(
+            plugin_name, plugin_path, plugin_data
+        ):
+            print(warning)
+        self._apply_non_hooks_mutations(plugin_name, plugin_data)
+
+        return self._apply_fixes(plugin_name, plugin_json_path, plugin_data)
+
+    def analyze_skill_performance(self, plugin_name: str) -> dict[str, Any]:
+        """Phase 2: Analyze skill execution metrics for performance issues."""
+        return self.performance_analyzer.analyze_plugin(plugin_name)
+
+    def check_meta_evaluation(self, plugin_path: Path) -> dict[str, Any]:
+        """Phase 3: Validate recursive quality of evaluation-related skills."""
+        return self.meta_evaluator.check_plugin(plugin_path)
+
+    def check_knowledge_queue(self) -> list[dict[str, Any]]:
+        """Phase 4: Scan memory-palace queue for pending research items."""
+        return self.queue_checker.check_queue()
 
     def audit_all(self, specific_plugin: str | None = None) -> int:
         """Audit all plugins or a specific plugin."""
@@ -962,3 +977,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# Alias for callers that reference the class by its full descriptive name.
+PluginRegistrationAuditor = PluginAuditor

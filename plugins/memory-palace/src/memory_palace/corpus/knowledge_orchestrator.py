@@ -391,28 +391,30 @@ class KnowledgeOrchestrator:
             Statistics dictionary
 
         """
-        assessments = [self.assess_entry(e) for e in entries]
+        healthy_count = 0
+        needs_attention_count = 0
+        critical_count = 0
+        usage_score_sum = 0.0
+        decay_score_sum = 0.0
+        for entry in entries:
+            assessment = self.assess_entry(entry)
+            if assessment.status == "healthy":
+                healthy_count += 1
+            elif assessment.status == "needs_attention":
+                needs_attention_count += 1
+            elif assessment.status == "critical":
+                critical_count += 1
+            usage_score_sum += assessment.usage_score
+            decay_score_sum += assessment.decay_score
 
-        healthy_count = sum(1 for a in assessments if a.status == "healthy")
-        needs_attention_count = sum(
-            1 for a in assessments if a.status == "needs_attention"
-        )
-        critical_count = sum(1 for a in assessments if a.status == "critical")
-
-        usage_scores = [a.usage_score for a in assessments]
-        decay_scores = [a.decay_score for a in assessments]
-
+        n = len(entries)
         return {
-            "total_entries": len(entries),
+            "total_entries": n,
             "healthy_count": healthy_count,
             "needs_attention_count": needs_attention_count,
             "critical_count": critical_count,
-            "average_usage_score": sum(usage_scores) / len(usage_scores)
-            if usage_scores
-            else 0.0,
-            "average_decay_score": sum(decay_scores) / len(decay_scores)
-            if decay_scores
-            else 0.0,
+            "average_usage_score": usage_score_sum / n if n else 0.0,
+            "average_decay_score": decay_score_sum / n if n else 0.0,
         }
 
     def batch_assess(

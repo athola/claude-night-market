@@ -285,3 +285,62 @@ class TestAlgoInformedErGraph:
         # (may not always have keystones depending on graph structure)
         # Just check the output is valid Mermaid-like format
         assert "flowchart LR" in result
+
+
+# CHECK
+
+# ---------------------------------------------------------------------------
+# MP-003: palace_map N+1 entity queries -- must batch to one SELECT
+# ---------------------------------------------------------------------------
+
+
+class TestPalaceMapBatchEntityFetch:
+    """palace_map must fetch all resident entities in a single batched query."""
+
+    def test_palace_map_issues_one_entity_query(self, graph: KnowledgeGraph) -> None:
+        """N residents must not produce N entity SELECT statements."""
+        executed: list[str] = []
+        graph._conn.set_trace_callback(executed.append)
+        renderer = PalaceRenderer(graph)
+        renderer.palace_map("p1")
+        graph._conn.set_trace_callback(None)
+
+        entity_selects = [s for s in executed if "FROM entities" in s and "SELECT" in s]
+        # After fix: exactly 1 batched IN query.
+        # Before fix: one query per resident (rooms + entities = 5+).
+        assert len(entity_selects) == 1, (
+            f"Expected 1 batched entity query, got {len(entity_selects)}: "
+            f"{entity_selects}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# MP-002: temporal_view full-table fetch -- must push filter into SQL
+# ---------------------------------------------------------------------------
+
+
+class TestTemporalViewSQLFilter:
+    """temporal_view must filter palace residents via SQL IN clause."""
+
+    def test_temporal_view_uses_sql_in_clause(self, graph: KnowledgeGraph) -> None:
+        """Non-resident triples must be excluded in SQL, not Python."""
+        # Add triple whose subject and object are NOT in palace p1.
+        graph.upsert_entity("outsider_a", "concept", "Outsider A")
+        graph.upsert_entity("outsider_b", "concept", "Outsider B")
+        graph.add_triple("outsider_a", "unrelated", "outsider_b")
+        # Add a valid triple that IS in the palace so we get a non-empty result.
+        graph.add_triple("e1", "relates", "e2")
+
+        executed: list[str] = []
+        graph._conn.set_trace_callback(executed.append)
+        renderer = PalaceRenderer(graph)
+        renderer.temporal_view("p1", "9999-01-01")
+        graph._conn.set_trace_callback(None)
+
+        triple_selects = [s for s in executed if "FROM triples" in s]
+        assert len(triple_selects) == 1
+        sql = triple_selects[0].upper()
+        assert " IN " in sql, (
+            "SQL query should filter by resident IDs using IN clause; "
+            f"actual SQL: {triple_selects[0]!r}"
+        )

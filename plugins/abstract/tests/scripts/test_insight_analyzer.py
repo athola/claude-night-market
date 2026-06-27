@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+from pathlib import Path as RealPath
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
@@ -206,7 +207,6 @@ def test_build_context_passes_optional_args():
     WHEN build_context is called,
     THEN they appear in the context.
     """
-    from pathlib import Path as RealPath
 
     ctx = build_context(
         metrics={"a": "b"},

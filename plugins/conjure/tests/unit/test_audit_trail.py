@@ -95,7 +95,7 @@ def _make_session_data_with_merkle(session_id: str = "sess-merkle") -> dict:
     """Build session data with a valid Merkle-DAG node."""
     content = "Test COA content"
     role = "Chief Strategist"
-    model = "claude-sonnet-4"
+    model = "claude-sonnet-4-6"
 
     content_hash = sha256(content.encode()).hexdigest()
     metadata_hash = sha256(f"{role}:{model}".encode()).hexdigest()

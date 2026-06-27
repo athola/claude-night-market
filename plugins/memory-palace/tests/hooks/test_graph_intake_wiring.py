@@ -16,12 +16,17 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from memory_palace.knowledge_graph import KnowledgeGraph
+
 PLUGIN_ROOT = Path(__file__).resolve().parents[2]
 HOOKS_DIR = PLUGIN_ROOT / "hooks"
 
 if str(HOOKS_DIR) not in sys.path:
     sys.path.insert(0, str(HOOKS_DIR))
 
+import local_doc_processor  # noqa: E402 - sys.path modified above
+import session_lifecycle  # noqa: E402 - sys.path modified above
+import web_research_handler  # noqa: E402 - sys.path modified above
 
 # ---------------------------------------------------------------------------
 # web_research_handler graph wiring
@@ -40,8 +45,6 @@ class TestWebResearchHandlerGraphWiring:
 
     def test_hook_does_not_crash_when_graph_unavailable(self, tmp_path: Path) -> None:
         """Hook must exit cleanly even if KnowledgeGraph import fails."""
-        import web_research_handler
-
         payload = self._webfetch_payload(
             "https://example.com/article",
             "x" * 200,
@@ -79,8 +82,6 @@ class TestWebResearchHandlerGraphWiring:
         self,
     ) -> None:
         """_try_register_graph_entity is a no-op when graph unavailable."""
-        import web_research_handler
-
         with patch.dict("sys.modules", {"memory_palace.knowledge_graph": None}):
             # Should not raise even if import fails
             try:
@@ -97,10 +98,6 @@ class TestWebResearchHandlerGraphWiring:
         self, tmp_path: Path
     ) -> None:
         """_try_register_graph_entity creates entity when graph available."""
-        import web_research_handler
-
-        from memory_palace.knowledge_graph import KnowledgeGraph
-
         db_path = tmp_path / "knowledge_graph.db"
         graph = KnowledgeGraph(str(db_path))
         graph.close()
@@ -131,8 +128,6 @@ class TestLocalDocProcessorGraphWiring:
 
     def test_try_register_graph_entity_does_not_raise(self, tmp_path: Path) -> None:
         """_try_register_graph_entity is safe when graph is unavailable."""
-        import local_doc_processor
-
         with patch.dict("sys.modules", {"memory_palace.knowledge_graph": None}):
             try:
                 local_doc_processor._try_register_graph_entity(
@@ -146,10 +141,6 @@ class TestLocalDocProcessorGraphWiring:
 
     def test_try_register_graph_entity_creates_entity(self, tmp_path: Path) -> None:
         """_try_register_graph_entity writes entity to graph DB."""
-        import local_doc_processor
-
-        from memory_palace.knowledge_graph import KnowledgeGraph
-
         db_path = tmp_path / "knowledge_graph.db"
         graph = KnowledgeGraph(str(db_path))
         graph.close()
@@ -179,8 +170,6 @@ class TestSessionLifecycleGraphWiring:
 
     def test_graph_wiring_does_not_crash_when_db_missing(self) -> None:
         """Graph section is no-op when DB is unavailable."""
-        import session_lifecycle
-
         # Should not raise
         try:
             session_lifecycle._try_record_journey_completion(
@@ -195,10 +184,6 @@ class TestSessionLifecycleGraphWiring:
         self, tmp_path: Path
     ) -> None:
         """Journey completion recorded to graph when DB exists."""
-        import session_lifecycle
-
-        from memory_palace.knowledge_graph import KnowledgeGraph
-
         palaces_dir = tmp_path / "palaces"
         palaces_dir.mkdir()
         db_path = palaces_dir / "knowledge_graph.db"

@@ -1,6 +1,7 @@
 """Tests for the base module with common script functionality."""
 
 from pathlib import Path
+from unittest.mock import patch
 
 from abstract.base import (
     AbstractScript,
@@ -219,18 +220,25 @@ class TestAbstractScript:
         assert body == content
 
     def test_config_lazy_loading(self) -> None:
-        """Test that config is lazily loaded."""
-        # Given: An AbstractScript
+        """GIVEN a freshly constructed AbstractScript
+        WHEN config has not yet been accessed
+        THEN __init__ leaves the backing _config unset (lazy, not eager)
+        AND the first access loads it once and caches the result
+        """
         script = AbstractScript("test-script")
+        # Lazy: construction must not load config.
+        assert script._config is None
 
-        # When: Accessing config property
-        # Then: Config is loaded (may raise if config not found, which is OK)
-        try:
-            _ = script.config
-            # If we get here, config was loaded successfully
-        except FileNotFoundError:
-            # Config file not found is acceptable - proves lazy loading works
-            pass
+        sentinel = object()
+        with patch(
+            "abstract.base.load_config_with_defaults", return_value=sentinel
+        ) as mock_load:
+            first = script.config
+            second = script.config
+
+        assert first is sentinel
+        assert second is sentinel  # cached, not reloaded
+        mock_load.assert_called_once()
 
     def test_config_setter(self) -> None:
         """Test setting config manually."""

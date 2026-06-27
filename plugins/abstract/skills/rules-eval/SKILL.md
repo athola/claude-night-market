@@ -101,3 +101,14 @@ Key validations: YAML syntax errors, unquoted glob patterns, Cursor-specific fie
 ### Related Skills
 - `abstract:skills-eval` - Skill evaluation framework
 - `abstract:hooks-eval` - Hook evaluation framework
+
+## Exit Criteria
+
+- [ ] Every `.md` file under `.claude/rules/` (including subdirectories) receives a quality score
+  (0-100) with per-category breakdown across the five dimensions.
+- [ ] YAML frontmatter syntax errors and unquoted glob patterns are listed as blocking findings
+  before any score is reported.
+- [ ] Rules using Cursor-specific fields (`alwaysApply`, `globs`) are flagged as
+  non-compliant with the expected Claude Code schema.
+- [ ] Any rule scoring below 26 (Critical tier) is reported with at least one concrete
+  corrective action, not just a score.

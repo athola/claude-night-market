@@ -21,7 +21,6 @@ model_hint: deep
 estimated_tokens: 200
 progressive_loading: true
 dependencies:
-- pensive:shared
 - imbue:proof-of-work
 - imbue:review-core
 - imbue:structured-output
@@ -72,9 +71,6 @@ Intensive analysis ensuring numerical stability and alignment with standards.
 
 ## When NOT To Use
 
-- General algorithm review -
-  use architecture-review
-- Performance optimization - use parseltongue:python-performance
 - General algorithm review -
   use architecture-review
 - Performance optimization - use parseltongue:python-performance

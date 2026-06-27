@@ -487,7 +487,7 @@ def clear_notification_state(session_id: str | None = None) -> None:
             session_id = get_session_id()
         state = NotificationState.load(session_id)
         state.clear_input_flag()
-    except Exception as e:
+    except (OSError, json.JSONDecodeError, ValueError) as e:
         print(
             f"[session_complete_notify] clear_notification_state: {e}", file=sys.stderr
         )
@@ -512,7 +512,7 @@ def main() -> None:
             stderr=subprocess.DEVNULL,
             start_new_session=True,  # Detach from parent
         )
-    except Exception as e:
+    except OSError as e:
         print(f"[session_complete_notify] Popen failed: {e}", file=sys.stderr)
 
     # Exit immediately - notification runs in background
@@ -550,7 +550,7 @@ def run_notification(session_id: str, cwd: str) -> None:
             # Record successful notification
             state.record_notification(msg_hash)
 
-    except Exception as e:
+    except (OSError, json.JSONDecodeError, ValueError) as e:
         print(f"[session_complete_notify] run_notification: {e}", file=sys.stderr)
 
 

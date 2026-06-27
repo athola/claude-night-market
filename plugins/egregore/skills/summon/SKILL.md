@@ -328,3 +328,17 @@ Each work item allows up to `max_attempts` retries per step
   issues, brainstorm skip logic.
 - **decisions.md**: Autonomous decision-making framework,
   decision log format, examples.
+
+## Exit Criteria
+
+- [ ] `.egregore/manifest.json` is read successfully before the
+      orchestration loop starts; if absent, skill halts with "No
+      manifest found. Run `egregore init` first."
+- [ ] Each completed pipeline step advances `item.pipeline_stage`
+      in the manifest and the manifest is saved to disk
+- [ ] Context at 80% triggers write of `.egregore/continuation.json`
+      with current item ID, stage, and step before handoff
+- [ ] On rate limit error, `budget.json` is updated with cooldown
+      duration before the session exits with code 0
+- [ ] When all items are completed or failed, orchestrator exits
+      with a completion report listing item statuses

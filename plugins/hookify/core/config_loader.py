@@ -79,20 +79,24 @@ class RuleConfig:
             raise ValueError("Rule must have either 'pattern' or 'conditions'")
 
 
-def _get_bundled_rules_dir() -> Path:
-    """Get the directory containing bundled rules.
+def get_bundled_rules_dir() -> Path:
+    """Return the directory containing bundled rules.
 
-    Uses __file__ to locate relative to this module, ensuring it works
+    Uses __file__ to locate relative to this module, so this works
     regardless of where the plugin is installed.
 
     Returns:
-        Path to bundled rules directory.
+        Path to the bundled rules directory.
     """
     # This file is in: plugins/hookify/core/config_loader.py
     # Bundled rules are in: plugins/hookify/skills/rule-catalog/rules/
     core_dir = Path(__file__).parent
     plugin_dir = core_dir.parent
     return plugin_dir / "skills" / "rule-catalog" / "rules"
+
+
+# Back-compat alias; callers should prefer get_bundled_rules_dir.
+_get_bundled_rules_dir = get_bundled_rules_dir
 
 
 class ConfigLoader:
@@ -166,7 +170,7 @@ class ConfigLoader:
             try:
                 rule = self.load_rule(rule_file, source="bundled")
                 rules.append(rule)
-            except Exception as e:
+            except (OSError, ValueError) as e:
                 logger.warning("Error loading bundled rule %s: %s", rule_file, e)
 
         return rules
@@ -188,7 +192,7 @@ class ConfigLoader:
             try:
                 rule = self.load_rule(rule_file, source="user")
                 rules.append(rule)
-            except Exception as e:
+            except (OSError, ValueError) as e:
                 logger.warning("Error loading user rule %s: %s", rule_file, e)
 
         return rules

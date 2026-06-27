@@ -45,6 +45,11 @@ STALE_SESSION_SECONDS = 60
 # Reading beyond this risks counting auto-compressed history.
 _TAIL_BYTES = 4_000_000
 
+# Token budget assumptions used by the fallback context estimator.
+_CONTEXT_WINDOW_TOKENS = 1_000_000
+_TOKENS_PER_TURN = 600
+_TOKENS_PER_TOOL_RESULT = 150
+
 
 class ContextSeverity(Enum):
     """Severity levels for context usage alerts."""
@@ -291,9 +296,9 @@ def _estimate_from_recent_turns(session_file: Path) -> float | None:
         Estimated context usage as float 0-1, or None on read failure.
 
     """
-    context_window_tokens = 1_000_000
-    tokens_per_turn = 600
-    tokens_per_tool_result = 150
+    context_window_tokens = _CONTEXT_WINDOW_TOKENS
+    tokens_per_turn = _TOKENS_PER_TURN
+    tokens_per_tool_result = _TOKENS_PER_TOOL_RESULT
 
     try:
         file_size = session_file.stat().st_size

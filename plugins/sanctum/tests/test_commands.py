@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 
 
 class TestCatchupCommand:
@@ -164,9 +166,6 @@ class TestCreateTagConfigDriven:
 
     def _load_tag_submissions(self, repo_root: str) -> dict | None:
         """Load tag-submissions.json from repo root, or None if absent."""
-        import json
-        from pathlib import Path
-
         config_path = Path(repo_root) / "tag-submissions.json"
         if not config_path.exists():
             return None
@@ -184,16 +183,12 @@ class TestCreateTagConfigDriven:
 
     def test_tag_submissions_json_exists_in_repo(self) -> None:
         """Config file exists at repo root for this project."""
-        from pathlib import Path
-
         repo_root = Path(__file__).resolve().parents[3]
         config = self._load_tag_submissions(str(repo_root))
         assert config is not None, "tag-submissions.json should exist in repo root"
 
     def test_tag_submissions_has_submissions_key(self) -> None:
         """Config must have a 'submissions' list."""
-        from pathlib import Path
-
         repo_root = Path(__file__).resolve().parents[3]
         config = self._load_tag_submissions(str(repo_root))
         assert config is not None
@@ -203,8 +198,6 @@ class TestCreateTagConfigDriven:
 
     def test_each_submission_has_required_keys(self) -> None:
         """Each submission entry must have name and script."""
-        from pathlib import Path
-
         repo_root = Path(__file__).resolve().parents[3]
         config = self._load_tag_submissions(str(repo_root))
         assert config is not None
@@ -214,8 +207,6 @@ class TestCreateTagConfigDriven:
 
     def test_submission_scripts_exist_on_disk(self) -> None:
         """Referenced scripts must exist in the repo."""
-        from pathlib import Path
-
         repo_root = Path(__file__).resolve().parents[3]
         config = self._load_tag_submissions(str(repo_root))
         assert config is not None
@@ -225,8 +216,6 @@ class TestCreateTagConfigDriven:
 
     def test_create_tag_command_references_config(self) -> None:
         """The create-tag command must reference tag-submissions.json."""
-        from pathlib import Path
-
         repo_root = Path(__file__).resolve().parents[3]
         cmd_path = repo_root / "plugins" / "sanctum" / "commands" / "create-tag.md"
         content = cmd_path.read_text()

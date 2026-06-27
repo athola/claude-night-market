@@ -21,7 +21,6 @@ modules:
 - modules/exemplar-reference.md
 - modules/style-application.md
 dependencies:
-- scribe:shared
 - scribe:slop-detector
 ---
 # Style Learning Skill

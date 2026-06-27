@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import subprocess
 from pathlib import Path
 from unittest.mock import patch
@@ -344,8 +345,6 @@ class TestIncrementalUpdate:
         When I run incremental_update with that file in the changeset
         Then the file is skipped (0 new nodes)
         """
-        import hashlib
-
         src = tmp_path / "same.py"
         src.write_text("x = 1\n")
         content_hash = hashlib.sha256(src.read_bytes()).hexdigest()

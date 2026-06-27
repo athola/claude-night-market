@@ -8,15 +8,21 @@ directly from that research and are exercised here as boundary cases.
 
 from __future__ import annotations
 
+import json as _json
+import subprocess as _sub
+import typing
 from datetime import datetime, timedelta, timezone
 
 import pytest
 
+from minister import dora_metrics
 from minister.dora_metrics import (
     DEFAULT_FAILURE_LABEL,
+    CollectionResult,
     DeploymentEvent,
     DORAMetrics,
     FailureEvent,
+    build_parser,
     classify_change_failure_rate,
     classify_deployment_frequency,
     classify_lead_time,
@@ -353,8 +359,6 @@ class TestCollectDeploymentsFromGit:
     """End-to-end via mocked subprocess output."""
 
     def test_parses_git_log_output(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        from minister import dora_metrics
-
         sample = (
             "abc1234567890123456789012345678901234567|"
             "2026-04-15T10:00:00+00:00|2026-04-15T10:30:00+00:00\n"
@@ -376,8 +380,6 @@ class TestCollectDeploymentsFromGit:
         assert result.partial is False
 
     def test_skips_malformed_lines(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        from minister import dora_metrics
-
         def fake_run_git(args: list[str], cwd: object = None) -> str:
             return "abc|2026-04-15T10:00:00+00:00\nshorty\n\n"
 
@@ -389,15 +391,32 @@ class TestCollectDeploymentsFromGit:
         )
         assert result.events == []
 
+    def test_wrong_field_count_marks_partial(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # Issue #575, B3: a git log line with the wrong field count used
+        # to be skipped silently. It must now set partial=True and emit a
+        # warning, like the malformed-timestamp branch, so a broken
+        # pretty-format cannot yield a silent Elite-tier report.
+        def fake_run_git(args: list[str], cwd: object = None) -> str:
+            # Two fields instead of three (missing commit_iso).
+            return "abc1234567890|2026-04-15T10:00:00+00:00\n"
+
+        monkeypatch.setattr(dora_metrics, "_run_git", fake_run_git)
+        result = dora_metrics.collect_deployments_from_git(
+            branch="main",
+            window_days=30,
+            window_end=datetime(2026, 5, 1, tzinfo=timezone.utc),
+        )
+        assert result.events == []
+        assert result.partial is True
+        assert len(result.warnings) >= 1
+
 
 class TestCollectFailuresFromGh:
     """gh CLI absence and JSON parsing edge cases."""
 
     def test_gh_missing_returns_empty(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        import subprocess as _sub
-
-        from minister import dora_metrics
-
         def raise_missing(*args: object, **kwargs: object) -> object:
             raise FileNotFoundError("gh not found")
 
@@ -409,10 +428,6 @@ class TestCollectFailuresFromGh:
         assert result.partial is True
 
     def test_parses_gh_output(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        import subprocess as _sub
-
-        from minister import dora_metrics
-
         class FakeRun:
             stdout = (
                 '[{"createdAt": "2026-04-20T10:00:00Z", '
@@ -434,10 +449,6 @@ class TestCollectFailuresFromGh:
         assert result.partial is False
 
     def test_invalid_json_returns_empty(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        import subprocess as _sub
-
-        from minister import dora_metrics
-
         class FakeRun:
             stdout = "not json {{{"
 
@@ -458,9 +469,6 @@ class TestRunCli:
     def test_human_report(
         self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ) -> None:
-        from minister import dora_metrics
-        from minister.dora_metrics import CollectionResult
-
         empty_clean = CollectionResult(events=[], partial=False, warnings=())
         monkeypatch.setattr(
             dora_metrics, "collect_deployments_from_git", lambda **kw: empty_clean
@@ -476,11 +484,6 @@ class TestRunCli:
     def test_json_output(
         self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ) -> None:
-        import json as _json
-
-        from minister import dora_metrics
-        from minister.dora_metrics import CollectionResult
-
         empty_clean = CollectionResult(events=[], partial=False, warnings=())
         monkeypatch.setattr(
             dora_metrics, "collect_deployments_from_git", lambda **kw: empty_clean
@@ -498,8 +501,6 @@ class TestRunCli:
 
 class TestBuildParser:
     def test_parser_has_window_default(self) -> None:
-        from minister.dora_metrics import build_parser
-
         parser = build_parser()
         args = parser.parse_args([])
         assert args.window == 30
@@ -515,22 +516,16 @@ class TestCliArgumentValidation:
     """The CLI must reject negative or zero windows and dash-prefixed branches."""
 
     def test_negative_window_rejected(self) -> None:
-        from minister.dora_metrics import build_parser
-
         parser = build_parser()
         with pytest.raises(SystemExit):
             parser.parse_args(["--window", "-5"])
 
     def test_zero_window_rejected(self) -> None:
-        from minister.dora_metrics import build_parser
-
         parser = build_parser()
         with pytest.raises(SystemExit):
             parser.parse_args(["--window", "0"])
 
     def test_positive_window_accepted(self) -> None:
-        from minister.dora_metrics import build_parser
-
         parser = build_parser()
         args = parser.parse_args(["--window", "7"])
         assert args.window == 7
@@ -541,8 +536,6 @@ class TestCliArgumentValidation:
         """A branch value starting with '-' must not be interpreted by git log
         as a flag. The git log argv must place '--' before the branch.
         """
-        from minister import dora_metrics
-
         captured: list[list[str]] = []
 
         def fake_run_git(args: list[str], cwd: object = None) -> str:
@@ -573,8 +566,6 @@ class TestCollectionResult:
     def test_collection_result_has_events_partial_warnings(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        from minister import dora_metrics
-
         monkeypatch.setattr(dora_metrics, "_run_git", lambda *a, **kw: "")
         result = dora_metrics.collect_deployments_from_git(
             branch="main", window_days=30
@@ -590,10 +581,6 @@ class TestCollectionResult:
     def test_gh_subprocess_failure_marks_partial(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        import subprocess as _sub
-
-        from minister import dora_metrics
-
         def raise_missing(*args: object, **kwargs: object) -> object:
             raise FileNotFoundError("gh not found")
 
@@ -608,10 +595,6 @@ class TestCollectionResult:
     def test_gh_invalid_json_marks_partial(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        import subprocess as _sub
-
-        from minister import dora_metrics
-
         class FakeRun:
             stdout = "not json {{{"
 
@@ -629,8 +612,6 @@ class TestCollectionResult:
     def test_malformed_git_timestamp_does_not_crash(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        from minister import dora_metrics
-
         # First line has a malformed ISO timestamp; second is valid.
         sample = (
             "abc1234567890123456789012345678901234567|"
@@ -658,17 +639,11 @@ class TestStrictFlag:
     def test_strict_with_partial_exits_non_zero(
         self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ) -> None:
-        from minister import dora_metrics
-
         # Force gh collector to fail
         def fake_failure_collect(**kwargs: object) -> object:
-            from minister.dora_metrics import CollectionResult
-
             return CollectionResult(events=[], partial=True, warnings=("gh broken",))
 
         def fake_deploy_collect(**kwargs: object) -> object:
-            from minister.dora_metrics import CollectionResult
-
             return CollectionResult(events=[], partial=False, warnings=())
 
         monkeypatch.setattr(
@@ -683,11 +658,7 @@ class TestStrictFlag:
     def test_strict_without_partial_exits_zero(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        from minister import dora_metrics
-
         def fake_clean_collect(**kwargs: object) -> object:
-            from minister.dora_metrics import CollectionResult
-
             return CollectionResult(events=[], partial=False, warnings=())
 
         monkeypatch.setattr(
@@ -836,19 +807,13 @@ class TestTierLiteral:
     def test_tier_literal_exported(self) -> None:
         """The Tier Literal type alias must be exported so callers can
         type-check tier-bearing code paths."""
-        from minister.dora_metrics import (
-            Tier,  # noqa: F401 - import is the assertion (existence check)
-        )
+        assert hasattr(dora_metrics, "Tier")
 
     def test_tier_literal_values(self) -> None:
         """The Tier alias enumerates the four DORA tiers plus 'N/A'.
 
         Issue #527 added 'N/A' for metrics with no signal in the window.
         """
-        import typing
-
-        from minister import dora_metrics
-
         # Resolve the Literal to its args.
         tier_alias = dora_metrics.Tier
         args = typing.get_args(tier_alias)
@@ -861,11 +826,6 @@ class TestJsonPayloadPartialField:
     def test_partial_flag_present_in_json(
         self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ) -> None:
-        import json as _json
-
-        from minister import dora_metrics
-        from minister.dora_metrics import CollectionResult
-
         def fake_partial(**kwargs: object) -> object:
             return CollectionResult(events=[], partial=True, warnings=("gh broken",))
 

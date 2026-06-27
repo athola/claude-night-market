@@ -12,6 +12,7 @@ Provides Rust-specific analysis capabilities including:
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, ClassVar
 
 from ..base import AnalysisResult, BaseReviewSkill
@@ -37,8 +38,63 @@ from .transmute_audit import TransmuteAuditMixin
 __all__ = [
     "MAX_DEPENDENCIES",
     "MIN_TEST_COVERAGE",
+    "RUST_AUDIT_REGISTRY",
+    "RustAuditSpec",
     "RustReviewSkill",
 ]
+
+
+@dataclass(frozen=True)
+class RustAuditSpec:
+    """Declarative description of one Rust audit.
+
+    The registry below is the single source of truth for which audits
+    run and in what order. ``analyze()`` iterates the registry instead
+    of enumerating each audit by hand, so adding an audit means adding
+    one row here (plus the mixin that supplies the method) rather than
+    editing the orchestrator body in a second place.
+    """
+
+    info_key: str
+    method_name: str
+    scope: str  # "file" runs only with a file_path; "context" always runs
+
+
+# Order is load-bearing: ``analyze()`` builds ``result.info`` by
+# iterating this tuple, so the insertion order of the output dict
+# matches the order here. File-scoped audits precede context-scoped
+# audits to preserve the original behavior.
+RUST_AUDIT_REGISTRY: tuple[RustAuditSpec, ...] = (
+    RustAuditSpec("unsafe_code", "analyze_unsafe_code", "file"),
+    RustAuditSpec("ownership", "analyze_ownership", "file"),
+    RustAuditSpec("data_races", "analyze_data_races", "file"),
+    RustAuditSpec("memory_safety", "analyze_memory_safety", "file"),
+    RustAuditSpec("panic_propagation", "analyze_panic_propagation", "file"),
+    RustAuditSpec("async_patterns", "analyze_async_patterns", "file"),
+    RustAuditSpec("macros", "analyze_macros", "file"),
+    RustAuditSpec("traits", "analyze_traits", "file"),
+    RustAuditSpec("const_generics", "analyze_const_generics", "file"),
+    RustAuditSpec("silent_returns", "analyze_silent_returns", "file"),
+    RustAuditSpec("collection_types", "analyze_collection_types", "file"),
+    RustAuditSpec("sql_injection", "analyze_sql_injection", "file"),
+    RustAuditSpec("cfg_test_misuse", "analyze_cfg_test_misuse", "file"),
+    RustAuditSpec("error_messages", "analyze_error_messages", "file"),
+    RustAuditSpec("builtin_preference", "analyze_builtin_preference", "file"),
+    RustAuditSpec("native_type_modeling", "analyze_native_type_modeling", "file"),
+    RustAuditSpec("idiomatic_elision", "analyze_idiomatic_elision", "file"),
+    RustAuditSpec("coercion_params", "analyze_coercion_params", "file"),
+    RustAuditSpec("conversion_traits", "analyze_conversion_traits", "file"),
+    RustAuditSpec("numeric_cast", "analyze_numeric_cast_safety", "file"),
+    RustAuditSpec("mutable_statics", "analyze_mutable_statics", "file"),
+    RustAuditSpec("match_exhaustiveness", "analyze_match_exhaustiveness", "file"),
+    RustAuditSpec("transmute", "analyze_transmute_safety", "file"),
+    RustAuditSpec("float_equality", "analyze_float_equality", "file"),
+    RustAuditSpec("mem_forget", "analyze_mem_forget", "file"),
+    RustAuditSpec("repr_packed", "analyze_repr_packed", "file"),
+    RustAuditSpec("duplicate_validators", "analyze_duplicate_validators", "file"),
+    RustAuditSpec("dependencies", "analyze_dependencies", "context"),
+    RustAuditSpec("build_configuration", "analyze_build_configuration", "context"),
+)
 
 
 class RustReviewSkill(
@@ -67,55 +123,21 @@ class RustReviewSkill(
     skill_name: ClassVar[str] = "rust_review"
     supported_languages: ClassVar[list[str]] = ["rust"]
 
+    audit_registry: ClassVar[tuple[RustAuditSpec, ...]] = RUST_AUDIT_REGISTRY
+
     def analyze(self, context: Any, file_path: str = "") -> AnalysisResult:
         result = AnalysisResult()
         info: dict[str, Any] = {}
 
-        if file_path:
-            info["unsafe_code"] = self.analyze_unsafe_code(context, file_path)
-            info["ownership"] = self.analyze_ownership(context, file_path)
-            info["data_races"] = self.analyze_data_races(context, file_path)
-            info["memory_safety"] = self.analyze_memory_safety(context, file_path)
-            info["panic_propagation"] = self.analyze_panic_propagation(
-                context, file_path
-            )
-            info["async_patterns"] = self.analyze_async_patterns(context, file_path)
-            info["macros"] = self.analyze_macros(context, file_path)
-            info["traits"] = self.analyze_traits(context, file_path)
-            info["const_generics"] = self.analyze_const_generics(context, file_path)
-            info["silent_returns"] = self.analyze_silent_returns(context, file_path)
-            info["collection_types"] = self.analyze_collection_types(context, file_path)
-            info["sql_injection"] = self.analyze_sql_injection(context, file_path)
-            info["cfg_test_misuse"] = self.analyze_cfg_test_misuse(context, file_path)
-            info["error_messages"] = self.analyze_error_messages(context, file_path)
-            info["builtin_preference"] = self.analyze_builtin_preference(
-                context, file_path
-            )
-            info["native_type_modeling"] = self.analyze_native_type_modeling(
-                context, file_path
-            )
-            info["idiomatic_elision"] = self.analyze_idiomatic_elision(
-                context, file_path
-            )
-            info["coercion_params"] = self.analyze_coercion_params(context, file_path)
-            info["conversion_traits"] = self.analyze_conversion_traits(
-                context, file_path
-            )
-            info["numeric_cast"] = self.analyze_numeric_cast_safety(context, file_path)
-            info["mutable_statics"] = self.analyze_mutable_statics(context, file_path)
-            info["match_exhaustiveness"] = self.analyze_match_exhaustiveness(
-                context, file_path
-            )
-            info["transmute"] = self.analyze_transmute_safety(context, file_path)
-            info["float_equality"] = self.analyze_float_equality(context, file_path)
-            info["mem_forget"] = self.analyze_mem_forget(context, file_path)
-            info["repr_packed"] = self.analyze_repr_packed(context, file_path)
-            info["duplicate_validators"] = self.analyze_duplicate_validators(
-                context, file_path
-            )
-
-        info["dependencies"] = self.analyze_dependencies(context)
-        info["build_configuration"] = self.analyze_build_configuration(context)
+        for spec in self.audit_registry:
+            if spec.scope == "file":
+                if not file_path:
+                    continue
+                info[spec.info_key] = getattr(self, spec.method_name)(
+                    context, file_path
+                )
+            else:
+                info[spec.info_key] = getattr(self, spec.method_name)(context)
 
         result.info = info
         return result

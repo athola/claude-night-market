@@ -117,12 +117,16 @@ class ProgressTracker:
         weights: list[float] = []
         seen_ids = set(progress.last_seen.keys())
 
+        by_category: dict[str, list] = {}
+        for r in progress.history:
+            by_category.setdefault(r.category, []).append(r)
+
         for entry in entries:
             w = 1.0
             if entry.id not in seen_ids:
                 w += 2.0
 
-            cat_records = [r for r in progress.history if r.category == entry.category]
+            cat_records = by_category.get(entry.category, [])
             if not cat_records:
                 w += 1.5
             else:

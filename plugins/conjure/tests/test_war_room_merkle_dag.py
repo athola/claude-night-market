@@ -22,7 +22,7 @@ class TestMerkleDAG:
             content="Test COA content",
             phase="coa",
             round_number=1,
-            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4"),
+            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4-6"),
         )
 
         assert node.content_hash is not None
@@ -37,13 +37,13 @@ class TestMerkleDAG:
             content="COA 1",
             phase="coa",
             round_number=1,
-            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4"),
+            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4-6"),
         )
         dag.add_contribution(
             content="COA 2",
             phase="coa",
             round_number=1,
-            expert=ExpertInfo(role="Field Tactician", model="glm-4.7"),
+            expert=ExpertInfo(role="Field Tactician", model="glm-5.2"),
         )
 
         anon_view = dag.get_anonymized_view(phase="coa")
@@ -62,7 +62,7 @@ class TestMerkleDAG:
             content="COA content",
             phase="coa",
             round_number=1,
-            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4"),
+            expert=ExpertInfo(role="Chief Strategist", model="claude-sonnet-4-6"),
         )
 
         assert dag.sealed is True
@@ -71,7 +71,7 @@ class TestMerkleDAG:
 
         assert len(unsealed) == 1
         assert unsealed[0]["expert_role"] == "Chief Strategist"
-        assert unsealed[0]["expert_model"] == "claude-sonnet-4"
+        assert unsealed[0]["expert_model"] == "claude-sonnet-4-6"
 
     def test_to_dict_respects_seal_state(self) -> None:
         """Serialization masks attribution when sealed."""
@@ -80,7 +80,7 @@ class TestMerkleDAG:
             content="Test",
             phase="coa",
             round_number=1,
-            expert=ExpertInfo(role="Tactician", model="glm-4.7"),
+            expert=ExpertInfo(role="Tactician", model="glm-5.2"),
         )
 
         # Sealed - should mask

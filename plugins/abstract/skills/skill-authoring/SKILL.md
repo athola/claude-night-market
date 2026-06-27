@@ -53,10 +53,10 @@ We categorize skills into three types: **Technique** skills for specific methods
 ### Skill Analysis
 \`\`\`bash
 # Analyze skill complexity
-python scripts/analyze.py
+python scripts/skill_analyzer.py
 
 # Estimate tokens
-python scripts/tokens.py
+python scripts/token_estimator.py
 \`\`\`
 
 ### Validation
@@ -179,3 +179,13 @@ Use progressive disclosure - move details to modules
 
 **Modules not found**
 Verify module paths in SKILL.md are correct
+
+## Exit Criteria
+
+- [ ] The RED phase is documented with at least three pressure scenarios showing Claude failing
+  without the skill, with exact failure descriptions recorded before implementation begins.
+- [ ] The GREEN phase produces a SKILL.md with valid YAML frontmatter (quoted description,
+  required `name` field) that loads without error in Claude Code.
+- [ ] REFACTOR phase documents at least one discovered rationalization pattern and adds an
+  explicit counter to the skill (exception table, red-flag list, or banned excuse list).
+- [ ] `python scripts/abstract_validator.py --check` exits 0 and SKILL.md is under 500 lines.

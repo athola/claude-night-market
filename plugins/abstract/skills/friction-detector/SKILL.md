@@ -204,3 +204,16 @@ performance tracker for trend correlation.
 - `abstract:skills-eval`: evaluation criteria
 - `/abstract:aggregate-logs`: manual LEARNINGS.md generation
 - `conserve:clear-context`: triggers friction scan at 80%
+
+## Exit Criteria
+
+- [ ] Session friction report produced in "Friction Report Format"
+      with at least one section (New Signals, Recurring Patterns,
+      or Graduation Proposals) populated
+- [ ] Each signal written as JSON to
+      `~/.claude/friction/sessions/{date}-{session_id}.json`
+      via the `session-capture/1` schema
+- [ ] Patterns with `graduation_score` >= 12.0 generate a Tier 3
+      proposal; skill does not auto-modify CLAUDE.md
+- [ ] Noise signals (network failures, user exploration) appear in
+      "Noise Filtered" and are excluded from graduation scoring

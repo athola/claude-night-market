@@ -9,10 +9,16 @@ So that the bounded-discovery-reads vow is tracked and enforced.
 
 from __future__ import annotations
 
+import errno
 import importlib.util
 import json
+import os
+import os as _os
 import stat
 import sys
+import threading
+import time
+import time as _time
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
@@ -228,10 +234,11 @@ class TestMainHook:
         Scenario: Warning emitted when read count exceeds 15
         Given a session with 15 reads already counted
         When main() is called with a Read tool
-        Then stdout JSON contains additionalContext mentioning the budget
-        (issue #517: shadow-mode warn must use the additionalContext root
-        key; the older hookSpecificOutput wrapper fails Claude Code's
-        schema validation)
+        Then stdout JSON nests additionalContext under hookSpecificOutput
+        (issue #580: Claude Code 2.1.178 rejects a top-level
+        additionalContext key with "(root): Invalid input"; the valid
+        PreToolUse shape nests it under hookSpecificOutput with
+        hookEventName, matching the sibling tdd_bdd_gate hook)
         """
         counter_path = tmp_path / "vow_read_counter_test-session2.json"
         hook_module._write_counter(counter_path, 15)
@@ -244,9 +251,11 @@ class TestMainHook:
         assert exc.value.code == 0
         captured = capsys.readouterr()
         output = json.loads(captured.out)
-        # Schema check: no legacy hookSpecificOutput wrapper.
-        assert "hookSpecificOutput" not in output
-        ctx = output["additionalContext"]
+        # Schema check: no invalid top-level additionalContext key.
+        assert "additionalContext" not in output
+        hso = output["hookSpecificOutput"]
+        assert hso["hookEventName"] == "PreToolUse"
+        ctx = hso["additionalContext"]
         assert "Bounded discovery" in ctx
         assert "15" in ctx or "16" in ctx
 
@@ -359,21 +368,24 @@ class TestGetSessionId:
             assert hook_module._get_session_id({}) == "env-session-xyz"
 
     @pytest.mark.unit
-    def test_session_id_falls_back_to_default(self, hook_module):
+    def test_session_id_falls_back_to_process_scope(self, hook_module):
         """
-        Scenario: Session ID defaults to 'default' when no source available
+        Scenario: Session ID falls back to a per-process token, not a shared
+        constant, when no real source is available
         Given an empty data dict
         And CLAUDE_SESSION_ID is not set in the environment
         When _get_session_id is called
-        Then it returns 'default'
+        Then it returns a process-scoped id containing the parent pid
+        (issue #580: a fixed 'default' filename made every session share
+        one counter, so a stale count>15 bled into every later session;
+        scoping to os.getppid() gives each Claude Code process its own
+        counter)
         """
-        env = {
-            k: v
-            for k, v in __import__("os").environ.items()
-            if k != "CLAUDE_SESSION_ID"
-        }
+        env = {k: v for k, v in _os.environ.items() if k != "CLAUDE_SESSION_ID"}
         with patch.dict("os.environ", env, clear=True):
-            assert hook_module._get_session_id({}) == "default"
+            sid = hook_module._get_session_id({})
+        assert sid != "default"
+        assert str(_os.getppid()) in sid
 
     @pytest.mark.unit
     def test_stdin_session_id_takes_priority_over_env(self, hook_module):
@@ -445,9 +457,11 @@ class TestShadowMode:
         Given VOW_SHADOW_MODE=1 (default)
         And a session with 15 reads already counted
         When main() fires a Read call
-        Then the output JSON has additionalContext mentioning shadow mode
-        (issue #517: shadow-mode advisory uses additionalContext;
-        Claude Code rejects the legacy hookSpecificOutput wrapper)
+        Then the output JSON nests additionalContext (mentioning shadow
+        mode) under hookSpecificOutput
+        (issue #580: shadow-mode advisory nests additionalContext under
+        hookSpecificOutput; Claude Code 2.1.178 rejects a top-level
+        additionalContext key)
         """
         counter_path = tmp_path / "vow_read_counter_shadow-warn.json"
         hook_module._write_counter(counter_path, 15)
@@ -460,8 +474,10 @@ class TestShadowMode:
         assert exc.value.code == 0
         captured = capsys.readouterr()
         output = json.loads(captured.out)
-        assert "hookSpecificOutput" not in output
-        ctx = output["additionalContext"]
+        assert "additionalContext" not in output
+        hso = output["hookSpecificOutput"]
+        assert hso["hookEventName"] == "PreToolUse"
+        ctx = hso["additionalContext"]
         assert "Shadow mode" in ctx
         assert "[vow-bounded-reads] WARN" in captured.err
 
@@ -472,9 +488,11 @@ class TestShadowMode:
         Given VOW_SHADOW_MODE=0
         And a session with 15 reads already counted
         When main() fires a Read call
-        Then the output JSON has decision=block with a reason
-        (issue #517: block-mode uses the {decision, reason} root keys
-        directly; not wrapped in hookSpecificOutput)
+        Then the output JSON nests permissionDecision=deny with a reason
+        (issue #580: block-mode nests permissionDecision/
+        permissionDecisionReason under hookSpecificOutput, matching the
+        sibling vow_no_emoji_commits / guard_scope_ramp hooks; Claude
+        Code 2.1.178 rejects top-level decision/reason keys)
         """
         counter_path = tmp_path / "vow_read_counter_shadow-block.json"
         hook_module._write_counter(counter_path, 15)
@@ -487,9 +505,11 @@ class TestShadowMode:
         assert exc.value.code == 0
         captured = capsys.readouterr()
         output = json.loads(captured.out)
-        assert "hookSpecificOutput" not in output
-        assert output["decision"] == "block"
-        assert "Bounded discovery" in output["reason"]
+        assert "decision" not in output
+        hso = output["hookSpecificOutput"]
+        assert hso["hookEventName"] == "PreToolUse"
+        assert hso["permissionDecision"] == "deny"
+        assert "Bounded discovery" in hso["permissionDecisionReason"]
         assert "[vow-bounded-reads] BLOCK" in captured.err
 
 
@@ -605,6 +625,75 @@ class TestIntegration:
         assert hook_module._read_counter(counter_path) == 1
 
 
+class TestCounterLifetime:
+    """Feature: Stale counters do not bleed across sessions (issue #580).
+
+    As the Night Market vow enforcement system
+    I want a counter left over from a prior session to be ignored
+    So that a stale count>budget cannot make every future Read in an
+    unrelated later session emit advisory output.
+    """
+
+    @pytest.mark.unit
+    def test_stale_counter_is_reset_on_increment(self, hook_module, tmp_path):
+        """
+        Scenario: A counter older than the TTL is treated as a fresh start
+        Given a counter file holding count=20 whose mtime is far in the past
+        When _atomic_increment is called
+        Then it returns 1 (the stale value is discarded), not 21
+        """
+        path = tmp_path / "vow_read_counter_stale.json"
+        hook_module._write_counter(path, 20)
+        # Age the file well past the TTL.
+        old = _time.time() - hook_module._COUNTER_TTL_SECONDS - 60
+        _os.utime(path, (old, old))
+
+        assert hook_module._atomic_increment(path) == 1
+        assert hook_module._read_counter(path) == 1
+
+    @pytest.mark.unit
+    def test_fresh_counter_is_not_reset(self, hook_module, tmp_path):
+        """
+        Scenario: A recently-written counter keeps its value
+        Given a counter file holding count=5 written just now
+        When _atomic_increment is called
+        Then it returns 6 (no spurious reset within the TTL)
+        """
+        path = tmp_path / "vow_read_counter_fresh.json"
+        hook_module._write_counter(path, 5)
+        assert hook_module._atomic_increment(path) == 6
+
+    @pytest.mark.unit
+    def test_missing_session_stale_counter_emits_no_advisory(
+        self, hook_module, capsys, tmp_path
+    ):
+        """
+        Scenario: A stale shared counter does not trigger advisory output for
+        a fresh session that has no session_id
+        Given no session_id and a stale counter at the process-scoped path
+              holding count=99
+        When main() fires a single Read
+        Then the stale value is discarded and no advisory is emitted
+        """
+        counter_path = tmp_path / "vow_read_counter_pid-stale.json"
+        hook_module._write_counter(counter_path, 99)
+        old = _time.time() - hook_module._COUNTER_TTL_SECONDS - 60
+        _os.utime(counter_path, (old, old))
+
+        stdin_data = json.dumps(
+            {"tool_name": "Read", "tool_input": {"file_path": "/x.py"}}
+        )
+        env = {k: v for k, v in _os.environ.items() if k != "CLAUDE_SESSION_ID"}
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch.dict("os.environ", env, clear=True):
+                with patch("sys.stdin", StringIO(stdin_data)):
+                    with pytest.raises(SystemExit) as exc:
+                        hook_module.main()
+        assert exc.value.code == 0
+        assert capsys.readouterr().out.strip() == ""
+        assert hook_module._read_counter(counter_path) == 1
+
+
 class TestAtomicIncrement:
     """Feature: Counter increments are parallel-safe (issue #418).
 
@@ -661,8 +750,6 @@ class TestAtomicIncrement:
         paired `..._loses_updates_without_flock_under_injected_race`)
         are what actually gate the flock fix.
         """
-        import threading
-
         path = tmp_path / "vow_read_counter_parallel.json"
         n_threads = 50
         results: list[int] = []
@@ -710,10 +797,6 @@ class TestAtomicIncrement:
         were absent -- which the paired negative-control test below
         demonstrates.
         """
-        import os as _os
-        import threading
-        import time
-
         if not hook_module._HAS_FCNTL:
             pytest.skip("requires fcntl (POSIX-only)")
 
@@ -771,10 +854,6 @@ class TestAtomicIncrement:
         ineffective and both tests must be revisited (review finding
         B2's core concern).
         """
-        import os as _os
-        import threading
-        import time
-
         path = tmp_path / "vow_read_counter_unflocked_race.json"
         monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
 
@@ -824,10 +903,6 @@ class TestAtomicIncrement:
         Operators relying on flock for correctness need to know the
         Windows path degrades silently.
         """
-        import os as _os
-        import threading
-        import time
-
         monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
         path = tmp_path / "vow_read_counter_nofcntl_50_thread.json"
         n_threads = 50
@@ -921,7 +996,6 @@ class TestAtomicIncrement:
         """
         if not hook_module._HAS_FCNTL:
             pytest.skip("fcntl unavailable; skipping fcntl warning test")
-        import errno
 
         def raising_flock(_fd, _op):
             raise OSError(errno.EWOULDBLOCK, "lock contention")
@@ -1096,8 +1170,6 @@ class TestAtomicReset:
         only) or matches the number of increments that completed before
         the reset — but the file is never corrupt and never negative.
         """
-        import threading
-
         path = tmp_path / "vow_read_counter_reset-race.json"
         n_increments = 30
         barrier = threading.Barrier(n_increments + 1)
@@ -1144,3 +1216,83 @@ class TestAtomicReset:
             f"count {count_value} outside [0, {n_increments}] -- "
             "indicates lost write or interleaved update"
         )
+
+
+# ---------------------------------------------------------------------------
+# IMB-017: extract _read_with_lock and _write_with_fd helpers
+# ---------------------------------------------------------------------------
+
+
+class TestReadWithLock:
+    """_read_with_lock(fd) returns the current count from an open fd.
+
+    GIVEN an open file descriptor
+    WHEN _read_with_lock is called
+    THEN it returns the integer count from the JSON content, or 0 on
+         empty / invalid / TTL-expired content.
+    """
+
+    def test_returns_count_from_valid_json(self, tmp_path: Path, hook_module) -> None:
+        counter_file = tmp_path / "counter.json"
+        counter_file.write_bytes(b'{"count": 7}')
+        fd = os.open(str(counter_file), os.O_RDWR)
+        try:
+            result = hook_module._read_with_lock(fd)
+        finally:
+            os.close(fd)
+        assert result == 7
+
+    def test_returns_zero_for_empty_file(self, tmp_path: Path, hook_module) -> None:
+        counter_file = tmp_path / "counter.json"
+        counter_file.write_bytes(b"")
+        fd = os.open(str(counter_file), os.O_RDWR)
+        try:
+            result = hook_module._read_with_lock(fd)
+        finally:
+            os.close(fd)
+        assert result == 0
+
+    def test_returns_zero_for_invalid_json(self, tmp_path: Path, hook_module) -> None:
+        counter_file = tmp_path / "counter.json"
+        counter_file.write_bytes(b"not-json")
+        fd = os.open(str(counter_file), os.O_RDWR)
+        try:
+            result = hook_module._read_with_lock(fd)
+        finally:
+            os.close(fd)
+        assert result == 0
+
+
+class TestWriteWithFd:
+    """_write_with_fd(fd, count) writes the count as JSON to an open fd.
+
+    GIVEN an open file descriptor
+    WHEN _write_with_fd is called with a count
+    THEN the fd contains JSON with the count and prior content is replaced.
+    """
+
+    def test_writes_count_as_json(self, tmp_path: Path, hook_module) -> None:
+        counter_file = tmp_path / "counter.json"
+        counter_file.write_bytes(b"")
+        fd = os.open(str(counter_file), os.O_RDWR)
+        try:
+            hook_module._write_with_fd(fd, 5)
+            os.lseek(fd, 0, os.SEEK_SET)
+            raw = os.read(fd, 4096)
+        finally:
+            os.close(fd)
+        parsed = json.loads(raw)
+        assert parsed == {"count": 5}
+
+    def test_overwrites_existing_content(self, tmp_path: Path, hook_module) -> None:
+        counter_file = tmp_path / "counter.json"
+        counter_file.write_bytes(b'{"count": 99, "extra": true}')
+        fd = os.open(str(counter_file), os.O_RDWR)
+        try:
+            hook_module._write_with_fd(fd, 1)
+            os.lseek(fd, 0, os.SEEK_SET)
+            raw = os.read(fd, 4096)
+        finally:
+            os.close(fd)
+        parsed = json.loads(raw)
+        assert parsed == {"count": 1}

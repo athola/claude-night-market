@@ -23,6 +23,7 @@ from __future__ import annotations
 import enum
 import importlib.util
 import logging
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -35,11 +36,23 @@ logger = logging.getLogger(__name__)
 
 _HERALD_AVAILABLE = False
 
+
+def _find_herald_notify_path() -> Path:
+    """Locate herald's notify.py via env var override or repo-relative default."""
+    env_override = os.getenv("HERALD_NOTIFY_PATH")
+    if env_override:
+        return Path(env_override)
+    return (
+        Path(__file__).resolve().parent.parent.parent
+        / "herald"
+        / "scripts"
+        / "notify.py"
+    )
+
+
 # Load herald's notify module from its known file path using
 # importlib.util.spec_from_file_location (safe, no exec).
-_herald_notify_path = (
-    Path(__file__).resolve().parent.parent.parent / "herald" / "scripts" / "notify.py"
-)
+_herald_notify_path = _find_herald_notify_path()
 
 try:
     _spec = importlib.util.spec_from_file_location(
@@ -232,6 +245,14 @@ def send_webhook(
     )
 
 
+def _build_alert_title(event: Any, ctx: Any, source: str) -> str:
+    """Build the GitHub issue title for an alert event."""
+    title = f"[{source}] {event.value}"
+    if ctx.work_item_id:
+        title = f"{title} - {ctx.work_item_id}"
+    return title
+
+
 def alert(  # noqa: PLR0913 - backward-compat wrapper
     event: Any,
     overseer_method: str = "github-repo-owner",
@@ -265,9 +286,7 @@ def alert(  # noqa: PLR0913 - backward-compat wrapper
     body = build_issue_body(event=event, ctx=resolved_ctx, source=source)
 
     if overseer_method == "github-repo-owner":
-        title = f"[{source}] {event.value}"
-        if resolved_ctx.work_item_id:
-            title = f"[{source}] {event.value} - {resolved_ctx.work_item_id}"
+        title = _build_alert_title(event, resolved_ctx, source)
         labels = [source, event.value]
         if create_github_alert(title=title, body=body, labels=labels):
             success = True
@@ -334,6 +353,7 @@ __all__ = [
     "AlertContext",
     "AlertEvent",
     "WebhookURLError",
+    "_build_alert_title",
     "alert",
     "build_issue_body",
     "config_alert",

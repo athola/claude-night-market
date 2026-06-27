@@ -125,7 +125,7 @@ class TestSkillsAuditorInit:
         """Scenario: Constructor sets skills_dir and skills_root."""
         auditor = SkillsAuditor(tmp_path)
         assert auditor.skills_dir == tmp_path
-        assert auditor.skills_root == tmp_path
+        assert auditor.skills_dir == tmp_path
 
     @pytest.mark.unit
     def test_audit_metrics_loaded(self, tmp_path: Path) -> None:

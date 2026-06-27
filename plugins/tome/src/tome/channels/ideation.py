@@ -64,6 +64,12 @@ def load_methods() -> list[dict[str, Any]]:
         A list of method dicts in catalogue order, each with at least
         ``id``, ``name``, ``category``, ``evidence``, ``ports``, and
         ``prompt``.
+
+    Raises:
+        ValueError: If the bundled data file is missing, empty, or holds a
+            method without an ``id``. An empty catalogue silently disables
+            the channel, so it is treated as a packaging bug, not a valid
+            state (issue #569).
     """
     global _METHODS_CACHE
     if _METHODS_CACHE is not None:
@@ -71,7 +77,18 @@ def load_methods() -> list[dict[str, Any]]:
 
     data_file = resources.files("tome.channels.ideation_data").joinpath("methods.yaml")
     raw = yaml.safe_load(data_file.read_text(encoding="utf-8")) or {}
-    _METHODS_CACHE = list(raw.get("methods", []))
+    methods = list(raw.get("methods", []))
+    if not methods:
+        raise ValueError(
+            "ideation methods catalogue is empty or missing; expected a "
+            "non-empty 'methods' list in methods.yaml"
+        )
+    for index, method in enumerate(methods):
+        if not method.get("id"):
+            raise ValueError(
+                f"ideation method at index {index} is missing a required 'id'"
+            )
+    _METHODS_CACHE = methods
     return _METHODS_CACHE
 
 

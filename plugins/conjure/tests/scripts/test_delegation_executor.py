@@ -225,13 +225,13 @@ class TestDelegator:
         """
         delegator = Delegator(config_dir=temp_config_dir)
 
-        options = {"model": "gemini-pro", "output_format": "json", "temperature": 0.7}
+        options = {"model": "gemini-3-pro", "output_format": "json", "temperature": 0.7}
 
         command = delegator.build_command("gemini", "test prompt", options=options)
 
         assert "gemini" in command
         assert "--model" in command
-        assert "gemini-pro" in command
+        assert "gemini-3-pro" in command
         assert "--output-format" in command
         assert "json" in command
         assert "--temperature" in command

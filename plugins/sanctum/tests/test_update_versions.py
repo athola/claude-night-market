@@ -80,15 +80,15 @@ description = "test"
     assert 'version = "1.0.0"' not in updated
 
 
-def test_update_cargo_version():
-    """Test Cargo.toml version updating."""
+def test_update_pyproject_version_handles_cargo_toml_format():
+    """update_pyproject_version works for Cargo.toml (same TOML version field)."""
     content = """[package]
 name = "test"
 version = "1.0.0"
 edition = "2021"
 """
 
-    updated = update_versions.update_cargo_version(content, "2.0.0")
+    updated = update_versions.update_pyproject_version(content, "2.0.0")
 
     assert 'version = "2.0.0"' in updated
     assert 'version = "1.0.0"' not in updated
@@ -148,10 +148,10 @@ def test_nested_hooks_directory():
         assert any("memory-palace/hooks/pyproject.toml" in str(f) for f in files)
 
 
-def test_update_plugin_json_version():
-    """plugin.json / marketplace.json carries the same shape as package.json."""
+def test_update_package_json_version_handles_plugin_json():
+    """update_package_json_version works for plugin.json (same JSON shape)."""
     content = '{\n  "name": "x",\n  "version": "1.0.0",\n  "x": 1\n}\n'
-    updated = update_versions.update_plugin_json_version(content, "9.8.7")
+    updated = update_versions.update_package_json_version(content, "9.8.7")
     assert '"version": "9.8.7"' in updated
     assert '"version": "1.0.0"' not in updated
 
@@ -357,12 +357,54 @@ def test_init_py_skipped_when_no_dunder_version():
         assert keeper in files
 
 
+def test_update_version_field_toml_style():
+    """update_version_field with toml style matches pyproject/cargo pattern."""
+    content = '[package]\nname = "x"\nversion = "1.0.0"\n'
+    result = update_versions.update_version_field(content, "version", "2.3.4")
+    assert 'version = "2.3.4"' in result
+    assert 'version = "1.0.0"' not in result
+
+
+def test_update_version_field_json_style():
+    """update_version_field with json_style=True matches package.json pattern."""
+    content = '{"name":"x","version":"1.0.0"}'
+    result = update_versions.update_version_field(
+        content, "version", "2.3.4", json_style=True
+    )
+    assert '"version": "2.3.4"' in result
+    assert '"version":"1.0.0"' not in result
+
+
+def test_update_version_field_toml_line_anchored():
+    """TOML update must be line-anchored so mid-value strings are not matched."""
+    content = 'name = "version = \\"1.0.0\\""\nversion = "1.0.0"\n'
+    result = update_versions.update_version_field(content, "version", "9.0.0")
+    assert result.count("9.0.0") == 1
+
+
+def test_update_pyproject_delegates_to_generic():
+    """update_pyproject_version produces the same result as update_version_field."""
+    content = 'version = "1.0.0"\n'
+    assert update_versions.update_pyproject_version(
+        content, "5.0.0"
+    ) == update_versions.update_version_field(content, "version", "5.0.0")
+
+
+def test_update_package_json_delegates_to_generic():
+    """update_package_json_version produces same result as generic json_style."""
+    content = '{"version":"1.0.0"}'
+    assert update_versions.update_package_json_version(
+        content, "5.0.0"
+    ) == update_versions.update_version_field(
+        content, "version", "5.0.0", json_style=True
+    )
+
+
 if __name__ == "__main__":
     # Run tests
     test_find_version_files()
     test_find_version_files_include_cache()
     test_update_pyproject_version()
-    test_update_cargo_version()
     test_update_package_json_version()
     test_update_version_file_pyproject()
     test_nested_hooks_directory()

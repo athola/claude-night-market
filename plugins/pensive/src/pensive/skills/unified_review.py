@@ -88,27 +88,14 @@ class UnifiedReviewSkill(BaseReviewSkill):
     def detect_build_systems(self, context: Any) -> list[str]:
         """Detect build systems used in the codebase.
 
+        Delegates to RepositoryAnalyzer.detect_build_systems_from_files so
+        both "Makefile" and "makefile" map to "make" without duplication.
+
         Returns:
             List of detected build system names
         """
         files = context.get_files()
-        build_systems = []
-
-        # Check for Makefile
-        if "Makefile" in files or "makefile" in files:
-            build_systems.extend(["make", "makefile"])
-
-        # Check for other build systems
-        if "CMakeLists.txt" in files:
-            build_systems.append("cmake")
-        if "build.gradle" in files or "build.gradle.kts" in files:
-            build_systems.append("gradle")
-        if "pom.xml" in files:
-            build_systems.append("maven")
-        if "Cargo.toml" in files:
-            build_systems.append("cargo")
-
-        return build_systems
+        return RepositoryAnalyzer.detect_build_systems_from_files(files)
 
     def select_review_skills(self, context: Any) -> list[str]:
         """Select appropriate review skills based on codebase.
@@ -319,12 +306,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
                 continue
 
             try:
-                # Handle both callable and direct return mocks
-                content = (
-                    context.get_file_content(file)
-                    if callable(context.get_file_content)
-                    else context.get_file_content
-                )
+                content = context.get_file_content(file)
 
                 # Count exports (TypeScript/JavaScript)
                 export_matches = re.findall(r"^\s*export ", content, re.MULTILINE)

@@ -69,41 +69,48 @@ class TendingContext:
     target_path: Path
 
 
-class MemoryPalaceCLI:
-    """Provide the main entrypoint for all command-line operations."""
+class _CLIBase:
+    """Shared state and helper signatures for the command mixins.
 
-    def __init__(self) -> None:
-        """Initialize the Memory Palace CLI."""
-        self.script_dir = Path(__file__).parent
-        self.plugin_dir = self.script_dir.parent
-        self.config_file = self.plugin_dir / "config" / "settings.json"
-        self.claude_config = Path.home() / ".claude" / "settings.json"
+    Declares the attributes set by ``MemoryPalaceCLI.__init__`` and the
+    helpers every command group calls, so each mixin type-checks under
+    strict mypy. The concrete implementations live on the coordinator
+    (and ``prune_check`` on the palace mixin); these are forward
+    declarations only.
+    """
 
-    def _palaces_dir(self, override: str | None = None) -> str | None:
-        """Resolve the palaces directory from override or environment."""
-        return override or os.environ.get("PALACES_DIR")
+    script_dir: Path
+    plugin_dir: Path
+    config_file: Path
+    claude_config: Path
 
     def _manager(self, palaces_dir: str | None = None) -> MemoryPalaceManager:
-        """Create a palace manager with optional directory override."""
-        return MemoryPalaceManager(
-            str(self.config_file), self._palaces_dir(palaces_dir)
-        )
+        """Create a palace manager (implemented by the coordinator)."""
+        raise NotImplementedError
 
     def print_status(self, message: str) -> None:
-        """Print a status message to the console."""
-        print(f"[STATUS] {message}")
+        """Print a status message (implemented by the coordinator)."""
+        raise NotImplementedError
 
     def print_success(self, message: str) -> None:
-        """Print a success message to the console."""
-        print(f"[OK] {message}")
+        """Print a success message (implemented by the coordinator)."""
+        raise NotImplementedError
 
     def print_warning(self, message: str) -> None:
-        """Print a warning message to the console."""
-        print(f"[WARN] {message}")
+        """Print a warning message (implemented by the coordinator)."""
+        raise NotImplementedError
 
     def print_error(self, message: str) -> None:
-        """Print an error message to the console."""
-        print(f"[ERROR] {message}")
+        """Print an error message (implemented by the coordinator)."""
+        raise NotImplementedError
+
+    def prune_check(self, stale_days: int = 90) -> bool:
+        """Check for stale palaces (implemented by the palace mixin)."""
+        raise NotImplementedError
+
+
+class _LifecycleMixin(_CLIBase):
+    """Plugin enable/disable and status reporting."""
 
     def is_enabled(self) -> bool:
         """Check if the plugin is enabled in the Claude configuration."""
@@ -247,6 +254,10 @@ class MemoryPalaceCLI:
                     compute_garden_metrics(garden_path)
                 except (OSError, json.JSONDecodeError, ValueError) as e:
                     self.print_warning(f"Could not compute garden metrics: {e}")
+
+
+class _GardenMixin(_CLIBase):
+    """Garden metrics and tending (prune/stale/archive)."""
 
     def garden_metrics(
         self,
@@ -398,11 +409,6 @@ class MemoryPalaceCLI:
         """
         self.print_status(f"Tending report for {ctx.target_path}")
         if opts.prometheus:
-            label_val = opts.label or ctx.target_path.stem
-
-            def line(metric: str, value: Any) -> str:
-                return f'{metric}{{garden="{label_val}"}} {value}'
-
             return
 
         if ctx.actions["prune"]:
@@ -464,6 +470,10 @@ class MemoryPalaceCLI:
             self.print_success(f"Archived plots exported to {export_path}")
 
         self.print_success(f"Tending applied. Backup saved to {backup}")
+
+
+class _IndexMixin(_CLIBase):
+    """Capture-index reporting, promotion, and orphan pruning."""
 
     def _capture_index_path(self) -> Path:
         """Resolve the capture index path (hooks/memory-palace-index.yaml)."""
@@ -606,6 +616,10 @@ class MemoryPalaceCLI:
             f"Pruned {result.applied} orphans. Backup: {result.backup_path}"
         )
         return True
+
+
+class _PalaceMixin(_CLIBase):
+    """Palace lifecycle: create/list/search/prune/sync/export/import."""
 
     def list_skills(self) -> None:
         """List the available skills in the Memory Palace."""
@@ -904,6 +918,43 @@ class MemoryPalaceCLI:
             self.print_error(f"Import failed: file not found: {e}")
         except json.JSONDecodeError as e:
             self.print_error(f"Import failed: corrupt JSON in source: {e}")
+
+
+class MemoryPalaceCLI(_LifecycleMixin, _GardenMixin, _IndexMixin, _PalaceMixin):
+    """Provide the main entrypoint for all command-line operations."""
+
+    def __init__(self) -> None:
+        """Initialize the Memory Palace CLI."""
+        self.script_dir = Path(__file__).parent
+        self.plugin_dir = self.script_dir.parent
+        self.config_file = self.plugin_dir / "config" / "settings.json"
+        self.claude_config = Path.home() / ".claude" / "settings.json"
+
+    def _palaces_dir(self, override: str | None = None) -> str | None:
+        """Resolve the palaces directory from override or environment."""
+        return override or os.environ.get("PALACES_DIR")
+
+    def _manager(self, palaces_dir: str | None = None) -> MemoryPalaceManager:
+        """Create a palace manager with optional directory override."""
+        return MemoryPalaceManager(
+            str(self.config_file), self._palaces_dir(palaces_dir)
+        )
+
+    def print_status(self, message: str) -> None:
+        """Print a status message to the console."""
+        print(f"[STATUS] {message}")
+
+    def print_success(self, message: str) -> None:
+        """Print a success message to the console."""
+        print(f"[OK] {message}")
+
+    def print_warning(self, message: str) -> None:
+        """Print a warning message to the console."""
+        print(f"[WARN] {message}")
+
+    def print_error(self, message: str) -> None:
+        """Print an error message to the console."""
+        print(f"[ERROR] {message}")
 
 
 def _add_zero_arg_commands(subparsers: Any) -> None:

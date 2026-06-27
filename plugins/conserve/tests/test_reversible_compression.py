@@ -19,7 +19,9 @@ from __future__ import annotations
 import importlib.util
 import io
 import json
+import os
 import sys
+import time
 import uuid
 from pathlib import Path
 
@@ -35,6 +37,10 @@ SMALL_THRESHOLD = 100
 HANDLE_HEX_LEN = 12
 HEAD_LINES = 3
 TAIL_LINES = 2
+RETENTION_DAYS_DEFAULT = 7
+RETENTION_DAYS_OVERRIDE = 3
+OLD_AGE_DAYS = 10
+SECONDS_PER_DAY = 86_400
 
 
 def _load_module(module_path: Path):
@@ -119,6 +125,107 @@ def test_archive_handle_differs_for_different_content(summarizer, tmp_path):
     h1 = summarizer.archive_large_output("alpha " * 500, archive_dir=tmp_path)
     h2 = summarizer.archive_large_output("beta " * 500, archive_dir=tmp_path)
     assert h1 != h2
+
+
+# ---------------------------------------------------------------------------
+# Atomic write (concurrent same-hash writers must not corrupt the file)
+# ---------------------------------------------------------------------------
+
+
+def test_archive_write_leaves_no_temp_file(summarizer, tmp_path):
+    """A successful archive write produces only the final ``.txt`` file.
+
+    tempfile + os.replace must clean up after itself so the archive dir does
+    not accumulate stray temp files alongside the content-addressed handles.
+    """
+    text = "payload line\n" * 200
+    handle = summarizer.archive_large_output(text, archive_dir=tmp_path)
+
+    archived = tmp_path / f"{handle}.txt"
+    assert archived.read_text(encoding="utf-8") == text
+    leftovers = [p.name for p in tmp_path.iterdir() if not p.name.endswith(".txt")]
+    assert leftovers == [], f"unexpected non-archive files: {leftovers}"
+
+
+def test_archive_write_uses_atomic_replace(summarizer, tmp_path, monkeypatch):
+    """The write must go through os.replace (atomic rename).
+
+    When the rename fails mid-write, no partial target file and no leftover
+    temp file may remain, so a concurrent reader never sees a half-written
+    handle.
+    """
+
+    def _boom(*_args, **_kwargs):
+        raise OSError("rename failed")
+
+    monkeypatch.setattr(summarizer.os, "replace", _boom)
+
+    with pytest.raises(OSError, match="rename failed"):
+        summarizer.archive_large_output("x" * 500, archive_dir=tmp_path)
+
+    assert list(tmp_path.glob("ccr-*.txt")) == []
+    assert list(tmp_path.iterdir()) == []
+
+
+# ---------------------------------------------------------------------------
+# Retention cleanup (archives must not grow unbounded across sessions)
+# ---------------------------------------------------------------------------
+
+
+def test_get_ccr_retention_days_default(summarizer, monkeypatch):
+    monkeypatch.delenv("CONSERVE_CCR_RETENTION_DAYS", raising=False)
+    assert summarizer.get_ccr_retention_days() == RETENTION_DAYS_DEFAULT
+
+
+def test_get_ccr_retention_days_env_override(summarizer, monkeypatch):
+    monkeypatch.setenv("CONSERVE_CCR_RETENTION_DAYS", str(RETENTION_DAYS_OVERRIDE))
+    assert summarizer.get_ccr_retention_days() == RETENTION_DAYS_OVERRIDE
+
+
+def test_get_ccr_retention_days_invalid_falls_back(summarizer, monkeypatch):
+    monkeypatch.setenv("CONSERVE_CCR_RETENTION_DAYS", "not-a-number")
+    assert summarizer.get_ccr_retention_days() == RETENTION_DAYS_DEFAULT
+
+
+def test_cleanup_deletes_old_keeps_new(summarizer, tmp_path):
+    old = tmp_path / "ccr-oldoldoldold.txt"
+    new = tmp_path / "ccr-newnewnewnew.txt"
+    old.write_text("stale", encoding="utf-8")
+    new.write_text("fresh", encoding="utf-8")
+
+    backdated = time.time() - OLD_AGE_DAYS * SECONDS_PER_DAY
+    os.utime(old, (backdated, backdated))
+
+    removed = summarizer.context_archive_cleanup(
+        tmp_path, max_age_days=RETENTION_DAYS_DEFAULT
+    )
+
+    assert removed == 1
+    assert not old.exists()
+    assert new.exists()
+
+
+def test_cleanup_only_touches_ccr_files(summarizer, tmp_path):
+    ccr = tmp_path / "ccr-oldoldoldold.txt"
+    other = tmp_path / "notes.txt"
+    ccr.write_text("stale", encoding="utf-8")
+    other.write_text("keep me", encoding="utf-8")
+
+    backdated = time.time() - OLD_AGE_DAYS * SECONDS_PER_DAY
+    os.utime(ccr, (backdated, backdated))
+    os.utime(other, (backdated, backdated))
+
+    removed = summarizer.context_archive_cleanup(
+        tmp_path, max_age_days=RETENTION_DAYS_DEFAULT
+    )
+
+    assert removed == 1
+    assert not ccr.exists()
+    assert other.exists()
+
+
+def test_cleanup_missing_dir_returns_zero(summarizer, tmp_path):
+    assert summarizer.context_archive_cleanup(tmp_path / "does-not-exist") == 0
 
 
 # ---------------------------------------------------------------------------

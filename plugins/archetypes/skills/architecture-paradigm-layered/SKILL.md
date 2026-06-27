@@ -100,3 +100,14 @@ discussions.
 - ``dependency-validator``: fails the build when a layer imports above its allowed depth
 - ``layer-enforcer``: static-analysis gate that checks namespaces match layer rules
 - ``architecture-compliance-checker``: diffs the implemented layer graph against the documented one
+
+## Exit Criteria
+
+- [ ] An ADR captures the chosen layer stack (3-layer, 4-layer, or 5-layer), responsibilities
+  per layer, allowed dependency direction, and the policy for cross-layer exceptions.
+- [ ] A formal dependency diagram is committed to project documentation and matches the ADR's
+  stated layer boundaries.
+- [ ] Automated architectural checks (ArchUnit, dep-cruise, or equivalent) are wired into CI
+  and fail the build on any upward dependency.
+- [ ] Cross-cutting concerns (logging, auth, validation) are implemented once as middleware or
+  policy and are not duplicated across layer implementations.

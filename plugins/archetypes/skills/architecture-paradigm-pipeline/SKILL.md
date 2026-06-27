@@ -59,3 +59,15 @@ discussions.
 - ``stream-processor``: the runtime that executes a filter (e.g. Flink, Apache Beam, Faust)
 - ``message-queue``: the durable pipe between filters (e.g. Kafka, RabbitMQ, in-memory channel)
 - ``data-validator``: schema-checks every record at filter input and output
+
+## Exit Criteria
+
+- [ ] An ADR documents every filter in the pipeline, the chosen pipe technology, the
+  error-handling strategy (DLQ, retry count, dead-letter routing), and the data replay
+  mechanism.
+- [ ] Each filter has a contract test covering its input and output schema; schema drift between
+  adjacent filters is caught by a CI compatibility check.
+- [ ] Observability dashboards are configured showing per-stage latency, throughput, and error
+  rate before the pipeline is promoted to production.
+- [ ] Load testing validates that back-pressure and buffering mechanisms prevent data loss at
+  2x the expected peak throughput.

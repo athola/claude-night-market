@@ -53,16 +53,27 @@ class RepositoryAnalyzer:
         """Initialize repository analyzer."""
         self.repo_path = Path(repo_path) if repo_path else None
 
+    @classmethod
+    def detect_build_systems_from_files(cls, files: list[str]) -> list[str]:
+        """Detect build systems from a flat file list without disk access.
+
+        Checks each file's basename against ``BUILD_SYSTEM_FILES``.
+        Deduplicates via set so both ``Makefile`` and ``makefile`` map to
+        a single ``"make"`` entry.
+        """
+        detected: set[str] = set()
+        for path in files:
+            basename = path.rsplit("/", 1)[-1]
+            system = cls.BUILD_SYSTEM_FILES.get(basename)
+            if system is not None:
+                detected.add(system)
+        return sorted(detected)
+
     def analyze(self) -> dict[str, Any]:
-        """Analyze the repository."""
+        """Analyze the repository, delegating to analyze_repository()."""
         if not self.repo_path:
             return {"files": [], "languages": [], "findings": []}
-
-        return {
-            "files": self.get_files(),
-            "languages": self.detect_languages(),
-            "findings": [],
-        }
+        return self.analyze_repository(self.repo_path)
 
     def analyze_repository(self, repo_path: Path | str) -> dict[str, Any]:
         """Detect languages, build systems, and test frameworks under ``repo_path``.

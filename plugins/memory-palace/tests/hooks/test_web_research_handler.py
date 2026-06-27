@@ -1246,3 +1246,49 @@ class TestNonOkFetchRejection:
             web_research_handler.main()
 
         mock_store.assert_called_once()
+
+
+# =============================================================================
+# Evaluation-Score Table Rendering
+# =============================================================================
+
+
+class TestEvalScoresTable:
+    """The auto-generated evaluation-score table embedded in research notes.
+
+    Regression guard: a self-referential template constant once rendered the
+    literal ``{_EVAL_SCORES_TABLE}`` placeholder into stored notes because
+    nothing exercised the rendered output.
+    """
+
+    _CRITERIA = ("Novelty", "Applicability", "Durability", "Connectivity", "Authority")
+
+    def test_constant_holds_real_rubric_not_a_self_reference(self):
+        """GIVEN the ``_EVAL_SCORES_TABLE`` module constant
+        WHEN its contents are inspected
+        THEN it carries the table heading and every criterion row
+        AND it does not contain the literal ``{_EVAL_SCORES_TABLE}`` placeholder
+        """
+        table = web_research_handler._EVAL_SCORES_TABLE
+        assert "## Evaluation Scores (Auto-Generated)" in table
+        for criterion in self._CRITERIA:
+            assert f"| {criterion} | TBD | Review needed |" in table
+        assert "{_EVAL_SCORES_TABLE}" not in table
+
+    def test_webfetch_note_renders_the_table(self):
+        """GIVEN WebFetch content to store
+        WHEN ``store_webfetch_content`` builds the queue note
+        THEN the rendered note embeds the real eval-score rows
+        AND not the unrendered ``{_EVAL_SCORES_TABLE}`` placeholder
+        """
+        with patch(
+            "web_research_handler._store_to_queue", return_value="stored.md"
+        ) as mock_store:
+            web_research_handler.store_webfetch_content(
+                "# Example\n\nbody text", "https://example.com/x", "summarize"
+            )
+
+        note = mock_store.call_args.args[1]
+        assert "## Evaluation Scores (Auto-Generated)" in note
+        assert "| Novelty | TBD | Review needed |" in note
+        assert "{_EVAL_SCORES_TABLE}" not in note

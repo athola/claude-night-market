@@ -74,3 +74,18 @@ When a paper is paywalled and no open version exists:
 - DeepDyve article rental
 - Inter-library loan request
 - Direct author email template
+
+## Exit Criteria
+
+- [ ] At least one academic source queried in priority order
+      (arXiv first, then Semantic Scholar, then Unpaywall/CORE/PubMed)
+- [ ] PDF content converted via `leyline:document-conversion`
+      protocol: markitdown MCP attempted first, Read-tool fallback
+      used if markitdown is unavailable
+- [ ] Each paper result includes citation info (authors, year, venue)
+      and an abstract or key findings summary
+- [ ] Paywalled papers with no open version trigger the fallback
+      guidance (library, DeepDyve, ILL, author contact) rather than
+      returning an empty result
+- [ ] If all sources return zero results, this is stated explicitly
+      rather than generating fabricated paper entries

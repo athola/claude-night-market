@@ -67,3 +67,16 @@ discussions.
 - ``api-gateway``: single ingress that routes to coarse-grained services and centralizes cross-cutting concerns
 - ``service-registry``: directory of available services with health status and contracts
 - ``schema-management``: shared schema repo for types crossing service boundaries
+
+## Exit Criteria
+
+- [ ] An ADR outlines service boundaries, explicit data ownership per schema or table, and the
+  coordination mechanism (service registry or API gateway) before any service is deployed
+  independently.
+- [ ] Formal service contracts (OpenAPI or AsyncAPI) with versioning and SLA statements exist
+  for every inter-service interaction point.
+- [ ] Consumer-driven contract tests exist for each service and pass in CI before a service
+  owner merges breaking interface changes.
+- [ ] Shared-database coupling hotspots are documented with a schema deprecation schedule;
+  any service reading another service's tables without a view or replication layer is flagged
+  as an architectural violation.

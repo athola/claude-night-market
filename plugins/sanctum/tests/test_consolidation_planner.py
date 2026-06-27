@@ -4,11 +4,19 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 SCRIPT_PATH = Path(__file__).parent.parent / "scripts" / "consolidation_planner.py"
+
+_CLEAN_ENV = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+
+
+def _git(*args: str) -> None:
+    """Run git with GIT_* env vars stripped to prevent pre-commit hook leakage."""
+    subprocess.run(["git", *args], check=True, env=_CLEAN_ENV)
 
 
 def _load_script():
@@ -250,20 +258,12 @@ def test_git_untracked_files_returns_empty_outside_repo(tmp_path):
 
 def test_git_untracked_files_lists_only_untracked(tmp_path):
     cp = _load_script()
-    subprocess.run(["git", "init", "-q", "-b", "main", str(tmp_path)], check=True)
-    subprocess.run(
-        ["git", "-C", str(tmp_path), "config", "user.email", "t@example.com"],
-        check=True,
-    )
-    subprocess.run(
-        ["git", "-C", str(tmp_path), "config", "user.name", "Tester"],
-        check=True,
-    )
+    _git("init", "-q", "-b", "main", str(tmp_path))
+    _git("-C", str(tmp_path), "config", "user.email", "t@example.com")
+    _git("-C", str(tmp_path), "config", "user.name", "Tester")
     (tmp_path / "tracked.md").write_text("# tracked\n")
-    subprocess.run(["git", "-C", str(tmp_path), "add", "tracked.md"], check=True)
-    subprocess.run(
-        ["git", "-C", str(tmp_path), "commit", "-q", "-m", "init"], check=True
-    )
+    _git("-C", str(tmp_path), "add", "tracked.md")
+    _git("-C", str(tmp_path), "commit", "-q", "-m", "init")
     (tmp_path / "AUDIT_REPORT.md").write_text("\n")
     untracked = cp.git_untracked_files(str(tmp_path))
     assert "AUDIT_REPORT.md" in untracked
@@ -272,20 +272,12 @@ def test_git_untracked_files_lists_only_untracked(tmp_path):
 
 def test_scan_for_candidates_picks_up_allcaps_report(tmp_path):
     cp = _load_script()
-    subprocess.run(["git", "init", "-q", "-b", "main", str(tmp_path)], check=True)
-    subprocess.run(
-        ["git", "-C", str(tmp_path), "config", "user.email", "t@example.com"],
-        check=True,
-    )
-    subprocess.run(
-        ["git", "-C", str(tmp_path), "config", "user.name", "Tester"],
-        check=True,
-    )
+    _git("init", "-q", "-b", "main", str(tmp_path))
+    _git("-C", str(tmp_path), "config", "user.email", "t@example.com")
+    _git("-C", str(tmp_path), "config", "user.name", "Tester")
     (tmp_path / "init.md").write_text("first")
-    subprocess.run(["git", "-C", str(tmp_path), "add", "."], check=True)
-    subprocess.run(
-        ["git", "-C", str(tmp_path), "commit", "-q", "-m", "first"], check=True
-    )
+    _git("-C", str(tmp_path), "add", ".")
+    _git("-C", str(tmp_path), "commit", "-q", "-m", "first")
     (tmp_path / "AUDIT_REPORT.md").write_text(
         "**Date**: 2026-04-01\n## Findings\n## Action Items\n"
     )

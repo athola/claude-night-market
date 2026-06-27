@@ -205,9 +205,13 @@ def select_challenge_type(progress: DeveloperProgress) -> str:
     Unseen types get weight 3.0.
     Seen types get ``max(0.5, 2.0 - accuracy * 2.0)``.
     """
+    by_type: dict[str, list] = {}
+    for r in progress.history:
+        by_type.setdefault(r.challenge_type, []).append(r)
+
     weights: list[float] = []
     for ctype in _ALL_TYPES:
-        records = [r for r in progress.history if r.challenge_type == ctype]
+        records = by_type.get(ctype, [])
         if not records:
             weights.append(3.0)
         else:
@@ -329,7 +333,7 @@ def _generate_problem_variation(problem: BankProblem) -> BankProblem:
             )
             return problem
         return dataclasses.replace(problem, prompt=varied_prompt.strip())
-    except Exception:
+    except Exception:  # broad: VariationProvider is arbitrary; any raise must fall back
         _log.warning(
             "Failed to generate variation for problem %s; using original",
             problem.id,

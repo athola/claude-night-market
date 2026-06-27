@@ -16,7 +16,7 @@ EXPERT_CONFIGS = {
     "supreme_commander": {
         "role": "Supreme Commander",
         "service": "native",
-        "model": "claude-opus-4",
+        "model": "claude-opus-4-8",
         "description": "Final decision authority and synthesis",
         "phases": ["synthesis"],
         "dangerous": False,
@@ -24,7 +24,7 @@ EXPERT_CONFIGS = {
     "chief_strategist": {
         "role": "Chief Strategist",
         "service": "native",
-        "model": "claude-sonnet-4",
+        "model": "claude-sonnet-4-6",
         "description": "Approach generation and trade-off analysis",
         "phases": ["assessment", "coa_development"],
         "dangerous": False,
@@ -32,8 +32,8 @@ EXPERT_CONFIGS = {
     "intelligence_officer": {
         "role": "Intelligence Officer",
         "service": "gemini",
-        "model": "gemini-2.5-pro-exp",
-        "command": ["gemini", "--model", "gemini-2.5-pro-exp", "-p"],
+        "model": "gemini-3-pro",
+        "command": ["gemini", "--model", "gemini-3-pro", "-p"],
         "description": "Deep context analysis with 1M+ token window",
         "phases": ["intel"],
         "dangerous": True,
@@ -41,7 +41,7 @@ EXPERT_CONFIGS = {
     "field_tactician": {
         "role": "Field Tactician",
         "service": "glm",
-        "model": "glm-4.7",
+        "model": "glm-5.2",
         "command_resolver": "get_glm_command",
         "preferred_alias": "ccgd",
         "fallback_command": ["claude-glm", "--dangerously-skip-permissions", "-p"],
@@ -61,7 +61,7 @@ EXPERT_CONFIGS = {
     "prosecution_counsel": {
         "role": "Prosecution Counsel",
         "service": "native",
-        "model": "claude-sonnet-4",
+        "model": "claude-sonnet-4-6",
         "description": "Challenges every addition using additive-bias-defense scrutiny questions",
         "phases": ["red_team", "coa_development"],
         "dangerous": False,
@@ -69,8 +69,8 @@ EXPERT_CONFIGS = {
     "red_team": {
         "role": "Red Team Commander",
         "service": "gemini",
-        "model": "gemini-2.0-flash-exp",
-        "command": ["gemini", "--model", "gemini-2.0-flash-exp", "-p"],
+        "model": "gemini-3-flash",
+        "command": ["gemini", "--model", "gemini-3-flash", "-p"],
         "description": "Adversarial challenge and failure mode identification",
         "phases": ["red_team", "premortem"],
         "dangerous": True,
@@ -149,12 +149,12 @@ FULL_COUNCIL = [
 ]
 ```
 
-## GLM-4.7 Command Resolution
+## GLM-5.2 Command Resolution
 
 ```python
 def get_glm_command() -> list[str]:
     """
-    Resolve GLM-4.7 invocation command with fallback.
+    Resolve GLM-5.2 invocation command with fallback.
 
     Priority:
     1. ccgd (alias) - if available in PATH
@@ -178,7 +178,7 @@ def get_glm_command() -> list[str]:
         return [str(local_bin), "--dangerously-skip-permissions", "-p"]
 
     raise RuntimeError(
-        "GLM-4.7 not available. Install claude-glm or configure ccgd alias.\n"
+        "GLM-5.2 not available. Install claude-glm or configure ccgd alias.\n"
         "Add to ~/.bashrc: alias ccgd='claude-glm --dangerously-skip-permissions'"
     )
 ```
@@ -190,7 +190,7 @@ def get_glm_command() -> list[str]:
 | Opus | Standard | Slow | Highest | Final synthesis, complex reasoning |
 | Sonnet | Standard | Medium | High | Strategy, analysis |
 | Gemini Pro | 1M+ | Medium | High | Large codebase analysis |
-| GLM-4.7 | Standard | Medium | High | Implementation details |
+| GLM-5.2 | Standard | Medium | High | Implementation details |
 | Qwen Turbo | Standard | Fast | Medium | Quick data gathering |
 | Gemini Flash | Standard | Fast | Medium | Rapid challenges |
 | Qwen Max | Standard | Medium | Medium-High | Thorough estimation |

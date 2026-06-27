@@ -14,7 +14,8 @@ import ast
 import re
 from typing import Any
 
-from ._constants import MIN_FUNCTIONS_FOR_PARAMETRIZE, parse_code
+from ..async_analysis._base import parse_code
+from ._constants import MIN_FUNCTIONS_FOR_PARAMETRIZE
 
 
 def recommend_tdd_workflow(code: str) -> dict[str, Any]:

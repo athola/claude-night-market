@@ -72,3 +72,15 @@ detection criteria.
   planning requirement
 - `conserve:token-conservation` for session-level token budgeting
 - `conjure:agent-teams` for dispatch coordination
+
+## Exit Criteria
+
+- [ ] All 4 post-dispatch review questions answered with explicit
+  yes/no per agent (unique findings, proportional expenditure, no
+  duplication, fewer agents sufficient)
+- [ ] Waste signals from `modules/waste-signals.md` checked against
+  the completed run; any triggered signal named with the category
+- [ ] A recommendation is produced: either "reduce agent count to N"
+  or "dispatch was efficient" with coordination overhead percentage
+- [ ] If 2+ review questions answer no, a concrete agent-count
+  reduction is stated for future dispatches of the same type

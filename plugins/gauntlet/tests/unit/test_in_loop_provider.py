@@ -10,6 +10,8 @@ variations without calling the Anthropic SDK.
 
 from __future__ import annotations
 
+import importlib
+
 from gauntlet.models import BankProblem, Difficulty
 from gauntlet.providers.in_loop import (
     in_loop_variation_provider,
@@ -60,8 +62,6 @@ class TestInLoopProvider:
         def fake_import(name: str, *args: object, **kwargs: object) -> object:
             if name == "anthropic":
                 called["count"] += 1
-            import importlib
-
             return importlib.__import__(name, *args, **kwargs)
 
         monkeypatch.setattr("builtins.__import__", fake_import)

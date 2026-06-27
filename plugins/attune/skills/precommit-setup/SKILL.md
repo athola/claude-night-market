@@ -4,7 +4,7 @@ description: Configures pre-commit hooks for linting, type checking, formatting,
 globs: "**/.pre-commit-config.yaml"
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model: claude-sonnet-4
+model: claude-sonnet-4-6
 tools:
 - Read
 - Write
@@ -230,3 +230,14 @@ progressive disclosure (summary first, detail on failure).
 - **Quality Gates**: three-layer validation: pre-commit
   hooks (formatting, linting), CI checks (tests, coverage),
   and PR review gates (code quality, security).
+
+## Exit Criteria
+
+- [ ] `.pre-commit-config.yaml` exists at the project root with hooks covering at minimum
+  Layer 1 (whitespace, YAML/TOML/JSON syntax, global linting).
+- [ ] `uv run pre-commit run --all-files` exits 0 after the configuration is installed,
+  confirming all hooks pass on the current codebase state.
+- [ ] `git commit` with a staged change triggers the pre-commit hooks automatically (verified
+  by `uv run pre-commit install` exit code 0 and presence of `.git/hooks/pre-commit`).
+- [ ] Any `--no-verify` bypass is absent from the project's documented workflows; if one is
+  found in existing scripts, it is flagged as a violation rather than silently accepted.

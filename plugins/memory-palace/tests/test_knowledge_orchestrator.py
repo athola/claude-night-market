@@ -5,6 +5,7 @@ decay model, and source lineage for overall knowledge quality assessment.
 """
 
 from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
 
 import pytest
 
@@ -139,29 +140,26 @@ class TestKnowledgeOrchestrator:
         orchestrator.record_usage("entry-1", UsageSignal.CITATION)
 
         assessment = orchestrator.assess_entry(entry)
-        if assessment.overall_score >= orchestrator.QUALITY_THRESHOLDS["healthy"]:
-            assert assessment.status == "healthy"
+        assert assessment.status == "healthy", assessment.overall_score
 
     def test_assess_entry_status_needs_attention(
         self, orchestrator: KnowledgeOrchestrator
     ) -> None:
         """Mid-scoring entry should need attention."""
-        old_date = datetime.now(timezone.utc) - timedelta(days=45)
+        recent = datetime.now(timezone.utc) - timedelta(days=20)
         entry = {
             "id": "entry-1",
             "maturity": "growing",
-            "created_at": old_date.isoformat(),
-            "last_validated": old_date.isoformat(),
+            "created_at": recent.isoformat(),
+            "last_validated": recent.isoformat(),
         }
+        # Light usage on a moderately-aged entry lands it in the
+        # needs_attention band (0.4 <= overall_score < 0.7).
+        orchestrator.record_usage("entry-1", UsageSignal.ACCESS)
+        orchestrator.record_usage("entry-1", UsageSignal.ACCESS)
 
         assessment = orchestrator.assess_entry(entry)
-        thresholds = orchestrator.QUALITY_THRESHOLDS
-        if (
-            thresholds["needs_attention"]
-            <= assessment.overall_score
-            < thresholds["healthy"]
-        ):
-            assert assessment.status == "needs_attention"
+        assert assessment.status == "needs_attention", assessment.overall_score
 
     def test_assess_entry_status_critical(
         self, orchestrator: KnowledgeOrchestrator
@@ -180,11 +178,7 @@ class TestKnowledgeOrchestrator:
         orchestrator.record_usage("entry-1", UsageSignal.STALE_FLAG)
 
         assessment = orchestrator.assess_entry(entry)
-        if (
-            assessment.overall_score
-            < orchestrator.QUALITY_THRESHOLDS["needs_attention"]
-        ):
-            assert assessment.status in ["needs_attention", "critical"]
+        assert assessment.status == "critical", assessment.overall_score
 
     def test_record_usage(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should record usage events."""
@@ -324,10 +318,13 @@ class TestKnowledgeOrchestrator:
         }
 
         assessment = orchestrator.assess_entry(entry)
-        if assessment.usage_score < 0.3:
-            # Should have some recommendation
-            # (could be about promoting, reviewing, or archiving)
-            pass  # No usage is fine for new entries
+
+        # A fresh entry with no recorded usage scores low on usage,
+        # so the orchestrator recommends promoting or archiving it.
+        assert assessment.usage_score < 0.3, assessment.usage_score
+        assert any("low-usage" in rec.lower() for rec in assessment.recommendations), (
+            assessment.recommendations
+        )
 
     def test_overall_score_calculation(
         self, orchestrator: KnowledgeOrchestrator
@@ -467,3 +464,54 @@ class TestKnowledgeOrchestrator:
         assert "validation_dates" in history
         # 2 explicit + 1 from validate_entry (which records CORRECTION)
         assert len(history["usage_events"]) == 3
+
+
+class TestMP015GetStatisticsSinglePass:
+    """MP-015: get_statistics must call assess_entry once per entry, not per-stat."""
+
+    @pytest.fixture
+    def orchestrator(self) -> KnowledgeOrchestrator:
+        """Create a fresh KnowledgeOrchestrator instance."""
+        return KnowledgeOrchestrator()
+
+    def test_assess_entry_called_once_per_entry(
+        self, orchestrator: KnowledgeOrchestrator
+    ) -> None:
+        """get_statistics must not call assess_entry multiple times per entry.
+
+        The original implementation called assess_entry once per entry then
+        iterated the result list 3 more times for status counts. That's still
+        single-call per entry, but the stat aggregation looped 5 times over
+        assessments. The fix: single pass accumulating all stats. Confirmed
+        by verifying assess_entry is called exactly N times for N entries.
+        """
+        entries = [
+            {"id": "e1", "content": "alpha"},
+            {"id": "e2", "content": "beta"},
+            {"id": "e3", "content": "gamma"},
+        ]
+        with patch.object(
+            orchestrator,
+            "assess_entry",
+            wraps=orchestrator.assess_entry,
+        ) as mock_assess:
+            orchestrator.get_statistics(entries)
+
+        assert mock_assess.call_count == len(entries), (
+            f"assess_entry was called {mock_assess.call_count} times for "
+            f"{len(entries)} entries; must be called exactly once per entry (MP-015)"
+        )
+
+    def test_get_statistics_result_unchanged(
+        self, orchestrator: KnowledgeOrchestrator
+    ) -> None:
+        """Single-pass aggregation must produce the same stats as multi-pass."""
+        entries = [{"id": "e1", "content": "x"}]
+        stats = orchestrator.get_statistics(entries)
+        assert "total_entries" in stats
+        assert "healthy_count" in stats
+        assert "needs_attention_count" in stats
+        assert "critical_count" in stats
+        assert "average_usage_score" in stats
+        assert "average_decay_score" in stats
+        assert stats["total_entries"] == 1

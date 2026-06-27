@@ -120,3 +120,18 @@ Review-oriented skills MUST consult this contract by:
 Before accepting any addition, ask: "Could I achieve
 this by removing code instead of adding it?" If yes,
 prefer the subtractive approach.
+
+## Exit Criteria
+
+- [ ] All 5 scrutiny questions applied to every proposed addition;
+  questions 4 (evidence) and 5 (consequence) answered with
+  concrete evidence, not assumptions
+- [ ] All 6 anti-patterns scanned (wheel reinvention, hallucinated
+  issues, test manipulation, complexity creep, priority deviation,
+  gold plating); any match named with the pattern label
+- [ ] A burden-of-proof verdict produced for each addition:
+  `justified`, `needs_evidence`, or `unjustified`; the verdict
+  appears in the consuming skill's output
+- [ ] Subtraction principle applied: at least one check for
+  "could this be achieved by removing code instead?" before
+  accepting any net-positive line-count change

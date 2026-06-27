@@ -35,7 +35,7 @@ This is a simple skill that needs improvement.
     def test_suggester_initialization(self, temp_skill_dir) -> None:
         """Test suggester initializes correctly."""
         suggester = ImprovementSuggester(temp_skill_dir)
-        assert suggester.skill_root == temp_skill_dir
+        assert suggester.skills_dir == temp_skill_dir
         assert hasattr(suggester, "analyze_skill")
 
     def test_analyze_basic_skill(self, temp_skill_dir) -> None:
@@ -191,11 +191,11 @@ dependencies: [basic-skill]
 
         # When given a directory, the suggester should use it directly
         suggester = ImprovementSuggester(skill_dir)
-        assert suggester.skill_root == skill_dir
+        assert suggester.skills_dir == skill_dir
 
         # When given a file, the suggester should use its parent
         suggester_from_file = ImprovementSuggester((skill_dir / "SKILL.md").parent)
-        assert suggester_from_file.skill_root == skill_dir
+        assert suggester_from_file.skills_dir == skill_dir
 
     def test_prioritize_suggestions(self, temp_skill_dir) -> None:
         """Test suggestion prioritization."""

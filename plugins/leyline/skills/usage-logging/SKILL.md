@@ -55,7 +55,12 @@ modules:
 
 ## Overview
 
-Session-aware logging infrastructure for tracking operations across plugins. Provides structured JSONL logging with automatic session management for audit trails and analytics.
+Records individual call costs and usage events. For aggregate budget
+enforcement, use quota-management.
+
+Session-aware logging infrastructure for tracking operations across plugins.
+Provides structured JSONL logging with automatic session management for
+audit trails and analytics.
 
 ## When To Use
 

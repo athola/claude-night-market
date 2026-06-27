@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import sqlite3
 from collections import deque
 from typing import Any
@@ -429,11 +430,16 @@ class GraphStore(SqliteGraphBase):
                     visited.add(edge.source_qn)
                     queue.append((edge.source_qn, current_depth + 1))
 
+        visited_list = list(visited)
         result: list[GraphNode] = []
-        for qn in visited:
-            found = self.get_node(qn)
-            if found:
-                result.append(found)
+        for i in range(0, len(visited_list), self._batch_size):
+            chunk = visited_list[i : i + self._batch_size]
+            placeholders = ",".join("?" * len(chunk))
+            batch_rows = self._conn.execute(
+                f"SELECT * FROM nodes WHERE qualified_name IN ({placeholders})",
+                chunk,
+            ).fetchall()
+            result.extend(self._row_to_node(r) for r in batch_rows)
         return result
 
     # ------------------------------------------------------------------
@@ -485,9 +491,23 @@ class GraphStore(SqliteGraphBase):
         except sqlite3.OperationalError:
             return self._fallback_like_search(query, kind, limit)
 
+        qns = [row[0] for row in rows]
+        if not qns:
+            return []
+        node_map: dict[str, GraphNode] = {}
+        for i in range(0, len(qns), self._batch_size):
+            chunk = qns[i : i + self._batch_size]
+            placeholders = ",".join("?" * len(chunk))
+            batch_rows = self._conn.execute(
+                f"SELECT * FROM nodes WHERE qualified_name IN ({placeholders})",
+                chunk,
+            ).fetchall()
+            for r in batch_rows:
+                resolved = self._row_to_node(r)
+                node_map[resolved.qualified_name] = resolved
         results = []
         for row in rows:
-            node = self.get_node(row[0])
+            node = node_map.get(row[0])
             if node and (kind is None or str(node.kind) == kind):
                 results.append(node)
                 if len(results) >= limit:
@@ -640,8 +660,9 @@ class GraphStore(SqliteGraphBase):
         )
 
 
+_FTS_SPECIAL_RE = re.compile(r'[+\-*()"]+')
+
+
 def _sanitize_fts_query(query: str) -> str:
-    """Escape FTS5 special characters."""
-    for ch in '+-*()"':
-        query = query.replace(ch, " ")
-    return " ".join(query.split())
+    """Replace FTS5 operator characters with spaces and normalise whitespace."""
+    return " ".join(_FTS_SPECIAL_RE.sub(" ", query).split())

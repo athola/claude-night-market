@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os as _os
 import stat
 import sys
 from io import StringIO
@@ -150,15 +151,18 @@ class TestSessionIdResolution:
             assert hook_module._get_session_id({}) == "env-s-001"
 
     @pytest.mark.unit
-    def test_session_id_defaults_to_default(self, hook_module):
-        """Scenario: Falls back to 'default' when no source available."""
-        env = {
-            k: v
-            for k, v in __import__("os").environ.items()
-            if k != "CLAUDE_SESSION_ID"
-        }
+    def test_session_id_falls_back_to_process_scope(self, hook_module):
+        """Scenario: Falls back to a per-process token when no source available.
+
+        Issue #580: the reset hook must compute the same process-scoped
+        fallback as the increment hook so both target the same counter
+        file; a fixed 'default' name made all sessions share one counter.
+        """
+        env = {k: v for k, v in _os.environ.items() if k != "CLAUDE_SESSION_ID"}
         with patch.dict("os.environ", env, clear=True):
-            assert hook_module._get_session_id({}) == "default"
+            sid = hook_module._get_session_id({})
+        assert sid != "default"
+        assert str(_os.getppid()) in sid
 
 
 class TestMalformedInput:

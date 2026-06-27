@@ -72,3 +72,14 @@ discussions.
 - ``boundary-validator``: guards inputs to the pure core so the core can stay total
 - ``core-test-generator``: generates property-based tests against the deterministic core
 - ``shell-adapter-generator``: scaffolds the imperative shell that wires the core into I/O
+
+## Exit Criteria
+
+- [ ] An explicit side-effect inventory exists mapping every I/O operation to the shell layer
+  before any refactoring begins.
+- [ ] Core unit tests run with no I/O mocks (no database, HTTP, or filesystem calls) and achieve
+  > 90% deterministic coverage.
+- [ ] Automated architecture tests (e.g., import analysis or namespace rules) confirm the core
+  contains zero imports from I/O or framework libraries.
+- [ ] Rollout metrics (deployment lead time, incident rate in the shell layer) are baselined
+  before migration and compared after to demonstrate the pattern's value.

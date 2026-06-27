@@ -151,3 +151,17 @@ jj log --revisions \
   open PRs, or work slice-by-slice and push when ready
 - If the plan changes, add or remove branches manually and
   re-verify the topology in Step 4
+
+## Exit Criteria
+
+- [ ] All 4 TodoWrite items (`stack-create:git-version-checked`
+      through `stack-create:stack-verified`) are created before branch
+      creation starts and marked complete in order
+- [ ] Git version confirmed ≥ 2.38.0; if not, fallback to manual
+      branch tracking is documented and the user is warned
+- [ ] All slice branches created with the naming convention
+      `stack/<feature-name>/<slice-name>`
+- [ ] `git log --oneline --graph <base>..<tip>` shows a linear chain
+      with each slice branch appearing in dependency order
+- [ ] Working tree returned to the first slice branch after topology
+      is verified

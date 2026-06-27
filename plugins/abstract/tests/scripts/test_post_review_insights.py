@@ -16,9 +16,11 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-from post_review_insights import (  # noqa: E402 - sys.path adjusted above to discover scripts dir
+from post_review_insights import (
+    Finding,
     extract_blockers,
     extract_non_blocking,
+    extract_pr_number,
     extract_verdict,
     main,
     parse_review_markdown,
@@ -217,9 +219,6 @@ class TestSeverityContractInvariant:
     @pytest.mark.unit
     def test_every_blocker_becomes_high(self) -> None:
         """All blockers, regardless of count or content, get severity=high."""
-        from post_review_insights import (
-            Finding,  # noqa: PLC0415 - local import to colocate with test
-        )
 
         markdown = (
             "**Verdict:** Request changes\n\n"
@@ -264,14 +263,12 @@ class TestExtractPrNumber:
     @pytest.mark.unit
     def test_extracts_from_standard_heading(self) -> None:
         """Scenario: '# PR Review: #417 - title' -> 417"""
-        from post_review_insights import extract_pr_number
 
         assert extract_pr_number("# PR Review: #417 - some title\n") == 417
 
     @pytest.mark.unit
     def test_missing_heading_returns_none(self) -> None:
         """Scenario: no heading at all"""
-        from post_review_insights import extract_pr_number
 
         assert extract_pr_number("no pr heading here\n") is None
 
@@ -284,7 +281,6 @@ class TestExtractPrNumber:
         evidence. A false match (e.g., pulling '417' from arbitrary
         prose) would corrupt the evidence link.
         """
-        from post_review_insights import extract_pr_number
 
         assert extract_pr_number("# Review of PR 417\n") is None
 

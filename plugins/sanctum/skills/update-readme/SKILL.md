@@ -18,7 +18,6 @@ modules:
 - modules/exemplar-research.md
 progressive_loading: true
 dependencies:
-- sanctum:shared
 - sanctum:git-workspace-review
 - imbue:proof-of-work
 - scribe:slop-detector

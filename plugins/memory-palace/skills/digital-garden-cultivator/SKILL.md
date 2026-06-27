@@ -151,3 +151,17 @@ Use `git merge --abort` to reset, then resolve conflicts carefully
 
 **Commit rejected**
 Check hook output and fix reported issues before committing again
+
+## Exit Criteria
+
+- [ ] `scripts/garden_metrics.py` runs without error on the target
+      `garden.json` and outputs link density, bidirectional coverage,
+      freshness, and maturity ratio
+- [ ] Stale notes (inactive for more than 7 days) are identified and
+      surfaced for the user's review
+- [ ] Each note in scope has a maturity level assigned as one of:
+      `seedling`, `growing`, or `evergreen`
+- [ ] Dead links and orphaned notes are reported so they can be pruned
+      or reconnected during the maintenance pass
+- [ ] If `garden.json` is absent or malformed, the error is reported
+      with the path that was searched rather than silently completing

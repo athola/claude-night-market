@@ -34,7 +34,7 @@ class ReviewTechnique:
     """A concrete review technique extracted from an exemplar."""
 
     description: str
-    category: str
+    category: str | None
     source: str
     confidence: float = 0.5
     raw_text: str = ""
@@ -217,8 +217,8 @@ _CATEGORY_KEYWORDS: dict[str, list[str]] = {
 }
 
 
-def classify_technique(description: str) -> str:
-    """Classify a review technique into a category."""
+def classify_technique(description: str) -> str | None:
+    """Classify a review technique into a category, or None when no keywords match."""
     lower = description.lower()
     scores: dict[str, int] = {}
 
@@ -228,7 +228,7 @@ def classify_technique(description: str) -> str:
             scores[category] = score
 
     if not scores:
-        return "general"
+        return None
 
     return max(scores, key=scores.get)
 
@@ -317,6 +317,9 @@ def format_discussion_body(
 
 
 _GH_CLI = "gh"
+_DEFAULT_DISCUSSION_CATEGORY_ID = "DIC_kwDOQbN88M4C2zJv"  # Knowledge
+_DEFAULT_REPO_OWNER = "athola"
+_DEFAULT_REPO_NAME = "claude-night-market"
 
 
 def fetch_contributing_guide(
@@ -426,9 +429,9 @@ def post_discussion(
 def run_scout(
     exemplars: list[ExemplarProject] | None = None,
     post_to_discussions: bool = True,
-    category_id: str = "DIC_kwDOQbN88M4C2zJv",  # Knowledge
-    repo_owner: str = "athola",
-    repo_name: str = "claude-night-market",
+    category_id: str = _DEFAULT_DISCUSSION_CATEGORY_ID,
+    repo_owner: str = _DEFAULT_REPO_OWNER,
+    repo_name: str = _DEFAULT_REPO_NAME,
 ) -> list[ReviewTechnique]:
     """Run the full scout pipeline.
 

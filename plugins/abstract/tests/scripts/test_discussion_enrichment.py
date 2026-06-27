@@ -17,6 +17,7 @@ import pytest
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
+from aggregate_skill_logs import SkillLogSummary
 from discussion_enrichment import (  # noqa: E402 - sys.path adjusted above to discover scripts dir
     EnrichedIssue,
     FailureMode,
@@ -273,7 +274,6 @@ class TestRunLenses:
         Then at least one Finding is returned (pattern lens fires)
         """
         # Use the real SkillLogSummary so the lens contract is honored.
-        from aggregate_skill_logs import SkillLogSummary
 
         metrics = {
             "abstract:skill-auditor": SkillLogSummary(

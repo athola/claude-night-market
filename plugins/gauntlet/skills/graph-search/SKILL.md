@@ -43,3 +43,16 @@ The search engine detects query patterns:
 
 The graph must be built first. If `.gauntlet/graph.db`
 does not exist, suggest running the `graph-build` skill.
+
+## Exit Criteria
+
+- [ ] If `.gauntlet/graph.db` does not exist, the skill surfaces
+  the missing-prerequisite error and suggests `gauntlet:graph-build`
+  rather than failing silently
+- [ ] Results display qualified name, file path, line numbers, and
+  relevance score for each match (up to `--limit` results)
+- [ ] Query intelligence applies correct boost: PascalCase boosts
+  Class/Type results, snake_case boosts Function results, dotted
+  path boosts qualified name matches
+- [ ] User is offered to read the top result's source file after
+  results are shown

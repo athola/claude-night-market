@@ -89,3 +89,17 @@ or justify why neither was necessary, to inform future context-handling decision
   - "next turn: provide only failing test output lines 40-60"
 - Explicit reminder about `/new` or `/compact` whenever you determine it would save
   tokens (otherwise state that no reset/compaction is needed yet).
+
+## Exit Criteria
+
+- [ ] All 5 TodoWrite items created and checked off in order:
+  `quota-check`, `context-plan`, `delegation-check`,
+  `compression-review`, `logging`
+- [ ] Discovery read budget set before the first `Read` call, with
+  the task type (spec/bug/refactor/exploration) and max-reads
+  limit recorded
+- [ ] Output summary states the remaining token runway (or warns
+  "budget low") and includes an explicit `/new` or `/compact`
+  recommendation, or a justification for why neither is needed
+- [ ] No additional file reads taken after the read budget is
+  exhausted without explicit user approval in the same session
