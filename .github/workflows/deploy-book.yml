@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup mdbook
         uses: peaceiris/actions-mdbook@v2
@@ -43,7 +43,7 @@ jobs:
         run: mdbook build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: book/build
 
@@ -57,20 +57,20 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
         continue-on-error: true
 
       - name: Deploy to GitHub Pages (retry)
         if: steps.deployment.outcome == 'failure'
         id: deployment_retry
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   validate:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup mdbook
         uses: peaceiris/actions-mdbook@v2

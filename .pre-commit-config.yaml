@@ -367,7 +367,7 @@ repos:
       - id: requirements-txt-fixer
 
   - repo: https://github.com/pycqa/bandit
-    rev: 1.8.3
+    rev: 1.9.4
     hooks:
       - id: bandit
         args: ["-c", "pyproject.toml", "-r", "plugins/"]
@@ -402,6 +402,24 @@ repos:
         entry: uv run ruff check --config pyproject.toml
         language: system
         types: [python]
+      # 4. Flag when the locked ruff lags the latest PyPI release
+      #    (advisory; runs only on dependency-file changes so ordinary
+      #    commits pay no network cost; skips cleanly when offline).
+      - id: check-ruff-version
+        name: Ruff Version Check
+        entry: python3 scripts/check_ruff_version.py
+        language: system
+        pass_filenames: false
+        files: ^(pyproject\.toml|uv\.lock)$
+      # 5. Block when pinned CI actions or external pre-commit hooks lag
+      #    upstream (blocking; runs only on CI / pre-commit config changes
+      #    so ordinary commits pay no network cost; skips cleanly offline).
+      - id: check-pinned-versions
+        name: CI / Pre-commit Version Check
+        entry: python3 scripts/check_pinned_versions.py
+        language: system
+        pass_filenames: false
+        files: ^(\.pre-commit-config\.yaml|\.github/workflows/.*\.ya?ml)$
 
   # Strict type checking is handled by the local `run-plugin-typecheck`
   # hook above (and the typecheck.yml CI gate), which runs each plugin's
