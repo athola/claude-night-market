@@ -6,10 +6,12 @@ afterwards to turn them green. Run: python -m pytest test_forced_eval.py
 
 from __future__ import annotations
 
+import io
 import json
 from pathlib import Path
 
 import forced_eval
+import pytest
 
 
 def test_discover_skill_names_extracts_frontmatter(tmp_path: Path) -> None:
@@ -46,3 +48,46 @@ def test_format_response_matches_userpromptsubmit_contract() -> None:
 def test_build_eval_reminder_empty_list_is_safe() -> None:
     # No skills -> no injection (avoid noisy context).
     assert forced_eval.build_eval_reminder([]) == ""
+
+
+def test_main_emits_contract_when_skills_present(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """
+    GIVEN a root with one skill and FORCED_EVAL_ROOT set to it
+    WHEN the hook entrypoint runs
+    THEN it prints the UserPromptSubmit additionalContext contract
+    """
+    skill = tmp_path / "skills" / "x"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text("---\nname: x\n---\nbody\n")
+    monkeypatch.setenv("FORCED_EVAL_ROOT", str(tmp_path))
+    monkeypatch.setattr("sys.stdin", io.StringIO(""))
+
+    with pytest.raises(SystemExit):
+        forced_eval.main()
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["hookSpecificOutput"]["hookEventName"] == "UserPromptSubmit"
+    assert "x" in payload["hookSpecificOutput"]["additionalContext"]
+
+
+def test_main_emits_nothing_when_no_skills(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """
+    GIVEN a root with no skills directory
+    WHEN the hook entrypoint runs
+    THEN it prints nothing (no noisy injection)
+    """
+    monkeypatch.setenv("FORCED_EVAL_ROOT", str(tmp_path))
+    monkeypatch.setattr("sys.stdin", io.StringIO(""))
+
+    with pytest.raises(SystemExit):
+        forced_eval.main()
+
+    assert capsys.readouterr().out == ""
