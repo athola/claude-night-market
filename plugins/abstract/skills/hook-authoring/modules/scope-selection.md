@@ -108,7 +108,7 @@ my-plugin/
       "matcher": "Read",
       "hooks": [{
         "type": "command",
-        "command": "echo 'Plugin reading: $CLAUDE_TOOL_INPUT' >> ${CLAUDE_PLUGIN_ROOT}/log.txt"
+        "command": "echo \"Plugin reading: $(jq -r '.tool_input.file_path')\" >> ${CLAUDE_PLUGIN_ROOT}/log.txt"
       }]
     }
   ]
@@ -131,7 +131,7 @@ my-plugin/
       "matcher": "Edit",
       "hooks": [{
         "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate-yaml.sh $CLAUDE_TOOL_INPUT"
+        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate-yaml.sh \"$(jq -r '.tool_input.file_path')\""
       }]
     }
   ]
@@ -191,7 +191,7 @@ my-project/
         "matcher": "Bash",
         "hooks": [{
           "type": "command",
-          "command": "if [[ \"$CLAUDE_TOOL_INPUT\" == *\"production\"* ]]; then echo 'BLOCKED: Production access requires approval'; exit 1; fi"
+          "command": "cmd=$(jq -r '.tool_input.command // empty'); if [[ \"$cmd\" == *\"production\"* ]]; then echo 'BLOCKED: Production access requires approval'; exit 1; fi"
         }]
       }
     ]
@@ -216,7 +216,7 @@ my-project/
         "matcher": "Edit",
         "hooks": [{
           "type": "command",
-          "command": "if [[ \"$CLAUDE_TOOL_INPUT\" == */production/* ]]; then echo 'ERROR: Cannot edit production configs without approval'; exit 1; fi"
+          "command": "fp=$(jq -r '.tool_input.file_path // empty'); if [[ \"$fp\" == */production/* ]]; then echo 'ERROR: Cannot edit production configs without approval'; exit 1; fi"
         }]
       }
     ]
@@ -290,7 +290,7 @@ The hook should apply to **all your Claude sessions** across all projects.
       {
         "hooks": [{
           "type": "command",
-          "command": "echo \"$(date): $CLAUDE_TOOL_NAME\" >> ~/.claude/audit.log"
+          "command": "echo \"$(date): $(jq -r '.tool_name')\" >> ~/.claude/audit.log"
         }]
       }
     ]
@@ -314,7 +314,7 @@ The hook should apply to **all your Claude sessions** across all projects.
       {
         "hooks": [{
           "type": "command",
-          "command": "echo \"$(date '+%Y-%m-%d %H:%M:%S') - $CLAUDE_TOOL_NAME\" >> ~/.claude/audit.log"
+          "command": "echo \"$(date '+%Y-%m-%d %H:%M:%S') - $(jq -r '.tool_name')\" >> ~/.claude/audit.log"
         }]
       }
     ]
@@ -429,7 +429,7 @@ All three execute in parallel
     "matcher": "Edit",
     "hooks": [{
       "type": "command",
-      "command": "if [[ \"$CLAUDE_TOOL_INPUT\" == */production/* ]]; then exit 1; fi"
+      "command": "fp=$(jq -r '.tool_input.file_path // empty'); if [[ \"$fp\" == */production/* ]]; then exit 1; fi"
     }]
   }]
 }
@@ -455,7 +455,7 @@ All three execute in parallel
   "PostToolUse": [{
     "hooks": [{
       "type": "command",
-      "command": "echo \"$CLAUDE_TOOL_NAME: $CLAUDE_TOOL_INPUT\" >> ~/.claude/audit.log"
+      "command": "payload=$(cat); name=$(echo \"$payload\" | jq -r '.tool_name'); input=$(echo \"$payload\" | jq -c '.tool_input'); echo \"$name: $input\" >> ~/.claude/audit.log"
     }]
   }]
 }

@@ -25,7 +25,7 @@ from leyline.tokens import (
     estimate_tokens,
 )
 
-__version__ = "1.9.13"
+__version__ = "1.9.14"
 
 __all__ = [
     "FILE_OVERHEAD_TOKENS",

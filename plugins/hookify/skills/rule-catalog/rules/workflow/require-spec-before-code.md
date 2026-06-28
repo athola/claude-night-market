@@ -18,17 +18,17 @@ Spec-kit enforces specification-driven development:
 
 **The workflow:**
 ```
-1. Write spec    - /spec-kit:write <feature>
-2. Review spec   - /spec-kit:review specs/<feature>.md
+1. Write spec    - /spec-kit:speckit-specify <feature>
+2. Review spec   - /spec-kit:speckit-analyze
 3. THEN implement - (this action)
-4. Verify        - /spec-kit:verify specs/<feature>.md
+4. Verify        - /spec-kit:speckit-checklist
 ```
 
 **To proceed, either:**
 
 1. **Create the spec first:**
 ```bash
-/spec-kit:write <feature-name>
+/spec-kit:speckit-specify <feature-name>
 ```
 
 2. **Or link to existing spec:**

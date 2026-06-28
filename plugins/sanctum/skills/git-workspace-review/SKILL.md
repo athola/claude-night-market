@@ -18,7 +18,7 @@ modules:
 hooks:
   PreToolUse:
   - matcher: Bash
-    command: "# Log git analysis commands\nif echo \"$CLAUDE_TOOL_INPUT\" | grep -qE\
+    command: "# Log git analysis commands\nif jq -r '.tool_input.command // empty' | grep -qE\
       \ \"git (status|diff|log|show|branch)\"; then\n  echo \"[skill:git-workspace-review]\
       \ Git analysis initiated: $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\n\
       fi\n"

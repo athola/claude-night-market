@@ -309,6 +309,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/speckit-checklist` | spec-kit | Generate checklist |
 | `/speckit-clarify` | spec-kit | Clarifying questions |
 | `/speckit-constitution` | spec-kit | Project constitution |
+| `/speckit-converge` | spec-kit | Append unbuilt work as tasks |
 | `/speckit-implement` | spec-kit | Execute tasks |
 | `/speckit-plan` | spec-kit | Generate plan |
 | `/speckit-specify` | spec-kit | Create specification |

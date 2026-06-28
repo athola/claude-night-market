@@ -134,6 +134,12 @@ All markdown files must pass scribe validation. This includes a slop scan to ens
 ## Integration and Best Practices
 
 Individual skills are created using `skill-authoring`, while `modular-skills` handles the architecture of larger structures. `skills-eval` provides ongoing quality assessment. Avoid the common pitfall of writing skills based on theoretical behavior; always use documented failures to guide development. Use progressive disclosure to prevent monolithic files and ensure that each intervention remains focused and token-efficient.
+### Companion Skills
+
+- `Skill(superpowers:writing-skills)`: the upstream superpowers take on
+  authoring Claude Code skills. Load it as a complementary reference for
+  skill structure and craft alongside this guide's TDD cycle.
+
 ## Skill Directory Variable (2.1.69+)
 
 Skills can reference their own directory using

@@ -31,6 +31,7 @@ This reduces wasted effort and validates features match requirements.
 | `/speckit-plan` | Generate implementation plan |
 | `/speckit-tasks` | Generate ordered tasks |
 | `/speckit-implement` | Execute tasks |
+| `/speckit-converge` | Append unbuilt work as tasks after implementation |
 | `/speckit-analyze` | Check artifact consistency |
 | `/speckit-checklist` | Generate custom checklist |
 | `/speckit-clarify` | Ask clarifying questions |
@@ -65,7 +66,10 @@ This reduces wasted effort and validates features match requirements.
 # 5. Execute implementation
 /speckit-implement
 
-# 6. Verify consistency
+# 6. Catch gaps between spec and code
+/speckit-converge
+
+# 7. Verify consistency
 /speckit-analyze
 ```
 
@@ -212,6 +216,7 @@ imbue (diff-analysis, proof-of-work)
 | `/speckit-plan` | Uses `writing-plans` for structure |
 | `/speckit-tasks` | Uses `executing-plans`, `systematic-debugging` |
 | `/speckit-implement` | Uses `executing-plans`, `systematic-debugging` |
+| `/speckit-converge` | Uses `executing-plans`, `verification-before-completion` |
 | `/speckit-analyze` | Uses `systematic-debugging`, `verification-before-completion` |
 | `/speckit-checklist` | Uses `verification-before-completion` |
 

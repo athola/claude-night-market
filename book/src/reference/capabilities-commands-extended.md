@@ -407,6 +407,21 @@ Execute implementation plan.
 /speckit-implement --continue
 ```
 
+### `/speckit-converge`
+Append unbuilt work as new convergence tasks.
+
+```bash
+# Usage
+/speckit-converge [PATH]
+
+# Options
+PATH  Path to spec/plan/tasks artifacts
+
+# Examples
+/speckit-converge
+/speckit-converge .specify
+```
+
 ### `/speckit-checklist`
 Generate implementation checklist.
 

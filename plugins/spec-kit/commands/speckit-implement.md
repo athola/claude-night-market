@@ -150,6 +150,13 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Confirm the implementation follows the technical plan
    - Report final status with summary of completed work
 
+### Next: Close Spec-to-Code Gaps
+
+After implementation, run `/speckit-converge` to assess the codebase against
+`spec.md`, `plan.md`, and `tasks.md` and append any unbuilt or partial work
+as new convergence tasks. If it appends tasks, re-run `/speckit-implement` to
+complete them.
+
 ### Record Lessons Learned (decision journal)
 
 If this work involved rework, a failed approach, or a blocker, record it to

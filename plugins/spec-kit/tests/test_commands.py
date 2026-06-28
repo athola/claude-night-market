@@ -9,6 +9,7 @@ This test suite follows TDD/BDD principles:
 """
 
 import json
+import re
 import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -862,6 +863,117 @@ class TestSpeckitCommands:
                 ]
             )
             assert criteria_count <= 1, "Spec should have insufficient success criteria"
+
+    class TestConvergeCommand:
+        """Test /speckit-converge command (post-implement spec-to-code convergence)."""
+
+        PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+
+        def test_should_register_command_when_converge_adopted(self) -> None:
+            """Test that speckit-converge is registered in the plugin manifest.
+
+            Given: the spec-kit plugin.json manifest on disk
+            When: reading the registered commands
+            Then: speckit-converge.md should be listed
+            """
+            # Given
+            manifest_path = self.PLUGIN_ROOT / ".claude-plugin" / "plugin.json"
+            manifest = json.loads(manifest_path.read_text())
+
+            # When
+            commands = manifest["commands"]
+
+            # Then
+            assert "./commands/speckit-converge.md" in commands, (
+                "speckit-converge must be registered in plugin.json"
+            )
+
+        def test_should_have_valid_frontmatter_when_loading_converge(self) -> None:
+            """Test the converge command file exists with a description.
+
+            Given: the converge command file on disk
+            When: parsing its YAML frontmatter
+            Then: it should declare a non-empty description
+            """
+            # Given
+            command_file = self.PLUGIN_ROOT / "commands" / "speckit-converge.md"
+            assert command_file.exists(), "speckit-converge.md must exist on disk"
+            content = command_file.read_text()
+
+            # When
+            frontmatter_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+
+            # Then
+            assert frontmatter_match, "converge command should have frontmatter"
+            desc_match = re.search(
+                r"^description:\s*(.+)$",
+                frontmatter_match.group(1),
+                re.MULTILINE,
+            )
+            assert desc_match, "converge command should declare a description"
+            description = desc_match.group(1).strip().strip("\"'")
+            assert len(description) > 10, "description should be meaningful"
+
+        def test_should_only_write_tasks_md_when_appending_convergence(self) -> None:
+            """Drift-guard: converge documents its append-only write contract.
+
+            Given: the converge command file on disk
+            When: reading its operating constraints
+            Then: it declares append-only writes and forbids modifying
+                  spec.md or plan.md
+            """
+            # Given
+            content = (
+                self.PLUGIN_ROOT / "commands" / "speckit-converge.md"
+            ).read_text()
+
+            # Then - the contract must live in the command itself, not just
+            # in this test. If these anchors drift, a human reviews the change.
+            assert "APPEND-ONLY, NEVER REWRITE" in content, (
+                "converge must document its append-only write constraint"
+            )
+            assert "MUST NOT" in content, "converge must state its write prohibitions"
+            assert "spec.md" in content and "plan.md" in content, (
+                "converge must name spec.md and plan.md as protected artifacts"
+            )
+
+        def test_should_leave_tasks_unchanged_when_codebase_satisfies_spec(
+            self,
+        ) -> None:
+            """Drift-guard: converge leaves tasks.md unchanged on a clean result.
+
+            Given: the converge command file on disk
+            When: reading its clean-result contract
+            Then: it states tasks.md is left byte-for-byte unchanged when the
+                  codebase already satisfies spec/plan/tasks
+            """
+            # Given
+            content = (
+                self.PLUGIN_ROOT / "commands" / "speckit-converge.md"
+            ).read_text()
+
+            # Then
+            assert "byte-for-byte unchanged" in content, (
+                "converge must document the clean-result no-op guarantee"
+            )
+
+        def test_should_rank_constitution_violation_as_highest_severity(self) -> None:
+            """Drift-guard: converge documents constitution authority.
+
+            Given: the converge command file on disk
+            When: reading its constitution-authority contract
+            Then: it states a MUST-principle violation is the highest-severity
+                  finding
+            """
+            # Given
+            content = (
+                self.PLUGIN_ROOT / "commands" / "speckit-converge.md"
+            ).read_text()
+
+            # Then
+            assert "highest-severity finding" in content, (
+                "converge must rank constitution violations as highest severity"
+            )
 
     @pytest.fixture
     def mock_command_execution(self):

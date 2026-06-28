@@ -286,7 +286,7 @@ hooks:
 # SessionStart hook - initialize session state
 
 # Read environment
-SESSION_ID="${CLAUDE_SESSION_ID:-unknown}"
+SESSION_ID=$(jq -r '.session_id // "unknown"')
 TMPDIR="${CLAUDE_CODE_TMPDIR:-/tmp}"
 
 # Initialize session log

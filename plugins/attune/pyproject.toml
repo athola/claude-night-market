@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "attune-dev"
-version = "1.9.13"
+version = "1.9.14"
 description = "Development tools for the attune Claude Code plugin - project initialization and workflow automation"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}

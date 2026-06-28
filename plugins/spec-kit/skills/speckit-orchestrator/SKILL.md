@@ -102,6 +102,7 @@ Quick reference for command-to-skill mappings:
 | `/speckit-plan` | task-planning | writing-plans |
 | `/speckit-tasks` | task-planning | executing-plans |
 | `/speckit-implement` | - | executing-plans, systematic-debugging |
+| `/speckit-converge` | - | executing-plans, verification-before-completion |
 | `/speckit-analyze` | - | systematic-debugging, verification |
 | `/speckit-checklist` | - | verification-before-completion |
 

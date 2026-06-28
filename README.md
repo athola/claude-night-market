@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.13-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.14-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
 [![Skills](https://img.shields.io/badge/skills-197-teal)](book/src/reference/capabilities-reference.md)
@@ -163,17 +163,14 @@ unavailable, and both can be turned off.
 
 ## What's New
 
-**1.9.13** is a code-quality and hardening release. It splits
-god-class CLIs into focused helpers across `sanctum`, `conjure`,
-`parseltongue`, and `conserve`, collapses several multi-pass
-algorithms to single-pass, and narrows bare `except Exception`
-handlers so real errors surface instead of being swallowed.
-New this release: per-language `attune` init templates, garbage
-collection for the `conserve` CCR context-archive,
-research-grounded `tome:triz`/`triz-analyst` skills (S-curve IFR
-analysis, Function-Oriented Search at deep/maximum depths), and
-`scribe:slop-detector` weights calibrated against a 23k-post
-empirical baseline.
+**1.9.14** fixes a silent failure in the skill-observability
+hooks. PostToolUse and PreToolUse hooks read `CLAUDE_TOOL_*`
+environment variables that Claude Code never sets; the payload
+arrives as JSON on stdin. The affected hooks now read stdin first,
+with an env-var fallback for the test harness, and a shared
+`hook_io` reader centralizes the contract. `skill_execution_logger`
+had been exiting 0 without logging, which starved the `[Learning]`
+discussion digests of input.
 See the [CHANGELOG](CHANGELOG.md) for the full history.
 
 ## Plugin Development

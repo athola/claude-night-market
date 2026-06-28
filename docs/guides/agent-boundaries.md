@@ -68,7 +68,7 @@ while lower layers operate independently of higher-level context.
 | `parseltongue:python-tester` | Python test generation | Test case generation; restricted to Python. |
 | `parseltongue:pytest-analyst` | Pytest output analysis | Test diagnostics; no code fixes. |
 | `memory-palace:curator` | Knowledge management | Documentation organization; no code changes. |
-| `spec-kit:spec-writer` | Write specifications | Requirements gathering; no implementation. |
+| `spec-kit:spec-writing` | Write specifications | Requirements gathering; no implementation. |
 
 ## Delegation Patterns
 

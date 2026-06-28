@@ -71,7 +71,7 @@ This skill helps you choose the right location for Claude Code hooks based on th
       "matcher": "Read",
       "hooks": [{
         "type": "command",
-        "command": "echo 'Plugin reading: $CLAUDE_TOOL_INPUT' >> ${CLAUDE_PLUGIN_ROOT}/log.txt"
+        "command": "echo \"Plugin reading: $(jq -r '.tool_input.file_path')\" >> ${CLAUDE_PLUGIN_ROOT}/log.txt"
       }]
     }
   ]
@@ -109,7 +109,7 @@ This skill helps you choose the right location for Claude Code hooks based on th
         "matcher": "Bash",
         "hooks": [{
           "type": "command",
-          "command": "if [[ \"$CLAUDE_TOOL_INPUT\" == *\"production\"* ]]; then echo 'BLOCKED: Production access requires approval'; exit 1; fi"
+          "command": "cmd=$(jq -r '.tool_input.command // empty'); if [[ \"$cmd\" == *\"production\"* ]]; then echo 'BLOCKED: Production access requires approval'; exit 1; fi"
         }]
       }
     ]
@@ -149,7 +149,7 @@ This skill helps you choose the right location for Claude Code hooks based on th
       {
         "hooks": [{
           "type": "command",
-          "command": "echo \"$(date): $CLAUDE_TOOL_NAME\" >> ~/.claude/audit.log"
+          "command": "echo \"$(date): $(jq -r '.tool_name')\" >> ~/.claude/audit.log"
         }]
       }
     ]
