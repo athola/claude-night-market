@@ -378,23 +378,29 @@ repos:
   # Global Code Quality (Fast - Runs on All Files)
   # =================================================================
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.11
+  # Ruff via the project's own uv-managed ruff (pinned in uv.lock) so the
+  # hook and `uv run ruff` / `make format` share one version and cannot
+  # diverge. --config pyproject.toml forces the root config (no per-plugin
+  # discovery), matching the prior ruff-pre-commit mirror behavior.
+  - repo: local
     hooks:
       # 1. Format
       - id: ruff-format
         name: Ruff - Format
-        args: [--config, pyproject.toml]
+        entry: uv run ruff format --config pyproject.toml
+        language: system
         types: [python]
       # 2. Fix auto-fixable lint issues
-      - id: ruff
+      - id: ruff-fix
         name: Ruff - Fix
-        args: [--fix, --config, pyproject.toml]
+        entry: uv run ruff check --fix --config pyproject.toml
+        language: system
         types: [python]
       # 3. Verify no remaining lint issues
-      - id: ruff
+      - id: ruff-check
         name: Ruff - Check
-        args: [--config, pyproject.toml]
+        entry: uv run ruff check --config pyproject.toml
+        language: system
         types: [python]
 
   # Strict type checking is handled by the local `run-plugin-typecheck`
