@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.9.14] - 2026-06-27
 
+### Added
+
+- **New `/speckit-converge` command** (spec-kit). Assesses the
+  codebase against `spec.md`, `plan.md`, and `tasks.md`, then appends
+  any unbuilt or partial work as new convergence tasks.
+  `/speckit-implement` now points to it as the follow-up once
+  implementation finishes.
+
+- **Pre-commit hooks that watch pinned tooling.**
+  `scripts/check_pinned_versions.py` flags when GitHub-sourced pins
+  (CI actions in `.github/workflows/*`, external `rev:` hooks in
+  `.pre-commit-config.yaml`) lag upstream and blocks the commit.
+  `scripts/check_ruff_version.py` advises when the single uv-managed
+  ruff in `uv.lock` lags the latest PyPI release. Both run only when
+  the relevant files are staged, so ordinary commits pay no network
+  cost.
+
 ### Fixed
 
 - **Hooks read the tool payload from stdin, not unset env vars.**

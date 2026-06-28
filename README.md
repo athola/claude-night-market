@@ -170,7 +170,10 @@ arrives as JSON on stdin. The affected hooks now read stdin first,
 with an env-var fallback for the test harness, and a shared
 `hook_io` reader centralizes the contract. `skill_execution_logger`
 had been exiting 0 without logging, which starved the `[Learning]`
-discussion digests of input.
+discussion digests of input. The release also adds
+`/speckit-converge`, which checks the codebase against `spec.md`,
+`plan.md`, and `tasks.md` and appends any unbuilt work as new
+tasks.
 See the [CHANGELOG](CHANGELOG.md) for the full history.
 
 ## Plugin Development
