@@ -45,8 +45,18 @@ def test_writes_ledger_from_stdin_payload(tmp_path: Path, monkeypatch) -> None:
         patch.object(mod.sys, "stdin", _stdin(payload)),
         patch.object(mod, "get_ledger_path", return_value=ledger_path),
     ):
-        mod.main()
+        try:
+            mod.main()
+        except SystemExit as exc:
+            # The success path returns normally; an early skip-exit before
+            # writing is caught here so the ledger assertion below fails
+            # cleanly (genuine guard) rather than erroring on SystemExit.
+            assert exc.code == 0, f"unexpected exit code: {exc.code}"
 
+    assert ledger_path.exists(), (
+        "watched-skill deferral did not write a ledger; "
+        "payload likely not read from stdin"
+    )
     entries = json.loads(ledger_path.read_text())
     assert len(entries) == 1
     assert entries[0]["title"] == "Add OAuth support"

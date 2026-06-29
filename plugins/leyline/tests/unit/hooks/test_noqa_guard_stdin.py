@@ -63,3 +63,28 @@ def out_is_empty(stdout: str) -> bool:
         return json.loads(stdout) == {}
     except json.JSONDecodeError:
         return False
+
+
+def test_malformed_stdin_is_logged_and_fails_open():
+    """Malformed stdin logs to stderr while failing open (allow).
+
+    Guards the C1 fix: the guard fails open by design (crash-proof), but
+    the JSON-decode path used to log nothing, making a disabled guard
+    indistinguishable from an idle one. Reverting the stderr write fails
+    this. Fail-open is asserted too so the contract is pinned.
+    """
+    env = dict(os.environ)
+    for key in _LEGACY_ENV:
+        env.pop(key, None)
+    result = subprocess.run(
+        [sys.executable, str(HOOK)],
+        input="not json {{{",
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert out_is_empty(result.stdout)
+    assert "malformed stdin payload" in result.stderr

@@ -11,8 +11,22 @@ import os
 import subprocess
 import sys
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+
+@dataclass(frozen=True)
+class PhaseSpec:
+    """Configuration for a single reinstall phase (uninstall or install)."""
+
+    title: str
+    action_label: str
+    command: str
+    timeout: int
+    failure_label: str
+    show_error: bool
+
 
 # Plugins excluded from reinstall to prevent breaking the process
 EXCLUDED_PLUGINS = {"hookify"}
@@ -43,24 +57,19 @@ def _run_plugin_command(
 
 
 def _execute_phase(
-    title: str,
-    action_label: str,
-    command: str,
+    spec: PhaseSpec,
     reinstallable: list[dict[str, Any]],
-    timeout: int,
-    failure_label: str,
-    show_error: bool,
 ) -> list[dict[str, Any]]:
     """Execute a reinstall phase and return failures."""
     failed: list[dict[str, Any]] = []
-    print(f"{title}...")
+    print(f"{spec.title}...")
     print("-" * 40)
     for plugin in reinstallable:
-        print(f"  {action_label} {plugin['name']}...", end=" ", flush=True)
+        print(f"  {spec.action_label} {plugin['name']}...", end=" ", flush=True)
         try:
             result = _run_plugin_command(
-                ["claude", "plugin", command, plugin["full_name"]],
-                timeout=timeout,
+                ["claude", "plugin", spec.command, plugin["full_name"]],
+                timeout=spec.timeout,
             )
         except subprocess.TimeoutExpired:
             print("[TIMEOUT]")
@@ -75,8 +84,8 @@ def _execute_phase(
             print("[OK]")
             continue
 
-        print(f"[{failure_label}]")
-        if show_error and result.stderr:
+        print(f"[{spec.failure_label}]")
+        if spec.show_error and result.stderr:
             print(f"    Error: {result.stderr.strip()}")
         failed.append(plugin)
 
@@ -249,22 +258,26 @@ def execute_reinstall(
     print("")
 
     failed_uninstall = _execute_phase(
-        "Phase 1: Uninstalling plugins",
-        "Uninstalling",
-        "uninstall",
+        PhaseSpec(
+            title="Phase 1: Uninstalling plugins",
+            action_label="Uninstalling",
+            command="uninstall",
+            timeout=UNINSTALL_TIMEOUT,
+            failure_label="WARN",
+            show_error=False,
+        ),
         reinstallable,
-        UNINSTALL_TIMEOUT,
-        "WARN",
-        False,
     )
     failed_install = _execute_phase(
-        "\nPhase 2: Installing plugins",
-        "Installing",
-        "install",
+        PhaseSpec(
+            title="\nPhase 2: Installing plugins",
+            action_label="Installing",
+            command="install",
+            timeout=INSTALL_TIMEOUT,
+            failure_label="FAILED",
+            show_error=True,
+        ),
         reinstallable,
-        INSTALL_TIMEOUT,
-        "FAILED",
-        True,
     )
 
     # Summary

@@ -77,9 +77,9 @@ def read_hook_payload() -> dict[str, Any]:
     if payload is None:
         payload = _legacy_env_payload()
 
-    payload.setdefault("tool_name", "")
+    payload["tool_name"] = payload.get("tool_name") or ""
     payload["tool_input"] = _coerce_tool_input(payload.get("tool_input", {}))
-    payload.setdefault("tool_response", "")
+    payload["tool_response"] = payload.get("tool_response") or ""
     # Session id: payload value wins, else legacy env, else "unknown".
     payload["session_id"] = (
         payload.get("session_id") or os.environ.get(_LEGACY_SESSION_ID, "") or "unknown"

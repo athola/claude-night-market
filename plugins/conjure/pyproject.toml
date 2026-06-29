@@ -112,8 +112,8 @@ leyline = { path = "../leyline" }
 "**/__init__.py" = ["F401"]  # Allow unused imports in __init__.py
 "tests/**" = ["PLR2004"]      # Allow magic numbers in tests
 "test_*.py" = ["PLR2004"]     # Allow magic numbers in tests
-"scripts/**/*.py" = ["E402", "S603", "S607", "PLR0912", "PLR0913", "D101"]
-"scripts/quota_tracker.py" = ["E402", "S603", "S607", "PLR0912", "PLR0913", "D101"]
+"scripts/**/*.py" = ["E402", "S603", "S607", "PLR0912", "D101"]
+"scripts/quota_tracker.py" = ["E402", "S603", "S607", "PLR0912", "D101"]
 
 [tool.mypy]
 python_version = "3.10"

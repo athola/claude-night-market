@@ -35,28 +35,24 @@ from verify_plugin import (
 # ---------------------------------------------------------------------------
 
 
-def _make_records(
-    l1_pass: int = 0,
-    l1_fail: int = 0,
-    l2_pass: int = 0,
-    l2_fail: int = 0,
-    l3_pass: int = 0,
-    l3_fail: int = 0,
-) -> list[dict[str, object]]:
-    """Build flat dicts for offline verification tests."""
+def _make_records(**counts: int) -> list[dict[str, object]]:
+    """Build flat dicts for offline verification tests.
+
+    Pass level/result counts as keywords, e.g. ``_make_records(l1_pass=8,
+    l1_fail=2)``. Unspecified counts default to zero.
+    """
+    spec = [
+        ("l1_pass", "L1", True),
+        ("l1_fail", "L1", False),
+        ("l2_pass", "L2", True),
+        ("l2_fail", "L2", False),
+        ("l3_pass", "L3", True),
+        ("l3_fail", "L3", False),
+    ]
     records: list[dict[str, object]] = []
-    for _ in range(l1_pass):
-        records.append({"level": "L1", "passed": True})
-    for _ in range(l1_fail):
-        records.append({"level": "L1", "passed": False})
-    for _ in range(l2_pass):
-        records.append({"level": "L2", "passed": True})
-    for _ in range(l2_fail):
-        records.append({"level": "L2", "passed": False})
-    for _ in range(l3_pass):
-        records.append({"level": "L3", "passed": True})
-    for _ in range(l3_fail):
-        records.append({"level": "L3", "passed": False})
+    for key, level, passed in spec:
+        for _ in range(counts.get(key, 0)):
+            records.append({"level": level, "passed": passed})
     return records
 
 

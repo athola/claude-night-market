@@ -183,3 +183,19 @@ def test_payload_contract_holds_on_minimal_stdin(monkeypatch):
     assert {"tool_name", "tool_input", "tool_response", "session_id"} <= set(payload)
     assert isinstance(payload["tool_input"], dict)
     assert isinstance(payload["session_id"], str) and payload["session_id"]
+
+
+def test_explicit_null_fields_are_coerced_not_left_none(monkeypatch):
+    """Explicit JSON null for tool_name/tool_response is coerced to ''.
+
+    Guards the I5 fix: ``setdefault`` only fills *missing* keys, so an
+    explicit ``null`` survived as None and would crash the next consumer
+    that called a str method on it. Reverting to setdefault fails this.
+    """
+    _feed_stdin(
+        monkeypatch,
+        json.dumps({"tool_name": None, "tool_response": None}),
+    )
+    payload = hook_io.read_hook_payload()
+    assert payload["tool_name"] == ""
+    assert payload["tool_response"] == ""

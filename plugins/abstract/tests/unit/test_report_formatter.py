@@ -14,7 +14,10 @@ from pathlib import Path
 
 import pytest
 
-from abstract.report_formatter import format_validator_report
+from abstract.report_formatter import (
+    ValidatorReport,
+    format_validator_report,
+)
 
 
 class TestFormatValidatorReport:
@@ -29,11 +32,13 @@ class TestFormatValidatorReport:
         And the second line is a 50-char '=' separator.
         """
         result = format_validator_report(
-            title="My Plugin Report",
-            plugin_root=Path("/tmp/plugin"),
-            skill_file_count=0,
-            metadata=[],
-            issues=[],
+            ValidatorReport(
+                title="My Plugin Report",
+                plugin_root=Path("/tmp/plugin"),
+                skill_file_count=0,
+                metadata=[],
+                issues=[],
+            )
         )
         lines = result.splitlines()
         assert lines[0] == "My Plugin Report"
@@ -47,11 +52,13 @@ class TestFormatValidatorReport:
         Then the output contains both values.
         """
         result = format_validator_report(
-            title="Title",
-            plugin_root=Path("/home/user/my-plugin"),
-            skill_file_count=7,
-            metadata=[],
-            issues=[],
+            ValidatorReport(
+                title="Title",
+                plugin_root=Path("/home/user/my-plugin"),
+                skill_file_count=7,
+                metadata=[],
+                issues=[],
+            )
         )
         assert "Plugin Root: /home/user/my-plugin" in result
         assert "Skill Files: 7" in result
@@ -64,14 +71,16 @@ class TestFormatValidatorReport:
         Then each label and value appears in the output.
         """
         result = format_validator_report(
-            title="Title",
-            plugin_root=Path("/tmp"),
-            skill_file_count=0,
-            metadata=[
-                ("Review Skills", sorted({"a", "b"})),
-                ("Evidence Patterns", sorted({"x"})),
-            ],
-            issues=[],
+            ValidatorReport(
+                title="Title",
+                plugin_root=Path("/tmp"),
+                skill_file_count=0,
+                metadata=[
+                    ("Review Skills", sorted({"a", "b"})),
+                    ("Evidence Patterns", sorted({"x"})),
+                ],
+                issues=[],
+            )
         )
         assert "Review Skills: ['a', 'b']" in result
         assert "Evidence Patterns: ['x']" in result
@@ -84,11 +93,13 @@ class TestFormatValidatorReport:
         Then the report contains a count header and numbered entries.
         """
         result = format_validator_report(
-            title="Title",
-            plugin_root=Path("/tmp"),
-            skill_file_count=0,
-            metadata=[],
-            issues=["Missing field X", "Bad pattern Y"],
+            ValidatorReport(
+                title="Title",
+                plugin_root=Path("/tmp"),
+                skill_file_count=0,
+                metadata=[],
+                issues=["Missing field X", "Bad pattern Y"],
+            )
         )
         assert "Issues Found (2):" in result
         assert "1. Missing field X" in result
@@ -102,11 +113,13 @@ class TestFormatValidatorReport:
         Then the report contains a success message.
         """
         result = format_validator_report(
-            title="Title",
-            plugin_root=Path("/tmp"),
-            skill_file_count=0,
-            metadata=[],
-            issues=[],
+            ValidatorReport(
+                title="Title",
+                plugin_root=Path("/tmp"),
+                skill_file_count=0,
+                metadata=[],
+                issues=[],
+            )
         )
         assert "All validations passed successfully!" in result
         assert "Issues Found" not in result
@@ -119,12 +132,14 @@ class TestFormatValidatorReport:
         Then the report uses the custom message instead of the default.
         """
         result = format_validator_report(
-            title="Title",
-            plugin_root=Path("/tmp"),
-            skill_file_count=0,
-            metadata=[],
-            issues=[],
-            success_message="All review workflow skills validated successfully!",
+            ValidatorReport(
+                title="Title",
+                plugin_root=Path("/tmp"),
+                skill_file_count=0,
+                metadata=[],
+                issues=[],
+                success_message="All review workflow skills validated successfully!",
+            )
         )
         assert "All review workflow skills validated successfully!" in result
         assert "All validations passed successfully!" not in result

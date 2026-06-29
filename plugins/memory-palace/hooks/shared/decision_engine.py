@@ -7,9 +7,37 @@ domain alignment, and autonomy governance.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 from .query_classifier import is_evergreen, needs_freshness
+
+
+@dataclass(frozen=True)
+class DecisionDeps:
+    """Type references and tuning state injected to avoid circular imports.
+
+    The hook owns the real enum/model classes; the decision engine takes
+    them as data so it never imports back into the hook package.
+    """
+
+    CacheInterceptDecision: Any
+    AutonomyProfile: Any
+    DomainAlignment: Any
+    IntakeFlagPayload: Any
+    RedundancyLevel: Any
+    novelty_by_redundancy: dict[Any, float]
+
+
+@dataclass(frozen=True)
+class DecisionRequest:
+    """Inputs for a single cache-interception decision."""
+
+    query: str
+    results: list[dict[str, Any]]
+    mode: str
+    config: dict[str, Any] | None = None
+    autonomy_profile: Any | None = None
 
 
 def classify_redundancy(score: float, RedundancyLevel: Any) -> Any:
@@ -91,35 +119,28 @@ def build_delta_reasoning(
 
 
 def finalize_decision(
+    request: DecisionRequest,
+    deps: DecisionDeps,
     *,
     decision: Any,
-    query: str,
-    results: list[dict[str, Any]],
-    config: dict[str, Any] | None,
-    autonomy_profile: Any | None = None,
-    # Injected type references (avoids circular imports)
-    AutonomyProfile: Any,
-    DomainAlignment: Any,
-    IntakeFlagPayload: Any,
-    RedundancyLevel: Any,
-    novelty_by_redundancy: dict[Any, float],
 ) -> Any:
     """Apply novelty scoring, domain alignment, and autonomy overrides."""
-    cfg = config or {}
+    cfg = request.config or {}
     novelty_score, duplicate_entry_ids = calculate_novelty_and_duplicates(
-        results,
-        RedundancyLevel=RedundancyLevel,
-        novelty_by_redundancy=novelty_by_redundancy,
+        request.results,
+        RedundancyLevel=deps.RedundancyLevel,
+        novelty_by_redundancy=deps.novelty_by_redundancy,
     )
     alignment = detect_domain_alignment(
-        query, cfg.get("domains_of_interest", []), DomainAlignment
+        request.query, cfg.get("domains_of_interest", []), deps.DomainAlignment
     )
     intake_threshold = int(cfg.get("intake_threshold", 70))
 
     effective_domains = alignment.matched_domains
+    autonomy_profile = request.autonomy_profile
     if autonomy_profile is None:
         fallback_level = int(cfg.get("autonomy_level", 0) or 0)
-        autonomy_profile = AutonomyProfile(
+        autonomy_profile = deps.AutonomyProfile(
             global_level=fallback_level, domain_controls={}
         )
 
@@ -161,8 +182,8 @@ def finalize_decision(
         total_matches=decision.total_matches,
     )
 
-    payload = IntakeFlagPayload(
-        query=query,
+    payload = deps.IntakeFlagPayload(
+        query=request.query,
         should_flag_for_intake=should_flag,
         novelty_score=novelty_score,
         domain_alignment=alignment,
@@ -184,51 +205,24 @@ def finalize_decision(
     return decision
 
 
-def make_decision(
-    query: str,
-    results: list[dict[str, Any]],
-    mode: str,
-    config: dict[str, Any] | None = None,
-    autonomy_profile: Any | None = None,
-    *,
-    # Injected types and state
-    CacheInterceptDecision: Any,
-    AutonomyProfile: Any,
-    DomainAlignment: Any,
-    IntakeFlagPayload: Any,
-    RedundancyLevel: Any,
-    novelty_by_redundancy: dict[Any, float],
-) -> Any:
+def make_decision(request: DecisionRequest, deps: DecisionDeps) -> Any:
     """Make decision based on cache results and mode."""
-    freshness_required = needs_freshness(query)
-    evergreen_topic = is_evergreen(query)
-    decision = CacheInterceptDecision(
+    freshness_required = needs_freshness(request.query)
+    evergreen_topic = is_evergreen(request.query)
+    decision = deps.CacheInterceptDecision(
         action="proceed",
         freshness_required=freshness_required,
         evergreen_topic=evergreen_topic,
-        total_matches=len(results),
+        total_matches=len(request.results),
     )
 
-    finalize_kwargs = {
-        "decision": decision,
-        "query": query,
-        "results": results,
-        "config": config,
-        "autonomy_profile": autonomy_profile,
-        "AutonomyProfile": AutonomyProfile,
-        "DomainAlignment": DomainAlignment,
-        "IntakeFlagPayload": IntakeFlagPayload,
-        "RedundancyLevel": RedundancyLevel,
-        "novelty_by_redundancy": novelty_by_redundancy,
-    }
+    if request.mode == "web_only":
+        return finalize_decision(request, deps, decision=decision)
 
-    if mode == "web_only":
-        return finalize_decision(**finalize_kwargs)
-
-    best_match = results[0] if results else None
+    best_match = request.results[0] if request.results else None
 
     if not best_match:
-        if mode == "cache_only":
+        if request.mode == "cache_only":
             decision.action = "block"
             msg = (
                 "Memory Palace (cache_only mode): No local knowledge found"
@@ -243,7 +237,7 @@ def make_decision(
                 " web search. Result will be flagged for potential knowledge"
                 " intake.",
             )
-        return finalize_decision(**finalize_kwargs)
+        return finalize_decision(request, deps, decision=decision)
 
     match_score = best_match.get("match_score", 0.0)
     decision.match_score = match_score
@@ -253,14 +247,13 @@ def make_decision(
         _handle_strong_match(
             decision,
             best_match,
-            mode,
-            evergreen_topic,
-            freshness_required,
-            results,
+            request,
+            evergreen_topic=evergreen_topic,
+            freshness_required=freshness_required,
         )
     elif match_score >= 0.4:
-        _handle_partial_match(decision, best_match, mode, results)
-    elif mode == "cache_only":
+        _handle_partial_match(decision, best_match, request.mode, request.results)
+    elif request.mode == "cache_only":
         decision.action = "block"
         decision.context.append(
             "Memory Palace (cache_only): Only weak matches found. Web search blocked.",
@@ -271,18 +264,20 @@ def make_decision(
             "Memory Palace: Weak cache match. Proceeding with full web search.",
         )
 
-    return finalize_decision(**finalize_kwargs)
+    return finalize_decision(request, deps, decision=decision)
 
 
 def _handle_strong_match(
     decision: Any,
     best_match: dict[str, Any],
-    mode: str,
+    request: DecisionRequest,
+    *,
     evergreen_topic: bool,
     freshness_required: bool,
-    results: list[dict[str, Any]],
 ) -> None:
     """Apply decision logic for strong cache matches (>0.8)."""
+    mode = request.mode
+    results = request.results
     match_score = best_match.get("match_score", 0.0)
     title = best_match.get("title", "Untitled")
 

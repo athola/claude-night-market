@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-from stewardship_tracker import read_actions, record_action
+from stewardship_tracker import StewardshipAction, read_actions, record_action
 
 
 class TestRecordAction:
@@ -30,11 +30,13 @@ class TestRecordAction:
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="sanctum",
-            action_type="doc-update",
-            file_path="plugins/sanctum/README.md",
-            description="Updated stewardship section",
+            actions_dir,
+            StewardshipAction(
+                plugin="sanctum",
+                action_type="doc-update",
+                file_path="plugins/sanctum/README.md",
+                description="Updated stewardship section",
+            ),
         )
 
         actions_file = actions_dir / "actions.jsonl"
@@ -59,11 +61,13 @@ class TestRecordAction:
         """
         actions_dir = tmp_path / "nonexistent" / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="leyline",
-            action_type="test-addition",
-            file_path="plugins/leyline/tests/test_new.py",
-            description="Added missing test",
+            actions_dir,
+            StewardshipAction(
+                plugin="leyline",
+                action_type="test-addition",
+                file_path="plugins/leyline/tests/test_new.py",
+                description="Added missing test",
+            ),
         )
 
         assert actions_dir.exists()
@@ -79,18 +83,22 @@ class TestRecordAction:
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="sanctum",
-            action_type="doc-update",
-            file_path="README.md",
-            description="First action",
+            actions_dir,
+            StewardshipAction(
+                plugin="sanctum",
+                action_type="doc-update",
+                file_path="README.md",
+                description="First action",
+            ),
         )
         record_action(
-            base_dir=actions_dir,
-            plugin="imbue",
-            action_type="typo-fix",
-            file_path="SKILL.md",
-            description="Second action",
+            actions_dir,
+            StewardshipAction(
+                plugin="imbue",
+                action_type="typo-fix",
+                file_path="SKILL.md",
+                description="Second action",
+            ),
         )
 
         lines = (actions_dir / "actions.jsonl").read_text().strip().split("\n")
@@ -116,18 +124,22 @@ class TestReadActions:
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="sanctum",
-            action_type="doc-update",
-            file_path="README.md",
-            description="Sanctum update",
+            actions_dir,
+            StewardshipAction(
+                plugin="sanctum",
+                action_type="doc-update",
+                file_path="README.md",
+                description="Sanctum update",
+            ),
         )
         record_action(
-            base_dir=actions_dir,
-            plugin="imbue",
-            action_type="test-addition",
-            file_path="test.py",
-            description="Imbue test",
+            actions_dir,
+            StewardshipAction(
+                plugin="imbue",
+                action_type="test-addition",
+                file_path="test.py",
+                description="Imbue test",
+            ),
         )
 
         sanctum_actions = read_actions(actions_dir, plugin="sanctum")
@@ -144,18 +156,22 @@ class TestReadActions:
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="sanctum",
-            action_type="doc-update",
-            file_path="README.md",
-            description="First",
+            actions_dir,
+            StewardshipAction(
+                plugin="sanctum",
+                action_type="doc-update",
+                file_path="README.md",
+                description="First",
+            ),
         )
         record_action(
-            base_dir=actions_dir,
-            plugin="imbue",
-            action_type="test-addition",
-            file_path="test.py",
-            description="Second",
+            actions_dir,
+            StewardshipAction(
+                plugin="imbue",
+                action_type="test-addition",
+                file_path="test.py",
+                description="Second",
+            ),
         )
 
         expected_count = 2
@@ -208,11 +224,13 @@ class TestRecordActionVirtue:
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="sanctum",
-            action_type="doc-update",
-            file_path="README.md",
-            description="No virtue here",
+            actions_dir,
+            StewardshipAction(
+                plugin="sanctum",
+                action_type="doc-update",
+                file_path="README.md",
+                description="No virtue here",
+            ),
         )
 
         line = (actions_dir / "actions.jsonl").read_text().strip()
@@ -231,12 +249,14 @@ class TestRecordActionVirtue:
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="leyline",
-            action_type="test-addition",
-            file_path="tests/test_foo.py",
-            description="Added missing tests",
-            virtue="care",
+            actions_dir,
+            StewardshipAction(
+                plugin="leyline",
+                action_type="test-addition",
+                file_path="tests/test_foo.py",
+                description="Added missing tests",
+                virtue="care",
+            ),
         )
 
         line = (actions_dir / "actions.jsonl").read_text().strip()
@@ -254,12 +274,14 @@ class TestRecordActionVirtue:
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="imbue",
-            action_type="typo-fix",
-            file_path="SKILL.md",
-            description="Fixed typo",
-            virtue=None,
+            actions_dir,
+            StewardshipAction(
+                plugin="imbue",
+                action_type="typo-fix",
+                file_path="SKILL.md",
+                description="Fixed typo",
+                virtue=None,
+            ),
         )
 
         line = (actions_dir / "actions.jsonl").read_text().strip()
@@ -281,20 +303,24 @@ class TestReadActionsVirtueFilter:
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="sanctum",
-            action_type="doc-update",
-            file_path="README.md",
-            description="With care virtue",
-            virtue="care",
+            actions_dir,
+            StewardshipAction(
+                plugin="sanctum",
+                action_type="doc-update",
+                file_path="README.md",
+                description="With care virtue",
+                virtue="care",
+            ),
         )
         record_action(
-            base_dir=actions_dir,
-            plugin="imbue",
-            action_type="typo-fix",
-            file_path="SKILL.md",
-            description="With curiosity virtue",
-            virtue="curiosity",
+            actions_dir,
+            StewardshipAction(
+                plugin="imbue",
+                action_type="typo-fix",
+                file_path="SKILL.md",
+                description="With curiosity virtue",
+                virtue="curiosity",
+            ),
         )
 
         result = read_actions(actions_dir, virtue="care")
@@ -313,19 +339,23 @@ class TestReadActionsVirtueFilter:
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="sanctum",
-            action_type="doc-update",
-            file_path="README.md",
-            description="With virtue",
-            virtue="care",
+            actions_dir,
+            StewardshipAction(
+                plugin="sanctum",
+                action_type="doc-update",
+                file_path="README.md",
+                description="With virtue",
+                virtue="care",
+            ),
         )
         record_action(
-            base_dir=actions_dir,
-            plugin="imbue",
-            action_type="typo-fix",
-            file_path="SKILL.md",
-            description="Without virtue",
+            actions_dir,
+            StewardshipAction(
+                plugin="imbue",
+                action_type="typo-fix",
+                file_path="SKILL.md",
+                description="Without virtue",
+            ),
         )
 
         result = read_actions(actions_dir)
@@ -345,27 +375,33 @@ class TestReadActionsVirtueFilter:
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="sanctum",
-            action_type="doc-update",
-            file_path="README.md",
-            description="Has virtue",
-            virtue="care",
+            actions_dir,
+            StewardshipAction(
+                plugin="sanctum",
+                action_type="doc-update",
+                file_path="README.md",
+                description="Has virtue",
+                virtue="care",
+            ),
         )
         record_action(
-            base_dir=actions_dir,
-            plugin="leyline",
-            action_type="test-addition",
-            file_path="tests/test_x.py",
-            description="No virtue field",
+            actions_dir,
+            StewardshipAction(
+                plugin="leyline",
+                action_type="test-addition",
+                file_path="tests/test_x.py",
+                description="No virtue field",
+            ),
         )
         record_action(
-            base_dir=actions_dir,
-            plugin="imbue",
-            action_type="typo-fix",
-            file_path="SKILL.md",
-            description="Different virtue",
-            virtue="curiosity",
+            actions_dir,
+            StewardshipAction(
+                plugin="imbue",
+                action_type="typo-fix",
+                file_path="SKILL.md",
+                description="Different virtue",
+                virtue="curiosity",
+            ),
         )
 
         result = read_actions(actions_dir, virtue="care")
@@ -391,39 +427,47 @@ class TestCombinedFilters:
         actions_dir = tmp_path / "stewardship"
         # Matches both filters
         record_action(
-            base_dir=actions_dir,
-            plugin="sanctum",
-            action_type="doc-update",
-            file_path="README.md",
-            description="Target entry",
-            virtue="care",
+            actions_dir,
+            StewardshipAction(
+                plugin="sanctum",
+                action_type="doc-update",
+                file_path="README.md",
+                description="Target entry",
+                virtue="care",
+            ),
         )
         # Matches plugin only
         record_action(
-            base_dir=actions_dir,
-            plugin="sanctum",
-            action_type="test-addition",
-            file_path="test.py",
-            description="Wrong virtue",
-            virtue="curiosity",
+            actions_dir,
+            StewardshipAction(
+                plugin="sanctum",
+                action_type="test-addition",
+                file_path="test.py",
+                description="Wrong virtue",
+                virtue="curiosity",
+            ),
         )
         # Matches virtue only
         record_action(
-            base_dir=actions_dir,
-            plugin="imbue",
-            action_type="typo-fix",
-            file_path="SKILL.md",
-            description="Wrong plugin",
-            virtue="care",
+            actions_dir,
+            StewardshipAction(
+                plugin="imbue",
+                action_type="typo-fix",
+                file_path="SKILL.md",
+                description="Wrong plugin",
+                virtue="care",
+            ),
         )
         # Matches neither
         record_action(
-            base_dir=actions_dir,
-            plugin="leyline",
-            action_type="refactor",
-            file_path="src/lib.py",
-            description="No match",
-            virtue="foresight",
+            actions_dir,
+            StewardshipAction(
+                plugin="leyline",
+                action_type="refactor",
+                file_path="src/lib.py",
+                description="No match",
+                virtue="foresight",
+            ),
         )
 
         result = read_actions(actions_dir, plugin="sanctum", virtue="care")
@@ -494,11 +538,13 @@ class TestEdgeCases:
         """
         actions_dir = tmp_path / "stewardship"
         record_action(
-            base_dir=actions_dir,
-            plugin="sanctum",
-            action_type="doc-update",
-            file_path="README.md",
-            description="Check timestamp format",
+            actions_dir,
+            StewardshipAction(
+                plugin="sanctum",
+                action_type="doc-update",
+                file_path="README.md",
+                description="Check timestamp format",
+            ),
         )
 
         line = (actions_dir / "actions.jsonl").read_text().strip()

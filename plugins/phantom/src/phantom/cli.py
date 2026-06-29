@@ -14,7 +14,7 @@ import sys
 from typing import Any
 
 from phantom.display import DisplayConfig, check_display_environment
-from phantom.loop import LoopConfig, run_loop
+from phantom.loop import LoopConfig, LoopHooks, LoopSetup, run_loop
 
 
 def check_environment() -> None:
@@ -74,9 +74,8 @@ def run_task(args: argparse.Namespace) -> None:
     result = run_loop(
         task=task,
         api_key=api_key,
-        loop_config=loop_config,
-        display_config=display_config,
-        on_action=on_action,
+        setup=LoopSetup(loop_config=loop_config, display_config=display_config),
+        hooks=LoopHooks(on_action=on_action),
     )
 
     print()

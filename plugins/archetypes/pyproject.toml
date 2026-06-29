@@ -13,3 +13,8 @@ exclude = [
     "__pycache__",
     ".ruff_cache",
 ]
+
+[tool.ruff.lint]
+# Keep ruff defaults and add too-many-arguments so the rule is
+# enforced ecosystem-wide rather than ignored.
+extend-select = ["PLR0913"]

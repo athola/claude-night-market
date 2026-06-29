@@ -390,24 +390,15 @@ class TestIntegrationRoundTrip:
                 content = content.encode()
             return f"sha256:{hashlib.sha256(content).hexdigest()[:16]}"
 
-        def fake_update_index(
-            content_hash,
-            stored_at,
-            importance_score,
-            url=None,
-            path=None,
-            title=None,
-            maturity=None,
-            routing_type=None,
-        ):
-            key = url or path
+        def fake_update_index(*, content_hash, stored_at, importance_score, **fields):
+            key = fields.get("url") or fields.get("path")
             index_state["entries"][key] = {
                 "content_hash": content_hash,
                 "stored_at": stored_at,
                 "importance_score": importance_score,
-                "title": title,
-                "maturity": maturity,
-                "routing_type": routing_type,
+                "title": fields.get("title"),
+                "maturity": fields.get("maturity"),
+                "routing_type": fields.get("routing_type"),
             }
 
         findings = [high_finding, info_finding, medium_finding_no_files]

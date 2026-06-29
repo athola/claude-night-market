@@ -10,7 +10,7 @@ materially.
 ## Status
 
 PROTOTYPE. Not wired into any `plugin.json` and not installed
-globally. The core logic is unit-tested (4 tests, all green). The
+globally. The core logic is unit-tested (6 tests, all green). The
 live activation lift is not measured here. Measuring it requires the
 sandboxed-eval methodology below.
 

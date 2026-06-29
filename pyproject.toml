@@ -154,6 +154,7 @@ select = [
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
     "PLC0415",  # import-outside-top-level
+    "PLR0913",  # too-many-arguments (enforced ecosystem-wide, not ignored)
 ]
 extend-ignore = [
     "E501",  # Line too long (handled by formatter)

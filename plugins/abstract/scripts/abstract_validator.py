@@ -15,7 +15,10 @@ from typing import TypedDict
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from abstract.frontmatter import FrontmatterProcessor
-from abstract.report_formatter import format_validator_report
+from abstract.report_formatter import (
+    ValidatorReport,
+    format_validator_report,
+)
 from abstract.utils import (
     extract_dependencies,
     find_skill_files,
@@ -308,15 +311,20 @@ class AbstractValidator:
         issues = self.validate_patterns()
 
         return format_validator_report(
-            title="Abstract Plugin Infrastructure Report",
-            plugin_root=self.plugin_root,
-            skill_file_count=len(self.skill_files),
-            metadata=[
-                ("Infrastructure Provided", sorted(result["infrastructure_provided"])),
-                ("Skills with Patterns", sorted(result["skills_with_patterns"])),
-            ],
-            issues=issues,
-            success_message="All meta-skill patterns validated successfully!",
+            ValidatorReport(
+                title="Abstract Plugin Infrastructure Report",
+                plugin_root=self.plugin_root,
+                skill_file_count=len(self.skill_files),
+                metadata=[
+                    (
+                        "Infrastructure Provided",
+                        sorted(result["infrastructure_provided"]),
+                    ),
+                    ("Skills with Patterns", sorted(result["skills_with_patterns"])),
+                ],
+                issues=issues,
+                success_message="All meta-skill patterns validated successfully!",
+            )
         )
 
     def fix_patterns(self, dry_run: bool = True) -> list[str]:

@@ -156,7 +156,12 @@ def collect_pins() -> list[tuple[str, str, str]]:
 
     config = Path(PRECOMMIT_CONFIG)
     if config.is_file():
-        for repo, rev in precommit_pins(config.read_text(encoding="utf-8")):
+        try:
+            config_text = config.read_text(encoding="utf-8")
+        except OSError as exc:
+            sys.stderr.write(f"check_pinned_versions: skip {config}: {exc}\n")
+            config_text = ""
+        for repo, rev in precommit_pins(config_text):
             if (repo, rev) not in seen:
                 seen.add((repo, rev))
                 pins.append((repo, rev, "pre-commit"))
@@ -164,7 +169,11 @@ def collect_pins() -> list[tuple[str, str, str]]:
     workflows = Path(WORKFLOWS_DIR)
     if workflows.is_dir():
         for path in sorted(workflows.glob("*.y*ml")):
-            text = path.read_text(encoding="utf-8")
+            try:
+                text = path.read_text(encoding="utf-8")
+            except OSError as exc:
+                sys.stderr.write(f"check_pinned_versions: skip {path}: {exc}\n")
+                continue
             for repo, ref in workflow_action_pins(text):
                 if (repo, ref) not in seen:
                     seen.add((repo, ref))

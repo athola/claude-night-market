@@ -54,3 +54,34 @@ def test_emits_health_verdict_from_stdin(tmp_path):
     assert skill_ref in result.stdout, f"no verdict emitted; stdout={result.stdout!r}"
     verdict = json.loads(result.stdout)
     assert verdict["hookSpecificOutput"]["skill"] == skill_ref
+
+
+def test_threads_session_id_into_improvement_queue(tmp_path):
+    """A degrading Skill payload threads payload session_id into the queue.
+
+    Guards the C2 fix: the hook used to read CLAUDE_SESSION_ID from env
+    (unset by the runtime), so every flag was attributed to 'unknown' and
+    session correlation broke. The payload session_id must reach
+    improvement-queue.json's execution_ids. Reverting to os.environ.get
+    fails this (the env var is popped below).
+    """
+    skill_ref = "superpowers:writing-plans"
+    _seed_history(tmp_path, skill_ref, [1.0, 1.0, 0.2, 0.1])  # large gap -> degrading
+    payload = {
+        "tool_name": "Skill",
+        "tool_input": {"skill": skill_ref},
+        "session_id": "real-session-42",
+    }
+
+    result = _run(payload, tmp_path)
+    assert result.returncode == 0, result.stderr
+
+    queue_path = tmp_path / "skills" / "improvement-queue.json"
+    assert queue_path.is_file(), (
+        f"queue not written; _HAS_QUEUE likely False in subprocess. "
+        f"stderr={result.stderr!r}"
+    )
+    queue = json.loads(queue_path.read_text())
+    entry = queue["skills"][skill_ref]
+    assert "real-session-42" in entry["execution_ids"], entry
+    assert "unknown" not in entry["execution_ids"], entry

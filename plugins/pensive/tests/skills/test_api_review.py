@@ -216,7 +216,6 @@ class TestApiReviewSkill:
     )
     def test_detects_language_api_surface(
         self,
-        mock_skill_context,
         code: str,
         lang: str,
         method_name: str,
@@ -228,6 +227,7 @@ class TestApiReviewSkill:
         Parametrized across TypeScript, Rust, Python, and JavaScript.
         """
         # Arrange
+        mock_skill_context = Mock()
         mock_skill_context.get_file_content.return_value = code
 
         # Act

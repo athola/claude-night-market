@@ -635,25 +635,19 @@ class TestErrorsBySkillFromIssues:
 # ---------------------------------------------------------------------------
 
 
-def _finding(
-    *,
-    severity: str = "medium",
-    skill: str = "",
-    recommendation: str = "Investigate.",
-    summary: str = "Summary",
-    type_: str = "Pattern",
-    source: str = "test-lens",
-    evidence: str = "",
-) -> Finding:
-    return Finding(
-        type=type_,
-        severity=severity,
-        skill=skill,
-        summary=summary,
-        evidence=evidence,
-        recommendation=recommendation,
-        source=source,
-    )
+def _finding(**overrides: object) -> Finding:
+    type_ = overrides.pop("type_", "Pattern")
+    fields: dict[str, object] = {
+        "type": type_,
+        "severity": "medium",
+        "skill": "",
+        "summary": "Summary",
+        "evidence": "",
+        "recommendation": "Investigate.",
+        "source": "test-lens",
+    }
+    fields.update(overrides)
+    return Finding(**fields)
 
 
 # ---------------------------------------------------------------------------

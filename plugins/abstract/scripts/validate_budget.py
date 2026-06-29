@@ -198,17 +198,30 @@ def format_offenders_list(components: list[Component], limit: int = 10) -> str:
     return "\n".join(lines)
 
 
-def print_budget_report(
-    total_chars: int,
-    total_with_overhead: int,
-    visible_estimate: int,
-    verbose_count: int,
-    failed: bool,
-    warn_only: bool,
-    verbose: list[Component],
-    component_count: int,
-) -> None:
+@dataclass(frozen=True)
+class BudgetReport:
+    """Tallies for a full budget validation report."""
+
+    total_chars: int
+    total_with_overhead: int
+    visible_estimate: int
+    verbose_count: int
+    failed: bool
+    warn_only: bool
+    verbose: list[Component]
+    component_count: int
+
+
+def print_budget_report(report: BudgetReport) -> None:
     """Print full budget validation report."""
+    total_chars = report.total_chars
+    total_with_overhead = report.total_with_overhead
+    visible_estimate = report.visible_estimate
+    verbose_count = report.verbose_count
+    failed = report.failed
+    warn_only = report.warn_only
+    verbose = report.verbose
+    component_count = report.component_count
     usage_pct = total_with_overhead / BUDGET_LIMIT * 100
     overhead_total = component_count * OVERHEAD_PER_COMPONENT
     print(f"Components: {component_count} ({overhead_total:,} chars overhead)")
@@ -285,14 +298,16 @@ def main() -> None:
 
     # Print report and exit appropriately
     print_budget_report(
-        total_chars,
-        total_with_overhead,
-        visible_estimate,
-        verbose_count,
-        failed,
-        warn_only,
-        verbose,
-        len(components),
+        BudgetReport(
+            total_chars=total_chars,
+            total_with_overhead=total_with_overhead,
+            visible_estimate=visible_estimate,
+            verbose_count=verbose_count,
+            failed=failed,
+            warn_only=warn_only,
+            verbose=verbose,
+            component_count=len(components),
+        )
     )
 
     sys.exit(1 if failed else 0)

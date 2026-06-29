@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
 
@@ -157,9 +157,7 @@ def parse_file(file_path: str) -> tuple[list[GraphNode], list[GraphEdge]]:
 
     _extract_from_tree(
         tree.root_node,
-        file_path,
-        language,
-        file_hash,
+        FileContext(file_path, language, file_hash),
         nodes,
         edges,
         parent_name="",
@@ -173,16 +171,23 @@ def parse_file(file_path: str) -> tuple[list[GraphNode], list[GraphEdge]]:
 # ---------------------------------------------------------------------------
 
 
+class FileContext(NamedTuple):
+    """Invariant file context threaded unchanged through AST recursion."""
+
+    file_path: str
+    language: str
+    file_hash: str
+
+
 def _extract_from_tree(
     node: Any,
-    file_path: str,
-    language: str,
-    file_hash: str,
+    fctx: FileContext,
     nodes: list[GraphNode],
     edges: list[GraphEdge],
     parent_name: str,
 ) -> None:
     """Walk the AST and extract structural nodes and relationship edges."""
+    file_path, language, file_hash = fctx
     class_types = _CLASS_TYPES.get(language, set())
     func_types = _FUNCTION_TYPES.get(language, set())
     import_types = _IMPORT_TYPES.get(language, set())
@@ -223,9 +228,7 @@ def _extract_from_tree(
             for child in node.children:
                 _extract_from_tree(
                     child,
-                    file_path,
-                    language,
-                    file_hash,
+                    fctx,
                     nodes,
                     edges,
                     parent_name=cls_name,
@@ -278,9 +281,7 @@ def _extract_from_tree(
     for child in node.children:
         _extract_from_tree(
             child,
-            file_path,
-            language,
-            file_hash,
+            fctx,
             nodes,
             edges,
             parent_name=parent_name,

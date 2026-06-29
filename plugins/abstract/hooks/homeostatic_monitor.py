@@ -15,7 +15,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 # Allow importing from src/abstract/ and the co-located shared/ package
 # when running as a hook.
@@ -132,14 +132,22 @@ def _needs_metacognition(claude_home: Path) -> bool:  # noqa: PLR0911 - multi-cr
     return False
 
 
+class SkillHealth(NamedTuple):
+    """Computed health snapshot for one skill invocation."""
+
+    gap: float
+    velocity: int
+    trend: float | None
+
+
 def _flag_and_build_output(
     claude_home: Path,
     skill_ref: str,
-    gap: float,
-    velocity: int,
-    trend: float | None,
+    health: SkillHealth,
+    session_id: str,
 ) -> dict | None:
     """Flag degrading skill in queue and return output dict."""
+    gap, velocity, trend = health
     queue_file = claude_home / "skills" / "improvement-queue.json"
     queue = ImprovementQueue(queue_file)
 
@@ -147,8 +155,7 @@ def _flag_and_build_output(
     if entry.get("status") in ("evaluating", "pending_rollback_review"):
         return None  # caller handles None
 
-    invocation_id = os.environ.get("CLAUDE_SESSION_ID", "unknown")
-    queue.flag_skill(skill_ref, gap, invocation_id)
+    queue.flag_skill(skill_ref, gap, session_id)
 
     entry = queue.skills[skill_ref]
     status = "critical" if gap > CRITICAL_GAP_THRESHOLD else "degrading"
@@ -275,7 +282,10 @@ def main() -> None:
             sys.exit(0)
 
         # Skill is degrading -- flag it in the queue via ImprovementQueue
-        output = _flag_and_build_output(claude_home, skill_ref, gap, velocity, trend)
+        health = SkillHealth(gap, velocity, trend)
+        output = _flag_and_build_output(
+            claude_home, skill_ref, health, payload["session_id"]
+        )
         if output is None:
             sys.exit(0)
         print(json.dumps(output))

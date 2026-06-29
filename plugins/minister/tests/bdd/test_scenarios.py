@@ -25,37 +25,26 @@ from minister.project_tracker import ProjectTracker, Task
 # ── Shared task-creation helpers ────────────────────────
 
 
-def _make_task(
-    task_id: str,
-    title: str,
-    initiative: str,
-    *,
-    phase: str = "Phase 1",
-    priority: str = "Medium",
-    status: str = "To Do",
-    owner: str = "dev",
-    effort_hours: float = 4.0,
-    completion_percent: float = 0.0,
-    due_date: str = "2025-01-15",
-    github_issue: str | None = None,
-) -> Task:
+def _make_task(task_id: str, title: str, initiative: str, **overrides: object) -> Task:
     """Build a Task with sensible defaults for BDD tests."""
     now = datetime.now(timezone.utc).isoformat()
-    return Task(
-        id=task_id,
-        title=title,
-        initiative=initiative,
-        phase=phase,
-        priority=priority,
-        status=status,
-        owner=owner,
-        effort_hours=effort_hours,
-        completion_percent=completion_percent,
-        due_date=due_date,
-        created_date=now,
-        updated_date=now,
-        github_issue=github_issue,
-    )
+    fields: dict[str, object] = {
+        "id": task_id,
+        "title": title,
+        "initiative": initiative,
+        "phase": "Phase 1",
+        "priority": "Medium",
+        "status": "To Do",
+        "owner": "dev",
+        "effort_hours": 4.0,
+        "completion_percent": 0.0,
+        "due_date": "2025-01-15",
+        "created_date": now,
+        "updated_date": now,
+        "github_issue": None,
+    }
+    fields.update(overrides)
+    return Task(**fields)
 
 
 # ── Fixtures ────────────────────────────────────────────

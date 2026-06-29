@@ -159,16 +159,51 @@ def _error_tool_result(tool_use_id: str, message: str) -> dict[str, Any]:
     }
 
 
+@dataclass
+class LoopHooks:
+    """Optional user callbacks threaded through the loop."""
+
+    on_action: Callable[[str, dict[str, Any]], None] | None = None
+    on_screenshot: Callable[[str], None] | None = None
+    confirm_callback: Callable[[dict[str, Any]], bool] | None = None
+
+
+@dataclass
+class LoopSetup:
+    """Optional configuration and toolkit overrides for ``run_loop``."""
+
+    loop_config: LoopConfig | None = None
+    display_config: DisplayConfig | None = None
+    toolkit: DisplayToolkit | None = None
+
+
+@dataclass
+class ClientSetup:
+    """Anthropic client and per-run tool wiring."""
+
+    client: Any
+    tools: list[dict[str, Any]]
+    beta_flag: str
+
+
+@dataclass
+class IterationContext:
+    """Collaborators shared across a single agent-loop iteration."""
+
+    config: LoopConfig
+    d_config: DisplayConfig
+    cost_tracker: CostTracker
+    action_filter: ActionFilter
+    gate: ConfirmationGate
+    display: DisplayToolkit
+    screenshot_tracker: ScreenshotTracker
+    stuck_policy: StuckPolicy
+    hooks: LoopHooks
+
+
 def _run_tool_block(
     block: Any,
-    *,
-    action_filter: ActionFilter,
-    gate: ConfirmationGate,
-    display: DisplayToolkit,
-    screenshot_tracker: ScreenshotTracker,
-    stuck_policy: StuckPolicy,
-    on_action: Callable[[str, dict[str, Any]], None] | None,
-    on_screenshot: Callable[[str], None] | None,
+    ctx: IterationContext,
     result: LoopResult,
 ) -> tuple[dict[str, Any] | None, bool]:
     """Process one block from the assistant response.
@@ -184,13 +219,13 @@ def _run_tool_block(
     if block.type != "tool_use":
         return None, False
 
-    if block.name == "computer" and not action_filter.is_allowed(block.input):
+    if block.name == "computer" and not ctx.action_filter.is_allowed(block.input):
         result.actions_blocked += 1
         return (
             _error_tool_result(block.id, "Action blocked: restricted region"),
             False,
         )
-    if block.name == "computer" and not gate.check(block.input):
+    if block.name == "computer" and not ctx.gate.check(block.input):
         result.actions_blocked += 1
         return (
             _error_tool_result(block.id, "Action rejected by confirmation gate"),
@@ -202,42 +237,29 @@ def _run_tool_block(
         block.name,
         block.input,
         block.id,
-        display,
-        on_action,
-        on_screenshot,
+        ctx.display,
+        ctx.hooks,
     )
 
     if block.name == "computer":
         b64 = _extract_screenshot_b64(tool_result)
         if b64:
-            is_stuck = screenshot_tracker.record(b64)
+            is_stuck = ctx.screenshot_tracker.record(b64)
             if is_stuck:
                 logger.warning(
                     "Stuck detected: %d consecutive identical screenshots",
-                    screenshot_tracker.stuck_count,
+                    ctx.screenshot_tracker.stuck_count,
                 )
-            if stuck_policy.should_abort(screenshot_tracker.stuck_count):
+            if ctx.stuck_policy.should_abort(ctx.screenshot_tracker.stuck_count):
                 return tool_result, True
 
     return tool_result, False
 
 
 def _process_iteration(
-    *,
-    config: LoopConfig,
-    d_config: DisplayConfig,
-    client: Any,
-    tools: list[dict[str, Any]],
-    beta_flag: str,
+    ctx: IterationContext,
+    client_setup: ClientSetup,
     messages: list[dict[str, Any]],
-    cost_tracker: CostTracker,
-    action_filter: ActionFilter,
-    gate: ConfirmationGate,
-    display: DisplayToolkit,
-    screenshot_tracker: ScreenshotTracker,
-    stuck_policy: StuckPolicy,
-    on_action: Callable[[str, dict[str, Any]], None] | None,
-    on_screenshot: Callable[[str], None] | None,
     result: LoopResult,
 ) -> str | None:
     """Run one iteration of the agent loop.
@@ -245,34 +267,34 @@ def _process_iteration(
     Returns a stop-reason string when the loop must halt, or None to
     continue. Mutates ``messages`` and ``result`` in place.
     """
-    if cost_tracker.budget_exceeded:
-        logger.warning("Budget exceeded: %s", cost_tracker.summary())
+    if ctx.cost_tracker.budget_exceeded:
+        logger.warning("Budget exceeded: %s", ctx.cost_tracker.summary())
         return "budget_exceeded"
 
     kwargs: dict[str, Any] = {
-        "model": config.model,
-        "max_tokens": config.max_tokens,
+        "model": ctx.config.model,
+        "max_tokens": ctx.config.max_tokens,
         "messages": messages,
-        "tools": tools,
-        "betas": [beta_flag],
+        "tools": client_setup.tools,
+        "betas": [client_setup.beta_flag],
     }
-    if config.system_prompt:
-        kwargs["system"] = config.system_prompt
-    if config.thinking_budget:
+    if ctx.config.system_prompt:
+        kwargs["system"] = ctx.config.system_prompt
+    if ctx.config.thinking_budget:
         kwargs["thinking"] = {
             "type": "enabled",
-            "budget_tokens": config.thinking_budget,
+            "budget_tokens": ctx.config.thinking_budget,
         }
 
-    response = client.beta.messages.create(**kwargs)
+    response = client_setup.client.beta.messages.create(**kwargs)
 
     usage = getattr(response, "usage", None)
-    cost_tracker.record(
+    ctx.cost_tracker.record(
         input_tokens=getattr(usage, "input_tokens", 0) if usage else 0,
         output_tokens=getattr(usage, "output_tokens", 0) if usage else 0,
         screenshot_tokens_est=estimate_screenshot_tokens(
-            d_config.width,
-            d_config.height,
+            ctx.d_config.width,
+            ctx.d_config.height,
         ),
     )
 
@@ -286,17 +308,7 @@ def _process_iteration(
 
     tool_results: list[dict[str, Any]] = []
     for block in response_content:
-        tool_result, abort_stuck = _run_tool_block(
-            block,
-            action_filter=action_filter,
-            gate=gate,
-            display=display,
-            screenshot_tracker=screenshot_tracker,
-            stuck_policy=stuck_policy,
-            on_action=on_action,
-            on_screenshot=on_screenshot,
-            result=result,
-        )
+        tool_result, abort_stuck = _run_tool_block(block, ctx, result)
         if tool_result is not None:
             tool_results.append(tool_result)
         if abort_stuck:
@@ -312,34 +324,28 @@ def _process_iteration(
 def run_loop(
     task: str,
     api_key: str,
-    loop_config: LoopConfig | None = None,
-    display_config: DisplayConfig | None = None,
-    toolkit: DisplayToolkit | None = None,
-    on_action: Callable[[str, dict[str, Any]], None] | None = None,
-    on_screenshot: Callable[[str], None] | None = None,
-    confirm_callback: Callable[[dict[str, Any]], bool] | None = None,
+    setup: LoopSetup | None = None,
+    hooks: LoopHooks | None = None,
 ) -> LoopResult:
     """Run the computer use agent loop synchronously.
 
     Args:
         task: The user's task description.
         api_key: Anthropic API key.
-        loop_config: Agent loop configuration.
-        display_config: Display resolution config.
-        toolkit: Pre-configured display toolkit (created if None).
-        on_action: Callback(action_type, action_dict) for each action.
-        on_screenshot: Callback(base64_png) for each screenshot.
-        confirm_callback: Callback(action_dict) -> bool for approval.
+        setup: Optional loop/display configuration and toolkit overrides.
+        hooks: Optional callbacks (on_action, on_screenshot, confirm_callback).
 
     Returns:
         LoopResult with conversation history and stats.
     """
-    config = loop_config or LoopConfig()
-    d_config = display_config or DisplayConfig()
-    display = toolkit or DisplayToolkit(config=d_config)
+    setup = setup or LoopSetup()
+    hooks = hooks or LoopHooks()
+    config = setup.loop_config or LoopConfig()
+    d_config = setup.display_config or DisplayConfig()
+    display = setup.toolkit or DisplayToolkit(config=d_config)
 
     action_filter = ActionFilter(blocked_regions=config.blocked_regions)
-    gate = ConfirmationGate(callback=confirm_callback or no_confirm)
+    gate = ConfirmationGate(callback=hooks.confirm_callback or no_confirm)
     screenshot_tracker = ScreenshotTracker()
     stuck_policy = StuckPolicy(max_stuck=config.max_stuck)
     cost_tracker = CostTracker(
@@ -352,6 +358,19 @@ def run_loop(
     beta_flag = get_beta_flag(tool_version)
     tools = build_tools(config, d_config)
 
+    ctx = IterationContext(
+        config=config,
+        d_config=d_config,
+        cost_tracker=cost_tracker,
+        action_filter=action_filter,
+        gate=gate,
+        display=display,
+        screenshot_tracker=screenshot_tracker,
+        stuck_policy=stuck_policy,
+        hooks=hooks,
+    )
+    client_setup = ClientSetup(client=client, tools=tools, beta_flag=beta_flag)
+
     messages: list[dict[str, Any]] = [{"role": "user", "content": task}]
     result = LoopResult(stopped_reason="max_iterations")
 
@@ -359,23 +378,7 @@ def run_loop(
         result.iterations = iteration + 1
         logger.info("Iteration %d/%d", iteration + 1, config.max_iterations)
 
-        stop_reason = _process_iteration(
-            config=config,
-            d_config=d_config,
-            client=client,
-            tools=tools,
-            beta_flag=beta_flag,
-            messages=messages,
-            cost_tracker=cost_tracker,
-            action_filter=action_filter,
-            gate=gate,
-            display=display,
-            screenshot_tracker=screenshot_tracker,
-            stuck_policy=stuck_policy,
-            on_action=on_action,
-            on_screenshot=on_screenshot,
-            result=result,
-        )
+        stop_reason = _process_iteration(ctx, client_setup, messages, result)
         if stop_reason is not None:
             result.stopped_reason = stop_reason
             break
@@ -390,10 +393,12 @@ def _execute_tool(
     tool_input: dict[str, Any],
     tool_use_id: str,
     display: DisplayToolkit,
-    on_action: Callable | None = None,
-    on_screenshot: Callable | None = None,
+    hooks: LoopHooks | None = None,
 ) -> dict[str, Any]:
     """Execute a single tool and format the result for Claude."""
+    hooks = hooks or LoopHooks()
+    on_action = hooks.on_action
+    on_screenshot = hooks.on_screenshot
     logger.debug("Executing tool: %s with input: %s", name, tool_input)
 
     if name == "computer":

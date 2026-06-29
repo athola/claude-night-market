@@ -4,11 +4,22 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class IntakeContext:
+    """Per-request identifiers carried into the intake queue entry."""
+
+    query_id: str
+    tool_name: str
+    query: str
+    tool_input: dict[str, Any]
 
 
 def build_hook_output(
@@ -71,10 +82,7 @@ def build_hook_payload(
 def queue_for_intake(
     plugin_root: Path,
     decision: Any,
-    query_id: str,
-    tool_name: str,
-    query: str,
-    tool_input: dict[str, Any],
+    ctx: IntakeContext,
 ) -> None:
     """Queue high-novelty queries for knowledge-intake processing."""
     if not (decision.should_flag_for_intake and decision.intake_payload):
@@ -84,11 +92,11 @@ def queue_for_intake(
         queue_path.parent.mkdir(parents=True, exist_ok=True)
         queue_entry = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "query_id": query_id,
-            "tool_name": tool_name,
-            "query": query,
+            "query_id": ctx.query_id,
+            "tool_name": ctx.tool_name,
+            "query": ctx.query,
             "intake_payload": decision.intake_payload.to_dict(),
-            "tool_input": tool_input,
+            "tool_input": ctx.tool_input,
         }
         with queue_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(queue_entry) + "\n")

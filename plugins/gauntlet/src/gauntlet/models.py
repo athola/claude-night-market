@@ -295,7 +295,7 @@ class AnswerRecord:
     category: str
     difficulty: int  # 1-4
     result: ChallengeResult
-    answered_at: str
+    answered_at: str = ""
 
     def __post_init__(self) -> None:
         if not 1 <= self.difficulty <= 4:

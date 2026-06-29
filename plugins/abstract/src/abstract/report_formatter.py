@@ -6,19 +6,14 @@ abstract_validator, and other plugin validation scripts.
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 
-def format_validator_report(  # noqa: PLR0913 - report formatting needs all fields
-    title: str,
-    plugin_root: Path,
-    skill_file_count: int,
-    metadata: list[tuple[str, Any]],
-    issues: list[str],
-    success_message: str = "All validations passed successfully!",
-) -> str:
-    """Format a standard plugin validation report.
+@dataclass(frozen=True)
+class ValidatorReport:
+    """Inputs for a standard plugin validation report.
 
     Args:
         title: Report title (e.g., "Imbue Plugin Review Workflow Report").
@@ -28,24 +23,36 @@ def format_validator_report(  # noqa: PLR0913 - report formatting needs all fiel
             summary lines shown between the header and issues section.
         issues: List of issue descriptions to enumerate.
         success_message: Message shown when no issues are found.
-            Defaults to "All validations passed successfully!".
+
+    """
+
+    title: str
+    plugin_root: Path
+    skill_file_count: int
+    metadata: list[tuple[str, Any]] = field(default_factory=list)
+    issues: list[str] = field(default_factory=list)
+    success_message: str = "All validations passed successfully!"
+
+
+def format_validator_report(report: ValidatorReport) -> str:
+    """Format a standard plugin validation report.
 
     Returns:
         Formatted report string.
 
     """
-    report = [title, "=" * 50]
-    report.append(f"\nPlugin Root: {plugin_root}")
-    report.append(f"Skill Files: {skill_file_count}")
+    lines = [report.title, "=" * 50]
+    lines.append(f"\nPlugin Root: {report.plugin_root}")
+    lines.append(f"Skill Files: {report.skill_file_count}")
 
-    for label, value in metadata:
-        report.append(f"\n{label}: {value}")
+    for label, value in report.metadata:
+        lines.append(f"\n{label}: {value}")
 
-    if issues:
-        report.append(f"\nIssues Found ({len(issues)}):")
-        for i, issue in enumerate(issues, 1):
-            report.append(f"  {i}. {issue}")
+    if report.issues:
+        lines.append(f"\nIssues Found ({len(report.issues)}):")
+        for i, issue in enumerate(report.issues, 1):
+            lines.append(f"  {i}. {issue}")
     else:
-        report.append(f"\n{success_message}")
+        lines.append(f"\n{report.success_message}")
 
-    return "\n".join(report)
+    return "\n".join(lines)

@@ -18,6 +18,7 @@ from scribe.session_parser import (
     ToolResult,
     ToolUse,
     UserTurn,
+    Viewport,
     _parse_turn_range,
     parse_session,
 )
@@ -848,7 +849,7 @@ class TestTextTruncation:
         long_text = "This is a long response that should wrap at column 40."
         records = [_assistant_record([{"type": "text", "text": long_text}])]
         path = _write_jsonl(tmp_path, records)
-        turns = parse_session(path, cols=40)
+        turns = parse_session(path, viewport=Viewport(cols=40))
         lines = turns[0].text.split("\n")
         assert all(len(line) <= 40 for line in lines)
         assert len(lines) > 1
@@ -865,7 +866,7 @@ class TestTextTruncation:
         long_text = " ".join(["word"] * 200)
         records = [_assistant_record([{"type": "text", "text": long_text}])]
         path = _write_jsonl(tmp_path, records)
-        turns = parse_session(path, cols=40, rows=5)
+        turns = parse_session(path, viewport=Viewport(cols=40, rows=5))
         lines = turns[0].text.split("\n")
         assert len(lines) == 5
         assert lines[-1] == "..."
@@ -896,7 +897,7 @@ class TestTextTruncation:
         long_text = "Please fix this really long authentication bug in the system"
         records = [_user_record(long_text)]
         path = _write_jsonl(tmp_path, records)
-        turns = parse_session(path, cols=30)
+        turns = parse_session(path, viewport=Viewport(cols=30))
         lines = turns[0].text.split("\n")
         assert all(len(line) <= 30 for line in lines)
 

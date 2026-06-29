@@ -13,6 +13,7 @@ from unittest.mock import MagicMock
 from phantom.display import ActionResult, DisplayConfig, DisplayToolkit
 from phantom.loop import (
     LoopConfig,
+    LoopHooks,
     LoopResult,
     _execute_tool,
     _format_tool_result,
@@ -240,7 +241,7 @@ class TestExecuteTool:
             {"action": "left_click", "coordinate": [1, 2]},
             "id",
             mock_display,
-            on_action=callback,
+            hooks=LoopHooks(on_action=callback),
         )
         callback.assert_called_once_with(
             "left_click",

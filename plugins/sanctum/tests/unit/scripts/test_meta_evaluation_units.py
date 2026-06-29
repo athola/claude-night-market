@@ -33,10 +33,10 @@ def _make_skill(
     plugin: str,
     skill: str,
     content: str,
-    *,
-    extra_modules: dict[str, str] | None = None,
-    extra_files: dict[str, str] | None = None,
+    **extra: dict[str, str],
 ) -> Path:
+    extra_modules = extra.get("extra_modules")
+    extra_files = extra.get("extra_files")
     skill_dir = plugins_root / plugin / "skills" / skill
     skill_dir.mkdir(parents=True, exist_ok=True)
     (skill_dir / "SKILL.md").write_text(content, encoding="utf-8")

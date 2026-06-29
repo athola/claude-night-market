@@ -77,6 +77,18 @@ class ServiceConfig:
     quota_limits: dict[str, int] | None = None
 
 
+@dataclass(frozen=True)
+class LaunchSpec:
+    """Inputs for spawning a single delegation subprocess."""
+
+    cmd: list[str]
+    service_name: str
+    prompt: str
+    files: list[str] | None
+    timeout: int
+    start_time: float
+
+
 @dataclass
 class ExecutionResult:
     """Result of a delegation execution."""
@@ -254,16 +266,14 @@ class Delegator:
 
         return command
 
-    def _launch_process(
-        self,
-        cmd: list[str],
-        service_name: str,
-        prompt: str,
-        files: list[str] | None,
-        timeout: int,
-        start_time: float,
-    ) -> ExecutionResult:
+    def _launch_process(self, spec: LaunchSpec) -> ExecutionResult:
         """Spawn subprocess and return ExecutionResult, handling all error paths."""
+        cmd = spec.cmd
+        service_name = spec.service_name
+        prompt = spec.prompt
+        files = spec.files
+        timeout = spec.timeout
+        start_time = spec.start_time
         try:
             result = subprocess.run(  # nosec B603
                 cmd,
@@ -325,7 +335,14 @@ class Delegator:
         start_time = time.time()
         command = self.build_command(service_name, prompt, files, options)
         execution_result = self._launch_process(
-            command, service_name, prompt, files, timeout, start_time
+            LaunchSpec(
+                cmd=command,
+                service_name=service_name,
+                prompt=prompt,
+                files=files,
+                timeout=timeout,
+                start_time=start_time,
+            )
         )
         self.log_usage(service_name, command, execution_result)
         return execution_result

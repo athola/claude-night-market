@@ -37,7 +37,7 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "UP", "B", "C4"]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "PLR0913"]
 ignore = ["E501"]
 
 [tool.pytest.ini_options]

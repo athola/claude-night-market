@@ -38,7 +38,7 @@ with public APIs. We also maintain 53 executable hooks.
 | sanctum | 1.9.14 | 19 | 18 | 9 | Yes | - |
 | scribe | 1.9.14 | 9 | 11 | 5 | Yes | - |
 | scry | 1.9.14 | 2 | 4 | 1 | No | - |
-| spec-kit | 1.9.14 | 10 | 3 | 3 | Yes | - |
+| spec-kit | 1.9.14 | 11 | 3 | 3 | Yes | - |
 | tome | 1.9.14 | 4 | 7 | 4 | Yes | - |
 
 ## Plugin Details

@@ -12,26 +12,22 @@ from typing import Any
 from tome.models import Finding
 
 
-def make_finding(
-    relevance: float = 0.5,
-    source: str = "github",
-    channel: str = "code",
-    metadata: dict[str, Any] | None = None,
-    url: str = "https://example.com/f",
-    title: str = "Test Finding",
-    summary: str = "A summary.",
-) -> Finding:
+def make_finding(relevance: float = 0.5, **overrides: Any) -> Finding:
     """Build a Finding for tests with sensible defaults.
 
     Covers both ranker-style calls (relevance + metadata) and
-    merger-style calls (url + relevance).
+    merger-style calls (url + relevance). ``relevance`` stays positional
+    because call sites pass it positionally; all other fields are keyword
+    overrides merged over the defaults below.
     """
-    return Finding(
-        source=source,
-        channel=channel,
-        title=title,
-        url=url,
-        relevance=relevance,
-        summary=summary,
-        metadata=metadata or {},
-    )
+    fields: dict[str, Any] = {
+        "source": "github",
+        "channel": "code",
+        "title": "Test Finding",
+        "url": "https://example.com/f",
+        "relevance": relevance,
+        "summary": "A summary.",
+        "metadata": {},
+    }
+    fields.update(overrides)
+    return Finding(**fields)

@@ -25,25 +25,20 @@ from gauntlet.models import (
 # ---------------------------------------------------------------------------
 
 
-def _entry(
-    category: str = "business_logic",
-    module: str = "billing",
-    concept: str = "Pro-rata calculation",
-    detail: str = "Charge is pro-rated based on remaining days in the billing period.",
-    difficulty: int = 2,
-    related_files: list[str] | None = None,
-) -> KnowledgeEntry:
-    return KnowledgeEntry(
-        id="ke-test-001",
-        category=category,
-        module=module,
-        concept=concept,
-        detail=detail,
-        difficulty=difficulty,
-        extracted_at="2026-01-01T00:00:00",
-        source="code",
-        related_files=related_files or ["src/billing/proration.py"],
-    )
+def _entry(**overrides: object) -> KnowledgeEntry:
+    fields: dict[str, object] = {
+        "id": "ke-test-001",
+        "category": "business_logic",
+        "module": "billing",
+        "concept": "Pro-rata calculation",
+        "detail": "Charge is pro-rated based on remaining days in the billing period.",
+        "difficulty": 2,
+        "extracted_at": "2026-01-01T00:00:00",
+        "source": "code",
+        "related_files": ["src/billing/proration.py"],
+    }
+    fields.update(overrides)
+    return KnowledgeEntry(**fields)
 
 
 def _answer_record(challenge_type: str, result: str) -> AnswerRecord:

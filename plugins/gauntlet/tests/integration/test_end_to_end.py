@@ -9,7 +9,7 @@ import pytest
 from gauntlet.challenges import generate_challenge, select_challenge_type
 from gauntlet.extraction import extract_from_file
 from gauntlet.knowledge_store import KnowledgeStore
-from gauntlet.models import DeveloperProgress
+from gauntlet.models import AnswerRecord, DeveloperProgress
 from gauntlet.progress import ProgressTracker
 from gauntlet.query import get_context_for_files, query_knowledge
 from gauntlet.scoring import evaluate_answer
@@ -87,12 +87,14 @@ class TestFullChallengeLoop:
         progress = DeveloperProgress(developer_id="dev@example.com")
         tracker.record_answer(
             progress=progress,
-            challenge_id=challenge.id,
-            knowledge_entry_id=entry.id,
-            challenge_type=challenge.type,
-            category=entry.category,
-            difficulty=entry.difficulty,
-            result=result,
+            record=AnswerRecord(
+                challenge_id=challenge.id,
+                knowledge_entry_id=entry.id,
+                challenge_type=challenge.type,
+                category=entry.category,
+                difficulty=entry.difficulty,
+                result=result,
+            ),
         )
 
         # Assert: progress was persisted and has one record
@@ -127,12 +129,14 @@ class TestFullChallengeLoop:
             challenge = generate_challenge(entries[0], "multiple_choice")
             tracker.record_answer(
                 progress=progress,
-                challenge_id=challenge.id,
-                knowledge_entry_id=entries[0].id,
-                challenge_type="multiple_choice",
-                category=entries[0].category,
-                difficulty=entries[0].difficulty,
-                result="pass",
+                record=AnswerRecord(
+                    challenge_id=challenge.id,
+                    knowledge_entry_id=entries[0].id,
+                    challenge_type="multiple_choice",
+                    category=entries[0].category,
+                    difficulty=entries[0].difficulty,
+                    result="pass",
+                ),
             )
 
         # Act: select a challenge type

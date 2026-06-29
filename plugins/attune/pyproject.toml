@@ -77,7 +77,6 @@ extend-ignore = [
     "S108",     # Allow hardcoded temp paths in tests
     "S603",     # Subprocess usage in test fixtures
     "PLR2004",  # Allow magic values in tests
-    "PLR0913",  # Allow too many arguments in test functions
     "PLR0915",  # Allow many statements in test functions
     "PLW1510",  # subprocess.run without check (intentional in tests)
     "E501",     # Allow long lines in test docstrings

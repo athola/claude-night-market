@@ -69,7 +69,10 @@ def _read_payload() -> dict[str, Any]:
     if raw.strip():
         try:
             payload = json.loads(raw)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as exc:
+            # Fail-open is intentional (crash-proof), but log so a disabled
+            # guard is distinguishable from an idle one.
+            sys.stderr.write(f"noqa_guard: malformed stdin payload: {exc}\n")
             payload = None
         if isinstance(payload, dict):
             return payload

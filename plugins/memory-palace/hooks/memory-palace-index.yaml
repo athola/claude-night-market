@@ -1,2 +1,272 @@
-entries: {}
-hashes: {}
+entries:
+  https://hn.algolia.com/api/v1/search?query=tribal%20knowledge&tags=story&hitsperpage=15:
+    content_hash: sha256:defa2d20e139fcd5
+    stored_at: data/staging/webfetch-tribal-knowledge-stories-from-hacker-news-2026-06-29_11-01-51.md
+    importance_score: 84
+    last_updated: '2026-06-29T11:01:51.545690+00:00'
+    title: Tribal Knowledge Stories from Hacker News
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tribal%20knowledge&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=tacit%20knowledge&tags=story&hitsperpage=15:
+    content_hash: sha256:ed393d6af1d33c4f
+    stored_at: data/staging/webfetch-tacit-knowledge-stories-from-hacker-news-2026-06-29_11-01-52.md
+    importance_score: 84
+    last_updated: '2026-06-29T11:01:52.041011+00:00'
+    title: Tacit Knowledge Stories from Hacker News
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tacit%20knowledge&tags=story&hitsPerPage=15
+  https://news.ycombinator.com/item?id=29531947:
+    content_hash: sha256:5d2bd801f18dca35
+    stored_at: data/staging/webfetch-summary-of-tacit-knowledge-vs-deliberate-practice-2026-06-29_11-02-07.md
+    importance_score: 81
+    last_updated: '2026-06-29T11:02:07.459761+00:00'
+    title: Summary of Tacit Knowledge vs. Deliberate Practice Discussion
+    maturity: growing
+    routing_type: meta
+    url: https://news.ycombinator.com/item?id=29531947
+  https://news.crunchbase.com/venture/cloneable-cloning-expert-worker-knowledge-ai-infrastructure:
+    content_hash: sha256:52495de584354d36
+    stored_at: data/staging/webfetch-cloneable-expert-knowledge-automation-platform-2026-06-29_11-02-14.md
+    importance_score: 81
+    last_updated: '2026-06-29T11:02:14.260625+00:00'
+    title: 'Cloneable: Expert Knowledge Automation Platform'
+    maturity: growing
+    routing_type: meta
+    url: https://news.crunchbase.com/venture/cloneable-cloning-expert-worker-knowledge-ai-infrastructure/
+  ? https://export.arxiv.org/api/query?search_query=all:tacit+knowledge+capture+skilled+workers&max_results=10&sortby=relevance
+  : content_hash: sha256:017828b7515f5de2
+    stored_at: data/staging/webfetch-arxiv-papers-extracted-2026-06-29_11-02-23.md
+    importance_score: 85
+    last_updated: '2026-06-29T11:02:23.323105+00:00'
+    title: arXiv Papers Extracted
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:tacit+knowledge+capture+skilled+workers&max_results=10&sortBy=relevance
+  https://github.com/obsidianmd/obsidian-clipper:
+    content_hash: sha256:1718abc1bf9a799f
+    stored_at: data/staging/webfetch-obsidian-web-clipper-project-summary-2026-06-29_11-02-27.md
+    importance_score: 100
+    last_updated: '2026-06-29T11:02:27.694854+00:00'
+    title: Obsidian Web Clipper - Project Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/obsidianmd/obsidian-clipper
+  https://github.com/gildas-lormeau/singlefile:
+    content_hash: sha256:5d4fbcc4004f0704
+    stored_at: data/staging/webfetch-singlefile-project-summary-2026-06-29_11-02-28.md
+    importance_score: 100
+    last_updated: '2026-06-29T11:02:28.436559+00:00'
+    title: SingleFile Project Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/gildas-lormeau/SingleFile
+  https://github.com/pimzino/openscribe:
+    content_hash: sha256:37c39c4239e29898
+    stored_at: data/staging/webfetch-stepsnap-analysis-2026-06-29_11-02-30.md
+    importance_score: 100
+    last_updated: '2026-06-29T11:02:30.951024+00:00'
+    title: StepSnap Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Pimzino/OpenScribe
+  https://hn.algolia.com/api/v1/search?query=deskless%20frontline%20worker&tags=story&hitsperpage=10:
+    content_hash: sha256:3233f25568b15a14
+    stored_at: data/staging/webfetch-search-results-2026-06-29_11-02-43.md
+    importance_score: 84
+    last_updated: '2026-06-29T11:02:43.167490+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=deskless%20frontline%20worker&tags=story&hitsPerPage=10
+  ? https://export.arxiv.org/api/query?search_query=all:deskless+frontline+worker+technology+adoption+documentation&max_results=8&sortby=relevance
+  : content_hash: sha256:4bda603e5b282ea7
+    stored_at: data/staging/webfetch-arxiv-paper-extraction-2026-06-29_11-02-44.md
+    importance_score: 85
+    last_updated: '2026-06-29T11:02:44.826925+00:00'
+    title: arXiv Paper Extraction
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:deskless+frontline+worker+technology+adoption+documentation&max_results=8&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:ar+work+instructions+manufacturing+wearable+capture&max_results=8&sortby=relevance
+  : content_hash: sha256:2a92ba09f00831bd
+    stored_at: data/staging/webfetch-extracted-paper-entries-2026-06-29_11-02-44.md
+    importance_score: 85
+    last_updated: '2026-06-29T11:02:44.990617+00:00'
+    title: Extracted Paper Entries
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:AR+work+instructions+manufacturing+wearable+capture&max_results=8&sortBy=relevance
+  https://github.com/usememos/memos:
+    content_hash: sha256:2ce9181ca7343389
+    stored_at: data/staging/webfetch-memos-project-overview-2026-06-29_11-02-49.md
+    importance_score: 100
+    last_updated: '2026-06-29T11:02:49.258031+00:00'
+    title: Memos Project Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/usememos/memos
+  ? https://export.arxiv.org/api/query?search_query=all:llm+procedural+knowledge+sop+field+notes+structuring&max_results=8&sortby=relevance
+  : content_hash: sha256:328c1181c304cd19
+    stored_at: data/staging/webfetch-extracted-arxiv-papers-2026-06-29_11-02-51.md
+    importance_score: 85
+    last_updated: '2026-06-29T11:02:51.740562+00:00'
+    title: Extracted ArXiv Papers
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:LLM+procedural+knowledge+SOP+field+notes+structuring&max_results=8&sortBy=relevance
+  https://hn.algolia.com/api/v1/search?query=web%20clipper%20note%20capture&tags=story&hitsperpage=10:
+    content_hash: sha256:459d4d440084a5a5
+    stored_at: data/staging/webfetch-search-results-web-clipper-note-capture-tools-2026-06-29_11-02-54.md
+    importance_score: 84
+    last_updated: '2026-06-29T11:02:54.178355+00:00'
+    title: 'Search Results: Web Clipper / Note Capture Tools'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=web%20clipper%20note%20capture&tags=story&hitsPerPage=10
+  https://github.com/getodk/collect:
+    content_hash: sha256:4110cd0bc1f32f1f
+    stored_at: data/staging/webfetch-odk-collect-analysis-2026-06-29_11-02-59.md
+    importance_score: 100
+    last_updated: '2026-06-29T11:02:59.762710+00:00'
+    title: ODK Collect - Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/getodk/collect
+  https://github.com/webclipper/web-clipper:
+    content_hash: sha256:856069a5d68ddb3b
+    stored_at: data/staging/webfetch-web-clipper-analysis-2026-06-29_11-03-00.md
+    importance_score: 100
+    last_updated: '2026-06-29T11:03:00.117918+00:00'
+    title: Web Clipper Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/webclipper/web-clipper
+  https://github.com/umer-khan-0001/autosop:
+    content_hash: sha256:e0a5fc377629cff9
+    stored_at: data/staging/webfetch-autosop-project-analysis-2026-06-29_11-03-01.md
+    importance_score: 100
+    last_updated: '2026-06-29T11:03:01.428568+00:00'
+    title: AutoSOP Project Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/umer-khan-0001/autosop
+  ? https://export.arxiv.org/api/query?search_query=all:%22situated+learning%22+or+%22cognitive+apprenticeship%22+knowledge+transfer&max_results=8&sortby=relevance
+  : content_hash: sha256:be5d860c1abe86cd
+    stored_at: data/staging/webfetch-arxiv-papers-extract-2026-06-29_11-03-17.md
+    importance_score: 85
+    last_updated: '2026-06-29T11:03:17.539584+00:00'
+    title: ArXiv Papers Extract
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:%22situated+learning%22+OR+%22cognitive+apprenticeship%22+knowledge+transfer&max_results=8&sortBy=relevance
+  https://github.com/silverstein/minutes:
+    content_hash: sha256:5e6fe8630cc95019
+    stored_at: data/staging/webfetch-minutes-github-repository-analysis-2026-06-29_11-03-17.md
+    importance_score: 100
+    last_updated: '2026-06-29T11:03:17.647098+00:00'
+    title: Minutes GitHub Repository Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/silverstein/minutes
+  https://github.com/nriver/trilium-web-clipper-plus:
+    content_hash: sha256:b315c835e725cdf9
+    stored_at: data/staging/webfetch-trilium-web-clipper-plus-project-analysis-2026-06-29_11-03-17.md
+    importance_score: 100
+    last_updated: '2026-06-29T11:03:17.764324+00:00'
+    title: Trilium Web Clipper Plus - Project Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Nriver/trilium-web-clipper-plus
+  https://www.enableeducation.com/the-learning-curve/the-top-3-challenges-facing-the-skilled-trades:
+    content_hash: sha256:97ddefead716a1a9
+    stored_at: data/staging/webfetch-top-challenges-in-skilled-trades-2026-06-29_11-03-20.md
+    importance_score: 81
+    last_updated: '2026-06-29T11:03:20.387073+00:00'
+    title: Top Challenges in Skilled Trades
+    maturity: growing
+    routing_type: meta
+    url: https://www.enableeducation.com/the-learning-curve/the-top-3-challenges-facing-the-skilled-trades
+  https://www.dozuki.com/blog/how-to-capture-expert-knowledge-before-its-lost:
+    content_hash: sha256:bac4976dd73a8a02
+    stored_at: data/staging/webfetch-capturing-expert-knowledge-the-challenge-and-2026-06-29_11-03-20.md
+    importance_score: 81
+    last_updated: '2026-06-29T11:03:20.549789+00:00'
+    title: 'Capturing Expert Knowledge: The Challenge and Solutions'
+    maturity: growing
+    routing_type: meta
+    url: https://www.dozuki.com/blog/how-to-capture-expert-knowledge-before-its-lost
+  https://www.getresq.com/nora/nora-blog/field-notes-app:
+    content_hash: sha256:375d41ba27074943
+    stored_at: data/staging/webfetch-how-field-technicians-capture-notes-today-2026-06-29_11-03-32.md
+    importance_score: 81
+    last_updated: '2026-06-29T11:03:32.834508+00:00'
+    title: How Field Technicians Capture Notes Today
+    maturity: growing
+    routing_type: meta
+    url: https://www.getresq.com/nora/nora-blog/field-notes-app
+  https://link.springer.com/article/10.1007/s44163-022-00020-w:
+    content_hash: sha256:c7fc929be2def9e1
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-06-29_11-05-12.md
+    importance_score: 81
+    last_updated: '2026-06-29T11:05:12.126255+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://link.springer.com/article/10.1007/s44163-022-00020-w
+  https://arxiv.org/abs/2403.06252:
+    content_hash: sha256:e100b06a1cf28e29
+    stored_at: data/staging/webfetch-research-paper-summary-2026-06-29_11-05-19.md
+    importance_score: 92
+    last_updated: '2026-06-29T11:05:19.840731+00:00'
+    title: Research Paper Summary
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/2403.06252
+  https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2019.02730/full:
+    content_hash: sha256:bfb3e0ba229c6119
+    stored_at: data/staging/webfetch-citation-information-2026-06-29_11-05-20.md
+    importance_score: 81
+    last_updated: '2026-06-29T11:05:20.314529+00:00'
+    title: Citation Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2019.02730/full
+  https://arxiv.org/abs/2605.07639:
+    content_hash: sha256:9742f5c7710c0237
+    stored_at: data/staging/webfetch-tacit-knowledge-extraction-research-summary-2026-06-29_11-05-21.md
+    importance_score: 92
+    last_updated: '2026-06-29T11:05:21.655842+00:00'
+    title: Tacit Knowledge Extraction Research Summary
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/2605.07639
+hashes:
+  sha256:defa2d20e139fcd5: data/staging/webfetch-tribal-knowledge-stories-from-hacker-news-2026-06-29_11-01-51.md
+  sha256:ed393d6af1d33c4f: data/staging/webfetch-tacit-knowledge-stories-from-hacker-news-2026-06-29_11-01-52.md
+  sha256:5d2bd801f18dca35: data/staging/webfetch-summary-of-tacit-knowledge-vs-deliberate-practice-2026-06-29_11-02-07.md
+  sha256:52495de584354d36: data/staging/webfetch-cloneable-expert-knowledge-automation-platform-2026-06-29_11-02-14.md
+  sha256:017828b7515f5de2: data/staging/webfetch-arxiv-papers-extracted-2026-06-29_11-02-23.md
+  sha256:1718abc1bf9a799f: data/staging/webfetch-obsidian-web-clipper-project-summary-2026-06-29_11-02-27.md
+  sha256:5d4fbcc4004f0704: data/staging/webfetch-singlefile-project-summary-2026-06-29_11-02-28.md
+  sha256:37c39c4239e29898: data/staging/webfetch-stepsnap-analysis-2026-06-29_11-02-30.md
+  sha256:3233f25568b15a14: data/staging/webfetch-search-results-2026-06-29_11-02-43.md
+  sha256:4bda603e5b282ea7: data/staging/webfetch-arxiv-paper-extraction-2026-06-29_11-02-44.md
+  sha256:2a92ba09f00831bd: data/staging/webfetch-extracted-paper-entries-2026-06-29_11-02-44.md
+  sha256:2ce9181ca7343389: data/staging/webfetch-memos-project-overview-2026-06-29_11-02-49.md
+  sha256:328c1181c304cd19: data/staging/webfetch-extracted-arxiv-papers-2026-06-29_11-02-51.md
+  sha256:459d4d440084a5a5: data/staging/webfetch-search-results-web-clipper-note-capture-tools-2026-06-29_11-02-54.md
+  sha256:4110cd0bc1f32f1f: data/staging/webfetch-odk-collect-analysis-2026-06-29_11-02-59.md
+  sha256:856069a5d68ddb3b: data/staging/webfetch-web-clipper-analysis-2026-06-29_11-03-00.md
+  sha256:e0a5fc377629cff9: data/staging/webfetch-autosop-project-analysis-2026-06-29_11-03-01.md
+  sha256:be5d860c1abe86cd: data/staging/webfetch-arxiv-papers-extract-2026-06-29_11-03-17.md
+  sha256:5e6fe8630cc95019: data/staging/webfetch-minutes-github-repository-analysis-2026-06-29_11-03-17.md
+  sha256:b315c835e725cdf9: data/staging/webfetch-trilium-web-clipper-plus-project-analysis-2026-06-29_11-03-17.md
+  sha256:97ddefead716a1a9: data/staging/webfetch-top-challenges-in-skilled-trades-2026-06-29_11-03-20.md
+  sha256:bac4976dd73a8a02: data/staging/webfetch-capturing-expert-knowledge-the-challenge-and-2026-06-29_11-03-20.md
+  sha256:375d41ba27074943: data/staging/webfetch-how-field-technicians-capture-notes-today-2026-06-29_11-03-32.md
+  sha256:c7fc929be2def9e1: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-06-29_11-05-12.md
+  sha256:e100b06a1cf28e29: data/staging/webfetch-research-paper-summary-2026-06-29_11-05-19.md
+  sha256:bfb3e0ba229c6119: data/staging/webfetch-citation-information-2026-06-29_11-05-20.md
+  sha256:9742f5c7710c0237: data/staging/webfetch-tacit-knowledge-extraction-research-summary-2026-06-29_11-05-21.md
