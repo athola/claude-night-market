@@ -45,15 +45,38 @@ Caveats).
 
 ## Measuring activation lift
 
-Measure the activation lift the way the research does (Scott Spence):
+`measure_activation.py` implements the Scott Spence methodology against
+a labelled prompt set (`activation_cases.json`):
 
-1. Baseline: run prompts that should trigger a skill through
-   `claude -p --output-format stream-json --max-turns 1
-   --allowedTools Skill` and count how often a `Skill()` event fires.
-2. Treatment: repeat with the hook enabled.
-3. Compare the activation rate. Include true-negative prompts
-   (queries that should not trigger a skill) so a 100% rate is not
-   vanity.
+1. Baseline: run each prompt through `claude -p --output-format
+   stream-json --max-turns 1 --allowedTools Skill` with the hook off and
+   count how often the expected `Skill()` event fires.
+2. Treatment: repeat with the forced-eval hook wired via a temp
+   `--settings` file.
+3. Compare the activation rate (positives) and false-activation rate
+   (true-negatives, so a high positive rate is not vanity). The paired
+   McNemar test reports whether the lift is significant.
+
+Run it:
+
+    # Dry run: prints the planned commands and token cost, spends nothing
+    uv run python measure_activation.py
+
+    # Live run: invokes claude per case x 2 conditions (spends tokens).
+    # Point --root at the plugin tree whose skills you want listed.
+    uv run python measure_activation.py --live \
+        --root "$PWD/../../plugins/superpowers" --repeats 3
+
+Results (JSON + a markdown report) land under `results/`. The dataset is
+deliberately small; expand `activation_cases.json` before trusting the
+rates. The pure scoring/parsing logic is unit-tested in
+`test_measure_activation.py` (14 tests).
+
+Caveat the harness cannot fix: `forced_eval.py` lists skill *names*
+under one `--root` tree. A real comparison against the full ~198-skill
+ecosystem needs the production hook to scope names to plausibly-relevant
+skills first (see Caveats), or the treatment condition just floods
+context with one plugin's names.
 
 ## Caveats
 
