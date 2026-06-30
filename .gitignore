@@ -147,3 +147,6 @@ docs/refinement/
 
 # ephemeral dogfooding/review reports; fold durable lessons into docs/, not source
 reports/
+
+# knowledge-intake audit log; regenerated locally, mapping lives in palace frontmatter
+docs/curation-log.md
