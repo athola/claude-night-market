@@ -367,11 +367,18 @@ repos:
       - id: requirements-txt-fixer
 
   - repo: https://github.com/pycqa/bandit
-    rev: 1.9.4
+    # 1.8.6 is the last release supporting Python 3.9 (1.9.0+ require
+    # >=3.10); the system interpreter here is 3.9.6. Pin the hook env
+    # too so pip does not pull a 3.10-only bandit into the venv.
+    rev: 1.8.6
     hooks:
       - id: bandit
         args: ["-c", "pyproject.toml", "-r", "plugins/"]
-        additional_dependencies: ["bandit[toml]"]
+        # The pinned rev controls the bandit version; this only adds the
+        # `toml` extra (tomli) so bandit can read pyproject.toml config.
+        # Re-requesting bandit[toml] here would conflict with the cloned
+        # hook repo's own bandit install.
+        additional_dependencies: ["tomli"]
         exclude: \.venv/|\.uv-cache/|__pycache__/|node_modules/|\.egg-info/
 
   # =================================================================

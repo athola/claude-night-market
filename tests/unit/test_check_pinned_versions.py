@@ -237,6 +237,55 @@ class TestMain:
         assert "v4" in err and "v5.0.0" in err
 
     @pytest.mark.unit
+    def test_held_back_pin_does_not_block(self, monkeypatch, capsys):
+        """
+        GIVEN a behind pin listed in HELD_BACK while blocking mode is on
+        WHEN main runs
+        THEN it exits 0 (the deliberate hold is honored, not blocked)
+        AND stdout records the hold with both versions
+        """
+        monkeypatch.setattr(
+            cpv,
+            "collect_pins",
+            lambda: [("pycqa/bandit", "1.8.6", "pre-commit")],
+        )
+        monkeypatch.setattr(cpv, "latest_github_tag", lambda _repo: "1.9.4")
+        monkeypatch.setattr(cpv, "OUTDATED_IS_BLOCKING", True)
+        monkeypatch.setattr(cpv, "HELD_BACK", {"pycqa/bandit": "py3.9 floor"})
+        assert cpv.main() == 0
+        out = capsys.readouterr().out
+        assert "holding pycqa/bandit" in out
+        assert "1.8.6" in out and "1.9.4" in out
+
+    @pytest.mark.unit
+    def test_hold_does_not_mask_other_behind_pins(self, monkeypatch, capsys):
+        """
+        GIVEN one held-back pin and one ordinary pin, both behind upstream
+        WHEN main runs in blocking mode
+        THEN it still exits 1 for the ordinary pin
+        AND only the ordinary pin appears in the blocking notice
+        """
+        monkeypatch.setattr(
+            cpv,
+            "collect_pins",
+            lambda: [
+                ("pycqa/bandit", "1.8.6", "pre-commit"),
+                ("actions/checkout", "v4", "ci"),
+            ],
+        )
+        monkeypatch.setattr(
+            cpv,
+            "latest_github_tag",
+            lambda repo: "1.9.4" if repo == "pycqa/bandit" else "v5.0.0",
+        )
+        monkeypatch.setattr(cpv, "OUTDATED_IS_BLOCKING", True)
+        monkeypatch.setattr(cpv, "HELD_BACK", {"pycqa/bandit": "py3.9 floor"})
+        assert cpv.main() == 1
+        err = capsys.readouterr().err
+        assert "actions/checkout" in err
+        assert "pycqa/bandit" not in err
+
+    @pytest.mark.unit
     def test_behind_advisory_exits_zero(self, monkeypatch, capsys):
         """
         GIVEN a behind pin while advisory (non-blocking) mode is set

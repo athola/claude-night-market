@@ -43,6 +43,16 @@ PRECOMMIT_CONFIG = ".pre-commit-config.yaml"
 WORKFLOWS_DIR = ".github/workflows"
 OUTDATED_IS_BLOCKING = True
 
+# Pins deliberately held behind upstream, repo -> reason. main() reports
+# these as informational holds instead of blocking: bumping them would break
+# a hard constraint. Remove an entry once its constraint lifts.
+HELD_BACK = {
+    "pycqa/bandit": (
+        "1.9.0+ requires Python >=3.10; the supported interpreter floor is "
+        "3.9.6 (see .pre-commit-config.yaml)"
+    ),
+}
+
 # uses: owner/repo[/subpath]@ref  -- skip ./local and docker:// actions.
 _USES_RE = re.compile(
     r"""uses:\s*['"]?
@@ -210,6 +220,14 @@ def main() -> int:
             continue
         if is_behind(pinned, latest):
             behind.append((repo, pinned, latest, source))
+
+    held = [item for item in behind if item[0] in HELD_BACK]
+    behind = [item for item in behind if item[0] not in HELD_BACK]
+    for repo, pinned, latest, _source in held:
+        print(
+            f"check_pinned_versions: holding {repo} at {pinned} "
+            f"(latest {latest}): {HELD_BACK[repo]}"
+        )
 
     if not behind:
         checked = len(pins) - skipped
