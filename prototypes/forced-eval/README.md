@@ -96,4 +96,4 @@ context with one plugin's names.
   https://scottspence.com/posts/measuring-claude-code-skill-activation-with-sandboxed-evals
 - shimo4228, skill sprawl and the Discovery character budget
   https://dev.to/shimo4228/15-days-of-skill-sprawl-in-claude-code-lessons-from-3-audits-27em
-- Background: `reports/dogfooding-feature-review-2026-06-28.md`
+- Background: `docs/quality-gates.md` ("Dogfooding Harness Lessons")

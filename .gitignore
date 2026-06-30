@@ -144,3 +144,6 @@ clawhub/
 
 # transient code-refinement synthesis artifacts (local eval, not source)
 docs/refinement/
+
+# ephemeral dogfooding/review reports; fold durable lessons into docs/, not source
+reports/

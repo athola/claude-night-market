@@ -7,11 +7,10 @@ I want plugin-check to surface real defects instead of hiding them
 So that a green run is trustworthy
 
 These are invariant-encoding tests (test-updates Phase 2.5). Each one
-encodes a fix from the 2026-06-28 feature review
-(reports/dogfooding-feature-review-2026-06-28.md, findings F-A..F-G).
-They would have failed against the pre-fix code and now pass. If one
-fails, someone reverted a fix: read the matching finding in the report
-before changing the assertion.
+encodes a fix from the 2026-06-28 dogfooding pass, distilled in
+docs/quality-gates.md ("Dogfooding Harness Lessons"). They would have
+failed against the pre-fix code and now pass. If one fails, someone
+reverted a fix: read that section before changing the assertion.
 """
 
 from __future__ import annotations
