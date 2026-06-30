@@ -16,6 +16,7 @@ before changing the assertion.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -66,9 +67,12 @@ def test_root_plugin_check_bounds_each_plugin() -> None:
     WHEN one plugin's check hangs
     THEN a per-plugin timeout must bound it so the run cannot stall
     """
-    assert "timeout 180" in _read("Makefile"), (
-        "per-plugin timeout removed from root plugin-check loop (finding F-G)"
-    )
+    # Assert the invariant (each per-plugin check is time-bounded), not the
+    # specific number: ``timeout 240`` would still satisfy it. The pattern
+    # binds the timeout to the per-plugin make invocation in the loop.
+    assert re.search(
+        r"timeout \d+ \$\(MAKE\) -C \$\$plugin plugin-check", _read("Makefile")
+    ), "per-plugin timeout removed from root plugin-check loop (finding F-G)"
 
 
 def test_scribe_test_does_not_mask_pytest_failures() -> None:

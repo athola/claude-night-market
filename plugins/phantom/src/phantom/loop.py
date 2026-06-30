@@ -186,12 +186,23 @@ class ClientSetup:
     beta_flag: str
 
 
+@dataclass(frozen=True)
+class IterationConfig:
+    """Immutable configuration shared across a run's iterations.
+
+    Kept separate from the mutable trackers in ``IterationContext`` so the
+    two concerns no longer share one bag: only ``_process_iteration`` reads
+    config, while ``_run_tool_block`` touches trackers alone.
+    """
+
+    loop_config: LoopConfig
+    display_config: DisplayConfig
+
+
 @dataclass
 class IterationContext:
-    """Collaborators shared across a single agent-loop iteration."""
+    """Mutable collaborators shared across a single agent-loop iteration."""
 
-    config: LoopConfig
-    d_config: DisplayConfig
     cost_tracker: CostTracker
     action_filter: ActionFilter
     gate: ConfirmationGate
@@ -257,6 +268,7 @@ def _run_tool_block(
 
 
 def _process_iteration(
+    cfg: IterationConfig,
     ctx: IterationContext,
     client_setup: ClientSetup,
     messages: list[dict[str, Any]],
@@ -271,19 +283,20 @@ def _process_iteration(
         logger.warning("Budget exceeded: %s", ctx.cost_tracker.summary())
         return "budget_exceeded"
 
+    loop_config = cfg.loop_config
     kwargs: dict[str, Any] = {
-        "model": ctx.config.model,
-        "max_tokens": ctx.config.max_tokens,
+        "model": loop_config.model,
+        "max_tokens": loop_config.max_tokens,
         "messages": messages,
         "tools": client_setup.tools,
         "betas": [client_setup.beta_flag],
     }
-    if ctx.config.system_prompt:
-        kwargs["system"] = ctx.config.system_prompt
-    if ctx.config.thinking_budget:
+    if loop_config.system_prompt:
+        kwargs["system"] = loop_config.system_prompt
+    if loop_config.thinking_budget:
         kwargs["thinking"] = {
             "type": "enabled",
-            "budget_tokens": ctx.config.thinking_budget,
+            "budget_tokens": loop_config.thinking_budget,
         }
 
     response = client_setup.client.beta.messages.create(**kwargs)
@@ -293,8 +306,8 @@ def _process_iteration(
         input_tokens=getattr(usage, "input_tokens", 0) if usage else 0,
         output_tokens=getattr(usage, "output_tokens", 0) if usage else 0,
         screenshot_tokens_est=estimate_screenshot_tokens(
-            ctx.d_config.width,
-            ctx.d_config.height,
+            cfg.display_config.width,
+            cfg.display_config.height,
         ),
     )
 
@@ -358,9 +371,8 @@ def run_loop(
     beta_flag = get_beta_flag(tool_version)
     tools = build_tools(config, d_config)
 
+    iter_config = IterationConfig(loop_config=config, display_config=d_config)
     ctx = IterationContext(
-        config=config,
-        d_config=d_config,
         cost_tracker=cost_tracker,
         action_filter=action_filter,
         gate=gate,
@@ -378,7 +390,9 @@ def run_loop(
         result.iterations = iteration + 1
         logger.info("Iteration %d/%d", iteration + 1, config.max_iterations)
 
-        stop_reason = _process_iteration(ctx, client_setup, messages, result)
+        stop_reason = _process_iteration(
+            iter_config, ctx, client_setup, messages, result
+        )
         if stop_reason is not None:
             result.stopped_reason = stop_reason
             break

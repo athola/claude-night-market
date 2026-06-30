@@ -58,6 +58,12 @@ def _read_payload() -> dict[str, Any]:
     Falls back to the legacy ``CLAUDE_TOOL_NAME`` / ``CLAUDE_TOOL_INPUT``
     environment variables when stdin is empty, so the existing test
     harness and any older callers keep working.
+
+    Sync note: this stdin-unless-tty / decode-or-warn / env-fallback shape is
+    duplicated by ``sanctum/hooks/deferred_item_watcher.read_payload`` and
+    ``abstract/hooks/shared/hook_io.read_hook_payload``. Plugin isolation
+    forbids a cross-plugin import, so the three copies must be changed
+    together.
     """
     raw = ""
     try:

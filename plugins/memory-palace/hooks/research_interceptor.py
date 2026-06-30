@@ -28,7 +28,7 @@ from shared.query_classifier import (
     is_evergreen,  # noqa: F401 - re-export
     needs_freshness,  # noqa: F401 - re-export
 )
-from shared.telemetry import emit_telemetry_event as _emit_telemetry
+from shared.telemetry import emit_telemetry_event
 
 logger = logging.getLogger(__name__)
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
@@ -157,24 +157,6 @@ class TelemetryContext:
     latency_ms: int
 
 
-def emit_telemetry_event(
-    telemetry_logger: TelemetryLogger | None,
-    ctx: TelemetryContext,
-) -> None:
-    """Best-effort telemetry emission."""
-    _emit_telemetry(
-        telemetry_logger,
-        query_id=ctx.query_id,
-        query=ctx.query,
-        tool_name=ctx.tool_name,
-        mode=ctx.mode,
-        decision=ctx.decision,
-        results=ctx.results,
-        latency_ms=ctx.latency_ms,
-        ResearchTelemetryEvent=ResearchTelemetryEvent,
-    )
-
-
 def main() -> None:
     """Intercept research requests through the hook."""
     try:
@@ -261,6 +243,7 @@ def main() -> None:
             results=results,
             latency_ms=latency_ms,
         ),
+        ResearchTelemetryEvent=ResearchTelemetryEvent,
     )
     queue_for_intake(
         PLUGIN_ROOT,

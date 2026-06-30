@@ -1202,6 +1202,23 @@ class TestViewportDataclass:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_viewport_rejects_non_positive_geometry(self) -> None:
+        """Scenario: a non-positive viewport is unrepresentable.
+
+        GIVEN cols or rows below 1 (textwrap raises at width 0)
+        WHEN constructing a Viewport
+        THEN a ValueError is raised at construction
+        AND illegal terminal geometry cannot reach the wrapping code
+        """
+        with pytest.raises(ValueError, match="cols >= 1 and rows >= 1"):
+            Viewport(cols=0)
+        with pytest.raises(ValueError, match="cols >= 1 and rows >= 1"):
+            Viewport(rows=0)
+        with pytest.raises(ValueError, match="cols >= 1 and rows >= 1"):
+            Viewport(cols=-5, rows=10)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_default_viewport_wraps_at_80_cols(self, tmp_path: Path) -> None:
         """Scenario: parse_session with no viewport wraps at exactly 80 columns.
 

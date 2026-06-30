@@ -196,6 +196,22 @@ class TestIsBehind:
         """
         assert cpv.is_behind("v9", "v10") is True
 
+    @pytest.mark.unit
+    def test_sha_pin_is_never_behind(self):
+        """
+        GIVEN a commit-SHA action pin (the GitHub-recommended secure form)
+        WHEN is_behind compares it against a dotted release tag
+        THEN it is reported current, not behind
+        AND a SHA whose leading hex run is below the upstream major cannot
+            wedge a commit under blocking mode
+        """
+        assert (
+            cpv.is_behind("0a1b2c3d4e5f60718293a4b5c6d7e8f901234567", "v4.2.2") is False
+        )
+        assert cpv.is_behind("abc1234", "v9.9.9") is False
+        # A real dotted tag is still compared normally.
+        assert cpv.is_behind("v3.0.0", "v4.0.0") is True
+
 
 class TestMain:
     """Scenario: blocking by default; skip cleanly when unresolvable."""

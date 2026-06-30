@@ -96,13 +96,27 @@ def _as_tuple(version: str) -> tuple[int, ...]:
     return tuple(int(n) for n in re.findall(r"\d+", version))
 
 
+# A commit SHA pin (uses: owner/repo@0a1b2c3...), the GitHub-recommended
+# secure form: 7-40 hex chars with no dotted version structure. These are
+# not comparable as versions, so is_behind() must skip them rather than
+# read their leading hex run as a major number.
+_SHA_RE = re.compile(r"^[0-9a-f]{7,40}$")
+
+
+def _is_sha(ref: str) -> bool:
+    return "." not in ref and bool(_SHA_RE.fullmatch(ref))
+
+
 def is_behind(pinned: str, latest: str) -> bool:
     """True when ``latest`` exceeds ``pinned`` at the pin's granularity.
 
     The latest version is truncated to the number of numeric components in
     the pin, so ``@v4`` compares major-only while ``v6.0.0`` compares the
-    full triple.
+    full triple. SHA-pinned refs are never "behind": a commit SHA is not a
+    version, so it is skipped rather than mis-parsed as one.
     """
+    if _is_sha(pinned):
+        return False
     pinned_parts = _as_tuple(pinned)
     if not pinned_parts:
         return False

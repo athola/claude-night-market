@@ -19,6 +19,13 @@ class DecisionDeps:
 
     The hook owns the real enum/model classes; the decision engine takes
     them as data so it never imports back into the hook package.
+
+    ``Any`` is deliberate and not replaceable by a ``Protocol`` here: each
+    field (except ``novelty_by_redundancy``) holds a *class/enum object*
+    rather than an instance, and the engine calls it as a constructor or
+    reads its members. A ``Protocol`` describes instance shape, not the type
+    object, so it cannot constrain these. Importing the concrete classes to
+    type them is exactly the circular import this seam exists to break.
     """
 
     CacheInterceptDecision: Any

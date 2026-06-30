@@ -41,7 +41,7 @@ class LogEntry:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
-@dataclass
+@dataclass(frozen=True)
 class UsageEvent:
     """Call-time fields for a single ``log_usage`` invocation.
 

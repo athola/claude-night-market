@@ -181,6 +181,10 @@ def read_payload() -> dict:
     Falls back to the legacy ``CLAUDE_TOOL_*`` environment variables when
     stdin is empty, so the existing test harness and older callers keep
     working.
+
+    Sync note: parallels ``leyline/hooks/noqa_guard._read_payload`` and
+    ``abstract/hooks/shared/hook_io.read_hook_payload``. Plugin isolation
+    forbids a cross-plugin import, so the three copies must change together.
     """
     raw = ""
     try:
@@ -192,7 +196,14 @@ def read_payload() -> dict:
     if raw.strip():
         try:
             payload = json.loads(raw)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as exc:
+            # Warn so a real ingestion failure is not silently identical to a
+            # non-watched skill: the env-var fallback below is empty on a real
+            # PostToolUse invocation, so a swallowed decode error would skip
+            # capture with no signal. Mirrors noqa_guard's stderr behavior.
+            sys.stderr.write(
+                f"deferred_item_watcher: ignoring malformed stdin JSON: {exc}\n"
+            )
             payload = None
         if isinstance(payload, dict):
             return payload

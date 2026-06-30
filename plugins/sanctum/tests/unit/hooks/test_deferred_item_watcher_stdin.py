@@ -100,7 +100,7 @@ def test_non_watched_skill_from_stdin_writes_nothing(
 
 
 # ---------------------------------------------------------------------------
-# OSError / ValueError on stdin read (lines 195-196)
+# OSError / ValueError on stdin read in read_payload()
 # ---------------------------------------------------------------------------
 
 
@@ -167,7 +167,7 @@ def test_invalid_json_tool_input_env_defaults_to_empty_dict(monkeypatch) -> None
 
 
 # ---------------------------------------------------------------------------
-# Invalid JSON on stdin body (lines 195-196)
+# Invalid JSON on stdin body: read_payload() decode fallback
 # ---------------------------------------------------------------------------
 
 
@@ -192,7 +192,7 @@ def test_non_json_stdin_content_falls_back_to_env(monkeypatch) -> None:
 
 
 # ---------------------------------------------------------------------------
-# _response_text() non-serializable fallback (lines 219-220)
+# _response_text() non-serializable fallback: the return str(value) branch
 # ---------------------------------------------------------------------------
 
 

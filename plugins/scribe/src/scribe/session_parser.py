@@ -319,6 +319,16 @@ class Viewport:
     cols: int = 80
     rows: int = 24
 
+    def __post_init__(self) -> None:
+        # Make illegal geometry unrepresentable: textwrap raises at width 0,
+        # so a viewport with non-positive cols/rows would break wrapping
+        # downstream rather than failing at construction.
+        if self.cols < 1 or self.rows < 1:
+            raise ValueError(
+                f"Viewport requires cols >= 1 and rows >= 1, "
+                f"got cols={self.cols}, rows={self.rows}"
+            )
+
 
 def parse_session(
     path: Path,

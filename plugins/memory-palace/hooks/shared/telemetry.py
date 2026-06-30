@@ -6,27 +6,27 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from research_interceptor import CacheInterceptDecision
+    from research_interceptor import CacheInterceptDecision, TelemetryContext
 
 logger = logging.getLogger(__name__)
 
 
-def emit_telemetry_event(  # noqa: PLR0913 - telemetry events need all context fields
+def emit_telemetry_event(
     telemetry_logger: Any | None,
+    ctx: TelemetryContext,
     *,
-    query_id: str,
-    query: str,
-    tool_name: str,
-    mode: str,
-    decision: CacheInterceptDecision,
-    results: list[dict[str, Any]],
-    latency_ms: int,
     ResearchTelemetryEvent: Any,
 ) -> None:
-    """Best-effort telemetry emission."""
+    """Best-effort telemetry emission.
+
+    Takes the ``TelemetryContext`` directly: the per-request fields travel as
+    one cohesive bundle rather than being expanded into a long kwarg list.
+    """
     if telemetry_logger is None:
         return
 
+    decision: CacheInterceptDecision = ctx.decision
+    results = ctx.results
     try:
         if decision.cached_entries:
             top_entry_id = decision.cached_entries[0].get("entry_id")
@@ -40,10 +40,10 @@ def emit_telemetry_event(  # noqa: PLR0913 - telemetry events need all context f
             duplicate_ids = "|".join(decision.intake_payload.duplicate_entry_ids)
 
         event = ResearchTelemetryEvent.build(
-            query_id=query_id,
-            query=query,
-            tool_name=tool_name,
-            mode=mode,
+            query_id=ctx.query_id,
+            query=ctx.query,
+            tool_name=ctx.tool_name,
+            mode=ctx.mode,
             decision=decision.action,
             cache_hits=len(results),
             returned_entries=len(decision.cached_entries),
@@ -53,7 +53,7 @@ def emit_telemetry_event(  # noqa: PLR0913 - telemetry events need all context f
             freshness_required=decision.freshness_required,
             evergreen_topic=decision.evergreen_topic,
             should_flag_for_intake=decision.should_flag_for_intake,
-            latency_ms=latency_ms,
+            latency_ms=ctx.latency_ms,
             novelty_score=decision.novelty_score,
             aligned_domains="|".join(decision.aligned_domains)
             if decision.aligned_domains

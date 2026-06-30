@@ -57,6 +57,12 @@ def read_hook_payload() -> dict[str, Any]:
 
     Always returns a dict with at least ``tool_name``, ``tool_input``
     (a dict), ``tool_response``, and ``session_id`` keys populated.
+
+    Sync note: parallels ``leyline/hooks/noqa_guard._read_payload`` and
+    ``sanctum/hooks/deferred_item_watcher.read_payload`` (and
+    ``tool_response_text`` below mirrors their response-to-text coercion).
+    Plugin isolation forbids a cross-plugin import, so the copies must change
+    together.
     """
     raw = ""
     try:
@@ -69,7 +75,12 @@ def read_hook_payload() -> dict[str, Any]:
     if raw.strip():
         try:
             candidate = json.loads(raw)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as exc:
+            # A corrupted payload must not be indistinguishable from an idle
+            # hook: warn before falling back to legacy env vars (which are
+            # unset on real invocations, making every consumer silently
+            # no-op). Mirrors noqa_guard._read_payload's stderr signal.
+            sys.stderr.write(f"hook_io: ignoring malformed stdin JSON: {exc}\n")
             candidate = None
         if isinstance(candidate, dict):
             payload = candidate

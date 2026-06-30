@@ -146,8 +146,11 @@ def _flag_and_build_output(
     health: SkillHealth,
     session_id: str,
 ) -> dict | None:
-    """Flag degrading skill in queue and return output dict."""
-    gap, velocity, trend = health
+    """Flag degrading skill in queue and return output dict.
+
+    Reads ``health`` fields directly rather than destructuring; the bundle is
+    constructed once at the call site and never re-exploded here.
+    """
     queue_file = claude_home / "skills" / "improvement-queue.json"
     queue = ImprovementQueue(queue_file)
 
@@ -155,10 +158,10 @@ def _flag_and_build_output(
     if entry.get("status") in ("evaluating", "pending_rollback_review"):
         return None  # caller handles None
 
-    queue.flag_skill(skill_ref, gap, session_id)
+    queue.flag_skill(skill_ref, health.gap, session_id)
 
     entry = queue.skills[skill_ref]
-    status = "critical" if gap > CRITICAL_GAP_THRESHOLD else "degrading"
+    status = "critical" if health.gap > CRITICAL_GAP_THRESHOLD else "degrading"
     trigger = queue.needs_improvement(skill_ref)
 
     # Check if metacognitive analysis is warranted
@@ -167,16 +170,16 @@ def _flag_and_build_output(
         metacognitive_needed = _needs_metacognition(claude_home)
         sys.stderr.write(
             f"HOMEOSTATIC: {skill_ref} flagged {entry['flagged_count']}x "
-            f"(gap={gap:.2f}), improvement eligible"
+            f"(gap={health.gap:.2f}), improvement eligible"
             f"{' [metacognitive recommended]' if metacognitive_needed else ''}\n"
         )
 
     return _build_output(
         skill_ref,
-        gap,
+        health.gap,
         status,
-        velocity,
-        trend,
+        health.velocity,
+        health.trend,
         flagged_count=entry["flagged_count"],
         improvement_triggered=trigger,
         metacognitive_needed=metacognitive_needed,

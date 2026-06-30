@@ -453,6 +453,100 @@ def test_generate_recommendations_covers_branches(tmp_path):
     assert "long tests" in joined.lower() or "smaller" in joined.lower()
 
 
+def _clean_results(dynamic: dict) -> dict:
+    """Results with no static issues and clean metrics, parameterized dynamic."""
+    return {
+        "static_analysis": {
+            "structure_issues": [],
+            "naming_issues": [],
+            "assertion_issues": [],
+            "bdd_compliance": [],
+            "documentation": [],
+        },
+        "dynamic_validation": dynamic,
+        "metrics": {
+            "test_count": 5,
+            "assertion_count": 5,
+            "average_test_length": 10,
+            "complexity_score": 0,
+            "documentation_ratio": 1.0,
+        },
+    }
+
+
+def test_recommendations_omit_fix_tests_when_only_exit_code_nonzero(tmp_path):
+    """A coverage-gate failure (nonzero exit, no failures) gives no fix-tests rec.
+
+    GIVEN a run with execution_result=1 but empty failures and errors
+        (the coverage gate failed while every test passed)
+    WHEN recommendations are generated
+    THEN 'Fix failing tests' is absent
+    AND this is the exact regression the failures/errors gating prevents
+    """
+    qc = _load_script()
+    c = qc.TestQualityChecker(tmp_path)
+    results = _clean_results(
+        {
+            "execution_result": 1,
+            "test_duration": 0,
+            "failures": [],
+            "errors": [],
+            "skipped": 0,
+            "passed": 5,
+        }
+    )
+    recs = c._generate_recommendations(results)
+    joined = "|".join(recs).lower()
+    assert "fix failing tests" not in joined
+
+
+def test_inconclusive_run_is_surfaced_in_score_and_recommendations(tmp_path):
+    """An inconclusive run (pytest exit >= 2) is penalized and flagged.
+
+    GIVEN a dynamic result carrying the inconclusive flag (a crashed or
+        uncollectable suite) with no recorded failures or errors
+    WHEN the score and recommendations are computed
+    THEN the score is penalized below a clean pass
+    AND a recommendation surfaces the inconclusive run
+    AND the misleading 'Fix failing tests' message is not emitted
+    """
+    qc = _load_script()
+    c = qc.TestQualityChecker(tmp_path)
+    results = _clean_results(
+        {
+            "execution_result": 4,
+            "test_duration": 0,
+            "failures": [],
+            "errors": [],
+            "skipped": 0,
+            "passed": 0,
+            "inconclusive": True,
+        }
+    )
+    score = c._calculate_overall_score(results)
+    assert score <= 80
+    recs = c._generate_recommendations(results)
+    joined = "|".join(recs).lower()
+    assert "inconclusive" in joined
+    assert "fix failing tests" not in joined
+
+
+def test_parse_report_inconclusive_flag_set_for_exit_two_plus(tmp_path):
+    """A missing report with exit >= 2 carries the inconclusive flag.
+
+    GIVEN no JSON report and a pytest exit code of 2 (interrupted)
+    WHEN the report is parsed with that fallback return code
+    THEN the result is flagged inconclusive
+    AND no synthetic failure or error is recorded
+    """
+    qc = _load_script()
+    c = qc.TestQualityChecker(tmp_path)
+    parsed = c._parse_test_report(str(tmp_path / "missing.json"), fallback_returncode=2)
+    assert parsed.get("inconclusive") is True
+    assert parsed["failures"] == 0
+    assert parsed["errors"] == 0
+
+
 # ---------------------- run_full_validation ----------------------
 
 

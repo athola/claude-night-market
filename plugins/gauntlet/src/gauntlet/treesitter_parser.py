@@ -109,6 +109,14 @@ def detect_language(file_path: str) -> str | None:
     return _EXT_TO_LANG.get(ext)
 
 
+class FileContext(NamedTuple):
+    """Invariant file context threaded unchanged through AST recursion."""
+
+    file_path: str
+    language: str
+    file_hash: str
+
+
 def parse_file(file_path: str) -> tuple[list[GraphNode], list[GraphEdge]]:
     """Parse a source file and extract nodes and edges.
 
@@ -169,14 +177,6 @@ def parse_file(file_path: str) -> tuple[list[GraphNode], list[GraphEdge]]:
 # ---------------------------------------------------------------------------
 # Recursive AST walker
 # ---------------------------------------------------------------------------
-
-
-class FileContext(NamedTuple):
-    """Invariant file context threaded unchanged through AST recursion."""
-
-    file_path: str
-    language: str
-    file_hash: str
 
 
 def _extract_from_tree(

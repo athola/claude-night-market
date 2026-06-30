@@ -13,6 +13,7 @@ from unittest.mock import MagicMock
 from phantom.display import ActionResult, DisplayConfig, DisplayToolkit
 from phantom.loop import (
     ClientSetup,
+    IterationConfig,
     IterationContext,
     LoopConfig,
     LoopHooks,
@@ -410,8 +411,6 @@ def _make_iteration_context(
         display.execute.return_value = ActionResult(success=True)
         display.take_screenshot.return_value = ActionResult(success=True)
     return IterationContext(
-        config=LoopConfig(),
-        d_config=DisplayConfig(),
         cost_tracker=cost_tracker,
         action_filter=action_filter,
         gate=gate,
@@ -420,6 +419,11 @@ def _make_iteration_context(
         stuck_policy=stuck_policy,
         hooks=LoopHooks(),
     )
+
+
+def _make_iteration_config() -> IterationConfig:
+    """Build an IterationConfig with default loop/display settings."""
+    return IterationConfig(loop_config=LoopConfig(), display_config=DisplayConfig())
 
 
 class TestRunToolBlockGateRejection:
@@ -589,7 +593,9 @@ class TestProcessIterationBudgetExceeded:
         messages: list = [{"role": "user", "content": "do a thing"}]
         result = LoopResult()
 
-        stop_reason = _process_iteration(ctx, client_setup, messages, result)
+        stop_reason = _process_iteration(
+            _make_iteration_config(), ctx, client_setup, messages, result
+        )
 
         assert stop_reason == "budget_exceeded"
         mock_client.beta.messages.create.assert_not_called()
@@ -622,7 +628,9 @@ class TestProcessIterationBudgetExceeded:
         messages: list = [{"role": "user", "content": "do a thing"}]
         result = LoopResult()
 
-        stop_reason = _process_iteration(ctx, client_setup, messages, result)
+        stop_reason = _process_iteration(
+            _make_iteration_config(), ctx, client_setup, messages, result
+        )
 
         mock_client.beta.messages.create.assert_called_once()
         assert stop_reason == "completed"
