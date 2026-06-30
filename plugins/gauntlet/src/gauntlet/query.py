@@ -13,20 +13,20 @@ def query_knowledge(
     files: list[str] | None = None,
     categories: list[str] | None = None,
     tags: list[str] | None = None,
-    min_difficulty: int = 1,
-    max_difficulty: int = 4,
+    difficulty: tuple[int, int] = (1, 4),
 ) -> list[KnowledgeEntry]:
     """Return knowledge entries matching the supplied filters.
 
-    Wraps KnowledgeStore.query() for external callers.
+    Wraps KnowledgeStore.query() for external callers. ``difficulty`` is an
+    inclusive ``(min, max)`` range.
     """
     store = KnowledgeStore(gauntlet_dir)
     return store.query(
         files=files,
         categories=categories,
         tags=tags,
-        min_difficulty=min_difficulty,
-        max_difficulty=max_difficulty,
+        min_difficulty=difficulty[0],
+        max_difficulty=difficulty[1],
     )
 
 

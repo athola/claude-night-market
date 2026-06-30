@@ -1,0 +1,71 @@
+{
+  "_comment": "Labelled prompts for forced-eval activation measurement. positive: a skill whose identifier contains one of expect[] should fire. negative: no skill should fire. Expand this set before drawing conclusions; small N gives noisy rates.",
+  "cases": [
+    {
+      "id": "pos-brainstorm",
+      "kind": "positive",
+      "prompt": "Let's build a new feature for exporting notes to PDF. Help me think through the design first.",
+      "expect": ["brainstorming"]
+    },
+    {
+      "id": "pos-debug",
+      "kind": "positive",
+      "prompt": "One of my tests started failing and I can't figure out why. Help me track it down.",
+      "expect": ["systematic-debugging"]
+    },
+    {
+      "id": "pos-drain-index",
+      "kind": "positive",
+      "prompt": "Drain the memory-palace capture index and curate the backlog.",
+      "expect": ["palace-index-curator"]
+    },
+    {
+      "id": "pos-research",
+      "kind": "positive",
+      "prompt": "Research how teams capture tacit knowledge, across GitHub, Hacker News, and arXiv.",
+      "expect": ["research"]
+    },
+    {
+      "id": "pos-commit",
+      "kind": "positive",
+      "prompt": "Write a conventional commit message for my staged changes.",
+      "expect": ["commit"]
+    },
+    {
+      "id": "pos-slop",
+      "kind": "positive",
+      "prompt": "Check this README for AI slop and vague filler before I publish it.",
+      "expect": ["slop-detector"]
+    },
+    {
+      "id": "pos-scope",
+      "kind": "positive",
+      "prompt": "Is this new feature worth adding to the current branch, or should it be deferred?",
+      "expect": ["scope-guard"]
+    },
+    {
+      "id": "neg-arithmetic",
+      "kind": "negative",
+      "prompt": "What is 2 + 2?",
+      "expect": []
+    },
+    {
+      "id": "neg-definition",
+      "kind": "negative",
+      "prompt": "Explain what a hash map is in one sentence.",
+      "expect": []
+    },
+    {
+      "id": "neg-trivia",
+      "kind": "negative",
+      "prompt": "What's the capital of France?",
+      "expect": []
+    },
+    {
+      "id": "neg-greeting",
+      "kind": "negative",
+      "prompt": "Say hello.",
+      "expect": []
+    }
+  ]
+}

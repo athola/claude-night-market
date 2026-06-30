@@ -1,6 +1,6 @@
 [project]
 name = "scribe"
-version = "1.9.13"
+version = "1.9.14"
 description = "Documentation review, cleanup, and generation with AI slop detection and style learning"
 requires-python = ">=3.10"
 dependencies = ["pyyaml"]
@@ -13,6 +13,9 @@ exclude = [
     "__pycache__",
     ".ruff_cache",
 ]
+
+[tool.ruff.lint]
+extend-select = ["PLR0913"]
 
 [dependency-groups]
 dev = [

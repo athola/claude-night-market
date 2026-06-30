@@ -39,7 +39,13 @@ class TestModelIdConstants:
     """Model IDs must be named constants, not inline strings."""
 
     def test_constants_exist_in_config_module(self) -> None:
-        """All 8 model IDs must be importable named constants."""
+        """Expose all eight model IDs as importable named constants.
+
+        GIVEN the war_room config module
+        WHEN the model ID constants are imported
+        THEN each constant equals its canonical model ID string
+        AND all eight expected models are present
+        """
         assert CLAUDE_OPUS_48 == "claude-opus-4-8"
         assert CLAUDE_SONNET_46 == "claude-sonnet-4-6"
         assert GEMINI_3_PRO == "gemini-3-pro"
@@ -50,17 +56,37 @@ class TestModelIdConstants:
         assert CLAUDE_HAIKU_45 == "claude-haiku-4-5"
 
     def test_validate_model_ids_rejects_empty_string(self) -> None:
-        """Validation must raise ValueError for any empty model ID."""
+        """Reject an empty model ID with a ValueError.
+
+        GIVEN a model ID mapping containing an empty string
+        WHEN validate_model_ids inspects it
+        THEN a ValueError is raised
+        AND the message identifies the value as empty
+        """
         with pytest.raises(ValueError, match="empty"):
             validate_model_ids({"MODEL_A": ""})
 
     def test_validate_model_ids_accepts_valid_ids(self) -> None:
-        """Validation must pass silently for non-empty strings."""
-        # Must not raise
-        validate_model_ids({"CLAUDE_OPUS_48": "claude-opus-4-8", "GLM": "glm-5.2"})
+        """Accept non-empty model IDs without raising.
+
+        GIVEN a mapping of non-empty model ID strings
+        WHEN validate_model_ids inspects it
+        THEN no exception is raised
+        AND the validator returns None on the success path
+        """
+        outcome = validate_model_ids(
+            {"CLAUDE_OPUS_48": "claude-opus-4-8", "GLM": "glm-5.2"}
+        )
+        assert outcome is None
 
     def test_experts_uses_constants_not_inline_strings(self) -> None:
-        """experts.py must reference config constants, not duplicate literals."""
+        """Reference config constants instead of inline model strings.
+
+        GIVEN the experts.py source parsed into an AST
+        WHEN its string literals are collected
+        THEN no banned inline model ID literal appears
+        AND model IDs are sourced from the config constants
+        """
         experts_path = (
             Path(__file__).parent.parent / "scripts" / "war_room" / "experts.py"
         )
@@ -102,7 +128,14 @@ class TestVerifyServiceNarrowException:
     def test_unexpected_exception_propagates_from_auth_probe(
         self, tmp_path: Path
     ) -> None:
-        """RuntimeError from auth probe must propagate, not be swallowed."""
+        """Propagate an unexpected error raised by the auth probe.
+
+        GIVEN a version check that succeeds and an auth probe that
+            raises RuntimeError
+        WHEN verify_service runs
+        THEN the RuntimeError propagates
+        AND it is not swallowed as a normal issue
+        """
         delegator = Delegator(config_dir=tmp_path)
 
         # --version call succeeds, auth status raises unexpected error
@@ -117,7 +150,14 @@ class TestVerifyServiceNarrowException:
                 delegator.verify_service("qwen")
 
     def test_timeout_is_caught_as_issue(self, tmp_path: Path) -> None:
-        """TimeoutExpired from auth probe must be caught and reported as issue."""
+        """Report an auth-probe timeout as a service issue.
+
+        GIVEN a version check that succeeds and an auth probe that
+            raises TimeoutExpired
+        WHEN verify_service runs
+        THEN the service is reported unavailable
+        AND an auth-related issue is included
+        """
         delegator = Delegator(config_dir=tmp_path)
 
         ok_result = MagicMock()
@@ -135,7 +175,14 @@ class TestVerifyServiceNarrowException:
             assert any("auth" in i.lower() for i in issues)
 
     def test_file_not_found_is_caught_as_issue(self, tmp_path: Path) -> None:
-        """FileNotFoundError from auth probe must be caught and reported as issue."""
+        """Report a missing auth binary as a service issue.
+
+        GIVEN a version check that succeeds and an auth probe that
+            raises FileNotFoundError
+        WHEN verify_service runs
+        THEN the service is reported unavailable
+        AND an auth-related issue is included
+        """
         delegator = Delegator(config_dir=tmp_path)
 
         ok_result = MagicMock()
@@ -161,7 +208,13 @@ class TestLoadConfigurationsNarrowException:
     def test_type_error_propagates_from_bad_service_config(
         self, tmp_path: Path
     ) -> None:
-        """TypeError from malformed service config must propagate."""
+        """Propagate a TypeError from a malformed service config.
+
+        GIVEN a config whose new service entry has an unknown field
+        WHEN the Delegator loads configurations
+        THEN a TypeError propagates from the construction
+        AND the malformed config is not silently swallowed
+        """
         config_file = tmp_path / "config.json"
         # Valid JSON, valid "services" dict, but ServiceConfig(**{"bad": 1})
         # will raise TypeError for unknown field.
@@ -173,7 +226,13 @@ class TestLoadConfigurationsNarrowException:
             Delegator(config_dir=tmp_path)
 
     def test_json_decode_error_is_swallowed(self, tmp_path: Path) -> None:
-        """JSONDecodeError from malformed config file must be silently skipped."""
+        """Swallow a JSONDecodeError from a malformed config file.
+
+        GIVEN a config file containing invalid JSON
+        WHEN the Delegator loads configurations
+        THEN no exception is raised
+        AND the default services remain present
+        """
         config_file = tmp_path / "config.json"
         config_file.write_text("{ invalid json }")
 
@@ -183,13 +242,58 @@ class TestLoadConfigurationsNarrowException:
         assert "gemini" in delegator.services
 
     def test_os_error_is_swallowed(self, tmp_path: Path) -> None:
-        """OSError (e.g., permission denied) must be silently skipped."""
+        """Swallow an OSError raised while reading the config.
+
+        GIVEN a config read that raises OSError (permission denied)
+        WHEN the Delegator loads configurations
+        THEN no exception is raised
+        AND the default services remain present
+        """
         config_file = tmp_path / "config.json"
         config_file.write_text(json.dumps({"services": {}}))
 
         with patch("builtins.open", side_effect=OSError("permission denied")):
             delegator = Delegator(config_dir=tmp_path)
             assert "gemini" in delegator.services
+
+    def test_incomplete_service_skipped_but_valid_sibling_loads(
+        self, tmp_path: Path
+    ) -> None:
+        """Skip an incomplete service while loading its valid siblings.
+
+        GIVEN a config with one incomplete service (missing required
+            fields) and one fully-specified service
+        WHEN the Delegator loads configurations
+        THEN the incomplete service is skipped per-entry
+        AND the valid sibling defined in the same config still loads
+
+        Encodes the invariant that a single incomplete entry is dropped
+        in isolation rather than aborting the whole config load. If this
+        breaks, the loop reverts to all-or-nothing behavior and one bad
+        entry silently drops every later service.
+        """
+        config_file = tmp_path / "config.json"
+        config_file.write_text(
+            json.dumps(
+                {
+                    "services": {
+                        "incomplete": {"name": "incomplete"},
+                        "fullsvc": {
+                            "name": "fullsvc",
+                            "command": "fs",
+                            "auth_method": "cli",
+                        },
+                    }
+                }
+            )
+        )
+
+        delegator = Delegator(config_dir=tmp_path)
+
+        assert "incomplete" not in delegator.services
+        assert "fullsvc" in delegator.services
+        assert delegator.services["fullsvc"].command == "fs"
+        assert "gemini" in delegator.services
 
 
 # ---------------------------------------------------------------------------
@@ -203,7 +307,7 @@ class TestBordaScoresCharacterization:
     def _original_borda(
         self, votes: dict[str, str], coa_labels: list[str]
     ) -> dict[str, int]:
-        """Reference copy of the original O(n³) algorithm for comparison."""
+        """Reproduce the original O(n³) Borda algorithm for comparison."""
         scores: dict[str, int] = dict.fromkeys(coa_labels, 0)
         n = len(coa_labels)
         for vote_text in votes.values():
@@ -218,7 +322,13 @@ class TestBordaScoresCharacterization:
         return scores
 
     def test_normal_ballot(self) -> None:
-        """Standard ballot produces same scores as original algorithm."""
+        """Match the reference scores for a standard ballot.
+
+        GIVEN a standard set of ranked ballots
+        WHEN compute_borda_scores tallies them
+        THEN the scores equal the original algorithm's output
+        AND the optimized path agrees with the reference
+        """
         labels = ["Alpha", "Beta", "Gamma"]
         votes = {
             "expert1": "1. Alpha is best\n2. Beta is second\n3. Gamma is third",
@@ -228,14 +338,27 @@ class TestBordaScoresCharacterization:
         assert compute_borda_scores(votes, labels) == expected
 
     def test_label_absent_from_ballot(self) -> None:
-        """Label not mentioned in ballot gets 0 additional score."""
+        """Give an unmentioned label no additional score.
+
+        GIVEN a ballot that never names a given label
+        WHEN compute_borda_scores tallies the votes
+        THEN that label gains zero score
+        AND the result matches the reference algorithm
+        """
         labels = ["Alpha", "Beta", "Zeta"]
         votes = {"expert1": "1. Alpha wins\n2. Beta second\n3. Delta not in list"}
         expected = self._original_borda(votes, labels)
         assert compute_borda_scores(votes, labels) == expected
 
     def test_rank_marker_far_from_label(self) -> None:
-        """Label more than 200 chars after rank marker gets 0 score."""
+        """Ignore a label too far from its rank marker.
+
+        GIVEN a label appearing more than 200 chars after the rank
+            marker
+        WHEN compute_borda_scores tallies the vote
+        THEN that label gains zero score
+        AND the result matches the reference algorithm
+        """
         labels = ["Alpha"]
         # Put Alpha 300 chars after "1."
         padding = "x" * 250
@@ -244,13 +367,25 @@ class TestBordaScoresCharacterization:
         assert compute_borda_scores(votes, labels) == expected
 
     def test_empty_votes(self) -> None:
-        """Empty votes dict returns all-zero scores."""
+        """Return all-zero scores for an empty ballot set.
+
+        GIVEN an empty votes mapping
+        WHEN compute_borda_scores tallies it
+        THEN every label scores zero
+        AND the result matches the reference algorithm
+        """
         labels = ["Alpha", "Beta"]
         expected = self._original_borda({}, labels)
         assert compute_borda_scores({}, labels) == expected
 
     def test_large_n_produces_same_output(self) -> None:
-        """n=20 labels, 5 ballots: optimized output matches reference."""
+        """Match the reference output at larger ballot sizes.
+
+        GIVEN 20 labels across 5 ballots
+        WHEN compute_borda_scores tallies them
+        THEN the output equals the reference algorithm
+        AND the O(n squared) path scales without diverging
+        """
         labels = [f"COA_{i}" for i in range(20)]
         votes = {}
         for ballot_idx in range(5):

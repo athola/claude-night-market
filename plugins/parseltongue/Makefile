@@ -176,7 +176,7 @@ demo-coverage: ## Run coverage analysis (LIVE)
 demo-lint: ## Run linting on parseltongue code (LIVE)
 	@echo "=== Parseltongue Lint Demo (LIVE) ==="
 	@echo ""
-	$(RUFF) check parseltongue/ --statistics 2>/dev/null || echo "Linting clean or ruff not configured"
+	$(RUFF) check src/parseltongue/ --statistics 2>/dev/null || echo "Linting clean or ruff not configured"
 
 demo-skills: ## List parseltongue skills
 	@echo "=== Parseltongue Skills ==="

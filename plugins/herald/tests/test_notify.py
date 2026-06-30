@@ -773,7 +773,7 @@ class TestAlert:
         """
         alert(
             event=AlertEvent.CRASH,
-            source="egregore",
+            ctx=AlertContext(source="egregore"),
         )
         call_kwargs = mock_create.call_args[1]
         assert "[egregore]" in call_kwargs["title"]
@@ -791,6 +791,6 @@ class TestAlert:
             event=AlertEvent.CRASH,
             overseer_method="none",
             webhook_url="https://example.com/hook",
-            source="egregore",
+            ctx=AlertContext(source="egregore"),
         )
         assert mock_wh.call_args[1]["source"] == "egregore"

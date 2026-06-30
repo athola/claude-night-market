@@ -33,7 +33,7 @@ GOVERNANCE_POLICY = """
 <GOVERNANCE_RULE priority="high" override="false">
 Before reporting completion of ANY of the following:
 - Feature implementation
-- Plan execution (especially /superpowers:execute-plan)
+- Plan execution (especially Skill(superpowers:executing-plans))
 - Significant code changes
 - New functionality added
 

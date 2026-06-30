@@ -36,7 +36,8 @@ Optional arguments:
 - `--labels` (str): Comma-separated additional labels beyond
   `deferred` and source
 - `--session-id` (str): Session ID. Canonical source:
-  `$CLAUDE_SESSION_ID` env var, fallback: UTC timestamp
+  `session_id` from the hook payload stdin
+  (`jq -r '.session_id'`), fallback: UTC timestamp
   `YYYYMMDD-HHMMSS`
 - `--artifact-path` (str): Absolute path or `$HOME`-based
   path to source artifact

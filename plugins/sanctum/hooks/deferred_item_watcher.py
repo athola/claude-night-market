@@ -175,21 +175,80 @@ def _parse_skill_name(tool_input: dict) -> str:
     return skill_ref
 
 
-def should_process() -> bool:
+def read_payload() -> dict:
+    """Read the PostToolUse payload Claude Code delivers as JSON on stdin.
+
+    Falls back to the legacy ``CLAUDE_TOOL_*`` environment variables when
+    stdin is empty, so the existing test harness and older callers keep
+    working.
+
+    Sync note: parallels ``leyline/hooks/noqa_guard._read_payload`` and
+    ``abstract/hooks/shared/hook_io.read_hook_payload``. Plugin isolation
+    forbids a cross-plugin import, so the three copies must change together.
+    """
+    raw = ""
+    try:
+        if not sys.stdin.isatty():
+            raw = sys.stdin.read()
+    except (OSError, ValueError):
+        raw = ""
+
+    if raw.strip():
+        try:
+            payload = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            # Warn so a real ingestion failure is not silently identical to a
+            # non-watched skill: the env-var fallback below is empty on a real
+            # PostToolUse invocation, so a swallowed decode error would skip
+            # capture with no signal. Mirrors noqa_guard's stderr behavior.
+            sys.stderr.write(
+                f"deferred_item_watcher: ignoring malformed stdin JSON: {exc}\n"
+            )
+            payload = None
+        if isinstance(payload, dict):
+            return payload
+
+    raw_input = os.environ.get("CLAUDE_TOOL_INPUT", "{}")
+    try:
+        tool_input = json.loads(raw_input)
+    except (json.JSONDecodeError, TypeError):
+        tool_input = {}
+    return {
+        "tool_name": os.environ.get("CLAUDE_TOOL_NAME", ""),
+        "tool_input": tool_input if isinstance(tool_input, dict) else {},
+        "tool_response": os.environ.get("CLAUDE_TOOL_OUTPUT", ""),
+    }
+
+
+def _response_text(payload: dict) -> str:
+    """Return ``tool_response`` as text (the runtime sends dict or str)."""
+    value = payload.get("tool_response", "")
+    if isinstance(value, str):
+        return value
+    try:
+        return json.dumps(value)
+    except (TypeError, ValueError):
+        return str(value)
+
+
+def should_process(payload: dict | None = None) -> bool:
     """Return True only when the current tool invocation should be examined.
 
     Checks:
-    1. CLAUDE_TOOL_NAME == "Skill"
+    1. ``tool_name`` == "Skill"
     2. The skill name (bare, without plugin prefix) is in WATCH_LIST
+
+    The payload is read from stdin (with a legacy ``CLAUDE_TOOL_*`` env-var
+    fallback) when not supplied by the caller.
     """
-    tool_name = os.environ.get("CLAUDE_TOOL_NAME", "")
-    if tool_name != "Skill":
+    if payload is None:
+        payload = read_payload()
+
+    if payload.get("tool_name", "") != "Skill":
         return False
 
-    tool_input_str = os.environ.get("CLAUDE_TOOL_INPUT", "{}")
-    try:
-        tool_input = json.loads(tool_input_str)
-    except json.JSONDecodeError:
+    tool_input = payload.get("tool_input", {})
+    if not isinstance(tool_input, dict):
         return False
 
     skill_name = _parse_skill_name(tool_input)
@@ -200,22 +259,22 @@ def main() -> None:
     """PostToolUse hook entry point.
 
     Orchestration:
-    1. Check should_process(): skip if not a watched skill.
-    2. scan_for_deferrals() on CLAUDE_TOOL_OUTPUT.
-    3. If signals found, extract titles and write ledger entries.
+    1. Read the payload (stdin JSON, env-var fallback).
+    2. Check should_process(): skip if not a watched skill.
+    3. scan_for_deferrals() on the tool response.
+    4. If signals found, extract titles and write ledger entries.
     """
-    if not should_process():
+    payload = read_payload()
+    if not should_process(payload):
         sys.exit(0)
 
-    tool_output = os.environ.get("CLAUDE_TOOL_OUTPUT", "")
-    tool_input_str = os.environ.get("CLAUDE_TOOL_INPUT", "{}")
+    tool_output = _response_text(payload)
 
     if not scan_for_deferrals(tool_output):
         sys.exit(0)
 
-    try:
-        tool_input = json.loads(tool_input_str)
-    except json.JSONDecodeError:
+    tool_input = payload.get("tool_input", {})
+    if not isinstance(tool_input, dict):
         tool_input = {}
 
     source = _parse_skill_name(tool_input)

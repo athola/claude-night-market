@@ -25,25 +25,20 @@ from gauntlet.models import (
 # ---------------------------------------------------------------------------
 
 
-def _entry(
-    category: str = "business_logic",
-    module: str = "billing",
-    concept: str = "Pro-rata calculation",
-    detail: str = "Charge is pro-rated based on remaining days in the billing period.",
-    difficulty: int = 2,
-    related_files: list[str] | None = None,
-) -> KnowledgeEntry:
-    return KnowledgeEntry(
-        id="ke-test-001",
-        category=category,
-        module=module,
-        concept=concept,
-        detail=detail,
-        difficulty=difficulty,
-        extracted_at="2026-01-01T00:00:00",
-        source="code",
-        related_files=related_files or ["src/billing/proration.py"],
-    )
+def _entry(**overrides: object) -> KnowledgeEntry:
+    fields: dict[str, object] = {
+        "id": "ke-test-001",
+        "category": "business_logic",
+        "module": "billing",
+        "concept": "Pro-rata calculation",
+        "detail": "Charge is pro-rated based on remaining days in the billing period.",
+        "difficulty": 2,
+        "extracted_at": "2026-01-01T00:00:00",
+        "source": "code",
+        "related_files": ["src/billing/proration.py"],
+    }
+    fields.update(overrides)
+    return KnowledgeEntry(**fields)
 
 
 def _answer_record(challenge_type: str, result: str) -> AnswerRecord:
@@ -326,13 +321,16 @@ class TestProblemVariationFallback:
         # Block re-imports of anthropic. We use a meta_path finder so
         # the block is local to this test (monkeypatch auto-restores).
         class _Blocker:
-            def find_module(self, name, path=None):  # noqa: ARG002 - PEP 302 finder protocol requires path parameter
+            # find_spec (PEP 451). The legacy find_module/load_module
+            # protocol this replaces is no longer consulted by the import
+            # system on Python 3.12+, which let real anthropic installs
+            # bypass the old blocker and run the variation path. Unused
+            # protocol params are underscore-prefixed; importlib passes
+            # them positionally, so renaming is safe.
+            def find_spec(self, name, _path=None, _target=None):
                 if name == "anthropic" or name.startswith("anthropic."):
-                    return self
+                    raise ImportError(f"simulated missing: {name}")
                 return None
-
-            def load_module(self, name):
-                raise ImportError(f"simulated missing: {name}")
 
         # Clear any cached anthropic so the lazy import re-resolves
         # through our blocker. monkeypatch.setattr/delitem auto-restore.

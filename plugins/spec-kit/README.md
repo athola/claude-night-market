@@ -32,6 +32,7 @@ claude plugins add spec-kit
 | `/speckit-plan` | Execute the implementation planning workflow |
 | `/speckit-tasks` | Generate dependency-ordered tasks (TDD on by default; `--no-tdd` to opt out, since 1.9.3) |
 | `/speckit-implement` | Execute implementation tasks |
+| `/speckit-converge` | Append unbuilt work as new tasks after implementation |
 | `/speckit-analyze` | Analyze consistency across artifacts |
 | `/speckit-checklist` | Generate quality checklists for requirements |
 | `/speckit-constitution` | Manage project principles |
@@ -76,7 +77,8 @@ Executes implementation tasks according to the task plan.
 5. `/speckit-tasks`: Create a task breakdown.
 6. `/speckit-analyze`: Verify consistency.
 7. `/speckit-implement`: Execute tasks.
-8. `/speckit-checklist`: Run a final quality check.
+8. `/speckit-converge`: Catch spec-to-code gaps; append remaining work as tasks (re-run `/speckit-implement` if it adds any).
+9. `/speckit-checklist`: Run a final quality check.
 
 ## Dependencies
 

@@ -32,13 +32,12 @@ validate: ## Validate plugin structure
 # ---------- Testing ----------
 test: ## Run scribe tests
 	@echo "Running scribe tests..."
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v --tb=short 2>/dev/null || echo "No tests found or test runner not available"
+	@cd ../.. && uv run pytest plugins/scribe/tests/ -v --tb=short
 
 test-coverage: ## Run tests with coverage measurement
 	@echo "Running scribe tests with coverage..."
 	@cd ../.. && uv run pytest plugins/scribe/tests/ -v --tb=short \
-		--cov=plugins/scribe/src/scribe --cov-report=term-missing --cov-branch \
-		2>/dev/null || echo "Coverage measurement not available (install pytest-cov)"
+		--cov=plugins/scribe/src/scribe --cov-report=term-missing --cov-branch
 
 # ---------- Linting ----------
 lint: ## Check for slop in plugin documentation

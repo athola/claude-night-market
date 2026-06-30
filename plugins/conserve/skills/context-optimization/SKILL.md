@@ -25,7 +25,7 @@ hooks:
     once: true
   PostToolUse:
   - matcher: Bash
-    command: "# Track context analysis tools\nif echo \"$CLAUDE_TOOL_INPUT\" | grep\
+    command: "# Track context analysis tools\nif jq -r '.tool_input.command // empty' | grep\
       \ -qE \"(wc|tokei|cloc|context)\"; then\n  echo \"[skill:context-optimization]\
       \ Context measurement executed: $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\n\
       fi\n"

@@ -87,12 +87,14 @@ class TestRecordAnswer:
         progress = tracker.get_or_create("dev@example.com")
         tracker.record_answer(
             progress,
-            challenge_id="ch-001",
-            knowledge_entry_id="ke-001",
-            challenge_type="explain_why",
-            category="business_logic",
-            difficulty=2,
-            result="pass",
+            AnswerRecord(
+                challenge_id="ch-001",
+                knowledge_entry_id="ke-001",
+                challenge_type="explain_why",
+                category="business_logic",
+                difficulty=2,
+                result="pass",
+            ),
         )
 
         assert progress.streak == 1
@@ -112,12 +114,14 @@ class TestRecordAnswer:
         progress.streak = 5
         tracker.record_answer(
             progress,
-            challenge_id="ch-002",
-            knowledge_entry_id="ke-001",
-            challenge_type="trace",
-            category="data_flow",
-            difficulty=3,
-            result="fail",
+            AnswerRecord(
+                challenge_id="ch-002",
+                knowledge_entry_id="ke-001",
+                challenge_type="trace",
+                category="data_flow",
+                difficulty=3,
+                result="fail",
+            ),
         )
 
         assert progress.streak == 0
@@ -135,12 +139,14 @@ class TestRecordAnswer:
         progress.streak = 3
         tracker.record_answer(
             progress,
-            challenge_id="ch-003",
-            knowledge_entry_id="ke-001",
-            challenge_type="spot_bug",
-            category="business_logic",
-            difficulty=2,
-            result="partial",
+            AnswerRecord(
+                challenge_id="ch-003",
+                knowledge_entry_id="ke-001",
+                challenge_type="spot_bug",
+                category="business_logic",
+                difficulty=2,
+                result="partial",
+            ),
         )
 
         assert progress.streak == 0
@@ -172,12 +178,14 @@ class TestSaveLoadRoundtrip:
         progress = tracker.get_or_create("dev@example.com")
         tracker.record_answer(
             progress,
-            challenge_id="ch-001",
-            knowledge_entry_id="ke-001",
-            challenge_type="explain_why",
-            category="business_logic",
-            difficulty=2,
-            result="pass",
+            AnswerRecord(
+                challenge_id="ch-001",
+                knowledge_entry_id="ke-001",
+                challenge_type="explain_why",
+                category="business_logic",
+                difficulty=2,
+                result="pass",
+            ),
         )
         # record_answer auto-saves, but call save explicitly too
         tracker.save(progress)

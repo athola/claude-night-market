@@ -437,36 +437,36 @@ class TestMain:
             call_kwargs = mock_copy_templates.call_args[1]
             assert call_kwargs["force"] is True
 
-    @patch("attune_init.copy_templates")
-    @patch("attune_init.create_project_structure")
-    @patch("attune_init.initialize_git")
-    @patch("attune_init.ProjectDetector")
-    def test_main_prints_success_message(
-        self,
-        mock_detector_cls,
-        mock_init_git,
-        mock_create_structure,
-        mock_copy_templates,
-        mock_project_path,
-        capsys,
-    ):
+    def test_main_prints_success_message(self, mock_project_path, capsys):
         """When project initialized successfully, then prints success message."""
-        mock_detector = Mock()
-        mock_detector.detect_language.return_value = "python"
-        mock_detector.check_git_initialized.return_value = True
-        mock_detector_cls.return_value = mock_detector
-        mock_copy_templates.return_value = ["file1", "file2"]
-
-        with patch(
-            "sys.argv",
-            ["attune_init.py", "--lang", "python", "--path", str(mock_project_path)],
+        with (
+            patch("attune_init.copy_templates") as mock_copy_templates,
+            patch("attune_init.create_project_structure"),
+            patch("attune_init.initialize_git"),
+            patch("attune_init.ProjectDetector") as mock_detector_cls,
         ):
-            main()
+            mock_detector = Mock()
+            mock_detector.detect_language.return_value = "python"
+            mock_detector.check_git_initialized.return_value = True
+            mock_detector_cls.return_value = mock_detector
+            mock_copy_templates.return_value = ["file1", "file2"]
 
-            captured = capsys.readouterr()
-            assert "Project initialized successfully" in captured.out
-            assert "Created 2 files" in captured.out
-            assert "Next steps" in captured.out
+            with patch(
+                "sys.argv",
+                [
+                    "attune_init.py",
+                    "--lang",
+                    "python",
+                    "--path",
+                    str(mock_project_path),
+                ],
+            ):
+                main()
+
+                captured = capsys.readouterr()
+                assert "Project initialized successfully" in captured.out
+                assert "Created 2 files" in captured.out
+                assert "Next steps" in captured.out
 
 
 @pytest.mark.unit

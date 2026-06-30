@@ -132,7 +132,7 @@ plugin-check: ## Run demo/dogfood checks across all plugins
 		if [ -f "$$plugin/Makefile" ] && grep -q "^plugin-check:" "$$plugin/Makefile"; then \
 			echo ""; \
 			echo ">>> $$plugin:"; \
-			$(MAKE) -C $$plugin plugin-check 2>/dev/null || echo "  (plugin-check failed)"; \
+			timeout 180 $(MAKE) -C $$plugin plugin-check 2>/dev/null || echo "  (plugin-check failed or timed out)"; \
 		fi; \
 	done
 	@echo ""

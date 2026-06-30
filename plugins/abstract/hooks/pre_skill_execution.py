@@ -11,13 +11,13 @@ Zero external dependencies - uses only Python standard library.
 from __future__ import annotations
 
 import json
-import os
 import sys
 import traceback
 from datetime import datetime, timezone
 from typing import Any
 
 from shared.dir_utils import get_observability_dir
+from shared.hook_io import read_hook_payload
 from shared.skill_utils import parse_skill_name as _parse_skill_name
 
 
@@ -39,20 +39,16 @@ def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
 def main() -> None:
     """PreToolUse hook entry point."""
     try:
-        # Read environment variables from Claude Code
-        tool_name = os.environ.get("CLAUDE_TOOL_NAME", "")
-        tool_input_str = os.environ.get("CLAUDE_TOOL_INPUT", "{}")
+        # Claude Code delivers the hook payload as JSON on stdin (with a
+        # legacy CLAUDE_TOOL_* env-var fallback for the test harness).
+        payload = read_hook_payload()
+        tool_name = payload["tool_name"]
 
         # Only process Skill tool invocations
         if tool_name != "Skill":
             sys.exit(0)
 
-        # Parse tool input
-        try:
-            tool_input = json.loads(tool_input_str)
-        except json.JSONDecodeError as e:
-            sys.stderr.write(f"pre_skill_execution: malformed input: {e}\n")
-            sys.exit(0)
+        tool_input = payload["tool_input"]
 
         # Parse skill name
         plugin, skill = parse_skill_name(tool_input)

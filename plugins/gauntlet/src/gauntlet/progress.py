@@ -10,8 +10,6 @@ from pathlib import Path
 
 from gauntlet.models import (
     AnswerRecord,
-    ChallengeResult,
-    ChallengeType,
     DeveloperProgress,
     KnowledgeEntry,
 )
@@ -70,29 +68,17 @@ class ProgressTracker:
     def record_answer(
         self,
         progress: DeveloperProgress,
-        challenge_id: str,
-        knowledge_entry_id: str,
-        challenge_type: ChallengeType,
-        category: str,
-        difficulty: int,
-        result: ChallengeResult,
+        record: AnswerRecord,
     ) -> None:
-        """Append a result to history, update streak, and auto-save."""
-        now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        """Append a result to history, update streak, and auto-save.
 
-        record = AnswerRecord(
-            challenge_id=challenge_id,
-            knowledge_entry_id=knowledge_entry_id,
-            challenge_type=challenge_type,
-            category=category,
-            difficulty=difficulty,
-            result=result,
-            answered_at=now,
-        )
+        ``record.answered_at`` is stamped with the current UTC time.
+        """
+        record.answered_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
         progress.history.append(record)
-        progress.last_seen[knowledge_entry_id] = now
+        progress.last_seen[record.knowledge_entry_id] = record.answered_at
 
-        if result == "pass":
+        if record.result == "pass":
             progress.streak += 1
         else:
             progress.streak = 0

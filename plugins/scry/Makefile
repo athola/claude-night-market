@@ -43,7 +43,7 @@ check-deps: ## Check if required dependencies are installed
 	@command -v vhs >/dev/null 2>&1 && echo "  [OK] vhs installed: $$(vhs --version 2>/dev/null || echo 'unknown')" || echo "  [X] vhs not installed (brew install charmbracelet/tap/vhs)"
 	@command -v ffmpeg >/dev/null 2>&1 && echo "  [OK] ffmpeg installed: $$(ffmpeg -version 2>&1 | head -1)" || echo "  [X] ffmpeg not installed"
 	@command -v npx >/dev/null 2>&1 && echo "  [OK] npx available" || echo "  [X] npx not installed (install Node.js)"
-	@npx playwright --version >/dev/null 2>&1 && echo "  [OK] playwright installed" || echo "  [!] playwright not installed (npx playwright install)"
+	@npx --no-install playwright --version >/dev/null 2>&1 && echo "  [OK] playwright installed" || echo "  [!] playwright not installed (npx playwright install)"
 	@echo "Dependency check complete."
 
 # ---------- Status ----------
@@ -157,7 +157,7 @@ demo-playwright: ## Demo Playwright browser recording workflow
 	@echo "Demonstrating Playwright browser recording workflow..."
 	@echo ""
 	@echo "Step 1: Check Playwright availability"
-	@npx playwright --version >/dev/null 2>&1 && echo "  Playwright is installed" || echo "  Playwright not found - install with: npx playwright install"
+	@npx --no-install playwright --version >/dev/null 2>&1 && echo "  Playwright is installed" || echo "  Playwright not found - install with: npx playwright install"
 	@echo ""
 	@echo "Step 2: Recording commands"
 	@echo "  npx playwright codegen https://example.com"

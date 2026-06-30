@@ -35,32 +35,35 @@ from pathlib import Path
 from .types import Citation, Finding, Severity
 
 
+@dataclass(frozen=True)
+class FindingSpec:
+    """Inputs for a single detector finding, bound to its call node."""
+
+    node: ast.AST
+    id_: str
+    severity: Severity
+    cwe: str
+    ssdf: str
+    signal: str
+    proposal: str
+    extras: tuple[str, ...] = ()
+
+
 @dataclass
 class _Context:
     file: str
     findings: list[Finding] = field(default_factory=list)
 
-    def add(
-        self,
-        *,
-        node: ast.AST,
-        id_: str,
-        severity: Severity,
-        cwe: str,
-        ssdf: str,
-        signal: str,
-        proposal: str,
-        extras: tuple[str, ...] = (),
-    ) -> None:
+    def add(self, spec: FindingSpec) -> None:
         self.findings.append(
             Finding(
-                id=id_,
-                severity=severity,
-                citation=Citation(cwe=cwe, nist_ssdf=ssdf, extra=extras),
+                id=spec.id_,
+                severity=spec.severity,
+                citation=Citation(cwe=spec.cwe, nist_ssdf=spec.ssdf, extra=spec.extras),
                 file=self.file,
-                line=getattr(node, "lineno", 0),
-                detection_signal=signal,
-                proposal=proposal,
+                line=getattr(spec.node, "lineno", 0),
+                detection_signal=spec.signal,
+                proposal=spec.proposal,
             )
         )
 
@@ -131,17 +134,19 @@ def _detect_PY01(call: ast.Call, ctx: _Context) -> None:
     chain = _attr_chain(call.func)
     if chain in _UNSAFE_DESERIALIZE_CHAINS:
         ctx.add(
-            node=call,
-            id_="PY01",
-            severity="HIGH",
-            cwe="CWE-502",
-            ssdf="PW.5.1",
-            signal=f"unsafe-deserialization call: {chain}(...)",
-            proposal=(
-                "Replace with json.loads if the payload is JSON-shaped. "
-                "Otherwise refactor to msgspec / pydantic with explicit "
-                "validation. See modules/python-checks.md row PY01."
-            ),
+            FindingSpec(
+                node=call,
+                id_="PY01",
+                severity="HIGH",
+                cwe="CWE-502",
+                ssdf="PW.5.1",
+                signal=f"unsafe-deserialization call: {chain}(...)",
+                proposal=(
+                    "Replace with json.loads if the payload is JSON-shaped. "
+                    "Otherwise refactor to msgspec / pydantic with explicit "
+                    "validation. See modules/python-checks.md row PY01."
+                ),
+            )
         )
 
 
@@ -153,17 +158,19 @@ def _detect_PY02(call: ast.Call, ctx: _Context) -> None:
     loader = _kw_value(call, "Loader")
     if loader is None:
         ctx.add(
-            node=call,
-            id_="PY02",
-            severity="HIGH",
-            cwe="CWE-502",
-            ssdf="PW.9",
-            signal="yaml.load(...) called without explicit Loader= keyword",
-            proposal=(
-                "Replace with yaml.safe_load(...) (or pass Loader=yaml.SafeLoader). "
-                "yaml.load() with the default Loader can construct arbitrary "
-                "Python objects from the YAML stream."
-            ),
+            FindingSpec(
+                node=call,
+                id_="PY02",
+                severity="HIGH",
+                cwe="CWE-502",
+                ssdf="PW.9",
+                signal="yaml.load(...) called without explicit Loader= keyword",
+                proposal=(
+                    "Replace with yaml.safe_load(...) (or pass Loader=yaml.SafeLoader). "
+                    "yaml.load() with the default Loader can construct arbitrary "
+                    "Python objects from the YAML stream."
+                ),
+            )
         )
 
 
@@ -188,17 +195,19 @@ def _detect_PY03(call: ast.Call, ctx: _Context) -> None:
         # Constant input: still bad style but not a code-injection vector.
         return
     ctx.add(
-        node=call,
-        id_="PY03",
-        severity="HIGH",
-        cwe="CWE-94",
-        ssdf="PW.5.1",
-        signal=f"{name}(...) called with non-constant argument",
-        proposal=(
-            "Use ast.literal_eval(...) for constant data or refactor to a "
-            "typed parser. The dynamic-code helpers should never see caller-"
-            "supplied data."
-        ),
+        FindingSpec(
+            node=call,
+            id_="PY03",
+            severity="HIGH",
+            cwe="CWE-94",
+            ssdf="PW.5.1",
+            signal=f"{name}(...) called with non-constant argument",
+            proposal=(
+                "Use ast.literal_eval(...) for constant data or refactor to a "
+                "typed parser. The dynamic-code helpers should never see caller-"
+                "supplied data."
+            ),
+        )
     )
 
 
@@ -224,17 +233,19 @@ def _detect_PY04(call: ast.Call, ctx: _Context) -> None:
     if shell_kw is None or not _is_constant_true(shell_kw):
         return
     ctx.add(
-        node=call,
-        id_="PY04",
-        severity="HIGH",
-        cwe="CWE-78",
-        ssdf="PW.5.1",
-        signal=f"{chain}(..., shell-mode flag set true)",
-        proposal=(
-            "Pass an argv list and remove the shell-mode keyword. If the "
-            "shell is genuinely required, validate the command with "
-            "shlex.quote and constrain to a fixed allowlist."
-        ),
+        FindingSpec(
+            node=call,
+            id_="PY04",
+            severity="HIGH",
+            cwe="CWE-78",
+            ssdf="PW.5.1",
+            signal=f"{chain}(..., shell-mode flag set true)",
+            proposal=(
+                "Pass an argv list and remove the shell-mode keyword. If the "
+                "shell is genuinely required, validate the command with "
+                "shlex.quote and constrain to a fixed allowlist."
+            ),
+        )
     )
 
 
@@ -260,16 +271,18 @@ def _detect_PY08(call: ast.Call, ctx: _Context) -> None:
     if verify_kw is None or not _is_constant_false(verify_kw):
         return
     ctx.add(
-        node=call,
-        id_="PY08",
-        severity="HIGH",
-        cwe="CWE-295",
-        ssdf="PW.9",
-        signal=f"{chain}(..., verify=False)",
-        proposal=(
-            "Remove verify=False. If the target uses a private CA, point "
-            "verify= at the CA bundle path or use certifi.where()."
-        ),
+        FindingSpec(
+            node=call,
+            id_="PY08",
+            severity="HIGH",
+            cwe="CWE-295",
+            ssdf="PW.9",
+            signal=f"{chain}(..., verify=False)",
+            proposal=(
+                "Remove verify=False. If the target uses a private CA, point "
+                "verify= at the CA bundle path or use certifi.where()."
+            ),
+        )
     )
 
 
@@ -291,16 +304,18 @@ def _detect_PY10(call: ast.Call, ctx: _Context) -> None:
     if _has_kw(call, "timeout"):
         return
     ctx.add(
-        node=call,
-        id_="PY10",
-        severity="MEDIUM",
-        cwe="CWE-400",
-        ssdf="PW.5.1",
-        signal=f"{chain}(...) called without timeout=",
-        proposal=(
-            "Add timeout=<seconds> to bound the call. A runaway child "
-            "process otherwise blocks the parent indefinitely."
-        ),
+        FindingSpec(
+            node=call,
+            id_="PY10",
+            severity="MEDIUM",
+            cwe="CWE-400",
+            ssdf="PW.5.1",
+            signal=f"{chain}(...) called without timeout=",
+            proposal=(
+                "Add timeout=<seconds> to bound the call. A runaway child "
+                "process otherwise blocks the parent indefinitely."
+            ),
+        )
     )
 
 
@@ -314,17 +329,19 @@ def _detect_PY11(call: ast.Call, ctx: _Context) -> None:
     if _has_kw(call, "filter"):
         return
     ctx.add(
-        node=call,
-        id_="PY11",
-        severity="HIGH",
-        cwe="CWE-22",
-        ssdf="PW.9",
-        signal="extractall(...) called without filter= (PEP 706)",
-        proposal=(
-            "Pass filter='data' (PEP 706) to reject members with "
-            "absolute paths, .. traversal, or symlinks pointing outside "
-            "the extraction root."
-        ),
+        FindingSpec(
+            node=call,
+            id_="PY11",
+            severity="HIGH",
+            cwe="CWE-22",
+            ssdf="PW.9",
+            signal="extractall(...) called without filter= (PEP 706)",
+            proposal=(
+                "Pass filter='data' (PEP 706) to reject members with "
+                "absolute paths, .. traversal, or symlinks pointing outside "
+                "the extraction root."
+            ),
+        )
     )
 
 
@@ -334,16 +351,18 @@ def _detect_PY18(call: ast.Call, ctx: _Context) -> None:
     if chain != "tempfile.mktemp":
         return
     ctx.add(
-        node=call,
-        id_="PY18",
-        severity="MEDIUM",
-        cwe="CWE-377",
-        ssdf="PW.5.1",
-        signal="tempfile.mktemp(...) is TOCTOU-unsafe",
-        proposal=(
-            "Use tempfile.NamedTemporaryFile or tempfile.mkstemp. mktemp "
-            "returns a name that can race with an attacker-created file."
-        ),
+        FindingSpec(
+            node=call,
+            id_="PY18",
+            severity="MEDIUM",
+            cwe="CWE-377",
+            ssdf="PW.5.1",
+            signal="tempfile.mktemp(...) is TOCTOU-unsafe",
+            proposal=(
+                "Use tempfile.NamedTemporaryFile or tempfile.mkstemp. mktemp "
+                "returns a name that can race with an attacker-created file."
+            ),
+        )
     )
 
 
@@ -355,16 +374,18 @@ def _detect_PY20(call: ast.Call, ctx: _Context) -> None:
     if _has_kw(call, "timeout"):
         return
     ctx.add(
-        node=call,
-        id_="PY20",
-        severity="MEDIUM",
-        cwe="CWE-400",
-        ssdf="PW.5.1",
-        signal=f"{chain}(...) called without timeout=",
-        proposal=(
-            "Pass timeout=<seconds>. A connection without timeout can "
-            "hang the whole process when the upstream is slow."
-        ),
+        FindingSpec(
+            node=call,
+            id_="PY20",
+            severity="MEDIUM",
+            cwe="CWE-400",
+            ssdf="PW.5.1",
+            signal=f"{chain}(...) called without timeout=",
+            proposal=(
+                "Pass timeout=<seconds>. A connection without timeout can "
+                "hang the whole process when the upstream is slow."
+            ),
+        )
     )
 
 

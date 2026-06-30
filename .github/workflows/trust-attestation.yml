@@ -14,12 +14,12 @@ jobs:
   attest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v8.2.0
       - name: Run tests and capture results
         run: |
           make test 2>&1 | tee test-output.txt
@@ -44,6 +44,6 @@ jobs:
         env:
           COMMIT_SHA: ${{ github.sha }}
       - name: Generate SLSA attestation
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: trust-report.json

@@ -102,10 +102,10 @@ token-estimate: ## Estimate token usage for skills (ARGS=...)
 	@echo "Estimating token usage (via abstract plugin)..."
 	@if echo "$(ARGS)" | grep -q "^--file "; then \
 		FILE=$$(echo "$(ARGS)" | sed 's/--file //'); \
-		cd ../abstract && uv run python scripts/token_estimator.py --file ../conservation/$$FILE; \
+		cd ../abstract && uv run python scripts/token_estimator.py --file ../conserve/$$FILE; \
 	elif echo "$(ARGS)" | grep -q "^--directory "; then \
 		DIR=$$(echo "$(ARGS)" | sed 's/--directory //'); \
-		cd ../abstract && uv run python scripts/token_estimator.py --directory ../conservation/$$DIR; \
+		cd ../abstract && uv run python scripts/token_estimator.py --directory ../conserve/$$DIR; \
 	else \
 		cd ../abstract && uv run python scripts/token_estimator.py $(ARGS); \
 	fi
@@ -125,7 +125,7 @@ validate-skills: ## Validate all skill files
 test-skills: ## Test skill functionality
 	@echo "Testing skill functionality..."
 	@echo "Token estimator test (via abstract):"
-	@cd ../abstract && uv run python scripts/token_estimator.py --file ../conservation/skills/context-optimization/SKILL.md 2>/dev/null || echo "  Token estimator test skipped"
+	@cd ../abstract && uv run python scripts/token_estimator.py --file ../conserve/skills/context-optimization/SKILL.md 2>/dev/null || echo "  Token estimator test skipped"
 	@echo "Dependency check:"
 	@uv pip check 2>/dev/null || echo "  Dependency check skipped"
 

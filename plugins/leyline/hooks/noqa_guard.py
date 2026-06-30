@@ -21,6 +21,7 @@ import json
 import os
 import re
 import sys
+from typing import Any
 
 # Each tuple: (compiled pattern, label for the message)
 _PATTERNS: list[tuple[re.Pattern[str], str]] = [
@@ -51,27 +52,63 @@ def check_for_suppressions(text: str) -> list[str]:
     return hits
 
 
+def _read_payload() -> dict[str, Any]:
+    """Read the PreToolUse payload Claude Code delivers as JSON on stdin.
+
+    Falls back to the legacy ``CLAUDE_TOOL_NAME`` / ``CLAUDE_TOOL_INPUT``
+    environment variables when stdin is empty, so the existing test
+    harness and any older callers keep working.
+
+    Sync note: this stdin-unless-tty / decode-or-warn / env-fallback shape is
+    duplicated by ``sanctum/hooks/deferred_item_watcher.read_payload`` and
+    ``abstract/hooks/shared/hook_io.read_hook_payload``. Plugin isolation
+    forbids a cross-plugin import, so the three copies must be changed
+    together.
+    """
+    raw = ""
+    try:
+        if not sys.stdin.isatty():
+            raw = sys.stdin.read()
+    except (OSError, ValueError):
+        raw = ""
+
+    if raw.strip():
+        try:
+            payload = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            # Fail-open is intentional (crash-proof), but log so a disabled
+            # guard is distinguishable from an idle one.
+            sys.stderr.write(f"noqa_guard: malformed stdin payload: {exc}\n")
+            payload = None
+        if isinstance(payload, dict):
+            return payload
+
+    raw_input = os.environ.get("CLAUDE_TOOL_INPUT", "")
+    try:
+        tool_input = json.loads(raw_input) if raw_input else {}
+    except (json.JSONDecodeError, TypeError):
+        tool_input = {}
+    return {
+        "tool_name": os.environ.get("CLAUDE_TOOL_NAME", ""),
+        "tool_input": tool_input,
+    }
+
+
 def main() -> None:
     """Check tool input for lint suppression directives.
 
-    Reads CLAUDE_TOOL_NAME and CLAUDE_TOOL_INPUT from environment
-    variables (not stdin) because PreToolUse hooks receive tool
-    metadata via env vars set by Claude Code, while stdin carries
-    the hook event JSON payload which does not include tool input.
+    Reads the PreToolUse payload (``tool_name``, ``tool_input``) from the
+    JSON object Claude Code provides on stdin, with a legacy
+    ``CLAUDE_TOOL_*`` env-var fallback for the test harness.
     """
-    tool_name = os.environ.get("CLAUDE_TOOL_NAME", "")
+    payload = _read_payload()
+    tool_name = payload.get("tool_name", "")
     if tool_name not in ("Edit", "Write"):
         print(json.dumps({}))
         return
 
-    raw_input = os.environ.get("CLAUDE_TOOL_INPUT", "")
-    if not raw_input:
-        print(json.dumps({}))
-        return
-
-    try:
-        tool_input = json.loads(raw_input)
-    except (json.JSONDecodeError, TypeError):
+    tool_input = payload.get("tool_input", {})
+    if not isinstance(tool_input, dict):
         print(json.dumps({}))
         return
 

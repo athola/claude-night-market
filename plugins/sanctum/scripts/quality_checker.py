@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import importlib.util
 import json
 import logging
 import os
@@ -224,6 +225,30 @@ class TestQualityChecker:
             and assert_node.test.left.id == "result"
         )
 
+    @staticmethod
+    def _is_raises_context(node: ast.AST) -> bool:
+        """Return True for a ``with pytest.raises``/``warns`` context block.
+
+        These context managers assert that their body raises or warns, so a
+        test built around one is not assertion-free even with no ``assert``.
+        """
+        if not isinstance(node, ast.With):
+            return False
+        for item in node.items:
+            call = item.context_expr
+            if not isinstance(call, ast.Call):
+                continue
+            func = call.func
+            if isinstance(func, ast.Attribute):
+                name = func.attr
+            elif isinstance(func, ast.Name):
+                name = func.id
+            else:
+                name = ""
+            if name in {"raises", "warns"}:
+                return True
+        return False
+
     def _check_assertion_quality(self, tree: ast.AST, analysis: dict) -> None:
         """Check assertion quality and patterns."""
         for node in ast.walk(tree):
@@ -232,8 +257,9 @@ class TestQualityChecker:
             ):
                 continue
             assertions = [n for n in ast.walk(node) if isinstance(n, ast.Assert)]
+            raises_blocks = [n for n in ast.walk(node) if self._is_raises_context(n)]
 
-            if not assertions:
+            if not assertions and not raises_blocks:
                 analysis["assertion_issues"].append(
                     QualityIssue(
                         "error",
@@ -242,8 +268,10 @@ class TestQualityChecker:
                         node.lineno,
                     ),
                 )
-            elif len(assertions) == 1 and self._is_vague_result_assertion(
-                assertions[0]
+            elif (
+                len(assertions) == 1
+                and not raises_blocks
+                and self._is_vague_result_assertion(assertions[0])
             ):
                 analysis["assertion_issues"].append(
                     QualityIssue(
@@ -328,10 +356,17 @@ class TestQualityChecker:
             if not python_path:
                 raise FileNotFoundError("Python executable not found in PATH")
 
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False
-            ) as tmp_file:
-                tmp_path = tmp_file.name
+            # The json-report plugin gives rich pass/fail data but is optional.
+            # Only request it when installed, otherwise a missing plugin makes
+            # pytest exit with a usage error that looks like a failing run.
+            report_path = None
+            json_args = []
+            if importlib.util.find_spec("pytest_jsonreport") is not None:
+                with tempfile.NamedTemporaryFile(
+                    mode="w", suffix=".json", delete=False
+                ) as tmp_file:
+                    report_path = tmp_file.name
+                json_args = ["--json-report", f"--json-report-file={report_path}"]
 
             try:
                 result = subprocess.run(
@@ -340,8 +375,7 @@ class TestQualityChecker:
                         "-m",
                         "pytest",
                         str(self.test_path),
-                        "--json-report",
-                        f"--json-report-file={tmp_path}",
+                        *json_args,
                         "-q",
                     ],
                     check=False,
@@ -353,7 +387,7 @@ class TestQualityChecker:
                 validation["execution_result"] = result.returncode
 
                 parsed = self._parse_test_report(
-                    tmp_path, fallback_returncode=result.returncode
+                    report_path, fallback_returncode=result.returncode
                 )
                 validation["passed"] = parsed["passed"]
                 validation["failures"] = parsed["failures"]
@@ -366,11 +400,12 @@ class TestQualityChecker:
             except Exception as e:
                 validation["errors"].append(f"Test execution failed: {e}")
             finally:
-                # Clean up temp file
-                try:
-                    os.unlink(tmp_path)
-                except (OSError, FileNotFoundError):
-                    pass
+                # Clean up temp file when one was created
+                if report_path is not None:
+                    try:
+                        os.unlink(report_path)
+                    except (OSError, FileNotFoundError):
+                        pass
 
         except Exception as e:
             validation["errors"].append(f"Test setup failed: {e}")
@@ -383,7 +418,10 @@ class TestQualityChecker:
         """Parse a pytest JSON report file into a summary dict.
 
         Falls back to synthetic counts when the file is missing or unreadable.
-        fallback_returncode == 0 → treat as 1 pass; non-zero → treat as 1 failure.
+        The return code is trusted only for the unambiguous cases: 0 means all
+        passed and 1 means real failures. Other codes (interrupted, usage error
+        from a missing plugin, or no tests collected) mean the run could not be
+        measured, not that tests failed, so no synthetic failure is recorded.
         """
         try:
             with open(report_path) as f:
@@ -395,10 +433,24 @@ class TestQualityChecker:
                 "errors": summary.get("error", 0),
                 "skipped": summary.get("skipped", 0),
             }
-        except (json.JSONDecodeError, FileNotFoundError, OSError):
+        except (json.JSONDecodeError, FileNotFoundError, OSError, TypeError):
             if fallback_returncode == 0:
                 return {"passed": 1, "failures": 0, "errors": 0, "skipped": 0}
-            return {"passed": 0, "failures": 1, "errors": 0, "skipped": 0}
+            if fallback_returncode == 1:
+                return {"passed": 0, "failures": 1, "errors": 0, "skipped": 0}
+            # Exit >= 2 -- interrupted (2), internal error (3), usage error
+            # (4), or no tests collected (5) -- means the run could not be
+            # measured. It is not a test failure (failures/errors stay 0, so
+            # the "real failures" predicate is unaffected), but the explicit
+            # inconclusive flag stops a crashed or uncollectable suite from
+            # scoring clean with no warning.
+            return {
+                "passed": 0,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0,
+                "inconclusive": True,
+            }
 
     def calculate_metrics(self) -> dict[str, Any]:
         """Calculate quality metrics."""
@@ -472,6 +524,18 @@ class TestQualityChecker:
 
         return complexity
 
+    @staticmethod
+    def _has_real_failures(dynamic: dict) -> bool:
+        """Return True when the run recorded genuine failures or errors.
+
+        Documents the shared 'the run had real problems' predicate in one
+        place: a nonzero pytest exit code alone never qualifies (a coverage
+        gate can fail an all-passing run), but recorded failures or errors do.
+        An inconclusive run (pytest exit >= 2) is handled separately via the
+        ``inconclusive`` flag, not here.
+        """
+        return bool(dynamic["failures"] or dynamic["errors"])
+
     def _calculate_overall_score(self, results: dict) -> int:
         """Calculate overall quality score (0-100)."""
         score = 100
@@ -487,9 +551,12 @@ class TestQualityChecker:
                 elif issue.severity == "info":
                     score -= 2
 
-        # Consider test execution
+        # Consider test execution. A nonzero pytest exit code alone does not
+        # mean tests failed (a coverage threshold can fail the run while every
+        # test passes), so penalize on real failures/errors or on a run that
+        # could not be measured (inconclusive); never on exit code alone.
         dynamic = results["dynamic_validation"]
-        if dynamic["execution_result"] != 0:
+        if self._has_real_failures(dynamic) or dynamic.get("inconclusive"):
             score -= 20
 
         # Consider metrics
@@ -548,7 +615,12 @@ class TestQualityChecker:
 
         # From dynamic validation
         dynamic = results["dynamic_validation"]
-        if dynamic["execution_result"] != 0:
+        if dynamic.get("inconclusive"):
+            recommendations.append(
+                "Test run was inconclusive (pytest exit code >= 2); "
+                "investigate the suite before trusting this score",
+            )
+        elif self._has_real_failures(dynamic):
             recommendations.append("Fix failing tests before proceeding")
 
         if dynamic["test_duration"] > MAX_TEST_DURATION:

@@ -94,7 +94,7 @@ Create a simple logging hook in `.claude/settings.json`:
       "matcher": "Bash",
       "hooks": [{
         "type": "command",
-        "command": "echo \"$(date): Executed $CLAUDE_TOOL_NAME\" >> ~/.claude/audit.log"
+        "command": "echo \"$(date): Executed $(jq -r '.tool_name')\" >> ~/.claude/audit.log"
       }]
     }
   ]

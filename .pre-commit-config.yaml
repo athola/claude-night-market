@@ -367,35 +367,66 @@ repos:
       - id: requirements-txt-fixer
 
   - repo: https://github.com/pycqa/bandit
-    rev: 1.8.3
+    # 1.8.6 is the last release supporting Python 3.9 (1.9.0+ require
+    # >=3.10); the system interpreter here is 3.9.6. Pin the hook env
+    # too so pip does not pull a 3.10-only bandit into the venv.
+    rev: 1.8.6
     hooks:
       - id: bandit
         args: ["-c", "pyproject.toml", "-r", "plugins/"]
-        additional_dependencies: ["bandit[toml]"]
+        # The pinned rev controls the bandit version; this only adds the
+        # `toml` extra (tomli) so bandit can read pyproject.toml config.
+        # Re-requesting bandit[toml] here would conflict with the cloned
+        # hook repo's own bandit install.
+        additional_dependencies: ["tomli"]
         exclude: \.venv/|\.uv-cache/|__pycache__/|node_modules/|\.egg-info/
 
   # =================================================================
   # Global Code Quality (Fast - Runs on All Files)
   # =================================================================
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.11
+  # Ruff via the project's own uv-managed ruff (pinned in uv.lock) so the
+  # hook and `uv run ruff` / `make format` share one version and cannot
+  # diverge. --config pyproject.toml forces the root config (no per-plugin
+  # discovery), matching the prior ruff-pre-commit mirror behavior.
+  - repo: local
     hooks:
       # 1. Format
       - id: ruff-format
         name: Ruff - Format
-        args: [--config, pyproject.toml]
+        entry: uv run ruff format --config pyproject.toml
+        language: system
         types: [python]
       # 2. Fix auto-fixable lint issues
-      - id: ruff
+      - id: ruff-fix
         name: Ruff - Fix
-        args: [--fix, --config, pyproject.toml]
+        entry: uv run ruff check --fix --config pyproject.toml
+        language: system
         types: [python]
       # 3. Verify no remaining lint issues
-      - id: ruff
+      - id: ruff-check
         name: Ruff - Check
-        args: [--config, pyproject.toml]
+        entry: uv run ruff check --config pyproject.toml
+        language: system
         types: [python]
+      # 4. Flag when the locked ruff lags the latest PyPI release
+      #    (advisory; runs only on dependency-file changes so ordinary
+      #    commits pay no network cost; skips cleanly when offline).
+      - id: check-ruff-version
+        name: Ruff Version Check
+        entry: python3 scripts/check_ruff_version.py
+        language: system
+        pass_filenames: false
+        files: ^(pyproject\.toml|uv\.lock)$
+      # 5. Block when pinned CI actions or external pre-commit hooks lag
+      #    upstream (blocking; runs only on CI / pre-commit config changes
+      #    so ordinary commits pay no network cost; skips cleanly offline).
+      - id: check-pinned-versions
+        name: CI / Pre-commit Version Check
+        entry: python3 scripts/check_pinned_versions.py
+        language: system
+        pass_filenames: false
+        files: ^(\.pre-commit-config\.yaml|\.github/workflows/.*\.ya?ml)$
 
   # Strict type checking is handled by the local `run-plugin-typecheck`
   # hook above (and the typecheck.yml CI gate), which runs each plugin's

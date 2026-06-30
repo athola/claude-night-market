@@ -9,6 +9,7 @@ import logging
 import os
 import re
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, TypedDict
 
@@ -25,6 +26,7 @@ try:
 
     add_plugin_src_to_path("abstract", caller=__file__)
     from abstract.report_formatter import (  # type: ignore[import-not-found]  # added to sys.path above
+        ValidatorReport,
         format_validator_report,
     )
 except (ImportError, FileNotFoundError):
@@ -39,32 +41,33 @@ except (ImportError, FileNotFoundError):
             file=sys.stderr,
         )
 
-    def format_validator_report(  # type: ignore[misc]  # redefinition needed for import fallback
-        title: str,
-        plugin_root: Path,
-        skill_file_count: int,
-        metadata: list[tuple[str, Any]],
-        issues: list[str],
-        success_message: str = "All validations passed successfully!",
-    ) -> str:
+    @dataclass(frozen=True)
+    class ValidatorReport:  # type: ignore[no-redef]  # fallback mirrors abstract.report_formatter
+        title: str
+        plugin_root: Path
+        skill_file_count: int
+        metadata: list[tuple[str, Any]] = field(default_factory=list)
+        issues: list[str] = field(default_factory=list)
+        success_message: str = "All validations passed successfully!"
+
+    def format_validator_report(report: ValidatorReport) -> str:  # type: ignore[misc]  # redefinition needed for import fallback
         """Fallback when leyline.bootstrap or abstract is not available.
 
         Mirrors the real ``abstract.report_formatter.format_validator_report``
-        signature so call sites do not silently produce garbage when the
-        cross-plugin import fails. Output format matches the real helper
-        so downstream parsers continue to work.
+        so call sites keep working when the cross-plugin import fails. Output
+        format matches the real helper so downstream parsers continue to work.
         """
-        lines: list[str] = [title, "=" * 50]
-        lines.append(f"\nPlugin Root: {plugin_root}")
-        lines.append(f"Skill Files: {skill_file_count}")
-        for label, value in metadata:
+        lines: list[str] = [report.title, "=" * 50]
+        lines.append(f"\nPlugin Root: {report.plugin_root}")
+        lines.append(f"Skill Files: {report.skill_file_count}")
+        for label, value in report.metadata:
             lines.append(f"\n{label}: {value}")
-        if issues:
-            lines.append(f"\nIssues Found ({len(issues)}):")
-            for index, issue in enumerate(issues, 1):
+        if report.issues:
+            lines.append(f"\nIssues Found ({len(report.issues)}):")
+            for index, issue in enumerate(report.issues, 1):
                 lines.append(f"  {index}. {issue}")
         else:
-            lines.append(f"\n{success_message}")
+            lines.append(f"\n{report.success_message}")
         return "\n".join(lines)
 
 
@@ -310,18 +313,23 @@ class ImbueValidator:
         issues = list(dict.fromkeys(result["issues"] + validation_issues))
 
         return format_validator_report(  # type: ignore[no-any-return]  # cross-plugin import typed as Any
-            title="Imbue Plugin Review Workflow Report",
-            plugin_root=self.plugin_root,
-            skill_file_count=len(self.skill_files),
-            metadata=[
-                ("Review Workflow Skills", sorted(result["review_workflow_skills"])),
-                (
-                    "Evidence Logging Patterns",
-                    sorted(result["evidence_logging_patterns"]),
-                ),
-            ],
-            issues=issues,
-            success_message="All review workflow skills validated successfully!",
+            ValidatorReport(
+                title="Imbue Plugin Review Workflow Report",
+                plugin_root=self.plugin_root,
+                skill_file_count=len(self.skill_files),
+                metadata=[
+                    (
+                        "Review Workflow Skills",
+                        sorted(result["review_workflow_skills"]),
+                    ),
+                    (
+                        "Evidence Logging Patterns",
+                        sorted(result["evidence_logging_patterns"]),
+                    ),
+                ],
+                issues=issues,
+                success_message="All review workflow skills validated successfully!",
+            )
         )
 
 

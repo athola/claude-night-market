@@ -28,6 +28,7 @@ class TestQueryKnowledge:
         Given a knowledge base with 3 entries
         When query_knowledge is called with no filters
         Then all 3 entries are returned
+        And the default difficulty range (1, 4) includes all entries
         """
         gauntlet_dir = sample_knowledge_base.parent
         entries = query_knowledge(gauntlet_dir)
@@ -53,6 +54,7 @@ class TestQueryKnowledge:
         Given a knowledge base with business_logic, architecture, data_flow entries
         When query_knowledge is called with categories=["architecture"]
         Then only the architecture entry is returned
+        And entries in other categories are excluded
         """
         gauntlet_dir = sample_knowledge_base.parent
         entries = query_knowledge(gauntlet_dir, categories=["architecture"])
@@ -66,9 +68,45 @@ class TestQueryKnowledge:
         Given a gauntlet directory with no knowledge.json
         When query_knowledge is called
         Then an empty list is returned
+        And no exception is raised
         """
         entries = query_knowledge(tmp_gauntlet_dir)
         assert entries == []
+
+    @pytest.mark.unit
+    def test_query_difficulty_tuple_min_bound_filters_low_entries(
+        self, sample_knowledge_base: Path
+    ) -> None:
+        """
+        Scenario: Explicit difficulty tuple min bound filters out low-difficulty entries
+        Given a knowledge base with entries at difficulty 2 (billing, auth) and 3 (core)
+        When query_knowledge is called with difficulty=(3, 4)
+        Then only the difficulty-3 entry is returned
+        And the two difficulty-2 entries are excluded
+        """
+        gauntlet_dir = sample_knowledge_base.parent
+        entries = query_knowledge(gauntlet_dir, difficulty=(3, 4))
+        assert len(entries) == 1
+        assert entries[0].module == "core"
+        assert entries[0].difficulty == 3
+
+    @pytest.mark.unit
+    def test_query_difficulty_tuple_max_bound_excludes_high_entries(
+        self, sample_knowledge_base: Path
+    ) -> None:
+        """
+        Scenario: Explicit difficulty tuple max bound excludes high-difficulty entries
+        Given a knowledge base with entries at difficulty 2 (billing, auth) and 3 (core)
+        When query_knowledge is called with difficulty=(1, 2)
+        Then only the two difficulty-2 entries are returned
+        And the difficulty-3 entry is excluded
+        """
+        gauntlet_dir = sample_knowledge_base.parent
+        entries = query_knowledge(gauntlet_dir, difficulty=(1, 2))
+        assert len(entries) == 2
+        modules = {e.module for e in entries}
+        assert modules == {"billing", "auth"}
+        assert all(e.difficulty == 2 for e in entries)
 
 
 class TestGetContextForFiles:
@@ -87,6 +125,7 @@ class TestGetContextForFiles:
         Given a knowledge base with a billing entry
         When get_context_for_files is called with ["billing"]
         Then the result contains "##" level headings
+        And the billing concept name appears in the output
         """
         gauntlet_dir = sample_knowledge_base.parent
         result = get_context_for_files(gauntlet_dir, ["billing"])
@@ -102,6 +141,7 @@ class TestGetContextForFiles:
         Given a knowledge base with no entry for "nonexistent_module"
         When get_context_for_files is called with ["nonexistent_module"]
         Then the result contains "No knowledge entries"
+        And the result is a plain string (not an empty string)
         """
         gauntlet_dir = sample_knowledge_base.parent
         result = get_context_for_files(gauntlet_dir, ["nonexistent_module"])

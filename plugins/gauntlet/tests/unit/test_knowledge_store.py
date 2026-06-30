@@ -13,27 +13,22 @@ from gauntlet.models import KnowledgeEntry
 # ---------------------------------------------------------------------------
 
 
-def _make_entry(
-    entry_id: str = "ke-001",
-    module: str = "billing",
-    category: str = "business_logic",
-    tags: list[str] = None,
-    difficulty: int = 2,
-    related_files: list[str] = None,
-) -> KnowledgeEntry:
-    return KnowledgeEntry(
-        id=entry_id,
-        category=category,
-        module=module,
-        concept="Test concept",
-        detail="Test detail",
-        difficulty=difficulty,
-        extracted_at="2026-01-01T00:00:00",
-        source="code",
-        related_files=related_files or [],
-        tags=tags or [],
-        consumers=[],
-    )
+def _make_entry(**overrides: object) -> KnowledgeEntry:
+    fields: dict[str, object] = {
+        "id": overrides.pop("entry_id", "ke-001"),
+        "category": "business_logic",
+        "module": "billing",
+        "concept": "Test concept",
+        "detail": "Test detail",
+        "difficulty": 2,
+        "extracted_at": "2026-01-01T00:00:00",
+        "source": "code",
+        "related_files": [],
+        "tags": [],
+        "consumers": [],
+    }
+    fields.update(overrides)
+    return KnowledgeEntry(**fields)
 
 
 # ---------------------------------------------------------------------------

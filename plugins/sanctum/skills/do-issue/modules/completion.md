@@ -26,7 +26,7 @@ Review after each sequential task following the subagent-driven-development patt
 Dispatch detailed review of all changes:
 
 ```
-Task tool (superpowers:code-reviewer):
+Task tool (superpowers:requesting-code-review):
   description: "Final review: Issues #42, #43, #44"
   prompt: |
     Review complete implementation for issues: #42, #43, #44

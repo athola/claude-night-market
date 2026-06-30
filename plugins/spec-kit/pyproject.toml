@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.9.13"
+version = "1.9.14"
 description = "Spec Driven Development toolkit with enhanced superpowers integration (synced with upstream spec-kit v0.5.0)"
 readme = "README.md"
 license = "MIT"
@@ -94,6 +94,7 @@ select = [
     "B",  # flake8-bugbear
     "C4", # flake8-comprehensions
     "UP", # pyupgrade
+    "PLR0913", # too-many-arguments (enforced ecosystem-wide, not ignored)
 ]
 ignore = [
     "E501",  # line too long, handled by black

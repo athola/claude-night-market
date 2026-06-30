@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tome"
-version = "1.9.13"
+version = "1.9.14"
 description = "Multi-source research plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -34,7 +34,7 @@ target-version = "py39"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "S"]
+select = ["E", "F", "I", "UP", "B", "SIM", "S", "PLR0913"]
 ignore = ["UP017", "S101"]
 
 [tool.ruff.lint.per-file-ignores]

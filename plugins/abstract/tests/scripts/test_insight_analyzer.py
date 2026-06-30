@@ -31,7 +31,13 @@ def test_build_context_with_metrics():
     assert "x:y" in ctx.metrics
 
 
-def test_build_context_defaults():
+def test_build_context_defaults(tmp_path, monkeypatch):
+    # build_context loads optional data files from
+    # $HOME/.claude/skills when present. Point HOME at an empty dir so
+    # the files are absent and the None defaults hold on machines that
+    # actually run the framework (where performance_history.json and
+    # improvement_memory.json exist).
+    monkeypatch.setenv("HOME", str(tmp_path))
     ctx = build_context(metrics={})
     assert ctx.trigger == "stop"
     assert ctx.previous_snapshot is None

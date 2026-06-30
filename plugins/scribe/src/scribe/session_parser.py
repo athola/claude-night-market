@@ -312,12 +312,29 @@ def detect_format(path: Path) -> str:
 # --- Main parser ---
 
 
+@dataclass(frozen=True)
+class Viewport:
+    """Terminal viewport used for text wrapping and truncation."""
+
+    cols: int = 80
+    rows: int = 24
+
+    def __post_init__(self) -> None:
+        # Make illegal geometry unrepresentable: textwrap raises at width 0,
+        # so a viewport with non-positive cols/rows would break wrapping
+        # downstream rather than failing at construction.
+        if self.cols < 1 or self.rows < 1:
+            raise ValueError(
+                f"Viewport requires cols >= 1 and rows >= 1, "
+                f"got cols={self.cols}, rows={self.rows}"
+            )
+
+
 def parse_session(
     path: Path,
     turns: str | None = None,
     show: str = "user,assistant,tools",
-    cols: int = 80,
-    rows: int = 24,
+    viewport: Viewport | None = None,
     format: str | None = None,
 ) -> list[Turn]:
     """Parse a session JSONL file into turns.
@@ -332,8 +349,8 @@ def parse_session(
                Counts only UserTurn entries as turn boundaries.
         show: Comma-separated layers to include.
               Options: user, assistant, tools.
-        cols: Text wrapping width in characters.
-        rows: Text truncation height in lines.
+        viewport: Terminal viewport (cols/rows) for wrapping and
+                  truncation. Defaults to 80x24.
         format: Session format: "claude", "codex", or None
                 for auto-detection.
 
@@ -343,6 +360,9 @@ def parse_session(
     Raises:
         OSError: If the session file cannot be read.
     """
+    vp = viewport or Viewport()
+    cols = vp.cols
+    rows = vp.rows
     try:
         lines = _read_lines(path)
     except OSError:

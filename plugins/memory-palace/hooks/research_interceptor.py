@@ -14,9 +14,11 @@ from pathlib import Path
 from typing import Any
 
 from shared import config as shared_config
+from shared.decision_engine import DecisionDeps, DecisionRequest
 from shared.decision_engine import make_decision as _make_decision
 from shared.formatting import format_cached_entry_context  # noqa: F401 - re-export
 from shared.hook_output import (
+    IntakeContext,
     build_hook_payload,
     build_response_parts,
     queue_for_intake,
@@ -26,7 +28,7 @@ from shared.query_classifier import (
     is_evergreen,  # noqa: F401 - re-export
     needs_freshness,  # noqa: F401 - re-export
 )
-from shared.telemetry import emit_telemetry_event as _emit_telemetry
+from shared.telemetry import emit_telemetry_event
 
 logger = logging.getLogger(__name__)
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
@@ -123,44 +125,36 @@ def make_decision(
     # _make_decision is declared `-> Any` (it injects the decision type at call
     # time); pin the result to the real return type before handing it back.
     decision: CacheInterceptDecision = _make_decision(
-        query,
-        results,
-        mode,
-        config=config,
-        autonomy_profile=autonomy_profile,
-        CacheInterceptDecision=CacheInterceptDecision,
-        AutonomyProfile=AutonomyProfile,
-        DomainAlignment=DomainAlignment,
-        IntakeFlagPayload=IntakeFlagPayload,
-        RedundancyLevel=RedundancyLevel,
-        novelty_by_redundancy=_NOVELTY_BY_REDUNDANCY,
+        DecisionRequest(
+            query=query,
+            results=results,
+            mode=mode,
+            config=config,
+            autonomy_profile=autonomy_profile,
+        ),
+        DecisionDeps(
+            CacheInterceptDecision=CacheInterceptDecision,
+            AutonomyProfile=AutonomyProfile,
+            DomainAlignment=DomainAlignment,
+            IntakeFlagPayload=IntakeFlagPayload,
+            RedundancyLevel=RedundancyLevel,
+            novelty_by_redundancy=_NOVELTY_BY_REDUNDANCY,
+        ),
     )
     return decision
 
 
-def emit_telemetry_event(
-    telemetry_logger: TelemetryLogger | None,
-    *,
-    query_id: str,
-    query: str,
-    tool_name: str,
-    mode: str,
-    decision: CacheInterceptDecision,
-    results: list[dict[str, Any]],
-    latency_ms: int,
-) -> None:
-    """Best-effort telemetry emission."""
-    _emit_telemetry(
-        telemetry_logger,
-        query_id=query_id,
-        query=query,
-        tool_name=tool_name,
-        mode=mode,
-        decision=decision,
-        results=results,
-        latency_ms=latency_ms,
-        ResearchTelemetryEvent=ResearchTelemetryEvent,
-    )
+@dataclass(frozen=True)
+class TelemetryContext:
+    """Per-request fields for a research telemetry event."""
+
+    query_id: str
+    query: str
+    tool_name: str
+    mode: str
+    decision: CacheInterceptDecision
+    results: list[dict[str, Any]]
+    latency_ms: int
 
 
 def main() -> None:
@@ -240,15 +234,27 @@ def main() -> None:
 
     emit_telemetry_event(
         telemetry_logger,
-        query_id=query_id,
-        query=query,
-        tool_name=tool_name,
-        mode=mode,
-        decision=decision,
-        results=results,
-        latency_ms=latency_ms,
+        TelemetryContext(
+            query_id=query_id,
+            query=query,
+            tool_name=tool_name,
+            mode=mode,
+            decision=decision,
+            results=results,
+            latency_ms=latency_ms,
+        ),
+        ResearchTelemetryEvent=ResearchTelemetryEvent,
     )
-    queue_for_intake(PLUGIN_ROOT, decision, query_id, tool_name, query, tool_input)
+    queue_for_intake(
+        PLUGIN_ROOT,
+        decision,
+        IntakeContext(
+            query_id=query_id,
+            tool_name=tool_name,
+            query=query,
+            tool_input=tool_input,
+        ),
+    )
     sys.exit(0)
 
 

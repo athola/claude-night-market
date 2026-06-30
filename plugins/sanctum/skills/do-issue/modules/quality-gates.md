@@ -7,7 +7,7 @@ Code review between task batches to catch issues early.
 After parallel batch completes, review all changes:
 
 ```
-Task tool (superpowers:code-reviewer):
+Task tool (superpowers:requesting-code-review):
   description: "Review parallel batch: Issues #42, #43"
   prompt: |
     Review changes from parallel implementation batch.

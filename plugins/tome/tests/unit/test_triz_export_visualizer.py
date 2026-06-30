@@ -308,25 +308,18 @@ class TestTrizCatalogues:
 # ============================================================================
 
 
-def _finding(
-    *,
-    title: str = "Title",
-    source: str = "github",
-    channel: str = "code",
-    url: str = "https://example.com/x",
-    relevance: float = 0.8,
-    summary: str = "summary",
-    metadata: dict | None = None,
-) -> Finding:
-    return Finding(
-        source=source,
-        channel=channel,
-        title=title,
-        url=url,
-        relevance=relevance,
-        summary=summary,
-        metadata=metadata or {},
-    )
+def _finding(**overrides: object) -> Finding:
+    fields: dict[str, object] = {
+        "source": "github",
+        "channel": "code",
+        "title": "Title",
+        "url": "https://example.com/x",
+        "relevance": 0.8,
+        "summary": "summary",
+        "metadata": {},
+    }
+    fields.update(overrides)
+    return Finding(**fields)
 
 
 def _session(findings: list[Finding] | None = None, **overrides) -> ResearchSession:

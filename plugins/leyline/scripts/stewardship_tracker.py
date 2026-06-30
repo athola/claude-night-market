@@ -12,19 +12,24 @@ from __future__ import annotations
 
 import json
 import sys
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 
-def record_action(
-    base_dir: Path,
-    plugin: str,
-    action_type: str,
-    file_path: str,
-    description: str,
-    virtue: str | None = None,
-) -> None:
+@dataclass(frozen=True)
+class StewardshipAction:
+    """A single stewardship action: a small, voluntary improvement."""
+
+    plugin: str
+    action_type: str
+    file_path: str
+    description: str
+    virtue: str | None = None
+
+
+def record_action(base_dir: Path, action: StewardshipAction) -> None:
     """Append a stewardship action to the JSONL tracking file.
 
     Creates the directory and file if they don't exist.
@@ -32,12 +37,8 @@ def record_action(
 
     Args:
         base_dir: Directory where actions.jsonl is stored.
-        plugin: Plugin name originating the action.
-        action_type: Category of stewardship action.
-        file_path: File path the action relates to.
-        description: Human-readable description of the action.
-        virtue: Optional virtue associated with this action.
-            Omitted from the entry when None.
+        action: The stewardship action to record. Its ``virtue`` is
+            omitted from the entry when None.
     """
     try:
         base_dir.mkdir(parents=True, exist_ok=True)
@@ -47,13 +48,13 @@ def record_action(
 
     entry: dict[str, Any] = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "plugin": plugin,
-        "action_type": action_type,
-        "file": file_path,
-        "description": description,
+        "plugin": action.plugin,
+        "action_type": action.action_type,
+        "file": action.file_path,
+        "description": action.description,
     }
-    if virtue is not None:
-        entry["virtue"] = virtue
+    if action.virtue is not None:
+        entry["virtue"] = action.virtue
 
     actions_file = base_dir / "actions.jsonl"
     try:

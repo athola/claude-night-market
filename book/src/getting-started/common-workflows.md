@@ -603,7 +603,7 @@ git checkout -b feature/add-caching
 Skill(imbue:proof-of-work)  # Enforces: NO IMPLEMENTATION WITHOUT FAILING TEST FIRST
 
 # Or with superpowers TDD
-Skill(superpowers:tdd)
+Skill(superpowers:test-driven-development)
 
 # Execute planned tasks
 /speckit-implement

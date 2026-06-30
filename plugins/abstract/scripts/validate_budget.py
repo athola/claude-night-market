@@ -198,34 +198,53 @@ def format_offenders_list(components: list[Component], limit: int = 10) -> str:
     return "\n".join(lines)
 
 
-def print_budget_report(
-    total_chars: int,
-    total_with_overhead: int,
-    visible_estimate: int,
-    verbose_count: int,
-    failed: bool,
-    warn_only: bool,
-    verbose: list[Component],
-    component_count: int,
-) -> None:
+@dataclass(frozen=True)
+class BudgetReport:
+    """Tallies for a full budget validation report."""
+
+    total_chars: int
+    total_with_overhead: int
+    visible_estimate: int
+    verbose_count: int
+    failed: bool
+    warn_only: bool
+    verbose: list[Component]
+    component_count: int
+
+    @property
+    def usage_pct(self) -> float:
+        """Percent of the budget consumed, overhead included."""
+        return self.total_with_overhead / BUDGET_LIMIT * 100
+
+    @property
+    def overhead_total(self) -> int:
+        """Total fixed per-component overhead charged against the budget."""
+        return self.component_count * OVERHEAD_PER_COMPONENT
+
+
+def print_budget_report(report: BudgetReport) -> None:
     """Print full budget validation report."""
-    usage_pct = total_with_overhead / BUDGET_LIMIT * 100
-    overhead_total = component_count * OVERHEAD_PER_COMPONENT
-    print(f"Components: {component_count} ({overhead_total:,} chars overhead)")
-    print(f"Description chars: {total_chars:,}")
     print(
-        f"Total with overhead: {total_with_overhead:,} / "
-        f"{BUDGET_LIMIT:,} ({usage_pct:.1f}% used)"
+        f"Components: {report.component_count} "
+        f"({report.overhead_total:,} chars overhead)"
+    )
+    print(f"Description chars: {report.total_chars:,}")
+    print(
+        f"Total with overhead: {report.total_with_overhead:,} / "
+        f"{BUDGET_LIMIT:,} ({report.usage_pct:.1f}% used)"
     )
     print(
         f"Estimated visible at {DESCRIPTION_MAX} char avg: "
-        f"~{visible_estimate} of {component_count}"
+        f"~{report.visible_estimate} of {report.component_count}"
     )
 
-    if failed:
-        print(f"\n❌ BUDGET EXCEEDED by {total_with_overhead - BUDGET_LIMIT:,} chars!")
+    if report.failed:
+        print(
+            f"\n❌ BUDGET EXCEEDED by "
+            f"{report.total_with_overhead - BUDGET_LIMIT:,} chars!"
+        )
         print("\nTop offenders:")
-        print(format_offenders_list(verbose))
+        print(format_offenders_list(report.verbose))
         print(
             f"\n⚠️  Total must be under "
             f"{BUDGET_LIMIT:,} chars "
@@ -240,27 +259,29 @@ def print_budget_report(
         print("   - Use template: [Verb] [domain]. Use when: [trigger1], [trigger2].")
         print("   - Move details to SKILL.md body -- descriptions are for discovery")
 
-    if warn_only:
+    if report.warn_only:
         print("\n⚠️  WARNING: Approaching budget limit")
-        warn_pct = total_with_overhead / BUDGET_LIMIT * 100
-        print(f"   Usage: {total_with_overhead:,} / {BUDGET_LIMIT:,} ({warn_pct:.1f}%)")
-
-    if verbose:
         print(
-            f"\n⚠️  {verbose_count} descriptions exceed "
+            f"   Usage: {report.total_with_overhead:,} / "
+            f"{BUDGET_LIMIT:,} ({report.usage_pct:.1f}%)"
+        )
+
+    if report.verbose:
+        print(
+            f"\n⚠️  {report.verbose_count} descriptions exceed "
             f"{DESCRIPTION_MAX} chars (recommended max):"
         )
-        top_verbose = sorted(verbose, key=lambda c: c.desc_length, reverse=True)
+        top_verbose = sorted(report.verbose, key=lambda c: c.desc_length, reverse=True)
         for comp in top_verbose[:VERBOSE_DISPLAY_LIMIT]:
             print(f"  - {comp.plugin}/{comp.name}: {comp.desc_length} chars")
-        if len(verbose) > VERBOSE_DISPLAY_LIMIT:
-            remaining = len(verbose) - VERBOSE_DISPLAY_LIMIT
+        if len(report.verbose) > VERBOSE_DISPLAY_LIMIT:
+            remaining = len(report.verbose) - VERBOSE_DISPLAY_LIMIT
             print(f"  ... and {remaining} more")
 
-    if not failed and not warn_only and not verbose:
-        headroom = BUDGET_LIMIT - total_with_overhead
+    if not report.failed and not report.warn_only and not report.verbose:
+        headroom = BUDGET_LIMIT - report.total_with_overhead
         print(f"✅ Budget check passed! ({headroom:,} chars headroom)")
-    elif not failed:
+    elif not report.failed:
         print("\n✅ Budget check passed (with warnings)")
 
 
@@ -285,14 +306,16 @@ def main() -> None:
 
     # Print report and exit appropriately
     print_budget_report(
-        total_chars,
-        total_with_overhead,
-        visible_estimate,
-        verbose_count,
-        failed,
-        warn_only,
-        verbose,
-        len(components),
+        BudgetReport(
+            total_chars=total_chars,
+            total_with_overhead=total_with_overhead,
+            visible_estimate=visible_estimate,
+            verbose_count=verbose_count,
+            failed=failed,
+            warn_only=warn_only,
+            verbose=verbose,
+            component_count=len(components),
+        )
     )
 
     sys.exit(1 if failed else 0)

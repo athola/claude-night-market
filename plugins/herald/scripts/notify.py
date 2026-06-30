@@ -104,6 +104,7 @@ class AlertContext:
     stage: str = ""
     step: str = ""
     detail: str = ""
+    source: str = "herald"
 
 
 def build_issue_body(
@@ -289,7 +290,6 @@ def alert(
     webhook_url: str | None = None,
     webhook_format: str = "generic",
     ctx: AlertContext | None = None,
-    source: str = "herald",
 ) -> bool:
     """Send alerts via GitHub issues and/or webhooks.
 
@@ -303,9 +303,8 @@ def alert(
         webhook_url: Webhook URL for additional notification.
         webhook_format: Webhook payload format ("slack", "discord",
             or "generic").
-        ctx: AlertContext with shared parameters. Defaults to an
-            empty context when not provided.
-        source: Label prefix for the alert (default "herald").
+        ctx: AlertContext with shared parameters, including the
+            ``source`` label prefix. Defaults to an empty context.
 
     Returns:
         True if at least one notification was sent successfully.
@@ -313,6 +312,7 @@ def alert(
     """
     if ctx is None:
         ctx = AlertContext()
+    source = ctx.source
 
     success = False
 

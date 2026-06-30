@@ -434,6 +434,71 @@ orchestrator. Tracked as deferred work in
 the orchestration is proposed, but the implementation is
 deferred to keep change blast-radius bounded.
 
+## Dogfooding Harness Lessons
+
+These lessons came out of a 2026-06-28 dogfooding pass over
+`make plugin-check` and the plugin Makefiles. The per-finding fixes
+landed in the Makefiles and are guarded by
+`tests/unit/test_plugin_check_harness.py`; what follows is the durable
+part worth keeping.
+
+### Separate "tool absent" from "tool failed"
+
+The recurring defect was the pattern:
+
+```bash
+cmd 2>/dev/null || echo "benign fallback"
+```
+
+A real failure (a missing file, an `E902` io-error) prints a harmless
+message and the target still exits 0, so the harness reports zero
+failures while masking real defects as skips. This is "sanitized
+optimism" at the harness layer, and it defeats the point of a dogfooding
+check. Two plugin Makefiles drifted this way: a stale `../conservation/`
+path in conserve, and a `ruff check parseltongue/` that pointed at a
+path that did not exist (source lives under `src/`).
+
+The fix is to distinguish the two cases. When a tool is genuinely
+absent, skip with an explicit reason. When a tool ran and failed,
+propagate its exit code instead of swallowing it under `2>/dev/null`.
+The repo already ships a `silent-failure-hunter` agent for this class of
+bug in code; the same lens applies to Makefile recipes. Presence probes
+and intentional empty-result handlers are legitimate uses of
+`|| echo` and should stay; a blind sweep would break them.
+
+### Bound every step in the harness
+
+`make plugin-check` once hung for 8+ minutes on `npx playwright
+--version` in `plugins/scry`, with stdout and stderr redirected, so the
+stall was silent and the run never reached the later plugins. A
+dogfooding harness that hangs on its own dependency probe is not safe to
+run in CI or unattended.
+
+Two guards prevent a recurrence: dependency probes use a non-fetching
+form (`npx --no-install playwright --version`) that fast-fails instead
+of resolving over the network, and the `plugin-check` loop wraps each
+plugin in `timeout 180`, so any future hang surfaces as
+`(plugin-check failed or timed out)` rather than stalling the whole run.
+
+### Drive long-running checks from tmux
+
+Long-lived, terminal-bound checks like `make plugin-check` are best
+driven from a detached tmux session: it lets the harness run while other
+evidence-gathering proceeds in parallel, and the session log captures
+output that redirected stdout would otherwise hide.
+
+### Follow-on work
+
+- A forced-eval skill-activation gate is prototyped under
+  `prototypes/forced-eval/` (not wired); it targets the
+  near-keyword-matching activation problem.
+- The skill Discovery budget is finite (about 16K characters) and skills
+  past it are dropped silently, so a layer-count guard is worth adding
+  as the ecosystem's skill count grows.
+- attune mission types (full, standard, tactical, quickfix) all assume
+  building from artifacts; an evidence-driven `review` mission type would
+  fit dogfooding work better than directive overrides.
+
 ## See Also
 
 - [Testing Guide](./testing-guide.md) - Testing documentation

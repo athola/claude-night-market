@@ -5,6 +5,40 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.9.14] - 2026-06-27
+
+### Added
+
+- **New `/speckit-converge` command** (spec-kit). Assesses the
+  codebase against `spec.md`, `plan.md`, and `tasks.md`, then appends
+  any unbuilt or partial work as new convergence tasks.
+  `/speckit-implement` now points to it as the follow-up once
+  implementation finishes.
+
+- **Pre-commit hooks that watch pinned tooling.**
+  `scripts/check_pinned_versions.py` flags when GitHub-sourced pins
+  (CI actions in `.github/workflows/*`, external `rev:` hooks in
+  `.pre-commit-config.yaml`) lag upstream and blocks the commit.
+  `scripts/check_ruff_version.py` advises when the single uv-managed
+  ruff in `uv.lock` lags the latest PyPI release. Both run only when
+  the relevant files are staged, so ordinary commits pay no network
+  cost.
+
+### Fixed
+
+- **Hooks read the tool payload from stdin, not unset env vars.**
+  PreToolUse/PostToolUse hooks (`skill_execution_logger`,
+  `pre_skill_execution`, `homeostatic_monitor` in abstract; leyline
+  `noqa_guard`; sanctum `deferred_item_watcher`) read `CLAUDE_TOOL_*`
+  environment variables that Claude Code never sets; the payload arrives
+  as JSON on stdin. They now read stdin first with an env-var fallback so
+  the test harness keeps working. `skill_execution_logger` had been
+  exiting 0 without logging, which starved the `[Learning]` discussion
+  digests of input (last digest 2026-04-25). Adds
+  `shared/hook_io.read_hook_payload` as the canonical reader.
+
 ## [1.9.13] - 2026-06-25
 
 A code-quality and hardening release: refactors that split

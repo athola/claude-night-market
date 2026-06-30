@@ -8,7 +8,7 @@ Usage:
     from leyline.usage_logger import UsageLogger
 
     logger = UsageLogger(service="my-service")
-    logger.log_usage("operation", tokens=1000, success=True, duration=2.5)
+    logger.log_usage(UsageEvent("operation", tokens=1000, success=True, duration=2.5))
 """
 
 from __future__ import annotations
@@ -39,6 +39,23 @@ class LogEntry:
     error_type: str | None = None
     error_message: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class UsageEvent:
+    """Call-time fields for a single ``log_usage`` invocation.
+
+    Session and service context are supplied by the logger; this carries
+    only the per-operation data.
+    """
+
+    operation: str
+    tokens: int = 0
+    success: bool = True
+    duration: float = 0.0
+    error_type: str | None = None
+    error_message: str | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class UsageLogger:
@@ -110,28 +127,19 @@ class UsageLogger:
                     self.session_file,
                 )
 
-    def log_usage(
-        self,
-        operation: str,
-        tokens: int = 0,
-        success: bool = True,
-        duration: float = 0.0,
-        error_type: str | None = None,
-        error_message: str | None = None,
-        metadata: dict[str, Any] | None = None,
-    ) -> None:
+    def log_usage(self, event: UsageEvent) -> None:
         """Log a usage entry."""
         entry = LogEntry(
             timestamp=datetime.utcnow().isoformat() + "Z",
             session_id=self.session_id,
             service=self.service,
-            operation=operation,
-            tokens=tokens,
-            success=success,
-            duration_seconds=duration,
-            error_type=error_type,
-            error_message=error_message,
-            metadata=metadata or {},
+            operation=event.operation,
+            tokens=event.tokens,
+            success=event.success,
+            duration_seconds=event.duration,
+            error_type=event.error_type,
+            error_message=event.error_message,
+            metadata=event.metadata or {},
         )
 
         # Append to JSONL file
@@ -254,10 +262,12 @@ def main() -> None:
     elif args.log:
         operation, tokens, success, duration = args.log
         logger.log_usage(
-            operation=operation,
-            tokens=int(tokens),
-            success=success.lower() == "true",
-            duration=float(duration),
+            UsageEvent(
+                operation=operation,
+                tokens=int(tokens),
+                success=success.lower() == "true",
+                duration=float(duration),
+            )
         )
     else:
         operations = logger.get_recent_operations(hours=args.recent)

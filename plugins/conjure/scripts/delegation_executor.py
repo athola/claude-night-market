@@ -13,7 +13,7 @@ import logging
 import os
 import subprocess  # nosec B404
 import time
-from dataclasses import dataclass
+from dataclasses import MISSING, dataclass, fields
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -75,6 +75,37 @@ class ServiceConfig:
     auth_method: str
     auth_env_var: str | None = None
     quota_limits: dict[str, int] | None = None
+
+
+def _missing_required_fields(service_config: Any) -> set[str]:
+    """Return required ServiceConfig fields absent from a known-only config.
+
+    Only returns missing names when ``service_config`` is a dict whose keys
+    are all recognised ServiceConfig fields: such an entry is incomplete and
+    should be skipped. A dict with unknown keys (or a non-dict) returns an
+    empty set so the caller lets construction raise instead of silently
+    skipping malformed config (CJR-003).
+    """
+    if not isinstance(service_config, dict):
+        return set()
+    known = {f.name for f in fields(ServiceConfig)}
+    keys = set(service_config)
+    if not keys <= known:
+        return set()
+    required = {f.name for f in fields(ServiceConfig) if f.default is MISSING}
+    return required - keys
+
+
+@dataclass(frozen=True)
+class LaunchSpec:
+    """Inputs for spawning a single delegation subprocess."""
+
+    cmd: list[str]
+    service_name: str
+    prompt: str
+    files: list[str] | None
+    timeout: int
+    start_time: float
 
 
 @dataclass
@@ -155,7 +186,21 @@ class Delegator:
                                 ),
                             )
                         else:
-                            # Add new service config
+                            # Add a new service. An entry that uses only
+                            # known fields but omits required ones is
+                            # incomplete and skipped so the defaults survive.
+                            # An entry with unknown fields is malformed and is
+                            # allowed to raise (CJR-003: config load must not
+                            # swallow unexpected errors).
+                            missing = _missing_required_fields(service_config)
+                            if missing:
+                                logger.warning(
+                                    "Skipping incomplete service config %r: "
+                                    "missing required field(s) %s",
+                                    service_name,
+                                    ", ".join(sorted(missing)),
+                                )
+                                continue
                             self.services[service_name] = ServiceConfig(
                                 **service_config,
                             )
@@ -254,44 +299,34 @@ class Delegator:
 
         return command
 
-    def _launch_process(
-        self,
-        cmd: list[str],
-        service_name: str,
-        prompt: str,
-        files: list[str] | None,
-        timeout: int,
-        start_time: float,
-    ) -> ExecutionResult:
+    def _launch_process(self, spec: LaunchSpec) -> ExecutionResult:
         """Spawn subprocess and return ExecutionResult, handling all error paths."""
         try:
             result = subprocess.run(  # nosec B603
-                cmd,
+                spec.cmd,
                 check=False,
                 capture_output=True,
                 text=True,
-                timeout=timeout,
+                timeout=spec.timeout,
                 cwd=Path.cwd(),
             )
-            duration = time.time() - start_time
-            tokens_used = estimate_tokens(files or [], prompt)
             return ExecutionResult(
                 success=result.returncode == 0,
                 stdout=result.stdout,
                 stderr=result.stderr,
                 exit_code=result.returncode,
-                duration=duration,
-                tokens_used=tokens_used,
-                service=service_name,
+                duration=time.time() - spec.start_time,
+                tokens_used=estimate_tokens(spec.files or [], spec.prompt),
+                service=spec.service_name,
             )
         except subprocess.TimeoutExpired:
             return ExecutionResult(
                 success=False,
                 stdout="",
-                stderr=f"Command timed out after {timeout} seconds",
+                stderr=f"Command timed out after {spec.timeout} seconds",
                 exit_code=124,
-                duration=time.time() - start_time,
-                service=service_name,
+                duration=time.time() - spec.start_time,
+                service=spec.service_name,
             )
         except FileNotFoundError as e:
             return ExecutionResult(
@@ -299,8 +334,8 @@ class Delegator:
                 stdout="",
                 stderr=f"Command not found: {e}",
                 exit_code=127,
-                duration=time.time() - start_time,
-                service=service_name,
+                duration=time.time() - spec.start_time,
+                service=spec.service_name,
             )
         except Exception as e:
             logger.exception("Unexpected error executing delegation")
@@ -309,8 +344,8 @@ class Delegator:
                 stdout="",
                 stderr=str(e),
                 exit_code=1,
-                duration=time.time() - start_time,
-                service=service_name,
+                duration=time.time() - spec.start_time,
+                service=spec.service_name,
             )
 
     def execute(
@@ -325,7 +360,14 @@ class Delegator:
         start_time = time.time()
         command = self.build_command(service_name, prompt, files, options)
         execution_result = self._launch_process(
-            command, service_name, prompt, files, timeout, start_time
+            LaunchSpec(
+                cmd=command,
+                service_name=service_name,
+                prompt=prompt,
+                files=files,
+                timeout=timeout,
+                start_time=start_time,
+            )
         )
         self.log_usage(service_name, command, execution_result)
         return execution_result

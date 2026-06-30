@@ -1,6 +1,6 @@
 [project]
 name = "minister"
-version = "1.9.13"
+version = "1.9.14"
 description = "GitHub-centric project management plugin for Claude Code"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
@@ -45,7 +45,6 @@ extend-ignore = [
     "D203",
     "D213",
     "D107",
-    "PLR0913",
     "S603",
     "S607",
 ]

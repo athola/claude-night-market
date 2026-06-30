@@ -15,12 +15,18 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
-# Allow importing from src/abstract/ when running as a hook
+# Allow importing from src/abstract/ and the co-located shared/ package
+# when running as a hook.
 _src = Path(__file__).resolve().parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
+_hooks_dir = Path(__file__).resolve().parent
+if str(_hooks_dir) not in sys.path:
+    sys.path.insert(0, str(_hooks_dir))
+
+from shared.hook_io import read_hook_payload  # noqa: E402 - import after path setup
 
 try:
     from abstract.improvement_queue import ImprovementQueue
@@ -126,14 +132,25 @@ def _needs_metacognition(claude_home: Path) -> bool:  # noqa: PLR0911 - multi-cr
     return False
 
 
+class SkillHealth(NamedTuple):
+    """Computed health snapshot for one skill invocation."""
+
+    gap: float
+    velocity: int
+    trend: float | None
+
+
 def _flag_and_build_output(
     claude_home: Path,
     skill_ref: str,
-    gap: float,
-    velocity: int,
-    trend: float | None,
+    health: SkillHealth,
+    session_id: str,
 ) -> dict | None:
-    """Flag degrading skill in queue and return output dict."""
+    """Flag degrading skill in queue and return output dict.
+
+    Reads ``health`` fields directly rather than destructuring; the bundle is
+    constructed once at the call site and never re-exploded here.
+    """
     queue_file = claude_home / "skills" / "improvement-queue.json"
     queue = ImprovementQueue(queue_file)
 
@@ -141,11 +158,10 @@ def _flag_and_build_output(
     if entry.get("status") in ("evaluating", "pending_rollback_review"):
         return None  # caller handles None
 
-    invocation_id = os.environ.get("CLAUDE_SESSION_ID", "unknown")
-    queue.flag_skill(skill_ref, gap, invocation_id)
+    queue.flag_skill(skill_ref, health.gap, session_id)
 
     entry = queue.skills[skill_ref]
-    status = "critical" if gap > CRITICAL_GAP_THRESHOLD else "degrading"
+    status = "critical" if health.gap > CRITICAL_GAP_THRESHOLD else "degrading"
     trigger = queue.needs_improvement(skill_ref)
 
     # Check if metacognitive analysis is warranted
@@ -154,16 +170,16 @@ def _flag_and_build_output(
         metacognitive_needed = _needs_metacognition(claude_home)
         sys.stderr.write(
             f"HOMEOSTATIC: {skill_ref} flagged {entry['flagged_count']}x "
-            f"(gap={gap:.2f}), improvement eligible"
+            f"(gap={health.gap:.2f}), improvement eligible"
             f"{' [metacognitive recommended]' if metacognitive_needed else ''}\n"
         )
 
     return _build_output(
         skill_ref,
-        gap,
+        health.gap,
         status,
-        velocity,
-        trend,
+        health.velocity,
+        health.trend,
         flagged_count=entry["flagged_count"],
         improvement_triggered=trigger,
         metacognitive_needed=metacognitive_needed,
@@ -227,16 +243,12 @@ def calculate_stability_gap(history_entry: dict) -> float:
 def main() -> None:
     """PostToolUse hook entry point."""
     try:
-        tool_name = os.environ.get("CLAUDE_TOOL_NAME", "")
+        payload = read_hook_payload()
+        tool_name = payload["tool_name"]
         if tool_name != "Skill":
             sys.exit(0)
 
-        tool_input_str = os.environ.get("CLAUDE_TOOL_INPUT", "{}")
-        try:
-            tool_input = json.loads(tool_input_str)
-        except json.JSONDecodeError:
-            sys.exit(0)
-
+        tool_input = payload["tool_input"]
         skill_ref = tool_input.get("skill", "")
         if not skill_ref:
             sys.exit(0)
@@ -273,7 +285,10 @@ def main() -> None:
             sys.exit(0)
 
         # Skill is degrading -- flag it in the queue via ImprovementQueue
-        output = _flag_and_build_output(claude_home, skill_ref, gap, velocity, trend)
+        health = SkillHealth(gap, velocity, trend)
+        output = _flag_and_build_output(
+            claude_home, skill_ref, health, payload["session_id"]
+        )
         if output is None:
             sys.exit(0)
         print(json.dumps(output))
