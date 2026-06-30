@@ -147,6 +147,27 @@ def test_static_analysis_missing_assertion_flagged(tmp_path):
     assert any("no assertions" in i.message for i in out["assertion_issues"])
 
 
+def test_pytest_raises_block_counts_as_assertion(tmp_path):
+    """A test asserting only via ``pytest.raises`` is not flagged empty.
+
+    GIVEN a test that asserts behavior solely with ``pytest.raises``
+    WHEN the static analyzer checks assertion quality
+    THEN the test is not reported as having no assertions
+    AND the context manager is recognized as a real assertion
+    """
+    qc = _load_script()
+    f = tmp_path / "test_raises_only.py"
+    f.write_text(
+        "import pytest\n\n"
+        "def test_rejects_bad_input():\n"
+        "    with pytest.raises(ValueError):\n"
+        "        raise ValueError('bad')\n"
+    )
+    checker = qc.TestQualityChecker(f)
+    out = checker.run_static_analysis()
+    assert not any("no assertions" in i.message for i in out["assertion_issues"])
+
+
 def test_static_analysis_vague_assertion_flagged(tmp_path):
     qc = _load_script()
     f = _bad_test_file(tmp_path)
@@ -285,6 +306,113 @@ def test_calculate_overall_score_clamps_to_range(tmp_path):
     assert score == 0
 
 
+def test_passing_tests_not_penalized_for_coverage_gate_exit(tmp_path):
+    """A nonzero pytest exit with no failures does not cost the run points.
+
+    GIVEN a result where every test passed but pytest exited nonzero
+        (for example because a coverage threshold was not met)
+    WHEN the overall score is calculated
+    THEN no execution penalty is applied
+    AND a clean run scores the full 100
+    """
+    qc = _load_script()
+    c = qc.TestQualityChecker(tmp_path)
+    results = {
+        "static_analysis": {
+            "structure_issues": [],
+            "naming_issues": [],
+            "assertion_issues": [],
+            "bdd_compliance": [],
+            "documentation": [],
+        },
+        "dynamic_validation": {
+            "execution_result": 1,
+            "test_duration": 0,
+            "failures": [],
+            "errors": [],
+            "skipped": 0,
+            "passed": 5,
+        },
+        "metrics": {
+            "test_count": 5,
+            "assertion_count": 5,
+            "average_test_length": 10,
+            "complexity_score": 0,
+            "documentation_ratio": 1.0,
+        },
+    }
+    score = c._calculate_overall_score(results)
+    assert score == 100
+
+
+def test_real_test_failures_still_penalized(tmp_path):
+    """Genuine test failures still incur the execution penalty.
+
+    GIVEN a result that records an actual test failure
+    WHEN the overall score is calculated
+    THEN the execution penalty is applied
+    AND the score drops below a clean run
+    """
+    qc = _load_script()
+    c = qc.TestQualityChecker(tmp_path)
+    results = {
+        "static_analysis": {
+            "structure_issues": [],
+            "naming_issues": [],
+            "assertion_issues": [],
+            "bdd_compliance": [],
+            "documentation": [],
+        },
+        "dynamic_validation": {
+            "execution_result": 1,
+            "test_duration": 0,
+            "failures": ["test_x failed"],
+            "errors": [],
+            "skipped": 0,
+            "passed": 4,
+        },
+        "metrics": {
+            "test_count": 5,
+            "assertion_count": 5,
+            "average_test_length": 10,
+            "complexity_score": 0,
+            "documentation_ratio": 1.0,
+        },
+    }
+    score = c._calculate_overall_score(results)
+    assert score <= 80
+
+
+def test_parse_report_usage_error_is_not_a_failure(tmp_path):
+    """A missing report with a usage-error exit code is not a failure.
+
+    GIVEN no JSON report and a pytest usage-error return code (4),
+        as happens when the json-report plugin is not installed
+    WHEN the report is parsed with that fallback return code
+    THEN no synthetic failure or error is recorded
+    AND the run is treated as unmeasured rather than failed
+    """
+    qc = _load_script()
+    c = qc.TestQualityChecker(tmp_path)
+    parsed = c._parse_test_report(str(tmp_path / "missing.json"), fallback_returncode=4)
+    assert parsed["failures"] == 0
+    assert parsed["errors"] == 0
+
+
+def test_parse_report_real_failure_returncode_records_failure(tmp_path):
+    """A missing report with exit code 1 still records a real failure.
+
+    GIVEN no JSON report and a pytest exit code of 1 (tests failed)
+    WHEN the report is parsed with that fallback return code
+    THEN a synthetic failure is recorded
+    AND a clean pass is not assumed
+    """
+    qc = _load_script()
+    c = qc.TestQualityChecker(tmp_path)
+    parsed = c._parse_test_report(str(tmp_path / "missing.json"), fallback_returncode=1)
+    assert parsed["failures"] == 1
+
+
 def test_generate_recommendations_covers_branches(tmp_path):
     qc = _load_script()
     c = qc.TestQualityChecker(tmp_path)
@@ -300,7 +428,7 @@ def test_generate_recommendations_covers_branches(tmp_path):
         "dynamic_validation": {
             "execution_result": 1,
             "test_duration": 999,
-            "failures": [],
+            "failures": ["test_x failed"],
             "errors": [],
             "skipped": 0,
             "passed": 0,
@@ -546,6 +674,71 @@ def test_run_dynamic_validation_runs_against_self(tmp_path):
     out = c.run_dynamic_validation()
     assert "execution_result" in out
     assert "test_duration" in out
+
+
+def test_pytest_warns_block_counts_as_assertion(tmp_path):
+    """A test asserting only via ``pytest.warns`` is not flagged empty.
+
+    GIVEN a test that asserts behavior solely with ``pytest.warns``
+    WHEN the static analyzer checks assertion quality
+    THEN the test is not reported as having no assertions
+    AND the warns context manager is recognized like raises
+    """
+    qc = _load_script()
+    f = tmp_path / "test_warns_only.py"
+    f.write_text(
+        "import pytest\n\n"
+        "def test_emits_warning():\n"
+        "    with pytest.warns(UserWarning):\n"
+        "        import warnings\n"
+        "        warnings.warn('x', UserWarning)\n"
+    )
+    checker = qc.TestQualityChecker(f)
+    out = checker.run_static_analysis()
+    assert not any("no assertions" in i.message for i in out["assertion_issues"])
+
+
+def test_run_dynamic_validation_uses_json_report_when_plugin_present(
+    tmp_path, monkeypatch
+):
+    """The json-report flag is used and parsed when the plugin is present.
+
+    GIVEN the json-report plugin reports as installed
+    WHEN dynamic validation runs the target test file
+    THEN pytest is invoked with the --json-report flag
+    AND the produced report's pass count is parsed into the result
+    """
+    qc = _load_script()
+    f = tmp_path / "test_x.py"
+    f.write_text('"""t."""\ndef test_x():\n    assert True\n')
+    c = qc.TestQualityChecker(f)
+
+    monkeypatch.setattr(qc.importlib.util, "find_spec", lambda _name: object())
+
+    captured: dict = {}
+
+    class _Result:
+        returncode = 0
+        stdout = ""
+        stderr = ""
+
+    def fake_run(cmd, **_kwargs):
+        captured["cmd"] = cmd
+        for arg in cmd:
+            if arg.startswith("--json-report-file="):
+                with open(arg.split("=", 1)[1], "w") as fh:
+                    json.dump(
+                        {"summary": {"passed": 3, "failed": 0, "error": 0}},
+                        fh,
+                    )
+        return _Result()
+
+    monkeypatch.setattr(qc.subprocess, "run", fake_run)
+
+    out = c.run_dynamic_validation()
+
+    assert "--json-report" in captured["cmd"]
+    assert out["passed"] == 3
 
 
 # ---- SAN-008: _is_vague_result_assertion helper ----

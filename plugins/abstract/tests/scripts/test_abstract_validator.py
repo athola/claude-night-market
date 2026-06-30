@@ -402,7 +402,8 @@ class TestCheckHubSpokeExtended:
         skill_dir.mkdir()
         (skill_dir / "modules").mkdir()
         (skill_dir / "SKILL.md").write_text(
-            "---\nname: modular-skill\ndescription: test\ncategory: meta-skills\n---\n\n"
+            "---\nname: modular-skill\ndescription: test\n"
+            "category: meta-skills\n---\n\n"
             "# Modular Skill\n\nThis is a template framework.\n"
         )
 

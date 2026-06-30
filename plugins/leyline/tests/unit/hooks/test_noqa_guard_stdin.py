@@ -8,11 +8,14 @@ and silently allowed inline lint suppressions through.
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 HOOK = Path(__file__).resolve().parents[3] / "hooks" / "noqa_guard.py"
 
@@ -35,7 +38,11 @@ def _run_stdin(payload: dict):
 
 
 def test_blocks_noqa_edit_delivered_on_stdin():
-    """An Edit adding '# noqa' on stdin is denied."""
+    """GIVEN an Edit payload with an inline lint suppression in new_string
+    WHEN the payload is delivered on stdin and the hook processes it
+    THEN the hook exits 0 and the output contains a deny decision.
+    AND permissionDecision equals 'deny'.
+    """
     payload = {
         "tool_name": "Edit",
         "tool_input": {"new_string": "x = 1  # noqa\n"},
@@ -48,7 +55,11 @@ def test_blocks_noqa_edit_delivered_on_stdin():
 
 
 def test_allows_clean_edit_on_stdin():
-    """An Edit with no suppression on stdin is allowed."""
+    """GIVEN an Edit payload with clean new_string (no suppression directives)
+    WHEN the payload is delivered on stdin and the hook processes it
+    THEN the hook exits 0 and returns an empty JSON object.
+    AND no permissionDecision field is present.
+    """
     payload = {
         "tool_name": "Edit",
         "tool_input": {"new_string": "x = 1\n"},
@@ -65,13 +76,41 @@ def out_is_empty(stdout: str) -> bool:
         return False
 
 
-def test_malformed_stdin_is_logged_and_fails_open():
-    """Malformed stdin logs to stderr while failing open (allow).
+def test_isatty_raises_oserror_falls_back_to_env_vars(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """GIVEN sys.stdin.isatty() raises OSError (e.g., the fd is not connected)
+    WHEN _read_payload() is called
+    THEN the OSError is caught and raw stays empty.
+    AND the function falls back to CLAUDE_TOOL_NAME / CLAUDE_TOOL_INPUT env vars.
+    AND the returned payload carries the values from those env vars.
+    """
+    spec = importlib.util.spec_from_file_location("_noqa_guard_isatty", HOOK)
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
 
-    Guards the C1 fix: the guard fails open by design (crash-proof), but
-    the JSON-decode path used to log nothing, making a disabled guard
-    indistinguishable from an idle one. Reverting the stderr write fails
-    this. Fail-open is asserted too so the contract is pinned.
+    class _RaisingStdin:
+        def isatty(self) -> bool:
+            raise OSError("file descriptor is not connected")
+
+    monkeypatch.setattr("sys.stdin", _RaisingStdin())
+    monkeypatch.setenv("CLAUDE_TOOL_NAME", "Write")
+    monkeypatch.setenv("CLAUDE_TOOL_INPUT", json.dumps({"content": "clean code"}))
+
+    result = mod._read_payload()
+
+    assert result["tool_name"] == "Write"
+    assert result["tool_input"] == {"content": "clean code"}
+
+
+def test_malformed_stdin_is_logged_and_fails_open():
+    """GIVEN stdin contains bytes that are not valid JSON
+    WHEN the hook processes them
+    THEN the hook exits 0 and returns an empty JSON object (fail-open).
+    AND stderr contains 'malformed stdin payload' so a disabled guard
+        is distinguishable from an idle one.
+
     """
     env = dict(os.environ)
     for key in _LEGACY_ENV:

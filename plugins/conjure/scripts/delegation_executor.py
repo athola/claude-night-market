@@ -13,7 +13,7 @@ import logging
 import os
 import subprocess  # nosec B404
 import time
-from dataclasses import dataclass
+from dataclasses import MISSING, dataclass, fields
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -167,7 +167,35 @@ class Delegator:
                                 ),
                             )
                         else:
-                            # Add new service config
+                            # Add a new service. An entry that uses only
+                            # known fields but omits required ones is
+                            # treated as incomplete and skipped so the
+                            # defaults survive. An entry with unknown
+                            # fields is malformed and is allowed to raise
+                            # (CJR-003: config load must not swallow
+                            # unexpected errors).
+                            known = {f.name for f in fields(ServiceConfig)}
+                            required = {
+                                f.name
+                                for f in fields(ServiceConfig)
+                                if f.default is MISSING
+                            }
+                            keys = (
+                                set(service_config)
+                                if isinstance(service_config, dict)
+                                else set()
+                            )
+                            if (
+                                isinstance(service_config, dict)
+                                and keys <= known
+                                and not required <= keys
+                            ):
+                                logger.debug(
+                                    "Skipping incomplete service config %r: missing %s",
+                                    service_name,
+                                    required - keys,
+                                )
+                                continue
                             self.services[service_name] = ServiceConfig(
                                 **service_config,
                             )

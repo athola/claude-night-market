@@ -61,6 +61,7 @@ class TestRecordTypeFiltering:
         Given a JSONL file with user and assistant records
         When parsing the session
         Then turns are emitted for both record types
+        And the first turn is a UserTurn and the second is an AssistantTurn
         """
         records = [
             _user_record("hello"),
@@ -80,6 +81,7 @@ class TestRecordTypeFiltering:
         Given a JSONL file containing a progress record
         When parsing the session
         Then no turns are emitted for the progress record
+        And the user record following the progress record is still parsed
         """
         records = [
             {"type": "progress", "data": "loading"},
@@ -93,7 +95,13 @@ class TestRecordTypeFiltering:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_system_records_skipped(self, tmp_path: Path) -> None:
-        """Scenario: system records are ignored."""
+        """Scenario: system records are ignored.
+
+        Given a JSONL file with a system record followed by a user record
+        When parsing the session
+        Then no turn is emitted for the system record
+        And the subsequent user record is still included
+        """
         records = [
             {"type": "system", "message": {"content": "system context"}},
             _user_record("hello"),
@@ -142,6 +150,7 @@ class TestUserMessageParsing:
         Given a user record with string content
         When parsing the session
         Then a UserTurn is emitted with the text
+        And the UserTurn text matches the original string content
         """
         records = [_user_record("fix the auth bug")]
         path = _write_jsonl(tmp_path, records)
@@ -158,6 +167,7 @@ class TestUserMessageParsing:
         Given a user record with a tool_result content list
         When parsing the session
         Then ToolResult turns are emitted
+        And exactly one ToolResult is returned for the single block
         """
         records = [
             _user_record(
@@ -183,6 +193,7 @@ class TestUserMessageParsing:
         Given a user record with a list of text blocks (skill injection)
         When parsing the session
         Then no turns are emitted
+        And text-type list content is not treated as user input
         """
         records = [_user_record([{"type": "text", "text": "system context injection"}])]
         path = _write_jsonl(tmp_path, records)
@@ -197,6 +208,7 @@ class TestUserMessageParsing:
         Given a user record with two tool_result blocks
         When parsing the session
         Then two ToolResult turns are emitted
+        And all emitted turns are ToolResult instances
         """
         records = [
             _user_record(
@@ -236,6 +248,7 @@ class TestAssistantMessageParsing:
         Given an assistant record with a text block
         When parsing the session
         Then an AssistantTurn is emitted with the text
+        And the AssistantTurn text matches the original block content
         """
         records = [_assistant_record([{"type": "text", "text": "I will fix the bug"}])]
         path = _write_jsonl(tmp_path, records)
@@ -252,6 +265,7 @@ class TestAssistantMessageParsing:
         Given an assistant record with a tool_use block
         When parsing the session
         Then a ToolUse turn is emitted
+        And the ToolUse turn carries the correct tool_name attribute
         """
         records = [
             _assistant_record(
@@ -278,6 +292,7 @@ class TestAssistantMessageParsing:
         Given an assistant record with an empty thinking block
         When parsing the session with default layers
         Then no ThinkingTurn is emitted (empty text is skipped)
+        And the subsequent text block still produces an AssistantTurn
         """
         records = [
             _assistant_record(
@@ -336,6 +351,7 @@ class TestSidechainFiltering:
         Given a user record with isSidechain true
         When parsing the session
         Then no turns are emitted
+        And sidechain records are filtered out regardless of type
         """
         records = [_sidechain_record("user", "subagent work", sidechain=True)]
         path = _write_jsonl(tmp_path, records)
@@ -350,6 +366,7 @@ class TestSidechainFiltering:
         Given a user record with isSidechain false
         When parsing the session
         Then the turn is emitted normally
+        And isSidechain=false records are processed like regular records
         """
         records = [_sidechain_record("user", "main work", sidechain=False)]
         path = _write_jsonl(tmp_path, records)
@@ -364,6 +381,7 @@ class TestSidechainFiltering:
         Given an assistant record with isSidechain true
         When parsing the session
         Then no turns are emitted
+        And the sidechain filter applies to assistant records as well
         """
         records = [
             {
@@ -388,7 +406,13 @@ class TestToolCollapseTemplates:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_read_template(self, tmp_path: Path) -> None:
-        """Scenario: Read tool produces file path and line count."""
+        """Scenario: Read tool produces file path in summary.
+
+        Given an assistant record with a Read tool_use block for /src/auth.py
+        When parsing the session
+        Then a ToolUse turn is emitted
+        And the summary contains the file path '/src/auth.py'
+        """
         records = [
             _assistant_record(
                 [
@@ -408,7 +432,13 @@ class TestToolCollapseTemplates:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_write_template(self, tmp_path: Path) -> None:
-        """Scenario: Write tool produces file path."""
+        """Scenario: Write tool produces file path in summary.
+
+        Given an assistant record with a Write tool_use block for /src/new.py
+        When parsing the session
+        Then a ToolUse turn is emitted
+        And the summary contains 'Wrote /src/new.py'
+        """
         records = [
             _assistant_record(
                 [
@@ -430,7 +460,13 @@ class TestToolCollapseTemplates:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_edit_template(self, tmp_path: Path) -> None:
-        """Scenario: Edit tool produces file path."""
+        """Scenario: Edit tool produces file path in summary.
+
+        Given an assistant record with an Edit tool_use block for /src/fix.py
+        When parsing the session
+        Then a ToolUse turn is emitted
+        And the summary contains 'Edited /src/fix.py'
+        """
         records = [
             _assistant_record(
                 [
@@ -453,7 +489,13 @@ class TestToolCollapseTemplates:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_bash_template(self, tmp_path: Path) -> None:
-        """Scenario: Bash tool shows first 60 chars of command."""
+        """Scenario: Bash tool shows first 60 chars of command in summary.
+
+        Given an assistant record with a Bash tool_use block
+        When parsing the session
+        Then a ToolUse turn is emitted with a summary starting with 'Ran: '
+        And the command portion of the summary is at most 60 characters
+        """
         cmd = "python -m pytest tests/ -v --tb=short 2>&1 | tail -30 && echo done"
         records = [
             _assistant_record(
@@ -470,7 +512,13 @@ class TestToolCollapseTemplates:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_grep_template(self, tmp_path: Path) -> None:
-        """Scenario: Grep tool shows pattern and path."""
+        """Scenario: Grep tool shows pattern and path in summary.
+
+        Given an assistant record with a Grep tool_use for pattern 'def auth'
+        When parsing the session
+        Then a ToolUse turn is emitted
+        And the summary contains the pattern and path used for the search
+        """
         records = [
             _assistant_record(
                 [
@@ -489,7 +537,13 @@ class TestToolCollapseTemplates:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_glob_template(self, tmp_path: Path) -> None:
-        """Scenario: Glob tool shows pattern."""
+        """Scenario: Glob tool shows pattern in summary.
+
+        Given an assistant record with a Glob tool_use for '**/*.py'
+        When parsing the session
+        Then a ToolUse turn is emitted
+        And the summary contains 'Found files matching **/*.py'
+        """
         records = [
             _assistant_record(
                 [
@@ -508,7 +562,13 @@ class TestToolCollapseTemplates:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_agent_template(self, tmp_path: Path) -> None:
-        """Scenario: Agent tool shows subagent type."""
+        """Scenario: Agent tool shows subagent type in summary.
+
+        Given an assistant record with an Agent tool_use of type 'research'
+        When parsing the session
+        Then a ToolUse turn is emitted
+        And the summary contains 'Spawned research agent'
+        """
         records = [
             _assistant_record(
                 [
@@ -527,7 +587,13 @@ class TestToolCollapseTemplates:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_skill_template(self, tmp_path: Path) -> None:
-        """Scenario: Skill tool shows skill name."""
+        """Scenario: Skill tool shows skill name in summary.
+
+        Given an assistant record with a Skill tool_use for scribe:slop-detector
+        When parsing the session
+        Then a ToolUse turn is emitted
+        And the summary contains 'Invoked scribe:slop-detector'
+        """
         records = [
             _assistant_record(
                 [
@@ -546,7 +612,13 @@ class TestToolCollapseTemplates:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_todo_write_template(self, tmp_path: Path) -> None:
-        """Scenario: TodoWrite tool shows subject."""
+        """Scenario: TodoWrite tool shows subject in summary.
+
+        Given an assistant record with a TodoWrite tool_use block
+        When parsing the session
+        Then a ToolUse turn is emitted
+        And the summary contains 'Created task: Fix auth timeout'
+        """
         records = [
             _assistant_record(
                 [
@@ -565,7 +637,13 @@ class TestToolCollapseTemplates:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_web_fetch_template(self, tmp_path: Path) -> None:
-        """Scenario: WebFetch tool shows first 50 chars of URL."""
+        """Scenario: WebFetch tool shows first 50 chars of URL in summary.
+
+        Given an assistant record with a WebFetch tool_use for a long URL
+        When parsing the session
+        Then a ToolUse turn is emitted with a summary starting with 'Fetched '
+        And the URL portion of the summary is at most 50 characters
+        """
         url = "https://docs.example.com/api/v2/reference/authentication/oauth2"
         records = [
             _assistant_record(
@@ -589,7 +667,13 @@ class TestToolCollapseTemplates:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_unknown_tool_template(self, tmp_path: Path) -> None:
-        """Scenario: unknown tools use fallback template."""
+        """Scenario: unknown tools use fallback template.
+
+        Given an assistant record with a CustomTool tool_use block
+        When parsing the session
+        Then a ToolUse turn is emitted
+        And the summary contains 'Used CustomTool'
+        """
         records = [
             _assistant_record(
                 [
@@ -664,6 +748,7 @@ class TestTurnRangeFilter:
         Given a session with 3 user turns
         When parsing without turns filter
         Then all turns are included
+        And the result contains all three user turns
         """
         turns = parse_session(session_path)
         user_turns = [t for t in turns if isinstance(t, UserTurn)]
@@ -700,7 +785,13 @@ class TestLayerFilter:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_show_user_only(self, session_path: Path) -> None:
-        """Scenario: show=user includes only user turns."""
+        """Scenario: show=user includes only user turns.
+
+        Given a session with user, assistant, tool, and thinking turns
+        When parsing with show='user'
+        Then only UserTurn instances are returned
+        And the result contains exactly one turn
+        """
         turns = parse_session(session_path, show="user")
         assert all(isinstance(t, UserTurn) for t in turns)
         assert len(turns) == 1
@@ -708,7 +799,13 @@ class TestLayerFilter:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_show_assistant_only(self, session_path: Path) -> None:
-        """Scenario: show=assistant includes only assistant turns."""
+        """Scenario: show=assistant includes only assistant turns.
+
+        Given a session with user, assistant, tool, and thinking turns
+        When parsing with show='assistant'
+        Then only AssistantTurn instances are returned
+        And the result contains exactly one turn
+        """
         turns = parse_session(session_path, show="assistant")
         assert all(isinstance(t, AssistantTurn) for t in turns)
         assert len(turns) == 1
@@ -716,7 +813,13 @@ class TestLayerFilter:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_show_tools_only(self, session_path: Path) -> None:
-        """Scenario: show=tools includes only tool turns."""
+        """Scenario: show=tools includes only tool turns.
+
+        Given a session with user, assistant, tool, and thinking turns
+        When parsing with show='tools'
+        Then only ToolUse or ToolResult instances are returned
+        And the result contains exactly one turn
+        """
         turns = parse_session(session_path, show="tools")
         assert all(isinstance(t, (ToolUse, ToolResult)) for t in turns)
         assert len(turns) == 1
@@ -724,7 +827,13 @@ class TestLayerFilter:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_show_user_assistant(self, session_path: Path) -> None:
-        """Scenario: show=user,assistant excludes tools."""
+        """Scenario: show=user,assistant excludes tools.
+
+        Given a session with user, assistant, and tool turns
+        When parsing with show='user,assistant'
+        Then two turns are returned
+        And no ToolUse or ToolResult instances are included
+        """
         turns = parse_session(session_path, show="user,assistant")
         assert len(turns) == 2
         assert not any(isinstance(t, (ToolUse, ToolResult)) for t in turns)
@@ -732,7 +841,13 @@ class TestLayerFilter:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_show_all_default(self, session_path: Path) -> None:
-        """Scenario: default show includes user/assistant/tools but not thinking."""
+        """Scenario: default show includes user/assistant/tools but not thinking.
+
+        Given a session with user, assistant, tool, and thinking turns
+        When parsing with default show setting
+        Then three turns are returned
+        And no ThinkingTurn instances are included
+        """
         turns = parse_session(session_path)
         assert len(turns) == 3
         assert not any(isinstance(t, ThinkingTurn) for t in turns)
@@ -740,7 +855,13 @@ class TestLayerFilter:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_show_thinking_opt_in(self, session_path: Path) -> None:
-        """Scenario: thinking layer is included only when requested."""
+        """Scenario: thinking layer is included only when requested.
+
+        Given a session with a non-empty thinking block
+        When parsing with show='user,assistant,tools,thinking'
+        Then exactly one ThinkingTurn is present in the result
+        And the ThinkingTurn text matches the original thinking content
+        """
         turns = parse_session(session_path, show="user,assistant,tools,thinking")
         thinking_turns = [t for t in turns if isinstance(t, ThinkingTurn)]
         assert len(thinking_turns) == 1
@@ -749,7 +870,13 @@ class TestLayerFilter:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_show_thinking_only(self, session_path: Path) -> None:
-        """Scenario: show=thinking returns only thinking turns."""
+        """Scenario: show=thinking returns only thinking turns.
+
+        Given a session with a non-empty thinking block
+        When parsing with show='thinking'
+        Then exactly one turn is returned
+        And that turn is a ThinkingTurn instance
+        """
         turns = parse_session(session_path, show="thinking")
         assert len(turns) == 1
         assert all(isinstance(t, ThinkingTurn) for t in turns)
@@ -766,7 +893,13 @@ class TestThinkingParsing:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_thinking_block_parsed(self, tmp_path: Path) -> None:
-        """Scenario: thinking block produces a ThinkingTurn."""
+        """Scenario: thinking block produces a ThinkingTurn.
+
+        Given an assistant record with a non-empty thinking block
+        When parsing the session with show='thinking'
+        Then exactly one ThinkingTurn is returned
+        And the ThinkingTurn text matches the original thinking content
+        """
         records = [
             _assistant_record(
                 [{"type": "thinking", "thinking": "reasoning about the problem"}]
@@ -781,7 +914,13 @@ class TestThinkingParsing:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_empty_thinking_block_skipped(self, tmp_path: Path) -> None:
-        """Scenario: empty thinking block produces no turn."""
+        """Scenario: empty thinking block produces no turn.
+
+        Given an assistant record with an empty thinking block and a text block
+        When parsing with show='thinking,assistant'
+        Then exactly one turn is returned
+        And that turn is an AssistantTurn, not a ThinkingTurn
+        """
         records = [
             _assistant_record(
                 [
@@ -798,7 +937,13 @@ class TestThinkingParsing:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_thinking_with_signature_only_skipped(self, tmp_path: Path) -> None:
-        """Scenario: thinking block with no text but signature is skipped."""
+        """Scenario: thinking block with no text but signature is skipped.
+
+        Given an assistant record with a thinking block containing only a signature
+        When parsing with show='thinking'
+        Then zero turns are returned
+        And empty-text thinking blocks are excluded even when signed
+        """
         records = [
             _assistant_record(
                 [{"type": "thinking", "thinking": "", "signature": "abc123"}]
@@ -811,7 +956,13 @@ class TestThinkingParsing:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_thinking_interleaved_with_text(self, tmp_path: Path) -> None:
-        """Scenario: thinking and text blocks maintain order."""
+        """Scenario: thinking and text blocks maintain order.
+
+        Given an assistant record with two thinking blocks around a text block
+        When parsing with show='thinking,assistant'
+        Then three turns are returned in block order
+        And the sequence is ThinkingTurn, AssistantTurn, ThinkingTurn
+        """
         records = [
             _assistant_record(
                 [
@@ -845,6 +996,7 @@ class TestTextTruncation:
         Given an assistant response longer than 40 characters
         When parsing with cols=40
         Then the text is wrapped to multiple lines
+        And every output line is at most 40 characters wide
         """
         long_text = "This is a long response that should wrap at column 40."
         records = [_assistant_record([{"type": "text", "text": long_text}])]
@@ -862,6 +1014,7 @@ class TestTextTruncation:
         Given an assistant response that wraps to 30+ lines
         When parsing with rows=5
         Then the text is truncated to 5 lines with "..." appended
+        And the last line is the ellipsis sentinel '...'
         """
         long_text = " ".join(["word"] * 200)
         records = [_assistant_record([{"type": "text", "text": long_text}])]
@@ -893,6 +1046,7 @@ class TestTextTruncation:
         Given a long user message
         When parsing with cols=30
         Then the user text is wrapped
+        And every output line is at most 30 characters wide
         """
         long_text = "Please fix this really long authentication bug in the system"
         records = [_user_record(long_text)]
@@ -1010,6 +1164,79 @@ class TestCorruptJSONLBody:
         assert turns[0].text == "only valid line"
 
 
+class TestViewportDataclass:
+    """Feature: Viewport dataclass captures terminal dimensions.
+
+    As a session parser consumer
+    I want the Viewport dataclass to store cols and rows reliably
+    So that wrapping and truncation match the caller's terminal
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_viewport_defaults(self) -> None:
+        """Scenario: Viewport() defaults to 80 cols and 24 rows.
+
+        GIVEN the Viewport dataclass constructed with no arguments
+        WHEN reading its cols and rows attributes
+        THEN cols is 80 and rows is 24
+        AND both attributes reflect the documented default values
+        """
+        vp = Viewport()
+        assert vp.cols == 80
+        assert vp.rows == 24
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_viewport_custom_both(self) -> None:
+        """Scenario: Viewport stores custom cols and rows exactly.
+
+        GIVEN Viewport constructed with cols=120 and rows=50
+        WHEN reading its cols and rows attributes
+        THEN cols is 120 and rows is 50
+        AND the constructor arguments are stored without modification
+        """
+        vp = Viewport(cols=120, rows=50)
+        assert vp.cols == 120
+        assert vp.rows == 50
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_default_viewport_wraps_at_80_cols(self, tmp_path: Path) -> None:
+        """Scenario: parse_session with no viewport wraps at exactly 80 columns.
+
+        GIVEN an assistant response of 90 consecutive 'x' characters
+        WHEN parse_session is called with viewport=None
+        THEN every output line is at most 80 characters wide
+        AND the text is split across at least two lines
+        """
+        text = "x" * 90
+        records = [_assistant_record([{"type": "text", "text": text}])]
+        path = _write_jsonl(tmp_path, records)
+        turns = parse_session(path)
+        lines = turns[0].text.split("\n")
+        assert all(len(line) <= 80 for line in lines)
+        assert len(lines) > 1
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_custom_rows_only_truncates_at_that_height(self, tmp_path: Path) -> None:
+        """Scenario: Viewport with custom rows and default cols truncates early.
+
+        GIVEN an assistant response long enough to span many lines at 80 cols
+        WHEN parsing with viewport=Viewport(rows=3)
+        THEN the output is truncated to exactly 3 lines
+        AND the last line is the ellipsis sentinel
+        """
+        long_text = " ".join(["word"] * 100)
+        records = [_assistant_record([{"type": "text", "text": long_text}])]
+        path = _write_jsonl(tmp_path, records)
+        turns = parse_session(path, viewport=Viewport(rows=3))
+        lines = turns[0].text.split("\n")
+        assert len(lines) == 3
+        assert lines[-1] == "..."
+
+
 class TestTurnRangeValidation:
     """Feature: turn range input validation.
 
@@ -1021,20 +1248,38 @@ class TestTurnRangeValidation:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_non_integer_raises_descriptive_error(self) -> None:
-        """Scenario: non-integer turn spec raises ValueError with message."""
+        """Scenario: non-integer turn spec raises ValueError with message.
+
+        Given a non-integer string 'abc' as the turn range argument
+        When _parse_turn_range is called with that argument
+        Then a ValueError is raised
+        And the error message contains 'Invalid turn range'
+        """
         with pytest.raises(ValueError, match="Invalid turn range"):
             _parse_turn_range("abc")
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_non_integer_range_raises_descriptive_error(self) -> None:
-        """Scenario: non-integer range spec raises ValueError with message."""
+        """Scenario: non-integer range spec raises ValueError with message.
+
+        Given a range string 'a-b' with non-integer bounds
+        When _parse_turn_range is called with that argument
+        Then a ValueError is raised
+        And the error message contains 'Invalid turn range'
+        """
         with pytest.raises(ValueError, match="Invalid turn range"):
             _parse_turn_range("a-b")
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_start_greater_than_end_raises(self) -> None:
-        """Scenario: start > end in range raises ValueError."""
+        """Scenario: start > end in range raises ValueError.
+
+        Given a range string '5-2' where start exceeds end
+        When _parse_turn_range is called with that argument
+        Then a ValueError is raised
+        And the error message contains 'must not exceed end'
+        """
         with pytest.raises(ValueError, match="must not exceed end"):
             _parse_turn_range("5-2")

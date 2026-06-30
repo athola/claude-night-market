@@ -58,6 +58,8 @@ def _make_answer(result: str, **kwargs) -> AnswerRecord:
 
 
 class TestKnowledgeEntry:
+    """Unit tests for KnowledgeEntry model creation and serialization."""
+
     def test_creation(self):
         entry = _make_entry()
         assert entry.id == "ke-001"
@@ -149,6 +151,8 @@ class TestKnowledgeEntry:
 
 
 class TestChallenge:
+    """Unit tests for Challenge model creation and validation."""
+
     def test_multiple_choice_creation(self):
         ch = Challenge(
             id="ch-001",
@@ -254,6 +258,8 @@ class TestChallenge:
 
 
 class TestAnswerRecord:
+    """Unit tests for AnswerRecord model creation, scoring, and serialization."""
+
     def test_creation(self):
         ar = _make_answer("pass")
         assert ar.challenge_id == "ch-001"
@@ -293,6 +299,23 @@ class TestAnswerRecord:
         ar = _make_answer("pass", difficulty=4)
         assert ar.difficulty == 4
 
+    def test_answered_at_defaults_to_empty_string(self):
+        """
+        GIVEN an AnswerRecord created without the answered_at argument
+        WHEN the dataclass is instantiated
+        THEN answered_at is an empty string (the field default)
+        AND all other required fields are populated normally
+        """
+        ar = AnswerRecord(
+            challenge_id="ch-001",
+            knowledge_entry_id="ke-001",
+            challenge_type="multiple_choice",
+            category="business_logic",
+            difficulty=2,
+            result="pass",
+        )
+        assert ar.answered_at == ""
+
 
 # ---------------------------------------------------------------------------
 # DeveloperProgress
@@ -300,6 +323,8 @@ class TestAnswerRecord:
 
 
 class TestDeveloperProgress:
+    """Unit tests for DeveloperProgress accuracy and serialization."""
+
     def test_empty_progress(self):
         dp = DeveloperProgress(developer_id="dev-1")
         assert dp.overall_accuracy() == 0.0
@@ -363,6 +388,8 @@ class TestDeveloperProgress:
 
 
 class TestOnboardingProgress:
+    """Unit tests for OnboardingProgress stage advancement and graduation."""
+
     def test_initial_state(self):
         op = OnboardingProgress(developer_id="dev-1")
         assert op.current_stage == 1
