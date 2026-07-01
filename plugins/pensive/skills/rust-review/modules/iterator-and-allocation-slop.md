@@ -102,6 +102,35 @@ if flag { do_a() } else { do_b() }
 
 Detector: `clippy::match_bool`.
 
+### Pattern 6: hand-rolled loop optimization
+
+```rust
+// SLOP: manually unrolled, defeats the auto-vectorizer
+let mut sum = 0u32;
+let mut i = 0;
+while i + 4 <= v.len() {
+    sum += v[i] + v[i + 1] + v[i + 2] + v[i + 3];
+    i += 4;
+}
+while i < v.len() {
+    sum += v[i];
+    i += 1;
+}
+
+// Idiomatic: let LLVM unroll and vectorize the iterator
+let sum: u32 = v.iter().sum();
+```
+
+Rust compiles through LLVM, which unrolls, hoists invariants, and
+strength-reduces at `-O2`/`-O3`. Hand-rolling these is redundant, and
+manual unrolling commonly blocks the vectorizer. Manual SIMD
+(`std::simd`, intrinsics) is justified only on a loop the compiler
+provably failed to vectorize, after fixing aliasing, and verified by a
+codegen check (not "I see SIMD in the source").
+
+No single clippy lint covers this; it is judgment. Decision rule and
+the two benchmark traps: `Skill(leyline:loop-optimization)`.
+
 ## Allocation slop
 
 ### Pattern A: `.clone()` to satisfy the borrow checker

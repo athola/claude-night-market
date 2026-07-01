@@ -72,7 +72,7 @@ This skill is organized into focused modules for progressive loading:
 CPU profiling with cProfile, line profiling, memory profiling, and production profiling with py-spy. Essential for identifying where your code spends time and memory.
 
 ### [optimization-patterns](modules/optimization-patterns.md)
-Ten proven optimization patterns including list comprehensions, generators, caching, string concatenation, data structures, NumPy, multiprocessing, and database operations.
+Eleven proven optimization patterns including list comprehensions, generators, caching, string concatenation, data structures, NumPy, multiprocessing, database operations, and loop transformations (what works in Python vs the compiler).
 
 ### [memory-management](modules/memory-management.md)
 Memory optimization techniques including leak tracking with tracemalloc and weak references for caches. Depends on profiling-tools.

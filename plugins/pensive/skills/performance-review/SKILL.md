@@ -89,6 +89,10 @@ for f in result.issues:
   `Skill(pensive:code-refinement)` whose `algorithm-efficiency`
   module covers broader optimization patterns. This skill
   detects; that skill teaches.
+- Deciding whether a hand-rolled loop transform (unrolling, manual
+  SIMD, strength reduction) is worth keeping: use
+  `Skill(leyline:loop-optimization)` for the hand-vs-compiler rule.
+  This skill flags hotspot shapes, not transformation choices.
 - Architecture-level performance (sharding, caching layers,
   queue placement): use `Skill(pensive:architecture-review)`.
 

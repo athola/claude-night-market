@@ -28,6 +28,7 @@ skills:
 - skills/error-patterns
 - skills/evaluation-framework
 - skills/git-platform
+- skills/loop-optimization
 - skills/markdown-formatting
 - skills/progressive-loading
 - skills/pytest-config

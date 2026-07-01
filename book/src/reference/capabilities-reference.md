@@ -105,6 +105,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |
 | `memory-clarity-probe` | [memory-palace](../plugins/memory-palace.md) | Memory clarity assessment via anchor questions |
 | `latent-space-engineering` | [imbue](../plugins/imbue.md) | Agent behavior shaping through instruction framing |
+| `loop-optimization` | [leyline](../plugins/leyline.md) | Hand-vs-compiler decision rule for loop transforms |
 | `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
 | `makefile-review` | [pensive](../plugins/pensive.md) | Makefile best practices |
 | `markdown-formatting` | [leyline](../plugins/leyline.md) | Line wrapping and style conventions |

@@ -1,6 +1,6 @@
 ---
 name: optimization-patterns
-description: Ten proven optimization patterns for Python code including list comprehensions, generators, caching, and parallel processing
+description: Eleven proven optimization patterns for Python code including list comprehensions, generators, caching, parallel processing, and loop transformations
 category: performance
 tags: [optimization, patterns, performance, best-practices]
 dependencies: []
@@ -173,3 +173,38 @@ def fast_inserts(conn, data):
     cursor.executemany("INSERT INTO items VALUES (?)", [(d,) for d in data])
     conn.commit()  # Single commit
 ```
+
+## Pattern 11: Loop Transformations (What Works in Python)
+
+Loop-level tricks that pay in C or Rust mostly do not transfer to
+CPython, where each iteration is dominated by bytecode dispatch, not
+loop control. Manual unrolling and strength reduction (rewriting `*`
+as `<<`) rarely help and hurt readability.
+
+The three Python levers that do work:
+
+```python
+# 1. Hoist loop-invariant lookups (CPython runs no LICM pass).
+#    Slow: re-resolves obj.method and len(data) every iteration.
+def slow(obj, data):
+    out = []
+    for i in range(len(data)):
+        out.append(obj.transform(data[i]))
+    return out
+
+# Fast: bind the method and length once outside the loop.
+def fast(obj, data):
+    transform = obj.transform
+    out = []
+    for item in data:
+        out.append(transform(item))
+    return out
+
+# 2. Vectorize numeric loops with NumPy (Pattern 7) instead of unrolling.
+# 3. Fuse array passes with numexpr/Numba to cut temporaries, rather
+#    than hand-merging Python loops.
+```
+
+Hand-vs-compiler decision rule for all languages, plus the two
+benchmark traps that invalidate a speedup claim:
+`Skill(leyline:loop-optimization)`.

@@ -127,6 +127,31 @@ def get_result(n):
     return expensive_compute(n)
 ```
 
+### 7. Hand-Rolled Loop Transformations (Usually Revert)
+
+Unlike patterns 1-6, the fix here is often deletion. A hand-unrolled
+loop body, a `multiply` rewritten as a shift, or invariant code
+manually hoisted in compiled code (C/C++/Rust) is usually redundant:
+the compiler does unrolling, loop-invariant code motion, and strength
+reduction at `-O2`/`-O3`. Manual unrolling can be worse than redundant:
+it defeats the auto-vectorizer (a documented 4x regression).
+
+Flag when reviewing:
+
+- A manually unrolled loop in compiled code with no profiler evidence.
+  Suggest reverting to the simple loop and letting the compiler unroll.
+- A speedup claim backed only by a synthetic or reused-input benchmark.
+  Strength-reduced code has measured 2x slower on production data.
+- "The compiler emitted SIMD" used as proof. Emitted is not executed;
+  ask for an optimization report.
+
+The exceptions worth keeping: explicit SIMD on a loop the compiler
+provably failed to vectorize (after fixing aliasing), and loop fusion
+that cuts a memory pass without spilling registers.
+
+Full hand-vs-compiler decision rule and the per-technique reality
+table: `Skill(leyline:loop-optimization)`.
+
 ## Complexity Estimation Heuristics
 
 Rather than formal Big-O analysis, use practical heuristics:
