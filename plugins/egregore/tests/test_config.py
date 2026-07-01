@@ -168,6 +168,23 @@ class TestSaveLoadConfig:
         )
         assert cfg.budget.window_type == default.budget.window_type
 
+    def test_completion_integrity_loads_from_raw_json(self, tmp_path: Path) -> None:
+        """
+        GIVEN a config.json that hand-sets pipeline.completion_integrity true
+        WHEN load_config parses it
+        THEN the opt-in flag is honored (not dropped by _filter_fields)
+        AND unspecified pipeline fields keep their defaults.
+
+        This is the real user opt-in path. It also guards the field
+        against silent removal from PipelineConfig: delete the field and
+        _filter_fields drops the key, so this assertion goes red.
+        """
+        path = tmp_path / "config.json"
+        path.write_text(json.dumps({"pipeline": {"completion_integrity": True}}))
+        loaded = load_config(path)
+        assert loaded.pipeline.completion_integrity is True
+        assert loaded.pipeline.auto_merge is False
+
     def test_load_ignores_unknown_fields_in_nested_dataclasses(
         self, tmp_path: Path
     ) -> None:
