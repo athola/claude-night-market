@@ -46,6 +46,17 @@ class TestDefaultConfig:
         assert cfg.pipeline.max_attempts_per_step == 3
         assert cfg.pipeline.skip_brainstorm_for_issues is True
         assert cfg.pipeline.auto_merge is False
+        # Opt-in completion-integrity gate: default OFF so the default
+        # posture stays fully autonomous / indefinite.
+        assert cfg.pipeline.completion_integrity is False
+
+    def test_completion_integrity_opt_in_roundtrip(self, tmp_path: Path) -> None:
+        cfg = EgregoreConfig()
+        cfg.pipeline.completion_integrity = True
+        path = tmp_path / "config.json"
+        save_config(cfg, path)
+        loaded = load_config(path)
+        assert loaded.pipeline.completion_integrity is True
 
     def test_budget_defaults(self) -> None:
         cfg = EgregoreConfig()
