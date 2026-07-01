@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Agentic-loop guardrails (Ronacher "The Coming Loop" +
+  prover-verifier research).** Three additions defend against the
+  documented failure modes of hands-off harness loops:
+  - `prefer-invariants-over-fallbacks` rule (`.claude/rules/`): prefer
+    making illegal states unrepresentable over defensive fallbacks
+    (Karpathy's "mortal terror of exceptions"), with a keep-vs-remove
+    boundary distinction and a safety-critical carve-out.
+  - `proof-of-work` `verifier-integrity` module (imbue): a green check
+    proves spec-satisfaction, not correctness. Validate the spec
+    separately, prove the check fails when behavior breaks
+    (mutation/revert), prefer executable and property-based checks over
+    an LLM judge, and match verifier strength to blast radius. Paired
+    with two fake-resistance best practices in
+    `leyline:testing-quality-standards`.
+
+- **Opt-in `completion_integrity` gate (egregore).**
+  `config.pipeline.completion_integrity` (default `false`) leaves the
+  loop fully autonomous and indefinite. When `true`, a quality verdict
+  of `fix-required` is treated as a step failure so a work item cannot
+  advance to ship with unresolved blocking findings, and merge is held
+  for human review regardless of `auto_merge`.
+
 ## [1.9.14] - 2026-06-27
 
 ### Added
