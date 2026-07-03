@@ -9,6 +9,7 @@
     "./commands/execute.md",
     "./commands/mission.md",
     "./commands/project-init.md",
+    "./commands/skill-library.md",
     "./commands/specify.md",
     "./commands/upgrade-project.md",
     "./commands/validate.md",
@@ -27,7 +28,8 @@
     "./skills/war-room",
     "./skills/war-room-checkpoint",
     "./skills/workflow-setup",
-    "./skills/mission-orchestrator"
+    "./skills/mission-orchestrator",
+    "./skills/skill-library-mission"
   ],
   "agents": [
     "./agents/project-architect.md",
