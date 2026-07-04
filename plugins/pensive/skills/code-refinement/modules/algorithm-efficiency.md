@@ -134,14 +134,14 @@ loop body, a `multiply` rewritten as a shift, or invariant code
 manually hoisted in compiled code (C/C++/Rust) is usually redundant:
 the compiler does unrolling, loop-invariant code motion, and strength
 reduction at `-O2`/`-O3`. Manual unrolling can be worse than redundant:
-it defeats the auto-vectorizer (a documented 4x regression).
+it can defeat the auto-vectorizer outright.
 
 Flag when reviewing:
 
 - A manually unrolled loop in compiled code with no profiler evidence.
   Suggest reverting to the simple loop and letting the compiler unroll.
 - A speedup claim backed only by a synthetic or reused-input benchmark.
-  Strength-reduced code has measured 2x slower on production data.
+  Micro-opts validated on synthetic input can invert on production data.
 - "The compiler emitted SIMD" used as proof. Emitted is not executed;
   ask for an optimization report.
 

@@ -168,13 +168,18 @@ class TestLoopOptimizationProseCompliance:
         """
         in_code = False
         in_frontmatter = False
+        frontmatter_closed = False
         violations = []
         for i, line in enumerate(skill_content.split("\n"), 1):
             if line.startswith("```"):
                 in_code = not in_code
                 continue
-            if line == "---":
-                in_frontmatter = not in_frontmatter if i > 1 else True
+            if line == "---" and not frontmatter_closed:
+                if i == 1:
+                    in_frontmatter = True
+                elif in_frontmatter:
+                    in_frontmatter = False
+                    frontmatter_closed = True
                 continue
             if not in_code and not in_frontmatter and len(line) > MAX_PROSE_LINE_LENGTH:
                 if line.startswith("|"):
