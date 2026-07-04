@@ -224,6 +224,14 @@ For each active work item, execute this loop:
    Then IMMEDIATELY go to step 1. Do not pause. Do not
    summarize. Do not reflect on what was accomplished.
 
+   **Completion-integrity exception (opt-in, default OFF)**:
+   when `config.pipeline.completion_integrity` is `true`, a
+   quality-stage verdict of `fix-required` does NOT count as
+   success. Route it to failure handling (step 6) instead, so
+   the item cannot advance to ship with unresolved blocking
+   findings. When the flag is `false` (the default), behave as
+   today and keep running indefinitely.
+
 6. **On failure**: increment `attempts` on the work item.
    If `attempts < max_attempts`, retry the step.
    If `attempts >= max_attempts`, mark the item as `failed`

@@ -59,6 +59,9 @@ Expert Python development agent specializing in modern Python 3.9+ practices, pe
 - NumPy vectorization
 - Caching with `lru_cache` and Redis
 - Multiprocessing for CPU-bound tasks
+- Loop optimization: hoist invariants, vectorize, do not hand-unroll
+  (see `parseltongue:python-performance` Pattern 11 and
+  `leyline:loop-optimization` for the hand-vs-compiler rule)
 
 ### Ecosystem
 - **Package Management**: uv (preferred), pip, poetry

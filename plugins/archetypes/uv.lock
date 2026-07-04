@@ -4,5 +4,5 @@ requires-python = ">=3.9"
 
 [[package]]
 name = "archetypes"
-version = "1.9.14"
+version = "1.9.15"
 source = { virtual = "." }

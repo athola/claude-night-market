@@ -29,6 +29,7 @@ modules:
 - modules/retry-protocol.md
 - modules/todowrite-patterns.md
 - modules/validation-protocols.md
+- modules/verifier-integrity.md
 role: library
 ---
 > "It looks correct" is not "I verified it works."
@@ -183,6 +184,10 @@ by the user. Ensure you are proving rather than assuming.
 - [Independent verification](modules/independent-verification.md): for
   high-stakes changes, why the producing agent may not be its own
   sole verifier, and what counts as an independent check
+- [Verifier integrity](modules/verifier-integrity.md): whether the
+  check is real at all: validate the spec separately, prove the check
+  fails when behavior breaks (mutation/revert), prefer executable and
+  property-based checks over an LLM judge
 
 ## Related Skills
 

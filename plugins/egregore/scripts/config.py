@@ -41,6 +41,12 @@ class PipelineConfig:
     max_attempts_per_step: int = 3
     skip_brainstorm_for_issues: bool = True
     auto_merge: bool = False
+    # Opt-in completion-integrity gate. Default False keeps the
+    # historical posture: the loop runs indefinitely and autonomously.
+    # When True, a quality verdict of "fix-required" is treated as a
+    # step failure (it cannot advance to ship), and merge is held for
+    # human review regardless of auto_merge. See the quality-gate skill.
+    completion_integrity: bool = False
 
 
 @dataclass

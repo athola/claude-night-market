@@ -28,6 +28,18 @@ reusable_by: [pensive:test-review, parseltongue:python-testing]
 9. **Mock at boundaries** - Only mock external dependencies
 10. **Measure coverage** - Aim for meaningful, not just high
 
+## Fake-Resistance
+
+11. **Prefer properties over examples** - Where an invariant holds
+    (round-trip, idempotence, ordering, conservation, non-negativity),
+    assert the property and fuzz inputs instead of pinning a few
+    hand-picked cases. Property-based tests cover cases you did not
+    enumerate and resist the "passes but does not test" failure.
+12. **Prove the test can fail** - A test that stays green when the
+    behavior breaks is not evidence. Break the behavior on purpose
+    (revert/mutation) and confirm the test goes red. See
+    `Skill(imbue:proof-of-work)` module `verifier-integrity.md`.
+
 ## Exit Criteria
 
 - Coverage thresholds documented and understood
