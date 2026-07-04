@@ -5,9 +5,20 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.9.15] - 2026-07-02
 
 ### Added
+
+- **`/attune:skill-library` command and `skill-library-mission`
+  skill (attune).** Packages the retiring-fellow knowledge-transfer
+  mission that produced the 15-skill project library under
+  `.claude/skills/` (mission `skill-library-2026-07-02`) as a
+  reusable, resumable attune mission: discover the repo like an
+  incoming principal engineer, author one skill per agent from an
+  adapted 16-category taxonomy, review with factual, doctrine, and
+  usability lenses plus a fixer, then report inventory and
+  uncertainties. The generalized dispatch prompt is preserved
+  verbatim in the skill's `references/mission-prompt.md`.
 
 - **Agentic-loop guardrails (Ronacher "The Coming Loop" +
   prover-verifier research).** Three additions defend against the

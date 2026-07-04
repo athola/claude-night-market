@@ -989,3 +989,31 @@ class TestSAN019FileCaching:
         assert len(file_reads) <= 1, (
             f"test_path opened {len(file_reads)} times; expected at most 1"
         )
+
+
+def test_dynamic_validation_runs_without_python_on_path(tmp_path):
+    """Dynamic validation must not depend on `python` being on PATH.
+
+    GIVEN an environment whose PATH resolves no bare `python`
+    (Debian/WSL boxes ship only `python3`; simulated with an empty PATH)
+    WHEN run_dynamic_validation executes a trivial passing test file
+    THEN pytest runs via the interpreter already executing the checker
+    (sys.executable) and reports the pass,
+    AND no "Test setup failed" error is recorded
+    """
+    qc = _load_script()
+    f = _good_test_file(tmp_path)
+    checker = qc.TestQualityChecker(f)
+    with patch.dict(qc.os.environ, {"PATH": ""}):
+        validation = checker.run_dynamic_validation()
+
+    # On exception paths "errors" is a list of message strings; on a
+    # successful run the report parser stores an error *count*.
+    errors = validation["errors"]
+    setup_failures = (
+        [e for e in errors if "Test setup failed" in str(e)]
+        if isinstance(errors, list)
+        else []
+    )
+    assert not setup_failures, f"checker depends on PATH python: {setup_failures}"
+    assert validation["execution_result"] == 0

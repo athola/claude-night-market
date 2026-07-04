@@ -1,2 +1,352 @@
-entries: {}
-hashes: {}
+entries:
+  https://hn.algolia.com/api/v1/search?query=tribal%20knowledge%20documentation&tags=story&hitsperpage=10:
+    content_hash: sha256:7a0963abd9055d13
+    stored_at: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
+    importance_score: 85
+    last_updated: '2026-07-02T11:04:24.508854+00:00'
+    title: Stories About Tribal Knowledge & Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tribal%20knowledge%20documentation&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=sop%20documentation%20tool&tags=story&hitsperpage=10:
+    content_hash: sha256:69753834b57e738f
+    stored_at: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
+    importance_score: 85
+    last_updated: '2026-07-02T11:04:25.101385+00:00'
+    title: 'Stories: Documentation/SOP/Capture Tools'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=SOP%20documentation%20tool&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=knowledge%20management%20fails&tags=story&hitsperpage=10:
+    content_hash: sha256:e6373d7a4fd84478
+    stored_at: data/staging/webfetch-stories-on-knowledge-management-failures-2026-07-02_11-04-28.md
+    importance_score: 85
+    last_updated: '2026-07-02T11:04:28.448242+00:00'
+    title: Stories on Knowledge Management Failures
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=knowledge%20management%20fails&tags=story&hitsPerPage=10
+  https://github.com/what-to-click/browser-extension:
+    content_hash: sha256:97e5f937f5ffae94
+    stored_at: data/staging/webfetch-what-to-click-browser-extension-summary-2026-07-02_11-04-29.md
+    importance_score: 100
+    last_updated: '2026-07-02T11:04:29.849722+00:00'
+    title: What-to-Click Browser Extension Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/what-to-click/browser-extension
+  https://github.com/rrweb-io/rrweb:
+    content_hash: sha256:74c8d793e2e55e18
+    stored_at: data/staging/webfetch-rrweb-summary-2026-07-02_11-04-32.md
+    importance_score: 100
+    last_updated: '2026-07-02T11:04:32.548125+00:00'
+    title: rrweb Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rrweb-io/rrweb
+  https://github.com/westpoint-io/mimik:
+    content_hash: sha256:2984ab9baf11a6a2
+    stored_at: data/staging/webfetch-mimik-browser-extension-summary-2026-07-02_11-04-47.md
+    importance_score: 100
+    last_updated: '2026-07-02T11:04:47.678624+00:00'
+    title: Mimik - Browser Extension Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/westpoint-io/mimik
+  https://github.com/siddharthkureel/chrome-extension-ui-events-recorder:
+    content_hash: sha256:c189e1083382a6d2
+    stored_at: data/staging/webfetch-chrome-extension-ui-events-recorder-summary-2026-07-02_11-05-06.md
+    importance_score: 100
+    last_updated: '2026-07-02T11:05:06.175495+00:00'
+    title: Chrome Extension UI Events Recorder Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/siddharthkureel/chrome-extension-ui-events-recorder
+  https://github.com/strands-agents/agent-sop:
+    content_hash: sha256:34aefedeaceab52b
+    stored_at: data/staging/webfetch-agent-sop-repository-summary-2026-07-02_11-05-06.md
+    importance_score: 100
+    last_updated: '2026-07-02T11:05:06.741637+00:00'
+    title: Agent SOP Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/strands-agents/agent-sop
+  https://github.com/valuearchitectsai/sop-mcp:
+    content_hash: sha256:7596872ed42fe438
+    stored_at: data/staging/webfetch-sop-mcp-summary-2026-07-02_11-05-06.md
+    importance_score: 100
+    last_updated: '2026-07-02T11:05:06.761894+00:00'
+    title: sop-mcp Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/ValueArchitectsAI/sop-mcp
+  https://github.com/praveen0777/sop-generator-llm-rag:
+    content_hash: sha256:0e37eae35028276f
+    stored_at: data/staging/webfetch-sop-generator-llm-rag-2026-07-02_11-05-07.md
+    importance_score: 100
+    last_updated: '2026-07-02T11:05:07.367299+00:00'
+    title: SOP Generator LLM + RAG
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/praveen0777/sop-generator-llm-rag
+  https://news.ycombinator.com/item?id=45877517:
+    content_hash: sha256:089d1ae0bb5b902c
+    stored_at: data/staging/webfetch-top-comment-themes-on-legacy-system-knowledge-2026-07-02_11-05-09.md
+    importance_score: 80
+    last_updated: '2026-07-02T11:05:09.006057+00:00'
+    title: Top Comment Themes on Legacy System Knowledge
+    maturity: growing
+    routing_type: meta
+    url: https://news.ycombinator.com/item?id=45877517
+  https://github.com/clawnify/open-fieldservice:
+    content_hash: sha256:90e2f013714e77e9
+    stored_at: data/staging/webfetch-open-field-service-project-summary-2026-07-02_11-05-19.md
+    importance_score: 100
+    last_updated: '2026-07-02T11:05:19.005625+00:00'
+    title: Open Field Service - Project Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/clawnify/open-fieldservice
+  https://happysupport.ai/blog/scribe-vs-tango:
+    content_hash: sha256:486e6858b22d9af6
+    stored_at: data/staging/webfetch-user-complaints-about-scribe-and-tango-2026-07-02_11-05-40.md
+    importance_score: 80
+    last_updated: '2026-07-02T11:05:40.007905+00:00'
+    title: User Complaints About Scribe and Tango
+    maturity: growing
+    routing_type: meta
+    url: https://happysupport.ai/blog/scribe-vs-tango
+  https://www.poka.io/en/blog/what-is-tribal-knowledge-in-manufacturing:
+    content_hash: sha256:ab87bf646a24ecd8
+    stored_at: data/staging/webfetch-tribal-knowledge-in-manufacturing-key-points-2026-07-02_11-05-40.md
+    importance_score: 80
+    last_updated: '2026-07-02T11:05:40.991491+00:00'
+    title: 'Tribal Knowledge in Manufacturing: Key Points'
+    maturity: growing
+    routing_type: meta
+    url: https://www.poka.io/en/blog/what-is-tribal-knowledge-in-manufacturing
+  https://hn.algolia.com/api/v1/search?query=tribal%20knowledge%20skilled%20trades&tags=story&hitsperpage=10:
+    content_hash: sha256:b9d417fb66e78cc4
+    stored_at: data/staging/webfetch-search-results-2026-07-03_11-02-29.md
+    importance_score: 86
+    last_updated: '2026-07-03T11:02:29.432383+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tribal%20knowledge%20skilled%20trades&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=scribe%20documentation%20chrome%20extension&tags=story&hitsperpage=10:
+    content_hash: sha256:af91a6e88969614b
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-02-30.md
+    importance_score: 86
+    last_updated: '2026-07-03T11:02:30.738329+00:00'
+    title: Based on the web page content provided, there are **no stories to list**.
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Scribe%20documentation%20chrome%20extension&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=electrician%20plumber%20shortage&tags=story&hitsperpage=15:
+    content_hash: sha256:89a34c58385bafd9
+    stored_at: data/staging/webfetch-story-search-results-2026-07-03_11-02-39.md
+    importance_score: 86
+    last_updated: '2026-07-03T11:02:39.035032+00:00'
+    title: Story Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=electrician%20plumber%20shortage&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=skilled%20trades%20knowledge&tags=story&hitsperpage=15:
+    content_hash: sha256:a6c65dd31f1dfa4d
+    stored_at: data/staging/webfetch-stories-with-points-5-2026-07-03_11-02-45.md
+    importance_score: 86
+    last_updated: '2026-07-03T11:02:45.080615+00:00'
+    title: Stories with Points > 5
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=skilled%20trades%20knowledge&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=silver%20tsunami&tags=story&hitsperpage=10:
+    content_hash: sha256:e322719f70346f0f
+    stored_at: data/staging/webfetch-stories-with-points-5-2026-07-03_11-03-03.md
+    importance_score: 86
+    last_updated: '2026-07-03T11:03:03.370376+00:00'
+    title: Stories with Points > 5
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=silver%20tsunami&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=tango%20scribe%20screenshots&tags=story&hitsperpage=10:
+    content_hash: sha256:5f3e36c4a0051448
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-03-20.md
+    importance_score: 86
+    last_updated: '2026-07-03T11:03:20.163242+00:00'
+    title: Based on the web page content provided, there are **no stories to list**.
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Tango%20Scribe%20screenshots&tags=story&hitsPerPage=10
+  https://github.com/ajkolaganti/workmap:
+    content_hash: sha256:8f8c2b3ea97ee076
+    stored_at: data/staging/webfetch-workmap-project-report-2026-07-03_11-03-27.md
+    importance_score: 100
+    last_updated: '2026-07-03T11:03:27.809530+00:00'
+    title: Workmap Project Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Ajkolaganti/workmap
+  https://github.com/ebanez8/openstep:
+    content_hash: sha256:ceabef2801c66409
+    stored_at: data/staging/webfetch-opensteps-project-report-2026-07-03_11-03-29.md
+    importance_score: 100
+    last_updated: '2026-07-03T11:03:29.861120+00:00'
+    title: OpenSteps Project Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/ebanez8/openstep
+  https://github.com/alyssaxuu/screenity:
+    content_hash: sha256:33eb115b563f2cfd
+    stored_at: data/staging/webfetch-screenity-project-report-2026-07-03_11-03-30.md
+    importance_score: 100
+    last_updated: '2026-07-03T11:03:30.483465+00:00'
+    title: Screenity Project Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/alyssaxuu/screenity
+  https://hn.algolia.com/api/v1/search?query=%22tribal%20knowledge%22&tags=story&hitsperpage=15:
+    content_hash: sha256:609358b73f41f486
+    stored_at: data/staging/webfetch-stories-with-points-5-2026-07-03_11-03-31.md
+    importance_score: 86
+    last_updated: '2026-07-03T11:03:31.403665+00:00'
+    title: Stories with Points > 5
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=%22tribal%20knowledge%22&tags=story&hitsPerPage=15
+  https://github.com/webclipper/web-clipper:
+    content_hash: sha256:4994ddbc480ba006
+    stored_at: data/staging/webfetch-web-clipper-project-report-2026-07-03_11-03-31.md
+    importance_score: 100
+    last_updated: '2026-07-03T11:03:31.495091+00:00'
+    title: Web Clipper Project Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/webclipper/web-clipper
+  https://github.com/obsidianmd/obsidian-clipper:
+    content_hash: sha256:02a46dce71eb6109
+    stored_at: data/staging/webfetch-obsidian-web-clipper-project-report-2026-07-03_11-03-31.md
+    importance_score: 100
+    last_updated: '2026-07-03T11:03:31.522139+00:00'
+    title: Obsidian Web Clipper Project Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/obsidianmd/obsidian-clipper
+  https://github.com/getodk/collect:
+    content_hash: sha256:0f5ad573aec1dfaf
+    stored_at: data/staging/webfetch-odk-collect-project-report-2026-07-03_11-03-43.md
+    importance_score: 100
+    last_updated: '2026-07-03T11:03:43.994504+00:00'
+    title: ODK Collect Project Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/getodk/collect
+  https://github.com/oca/field-service:
+    content_hash: sha256:ae54d68927860605
+    stored_at: data/staging/webfetch-field-service-management-repository-analysis-2026-07-03_11-03-44.md
+    importance_score: 100
+    last_updated: '2026-07-03T11:03:44.376283+00:00'
+    title: Field Service Management Repository Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/OCA/field-service
+  https://github.com/cassproject/cass:
+    content_hash: sha256:47a25298c3cd02bc
+    stored_at: data/staging/webfetch-cass-project-report-2026-07-03_11-03-46.md
+    importance_score: 100
+    last_updated: '2026-07-03T11:03:46.396804+00:00'
+    title: CASS Project Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/cassproject/CASS
+  https://github.com/beveren-software-inc/field_service_management:
+    content_hash: sha256:b003b86c1f2b5536
+    stored_at: data/staging/webfetch-beveren-fsm-project-report-2026-07-03_11-03-46.md
+    importance_score: 100
+    last_updated: '2026-07-03T11:03:46.586563+00:00'
+    title: Beveren FSM Project Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Beveren-Software-Inc/Field_Service_Management
+  https://github.com/attevon-llc/opentranscribe:
+    content_hash: sha256:46909f57c5106c25
+    stored_at: data/staging/webfetch-opentranscribe-project-report-2026-07-03_11-04-01.md
+    importance_score: 100
+    last_updated: '2026-07-03T11:04:01.617483+00:00'
+    title: OpenTranscribe Project Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/attevon-llc/OpenTranscribe
+  https://hn.algolia.com/api/v1/search?query=trades%20shortage%20apprenticeship&tags=story&hitsperpage=10:
+    content_hash: sha256:79fa19c20ee1de06
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-05-48.md
+    importance_score: 86
+    last_updated: '2026-07-03T11:05:48.776411+00:00'
+    title: Based on the web page content provided, there are **no stories to list**.
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=trades%20shortage%20apprenticeship&tags=story&hitsPerPage=10
+  https://www.reachcapital.com/2025/04/03/ai-frontine-work:
+    content_hash: sha256:da518117d83ee81f
+    stored_at: data/staging/webfetch-reach-capital-s-frontline-worker-ai-investment-2026-07-03_11-05-55.md
+    importance_score: 80
+    last_updated: '2026-07-03T11:05:55.414250+00:00'
+    title: Reach Capital's Frontline Worker AI Investment Thesis
+    maturity: growing
+    routing_type: meta
+    url: https://www.reachcapital.com/2025/04/03/ai-frontine-work/
+  https://news.crunchbase.com/job-market/ai-vcs-fund-startups-frontline-workers:
+    content_hash: sha256:a60a43573107ee50
+    stored_at: data/staging/webfetch-frontline-worker-startup-funding-summary-2026-07-03_11-06-18.md
+    importance_score: 80
+    last_updated: '2026-07-03T11:06:18.021871+00:00'
+    title: Frontline Worker Startup Funding Summary
+    maturity: growing
+    routing_type: meta
+    url: https://news.crunchbase.com/job-market/ai-vcs-fund-startups-frontline-workers/
+  https://lobste.rs/s/3faroe/what_s_your_favorite_go_documentation:
+    content_hash: sha256:4483397cf9246811
+    stored_at: data/staging/webfetch-documentation-tools-thread-summary-2026-07-03_11-06-58.md
+    importance_score: 80
+    last_updated: '2026-07-03T11:06:58.218807+00:00'
+    title: Documentation Tools Thread Summary
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/s/3faroe/what_s_your_favorite_go_documentation
+hashes:
+  sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
+  sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
+  sha256:e6373d7a4fd84478: data/staging/webfetch-stories-on-knowledge-management-failures-2026-07-02_11-04-28.md
+  sha256:97e5f937f5ffae94: data/staging/webfetch-what-to-click-browser-extension-summary-2026-07-02_11-04-29.md
+  sha256:74c8d793e2e55e18: data/staging/webfetch-rrweb-summary-2026-07-02_11-04-32.md
+  sha256:2984ab9baf11a6a2: data/staging/webfetch-mimik-browser-extension-summary-2026-07-02_11-04-47.md
+  sha256:c189e1083382a6d2: data/staging/webfetch-chrome-extension-ui-events-recorder-summary-2026-07-02_11-05-06.md
+  sha256:34aefedeaceab52b: data/staging/webfetch-agent-sop-repository-summary-2026-07-02_11-05-06.md
+  sha256:7596872ed42fe438: data/staging/webfetch-sop-mcp-summary-2026-07-02_11-05-06.md
+  sha256:0e37eae35028276f: data/staging/webfetch-sop-generator-llm-rag-2026-07-02_11-05-07.md
+  sha256:089d1ae0bb5b902c: data/staging/webfetch-top-comment-themes-on-legacy-system-knowledge-2026-07-02_11-05-09.md
+  sha256:90e2f013714e77e9: data/staging/webfetch-open-field-service-project-summary-2026-07-02_11-05-19.md
+  sha256:486e6858b22d9af6: data/staging/webfetch-user-complaints-about-scribe-and-tango-2026-07-02_11-05-40.md
+  sha256:ab87bf646a24ecd8: data/staging/webfetch-tribal-knowledge-in-manufacturing-key-points-2026-07-02_11-05-40.md
+  sha256:b9d417fb66e78cc4: data/staging/webfetch-search-results-2026-07-03_11-02-29.md
+  sha256:af91a6e88969614b: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-02-30.md
+  sha256:89a34c58385bafd9: data/staging/webfetch-story-search-results-2026-07-03_11-02-39.md
+  sha256:a6c65dd31f1dfa4d: data/staging/webfetch-stories-with-points-5-2026-07-03_11-02-45.md
+  sha256:e322719f70346f0f: data/staging/webfetch-stories-with-points-5-2026-07-03_11-03-03.md
+  sha256:5f3e36c4a0051448: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-03-20.md
+  sha256:8f8c2b3ea97ee076: data/staging/webfetch-workmap-project-report-2026-07-03_11-03-27.md
+  sha256:ceabef2801c66409: data/staging/webfetch-opensteps-project-report-2026-07-03_11-03-29.md
+  sha256:33eb115b563f2cfd: data/staging/webfetch-screenity-project-report-2026-07-03_11-03-30.md
+  sha256:609358b73f41f486: data/staging/webfetch-stories-with-points-5-2026-07-03_11-03-31.md
+  sha256:4994ddbc480ba006: data/staging/webfetch-web-clipper-project-report-2026-07-03_11-03-31.md
+  sha256:02a46dce71eb6109: data/staging/webfetch-obsidian-web-clipper-project-report-2026-07-03_11-03-31.md
+  sha256:0f5ad573aec1dfaf: data/staging/webfetch-odk-collect-project-report-2026-07-03_11-03-43.md
+  sha256:ae54d68927860605: data/staging/webfetch-field-service-management-repository-analysis-2026-07-03_11-03-44.md
+  sha256:47a25298c3cd02bc: data/staging/webfetch-cass-project-report-2026-07-03_11-03-46.md
+  sha256:b003b86c1f2b5536: data/staging/webfetch-beveren-fsm-project-report-2026-07-03_11-03-46.md
+  sha256:46909f57c5106c25: data/staging/webfetch-opentranscribe-project-report-2026-07-03_11-04-01.md
+  sha256:79fa19c20ee1de06: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-05-48.md
+  sha256:da518117d83ee81f: data/staging/webfetch-reach-capital-s-frontline-worker-ai-investment-2026-07-03_11-05-55.md
+  sha256:a60a43573107ee50: data/staging/webfetch-frontline-worker-startup-funding-summary-2026-07-03_11-06-18.md
+  sha256:4483397cf9246811: data/staging/webfetch-documentation-tools-thread-summary-2026-07-03_11-06-58.md

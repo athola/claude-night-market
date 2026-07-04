@@ -141,6 +141,7 @@ planning or execution when high-stakes decisions arise.
 |---------|-------------|
 | `/attune:upgrade-project` | Add or update configurations in existing project |
 | `/attune:validate` | Validate project structure against best practices |
+| `/attune:skill-library` | Build a project skill library under `.claude/skills/` via a discover, author, review mission |
 
 ## Skills
 
@@ -154,6 +155,7 @@ planning or execution when high-stakes decisions arise.
 | `project-specification` | Spec-driven requirement definition | Need detailed requirements |
 | `project-planning` | Architecture design and task breakdown | Planning implementation |
 | `project-execution` | Systematic task execution with TDD | Implementing planned tasks |
+| `skill-library-mission` | Retiring-fellow knowledge-transfer mission for project skill libraries | Packaging institutional knowledge before an expert departs |
 
 ### Initialization Skills
 
