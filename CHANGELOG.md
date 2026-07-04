@@ -5,7 +5,42 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.9.15] - 2026-07-02
+
+### Added
+
+- **`/attune:skill-library` command and `skill-library-mission`
+  skill (attune).** Packages the retiring-fellow knowledge-transfer
+  mission that produced the 15-skill project library under
+  `.claude/skills/` (mission `skill-library-2026-07-02`) as a
+  reusable, resumable attune mission: discover the repo like an
+  incoming principal engineer, author one skill per agent from an
+  adapted 16-category taxonomy, review with factual, doctrine, and
+  usability lenses plus a fixer, then report inventory and
+  uncertainties. The generalized dispatch prompt is preserved
+  verbatim in the skill's `references/mission-prompt.md`.
+
+- **Agentic-loop guardrails (Ronacher "The Coming Loop" +
+  prover-verifier research).** Three additions defend against the
+  documented failure modes of hands-off harness loops:
+  - `prefer-invariants-over-fallbacks` rule (`.claude/rules/`): prefer
+    making illegal states unrepresentable over defensive fallbacks
+    (Karpathy's "mortal terror of exceptions"), with a keep-vs-remove
+    boundary distinction and a safety-critical carve-out.
+  - `proof-of-work` `verifier-integrity` module (imbue): a green check
+    proves spec-satisfaction, not correctness. Validate the spec
+    separately, prove the check fails when behavior breaks
+    (mutation/revert), prefer executable and property-based checks over
+    an LLM judge, and match verifier strength to blast radius. Paired
+    with two fake-resistance best practices in
+    `leyline:testing-quality-standards`.
+
+- **Opt-in `completion_integrity` gate (egregore).**
+  `config.pipeline.completion_integrity` (default `false`) leaves the
+  loop fully autonomous and indefinite. When `true`, a quality verdict
+  of `fix-required` is treated as a step failure so a work item cannot
+  advance to ship with unresolved blocking findings, and merge is held
+  for human review regardless of `auto_merge`.
 
 ## [1.9.14] - 2026-06-27
 

@@ -133,7 +133,8 @@ Stored in `.egregore/config.json`:
   "pipeline": {
     "max_attempts_per_step": 3,
     "skip_brainstorm_for_issues": true,
-    "auto_merge": false
+    "auto_merge": false,
+    "completion_integrity": false
   },
   "budget": {
     "window_type": "5h",
@@ -147,6 +148,13 @@ Stored in `.egregore/config.json`:
 > (revert PR is messy and visible in history). Egregore is
 > already opt-in at `/egregore:summon`; `auto_merge`
 > gates the no-human-loop transition specifically.
+
+> **Why `completion_integrity: false`?** Default off keeps the
+> historical posture: the loop runs indefinitely and advances on any
+> non-crash step result. Set it to `true` to make a quality verdict of
+> `fix-required` block advancement to ship (so an item cannot complete
+> with unresolved blocking findings) and hold merge for human review.
+> It never halts the overall loop, only the offending item.
 
 ## vs Ralph Wiggum
 

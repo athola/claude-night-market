@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.14-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.15-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-197-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-198-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 
 **A plugin marketplace for Claude Code.** Install only the
@@ -65,6 +65,7 @@ The commands you reach for most:
 | Prepare a pull request | `/prepare-pr` |
 | Write a spec | `/speckit-specify` |
 | Catch up on changes | `/catchup` |
+| Package project knowledge as skills | `/attune:skill-library` |
 | Clean up the codebase | `/unbloat` |
 | Pressure-test a decision | `/attune:war-room` |
 
@@ -163,17 +164,16 @@ unavailable, and both can be turned off.
 
 ## What's New
 
-**1.9.14** fixes a silent failure in the skill-observability
-hooks. PostToolUse and PreToolUse hooks read `CLAUDE_TOOL_*`
-environment variables that Claude Code never sets; the payload
-arrives as JSON on stdin. The affected hooks now read stdin first,
-with an env-var fallback for the test harness, and a shared
-`hook_io` reader centralizes the contract. `skill_execution_logger`
-had been exiting 0 without logging, which starved the `[Learning]`
-discussion digests of input. The release also adds
-`/speckit-converge`, which checks the codebase against `spec.md`,
-`plan.md`, and `tasks.md` and appends any unbuilt work as new
-tasks.
+**1.9.15** adds guardrails for hands-off agentic loops, drawn from
+Ronacher's "The Coming Loop" and prover-verifier research. A new
+`prefer-invariants-over-fallbacks` rule pushes toward making illegal
+states unrepresentable instead of adding defensive fallbacks. The
+`proof-of-work` skill gains a `verifier-integrity` module: a green
+check proves spec-satisfaction, not correctness, so validate the spec
+separately and prove the check fails when behavior breaks. Egregore
+gains an opt-in `completion_integrity` gate (default off) that treats a
+`fix-required` verdict as a step failure and holds merge for human
+review.
 See the [CHANGELOG](CHANGELOG.md) for the full history.
 
 ## Plugin Development

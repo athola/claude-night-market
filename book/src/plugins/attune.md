@@ -33,10 +33,12 @@ graph LR
 | `/attune:war-room` | 2. Deliberation | Multi-LLM expert deliberation with reversibility-based routing |
 | `/attune:specify` | 3. Specification | Create detailed specs from war-room decision |
 | `/attune:blueprint` | 4. Planning | Design architecture and break down tasks |
-| `/attune:init` | 5. Initialization | Generate or update project structure with tooling |
+| `/attune:project-init` | 5. Initialization | Generate or update project structure with tooling |
+| `/attune:arch-init` | 5. Initialization | Initialize with architecture-aware templates and paradigm research |
 | `/attune:execute` | 6. Implementation | Execute tasks with TDD discipline |
 | `/attune:upgrade-project` | Maintenance | Add configs to existing projects |
 | `/attune:mission` | Full Cycle | Run entire lifecycle as a single mission with state detection |
+| `/attune:skill-library` | Knowledge Transfer | Build a project skill library under `.claude/skills/` as a resumable mission |
 | `/attune:validate` | Quality | Validate project structure |
 
 ## Supported Languages
@@ -101,6 +103,9 @@ graph LR
 | `project-execution` | Systematic implementation |
 | `makefile-generation` | Generate language-specific Makefiles |
 | `mission-orchestrator` | Lifecycle orchestrator with interactive plan review before execution |
+| `architecture-aware-init` | Paradigm research and selection before scaffolding |
+| `skill-library-mission` | Discover, author, and review a project skill library in `.claude/skills/` |
+| `dorodango` | Successive quality-polish passes in fresh subagents |
 | `workflow-setup` | Configure CI/CD pipelines |
 | `precommit-setup` | Set up code quality hooks |
 

@@ -19,7 +19,6 @@ import json
 import logging
 import os
 import re
-import shutil
 import subprocess
 import sys as _sys
 import tempfile
@@ -352,9 +351,11 @@ class TestQualityChecker:
         try:
             # Run pytest with JSON output
             start_time = time.time()
-            python_path = shutil.which("python")
-            if not python_path:
-                raise FileNotFoundError("Python executable not found in PATH")
+            # Use the interpreter already running this checker rather than
+            # resolving `python` from PATH: bare `python` does not exist on
+            # Debian/WSL boxes, and a PATH interpreter may not be the
+            # environment whose pytest/pytest_jsonreport we probed above.
+            python_path = _sys.executable
 
             # The json-report plugin gives rich pass/fail data but is optional.
             # Only request it when installed, otherwise a missing plugin makes

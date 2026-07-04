@@ -93,6 +93,32 @@ Record verdict in manifest decisions:
 }
 ```
 
+### Completion Integrity (opt-in, default OFF)
+
+By default the loop runs indefinitely and autonomously: a
+`fix-required` verdict is recorded but does not, on its own,
+stop the item from advancing. This preserves the historical
+hands-off posture.
+
+When `config.pipeline.completion_integrity` is `true`, the
+verdict becomes a gate the agent cannot talk its way past:
+
+1. A `fix-required` verdict is reported to the orchestrator as
+   a **step failure**, so the item cannot advance to the ship
+   stage with unresolved blocking findings. It retries in place
+   and, on exhausting `max_attempts`, is marked `failed` and
+   the overseer is alerted (never silently `completed`).
+2. Merge is held for human review regardless of `auto_merge`:
+   the PR is prepared but left open.
+
+This binds "done" to the verifier (convention checks plus the
+mapped review skills), not to the agent's own say-so. Rationale
+and evidence:
+`docs/research/2026-07-01-the-coming-loop-agentic-harness-guardrails.md`
+and `.claude/rules/prefer-invariants-over-fallbacks.md`. The flag
+is off by default; enabling it is a deliberate choice to keep a
+human as the final judge.
+
 ## PR-Review Workflow
 
 When mode is "pr-review":
