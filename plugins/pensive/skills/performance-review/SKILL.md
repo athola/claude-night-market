@@ -27,6 +27,7 @@ modules:
 - modules/space-complexity.md
 - modules/gauntlet-integration.md
 - modules/kuva-visualization.md
+- modules/memory-allocation-lenses.md
 ---
 
 ## Table of Contents
@@ -119,6 +120,11 @@ for f in result.issues:
 Load `modules/time-complexity.md` for the time-side patterns and
 `modules/space-complexity.md` for space-side. Each module
 documents the AST shape of every detector.
+
+Alongside the automated scan, load
+`modules/memory-allocation-lenses.md` and apply its three
+manual lenses (unbounded external-source collections, hot-path
+recompute, serial blocking I/O) by reading the target files.
 
 For each Python target file, call:
 
@@ -233,6 +239,12 @@ exact code shape.
 - `modules/kuva-visualization.md`: Rendering benchmark data as
   charts with kuva (criterion, pytest-benchmark, ad-hoc tables).
   Covers when chart evidence satisfies proof-of-work requirements.
+- `modules/memory-allocation-lenses.md`: Manual review lenses
+  (not AST detectors) for unbounded collections fed from
+  external sources, hot-path recompute that should be memoized,
+  and serial blocking I/O over unbounded sets. Apply by reading
+  the code; the detector-test rule in Testing does not cover
+  these because nothing is automated.
 
 ## Verification
 

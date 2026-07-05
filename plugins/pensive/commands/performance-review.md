@@ -41,6 +41,22 @@ Static-analysis hot-spot review for time and space complexity.
 | 2 | * | Same patterns adapted to non-Python via tree-sitter |
 | 3 | * | Severity upgrades from transitive call analysis |
 
+## Manual Review Lenses
+
+Three patterns are reviewed by eye, not by the AST scan (see
+`Skill(pensive:performance-review)` module
+`memory-allocation-lenses.md`):
+
+- Unbounded collection fed from an external or dynamic source
+  (ARP table, directory scan, API page loop) with no cap.
+- Hot-path recompute of derived data whose inputs change only
+  on infrequent events (memoize behind a generation counter).
+- Serial blocking I/O in a loop over an unbounded collection
+  (cap the set, bound concurrency, add per-call timeouts).
+
+Findings from these lenses must name their growth mode:
+persistent RSS growth versus transient per-frame churn.
+
 ## When to Skip
 
 - Code is hot-path-irrelevant (config readers, one-shot scripts).
