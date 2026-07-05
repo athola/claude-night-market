@@ -45,8 +45,11 @@ run_plugin_tests() {
     # Check if plugin has Makefile with test target
     if [ -f "$plugin_dir/Makefile" ]; then
         if grep -q "^test:" "$plugin_dir/Makefile" 2>/dev/null; then
-            # Run using Makefile - capture output, show on failure
-            if (cd "$plugin_dir" && make test --quiet 2>&1 > "$temp_output"); then
+            # Run using Makefile - capture output, show on failure.
+            # env -u scrubs git env leaked by `git commit` from linked
+            # worktrees; without it, tests that spawn git in temp dirs
+            # rewrite the real worktree index (issue #609).
+            if (cd "$plugin_dir" && env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE make test --quiet 2>&1 > "$temp_output"); then
                 echo -e "  ${GREEN}✓ Tests passed${NC}"
                 PASSED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
@@ -55,7 +58,7 @@ run_plugin_tests() {
                 echo -e "  ${RED}✗ Tests failed${NC}"
                 echo -e "${YELLOW}Re-running with verbose output:${NC}"
                 echo
-                (cd "$plugin_dir" && make test 2>&1)
+                (cd "$plugin_dir" && env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE make test 2>&1)
                 FAILED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
                 return 1
@@ -81,8 +84,9 @@ run_plugin_tests() {
                 cov_flag="--cov-fail-under=${cov_threshold}"
             fi
 
-            # Run using uv/pytest - capture output, show on failure
-            if (cd "$plugin_dir" && uv run python -m pytest tests/ --tb=short --quiet ${cov_flag} 2>&1 > "$temp_output"); then
+            # Run using uv/pytest - capture output, show on failure.
+            # env -u: see the Makefile branch above (issue #609).
+            if (cd "$plugin_dir" && env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE uv run python -m pytest tests/ --tb=short --quiet ${cov_flag} 2>&1 > "$temp_output"); then
                 echo -e "  ${GREEN}✓ Tests passed${NC}"
                 PASSED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
@@ -91,7 +95,7 @@ run_plugin_tests() {
                 echo -e "  ${RED}✗ Tests failed${NC}"
                 echo -e "${YELLOW}Re-running with verbose output:${NC}"
                 echo
-                (cd "$plugin_dir" && uv run python -m pytest tests/ --tb=short ${cov_flag} 2>&1)
+                (cd "$plugin_dir" && env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE uv run python -m pytest tests/ --tb=short ${cov_flag} 2>&1)
                 FAILED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
                 return 1

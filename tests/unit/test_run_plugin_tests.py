@@ -9,13 +9,23 @@ configurations.
 
 from __future__ import annotations
 
+import os
 import subprocess
+import sys
 import textwrap
 from pathlib import Path
 
 import pytest
 
 SCRIPT = Path(__file__).parents[2] / "scripts" / "run-plugin-tests.sh"
+
+# The env prefix run-plugin-tests.sh must place before every test
+# invocation.  Committing from a linked worktree exports
+# GIT_DIR/GIT_INDEX_FILE to hook subprocesses; test suites that
+# spawn git in temp dirs then rewrite the real worktree index
+# (issue #609).  Scrubbing at the invocation boundary keeps child
+# git processes scoped to their own working directory.
+GIT_ENV_SCRUB = "env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE"
 
 # Awk program body: the same logic embedded in run-plugin-tests.sh.
 # Reads coverage_threshold from the [tool.nightmarket] TOML section.
@@ -39,6 +49,69 @@ def _run_awk(content: str, tmp_path: Path) -> str:
         text=True,
     )
     return result.stdout.strip()
+
+
+class TestGitEnvScrub:
+    """Feature: run-plugin-tests.sh scrubs leaked git env from test runs.
+
+    As a developer committing from a linked worktree
+    I want the pre-commit test hook to drop GIT_DIR/GIT_INDEX_FILE/
+    GIT_WORK_TREE before spawning test suites
+    So that tests which spawn git in temp directories cannot rewrite
+    the real worktree index (issue #609: ~2,800 phantom staged
+    deletions).
+    """
+
+    @pytest.mark.unit
+    def test_every_test_invocation_scrubs_git_env(self) -> None:
+        """
+        Scenario: all make/pytest invocation lines carry the scrub prefix
+        Given the run-plugin-tests.sh script on disk
+        When each line that launches `make test` or `python -m pytest`
+        is inspected
+        Then every such line contains the git-env scrub prefix
+        """
+        lines = SCRIPT.read_text().splitlines()
+        invocations = [
+            line
+            for line in lines
+            if ("make test" in line or "python -m pytest" in line)
+            and not line.lstrip().startswith("#")
+        ]
+        assert invocations, "expected test invocation lines in script"
+        unscrubbed = [line for line in invocations if GIT_ENV_SCRUB not in line]
+        assert not unscrubbed, (
+            f"test invocations missing git env scrub ({GIT_ENV_SCRUB!r}): {unscrubbed}"
+        )
+
+    @pytest.mark.unit
+    def test_scrub_prefix_removes_git_env_from_children(self) -> None:
+        """
+        Scenario: the scrub prefix actually hides git env from children
+        Given a parent environment with GIT_DIR, GIT_INDEX_FILE, and
+        GIT_WORK_TREE set (as `git commit` does in a linked worktree)
+        When a child process is launched behind the scrub prefix
+        Then none of the three variables are visible to the child
+        """
+        check = (
+            "import os, sys; "
+            "leaked = [k for k in "
+            "('GIT_DIR', 'GIT_INDEX_FILE', 'GIT_WORK_TREE') "
+            "if k in os.environ]; "
+            "sys.exit(1 if leaked else 0)"
+        )
+        env = {
+            **os.environ,
+            "GIT_DIR": "/fake/.git",
+            "GIT_INDEX_FILE": "/fake/.git/index",
+            "GIT_WORK_TREE": "/fake",
+        }
+        result = subprocess.run(
+            [*GIT_ENV_SCRUB.split(), sys.executable, "-c", check],
+            env=env,
+            capture_output=True,
+        )
+        assert result.returncode == 0, "git env leaked through scrub prefix"
 
 
 class TestRunPluginTestsThresholdExtraction:
