@@ -5,6 +5,40 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.16] - 2026-07-05
+
+### Added
+
+- **`select!` orchestration rule and memory-allocation review
+  lenses (pensive).** Two review capabilities landed as new modules
+  inside existing skills (Fixes #598, #599):
+  - `rust-review` `concurrency-patterns` module: a rule flagging
+    hand-rolled multi-task orchestration (2+ `tokio::spawn` handles
+    torn down with consecutive `abort()` calls around an
+    mpsc-shared sink) that a single `select!` loop expresses more
+    safely, carrying the cancel-safety and head-of-line-blocking
+    caveats the rewrite introduces. Wired into `/rust-review` and
+    the `rust-auditor` agent.
+  - `performance-review` `memory-allocation-lenses` module: three
+    manual lenses for allocation blow-ups that keep unit tests
+    green: unbounded collections fed from an external source,
+    hot-path recompute that should be memoized behind a generation
+    counter, and serial blocking I/O over an unbounded set. Written
+    as review lenses, not AST detectors, so the performance-review
+    detector-test rule visibly does not apply to them.
+
+### Fixed
+
+- **Leaked git environment in the plugin test runner (scripts).**
+  `scripts/run-plugin-tests.sh` now scrubs inherited `GIT_*`
+  environment variables before invoking per-plugin suites, so a
+  parent git context can no longer bleed into tests that shell out
+  to git.
+
+- **`conjure` uv.lock drift (conjure).** Synced `conjure/uv.lock`
+  with the `leyline` `pyyaml` dev-dependency so the resolved lock
+  matches the declared `pyproject.toml` constraint.
+
 ## [1.9.15] - 2026-07-02
 
 ### Added

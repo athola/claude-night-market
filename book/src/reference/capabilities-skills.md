@@ -390,11 +390,10 @@ Rust-specific patterns.
 
 Focuses on unsafe code, lifetime management, memory safety,
 and idiomatic patterns.
-Includes 11 check modules: ownership-analysis,
-error-handling, concurrency-patterns, unsafe-audit,
-cargo-dependencies, silent-returns, collection-types,
-sql-injection, cfg-test-misuse, error-messages,
-and duplicate-validators.
+Includes 27 check modules spanning ownership and lifetimes,
+error handling, concurrency (`concurrency-patterns`), unsafe
+code and memory layout, dependency hygiene, and idiomatic-Rust
+patterns.
 
 ### `pensive:shell-review`
 Shell script safety.

@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.15-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.16-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
 [![Skills](https://img.shields.io/badge/skills-198-teal)](book/src/reference/capabilities-reference.md)
@@ -164,16 +164,16 @@ unavailable, and both can be turned off.
 
 ## What's New
 
-**1.9.15** adds guardrails for hands-off agentic loops, drawn from
-Ronacher's "The Coming Loop" and prover-verifier research. A new
-`prefer-invariants-over-fallbacks` rule pushes toward making illegal
-states unrepresentable instead of adding defensive fallbacks. The
-`proof-of-work` skill gains a `verifier-integrity` module: a green
-check proves spec-satisfaction, not correctness, so validate the spec
-separately and prove the check fails when behavior breaks. Egregore
-gains an opt-in `completion_integrity` gate (default off) that treats a
-`fix-required` verdict as a step failure and holds merge for human
-review.
+**1.9.16** adds two `pensive` review capabilities, landed as modules
+inside existing skills. The `rust-review` skill gains a
+`concurrency-patterns` rule that flags hand-rolled multi-task
+orchestration (several `tokio::spawn` handles torn down with
+consecutive `abort()` calls) that a single `select!` loop expresses
+more safely. The `performance-review` skill gains three manual
+memory-allocation lenses: unbounded collections from an external
+source, hot-path recompute that should be memoized, and serial
+blocking I/O over an unbounded set. Both are review lenses a reviewer
+applies by reading the code, with no AST automation behind them.
 See the [CHANGELOG](CHANGELOG.md) for the full history.
 
 ## Plugin Development
