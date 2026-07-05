@@ -1,8 +1,15 @@
 ---
-name: memory-allocation-lenses
+module: memory-allocation-lenses
 description: Manual review lenses for unbounded collections, hot-path recompute, and serial blocking I/O that behavioral tests miss
-category: performance-review
-tags: [memory, allocation, unbounded, memoization, blocking-io, review-lens]
+parent_skill: performance-review
+category: code-quality
+tags:
+- memory
+- allocation
+- unbounded
+- memoization
+- blocking-io
+- review-lens
 ---
 
 # Memory & Allocation Review Lenses
