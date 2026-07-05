@@ -314,6 +314,484 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://lobste.rs/s/3faroe/what_s_your_favorite_go_documentation
+  ? https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&hitsperpage=20&numericfilters=created_at_i%3e1727740800
+  : content_hash: sha256:1086a910c84fd5cb
+    stored_at: data/staging/webfetch-stories-about-tacit-knowledge-2026-07-04_11-03-12.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:03:12.933008+00:00'
+    title: Stories About Tacit Knowledge
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&hitsPerPage=20&numericFilters=created_at_i%3E1727740800
+  ? https://hn.algolia.com/api/v1/search_by_date?query=knowledge%20capture%20sop&tags=story&hitsperpage=20&numericfilters=created_at_i%3e1727740800
+  : content_hash: sha256:33cc1b4081176fe2
+    stored_at: data/staging/webfetch-story-list-2026-07-04_11-03-14.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:03:14.544199+00:00'
+    title: Story List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=knowledge%20capture%20SOP&tags=story&hitsPerPage=20&numericFilters=created_at_i%3E1727740800
+  ? https://hn.algolia.com/api/v1/search_by_date?query=gemini%20nano%20extension&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1727740800
+  : content_hash: sha256:f1335dc666f2d89c
+    stored_at: data/staging/webfetch-hacker-news-stories-gemini-nano-extensions-2026-07-04_11-03-34.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:03:34.068758+00:00'
+    title: 'Hacker News Stories: Gemini Nano Extensions'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=Gemini%20Nano%20extension&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1727740800
+  ? https://hn.algolia.com/api/v1/search_by_date?query=skilled%20trades&tags=story&hitsperpage=20&numericfilters=created_at_i%3e1735689600
+  : content_hash: sha256:a8253efbb91d7d9b
+    stored_at: data/staging/webfetch-stories-list-2026-07-04_11-03-38.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:03:38.986304+00:00'
+    title: Stories List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=skilled%20trades&tags=story&hitsPerPage=20&numericFilters=created_at_i%3E1735689600
+  https://api.github.com/repos/westpoint-io/mimik:
+    content_hash: sha256:565c8e8d234b5402
+    stored_at: data/staging/webfetch-mimik-repository-overview-2026-07-04_11-03-45.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:03:45.981153+00:00'
+    title: Mimik Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/westpoint-io/mimik
+  https://api.github.com/repos/deploysentinel/recorder:
+    content_hash: sha256:9d0bcb42f38c2198
+    stored_at: data/staging/webfetch-recorder-repository-overview-2026-07-04_11-03-46.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:03:46.122324+00:00'
+    title: Recorder Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/DeploySentinel/Recorder
+  https://api.github.com/repos/ebanez8/openstep:
+    content_hash: sha256:22ed5e668edeaef1
+    stored_at: data/staging/webfetch-openstep-repository-summary-2026-07-04_11-03-47.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:03:47.656148+00:00'
+    title: OpenStep Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/ebanez8/openstep
+  https://api.github.com/repos/sahilr2050/step-by-step-guide-generator:
+    content_hash: sha256:381408fae31ccd0d
+    stored_at: data/staging/webfetch-repository-information-step-by-step-guide-2026-07-04_11-03-47.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:03:47.777543+00:00'
+    title: 'Repository Information: step-by-step-guide-generator'
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/sahilr2050/step-by-step-guide-generator
+  https://api.github.com/repos/obsidianmd/obsidian-clipper:
+    content_hash: sha256:09b83774d2f10bab
+    stored_at: data/staging/webfetch-obsidian-clipper-repository-overview-2026-07-04_11-04-03.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:03.895595+00:00'
+    title: Obsidian Clipper Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/obsidianmd/obsidian-clipper
+  https://api.github.com/repos/shreyaskarnik/distillama:
+    content_hash: sha256:195abbcf64fe0ef9
+    stored_at: data/staging/webfetch-distillama-repository-summary-2026-07-04_11-04-04.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:04.511322+00:00'
+    title: DistiLlama Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/shreyaskarnik/DistiLlama
+  ? https://api.github.com/search/repositories?q=guide+generator+screenshot+extension+created:%3e2025-10-01&sort=stars&order=desc&per_page=10
+  : content_hash: sha256:ea1b90c69e90bef1
+    stored_at: data/staging/webfetch-repository-list-2026-07-04_11-04-05.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:05.222472+00:00'
+    title: Repository List
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=guide+generator+screenshot+extension+created:%3E2025-10-01&sort=stars&order=desc&per_page=10
+  https://api.github.com/repos/kieranklaassen/riffrec:
+    content_hash: sha256:b6b677af0f3fcbaa
+    stored_at: data/staging/webfetch-riffrec-repository-overview-2026-07-04_11-04-06.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:06.820835+00:00'
+    title: riffrec Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/kieranklaassen/riffrec
+  https://api.github.com/repos/googlechromelabs/web-ai-demos:
+    content_hash: sha256:1ea2bc25dac54027
+    stored_at: data/staging/webfetch-web-ai-demos-repository-summary-2026-07-04_11-04-25.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:25.563376+00:00'
+    title: web-ai-demos Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/GoogleChromeLabs/web-ai-demos
+  ? https://api.github.com/search/repositories?q=video+to+documentation+tutorial+created:%3e2025-09-01&sort=stars&order=desc&per_page=10
+  : content_hash: sha256:9ef16dbf4c98b019
+    stored_at: data/staging/webfetch-github-repositories-list-2026-07-04_11-04-34.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:34.479615+00:00'
+    title: GitHub Repositories List
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=video+to+documentation+tutorial+created:%3E2025-09-01&sort=stars&order=desc&per_page=10
+  https://api.github.com/search/repositories?q=sop+generator+created:%3e2025-09-01&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:a96dc28b2268e042
+    stored_at: data/staging/webfetch-sop-generator-repositories-on-github-2026-07-04_11-04-36.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:36.015002+00:00'
+    title: SOP Generator Repositories on GitHub
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=sop+generator+created:%3E2025-09-01&sort=stars&order=desc&per_page=10
+  ? https://api.github.com/search/repositories?q=step-by-step+guide+chrome+extension+created:%3e2025-09-01&sort=stars&order=desc&per_page=10
+  : content_hash: sha256:f7e979411389289d
+    stored_at: data/staging/webfetch-github-repository-list-2026-07-04_11-04-36.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:36.696860+00:00'
+    title: GitHub Repository List
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=step-by-step+guide+chrome+extension+created:%3E2025-09-01&sort=stars&order=desc&per_page=10
+  https://api.github.com/repos/googlechrome/chrome-extensions-samples:
+    content_hash: sha256:ff4731ca26ef0fd0
+    stored_at: data/staging/webfetch-based-on-the-repository-data-provided-2026-07-04_11-04-51.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:51.829827+00:00'
+    title: 'Based on the repository data provided:'
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/GoogleChrome/chrome-extensions-samples
+  ? https://hn.algolia.com/api/v1/search?query=%22prompt%20api%22%20chrome&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1727740800
+  : content_hash: sha256:b24522b3209f757e
+    stored_at: data/staging/webfetch-chrome-prompt-api-stories-2026-07-04_11-05-01.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:05:01.810327+00:00'
+    title: Chrome Prompt API Stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=%22Prompt%20API%22%20Chrome&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1727740800
+  https://api.github.com/repos/notely-voice/notelyvoice:
+    content_hash: sha256:ca4d9ed718e86ce6
+    stored_at: data/staging/webfetch-notelyvoice-repository-summary-2026-07-04_11-05-10.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:05:10.998005+00:00'
+    title: NotelyVoice Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/Notely-Voice/NotelyVoice
+  https://hn.algolia.com/api/v1/items/47959463:
+    content_hash: sha256:d0ef7f4e05043d33
+    stored_at: data/staging/webfetch-mozilla-s-opposition-to-chrome-s-prompt-api-2026-07-04_11-05-25.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:05:25.791080+00:00'
+    title: 'Mozilla''s Opposition to Chrome''s Prompt API: Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/47959463
+  https://api.pullpush.io/reddit/search/submission/?subreddit=skilledtrades&q=knowledge&size=15&sort_type=score:
+    content_hash: sha256:392820de38a83115
+    stored_at: data/staging/webfetch-reddit-r-skilledtrades-posts-summary-2026-07-04_11-05-36.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:05:36.378919+00:00'
+    title: Reddit r/skilledtrades Posts Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/submission/?subreddit=skilledtrades&q=knowledge&size=15&sort_type=score
+  https://api.pullpush.io/reddit/search/submission/?subreddit=electricians&q=%22tribal+knowledge%22&size=10:
+    content_hash: sha256:d491e1d11d9f11a0
+    stored_at: data/staging/webfetch-reddit-posts-summary-2026-07-04_11-06-17.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:06:17.094192+00:00'
+    title: Reddit Posts Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/submission/?subreddit=electricians&q=%22tribal+knowledge%22&size=10
+  ? https://hn.algolia.com/api/v1/search_by_date?query=scribe&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1730419200,points%3e5
+  : content_hash: sha256:4fc9d570b10081bd
+    stored_at: data/staging/webfetch-stories-list-2026-07-04_11-06-51.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:06:51.448355+00:00'
+    title: Stories List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=Scribe&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1730419200,points%3E5
+  https://www.knowby.co/blog/poka-pricing-is-it-worth-the-digital-investment:
+    content_hash: sha256:2b22febbf2612ce7
+    stored_at: data/staging/webfetch-poka-pricing-model-summary-2026-07-05_11-04-12.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:04:12.460350+00:00'
+    title: Poka Pricing Model Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.knowby.co/blog/poka-pricing-is-it-worth-the-digital-investment
+  https://github.com/elliotpalmer/servicepytan:
+    content_hash: sha256:beef83576461fafa
+    stored_at: data/staging/webfetch-servicepytan-library-overview-2026-07-05_11-04-18.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:04:18.273826+00:00'
+    title: ServicePytan Library Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/elliotpalmer/servicepytan
+  https://developer.servicetitan.io/docs/get-going-fast:
+    content_hash: sha256:dfaf963b8e1600bb
+    stored_at: data/staging/webfetch-to-get-accurate-answers-to-your-questions-about-2026-07-05_11-04-19.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:04:19.259977+00:00'
+    title: To get accurate answers to your questions about ServiceTitan's developer
+      integration process, I'd re
+    maturity: growing
+    routing_type: meta
+    url: https://developer.servicetitan.io/docs/get-going-fast/
+  https://github.com/getjobber/jobber-apptemplate-railsapi:
+    content_hash: sha256:978d45e595ffc46a
+    stored_at: data/staging/webfetch-jobber-apptemplate-railsapi-summary-2026-07-05_11-04-22.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:04:22.875387+00:00'
+    title: Jobber AppTemplate-RailsAPI Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/GetJobber/Jobber-AppTemplate-RailsAPI
+  https://github.com/inspectorhub/openinspection:
+    content_hash: sha256:9104db2fabbb74d4
+    stored_at: data/staging/webfetch-openinspection-summary-2026-07-05_11-04-37.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:04:37.396975+00:00'
+    title: OpenInspection Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/InspectorHub/OpenInspection
+  https://api.pullpush.io/reddit/search/submission/?subreddit=hvac&q=notebook&size=15:
+    content_hash: sha256:88731259dc1610ed
+    stored_at: data/staging/webfetch-reddit-posts-about-notebooks-and-field-note-2026-07-05_11-04-38.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:04:38.587158+00:00'
+    title: Reddit Posts About Notebooks and Field Note-Taking in HVAC
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/submission/?subreddit=HVAC&q=notebook&size=15
+  https://github.com/epicenter-md/epicenter:
+    content_hash: sha256:1d8d39423153ac43
+    stored_at: data/staging/webfetch-whispering-project-overview-2026-07-05_11-04-57.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:04:57.957372+00:00'
+    title: Whispering Project Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/epicenter-md/epicenter
+  https://api.pullpush.io/reddit/search/comment/?link_id=t3_8blxgl&size=30:
+    content_hash: sha256:ae1a783093aa40be
+    stored_at: data/staging/webfetch-most-substantive-hvac-field-notebook-comments-2026-07-05_11-05-01.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:01.809266+00:00'
+    title: Most Substantive HVAC Field Notebook Comments
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?link_id=t3_8blxgl&size=30
+  https://api.pullpush.io/reddit/search/submission/?subreddit=electricians&q=notebook&size=15:
+    content_hash: sha256:a5002c9298c65720
+    stored_at: data/staging/webfetch-reddit-posts-on-notebooks-and-job-learning-2026-07-05_11-05-02.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:02.154453+00:00'
+    title: Reddit Posts on Notebooks and Job Learning
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/submission/?subreddit=electricians&q=notebook&size=15
+  ? https://www.kmworld.com/articles/news/news/poka-adds-next-generation-ai-features-to-its-connected-worker-platform-164693.aspx
+  : content_hash: sha256:d5c0281cd017a60a
+    stored_at: data/staging/webfetch-poka-s-ai-content-capture-features-2026-07-05_11-05-12.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:05:12.950458+00:00'
+    title: Poka's AI Content Capture Features
+    maturity: growing
+    routing_type: meta
+    url: https://www.kmworld.com/Articles/News/News/Poka-adds-next-generation-AI-features-to-its-Connected-Worker-platform-164693.aspx
+  https://www.servicetitan.com/legal/app-marketplace-program-guide:
+    content_hash: sha256:60e54e09bcf0305d
+    stored_at: data/staging/webfetch-servicetitan-app-marketplace-program-developer-2026-07-05_11-05-16.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:05:16.429618+00:00'
+    title: 'ServiceTitan App Marketplace Program: Developer Costs & Requirements'
+    maturity: growing
+    routing_type: meta
+    url: https://www.servicetitan.com/legal/app-marketplace-program-guide
+  https://api.pullpush.io/reddit/search/submission/?subreddit=skilledtrades&q=%22hoarding%20knowledge%22&size=15:
+    content_hash: sha256:82b71fcc4f0bb4f3
+    stored_at: data/staging/webfetch-reddit-posts-search-results-2026-07-05_11-05-16.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:16.855303+00:00'
+    title: Reddit Posts Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/submission/?subreddit=skilledtrades&q=%22hoarding%20knowledge%22&size=15
+  https://github.com/csweichel/blackwood:
+    content_hash: sha256:c781b141f6d2f4d1
+    stored_at: data/staging/webfetch-blackwood-daily-notes-app-analysis-2026-07-05_11-05-21.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:05:21.387240+00:00'
+    title: 'Blackwood: Daily Notes App Analysis'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/csweichel/blackwood
+  https://github.com/grashjs/cmms:
+    content_hash: sha256:6bc4f7a5ba657df7
+    stored_at: data/staging/webfetch-atlas-cmms-report-2026-07-05_11-05-21.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:05:21.720170+00:00'
+    title: Atlas CMMS Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Grashjs/cmms
+  https://github.com/moonshine-ai/moonshine-js:
+    content_hash: sha256:71c6bc999fec74f0
+    stored_at: data/staging/webfetch-moonshinejs-report-2026-07-05_11-05-22.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:05:22.490032+00:00'
+    title: MoonshineJS Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/moonshine-ai/moonshine-js
+  https://api.pullpush.io/reddit/search/comment/?subreddit=electricians&q=%22gatekeep%22&size=25:
+    content_hash: sha256:0292a549583b140c
+    stored_at: data/staging/webfetch-substantive-comments-on-knowledge-sharing-between-2026-07-05_11-05-27.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:27.978113+00:00'
+    title: Substantive Comments on Knowledge-Sharing Between Journeymen and Apprentices
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=electricians&q=%22gatekeep%22&size=25
+  https://www.poka.io/en/industrial-ai-factory-floor:
+    content_hash: sha256:5ad2954ffb0e84e2
+    stored_at: data/staging/webfetch-poka-s-ai-knowledge-capture-workflow-2026-07-05_11-05-38.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:05:38.768456+00:00'
+    title: Poka's AI Knowledge-Capture Workflow
+    maturity: growing
+    routing_type: meta
+    url: https://www.poka.io/en/industrial-ai-factory-floor
+  https://api.pullpush.io/reddit/search/comment/?subreddit=skilledtrades&q=%22train%20your%20replacement%22&size=25:
+    content_hash: sha256:11d7d98e281f21f1
+    stored_at: data/staging/webfetch-reddit-comments-on-training-replacements-2026-07-05_11-05-47.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:47.598542+00:00'
+    title: Reddit Comments on Training Replacements
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=skilledtrades&q=%22train%20your%20replacement%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?link_id=t3_1gmo2zk&size=40:
+    content_hash: sha256:333c44f7be17e356
+    stored_at: data/staging/webfetch-why-electricians-guard-knowledge-6-substantive-2026-07-05_11-05-50.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:50.448959+00:00'
+    title: 'Why Electricians Guard Knowledge: 6 Substantive Comments'
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?link_id=t3_1gmo2zk&size=40
+  https://api.pullpush.io/reddit/search/comment/?subreddit=hvac&q=%22voice%20memo%22&size=25:
+    content_hash: sha256:e70300bd2e364c7d
+    stored_at: data/staging/webfetch-voice-memo-comments-in-r-hvac-2026-07-05_11-06-05.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:06:05.042390+00:00'
+    title: Voice Memo Comments in r/HVAC
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=HVAC&q=%22voice%20memo%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?subreddit=hvac&q=%22take%20pictures%20of%20everything%22&size=25:
+    content_hash: sha256:3f6809badcaf72bf
+    stored_at: data/staging/webfetch-hvac-professionals-on-taking-pictures-on-the-job-2026-07-05_11-06-12.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:06:12.482788+00:00'
+    title: HVAC Professionals on Taking Pictures on the Job
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=HVAC&q=%22take%20pictures%20of%20everything%22&size=25
+  https://www.servicetitan.com/blog/app-marketplace-relaunch:
+    content_hash: sha256:a68a2bb4cde50093
+    stored_at: data/staging/webfetch-servicetitan-app-marketplace-certification-summary-2026-07-05_11-06-16.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:06:16.538630+00:00'
+    title: ServiceTitan App Marketplace Certification Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.servicetitan.com/blog/app-marketplace-relaunch
+  https://theaitrades.ai/blog/jobber-ai-vs-servicetitan-ai-vs-housecall-pro-ai:
+    content_hash: sha256:e935f6fc706b00a5
+    stored_at: data/staging/webfetch-ai-features-comparison-jobber-servicetitan-2026-07-05_11-06-21.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:06:21.106422+00:00'
+    title: 'AI Features Comparison: Jobber, ServiceTitan, Housecall Pro'
+    maturity: growing
+    routing_type: meta
+    url: https://theaitrades.ai/blog/jobber-ai-vs-servicetitan-ai-vs-housecall-pro-ai
+  https://api.pullpush.io/reddit/search/comment/?subreddit=electricians&q=%22companycam%22&size=25:
+    content_hash: sha256:c883b9b07be8b6b7
+    stored_at: data/staging/webfetch-reddit-comments-mentioning-companycam-2026-07-05_11-06-39.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:06:39.117804+00:00'
+    title: Reddit Comments Mentioning CompanyCam
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=electricians&q=%22companycam%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?subreddit=plumbing&q=%22write%20everything%20down%22&size=25:
+    content_hash: sha256:7d3fcb4ff2818264
+    stored_at: data/staging/webfetch-reddit-comments-on-writing-things-down-for-2026-07-05_11-06-43.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:06:43.406848+00:00'
+    title: Reddit Comments on Writing Things Down for Plumbers
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=Plumbing&q=%22write%20everything%20down%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?subreddit=mechanics&q=%22notebook%22&size=25:
+    content_hash: sha256:17108d370de2b67f
+    stored_at: data/staging/webfetch-mechanics-on-notebook-documentation-2026-07-05_11-07-05.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:07:05.227269+00:00'
+    title: Mechanics on Notebook Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=mechanics&q=%22notebook%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?link_id=t3_101xfmd&size=30:
+    content_hash: sha256:fc4ee8d9cbb1a556
+    stored_at: data/staging/webfetch-work-based-camera-apps-electricians-solutions-2026-07-05_11-07-24.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:07:24.302123+00:00'
+    title: 'Work-Based Camera Apps: Electricians'' Solutions'
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?link_id=t3_101xfmd&size=30
+  https://api.pullpush.io/reddit/search/comment/?link_id=t3_13av800&size=30:
+    content_hash: sha256:3b076ee1b1494426
+    stored_at: data/staging/webfetch-hvac-field-notes-tools-reddit-comments-summary-2026-07-05_11-07-26.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:07:26.024941+00:00'
+    title: HVAC Field Notes Tools - Reddit Comments Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?link_id=t3_13av800&size=30
+  https://api.pullpush.io/reddit/search/comment/?subreddit=skilledtrades&q=%22knowledge%20with%20them%22&size=25:
+    content_hash: sha256:31caf61451040584
+    stored_at: data/staging/webfetch-reddit-comments-on-knowledge-loss-in-trades-2026-07-05_11-07-43.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:07:43.705638+00:00'
+    title: Reddit Comments on Knowledge Loss in Trades
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=skilledtrades&q=%22knowledge%20with%20them%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?subreddit=hvac&q=%22job%20security%22&size=25:
+    content_hash: sha256:89b2a7b1a919f6de
+    stored_at: data/staging/webfetch-hvac-job-security-knowledge-gatekeeping-2026-07-05_11-08-06.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:08:06.117148+00:00'
+    title: HVAC Job Security & Knowledge Gatekeeping
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=HVAC&q=%22job%20security%22&size=25
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -350,3 +828,56 @@ hashes:
   sha256:da518117d83ee81f: data/staging/webfetch-reach-capital-s-frontline-worker-ai-investment-2026-07-03_11-05-55.md
   sha256:a60a43573107ee50: data/staging/webfetch-frontline-worker-startup-funding-summary-2026-07-03_11-06-18.md
   sha256:4483397cf9246811: data/staging/webfetch-documentation-tools-thread-summary-2026-07-03_11-06-58.md
+  sha256:1086a910c84fd5cb: data/staging/webfetch-stories-about-tacit-knowledge-2026-07-04_11-03-12.md
+  sha256:33cc1b4081176fe2: data/staging/webfetch-story-list-2026-07-04_11-03-14.md
+  sha256:f1335dc666f2d89c: data/staging/webfetch-hacker-news-stories-gemini-nano-extensions-2026-07-04_11-03-34.md
+  sha256:a8253efbb91d7d9b: data/staging/webfetch-stories-list-2026-07-04_11-03-38.md
+  sha256:565c8e8d234b5402: data/staging/webfetch-mimik-repository-overview-2026-07-04_11-03-45.md
+  sha256:9d0bcb42f38c2198: data/staging/webfetch-recorder-repository-overview-2026-07-04_11-03-46.md
+  sha256:22ed5e668edeaef1: data/staging/webfetch-openstep-repository-summary-2026-07-04_11-03-47.md
+  sha256:381408fae31ccd0d: data/staging/webfetch-repository-information-step-by-step-guide-2026-07-04_11-03-47.md
+  sha256:09b83774d2f10bab: data/staging/webfetch-obsidian-clipper-repository-overview-2026-07-04_11-04-03.md
+  sha256:195abbcf64fe0ef9: data/staging/webfetch-distillama-repository-summary-2026-07-04_11-04-04.md
+  sha256:ea1b90c69e90bef1: data/staging/webfetch-repository-list-2026-07-04_11-04-05.md
+  sha256:b6b677af0f3fcbaa: data/staging/webfetch-riffrec-repository-overview-2026-07-04_11-04-06.md
+  sha256:1ea2bc25dac54027: data/staging/webfetch-web-ai-demos-repository-summary-2026-07-04_11-04-25.md
+  sha256:9ef16dbf4c98b019: data/staging/webfetch-github-repositories-list-2026-07-04_11-04-34.md
+  sha256:a96dc28b2268e042: data/staging/webfetch-sop-generator-repositories-on-github-2026-07-04_11-04-36.md
+  sha256:f7e979411389289d: data/staging/webfetch-github-repository-list-2026-07-04_11-04-36.md
+  sha256:ff4731ca26ef0fd0: data/staging/webfetch-based-on-the-repository-data-provided-2026-07-04_11-04-51.md
+  sha256:b24522b3209f757e: data/staging/webfetch-chrome-prompt-api-stories-2026-07-04_11-05-01.md
+  sha256:ca4d9ed718e86ce6: data/staging/webfetch-notelyvoice-repository-summary-2026-07-04_11-05-10.md
+  sha256:d0ef7f4e05043d33: data/staging/webfetch-mozilla-s-opposition-to-chrome-s-prompt-api-2026-07-04_11-05-25.md
+  sha256:392820de38a83115: data/staging/webfetch-reddit-r-skilledtrades-posts-summary-2026-07-04_11-05-36.md
+  sha256:d491e1d11d9f11a0: data/staging/webfetch-reddit-posts-summary-2026-07-04_11-06-17.md
+  sha256:4fc9d570b10081bd: data/staging/webfetch-stories-list-2026-07-04_11-06-51.md
+  sha256:2b22febbf2612ce7: data/staging/webfetch-poka-pricing-model-summary-2026-07-05_11-04-12.md
+  sha256:beef83576461fafa: data/staging/webfetch-servicepytan-library-overview-2026-07-05_11-04-18.md
+  sha256:dfaf963b8e1600bb: data/staging/webfetch-to-get-accurate-answers-to-your-questions-about-2026-07-05_11-04-19.md
+  sha256:978d45e595ffc46a: data/staging/webfetch-jobber-apptemplate-railsapi-summary-2026-07-05_11-04-22.md
+  sha256:9104db2fabbb74d4: data/staging/webfetch-openinspection-summary-2026-07-05_11-04-37.md
+  sha256:88731259dc1610ed: data/staging/webfetch-reddit-posts-about-notebooks-and-field-note-2026-07-05_11-04-38.md
+  sha256:1d8d39423153ac43: data/staging/webfetch-whispering-project-overview-2026-07-05_11-04-57.md
+  sha256:ae1a783093aa40be: data/staging/webfetch-most-substantive-hvac-field-notebook-comments-2026-07-05_11-05-01.md
+  sha256:a5002c9298c65720: data/staging/webfetch-reddit-posts-on-notebooks-and-job-learning-2026-07-05_11-05-02.md
+  sha256:d5c0281cd017a60a: data/staging/webfetch-poka-s-ai-content-capture-features-2026-07-05_11-05-12.md
+  sha256:60e54e09bcf0305d: data/staging/webfetch-servicetitan-app-marketplace-program-developer-2026-07-05_11-05-16.md
+  sha256:82b71fcc4f0bb4f3: data/staging/webfetch-reddit-posts-search-results-2026-07-05_11-05-16.md
+  sha256:c781b141f6d2f4d1: data/staging/webfetch-blackwood-daily-notes-app-analysis-2026-07-05_11-05-21.md
+  sha256:6bc4f7a5ba657df7: data/staging/webfetch-atlas-cmms-report-2026-07-05_11-05-21.md
+  sha256:71c6bc999fec74f0: data/staging/webfetch-moonshinejs-report-2026-07-05_11-05-22.md
+  sha256:0292a549583b140c: data/staging/webfetch-substantive-comments-on-knowledge-sharing-between-2026-07-05_11-05-27.md
+  sha256:5ad2954ffb0e84e2: data/staging/webfetch-poka-s-ai-knowledge-capture-workflow-2026-07-05_11-05-38.md
+  sha256:11d7d98e281f21f1: data/staging/webfetch-reddit-comments-on-training-replacements-2026-07-05_11-05-47.md
+  sha256:333c44f7be17e356: data/staging/webfetch-why-electricians-guard-knowledge-6-substantive-2026-07-05_11-05-50.md
+  sha256:e70300bd2e364c7d: data/staging/webfetch-voice-memo-comments-in-r-hvac-2026-07-05_11-06-05.md
+  sha256:3f6809badcaf72bf: data/staging/webfetch-hvac-professionals-on-taking-pictures-on-the-job-2026-07-05_11-06-12.md
+  sha256:a68a2bb4cde50093: data/staging/webfetch-servicetitan-app-marketplace-certification-summary-2026-07-05_11-06-16.md
+  sha256:e935f6fc706b00a5: data/staging/webfetch-ai-features-comparison-jobber-servicetitan-2026-07-05_11-06-21.md
+  sha256:c883b9b07be8b6b7: data/staging/webfetch-reddit-comments-mentioning-companycam-2026-07-05_11-06-39.md
+  sha256:7d3fcb4ff2818264: data/staging/webfetch-reddit-comments-on-writing-things-down-for-2026-07-05_11-06-43.md
+  sha256:17108d370de2b67f: data/staging/webfetch-mechanics-on-notebook-documentation-2026-07-05_11-07-05.md
+  sha256:fc4ee8d9cbb1a556: data/staging/webfetch-work-based-camera-apps-electricians-solutions-2026-07-05_11-07-24.md
+  sha256:3b076ee1b1494426: data/staging/webfetch-hvac-field-notes-tools-reddit-comments-summary-2026-07-05_11-07-26.md
+  sha256:31caf61451040584: data/staging/webfetch-reddit-comments-on-knowledge-loss-in-trades-2026-07-05_11-07-43.md
+  sha256:89b2a7b1a919f6de: data/staging/webfetch-hvac-job-security-knowledge-gatekeeping-2026-07-05_11-08-06.md
