@@ -422,6 +422,63 @@ class TestUpdateIndexIntegration:
         assert stats["urls"] == 3
         assert stats["local_docs"] == 0
 
+    def test_hashes_and_entries_agree_on_stored_at(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN an isolated empty index
+        WHEN update_index writes several distinct URL entries
+        THEN the two parallel index structures agree, at value level,
+             on where each piece of content is stored.
+
+        update_index records the same ``stored_at`` in two places:
+        ``entries[url_key]["stored_at"]`` and
+        ``hashes[content_hash]``. ``is_known`` consults ``hashes``;
+        retrieval consults ``entries``. If the two ever disagree,
+        dedup-by-hash returns a stale path and the index silently
+        points at the wrong file. The count-matching test above
+        guards cardinality only; two structures can share a count
+        while disagreeing on values. This test guards the
+        value-level agreement.
+
+        Three resolution options if this ever fails:
+          1. Preserve: revert the change that decoupled the writes
+          2. Layer:    add a reconciliation step that repairs hashes
+          3. Revise:   collapse entries and hashes into one structure
+        Picking the wrong one breaks dedup silently — this is not
+        a test to weaken without human review.
+        """
+        index_path = self._isolate_index(monkeypatch, tmp_path)
+        writes = [
+            ("https://github.com/pytest-dev/pytest", "docs/pytest.md"),
+            ("https://github.com/microsoft/playwright", "docs/playwright.md"),
+            ("https://github.com/google/openhtf", "docs/openhtf.md"),
+        ]
+        for url, stored_at in writes:
+            update_index(
+                content_hash=get_content_hash(url),
+                stored_at=stored_at,
+                importance_score=82,
+                url=url,
+                maturity="growing",
+                routing_type="meta",
+            )
+
+        # Read the persisted file directly so the assertion sees what
+        # is on disk, not the in-memory cache.
+        with open(index_path) as f:
+            on_disk = real_yaml.safe_load(f)
+
+        assert len(on_disk["entries"]) == len(writes)
+        for entry in on_disk["entries"].values():
+            h = entry["content_hash"]
+            assert h in on_disk["hashes"], (
+                f"content_hash {h} in entries but missing from hashes"
+            )
+            assert on_disk["hashes"][h] == entry["stored_at"], (
+                f"hashes[{h}] = {on_disk['hashes'][h]!r} but entry "
+                f"stored_at = {entry['stored_at']!r}"
+            )
+
 
 class TestImportanceScoreBounds:
     """Bounds enforcement for the documented ``importance_score`` contract.

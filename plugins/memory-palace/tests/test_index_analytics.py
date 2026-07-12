@@ -21,6 +21,7 @@ import yaml
 from memory_palace.corpus.index_analytics import (
     CorpusStats,
     PromotionCandidate,
+    _domain_authority,
     cluster_by_domain,
     corpus_stats,
     load_capture_index,
@@ -262,6 +263,32 @@ class TestStalenessReport:
         assert old.status != "fresh"
         fresh = report["https://github.com/not-fl3/macroquad"]
         assert fresh.status == "fresh"
+
+
+class TestDomainAuthority:
+    """Authority credit tiers feed the ranking score.
+
+    _domain_authority is a pure 3-tier lookup: exact authority domain,
+    authority prefix, or fallback. The prefix tier (docs./doc./
+    developer.) was previously unexercised, so a regression that
+    collapsed it into the fallback would ship silently.
+    """
+
+    @pytest.mark.parametrize(
+        "domain,expected",
+        [
+            ("github.com", 1.0),  # exact authority domain
+            ("docs.python.org", 0.8),  # authority prefix
+            ("developer.android.com", 0.8),  # authority prefix
+            ("example.com", 0.3),  # unknown domain fallback
+        ],
+    )
+    def test_authority_tier(self, domain: str, expected: float) -> None:
+        """GIVEN a domain
+        WHEN _domain_authority scores it
+        THEN it returns the tier-appropriate credit in [0, 1].
+        """
+        assert _domain_authority(domain) == expected
 
 
 class TestRankPromotionCandidates:
