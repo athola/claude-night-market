@@ -29,6 +29,11 @@ EXPECTED_COMPONENTS: dict[str, list[str]] = {
         "message-broker",
         "projection-builder",
     ],
+    "architecture-paradigm-domain-driven": [
+        "ubiquitous-language-glossary",
+        "context-map",
+        "copy-constructor",
+    ],
     "architecture-paradigm-event-driven": [
         "message-broker",
         "event-stream-processor",
@@ -118,3 +123,35 @@ def test_tools_frontmatter_remains_empty() -> None:
         assert "\ntools: []" in text, (
             f"{skill_dir}: tools: frontmatter must remain empty (PR #446 fix)"
         )
+
+
+def test_expected_components_covers_every_paradigm_on_disk() -> None:
+    """EXPECTED_COMPONENTS is the only thing driving the parametrize above.
+
+    A paradigm added to disk but not to the dict is silently untested: no
+    Concrete Components check, no tools-frontmatter regression guard. This
+    test makes the dict track the filesystem so the next paradigm cannot
+    skip the harness by omission.
+
+    Given the paradigm skills on disk
+    When the registered paradigm names are compared against them
+    Then the two sets are equal.
+    """
+    on_disk = {
+        path.name
+        for path in PARADIGMS_DIR.glob("architecture-paradigm-*")
+        if path.is_dir() and (path / "SKILL.md").exists()
+    }
+    registered = set(EXPECTED_COMPONENTS)
+
+    unregistered = on_disk - registered
+    assert not unregistered, (
+        "paradigm(s) on disk but absent from EXPECTED_COMPONENTS, so they are "
+        f"silently untested: {sorted(unregistered)}"
+    )
+
+    missing_on_disk = registered - on_disk
+    assert not missing_on_disk, (
+        "paradigm(s) registered in EXPECTED_COMPONENTS but not on disk: "
+        f"{sorted(missing_on_disk)}"
+    )

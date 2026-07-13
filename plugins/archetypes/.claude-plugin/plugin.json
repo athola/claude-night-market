@@ -18,6 +18,7 @@
   "skills": [
     "./skills/architecture-paradigm-client-server",
     "./skills/architecture-paradigm-cqrs-es",
+    "./skills/architecture-paradigm-domain-driven",
     "./skills/architecture-paradigm-event-driven",
     "./skills/architecture-paradigm-functional-core",
     "./skills/architecture-paradigm-hexagonal",

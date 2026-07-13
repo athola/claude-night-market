@@ -30,6 +30,7 @@ modules:
 - modules/coupling-analysis.md
 - modules/principle-checks.md
 - modules/fpf-methodology.md
+- modules/ceremony-audit.md
 ---
 ## Table of Contents
 
@@ -90,6 +91,7 @@ Load modules based on review scope:
 - **`modules/coupling-analysis.md`** (~450 tokens): Dependency analysis and boundary violations.
 - **`modules/principle-checks.md`** (~500 tokens): Code quality, security, and performance.
 - **`modules/fpf-methodology.md`** (~800 tokens): FPF (Functional, Practical, Foundation) multi-perspective review methodology.
+- **`modules/ceremony-audit.md`** (~600 tokens): Manual lenses for mapping layers that never diverge. Passthrough mappers, twin types, speculative DTOs, single-implementation interfaces. Includes the IO boundary counter-signal.
 
 Load all modules for full reviews. For focused reviews, load only relevant modules.
 
@@ -100,8 +102,9 @@ Load all modules for full reviews. For focused reviews, load only relevant modul
 3. `arch-review:interaction-mapping`: Module coupling analysis.
 4. `arch-review:invariant-check`: Invariant conflict detection and 3-option analysis.
 5. `arch-review:principle-checks`: LoD, security, performance.
-6. `arch-review:risks-actions`: Recommendation and follow-ups.
-7. `arch-review:findings-verified`
+6. `arch-review:ceremony-audit`: Mapping layers that never diverge.
+7. `arch-review:risks-actions`: Recommendation and follow-ups.
+8. `arch-review:findings-verified`
 
 ## Workflow
 
@@ -204,6 +207,25 @@ context problem: the agent should surface it, not solve it.
 - Anti-slop patterns.
 - Security (input validation, least privilege).
 - Performance (N+1 queries, caching).
+
+### Step 4.5: Ceremony Audit (`arch-review:ceremony-audit`)
+
+**Load: `modules/ceremony-audit.md`**
+
+Coupling analysis (Step 3) finds boundaries that leak. This step finds the
+opposite failure: boundaries that cost something and separate nothing.
+
+- Passthrough mappers whose fields are all 1:1 copies.
+- Twin types that are structurally identical across layers.
+- Speculative DTOs with no external contract pinning their shape.
+- Interfaces with exactly one implementation and no test double.
+
+Each finding must name the need the ceremony serves today. If no current
+need can be named, the ceremony is the finding.
+
+**Do not flag mappers at an IO boundary.** They are load-bearing even when
+they look like passthroughs, because they stop future internal fields from
+escaping. See the counter-signal in the module.
 
 ### Step 5: Risks and Actions (`arch-review:risks-actions`)
 

@@ -20,6 +20,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `architecture-diagram` | [cartograph](../plugins/cartograph.md) | Component relationship diagrams |
 | `architecture-paradigm-client-server` | [archetypes](../plugins/archetypes.md) | Client-server communication |
 | `architecture-paradigm-cqrs-es` | [archetypes](../plugins/archetypes.md) | CQRS and Event Sourcing |
+| `architecture-paradigm-domain-driven` | [archetypes](../plugins/archetypes.md) | Modeling a business in its own language |
 | `architecture-paradigm-event-driven` | [archetypes](../plugins/archetypes.md) | Asynchronous communication |
 | `architecture-paradigm-functional-core` | [archetypes](../plugins/archetypes.md) | Functional Core, Imperative Shell |
 | `architecture-paradigm-hexagonal` | [archetypes](../plugins/archetypes.md) | Ports & Adapters architecture |

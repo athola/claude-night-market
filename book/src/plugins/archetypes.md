@@ -39,6 +39,7 @@ and detailed implementation guides for 13 architectural patterns.
 | `architecture-paradigm-service-based` | Coarse-grained SOA | Modular without microservices |
 | `architecture-paradigm-functional-core` | Functional Core, Imperative Shell | Superior testability |
 | `architecture-paradigm-client-server` | Client-server | Clear client/server responsibilities |
+| `architecture-paradigm-domain-driven` | Domain-Driven Design | Rich business rules (composes with the above) |
 
 ## Usage Examples
 
