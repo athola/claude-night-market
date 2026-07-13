@@ -25,6 +25,13 @@ estimated_tokens: 600
 - For systems exploring decentralized or "offline-first" capabilities that rely on peer-to-peer synchronization.
 - To formally document trust boundaries, client-server version negotiation, and API evolution strategies.
 
+## When NOT To Use
+
+- Systems with no network boundary between UI and logic (use
+  `archetypes:architecture-paradigm-modular-monolith`)
+- Choosing among paradigms in the first place (use
+  `archetypes:architecture-paradigms`)
+
 ## Adoption Steps
 1. **Define Responsibilities**: Clearly delineate which logic and data reside on the client versus the server, with the goal of minimizing duplication.
 2. **Document the Contracts**: Formally document all APIs, data schemas, authentication flows, and any capability negotiation required for handling different client versions.

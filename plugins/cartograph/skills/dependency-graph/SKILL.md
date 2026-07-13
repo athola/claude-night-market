@@ -16,6 +16,11 @@ relationships between modules, packages, or plugins.
 - Planning refactoring by seeing dependency impact
 - Answering "what breaks if I change this?"
 
+## When NOT To Use
+
+- Runtime call paths (use `cartograph:call-chain`)
+- Type hierarchies (use `cartograph:class-diagram`)
+
 ## Workflow
 
 ### Step 1: Explore the Codebase

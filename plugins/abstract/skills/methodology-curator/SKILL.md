@@ -60,6 +60,11 @@ Each module in the `modules/` directory provides a curated list of masters, key 
 - Already performed a recent methodology audit
 - Quick bug fixes that don't change the approach
 
+## When NOT To Use
+
+- Scoring a finished skill (use `abstract:skills-eval`)
+- The mechanics of writing one (use `abstract:skill-authoring`)
+
 ## Domain Modules
 
 Each module contains:

@@ -38,6 +38,11 @@ role: library
 
 # Proof of Work
 
+## When NOT To Use
+
+- Planning before implementation (use `imbue:karpathy-principles`)
+- Deciding whether the work is in scope (use `imbue:scope-guard`)
+
 ## Table of Contents
 
 - [Overview](#overview)

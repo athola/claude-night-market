@@ -69,6 +69,12 @@ role: entrypoint
 ---
 # Skills Evaluation and Improvement
 
+## When NOT To Use
+
+- Writing a new skill (use `abstract:skill-authoring`)
+- Evaluating hooks (use `abstract:hooks-eval`)
+- Evaluating rules (use `abstract:rules-eval`)
+
 ## Table of Contents
 
 1. [Overview](#overview)

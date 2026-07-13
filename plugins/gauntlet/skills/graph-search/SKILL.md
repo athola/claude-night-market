@@ -8,6 +8,11 @@ model_hint: standard
 
 Search `.gauntlet/graph.db` for code entities by name.
 
+## When NOT To Use
+
+- The graph is missing or stale (use `gauntlet:graph-build`)
+- Scoring the impact of a change (use `pensive:blast-radius`)
+
 ## Steps
 
 1. **Accept query**: Get the search term from the user.

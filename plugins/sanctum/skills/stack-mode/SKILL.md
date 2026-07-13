@@ -32,7 +32,7 @@ targeting a common base branch, loop the command's normal
 workflow across every PR in the stack in base-to-tip order
 and emit one consolidated summary on the stack root.
 
-## When to Use
+## When To Use
 
 Load this skill when a command accepts a `--stack` flag
 (or auto-detects stack membership) and needs to iterate
@@ -40,6 +40,11 @@ its normal workflow across multiple PRs.
 
 Do NOT load this skill for single-PR workflows. The
 per-PR workflow stays unchanged; stack mode wraps it.
+
+## When NOT To Use
+
+- Creating the stack (use `sanctum:stack-create`)
+- Cascading a rebase through it (use `sanctum:stack-rebase`)
 
 ## Contract
 

@@ -32,6 +32,11 @@ modules:
 ---
 # GitHub Initiative Pulse
 
+## When NOT To Use
+
+- Delivery-performance metrics (use `minister:dora-metrics`)
+- Approving a release (use `minister:release-health-gates`)
+
 ## Overview
 
 Turns tracker data and GitHub board metadata into initiative-level summaries. Provides markdown helpers and CSV exports for pasting into issues, PRs, or Discussions.

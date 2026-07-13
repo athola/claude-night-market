@@ -32,6 +32,11 @@ modules:
 ---
 # Release Health Gates
 
+## When NOT To Use
+
+- Measuring delivery performance (use `minister:dora-metrics`)
+- PR-level quality gates before merge (use `sanctum:pr-prep`)
+
 ## Purpose
 
 Standardize release approvals by expressing gates as GitHub-aware checklists. Ensure code, docs, comms, and observability items are green before deployment.

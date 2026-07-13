@@ -34,6 +34,13 @@ complexity: intermediate
 model_hint: standard
 estimated_tokens: 280
 ---
+
+## When NOT To Use
+
+- The paradigm is already chosen, so go straight to that paradigm's skill
+- Reviewing an existing design against its ADRs (use
+  `pensive:architecture-review`)
+
 ## Table of Contents
 
 - [Quick Scenario Router](#quick-scenario-router)

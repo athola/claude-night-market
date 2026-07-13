@@ -7,6 +7,11 @@ description: Provisions the oracle ML inference daemon with onnxruntime via uv. 
 
 Provision the ML inference environment.
 
+## When NOT To Use
+
+- The daemon is already provisioned and only needs to be used
+- Evaluating skill quality itself (use `abstract:skills-eval`)
+
 ## What This Does
 
 1. Creates a Python 3.11+ virtual environment using uv

@@ -28,6 +28,12 @@ dependencies:
 
 Extract a user's writing voice through SICO comparative analysis.
 
+## When NOT To Use
+
+- Writing text in a profile that already exists (use
+  `scribe:voice-generate`)
+- Refining a profile from edits (use `scribe:voice-learn`)
+
 ## Method: Comparative Feature Extraction
 
 Rather than measuring surface metrics, this skill uses SICO

@@ -9,6 +9,11 @@ description: Traces execution paths through the code graph with criticality scor
 Trace execution flows through the codebase using the
 code knowledge graph.
 
+## When NOT To Use
+
+- Static import relationships (use `cartograph:dependency-graph`)
+- Scoring the risk of a change (use `pensive:blast-radius`)
+
 ## Prerequisites
 
 This skill requires the **gauntlet** plugin for graph

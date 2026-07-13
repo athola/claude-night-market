@@ -8,6 +8,11 @@ model_hint: standard
 
 Walk a new developer through the codebase in structured stages.
 
+## When NOT To Use
+
+- Ad-hoc questions outside a staged path (use `gauntlet:challenge`)
+- The knowledge base does not exist yet (use `gauntlet:extract`)
+
 ## Stages
 
 | Stage | Focus | Categories | Difficulty |

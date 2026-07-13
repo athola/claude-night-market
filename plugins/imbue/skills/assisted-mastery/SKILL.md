@@ -110,7 +110,7 @@ understanding is the point. As the human's competence on a given
 area grows, fade from produce toward explain to manual: permanent
 scaffolding is the failure mode, not the goal.
 
-## When to Use
+## When To Use
 
 - An agent produced code the human will have to maintain, review,
   or be accountable for.
@@ -122,6 +122,12 @@ scaffolding is the failure mode, not the goal.
 Skip it for trivial, reversible, well-understood edits where the
 reasoning is self-evident: forcing a ledger entry on a typo fix is
 ceremony, and ceremony trains people to ignore the gate.
+
+## When NOT To Use
+
+- You only need the change shipped and verified (use
+  `imbue:proof-of-work`)
+- Deciding whether to build it at all (use `imbue:scope-guard`)
 
 ## Red Flags
 

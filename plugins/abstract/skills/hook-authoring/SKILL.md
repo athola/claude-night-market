@@ -29,6 +29,13 @@ usage_patterns:
 - performance-optimization
 - sdk-integration
 ---
+
+## When NOT To Use
+
+- Auditing a hook that already exists (use `abstract:hooks-eval`)
+- Choosing where a hook should live (use `abstract:hook-scope-guide`)
+- Authoring a skill rather than a hook (use `abstract:skill-authoring`)
+
 ## Table of Contents
 
 - [Overview](#overview)

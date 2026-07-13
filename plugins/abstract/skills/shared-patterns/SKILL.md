@@ -26,6 +26,11 @@ modules:
 
 Reusable patterns and templates for skill and hook development.
 
+## When NOT To Use
+
+- Authoring a skill end to end (use `abstract:skill-authoring`)
+- Cross-plugin contracts, which belong in leyline rather than here
+
 ## Purpose
 
 This skill provides shared patterns that are referenced by other skills in the abstract plugin. It follows DRY principles by centralizing common patterns.

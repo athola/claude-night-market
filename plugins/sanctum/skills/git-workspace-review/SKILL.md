@@ -32,6 +32,11 @@ role: library
 ---
 # Git Workspace Review
 
+## When NOT To Use
+
+- Writing the commit message (use `sanctum:commit-messages`)
+- Running the full pre-PR gate (use `sanctum:pr-prep`)
+
 ## Table of Contents
 
 1. [Usage](#usage)

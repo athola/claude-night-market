@@ -8,6 +8,11 @@ model_hint: standard
 
 Present challenges from the knowledge base and evaluate answers.
 
+## When NOT To Use
+
+- The knowledge base does not exist yet (use `gauntlet:extract`)
+- A staged path for a new contributor (use `gauntlet:onboard`)
+
 ## In-Loop Provider Setup
 
 Before generating a challenge, register the in-loop variation

@@ -39,6 +39,11 @@ role: library
 > adds enforcement, restore the ``contract`` label and link the
 > validator path here.
 
+## When NOT To Use
+
+- Removing bloat that already landed (use `conserve:bloat-detector`)
+- Scoring whether a feature is worth building (use `imbue:scope-guard`)
+
 ## The Problem
 
 LLMs are additive by nature. They reinvent wheels, add

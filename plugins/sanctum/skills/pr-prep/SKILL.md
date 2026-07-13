@@ -39,6 +39,11 @@ hooks:
 ---
 # Pull Request Preparation Workflow
 
+## When NOT To Use
+
+- Reviewing someone else's PR (use `sanctum:pr-review`)
+- Only the commit message is needed (use `sanctum:commit-messages`)
+
 ## Usage
 
 Use this skill to stage changes and generate a PR summary. Run `Skill(sanctum:git-workspace-review)` first to capture the repository state and diffs.

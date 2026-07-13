@@ -26,6 +26,13 @@ modules:
 - modules/issue-templates.md
 - modules/efficiency-metrics.md
 ---
+
+## When NOT To Use
+
+- A one-off failure worth debugging directly (use
+  `superpowers:systematic-debugging`)
+- Rewriting the workflow's assets (use `sanctum:workflow-improvement`)
+
 ## Table of Contents
 
 - [Philosophy](#philosophy)

@@ -15,6 +15,11 @@ between components in a codebase.
 - Documenting API call chains
 - Answering "what happens when X is called?"
 
+## When NOT To Use
+
+- Static call structure (use `cartograph:call-chain`)
+- Process steps and state transitions (use `cartograph:workflow-diagram`)
+
 ## Workflow
 
 ### Step 1: Explore the Codebase

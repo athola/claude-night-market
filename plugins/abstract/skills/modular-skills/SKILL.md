@@ -31,6 +31,13 @@ modules:
 - modules/troubleshooting.md
 - modules/design-patterns.md
 ---
+
+## When NOT To Use
+
+- A single-file skill already inside its token budget (use
+  `abstract:skill-authoring`)
+- The lazy-loading contract itself (use `leyline:progressive-loading`)
+
 ## Table of Contents
 
 - [Overview](#overview)

@@ -15,6 +15,11 @@ pipelines, or state machines from code or documentation.
 - Mapping state machines or lifecycle processes
 - Answering "what steps happen when X runs?"
 
+## When NOT To Use
+
+- Data moving between components (use `cartograph:data-flow`)
+- Component structure (use `cartograph:architecture-diagram`)
+
 ## Workflow
 
 ### Step 1: Explore the Codebase

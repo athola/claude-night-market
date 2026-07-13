@@ -54,6 +54,11 @@ For shared delegation patterns, see `Skill(conjure:delegation-core)`.
 - For batch processing, summarization, or multi-file analysis
 - If the `qwen` CLI is installed and configured
 
+## When NOT To Use
+
+- Choosing which provider to delegate to (use `conjure:delegation-core`)
+- Gemini was the selected provider (use `conjure:gemini-delegation`)
+
 ## Prerequisites
 
 **Installation:**

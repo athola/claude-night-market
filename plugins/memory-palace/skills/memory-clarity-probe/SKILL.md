@@ -86,7 +86,7 @@ The paper's Table 6 shows that qualitative probing (labeled
 (r=0.68), and can encourage premature confidence. Use this probe
 as a necessary quality check, not a sufficient one.
 
-## When to Use
+## When To Use
 
 - Before `conserve:clear-context` hands off to a continuation agent
 - At session checkpoints in `memory-palace:session-palace-builder`

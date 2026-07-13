@@ -24,6 +24,11 @@ Run a full multi-source research session: classify the
 domain, dispatch parallel agents, synthesize findings,
 and output a formatted report.
 
+## When NOT To Use
+
+- Drilling into one subtopic of an active session (use `tome:dig`)
+- Merging findings already gathered (use `tome:synthesize`)
+
 ## Workflow
 
 ### Step 1: Classify Domain

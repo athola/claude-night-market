@@ -28,6 +28,12 @@ dependencies:
 
 Learn from user edits to improve the voice profile over time.
 
+## When NOT To Use
+
+- Building the first profile (use `scribe:voice-extract`)
+- Reviewing text without changing the profile (use
+  `scribe:voice-review`)
+
 ## Method: Three-Stage Comparison
 
 Every piece flows through three stages:

@@ -19,6 +19,11 @@ model_hint: standard
 
 Test skills with fresh subagent instances to prevent priming bias and validate effectiveness.
 
+## When NOT To Use
+
+- Writing the skill under test (use `abstract:skill-authoring`)
+- A static quality audit with no execution (use `abstract:skills-eval`)
+
 ## Table of Contents
 
 1. [Overview](#overview)

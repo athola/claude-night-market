@@ -9,6 +9,12 @@ model_hint: standard
 Survey the DSA problem bank, identify coverage gaps, and propose
 new YAML entries for human review.
 
+## When NOT To Use
+
+- Annotating this codebase rather than the problem bank (use
+  `gauntlet:curate`)
+- Rebuilding the knowledge base (use `gauntlet:extract`)
+
 ## When This Skill Fires
 
 Invoke this skill manually with `Skill(gauntlet:gauntlet-curate)`

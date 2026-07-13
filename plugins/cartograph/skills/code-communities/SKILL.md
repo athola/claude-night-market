@@ -8,6 +8,12 @@ description: Detects architectural clusters and coupling boundaries via communit
 Identify architectural clusters and module boundaries
 in the codebase.
 
+## When NOT To Use
+
+- One module's imports (use `cartograph:dependency-graph`)
+- Rendering an architecture already decided (use
+  `cartograph:architecture-diagram`)
+
 ## Prerequisites
 
 This skill requires the **gauntlet** plugin for graph

@@ -1,35 +1,59 @@
-"""Root pytest configuration for claude-night-market ecosystem.
+"""Root pytest configuration for the claude-night-market ecosystem.
 
-This conftest.py resolves test infrastructure conflicts when running pytest from
-the repository root. Each plugin has its own test suite with isolated fixtures
-and configuration.
+Each plugin sets ``pythonpath = [".", "src"]`` in its own ``pyproject.toml``.
+That file is the rootdir when pytest runs inside the plugin, which is what
+makes ``import pensive`` resolve there.
+
+Hand pytest two plugin paths from the repo root and only one ini file wins:
+the root ``pyproject.toml``, which has no ``pythonpath``. Every plugin test
+importing its own package then dies at collection with ``ModuleNotFoundError``,
+so the natural command for "test the two plugins I touched" was the one command
+that could not work. This module puts each ``plugins/*/src`` on ``sys.path`` so
+the import resolves whichever rootdir pytest picked.
+
+What this does NOT do: apply each plugin's ``addopts``. Coverage flags and the
+85% threshold live in the plugin's own config and are ignored under a
+root-level run. A green root run is an import-and-assertion check, not a gate.
+``make test`` (``scripts/run-plugin-tests.sh``, one pytest process per plugin)
+remains the gate of record.
 
 Usage:
-    # Run tests for a specific plugin (recommended)
-    cd plugins/attune && uv run pytest
-
-    # Run tests from root with specific plugin
-    uv run pytest plugins/attune/tests/ --ignore=plugins/*/tests/conftest.py
-
-    # Run all plugin tests (requires --ignore to avoid conflicts)
-    uv run pytest plugins/*/tests/ --ignore-glob='**/conftest.py'
-
-The conflict arises because:
-1. Each plugin has its own conftest.py with unique fixtures
-2. Running `pytest plugins/` collects all conftest.py files
-3. Duplicate fixtures and hooks cause ImportPathMismatchError
-
-Solution:
-- Run plugin tests individually from plugin directories
-- Use --ignore flags when running from root
-- This conftest provides root-level configuration without conflicting fixtures
+    make test                          # all plugins, gated
+    cd plugins/pensive && uv run pytest # one plugin, gated
+    uv run pytest plugins/a/tests plugins/b/tests  # quick cross-plugin, ungated
 """
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pytest
+
+REPO_ROOT = Path(__file__).resolve().parent
+
+
+def _add_plugin_src_dirs_to_sys_path() -> None:
+    """Put every ``plugins/*/src`` on ``sys.path``.
+
+    Globbed rather than listed so a new plugin is picked up without editing
+    this file. Every plugin's src holds exactly one top-level package named
+    after the plugin, so there is nothing here to shadow anything else.
+
+    Only ``src`` goes on the path, never the plugin root. Plugin roots hold
+    ``scripts/`` and ``hooks/`` directories whose names repeat across plugins,
+    and putting those on a shared path is what makes one plugin's ``scripts``
+    import resolve to another's.
+    """
+    for src_dir in sorted(REPO_ROOT.glob("plugins/*/src")):
+        if not src_dir.is_dir():
+            continue
+        entry = str(src_dir)
+        if entry not in sys.path:
+            sys.path.insert(0, entry)
+
+
+_add_plugin_src_dirs_to_sys_path()
 
 
 def pytest_configure(config) -> None:

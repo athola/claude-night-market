@@ -72,7 +72,7 @@ for f in result.issues:
     print(f"[{f.severity}] {f.file}:{f.line} {f.message}")
 ```
 
-## When to Use
+## When To Use
 
 - Pre-merge review of code that runs on user-scaled inputs.
 - Triage of a function that "feels slow" before reaching for a

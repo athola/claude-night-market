@@ -8,6 +8,11 @@ model_hint: standard
 
 Add developer-authored annotations to the knowledge base.
 
+## When NOT To Use
+
+- Knowledge derivable from the code itself (use `gauntlet:extract`)
+- The DSA problem bank (use `gauntlet:gauntlet-curate`)
+
 ## Steps
 
 1. Identify the module to annotate

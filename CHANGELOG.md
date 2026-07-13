@@ -41,6 +41,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   parametrize, so a fourteenth paradigm could land on disk untested. The
   dict's keys are now asserted equal to the set of paradigm directories.
 
+- **cartograph's 40 tests ran in no gate at all.** The plugin had no
+  `pyproject.toml`, and `scripts/run-plugin-tests.sh` dispatches only on
+  a Makefile `test:` target or a pyproject mentioning pytest. Finding
+  neither, it printed "No test configuration", recorded a skip, and
+  returned 0, so `make test` stayed green while the suite ran nowhere.
+  This is the hole archetypes was pulled out of in 58ee533f; cartograph
+  was the last plugin in it. A second silence reinforced the first: with
+  no config of its own, a bare `pytest` inside the plugin resolves
+  rootdir to the repo root, whose `norecursedirs = ["plugins/*"]` blocks
+  recursion into `tests/unit/`, so even the manual fallback collected
+  zero items. Flat layouts survive that setting because a directory named
+  on the command line is always collected, which is the only reason the
+  other plugins were unaffected. Fixed by giving cartograph a
+  `pyproject.toml` with its own `[tool.pytest.ini_options]`; its 40 tests
+  now run, and its hook joins the Python 3.9 compatibility matrix.
+
+- **The test runner reported an unrunnable suite as a skip.** A plugin
+  with a `tests/` directory and no way to execute it now fails the gate
+  instead of returning 0. The no-tests case still skips cleanly, so
+  documentation-only plugins are unaffected. A suite nobody can run is
+  worse than no suite, because it looks like coverage.
+
+- **`plugins/__pycache__` was iterated as a plugin.** The bare
+  `plugins/*/` glob matched the gitignored cache directory left by a
+  root-level pytest run, and the runner announced "Testing
+  __pycache__...". Plugins are now identified by their manifest.
+
 ## [1.9.16] - 2026-07-05
 
 ### Added
@@ -66,10 +93,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Leaked git environment in the plugin test runner (scripts).**
-  `scripts/run-plugin-tests.sh` now scrubs inherited `GIT_*`
-  environment variables before invoking per-plugin suites, so a
-  parent git context can no longer bleed into tests that shell out
-  to git.
+  Every test invocation now runs behind `scripts/without-git-env.sh`,
+  which unsets the whole `GIT_*` prefix before handing off to the
+  suite, so a parent git context can no longer bleed into tests that
+  shell out to git. The first cut of this fix unset `GIT_DIR`,
+  `GIT_INDEX_FILE` and `GIT_WORK_TREE` by name. A commit from a linked
+  worktree exports eight `GIT_*` variables, so six still reached the
+  test: `GIT_PREFIX` and `GIT_AUTHOR_*` among them. Scrubbing the
+  prefix covers the variables git adds next, and putting it in one
+  wrapper means a new call site cannot half-remember the list.
 
 - **`conjure` uv.lock drift (conjure).** Synced `conjure/uv.lock`
   with the `leyline` `pyyaml` dev-dependency so the resolved lock

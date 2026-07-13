@@ -47,6 +47,11 @@ density per 100 words, marker clustering, and whether
 the overall register fits the document type. It does not
 ban words. It flags concentrations.
 
+## When NOT To Use
+
+- Writing the replacement prose (use `scribe:doc-generator`)
+- Drift against a specific voice profile (use `scribe:voice-review`)
+
 ## Execution Workflow
 
 Identify target files and classify them as technical docs,

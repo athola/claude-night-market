@@ -22,6 +22,11 @@ method, then rotate methods across passes so the next round does not
 repeat the last. This is the documented lever against LLM mode
 collapse, not a brainstorming ritual.
 
+## When NOT To Use
+
+- Surveying what already exists (use `tome:research`)
+- Cross-domain analogies specifically (use `tome:triz`)
+
 ## The one design rule
 
 Structure the reasoning, not the output.

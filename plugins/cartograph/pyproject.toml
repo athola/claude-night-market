@@ -1,0 +1,40 @@
+[project]
+name = "cartograph"
+version = "1.9.16"
+description = "Codebase visualization: architecture, data flow, dependency, call chain, community, and class diagrams via Mermaid"
+requires-python = ">=3.9"
+# The suite imports gauntlet.graph and gauntlet.models, both stdlib-only, off a
+# sys.path entry the test modules add themselves. Nothing to install for them.
+dependencies = []
+
+# scripts/run-plugin-tests.sh only runs a plugin's suite when its pyproject
+# mentions pytest. Without this group cartograph's four test files were
+# collected by nobody: `make test` printed "No test configuration", recorded a
+# skip, and exited 0. Same silence archetypes was pulled out of in 58ee533f.
+[dependency-groups]
+dev = [
+    # pytest>=8.0, not >=9: pytest 9 requires Python >=3.10 and this plugin
+    # supports >=3.9. Matches archetypes, tome, gauntlet, herald, egregore.
+    "pytest>=8.0",
+]
+
+# Unlike archetypes, this table is required rather than avoided, because
+# cartograph's tests sit in tests/unit/ and tests/unit/skills/ rather than flat
+# in tests/. Owning a pytest config is what makes this directory the rootdir. A
+# plugin without one inherits the repo root's config, whose
+# norecursedirs = ["plugins/*"] blocks recursion into those subdirectories:
+# pytest collects zero items and exits without complaint. A directory named on
+# the command line is always collected, which is the only reason flat layouts
+# survive the same setting.
+#
+# Owning the config also means the root's marker registry no longer applies, so
+# the markers the suite uses are declared here or --strict-markers rejects them.
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["hooks"]
+addopts = "--strict-markers --tb=short -ra"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+]

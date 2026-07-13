@@ -44,6 +44,11 @@ for the current codebase.
 - Before running blast radius analysis or flow tracing
 - When the user asks about codebase structure
 
+## When NOT To Use
+
+- Querying a graph that already exists (use `gauntlet:graph-search`)
+- Building the challenge knowledge base (use `gauntlet:extract`)
+
 ## What Gets Parsed
 
 The graph extracts nodes (File, Class, Function, Type,

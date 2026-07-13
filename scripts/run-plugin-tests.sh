@@ -17,18 +17,27 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+# Every test invocation below runs behind this wrapper, which strips GIT_* from
+# the child environment. `git commit` from a linked worktree points GIT_DIR and
+# GIT_INDEX_FILE at the outer repo; a suite that shells out to git in a temp dir
+# would otherwise write to the real index (issue #609). One definition, so a new
+# call site cannot half-remember it.
+WITHOUT_GIT_ENV="$PROJECT_ROOT/scripts/without-git-env.sh"
+
 FAILED_PLUGINS=()
 PASSED_PLUGINS=()
 SKIPPED_PLUGINS=()
 
 # Accumulate temp files for cleanup on exit
 _TEMP_FILES=()
+# shellcheck disable=SC2317  # invoked indirectly by the EXIT trap below
 _cleanup_temp() { rm -f "${_TEMP_FILES[@]}" 2>/dev/null || true; }
 trap _cleanup_temp EXIT
 
 run_plugin_tests() {
     local plugin_dir="$1"
-    local plugin_name=$(basename "$plugin_dir")
+    local plugin_name
+    plugin_name=$(basename "$plugin_dir")
     local temp_output
     temp_output=$(mktemp "/tmp/test_output_${plugin_name}_XXXXXX")
     _TEMP_FILES+=("$temp_output")
@@ -46,10 +55,9 @@ run_plugin_tests() {
     if [ -f "$plugin_dir/Makefile" ]; then
         if grep -q "^test:" "$plugin_dir/Makefile" 2>/dev/null; then
             # Run using Makefile - capture output, show on failure.
-            # env -u scrubs git env leaked by `git commit` from linked
-            # worktrees; without it, tests that spawn git in temp dirs
-            # rewrite the real worktree index (issue #609).
-            if (cd "$plugin_dir" && env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE make test --quiet 2>&1 > "$temp_output"); then
+            # Redirect stdout first, then point stderr at it: `2>&1 > file`
+            # reads left to right and would leave stderr on the terminal.
+            if (cd "$plugin_dir" && "$WITHOUT_GIT_ENV" make test --quiet > "$temp_output" 2>&1); then
                 echo -e "  ${GREEN}✓ Tests passed${NC}"
                 PASSED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
@@ -58,7 +66,7 @@ run_plugin_tests() {
                 echo -e "  ${RED}✗ Tests failed${NC}"
                 echo -e "${YELLOW}Re-running with verbose output:${NC}"
                 echo
-                (cd "$plugin_dir" && env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE make test 2>&1)
+                (cd "$plugin_dir" && "$WITHOUT_GIT_ENV" make test 2>&1)
                 FAILED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
                 return 1
@@ -79,14 +87,18 @@ run_plugin_tests() {
                 }
             ' "$plugin_dir/pyproject.toml")
 
-            local cov_flag=""
+            # An array, not a string: quoting an empty string would hand pytest
+            # a literal "" and it would read that as a path to collect. An empty
+            # array expands to no words at all, which is what "no threshold set"
+            # has to mean.
+            local cov_flag=()
             if [ -n "${cov_threshold}" ] && [ "${cov_threshold}" -gt 0 ] 2>/dev/null; then
-                cov_flag="--cov-fail-under=${cov_threshold}"
+                cov_flag=(--cov-fail-under="${cov_threshold}")
             fi
 
             # Run using uv/pytest - capture output, show on failure.
-            # env -u: see the Makefile branch above (issue #609).
-            if (cd "$plugin_dir" && env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE uv run python -m pytest tests/ --tb=short --quiet ${cov_flag} 2>&1 > "$temp_output"); then
+            # Redirect stdout before stderr; see the Makefile branch above.
+            if (cd "$plugin_dir" && "$WITHOUT_GIT_ENV" uv run python -m pytest tests/ --tb=short --quiet "${cov_flag[@]}" > "$temp_output" 2>&1); then
                 echo -e "  ${GREEN}✓ Tests passed${NC}"
                 PASSED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
@@ -95,7 +107,7 @@ run_plugin_tests() {
                 echo -e "  ${RED}✗ Tests failed${NC}"
                 echo -e "${YELLOW}Re-running with verbose output:${NC}"
                 echo
-                (cd "$plugin_dir" && env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE uv run python -m pytest tests/ --tb=short ${cov_flag} 2>&1)
+                (cd "$plugin_dir" && "$WITHOUT_GIT_ENV" uv run python -m pytest tests/ --tb=short "${cov_flag[@]}" 2>&1)
                 FAILED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
                 return 1
@@ -103,11 +115,28 @@ run_plugin_tests() {
         fi
     fi
 
-    # No test configuration found
-    echo -e "  ${YELLOW}⊘ No test configuration${NC}"
-    SKIPPED_PLUGINS+=("$plugin_name")
+    # Tests exist but nothing above knew how to run them. The "no tests" case
+    # already returned a skip further up, so reaching here means the plugin
+    # ships a tests/ directory and no way to execute it. That is a broken
+    # plugin, not a plugin without tests, and reporting it as a skip is what
+    # kept cartograph's 40 tests out of every gate while `make test` stayed
+    # green. Fail loudly instead: a suite nobody can run is worse than no suite,
+    # because it looks like coverage.
+    echo -e "  ${RED}✗ Has tests/ but no test configuration${NC}"
+    echo -e "     Add a pyproject.toml configuring pytest, or a Makefile with a"
+    echo -e "     'test:' target. See plugins/cartograph/pyproject.toml."
+    FAILED_PLUGINS+=("$plugin_name")
     rm -f "$temp_output"
-    return 0
+    return 1
+}
+
+# A plugin is what carries a manifest, not whatever happens to sit in plugins/.
+# The bare plugins/*/ glob also matched the gitignored plugins/__pycache__ left
+# behind by a root-level pytest run, and the loop dutifully announced
+# "Testing __pycache__...".
+is_plugin_dir() {
+    local dir="$1"
+    [ -f "$dir/.claude-plugin/plugin.json" ] || [ -f "$dir/openpackage.yml" ]
 }
 
 # Parse arguments
@@ -117,7 +146,7 @@ if [ $# -eq 0 ] || [ "$1" == "--all" ]; then
     echo
 
     for plugin_dir in plugins/*/; do
-        if [ -d "$plugin_dir" ]; then
+        if [ -d "$plugin_dir" ] && is_plugin_dir "$plugin_dir"; then
             run_plugin_tests "$plugin_dir" || true
             echo
         fi
