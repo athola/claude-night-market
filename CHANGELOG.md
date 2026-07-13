@@ -5,6 +5,42 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Domain-Driven Design paradigm and the ceremony-audit review
+  lens (archetypes, pensive).** The repo shipped thirteen architecture
+  paradigms and no DDD, while its anti-overengineering guidance already
+  argued against ceremony without saying so in domain terms:
+  - `archetypes:architecture-paradigm-domain-driven`: DDD as modeling a
+    business in its own language, with layering, mapping, DTOs, and
+    command objects treated as separable machinery a domain model may or
+    may not need. Carries the divergence protocol (the DTO arrives when
+    the contract and the model actually pull apart, so deferring it stays
+    cheap), the strangler sequence for decomposing an existing
+    application, and one non-negotiable constraint: types crossing an IO
+    boundary get their fields audited, and a versioned request DTO is
+    justified whenever the systems exchanging it do not deploy
+    atomically. Grounded in Evans's own correction that the tactical
+    building blocks are not the core of DDD (SE-Radio Episode 226).
+    Wired into the paradigm router as a modeling approach that composes
+    with the structural paradigms rather than competing with them.
+  - `pensive:architecture-review` `ceremony-audit` module: manual lenses
+    for passthrough mappers, twin types, speculative DTOs, and interfaces
+    with one implementation. Written as review lenses, not AST detectors.
+    Includes an IO-boundary counter-signal so the audit does not flag a
+    boundary mapper whose job is to stop internal fields from escaping.
+  - `.claude/rules/ceremony-requires-need.md`: no DTO, mapper, command
+    object, or layer boundary without a named, current need.
+
+### Fixed
+
+- **Paradigm test harness could silently skip a new paradigm
+  (archetypes).** `EXPECTED_COMPONENTS` was the only thing driving the
+  parametrize, so a fourteenth paradigm could land on disk untested. The
+  dict's keys are now asserted equal to the set of paradigm directories.
+
 ## [1.9.16] - 2026-07-05
 
 ### Added

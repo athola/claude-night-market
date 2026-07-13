@@ -37,8 +37,14 @@ def _normalize(text: str) -> str:
     Collapsing whitespace keeps the property that matters: deleting the
     guarded paragraph still turns the test red. It only drops the
     dependency on where the line breaks happen to fall.
+
+    Line-leading blockquote markers come off for the same reason. A quote
+    wrapped at 80 columns puts a "> " in the middle of any anchor long
+    enough to be unique, which would otherwise force an author to choose
+    between a checkable anchor and a correctly wrapped quote.
     """
-    return re.sub(r"\s+", " ", text)
+    without_quote_markers = re.sub(r"(?m)^>\s?", "", text)
+    return re.sub(r"\s+", " ", without_quote_markers)
 
 
 @pytest.fixture
@@ -274,4 +280,52 @@ class TestSkillContract:
 
         assert "architecture-paradigm-domain-driven" in router_text, (
             "router must list the DDD paradigm skill so it is reachable"
+        )
+
+
+class TestStrategicDesignIsTheCore:
+    """Feature: the skill grounds its thesis in Evans's own correction.
+
+    The skill's load-bearing claim is that the tactical building blocks are
+    not the core of DDD. That claim is stronger sourced than asserted, and
+    Evans made the correction himself. These tests guard the citation so a
+    later edit cannot quietly drop the evidence and leave the assertion
+    standing on the repo's own authority.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_names_strategic_design_as_the_core(self, ddd_text: str) -> None:
+        """
+        Scenario: a reader doubts that ceremony is separable from DDD
+        Given the DDD paradigm skill
+        When the strategic-design section is read
+        Then it states the building blocks are not the core of DDD.
+        """
+        assert (
+            "really the core of DDD, whereas, in fact, it's really not" in ddd_text
+        ), (
+            "skill must carry Evans's correction that the building blocks are not the core of DDD"
+        )
+        assert "bounded contexts" in ddd_text, (
+            "skill must name what the core actually is: subdomains and bounded contexts"
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_evans_quote_carries_a_resolvable_source(self, ddd_text: str) -> None:
+        """
+        Scenario: a reader wants to check the quote against its source
+        Given the DDD paradigm skill quotes Eric Evans
+        When the attribution is read
+        Then it names the episode and links it, so the citation resolves.
+
+        Guards the repo's P0 hallucination rule. A quote attributed to a
+        vague "IEEE interview" is not checkable; SE-Radio Episode 226 is.
+        """
+        assert "Episode 226" in ddd_text, (
+            "Evans quote must name the specific episode it came from"
+        )
+        assert "GogQor9WG-c" in ddd_text, (
+            "Evans quote must link its source so the citation resolves"
         )

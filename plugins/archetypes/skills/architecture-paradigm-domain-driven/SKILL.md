@@ -47,6 +47,34 @@ them is entailed by DDD. Wanting to decouple an API from the domain is a
 good reason to add a DTO. "This is what DDD requires" is not, because it
 does not.
 
+## Strategic Design Is The Core
+
+The building blocks are not the point, and this is not the repo's opinion.
+Evans said so himself, ten years after the book, about the book:
+
+> "things like the entities and value objects [..] [People] come away
+> thinking that that's really the core of DDD, whereas, in fact, it's
+> really not."
+
+> "I really think that the way I arranged the book gives people the wrong
+> emphasis, so that's the biggest part of what I do is rearrange those
+> things."
+
+Source: SE-Radio Episode 226, "Eric Evans on Domain-Driven Design at 10
+Years" ([video](https://www.youtube.com/watch?v=GogQor9WG-c)). Quotes as
+transcribed by [The Core of Domain-Driven
+Design](https://www.angulararchitects.io/en/blog/the-core-of-domain-driven-design/),
+which also cites his DDD Europe 2016 keynote criticizing the
+"over-emphasis on building blocks."
+
+What the core actually is: discovering subdomains and drawing bounded
+contexts, in language the business already speaks. Entities, value objects,
+and aggregates are how a model reaches code once it exists. They are the
+translation, not the thing being translated.
+
+Read the rest of this skill in that light. Every mechanism below is
+optional machinery serving a model you found by talking to people.
+
 ## When To Use
 
 - The domain has business rules a domain expert could argue about.
