@@ -198,7 +198,7 @@ def calculate_skill_metrics(
     partial_count = outcome_counts["partial"]
 
     # Duration stats
-    durations = [e["duration_ms"] for e in entries if "duration_ms" in e]
+    durations = [e["duration_ms"] for e in entries if e.get("duration_ms") is not None]
     avg_duration = statistics.mean(durations) if durations else 0.0
     max_duration = max(durations) if durations else 0
 
