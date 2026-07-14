@@ -15,6 +15,11 @@ relationships in a codebase.
 - Documenting architecture for PR reviews
 - Answering "how does this system fit together?"
 
+## When NOT To Use
+
+- Import-level coupling (use `cartograph:dependency-graph`)
+- Runtime call paths (use `cartograph:call-chain`)
+
 ## Workflow
 
 ### Step 1: Explore the Codebase

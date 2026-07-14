@@ -15,6 +15,11 @@ relationships, and public interfaces from a codebase.
 - Analyzing composition vs. inheritance patterns
 - Answering "what types exist and how do they relate?"
 
+## When NOT To Use
+
+- Module-level imports (use `cartograph:dependency-graph`)
+- Runtime data movement (use `cartograph:data-flow`)
+
 ## Workflow
 
 ### Step 1: Explore the Codebase

@@ -56,7 +56,7 @@ Derivation: distilled by Forrest Chang
 Karpathy's observations. Full attribution in
 `references/source-attribution.md`.
 
-## When to Use
+## When To Use
 
 - Before starting any coding task larger than a typo
 - During code review, to name the failure mode you see

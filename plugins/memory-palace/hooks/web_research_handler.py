@@ -27,6 +27,7 @@ from urllib.parse import urlparse
 from shared.config import get_config
 from shared.deduplication import (
     get_content_hash,
+    get_stored_at,
     is_known,
     needs_update,
     update_index,
@@ -252,6 +253,34 @@ def _store_to_queue(
         return None
 
 
+def _register_duplicate_url(
+    content_hash: str,
+    canonical: str,
+    url: str,
+    content: str,
+) -> None:
+    """Index a URL against a capture already stored under another URL.
+
+    Writes no file: ``canonical`` already holds these bytes. The entry
+    records where the content lives so retrieval and dedup agree.
+    """
+    try:
+        update_index(
+            content_hash=content_hash,
+            stored_at=canonical,
+            importance_score=50,
+            url=url,
+            title=extract_title_from_content(content, url),
+            maturity="seedling",
+            routing_type="pending",
+        )
+    except Exception as idx_err:
+        logger.error(
+            "web_research_handler: Duplicate-URL index update failed: %s",
+            idx_err,
+        )
+
+
 def store_webfetch_content(
     content: str,
     url: str,
@@ -475,6 +504,20 @@ def _handle_webfetch(
                 f"Memory Palace: Content at {url} has changed. "
                 "Consider updating the stored knowledge entry.",
             )
+        return context_parts, None, None
+
+    canonical = get_stored_at(content_hash)
+    if canonical is not None:
+        # These exact bytes are already on disk under a different URL
+        # (an empty API result, a mirror, a redirect target). Record the
+        # new URL against the existing capture instead of writing a
+        # second copy of content we already have.
+        _register_duplicate_url(content_hash, canonical, url, content)
+        context_parts.append(
+            f"Memory Palace: Content from {url} is byte-identical to an "
+            f"existing capture. Indexed against {Path(canonical).name} "
+            "instead of storing a duplicate.",
+        )
         return context_parts, None, None
 
     if auto_capture:

@@ -23,6 +23,13 @@ model_hint: standard
 
 Tiered quality review of plugins with dependency-aware scoping.
 
+## When NOT To Use
+
+- Reviewing one skill rather than a plugin (use `abstract:skills-eval`)
+- Reviewing hooks (use `abstract:hooks-eval`)
+- Tracing `Skill()` references across plugins (use
+  `abstract:skill-graph-audit`)
+
 ## Table of Contents
 
 - [Tiers](#tiers)

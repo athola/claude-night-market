@@ -66,8 +66,19 @@ help: ## Show this help message
 # Aggregate targets
 # NOTE: These targets run on ALL code (not just changed files)
 # For changed-files-only checks, use pre-commit hooks or run scripts with --changed
-test: ## Run tests in all plugins (ALL code, not just changed)
+test: ## Run tests in all plugins AND the root ecosystem suite
 	@./scripts/run-plugin-tests.sh --all
+	@$(MAKE) --no-print-directory test-ecosystem
+
+# run-plugin-tests.sh iterates plugins/*/ and never sees tests/. The root suite
+# checks what no single plugin can: that every skill across every plugin states
+# a trigger and a boundary, and that plugin packages still import from the repo
+# root. It sat in no gate at all, so 75 of its assertions failed for months
+# without anyone hearing about it. It is part of `make test` now.
+test-ecosystem: ## Run the root ecosystem suite (tests/): cross-plugin metadata gates
+	@echo ""
+	@echo ">>> Running root ecosystem tests (tests/)..."
+	@./scripts/without-git-env.sh uv run python -m pytest tests/ --tb=short --quiet
 
 lint: ## Run linting on all plugins (ALL code, not just changed)
 	@echo "=== Running Lint on ALL Code ==="

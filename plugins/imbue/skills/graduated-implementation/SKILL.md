@@ -109,7 +109,7 @@ Advancing too fast is one failure; never advancing is the other.
   failure that gets spaced-repetition decks abandoned (Cen &
   Koedinger 2007).
 
-## When to Use
+## When To Use
 
 - An agent is building a feature across more than one increment and
   the human will maintain or be accountable for it.
@@ -120,6 +120,12 @@ Advancing too fast is one failure; never advancing is the other.
 Skip it for a single bounded edit, a trivial reversible change, or
 generated and vendored code. Forcing a ramp ritual on a typo fix is
 ceremony, and ceremony trains people to ignore the gate.
+
+## When NOT To Use
+
+- A trivial or mechanical fix, where ramping buys nothing
+- You already understand the change and need evidence it works (use
+  `imbue:proof-of-work`)
 
 ## Red Flags
 

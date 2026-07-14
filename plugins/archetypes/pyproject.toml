@@ -1,9 +1,24 @@
 [project]
 name = "archetypes"
-version = "1.9.15"
+version = "1.9.16"
 description = "Architecture paradigm selection and implementation planning for software systems"
 requires-python = ">=3.9"
 dependencies = []
+
+# scripts/run-plugin-tests.sh only runs a plugin's suite when its
+# pyproject mentions pytest. Without this group the archetypes tests
+# (which guard paradigm SKILL.md content) were collected by nobody:
+# `make test` reported "No test configuration" and moved on.
+#
+# Deliberately no [tool.pytest.ini_options] here. Adding one would make
+# this file the rootdir and shadow the repo-root pytest config, which is
+# where the bdd/unit markers are registered.
+[dependency-groups]
+dev = [
+    # pytest>=8.0, not >=9: pytest 9 requires Python >=3.10 and this
+    # plugin supports >=3.9. Matches tome, gauntlet, herald, egregore.
+    "pytest>=8.0",
+]
 
 [tool.ruff]
 target-version = "py312"

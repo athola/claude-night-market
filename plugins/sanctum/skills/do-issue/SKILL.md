@@ -36,6 +36,12 @@ modules:
 - modules/completion.md
 - modules/troubleshooting.md
 ---
+
+## When NOT To Use
+
+- A single-file fix obvious enough to make directly
+- Preparing the PR once the work is done (use `sanctum:pr-prep`)
+
 ## Table of Contents
 
 - [Key Features](#key-features)

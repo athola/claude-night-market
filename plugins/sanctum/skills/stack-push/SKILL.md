@@ -24,13 +24,19 @@ dependencies:
 Push all branches in a stack and open (or update) one PR
 per slice, with each PR targeting its parent branch as base.
 
-## When to Use
+## When To Use
 
 Run `stack-push` after `stack-create` has initialized the
 branch topology and at least one commit exists on each
 slice branch.
 Also run it after adding commits to any slice to update
 open PRs.
+
+## When NOT To Use
+
+- No stack exists yet (use `sanctum:stack-create`)
+- The base merged and the stack must catch up (use
+  `sanctum:stack-rebase`)
 
 ## Prerequisites
 

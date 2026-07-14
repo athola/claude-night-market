@@ -7,6 +7,11 @@ description: 'Select hook scope (plugin, project, global) by audience. Use when 
 
 This skill helps you choose the right location for Claude Code hooks based on their purpose, audience, and persistence needs.
 
+## When NOT To Use
+
+- Writing the hook itself (use `abstract:hook-authoring`)
+- Scoring an existing hook (use `abstract:hooks-eval`)
+
 ## Important: Auto-Loading Behavior
 
 > **`hooks/hooks.json` is automatically loaded** by Claude Code when the plugin is enabled.

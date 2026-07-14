@@ -5,6 +5,158 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.9.16] - 2026-07-14
+
+### Added
+
+- **Domain-Driven Design paradigm and the ceremony-audit review
+  lens (archetypes, pensive).** The repo shipped thirteen architecture
+  paradigms and no DDD, while its anti-overengineering guidance already
+  argued against ceremony without saying so in domain terms:
+  - `archetypes:architecture-paradigm-domain-driven`: DDD as modeling a
+    business in its own language, with layering, mapping, DTOs, and
+    command objects treated as separable machinery a domain model may or
+    may not need. Carries the divergence protocol (the DTO arrives when
+    the contract and the model actually pull apart, so deferring it stays
+    cheap), the strangler sequence for decomposing an existing
+    application, and one non-negotiable constraint: types crossing an IO
+    boundary get their fields audited, and a versioned request DTO is
+    justified whenever the systems exchanging it do not deploy
+    atomically. Grounded in Evans's own correction that the tactical
+    building blocks are not the core of DDD (SE-Radio Episode 226).
+    Wired into the paradigm router as a modeling approach that composes
+    with the structural paradigms rather than competing with them.
+  - `pensive:architecture-review` `ceremony-audit` module: manual lenses
+    for passthrough mappers, twin types, speculative DTOs, and interfaces
+    with one implementation. Written as review lenses, not AST detectors.
+    Includes an IO-boundary counter-signal so the audit does not flag a
+    boundary mapper whose job is to stop internal fields from escaping.
+  - `.claude/rules/ceremony-requires-need.md`: no DTO, mapper, command
+    object, or layer boundary without a named, current need.
+
+- **`select!` orchestration rule and memory-allocation review
+  lenses (pensive).** Two review capabilities landed as new modules
+  inside existing skills (Fixes #598, #599):
+  - `rust-review` `concurrency-patterns` module: a rule flagging
+    hand-rolled multi-task orchestration (2+ `tokio::spawn` handles
+    torn down with consecutive `abort()` calls around an
+    mpsc-shared sink) that a single `select!` loop expresses more
+    safely, carrying the cancel-safety and head-of-line-blocking
+    caveats the rewrite introduces. Wired into `/rust-review` and
+    the `rust-auditor` agent.
+  - `performance-review` `memory-allocation-lenses` module: three
+    manual lenses for allocation blow-ups that keep unit tests
+    green: unbounded collections fed from an external source,
+    hot-path recompute that should be memoized behind a generation
+    counter, and serial blocking I/O over an unbounded set. Written
+    as review lenses, not AST detectors, so the performance-review
+    detector-test rule visibly does not apply to them.
+
+### Fixed
+
+- **Two URLs with identical content desynced the capture index
+  (memory-palace).** The web-capture guard was `is_known(url=...)`,
+  which consults URLs only, so a new URL serving bytes already on disk
+  (an empty API result, a mirror, a redirect target) fell through to
+  `update_index`. That overwrote `hashes[content_hash]` with the second
+  capture's path and left the *first* entry pointing at a file the hash
+  map no longer agreed with, plus a duplicate copy of the content on
+  disk. `update_index` is now content-addressed: an entry whose bytes
+  are already stored adopts the canonical location, so `entries` and
+  `hashes` cannot disagree by construction. The capture hook checks
+  `get_stored_at` first and indexes the new URL against the existing
+  file rather than storing a second copy.
+
+- **Pruning one of two entries sharing a capture destroyed the
+  survivor's dedup memory (memory-palace).** `apply_orphan_prunes`
+  popped the hash mapping unconditionally (its comment claimed a
+  `stored_at` check the code never made). When two URLs shared one
+  piece of content and only one was orphaned, the survivor's
+  `content_hash` was left dangling, `is_known` reported its content
+  unseen, and the next fetch re-captured a file already on disk.
+  Removal is now refcount-aware: a mapping is dropped only when no
+  surviving entry references it.
+
+- **The committed capture index was guarded by no test
+  (memory-palace).** The index invariants were pinned only against
+  synthesized `tmp_path` fixtures, and those fixtures derived each hash
+  from the URL, so no two entries could ever collide and the bugs above
+  were unreachable from the suite. `tests/test_capture_index_artifact.py`
+  now runs the same invariants against the artifact that actually ships:
+  no dangling hashes, no orphan mappings, `entries` and `hashes` agreeing
+  on `stored_at`, and required fields present.
+
+- **Paradigm test harness could silently skip a new paradigm
+  (archetypes).** `EXPECTED_COMPONENTS` was the only thing driving the
+  parametrize, so a fourteenth paradigm could land on disk untested. The
+  dict's keys are now asserted equal to the set of paradigm directories.
+
+- **cartograph's 40 tests ran in no gate at all.** The plugin had no
+  `pyproject.toml`, and `scripts/run-plugin-tests.sh` dispatches only on
+  a Makefile `test:` target or a pyproject mentioning pytest. Finding
+  neither, it printed "No test configuration", recorded a skip, and
+  returned 0, so `make test` stayed green while the suite ran nowhere.
+  This is the hole archetypes was pulled out of in 58ee533f; cartograph
+  was the last plugin in it. A second silence reinforced the first: with
+  no config of its own, a bare `pytest` inside the plugin resolves
+  rootdir to the repo root, whose `norecursedirs = ["plugins/*"]` blocks
+  recursion into `tests/unit/`, so even the manual fallback collected
+  zero items. Flat layouts survive that setting because a directory named
+  on the command line is always collected, which is the only reason the
+  other plugins were unaffected. Fixed by giving cartograph a
+  `pyproject.toml` with its own `[tool.pytest.ini_options]`; its 40 tests
+  now run, and its hook joins the Python 3.9 compatibility matrix.
+
+- **The test runner reported an unrunnable suite as a skip.** A plugin
+  with a `tests/` directory and no way to execute it now fails the gate
+  instead of returning 0. The no-tests case still skips cleanly, so
+  documentation-only plugins are unaffected. A suite nobody can run is
+  worse than no suite, because it looks like coverage.
+
+- **`plugins/__pycache__` was iterated as a plugin.** The bare
+  `plugins/*/` glob matched the gitignored cache directory left by a
+  root-level pytest run, and the runner announced "Testing
+  __pycache__...". Plugins are now identified by their manifest, in both
+  the test runner and the typecheck runner.
+
+- **The typecheck gate meant different things locally and in CI.**
+  `run-plugin-typecheck.sh` invoked bare `mypy` through `uv run`, which
+  falls back to whatever is on PATH when the project environment has
+  none. cartograph gained a `pyproject.toml` and therefore its own uv
+  environment, which had no mypy in it; the check kept passing on any
+  machine with a global mypy installed and failed on a clean runner with
+  `Failed to spawn: mypy`. Both call sites now run `uv run python -m
+  mypy`, which resolves only from the plugin's own environment, so a
+  missing declaration fails identically in both places. cartograph
+  declares `mypy>=1.11.0` and a strict `[tool.mypy]` config, and
+  `tests/test_plugin_typecheck_config.py` pins that every plugin whose
+  `hooks/` is type-checked ships the mypy it is checked with.
+
+- **The pre-commit typecheck hook could not see the change that broke
+  it.** `run-plugin-typecheck` triggered on `^plugins/.*\.py$`, so
+  adding `plugins/cartograph/pyproject.toml` (a `.toml`) fired no hook,
+  even though a plugin's pyproject is precisely what decides whether
+  mypy exists in its environment and which config it runs under. The
+  trigger now matches `pyproject.toml` as well, which is what
+  `typecheck.yml` already watched.
+
+- **Leaked git environment in the plugin test runner (scripts).**
+  Every test invocation now runs behind `scripts/without-git-env.sh`,
+  which unsets the whole `GIT_*` prefix before handing off to the
+  suite, so a parent git context can no longer bleed into tests that
+  shell out to git. The first cut of this fix unset `GIT_DIR`,
+  `GIT_INDEX_FILE` and `GIT_WORK_TREE` by name. A commit from a linked
+  worktree exports eight `GIT_*` variables, so six still reached the
+  test: `GIT_PREFIX` and `GIT_AUTHOR_*` among them. Scrubbing the
+  prefix covers the variables git adds next, and putting it in one
+  wrapper means a new call site cannot half-remember the list.
+
+- **`conjure` uv.lock drift (conjure).** Synced `conjure/uv.lock`
+  with the `leyline` `pyyaml` dev-dependency so the resolved lock
+  matches the declared `pyproject.toml` constraint.
+
 ## [1.9.15] - 2026-07-02
 
 ### Added

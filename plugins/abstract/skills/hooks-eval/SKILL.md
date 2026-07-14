@@ -32,6 +32,13 @@ modules:
 model_hint: standard
 role: entrypoint
 ---
+
+## When NOT To Use
+
+- Writing a new hook (use `abstract:hook-authoring`)
+- Evaluating skills (use `abstract:skills-eval`)
+- Evaluating rules in `.claude/rules/` (use `abstract:rules-eval`)
+
 ## Table of Contents
 
 - [Overview](#overview)

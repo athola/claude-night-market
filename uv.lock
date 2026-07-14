@@ -17,7 +17,7 @@ members = [
 
 [[package]]
 name = "abstract"
-version = "1.9.15"
+version = "1.9.16"
 source = { editable = "plugins/abstract" }
 dependencies = [
     { name = "pyyaml" },
@@ -326,7 +326,7 @@ wheels = [
 
 [[package]]
 name = "claude-night-market"
-version = "1.9.15"
+version = "1.9.16"
 source = { editable = "." }
 dependencies = [
     { name = "coverage" },
@@ -395,7 +395,7 @@ wheels = [
 
 [[package]]
 name = "conserve-dev"
-version = "1.9.15"
+version = "1.9.16"
 source = { editable = "plugins/conserve" }
 
 [package.optional-dependencies]
@@ -818,7 +818,7 @@ wheels = [
 
 [[package]]
 name = "leyline"
-version = "1.9.15"
+version = "1.9.16"
 source = { editable = "plugins/leyline" }
 
 [package.optional-dependencies]
@@ -827,6 +827,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-mock" },
+    { name = "pyyaml" },
     { name = "ruff" },
 ]
 tokens = [
@@ -839,6 +840,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.1" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.15.1" },
+    { name = "pyyaml", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.14.13" },
     { name = "tiktoken", marker = "extra == 'tokens'", specifier = ">=0.5.0" },
 ]

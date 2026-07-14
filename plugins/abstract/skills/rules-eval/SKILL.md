@@ -33,6 +33,12 @@ role: entrypoint
 ---
 # Rules Evaluation Framework
 
+## When NOT To Use
+
+- Evaluating skills (use `abstract:skills-eval`)
+- Evaluating hooks (use `abstract:hooks-eval`)
+- Writing a new rule (use `hookify:writing-rules`)
+
 ## Table of Contents
 
 1. [Overview](#overview)

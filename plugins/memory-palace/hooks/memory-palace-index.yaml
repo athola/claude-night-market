@@ -314,6 +314,2233 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://lobste.rs/s/3faroe/what_s_your_favorite_go_documentation
+  ? https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&hitsperpage=20&numericfilters=created_at_i%3e1727740800
+  : content_hash: sha256:1086a910c84fd5cb
+    stored_at: data/staging/webfetch-stories-about-tacit-knowledge-2026-07-04_11-03-12.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:03:12.933008+00:00'
+    title: Stories About Tacit Knowledge
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&hitsPerPage=20&numericFilters=created_at_i%3E1727740800
+  ? https://hn.algolia.com/api/v1/search_by_date?query=knowledge%20capture%20sop&tags=story&hitsperpage=20&numericfilters=created_at_i%3e1727740800
+  : content_hash: sha256:33cc1b4081176fe2
+    stored_at: data/staging/webfetch-story-list-2026-07-04_11-03-14.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:03:14.544199+00:00'
+    title: Story List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=knowledge%20capture%20SOP&tags=story&hitsPerPage=20&numericFilters=created_at_i%3E1727740800
+  ? https://hn.algolia.com/api/v1/search_by_date?query=gemini%20nano%20extension&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1727740800
+  : content_hash: sha256:f1335dc666f2d89c
+    stored_at: data/staging/webfetch-hacker-news-stories-gemini-nano-extensions-2026-07-04_11-03-34.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:03:34.068758+00:00'
+    title: 'Hacker News Stories: Gemini Nano Extensions'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=Gemini%20Nano%20extension&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1727740800
+  ? https://hn.algolia.com/api/v1/search_by_date?query=skilled%20trades&tags=story&hitsperpage=20&numericfilters=created_at_i%3e1735689600
+  : content_hash: sha256:a8253efbb91d7d9b
+    stored_at: data/staging/webfetch-stories-list-2026-07-04_11-03-38.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:03:38.986304+00:00'
+    title: Stories List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=skilled%20trades&tags=story&hitsPerPage=20&numericFilters=created_at_i%3E1735689600
+  https://api.github.com/repos/westpoint-io/mimik:
+    content_hash: sha256:565c8e8d234b5402
+    stored_at: data/staging/webfetch-mimik-repository-overview-2026-07-04_11-03-45.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:03:45.981153+00:00'
+    title: Mimik Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/westpoint-io/mimik
+  https://api.github.com/repos/deploysentinel/recorder:
+    content_hash: sha256:9d0bcb42f38c2198
+    stored_at: data/staging/webfetch-recorder-repository-overview-2026-07-04_11-03-46.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:03:46.122324+00:00'
+    title: Recorder Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/DeploySentinel/Recorder
+  https://api.github.com/repos/ebanez8/openstep:
+    content_hash: sha256:22ed5e668edeaef1
+    stored_at: data/staging/webfetch-openstep-repository-summary-2026-07-04_11-03-47.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:03:47.656148+00:00'
+    title: OpenStep Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/ebanez8/openstep
+  https://api.github.com/repos/sahilr2050/step-by-step-guide-generator:
+    content_hash: sha256:381408fae31ccd0d
+    stored_at: data/staging/webfetch-repository-information-step-by-step-guide-2026-07-04_11-03-47.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:03:47.777543+00:00'
+    title: 'Repository Information: step-by-step-guide-generator'
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/sahilr2050/step-by-step-guide-generator
+  https://api.github.com/repos/obsidianmd/obsidian-clipper:
+    content_hash: sha256:09b83774d2f10bab
+    stored_at: data/staging/webfetch-obsidian-clipper-repository-overview-2026-07-04_11-04-03.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:03.895595+00:00'
+    title: Obsidian Clipper Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/obsidianmd/obsidian-clipper
+  https://api.github.com/repos/shreyaskarnik/distillama:
+    content_hash: sha256:195abbcf64fe0ef9
+    stored_at: data/staging/webfetch-distillama-repository-summary-2026-07-04_11-04-04.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:04.511322+00:00'
+    title: DistiLlama Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/shreyaskarnik/DistiLlama
+  ? https://api.github.com/search/repositories?q=guide+generator+screenshot+extension+created:%3e2025-10-01&sort=stars&order=desc&per_page=10
+  : content_hash: sha256:ea1b90c69e90bef1
+    stored_at: data/staging/webfetch-repository-list-2026-07-04_11-04-05.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:05.222472+00:00'
+    title: Repository List
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=guide+generator+screenshot+extension+created:%3E2025-10-01&sort=stars&order=desc&per_page=10
+  https://api.github.com/repos/kieranklaassen/riffrec:
+    content_hash: sha256:b6b677af0f3fcbaa
+    stored_at: data/staging/webfetch-riffrec-repository-overview-2026-07-04_11-04-06.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:06.820835+00:00'
+    title: riffrec Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/kieranklaassen/riffrec
+  https://api.github.com/repos/googlechromelabs/web-ai-demos:
+    content_hash: sha256:1ea2bc25dac54027
+    stored_at: data/staging/webfetch-web-ai-demos-repository-summary-2026-07-04_11-04-25.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:25.563376+00:00'
+    title: web-ai-demos Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/GoogleChromeLabs/web-ai-demos
+  ? https://api.github.com/search/repositories?q=video+to+documentation+tutorial+created:%3e2025-09-01&sort=stars&order=desc&per_page=10
+  : content_hash: sha256:9ef16dbf4c98b019
+    stored_at: data/staging/webfetch-github-repositories-list-2026-07-04_11-04-34.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:34.479615+00:00'
+    title: GitHub Repositories List
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=video+to+documentation+tutorial+created:%3E2025-09-01&sort=stars&order=desc&per_page=10
+  https://api.github.com/search/repositories?q=sop+generator+created:%3e2025-09-01&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:a96dc28b2268e042
+    stored_at: data/staging/webfetch-sop-generator-repositories-on-github-2026-07-04_11-04-36.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:36.015002+00:00'
+    title: SOP Generator Repositories on GitHub
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=sop+generator+created:%3E2025-09-01&sort=stars&order=desc&per_page=10
+  ? https://api.github.com/search/repositories?q=step-by-step+guide+chrome+extension+created:%3e2025-09-01&sort=stars&order=desc&per_page=10
+  : content_hash: sha256:f7e979411389289d
+    stored_at: data/staging/webfetch-github-repository-list-2026-07-04_11-04-36.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:36.696860+00:00'
+    title: GitHub Repository List
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=step-by-step+guide+chrome+extension+created:%3E2025-09-01&sort=stars&order=desc&per_page=10
+  https://api.github.com/repos/googlechrome/chrome-extensions-samples:
+    content_hash: sha256:ff4731ca26ef0fd0
+    stored_at: data/staging/webfetch-based-on-the-repository-data-provided-2026-07-04_11-04-51.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:04:51.829827+00:00'
+    title: 'Based on the repository data provided:'
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/GoogleChrome/chrome-extensions-samples
+  ? https://hn.algolia.com/api/v1/search?query=%22prompt%20api%22%20chrome&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1727740800
+  : content_hash: sha256:b24522b3209f757e
+    stored_at: data/staging/webfetch-chrome-prompt-api-stories-2026-07-04_11-05-01.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:05:01.810327+00:00'
+    title: Chrome Prompt API Stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=%22Prompt%20API%22%20Chrome&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1727740800
+  https://api.github.com/repos/notely-voice/notelyvoice:
+    content_hash: sha256:ca4d9ed718e86ce6
+    stored_at: data/staging/webfetch-notelyvoice-repository-summary-2026-07-04_11-05-10.md
+    importance_score: 85
+    last_updated: '2026-07-04T11:05:10.998005+00:00'
+    title: NotelyVoice Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/Notely-Voice/NotelyVoice
+  https://hn.algolia.com/api/v1/items/47959463:
+    content_hash: sha256:d0ef7f4e05043d33
+    stored_at: data/staging/webfetch-mozilla-s-opposition-to-chrome-s-prompt-api-2026-07-04_11-05-25.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:05:25.791080+00:00'
+    title: 'Mozilla''s Opposition to Chrome''s Prompt API: Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/47959463
+  https://api.pullpush.io/reddit/search/submission/?subreddit=skilledtrades&q=knowledge&size=15&sort_type=score:
+    content_hash: sha256:392820de38a83115
+    stored_at: data/staging/webfetch-reddit-r-skilledtrades-posts-summary-2026-07-04_11-05-36.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:05:36.378919+00:00'
+    title: Reddit r/skilledtrades Posts Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/submission/?subreddit=skilledtrades&q=knowledge&size=15&sort_type=score
+  https://api.pullpush.io/reddit/search/submission/?subreddit=electricians&q=%22tribal+knowledge%22&size=10:
+    content_hash: sha256:d491e1d11d9f11a0
+    stored_at: data/staging/webfetch-reddit-posts-summary-2026-07-04_11-06-17.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:06:17.094192+00:00'
+    title: Reddit Posts Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/submission/?subreddit=electricians&q=%22tribal+knowledge%22&size=10
+  ? https://hn.algolia.com/api/v1/search_by_date?query=scribe&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1730419200,points%3e5
+  : content_hash: sha256:4fc9d570b10081bd
+    stored_at: data/staging/webfetch-stories-list-2026-07-04_11-06-51.md
+    importance_score: 87
+    last_updated: '2026-07-04T11:06:51.448355+00:00'
+    title: Stories List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=Scribe&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1730419200,points%3E5
+  https://www.knowby.co/blog/poka-pricing-is-it-worth-the-digital-investment:
+    content_hash: sha256:2b22febbf2612ce7
+    stored_at: data/staging/webfetch-poka-pricing-model-summary-2026-07-05_11-04-12.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:04:12.460350+00:00'
+    title: Poka Pricing Model Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.knowby.co/blog/poka-pricing-is-it-worth-the-digital-investment
+  https://github.com/elliotpalmer/servicepytan:
+    content_hash: sha256:beef83576461fafa
+    stored_at: data/staging/webfetch-servicepytan-library-overview-2026-07-05_11-04-18.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:04:18.273826+00:00'
+    title: ServicePytan Library Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/elliotpalmer/servicepytan
+  https://developer.servicetitan.io/docs/get-going-fast:
+    content_hash: sha256:dfaf963b8e1600bb
+    stored_at: data/staging/webfetch-to-get-accurate-answers-to-your-questions-about-2026-07-05_11-04-19.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:04:19.259977+00:00'
+    title: To get accurate answers to your questions about ServiceTitan's developer
+      integration process, I'd re
+    maturity: growing
+    routing_type: meta
+    url: https://developer.servicetitan.io/docs/get-going-fast/
+  https://github.com/getjobber/jobber-apptemplate-railsapi:
+    content_hash: sha256:978d45e595ffc46a
+    stored_at: data/staging/webfetch-jobber-apptemplate-railsapi-summary-2026-07-05_11-04-22.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:04:22.875387+00:00'
+    title: Jobber AppTemplate-RailsAPI Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/GetJobber/Jobber-AppTemplate-RailsAPI
+  https://github.com/inspectorhub/openinspection:
+    content_hash: sha256:9104db2fabbb74d4
+    stored_at: data/staging/webfetch-openinspection-summary-2026-07-05_11-04-37.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:04:37.396975+00:00'
+    title: OpenInspection Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/InspectorHub/OpenInspection
+  https://api.pullpush.io/reddit/search/submission/?subreddit=hvac&q=notebook&size=15:
+    content_hash: sha256:88731259dc1610ed
+    stored_at: data/staging/webfetch-reddit-posts-about-notebooks-and-field-note-2026-07-05_11-04-38.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:04:38.587158+00:00'
+    title: Reddit Posts About Notebooks and Field Note-Taking in HVAC
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/submission/?subreddit=HVAC&q=notebook&size=15
+  https://github.com/epicenter-md/epicenter:
+    content_hash: sha256:1d8d39423153ac43
+    stored_at: data/staging/webfetch-whispering-project-overview-2026-07-05_11-04-57.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:04:57.957372+00:00'
+    title: Whispering Project Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/epicenter-md/epicenter
+  https://api.pullpush.io/reddit/search/comment/?link_id=t3_8blxgl&size=30:
+    content_hash: sha256:ae1a783093aa40be
+    stored_at: data/staging/webfetch-most-substantive-hvac-field-notebook-comments-2026-07-05_11-05-01.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:01.809266+00:00'
+    title: Most Substantive HVAC Field Notebook Comments
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?link_id=t3_8blxgl&size=30
+  https://api.pullpush.io/reddit/search/submission/?subreddit=electricians&q=notebook&size=15:
+    content_hash: sha256:a5002c9298c65720
+    stored_at: data/staging/webfetch-reddit-posts-on-notebooks-and-job-learning-2026-07-05_11-05-02.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:02.154453+00:00'
+    title: Reddit Posts on Notebooks and Job Learning
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/submission/?subreddit=electricians&q=notebook&size=15
+  ? https://www.kmworld.com/articles/news/news/poka-adds-next-generation-ai-features-to-its-connected-worker-platform-164693.aspx
+  : content_hash: sha256:d5c0281cd017a60a
+    stored_at: data/staging/webfetch-poka-s-ai-content-capture-features-2026-07-05_11-05-12.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:05:12.950458+00:00'
+    title: Poka's AI Content Capture Features
+    maturity: growing
+    routing_type: meta
+    url: https://www.kmworld.com/Articles/News/News/Poka-adds-next-generation-AI-features-to-its-Connected-Worker-platform-164693.aspx
+  https://www.servicetitan.com/legal/app-marketplace-program-guide:
+    content_hash: sha256:60e54e09bcf0305d
+    stored_at: data/staging/webfetch-servicetitan-app-marketplace-program-developer-2026-07-05_11-05-16.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:05:16.429618+00:00'
+    title: 'ServiceTitan App Marketplace Program: Developer Costs & Requirements'
+    maturity: growing
+    routing_type: meta
+    url: https://www.servicetitan.com/legal/app-marketplace-program-guide
+  https://api.pullpush.io/reddit/search/submission/?subreddit=skilledtrades&q=%22hoarding%20knowledge%22&size=15:
+    content_hash: sha256:82b71fcc4f0bb4f3
+    stored_at: data/staging/webfetch-reddit-posts-search-results-2026-07-05_11-05-16.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:16.855303+00:00'
+    title: Reddit Posts Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/submission/?subreddit=skilledtrades&q=%22hoarding%20knowledge%22&size=15
+  https://github.com/csweichel/blackwood:
+    content_hash: sha256:c781b141f6d2f4d1
+    stored_at: data/staging/webfetch-blackwood-daily-notes-app-analysis-2026-07-05_11-05-21.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:05:21.387240+00:00'
+    title: 'Blackwood: Daily Notes App Analysis'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/csweichel/blackwood
+  https://github.com/grashjs/cmms:
+    content_hash: sha256:6bc4f7a5ba657df7
+    stored_at: data/staging/webfetch-atlas-cmms-report-2026-07-05_11-05-21.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:05:21.720170+00:00'
+    title: Atlas CMMS Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Grashjs/cmms
+  https://github.com/moonshine-ai/moonshine-js:
+    content_hash: sha256:71c6bc999fec74f0
+    stored_at: data/staging/webfetch-moonshinejs-report-2026-07-05_11-05-22.md
+    importance_score: 100
+    last_updated: '2026-07-05T11:05:22.490032+00:00'
+    title: MoonshineJS Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/moonshine-ai/moonshine-js
+  https://api.pullpush.io/reddit/search/comment/?subreddit=electricians&q=%22gatekeep%22&size=25:
+    content_hash: sha256:0292a549583b140c
+    stored_at: data/staging/webfetch-substantive-comments-on-knowledge-sharing-between-2026-07-05_11-05-27.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:27.978113+00:00'
+    title: Substantive Comments on Knowledge-Sharing Between Journeymen and Apprentices
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=electricians&q=%22gatekeep%22&size=25
+  https://www.poka.io/en/industrial-ai-factory-floor:
+    content_hash: sha256:5ad2954ffb0e84e2
+    stored_at: data/staging/webfetch-poka-s-ai-knowledge-capture-workflow-2026-07-05_11-05-38.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:05:38.768456+00:00'
+    title: Poka's AI Knowledge-Capture Workflow
+    maturity: growing
+    routing_type: meta
+    url: https://www.poka.io/en/industrial-ai-factory-floor
+  https://api.pullpush.io/reddit/search/comment/?subreddit=skilledtrades&q=%22train%20your%20replacement%22&size=25:
+    content_hash: sha256:11d7d98e281f21f1
+    stored_at: data/staging/webfetch-reddit-comments-on-training-replacements-2026-07-05_11-05-47.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:47.598542+00:00'
+    title: Reddit Comments on Training Replacements
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=skilledtrades&q=%22train%20your%20replacement%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?link_id=t3_1gmo2zk&size=40:
+    content_hash: sha256:333c44f7be17e356
+    stored_at: data/staging/webfetch-why-electricians-guard-knowledge-6-substantive-2026-07-05_11-05-50.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:05:50.448959+00:00'
+    title: 'Why Electricians Guard Knowledge: 6 Substantive Comments'
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?link_id=t3_1gmo2zk&size=40
+  https://api.pullpush.io/reddit/search/comment/?subreddit=hvac&q=%22voice%20memo%22&size=25:
+    content_hash: sha256:e70300bd2e364c7d
+    stored_at: data/staging/webfetch-voice-memo-comments-in-r-hvac-2026-07-05_11-06-05.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:06:05.042390+00:00'
+    title: Voice Memo Comments in r/HVAC
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=HVAC&q=%22voice%20memo%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?subreddit=hvac&q=%22take%20pictures%20of%20everything%22&size=25:
+    content_hash: sha256:3f6809badcaf72bf
+    stored_at: data/staging/webfetch-hvac-professionals-on-taking-pictures-on-the-job-2026-07-05_11-06-12.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:06:12.482788+00:00'
+    title: HVAC Professionals on Taking Pictures on the Job
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=HVAC&q=%22take%20pictures%20of%20everything%22&size=25
+  https://www.servicetitan.com/blog/app-marketplace-relaunch:
+    content_hash: sha256:a68a2bb4cde50093
+    stored_at: data/staging/webfetch-servicetitan-app-marketplace-certification-summary-2026-07-05_11-06-16.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:06:16.538630+00:00'
+    title: ServiceTitan App Marketplace Certification Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.servicetitan.com/blog/app-marketplace-relaunch
+  https://theaitrades.ai/blog/jobber-ai-vs-servicetitan-ai-vs-housecall-pro-ai:
+    content_hash: sha256:e935f6fc706b00a5
+    stored_at: data/staging/webfetch-ai-features-comparison-jobber-servicetitan-2026-07-05_11-06-21.md
+    importance_score: 80
+    last_updated: '2026-07-05T11:06:21.106422+00:00'
+    title: 'AI Features Comparison: Jobber, ServiceTitan, Housecall Pro'
+    maturity: growing
+    routing_type: meta
+    url: https://theaitrades.ai/blog/jobber-ai-vs-servicetitan-ai-vs-housecall-pro-ai
+  https://api.pullpush.io/reddit/search/comment/?subreddit=electricians&q=%22companycam%22&size=25:
+    content_hash: sha256:c883b9b07be8b6b7
+    stored_at: data/staging/webfetch-reddit-comments-mentioning-companycam-2026-07-05_11-06-39.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:06:39.117804+00:00'
+    title: Reddit Comments Mentioning CompanyCam
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=electricians&q=%22companycam%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?subreddit=plumbing&q=%22write%20everything%20down%22&size=25:
+    content_hash: sha256:7d3fcb4ff2818264
+    stored_at: data/staging/webfetch-reddit-comments-on-writing-things-down-for-2026-07-05_11-06-43.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:06:43.406848+00:00'
+    title: Reddit Comments on Writing Things Down for Plumbers
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=Plumbing&q=%22write%20everything%20down%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?subreddit=mechanics&q=%22notebook%22&size=25:
+    content_hash: sha256:17108d370de2b67f
+    stored_at: data/staging/webfetch-mechanics-on-notebook-documentation-2026-07-05_11-07-05.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:07:05.227269+00:00'
+    title: Mechanics on Notebook Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=mechanics&q=%22notebook%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?link_id=t3_101xfmd&size=30:
+    content_hash: sha256:fc4ee8d9cbb1a556
+    stored_at: data/staging/webfetch-work-based-camera-apps-electricians-solutions-2026-07-05_11-07-24.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:07:24.302123+00:00'
+    title: 'Work-Based Camera Apps: Electricians'' Solutions'
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?link_id=t3_101xfmd&size=30
+  https://api.pullpush.io/reddit/search/comment/?link_id=t3_13av800&size=30:
+    content_hash: sha256:3b076ee1b1494426
+    stored_at: data/staging/webfetch-hvac-field-notes-tools-reddit-comments-summary-2026-07-05_11-07-26.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:07:26.024941+00:00'
+    title: HVAC Field Notes Tools - Reddit Comments Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?link_id=t3_13av800&size=30
+  https://api.pullpush.io/reddit/search/comment/?subreddit=skilledtrades&q=%22knowledge%20with%20them%22&size=25:
+    content_hash: sha256:31caf61451040584
+    stored_at: data/staging/webfetch-reddit-comments-on-knowledge-loss-in-trades-2026-07-05_11-07-43.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:07:43.705638+00:00'
+    title: Reddit Comments on Knowledge Loss in Trades
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=skilledtrades&q=%22knowledge%20with%20them%22&size=25
+  https://api.pullpush.io/reddit/search/comment/?subreddit=hvac&q=%22job%20security%22&size=25:
+    content_hash: sha256:89b2a7b1a919f6de
+    stored_at: data/staging/webfetch-hvac-job-security-knowledge-gatekeeping-2026-07-05_11-08-06.md
+    importance_score: 87
+    last_updated: '2026-07-05T11:08:06.117148+00:00'
+    title: HVAC Job Security & Knowledge Gatekeeping
+    maturity: growing
+    routing_type: meta
+    url: https://api.pullpush.io/reddit/search/comment/?subreddit=HVAC&q=%22job%20security%22&size=25
+  https://hn.algolia.com/api/v1/search?query=tradespeople%20knowledge%20capture&tags=story&hitsperpage=10:
+    content_hash: sha256:04a8531cc3b126e3
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-06_11-03-29.md
+    importance_score: 89
+    last_updated: '2026-07-06T11:03:29.218747+00:00'
+    title: Based on the web page content provided, there are **no results to report**.
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tradespeople%20knowledge%20capture&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=tradespeople%20ai%20tools&tags=story&hitsperpage=15:
+    content_hash: sha256:d1559f1c512f415d
+    stored_at: data/staging/webfetch-search-results-for-tradespeople-ai-tools-2026-07-06_11-03-44.md
+    importance_score: 89
+    last_updated: '2026-07-06T11:03:44.395474+00:00'
+    title: Search Results for "Tradespeople AI Tools"
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tradespeople%20AI%20tools&tags=story&hitsPerPage=15
+  https://www.servicetitan.com/blog/webinar-recap-atlas-your-ai-sidekick:
+    content_hash: sha256:0a7ee18665b2fc9b
+    stored_at: data/staging/webfetch-atlas-ai-nameplate-scan-overview-2026-07-06_11-04-20.md
+    importance_score: 79
+    last_updated: '2026-07-06T11:04:20.202207+00:00'
+    title: Atlas AI Nameplate Scan Overview
+    maturity: growing
+    routing_type: meta
+    url: https://www.servicetitan.com/blog/webinar-recap-atlas-your-ai-sidekick
+  https://github.com/raold/second-brain:
+    content_hash: sha256:bc05dfc8b6a5711a
+    stored_at: data/staging/webfetch-second-brain-repository-overview-2026-07-06_11-04-22.md
+    importance_score: 96
+    last_updated: '2026-07-06T11:04:22.479465+00:00'
+    title: Second Brain Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/raold/second-brain
+  https://companycam.com/resources/blog/how-to-take-job-documentation-photos-that-actually-help-your-business:
+    content_hash: sha256:663699aed4571805
+    stored_at: data/staging/webfetch-pain-points-with-job-site-photos-2026-07-06_11-04-52.md
+    importance_score: 79
+    last_updated: '2026-07-06T11:04:52.442557+00:00'
+    title: Pain Points with Job Site Photos
+    maturity: growing
+    routing_type: meta
+    url: https://companycam.com/resources/blog/how-to-take-job-documentation-photos-that-actually-help-your-business
+  https://www.hvac-talk.com/threads/hvac-removal-disposal-de-installation.2212107:
+    content_hash: sha256:7a895174fdf6d9f3
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-06_11-05-09.md
+    importance_score: 79
+    last_updated: '2026-07-06T11:05:09.744316+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.hvac-talk.com/threads/hvac-removal-disposal-de-installation.2212107/
+  https://www.electriciantalk.com/threads/using-chat-gpt.296382:
+    content_hash: sha256:0e939821b9fbc6d0
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-06_11-05-33.md
+    importance_score: 79
+    last_updated: '2026-07-06T11:05:33.538888+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.electriciantalk.com/threads/using-chat-gpt.296382/
+  https://hn.algolia.com/api/v1/search?query=tango%20workflow%20documentation&tags=story&hitsperpage=15:
+    content_hash: sha256:d3b0252d19775b20
+    stored_at: data/staging/webfetch-search-results-for-tango-workflow-documentation-2026-07-07_11-06-14.md
+    importance_score: 89
+    last_updated: '2026-07-07T11:06:14.433998+00:00'
+    title: Search Results for "Tango workflow documentation"
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Tango%20workflow%20documentation&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=scribe%20sop%20documentation&tags=story&hitsperpage=15:
+    content_hash: sha256:f82efaec074168fb
+    stored_at: data/staging/webfetch-search-results-2026-07-07_11-06-15.md
+    importance_score: 89
+    last_updated: '2026-07-07T11:06:15.300104+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Scribe%20SOP%20documentation&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=tacit%20knowledge%20capture&tags=story&hitsperpage=15:
+    content_hash: sha256:d54ca469d8fdebfd
+    stored_at: data/staging/webfetch-stories-from-search-results-2026-07-07_11-06-18.md
+    importance_score: 89
+    last_updated: '2026-07-07T11:06:18.597876+00:00'
+    title: Stories from Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tacit%20knowledge%20capture&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=field%20service%20knowledge%20base&tags=story&hitsperpage=15:
+    content_hash: sha256:d5782e130a2d031d
+    stored_at: data/staging/webfetch-story-list-2026-07-07_11-06-23.md
+    importance_score: 89
+    last_updated: '2026-07-07T11:06:23.784738+00:00'
+    title: Story List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=field%20service%20knowledge%20base&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=scribe%20how-to%20guide%20screenshots&tags=story&hitsperpage=15:
+    content_hash: sha256:b562941b93d1c1bd
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-07_11-06-31.md
+    importance_score: 89
+    last_updated: '2026-07-07T11:06:31.673868+00:00'
+    title: Based on the web page content provided, there are **no stories to list**.
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Scribe%20how-to%20guide%20screenshots&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=loom%20screen%20recording%20documentation&tags=story&hitsperpage=15:
+    content_hash: sha256:bf07e24f55a89bf4
+    stored_at: data/staging/webfetch-stories-from-search-results-2026-07-07_11-06-35.md
+    importance_score: 89
+    last_updated: '2026-07-07T11:06:35.297529+00:00'
+    title: Stories from Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Loom%20screen%20recording%20documentation&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=agent%20skill%20workflow%20capture%20browser&tags=story&hitsperpage=15:
+    content_hash: sha256:98885f51b4c6086a
+    stored_at: data/staging/webfetch-stories-from-search-results-2026-07-07_11-06-38.md
+    importance_score: 89
+    last_updated: '2026-07-07T11:06:38.049471+00:00'
+    title: Stories from Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=agent%20skill%20workflow%20capture%20browser&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=documentation%20sop%20nobody%20documents&tags=story&hitsperpage=20:
+    content_hash: sha256:1fa45df73ea5d967
+    stored_at: data/staging/webfetch-hacker-news-stories-documentation-sop-2026-07-07_11-06-40.md
+    importance_score: 89
+    last_updated: '2026-07-07T11:06:40.628037+00:00'
+    title: Hacker News Stories - Documentation & SOP
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=documentation%20SOP%20nobody%20documents&tags=story&hitsPerPage=20
+  ? https://export.arxiv.org/api/query?search_query=all:tacit+knowledge+capture+expertise+elicitation&max_results=10&sortby=relevance
+  : content_hash: sha256:99872ce5839e9899
+    stored_at: data/staging/webfetch-arxiv-papers-tacit-knowledge-knowledge-capture-2026-07-07_11-06-58.md
+    importance_score: 81
+    last_updated: '2026-07-07T11:06:58.603545+00:00'
+    title: 'ArXiv Papers: Tacit Knowledge, Knowledge Capture & Expertise Elicitation'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:tacit+knowledge+capture+expertise+elicitation&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:programming+by+demonstration+workflow+agent+skills+from+human+demonstrations&max_results=10&sortby=relevance
+  : content_hash: sha256:f547cda9d74a746b
+    stored_at: data/staging/webfetch-arxiv-papers-summary-2026-07-07_11-07-02.md
+    importance_score: 81
+    last_updated: '2026-07-07T11:07:02.690586+00:00'
+    title: ArXiv Papers Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:programming+by+demonstration+workflow+agent+skills+from+human+demonstrations&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:llm+standard+operating+procedure+generation+from+screenshots+demonstrations+agent+skills&max_results=10&sortby=relevance
+  : content_hash: sha256:5cef67f764a062aa
+    stored_at: data/staging/webfetch-arxiv-papers-llm-agents-and-skills-2026-07-07_11-07-11.md
+    importance_score: 81
+    last_updated: '2026-07-07T11:07:11.014030+00:00'
+    title: 'ArXiv Papers: LLM Agents and Skills'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:LLM+standard+operating+procedure+generation+from+screenshots+demonstrations+agent+skills&max_results=10&sortBy=relevance
+  https://github.com/deploysentinel/recorder:
+    content_hash: sha256:be9844ee614f7895
+    stored_at: data/staging/webfetch-deploysentinel-recorder-repository-summary-2026-07-07_11-07-22.md
+    importance_score: 96
+    last_updated: '2026-07-07T11:07:22.608365+00:00'
+    title: DeploySentinel Recorder Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/DeploySentinel/Recorder
+  https://github.com/checkly/headless-recorder:
+    content_hash: sha256:3f0b45d1de01a8bc
+    stored_at: data/staging/webfetch-headless-recorder-repository-summary-2026-07-07_11-07-24.md
+    importance_score: 96
+    last_updated: '2026-07-07T11:07:24.942501+00:00'
+    title: Headless Recorder Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/checkly/headless-recorder
+  ? https://export.arxiv.org/api/query?search_query=all:aging+workforce+expertise+drain+skilled+trades+knowledge+retention+manufacturing&max_results=8&sortby=relevance
+  : content_hash: sha256:f99240f88b1d5823
+    stored_at: data/staging/webfetch-arxiv-search-results-2026-07-07_11-07-44.md
+    importance_score: 81
+    last_updated: '2026-07-07T11:07:44.772509+00:00'
+    title: ArXiv Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:aging+workforce+expertise+drain+skilled+trades+knowledge+retention+manufacturing&max_results=8&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:knowledge+management+systems+failure+documentation+adoption+incentives&max_results=8&sortby=relevance
+  : content_hash: sha256:c809eb1ca09cbe22
+    stored_at: data/staging/webfetch-arxiv-papers-on-knowledge-management-and-related-2026-07-07_11-07-45.md
+    importance_score: 81
+    last_updated: '2026-07-07T11:07:45.542557+00:00'
+    title: arXiv Papers on Knowledge Management and Related Systems
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:knowledge+management+systems+failure+documentation+adoption+incentives&max_results=8&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:web+agent+learn+from+human+demonstrations+browser+workflow+induction&max_results=8&sortby=relevance
+  : content_hash: sha256:072044799326f243
+    stored_at: data/staging/webfetch-arxiv-papers-summary-2026-07-07_11-07-47.md
+    importance_score: 81
+    last_updated: '2026-07-07T11:07:47.714180+00:00'
+    title: ArXiv Papers Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:web+agent+learn+from+human+demonstrations+browser+workflow+induction&max_results=8&sortBy=relevance
+  https://hn.algolia.com/api/v1/search?query=knowledge%20base%20wiki%20rot%20documentation%20debt&tags=story&hitsperpage=15:
+    content_hash: sha256:f13e6f66b234aaa5
+    stored_at: data/staging/webfetch-search-results-for-documentation-debt-wiki-rot-2026-07-07_11-08-14.md
+    importance_score: 89
+    last_updated: '2026-07-07T11:08:14.080365+00:00'
+    title: Search Results for Documentation Debt & Wiki Rot
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=knowledge%20base%20wiki%20rot%20documentation%20debt&tags=story&hitsPerPage=15
+  https://arxiv.org/abs/2605.07639:
+    content_hash: sha256:522cbfc98360e56a
+    stored_at: data/staging/webfetch-paper-details-2026-07-07_11-08-17.md
+    importance_score: 90
+    last_updated: '2026-07-07T11:08:17.129195+00:00'
+    title: Paper Details
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/2605.07639
+  https://arxiv.org/abs/2503.15520:
+    content_hash: sha256:08d366cc59b1ffd3
+    stored_at: data/staging/webfetch-paper-details-2026-07-07_11-08-17.md
+    importance_score: 90
+    last_updated: '2026-07-07T11:08:17.576287+00:00'
+    title: Paper Details
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/2503.15520
+  https://www.datch.io/blog/how-ai-is-replacing-tribal-knowledge:
+    content_hash: sha256:7f1e0e345e140681
+    stored_at: data/staging/webfetch-datch-ai-powered-diagnostic-knowledge-capture-2026-07-07_11-08-47.md
+    importance_score: 79
+    last_updated: '2026-07-07T11:08:47.556113+00:00'
+    title: 'Datch: AI-Powered Diagnostic Knowledge Capture'
+    maturity: growing
+    routing_type: meta
+    url: https://www.datch.io/blog/how-ai-is-replacing-tribal-knowledge
+  https://hn.algolia.com/api/v1/search?query=knowledge%20capture%20note%20taking%20pkm&tags=story&hitsperpage=15:
+    content_hash: sha256:bf40b66a90e6e9e1
+    stored_at: data/staging/webfetch-story-results-2026-07-08_11-04-14.md
+    importance_score: 89
+    last_updated: '2026-07-08T11:04:14.026782+00:00'
+    title: Story Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=knowledge%20capture%20note%20taking%20PKM&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=sop%20capture%20scribe%20tango%20workflow&tags=story&hitsperpage=15:
+    content_hash: sha256:8d1a33f361dd1aa7
+    stored_at: data/staging/webfetch-search-results-2026-07-08_11-04-15.md
+    importance_score: 89
+    last_updated: '2026-07-08T11:04:15.361959+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=SOP%20capture%20Scribe%20Tango%20workflow&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=skilled%20trades%20skills%20gap%20knowledge%20loss&tags=story&hitsperpage=15:
+    content_hash: sha256:c0adfc0d0712e371
+    stored_at: data/staging/webfetch-search-results-for-skilled-trades-skills-gap-2026-07-08_11-04-16.md
+    importance_score: 89
+    last_updated: '2026-07-08T11:04:16.642801+00:00'
+    title: Search Results for Skilled Trades Skills Gap
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=skilled%20trades%20skills%20gap%20knowledge%20loss&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=chrome%20extension%20manifest%20v3&tags=story&hitsperpage=15:
+    content_hash: sha256:3d01572205b7b020
+    stored_at: data/staging/webfetch-chrome-extension-manifest-v3-stories-2026-07-08_11-04-25.md
+    importance_score: 89
+    last_updated: '2026-07-08T11:04:25.979754+00:00'
+    title: Chrome Extension Manifest V3 Stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=chrome%20extension%20manifest%20v3&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=scribe%20tango%20how-to%20guide&tags=story&hitsperpage=15:
+    content_hash: sha256:8f094ac4ac3f80a7
+    stored_at: data/staging/webfetch-search-results-for-scribe-tango-how-to-guide-2026-07-09_11-03-51.md
+    importance_score: 89
+    last_updated: '2026-07-09T11:03:51.450840+00:00'
+    title: Search Results for "Scribe Tango how-to guide"
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Scribe%20Tango%20how-to%20guide&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=knowledge%20loss%20retirement%20workforce&tags=story&hitsperpage=15:
+    content_hash: sha256:d74a0e18d464dde1
+    stored_at: data/staging/webfetch-search-results-knowledge-loss-retirement-workforce-2026-07-09_11-03-52.md
+    importance_score: 89
+    last_updated: '2026-07-09T11:03:52.277792+00:00'
+    title: 'Search Results: Knowledge Loss Retirement Workforce'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=knowledge%20loss%20retirement%20workforce&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=tribal%20knowledge%20capture&tags=story&hitsperpage=15:
+    content_hash: sha256:b9ed7918adef9041
+    stored_at: data/staging/webfetch-hacker-news-stories-tribal-knowledge-capture-2026-07-09_11-03-57.md
+    importance_score: 89
+    last_updated: '2026-07-09T11:03:57.500683+00:00'
+    title: 'Hacker News Stories: Tribal Knowledge & Capture'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tribal%20knowledge%20capture&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=sop%20documentation%20tool&tags=story&hitsperpage=15:
+    content_hash: sha256:638dc25a1f6854a5
+    stored_at: data/staging/webfetch-hn-stories-sop-documentation-and-tools-2026-07-09_11-03-59.md
+    importance_score: 89
+    last_updated: '2026-07-09T11:03:59.695283+00:00'
+    title: 'HN Stories: SOP, Documentation, and Tools'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=SOP%20documentation%20tool&tags=story&hitsPerPage=15
+  https://github.com/praxia-dev/praxia:
+    content_hash: sha256:cceb9d6b41e881db
+    stored_at: data/staging/webfetch-praxia-overview-2026-07-09_11-04-11.md
+    importance_score: 96
+    last_updated: '2026-07-09T11:04:11.967069+00:00'
+    title: Praxia Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/praxia-dev/praxia
+  https://sopx.io/industries/field-service:
+    content_hash: sha256:a67c4af9a76eda27
+    stored_at: data/staging/webfetch-sopx-field-service-solution-2026-07-09_11-04-13.md
+    importance_score: 79
+    last_updated: '2026-07-09T11:04:13.204236+00:00'
+    title: SOPX Field Service Solution
+    maturity: growing
+    routing_type: meta
+    url: https://sopx.io/industries/field-service/
+  ? https://export.arxiv.org/api/query?search_query=all:tacit+knowledge+capture+skill+multimodal+wearable&max_results=12&sortby=relevance
+  : content_hash: sha256:6fd93c63bd173512
+    stored_at: data/staging/webfetch-arxiv-query-results-2026-07-09_11-04-22.md
+    importance_score: 81
+    last_updated: '2026-07-09T11:04:22.813199+00:00'
+    title: arXiv Query Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:tacit+knowledge+capture+skill+multimodal+wearable&max_results=12&sortBy=relevance
+  https://github.com/zackriya-solutions/meetily:
+    content_hash: sha256:3608fe0e8815a2fe
+    stored_at: data/staging/webfetch-meetily-repository-summary-2026-07-09_11-04-34.md
+    importance_score: 96
+    last_updated: '2026-07-09T11:04:34.961411+00:00'
+    title: Meetily Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Zackriya-Solutions/meetily
+  https://github.com/murtaza-nasir/speakr:
+    content_hash: sha256:ad5d7227e4e4074f
+    stored_at: data/staging/webfetch-speakr-overview-2026-07-09_11-04-35.md
+    importance_score: 96
+    last_updated: '2026-07-09T11:04:35.140877+00:00'
+    title: Speakr Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/murtaza-nasir/speakr
+  ? https://export.arxiv.org/api/query?search_query=all:procedural+knowledge+capture+augmented+reality+manual+work+expert&max_results=10&sortby=relevance
+  : content_hash: sha256:a84a0b69afc95393
+    stored_at: data/staging/webfetch-arxiv-search-results-summary-2026-07-09_11-04-52.md
+    importance_score: 81
+    last_updated: '2026-07-09T11:04:52.071088+00:00'
+    title: arXiv Search Results Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:procedural+knowledge+capture+augmented+reality+manual+work+expert&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:llm+standard+operating+procedure+generation+from+video+demonstration&max_results=10&sortby=relevance
+  : content_hash: sha256:e90cfa58d36c60f5
+    stored_at: data/staging/webfetch-arxiv-search-results-2026-07-09_11-04-54.md
+    importance_score: 81
+    last_updated: '2026-07-09T11:04:54.912666+00:00'
+    title: arXiv Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:LLM+standard+operating+procedure+generation+from+video+demonstration&max_results=10&sortBy=relevance
+  https://arxiv.org/pdf/2409.20192:
+    content_hash: sha256:560ffa241e1b9c6e
+    stored_at: data/staging/webfetch-the-document-shows-2026-07-09_11-05-33.md
+    importance_score: 90
+    last_updated: '2026-07-09T11:05:33.567932+00:00'
+    title: 'The document shows:'
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/pdf/2409.20192
+  https://getoden.com/blog/scribe-vs-tango-vs-guidde-vs-iorad:
+    content_hash: sha256:a133f2d38bb95782
+    stored_at: data/staging/webfetch-documentation-tool-comparison-summary-2026-07-09_11-05-39.md
+    importance_score: 79
+    last_updated: '2026-07-09T11:05:39.118135+00:00'
+    title: Documentation Tool Comparison Summary
+    maturity: growing
+    routing_type: meta
+    url: https://getoden.com/blog/scribe-vs-tango-vs-guidde-vs-iorad
+  https://workcell.ai/blog/tribal-knowledge-manufacturing:
+    content_hash: sha256:729d5fae39eb0dab
+    stored_at: data/staging/webfetch-tribal-knowledge-loss-in-manufacturing-key-2026-07-09_11-05-39.md
+    importance_score: 79
+    last_updated: '2026-07-09T11:05:39.835541+00:00'
+    title: 'Tribal Knowledge Loss in Manufacturing: Key Takeaways'
+    maturity: growing
+    routing_type: meta
+    url: https://workcell.ai/blog/tribal-knowledge-manufacturing
+  https://arxiv.org/abs/2409.20192:
+    content_hash: sha256:4678df0084294199
+    stored_at: data/staging/webfetch-research-summary-factory-operators-and-cognitive-2026-07-09_11-06-00.md
+    importance_score: 90
+    last_updated: '2026-07-09T11:06:00.668070+00:00'
+    title: 'Research Summary: Factory Operators and Cognitive Assistants'
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/2409.20192
+  https://www.supered.io/blog/scribe-alternatives:
+    content_hash: sha256:1cd864bc339fa2a5
+    stored_at: data/staging/webfetch-scribe-alternatives-real-user-complaints-why-2026-07-09_11-06-03.md
+    importance_score: 79
+    last_updated: '2026-07-09T11:06:03.758923+00:00'
+    title: 'Scribe Alternatives: Real User Complaints & Why Documentation Fails'
+    maturity: growing
+    routing_type: meta
+    url: https://www.supered.io/blog/scribe-alternatives/
+  https://www.hindsiteind.com/blog/why-most-sops-fail-and-how-to-write-work-instructions-that-stick:
+    content_hash: sha256:bdbc657cf25ccac8
+    stored_at: data/staging/webfetch-why-sops-fail-key-reasons-2026-07-09_11-06-05.md
+    importance_score: 79
+    last_updated: '2026-07-09T11:06:05.032804+00:00'
+    title: 'Why SOPs Fail: Key Reasons'
+    maturity: growing
+    routing_type: meta
+    url: https://www.hindsiteind.com/blog/why-most-sops-fail-and-how-to-write-work-instructions-that-stick
+  https://hn.algolia.com/api/v1/items/45877517:
+    content_hash: sha256:7686dca863a2cbf8
+    stored_at: data/staging/webfetch-top-comment-themes-on-hypercubic-launch-2026-07-09_11-06-06.md
+    importance_score: 89
+    last_updated: '2026-07-09T11:06:06.650094+00:00'
+    title: Top Comment Themes on Hypercubic Launch
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/45877517
+  https://hn.algolia.com/api/v1/items/11164013:
+    content_hash: sha256:8c14044b10fe197e
+    stored_at: data/staging/webfetch-documentation-tools-challenges-top-themes-2026-07-09_11-06-39.md
+    importance_score: 89
+    last_updated: '2026-07-09T11:06:39.982440+00:00'
+    title: 'Documentation Tools & Challenges: Top Themes'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/11164013
+  https://manual.to/the-tribal-knowledge-crisis-in-manufacturing:
+    content_hash: sha256:630d21126169e0c8
+    stored_at: data/staging/webfetch-the-tribal-knowledge-crisis-in-manufacturing-2026-07-09_11-06-40.md
+    importance_score: 79
+    last_updated: '2026-07-09T11:06:40.405504+00:00'
+    title: The Tribal Knowledge Crisis in Manufacturing
+    maturity: growing
+    routing_type: meta
+    url: https://manual.to/the-tribal-knowledge-crisis-in-manufacturing/
+  https://support.kraken.com/articles/us-margin-fees:
+    content_hash: sha256:9b0413ecb661c76b
+    stored_at: data/staging/webfetch-us-margin-trading-fees-on-kraken-2026-07-09_14-45-32.md
+    importance_score: 80
+    last_updated: '2026-07-09T14:45:32.194245+00:00'
+    title: US Margin Trading Fees on Kraken
+    maturity: growing
+    routing_type: meta
+    url: https://support.kraken.com/articles/us-margin-fees
+  https://support.kraken.com/articles/getting-started-us-margin:
+    content_hash: sha256:7414ec0f8e55da43
+    stored_at: data/staging/webfetch-us-margin-trading-on-kraken-2026-07-09_14-45-33.md
+    importance_score: 80
+    last_updated: '2026-07-09T14:45:33.375004+00:00'
+    title: US Margin Trading on Kraken
+    maturity: growing
+    routing_type: meta
+    url: https://support.kraken.com/articles/getting-started-us-margin
+  ? https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge%20trades&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1746057600
+  : content_hash: sha256:209f4006db9a7e58
+    stored_at: data/staging/webfetch-search-results-for-tacit-knowledge-trades-2026-07-10_11-02-47.md
+    importance_score: 89
+    last_updated: '2026-07-10T11:02:47.187961+00:00'
+    title: Search Results for "Tacit Knowledge Trades"
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge%20trades&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1746057600
+  ? https://hn.algolia.com/api/v1/search_by_date?query=sop%20generation&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1735689600
+  : content_hash: sha256:57e3493c62f36e20
+    stored_at: data/staging/webfetch-stories-from-search-results-2026-07-10_11-02-56.md
+    importance_score: 89
+    last_updated: '2026-07-10T11:02:56.594775+00:00'
+    title: Stories from Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=SOP%20generation&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1735689600
+  ? https://hn.algolia.com/api/v1/search?query=tribal%20knowledge&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1735689600
+  : content_hash: sha256:e07ed91c1413dd37
+    stored_at: data/staging/webfetch-stories-about-tribal-knowledge-2026-07-10_11-03-15.md
+    importance_score: 89
+    last_updated: '2026-07-10T11:03:15.098515+00:00'
+    title: Stories about Tribal Knowledge
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tribal%20knowledge&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1735689600
+  ? https://hn.algolia.com/api/v1/search?query=field%20service%20technician&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1735689600
+  : content_hash: sha256:df3f00484fa88254
+    stored_at: data/staging/webfetch-stories-from-search-results-2026-07-10_11-03-17.md
+    importance_score: 89
+    last_updated: '2026-07-10T11:03:17.536920+00:00'
+    title: Stories from Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=field%20service%20technician&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1735689600
+  https://api.github.com/repos/shezan57/video-to-sop-generator:
+    content_hash: sha256:a3059db08dde0582
+    stored_at: data/staging/webfetch-video-to-sop-generator-repository-2026-07-10_11-03-20.md
+    importance_score: 83
+    last_updated: '2026-07-10T11:03:20.748438+00:00'
+    title: Video-to-SOP-Generator Repository
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/Shezan57/Video-to-SOP-Generator
+  https://api.github.com/repos/aws-samples/genai-knowledge-capture:
+    content_hash: sha256:18a9b85ca56d8681
+    stored_at: data/staging/webfetch-genai-knowledge-capture-repository-2026-07-10_11-03-22.md
+    importance_score: 83
+    last_updated: '2026-07-10T11:03:22.031419+00:00'
+    title: genai-knowledge-capture Repository
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/aws-samples/genai-knowledge-capture
+  https://api.github.com/repos/strands-agents/agent-sop:
+    content_hash: sha256:865ce02473a96230
+    stored_at: data/staging/webfetch-agent-sop-repository-summary-2026-07-10_11-03-22.md
+    importance_score: 83
+    last_updated: '2026-07-10T11:03:22.670255+00:00'
+    title: agent-sop Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/strands-agents/agent-sop
+  https://api.github.com/repos/tosinonikute/notelyvoice:
+    content_hash: sha256:cccfd60d2ff9f05e
+    stored_at: data/staging/webfetch-notelyvoice-repository-summary-2026-07-10_11-03-23.md
+    importance_score: 83
+    last_updated: '2026-07-10T11:03:23.769891+00:00'
+    title: NotelyVoice Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/tosinonikute/NotelyVoice
+  https://api.github.com/repos/chose166/casperai:
+    content_hash: sha256:f81fa10366b44913
+    stored_at: data/staging/webfetch-casperai-repository-summary-2026-07-10_11-03-25.md
+    importance_score: 83
+    last_updated: '2026-07-10T11:03:25.077349+00:00'
+    title: CasperAI Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/chose166/CasperAI
+  https://api.github.com/repos/ying-wen/voice-memo-sync:
+    content_hash: sha256:d530f95edd6dd135
+    stored_at: data/staging/webfetch-repository-analysis-voice-memo-sync-2026-07-10_11-03-26.md
+    importance_score: 83
+    last_updated: '2026-07-10T11:03:26.130321+00:00'
+    title: 'Repository Analysis: voice-memo-sync'
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/ying-wen/voice-memo-sync
+  https://api.github.com/repos/jamiepine/voicebox:
+    content_hash: sha256:3b35f17fa9b97999
+    stored_at: data/staging/webfetch-voicebox-repository-report-2026-07-10_11-03-26.md
+    importance_score: 83
+    last_updated: '2026-07-10T11:03:26.448162+00:00'
+    title: Voicebox Repository Report
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/jamiepine/voicebox
+  https://api.github.com/repos/mentra-community/mentraos:
+    content_hash: sha256:94208bc0d26c3b95
+    stored_at: data/staging/webfetch-mentraos-repository-summary-2026-07-10_11-03-59.md
+    importance_score: 83
+    last_updated: '2026-07-10T11:03:59.197859+00:00'
+    title: MentraOS Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/Mentra-Community/MentraOS
+  https://api.github.com/repos/carlorbiz/voice-to-drive:
+    content_hash: sha256:0676e2c4ca21c48a
+    stored_at: data/staging/webfetch-repository-summary-voice-to-drive-2026-07-10_11-04-00.md
+    importance_score: 83
+    last_updated: '2026-07-10T11:04:00.939468+00:00'
+    title: 'Repository Summary: voice-to-drive'
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/carlorbiz/voice-to-drive
+  https://www.ycombinator.com/companies/sidekick:
+    content_hash: sha256:497c073f7ca6b0a9
+    stored_at: data/staging/webfetch-dataland-s-description-states-ai-agents-for-2026-07-10_11-04-08.md
+    importance_score: 80
+    last_updated: '2026-07-10T11:04:08.746791+00:00'
+    title: 'Dataland''s description states: "AI agents for customer support. Dataland
+      is the applied AI lab for c'
+    maturity: growing
+    routing_type: meta
+    url: https://www.ycombinator.com/companies/sidekick
+  https://www.getmaintainx.com/blog/whats-new-at-maintainx-may-2026:
+    content_hash: sha256:05979cd84734942f
+    stored_at: data/staging/webfetch-maintainx-may-2026-new-features-2026-07-10_11-04-13.md
+    importance_score: 80
+    last_updated: '2026-07-10T11:04:13.168163+00:00'
+    title: MaintainX May 2026 New Features
+    maturity: growing
+    routing_type: meta
+    url: https://www.getmaintainx.com/blog/whats-new-at-maintainx-may-2026
+  ? https://hn.algolia.com/api/v1/search?query=show%20hn%20sop&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1735689600
+  : content_hash: sha256:cca74931d9752f29
+    stored_at: data/staging/webfetch-show-hn-stories-2026-07-10_11-04-28.md
+    importance_score: 89
+    last_updated: '2026-07-10T11:04:28.606710+00:00'
+    title: Show HN Stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Show%20HN%20SOP&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1735689600
+  ? https://hn.algolia.com/api/v1/search?query=apprenticeship%20trades&tags=story&hitsperpage=10&numericfilters=created_at_i%3e1735689600
+  : content_hash: sha256:8957fe8c458e69f9
+    stored_at: data/staging/webfetch-stories-found-2026-07-10_11-04-42.md
+    importance_score: 89
+    last_updated: '2026-07-10T11:04:42.641828+00:00'
+    title: Stories Found
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=apprenticeship%20trades&tags=story&hitsPerPage=10&numericFilters=created_at_i%3E1735689600
+  ? https://hn.algolia.com/api/v1/search?query=work%20instructions%20ai&tags=story&hitsperpage=10&numericfilters=created_at_i%3e1735689600
+  : content_hash: sha256:70af9d9377162d65
+    stored_at: data/staging/webfetch-stories-list-2026-07-10_11-04-46.md
+    importance_score: 89
+    last_updated: '2026-07-10T11:04:46.218642+00:00'
+    title: Stories List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=work%20instructions%20AI&tags=story&hitsPerPage=10&numericFilters=created_at_i%3E1735689600
+  https://lobste.rs/s/d0vsgl/is_ai_ruining_our_skills_early_results_are:
+    content_hash: sha256:f53f38aa23a1cbfc
+    stored_at: data/staging/webfetch-lobsters-article-summary-2026-07-10_11-05-01.md
+    importance_score: 80
+    last_updated: '2026-07-10T11:05:01.609427+00:00'
+    title: Lobsters Article Summary
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/s/d0vsgl/is_ai_ruining_our_skills_early_results_are
+  ? https://hn.algolia.com/api/v1/search?query=blue%20collar%20ai&tags=story&hitsperpage=12&numericfilters=created_at_i%3e1735689600
+  : content_hash: sha256:3cad3850edf05ae8
+    stored_at: data/staging/webfetch-stories-blue-collar-ai-2026-07-10_11-05-02.md
+    importance_score: 89
+    last_updated: '2026-07-10T11:05:02.942603+00:00'
+    title: 'Stories: Blue Collar & AI'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=blue%20collar%20AI&tags=story&hitsPerPage=12&numericFilters=created_at_i%3E1735689600
+  https://hn.algolia.com/api/v1/items/44923187:
+    content_hash: sha256:97fdbd70ccc150fd
+    stored_at: data/staging/webfetch-top-comment-themes-from-hn-thread-2026-07-10_11-05-41.md
+    importance_score: 89
+    last_updated: '2026-07-10T11:05:41.628178+00:00'
+    title: Top Comment Themes from HN Thread
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/44923187
+  ? https://hn.algolia.com/api/v1/search?query=voice%20capture%20notes%20hands-free&tags=story&hitsperpage=12&numericfilters=created_at_i%3e1735689600
+  : content_hash: sha256:b0de72344700611f
+    stored_at: data/staging/webfetch-search-2026-07-10_11-06-01.md
+    importance_score: 89
+    last_updated: '2026-07-10T11:06:01.039877+00:00'
+    title: Search
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=voice%20capture%20notes%20hands-free&tags=story&hitsPerPage=12&numericFilters=created_at_i%3E1735689600
+  ? https://www.forbes.com/councils/forbestechcouncil/2026/06/25/the-role-of-ai-in-preserving-knowledge-in-manufacturing-industries
+  : content_hash: sha256:053662baed88701c
+    stored_at: data/staging/webfetch-article-summary-2026-07-10_11-06-06.md
+    importance_score: 80
+    last_updated: '2026-07-10T11:06:06.072423+00:00'
+    title: Article Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.forbes.com/councils/forbestechcouncil/2026/06/25/the-role-of-ai-in-preserving-knowledge-in-manufacturing-industries/
+  https://www.randstad.com/workforce-insights/future-work/beyond-hype-3-ai-trends-redefining-skilled-trades:
+    content_hash: sha256:4e2db05795015d68
+    stored_at: data/staging/webfetch-summary-of-ai-trends-in-skilled-trades-2026-07-10_11-06-22.md
+    importance_score: 80
+    last_updated: '2026-07-10T11:06:22.695731+00:00'
+    title: Summary of AI Trends in Skilled Trades
+    maturity: growing
+    routing_type: meta
+    url: https://www.randstad.com/workforce-insights/future-work/beyond-hype-3-ai-trends-redefining-skilled-trades/
+  ? https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1782000000
+  : content_hash: sha256:384fc111d8993471
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-11_11-02-38.md
+    importance_score: 90
+    last_updated: '2026-07-11T11:02:38.234905+00:00'
+    title: Based on the web page content provided, **there are no stories to list**.
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1782000000
+  ? https://hn.algolia.com/api/v1/search_by_date?query=field%20service&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1782000000
+  : content_hash: sha256:3772b0d9f4e27ecc
+    stored_at: data/staging/webfetch-stories-found-2026-07-11_11-02-40.md
+    importance_score: 90
+    last_updated: '2026-07-11T11:02:40.768372+00:00'
+    title: Stories Found
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=field%20service&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1782000000
+  https://hn.algolia.com/api/v1/search_by_date?query=sop&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1782000000:
+    content_hash: sha256:5f7b1cd6c98d321f
+    stored_at: data/staging/webfetch-stories-from-search-results-2026-07-11_11-02-50.md
+    importance_score: 90
+    last_updated: '2026-07-11T11:02:50.016347+00:00'
+    title: Stories from Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=SOP&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1782000000
+  https://hn.algolia.com/api/v1/items/48681023:
+    content_hash: sha256:d3d1f858a02f6bf6
+    stored_at: data/staging/webfetch-summary-ai-tools-in-trade-field-service-2026-07-11_11-03-07.md
+    importance_score: 90
+    last_updated: '2026-07-11T11:03:07.164607+00:00'
+    title: 'Summary: AI Tools in Trade/Field Service'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/48681023
+  https://www.processingmagazine.com/news-notes/news/55389458/poka-launches-early-access-program-for-industrial-ai-platform:
+    content_hash: sha256:c4792d36df1173bc
+    stored_at: data/staging/webfetch-poka-industrial-ai-launch-summary-2026-07-11_11-03-11.md
+    importance_score: 80
+    last_updated: '2026-07-11T11:03:11.980942+00:00'
+    title: Poka Industrial AI Launch Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.processingmagazine.com/news-notes/news/55389458/poka-launches-early-access-program-for-industrial-ai-platform
+  ? https://hn.algolia.com/api/v1/search_by_date?query=voice%20capture&tags=(story,show_hn)&hitsperpage=15&numericfilters=created_at_i%3e1781000000
+  : content_hash: sha256:9b62617cc2feb0aa
+    stored_at: data/staging/webfetch-stories-found-2026-07-11_11-03-31.md
+    importance_score: 90
+    last_updated: '2026-07-11T11:03:31.977339+00:00'
+    title: Stories Found
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=voice%20capture&tags=(story,show_hn)&hitsPerPage=15&numericFilters=created_at_i%3E1781000000
+  ? https://hn.algolia.com/api/v1/search_by_date?query=apprenticeship&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1781000000
+  : content_hash: sha256:c62d4e082cab5667
+    stored_at: data/staging/webfetch-stories-found-2026-07-11_11-03-34.md
+    importance_score: 90
+    last_updated: '2026-07-11T11:03:34.286973+00:00'
+    title: Stories Found
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=apprenticeship&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1781000000
+  ? https://hn.algolia.com/api/v1/search_by_date?query=standard%20operating%20procedures&tags=story&hitsperpage=10&numericfilters=created_at_i%3e1780000000
+  : content_hash: sha256:95b2581387f4aa39
+    stored_at: data/staging/webfetch-search-by-date-2026-07-11_11-03-58.md
+    importance_score: 90
+    last_updated: '2026-07-11T11:03:58.403448+00:00'
+    title: Search By Date
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=standard%20operating%20procedures&tags=story&hitsPerPage=10&numericFilters=created_at_i%3E1780000000
+  https://www.getmaintainx.com/blog/introducing-new-ai-features-to-increase-productivity:
+    content_hash: sha256:5c31f37560d8854f
+    stored_at: data/staging/webfetch-maintainx-ai-features-announcement-2026-07-11_11-04-00.md
+    importance_score: 80
+    last_updated: '2026-07-11T11:04:00.372175+00:00'
+    title: MaintainX AI Features Announcement
+    maturity: growing
+    routing_type: meta
+    url: https://www.getmaintainx.com/blog/introducing-new-ai-features-to-increase-productivity
+  https://safereddit.com/r/hvac/search?q=paperwork&restrict_sr=on:
+    content_hash: sha256:4a76a4690bbdca18
+    stored_at: data/staging/webfetch-search-2026-07-11_11-04-01.md
+    importance_score: 80
+    last_updated: '2026-07-11T11:04:01.351739+00:00'
+    title: Search
+    maturity: growing
+    routing_type: meta
+    url: https://safereddit.com/r/HVAC/search?q=paperwork&restrict_sr=on
+  https://www.getmaintainx.com/newsroom/maintainx-unveils-advanced-ai-features:
+    content_hash: sha256:f3fe0001a14dd4d5
+    stored_at: data/staging/webfetch-maintainx-ai-features-announcement-2026-07-11_11-04-24.md
+    importance_score: 80
+    last_updated: '2026-07-11T11:04:24.289919+00:00'
+    title: MaintainX AI Features Announcement
+    maturity: growing
+    routing_type: meta
+    url: https://www.getmaintainx.com/newsroom/maintainx-unveils-advanced-ai-features
+  https://tech.eu/2026/06/15/orbio-raises-21m-series-a-to-bring-ai-workforce-management-to-the-worlds-frontline-workers:
+    content_hash: sha256:e157d15051c5ed3e
+    stored_at: data/staging/webfetch-orbio-series-a-funding-summary-2026-07-11_11-04-27.md
+    importance_score: 80
+    last_updated: '2026-07-11T11:04:27.076970+00:00'
+    title: Orbio Series A Funding Summary
+    maturity: growing
+    routing_type: meta
+    url: https://tech.eu/2026/06/15/orbio-raises-21m-series-a-to-bring-ai-workforce-management-to-the-worlds-frontline-workers/
+  https://red.artemislena.eu/r/hvac/search?q=paperwork&restrict_sr=on:
+    content_hash: sha256:1a35369df7a5a612
+    stored_at: data/staging/webfetch-search-2026-07-11_11-04-28.md
+    importance_score: 80
+    last_updated: '2026-07-11T11:04:28.637324+00:00'
+    title: Search
+    maturity: growing
+    routing_type: meta
+    url: https://red.artemislena.eu/r/HVAC/search?q=paperwork&restrict_sr=on
+  ? https://hn.algolia.com/api/v1/search_by_date?query=blue%20collar&tags=story&hitsperpage=10&numericfilters=created_at_i%3e1781000000
+  : content_hash: sha256:a5e1c9c6595fb875
+    stored_at: data/staging/webfetch-stories-found-2026-07-11_11-04-42.md
+    importance_score: 90
+    last_updated: '2026-07-11T11:04:42.151310+00:00'
+    title: Stories Found
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=blue%20collar&tags=story&hitsPerPage=10&numericFilters=created_at_i%3E1781000000
+  https://github.com/martinbibb-cmd/daedalus-capture-ios:
+    content_hash: sha256:dddc2385216279df
+    stored_at: data/staging/webfetch-daedalus-capture-ios-project-summary-2026-07-11_11-05-59.md
+    importance_score: 96
+    last_updated: '2026-07-11T11:05:59.330896+00:00'
+    title: Daedalus Capture iOS - Project Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/martinbibb-cmd/Daedalus-capture-iOS
+  https://github.com/asmuelle/sitescribe:
+    content_hash: sha256:53e4eb14d49fb73f
+    stored_at: data/staging/webfetch-sitescribe-project-summary-2026-07-11_11-06-01.md
+    importance_score: 96
+    last_updated: '2026-07-11T11:06:01.524181+00:00'
+    title: SiteScribe Project Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/asmuelle/sitescribe
+  https://github.com/pdthq/process-spec:
+    content_hash: sha256:3ecffa866cb2a4ce
+    stored_at: data/staging/webfetch-process-md-specification-summary-2026-07-11_11-06-13.md
+    importance_score: 96
+    last_updated: '2026-07-11T11:06:13.824684+00:00'
+    title: PROCESS.md Specification Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/pdthq/process-spec
+  https://github.com/josortmel/knowtwin:
+    content_hash: sha256:9ec343aa7083c32a
+    stored_at: data/staging/webfetch-knowtwin-project-summary-2026-07-11_11-06-15.md
+    importance_score: 96
+    last_updated: '2026-07-11T11:06:15.207414+00:00'
+    title: KnowTwin Project Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/josortmel/KnowTwin
+  https://github.com/bigbirdreturns/axm-wolf:
+    content_hash: sha256:371131240d4f87d2
+    stored_at: data/staging/webfetch-axm-wolf-project-summary-2026-07-11_11-06-28.md
+    importance_score: 96
+    last_updated: '2026-07-11T11:06:28.977578+00:00'
+    title: 'AXM Wolf: Project Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/BigBirdReturns/axm-wolf
+  https://github.com/tanpreetjolly/browser-whisper:
+    content_hash: sha256:d48ec7d5cc1c186e
+    stored_at: data/staging/webfetch-browser-whisper-summary-2026-07-11_11-06-30.md
+    importance_score: 96
+    last_updated: '2026-07-11T11:06:30.113481+00:00'
+    title: browser-whisper Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/tanpreetjolly/browser-whisper
+  ? https://api.github.com/search/repositories?q=chrome+extension+step+recorder+created:%3e2026-07-01&sort=updated&order=desc&per_page=20
+  : content_hash: sha256:511dde1f7d4190f7
+    stored_at: data/staging/webfetch-repository-report-2026-07-12_11-02-08.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:02:08.984217+00:00'
+    title: Repository Report
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=chrome+extension+step+recorder+created:%3E2026-07-01&sort=updated&order=desc&per_page=20
+  ? https://api.github.com/search/repositories?q=sop+generation+capture+created:%3e2026-06-25&sort=updated&order=desc&per_page=20
+  : content_hash: sha256:b6593ebf0d287bda
+    stored_at: data/staging/webfetch-repository-report-2026-07-12_11-02-09.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:02:09.467410+00:00'
+    title: Repository Report
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=SOP+generation+capture+created:%3E2026-06-25&sort=updated&order=desc&per_page=20
+  https://api.github.com/repos/asmuelle/sitescribe/commits?per_page=5:
+    content_hash: sha256:38360ab20503d33a
+    stored_at: data/staging/webfetch-recent-commits-from-sitescribe-repository-2026-07-12_11-02-12.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:02:12.586681+00:00'
+    title: Recent Commits from sitescribe Repository
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/asmuelle/sitescribe/commits?per_page=5
+  ? https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&numericfilters=created_at_i%3e1783900800&hitsperpage=20
+  : content_hash: sha256:682243881cfdd9bb
+    stored_at: data/staging/webfetch-search-by-date-2026-07-12_11-02-16.md
+    importance_score: 89
+    last_updated: '2026-07-12T11:02:16.249116+00:00'
+    title: Search By Date
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&numericFilters=created_at_i%3E1783900800&hitsPerPage=20
+  https://hn.algolia.com/api/v1/search_by_date?query=sop&tags=story&numericfilters=created_at_i%3e1783900800&hitsperpage=20:
+    content_hash: sha256:3efca9acc8eca021
+    stored_at: data/staging/webfetch-search-by-date-2026-07-12_11-02-16.md
+    importance_score: 89
+    last_updated: '2026-07-12T11:02:16.931569+00:00'
+    title: Search By Date
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=SOP&tags=story&numericFilters=created_at_i%3E1783900800&hitsPerPage=20
+  https://hn.algolia.com/api/v1/search_by_date?query=field%20service&numericfilters=created_at_i%3e1783900800&hitsperpage=20:
+    content_hash: sha256:6c520ea967d0ebcb
+    stored_at: data/staging/webfetch-the-search-for-field-service-returned-zero-2026-07-12_11-02-18.md
+    importance_score: 89
+    last_updated: '2026-07-12T11:02:18.492411+00:00'
+    title: The search for "field service" returned zero results (`"nbHits":0`), indicating
+      there are no stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=field%20service&numericFilters=created_at_i%3E1783900800&hitsPerPage=20
+  https://api.github.com/search/repositories?q=%22step+recorder%22+created:%3e2026-06-20&sort=updated&order=desc&per_page=20:
+    content_hash: sha256:2889931ef95f9ef1
+    stored_at: data/staging/webfetch-repository-summary-2026-07-12_11-02-32.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:02:32.148403+00:00'
+    title: Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=%22step+recorder%22+created:%3E2026-06-20&sort=updated&order=desc&per_page=20
+  ? https://api.github.com/search/repositories?q=field+inspection+offline+created:%3e2026-06-10&sort=updated&order=desc&per_page=20
+  : content_hash: sha256:0278598be12a6ec2
+    stored_at: data/staging/webfetch-github-repository-search-results-2026-07-12_11-02-35.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:02:35.891812+00:00'
+    title: GitHub Repository Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=field+inspection+offline+created:%3E2026-06-10&sort=updated&order=desc&per_page=20
+  https://hn.algolia.com/api/v1/search_by_date?query=sop&numericfilters=created_at_i%3e1783555200&hitsperpage=20:
+    content_hash: sha256:7f627321e16b4c0e
+    stored_at: data/staging/webfetch-search-results-for-sop-2026-07-12_11-02-38.md
+    importance_score: 89
+    last_updated: '2026-07-12T11:02:38.381258+00:00'
+    title: Search Results for "SOP"
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=SOP&numericFilters=created_at_i%3E1783555200&hitsPerPage=20
+  ? https://hn.algolia.com/api/v1/search_by_date?query=skilled%20trades&numericfilters=created_at_i%3e1783555200&hitsperpage=20
+  : content_hash: sha256:9962cbbc4a527e81
+    stored_at: data/staging/webfetch-search-results-for-skilled-trades-2026-07-12_11-02-39.md
+    importance_score: 89
+    last_updated: '2026-07-12T11:02:39.395999+00:00'
+    title: Search Results for "Skilled Trades"
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=skilled%20trades&numericFilters=created_at_i%3E1783555200&hitsPerPage=20
+  ? https://hn.algolia.com/api/v1/search_by_date?query=knowledge%20capture&numericfilters=created_at_i%3e1783555200&hitsperpage=20
+  : content_hash: sha256:6d3f72fa31dd332b
+    stored_at: data/staging/webfetch-search-results-knowledge-capture-2026-07-12_11-02-42.md
+    importance_score: 89
+    last_updated: '2026-07-12T11:02:42.290462+00:00'
+    title: 'Search Results: "knowledge capture"'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=knowledge%20capture&numericFilters=created_at_i%3E1783555200&hitsPerPage=20
+  ? https://api.github.com/search/repositories?q=%22knowledge+capture%22+created:%3e2026-06-20&sort=updated&order=desc&per_page=20
+  : content_hash: sha256:a748e05870f52cc0
+    stored_at: data/staging/webfetch-github-repositories-search-results-2026-07-12_11-02-48.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:02:48.137925+00:00'
+    title: GitHub Repositories Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=%22knowledge+capture%22+created:%3E2026-06-20&sort=updated&order=desc&per_page=20
+  ? https://hn.algolia.com/api/v1/search_by_date?query=chrome%20extension%20capture&numericfilters=created_at_i%3e1783555200&hitsperpage=20
+  : content_hash: sha256:bc3c820495801efb
+    stored_at: data/staging/webfetch-search-results-2026-07-12_11-02-53.md
+    importance_score: 89
+    last_updated: '2026-07-12T11:02:53.919947+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=chrome%20extension%20capture&numericFilters=created_at_i%3E1783555200&hitsPerPage=20
+  https://hn.algolia.com/api/v1/search_by_date?query=apprenticeship&numericfilters=created_at_i%3e1783555200&hitsperpage=20:
+    content_hash: sha256:d871f6ac8b0537ce
+    stored_at: data/staging/webfetch-search-results-for-apprenticeship-2026-07-12_11-02-55.md
+    importance_score: 89
+    last_updated: '2026-07-12T11:02:55.932782+00:00'
+    title: Search Results for "Apprenticeship"
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=apprenticeship&numericFilters=created_at_i%3E1783555200&hitsPerPage=20
+  ? https://api.github.com/search/repositories?q=whisper+extension+offline+created:%3e2026-06-01&sort=updated&order=desc&per_page=20
+  : content_hash: sha256:9bf177b49b912639
+    stored_at: data/staging/webfetch-repository-search-results-2026-07-12_11-03-05.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:03:05.470405+00:00'
+    title: Repository Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=whisper+extension+offline+created:%3E2026-06-01&sort=updated&order=desc&per_page=20
+  https://www.getmaintainx.com/blog/whats-new-at-maintainx-july-2026:
+    content_hash: sha256:b63534b91df24767
+    stored_at: data/staging/webfetch-maintainx-july-2026-update-summary-2026-07-12_11-03-07.md
+    importance_score: 80
+    last_updated: '2026-07-12T11:03:07.728091+00:00'
+    title: MaintainX July 2026 Update Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.getmaintainx.com/blog/whats-new-at-maintainx-july-2026
+  https://api.github.com/search/repositories?q=agent+sop+created:%3e2026-06-25&sort=updated&order=desc&per_page=20:
+    content_hash: sha256:6136c6c477d656ed
+    stored_at: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-21.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:03:21.310982+00:00'
+    title: GitHub Repository Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=agent+SOP+created:%3E2026-06-25&sort=updated&order=desc&per_page=20
+  ? https://api.github.com/search/repositories?q=hvac+or+electrician+or+plumbing+capture+created:%3e2026-06-01&sort=updated&order=desc&per_page=20
+  : content_hash: sha256:2961d5c2df860826
+    stored_at: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-23.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:03:23.784784+00:00'
+    title: GitHub Repository Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=hvac+OR+electrician+OR+plumbing+capture+created:%3E2026-06-01&sort=updated&order=desc&per_page=20
+  https://buildops.com/press:
+    content_hash: sha256:19d8de38b5a97db5
+    stored_at: data/staging/webfetch-press-releases-june-july-2026-2026-07-12_11-03-30.md
+    importance_score: 80
+    last_updated: '2026-07-12T11:03:30.219421+00:00'
+    title: 'Press Releases: June & July 2026'
+    maturity: growing
+    routing_type: meta
+    url: https://buildops.com/press
+  https://hvac-talk.com/vbb/threads/2264279-struggling-technicians:
+    content_hash: sha256:2bea231ada6c0e03
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-03-43.md
+    importance_score: 80
+    last_updated: '2026-07-12T11:03:43.895842+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://hvac-talk.com/vbb/threads/2264279-Struggling-Technicians
+  ? https://api.github.com/search/repositories?q=%22manifest+v3%22+recorder+created:%3e2026-06-01&sort=updated&order=desc&per_page=20
+  : content_hash: sha256:630c2badc32c6a1a
+    stored_at: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-45.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:03:45.811776+00:00'
+    title: GitHub Repository Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=%22manifest+v3%22+recorder+created:%3E2026-06-01&sort=updated&order=desc&per_page=20
+  https://api.github.com/search/repositories?q=skillrun+in:name&sort=updated&order=desc&per_page=10:
+    content_hash: sha256:230a3cc6e37a710a
+    stored_at: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-49.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:03:49.886871+00:00'
+    title: GitHub Repository Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=skillrun+in:name&sort=updated&order=desc&per_page=10
+  https://api.github.com/search/repositories?q=watch-skill+in:name&sort=updated&order=desc&per_page=10:
+    content_hash: sha256:2d06b111ea96b8cd
+    stored_at: data/staging/webfetch-repository-summary-2026-07-12_11-03-50.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:03:50.499159+00:00'
+    title: Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=watch-skill+in:name&sort=updated&order=desc&per_page=10
+  https://api.github.com/search/repositories?q=process-spec+in:name&sort=updated&order=desc&per_page=10:
+    content_hash: sha256:8a224cf2cf2a0198
+    stored_at: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-52.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:03:52.806509+00:00'
+    title: GitHub Repository Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=process-spec+in:name&sort=updated&order=desc&per_page=10
+  https://www.contractortalk.com/whats-new:
+    content_hash: sha256:35a9ab4e09016ea5
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-04-00.md
+    importance_score: 80
+    last_updated: '2026-07-12T11:04:00.904178+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.contractortalk.com/whats-new/
+  https://www.hvac-talk.com/threads/hvac-controls-books-learning-resource-recommendations.2241248:
+    content_hash: sha256:a39d3b50d2fa3fcb
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-04-02.md
+    importance_score: 80
+    last_updated: '2026-07-12T11:04:02.162079+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.hvac-talk.com/threads/hvac-controls-books-learning-resource-recommendations.2241248/
+  ? https://techstartups.com/2026/07/09/venture-capital-startup-funding-roundup-july-9-2026-sequoia-khosla-ventures-y-combinator-a16z-accel
+  : content_hash: sha256:698e28f49246e607
+    stored_at: data/staging/webfetch-funding-rounds-summary-2026-07-12_11-04-06.md
+    importance_score: 80
+    last_updated: '2026-07-12T11:04:06.352857+00:00'
+    title: Funding Rounds Summary
+    maturity: growing
+    routing_type: meta
+    url: https://techstartups.com/2026/07/09/venture-capital-startup-funding-roundup-july-9-2026-sequoia-khosla-ventures-y-combinator-a16z-accel/
+  https://api.github.com/search/repositories?q=process.md+agent+procedure&sort=updated&order=desc&per_page=10:
+    content_hash: sha256:a39e55bca1502ab9
+    stored_at: data/staging/webfetch-repository-search-results-2026-07-12_11-04-11.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:04:11.447786+00:00'
+    title: Repository Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=PROCESS.md+agent+procedure&sort=updated&order=desc&per_page=10
+  https://api.github.com/repos/oxbshw/watch-skill:
+    content_hash: sha256:feb91da0c13ca9aa
+    stored_at: data/staging/webfetch-watch-skill-repository-summary-2026-07-12_11-04-11.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:04:11.714529+00:00'
+    title: watch-skill Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/oxbshw/watch-skill
+  https://github.com/mcclawddigital/chop:
+    content_hash: sha256:8b59500aa79cb8e9
+    stored_at: data/staging/webfetch-chop-project-summary-2026-07-12_11-04-17.md
+    importance_score: 96
+    last_updated: '2026-07-12T11:04:17.517309+00:00'
+    title: Chop Project Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/McClawdDigital/Chop
+  https://github.com/carpatia77/sop-extractor:
+    content_hash: sha256:ce3f4cf082a4b13a
+    stored_at: data/staging/webfetch-sop-extractor-2026-07-12_11-04-21.md
+    importance_score: 96
+    last_updated: '2026-07-12T11:04:21.010217+00:00'
+    title: sop-extractor
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/carpatia77/sop-extractor
+  ? https://api.github.com/search/repositories?q=speech-to-text+browser+wasm+created:%3e2026-05-01&sort=updated&order=desc&per_page=15
+  : content_hash: sha256:800d77a2c0f94dae
+    stored_at: data/staging/webfetch-github-repository-summary-2026-07-12_11-04-39.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:04:39.593349+00:00'
+    title: GitHub Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=speech-to-text+browser+wasm+created:%3E2026-05-01&sort=updated&order=desc&per_page=15
+  https://github.com/ajaymaddala/agentic-kmh:
+    content_hash: sha256:f7c0e284743dad30
+    stored_at: data/staging/webfetch-agentic-kmh-project-overview-2026-07-12_11-04-42.md
+    importance_score: 96
+    last_updated: '2026-07-12T11:04:42.107173+00:00'
+    title: Agentic-KMH Project Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Ajaymaddala/Agentic-KMH
+  https://api.github.com/search/repositories?q=hvac+technician+created:%3e2026-06-01&sort=updated&order=desc&per_page=15:
+    content_hash: sha256:a09018895524224a
+    stored_at: data/staging/webfetch-hvac-github-repositories-summary-2026-07-12_11-04-47.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:04:47.213970+00:00'
+    title: HVAC GitHub Repositories Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=hvac+technician+created:%3E2026-06-01&sort=updated&order=desc&per_page=15
+  ? https://api.github.com/search/repositories?q=%22tacit+knowledge%22+created:%3e2026-06-01&sort=updated&order=desc&per_page=15
+  : content_hash: sha256:963199d9915b48cd
+    stored_at: data/staging/webfetch-github-repository-search-results-2026-07-12_11-04-52.md
+    importance_score: 85
+    last_updated: '2026-07-12T11:04:52.544847+00:00'
+    title: GitHub Repository Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=%22tacit+knowledge%22+created:%3E2026-06-01&sort=updated&order=desc&per_page=15
+  https://hn.algolia.com/api/v1/search_by_date?query=offline%20first&numericfilters=created_at_i%3e1783555200&hitsperpage=15:
+    content_hash: sha256:5bd9dd17f4eb0f34
+    stored_at: data/staging/webfetch-search-results-for-offline-first-2026-07-12_11-05-02.md
+    importance_score: 89
+    last_updated: '2026-07-12T11:05:02.467986+00:00'
+    title: Search Results for "offline first"
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=offline%20first&numericFilters=created_at_i%3E1783555200&hitsPerPage=15
+  https://github.com/shrouksamy11/tacitiq:
+    content_hash: sha256:892ea131920d175f
+    stored_at: data/staging/webfetch-tacitiq-industrial-knowledge-management-platform-2026-07-12_11-05-12.md
+    importance_score: 96
+    last_updated: '2026-07-12T11:05:12.264054+00:00'
+    title: 'TacitIQ: Industrial Knowledge Management Platform'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/shrouksamy11/TacitIQ
+  https://github.com/paradigm-study/praxis:
+    content_hash: sha256:8ed479c441aa22c1
+    stored_at: data/staging/webfetch-praxis-expert-knowledge-capture-platform-2026-07-12_11-05-13.md
+    importance_score: 96
+    last_updated: '2026-07-12T11:05:13.203859+00:00'
+    title: 'Praxis: Expert Knowledge Capture Platform'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Paradigm-Study/praxis
+  https://github.com/yunxianghuang/distill-me:
+    content_hash: sha256:3f2c729a74d08465
+    stored_at: data/staging/webfetch-distill-me-repository-analysis-2026-07-12_11-05-14.md
+    importance_score: 96
+    last_updated: '2026-07-12T11:05:14.675668+00:00'
+    title: distill-me Repository Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/YunxiangHuang/distill-me
+  https://lobste.rs/search?q=%22knowledge+capture%22+or+sop+or+%22screen+recorder%22&what=stories&order=newest:
+    content_hash: sha256:8d8e06efc74c2558
+    stored_at: data/staging/webfetch-search-results-2026-07-12_11-05-17.md
+    importance_score: 80
+    last_updated: '2026-07-12T11:05:17.157747+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/search?q=%22knowledge+capture%22+OR+SOP+OR+%22screen+recorder%22&what=stories&order=newest
+  https://hn.algolia.com/api/v1/search_by_date?query=technician&numericfilters=created_at_i%3e1783555200&hitsperpage=15:
+    content_hash: sha256:a7d2c2958f85cd2d
+    stored_at: data/staging/webfetch-search-results-for-technician-2026-07-12_11-05-37.md
+    importance_score: 89
+    last_updated: '2026-07-12T11:05:37.436300+00:00'
+    title: Search Results for "technician"
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=technician&numericFilters=created_at_i%3E1783555200&hitsPerPage=15
+  ? https://hn.algolia.com/api/v1/search_by_date?query=documentation%20tool&tags=show_hn&numericfilters=created_at_i%3e1783555200&hitsperpage=15
+  : content_hash: sha256:4a77f4765ad00ebd
+    stored_at: data/staging/webfetch-hit-found-2026-07-12_11-06-04.md
+    importance_score: 89
+    last_updated: '2026-07-12T11:06:04.182991+00:00'
+    title: '**Hit Found:**'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=documentation%20tool&tags=show_hn&numericFilters=created_at_i%3E1783555200&hitsPerPage=15
+  ? https://hn.algolia.com/api/v1/search_by_date?query=knowledge&tags=story&numericfilters=created_at_i%3e1783814400&hitsperpage=30
+  : content_hash: sha256:910d430f963d351c
+    stored_at: data/staging/webfetch-stories-list-2026-07-13_11-02-21.md
+    importance_score: 90
+    last_updated: '2026-07-13T11:02:21.676325+00:00'
+    title: Stories List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=knowledge&tags=story&numericFilters=created_at_i%3E1783814400&hitsPerPage=30
+  https://hn.algolia.com/api/v1/search_by_date?query=sop&tags=story&numericfilters=created_at_i%3e1783814400&hitsperpage=20:
+    content_hash: sha256:aeef7b5ff142fb3f
+    stored_at: data/staging/webfetch-stories-list-2026-07-13_11-02-33.md
+    importance_score: 90
+    last_updated: '2026-07-13T11:02:33.310364+00:00'
+    title: Stories List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=SOP&tags=story&numericFilters=created_at_i%3E1783814400&hitsPerPage=20
+  https://hn.algolia.com/api/v1/items/48886259:
+    content_hash: sha256:7e32228953be6532
+    stored_at: data/staging/webfetch-tacit-knowledge-discussion-summary-2026-07-13_11-02-59.md
+    importance_score: 90
+    last_updated: '2026-07-13T11:03:00.000903+00:00'
+    title: Tacit Knowledge Discussion Summary
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/48886259
+  https://xoi.io/news/xoi-advisor-asset-intelligence-launch:
+    content_hash: sha256:6ec38fa41dcd1105
+    stored_at: data/staging/webfetch-xoi-advisor-announcement-summary-2026-07-13_11-03-01.md
+    importance_score: 80
+    last_updated: '2026-07-13T11:03:01.605687+00:00'
+    title: XOi Advisor Announcement Summary
+    maturity: growing
+    routing_type: meta
+    url: https://xoi.io/news/xoi-advisor-asset-intelligence-launch/
+  ? https://hn.algolia.com/api/v1/search_by_date?query=%22skills%20shortage%22%20%22screen%20recorder%22%20%22step%20recorder%22&tags=story&numericfilters=created_at_i%3e1783814400&hitsperpage=20&optionalwords=%22skills%20shortage%22%20%22screen%20recorder%22%20%22step%20recorder%22
+  : content_hash: sha256:701199e64c643184
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-the-search-2026-07-13_11-03-34.md
+    importance_score: 90
+    last_updated: '2026-07-13T11:03:34.135440+00:00'
+    title: Based on the web page content provided, the search returned no results.
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=%22skills%20shortage%22%20%22screen%20recorder%22%20%22step%20recorder%22&tags=story&numericFilters=created_at_i%3E1783814400&hitsPerPage=20&optionalWords=%22skills%20shortage%22%20%22screen%20recorder%22%20%22step%20recorder%22
+  https://adsknews.autodesk.com/en/news/autodesk-to-acquire-maintainx-advancing-unified-platform-in-operations:
+    content_hash: sha256:f1efc321900b575f
+    stored_at: data/staging/webfetch-autodesk-maintainx-acquisition-summary-2026-07-13_11-04-02.md
+    importance_score: 80
+    last_updated: '2026-07-13T11:04:02.126534+00:00'
+    title: Autodesk-MaintainX Acquisition Summary
+    maturity: growing
+    routing_type: meta
+    url: https://adsknews.autodesk.com/en/news/autodesk-to-acquire-maintainx-advancing-unified-platform-in-operations/
+  https://www.garagejournal.com/forum/whats-new/posts:
+    content_hash: sha256:bcc5c75c70c31390
+    stored_at: data/staging/webfetch-recent-threads-summary-2026-07-13_11-04-29.md
+    importance_score: 80
+    last_updated: '2026-07-13T11:04:29.128614+00:00'
+    title: Recent Threads Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/whats-new/posts/
+  https://chromewebstore.google.com/detail/capture-flow-sop-creator/lmaoconcmgnpmoanjlcgelkbddgibled:
+    content_hash: sha256:bfcb05c854495f85
+    stored_at: data/staging/webfetch-capture-flow-sop-creator-extension-2026-07-13_11-06-31.md
+    importance_score: 80
+    last_updated: '2026-07-13T11:06:31.127323+00:00'
+    title: Capture Flow - SOP Creator Extension
+    maturity: growing
+    routing_type: meta
+    url: https://chromewebstore.google.com/detail/capture-flow-sop-creator/lmaoconcmgnpmoanjlcgelkbddgibled
+  https://cwe.mitre.org/data/definitions/915.html:
+    content_hash: sha256:56841e7d9c58ec6a
+    stored_at: data/staging/webfetch-cwe-915-summary-2026-07-13_14-08-51.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:08:51.257895+00:00'
+    title: CWE-915 Summary
+    maturity: growing
+    routing_type: meta
+    url: https://cwe.mitre.org/data/definitions/915.html
+  https://www.infoq.com/news/2009/06/eric-evans-interview-ddd:
+    content_hash: sha256:bbada88a2c15fe05
+    stored_at: data/staging/webfetch-to-answer-your-question-with-exact-quotes-i-would-2026-07-13_14-08-53.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:08:53.891427+00:00'
+    title: To answer your question with exact quotes, I would need access to the full
+      interview transcript, whi
+    maturity: growing
+    routing_type: meta
+    url: https://www.infoq.com/news/2009/06/eric-evans-interview-ddd/
+  https://owasp.org/api-security/editions/2023/en/0xa3-broken-object-property-level-authorization:
+    content_hash: sha256:8885262f7dc6f233
+    stored_at: data/staging/webfetch-api3-2023-broken-object-property-level-2026-07-13_14-08-54.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:08:54.801070+00:00'
+    title: API3:2023 Broken Object Property Level Authorization
+    maturity: growing
+    routing_type: meta
+    url: https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/
+  https://dannorth.net/cupid-the-back-story:
+    content_hash: sha256:60735d89930de1aa
+    stored_at: data/staging/webfetch-to-get-this-information-i-d-recommend-2026-07-13_14-08-59.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:08:59.936959+00:00'
+    title: 'To get this information, I''d recommend:'
+    maturity: growing
+    routing_type: meta
+    url: https://dannorth.net/cupid-the-back-story/
+  https://www.infoq.com/news/2018/02/practicing-domain-driven-design:
+    content_hash: sha256:05cc9bb77043abc4
+    stored_at: data/staging/webfetch-response-2026-07-13_14-09-10.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:09:10.394058+00:00'
+    title: Response
+    maturity: growing
+    routing_type: meta
+    url: https://www.infoq.com/news/2018/02/practicing-domain-driven-design/
+  https://dannorth.net/blog/cupid-the-back-story:
+    content_hash: sha256:ca792c89f9cb8fb0
+    stored_at: data/staging/webfetch-dan-north-s-solid-critique-and-cupid-alternative-2026-07-13_14-09-11.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:09:11.866416+00:00'
+    title: Dan North's SOLID Critique and CUPID Alternative
+    maturity: growing
+    routing_type: meta
+    url: https://dannorth.net/blog/cupid-the-back-story/
+  https://martinfowler.com/bliki/stranglerfigapplication.html:
+    content_hash: sha256:580c0de3b6a3430c
+    stored_at: data/staging/webfetch-strangler-fig-pattern-summary-2026-07-13_14-09-13.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:09:13.744814+00:00'
+    title: Strangler Fig Pattern Summary
+    maturity: growing
+    routing_type: meta
+    url: https://martinfowler.com/bliki/StranglerFigApplication.html
+  https://github.com/rails/rails/issues/5228:
+    content_hash: sha256:a5c0a43ecc57f008
+    stored_at: data/staging/webfetch-mass-assignment-vulnerability-issue-5228-analysis-2026-07-13_14-09-34.md
+    importance_score: 96
+    last_updated: '2026-07-13T14:09:34.414222+00:00'
+    title: 'Mass Assignment Vulnerability Issue #5228 Analysis'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rails/rails/issues/5228
+  https://owasp.org/api-security/editions/2023/en/0x11-t10:
+    content_hash: sha256:f7a8e48e918cba86
+    stored_at: data/staging/webfetch-owasp-api-security-top-10-2023-2026-07-13_14-09-34.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:09:34.694734+00:00'
+    title: OWASP API Security Top 10 - 2023
+    maturity: growing
+    routing_type: meta
+    url: https://owasp.org/API-Security/editions/2023/en/0x11-t10/
+  https://www.rfc-editor.org/rfc/rfc9413.html:
+    content_hash: sha256:a987ac8583a51d22
+    stored_at: data/staging/webfetch-rfc-9413-maintaining-robust-protocols-2026-07-13_14-09-35.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:09:35.386850+00:00'
+    title: 'RFC 9413: Maintaining Robust Protocols'
+    maturity: growing
+    routing_type: meta
+    url: https://www.rfc-editor.org/rfc/rfc9413.html
+  https://cheatsheetseries.owasp.org/cheatsheets/mass_assignment_cheat_sheet.html:
+    content_hash: sha256:1c70b1b4553a80e7
+    stored_at: data/staging/webfetch-mass-assignment-security-summary-2026-07-13_14-09-35.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:09:35.783150+00:00'
+    title: Mass Assignment Security Summary
+    maturity: growing
+    routing_type: meta
+    url: https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html
+  https://github.com/rails/strong_parameters:
+    content_hash: sha256:a0fd29fe15fb33f4
+    stored_at: data/staging/webfetch-strong-parameters-readme-summary-2026-07-13_14-09-36.md
+    importance_score: 96
+    last_updated: '2026-07-13T14:09:36.447446+00:00'
+    title: 'Strong Parameters: README Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rails/strong_parameters
+  ? https://www.apisec.ai/blog/understanding-broken-object-property-level-authorization-bopla-prevent-mass-assignment-and-excessive-data-exposure
+  : content_hash: sha256:c8bc2dc3f6b42f1c
+    stored_at: data/staging/webfetch-bopla-owasp-api3-2023-analysis-2026-07-13_14-09-38.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:09:38.823750+00:00'
+    title: BOPLA (OWASP API3:2023) Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.apisec.ai/blog/understanding-broken-object-property-level-authorization-bopla-prevent-mass-assignment-and-excessive-data-exposure
+  https://cwe.mitre.org/data/definitions/913.html:
+    content_hash: sha256:827cdc9ccdfb9680
+    stored_at: data/staging/webfetch-cwe-913-improper-control-of-dynamically-managed-2026-07-13_14-09-39.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:09:39.753913+00:00'
+    title: 'CWE-913: Improper Control of Dynamically-Managed Code Resources'
+    maturity: growing
+    routing_type: meta
+    url: https://cwe.mitre.org/data/definitions/913.html
+  https://www.infoq.com/presentations/strategic-design-evans:
+    content_hash: sha256:879d4d78c7505ac1
+    stored_at: data/staging/webfetch-strategic-design-evans-2026-07-13_14-09-40.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:09:40.422902+00:00'
+    title: Strategic Design Evans
+    maturity: growing
+    routing_type: meta
+    url: https://www.infoq.com/presentations/strategic-design-evans/
+  https://www.angulararchitects.io/en/blog/the-core-of-domain-driven-design:
+    content_hash: sha256:c3f8fca88317d45b
+    stored_at: data/staging/webfetch-eric-evans-on-overemphasis-of-tactical-design-2026-07-13_14-09-52.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:09:52.439702+00:00'
+    title: Eric Evans on Overemphasis of Tactical Design
+    maturity: growing
+    routing_type: meta
+    url: https://www.angulararchitects.io/en/blog/the-core-of-domain-driven-design/
+  https://dannorth.net/blog/cupid-for-joyful-coding:
+    content_hash: sha256:ed483ece8c0e82d7
+    stored_at: data/staging/webfetch-cupid-dan-north-s-alternative-to-solid-2026-07-13_14-09-55.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:09:55.012693+00:00'
+    title: 'CUPID: Dan North''s Alternative to SOLID'
+    maturity: growing
+    routing_type: meta
+    url: https://dannorth.net/blog/cupid-for-joyful-coding/
+  https://martinfowler.com/eaacatalog/transactionscript.html:
+    content_hash: sha256:1510fb00f483343f
+    stored_at: data/staging/webfetch-transaction-script-pattern-2026-07-13_14-10-04.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:10:04.517012+00:00'
+    title: Transaction Script Pattern
+    maturity: growing
+    routing_type: meta
+    url: https://martinfowler.com/eaaCatalog/transactionScript.html
+  https://martinfowler.com/bliki/anemicdomainmodel.html:
+    content_hash: sha256:e87cdf3d0bf0f00f
+    stored_at: data/staging/webfetch-fowler-s-key-claims-on-anemic-domain-models-2026-07-13_14-10-06.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:10:06.020653+00:00'
+    title: Fowler's Key Claims on Anemic Domain Models
+    maturity: growing
+    routing_type: meta
+    url: https://martinfowler.com/bliki/AnemicDomainModel.html
+  https://dev.to/bosepchuk/why-i-cant-recommend-clean-architecture-by-robert-c-martin-ofd:
+    content_hash: sha256:2c16e910b4de3df3
+    stored_at: data/staging/webfetch-analysis-of-blaine-osepchuk-s-critique-of-clean-2026-07-13_14-10-08.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:10:08.658555+00:00'
+    title: Analysis of Blaine Osepchuk's Critique of Clean Architecture
+    maturity: growing
+    routing_type: meta
+    url: https://dev.to/bosepchuk/why-i-cant-recommend-clean-architecture-by-robert-c-martin-ofd
+  https://blog.ploeh.dk/2023/10/23/domain-model-first:
+    content_hash: sha256:b62cb69bf52a15e3
+    stored_at: data/staging/webfetch-mark-seemann-s-domain-model-first-main-claims-2026-07-13_14-10-10.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:10:10.088914+00:00'
+    title: Mark Seemann's "Domain Model First" - Main Claims
+    maturity: growing
+    routing_type: meta
+    url: https://blog.ploeh.dk/2023/10/23/domain-model-first/
+  https://www.entropywins.wtf/blog/2017/02/17/why-every-single-argument-of-dan-north-is-wrong:
+    content_hash: sha256:05c6285b0f683964
+    stored_at: data/staging/webfetch-analysis-of-jeroen-de-dauw-s-response-to-dan-north-2026-07-13_14-10-15.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:10:15.353099+00:00'
+    title: Analysis of Jeroen De Dauw's Response to Dan North
+    maturity: growing
+    routing_type: meta
+    url: https://www.entropywins.wtf/blog/2017/02/17/why-every-single-argument-of-dan-north-is-wrong/
+  https://blog.inf.ed.ac.uk/sapm/2014/02/04/the-anaemic-domain-model-is-no-anti-pattern-its-a-solid-design:
+    content_hash: sha256:0726adda117a3eff
+    stored_at: data/staging/webfetch-analysis-of-the-anaemic-domain-model-article-2026-07-13_14-10-15.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:10:15.631888+00:00'
+    title: Analysis of the Anaemic Domain Model Article
+    maturity: growing
+    routing_type: meta
+    url: https://blog.inf.ed.ac.uk/sapm/2014/02/04/the-anaemic-domain-model-is-no-anti-pattern-its-a-solid-design/
+  https://blog.ploeh.dk/2011/05/31/attheboundaries,applicationsarenotobject-oriented:
+    content_hash: sha256:a5e30b2c5e51b795
+    stored_at: data/staging/webfetch-key-claims-from-at-the-boundaries-applications-2026-07-13_14-10-17.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:10:17.672784+00:00'
+    title: Key Claims from "At the Boundaries, Applications are Not Object-Oriented"
+    maturity: growing
+    routing_type: meta
+    url: https://blog.ploeh.dk/2011/05/31/AttheBoundaries,ApplicationsareNotObject-Oriented/
+  https://martinfowler.com/articles/consumerdrivencontracts.html:
+    content_hash: sha256:f6751579e7d57c76
+    stored_at: data/staging/webfetch-consumer-driven-contracts-key-claims-and-quotes-2026-07-13_14-10-18.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:10:18.974070+00:00'
+    title: 'Consumer-Driven Contracts: Key Claims and Quotes'
+    maturity: growing
+    routing_type: meta
+    url: https://martinfowler.com/articles/consumerDrivenContracts.html
+  https://martinfowler.com/bliki/parallelchange.html:
+    content_hash: sha256:40ee39f5b1131cd1
+    stored_at: data/staging/webfetch-parallel-change-three-phase-pattern-2026-07-13_14-10-20.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:10:20.130333+00:00'
+    title: 'Parallel Change: Three-Phase Pattern'
+    maturity: growing
+    routing_type: meta
+    url: https://martinfowler.com/bliki/ParallelChange.html
+  http://homakov.blogspot.com/2012/03/how-to.html:
+    content_hash: sha256:7c9c6a707edd8eb8
+    stored_at: data/staging/webfetch-egor-homakov-s-github-rails-repository-exploit-2026-07-13_14-14-30.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:14:30.798408+00:00'
+    title: Egor Homakov's GitHub Rails Repository Exploit
+    maturity: growing
+    routing_type: meta
+    url: http://homakov.blogspot.com/2012/03/how-to.html
+  https://cwe.mitre.org/data/definitions/502.html:
+    content_hash: sha256:89119572e5c98d45
+    stored_at: data/staging/webfetch-cwe-502-object-injection-references-2026-07-13_14-15-07.md
+    importance_score: 80
+    last_updated: '2026-07-13T14:15:07.494136+00:00'
+    title: 'CWE-502: Object Injection References'
+    maturity: growing
+    routing_type: meta
+    url: https://cwe.mitre.org/data/definitions/502.html
+  https://github.com/evode-manirahari/act:
+    content_hash: sha256:9c09e9535a60fe93
+    stored_at: data/staging/webfetch-act-repository-summary-2026-07-14_11-02-03.md
+    importance_score: 96
+    last_updated: '2026-07-14T11:02:03.952717+00:00'
+    title: ACT Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Evode-Manirahari/act
+  https://hn.algolia.com/api/v1/search_by_date?query=tradespeople%20knowledge&tags=story&hitsperpage=20:
+    content_hash: sha256:34b1a2cab6a6831d
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-14_11-02-18.md
+    importance_score: 90
+    last_updated: '2026-07-14T11:02:18.463626+00:00'
+    title: Based on the web page content provided, there are **no stories to list**.
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=tradespeople%20knowledge&tags=story&hitsPerPage=20
+  https://hn.algolia.com/api/v1/search?query=tacit%20knowledge%20trades&tags=story&hitsperpage=20:
+    content_hash: sha256:591e98af6890c425
+    stored_at: data/staging/webfetch-story-summary-2026-07-14_11-02-20.md
+    importance_score: 90
+    last_updated: '2026-07-14T11:02:20.041440+00:00'
+    title: Story Summary
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tacit%20knowledge%20trades&tags=story&hitsPerPage=20
+  ? https://hn.algolia.com/api/v1/search?query=tacit%20knowledge&tags=story&hitsperpage=20&numericfilters=created_at_i%3e1751000000
+  : content_hash: sha256:976ea78fb2ec31f7
+    stored_at: data/staging/webfetch-stories-about-tacit-knowledge-2026-07-14_11-02-37.md
+    importance_score: 90
+    last_updated: '2026-07-14T11:02:37.601978+00:00'
+    title: Stories about Tacit Knowledge
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tacit%20knowledge&tags=story&hitsPerPage=20&numericFilters=created_at_i%3E1751000000
+  https://hn.algolia.com/api/v1/search_by_date?query=skilled%20trades&tags=story&hitsperpage=20:
+    content_hash: sha256:6176eec2d238b4af
+    stored_at: data/staging/webfetch-stories-from-search-results-2026-07-14_11-02-47.md
+    importance_score: 90
+    last_updated: '2026-07-14T11:02:47.424139+00:00'
+    title: Stories from Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=skilled%20trades&tags=story&hitsPerPage=20
+  https://raw.githubusercontent.com/evode-manirahari/act/main/readme.md:
+    content_hash: sha256:a0d42f8acc7348cb
+    stored_at: data/staging/webfetch-act-actober-ai-readme-2026-07-14_11-02-52.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:02:52.817624+00:00'
+    title: ACT - Actober AI README
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/Evode-Manirahari/act/main/README.md
+  https://onlabor.org/training-your-replacement-one-keystroke-at-a-time:
+    content_hash: sha256:ad0afc62fae905ea
+    stored_at: data/staging/webfetch-article-summary-2026-07-14_11-03-39.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:03:39.533052+00:00'
+    title: Article Summary
+    maturity: growing
+    routing_type: meta
+    url: https://onlabor.org/training-your-replacement-one-keystroke-at-a-time/
+  https://theshearforce.substack.com/p/why-there-hasnt-been-a-chatgpt-moment:
+    content_hash: sha256:c3961fb6febdfef1
+    stored_at: data/staging/webfetch-manufacturing-ai-adoption-no-shop-floor-2026-07-14_11-03-40.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:03:40.505824+00:00'
+    title: 'Manufacturing AI Adoption: No Shop-Floor Skepticism Found'
+    maturity: growing
+    routing_type: meta
+    url: https://theshearforce.substack.com/p/why-there-hasnt-been-a-chatgpt-moment
+  https://www.hvacrschool.com/training-processes-or-apprentices:
+    content_hash: sha256:afa107b3d9306996
+    stored_at: data/staging/webfetch-article-analysis-training-processes-or-apprentices-2026-07-14_11-03-42.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:03:42.296448+00:00'
+    title: 'Article Analysis: Training: Processes or Apprentices?'
+    maturity: growing
+    routing_type: meta
+    url: https://www.hvacrschool.com/training-processes-or-apprentices/
+  https://limble.com/news:
+    content_hash: sha256:4ec2b190ec299ee9
+    stored_at: data/staging/webfetch-limble-press-releases-announcements-june-july-2026-2026-07-14_11-03-57.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:03:57.058738+00:00'
+    title: 'Limble Press Releases/Announcements: June-July 2026'
+    maturity: growing
+    routing_type: meta
+    url: https://limble.com/news
+  https://www.electriciantalk.com/threads/retiring-and-passing-along-your-knowledge.292318:
+    content_hash: sha256:7b67ad0277f9a16b
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-04-17.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:04:17.623938+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.electriciantalk.com/threads/retiring-and-passing-along-your-knowledge.292318/
+  https://www.getmaintainx.com/newsroom:
+    content_hash: sha256:44935cb65fee9abd
+    stored_at: data/staging/webfetch-maintainx-newsroom-items-june-july-2026-2026-07-14_11-04-21.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:04:21.170021+00:00'
+    title: MaintainX Newsroom Items (June-July 2026)
+    maturity: growing
+    routing_type: meta
+    url: https://www.getmaintainx.com/newsroom
+  https://www.ycombinator.com/rfs:
+    content_hash: sha256:12596acc5905ce20
+    stored_at: data/staging/webfetch-y-combinator-requests-for-startups-summer-2026-2026-07-14_11-04-50.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:04:50.328986+00:00'
+    title: Y Combinator Requests for Startups - Summer 2026
+    maturity: growing
+    routing_type: meta
+    url: https://www.ycombinator.com/rfs
+  https://raw.githubusercontent.com/puranikyashaswin/vigil/main/readme.md:
+    content_hash: sha256:1e94684e1ccd072c
+    stored_at: data/staging/webfetch-vigil-summary-2026-07-14_11-04-56.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:04:56.641841+00:00'
+    title: Vigil Summary
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/puranikyashaswin/Vigil/main/README.md
+  https://hvacknowitall.com/blog/ai-private-equity-and-the-independent-hvac-contractor-in-2026:
+    content_hash: sha256:af3f7369ae79d4a3
+    stored_at: data/staging/webfetch-analysis-first-person-quotes-and-trust-gaps-2026-07-14_11-05-07.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:05:07.048157+00:00'
+    title: 'Analysis: First-Person Quotes and Trust Gaps'
+    maturity: growing
+    routing_type: meta
+    url: https://hvacknowitall.com/blog/ai-private-equity-and-the-independent-hvac-contractor-in-2026
+  https://raw.githubusercontent.com/transitivityprimeminister2160/tacit-mining/main/readme.md:
+    content_hash: sha256:30bf169f91ee7992
+    stored_at: data/staging/webfetch-tacit-mining-summary-2026-07-14_11-05-07.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:05:07.794751+00:00'
+    title: tacit-mining Summary
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/Transitivityprimeminister2160/tacit-mining/main/README.md
+  https://www.hvacsite.com/threads/tips-tricks-advice.81:
+    content_hash: sha256:b72e2099a6be585d
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-05-24.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:05:24.411115+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.hvacsite.com/threads/tips-tricks-advice.81/
+  https://www.garagejournal.com/forum/threads/mechanics-tips-and-tricks-youve-learned.478375/page-7:
+    content_hash: sha256:577bc0678e247686
+    stored_at: data/staging/webfetch-mechanic-s-documentation-tips-2026-07-14_11-05-29.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:05:29.334753+00:00'
+    title: Mechanic's Documentation Tips
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/mechanics-tips-and-tricks-youve-learned.478375/page-7#post-9071067
+  https://www.alleywatch.com/2026/07/the-alleywatch-startup-daily-funding-report-7-13-2026:
+    content_hash: sha256:90b4b6d7e63924fe
+    stored_at: data/staging/webfetch-funding-report-summary-7-13-2026-2026-07-14_11-05-30.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:05:30.244071+00:00'
+    title: 'Funding Report Summary: 7/13/2026'
+    maturity: growing
+    routing_type: meta
+    url: https://www.alleywatch.com/2026/07/the-alleywatch-startup-daily-funding-report-7-13-2026/
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -350,3 +2577,250 @@ hashes:
   sha256:da518117d83ee81f: data/staging/webfetch-reach-capital-s-frontline-worker-ai-investment-2026-07-03_11-05-55.md
   sha256:a60a43573107ee50: data/staging/webfetch-frontline-worker-startup-funding-summary-2026-07-03_11-06-18.md
   sha256:4483397cf9246811: data/staging/webfetch-documentation-tools-thread-summary-2026-07-03_11-06-58.md
+  sha256:1086a910c84fd5cb: data/staging/webfetch-stories-about-tacit-knowledge-2026-07-04_11-03-12.md
+  sha256:33cc1b4081176fe2: data/staging/webfetch-story-list-2026-07-04_11-03-14.md
+  sha256:f1335dc666f2d89c: data/staging/webfetch-hacker-news-stories-gemini-nano-extensions-2026-07-04_11-03-34.md
+  sha256:a8253efbb91d7d9b: data/staging/webfetch-stories-list-2026-07-04_11-03-38.md
+  sha256:565c8e8d234b5402: data/staging/webfetch-mimik-repository-overview-2026-07-04_11-03-45.md
+  sha256:9d0bcb42f38c2198: data/staging/webfetch-recorder-repository-overview-2026-07-04_11-03-46.md
+  sha256:22ed5e668edeaef1: data/staging/webfetch-openstep-repository-summary-2026-07-04_11-03-47.md
+  sha256:381408fae31ccd0d: data/staging/webfetch-repository-information-step-by-step-guide-2026-07-04_11-03-47.md
+  sha256:09b83774d2f10bab: data/staging/webfetch-obsidian-clipper-repository-overview-2026-07-04_11-04-03.md
+  sha256:195abbcf64fe0ef9: data/staging/webfetch-distillama-repository-summary-2026-07-04_11-04-04.md
+  sha256:ea1b90c69e90bef1: data/staging/webfetch-repository-list-2026-07-04_11-04-05.md
+  sha256:b6b677af0f3fcbaa: data/staging/webfetch-riffrec-repository-overview-2026-07-04_11-04-06.md
+  sha256:1ea2bc25dac54027: data/staging/webfetch-web-ai-demos-repository-summary-2026-07-04_11-04-25.md
+  sha256:9ef16dbf4c98b019: data/staging/webfetch-github-repositories-list-2026-07-04_11-04-34.md
+  sha256:a96dc28b2268e042: data/staging/webfetch-sop-generator-repositories-on-github-2026-07-04_11-04-36.md
+  sha256:f7e979411389289d: data/staging/webfetch-github-repository-list-2026-07-04_11-04-36.md
+  sha256:ff4731ca26ef0fd0: data/staging/webfetch-based-on-the-repository-data-provided-2026-07-04_11-04-51.md
+  sha256:b24522b3209f757e: data/staging/webfetch-chrome-prompt-api-stories-2026-07-04_11-05-01.md
+  sha256:ca4d9ed718e86ce6: data/staging/webfetch-notelyvoice-repository-summary-2026-07-04_11-05-10.md
+  sha256:d0ef7f4e05043d33: data/staging/webfetch-mozilla-s-opposition-to-chrome-s-prompt-api-2026-07-04_11-05-25.md
+  sha256:392820de38a83115: data/staging/webfetch-reddit-r-skilledtrades-posts-summary-2026-07-04_11-05-36.md
+  sha256:d491e1d11d9f11a0: data/staging/webfetch-reddit-posts-summary-2026-07-04_11-06-17.md
+  sha256:4fc9d570b10081bd: data/staging/webfetch-stories-list-2026-07-04_11-06-51.md
+  sha256:2b22febbf2612ce7: data/staging/webfetch-poka-pricing-model-summary-2026-07-05_11-04-12.md
+  sha256:beef83576461fafa: data/staging/webfetch-servicepytan-library-overview-2026-07-05_11-04-18.md
+  sha256:dfaf963b8e1600bb: data/staging/webfetch-to-get-accurate-answers-to-your-questions-about-2026-07-05_11-04-19.md
+  sha256:978d45e595ffc46a: data/staging/webfetch-jobber-apptemplate-railsapi-summary-2026-07-05_11-04-22.md
+  sha256:9104db2fabbb74d4: data/staging/webfetch-openinspection-summary-2026-07-05_11-04-37.md
+  sha256:88731259dc1610ed: data/staging/webfetch-reddit-posts-about-notebooks-and-field-note-2026-07-05_11-04-38.md
+  sha256:1d8d39423153ac43: data/staging/webfetch-whispering-project-overview-2026-07-05_11-04-57.md
+  sha256:ae1a783093aa40be: data/staging/webfetch-most-substantive-hvac-field-notebook-comments-2026-07-05_11-05-01.md
+  sha256:a5002c9298c65720: data/staging/webfetch-reddit-posts-on-notebooks-and-job-learning-2026-07-05_11-05-02.md
+  sha256:d5c0281cd017a60a: data/staging/webfetch-poka-s-ai-content-capture-features-2026-07-05_11-05-12.md
+  sha256:60e54e09bcf0305d: data/staging/webfetch-servicetitan-app-marketplace-program-developer-2026-07-05_11-05-16.md
+  sha256:82b71fcc4f0bb4f3: data/staging/webfetch-reddit-posts-search-results-2026-07-05_11-05-16.md
+  sha256:c781b141f6d2f4d1: data/staging/webfetch-blackwood-daily-notes-app-analysis-2026-07-05_11-05-21.md
+  sha256:6bc4f7a5ba657df7: data/staging/webfetch-atlas-cmms-report-2026-07-05_11-05-21.md
+  sha256:71c6bc999fec74f0: data/staging/webfetch-moonshinejs-report-2026-07-05_11-05-22.md
+  sha256:0292a549583b140c: data/staging/webfetch-substantive-comments-on-knowledge-sharing-between-2026-07-05_11-05-27.md
+  sha256:5ad2954ffb0e84e2: data/staging/webfetch-poka-s-ai-knowledge-capture-workflow-2026-07-05_11-05-38.md
+  sha256:11d7d98e281f21f1: data/staging/webfetch-reddit-comments-on-training-replacements-2026-07-05_11-05-47.md
+  sha256:333c44f7be17e356: data/staging/webfetch-why-electricians-guard-knowledge-6-substantive-2026-07-05_11-05-50.md
+  sha256:e70300bd2e364c7d: data/staging/webfetch-voice-memo-comments-in-r-hvac-2026-07-05_11-06-05.md
+  sha256:3f6809badcaf72bf: data/staging/webfetch-hvac-professionals-on-taking-pictures-on-the-job-2026-07-05_11-06-12.md
+  sha256:a68a2bb4cde50093: data/staging/webfetch-servicetitan-app-marketplace-certification-summary-2026-07-05_11-06-16.md
+  sha256:e935f6fc706b00a5: data/staging/webfetch-ai-features-comparison-jobber-servicetitan-2026-07-05_11-06-21.md
+  sha256:c883b9b07be8b6b7: data/staging/webfetch-reddit-comments-mentioning-companycam-2026-07-05_11-06-39.md
+  sha256:7d3fcb4ff2818264: data/staging/webfetch-reddit-comments-on-writing-things-down-for-2026-07-05_11-06-43.md
+  sha256:17108d370de2b67f: data/staging/webfetch-mechanics-on-notebook-documentation-2026-07-05_11-07-05.md
+  sha256:fc4ee8d9cbb1a556: data/staging/webfetch-work-based-camera-apps-electricians-solutions-2026-07-05_11-07-24.md
+  sha256:3b076ee1b1494426: data/staging/webfetch-hvac-field-notes-tools-reddit-comments-summary-2026-07-05_11-07-26.md
+  sha256:31caf61451040584: data/staging/webfetch-reddit-comments-on-knowledge-loss-in-trades-2026-07-05_11-07-43.md
+  sha256:89b2a7b1a919f6de: data/staging/webfetch-hvac-job-security-knowledge-gatekeeping-2026-07-05_11-08-06.md
+  sha256:04a8531cc3b126e3: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-06_11-03-29.md
+  sha256:d1559f1c512f415d: data/staging/webfetch-search-results-for-tradespeople-ai-tools-2026-07-06_11-03-44.md
+  sha256:0a7ee18665b2fc9b: data/staging/webfetch-atlas-ai-nameplate-scan-overview-2026-07-06_11-04-20.md
+  sha256:bc05dfc8b6a5711a: data/staging/webfetch-second-brain-repository-overview-2026-07-06_11-04-22.md
+  sha256:663699aed4571805: data/staging/webfetch-pain-points-with-job-site-photos-2026-07-06_11-04-52.md
+  sha256:7a895174fdf6d9f3: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-06_11-05-09.md
+  sha256:0e939821b9fbc6d0: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-06_11-05-33.md
+  sha256:d3b0252d19775b20: data/staging/webfetch-search-results-for-tango-workflow-documentation-2026-07-07_11-06-14.md
+  sha256:f82efaec074168fb: data/staging/webfetch-search-results-2026-07-07_11-06-15.md
+  sha256:d54ca469d8fdebfd: data/staging/webfetch-stories-from-search-results-2026-07-07_11-06-18.md
+  sha256:d5782e130a2d031d: data/staging/webfetch-story-list-2026-07-07_11-06-23.md
+  sha256:b562941b93d1c1bd: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-07_11-06-31.md
+  sha256:bf07e24f55a89bf4: data/staging/webfetch-stories-from-search-results-2026-07-07_11-06-35.md
+  sha256:98885f51b4c6086a: data/staging/webfetch-stories-from-search-results-2026-07-07_11-06-38.md
+  sha256:1fa45df73ea5d967: data/staging/webfetch-hacker-news-stories-documentation-sop-2026-07-07_11-06-40.md
+  sha256:99872ce5839e9899: data/staging/webfetch-arxiv-papers-tacit-knowledge-knowledge-capture-2026-07-07_11-06-58.md
+  sha256:f547cda9d74a746b: data/staging/webfetch-arxiv-papers-summary-2026-07-07_11-07-02.md
+  sha256:5cef67f764a062aa: data/staging/webfetch-arxiv-papers-llm-agents-and-skills-2026-07-07_11-07-11.md
+  sha256:be9844ee614f7895: data/staging/webfetch-deploysentinel-recorder-repository-summary-2026-07-07_11-07-22.md
+  sha256:3f0b45d1de01a8bc: data/staging/webfetch-headless-recorder-repository-summary-2026-07-07_11-07-24.md
+  sha256:f99240f88b1d5823: data/staging/webfetch-arxiv-search-results-2026-07-07_11-07-44.md
+  sha256:c809eb1ca09cbe22: data/staging/webfetch-arxiv-papers-on-knowledge-management-and-related-2026-07-07_11-07-45.md
+  sha256:072044799326f243: data/staging/webfetch-arxiv-papers-summary-2026-07-07_11-07-47.md
+  sha256:f13e6f66b234aaa5: data/staging/webfetch-search-results-for-documentation-debt-wiki-rot-2026-07-07_11-08-14.md
+  sha256:522cbfc98360e56a: data/staging/webfetch-paper-details-2026-07-07_11-08-17.md
+  sha256:08d366cc59b1ffd3: data/staging/webfetch-paper-details-2026-07-07_11-08-17.md
+  sha256:7f1e0e345e140681: data/staging/webfetch-datch-ai-powered-diagnostic-knowledge-capture-2026-07-07_11-08-47.md
+  sha256:bf40b66a90e6e9e1: data/staging/webfetch-story-results-2026-07-08_11-04-14.md
+  sha256:8d1a33f361dd1aa7: data/staging/webfetch-search-results-2026-07-08_11-04-15.md
+  sha256:c0adfc0d0712e371: data/staging/webfetch-search-results-for-skilled-trades-skills-gap-2026-07-08_11-04-16.md
+  sha256:3d01572205b7b020: data/staging/webfetch-chrome-extension-manifest-v3-stories-2026-07-08_11-04-25.md
+  sha256:8f094ac4ac3f80a7: data/staging/webfetch-search-results-for-scribe-tango-how-to-guide-2026-07-09_11-03-51.md
+  sha256:d74a0e18d464dde1: data/staging/webfetch-search-results-knowledge-loss-retirement-workforce-2026-07-09_11-03-52.md
+  sha256:b9ed7918adef9041: data/staging/webfetch-hacker-news-stories-tribal-knowledge-capture-2026-07-09_11-03-57.md
+  sha256:638dc25a1f6854a5: data/staging/webfetch-hn-stories-sop-documentation-and-tools-2026-07-09_11-03-59.md
+  sha256:cceb9d6b41e881db: data/staging/webfetch-praxia-overview-2026-07-09_11-04-11.md
+  sha256:a67c4af9a76eda27: data/staging/webfetch-sopx-field-service-solution-2026-07-09_11-04-13.md
+  sha256:6fd93c63bd173512: data/staging/webfetch-arxiv-query-results-2026-07-09_11-04-22.md
+  sha256:3608fe0e8815a2fe: data/staging/webfetch-meetily-repository-summary-2026-07-09_11-04-34.md
+  sha256:ad5d7227e4e4074f: data/staging/webfetch-speakr-overview-2026-07-09_11-04-35.md
+  sha256:a84a0b69afc95393: data/staging/webfetch-arxiv-search-results-summary-2026-07-09_11-04-52.md
+  sha256:e90cfa58d36c60f5: data/staging/webfetch-arxiv-search-results-2026-07-09_11-04-54.md
+  sha256:560ffa241e1b9c6e: data/staging/webfetch-the-document-shows-2026-07-09_11-05-33.md
+  sha256:a133f2d38bb95782: data/staging/webfetch-documentation-tool-comparison-summary-2026-07-09_11-05-39.md
+  sha256:729d5fae39eb0dab: data/staging/webfetch-tribal-knowledge-loss-in-manufacturing-key-2026-07-09_11-05-39.md
+  sha256:4678df0084294199: data/staging/webfetch-research-summary-factory-operators-and-cognitive-2026-07-09_11-06-00.md
+  sha256:1cd864bc339fa2a5: data/staging/webfetch-scribe-alternatives-real-user-complaints-why-2026-07-09_11-06-03.md
+  sha256:bdbc657cf25ccac8: data/staging/webfetch-why-sops-fail-key-reasons-2026-07-09_11-06-05.md
+  sha256:7686dca863a2cbf8: data/staging/webfetch-top-comment-themes-on-hypercubic-launch-2026-07-09_11-06-06.md
+  sha256:8c14044b10fe197e: data/staging/webfetch-documentation-tools-challenges-top-themes-2026-07-09_11-06-39.md
+  sha256:630d21126169e0c8: data/staging/webfetch-the-tribal-knowledge-crisis-in-manufacturing-2026-07-09_11-06-40.md
+  sha256:9b0413ecb661c76b: data/staging/webfetch-us-margin-trading-fees-on-kraken-2026-07-09_14-45-32.md
+  sha256:7414ec0f8e55da43: data/staging/webfetch-us-margin-trading-on-kraken-2026-07-09_14-45-33.md
+  sha256:209f4006db9a7e58: data/staging/webfetch-search-results-for-tacit-knowledge-trades-2026-07-10_11-02-47.md
+  sha256:57e3493c62f36e20: data/staging/webfetch-stories-from-search-results-2026-07-10_11-02-56.md
+  sha256:e07ed91c1413dd37: data/staging/webfetch-stories-about-tribal-knowledge-2026-07-10_11-03-15.md
+  sha256:df3f00484fa88254: data/staging/webfetch-stories-from-search-results-2026-07-10_11-03-17.md
+  sha256:a3059db08dde0582: data/staging/webfetch-video-to-sop-generator-repository-2026-07-10_11-03-20.md
+  sha256:18a9b85ca56d8681: data/staging/webfetch-genai-knowledge-capture-repository-2026-07-10_11-03-22.md
+  sha256:865ce02473a96230: data/staging/webfetch-agent-sop-repository-summary-2026-07-10_11-03-22.md
+  sha256:cccfd60d2ff9f05e: data/staging/webfetch-notelyvoice-repository-summary-2026-07-10_11-03-23.md
+  sha256:f81fa10366b44913: data/staging/webfetch-casperai-repository-summary-2026-07-10_11-03-25.md
+  sha256:d530f95edd6dd135: data/staging/webfetch-repository-analysis-voice-memo-sync-2026-07-10_11-03-26.md
+  sha256:3b35f17fa9b97999: data/staging/webfetch-voicebox-repository-report-2026-07-10_11-03-26.md
+  sha256:94208bc0d26c3b95: data/staging/webfetch-mentraos-repository-summary-2026-07-10_11-03-59.md
+  sha256:0676e2c4ca21c48a: data/staging/webfetch-repository-summary-voice-to-drive-2026-07-10_11-04-00.md
+  sha256:497c073f7ca6b0a9: data/staging/webfetch-dataland-s-description-states-ai-agents-for-2026-07-10_11-04-08.md
+  sha256:05979cd84734942f: data/staging/webfetch-maintainx-may-2026-new-features-2026-07-10_11-04-13.md
+  sha256:cca74931d9752f29: data/staging/webfetch-show-hn-stories-2026-07-10_11-04-28.md
+  sha256:8957fe8c458e69f9: data/staging/webfetch-stories-found-2026-07-10_11-04-42.md
+  sha256:70af9d9377162d65: data/staging/webfetch-stories-list-2026-07-10_11-04-46.md
+  sha256:f53f38aa23a1cbfc: data/staging/webfetch-lobsters-article-summary-2026-07-10_11-05-01.md
+  sha256:3cad3850edf05ae8: data/staging/webfetch-stories-blue-collar-ai-2026-07-10_11-05-02.md
+  sha256:97fdbd70ccc150fd: data/staging/webfetch-top-comment-themes-from-hn-thread-2026-07-10_11-05-41.md
+  sha256:b0de72344700611f: data/staging/webfetch-search-2026-07-10_11-06-01.md
+  sha256:053662baed88701c: data/staging/webfetch-article-summary-2026-07-10_11-06-06.md
+  sha256:4e2db05795015d68: data/staging/webfetch-summary-of-ai-trends-in-skilled-trades-2026-07-10_11-06-22.md
+  sha256:384fc111d8993471: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-11_11-02-38.md
+  sha256:3772b0d9f4e27ecc: data/staging/webfetch-stories-found-2026-07-11_11-02-40.md
+  sha256:5f7b1cd6c98d321f: data/staging/webfetch-stories-from-search-results-2026-07-11_11-02-50.md
+  sha256:d3d1f858a02f6bf6: data/staging/webfetch-summary-ai-tools-in-trade-field-service-2026-07-11_11-03-07.md
+  sha256:c4792d36df1173bc: data/staging/webfetch-poka-industrial-ai-launch-summary-2026-07-11_11-03-11.md
+  sha256:9b62617cc2feb0aa: data/staging/webfetch-stories-found-2026-07-11_11-03-31.md
+  sha256:c62d4e082cab5667: data/staging/webfetch-stories-found-2026-07-11_11-03-34.md
+  sha256:95b2581387f4aa39: data/staging/webfetch-search-by-date-2026-07-11_11-03-58.md
+  sha256:5c31f37560d8854f: data/staging/webfetch-maintainx-ai-features-announcement-2026-07-11_11-04-00.md
+  sha256:4a76a4690bbdca18: data/staging/webfetch-search-2026-07-11_11-04-01.md
+  sha256:f3fe0001a14dd4d5: data/staging/webfetch-maintainx-ai-features-announcement-2026-07-11_11-04-24.md
+  sha256:e157d15051c5ed3e: data/staging/webfetch-orbio-series-a-funding-summary-2026-07-11_11-04-27.md
+  sha256:1a35369df7a5a612: data/staging/webfetch-search-2026-07-11_11-04-28.md
+  sha256:a5e1c9c6595fb875: data/staging/webfetch-stories-found-2026-07-11_11-04-42.md
+  sha256:dddc2385216279df: data/staging/webfetch-daedalus-capture-ios-project-summary-2026-07-11_11-05-59.md
+  sha256:53e4eb14d49fb73f: data/staging/webfetch-sitescribe-project-summary-2026-07-11_11-06-01.md
+  sha256:3ecffa866cb2a4ce: data/staging/webfetch-process-md-specification-summary-2026-07-11_11-06-13.md
+  sha256:9ec343aa7083c32a: data/staging/webfetch-knowtwin-project-summary-2026-07-11_11-06-15.md
+  sha256:371131240d4f87d2: data/staging/webfetch-axm-wolf-project-summary-2026-07-11_11-06-28.md
+  sha256:d48ec7d5cc1c186e: data/staging/webfetch-browser-whisper-summary-2026-07-11_11-06-30.md
+  sha256:511dde1f7d4190f7: data/staging/webfetch-repository-report-2026-07-12_11-02-08.md
+  sha256:b6593ebf0d287bda: data/staging/webfetch-repository-report-2026-07-12_11-02-09.md
+  sha256:38360ab20503d33a: data/staging/webfetch-recent-commits-from-sitescribe-repository-2026-07-12_11-02-12.md
+  sha256:682243881cfdd9bb: data/staging/webfetch-search-by-date-2026-07-12_11-02-16.md
+  sha256:3efca9acc8eca021: data/staging/webfetch-search-by-date-2026-07-12_11-02-16.md
+  sha256:6c520ea967d0ebcb: data/staging/webfetch-the-search-for-field-service-returned-zero-2026-07-12_11-02-18.md
+  sha256:2889931ef95f9ef1: data/staging/webfetch-repository-summary-2026-07-12_11-02-32.md
+  sha256:0278598be12a6ec2: data/staging/webfetch-github-repository-search-results-2026-07-12_11-02-35.md
+  sha256:7f627321e16b4c0e: data/staging/webfetch-search-results-for-sop-2026-07-12_11-02-38.md
+  sha256:9962cbbc4a527e81: data/staging/webfetch-search-results-for-skilled-trades-2026-07-12_11-02-39.md
+  sha256:6d3f72fa31dd332b: data/staging/webfetch-search-results-knowledge-capture-2026-07-12_11-02-42.md
+  sha256:a748e05870f52cc0: data/staging/webfetch-github-repositories-search-results-2026-07-12_11-02-48.md
+  sha256:bc3c820495801efb: data/staging/webfetch-search-results-2026-07-12_11-02-53.md
+  sha256:d871f6ac8b0537ce: data/staging/webfetch-search-results-for-apprenticeship-2026-07-12_11-02-55.md
+  sha256:9bf177b49b912639: data/staging/webfetch-repository-search-results-2026-07-12_11-03-05.md
+  sha256:b63534b91df24767: data/staging/webfetch-maintainx-july-2026-update-summary-2026-07-12_11-03-07.md
+  sha256:6136c6c477d656ed: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-21.md
+  sha256:2961d5c2df860826: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-23.md
+  sha256:19d8de38b5a97db5: data/staging/webfetch-press-releases-june-july-2026-2026-07-12_11-03-30.md
+  sha256:2bea231ada6c0e03: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-03-43.md
+  sha256:630c2badc32c6a1a: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-45.md
+  sha256:230a3cc6e37a710a: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-49.md
+  sha256:2d06b111ea96b8cd: data/staging/webfetch-repository-summary-2026-07-12_11-03-50.md
+  sha256:8a224cf2cf2a0198: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-52.md
+  sha256:35a9ab4e09016ea5: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-04-00.md
+  sha256:a39d3b50d2fa3fcb: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-04-02.md
+  sha256:698e28f49246e607: data/staging/webfetch-funding-rounds-summary-2026-07-12_11-04-06.md
+  sha256:a39e55bca1502ab9: data/staging/webfetch-repository-search-results-2026-07-12_11-04-11.md
+  sha256:feb91da0c13ca9aa: data/staging/webfetch-watch-skill-repository-summary-2026-07-12_11-04-11.md
+  sha256:8b59500aa79cb8e9: data/staging/webfetch-chop-project-summary-2026-07-12_11-04-17.md
+  sha256:ce3f4cf082a4b13a: data/staging/webfetch-sop-extractor-2026-07-12_11-04-21.md
+  sha256:800d77a2c0f94dae: data/staging/webfetch-github-repository-summary-2026-07-12_11-04-39.md
+  sha256:f7c0e284743dad30: data/staging/webfetch-agentic-kmh-project-overview-2026-07-12_11-04-42.md
+  sha256:a09018895524224a: data/staging/webfetch-hvac-github-repositories-summary-2026-07-12_11-04-47.md
+  sha256:963199d9915b48cd: data/staging/webfetch-github-repository-search-results-2026-07-12_11-04-52.md
+  sha256:5bd9dd17f4eb0f34: data/staging/webfetch-search-results-for-offline-first-2026-07-12_11-05-02.md
+  sha256:892ea131920d175f: data/staging/webfetch-tacitiq-industrial-knowledge-management-platform-2026-07-12_11-05-12.md
+  sha256:8ed479c441aa22c1: data/staging/webfetch-praxis-expert-knowledge-capture-platform-2026-07-12_11-05-13.md
+  sha256:3f2c729a74d08465: data/staging/webfetch-distill-me-repository-analysis-2026-07-12_11-05-14.md
+  sha256:8d8e06efc74c2558: data/staging/webfetch-search-results-2026-07-12_11-05-17.md
+  sha256:a7d2c2958f85cd2d: data/staging/webfetch-search-results-for-technician-2026-07-12_11-05-37.md
+  sha256:4a77f4765ad00ebd: data/staging/webfetch-hit-found-2026-07-12_11-06-04.md
+  sha256:910d430f963d351c: data/staging/webfetch-stories-list-2026-07-13_11-02-21.md
+  sha256:aeef7b5ff142fb3f: data/staging/webfetch-stories-list-2026-07-13_11-02-33.md
+  sha256:7e32228953be6532: data/staging/webfetch-tacit-knowledge-discussion-summary-2026-07-13_11-02-59.md
+  sha256:6ec38fa41dcd1105: data/staging/webfetch-xoi-advisor-announcement-summary-2026-07-13_11-03-01.md
+  sha256:701199e64c643184: data/staging/webfetch-based-on-the-web-page-content-provided-the-search-2026-07-13_11-03-34.md
+  sha256:f1efc321900b575f: data/staging/webfetch-autodesk-maintainx-acquisition-summary-2026-07-13_11-04-02.md
+  sha256:bcc5c75c70c31390: data/staging/webfetch-recent-threads-summary-2026-07-13_11-04-29.md
+  sha256:bfcb05c854495f85: data/staging/webfetch-capture-flow-sop-creator-extension-2026-07-13_11-06-31.md
+  sha256:56841e7d9c58ec6a: data/staging/webfetch-cwe-915-summary-2026-07-13_14-08-51.md
+  sha256:bbada88a2c15fe05: data/staging/webfetch-to-answer-your-question-with-exact-quotes-i-would-2026-07-13_14-08-53.md
+  sha256:8885262f7dc6f233: data/staging/webfetch-api3-2023-broken-object-property-level-2026-07-13_14-08-54.md
+  sha256:60735d89930de1aa: data/staging/webfetch-to-get-this-information-i-d-recommend-2026-07-13_14-08-59.md
+  sha256:05cc9bb77043abc4: data/staging/webfetch-response-2026-07-13_14-09-10.md
+  sha256:ca792c89f9cb8fb0: data/staging/webfetch-dan-north-s-solid-critique-and-cupid-alternative-2026-07-13_14-09-11.md
+  sha256:580c0de3b6a3430c: data/staging/webfetch-strangler-fig-pattern-summary-2026-07-13_14-09-13.md
+  sha256:a5c0a43ecc57f008: data/staging/webfetch-mass-assignment-vulnerability-issue-5228-analysis-2026-07-13_14-09-34.md
+  sha256:f7a8e48e918cba86: data/staging/webfetch-owasp-api-security-top-10-2023-2026-07-13_14-09-34.md
+  sha256:a987ac8583a51d22: data/staging/webfetch-rfc-9413-maintaining-robust-protocols-2026-07-13_14-09-35.md
+  sha256:1c70b1b4553a80e7: data/staging/webfetch-mass-assignment-security-summary-2026-07-13_14-09-35.md
+  sha256:a0fd29fe15fb33f4: data/staging/webfetch-strong-parameters-readme-summary-2026-07-13_14-09-36.md
+  sha256:c8bc2dc3f6b42f1c: data/staging/webfetch-bopla-owasp-api3-2023-analysis-2026-07-13_14-09-38.md
+  sha256:827cdc9ccdfb9680: data/staging/webfetch-cwe-913-improper-control-of-dynamically-managed-2026-07-13_14-09-39.md
+  sha256:879d4d78c7505ac1: data/staging/webfetch-strategic-design-evans-2026-07-13_14-09-40.md
+  sha256:c3f8fca88317d45b: data/staging/webfetch-eric-evans-on-overemphasis-of-tactical-design-2026-07-13_14-09-52.md
+  sha256:ed483ece8c0e82d7: data/staging/webfetch-cupid-dan-north-s-alternative-to-solid-2026-07-13_14-09-55.md
+  sha256:1510fb00f483343f: data/staging/webfetch-transaction-script-pattern-2026-07-13_14-10-04.md
+  sha256:e87cdf3d0bf0f00f: data/staging/webfetch-fowler-s-key-claims-on-anemic-domain-models-2026-07-13_14-10-06.md
+  sha256:2c16e910b4de3df3: data/staging/webfetch-analysis-of-blaine-osepchuk-s-critique-of-clean-2026-07-13_14-10-08.md
+  sha256:b62cb69bf52a15e3: data/staging/webfetch-mark-seemann-s-domain-model-first-main-claims-2026-07-13_14-10-10.md
+  sha256:05c6285b0f683964: data/staging/webfetch-analysis-of-jeroen-de-dauw-s-response-to-dan-north-2026-07-13_14-10-15.md
+  sha256:0726adda117a3eff: data/staging/webfetch-analysis-of-the-anaemic-domain-model-article-2026-07-13_14-10-15.md
+  sha256:a5e30b2c5e51b795: data/staging/webfetch-key-claims-from-at-the-boundaries-applications-2026-07-13_14-10-17.md
+  sha256:f6751579e7d57c76: data/staging/webfetch-consumer-driven-contracts-key-claims-and-quotes-2026-07-13_14-10-18.md
+  sha256:40ee39f5b1131cd1: data/staging/webfetch-parallel-change-three-phase-pattern-2026-07-13_14-10-20.md
+  sha256:7c9c6a707edd8eb8: data/staging/webfetch-egor-homakov-s-github-rails-repository-exploit-2026-07-13_14-14-30.md
+  sha256:89119572e5c98d45: data/staging/webfetch-cwe-502-object-injection-references-2026-07-13_14-15-07.md
+  sha256:9c09e9535a60fe93: data/staging/webfetch-act-repository-summary-2026-07-14_11-02-03.md
+  sha256:34b1a2cab6a6831d: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-14_11-02-18.md
+  sha256:591e98af6890c425: data/staging/webfetch-story-summary-2026-07-14_11-02-20.md
+  sha256:976ea78fb2ec31f7: data/staging/webfetch-stories-about-tacit-knowledge-2026-07-14_11-02-37.md
+  sha256:6176eec2d238b4af: data/staging/webfetch-stories-from-search-results-2026-07-14_11-02-47.md
+  sha256:a0d42f8acc7348cb: data/staging/webfetch-act-actober-ai-readme-2026-07-14_11-02-52.md
+  sha256:ad0afc62fae905ea: data/staging/webfetch-article-summary-2026-07-14_11-03-39.md
+  sha256:c3961fb6febdfef1: data/staging/webfetch-manufacturing-ai-adoption-no-shop-floor-2026-07-14_11-03-40.md
+  sha256:afa107b3d9306996: data/staging/webfetch-article-analysis-training-processes-or-apprentices-2026-07-14_11-03-42.md
+  sha256:4ec2b190ec299ee9: data/staging/webfetch-limble-press-releases-announcements-june-july-2026-2026-07-14_11-03-57.md
+  sha256:7b67ad0277f9a16b: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-04-17.md
+  sha256:44935cb65fee9abd: data/staging/webfetch-maintainx-newsroom-items-june-july-2026-2026-07-14_11-04-21.md
+  sha256:12596acc5905ce20: data/staging/webfetch-y-combinator-requests-for-startups-summer-2026-2026-07-14_11-04-50.md
+  sha256:1e94684e1ccd072c: data/staging/webfetch-vigil-summary-2026-07-14_11-04-56.md
+  sha256:af3f7369ae79d4a3: data/staging/webfetch-analysis-first-person-quotes-and-trust-gaps-2026-07-14_11-05-07.md
+  sha256:30bf169f91ee7992: data/staging/webfetch-tacit-mining-summary-2026-07-14_11-05-07.md
+  sha256:b72e2099a6be585d: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-05-24.md
+  sha256:577bc0678e247686: data/staging/webfetch-mechanic-s-documentation-tips-2026-07-14_11-05-29.md
+  sha256:90b4b6d7e63924fe: data/staging/webfetch-funding-report-summary-7-13-2026-2026-07-14_11-05-30.md

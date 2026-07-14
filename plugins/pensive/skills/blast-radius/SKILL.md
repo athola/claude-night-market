@@ -18,6 +18,11 @@ dependencies:
 Analyze the impact of current code changes using the
 code knowledge graph.
 
+## When NOT To Use
+
+- Reading the changed code for defects (use `pensive:bug-review`)
+- The code graph is missing or stale (use `gauntlet:graph-build`)
+
 ## Prerequisites
 
 This skill requires the **gauntlet** plugin for graph

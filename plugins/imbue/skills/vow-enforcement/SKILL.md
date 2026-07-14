@@ -245,7 +245,7 @@ execute -> [Nen Court: justify]     -> pr-prep
 Phase advances only when Nen Court returns `pass` or
 the user provides an explicit override.
 
-## When to Use
+## When To Use
 
 - Designing new constraints for the codebase
 - Auditing existing constraints for enforcement gaps

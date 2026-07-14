@@ -41,6 +41,11 @@ earns weight, repetition reserved for the thesis). See
 `Skill(scribe:slop-detector)` module `document-economy.md`
 for the full rubric.
 
+## When NOT To Use
+
+- Converting an external file into markdown (use `scribe:doc-importer`)
+- Scanning existing prose for AI patterns (use `scribe:slop-detector`)
+
 ## Core Writing Principles
 
 Use active voice and an authorial perspective. Explain the

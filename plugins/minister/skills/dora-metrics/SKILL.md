@@ -42,7 +42,7 @@ each metric into Elite, High, Medium, or Low using thresholds from
 DORA's State of DevOps research, and surface the single weakest
 dimension as the next improvement target.
 
-## When to Use
+## When To Use
 
 - Engineering management retrospectives and quarterly reviews.
 - Auditing whether agentic workflows (AI-assisted PRs, automated

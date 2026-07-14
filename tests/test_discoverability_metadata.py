@@ -1,16 +1,26 @@
 """
-Test suite for ecosystem-wide discoverability enhancements (v1.4.0).
+Test suite for ecosystem-wide discoverability enhancements.
 
 Validates that all skills, commands, and agents follow the discoverability
-pattern established in the v1.4.0 enhancement.
+pattern documented in ``docs/skill-description-guide.md``.
 
-Pattern: [WHAT]. Use when: [triggers]. Do not use when: [boundaries].
+Pattern: [WHAT]. Use when [trigger]. [Optional: Do not use when [boundary].]
+
+The character cap is NOT hardcoded here. It is imported from
+``plugins/abstract/scripts/validate_budget.py``, the same module the
+``validate-description-budget`` pre-commit hook runs. This suite once carried
+its own copy of the cap at 100 chars, a rule ADR-0004 superseded with 160.
+Because no CI job runs the root ``tests/`` suite, the dead copy went on failing
+169 fully compliant skills for months while the live pre-commit gate passed
+them. One cap, one definition, imported: the two gates cannot disagree again.
 
 References:
+- docs/skill-description-guide.md (the standard)
+- docs/adr/0004-skill-description-budget-optimization.md (160-char cap)
 - docs/adr/0005-attune-discoverability-enhancement.md
-- plugins/attune/templates/TEMPLATE-GUIDE.md
 """
 
+import importlib.util
 import re
 from pathlib import Path
 
@@ -19,6 +29,66 @@ import yaml
 
 PLUGINS_DIR = Path("plugins")
 SKIP_PLUGINS = {"attune"}  # Attune tested separately below
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _load_description_max() -> int:
+    """Import the per-description cap from the module the pre-commit hook runs.
+
+    ``validate_budget.py`` is a script, not an installed package, so it is
+    loaded by path. Importing rather than restating the number is the whole
+    point: a test that keeps its own copy of a constant is a test that can
+    silently outlive the rule it is meant to enforce.
+    """
+    script = REPO_ROOT / "plugins" / "abstract" / "scripts" / "validate_budget.py"
+    spec = importlib.util.spec_from_file_location("validate_budget", script)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(
+            f"cannot load the description cap from {script}. The pre-commit hook "
+            "'validate-description-budget' runs this same module; if it has moved, "
+            "this suite and that hook have drifted apart and both must be updated."
+        )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.DESCRIPTION_MAX
+
+
+DESCRIPTION_MAX = _load_description_max()
+
+# The description and section patterns, defined once and shared by every class
+# below. They used to live as private copies inside TestDescriptionPattern and
+# TestEcosystemContentSections, and the copies drifted. The first was widened to
+# accept the prepositions a trigger actually needs ("Use before declaring
+# implementation done"); the second still demanded the literal word "when" and
+# failed 12 skills for stating their trigger correctly. That is the same failure
+# the DESCRIPTION_MAX comment above describes, in a second place. One rule, one
+# definition, and the two gates cannot disagree again.
+
+# A trigger opens with any preposition: "Use when/for/at/before/after/during ...".
+# The guide templates on "Use when", but its own examples read "Use before any
+# creative work" and "Use for audits". A missing trigger is the defect the guide
+# names ("Audits Makefiles for build correctness."), not a temporal one.
+USE_PATTERN = re.compile(r"use (?:when|for|at|before|after|during)\b", re.IGNORECASE)
+
+# A boundary in the description: "Do not use ...", "Skip if/for ...". The clause
+# is the boundary; which preposition follows it is not the point, exactly as with
+# the trigger above. This is the union of the two patterns it replaces, so it can
+# only accept more than they did, never less: unifying them cannot redden a skill
+# that was green.
+SKIP_PATTERN = re.compile(r"(?:do not use|skip (?:if|for))\b", re.IGNORECASE)
+
+# A trigger as a body heading: "## When To Use". Case-insensitive, because the
+# heading is prose and the repo cases it both ways. It deliberately does not
+# match "## When NOT to Use", whose next word is NOT rather than "to".
+USE_SECTION_PATTERN = re.compile(r"^##\s+When\s+to\s+\w+", re.MULTILINE | re.IGNORECASE)
+
+# A boundary as a body heading: "## When NOT To Use". Case-insensitive so that
+# "## When Not to Use" counts; requiring uppercase NOT failed a section that was
+# present and correct, differing only in how its author shifted a key.
+SKIP_SECTION_PATTERN = re.compile(
+    r"^##\s+When\s+NOT\s+to\s+\w+", re.MULTILINE | re.IGNORECASE
+)
 
 # Excluded: JSON agents, __init__.py, shared skills without full frontmatter
 EXCLUDED_PATTERNS = {"__init__.py", ".gitkeep"}
@@ -170,36 +240,48 @@ class TestFrontmatterStructure:
 
 
 class TestDescriptionPattern:
-    """Test that descriptions follow the WHAT/WHEN/WHEN NOT pattern.
+    """Test that descriptions state WHAT the component does and WHEN to reach for it.
 
-    Accepted trigger formats (v1.4.0 and v1.4.1):
-    - "Use when ..." / "Use for ..." / "Use at ..."
-    - "Do not use when ..." / "Skip if ..." / "Skip for ..."
+    The trigger preposition is deliberately open. ``docs/skill-description-guide.md``
+    templates on "Use when [trigger]", but its own worked example for
+    ``attune:brainstorm`` reads "Use before any creative work", and the lifecycle
+    skills chain on "Use after brainstorming". A regex accepting only when/for/at
+    failed those descriptions for stating their trigger in the one preposition the
+    trigger actually needs. What the guide calls a mistake is a *missing* trigger
+    ("Audit Makefiles for build correctness."), not a temporal one.
     """
-
-    # Pattern matches: "Use when", "Use for", "Use at" (case-insensitive)
-    USE_PATTERN = re.compile(r"use (?:when|for|at)\b", re.IGNORECASE)
-    # Pattern matches: "Do not use when", "Skip if", "Skip for" (case-insensitive)
-    SKIP_PATTERN = re.compile(r"(?:do not use when|skip (?:if|for))\b", re.IGNORECASE)
 
     @pytest.mark.parametrize("component_path", SKILLS)
     def test_skill_description_has_use_when(self, component_path):
-        """Skill descriptions should include usage trigger keywords."""
+        """Skill descriptions must name a trigger, not just a capability."""
         data, _, _ = parse_frontmatter(component_path)
         desc = data.get("description", "")
 
-        assert self.USE_PATTERN.search(desc), (
-            f"{component_path}: Skill description should include 'Use when/for' keywords"
+        assert USE_PATTERN.search(desc), (
+            f"{component_path}: Skill description states WHAT but not WHEN. "
+            "Add a 'Use when/before/after ...' trigger."
         )
 
     @pytest.mark.parametrize("component_path", SKILLS)
-    def test_skill_description_has_do_not_use_when(self, component_path):
-        """Skill descriptions should include boundary/skip keywords."""
-        data, _, _ = parse_frontmatter(component_path)
+    def test_skill_has_boundary_somewhere(self, component_path):
+        """Skills must state a boundary, in the description or in the body.
+
+        The guide marks the description clause "[Optional: Do not use when ...]"
+        and asks for it only "for skills with similar alternatives". Requiring it
+        in every description contradicted that, and contradicted this suite's own
+        ecosystem check, which accepts a '## When NOT To Use' section instead.
+        A boundary must exist; the guide does not dictate which of the two places
+        it lives in.
+        """
+        data, _, body = parse_frontmatter(component_path)
         desc = data.get("description", "")
 
-        assert self.SKIP_PATTERN.search(desc), (
-            f"{component_path}: Skill description should include 'Do not use when' or 'Skip if/for' boundary"
+        in_description = bool(SKIP_PATTERN.search(desc))
+        in_body = bool(SKIP_SECTION_PATTERN.search(body))
+
+        assert in_description or in_body, (
+            f"{component_path}: no boundary. Add a 'Do not use when ...' clause to "
+            "the description or a '## When NOT To Use' section to the body."
         )
 
     @pytest.mark.parametrize("component_path", AGENTS)
@@ -208,7 +290,7 @@ class TestDescriptionPattern:
         data, _, _ = parse_frontmatter(component_path)
         desc = data.get("description", "")
 
-        assert self.USE_PATTERN.search(desc), (
+        assert USE_PATTERN.search(desc), (
             f"{component_path}: Agent description should include 'Use when/for' context"
         )
 
@@ -218,24 +300,26 @@ class TestDescriptionLength:
 
     @pytest.mark.parametrize("component_path", SKILLS)
     def test_skill_description_length(self, component_path):
-        """Skills should have 20-100 char descriptions."""
+        """Skills must have a description between 20 chars and the ADR-0004 cap."""
         data, _, _ = parse_frontmatter(component_path)
         desc = data.get("description", "")
         length = len(desc)
 
-        assert 20 <= length <= 100, (
-            f"{component_path}: Skill description length {length} outside range [20-100]"
+        assert 20 <= length <= DESCRIPTION_MAX, (
+            f"{component_path}: Skill description length {length} outside "
+            f"range [20-{DESCRIPTION_MAX}]"
         )
 
     @pytest.mark.parametrize("component_path", ECOSYSTEM_SKILLS)
-    def test_ecosystem_skill_description_under_100(self, component_path):
-        """Ecosystem skill descriptions must be ≤100 chars to stay within token budget."""
+    def test_ecosystem_skill_description_within_cap(self, component_path):
+        """Ecosystem skill descriptions must be within the ADR-0004 char cap."""
         data, _, _ = parse_frontmatter(component_path)
         desc = data.get("description", "")
         length = len(desc)
 
-        assert length <= 100, (
-            f"{component_path}: description is {length} chars (max 100): {desc!r}"
+        assert length <= DESCRIPTION_MAX, (
+            f"{component_path}: description is {length} chars "
+            f"(max {DESCRIPTION_MAX}): {desc!r}"
         )
 
     @pytest.mark.parametrize("component_path", COMMANDS)
@@ -351,9 +435,13 @@ class TestTokenBudget:
 
         avg_length = total_chars / len(ALL_COMPONENTS)
 
-        # Average should be between 20-120 chars (descriptions cap at 100)
-        assert 20 <= avg_length <= 120, (
-            f"Average description length {avg_length:.0f} outside reasonable range [20-120]"
+        # Commands and agents are allowed longer descriptions than skills, so the
+        # per-skill cap is the tightest bound the average can be held to without
+        # inventing a number. The real gates are the per-description cap above and
+        # the total budget below; this only catches a fleet-wide blowout.
+        assert 20 <= avg_length <= DESCRIPTION_MAX, (
+            f"Average description length {avg_length:.0f} outside reasonable "
+            f"range [20-{DESCRIPTION_MAX}]"
         )
 
 
@@ -460,62 +548,59 @@ class TestEcosystemHeadingNormalization:
 
 
 class TestEcosystemContentSections:
-    """Verify ecosystem skills/commands have When To Use / When NOT To Use sections."""
+    """Verify ecosystem skills state a trigger and a boundary.
 
-    @pytest.mark.parametrize("skill_path", ECOSYSTEM_SKILLS)
-    def test_skills_have_when_to_use_or_equivalent(self, skill_path):
-        """Skills should have a When To Use section or equivalent.
+    A skill may state either one in its description or as a body heading; the
+    guide does not dictate which. These checks run the module-level patterns
+    that ``TestDescriptionPattern`` runs, rather than private copies. The copies
+    are what let this class go on demanding the literal word "when" after the
+    other class had already accepted "Use before" and "Use after".
+    """
 
-        Accepted forms (all count as passes):
-        - ## When To Use / When to Invoke / When to Escalate (content sections)
-        - Any ## When to/To <verb> heading (domain-specific variants)
-        - 'Use when' in frontmatter description
-        """
+    @staticmethod
+    def _content_or_skip(skill_path: str) -> str:
+        """Read the skill, or skip the exempt ones."""
         if "/shared/" in skill_path or skill_path.endswith("shared/SKILL.md"):
             pytest.skip("Shared/infrastructure skills exempt")
         if Path(skill_path).stat().st_size < 500:
             pytest.skip("Small utility skill exempt")
+        return Path(skill_path).read_text()
 
-        content = Path(skill_path).read_text()
+    @staticmethod
+    def _frontmatter(content: str) -> str:
+        """Return the frontmatter block, or "" if the file has none.
 
-        has_content_section = bool(
-            re.search(r"^## When (?:to|To) \w+", content, re.MULTILINE)
-        )
-        has_frontmatter_hint = False
-        fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
-        if fm_match:
-            has_frontmatter_hint = bool(re.search(r"[Uu]se when", fm_match.group(1)))
+        The description checks are scoped to this block on purpose. Searching
+        the whole file would let a stray "use for" anywhere in the prose satisfy
+        a check about what the frontmatter promises.
+        """
+        match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+        return match.group(1) if match else ""
 
-        assert has_content_section or has_frontmatter_hint, (
-            f"{skill_path}: Missing 'When To Use' section or 'Use when' in description"
+    @pytest.mark.parametrize("skill_path", ECOSYSTEM_SKILLS)
+    def test_skills_have_when_to_use_or_equivalent(self, skill_path):
+        """Every ecosystem skill must name a trigger, in its description or body."""
+        content = self._content_or_skip(skill_path)
+
+        in_body = bool(USE_SECTION_PATTERN.search(content))
+        in_description = bool(USE_PATTERN.search(self._frontmatter(content)))
+
+        assert in_body or in_description, (
+            f"{skill_path}: no trigger. Add a 'Use when/for/before/after ...' "
+            "clause to the description or a '## When To Use' section to the body."
         )
 
     @pytest.mark.parametrize("skill_path", ECOSYSTEM_SKILLS)
     def test_skills_have_when_not_to_use(self, skill_path):
-        """Skills should have a When NOT To Use section or equivalent.
+        """Every ecosystem skill must state a boundary, in its description or body."""
+        content = self._content_or_skip(skill_path)
 
-        Accepted forms (all count as passes):
-        - ## When NOT To Use (canonical)
-        - Any ## When NOT to/To <verb> heading (domain-specific variants)
-        - 'Do not use' in frontmatter description
-        """
-        if "/shared/" in skill_path or skill_path.endswith("shared/SKILL.md"):
-            pytest.skip("Shared/infrastructure skills exempt")
-        if Path(skill_path).stat().st_size < 500:
-            pytest.skip("Small utility skill exempt")
+        in_body = bool(SKIP_SECTION_PATTERN.search(content))
+        in_description = bool(SKIP_PATTERN.search(self._frontmatter(content)))
 
-        content = Path(skill_path).read_text()
-
-        has_content_section = bool(
-            re.search(r"^## When NOT [Tt]o \w+", content, re.MULTILINE)
-        )
-        has_frontmatter_hint = False
-        fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
-        if fm_match:
-            has_frontmatter_hint = bool(re.search(r"[Dd]o not use", fm_match.group(1)))
-
-        assert has_content_section or has_frontmatter_hint, (
-            f"{skill_path}: Missing 'When NOT To Use' section or 'Do not use' in description"
+        assert in_body or in_description, (
+            f"{skill_path}: no boundary. Add a 'Do not use when ...' clause to the "
+            "description or a '## When NOT To Use' section to the body."
         )
 
 

@@ -30,6 +30,12 @@ modules:
 ---
 # API Review Workflow
 
+## When NOT To Use
+
+- Internal refactors behind a stable surface (use
+  `pensive:code-refinement`)
+- Coupling and layering questions (use `pensive:architecture-review`)
+
 ## Table of Contents
 
 1. [Usage](#usage)

@@ -94,10 +94,23 @@ Expert Rust auditor focusing on safety, soundness, and idiomatic patterns.
 - Data race prevention
 - Async blocking detection
 - Guard lifetime management
-- Concurrency cost classification (Levels 0-5)
+- Task-orchestration vs `select!` simplification (manual
+  `abort()` teardown of spawned tasks sharing a sink via `mpsc`)
+- Concurrency cost classification (Levels 0-6)
 - False sharing detection (cache-line alignment)
 - Memory ordering audit (`SeqCst` overuse, weak orderings)
 - Contention hotspot identification
+
+### Memory & Allocation
+
+- Unbounded collections fed from external or dynamic sources
+  (ARP tables, directory scans, API page loops) with no cap
+- Hot-path recompute of derived data that should be memoized
+  behind a generation counter or dirty flag
+- Serial blocking I/O in loops over unbounded collections
+  (suggest capping, then `buffer_unordered` + per-call timeout)
+- Persistent-growth vs transient-churn classification in
+  findings (a cap fixes growth and memoization fixes churn)
 
 ### FFI & Interop
 - C ABI compliance
@@ -119,7 +132,10 @@ Expert Rust auditor focusing on safety, soundness, and idiomatic patterns.
 2. **Safety Review**: Check ownership and lifetimes
 3. **Unsafe Audit**: Document all unsafe blocks
 4. **Concurrency Check**: Verify thread safety and classify
-   synchronization points by cost tier (Levels 0-5)
+   synchronization points by cost tier (Levels 0-6). Level 6
+   (kernel page fault) is the most expensive tier and the one
+   tokio-console cannot see, so it is never ruled out by a
+   scheduler trace alone
 5. **Dependency Scan**: Run security checks
 6. **Evidence Collection**: Document findings
 

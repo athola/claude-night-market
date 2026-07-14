@@ -85,7 +85,14 @@ repos:
         language: system
         pass_filenames: false  # Script checks every plugin internally
         stages: [pre-commit]
-        files: ^plugins/.*\.py$  # Triggers on any plugin .py change
+        # pyproject.toml as well as .py. A plugin's pyproject is what decides
+        # whether mypy exists in its environment and which config it runs
+        # under, so a pyproject-only commit changes the outcome of this very
+        # hook. Adding plugins/cartograph/pyproject.toml touched no .py file,
+        # this hook never fired, and the typecheck broke in CI instead. The
+        # typecheck.yml gate already watches plugins/**/pyproject.toml; this
+        # is pre-commit catching up to it.
+        files: ^plugins/.*(\.py|/pyproject\.toml)$
         verbose: true
 
       - id: run-plugin-tests

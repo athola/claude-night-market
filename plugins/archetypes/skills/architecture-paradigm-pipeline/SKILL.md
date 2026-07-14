@@ -27,6 +27,12 @@ estimated_tokens: 700
 - When reusing individual processing stages is needed, either independently or to scale bottleneck stages separately from others.
 - When failure isolation between stages is a critical requirement.
 
+## When NOT To Use
+
+- Interactive request/response systems (use
+  `archetypes:architecture-paradigm-client-server`)
+- Stages that must share mutable state, which the pattern cannot express
+
 ## Adoption Steps
 1. **Define Filters**: Design each stage (filter) to perform a single, well-defined transformation. Each filter must have a clear input and output data schema.
 2. **Connect via Pipes**: Connect the filters using "pipes," which can be implemented as streams, message queues, or in-memory channels. validate these pipes support back-pressure and buffering.

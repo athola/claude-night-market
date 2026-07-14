@@ -145,6 +145,38 @@ def is_known(
     return False
 
 
+def get_stored_at(content_hash: str) -> str | None:
+    """Return the file these bytes are stored in, or None if unseen.
+
+    ``hashes`` is content-addressed: it answers "where does this content
+    already live?" so a second URL serving the same bytes can point at
+    the existing capture instead of writing a duplicate.
+    """
+    index = _load_index()
+    stored_at = index.get("hashes", {}).get(content_hash)
+    return stored_at if isinstance(stored_at, str) else None
+
+
+def _drop_unreferenced_hash(
+    index: dict[str, Any], superseded: str | None, current: str
+) -> None:
+    """Drop a hash mapping that no surviving entry points at.
+
+    Re-indexing content that changed leaves the previous mapping behind.
+    An unreferenced mapping still answers ``is_known`` with True, so it
+    suppresses a later capture of content that no entry can retrieve.
+    """
+    if not superseded or superseded == current:
+        return
+
+    still_referenced = any(
+        entry.get("content_hash") == superseded
+        for entry in index.get("entries", {}).values()
+    )
+    if not still_referenced:
+        index.get("hashes", {}).pop(superseded, None)
+
+
 def get_entry(url: str | None = None, path: str | None = None) -> dict[str, Any] | None:
     """Get existing entry details for comparison."""
     index = _load_index()
@@ -215,6 +247,13 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
     index = _load_index()
     now = datetime.now(timezone.utc).isoformat()
 
+    # The index is content-addressed: one piece of content lives in one
+    # file. When these bytes are already stored, the entry adopts that
+    # canonical location instead of overwriting the mapping with a
+    # private copy - the write that used to leave an earlier entry
+    # pointing at a path `hashes` no longer agreed with.
+    stored_at = index["hashes"].setdefault(content_hash, stored_at)
+
     entry = {
         "content_hash": content_hash,
         "stored_at": stored_at,
@@ -231,17 +270,18 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
     if routing_type:
         entry["routing_type"] = routing_type  # local, meta, both
 
+    key: str | None = None
     if url:
-        url_key = get_url_key(url)
+        key = get_url_key(url)
         entry["url"] = url
-        index["entries"][url_key] = entry
     elif path:
-        path_key = str(Path(path).resolve())
+        key = str(Path(path).resolve())
         entry["path"] = path
-        index["entries"][path_key] = entry
 
-    # Also index by hash for fast lookup
-    index["hashes"][content_hash] = stored_at
+    if key is not None:
+        superseded = index["entries"].get(key, {}).get("content_hash")
+        index["entries"][key] = entry
+        _drop_unreferenced_hash(index, superseded, content_hash)
 
     # Atomic write back using tempfile + rename
     if yaml is None:

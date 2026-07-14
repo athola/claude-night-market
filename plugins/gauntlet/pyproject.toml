@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gauntlet-dev"
-version = "1.9.15"
+version = "1.9.16"
 description = "Codebase learning through knowledge extraction, challenges, and spaced repetition"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}

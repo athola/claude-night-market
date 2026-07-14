@@ -27,6 +27,12 @@ dependencies:
 
 Dispatch dual review agents and present unified findings.
 
+## When NOT To Use
+
+- Producing the text (use `scribe:voice-generate`)
+- A generic AI-pattern scan with no voice profile (use
+  `scribe:slop-detector`)
+
 ## Method: Parallel Dual-Gate Review
 
 Two agents run in parallel on the generated text:

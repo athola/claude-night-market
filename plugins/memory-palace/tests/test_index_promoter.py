@@ -341,6 +341,50 @@ class TestOrphanPrune:
         # Idempotent: nothing left to prune.
         assert propose_orphan_prunes(reloaded, plugin_root_with_files) == []
 
+    def test_apply_keeps_hash_still_referenced_by_surviving_entry(
+        self, plugin_root_with_files: Path
+    ) -> None:
+        """Pruning one of two entries that share content keeps the hash.
+
+        ``hashes`` is the dedup memory: ``is_known(content_hash=...)`` is
+        a membership test against it. When two URLs share one piece of
+        content and only one is orphaned, dropping the hash mapping
+        would leave the survivor's ``content_hash`` dangling and make
+        its content look unseen, so the next fetch re-captures content
+        already on disk.
+        """
+        shared = "sha256:shared"
+        index = {
+            "entries": {
+                "https://keep.example/x": _entry(
+                    content_hash=shared,
+                    stored_at="data/staging/recent.md",
+                    url="https://keep.example/x",
+                ),
+                "https://gone.example/y": _entry(
+                    content_hash=shared,
+                    stored_at="data/staging/missing.md",
+                    url="https://gone.example/y",
+                ),
+            },
+            "hashes": {shared: "data/staging/recent.md"},
+        }
+        index_path = self._write_index(plugin_root_with_files, index)
+        backup_dir = plugin_root_with_files / "data" / "backups"
+
+        keys = propose_orphan_prunes(index, plugin_root_with_files)
+        assert keys == ["https://gone.example/y"]
+        result = apply_orphan_prunes(keys, index_path, backup_dir=backup_dir)
+
+        assert result.applied == 1
+        reloaded = yaml.safe_load(index_path.read_text(encoding="utf-8"))
+        assert "https://gone.example/y" not in reloaded["entries"]
+        assert shared in reloaded["hashes"], (
+            "hash dropped while a surviving entry still references it: dedup memory lost"
+        )
+        survivor = reloaded["entries"]["https://keep.example/x"]
+        assert reloaded["hashes"][shared] == survivor["stored_at"]
+
     def test_apply_skips_keys_absent_from_index(self, tmp_path: Path) -> None:
         """Pruning a key that is no longer present is a safe no-op."""
         index = {

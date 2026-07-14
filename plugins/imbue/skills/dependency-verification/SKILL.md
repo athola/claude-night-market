@@ -46,7 +46,7 @@ before installing or recommending it. This skill defines that
 check and is enforced by the `guard_package_hallucination.py`
 PreToolUse hook.
 
-## When to Use
+## When To Use
 
 Apply before any of these:
 
@@ -55,6 +55,13 @@ Apply before any of these:
 - Writing a dependency into `pyproject.toml`, `requirements.txt`,
   `package.json`, or `Cargo.toml`.
 - Recommending a package to the user in prose.
+
+## When NOT To Use
+
+- Bumping versions of packages already known to exist (use
+  `sanctum:version-updates`)
+- Auditing a dependency's supply chain (use
+  `leyline:supply-chain-advisory`)
 
 ## The Two Signals
 

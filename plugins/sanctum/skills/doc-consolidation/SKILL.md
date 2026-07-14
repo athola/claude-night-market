@@ -70,6 +70,11 @@ Do NOT use when:
 - User explicitly wants to preserve the original report format
 - Source files have no extractable value (pure log output)
 
+## When NOT To Use
+
+- Updating docs to match a code change (use `sanctum:doc-updates`)
+- Detecting AI patterns in prose (use `scribe:slop-detector`)
+
 ## Formatting
 
 When merging content into permanent documentation, follow

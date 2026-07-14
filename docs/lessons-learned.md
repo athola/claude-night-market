@@ -41,7 +41,17 @@ git commit from a linked worktree exports GIT_DIR/GIT_INDEX_FILE to hook subproc
 
 ### Recommendation / action item
 
-Never commit this repo from a linked worktree until issue #609 is fixed; use a standalone clone. Fix per #609: scrub GIT_* env in test-runner hooks (env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE) or add a conftest guard in suites that spawn git. Declare pyyaml in leyline's test deps.
+Resolved. Every test invocation in scripts/run-plugin-tests.sh now runs behind
+scripts/without-git-env.sh, which unsets the whole GIT_* prefix. Committing from
+a linked worktree is safe again.
+
+The prescription this entry originally carried was to unset GIT_DIR,
+GIT_INDEX_FILE and GIT_WORK_TREE by name, and that is the part worth keeping in
+mind. A commit from a linked worktree exports eight GIT_* variables; naming
+three of them left GIT_PREFIX, GIT_EDITOR, GIT_EXEC_PATH and the GIT_AUTHOR_*
+trio reaching the test. When the leak is a category the tool populates at will,
+scrub the category, not the three names you happened to think of. Declare pyyaml
+in leyline's test deps.
 
 ## Archive
 

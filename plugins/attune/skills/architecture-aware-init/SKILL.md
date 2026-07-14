@@ -37,7 +37,7 @@ selection, template customization, and decision documentation
 into one workflow. Use this skill when the architecture is
 undecided and the choice deserves justification.
 
-## When to Use This Skill
+## When To Use This Skill
 
 - Starting a new project and unsure which architecture fits best
 - Wanting modern, industry-standard architecture choices

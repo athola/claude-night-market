@@ -31,6 +31,12 @@ Guidelines adapted from NASA's Power of 10 rules for safety-critical software.
 
 > "Match rigor to consequence" - The real engineering principle
 
+## When NOT To Use
+
+- Ordinary application code, where these defensive checks become the
+  bloat that `prefer-invariants-over-fallbacks` targets (use
+  `conserve:code-quality-principles`)
+
 ## The 10 Rules (Adapted)
 
 ### 1. Restrict Control Flow

@@ -15,6 +15,13 @@ tools: []
 model_hint: deep
 role: library
 ---
+
+## When NOT To Use
+
+- Checking code for defects rather than a claim for validity (use
+  `pensive:bug-review`)
+- Scoring a feature's worthiness (use `imbue:scope-guard`)
+
 ## Table of Contents
 
 - [Overview](#overview)

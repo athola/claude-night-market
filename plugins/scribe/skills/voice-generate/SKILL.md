@@ -28,6 +28,11 @@ dependencies:
 
 Generate text in a user's extracted writing voice.
 
+## When NOT To Use
+
+- No profile exists yet (use `scribe:voice-extract`)
+- Checking the output for drift (use `scribe:voice-review`)
+
 ## Core Principle: Source Material Framing
 
 The single largest variable in output quality is how source

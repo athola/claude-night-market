@@ -31,7 +31,7 @@ capture index to the corpus tooling the plugin already ships
 commands: a read-only report, a dry-run-first promotion engine, and a
 SessionStart surfacing hook.
 
-## When to Use
+## When To Use
 
 - The capture backlog has grown and most entries are still `pending`.
 - You want a corpus health report (inert ratio, orphans, topic clusters).

@@ -8,6 +8,11 @@ model_hint: standard
 
 Build or rebuild the `.gauntlet/knowledge.json` knowledge base.
 
+## When NOT To Use
+
+- Tribal knowledge no parser can see (use `gauntlet:curate`)
+- Building the code graph (use `gauntlet:graph-build`)
+
 ## Steps
 
 1. **Identify target directory**: use the current working directory

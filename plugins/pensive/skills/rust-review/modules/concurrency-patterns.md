@@ -100,6 +100,82 @@ Check async code:
 - Cancellation safety
 - Task spawning patterns
 
+## Task Orchestration vs `select!`
+
+Flag hand-rolled multi-task orchestration that a single
+`tokio::select!` loop would express more safely. The
+anti-pattern: a function spawns several tasks that coordinate
+a shared sink through an `mpsc` channel, then tears them down
+manually with consecutive `JoinHandle::abort()` calls plus a
+channel drop and a join. The manual teardown is fragile (a
+missed `abort` leaks a task, teardown order matters) and the
+channel is frequently `unbounded`, an unbounded-memory path
+under a slow consumer.
+
+### Detection Heuristic
+
+Flag a function that:
+
+1. contains two or more `tokio::spawn` calls whose
+   `JoinHandle`s are bound to locals, and
+2. ends with two or more consecutive `<handle>.abort()`
+   calls, optionally followed by `drop(<sender>)` and/or
+   `<handle>.await`, and
+3. shares a sink (often a `futures::stream::SplitSink`)
+   across those tasks via an `mpsc` channel.
+
+Report it as a Concurrency finding recommending a `select!`
+rewrite.
+
+### Before and After
+
+```rust
+// Before: three tasks, channel plumbing, manual teardown
+let (tx, mut rx) = mpsc::unbounded_channel();
+let writer = tokio::spawn(async move {
+    while let Some(m) = rx.recv().await {
+        if sink.send(m).await.is_err() { break; }
+    }
+});
+let forward = tokio::spawn(/* source.next() -> tx */);
+let injector = tokio::spawn(/* periodic sends via tx */);
+// ... main loop ...
+injector.abort();
+forward.abort();
+drop(tx);
+let _ = writer.await;
+
+// After: one loop, structural cancellation on scope exit
+let mut source_open = true;
+loop {
+    tokio::select! {
+        _ = next_tick(&mut ticker) => { /* inject */ }
+        c = control.next() => { /* forward; break on close */ }
+        s = source.next(), if source_open => {
+            /* sink.send(..).await; mark closed on end */
+        }
+    }
+}
+// loop exit drops every stream: nothing to abort, no channel
+```
+
+The rewrite makes cancellation structural, serializes access
+to the single sink (removing the channel-plus-writer-task
+workaround for an unshareable `SplitSink`), and replaces the
+unbounded channel with `select!`'s natural backpressure.
+
+### Caveats the Finding Must State
+
+- Only suggest the rewrite when the branch futures are
+  cancel-safe. `StreamExt::next`, `Interval::tick`, and
+  `mpsc::Receiver::recv` are; a `MutexGuard` held across
+  `.await` is not. Non-cancel-safe `.send().await`s belong in
+  branch bodies, which run to completion.
+- `select!` head-of-line-blocks sibling branches while one
+  branch body awaits. Acceptable when a stalled peer would
+  end the session anyway, but call it out so the suggestion
+  is not applied blindly.
+
 ## Best Practices
 
 ```rust
@@ -172,6 +248,8 @@ Verify:
   suffices; `SeqCst` adds unnecessary fence cost)
 - Spinning without backoff on oversubscribed systems
 - False sharing between independent atomics
+- Multi-task orchestration with manual `abort()` teardown
+  where one `select!` loop suffices
 
 ## Output Section
 
@@ -185,6 +263,8 @@ Verify:
 - [file:line] Potential deadlock: [scenario]
 - [file:line] False sharing risk: [layout details]
 - [file:line] Unnecessary SeqCst: [suggest weaker ordering]
+- [file:line] Manual abort() teardown: [suggest select! rewrite,
+  note cancel-safety of each branch]
 
 ### Recommendations
 - [concurrency improvements with cost tier impact]

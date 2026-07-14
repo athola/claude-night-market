@@ -24,13 +24,18 @@ Initialize a stacked branch set from a multi-step plan.
 Each logical slice of the plan becomes one branch targeting
 the previous slice's branch as its base.
 
-## When to Use
+## When To Use
 
 Use `stack-create` when a plan produces 2 or more ordered
 changes where each change depends on the previous one
 completing (and merging) before it can land.
 For independent changes, use parallel worktrees instead
 (see `egregore`).
+
+## When NOT To Use
+
+- A single independent change, which should branch normally instead
+- The stack exists and needs publishing (use `sanctum:stack-push`)
 
 ## Prerequisites
 

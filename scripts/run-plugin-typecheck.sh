@@ -36,7 +36,13 @@ run_hooks_typecheck() {
     fi
 
     echo -e "  ${YELLOW}↳ Type checking hooks/...${NC}"
-    if (cd "$plugin_dir" && uv run mypy hooks/ 2>&1); then
+    # `python -m mypy`, never bare `mypy`. `uv run mypy` falls back to whatever
+    # is on PATH when the project environment has no mypy, so a plugin that
+    # never declared it passed on any machine with a global mypy installed and
+    # died on a clean CI runner with "Failed to spawn: mypy". Going through the
+    # project interpreter resolves mypy only from that plugin's own environment,
+    # which makes this gate mean the same thing locally and in CI.
+    if (cd "$plugin_dir" && uv run python -m mypy hooks/ 2>&1); then
         return 0
     fi
     return 1
@@ -73,7 +79,8 @@ run_plugin_typecheck() {
          grep -q "mypy" "$plugin_dir/pyproject.toml" 2>/dev/null; then
         local src_target="src"
         [ -d "$plugin_dir/src" ] || src_target="scripts"
-        if ! (cd "$plugin_dir" && uv run mypy "$src_target/" 2>&1); then
+        # python -m mypy, for the same reason as the hooks check above.
+        if ! (cd "$plugin_dir" && uv run python -m mypy "$src_target/" 2>&1); then
             main_rc=1
         fi
         checked=1
@@ -104,6 +111,15 @@ run_plugin_typecheck() {
     return 1
 }
 
+# A plugin is what carries a manifest, not whatever happens to sit in plugins/.
+# The bare plugins/*/ glob also matched the gitignored plugins/__pycache__ left
+# behind by a root-level pytest run, which then showed up in the summary as a
+# skipped plugin. Mirrors is_plugin_dir in run-plugin-tests.sh.
+is_plugin_dir() {
+    local dir="$1"
+    [ -f "$dir/.claude-plugin/plugin.json" ] || [ -f "$dir/openpackage.yml" ]
+}
+
 # Parse arguments
 if [ $# -eq 0 ] || [ "$1" == "--all" ]; then
     # Run all plugin type checking
@@ -111,7 +127,7 @@ if [ $# -eq 0 ] || [ "$1" == "--all" ]; then
     echo
 
     for plugin_dir in plugins/*/; do
-        if [ -d "$plugin_dir" ]; then
+        if [ -d "$plugin_dir" ] && is_plugin_dir "$plugin_dir"; then
             run_plugin_typecheck "$plugin_dir" || true
             echo
         fi

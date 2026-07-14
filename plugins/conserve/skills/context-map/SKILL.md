@@ -22,13 +22,19 @@ The map pre-compiles structural knowledge that AI assistants
 would otherwise discover through expensive Read/Grep calls,
 saving thousands of tokens per session.
 
-## When to Use
+## When To Use
 
 - At the start of a session to understand project layout
 - Before implementing features to identify entry points
 - When exploring an unfamiliar codebase
 - To reduce token waste from Read calls
 - To identify hot files (high blast radius) before changes
+
+## When NOT To Use
+
+- Context is already over budget mid-session (use
+  `conserve:clear-context`)
+- Auditing the codebase for bloat (use `conserve:bloat-detector`)
 
 ## What It Detects
 

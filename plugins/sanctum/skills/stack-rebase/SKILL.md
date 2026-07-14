@@ -24,7 +24,7 @@ dependencies:
 Cascade a rebase through an entire PR stack after a base
 PR merges or the upstream base branch changes.
 
-## When to Use
+## When To Use
 
 Run `stack-rebase` in any of these situations:
 
@@ -34,6 +34,11 @@ Run `stack-rebase` in any of these situations:
   incorporate the new commits
 - A mid-stack PR was revised and descendants need to
   pick up the change
+
+## When NOT To Use
+
+- The stack has never been published (use `sanctum:stack-push`)
+- The stack does not exist yet (use `sanctum:stack-create`)
 
 ## Prerequisites
 

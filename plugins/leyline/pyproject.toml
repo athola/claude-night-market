@@ -1,6 +1,6 @@
 [project]
 name = "leyline"
-version = "1.9.15"
+version = "1.9.16"
 description = "Infrastructure and pipeline building blocks for Claude Code plugins"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
@@ -18,6 +18,9 @@ dev = [
     "pytest>=9.0.1",
     "pytest-cov>=7.0.0",
     "pytest-mock>=3.15.1",
+    # Tests import yaml directly; src/leyline/frontmatter.py keeps
+    # its optional sentinel import (issue #609 fresh-env failure)
+    "pyyaml>=6.0",
 ]
 
 [tool.nightmarket]

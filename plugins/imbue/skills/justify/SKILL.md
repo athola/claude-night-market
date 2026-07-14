@@ -48,12 +48,18 @@ a systematic bias toward *adding* code rather than
 This skill audits changes for these patterns and
 requires explicit justification for each.
 
-## When to Use
+## When To Use
 
 - After completing implementation work
 - Before committing or creating PRs
 - When reviewing your own changes for quality
 - When scope-guard flags RED/YELLOW zone
+
+## When NOT To Use
+
+- Before writing the code, because this audits work already done (use
+  `imbue:karpathy-principles`)
+- Deciding whether a feature belongs in scope (use `imbue:scope-guard`)
 
 ## Audit Protocol
 

@@ -422,6 +422,147 @@ class TestUpdateIndexIntegration:
         assert stats["urls"] == 3
         assert stats["local_docs"] == 0
 
+    def test_hashes_and_entries_agree_on_stored_at(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN an isolated empty index
+        WHEN update_index writes several distinct URL entries
+        THEN the two parallel index structures agree, at value level,
+             on where each piece of content is stored.
+
+        update_index records the same ``stored_at`` in two places:
+        ``entries[url_key]["stored_at"]`` and
+        ``hashes[content_hash]``. ``is_known`` consults ``hashes``;
+        retrieval consults ``entries``. If the two ever disagree,
+        dedup-by-hash returns a stale path and the index silently
+        points at the wrong file. The count-matching test above
+        guards cardinality only; two structures can share a count
+        while disagreeing on values. This test guards the
+        value-level agreement.
+
+        Three resolution options if this ever fails:
+          1. Preserve: revert the change that decoupled the writes
+          2. Layer:    add a reconciliation step that repairs hashes
+          3. Revise:   collapse entries and hashes into one structure
+        Picking the wrong one breaks dedup silently — this is not
+        a test to weaken without human review.
+        """
+        index_path = self._isolate_index(monkeypatch, tmp_path)
+        writes = [
+            ("https://github.com/pytest-dev/pytest", "docs/pytest.md"),
+            ("https://github.com/microsoft/playwright", "docs/playwright.md"),
+            ("https://github.com/google/openhtf", "docs/openhtf.md"),
+        ]
+        for url, stored_at in writes:
+            update_index(
+                content_hash=get_content_hash(url),
+                stored_at=stored_at,
+                importance_score=82,
+                url=url,
+                maturity="growing",
+                routing_type="meta",
+            )
+
+        # Read the persisted file directly so the assertion sees what
+        # is on disk, not the in-memory cache.
+        with open(index_path) as f:
+            on_disk = real_yaml.safe_load(f)
+
+        assert len(on_disk["entries"]) == len(writes)
+        for entry in on_disk["entries"].values():
+            h = entry["content_hash"]
+            assert h in on_disk["hashes"], (
+                f"content_hash {h} in entries but missing from hashes"
+            )
+            assert on_disk["hashes"][h] == entry["stored_at"], (
+                f"hashes[{h}] = {on_disk['hashes'][h]!r} but entry "
+                f"stored_at = {entry['stored_at']!r}"
+            )
+
+    def test_duplicate_content_on_new_url_reuses_canonical_stored_at(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN content already stored under one URL
+        WHEN a second, different URL yields byte-identical content
+        THEN the new entry points at the first URL's stored file.
+
+        The index is content-addressed: ``hashes[content_hash]`` names
+        the one file those bytes live in. Two URLs serving the same
+        content (an empty HN Algolia result, a mirror, a redirect
+        target) must converge on that file rather than each claiming a
+        private copy. Without this, the second write overwrites
+        ``hashes[H]`` and the first entry is left pointing at a path
+        the hash map no longer agrees with.
+        """
+        self._isolate_index(monkeypatch, tmp_path)
+        content = "no stories to list" * 20
+        content_hash = get_content_hash(content)
+
+        update_index(
+            content_hash=content_hash,
+            stored_at="data/staging/alpha.md",
+            importance_score=50,
+            url="https://hn.algolia.com/api/v1/search?query=alpha",
+        )
+        update_index(
+            content_hash=content_hash,
+            stored_at="data/staging/beta.md",
+            importance_score=50,
+            url="https://hn.algolia.com/api/v1/search?query=beta",
+        )
+
+        alpha = get_entry(url="https://hn.algolia.com/api/v1/search?query=alpha")
+        beta = get_entry(url="https://hn.algolia.com/api/v1/search?query=beta")
+        assert alpha is not None and beta is not None
+        assert beta["stored_at"] == "data/staging/alpha.md", (
+            "second capture of identical content must reuse the canonical "
+            f"file, got {beta['stored_at']!r}"
+        )
+        assert alpha["stored_at"] == "data/staging/alpha.md", (
+            "first capture must not be repointed by a later duplicate"
+        )
+
+    def test_hashes_and_entries_agree_when_two_urls_share_content(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN two URLs whose content hashes to the same value
+        WHEN both are written to the index
+        THEN every entry still agrees with hashes on where it is stored.
+
+        This is ``test_hashes_and_entries_agree_on_stored_at`` under the
+        one condition that test cannot reach: it derives each hash from
+        the URL, so no two entries can ever collide. A real collision is
+        the normal dedup path, and it is exactly where the two
+        structures used to drift apart.
+        """
+        index_path = self._isolate_index(monkeypatch, tmp_path)
+        content_hash = get_content_hash("identical body")
+
+        for url, stored_at in (
+            ("https://example.com/a", "data/staging/a.md"),
+            ("https://example.com/b", "data/staging/b.md"),
+        ):
+            update_index(
+                content_hash=content_hash,
+                stored_at=stored_at,
+                importance_score=50,
+                url=url,
+            )
+
+        with open(index_path) as f:
+            on_disk = real_yaml.safe_load(f)
+
+        # Two entries, one piece of content, therefore one hash mapping.
+        assert len(on_disk["entries"]) == 2
+        assert len(on_disk["hashes"]) == 1
+        for key, entry in on_disk["entries"].items():
+            h = entry["content_hash"]
+            assert h in on_disk["hashes"], f"{key}: content_hash absent from hashes"
+            assert on_disk["hashes"][h] == entry["stored_at"], (
+                f"{key}: hashes[{h}] = {on_disk['hashes'][h]!r} but entry "
+                f"stored_at = {entry['stored_at']!r}"
+            )
+
 
 class TestImportanceScoreBounds:
     """Bounds enforcement for the documented ``importance_score`` contract.

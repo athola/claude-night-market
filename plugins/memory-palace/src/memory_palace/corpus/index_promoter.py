@@ -249,12 +249,14 @@ def apply_orphan_prunes(
     *,
     backup_dir: Path,
 ) -> ApplyResult:
-    """Hard-delete the listed entries plus their hash mappings.
+    """Hard-delete the listed entries plus their unreferenced hash mappings.
 
-    Takes a timestamped backup before any change. The corresponding
-    ``hashes`` entry is removed alongside each entry so the index stays
-    internally consistent: a stale hash mapping pointing at a deleted
-    entry would re-trigger dedup confusion later.
+    Takes a timestamped backup before any change. A hash mapping is
+    removed alongside its entry so a stale mapping pointing at a deleted
+    file cannot re-trigger dedup confusion later, but only once no
+    surviving entry still references that content: several URLs may share
+    a single capture, and the mapping is what tells the survivors their
+    content is already stored.
     """
     index_path = Path(index_path)
     backup_dir = Path(backup_dir)
@@ -275,9 +277,16 @@ def apply_orphan_prunes(
         if entry is None:
             continue
         applied += 1
-        # Drop the matching hash mapping if it points to the same stored_at.
+        # Drop the hash mapping only when no surviving entry still points
+        # at this content. Two URLs can share one capture, and for the
+        # survivor that mapping is its dedup memory: removing it makes
+        # content already on disk look unseen, so the next fetch stores
+        # a second copy.
         content_hash = entry.get("content_hash")
-        if content_hash and content_hash in hashes:
+        still_referenced = any(
+            other.get("content_hash") == content_hash for other in entries.values()
+        )
+        if content_hash and not still_referenced:
             hashes.pop(content_hash, None)
 
     _write_index_atomic(index, index_path)

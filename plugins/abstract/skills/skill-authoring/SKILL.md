@@ -32,6 +32,12 @@ model_hint: standard
 ---
 # Skill Authoring Guide
 
+## When NOT To Use
+
+- Scoring a skill that already exists (use `abstract:skills-eval`)
+- Authoring a hook (use `abstract:hook-authoring`)
+- Verifying the skill fires (use `abstract:subagent-testing`)
+
 ## Overview
 
 Writing effective Claude Code skills requires Test-Driven Development (TDD) and persuasion principles from compliance research. We treat skill writing as process documentation that needs empirical validation rather than just theoretical instruction. Skills are behavioral interventions designed to change model behavior in measurable ways.

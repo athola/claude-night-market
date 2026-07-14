@@ -1,8 +1,8 @@
 ---
 name: validate-pr
-description: Use when you need a diff-derived test plan for a PR: reads the
-  diff, groups changes by area, runs targeted verifications, and proves
-  revert-tests are genuine guards, not dead assertions.
+description: Generates and self-executes a diff-derived test plan for a PR.
+  Use when validating PR changes before merge. Do not use for code review;
+  use sanctum:pr-review.
 alwaysApply: false
 category: validation
 tags:

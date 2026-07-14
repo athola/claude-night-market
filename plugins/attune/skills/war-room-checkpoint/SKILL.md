@@ -50,6 +50,19 @@ This skill is **not invoked directly by users**. It is called by other commands 
 | `/architecture-review` | ADR violations, high coupling, boundary violations |
 | `/fix-pr` | Major scope, conflicting reviewer feedback |
 
+## When NOT To Use
+
+| Situation | Use instead |
+|-----------|-------------|
+| A user asks for deliberation directly | `Skill(attune:war-room)` |
+| The decision is cheap to reverse (high RS) | Proceed without a checkpoint |
+| A panel already ruled on this decision | The prior verdict |
+
+This skill decides *whether* deliberation is warranted and returns fast when
+it is not. A command that checkpoints every decision pays the scoring cost to
+be told to proceed almost every time, and re-checkpointing a settled call
+re-litigates it.
+
 ## Invocation Pattern
 
 ```markdown
