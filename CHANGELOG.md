@@ -66,7 +66,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`plugins/__pycache__` was iterated as a plugin.** The bare
   `plugins/*/` glob matched the gitignored cache directory left by a
   root-level pytest run, and the runner announced "Testing
-  __pycache__...". Plugins are now identified by their manifest.
+  __pycache__...". Plugins are now identified by their manifest, in both
+  the test runner and the typecheck runner.
+
+- **The typecheck gate meant different things locally and in CI.**
+  `run-plugin-typecheck.sh` invoked bare `mypy` through `uv run`, which
+  falls back to whatever is on PATH when the project environment has
+  none. cartograph gained a `pyproject.toml` and therefore its own uv
+  environment, which had no mypy in it; the check kept passing on any
+  machine with a global mypy installed and failed on a clean runner with
+  `Failed to spawn: mypy`. Both call sites now run `uv run python -m
+  mypy`, which resolves only from the plugin's own environment, so a
+  missing declaration fails identically in both places. cartograph
+  declares `mypy>=1.11.0` and a strict `[tool.mypy]` config, and
+  `tests/test_plugin_typecheck_config.py` pins that every plugin whose
+  `hooks/` is type-checked ships the mypy it is checked with.
+
+- **The pre-commit typecheck hook could not see the change that broke
+  it.** `run-plugin-typecheck` triggered on `^plugins/.*\.py$`, so
+  adding `plugins/cartograph/pyproject.toml` (a `.toml`) fired no hook,
+  even though a plugin's pyproject is precisely what decides whether
+  mypy exists in its environment and which config it runs under. The
+  trigger now matches `pyproject.toml` as well, which is what
+  `typecheck.yml` already watched.
 
 ## [1.9.16] - 2026-07-05
 

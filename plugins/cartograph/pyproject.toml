@@ -16,7 +16,33 @@ dev = [
     # pytest>=8.0, not >=9: pytest 9 requires Python >=3.10 and this plugin
     # supports >=3.9. Matches archetypes, tome, gauntlet, herald, egregore.
     "pytest>=8.0",
+    # run-plugin-typecheck.sh type-checks hooks/ in every plugin that has
+    # Python there, so mypy has to exist in this plugin's own environment.
+    # It resolved anyway on a machine with a global mypy on PATH and failed
+    # on a clean runner with "Failed to spawn: mypy".
+    "mypy>=1.11.0",
 ]
+
+# python_version 3.12, matching abstract, whose hooks are also in the
+# python39-compat matrix. mypy 1.19 refuses to target 3.9 ("must be 3.10 or
+# higher"), and the 3.9 floor this hook actually runs on is enforced by the
+# ruff UP007 gate in python39-compat.yml, not here.
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+explicit_package_bases = true
+mypy_path = ["hooks"]
+exclude = ['^\.venv', '^\.uv-cache']
+
+# The hook imports gauntlet.graph and gauntlet.models across the plugin
+# boundary at runtime via sys.path, which mypy cannot follow from here.
+[[tool.mypy.overrides]]
+module = ["gauntlet.*"]
+ignore_missing_imports = true
 
 # Unlike archetypes, this table is required rather than avoided, because
 # cartograph's tests sit in tests/unit/ and tests/unit/skills/ rather than flat
