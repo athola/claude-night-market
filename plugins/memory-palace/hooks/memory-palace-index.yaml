@@ -2370,6 +2370,177 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://cwe.mitre.org/data/definitions/502.html
+  https://github.com/evode-manirahari/act:
+    content_hash: sha256:9c09e9535a60fe93
+    stored_at: data/staging/webfetch-act-repository-summary-2026-07-14_11-02-03.md
+    importance_score: 96
+    last_updated: '2026-07-14T11:02:03.952717+00:00'
+    title: ACT Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Evode-Manirahari/act
+  https://hn.algolia.com/api/v1/search_by_date?query=tradespeople%20knowledge&tags=story&hitsperpage=20:
+    content_hash: sha256:34b1a2cab6a6831d
+    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-14_11-02-18.md
+    importance_score: 90
+    last_updated: '2026-07-14T11:02:18.463626+00:00'
+    title: Based on the web page content provided, there are **no stories to list**.
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=tradespeople%20knowledge&tags=story&hitsPerPage=20
+  https://hn.algolia.com/api/v1/search?query=tacit%20knowledge%20trades&tags=story&hitsperpage=20:
+    content_hash: sha256:591e98af6890c425
+    stored_at: data/staging/webfetch-story-summary-2026-07-14_11-02-20.md
+    importance_score: 90
+    last_updated: '2026-07-14T11:02:20.041440+00:00'
+    title: Story Summary
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tacit%20knowledge%20trades&tags=story&hitsPerPage=20
+  ? https://hn.algolia.com/api/v1/search?query=tacit%20knowledge&tags=story&hitsperpage=20&numericfilters=created_at_i%3e1751000000
+  : content_hash: sha256:976ea78fb2ec31f7
+    stored_at: data/staging/webfetch-stories-about-tacit-knowledge-2026-07-14_11-02-37.md
+    importance_score: 90
+    last_updated: '2026-07-14T11:02:37.601978+00:00'
+    title: Stories about Tacit Knowledge
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tacit%20knowledge&tags=story&hitsPerPage=20&numericFilters=created_at_i%3E1751000000
+  https://hn.algolia.com/api/v1/search_by_date?query=skilled%20trades&tags=story&hitsperpage=20:
+    content_hash: sha256:6176eec2d238b4af
+    stored_at: data/staging/webfetch-stories-from-search-results-2026-07-14_11-02-47.md
+    importance_score: 90
+    last_updated: '2026-07-14T11:02:47.424139+00:00'
+    title: Stories from Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=skilled%20trades&tags=story&hitsPerPage=20
+  https://raw.githubusercontent.com/evode-manirahari/act/main/readme.md:
+    content_hash: sha256:a0d42f8acc7348cb
+    stored_at: data/staging/webfetch-act-actober-ai-readme-2026-07-14_11-02-52.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:02:52.817624+00:00'
+    title: ACT - Actober AI README
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/Evode-Manirahari/act/main/README.md
+  https://onlabor.org/training-your-replacement-one-keystroke-at-a-time:
+    content_hash: sha256:ad0afc62fae905ea
+    stored_at: data/staging/webfetch-article-summary-2026-07-14_11-03-39.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:03:39.533052+00:00'
+    title: Article Summary
+    maturity: growing
+    routing_type: meta
+    url: https://onlabor.org/training-your-replacement-one-keystroke-at-a-time/
+  https://theshearforce.substack.com/p/why-there-hasnt-been-a-chatgpt-moment:
+    content_hash: sha256:c3961fb6febdfef1
+    stored_at: data/staging/webfetch-manufacturing-ai-adoption-no-shop-floor-2026-07-14_11-03-40.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:03:40.505824+00:00'
+    title: 'Manufacturing AI Adoption: No Shop-Floor Skepticism Found'
+    maturity: growing
+    routing_type: meta
+    url: https://theshearforce.substack.com/p/why-there-hasnt-been-a-chatgpt-moment
+  https://www.hvacrschool.com/training-processes-or-apprentices:
+    content_hash: sha256:afa107b3d9306996
+    stored_at: data/staging/webfetch-article-analysis-training-processes-or-apprentices-2026-07-14_11-03-42.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:03:42.296448+00:00'
+    title: 'Article Analysis: Training: Processes or Apprentices?'
+    maturity: growing
+    routing_type: meta
+    url: https://www.hvacrschool.com/training-processes-or-apprentices/
+  https://limble.com/news:
+    content_hash: sha256:4ec2b190ec299ee9
+    stored_at: data/staging/webfetch-limble-press-releases-announcements-june-july-2026-2026-07-14_11-03-57.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:03:57.058738+00:00'
+    title: 'Limble Press Releases/Announcements: June-July 2026'
+    maturity: growing
+    routing_type: meta
+    url: https://limble.com/news
+  https://www.electriciantalk.com/threads/retiring-and-passing-along-your-knowledge.292318:
+    content_hash: sha256:7b67ad0277f9a16b
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-04-17.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:04:17.623938+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.electriciantalk.com/threads/retiring-and-passing-along-your-knowledge.292318/
+  https://www.getmaintainx.com/newsroom:
+    content_hash: sha256:44935cb65fee9abd
+    stored_at: data/staging/webfetch-maintainx-newsroom-items-june-july-2026-2026-07-14_11-04-21.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:04:21.170021+00:00'
+    title: MaintainX Newsroom Items (June-July 2026)
+    maturity: growing
+    routing_type: meta
+    url: https://www.getmaintainx.com/newsroom
+  https://www.ycombinator.com/rfs:
+    content_hash: sha256:12596acc5905ce20
+    stored_at: data/staging/webfetch-y-combinator-requests-for-startups-summer-2026-2026-07-14_11-04-50.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:04:50.328986+00:00'
+    title: Y Combinator Requests for Startups - Summer 2026
+    maturity: growing
+    routing_type: meta
+    url: https://www.ycombinator.com/rfs
+  https://raw.githubusercontent.com/puranikyashaswin/vigil/main/readme.md:
+    content_hash: sha256:1e94684e1ccd072c
+    stored_at: data/staging/webfetch-vigil-summary-2026-07-14_11-04-56.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:04:56.641841+00:00'
+    title: Vigil Summary
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/puranikyashaswin/Vigil/main/README.md
+  https://hvacknowitall.com/blog/ai-private-equity-and-the-independent-hvac-contractor-in-2026:
+    content_hash: sha256:af3f7369ae79d4a3
+    stored_at: data/staging/webfetch-analysis-first-person-quotes-and-trust-gaps-2026-07-14_11-05-07.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:05:07.048157+00:00'
+    title: 'Analysis: First-Person Quotes and Trust Gaps'
+    maturity: growing
+    routing_type: meta
+    url: https://hvacknowitall.com/blog/ai-private-equity-and-the-independent-hvac-contractor-in-2026
+  https://raw.githubusercontent.com/transitivityprimeminister2160/tacit-mining/main/readme.md:
+    content_hash: sha256:30bf169f91ee7992
+    stored_at: data/staging/webfetch-tacit-mining-summary-2026-07-14_11-05-07.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:05:07.794751+00:00'
+    title: tacit-mining Summary
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/Transitivityprimeminister2160/tacit-mining/main/README.md
+  https://www.hvacsite.com/threads/tips-tricks-advice.81:
+    content_hash: sha256:b72e2099a6be585d
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-05-24.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:05:24.411115+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.hvacsite.com/threads/tips-tricks-advice.81/
+  https://www.garagejournal.com/forum/threads/mechanics-tips-and-tricks-youve-learned.478375/page-7:
+    content_hash: sha256:577bc0678e247686
+    stored_at: data/staging/webfetch-mechanic-s-documentation-tips-2026-07-14_11-05-29.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:05:29.334753+00:00'
+    title: Mechanic's Documentation Tips
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/mechanics-tips-and-tricks-youve-learned.478375/page-7#post-9071067
+  https://www.alleywatch.com/2026/07/the-alleywatch-startup-daily-funding-report-7-13-2026:
+    content_hash: sha256:90b4b6d7e63924fe
+    stored_at: data/staging/webfetch-funding-report-summary-7-13-2026-2026-07-14_11-05-30.md
+    importance_score: 80
+    last_updated: '2026-07-14T11:05:30.244071+00:00'
+    title: 'Funding Report Summary: 7/13/2026'
+    maturity: growing
+    routing_type: meta
+    url: https://www.alleywatch.com/2026/07/the-alleywatch-startup-daily-funding-report-7-13-2026/
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -2634,3 +2805,22 @@ hashes:
   sha256:40ee39f5b1131cd1: data/staging/webfetch-parallel-change-three-phase-pattern-2026-07-13_14-10-20.md
   sha256:7c9c6a707edd8eb8: data/staging/webfetch-egor-homakov-s-github-rails-repository-exploit-2026-07-13_14-14-30.md
   sha256:89119572e5c98d45: data/staging/webfetch-cwe-502-object-injection-references-2026-07-13_14-15-07.md
+  sha256:9c09e9535a60fe93: data/staging/webfetch-act-repository-summary-2026-07-14_11-02-03.md
+  sha256:34b1a2cab6a6831d: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-14_11-02-18.md
+  sha256:591e98af6890c425: data/staging/webfetch-story-summary-2026-07-14_11-02-20.md
+  sha256:976ea78fb2ec31f7: data/staging/webfetch-stories-about-tacit-knowledge-2026-07-14_11-02-37.md
+  sha256:6176eec2d238b4af: data/staging/webfetch-stories-from-search-results-2026-07-14_11-02-47.md
+  sha256:a0d42f8acc7348cb: data/staging/webfetch-act-actober-ai-readme-2026-07-14_11-02-52.md
+  sha256:ad0afc62fae905ea: data/staging/webfetch-article-summary-2026-07-14_11-03-39.md
+  sha256:c3961fb6febdfef1: data/staging/webfetch-manufacturing-ai-adoption-no-shop-floor-2026-07-14_11-03-40.md
+  sha256:afa107b3d9306996: data/staging/webfetch-article-analysis-training-processes-or-apprentices-2026-07-14_11-03-42.md
+  sha256:4ec2b190ec299ee9: data/staging/webfetch-limble-press-releases-announcements-june-july-2026-2026-07-14_11-03-57.md
+  sha256:7b67ad0277f9a16b: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-04-17.md
+  sha256:44935cb65fee9abd: data/staging/webfetch-maintainx-newsroom-items-june-july-2026-2026-07-14_11-04-21.md
+  sha256:12596acc5905ce20: data/staging/webfetch-y-combinator-requests-for-startups-summer-2026-2026-07-14_11-04-50.md
+  sha256:1e94684e1ccd072c: data/staging/webfetch-vigil-summary-2026-07-14_11-04-56.md
+  sha256:af3f7369ae79d4a3: data/staging/webfetch-analysis-first-person-quotes-and-trust-gaps-2026-07-14_11-05-07.md
+  sha256:30bf169f91ee7992: data/staging/webfetch-tacit-mining-summary-2026-07-14_11-05-07.md
+  sha256:b72e2099a6be585d: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-05-24.md
+  sha256:577bc0678e247686: data/staging/webfetch-mechanic-s-documentation-tips-2026-07-14_11-05-29.md
+  sha256:90b4b6d7e63924fe: data/staging/webfetch-funding-report-summary-7-13-2026-2026-07-14_11-05-30.md
