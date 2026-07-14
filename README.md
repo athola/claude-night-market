@@ -164,7 +164,17 @@ unavailable, and both can be turned off.
 
 ## What's New
 
-**1.9.16** adds two `pensive` review capabilities, landed as modules
+**1.9.16** adds Domain-Driven Design as the fourteenth architecture
+paradigm, along with the review lens that enforces it. The
+`archetypes:architecture-paradigm-domain-driven` skill treats DDD as
+modeling a business in its own language, and treats layering, mapping,
+DTOs, and command objects as separable machinery a domain model may or
+may not need. Its companion `ceremony-audit` module in
+`pensive:architecture-review` reviews for passthrough mappers, twin
+types, and speculative DTOs, with an IO-boundary counter-signal so it
+does not flag a boundary mapper doing real work.
+
+The release also adds two `pensive` review capabilities as modules
 inside existing skills. The `rust-review` skill gains a
 `concurrency-patterns` rule that flags hand-rolled multi-task
 orchestration (several `tokio::spawn` handles torn down with
@@ -172,9 +182,14 @@ consecutive `abort()` calls) that a single `select!` loop expresses
 more safely. The `performance-review` skill gains three manual
 memory-allocation lenses: unbounded collections from an external
 source, hot-path recompute that should be memoized, and serial
-blocking I/O over an unbounded set. Both are review lenses a reviewer
-applies by reading the code, with no AST automation behind them.
-See the [CHANGELOG](CHANGELOG.md) for the full history.
+blocking I/O over an unbounded set. These are lenses a reviewer applies
+by reading the code, with no AST automation behind them.
+
+On the infrastructure side, `cartograph`'s 40 tests now run in a gate
+that previously reported them as a clean skip, and the typecheck gate
+resolves mypy from each plugin's own environment so it means the same
+thing locally and in CI. See the [CHANGELOG](CHANGELOG.md) for the full
+history.
 
 ## Plugin Development
 

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.16] - 2026-07-14
+
 ### Added
 
 - **Domain-Driven Design paradigm and the ceremony-audit review
@@ -34,7 +36,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `.claude/rules/ceremony-requires-need.md`: no DTO, mapper, command
     object, or layer boundary without a named, current need.
 
+- **`select!` orchestration rule and memory-allocation review
+  lenses (pensive).** Two review capabilities landed as new modules
+  inside existing skills (Fixes #598, #599):
+  - `rust-review` `concurrency-patterns` module: a rule flagging
+    hand-rolled multi-task orchestration (2+ `tokio::spawn` handles
+    torn down with consecutive `abort()` calls around an
+    mpsc-shared sink) that a single `select!` loop expresses more
+    safely, carrying the cancel-safety and head-of-line-blocking
+    caveats the rewrite introduces. Wired into `/rust-review` and
+    the `rust-auditor` agent.
+  - `performance-review` `memory-allocation-lenses` module: three
+    manual lenses for allocation blow-ups that keep unit tests
+    green: unbounded collections fed from an external source,
+    hot-path recompute that should be memoized behind a generation
+    counter, and serial blocking I/O over an unbounded set. Written
+    as review lenses, not AST detectors, so the performance-review
+    detector-test rule visibly does not apply to them.
+
 ### Fixed
+
+- **Two URLs with identical content desynced the capture index
+  (memory-palace).** The web-capture guard was `is_known(url=...)`,
+  which consults URLs only, so a new URL serving bytes already on disk
+  (an empty API result, a mirror, a redirect target) fell through to
+  `update_index`. That overwrote `hashes[content_hash]` with the second
+  capture's path and left the *first* entry pointing at a file the hash
+  map no longer agreed with, plus a duplicate copy of the content on
+  disk. `update_index` is now content-addressed: an entry whose bytes
+  are already stored adopts the canonical location, so `entries` and
+  `hashes` cannot disagree by construction. The capture hook checks
+  `get_stored_at` first and indexes the new URL against the existing
+  file rather than storing a second copy.
+
+- **Pruning one of two entries sharing a capture destroyed the
+  survivor's dedup memory (memory-palace).** `apply_orphan_prunes`
+  popped the hash mapping unconditionally (its comment claimed a
+  `stored_at` check the code never made). When two URLs shared one
+  piece of content and only one was orphaned, the survivor's
+  `content_hash` was left dangling, `is_known` reported its content
+  unseen, and the next fetch re-captured a file already on disk.
+  Removal is now refcount-aware: a mapping is dropped only when no
+  surviving entry references it.
+
+- **The committed capture index was guarded by no test
+  (memory-palace).** The index invariants were pinned only against
+  synthesized `tmp_path` fixtures, and those fixtures derived each hash
+  from the URL, so no two entries could ever collide and the bugs above
+  were unreachable from the suite. `tests/test_capture_index_artifact.py`
+  now runs the same invariants against the artifact that actually ships:
+  no dangling hashes, no orphan mappings, `entries` and `hashes` agreeing
+  on `stored_at`, and required fields present.
 
 - **Paradigm test harness could silently skip a new paradigm
   (archetypes).** `EXPECTED_COMPONENTS` was the only thing driving the
@@ -89,30 +141,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   mypy exists in its environment and which config it runs under. The
   trigger now matches `pyproject.toml` as well, which is what
   `typecheck.yml` already watched.
-
-## [1.9.16] - 2026-07-05
-
-### Added
-
-- **`select!` orchestration rule and memory-allocation review
-  lenses (pensive).** Two review capabilities landed as new modules
-  inside existing skills (Fixes #598, #599):
-  - `rust-review` `concurrency-patterns` module: a rule flagging
-    hand-rolled multi-task orchestration (2+ `tokio::spawn` handles
-    torn down with consecutive `abort()` calls around an
-    mpsc-shared sink) that a single `select!` loop expresses more
-    safely, carrying the cancel-safety and head-of-line-blocking
-    caveats the rewrite introduces. Wired into `/rust-review` and
-    the `rust-auditor` agent.
-  - `performance-review` `memory-allocation-lenses` module: three
-    manual lenses for allocation blow-ups that keep unit tests
-    green: unbounded collections fed from an external source,
-    hot-path recompute that should be memoized behind a generation
-    counter, and serial blocking I/O over an unbounded set. Written
-    as review lenses, not AST detectors, so the performance-review
-    detector-test rule visibly does not apply to them.
-
-### Fixed
 
 - **Leaked git environment in the plugin test runner (scripts).**
   Every test invocation now runs behind `scripts/without-git-env.sh`,
