@@ -8,6 +8,7 @@ failure, matching the graph seam.
 
 from __future__ import annotations
 
+import importlib.util
 import math
 from typing import Protocol, runtime_checkable
 
@@ -39,13 +40,39 @@ def _cosine(a: list[float], b: list[float]) -> float:
     return dot / (norm_a * norm_b)
 
 
+_HASH_PROVIDER = "none"
+_MODEL_PROVIDER = "local"
+
+
 def embedder_available() -> bool:
     """Return whether the embedding backend is importable."""
     return _EmbeddingIndex is not None
 
 
-def open_embedder(embeddings_path: str) -> Embedder:
-    """Open a memory-palace ``EmbeddingIndex`` with the hash provider.
+def best_available_provider() -> str:
+    """Pick the real embedding provider when possible, else the fallback.
+
+    ``"local"`` (sentence-transformers) produces semantically meaningful
+    vectors. ``"none"`` is the dependency-free SHA-256 fallback: it is
+    deterministic but NOT semantic, so ranking over it is not meaningful.
+    Pass the result to :func:`open_embedder` to use the real model
+    whenever it is installed.
+    """
+    try:
+        found = importlib.util.find_spec("sentence_transformers") is not None
+    except (ImportError, ValueError):
+        return _HASH_PROVIDER
+    return _MODEL_PROVIDER if found else _HASH_PROVIDER
+
+
+def open_embedder(embeddings_path: str, provider: str = _HASH_PROVIDER) -> Embedder:
+    """Open a memory-palace ``EmbeddingIndex``.
+
+    Args:
+        embeddings_path: Where the index persists its vectors.
+        provider: ``"local"`` for sentence-transformers (real semantic
+            vectors) or ``"none"`` for the hash fallback. Call
+            :func:`best_available_provider` to auto-select.
 
     Raises:
         GraphBackendUnavailable: When memory-palace is not installed.
@@ -54,7 +81,7 @@ def open_embedder(embeddings_path: str) -> Embedder:
         raise GraphBackendUnavailable(
             "semantic retrieval requires memory-palace, which is not installed"
         )
-    embedder: Embedder = _EmbeddingIndex(embeddings_path, provider="none")
+    embedder: Embedder = _EmbeddingIndex(embeddings_path, provider=provider)
     return embedder
 
 

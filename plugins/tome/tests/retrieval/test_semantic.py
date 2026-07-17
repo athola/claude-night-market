@@ -9,12 +9,14 @@ reusing memory-palace's EmbeddingIndex (hash fallback, no hard deps).
 
 from __future__ import annotations
 
+import importlib.util
 from typing import Any
 
 import pytest
 from tome.retrieval.semantic import (
     Embedder,
     SemanticRetriever,
+    best_available_provider,
     embedder_available,
     open_embedder,
 )
@@ -89,3 +91,38 @@ class TestRealEmbedderContract:
 
         assert len(ranked) == 2
         assert {f.title for f in ranked} == {f.title for f in findings}
+
+
+class TestProviderSelection:
+    @pytest.mark.unit
+    def test_best_available_provider_is_valid(self) -> None:
+        """Auto-selection returns a provider EmbeddingIndex understands."""
+        assert best_available_provider() in {"none", "local"}
+
+    @pytest.mark.unit
+    def test_falls_back_to_hash_without_sentence_transformers(self) -> None:
+        """
+        Given sentence-transformers is not installed (tome's isolated venv)
+        Then the auto-selected provider is the hash fallback
+        """
+        if importlib.util.find_spec("sentence_transformers") is not None:
+            pytest.skip("sentence-transformers installed; cannot test fallback")
+        assert best_available_provider() == "none"
+
+
+class TestProviderPlumbing:
+    """Runs only where memory-palace is installed (combined CI)."""
+
+    @pytest.mark.integration
+    def test_provider_is_passed_to_backend(self, tmp_path: Any) -> None:
+        pytest.importorskip("memory_palace")
+        embedder: Any = open_embedder(str(tmp_path / "e.yaml"), provider="local")
+
+        assert embedder.requested_provider == "local"
+
+    @pytest.mark.integration
+    def test_default_provider_is_hash(self, tmp_path: Any) -> None:
+        pytest.importorskip("memory_palace")
+        embedder: Any = open_embedder(str(tmp_path / "e2.yaml"))
+
+        assert embedder.requested_provider == "none"
