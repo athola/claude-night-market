@@ -1,0 +1,13 @@
+# Offline retrieval gold set for `make metrics`. Synthetic paper IDs:
+# each topic lists the retriever's ranked output and the relevant set.
+# Replace with real labeled arXiv topics to benchmark a live pipeline.
+items:
+  - topic: graph rag construction
+    ranked: [p1, p2, p3, p4, p5]
+    relevant: [p1, p3]
+  - topic: rag evaluation metrics
+    ranked: [q1, q2, q3, q4]
+    relevant: [q2, q4]
+  - topic: scientific pdf ingestion
+    ranked: [r1, r2, r3]
+    relevant: [r3]
