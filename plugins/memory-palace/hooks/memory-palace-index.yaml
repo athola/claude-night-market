@@ -2541,6 +2541,2049 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.alleywatch.com/2026/07/the-alleywatch-startup-daily-funding-report-7-13-2026/
+  https://help.getmaintainx.com/create-a-procedure-from-a-maintainx-copilot-answer:
+    content_hash: sha256:51abcc85c9032cec
+    stored_at: data/staging/webfetch-summary-2026-07-16_11-03-17.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:03:17.248559+00:00'
+    title: Summary
+    maturity: growing
+    routing_type: meta
+    url: https://help.getmaintainx.com/create-a-procedure-from-a-maintainx-copilot-answer
+  https://help.getmaintainx.com/create-a-procedure-with-ai:
+    content_hash: sha256:62b7e6642c1c556e
+    stored_at: data/staging/webfetch-maintainx-ai-procedure-generator-2026-07-16_11-03-30.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:03:30.539336+00:00'
+    title: MaintainX AI Procedure Generator
+    maturity: growing
+    routing_type: meta
+    url: https://help.getmaintainx.com/create-a-procedure-with-AI
+  https://www.garagejournal.com/forum/threads/engine-disassembly-parts-boxes.325403:
+    content_hash: sha256:86197bc0c151ded8
+    stored_at: data/staging/webfetch-documentation-before-disassembly-2026-07-16_11-03-33.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:03:33.857316+00:00'
+    title: Documentation Before Disassembly
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/engine-disassembly-parts-boxes.325403/
+  https://www.garagejournal.com/forum/threads/video-camera-for-documenting-work.390712:
+    content_hash: sha256:80ac1322fc71078d
+    stored_at: data/staging/webfetch-documentation-approaches-in-forum-discussion-2026-07-16_11-03-34.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:03:34.295048+00:00'
+    title: Documentation Approaches in Forum Discussion
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/video-camera-for-documenting-work.390712/
+  https://www.garagejournal.com/forum/threads/mechanics-tips-and-tricks-youve-learned.478375:
+    content_hash: sha256:a0967f80943e4669
+    stored_at: data/staging/webfetch-mechanics-documentation-and-knowledge-sharing-2026-07-16_11-03-47.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:03:47.936876+00:00'
+    title: Mechanics' Documentation and Knowledge Sharing
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/mechanics-tips-and-tricks-youve-learned.478375/
+  https://cwa-union.org/ghost-workers-ai-machine:
+    content_hash: sha256:7a9141c54b7ccece
+    stored_at: data/staging/webfetch-ghost-workers-in-the-ai-machine-report-details-2026-07-16_11-03-52.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:03:52.836315+00:00'
+    title: Ghost Workers in the AI Machine - Report Details
+    maturity: growing
+    routing_type: meta
+    url: https://cwa-union.org/ghost-workers-ai-machine
+  ? https://www.alphabetworkersunion.org/press/new-report-details-exploitative-working-conditions-of-u-s-data-workers-behind-the-big-tech-ai-boom
+  : content_hash: sha256:85a56ccb18d5cf27
+    stored_at: data/staging/webfetch-report-summary-ghost-workers-in-the-ai-machine-2026-07-16_11-03-56.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:03:56.786877+00:00'
+    title: 'Report Summary: Ghost Workers in the AI Machine'
+    maturity: growing
+    routing_type: meta
+    url: https://www.alphabetworkersunion.org/press/new-report-details-exploitative-working-conditions-of-u-s-data-workers-behind-the-big-tech-ai-boom
+  https://www.electriciantalk.com/threads/hvac-electrical-tradesmen.39017:
+    content_hash: sha256:04069352289b888c
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-05.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:04:05.870511+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.electriciantalk.com/threads/hvac-electrical-tradesmen.39017/
+  https://cwa-union.org/ais-shadow-workforce-speaks-out:
+    content_hash: sha256:45fa1ab344b8dcc2
+    stored_at: data/staging/webfetch-survey-details-ghost-workers-in-the-ai-machine-2026-07-16_11-04-08.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:04:08.578498+00:00'
+    title: 'Survey Details: "Ghost Workers in the AI Machine"'
+    maturity: growing
+    routing_type: meta
+    url: https://cwa-union.org/ais-shadow-workforce-speaks-out
+  https://newsroom.haas.berkeley.edu/how-carbyn-ai-preserves-manufacturing-expertise-with-real-time-ai-guidance:
+    content_hash: sha256:25cb15d6b7116dc3
+    stored_at: data/staging/webfetch-carbyn-ai-article-analysis-2026-07-16_11-04-15.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:04:15.959844+00:00'
+    title: Carbyn AI Article Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://newsroom.haas.berkeley.edu/how-carbyn-ai-preserves-manufacturing-expertise-with-real-time-ai-guidance/
+  https://www.electriciantalk.com/threads/fake-news-or-cuatgpt.296671:
+    content_hash: sha256:fced8e5135849c86
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-23.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:04:23.636782+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.electriciantalk.com/threads/fake-news-or-cuatgpt.296671/
+  http://archive.org/wayback/available?url=ycombinator.com/rfs&timestamp=20260101:
+    content_hash: sha256:df439bcd037771e2
+    stored_at: data/staging/webfetch-archived-snapshot-information-2026-07-16_11-04-26.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:04:26.301126+00:00'
+    title: Archived Snapshot Information
+    maturity: growing
+    routing_type: meta
+    url: http://archive.org/wayback/available?url=ycombinator.com/rfs&timestamp=20260101
+  http://archive.org/wayback/available?url=dol.gov/newsroom/releases/eta/eta20260707:
+    content_hash: sha256:80d7acfd0c583604
+    stored_at: data/staging/webfetch-archived-snapshot-information-2026-07-16_11-04-37.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:04:37.263476+00:00'
+    title: Archived Snapshot Information
+    maturity: growing
+    routing_type: meta
+    url: http://archive.org/wayback/available?url=dol.gov/newsroom/releases/eta/eta20260707
+  https://www.hvac-talk.com/threads/what-to-do-when-you-know-more-than-the-guy-youre-apprenticing-with.2217879:
+    content_hash: sha256:6df3c0c2036e6d90
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-51.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:04:51.238020+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.hvac-talk.com/threads/what-to-do-when-you-know-more-than-the-guy-youre-apprenticing-with.2217879/
+  https://www.garagejournal.com/forum/threads/outta-curiosity-whos-using-ai-actively-in-the-shop.548654:
+    content_hash: sha256:3ca60aa1aaa77656
+    stored_at: data/staging/webfetch-ai-trust-and-verification-in-mechanics-forum-2026-07-16_11-04-56.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:04:56.789895+00:00'
+    title: AI Trust and Verification in Mechanics' Forum
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/outta-curiosity-whos-using-ai-actively-in-the-shop.548654/
+  https://www.garagejournal.com/forum/help/terms:
+    content_hash: sha256:e88531f74c08d002
+    stored_at: data/staging/webfetch-forum-ownership-and-content-terms-2026-07-16_11-05-35.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:05:35.399278+00:00'
+    title: Forum Ownership and Content Terms
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/help/terms/
+  https://blog.google/company-news/outreach-and-initiatives/google-org/skilled-trades:
+    content_hash: sha256:8c9a6187fb518895
+    stored_at: data/staging/webfetch-google-skilled-trades-funding-key-details-2026-07-16_11-06-17.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:06:17.059358+00:00'
+    title: Google Skilled Trades Funding - Key Details
+    maturity: growing
+    routing_type: meta
+    url: https://blog.google/company-news/outreach-and-initiatives/google-org/skilled-trades/
+  https://about.fb.com/news/2026/06/americas-workforce-academy-free-skilled-trade-training:
+    content_hash: sha256:3d4b837cc62a39eb
+    stored_at: data/staging/webfetch-america-s-workforce-academy-key-details-2026-07-16_11-06-32.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:06:32.316009+00:00'
+    title: 'America''s Workforce Academy: Key Details'
+    maturity: growing
+    routing_type: meta
+    url: https://about.fb.com/news/2026/06/americas-workforce-academy-free-skilled-trade-training/
+  https://www.interplaylearning.com/pricing:
+    content_hash: sha256:f12c0e0c17b462af
+    stored_at: data/staging/webfetch-interplay-learning-pricing-analysis-2026-07-16_11-06-34.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:06:34.294975+00:00'
+    title: Interplay Learning Pricing Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.interplaylearning.com/pricing/
+  https://www.interplaylearning.com/pricing-education-and-workforce-development:
+    content_hash: sha256:b3535b9f04b13d69
+    stored_at: data/staging/webfetch-interplay-learning-education-pricing-analysis-2026-07-16_11-06-35.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:06:35.170136+00:00'
+    title: Interplay Learning Education Pricing Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.interplaylearning.com/pricing-education-and-workforce-development/
+  https://www.electricaltrainingalliance.org/aboutus:
+    content_hash: sha256:7ba8030f5ff3daa3
+    stored_at: data/staging/webfetch-the-electrical-training-alliance-2026-07-16_11-06-36.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:06:36.214785+00:00'
+    title: The Electrical Training ALLIANCE
+    maturity: growing
+    routing_type: meta
+    url: https://www.electricaltrainingalliance.org/AboutUs
+  https://americancompass.org/case-study-international-brotherhood-of-electrical-workers:
+    content_hash: sha256:8f617eb4f0130010
+    stored_at: data/staging/webfetch-ibew-apprenticeship-funding-and-curriculum-2026-07-16_11-06-41.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:06:41.039981+00:00'
+    title: IBEW Apprenticeship Funding and Curriculum Structure
+    maturity: growing
+    routing_type: meta
+    url: https://americancompass.org/case-study-international-brotherhood-of-electrical-workers/
+  https://developer.chrome.com/docs/extensions/develop/migrate/mv2-deprecation-timeline:
+    content_hash: sha256:b9efd89c6fa780ab
+    stored_at: data/staging/webfetch-manifest-v2-removal-timeline-2026-07-16_11-06-42.md
+    importance_score: 87
+    last_updated: '2026-07-16T11:06:42.029942+00:00'
+    title: Manifest V2 Removal Timeline
+    maturity: growing
+    routing_type: meta
+    url: https://developer.chrome.com/docs/extensions/develop/migrate/mv2-deprecation-timeline
+  https://www.nccer.org/programs-crafts:
+    content_hash: sha256:b2aaffc24e15da8e
+    stored_at: data/staging/webfetch-nccer-overview-2026-07-16_11-06-54.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:06:54.145996+00:00'
+    title: NCCER Overview
+    maturity: growing
+    routing_type: meta
+    url: https://www.nccer.org/programs-crafts/
+  https://www.garagejournal.com/the-shop-notebook:
+    content_hash: sha256:dafaf6722f4305fa
+    stored_at: data/staging/webfetch-analysis-editorial-blog-post-2026-07-16_11-06-56.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:06:56.848978+00:00'
+    title: 'Analysis: Editorial Blog Post'
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/the-shop-notebook/
+  https://www.garagejournal.com/forum/threads/do-you-keep-maintenance-records.332391:
+    content_hash: sha256:ba194b775cd504c5
+    stored_at: data/staging/webfetch-maintenance-record-keeping-verbatim-quotes-2026-07-16_11-06-58.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:06:58.734192+00:00'
+    title: 'Maintenance Record-Keeping: Verbatim Quotes'
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/do-you-keep-maintenance-records.332391/
+  https://www.ycombinator.com/companies?batch=s26&query=brain:
+    content_hash: sha256:b1f83cffff60df4e
+    stored_at: data/staging/webfetch-to-answer-your-questions-about-2026-07-16_11-07-08.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:07:08.960848+00:00'
+    title: 'To answer your questions about:'
+    maturity: growing
+    routing_type: meta
+    url: https://www.ycombinator.com/companies?batch=S26&query=brain
+  https://hvac-blog.acca.org/crawl-walk-run-how-hvacr-contractors-are-successfully-adopting-ai-in-2026:
+    content_hash: sha256:ff39c5c97df95b78
+    stored_at: data/staging/webfetch-analysis-of-article-content-2026-07-16_11-07-12.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:07:12.260487+00:00'
+    title: Analysis of Article Content
+    maturity: growing
+    routing_type: meta
+    url: https://hvac-blog.acca.org/crawl-walk-run-how-hvacr-contractors-are-successfully-adopting-ai-in-2026/
+  https://parsers.substack.com/p/weekly-funding-rounds-statistics-465:
+    content_hash: sha256:acd42a4af8e84c4e
+    stored_at: data/staging/webfetch-funding-report-analysis-2026-07-16_11-07-14.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:07:14.351773+00:00'
+    title: Funding Report Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://parsers.substack.com/p/weekly-funding-rounds-statistics-465
+  https://www.augmentir.com/pricing:
+    content_hash: sha256:10fc01ae304c0024
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-07-19.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:07:19.541787+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.augmentir.com/pricing
+  https://www.augmentir.com/glossary/what-is-tribal-knowledge:
+    content_hash: sha256:e7cf095117a00456
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-07-20.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:07:20.556703+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.augmentir.com/glossary/what-is-tribal-knowledge
+  https://projects.propublica.org/nonprofits/organizations/530212938:
+    content_hash: sha256:34ce6c57f74534f3
+    stored_at: data/staging/webfetch-electrical-training-alliance-2026-07-16_11-07-21.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:07:21.223105+00:00'
+    title: Electrical Training Alliance
+    maturity: growing
+    routing_type: meta
+    url: https://projects.propublica.org/nonprofits/organizations/530212938
+  https://www.augmentir.ai/pricing:
+    content_hash: sha256:c4491616c1df4276
+    stored_at: data/staging/webfetch-augmentir-pricing-analysis-2026-07-16_11-07-40.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:07:40.538902+00:00'
+    title: Augmentir Pricing Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.augmentir.ai/pricing
+  https://www.augmentir.ai/glossary/what-is-tribal-knowledge:
+    content_hash: sha256:88c7254d36e46502
+    stored_at: data/staging/webfetch-augmentir-s-approach-to-capturing-tribal-knowledge-2026-07-16_11-07-42.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:07:42.957916+00:00'
+    title: Augmentir's Approach to Capturing Tribal Knowledge
+    maturity: growing
+    routing_type: meta
+    url: https://www.augmentir.ai/glossary/what-is-tribal-knowledge
+  https://www.micro1.ai/experts-guide/how-skilled-trade-based-workers-can-earn-from-ai-training:
+    content_hash: sha256:a8ccdd2ad812e96b
+    stored_at: data/staging/webfetch-analysis-of-micro1-vendor-recruiting-page-2026-07-16_11-07-43.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:07:43.840808+00:00'
+    title: Analysis of micro1 Vendor/Recruiting Page
+    maturity: growing
+    routing_type: meta
+    url: https://www.micro1.ai/experts-guide/how-skilled-trade-based-workers-can-earn-from-ai-training
+  https://www.cbsnews.com/news/artificial-intelligence-ai-trainer-job:
+    content_hash: sha256:0d50bd1e56a4352f
+    stored_at: data/staging/webfetch-workers-quoted-about-ai-training-jobs-2026-07-16_11-07-45.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:07:45.468365+00:00'
+    title: Workers Quoted About AI Training Jobs
+    maturity: growing
+    routing_type: meta
+    url: https://www.cbsnews.com/news/artificial-intelligence-ai-trainer-job/
+  https://info.jff.org/blackrock-future-builders-rfp:
+    content_hash: sha256:5a1b8a90809824b8
+    stored_at: data/staging/webfetch-blackrock-future-builders-rfp-analysis-2026-07-16_11-07-52.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:07:52.745991+00:00'
+    title: BlackRock Future Builders RFP Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://info.jff.org/blackrock-future-builders-rfp
+  https://www.servicetitan.com/guides/2026-ai-in-the-trades:
+    content_hash: sha256:52a65d2d9dc06338
+    stored_at: data/staging/webfetch-2026-state-of-ai-in-the-trades-key-details-2026-07-16_11-08-00.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:08:00.319991+00:00'
+    title: 2026 State of AI in the Trades - Key Details
+    maturity: growing
+    routing_type: meta
+    url: https://www.servicetitan.com/guides/2026-ai-in-the-trades
+  https://www.garagejournal.com/forum/threads/teaching-a-new-welder-what-do-you-wish-you-had-been-shown.558192:
+    content_hash: sha256:0fa393fec7da73d3
+    stored_at: data/staging/webfetch-how-welding-skill-is-transmitted-key-quotes-from-2026-07-16_11-08-22.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:08:22.623840+00:00'
+    title: 'How Welding Skill is Transmitted: Key Quotes from Forum Discussion'
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/teaching-a-new-welder-what-do-you-wish-you-had-been-shown.558192/
+  https://www.garagejournal.com/forum/threads/how-did-you-learn-your-trade.274176:
+    content_hash: sha256:8dd22a5118b7ab6f
+    stored_at: data/staging/webfetch-how-people-learned-their-trades-verbatim-quotes-2026-07-16_11-08-22.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:08:22.965641+00:00'
+    title: How People Learned Their Trades - Verbatim Quotes
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/how-did-you-learn-your-trade.274176/
+  https://www.pearson.com/en-us/subject-catalog/p/electrical-level-1/p200000009726/9780137934867:
+    content_hash: sha256:63c4f05a8c66c312
+    stored_at: data/staging/webfetch-nccer-electrical-level-1-pricing-2026-07-16_11-08-26.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:08:26.729244+00:00'
+    title: NCCER Electrical Level 1 Pricing
+    maturity: growing
+    routing_type: meta
+    url: https://www.pearson.com/en-us/subject-catalog/p/electrical-level-1/P200000009726/9780137934867
+  https://blog.google/company-news/outreach-and-initiatives/google-org/electrical-workers-ai-training:
+    content_hash: sha256:cde64177580a9017
+    stored_at: data/staging/webfetch-analysis-of-google-s-electrical-workers-training-2026-07-16_11-08-27.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:08:27.334196+00:00'
+    title: Analysis of Google's Electrical Workers Training Announcement
+    maturity: growing
+    routing_type: meta
+    url: https://blog.google/company-news/outreach-and-initiatives/google-org/electrical-workers-ai-training/
+  https://www.nccer.org/who-we-are/our-history:
+    content_hash: sha256:cfc04760b8f01ecd
+    stored_at: data/staging/webfetch-nccer-s-origin-and-development-2026-07-16_11-08-28.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:08:28.682587+00:00'
+    title: NCCER's Origin and Development
+    maturity: growing
+    routing_type: meta
+    url: https://www.nccer.org/who-we-are/our-history/
+  https://ibew.org/google-funding-means-more-jobs-training-for-ibew-members:
+    content_hash: sha256:a06a8d4f8648e9e2
+    stored_at: data/staging/webfetch-google-funding-to-electrical-training-alliance-2026-07-16_11-08-55.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:08:55.245977+00:00'
+    title: Google Funding to Electrical Training Alliance
+    maturity: growing
+    routing_type: meta
+    url: https://ibew.org/google-funding-means-more-jobs-training-for-ibew-members/
+  https://learn.toolingu.com/manufacturing-products-services/training-packages:
+    content_hash: sha256:a87297241f1e1a64
+    stored_at: data/staging/webfetch-tooling-u-sme-product-analysis-2026-07-16_11-08-57.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:08:57.862371+00:00'
+    title: Tooling U-SME Product Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://learn.toolingu.com/manufacturing-products-services/training-packages/
+  ? https://www.vectorsolutions.com/resources/blogs/online-training-basics-learning-management-systems-authoring-tools-and-scorm
+  : content_hash: sha256:3062c2acfd1c9996
+    stored_at: data/staging/webfetch-online-training-basics-learning-management-2026-07-16_11-09-12.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:09:12.908283+00:00'
+    title: Online Training Basics Learning Management Systems Authoring Tools And
+      Scorm
+    maturity: growing
+    routing_type: meta
+    url: https://www.vectorsolutions.com/resources/blogs/online-training-basics-learning-management-systems-authoring-tools-and-scorm/
+  https://help.interplaylearning.com/en/help/content-manager-overview:
+    content_hash: sha256:9321e5f8af50484b
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-09-25.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:09:25.006559+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://help.interplaylearning.com/en/help/content-manager-overview
+  https://help.interplaylearning.com/en/help/navigating-the-course-builder-on-content-manager:
+    content_hash: sha256:53e45fd4f1651f57
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-09-25.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:09:25.680390+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://help.interplaylearning.com/en/help/navigating-the-course-builder-on-content-manager
+  https://get.help.interplaylearning.com/servicedesk/customer/portal/2/article/128876591:
+    content_hash: sha256:1ae2d912ef419d14
+    stored_at: data/staging/webfetch-course-builder-on-content-manager-2026-07-16_11-09-33.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:09:33.826865+00:00'
+    title: Course Builder on Content Manager
+    maturity: growing
+    routing_type: meta
+    url: https://get.help.interplaylearning.com/servicedesk/customer/portal/2/article/128876591
+  https://www.nccer.org/learners-craft-pros:
+    content_hash: sha256:221390d7e240349d
+    stored_at: data/staging/webfetch-nccer-s-focus-and-credentials-2026-07-16_11-10-42.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:10:42.206946+00:00'
+    title: NCCER's Focus and Credentials
+    maturity: growing
+    routing_type: meta
+    url: https://www.nccer.org/learners-craft-pros/
+  ? https://www.gencap.com/genstar-capital-announces-agreement-to-acquire-majority-stake-in-vector-solutions-from-golden-gate-capital
+  : content_hash: sha256:e0935aeeb10ec56c
+    stored_at: data/staging/webfetch-vector-solutions-acquisition-announcement-2026-07-16_11-10-54.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:10:54.982702+00:00'
+    title: Vector Solutions Acquisition Announcement
+    maturity: growing
+    routing_type: meta
+    url: https://www.gencap.com/genstar-capital-announces-agreement-to-acquire-majority-stake-in-vector-solutions-from-golden-gate-capital/
+  https://help.getmaintainx.com/help-center-updates/july-2026:
+    content_hash: sha256:84bc472131366d41
+    stored_at: data/staging/webfetch-analysis-of-july-2026-changelog-2026-07-16_11-10-56.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:10:56.274543+00:00'
+    title: Analysis of July 2026 Changelog
+    maturity: growing
+    routing_type: meta
+    url: https://help.getmaintainx.com/help-center-updates/july-2026
+  https://taqtile.com/pricing:
+    content_hash: sha256:434439e12f0698ae
+    stored_at: data/staging/webfetch-taqtile-manifest-pricing-analysis-2026-07-16_11-10-58.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:10:58.042845+00:00'
+    title: "Taqtile Manifest\xAE Pricing Analysis"
+    maturity: growing
+    routing_type: meta
+    url: https://taqtile.com/pricing/
+  https://www.getmaintainx.com/blog/smarter-work-orders-with-copilot-suggestions:
+    content_hash: sha256:d0ff0eee02d8acee
+    stored_at: data/staging/webfetch-maintainx-copilot-suggestions-key-details-2026-07-16_11-10-58.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:10:58.702161+00:00'
+    title: 'MaintainX CoPilot Suggestions: Key Details'
+    maturity: growing
+    routing_type: meta
+    url: https://www.getmaintainx.com/blog/smarter-work-orders-with-copilot-suggestions
+  https://help.getmaintainx.com/help-center-updates:
+    content_hash: sha256:1ca21f04f54642ab
+    stored_at: data/staging/webfetch-maintainx-help-center-changelog-summary-2026-07-16_11-11-09.md
+    importance_score: 81
+    last_updated: '2026-07-16T11:11:09.979340+00:00'
+    title: MaintainX Help Center Changelog Summary
+    maturity: growing
+    routing_type: meta
+    url: https://help.getmaintainx.com/help-center-updates
+  https://www.getmaintainx.com/blog/ai-generated-maintenance-procedures:
+    content_hash: sha256:834672d2749b57a5
+    stored_at: data/staging/webfetch-analysis-of-maintainx-blog-post-on-ai-generated-2026-07-16_11-11-11.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:11:11.943969+00:00'
+    title: Analysis of MaintainX Blog Post on AI-Generated Maintenance Procedures
+    maturity: growing
+    routing_type: meta
+    url: https://www.getmaintainx.com/blog/ai-generated-maintenance-procedures
+  https://www.forbes.com/sites/joetoscano1/2026/06/18/a-new-ai-wave-is-supporting-the-trades-that-build-our-world:
+    content_hash: sha256:b635440db3c68563
+    stored_at: data/staging/webfetch-ai-startups-serving-skilled-trades-2026-07-16_11-11-12.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:11:12.383383+00:00'
+    title: AI Startups Serving Skilled Trades
+    maturity: growing
+    routing_type: meta
+    url: https://www.forbes.com/sites/joetoscano1/2026/06/18/a-new-ai-wave-is-supporting-the-trades-that-build-our-world/
+  https://www.tradeschoolinc.com:
+    content_hash: sha256:f06b0d7eca908c77
+    stored_at: data/staging/webfetch-tradeschool-inc-product-analysis-2026-07-16_11-11-29.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:11:29.931097+00:00'
+    title: TradeSchool Inc. Product Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.tradeschoolinc.com/
+  https://www.apprenticeship.gov/investments-tax-credits-and-tuition-support/active-awards:
+    content_hash: sha256:444bb68f332fe311
+    stored_at: data/staging/webfetch-active-dol-apprenticeship-funding-programs-2026-07-16_11-12-40.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:12:40.103922+00:00'
+    title: Active DOL Apprenticeship Funding Programs
+    maturity: growing
+    routing_type: meta
+    url: https://www.apprenticeship.gov/investments-tax-credits-and-tuition-support/active-awards
+  https://www.apprenticeship.gov/ai-in-registered-apprenticeships:
+    content_hash: sha256:1387305816fd6fa7
+    stored_at: data/staging/webfetch-analysis-of-the-ai-in-registered-apprenticeship-2026-07-16_11-12-52.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:12:52.759372+00:00'
+    title: Analysis of the AI in Registered Apprenticeship Portal
+    maturity: growing
+    routing_type: meta
+    url: https://www.apprenticeship.gov/AI-in-registered-apprenticeships
+  https://www.apprenticeship.gov/data-and-statistics:
+    content_hash: sha256:e169f0ee7ea36ac6
+    stored_at: data/staging/webfetch-statistics-from-apprenticeship-gov-2026-07-16_11-13-44.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:13:44.931452+00:00'
+    title: Statistics from Apprenticeship.gov
+    maturity: growing
+    routing_type: meta
+    url: https://www.apprenticeship.gov/data-and-statistics
+  https://www.apprenticeship.gov/sites/default/files/buildwithin-abstract.pdf:
+    content_hash: sha256:f053823df1244383
+    stored_at: data/staging/webfetch-buildwithin-information-extract-2026-07-16_11-13-47.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:13:47.758280+00:00'
+    title: BuildWithin Information Extract
+    maturity: growing
+    routing_type: meta
+    url: https://www.apprenticeship.gov/sites/default/files/buildwithin-abstract.pdf
+  ? https://www.ecfr.gov/current/title-2/subtitle-a/chapter-ii/part-200/subpart-d/subject-group-ecfr45ddd4419ad436d/section-200.320
+  : content_hash: sha256:5a01a7190bc62a13
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-14-01.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:14:01.127851+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.ecfr.gov/current/title-2/subtitle-A/chapter-II/part-200/subpart-D/subject-group-ECFR45ddd4419ad436d/section-200.320
+  https://mrsc.org/stay-informed/mrsc-insight/november-2025/federal-thresholds:
+    content_hash: sha256:78d3fc22f7f09ad2
+    stored_at: data/staging/webfetch-federal-procurement-threshold-changes-2026-07-16_11-14-07.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:14:07.764636+00:00'
+    title: Federal Procurement Threshold Changes
+    maturity: growing
+    routing_type: meta
+    url: https://mrsc.org/stay-informed/mrsc-insight/november-2025/federal-thresholds
+  https://www.hccc.edu/abouthccc/resources/documents/procurement-policies-and-procedures-bid-threshold-update-09062023.pdf:
+    content_hash: sha256:48edd8e433924f26
+    stored_at: data/staging/webfetch-procurement-thresholds-document-analysis-2026-07-16_11-15-14.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:15:14.269343+00:00'
+    title: Procurement Thresholds - Document Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.hccc.edu/abouthccc/resources/documents/procurement-policies-and-procedures-bid-threshold-update-09062023.pdf
+  https://losrios.edu/community/doing-business-with-los-rios/purchasing-thresholds:
+    content_hash: sha256:e86b576e5a71839e
+    stored_at: data/staging/webfetch-los-rios-purchasing-thresholds-2026-07-16_11-15-16.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:15:16.143236+00:00'
+    title: Los Rios Purchasing Thresholds
+    maturity: growing
+    routing_type: meta
+    url: https://losrios.edu/community/doing-business-with-los-rios/purchasing-thresholds
+  https://www.acteonline.org/wp-content/uploads/2025/03/acte-perkins101-funding-feb2025.pdf:
+    content_hash: sha256:d71ae225be72edc8
+    stored_at: data/staging/webfetch-perkins-v-funding-analysis-2026-07-16_11-15-20.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:15:20.008975+00:00'
+    title: Perkins V Funding Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.acteonline.org/wp-content/uploads/2025/03/ACTE-Perkins101-Funding-Feb2025.pdf
+  https://www.ecfr.gov/current/title-20/chapter-v/part-680/subpart-d:
+    content_hash: sha256:71187dd3d7bfc2fc
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-15-21.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:15:21.542879+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.ecfr.gov/current/title-20/chapter-V/part-680/subpart-D
+  https://www.wednetpa.org/fundingeligibility:
+    content_hash: sha256:b850e2252c977f8a
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-15-30.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:15:30.826085+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.wednetpa.org/FundingEligibility/
+  https://commcorp.org/subprogram/wtfp-express-program-guidelines:
+    content_hash: sha256:7721a8815e95cd6b
+    stored_at: data/staging/webfetch-massachusetts-workforce-training-fund-program-2026-07-16_11-15-33.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:15:33.109603+00:00'
+    title: Massachusetts Workforce Training Fund Program Express Program
+    maturity: growing
+    routing_type: meta
+    url: https://commcorp.org/subprogram/wtfp-express-program-guidelines/
+  https://etp.ca.gov/faq/faqs-eligibility:
+    content_hash: sha256:2eee9937448c9bce
+    stored_at: data/staging/webfetch-based-on-the-provided-web-page-content-i-cannot-2026-07-16_11-15-33.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:15:33.480408+00:00'
+    title: Based on the provided web page content, I cannot find specific information
+      addressing your questions
+    maturity: growing
+    routing_type: meta
+    url: https://etp.ca.gov/faq/faqs-eligibility/
+  https://www.nccer.org/about-us:
+    content_hash: sha256:cd479af8a611f95c
+    stored_at: data/staging/webfetch-nccer-overview-2026-07-16_11-15-33.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:15:33.896442+00:00'
+    title: NCCER Overview
+    maturity: growing
+    routing_type: meta
+    url: https://www.nccer.org/about-us/
+  https://www.twc.texas.gov/sites/default/files/oei/docs/skills-development-fund-frequently-asked-questions-twc.pdf:
+    content_hash: sha256:7110af40fe933555
+    stored_at: data/staging/webfetch-to-provide-accurate-information-about-2026-07-16_11-15-36.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:15:36.521400+00:00'
+    title: 'To provide accurate information about:'
+    maturity: growing
+    routing_type: meta
+    url: https://www.twc.texas.gov/sites/default/files/oei/docs/skills-development-fund-frequently-asked-questions-twc.pdf
+  https://www.foundationsoft.com/partner/abc-associated-builders-contractors:
+    content_hash: sha256:fc5167688260b63a
+    stored_at: data/staging/webfetch-foundation-software-and-abc-relationship-2026-07-16_11-15-45.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:15:45.004468+00:00'
+    title: Foundation Software and ABC Relationship
+    maturity: growing
+    routing_type: meta
+    url: https://www.foundationsoft.com/partner/abc-associated-builders-contractors/
+  http://www.wednetpa.org/funding-eligibility:
+    content_hash: sha256:e40c091fbc74b3bf
+    stored_at: data/staging/webfetch-wednetpa-funding-eligibility-details-2026-07-16_11-15-49.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:15:49.218719+00:00'
+    title: 'WEDnetPA Funding: Eligibility Details'
+    maturity: growing
+    routing_type: meta
+    url: http://www.wednetpa.org/funding-eligibility/
+  ? https://www.prnewswire.com/news-releases/interplay-learning-closes-growth-investment-from-goldman-sachs-alternatives-and-acquires-industrial-training-international-302252417.html
+  : content_hash: sha256:4a23993af80a57ca
+    stored_at: data/staging/webfetch-interplay-learning-investment-and-acquisition-2026-07-16_11-15-54.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:15:54.705994+00:00'
+    title: Interplay Learning Investment and Acquisition Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.prnewswire.com/news-releases/interplay-learning-closes-growth-investment-from-goldman-sachs-alternatives-and-acquires-industrial-training-international-302252417.html
+  https://trainual.com/pricing:
+    content_hash: sha256:a20dbf9b46979760
+    stored_at: data/staging/webfetch-trainual-pricing-analysis-2026-07-16_11-15-57.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:15:57.166373+00:00'
+    title: Trainual Pricing Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://trainual.com/pricing
+  ? https://skilledtrades.interplaylearning.com/trial?pid=price_1mgx9pesz4v8e49obagrulcz&gid=a197bfd1-43b3-438b-a3f0-f3a0a02110a6
+  : content_hash: sha256:9dacc05b15675e42
+    stored_at: data/staging/webfetch-to-provide-the-requested-financial-details-i-2026-07-16_11-16-10.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:10.316248+00:00'
+    title: To provide the requested financial details, I would need access to the
+      actual checkout or trial page
+    maturity: growing
+    routing_type: meta
+    url: https://skilledtrades.interplaylearning.com/trial?pid=price_1MgX9pESz4v8E49OBaGruLcz&gid=a197bfd1-43b3-438b-a3f0-f3a0a02110a6
+  https://community.phccweb.org/resourcecenter/member-benefits/preferred-service-providers452732:
+    content_hash: sha256:8b273e60a4d63989
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-23.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:23.560086+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://community.phccweb.org/resourcecenter/member-benefits/preferred-service-providers452732
+  https://www.acca.org/members/special-offers:
+    content_hash: sha256:f25342fa1ce51c00
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-24.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:24.790572+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.acca.org/members/special-offers
+  https://www.phccweb.org/phcc-member-discounts:
+    content_hash: sha256:9c03a17ecf34bd30
+    stored_at: data/staging/webfetch-phcc-member-discount-programs-2026-07-16_11-16-28.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:28.500642+00:00'
+    title: PHCC Member Discount Programs
+    maturity: growing
+    routing_type: meta
+    url: https://www.phccweb.org/phcc-member-discounts/
+  https://www.twc.texas.gov/programs/skills-development-fund:
+    content_hash: sha256:76f6604a0a6766b9
+    stored_at: data/staging/webfetch-skills-development-fund-eligible-expenses-payment-2026-07-16_11-16-29.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:29.240854+00:00'
+    title: Skills Development Fund - Eligible Expenses & Payment Details
+    maturity: growing
+    routing_type: meta
+    url: https://www.twc.texas.gov/programs/skills-development-fund
+  https://www.acca.org/about-acca/partners:
+    content_hash: sha256:504afc785ec6379b
+    stored_at: data/staging/webfetch-acca-strategic-partners-program-overview-2026-07-16_11-16-31.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:31.124951+00:00'
+    title: ACCA Strategic Partners Program Overview
+    maturity: growing
+    routing_type: meta
+    url: https://www.acca.org/about-acca/partners
+  https://basic.interplaylearning.com/basic_purchase:
+    content_hash: sha256:e6d50e01d2254300
+    stored_at: data/staging/webfetch-interplay-learning-pricing-information-2026-07-16_11-16-37.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:37.298418+00:00'
+    title: Interplay Learning - Pricing Information
+    maturity: growing
+    routing_type: meta
+    url: https://basic.interplaylearning.com/basic_purchase
+  http://community.phccweb.org/member-benefits/preferred-service-providers452732:
+    content_hash: sha256:1c2e975db9ecc7c1
+    stored_at: data/staging/webfetch-vendor-partner-discount-programs-2026-07-16_11-16-38.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:38.852504+00:00'
+    title: Vendor/Partner Discount Programs
+    maturity: growing
+    routing_type: meta
+    url: http://community.phccweb.org/member-benefits/preferred-service-providers452732
+  ? https://www.interplaylearning.com/newsroom/interplay-learning-closes-growth-investment-from-goldman-sachs-alternatives-and-acquires-industrial-training-international
+  : content_hash: sha256:dcc288e26aef4c70
+    stored_at: data/staging/webfetch-interplay-learning-investment-and-acquisition-2026-07-16_11-16-42.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:42.449130+00:00'
+    title: Interplay Learning Investment and Acquisition Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.interplaylearning.com/newsroom/interplay-learning-closes-growth-investment-from-goldman-sachs-alternatives-and-acquires-industrial-training-international/
+  ? https://www.federalregister.gov/documents/2026/04/20/2026-07663/extension-of-compliance-dates-for-nondiscrimination-on-the-basis-of-disability-accessibility-of-web
+  : content_hash: sha256:f6228efff12d3f57
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-42.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:42.956145+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.federalregister.gov/documents/2026/04/20/2026-07663/extension-of-compliance-dates-for-nondiscrimination-on-the-basis-of-disability-accessibility-of-web
+  https://i.slcc.edu/purchasing/docs/pcard_manual.pdf:
+    content_hash: sha256:f0bf053ffae9f5e9
+    stored_at: data/staging/webfetch-p-card-purchase-limits-and-software-policy-2026-07-16_11-16-43.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:43.518487+00:00'
+    title: P-Card Purchase Limits and Software Policy
+    maturity: growing
+    routing_type: meta
+    url: https://i.slcc.edu/purchasing/docs/pcard_manual.pdf
+  https://hvacindustrymarketplace.com:
+    content_hash: sha256:73af16ea2f16c773
+    stored_at: data/staging/webfetch-acca-hvac-industry-marketplace-overview-2026-07-16_11-16-44.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:44.801391+00:00'
+    title: ACCA HVAC Industry Marketplace Overview
+    maturity: growing
+    routing_type: meta
+    url: https://hvacindustrymarketplace.com/
+  https://www.buildwithin.com/about:
+    content_hash: sha256:c1619385caa4f8b6
+    stored_at: data/staging/webfetch-buildwithin-business-model-customers-and-2026-07-16_11-16-45.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:45.513410+00:00'
+    title: 'BuildWithin: Business Model, Customers, and Operations'
+    maturity: growing
+    routing_type: meta
+    url: https://www.buildwithin.com/about
+  https://www.buildwithin.com:
+    content_hash: sha256:83c6bbc98085eef6
+    stored_at: data/staging/webfetch-buildwithin-company-overview-2026-07-16_11-16-45.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:45.960095+00:00'
+    title: 'BuildWithin: Company Overview'
+    maturity: growing
+    routing_type: meta
+    url: https://www.buildwithin.com/
+  https://www.necashow.org/neca2026//custom/lasvegas2026/neca2026_exhibitorprospectus.pdf:
+    content_hash: sha256:e877343093472088
+    stored_at: data/staging/webfetch-pdf-metadata-and-encoding-artifacts-2026-07-16_11-16-46.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:46.839477+00:00'
+    title: '- PDF metadata and encoding artifacts'
+    maturity: growing
+    routing_type: meta
+    url: https://www.necashow.org/NECA2026//CUSTOM/LasVegas2026/NECA2026_ExhibitorProspectus.pdf
+  https://electricaltrainingalliance.org/learning/outsideblended:
+    content_hash: sha256:af3eeaf1ce104a8f
+    stored_at: data/staging/webfetch-blended-learning-platform-analysis-2026-07-16_11-16-48.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:48.466067+00:00'
+    title: Blended Learning Platform Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://electricaltrainingalliance.org/Learning/outsideblended
+  https://www.ada.gov/resources/2024-03-08-web-rule:
+    content_hash: sha256:b88dd6561f3c9bd7
+    stored_at: data/staging/webfetch-ada-web-accessibility-rule-key-compliance-details-2026-07-16_11-16-50.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:50.767448+00:00'
+    title: 'ADA Web Accessibility Rule: Key Compliance Details'
+    maturity: growing
+    routing_type: meta
+    url: https://www.ada.gov/resources/2024-03-08-web-rule/
+  https://learnworkecosystemlibrary.com/initiatives/buildwithin-software-platform-in-apprenticeships:
+    content_hash: sha256:cada853b8c672d77
+    stored_at: data/staging/webfetch-buildwithin-business-model-summary-2026-07-16_11-16-51.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:51.360819+00:00'
+    title: 'BuildWithin: Business Model Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://learnworkecosystemlibrary.com/initiatives/buildwithin-software-platform-in-apprenticeships/
+  https://ieci.org/partners/current-partners:
+    content_hash: sha256:a3a5bcfecebe4b9c
+    stored_at: data/staging/webfetch-iec-current-partners-and-sponsorship-levels-2026-07-16_11-16-51.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:51.935976+00:00'
+    title: IEC Current Partners and Sponsorship Levels
+    maturity: growing
+    routing_type: meta
+    url: https://ieci.org/partners/current-partners/
+  https://www.pcc.edu/policy/accessible-technology-evaluation:
+    content_hash: sha256:e60e3ca0177bceaa
+    stored_at: data/staging/webfetch-pcc-technology-evaluation-policy-summary-2026-07-16_11-16-52.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:52.495424+00:00'
+    title: PCC Technology Evaluation Policy Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.pcc.edu/policy/accessible-technology-evaluation/
+  https://partners.pennfoster.edu/how-it-works:
+    content_hash: sha256:baae15e50ec45e2c
+    stored_at: data/staging/webfetch-penn-foster-partnership-model-overview-2026-07-16_11-16-53.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:53.154839+00:00'
+    title: Penn Foster Partnership Model Overview
+    maturity: growing
+    routing_type: meta
+    url: https://partners.pennfoster.edu/how-it-works
+  https://www.pennfoster.edu/programs/trades:
+    content_hash: sha256:bc51262f413d53ac
+    stored_at: data/staging/webfetch-penn-foster-trades-programs-pricing-enrollment-2026-07-16_11-16-54.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:54.423370+00:00'
+    title: Penn Foster Trades Programs Pricing & Enrollment
+    maturity: growing
+    routing_type: meta
+    url: https://www.pennfoster.edu/programs/trades
+  https://www.mostlymetrics.com/p/servicetitan-ipo-s1-breakdown:
+    content_hash: sha256:d2d83ef88d88240f
+    stored_at: data/staging/webfetch-servicetitan-sales-marketing-metrics-2026-07-16_11-16-55.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:16:55.248986+00:00'
+    title: ServiceTitan Sales & Marketing Metrics
+    maturity: growing
+    routing_type: meta
+    url: https://www.mostlymetrics.com/p/servicetitan-ipo-s1-breakdown
+  https://www.phccweb.org/foundation/phcc-academy-plumbing-hvac-apprenticeship-courses:
+    content_hash: sha256:92f74899120ef950
+    stored_at: data/staging/webfetch-phcc-academy-overview-2026-07-16_11-16-57.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:57.841064+00:00'
+    title: PHCC Academy Overview
+    maturity: growing
+    routing_type: meta
+    url: https://www.phccweb.org/foundation/phcc-academy-plumbing-hvac-apprenticeship-courses/
+  https://www.interplaylearning.com/newsroom/interplay-learning-raises-18-million-in-series-b-funding:
+    content_hash: sha256:62aa858c76f0ce58
+    stored_at: data/staging/webfetch-interplay-learning-series-b-funding-summary-2026-07-16_11-16-58.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:58.263060+00:00'
+    title: Interplay Learning Series B Funding Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.interplaylearning.com/newsroom/interplay-learning-raises-18-million-in-series-b-funding/
+  https://www.agc.org/agc-america-member-benefits:
+    content_hash: sha256:b86ef83b4edd571e
+    stored_at: data/staging/webfetch-agc-member-benefits-overview-2026-07-16_11-16-58.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:16:58.701350+00:00'
+    title: AGC Member Benefits Overview
+    maturity: growing
+    routing_type: meta
+    url: https://www.agc.org/agc-america-member-benefits
+  https://www.agc.org/education:
+    content_hash: sha256:5733bb36436f5325
+    stored_at: data/staging/webfetch-agc-s-education-and-training-programs-2026-07-16_11-17-00.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:00.122084+00:00'
+    title: AGC's Education and Training Programs
+    maturity: growing
+    routing_type: meta
+    url: https://www.agc.org/education
+  https://www.agc.org/discounts:
+    content_hash: sha256:cff454c9e1ab0ac7
+    stored_at: data/staging/webfetch-agc-member-discount-programs-2026-07-16_11-17-01.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:01.533025+00:00'
+    title: AGC Member Discount Programs
+    maturity: growing
+    routing_type: meta
+    url: https://www.agc.org/Discounts
+  https://www.smacna.org/community/premier-partners/industry-partners:
+    content_hash: sha256:ac9fc9ab683f5e3b
+    stored_at: data/staging/webfetch-smacna-industry-partners-2026-07-16_11-17-02.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:02.034464+00:00'
+    title: SMACNA Industry Partners
+    maturity: growing
+    routing_type: meta
+    url: https://www.smacna.org/community/premier-partners/industry-partners
+  https://www.usaspending.gov/award/cont_awd_doleta14p00008_1605_-none-_-none-:
+    content_hash: sha256:7f6f4a4b588e0849
+    stored_at: data/staging/webfetch-to-complete-this-request-i-would-need-the-actual-2026-07-16_11-17-03.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:03.410647+00:00'
+    title: 'To complete this request, I would need the actual page content that includes:'
+    maturity: growing
+    routing_type: meta
+    url: https://www.usaspending.gov/award/CONT_AWD_DOLETA14P00008_1605_-NONE-_-NONE-
+  https://www.tanayj.com/p/servicetitan-s-1-breakdown:
+    content_hash: sha256:f579fe47721b43af
+    stored_at: data/staging/webfetch-servicetitan-sales-marketing-metrics-2026-07-16_11-17-10.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:10.543187+00:00'
+    title: ServiceTitan Sales & Marketing Metrics
+    maturity: growing
+    routing_type: meta
+    url: https://www.tanayj.com/p/servicetitan-s-1-breakdown
+  https://www.servicetitan.com/pricing:
+    content_hash: sha256:ca49e869b3341a7b
+    stored_at: data/staging/webfetch-servicetitan-pricing-information-2026-07-16_11-17-11.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:11.046191+00:00'
+    title: ServiceTitan Pricing Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.servicetitan.com/pricing
+  https://www.lonestar.edu/departments/generalcounsel/section%20iii.d.2..%20purchasing%20policy.pdf:
+    content_hash: sha256:d06144b0fec9ca14
+    stored_at: data/staging/webfetch-to-obtain-the-procurement-dollar-thresholds-you-2026-07-16_11-17-15.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:15.561663+00:00'
+    title: 'To obtain the procurement dollar thresholds you need, I recommend:'
+    maturity: growing
+    routing_type: meta
+    url: https://www.lonestar.edu/departments/generalcounsel/Section%20III.D.2..%20Purchasing%20Policy.pdf
+  https://ua.org/training:
+    content_hash: sha256:06a4efe32d2d277c
+    stored_at: data/staging/webfetch-based-on-the-provided-web-page-content-i-cannot-2026-07-16_11-17-16.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:16.137720+00:00'
+    title: Based on the provided web page content, I cannot extract the specific information
+      you requested. The
+    maturity: growing
+    routing_type: meta
+    url: https://ua.org/training/
+  https://www.skillcatapp.com/pricing-old:
+    content_hash: sha256:452942578d2040ce
+    stored_at: data/staging/webfetch-skillcat-pricing-2026-07-16_11-17-17.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:17.482335+00:00'
+    title: SkillCat Pricing
+    maturity: growing
+    routing_type: meta
+    url: https://www.skillcatapp.com/pricing-old
+  https://www.jobber.com/pricing:
+    content_hash: sha256:a15795f96742a43a
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-17-18.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:18.248294+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.jobber.com/pricing/
+  https://www.skillcatapp.com:
+    content_hash: sha256:8842e26dac37b457
+    stored_at: data/staging/webfetch-skillcat-s-target-audience-2026-07-16_11-17-19.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:19.508085+00:00'
+    title: SkillCat's Target Audience
+    maturity: growing
+    routing_type: meta
+    url: https://www.skillcatapp.com/
+  https://www.housecallpro.com/pricing:
+    content_hash: sha256:722cc0caced1e9da
+    stored_at: data/staging/webfetch-housecall-pro-pricing-tiers-2026-07-16_11-17-23.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:23.185167+00:00'
+    title: Housecall Pro Pricing Tiers
+    maturity: growing
+    routing_type: meta
+    url: https://www.housecallpro.com/pricing/
+  https://dpp.vi.gov/wp-content/uploads/2025/10/p102dolt25-geographic-solutions-inc.pdf:
+    content_hash: sha256:0b4b353ec4cbd243
+    stored_at: data/staging/webfetch-to-properly-analyze-this-contract-i-would-need-2026-07-16_11-17-26.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:26.166693+00:00'
+    title: 'To properly analyze this contract, I would need:'
+    maturity: growing
+    routing_type: meta
+    url: https://dpp.vi.gov/wp-content/uploads/2025/10/P102DOLT25-Geographic-Solutions-Inc.pdf
+  https://mccog.org/downloads/policy-19-procurement-and-contracting-policy.pdf:
+    content_hash: sha256:c5bb2a4315e793b4
+    stored_at: data/staging/webfetch-policy-19-procurement-and-contracting-policy-pdf-2026-07-16_11-17-28.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:28.971980+00:00'
+    title: Policy 19 Procurement And Contracting Policy.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://mccog.org/downloads/policy-19-procurement-and-contracting-policy.pdf
+  https://www.commerce.nc.gov/cps-02-2022-attachment-1-procurement-and-contracting-description/open:
+    content_hash: sha256:bd31e15fca1aaa9c
+    stored_at: data/staging/webfetch-north-carolina-department-of-commerce-policy-2026-07-16_11-17-29.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:29.937474+00:00'
+    title: '- North Carolina Department of Commerce policy documentation'
+    maturity: growing
+    routing_type: meta
+    url: https://www.commerce.nc.gov/cps-02-2022-attachment-1-procurement-and-contracting-description/open
+  https://www.cccc.edu/support-success/all-offices-services/purchasing-department/faculty-and-staff-purchasing-support:
+    content_hash: sha256:8f6fcaa91445c92e
+    stored_at: data/staging/webfetch-cccc-purchase-quote-requirements-2026-07-16_11-17-31.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:31.049392+00:00'
+    title: CCCC Purchase Quote Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://www.cccc.edu/support-success/all-offices-services/purchasing-department/faculty-and-staff-purchasing-support
+  https://measurequick.com/pricing:
+    content_hash: sha256:d1fbd5865b13b677
+    stored_at: data/staging/webfetch-measurequick-pricing-details-2026-07-16_11-17-32.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:32.291318+00:00'
+    title: measureQuick Pricing Details
+    maturity: growing
+    routing_type: meta
+    url: https://measurequick.com/pricing/
+  https://mycontractoruniversity.com/member-benefits:
+    content_hash: sha256:f91c30f5a39f7563
+    stored_at: data/staging/webfetch-contractor-university-membership-pricing-2026-07-16_11-17-32.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:32.719358+00:00'
+    title: Contractor University Membership Pricing
+    maturity: growing
+    routing_type: meta
+    url: https://mycontractoruniversity.com/member-benefits/
+  https://www.dozuki.com/pricing:
+    content_hash: sha256:88be41c363e13d90
+    stored_at: data/staging/webfetch-dozuki-pricing-information-2026-07-16_11-17-33.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:33.405202+00:00'
+    title: Dozuki Pricing Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.dozuki.com/pricing
+  https://scribehow.com/pricing:
+    content_hash: sha256:8c29b96910ca264b
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-17-33.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:34.050749+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://scribehow.com/pricing
+  https://www.ivytech.edu/media/hj4mklos/fmm_section_j_6-28.pdf:
+    content_hash: sha256:56f9751b985f1b8c
+    stored_at: data/staging/webfetch-to-accurately-identify-the-exact-dollar-2026-07-16_11-17-34.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:34.972900+00:00'
+    title: 'To accurately identify the exact dollar thresholds for:'
+    maturity: growing
+    routing_type: meta
+    url: https://www.ivytech.edu/media/hj4mklos/fmm_section_j_6-28.pdf
+  https://www.procore.com/special-pricing/agc:
+    content_hash: sha256:c989762080465625
+    stored_at: data/staging/webfetch-based-on-the-webpage-content-provided-procore-is-2026-07-16_11-17-35.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:35.772005+00:00'
+    title: Based on the webpage content provided, Procore is **not** described as
+      an exclusive or preferred par
+    maturity: growing
+    routing_type: meta
+    url: https://www.procore.com/special-pricing/agc
+  https://secure.ssc.vccs.edu/wp-content/uploads/2023/11/vccs-spcc-manual-v1.00.pdf:
+    content_hash: sha256:527b649669b9c4ac
+    stored_at: data/staging/webfetch-to-provide-you-with-the-exact-dollar-figures-for-2026-07-16_11-17-36.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:36.425508+00:00'
+    title: 'To provide you with the exact dollar figures for:'
+    maturity: growing
+    routing_type: meta
+    url: https://secure.ssc.vccs.edu/wp-content/uploads/2023/11/VCCS-SPCC-Manual-V1.00.pdf
+  https://sponsors.agc.org:
+    content_hash: sha256:a0965ded52b1ab97
+    stored_at: data/staging/webfetch-agc-sponsorships-page-overview-2026-07-16_11-17-37.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:37.149930+00:00'
+    title: AGC Sponsorships Page Overview
+    maturity: growing
+    routing_type: meta
+    url: https://sponsors.agc.org/
+  https://play.google.com/store/apps/details?id=com.skillcat&hl=en_us:
+    content_hash: sha256:f26f8db4d4364b94
+    stored_at: data/staging/webfetch-to-obtain-this-information-you-would-need-to-2026-07-16_11-17-37.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:37.989315+00:00'
+    title: To obtain this information, you would need to access the full app listing
+      page on Google Play.
+    maturity: growing
+    routing_type: meta
+    url: https://play.google.com/store/apps/details?id=com.skillcat&hl=en_US
+  https://www.getguru.com/pricing:
+    content_hash: sha256:af981e5fde4b3467
+    stored_at: data/staging/webfetch-guru-pricing-analysis-2026-07-16_11-17-38.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:38.745116+00:00'
+    title: Guru Pricing Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.getguru.com/pricing
+  https://www.agc-ca.org/sponsorship-opportunities:
+    content_hash: sha256:ecf61b6565842300
+    stored_at: data/staging/webfetch-agc-of-california-sponsorship-program-2026-07-16_11-17-39.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:39.455472+00:00'
+    title: AGC of California Sponsorship Program
+    maturity: growing
+    routing_type: meta
+    url: https://www.agc-ca.org/sponsorship-opportunities/
+  https://www.scf.edu/wp-content/uploads/2023/09/6hx14-5-18.pdf:
+    content_hash: sha256:12721c89b09b0227
+    stored_at: data/staging/webfetch-to-accurately-provide-the-exact-dollar-figures-for-2026-07-16_11-17-39.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:39.935532+00:00'
+    title: 'To accurately provide the exact dollar figures for:'
+    maturity: growing
+    routing_type: meta
+    url: https://www.scf.edu/wp-content/uploads/2023/09/6HX14-5-18.pdf
+  ? https://marketbrief.edweek.org/sales-marketing/k-12-sales-cycle-how-long-do-districts-need-to-make-smart-purchasing-decisions/2025/08
+  : content_hash: sha256:50341c6917dfcdfe
+    stored_at: data/staging/webfetch-k-12-sales-cycle-timeline-key-findings-2026-07-16_11-17-40.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:40.648863+00:00'
+    title: 'K-12 Sales Cycle Timeline: Key Findings'
+    maturity: growing
+    routing_type: meta
+    url: https://marketbrief.edweek.org/sales-marketing/k-12-sales-cycle-how-long-do-districts-need-to-make-smart-purchasing-decisions/2025/08
+  https://www.phccweb.org/membership:
+    content_hash: sha256:d17631f1dc4ee691
+    stored_at: data/staging/webfetch-phcc-membership-information-extract-2026-07-16_11-17-41.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:41.085577+00:00'
+    title: PHCC Membership Information Extract
+    maturity: growing
+    routing_type: meta
+    url: https://www.phccweb.org/membership
+  https://www.phccweb.org:
+    content_hash: sha256:91acbe1f85d47e08
+    stored_at: data/staging/webfetch-phcc-organization-information-2026-07-16_11-17-41.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:41.752795+00:00'
+    title: PHCC Organization Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.phccweb.org
+  https://www.insidehighered.com/digital-learning/views/2017/01/23/essay-difficulty-selling-technology-higher-education:
+    content_hash: sha256:41d07c10da6b468f
+    stored_at: data/staging/webfetch-analysis-of-sales-timeframes-and-author-2026-07-16_11-17-42.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:42.724543+00:00'
+    title: Analysis of Sales Timeframes and Author Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.insidehighered.com/digital-learning/views/2017/01/23/essay-difficulty-selling-technology-higher-education
+  https://www.skillcatapp.com/post/introducing-skillcat-we-match-skilled-trade-workers-with-high-paying-jobs:
+    content_hash: sha256:c4ab7fdb3e2a9922
+    stored_at: data/staging/webfetch-skillcat-s-business-model-2026-07-16_11-17-43.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:43.410380+00:00'
+    title: SkillCat's Business Model
+    maturity: growing
+    routing_type: meta
+    url: https://www.skillcatapp.com/post/introducing-skillcat-we-match-skilled-trade-workers-with-high-paying-jobs
+  https://www.servicemag.org/software/skillcat:
+    content_hash: sha256:4ba5d0b516e1d4d2
+    stored_at: data/staging/webfetch-skillcat-pricing-business-model-analysis-2026-07-16_11-17-44.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:44.241629+00:00'
+    title: SkillCat Pricing & Business Model Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.servicemag.org/software/skillcat
+  https://getjobber.com/pricing:
+    content_hash: sha256:5a4d8a6bc492c2e2
+    stored_at: data/staging/webfetch-jobber-pricing-tiers-2026-07-16_11-17-46.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:46.268598+00:00'
+    title: Jobber Pricing Tiers
+    maturity: growing
+    routing_type: meta
+    url: https://getjobber.com/pricing/
+  https://www.rfpmart.com/1035619-usa-pennsylvania-case-management-solution-rfp.html:
+    content_hash: sha256:5746da573c0ab149
+    stored_at: data/staging/webfetch-rfp-summary-sw-105941-2026-07-16_11-17-49.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:49.204460+00:00'
+    title: 'RFP Summary: SW-105941'
+    maturity: growing
+    routing_type: meta
+    url: https://www.rfpmart.com/1035619-usa-pennsylvania-case-management-solution-rfp.html
+  https://studentprivacy.ed.gov/sites/default/files/resource_document/file/vendor%20faq.pdf:
+    content_hash: sha256:423db69cb3700078
+    stored_at: data/staging/webfetch-ferpa-school-official-exception-requirements-2026-07-16_11-17-49.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:49.843670+00:00'
+    title: FERPA "School Official" Exception Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://studentprivacy.ed.gov/sites/default/files/resource_document/file/Vendor%20FAQ.pdf
+  https://it.umn.edu/services-technologies/self-help-guides/process-umn-software-purchases:
+    content_hash: sha256:a55b1e223ded3c9d
+    stored_at: data/staging/webfetch-umn-software-purchase-process-key-triggers-and-2026-07-16_11-17-52.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:52.107652+00:00'
+    title: 'UMN Software Purchase Process: Key Triggers and Timelines'
+    maturity: growing
+    routing_type: meta
+    url: https://it.umn.edu/services-technologies/self-help-guides/process-umn-software-purchases
+  https://www.acca.org/about-us:
+    content_hash: sha256:d60f856822b0e3d0
+    stored_at: data/staging/webfetch-based-on-the-provided-web-page-content-i-cannot-2026-07-16_11-17-52.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:52.595170+00:00'
+    title: Based on the provided web page content, I cannot find any specific numbers
+      about ACCA membership, co
+    maturity: growing
+    routing_type: meta
+    url: https://www.acca.org/about-us
+  https://www.phccfoundation.org/foundation:
+    content_hash: sha256:f10981309fc587f7
+    stored_at: data/staging/webfetch-phcc-educational-foundation-apprenticeship-2026-07-16_11-17-53.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:53.800889+00:00'
+    title: 'PHCC Educational Foundation: Apprenticeship Programs & Curriculum'
+    maturity: growing
+    routing_type: meta
+    url: https://www.phccfoundation.org/foundation/
+  https://www.acca.org/standards:
+    content_hash: sha256:7adb3d5a3adca9d0
+    stored_at: data/staging/webfetch-acca-standards-analysis-2026-07-16_11-17-55.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:17:55.258517+00:00'
+    title: ACCA Standards Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.acca.org/standards
+  https://nccer.my.site.com/support/s/article/accreditation-cost-sheet:
+    content_hash: sha256:7c40937aba5e7dda
+    stored_at: data/staging/webfetch-accreditation-cost-sheet-2026-07-16_11-17-56.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:56.326632+00:00'
+    title: Accreditation Cost Sheet
+    maturity: growing
+    routing_type: meta
+    url: https://nccer.my.site.com/Support/s/article/Accreditation-Cost-Sheet
+  https://www.lijatc.org/about-joint-apprenticeship-and-training-committee:
+    content_hash: sha256:7caef91b449fa576
+    stored_at: data/staging/webfetch-based-on-the-page-content-provided-the-jatc-s-2026-07-16_11-17-59.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:17:59.497392+00:00'
+    title: Based on the page content provided, the JATC's legal structure is **not
+      described** in detail.
+    maturity: growing
+    routing_type: meta
+    url: https://www.lijatc.org/about-joint-apprenticeship-and-training-committee/
+  https://www.getjobber.com/pricing:
+    content_hash: sha256:1e7e0aeaeb2069f3
+    stored_at: data/staging/webfetch-jobber-pricing-self-serve-vs-sales-contact-2026-07-16_11-18-00.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:00.181370+00:00'
+    title: 'Jobber Pricing: Self-Serve vs. Sales Contact'
+    maturity: growing
+    routing_type: meta
+    url: https://www.getjobber.com/pricing/
+  https://www.nccer.org/our-partners:
+    content_hash: sha256:ed5997754c67f23a
+    stored_at: data/staging/webfetch-nccer-partners-page-overview-2026-07-16_11-18-00.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:00.698958+00:00'
+    title: NCCER Partners Page Overview
+    maturity: growing
+    routing_type: meta
+    url: https://www.nccer.org/our-partners/
+  https://ibew146.com/wp-content/uploads/2026/04/training-director-job-posting_description-4_21_22.pdf:
+    content_hash: sha256:2cc20c99f2a908d5
+    stored_at: data/staging/webfetch-training-director-job-description-analysis-2026-07-16_11-18-02.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:02.005684+00:00'
+    title: Training Director Job Description Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://ibew146.com/wp-content/uploads/2026/04/Training-Director-Job-Posting_Description-4_21_22.pdf
+  https://www.mikeholt.com/exam-preparation-menu.php:
+    content_hash: sha256:95de0e5d77e96d2b
+    stored_at: data/staging/webfetch-electrical-exam-prep-products-price-information-2026-07-16_11-18-03.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:03.876255+00:00'
+    title: Electrical Exam Prep Products - Price Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.mikeholt.com/exam-preparation-menu.php
+  https://www.skillcatapp.com/skillcat-closes-uncapped-note:
+    content_hash: sha256:f91b7339429c0ffe
+    stored_at: data/staging/webfetch-skillcat-funding-and-business-model-analysis-2026-07-16_11-18-04.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:04.545568+00:00'
+    title: SkillCat Funding and Business Model Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.skillcatapp.com/skillcat-closes-uncapped-note
+  https://www.acca.org/standards/software:
+    content_hash: sha256:2b8d62fc69eee1c7
+    stored_at: data/staging/webfetch-acca-approved-software-overview-2026-07-16_11-18-07.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:07.718811+00:00'
+    title: ACCA Approved Software Overview
+    maturity: growing
+    routing_type: meta
+    url: https://www.acca.org/standards/software
+  https://www.sourcewell-mn.gov/sourcewell-for-vendors/become-a-supplier:
+    content_hash: sha256:7d09d8f28acbb5df
+    stored_at: data/staging/webfetch-sourcewell-awarded-supplier-process-key-details-2026-07-16_11-18-09.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:09.677286+00:00'
+    title: Sourcewell Awarded Supplier Process - Key Details
+    maturity: growing
+    routing_type: meta
+    url: https://www.sourcewell-mn.gov/sourcewell-for-vendors/become-a-supplier
+  https://cdn.sourcewell.org/public/procurement/rfp-faq.pdf:
+    content_hash: sha256:d3a528fb0eeef5fc
+    stored_at: data/staging/webfetch-to-help-you-effectively-i-would-need-2026-07-16_11-18-11.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:11.870461+00:00'
+    title: 'To help you effectively, I would need:'
+    maturity: growing
+    routing_type: meta
+    url: https://cdn.sourcewell.org/public/procurement/rfp-faq.pdf
+  https://community.phccweb.org/resourcecenter/partnerships/corporate-partners:
+    content_hash: sha256:b8b75a36394e8d78
+    stored_at: data/staging/webfetch-phcc-corporate-partners-listed-2026-07-16_11-18-12.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:12.817029+00:00'
+    title: PHCC Corporate Partners Listed
+    maturity: growing
+    routing_type: meta
+    url: https://community.phccweb.org/resourcecenter/partnerships/corporate-partners
+  https://www.ct.edu/policies/cscu-accessibility-policy-for-electronic-information-and-technology:
+    content_hash: sha256:cd39934fa136f596
+    stored_at: data/staging/webfetch-cscu-accessibility-policy-for-eit-key-findings-2026-07-16_11-18-14.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:14.367684+00:00'
+    title: 'CSCU Accessibility Policy for EIT: Key Findings'
+    maturity: growing
+    routing_type: meta
+    url: https://www.ct.edu/policies/cscu-accessibility-policy-for-electronic-information-and-technology
+  https://www.insidehighered.com/digital-learning/blogs/default/josh-kims-advice-selling-higher-ed:
+    content_hash: sha256:a14699222a5629c0
+    stored_at: data/staging/webfetch-numeric-claims-about-sales-cycles-2026-07-16_11-18-15.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:15.522044+00:00'
+    title: Numeric Claims About Sales Cycles
+    maturity: growing
+    routing_type: meta
+    url: https://www.insidehighered.com/digital-learning/blogs/default/josh-kims-advice-selling-higher-ed
+  https://www.alvincollege.edu/purchasing/contracts.html:
+    content_hash: sha256:ed29f1e0724544d0
+    stored_at: data/staging/webfetch-alvin-college-s-cooperative-purchasing-policy-2026-07-16_11-18-15.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:16.188236+00:00'
+    title: Alvin College's Cooperative Purchasing Policy
+    maturity: growing
+    routing_type: meta
+    url: https://www.alvincollege.edu/purchasing/contracts.html
+  https://www.sinclair.edu/about/offices/purchasing/vpat:
+    content_hash: sha256:130055330809c2e7
+    stored_at: data/staging/webfetch-sinclair-community-college-vpat-policy-2026-07-16_11-18-16.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:16.938917+00:00'
+    title: Sinclair Community College VPAT Policy
+    maturity: growing
+    routing_type: meta
+    url: https://www.sinclair.edu/about/offices/purchasing/vpat/
+  https://www.acca.org/standards/approved-software:
+    content_hash: sha256:9f7149455098e142
+    stored_at: data/staging/webfetch-acca-s-approved-software-program-2026-07-16_11-18-18.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:18.432669+00:00'
+    title: ACCA's Approved Software Program
+    maturity: growing
+    routing_type: meta
+    url: https://www.acca.org/standards/approved-software
+  https://pejatc.org/wp-content/uploads/2023/05/2021_7-statement-of-committee-policy.pdf:
+    content_hash: sha256:febdbeac9a5c4da5
+    stored_at: data/staging/webfetch-to-properly-answer-your-questions-about-2026-07-16_11-18-19.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:19.154611+00:00'
+    title: 'To properly answer your questions about:'
+    maturity: growing
+    routing_type: meta
+    url: https://pejatc.org/wp-content/uploads/2023/05/2021_7-Statement-of-Committee-Policy.pdf
+  https://ieci.org/membership/chapters:
+    content_hash: sha256:9d733d8e3fb14344
+    stored_at: data/staging/webfetch-iec-membership-numbers-2026-07-16_11-18-21.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:21.363071+00:00'
+    title: IEC Membership Numbers
+    maturity: growing
+    routing_type: meta
+    url: https://ieci.org/membership/chapters/
+  https://www.crafteducation.com/pricing:
+    content_hash: sha256:283d5158f6f7d84a
+    stored_at: data/staging/webfetch-craft-education-pricing-summary-2026-07-16_11-18-22.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:22.781755+00:00'
+    title: Craft Education Pricing Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.crafteducation.com/pricing
+  https://gosprout.app/apprentice-management-software-buyers-guide:
+    content_hash: sha256:5cd7e8766e0442ed
+    stored_at: data/staging/webfetch-apprentice-management-software-pricing-and-target-2026-07-16_11-18-23.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:23.510024+00:00'
+    title: Apprentice Management Software Pricing and Target Buyers
+    maturity: growing
+    routing_type: meta
+    url: https://gosprout.app/apprentice-management-software-buyers-guide/
+  https://www.proskillshub.com:
+    content_hash: sha256:a54e2d92ca3547a5
+    stored_at: data/staging/webfetch-proskillshub-business-overview-2026-07-16_11-18-24.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:24.844387+00:00'
+    title: 'Proskillshub: Business Overview'
+    maturity: growing
+    routing_type: meta
+    url: https://www.proskillshub.com/
+  https://www.skillcatapp.com/for-contractors:
+    content_hash: sha256:a1571059f24e766a
+    stored_at: data/staging/webfetch-skillcat-employer-pricing-2026-07-16_11-18-25.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:25.448775+00:00'
+    title: SkillCat Employer Pricing
+    maturity: growing
+    routing_type: meta
+    url: https://www.skillcatapp.com/for-contractors
+  https://tracxn.com/d/companies/skillcat-app/__bs0xsxmmho43pmnrf2gmbmtbvffihk1vfb6npnjkgdm/funding-and-investors:
+    content_hash: sha256:69593389694c4173
+    stored_at: data/staging/webfetch-skillcat-app-funding-rounds-2026-07-16_11-18-27.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:27.918643+00:00'
+    title: Skillcat App Funding Rounds
+    maturity: growing
+    routing_type: meta
+    url: https://tracxn.com/d/companies/skillcat-app/__bs0xsxmmHO43pmNrF2gmBMTbvfFIhK1vFB6NpNJKGdM/funding-and-investors
+  https://www.totara.com/us/customer-stories/nccer-constructs-a-commercial-grade-extended-enterprise-learning-solution:
+    content_hash: sha256:0c30bf84df7a958f
+    stored_at: data/staging/webfetch-nccer-s-vendor-selection-process-2026-07-16_11-18-29.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:29.766874+00:00'
+    title: NCCER's Vendor Selection Process
+    maturity: growing
+    routing_type: meta
+    url: https://www.totara.com/us/customer-stories/nccer-constructs-a-commercial-grade-extended-enterprise-learning-solution/
+  https://procurement.caltech.edu/documents/29591/data_security_procurement_contracts_1124.pdf:
+    content_hash: sha256:e6779d718ec4789c
+    stored_at: data/staging/webfetch-to-answer-your-questions-about-2026-07-16_11-18-30.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:30.844854+00:00'
+    title: 'To answer your questions about:'
+    maturity: growing
+    routing_type: meta
+    url: https://procurement.caltech.edu/documents/29591/data_security_procurement_contracts_1124.pdf
+  https://pricingnow.com/question/interplay-learning-pricing:
+    content_hash: sha256:67c76f7abadbe51b
+    stored_at: data/staging/webfetch-interplay-learning-pricing-extract-2026-07-16_11-18-32.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:32.219180+00:00'
+    title: Interplay Learning Pricing Extract
+    maturity: growing
+    routing_type: meta
+    url: https://pricingnow.com/question/interplay-learning-pricing/
+  https://www.smacna.org/about-smacna:
+    content_hash: sha256:17d98f6e3f449a36
+    stored_at: data/staging/webfetch-smacna-structure-membership-and-mission-2026-07-16_11-18-37.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:37.162338+00:00'
+    title: 'SMACNA: Structure, Membership, and Mission'
+    maturity: growing
+    routing_type: meta
+    url: https://www.smacna.org/about-smacna
+  https://gosprout.app:
+    content_hash: sha256:e9984209836d5a49
+    stored_at: data/staging/webfetch-gosprout-product-overview-2026-07-16_11-18-37.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:37.820644+00:00'
+    title: GoSprout Product Overview
+    maturity: growing
+    routing_type: meta
+    url: https://gosprout.app/
+  https://www.smacna.org/technical-standards:
+    content_hash: sha256:a7cb59d4cbc339f4
+    stored_at: data/staging/webfetch-smacna-technical-standards-program-2026-07-16_11-18-38.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:38.330273+00:00'
+    title: SMACNA Technical Standards Program
+    maturity: growing
+    routing_type: meta
+    url: https://www.smacna.org/technical-standards
+  https://marketplace.servicetitan.com/partner/phcc:
+    content_hash: sha256:b1794f7daeaa8f0e
+    stored_at: data/staging/webfetch-servicetitan-phcc-partnership-summary-2026-07-16_11-18-39.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:39.017291+00:00'
+    title: ServiceTitan-PHCC Partnership Summary
+    maturity: growing
+    routing_type: meta
+    url: https://marketplace.servicetitan.com/partner/phcc
+  https://www.interplaylearning.com/solo:
+    content_hash: sha256:0b0b16cb3924ddfa
+    stored_at: data/staging/webfetch-interplay-solo-pricing-information-2026-07-16_11-18-39.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:39.766113+00:00'
+    title: Interplay Solo Pricing Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.interplaylearning.com/solo/
+  https://www.interplaylearning.com/solutions/individuals:
+    content_hash: sha256:5f6dcba00a54db7e
+    stored_at: data/staging/webfetch-pricing-information-for-individual-plans-2026-07-16_11-18-40.md
+    importance_score: 80
+    last_updated: '2026-07-16T11:18:40.558665+00:00'
+    title: Pricing Information for Individual Plans
+    maturity: growing
+    routing_type: meta
+    url: https://www.interplaylearning.com/solutions/individuals/
+  https://www.ega.edu/about/at-a-glance/policies-and-procedures-of-the-college/07-purchasing-card-policy.html:
+    content_hash: sha256:436577c89d2331f7
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-18-42.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:42.884703+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.ega.edu/about/at-a-glance/policies-and-procedures-of-the-college/07-purchasing-card-policy.html
+  https://topekaelectricaljatc.com/grant_-_procurement_policy:
+    content_hash: sha256:831a7254f14b0dbf
+    stored_at: data/staging/webfetch-topeka-electrical-jatc-procurement-policy-analysis-2026-07-16_11-18-44.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:44.549141+00:00'
+    title: Topeka Electrical JATC Procurement Policy Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://topekaelectricaljatc.com/grant_-_procurement_policy
+  https://www.gao.gov/assets/gao-23-105478.pdf:
+    content_hash: sha256:f794bbf55fe55374
+    stored_at: data/staging/webfetch-you-ve-hit-your-session-limit-resets-11am-america-2026-07-16_11-18-52.md
+    importance_score: 79
+    last_updated: '2026-07-16T11:18:52.696959+00:00'
+    title: "You've hit your session limit \xB7 resets 11am (America/Chicago)"
+    maturity: growing
+    routing_type: meta
+    url: https://www.gao.gov/assets/gao-23-105478.pdf
+  http://archive.org/wayback/available?url=practicalmachinist.com/forum/threads/wanted-ai-horror-stories.449502:
+    content_hash: sha256:a8bc0eaaa7ca679d
+    stored_at: data/staging/webfetch-based-on-the-content-provided-there-are-no-2026-07-17_11-02-26.md
+    importance_score: 80
+    last_updated: '2026-07-17T11:02:26.133874+00:00'
+    title: Based on the content provided, there are **no archived snapshots available**
+      for this URL.
+    maturity: growing
+    routing_type: meta
+    url: http://archive.org/wayback/available?url=practicalmachinist.com/forum/threads/wanted-ai-horror-stories.449502/
+  https://www.garagejournal.com/forum/threads/using-ai-for-construction-questions.544410:
+    content_hash: sha256:fd75eb7a933c4962
+    stored_at: data/staging/webfetch-ai-quotes-from-the-garage-journal-forum-thread-2026-07-17_11-02-43.md
+    importance_score: 81
+    last_updated: '2026-07-17T11:02:44.000848+00:00'
+    title: AI Quotes from The Garage Journal Forum Thread
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/using-ai-for-construction-questions.544410/
+  https://www.getmaintainx.com/pricing:
+    content_hash: sha256:fb1b6d5db9683088
+    stored_at: data/staging/webfetch-maintainx-ai-copilot-features-by-plan-tier-2026-07-17_11-03-06.md
+    importance_score: 81
+    last_updated: '2026-07-17T11:03:06.138959+00:00'
+    title: MaintainX AI/CoPilot Features by Plan Tier
+    maturity: growing
+    routing_type: meta
+    url: https://www.getmaintainx.com/pricing
+  https://www.garagejournal.com/forum/threads/new-construction-plan-ahead.527259:
+    content_hash: sha256:38dcdbf68ec1f85e
+    stored_at: data/staging/webfetch-documentation-before-coverage-verbatim-quotes-2026-07-17_11-03-21.md
+    importance_score: 81
+    last_updated: '2026-07-17T11:03:21.354457+00:00'
+    title: 'Documentation Before Coverage: Verbatim Quotes'
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/new-construction-plan-ahead.527259/
+  https://help.getmaintainx.com/complete-a-work-order-with-maintainx-copilot:
+    content_hash: sha256:60485510479dc8e8
+    stored_at: data/staging/webfetch-plan-availability-2026-07-17_11-03-24.md
+    importance_score: 81
+    last_updated: '2026-07-17T11:03:24.296851+00:00'
+    title: Plan Availability
+    maturity: growing
+    routing_type: meta
+    url: https://help.getmaintainx.com/complete-a-work-order-with-maintainx-copilot
+  https://help.getmaintainx.com/complete-a-work-order:
+    content_hash: sha256:b1ff835a9673ec16
+    stored_at: data/staging/webfetch-based-on-the-provided-webpage-content-i-cannot-2026-07-17_11-03-35.md
+    importance_score: 81
+    last_updated: '2026-07-17T11:03:35.395059+00:00'
+    title: 'Based on the provided webpage content, I cannot find information about:'
+    maturity: growing
+    routing_type: meta
+    url: https://help.getmaintainx.com/complete-a-work-order
+  https://help.getmaintainx.com/help-center-updates/june-2026:
+    content_hash: sha256:0702bfabbdd8c98c
+    stored_at: data/staging/webfetch-june-2026-maintainx-updates-2026-07-17_11-03-52.md
+    importance_score: 81
+    last_updated: '2026-07-17T11:03:52.341064+00:00'
+    title: June 2026 MaintainX Updates
+    maturity: growing
+    routing_type: meta
+    url: https://help.getmaintainx.com/help-center-updates/june-2026
+  https://www.aljazeera.com/gallery/2026/6/11/photos-indias-workers-are-training-ai-robots-to-take-their-jobs:
+    content_hash: sha256:d51cafed1c804cb6
+    stored_at: data/staging/webfetch-worker-quotes-from-article-2026-07-17_11-03-52.md
+    importance_score: 80
+    last_updated: '2026-07-17T11:03:52.951793+00:00'
+    title: Worker Quotes from Article
+    maturity: growing
+    routing_type: meta
+    url: https://www.aljazeera.com/gallery/2026/6/11/photos-indias-workers-are-training-ai-robots-to-take-their-jobs
+  https://help.getmaintainx.com/maintainx-copilot:
+    content_hash: sha256:00983c1a01315ae8
+    stored_at: data/staging/webfetch-maintainx-copilot-analysis-2026-07-17_11-03-53.md
+    importance_score: 81
+    last_updated: '2026-07-17T11:03:53.423401+00:00'
+    title: MaintainX CoPilot Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://help.getmaintainx.com/maintainx-copilot
+  https://thefederal.com/category/news/factory-workers-working-with-cameras-on-head-trigger-ai-fears-238906:
+    content_hash: sha256:45394876faa1f118
+    stored_at: data/staging/webfetch-analysis-of-worker-quotes-in-article-2026-07-17_11-03-53.md
+    importance_score: 80
+    last_updated: '2026-07-17T11:03:53.938905+00:00'
+    title: Analysis of Worker Quotes in Article
+    maturity: growing
+    routing_type: meta
+    url: https://thefederal.com/category/news/factory-workers-working-with-cameras-on-head-trigger-ai-fears-238906
+  https://techxplore.com/news/2026-06-indian-workers-ai-robots-jobs.html:
+    content_hash: sha256:8c79f10d6aa39d74
+    stored_at: data/staging/webfetch-first-person-worker-quotes-2026-07-17_11-04-27.md
+    importance_score: 80
+    last_updated: '2026-07-17T11:04:27.348181+00:00'
+    title: First-Person Worker Quotes
+    maturity: growing
+    routing_type: meta
+    url: https://techxplore.com/news/2026-06-indian-workers-ai-robots-jobs.html
+  https://help.getmaintainx.com/work-order-settings:
+    content_hash: sha256:3e227300e9aadd1a
+    stored_at: data/staging/webfetch-work-order-summaries-setting-2026-07-17_11-04-34.md
+    importance_score: 81
+    last_updated: '2026-07-17T11:04:34.095037+00:00'
+    title: Work Order Summaries Setting
+    maturity: growing
+    routing_type: meta
+    url: https://help.getmaintainx.com/work-order-settings
+  https://help.getmaintainx.com/about-work-orders:
+    content_hash: sha256:fcac33a6d2e8f687
+    stored_at: data/staging/webfetch-work-order-summary-availability-2026-07-17_11-04-39.md
+    importance_score: 81
+    last_updated: '2026-07-17T11:04:39.081596+00:00'
+    title: Work Order Summary Availability
+    maturity: growing
+    routing_type: meta
+    url: https://help.getmaintainx.com/about-work-orders
+  https://www.garagejournal.com/forum/threads/garage-mini-split-installation-debrief.559219:
+    content_hash: sha256:ba1e97bc24113829
+    stored_at: data/staging/webfetch-mini-split-installation-debrief-analysis-2026-07-17_11-04-57.md
+    importance_score: 81
+    last_updated: '2026-07-17T11:04:57.645475+00:00'
+    title: Mini Split Installation Debrief Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.garagejournal.com/forum/threads/garage-mini-split-installation-debrief.559219/
+  https://urbangeekz.com/2026/05/y-combinator-reveals-15-startup-ideas-it-wants-founders-to-build-in-summer-2026:
+    content_hash: sha256:96c244d4ac7d92da
+    stored_at: data/staging/webfetch-article-analysis-2026-07-17_11-05-06.md
+    importance_score: 80
+    last_updated: '2026-07-17T11:05:06.137642+00:00'
+    title: Article Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://urbangeekz.com/2026/05/y-combinator-reveals-15-startup-ideas-it-wants-founders-to-build-in-summer-2026/
+  https://www.insidehighered.com/news/tech-innovation/alternative-credentials/2026/07/13/dol-puts-millions-dollars-toward:
+    content_hash: sha256:e793ba04a541369c
+    stored_at: data/staging/webfetch-department-of-labor-apprenticeship-funding-awards-2026-07-17_11-07-48.md
+    importance_score: 80
+    last_updated: '2026-07-17T11:07:48.186848+00:00'
+    title: Department of Labor Apprenticeship Funding Awards
+    maturity: growing
+    routing_type: meta
+    url: https://www.insidehighered.com/news/tech-innovation/alternative-credentials/2026/07/13/dol-puts-millions-dollars-toward
+  https://f.inc/canopy/teams/carbyn:
+    content_hash: sha256:ac7c0406ecc2d2cf
+    stored_at: data/staging/webfetch-carbyn-information-extract-2026-07-17_11-08-01.md
+    importance_score: 80
+    last_updated: '2026-07-17T11:08:01.389399+00:00'
+    title: Carbyn Information Extract
+    maturity: growing
+    routing_type: meta
+    url: https://f.inc/canopy/teams/carbyn/
+  https://github.com/microsoft/graphrag:
+    content_hash: sha256:90d476a727be3b29
+    stored_at: data/staging/webfetch-graphrag-repository-summary-2026-07-17_15-20-19.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:20:19.115020+00:00'
+    title: GraphRAG Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/microsoft/graphrag
+  https://github.com/osu-nlp-group/hipporag:
+    content_hash: sha256:cd2a904a50a743b5
+    stored_at: data/staging/webfetch-hipporag-repository-summary-2026-07-17_15-20-21.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:20:21.348589+00:00'
+    title: HippoRAG Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/OSU-NLP-Group/HippoRAG
+  ? https://export.arxiv.org/api/query?search_query=all:graphrag+knowledge+graph+retrieval+augmented+generation&max_results=12&sortby=relevance
+  : content_hash: sha256:f5f97f61ee3f2499
+    stored_at: data/staging/webfetch-graphrag-and-knowledge-graph-research-papers-2026-07-17_15-20-21.md
+    importance_score: 82
+    last_updated: '2026-07-17T15:20:22.101911+00:00'
+    title: GraphRAG and Knowledge Graph Research Papers
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:GraphRAG+knowledge+graph+retrieval+augmented+generation&max_results=12&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:grobid+nougat+scientific+document+parsing+pdf&max_results=12&sortby=relevance
+  : content_hash: sha256:067fc09e2d03e445
+    stored_at: data/staging/webfetch-scientific-pdf-parsing-research-papers-2026-07-17_15-20-23.md
+    importance_score: 82
+    last_updated: '2026-07-17T15:20:23.500078+00:00'
+    title: Scientific PDF Parsing Research Papers
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:GROBID+Nougat+scientific+document+parsing+PDF&max_results=12&sortBy=relevance
+  https://github.com/neo4j/neo4j-graphrag-python:
+    content_hash: sha256:97134fc729baf229
+    stored_at: data/staging/webfetch-neo4j-graphrag-python-repository-summary-2026-07-17_15-20-24.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:20:24.287488+00:00'
+    title: Neo4j GraphRAG Python Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/neo4j/neo4j-graphrag-python
+  ? https://export.arxiv.org/api/query?search_query=all:citation+network+novelty+disruption+index+scientific+impact&max_results=12&sortby=relevance
+  : content_hash: sha256:ca70840f2eb9938b
+    stored_at: data/staging/webfetch-arxiv-papers-on-citation-networks-and-scientific-2026-07-17_15-20-28.md
+    importance_score: 82
+    last_updated: '2026-07-17T15:20:28.241094+00:00'
+    title: ArXiv Papers on Citation Networks and Scientific Impact
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:citation+network+novelty+disruption+index+scientific+impact&max_results=12&sortBy=relevance
+  https://hn.algolia.com/api/v1/search?query=grobid%20nougat%20pdf%20parsing&tags=story&hitsperpage=15:
+    content_hash: sha256:310127deedb301df
+    stored_at: data/staging/webfetch-search-results-for-grobid-nougat-pdf-parsing-2026-07-17_15-20-29.md
+    importance_score: 90
+    last_updated: '2026-07-17T15:20:29.401178+00:00'
+    title: Search Results for "GROBID Nougat PDF parsing"
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=GROBID%20Nougat%20PDF%20parsing&tags=story&hitsPerPage=15
+  https://export.arxiv.org/api/query?search_query=all:rag+evaluation+faithfulness+ragas+ares&max_results=12&sortby=relevance:
+    content_hash: sha256:3a897fe20f30ebdc
+    stored_at: data/staging/webfetch-rag-evaluation-research-papers-summary-2026-07-17_15-20-31.md
+    importance_score: 82
+    last_updated: '2026-07-17T15:20:31.822611+00:00'
+    title: RAG Evaluation Research Papers Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:RAG+evaluation+faithfulness+RAGAS+ARES&max_results=12&sortBy=relevance
+  https://github.com/neuml/txtai:
+    content_hash: sha256:28ad4fefb5ae533b
+    stored_at: data/staging/webfetch-txtai-repository-overview-2026-07-17_15-20-34.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:20:34.702562+00:00'
+    title: txtai Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/neuml/txtai
+  https://hn.algolia.com/api/v1/search?query=rag%20evaluation%20ragas&tags=story&hitsperpage=15:
+    content_hash: sha256:0d3e859a05a41853
+    stored_at: data/staging/webfetch-rag-evaluation-stories-list-2026-07-17_15-20-35.md
+    importance_score: 90
+    last_updated: '2026-07-17T15:20:35.351190+00:00'
+    title: RAG Evaluation Stories List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=RAG%20evaluation%20RAGAS&tags=story&hitsPerPage=15
+  https://github.com/explodinggradients/ragas:
+    content_hash: sha256:4e75704f92386a40
+    stored_at: data/staging/webfetch-ragas-repository-summary-2026-07-17_15-20-36.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:20:36.982865+00:00'
+    title: Ragas Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/explodinggradients/ragas
+  https://github.com/stanford-futuredata/ares:
+    content_hash: sha256:f868971766ea1b78
+    stored_at: data/staging/webfetch-ares-project-summary-2026-07-17_15-20-37.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:20:37.545264+00:00'
+    title: ARES Project Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/stanford-futuredata/ARES
+  https://hn.algolia.com/api/v1/search?query=graphrag&tags=story&hitsperpage=15:
+    content_hash: sha256:da5b11017aecc90d
+    stored_at: data/staging/webfetch-graphrag-stories-from-hacker-news-2026-07-17_15-20-38.md
+    importance_score: 90
+    last_updated: '2026-07-17T15:20:38.326552+00:00'
+    title: GraphRAG Stories from Hacker News
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=GraphRAG&tags=story&hitsPerPage=15
+  https://hn.algolia.com/api/v1/search?query=rag%20retrieval%20augmented&tags=story&hitsperpage=15:
+    content_hash: sha256:c76b3c12b8c4c67e
+    stored_at: data/staging/webfetch-rag-stories-list-2026-07-17_15-20-39.md
+    importance_score: 90
+    last_updated: '2026-07-17T15:20:39.145148+00:00'
+    title: RAG Stories List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=RAG%20retrieval%20augmented&tags=story&hitsPerPage=15
+  https://github.com/beir-cellar/beir:
+    content_hash: sha256:f608312904bf0ac7
+    stored_at: data/staging/webfetch-beir-benchmark-key-information-2026-07-17_15-20-39.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:20:39.945983+00:00'
+    title: BEIR Benchmark - Key Information
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/beir-cellar/beir
+  ? https://export.arxiv.org/api/query?search_query=ti:%22beir%22+or+ti:%22mteb%22+or+abs:%22heterogeneous+benchmark%22+information+retrieval+embedding&max_results=10&sortby=relevance
+  : content_hash: sha256:f77f9030c814c982
+    stored_at: data/staging/webfetch-arxiv-search-results-information-retrieval-papers-2026-07-17_15-20-48.md
+    importance_score: 82
+    last_updated: '2026-07-17T15:20:48.582105+00:00'
+    title: 'ArXiv Search Results: Information Retrieval Papers'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=ti:%22BEIR%22+OR+ti:%22MTEB%22+OR+abs:%22heterogeneous+benchmark%22+information+retrieval+embedding&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=ti:%22s2orc%22+or+ti:%22unarxive%22+or+ti:%22openalex%22+corpus+citation&max_results=10&sortby=relevance
+  : content_hash: sha256:fa7c5fc7f300d602
+    stored_at: data/staging/webfetch-arxiv-search-results-summary-2026-07-17_15-20-51.md
+    importance_score: 82
+    last_updated: '2026-07-17T15:20:51.124860+00:00'
+    title: arXiv Search Results Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=ti:%22S2ORC%22+OR+ti:%22unarXive%22+OR+ti:%22OpenAlex%22+corpus+citation&max_results=10&sortBy=relevance
+  https://github.com/facebookresearch/nougat:
+    content_hash: sha256:8f9980b35d0c1408
+    stored_at: data/staging/webfetch-nougat-repository-summary-2026-07-17_15-20-52.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:20:52.905058+00:00'
+    title: Nougat Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/facebookresearch/nougat
+  https://hn.algolia.com/api/v1/items/44701172:
+    content_hash: sha256:5571d5f5d279f06b
+    stored_at: data/staging/webfetch-rag-production-readiness-comment-theme-summary-2026-07-17_15-20-54.md
+    importance_score: 90
+    last_updated: '2026-07-17T15:20:54.943861+00:00'
+    title: 'RAG Production-Readiness: Comment Theme Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/44701172
+  https://hn.algolia.com/api/v1/items/41597587:
+    content_hash: sha256:4dfdff9ac40d6c16
+    stored_at: data/staging/webfetch-graphrag-production-discussion-summary-2026-07-17_15-20-55.md
+    importance_score: 90
+    last_updated: '2026-07-17T15:20:55.496362+00:00'
+    title: GraphRAG Production Discussion Summary
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/41597587
+  https://github.com/lukasschwab/arxiv.py:
+    content_hash: sha256:95af61acf889a84d
+    stored_at: data/staging/webfetch-arxiv-py-repository-overview-2026-07-17_15-20-56.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:20:56.122723+00:00'
+    title: arxiv.py Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/lukasschwab/arxiv.py
+  ? https://export.arxiv.org/api/query?search_query=ti:%22node2vec%22+or+ti:%22link+prediction%22+or+abs:%22adamic-adar%22+network+embedding&max_results=10&sortby=relevance
+  : content_hash: sha256:4f3512ec093d0f42
+    stored_at: data/staging/webfetch-arxiv-search-results-summary-2026-07-17_15-20-56.md
+    importance_score: 82
+    last_updated: '2026-07-17T15:20:57.154060+00:00'
+    title: arXiv Search Results Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=ti:%22node2vec%22+OR+ti:%22link+prediction%22+OR+abs:%22Adamic-Adar%22+network+embedding&max_results=10&sortBy=relevance
+  https://github.com/pyg-team/pytorch_geometric:
+    content_hash: sha256:7b79e4486cb4b52a
+    stored_at: data/staging/webfetch-pytorch-geometric-quick-summary-2026-07-17_15-21-09.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:21:09.451135+00:00'
+    title: PyTorch Geometric - Quick Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/pyg-team/pytorch_geometric
+  https://github.com/danielnsilva/semanticscholar:
+    content_hash: sha256:68aeabb76e9eb645
+    stored_at: data/staging/webfetch-semantic-scholar-python-client-2026-07-17_15-21-10.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:21:10.855029+00:00'
+    title: Semantic Scholar Python Client
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/danielnsilva/semanticscholar
+  https://github.com/run-llama/llama_index:
+    content_hash: sha256:38e4e38f9bbafea4
+    stored_at: data/staging/webfetch-llamaindex-repository-analysis-2026-07-17_15-21-12.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:21:12.516257+00:00'
+    title: LlamaIndex Repository Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/run-llama/llama_index
+  https://github.com/cvangysel/pytrec_eval:
+    content_hash: sha256:e0b5cdbf246d8998
+    stored_at: data/staging/webfetch-pytrec-eval-repository-summary-2026-07-17_15-21-28.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:21:28.998556+00:00'
+    title: pytrec_eval Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/cvangysel/pytrec_eval
+  https://github.com/confident-ai/deepeval:
+    content_hash: sha256:e9b876d9cdc40cac
+    stored_at: data/staging/webfetch-deepeval-repository-summary-2026-07-17_15-21-31.md
+    importance_score: 97
+    last_updated: '2026-07-17T15:21:31.929985+00:00'
+    title: DeepEval Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/confident-ai/deepeval
+  https://export.arxiv.org/api/query?id_list=2404.16130,2104.08663,2210.07316,1911.02782,2205.01833,1607.00653,2303.14957:
+    content_hash: sha256:455ff814514c87fa
+    stored_at: data/staging/webfetch-arxiv-papers-summary-2026-07-17_15-21-48.md
+    importance_score: 82
+    last_updated: '2026-07-17T15:21:48.085104+00:00'
+    title: arXiv Papers Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?id_list=2404.16130,2104.08663,2210.07316,1911.02782,2205.01833,1607.00653,2303.14957
+  https://medium.com/graph-praxis/the-graphrag-cost-cliff-how-33-000-became-33-in-eighteen-months-be1b0fbe37e4:
+    content_hash: sha256:efe7d94b91ed2280
+    stored_at: data/staging/webfetch-graphrag-cost-analysis-key-findings-2026-07-17_15-22-27.md
+    importance_score: 80
+    last_updated: '2026-07-17T15:22:27.606471+00:00'
+    title: 'GraphRAG Cost Analysis: Key Findings'
+    maturity: growing
+    routing_type: meta
+    url: https://medium.com/graph-praxis/the-graphrag-cost-cliff-how-33-000-became-33-in-eighteen-months-be1b0fbe37e4
+  https://hn.algolia.com/api/v1/items/39767610:
+    content_hash: sha256:f4172d4dd67b1961
+    stored_at: data/staging/webfetch-summary-of-ragas-comments-2026-07-17_15-22-29.md
+    importance_score: 90
+    last_updated: '2026-07-17T15:22:29.022107+00:00'
+    title: Summary of Ragas Comments
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/39767610
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -2824,3 +4867,229 @@ hashes:
   sha256:b72e2099a6be585d: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-05-24.md
   sha256:577bc0678e247686: data/staging/webfetch-mechanic-s-documentation-tips-2026-07-14_11-05-29.md
   sha256:90b4b6d7e63924fe: data/staging/webfetch-funding-report-summary-7-13-2026-2026-07-14_11-05-30.md
+  sha256:51abcc85c9032cec: data/staging/webfetch-summary-2026-07-16_11-03-17.md
+  sha256:62b7e6642c1c556e: data/staging/webfetch-maintainx-ai-procedure-generator-2026-07-16_11-03-30.md
+  sha256:86197bc0c151ded8: data/staging/webfetch-documentation-before-disassembly-2026-07-16_11-03-33.md
+  sha256:80ac1322fc71078d: data/staging/webfetch-documentation-approaches-in-forum-discussion-2026-07-16_11-03-34.md
+  sha256:a0967f80943e4669: data/staging/webfetch-mechanics-documentation-and-knowledge-sharing-2026-07-16_11-03-47.md
+  sha256:7a9141c54b7ccece: data/staging/webfetch-ghost-workers-in-the-ai-machine-report-details-2026-07-16_11-03-52.md
+  sha256:85a56ccb18d5cf27: data/staging/webfetch-report-summary-ghost-workers-in-the-ai-machine-2026-07-16_11-03-56.md
+  sha256:04069352289b888c: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-05.md
+  sha256:45fa1ab344b8dcc2: data/staging/webfetch-survey-details-ghost-workers-in-the-ai-machine-2026-07-16_11-04-08.md
+  sha256:25cb15d6b7116dc3: data/staging/webfetch-carbyn-ai-article-analysis-2026-07-16_11-04-15.md
+  sha256:fced8e5135849c86: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-23.md
+  sha256:df439bcd037771e2: data/staging/webfetch-archived-snapshot-information-2026-07-16_11-04-26.md
+  sha256:80d7acfd0c583604: data/staging/webfetch-archived-snapshot-information-2026-07-16_11-04-37.md
+  sha256:6df3c0c2036e6d90: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-51.md
+  sha256:3ca60aa1aaa77656: data/staging/webfetch-ai-trust-and-verification-in-mechanics-forum-2026-07-16_11-04-56.md
+  sha256:e88531f74c08d002: data/staging/webfetch-forum-ownership-and-content-terms-2026-07-16_11-05-35.md
+  sha256:8c9a6187fb518895: data/staging/webfetch-google-skilled-trades-funding-key-details-2026-07-16_11-06-17.md
+  sha256:3d4b837cc62a39eb: data/staging/webfetch-america-s-workforce-academy-key-details-2026-07-16_11-06-32.md
+  sha256:f12c0e0c17b462af: data/staging/webfetch-interplay-learning-pricing-analysis-2026-07-16_11-06-34.md
+  sha256:b3535b9f04b13d69: data/staging/webfetch-interplay-learning-education-pricing-analysis-2026-07-16_11-06-35.md
+  sha256:7ba8030f5ff3daa3: data/staging/webfetch-the-electrical-training-alliance-2026-07-16_11-06-36.md
+  sha256:8f617eb4f0130010: data/staging/webfetch-ibew-apprenticeship-funding-and-curriculum-2026-07-16_11-06-41.md
+  sha256:b9efd89c6fa780ab: data/staging/webfetch-manifest-v2-removal-timeline-2026-07-16_11-06-42.md
+  sha256:b2aaffc24e15da8e: data/staging/webfetch-nccer-overview-2026-07-16_11-06-54.md
+  sha256:dafaf6722f4305fa: data/staging/webfetch-analysis-editorial-blog-post-2026-07-16_11-06-56.md
+  sha256:ba194b775cd504c5: data/staging/webfetch-maintenance-record-keeping-verbatim-quotes-2026-07-16_11-06-58.md
+  sha256:b1f83cffff60df4e: data/staging/webfetch-to-answer-your-questions-about-2026-07-16_11-07-08.md
+  sha256:ff39c5c97df95b78: data/staging/webfetch-analysis-of-article-content-2026-07-16_11-07-12.md
+  sha256:acd42a4af8e84c4e: data/staging/webfetch-funding-report-analysis-2026-07-16_11-07-14.md
+  sha256:10fc01ae304c0024: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-07-19.md
+  sha256:e7cf095117a00456: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-07-20.md
+  sha256:34ce6c57f74534f3: data/staging/webfetch-electrical-training-alliance-2026-07-16_11-07-21.md
+  sha256:c4491616c1df4276: data/staging/webfetch-augmentir-pricing-analysis-2026-07-16_11-07-40.md
+  sha256:88c7254d36e46502: data/staging/webfetch-augmentir-s-approach-to-capturing-tribal-knowledge-2026-07-16_11-07-42.md
+  sha256:a8ccdd2ad812e96b: data/staging/webfetch-analysis-of-micro1-vendor-recruiting-page-2026-07-16_11-07-43.md
+  sha256:0d50bd1e56a4352f: data/staging/webfetch-workers-quoted-about-ai-training-jobs-2026-07-16_11-07-45.md
+  sha256:5a1b8a90809824b8: data/staging/webfetch-blackrock-future-builders-rfp-analysis-2026-07-16_11-07-52.md
+  sha256:52a65d2d9dc06338: data/staging/webfetch-2026-state-of-ai-in-the-trades-key-details-2026-07-16_11-08-00.md
+  sha256:0fa393fec7da73d3: data/staging/webfetch-how-welding-skill-is-transmitted-key-quotes-from-2026-07-16_11-08-22.md
+  sha256:8dd22a5118b7ab6f: data/staging/webfetch-how-people-learned-their-trades-verbatim-quotes-2026-07-16_11-08-22.md
+  sha256:63c4f05a8c66c312: data/staging/webfetch-nccer-electrical-level-1-pricing-2026-07-16_11-08-26.md
+  sha256:cde64177580a9017: data/staging/webfetch-analysis-of-google-s-electrical-workers-training-2026-07-16_11-08-27.md
+  sha256:cfc04760b8f01ecd: data/staging/webfetch-nccer-s-origin-and-development-2026-07-16_11-08-28.md
+  sha256:a06a8d4f8648e9e2: data/staging/webfetch-google-funding-to-electrical-training-alliance-2026-07-16_11-08-55.md
+  sha256:a87297241f1e1a64: data/staging/webfetch-tooling-u-sme-product-analysis-2026-07-16_11-08-57.md
+  sha256:3062c2acfd1c9996: data/staging/webfetch-online-training-basics-learning-management-2026-07-16_11-09-12.md
+  sha256:9321e5f8af50484b: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-09-25.md
+  sha256:53e45fd4f1651f57: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-09-25.md
+  sha256:1ae2d912ef419d14: data/staging/webfetch-course-builder-on-content-manager-2026-07-16_11-09-33.md
+  sha256:221390d7e240349d: data/staging/webfetch-nccer-s-focus-and-credentials-2026-07-16_11-10-42.md
+  sha256:e0935aeeb10ec56c: data/staging/webfetch-vector-solutions-acquisition-announcement-2026-07-16_11-10-54.md
+  sha256:84bc472131366d41: data/staging/webfetch-analysis-of-july-2026-changelog-2026-07-16_11-10-56.md
+  sha256:434439e12f0698ae: data/staging/webfetch-taqtile-manifest-pricing-analysis-2026-07-16_11-10-58.md
+  sha256:d0ff0eee02d8acee: data/staging/webfetch-maintainx-copilot-suggestions-key-details-2026-07-16_11-10-58.md
+  sha256:1ca21f04f54642ab: data/staging/webfetch-maintainx-help-center-changelog-summary-2026-07-16_11-11-09.md
+  sha256:834672d2749b57a5: data/staging/webfetch-analysis-of-maintainx-blog-post-on-ai-generated-2026-07-16_11-11-11.md
+  sha256:b635440db3c68563: data/staging/webfetch-ai-startups-serving-skilled-trades-2026-07-16_11-11-12.md
+  sha256:f06b0d7eca908c77: data/staging/webfetch-tradeschool-inc-product-analysis-2026-07-16_11-11-29.md
+  sha256:444bb68f332fe311: data/staging/webfetch-active-dol-apprenticeship-funding-programs-2026-07-16_11-12-40.md
+  sha256:1387305816fd6fa7: data/staging/webfetch-analysis-of-the-ai-in-registered-apprenticeship-2026-07-16_11-12-52.md
+  sha256:e169f0ee7ea36ac6: data/staging/webfetch-statistics-from-apprenticeship-gov-2026-07-16_11-13-44.md
+  sha256:f053823df1244383: data/staging/webfetch-buildwithin-information-extract-2026-07-16_11-13-47.md
+  sha256:5a01a7190bc62a13: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-14-01.md
+  sha256:78d3fc22f7f09ad2: data/staging/webfetch-federal-procurement-threshold-changes-2026-07-16_11-14-07.md
+  sha256:48edd8e433924f26: data/staging/webfetch-procurement-thresholds-document-analysis-2026-07-16_11-15-14.md
+  sha256:e86b576e5a71839e: data/staging/webfetch-los-rios-purchasing-thresholds-2026-07-16_11-15-16.md
+  sha256:d71ae225be72edc8: data/staging/webfetch-perkins-v-funding-analysis-2026-07-16_11-15-20.md
+  sha256:71187dd3d7bfc2fc: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-15-21.md
+  sha256:b850e2252c977f8a: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-15-30.md
+  sha256:7721a8815e95cd6b: data/staging/webfetch-massachusetts-workforce-training-fund-program-2026-07-16_11-15-33.md
+  sha256:2eee9937448c9bce: data/staging/webfetch-based-on-the-provided-web-page-content-i-cannot-2026-07-16_11-15-33.md
+  sha256:cd479af8a611f95c: data/staging/webfetch-nccer-overview-2026-07-16_11-15-33.md
+  sha256:7110af40fe933555: data/staging/webfetch-to-provide-accurate-information-about-2026-07-16_11-15-36.md
+  sha256:fc5167688260b63a: data/staging/webfetch-foundation-software-and-abc-relationship-2026-07-16_11-15-45.md
+  sha256:e40c091fbc74b3bf: data/staging/webfetch-wednetpa-funding-eligibility-details-2026-07-16_11-15-49.md
+  sha256:4a23993af80a57ca: data/staging/webfetch-interplay-learning-investment-and-acquisition-2026-07-16_11-15-54.md
+  sha256:a20dbf9b46979760: data/staging/webfetch-trainual-pricing-analysis-2026-07-16_11-15-57.md
+  sha256:9dacc05b15675e42: data/staging/webfetch-to-provide-the-requested-financial-details-i-2026-07-16_11-16-10.md
+  sha256:8b273e60a4d63989: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-23.md
+  sha256:f25342fa1ce51c00: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-24.md
+  sha256:9c03a17ecf34bd30: data/staging/webfetch-phcc-member-discount-programs-2026-07-16_11-16-28.md
+  sha256:76f6604a0a6766b9: data/staging/webfetch-skills-development-fund-eligible-expenses-payment-2026-07-16_11-16-29.md
+  sha256:504afc785ec6379b: data/staging/webfetch-acca-strategic-partners-program-overview-2026-07-16_11-16-31.md
+  sha256:e6d50e01d2254300: data/staging/webfetch-interplay-learning-pricing-information-2026-07-16_11-16-37.md
+  sha256:1c2e975db9ecc7c1: data/staging/webfetch-vendor-partner-discount-programs-2026-07-16_11-16-38.md
+  sha256:dcc288e26aef4c70: data/staging/webfetch-interplay-learning-investment-and-acquisition-2026-07-16_11-16-42.md
+  sha256:f6228efff12d3f57: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-42.md
+  sha256:f0bf053ffae9f5e9: data/staging/webfetch-p-card-purchase-limits-and-software-policy-2026-07-16_11-16-43.md
+  sha256:73af16ea2f16c773: data/staging/webfetch-acca-hvac-industry-marketplace-overview-2026-07-16_11-16-44.md
+  sha256:c1619385caa4f8b6: data/staging/webfetch-buildwithin-business-model-customers-and-2026-07-16_11-16-45.md
+  sha256:83c6bbc98085eef6: data/staging/webfetch-buildwithin-company-overview-2026-07-16_11-16-45.md
+  sha256:e877343093472088: data/staging/webfetch-pdf-metadata-and-encoding-artifacts-2026-07-16_11-16-46.md
+  sha256:af3eeaf1ce104a8f: data/staging/webfetch-blended-learning-platform-analysis-2026-07-16_11-16-48.md
+  sha256:b88dd6561f3c9bd7: data/staging/webfetch-ada-web-accessibility-rule-key-compliance-details-2026-07-16_11-16-50.md
+  sha256:cada853b8c672d77: data/staging/webfetch-buildwithin-business-model-summary-2026-07-16_11-16-51.md
+  sha256:a3a5bcfecebe4b9c: data/staging/webfetch-iec-current-partners-and-sponsorship-levels-2026-07-16_11-16-51.md
+  sha256:e60e3ca0177bceaa: data/staging/webfetch-pcc-technology-evaluation-policy-summary-2026-07-16_11-16-52.md
+  sha256:baae15e50ec45e2c: data/staging/webfetch-penn-foster-partnership-model-overview-2026-07-16_11-16-53.md
+  sha256:bc51262f413d53ac: data/staging/webfetch-penn-foster-trades-programs-pricing-enrollment-2026-07-16_11-16-54.md
+  sha256:d2d83ef88d88240f: data/staging/webfetch-servicetitan-sales-marketing-metrics-2026-07-16_11-16-55.md
+  sha256:92f74899120ef950: data/staging/webfetch-phcc-academy-overview-2026-07-16_11-16-57.md
+  sha256:62aa858c76f0ce58: data/staging/webfetch-interplay-learning-series-b-funding-summary-2026-07-16_11-16-58.md
+  sha256:b86ef83b4edd571e: data/staging/webfetch-agc-member-benefits-overview-2026-07-16_11-16-58.md
+  sha256:5733bb36436f5325: data/staging/webfetch-agc-s-education-and-training-programs-2026-07-16_11-17-00.md
+  sha256:cff454c9e1ab0ac7: data/staging/webfetch-agc-member-discount-programs-2026-07-16_11-17-01.md
+  sha256:ac9fc9ab683f5e3b: data/staging/webfetch-smacna-industry-partners-2026-07-16_11-17-02.md
+  sha256:7f6f4a4b588e0849: data/staging/webfetch-to-complete-this-request-i-would-need-the-actual-2026-07-16_11-17-03.md
+  sha256:f579fe47721b43af: data/staging/webfetch-servicetitan-sales-marketing-metrics-2026-07-16_11-17-10.md
+  sha256:ca49e869b3341a7b: data/staging/webfetch-servicetitan-pricing-information-2026-07-16_11-17-11.md
+  sha256:d06144b0fec9ca14: data/staging/webfetch-to-obtain-the-procurement-dollar-thresholds-you-2026-07-16_11-17-15.md
+  sha256:06a4efe32d2d277c: data/staging/webfetch-based-on-the-provided-web-page-content-i-cannot-2026-07-16_11-17-16.md
+  sha256:452942578d2040ce: data/staging/webfetch-skillcat-pricing-2026-07-16_11-17-17.md
+  sha256:a15795f96742a43a: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-17-18.md
+  sha256:8842e26dac37b457: data/staging/webfetch-skillcat-s-target-audience-2026-07-16_11-17-19.md
+  sha256:722cc0caced1e9da: data/staging/webfetch-housecall-pro-pricing-tiers-2026-07-16_11-17-23.md
+  sha256:0b4b353ec4cbd243: data/staging/webfetch-to-properly-analyze-this-contract-i-would-need-2026-07-16_11-17-26.md
+  sha256:c5bb2a4315e793b4: data/staging/webfetch-policy-19-procurement-and-contracting-policy-pdf-2026-07-16_11-17-28.md
+  sha256:bd31e15fca1aaa9c: data/staging/webfetch-north-carolina-department-of-commerce-policy-2026-07-16_11-17-29.md
+  sha256:8f6fcaa91445c92e: data/staging/webfetch-cccc-purchase-quote-requirements-2026-07-16_11-17-31.md
+  sha256:d1fbd5865b13b677: data/staging/webfetch-measurequick-pricing-details-2026-07-16_11-17-32.md
+  sha256:f91c30f5a39f7563: data/staging/webfetch-contractor-university-membership-pricing-2026-07-16_11-17-32.md
+  sha256:88be41c363e13d90: data/staging/webfetch-dozuki-pricing-information-2026-07-16_11-17-33.md
+  sha256:8c29b96910ca264b: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-17-33.md
+  sha256:56f9751b985f1b8c: data/staging/webfetch-to-accurately-identify-the-exact-dollar-2026-07-16_11-17-34.md
+  sha256:c989762080465625: data/staging/webfetch-based-on-the-webpage-content-provided-procore-is-2026-07-16_11-17-35.md
+  sha256:527b649669b9c4ac: data/staging/webfetch-to-provide-you-with-the-exact-dollar-figures-for-2026-07-16_11-17-36.md
+  sha256:a0965ded52b1ab97: data/staging/webfetch-agc-sponsorships-page-overview-2026-07-16_11-17-37.md
+  sha256:f26f8db4d4364b94: data/staging/webfetch-to-obtain-this-information-you-would-need-to-2026-07-16_11-17-37.md
+  sha256:af981e5fde4b3467: data/staging/webfetch-guru-pricing-analysis-2026-07-16_11-17-38.md
+  sha256:ecf61b6565842300: data/staging/webfetch-agc-of-california-sponsorship-program-2026-07-16_11-17-39.md
+  sha256:12721c89b09b0227: data/staging/webfetch-to-accurately-provide-the-exact-dollar-figures-for-2026-07-16_11-17-39.md
+  sha256:50341c6917dfcdfe: data/staging/webfetch-k-12-sales-cycle-timeline-key-findings-2026-07-16_11-17-40.md
+  sha256:d17631f1dc4ee691: data/staging/webfetch-phcc-membership-information-extract-2026-07-16_11-17-41.md
+  sha256:91acbe1f85d47e08: data/staging/webfetch-phcc-organization-information-2026-07-16_11-17-41.md
+  sha256:41d07c10da6b468f: data/staging/webfetch-analysis-of-sales-timeframes-and-author-2026-07-16_11-17-42.md
+  sha256:c4ab7fdb3e2a9922: data/staging/webfetch-skillcat-s-business-model-2026-07-16_11-17-43.md
+  sha256:4ba5d0b516e1d4d2: data/staging/webfetch-skillcat-pricing-business-model-analysis-2026-07-16_11-17-44.md
+  sha256:5a4d8a6bc492c2e2: data/staging/webfetch-jobber-pricing-tiers-2026-07-16_11-17-46.md
+  sha256:5746da573c0ab149: data/staging/webfetch-rfp-summary-sw-105941-2026-07-16_11-17-49.md
+  sha256:423db69cb3700078: data/staging/webfetch-ferpa-school-official-exception-requirements-2026-07-16_11-17-49.md
+  sha256:a55b1e223ded3c9d: data/staging/webfetch-umn-software-purchase-process-key-triggers-and-2026-07-16_11-17-52.md
+  sha256:d60f856822b0e3d0: data/staging/webfetch-based-on-the-provided-web-page-content-i-cannot-2026-07-16_11-17-52.md
+  sha256:f10981309fc587f7: data/staging/webfetch-phcc-educational-foundation-apprenticeship-2026-07-16_11-17-53.md
+  sha256:7adb3d5a3adca9d0: data/staging/webfetch-acca-standards-analysis-2026-07-16_11-17-55.md
+  sha256:7c40937aba5e7dda: data/staging/webfetch-accreditation-cost-sheet-2026-07-16_11-17-56.md
+  sha256:7caef91b449fa576: data/staging/webfetch-based-on-the-page-content-provided-the-jatc-s-2026-07-16_11-17-59.md
+  sha256:1e7e0aeaeb2069f3: data/staging/webfetch-jobber-pricing-self-serve-vs-sales-contact-2026-07-16_11-18-00.md
+  sha256:ed5997754c67f23a: data/staging/webfetch-nccer-partners-page-overview-2026-07-16_11-18-00.md
+  sha256:2cc20c99f2a908d5: data/staging/webfetch-training-director-job-description-analysis-2026-07-16_11-18-02.md
+  sha256:95de0e5d77e96d2b: data/staging/webfetch-electrical-exam-prep-products-price-information-2026-07-16_11-18-03.md
+  sha256:f91b7339429c0ffe: data/staging/webfetch-skillcat-funding-and-business-model-analysis-2026-07-16_11-18-04.md
+  sha256:2b8d62fc69eee1c7: data/staging/webfetch-acca-approved-software-overview-2026-07-16_11-18-07.md
+  sha256:7d09d8f28acbb5df: data/staging/webfetch-sourcewell-awarded-supplier-process-key-details-2026-07-16_11-18-09.md
+  sha256:d3a528fb0eeef5fc: data/staging/webfetch-to-help-you-effectively-i-would-need-2026-07-16_11-18-11.md
+  sha256:b8b75a36394e8d78: data/staging/webfetch-phcc-corporate-partners-listed-2026-07-16_11-18-12.md
+  sha256:cd39934fa136f596: data/staging/webfetch-cscu-accessibility-policy-for-eit-key-findings-2026-07-16_11-18-14.md
+  sha256:a14699222a5629c0: data/staging/webfetch-numeric-claims-about-sales-cycles-2026-07-16_11-18-15.md
+  sha256:ed29f1e0724544d0: data/staging/webfetch-alvin-college-s-cooperative-purchasing-policy-2026-07-16_11-18-15.md
+  sha256:130055330809c2e7: data/staging/webfetch-sinclair-community-college-vpat-policy-2026-07-16_11-18-16.md
+  sha256:9f7149455098e142: data/staging/webfetch-acca-s-approved-software-program-2026-07-16_11-18-18.md
+  sha256:febdbeac9a5c4da5: data/staging/webfetch-to-properly-answer-your-questions-about-2026-07-16_11-18-19.md
+  sha256:9d733d8e3fb14344: data/staging/webfetch-iec-membership-numbers-2026-07-16_11-18-21.md
+  sha256:283d5158f6f7d84a: data/staging/webfetch-craft-education-pricing-summary-2026-07-16_11-18-22.md
+  sha256:5cd7e8766e0442ed: data/staging/webfetch-apprentice-management-software-pricing-and-target-2026-07-16_11-18-23.md
+  sha256:a54e2d92ca3547a5: data/staging/webfetch-proskillshub-business-overview-2026-07-16_11-18-24.md
+  sha256:a1571059f24e766a: data/staging/webfetch-skillcat-employer-pricing-2026-07-16_11-18-25.md
+  sha256:69593389694c4173: data/staging/webfetch-skillcat-app-funding-rounds-2026-07-16_11-18-27.md
+  sha256:0c30bf84df7a958f: data/staging/webfetch-nccer-s-vendor-selection-process-2026-07-16_11-18-29.md
+  sha256:e6779d718ec4789c: data/staging/webfetch-to-answer-your-questions-about-2026-07-16_11-18-30.md
+  sha256:67c76f7abadbe51b: data/staging/webfetch-interplay-learning-pricing-extract-2026-07-16_11-18-32.md
+  sha256:17d98f6e3f449a36: data/staging/webfetch-smacna-structure-membership-and-mission-2026-07-16_11-18-37.md
+  sha256:e9984209836d5a49: data/staging/webfetch-gosprout-product-overview-2026-07-16_11-18-37.md
+  sha256:a7cb59d4cbc339f4: data/staging/webfetch-smacna-technical-standards-program-2026-07-16_11-18-38.md
+  sha256:b1794f7daeaa8f0e: data/staging/webfetch-servicetitan-phcc-partnership-summary-2026-07-16_11-18-39.md
+  sha256:0b0b16cb3924ddfa: data/staging/webfetch-interplay-solo-pricing-information-2026-07-16_11-18-39.md
+  sha256:5f6dcba00a54db7e: data/staging/webfetch-pricing-information-for-individual-plans-2026-07-16_11-18-40.md
+  sha256:436577c89d2331f7: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-18-42.md
+  sha256:831a7254f14b0dbf: data/staging/webfetch-topeka-electrical-jatc-procurement-policy-analysis-2026-07-16_11-18-44.md
+  sha256:f794bbf55fe55374: data/staging/webfetch-you-ve-hit-your-session-limit-resets-11am-america-2026-07-16_11-18-52.md
+  sha256:a8bc0eaaa7ca679d: data/staging/webfetch-based-on-the-content-provided-there-are-no-2026-07-17_11-02-26.md
+  sha256:fd75eb7a933c4962: data/staging/webfetch-ai-quotes-from-the-garage-journal-forum-thread-2026-07-17_11-02-43.md
+  sha256:fb1b6d5db9683088: data/staging/webfetch-maintainx-ai-copilot-features-by-plan-tier-2026-07-17_11-03-06.md
+  sha256:38dcdbf68ec1f85e: data/staging/webfetch-documentation-before-coverage-verbatim-quotes-2026-07-17_11-03-21.md
+  sha256:60485510479dc8e8: data/staging/webfetch-plan-availability-2026-07-17_11-03-24.md
+  sha256:b1ff835a9673ec16: data/staging/webfetch-based-on-the-provided-webpage-content-i-cannot-2026-07-17_11-03-35.md
+  sha256:0702bfabbdd8c98c: data/staging/webfetch-june-2026-maintainx-updates-2026-07-17_11-03-52.md
+  sha256:d51cafed1c804cb6: data/staging/webfetch-worker-quotes-from-article-2026-07-17_11-03-52.md
+  sha256:00983c1a01315ae8: data/staging/webfetch-maintainx-copilot-analysis-2026-07-17_11-03-53.md
+  sha256:45394876faa1f118: data/staging/webfetch-analysis-of-worker-quotes-in-article-2026-07-17_11-03-53.md
+  sha256:8c79f10d6aa39d74: data/staging/webfetch-first-person-worker-quotes-2026-07-17_11-04-27.md
+  sha256:3e227300e9aadd1a: data/staging/webfetch-work-order-summaries-setting-2026-07-17_11-04-34.md
+  sha256:fcac33a6d2e8f687: data/staging/webfetch-work-order-summary-availability-2026-07-17_11-04-39.md
+  sha256:ba1e97bc24113829: data/staging/webfetch-mini-split-installation-debrief-analysis-2026-07-17_11-04-57.md
+  sha256:96c244d4ac7d92da: data/staging/webfetch-article-analysis-2026-07-17_11-05-06.md
+  sha256:e793ba04a541369c: data/staging/webfetch-department-of-labor-apprenticeship-funding-awards-2026-07-17_11-07-48.md
+  sha256:ac7c0406ecc2d2cf: data/staging/webfetch-carbyn-information-extract-2026-07-17_11-08-01.md
+  sha256:90d476a727be3b29: data/staging/webfetch-graphrag-repository-summary-2026-07-17_15-20-19.md
+  sha256:cd2a904a50a743b5: data/staging/webfetch-hipporag-repository-summary-2026-07-17_15-20-21.md
+  sha256:f5f97f61ee3f2499: data/staging/webfetch-graphrag-and-knowledge-graph-research-papers-2026-07-17_15-20-21.md
+  sha256:067fc09e2d03e445: data/staging/webfetch-scientific-pdf-parsing-research-papers-2026-07-17_15-20-23.md
+  sha256:97134fc729baf229: data/staging/webfetch-neo4j-graphrag-python-repository-summary-2026-07-17_15-20-24.md
+  sha256:ca70840f2eb9938b: data/staging/webfetch-arxiv-papers-on-citation-networks-and-scientific-2026-07-17_15-20-28.md
+  sha256:310127deedb301df: data/staging/webfetch-search-results-for-grobid-nougat-pdf-parsing-2026-07-17_15-20-29.md
+  sha256:3a897fe20f30ebdc: data/staging/webfetch-rag-evaluation-research-papers-summary-2026-07-17_15-20-31.md
+  sha256:28ad4fefb5ae533b: data/staging/webfetch-txtai-repository-overview-2026-07-17_15-20-34.md
+  sha256:0d3e859a05a41853: data/staging/webfetch-rag-evaluation-stories-list-2026-07-17_15-20-35.md
+  sha256:4e75704f92386a40: data/staging/webfetch-ragas-repository-summary-2026-07-17_15-20-36.md
+  sha256:f868971766ea1b78: data/staging/webfetch-ares-project-summary-2026-07-17_15-20-37.md
+  sha256:da5b11017aecc90d: data/staging/webfetch-graphrag-stories-from-hacker-news-2026-07-17_15-20-38.md
+  sha256:c76b3c12b8c4c67e: data/staging/webfetch-rag-stories-list-2026-07-17_15-20-39.md
+  sha256:f608312904bf0ac7: data/staging/webfetch-beir-benchmark-key-information-2026-07-17_15-20-39.md
+  sha256:f77f9030c814c982: data/staging/webfetch-arxiv-search-results-information-retrieval-papers-2026-07-17_15-20-48.md
+  sha256:fa7c5fc7f300d602: data/staging/webfetch-arxiv-search-results-summary-2026-07-17_15-20-51.md
+  sha256:8f9980b35d0c1408: data/staging/webfetch-nougat-repository-summary-2026-07-17_15-20-52.md
+  sha256:5571d5f5d279f06b: data/staging/webfetch-rag-production-readiness-comment-theme-summary-2026-07-17_15-20-54.md
+  sha256:4dfdff9ac40d6c16: data/staging/webfetch-graphrag-production-discussion-summary-2026-07-17_15-20-55.md
+  sha256:95af61acf889a84d: data/staging/webfetch-arxiv-py-repository-overview-2026-07-17_15-20-56.md
+  sha256:4f3512ec093d0f42: data/staging/webfetch-arxiv-search-results-summary-2026-07-17_15-20-56.md
+  sha256:7b79e4486cb4b52a: data/staging/webfetch-pytorch-geometric-quick-summary-2026-07-17_15-21-09.md
+  sha256:68aeabb76e9eb645: data/staging/webfetch-semantic-scholar-python-client-2026-07-17_15-21-10.md
+  sha256:38e4e38f9bbafea4: data/staging/webfetch-llamaindex-repository-analysis-2026-07-17_15-21-12.md
+  sha256:e0b5cdbf246d8998: data/staging/webfetch-pytrec-eval-repository-summary-2026-07-17_15-21-28.md
+  sha256:e9b876d9cdc40cac: data/staging/webfetch-deepeval-repository-summary-2026-07-17_15-21-31.md
+  sha256:455ff814514c87fa: data/staging/webfetch-arxiv-papers-summary-2026-07-17_15-21-48.md
+  sha256:efe7d94b91ed2280: data/staging/webfetch-graphrag-cost-analysis-key-findings-2026-07-17_15-22-27.md
+  sha256:f4172d4dd67b1961: data/staging/webfetch-summary-of-ragas-comments-2026-07-17_15-22-29.md
