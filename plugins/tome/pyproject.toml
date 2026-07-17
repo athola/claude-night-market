@@ -73,6 +73,10 @@ module = ["leyline.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = ["memory_palace", "memory_palace.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = ["tome.session"]
 disable_error_code = ["no-redef", "misc", "type-arg", "no-any-return"]
 
