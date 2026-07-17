@@ -114,9 +114,25 @@ def compute_relevance_score(finding: Finding) -> float:
     return min(score, 1.0)
 
 
+def compute_ranked_score(finding: Finding, all_findings: list[Finding]) -> float:
+    """Relevance plus cross-channel triangulation, capped at 1.0.
+
+    This is the score ``rank_findings`` sorts by. It folds the
+    previously-dormant ``compute_triangulation_bonus`` into the ranking
+    so corroboration across channels is finally rewarded.
+    """
+    base = compute_relevance_score(finding)
+    bonus = compute_triangulation_bonus(finding, all_findings)
+    return min(base + bonus, 1.0)
+
+
 def rank_findings(findings: list[Finding]) -> list[Finding]:
-    """Return findings sorted by composite relevance score, descending."""
-    return sorted(findings, key=compute_relevance_score, reverse=True)
+    """Return findings sorted by relevance + triangulation, descending."""
+    return sorted(
+        findings,
+        key=lambda finding: compute_ranked_score(finding, findings),
+        reverse=True,
+    )
 
 
 def group_by_theme(findings: list[Finding]) -> dict[str, list[Finding]]:

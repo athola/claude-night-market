@@ -4,6 +4,7 @@ Provides spatial knowledge organization using memory palace techniques.
 """
 
 from .garden_metrics import compute_garden_metrics
+from .graph_analyzer import PalaceGraphAnalyzer
 from .knowledge_graph import KnowledgeGraph
 from .palace_manager import MemoryPalaceManager
 from .project_palace import (
@@ -19,6 +20,7 @@ from .session_history import SessionHistoryManager, SessionQuery, SessionRecord
 __all__ = [
     "KnowledgeGraph",
     "MemoryPalaceManager",
+    "PalaceGraphAnalyzer",
     "ProjectPalaceManager",
     "ReviewEntry",
     "ReviewSubroom",
