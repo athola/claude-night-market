@@ -554,6 +554,26 @@ def _handle_webfetch(
     return context_parts, stored_path, register_kwargs
 
 
+def _partition_by_known(
+    results: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Split WebSearch results into (new, known) by URL, dropping empty URLs."""
+    new_urls: list[dict[str, Any]] = []
+    known_urls: list[dict[str, Any]] = []
+    for result in results:
+        url = result.get("url")
+        if not url:
+            continue
+        target = known_urls if is_known(url=url) else new_urls
+        target.append(result)
+    return new_urls, known_urls
+
+
+def _format_new_url_lines(new_urls: list[dict[str, Any]]) -> list[str]:
+    """Format up to five new-source result rows for the context output."""
+    return [f"  - {r.get('title', 'Untitled')}: {r.get('url')}" for r in new_urls[:5]]
+
+
 def _handle_websearch(
     query: str,
     tool_response: dict[str, Any],
@@ -571,16 +591,7 @@ def _handle_websearch(
     if not results:
         return context_parts, None, None
 
-    new_urls: list[dict[str, Any]] = []
-    known_urls: list[dict[str, Any]] = []
-    for result in results:
-        url = result.get("url")
-        if not url:
-            continue
-        if is_known(url=url):
-            known_urls.append(result)
-        else:
-            new_urls.append(result)
+    new_urls, known_urls = _partition_by_known(results)
 
     if auto_capture and new_urls:
         stored_path = store_websearch_results(query, results)
@@ -598,16 +609,12 @@ def _handle_websearch(
                 f"Memory Palace: WebSearch found {len(new_urls)} new sources "
                 "not in memory palace (auto-capture failed):",
             )
-            for r in new_urls[:5]:
-                context_parts.append(
-                    f"  - {r.get('title', 'Untitled')}: {r.get('url')}"
-                )
+            context_parts.extend(_format_new_url_lines(new_urls))
     elif new_urls:
         context_parts.append(
             f"Memory Palace: WebSearch found {len(new_urls)} new sources not in memory palace:",
         )
-        for r in new_urls[:5]:
-            context_parts.append(f"  - {r.get('title', 'Untitled')}: {r.get('url')}")
+        context_parts.extend(_format_new_url_lines(new_urls))
 
     if known_urls:
         context_parts.append(

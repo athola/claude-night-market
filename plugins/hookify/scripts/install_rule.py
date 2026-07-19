@@ -292,23 +292,32 @@ Examples:
         list_rules()
         return 0
 
-    # Handle --all
-    if args.all:
-        count = install_all(args.target, args.force)
-        print(f"\nInstalled {count} rules to {args.target}")
-        return 0 if count > 0 else 1
-
-    # Handle --bundle
-    if args.bundle:
-        count = install_bundle(args.bundle, args.target, args.force)
-        print(f"\nInstalled {count} rules from bundle '{args.bundle}' to {args.target}")
-        return 0 if count > 0 else 1
-
-    # Handle --category
-    if args.category:
-        count = install_category(args.category, args.target, args.force)
-        print(f"\nInstalled {count} rules from '{args.category}' to {args.target}")
-        return 0 if count > 0 else 1
+    # Bulk installers that report an installed count and succeed when >0.
+    # Evaluated in order; the first enabled flag wins.
+    count_installers = (
+        (
+            args.all,
+            lambda: install_all(args.target, args.force),
+            lambda c: f"\nInstalled {c} rules to {args.target}",
+        ),
+        (
+            args.bundle,
+            lambda: install_bundle(args.bundle, args.target, args.force),
+            lambda c: (
+                f"\nInstalled {c} rules from bundle '{args.bundle}' to {args.target}"
+            ),
+        ),
+        (
+            args.category,
+            lambda: install_category(args.category, args.target, args.force),
+            lambda c: f"\nInstalled {c} rules from '{args.category}' to {args.target}",
+        ),
+    )
+    for enabled, run_install, format_summary in count_installers:
+        if enabled:
+            count = run_install()
+            print(format_summary(count))
+            return 0 if count > 0 else 1
 
     # Handle single rule
     if args.rule:
