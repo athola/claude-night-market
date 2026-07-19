@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+
 from gauntlet.blast_radius import (
     _DEFAULT_WEIGHTS,
     SECURITY_KEYWORDS,

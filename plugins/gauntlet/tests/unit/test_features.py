@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from gauntlet.ml.features import extract_answer_features
 from gauntlet.models import Challenge
 

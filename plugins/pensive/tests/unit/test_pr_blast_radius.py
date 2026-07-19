@@ -13,8 +13,9 @@ _GAUNTLET_SRC = Path(__file__).resolve().parents[3] / "gauntlet" / "src"
 sys.path.insert(0, str(_HOOKS_DIR))
 sys.path.insert(0, str(_GAUNTLET_SRC))
 
-from gauntlet.graph import GraphStore  # noqa: E402 - sys.path modified above
 from pr_blast_radius import main  # noqa: E402 - sys.path modified above
+
+from gauntlet.graph import GraphStore  # noqa: E402 - sys.path modified above
 
 
 class TestPrBlastRadiusHook:

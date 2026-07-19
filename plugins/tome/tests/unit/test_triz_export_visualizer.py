@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 
 import pytest
 import yaml
+
 from tome.channels.triz import (
     FIELD_ADJACENCY,
     INVENTIVE_PRINCIPLES,

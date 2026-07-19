@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import pytest
-from tome.synthesis.merger import fuzzy_deduplicate
 
 from tests.factories import make_finding
+from tome.synthesis.merger import fuzzy_deduplicate
 
 # ---------------------------------------------------------------------------
 # TOME-001: union-find fuzzy_deduplicate

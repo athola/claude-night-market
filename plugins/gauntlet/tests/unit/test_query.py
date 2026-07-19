@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from gauntlet.query import (
     get_context_for_files,
     query_knowledge,

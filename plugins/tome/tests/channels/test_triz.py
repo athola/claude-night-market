@@ -9,6 +9,7 @@ So that agents can find non-obvious analogies from other fields
 from __future__ import annotations
 
 import pytest
+
 from tome.channels import triz
 from tome.channels.triz import (
     build_cross_domain_search_queries,

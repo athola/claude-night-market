@@ -10,6 +10,7 @@ not an LLM judge.
 from __future__ import annotations
 
 import pytest
+
 from tome.metrics.retrieval import mrr, ndcg_at_k, recall_at_k
 
 RANKED = ["a", "b", "c", "d"]

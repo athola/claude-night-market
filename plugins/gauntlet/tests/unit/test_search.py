@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from gauntlet.graph import GraphStore
 from gauntlet.models import GraphNode, NodeKind
 from gauntlet.search import detect_kind_boost, search

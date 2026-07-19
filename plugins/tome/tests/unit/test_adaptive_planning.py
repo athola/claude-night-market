@@ -9,10 +9,10 @@ So that channels yielding nothing lose budget to productive ones
 from __future__ import annotations
 
 import pytest
-from tome.models import ResearchPlan
-from tome.scripts.research_planner import replan
 
 from tests.factories import make_finding
+from tome.models import ResearchPlan
+from tome.scripts.research_planner import replan
 
 
 class TestReplan:

@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+
 from gauntlet.challenges import (
     _generate_problem_variation,
     get_variation_provider,

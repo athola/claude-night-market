@@ -12,9 +12,10 @@ import pytest
 _HOOKS_DIR = Path(__file__).resolve().parents[2] / "hooks"
 sys.path.insert(0, str(_HOOKS_DIR))
 
+from precommit_gate import _graph_risk_context  # noqa: E402 - sys.path modified above
+
 from gauntlet.graph import GraphStore  # noqa: E402 - sys.path modified above
 from gauntlet.models import GraphNode, NodeKind  # noqa: E402 - sys.path modified above
-from precommit_gate import _graph_risk_context  # noqa: E402 - sys.path modified above
 
 
 @pytest.fixture()

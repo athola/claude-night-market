@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+
 from tome.channels.academic import (
     build_arxiv_search_url,
     build_core_search_url,

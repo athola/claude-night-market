@@ -9,6 +9,7 @@ So that readers can locate original sources and understand their provenance
 from __future__ import annotations
 
 import pytest
+
 from tome.models import Finding
 from tome.output.citations import format_citation, generate_bibliography
 

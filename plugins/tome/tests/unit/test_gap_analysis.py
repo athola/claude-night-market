@@ -11,9 +11,9 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 import pytest
-from tome.synthesis.quality import identify_gaps
 
 from tests.factories import make_finding
+from tome.synthesis.quality import identify_gaps
 
 _CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017 - keep timezone.utc for 3.9 compat
 

@@ -15,6 +15,7 @@ These tests pin that behavior.
 from __future__ import annotations
 
 import pytest as _pytest
+
 from tome.channels import ideation
 from tome.channels.ideation import (
     IDEATION_CRITERIA,

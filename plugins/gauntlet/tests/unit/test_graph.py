@@ -5,8 +5,9 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-import gauntlet.graph as graph_mod
 import pytest
+
+import gauntlet.graph as graph_mod
 from gauntlet.graph import GraphStore, _sanitize_fts_query
 from gauntlet.models import EdgeKind, GraphEdge, GraphNode, NodeKind
 

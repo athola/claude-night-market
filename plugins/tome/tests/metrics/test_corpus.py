@@ -10,9 +10,9 @@ proxies.
 from __future__ import annotations
 
 import pytest
-from tome.metrics.corpus import dedup_ratio, findings_per_1k_tokens, source_diversity
 
 from tests.factories import make_finding
+from tome.metrics.corpus import dedup_ratio, findings_per_1k_tokens, source_diversity
 
 
 class TestSourceDiversity:

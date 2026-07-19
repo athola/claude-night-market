@@ -13,6 +13,8 @@ import importlib.util
 from typing import Any
 
 import pytest
+
+from tests.factories import make_finding
 from tome.retrieval.semantic import (
     Embedder,
     SemanticRetriever,
@@ -20,8 +22,6 @@ from tome.retrieval.semantic import (
     embedder_available,
     open_embedder,
 )
-
-from tests.factories import make_finding
 
 
 class FakeEmbedder:

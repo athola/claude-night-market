@@ -6,6 +6,7 @@ import importlib
 import sys
 
 import pytest
+
 from gauntlet.challenges import (
     CHALLENGE_TYPES,
     _generate_problem_variation,

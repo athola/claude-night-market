@@ -9,6 +9,7 @@ So that relevancy is measurable and trend-able with no network or model.
 from __future__ import annotations
 
 import pytest
+
 from tome.metrics.harness import (
     GoldItem,
     RetrievalReport,

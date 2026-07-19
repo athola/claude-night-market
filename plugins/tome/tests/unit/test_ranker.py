@@ -12,14 +12,14 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 import pytest
+
+from tests.factories import make_finding
 from tome.synthesis.ranker import (
     compute_ranked_score,
     compute_relevance_score,
     group_by_theme,
     rank_findings,
 )
-
-from tests.factories import make_finding
 
 _THIS_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017 - keep timezone.utc for 3.9 compat
 

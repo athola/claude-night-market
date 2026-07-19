@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 from urllib.error import URLError
 
 import pytest
+
 from oracle.client import OracleClient
 
 

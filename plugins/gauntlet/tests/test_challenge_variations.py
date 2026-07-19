@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 from anthropic.types import TextBlock
+
 from gauntlet.challenges import (
     _generate_problem_variation,
     _is_valid_variation,
