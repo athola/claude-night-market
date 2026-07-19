@@ -64,7 +64,7 @@ def normalize_line(line: str, lang: str = "python") -> str:
     if lang == "python":
         # Remove # comments but not inside strings (simplified)
         if "#" in line and not ('"' in line or "'" in line):
-            line = line.split("#")[0]
+            line = line.split("#", maxsplit=1)[0]
     elif lang in ("javascript", "typescript", "java", "c", "cpp", "go", "rust"):
         # Remove // comments
         if "//" in line:

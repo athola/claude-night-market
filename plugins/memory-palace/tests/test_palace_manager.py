@@ -8,6 +8,8 @@ BDD-style tests organized by behavior:
 - Prune check (stale, duplicate, low-quality detection)
 """
 
+from __future__ import annotations
+
 import json
 import os
 from datetime import datetime, timedelta

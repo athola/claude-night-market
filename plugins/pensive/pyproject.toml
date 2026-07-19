@@ -11,7 +11,7 @@ version = "1.9.16"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -111,7 +111,7 @@ precision = 2
 directory = "htmlcov"
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py39"
 line-length = 88
 
 [tool.ruff.lint]

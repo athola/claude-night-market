@@ -590,7 +590,7 @@ class TestFrictionDetectorInvariants:
             float(late.group(1)),
             float(old.group(1)),
         ]
-        for left, right in zip(values, values[1:], strict=False):
+        for left, right in zip(values, values[1:]):
             assert left > right, f"recency_factor must strictly decrease: {values}"
 
     @pytest.mark.bdd

@@ -85,7 +85,7 @@ def _resolve_import(
     external/stdlib imports.
     """
     # Skip stdlib and external packages (match top-level module exactly)
-    _top = raw_import.split(".")[0]
+    _top = raw_import.split(".", maxsplit=1)[0]
     if _top in {
         "os",
         "sys",

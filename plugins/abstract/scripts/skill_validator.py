@@ -305,7 +305,7 @@ class SkillValidator:
             self.result.add_info("Description length optimal (200-400 chars)")
 
         # Third person check
-        first_sentence = desc.split(".")[0].lower()
+        first_sentence = desc.split(".", maxsplit=1)[0].lower()
 
         # Check for first person patterns
         has_first_person = any(

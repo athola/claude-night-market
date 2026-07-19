@@ -1257,13 +1257,13 @@ def main() -> None:
             parser.print_help()
 
     handlers = {
-        "enable": lambda: cli.enable_plugin(),
-        "disable": lambda: cli.disable_plugin(),
-        "status": lambda: cli.show_status(),
-        "skills": lambda: cli.list_skills(),
-        "install": lambda: cli.install_skills(),
+        "enable": cli.enable_plugin,
+        "disable": cli.disable_plugin,
+        "status": cli.show_status,
+        "skills": cli.list_skills,
+        "install": cli.install_skills,
         "create": lambda: cli.create_palace(args.name, args.domain, args.metaphor),
-        "list": lambda: cli.list_palaces(),
+        "list": cli.list_palaces,
         "sync": lambda: cli.sync_queue(
             auto_create=getattr(args, "auto_create", False),
             dry_run=getattr(args, "dry_run", False),

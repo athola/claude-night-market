@@ -2541,6 +2541,241 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.alleywatch.com/2026/07/the-alleywatch-startup-daily-funding-report-7-13-2026/
+  https://hn.algolia.com/api/v1/search?query=capture%20workflow%20documentation%20tool&tags=story&hitsperpage=15:
+    content_hash: sha256:4b7f812553a28070
+    stored_at: data/staging/webfetch-stories-about-workflow-capture-documentation-tools-2026-07-19_11-01-38.md
+    importance_score: 90
+    last_updated: '2026-07-19T11:01:38.725340+00:00'
+    title: Stories About Workflow Capture & Documentation Tools
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=capture%20workflow%20documentation%20tool&tags=story&hitsPerPage=15
+  https://github.com/screenpipe/screenpipe:
+    content_hash: sha256:e5a3d8efac67bc19
+    stored_at: data/staging/webfetch-screenpipe-analysis-2026-07-19_11-02-21.md
+    importance_score: 96
+    last_updated: '2026-07-19T11:02:21.467457+00:00'
+    title: Screenpipe Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/screenpipe/screenpipe
+  https://github.com/shezan57/video-to-sop-generator:
+    content_hash: sha256:be23ba2f20414506
+    stored_at: data/staging/webfetch-video-to-sop-generator-analysis-2026-07-19_11-02-22.md
+    importance_score: 96
+    last_updated: '2026-07-19T11:02:22.198425+00:00'
+    title: Video-to-SOP Generator Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Shezan57/Video-to-SOP-Generator
+  https://lobste.rs/s/u9hyan/xkcd_s_is_it_worth_time_considered_harmful:
+    content_hash: sha256:b749962fc829e9f6
+    stored_at: data/staging/webfetch-discussion-summary-2026-07-19_11-02-22.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:02:22.572944+00:00'
+    title: Discussion Summary
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/s/u9hyan/xkcd_s_is_it_worth_time_considered_harmful
+  https://github.com/cactusquill/ai-docgen:
+    content_hash: sha256:24478536c606a1b9
+    stored_at: data/staging/webfetch-ai-docgen-repository-summary-2026-07-19_11-02-34.md
+    importance_score: 96
+    last_updated: '2026-07-19T11:02:34.068767+00:00'
+    title: AI-DocGen Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/CactusQuill/AI-DocGen
+  ? https://hn.algolia.com/api/v1/search?query=sop%20standard%20operating%20procedure%20software%20field%20workers&tags=story&hitsperpage=15
+  : content_hash: sha256:4933d87a3cc1d332
+    stored_at: data/staging/webfetch-search-results-for-sop-and-field-worker-tools-2026-07-19_11-02-34.md
+    importance_score: 90
+    last_updated: '2026-07-19T11:02:34.901288+00:00'
+    title: Search Results for SOP and Field Worker Tools
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=SOP%20standard%20operating%20procedure%20software%20field%20workers&tags=story&hitsPerPage=15
+  https://github.com/tushar7436/clueso_extension:
+    content_hash: sha256:d9d1bae0f0754d73
+    stored_at: data/staging/webfetch-clueso-extension-analysis-2026-07-19_11-02-36.md
+    importance_score: 96
+    last_updated: '2026-07-19T11:02:36.133183+00:00'
+    title: Clueso_extension Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Tushar7436/Clueso_extension
+  https://hn.algolia.com/api/v1/search?query=scribe%20screen%20recording%20guide&tags=story&hitsperpage=20:
+    content_hash: sha256:8452c481fe148f78
+    stored_at: data/staging/webfetch-stories-from-search-results-2026-07-19_11-02-38.md
+    importance_score: 90
+    last_updated: '2026-07-19T11:02:38.270559+00:00'
+    title: Stories from Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Scribe%20screen%20recording%20guide&tags=story&hitsPerPage=20
+  ? https://export.arxiv.org/api/query?search_query=all:tacit+knowledge+capture+expertise+elicitation&max_results=12&sortby=relevance
+  : content_hash: sha256:361c6f218c901704
+    stored_at: data/staging/webfetch-arxiv-papers-tacit-knowledge-knowledge-capture-2026-07-19_11-02-40.md
+    importance_score: 81
+    last_updated: '2026-07-19T11:02:40.268784+00:00'
+    title: 'ArXiv Papers: Tacit Knowledge, Knowledge Capture, Expertise & Elicitation'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:tacit+knowledge+capture+expertise+elicitation&max_results=12&sortBy=relevance
+  ? https://hn.algolia.com/api/v1/search?query=documentation%20rots%20nobody%20maintains%20onboarding&tags=story&hitsperpage=15
+  : content_hash: sha256:318a8c2041b8fa70
+    stored_at: data/staging/webfetch-search-results-2026-07-19_11-02-51.md
+    importance_score: 90
+    last_updated: '2026-07-19T11:02:51.883777+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=documentation%20rots%20nobody%20maintains%20onboarding&tags=story&hitsPerPage=15
+  https://www.indiehackers.com/product/fieldhelp:
+    content_hash: sha256:bf116ebf411e1fb6
+    stored_at: data/staging/webfetch-i-don-t-have-any-content-to-analyze-in-your-2026-07-19_11-02-53.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:02:53.924646+00:00'
+    title: I don't have any content to analyze in your request. The "Web page content:"
+      section you provided is
+    maturity: growing
+    routing_type: meta
+    url: https://www.indiehackers.com/product/fieldhelp
+  https://hn.algolia.com/api/v1/search?query=scribe%20guides%20gui%20workflows&tags=story&hitsperpage=5:
+    content_hash: sha256:9cc966aca2b098db
+    stored_at: data/staging/webfetch-scribe-story-details-2026-07-19_11-03-11.md
+    importance_score: 90
+    last_updated: '2026-07-19T11:03:11.492834+00:00'
+    title: Scribe Story Details
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Scribe%20guides%20GUI%20workflows&tags=story&hitsPerPage=5
+  ? https://export.arxiv.org/api/query?search_query=all:llm+procedural+knowledge+extraction+how-to+instructional+video&max_results=10&sortby=relevance
+  : content_hash: sha256:01ec00903757baca
+    stored_at: data/staging/webfetch-arxiv-papers-dataset-2026-07-19_11-03-16.md
+    importance_score: 81
+    last_updated: '2026-07-19T11:03:16.643625+00:00'
+    title: ArXiv Papers Dataset
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:LLM+procedural+knowledge+extraction+how-to+instructional+video&max_results=10&sortBy=relevance
+  https://www.indiehackers.com/post/what-do-use-for-a-company-knowledge-base-documenting-procedures-89d8de2589:
+    content_hash: sha256:b96be568a5266997
+    stored_at: data/staging/webfetch-indie-hackers-thread-summary-knowledge-base-tools-2026-07-19_11-03-17.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:03:17.261352+00:00'
+    title: 'Indie Hackers Thread Summary: Knowledge Base Tools'
+    maturity: growing
+    routing_type: meta
+    url: https://www.indiehackers.com/post/what-do-use-for-a-company-knowledge-base-documenting-procedures-89d8de2589
+  https://sightcall.com/blog/knowledge-capture-in-field-service:
+    content_hash: sha256:1b53e9da1a4a9bc8
+    stored_at: data/staging/webfetch-field-service-knowledge-capture-key-statistics-2026-07-19_11-03-20.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:03:20.801811+00:00'
+    title: 'Field Service Knowledge Capture: Key Statistics & Insights'
+    maturity: growing
+    routing_type: meta
+    url: https://sightcall.com/blog/knowledge-capture-in-field-service/
+  ? https://export.arxiv.org/api/query?search_query=all:field+worker+knowledge+capture+augmented+reality+maintenance+expert&max_results=10&sortby=relevance
+  : content_hash: sha256:22914356bcb4c94c
+    stored_at: data/staging/webfetch-arxiv-paper-entries-2026-07-19_11-03-22.md
+    importance_score: 81
+    last_updated: '2026-07-19T11:03:22.238777+00:00'
+    title: ArXiv Paper Entries
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:field+worker+knowledge+capture+augmented+reality+maintenance+expert&max_results=10&sortBy=relevance
+  ? https://hn.algolia.com/api/v1/search?query=knowledge%20management%20fails%20wiki%20nobody%20reads&tags=story&hitsperpage=15
+  : content_hash: sha256:5a2562949ca73353
+    stored_at: data/staging/webfetch-search-results-2026-07-19_11-03-33.md
+    importance_score: 90
+    last_updated: '2026-07-19T11:03:33.835478+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=knowledge%20management%20fails%20wiki%20nobody%20reads&tags=story&hitsPerPage=15
+  https://worldtradeventures.com/bridging-the-service-expertise-gap-insights-from-the-2025-field-service-benchmark-report:
+    content_hash: sha256:35e612c33e984622
+    stored_at: data/staging/webfetch-2025-field-service-expertise-gap-key-statistics-2026-07-19_11-04-14.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:04:14.882311+00:00'
+    title: '2025 Field Service Expertise Gap: Key Statistics'
+    maturity: growing
+    routing_type: meta
+    url: https://worldtradeventures.com/bridging-the-service-expertise-gap-insights-from-the-2025-field-service-benchmark-report/
+  ? https://api.crossref.org/works?query=tacit+knowledge+externalization+seci+model+critique&rows=8&select=title,author,published,container-title,doi,is-referenced-by-count,abstract
+  : content_hash: sha256:674509e88acf8add
+    stored_at: data/staging/webfetch-research-works-on-tacit-knowledge-externalization-2026-07-19_11-04-18.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:04:18.692961+00:00'
+    title: Research Works on Tacit Knowledge Externalization and SECI Model
+    maturity: growing
+    routing_type: meta
+    url: https://api.crossref.org/works?query=tacit+knowledge+externalization+SECI+model+critique&rows=8&select=title,author,published,container-title,DOI,is-referenced-by-count,abstract
+  ? https://api.crossref.org/works?query=knowledge+management+failure+captured+knowledge+unused+stale&rows=8&select=title,author,published,container-title,doi,is-referenced-by-count,abstract&sort=is-referenced-by-count&order=desc
+  : content_hash: sha256:a52236bc0c8e0361
+    stored_at: data/staging/webfetch-works-listed-2026-07-19_11-04-37.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:04:37.107228+00:00'
+    title: Works Listed
+    maturity: growing
+    routing_type: meta
+    url: https://api.crossref.org/works?query=knowledge+management+failure+captured+knowledge+unused+stale&rows=8&select=title,author,published,container-title,DOI,is-referenced-by-count,abstract&sort=is-referenced-by-count&order=desc
+  ? https://api.crossref.org/works?query=aging+workforce+knowledge+loss+skills+gap+manufacturing+retirement&rows=8&select=title,author,published,container-title,doi,is-referenced-by-count,abstract&sort=is-referenced-by-count&order=desc
+  : content_hash: sha256:0a593817963b767e
+    stored_at: data/staging/webfetch-works-listed-2026-07-19_11-04-38.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:04:38.513524+00:00'
+    title: Works Listed
+    maturity: growing
+    routing_type: meta
+    url: https://api.crossref.org/works?query=aging+workforce+knowledge+loss+skills+gap+manufacturing+retirement&rows=8&select=title,author,published,container-title,DOI,is-referenced-by-count,abstract&sort=is-referenced-by-count&order=desc
+  ? https://api.crossref.org/works?query=cognitive+apprenticeship+tacit+knowledge+expertise+transfer&rows=8&select=title,author,published,container-title,doi,is-referenced-by-count,abstract&sort=is-referenced-by-count&order=desc
+  : content_hash: sha256:25cf63c1160852bd
+    stored_at: data/staging/webfetch-works-listed-2026-07-19_11-04-41.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:04:41.827767+00:00'
+    title: Works Listed
+    maturity: growing
+    routing_type: meta
+    url: https://api.crossref.org/works?query=cognitive+apprenticeship+tacit+knowledge+expertise+transfer&rows=8&select=title,author,published,container-title,DOI,is-referenced-by-count,abstract&sort=is-referenced-by-count&order=desc
+  ? https://api.crossref.org/works?query=frontline+deskless+worker+knowledge+sharing+technology+adoption+incentives&rows=8&select=title,author,published,container-title,doi,is-referenced-by-count,abstract&sort=is-referenced-by-count&order=desc
+  : content_hash: sha256:9d90573f2d29ca88
+    stored_at: data/staging/webfetch-works-list-2026-07-19_11-04-44.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:04:44.190555+00:00'
+    title: Works List
+    maturity: growing
+    routing_type: meta
+    url: https://api.crossref.org/works?query=frontline+deskless+worker+knowledge+sharing+technology+adoption+incentives&rows=8&select=title,author,published,container-title,DOI,is-referenced-by-count,abstract&sort=is-referenced-by-count&order=desc
+  ? https://api.crossref.org/works?query.bibliographic=cognitive+apprenticeship+teaching+craft+collins+brown+newman&rows=6&select=title,author,published,container-title,doi,is-referenced-by-count
+  : content_hash: sha256:e97a9c2a28c01ac4
+    stored_at: data/staging/webfetch-cognitive-apprenticeship-works-2026-07-19_11-05-13.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:05:13.737406+00:00'
+    title: Cognitive Apprenticeship Works
+    maturity: growing
+    routing_type: meta
+    url: https://api.crossref.org/works?query.bibliographic=cognitive+apprenticeship+teaching+craft+Collins+Brown+Newman&rows=6&select=title,author,published,container-title,DOI,is-referenced-by-count
+  ? https://api.crossref.org/works?query.bibliographic=cognitive+task+analysis+expertise+capturing+expert+knowledge&rows=6&select=title,author,published,container-title,doi,is-referenced-by-count
+  : content_hash: sha256:83d1648e9cb99980
+    stored_at: data/staging/webfetch-works-on-cognitive-task-analysis-and-expert-2026-07-19_11-05-16.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:05:16.649387+00:00'
+    title: Works on Cognitive Task Analysis and Expert Knowledge Elicitation
+    maturity: growing
+    routing_type: meta
+    url: https://api.crossref.org/works?query.bibliographic=cognitive+task+analysis+expertise+capturing+expert+knowledge&rows=6&select=title,author,published,container-title,DOI,is-referenced-by-count
+  ? https://api.crossref.org/works?query.bibliographic=aging+workforce+tacit+knowledge+retention+manufacturing+retirement+loss&rows=8&select=title,author,published,container-title,doi,is-referenced-by-count,abstract
+  : content_hash: sha256:e5ed9a66fb64d1f8
+    stored_at: data/staging/webfetch-works-on-knowledge-loss-from-aging-retiring-2026-07-19_11-05-19.md
+    importance_score: 80
+    last_updated: '2026-07-19T11:05:19.955967+00:00'
+    title: Works on Knowledge Loss from Aging/Retiring Workforce
+    maturity: growing
+    routing_type: meta
+    url: https://api.crossref.org/works?query.bibliographic=aging+workforce+tacit+knowledge+retention+manufacturing+retirement+loss&rows=8&select=title,author,published,container-title,DOI,is-referenced-by-count,abstract
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -2824,3 +3059,29 @@ hashes:
   sha256:b72e2099a6be585d: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-05-24.md
   sha256:577bc0678e247686: data/staging/webfetch-mechanic-s-documentation-tips-2026-07-14_11-05-29.md
   sha256:90b4b6d7e63924fe: data/staging/webfetch-funding-report-summary-7-13-2026-2026-07-14_11-05-30.md
+  sha256:4b7f812553a28070: data/staging/webfetch-stories-about-workflow-capture-documentation-tools-2026-07-19_11-01-38.md
+  sha256:e5a3d8efac67bc19: data/staging/webfetch-screenpipe-analysis-2026-07-19_11-02-21.md
+  sha256:be23ba2f20414506: data/staging/webfetch-video-to-sop-generator-analysis-2026-07-19_11-02-22.md
+  sha256:b749962fc829e9f6: data/staging/webfetch-discussion-summary-2026-07-19_11-02-22.md
+  sha256:24478536c606a1b9: data/staging/webfetch-ai-docgen-repository-summary-2026-07-19_11-02-34.md
+  sha256:4933d87a3cc1d332: data/staging/webfetch-search-results-for-sop-and-field-worker-tools-2026-07-19_11-02-34.md
+  sha256:d9d1bae0f0754d73: data/staging/webfetch-clueso-extension-analysis-2026-07-19_11-02-36.md
+  sha256:8452c481fe148f78: data/staging/webfetch-stories-from-search-results-2026-07-19_11-02-38.md
+  sha256:361c6f218c901704: data/staging/webfetch-arxiv-papers-tacit-knowledge-knowledge-capture-2026-07-19_11-02-40.md
+  sha256:318a8c2041b8fa70: data/staging/webfetch-search-results-2026-07-19_11-02-51.md
+  sha256:bf116ebf411e1fb6: data/staging/webfetch-i-don-t-have-any-content-to-analyze-in-your-2026-07-19_11-02-53.md
+  sha256:9cc966aca2b098db: data/staging/webfetch-scribe-story-details-2026-07-19_11-03-11.md
+  sha256:01ec00903757baca: data/staging/webfetch-arxiv-papers-dataset-2026-07-19_11-03-16.md
+  sha256:b96be568a5266997: data/staging/webfetch-indie-hackers-thread-summary-knowledge-base-tools-2026-07-19_11-03-17.md
+  sha256:1b53e9da1a4a9bc8: data/staging/webfetch-field-service-knowledge-capture-key-statistics-2026-07-19_11-03-20.md
+  sha256:22914356bcb4c94c: data/staging/webfetch-arxiv-paper-entries-2026-07-19_11-03-22.md
+  sha256:5a2562949ca73353: data/staging/webfetch-search-results-2026-07-19_11-03-33.md
+  sha256:35e612c33e984622: data/staging/webfetch-2025-field-service-expertise-gap-key-statistics-2026-07-19_11-04-14.md
+  sha256:674509e88acf8add: data/staging/webfetch-research-works-on-tacit-knowledge-externalization-2026-07-19_11-04-18.md
+  sha256:a52236bc0c8e0361: data/staging/webfetch-works-listed-2026-07-19_11-04-37.md
+  sha256:0a593817963b767e: data/staging/webfetch-works-listed-2026-07-19_11-04-38.md
+  sha256:25cf63c1160852bd: data/staging/webfetch-works-listed-2026-07-19_11-04-41.md
+  sha256:9d90573f2d29ca88: data/staging/webfetch-works-list-2026-07-19_11-04-44.md
+  sha256:e97a9c2a28c01ac4: data/staging/webfetch-cognitive-apprenticeship-works-2026-07-19_11-05-13.md
+  sha256:83d1648e9cb99980: data/staging/webfetch-works-on-cognitive-task-analysis-and-expert-2026-07-19_11-05-16.md
+  sha256:e5ed9a66fb64d1f8: data/staging/webfetch-works-on-knowledge-loss-from-aging-retiring-2026-07-19_11-05-19.md

@@ -183,7 +183,7 @@ def _parse_optional_group_line(
     deps: list[Dependency] = []
     if "=" not in stripped or "[" not in stripped:
         return current_group, deps
-    group = stripped.split("=")[0].strip()
+    group = stripped.split("=", maxsplit=1)[0].strip()
     items_part = stripped.split("[", 1)[1]
     if "]" in items_part:
         items_part = items_part.split("]")[0]

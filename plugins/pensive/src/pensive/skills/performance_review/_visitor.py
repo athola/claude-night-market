@@ -173,7 +173,7 @@ class _PerfVisitor(ast.NodeVisitor):
         ) or isinstance(node.left, ast.JoinedStr)
 
         if self._loop_stack and not is_string_lhs:
-            for op, right in zip(node.ops, node.comparators, strict=False):
+            for op, right in zip(node.ops, node.comparators):
                 if isinstance(op, ast.In) and isinstance(right, ast.Name):
                     if right.id in self._non_list_names:
                         # RHS is provably a dict, set, or string,

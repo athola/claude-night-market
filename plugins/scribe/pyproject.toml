@@ -2,11 +2,11 @@
 name = "scribe"
 version = "1.9.16"
 description = "Documentation review, cleanup, and generation with AI slop detection and style learning"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = ["pyyaml"]
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py39"
 line-length = 100
 exclude = [
     ".git",
@@ -52,7 +52,7 @@ exclude_lines = [
 ]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 
 [[tool.mypy.overrides]]
 module = ["yaml"]

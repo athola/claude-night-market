@@ -6,6 +6,8 @@ Tests verify JSON serialization, trend calculation, regression detection,
 file naming, and summary statistics as specified in modules/metrics.md.
 """
 
+from __future__ import annotations
+
 import json
 import os
 from datetime import datetime

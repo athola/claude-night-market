@@ -5,12 +5,12 @@ description = "Media generation capabilities for terminal recordings (VHS), brow
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0.1",
-    "pytest-cov>=7.0.0",
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
     "mypy>=1.11.0",
     "pyyaml>=6.0.0",
     "types-pyyaml>=6.0.0",
@@ -38,13 +38,13 @@ markers = [
 
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "PLR0913"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 check_untyped_defs = true

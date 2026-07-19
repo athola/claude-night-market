@@ -208,7 +208,7 @@ class TestYamlUnavailable:
     """
 
     @pytest.mark.unit
-    def test_module_imports_without_yaml(self, monkeypatch, tmp_path: Path):
+    def test_module_imports_without_yaml(self, tmp_path: Path):
         """
         Scenario: scorer module reloads cleanly when yaml is unavailable
         Given the `yaml` module is absent from sys.modules and unimportable
@@ -217,9 +217,12 @@ class TestYamlUnavailable:
         And YamlScorer().available() returns False
         And score() returns 0.0 instead of crashing
         """
-        # Strip the cached yaml module and prevent re-import.
-        monkeypatch.delitem(sys.modules, "yaml", raising=False)
-        # Block any subsequent import of yaml under this monkeypatch scope.
+        # ``import_module`` returns the already-loaded canonical module from
+        # ``sys.modules`` (a call, not an ``import`` statement, so no PLC0415
+        # and no import-ordering conflict between the plugin and repo ruff
+        # configs).  Reloading it in place below keeps object identity stable.
+        scorer_mod = importlib.import_module("gauntlet.ml.scorer")
+
         real_import = (
             __builtins__["__import__"]
             if isinstance(__builtins__, dict)
@@ -231,11 +234,22 @@ class TestYamlUnavailable:
                 raise ImportError("No module named 'yaml'")
             return real_import(name, *args, **kwargs)
 
-        monkeypatch.setattr("builtins.__import__", block_yaml)
-        # Force a fresh import of scorer.
-        monkeypatch.delitem(sys.modules, "gauntlet.ml.scorer", raising=False)
-        scorer_mod = importlib.import_module("gauntlet.ml.scorer")
-        # Reaching this line proves the import didn't raise.
-        scorer = scorer_mod.YamlScorer(str(tmp_path / "irrelevant.yaml"))
-        assert scorer.available() is False
-        assert scorer.score({"feat_a": 1.0}) == 0.0
+        try:
+            # Reload in place (same module object and __dict__) rather than
+            # deleting the sys.modules entry and re-importing.  A fresh
+            # import would create a divergent module object, leaving later
+            # tests that ``patch("gauntlet.ml.scorer.urlopen")`` targeting a
+            # different dict than the classes they imported at collection
+            # time (a cross-test pollution that silently bypasses the mock).
+            with pytest.MonkeyPatch.context() as m:
+                m.delitem(sys.modules, "yaml", raising=False)
+                m.setattr("builtins.__import__", block_yaml)
+                importlib.reload(scorer_mod)
+                # Reaching this line proves the import didn't raise.
+                scorer = scorer_mod.YamlScorer(str(tmp_path / "irrelevant.yaml"))
+                assert scorer.available() is False
+                assert scorer.score({"feat_a": 1.0}) == 0.0
+        finally:
+            # yaml is importable again here (context exited); reload once
+            # more so the module is left in its normal, working state.
+            importlib.reload(scorer_mod)

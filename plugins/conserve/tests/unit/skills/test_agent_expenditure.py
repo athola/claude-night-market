@@ -542,7 +542,7 @@ class TestPostDispatchReview:
         answered = {
             i: (question, response)
             for i, (question, response) in enumerate(
-                zip(review_checklist, review_responses.values(), strict=False)
+                zip(review_checklist, review_responses.values())
             )
         }
 

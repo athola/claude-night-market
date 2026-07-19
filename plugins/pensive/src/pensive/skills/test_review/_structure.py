@@ -130,7 +130,7 @@ class StructureMixin:
         when_matches = re.findall(r"@when\(['\"](.+?)['\"]\)", content)
         then_matches = re.findall(r"@then\(['\"](.+?)['\"]\)", content)
 
-        for g, w, t in zip(given_matches, when_matches, then_matches, strict=False):
+        for g, w, t in zip(given_matches, when_matches, then_matches):
             given_when_then.append({"given": g, "when": w, "then": t})
 
         inline_bdd = re.findall(
