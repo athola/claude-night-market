@@ -5,7 +5,7 @@ description = "Infrastructure and pipeline building blocks for Claude Code plugi
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = []
 
 [project.optional-dependencies]
@@ -15,8 +15,8 @@ tokens = [
 dev = [
     "ruff>=0.14.13",
     "mypy>=1.11.0",
-    "pytest>=9.0.1",
-    "pytest-cov>=7.0.0",
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
     "pytest-mock>=3.15.1",
     # Tests import yaml directly; src/leyline/frontmatter.py keeps
     # its optional sentinel import (issue #609 fresh-env failure)
@@ -35,7 +35,7 @@ packages = ["src/leyline"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+target-version = "py39"
 exclude = [".venv", ".uv-cache"]
 
 [tool.ruff.lint]
@@ -48,6 +48,7 @@ extend-ignore = [
     "D107",   # Missing docstring in __init__ (class docstring sufficient)
     "S603",   # subprocess untrusted input (acceptable for CLI tools)
     "S607",   # subprocess partial path (acceptable for CLI tools)
+    "E501",   # Line too long (matches root monorepo policy)
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -62,7 +63,7 @@ extend-ignore = [
 convention = "google"
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

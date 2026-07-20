@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Architecture research module (REFACTORED with YAML matrix)."""
 
+from __future__ import annotations
+
 import argparse
 import json
 from dataclasses import dataclass

@@ -5,8 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch
 
-import gauntlet.ml as ml_mod
 import pytest
+
+import gauntlet.ml as ml_mod
 from gauntlet.ml import (
     _get_oracle_port_file,
     _get_scorer,

@@ -9,9 +9,9 @@ So that the same paper from arXiv and Semantic Scholar is not listed twice
 from __future__ import annotations
 
 import pytest
-from tome.synthesis.merger import fuzzy_deduplicate, normalize_title
 
 from tests.factories import make_finding
+from tome.synthesis.merger import fuzzy_deduplicate, normalize_title
 
 
 class TestNormalizeTitle:

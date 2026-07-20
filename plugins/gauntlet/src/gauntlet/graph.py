@@ -30,6 +30,11 @@ except ImportError:  # pragma: no cover -- standalone fallback
         _batch_size: int = 450
 
         def __init__(self, db_path: str | _Path) -> None:
+            """Open (creating if needed) the SQLite file at *db_path* and apply the schema.
+
+            Closes the connection and re-raises if schema initialization fails,
+            so a partially-initialized database is never left open.
+            """
             self._db_path = str(db_path)
             self._conn: _sqlite3.Connection = _sqlite3.connect(self._db_path)
             self._conn.execute("PRAGMA journal_mode=WAL")
@@ -53,15 +58,19 @@ except ImportError:  # pragma: no cover -- standalone fallback
             self._conn.commit()
 
         def close(self) -> None:
+            """Close the underlying SQLite connection, releasing its file lock."""
             self._conn.close()
 
-        def __enter__(self) -> SqliteGraphBase:  # type: ignore[override]  # simpler signature for fallback
+        def __enter__(self) -> SqliteGraphBase:
+            """Enter the context manager, returning self for use in a ``with`` block."""
             return self
 
         def __exit__(self, *exc: object) -> None:
+            """Close the connection on context-manager exit, regardless of exception."""
             self.close()
 
         def table_names(self) -> list[str]:
+            """Return the names of all tables in the connected SQLite database."""
             rows = self._conn.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'"
             ).fetchall()

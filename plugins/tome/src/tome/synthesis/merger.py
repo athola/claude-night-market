@@ -75,10 +75,41 @@ def fuzzy_deduplicate(
     if not findings:
         return []
 
-    n = len(findings)
     normals = [normalize_title(f.title) for f in findings]
+    roots = _cluster_duplicates(findings, normals, cross_channel)
 
-    # Union-Find with path compression
+    # Select highest-relevance representative per group
+    best_idx: dict[int, int] = {}
+    for i, root in enumerate(roots):
+        if (
+            root not in best_idx
+            or findings[i].relevance > findings[best_idx[root]].relevance
+        ):
+            best_idx[root] = i
+
+    # Emit one finding per group in first-encounter order
+    seen_roots: set[int] = set()
+    result: list[Finding] = []
+    for root in roots:
+        if root not in seen_roots:
+            seen_roots.add(root)
+            result.append(findings[best_idx[root]])
+
+    return result
+
+
+def _cluster_duplicates(
+    findings: list[Finding],
+    normals: list[str],
+    cross_channel: bool,
+) -> list[int]:
+    """Group title-duplicate findings via union-find.
+
+    Returns a per-index list of group representatives (roots): findings sharing
+    a root are duplicates. When *cross_channel* is False, only same-channel
+    pairs are compared, at the stricter same-channel Jaccard threshold.
+    """
+    n = len(findings)
     parent = list(range(n))
 
     def find(x: int) -> int:
@@ -115,26 +146,7 @@ def fuzzy_deduplicate(
                 ):
                     union(a, b)
 
-    # Select highest-relevance representative per group
-    best_idx: dict[int, int] = {}
-    for i in range(n):
-        root = find(i)
-        if (
-            root not in best_idx
-            or findings[i].relevance > findings[best_idx[root]].relevance
-        ):
-            best_idx[root] = i
-
-    # Emit one finding per group in first-encounter order
-    seen_roots: set[int] = set()
-    result: list[Finding] = []
-    for i in range(n):
-        root = find(i)
-        if root not in seen_roots:
-            seen_roots.add(root)
-            result.append(findings[best_idx[root]])
-
-    return result
+    return [find(i) for i in range(n)]
 
 
 def deduplicate(findings: list[Finding]) -> list[Finding]:
@@ -151,9 +163,7 @@ def deduplicate(findings: list[Finding]) -> list[Finding]:
         if not url:
             no_url.append(finding)
             continue
-        if url not in best:
-            best[url] = finding
-        elif finding.relevance > best[url].relevance:
+        if url not in best or finding.relevance > best[url].relevance:
             best[url] = finding
     return list(best.values()) + no_url
 

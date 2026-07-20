@@ -9,6 +9,7 @@ So that classifiers, planners, and channels can exchange data reliably
 from __future__ import annotations
 
 import pytest
+
 from tome.models import (
     DomainClassification,
     Finding,

@@ -278,7 +278,7 @@ class TestLadderProcedure:
             "a few lines",
         ]
         positions = [low.find(r) for r in rungs]
-        missing = [r for r, p in zip(rungs, positions, strict=True) if p == -1]
+        missing = [r for r, p in zip(rungs, positions) if p == -1]
         assert not missing, f"missing rung(s): {missing}"
         assert positions == sorted(positions), "rungs are out of documented order"
 

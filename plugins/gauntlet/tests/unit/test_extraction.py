@@ -6,6 +6,7 @@ import textwrap
 from pathlib import Path
 
 import pytest
+
 from gauntlet.extraction import extract_from_directory, extract_from_file
 
 # ---------------------------------------------------------------------------

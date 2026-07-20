@@ -7,8 +7,8 @@ from unittest.mock import patch
 from urllib.error import URLError
 
 import pytest
-from gauntlet.ml.scorer import SidecarScorer
 
+from gauntlet.ml.scorer import SidecarScorer
 from tests.conftest import make_urlopen_response
 
 

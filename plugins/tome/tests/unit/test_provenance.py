@@ -9,6 +9,7 @@ So that I can understand why results look the way they do
 from __future__ import annotations
 
 import pytest
+
 from tome.models import QueryLog
 
 

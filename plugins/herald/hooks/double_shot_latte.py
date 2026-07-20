@@ -335,12 +335,12 @@ def _llm_second_shot(text: str) -> tuple[bool, str] | None:
     caller then keeps the deterministic verdict. This keeps every platform's
     default behavior identical and side-effect free.
     """
-    if os.environ.get("DOUBLE_SHOT_LATTE_LLM") != "1":
-        return None
-    if os.environ.get(JUDGE_MODE_ENV) == "true":
-        return None
     claude_bin = shutil.which("claude")
-    if not claude_bin:
+    if (
+        os.environ.get("DOUBLE_SHOT_LATTE_LLM") != "1"
+        or os.environ.get(JUDGE_MODE_ENV) == "true"
+        or not claude_bin
+    ):
         return None
 
     model = os.environ.get("DOUBLE_SHOT_LATTE_MODEL", "haiku")

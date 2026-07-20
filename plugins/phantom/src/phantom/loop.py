@@ -511,6 +511,58 @@ def _format_tool_result(
     }
 
 
+def _editor_result(
+    tool_use_id: str,
+    content: str,
+    is_error: bool = False,
+) -> dict[str, Any]:
+    """Build a text-editor ``tool_result`` block."""
+    result: dict[str, Any] = {
+        "type": "tool_result",
+        "tool_use_id": tool_use_id,
+        "content": content,
+    }
+    if is_error:
+        result["is_error"] = True
+    return result
+
+
+def _run_editor_command(
+    tool_use_id: str,
+    command: str,
+    path: str,
+    tool_input: dict[str, Any],
+) -> dict[str, Any]:
+    """Execute a single text-editor command and return its result block."""
+    if command == "view":
+        if not path:
+            return _editor_result(
+                tool_use_id, "path is required for view", is_error=True
+            )
+        return _editor_result(tool_use_id, Path(path).read_text())
+
+    if command == "create":
+        file_text = tool_input.get("file_text", "")
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        Path(path).write_text(file_text)
+        return _editor_result(tool_use_id, f"Created {path}")
+
+    if command == "str_replace":
+        old_str = tool_input.get("old_str", "")
+        new_str = tool_input.get("new_str", "")
+        text = Path(path).read_text()
+        if old_str not in text:
+            return _editor_result(
+                tool_use_id, "old_str not found in file", is_error=True
+            )
+        Path(path).write_text(text.replace(old_str, new_str, 1))
+        return _editor_result(tool_use_id, f"Replaced in {path}")
+
+    return _editor_result(
+        tool_use_id, f"Unknown editor command: {command}", is_error=True
+    )
+
+
 def _handle_text_editor(
     tool_use_id: str,
     tool_input: dict[str, Any],
@@ -520,65 +572,9 @@ def _handle_text_editor(
     path = tool_input.get("path", "")
 
     try:
-        if command == "view":
-            if not path:
-                return {
-                    "type": "tool_result",
-                    "tool_use_id": tool_use_id,
-                    "content": "path is required for view",
-                    "is_error": True,
-                }
-            text = Path(path).read_text()
-            return {
-                "type": "tool_result",
-                "tool_use_id": tool_use_id,
-                "content": text,
-            }
-
-        elif command == "create":
-            file_text = tool_input.get("file_text", "")
-            Path(path).parent.mkdir(parents=True, exist_ok=True)
-            Path(path).write_text(file_text)
-            return {
-                "type": "tool_result",
-                "tool_use_id": tool_use_id,
-                "content": f"Created {path}",
-            }
-
-        elif command == "str_replace":
-            old_str = tool_input.get("old_str", "")
-            new_str = tool_input.get("new_str", "")
-            text = Path(path).read_text()
-            if old_str not in text:
-                return {
-                    "type": "tool_result",
-                    "tool_use_id": tool_use_id,
-                    "content": "old_str not found in file",
-                    "is_error": True,
-                }
-            text = text.replace(old_str, new_str, 1)
-            Path(path).write_text(text)
-            return {
-                "type": "tool_result",
-                "tool_use_id": tool_use_id,
-                "content": f"Replaced in {path}",
-            }
-
-        else:
-            return {
-                "type": "tool_result",
-                "tool_use_id": tool_use_id,
-                "content": f"Unknown editor command: {command}",
-                "is_error": True,
-            }
-
+        return _run_editor_command(tool_use_id, command, path, tool_input)
     except Exception as e:
-        return {
-            "type": "tool_result",
-            "tool_use_id": tool_use_id,
-            "content": str(e),
-            "is_error": True,
-        }
+        return _editor_result(tool_use_id, str(e), is_error=True)
 
 
 def _block_to_dict(block: Any) -> dict[str, Any]:

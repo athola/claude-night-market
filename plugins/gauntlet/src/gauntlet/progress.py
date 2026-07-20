@@ -20,6 +20,9 @@ from gauntlet.models import (
 
 _SAFE_RE = re.compile(r"[^a-zA-Z0-9_.-]")
 
+# Category accuracy below this counts as "weak" and gets extra selection weight.
+_WEAK_CATEGORY_ACCURACY_THRESHOLD = 0.5
+
 
 def _sanitize(developer_id: str) -> str:
     """Convert an arbitrary developer ID (e.g. email) to a safe filename stem."""
@@ -35,6 +38,7 @@ class ProgressTracker:
     """Persist and query developer challenge progress."""
 
     def __init__(self, gauntlet_dir: Path) -> None:
+        """Bind the tracker to the ``progress`` subdirectory of *gauntlet_dir*."""
         self._progress_dir = gauntlet_dir / "progress"
 
     # ------------------------------------------------------------------
@@ -117,9 +121,9 @@ class ProgressTracker:
                 w += 1.5
             else:
                 accuracy = sum(r.score() for r in cat_records) / len(cat_records)
-                # weak category: accuracy < 0.5 gets extra weight
-                if accuracy < 0.5:
-                    w += (0.5 - accuracy) * 2.0
+                # weak category: below-threshold accuracy gets extra weight
+                if accuracy < _WEAK_CATEGORY_ACCURACY_THRESHOLD:
+                    w += (_WEAK_CATEGORY_ACCURACY_THRESHOLD - accuracy) * 2.0
 
             weights.append(w)
 

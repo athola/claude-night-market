@@ -11,6 +11,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
+
 from phantom.cli import check_environment, main
 
 

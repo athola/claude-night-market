@@ -12,9 +12,14 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 import pytest
-from tome.synthesis.ranker import compute_relevance_score, group_by_theme, rank_findings
 
 from tests.factories import make_finding
+from tome.synthesis.ranker import (
+    compute_ranked_score,
+    compute_relevance_score,
+    group_by_theme,
+    rank_findings,
+)
 
 _THIS_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017 - keep timezone.utc for 3.9 compat
 
@@ -330,3 +335,48 @@ class TestGroupByTheme:
             metadata={"citations": 201},
         )
         assert compute_relevance_score(f) == pytest.approx(0.8)
+
+
+class TestTriangulationWiring:
+    """
+    Feature: cross-channel triangulation feeds ranking (increment 3)
+
+    As a synthesis pipeline
+    I want corroborated findings to outrank equally-relevant lone findings
+    So that agreement across channels is rewarded in the final order.
+    """
+
+    @pytest.mark.unit
+    def test_ranked_score_adds_triangulation_bonus(self) -> None:
+        """
+        Given a finding corroborated by another channel
+        When compute_ranked_score is computed with the full set
+        Then it exceeds the plain relevance score
+        """
+        target = make_finding(0.5, channel="code", title="graph rag retrieval")
+        corroborator = make_finding(
+            0.5, source="arxiv", channel="academic", title="graph rag retrieval"
+        )
+        findings = [target, corroborator]
+
+        ranked = compute_ranked_score(target, findings)
+
+        assert ranked > compute_relevance_score(target)
+
+    @pytest.mark.unit
+    def test_corroborated_finding_outranks_lone_peer(self) -> None:
+        """
+        Given two equally-relevant findings, one corroborated cross-channel
+        When rank_findings orders them
+        Then the corroborated one comes first
+        """
+        corroborated = make_finding(0.5, channel="code", title="vector search index")
+        cross = make_finding(
+            0.5, source="arxiv", channel="academic", title="vector search index"
+        )
+        lone = make_finding(0.5, channel="discourse", title="unrelated topic entirely")
+
+        result = rank_findings([lone, corroborated, cross])
+
+        assert result[0] is corroborated or result[0] is cross
+        assert result.index(lone) > 0

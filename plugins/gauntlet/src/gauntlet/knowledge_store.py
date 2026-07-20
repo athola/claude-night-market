@@ -21,6 +21,7 @@ class KnowledgeStore:
     """Persists and queries KnowledgeEntry records."""
 
     def __init__(self, gauntlet_dir: Path) -> None:
+        """Bind the store to *gauntlet_dir*, deriving the knowledge and annotation paths."""
         self._dir = gauntlet_dir
         self._knowledge_path = gauntlet_dir / "knowledge.json"
         self._annotations_dir = gauntlet_dir / "annotations"

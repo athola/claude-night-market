@@ -12,7 +12,6 @@ from __future__ import annotations
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Self
 
 _log = logging.getLogger(__name__)
 
@@ -68,8 +67,13 @@ class SqliteGraphBase:
         """Close the database connection."""
         self._conn.close()
 
-    def __enter__(self) -> Self:
+    def __enter__(self) -> SqliteGraphBase:
         """Enter context manager."""
+        # Return type is annotated with the class name (lazy via
+        # ``from __future__ import annotations``) rather than ``typing.Self``:
+        # ``Self`` is 3.11+, and ruff rewrites ``typing_extensions.Self`` to
+        # ``typing.Self`` under ``TYPE_CHECKING``, so neither survives the 3.9
+        # floor cleanly.
         return self
 
     def __exit__(

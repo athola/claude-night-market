@@ -18,9 +18,12 @@ import json
 import sys
 from collections import Counter
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .scanner import scan_directory
-from .types import Finding
+
+if TYPE_CHECKING:
+    from .types import Finding
 
 
 def build_parser() -> argparse.ArgumentParser:

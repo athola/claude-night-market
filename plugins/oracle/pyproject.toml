@@ -53,6 +53,7 @@ extend-ignore = ["S101", "E203", "D203", "D213", "UP017"]
     "D212", "S603", "S607", "PLW1510", "S310",
 ]
 "hooks/**/*.py" = ["S603", "S607", "PLR0911", "PLR2004", "UP045", "S105"]
+"src/oracle/provision.py" = ["S603", "S607"]
 
 [tool.mypy]
 python_version = "3.9"

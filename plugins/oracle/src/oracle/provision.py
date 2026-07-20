@@ -53,6 +53,7 @@ def provision_venv(venv_path: Path) -> ProvisionResult:
             capture_output=True,
             text=True,
             timeout=120,
+            check=False,
         )
         if result.returncode != 0:
             return ProvisionResult(
@@ -66,6 +67,7 @@ def provision_venv(venv_path: Path) -> ProvisionResult:
             capture_output=True,
             text=True,
             timeout=300,
+            check=False,
         )
         if result.returncode != 0:
             return ProvisionResult(

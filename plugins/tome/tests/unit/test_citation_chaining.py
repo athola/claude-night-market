@@ -9,6 +9,7 @@ So that important papers reachable only through citations are discovered
 from __future__ import annotations
 
 import pytest
+
 from tome.channels.academic import (
     build_citation_citations_url,
     build_citation_references_url,

@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from gauntlet.graph import GraphStore
 from gauntlet.graph_challenges import generate_graph_challenges
 from gauntlet.models import (

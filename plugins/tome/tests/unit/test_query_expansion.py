@@ -9,6 +9,7 @@ So that searches find results that a single query string would miss
 from __future__ import annotations
 
 import pytest
+
 from tome.channels.academic import expand_academic_queries
 from tome.channels.discourse import expand_discourse_queries
 from tome.channels.github import expand_github_queries

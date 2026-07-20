@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from gauntlet.knowledge_store import KnowledgeStore
 from gauntlet.models import KnowledgeEntry
 

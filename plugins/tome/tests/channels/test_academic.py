@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+
 from tome.channels.academic import (
     build_arxiv_search_url,
     build_core_search_url,
@@ -22,9 +23,11 @@ from tome.channels.academic import (
     estimate_page_chunks,
     generate_access_fallback_guidance,
     parse_arxiv_response,
+    parse_citation_edges,
     parse_semantic_scholar_response,
     parse_unpaywall_response,
 )
+from tome.models import CitationEdge
 
 # ---------------------------------------------------------------------------
 # Sample fixtures
@@ -754,3 +757,92 @@ class TestPdfProcessing:
         prompt = build_paper_summary_prompt("Title", "Abstract text here.")
 
         assert "limitation" in prompt.lower()
+
+
+# ---------------------------------------------------------------------------
+# Citation edges (Increment 1: keep the edges tome used to discard)
+# ---------------------------------------------------------------------------
+
+S2_REFERENCES_SAMPLE: dict[str, Any] = {
+    "data": [
+        {
+            "citedPaper": {
+                "paperId": "REF1",
+                "title": "Referenced Paper",
+                "year": 2020,
+                "citationCount": 100,
+                "externalIds": {"ArXiv": "2001.00001"},
+                "authors": [{"name": "A. Author"}],
+            }
+        },
+        {"citedPaper": {"paperId": "", "title": "Reference With No Id"}},
+    ]
+}
+
+S2_CITATIONS_SAMPLE: dict[str, Any] = {
+    "data": [
+        {
+            "citingPaper": {
+                "paperId": "CIT1",
+                "title": "Citing Paper",
+                "year": 2024,
+                "citationCount": 5,
+                "authors": [],
+            }
+        }
+    ]
+}
+
+
+class TestParseCitationEdges:
+    """
+    Scenario: keep the source->target citation relationship as a graph edge.
+    """
+
+    def test_references_produce_source_cites_target_edges(self) -> None:
+        """
+        Given a Semantic Scholar /references response for paper SRC
+        When I parse it for edges
+        Then SRC is recorded as citing each referenced paper
+        """
+        edges = parse_citation_edges(S2_REFERENCES_SAMPLE, source_paper_id="SRC")
+
+        assert edges == [CitationEdge(citing_id="SRC", cited_id="REF1")]
+
+    def test_citations_produce_target_cites_source_edges(self) -> None:
+        """
+        Given a Semantic Scholar /citations response for paper SRC
+        When I parse it for edges
+        Then each citing paper is recorded as citing SRC
+        """
+        edges = parse_citation_edges(S2_CITATIONS_SAMPLE, source_paper_id="SRC")
+
+        assert edges == [CitationEdge(citing_id="CIT1", cited_id="SRC")]
+
+    def test_edges_require_both_endpoints(self) -> None:
+        """
+        Given a referenced paper with no paperId
+        When I parse edges
+        Then no dangling edge is emitted (both endpoints must exist)
+        """
+        edges = parse_citation_edges(S2_REFERENCES_SAMPLE, source_paper_id="SRC")
+
+        assert all(e.citing_id and e.cited_id for e in edges)
+        assert len(edges) == 1
+
+    def test_missing_source_id_raises(self) -> None:
+        """
+        Given an empty source paper id
+        When I parse edges
+        Then a ValueError is raised (an edge needs a real source, not a guard)
+        """
+        with pytest.raises(ValueError, match="source_paper_id"):
+            parse_citation_edges(S2_REFERENCES_SAMPLE, source_paper_id="")
+
+
+class TestCitationEdgeModel:
+    """Scenario: CitationEdge round-trips through dict form."""
+
+    def test_round_trip(self) -> None:
+        edge = CitationEdge(citing_id="A", cited_id="B")
+        assert CitationEdge.from_dict(edge.to_dict()) == edge

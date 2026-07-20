@@ -526,7 +526,7 @@ custom_rules:
         markdown_report = MarkdownFormatter().format(sample_findings, temp_repository)
         sarif_report = SarifFormatter().format(sample_findings, temp_repository)
 
-        # Assert: markdown
+        # Assert markdown report content
         assert "SEC001" in markdown_report
         assert "critical" in markdown_report
         assert "src/config.rs:15" in markdown_report

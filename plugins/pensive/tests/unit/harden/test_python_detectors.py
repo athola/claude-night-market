@@ -19,9 +19,12 @@ the AST-level detection, which sees the full token after parsing.
 from __future__ import annotations
 
 import textwrap
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pensive.harden.detectors_python import scan_path, scan_source
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _scan(source: str) -> list[object]:

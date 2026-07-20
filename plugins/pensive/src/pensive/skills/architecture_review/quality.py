@@ -29,14 +29,18 @@ class QualityMixin:
             )
 
         batch_keywords = ["batch", "sequential", "stages"]
-        if any(keyword in f.lower() for keyword in batch_keywords for f in files):
-            if pattern_detected is None:
-                pattern_detected = "batch_sequential"
+        if (
+            any(keyword in f.lower() for keyword in batch_keywords for f in files)
+            and pattern_detected is None
+        ):
+            pattern_detected = "batch_sequential"
 
         stream_keywords = ["stream", "streaming", "kafka", "kinesis"]
-        if any(keyword in f.lower() for keyword in stream_keywords for f in files):
-            if pattern_detected is None:
-                pattern_detected = "streams"
+        if (
+            any(keyword in f.lower() for keyword in stream_keywords for f in files)
+            and pattern_detected is None
+        ):
+            pattern_detected = "streams"
 
         return {
             "pattern_detected": pattern_detected,

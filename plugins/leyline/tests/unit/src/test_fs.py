@@ -11,13 +11,9 @@ duplicating skip-dir and extension sets.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
-
-_SRC = Path(__file__).resolve().parents[3] / "src"
-sys.path.insert(0, str(_SRC))
 
 from leyline.fs import (
     FILE_OVERHEAD_TOKENS,

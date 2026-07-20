@@ -3,20 +3,16 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from gauntlet.graph import GraphStore
-
-_HOOKS_DIR = Path(__file__).resolve().parents[2] / "hooks"
-sys.path.insert(0, str(_HOOKS_DIR))
-
-from graph_auto_update import (  # noqa: E402 - sys.path modified above
+from graph_auto_update import (
     _is_auto_update_enabled,
     main,
 )
+
+from gauntlet.graph import GraphStore
 
 
 @pytest.fixture()

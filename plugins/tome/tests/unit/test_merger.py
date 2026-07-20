@@ -9,9 +9,9 @@ So that the ranker and report formatter receive unique, high-quality inputs
 from __future__ import annotations
 
 import pytest
-from tome.synthesis.merger import deduplicate, merge_findings
 
 from tests.factories import make_finding
+from tome.synthesis.merger import deduplicate, merge_findings
 
 
 class TestDeduplicate:

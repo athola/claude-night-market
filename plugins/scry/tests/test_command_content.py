@@ -9,6 +9,8 @@ Issue #53: Add skill/agent/command content validation tests
 Following TDD/BDD principles with Given/When/Then docstrings.
 """
 
+from __future__ import annotations
+
 import re
 from pathlib import Path
 from typing import Any, cast
@@ -49,7 +51,7 @@ class TestCommandSchemaValidation:
 
         yaml_content = "\n".join(lines[1:end_idx])
         try:
-            return cast(dict[str, Any] | None, yaml.safe_load(yaml_content))
+            return cast("dict[str, Any] | None", yaml.safe_load(yaml_content))
         except yaml.YAMLError:
             return None
 

@@ -9,6 +9,7 @@ So that downstream planners select appropriate channels and TRIZ depth
 from __future__ import annotations
 
 import pytest
+
 from tome.models import DomainClassification
 from tome.scripts.domain_classifier import classify
 

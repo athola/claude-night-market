@@ -11,7 +11,7 @@ version = "1.9.16"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -111,11 +111,14 @@ precision = 2
 directory = "htmlcov"
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py39"
 line-length = 88
 
 [tool.ruff.lint]
-extend-ignore = ["S101"]
+extend-ignore = [
+    "S101",   # Use of assert detected (assert is fine outside production paths)
+    "E501",   # Line too long (root config ignores this plugin-wide; formatter-owned)
+]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -154,12 +157,6 @@ unfixable = [
 "__init__.py" = [
     "F401",   # Unused import
 ]
-"src/pensive/skills/makefile_review.py" = [
-    "SIM102",  # Complex nested checks in analysis logic
-]
-"src/pensive/skills/architecture_review.py" = [
-    "SIM102",  # Complex nested checks in analysis logic
-]
 "src/pensive/skills/tiered_audit.py" = [
     "PLR2004", # Magic value in path splitting logic
 ]
@@ -168,10 +165,6 @@ unfixable = [
 ]
 "src/pensive/analysis/repository_analyzer.py" = [
     "SIM102", # Complex conditional logic in analysis
-]
-"src/pensive/integrations/cicd.py" = [
-    "SIM102", # Complex conditional logic in CI/CD detection
-    "ARG002", # repo_path kept for API consistency
 ]
 
 [tool.ruff.lint.mccabe]

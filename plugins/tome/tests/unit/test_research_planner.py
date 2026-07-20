@@ -9,6 +9,7 @@ So that channel runners know which sources to query and at what cost
 from __future__ import annotations
 
 import pytest
+
 from tome.models import DomainClassification, ResearchPlan
 from tome.scripts.research_planner import plan
 

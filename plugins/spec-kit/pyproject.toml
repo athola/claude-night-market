@@ -11,7 +11,7 @@ version = "1.9.16"
 description = "Spec Driven Development toolkit with enhanced superpowers integration (synced with upstream spec-kit v0.5.0)"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 authors = [
     {name = "Claude Skills", email = "claude@anthropic.com"},
 ]
@@ -36,7 +36,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     # Development tools
-    "black>=26.1.0",                    # Code formatting
+    "black>=24.0",                    # Code formatting
     "ruff>=0.14.13",                    # Linting and formatting
     "mypy>=1.11.0",                     # Type checking
     "pre-commit>=4.0.0",                # Git hooks
@@ -81,7 +81,7 @@ packages = ["src/speckit"]
 
 # Ruff configuration
 [tool.ruff]
-target-version = "py310"
+target-version = "py39"
 line-length = 88
 
 [tool.ruff.lint]

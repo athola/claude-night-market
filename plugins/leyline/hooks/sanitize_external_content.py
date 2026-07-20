@@ -96,6 +96,91 @@ def is_external_tool(tool_name: str, tool_input: dict[str, Any]) -> bool:
     return False
 
 
+_FAST_CHECKS = [
+    "<system",
+    "<assistant",
+    "<human",
+    "<important",
+    "!!python",
+    "__import__",
+    "__globals__",
+    "__builtins__",
+    "system-reminder",
+    "you are now",
+    "ignore previous",
+    "ignore all previous",
+    "disregard",
+    "override",
+    "new instructions",
+    "eval(",
+    "exec(",
+    'style="display:none',
+    "style='display:none",
+    'style="display: none',
+    "style='display: none",
+    'style="visibility:hidden',
+    "style='visibility:hidden",
+    'style="visibility: hidden',
+    "style='visibility: hidden",
+    'style="opacity:0',
+    "style='opacity:0",
+    'style="opacity: 0',
+    "style='opacity: 0",
+    'style="font-size:0',
+    "style='font-size:0",
+    'style="font-size: 0',
+    "style='font-size: 0",
+]
+
+_BLOCKED_LARGE_CONTENT_MESSAGE = (
+    "[CONTENT BLOCKED: injection pattern detected in large output]"
+)
+
+
+def _sanitize_large_content(content: str) -> str:
+    """Scan oversized content in chunks using fast substring checks only.
+
+    Regex scanning is too slow above _MAX_SCAN_SIZE, so this uses
+    plain substring membership checks over overlapping chunks and
+    blocks the whole payload on the first match.
+    """
+    chunk_size = _MAX_SCAN_SIZE
+    overlap = 1024  # 1KB overlap to catch patterns at boundaries
+    pos = 0
+    while pos < len(content):
+        end = min(pos + chunk_size, len(content))
+        chunk = content[pos:end].lower()
+        if any(check in chunk for check in _FAST_CHECKS):
+            return _BLOCKED_LARGE_CONTENT_MESSAGE
+        pos += chunk_size - overlap
+    return content
+
+
+def _sanitize_regular_content(content: str) -> str:
+    """Run the full regex-based sanitization pipeline on normal-sized content.
+
+    High-severity and invisible-text patterns are stripped
+    (fail-closed). Instruction-bearing HTML comments are
+    stripped. Zero-width characters are removed silently.
+    Medium-severity patterns are escaped with backticks.
+    """
+    modified = content
+
+    for pattern in _HIGH_SEVERITY:
+        modified = pattern.sub("[BLOCKED]", modified)
+
+    for pattern in _INVISIBLE_TEXT:
+        modified = pattern.sub("[BLOCKED]", modified)
+
+    modified = _INSTRUCTION_COMMENT.sub("[BLOCKED]", modified)
+    modified = _ZERO_WIDTH_CHARS.sub("", modified)
+
+    for pattern in _MEDIUM_SEVERITY:
+        modified = pattern.sub(lambda m: f"`{m.group(0)}`", modified)
+
+    return modified
+
+
 def sanitize_output(content: str | None) -> str:
     """Sanitize external content for injection patterns.
 
@@ -105,89 +190,13 @@ def sanitize_output(content: str | None) -> str:
     For content over _MAX_SCAN_SIZE, uses fast substring
     checks and blocks if any match.
     """
-    if not content:
+    if not content or not isinstance(content, str):
         return ""
 
-    if not isinstance(content, str):
-        return ""
-
-    modified = content
-
-    # For very large content, use fast substring checks only
     if len(content) > _MAX_SCAN_SIZE:
-        fast_checks = [
-            "<system",
-            "<assistant",
-            "<human",
-            "<important",
-            "!!python",
-            "__import__",
-            "__globals__",
-            "__builtins__",
-            "system-reminder",
-            "you are now",
-            "ignore previous",
-            "ignore all previous",
-            "disregard",
-            "override",
-            "new instructions",
-            "eval(",
-            "exec(",
-            'style="display:none',
-            "style='display:none",
-            'style="display: none',
-            "style='display: none",
-            'style="visibility:hidden',
-            "style='visibility:hidden",
-            'style="visibility: hidden',
-            "style='visibility: hidden",
-            'style="opacity:0',
-            "style='opacity:0",
-            'style="opacity: 0',
-            "style='opacity: 0",
-            'style="font-size:0',
-            "style='font-size:0",
-            'style="font-size: 0',
-            "style='font-size: 0",
-        ]
-        # Scan in chunks with overlap to cover entire content
-        chunk_size = _MAX_SCAN_SIZE  # 100KB
-        overlap = 1024  # 1KB overlap to catch patterns at boundaries
-        pos = 0
-        while pos < len(content):
-            end = min(pos + chunk_size, len(content))
-            chunk = content[pos:end].lower()
-            for check in fast_checks:
-                if check in chunk:
-                    return (
-                        "[CONTENT BLOCKED: injection pattern detected in large output]"
-                    )
-            pos += chunk_size - overlap
-        return content
+        return _sanitize_large_content(content)
 
-    # High severity: strip (fail-closed)
-    for pattern in _HIGH_SEVERITY:
-        if pattern.search(modified):
-            modified = pattern.sub("[BLOCKED]", modified)
-
-    # Invisible text patterns: strip (fail-closed)
-    for pattern in _INVISIBLE_TEXT:
-        if pattern.search(modified):
-            modified = pattern.sub("[BLOCKED]", modified)
-
-    # Instruction-bearing HTML comments: strip entirely
-    if _INSTRUCTION_COMMENT.search(modified):
-        modified = _INSTRUCTION_COMMENT.sub("[BLOCKED]", modified)
-
-    # Zero-width characters: strip silently
-    modified = _ZERO_WIDTH_CHARS.sub("", modified)
-
-    # Medium severity: escape with backticks (all occurrences)
-    for pattern in _MEDIUM_SEVERITY:
-        if pattern.search(modified):
-            modified = pattern.sub(lambda m: f"`{m.group(0)}`", modified)
-
-    return modified
+    return _sanitize_regular_content(content)
 
 
 def process_hook(payload: dict[str, Any]) -> dict[str, Any]:

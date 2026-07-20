@@ -91,7 +91,7 @@ class HookAnalyzer(ast.NodeVisitor):
 
     def visit_Compare(self, node: ast.Compare) -> Any:
         """Visit comparisons to detect string containment checks."""
-        for op, comparator in zip(node.ops, node.comparators, strict=False):
+        for op, comparator in zip(node.ops, node.comparators):
             if isinstance(op, ast.In):
                 self._extract_contains_pattern(node, comparator)
             elif isinstance(op, (ast.Eq, ast.NotEq)):
@@ -258,20 +258,21 @@ def _detect_hook_type(file_path: Path, content: str) -> str:
     """Detect the hook type from filename or content."""
     name = file_path.stem.lower()
 
-    if "pre" in name and "tool" in name:
-        return "PreToolUse"
-    if "post" in name and "tool" in name:
-        return "PostToolUse"
-    if "session" in name and "start" in name:
-        return "SessionStart"
-    if "stop" in name:
-        return "Stop"
+    # First match wins: each rule requires all of its tokens in the filename.
+    name_rules = (
+        (("pre", "tool"), "PreToolUse"),
+        (("post", "tool"), "PostToolUse"),
+        (("session", "start"), "SessionStart"),
+        (("stop",), "Stop"),
+    )
+    for tokens, hook_type in name_rules:
+        if all(token in name for token in tokens):
+            return hook_type
 
-    # Check content for hook type hints
-    if "PreToolUse" in content:
-        return "PreToolUse"
-    if "PostToolUse" in content:
-        return "PostToolUse"
+    # Fall back to content hints for tool-use hooks.
+    for marker in ("PreToolUse", "PostToolUse"):
+        if marker in content:
+            return marker
 
     return ""
 

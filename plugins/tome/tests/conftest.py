@@ -6,13 +6,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
+
+from tests.factories import make_finding  # noqa: F401 - re-export
 from tome.models import (
     DomainClassification,
     Finding,
     ResearchSession,
 )
-
-from tests.factories import make_finding  # noqa: F401 - re-export
 
 
 @pytest.fixture

@@ -225,7 +225,7 @@ class TestSemDetection:
             ),
         ):
             result = subprocess.run(
-                ["command", "-v", "sem"], capture_output=True, text=True
+                ["command", "-v", "sem"], capture_output=True, text=True, check=False
             )
             available = result.returncode == 0
             cache.write_text("1" if available else "0")
@@ -249,7 +249,7 @@ class TestSemDetection:
             ),
         ):
             result = subprocess.run(
-                ["command", "-v", "sem"], capture_output=True, text=True
+                ["command", "-v", "sem"], capture_output=True, text=True, check=False
             )
             available = result.returncode == 0
             cache.write_text("1" if available else "0")
@@ -275,7 +275,7 @@ class TestSemDetection:
             ),
         ) as mock_run:
             result = subprocess.run(
-                ["command", "-v", "sem"], capture_output=True, text=True
+                ["command", "-v", "sem"], capture_output=True, text=True, check=False
             )
             cache.write_text("1" if result.returncode == 0 else "0")
             assert mock_run.call_count == 1

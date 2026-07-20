@@ -20,38 +20,39 @@ from ._constants import (
 class PatternsMixin:
     """Pattern detection, coupling, and cohesion analysis."""
 
-    def detect_architecture_pattern(self, context: Any) -> dict[str, Any]:
-        """Detect architectural patterns in the codebase."""
-        files = context.get_files()
-        patterns = []
-        layers = []
-        components = {}
-        services = []
-
-        # Detect layered architecture
+    @staticmethod
+    def _detect_layered_pattern(files: list[str]) -> tuple[list[str], list[str]]:
+        """Detect a layered architecture from controller/service/repo/model dirs."""
         layer_names = ["controllers", "services", "repositories", "models"]
-        detected_layers = []
-        for layer in layer_names:
-            if any(layer in f.lower() for f in files):
-                detected_layers.append(layer)
-
+        detected_layers = [
+            layer for layer in layer_names if any(layer in f.lower() for f in files)
+        ]
         if len(detected_layers) >= MIN_LAYERS_FOR_LAYERED:
-            patterns.append("layered")
-            layers.extend(detected_layers)
+            return ["layered"], detected_layers
+        return [], []
 
-        # Detect hexagonal architecture
+    @staticmethod
+    def _detect_hexagonal_pattern(
+        files: list[str],
+    ) -> tuple[list[str], dict[str, bool]]:
+        """Detect a hexagonal (ports and adapters) architecture."""
         has_ports = any("ports" in f.lower() for f in files)
         has_adapters = any("adapters" in f.lower() for f in files)
         has_domain = any("domain" in f.lower() or "core" in f.lower() for f in files)
 
-        if has_ports and has_adapters:
-            patterns.append("hexagonal")
-            components["ports"] = True
-            components["adapters"] = True
-            if has_domain:
-                components["domain"] = True
+        if not (has_ports and has_adapters):
+            return [], {}
 
-        # Detect microservices architecture
+        components = {"ports": True, "adapters": True}
+        if has_domain:
+            components["domain"] = True
+        return ["hexagonal"], components
+
+    @staticmethod
+    def _detect_microservices_pattern(
+        files: list[str],
+    ) -> tuple[list[str], list[dict[str, str]]]:
+        """Detect a microservices architecture from per-service directories."""
         service_dirs = set()
         for f in files:
             parts = f.split("/")
@@ -61,22 +62,48 @@ class PatternsMixin:
                 elif "-service" in part or (part == "api-gateway" and i == 0):
                     service_dirs.add(part)
 
-        if len(service_dirs) >= MIN_SERVICES_FOR_MICROSERVICES:
-            patterns.append("microservices")
-            for service_name in service_dirs:
-                services.append({"name": service_name})
+        if len(service_dirs) < MIN_SERVICES_FOR_MICROSERVICES:
+            return [], []
+        return ["microservices"], [{"name": name} for name in service_dirs]
 
-        # Detect event-driven architecture
+    @staticmethod
+    def _detect_event_driven_pattern(
+        files: list[str],
+    ) -> tuple[list[str], dict[str, bool]]:
+        """Detect an event-driven architecture from handler/publisher dirs."""
         event_keywords = ["events", "handlers", "publishers", "subscribers"]
-        detected_event_components = []
-        for keyword in event_keywords:
-            if any(keyword in f.lower() for f in files):
-                detected_event_components.append(keyword)
+        detected = [
+            keyword
+            for keyword in event_keywords
+            if any(keyword in f.lower() for f in files)
+        ]
+        if len(detected) < MIN_EVENT_COMPONENTS:
+            return [], {}
+        return ["event_driven"], dict.fromkeys(detected, True)
 
-        if len(detected_event_components) >= MIN_EVENT_COMPONENTS:
-            patterns.append("event_driven")
-            for component in detected_event_components:
-                components[component] = True
+    def detect_architecture_pattern(self, context: Any) -> dict[str, Any]:
+        """Detect architectural patterns in the codebase."""
+        files = context.get_files()
+        patterns = []
+        layers = []
+        components: dict[str, bool] = {}
+        services: list[dict[str, str]] = []
+
+        layered_patterns, detected_layers = self._detect_layered_pattern(files)
+        patterns.extend(layered_patterns)
+        layers.extend(detected_layers)
+
+        hex_patterns, hex_components = self._detect_hexagonal_pattern(files)
+        patterns.extend(hex_patterns)
+        components.update(hex_components)
+
+        micro_patterns, detected_services = self._detect_microservices_pattern(files)
+        patterns.extend(micro_patterns)
+        services.extend(detected_services)
+
+        event_patterns, event_components = self._detect_event_driven_pattern(files)
+        patterns.extend(event_patterns)
+        components.update(event_components)
 
         return {
             "patterns": patterns,

@@ -18,7 +18,7 @@ maintainers = [
 license = {text = "MIT"}
 readme = "README.md"
 repository = "https://github.com/athola/conjure"
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.9,<3.14"
 dependencies = []
 
 [project.optional-dependencies]
@@ -43,8 +43,8 @@ dev = [
     "typos>=1.0.0",
     "ruff>=0.14.13",
     "mypy>=1.18.2",
-    "pytest>=9.0.1",
-    "pytest-cov>=7.0.0",
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
     "pytest-mock>=3.15.1",
     "pytest-asyncio>=0.24.0",
 ]
@@ -54,7 +54,7 @@ packages = ["scripts", "hooks"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py39"
 exclude = [".venv", ".uv-cache"]
 
 [tool.ruff.lint]

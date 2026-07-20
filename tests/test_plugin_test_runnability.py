@@ -24,10 +24,10 @@ tested, which is why this is pinned rather than left to luck.
 from __future__ import annotations
 
 import re
-import tomllib
 from pathlib import Path
 
 import pytest
+import tomllib
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PLUGINS_DIR = REPO_ROOT / "plugins"

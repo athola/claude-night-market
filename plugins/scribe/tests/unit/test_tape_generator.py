@@ -9,6 +9,7 @@ from __future__ import annotations
 import re
 
 import pytest
+
 from scribe.session_parser import (
     AssistantTurn,
     ThinkingTurn,

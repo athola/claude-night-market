@@ -57,6 +57,26 @@ class Finding:
             ) from exc
 
 
+@dataclass(frozen=True)
+class CitationEdge:
+    """A directed citation edge: ``citing_id`` cites ``cited_id``.
+
+    Both endpoints are Semantic Scholar paper IDs. The edge is the
+    relationship tome used to discard when flattening citation-chain
+    responses into a list of papers.
+    """
+
+    citing_id: str
+    cited_id: str
+
+    def to_dict(self) -> dict[str, str]:
+        return {"citing_id": self.citing_id, "cited_id": self.cited_id}
+
+    @classmethod
+    def from_dict(cls, d: dict[str, str]) -> CitationEdge:
+        return cls(citing_id=d["citing_id"], cited_id=d["cited_id"])
+
+
 @dataclass
 class DomainClassification:
     """Result of classifying a research topic into a domain."""

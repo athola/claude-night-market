@@ -7,7 +7,7 @@
 	security clean ci status debug-variables fix \
 	demo-classify demo-plan demo-skills demo-channels plugin-check \
 	test-channels test-synthesis test-output \
-	mutation-test benchmark memory-profile
+	mutation-test benchmark memory-profile metrics
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests
@@ -47,6 +47,9 @@ test-synthesis: ## Run synthesis tests (merger, ranker)
 
 test-output: ## Run output tests (export, visualizer)
 	$(PYTEST) tests/output/ -v --tb=short
+
+metrics: ## Score the retrieval gold set (offline, no network)
+	$(UV_RUN) python -m tome.metrics.harness
 
 # ---------- Code Quality ----------
 fix: ## Auto-fix lint issues

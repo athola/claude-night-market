@@ -21,6 +21,10 @@ _DEFAULT_WEIGHTS = {
     "caller_count": 0.10,
 }
 
+# Overall risk-band thresholds applied to the max per-node risk score.
+_RISK_HIGH_THRESHOLD = 0.7
+_RISK_MEDIUM_THRESHOLD = 0.4
+
 
 def load_weights(gauntlet_dir: str | Path | None = None) -> dict[str, float]:
     """Load risk scoring weights from .gauntlet/config.json.
@@ -61,6 +65,7 @@ def parse_git_diff_ranges(
             capture_output=True,
             text=True,
             timeout=10,
+            check=False,
         )
         if result.returncode != 0:
             return {}
@@ -208,9 +213,9 @@ def analyze_changes(
 
     # Overall risk
     max_risk = max(risk_scores.values()) if risk_scores else 0
-    if max_risk >= 0.7:
+    if max_risk >= _RISK_HIGH_THRESHOLD:
         overall = "high"
-    elif max_risk >= 0.4:
+    elif max_risk >= _RISK_MEDIUM_THRESHOLD:
         overall = "medium"
     else:
         overall = "low"

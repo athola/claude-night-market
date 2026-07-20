@@ -7,6 +7,9 @@ from pathlib import Path
 from gauntlet.knowledge_store import KnowledgeStore
 from gauntlet.models import KnowledgeEntry
 
+# Word-overlap ratio below which a concept counts as an understanding gap.
+_UNDERSTANDING_GAP_THRESHOLD = 0.3
+
 
 def query_knowledge(
     gauntlet_dir: Path,
@@ -93,7 +96,7 @@ def validate_understanding(
             overlap = len(claim_words & detail_words) / len(detail_words)
         overlap = min(overlap, 1.0)
         overlaps.append(overlap)
-        if overlap < 0.3:
+        if overlap < _UNDERSTANDING_GAP_THRESHOLD:
             gaps.append(entry.concept)
 
     score = sum(overlaps) / len(overlaps) if overlaps else 0.0

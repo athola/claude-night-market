@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+
 from tome.channels.discourse import (
     build_blog_search_queries,
     build_hn_search_url,

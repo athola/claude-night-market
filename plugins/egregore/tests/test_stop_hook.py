@@ -3,16 +3,9 @@
 from __future__ import annotations
 
 import json
-import sys
 from io import StringIO
-from pathlib import Path
 
 import pytest
-
-# Add hooks directory to path for imports
-HOOKS_DIR = Path(__file__).resolve().parent.parent / "hooks"
-sys.path.insert(0, str(HOOKS_DIR))
-
 from _manifest_utils import ACTIVE_STATUSES, get_items
 from stop_hook import has_active_work, main
 

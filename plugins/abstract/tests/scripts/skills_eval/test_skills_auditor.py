@@ -46,6 +46,11 @@ name: needs-improvement-skill
 
 This skill needs work on structure and completeness.
 """,
+            # Repeat enough that the body clears the ``token_acceptable``
+            # threshold (2500) under any estimator -- the char-ratio
+            # heuristic AND leyline's tiktoken-backed estimator, which
+            # compresses repeated text.  A borderline size made this test
+            # depend on which estimator happened to be installed.
             "large-skill": """---
 name: large-skill
 description: A very large skill
@@ -56,7 +61,7 @@ category: detailed
 
 """
             + "This skill has a lot of content that makes it hard to manage "
-            "effectively. " * 150,
+            "effectively. " * 400,
         }
 
         for skill_name, content in skills_data.items():

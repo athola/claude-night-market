@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import logging
 import textwrap
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -177,39 +178,29 @@ def list_sessions(
 # --- Tool collapse templates ---
 
 
+# Per-tool summary formatters keyed by tool name. Each maps the tool's input
+# dict to a short human-readable line; unknown tools fall through to a default.
+_TOOL_SUMMARIES: dict[str, Callable[[dict[str, Any]], str]] = {
+    "Read": lambda d: f"Read {d.get('file_path', 'unknown')}",
+    "Write": lambda d: f"Wrote {d.get('file_path', 'unknown')}",
+    "Edit": lambda d: f"Edited {d.get('file_path', 'unknown')}",
+    "Bash": lambda d: f"Ran: {d.get('command', '')[:60]}",
+    "Grep": lambda d: 'Searched for "{}" in {}'.format(
+        d.get("pattern", ""), d.get("path", ".")
+    ),
+    "Glob": lambda d: f"Found files matching {d.get('pattern', '')}",
+    "Agent": lambda d: f"Spawned {d.get('subagent_type', 'unknown')} agent",
+    "Skill": lambda d: f"Invoked {d.get('skill', 'unknown')}",
+    "TodoWrite": lambda d: f"Created task: {d.get('subject', 'unknown')}",
+    "WebFetch": lambda d: f"Fetched {d.get('url', '')[:50]}",
+}
+
+
 def _collapse_tool(name: str, input_data: dict[str, Any]) -> str:
     """Generate a short summary string for a tool call."""
-    if name == "Read":
-        file_path = input_data.get("file_path", "unknown")
-        return f"Read {file_path}"
-    if name == "Write":
-        file_path = input_data.get("file_path", "unknown")
-        return f"Wrote {file_path}"
-    if name == "Edit":
-        file_path = input_data.get("file_path", "unknown")
-        return f"Edited {file_path}"
-    if name == "Bash":
-        cmd = input_data.get("command", "")
-        return f"Ran: {cmd[:60]}"
-    if name == "Grep":
-        pattern = input_data.get("pattern", "")
-        path = input_data.get("path", ".")
-        return f'Searched for "{pattern}" in {path}'
-    if name == "Glob":
-        pattern = input_data.get("pattern", "")
-        return f"Found files matching {pattern}"
-    if name == "Agent":
-        subagent_type = input_data.get("subagent_type", "unknown")
-        return f"Spawned {subagent_type} agent"
-    if name == "Skill":
-        skill = input_data.get("skill", "unknown")
-        return f"Invoked {skill}"
-    if name == "TodoWrite":
-        subject = input_data.get("subject", "unknown")
-        return f"Created task: {subject}"
-    if name == "WebFetch":
-        url = input_data.get("url", "")
-        return f"Fetched {url[:50]}"
+    formatter = _TOOL_SUMMARIES.get(name)
+    if formatter is not None:
+        return formatter(input_data)
     return f"Used {name}"
 
 
@@ -325,8 +316,7 @@ class Viewport:
         # downstream rather than failing at construction.
         if self.cols < 1 or self.rows < 1:
             raise ValueError(
-                f"Viewport requires cols >= 1 and rows >= 1, "
-                f"got cols={self.cols}, rows={self.rows}"
+                f"Viewport requires cols >= 1 and rows >= 1, got cols={self.cols}, rows={self.rows}"
             )
 
 

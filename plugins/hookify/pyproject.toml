@@ -2,7 +2,7 @@
 name = "hookify"
 version = "1.9.16"
 description = "Hook generation and pattern matching utilities for Claude Code"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = [
     "PyYAML>=6.0",
 ]
@@ -27,7 +27,7 @@ exclude = [
 ]
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py39"
 line-length = 100
 exclude = [
     ".git",

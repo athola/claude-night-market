@@ -119,8 +119,8 @@ else:
         body: str,
         labels: list[str] | None = None,
     ) -> bool:
+        """Warn that herald is absent and report the alert as not sent."""
         _ = title, body, labels
-        """Stub that warns and returns False when herald is absent."""
         logger.warning("Cannot create alert: herald plugin not installed")
         return False
 

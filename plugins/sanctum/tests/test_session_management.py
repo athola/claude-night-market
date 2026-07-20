@@ -11,6 +11,8 @@ Issue #57: Document named session support in Sanctum workflows
 Following TDD/BDD principles with Given/When/Then docstrings.
 """
 
+from __future__ import annotations
+
 import re
 from pathlib import Path
 from typing import Any

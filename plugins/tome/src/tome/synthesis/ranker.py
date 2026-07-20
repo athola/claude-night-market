@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime, timezone
+from typing import Any
 
 from tome.models import Finding
 
@@ -65,6 +66,31 @@ def compute_triangulation_bonus(finding: Finding, all_findings: list[Finding]) -
     return min(bonus, _TRIANGULATION_CAP)
 
 
+# Per-source authority bonuses: source -> (metadata key, tiers). Tiers are
+# ordered high-to-low; the first threshold the value exceeds wins.
+_AUTHORITY_TIERS: dict[str, tuple[str, tuple[tuple[int, float], ...]]] = {
+    "github": ("stars", ((5000, 0.2), (1000, 0.1))),
+    "hn": ("score", ((500, 0.2), (100, 0.1))),
+    "arxiv": ("citations", ((200, 0.2), (50, 0.1))),
+    "academic": ("citations", ((200, 0.2), (50, 0.1))),
+    "semantic_scholar": ("citations", ((200, 0.2), (50, 0.1))),
+    "reddit": ("score", ((200, 0.1), (50, 0.05))),
+}
+
+
+def _authority_bonus(source: str, meta: dict[str, Any]) -> float:
+    """Return the source-authority bonus for a finding, or 0.0 if none."""
+    tiers = _AUTHORITY_TIERS.get(source)
+    if tiers is None:
+        return 0.0
+    key, thresholds = tiers
+    value = int(meta.get(key, 0) or 0)
+    for threshold, bonus in thresholds:
+        if value > threshold:
+            return bonus
+    return 0.0
+
+
 def compute_relevance_score(finding: Finding) -> float:
     """Compute composite relevance from base relevance + source authority.
 
@@ -78,34 +104,8 @@ def compute_relevance_score(finding: Finding) -> float:
 
     Result is capped at 1.0.
     """
-    score = finding.relevance
     meta = finding.metadata
-    source = finding.source.lower()
-
-    if source == "github":
-        stars = int(meta.get("stars", 0) or 0)
-        if stars > 5000:
-            score += 0.2
-        elif stars > 1000:
-            score += 0.1
-    elif source == "hn":
-        hn_score = int(meta.get("score", 0) or 0)
-        if hn_score > 500:
-            score += 0.2
-        elif hn_score > 100:
-            score += 0.1
-    elif source in ("arxiv", "academic", "semantic_scholar"):
-        citations = int(meta.get("citations", 0) or 0)
-        if citations > 200:
-            score += 0.2
-        elif citations > 50:
-            score += 0.1
-    elif source == "reddit":
-        reddit_score = int(meta.get("score", 0) or 0)
-        if reddit_score > 200:
-            score += 0.1
-        elif reddit_score > 50:
-            score += 0.05
+    score = finding.relevance + _authority_bonus(finding.source.lower(), meta)
 
     year = meta.get("year")
     if year is not None and (_CURRENT_YEAR - int(year or 0)) <= 2:
@@ -114,9 +114,25 @@ def compute_relevance_score(finding: Finding) -> float:
     return min(score, 1.0)
 
 
+def compute_ranked_score(finding: Finding, all_findings: list[Finding]) -> float:
+    """Relevance plus cross-channel triangulation, capped at 1.0.
+
+    This is the score ``rank_findings`` sorts by. It folds the
+    previously-dormant ``compute_triangulation_bonus`` into the ranking
+    so corroboration across channels is finally rewarded.
+    """
+    base = compute_relevance_score(finding)
+    bonus = compute_triangulation_bonus(finding, all_findings)
+    return min(base + bonus, 1.0)
+
+
 def rank_findings(findings: list[Finding]) -> list[Finding]:
-    """Return findings sorted by composite relevance score, descending."""
-    return sorted(findings, key=compute_relevance_score, reverse=True)
+    """Return findings sorted by relevance + triangulation, descending."""
+    return sorted(
+        findings,
+        key=lambda finding: compute_ranked_score(finding, findings),
+        reverse=True,
+    )
 
 
 def group_by_theme(findings: list[Finding]) -> dict[str, list[Finding]]:

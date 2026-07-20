@@ -13,13 +13,9 @@ without duplicating connection boilerplate.
 from __future__ import annotations
 
 import sqlite3
-import sys
 from pathlib import Path
 
 import pytest
-
-_SRC = Path(__file__).resolve().parents[4] / "src"
-sys.path.insert(0, str(_SRC))
 
 from leyline.sqlite_graph_base import SqliteGraphBase
 
