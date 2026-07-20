@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Python 3.9 support restored across all plugins.** Every plugin
+  `pyproject.toml` now pins `requires-python = ">=3.9"` (`conjure` keeps
+  `>=3.9,<3.14` for its delegation stack), and the dev-dependency floors
+  were lowered to match (`pytest>=8.0`, `pytest-cov>=4.1`, since `pytest`
+  9 drops 3.9) so hooks and test suites run on the macOS system
+  interpreter (3.9.6). Ruff `target-version` and first-party import
+  classification were unified across plugins in the same pass, and six
+  plugins had high-complexity functions refactored to satisfy the shared
+  `PLR`/`SIM` lint rules, removing the per-file `SIM102` ignores those
+  modules previously needed. Resolves TDB-014.
+
 ## [1.9.16] - 2026-07-14
 
 ### Added

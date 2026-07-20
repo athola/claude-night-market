@@ -13,6 +13,13 @@ from typing import Any
 
 _MAX_QUALIFIED_NAME_LEN = 255
 
+# Codepoints below this are ASCII control characters, stripped from names.
+_MIN_PRINTABLE_CODEPOINT = 0x20
+
+# Shared 1-4 difficulty scale used by KnowledgeEntry, Challenge, AnswerRecord.
+_MIN_DIFFICULTY = 1
+_MAX_DIFFICULTY = 4
+
 
 class NodeKind(str, Enum):
     """Kinds of structural nodes in the code graph."""
@@ -24,6 +31,7 @@ class NodeKind(str, Enum):
     TEST = "Test"
 
     def __str__(self) -> str:
+        """Serialize as the raw string value (e.g. ``"File"``) for storage."""
         return self.value
 
 
@@ -40,6 +48,7 @@ class EdgeKind(str, Enum):
     TESTED_BY = "TESTED_BY"
 
     def __str__(self) -> str:
+        """Serialize as the raw string value (e.g. ``"CALLS"``) for storage."""
         return self.value
 
 
@@ -50,7 +59,7 @@ class EdgeKind(str, Enum):
 
 def _sanitize_name(name: str) -> str:
     """Strip control characters and enforce max length."""
-    cleaned = "".join(ch for ch in name if ord(ch) >= 0x20)
+    cleaned = "".join(ch for ch in name if ord(ch) >= _MIN_PRINTABLE_CODEPOINT)
     return cleaned[:_MAX_QUALIFIED_NAME_LEN]
 
 
@@ -72,6 +81,7 @@ class GraphNode:
     file_hash: str = ""
 
     def __post_init__(self) -> None:
+        """Sanitize the qualified name and reject a negative or inverted line range."""
         self.qualified_name = _sanitize_name(self.qualified_name)
         if self.line_start < 0 or self.line_end < self.line_start:
             msg = f"invalid line range: {self.line_start}-{self.line_end}"
@@ -132,6 +142,7 @@ class GraphEdge:
     line: int = 0
 
     def __post_init__(self) -> None:
+        """Sanitize both endpoint names and reject an empty source or target."""
         self.source_qn = _sanitize_name(self.source_qn)
         self.target_qn = _sanitize_name(self.target_qn)
         if not self.source_qn:
@@ -166,11 +177,12 @@ class GraphEdge:
 class ChallengeResult(str, Enum):
     """Possible outcomes of evaluating a challenge answer."""
 
-    PASS = "pass"  # nosec B105
+    PASS = "pass"
     PARTIAL = "partial"
     FAIL = "fail"
 
     def __str__(self) -> str:
+        """Serialize as the raw string value ('pass'/'partial'/'fail') for storage."""
         return self.value
 
 
@@ -187,6 +199,7 @@ class ChallengeType(str, Enum):
     DEPENDENCY_TRACE = "dependency_trace"
 
     def __str__(self) -> str:
+        """Serialize as the raw string value (e.g. ``"trace"``) for storage."""
         return self.value
 
 
@@ -207,7 +220,8 @@ class KnowledgeEntry:
     consumers: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        if not 1 <= self.difficulty <= 4:
+        """Reject a difficulty outside the supported 1-4 scale."""
+        if not _MIN_DIFFICULTY <= self.difficulty <= _MAX_DIFFICULTY:
             msg = f"difficulty must be 1-4, got {self.difficulty}"
             raise ValueError(msg)
 
@@ -249,7 +263,8 @@ class Challenge:
     options: list[str] | None = None
 
     def __post_init__(self) -> None:
-        if not 1 <= self.difficulty <= 4:
+        """Reject a difficulty outside the supported 1-4 scale."""
+        if not _MIN_DIFFICULTY <= self.difficulty <= _MAX_DIFFICULTY:
             msg = f"difficulty must be 1-4, got {self.difficulty}"
             raise ValueError(msg)
 
@@ -298,7 +313,8 @@ class AnswerRecord:
     answered_at: str = ""
 
     def __post_init__(self) -> None:
-        if not 1 <= self.difficulty <= 4:
+        """Reject a difficulty outside the supported 1-4 scale."""
+        if not _MIN_DIFFICULTY <= self.difficulty <= _MAX_DIFFICULTY:
             msg = f"difficulty must be 1-4, got {self.difficulty}"
             raise ValueError(msg)
 
@@ -394,6 +410,7 @@ class Difficulty(str, Enum):
     EXTRA_HARD = "extra_hard"
 
     def __str__(self) -> str:
+        """Serialize as the raw string value (e.g. ``"hard"``) for storage."""
         return self.value
 
     def to_numeric(self) -> int:
@@ -455,6 +472,10 @@ class BankProblem:
 
 _MAX_STAGE = 5
 
+# A stage is complete once accuracy and volume both clear these bars.
+_STAGE_ADVANCE_ACCURACY_THRESHOLD = 0.8
+_STAGE_ADVANCE_MIN_CHALLENGES = 10
+
 
 @dataclass
 class OnboardingProgress:
@@ -471,7 +492,10 @@ class OnboardingProgress:
         """Return True when accuracy >= 80% across 10+ challenges in the current stage."""
         score = self.stage_scores.get(self.current_stage, 0.0)
         count = self.stage_challenge_count.get(self.current_stage, 0)
-        return score >= 0.8 and count >= 10
+        return (
+            score >= _STAGE_ADVANCE_ACCURACY_THRESHOLD
+            and count >= _STAGE_ADVANCE_MIN_CHALLENGES
+        )
 
     def advance(self) -> None:
         """Move to the next stage, or graduate if already on the final stage.
@@ -493,6 +517,7 @@ class OnboardingProgress:
         return self.graduated
 
     def __post_init__(self) -> None:
+        """Reject a current_stage outside the valid 1-``_MAX_STAGE`` range."""
         if not 1 <= self.current_stage <= _MAX_STAGE:
             msg = f"current_stage must be 1-{_MAX_STAGE}, got {self.current_stage}"
             raise ValueError(msg)

@@ -1,3 +1,5 @@
+"""Codebase learning through knowledge extraction, challenges, and spaced repetition."""
+
 from __future__ import annotations
 
 from gauntlet.knowledge_store import KnowledgeStore

@@ -43,6 +43,13 @@ except (ImportError, FileNotFoundError):
 
     @dataclass(frozen=True)
     class ValidatorReport:  # type: ignore[no-redef]  # fallback mirrors abstract.report_formatter
+        """Fallback shape for a validator's title, metadata, and issue list.
+
+        Mirrors ``abstract.report_formatter.ValidatorReport`` field-for-field
+        so ``format_validator_report`` below can render the same output
+        whether or not the sibling ``abstract`` plugin is importable.
+        """
+
         title: str
         plugin_root: Path
         skill_file_count: int
@@ -88,7 +95,11 @@ _EVIDENCE_LOGGING_PATTERNS: tuple[str, ...] = (
 def _classify_skills(
     skill_files: list[Path],
 ) -> tuple[set[str], set[str], list[str], dict[str, str]]:
-    """Returns (skills_found, review_workflow_skills, scan_issues, content_map)."""
+    """Classify skill files by content and collect scan issues.
+
+    Return a tuple of ``(skills_found, review_workflow_skills, scan_issues,
+    content_map)`` derived from reading and parsing each skill file.
+    """
     skills_found: set[str] = set()
     review_workflow_skills: set[str] = set()
     scan_issues: list[str] = []
@@ -133,7 +144,7 @@ def _check_evidence_patterns(
     skill_data: tuple[str, str],
     patterns: list[str],
 ) -> list[str]:
-    """Returns validation issue strings for a single skill."""
+    """Return validation issue strings for a single skill."""
     skill_name, content = skill_data
     issues: list[str] = []
 

@@ -1,5 +1,4 @@
-"""Tests for ProjectTracker status reports, GitHub comment formatting,
-CSV export, and edge cases.
+"""Tests for ProjectTracker status reports, comment formatting, and CSV export.
 
 Covers:
 - TestGetStatusReport

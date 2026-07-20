@@ -48,6 +48,7 @@ extend-ignore = [
     "D107",   # Missing docstring in __init__ (class docstring sufficient)
     "S603",   # subprocess untrusted input (acceptable for CLI tools)
     "S607",   # subprocess partial path (acceptable for CLI tools)
+    "E501",   # Line too long (matches root monorepo policy)
 ]
 
 [tool.ruff.lint.per-file-ignores]

@@ -79,6 +79,7 @@ def get_changed_files(base_ref: str = "HEAD") -> list[str]:
             capture_output=True,
             text=True,
             timeout=10,
+            check=False,
         )
         if result.returncode != 0:
             _log.warning(
@@ -110,6 +111,7 @@ def _get_staged_files() -> list[str]:
             capture_output=True,
             text=True,
             timeout=10,
+            check=False,
         )
         if result.returncode != 0:
             _log.warning(

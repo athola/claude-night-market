@@ -331,7 +331,6 @@ class TestProblemVariationFallback:
             def find_spec(self, name, _path=None, _target=None):
                 if name == "anthropic" or name.startswith("anthropic."):
                     raise ImportError(f"simulated missing: {name}")
-                return None
 
         # Clear any cached anthropic so the lazy import re-resolves
         # through our blocker. monkeypatch.setattr/delitem auto-restore.

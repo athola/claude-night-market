@@ -26,7 +26,8 @@ class _SchemaRaisingGraph(SqliteGraphBase):
 
 class TestLey001GraphConnectionHandler:
     """LEY-001: narrow bare Exception to (OSError, sqlite3.Error) in graph
-    connection handler."""
+    connection handler.
+    """
 
     def test_oserror_from_init_schema_propagates(
         self, tmp_path: pytest.FixtureRequest
@@ -73,7 +74,8 @@ def _clear_encoder_cache() -> object:
 
 class TestLey002TokenEncoderExceptionNarrowing:
     """LEY-002: narrow bare Exception to (ValueError, KeyError, OSError) in
-    _get_encoder."""
+    _get_encoder.
+    """
 
     def _mock_tiktoken(self, side_effect: BaseException) -> MagicMock:
         mock = MagicMock()

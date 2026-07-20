@@ -12,6 +12,8 @@ from ._helpers import (
     _iter_name,
 )
 
+_MIN_NESTED_LOOP_DEPTH = 2
+
 
 class _PerfVisitor(ast.NodeVisitor):
     """Single-pass AST visitor that emits time/space ReviewFindings.
@@ -114,11 +116,12 @@ class _PerfVisitor(ast.NodeVisitor):
                 for tgt in body_node.targets:
                     if isinstance(tgt, ast.Name):
                         accumulators.add(tgt.id)
-            elif isinstance(body_node, ast.AnnAssign) and _is_empty_list_value(
-                body_node.value
+            elif (
+                isinstance(body_node, ast.AnnAssign)
+                and _is_empty_list_value(body_node.value)
+                and isinstance(body_node.target, ast.Name)
             ):
-                if isinstance(body_node.target, ast.Name):
-                    accumulators.add(body_node.target.id)
+                accumulators.add(body_node.target.id)
         self._local_accumulators_stack.append(accumulators)
 
     def _exit_func(self) -> None:
@@ -283,7 +286,7 @@ class _PerfVisitor(ast.NodeVisitor):
             and bool(self._local_accumulators_stack)
             and target.id in self._local_accumulators_stack[-1]
         )
-        if len(self._loop_stack) < 2 or is_local_accumulator:
+        if len(self._loop_stack) < _MIN_NESTED_LOOP_DEPTH or is_local_accumulator:
             return
         self.findings.append(
             ReviewFinding(

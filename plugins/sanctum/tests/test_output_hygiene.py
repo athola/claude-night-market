@@ -132,17 +132,22 @@ class TestCharacterMarkerDetectionLogic:
             assert not re.search(r"\w \+ \w", sample), f"false positive: {sample}"
 
     def test_detects_em_dash(self) -> None:
-        assert "—" in "fix: guard nulls — prevents crash"
+        sample = "fix: guard nulls — prevents crash"
+        assert "—" in sample
 
     def test_detects_double_dash_separator(self) -> None:
-        assert " -- " in "fix: guard nulls -- prevents crash"
+        sample = "fix: guard nulls -- prevents crash"
+        assert " -- " in sample
 
     def test_detects_arrow_connectors(self) -> None:
-        assert "->" in "docs: map input -> output"
-        assert "→" in "docs: map input → output"
+        ascii_sample = "docs: map input -> output"
+        unicode_sample = "docs: map input → output"
+        assert "->" in ascii_sample
+        assert "→" in unicode_sample
 
     def test_detects_smart_quotes(self) -> None:
-        assert "“" in "docs: clarify “usage” section"
+        sample = "docs: clarify “usage” section"
+        assert "“" in sample
 
 
 class TestCommitSubjectMatterLogic:

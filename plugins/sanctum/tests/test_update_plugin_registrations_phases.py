@@ -201,7 +201,7 @@ def test_audit_all_invokes_fix_for_discrepancies_when_not_dry(
     auditor.discrepancies = {"demo": {"missing_skills": ["x"]}}
     fixed = []
     monkeypatch.setattr(auditor, "audit_plugin", lambda _n: True)
-    monkeypatch.setattr(auditor, "fix_plugin", lambda n: fixed.append(n))
+    monkeypatch.setattr(auditor, "fix_plugin", fixed.append)
     monkeypatch.setattr(auditor, "analyze_skill_performance", lambda _n: {})
     monkeypatch.setattr(auditor, "check_meta_evaluation", lambda _p: {})
     monkeypatch.setattr(auditor, "check_knowledge_queue", lambda: [])

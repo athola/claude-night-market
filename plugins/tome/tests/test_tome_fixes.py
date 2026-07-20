@@ -117,13 +117,19 @@ class TestTOME001FuzzyDeduplicateUnionFind:
             make_finding(
                 0.5,
                 channel=channel,
-                title="neural network deep learning optimization training gradient descent backprop",
+                title=(
+                    "neural network deep learning optimization training "
+                    "gradient descent backprop"
+                ),
                 url="https://a.com/1",
             ),
             make_finding(
                 0.7,
                 channel=channel,
-                title="neural network deep learning optimization training gradient descent inference",
+                title=(
+                    "neural network deep learning optimization training "
+                    "gradient descent inference"
+                ),
                 url="https://b.com/1",
             ),
             make_finding(

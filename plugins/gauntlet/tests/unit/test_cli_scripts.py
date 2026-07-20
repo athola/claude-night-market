@@ -7,34 +7,13 @@ from __future__ import annotations
 import contextlib
 import io
 import json
-import sys
 from pathlib import Path
 
 import pytest
-
-# ---------------------------------------------------------------------------
-# Ensure scripts/ is on sys.path before importing CLI modules.
-# The scripts are not installed packages; they live in plugins/gauntlet/scripts/
-# and extend sys.path themselves for src/, but the test runner must add the
-# scripts directory so the top-level module names resolve.
-# ---------------------------------------------------------------------------
-
-_SCRIPTS_DIR = Path(__file__).parent.parent.parent / "scripts"
-if str(_SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(_SCRIPTS_DIR))
-
-from answer_evaluator import (
-    main as answer_main,  # type: ignore[import] - scripts dir added above
-)
-from challenge_engine import (
-    main as challenge_main,  # type: ignore[import] - scripts dir added above
-)
-from extractor import (
-    main as extractor_main,  # type: ignore[import] - scripts dir added above
-)
-from progress_tracker import (
-    main as progress_main,  # type: ignore[import] - scripts dir added above
-)
+from answer_evaluator import main as answer_main
+from challenge_engine import main as challenge_main
+from extractor import main as extractor_main
+from progress_tracker import main as progress_main
 
 # ---------------------------------------------------------------------------
 # Feature: extractor CLI

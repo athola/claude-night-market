@@ -366,6 +366,56 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_detects_batch_sequential_data_flow(self, mock_skill_context) -> None:
+        """Given batch/staged filenames, skill detects batch_sequential flow.
+
+        GIVEN files whose names signal batch or staged processing
+        WHEN analyze_data_flow inspects them
+        THEN the detected pattern is batch_sequential
+
+        Guards the refactored batch branch in QualityMixin.analyze_data_flow;
+        the pipes_filters keywords must be absent so this branch is reached.
+        """
+        # Arrange
+        mock_skill_context.get_files.return_value = [
+            "src/batch/nightly_batch.py",
+            "src/jobs/sequential_job.py",
+            "src/stages/stage_runner.py",
+        ]
+
+        # Act
+        data_flow_analysis = self.skill.analyze_data_flow(mock_skill_context)
+
+        # Assert
+        assert data_flow_analysis["pattern_detected"] == "batch_sequential"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_detects_streams_data_flow(self, mock_skill_context) -> None:
+        """Given streaming filenames, skill detects a streams flow.
+
+        GIVEN files whose names signal streaming infrastructure
+        WHEN analyze_data_flow inspects them
+        THEN the detected pattern is streams
+
+        Guards the refactored streams branch in QualityMixin.analyze_data_flow;
+        the pipes_filters and batch keywords must be absent so this branch wins.
+        """
+        # Arrange
+        mock_skill_context.get_files.return_value = [
+            "src/streaming/kafka_consumer.py",
+            "src/ingest/kinesis_reader.py",
+            "src/events/stream_processor.py",
+        ]
+
+        # Act
+        data_flow_analysis = self.skill.analyze_data_flow(mock_skill_context)
+
+        # Assert
+        assert data_flow_analysis["pattern_detected"] == "streams"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_checks_scalability_patterns(self, mock_skill_context) -> None:
         """Given architecture implementation, skill evaluates scalability patterns."""
         # Arrange

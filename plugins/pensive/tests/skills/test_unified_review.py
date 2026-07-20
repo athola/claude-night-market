@@ -12,6 +12,9 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from pensive.skills.base import AnalysisResult
+from pensive.skills.unified_review import UnifiedReviewSkill
+
 SKILL_MD = Path(__file__).parents[2] / "skills" / "unified-review" / "SKILL.md"
 
 
@@ -57,11 +60,6 @@ class TestUnifiedReviewSkillContent:
         """Isolation guidance must name the bias being prevented so readers
         understand why the constraint exists, not just what it is."""
         assert "anchor" in skill_content.lower() or "bias" in skill_content.lower()
-
-
-# Import the skill we're testing
-from pensive.skills.base import AnalysisResult
-from pensive.skills.unified_review import UnifiedReviewSkill
 
 
 class TestUnifiedReviewSkill:

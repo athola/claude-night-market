@@ -67,11 +67,11 @@ class TestSemanticRetriever:
 
 class TestOpenEmbedder:
     @pytest.mark.unit
-    def test_raises_explicitly_when_absent(self) -> None:
+    def test_raises_explicitly_when_absent(self, tmp_path: Any) -> None:
         if embedder_available():
             pytest.skip("memory-palace installed; cannot test absent path")
         with pytest.raises(Exception, match="memory-palace"):
-            open_embedder("/tmp/tome-emb.yaml")
+            open_embedder(str(tmp_path / "tome-emb.yaml"))
 
 
 class TestRealEmbedderContract:

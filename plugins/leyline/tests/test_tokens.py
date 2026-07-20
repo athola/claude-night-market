@@ -258,7 +258,7 @@ class TestTokenEncoderPath:
 
         # Clear cache before monkeypatching
         tokens._get_encoder.cache_clear()
-        monkeypatch.setattr(tokens, "_get_encoder", lambda: MockEncoder())
+        monkeypatch.setattr(tokens, "_get_encoder", MockEncoder)
 
         result = tokens.estimate_tokens([str(file_path)], prompt="hi")
 

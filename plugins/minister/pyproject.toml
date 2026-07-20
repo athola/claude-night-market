@@ -47,12 +47,16 @@ extend-ignore = [
     "D107",
     "S603",
     "S607",
+    "E501",   # Line too long (handled by formatter); matches root config
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "PLR2004",  # Magic values in test assertions are acceptable
     "S311",     # Allow pseudo-random generators in tests
+]
+"scripts/tracker.py" = [
+    "E402",  # sys.path bootstrap must run before the deferred import
 ]
 
 [tool.ruff.lint.pydocstyle]

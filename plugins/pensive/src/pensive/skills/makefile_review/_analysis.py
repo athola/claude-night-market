@@ -3,12 +3,26 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 from ._constants import MIN_RECIPE_LINES_FOR_LARGE_TARGET
 
-if TYPE_CHECKING:
-    pass
+
+@dataclass
+class _VarScanState:
+    """Mutable accumulator threaded through the undefined-variable scan.
+
+    Bundled into one object so the per-line scan helpers in
+    :class:`AnalysisMixin` stay under the max-arguments lint limit.
+    """
+
+    defined_vars: set[str] = field(default_factory=set)
+    used_vars: set[str] = field(default_factory=set)
+    var_definitions: dict[str, int] = field(default_factory=dict)
+    seen: set[str] = field(default_factory=set)
+    results: list[str] = field(default_factory=list)
+    pending_use_before_def: set[str] = field(default_factory=set)
 
 
 class AnalysisMixin:
@@ -37,20 +51,22 @@ class AnalysisMixin:
 
         missing_phony = []
         for target in targets:
-            if target in common_phony and target not in phony_targets:
+            if (target in common_phony and target not in phony_targets) or (
+                not self._is_file_target(target)
+                and target not in phony_targets
+                and target not in ["include", "ifdef", "ifndef", "ifeq", "ifneq"]
+            ):
                 missing_phony.append(target)
-            elif not self._is_file_target(target) and target not in phony_targets:
-                if target not in ["include", "ifdef", "ifndef", "ifeq", "ifneq"]:
-                    missing_phony.append(target)
 
         error_handling = []
         lines = content.split("\n")
         for i, line in enumerate(lines):
             if line.startswith("\t"):
                 cmd = line.strip()
-                if re.search(r"(rm|cp|mv|mkdir|gcc|make|wget|curl)", cmd):
-                    if not re.search(r"(\|\||set -e|; exit|\?=|@-)", cmd):
-                        error_handling.append(f"Line {i + 1}: {cmd[:50]}")
+                if re.search(
+                    r"(rm|cp|mv|mkdir|gcc|make|wget|curl)", cmd
+                ) and not re.search(r"(\|\||set -e|; exit|\?=|@-)", cmd):
+                    error_handling.append(f"Line {i + 1}: {cmd[:50]}")
 
         hardcoded_paths = []
         hardcoded_pattern = re.compile(r"(\/usr\/|\/bin\/|\/tmp\/|C:\\|\/home\/)")
@@ -77,25 +93,28 @@ class AnalysisMixin:
             idx += 1
         return idx
 
-    def analyze_dependencies(self, context: Any) -> dict[str, Any]:
-        """Analyze dependency management in makefile."""
-        content = self._get_makefile_content(context)
-
+    @staticmethod
+    def _parse_target_deps(content: str) -> dict[str, list[str]]:
+        """Parse `target: dep1 dep2` lines into a target-to-deps map."""
         target_deps: dict[str, list[str]] = {}
         target_pattern = re.compile(r"^([a-zA-Z0-9_\-\.]+)\s*:\s*(.*)$", re.MULTILINE)
         for match in target_pattern.finditer(content):
-            target = match.group(1)
-            deps = match.group(2).split()
-            target_deps[target] = deps
+            target_deps[match.group(1)] = match.group(2).split()
+        return target_deps
 
+    @staticmethod
+    def _find_circular_dependencies(target_deps: dict[str, list[str]]) -> list[str]:
+        """Find target pairs that depend on each other directly."""
         circular_dependencies = []
         for target, deps in target_deps.items():
             for dep in deps:
                 if dep in target_deps and target in target_deps[dep]:
                     circular_dependencies.append(f"{target} <-> {dep}")
+        return circular_dependencies
 
+    def _find_missing_source_dependencies(self, lines: list[str]) -> list[str]:
+        """Flag `main`/`parser.o` targets missing their expected source deps."""
         missing_dependencies: list[str] = []
-        lines = content.split("\n")
         for i, line in enumerate(lines):
             if re.match(r"^main:", line) and "main.c" not in line:
                 missing_dependencies.append(
@@ -109,26 +128,51 @@ class AnalysisMixin:
                     missing_dependencies.append(
                         f"Line {i + 1}: parser.o missing header dependencies"
                     )
+        return missing_dependencies
 
+    @staticmethod
+    def _find_header_dependencies(
+        target_deps: dict[str, list[str]],
+    ) -> tuple[list[str], list[str]]:
+        """Flag `.o` targets whose `.c` source has no matching header dep."""
+        missing_dependencies: list[str] = []
         header_dependencies: list[str] = []
         for target, deps in target_deps.items():
-            if target.endswith(".o"):
-                base_name = target[:-2]
-                has_header = any(
-                    dep.endswith(".h") or dep.endswith(".hpp") for dep in deps
+            if not target.endswith(".o"):
+                continue
+            base_name = target[:-2]
+            has_header = any(dep.endswith((".h", ".hpp")) for dep in deps)
+            if f"{base_name}.c" in deps and not has_header:
+                missing_dependencies.append(
+                    f"{target}: missing header file dependencies"
                 )
-                if f"{base_name}.c" in deps and not has_header:
-                    missing_dependencies.append(
-                        f"{target}: missing header file dependencies"
-                    )
-                if not has_header and target != "%.o":
-                    header_dependencies.append(f"{target} missing header dependencies")
+            if not has_header and target != "%.o":
+                header_dependencies.append(f"{target} missing header dependencies")
+        return missing_dependencies, header_dependencies
 
+    @staticmethod
+    def _find_automatic_dependencies(content: str) -> list[str]:
+        """Detect compiler-generated dependency file usage (`-MMD`/`include *.d`)."""
         automatic_dependencies = []
         if re.search(r"-MMD|-MD|-MF", content):
             automatic_dependencies.append("Automatic dependency generation detected")
         if re.search(r"include.*\.d\)", content):
             automatic_dependencies.append("Dependency file inclusion detected")
+        return automatic_dependencies
+
+    def analyze_dependencies(self, context: Any) -> dict[str, Any]:
+        """Analyze dependency management in makefile."""
+        content = self._get_makefile_content(context)
+        lines = content.split("\n")
+
+        target_deps = self._parse_target_deps(content)
+        circular_dependencies = self._find_circular_dependencies(target_deps)
+        missing_dependencies = self._find_missing_source_dependencies(lines)
+        header_missing, header_dependencies = self._find_header_dependencies(
+            target_deps
+        )
+        missing_dependencies.extend(header_missing)
+        automatic_dependencies = self._find_automatic_dependencies(content)
 
         return {
             "missing_dependencies": missing_dependencies[:10],
@@ -137,68 +181,95 @@ class AnalysisMixin:
             "header_dependencies": header_dependencies,
         }
 
-    @staticmethod
-    def _find_undefined_variables(content: str) -> list[str]:
-        """Scan makefile for undefined, empty, and use-before-definition variables."""
-        builtin_vars = {"CC", "CFLAGS", "LDFLAGS", "MAKE", "MAKEFLAGS"}
-        lines = content.split("\n")
-        defined_vars: set[str] = set()
-        used_vars: set[str] = set()
-        var_definitions: dict[str, int] = {}
-        seen: set[str] = set()
-        results: list[str] = []
-        pending_use_before_def: set[str] = set()
+    _VAR_DEF_RE = re.compile(r"^([A-Z_][A-Z0-9_]*)\s*[:?]?=")
+    _VAR_USE_RE = re.compile(r"\$\(([A-Z_][A-Z0-9_]*)\)")
+    _EMPTY_CRITICAL_RE = re.compile(r"^(CFLAGS|LDFLAGS|SOURCES)\s*=\s*$")
+    _TARGET_RE = re.compile(r"^[a-zA-Z0-9_\-]+:\s*(.*)$")
+    _BUILTIN_VARS = frozenset({"CC", "CFLAGS", "LDFLAGS", "MAKE", "MAKEFLAGS"})
 
-        var_def_re = re.compile(r"^([A-Z_][A-Z0-9_]*)\s*[:?]?=")
-        var_use_re = re.compile(r"\$\(([A-Z_][A-Z0-9_]*)\)")
-        empty_critical_re = re.compile(r"^(CFLAGS|LDFLAGS|SOURCES)\s*=\s*$")
-        target_re = re.compile(r"^[a-zA-Z0-9_\-]+:\s*(.*)$")
+    @staticmethod
+    def _record_once(entry: str, seen: set[str], results: list[str]) -> None:
+        """Append `entry` to results only the first time it is seen."""
+        if entry not in seen:
+            seen.add(entry)
+            results.append(entry)
+
+    @classmethod
+    def _scan_var_definition(cls, line: str, i: int, state: _VarScanState) -> None:
+        """Record a variable definition and its first-definition line."""
+        var_def_match = cls._VAR_DEF_RE.match(line)
+        if var_def_match:
+            var_name = var_def_match.group(1)
+            state.defined_vars.add(var_name)
+            if var_name not in state.var_definitions:
+                state.var_definitions[var_name] = i
+
+    @classmethod
+    def _scan_empty_critical(cls, line: str, i: int, state: _VarScanState) -> None:
+        """Flag critical variables (CFLAGS/LDFLAGS/SOURCES) defined but empty."""
+        if cls._EMPTY_CRITICAL_RE.match(line):
+            crit_name = line.split("=", maxsplit=1)[0].strip()
+            cls._record_once(
+                f"Line {i + 1}: Empty {crit_name}", state.seen, state.results
+            )
+
+    @classmethod
+    def _scan_target_deps_use_before_def(
+        cls, line: str, i: int, state: _VarScanState
+    ) -> None:
+        """Flag or defer variables referenced in a target's deps line."""
+        target_match = cls._TARGET_RE.match(line)
+        if not target_match:
+            return
+        for var_match in cls._VAR_USE_RE.finditer(target_match.group(1)):
+            dep_var = var_match.group(1)
+            if dep_var in state.var_definitions and state.var_definitions[dep_var] > i:
+                cls._record_once(
+                    f"{dep_var} (used before definition)", state.seen, state.results
+                )
+            elif (
+                dep_var not in state.var_definitions
+                and dep_var not in cls._BUILTIN_VARS
+            ):
+                state.pending_use_before_def.add(dep_var)
+
+    @classmethod
+    def _resolve_pending_use_before_def(cls, state: _VarScanState) -> None:
+        """Promote deferred variables to findings once they are defined anywhere."""
+        for var in state.pending_use_before_def:
+            if var in state.defined_vars:
+                cls._record_once(
+                    f"{var} (used before definition)", state.seen, state.results
+                )
+
+    @classmethod
+    def _resolve_undefined_used_vars(cls, state: _VarScanState) -> None:
+        """Flag variables that are used but never defined anywhere."""
+        for var in state.used_vars:
+            if (
+                var not in state.defined_vars
+                and var not in cls._BUILTIN_VARS
+                and var not in state.seen
+            ):
+                state.seen.add(var)
+                state.results.append(var)
+
+    @classmethod
+    def _find_undefined_variables(cls, content: str) -> list[str]:
+        """Scan makefile for undefined, empty, and use-before-definition variables."""
+        state = _VarScanState()
+        lines = content.split("\n")
 
         for i, line in enumerate(lines):
-            var_def_match = var_def_re.match(line)
-            if var_def_match:
-                var_name = var_def_match.group(1)
-                defined_vars.add(var_name)
-                if var_name not in var_definitions:
-                    var_definitions[var_name] = i
+            cls._scan_var_definition(line, i, state)
+            cls._scan_empty_critical(line, i, state)
+            state.used_vars.update(m.group(1) for m in cls._VAR_USE_RE.finditer(line))
+            cls._scan_target_deps_use_before_def(line, i, state)
 
-            if empty_critical_re.match(line):
-                crit_name = line.split("=")[0].strip()
-                entry = f"Line {i + 1}: Empty {crit_name}"
-                if entry not in seen:
-                    seen.add(entry)
-                    results.append(entry)
+        cls._resolve_pending_use_before_def(state)
+        cls._resolve_undefined_used_vars(state)
 
-            for var_match in var_use_re.finditer(line):
-                used_vars.add(var_match.group(1))
-
-            target_match = target_re.match(line)
-            if target_match:
-                deps_part = target_match.group(1)
-                for var_match in var_use_re.finditer(deps_part):
-                    dep_var = var_match.group(1)
-                    if dep_var in var_definitions and var_definitions[dep_var] > i:
-                        entry = f"{dep_var} (used before definition)"
-                        if entry not in seen:
-                            seen.add(entry)
-                            results.append(entry)
-                    elif dep_var not in var_definitions and dep_var not in builtin_vars:
-                        pending_use_before_def.add(dep_var)
-
-        for var in pending_use_before_def:
-            if var in defined_vars:
-                entry = f"{var} (used before definition)"
-                if entry not in seen:
-                    seen.add(entry)
-                    results.append(entry)
-
-        for var in used_vars:
-            if var not in defined_vars and var not in builtin_vars:
-                if var not in seen:
-                    seen.add(var)
-                    results.append(var)
-
-        return results
+        return state.results
 
     def analyze_variables(self, context: Any) -> dict[str, Any]:
         """Analyze variable usage and management."""
@@ -227,27 +298,22 @@ class AnalysisMixin:
             "function_usage": function_usage,
         }
 
-    def analyze_target_organization(self, context: Any) -> dict[str, Any]:
-        """Analyze target structure and organization."""
-        content = self._get_makefile_content(context)
-
-        targets = self._extract_targets(content)
-        phony_targets = self._extract_phony_targets(content)
-
+    def _find_missing_phony_declarations(
+        self, targets: list[str], phony_targets: list[str]
+    ) -> list[str]:
+        """Find non-file targets that should be declared `.PHONY` but aren't."""
+        skip_targets = {"include", "ifdef", "ifndef", "ifeq", "ifneq"}
         phony_declarations = []
         for target in targets:
-            if target.startswith("%") or target in [
-                "include",
-                "ifdef",
-                "ifndef",
-                "ifeq",
-                "ifneq",
-            ]:
+            if target.startswith("%") or target in skip_targets:
                 continue
             if not self._is_file_target(target) and target not in phony_targets:
                 phony_declarations.append(target)
+        return phony_declarations
 
-        target_naming = []
+    @staticmethod
+    def _find_naming_inconsistencies(targets: list[str]) -> list[str]:
+        """Flag a mix of snake_case/kebab-case/CamelCase target names."""
         naming_styles: set[str] = set()
         for target in targets:
             if "_" in target:
@@ -258,10 +324,13 @@ class AnalysisMixin:
                 naming_styles.add("CamelCase")
 
         if len(naming_styles) > 1:
-            target_naming.append(f"Inconsistent naming: {', '.join(naming_styles)}")
+            return [f"Inconsistent naming: {', '.join(naming_styles)}"]
+        return []
 
+    @staticmethod
+    def _find_large_targets(lines: list[str]) -> list[str]:
+        """Flag targets whose recipe exceeds the large-target line threshold."""
         dependency_chain = []
-        lines = content.split("\n")
         in_target = None
         recipe_lines = 0
         for line in lines:
@@ -270,11 +339,15 @@ class AnalysisMixin:
                     dependency_chain.append(
                         f"{in_target} has {recipe_lines} recipe lines"
                     )
-                in_target = line.split(":")[0]
+                in_target = line.split(":", maxsplit=1)[0]
                 recipe_lines = 0
             elif line.startswith("\t") and in_target:
                 recipe_lines += 1
+        return dependency_chain
 
+    @staticmethod
+    def _find_separation_of_concerns_violations(lines: list[str]) -> list[str]:
+        """Flag `build:` targets that also run tests or deploy."""
         separation_of_concerns = []
         for i, line in enumerate(lines):
             if re.match(r"^build:", line):
@@ -285,10 +358,23 @@ class AnalysisMixin:
                     separation_of_concerns.append(
                         "Build target contains test/deployment actions"
                     )
+        return separation_of_concerns
+
+    def analyze_target_organization(self, context: Any) -> dict[str, Any]:
+        """Analyze target structure and organization."""
+        content = self._get_makefile_content(context)
+        lines = content.split("\n")
+
+        targets = self._extract_targets(content)
+        phony_targets = self._extract_phony_targets(content)
 
         return {
-            "phony_declarations": phony_declarations,
-            "target_naming": target_naming,
-            "dependency_chain": dependency_chain,
-            "separation_of_concerns": separation_of_concerns,
+            "phony_declarations": self._find_missing_phony_declarations(
+                targets, phony_targets
+            ),
+            "target_naming": self._find_naming_inconsistencies(targets),
+            "dependency_chain": self._find_large_targets(lines),
+            "separation_of_concerns": self._find_separation_of_concerns_violations(
+                lines
+            ),
         }

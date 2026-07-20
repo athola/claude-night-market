@@ -28,38 +28,45 @@ class StructureMixin:
         has_parametrize = bool(re.search(r"@pytest\.mark\.parametrize", content))
         has_mocking = bool(re.search(r"from unittest\.mock import|@patch", content))
         has_exception_tests = bool(re.search(r"pytest\.raises", content))
+        has_good_docs = documentation_ratio > MIN_COVERAGE_RATIO
 
-        score = 0.0
-        if has_test_classes:
-            score += 0.2
-        if has_setup:
-            score += 0.15
-        if has_teardown:
-            score += 0.1
-        if documentation_ratio > MIN_COVERAGE_RATIO:
-            score += 0.2
-        if has_parametrize:
-            score += 0.15
-        if has_mocking:
-            score += 0.1
-        if has_exception_tests:
-            score += 0.1
+        # (condition, score weight) — each true condition adds its weight.
+        score = sum(
+            weight
+            for condition, weight in (
+                (has_test_classes, 0.2),
+                (has_setup, 0.15),
+                (has_teardown, 0.1),
+                (has_good_docs, 0.2),
+                (has_parametrize, 0.15),
+                (has_mocking, 0.1),
+                (has_exception_tests, 0.1),
+            )
+            if condition
+        )
 
-        organization_issues = []
-        if not has_test_classes:
-            organization_issues.append("No test class organization found")
-        if documentation_ratio < ACCEPTABLE_COVERAGE_RATIO:
-            organization_issues.append("Low documentation coverage")
+        organization_issues = [
+            message
+            for condition, message in (
+                (not has_test_classes, "No test class organization found"),
+                (
+                    documentation_ratio < ACCEPTABLE_COVERAGE_RATIO,
+                    "Low documentation coverage",
+                ),
+            )
+            if condition
+        ]
 
-        best_practices = []
-        if has_parametrize:
-            best_practices.append("Uses parametrized tests")
-        if has_mocking:
-            best_practices.append("Uses proper mocking")
-        if has_exception_tests:
-            best_practices.append("Tests exception handling")
-        if has_setup:
-            best_practices.append("Uses setup methods for fixtures")
+        best_practices = [
+            message
+            for condition, message in (
+                (has_parametrize, "Uses parametrized tests"),
+                (has_mocking, "Uses proper mocking"),
+                (has_exception_tests, "Tests exception handling"),
+                (has_setup, "Uses setup methods for fixtures"),
+            )
+            if condition
+        ]
 
         return {
             "structure_score": score,
