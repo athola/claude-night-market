@@ -34,4 +34,4 @@ __all__ = [
     "capture_pr_review_knowledge",
     "compute_garden_metrics",
 ]
-__version__ = "1.9.16"
+__version__ = "1.9.17"

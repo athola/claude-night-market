@@ -1,6 +1,6 @@
 [project]
 name = "abstract"
-version = "1.9.16"
+version = "1.9.17"
 description = "Abstract Claude Code plugin - meta-skills infrastructure"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}

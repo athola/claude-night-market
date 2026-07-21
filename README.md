@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.16-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.17-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
 [![Skills](https://img.shields.io/badge/skills-198-teal)](book/src/reference/capabilities-reference.md)
@@ -164,32 +164,27 @@ unavailable, and both can be turned off.
 
 ## What's New
 
-**1.9.16** adds Domain-Driven Design as the fourteenth architecture
-paradigm, along with the review lens that enforces it. The
-`archetypes:architecture-paradigm-domain-driven` skill treats DDD as
-modeling a business in its own language, and treats layering, mapping,
-DTOs, and command objects as separable machinery a domain model may or
-may not need. Its companion `ceremony-audit` module in
-`pensive:architecture-review` reviews for passthrough mappers, twin
-types, and speculative DTOs, with an IO-boundary counter-signal so it
-does not flag a boundary mapper doing real work.
+**1.9.17** upgrades `tome` from a multi-channel search tool into a
+research engine. It keeps the citation edges it already fetched and
+previously discarded, links them into `memory-palace`'s knowledge graph,
+and serves that graph back as research threads (community detection),
+suggested next connections (link prediction), and semantic retrieval
+ranked by embedding similarity. `memory-palace` is an optional
+co-installed backend: when it is absent, `tome` raises an explicit
+capability error rather than degrading silently. A new offline metrics
+harness (`make metrics`) scores retrieval quality (nDCG, MRR, recall),
+source diversity, and citation impact against a committed gold set with
+no network or model access.
 
-The release also adds two `pensive` review capabilities as modules
-inside existing skills. The `rust-review` skill gains a
-`concurrency-patterns` rule that flags hand-rolled multi-task
-orchestration (several `tokio::spawn` handles torn down with
-consecutive `abort()` calls) that a single `select!` loop expresses
-more safely. The `performance-review` skill gains three manual
-memory-allocation lenses: unbounded collections from an external
-source, hot-path recompute that should be memoized, and serial
-blocking I/O over an unbounded set. These are lenses a reviewer applies
-by reading the code, with no AST automation behind them.
+`memory-palace` also drained its capture backlog. The 196 inert pending
+captures (41% of the index) were promoted into the active corpus, and
+the SessionStart surfacer now names the top promoted captures.
 
-On the infrastructure side, `cartograph`'s 40 tests now run in a gate
-that previously reported them as a clean skip, and the typecheck gate
-resolves mypy from each plugin's own environment so it means the same
-thing locally and in CI. See the [CHANGELOG](CHANGELOG.md) for the full
-history.
+The release also restores Python 3.9 support across all 23 plugins.
+Every `pyproject.toml` pins `requires-python = ">=3.9"`, the `uv.lock`
+files were refreshed, and ruff targets py39 so hooks stop suggesting
+3.10+ idioms on code that ships to 3.9 users. See the
+[CHANGELOG](CHANGELOG.md) for the full history.
 
 ## Plugin Development
 

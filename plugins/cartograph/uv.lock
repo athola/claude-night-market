@@ -50,7 +50,7 @@ wheels = [
 
 [[package]]
 name = "cartograph"
-version = "1.9.16"
+version = "1.9.17"
 source = { virtual = "." }
 
 [package.dev-dependencies]

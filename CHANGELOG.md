@@ -7,7 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.17] - 2026-07-21
+
+### Added
+
+- **tome research engine: citation graph and semantic retrieval over
+  memory-palace (tome, memory-palace).** tome previously fetched
+  Semantic Scholar references and citations, then flattened them into a
+  list of papers and discarded which paper cited which. A frozen
+  `CitationEdge(citing_id, cited_id)` model and `parse_citation_edges()`
+  now preserve directed edges, a `CitationGraphWriter` writes them into
+  memory-palace's `KnowledgeGraph` as paper entities plus `cites`
+  triples, and a `ThreadFinder` reads the graph back as research threads
+  (community detection) and suggested next connections (Adamic-Adar link
+  prediction). A `SemanticRetriever` ranks findings by cosine similarity
+  through an `Embedder` protocol, backed by memory-palace's
+  `EmbeddingIndex`. `best_available_provider` auto-selects
+  sentence-transformers for real semantic vectors when installed and
+  falls back to a dependency-free hash provider otherwise. memory-palace
+  is an optional co-installed backend loaded through guarded imports:
+  when it is absent, tome raises an explicit `GraphBackendUnavailable`
+  rather than degrading silently. `KnowledgeGraph`, `PalaceGraphAnalyzer`,
+  and `EmbeddingIndex` are now part of memory-palace's public API.
+
+- **tome research-quality metrics harness.** `tome/metrics` adds
+  deterministic, offline, no-LLM proxies: `retrieval.py` scores nDCG@k,
+  MRR, and recall@k against a committed gold set; `corpus.py` scores
+  source diversity, dedup ratio, and findings per 1k tokens; and
+  `impact.py` computes the CD disruption index (Funk and Owen-Smith) and
+  PageRank centrality, with `assert_comparable` raising on cross-cohort
+  comparison to enforce the documented citation-bias correction. A `make
+  metrics` target runs the harness over a committed fixture with no
+  network or model access.
+
 ### Changed
+
+- **memory-palace capture backlog drained and the SessionStart surfacer
+  enabled.** The 196 inert pending captures (41% of the index) were
+  promoted into the active corpus through the palace-index-curator
+  workflow, each gaining a real importance score, a routing type, and
+  maturity `seedling` to `growing`. `context_injection` is now enabled,
+  so the SessionStart surfacer names the top promoted captures. The inert
+  ratio drops from 41% to 0%.
 
 - **Python 3.9 support restored across all plugins.** Every plugin
   `pyproject.toml` now pins `requires-python = ">=3.9"` (`conjure` keeps
@@ -19,6 +60,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   plugins had high-complexity functions refactored to satisfy the shared
   `PLR`/`SIM` lint rules, removing the per-file `SIM102` ignores those
   modules previously needed. Resolves TDB-014.
+
+### Fixed
+
+- **Two pre-existing test defects surfaced by running suites under
+  Python 3.9.** gauntlet's `test_module_imports_without_yaml` re-imported
+  `gauntlet.ml.scorer` through a fresh `sys.modules` entry, giving later
+  tests a divergent module object that silently bypassed their `urlopen`
+  mock. The canonical module is now reloaded in place under a scoped
+  `MonkeyPatch`. abstract's large-skill audit fixture sat on the
+  token-count threshold, so the `size_large` assertion flipped with the
+  estimator; the fixture is now large enough to clear the threshold under
+  any estimator.
 
 ## [1.9.16] - 2026-07-14
 

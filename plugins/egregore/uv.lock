@@ -285,7 +285,7 @@ toml = [
 
 [[package]]
 name = "egregore-dev"
-version = "1.9.16"
+version = "1.9.17"
 source = { editable = "." }
 dependencies = [
     { name = "pyyaml" },
