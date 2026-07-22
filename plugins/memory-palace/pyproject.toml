@@ -166,6 +166,12 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = ["numpy", "numpy.*", "faiss", "faiss.*", "sentence_transformers", "sentence_transformers.*"]
 ignore_missing_imports = true
+# When these packages ARE installed (e.g. networkx pulls in numpy under
+# Python 3.12 CI), mypy would otherwise parse numpy's bundled stubs, which
+# use PEP 695 `type` statements that fail under python_version = 3.10.
+# Skip following into the stubs so the third-party surface stays opaque.
+follow_imports = "skip"
+follow_imports_for_stubs = true
 
 [[tool.mypy.overrides]]
 module = ["leyline", "leyline.*"]
