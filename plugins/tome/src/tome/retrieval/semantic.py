@@ -10,10 +10,22 @@ from __future__ import annotations
 
 import importlib.util
 import math
+import warnings
 from typing import Protocol, runtime_checkable
 
 from tome.graph.palace_adapter import GraphBackendUnavailable
 from tome.models import Finding
+
+
+class NonSemanticRetrievalWarning(UserWarning):
+    """Emitted when retrieval runs over the non-semantic hash fallback.
+
+    Ranking over the SHA-256 hash provider is deterministic but not
+    semantically meaningful. The degradation is surfaced rather than
+    silent so callers can install ``sentence_transformers`` or filter
+    this category deliberately.
+    """
+
 
 try:  # memory-palace is an optional, co-installed backend
     from memory_palace import EmbeddingIndex as _EmbeddingIndex
@@ -80,6 +92,14 @@ def open_embedder(embeddings_path: str, provider: str = _HASH_PROVIDER) -> Embed
     if _EmbeddingIndex is None:
         raise GraphBackendUnavailable(
             "semantic retrieval requires memory-palace, which is not installed"
+        )
+    if provider == _HASH_PROVIDER:
+        warnings.warn(
+            "Opening a non-semantic embedder (provider='none'): ranking over "
+            "the SHA-256 hash fallback is deterministic but not semantic. "
+            "Install sentence-transformers for meaningful semantic retrieval.",
+            NonSemanticRetrievalWarning,
+            stacklevel=2,
         )
     embedder: Embedder = _EmbeddingIndex(embeddings_path, provider=provider)
     return embedder

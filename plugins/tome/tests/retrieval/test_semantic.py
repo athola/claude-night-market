@@ -10,6 +10,7 @@ reusing memory-palace's EmbeddingIndex (hash fallback, no hard deps).
 from __future__ import annotations
 
 import importlib.util
+import warnings
 from typing import Any
 
 import pytest
@@ -17,6 +18,7 @@ import pytest
 from tests.factories import make_finding
 from tome.retrieval.semantic import (
     Embedder,
+    NonSemanticRetrievalWarning,
     SemanticRetriever,
     best_available_provider,
     embedder_available,
@@ -126,3 +128,22 @@ class TestProviderPlumbing:
         embedder: Any = open_embedder(str(tmp_path / "e2.yaml"))
 
         assert embedder.requested_provider == "none"
+
+
+class TestDegradationObservability:
+    """The non-semantic fallback must be surfaced, not silent (#642)."""
+
+    @pytest.mark.integration
+    def test_hash_provider_emits_warning(self, tmp_path: Any) -> None:
+        """Opening the hash fallback warns so degradation is observable."""
+        pytest.importorskip("memory_palace")
+        with pytest.warns(NonSemanticRetrievalWarning, match="not semantic"):
+            open_embedder(str(tmp_path / "w.yaml"), provider="none")
+
+    @pytest.mark.integration
+    def test_real_provider_does_not_warn(self, tmp_path: Any) -> None:
+        """The semantic provider path stays quiet."""
+        pytest.importorskip("memory_palace")
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", NonSemanticRetrievalWarning)
+            open_embedder(str(tmp_path / "q.yaml"), provider="local")

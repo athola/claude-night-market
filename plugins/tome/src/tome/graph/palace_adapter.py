@@ -21,7 +21,11 @@ except ImportError:
     _KnowledgeGraph = None
 
 _PAPER_ENTITY = "paper"
-_CITES_PREDICATE = "cites"
+# A citation is a definite link, so it enters the graph at full strength.
+# The analyzer reads graph structure from synapses (weighted edges), not
+# from temporal triples, so citation edges must be written as synapses to
+# be visible to community detection and link prediction.
+_CITATION_STRENGTH = 1.0
 
 
 class GraphBackendUnavailable(RuntimeError):
@@ -40,13 +44,11 @@ class GraphWriter(Protocol):
         metadata: dict[str, Any] | None = None,
     ) -> None: ...
 
-    def add_triple(
+    def create_synapse(
         self,
-        subject_id: str,
-        predicate: str,
-        object_id: str,
-        *args: Any,
-        **kwargs: Any,
+        source_id: str,
+        target_id: str,
+        strength: float = _CITATION_STRENGTH,
     ) -> int: ...
 
 
@@ -78,15 +80,17 @@ class CitationGraphWriter:
     """Write :class:`CitationEdge` batches into a knowledge graph.
 
     Each paper ID becomes a ``paper`` entity and each edge becomes a
-    ``cites`` triple. Entity upserts are deduplicated within a batch;
-    the backend upsert is idempotent regardless.
+    weighted ``citing -> cited`` synapse, the edge form the graph
+    analyzer traverses for community detection and link prediction.
+    Entity upserts are deduplicated within a batch; the backend upsert
+    is idempotent regardless.
     """
 
     def __init__(self, backend: GraphWriter) -> None:
         self._backend = backend
 
     def write_edges(self, edges: list[CitationEdge]) -> int:
-        """Write ``edges`` and return the number of triples written."""
+        """Write ``edges`` and return the number of edges written."""
         seen: set[str] = set()
         written = 0
         for edge in edges:
@@ -94,6 +98,8 @@ class CitationGraphWriter:
                 if paper_id not in seen:
                     self._backend.upsert_entity(paper_id, _PAPER_ENTITY, paper_id)
                     seen.add(paper_id)
-            self._backend.add_triple(edge.citing_id, _CITES_PREDICATE, edge.cited_id)
+            self._backend.create_synapse(
+                edge.citing_id, edge.cited_id, _CITATION_STRENGTH
+            )
             written += 1
         return written

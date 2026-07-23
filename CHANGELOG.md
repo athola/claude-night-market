@@ -17,8 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   list of papers and discarded which paper cited which. A frozen
   `CitationEdge(citing_id, cited_id)` model and `parse_citation_edges()`
   now preserve directed edges, a `CitationGraphWriter` writes them into
-  memory-palace's `KnowledgeGraph` as paper entities plus `cites`
-  triples, and a `ThreadFinder` reads the graph back as research threads
+  memory-palace's `KnowledgeGraph` as paper entities plus weighted
+  citation synapses (the edge form the graph analyzer traverses), and a
+  `ThreadFinder` reads the graph back as research threads
   (community detection) and suggested next connections (Adamic-Adar link
   prediction). A `SemanticRetriever` ranks findings by cosine similarity
   through an `Embedder` protocol, backed by memory-palace's
@@ -72,6 +73,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   token-count threshold, so the `size_large` assertion flipped with the
   estimator; the fixture is now large enough to clear the threshold under
   any estimator.
+
+- **Citation edges are now visible to the graph analyzer (tome,
+  memory-palace).** `CitationGraphWriter` wrote edges as temporal
+  triples, but `PalaceGraphAnalyzer.build_graph` reads graph structure
+  only from synapses, so every written citation was invisible to
+  community detection and link prediction: research threads came back
+  empty and `common_threads()` raised `ZeroDivisionError` on the
+  resulting edgeless graph. The writer now records each edge as a
+  weighted synapse, and `detect_communities` treats a noded-but-edgeless
+  graph as singleton communities instead of dividing by zero. A new
+  contract test asserts a written edge appears in the analyzer's graph,
+  closing the gap that let the writer pass against a Fake while the real
+  backend saw nothing.
+
+- **Non-semantic retrieval degradation is now observable (tome).**
+  Opening the SHA-256 hash embedder (the fallback when
+  sentence-transformers is absent) emits a `NonSemanticRetrievalWarning`
+  instead of silently ranking over non-semantic vectors.
+
+- **`test_rank_findings_descending_order` guards the real sort key.** It
+  asserted the superseded relevance-only score; it now asserts
+  `compute_ranked_score`, the key `rank_findings` actually sorts by.
 
 ## [1.9.16] - 2026-07-14
 

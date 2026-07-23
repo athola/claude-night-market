@@ -28,7 +28,7 @@ class FakeGraph:
 
     def __init__(self) -> None:
         self.entities: dict[str, tuple[str, str]] = {}
-        self.triples: list[tuple[str, str, str]] = []
+        self.synapses: list[tuple[str, str, float]] = []
         self.upsert_calls: list[str] = []
 
     def upsert_entity(
@@ -41,25 +41,24 @@ class FakeGraph:
         self.upsert_calls.append(entity_id)
         self.entities[entity_id] = (entity_type, name)
 
-    def add_triple(
+    def create_synapse(
         self,
-        subject_id: str,
-        predicate: str,
-        object_id: str,
-        *args: Any,
-        **kwargs: Any,
+        source_id: str,
+        target_id: str,
+        strength: float = 1.0,
     ) -> int:
-        self.triples.append((subject_id, predicate, object_id))
-        return len(self.triples)
+        self.synapses.append((source_id, target_id, strength))
+        return len(self.synapses)
 
 
 class TestCitationGraphWriter:
     @pytest.mark.unit
-    def test_writes_paper_entities_and_cites_triple(self) -> None:
+    def test_writes_paper_entities_and_citation_synapse(self) -> None:
         """
         Given one citation edge A -> B
         When it is written to the graph
-        Then A and B are paper entities and A cites B
+        Then A and B are paper entities and A -> B is a weighted synapse
+        (the edge form the analyzer traverses, not a temporal triple)
         """
         graph = FakeGraph()
         writer = CitationGraphWriter(graph)
@@ -67,7 +66,7 @@ class TestCitationGraphWriter:
         writer.write_edges([CitationEdge(citing_id="A", cited_id="B")])
 
         assert graph.entities == {"A": ("paper", "A"), "B": ("paper", "B")}
-        assert graph.triples == [("A", "cites", "B")]
+        assert graph.synapses == [("A", "B", 1.0)]
 
     @pytest.mark.unit
     def test_returns_edge_count(self) -> None:
@@ -133,3 +132,21 @@ class TestRealBackendContract:
         written = writer.write_edges([CitationEdge(citing_id="P1", cited_id="P2")])
 
         assert written == 1
+
+    @pytest.mark.integration
+    def test_written_edges_are_visible_to_the_analyzer(self, tmp_path: Any) -> None:
+        """A written citation must appear as a real edge in the graph the
+        analyzer traverses, not merely as a triple the analyzer ignores.
+        Guards the writer/analyzer impedance mismatch: an edge written to
+        a table the analyzer does not read would leave threads silently
+        empty and crash community detection on the resulting edgeless graph.
+        """
+        mp = pytest.importorskip("memory_palace")
+        graph = mp.KnowledgeGraph(str(tmp_path / "g.db"))
+
+        CitationGraphWriter(graph).write_edges(
+            [CitationEdge(citing_id="P1", cited_id="P2")]
+        )
+
+        dg = mp.PalaceGraphAnalyzer(graph).build_graph()
+        assert dg.has_edge("P1", "P2")

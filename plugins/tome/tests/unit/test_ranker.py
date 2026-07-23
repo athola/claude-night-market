@@ -211,7 +211,10 @@ class TestRankFindings:
 
         result = rank_findings(findings)
 
-        scores = [compute_relevance_score(f) for f in result]
+        # Assert the actual sort key rank_findings uses (relevance +
+        # triangulation), not the superseded relevance-only score, so
+        # this stays a genuine guard if the ranking key ever changes.
+        scores = [compute_ranked_score(f, result) for f in result]
         assert scores == sorted(scores, reverse=True)
 
     @pytest.mark.unit
