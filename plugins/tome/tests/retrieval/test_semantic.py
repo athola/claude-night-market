@@ -16,6 +16,8 @@ from typing import Any
 import pytest
 
 from tests.factories import make_finding
+from tome.graph.palace_adapter import GraphBackendUnavailable
+from tome.retrieval import semantic as semantic_module
 from tome.retrieval.semantic import (
     Embedder,
     NonSemanticRetrievalWarning,
@@ -156,11 +158,27 @@ class TestRetrieverProviderAwareness:
 
 class TestOpenEmbedder:
     @pytest.mark.unit
-    def test_raises_explicitly_when_absent(self, tmp_path: Any) -> None:
-        if embedder_available():
-            pytest.skip("memory-palace installed; cannot test absent path")
-        with pytest.raises(Exception, match="memory-palace"):
+    def test_raises_explicitly_when_absent(
+        self, tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Absence is simulated, not inherited from the environment, so
+        this branch stays reachable in the dev setup where memory-palace
+        is installed for the contract tests."""
+        monkeypatch.setattr(semantic_module, "_EmbeddingIndex", None)
+        with pytest.raises(GraphBackendUnavailable, match="memory-palace"):
             open_embedder(str(tmp_path / "tome-emb.yaml"))
+
+    @pytest.mark.unit
+    def test_availability_tracks_the_backend_alias(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The predicate reports the backend it actually guards, so it
+        cannot drift from the branch ``open_embedder`` takes."""
+        monkeypatch.setattr(semantic_module, "_EmbeddingIndex", None)
+        assert embedder_available() is False
+
+        monkeypatch.setattr(semantic_module, "_EmbeddingIndex", object())
+        assert embedder_available() is True
 
 
 class TestRealEmbedderContract:

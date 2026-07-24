@@ -27,13 +27,17 @@ dev = [
     "pytest>=8.0",
     "pytest-cov>=4.0",
     "pytest-asyncio>=0.23",
+    # The graph and retrieval seams are Protocols that memory-palace
+    # satisfies structurally. Without the real backend installed, every
+    # contract test guarded by importorskip skips, and the Protocols are
+    # validated only against Fakes -- @runtime_checkable compares names,
+    # not signatures, so a drifted memory-palace API still passes
+    # isinstance. Keeping the backend in the default dev group means the
+    # ordinary `pytest` run exercises the real class (issue #643).
+    "memory-palace",
 ]
-# The graph and retrieval seams are Protocols that memory-palace satisfies
-# structurally. Without the real backend installed, the contract tests
-# skip and the Protocols are validated only against Fakes -- and
-# @runtime_checkable compares names, not signatures, so a drifted
-# memory-palace API would still pass isinstance. This group exists so CI
-# can run those tests against the real class (issue #643).
+# Kept as a named group so CI can install exactly the backend set and run
+# `-m integration` on its own, without the rest of the dev toolchain.
 integration = [
     "memory-palace",
 ]

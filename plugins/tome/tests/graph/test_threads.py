@@ -13,6 +13,7 @@ from typing import Any
 
 import pytest
 
+from tome.graph import threads as threads_module
 from tome.graph.palace_adapter import CitationGraphWriter, GraphBackendUnavailable
 from tome.graph.threads import (
     GraphAnalyzer,
@@ -79,11 +80,27 @@ class TestThreadFinder:
 
 class TestOpenAnalyzer:
     @pytest.mark.unit
-    def test_raises_explicitly_when_backend_absent(self) -> None:
-        if analyzer_available():
-            pytest.skip("memory-palace installed; cannot test absent path")
+    def test_raises_explicitly_when_backend_absent(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Absence is simulated, not inherited from the environment, so
+        this branch stays reachable in the dev setup where memory-palace
+        is installed for the contract tests."""
+        monkeypatch.setattr(threads_module, "_PalaceGraphAnalyzer", None)
         with pytest.raises(GraphBackendUnavailable, match="memory-palace"):
             open_analyzer(object())
+
+    @pytest.mark.unit
+    def test_availability_tracks_the_backend_alias(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The predicate reports the backend it actually guards, so it
+        cannot drift from the branch ``open_analyzer`` takes."""
+        monkeypatch.setattr(threads_module, "_PalaceGraphAnalyzer", None)
+        assert analyzer_available() is False
+
+        monkeypatch.setattr(threads_module, "_PalaceGraphAnalyzer", object())
+        assert analyzer_available() is True
 
 
 class TestRealAnalyzerContract:

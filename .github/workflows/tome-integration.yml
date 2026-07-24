@@ -1,0 +1,63 @@
+name: Tome Integration (real backends)
+
+# Runs tome's real-backend contract tests against an installed memory-palace.
+#
+# Why this workflow exists. tome talks to memory-palace through three
+# Protocols (GraphWriter, Embedder, GraphAnalyzer). Those Protocols are
+# `@runtime_checkable`, which compares attribute *names* only, never
+# signatures or return types, so an isinstance-conformance test keeps
+# passing after the real memory-palace API drifts. Validating the seam
+# against Fakes alone therefore proves very little.
+#
+# memory-palace ships in tome's `dev` group, so the ordinary `pytest` run
+# already exercises the real backend and no contract test skips. This job
+# pins that guarantee in CI: it installs the backend set on its own and
+# runs `-m integration`, and treats a skip as a failure, so the contract
+# cannot quietly stop being checked. Tracked as issue #643.
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "plugins/tome/**"
+      - "plugins/memory-palace/**"
+      - ".github/workflows/tome-integration.yml"
+  pull_request:
+    paths:
+      - "plugins/tome/**"
+      - "plugins/memory-palace/**"
+      - ".github/workflows/tome-integration.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: tome-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tome-integration:
+    name: tome contract tests vs real memory-palace
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+
+      # A skip here means the backend failed to install and the contract went
+      # unverified, which is the exact failure this workflow exists to catch,
+      # so a skip fails the build rather than reporting a green check.
+      - name: Run tome contract tests against the real backend
+        working-directory: plugins/tome
+        run: |
+          set -o pipefail
+          uv run --group integration pytest tests/ -m integration -rs \
+            | tee result.txt
+          if grep -qE "[0-9]+ skipped" result.txt; then
+            echo "::error::integration tests skipped; the real backend was not exercised"
+            exit 1
+          fi

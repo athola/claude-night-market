@@ -13,6 +13,7 @@ from typing import Any
 
 import pytest
 
+from tome.graph import palace_adapter
 from tome.graph.palace_adapter import (
     CitationGraphWriter,
     GraphBackendUnavailable,
@@ -108,13 +109,20 @@ class TestBackendCapability:
         assert isinstance(memory_palace_available(), bool)
 
     @pytest.mark.unit
-    def test_open_raises_explicitly_when_unavailable(self) -> None:
+    def test_open_raises_explicitly_when_unavailable(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """
         The absence of memory-palace is an explicit failure, not a
         silent no-op that ships dead graph features.
+
+        Absence is simulated by blanking the module alias rather than
+        read off the ambient environment: memory-palace ships in the dev
+        group so the contract tests exercise the real backend, and an
+        environment-conditional skip would make this branch permanently
+        unreachable in exactly the setup we run.
         """
-        if memory_palace_available():
-            pytest.skip("memory-palace is installed; cannot test the absent path")
+        monkeypatch.setattr(palace_adapter, "_KnowledgeGraph", None)
         with pytest.raises(GraphBackendUnavailable, match="memory-palace"):
             open_palace_graph(":memory:")
 
