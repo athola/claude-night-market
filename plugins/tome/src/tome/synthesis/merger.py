@@ -38,11 +38,15 @@ def normalize_title(title: str) -> str:
 
 
 def _jaccard_similarity(a: str, b: str) -> float:
-    """Compute Jaccard similarity between two normalized title strings."""
+    """Compute Jaccard similarity between two normalized title strings.
+
+    Two titleless findings score ``0.0``, not ``1.0``: an empty word set
+    is an absence of evidence, and treating it as a perfect match made
+    every untitled finding a duplicate of every other, dropping distinct
+    results that merely lacked a title.
+    """
     words_a = set(a.split())
     words_b = set(b.split())
-    if not words_a and not words_b:
-        return 1.0
     if not words_a or not words_b:
         return 0.0
     intersection = words_a & words_b
