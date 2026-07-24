@@ -40,9 +40,10 @@ if TYPE_CHECKING:
     # wants, and this branch never runs).
     Envelope = SuccessEnvelope | ErrorEnvelope
 else:
-    # At runtime ``Envelope`` is only referenced from (lazy) annotations, so
-    # a concrete placeholder keeps it importable while avoiding ``|`` on
-    # ``TypedDict`` classes, which is 3.10+ and breaks Python 3.9 at import.
+    # ``Envelope`` is exported in ``__all__`` and imported by consumers, so
+    # the name must exist at runtime. A concrete placeholder provides it
+    # while avoiding ``|`` on ``TypedDict`` classes, which is 3.10+ and
+    # would break the Python 3.9 floor at import time.
     Envelope = dict
 
 

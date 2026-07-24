@@ -1,7 +1,8 @@
 # Tome Research-Quality Metrics Framework
 
 **Date**: 2026-07-17
-**Companion to**: `research-report.md`, `design-spec.md`
+**Companion to**: [research report](../research/2026-07-17-tome-research-engine.md),
+[design spec](../superpowers/specs/2026-07-17-tome-research-engine-design.md)
 
 ## Thesis
 

@@ -1,7 +1,8 @@
 # Tome Research Engine: Design Specification
 
 **Date**: 2026-07-17
-**Companion to**: `research-report.md`, `metrics-framework.md`
+**Companion to**: [research report](../../research/2026-07-17-tome-research-engine.md),
+[metrics framework](../../metrics/tome-research-quality.md)
 **Status**: Draft for plan-review + war-room gate before build
 
 ## Thesis
