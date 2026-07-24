@@ -28,6 +28,18 @@ dev = [
     "pytest-cov>=4.0",
     "pytest-asyncio>=0.23",
 ]
+# The graph and retrieval seams are Protocols that memory-palace satisfies
+# structurally. Without the real backend installed, the contract tests
+# skip and the Protocols are validated only against Fakes -- and
+# @runtime_checkable compares names, not signatures, so a drifted
+# memory-palace API would still pass isinstance. This group exists so CI
+# can run those tests against the real class (issue #643).
+integration = [
+    "memory-palace",
+]
+
+[tool.uv.sources]
+memory-palace = { path = "../memory-palace" }
 
 [tool.ruff]
 target-version = "py39"
