@@ -170,6 +170,32 @@ list above.
   "boasts", "marks" (a turning point), "represents" (a shift)
   with plain "is", "has", "uses", or delete. Heuristic: if
   the subject cannot literally do the verb, the verb is slop.
+  The bare and plural forms are already matched: the regex uses
+  `lives?`, `sits?`, `stands?`, `rests?`, `dwells?`, so "the
+  configs live in the repo root" and "adapters sit between the
+  layers" fire the same as the inflected forms. No separate
+  pattern is needed for them.
+- **Anthropomorphism (non-human subjects)**: the spatial copula
+  bullet covers putting a body somewhere. This covers giving code,
+  systems, and documents mental states, volition, or bodies.
+  Rewrite "the scheduler wants to", "the parser understands",
+  "this module knows about", "the cache decides", "the type system
+  tries to", "the compiler cares about", "the client refuses",
+  "the handler reaches into", "the gateway speaks to" by naming
+  the mechanism instead of the intent: "the scheduler runs these
+  in order", "the parser accepts nested blocks". Medium
+  confidence, surface rather than auto-rewrite: "is the seam" /
+  "is the boundary" / "is the glue" (name what it does), "drives"
+  with a non-human subject (use "controls", "sets", "determines"),
+  "rides on top of" (use "runs on", "wraps"), and "a real fix" /
+  "real work" (cut the modifier or give the number). Keep terms of
+  art (observer, listener, supervisor, daemon, orphan, zombie,
+  heartbeat, replica), human subjects, and API signatures
+  (`Iterator::next`, `handler.handle`) untouched. The generalized
+  agency verbs "handles", "manages", "owns", "talks to", "sees"
+  are load-bearing in systems prose and are gated off by default.
+  Detail: `Skill(scribe:slop-detector)` module
+  `vocabulary-patterns.md`.
 - **Negative parallelism (contrastive negation)**: rewrite
   "It's not X, it's Y", "It's X, not Y" (copula-led trailing,
   e.g. "It's a tool, not a toy"), "Y, not X" (bare trailing),

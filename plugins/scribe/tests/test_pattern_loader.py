@@ -349,6 +349,37 @@ class TestTier5RuntimeSource:
                 assert pattern is not None
 
     @pytest.mark.unit
+    def test_opt_in_categories_excluded_by_default(self, tier5: dict) -> None:
+        """Categories with default_enabled: false stay out of a default run.
+
+        Issue #646: low-confidence agency verbs are load-bearing in
+        systems prose, so they are available on request but never in
+        the default sweep.
+        """
+        assert "anthropomorphism_low" not in tier5
+
+    @pytest.mark.unit
+    def test_opt_in_categories_included_on_request(self) -> None:
+        """include_optional surfaces the gated categories."""
+        patterns = load_language_patterns("en")
+        entries = get_tier5_patterns(patterns, include_optional=True)
+        assert "anthropomorphism_low" in {e["category"] for e in entries}
+
+    @pytest.mark.unit
+    def test_default_enabled_categories_unaffected_by_flag(self, tier5: dict) -> None:
+        """Existing categories appear in both default and opt-in runs.
+
+        Guards the chosen design: default_enabled is an axis separate
+        from confidence, so the pre-existing low-confidence categories
+        keep firing by default as they did before #646.
+        """
+        patterns = load_language_patterns("en")
+        opt_in = {e["category"] for e in get_tier5_patterns(patterns, True)}
+        for category in ("contrastive_parallelism", "semicolon_splice"):
+            assert category in tier5, f"{category} must fire by default"
+            assert category in opt_in
+
+    @pytest.mark.unit
     def test_contrastive_parallelism_matches_from_source(self, tier5: dict) -> None:
         """Affirmative antithesis matches when sourced from the YAML."""
         compiled = self._compile(tier5["contrastive_parallelism"])

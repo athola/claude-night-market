@@ -593,6 +593,100 @@ TIER5_EMPHASIS_CRUTCH = [
 ]
 ```
 
+## Anthropomorphism (Issue #646)
+
+Spatial copula catches one failure mode: putting a body somewhere.
+The larger pattern is giving a non-human subject human mental
+states, volition, or a body. "The scheduler wants to run these in
+order" has no literal reading. A scheduler cannot want.
+
+The category ships in three tiers because the verbs differ in how
+often they carry a legitimate literal sense.
+
+### High confidence (auto-flag)
+
+Mental-state, volition, and body verbs: `knows`, `knows about`,
+`understands`, `wants to`, `decides`, `thinks`, `believes`,
+`remembers`, `forgets`, `learns`, `cares about`, `tries to`, `is
+happy to`, `is aware of`, `agrees`, `refuses`, `is smart enough
+to`, `reaches into`, `walks the`, `speaks to`.
+
+Precision comes from the subject, not the verb. The regex requires
+a determiner followed by a technical subject noun, so "The parser
+understands nested blocks" fires while "She knows the codebase"
+and "Users understand the tradeoff" do not. A pronoun or a human
+role never precedes the verb in a match.
+
+Rewrites name the mechanism instead of the intent:
+
+| Anthropomorphic | Rewrite |
+|-----------------|---------|
+| The scheduler wants to run these in order | The scheduler runs these in order |
+| The parser understands nested blocks | The parser accepts nested blocks |
+| This module knows about the auth layer | This module imports the auth layer |
+| The cache decides what to evict | The cache evicts by least-recent use |
+| The type system tries to help you here | The type system rejects this call |
+
+`expects` is deliberately absent from this tier. "The parser
+expects a closing brace" is standard API prose, and no regex
+separates that from the intent sense reliably enough to auto-flag.
+
+### Medium confidence (surface, do not auto-rewrite)
+
+| Pattern | Rewrite |
+|---------|---------|
+| `is the seam` / `is the boundary` / `is the glue` | Name what it does: "translates between storage and domain" |
+| `drives` with a non-human subject | "controls", "sets", "determines" |
+| `rides` / `rides on top of` | "runs on", "wraps", "uses" |
+| `a real fix` / `real work` | Cut the modifier, or give the number that makes it real |
+
+The `drives` and `rides` patterns carry the same determiner-plus-
+noun subject guard, which keeps "He drives to work" and "She
+drives the roadmap" out. `data-driven` and `data driven` use the
+participle, so they never reach the pattern.
+
+The `real` pattern uses an explicit allowlist of following nouns
+(`fix`, `work`, `solution`, `answer`, `improvement`, `win`,
+`difference`) rather than an exclusion list. That keeps "a real
+number", "real time", "a real user", and "real data" from firing
+without enumerating every literal domain use in advance.
+
+### Low confidence (opt-in only)
+
+`handles`, `manages`, `owns`, `talks to`, `sees`. These are load-
+bearing in systems prose: "the service handles retries" has no
+concise non-anthropomorphic rewrite. The category sets
+`default_enabled: false`, so a routine sweep never reports them.
+Request them explicitly:
+
+```python
+get_tier5_patterns(patterns, include_optional=True)
+```
+
+`default_enabled` is a separate axis from `confidence`. A low
+confidence category is one whose hits need human judgment before a
+rewrite, which is not the same as one too noisy to report at all.
+The other low-confidence categories (`contrastive_parallelism`,
+`semicolon_splice`) are meant to be surfaced, and keep firing by
+default.
+
+### Anti-goals
+
+These never fire, enforced structurally by keeping them out of the
+subject noun list rather than by a later exclusion pass:
+
+- **Domain terms of art**: `observer`, `listener`, `supervisor`,
+  `daemon`, `parent`/`child process`, `orphan`, `zombie`,
+  `handshake`, `heartbeat`, `master`/`replica`. These name real
+  concepts.
+- **Human roles**: `reviewer`, `user`, `developer`, `maintainer`,
+  `author`, `team`, `engineer`. Real people keep their verbs.
+- **Standard API verbs in code and signatures**: `Iterator::next`,
+  `Future::poll`, `handler.handle`. The category applies to prose
+  only.
+- Quoted text, changelog history, vendored and generated files,
+  per `anti-goals.md`.
+
 ## Tier 5 False-Positive Exclusions
 
 | Pattern | Skip when | Flag when |

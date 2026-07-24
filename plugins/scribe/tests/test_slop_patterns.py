@@ -1067,3 +1067,229 @@ class Test2026VocabularyAndPhraseExtensions:
         phrase_list = [p.lower() for p in hedge.get("patterns", [])]
         assert "while it is true that" in phrase_list
         assert "it could be argued that" in phrase_list
+
+
+class TestTier5SpatialCopulaBareForm:
+    """Feature: The spatial copula regex covers plural/bare verb forms.
+
+    Issue #646 predicted that ``live in`` already matches via the
+    ``lives?`` alternation, making that phrase a documentation-only
+    change. This test pins the prediction so a later regex edit that
+    drops the optional ``s`` fails loudly.
+
+    Sourced from data/languages/en.yaml section tier5.spatial_copula.
+    """
+
+    CATEGORY = "spatial_copula"
+
+    @pytest.mark.unit
+    def test_detects_bare_form_live_in(self) -> None:
+        """Scenario: Detect the plural/bare 'live in' form."""
+        text = "The configs live in the repo root."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_detects_inflected_form_lives_in(self) -> None:
+        """Scenario: Detect the singular 'lives in' form."""
+        text = "The config lives in the repo root."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_detects_bare_form_sit_between(self) -> None:
+        """Scenario: Detect the bare 'sit between' form."""
+        text = "Adapters sit between storage and the domain."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+
+class TestTier5Anthropomorphism:
+    """Feature: Detect human agency attributed to non-human subjects.
+
+    Issue #646: giving code, systems, and documents mental states,
+    volition, or bodies. High-confidence tier covers mental-state and
+    body verbs, which have no literal reading when the subject is a
+    module or a cache.
+
+    Sourced from data/languages/en.yaml section tier5.anthropomorphism.
+    """
+
+    CATEGORY = "anthropomorphism"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: The high tier is marked high-confidence."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The scheduler wants to run these in order.",
+            "The parser understands nested blocks.",
+            "This module knows about the auth layer.",
+            "The cache decides what to evict.",
+            "The type system tries to help you here.",
+            "The linter believes this is unreachable.",
+            "The store remembers the last offset.",
+            "The resolver forgets stale entries.",
+            "The compiler cares about alignment here.",
+            "The router is aware of every mounted path.",
+            "The client refuses malformed payloads.",
+            "The allocator is smart enough to coalesce.",
+            "The handler reaches into the request context.",
+            "The migration walks the dependency tree.",
+            "The gateway speaks to the billing service.",
+        ],
+    )
+    def test_detects_mental_state_and_body_verbs(self, text: str) -> None:
+        """Scenario: Non-human subjects taking human-agency verbs."""
+        assert _category_hits(self.CATEGORY, text) >= 1, text
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The observer pattern decouples the two sides.",
+            # Corpus audit (1445 files): "agent" names an intentional
+            # system in this domain, so it belongs with the terms of
+            # art rather than the technical subject nouns.
+            "The agent tries to end its turn.",
+            "An agent decides whether to escalate.",
+            "Iterator::next advances the cursor.",
+            "Call handler.handle to dispatch the event.",
+            "Future::poll returns Pending until ready.",
+            "The supervisor restarts the child process.",
+            "A zombie process lingers until reaped.",
+            "The heartbeat fires every thirty seconds.",
+            "She knows the codebase better than anyone.",
+            "The reviewer wants a second opinion.",
+            "Users understand the tradeoff.",
+        ],
+    )
+    def test_ignores_terms_of_art_and_human_subjects(self, text: str) -> None:
+        """Scenario: Domain terms and real human subjects do not fire."""
+        assert _category_hits(self.CATEGORY, text) == 0, text
+
+
+class TestTier5AnthropomorphismMedium:
+    """Feature: Detect metaphorical predicates and agency verbs.
+
+    Issue #646 medium tier: surfaced for human judgment, not
+    auto-rewritten, because several have legitimate literal uses.
+
+    Sourced from data/languages/en.yaml tier5.anthropomorphism_medium.
+    """
+
+    CATEGORY = "anthropomorphism_medium"
+
+    @pytest.mark.unit
+    def test_category_is_medium_confidence(self) -> None:
+        """Scenario: The medium tier is marked medium-confidence."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "medium"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "That interface is the seam between storage and domain.",
+            "This adapter is the boundary for all IO.",
+            "The registry is the glue holding the plugins together.",
+            "The config drives retry behavior.",
+            "The API rides on top of the transport layer.",
+            "The scheduler rides on the event loop.",
+            "That was a real fix, not a workaround.",
+            "This does real work on every request.",
+        ],
+    )
+    def test_detects_metaphorical_predicates(self, text: str) -> None:
+        """Scenario: Metaphor and emphasis-crutch predicates fire."""
+        assert _category_hits(self.CATEGORY, text) >= 1, text
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "Pass a real number to the constructor.",
+            "The pipeline is data-driven end to end.",
+            "A data driven approach beats guessing.",
+            "He drives to work every morning.",
+            "She drives the roadmap for this quarter.",
+            "The system runs in real time.",
+            "A real user reported this crash.",
+            "Test with real data before shipping.",
+            # Corpus audit: "real work" after a preposition means a
+            # non-synthetic workload, contrasted with a test fixture.
+            # That is a literal distinction, not an emphasis crutch.
+            "Run the gate on real work before enabling it.",
+            "Claude B uses the skill for real work.",
+            "It knows this is a test rather than real work.",
+            # "boundary" modifying a following noun is not a
+            # metaphorical predicate nominative.
+            "Its spine is the boundary distinction.",
+            "This is the seam alignment problem.",
+        ],
+    )
+    def test_ignores_literal_and_domain_uses(self, text: str) -> None:
+        """Scenario: Literal senses and fixed compounds do not fire."""
+        assert _category_hits(self.CATEGORY, text) == 0, text
+
+
+class TestTier5AnthropomorphismLow:
+    """Feature: Generalized agency verbs are gated off by default.
+
+    Issue #646 low tier: ``handles``, ``manages``, ``owns``, ``talks
+    to``, ``sees`` are load-bearing in systems prose. They must be
+    available for an opt-in run but must never fire in a default run.
+
+    Sourced from data/languages/en.yaml tier5.anthropomorphism_low.
+    """
+
+    CATEGORY = "anthropomorphism_low"
+
+    @pytest.mark.unit
+    def test_absent_from_default_run(self) -> None:
+        """Scenario: A default load excludes the opt-in category."""
+        patterns = load_language_patterns("en")
+        names = {e["category"] for e in get_tier5_patterns(patterns)}
+        assert self.CATEGORY not in names
+
+    @pytest.mark.unit
+    def test_present_when_optional_requested(self) -> None:
+        """Scenario: An opt-in load includes the category."""
+        patterns = load_language_patterns("en")
+        entries = get_tier5_patterns(patterns, include_optional=True)
+        names = {e["category"] for e in entries}
+        assert self.CATEGORY in names
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: The opt-in tier is marked low-confidence."""
+        patterns = load_language_patterns("en")
+        entry = next(
+            e
+            for e in get_tier5_patterns(patterns, include_optional=True)
+            if e["category"] == self.CATEGORY
+        )
+        assert entry["confidence"] == "low"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The service handles retries internally.",
+            "The pool manages its own connections.",
+            "The module owns the schema definition.",
+            "The worker talks to the queue directly.",
+            "The validator sees the raw payload.",
+        ],
+    )
+    def test_opt_in_run_detects_agency_verbs(self, text: str) -> None:
+        """Scenario: With the flag on, agency verbs are reported."""
+        patterns = load_language_patterns("en")
+        entry = next(
+            e
+            for e in get_tier5_patterns(patterns, include_optional=True)
+            if e["category"] == self.CATEGORY
+        )
+        flags = re.IGNORECASE if entry["ignore_case"] else 0
+        hits = sum(len(re.compile(p, flags).findall(text)) for p in entry["patterns"])
+        assert hits >= 1, text
