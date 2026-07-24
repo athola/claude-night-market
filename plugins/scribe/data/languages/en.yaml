@@ -332,6 +332,39 @@ tier5:
       - '\bmake no mistake\b'
       - '\bread that again\.?'
       - '\bmark my words\b'
+  significance_cluster:
+    # Manufactured historical weight. The surrounding facts carry
+    # significance better than an assertion that they are significant.
+    # Each pattern is anchored to the full collocation so literal uses
+    # ("a last will and testament", "setting the stage lights") pass.
+    score: 2
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\b(?:stands?|serves?)\s+as\s+a\s+testament\s+to\b'
+      - '\bmarks?\s+a\s+turning\s+point\b'
+      - '\bindelible\s+mark\b'
+      - '\bdeeply\s+rooted\s+in\b'
+      - '\bsetting\s+the\s+stage\s+for\b'
+      - '\bshaping\s+the\s+future\s+of\b'
+      - '\bunderscores?\s+the\s+importance\s+of\b'
+      - '\bplays?\s+a\s+pivotal\s+role\b'
+  loop_vocabulary:
+    # Loop/cascade metaphors that read as insight while deferring the
+    # claim: "unpack" for explain, "surface" for raise/report, "a quiet
+    # shift" for the shift itself. Medium confidence because literal
+    # senses are common in technical prose (unpacking a tuple, a
+    # surface area), so these are surfaced for a human rather than
+    # auto-rewritten.
+    score: 1
+    confidence: medium
+    ignore_case: true
+    patterns:
+      # "unpack" as explain: only the metaphorical framings, so
+      # "unpacks the tuple" and "unpack the archive" pass.
+      - "\\b(?:let'?s|we'?ll|to|help(?:s)?\\s+(?:you|us))\\s+unpack\\s+(?:this|that|the|it)\\b"
+      - '\ba\s+quiet\s+(?:shift|revolution|change)\b'
+      - '\bthe\s+signal\s+here\s+is\b'
   anthropomorphism:
     # Issue #646. Human mental states, volition, and bodies attributed
     # to code, systems, and documents. Precision comes from requiring a

@@ -1293,3 +1293,110 @@ class TestTier5AnthropomorphismLow:
         flags = re.IGNORECASE if entry["ignore_case"] else 0
         hits = sum(len(re.compile(p, flags).findall(text)) for p in entry["patterns"])
         assert hits >= 1, text
+
+
+class TestTier5SignificanceCluster:
+    """Feature: Detect manufactured historical significance.
+
+    'stands as a testament to', 'marks a turning point', 'left an
+    indelible mark' inflate importance the surrounding facts should
+    carry on their own.
+
+    Sourced from data/languages/en.yaml section tier5.significance_cluster.
+    """
+
+    CATEGORY = "significance_cluster"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: Significance-cluster findings are high-confidence."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+
+    @pytest.mark.unit
+    def test_detects_testament(self) -> None:
+        """Scenario: Detect 'stands as a testament to'."""
+        text = "The release stands as a testament to the team's rigor."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_detects_turning_point(self) -> None:
+        """Scenario: Detect 'marks a turning point'."""
+        assert _category_hits(self.CATEGORY, "This marks a turning point.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_indelible_mark(self) -> None:
+        """Scenario: Detect 'indelible mark'."""
+        text = "The project left an indelible mark on the ecosystem."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_detects_setting_the_stage(self) -> None:
+        """Scenario: Detect 'setting the stage for'."""
+        text = "The refactor, setting the stage for future work, landed."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_detects_shaping_the_future(self) -> None:
+        """Scenario: Detect 'shaping the future of'."""
+        assert _category_hits(self.CATEGORY, "Shaping the future of search.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_underscores_the_importance(self) -> None:
+        """Scenario: Detect 'underscores the importance of'."""
+        text = "This underscores the importance of testing."
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_detects_pivotal_role(self) -> None:
+        """Scenario: Detect 'plays a pivotal role'."""
+        assert _category_hits(self.CATEGORY, "Caching plays a pivotal role.") >= 1
+
+    @pytest.mark.unit
+    def test_literal_stage_direction_passes(self) -> None:
+        """Guard: A literal stage is not the significance cluster."""
+        text = "The crew was setting the stage lights before the show."
+        assert _category_hits(self.CATEGORY, text) == 0
+
+    @pytest.mark.unit
+    def test_literal_will_and_testament_passes(self) -> None:
+        """Guard: A legal testament is not the inflation pattern."""
+        assert _category_hits(self.CATEGORY, "He signed his last testament.") == 0
+
+
+class TestTier5LoopVocabulary:
+    """Feature: Detect loop/cascade metaphor vocabulary.
+
+    'unpack' for explain, 'surface' as a verb for raise/report, 'a
+    quiet shift', 'the signal here is' are metaphors that read as
+    insight while deferring the actual claim.
+
+    Sourced from data/languages/en.yaml section tier5.loop_vocabulary.
+    """
+
+    CATEGORY = "loop_vocabulary"
+
+    @pytest.mark.unit
+    def test_category_is_medium_confidence(self) -> None:
+        """Scenario: Loop-vocabulary findings are surfaced, not auto-fixed."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "medium"
+
+    @pytest.mark.unit
+    def test_detects_unpack_metaphor(self) -> None:
+        """Scenario: Detect 'unpack' used for 'explain'."""
+        assert _category_hits(self.CATEGORY, "Let's unpack this design.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_quiet_shift(self) -> None:
+        """Scenario: Detect 'a quiet shift' standing in for the named shift."""
+        assert _category_hits(self.CATEGORY, "There is a quiet shift here.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_signal_here_is(self) -> None:
+        """Scenario: Detect 'the signal here is' for 'the point is'."""
+        assert _category_hits(self.CATEGORY, "The signal here is latency.") >= 1
+
+    @pytest.mark.unit
+    def test_literal_unpacking_passes(self) -> None:
+        """Guard: Literal unpacking (tuples, archives) is not the metaphor."""
+        text = "The function unpacks the tuple into three variables."
+        assert _category_hits(self.CATEGORY, text) == 0

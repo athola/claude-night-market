@@ -394,6 +394,12 @@ fresh (as evaluative: "a fresh take")
 | "the signal here is" | "the point is" works |
 | "a feedback loop" | flag in non-control-theory prose |
 
+The metaphorical framings are enforced as `tier5.loop_vocabulary`
+in `data/languages/en.yaml` at medium confidence, so they are
+surfaced for a human rather than auto-rewritten: the literal
+senses ("unpacks the tuple", "the exposed surface") are common
+in technical prose and must pass.
+
 ### Significance & Legacy Cluster (Score: 3 each)
 
 AI over-narrates importance. *Wikipedia, OliviaCal 2026.*
@@ -418,6 +424,13 @@ AI over-narrates importance. *Wikipedia, OliviaCal 2026.*
 Pattern: any sentence whose entire job is to assert that the
 subject *matters*, without saying what it does. Cut the
 sentence; the surrounding facts carry significance better.
+
+The high-confidence collocations are enforced as
+`tier5.significance_cluster` in `data/languages/en.yaml`, so
+they are detected in any repository the analyzer runs against
+rather than only where a project rule repeats them. The regexes
+anchor on the full phrase, so literal uses ("a last will and
+testament", "setting the stage lights") do not fire.
 
 ### Notability & Attribution Inflation (Score: 2-3 each)
 

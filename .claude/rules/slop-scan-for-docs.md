@@ -164,6 +164,18 @@ Guide to AI Slop*, the Stop-Slop Claude skill, George Kao,
 ContentBeta, and OliviaCal. Apply at the same priority as the
 list above.
 
+**These are not repo-local rules.** Every category below is
+implemented as a `tier5.*` section in
+`plugins/scribe/data/languages/en.yaml`, which is the pattern
+source `Skill(scribe:slop-detector)` loads at runtime. A
+document scanned in any other codebase gets the same findings,
+so remediation is portable rather than tied to this repository.
+The list below is the human-readable rationale and the rewrite
+guidance. The YAML is the enforcement. When adding a pattern
+here, add it there too, with a test in
+`plugins/scribe/tests/test_slop_patterns.py`, or it will only
+ever apply to this repo.
+
 - **Spatial copula / animated inanimates**: replace
   "lives in", "lives at", "sits at", "sits between", "stands
   as", "rests on", "rooted in", "nestled in", "serves as",
