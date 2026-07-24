@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 import pytest
 
 from tests.factories import make_finding
+from tome.synthesis import ranker
 from tome.synthesis.ranker import (
     compute_ranked_score,
     compute_relevance_score,
@@ -216,6 +217,67 @@ class TestRankFindings:
         # this stays a genuine guard if the ranking key ever changes.
         scores = [compute_ranked_score(f, result) for f in result]
         assert scores == sorted(scores, reverse=True)
+
+    @pytest.mark.unit
+    def test_triangulation_can_overturn_relevance_order(self) -> None:
+        """
+        Scenario: Corroboration outranks a more relevant uncorroborated finding
+        Given a 0.60 finding echoed by two other channels
+        And an uncorroborated finding at 0.66
+        When rank_findings is called
+        Then the corroborated finding ranks first
+        """
+        corroborated = make_finding(
+            0.60, title="graph retrieval augmented generation", channel="academic"
+        )
+        loner = make_finding(0.66, title="entirely unrelated subject", channel="code")
+        echoes = [
+            make_finding(
+                0.10, title="graph retrieval augmented generation", channel="discourse"
+            ),
+            make_finding(
+                0.10, title="graph retrieval augmented generation", channel="triz"
+            ),
+        ]
+
+        result = rank_findings([loner, corroborated, *echoes])
+
+        # 0.60 + 0.10 (two corroborating channels) = 0.70 > 0.66.
+        assert compute_ranked_score(corroborated, result) == pytest.approx(0.70)
+        assert result.index(corroborated) < result.index(loner)
+
+    @pytest.mark.unit
+    def test_ranking_normalizes_each_title_once(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Scenario: Ranking does not renormalize titles inside a pairwise scan
+        Given 12 findings
+        When rank_findings is called
+        Then title normalization runs a bounded number of times per finding,
+        not once per pair
+        """
+        # Spread across channels: the cross-channel check must not
+        # short-circuit before the inner loop reaches normalization.
+        channels = ["code", "discourse", "academic", "triz"]
+        findings = [
+            make_finding(0.5, title=f"distinct topic {i}", channel=channels[i % 4])
+            for i in range(12)
+        ]
+        calls: list[str] = []
+        original = ranker._normalize_for_match
+
+        def counting(title: str) -> set:
+            calls.append(title)
+            return original(title)
+
+        monkeypatch.setattr(ranker, "_normalize_for_match", counting)
+
+        rank_findings(findings)
+
+        # The pairwise form costs n*(n-1) = 132 normalizations; normalizing
+        # up front costs n. Allow slack without admitting the quadratic form.
+        assert len(calls) <= 2 * len(findings)
 
     @pytest.mark.unit
     def test_rank_empty_list(self) -> None:

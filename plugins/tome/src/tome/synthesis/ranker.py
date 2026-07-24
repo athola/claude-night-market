@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import re
 from datetime import datetime, timezone
 from typing import Any
@@ -18,6 +19,7 @@ _CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year
 _PUNCTUATION_RE = re.compile(r"[^\w\s]")
 _TRIANGULATION_CAP = 0.15
 _TRIANGULATION_PER_CHANNEL = 0.05
+_TRIANGULATION_JACCARD = 0.6
 
 
 def _normalize_for_match(title: str) -> set[str]:
@@ -55,15 +57,53 @@ def compute_triangulation_bonus(finding: Finding, all_findings: list[Finding]) -
         if not other_words:
             continue
 
-        intersection = target_words & other_words
-        union = target_words | other_words
-        jaccard = len(intersection) / len(union)
-
-        if jaccard >= 0.6:
+        if _title_overlap(target_words, other_words) >= _TRIANGULATION_JACCARD:
             corroborating_channels.add(other.channel)
 
+    return _bonus_for(corroborating_channels)
+
+
+def _title_overlap(a: set[str], b: set[str]) -> float:
+    """Jaccard overlap of two pre-normalized title word sets."""
+    return len(a & b) / len(a | b)
+
+
+def _bonus_for(corroborating_channels: set[str]) -> float:
+    """Convert a set of corroborating channels into a capped bonus."""
     bonus = len(corroborating_channels) * _TRIANGULATION_PER_CHANNEL
     return min(bonus, _TRIANGULATION_CAP)
+
+
+def _triangulation_bonuses(findings: list[Finding]) -> dict[int, float]:
+    """Compute every finding's triangulation bonus in one pairwise sweep.
+
+    Equivalent to calling :func:`compute_triangulation_bonus` per
+    finding, but each title is normalized once (rather than once per
+    comparison) and each pair is examined once (rather than from both
+    sides). That keeps ranking a single O(n^2) word-set comparison over
+    n normalizations, instead of n^2 regex substitutions.
+
+    Returns:
+        Bonus per finding, keyed by ``id()``. Identity keying matches
+        :func:`compute_triangulation_bonus`, which excludes a finding
+        from corroborating itself by identity rather than by equality.
+    """
+    words = [_normalize_for_match(finding.title) for finding in findings]
+    corroborating: list[set[str]] = [set() for _ in findings]
+
+    for i, j in itertools.combinations(range(len(findings)), 2):
+        left, right = findings[i], findings[j]
+        if left.channel == right.channel:
+            continue
+        if not words[i] or not words[j]:
+            continue
+        if _title_overlap(words[i], words[j]) >= _TRIANGULATION_JACCARD:
+            corroborating[i].add(right.channel)
+            corroborating[j].add(left.channel)
+
+    return {
+        id(finding): _bonus_for(corroborating[i]) for i, finding in enumerate(findings)
+    }
 
 
 # Per-source authority bonuses: source -> (metadata key, tiers). Tiers are
@@ -117,9 +157,8 @@ def compute_relevance_score(finding: Finding) -> float:
 def compute_ranked_score(finding: Finding, all_findings: list[Finding]) -> float:
     """Relevance plus cross-channel triangulation, capped at 1.0.
 
-    This is the score ``rank_findings`` sorts by. It folds the
-    previously-dormant ``compute_triangulation_bonus`` into the ranking
-    so corroboration across channels is finally rewarded.
+    This is the score ``rank_findings`` sorts by: a finding corroborated
+    across channels ranks above an equally relevant one that stands alone.
     """
     base = compute_relevance_score(finding)
     bonus = compute_triangulation_bonus(finding, all_findings)
@@ -127,10 +166,18 @@ def compute_ranked_score(finding: Finding, all_findings: list[Finding]) -> float
 
 
 def rank_findings(findings: list[Finding]) -> list[Finding]:
-    """Return findings sorted by relevance + triangulation, descending."""
+    """Return findings sorted by relevance + triangulation, descending.
+
+    Scores match :func:`compute_ranked_score`; the triangulation half is
+    taken from one batch sweep so ranking does not renormalize titles
+    per comparison.
+    """
+    bonuses = _triangulation_bonuses(findings)
     return sorted(
         findings,
-        key=lambda finding: compute_ranked_score(finding, findings),
+        key=lambda finding: min(
+            compute_relevance_score(finding) + bonuses[id(finding)], 1.0
+        ),
         reverse=True,
     )
 
