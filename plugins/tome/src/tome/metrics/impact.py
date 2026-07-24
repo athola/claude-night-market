@@ -16,6 +16,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+# The CD index is bounded by construction: (n_i - n_j) / (n_i + n_j + n_k).
+_MIN_DISRUPTION = -1.0
+_MAX_DISRUPTION = 1.0
+
 
 def disruption_index(citing_focal: set[str], citing_references: set[str]) -> float:
     """CD index in ``[-1.0, 1.0]`` from two citing-paper sets.
@@ -49,11 +53,30 @@ class Cohort:
 
 @dataclass(frozen=True)
 class DisruptionScore:
-    """A disruption score tagged with the cohort it was measured in."""
+    """A disruption score tagged with the cohort it was measured in.
+
+    :func:`disruption_index` provably returns a CD index in
+    ``[-1.0, 1.0]``. A value outside that band means the score did not
+    come from that computation, so it is refused here rather than
+    carried into a ranking that would silently misread its scale.
+
+    Raises:
+        ValueError: When ``paper_id`` is blank or ``score`` falls
+            outside the CD index range.
+    """
 
     paper_id: str
     score: float
     cohort: Cohort
+
+    def __post_init__(self) -> None:
+        if not self.paper_id.strip():
+            raise ValueError("a disruption score requires a non-empty paper ID")
+        if not _MIN_DISRUPTION <= self.score <= _MAX_DISRUPTION:
+            raise ValueError(
+                f"disruption score {self.score} is outside the CD index range "
+                f"[{_MIN_DISRUPTION}, {_MAX_DISRUPTION}]"
+            )
 
 
 def assert_comparable(a: DisruptionScore, b: DisruptionScore) -> None:

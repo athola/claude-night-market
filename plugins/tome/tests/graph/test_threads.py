@@ -106,3 +106,44 @@ class TestRealAnalyzerContract:
         # must succeed and return the right shapes.
         assert isinstance(finder.common_threads(), list)
         assert isinstance(finder.research_paths(top_n=5), list)
+
+
+class TestResearchPathInvariants:
+    """
+    Feature: ResearchPath refuses paths that predict nothing
+
+    ``PalaceGraphAnalyzer.predict_links`` emits Adamic-Adar scores and
+    already filters to ``score > 0`` over non-existing edges, so a
+    zero/negative score or a self-referential path is a producer defect.
+    Adamic-Adar is unbounded above, so no upper bound is imposed.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("score", [0.01, 1.0, 42.7])
+    def test_positive_scores_construct(self, score: float) -> None:
+        path = ResearchPath(from_id="a", to_id="b", score=score)
+
+        assert path.score == score
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("score", [0.0, -0.5])
+    def test_non_positive_score_rejected(self, score: float) -> None:
+        """
+        Scenario: A predicted link with no predictive weight
+        Given a score of zero or below
+        When ResearchPath is constructed
+        Then it raises, matching the producer's own > 0 filter
+        """
+        with pytest.raises(ValueError, match="score must be positive"):
+            ResearchPath(from_id="a", to_id="b", score=score)
+
+    @pytest.mark.unit
+    def test_self_path_rejected(self) -> None:
+        with pytest.raises(ValueError, match="cannot point at itself"):
+            ResearchPath(from_id="a", to_id="a", score=1.0)
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(("src", "dst"), [("", "b"), ("a", ""), ("  ", "b")])
+    def test_empty_endpoint_rejected(self, src: str, dst: str) -> None:
+        with pytest.raises(ValueError, match="non-empty node IDs"):
+            ResearchPath(from_id=src, to_id=dst, score=1.0)

@@ -638,6 +638,11 @@ def parse_citation_edges(
         other_id: str = paper.get("paperId") or ""
         if not other_id:
             continue
+        # A self-citation is a graph self-loop, which CitationEdge
+        # refuses. Upstream data is not trusted to be clean, so drop the
+        # item here rather than let one bad row abort the whole page.
+        if other_id == source_paper_id:
+            continue
 
         if source_is_citing:
             edges.append(CitationEdge(citing_id=source_paper_id, cited_id=other_id))

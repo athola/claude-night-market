@@ -15,10 +15,17 @@ from typing import Any, Protocol, runtime_checkable
 
 from tome.models import CitationEdge
 
-try:  # memory-palace is an optional, co-installed backend
-    from memory_palace import KnowledgeGraph as _KnowledgeGraph
+# memory-palace is an optional, co-installed backend. The alias is declared
+# ``Any`` so this module type-checks identically whether or not the backend
+# is installed; binding the imported class directly would make the absent
+# branch an invalid assignment once the real types resolve.
+_KnowledgeGraph: Any
+try:
+    from memory_palace import KnowledgeGraph as _mp_knowledge_graph
 except ImportError:
     _KnowledgeGraph = None
+else:
+    _KnowledgeGraph = _mp_knowledge_graph
 
 _PAPER_ENTITY = "paper"
 # A citation is a definite link, so it enters the graph at full strength.

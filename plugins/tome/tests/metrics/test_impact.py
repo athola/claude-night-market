@@ -94,3 +94,62 @@ class TestCentralityContract:
         ranked = rank_by_centrality(analyzer.pagerank())
 
         assert isinstance(ranked, list)
+
+
+class TestDisruptionScoreInvariants:
+    """
+    Feature: DisruptionScore refuses scores its producer cannot emit
+
+    ``disruption_index`` provably returns the CD index in ``[-1.0, 1.0]``.
+    A value outside that band is a defect in whatever built the score,
+    so it is refused where it is constructed rather than carried into a
+    ranking that silently misreads it.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("score", [-1.0, -0.5, 0.0, 0.5, 1.0])
+    def test_in_band_scores_construct(self, score: float) -> None:
+        tagged = DisruptionScore(
+            paper_id="p1", score=score, cohort=Cohort(field="cs", year=2026)
+        )
+
+        assert tagged.score == score
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("score", [-1.5, 1.5, 2.0, -100.0])
+    def test_out_of_band_score_rejected(self, score: float) -> None:
+        """
+        Scenario: A score outside the CD index range
+        Given a score below -1.0 or above 1.0
+        When DisruptionScore is constructed
+        Then it raises rather than entering a ranking
+        """
+        with pytest.raises(ValueError, match=r"disruption score .* \[-1.0, 1.0\]"):
+            DisruptionScore(
+                paper_id="p1", score=score, cohort=Cohort(field="cs", year=2026)
+            )
+
+    @pytest.mark.unit
+    def test_empty_paper_id_rejected(self) -> None:
+        with pytest.raises(ValueError, match="non-empty paper ID"):
+            DisruptionScore(
+                paper_id="", score=0.0, cohort=Cohort(field="cs", year=2026)
+            )
+
+    @pytest.mark.unit
+    def test_every_disruption_index_result_is_constructible(self) -> None:
+        """The producer's full output range must satisfy the invariant."""
+        cohort = Cohort(field="cs", year=2026)
+        cases = [
+            (set(), set()),
+            ({"a", "b"}, set()),
+            (set(), {"a", "b"}),
+            ({"a"}, {"a"}),
+            ({"a", "b"}, {"b", "c"}),
+        ]
+
+        for focal, refs in cases:
+            score = disruption_index(focal, refs)
+            assert (
+                DisruptionScore(paper_id="p", score=score, cohort=cohort).score == score
+            )

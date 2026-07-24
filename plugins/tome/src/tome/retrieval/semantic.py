@@ -11,7 +11,7 @@ from __future__ import annotations
 import importlib.util
 import math
 import warnings
-from typing import Protocol, runtime_checkable
+from typing import Any, Literal, Protocol, runtime_checkable
 
 from tome.graph.palace_adapter import GraphBackendUnavailable
 from tome.models import Finding
@@ -27,10 +27,15 @@ class NonSemanticRetrievalWarning(UserWarning):
     """
 
 
-try:  # memory-palace is an optional, co-installed backend
-    from memory_palace import EmbeddingIndex as _EmbeddingIndex
+# memory-palace is an optional, co-installed backend. See the note in
+# graph/palace_adapter.py for why the alias is declared ``Any``.
+_EmbeddingIndex: Any
+try:
+    from memory_palace import EmbeddingIndex as _mp_embedding_index
 except ImportError:
     _EmbeddingIndex = None
+else:
+    _EmbeddingIndex = _mp_embedding_index
 
 
 @runtime_checkable
@@ -41,9 +46,18 @@ class Embedder(Protocol):
 
 
 def _cosine(a: list[float], b: list[float]) -> float:
-    """Cosine similarity of two vectors; 0.0 if either is degenerate."""
+    """Cosine similarity of two vectors; 0.0 if either vector is zero.
+
+    Raises:
+        ValueError: When the vectors differ in width. One embedder
+            vectorizes the query and every finding, so a mismatch can
+            only mean a backend defect (stale persisted vectors, a
+            provider dimensionality change). Scoring it ``0.0`` would
+            sink the finding indistinguishably from a genuinely
+            irrelevant one, so the defect is raised at its origin.
+    """
     if len(a) != len(b):
-        return 0.0
+        raise ValueError(f"embedding dimension mismatch: {len(a)} vs {len(b)}")
     dot = sum(x * y for x, y in zip(a, b))
     norm_a = math.sqrt(sum(x * x for x in a))
     norm_b = math.sqrt(sum(y * y for y in b))
@@ -52,8 +66,10 @@ def _cosine(a: list[float], b: list[float]) -> float:
     return dot / (norm_a * norm_b)
 
 
-_HASH_PROVIDER = "none"
-_MODEL_PROVIDER = "local"
+Provider = Literal["local", "none"]
+
+_HASH_PROVIDER: Provider = "none"
+_MODEL_PROVIDER: Provider = "local"
 
 
 def embedder_available() -> bool:
@@ -61,7 +77,7 @@ def embedder_available() -> bool:
     return _EmbeddingIndex is not None
 
 
-def best_available_provider() -> str:
+def best_available_provider() -> Provider:
     """Pick the real embedding provider when possible, else the fallback.
 
     ``"local"`` (sentence-transformers) produces semantically meaningful
@@ -77,7 +93,9 @@ def best_available_provider() -> str:
     return _MODEL_PROVIDER if found else _HASH_PROVIDER
 
 
-def open_embedder(embeddings_path: str, provider: str = _HASH_PROVIDER) -> Embedder:
+def open_embedder(
+    embeddings_path: str, provider: Provider = _HASH_PROVIDER
+) -> Embedder:
     """Open a memory-palace ``EmbeddingIndex``.
 
     Args:
@@ -106,17 +124,60 @@ def open_embedder(embeddings_path: str, provider: str = _HASH_PROVIDER) -> Embed
 
 
 class SemanticRetriever:
-    """Rank findings by embedding similarity to a query."""
+    """Rank findings by embedding similarity to a query.
 
-    def __init__(self, embedder: Embedder) -> None:
+    The retriever knows whether its own ranking is meaningful. Ordering
+    by cosine over the SHA-256 hash fallback produces a stable but
+    arbitrary sequence, so that case is reported through
+    :class:`NonSemanticRetrievalWarning` rather than passed off as a
+    relevance ranking.
+    """
+
+    def __init__(self, embedder: Embedder, *, is_semantic: bool | None = None) -> None:
+        """Wrap ``embedder``, recording whether its vectors are semantic.
+
+        Args:
+            embedder: The backend that vectorizes query and findings.
+            is_semantic: Whether ``embedder`` produces semantically
+                meaningful vectors. Left unset, it is read off the
+                embedder's ``requested_provider`` when it publishes one
+                (memory-palace's ``EmbeddingIndex`` does); embedders
+                that declare no provider are taken at their word rather
+                than presumed degraded.
+        """
         self._embedder = embedder
+        self.is_semantic: bool = (
+            self._infer_semantic(embedder) if is_semantic is None else is_semantic
+        )
+
+    @staticmethod
+    def _infer_semantic(embedder: Embedder) -> bool:
+        """Read semantic status off a backend that publishes its provider."""
+        return (
+            getattr(embedder, "requested_provider", _MODEL_PROVIDER) != _HASH_PROVIDER
+        )
 
     def rank(
         self, query: str, findings: list[Finding], top_k: int | None = None
     ) -> list[Finding]:
-        """Return findings ordered by cosine similarity to ``query``."""
+        """Return findings ordered by cosine similarity to ``query``.
+
+        Warns:
+            NonSemanticRetrievalWarning: When ranking over the
+                non-semantic hash fallback, where the resulting order
+                carries no relevance signal.
+        """
         if not findings:
             return []
+        if not self.is_semantic:
+            warnings.warn(
+                "Ranking over a non-semantic embedder: the SHA-256 hash "
+                "fallback is deterministic but not semantic, so this order "
+                "carries no relevance signal. Install sentence-transformers "
+                "and open the embedder with provider='local'.",
+                NonSemanticRetrievalWarning,
+                stacklevel=2,
+            )
         query_vec = self._embedder.vectorize(query)
         scored: list[tuple[Finding, float]] = [
             (finding, _cosine(query_vec, self._embedder.vectorize(self._text(finding))))

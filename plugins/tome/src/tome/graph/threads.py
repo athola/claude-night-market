@@ -15,10 +15,15 @@ from typing import Any, Protocol, runtime_checkable
 
 from tome.graph.palace_adapter import GraphBackendUnavailable
 
-try:  # memory-palace is an optional, co-installed backend
-    from memory_palace import PalaceGraphAnalyzer as _PalaceGraphAnalyzer
+# memory-palace is an optional, co-installed backend. See the note in
+# graph/palace_adapter.py for why the alias is declared ``Any``.
+_PalaceGraphAnalyzer: Any
+try:
+    from memory_palace import PalaceGraphAnalyzer as _mp_graph_analyzer
 except ImportError:
     _PalaceGraphAnalyzer = None
+else:
+    _PalaceGraphAnalyzer = _mp_graph_analyzer
 
 
 @dataclass(frozen=True)
@@ -31,11 +36,37 @@ class ResearchThread:
 
 @dataclass(frozen=True)
 class ResearchPath:
-    """A suggested next connection: a predicted citation link."""
+    """A suggested next connection: a predicted citation link.
+
+    The producer (``predict_links``) scores non-existing edges by
+    Adamic-Adar index and already discards anything at or below zero, so
+    a non-positive score or a self-referential path means the path did
+    not come from link prediction. Adamic-Adar has no upper bound, so
+    none is imposed here.
+
+    Raises:
+        ValueError: When either endpoint is blank, both endpoints name
+            the same node, or ``score`` is not positive.
+    """
 
     from_id: str
     to_id: str
     score: float
+
+    def __post_init__(self) -> None:
+        if not self.from_id.strip() or not self.to_id.strip():
+            raise ValueError(
+                "a research path requires non-empty node IDs, got "
+                f"from_id={self.from_id!r}, to_id={self.to_id!r}"
+            )
+        if self.from_id == self.to_id:
+            raise ValueError(
+                f"a research path cannot point at itself: {self.from_id!r}"
+            )
+        if self.score <= 0.0:
+            raise ValueError(
+                f"a predicted link's score must be positive, got {self.score}"
+            )
 
 
 @runtime_checkable

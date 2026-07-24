@@ -20,6 +20,7 @@ from tome.retrieval.semantic import (
     Embedder,
     NonSemanticRetrievalWarning,
     SemanticRetriever,
+    _cosine,
     best_available_provider,
     embedder_available,
     open_embedder,
@@ -31,6 +32,19 @@ class FakeEmbedder:
 
     def vectorize(self, text: str) -> list[float]:
         return [1.0, 0.0] if "match" in text else [0.0, 1.0]
+
+
+class HashFallbackEmbedder(FakeEmbedder):
+    """Stands in for an EmbeddingIndex opened on the hash fallback."""
+
+    requested_provider = "none"
+
+
+class RaggedEmbedder:
+    """Returns vectors of differing width; models a corrupted index."""
+
+    def vectorize(self, text: str) -> list[float]:
+        return [1.0, 0.0] if "match" in text else [1.0]
 
 
 class TestSemanticRetriever:
@@ -65,6 +79,79 @@ class TestSemanticRetriever:
     @pytest.mark.unit
     def test_fake_satisfies_protocol(self) -> None:
         assert isinstance(FakeEmbedder(), Embedder)
+
+
+class TestCosineDimensionInvariant:
+    """A width mismatch is a backend defect, not a zero-similarity result."""
+
+    @pytest.mark.unit
+    def test_length_mismatch_raises(self) -> None:
+        """
+        Given two vectors of different width
+        When cosine similarity is computed
+        Then the dimension defect is raised, not scored as 0.0
+        """
+        with pytest.raises(ValueError, match="embedding dimension mismatch: 2 vs 1"):
+            _cosine([1.0, 0.0], [1.0])
+
+    @pytest.mark.unit
+    def test_zero_norm_still_returns_zero(self) -> None:
+        """Cosine of a zero vector is undefined; 0.0 stays the answer."""
+        assert _cosine([0.0, 0.0], [1.0, 0.0]) == 0.0
+
+    @pytest.mark.unit
+    def test_ragged_embedder_surfaces_defect_through_rank(self) -> None:
+        """A corrupted index fails loudly instead of silently sinking."""
+        retriever = SemanticRetriever(RaggedEmbedder())
+
+        with pytest.raises(ValueError, match="embedding dimension mismatch"):
+            retriever.rank("match", [make_finding(0.5, title="unrelated")])
+
+
+class TestRetrieverProviderAwareness:
+    """The retriever knows whether its own ranking is meaningful (#642)."""
+
+    @pytest.mark.unit
+    def test_hash_backed_retriever_is_not_semantic(self) -> None:
+        assert SemanticRetriever(HashFallbackEmbedder()).is_semantic is False
+
+    @pytest.mark.unit
+    def test_unknown_embedder_is_taken_at_its_word(self) -> None:
+        """Embedders that declare no provider are not assumed degraded."""
+        assert SemanticRetriever(FakeEmbedder()).is_semantic is True
+
+    @pytest.mark.unit
+    def test_explicit_override_wins(self) -> None:
+        assert SemanticRetriever(FakeEmbedder(), is_semantic=False).is_semantic is False
+
+    @pytest.mark.unit
+    def test_ranking_over_hash_fallback_warns(self) -> None:
+        """
+        Given a retriever backed by the non-semantic hash provider
+        When findings are ranked
+        Then the meaningless ordering is surfaced as a warning
+        """
+        retriever = SemanticRetriever(HashFallbackEmbedder())
+
+        with pytest.warns(NonSemanticRetrievalWarning, match="not semantic"):
+            retriever.rank("match", [make_finding(0.5, title="match topic")])
+
+    @pytest.mark.unit
+    def test_semantic_ranking_stays_quiet(self) -> None:
+        retriever = SemanticRetriever(FakeEmbedder())
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", NonSemanticRetrievalWarning)
+            retriever.rank("match", [make_finding(0.5, title="match topic")])
+
+    @pytest.mark.unit
+    def test_empty_findings_does_not_warn(self) -> None:
+        """No ranking happened, so there is no degradation to report."""
+        retriever = SemanticRetriever(HashFallbackEmbedder())
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", NonSemanticRetrievalWarning)
+            assert retriever.rank("match", []) == []
 
 
 class TestOpenEmbedder:
