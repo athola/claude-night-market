@@ -31,11 +31,11 @@ dev = [
 
 [tool.ruff]
 target-version = "py39"
-line-length = 100
+line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "S", "PLR0913"]
-ignore = ["UP017", "S101"]
+ignore = ["UP017", "S101", "E501"]  # E501 line length handled by formatter (matches root config)
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]

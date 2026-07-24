@@ -33,7 +33,7 @@ build-backend = "hatchling.build"
 packages = ["src/minister"]
 
 [tool.ruff]
-line-length = 100
+line-length = 88
 target-version = "py39"
 exclude = [".venv", ".uv-cache"]
 
