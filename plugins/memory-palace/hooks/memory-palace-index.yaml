@@ -4919,6 +4919,186 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://hn.algolia.com/api/v1/search_by_date?query=how-to%20documentation%20AI&tags=(story,show_hn)&hitsPerPage=20
+  ? https://hn.algolia.com/api/v1/search_by_date?query=capture%20sop%20field%20service&tags=story&numericfilters=created_at_i%3e1752969600
+  : content_hash: sha256:cfd7ad6fdcdbd357
+    stored_at: data/staging/webfetch-story-hit-results-2026-07-22_11-02-39.md
+    importance_score: 89
+    last_updated: '2026-07-22T11:02:39.649397+00:00'
+    title: Story Hit Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=capture%20SOP%20field%20service&tags=story&numericFilters=created_at_i%3E1752969600
+  ? https://hn.algolia.com/api/v1/search_by_date?query=scribe%20tango%20alternative&tags=story&numericfilters=created_at_i%3e1752969600
+  : content_hash: sha256:7824837946422a53
+    stored_at: data/staging/webfetch-story-hits-2026-07-22_11-02-41.md
+    importance_score: 89
+    last_updated: '2026-07-22T11:02:41.452191+00:00'
+    title: Story Hits
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=Scribe%20Tango%20alternative&tags=story&numericFilters=created_at_i%3E1752969600
+  ? https://hn.algolia.com/api/v1/search_by_date?query=trades%20knowledge%20capture&tags=story&numericfilters=created_at_i%3e1752969600
+  : content_hash: sha256:dbe6aee864eabe89
+    stored_at: data/staging/webfetch-search-results-stories-matching-trades-knowledge-2026-07-22_11-02-44.md
+    importance_score: 89
+    last_updated: '2026-07-22T11:02:44.691360+00:00'
+    title: 'Search Results: Stories Matching "trades knowledge capture"'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=trades%20knowledge%20capture&tags=story&numericFilters=created_at_i%3E1752969600
+  ? https://hn.algolia.com/api/v1/search_by_date?query=field%20service%20ai&tags=story&numericfilters=created_at_i%3e1752969600
+  : content_hash: sha256:1c112635859b3d6d
+    stored_at: data/staging/webfetch-search-results-summary-2026-07-22_11-02-54.md
+    importance_score: 89
+    last_updated: '2026-07-22T11:02:54.912223+00:00'
+    title: Search Results Summary
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=field%20service%20AI&tags=story&numericFilters=created_at_i%3E1752969600
+  https://hn.algolia.com/api/v1/search_by_date?query=sop%20procedure&tags=story&numericfilters=created_at_i%3e1784505600:
+    content_hash: sha256:d3a6098d710352f5
+    stored_at: data/staging/webfetch-story-hits-2026-07-22_11-03-19.md
+    importance_score: 89
+    last_updated: '2026-07-22T11:03:19.477910+00:00'
+    title: Story Hits
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=SOP%20procedure&tags=story&numericFilters=created_at_i%3E1784505600
+  https://hn.algolia.com/api/v1/search_by_date?query=capture&tags=show_hn&numericfilters=created_at_i%3e1784505600:
+    content_hash: sha256:147071b67903fffc
+    stored_at: data/staging/webfetch-show-hn-stories-2026-07-22_11-03-20.md
+    importance_score: 89
+    last_updated: '2026-07-22T11:03:20.779441+00:00'
+    title: Show HN Stories
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=capture&tags=show_hn&numericFilters=created_at_i%3E1784505600
+  https://lobste.rs/search?q=field+service+capture&what=stories&order=newest:
+    content_hash: sha256:58ee8f4418b83b21
+    stored_at: data/staging/webfetch-search-results-for-field-service-capture-2026-07-22_11-03-32.md
+    importance_score: 80
+    last_updated: '2026-07-22T11:03:32.985346+00:00'
+    title: Search Results for "field service capture"
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/search?q=field+service+capture&what=stories&order=newest
+  https://hn.algolia.com/api/v1/search?query=scribe%20sop%20documentation&tags=story&hitsperpage=10:
+    content_hash: sha256:8384b32985e4f0eb
+    stored_at: data/staging/webfetch-stories-list-2026-07-23_11-00-58.md
+    importance_score: 90
+    last_updated: '2026-07-23T11:00:58.161525+00:00'
+    title: Stories List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Scribe%20SOP%20documentation&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=field%20service%20technician%20knowledge%20software&tags=story&hitsperpage=10:
+    content_hash: sha256:1412a7e678b0de6d
+    stored_at: data/staging/webfetch-stories-list-2026-07-23_11-01-02.md
+    importance_score: 90
+    last_updated: '2026-07-23T11:01:02.548908+00:00'
+    title: Stories List
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=field%20service%20technician%20knowledge%20software&tags=story&hitsPerPage=10
+  https://github.com/openreplay/openreplay:
+    content_hash: sha256:bd0f36d073acd068
+    stored_at: data/staging/webfetch-openreplay-repository-summary-2026-07-23_11-01-38.md
+    importance_score: 96
+    last_updated: '2026-07-23T11:01:38.491227+00:00'
+    title: OpenReplay Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/openreplay/openreplay
+  https://github.com/jonghakseo/chrome-extension-boilerplate-react-vite:
+    content_hash: sha256:b7aecf7208c7b900
+    stored_at: data/staging/webfetch-chrome-extension-boilerplate-react-vite-2026-07-23_11-01-50.md
+    importance_score: 96
+    last_updated: '2026-07-23T11:01:50.056152+00:00'
+    title: Chrome Extension Boilerplate React Vite
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite
+  https://westpoint.io/insights/mimik-open-source-local-first-alternative-scribe-tango-guidde:
+    content_hash: sha256:76a050ac611f0adb
+    stored_at: data/staging/webfetch-mimik-repository-and-technical-details-2026-07-23_11-01-50.md
+    importance_score: 80
+    last_updated: '2026-07-23T11:01:50.672872+00:00'
+    title: Mimik Repository and Technical Details
+    maturity: growing
+    routing_type: meta
+    url: https://westpoint.io/insights/mimik-open-source-local-first-alternative-scribe-tango-guidde
+  https://github.com/ruifigueira/playwright-crx:
+    content_hash: sha256:263417dd651eaf9a
+    stored_at: data/staging/webfetch-playwright-crx-repository-summary-2026-07-23_11-01-51.md
+    importance_score: 96
+    last_updated: '2026-07-23T11:01:51.813465+00:00'
+    title: Playwright CRX Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/ruifigueira/playwright-crx
+  https://github.com/puppeteer/replay:
+    content_hash: sha256:73f3ccad244452e3
+    stored_at: data/staging/webfetch-puppeteer-replay-repository-summary-2026-07-23_11-02-04.md
+    importance_score: 96
+    last_updated: '2026-07-23T11:02:04.280954+00:00'
+    title: Puppeteer Replay Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/puppeteer/replay
+  https://www.fieldax.com/blog/what-technicians-actually-hate-about-field-service-software:
+    content_hash: sha256:cfb7510653b83730
+    stored_at: data/staging/webfetch-key-technician-pain-points-with-field-service-2026-07-23_11-02-11.md
+    importance_score: 80
+    last_updated: '2026-07-23T11:02:11.569932+00:00'
+    title: Key Technician Pain Points with Field Service Software
+    maturity: growing
+    routing_type: meta
+    url: https://www.fieldax.com/blog/what-technicians-actually-hate-about-field-service-software/
+  https://hn.algolia.com/api/v1/items/30128265:
+    content_hash: sha256:2682809f1ef70603
+    stored_at: data/staging/webfetch-tango-hn-thread-summary-2026-07-23_11-02-24.md
+    importance_score: 90
+    last_updated: '2026-07-23T11:02:24.760745+00:00'
+    title: Tango HN Thread Summary
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/30128265
+  https://hn.algolia.com/api/v1/items/41915489:
+    content_hash: sha256:67e62a9bf05ff3f7
+    stored_at: data/staging/webfetch-resolvd-thread-summary-2026-07-23_11-02-25.md
+    importance_score: 90
+    last_updated: '2026-07-23T11:02:25.746700+00:00'
+    title: Resolvd Thread Summary
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/41915489
+  https://hn.algolia.com/api/v1/items/29001486:
+    content_hash: sha256:fe35fd31622a78d7
+    stored_at: data/staging/webfetch-scribe-hn-thread-summary-2026-07-23_11-02-26.md
+    importance_score: 90
+    last_updated: '2026-07-23T11:02:26.951569+00:00'
+    title: Scribe HN Thread Summary
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/29001486
+  https://hn.algolia.com/api/v1/items/46882026:
+    content_hash: sha256:382de766dcbde067
+    stored_at: data/staging/webfetch-show-hn-video2docs-summary-2026-07-23_11-02-41.md
+    importance_score: 90
+    last_updated: '2026-07-23T11:02:41.572305+00:00'
+    title: 'Show HN: Video2docs Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/46882026
+  https://www.modocs.ai/blog/documentation-doesnt-fail-because-people-dont-care-it-fails-because-creating-it-is-too-hard:
+    content_hash: sha256:d1fec16e7bfed3ed
+    stored_at: data/staging/webfetch-why-manufacturing-documentation-fails-2026-07-23_11-03-06.md
+    importance_score: 80
+    last_updated: '2026-07-23T11:03:06.014372+00:00'
+    title: Why Manufacturing Documentation Fails
+    maturity: growing
+    routing_type: meta
+    url: https://www.modocs.ai/blog/documentation-doesnt-fail-because-people-dont-care-it-fails-because-creating-it-is-too-hard
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -5465,3 +5645,23 @@ hashes:
   sha256:58634c7032c4ea56: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-20_11-04-36.md
   sha256:da230f55959a4b5d: data/staging/webfetch-to-locate-such-content-you-would-need-to-access-2026-07-20_11-04-36.md
   sha256:7549436488363d09: data/staging/webfetch-stories-from-2026-07-17-onward-2026-07-20_11-04-41.md
+  sha256:cfd7ad6fdcdbd357: data/staging/webfetch-story-hit-results-2026-07-22_11-02-39.md
+  sha256:7824837946422a53: data/staging/webfetch-story-hits-2026-07-22_11-02-41.md
+  sha256:dbe6aee864eabe89: data/staging/webfetch-search-results-stories-matching-trades-knowledge-2026-07-22_11-02-44.md
+  sha256:1c112635859b3d6d: data/staging/webfetch-search-results-summary-2026-07-22_11-02-54.md
+  sha256:d3a6098d710352f5: data/staging/webfetch-story-hits-2026-07-22_11-03-19.md
+  sha256:147071b67903fffc: data/staging/webfetch-show-hn-stories-2026-07-22_11-03-20.md
+  sha256:58ee8f4418b83b21: data/staging/webfetch-search-results-for-field-service-capture-2026-07-22_11-03-32.md
+  sha256:8384b32985e4f0eb: data/staging/webfetch-stories-list-2026-07-23_11-00-58.md
+  sha256:1412a7e678b0de6d: data/staging/webfetch-stories-list-2026-07-23_11-01-02.md
+  sha256:bd0f36d073acd068: data/staging/webfetch-openreplay-repository-summary-2026-07-23_11-01-38.md
+  sha256:b7aecf7208c7b900: data/staging/webfetch-chrome-extension-boilerplate-react-vite-2026-07-23_11-01-50.md
+  sha256:76a050ac611f0adb: data/staging/webfetch-mimik-repository-and-technical-details-2026-07-23_11-01-50.md
+  sha256:263417dd651eaf9a: data/staging/webfetch-playwright-crx-repository-summary-2026-07-23_11-01-51.md
+  sha256:73f3ccad244452e3: data/staging/webfetch-puppeteer-replay-repository-summary-2026-07-23_11-02-04.md
+  sha256:cfb7510653b83730: data/staging/webfetch-key-technician-pain-points-with-field-service-2026-07-23_11-02-11.md
+  sha256:2682809f1ef70603: data/staging/webfetch-tango-hn-thread-summary-2026-07-23_11-02-24.md
+  sha256:67e62a9bf05ff3f7: data/staging/webfetch-resolvd-thread-summary-2026-07-23_11-02-25.md
+  sha256:fe35fd31622a78d7: data/staging/webfetch-scribe-hn-thread-summary-2026-07-23_11-02-26.md
+  sha256:382de766dcbde067: data/staging/webfetch-show-hn-video2docs-summary-2026-07-23_11-02-41.md
+  sha256:d1fec16e7bfed3ed: data/staging/webfetch-why-manufacturing-documentation-fails-2026-07-23_11-03-06.md
