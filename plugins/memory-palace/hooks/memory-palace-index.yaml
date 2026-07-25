@@ -134,24 +134,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://hn.algolia.com/api/v1/search?query=tribal%20knowledge%20skilled%20trades&tags=story&hitsPerPage=10
-  https://hn.algolia.com/api/v1/search?query=scribe%20documentation%20chrome%20extension&tags=story&hitsperpage=10:
-    content_hash: sha256:af91a6e88969614b
-    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-02-30.md
-    importance_score: 86
-    last_updated: '2026-07-03T11:02:30.738329+00:00'
-    title: Based on the web page content provided, there are **no stories to list**.
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search?query=Scribe%20documentation%20chrome%20extension&tags=story&hitsPerPage=10
-  https://hn.algolia.com/api/v1/search?query=electrician%20plumber%20shortage&tags=story&hitsperpage=15:
-    content_hash: sha256:89a34c58385bafd9
-    stored_at: data/staging/webfetch-story-search-results-2026-07-03_11-02-39.md
-    importance_score: 86
-    last_updated: '2026-07-03T11:02:39.035032+00:00'
-    title: Story Search Results
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search?query=electrician%20plumber%20shortage&tags=story&hitsPerPage=15
   https://hn.algolia.com/api/v1/search?query=skilled%20trades%20knowledge&tags=story&hitsperpage=15:
     content_hash: sha256:a6c65dd31f1dfa4d
     stored_at: data/staging/webfetch-stories-with-points-5-2026-07-03_11-02-45.md
@@ -170,15 +152,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://hn.algolia.com/api/v1/search?query=silver%20tsunami&tags=story&hitsPerPage=10
-  https://hn.algolia.com/api/v1/search?query=tango%20scribe%20screenshots&tags=story&hitsperpage=10:
-    content_hash: sha256:5f3e36c4a0051448
-    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-03-20.md
-    importance_score: 86
-    last_updated: '2026-07-03T11:03:20.163242+00:00'
-    title: Based on the web page content provided, there are **no stories to list**.
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search?query=Tango%20Scribe%20screenshots&tags=story&hitsPerPage=10
   https://github.com/ajkolaganti/workmap:
     content_hash: sha256:8f8c2b3ea97ee076
     stored_at: data/staging/webfetch-workmap-project-report-2026-07-03_11-03-27.md
@@ -278,15 +251,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://github.com/attevon-llc/OpenTranscribe
-  https://hn.algolia.com/api/v1/search?query=trades%20shortage%20apprenticeship&tags=story&hitsperpage=10:
-    content_hash: sha256:79fa19c20ee1de06
-    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-05-48.md
-    importance_score: 86
-    last_updated: '2026-07-03T11:05:48.776411+00:00'
-    title: Based on the web page content provided, there are **no stories to list**.
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search?query=trades%20shortage%20apprenticeship&tags=story&hitsPerPage=10
   https://www.reachcapital.com/2025/04/03/ai-frontine-work:
     content_hash: sha256:da518117d83ee81f
     stored_at: data/staging/webfetch-reach-capital-s-frontline-worker-ai-investment-2026-07-03_11-05-55.md
@@ -837,24 +801,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://companycam.com/resources/blog/how-to-take-job-documentation-photos-that-actually-help-your-business
-  https://www.hvac-talk.com/threads/hvac-removal-disposal-de-installation.2212107:
-    content_hash: sha256:7a895174fdf6d9f3
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-06_11-05-09.md
-    importance_score: 79
-    last_updated: '2026-07-06T11:05:09.744316+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.hvac-talk.com/threads/hvac-removal-disposal-de-installation.2212107/
-  https://www.electriciantalk.com/threads/using-chat-gpt.296382:
-    content_hash: sha256:0e939821b9fbc6d0
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-06_11-05-33.md
-    importance_score: 79
-    last_updated: '2026-07-06T11:05:33.538888+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.electriciantalk.com/threads/using-chat-gpt.296382/
   https://hn.algolia.com/api/v1/search?query=tango%20workflow%20documentation&tags=story&hitsperpage=15:
     content_hash: sha256:d3b0252d19775b20
     stored_at: data/staging/webfetch-search-results-for-tango-workflow-documentation-2026-07-07_11-06-14.md
@@ -891,15 +837,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://hn.algolia.com/api/v1/search?query=field%20service%20knowledge%20base&tags=story&hitsPerPage=15
-  https://hn.algolia.com/api/v1/search?query=scribe%20how-to%20guide%20screenshots&tags=story&hitsperpage=15:
-    content_hash: sha256:b562941b93d1c1bd
-    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-07_11-06-31.md
-    importance_score: 89
-    last_updated: '2026-07-07T11:06:31.673868+00:00'
-    title: Based on the web page content provided, there are **no stories to list**.
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search?query=Scribe%20how-to%20guide%20screenshots&tags=story&hitsPerPage=15
   https://hn.algolia.com/api/v1/search?query=loom%20screen%20recording%20documentation&tags=story&hitsperpage=15:
     content_hash: sha256:bf07e24f55a89bf4
     stored_at: data/staging/webfetch-stories-from-search-results-2026-07-07_11-06-35.md
@@ -1044,24 +981,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://hn.algolia.com/api/v1/search?query=knowledge%20capture%20note%20taking%20PKM&tags=story&hitsPerPage=15
-  https://hn.algolia.com/api/v1/search?query=sop%20capture%20scribe%20tango%20workflow&tags=story&hitsperpage=15:
-    content_hash: sha256:8d1a33f361dd1aa7
-    stored_at: data/staging/webfetch-search-results-2026-07-08_11-04-15.md
-    importance_score: 89
-    last_updated: '2026-07-08T11:04:15.361959+00:00'
-    title: Search Results
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search?query=SOP%20capture%20Scribe%20Tango%20workflow&tags=story&hitsPerPage=15
-  https://hn.algolia.com/api/v1/search?query=skilled%20trades%20skills%20gap%20knowledge%20loss&tags=story&hitsperpage=15:
-    content_hash: sha256:c0adfc0d0712e371
-    stored_at: data/staging/webfetch-search-results-for-skilled-trades-skills-gap-2026-07-08_11-04-16.md
-    importance_score: 89
-    last_updated: '2026-07-08T11:04:16.642801+00:00'
-    title: Search Results for Skilled Trades Skills Gap
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search?query=skilled%20trades%20skills%20gap%20knowledge%20loss&tags=story&hitsPerPage=15
   https://hn.algolia.com/api/v1/search?query=chrome%20extension%20manifest%20v3&tags=story&hitsperpage=15:
     content_hash: sha256:3d01572205b7b020
     stored_at: data/staging/webfetch-chrome-extension-manifest-v3-stories-2026-07-08_11-04-25.md
@@ -1269,15 +1188,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://support.kraken.com/articles/getting-started-us-margin
-  ? https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge%20trades&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1746057600
-  : content_hash: sha256:209f4006db9a7e58
-    stored_at: data/staging/webfetch-search-results-for-tacit-knowledge-trades-2026-07-10_11-02-47.md
-    importance_score: 89
-    last_updated: '2026-07-10T11:02:47.187961+00:00'
-    title: Search Results for "Tacit Knowledge Trades"
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge%20trades&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1746057600
   ? https://hn.algolia.com/api/v1/search_by_date?query=sop%20generation&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1735689600
   : content_hash: sha256:57e3493c62f36e20
     stored_at: data/staging/webfetch-stories-from-search-results-2026-07-10_11-02-56.md
@@ -1486,15 +1396,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.randstad.com/workforce-insights/future-work/beyond-hype-3-ai-trends-redefining-skilled-trades/
-  ? https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1782000000
-  : content_hash: sha256:384fc111d8993471
-    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-11_11-02-38.md
-    importance_score: 90
-    last_updated: '2026-07-11T11:02:38.234905+00:00'
-    title: Based on the web page content provided, **there are no stories to list**.
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&hitsPerPage=15&numericFilters=created_at_i%3E1782000000
   ? https://hn.algolia.com/api/v1/search_by_date?query=field%20service&tags=story&hitsperpage=15&numericfilters=created_at_i%3e1782000000
   : content_hash: sha256:3772b0d9f4e27ecc
     stored_at: data/staging/webfetch-stories-found-2026-07-11_11-02-40.md
@@ -1693,34 +1594,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://api.github.com/repos/asmuelle/sitescribe/commits?per_page=5
-  ? https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&numericfilters=created_at_i%3e1783900800&hitsperpage=20
-  : content_hash: sha256:682243881cfdd9bb
-    stored_at: data/staging/webfetch-search-by-date-2026-07-12_11-02-16.md
-    importance_score: 89
-    last_updated: '2026-07-12T11:02:16.249116+00:00'
-    title: Search By Date
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search_by_date?query=tacit%20knowledge&tags=story&numericFilters=created_at_i%3E1783900800&hitsPerPage=20
-  https://hn.algolia.com/api/v1/search_by_date?query=sop&tags=story&numericfilters=created_at_i%3e1783900800&hitsperpage=20:
-    content_hash: sha256:3efca9acc8eca021
-    stored_at: data/staging/webfetch-search-by-date-2026-07-12_11-02-16.md
-    importance_score: 89
-    last_updated: '2026-07-12T11:02:16.931569+00:00'
-    title: Search By Date
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search_by_date?query=SOP&tags=story&numericFilters=created_at_i%3E1783900800&hitsPerPage=20
-  https://hn.algolia.com/api/v1/search_by_date?query=field%20service&numericfilters=created_at_i%3e1783900800&hitsperpage=20:
-    content_hash: sha256:6c520ea967d0ebcb
-    stored_at: data/staging/webfetch-the-search-for-field-service-returned-zero-2026-07-12_11-02-18.md
-    importance_score: 89
-    last_updated: '2026-07-12T11:02:18.492411+00:00'
-    title: The search for "field service" returned zero results (`"nbHits":0`), indicating
-      there are no stories
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search_by_date?query=field%20service&numericFilters=created_at_i%3E1783900800&hitsPerPage=20
   https://api.github.com/search/repositories?q=%22step+recorder%22+created:%3e2026-06-20&sort=updated&order=desc&per_page=20:
     content_hash: sha256:2889931ef95f9ef1
     stored_at: data/staging/webfetch-repository-summary-2026-07-12_11-02-32.md
@@ -1838,15 +1711,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://buildops.com/press
-  https://hvac-talk.com/vbb/threads/2264279-struggling-technicians:
-    content_hash: sha256:2bea231ada6c0e03
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-03-43.md
-    importance_score: 80
-    last_updated: '2026-07-12T11:03:43.895842+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://hvac-talk.com/vbb/threads/2264279-Struggling-Technicians
   ? https://api.github.com/search/repositories?q=%22manifest+v3%22+recorder+created:%3e2026-06-01&sort=updated&order=desc&per_page=20
   : content_hash: sha256:630c2badc32c6a1a
     stored_at: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-45.md
@@ -1883,24 +1747,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://api.github.com/search/repositories?q=process-spec+in:name&sort=updated&order=desc&per_page=10
-  https://www.contractortalk.com/whats-new:
-    content_hash: sha256:35a9ab4e09016ea5
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-04-00.md
-    importance_score: 80
-    last_updated: '2026-07-12T11:04:00.904178+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.contractortalk.com/whats-new/
-  https://www.hvac-talk.com/threads/hvac-controls-books-learning-resource-recommendations.2241248:
-    content_hash: sha256:a39d3b50d2fa3fcb
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-04-02.md
-    importance_score: 80
-    last_updated: '2026-07-12T11:04:02.162079+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.hvac-talk.com/threads/hvac-controls-books-learning-resource-recommendations.2241248/
   ? https://techstartups.com/2026/07/09/venture-capital-startup-funding-roundup-july-9-2026-sequoia-khosla-ventures-y-combinator-a16z-accel
   : content_hash: sha256:698e28f49246e607
     stored_at: data/staging/webfetch-funding-rounds-summary-2026-07-12_11-04-06.md
@@ -2379,15 +2225,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://github.com/Evode-Manirahari/act
-  https://hn.algolia.com/api/v1/search_by_date?query=tradespeople%20knowledge&tags=story&hitsperpage=20:
-    content_hash: sha256:34b1a2cab6a6831d
-    stored_at: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-14_11-02-18.md
-    importance_score: 90
-    last_updated: '2026-07-14T11:02:18.463626+00:00'
-    title: Based on the web page content provided, there are **no stories to list**.
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search_by_date?query=tradespeople%20knowledge&tags=story&hitsPerPage=20
   https://hn.algolia.com/api/v1/search?query=tacit%20knowledge%20trades&tags=story&hitsperpage=20:
     content_hash: sha256:591e98af6890c425
     stored_at: data/staging/webfetch-story-summary-2026-07-14_11-02-20.md
@@ -2460,15 +2297,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://limble.com/news
-  https://www.electriciantalk.com/threads/retiring-and-passing-along-your-knowledge.292318:
-    content_hash: sha256:7b67ad0277f9a16b
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-04-17.md
-    importance_score: 80
-    last_updated: '2026-07-14T11:04:17.623938+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.electriciantalk.com/threads/retiring-and-passing-along-your-knowledge.292318/
   https://www.getmaintainx.com/newsroom:
     content_hash: sha256:44935cb65fee9abd
     stored_at: data/staging/webfetch-maintainx-newsroom-items-june-july-2026-2026-07-14_11-04-21.md
@@ -2514,15 +2342,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://raw.githubusercontent.com/Transitivityprimeminister2160/tacit-mining/main/README.md
-  https://www.hvacsite.com/threads/tips-tricks-advice.81:
-    content_hash: sha256:b72e2099a6be585d
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-05-24.md
-    importance_score: 80
-    last_updated: '2026-07-14T11:05:24.411115+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.hvacsite.com/threads/tips-tricks-advice.81/
   https://www.garagejournal.com/forum/threads/mechanics-tips-and-tricks-youve-learned.478375/page-7:
     content_hash: sha256:577bc0678e247686
     stored_at: data/staging/webfetch-mechanic-s-documentation-tips-2026-07-14_11-05-29.md
@@ -2595,15 +2414,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.alphabetworkersunion.org/press/new-report-details-exploitative-working-conditions-of-u-s-data-workers-behind-the-big-tech-ai-boom
-  https://www.electriciantalk.com/threads/hvac-electrical-tradesmen.39017:
-    content_hash: sha256:04069352289b888c
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-05.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:04:05.870511+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.electriciantalk.com/threads/hvac-electrical-tradesmen.39017/
   https://cwa-union.org/ais-shadow-workforce-speaks-out:
     content_hash: sha256:45fa1ab344b8dcc2
     stored_at: data/staging/webfetch-survey-details-ghost-workers-in-the-ai-machine-2026-07-16_11-04-08.md
@@ -2613,15 +2423,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://cwa-union.org/ais-shadow-workforce-speaks-out
-  https://www.electriciantalk.com/threads/fake-news-or-cuatgpt.296671:
-    content_hash: sha256:fced8e5135849c86
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-23.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:04:23.636782+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.electriciantalk.com/threads/fake-news-or-cuatgpt.296671/
   http://archive.org/wayback/available?url=ycombinator.com/rfs&timestamp=20260101:
     content_hash: sha256:df439bcd037771e2
     stored_at: data/staging/webfetch-archived-snapshot-information-2026-07-16_11-04-26.md
@@ -2640,15 +2441,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: http://archive.org/wayback/available?url=dol.gov/newsroom/releases/eta/eta20260707
-  https://www.hvac-talk.com/threads/what-to-do-when-you-know-more-than-the-guy-youre-apprenticing-with.2217879:
-    content_hash: sha256:6df3c0c2036e6d90
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-51.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:04:51.238020+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.hvac-talk.com/threads/what-to-do-when-you-know-more-than-the-guy-youre-apprenticing-with.2217879/
   https://www.garagejournal.com/forum/threads/outta-curiosity-whos-using-ai-actively-in-the-shop.548654:
     content_hash: sha256:3ca60aa1aaa77656
     stored_at: data/staging/webfetch-ai-trust-and-verification-in-mechanics-forum-2026-07-16_11-04-56.md
@@ -2784,24 +2576,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://parsers.substack.com/p/weekly-funding-rounds-statistics-465
-  https://www.augmentir.com/pricing:
-    content_hash: sha256:10fc01ae304c0024
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-07-19.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:07:19.541787+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.augmentir.com/pricing
-  https://www.augmentir.com/glossary/what-is-tribal-knowledge:
-    content_hash: sha256:e7cf095117a00456
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-07-20.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:07:20.556703+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.augmentir.com/glossary/what-is-tribal-knowledge
   https://projects.propublica.org/nonprofits/organizations/530212938:
     content_hash: sha256:34ce6c57f74534f3
     stored_at: data/staging/webfetch-electrical-training-alliance-2026-07-16_11-07-21.md
@@ -2938,24 +2712,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.vectorsolutions.com/resources/blogs/online-training-basics-learning-management-systems-authoring-tools-and-scorm/
-  https://help.interplaylearning.com/en/help/content-manager-overview:
-    content_hash: sha256:9321e5f8af50484b
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-09-25.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:09:25.006559+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://help.interplaylearning.com/en/help/content-manager-overview
-  https://help.interplaylearning.com/en/help/navigating-the-course-builder-on-content-manager:
-    content_hash: sha256:53e45fd4f1651f57
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-09-25.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:09:25.680390+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://help.interplaylearning.com/en/help/navigating-the-course-builder-on-content-manager
   https://get.help.interplaylearning.com/servicedesk/customer/portal/2/article/128876591:
     content_hash: sha256:1ae2d912ef419d14
     stored_at: data/staging/webfetch-course-builder-on-content-manager-2026-07-16_11-09-33.md
@@ -3082,15 +2838,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.apprenticeship.gov/sites/default/files/buildwithin-abstract.pdf
-  ? https://www.ecfr.gov/current/title-2/subtitle-a/chapter-ii/part-200/subpart-d/subject-group-ecfr45ddd4419ad436d/section-200.320
-  : content_hash: sha256:5a01a7190bc62a13
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-14-01.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:14:01.127851+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.ecfr.gov/current/title-2/subtitle-A/chapter-II/part-200/subpart-D/subject-group-ECFR45ddd4419ad436d/section-200.320
   https://mrsc.org/stay-informed/mrsc-insight/november-2025/federal-thresholds:
     content_hash: sha256:78d3fc22f7f09ad2
     stored_at: data/staging/webfetch-federal-procurement-threshold-changes-2026-07-16_11-14-07.md
@@ -3127,24 +2874,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.acteonline.org/wp-content/uploads/2025/03/ACTE-Perkins101-Funding-Feb2025.pdf
-  https://www.ecfr.gov/current/title-20/chapter-v/part-680/subpart-d:
-    content_hash: sha256:71187dd3d7bfc2fc
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-15-21.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:15:21.542879+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.ecfr.gov/current/title-20/chapter-V/part-680/subpart-D
-  https://www.wednetpa.org/fundingeligibility:
-    content_hash: sha256:b850e2252c977f8a
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-15-30.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:15:30.826085+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.wednetpa.org/FundingEligibility/
   https://commcorp.org/subprogram/wtfp-express-program-guidelines:
     content_hash: sha256:7721a8815e95cd6b
     stored_at: data/staging/webfetch-massachusetts-workforce-training-fund-program-2026-07-16_11-15-33.md
@@ -3228,24 +2957,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://skilledtrades.interplaylearning.com/trial?pid=price_1MgX9pESz4v8E49OBaGruLcz&gid=a197bfd1-43b3-438b-a3f0-f3a0a02110a6
-  https://community.phccweb.org/resourcecenter/member-benefits/preferred-service-providers452732:
-    content_hash: sha256:8b273e60a4d63989
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-23.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:16:23.560086+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://community.phccweb.org/resourcecenter/member-benefits/preferred-service-providers452732
-  https://www.acca.org/members/special-offers:
-    content_hash: sha256:f25342fa1ce51c00
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-24.md
-    importance_score: 80
-    last_updated: '2026-07-16T11:16:24.790572+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.acca.org/members/special-offers
   https://www.phccweb.org/phcc-member-discounts:
     content_hash: sha256:9c03a17ecf34bd30
     stored_at: data/staging/webfetch-phcc-member-discount-programs-2026-07-16_11-16-28.md
@@ -3300,15 +3011,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.interplaylearning.com/newsroom/interplay-learning-closes-growth-investment-from-goldman-sachs-alternatives-and-acquires-industrial-training-international/
-  ? https://www.federalregister.gov/documents/2026/04/20/2026-07663/extension-of-compliance-dates-for-nondiscrimination-on-the-basis-of-disability-accessibility-of-web
-  : content_hash: sha256:f6228efff12d3f57
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-42.md
-    importance_score: 79
-    last_updated: '2026-07-16T11:16:42.956145+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.federalregister.gov/documents/2026/04/20/2026-07663/extension-of-compliance-dates-for-nondiscrimination-on-the-basis-of-disability-accessibility-of-web
   https://i.slcc.edu/purchasing/docs/pcard_manual.pdf:
     content_hash: sha256:f0bf053ffae9f5e9
     stored_at: data/staging/webfetch-p-card-purchase-limits-and-software-policy-2026-07-16_11-16-43.md
@@ -3535,15 +3237,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.skillcatapp.com/pricing-old
-  https://www.jobber.com/pricing:
-    content_hash: sha256:a15795f96742a43a
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-17-18.md
-    importance_score: 79
-    last_updated: '2026-07-16T11:17:18.248294+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.jobber.com/pricing/
   https://www.skillcatapp.com:
     content_hash: sha256:8842e26dac37b457
     stored_at: data/staging/webfetch-skillcat-s-target-audience-2026-07-16_11-17-19.md
@@ -3625,15 +3318,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.dozuki.com/pricing
-  https://scribehow.com/pricing:
-    content_hash: sha256:8c29b96910ca264b
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-17-33.md
-    importance_score: 79
-    last_updated: '2026-07-16T11:17:34.050749+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://scribehow.com/pricing
   https://www.ivytech.edu/media/hj4mklos/fmm_section_j_6-28.pdf:
     content_hash: sha256:56f9751b985f1b8c
     stored_at: data/staging/webfetch-to-accurately-identify-the-exact-dollar-2026-07-16_11-17-34.md
@@ -4115,15 +3799,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.interplaylearning.com/solutions/individuals/
-  https://www.ega.edu/about/at-a-glance/policies-and-procedures-of-the-college/07-purchasing-card-policy.html:
-    content_hash: sha256:436577c89d2331f7
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-18-42.md
-    importance_score: 79
-    last_updated: '2026-07-16T11:18:42.884703+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.ega.edu/about/at-a-glance/policies-and-procedures-of-the-college/07-purchasing-card-policy.html
   https://topekaelectricaljatc.com/grant_-_procurement_policy:
     content_hash: sha256:831a7254f14b0dbf
     stored_at: data/staging/webfetch-topeka-electrical-jatc-procurement-policy-analysis-2026-07-16_11-18-44.md
@@ -4341,15 +4016,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://export.arxiv.org/api/query?search_query=all:citation+network+novelty+disruption+index+scientific+impact&max_results=12&sortBy=relevance
-  https://hn.algolia.com/api/v1/search?query=grobid%20nougat%20pdf%20parsing&tags=story&hitsperpage=15:
-    content_hash: sha256:310127deedb301df
-    stored_at: data/staging/webfetch-search-results-for-grobid-nougat-pdf-parsing-2026-07-17_15-20-29.md
-    importance_score: 90
-    last_updated: '2026-07-17T15:20:29.401178+00:00'
-    title: Search Results for "GROBID Nougat PDF parsing"
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search?query=GROBID%20Nougat%20PDF%20parsing&tags=story&hitsPerPage=15
   https://export.arxiv.org/api/query?search_query=all:rag+evaluation+faithfulness+ragas+ares&max_results=12&sortby=relevance:
     content_hash: sha256:3a897fe20f30ebdc
     stored_at: data/staging/webfetch-rag-evaluation-research-papers-summary-2026-07-17_15-20-31.md
@@ -4702,15 +4368,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://export.arxiv.org/api/query?search_query=all:field+worker+knowledge+capture+augmented+reality+maintenance+expert&max_results=10&sortBy=relevance
-  ? https://hn.algolia.com/api/v1/search?query=knowledge%20management%20fails%20wiki%20nobody%20reads&tags=story&hitsperpage=15
-  : content_hash: sha256:5a2562949ca73353
-    stored_at: data/staging/webfetch-search-results-2026-07-19_11-03-33.md
-    importance_score: 90
-    last_updated: '2026-07-19T11:03:33.835478+00:00'
-    title: Search Results
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search?query=knowledge%20management%20fails%20wiki%20nobody%20reads&tags=story&hitsPerPage=15
   https://worldtradeventures.com/bridging-the-service-expertise-gap-insights-from-the-2025-field-service-benchmark-report:
     content_hash: sha256:35e612c33e984622
     stored_at: data/staging/webfetch-2025-field-service-expertise-gap-key-statistics-2026-07-19_11-04-14.md
@@ -4891,15 +4548,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.stocktitan.net/sec-filings/ADSK/8-k-autodesk-inc-reports-material-event-a95f6dea7d26.html
-  https://www.electriciantalk.com:
-    content_hash: sha256:58634c7032c4ea56
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-20_11-04-36.md
-    importance_score: 80
-    last_updated: '2026-07-20T11:04:36.809368+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.electriciantalk.com/
   https://www.garagejournal.com/forum/whats-new/latest-activity:
     content_hash: sha256:da230f55959a4b5d
     stored_at: data/staging/webfetch-to-locate-such-content-you-would-need-to-access-2026-07-20_11-04-36.md
@@ -5189,42 +4837,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.navigate.ai/
-  https://www.electriciantalk.com/threads/panel-change-how-do-you-guys-label-your-circuits.260578:
-    content_hash: sha256:d61d7a51135ed163
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-03-53.md
-    importance_score: 80
-    last_updated: '2026-07-24T11:03:53.186552+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.electriciantalk.com/threads/panel-change-how-do-you-guys-label-your-circuits.260578/
-  https://www.hvac-talk.com/threads/78568:
-    content_hash: sha256:bf94a82b437a8979
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-04-30.md
-    importance_score: 80
-    last_updated: '2026-07-24T11:04:30.262107+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.hvac-talk.com/threads/78568
-  https://www.contractortalk.com/forums/hvac-picture-post.29:
-    content_hash: sha256:d02bcf601dbdb897
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-04-37.md
-    importance_score: 80
-    last_updated: '2026-07-24T11:04:37.310090+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.contractortalk.com/forums/hvac-picture-post.29/
-  ? https://hn.algolia.com/api/v1/search_by_date?query=apprenticeship%20or%20%22offline-first%22%20field&tags=story&numericfilters=created_at_i%3e1752451200
-  : content_hash: sha256:ecc96d95f78d2c4a
-    stored_at: data/staging/webfetch-based-on-the-provided-search-results-there-are-no-2026-07-24_11-05-14.md
-    importance_score: 89
-    last_updated: '2026-07-24T11:05:14.765355+00:00'
-    title: Based on the provided search results, there are **no stories to list**.
-    maturity: growing
-    routing_type: meta
-    url: https://hn.algolia.com/api/v1/search_by_date?query=apprenticeship%20OR%20%22offline-first%22%20field&tags=story&numericFilters=created_at_i%3E1752451200
   https://github.com/crxjs/chrome-extension-tools:
     content_hash: sha256:9ecdffea639dab85
     stored_at: data/staging/webfetch-crxjs-chrome-extension-tools-project-report-2026-07-25_11-02-45.md
@@ -5243,15 +4855,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://github.com/wxt-dev/wxt
-  https://www.electriciantalk.com/threads/keep-your-own-photos.1:
-    content_hash: sha256:f81a665f0661ab91
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-02-53.md
-    importance_score: 80
-    last_updated: '2026-07-25T11:02:53.882842+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.electriciantalk.com/threads/keep-your-own-photos.1/
   ? https://hn.algolia.com/api/v1/search?query=tribal%20knowledge%20field%20service&tags=story&numericfilters=created_at_i%3e1753142400
   : content_hash: sha256:0f527ec64fcd5b92
     stored_at: data/staging/webfetch-search-results-2026-07-25_11-02-54.md
@@ -5270,24 +4873,6 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://hn.algolia.com/api/v1/search_by_date?query=trade%20skill%20knowledge&tags=story&numericFilters=created_at_i%3E1753142400
-  https://www.hvac-talk.com/vbb/threads/panel-photos-before-i-leave.1:
-    content_hash: sha256:2c89c884f3b9bd40
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-03-13.md
-    importance_score: 80
-    last_updated: '2026-07-25T11:03:13.530564+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.hvac-talk.com/vbb/threads/panel-photos-before-i-leave.1/
-  https://www.contractortalk.com/threads/personal-job-records.1:
-    content_hash: sha256:53f144587759dff0
-    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-03-14.md
-    importance_score: 80
-    last_updated: '2026-07-25T11:03:14.522289+00:00'
-    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
-    maturity: growing
-    routing_type: meta
-    url: https://www.contractortalk.com/threads/personal-job-records.1/
   https://vyntelligence.com/sitemap.xml:
     content_hash: sha256:4ab5556ebbf0f7ba
     stored_at: data/staging/webfetch-urls-from-vyntelligence-sitemap-2026-07-25_11-03-19.md
@@ -5432,11 +5017,8 @@ hashes:
   sha256:486e6858b22d9af6: data/staging/webfetch-user-complaints-about-scribe-and-tango-2026-07-02_11-05-40.md
   sha256:ab87bf646a24ecd8: data/staging/webfetch-tribal-knowledge-in-manufacturing-key-points-2026-07-02_11-05-40.md
   sha256:b9d417fb66e78cc4: data/staging/webfetch-search-results-2026-07-03_11-02-29.md
-  sha256:af91a6e88969614b: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-02-30.md
-  sha256:89a34c58385bafd9: data/staging/webfetch-story-search-results-2026-07-03_11-02-39.md
   sha256:a6c65dd31f1dfa4d: data/staging/webfetch-stories-with-points-5-2026-07-03_11-02-45.md
   sha256:e322719f70346f0f: data/staging/webfetch-stories-with-points-5-2026-07-03_11-03-03.md
-  sha256:5f3e36c4a0051448: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-03-20.md
   sha256:8f8c2b3ea97ee076: data/staging/webfetch-workmap-project-report-2026-07-03_11-03-27.md
   sha256:ceabef2801c66409: data/staging/webfetch-opensteps-project-report-2026-07-03_11-03-29.md
   sha256:33eb115b563f2cfd: data/staging/webfetch-screenity-project-report-2026-07-03_11-03-30.md
@@ -5448,7 +5030,6 @@ hashes:
   sha256:47a25298c3cd02bc: data/staging/webfetch-cass-project-report-2026-07-03_11-03-46.md
   sha256:b003b86c1f2b5536: data/staging/webfetch-beveren-fsm-project-report-2026-07-03_11-03-46.md
   sha256:46909f57c5106c25: data/staging/webfetch-opentranscribe-project-report-2026-07-03_11-04-01.md
-  sha256:79fa19c20ee1de06: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-03_11-05-48.md
   sha256:da518117d83ee81f: data/staging/webfetch-reach-capital-s-frontline-worker-ai-investment-2026-07-03_11-05-55.md
   sha256:a60a43573107ee50: data/staging/webfetch-frontline-worker-startup-funding-summary-2026-07-03_11-06-18.md
   sha256:4483397cf9246811: data/staging/webfetch-documentation-tools-thread-summary-2026-07-03_11-06-58.md
@@ -5510,13 +5091,10 @@ hashes:
   sha256:0a7ee18665b2fc9b: data/staging/webfetch-atlas-ai-nameplate-scan-overview-2026-07-06_11-04-20.md
   sha256:bc05dfc8b6a5711a: data/staging/webfetch-second-brain-repository-overview-2026-07-06_11-04-22.md
   sha256:663699aed4571805: data/staging/webfetch-pain-points-with-job-site-photos-2026-07-06_11-04-52.md
-  sha256:7a895174fdf6d9f3: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-06_11-05-09.md
-  sha256:0e939821b9fbc6d0: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-06_11-05-33.md
   sha256:d3b0252d19775b20: data/staging/webfetch-search-results-for-tango-workflow-documentation-2026-07-07_11-06-14.md
   sha256:f82efaec074168fb: data/staging/webfetch-search-results-2026-07-07_11-06-15.md
   sha256:d54ca469d8fdebfd: data/staging/webfetch-stories-from-search-results-2026-07-07_11-06-18.md
   sha256:d5782e130a2d031d: data/staging/webfetch-story-list-2026-07-07_11-06-23.md
-  sha256:b562941b93d1c1bd: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-07_11-06-31.md
   sha256:bf07e24f55a89bf4: data/staging/webfetch-stories-from-search-results-2026-07-07_11-06-35.md
   sha256:98885f51b4c6086a: data/staging/webfetch-stories-from-search-results-2026-07-07_11-06-38.md
   sha256:1fa45df73ea5d967: data/staging/webfetch-hacker-news-stories-documentation-sop-2026-07-07_11-06-40.md
@@ -5533,8 +5111,6 @@ hashes:
   sha256:08d366cc59b1ffd3: data/staging/webfetch-paper-details-2026-07-07_11-08-17.md
   sha256:7f1e0e345e140681: data/staging/webfetch-datch-ai-powered-diagnostic-knowledge-capture-2026-07-07_11-08-47.md
   sha256:bf40b66a90e6e9e1: data/staging/webfetch-story-results-2026-07-08_11-04-14.md
-  sha256:8d1a33f361dd1aa7: data/staging/webfetch-search-results-2026-07-08_11-04-15.md
-  sha256:c0adfc0d0712e371: data/staging/webfetch-search-results-for-skilled-trades-skills-gap-2026-07-08_11-04-16.md
   sha256:3d01572205b7b020: data/staging/webfetch-chrome-extension-manifest-v3-stories-2026-07-08_11-04-25.md
   sha256:8f094ac4ac3f80a7: data/staging/webfetch-search-results-for-scribe-tango-how-to-guide-2026-07-09_11-03-51.md
   sha256:d74a0e18d464dde1: data/staging/webfetch-search-results-knowledge-loss-retirement-workforce-2026-07-09_11-03-52.md
@@ -5558,7 +5134,6 @@ hashes:
   sha256:630d21126169e0c8: data/staging/webfetch-the-tribal-knowledge-crisis-in-manufacturing-2026-07-09_11-06-40.md
   sha256:9b0413ecb661c76b: data/staging/webfetch-us-margin-trading-fees-on-kraken-2026-07-09_14-45-32.md
   sha256:7414ec0f8e55da43: data/staging/webfetch-us-margin-trading-on-kraken-2026-07-09_14-45-33.md
-  sha256:209f4006db9a7e58: data/staging/webfetch-search-results-for-tacit-knowledge-trades-2026-07-10_11-02-47.md
   sha256:57e3493c62f36e20: data/staging/webfetch-stories-from-search-results-2026-07-10_11-02-56.md
   sha256:e07ed91c1413dd37: data/staging/webfetch-stories-about-tribal-knowledge-2026-07-10_11-03-15.md
   sha256:df3f00484fa88254: data/staging/webfetch-stories-from-search-results-2026-07-10_11-03-17.md
@@ -5582,7 +5157,6 @@ hashes:
   sha256:b0de72344700611f: data/staging/webfetch-search-2026-07-10_11-06-01.md
   sha256:053662baed88701c: data/staging/webfetch-article-summary-2026-07-10_11-06-06.md
   sha256:4e2db05795015d68: data/staging/webfetch-summary-of-ai-trends-in-skilled-trades-2026-07-10_11-06-22.md
-  sha256:384fc111d8993471: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-11_11-02-38.md
   sha256:3772b0d9f4e27ecc: data/staging/webfetch-stories-found-2026-07-11_11-02-40.md
   sha256:5f7b1cd6c98d321f: data/staging/webfetch-stories-from-search-results-2026-07-11_11-02-50.md
   sha256:d3d1f858a02f6bf6: data/staging/webfetch-summary-ai-tools-in-trade-field-service-2026-07-11_11-03-07.md
@@ -5605,9 +5179,6 @@ hashes:
   sha256:511dde1f7d4190f7: data/staging/webfetch-repository-report-2026-07-12_11-02-08.md
   sha256:b6593ebf0d287bda: data/staging/webfetch-repository-report-2026-07-12_11-02-09.md
   sha256:38360ab20503d33a: data/staging/webfetch-recent-commits-from-sitescribe-repository-2026-07-12_11-02-12.md
-  sha256:682243881cfdd9bb: data/staging/webfetch-search-by-date-2026-07-12_11-02-16.md
-  sha256:3efca9acc8eca021: data/staging/webfetch-search-by-date-2026-07-12_11-02-16.md
-  sha256:6c520ea967d0ebcb: data/staging/webfetch-the-search-for-field-service-returned-zero-2026-07-12_11-02-18.md
   sha256:2889931ef95f9ef1: data/staging/webfetch-repository-summary-2026-07-12_11-02-32.md
   sha256:0278598be12a6ec2: data/staging/webfetch-github-repository-search-results-2026-07-12_11-02-35.md
   sha256:7f627321e16b4c0e: data/staging/webfetch-search-results-for-sop-2026-07-12_11-02-38.md
@@ -5621,13 +5192,10 @@ hashes:
   sha256:6136c6c477d656ed: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-21.md
   sha256:2961d5c2df860826: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-23.md
   sha256:19d8de38b5a97db5: data/staging/webfetch-press-releases-june-july-2026-2026-07-12_11-03-30.md
-  sha256:2bea231ada6c0e03: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-03-43.md
   sha256:630c2badc32c6a1a: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-45.md
   sha256:230a3cc6e37a710a: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-49.md
   sha256:2d06b111ea96b8cd: data/staging/webfetch-repository-summary-2026-07-12_11-03-50.md
   sha256:8a224cf2cf2a0198: data/staging/webfetch-github-repository-search-results-2026-07-12_11-03-52.md
-  sha256:35a9ab4e09016ea5: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-04-00.md
-  sha256:a39d3b50d2fa3fcb: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-12_11-04-02.md
   sha256:698e28f49246e607: data/staging/webfetch-funding-rounds-summary-2026-07-12_11-04-06.md
   sha256:a39e55bca1502ab9: data/staging/webfetch-repository-search-results-2026-07-12_11-04-11.md
   sha256:feb91da0c13ca9aa: data/staging/webfetch-watch-skill-repository-summary-2026-07-12_11-04-11.md
@@ -5681,7 +5249,6 @@ hashes:
   sha256:7c9c6a707edd8eb8: data/staging/webfetch-egor-homakov-s-github-rails-repository-exploit-2026-07-13_14-14-30.md
   sha256:89119572e5c98d45: data/staging/webfetch-cwe-502-object-injection-references-2026-07-13_14-15-07.md
   sha256:9c09e9535a60fe93: data/staging/webfetch-act-repository-summary-2026-07-14_11-02-03.md
-  sha256:34b1a2cab6a6831d: data/staging/webfetch-based-on-the-web-page-content-provided-there-are-2026-07-14_11-02-18.md
   sha256:591e98af6890c425: data/staging/webfetch-story-summary-2026-07-14_11-02-20.md
   sha256:976ea78fb2ec31f7: data/staging/webfetch-stories-about-tacit-knowledge-2026-07-14_11-02-37.md
   sha256:6176eec2d238b4af: data/staging/webfetch-stories-from-search-results-2026-07-14_11-02-47.md
@@ -5690,13 +5257,11 @@ hashes:
   sha256:c3961fb6febdfef1: data/staging/webfetch-manufacturing-ai-adoption-no-shop-floor-2026-07-14_11-03-40.md
   sha256:afa107b3d9306996: data/staging/webfetch-article-analysis-training-processes-or-apprentices-2026-07-14_11-03-42.md
   sha256:4ec2b190ec299ee9: data/staging/webfetch-limble-press-releases-announcements-june-july-2026-2026-07-14_11-03-57.md
-  sha256:7b67ad0277f9a16b: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-04-17.md
   sha256:44935cb65fee9abd: data/staging/webfetch-maintainx-newsroom-items-june-july-2026-2026-07-14_11-04-21.md
   sha256:12596acc5905ce20: data/staging/webfetch-y-combinator-requests-for-startups-summer-2026-2026-07-14_11-04-50.md
   sha256:1e94684e1ccd072c: data/staging/webfetch-vigil-summary-2026-07-14_11-04-56.md
   sha256:af3f7369ae79d4a3: data/staging/webfetch-analysis-first-person-quotes-and-trust-gaps-2026-07-14_11-05-07.md
   sha256:30bf169f91ee7992: data/staging/webfetch-tacit-mining-summary-2026-07-14_11-05-07.md
-  sha256:b72e2099a6be585d: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-14_11-05-24.md
   sha256:577bc0678e247686: data/staging/webfetch-mechanic-s-documentation-tips-2026-07-14_11-05-29.md
   sha256:90b4b6d7e63924fe: data/staging/webfetch-funding-report-summary-7-13-2026-2026-07-14_11-05-30.md
   sha256:51abcc85c9032cec: data/staging/webfetch-summary-2026-07-16_11-03-17.md
@@ -5705,12 +5270,9 @@ hashes:
   sha256:a0967f80943e4669: data/staging/webfetch-mechanics-documentation-and-knowledge-sharing-2026-07-16_11-03-47.md
   sha256:7a9141c54b7ccece: data/staging/webfetch-ghost-workers-in-the-ai-machine-report-details-2026-07-16_11-03-52.md
   sha256:85a56ccb18d5cf27: data/staging/webfetch-report-summary-ghost-workers-in-the-ai-machine-2026-07-16_11-03-56.md
-  sha256:04069352289b888c: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-05.md
   sha256:45fa1ab344b8dcc2: data/staging/webfetch-survey-details-ghost-workers-in-the-ai-machine-2026-07-16_11-04-08.md
-  sha256:fced8e5135849c86: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-23.md
   sha256:df439bcd037771e2: data/staging/webfetch-archived-snapshot-information-2026-07-16_11-04-26.md
   sha256:80d7acfd0c583604: data/staging/webfetch-archived-snapshot-information-2026-07-16_11-04-37.md
-  sha256:6df3c0c2036e6d90: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-04-51.md
   sha256:3ca60aa1aaa77656: data/staging/webfetch-ai-trust-and-verification-in-mechanics-forum-2026-07-16_11-04-56.md
   sha256:e88531f74c08d002: data/staging/webfetch-forum-ownership-and-content-terms-2026-07-16_11-05-35.md
   sha256:8c9a6187fb518895: data/staging/webfetch-google-skilled-trades-funding-key-details-2026-07-16_11-06-17.md
@@ -5726,8 +5288,6 @@ hashes:
   sha256:b1f83cffff60df4e: data/staging/webfetch-to-answer-your-questions-about-2026-07-16_11-07-08.md
   sha256:ff39c5c97df95b78: data/staging/webfetch-analysis-of-article-content-2026-07-16_11-07-12.md
   sha256:acd42a4af8e84c4e: data/staging/webfetch-funding-report-analysis-2026-07-16_11-07-14.md
-  sha256:10fc01ae304c0024: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-07-19.md
-  sha256:e7cf095117a00456: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-07-20.md
   sha256:34ce6c57f74534f3: data/staging/webfetch-electrical-training-alliance-2026-07-16_11-07-21.md
   sha256:c4491616c1df4276: data/staging/webfetch-augmentir-pricing-analysis-2026-07-16_11-07-40.md
   sha256:88c7254d36e46502: data/staging/webfetch-augmentir-s-approach-to-capturing-tribal-knowledge-2026-07-16_11-07-42.md
@@ -5743,8 +5303,6 @@ hashes:
   sha256:a06a8d4f8648e9e2: data/staging/webfetch-google-funding-to-electrical-training-alliance-2026-07-16_11-08-55.md
   sha256:a87297241f1e1a64: data/staging/webfetch-tooling-u-sme-product-analysis-2026-07-16_11-08-57.md
   sha256:3062c2acfd1c9996: data/staging/webfetch-online-training-basics-learning-management-2026-07-16_11-09-12.md
-  sha256:9321e5f8af50484b: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-09-25.md
-  sha256:53e45fd4f1651f57: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-09-25.md
   sha256:1ae2d912ef419d14: data/staging/webfetch-course-builder-on-content-manager-2026-07-16_11-09-33.md
   sha256:221390d7e240349d: data/staging/webfetch-nccer-s-focus-and-credentials-2026-07-16_11-10-42.md
   sha256:e0935aeeb10ec56c: data/staging/webfetch-vector-solutions-acquisition-announcement-2026-07-16_11-10-54.md
@@ -5759,13 +5317,10 @@ hashes:
   sha256:1387305816fd6fa7: data/staging/webfetch-analysis-of-the-ai-in-registered-apprenticeship-2026-07-16_11-12-52.md
   sha256:e169f0ee7ea36ac6: data/staging/webfetch-statistics-from-apprenticeship-gov-2026-07-16_11-13-44.md
   sha256:f053823df1244383: data/staging/webfetch-buildwithin-information-extract-2026-07-16_11-13-47.md
-  sha256:5a01a7190bc62a13: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-14-01.md
   sha256:78d3fc22f7f09ad2: data/staging/webfetch-federal-procurement-threshold-changes-2026-07-16_11-14-07.md
   sha256:48edd8e433924f26: data/staging/webfetch-procurement-thresholds-document-analysis-2026-07-16_11-15-14.md
   sha256:e86b576e5a71839e: data/staging/webfetch-los-rios-purchasing-thresholds-2026-07-16_11-15-16.md
   sha256:d71ae225be72edc8: data/staging/webfetch-perkins-v-funding-analysis-2026-07-16_11-15-20.md
-  sha256:71187dd3d7bfc2fc: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-15-21.md
-  sha256:b850e2252c977f8a: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-15-30.md
   sha256:7721a8815e95cd6b: data/staging/webfetch-massachusetts-workforce-training-fund-program-2026-07-16_11-15-33.md
   sha256:2eee9937448c9bce: data/staging/webfetch-based-on-the-provided-web-page-content-i-cannot-2026-07-16_11-15-33.md
   sha256:cd479af8a611f95c: data/staging/webfetch-nccer-overview-2026-07-16_11-15-33.md
@@ -5775,15 +5330,12 @@ hashes:
   sha256:4a23993af80a57ca: data/staging/webfetch-interplay-learning-investment-and-acquisition-2026-07-16_11-15-54.md
   sha256:a20dbf9b46979760: data/staging/webfetch-trainual-pricing-analysis-2026-07-16_11-15-57.md
   sha256:9dacc05b15675e42: data/staging/webfetch-to-provide-the-requested-financial-details-i-2026-07-16_11-16-10.md
-  sha256:8b273e60a4d63989: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-23.md
-  sha256:f25342fa1ce51c00: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-24.md
   sha256:9c03a17ecf34bd30: data/staging/webfetch-phcc-member-discount-programs-2026-07-16_11-16-28.md
   sha256:76f6604a0a6766b9: data/staging/webfetch-skills-development-fund-eligible-expenses-payment-2026-07-16_11-16-29.md
   sha256:504afc785ec6379b: data/staging/webfetch-acca-strategic-partners-program-overview-2026-07-16_11-16-31.md
   sha256:e6d50e01d2254300: data/staging/webfetch-interplay-learning-pricing-information-2026-07-16_11-16-37.md
   sha256:1c2e975db9ecc7c1: data/staging/webfetch-vendor-partner-discount-programs-2026-07-16_11-16-38.md
   sha256:dcc288e26aef4c70: data/staging/webfetch-interplay-learning-investment-and-acquisition-2026-07-16_11-16-42.md
-  sha256:f6228efff12d3f57: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-16-42.md
   sha256:f0bf053ffae9f5e9: data/staging/webfetch-p-card-purchase-limits-and-software-policy-2026-07-16_11-16-43.md
   sha256:73af16ea2f16c773: data/staging/webfetch-acca-hvac-industry-marketplace-overview-2026-07-16_11-16-44.md
   sha256:c1619385caa4f8b6: data/staging/webfetch-buildwithin-business-model-customers-and-2026-07-16_11-16-45.md
@@ -5809,7 +5361,6 @@ hashes:
   sha256:d06144b0fec9ca14: data/staging/webfetch-to-obtain-the-procurement-dollar-thresholds-you-2026-07-16_11-17-15.md
   sha256:06a4efe32d2d277c: data/staging/webfetch-based-on-the-provided-web-page-content-i-cannot-2026-07-16_11-17-16.md
   sha256:452942578d2040ce: data/staging/webfetch-skillcat-pricing-2026-07-16_11-17-17.md
-  sha256:a15795f96742a43a: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-17-18.md
   sha256:8842e26dac37b457: data/staging/webfetch-skillcat-s-target-audience-2026-07-16_11-17-19.md
   sha256:722cc0caced1e9da: data/staging/webfetch-housecall-pro-pricing-tiers-2026-07-16_11-17-23.md
   sha256:0b4b353ec4cbd243: data/staging/webfetch-to-properly-analyze-this-contract-i-would-need-2026-07-16_11-17-26.md
@@ -5819,7 +5370,6 @@ hashes:
   sha256:d1fbd5865b13b677: data/staging/webfetch-measurequick-pricing-details-2026-07-16_11-17-32.md
   sha256:f91c30f5a39f7563: data/staging/webfetch-contractor-university-membership-pricing-2026-07-16_11-17-32.md
   sha256:88be41c363e13d90: data/staging/webfetch-dozuki-pricing-information-2026-07-16_11-17-33.md
-  sha256:8c29b96910ca264b: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-17-33.md
   sha256:56f9751b985f1b8c: data/staging/webfetch-to-accurately-identify-the-exact-dollar-2026-07-16_11-17-34.md
   sha256:c989762080465625: data/staging/webfetch-based-on-the-webpage-content-provided-procore-is-2026-07-16_11-17-35.md
   sha256:527b649669b9c4ac: data/staging/webfetch-to-provide-you-with-the-exact-dollar-figures-for-2026-07-16_11-17-36.md
@@ -5873,7 +5423,6 @@ hashes:
   sha256:b1794f7daeaa8f0e: data/staging/webfetch-servicetitan-phcc-partnership-summary-2026-07-16_11-18-39.md
   sha256:0b0b16cb3924ddfa: data/staging/webfetch-interplay-solo-pricing-information-2026-07-16_11-18-39.md
   sha256:5f6dcba00a54db7e: data/staging/webfetch-pricing-information-for-individual-plans-2026-07-16_11-18-40.md
-  sha256:436577c89d2331f7: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-16_11-18-42.md
   sha256:831a7254f14b0dbf: data/staging/webfetch-topeka-electrical-jatc-procurement-policy-analysis-2026-07-16_11-18-44.md
   sha256:f794bbf55fe55374: data/staging/webfetch-you-ve-hit-your-session-limit-resets-11am-america-2026-07-16_11-18-52.md
   sha256:a8bc0eaaa7ca679d: data/staging/webfetch-based-on-the-content-provided-there-are-no-2026-07-17_11-02-26.md
@@ -5898,7 +5447,6 @@ hashes:
   sha256:067fc09e2d03e445: data/staging/webfetch-scientific-pdf-parsing-research-papers-2026-07-17_15-20-23.md
   sha256:97134fc729baf229: data/staging/webfetch-neo4j-graphrag-python-repository-summary-2026-07-17_15-20-24.md
   sha256:ca70840f2eb9938b: data/staging/webfetch-arxiv-papers-on-citation-networks-and-scientific-2026-07-17_15-20-28.md
-  sha256:310127deedb301df: data/staging/webfetch-search-results-for-grobid-nougat-pdf-parsing-2026-07-17_15-20-29.md
   sha256:3a897fe20f30ebdc: data/staging/webfetch-rag-evaluation-research-papers-summary-2026-07-17_15-20-31.md
   sha256:28ad4fefb5ae533b: data/staging/webfetch-txtai-repository-overview-2026-07-17_15-20-34.md
   sha256:0d3e859a05a41853: data/staging/webfetch-rag-evaluation-stories-list-2026-07-17_15-20-35.md
@@ -5938,7 +5486,6 @@ hashes:
   sha256:b96be568a5266997: data/staging/webfetch-indie-hackers-thread-summary-knowledge-base-tools-2026-07-19_11-03-17.md
   sha256:1b53e9da1a4a9bc8: data/staging/webfetch-field-service-knowledge-capture-key-statistics-2026-07-19_11-03-20.md
   sha256:22914356bcb4c94c: data/staging/webfetch-arxiv-paper-entries-2026-07-19_11-03-22.md
-  sha256:5a2562949ca73353: data/staging/webfetch-search-results-2026-07-19_11-03-33.md
   sha256:35e612c33e984622: data/staging/webfetch-2025-field-service-expertise-gap-key-statistics-2026-07-19_11-04-14.md
   sha256:674509e88acf8add: data/staging/webfetch-research-works-on-tacit-knowledge-externalization-2026-07-19_11-04-18.md
   sha256:a52236bc0c8e0361: data/staging/webfetch-works-listed-2026-07-19_11-04-37.md
@@ -5959,7 +5506,6 @@ hashes:
   sha256:732d4069b74e4a3d: data/staging/webfetch-carbyn-ai-funding-and-traction-information-2026-07-20_11-04-22.md
   sha256:55aeac8bb2bf26af: data/staging/webfetch-carbyn-page-content-report-2026-07-20_11-04-25.md
   sha256:759c1fd7ba866e7d: data/staging/webfetch-autodesk-maintainx-acquisition-key-filing-2026-07-20_11-04-32.md
-  sha256:58634c7032c4ea56: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-20_11-04-36.md
   sha256:da230f55959a4b5d: data/staging/webfetch-to-locate-such-content-you-would-need-to-access-2026-07-20_11-04-36.md
   sha256:7549436488363d09: data/staging/webfetch-stories-from-2026-07-17-onward-2026-07-20_11-04-41.md
   sha256:cfd7ad6fdcdbd357: data/staging/webfetch-story-hit-results-2026-07-22_11-02-39.md
@@ -5992,17 +5538,10 @@ hashes:
   sha256:ca78f50909cc7f82: data/staging/webfetch-vyntelligence-extraction-summary-2026-07-24_11-03-50.md
   sha256:affd5bafed32c3fd: data/staging/webfetch-cloneable-extraction-summary-2026-07-24_11-03-51.md
   sha256:6065c998864cdac3: data/staging/webfetch-navigateai-key-business-details-2026-07-24_11-03-52.md
-  sha256:d61d7a51135ed163: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-03-53.md
-  sha256:bf94a82b437a8979: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-04-30.md
-  sha256:d02bcf601dbdb897: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-04-37.md
-  sha256:ecc96d95f78d2c4a: data/staging/webfetch-based-on-the-provided-search-results-there-are-no-2026-07-24_11-05-14.md
   sha256:9ecdffea639dab85: data/staging/webfetch-crxjs-chrome-extension-tools-project-report-2026-07-25_11-02-45.md
   sha256:de832ecd9891b0c0: data/staging/webfetch-wxt-web-extension-framework-project-report-2026-07-25_11-02-46.md
-  sha256:f81a665f0661ab91: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-02-53.md
   sha256:0f527ec64fcd5b92: data/staging/webfetch-search-results-2026-07-25_11-02-54.md
   sha256:0e42b7d56aeb89bc: data/staging/webfetch-stories-retrieved-2026-07-25_11-02-56.md
-  sha256:2c89c884f3b9bd40: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-03-13.md
-  sha256:53f144587759dff0: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-03-14.md
   sha256:4ab5556ebbf0f7ba: data/staging/webfetch-urls-from-vyntelligence-sitemap-2026-07-25_11-03-19.md
   sha256:d4f8328a8ce455c7: data/staging/webfetch-offline-capability-search-results-2026-07-25_11-03-40.md
   sha256:1c4230a30b9c8e3a: data/staging/webfetch-operations-maintenance-2026-07-25_11-03-41.md
