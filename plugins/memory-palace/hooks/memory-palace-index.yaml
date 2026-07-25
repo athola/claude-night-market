@@ -5099,6 +5099,323 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.modocs.ai/blog/documentation-doesnt-fail-because-people-dont-care-it-fails-because-creating-it-is-too-hard
+  ? https://www.globenewswire.com/news-release/2026/05/26/3301425/0/en/navigateai-launches-to-build-the-ai-copilot-for-the-physical-world.html
+  : content_hash: sha256:53c5e1ffd7bc8e64
+    stored_at: data/staging/webfetch-navigateai-launch-summary-2026-07-24_11-02-48.md
+    importance_score: 79
+    last_updated: '2026-07-24T11:02:48.821703+00:00'
+    title: NavigateAI Launch Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.globenewswire.com/news-release/2026/05/26/3301425/0/en/navigateai-launches-to-build-the-ai-copilot-for-the-physical-world.html
+  https://www.knowron.com/product:
+    content_hash: sha256:6260af17dc558dfd
+    stored_at: data/staging/webfetch-knowron-product-analysis-2026-07-24_11-02-49.md
+    importance_score: 79
+    last_updated: '2026-07-24T11:02:49.629900+00:00'
+    title: KNOWRON Product Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.knowron.com/product
+  ? https://hn.algolia.com/api/v1/search_by_date?query=voice%20notes%20documentation&tags=story&numericfilters=created_at_i%3e1752451200
+  : content_hash: sha256:e5c3c96222cc1f76
+    stored_at: data/staging/webfetch-story-listings-2026-07-24_11-03-08.md
+    importance_score: 89
+    last_updated: '2026-07-24T11:03:08.592686+00:00'
+    title: Story Listings
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=voice%20notes%20documentation&tags=story&numericFilters=created_at_i%3E1752451200
+  ? https://hn.algolia.com/api/v1/search_by_date?query=field%20service%20software&tags=story&numericfilters=created_at_i%3e1752451200
+  : content_hash: sha256:eb1c46b5504ad44c
+    stored_at: data/staging/webfetch-story-results-field-service-software-2026-07-24_11-03-10.md
+    importance_score: 89
+    last_updated: '2026-07-24T11:03:10.440684+00:00'
+    title: 'Story Results: Field Service Software'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=field%20service%20software&tags=story&numericFilters=created_at_i%3E1752451200
+  ? https://hn.algolia.com/api/v1/search_by_date?query=sop%20capture%20documentation&tags=story&numericfilters=created_at_i%3e1752451200
+  : content_hash: sha256:8cf86de643ea2010
+    stored_at: data/staging/webfetch-story-index-2026-07-24_11-03-14.md
+    importance_score: 89
+    last_updated: '2026-07-24T11:03:14.531724+00:00'
+    title: Story Index
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=SOP%20capture%20documentation&tags=story&numericFilters=created_at_i%3E1752451200
+  https://hn.algolia.com/api/v1/search_by_date?query=tribal%20knowledge&tags=story&numericfilters=created_at_i%3e1752451200:
+    content_hash: sha256:7a9fc6897b26c291
+    stored_at: data/staging/webfetch-story-index-tribal-knowledge-recent-stories-2026-07-24_11-03-16.md
+    importance_score: 89
+    last_updated: '2026-07-24T11:03:16.856112+00:00'
+    title: 'Story Index: Tribal Knowledge (Recent Stories)'
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=tribal%20knowledge&tags=story&numericFilters=created_at_i%3E1752451200
+  https://www.bbb.org/us/ca/glendale/profile/digital-marketing/servicetitan-inc-1216-1290182/complaints:
+    content_hash: sha256:fb903c8dbeabf866
+    stored_at: data/staging/webfetch-search-results-for-data-access-lock-in-complaints-2026-07-24_11-03-48.md
+    importance_score: 79
+    last_updated: '2026-07-24T11:03:48.049052+00:00'
+    title: Search Results for Data Access/Lock-in Complaints
+    maturity: growing
+    routing_type: meta
+    url: https://www.bbb.org/us/ca/glendale/profile/digital-marketing/servicetitan-inc-1216-1290182/complaints
+  https://vyntelligence.com:
+    content_hash: sha256:ca78f50909cc7f82
+    stored_at: data/staging/webfetch-vyntelligence-extraction-summary-2026-07-24_11-03-50.md
+    importance_score: 80
+    last_updated: '2026-07-24T11:03:50.230724+00:00'
+    title: Vyntelligence Extraction Summary
+    maturity: growing
+    routing_type: meta
+    url: https://vyntelligence.com/
+  https://www.cloneable.ai:
+    content_hash: sha256:affd5bafed32c3fd
+    stored_at: data/staging/webfetch-cloneable-extraction-summary-2026-07-24_11-03-51.md
+    importance_score: 80
+    last_updated: '2026-07-24T11:03:51.394822+00:00'
+    title: 'Cloneable: Extraction Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://www.cloneable.ai/
+  https://www.navigate.ai:
+    content_hash: sha256:6065c998864cdac3
+    stored_at: data/staging/webfetch-navigateai-key-business-details-2026-07-24_11-03-52.md
+    importance_score: 79
+    last_updated: '2026-07-24T11:03:52.414051+00:00'
+    title: 'NavigateAI: Key Business Details'
+    maturity: growing
+    routing_type: meta
+    url: https://www.navigate.ai/
+  https://www.electriciantalk.com/threads/panel-change-how-do-you-guys-label-your-circuits.260578:
+    content_hash: sha256:d61d7a51135ed163
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-03-53.md
+    importance_score: 80
+    last_updated: '2026-07-24T11:03:53.186552+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.electriciantalk.com/threads/panel-change-how-do-you-guys-label-your-circuits.260578/
+  https://www.hvac-talk.com/threads/78568:
+    content_hash: sha256:bf94a82b437a8979
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-04-30.md
+    importance_score: 80
+    last_updated: '2026-07-24T11:04:30.262107+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.hvac-talk.com/threads/78568
+  https://www.contractortalk.com/forums/hvac-picture-post.29:
+    content_hash: sha256:d02bcf601dbdb897
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-04-37.md
+    importance_score: 80
+    last_updated: '2026-07-24T11:04:37.310090+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.contractortalk.com/forums/hvac-picture-post.29/
+  ? https://hn.algolia.com/api/v1/search_by_date?query=apprenticeship%20or%20%22offline-first%22%20field&tags=story&numericfilters=created_at_i%3e1752451200
+  : content_hash: sha256:ecc96d95f78d2c4a
+    stored_at: data/staging/webfetch-based-on-the-provided-search-results-there-are-no-2026-07-24_11-05-14.md
+    importance_score: 89
+    last_updated: '2026-07-24T11:05:14.765355+00:00'
+    title: Based on the provided search results, there are **no stories to list**.
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=apprenticeship%20OR%20%22offline-first%22%20field&tags=story&numericFilters=created_at_i%3E1752451200
+  https://github.com/crxjs/chrome-extension-tools:
+    content_hash: sha256:9ecdffea639dab85
+    stored_at: data/staging/webfetch-crxjs-chrome-extension-tools-project-report-2026-07-25_11-02-45.md
+    importance_score: 96
+    last_updated: '2026-07-25T11:02:45.833712+00:00'
+    title: CRXJS Chrome Extension Tools - Project Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/crxjs/chrome-extension-tools
+  https://github.com/wxt-dev/wxt:
+    content_hash: sha256:de832ecd9891b0c0
+    stored_at: data/staging/webfetch-wxt-web-extension-framework-project-report-2026-07-25_11-02-46.md
+    importance_score: 96
+    last_updated: '2026-07-25T11:02:46.746139+00:00'
+    title: WXT Web Extension Framework - Project Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/wxt-dev/wxt
+  https://www.electriciantalk.com/threads/keep-your-own-photos.1:
+    content_hash: sha256:f81a665f0661ab91
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-02-53.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:02:53.882842+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.electriciantalk.com/threads/keep-your-own-photos.1/
+  ? https://hn.algolia.com/api/v1/search?query=tribal%20knowledge%20field%20service&tags=story&numericfilters=created_at_i%3e1753142400
+  : content_hash: sha256:0f527ec64fcd5b92
+    stored_at: data/staging/webfetch-search-results-2026-07-25_11-02-54.md
+    importance_score: 90
+    last_updated: '2026-07-25T11:02:54.541804+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=tribal%20knowledge%20field%20service&tags=story&numericFilters=created_at_i%3E1753142400
+  ? https://hn.algolia.com/api/v1/search_by_date?query=trade%20skill%20knowledge&tags=story&numericfilters=created_at_i%3e1753142400
+  : content_hash: sha256:0e42b7d56aeb89bc
+    stored_at: data/staging/webfetch-stories-retrieved-2026-07-25_11-02-56.md
+    importance_score: 90
+    last_updated: '2026-07-25T11:02:56.668649+00:00'
+    title: Stories Retrieved
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search_by_date?query=trade%20skill%20knowledge&tags=story&numericFilters=created_at_i%3E1753142400
+  https://www.hvac-talk.com/vbb/threads/panel-photos-before-i-leave.1:
+    content_hash: sha256:2c89c884f3b9bd40
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-03-13.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:03:13.530564+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.hvac-talk.com/vbb/threads/panel-photos-before-i-leave.1/
+  https://www.contractortalk.com/threads/personal-job-records.1:
+    content_hash: sha256:53f144587759dff0
+    stored_at: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-03-14.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:03:14.522289+00:00'
+    title: 'REDIRECT DETECTED: The URL redirects to a different host.'
+    maturity: growing
+    routing_type: meta
+    url: https://www.contractortalk.com/threads/personal-job-records.1/
+  https://vyntelligence.com/sitemap.xml:
+    content_hash: sha256:4ab5556ebbf0f7ba
+    stored_at: data/staging/webfetch-urls-from-vyntelligence-sitemap-2026-07-25_11-03-19.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:03:19.875418+00:00'
+    title: URLs from Vyntelligence Sitemap
+    maturity: growing
+    routing_type: meta
+    url: https://vyntelligence.com/sitemap.xml
+  https://vyntelligence.com/technology:
+    content_hash: sha256:d4f8328a8ce455c7
+    stored_at: data/staging/webfetch-offline-capability-search-results-2026-07-25_11-03-40.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:03:40.481714+00:00'
+    title: Offline Capability Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://vyntelligence.com/technology
+  https://vyntelligence.com/fx/operations-maintenance:
+    content_hash: sha256:1c4230a30b9c8e3a
+    stored_at: data/staging/webfetch-operations-maintenance-2026-07-25_11-03-41.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:03:41.919040+00:00'
+    title: Operations Maintenance
+    maturity: growing
+    routing_type: meta
+    url: https://vyntelligence.com/fx/operations-maintenance
+  https://www.cloneable.ai/cloneable-agent:
+    content_hash: sha256:b8bce471d283d4a7
+    stored_at: data/staging/webfetch-testimonial-extract-2026-07-25_11-03-44.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:03:44.932359+00:00'
+    title: Testimonial Extract
+    maturity: growing
+    routing_type: meta
+    url: https://www.cloneable.ai/cloneable-agent
+  https://adsknews.autodesk.com/en/news:
+    content_hash: sha256:ae5a1aca3ec34b62
+    stored_at: data/staging/webfetch-recent-autodesk-news-items-2026-07-25_11-03-45.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:03:45.538176+00:00'
+    title: Recent Autodesk News Items
+    maturity: growing
+    routing_type: meta
+    url: https://adsknews.autodesk.com/en/news/
+  https://github.com/extension-js/extension.js:
+    content_hash: sha256:a8c0d25c702632af
+    stored_at: data/staging/webfetch-extension-js-report-2026-07-25_11-04-28.md
+    importance_score: 96
+    last_updated: '2026-07-25T11:04:28.054032+00:00'
+    title: Extension.js Report
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/extension-js/extension.js
+  https://vyntelligence.com/fx/capital-delivery:
+    content_hash: sha256:5caf4432065e8418
+    stored_at: data/staging/webfetch-offline-capability-analysis-2026-07-25_11-04-40.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:04:40.177518+00:00'
+    title: Offline Capability Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://vyntelligence.com/fx/capital-delivery
+  https://wxt.dev/guide/essentials/entrypoints.html:
+    content_hash: sha256:105ea953e26b8063
+    stored_at: data/staging/webfetch-wxt-entrypoint-support-2026-07-25_11-04-44.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:04:44.405561+00:00'
+    title: WXT Entrypoint Support
+    maturity: growing
+    routing_type: meta
+    url: https://wxt.dev/guide/essentials/entrypoints.html
+  https://extension.js.org/docs:
+    content_hash: sha256:68d08760917be40c
+    stored_at: data/staging/webfetch-to-get-a-definitive-answer-about-these-2026-07-25_11-04-44.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:04:44.959101+00:00'
+    title: 'To get a definitive answer about these capabilities, you would need to:'
+    maturity: growing
+    routing_type: meta
+    url: https://extension.js.org/docs
+  https://tradescouts.com/blog/how-to-build-a-digital-portfolio-that-gets-you-hired-in-the-trades:
+    content_hash: sha256:4e2352368ce4c394
+    stored_at: data/staging/webfetch-based-on-my-review-of-the-provided-web-page-2026-07-25_11-04-50.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:04:50.091154+00:00'
+    title: Based on my review of the provided web page content, I found **no text
+      matching your request**.
+    maturity: growing
+    routing_type: meta
+    url: https://tradescouts.com/blog/how-to-build-a-digital-portfolio-that-gets-you-hired-in-the-trades/
+  https://play.google.com/store/apps/details?id=com.vyntelligence.vyn&hl=en_us:
+    content_hash: sha256:f173d03eb518284e
+    stored_at: data/staging/webfetch-to-find-this-information-you-would-need-to-access-2026-07-25_11-04-50.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:04:50.959482+00:00'
+    title: 'To find this information, you would need to access the complete app listing
+      page directly on Google '
+    maturity: growing
+    routing_type: meta
+    url: https://play.google.com/store/apps/details?id=com.vyntelligence.vyn&hl=en_US
+  https://wxt.dev/guide/essentials/messaging.html:
+    content_hash: sha256:fde4d2595088891e
+    stored_at: data/staging/webfetch-wxt-messaging-guide-2026-07-25_11-04-56.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:04:56.283055+00:00'
+    title: WXT Messaging Guide
+    maturity: growing
+    routing_type: meta
+    url: https://wxt.dev/guide/essentials/messaging.html
+  https://hvac-blog.acca.org/technician-accountability-your-bottom-line:
+    content_hash: sha256:3378a638b20cc4e8
+    stored_at: data/staging/webfetch-documentation-and-record-keeping-in-the-article-2026-07-25_11-05-32.md
+    importance_score: 80
+    last_updated: '2026-07-25T11:05:32.364959+00:00'
+    title: Documentation and Record-Keeping in the Article
+    maturity: growing
+    routing_type: meta
+    url: https://hvac-blog.acca.org/technician-accountability-your-bottom-line/
+  https://github.com/crxjs/chrome-extension-tools/discussions/974:
+    content_hash: sha256:1847adda833fc370
+    stored_at: data/staging/webfetch-crxjs-project-status-summary-2026-07-25_11-06-03.md
+    importance_score: 96
+    last_updated: '2026-07-25T11:06:03.011995+00:00'
+    title: CRXJS Project Status Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/crxjs/chrome-extension-tools/discussions/974
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -5665,3 +5982,38 @@ hashes:
   sha256:fe35fd31622a78d7: data/staging/webfetch-scribe-hn-thread-summary-2026-07-23_11-02-26.md
   sha256:382de766dcbde067: data/staging/webfetch-show-hn-video2docs-summary-2026-07-23_11-02-41.md
   sha256:d1fec16e7bfed3ed: data/staging/webfetch-why-manufacturing-documentation-fails-2026-07-23_11-03-06.md
+  sha256:53c5e1ffd7bc8e64: data/staging/webfetch-navigateai-launch-summary-2026-07-24_11-02-48.md
+  sha256:6260af17dc558dfd: data/staging/webfetch-knowron-product-analysis-2026-07-24_11-02-49.md
+  sha256:e5c3c96222cc1f76: data/staging/webfetch-story-listings-2026-07-24_11-03-08.md
+  sha256:eb1c46b5504ad44c: data/staging/webfetch-story-results-field-service-software-2026-07-24_11-03-10.md
+  sha256:8cf86de643ea2010: data/staging/webfetch-story-index-2026-07-24_11-03-14.md
+  sha256:7a9fc6897b26c291: data/staging/webfetch-story-index-tribal-knowledge-recent-stories-2026-07-24_11-03-16.md
+  sha256:fb903c8dbeabf866: data/staging/webfetch-search-results-for-data-access-lock-in-complaints-2026-07-24_11-03-48.md
+  sha256:ca78f50909cc7f82: data/staging/webfetch-vyntelligence-extraction-summary-2026-07-24_11-03-50.md
+  sha256:affd5bafed32c3fd: data/staging/webfetch-cloneable-extraction-summary-2026-07-24_11-03-51.md
+  sha256:6065c998864cdac3: data/staging/webfetch-navigateai-key-business-details-2026-07-24_11-03-52.md
+  sha256:d61d7a51135ed163: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-03-53.md
+  sha256:bf94a82b437a8979: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-04-30.md
+  sha256:d02bcf601dbdb897: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-24_11-04-37.md
+  sha256:ecc96d95f78d2c4a: data/staging/webfetch-based-on-the-provided-search-results-there-are-no-2026-07-24_11-05-14.md
+  sha256:9ecdffea639dab85: data/staging/webfetch-crxjs-chrome-extension-tools-project-report-2026-07-25_11-02-45.md
+  sha256:de832ecd9891b0c0: data/staging/webfetch-wxt-web-extension-framework-project-report-2026-07-25_11-02-46.md
+  sha256:f81a665f0661ab91: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-02-53.md
+  sha256:0f527ec64fcd5b92: data/staging/webfetch-search-results-2026-07-25_11-02-54.md
+  sha256:0e42b7d56aeb89bc: data/staging/webfetch-stories-retrieved-2026-07-25_11-02-56.md
+  sha256:2c89c884f3b9bd40: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-03-13.md
+  sha256:53f144587759dff0: data/staging/webfetch-redirect-detected-the-url-redirects-to-a-2026-07-25_11-03-14.md
+  sha256:4ab5556ebbf0f7ba: data/staging/webfetch-urls-from-vyntelligence-sitemap-2026-07-25_11-03-19.md
+  sha256:d4f8328a8ce455c7: data/staging/webfetch-offline-capability-search-results-2026-07-25_11-03-40.md
+  sha256:1c4230a30b9c8e3a: data/staging/webfetch-operations-maintenance-2026-07-25_11-03-41.md
+  sha256:b8bce471d283d4a7: data/staging/webfetch-testimonial-extract-2026-07-25_11-03-44.md
+  sha256:ae5a1aca3ec34b62: data/staging/webfetch-recent-autodesk-news-items-2026-07-25_11-03-45.md
+  sha256:a8c0d25c702632af: data/staging/webfetch-extension-js-report-2026-07-25_11-04-28.md
+  sha256:5caf4432065e8418: data/staging/webfetch-offline-capability-analysis-2026-07-25_11-04-40.md
+  sha256:105ea953e26b8063: data/staging/webfetch-wxt-entrypoint-support-2026-07-25_11-04-44.md
+  sha256:68d08760917be40c: data/staging/webfetch-to-get-a-definitive-answer-about-these-2026-07-25_11-04-44.md
+  sha256:4e2352368ce4c394: data/staging/webfetch-based-on-my-review-of-the-provided-web-page-2026-07-25_11-04-50.md
+  sha256:f173d03eb518284e: data/staging/webfetch-to-find-this-information-you-would-need-to-access-2026-07-25_11-04-50.md
+  sha256:fde4d2595088891e: data/staging/webfetch-wxt-messaging-guide-2026-07-25_11-04-56.md
+  sha256:3378a638b20cc4e8: data/staging/webfetch-documentation-and-record-keeping-in-the-article-2026-07-25_11-05-32.md
+  sha256:1847adda833fc370: data/staging/webfetch-crxjs-project-status-summary-2026-07-25_11-06-03.md
