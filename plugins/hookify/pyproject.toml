@@ -11,13 +11,13 @@ dependencies = [
 dev = [
     "pytest>=8.0",
     "pytest-cov>=4.0",
-    "mypy>=1.11.0",
+    "mypy>=1.11.0,<2",
     "ruff>=0.14.13",
     "types-PyYAML>=6.0",
 ]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true

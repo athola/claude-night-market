@@ -27,7 +27,7 @@ HAS_SPHINX := $(shell $(PYTHON) -c "import sphinx" 2>/dev/null && echo yes)
 
 # Tool commands - abstracted for single-point-of-change
 UV_RUN := $(UV) run
-UV_PYTHON := $(UV_RUN) python
+UV_RUN_PYTHON := $(UV_RUN) python
 PYTEST := $(UV_RUN) pytest
 MYPY := $(UV_RUN) mypy
 RUFF := $(UV_RUN) ruff

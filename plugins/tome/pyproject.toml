@@ -22,7 +22,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.14.13",
-    "mypy>=1.11.0",
+    "mypy>=1.11.0,<2",
     "types-PyYAML>=6.0",
     "pytest>=8.0",
     "pytest-cov>=4.0",
@@ -79,6 +79,10 @@ omit = ["*/tests/*"]
 show_missing = true
 
 [tool.mypy]
+# Matches requires-python: 3.9 is the floor we actually support, so that is
+# what mypy targets. This only works on mypy 1.x -- mypy 2.0 raised its own
+# floor to 3.10 and rejects this value outright, silently falling back to a
+# newer target. See the mypy<2 pin in the dev group.
 python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
@@ -87,6 +91,18 @@ disallow_untyped_defs = true
 [[tool.mypy.overrides]]
 module = ["leyline.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["numpy"]
+ignore_missing_imports = true
+# tome never imports numpy; the memory-palace backend in the dev group does
+# (issue #643), so mypy reaches numpy's bundled stubs while following into
+# memory_palace. Those stubs use PEP 695 `type` statements, which mypy
+# refuses to parse under python_version < 3.12.
+# Skip following into the stubs so the third-party surface stays opaque.
+# Mirrors the same override in plugins/memory-palace/pyproject.toml.
+follow_imports = "skip"
+follow_imports_for_stubs = true
 
 [[tool.mypy.overrides]]
 module = ["memory_palace", "memory_palace.*"]

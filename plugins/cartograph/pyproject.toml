@@ -20,15 +20,16 @@ dev = [
     # Python there, so mypy has to exist in this plugin's own environment.
     # It resolved anyway on a machine with a global mypy on PATH and failed
     # on a clean runner with "Failed to spawn: mypy".
-    "mypy>=1.11.0",
+    "mypy>=1.11.0,<2",
 ]
 
-# python_version 3.12, matching abstract, whose hooks are also in the
-# python39-compat matrix. mypy 1.19 refuses to target 3.9 ("must be 3.10 or
-# higher"), and the 3.9 floor this hook actually runs on is enforced by the
-# ruff UP007 gate in python39-compat.yml, not here.
+# python_version 3.9, matching abstract and requires-python. These hooks run
+# on system Python, so 3.9 is the floor mypy has to hold us to. (An earlier
+# note here blamed mypy 1.19 for refusing 3.9; that was wrong -- 1.19 and
+# 1.20 both accept it. mypy 2.0 raised its floor to 3.10, which is why the
+# dev group pins mypy<2.)
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

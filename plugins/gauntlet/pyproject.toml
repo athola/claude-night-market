@@ -29,7 +29,7 @@ graph = [
 ]
 dev = [
     "ruff>=0.14.13",
-    "mypy>=1.11.0",
+    "mypy>=1.11.0,<2",
     "pytest>=8.0",
     "pytest-cov>=4.0",
     "types-pyyaml>=6.0",
@@ -82,6 +82,15 @@ warn_unused_configs = true
 disallow_untyped_defs = true
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["anyio", "anyio.*"]
+ignore_missing_imports = true
+# anyio's own source uses `match` statements (3.10+). Targeting the 3.9 floor,
+# mypy cannot parse them and errors inside site-packages rather than on our
+# code. We never type against anyio, so keep it opaque.
+follow_imports = "skip"
+follow_imports_for_stubs = true
+
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
@@ -105,7 +114,7 @@ exclude_lines = [
 
 [dependency-groups]
 dev = [
-    "mypy>=1.11.0",
+    "mypy>=1.11.0,<2",
     "pytest>=8.0",
     "pytest-cov>=4.0",
     "ruff>=0.14.13",

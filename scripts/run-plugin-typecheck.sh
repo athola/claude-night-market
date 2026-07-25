@@ -11,6 +11,16 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
+# Pin the interpreter uv builds each plugin venv with. CI (typecheck.yml) uses
+# setup-python 3.12; left alone, uv picks the LOWEST interpreter a plugin's
+# requires-python allows (3.9), and a different interpreter resolves different
+# dependency versions. That is not hypothetical: tome's 3.9 venv resolved numpy
+# 2.0.2 (pre-PEP 695 stubs) and passed, while CI's 3.12 venv resolved a numpy
+# whose stubs mypy could not parse. The gate was green locally and red in CI
+# for a week. Pinning here makes the pre-commit hook and the CI job the same
+# check. The mypy TARGET stays 3.9 via each plugin's python_version.
+export UV_PYTHON="${TYPECHECK_PYTHON:-3.12}"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'

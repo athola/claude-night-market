@@ -61,7 +61,7 @@ help: ## Show this help message
 # DEVELOPMENT
 check: ## Run all validation checks
 	@echo "Running dependency validation..."
-	$(UV_PYTHON) $(SCRIPTS_DIR)/abstract_validator.py --report --scan
+	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/abstract_validator.py --report --scan
 
 test: format lint type-check security test-unit ## Run all quality checks
 	@echo "All quality checks passed!"
@@ -92,7 +92,7 @@ status: ## Show project overview
 # SKILL ANALYSIS
 analyze-skill: ## Analyze skill complexity (TARGET=<path>)
 	$(call require_path,$@)
-	$(UV_PYTHON) $(SCRIPTS_DIR)/skill_analyzer.py --path "$(TARGET)"
+	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/skill_analyzer.py --path "$(TARGET)"
 
 validate-skill-descriptions: ## Validate skill descriptions follow best practices
 	@echo "Validating skill descriptions..."
@@ -100,40 +100,40 @@ validate-skill-descriptions: ## Validate skill descriptions follow best practice
 
 validate-plugin: ## Validate plugin structure (TARGET=<path>, defaults to current dir)
 	@echo "Validating plugin structure..."
-	$(UV_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py "$(or $(TARGET),.)"
+	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py "$(or $(TARGET),.)"
 
 validate-self: ## Validate this plugin's structure
 	@echo "Validating abstract plugin structure..."
-	$(UV_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py .
+	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py .
 
 estimate-tokens: ## Estimate token usage (TARGET=<path>)
 	$(call require_path,$@)
-	$(UV_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --file "$(TARGET)"
+	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --file "$(TARGET)"
 
 audit-skill: ## detailed skill audit (TARGET=<path>)
 	$(call require_path,$@)
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = auditor.audit_skills(); print(f'Score: {result.get(\"average_score\", 0):.1f}/100')" || echo "Audit completed with result in audit_results.json"
+	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = auditor.audit_skills(); print(f'Score: {result.get(\"average_score\", 0):.1f}/100')" || echo "Audit completed with result in audit_results.json"
 
 improve-skill: ## Generate improvement plan (TARGET=<path>)
 	$(call require_path,$@)
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_PYTHON) -c "from abstract.skills_eval import ImprovementSuggester; from pathlib import Path; suggester = ImprovementSuggester(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = suggester.analyze_skill(Path('$(TARGET)').stem); print(f'Issues: {len(result.get(\"issues\", []))}'); print(f'Suggestions: {len(result.get(\"suggestions\", []))}')" || echo "Improvement suggestions completed"
+	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import ImprovementSuggester; from pathlib import Path; suggester = ImprovementSuggester(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = suggester.analyze_skill(Path('$(TARGET)').stem); print(f'Issues: {len(result.get(\"issues\", []))}'); print(f'Suggestions: {len(result.get(\"suggestions\", []))}')" || echo "Improvement suggestions completed"
 
 check-compliance: ## Check standards compliance (TARGET=<path>)
 	$(call require_path,$@)
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_PYTHON) -c "from abstract.skills_eval import ComplianceChecker; from pathlib import Path; checker = ComplianceChecker(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = checker.check_compliance(); print(f'Compliant: {result.get(\"compliant\", False)}'); print(f'Total Skills: {result.get(\"total_skills\", 0)}')" || echo "Compliance check completed"
+	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import ComplianceChecker; from pathlib import Path; checker = ComplianceChecker(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = checker.check_compliance(); print(f'Compliant: {result.get(\"compliant\", False)}'); print(f'Total Skills: {result.get(\"total_skills\", 0)}')" || echo "Compliance check completed"
 
 # EVALUATION
 audit-all: ## Audit all skills in ~/.claude/
 	@echo "Auditing all skills in ~/.claude/..."
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('~/.claude').expanduser()); result = auditor.audit_skills(); print(f'Total: {result.get(\"total_skills\", 0)}'); print(f'Average Score: {result.get(\"average_score\", 0):.1f}/100'); print(f'Well-structured: {result.get(\"well_structured\", 0)}')" || echo "Audit completed"
+	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('~/.claude').expanduser()); result = auditor.audit_skills(); print(f'Total: {result.get(\"total_skills\", 0)}'); print(f'Average Score: {result.get(\"average_score\", 0):.1f}/100'); print(f'Well-structured: {result.get(\"well_structured\", 0)}')" || echo "Audit completed"
 
 eval-report: ## Generate detailed evaluation report
 	@echo "Generating detailed evaluation report..."
-	$(UV_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('.')); result = auditor.audit_skills(); lines = ['# Skills Evaluation Report', f'Total Skills: {result.get(\"total_skills\", 0)}', f'Average Score: {result.get(\"average_score\", 0):.1f}/100']; Path('evaluation-report.md').write_text('\n'.join(lines)); print('Report saved to evaluation-report.md')" || echo "Report generated with fallback"
+	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('.')); result = auditor.audit_skills(); lines = ['# Skills Evaluation Report', f'Total Skills: {result.get(\"total_skills\", 0)}', f'Average Score: {result.get(\"average_score\", 0):.1f}/100']; Path('evaluation-report.md').write_text('\n'.join(lines)); print('Report saved to evaluation-report.md')" || echo "Report generated with fallback"
 
 # DOCUMENTATION
 docs: ## Build HTML documentation
@@ -189,9 +189,9 @@ ci-check: ## Run all CI checks locally
 
 verify-install: ## Verify installation works correctly
 	@echo "Verifying installation..."
-	@$(UV_PYTHON) -c "import abstract; print('[OK] Abstract module imports successfully')" || echo "[WARNING] Abstract module import failed"
-	@$(UV_PYTHON) -c "from abstract.cli_framework import AbstractCLI; print('[OK] CLI framework imports successfully')" || echo "[WARNING] CLI framework import failed"
-	@$(UV_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --version 2>/dev/null && echo "[OK] CLI tools work correctly" || echo "[WARNING] CLI tools may need adjustment"
+	@$(UV_RUN_PYTHON) -c "import abstract; print('[OK] Abstract module imports successfully')" || echo "[WARNING] Abstract module import failed"
+	@$(UV_RUN_PYTHON) -c "from abstract.cli_framework import AbstractCLI; print('[OK] CLI framework imports successfully')" || echo "[WARNING] CLI framework import failed"
+	@$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --version 2>/dev/null && echo "[OK] CLI tools work correctly" || echo "[WARNING] CLI tools may need adjustment"
 	@echo "[OK] Installation verification complete"
 
 debug-variables: ## Show Makefile variable values (for debugging)
@@ -222,17 +222,17 @@ test-wrappers: ## Run all wrapper-related tests
 validate-migration: ## Validate migration compatibility and analyze overlaps
 	@echo "Running migration validation..."
 	@if [ -f "$(SCRIPTS_DIR)/compatibility_validator.py" ]; then \
-		$(UV_PYTHON) "$(SCRIPTS_DIR)/compatibility_validator.py" --all; \
+		$(UV_RUN_PYTHON) "$(SCRIPTS_DIR)/compatibility_validator.py" --all; \
 	fi
 	@if [ -f "$(SCRIPTS_DIR)/migration_analyzer.py" ]; then \
-		$(UV_PYTHON) "$(SCRIPTS_DIR)/migration_analyzer.py" --all; \
+		$(UV_RUN_PYTHON) "$(SCRIPTS_DIR)/migration_analyzer.py" --all; \
 	fi
 	@echo "[OK] Migration validation completed"
 
 generate-wrappers: ## Generate wrapper boilerplate for detected functionality
 	@echo "Generating wrappers..."
 	@if [ -f "$(SCRIPTS_DIR)/wrapper_generator.py" ]; then \
-		$(UV_PYTHON) "$(SCRIPTS_DIR)/wrapper_generator.py" --auto-detect; \
+		$(UV_RUN_PYTHON) "$(SCRIPTS_DIR)/wrapper_generator.py" --auto-detect; \
 	else \
 		echo "[WARNING] wrapper_generator.py not found in $(SCRIPTS_DIR)/"; \
 	fi
@@ -250,17 +250,17 @@ mutation-test: ## Run mutation testing
 demo-validation: ## Demonstrate plugin validation (LIVE)
 	@echo "=== Abstract Validation Demo (LIVE) ==="
 	@echo ""
-	$(UV_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py .
+	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py .
 
 demo-tokens: ## Demonstrate token estimation (LIVE)
 	@echo "=== Abstract Token Estimation Demo (LIVE) ==="
 	@echo ""
-	$(UV_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --file $(SKILLS_DIR)/skill-authoring/SKILL.md
+	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --file $(SKILLS_DIR)/skill-authoring/SKILL.md
 
 demo-analyzer: ## Demonstrate skill analyzer (LIVE)
 	@echo "=== Abstract Skill Analyzer Demo (LIVE) ==="
 	@echo ""
-	$(UV_PYTHON) $(SCRIPTS_DIR)/skill_analyzer.py --directory $(SKILLS_DIR)/skill-authoring
+	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/skill_analyzer.py --directory $(SKILLS_DIR)/skill-authoring
 
 demo-skills: ## List available skills
 	@echo "=== Abstract Skills ==="
@@ -273,11 +273,11 @@ demo-verify: ## Demonstrate the finding-verifier promotion gate (LIVE)
 	@echo "=== Finding-Verifier Promotion Gate Demo (LIVE) ==="
 	@echo ""
 	@echo "Finding at a live location (gate should NOT skip):"
-	@$(UV_PYTHON) $(SCRIPTS_DIR)/finding_verifier.py \
+	@$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/finding_verifier.py \
 		--where "plugins/abstract/scripts/finding_verifier.py:50-60" || true
 	@echo ""
 	@echo "Finding whose location was refactored away (gate SHOULD skip):"
-	@$(UV_PYTHON) $(SCRIPTS_DIR)/finding_verifier.py \
+	@$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/finding_verifier.py \
 		--where "plugins/abstract/scripts/removed_long_ago.py" || true
 
 plugin-check: demo-validation demo-tokens demo-analyzer demo-verify ## Run all live demos
@@ -307,7 +307,7 @@ demo-abstract-commands: demo-validate-plugin ## Run all abstract documented comm
 
 test-validate-plugin: ## Test validate-plugin command (runs plugin structure tests)
 	$(PYTEST) tests/ -v -k "plugin" --tb=short || \
-		$(UV_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py . && echo "[OK] validate-plugin works"
+		$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py . && echo "[OK] validate-plugin works"
 
 
 # Guard against accidental file creation (catch-all for unknown targets)

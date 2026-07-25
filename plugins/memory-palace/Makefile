@@ -29,7 +29,7 @@ ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/python.mk
 
 # ---------- Plugin-specific Variables ----------
-PY              ?= $(UV_PYTHON)
+PY              ?= $(UV_RUN_PYTHON)
 CLI             ?= $(UV) run python scripts/memory_palace_cli.py
 PALACES_DIR     ?= $(PWD)/.demo-palaces
 GARDEN_FILE     ?= examples/garden-sample.json
@@ -62,7 +62,7 @@ deps: ## Install and sync dependencies
 
 check: ## Run dependency validation
 	@echo "Running dependency validation..."
-	$(UV_PYTHON) -c "print('Dependencies synced and importable.')"
+	$(UV_RUN_PYTHON) -c "print('Dependencies synced and importable.')"
 
 fix: ## Auto-fix code style issues
 	@echo "Auto-fixing code style issues..."

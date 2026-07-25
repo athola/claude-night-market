@@ -92,7 +92,12 @@ repos:
         # this hook never fired, and the typecheck broke in CI instead. The
         # typecheck.yml gate already watches plugins/**/pyproject.toml; this
         # is pre-commit catching up to it.
-        files: ^plugins/.*(\.py|/pyproject\.toml)$
+        # Makefiles and the shared config/make/*.mk decide HOW mypy is
+        # invoked (targets, flags, interpreter), so they change this
+        # hook's outcome exactly like a pyproject does. A UV_PYTHON name
+        # collision in common.mk broke every make-based plugin while this
+        # hook stayed silent, because .mk matched nothing here.
+        files: ^(plugins/.*(\.py|/pyproject\.toml|/Makefile)|plugins/abstract/config/make/.*\.mk|scripts/run-plugin-typecheck\.sh)$
         verbose: true
 
       - id: run-plugin-tests

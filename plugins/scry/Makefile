@@ -78,10 +78,15 @@ lint: ## Lint scry shell scripts (bash -n)
 	fi
 	@echo "=== Lint Complete ==="
 
+# untyped-decorator is disabled because mypy targets the 3.9 floor, which
+# forces the pytest override in pyproject.toml to make pytest opaque
+# (its source uses 3.10+ `match`). @pytest.fixture and @pytest.mark.* then
+# read as untyped. --strict is a CLI flag, so it outranks the per-module
+# relaxations in pyproject.toml; the disable has to live here to take.
 typecheck: ## Run type checking on test files
 	@echo "=== Scry Type Checking ==="
 	@if command -v uv >/dev/null 2>&1; then \
-		uv run mypy tests/ --strict; \
+		uv run mypy tests/ --strict --disable-error-code=untyped-decorator; \
 	else \
 		echo "  [SKIP] uv not installed"; \
 	fi

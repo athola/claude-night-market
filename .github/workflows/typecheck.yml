@@ -19,6 +19,8 @@ on:
     paths:
       - "plugins/**/*.py"
       - "plugins/**/pyproject.toml"
+      - "plugins/**/Makefile"
+      - "plugins/abstract/config/make/**"
       - "scripts/run-plugin-typecheck.sh"
       - "Makefile"
       - ".github/workflows/typecheck.yml"
@@ -26,6 +28,8 @@ on:
     paths:
       - "plugins/**/*.py"
       - "plugins/**/pyproject.toml"
+      - "plugins/**/Makefile"
+      - "plugins/abstract/config/make/**"
       - "scripts/run-plugin-typecheck.sh"
       - "Makefile"
       - ".github/workflows/typecheck.yml"
