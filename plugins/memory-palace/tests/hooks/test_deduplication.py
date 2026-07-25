@@ -641,3 +641,63 @@ class TestImportanceScoreBounds:
         # Index must remain untouched on validation failure.
         assert get_entry(url=f"https://example.com/score-{score}") is None
         assert get_index_stats()["total_entries"] == 0
+
+
+class TestNullCapturePersisted:
+    """update_index must write null_capture, or the promoter gate is dead.
+
+    The gate in memory_palace.corpus.index_promoter archives on this
+    field. If the write path drops it, the gate silently never fires and
+    empty captures promote exactly as before (issue #649).
+    """
+
+    @staticmethod
+    def _isolate_index(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+        """Redirect the index file to an isolated tmp_path location."""
+        index_path = tmp_path / "memory-palace-index.yaml"
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+        return index_path
+
+    def test_null_capture_round_trips_to_disk(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN an isolated empty index
+        WHEN update_index writes an entry flagged null_capture
+        THEN the on-disk entry carries the reason verbatim.
+        """
+        index_path = self._isolate_index(monkeypatch, tmp_path)
+        url = "https://hn.example/api/v1/search?query=x"
+
+        update_index(
+            content_hash=get_content_hash("redirect notice body"),
+            stored_at="data/staging/x.md",
+            importance_score=50,
+            url=url,
+            title="REDIRECT DETECTED: The URL redirects to a different host.",
+            maturity="seedling",
+            routing_type="pending",
+            null_capture="redirect-notice",
+        )
+
+        on_disk = real_yaml.safe_load(index_path.read_text())
+        assert on_disk["entries"][url]["null_capture"] == "redirect-notice"
+
+    def test_absent_flag_writes_no_key(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """A normal capture must not gain a null_capture key."""
+        index_path = self._isolate_index(monkeypatch, tmp_path)
+        url = "https://example.com/real-article"
+
+        update_index(
+            content_hash=get_content_hash("real article body"),
+            stored_at="data/staging/y.md",
+            importance_score=50,
+            url=url,
+            title="Real Article",
+            maturity="seedling",
+            routing_type="pending",
+        )
+
+        on_disk = real_yaml.safe_load(index_path.read_text())
+        assert "null_capture" not in on_disk["entries"][url]

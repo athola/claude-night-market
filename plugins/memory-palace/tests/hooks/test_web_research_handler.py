@@ -831,7 +831,10 @@ class TestMainWebFetchSanitization:
         mock_hash.assert_called_once_with(sanitized_content)
         # store_webfetch_content must receive the sanitized content
         mock_store.assert_called_once_with(
-            sanitized_content, "https://example.com/article", "get"
+            sanitized_content,
+            "https://example.com/article",
+            "get",
+            null_capture=None,
         )
         output = capsys.readouterr().out.strip()
         result = json.loads(output)
@@ -888,7 +891,10 @@ class TestMainWebFetchSanitization:
         # Should use original content since sanitized_content is None
         mock_hash.assert_called_once_with(original_content)
         mock_store.assert_called_once_with(
-            original_content, "https://example.com/page", "get"
+            original_content,
+            "https://example.com/page",
+            "get",
+            null_capture=None,
         )
 
     @pytest.mark.bdd
@@ -942,7 +948,10 @@ class TestMainWebFetchSanitization:
         # prevents replacement - original content is used
         mock_hash.assert_called_once_with(original_content)
         mock_store.assert_called_once_with(
-            original_content, "https://example.com/page2", "fetch"
+            original_content,
+            "https://example.com/page2",
+            "fetch",
+            null_capture=None,
         )
 
     @pytest.mark.bdd
@@ -1292,3 +1301,60 @@ class TestEvalScoresTable:
         assert "## Evaluation Scores (Auto-Generated)" in note
         assert "| Novelty | TBD | Review needed |" in note
         assert "{_EVAL_SCORES_TABLE}" not in note
+
+
+class TestDetectNullCapture:
+    """Flag empty captures at fetch time, where the signal is structural.
+
+    Sibling of detect_failed_fetch_status (issue #547), which covers
+    non-2xx responses. This covers 2xx fetches that returned no usable
+    content: a redirect notice, or a structured result set with zero
+    entries (issue #649).
+
+    Precision matters more than recall here. Two title-and-prose
+    heuristics were tried against the live corpus and both
+    false-positived on real research, so this anchors only on markers
+    that are structural rather than model-authored.
+    """
+
+    def test_redirect_notice_is_flagged(self):
+        content = (
+            "REDIRECT DETECTED: The URL redirects to a different host.\n"
+            "Original: https://a.example/thread\nRedirects to: https://b.example/"
+        )
+        assert (
+            web_research_handler.detect_null_capture({}, content) == "redirect-notice"
+        )
+
+    def test_empty_structured_results_are_flagged(self):
+        for payload in ({"results": []}, {"hits": []}, {"nbHits": 0}):
+            assert (
+                web_research_handler.detect_null_capture(payload, "summary text")
+                == "empty-results"
+            ), payload
+
+    def test_populated_results_are_not_flagged(self):
+        payload = {"hits": [{"title": "Real story", "points": 42}], "nbHits": 1}
+        assert web_research_handler.detect_null_capture(payload, "summary") is None
+
+    def test_prose_mentioning_absence_is_not_flagged(self):
+        """The regression that killed two earlier heuristics.
+
+        This capture carries a real HN story table and merely notes
+        that one subset is absent. Deleting it would lose research.
+        """
+        content = (
+            "| Trace - Offline Mac meeting transcripts | 205 | 84 | 2026-06-13 |\n"
+            "| recalls work | 6 | 0 | 2026-06-17 |\n\n"
+            "**No stories specifically focused on how-to docs** appear "
+            "in the 2026-07-07+ window of this dataset."
+        )
+        assert web_research_handler.detect_null_capture({}, content) is None
+
+    def test_ordinary_article_is_not_flagged(self):
+        assert (
+            web_research_handler.detect_null_capture(
+                {}, "# Real Article\n\nSubstantive body text about a topic."
+            )
+            is None
+        )

@@ -185,6 +185,46 @@ def detect_failed_fetch_status(
     return None
 
 
+# WebFetch emits this exact notice when a URL bounces to a different
+# host: what follows is the notice itself, not the page. Anchoring on
+# the literal marker keeps this as precise as _FETCH_STATUS_RE.
+_REDIRECT_NOTICE = "REDIRECT DETECTED"
+
+
+def detect_null_capture(
+    tool_response: dict[str, Any] | str,
+    content: str,
+) -> str | None:
+    """Return why a 2xx response carried no content, or None if it did.
+
+    Sibling of :func:`detect_failed_fetch_status`, which covers non-2xx
+    responses. This covers fetches that succeeded but returned nothing
+    usable: a redirect notice, or a structured result set with zero
+    entries. Such captures were promoted on domain and cluster signals
+    alone, scoring above much of the real corpus (issue #649).
+
+    Only structural signals are used. The prose body is written by the
+    model summarizing the page, so phrases like "no stories found" are
+    not reliable: a capture can carry a full result table and still note
+    that one subset is absent. Two heuristics built on that prose were
+    tried against the live corpus and both deleted real research, which
+    is why nothing here reads the summary text.
+    """
+    if _REDIRECT_NOTICE in (content or ""):
+        return "redirect-notice"
+
+    if isinstance(tool_response, dict):
+        for key in ("results", "hits"):
+            val = tool_response.get(key)
+            if isinstance(val, list) and not val:
+                return "empty-results"
+        total = tool_response.get("nbHits")
+        if isinstance(total, int) and not isinstance(total, bool) and total == 0:
+            return "empty-results"
+
+    return None
+
+
 def extract_results_from_websearch(
     tool_response: dict[str, Any],
 ) -> list[dict[str, str]]:
@@ -209,12 +249,13 @@ def extract_results_from_websearch(
     return results
 
 
-def _store_to_queue(
+def _store_to_queue(  # noqa: PLR0913 - one queue entry carries this many fields
     filename: str,
     content: str,
     content_hash: str,
     source_ref: str,
     title: str,
+    null_capture: str | None = None,
 ) -> str | None:
     """Write a queue entry file and update the dedup index.
 
@@ -234,6 +275,7 @@ def _store_to_queue(
                 title=title,
                 maturity="seedling",
                 routing_type="pending",
+                null_capture=null_capture,
             )
         except Exception as idx_err:
             logger.error(
@@ -285,6 +327,7 @@ def store_webfetch_content(
     content: str,
     url: str,
     prompt: str,
+    null_capture: str | None = None,
 ) -> str | None:
     """Store WebFetch content to queue and return the stored path.
 
@@ -351,7 +394,9 @@ auto_generated: true
 - [ ] Archive or delete if not valuable
 """
 
-    return _store_to_queue(filename, queue_entry, content_hash, url, title)
+    return _store_to_queue(
+        filename, queue_entry, content_hash, url, title, null_capture
+    )
 
 
 def store_websearch_results(
@@ -520,8 +565,15 @@ def _handle_webfetch(
         )
         return context_parts, None, None
 
+    # Computed here, where tool_response is still structured. Downstream
+    # only sees the model's prose summary, which cannot be read reliably
+    # for emptiness (issue #649).
+    null_capture = detect_null_capture(tool_response, content)
+
     if auto_capture:
-        stored_path = store_webfetch_content(content, url, prompt)
+        stored_path = store_webfetch_content(
+            content, url, prompt, null_capture=null_capture
+        )
         if stored_path:
             context_parts.append(
                 f"Memory Palace: Auto-captured web content from {url}\n"

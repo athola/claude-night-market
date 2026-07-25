@@ -11,11 +11,18 @@ no-op (idempotent).
 from __future__ import annotations
 
 import copy
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
 import yaml
+
+# The wiring test needs the fetch hook, which lives outside the package.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "hooks"))
+from web_research_handler import (  # noqa: E402 - needs the sys.path line above
+    detect_null_capture,
+)
 
 from memory_palace.corpus import index_promoter
 from memory_palace.corpus.index_promoter import (
@@ -437,3 +444,58 @@ class TestOrphanPrune:
         reloaded = yaml.safe_load(index_path.read_text(encoding="utf-8"))
         assert "https://gone.test" not in reloaded["entries"]
         assert reloaded["hashes"] == {"sha256:unrelated": "data/staging/other.md"}
+
+
+class TestNullCaptureGate:
+    """A capture the fetch hook flagged as empty must not be promoted.
+
+    Promotion scores on structural signals only (recency, domain
+    authority, cluster size), so a failed fetch inherits the score of
+    its domain and cluster. Before this gate, redirect notices and
+    zero-result API responses promoted to importance 79-90, above much
+    of the real corpus (issue #649).
+    """
+
+    def test_null_capture_archives_instead_of_promoting(self) -> None:
+        """A flagged capture drains instead of promoting."""
+        index = {
+            "entries": {"https://ex.com/a": _entry(null_capture="redirect-notice")},
+            "hashes": {},
+        }
+        proposals = propose_promotions(index)
+        assert len(proposals) == 1
+        assert proposals[0].action == "archive"
+        assert proposals[0].changes["routing_type"] == "archived"
+        assert any("null" in r.lower() for r in proposals[0].reasons)
+
+    def test_same_entry_without_flag_still_promotes(self) -> None:
+        """Control: the gate, not the fixture, is what blocks promotion."""
+        index = {"entries": {"https://ex.com/a": _entry()}, "hashes": {}}
+        proposals = propose_promotions(index)
+        assert [p.action for p in proposals] == ["promote"]
+
+    def test_null_capture_never_reaches_growing_maturity(self) -> None:
+        """Archived entries get no importance bump and stay seedling."""
+        index = {
+            "entries": {"https://ex.com/a": _entry(null_capture="empty-results")},
+            "hashes": {},
+        }
+        changes = propose_promotions(index)[0].changes
+        assert changes.get("maturity") != "growing"
+        assert "importance_score" not in changes
+
+
+class TestNullCaptureWiring:
+    """The flag must survive the capture path, or the gate is dead code."""
+
+    def test_detector_output_feeds_the_gate(self) -> None:
+        """Detector reason string is what the promoter archives on."""
+        reason = detect_null_capture({}, "REDIRECT DETECTED: bounced elsewhere")
+        assert reason is not None
+
+        index = {
+            "entries": {"https://ex.com/a": _entry(null_capture=reason)},
+            "hashes": {},
+        }
+        proposals = propose_promotions(index)
+        assert [p.action for p in proposals] == ["archive"]

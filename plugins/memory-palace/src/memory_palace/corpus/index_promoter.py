@@ -111,13 +111,19 @@ def propose_promotions(
             continue
 
         orphan = _is_orphan(entry, plugin_root)
+        # Set by the fetch hook when a 2xx response carried no content
+        # (redirect notice, zero-result set). Structural signals alone
+        # would score these on domain and cluster, promoting empty API
+        # responses above real captures (issue #649).
+        null_reason = entry.get("null_capture")
         age_days = (now - _parse_timestamp(entry.get("last_updated"))).days
-        if orphan or age_days >= ARCHIVE_AGE_DAYS:
-            reason = (
-                "orphan: backing file missing"
-                if orphan
-                else f"stale: {age_days}d since capture"
-            )
+        if orphan or null_reason or age_days >= ARCHIVE_AGE_DAYS:
+            if orphan:
+                reason = "orphan: backing file missing"
+            elif null_reason:
+                reason = f"null capture: {null_reason}"
+            else:
+                reason = f"stale: {age_days}d since capture"
             proposals.append(
                 Proposal(
                     key=key,

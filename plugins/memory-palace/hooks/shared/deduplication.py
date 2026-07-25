@@ -215,6 +215,7 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
     title: str | None = None,
     maturity: str | None = None,
     routing_type: str | None = None,
+    null_capture: str | None = None,
 ) -> None:
     """Add or update entry in index.
 
@@ -227,6 +228,9 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
         title: Content title
         maturity: Knowledge maturity level (seedling, growing, evergreen)
         routing_type: Application routing (local, meta, both)
+        null_capture: Reason a 2xx fetch carried no content
+            (redirect notice, empty result set). Set by the fetch
+            hook; the promoter archives rather than promotes these.
 
     Note: This does write to disk - use sparingly.
 
@@ -269,6 +273,8 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
         entry["maturity"] = maturity  # seedling, growing, evergreen
     if routing_type:
         entry["routing_type"] = routing_type  # local, meta, both
+    if null_capture:
+        entry["null_capture"] = null_capture
 
     key: str | None = None
     if url:
