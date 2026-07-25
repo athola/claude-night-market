@@ -30,6 +30,41 @@ class TestPluginAuditor:
         assert "./commands/test-command.md" in result["commands"]
         assert "./commands/test-modules/module-file.md" not in result["commands"]
 
+    def test_scan_finds_assets_under_worktrees_ancestor(self, tmp_path: Path) -> None:
+        """Scan a checkout that itself lives under .claude/worktrees.
+
+        CACHE_EXCLUDES carries "worktrees" so a nested worktree inside a
+        plugins tree is skipped. Matching it against the absolute path
+        made every asset invisible when the checkout *was* a git
+        worktree, so every plugin.json registration reported as stale
+        and no commit could pass the pre-commit gate from a worktree.
+        """
+        plugins_root = tmp_path / ".claude" / "worktrees" / "wt-1" / "plugins"
+        plugin_path = plugins_root / "demo"
+        commands_dir = plugin_path / "commands"
+        commands_dir.mkdir(parents=True)
+        (commands_dir / "demo-command.md").write_text("# Demo")
+
+        auditor = PluginAuditor(plugins_root, dry_run=True)
+        result = auditor.scan_disk_files(plugin_path)
+
+        assert "./commands/demo-command.md" in result["commands"]
+
+    def test_scan_still_excludes_nested_cache_dirs(self, tmp_path: Path) -> None:
+        """Excludes still apply to segments below the plugins root."""
+        plugin_path = tmp_path / "demo"
+        commands_dir = plugin_path / "commands"
+        nested = commands_dir / "worktrees" / "scratch"
+        nested.mkdir(parents=True)
+        (commands_dir / "real-command.md").write_text("# Real")
+        (nested / "stale-command.md").write_text("# Stale")
+
+        auditor = PluginAuditor(tmp_path, dry_run=True)
+        result = auditor.scan_disk_files(plugin_path)
+
+        assert "./commands/real-command.md" in result["commands"]
+        assert not any("scratch" in c for c in result["commands"])
+
     def test_scan_disk_files_finds_skills(self, tmp_path: Path) -> None:
         """Test scanning for skill directories with valid content."""
         skills_dir = tmp_path / "skills"
