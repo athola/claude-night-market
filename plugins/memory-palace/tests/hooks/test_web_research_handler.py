@@ -1270,19 +1270,20 @@ class TestEvalScoresTable:
     nothing exercised the rendered output.
     """
 
-    _CRITERIA = ("Novelty", "Applicability", "Durability", "Connectivity", "Authority")
+    _CRITERIA = ("Authority", "Connectivity")
 
-    def test_constant_holds_real_rubric_not_a_self_reference(self):
-        """GIVEN the ``_EVAL_SCORES_TABLE`` module constant
+    def test_builder_renders_real_rubric_not_a_self_reference(self):
+        """GIVEN the computed evaluation table
         WHEN its contents are inspected
-        THEN it carries the table heading and every criterion row
-        AND it does not contain the literal ``{_EVAL_SCORES_TABLE}`` placeholder
+        THEN it carries the heading and every scored criterion row
+        AND no f-string placeholder survives into the output
         """
-        table = web_research_handler._EVAL_SCORES_TABLE
+        table = web_research_handler.build_eval_table("https://github.com/a/b", {})
         assert "## Evaluation Scores (Auto-Generated)" in table
         for criterion in self._CRITERIA:
-            assert f"| {criterion} | TBD | Review needed |" in table
-        assert "{_EVAL_SCORES_TABLE}" not in table
+            assert f"| {criterion} |" in table
+        for placeholder in ("{_EVAL_SCORES_TABLE}", "{build_eval_table", "{authority"):
+            assert placeholder not in table
 
     def test_webfetch_note_renders_the_table(self):
         """GIVEN WebFetch content to store
@@ -1299,8 +1300,10 @@ class TestEvalScoresTable:
 
         note = mock_store.call_args.args[1]
         assert "## Evaluation Scores (Auto-Generated)" in note
-        assert "| Novelty | TBD | Review needed |" in note
-        assert "{_EVAL_SCORES_TABLE}" not in note
+        assert "| Authority |" in note
+        assert "| Connectivity |" in note
+        assert "TBD" not in note
+        assert "{build_eval_table" not in note
 
 
 class TestDetectNullCapture:
@@ -1358,3 +1361,64 @@ class TestDetectNullCapture:
             )
             is None
         )
+
+
+class TestBuildEvalTable:
+    """Captures carry computed scores, not TBD placeholders.
+
+    All 554 entries shipped an Evaluation Scores table where every
+    criterion read TBD, implying a review that never ran (issue #649).
+    Only criteria derivable from the index are emitted: Authority from
+    domain rank, Connectivity from topic-cluster size.
+
+    Novelty, Applicability, and Durability are deliberately absent.
+    None varies per capture at fetch time (durability is keyed on
+    maturity tier, and every capture is born seedling), so emitting
+    them would be a constant dressed as a measurement.
+    """
+
+    def test_authority_reflects_domain_rank(self):
+        high = web_research_handler.build_eval_table("https://github.com/a/b", {})
+        low = web_research_handler.build_eval_table("https://random.example/x", {})
+        assert "Authority" in high
+        assert "1.00" in high
+        assert "0.30" in low
+
+    def test_connectivity_reflects_cluster_size(self):
+        index = {
+            "entries": {
+                f"https://hn.example/{i}": {"url": f"https://hn.example/{i}"}
+                for i in range(9)
+            }
+        }
+        index["entries"]["https://lonely.example/z"] = {
+            "url": "https://lonely.example/z"
+        }
+        clustered = web_research_handler.build_eval_table(
+            "https://hn.example/new", index
+        )
+        lonely = web_research_handler.build_eval_table(
+            "https://lonely.example/other", index
+        )
+        assert "Connectivity" in clustered
+        assert clustered != lonely
+
+    def test_no_tbd_placeholders_remain(self):
+        table = web_research_handler.build_eval_table("https://github.com/a/b", {})
+        assert "TBD" not in table
+        assert "Review needed" not in table
+
+    def test_non_computable_criteria_scored_no_row(self):
+        """No scored row for a criterion the hook cannot measure.
+
+        Asserts on the table row, not the whole string: the closing note
+        names novelty and applicability on purpose, to point the reader
+        at knowledge-intake for them.
+        """
+        table = web_research_handler.build_eval_table("https://github.com/a/b", {})
+        for absent in ("Novelty", "Applicability", "Durability"):
+            assert f"| {absent} |" not in table, absent
+
+    def test_missing_index_degrades_without_raising(self):
+        table = web_research_handler.build_eval_table("https://github.com/a/b", None)
+        assert "Authority" in table

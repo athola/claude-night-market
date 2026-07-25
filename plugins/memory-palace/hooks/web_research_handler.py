@@ -26,6 +26,7 @@ from urllib.parse import urlparse
 
 from shared.config import get_config
 from shared.deduplication import (
+    _load_index,
     get_content_hash,
     get_stored_at,
     is_known,
@@ -44,22 +45,81 @@ PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 STAGING_DIR = PLUGIN_ROOT / "data" / "staging"
 QUEUE_DIR = STAGING_DIR  # was docs/knowledge-corpus/queue before 1.5.0
 
-_EVAL_SCORES_TABLE = """## Evaluation Scores (Auto-Generated)
-
-| Criterion | Score | Rationale |
-|-----------|-------|-----------|
-| Novelty | TBD | Review needed |
-| Applicability | TBD | Review needed |
-| Durability | TBD | Review needed |
-| Connectivity | TBD | Review needed |
-| Authority | TBD | Review needed |"""
-
 # ---------------------------------------------------------------------------
 # src/ on sys.path so memory_palace.* imports work in hook context
 # ---------------------------------------------------------------------------
 _SRC_DIR = str(PLUGIN_ROOT / "src")
 if _SRC_DIR not in sys.path:
     sys.path.insert(0, _SRC_DIR)
+
+try:
+    from memory_palace.corpus.index_analytics import (
+        _domain,
+        _domain_authority,
+        cluster_by_domain,
+    )
+
+    _ANALYTICS_AVAILABLE = True
+except ImportError:  # pragma: no cover - src/ is not importable in every hook context
+    _ANALYTICS_AVAILABLE = False
+
+
+def _current_index() -> dict[str, Any]:
+    """Return the live capture index for connectivity scoring.
+
+    ``_load_index`` yields the empty sentinel on any read failure, so no
+    guard is needed here: a missing index scores connectivity 0 rather
+    than failing the capture.
+    """
+    return _load_index()
+
+
+def _first_result_url(results: list[dict[str, str]]) -> str:
+    """Best available URL for a search capture: the top hit's."""
+    return results[0].get("url", "") if results else ""
+
+
+def build_eval_table(url: str, index: dict[str, Any] | None) -> str:
+    """Render the evaluation table from signals the index actually has.
+
+    Emits only criteria that vary per capture and are derivable at fetch
+    time: Authority from domain rank, Connectivity from topic-cluster
+    size. Both reuse the helpers the promotion ranker scores on, so the
+    table and the promote decision cannot drift apart.
+
+    Novelty, Applicability, and Durability are deliberately omitted.
+    None is computable here: the first two need a judgment about content,
+    and durability is keyed on maturity tier, which is ``seedling`` for
+    every capture, so it would print an identical number on every file.
+    Previously all five read ``TBD`` on all 554 entries, implying a
+    review that never ran (issue #649). A constant dressed as a
+    measurement would be that same mistake in a new costume.
+    """
+    if not _ANALYTICS_AVAILABLE:
+        return ""
+
+    domain = _domain(url)
+    authority = _domain_authority(domain)
+
+    connectivity = 0.0
+    detail = "no sibling captures yet"
+    if index:
+        sizes = {d: len(keys) for d, keys in cluster_by_domain(index).items()}
+        if sizes:
+            largest = max(sizes.values())
+            mine = sizes.get(domain, 0)
+            connectivity = mine / largest if largest else 0.0
+            detail = f"{mine} of {largest} in largest cluster"
+
+    return f"""## Evaluation Scores (Auto-Generated)
+
+| Criterion | Score | Source |
+|-----------|-------|--------|
+| Authority | {authority:.2f} | domain rank ({domain}) |
+| Connectivity | {connectivity:.2f} | {detail} |
+
+Scored on structural signals only. Novelty and applicability need a
+judgment call this hook cannot make; run knowledge-intake for those."""
 
 
 def _try_register_graph_entity(
@@ -383,7 +443,7 @@ auto_generated: true
 
 </details>
 
-{_EVAL_SCORES_TABLE}
+{build_eval_table(url, _current_index())}
 
 ## Next Actions
 
@@ -453,7 +513,7 @@ auto_generated: true
 
 {results_content}
 
-{_EVAL_SCORES_TABLE}
+{build_eval_table(_first_result_url(results), _current_index())}
 
 ## Next Actions
 

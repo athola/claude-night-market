@@ -526,6 +526,12 @@ class _IndexMixin(_CLIBase):
             f"({stats.inert_ratio:.0%} never processed)"
         )
         print(f"  Orphaned files:  {stats.orphan_count}")
+        print(
+            f"  Empty captures:  {stats.null_capture_count} "
+            f"({stats.null_capture_ratio:.0%} captured nothing usable)"
+        )
+        if stats.by_null_reason:
+            print(f"    by reason:     {dict(stats.by_null_reason)}")
         print(f"  By routing_type: {dict(stats.by_routing_type)}")
         print(f"  By maturity:     {dict(stats.by_maturity)}")
         print(f"  By importance:   {dict(stats.by_importance_bucket)}")
