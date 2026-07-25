@@ -129,6 +129,83 @@ class TestExtractTitleFromContent:
         assert title == "example.com"
 
 
+class TestTitleRejectsModelPreamble:
+    """Feature: model preamble text never becomes a stored page title (#621).
+
+    Each string below was lifted from a live entry in the committed
+    capture index, where it carried importance 85-89 into the promotion
+    tier. The expected behaviour is to fall back to the URL slug.
+    """
+
+    URL = "https://docs.example.com/user-guide"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "preamble",
+        [
+            "Based on the repository data provided:",
+            "Based on the web page content provided, there are "
+            "**no results to report**.",
+            "REDIRECT DETECTED: The URL redirects to a different host.",
+            "Here is a summary of the page contents.",
+            "Unfortunately, I could not retrieve that page.",
+        ],
+    )
+    def test_preamble_rejected_for_url_slug(self, preamble):
+        """Given content opening with model preamble, fall back to the URL."""
+        content = f"{preamble}\n\nSome body text follows here."
+        assert extract_title_from_content(content, self.URL) == "User Guide"
+
+    @pytest.mark.unit
+    def test_preamble_as_markdown_heading_also_rejected(self):
+        """Given the preamble rendered as a heading, it is still rejected."""
+        content = "# Based on the repository data provided:\n\nBody text."
+        assert extract_title_from_content(content, self.URL) == "User Guide"
+
+    @pytest.mark.unit
+    def test_overlong_prose_is_rejected_not_truncated(self):
+        """Given a prose line past the title budget, reject it.
+
+        A line of 101-149 chars was accepted and then sliced to 100,
+        which is what produced the mid-sentence fragments in the index.
+        A title that long is a paragraph, so reject rather than cut.
+        """
+        prose = (
+            "To get accurate answers to your questions about ServiceTitan's "
+            "developer platform consult the official API reference"
+        )
+        assert 100 < len(prose) < 150, "must sit in the truncation window"
+        title = extract_title_from_content(f"{prose}\n\nMore body.", self.URL)
+        assert title == "User Guide"
+        assert "ServiceTitan" not in title
+
+    @pytest.mark.unit
+    def test_real_title_after_preamble_is_used(self):
+        """Given a preamble followed by a real heading, use the heading."""
+        content = (
+            "Based on the web page content provided:\n\n"
+            "# Python Async Patterns\n\nBody text."
+        )
+        assert extract_title_from_content(content, self.URL) == (
+            "Python Async Patterns"
+        )
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "genuine",
+        [
+            "Python Async Patterns",
+            "Getting Started with FastAPI",
+            "What Is Rust Ownership?",
+            "Node.js Streams Explained",
+        ],
+    )
+    def test_genuine_titles_still_accepted(self, genuine):
+        """Given a real title, the prose filter must not reject it."""
+        content = f"{genuine}\n\nBody text follows."
+        assert extract_title_from_content(content, self.URL) == genuine
+
+
 class TestExtractContentFromWebfetch:
     """Feature: Extract content and URL from WebFetch responses."""
 

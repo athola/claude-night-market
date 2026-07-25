@@ -164,8 +164,60 @@ def _try_register_graph_entity(
         sys.stderr.write(f"web_research_handler: graph wiring skipped: {exc}\n")
 
 
+TITLE_MAX_CHARS = 100
+
+# Openers that mark a line as the model talking about the page rather than
+# the page's own title. Kept deliberately short: the shape checks in
+# _looks_like_title do most of the work, and a long phrase list would rot
+# as model phrasing drifts (#621).
+_PREAMBLE_OPENERS = (
+    "based on",
+    "here is",
+    "here's",
+    "here are",
+    "i cannot",
+    "i could not",
+    "i couldn't",
+    "i was unable",
+    "unfortunately",
+    "sorry",
+    "redirect detected",
+    "there are no",
+    "no results",
+)
+
+
+def _looks_like_title(line: str) -> bool:
+    """Report whether a line names a thing rather than describing it.
+
+    A title names; prose describes. Three shape checks separate them,
+    in order of how much junk each removes from the live index:
+
+    1. Length. A line past ``TITLE_MAX_CHARS`` is a paragraph. Accepting
+       it meant slicing mid-sentence, which is what stored
+       "To get accurate answers to your questions about ServiceTitan's
+       developer" as a page title.
+    2. Terminal punctuation. Titles do not end in ``.``, ``:`` or ``,``.
+       This alone rejects most model preambles. ``?`` and ``!`` are
+       allowed, because "What Is Rust Ownership?" is a real title.
+    3. Preamble openers, as a narrow backstop for preambles that carry no
+       terminal punctuation.
+    """
+    if len(line) > TITLE_MAX_CHARS:
+        return False
+    if line.endswith((".", ":", ",", ";")):
+        return False
+    lowered = line.casefold()
+    return not lowered.startswith(_PREAMBLE_OPENERS)
+
+
 def extract_title_from_content(content: str, url: str) -> str:
-    """Extract a reasonable title from content or URL."""
+    """Extract a reasonable title from content or URL.
+
+    Lines that read as model preamble rather than a page title are
+    skipped, so a later real heading can still win. When no line
+    qualifies, fall back to the URL slug (#621).
+    """
     # Try to find a title-like line at the start
     lines = content.strip().split("\n")[:10]
     for raw_line in lines:
@@ -173,11 +225,16 @@ def extract_title_from_content(content: str, url: str) -> str:
         # Skip empty lines and common prefixes
         if not line or (line.startswith("#") and len(line) < 5):
             continue
-        # Found a title-like line
+        # A heading is explicit markup, so it needs no length floor; a
+        # plain line does, to avoid promoting stray one-word fragments.
         if line.startswith("#"):
-            return line.lstrip("#").strip()[:100]
-        if len(line) > 10 and len(line) < 150:
-            return line[:100]
+            candidate = line.lstrip("#").strip()
+        elif len(line) > 10:
+            candidate = line
+        else:
+            continue
+        if _looks_like_title(candidate):
+            return candidate
 
     # Fall back to URL-based title
     parsed = urlparse(url)
