@@ -1,4 +1,0 @@
-# Keyword index for memory palace knowledge corpus
-# Emptied in 1.5.0: knowledge-corpus was removed during consolidation.
-# Regenerate with: python scripts/build_indexes.py (when corpus is repopulated)
-entries: {}

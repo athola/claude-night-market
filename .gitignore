@@ -130,6 +130,11 @@ plugins/memory-palace/data/wiki/
 plugins/memory-palace/data/staging/webfetch-*.md
 plugins/memory-palace/data/staging/websearch-*.md
 plugins/memory-palace/data/staging/archive/
+
+# Keyword index derived from those local captures. Rebuild it with
+# plugins/memory-palace/scripts/build_indexes.py; committing it would
+# track 9MB of entries pointing at files no other checkout has.
+plugins/memory-palace/data/indexes/keyword-index.yaml
 **/*.claude/session-state.md
 clawhub/
 

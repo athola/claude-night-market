@@ -171,11 +171,18 @@ class KeywordIndexer:
 
         return sorted(keywords)
 
-    def build_index(self) -> None:
+    def build_index(self, save: bool = True) -> None:
         """Build the complete keyword index from all corpus entries.
 
         Scans the corpus directory for markdown files, extracts keywords from each,
         and creates both forward (entry -> keywords) and reverse (keyword -> entries) indexes.
+
+        Args:
+            save: Persist the built index to disk. Pass ``False`` to compute
+                the index without writing, so a caller can inspect the result
+                and decide. ``build_indexes.py`` uses this to refuse writing an
+                empty index over a populated one.
+
         """
         entries = {}
         keyword_to_entries = defaultdict(list)
@@ -227,8 +234,8 @@ class KeywordIndexer:
             },
         }
 
-        # Save to disk
-        self.save_index()
+        if save:
+            self.save_index()
 
     def save_index(self) -> None:
         """Save the index to disk as YAML."""

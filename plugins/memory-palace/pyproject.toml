@@ -103,7 +103,10 @@ extend-ignore = ["E203", "D203", "D213", "S101", "E501"]  # S101 for assert usag
 "tests/**/*.py" = ["S101", "PLR2004", "D103", "D205", "D400", "D415", "S108"]
 "hooks/**/*.py" = ["S603", "S607", "BLE001", "PLR2004", "D101", "D102"]
 "hooks/shared/*.py" = ["PLR0911"]
-"scripts/**/*.py" = ["S603", "S607"]
+# E402: recovery scripts must run under a bare system python, which cannot
+# resolve memory_palace the way the venv does through its editable-install
+# .pth file. They bootstrap sys.path with the plugin's src before importing.
+"scripts/**/*.py" = ["S603", "S607", "E402"]
 "src/memory_palace/corpus/marginal_value.py" = ["F401"]
 
 [tool.ruff.format]
