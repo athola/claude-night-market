@@ -5,7 +5,7 @@ Spatial knowledge organization using memory palace techniques for Claude Code.
 ## Overview
 
 Memory Palace organizes information using spatial memory techniques for easier
-retrieval. It builds "palaces" (structured knowledge repositories with spatial
+retrieval. It builds "palaces" (knowledge repositories with spatial
 metaphors), "gardens" (organic knowledge bases with bidirectional links),
 and a "review chamber" for capturing PR review knowledge.
 
@@ -21,9 +21,9 @@ Auto-memory (2.1.59+) saves useful conversation context
 to `~/.claude/projects/*/memory/MEMORY.md` and is
 managed via the `/memory` command. Agent memory
 frontmatter gives agents persistent recall. Memory
-Palace provides structured, navigable knowledge
-architectures that persist as a permanent corpus.
-These systems are complementary, not conflicting.
+Palace holds domain knowledge in navigable
+hierarchies that persist as a permanent corpus.
+The three layers work together.
 
 ## Installation
 
@@ -75,6 +75,9 @@ Skill(memory-palace:knowledge-intake)
 | `digital-garden-cultivator` | Manage evolving knowledge bases. |
 | `knowledge-intake` | Process and evaluate external knowledge. |
 | `review-chamber` | Capture PR review knowledge in project palaces. |
+| `palace-diagram` | Draw palace structure and topology as Mermaid or ASCII. |
+| `palace-index-curator` | Curate the web-capture index: rebuild, promote, archive. |
+| `memory-clarity-probe` | Check session state clarity before handoff or compression. |
 
 ## Commands
 
@@ -126,7 +129,7 @@ pip install tiktoken
 memory-palace/
 ├── .claude-plugin/
 │   └── plugin.json
-├── skills/              # 6 skills (architect, locator, garden, session, intake, review)
+├── skills/              # 9 skills (see Skills table above)
 ├── commands/            # 5 commands (palace, garden, navigate, review-room, skill-logs)
 ├── agents/              # 4 agents (architect, navigator, librarian, curator)
 ├── hooks/               # 6 runtime hooks + setup hook
@@ -141,7 +144,7 @@ memory-palace/
 
 ## Requirements
 
-- Python 3.12+
+- Python 3.9+
 - Claude Code
 
 ## Documentation

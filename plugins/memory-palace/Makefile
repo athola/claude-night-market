@@ -31,6 +31,7 @@ ABSTRACT_DIR := ../abstract
 # ---------- Plugin-specific Variables ----------
 PY              ?= $(UV_RUN_PYTHON)
 CLI             ?= $(UV) run python scripts/memory_palace_cli.py
+INDEX_BUILDER   ?= $(UV) run python scripts/build_indexes.py
 PALACES_DIR     ?= $(PWD)/.demo-palaces
 GARDEN_FILE     ?= examples/garden-sample.json
 IMPORT_SRC      ?= examples/palaces-sample.json
@@ -287,6 +288,17 @@ demo-memory: ## Demo memory command (LIVE)
 	@echo ""
 	@echo "Use /memory-palace for full memory management."
 
+demo-keyword-index: ## Demo corpus keyword-index rebuild, dry-run (LIVE)
+	@echo "=== Corpus Keyword-Index Rebuild Demo (LIVE) ==="
+	@echo ""
+	@echo "This is the retrieval index at data/indexes/keyword-index.yaml,"
+	@echo "read by cache_lookup. It is NOT the capture index that"
+	@echo "'make demo-index' curates. Derived data, untracked in git, so a"
+	@echo "fresh checkout has none:"
+	@$(INDEX_BUILDER) --dry-run || true
+	@echo ""
+	@echo "Write it for real by dropping --dry-run."
+
 demo-index: ## Demo capture-index curation: corpus stats + dry-run promotions (LIVE)
 	@echo "=== Capture-Index Curation Demo (LIVE) ==="
 	@echo ""
@@ -298,7 +310,7 @@ demo-index: ## Demo capture-index curation: corpus stats + dry-run promotions (L
 	@echo ""
 	@echo "Apply for real with: $(CLI) index promote --apply"
 
-demo-memory-palace-commands: demo-palace demo-garden demo-navigate demo-review-room demo-skill-logs demo-memory demo-index ## Run all memory-palace documented command demos
+demo-memory-palace-commands: demo-palace demo-garden demo-navigate demo-review-room demo-skill-logs demo-memory demo-index demo-keyword-index ## Run all memory-palace documented command demos
 	@echo ""
 	@echo "=== Memory-palace All Commands Demo Complete ==="
 	@echo ""

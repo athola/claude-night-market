@@ -92,19 +92,43 @@ feature_flags:
 The hook only speaks when promoted entries clear the importance floor,
 and it exits silently on any error so it can never block a session.
 
+## The corpus keyword index is a separate artifact
+
+The three steps above all operate on the capture index at
+`hooks/memory-palace-index.yaml`. Retrieval reads a different file:
+`data/indexes/keyword-index.yaml`, built from the staging captures and
+consumed by `cache_lookup`. Curating one does nothing to the other.
+
+That keyword index is derived data and is not tracked in git, so a
+fresh checkout has none at all. Rebuild it with:
+
+```bash
+# Report what would be indexed, writing nothing.
+uv run python scripts/build_indexes.py --dry-run
+
+# Write data/indexes/keyword-index.yaml.
+uv run python scripts/build_indexes.py
+```
+
+The builder refuses to write an empty index over a populated one. An
+empty corpus is reported with `"wrote": false` and any existing index
+is left untouched. Writing `entries: {}` over real data is how the
+corpus went dark in 1.5.0, and it stayed dark because the regeneration
+script named in that stub file had never been written.
+
 ## Design Notes
 
 - Promotion uses only structural signals (recency, domain authority,
-  cluster size). The decision logic is deterministic; no model call
+  cluster size). The decision logic is deterministic. No model call
   gates a transition.
 - The decay half-lives (14/30/90 days) are tunable priors, not retention
   constants. Wixted & Ebbesen (1997) and Murre & Dros (2015) show
-  forgetting follows a power law; FSRS (Ye, Su & Cao, 2022) validates
+  forgetting follows a power law. FSRS (Ye, Su & Cao, 2022) validates
   exponential decay only with a learned per-item half-life. Calibrate
   against reopen logs if usage data accrues.
-- Retrieval stays keyword-first (`cache_lookup` / `keyword_index`);
+- Retrieval stays keyword-first (`cache_lookup` / `keyword_index`), and
   embeddings are not required at the current corpus scale. BM25 is the
-  workhorse up to ~5000 documents; embeddings add value only for
+  workhorse up to ~5000 documents. Embeddings add value only for
   vocabulary-mismatch discovery.
 - Near-duplicate detection layers SHA-256 exact match (present via
   `content_hash`) then MinHash with k-shingling for near-duplicates
@@ -116,6 +140,10 @@ and it exits silently on any error so it can never block a session.
 
 ## Exit Criteria
 
+- [ ] `build_indexes.py --dry-run` reports a non-zero entry count and
+      leaves `data/indexes/keyword-index.yaml` byte-identical.
+- [ ] `build_indexes.py` against an empty corpus reports `"wrote":
+      false` and leaves an existing populated index untouched.
 - [ ] `index report` runs and prints the inert ratio and orphan count
       for the live index.
 - [ ] `index promote` (no flag) prints proposals and writes nothing
@@ -123,7 +151,7 @@ and it exits silently on any error so it can never block a session.
 - [ ] `index promote --apply` creates a timestamped backup under
       `data/backups/` before persisting, and a re-run proposes nothing.
 - [ ] With `context_injection: true`, a SessionStart event surfaces the
-      top promoted captures; with the flag off, it stays silent.
+      top promoted captures, and with the flag off it stays silent.
 - [ ] Failure modes (missing index, corrupt YAML, missing backing files)
       are handled without raising: report degrades, promote holds, hook
       exits silently.
