@@ -5,8 +5,8 @@ This module captures the patterns that consistently score above
 score below 50. The best practices are distilled from evaluating
 the corpus of skills shipped in this repo and tracking which
 shapes survive contact with real users. For the full evaluation
-rubric, see `evaluation-criteria.md`. For the authoring process
-itself, see `Skill(abstract:skill-authoring)`.
+rubric, see the Resources section in `SKILL.md`. For the authoring
+process itself, see `Skill(abstract:skill-authoring)`.
 
 ## The headline finding
 
@@ -173,8 +173,8 @@ Run the auditor against your skill to identify issues.
 The bad form forces the reader to figure out where the
 auditor lives. The good form is copy-pasteable.
 
-The auditor flags this as the "cargo cult anti-pattern." See
-`evaluation-criteria.md` for the full check.
+The auditor flags this as the "cargo cult anti-pattern." The full
+check is in the rubric listed under Resources in `SKILL.md`.
 
 ## Practice 6: cross-references use `plugin:skill` form
 
@@ -288,9 +288,8 @@ The output is a prioritized list. Fix the highest-impact
 items first.
 
 When authoring a new skill, treat the eight practices as a
-pre-flight checklist. The
-`plugins/abstract/skills/skills-eval/modules/authoring-checklist.md`
-module provides the form.
+pre-flight checklist. The checklist module listed under Resources in
+`SKILL.md` provides the form.
 
 ## Verification
 
@@ -310,7 +309,6 @@ A score above 85 indicates the practices are mostly applied.
 A score below 70 means at least three of the practices are
 violated; the auditor output names which.
 
-Cross-reference: see `evaluation-criteria.md` for the full
-scoring rubric, `Skill(abstract:skill-authoring)` for the
-authoring methodology, and `authoring-checklist.md` for the
-quick-reference form of these practices.
+Cross-reference: the Resources section in `SKILL.md` lists the full
+scoring rubric and the quick-reference form of these practices. See
+`Skill(abstract:skill-authoring)` for the authoring methodology.

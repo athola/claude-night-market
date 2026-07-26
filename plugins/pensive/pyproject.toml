@@ -44,6 +44,7 @@ dev = [
     "ruff>=0.14.13",
     "mypy>=1.11.0,<2",
     "pre-commit>=4.0.0",
+    "safety>=2.0.0",
     "types-PyYAML>=6.0.0",
 ]
 

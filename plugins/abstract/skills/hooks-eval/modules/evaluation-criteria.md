@@ -6,12 +6,12 @@ Detailed scoring rubric and quality gates for hook evaluation.
 
 This evaluation framework follows Multi-Criteria Decision Analysis (MCDA) best practices:
 
-- **Normalization**: Vector normalization for scale invariance ([full methodology](../../skills-eval/modules/multi-metric-evaluation-methodology.md))
+- **Normalization**: Vector normalization for scale invariance ([full methodology](../../skills-eval/modules/evaluation-criteria.md))
 - **Weighting**: Security-first weights with stakeholder validation
 - **Aggregation**: Weighted sum with penalty-based security scoring
 - **Validation**: Sensitivity analysis on non-security weights
 
-**Documentation**: See [Multi-Metric Evaluation Methodology](../../skills-eval/modules/multi-metric-evaluation-methodology.md) for complete mathematical foundation.
+**Documentation**: See [Multi-Metric Evaluation Methodology](../../skills-eval/modules/evaluation-criteria.md) for complete mathematical foundation.
 
 ## Scoring System (100 points total)
 
@@ -151,7 +151,7 @@ sensitivity_analysis:
     critical_weights_identified: true  # Document sensitive weights
 ```
 
-See [Sensitivity Analysis](../../skills-eval/modules/multi-metric-evaluation-methodology.md#sensitivity-analysis) for implementation details.
+See [Sensitivity Analysis](../../skills-eval/modules/evaluation-criteria.md#sensitivity-analysis-requirements) for implementation details.
 
 ### Gate Behaviors
 

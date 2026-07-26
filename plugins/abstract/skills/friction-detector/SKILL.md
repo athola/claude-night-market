@@ -1,6 +1,7 @@
 ---
 name: friction-detector
 description: 'Detect friction signals; graduate patterns into rules. Use for session retrospectives.'
+category: workflow-optimization
 alwaysApply: false
 trigger: friction, friction detection, session retrospective, learning pipeline, recurring mistakes, pattern graduation, friction report
 model_hint: standard
@@ -8,22 +9,20 @@ model_hint: standard
 
 # Friction-to-Learning Pipeline
 
-Detect friction signals during agent execution, track
-them across sessions, and graduate recurring patterns
-into permanent guidance. Bridges the gap between
-ephemeral session friction and durable CLAUDE.md rules.
+## Overview
 
-**Research backing**: Claude Coach (hook-based friction
-detection with SQLite storage), alirezarezvani's
-self-improving-agent (three-tier MEMORY to CLAUDE.md
-graduation), and the ACE framework (arXiv: evolving
-playbooks from execution feedback, +10.6% on agent
-tasks).
+Detect friction signals during agent execution, track them across sessions,
+and graduate recurring patterns into permanent guidance. Bridges the gap
+between ephemeral session friction and durable CLAUDE.md rules.
 
-**Current gap**: LEARNINGS.md exists but requires manual
-aggregation via `/abstract:aggregate-logs`. This skill
-adds automatic friction detection and a structured
-promotion path.
+**Research backing**: Claude Coach (hook-based friction detection with SQLite
+storage), alirezarezvani's self-improving-agent (three-tier MEMORY to
+CLAUDE.md graduation), and the ACE framework (arXiv: evolving playbooks from
+execution feedback, +10.6% on agent tasks).
+
+**Current gap**: LEARNINGS.md exists but requires manual aggregation via
+`/abstract:aggregate-logs`. This skill adds automatic friction detection and
+a structured promotion path.
 
 ## Friction Signal Types
 

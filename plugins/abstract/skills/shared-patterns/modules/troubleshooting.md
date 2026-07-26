@@ -97,19 +97,19 @@ Check for duplicate definitions:
 rg "class ValidationError" plugins/
 ```
 
-A single canonical definition is in
-`plugins/abstract/skills/shared-patterns/modules/error-handling.md`
-(reference) and the corresponding Python module. Anything else
+A single canonical definition is in the error-handling module under
+`plugins/abstract/skills/shared-patterns/modules/` (reference) and the
+corresponding Python module. Anything else
 is a fork to remove.
 
 ## Missing Exports
 
 If `AttributeError` appears after upgrading the plugin, the
-export was renamed or removed. Cross-check against
-`editing.md`'s "Change Classes" table:
+export was renamed or removed. Cross-check against the "Change
+Classes" table in the editing module listed in `SKILL.md`:
 
-1. Look up the symbol in the current `error-handling.md`,
-   `validation-patterns.md`, etc.
+1. Look up the symbol in the current error-handling and
+   validation-patterns modules.
 2. If absent, search recent commits to the modules directory:
    `git log -p plugins/abstract/skills/shared-patterns/modules/`
 3. Find the deprecation note or migration instruction in the
@@ -144,13 +144,13 @@ vendored copy), that is the source of the mismatch.
   reappears later in a worse place.
 - **Pinning forever**: Pinning the plugin to an old version to
   avoid the migration. Locks the caller out of unrelated fixes.
-- **Patching the shared pattern in place**: Editing
-  `error-handling.md` in `plugins/abstract/...` from a caller
+- **Patching the shared pattern in place**: Editing the shared
+  error-handling module in `plugins/abstract/...` from a caller
   plugin to make a test pass. Other callers see the change
   next time they update.
 
 ## Cross-Reference
 
-See `editing.md` for the migration patterns referenced above
-and `creation.md` for when a new pattern (rather than a fix)
-is the right answer.
+Detailed Resources in `SKILL.md` lists the modules covering the
+migration patterns referenced above, and when a new pattern (rather
+than a fix) is the right answer.

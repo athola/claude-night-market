@@ -1,9 +1,12 @@
 ---
 name: hook-scope-guide
 description: 'Select hook scope (plugin, project, global) by audience. Use when authoring a hook.'
+category: hook-development
 ---
 
 # Hook Scope Decision Guide
+
+## Overview
 
 This skill helps you choose the right location for Claude Code hooks based on their purpose, audience, and persistence needs.
 

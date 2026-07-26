@@ -34,16 +34,15 @@ except StructureError as exc:
 
 ### Cross-Module References
 
-Each module can reference siblings by relative path:
+Modules do not reference each other. The hub owns the index of what
+exists and the order to load it in, and a module that names a sibling
+copies that index into a second place where it can drift.
 
-| From | To | Relative Path |
-|------|----|----|
-| `creation.md` | `validation-patterns.md` | `./validation-patterns.md` |
-| `editing.md` | `error-handling.md` | `./error-handling.md` |
-| `troubleshooting.md` | `workflow-patterns.md` | `./workflow-patterns.md` |
-
-Keep references one-directional where possible. Cycles between
-modules make the skill harder to load progressively.
+When a module's material depends on another, name the concept and let
+the reader find the module under Detailed Resources in `SKILL.md`.
+Keeping the dependency graph in one file is what makes progressive
+loading orderable: there are no cycles to resolve because there are no
+spoke-to-spoke edges.
 
 ## Pattern Selection Heuristics
 
@@ -86,8 +85,8 @@ Inline a one-off variant when:
 - **Cyclic module references**: Module A points to B, B points
   back to A. Progressive loaders cannot order the load.
 - **Silent overrides**: Redefining `ValidationError` locally to
-  add a field instead of subclassing the one in
-  `error-handling.md`. Callers downstream see two unrelated
+  add a field instead of subclassing the canonical definition the
+  error-handling module provides. Callers downstream see two unrelated
   exception types with the same name.
 - **Pattern as decoration**: Wrapping straight-line code in
   `try/except ValidationError` when the code never raises
@@ -95,5 +94,6 @@ Inline a one-off variant when:
 
 ## Cross-Reference
 
-See `creation.md` for extracting a new shared pattern from a
-recurring need, and `editing.md` for changing one safely.
+Detailed Resources in `SKILL.md` lists the modules covering how to
+extract a new shared pattern from a recurring need, and how to change
+an existing one safely.

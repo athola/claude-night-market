@@ -63,13 +63,18 @@ Consistent naming patterns for skills and modules enhance discoverability and pr
 - **Directories**: `skills/skill-name/scripts/`
 
 **Examples**:
- `skills/modular-skills/modules/design-patterns.md`
- `scripts/skill_analyzer.py`
- `skills/api-scaffolding/scripts/backend-generator`
 
- `skills/ModularSkill/module/DesignPatterns`
- `skills/skill-name/Scripts/analyzer`
- `random_module_file.md`
+```text
+# Follows the conventions
+skills/modular-skills/modules/design-patterns.md
+scripts/skill_analyzer.py
+skills/api-scaffolding/scripts/backend-generator
+
+# Does not
+skills/ModularSkill/module/DesignPatterns
+skills/skill-name/Scripts/analyzer
+random_module_file.md
+```
 
 ### Tool Integration
 Tools integration maximizes skill capability by automating tasks.

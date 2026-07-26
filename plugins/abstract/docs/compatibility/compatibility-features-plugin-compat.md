@@ -5,12 +5,9 @@ each plugin in the claude-night-market ecosystem.
 
 > **See Also**:
 > [Features Index](compatibility-features.md) |
-> [March 2026](compatibility-features-march2026-recent.md) |
-> [February 2026 Early](compatibility-features-feb2026-early.md) |
-> [February 2026 Late](compatibility-features-feb2026-late.md) |
-> [January 2026](compatibility-features-jan2026.md) |
-> [Reference](compatibility-reference.md) |
-> [2025 Archive](compatibility-features-2025.md)
+> [March 2026 Early](compatibility-features-march2026-early.md) |
+> [March 2026 Recent](compatibility-features-march2026-recent.md) |
+> [Patterns](compatibility-patterns.md)
 
 ## Plugin-Specific Compatibility
 

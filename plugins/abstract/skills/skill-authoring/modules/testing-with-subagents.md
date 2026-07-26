@@ -3,8 +3,8 @@
 The Iron Law in `SKILL.md` says "no skill without a failing test
 first." This module covers how to run that test in a fresh
 subagent so the result is uncontaminated by the conversation
-that wrote the skill. For the full TDD methodology, see
-`tdd-methodology.md`. For the dispatch and validation patterns
+that wrote the skill. For the full TDD methodology, see the module
+`SKILL.md` lists for it. For the dispatch and validation patterns
 shared across skills, see `Skill(abstract:subagent-testing)`.
 
 ## Why fresh subagents matter
@@ -74,8 +74,8 @@ Rewrite or split.
 ### REFACTOR: pressure the skill
 
 Run the skill against scenarios designed to invite
-rationalization. From `anti-rationalization.md`, common
-pressure shapes:
+rationalization. From the anti-rationalization module listed in
+`SKILL.md`, common pressure shapes:
 
 - "Quickly add..." (time pressure)
 - "Just a simple..." (scope minimization)
@@ -202,8 +202,8 @@ ones that matter in production. Do not ship without them.
 
 ## Verification
 
-The deployment checklist (see `deployment-checklist.md`)
-requires evidence under `tests/baseline/`, `tests/with-skill/`,
+The deployment checklist, listed in `SKILL.md`, requires evidence
+under `tests/baseline/`, `tests/with-skill/`,
 and `tests/rationalization/` before merge. The skill is not
 ready until all three directories exist with at least three
 scenarios each, and the scenarios were run in fresh subagents

@@ -61,10 +61,30 @@ CHECKER_PATTERNS = (
 )
 CHECKER_RE = re.compile("|".join(CHECKER_PATTERNS))
 
-# Trailing ``|| true`` is the suppression this guard exists for. Anchored to
-# end-of-line so a mid-pipeline ``|| true`` feeding a later real check is not
+# Trailing ``|| true`` is the suppression this guard was written for. Anchored
+# to end-of-line so a mid-pipeline ``|| true`` feeding a later real check is not
 # swept up.
-SUPPRESSION_RE = re.compile(r"\|\|\s*true\s*;?\s*$")
+#
+# ``|| echo "..."`` and ``|| :`` belong here too, and matching only ``|| true``
+# left the door open. Thirteen sites used the echo form, including
+# ``SECURITY_EXTRA = $(UV_RUN) safety check || echo "[WARNING] Safety check
+# unavailable"`` in pensive and parseltongue: a security scanner wired into
+# ``make security`` that could not fail, in pensive's case because ``safety``
+# was never a declared dependency and the command had never once run. The echo
+# form is the worse of the two, because it replaces the checker's verdict with a
+# sentence that sounds like a status report. parseltongue's ``$(RUFF) check
+# --statistics 2>/dev/null || echo "Linting clean or ruff not configured"``
+# printed "Linting clean" on precisely the path where ruff had found problems.
+#
+# Detecting an optional tool is still legitimate; it just has to be a real
+# detection. ``@if $(UV_RUN) python -c "import pytest_benchmark"; then ...`` is
+# excluded below because an ``if`` consumes the exit code rather than dropping
+# it, and the message it prints is then true.
+SUPPRESSION_RE = re.compile(r"\|\|\s*(?:true|:|echo\b.*)\s*;?\s*$")
+
+# ``@if command -v mutmut ...; then`` consumes the verdict instead of discarding
+# it, so the checker inside the branch is still able to fail the build.
+CONDITION_RE = re.compile(r"^\s*[-@]*\s*(?:if|elif)\b")
 
 # ``rm -rf .mypy_cache 2>/dev/null || true`` and friends.
 CLEANUP_RE = re.compile(r"^\s*[-@]*\s*rm\b")
@@ -82,7 +102,7 @@ def _suppressed_checks(makefile: Path) -> list[tuple[int, str]]:
     offenders = []
     for number, raw in enumerate(makefile.read_text().splitlines(), start=1):
         line = raw.split("#", 1)[0].rstrip()
-        if not line or CLEANUP_RE.match(line):
+        if not line or CLEANUP_RE.match(line) or CONDITION_RE.match(line):
             continue
         if CHECKER_RE.search(line) and SUPPRESSION_RE.search(line):
             offenders.append((number, line.strip()))

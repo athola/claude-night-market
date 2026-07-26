@@ -21,6 +21,8 @@ model_hint: standard
 ---
 # Plugin Review
 
+## Overview
+
 Tiered quality review of plugins with dependency-aware scoping.
 
 ## When NOT To Use

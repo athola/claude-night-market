@@ -125,9 +125,9 @@ validate-skills: ## Validate all skill files
 test-skills: ## Test skill functionality
 	@echo "Testing skill functionality..."
 	@echo "Token estimator test (via abstract):"
-	@cd ../abstract && uv run python scripts/token_estimator.py --file ../conserve/skills/context-optimization/SKILL.md 2>/dev/null || echo "  Token estimator test skipped"
+	@cd ../abstract && uv run python scripts/token_estimator.py --file ../conserve/skills/context-optimization/SKILL.md
 	@echo "Dependency check:"
-	@uv pip check 2>/dev/null || echo "  Dependency check skipped"
+	@uv pip check
 
 # ---------- Advanced Testing ----------
 mutation-test: ## Run mutation testing
@@ -138,7 +138,20 @@ mutation-test: ## Run mutation testing
 	fi
 
 benchmark: ## Run performance benchmarks (bloat detection speed)
-	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
+	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
+	@# real benchmark failure fails the target instead of being reported as a
+	@# missing plugin. pytest exit 5 means nothing was collected, not failure.
+	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
+		echo "Not applicable: pytest-benchmark is not installed"; \
+	else \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
+		status=$$?; \
+		if [ $$status -eq 5 ]; then \
+			echo "Not applicable: no benchmark tests are defined"; \
+		elif [ $$status -ne 0 ]; then \
+			exit $$status; \
+		fi; \
+	fi
 
 coverage: ## Measure test coverage for hooks and scripts (term + HTML)
 	@echo "Measuring coverage (hooks + scripts) via uv..."

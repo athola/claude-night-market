@@ -40,7 +40,7 @@ deps: ## Install and sync dependencies
 
 demo-token-estimate: ## Demo token estimation with tiktoken
 	@echo "Demonstrating token estimation with tiktoken"
-	UV_CACHE_DIR=$(PWD)/.uv-cache uv run python -c "from tools.delegation_executor import Delegator; files=[]; prompt='Summarize the delegation executor and quota tracker.'; print(f'Estimated tokens: {Delegator().estimate_tokens(files, prompt)}')"
+	UV_CACHE_DIR=$(PWD)/.uv-cache uv run python -c "from scripts.delegation_executor import estimate_tokens; files=['scripts/delegation_executor.py', 'scripts/quota_tracker.py']; prompt='Summarize the delegation executor and quota tracker.'; print(f'Estimated tokens: {estimate_tokens(files, prompt)}')"
 
 check: ## Run dependency validation
 	@echo "Running dependency validation..."
@@ -168,7 +168,20 @@ mutation-test: ## Run mutation testing
 	fi
 
 benchmark: ## Run performance benchmarks (API delegation latency)
-	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
+	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
+	@# real benchmark failure fails the target instead of being reported as a
+	@# missing plugin. pytest exit 5 means nothing was collected, not failure.
+	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
+		echo "Not applicable: pytest-benchmark is not installed"; \
+	else \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
+		status=$$?; \
+		if [ $$status -eq 5 ]; then \
+			echo "Not applicable: no benchmark tests are defined"; \
+		elif [ $$status -ne 0 ]; then \
+			exit $$status; \
+		fi; \
+	fi
 
 memory-profile: ## Profile memory usage
 	@if python3 -c "import memory_profiler" 2>/dev/null; then \
@@ -183,13 +196,13 @@ demo-delegation: ## Demo delegation workflow
 	@echo "Demonstrating delegation-core skill workflow..."
 	@echo ""
 	@echo "Step 1: Service availability"
-	@uv run python scripts/delegation_executor.py --list-services 2>/dev/null || echo "  (services not configured)"
+	@uv run python scripts/delegation_executor.py --list-services
 	@echo ""
 	@echo "Step 2: Quota status"
-	@uv run python scripts/quota_tracker.py --status 2>/dev/null || echo "  (quota tracking inactive)"
+	@uv run python scripts/quota_tracker.py --status
 	@echo ""
 	@echo "Step 3: Token estimation sample"
-	@uv run python -c "from tools.delegation_executor import Delegator; d=Delegator(); print(f'Estimated tokens for test prompt: {d.estimate_tokens([], \"Hello world\")}')" 2>/dev/null || echo "  (token estimator not available)"
+	@uv run python -c "from scripts.delegation_executor import estimate_tokens; print(f'Estimated tokens for test prompt: {estimate_tokens([], \"Hello world\")}')"
 	@echo ""
 	@echo "Delegation demo complete. Use conjure:delegation-core for full workflow."
 

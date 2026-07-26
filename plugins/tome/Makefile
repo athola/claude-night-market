@@ -93,7 +93,20 @@ mutation-test: ## Run mutation testing
 	fi
 
 benchmark: ## Run performance benchmarks
-	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
+	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
+	@# real benchmark failure fails the target instead of being reported as a
+	@# missing plugin. pytest exit 5 means nothing was collected, not failure.
+	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
+		echo "Not applicable: pytest-benchmark is not installed"; \
+	else \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
+		status=$$?; \
+		if [ $$status -eq 5 ]; then \
+			echo "Not applicable: no benchmark tests are defined"; \
+		elif [ $$status -ne 0 ]; then \
+			exit $$status; \
+		fi; \
+	fi
 
 memory-profile: ## Profile memory usage
 	@if python3 -c "import memory_profiler" 2>/dev/null; then \

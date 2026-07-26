@@ -109,7 +109,7 @@ demo-tracking: ## Demo project tracking on minister itself
 	@echo "Data files: $$(find data/ -type f 2>/dev/null | wc -l)"
 	@echo ""
 	@echo "Step 2: Project tracker check"
-	@uv run python -c "from minister.project_tracker import *; print('ProjectTracker available')" 2>/dev/null || echo "  (project tracker not loaded)"
+	@uv run python -c "from minister.project_tracker import *; print('ProjectTracker available')"
 	@echo ""
 	@echo "Tracking demo complete."
 

@@ -45,7 +45,7 @@ Extract a shared pattern when all of these hold:
 - The cost of the extra import is less than the cost of keeping
   copies in sync
 
-Look at `validation-patterns.md` for an example: every skill that
+Take frontmatter validation as an example: every skill that
 parses frontmatter needs `validate_required_fields()`. The shape
 is small (a dict and a list of keys), the output is a list of
 missing keys, and the contract has not changed.
@@ -94,5 +94,6 @@ patterns wearing the same name. Split or keep inline.
 
 ## Cross-Reference
 
-See `editing.md` for changing a pattern after its first release,
-and `advanced.md` for composing several patterns in one skill.
+Detailed Resources in `SKILL.md` lists the modules covering how to
+change a pattern after its first release, and how to compose several
+patterns in one skill.

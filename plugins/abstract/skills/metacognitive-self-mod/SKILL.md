@@ -1,6 +1,7 @@
 ---
 name: metacognitive-self-mod
 description: 'Analyze and improve the improvement process. Use for detecting regressions and meta-optimization.'
+category: meta-skills
 alwaysApply: false
 trigger: metacognitive, self-modification, improve the improver, meta-improvement, improvement effectiveness, regression detected, improvement failed
 model_hint: standard
@@ -9,6 +10,8 @@ modules:
 - modules/trace-capture.md
 ---
 # Metacognitive Self-Modification
+
+## Overview
 
 Analyze the effectiveness of past skill improvements and
 refine the improvement process itself. This is the core
