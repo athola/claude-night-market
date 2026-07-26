@@ -140,7 +140,12 @@ class AuditTrailManager:
         merkle_dag = session_data.get("merkle_dag", {})
         nodes_raw = merkle_dag.get("nodes", {})
 
-        # Nodes may be stored as a dict keyed by node_id or as a list
+        # Nodes may be stored as a dict keyed by node_id or as a list. Either
+        # way they are unvalidated JSON, so the element type is Any rather than
+        # the object the narrowed dict would otherwise infer. Saying Any here
+        # keeps the .get() calls below honest about what has been checked,
+        # which is nothing yet.
+        nodes: list[Any]
         if isinstance(nodes_raw, dict):
             nodes = list(nodes_raw.values())
         else:
@@ -260,7 +265,9 @@ class AuditTrailManager:
         if isinstance(coa, dict):
             raw_coas = coa.get("raw_coas", {})
             if isinstance(raw_coas, dict):
-                expert_panel = list(raw_coas.keys())
+                # JSON object keys are strings, but the narrowed dict carries no
+                # key type, so coerce rather than assert.
+                expert_panel = [str(name) for name in raw_coas]
 
         # Escalation history
         escalation_history: list[dict[str, Any]] = []

@@ -493,8 +493,9 @@ def main() -> None:
         if issues:
             for _issue in issues:
                 print(f"  {_issue}")
-        else:
-            print("No issues found.")
+            # A scan that prints issues and exits 0 reports itself as clean.
+            raise SystemExit(1)
+        print("No issues found.")
     elif args.fix:
         fixes = validator.fix_patterns(dry_run=args.dry_run)
         for _fix in fixes:

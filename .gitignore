@@ -155,3 +155,7 @@ reports/
 
 # knowledge-intake audit log; regenerated locally, mapping lives in palace frontmatter
 docs/curation-log.md
+
+# memory-palace graph DB; written by the test suite into an otherwise
+# untracked runtime directory, regenerated on demand
+plugins/memory-palace/data/palaces/*.db

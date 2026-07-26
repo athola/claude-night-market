@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -100,9 +101,14 @@ class GeminiUsageLogger:
     def _update_session_stats(self, log_entry: dict[str, Any]) -> None:
         """Update current session statistics."""
         try:
+            # Declared before the branch, not on one arm of it. Annotating only
+            # the loaded arm left the literal below to infer as dict[str, str],
+            # and the int counters assigned further down are not assignable to
+            # that.
+            session_data: dict[str, Any]
             if self.session_file.exists():
                 with open(self.session_file) as f:
-                    session_data: dict[str, Any] = json.load(f)
+                    session_data = json.load(f)
             else:
                 session_data = {"session_id": self._get_session_id()}
 
@@ -191,6 +197,52 @@ class GeminiUsageLogger:
         return errors[-count:]  # Return last N errors
 
 
+def _validate_configuration(usage_logger: GeminiUsageLogger) -> list[str]:
+    """Return the problems that make this logger unusable, empty if healthy.
+
+    ``--validate`` used to print three facts and exit 0, so it could not fail
+    and the Makefile check around it was decorative. These are the checks that
+    describe whether logging will actually work.
+
+    Note that ``log_dir`` existing proves nothing: ``__init__`` creates it. What
+    matters is whether it can be written to, and whether the files already
+    there can still be read.
+    """
+    problems: list[str] = []
+
+    probe = usage_logger.log_dir / ".write-probe"
+    try:
+        probe.write_text("")
+        probe.unlink()
+    except OSError as exc:
+        problems.append(f"log directory is not writable: {exc}")
+
+    # An absent log is a logger that has not run yet, not a broken one. A log
+    # that exists but cannot be parsed is corruption, and silently appending to
+    # it would compound the damage.
+    if usage_logger.usage_log.exists():
+        for number, line in enumerate(
+            usage_logger.usage_log.read_text().splitlines(), start=1
+        ):
+            if not line.strip():
+                continue
+            try:
+                json.loads(line)
+            except json.JSONDecodeError as exc:
+                problems.append(
+                    f"{usage_logger.usage_log}:{number} is not valid JSON: {exc}"
+                )
+                break
+
+    if usage_logger.session_file.exists():
+        try:
+            json.loads(usage_logger.session_file.read_text())
+        except json.JSONDecodeError as exc:
+            problems.append(f"{usage_logger.session_file} is not valid JSON: {exc}")
+
+    return problems
+
+
 def main() -> None:
     """CLI entry point for usage logger."""
     parser = argparse.ArgumentParser(description="Log and analyze Gemini CLI usage")
@@ -243,6 +295,13 @@ def main() -> None:
         print(f"Log directory: {usage_logger.log_dir}")
         print(f"Log exists: {usage_logger.usage_log.exists()}")
         print(f"Session file exists: {usage_logger.session_file.exists()}")
+
+        problems = _validate_configuration(usage_logger)
+        for problem in problems:
+            print(f"  [ERROR] {problem}", file=sys.stderr)
+        if problems:
+            raise SystemExit(1)
+        print("Configuration valid.")
 
     elif args.status:
         if usage_logger.session_file.exists():

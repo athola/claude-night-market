@@ -277,16 +277,26 @@ def main() -> None:
         syncer.show_status()
         return
 
-    # Sync templates
+    # Sync templates. A missing reference project used to print an error and
+    # then fall through to the checkmark below, so a sync that copied nothing
+    # because its source was absent was indistinguishable from a clean run.
     if args.language == "all":
         result = syncer.sync_all(dry_run=args.dry_run, force=args.force)
         if not args.dry_run:
             total_synced = sum(len(files) for files in result.values())
             print(f"\n✓ Synced {total_synced} templates across {len(result)} languages")
+        # sync_all only returns languages it could reach. An empty mapping
+        # means every reference project was missing.
+        if not result:
+            print("Error: no reference project is available; nothing was synced")
+            raise SystemExit(1)
     else:
         synced = syncer.sync_language_templates(
             args.language, dry_run=args.dry_run, force=args.force
         )
+        if not syncer.check_reference_projects().get(args.language, False):
+            # sync_language_templates already printed which path was missing.
+            raise SystemExit(1)
         if not args.dry_run:
             print(f"\n✓ Synced {len(synced)} {args.language} templates")
 

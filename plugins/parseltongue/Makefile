@@ -114,7 +114,10 @@ test-structure: ## Verify test structure
 
 test-perf: ## Analyze test performance
 	@echo "Analyzing test performance..."
-	@time $(PYTEST) --collect-only -q > /dev/null 2>&1 || true
+	@# stdout is the collected test list, discarded; stderr carries both the
+	@# timing and any collection error, so it stays. Timing a collection that
+	@# failed is meaningless, so a failure fails the target.
+	@time $(PYTEST) --collect-only -q > /dev/null
 	@echo "Test collection completed"
 
 test-duplicates: ## Check for duplicate test code

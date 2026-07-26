@@ -14,7 +14,7 @@
 SRC_DIRS := scripts hooks
 MYPY_TARGETS := scripts/
 BANDIT_TARGETS := $(SRC_DIRS)
-TYPECHECK_EXTRA = $(UV_RUN) ty check scripts/ || true
+TYPECHECK_EXTRA = $(UV_RUN) ty check scripts/
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
@@ -44,8 +44,8 @@ demo-token-estimate: ## Demo token estimation with tiktoken
 
 check: ## Run dependency validation
 	@echo "Running dependency validation..."
-	uv run python scripts/quota_tracker.py --status || true
-	uv run python scripts/usage_logger.py --validate || true
+	uv run python scripts/quota_tracker.py --status
+	uv run python scripts/usage_logger.py --validate
 
 fix: ## Auto-fix code style issues
 	@echo "Auto-fixing code style issues..."
@@ -73,7 +73,7 @@ validate-all: ## Run full validation suite
 	@echo "Running full validation..."
 	uv run python scripts/quota_tracker.py --status
 	uv run python scripts/usage_logger.py --validate
-	uv run pre-commit run --all-files || true
+	uv run pre-commit run --all-files
 
 # Maintenance
 clean: ## Clean cache and build files
@@ -126,8 +126,13 @@ delegate-status: ## Check delegation service availability
 
 delegate-verify: ## Verify authentication for all services
 	@echo "Verifying delegation services..."
-	uv run python scripts/delegation_executor.py gemini --verify || true
-	uv run python scripts/delegation_executor.py qwen --verify || true
+	@# Both services are verified before the target fails, so one broken
+	@# service does not hide the state of the other. 'fail' is collected
+	@# across the two runs rather than short-circuiting on the first.
+	@fail=0; \
+	uv run python scripts/delegation_executor.py gemini --verify || fail=1; \
+	uv run python scripts/delegation_executor.py qwen --verify || fail=1; \
+	exit $$fail
 
 delegate-usage: ## Show usage analytics across services
 	@echo "Showing delegation usage analytics..."
@@ -243,9 +248,19 @@ test-plugin: ## Test plugin install and delegation commands
 
 test-status: ## Test delegation status command
 	@echo "Running quota and status tests..."
-	uv run python scripts/quota_tracker.py --status || true
-	$(PYTEST) tests/ -v -k "quota or status" 2>/dev/null || \
-		@echo "Not applicable: status command is a live API check"
+	uv run python scripts/quota_tracker.py --status
+	@# pytest exits 5 when the -k filter matches nothing, which is not a
+	@# failure. Every other nonzero exit is a real test failure and must fail
+	@# the target. The previous fallback arm ran a command literally named
+	@# '@echo' ('@' is only a Make prefix at the start of a recipe line, not
+	@# after a line continuation), so it always died with 127 instead.
+	@$(PYTEST) tests/ -v -k "quota or status"; \
+	status=$$?; \
+	if [ $$status -eq 5 ]; then \
+		echo "Not applicable: no quota or status tests are defined"; \
+	elif [ $$status -ne 0 ]; then \
+		exit $$status; \
+	fi
 
 
 # Guard against accidental file creation (catch-all for unknown targets)

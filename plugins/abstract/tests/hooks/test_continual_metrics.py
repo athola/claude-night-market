@@ -12,6 +12,14 @@ from pathlib import Path
 
 import pytest
 
+# Anchored to this file rather than the working directory. As CWD-relative
+# paths these resolved only when pytest happened to be invoked from the repo
+# root, so running the plugin's own suite (which is how CI runs it) skipped
+# this test every time instead of failing or passing.
+HOOKS_DIR = Path(__file__).resolve().parents[2] / "hooks"
+PRE_HOOK = HOOKS_DIR / "pre_skill_execution.py"
+POST_HOOK = HOOKS_DIR / "skill_execution_logger.py"
+
 
 def run_pre_hook(skill_ref: str) -> dict | None:
     """Run PreToolUse hook and return output."""
@@ -21,7 +29,7 @@ def run_pre_hook(skill_ref: str) -> dict | None:
         "CLAUDE_SESSION_ID": "test-session",
     }
     result = subprocess.run(
-        [sys.executable, "plugins/abstract/hooks/pre_skill_execution.py"],
+        [sys.executable, str(PRE_HOOK)],
         check=False,
         capture_output=True,
         text=True,
@@ -44,7 +52,7 @@ def run_post_hook(skill_ref: str, iteration: int) -> dict | None:
         "CLAUDE_SESSION_ID": "test-session",
     }
     result = subprocess.run(
-        [sys.executable, "plugins/abstract/hooks/skill_execution_logger.py"],
+        [sys.executable, str(POST_HOOK)],
         check=False,
         capture_output=True,
         text=True,
@@ -103,9 +111,7 @@ def verify_log_file(log_dir: Path) -> bool:
 @pytest.mark.integration
 def test_full_dual_hook_with_metrics() -> None:
     """Test PreToolUse + PostToolUse with continual metrics calculation."""
-    hook_path = Path("plugins/abstract/hooks/pre_skill_execution.py")
-    if not hook_path.exists():
-        pytest.skip("Must run from repo root (hook file not found at expected path)")
+    assert PRE_HOOK.exists(), f"hook missing at {PRE_HOOK}"
 
     print("Testing Dual-Hook Continual Metrics System")
     print("=" * 70)

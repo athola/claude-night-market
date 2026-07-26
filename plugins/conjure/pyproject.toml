@@ -187,3 +187,15 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
+# ty runs alongside mypy in the typecheck target. It needs the same two
+# concessions mypy already gets above, or it reports import failures for
+# dependencies that are optional by design.
+#
+# leyline is a path dependency (see [tool.uv.sources]); point ty at its
+# source the way quota_tracker.py points sys.path at it. tiktoken is an
+# extra under [project.optional-dependencies].full, imported under
+# try/except ImportError with a working fallback, so it is legitimately
+# absent from a base install.
+[tool.ty.environment]
+extra-paths = ["../leyline/src"]

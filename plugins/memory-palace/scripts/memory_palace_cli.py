@@ -935,6 +935,11 @@ class MemoryPalaceCLI(_LifecycleMixin, _GardenMixin, _IndexMixin, _PalaceMixin):
         self.plugin_dir = self.script_dir.parent
         self.config_file = self.plugin_dir / "config" / "settings.json"
         self.claude_config = Path.home() / ".claude" / "settings.json"
+        # Set by print_error and read by main() to pick the exit status. The
+        # 22 print_error call sites all report a real failure ("Failed to
+        # create palace", "Search failed"), but each one returned normally and
+        # the process exited 0, so callers could not tell them from a clean run.
+        self.had_error = False
 
     def _palaces_dir(self, override: str | None = None) -> str | None:
         """Resolve the palaces directory from override or environment."""
@@ -959,7 +964,8 @@ class MemoryPalaceCLI(_LifecycleMixin, _GardenMixin, _IndexMixin, _PalaceMixin):
         print(f"[WARN] {message}")
 
     def print_error(self, message: str) -> None:
-        """Print an error message to the console."""
+        """Print an error message and record that this run failed."""
+        self.had_error = True
         print(f"[ERROR] {message}")
 
 
@@ -1296,6 +1302,9 @@ def main() -> None:
         handler()
     else:
         parser.print_help()
+
+    if cli.had_error:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

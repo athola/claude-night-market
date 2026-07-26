@@ -35,7 +35,7 @@ deps: ## Install and sync dependencies
 
 check: ## Run dependency validation
 	@echo "Running dependency validation..."
-	uv pip check || true
+	uv pip check
 
 fix: ## Show dependency fixes (dry run)
 	@echo "Checking for dependency issues..."
@@ -64,8 +64,8 @@ install-hooks: ## Install pre-commit hooks
 
 validate-all: ## Run full validation suite
 	@echo "Running full validation..."
-	uv pip check || true
-	uv run pre-commit run --all-files || true
+	uv pip check
+	uv run pre-commit run --all-files
 
 # ---------- Maintenance ----------
 clean: ## Clean cache and build files

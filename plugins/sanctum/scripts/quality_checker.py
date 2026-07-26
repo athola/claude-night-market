@@ -672,12 +672,16 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    # Both failure arms below emit an error envelope and then exit nonzero.
+    # They previously fell through to a 0 exit, so a missing test path and a
+    # crash mid-check were indistinguishable from a clean run to any caller
+    # reading the status rather than parsing the JSON.
     try:
         if args.check or args.validate:
             test_path = Path(args.check or args.validate)
             if not test_path.exists():
                 output_error(f"Test path not found: {test_path}", args)
-                return
+                raise SystemExit(1)
 
             checker = TestQualityChecker(test_path)
             _run_check_or_validate(checker, args)
@@ -688,6 +692,7 @@ def main() -> None:
     except Exception as e:
         logging.getLogger(__name__).exception("Unexpected error in quality_checker")
         output_error(f"Error checking quality: {e}", args)
+        raise SystemExit(1) from e
 
 
 def output_result(result: dict, args) -> None:
