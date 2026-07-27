@@ -76,6 +76,23 @@ class ApplyResult:
     backup_path: Path
 
 
+class CorpusUnavailableError(RuntimeError):
+    """The capture corpus is not present in the tree being scanned.
+
+    Raised instead of proposing a prune that would delete most of the
+    index. Only a handful of the files under ``data/staging`` are tracked
+    in git, so a fresh worktree carries an index describing captures
+    whose backing files were never checked out. Every entry then reads as
+    orphaned, and trusting that reading empties the corpus.
+    """
+
+
+# Above this share of entries looking orphaned, the tree is missing the
+# corpus rather than the corpus having rotted. Real rot is incremental:
+# captures are removed a few at a time by curation, not by the hundred.
+_MASS_ORPHAN_RATIO = 0.5
+
+
 def _is_orphan(entry: dict[str, Any], plugin_root: Path | None) -> bool:
     """Return True when the entry's backing file is missing."""
     if plugin_root is None:
@@ -84,6 +101,24 @@ def _is_orphan(entry: dict[str, Any], plugin_root: Path | None) -> bool:
     if not stored_at:
         return False
     return not (plugin_root / str(stored_at)).exists()
+
+
+def _count_orphans(entries: dict[str, Any], plugin_root: Path | None) -> int:
+    """Count the entries whose backing file is missing from this tree."""
+    return sum(1 for entry in entries.values() if _is_orphan(entry, plugin_root))
+
+
+def _corpus_is_present(entries: dict[str, Any], plugin_root: Path | None) -> bool:
+    """Report whether orphan status can be trusted in the scanned tree.
+
+    False when most of a populated index has no backing file, which
+    reports a checkout missing the corpus rather than a corpus that
+    rotted. Both consumers of orphan status consult this: pruning would
+    delete those entries, and promotion would archive them.
+    """
+    if plugin_root is None or not entries:
+        return False
+    return _count_orphans(entries, plugin_root) <= _MASS_ORPHAN_RATIO * len(entries)
 
 
 def propose_promotions(
@@ -98,19 +133,24 @@ def propose_promotions(
         index: A loaded index dict with ``entries`` and ``hashes``.
         plugin_root: When given, used to detect orphaned ``stored_at``
             files. When ``None`` the orphan check is skipped (age-based
-            archival still applies).
+            archival still applies). The check is also skipped when most
+            of the index looks orphaned, which means this tree lacks the
+            corpus rather than the corpus having rotted. Age-based
+            archival still applies in that case, since it reads only the
+            index and needs no file on disk.
 
     """
     entries = index.get("entries", {})
     scores = {c.key: c.score for c in rank_promotion_candidates(index)}
     now = datetime.now(timezone.utc)
+    orphans_are_meaningful = _corpus_is_present(entries, plugin_root)
 
     proposals: list[Proposal] = []
     for key, entry in entries.items():
         if entry.get("routing_type") != INERT_ROUTING_TYPE:
             continue
 
-        orphan = _is_orphan(entry, plugin_root)
+        orphan = orphans_are_meaningful and _is_orphan(entry, plugin_root)
         # Set by the fetch hook when a 2xx response carried no content
         # (redirect notice, zero-result set). Structural signals alone
         # would score these on domain and cluster, promoting empty API
@@ -239,14 +279,27 @@ def propose_orphan_prunes(index: dict[str, Any], plugin_root: Path | None) -> li
     information regardless of routing_type. Returns an empty list when
     ``plugin_root`` is ``None`` so the function fails closed and never
     proposes destructive prunes without a root to check against.
+
+    Raises :class:`CorpusUnavailableError` when most of a populated index
+    looks orphaned. That reading means the tree lacks the corpus, not
+    that the corpus rotted, and pruning on it deletes everything.
     """
     if plugin_root is None:
         return []
-    return [
-        key
-        for key, entry in index.get("entries", {}).items()
-        if _is_orphan(entry, plugin_root)
-    ]
+
+    entries = index.get("entries", {})
+    if not entries:
+        return []
+
+    if not _corpus_is_present(entries, plugin_root):
+        raise CorpusUnavailableError(
+            f"{_count_orphans(entries, plugin_root)} of {len(entries)} entries "
+            f"have no backing file under {plugin_root / 'data' / 'staging'}. "
+            "Refusing to prune: a tree missing the corpus is not a corpus that "
+            "rotted. Check out the captures, or prune from the primary checkout."
+        )
+
+    return [key for key, entry in entries.items() if _is_orphan(entry, plugin_root)]
 
 
 def apply_orphan_prunes(

@@ -5101,6 +5101,123 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://hn.algolia.com/api/v1/search?query=Kebra&tags=story&hitsPerPage=10
+  https://hn.algolia.com/api/v1/search?query=screenpipe&tags=story&hitsperpage=30:
+    content_hash: sha256:1514f1415e331898
+    stored_at: data/staging/webfetch-screenpipe-launch-story-july-2026-2026-07-27_11-03-48.md
+    importance_score: 90
+    last_updated: '2026-07-27T11:03:48.673711+00:00'
+    title: Screenpipe Launch Story (July 2026)
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=screenpipe&tags=story&hitsPerPage=30
+  https://hn.algolia.com/api/v1/search?query=screenpipe&tags=comment,story_49024620&hitsperpage=100:
+    content_hash: sha256:27f0181c129f7e26
+    stored_at: data/staging/webfetch-screenpipe-comments-analysis-2026-07-27_11-03-58.md
+    importance_score: 90
+    last_updated: '2026-07-27T11:03:58.349752+00:00'
+    title: Screenpipe Comments Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=screenpipe&tags=comment,story_49024620&hitsPerPage=100
+  https://www.youtube.com/watch?v=yygskfzjvxq:
+    content_hash: sha256:d5ae38476e8125a2
+    stored_at: data/staging/webfetch-response-2026-07-27_11-05-09.md
+    importance_score: 80
+    last_updated: '2026-07-27T11:05:09.878692+00:00'
+    title: Response
+    maturity: growing
+    routing_type: meta
+    url: https://www.youtube.com/watch?v=YyGSkFzjvxQ
+  https://www.youtube.com/shorts/ocytfek0deg:
+    content_hash: sha256:02317b49e3302fff
+    stored_at: data/staging/webfetch-ocytfek0deg-2026-07-27_11-05-10.md
+    importance_score: 80
+    last_updated: '2026-07-27T11:05:10.618761+00:00'
+    title: Ocytfek0Deg
+    maturity: growing
+    routing_type: meta
+    url: https://www.youtube.com/shorts/oCYTFEK0deg
+  https://shkspr.mobi/blog/2023/03/how-to-write-a-l7-apprenticeship-portfolio:
+    content_hash: sha256:4c96e8421920795e
+    stored_at: data/staging/webfetch-portfolio-purpose-and-ownership-2026-07-27_11-05-32.md
+    importance_score: 80
+    last_updated: '2026-07-27T11:05:32.335275+00:00'
+    title: Portfolio Purpose and Ownership
+    maturity: growing
+    routing_type: meta
+    url: https://shkspr.mobi/blog/2023/03/how-to-write-a-l7-apprenticeship-portfolio/
+  ? https://laborcenter.berkeley.edu/negotiating-tech/other-workplace-technology-provisions/data-collection-rights-and-security/data-rights-and-access
+  : content_hash: sha256:47f495ea21928230
+    stored_at: data/staging/webfetch-analysis-of-page-content-2026-07-27_11-05-46.md
+    importance_score: 80
+    last_updated: '2026-07-27T11:05:46.324875+00:00'
+    title: Analysis of Page Content
+    maturity: growing
+    routing_type: meta
+    url: https://laborcenter.berkeley.edu/negotiating-tech/other-workplace-technology-provisions/data-collection-rights-and-security/data-rights-and-access/
+  https://workie.substack.com/p/wheres-your-portfolio:
+    content_hash: sha256:40ee34b450ed6e16
+    stored_at: data/staging/webfetch-portfolio-article-summary-2026-07-27_11-05-57.md
+    importance_score: 80
+    last_updated: '2026-07-27T11:05:57.368287+00:00'
+    title: Portfolio Article Summary
+    maturity: growing
+    routing_type: meta
+    url: https://workie.substack.com/p/wheres-your-portfolio
+  https://archive.org/wayback/available?url=electriciansforums.net&timestamp=202607:
+    content_hash: sha256:451082d894e0bf90
+    stored_at: data/staging/webfetch-snapshot-availability-for-electriciansforums-net-2026-07-27_11-06-05.md
+    importance_score: 80
+    last_updated: '2026-07-27T11:06:05.754083+00:00'
+    title: Snapshot Availability for electriciansforums.net
+    maturity: growing
+    routing_type: meta
+    url: https://archive.org/wayback/available?url=electriciansforums.net&timestamp=202607
+  https://www.arrivy.com/blog/best-field-service-mobile-apps-for-technicians:
+    content_hash: sha256:f17abdcad51607ed
+    stored_at: data/staging/webfetch-data-ownership-and-portable-records-in-field-2026-07-27_11-06-35.md
+    importance_score: 80
+    last_updated: '2026-07-27T11:06:35.617803+00:00'
+    title: Data Ownership and Portable Records in Field Service Apps
+    maturity: growing
+    routing_type: meta
+    url: https://www.arrivy.com/blog/best-field-service-mobile-apps-for-technicians/
+  https://gettrades.co.uk/how-to-build-a-strong-portfolio-as-a-tradesperson:
+    content_hash: sha256:d3923952508b39ab
+    stored_at: data/staging/webfetch-portfolio-ownership-and-portability-analysis-2026-07-27_11-06-53.md
+    importance_score: 80
+    last_updated: '2026-07-27T11:06:53.514893+00:00'
+    title: Portfolio Ownership and Portability Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://gettrades.co.uk/how-to-build-a-strong-portfolio-as-a-tradesperson/
+  https://github.com/olivergcyrhall549/ai-iframe-data-scraper-v23:
+    content_hash: sha256:30c67ae4708f269e
+    stored_at: data/staging/webfetch-ai-powered-iframe-data-scraper-v2-3-2026-07-27_11-07-18.md
+    importance_score: 97
+    last_updated: '2026-07-27T11:07:18.139402+00:00'
+    title: AI-Powered Iframe Data Scraper v2.3
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/olivergcyrhall549/ai-iframe-data-scraper-v23
+  https://github.com/annmax1983/linkharvest:
+    content_hash: sha256:3b2de52749e26e24
+    stored_at: data/staging/webfetch-linkharvest-overview-2026-07-27_11-07-29.md
+    importance_score: 97
+    last_updated: '2026-07-27T11:07:29.884367+00:00'
+    title: LinkHarvest Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/annmax1983/LinkHarvest
+  https://github.com/tt-a1i/grok-field-guide:
+    content_hash: sha256:e796b291fccc6ad9
+    stored_at: data/staging/webfetch-grok-field-guide-overview-2026-07-27_11-08-12.md
+    importance_score: 97
+    last_updated: '2026-07-27T11:08:12.824498+00:00'
+    title: grok-field-guide Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/tt-a1i/grok-field-guide
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -5667,3 +5784,16 @@ hashes:
   sha256:4705e2c91e95fe78: data/staging/webfetch-launch-hn-screenpipe-story-july-2026-2026-07-26_11-04-08.md
   sha256:f53da0a4804f0a25: data/staging/webfetch-screenpipe-launch-hn-data-ownership-surveillance-2026-07-26_11-04-28.md
   sha256:52a70af4c15188b5: data/staging/webfetch-search-2026-07-26_11-04-42.md
+  sha256:1514f1415e331898: data/staging/webfetch-screenpipe-launch-story-july-2026-2026-07-27_11-03-48.md
+  sha256:27f0181c129f7e26: data/staging/webfetch-screenpipe-comments-analysis-2026-07-27_11-03-58.md
+  sha256:d5ae38476e8125a2: data/staging/webfetch-response-2026-07-27_11-05-09.md
+  sha256:02317b49e3302fff: data/staging/webfetch-ocytfek0deg-2026-07-27_11-05-10.md
+  sha256:4c96e8421920795e: data/staging/webfetch-portfolio-purpose-and-ownership-2026-07-27_11-05-32.md
+  sha256:47f495ea21928230: data/staging/webfetch-analysis-of-page-content-2026-07-27_11-05-46.md
+  sha256:40ee34b450ed6e16: data/staging/webfetch-portfolio-article-summary-2026-07-27_11-05-57.md
+  sha256:451082d894e0bf90: data/staging/webfetch-snapshot-availability-for-electriciansforums-net-2026-07-27_11-06-05.md
+  sha256:f17abdcad51607ed: data/staging/webfetch-data-ownership-and-portable-records-in-field-2026-07-27_11-06-35.md
+  sha256:d3923952508b39ab: data/staging/webfetch-portfolio-ownership-and-portability-analysis-2026-07-27_11-06-53.md
+  sha256:30c67ae4708f269e: data/staging/webfetch-ai-powered-iframe-data-scraper-v2-3-2026-07-27_11-07-18.md
+  sha256:3b2de52749e26e24: data/staging/webfetch-linkharvest-overview-2026-07-27_11-07-29.md
+  sha256:e796b291fccc6ad9: data/staging/webfetch-grok-field-guide-overview-2026-07-27_11-08-12.md

@@ -24,6 +24,7 @@ from memory_palace.corpus.index_analytics import (
     rank_promotion_candidates,
 )
 from memory_palace.corpus.index_promoter import (
+    CorpusUnavailableError,
     apply_orphan_prunes,
     apply_promotions,
     propose_orphan_prunes,
@@ -596,7 +597,16 @@ class _IndexMixin(_CLIBase):
         """
         index_path = self._capture_index_path()
         index = load_capture_index(index_path)
-        keys = propose_orphan_prunes(index, self.plugin_dir)
+        try:
+            keys = propose_orphan_prunes(index, self.plugin_dir)
+        except CorpusUnavailableError as exc:
+            # Refuse, do not fail. This runs from the pre-commit hook
+            # under set -e, so raising here would block every commit made
+            # from a worktree, which is the workflow that exposes the
+            # missing corpus in the first place.
+            self.print_status(f"Capture index: {index_path}")
+            self.print_warning(f"Skipping orphan prune: {exc}")
+            return True
 
         self.print_status(f"Capture index: {index_path}")
         print(f"  Orphan entries to prune: {len(keys)}")
