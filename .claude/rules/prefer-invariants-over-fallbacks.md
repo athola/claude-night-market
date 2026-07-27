@@ -76,20 +76,43 @@ that paper over unclear internal design; fix the design.
 
 Defensive bloat is measurable, not aesthetic. Independent
 studies find AI-accelerated codebases rising in cyclomatic
-complexity and duplication while refactoring collapses (see
-`docs/research/2026-07-01-the-coming-loop-agentic-harness-guardrails.md`).
-Every fallback that hides an impossible case is a bug that
-will surface later as silent corruption instead of a loud,
+complexity and duplication while refactoring collapses. Every
+fallback that hides an impossible case is a bug that will
+surface later as silent corruption instead of a loud,
 locatable failure. Strong invariants keep a codebase legible
 and human-supervisable, which is the property the coming
 harness loops most threaten.
 
+**Evidence base:**
+
+| Source | Finding |
+|--------|---------|
+| GitClear 2025 (211M changed lines) | Copy-pasted lines rose 8.3% (2021) to 12.3% (2024); duplicated blocks rose roughly 8x; refactoring fell from 25% of changed lines to under 10%; two-week churn nearly doubled |
+| DORA 2024 | Each 25% increase in AI adoption is associated with a 7.2% drop in delivery stability and a 1.5% drop in throughput, even as perceived productivity rose |
+| METR RCT 2025 (arXiv 2507.09089) | 16 experienced OSS developers, 246 tasks in mature repos: AI tools increased completion time 19% while developers believed they were 20% faster |
+| Cognitive-bias study (arXiv 2601.08045) | 48.8% of observed programmer actions were biased; developer-LLM interaction accounted for 56.4% of those |
+| Karpathy, "mortal terror of exceptions" | LLMs add defensive handlers for near-impossible cases because RL punishes exceptions. The primary source for this rule's core claim |
+
+Caveats that bound these numbers: GitClear and DORA are
+observational, so they establish correlation, not causation.
+Defensive bloat specifically is under-measured; duplication
+and churn are quantified, over-defensive code is mostly
+anecdotal plus Karpathy. A Google enterprise RCT (arXiv
+2410.12944) found AI sped 96 engineers about 21%, which cuts
+the other way; context explains the split, since that was a
+greenfield-style task rather than a mature repo with expert
+maintainers.
+
 **References:**
 
-- `docs/research/2026-07-01-the-coming-loop-agentic-harness-guardrails.md`
-  (evidence base and source citations)
-- Armin Ronacher, "The Coming Loop" (2026)
-- Karpathy on LLMs and exceptions (research report, source list)
+- Armin Ronacher, "The Coming Loop" (2026),
+  https://lucumr.pocoo.org/2026/6/23/the-coming-loop/
+- Karpathy on LLMs and exceptions,
+  https://x.com/karpathy/status/1976077806443569355
+- GitClear 2025,
+  https://www.gitclear.com/ai_assistant_code_quality_2025_research
+- DORA 2024, https://dora.dev/research/2024/dora-report/
+- METR RCT, https://arxiv.org/abs/2507.09089
 - `Skill(imbue:scope-guard)` (over-abstraction, sibling guard)
 - `Skill(leyline:additive-bias-defense)` (challenge every addition)
 - `Skill(pensive:safety-critical-patterns)` (the deliberate exception)

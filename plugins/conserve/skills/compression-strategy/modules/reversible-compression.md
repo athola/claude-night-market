@@ -102,15 +102,38 @@ Two cautions worth stating plainly:
 
 ## Prior art
 
-- `opencode-dynamic-context-pruning`: the closest open-source analog, with
-  reversible `decompress`/`recompress` by id inside an agent loop.
-- RECOMP (arXiv 2310.04408) and ICAE (arXiv 2307.06945): academic grounding
-  for recoverable compression (originals stay reconstructable from a store).
+| Project | Technique | Numbers |
+|---------|-----------|---------|
+| [opencode-dynamic-context-pruning](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning) | Reversible: `/dcp decompress <id>` restores originals; tool-call dedup; error purge | ~85% vs ~90% cache hit (small intentional trade) |
+| [microsoft/LLMLingua](https://github.com/microsoft/LLMLingua) | Self-information token pruning via a small LM | up to 20x; 2,365 to 211 tokens (11.2x) |
+| [LLMLingua-2](https://arxiv.org/abs/2403.12968) | Distilled keep/drop classifier, task-agnostic | 2x-5x; 3x-6x faster than v1 |
+| [Selective_Context](https://github.com/liyucheng09/Selective_Context) | Self-information span pruning | ~2x content, ~40% memory savings |
+| [logpare](https://github.com/logpare/logpare) | Drain log templating plus frequency folding | 60-90% on logs |
+
+Only Headroom and opencode-DCP implement true reversibility
+(retrieve-on-demand). LLMLingua, Selective Context, and logpare are one-way
+lossy, so an over-aggressive ratio is unrecoverable.
 
 ## Evidence
 
-Benchmark numbers above are sourced to the Headroom README
-(`github.com/chopratejas/headroom`) and the research synthesis in
-`docs/research/headroom-context-compression.md`, which carries the full
-citation set (LLMLingua, LongLLMLingua, RECOMP, ICAE, the boundary-condition
-papers, and the practitioner caveats).
+Accuracy-preservation results behind the ratios recommended above:
+
+| Paper | arXiv | Compression | Accuracy |
+|-------|-------|-------------|----------|
+| LLMLingua | 2310.05736 | up to 20x | "little performance loss" (GSM8K, BBH) |
+| LongLLMLingua | 2310.06839 | ~4x | +21.4% over uncompressed on NaturalQuestions |
+| RECOMP | 2310.04408 | 6% retained | "minimal loss"; recoverable from source store |
+| ICAE | 2307.06945 | 4x (reversible) | reconstructable memory slots |
+| DynamicKV | 2412.14838 | 1.7% KV retained | ~85% of full-cache performance (LongBench) |
+| Perplexity Paradox | 2602.15843 | code r>=0.6, math lower | 96% quality at 22% cost |
+
+Two caveats bound every number here. Savings are content-type-dependent:
+Headroom's own reported figures are ~90% on logs, ~70% on tool output,
+50-70% on database rows, and **-0.3% on dense prose, 0% on encrypted**
+([HN 46663757](https://news.ycombinator.com/item?id=46663757)). Never quote
+a single headline percentage. And retrieve-on-demand inherits RAG's failure
+mode: the model may never expand the handle that mattered
+([Lobsters](https://lobste.rs/s/xankns/cutting_llm_token_usage_by_80_using_repl)).
+
+Benchmark numbers above are otherwise sourced to the Headroom README
+(`github.com/chopratejas/headroom`).

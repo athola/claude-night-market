@@ -46,12 +46,12 @@ Follow these before starting any problem below.
 
 ### Why current SOTA fails
 
-Autonomous agents self-report "done." The repo's two research
-syntheses (`docs/research/2026-07-01-the-coming-loop-agentic-harness-guardrails.md`
-and `docs/research/2026-07-01-prover-verifier-loops-formal-verification.md`;
-note that `docs/research/` is gitignored and machine-local, so these
-files are absent on fresh clones and the load-bearing claims are
-inlined here) collect the evidence: the METR randomized trial
+Autonomous agents self-report "done." The evidence is inlined here
+and in the two docs of record it was folded into
+(`.claude/rules/prefer-invariants-over-fallbacks.md` for the
+harness-loop findings,
+`plugins/imbue/skills/proof-of-work/modules/verifier-integrity.md`
+for the verifier findings): the METR randomized trial
 (arXiv 2507.09089)
 found experienced developers 19% slower with AI while believing they
 were faster, so self-assessment of completion is miscalibrated even

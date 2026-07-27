@@ -23,8 +23,9 @@ modes.
 
 ## Research Background
 
-Five research channels informed this decision (full report in
-`docs/research/onnx-research-2026-03-31.md`).
+Five research channels informed this decision on 2026-03-31; the
+load-bearing findings are recorded below rather than in a separate
+report.
 The ONNX Python API provides model construction, validation,
 and protobuf serialization through core modules like
 `onnx.helper` and `onnx.checker`.

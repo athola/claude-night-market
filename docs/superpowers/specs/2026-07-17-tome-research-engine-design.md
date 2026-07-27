@@ -1,9 +1,13 @@
 # Tome Research Engine: Design Specification
 
 **Date**: 2026-07-17
-**Companion to**: [research report](../../research/2026-07-17-tome-research-engine.md),
-[metrics framework](../../metrics/tome-research-quality.md)
+**Companion to**: [metrics framework](../../metrics/tome-research-quality.md)
 **Status**: Draft for plan-review + war-room gate before build
+**Method**: Dogfooded `tome` across four channels (academic, code,
+discourse, TRIZ) over four tracks. Saturation was reached after one
+round: the load-bearing findings cross-validated across independent
+channels, so no `dig` rounds ran. The evidence is recorded in
+[Evidence base](#evidence-base) below.
 
 ## Thesis
 
@@ -133,6 +137,131 @@ The build calls these existing APIs (no reimplementation):
 
 Increments 1 to 3 carry most of the value (the graph the user asked
 for) at the least new code. Increment 4 to 5 are tunable in depth.
+
+## Evidence base
+
+The four research tracks behind the decisions above.
+
+**Track 1: GraphRAG and knowledge-graph construction.** The reference
+architecture is settled: Microsoft GraphRAG ([2404.16130][gr]) extracts
+an entity/relation graph with an LLM, partitions it with Leiden
+community detection, and answers global queries from community
+summaries. LightRAG ([2410.05779][lr]) adds incremental updates, so a
+growing arXiv corpus needs no full re-index. HippoRAG
+([2405.14831][hr], NeurIPS 2024) runs Personalized PageRank seeded by
+query entities for single-shot multi-hop retrieval. But graph structure
+is not always worth its cost: GraphRAG-Bench ([2506.02404][grb]) and
+"When to use Graphs in RAG" ([2506.05690][wtg]) find the graph wins on
+multi-hop and complex reasoning while adding overhead with little gain
+on simple fact lookups. Practitioners are blunter still: an HN thread
+on KAG ([230 points][kag]) calls graph RAG "incrementally" better and
+warns that LLM-based construction hallucinates entities and
+"cyclically" corrupts the graph. The historical cost objection has
+collapsed (indexing a 5GB corpus fell from roughly $33,000 in early
+2024 to roughly $33 by mid-2025, about 1000x, via model price cuts and
+LazyGraphRAG deferring summarization to query time; [Cost Cliff][cc],
+[TianPan][tp]), so the live objection is accuracy, not 2024 cost lore.
+This is why the spec keeps ground-truth citation edges and rejects LLM
+construction.
+
+**Track 2: retrieval and RAG evaluation.** Deterministic label-based IR
+metrics (nDCG@k, MRR, MAP, recall@k) are the trustworthy yardstick;
+BEIR ([2104.08663][beir]) standardizes nDCG@10 and includes the
+SciFact and SciDocs subsets, the closest public proxy for tome. TREC
+Deep Learning ([2003.07820][trec]) defines the protocols. Reference-free
+LLM-judged metrics (RAGAS [2309.15217][ragas]; ARES [2311.09476][ares])
+measure faithfulness without gold labels but cost trust: RAGAS
+correlates with human judgment at only about 0.55 harmonic mean
+([getmaxim][gm]), and the CALM framework catalogs 12 distinct judge
+biases including position, verbosity, self-enhancement, and authority
+([Evidently][ev]). Hence the metrics framework's rule that judges are
+directional only.
+
+**Track 3: scientific full-text ingestion.** GROBID
+([kermitt2/grobid][grobid]) parses PDFs to TEI XML at about 10 PDFs/sec
+(roughly 400x Nougat) and leads reference extraction (F1 about 0.79 to
+0.90 with the deep-learning citation model) ([Meuschke 2023][meu]).
+Nougat ([2308.13418][nougat], ICLR 2024) preserves math and tables that
+GROBID's text-layer approach loses, but is slow and, by its authors'
+own disclosure, "skips or hallucinates" reference numbers in
+bibliographies. The pattern that holds up in production is hybrid,
+one tool primary and the other as fallback (reported splits near
+94/6). A pre-built corpus removes most of the burden anyway:
+unarXive 2022 ([2303.14957][unarxive]) ships 1.9M arXiv papers with a
+resolved in-text citation network, and S2ORC ([1911.02782][s2orc])
+offers 81M papers with inline citation spans. This is why GROBID is a
+sidecar, not a dependency.
+
+**Track 4: novelty, insight, and impact.** Graph-native impact signals
+are cheap to compute: the CD/disruption index ([Funk and Owen-Smith
+2017][funk], validated at scale by [Wu, Wang, Evans 2019][wu]) labels a
+paper disruptive versus consolidating from citation structure alone;
+Uzzi et al. ([2013][uzzi]) score atypicality from z-scored reference
+co-occurrence; node2vec ([1607.00653][n2v]) and Adamic-Adar ([aa][aa])
+predict missing edges. But raw citation metrics are biased and must be
+normalized, the strongest cross-channel warning in the study: the
+disruption index is biased by citation inflation and unsuitable for
+cross-time comparison ([Petersen 2023][pet], [QSS/MIT][qss]), depends
+on the analyst-chosen citation window so it is tunable and gameable
+([window][win]), barely overlaps with novelty as a construct
+([Triadic Novelty][triadic]), and the famous small-teams-disrupt
+finding partly dissolves once inflation is corrected
+([re-analysis][reana]). Impact metrics therefore ship only
+field-normalized and cohort-restricted, with the window fixed and
+disclosed, never collapsed to one number.
+
+## Adoption risks
+
+- **Over-building the graph.** Graph value is real but bounded to
+  multi-hop. Guard: escalate on condition, measure the before/after
+  delta on a multi-hop benchmark ([MultiHop-RAG][mhr]), and drop the
+  graph path if it does not beat vector retrieval.
+- **Trusting LLM-judge metrics.** 0.55 human correlation, 12 known
+  biases. Guard: deterministic metrics are the headline; judges are
+  labeled "directional."
+- **Shipping biased impact numbers.** Citation metrics are confounded
+  and gameable. Guard: normalize by field and cohort, fix and disclose
+  the citation window, never collapse to one number.
+- **Supply-chain surface.** Nougat weights are CC-BY-NC
+  (non-commercial), OpenAlex mandates an API key as of Feb 2026, and
+  nano-graphrag and Nougat are both stale. Guard: keep the heavy tier
+  optional and isolated.
+- **Tool-coverage gaps in the study itself.** Reddit and Lobsters
+  returned no usable primary discourse (fetch blocks) and Semantic
+  Scholar rate-limited citation counts. The academic and HN/blog
+  channels triangulated the key claims, but community breadth is
+  thinner than ideal.
+
+[gr]: https://arxiv.org/abs/2404.16130
+[lr]: https://arxiv.org/abs/2410.05779
+[hr]: https://arxiv.org/abs/2405.14831
+[grb]: https://arxiv.org/abs/2506.02404
+[wtg]: https://arxiv.org/abs/2506.05690
+[kag]: https://news.ycombinator.com/item?id=42545986
+[cc]: https://medium.com/graph-praxis/the-graphrag-cost-cliff-how-33-000-became-33-in-eighteen-months-be1b0fbe37e4
+[tp]: https://tianpan.co/blog/2026-04-19-graphrag-vs-vector-rag-architecture-decision
+[beir]: https://arxiv.org/abs/2104.08663
+[trec]: https://arxiv.org/abs/2003.07820
+[ragas]: https://arxiv.org/abs/2309.15217
+[ares]: https://arxiv.org/abs/2311.09476
+[gm]: https://www.getmaxim.ai/articles/complete-guide-to-rag-evaluation-metrics-methods-and-best-practices-for-2025/
+[ev]: https://www.evidentlyai.com/llm-guide/llm-as-a-judge
+[grobid]: https://github.com/kermitt2/grobid
+[meu]: https://gipplab.uni-goettingen.de/wp-content/papercite-data/pdf/meuschke2023.pdf
+[nougat]: https://arxiv.org/abs/2308.13418
+[unarxive]: https://arxiv.org/abs/2303.14957
+[s2orc]: https://arxiv.org/abs/1911.02782
+[funk]: https://www.nature.com/articles/s41586-019-0941-9
+[wu]: https://www.nature.com/articles/s41586-019-0941-9
+[uzzi]: https://www.science.org/doi/10.1126/science.1240474
+[n2v]: https://arxiv.org/abs/1607.00653
+[aa]: https://www.sciencedirect.com/science/article/abs/pii/S0378873303000091
+[pet]: https://arxiv.org/abs/2306.01949
+[qss]: https://direct.mit.edu/qss/article/5/4/936/124788/The-disruption-index-is-biased-by-citation
+[win]: https://www.researchgate.net/publication/345473456_Disruption_index_depends_on_length_of_citation_window
+[triadic]: https://arxiv.org/pdf/2506.17851
+[reana]: https://www.sciencedirect.com/science/article/pii/S1751157724001172
+[mhr]: https://arxiv.org/abs/2401.15391
 
 ## Non-goals (v1)
 

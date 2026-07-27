@@ -47,10 +47,11 @@ supposed to bind. The campaign exists to close that gap with evidence.
 ## Evidence bar
 
 Success is measured, never judged by eye. The standing rules are
-drawn from the two 2026-07-01 research syntheses in `docs/research/`
-(gitignored and machine-local, so absent on fresh clones; the
-load-bearing claims are therefore inlined below) and the
-`imbue:proof-of-work` verifier-integrity module:
+drawn from two 2026-07-01 research passes, whose evidence now lives
+in `.claude/rules/prefer-invariants-over-fallbacks.md` (harness-loop
+findings) and
+`plugins/imbue/skills/proof-of-work/modules/verifier-integrity.md`
+(verifier findings), plus the load-bearing claims inlined below:
 
 - State the numbers a hypothesis predicts BEFORE running the
   measurement. A threshold chosen after seeing the data is not a gate.
@@ -59,8 +60,8 @@ load-bearing claims are therefore inlined below) and the
 - Never let the generator be its own judge: LLM self-verification is
   measurably unreliable and self-critique can degrade output, so
   verdicts come from an independent verifier (prover-verifier
-  separation; local synthesis:
-  `docs/research/2026-07-01-prover-verifier-loops-formal-verification.md`).
+  separation, arXiv 2402.08115; see
+  `plugins/imbue/skills/proof-of-work/modules/verifier-integrity.md`).
 - A green check proves spec satisfaction, never correctness. Every
   gate you add must itself be proven able to go red (verifier-integrity
   Guard 2: mutation or revert test).
@@ -437,8 +438,7 @@ implementation must discharge.
    let it override a confident deterministic verdict.
 4. Human checkpoint (c). Hold the merge open for human review, which
    is what `completion_integrity` already does. Open question, on
-   record in
-   `docs/research/2026-07-01-the-coming-loop-agentic-harness-guardrails.md`:
+   record in `.claude/rules/prefer-invariants-over-fallbacks.md`:
    whether the discipline of keeping a human judge survives competitive
    and security pressure is the contested point between Ronacher and
    his critics. Keep the human checkpoint as the backstop, and never
@@ -449,7 +449,7 @@ implementation must discharge.
 | Wrong path | Evidence | What happened |
 |------------|----------|---------------|
 | Subprocess timeout at or above the registered hook budget | 268cff89, and the guard test `test_llm_timeout_fits_within_hook_timeout` | herald's LLM call outlived the registered hook budget, so the harness killed the hook before it printed any decision at all (full record: night-market-failure-archaeology SB7). Cap child timeouts strictly below the registered budget and pin the relation with a test |
-| Letting the generator judge its own output | `docs/research/2026-07-01-prover-verifier-loops-formal-verification.md` | Self-verification is frequently no better than generation and self-critique can degrade output. Verdicts must come from an independent verifier |
+| Letting the generator judge its own output | arXiv 2402.08115, folded into `imbue:proof-of-work/verifier-integrity` | Self-verification is frequently no better than generation and self-critique can degrade output. Verdicts must come from an independent verifier |
 | Assuming hook payloads arrive in env vars | CHANGELOG 1.9.14 ("Hooks read the tool payload from stdin, not unset env vars") | Hooks reading `CLAUDE_TOOL_*` were silent no-ops for months (full record: night-market-failure-archaeology SB9). Payload is JSON on stdin. Use `shared/hook_io.read_hook_payload` |
 | Shipping an optional branch no test exercises | 268cff89 added 81 test lines for the LLM path | The deterministic suite was green while the opt-in LLM branch was broken by construction. Every opt-in branch needs at least one test that walks it |
 | Treating "done" text as a completion gate | Attack A above, plus the harness research: a completion promise must pair with an iteration cap and manual abort | String-matched completion is trivially fakeable and herald proves it live |
@@ -574,10 +574,11 @@ added to P1b on 2026-07-03. Volatile facts and how to re-verify them:
   `rg -n "startup|resume" plugins/egregore/hooks/hooks.json`
   (SessionStart matcher). Verified 2026-07-03.
 - Key commits: `git show --stat 83281337 cd903cbf 268cff89 29081fda`.
-- Research grounding: the two files matching
-  `ls docs/research/2026-07-01-*.md`. `docs/research/` is gitignored
-  and machine-local, so expect no matches on a fresh clone; the
-  claims this campaign relies on are inlined in the evidence bar.
+- Research grounding: `.claude/rules/prefer-invariants-over-fallbacks.md`
+  ("Evidence base" table) and
+  `plugins/imbue/skills/proof-of-work/modules/verifier-integrity.md`
+  ("Reusable verifier techniques"). Both are tracked, so the citations
+  resolve on a fresh clone.
 - Highest ADR number: `ls docs/adr/ | sort | tail -1` (0017 as of
   compilation).
 - Candidate items in this file (P2 thresholds and N values, the P2

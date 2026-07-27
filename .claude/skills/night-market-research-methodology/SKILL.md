@@ -121,11 +121,32 @@ mechanism. Permit voluntary use." A documented no is a valid result.
    (`.claude/rules/shared-utility-consumer-rule.md` requires 2+
    consumers within 30 days).
 
-Caution: `docs/research/` is gitignored, and at least one committed
-rule (prefer-invariants-over-fallbacks) cites a research-doc path
-that exists only on the authoring machine. Put the load-bearing
-evidence and citations into the rule or ADR itself. The research doc
-is background, not the record.
+4. Fold the load-bearing evidence out of the synthesis and into the
+   artifact that relies on it, as a table of sources and findings with
+   resolvable identifiers (arXiv IDs, URLs), plus the caveats that
+   bound them. Then delete the citation to the research file.
+
+Caution: `docs/research/` is gitignored, so a tracked doc that cites a
+path under it is a dangling reference for every checkout but the
+author's. Step 4 is what prevents this, and it is not optional. Five
+syntheses were folded back into their consumers on 2026-07-27 for
+exactly this reason. Verify with:
+
+```bash
+rg -o --hidden 'docs/research/[A-Za-z0-9._-]+\.md' \
+   -g '!docs/research/**' -g '!.git/**' . \
+  | sed 's/.*://' | sort -u \
+  | while read -r p; do
+      git check-ignore -q "$p" && echo "DANGLING: $p"
+    done
+```
+
+Silence means every cited research path resolves on a fresh clone.
+The check tests whether the cited path is gitignored rather than
+matching on filename shape, so `{session}`-style templates in tome's
+own docs do not trip it.
+
+The research doc is background, not the record.
 
 ### Case study 1: coming loop (one doc, two artifact types)
 
@@ -318,7 +339,7 @@ one-line re-verification:
 - Forced-eval lift still unmeasured:
   `rg -n "not measured" prototypes/forced-eval/README.md`
 - Research and backlog dirs still gitignored:
-  `git check-ignore docs/research/x.md docs/backlog/x.md`
+  `git check-ignore docs/research docs/backlog`
 - Mutation exit-code semantics:
   `rg -n "Exit codes" .github/workflows/mutation-testing.yml`
 - Worthiness thresholds: reread `docs/backlog/queue.md`. It is a

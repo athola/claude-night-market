@@ -93,12 +93,20 @@ docs/plans/
 docs/backlog/
 docs/archive/
 docs/marketing/
+# Research syntheses are background, never the record. Fold the
+# load-bearing evidence into the rule, ADR, or skill module that
+# relies on it; a tracked doc must never cite a path under here.
 docs/research/
 docs/implementation-plan.md
 docs/project-brief.md
 docs/specification.md
 docs/superpowers/plans/
-docs/superpowers/specs/
+# Ignore spec drafts by default, but keep the tome design spec: it is
+# tracked and carries the folded research evidence base, so it must
+# resolve on a fresh clone. Excluding the contents rather than the
+# directory is what makes the negation below possible at all.
+docs/superpowers/specs/*
+!docs/superpowers/specs/2026-07-17-tome-research-engine-design.md
 **/*/docs/plans/
 
 # Attune ephemeral state
@@ -138,7 +146,8 @@ plugins/memory-palace/data/indexes/keyword-index.yaml
 **/*.claude/session-state.md
 clawhub/
 
-# Tome research session state (the report in docs/research/ is the deliverable)
+# Tome research session state (the report in docs/research/ is also local;
+# the deliverable is whatever tracked doc the findings get folded into)
 .tome/
 
 # imbue scope-ramp token (a per-session demonstration marker, not source)

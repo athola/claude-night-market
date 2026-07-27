@@ -67,8 +67,23 @@ Do not:
 
 ## Evidence
 
-Provider mechanics and cost figures: Anthropic prompt caching docs and vLLM
-automatic prefix caching. The cache-stability failure mode is evaluated in
-"Don't Break the Cache" (arXiv 2601.06007). Full citations and the
-practitioner reports (the 1.25x write cost, the five-minute window, the
-billing incident) are in `docs/research/headroom-context-compression.md`.
+Provider mechanics and cost figures come from the
+[Anthropic prompt caching docs][apc] (`cache_control` breakpoint; reads at
+0.1x, writes at 1.25x for the 5-minute window and 2x for the 1-hour window)
+and [vLLM automatic prefix caching][vllm] (hash-based KV block reuse on a
+shared prefix, reducing prefill time).
+
+The cache-stability failure mode is evaluated in "Don't Break the Cache"
+(arXiv 2601.06007): any token drift near the start of the prefix forces a
+full recompute, and "same context across requests" rarely holds with
+variable inputs. Practitioner reports corroborate the economics
+([HN 47363074][hn-cost] on writes costing more than they save on
+non-repeated prefixes; [HN 41284639][hn-volatile] on volatile prefixes
+busting the cache). One further caveat worth keeping in view: conversation
+depth drives token growth more than tool count
+([HN 46045969](https://news.ycombinator.com/item?id=46045969)).
+
+[apc]: https://platform.claude.com/docs/en/build-with-claude/prompt-caching
+[vllm]: https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/
+[hn-cost]: https://news.ycombinator.com/item?id=47363074
+[hn-volatile]: https://news.ycombinator.com/item?id=41284639

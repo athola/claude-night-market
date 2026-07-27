@@ -112,10 +112,24 @@ verdict becomes a gate the agent cannot talk its way past:
    the PR is prepared but left open.
 
 This binds "done" to the verifier (convention checks plus the
-mapped review skills), not to the agent's own say-so. Rationale
-and evidence:
-`docs/research/2026-07-01-the-coming-loop-agentic-harness-guardrails.md`
-and `.claude/rules/prefer-invariants-over-fallbacks.md`. The flag
+mapped review skills), not to the agent's own say-so. The
+principle comes from shipped agent harnesses, stated best by
+`KbWen/agentic-os`: an agent "can still cut a corner, it just
+can't cut this one past a check it doesn't control." The
+recurring patterns across those harnesses:
+
+| Pattern | What it does | Source |
+|---------|--------------|--------|
+| Verifier gate as completion judge | Bind "done" to tests, lints, or result hashes the agent cannot fake | Aider, snarktank/ralph, gaasher |
+| Completion promise + max-iterations cap | String-matching "done" is insufficient; pair it with an iteration ceiling and manual abort | anthropics ralph-wiggum |
+| Evidence gates the agent does not control | Credential scan, test-execution validation, phase-log parsing enforced by hooks or CI | KbWen/agentic-os |
+| Keep-if-better / revert-if-worse ledger | Score each change, revert regressions, log to an append-only ledger for review | gaasher/Agent-Loop-Skills |
+| Legibility anchor | A persisted current-state or repo-map file that lets a human re-enter the loop | Aider repo map, agentic-os |
+| Human observer checkpoint | Watch early iterations, monitor diffs, reserve loops for defined problems | anthropics, ghuntley |
+
+Further rationale: `.claude/rules/prefer-invariants-over-fallbacks.md`
+(evidence base) and Armin Ronacher, "The Coming Loop" (2026),
+https://lucumr.pocoo.org/2026/6/23/the-coming-loop/. The flag
 is off by default; enabling it is a deliberate choice to keep a
 human as the final judge.
 
