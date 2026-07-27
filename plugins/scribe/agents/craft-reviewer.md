@@ -2,11 +2,12 @@
 name: craft-reviewer
 description: Evaluate generated text for craft depth across five dimensions -
   naming, aphoristic destinations, dwelling, structural devices, and anchoring
-model: claude-sonnet-4-6
 tools:
   - Read
   - Grep
   - TodoWrite
+model: sonnet
+effort: medium
 ---
 
 # Craft Review Agent

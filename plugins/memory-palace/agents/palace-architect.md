@@ -2,7 +2,6 @@
 name: palace-architect
 description: Design memory palace structures and spatial knowledge architectures. Use for creating palaces or mnemonic design.
 tools: [Read, Write, Bash, Grep, Glob]
-model: opus
 examples:
   - context: User wants to create a new memory palace for a topic
     user: "Help me create a memory palace for learning Kubernetes"
@@ -13,6 +12,8 @@ examples:
   - context: User is learning a new domain
     user: "Design a knowledge structure for machine learning concepts"
     assistant: "I'll architect a memory palace that maps ML concepts to memorable spatial locations."
+model: opus
+effort: high
 ---
 
 # Palace Architect Agent

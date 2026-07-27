@@ -5,7 +5,6 @@ description: Generate dependency-ordered implementation tasks from specification
   implementation work, creating ordered task lists, starting implementation phase.
   Do not use when analyzing specifications - use spec-analyzer agent. executing tasks
   - use implementation-executor agent. Trigger proactively during /speckit-tasks commands.
-model: opus
 tools:
 - Read
 - Write
@@ -21,6 +20,8 @@ examples:
 - context: User is starting implementation phase
   user: What tasks do I need to implement this feature?
   assistant: I'll analyze your spec and plan to generate concrete tasks.
+model: sonnet
+effort: medium
 ---
 
 # Task Generator Agent

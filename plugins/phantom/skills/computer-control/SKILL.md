@@ -83,7 +83,7 @@ result = run_loop(
     task="Take a screenshot of the desktop",
     api_key="sk-ant-...",
     loop_config=LoopConfig(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_iterations=10,
     ),
     display_config=DisplayConfig(width=1920, height=1080),

@@ -14,7 +14,6 @@ tools:
 - Glob
 - Grep
 - TodoWrite
-model: sonnet
 isolation: worktree
 escalation:
   to: opus
@@ -26,6 +25,8 @@ examples:
   user: Implement the plan from /fix-workflow.
   assistant: I'll use workflow-improvement-implementer-agent to apply focused changes
     and add/adjust tests where needed.
+model: sonnet
+effort: medium
 ---
 
 # Workflow Improvement Implementer Agent

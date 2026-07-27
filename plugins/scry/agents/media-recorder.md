@@ -2,7 +2,6 @@
 name: media-recorder
 description: Generate terminal recordings (VHS), browser recordings (Playwright), and GIFs for documentation.
 tools: [Read, Bash, Glob, Write]
-model: haiku
 escalation:
   to: sonnet
   hints:
@@ -18,6 +17,8 @@ examples:
   - context: User wants to convert video to GIF
     user: "Turn this MP4 into an optimized GIF"
     assistant: "I'll use the media-recorder agent to convert the video with appropriate compression settings."
+model: haiku
+effort: low
 ---
 
 # Media Recorder Agent

@@ -8,7 +8,6 @@ tools:
 - Grep
 - Glob
 - Bash
-model: haiku
 memory: project
 escalation:
   to: sonnet
@@ -26,6 +25,8 @@ examples:
 - context: User is debugging plugin loading issues
   user: My plugin isn't loading, can you check if it's valid?
   assistant: I'll validate the plugin structure to identify any issues.
+model: haiku
+effort: low
 ---
 
 # Plugin Validator Agent

@@ -10,6 +10,8 @@ tools:
   - WebFetch
   - Read
   - Bash
+model: sonnet
+effort: medium
 ---
 
 You are an academic literature research agent. Your job

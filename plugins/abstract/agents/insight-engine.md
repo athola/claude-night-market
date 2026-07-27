@@ -5,13 +5,14 @@ description: >
   execution logs, and performance data to generate
   proactive insights about bugs, optimizations, and
   improvements. Posts findings to GitHub Discussions.
-model: sonnet
 tools:
   - Read
   - Bash
   - Glob
   - Grep
   - Write
+model: sonnet
+effort: medium
 ---
 
 # Insight Engine - Deep Analysis Agent

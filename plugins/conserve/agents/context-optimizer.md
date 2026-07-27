@@ -11,7 +11,6 @@ tools:
 - Grep
 - Bash
 - Write
-model: haiku
 memory: project
 skills: conserve:context-optimization, conserve:optimizing-large-skills
 hooks:
@@ -42,6 +41,8 @@ escalation:
   - ambiguous_input
   - high_stakes
   - complex_modularization
+model: haiku
+effort: low
 ---
 
 # Context Optimizer Agent

@@ -14,7 +14,6 @@ description: |
   ONLY invoke this agent for: multi-file reviews, security audits, test coverage
   analysis, full PR reviews, or architecture/API consistency reviews.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
-model: sonnet
 skills: imbue:proof-of-work, pensive:bug-review, imbue:review-core
 
 # Claude Code 2.1.0+ lifecycle hooks
@@ -41,6 +40,8 @@ examples:
   - context: User investigating quality issues
     user: "This module has been problematic, can you audit it?"
     assistant: "I'll use the code-reviewer agent to perform a detailed audit."
+model: sonnet
+effort: medium
 ---
 
 # Code Reviewer Agent

@@ -1,6 +1,5 @@
 ---
 name: extractor
-model: sonnet
 agent: true
 allowed-tools:
   - Read
@@ -12,6 +11,8 @@ description: |
   Autonomous knowledge extraction agent. Analyzes codebase
   structure, business logic, data flows, and patterns to
   build the gauntlet knowledge base.
+model: sonnet
+effort: medium
 ---
 
 # Knowledge Extractor Agent

@@ -359,6 +359,26 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
+      # =================================================================
+      # Agent Model/Effort Matrix Gate
+      # Subagents inherit the session model when 'model:' is absent, so
+      # an unpinned search agent on an Opus session is an Opus agent.
+      # Hard gate, not a ratchet: the backlog is zero. Rationale lives
+      # in docs/agent-model-matrix.md. Read-only and idempotent.
+      # =================================================================
+
+      - id: check-agent-model-matrix
+        name: Block Agents Without a Pinned Model and Effort
+        entry: python3 scripts/check_agent_model_matrix.py
+        language: system
+        # Covers all three rules the gate enforces, not just the first:
+        # agent frontmatter, dated model IDs in SKILL.md, and roster
+        # drift in the matrix document. Watching only agents/ would let
+        # the other two break in a commit that never runs the gate.
+        files: ^(plugins/[^/]+/agents/.*\.md|plugins/.*/SKILL\.md|docs/agent-model-matrix\.md)$
+        pass_filenames: false
+        stages: [pre-commit]
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:

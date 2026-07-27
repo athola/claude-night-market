@@ -5,13 +5,14 @@ description: Autonomous agent for conducting structured reviews with evidence ga
   with structured outputs, security audits with reproducible findings. Do not use
   when quick code check without formal review - use pensive skills. just catching
   up on changes - use catchup skill.
-model: opus
 tools:
 - Read
 - Glob
 - Grep
 - Bash
 skills: imbue:review-core, imbue:proof-of-work, imbue:structured-output, imbue:diff-analysis
+model: opus
+effort: high
 ---
 
 # Review Analyst Agent

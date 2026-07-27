@@ -4,7 +4,6 @@ description: |
   Orchestrate safe bloat remediation - execute deletions, refactorings, consolidations,
   and archiving with user approval. Creates backups, runs tests, provides rollback.
 tools: [Bash, Grep, Glob, Read, Write, Edit]
-model: sonnet
 isolation: worktree
 escalation:
   to: opus
@@ -17,6 +16,8 @@ examples:
   - context: User requests unbloat
     user: "Run unbloat to clean up this codebase"
     assistant: "I'll orchestrate safe bloat remediation, starting with a backup branch and high-confidence deletions."
+model: sonnet
+effort: medium
 ---
 
 # Unbloat Remediator Agent

@@ -7,9 +7,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.9.17] - 2026-07-21
+## [1.9.17] - 2026-07-26
 
 ### Added
+
+- **Every agent pins an explicit model tier and reasoning effort
+  (all plugins, abstract).** A subagent whose frontmatter omits
+  `model:` inherits the session model, so a throwaway search agent
+  dispatched from an Opus session was an Opus agent. All 56 agents now
+  declare `model` and `effort`. Two mechanisms keep it that way:
+  `scripts/check_agent_model_matrix.py` is a hard pre-commit gate that
+  fails an agent omitting either field, pinning a dated model ID such as
+  `claude-sonnet-4-6`, or using a value outside the documented
+  vocabulary, and it fails a `SKILL.md` carrying a dated ID or a roster
+  that has drifted from disk. `plugins/abstract/hooks/agent_dispatch_guard.py`
+  is a PreToolUse hook denying an `Agent` or `Task` dispatch that names
+  no `subagent_type`, since that path reaches the inheritance rung
+  regardless of frontmatter. `docs/agent-model-matrix.md` carries the
+  tier definitions, placement rules, and the reason each agent sits
+  where it does. The hand-maintained roster in
+  `plugins/abstract/docs/model-optimization-guide.md` was removed and
+  now points at the matrix: the copy had come to claim that every
+  pensive and spec-kit agent ran on Opus after several were retiered.
+  Five skills pinning `claude-sonnet-4-6` were moved to the `sonnet`
+  alias.
+
+- **memory-palace keyword index builder.** The keyword index was
+  emptied in 1.5.0 when the knowledge-corpus directory was removed, and
+  its own header named a `build_indexes.py` that was never written, so
+  the index sat at `entries: {}` and `cache_lookup` searched nothing.
+  The script now exists, rebuilds from the staging captures, and refuses
+  to write an empty index over a populated one, which is the failure
+  that took the corpus down. A dry-run mode reports what would be
+  indexed without touching disk, and `build_index()` takes a save flag
+  so a caller can inspect the result before committing to a write.
+
+- **memory-palace reports empty captures and computes capture scores.**
+  `corpus_stats` now counts entries the fetch hook flagged as carrying
+  no content, broken out by reason. Those entries are neither inert nor
+  orphaned, so a corpus full of them previously reported healthy at 0%
+  inert and 0 orphans. The capture template's Evaluation Scores table
+  read `TBD` on every criterion across all 554 entries, implying a
+  review that never ran; it is now computed from the same structural
+  signals the promotion ranker uses, so the note and the promote
+  decision cannot drift.
+
+- **scribe detects anthropomorphized non-human subjects.** The existing
+  analysis caught only the spatial copula. Three new tiers cover giving
+  code and systems mental states, volition, and bodies, split by how
+  often each verb carries a legitimate literal sense. Precision comes
+  from the subject rather than the verb: the regex requires a determiner
+  plus a technical subject noun, so "The parser understands nested
+  blocks" fires while "She knows the codebase" does not. Terms of art
+  (observer, supervisor, daemon, agent) are left alone.
+
+- **scribe detects significance inflation and loop metaphors.** Both
+  patterns were documented in a repo-local rule and in prose tables that
+  could not act on other codebases. They are now `tier5` sections in
+  `en.yaml`, the pattern source the analyzer loads at runtime, so any
+  repository it scans gets the same findings. `significance_cluster` is
+  high confidence and anchors on the full collocation, so "a last will
+  and testament" passes; `loop_vocabulary` is medium confidence.
 
 - **tome research engine: citation graph and semantic retrieval over
   memory-palace (tome, memory-palace).** tome previously fetched
@@ -63,6 +121,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   modules previously needed. Resolves TDB-014.
 
 ### Fixed
+
+- **Quality gates can now fail (all plugins, abstract).** Makefile
+  probes across conjure, leyline, minister, parseltongue, and pensive
+  swallowed their own verdicts. `safety check || echo "[WARNING] Safety
+  check unavailable"` is a security scanner wired into `make security`
+  that could not fail, and in pensive `safety` was never a declared
+  dependency, so the command had never executed. parseltongue printed
+  "Linting clean or ruff not configured" on exactly the path where ruff
+  had found problems, invoked a bare `python` absent from the project
+  environment, and pointed its benchmark target at a test file that does
+  not exist. conjure's two demo targets imported a `tools` package that
+  does not exist and had never run. Fourteen sites used the `|| echo`
+  form, which replaces a checker's verdict with a sentence that reads
+  like a status report. Optional-tool detection is kept but made real:
+  an `if` consumes the exit code, so a skip message is true and a
+  genuine failure still fails the build, with pytest exit 5 still
+  distinguished from failure. Making the validators exit non-zero
+  surfaced two bugs inside `abstract_validator` that nobody had to look
+  at while it exited 0: the spoke-to-spoke check scanned raw file text,
+  so fenced blocks and directory trees counted as cross-references (16
+  of 69 findings were the skills documenting modular authoring being
+  flagged for demonstrating it), and `content.find(a) or content.find(b)`
+  never reached `b` because `find` returns -1 and -1 is truthy, so every
+  skill using a plain `## Resources` heading was reported as mis-ordered
+  while all three were ordered correctly. The remaining 53 hub-spoke
+  findings were real and now route through the hub.
+
+- **The agent matrix gate ran on only one of the three file kinds it
+  checks (abstract).** Its pre-commit `files:` pattern matched
+  `plugins/*/agents/*.md` alone, so a `SKILL.md` gaining a dated model
+  ID, or rows disappearing from `docs/agent-model-matrix.md`, committed
+  without the gate running. The pattern now covers all three, and a test
+  asserts the trigger scope matches what the gate enforces rather than
+  only asserting the entry exists.
 
 - **Two pre-existing test defects surfaced by running suites under
   Python 3.9.** gauntlet's `test_module_imports_without_yaml` re-imported

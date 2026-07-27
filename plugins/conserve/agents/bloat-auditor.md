@@ -4,7 +4,6 @@ description: |
   Execute progressive bloat detection scans (Tier 1-3), generate prioritized
   reports, and recommend cleanup actions.
 tools: [Bash, Grep, Glob, Read, Write]
-model: sonnet
 background: true
 escalation:
   to: opus
@@ -16,6 +15,8 @@ examples:
   - context: User requests bloat scan
     user: "Run a bloat scan to find dead code"
     assistant: "I'll perform a Tier 1 quick scan first, identifying high-confidence bloat with minimal overhead."
+model: sonnet
+effort: medium
 ---
 
 # Bloat Auditor Agent

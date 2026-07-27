@@ -5,7 +5,6 @@ description: Analyze specification artifacts for consistency, coverage, and qual
   missing requirements, detecting ambiguity or underspecification. Do not use when
   writing specifications - use spec-writing skill. generating tasks - use task-generator
   agent. Trigger proactively during /speckit-analyze commands.
-model: opus
 tools:
 - Read
 - Grep
@@ -21,6 +20,8 @@ examples:
 - context: User is debugging missing requirements
   user: What requirements don't have tasks?
   assistant: I'll analyze the coverage gaps between your spec and tasks.
+model: opus
+effort: high
 ---
 
 # Spec Analyzer Agent

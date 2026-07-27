@@ -10,6 +10,16 @@
             "timeout": 1
           }
         ]
+      },
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/agent_dispatch_guard.py",
+            "timeout": 2
+          }
+        ]
       }
     ],
     "PostToolUse": [

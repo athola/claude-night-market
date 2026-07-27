@@ -512,35 +512,27 @@ See `conserve:context-optimization/modules/subagent-coordination` for detailed p
 - [x] Add `model: haiku` parameter to those agents
 - [x] Add `model: sonnet` parameter to Tier 2 agents
 - [x] Add escalation hints to all optimized agents
+- [x] Pin `model` and `effort` on every agent in the repository
+- [x] Gate the pins in CI so new agents cannot ship unpinned
 - [ ] Test with representative inputs
 - [ ] Monitor for quality regressions
 - [ ] Track escalation frequency
-- [ ] Expand to additional candidates if successful
 
 ## Implemented Agents
 
-### Haiku Agents (with escalation to Sonnet)
-| Plugin | Agent | Escalation Hints |
-|--------|-------|------------------|
-| abstract | plugin-validator | security_sensitive, novel_pattern |
-| conserve | context-optimizer | ambiguous_input, high_stakes |
-| memory-palace | knowledge-navigator | ambiguous_input, novel_pattern |
-| sanctum | commit-agent | ambiguous_input, high_stakes |
-| sanctum | git-workspace-agent | security_sensitive, high_stakes |
+The per-agent roster moved to `docs/agent-model-matrix.md` at the
+repository root. That document is the single source of truth for which
+tier each agent sits in and why.
 
-### Sonnet Agents (with escalation to Opus)
-| Plugin | Agent | Escalation Hints |
-|--------|-------|------------------|
-| memory-palace | garden-curator | reasoning_required, novel_pattern |
-| memory-palace | knowledge-librarian | reasoning_required, high_stakes |
-| parseltongue | python-pro | reasoning_required, security_sensitive |
-| parseltongue | python-tester | reasoning_required, novel_pattern |
-| parseltongue | python-optimizer | reasoning_required, high_stakes |
-| sanctum | pr-agent | reasoning_required, high_stakes, security_sensitive |
+Do not re-list agents here. A partial copy in a second file is how the
+previous version of this section came to claim that every pensive and
+spec-kit agent ran on Opus after several of them had been retiered.
 
-### Opus Agents (no escalation needed)
-- All pensive agents (architecture-reviewer, code-reviewer, rust-auditor)
-- All spec-kit agents (implementation-executor, spec-analyzer, task-generator)
-- memory-palace: palace-architect
-- imbue: review-analyst
-- abstract: meta-architect, skill-auditor
+The matrix is enforced by two mechanisms:
+
+- `scripts/check_agent_model_matrix.py` fails any agent that omits
+  `model` or `effort`, pins a dated model ID, or uses a value outside
+  the documented vocabulary. Wired into pre-commit and CI.
+- `plugins/abstract/hooks/agent_dispatch_guard.py` denies an `Agent`
+  dispatch that omits `subagent_type`, since that path inherits the
+  session model no matter what the frontmatter says.

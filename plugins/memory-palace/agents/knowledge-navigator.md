@@ -2,7 +2,6 @@
 name: knowledge-navigator
 description: Search and navigate existing memory palaces to find, cross-reference, or locate stored knowledge and concepts.
 tools: [Read, Bash, Grep, Glob]
-model: haiku
 escalation:
   to: sonnet
   hints:
@@ -18,6 +17,8 @@ examples:
   - context: User exploring stored knowledge
     user: "Show me what's in my API Documentation palace"
     assistant: "I'll navigate to that palace and show you its structure."
+model: haiku
+effort: low
 ---
 
 # Knowledge Navigator Agent

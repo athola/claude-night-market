@@ -2,7 +2,6 @@
 name: knowledge-librarian
 description: Evaluate and store external resources (articles, papers, links). Trigger when URLs are shared.
 tools: [Read, Write, Bash, Grep, Glob, WebFetch, WebSearch]
-model: sonnet
 memory: project
 escalation:
   to: opus
@@ -22,6 +21,8 @@ examples:
   - context: User wants to apply external knowledge
     user: "This article has a pattern we should use in our codebase"
     assistant: "I'll evaluate and route this knowledge appropriately - local codebase or meta-infrastructure."
+model: sonnet
+effort: medium
 ---
 
 # Knowledge Librarian Agent

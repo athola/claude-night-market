@@ -2,7 +2,6 @@
 name: rust-auditor
 description: Rust security audits for ownership, unsafe code, concurrency, and dependency scanning.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
-model: opus
 skills: pensive:rust-review, imbue:review-core
 
 # Claude Code 2.1.0+ lifecycle hooks
@@ -45,6 +44,8 @@ examples:
   - context: User checking dependencies
     user: "Are our Rust dependencies secure?"
     assistant: "I'll use the rust-auditor agent to scan dependencies."
+model: opus
+effort: high
 ---
 
 # Rust Auditor Agent

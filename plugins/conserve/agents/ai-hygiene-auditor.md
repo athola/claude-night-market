@@ -4,7 +4,6 @@ description: |
   Audit codebases for AI-generation warning signs: vibe coding patterns, agent psychosis
   indicators, slop artifacts, and Tab-completion bloat. Specialized complement to bloat-auditor.
 tools: [Bash, Grep, Glob, Read]
-model: sonnet
 background: true
 escalation:
   to: opus
@@ -19,6 +18,8 @@ examples:
   - context: PR review with suspected AI generation
     user: "Review this PR for AI code quality concerns"
     assistant: "I'll analyze for AI generation indicators: massive commits, duplication patterns, happy-path-only tests, and documentation slop."
+model: sonnet
+effort: medium
 ---
 
 # AI Hygiene Auditor Agent

@@ -15,7 +15,6 @@ tools:
 - Read
 - Write
 - Bash
-model: haiku
 permissionMode: acceptEdits
 escalation:
   to: sonnet
@@ -57,6 +56,8 @@ examples:
 - context: User making breaking changes
   user: I'm changing the API, how should I document this in the commit?
   assistant: I'll use the commit-agent to format the breaking change footer correctly.
+model: haiku
+effort: low
 ---
 
 # Commit Agent

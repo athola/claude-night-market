@@ -9,7 +9,6 @@ description: |
   2. Re-establishes necessary context
   3. Continues the task without interruption
   4. Can spawn another continuation agent if needed
-model: opus
 tools:
   - Read
   - Write
@@ -29,6 +28,8 @@ hooks:
         echo "[continuation-agent] Started at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/continuation-audit.log
   # NOTE: No Stop hook - continuation agents must NOT be interrupted by stop hooks
   # The agent controls its own termination via the completion loop
+model: opus
+effort: high
 ---
 
 # Continuation Agent

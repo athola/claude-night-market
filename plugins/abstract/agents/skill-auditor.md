@@ -1,6 +1,5 @@
 ---
 name: skill-auditor
-model: sonnet
 agent: true
 allowed-tools:
   - Read
@@ -13,6 +12,8 @@ description: |
   Agent for detailed skill quality auditing and improvement
   recommendations. Analyzes skill structure, content quality,
   token efficiency, activation reliability, and tool integration.
+model: sonnet
+effort: medium
 ---
 
 # Skill Auditor Agent
