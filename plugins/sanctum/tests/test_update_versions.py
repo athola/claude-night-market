@@ -400,6 +400,88 @@ def test_update_package_json_delegates_to_generic():
     )
 
 
+def test_scaffold_templates_are_never_collected():
+    """Version files inside templates/ are scaffolding, not this repo's version.
+
+    Given a template directory holding a starter __init__.py,
+    When version files are collected,
+    Then the template is excluded.
+
+    A template's __version__ is the starting version of a project the
+    tool will later generate. Bumping it makes every scaffolded project
+    claim this repo's version.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        (root / "pyproject.toml").write_text('version = "1.0.0"')
+        tpl = root / "templates" / "python"
+        tpl.mkdir(parents=True)
+        (tpl / "__init__.py").write_text('__version__ = "0.1.0"')
+        (tpl / "pyproject.toml").write_text('version = "0.1.0"')
+
+        found = update_versions.find_version_files(root)
+        names = {p.relative_to(root).as_posix() for p in found}
+
+        assert "pyproject.toml" in names, "real version files must still be found"
+        assert not [n for n in names if n.startswith("templates/")], (
+            f"templates/ must be excluded, got: {sorted(names)}"
+        )
+
+
+def test_scaffold_exclusion_survives_include_cache():
+    """--include-cache must not re-enable template rewriting.
+
+    Given the caller passes include_cache=True to reach into venvs,
+    When version files are collected,
+    Then templates/ is still excluded.
+
+    Cache exclusion is a noise filter the caller may waive. Scaffold
+    exclusion is a correctness invariant that no flag should override.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        tpl = root / "templates" / "python"
+        tpl.mkdir(parents=True)
+        (tpl / "__init__.py").write_text('__version__ = "0.1.0"')
+
+        found = update_versions.find_version_files(root, include_cache=True)
+        assert not found, f"templates must stay excluded, got: {found}"
+
+
+def test_non_template_paths_are_not_over_excluded():
+    """Only a literal templates/ path component is excluded.
+
+    Guards against a substring match that would also drop a legitimate
+    directory such as templates_generator/ or my-templates-lib/.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        for d in ("templates_generator", "my-templates-lib"):
+            (root / d).mkdir()
+            (root / d / "pyproject.toml").write_text('version = "1.0.0"')
+
+        names = {
+            p.relative_to(root).as_posix()
+            for p in update_versions.find_version_files(root)
+        }
+        assert names == {
+            "templates_generator/pyproject.toml",
+            "my-templates-lib/pyproject.toml",
+        }, f"over-excluded: {sorted(names)}"
+
+
+def test_attune_python_template_stays_at_its_own_version():
+    """Regression guard for the real file this bug would have corrupted."""
+    repo_root = Path(__file__).resolve().parents[3]
+    template = repo_root / "plugins/attune/templates/python/__init__.py"
+    if not template.is_file():
+        return
+    assert '__version__ = "0.1.0"' in template.read_text(encoding="utf-8"), (
+        "attune's python scaffold must keep its own starting version"
+    )
+    assert template not in update_versions.find_version_files(repo_root)
+
+
 if __name__ == "__main__":
     # Run tests
     test_find_version_files()

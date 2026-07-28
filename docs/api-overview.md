@@ -18,17 +18,17 @@ with public APIs. We also maintain 58 executable hooks.
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
 | abstract | 1.9.17 | 18 | 15 | 6 | Yes | abstract-skills |
-| archetypes | 1.9.17 | 0 | 14 | 0 | No | - |
+| archetypes | 1.9.17 | 0 | 15 | 0 | No | - |
 | attune | 1.9.17 | 11 | 14 | 2 | No | - |
 | cartograph | 1.9.17 | 1 | 7 | 1 | No | - |
 | conjure | 1.9.17 | 0 | 4 | 0 | No | quota-tracker, usage-logger, delegator |
-| conserve | 1.9.17 | 6 | 14 | 5 | No | - |
+| conserve | 1.9.17 | 6 | 15 | 5 | No | - |
 | egregore | 1.9.17 | 5 | 4 | 2 | No | - |
 | gauntlet | 1.9.17 | 6 | 7 | 1 | Yes | - |
 | herald | 1.9.17 | 0 | 0 | 0 | No | - |
 | hookify | 1.9.17 | 6 | 2 | 0 | No | - |
 | imbue | 1.9.17 | 5 | 16 | 1 | No | - |
-| leyline | 1.9.17 | 3 | 23 | 0 | Yes | - |
+| leyline | 1.9.17 | 3 | 24 | 0 | Yes | - |
 | memory-palace | 1.9.17 | 5 | 9 | 4 | Yes | - |
 | minister | 1.9.17 | 3 | 3 | 0 | Yes | - |
 | oracle | 1.9.17 | 1 | 1 | 0 | Yes | - |

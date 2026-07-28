@@ -143,6 +143,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
 | `research` | [tome](../plugins/tome.md) | Multi-source research orchestration |
 | `response-compression` | [conserve](../plugins/conserve.md) | Response compression patterns |
+| `action-first-output` | [conserve](../plugins/conserve.md) | Action-first output shaping |
 | `palace-diagram` | [memory-palace](../plugins/memory-palace.md) | Visual palace structure diagrams |
 | `palace-index-curator` | [memory-palace](../plugins/memory-palace.md) | Web-capture index curation |
 | `review-chamber` | [memory-palace](../plugins/memory-palace.md) | PR review knowledge capture and retrieval |

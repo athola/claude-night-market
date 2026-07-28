@@ -102,6 +102,11 @@ compression strategies (clear, catchup, continuation agent, archive, and summari
 or delegate to subagent).
 `response-compression` eliminates filler words, hedging language,
 and hype words, saving between 150 and 350 tokens per response.
+`action-first-output` shapes each turn so the first line is a runnable
+action, work is numbered, and position is restated every turn. It
+overrides `response-compression` on trailing next actions and progress
+markers. The skill's Precedence table carries the resolution and the
+token arithmetic behind it. Ported from ayghri/i-have-adhd (MIT).
 `decisive-action` uses a reversibility/ambiguity matrix to determine when to
 proceed autonomously versus asking for clarification.
 `elegant-code` guides minimal, elegant code via a decision ladder

@@ -296,6 +296,18 @@ Response compression patterns.
 Techniques for reducing response verbosity without losing essential
 information, optimizing token usage in conversations.
 
+### `conserve:action-first-output`
+Action-first output shaping for low-working-memory readers.
+
+**Invocation**: `Skill(conserve:action-first-output)`
+
+Shapes each turn so the first line is a runnable action: numbered
+steps, position restated every turn, concrete time estimates, lists
+capped at five. Sticky for the session until the reader says "stop
+adhd mode". Ported from ayghri/i-have-adhd (MIT). Overrides
+`response-compression` on trailing next actions and progress markers;
+see the Precedence table in the skill.
+
 ---
 
 ## Sanctum Plugin

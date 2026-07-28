@@ -17,9 +17,17 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from update_plugins_modules.constants import CACHE_EXCLUDES
 
+# Directories holding scaffolding for projects this repo GENERATES. A version
+# string inside one is the starting version of some future user project, not
+# this repo's version, so bumping it is always wrong. Unlike CACHE_EXCLUDES,
+# this is a correctness invariant: --include-cache must not reach past it.
+SCAFFOLD_EXCLUDES: frozenset[str] = frozenset({"templates"})
+
 
 def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
     """Find all version files, excluding venvs and build dirs unless explicitly asked.
+
+    Scaffolding templates are excluded unconditionally; see SCAFFOLD_EXCLUDES.
 
     Args:
         root: Root directory to search
@@ -48,6 +56,9 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
 
     for pattern in patterns:
         for file in root.rglob(pattern):
+            # Scaffolding is never this repo's version, whatever the flags say.
+            if any(part in SCAFFOLD_EXCLUDES for part in file.parts):
+                continue
             # Skip exclusions unless --include-cache is specified
             if not include_cache:
                 if any(exclude in file.parts for exclude in excludes):

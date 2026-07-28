@@ -11,6 +11,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Action-first output shaping (conserve).** `action-first-output`
+  ports the ruleset from
+  [ayghri/i-have-adhd](https://github.com/ayghri/i-have-adhd) (MIT):
+  the first line of a turn is a runnable action, multi-step work is
+  numbered, position is restated every turn, time estimates use
+  concrete units, and lists cap at five ranked items. The skill sets
+  `disable-model-invocation: true` because it restyles every
+  subsequent turn once active, so it must be invoked deliberately
+  rather than fired on a keyword match. A guard test enforces that
+  flag.
+
+  Two of its rules contradict `response-compression`, which deletes
+  trailing "Next steps:" blocks and end-of-turn recaps. The skill
+  carries a Precedence table resolving both: a single-line next action
+  and a position marker survive, while multi-item next-step blocks and
+  content recaps stay banned. `response-compression` gained a matching
+  override note so a reader arriving at either skill learns the other
+  one qualifies it.
+
+  Restatement holds full form at every context-pressure tier rather
+  than degrading. It costs about 16 tokens per turn, roughly 1,600
+  across a 100-turn session, which is 0.8% of a 200K window. One
+  500-line file read costs about three times that entire budget, so
+  trimming restatement to relieve pressure targets a rounding error.
+  At the 80% EMERGENCY threshold the restatement is promoted into the
+  `clear-context` handoff header, since the continuation subagent
+  reads it first. A test pins the cited thresholds to the skills that
+  own them, so the table cannot go stale silently.
+
 - **Every agent pins an explicit model tier and reasoning effort
   (all plugins, abstract).** A subagent whose frontmatter omits
   `model:` inherits the session model, so a throwaway search agent
@@ -121,6 +150,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   modules previously needed. Resolves TDB-014.
 
 ### Fixed
+
+- **Version bumps no longer rewrite project scaffolding (sanctum).**
+  `update_versions.py` collected any file matching its version-file
+  patterns, including `plugins/attune/templates/python/__init__.py`.
+  That file is a template attune copies when it scaffolds a new
+  project, so its `__version__ = "0.1.0"` is the starting version of
+  some future user project rather than this repo's version. A release
+  bump silently rewrote it, and every project scaffolded afterward
+  claimed the marketplace's version as its own. The file now sits
+  behind a new `SCAFFOLD_EXCLUDES` set, kept separate from
+  `CACHE_EXCLUDES` because the two mean different things: cache
+  exclusion is a noise filter `--include-cache` may waive, while
+  scaffold exclusion is a correctness invariant no flag overrides.
+  Four tests cover the template case, the flag-override case, the
+  over-exclusion case (a directory merely named `templates_generator`
+  is still collected), and the specific attune file as a regression
+  guard.
 
 - **Quality gates can now fail (all plugins, abstract).** Makefile
   probes across conjure, leyline, minister, parseltongue, and pensive
