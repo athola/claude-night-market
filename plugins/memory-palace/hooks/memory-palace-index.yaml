@@ -5218,6 +5218,431 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://github.com/tt-a1i/grok-field-guide
+  https://www.lni.wa.gov/forms-publications/f500-149-000.pdf:
+    content_hash: sha256:6cb74a79b8c0a9a5
+    stored_at: data/staging/webfetch-the-pdf-rendered-as-plain-text-or-2026-07-28_11-02-17.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:02:17.443510+00:00'
+    title: '- The PDF rendered as plain text, or'
+    maturity: growing
+    routing_type: meta
+    url: https://www.lni.wa.gov/forms-publications/F500-149-000.pdf
+  https://www.ecfr.gov/current/title-29/subtitle-a/part-29/section-29.5:
+    content_hash: sha256:caad840040807629
+    stored_at: data/staging/webfetch-original-url-https-www-ecfr-gov-current-title-29-2026-07-28_11-02-18.md
+    importance_score: 50
+    last_updated: '2026-07-28T11:02:18.467703+00:00'
+    title: 'Original URL: https://www.ecfr.gov/current/title-29/subtitle-A/part-29/section-29.5'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.ecfr.gov/current/title-29/subtitle-A/part-29/section-29.5
+  https://www.nccer.org/credentials-certifications:
+    content_hash: sha256:62afaed501a9490d
+    stored_at: data/staging/webfetch-nccer-credentials-earning-and-recording-2026-07-28_11-02-25.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:02:25.364073+00:00'
+    title: 'NCCER Credentials: Earning and Recording'
+    maturity: growing
+    routing_type: meta
+    url: https://www.nccer.org/credentials-certifications/
+  https://www.dir.ca.gov/dlse/ecu/ecu_faq.htm:
+    content_hash: sha256:232a7a96c7691afb
+    stored_at: data/staging/webfetch-on-the-job-experience-documentation-2026-07-28_11-02-58.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:02:58.568799+00:00'
+    title: On-the-Job Experience Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://www.dir.ca.gov/dlse/ecu/ecu_faq.htm
+  https://www.dir.ca.gov/dlse/ecu/ecutrain_forms.htm:
+    content_hash: sha256:ef07012085581295
+    stored_at: data/staging/webfetch-electrician-trainee-forms-complete-list-2026-07-28_11-04-40.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:04:40.628276+00:00'
+    title: Electrician Trainee Forms - Complete List
+    maturity: growing
+    routing_type: meta
+    url: https://www.dir.ca.gov/dlse/ecu/ECUTrain_forms.htm
+  https://www.dli.mn.gov/workers/electrician-or-electrical-installer/experience-requirements-electrical-license:
+    content_hash: sha256:452a3ce1d379e7ca
+    stored_at: data/staging/webfetch-experience-verification-requirements-minnesota-2026-07-28_11-05-13.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:13.148927+00:00'
+    title: Experience Verification Requirements - Minnesota Electrical License
+    maturity: growing
+    routing_type: meta
+    url: https://www.dli.mn.gov/workers/electrician-or-electrical-installer/experience-requirements-electrical-license
+  https://www.lni.wa.gov/licensing-permits/plumbing/plumber-certification/plumber-trainee:
+    content_hash: sha256:13e9511116b07c50
+    stored_at: data/staging/webfetch-plumber-trainee-experience-documentation-2026-07-28_11-05-15.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:15.293859+00:00'
+    title: Plumber Trainee Experience Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://www.lni.wa.gov/licensing-permits/plumbing/plumber-certification/plumber-trainee
+  https://www.oregon.gov/bcd/licensing/pages/electrical-apply.aspx:
+    content_hash: sha256:4f41aebd5e1287a3
+    stored_at: data/staging/webfetch-experience-verification-information-2026-07-28_11-05-32.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:32.938964+00:00'
+    title: Experience Verification Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.oregon.gov/bcd/licensing/Pages/electrical-apply.aspx
+  https://secure.sos.state.or.us/oard/viewsinglerule.action?rulevrsnrsn=340012:
+    content_hash: sha256:74a674e255e266b8
+    stored_at: data/staging/webfetch-1-access-a-valid-rule-number-through-the-oregon-2026-07-28_11-05-35.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:35.466715+00:00'
+    title: 1. Access a valid rule number through the Oregon Secretary of State's administrative
+      rules system
+    maturity: growing
+    routing_type: meta
+    url: https://secure.sos.state.or.us/oard/viewSingleRule.action?ruleVrsnRsn=340012
+  https://codes.ohio.gov/ohio-revised-code/section-4740.01:
+    content_hash: sha256:e179878aaa0a8944
+    stored_at: data/staging/webfetch-ohio-revised-code-section-4740-01-key-definitions-2026-07-28_11-05-36.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:36.050652+00:00'
+    title: Ohio Revised Code Section 4740.01 - Key Definitions
+    maturity: growing
+    routing_type: meta
+    url: https://codes.ohio.gov/ohio-revised-code/section-4740.01
+  https://codes.ohio.gov/ohio-revised-code/section-4740.13:
+    content_hash: sha256:70e478ce2c0cfb3c
+    stored_at: data/staging/webfetch-section-4740-13-2026-07-28_11-05-40.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:40.758735+00:00'
+    title: Section 4740.13
+    maturity: growing
+    routing_type: meta
+    url: https://codes.ohio.gov/ohio-revised-code/section-4740.13
+  https://www.dir.ca.gov/das/forms.html:
+    content_hash: sha256:58678e03cd8c26cb
+    stored_at: data/staging/webfetch-forms-listed-on-this-page-2026-07-28_11-05-41.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:41.542945+00:00'
+    title: Forms Listed on This Page
+    maturity: growing
+    routing_type: meta
+    url: https://www.dir.ca.gov/das/forms.html
+  https://codes.ohio.gov/ohio-revised-code/section-4740.14:
+    content_hash: sha256:64d4bd89bc260eaf
+    stored_at: data/staging/webfetch-ohio-revised-code-section-4740-14-full-text-2026-07-28_11-05-52.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:52.910726+00:00'
+    title: Ohio Revised Code Section 4740.14 - Full Text
+    maturity: growing
+    routing_type: meta
+    url: https://codes.ohio.gov/ohio-revised-code/section-4740.14
+  https://oregon.public.law/rules/oar_918-030-0030:
+    content_hash: sha256:ed734d5c35ef10b1
+    stored_at: data/staging/webfetch-oar-918-030-0030-summary-2026-07-28_11-05-54.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:54.331168+00:00'
+    title: OAR 918-030-0030 Summary
+    maturity: growing
+    routing_type: meta
+    url: https://oregon.public.law/rules/oar_918-030-0030
+  https://www.revisor.mn.gov/rules/3800.3520:
+    content_hash: sha256:948500b6e4f6668c
+    stored_at: data/staging/webfetch-minnesota-rule-3800-3520-experience-verification-2026-07-28_11-05-55.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:55.024922+00:00'
+    title: Minnesota Rule 3800.3520 - Experience Verification
+    maturity: growing
+    routing_type: meta
+    url: https://www.revisor.mn.gov/rules/3800.3520/
+  http://www.leg.state.fl.us/statutes/index.cfm?app_mode=display_statute&url=0400-0499/0489/sections/0489.1455.html:
+    content_hash: sha256:aae6a6736b78c082
+    stored_at: data/staging/webfetch-florida-statute-489-1455-journeyman-reciprocity-2026-07-28_11-05-55.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:55.762259+00:00'
+    title: 'Florida Statute 489.1455: Journeyman; Reciprocity; Standards'
+    maturity: growing
+    routing_type: meta
+    url: http://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0400-0499/0489/Sections/0489.1455.html
+  http://www.leg.state.fl.us/statutes/index.cfm?app_mode=display_statute&url=0400-0499/0489/sections/0489.5335.html:
+    content_hash: sha256:4754926b3a39e562
+    stored_at: data/staging/webfetch-florida-statute-489-5335-2026-07-28_11-05-57.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:05:57.274959+00:00'
+    title: Florida Statute 489.5335
+    maturity: growing
+    routing_type: meta
+    url: http://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0400-0499/0489/Sections/0489.5335.html
+  https://www.flsenate.gov/laws/statutes/2024/489.5335:
+    content_hash: sha256:52874a1d5021a345
+    stored_at: data/staging/webfetch-florida-statute-section-489-5335-2026-07-28_11-06-00.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:06:00.233120+00:00'
+    title: Florida Statute Section 489.5335
+    maturity: growing
+    routing_type: meta
+    url: https://www.flsenate.gov/Laws/Statutes/2024/489.5335
+  https://www.flsenate.gov/laws/statutes/2024/489.1455:
+    content_hash: sha256:61ee7a49de86f546
+    stored_at: data/staging/webfetch-florida-statute-section-489-1455-2026-07-28_11-06-02.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:06:02.380142+00:00'
+    title: Florida Statute Section 489.1455
+    maturity: growing
+    routing_type: meta
+    url: https://www.flsenate.gov/Laws/Statutes/2024/489.1455
+  https://www.dir.ca.gov/das/programsponsor.htm:
+    content_hash: sha256:aa478de1cd2ba401
+    stored_at: data/staging/webfetch-forms-and-numbers-from-das-resources-page-2026-07-28_11-06-03.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:06:03.104452+00:00'
+    title: Forms and Numbers from DAS Resources Page
+    maturity: growing
+    routing_type: meta
+    url: https://www.dir.ca.gov/das/ProgramSponsor.htm
+  https://lermap.t3networkhub.org/lers-explained:
+    content_hash: sha256:7dd280d08fc76f15
+    stored_at: data/staging/webfetch-ler-ecosystem-map-analysis-2026-07-28_11-06-18.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:06:18.894477+00:00'
+    title: LER Ecosystem Map Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://lermap.t3networkhub.org/lers-explained
+  https://www.oregon.gov/bcd/licensing/pages/plumbing-apply.aspx:
+    content_hash: sha256:5c05c99fd4384786
+    stored_at: data/staging/webfetch-journeyman-plumber-license-requirements-2026-07-28_11-06-21.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:06:21.714774+00:00'
+    title: Journeyman Plumber License Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://www.oregon.gov/bcd/licensing/pages/plumbing-apply.aspx
+  https://www.dli.mn.gov/workers/electrician-or-electrical-installer/electrical-licensing-basics:
+    content_hash: sha256:fc3e5c1526896305
+    stored_at: data/staging/webfetch-registered-unlicensed-electrician-information-2026-07-28_11-06-22.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:06:22.341418+00:00'
+    title: Registered Unlicensed Electrician Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.dli.mn.gov/workers/electrician-or-electrical-installer/electrical-licensing-basics
+  https://www.dli.mn.gov/workers/plumber/registered-unlicensed-plumbers:
+    content_hash: sha256:a24c956b06c71253
+    stored_at: data/staging/webfetch-work-experience-verification-at-renewal-2026-07-28_11-06-37.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:06:37.335266+00:00'
+    title: Work Experience Verification at Renewal
+    maturity: growing
+    routing_type: meta
+    url: https://www.dli.mn.gov/workers/plumber/registered-unlicensed-plumbers
+  https://www.oregon.gov/boli/apprenticeship/pages/oats-portal.aspx:
+    content_hash: sha256:7d04aa608e262a58
+    stored_at: data/staging/webfetch-oregon-apprenticeship-tracking-system-oats-2026-07-28_11-06-38.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:06:38.713834+00:00'
+    title: Oregon Apprenticeship Tracking System (OATS)
+    maturity: growing
+    routing_type: meta
+    url: https://www.oregon.gov/boli/apprenticeship/pages/oats-portal.aspx
+  https://app.leg.wa.gov/wac/default.aspx?cite=296-46b-942:
+    content_hash: sha256:9d7408f7a171a4e9
+    stored_at: data/staging/webfetch-electrical-trainee-work-experience-documentation-2026-07-28_11-06-41.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:06:41.109728+00:00'
+    title: Electrical Trainee Work Experience Documentation Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://app.leg.wa.gov/wac/default.aspx?cite=296-46B-942
+  https://www.flrules.org/gateway/chapterhome.asp?chapter=6a-23:
+    content_hash: sha256:d26164a9b75e4ef7
+    stored_at: data/staging/webfetch-florida-administrative-code-chapter-6a-23-2026-07-28_11-06-51.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:06:51.528166+00:00'
+    title: 'Florida Administrative Code Chapter 6A-23: Apprenticeship Programs'
+    maturity: growing
+    routing_type: meta
+    url: https://www.flrules.org/gateway/ChapterHome.asp?Chapter=6A-23
+  https://www.dli.mn.gov/workers/plumber/plumbing-license-experience-requirements:
+    content_hash: sha256:65ab362824081954
+    stored_at: data/staging/webfetch-minnesota-plumbing-license-experience-2026-07-28_11-07-05.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:07:05.529246+00:00'
+    title: Minnesota Plumbing License Experience Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://www.dli.mn.gov/workers/plumber/plumbing-license-experience-requirements
+  https://www.dli.mn.gov/workers/electrician-or-electrical-installer/electrical-licensing-forms:
+    content_hash: sha256:d1fae4613fa8582d
+    stored_at: data/staging/webfetch-work-experience-verification-forms-2026-07-28_11-07-06.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:07:06.729158+00:00'
+    title: Work Experience Verification Forms
+    maturity: growing
+    routing_type: meta
+    url: https://www.dli.mn.gov/workers/electrician-or-electrical-installer/electrical-licensing-forms
+  https://www.tdlr.texas.gov/electricians/apply/individuals/journeyman-electrician.htm:
+    content_hash: sha256:a8501b2ede028d5d
+    stored_at: data/staging/webfetch-journeyman-electrician-training-requirements-2026-07-28_11-07-11.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:07:11.992177+00:00'
+    title: Journeyman Electrician Training Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://www.tdlr.texas.gov/electricians/apply/individuals/journeyman-electrician.htm
+  ? https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/application-forms/all-forms-handouts-checklists-alphabetical-list/journeyman-application
+  : content_hash: sha256:9f042b3232ab8a3e
+    stored_at: data/staging/webfetch-1-plain-text-version-of-the-document-or-2026-07-28_11-07-27.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:07:27.904968+00:00'
+    title: 1. **Plain text version** of the document, or
+    maturity: growing
+    routing_type: meta
+    url: https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/application-forms/all-forms-handouts-checklists-alphabetical-list/journeyman-application/
+  https://www.nccer.org/general-faqs:
+    content_hash: sha256:d7aaae1e3b5984b4
+    stored_at: data/staging/webfetch-general-faqs-2026-07-28_11-08-02.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:08:02.420488+00:00'
+    title: General Faqs
+    maturity: growing
+    routing_type: meta
+    url: https://www.nccer.org/general-faqs/
+  https://hcfl.gov/businesses/hillsgovhub/contractor-licensing/journeyman-electrician-or-plumber-certificate-of-competency:
+    content_hash: sha256:5c43e18c6d2008ed
+    stored_at: data/staging/webfetch-required-documents-and-forms-2026-07-28_11-08-39.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:08:39.595485+00:00'
+    title: Required Documents and Forms
+    maturity: growing
+    routing_type: meta
+    url: https://hcfl.gov/businesses/hillsgovhub/contractor-licensing/journeyman-electrician-or-plumber-certificate-of-competency
+  https://tsbpe.texas.gov/license-types/journeyman:
+    content_hash: sha256:faed9d4f772d9b2f
+    stored_at: data/staging/webfetch-journeyman-plumber-requirements-2026-07-28_11-09-46.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:09:46.126716+00:00'
+    title: Journeyman Plumber Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://tsbpe.texas.gov/license-types/journeyman/
+  https://www2.myfloridalicense.com/electrical-contractors:
+    content_hash: sha256:5538e2525378c93b
+    stored_at: data/staging/webfetch-electrical-contractor-license-types-2026-07-28_11-10-42.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:10:42.242142+00:00'
+    title: Electrical Contractor License Types
+    maturity: growing
+    routing_type: meta
+    url: https://www2.myfloridalicense.com/electrical-contractors/
+  https://www.nccer.org/newsroom/builderfax-mobile-wallet-enables-instant-sharing-of-nccer-credentials:
+    content_hash: sha256:01df6214b4350512
+    stored_at: data/staging/webfetch-verbatim-quotes-from-nccer-press-release-2026-07-28_11-12-24.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:12:24.265811+00:00'
+    title: Verbatim Quotes from NCCER Press Release
+    maturity: growing
+    routing_type: meta
+    url: https://www.nccer.org/newsroom/builderfax-mobile-wallet-enables-instant-sharing-of-nccer-credentials/
+  https://www.miamidade.gov/global/license.page?mduid_license=lic1677272391446892:
+    content_hash: sha256:914c31485d829246
+    stored_at: data/staging/webfetch-contractor-building-trades-application-forms-2026-07-28_11-13-41.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:13:41.678133+00:00'
+    title: Contractor & Building Trades Application Forms
+    maturity: growing
+    routing_type: meta
+    url: https://www.miamidade.gov/global/license.page?Mduid_license=lic1677272391446892
+  https://pinellas.gov/services/apply-for-journeyman-examination:
+    content_hash: sha256:c3783249873af4f6
+    stored_at: data/staging/webfetch-journeyman-examination-application-requirements-2026-07-28_11-14-16.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:14:16.792279+00:00'
+    title: Journeyman Examination Application Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://pinellas.gov/services/apply-for-journeyman-examination/
+  https://www2.myfloridalicense.com/construction-industry/forms-and-publications:
+    content_hash: sha256:f4f2fb5215673242
+    stored_at: data/staging/webfetch-forms-listed-on-page-2026-07-28_11-18-09.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:18:09.329350+00:00'
+    title: Forms Listed on Page
+    maturity: growing
+    routing_type: meta
+    url: https://www2.myfloridalicense.com/construction-industry/forms-and-publications/
+  https://codes.ohio.gov/ohio-administrative-code/chapter-4101:16-1:
+    content_hash: sha256:f12413b961c71877
+    stored_at: data/staging/webfetch-rules-in-oac-chapter-4101-16-1-2026-07-28_11-18-24.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:18:24.997349+00:00'
+    title: Rules in OAC Chapter 4101:16-1
+    maturity: growing
+    routing_type: meta
+    url: https://codes.ohio.gov/ohio-administrative-code/chapter-4101:16-1
+  https://www.flrules.org/gateway/ruleno.asp?id=61-35.010:
+    content_hash: sha256:96ab49698b85f25d
+    stored_at: data/staging/webfetch-rule-61-35-010-construction-industry-departmental-2026-07-28_11-18-25.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:18:25.569837+00:00'
+    title: Rule 61-35.010 - Construction Industry Departmental Forms
+    maturity: growing
+    routing_type: meta
+    url: https://www.flrules.org/gateway/ruleNo.asp?id=61-35.010
+  https://codes.ohio.gov/ohio-revised-code/section-4740.06:
+    content_hash: sha256:f211681fc925cd24
+    stored_at: data/staging/webfetch-orc-4740-06-experience-requirements-summary-2026-07-28_11-18-35.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:18:35.735108+00:00'
+    title: ORC 4740.06 Experience Requirements Summary
+    maturity: growing
+    routing_type: meta
+    url: https://codes.ohio.gov/ohio-revised-code/section-4740.06
+  https://www.flrules.org/gateway/ruleno.asp?id=61g4-15.001:
+    content_hash: sha256:c2379eaccaf636b5
+    stored_at: data/staging/webfetch-ruleno-asp-2026-07-28_11-18-41.md
+    importance_score: 80
+    last_updated: '2026-07-28T11:18:41.225084+00:00'
+    title: Ruleno.Asp
+    maturity: growing
+    routing_type: meta
+    url: https://www.flrules.org/gateway/ruleNo.asp?id=61G4-15.001
+  https://github.com/ayghri/i-have-adhd:
+    content_hash: sha256:34907b540270a293
+    stored_at: data/staging/webfetch-i-have-adhd-repository-overview-2026-07-28_14-00-30.md
+    importance_score: 97
+    last_updated: '2026-07-28T14:00:30.586818+00:00'
+    title: i-have-adhd Repository Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/ayghri/i-have-adhd
+  https://raw.githubusercontent.com/ryoppippi/ccusage/main/readme.md:
+    content_hash: sha256:dd1b084a592b41b4
+    stored_at: data/staging/webfetch-1-list-all-top-level-headings-in-order-2026-07-28_14-39-14.md
+    importance_score: 80
+    last_updated: '2026-07-28T14:39:14.012235+00:00'
+    title: 1. List all top-level (##) headings in order
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/ryoppippi/ccusage/main/README.md
+  https://raw.githubusercontent.com/asdf-vm/asdf-plugins/master/readme.md:
+    content_hash: sha256:e61d7054d566e9d5
+    stored_at: data/staging/webfetch-readme-structure-analysis-2026-07-28_14-39-16.md
+    importance_score: 80
+    last_updated: '2026-07-28T14:39:16.730743+00:00'
+    title: README Structure Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/asdf-vm/asdf-plugins/master/README.md
+  https://raw.githubusercontent.com/ryoppippi/ccusage/main/apps/ccusage/readme.md:
+    content_hash: sha256:59ba98b20c3d9bdc
+    stored_at: data/staging/webfetch-top-level-headings-and-structure-2026-07-28_14-39-26.md
+    importance_score: 80
+    last_updated: '2026-07-28T14:39:26.628665+00:00'
+    title: Top-Level Headings and Structure
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/ryoppippi/ccusage/main/apps/ccusage/README.md
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -5797,3 +6222,50 @@ hashes:
   sha256:30c67ae4708f269e: data/staging/webfetch-ai-powered-iframe-data-scraper-v2-3-2026-07-27_11-07-18.md
   sha256:3b2de52749e26e24: data/staging/webfetch-linkharvest-overview-2026-07-27_11-07-29.md
   sha256:e796b291fccc6ad9: data/staging/webfetch-grok-field-guide-overview-2026-07-27_11-08-12.md
+  sha256:6cb74a79b8c0a9a5: data/staging/webfetch-the-pdf-rendered-as-plain-text-or-2026-07-28_11-02-17.md
+  sha256:caad840040807629: data/staging/webfetch-original-url-https-www-ecfr-gov-current-title-29-2026-07-28_11-02-18.md
+  sha256:62afaed501a9490d: data/staging/webfetch-nccer-credentials-earning-and-recording-2026-07-28_11-02-25.md
+  sha256:232a7a96c7691afb: data/staging/webfetch-on-the-job-experience-documentation-2026-07-28_11-02-58.md
+  sha256:ef07012085581295: data/staging/webfetch-electrician-trainee-forms-complete-list-2026-07-28_11-04-40.md
+  sha256:452a3ce1d379e7ca: data/staging/webfetch-experience-verification-requirements-minnesota-2026-07-28_11-05-13.md
+  sha256:13e9511116b07c50: data/staging/webfetch-plumber-trainee-experience-documentation-2026-07-28_11-05-15.md
+  sha256:4f41aebd5e1287a3: data/staging/webfetch-experience-verification-information-2026-07-28_11-05-32.md
+  sha256:74a674e255e266b8: data/staging/webfetch-1-access-a-valid-rule-number-through-the-oregon-2026-07-28_11-05-35.md
+  sha256:e179878aaa0a8944: data/staging/webfetch-ohio-revised-code-section-4740-01-key-definitions-2026-07-28_11-05-36.md
+  sha256:70e478ce2c0cfb3c: data/staging/webfetch-section-4740-13-2026-07-28_11-05-40.md
+  sha256:58678e03cd8c26cb: data/staging/webfetch-forms-listed-on-this-page-2026-07-28_11-05-41.md
+  sha256:64d4bd89bc260eaf: data/staging/webfetch-ohio-revised-code-section-4740-14-full-text-2026-07-28_11-05-52.md
+  sha256:ed734d5c35ef10b1: data/staging/webfetch-oar-918-030-0030-summary-2026-07-28_11-05-54.md
+  sha256:948500b6e4f6668c: data/staging/webfetch-minnesota-rule-3800-3520-experience-verification-2026-07-28_11-05-55.md
+  sha256:aae6a6736b78c082: data/staging/webfetch-florida-statute-489-1455-journeyman-reciprocity-2026-07-28_11-05-55.md
+  sha256:4754926b3a39e562: data/staging/webfetch-florida-statute-489-5335-2026-07-28_11-05-57.md
+  sha256:52874a1d5021a345: data/staging/webfetch-florida-statute-section-489-5335-2026-07-28_11-06-00.md
+  sha256:61ee7a49de86f546: data/staging/webfetch-florida-statute-section-489-1455-2026-07-28_11-06-02.md
+  sha256:aa478de1cd2ba401: data/staging/webfetch-forms-and-numbers-from-das-resources-page-2026-07-28_11-06-03.md
+  sha256:7dd280d08fc76f15: data/staging/webfetch-ler-ecosystem-map-analysis-2026-07-28_11-06-18.md
+  sha256:5c05c99fd4384786: data/staging/webfetch-journeyman-plumber-license-requirements-2026-07-28_11-06-21.md
+  sha256:fc3e5c1526896305: data/staging/webfetch-registered-unlicensed-electrician-information-2026-07-28_11-06-22.md
+  sha256:a24c956b06c71253: data/staging/webfetch-work-experience-verification-at-renewal-2026-07-28_11-06-37.md
+  sha256:7d04aa608e262a58: data/staging/webfetch-oregon-apprenticeship-tracking-system-oats-2026-07-28_11-06-38.md
+  sha256:9d7408f7a171a4e9: data/staging/webfetch-electrical-trainee-work-experience-documentation-2026-07-28_11-06-41.md
+  sha256:d26164a9b75e4ef7: data/staging/webfetch-florida-administrative-code-chapter-6a-23-2026-07-28_11-06-51.md
+  sha256:65ab362824081954: data/staging/webfetch-minnesota-plumbing-license-experience-2026-07-28_11-07-05.md
+  sha256:d1fae4613fa8582d: data/staging/webfetch-work-experience-verification-forms-2026-07-28_11-07-06.md
+  sha256:a8501b2ede028d5d: data/staging/webfetch-journeyman-electrician-training-requirements-2026-07-28_11-07-11.md
+  sha256:9f042b3232ab8a3e: data/staging/webfetch-1-plain-text-version-of-the-document-or-2026-07-28_11-07-27.md
+  sha256:d7aaae1e3b5984b4: data/staging/webfetch-general-faqs-2026-07-28_11-08-02.md
+  sha256:5c43e18c6d2008ed: data/staging/webfetch-required-documents-and-forms-2026-07-28_11-08-39.md
+  sha256:faed9d4f772d9b2f: data/staging/webfetch-journeyman-plumber-requirements-2026-07-28_11-09-46.md
+  sha256:5538e2525378c93b: data/staging/webfetch-electrical-contractor-license-types-2026-07-28_11-10-42.md
+  sha256:01df6214b4350512: data/staging/webfetch-verbatim-quotes-from-nccer-press-release-2026-07-28_11-12-24.md
+  sha256:914c31485d829246: data/staging/webfetch-contractor-building-trades-application-forms-2026-07-28_11-13-41.md
+  sha256:c3783249873af4f6: data/staging/webfetch-journeyman-examination-application-requirements-2026-07-28_11-14-16.md
+  sha256:f4f2fb5215673242: data/staging/webfetch-forms-listed-on-page-2026-07-28_11-18-09.md
+  sha256:f12413b961c71877: data/staging/webfetch-rules-in-oac-chapter-4101-16-1-2026-07-28_11-18-24.md
+  sha256:96ab49698b85f25d: data/staging/webfetch-rule-61-35-010-construction-industry-departmental-2026-07-28_11-18-25.md
+  sha256:f211681fc925cd24: data/staging/webfetch-orc-4740-06-experience-requirements-summary-2026-07-28_11-18-35.md
+  sha256:c2379eaccaf636b5: data/staging/webfetch-ruleno-asp-2026-07-28_11-18-41.md
+  sha256:34907b540270a293: data/staging/webfetch-i-have-adhd-repository-overview-2026-07-28_14-00-30.md
+  sha256:dd1b084a592b41b4: data/staging/webfetch-1-list-all-top-level-headings-in-order-2026-07-28_14-39-14.md
+  sha256:e61d7054d566e9d5: data/staging/webfetch-readme-structure-analysis-2026-07-28_14-39-16.md
+  sha256:59ba98b20c3d9bdc: data/staging/webfetch-top-level-headings-and-structure-2026-07-28_14-39-26.md
