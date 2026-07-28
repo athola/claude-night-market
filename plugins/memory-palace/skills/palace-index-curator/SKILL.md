@@ -33,6 +33,8 @@ SessionStart surfacing hook.
 
 ## When To Use
 
+- A commit was blocked because the index still carries `pending`
+  entries the drain held back.
 - The capture backlog has grown and most entries are still `pending`.
 - You want a corpus health report (inert ratio, orphans, topic clusters).
 - You want stored research surfaced automatically during sessions.
@@ -78,7 +80,33 @@ Applying is idempotent: promoted and archived entries are no longer
 `pending`, so a second run proposes nothing new. The dry-run diff is
 always shown before `--apply` writes.
 
-### 3. Surface (learn)
+Running these by hand is the exception. `--apply` runs on every commit
+from `scripts/precommit_palace_maintenance.sh`, so the backlog drains
+continuously rather than in occasional sweeps. Reach for the commands
+above when a commit is blocked, or when you want the dry-run diff before
+the hook decides for you.
+
+### 3. Committed state must be drained
+
+The commit that carries the index must carry it with zero `pending`
+entries. `scripts/check_capture_index_drained.py` runs at the end of the
+maintenance hook and fails the commit otherwise, and
+`tests/test_capture_index_artifact.py` re-checks the same invariant in
+CI so a bypassed hook does not land a backlog.
+
+Two things make that gate reachable rather than a standing block:
+
+- The capture write stages the index
+  (`hooks/shared/deduplication._stage_index`). Without it, pre-commit
+  reverts the unstaged write before any hook runs, so the drain reads a
+  tree the fresh capture is missing from and converges on a fixed point
+  that excludes exactly the entries it exists to process. That is how 47
+  captures accumulated behind a drain that reported nothing to do.
+- The drain resolves promote and archive by itself. Only `hold` survives
+  it, so a blocked commit means a specific capture needs a person to
+  score or archive it. The gate names the keys.
+
+### 4. Surface (learn)
 
 A SessionStart hook (`hooks/index_surfacer.py`) names the highest-value
 promoted captures at the start of a session. It is disabled by default.
@@ -155,3 +183,7 @@ script named in that stub file had never been written.
 - [ ] Failure modes (missing index, corrupt YAML, missing backing files)
       are handled without raising: report degrades, promote holds, hook
       exits silently.
+- [ ] `check_capture_index_drained.py` exits 0 against the committed
+      index and exits 1 naming the keys when one is left `pending`.
+- [ ] A capture written by `update_index` appears in `git diff --cached`
+      without anyone staging it by hand.

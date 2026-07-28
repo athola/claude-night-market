@@ -14,6 +14,13 @@
 # Every mutating step writes a timestamped backup (drain) or only
 # persists on real change (vitality), so this hook is recoverable and
 # sub-second when there is nothing to do.
+#
+# The drain then has to have worked, so the hook ends on a gate: zero
+# pending entries in the index the commit carries, or the commit is
+# blocked. Fresh captures reach that drain because the capture write
+# stages the index (`shared/deduplication._stage_index`); without that,
+# pre-commit reverts the unstaged write before this hook runs and the
+# drain converges on a tree the capture is missing from.
 
 set -euo pipefail
 
@@ -57,3 +64,13 @@ restage_if_changed "${QUEUE}" "${queue_before}"
 if [ "${restaged}" = 1 ]; then
   echo "[memory-palace] maintenance applied; curated artifacts re-staged."
 fi
+
+# The index is tracked so the drain has something to converge on, which
+# only means anything if what lands is drained. The drain above resolves
+# everything it can; this asserts the result and blocks the commit on
+# whatever it held back. Exits nonzero under `set -e`, which is the
+# block.
+(
+  cd "${PLUGIN_DIR}"
+  uv run --quiet python scripts/check_capture_index_drained.py
+)
