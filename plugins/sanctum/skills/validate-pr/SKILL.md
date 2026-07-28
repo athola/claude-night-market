@@ -169,7 +169,10 @@ fi
    - Shell: a test harness that invokes the changed script.
 2. Identify the specific changed line or block from the diff.
 3. Edit that line to revert the fix to its broken state.
-4. Run the targeted test: confirm it **FAILS** (expected).
+4. Run the targeted test: confirm it **FAILS** with exit code `1`
+   specifically. A pytest usage error (`4`) or an empty collection (`5`)
+   is also non-zero, so a harness that only checks "not zero" reports a
+   dead assertion as a genuine guard.
 5. Restore: `git checkout -- <file>` (git-based restore, safe on interrupt).
 6. Run the targeted test again: confirm it **PASSES**.
 7. If any step cannot complete, mark INCONCLUSIVE with the reason.
@@ -184,6 +187,21 @@ fi
 [RT-5] Ran: <test command> → <test name> PASSED
 Result: PASS: test is a genuine guard
 ```
+
+**Reverting a test that guards document content:**
+
+Content tests assert on prose, and this repo wraps prose at 80 columns,
+so any anchor phrase long enough to be meaningful eventually straddles a
+line break. Collapse whitespace before matching. Otherwise a pure reflow
+turns the test red and tempts an author to "fix" it by unwrapping the
+line.
+
+Normalizing reintroduces the hazard the revert test exists to catch: a
+rejoined anchor can also appear elsewhere in the file, so deleting the
+paragraph the test guards leaves it green. Anchor on a full clause that
+is unique to that paragraph, then delete the paragraph and confirm the
+test goes red. A DDD paradigm test passed its revert check this way in
+PR #612 while guarding nothing.
 
 **When no covering test exists:**
 

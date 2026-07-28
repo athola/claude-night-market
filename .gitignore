@@ -156,6 +156,11 @@ clawhub/
 # transient code-refinement synthesis artifacts (local eval, not source)
 docs/refinement/
 
+# superpowers brainstorm/design/plan scratch output. The shipped skill,
+# rule, and tests are the record; rejected alternatives and deferred
+# scope get folded into docs/adr/ (see ADR-0019) before the spec is dropped.
+docs/superpowers/
+
 # ephemeral dogfooding/review reports; fold durable lessons into docs/, not source
 reports/
 
