@@ -5,7 +5,6 @@ description: Execute implementation tasks systematically following the task plan
   tasks.md, continuing implementation, implementing specific phases, systematic code
   generation. Do not use when generating tasks - use task-generator agent first. analyzing
   specs - use spec-analyzer agent. Trigger proactively during /speckit-implement commands.
-model: opus
 isolation: worktree
 tools:
 - Read
@@ -25,6 +24,8 @@ examples:
 - context: User wants specific phase implemented
   user: Implement phase 2 of the feature
   assistant: I'll execute all Phase 2 tasks from your tasks.md.
+model: sonnet
+effort: medium
 ---
 
 # Implementation Executor Agent

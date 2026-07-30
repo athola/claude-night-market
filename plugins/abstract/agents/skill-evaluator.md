@@ -1,6 +1,5 @@
 ---
 name: skill-evaluator
-model: sonnet
 agent: true
 allowed-tools:
   - Read
@@ -9,6 +8,8 @@ allowed-tools:
   - Bash
 escalation: opus-when-stuck
 context: fork
+model: sonnet
+effort: medium
 ---
 
 # Skill Execution Evaluator

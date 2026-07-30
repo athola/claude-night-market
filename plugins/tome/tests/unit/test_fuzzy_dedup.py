@@ -9,9 +9,9 @@ So that the same paper from arXiv and Semantic Scholar is not listed twice
 from __future__ import annotations
 
 import pytest
-from tome.synthesis.merger import fuzzy_deduplicate, normalize_title
 
 from tests.factories import make_finding
+from tome.synthesis.merger import fuzzy_deduplicate, normalize_title
 
 
 class TestNormalizeTitle:
@@ -200,3 +200,57 @@ class TestFuzzyDeduplicate:
         result = fuzzy_deduplicate([a, b])
 
         assert len(result) == 2
+
+
+class TestUntitledFindingsAreNotDuplicates:
+    """
+    Feature: empty titles carry no evidence of duplication
+
+    Jaccard over two empty word sets is degenerate. Treating it as a
+    perfect match made every untitled finding a duplicate of every
+    other, silently dropping distinct results that happened to lack a
+    title.
+    """
+
+    @pytest.mark.unit
+    def test_two_untitled_findings_both_survive(self) -> None:
+        """
+        Scenario: Two distinct findings arrive with no title
+        Given two findings with empty titles and different URLs
+        When fuzzy_deduplicate is called
+        Then both survive, because nothing links them
+        """
+        findings = [
+            make_finding(0.9, title="", url="https://example.com/a"),
+            make_finding(0.5, title="", url="https://example.com/b"),
+        ]
+
+        assert len(fuzzy_deduplicate(findings)) == 2
+
+    @pytest.mark.unit
+    def test_whitespace_titles_are_not_duplicates(self) -> None:
+        findings = [
+            make_finding(0.9, title="   ", url="https://example.com/a"),
+            make_finding(0.5, title="\t\n", url="https://example.com/b"),
+        ]
+
+        assert len(fuzzy_deduplicate(findings)) == 2
+
+    @pytest.mark.unit
+    def test_untitled_does_not_absorb_a_titled_finding(self) -> None:
+        findings = [
+            make_finding(0.9, title="", url="https://example.com/a"),
+            make_finding(0.5, title="a real title", url="https://example.com/b"),
+        ]
+
+        assert len(fuzzy_deduplicate(findings)) == 2
+
+    @pytest.mark.unit
+    def test_genuine_duplicates_still_collapse(self) -> None:
+        """The fix must not weaken real duplicate detection."""
+        findings = [
+            make_finding(0.9, title="graph neural networks survey", url="https://a"),
+            make_finding(0.5, title="graph neural networks survey", url="https://b"),
+        ]
+
+        assert len(fuzzy_deduplicate(findings)) == 1

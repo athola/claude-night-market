@@ -17,7 +17,7 @@ module writes to disk.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -69,11 +69,22 @@ class CorpusStats:
     by_domain: dict[str, int]
     orphan_count: int
     inert_count: int
+    # Captures the fetch hook flagged as carrying no content. Counted
+    # separately because they are neither inert (they were processed)
+    # nor orphaned (the backing file exists), so a corpus full of them
+    # otherwise reports as healthy (issue #649).
+    null_capture_count: int = 0
+    by_null_reason: dict[str, int] = field(default_factory=dict)
 
     @property
     def inert_ratio(self) -> float:
         """Fraction of entries still at their capture defaults."""
         return self.inert_count / self.total if self.total else 0.0
+
+    @property
+    def null_capture_ratio(self) -> float:
+        """Fraction of the corpus that captured nothing usable."""
+        return self.null_capture_count / self.total if self.total else 0.0
 
 
 @dataclass
@@ -164,6 +175,8 @@ def corpus_stats(index: dict[str, Any], plugin_root: Path | None = None) -> Corp
     by_domain: dict[str, int] = {}
     orphan_count = 0
     inert_count = 0
+    null_capture_count = 0
+    by_null_reason: dict[str, int] = {}
 
     for entry in entries.values():
         routing = entry.get("routing_type", "(unset)")
@@ -179,6 +192,11 @@ def corpus_stats(index: dict[str, Any], plugin_root: Path | None = None) -> Corp
         if _is_inert(entry):
             inert_count += 1
 
+        null_reason = entry.get("null_capture")
+        if null_reason:
+            null_capture_count += 1
+            by_null_reason[null_reason] = by_null_reason.get(null_reason, 0) + 1
+
         if plugin_root is not None:
             stored_at = entry.get("stored_at")
             if stored_at and not (plugin_root / stored_at).exists():
@@ -192,6 +210,8 @@ def corpus_stats(index: dict[str, Any], plugin_root: Path | None = None) -> Corp
         by_domain=by_domain,
         orphan_count=orphan_count,
         inert_count=inert_count,
+        null_capture_count=null_capture_count,
+        by_null_reason=by_null_reason,
     )
 
 

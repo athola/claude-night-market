@@ -1,11 +1,11 @@
 [project]
 name = "abstract"
-version = "1.9.16"
+version = "1.9.17"
 description = "Abstract Claude Code plugin - meta-skills infrastructure"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = [
     "pyyaml>=6.0",
 ]
@@ -13,10 +13,10 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.14.13",
-    "mypy>=1.11.0",
+    "mypy>=1.11.0,<2",
     "bandit>=1.7.9",
-    "pytest>=9.0.1",
-    "pytest-cov>=7.0.0",
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
     "pytest-mock>=3.15.1",
     "sphinx>=7.0.0",
     "sphinx-rtd-theme>=1.3.0",
@@ -41,7 +41,7 @@ packages = ["src/abstract"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+target-version = "py39"
 exclude = [".venv", ".uv-cache"]
 
 [tool.ruff.lint]
@@ -77,7 +77,7 @@ extend-ignore = [
 known-first-party = ["abstract", "leyline", "shared"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -120,7 +120,7 @@ disable_error_code = ["arg-type"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
-skips = ["B101", "B404", "B603", "B607"]
+skips = ["B101", "B404", "B603", "B607", "B105"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"

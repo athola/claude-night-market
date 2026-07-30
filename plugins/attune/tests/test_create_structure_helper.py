@@ -7,14 +7,10 @@ files, dry_run) that all three will delegate to.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-_SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-if str(_SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(_SCRIPTS_DIR))
-
-from attune_init import _create_structure  # noqa: E402
+# tests/conftest.py already puts scripts/ on sys.path, and pytest imports it
+# before collecting this module. Repeating that here forced the import below
+# past the top of the file, which is the only reason it needed an E402 waiver.
+from attune_init import _create_structure
 
 
 class TestCreateStructureHelper:

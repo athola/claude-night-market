@@ -129,6 +129,83 @@ class TestExtractTitleFromContent:
         assert title == "example.com"
 
 
+class TestTitleRejectsModelPreamble:
+    """Feature: model preamble text never becomes a stored page title (#621).
+
+    Each string below was lifted from a live entry in the committed
+    capture index, where it carried importance 85-89 into the promotion
+    tier. The expected behaviour is to fall back to the URL slug.
+    """
+
+    URL = "https://docs.example.com/user-guide"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "preamble",
+        [
+            "Based on the repository data provided:",
+            "Based on the web page content provided, there are "
+            "**no results to report**.",
+            "REDIRECT DETECTED: The URL redirects to a different host.",
+            "Here is a summary of the page contents.",
+            "Unfortunately, I could not retrieve that page.",
+        ],
+    )
+    def test_preamble_rejected_for_url_slug(self, preamble):
+        """Given content opening with model preamble, fall back to the URL."""
+        content = f"{preamble}\n\nSome body text follows here."
+        assert extract_title_from_content(content, self.URL) == "User Guide"
+
+    @pytest.mark.unit
+    def test_preamble_as_markdown_heading_also_rejected(self):
+        """Given the preamble rendered as a heading, it is still rejected."""
+        content = "# Based on the repository data provided:\n\nBody text."
+        assert extract_title_from_content(content, self.URL) == "User Guide"
+
+    @pytest.mark.unit
+    def test_overlong_prose_is_rejected_not_truncated(self):
+        """Given a prose line past the title budget, reject it.
+
+        A line of 101-149 chars was accepted and then sliced to 100,
+        which is what produced the mid-sentence fragments in the index.
+        A title that long is a paragraph, so reject rather than cut.
+        """
+        prose = (
+            "To get accurate answers to your questions about ServiceTitan's "
+            "developer platform consult the official API reference"
+        )
+        assert 100 < len(prose) < 150, "must sit in the truncation window"
+        title = extract_title_from_content(f"{prose}\n\nMore body.", self.URL)
+        assert title == "User Guide"
+        assert "ServiceTitan" not in title
+
+    @pytest.mark.unit
+    def test_real_title_after_preamble_is_used(self):
+        """Given a preamble followed by a real heading, use the heading."""
+        content = (
+            "Based on the web page content provided:\n\n"
+            "# Python Async Patterns\n\nBody text."
+        )
+        assert extract_title_from_content(content, self.URL) == (
+            "Python Async Patterns"
+        )
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "genuine",
+        [
+            "Python Async Patterns",
+            "Getting Started with FastAPI",
+            "What Is Rust Ownership?",
+            "Node.js Streams Explained",
+        ],
+    )
+    def test_genuine_titles_still_accepted(self, genuine):
+        """Given a real title, the prose filter must not reject it."""
+        content = f"{genuine}\n\nBody text follows."
+        assert extract_title_from_content(content, self.URL) == genuine
+
+
 class TestExtractContentFromWebfetch:
     """Feature: Extract content and URL from WebFetch responses."""
 
@@ -831,7 +908,10 @@ class TestMainWebFetchSanitization:
         mock_hash.assert_called_once_with(sanitized_content)
         # store_webfetch_content must receive the sanitized content
         mock_store.assert_called_once_with(
-            sanitized_content, "https://example.com/article", "get"
+            sanitized_content,
+            "https://example.com/article",
+            "get",
+            null_capture=None,
         )
         output = capsys.readouterr().out.strip()
         result = json.loads(output)
@@ -888,7 +968,10 @@ class TestMainWebFetchSanitization:
         # Should use original content since sanitized_content is None
         mock_hash.assert_called_once_with(original_content)
         mock_store.assert_called_once_with(
-            original_content, "https://example.com/page", "get"
+            original_content,
+            "https://example.com/page",
+            "get",
+            null_capture=None,
         )
 
     @pytest.mark.bdd
@@ -942,7 +1025,10 @@ class TestMainWebFetchSanitization:
         # prevents replacement - original content is used
         mock_hash.assert_called_once_with(original_content)
         mock_store.assert_called_once_with(
-            original_content, "https://example.com/page2", "fetch"
+            original_content,
+            "https://example.com/page2",
+            "fetch",
+            null_capture=None,
         )
 
     @pytest.mark.bdd
@@ -1261,19 +1347,20 @@ class TestEvalScoresTable:
     nothing exercised the rendered output.
     """
 
-    _CRITERIA = ("Novelty", "Applicability", "Durability", "Connectivity", "Authority")
+    _CRITERIA = ("Authority", "Connectivity")
 
-    def test_constant_holds_real_rubric_not_a_self_reference(self):
-        """GIVEN the ``_EVAL_SCORES_TABLE`` module constant
+    def test_builder_renders_real_rubric_not_a_self_reference(self):
+        """GIVEN the computed evaluation table
         WHEN its contents are inspected
-        THEN it carries the table heading and every criterion row
-        AND it does not contain the literal ``{_EVAL_SCORES_TABLE}`` placeholder
+        THEN it carries the heading and every scored criterion row
+        AND no f-string placeholder survives into the output
         """
-        table = web_research_handler._EVAL_SCORES_TABLE
+        table = web_research_handler.build_eval_table("https://github.com/a/b", {})
         assert "## Evaluation Scores (Auto-Generated)" in table
         for criterion in self._CRITERIA:
-            assert f"| {criterion} | TBD | Review needed |" in table
-        assert "{_EVAL_SCORES_TABLE}" not in table
+            assert f"| {criterion} |" in table
+        for placeholder in ("{_EVAL_SCORES_TABLE}", "{build_eval_table", "{authority"):
+            assert placeholder not in table
 
     def test_webfetch_note_renders_the_table(self):
         """GIVEN WebFetch content to store
@@ -1290,5 +1377,125 @@ class TestEvalScoresTable:
 
         note = mock_store.call_args.args[1]
         assert "## Evaluation Scores (Auto-Generated)" in note
-        assert "| Novelty | TBD | Review needed |" in note
-        assert "{_EVAL_SCORES_TABLE}" not in note
+        assert "| Authority |" in note
+        assert "| Connectivity |" in note
+        assert "TBD" not in note
+        assert "{build_eval_table" not in note
+
+
+class TestDetectNullCapture:
+    """Flag empty captures at fetch time, where the signal is structural.
+
+    Sibling of detect_failed_fetch_status (issue #547), which covers
+    non-2xx responses. This covers 2xx fetches that returned no usable
+    content: a redirect notice, or a structured result set with zero
+    entries (issue #649).
+
+    Precision matters more than recall here. Two title-and-prose
+    heuristics were tried against the live corpus and both
+    false-positived on real research, so this anchors only on markers
+    that are structural rather than model-authored.
+    """
+
+    def test_redirect_notice_is_flagged(self):
+        content = (
+            "REDIRECT DETECTED: The URL redirects to a different host.\n"
+            "Original: https://a.example/thread\nRedirects to: https://b.example/"
+        )
+        assert (
+            web_research_handler.detect_null_capture({}, content) == "redirect-notice"
+        )
+
+    def test_empty_structured_results_are_flagged(self):
+        for payload in ({"results": []}, {"hits": []}, {"nbHits": 0}):
+            assert (
+                web_research_handler.detect_null_capture(payload, "summary text")
+                == "empty-results"
+            ), payload
+
+    def test_populated_results_are_not_flagged(self):
+        payload = {"hits": [{"title": "Real story", "points": 42}], "nbHits": 1}
+        assert web_research_handler.detect_null_capture(payload, "summary") is None
+
+    def test_prose_mentioning_absence_is_not_flagged(self):
+        """The regression that killed two earlier heuristics.
+
+        This capture carries a real HN story table and merely notes
+        that one subset is absent. Deleting it would lose research.
+        """
+        content = (
+            "| Trace - Offline Mac meeting transcripts | 205 | 84 | 2026-06-13 |\n"
+            "| recalls work | 6 | 0 | 2026-06-17 |\n\n"
+            "**No stories specifically focused on how-to docs** appear "
+            "in the 2026-07-07+ window of this dataset."
+        )
+        assert web_research_handler.detect_null_capture({}, content) is None
+
+    def test_ordinary_article_is_not_flagged(self):
+        assert (
+            web_research_handler.detect_null_capture(
+                {}, "# Real Article\n\nSubstantive body text about a topic."
+            )
+            is None
+        )
+
+
+class TestBuildEvalTable:
+    """Captures carry computed scores, not TBD placeholders.
+
+    All 554 entries shipped an Evaluation Scores table where every
+    criterion read TBD, implying a review that never ran (issue #649).
+    Only criteria derivable from the index are emitted: Authority from
+    domain rank, Connectivity from topic-cluster size.
+
+    Novelty, Applicability, and Durability are deliberately absent.
+    None varies per capture at fetch time (durability is keyed on
+    maturity tier, and every capture is born seedling), so emitting
+    them would be a constant dressed as a measurement.
+    """
+
+    def test_authority_reflects_domain_rank(self):
+        high = web_research_handler.build_eval_table("https://github.com/a/b", {})
+        low = web_research_handler.build_eval_table("https://random.example/x", {})
+        assert "Authority" in high
+        assert "1.00" in high
+        assert "0.30" in low
+
+    def test_connectivity_reflects_cluster_size(self):
+        index = {
+            "entries": {
+                f"https://hn.example/{i}": {"url": f"https://hn.example/{i}"}
+                for i in range(9)
+            }
+        }
+        index["entries"]["https://lonely.example/z"] = {
+            "url": "https://lonely.example/z"
+        }
+        clustered = web_research_handler.build_eval_table(
+            "https://hn.example/new", index
+        )
+        lonely = web_research_handler.build_eval_table(
+            "https://lonely.example/other", index
+        )
+        assert "Connectivity" in clustered
+        assert clustered != lonely
+
+    def test_no_tbd_placeholders_remain(self):
+        table = web_research_handler.build_eval_table("https://github.com/a/b", {})
+        assert "TBD" not in table
+        assert "Review needed" not in table
+
+    def test_non_computable_criteria_scored_no_row(self):
+        """No scored row for a criterion the hook cannot measure.
+
+        Asserts on the table row, not the whole string: the closing note
+        names novelty and applicability on purpose, to point the reader
+        at knowledge-intake for them.
+        """
+        table = web_research_handler.build_eval_table("https://github.com/a/b", {})
+        for absent in ("Novelty", "Applicability", "Durability"):
+            assert f"| {absent} |" not in table, absent
+
+    def test_missing_index_degrades_without_raising(self):
+        table = web_research_handler.build_eval_table("https://github.com/a/b", None)
+        assert "Authority" in table

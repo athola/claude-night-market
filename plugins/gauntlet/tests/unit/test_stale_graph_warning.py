@@ -4,17 +4,12 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 import time
 from pathlib import Path
 
 import pytest
-
-_HOOKS_DIR = Path(__file__).resolve().parents[2] / "hooks"
-sys.path.insert(0, str(_HOOKS_DIR))
-
 from precommit_gate import (
-    _graph_staleness_warning,  # noqa: E402 - sys.path modified above
+    _graph_staleness_warning,
 )
 
 

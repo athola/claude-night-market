@@ -1,6 +1,6 @@
 [project]
 name = "imbue-dev"
-version = "1.9.16"
+version = "1.9.17"
 description = "Development tools for the imbue Claude Code plugin - review workflow and evidence management"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -11,14 +11,14 @@ maintainers = [
 license = {text = "MIT"}
 readme = "README.md"
 repository = "https://github.com/athola/imbue"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = []
 
 [project.optional-dependencies]
 dev = [
     "pre-commit>=3.0.0",
     "ruff>=0.14.13",
-    "mypy>=1.11.0",
+    "mypy>=1.11.0,<2",
     "ty>=0.0.1a23",
     "pytype>=2024.10.11 ; python_version >= '3.10'",
     "typos>=1.0.0",
@@ -34,9 +34,9 @@ dev = [
     "safety>=3.7.0,<4.0",
     "typos>=1.0.0",
     "ruff>=0.14.13",
-    "mypy>=1.18.2",
-    "pytest>=9.0.1",
-    "pytest-cov>=7.0.0",
+    "mypy>=1.18.2,<2",
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
     "pytest-mock>=3.15.1",
     "pytest-asyncio>=0.25.0",
     "pytest-bdd>=7.0.0",
@@ -56,7 +56,7 @@ packages = ["tools", ".pre-commit"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+target-version = "py39"
 exclude = [".venv", ".uv-cache"]
 
 [tool.ruff.lint]
@@ -76,6 +76,7 @@ select = [
 extend-ignore = [
     "S101",   # Use of assert (acceptable)
     "E203",    # whitespace before ':' (conflicts with black/ruff format)
+    "E501",    # Line too long (formatter handles wrapping; matches root config)
     "D203",    # incorrect-blank-line-before-class (incompatible with D211)
     "D213",    # multi-line-summary-second-line (incompatible with D212)
     "UP017",   # datetime-utc-alias -- keep timezone.utc for Python 3.9 compat
@@ -91,7 +92,6 @@ extend-ignore = [
     "D415",  # First line should end with punctuation
     "D205",  # Blank line after summary
     "D212",  # Multi-line docstring summary on first line (BDD style)
-    "E501",  # Long test lines are acceptable
     "PLR2004",  # Magic values in tests
     "S108",  # Allow hardcoded temp paths in tests
     "S603",  # Subprocess usage in test fixtures
@@ -99,6 +99,10 @@ extend-ignore = [
     "S608",  # SQL strings in test data
     "B007",  # Unused loop variables in tests
 ]
+# conftest.py must insert onto sys.path before importing its shared
+# fixtures/siblings; the imports depend on that setup and cannot be
+# hoisted (moving them into a function trades E402 for PLC0415).
+"tests/conftest.py" = ["E402"]
 "scripts/**/*.py" = [
     "S603",  # Subprocess calls (inputs are validated)
     "S607",  # Partial executable path (git/gh are well-known)
@@ -106,7 +110,7 @@ extend-ignore = [
 ]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

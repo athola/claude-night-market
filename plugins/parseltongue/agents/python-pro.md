@@ -2,7 +2,6 @@
 name: python-pro
 description: Python 3.9+ expert (uv, ruff, pydantic, FastAPI). Use PROACTIVELY for Python development or optimization.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
-model: sonnet
 escalation:
   to: opus
   hints:
@@ -18,6 +17,8 @@ examples:
   - context: User is setting up a Python project
     user: "Set up a new Python project with modern tooling"
     assistant: "I'll use the python-pro agent to set up your project with uv, ruff, and proper structure."
+model: sonnet
+effort: medium
 ---
 
 # Python Pro Agent

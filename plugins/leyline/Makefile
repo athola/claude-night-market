@@ -85,7 +85,20 @@ mutation-test: ## Run mutation testing
 	fi
 
 benchmark: ## Run performance benchmarks (token estimation)
-	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
+	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
+	@# real benchmark failure fails the target instead of being reported as a
+	@# missing plugin. pytest exit 5 means nothing was collected, not failure.
+	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
+		echo "Not applicable: pytest-benchmark is not installed"; \
+	else \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
+		status=$$?; \
+		if [ $$status -eq 5 ]; then \
+			echo "Not applicable: no benchmark tests are defined"; \
+		elif [ $$status -ne 0 ]; then \
+			exit $$status; \
+		fi; \
+	fi
 
 memory-profile: ## Profile memory usage
 	@if python3 -c "import memory_profiler" 2>/dev/null; then \
@@ -104,7 +117,7 @@ demo-tokens: ## Demo token estimation on leyline source
 	@echo "Total lines: $$(find src/ -name '*.py' -exec cat {} \; 2>/dev/null | wc -l)"
 	@echo ""
 	@echo "Step 2: Token module check"
-	@$(UV_RUN) python -c "from leyline.tokens import estimate_tokens; print(f'Token estimator available')" 2>/dev/null || echo "  (token module not loaded)"
+	@$(UV_RUN) python -c "from leyline.tokens import estimate_tokens; print(f'Token estimator available: {estimate_tokens([], \"sample prompt\")} tokens for a sample prompt')"
 	@echo ""
 	@echo "Token demo complete."
 
@@ -113,10 +126,10 @@ demo-quota: ## Demo quota tracking
 	@echo "Demonstrating quota tracking capabilities..."
 	@echo ""
 	@echo "Step 1: Quota tracker check"
-	@$(UV_RUN) python -c "from leyline.quota_tracker import QuotaTracker; print('QuotaTracker available')" 2>/dev/null || echo "  (quota tracker not loaded)"
+	@$(UV_RUN) python -c "from leyline.quota_tracker import QuotaTracker; print('QuotaTracker available')"
 	@echo ""
 	@echo "Step 2: MECW module check"
-	@$(UV_RUN) python -c "from leyline.mecw import *; print('MECW utilities available')" 2>/dev/null || echo "  (MECW module not loaded)"
+	@$(UV_RUN) python -c "from leyline.mecw import *; print('MECW utilities available')"
 	@echo ""
 	@echo "Quota demo complete."
 

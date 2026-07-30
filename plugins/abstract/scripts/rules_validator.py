@@ -427,3 +427,9 @@ if __name__ == "__main__":
             print(f"    Frontmatter: {fr['frontmatter_score']}/25")
             print(f"    Content: {fr['content_score']}/25")
             print(f"    Tokens: ~{fr['token_count']}")
+
+    # Errors are the validator's verdict; warnings are advice. Printing errors
+    # and exiting 0 made every caller that checked the exit code read a
+    # constant, which is the whole reason this script exists.
+    if result["errors"]:
+        raise SystemExit(1)

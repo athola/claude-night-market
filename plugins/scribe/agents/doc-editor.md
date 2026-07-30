@@ -1,13 +1,14 @@
 ---
 name: doc-editor
 description: Documentation editor agent for polishing and improving content quality
-model: claude-sonnet-4-6
 tools:
   - Read
   - Edit
   - Grep
   - Glob
   - TodoWrite
+model: sonnet
+effort: medium
 ---
 
 # Documentation Editor Agent

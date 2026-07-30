@@ -3,10 +3,9 @@
 Before merging a skill, validate that its frontmatter parses,
 its references resolve, and its activation behaves as expected.
 This module covers the structural checks. For the empirical
-TDD validation (does the skill actually change behavior?), see
-`tdd-methodology.md` and `testing-with-subagents.md`. For the
-final pre-deployment checklist that combines both, see
-`deployment-checklist.md`.
+TDD validation (does the skill actually change behavior?), see the TDD
+methodology and subagent testing modules listed in `SKILL.md`. That
+same list carries the final pre-deployment checklist combining both.
 
 ## Three validation layers
 
@@ -87,8 +86,8 @@ wc -l plugins/<plugin>/skills/<skill>/SKILL.md
 wc -l plugins/<plugin>/skills/<skill>/modules/*.md
 ```
 
-A SKILL.md over 500 lines should split per
-`progressive-disclosure.md`. A module under 100 lines may be
+A SKILL.md over 500 lines should split per the progressive-disclosure
+module listed in `SKILL.md`. A module under 100 lines may be
 inlined back into SKILL.md or merged with a sibling. A module
 over 400 lines should split.
 
@@ -111,8 +110,8 @@ Claude: [list of loaded skills with rank]
 ```
 
 If the target skill is not in the top 3, the description does
-not match the prompt strongly enough. See
-`description-writing.md` for the rewrite formula.
+not match the prompt strongly enough. The rewrite formula is in the
+description-writing module listed in `SKILL.md`.
 
 ### Check the absence case
 
@@ -250,7 +249,7 @@ done
 The output is a per-skill score. Skills that dropped below
 70 are due for a refresh.
 
-Cross-reference: see `Skill(abstract:skills-eval)` for the
-full evaluation framework, `deployment-checklist.md` for the
-final merge gates, and `Skill(abstract:skill-graph-audit)`
-for cross-skill reference validation across the corpus.
+Cross-reference: see `Skill(abstract:skills-eval)` for the full
+evaluation framework, the deployment checklist listed in `SKILL.md` for
+the final merge gates, and `Skill(abstract:skill-graph-audit)` for
+cross-skill reference validation across the corpus.

@@ -299,7 +299,7 @@ class WarRoomOrchestrator:
         results = await asyncio.gather(*tasks.values(), return_exceptions=True)
 
         output: dict[str, str] = {}
-        for key, result in zip(tasks.keys(), results, strict=False):
+        for key, result in zip(tasks.keys(), results):
             if isinstance(result, BaseException):
                 output[key] = f"[Error: {result}]"
             elif isinstance(result, str):

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from tome.models import Finding
 from tome.output.visualizer import generate_visualization
 

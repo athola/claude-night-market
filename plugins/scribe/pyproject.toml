@@ -1,13 +1,13 @@
 [project]
 name = "scribe"
-version = "1.9.16"
+version = "1.9.17"
 description = "Documentation review, cleanup, and generation with AI slop detection and style learning"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = ["pyyaml"]
 
 [tool.ruff]
-target-version = "py312"
-line-length = 100
+target-version = "py39"
+line-length = 88
 exclude = [
     ".git",
     "__pycache__",
@@ -21,7 +21,7 @@ extend-select = ["PLR0913"]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=4.0",
-    "mypy>=1.11.0",
+    "mypy>=1.11.0,<2",
     "ruff>=0.14.13",
 ]
 

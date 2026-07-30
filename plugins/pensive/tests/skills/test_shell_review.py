@@ -60,6 +60,7 @@ class TestReferenceScriptsSelfValidate:
             ["shellcheck", "-s", "sh", str(LOGGING_SH)],
             capture_output=True,
             text=True,
+            check=False,
         )
         assert result.returncode == 0, (
             f"shellcheck failed on logging.sh:\n{result.stdout}\n{result.stderr}"
@@ -75,6 +76,7 @@ class TestReferenceScriptsSelfValidate:
             capture_output=True,
             text=True,
             cwd=REPO_ROOT,
+            check=False,
         )
         assert result.returncode == 0, (
             f"shellcheck failed on shellcheck.sh:\n{result.stdout}\n{result.stderr}"
@@ -89,6 +91,7 @@ class TestReferenceScriptsSelfValidate:
             ["shfmt", "-p", "-i", "2", "-ci", "-d", str(LOGGING_SH)],
             capture_output=True,
             text=True,
+            check=False,
         )
         assert result.returncode == 0, (
             f"shfmt found formatting drift in logging.sh:\n{result.stdout}"
@@ -103,6 +106,7 @@ class TestReferenceScriptsSelfValidate:
             ["shfmt", "-p", "-i", "2", "-ci", "-d", str(SHELLCHECK_SH)],
             capture_output=True,
             text=True,
+            check=False,
         )
         assert result.returncode == 0, (
             f"shfmt found formatting drift in shellcheck.sh:\n{result.stdout}"
@@ -232,6 +236,7 @@ class TestPatternDetection:
             ["rg", "-n", r"^\s*echo\s", str(script)],
             capture_output=True,
             text=True,
+            check=False,
         )
         assert result.returncode == 0, "echo usage must be detectable by rg"
 
@@ -268,6 +273,7 @@ class TestPatternDetection:
             ["rg", "-n", r"\$[A-Za-z_][A-Za-z_0-9]*[^}]", str(script)],
             capture_output=True,
             text=True,
+            check=False,
         )
         assert result.returncode == 0, "unbraced variables must be detectable"
 
@@ -287,6 +293,7 @@ class TestPatternDetection:
             ["rg", "-n", r"^\s*cd\s+[^(]", str(script)],
             capture_output=True,
             text=True,
+            check=False,
         )
         assert result.returncode == 0, "bare cd must be detectable"
 
@@ -306,6 +313,7 @@ class TestPatternDetection:
             ["rg", "-n", r"\bbasename\b|\bdirname\b", str(script)],
             capture_output=True,
             text=True,
+            check=False,
         )
         assert result.returncode == 0, "basename/dirname must be detectable"
 
@@ -341,5 +349,6 @@ class TestPatternDetection:
             ["rg", r"\[ -z.*__\w+_loaded", str(script)],
             capture_output=True,
             text=True,
+            check=False,
         )
         assert result.returncode == 0, "non-canonical library guard must be detectable"

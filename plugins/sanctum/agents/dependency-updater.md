@@ -15,7 +15,6 @@ tools:
 - Glob
 - Grep
 - TodoWrite
-model: sonnet
 isolation: worktree
 memory: project
 permissionMode: acceptEdits
@@ -64,6 +63,8 @@ examples:
 - context: User wants to update a specific ecosystem
   user: Update my Python dependencies
   assistant: I'll use the dependency-updater agent to check pyproject.toml files.
+model: sonnet
+effort: medium
 ---
 
 # Dependency Updater Agent

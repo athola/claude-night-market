@@ -6,18 +6,12 @@ safety invariant that the script never writes to data/problems/.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Any
 
+import curate_problems as cp
 import pytest
 import yaml
-
-# Add scripts directory to path for direct import before importing the module.
-SCRIPTS_DIR = Path(__file__).parents[3] / "scripts"
-sys.path.insert(0, str(SCRIPTS_DIR))
-
-import curate_problems as cp  # noqa: E402 - must follow sys.path mutation
 
 # ---------------------------------------------------------------------------
 # Helpers

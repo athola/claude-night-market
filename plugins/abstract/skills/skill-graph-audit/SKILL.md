@@ -2,6 +2,7 @@
 name: skill-graph-audit
 role: library
 description: 'Audit Skill() refs; detect hubs, isolates, and dangling targets. Use when auditing skills.'
+category: skill-management
 alwaysApply: false
 tools: []
 modules:

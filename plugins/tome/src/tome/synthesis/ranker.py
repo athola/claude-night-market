@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import itertools
 import re
 from datetime import datetime, timezone
+from typing import Any
 
 from tome.models import Finding
 
@@ -17,6 +19,7 @@ _CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year
 _PUNCTUATION_RE = re.compile(r"[^\w\s]")
 _TRIANGULATION_CAP = 0.15
 _TRIANGULATION_PER_CHANNEL = 0.05
+_TRIANGULATION_JACCARD = 0.6
 
 
 def _normalize_for_match(title: str) -> set[str]:
@@ -54,15 +57,78 @@ def compute_triangulation_bonus(finding: Finding, all_findings: list[Finding]) -
         if not other_words:
             continue
 
-        intersection = target_words & other_words
-        union = target_words | other_words
-        jaccard = len(intersection) / len(union)
-
-        if jaccard >= 0.6:
+        if _title_overlap(target_words, other_words) >= _TRIANGULATION_JACCARD:
             corroborating_channels.add(other.channel)
 
+    return _bonus_for(corroborating_channels)
+
+
+def _title_overlap(a: set[str], b: set[str]) -> float:
+    """Jaccard overlap of two pre-normalized title word sets."""
+    return len(a & b) / len(a | b)
+
+
+def _bonus_for(corroborating_channels: set[str]) -> float:
+    """Convert a set of corroborating channels into a capped bonus."""
     bonus = len(corroborating_channels) * _TRIANGULATION_PER_CHANNEL
     return min(bonus, _TRIANGULATION_CAP)
+
+
+def _triangulation_bonuses(findings: list[Finding]) -> dict[int, float]:
+    """Compute every finding's triangulation bonus in one pairwise sweep.
+
+    Equivalent to calling :func:`compute_triangulation_bonus` per
+    finding, but each title is normalized once (rather than once per
+    comparison) and each pair is examined once (rather than from both
+    sides). That keeps ranking a single O(n^2) word-set comparison over
+    n normalizations, instead of n^2 regex substitutions.
+
+    Returns:
+        Bonus per finding, keyed by ``id()``. Identity keying matches
+        :func:`compute_triangulation_bonus`, which excludes a finding
+        from corroborating itself by identity rather than by equality.
+    """
+    words = [_normalize_for_match(finding.title) for finding in findings]
+    corroborating: list[set[str]] = [set() for _ in findings]
+
+    for i, j in itertools.combinations(range(len(findings)), 2):
+        left, right = findings[i], findings[j]
+        if left.channel == right.channel:
+            continue
+        if not words[i] or not words[j]:
+            continue
+        if _title_overlap(words[i], words[j]) >= _TRIANGULATION_JACCARD:
+            corroborating[i].add(right.channel)
+            corroborating[j].add(left.channel)
+
+    return {
+        id(finding): _bonus_for(corroborating[i]) for i, finding in enumerate(findings)
+    }
+
+
+# Per-source authority bonuses: source -> (metadata key, tiers). Tiers are
+# ordered high-to-low; the first threshold the value exceeds wins.
+_AUTHORITY_TIERS: dict[str, tuple[str, tuple[tuple[int, float], ...]]] = {
+    "github": ("stars", ((5000, 0.2), (1000, 0.1))),
+    "hn": ("score", ((500, 0.2), (100, 0.1))),
+    "arxiv": ("citations", ((200, 0.2), (50, 0.1))),
+    "academic": ("citations", ((200, 0.2), (50, 0.1))),
+    "semantic_scholar": ("citations", ((200, 0.2), (50, 0.1))),
+    "reddit": ("score", ((200, 0.1), (50, 0.05))),
+}
+
+
+def _authority_bonus(source: str, meta: dict[str, Any]) -> float:
+    """Return the source-authority bonus for a finding, or 0.0 if none."""
+    tiers = _AUTHORITY_TIERS.get(source)
+    if tiers is None:
+        return 0.0
+    key, thresholds = tiers
+    value = int(meta.get(key, 0) or 0)
+    for threshold, bonus in thresholds:
+        if value > threshold:
+            return bonus
+    return 0.0
 
 
 def compute_relevance_score(finding: Finding) -> float:
@@ -78,34 +144,8 @@ def compute_relevance_score(finding: Finding) -> float:
 
     Result is capped at 1.0.
     """
-    score = finding.relevance
     meta = finding.metadata
-    source = finding.source.lower()
-
-    if source == "github":
-        stars = int(meta.get("stars", 0) or 0)
-        if stars > 5000:
-            score += 0.2
-        elif stars > 1000:
-            score += 0.1
-    elif source == "hn":
-        hn_score = int(meta.get("score", 0) or 0)
-        if hn_score > 500:
-            score += 0.2
-        elif hn_score > 100:
-            score += 0.1
-    elif source in ("arxiv", "academic", "semantic_scholar"):
-        citations = int(meta.get("citations", 0) or 0)
-        if citations > 200:
-            score += 0.2
-        elif citations > 50:
-            score += 0.1
-    elif source == "reddit":
-        reddit_score = int(meta.get("score", 0) or 0)
-        if reddit_score > 200:
-            score += 0.1
-        elif reddit_score > 50:
-            score += 0.05
+    score = finding.relevance + _authority_bonus(finding.source.lower(), meta)
 
     year = meta.get("year")
     if year is not None and (_CURRENT_YEAR - int(year or 0)) <= 2:
@@ -114,9 +154,32 @@ def compute_relevance_score(finding: Finding) -> float:
     return min(score, 1.0)
 
 
+def compute_ranked_score(finding: Finding, all_findings: list[Finding]) -> float:
+    """Relevance plus cross-channel triangulation, capped at 1.0.
+
+    This is the score ``rank_findings`` sorts by: a finding corroborated
+    across channels ranks above an equally relevant one that stands alone.
+    """
+    base = compute_relevance_score(finding)
+    bonus = compute_triangulation_bonus(finding, all_findings)
+    return min(base + bonus, 1.0)
+
+
 def rank_findings(findings: list[Finding]) -> list[Finding]:
-    """Return findings sorted by composite relevance score, descending."""
-    return sorted(findings, key=compute_relevance_score, reverse=True)
+    """Return findings sorted by relevance + triangulation, descending.
+
+    Scores match :func:`compute_ranked_score`; the triangulation half is
+    taken from one batch sweep so ranking does not renormalize titles
+    per comparison.
+    """
+    bonuses = _triangulation_bonuses(findings)
+    return sorted(
+        findings,
+        key=lambda finding: min(
+            compute_relevance_score(finding) + bonuses[id(finding)], 1.0
+        ),
+        reverse=True,
+    )
 
 
 def group_by_theme(findings: list[Finding]) -> dict[str, list[Finding]]:

@@ -147,7 +147,7 @@ class TestEmotionalFraming:
         assert len(flagged_instructions) == 5
         assert all(
             marker in instr
-            for instr, marker in zip(flagged_instructions, threat_markers, strict=False)
+            for instr, marker in zip(flagged_instructions, threat_markers)
         )
 
     @pytest.mark.bdd

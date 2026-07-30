@@ -246,16 +246,8 @@ class TestAnalyzer:
         return json.dumps(results, indent=2)
 
 
-def main() -> None:
-    """CLI entry point.
-
-    Returns (JSON when --output-json):
-        success (bool): Whether analysis completed
-        data.source_files (list): Source files found
-        data.test_files (list): Test files found
-        data.uncovered_files (list): Files without tests
-        data.coverage_gaps (list): Detailed coverage gap info
-    """
+def _build_arg_parser() -> argparse.ArgumentParser:
+    """Build the CLI argument parser for the test analyzer."""
     parser = argparse.ArgumentParser(
         description="Analyze codebase for test coverage gaps and changes"
     )
@@ -273,7 +265,89 @@ def main() -> None:
         action="store_true",
         help="Output results as JSON for programmatic use",
     )
+    return parser
 
+
+def _run_analysis(target_path: str, args: argparse.Namespace) -> dict[str, Any]:
+    """Run the requested analysis and return raw (non-serialized) results."""
+    analyzer = TestAnalyzer(target_path)
+    if args.changes:
+        return analyzer.analyze_git_changes()
+    return analyzer.scan_for_test_gaps()
+
+
+def _print_uncovered_files(results: dict[str, Any]) -> None:
+    """Print the uncovered-files section of the human-readable report."""
+    if "uncovered_files" not in results:
+        return
+    max_display_files = 10
+    uncovered = results["uncovered_files"]
+    print(f"\nUncovered files ({len(uncovered)}):")
+    for f in uncovered[:max_display_files]:
+        print(f"  - {f}")
+    if len(uncovered) > max_display_files:
+        remaining = len(uncovered) - max_display_files
+        print(f"  ... and {remaining} more")
+
+
+def _print_coverage_gaps(results: dict[str, Any]) -> None:
+    """Print the coverage-gaps section of the human-readable report."""
+    if "coverage_gaps" not in results:
+        return
+    gaps = results["coverage_gaps"]
+    print(f"\nCoverage gaps ({len(gaps)}):")
+    for gap in gaps[:5]:
+        file_name = gap.get("file", "unknown")
+        reason = gap.get("reason", "no details")
+        print(f"  - {file_name}: {reason}")
+
+
+def _print_human_report(
+    target_path: str, args: argparse.Namespace, results: dict[str, Any]
+) -> None:
+    """Print the full human-readable analysis report."""
+    print("=" * 60)
+    print("Test Analysis Report")
+    print("=" * 60)
+    print(f"\nTarget: {target_path}")
+    print(f"Report type: {args.report}")
+    _print_uncovered_files(results)
+    _print_coverage_gaps(results)
+    print("\nFor full JSON output, use --output-json")
+
+
+def _emit_results(
+    target_path: str, args: argparse.Namespace, results: dict[str, Any]
+) -> None:
+    """Emit analysis results as JSON or a human-readable report."""
+    if args.output_json:
+        serializable_results = _make_serializable(results)
+        output = {"success": True, "data": serializable_results}
+        print(json.dumps(output, indent=2))
+    else:
+        _print_human_report(target_path, args, results)
+
+
+def _handle_analysis_error(error: Exception, output_json: bool) -> None:
+    """Report an analysis failure and exit with a non-zero status."""
+    if output_json:
+        print(json.dumps({"success": False, "error": str(error)}, indent=2))
+    else:
+        print(f"Error: {error}")
+    raise SystemExit(1) from error
+
+
+def main() -> None:
+    """CLI entry point.
+
+    Returns (JSON when --output-json):
+        success (bool): Whether analysis completed
+        data.source_files (list): Source files found
+        data.test_files (list): Test files found
+        data.uncovered_files (list): Files without tests
+        data.coverage_gaps (list): Detailed coverage gap info
+    """
+    parser = _build_arg_parser()
     args = parser.parse_args()
 
     target_path = args.scan or args.coverage or args.changes
@@ -282,54 +356,10 @@ def main() -> None:
         return
 
     try:
-        analyzer = TestAnalyzer(target_path)
-
-        if args.changes:
-            results = analyzer.analyze_git_changes()
-        else:
-            results = analyzer.scan_for_test_gaps()
-
-        # Convert Path objects to strings for JSON serialization
-        serializable_results = _make_serializable(results)
-
-        if args.output_json:
-            output = {
-                "success": True,
-                "data": serializable_results,
-            }
-            print(json.dumps(output, indent=2))
-        else:
-            # Human-readable output
-            print("=" * 60)
-            print("Test Analysis Report")
-            print("=" * 60)
-            print(f"\nTarget: {target_path}")
-            print(f"Report type: {args.report}")
-
-            if "uncovered_files" in results:
-                print(f"\nUncovered files ({len(results['uncovered_files'])}):")
-                MAX_DISPLAY_FILES = 10
-                for f in results["uncovered_files"][:MAX_DISPLAY_FILES]:
-                    print(f"  - {f}")
-                if len(results["uncovered_files"]) > MAX_DISPLAY_FILES:
-                    remaining = len(results["uncovered_files"]) - MAX_DISPLAY_FILES
-                    print(f"  ... and {remaining} more")
-
-            if "coverage_gaps" in results:
-                print(f"\nCoverage gaps ({len(results['coverage_gaps'])}):")
-                for gap in results["coverage_gaps"][:5]:
-                    file_name = gap.get("file", "unknown")
-                    reason = gap.get("reason", "no details")
-                    print(f"  - {file_name}: {reason}")
-
-            print("\nFor full JSON output, use --output-json")
-
+        results = _run_analysis(target_path, args)
+        _emit_results(target_path, args, results)
     except Exception as e:
-        if args.output_json:
-            print(json.dumps({"success": False, "error": str(e)}, indent=2))
-        else:
-            print(f"Error: {e}")
-        raise SystemExit(1) from e
+        _handle_analysis_error(e, args.output_json)
 
 
 def _make_serializable(obj: Any) -> Any:

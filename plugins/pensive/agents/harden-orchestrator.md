@@ -2,7 +2,6 @@
 name: harden-orchestrator
 description: Orchestrates active security hardening. Discovers languages, dispatches per-area scans, synthesizes findings with NIST/CWE citations, and proposes concrete remediations the user can approve.
 tools: [Read, Grep, Glob, Bash, Task, Skill]
-model: opus
 skills: pensive:harden
 
 examples:
@@ -15,6 +14,8 @@ examples:
   - context: User wants a frontier-threat audit
     user: "Check for forward-facing security issues: PQC readiness, LLM supply chain, that kind of thing."
     assistant: "I'll launch harden-orchestrator with the frontier modules loaded."
+model: opus
+effort: high
 ---
 
 # Harden Orchestrator Agent

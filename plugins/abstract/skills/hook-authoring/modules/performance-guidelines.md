@@ -604,7 +604,6 @@ async with aiohttp.ClientSession() as session:
 
 ## Related Modules
 
-- **hook-types.md**: Event types and timing budgets
-- **sdk-callbacks.md**: Implementation patterns
-- **security-patterns.md**: Security best practices
-- **testing-hooks.md**: Performance testing strategies
+See the Module References section in `SKILL.md` for the full module list and
+what each one covers. The hub owns that index so the modules do not have to
+keep parallel copies of it in sync.

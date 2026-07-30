@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import json
 import textwrap
-from pathlib import Path
-
-import pytest
+from typing import TYPE_CHECKING
 
 from pensive.harden.cli import run_cli
 from pensive.harden.scanner import scan_directory
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    import pytest
 
 
 class TestScannerWalksDir:

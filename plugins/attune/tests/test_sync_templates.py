@@ -446,14 +446,28 @@ class TestMain:
     @patch("sync_templates.TemplateSynchronizer.sync_all")
     def test_main_syncs_all_by_default(self, mock_sync_all):
         """Given no language flag, when running main, then syncs all."""
-        # Given
-        mock_sync_all.return_value = {}
+        # Given a reference project was reachable and produced a sync result.
+        # An empty mapping is the "no reference project available" case, which
+        # is now a failure rather than a silent zero-file success.
+        mock_sync_all.return_value = {"python": []}
         with patch("sys.argv", ["sync_templates.py", "--dry-run"]):
             # When
             main()
 
             # Then
             mock_sync_all.assert_called_once()
+
+    @patch("sync_templates.TemplateSynchronizer.sync_all")
+    def test_main_fails_when_no_reference_project_available(self, mock_sync_all):
+        """Given no reachable reference project, main exits nonzero."""
+        # Given
+        mock_sync_all.return_value = {}
+        with patch("sys.argv", ["sync_templates.py", "--dry-run"]):
+            # When / Then: syncing nothing because every source was missing is
+            # a failure, not a successful sync of zero templates.
+            with pytest.raises(SystemExit) as excinfo:
+                main()
+            assert excinfo.value.code == 1
 
     @patch("sync_templates.TemplateSynchronizer.sync_language_templates")
     def test_main_syncs_specific_language(self, mock_sync_lang):

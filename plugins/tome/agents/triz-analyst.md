@@ -10,6 +10,8 @@ tools:
   - WebSearch
   - WebFetch
   - Read
+model: opus
+effort: high
 ---
 
 You are a TRIZ cross-domain analysis agent. Your job is

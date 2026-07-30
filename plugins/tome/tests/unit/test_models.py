@@ -9,13 +9,64 @@ So that classifiers, planners, and channels can exchange data reliably
 from __future__ import annotations
 
 import pytest
+
 from tome.models import (
+    CitationEdge,
     DomainClassification,
     Finding,
     ResearchPlan,
     ResearchSession,
     SessionSummary,
 )
+
+
+class TestCitationEdgeInvariants:
+    """
+    Feature: CitationEdge rejects edges that cannot mean anything
+
+    An edge is parsed from an external API response and written straight
+    into the knowledge graph, so illegal shapes are refused at
+    construction rather than persisted as self-loops or empty entities.
+    """
+
+    @pytest.mark.unit
+    def test_valid_edge_constructs(self) -> None:
+        edge = CitationEdge(citing_id="paperA", cited_id="paperB")
+
+        assert edge.citing_id == "paperA"
+        assert edge.cited_id == "paperB"
+
+    @pytest.mark.unit
+    def test_self_citation_rejected(self) -> None:
+        """
+        Scenario: A paper cites itself
+        Given both endpoints are the same paper ID
+        When CitationEdge is constructed
+        Then it raises, because a self-loop is not a citation
+        """
+        with pytest.raises(ValueError, match="cannot cite itself"):
+            CitationEdge(citing_id="paperA", cited_id="paperA")
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("citing", "cited"),
+        [("", "paperB"), ("paperA", ""), ("", ""), ("   ", "paperB")],
+    )
+    def test_empty_endpoint_rejected(self, citing: str, cited: str) -> None:
+        """An empty ID would become an empty-keyed graph entity."""
+        with pytest.raises(ValueError, match="non-empty paper IDs"):
+            CitationEdge(citing_id=citing, cited_id=cited)
+
+    @pytest.mark.unit
+    def test_from_dict_enforces_the_same_invariant(self) -> None:
+        with pytest.raises(ValueError, match="cannot cite itself"):
+            CitationEdge.from_dict({"citing_id": "X", "cited_id": "X"})
+
+    @pytest.mark.unit
+    def test_round_trips_through_dict(self) -> None:
+        edge = CitationEdge(citing_id="a", cited_id="b")
+
+        assert CitationEdge.from_dict(edge.to_dict()) == edge
 
 
 class TestDomainClassification:

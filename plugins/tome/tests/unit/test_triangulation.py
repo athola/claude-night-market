@@ -9,11 +9,11 @@ So that insights confirmed by code, discourse, and literature are prioritized
 from __future__ import annotations
 
 import pytest
+
+from tests.factories import make_finding
 from tome.synthesis.ranker import (
     compute_triangulation_bonus,
 )
-
-from tests.factories import make_finding
 
 
 class TestComputeTriangulationBonus:

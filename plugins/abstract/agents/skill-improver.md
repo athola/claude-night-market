@@ -1,6 +1,5 @@
 ---
 name: skill-improver
-model: opus
 agent: true
 allowed-tools:
   - Read
@@ -17,6 +16,8 @@ description: |
   Prioritizes by frequency × impact / ease, generates proposals, validates changes.
   Enhanced with Hyperagents patterns: consults PerformanceTracker for trend data
   and ImprovementMemory for causal hypotheses before proposing changes.
+model: opus
+effort: high
 ---
 
 # Skill Improver Agent

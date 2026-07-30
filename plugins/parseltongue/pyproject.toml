@@ -7,13 +7,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parseltongue"
-version = "1.9.16"
+version = "1.9.17"
 authors = [
     {name = "Claude", email = "claude@anthropic.com"},
 ]
 description = "Python development suite with specialized expertise in testing, performance, async, and packaging"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -35,9 +35,9 @@ dev = [
     "pytest-xdist>=3.0",
     "pytest-benchmark>=4.0.0",
     "coverage>=7.0.0",
-    "black>=26.1.0",
+    "black>=24.0",
     "ruff>=0.14.13",
-    "mypy>=1.11.0",
+    "mypy>=1.11.0,<2",
     "pre-commit>=4.0.0",
     "bandit>=1.7.0",
     "safety>=2.0.0",
@@ -130,7 +130,7 @@ precision = 2
 directory = "htmlcov"
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py39"
 line-length = 88
 
 [tool.ruff.lint]
@@ -198,7 +198,7 @@ max-complexity = 10
 ignore-variadic-names = true
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

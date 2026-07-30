@@ -33,8 +33,25 @@ class _ScanningMixin:
     """Disk scanning: enumerate commands/skills/agents/hooks/modules."""
 
     def _should_exclude(self, path: Path) -> bool:
-        """Check if path should be excluded based on cache/temp patterns."""
-        return any(exclude in path.parts for exclude in CACHE_EXCLUDES)
+        """Check if path should be excluded based on cache/temp patterns.
+
+        Only segments below the plugins root are considered. The excludes
+        exist to skip caches and nested worktrees found *inside* the tree
+        being scanned; matching them against the absolute path also
+        disqualified every asset whenever an ancestor happened to carry
+        one of those names. A git worktree lives under
+        ``.claude/worktrees/<name>/``, so scanning one found nothing on
+        disk and reported every registration in plugin.json as stale.
+        """
+        root = getattr(self, "plugins_root", None)
+        parts = path.parts
+        if root is not None:
+            try:
+                parts = path.relative_to(root).parts
+            except ValueError:
+                # Path outside the plugins root; fall back to full parts.
+                parts = path.parts
+        return any(exclude in parts for exclude in CACHE_EXCLUDES)
 
     def audit_skill_modules(self, plugin_path: Path) -> dict[str, Any]:
         """Audit modules within each skill directory.

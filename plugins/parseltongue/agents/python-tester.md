@@ -9,7 +9,6 @@ tools:
 - Bash
 - Glob
 - Grep
-model: sonnet
 skills: parseltongue:python-testing, leyline:pytest-config
 hooks:
   PreToolUse:
@@ -42,6 +41,8 @@ examples:
   user: How can I improve my test coverage?
   assistant: I'll use the python-tester agent to analyze coverage and suggest additional
     tests.
+model: sonnet
+effort: medium
 ---
 
 # Python Tester Agent

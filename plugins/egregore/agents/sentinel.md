@@ -4,11 +4,12 @@ description: |
   Monitors egregore's resource budget and handles graceful
   shutdown when token windows are exhausted. Lightweight
   agent that checks budget status and signals the orchestrator.
-model: haiku
 tools:
   - Read
   - Write
   - Bash
+model: haiku
+effort: low
 ---
 
 # Sentinel Agent

@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tome"
-version = "1.9.16"
+version = "1.9.17"
 description = "Multi-source research plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -22,20 +22,36 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.14.13",
-    "mypy>=1.11.0",
+    "mypy>=1.11.0,<2",
     "types-PyYAML>=6.0",
     "pytest>=8.0",
     "pytest-cov>=4.0",
     "pytest-asyncio>=0.23",
+    # The graph and retrieval seams are Protocols that memory-palace
+    # satisfies structurally. Without the real backend installed, every
+    # contract test guarded by importorskip skips, and the Protocols are
+    # validated only against Fakes -- @runtime_checkable compares names,
+    # not signatures, so a drifted memory-palace API still passes
+    # isinstance. Keeping the backend in the default dev group means the
+    # ordinary `pytest` run exercises the real class (issue #643).
+    "memory-palace",
 ]
+# Kept as a named group so CI can install exactly the backend set and run
+# `-m integration` on its own, without the rest of the dev toolchain.
+integration = [
+    "memory-palace",
+]
+
+[tool.uv.sources]
+memory-palace = { path = "../memory-palace" }
 
 [tool.ruff]
 target-version = "py39"
-line-length = 100
+line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "S", "PLR0913"]
-ignore = ["UP017", "S101"]
+ignore = ["UP017", "S101", "E501"]  # E501 line length handled by formatter (matches root config)
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
@@ -63,6 +79,10 @@ omit = ["*/tests/*"]
 show_missing = true
 
 [tool.mypy]
+# Matches requires-python: 3.9 is the floor we actually support, so that is
+# what mypy targets. This only works on mypy 1.x -- mypy 2.0 raised its own
+# floor to 3.10 and rejects this value outright, silently falling back to a
+# newer target. See the mypy<2 pin in the dev group.
 python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
@@ -70,6 +90,22 @@ disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
 module = ["leyline.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["numpy"]
+ignore_missing_imports = true
+# tome never imports numpy; the memory-palace backend in the dev group does
+# (issue #643), so mypy reaches numpy's bundled stubs while following into
+# memory_palace. Those stubs use PEP 695 `type` statements, which mypy
+# refuses to parse under python_version < 3.12.
+# Skip following into the stubs so the third-party surface stays opaque.
+# Mirrors the same override in plugins/memory-palace/pyproject.toml.
+follow_imports = "skip"
+follow_imports_for_stubs = true
+
+[[tool.mypy.overrides]]
+module = ["memory_palace", "memory_palace.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

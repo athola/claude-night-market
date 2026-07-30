@@ -33,130 +33,165 @@ from minister.dora_metrics import (
 
 
 class TestClassifyDeploymentFrequency:
+    """Pins the DF tier boundaries: Elite/High/Medium/Low per DORA research."""
+
     def test_elite_threshold(self) -> None:
+        """A rate comfortably above 1/day classifies as Elite."""
         assert classify_deployment_frequency(per_day=1.5) == "Elite"
 
     def test_elite_boundary(self) -> None:
-        # >=1/day is Elite per DORA research
+        """Exactly 1/day is Elite (the `>=` boundary, per DORA research)."""
         assert classify_deployment_frequency(per_day=1.0) == "Elite"
 
     def test_high_boundary(self) -> None:
-        # 1/week boundary: per_day == 1/7 must classify as High,
-        # not Medium. Pins the `>=` in the High branch and would
-        # fail if the inequality flipped to `>`.
+        """Exactly 1/week (per_day == 1/7) is High, not Medium.
+
+        Pins the `>=` in the High branch and would fail if the
+        inequality flipped to `>`.
+        """
         assert classify_deployment_frequency(per_day=1 / 7) == "High"
 
     def test_high_tier(self) -> None:
-        # 1/week to 1/day is High
+        """A rate strictly between 1/week and 1/day classifies as High."""
         assert classify_deployment_frequency(per_day=0.3) == "High"
 
     def test_medium_boundary(self) -> None:
-        # 1/month boundary: per_day == 1/30 must classify as
-        # Medium, not Low. Pins the `>=` in the Medium branch.
+        """Exactly 1/month (per_day == 1/30) is Medium, not Low.
+
+        Pins the `>=` in the Medium branch.
+        """
         assert classify_deployment_frequency(per_day=1 / 30) == "Medium"
 
     def test_medium_tier(self) -> None:
-        # 1/month to 1/week
+        """A rate strictly between 1/month and 1/week classifies as Medium."""
         assert classify_deployment_frequency(per_day=0.05) == "Medium"
 
     def test_low_tier(self) -> None:
-        # < 1/month
+        """A rate below 1/month classifies as Low."""
         assert classify_deployment_frequency(per_day=0.01) == "Low"
 
     def test_zero(self) -> None:
+        """Zero deploys per day is a well-defined Low, not an error case."""
         assert classify_deployment_frequency(per_day=0.0) == "Low"
 
 
 class TestClassifyLeadTime:
+    """Pins the lead-time tier boundaries: Elite/High/Medium/Low per DORA research."""
+
     def test_elite_under_one_day(self) -> None:
+        """A lead time well under one day classifies as Elite."""
         assert classify_lead_time(hours=12.0) == "Elite"
 
     def test_elite_boundary(self) -> None:
+        """Exactly 24 hours is Elite (the `<=` boundary)."""
         assert classify_lead_time(hours=24.0) == "Elite"
 
     def test_high_one_day_to_one_week(self) -> None:
+        """A lead time strictly between one day and one week classifies as High."""
         assert classify_lead_time(hours=72.0) == "High"
 
     def test_high_boundary(self) -> None:
-        # 1 week boundary: 24*7 hours must classify as High,
-        # not Medium. Pins the `<=` in the High branch.
+        """Exactly one week (24*7 hours) is High, not Medium.
+
+        Pins the `<=` in the High branch.
+        """
         assert classify_lead_time(hours=24 * 7) == "High"
 
     def test_medium_one_week_to_one_month(self) -> None:
+        """A lead time strictly between one week and one month classifies as Medium."""
         assert classify_lead_time(hours=24 * 14) == "Medium"
 
     def test_medium_boundary(self) -> None:
-        # 1 month boundary: 24*30 hours must classify as Medium,
-        # not Low. Pins the `<=` in the Medium branch.
+        """Exactly one month (24*30 hours) is Medium, not Low.
+
+        Pins the `<=` in the Medium branch.
+        """
         assert classify_lead_time(hours=24 * 30) == "Medium"
 
     def test_low_over_one_month(self) -> None:
+        """A lead time over one month classifies as Low."""
         assert classify_lead_time(hours=24 * 60) == "Low"
 
 
 class TestClassifyChangeFailureRate:
+    """Pins the CFR tier boundaries: Elite/High/Medium/Low per DORA research."""
+
     def test_elite_low_failure(self) -> None:
+        """A failure rate well inside the 0-15% band classifies as Elite."""
         assert classify_change_failure_rate(rate=0.05) == "Elite"
 
     def test_elite_boundary(self) -> None:
-        # 0-15% is Elite
+        """Exactly 15% is still Elite, the top of the 0-15% band."""
         assert classify_change_failure_rate(rate=0.15) == "Elite"
 
     def test_high_tier(self) -> None:
+        """A failure rate strictly between 15% and 30% classifies as High."""
         assert classify_change_failure_rate(rate=0.25) == "High"
 
     def test_high_boundary(self) -> None:
-        # 30% boundary must classify as High, not Medium.
-        # Pins the `<=` in the High branch.
+        """Exactly 30% is High, not Medium.
+
+        Pins the `<=` in the High branch.
+        """
         assert classify_change_failure_rate(rate=0.30) == "High"
 
     def test_medium_tier(self) -> None:
+        """A failure rate strictly between 30% and 45% classifies as Medium."""
         assert classify_change_failure_rate(rate=0.40) == "Medium"
 
     def test_medium_boundary(self) -> None:
-        # 45% boundary must classify as Medium, not Low.
-        # Pins the `<=` in the Medium branch.
+        """Exactly 45% is Medium, not Low.
+
+        Pins the `<=` in the Medium branch.
+        """
         assert classify_change_failure_rate(rate=0.45) == "Medium"
 
     def test_low_tier(self) -> None:
+        """A failure rate above 45% classifies as Low."""
         assert classify_change_failure_rate(rate=0.60) == "Low"
 
 
 class TestClassifyTimeToRestore:
-    """TRS is the only DORA classifier that uses strict `<` rather
-    than `<=`, so its tier boundaries fall into the *next* tier,
-    not the better one. These boundary tests pin that asymmetry so
-    a future contributor who flips `<` to `<=` (perhaps to match
-    the other three classifiers) breaks tests rather than silently
-    regresses production behavior.
+    """Pins the TRS boundary asymmetry: this classifier uses strict `<`.
+
+    TRS is the only DORA classifier that uses strict `<` rather than
+    `<=`, so its tier boundaries fall into the *next* tier, not the
+    better one. These boundary tests pin that asymmetry so a future
+    contributor who flips `<` to `<=` (perhaps to match the other
+    three classifiers) breaks tests rather than silently regressing
+    production behavior.
     """
 
     def test_elite_under_one_hour(self) -> None:
+        """A restore time well under one hour classifies as Elite."""
         assert classify_time_to_restore(hours=0.5) == "Elite"
 
     def test_elite_just_under_one_hour(self) -> None:
-        # 0.999h is still under the strict `< 1.0` threshold.
+        """0.999h is still under the strict `< 1.0` threshold, so it stays Elite."""
         assert classify_time_to_restore(hours=0.999) == "Elite"
 
     def test_one_hour_is_high_not_elite(self) -> None:
-        # Strict `<`: exactly 1.0h is High, not Elite.
+        """Strict `<`: exactly 1.0h is High, not Elite."""
         assert classify_time_to_restore(hours=1.0) == "High"
 
     def test_high_under_one_day(self) -> None:
+        """A restore time strictly between one hour and one day classifies as High."""
         assert classify_time_to_restore(hours=12.0) == "High"
 
     def test_one_day_is_medium_not_high(self) -> None:
-        # Strict `<`: exactly 24h is Medium, not High.
+        """Strict `<`: exactly 24h is Medium, not High."""
         assert classify_time_to_restore(hours=24.0) == "Medium"
 
     def test_medium_under_one_week(self) -> None:
+        """A restore time strictly between one day and one week classifies as Medium."""
         assert classify_time_to_restore(hours=24 * 3) == "Medium"
 
     def test_one_week_is_low_not_medium(self) -> None:
-        # Strict `<`: exactly 24*7=168h is Low, not Medium.
+        """Strict `<`: exactly 24*7=168h is Low, not Medium."""
         assert classify_time_to_restore(hours=24 * 7) == "Low"
 
     def test_low_over_one_week(self) -> None:
+        """A restore time over one week classifies as Low."""
         assert classify_time_to_restore(hours=24 * 14) == "Low"
 
 
@@ -164,16 +199,19 @@ class TestComputeMetrics:
     """End-to-end metric computation from event lists."""
 
     def test_empty_events(self) -> None:
+        """Empty input distinguishes "no signal" from "perfect" (issue #527).
+
+        DF stays float (0 deploys/day is well-defined Low); CFR/LT/TRS
+        become None (will classify as N/A, not Elite).
+        """
         metrics = compute_metrics(deployments=[], failures=[], window_days=30)
-        # Issue #527: empty input distinguishes "no signal" from "perfect."
-        # DF stays float (0 deploys/day is well-defined Low); CFR/LT/TRS
-        # become None (will classify as N/A, not Elite).
         assert metrics.deployment_frequency == 0.0
         assert metrics.change_failure_rate is None
         assert metrics.lead_time_hours is None
         assert metrics.time_to_restore_hours is None
 
     def test_basic_window(self) -> None:
+        """Deployment frequency and lead time are computed from a run of deploys."""
         now = datetime(2026, 5, 1, tzinfo=timezone.utc)
         deployments = [
             DeploymentEvent(
@@ -195,6 +233,7 @@ class TestComputeMetrics:
         assert metrics.lead_time_hours == pytest.approx(2.0, rel=1e-3)
 
     def test_change_failure_rate_calculation(self) -> None:
+        """CFR is the ratio of failure-triggering deploys to total deploys."""
         now = datetime(2026, 5, 1, tzinfo=timezone.utc)
         deployments = [
             DeploymentEvent(
@@ -224,6 +263,7 @@ class TestComputeMetrics:
         assert metrics.change_failure_rate == pytest.approx(0.2, rel=1e-3)
 
     def test_time_to_restore_median(self) -> None:
+        """TRS is the median restore duration across resolved failures, not the mean."""
         now = datetime(2026, 5, 1, tzinfo=timezone.utc)
         failures = [
             FailureEvent(
@@ -266,7 +306,10 @@ class TestComputeMetrics:
 
 
 class TestDORAMetricsTier:
+    """Tests for DORAMetrics.tier(), .bottleneck(), and .overall_tier()."""
+
     def test_tier_returns_per_metric_classification(self) -> None:
+        """tier() maps each of the four metric values to its own DORA tier."""
         m = DORAMetrics(
             deployment_frequency=2.0,
             lead_time_hours=12.0,
@@ -280,6 +323,7 @@ class TestDORAMetricsTier:
         assert tiers["time_to_restore"] == "Elite"
 
     def test_bottleneck_identifies_weakest(self) -> None:
+        """bottleneck() names the single metric with the lowest tier."""
         m = DORAMetrics(
             deployment_frequency=2.0,  # Elite
             lead_time_hours=12.0,  # Elite
@@ -289,6 +333,7 @@ class TestDORAMetricsTier:
         assert m.bottleneck() == "change_failure_rate"
 
     def test_bottleneck_ties_break_deterministically(self) -> None:
+        """When two metrics tie for weakest, the first declared field wins."""
         # Two Low metrics; first declared wins for stability
         m = DORAMetrics(
             deployment_frequency=0.01,  # Low
@@ -300,6 +345,7 @@ class TestDORAMetricsTier:
         assert m.bottleneck() == "deployment_frequency"
 
     def test_overall_tier_is_weakest(self) -> None:
+        """overall_tier() reports the weakest tier across all four metrics."""
         m = DORAMetrics(
             deployment_frequency=2.0,  # Elite
             lead_time_hours=72.0,  # High
@@ -310,7 +356,10 @@ class TestDORAMetricsTier:
 
 
 class TestFormatReport:
+    """Tests for the human-readable report renderer."""
+
     def test_includes_all_four_metrics(self) -> None:
+        """The rendered report names all four DORA metrics by their full labels."""
         m = DORAMetrics(
             deployment_frequency=4.2,
             lead_time_hours=2.1,
@@ -324,6 +373,7 @@ class TestFormatReport:
         assert "Time to Restore Service" in report
 
     def test_marks_bottleneck(self) -> None:
+        """The bottleneck row is visually distinguishable from the other three."""
         m = DORAMetrics(
             deployment_frequency=4.2,
             lead_time_hours=2.1,
@@ -335,6 +385,7 @@ class TestFormatReport:
         assert "bottleneck" in report.lower() or "<-" in report or "←" in report
 
     def test_window_days_in_header(self) -> None:
+        """The report header states the measurement window width in days."""
         m = DORAMetrics(
             deployment_frequency=1.0,
             lead_time_hours=10.0,
@@ -346,7 +397,10 @@ class TestFormatReport:
 
 
 class TestDefaults:
+    """Tests for module-level default constants."""
+
     def test_default_failure_label_is_bug(self) -> None:
+        """The default GitHub label used to identify prod failures is "bug"."""
         assert DEFAULT_FAILURE_LABEL == "bug"
 
 
@@ -359,6 +413,7 @@ class TestCollectDeploymentsFromGit:
     """End-to-end via mocked subprocess output."""
 
     def test_parses_git_log_output(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Well-formed `sha|author-date|commit-date` lines become DeploymentEvents."""
         sample = (
             "abc1234567890123456789012345678901234567|"
             "2026-04-15T10:00:00+00:00|2026-04-15T10:30:00+00:00\n"
@@ -380,6 +435,8 @@ class TestCollectDeploymentsFromGit:
         assert result.partial is False
 
     def test_skips_malformed_lines(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Lines that are blank or have too few fields produce no events, not a crash."""
+
         def fake_run_git(args: list[str], cwd: object = None) -> str:
             return "abc|2026-04-15T10:00:00+00:00\nshorty\n\n"
 
@@ -394,10 +451,13 @@ class TestCollectDeploymentsFromGit:
     def test_wrong_field_count_marks_partial(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        # Issue #575, B3: a git log line with the wrong field count used
-        # to be skipped silently. It must now set partial=True and emit a
-        # warning, like the malformed-timestamp branch, so a broken
-        # pretty-format cannot yield a silent Elite-tier report.
+        """A line with the wrong field count sets partial=True and warns (issue #575, B3).
+
+        This used to be skipped silently. It must now set partial=True and
+        emit a warning, like the malformed-timestamp branch, so a broken
+        pretty-format cannot yield a silent Elite-tier report.
+        """
+
         def fake_run_git(args: list[str], cwd: object = None) -> str:
             # Two fields instead of three (missing commit_iso).
             return "abc1234567890|2026-04-15T10:00:00+00:00\n"
@@ -417,6 +477,8 @@ class TestCollectFailuresFromGh:
     """gh CLI absence and JSON parsing edge cases."""
 
     def test_gh_missing_returns_empty(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """A missing `gh` binary produces an empty, partial result, not a crash."""
+
         def raise_missing(*args: object, **kwargs: object) -> object:
             raise FileNotFoundError("gh not found")
 
@@ -428,6 +490,8 @@ class TestCollectFailuresFromGh:
         assert result.partial is True
 
     def test_parses_gh_output(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Well-formed gh JSON rows become FailureEvents, resolved and unresolved alike."""
+
         class FakeRun:
             stdout = (
                 '[{"createdAt": "2026-04-20T10:00:00Z", '
@@ -449,6 +513,8 @@ class TestCollectFailuresFromGh:
         assert result.partial is False
 
     def test_invalid_json_returns_empty(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Unparseable gh stdout produces an empty, partial result, not a crash."""
+
         class FakeRun:
             stdout = "not json {{{"
 
@@ -469,6 +535,7 @@ class TestRunCli:
     def test_human_report(
         self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ) -> None:
+        """Without --json, run_cli prints the human-readable report to stdout."""
         empty_clean = CollectionResult(events=[], partial=False, warnings=())
         monkeypatch.setattr(
             dora_metrics, "collect_deployments_from_git", lambda **kw: empty_clean
@@ -484,6 +551,7 @@ class TestRunCli:
     def test_json_output(
         self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ) -> None:
+        """With --json, run_cli prints a parseable payload carrying window_days and tiers."""
         empty_clean = CollectionResult(events=[], partial=False, warnings=())
         monkeypatch.setattr(
             dora_metrics, "collect_deployments_from_git", lambda **kw: empty_clean
@@ -500,7 +568,10 @@ class TestRunCli:
 
 
 class TestBuildParser:
+    """Tests for the CLI argument parser's defaults."""
+
     def test_parser_has_window_default(self) -> None:
+        """With no flags, --window defaults to 30 and --failure-label to "bug"."""
         parser = build_parser()
         args = parser.parse_args([])
         assert args.window == 30
@@ -516,16 +587,19 @@ class TestCliArgumentValidation:
     """The CLI must reject negative or zero windows and dash-prefixed branches."""
 
     def test_negative_window_rejected(self) -> None:
+        """A negative --window would produce a future-dated window; argparse must reject it."""
         parser = build_parser()
         with pytest.raises(SystemExit):
             parser.parse_args(["--window", "-5"])
 
     def test_zero_window_rejected(self) -> None:
+        """A zero --window would divide by zero downstream; argparse must reject it."""
         parser = build_parser()
         with pytest.raises(SystemExit):
             parser.parse_args(["--window", "0"])
 
     def test_positive_window_accepted(self) -> None:
+        """A valid positive --window value parses through unchanged."""
         parser = build_parser()
         args = parser.parse_args(["--window", "7"])
         assert args.window == 7
@@ -533,8 +607,9 @@ class TestCliArgumentValidation:
     def test_branch_argument_separated_from_flags_in_git_log(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """A branch value starting with '-' must not be interpreted by git log
-        as a flag. The git log argv must place '--' before the branch.
+        """A branch value starting with '-' must not be interpreted by git log as a flag.
+
+        The git log argv must place '--' before the branch.
         """
         captured: list[list[str]] = []
 
@@ -566,6 +641,7 @@ class TestCollectionResult:
     def test_collection_result_has_events_partial_warnings(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
+        """A clean git collection returns the three-field envelope, not a bare list."""
         monkeypatch.setattr(dora_metrics, "_run_git", lambda *a, **kw: "")
         result = dora_metrics.collect_deployments_from_git(
             branch="main", window_days=30
@@ -581,6 +657,8 @@ class TestCollectionResult:
     def test_gh_subprocess_failure_marks_partial(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
+        """A missing gh binary sets partial=True and adds a warning naming "gh"."""
+
         def raise_missing(*args: object, **kwargs: object) -> object:
             raise FileNotFoundError("gh not found")
 
@@ -595,6 +673,8 @@ class TestCollectionResult:
     def test_gh_invalid_json_marks_partial(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
+        """Unparseable gh stdout sets partial=True and adds a warning naming "json"."""
+
         class FakeRun:
             stdout = "not json {{{"
 
@@ -612,6 +692,7 @@ class TestCollectionResult:
     def test_malformed_git_timestamp_does_not_crash(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
+        """A malformed ISO timestamp on one line is skipped with a warning, not a crash."""
         # First line has a malformed ISO timestamp; second is valid.
         sample = (
             "abc1234567890123456789012345678901234567|"
@@ -639,7 +720,9 @@ class TestStrictFlag:
     def test_strict_with_partial_exits_non_zero(
         self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ) -> None:
+        """--strict turns a partial gh collection into a non-zero exit code."""
         # Force gh collector to fail
+
         def fake_failure_collect(**kwargs: object) -> object:
             return CollectionResult(events=[], partial=True, warnings=("gh broken",))
 
@@ -658,6 +741,8 @@ class TestStrictFlag:
     def test_strict_without_partial_exits_zero(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
+        """--strict does not affect the exit code when both collectors are clean."""
+
         def fake_clean_collect(**kwargs: object) -> object:
             return CollectionResult(events=[], partial=False, warnings=())
 
@@ -677,36 +762,40 @@ class TestStrictFlag:
 
 
 class TestEmptyWindowNotElite:
-    """Issue #527: a team that hasn't shipped anything should not look the
-    same as a team that ships continuously with zero failures.
+    """Issue #527: an empty window must report N/A, not the misleading Elite tier.
 
-    Lead Time, Change Failure Rate, and Time to Restore Service all default
-    to 0 when their input is empty. Under the previous behavior 0 classified
-    as Elite, indistinguishable from "perfect quality." The fix returns
-    None for these metrics when input is empty and surfaces "N/A" in the
-    tier table. Deployment Frequency stays float since 0 deploys/day has a
+    A team that hasn't shipped anything should not look the same as a team
+    that ships continuously with zero failures. Lead Time, Change Failure
+    Rate, and Time to Restore Service all default to 0 when their input is
+    empty. Under the previous behavior 0 classified as Elite,
+    indistinguishable from "perfect quality." The fix returns None for
+    these metrics when input is empty and surfaces "N/A" in the tier
+    table. Deployment Frequency stays float since 0 deploys/day has a
     well-defined meaning (Low tier).
     """
 
     def test_empty_window_lt_is_none(self) -> None:
+        """With no deploys, lead time has no samples and must be None, not 0."""
         m = compute_metrics(deployments=[], failures=[], window_days=30)
         assert m.lead_time_hours is None
 
     def test_empty_window_cfr_is_none(self) -> None:
-        # No deploys means CFR is undefined (no denominator).
+        """No deploys means CFR is undefined (no denominator), so it must be None."""
         m = compute_metrics(deployments=[], failures=[], window_days=30)
         assert m.change_failure_rate is None
 
     def test_empty_window_trs_is_none(self) -> None:
+        """With no failures, restore time has no samples and must be None, not 0."""
         m = compute_metrics(deployments=[], failures=[], window_days=30)
         assert m.time_to_restore_hours is None
 
     def test_empty_window_df_is_zero_not_none(self) -> None:
-        # DF is 0 deploys / 30 days = 0.0 / day. Well-defined; not None.
+        """DF is 0 deploys / 30 days = 0.0/day: well-defined, so it stays a float, not None."""
         m = compute_metrics(deployments=[], failures=[], window_days=30)
         assert m.deployment_frequency == 0.0
 
     def test_empty_window_tier_table_reports_na(self) -> None:
+        """tier() reports "N/A" for the three undefined metrics and "Low" for DF."""
         m = compute_metrics(deployments=[], failures=[], window_days=30)
         tiers = m.tier()
         assert tiers["lead_time"] == "N/A"
@@ -716,15 +805,18 @@ class TestEmptyWindowNotElite:
         assert tiers["deployment_frequency"] == "Low"
 
     def test_empty_window_overall_tier_excludes_na(self) -> None:
-        """overall_tier reports the weakest non-N/A metric (DF=Low here),
-        not 'N/A' itself, so partial-data still gives the operator a tier
-        floor for the metrics that ARE measurable."""
+        """overall_tier reports the weakest non-N/A metric, not "N/A" itself.
+
+        DF=Low is the only computable metric here, so partial-data still
+        gives the operator a tier floor for the metrics that ARE
+        measurable.
+        """
         m = compute_metrics(deployments=[], failures=[], window_days=30)
         # DF=Low is the only computable metric -> Low overall
         assert m.overall_tier() == "Low"
 
     def test_empty_window_bottleneck_excludes_na(self) -> None:
-        """bottleneck names the weakest computable metric, not an N/A."""
+        """Bottleneck names the weakest computable metric, not an N/A."""
         m = compute_metrics(deployments=[], failures=[], window_days=30)
         bn = m.bottleneck()
         # DF is the only computable; it's the bottleneck.
@@ -759,8 +851,10 @@ class TestEventInvariants:
     """Issue #529: enforce datetime invariants at construction-time."""
 
     def test_failure_event_rejects_resolved_before_opened(self) -> None:
-        """A FailureEvent with resolved_at < opened_at is a data-integrity
-        bug, not a sample to filter downstream. Reject at construction.
+        """A FailureEvent with resolved_at < opened_at must raise at construction.
+
+        A backwards pair is a data-integrity bug, not a sample to filter
+        downstream.
         """
         now = datetime(2026, 5, 1, tzinfo=timezone.utc)
         with pytest.raises(ValueError, match="resolved_at"):
@@ -782,20 +876,25 @@ class TestEventInvariants:
         assert event.resolved_at is None
 
     def test_failure_event_rejects_naive_opened_at(self) -> None:
-        """Naive datetimes silently break window-comparison arithmetic.
-        Force tz-aware at construction to catch the bug at the boundary.
+        """A naive opened_at must raise at construction.
+
+        Naive datetimes silently break window-comparison arithmetic;
+        forcing tz-aware at construction catches the bug at the boundary
+        instead of deep inside metric calculation.
         """
         now_naive = datetime(2026, 5, 1)  # no tzinfo
         with pytest.raises(ValueError, match="tz-aware|timezone"):
             FailureEvent(opened_at=now_naive)
 
     def test_failure_event_rejects_naive_resolved_at(self) -> None:
+        """A naive resolved_at must raise at construction, same as a naive opened_at."""
         now = datetime(2026, 5, 1, tzinfo=timezone.utc)
         naive = datetime(2026, 5, 2)  # no tzinfo
         with pytest.raises(ValueError, match="tz-aware|timezone"):
             FailureEvent(opened_at=now, resolved_at=naive)
 
     def test_deployment_event_rejects_naive_datetimes(self) -> None:
+        """DeploymentEvent enforces the same tz-aware invariant as FailureEvent."""
         naive = datetime(2026, 5, 1)
         with pytest.raises(ValueError, match="tz-aware|timezone"):
             DeploymentEvent(sha="a" * 40, deployed_at=naive, commit_at=naive)
@@ -805,8 +904,10 @@ class TestTierLiteral:
     """Issue #529: tier strings should be a constrained Literal type."""
 
     def test_tier_literal_exported(self) -> None:
-        """The Tier Literal type alias must be exported so callers can
-        type-check tier-bearing code paths."""
+        """The Tier Literal type alias must be exported.
+
+        Without it, callers cannot type-check tier-bearing code paths.
+        """
         assert hasattr(dora_metrics, "Tier")
 
     def test_tier_literal_values(self) -> None:
@@ -826,6 +927,8 @@ class TestJsonPayloadPartialField:
     def test_partial_flag_present_in_json(
         self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ) -> None:
+        """When the gh collector is partial, the JSON payload surfaces partial and warnings."""
+
         def fake_partial(**kwargs: object) -> object:
             return CollectionResult(events=[], partial=True, warnings=("gh broken",))
 

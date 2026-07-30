@@ -11,6 +11,7 @@ import urllib.request
 from pathlib import Path
 
 import pytest
+
 from oracle.daemon import InferenceDaemon
 
 TEST_MODEL_YAML = """\

@@ -5,9 +5,6 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Any
 
-if TYPE_CHECKING:
-    pass
-
 
 class ReportingMixin:
     """Generate makefile recommendations, reports, and cross-file analysis."""

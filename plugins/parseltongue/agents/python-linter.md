@@ -2,7 +2,6 @@
 name: python-linter
 description: Enforce strict ruff rules without per-file-ignores bypasses. Use for lint errors or code quality reviews.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
-model: haiku
 escalation:
   to: sonnet
   hints:
@@ -18,6 +17,8 @@ examples:
   - context: Code fails pre-commit lint checks
     user: "Pre-commit lint checks are failing"
     assistant: "I'll use the python-linter agent to fix the actual code issues causing lint failures."
+model: haiku
+effort: low
 ---
 
 # Python Linter Agent

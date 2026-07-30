@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from gauntlet.communities import (
     _leiden_communities,
     _subdivide_community,

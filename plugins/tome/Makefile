@@ -7,7 +7,7 @@
 	security clean ci status debug-variables fix \
 	demo-classify demo-plan demo-skills demo-channels plugin-check \
 	test-channels test-synthesis test-output \
-	mutation-test benchmark memory-profile
+	mutation-test benchmark memory-profile metrics
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests
@@ -47,6 +47,9 @@ test-synthesis: ## Run synthesis tests (merger, ranker)
 
 test-output: ## Run output tests (export, visualizer)
 	$(PYTEST) tests/output/ -v --tb=short
+
+metrics: ## Score the retrieval gold set (offline, no network)
+	$(UV_RUN) python -m tome.metrics.harness
 
 # ---------- Code Quality ----------
 fix: ## Auto-fix lint issues
@@ -90,7 +93,20 @@ mutation-test: ## Run mutation testing
 	fi
 
 benchmark: ## Run performance benchmarks
-	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
+	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
+	@# real benchmark failure fails the target instead of being reported as a
+	@# missing plugin. pytest exit 5 means nothing was collected, not failure.
+	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
+		echo "Not applicable: pytest-benchmark is not installed"; \
+	else \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
+		status=$$?; \
+		if [ $$status -eq 5 ]; then \
+			echo "Not applicable: no benchmark tests are defined"; \
+		elif [ $$status -ne 0 ]; then \
+			exit $$status; \
+		fi; \
+	fi
 
 memory-profile: ## Profile memory usage
 	@if python3 -c "import memory_profiler" 2>/dev/null; then \

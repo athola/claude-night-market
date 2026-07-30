@@ -24,6 +24,7 @@ and provides tools for monitoring and reducing context usage.
 | `mcp-code-execution` | MCP patterns for data pipelines | Processing data outside context |
 | `bloat-detector` | Detect bloated documentation, dead code, dead wrappers | During documentation reviews, code cleanup |
 | `clear-context` | Context window management strategies | When approaching context limits |
+| `action-first-output` | Action-first turn shaping: action leads, steps numbered, state restated | When the reader wants ADHD-friendly output |
 
 ## Commands
 

@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 SCRIPT_PATH = Path(__file__).parent.parent / "scripts" / "quality_checker.py"
 
 
@@ -612,7 +614,12 @@ def test_main_check_missing_path_writes_error(monkeypatch, capsys, tmp_path):
             "--output-json",
         ],
     )
-    qc.main()
+    # A missing test path is a failed check, so it must exit nonzero as well as
+    # emit the error envelope. Emitting the envelope and exiting 0 let callers
+    # that read the status treat a missing path as a passing run.
+    with pytest.raises(SystemExit) as excinfo:
+        qc.main()
+    assert excinfo.value.code == 1
     out = capsys.readouterr().out
     payload = json.loads(out)
     assert payload.get("success") is False
@@ -754,7 +761,12 @@ def test_main_handles_internal_exception(monkeypatch, capsys, tmp_path):
         "argv",
         ["quality_checker.py", "--check", str(f), "--output-json"],
     )
-    qc.main()
+    # A crash mid-check still emits the error envelope, but it must also exit
+    # nonzero. Swallowing the exception and exiting 0 made an aborted check
+    # indistinguishable from a passing one.
+    with pytest.raises(SystemExit) as excinfo:
+        qc.main()
+    assert excinfo.value.code == 1
     payload = json.loads(capsys.readouterr().out)
     assert payload["success"] is False
 

@@ -24,6 +24,7 @@ from memory_palace.corpus.index_analytics import (
     rank_promotion_candidates,
 )
 from memory_palace.corpus.index_promoter import (
+    CorpusUnavailableError,
     apply_orphan_prunes,
     apply_promotions,
     propose_orphan_prunes,
@@ -526,6 +527,12 @@ class _IndexMixin(_CLIBase):
             f"({stats.inert_ratio:.0%} never processed)"
         )
         print(f"  Orphaned files:  {stats.orphan_count}")
+        print(
+            f"  Empty captures:  {stats.null_capture_count} "
+            f"({stats.null_capture_ratio:.0%} captured nothing usable)"
+        )
+        if stats.by_null_reason:
+            print(f"    by reason:     {dict(stats.by_null_reason)}")
         print(f"  By routing_type: {dict(stats.by_routing_type)}")
         print(f"  By maturity:     {dict(stats.by_maturity)}")
         print(f"  By importance:   {dict(stats.by_importance_bucket)}")
@@ -590,7 +597,16 @@ class _IndexMixin(_CLIBase):
         """
         index_path = self._capture_index_path()
         index = load_capture_index(index_path)
-        keys = propose_orphan_prunes(index, self.plugin_dir)
+        try:
+            keys = propose_orphan_prunes(index, self.plugin_dir)
+        except CorpusUnavailableError as exc:
+            # Refuse, do not fail. This runs from the pre-commit hook
+            # under set -e, so raising here would block every commit made
+            # from a worktree, which is the workflow that exposes the
+            # missing corpus in the first place.
+            self.print_status(f"Capture index: {index_path}")
+            self.print_warning(f"Skipping orphan prune: {exc}")
+            return True
 
         self.print_status(f"Capture index: {index_path}")
         print(f"  Orphan entries to prune: {len(keys)}")
@@ -929,6 +945,11 @@ class MemoryPalaceCLI(_LifecycleMixin, _GardenMixin, _IndexMixin, _PalaceMixin):
         self.plugin_dir = self.script_dir.parent
         self.config_file = self.plugin_dir / "config" / "settings.json"
         self.claude_config = Path.home() / ".claude" / "settings.json"
+        # Set by print_error and read by main() to pick the exit status. The
+        # 22 print_error call sites all report a real failure ("Failed to
+        # create palace", "Search failed"), but each one returned normally and
+        # the process exited 0, so callers could not tell them from a clean run.
+        self.had_error = False
 
     def _palaces_dir(self, override: str | None = None) -> str | None:
         """Resolve the palaces directory from override or environment."""
@@ -953,7 +974,8 @@ class MemoryPalaceCLI(_LifecycleMixin, _GardenMixin, _IndexMixin, _PalaceMixin):
         print(f"[WARN] {message}")
 
     def print_error(self, message: str) -> None:
-        """Print an error message to the console."""
+        """Print an error message and record that this run failed."""
+        self.had_error = True
         print(f"[ERROR] {message}")
 
 
@@ -1257,13 +1279,13 @@ def main() -> None:
             parser.print_help()
 
     handlers = {
-        "enable": lambda: cli.enable_plugin(),
-        "disable": lambda: cli.disable_plugin(),
-        "status": lambda: cli.show_status(),
-        "skills": lambda: cli.list_skills(),
-        "install": lambda: cli.install_skills(),
+        "enable": cli.enable_plugin,
+        "disable": cli.disable_plugin,
+        "status": cli.show_status,
+        "skills": cli.list_skills,
+        "install": cli.install_skills,
         "create": lambda: cli.create_palace(args.name, args.domain, args.metaphor),
-        "list": lambda: cli.list_palaces(),
+        "list": cli.list_palaces,
         "sync": lambda: cli.sync_queue(
             auto_create=getattr(args, "auto_create", False),
             dry_run=getattr(args, "dry_run", False),
@@ -1290,6 +1312,9 @@ def main() -> None:
         handler()
     else:
         parser.print_help()
+
+    if cli.had_error:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

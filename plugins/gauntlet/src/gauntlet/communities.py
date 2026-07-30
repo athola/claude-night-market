@@ -24,6 +24,10 @@ _EDGE_WEIGHTS: dict[EdgeKind, float] = {
 
 _MAX_COMMUNITY_SIZE = 50
 
+# Cross-community edge-count thresholds for coupling warnings.
+_COUPLING_WARNING_THRESHOLD = 10
+_COUPLING_HIGH_SEVERITY_THRESHOLD = 20
+
 
 def detect_communities(
     graph: GraphStore,
@@ -221,12 +225,16 @@ def get_architecture_overview(graph: GraphStore) -> dict:
             if (edge.source_qn in comm_qn_sets[i] and edge.target_qn in comm_qn_sets[j])
             or (edge.source_qn in comm_qn_sets[j] and edge.target_qn in comm_qn_sets[i])
         )
-        if cross_edges > 10:
+        if cross_edges > _COUPLING_WARNING_THRESHOLD:
             warnings.append(
                 {
                     "communities": [communities[i]["name"], communities[j]["name"]],
                     "coupling_strength": cross_edges,
-                    "severity": "high" if cross_edges > 20 else "medium",
+                    "severity": (
+                        "high"
+                        if cross_edges > _COUPLING_HIGH_SEVERITY_THRESHOLD
+                        else "medium"
+                    ),
                 }
             )
 

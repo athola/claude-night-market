@@ -16,7 +16,6 @@ description: |
   8. Alerts overseer on events via GitHub issues/webhooks
   9. Repeats until all work items are completed or failed
   10. In indefinite mode, scans for new work and continues
-model: opus
 tools:
   - Read
   - Write
@@ -31,6 +30,8 @@ tools:
   - CronCreate
   - CronList
   - CronDelete
+model: opus
+effort: high
 ---
 
 # Orchestrator Agent

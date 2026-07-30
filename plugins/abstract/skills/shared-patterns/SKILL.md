@@ -24,6 +24,8 @@ modules:
 ---
 # Shared Patterns
 
+## Overview
+
 Reusable patterns and templates for skill and hook development.
 
 ## When NOT To Use

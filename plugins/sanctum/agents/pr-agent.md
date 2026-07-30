@@ -18,7 +18,6 @@ tools:
 - Bash
 - Glob
 - Grep
-model: sonnet
 skills: sanctum:pr-prep, imbue:proof-of-work
 hooks:
   PreToolUse:
@@ -51,6 +50,8 @@ examples:
 - context: User needs testing documentation
   user: How should I document the testing I did for this PR?
   assistant: I'll use the pr-agent to help structure your testing section.
+model: sonnet
+effort: medium
 ---
 
 # PR Agent

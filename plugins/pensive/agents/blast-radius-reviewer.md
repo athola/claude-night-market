@@ -4,12 +4,13 @@ description: >
   Review code changes using blast radius analysis from
   the code knowledge graph. Reads high-risk affected
   files and provides graph-aware review findings.
-model: sonnet
 tools:
 - Bash
 - Read
 - Grep
 - Glob
+model: sonnet
+effort: medium
 ---
 
 # Blast Radius Reviewer

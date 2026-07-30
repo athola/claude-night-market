@@ -3,16 +3,9 @@
 from __future__ import annotations
 
 import json
-import sys
 from io import StringIO
-from pathlib import Path
 
 import pytest
-
-# Add hooks directory to path for imports
-HOOKS_DIR = Path(__file__).resolve().parent.parent / "hooks"
-sys.path.insert(0, str(HOOKS_DIR))
-
 from session_start_hook import find_manifest, main
 
 

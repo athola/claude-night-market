@@ -93,12 +93,17 @@ docs/plans/
 docs/backlog/
 docs/archive/
 docs/marketing/
+# Research syntheses and brainstorm design drafts are background,
+# never the record. Fold the load-bearing evidence into the rule, ADR,
+# or skill module that relies on it; a tracked doc must never cite a
+# path under either directory. A draft that ships leaves its decision
+# in an ADR and its contract in a test, so nothing here is load-bearing
+# once the work lands.
 docs/research/
+docs/superpowers/
 docs/implementation-plan.md
 docs/project-brief.md
 docs/specification.md
-docs/superpowers/plans/
-docs/superpowers/specs/
 **/*/docs/plans/
 
 # Attune ephemeral state
@@ -130,10 +135,16 @@ plugins/memory-palace/data/wiki/
 plugins/memory-palace/data/staging/webfetch-*.md
 plugins/memory-palace/data/staging/websearch-*.md
 plugins/memory-palace/data/staging/archive/
+
+# Keyword index derived from those local captures. Rebuild it with
+# plugins/memory-palace/scripts/build_indexes.py; committing it would
+# track 9MB of entries pointing at files no other checkout has.
+plugins/memory-palace/data/indexes/keyword-index.yaml
 **/*.claude/session-state.md
 clawhub/
 
-# Tome research session state (the report in docs/research/ is the deliverable)
+# Tome research session state (the report in docs/research/ is also local;
+# the deliverable is whatever tracked doc the findings get folded into)
 .tome/
 
 # imbue scope-ramp token (a per-session demonstration marker, not source)
@@ -145,8 +156,17 @@ clawhub/
 # transient code-refinement synthesis artifacts (local eval, not source)
 docs/refinement/
 
+# superpowers brainstorm/design/plan scratch output. The shipped skill,
+# rule, and tests are the record; rejected alternatives and deferred
+# scope get folded into docs/adr/ (see ADR-0019) before the spec is dropped.
+docs/superpowers/
+
 # ephemeral dogfooding/review reports; fold durable lessons into docs/, not source
 reports/
 
 # knowledge-intake audit log; regenerated locally, mapping lives in palace frontmatter
 docs/curation-log.md
+
+# memory-palace graph DB; written by the test suite into an otherwise
+# untracked runtime directory, regenerated on demand
+plugins/memory-palace/data/palaces/*.db

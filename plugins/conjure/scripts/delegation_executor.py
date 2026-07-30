@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import subprocess  # nosec B404
+import sys
 import time
 from dataclasses import MISSING, dataclass, fields
 from datetime import datetime
@@ -523,8 +524,13 @@ def _print_usage_summary(delegator: Delegator) -> None:
         print(f"  {svc_name}: {stats['requests']} requests, {rate:.1f}% success")
 
 
-def _verify_service(delegator: Delegator, service_name: str) -> None:
-    """Verify a service and print results."""
+def _verify_service(delegator: Delegator, service_name: str) -> bool:
+    """Verify a service, print results, and report the verdict to the caller.
+
+    Returns the verdict rather than discarding it. An earlier version printed
+    "FAILED" and returned None, so ``--verify`` exited 0 whatever it found and
+    every caller checking the exit code was reading a constant.
+    """
     is_available, issues = delegator.verify_service(service_name)
     if is_available:
         print(f"{service_name}: OK")
@@ -532,14 +538,16 @@ def _verify_service(delegator: Delegator, service_name: str) -> None:
         print(f"{service_name}: FAILED")
         for issue in issues:
             print(f"  - {issue}")
+    return is_available
 
 
-def _print_result(result: ExecutionResult) -> None:
-    """Print execution result."""
+def _print_result(result: ExecutionResult) -> bool:
+    """Print execution result and report whether it succeeded."""
     if result.success:
         print(f"Success: {result.stdout[:200] if result.stdout else 'No output'}")
     else:
         print(f"Failed: {result.stderr}")
+    return result.success
 
 
 def _create_parser() -> argparse.ArgumentParser:
@@ -576,7 +584,8 @@ def main() -> None:
         return
 
     if args.verify and args.service:
-        _verify_service(delegator, args.service)
+        if not _verify_service(delegator, args.service):
+            raise SystemExit(1)
         return
 
     if not args.service or not args.prompt:
@@ -585,8 +594,11 @@ def main() -> None:
     if args.service == "auto":
         try:
             _, result = delegator.smart_delegate(args.prompt, args.files)
-        except RuntimeError:
-            return
+        except RuntimeError as exc:
+            # No service could take the work. Returning here exited 0 and left
+            # the caller believing the delegation ran.
+            print(f"Failed: {exc}", file=sys.stderr)
+            raise SystemExit(1) from exc
     else:
         options: dict[str, Any] = {}
         if args.model:
@@ -601,7 +613,8 @@ def main() -> None:
             args.timeout,
         )
 
-    _print_result(result)
+    if not _print_result(result):
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

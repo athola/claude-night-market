@@ -15,7 +15,6 @@ tools:
 - Glob
 - Grep
 - TodoWrite
-model: sonnet
 escalation:
   to: opus
   hints:
@@ -25,6 +24,8 @@ examples:
   user: Pick an approach and plan the changes.
   assistant: I'll use workflow-improvement-planner-agent to define acceptance criteria
     and a small, high-use plan.
+model: sonnet
+effort: medium
 ---
 
 # Workflow Improvement Planner Agent

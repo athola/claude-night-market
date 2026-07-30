@@ -123,6 +123,41 @@ def _read_cited_file(
     return target.read_text(errors="replace").splitlines(), None
 
 
+def _validate_and_read(
+    finding: Finding, repo_root: Path
+) -> tuple[list[str], str | None]:
+    """Run every pre-scan check and return the source lines or a failure reason.
+
+    Consolidates the anchor-presence, line-presence, file-resolution,
+    existence, range, and anchor-length checks into a single failure path
+    so ``verify_finding`` only has to branch on ``error is not None`` once,
+    instead of returning early after each individual check.
+    """
+    if not finding.anchor.strip():
+        return [], "no anchor provided"
+    if finding.line is None:
+        return [], "no line provided"
+
+    source_lines, error = _read_cited_file(finding, repo_root)
+    if error is not None:
+        return [], error
+
+    total = len(source_lines)
+    if finding.line < 1 or finding.line > total:
+        return [], f"line {finding.line} out of range (file has {total} lines)"
+
+    # A too-short anchor matches too easily to be trusted; reject it before
+    # the substring search rather than let it VERIFY spuriously (issue #569).
+    anchor_chars = "".join(finding.anchor.split())
+    if len(anchor_chars) < MIN_ANCHOR_CHARS:
+        return [], (
+            f"anchor too short ({len(anchor_chars)} non-space chars; "
+            f"need >={MIN_ANCHOR_CHARS}) to verify reliably"
+        )
+
+    return source_lines, None
+
+
 def verify_finding(
     finding: Finding,
     repo_root: Path,
@@ -134,35 +169,15 @@ def verify_finding(
     must resolve inside the repo and exist, the line must be in range,
     and the normalized anchor must appear within +/-window lines.
     """
-    if not finding.anchor.strip():
-        return CitationResult(finding.id, "FAILED", "no anchor provided")
-    if finding.line is None:
-        return CitationResult(finding.id, "FAILED", "no line provided")
-
-    source_lines, error = _read_cited_file(finding, repo_root)
+    source_lines, error = _validate_and_read(finding, repo_root)
     if error is not None:
         return CitationResult(finding.id, "FAILED", error)
-
-    total = len(source_lines)
-    if finding.line < 1 or finding.line > total:
-        return CitationResult(
-            finding.id,
-            "FAILED",
-            f"line {finding.line} out of range (file has {total} lines)",
-        )
-
-    # A too-short anchor matches too easily to be trusted; reject it before
-    # the substring search rather than let it VERIFY spuriously (issue #569).
-    anchor_chars = "".join(finding.anchor.split())
-    if len(anchor_chars) < MIN_ANCHOR_CHARS:
-        return CitationResult(
-            finding.id,
-            "FAILED",
-            f"anchor too short ({len(anchor_chars)} non-space chars; "
-            f"need >={MIN_ANCHOR_CHARS}) to verify reliably",
-        )
+    # _validate_and_read returns an error unless finding.line is a valid
+    # in-range int, so it is non-None past this point.
+    assert finding.line is not None
 
     # 1-indexed line -> 0-indexed slice, inclusive +/- window.
+    total = len(source_lines)
     start = max(0, finding.line - 1 - window)
     end = min(total, finding.line - 1 + window + 1)
     needle = _normalize(finding.anchor)

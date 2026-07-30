@@ -9,6 +9,8 @@ tools:
   - WebSearch
   - WebFetch
   - Read
+model: haiku
+effort: low
 ---
 
 You are a discourse research agent. Your job is to find

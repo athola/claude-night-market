@@ -29,8 +29,9 @@ ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/python.mk
 
 # ---------- Plugin-specific Variables ----------
-PY              ?= $(UV_PYTHON)
+PY              ?= $(UV_RUN_PYTHON)
 CLI             ?= $(UV) run python scripts/memory_palace_cli.py
+INDEX_BUILDER   ?= $(UV) run python scripts/build_indexes.py
 PALACES_DIR     ?= $(PWD)/.demo-palaces
 GARDEN_FILE     ?= examples/garden-sample.json
 IMPORT_SRC      ?= examples/palaces-sample.json
@@ -62,7 +63,7 @@ deps: ## Install and sync dependencies
 
 check: ## Run dependency validation
 	@echo "Running dependency validation..."
-	$(UV_PYTHON) -c "print('Dependencies synced and importable.')"
+	$(UV_RUN_PYTHON) -c "print('Dependencies synced and importable.')"
 
 fix: ## Auto-fix code style issues
 	@echo "Auto-fixing code style issues..."
@@ -186,7 +187,20 @@ mutation-test: ## Run mutation testing
 	fi
 
 benchmark: ## Run performance benchmarks (memory operations)
-	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
+	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
+	@# real benchmark failure fails the target instead of being reported as a
+	@# missing plugin. pytest exit 5 means nothing was collected, not failure.
+	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
+		echo "Not applicable: pytest-benchmark is not installed"; \
+	else \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
+		status=$$?; \
+		if [ $$status -eq 5 ]; then \
+			echo "Not applicable: no benchmark tests are defined"; \
+		elif [ $$status -ne 0 ]; then \
+			exit $$status; \
+		fi; \
+	fi
 
 memory-profile: ## Profile memory usage
 	@if python3 -c "import memory_profiler" 2>/dev/null; then \
@@ -287,6 +301,17 @@ demo-memory: ## Demo memory command (LIVE)
 	@echo ""
 	@echo "Use /memory-palace for full memory management."
 
+demo-keyword-index: ## Demo corpus keyword-index rebuild, dry-run (LIVE)
+	@echo "=== Corpus Keyword-Index Rebuild Demo (LIVE) ==="
+	@echo ""
+	@echo "This is the retrieval index at data/indexes/keyword-index.yaml,"
+	@echo "read by cache_lookup. It is NOT the capture index that"
+	@echo "'make demo-index' curates. Derived data, untracked in git, so a"
+	@echo "fresh checkout has none:"
+	@$(INDEX_BUILDER) --dry-run || true
+	@echo ""
+	@echo "Write it for real by dropping --dry-run."
+
 demo-index: ## Demo capture-index curation: corpus stats + dry-run promotions (LIVE)
 	@echo "=== Capture-Index Curation Demo (LIVE) ==="
 	@echo ""
@@ -298,7 +323,7 @@ demo-index: ## Demo capture-index curation: corpus stats + dry-run promotions (L
 	@echo ""
 	@echo "Apply for real with: $(CLI) index promote --apply"
 
-demo-memory-palace-commands: demo-palace demo-garden demo-navigate demo-review-room demo-skill-logs demo-memory demo-index ## Run all memory-palace documented command demos
+demo-memory-palace-commands: demo-palace demo-garden demo-navigate demo-review-room demo-skill-logs demo-memory demo-index demo-keyword-index ## Run all memory-palace documented command demos
 	@echo ""
 	@echo "=== Memory-palace All Commands Demo Complete ==="
 	@echo ""

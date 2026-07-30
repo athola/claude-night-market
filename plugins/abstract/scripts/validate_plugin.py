@@ -4,6 +4,8 @@
 Validate plugin structure against official Claude Code documentation.
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sys

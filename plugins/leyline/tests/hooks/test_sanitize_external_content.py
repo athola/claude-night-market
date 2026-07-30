@@ -4,13 +4,7 @@ from __future__ import annotations
 
 import io
 import json
-import sys
-from pathlib import Path
 from unittest.mock import patch
-
-# Add hooks directory to path for imports
-_hooks_dir = Path(__file__).resolve().parent.parent.parent / "hooks"
-sys.path.insert(0, str(_hooks_dir))
 
 from sanitize_external_content import (
     is_external_tool,

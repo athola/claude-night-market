@@ -200,6 +200,22 @@ class TestMainDispatch:
             patch("scripts.memory_palace_cli.MemoryPalaceCLI") as mock_cls,
         ):
             mock_cli = Mock()
+            # A bare Mock auto-creates truthy attributes, so had_error must be
+            # set explicitly or main() reads it as "this run failed".
+            mock_cli.had_error = False
             mock_cls.return_value = mock_cli
             main()
             getattr(mock_cli, method).assert_called_once()
+
+    def test_reported_error_sets_nonzero_exit(self) -> None:
+        """A command that reports an error must not exit 0."""
+        with (
+            patch("sys.argv", ["prog", "list"]),
+            patch("scripts.memory_palace_cli.MemoryPalaceCLI") as mock_cls,
+        ):
+            mock_cli = Mock()
+            mock_cli.had_error = True
+            mock_cls.return_value = mock_cli
+            with pytest.raises(SystemExit) as excinfo:
+                main()
+            assert excinfo.value.code == 1

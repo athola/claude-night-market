@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import pytest
 import yaml
+
 from gauntlet.challenges import generate_bank_challenge
 from gauntlet.models import BankProblem, ChallengeType, Difficulty
 from gauntlet.problem_bank import (

@@ -19,8 +19,8 @@ from ._constants import (
     MIN_TARGETS_FOR_PARALLEL,
 )
 
-if TYPE_CHECKING:
-    pass
+# Sum of every weight in QualityMixin._MODERNIZATION_SCORE_PATTERNS.
+_MAX_MODERNIZATION_SCORE = 10.0
 
 
 class QualityMixin:
@@ -44,11 +44,11 @@ class QualityMixin:
                 f"{len(build_targets)} sequential build targets detected"
             )
 
-        if not re.search(r"(-j|MAKEFLAGS.*-j|parallel)", content):
-            if len(targets) > MIN_TARGETS_FOR_PARALLEL:
-                parallelization_issues.append(
-                    "No parallel execution configuration found"
-                )
+        if (
+            not re.search(r"(-j|MAKEFLAGS.*-j|parallel)", content)
+            and len(targets) > MIN_TARGETS_FOR_PARALLEL
+        ):
+            parallelization_issues.append("No parallel execution configuration found")
 
         if re.search(r"^source\d+\.o:.*\n\tgcc -c", content, re.MULTILINE):
             parallelization_issues.append("Sequential object file compilation detected")
@@ -169,53 +169,60 @@ class QualityMixin:
             "insecure_downloads": insecure_downloads[:5],
         }
 
+    # (pattern, re.search flags, score weight) — each present pattern adds its
+    # weight to the modernization score out of `_MAX_MODERNIZATION_SCORE`.
+    _MODERNIZATION_SCORE_PATTERNS: tuple[tuple[str, int, float], ...] = (
+        (r"^\.PHONY:", re.MULTILINE, _SCORE_PHONY),
+        (r":=", 0, _SCORE_IMMEDIATE_ASSIGN),
+        (r"^include\s+", re.MULTILINE, _SCORE_INCLUDE),
+        (r"^SHELL\s*:=", re.MULTILINE, _SCORE_SHELL_OVERRIDE),
+        (r"%.o:\s*%.c", 0, _SCORE_PATTERN_RULES),
+        (r"\|", 0, _SCORE_ORDER_PREREQS),
+        (r"^\.PRECIOUS:", re.MULTILINE, _SCORE_PRECIOUS),
+        (r"ifdef\s+(CROSS_COMPILE|OS)", 0, _SCORE_CROSS_COMPILE),
+        (r"-include.*\.mk", 0, _SCORE_MK_INCLUDE),
+    )
+
+    # (pattern, finding message) pairs for the modernization sub-reports.
+    _TOOL_INTEGRATION_PATTERNS = (
+        (r"(clang-format|cppcheck)", "Modern linting/formatting tools"),
+        (r"(cargo|npm|pip)", "Package manager integration"),
+    )
+    _CROSS_PLATFORM_PATTERNS = (
+        (r"UNAME.*=.*\$\(shell uname", "OS detection"),
+        (r"ifeq.*\$\(UNAME\)", "Conditional platform configuration"),
+    )
+    _CONFIGURATION_PATTERNS = (
+        (r"-include.*config.*\.mk", "Configuration file inclusion"),
+        (r"ifdef CROSS_COMPILE", "Cross-compilation support"),
+    )
+
+    @staticmethod
+    def _matches(content: str, patterns: tuple[tuple[str, str], ...]) -> list[str]:
+        """Return the messages for every pattern found in `content`."""
+        return [message for pattern, message in patterns if re.search(pattern, content)]
+
+    @classmethod
+    def _modernization_score(cls, content: str) -> float:
+        """Sum the weights of every modernization pattern present in `content`."""
+        return sum(
+            weight
+            for pattern, flags, weight in cls._MODERNIZATION_SCORE_PATTERNS
+            if re.search(pattern, content, flags)
+        )
+
     def analyze_modernization(self, context: Any) -> dict[str, Any]:
         """Analyze makefile for modern best practices."""
         content = self._get_makefile_content(context)
-
-        score = 0.0
-        max_score = 10.0
-
-        if re.search(r"^\.PHONY:", content, re.MULTILINE):
-            score += _SCORE_PHONY
-        if re.search(r":=", content):
-            score += _SCORE_IMMEDIATE_ASSIGN
-        if re.search(r"^include\s+", content, re.MULTILINE):
-            score += _SCORE_INCLUDE
-        if re.search(r"^SHELL\s*:=", content, re.MULTILINE):
-            score += _SCORE_SHELL_OVERRIDE
-        if re.search(r"%.o:\s*%.c", content):
-            score += _SCORE_PATTERN_RULES
-        if re.search(r"\|", content):
-            score += _SCORE_ORDER_PREREQS
-        if re.search(r"^\.PRECIOUS:", content, re.MULTILINE):
-            score += _SCORE_PRECIOUS
-        if re.search(r"ifdef\s+(CROSS_COMPILE|OS)", content):
-            score += _SCORE_CROSS_COMPILE
-        if re.search(r"-include.*\.mk", content):
-            score += _SCORE_MK_INCLUDE
-
-        tool_integration = []
-        if re.search(r"(clang-format|cppcheck)", content):
-            tool_integration.append("Modern linting/formatting tools")
-        if re.search(r"(cargo|npm|pip)", content):
-            tool_integration.append("Package manager integration")
-
-        cross_platform_support = []
-        if re.search(r"UNAME.*=.*\$\(shell uname", content):
-            cross_platform_support.append("OS detection")
-        if re.search(r"ifeq.*\$\(UNAME\)", content):
-            cross_platform_support.append("Conditional platform configuration")
-
-        configuration_management = []
-        if re.search(r"-include.*config.*\.mk", content):
-            configuration_management.append("Configuration file inclusion")
-        if re.search(r"ifdef CROSS_COMPILE", content):
-            configuration_management.append("Cross-compilation support")
+        score = self._modernization_score(content)
 
         return {
-            "modern_features": {"score": score / max_score},
-            "tool_integration": tool_integration,
-            "cross_platform_support": cross_platform_support,
-            "configuration_management": configuration_management,
+            "modern_features": {"score": score / _MAX_MODERNIZATION_SCORE},
+            "tool_integration": self._matches(content, self._TOOL_INTEGRATION_PATTERNS),
+            "cross_platform_support": self._matches(
+                content, self._CROSS_PLATFORM_PATTERNS
+            ),
+            "configuration_management": self._matches(
+                content, self._CONFIGURATION_PATTERNS
+            ),
         }

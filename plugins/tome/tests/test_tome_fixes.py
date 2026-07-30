@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import pytest
-from tome.synthesis.merger import fuzzy_deduplicate
 
 from tests.factories import make_finding
+from tome.synthesis.merger import fuzzy_deduplicate
 
 # ---------------------------------------------------------------------------
 # TOME-001: union-find fuzzy_deduplicate
@@ -117,13 +117,19 @@ class TestTOME001FuzzyDeduplicateUnionFind:
             make_finding(
                 0.5,
                 channel=channel,
-                title="neural network deep learning optimization training gradient descent backprop",
+                title=(
+                    "neural network deep learning optimization training "
+                    "gradient descent backprop"
+                ),
                 url="https://a.com/1",
             ),
             make_finding(
                 0.7,
                 channel=channel,
-                title="neural network deep learning optimization training gradient descent inference",
+                title=(
+                    "neural network deep learning optimization training "
+                    "gradient descent inference"
+                ),
                 url="https://b.com/1",
             ),
             make_finding(

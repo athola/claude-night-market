@@ -339,6 +339,73 @@ than comment-density or naming checks. The latter
 two are inflated or contested; the former reliably
 separate AI from human code at production scale.
 
+## Anthropomorphism category calibration (issue #646)
+
+Measured against this repository's own markdown, which is a
+mixed human and AI corpus of technical prose. Fenced code
+blocks and inline code were stripped before matching, mirroring
+the markdown application layer. Duplicate trees
+(`.claude/worktrees/`, `clawhub/`) and the detector's own
+pattern documentation were excluded, since both quote the
+patterns as examples and would inflate the count.
+
+Corpus: 1445 markdown files.
+
+| Tier | Hits | True | False | FP rate |
+|------|------|------|-------|---------|
+| `anthropomorphism` (high) | 6 | 5 | 1 | 16.7% |
+| `anthropomorphism_medium` | 4 | 4 | 0 | 0% |
+| `anthropomorphism_low` | 132 | not audited | n/a | gated off |
+
+Every hit in the high and medium tiers was hand-classified.
+
+### What the first pass caught
+
+The initial regex scored 7 high-tier and 8 medium-tier hits, a
+28.6% and 50.0% false-positive rate. Two defects accounted for
+six of the seven false positives, and both are now fixed with
+regression tests:
+
+1. **`agent` as a subject noun.** "The agent tries to end its
+   turn" is the accepted description of a Stop hook, not a
+   metaphor. `agent` names an intentional system in this
+   codebase, so it moved to the terms-of-art exclusion list
+   alongside `observer` and `supervisor`.
+2. **`real work` after a preposition.** "Run the gate on real
+   work", "for real work", "rather than real work" all mean a
+   non-synthetic workload set against a test fixture. That is a
+   literal distinction, not an emphasis crutch. Lookbehinds for
+   `on`, `for`, `than`, `with`, and `against` now exclude it.
+   A third defect, `is the boundary distinction`, where the
+   metaphor noun modifies a following noun instead of closing
+   its phrase, was fixed with a lookahead in the same pass.
+
+### The one surviving false positive
+
+A quoted example inside a prohibition: the doc-generator skill
+writes `Do not humanize non-living constructs ("the code wants",
+"the function speaks to")`. The regex cannot distinguish a
+pattern being used from a pattern being cited. Quote stripping
+belongs at the application layer, per `anti-goals.md`, not in
+the pattern. Documents that discuss slop patterns will always
+trip their own detector.
+
+### Why the low tier is gated
+
+132 hits against 6 for the high tier, a 22x difference over the
+same corpus. `handles`, `manages`, and `owns` are the ordinary
+vocabulary of systems prose, and "the service handles retries"
+has no concise non-anthropomorphic rewrite. Reporting them by
+default would bury the 6 hits that are worth acting on. The
+category sets `default_enabled: false` and is available through
+`get_tier5_patterns(patterns, include_optional=True)`.
+
+Re-run the measurement after any pattern edit. The script is
+short enough to rebuild from this description: load the tier 5
+categories with `include_optional=True`, strip fenced and inline
+code, match over the repository's markdown, and hand-classify
+every high and medium hit.
+
 ## Currency note
 
 Model behavior changes faster than these notes can. The

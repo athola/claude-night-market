@@ -312,3 +312,56 @@ class TestRankPromotionCandidates:
         """The limit argument bounds the candidate list."""
         candidates = rank_promotion_candidates(sample_index, limit=1)
         assert len(candidates) == 1
+
+
+class TestNullCaptureVisibility:
+    """The report must separate empty captures from real ones.
+
+    Without this, a corpus can look healthy (0% inert, 0 orphans) while
+    a tenth of it is redirect notices and zero-result API responses
+    (issue #649). Those are neither inert nor orphaned: they carry a
+    real backing file and, before the promotion gate, a real score.
+    """
+
+    def test_null_captures_are_counted(self) -> None:
+        """Flagged entries are tallied and broken out by reason."""
+        index = {
+            "entries": {
+                "https://a.example/x": {
+                    "url": "https://a.example/x",
+                    "routing_type": "archived",
+                    "null_capture": "redirect-notice",
+                },
+                "https://b.example/y": {
+                    "url": "https://b.example/y",
+                    "routing_type": "archived",
+                    "null_capture": "empty-results",
+                },
+                "https://c.example/z": {
+                    "url": "https://c.example/z",
+                    "routing_type": "meta",
+                },
+            },
+            "hashes": {},
+        }
+        stats = corpus_stats(index)
+        assert stats.null_capture_count == 2
+        assert stats.by_null_reason == {
+            "redirect-notice": 1,
+            "empty-results": 1,
+        }
+
+    def test_corpus_without_null_captures_reports_zero(self) -> None:
+        """A clean corpus reports zero, not a missing attribute."""
+        index = {
+            "entries": {
+                "https://c.example/z": {
+                    "url": "https://c.example/z",
+                    "routing_type": "meta",
+                }
+            },
+            "hashes": {},
+        }
+        stats = corpus_stats(index)
+        assert stats.null_capture_count == 0
+        assert stats.by_null_reason == {}

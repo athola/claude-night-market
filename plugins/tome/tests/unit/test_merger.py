@@ -9,9 +9,9 @@ So that the ranker and report formatter receive unique, high-quality inputs
 from __future__ import annotations
 
 import pytest
-from tome.synthesis.merger import deduplicate, merge_findings
 
 from tests.factories import make_finding
+from tome.synthesis.merger import deduplicate, merge_findings
 
 
 class TestDeduplicate:
@@ -208,3 +208,56 @@ class TestMergeFindings:
         result = merge_findings([code, discourse, academic])
 
         assert len(result) == 3
+
+
+class TestDeduplicateEmptyUrlContract:
+    """
+    Feature: findings without a URL are never deduplicated away
+
+    ``deduplicate`` keys on URL. A finding with no URL has no key, so
+    the documented contract is that every such finding survives; the
+    alternative would silently collapse unrelated findings under a
+    shared empty key.
+    """
+
+    @pytest.mark.unit
+    def test_all_empty_url_findings_are_kept(self) -> None:
+        """
+        Scenario: Several findings arrive with no URL
+        Given three findings with an empty URL
+        When deduplicate is called
+        Then all three survive
+        """
+        findings = [
+            make_finding(0.9, title="first", url=""),
+            make_finding(0.5, title="second", url=""),
+            make_finding(0.7, title="third", url=""),
+        ]
+
+        result = deduplicate(findings)
+
+        assert len(result) == 3
+        assert {f.title for f in result} == {"first", "second", "third"}
+
+    @pytest.mark.unit
+    def test_empty_url_findings_survive_alongside_deduplicated_ones(self) -> None:
+        """Empty-URL findings are kept while real URLs still collapse."""
+        findings = [
+            make_finding(0.9, title="keyed", url="https://example.com/a"),
+            make_finding(0.4, title="keyed dup", url="https://example.com/a"),
+            make_finding(0.5, title="unkeyed", url=""),
+        ]
+
+        result = deduplicate(findings)
+
+        assert len(result) == 2
+        assert {f.title for f in result} == {"keyed", "unkeyed"}
+
+    @pytest.mark.unit
+    def test_higher_relevance_wins_for_a_shared_url(self) -> None:
+        findings = [
+            make_finding(0.4, title="low", url="https://example.com/a"),
+            make_finding(0.9, title="high", url="https://example.com/a"),
+        ]
+
+        assert [f.title for f in deduplicate(findings)] == ["high"]

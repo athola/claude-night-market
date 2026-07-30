@@ -23,7 +23,7 @@ BANDIT_TARGETS := src/
 COV_DIRS := src
 PYTEST_TARGETS := tests/
 TEST_UNIT_ARGS := -v -m unit
-SECURITY_EXTRA = $(UV_RUN) safety check || echo "[WARNING] Safety check unavailable"
+SECURITY_EXTRA = $(UV_RUN) safety check
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract

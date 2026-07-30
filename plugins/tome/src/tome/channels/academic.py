@@ -14,7 +14,7 @@ from typing import Any
 from urllib.parse import quote, quote_plus
 
 from tome.channels import deduplicate_queries
-from tome.models import Finding
+from tome.models import CitationEdge, Finding
 
 # ---------------------------------------------------------------------------
 # Query Expansion
@@ -72,7 +72,10 @@ def build_arxiv_search_url(topic: str, max_results: int = 10) -> str:
         URL string for the arXiv Atom API, sorted by relevance.
     """
     encoded = quote_plus(topic)
-    return f"{_ARXIV_API_BASE}?search_query=all:{encoded}&max_results={max_results}&sortBy=relevance"
+    return (
+        f"{_ARXIV_API_BASE}?search_query=all:{encoded}"
+        f"&max_results={max_results}&sortBy=relevance"
+    )
 
 
 def _extract_tag_text(xml: str, tag: str) -> str | None:
@@ -585,6 +588,68 @@ def parse_citation_chain_response(data: dict[str, Any]) -> list[Finding]:
         )
 
     return findings
+
+
+def parse_citation_edges(
+    data: dict[str, Any], source_paper_id: str
+) -> list[CitationEdge]:
+    """Parse S2 references/citations into directed :class:`CitationEdge`.
+
+    ``parse_citation_chain_response`` keeps the target papers but drops
+    the relationship. This keeps it: a ``/references`` item means
+    *source cites target*; a ``/citations`` item means *target cites
+    source*. Edges are emitted only when both endpoints have a real
+    paper ID, so no dangling half-edge enters the graph.
+
+    Args:
+        data: Parsed JSON from the S2 references or citations endpoint.
+        source_paper_id: The paper whose chain this response describes.
+
+    Returns:
+        Directed citation edges by S2 paper ID.
+
+    Raises:
+        ValueError: If ``source_paper_id`` is empty. An edge without a
+            real source is meaningless; this is designed out, not
+            silently skipped.
+    """
+    if not source_paper_id:
+        raise ValueError("source_paper_id must be a non-empty paper ID")
+
+    edges: list[CitationEdge] = []
+    items = data.get("data", [])
+    if not isinstance(items, list):
+        return edges
+
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        # References use "citedPaper" (source cites it); citations use
+        # "citingPaper" (it cites source). The key sets edge direction.
+        if "citedPaper" in item:
+            paper, source_is_citing = item.get("citedPaper") or {}, True
+        elif "citingPaper" in item:
+            paper, source_is_citing = item.get("citingPaper") or {}, False
+        else:
+            continue
+        if not isinstance(paper, dict):
+            continue
+
+        other_id: str = paper.get("paperId") or ""
+        if not other_id:
+            continue
+        # A self-citation is a graph self-loop, which CitationEdge
+        # refuses. Upstream data is not trusted to be clean, so drop the
+        # item here rather than let one bad row abort the whole page.
+        if other_id == source_paper_id:
+            continue
+
+        if source_is_citing:
+            edges.append(CitationEdge(citing_id=source_paper_id, cited_id=other_id))
+        else:
+            edges.append(CitationEdge(citing_id=other_id, cited_id=source_paper_id))
+
+    return edges
 
 
 def build_paper_summary_prompt(title: str, abstract: str) -> str:

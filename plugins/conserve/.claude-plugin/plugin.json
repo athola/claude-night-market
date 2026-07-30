@@ -1,8 +1,9 @@
 {
   "name": "conserve",
-  "version": "1.9.16",
+  "version": "1.9.17",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
+    "./skills/action-first-output",
     "./skills/agent-expenditure",
     "./skills/bloat-detector",
     "./skills/clear-context",

@@ -11,14 +11,22 @@ no-op (idempotent).
 from __future__ import annotations
 
 import copy
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
 import yaml
 
+# The wiring test needs the fetch hook, which lives outside the package.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "hooks"))
+from web_research_handler import (  # noqa: E402 - needs the sys.path line above
+    detect_null_capture,
+)
+
 from memory_palace.corpus import index_promoter
 from memory_palace.corpus.index_promoter import (
+    CorpusUnavailableError,
     Proposal,
     apply_orphan_prunes,
     apply_promotions,
@@ -437,3 +445,188 @@ class TestOrphanPrune:
         reloaded = yaml.safe_load(index_path.read_text(encoding="utf-8"))
         assert "https://gone.test" not in reloaded["entries"]
         assert reloaded["hashes"] == {"sha256:unrelated": "data/staging/other.md"}
+
+
+class TestNullCaptureGate:
+    """A capture the fetch hook flagged as empty must not be promoted.
+
+    Promotion scores on structural signals only (recency, domain
+    authority, cluster size), so a failed fetch inherits the score of
+    its domain and cluster. Before this gate, redirect notices and
+    zero-result API responses promoted to importance 79-90, above much
+    of the real corpus (issue #649).
+    """
+
+    def test_null_capture_archives_instead_of_promoting(self) -> None:
+        """A flagged capture drains instead of promoting."""
+        index = {
+            "entries": {"https://ex.com/a": _entry(null_capture="redirect-notice")},
+            "hashes": {},
+        }
+        proposals = propose_promotions(index)
+        assert len(proposals) == 1
+        assert proposals[0].action == "archive"
+        assert proposals[0].changes["routing_type"] == "archived"
+        assert any("null" in r.lower() for r in proposals[0].reasons)
+
+    def test_same_entry_without_flag_still_promotes(self) -> None:
+        """Control: the gate, not the fixture, is what blocks promotion."""
+        index = {"entries": {"https://ex.com/a": _entry()}, "hashes": {}}
+        proposals = propose_promotions(index)
+        assert [p.action for p in proposals] == ["promote"]
+
+    def test_null_capture_never_reaches_growing_maturity(self) -> None:
+        """Archived entries get no importance bump and stay seedling."""
+        index = {
+            "entries": {"https://ex.com/a": _entry(null_capture="empty-results")},
+            "hashes": {},
+        }
+        changes = propose_promotions(index)[0].changes
+        assert changes.get("maturity") != "growing"
+        assert "importance_score" not in changes
+
+
+class TestNullCaptureWiring:
+    """The flag must survive the capture path, or the gate is dead code."""
+
+    def test_detector_output_feeds_the_gate(self) -> None:
+        """Detector reason string is what the promoter archives on."""
+        reason = detect_null_capture({}, "REDIRECT DETECTED: bounced elsewhere")
+        assert reason is not None
+
+        index = {
+            "entries": {"https://ex.com/a": _entry(null_capture=reason)},
+            "hashes": {},
+        }
+        proposals = propose_promotions(index)
+        assert [p.action for p in proposals] == ["archive"]
+
+
+class TestCorpusAbsenceRefusesMassPrune:
+    """A tree without the capture corpus must not be read as mass rot.
+
+    Only 15 of the ~1538 files under ``data/staging`` are tracked in git,
+    so a fresh worktree checks out an index describing hundreds of
+    captures whose backing files were never there. Every entry then looks
+    orphaned, and a prune that trusts that reading deletes the corpus.
+
+    That is not hypothetical: 6092ff2d, a commit whose message describes
+    a sanctum ``_should_exclude`` fix, emptied this index to
+    ``entries: {}`` because the pre-commit hook ran from a worktree.
+
+    The invariant: orphan detection is only meaningful when the corpus is
+    present, and a proposal to delete most of the index is evidence that
+    it is not.
+    """
+
+    @pytest.fixture
+    def empty_plugin_root(self, tmp_path: Path) -> Path:
+        """Build a tree with a staging directory but none of the captures."""
+        (tmp_path / "data" / "staging").mkdir(parents=True)
+        return tmp_path
+
+    def test_refuses_to_prune_when_no_backing_file_is_present(
+        self, sample_index: dict, empty_plugin_root: Path
+    ) -> None:
+        """Scenario: The whole corpus is missing from this checkout
+        Given an index describing five captures
+        And a tree where none of their files exist
+        When orphan prunes are proposed
+        Then the proposal is refused
+        And no key is offered for deletion
+        """
+        with pytest.raises(CorpusUnavailableError):
+            propose_orphan_prunes(sample_index, empty_plugin_root)
+
+    def test_refuses_when_the_majority_are_orphaned(
+        self, sample_index: dict, tmp_path: Path
+    ) -> None:
+        """Scenario: Most of the corpus is missing, but not all
+        Given an index of five captures with one backing file present
+        When orphan prunes are proposed
+        Then the proposal is refused
+        And a partial checkout is not mistaken for partial rot
+        """
+        staging = tmp_path / "data" / "staging"
+        staging.mkdir(parents=True)
+        (staging / "recent.md").write_text("stub", encoding="utf-8")
+        with pytest.raises(CorpusUnavailableError):
+            propose_orphan_prunes(sample_index, tmp_path)
+
+    def test_still_prunes_a_lone_orphan(
+        self, sample_index: dict, plugin_root_with_files: Path
+    ) -> None:
+        """Scenario: Ordinary curation removes one capture
+        Given an index where four of five backing files are present
+        When orphan prunes are proposed
+        Then the single orphan is proposed for deletion
+        And the guard does not disable routine pruning
+        """
+        assert propose_orphan_prunes(sample_index, plugin_root_with_files) == [
+            "https://example.com/orphan"
+        ]
+
+    def test_an_empty_index_is_not_refused(self, empty_plugin_root: Path) -> None:
+        """Scenario: There is nothing to protect
+        Given an index with no entries
+        When orphan prunes are proposed
+        Then no refusal is raised
+        And an empty index stays a no-op rather than an error
+        """
+        assert (
+            propose_orphan_prunes({"entries": {}, "hashes": {}}, empty_plugin_root)
+            == []
+        )
+
+    def test_refusal_reports_the_counts_that_triggered_it(
+        self, sample_index: dict, empty_plugin_root: Path
+    ) -> None:
+        """Scenario: A human has to judge whether the corpus is really gone
+        Given a tree missing every backing file
+        When the refusal is raised
+        Then its message carries how many of how many looked orphaned
+        And names the directory it expected to find them in
+        """
+        with pytest.raises(CorpusUnavailableError) as excinfo:
+            propose_orphan_prunes(sample_index, empty_plugin_root)
+        message = str(excinfo.value)
+        assert "5 of 5" in message
+        assert "data/staging" in message
+
+    def test_missing_plugin_root_still_fails_closed(self, sample_index: dict) -> None:
+        """Scenario: The caller has no root to check against
+        Given a plugin root of None
+        When orphan prunes are proposed
+        Then the existing empty-list default is preserved
+        And the guard does not convert a quiet skip into a raise
+        """
+        assert propose_orphan_prunes(sample_index, None) == []
+
+    def test_promotion_does_not_mass_archive_a_missing_corpus(
+        self, empty_plugin_root: Path
+    ) -> None:
+        """Scenario: The promoter runs in a tree without the corpus
+        Given four pending captures whose backing files are all absent
+        When promotions are proposed
+        Then none of them is archived as an orphan
+        And absence of the corpus stops meaning every capture died
+
+        Pruning deletes and archiving only relabels, so this is the
+        milder half of the same bug. It still writes a wrong verdict
+        onto every pending entry and re-stages it, which is how the
+        curated state drifts without anyone deciding that it should.
+        """
+        index = {
+            "entries": {
+                f"https://example.com/{i}": _entry(
+                    content_hash=f"sha256:{i:04d}",
+                    stored_at=f"data/staging/absent-{i}.md",
+                    last_updated=_iso(2),
+                    url=f"https://example.com/{i}",
+                )
+                for i in range(4)
+            },
+            "hashes": {},
+        }
+        proposals = propose_promotions(index, empty_plugin_root)
+        assert [p.action for p in proposals if p.action == "archive"] == []

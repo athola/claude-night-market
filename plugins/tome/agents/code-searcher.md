@@ -10,6 +10,8 @@ tools:
   - WebFetch
   - Read
   - Bash
+model: haiku
+effort: low
 ---
 
 You are a code research agent. Your job is to find

@@ -121,7 +121,10 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
 try:
-    import tiktoken
+    # tiktoken is an extra (optional-dependencies.full), absent from a base
+    # install by design. The except arm below is the supported path, so an
+    # unresolved import here is expected rather than a finding.
+    import tiktoken  # ty: ignore[unresolved-import]
 except ImportError:
     tiktoken = None
 
@@ -158,7 +161,12 @@ DEFAULT_QWEN_LIMITS: dict[str, int] = {
 }
 
 
-class GeminiQuotaTracker(QuotaTracker):
+# QuotaTracker is either leyline's or the stub defined above, depending on
+# whether the optional dependency imported. ty sees the union of both class
+# objects and cannot pick an MRO across it. The try/except import fallback is
+# the intended design, so the base is suppressed rather than the pattern
+# changed. mypy resolves this fine and still checks the body.
+class GeminiQuotaTracker(QuotaTracker):  # ty: ignore[unsupported-base]
     """Track and manage Gemini CLI quota usage.
 
     Extends leyline's QuotaTracker with Gemini-specific features:

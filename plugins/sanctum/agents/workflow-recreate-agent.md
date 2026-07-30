@@ -15,7 +15,6 @@ tools:
 - Glob
 - Grep
 - TodoWrite
-model: sonnet
 escalation:
   to: opus
   hints:
@@ -25,6 +24,8 @@ examples:
   user: Run /fix-workflow on what we just did.
   assistant: I'll use workflow-recreate-agent to reconstruct the workflow slice and
     pinpoint inefficiencies.
+model: sonnet
+effort: medium
 ---
 
 # Workflow Recreate Agent

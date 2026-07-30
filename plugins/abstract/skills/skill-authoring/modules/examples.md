@@ -2,8 +2,8 @@
 
 Annotated walk-throughs of skills that ship in this repo.
 Each example highlights one or two authoring decisions worth
-copying. Read these after `tdd-methodology.md` and
-`progressive-disclosure.md`. Citations are to real files; you
+copying. Read these after the TDD methodology and progressive
+disclosure modules listed in `SKILL.md`. Citations are to real files; you
 can `Read` any path below to see the full source.
 
 ## Example 1: a focused technique skill
@@ -38,7 +38,8 @@ What to copy from this skill:
 2. **Default to the cheapest tier**. The skill says "default
    to Tier 1" and requires explicit approval to escalate. This
    counters the rationalization "I'll do a thorough job by
-   running Tier 3 just in case." See `anti-rationalization.md`.
+   running Tier 3 just in case." See the anti-rationalization module
+   listed in `SKILL.md`.
 
 3. **Output contract per tier**. Tier 1 produces a different
    artifact than Tier 3. The skill names both. The reader

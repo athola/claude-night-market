@@ -13,6 +13,8 @@ _GAUNTLET_SRC = Path(__file__).resolve().parents[3] / "gauntlet" / "src"
 sys.path.insert(0, str(_HOOKS_DIR))
 sys.path.insert(0, str(_GAUNTLET_SRC))
 
+from graph_community_refresh import main  # noqa: E402 - sys.path modified above
+
 from gauntlet.graph import GraphStore  # noqa: E402 - sys.path modified above
 from gauntlet.models import (  # noqa: E402 - sys.path modified above
     EdgeKind,
@@ -20,7 +22,6 @@ from gauntlet.models import (  # noqa: E402 - sys.path modified above
     GraphNode,
     NodeKind,
 )
-from graph_community_refresh import main  # noqa: E402 - sys.path modified above
 
 
 @pytest.fixture()

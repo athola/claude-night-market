@@ -12,9 +12,7 @@ union (S9, issue #484). Static type checkers can narrow on the
 ``success`` literal at the call site.
 """
 
-from __future__ import annotations
-
-from typing import Any, Literal, TypedDict
+from typing import TYPE_CHECKING, Any, Literal, TypedDict, Union
 
 
 class SuccessEnvelope(TypedDict):
@@ -37,7 +35,17 @@ class ErrorEnvelope(TypedDict):
 
 
 # Discriminated union: narrowing on env["success"] picks a branch.
-Envelope = SuccessEnvelope | ErrorEnvelope
+if TYPE_CHECKING:
+    # Type checkers see the real union. Spelled ``Union[...]`` rather than
+    # ``X | Y``: mypy targets the 3.9 floor, where ``|`` on TypedDict classes
+    # is not a valid type expression even inside a TYPE_CHECKING branch.
+    Envelope = Union[SuccessEnvelope, ErrorEnvelope]
+else:
+    # ``Envelope`` is exported in ``__all__`` and imported by consumers, so
+    # the name must exist at runtime. A concrete placeholder provides it
+    # while avoiding ``|`` on ``TypedDict`` classes, which is 3.10+ and
+    # would break the Python 3.9 floor at import time.
+    Envelope = dict
 
 
 def success_envelope(data: Any) -> SuccessEnvelope:

@@ -34,6 +34,31 @@ class AbstractValidationResult(TypedDict):
     issues: list[str]
 
 
+FENCE_RE = re.compile(r"^\s*(?:```|~~~)")
+
+
+def _strip_fenced_blocks(text: str) -> str:
+    """Drop fenced code blocks, keeping line count stable.
+
+    The spoke-to-spoke check looks for one module naming another. A fenced
+    block that draws a ``modules/`` tree, or shows an example "Detailed
+    Resources" list, is illustration rather than a link, and counting it
+    punished exactly the skills that document modular authoring. Inline code
+    is deliberately kept: a genuine cross-reference is normally written as
+    ``modules/other.md`` in backticks, and stripping that would blind the
+    check to the thing it exists to find.
+    """
+    out = []
+    in_fence = False
+    for line in text.splitlines():
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+            out.append("")
+            continue
+        out.append("" if in_fence else line)
+    return "\n".join(out)
+
+
 class AbstractValidator:
     """Validate the abstract plugin for meta-skills and infrastructure."""
 
@@ -168,13 +193,19 @@ class AbstractValidator:
                 f"{skill_name}: Missing overview section for progressive disclosure",
             )
 
-        # Check that Quick Start comes before Detailed Resources
+        # Check that Quick Start comes before Detailed Resources.
+        #
+        # str.find returns -1 for "absent", and -1 is truthy, so the previous
+        # `find(a) or find(b)` never reached b and the `if detailed_pos` guard
+        # below never rejected a miss. Every skill using the plain
+        # "## Resources" heading was reported as mis-ordered regardless of
+        # where its headings sat. Compare against -1 explicitly.
         if has_quick_start and has_detailed:
             quick_pos = content.find("## Quick Start")
-            detailed_pos = content.find("## Detailed Resources") or content.find(
-                "## Resources",
-            )
-            if detailed_pos and quick_pos > detailed_pos:
+            detailed_pos = content.find("## Detailed Resources")
+            if detailed_pos == -1:
+                detailed_pos = content.find("## Resources")
+            if detailed_pos != -1 and quick_pos > detailed_pos:
                 issues.append(
                     f"{skill_name}: Quick Start should come before Detailed Resources",
                 )
@@ -277,7 +308,7 @@ class AbstractValidator:
 
             # Check that modules don't cross-reference each other (spoke-to-spoke)
             for module_file in module_files:
-                module_content = module_file.read_text()
+                module_content = _strip_fenced_blocks(module_file.read_text())
                 current_module = module_file.stem
 
                 for other_module in module_files:
@@ -493,8 +524,9 @@ def main() -> None:
         if issues:
             for _issue in issues:
                 print(f"  {_issue}")
-        else:
-            print("No issues found.")
+            # A scan that prints issues and exits 0 reports itself as clean.
+            raise SystemExit(1)
+        print("No issues found.")
     elif args.fix:
         fixes = validator.fix_patterns(dry_run=args.dry_run)
         for _fix in fixes:

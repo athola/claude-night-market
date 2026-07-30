@@ -615,7 +615,6 @@ async def test_hooks_integration():
 
 ## Related Modules
 
-- **hook-types.md**: Event signatures and parameters
-- **security-patterns.md**: Security best practices
-- **performance-guidelines.md**: Optimization techniques
-- **testing-hooks.md**: detailed testing strategies
+See the Module References section in `SKILL.md` for the full module list and
+what each one covers. The hub owns that index so the modules do not have to
+keep parallel copies of it in sync.

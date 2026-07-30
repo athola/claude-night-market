@@ -75,15 +75,17 @@ class PrinciplesMixin:
             )
 
         logging_patterns = ["print(", "logger.", "logging."]
-        if any(pattern in content for pattern in logging_patterns):
-            if len(violations) > 0:
-                violations.append(
-                    {
-                        "type": "logging",
-                        "issue": "Logging mixed with other concerns",
-                        "location": file_path,
-                    }
-                )
+        if (
+            any(pattern in content for pattern in logging_patterns)
+            and len(violations) > 0
+        ):
+            violations.append(
+                {
+                    "type": "logging",
+                    "issue": "Logging mixed with other concerns",
+                    "location": file_path,
+                }
+            )
 
         if len(violations) >= MIN_VIOLATIONS_TO_REPORT:
             return violations
@@ -204,10 +206,11 @@ class PrinciplesMixin:
         lsp_violations = 0
         lsp_issues = []
 
-        if re.search(r"class\s+Square.*\(.*Rectangle.*\)", content):
-            if "set_width" in content or "set_height" in content:
-                lsp_violations += 1
-                lsp_issues.append("Square inherits Rectangle but violates LSP")
+        if re.search(r"class\s+Square.*\(.*Rectangle.*\)", content) and (
+            "set_width" in content or "set_height" in content
+        ):
+            lsp_violations += 1
+            lsp_issues.append("Square inherits Rectangle but violates LSP")
 
         if re.search(r"def\s+set_width.*self\.height\s*=", content):
             lsp_violations += 1

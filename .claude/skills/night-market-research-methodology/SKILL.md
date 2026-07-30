@@ -121,11 +121,47 @@ mechanism. Permit voluntary use." A documented no is a valid result.
    (`.claude/rules/shared-utility-consumer-rule.md` requires 2+
    consumers within 30 days).
 
-Caution: `docs/research/` is gitignored, and at least one committed
-rule (prefer-invariants-over-fallbacks) cites a research-doc path
-that exists only on the authoring machine. Put the load-bearing
-evidence and citations into the rule or ADR itself. The research doc
-is background, not the record.
+4. Fold the load-bearing evidence out of the synthesis and into the
+   artifact that relies on it, as a table of sources and findings with
+   resolvable identifiers (arXiv IDs, URLs), plus the caveats that
+   bound them. Then delete the citation to the research file.
+
+Caution: `docs/research/` and `docs/superpowers/` are both gitignored,
+so a tracked doc that cites a path under either is a dangling reference
+for every checkout but the author's. Step 4 is what prevents this, and
+it is not optional. Five syntheses were folded back into their consumers
+on 2026-07-27 for exactly this reason, and a brainstorm design record
+cited by `.claude/rules/ceremony-requires-need.md` survived that pass
+because the check below only looked at `docs/research/`. Verify with:
+
+```bash
+rg -o --hidden 'docs/(research|superpowers)/[A-Za-z0-9._/-]+\.md' \
+   -g '!docs/research/**' -g '!docs/superpowers/**' -g '!.git/**' . \
+  | sed 's/.*://' | sort -u \
+  | while read -r p; do
+      git check-ignore -q "$p" && echo "DANGLING: $p"
+    done
+```
+
+`docs/backlog/` is gitignored too but stays out of the alternation on
+purpose. Every tracked citation of it is framed as a local convention,
+which `.claude/skills/night-market-docs-and-writing/SKILL.md` states
+outright, so adding it here would report three intentional hits and
+train the next reader to skip the output.
+
+The failure it does invite is different, and ADR-0019 nearly shipped it:
+a tracked doc of record delegating its *content* to a gitignored path.
+Citing the backlog as the local ranking list is fine. Saying "the design
+is recorded in `docs/backlog/queue.md`" is not, because on a fresh clone
+nothing is recorded anywhere. A doc of record carries its own content.
+
+Silence means every cited background path resolves on a fresh clone.
+The check tests whether the cited path is gitignored rather than
+matching on filename shape, so `{session}`-style templates in tome's
+own docs do not trip it. Add any newly ignored docs directory to the
+alternation, or the next draft cited from a rule repeats this.
+
+The research doc is background, not the record.
 
 ### Case study 1: coming loop (one doc, two artifact types)
 
@@ -317,8 +353,8 @@ one-line re-verification:
   `gh issue view 574 --json state -q .state`
 - Forced-eval lift still unmeasured:
   `rg -n "not measured" prototypes/forced-eval/README.md`
-- Research and backlog dirs still gitignored:
-  `git check-ignore docs/research/x.md docs/backlog/x.md`
+- Background doc dirs still gitignored:
+  `git check-ignore docs/research docs/backlog docs/superpowers`
 - Mutation exit-code semantics:
   `rg -n "Exit codes" .github/workflows/mutation-testing.yml`
 - Worthiness thresholds: reread `docs/backlog/queue.md`. It is a

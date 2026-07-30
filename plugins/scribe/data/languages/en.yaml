@@ -332,3 +332,108 @@ tier5:
       - '\bmake no mistake\b'
       - '\bread that again\.?'
       - '\bmark my words\b'
+  significance_cluster:
+    # Manufactured historical weight. The surrounding facts carry
+    # significance better than an assertion that they are significant.
+    # Each pattern is anchored to the full collocation so literal uses
+    # ("a last will and testament", "setting the stage lights") pass.
+    score: 2
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\b(?:stands?|serves?)\s+as\s+a\s+testament\s+to\b'
+      - '\bmarks?\s+a\s+turning\s+point\b'
+      - '\bindelible\s+mark\b'
+      - '\bdeeply\s+rooted\s+in\b'
+      - '\bsetting\s+the\s+stage\s+for\b'
+      - '\bshaping\s+the\s+future\s+of\b'
+      - '\bunderscores?\s+the\s+importance\s+of\b'
+      - '\bplays?\s+a\s+pivotal\s+role\b'
+  loop_vocabulary:
+    # Loop/cascade metaphors that read as insight while deferring the
+    # claim: "unpack" for explain, "surface" for raise/report, "a quiet
+    # shift" for the shift itself. Medium confidence because literal
+    # senses are common in technical prose (unpacking a tuple, a
+    # surface area), so these are surfaced for a human rather than
+    # auto-rewritten.
+    score: 1
+    confidence: medium
+    ignore_case: true
+    patterns:
+      # "unpack" as explain: only the metaphorical framings, so
+      # "unpacks the tuple" and "unpack the archive" pass.
+      - "\\b(?:let'?s|we'?ll|to|help(?:s)?\\s+(?:you|us))\\s+unpack\\s+(?:this|that|the|it)\\b"
+      - '\ba\s+quiet\s+(?:shift|revolution|change)\b'
+      - '\bthe\s+signal\s+here\s+is\b'
+  anthropomorphism:
+    # Issue #646. Human mental states, volition, and bodies attributed
+    # to code, systems, and documents. Precision comes from requiring a
+    # determiner plus a technical subject noun: "The parser understands"
+    # fires, "She knows the codebase" and "Users understand" do not,
+    # because a pronoun or a human role never precedes the verb.
+    #
+    # The subject list deliberately omits domain terms of art (observer,
+    # listener, supervisor, daemon, orphan, zombie, heartbeat, replica)
+    # so the anti-goal is enforced structurally rather than by a later
+    # exclusion pass. It also omits human roles (reviewer, user,
+    # developer, maintainer, author, team) so real people keep their
+    # verbs, and "agent", which names an intentional system in this
+    # codebase: "the agent tries to end its turn" is the accepted
+    # description of a Stop hook, not a metaphor (corpus audit, #646).
+    #
+    # "expects" is intentionally absent. "The parser expects a closing
+    # brace" is standard API prose, and no regex separates that from the
+    # intent sense reliably enough for an auto-flag tier.
+    score: 2
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\b(?:the|this|that|these|those|a|an|its|our|their)\s+(?:[a-z]+\s+){0,2}(?:scheduler|parser|lexer|module|package|cache|buffer|queue|pool|system|compiler|linter|formatter|resolver|router|client|server|allocator|handler|migration|gateway|adapter|wrapper|serializer|validator|encoder|decoder|transformer|loader|mapper|factory|controller|repository|store|storage|session|request|response|socket|stream|channel|payload|config|configuration|script|binary|library|framework|runtime|engine|kernel|driver|plugin|algorithm|function|method|class|struct|interface|api|endpoint|database|query|index|thread|process|worker|job|task|pipeline|build|container|hook|program|application|protocol|layer|backend|frontend|middleware|logger|tracer|profiler|generator|renderer|template|codebase|repo|branch|commit|test|suite|fixture|mock|harness|type\s+system|type\s+checker)s?\s+(?:knows?(?:\s+about)?|understands?|wants?\s+to|decides?|thinks?|believes?|remembers?|forgets?|learns?|cares?\s+about|tries?\s+to|is\s+happy\s+to|are\s+happy\s+to|is\s+aware\s+of|are\s+aware\s+of|agrees?|refuses?|is\s+smart\s+enough\s+to|are\s+smart\s+enough\s+to|reaches?\s+into|walks?\s+the|speaks?\s+to)\b'
+  anthropomorphism_medium:
+    # Issue #646 medium tier. Surface for human judgment; do not
+    # auto-rewrite. Each pattern has a legitimate literal reading that
+    # the subject guard is responsible for excluding.
+    score: 2
+    confidence: medium
+    ignore_case: true
+    patterns:
+      # Metaphorical predicate nominative. Name what the thing does
+      # instead: "is the seam" -> "translates between". The lookahead
+      # requires the metaphor noun to close its phrase, so "is the
+      # boundary distinction" and "is the seam alignment problem",
+      # where the noun modifies a following noun, do not fire (corpus
+      # audit, #646).
+      - '\b(?:is|are|was|were|becomes?|became)\s+the\s+(?:seam|boundary|glue|bridge|backbone|heart|brain|nervous\s+system)\b(?=\s*(?:[.,;:!?)]|between|for|of|in|on|to|where|which|that|holding|linking|joining|connecting|$))'
+      # "The config drives retry behavior" -> "controls" / "sets" /
+      # "determines". The determiner-plus-noun guard keeps "He drives to
+      # work" and "She drives the roadmap" out. "data-driven" and "data
+      # driven" use the participle, so they never reach this pattern.
+      - '\b(?:the|this|that|these|those|a|an|its|our|their)\s+(?:[a-z]+\s+){0,2}(?:config|configuration|setting|flag|schema|policy|value|parameter|option|environment|variable|file|field|column|table|model|spec|contract|interface|api|module|system|engine|layer|pipeline|framework|library|service|component|design|architecture|rule|constraint|threshold|metric|state|context|input|output|data|logic|code)s?\s+drives?\b'
+      # "rides on top of" -> "runs on", "wraps", "uses".
+      - '\b(?:the|this|that|these|those|a|an|its|our|their)\s+(?:[a-z]+\s+){0,2}(?:api|service|module|system|layer|client|server|scheduler|worker|engine|runtime|library|framework|protocol|driver|adapter|process|daemon|job)s?\s+rides?\s+(?:on\s+top\s+of|on|atop|over)\b'
+      # Emphasis crutch in the "Full stop." family. Cut the modifier or
+      # give the number that makes it real. The noun list is an explicit
+      # allowlist so "a real number", "real time", "a real user", and
+      # "real data" never fire. The lookbehinds drop the prepositional
+      # sense, where "real work" means a non-synthetic workload set
+      # against a test fixture ("run the gate on real work", "rather
+      # than real work"). That is a literal distinction, not emphasis
+      # (corpus audit, #646).
+      - '(?<!on )(?<!for )(?<!than )(?<!with )(?<!against )\b(?:a\s+real|real)\s+(?:fix|fixes|work|solution|solutions|answer|answers|improvement|improvements|win|wins|difference|differences)\b'
+  anthropomorphism_low:
+    # Issue #646 low tier. Generalized agency verbs that are load-
+    # bearing in systems prose: "the service handles retries" has no
+    # concise non-anthropomorphic rewrite. Gated off by default via
+    # default_enabled so a routine sweep never reports them; an opt-in
+    # audit can still ask for them.
+    #
+    # default_enabled is a separate axis from confidence. The other
+    # low-confidence categories (contrastive_parallelism,
+    # semicolon_splice) are meant to be surfaced for human judgment and
+    # keep firing by default.
+    score: 1
+    confidence: low
+    default_enabled: false
+    ignore_case: true
+    patterns:
+      - '\b(?:the|this|that|these|those|a|an|its|our|their)\s+(?:[a-z]+\s+){0,2}[a-z]+\s+(?:handles?|manages?|owns?|talks?\s+to|sees?)\b'

@@ -9,9 +9,9 @@ So that I can gauge how thorough and diverse the results are
 from __future__ import annotations
 
 import pytest
-from tome.synthesis.quality import compute_quality_score
 
 from tests.factories import make_finding
+from tome.synthesis.quality import compute_quality_score
 
 
 class TestComputeQualityScore:

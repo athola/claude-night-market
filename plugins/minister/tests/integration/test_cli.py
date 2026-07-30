@@ -1209,6 +1209,7 @@ def test_cli_add_error_outputs_json(
 def test_cli_export_error_outputs_json(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
 ) -> None:
     """GIVEN --output-json and a broken tracker.
 
@@ -1227,7 +1228,7 @@ def test_cli_export_error_outputs_json(
             "--output-json",
             "export",
             "--output",
-            "/tmp/never.csv",
+            str(tmp_path / "never.csv"),
         ]
     )
 

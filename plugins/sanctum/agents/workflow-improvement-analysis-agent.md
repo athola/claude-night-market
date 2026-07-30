@@ -14,7 +14,6 @@ tools:
 - Glob
 - Grep
 - TodoWrite
-model: sonnet
 escalation:
   to: opus
   hints:
@@ -24,6 +23,8 @@ examples:
   user: What are the best ways to improve this workflow?
   assistant: I'll use workflow-improvement-analysis-agent to generate multiple approaches
     with trade-offs.
+model: sonnet
+effort: medium
 ---
 
 # Workflow Improvement Analysis Agent

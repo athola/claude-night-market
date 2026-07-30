@@ -236,6 +236,58 @@ finding that hits one of them is a false positive.
 - Reserve type-state for safety-critical/protocol APIs
 ```
 
+## Sources
+
+Conversion traits: [Rust API Guidelines C-CONV][c-conv] (mandates
+standard conversion traits over ad-hoc helpers),
+[std::convert::TryFrom][tryfrom], [std::str::FromStr][fromstr],
+[clippy::from_over_into][from-over-into],
+[Ricardo Martins, Idiomatic conversions][martins].
+
+Enums and boolean blindness: [thoughtbot, Booleans and Enums][thoughtbot],
+[corrode.dev, Using Enums to Represent State][corrode-enums],
+[std::matches!][matches] (stable since 1.42),
+[clippy::match_like_matches_macro][matches-lint], and the dissent,
+['Make invalid states unrepresentable' considered harmful][harmful].
+
+Newtype and type-state: [Rust Design Patterns, Newtype][newtype],
+[Rust By Example, New Type Idiom][rbe-newtype],
+[corrode.dev, Make Illegal States Unrepresentable][corrode-illegal],
+[Cliffle, The Typestate Pattern in Rust][cliffle].
+
+Lineage and academic grounding: "make invalid states unrepresentable"
+comes from the ML/OCaml world (Yaron Minsky), was popularized by
+[Scott Wlaschin (F#)][wlaschin], and reached Rust through Alexis King's
+[Parse, Don't Validate][parse]. Type-state originates with
+[Strom and Yemini (1986)][strom]; [Ferrite][ferrite] gives a modern
+Rust embedding via affine multiparty session types.
+
+Evidence gap: no Rust-specific study measures enum-versus-string defect
+rates. The closest quantitative proxy is Gao, Bird and Barr (ICSE 2017),
+[To Type or Not to Type][totype], which found static typing could have
+prevented about 15% of public JavaScript bugs. Treat that as an
+analogue, not a Rust result.
+
+[c-conv]: https://rust-lang.github.io/api-guidelines/interoperability.html
+[tryfrom]: https://doc.rust-lang.org/std/convert/trait.TryFrom.html
+[fromstr]: https://doc.rust-lang.org/std/str/trait.FromStr.html
+[from-over-into]: https://rust-lang.github.io/rust-clippy/master/index.html#from_over_into
+[martins]: https://ricardomartins.cc/2016/08/03/convenient_and_idiomatic_conversions_in_rust
+[thoughtbot]: https://thoughtbot.com/blog/booleans-and-enums
+[corrode-enums]: https://corrode.dev/blog/enums/
+[matches]: https://doc.rust-lang.org/std/macro.matches.html
+[matches-lint]: https://rust-lang.github.io/rust-clippy/master/index.html#match_like_matches_macro
+[harmful]: https://news.ycombinator.com/item?id=45164444
+[parse]: https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/
+[wlaschin]: https://fsharpforfunandprofit.com/posts/designing-with-types-making-illegal-states-unrepresentable/
+[newtype]: https://rust-unofficial.github.io/patterns/patterns/behavioural/newtype.html
+[rbe-newtype]: https://doc.rust-lang.org/rust-by-example/generics/new_types.html
+[corrode-illegal]: https://corrode.dev/blog/illegal-state/
+[cliffle]: https://cliffle.com/blog/rust-typestate/
+[strom]: https://dblp.org/rec/journals/tse/StromY86.html
+[ferrite]: https://arxiv.org/abs/2009.13619
+[totype]: https://earlbarr.com/publications/typestudy.pdf
+
 ## Exit Criteria
 
 - [ ] Stringly-typed comparisons (`x == "literal"`) are flagged with

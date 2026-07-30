@@ -79,4 +79,7 @@ Do not. Neither answer is more or less DDD than the other.
   the divergence protocol, and the IO boundary rule.
 - `plugins/pensive/skills/architecture-review/modules/ceremony-audit.md`:
   the review lens.
-- `docs/superpowers/specs/2026-07-13-ddd-paradigm-design.md`: design record.
+- `plugins/archetypes/tests/test_ddd_paradigm.py` and
+  `plugins/pensive/tests/skills/test_ceremony_audit.py`: the contract.
+  Each assertion anchors on a clause unique to the passage it guards, so
+  deleting that passage turns the test red.

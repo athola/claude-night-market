@@ -59,7 +59,8 @@ grep -A 5 "^description:" ~/.claude/skills/*/SKILL.md
 - Monitor skill description lengths during development
 - Implement budget tracking in CI/CD pipelines
 - Regular skill audits to identify consolidation opportunities
-- Follow description-writing best practices (see `modules/skill-authoring-best-practices.md`)
+- Follow description-writing best practices (see the Resources section in
+  `SKILL.md`)
 
 **References**:
 - Blog post: https://blog.fsck.com/2025/12/17/claude-code-skills-not-triggering/

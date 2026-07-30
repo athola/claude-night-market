@@ -44,6 +44,19 @@ Tier = Literal["Low", "Medium", "High", "Elite", "N/A"]
 # N/A is intentionally not in this map; rankers must skip N/A entries.
 _TIER_RANK: dict[Tier, int] = {"Low": 0, "Medium": 1, "High": 2, "Elite": 3}
 
+# DORA tier thresholds (State of DevOps research). Named so a reviewer
+# changing a boundary edits one constant instead of hunting for a bare
+# literal buried in a comparison.
+_LT_ELITE_MAX_HOURS = 24.0
+_TRS_HIGH_MAX_HOURS = 24.0
+_CFR_ELITE_MAX_RATE = 0.15
+_CFR_HIGH_MAX_RATE = 0.30
+_CFR_MEDIUM_MAX_RATE = 0.45
+
+# Expected `git log --pretty=format:%H|%aI|%cI` field count (sha, author
+# date, commit date). Any other count means the pretty-format broke.
+_GIT_LOG_PRETTY_FIELD_COUNT = 3
+
 
 # =============================================================================
 # Collection result envelope
@@ -99,6 +112,7 @@ class DeploymentEvent:
     commit_at: datetime
 
     def __post_init__(self) -> None:
+        """Reject naive deployed_at/commit_at so downstream window math never mixes offsets."""
         _require_aware("deployed_at", self.deployed_at)
         _require_aware("commit_at", self.commit_at)
 
@@ -119,6 +133,7 @@ class FailureEvent:
     resolved_at: datetime | None = None
 
     def __post_init__(self) -> None:
+        """Reject naive datetimes and a resolved_at that precedes opened_at."""
         _require_aware("opened_at", self.opened_at)
         if self.resolved_at is not None:
             _require_aware("resolved_at", self.resolved_at)
@@ -159,7 +174,7 @@ def classify_lead_time(hours: float | None) -> Tier:
     """
     if hours is None:
         return "N/A"
-    if hours <= 24.0:
+    if hours <= _LT_ELITE_MAX_HOURS:
         return "Elite"
     if hours <= 24 * 7:
         return "High"
@@ -176,11 +191,11 @@ def classify_change_failure_rate(rate: float | None) -> Tier:
     """
     if rate is None:
         return "N/A"
-    if rate <= 0.15:
+    if rate <= _CFR_ELITE_MAX_RATE:
         return "Elite"
-    if rate <= 0.30:
+    if rate <= _CFR_HIGH_MAX_RATE:
         return "High"
-    if rate <= 0.45:
+    if rate <= _CFR_MEDIUM_MAX_RATE:
         return "Medium"
     return "Low"
 
@@ -194,7 +209,7 @@ def classify_time_to_restore(hours: float | None) -> Tier:
         return "N/A"
     if hours < 1.0:
         return "Elite"
-    if hours < 24.0:
+    if hours < _TRS_HIGH_MAX_HOURS:
         return "High"
     if hours < 24 * 7:
         return "Medium"
@@ -471,7 +486,7 @@ def collect_deployments_from_git(
         if not line:
             continue
         parts = line.split("|")
-        if len(parts) != 3:
+        if len(parts) != _GIT_LOG_PRETTY_FIELD_COUNT:
             # A line with the wrong field count means the pretty-format
             # broke or the output was truncated. Skipping it silently
             # would let a corrupted log still classify as Elite, so
@@ -579,7 +594,7 @@ def collect_failures_from_gh(
 
 
 def _positive_int(value: str) -> int:
-    """argparse type-checker: window must be a positive integer (issue #526).
+    """Argparse type-checker: window must be a positive integer (issue #526).
 
     Zero produces a zero-by-zero classification trap; negative produces a
     future-dated window that includes commits ahead of the head.
@@ -596,6 +611,7 @@ def _positive_int(value: str) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the CLI argument parser for the standalone `minister-dora` entry point."""
     parser = argparse.ArgumentParser(
         prog="minister-dora",
         description="Compute DORA metrics from local git and gh CLI.",
@@ -640,6 +656,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def run_cli(argv: list[str] | None = None) -> int:
+    """Collect events, compute DORA metrics, print a report, and return the exit code.
+
+    Returns 2 when `--strict` is set and either collector reported partial
+    data (issue #525), so CI can refuse a silent Elite-tier report from a
+    broken collector; otherwise returns 0.
+    """
     args = build_parser().parse_args(argv)
     deploy_result = collect_deployments_from_git(
         branch=args.branch, window_days=args.window, cwd=args.repo_path

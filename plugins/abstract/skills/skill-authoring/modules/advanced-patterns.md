@@ -2,8 +2,8 @@
 
 Patterns for skill authors who have shipped a working skill and now
 need to coordinate with other skills, scale across many activation
-contexts, or expose conditional behavior. Read this after the core
-SKILL.md and `tdd-methodology.md` modules. The Iron Law still
+contexts, or expose conditional behavior. Read this after SKILL.md and
+the TDD methodology module it lists. The Iron Law still
 applies: every advanced pattern below assumes a baseline failing
 test exists for the behavior being added.
 
@@ -69,8 +69,8 @@ two PRs. Pick an owner and link.
 
 ## Hub-and-spoke loading
 
-The hub-and-spoke pattern is documented in
-`progressive-disclosure.md`. The advanced variant adds two rules
+The hub-and-spoke pattern is documented in the progressive-disclosure
+module listed in `SKILL.md`. The advanced variant adds two rules
 that only matter once a skill has 5+ modules.
 
 ### Rule 1: the hub never loads more than two spokes
@@ -207,8 +207,8 @@ three trigger phrases and test activation against real prompts.
 A gate that says "only use in production environments" is a
 behavioral promise. Without a baseline test that runs the skill
 in development and verifies refusal, the gate is decoration.
-Claude will rationalize past it under pressure. See
-`anti-rationalization.md` for the counter pattern.
+Claude will rationalize past it under pressure. The counter pattern is
+in the anti-rationalization module listed in `SKILL.md`.
 
 ### Spoke depth creep
 

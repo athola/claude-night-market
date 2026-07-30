@@ -119,7 +119,7 @@ class TestValidInput:
                 patch("config_change_audit.datetime") as mock_datetime,
             ):
                 mock_datetime.now.return_value = fixed_dt
-                mock_datetime.side_effect = lambda *a, **kw: datetime(*a, **kw)
+                mock_datetime.side_effect = datetime
                 with pytest.raises(SystemExit):
                     main()
 

@@ -1,11 +1,11 @@
 [project]
 name = "sanctum"
-version = "1.9.16"
+version = "1.9.17"
 description = "Sanctum Claude Code plugin - Git and workspace operations for active development workflows"
 authors = [{name = "Claude Skills", url = "https://github.com/superpowers-marketplace"}]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = [
     "pyyaml>=6.0",
 ]
@@ -13,9 +13,9 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.14.13",
-    "mypy>=1.11.0",
-    "pytest>=9.0.1",
-    "pytest-cov>=7.0.0",
+    "mypy>=1.11.0,<2",
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
     "pytest-mock>=3.15.1",
     "types-PyYAML>=6.0.0",
 ]
@@ -32,12 +32,12 @@ packages = ["src/sanctum"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+target-version = "py39"
 exclude = [".venv", ".uv-cache"]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
-extend-ignore = ["E203", "D203", "D213"]
+extend-ignore = ["E203", "D203", "D213", "E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
@@ -52,7 +52,7 @@ extraPaths = ["src", "scripts", "hooks"]
 exclude = [".venv", ".uv-cache", "**/__pycache__"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

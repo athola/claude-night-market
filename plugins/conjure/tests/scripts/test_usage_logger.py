@@ -578,12 +578,14 @@ class TestUsageLoggerCli:
 
     @patch("usage_logger.GeminiUsageLogger")
     @patch("sys.argv", ["usage_logger.py", "--validate"])
-    def test_cli_validate(self, mock_logger_class) -> None:
+    def test_cli_validate(self, mock_logger_class, tmp_path) -> None:
         """Given --validate flag when running CLI then should show validation info."""
+        # A writable directory with no log files yet: the state on a first run.
+        # Nothing has been logged, but nothing is broken either, so this passes.
         mock_logger = MagicMock()
-        mock_logger.log_dir = Path("/test/logs")
-        mock_logger.usage_log = Path("/test/logs/usage.jsonl")
-        mock_logger.session_file = Path("/test/logs/session.json")
+        mock_logger.log_dir = tmp_path
+        mock_logger.usage_log = tmp_path / "usage.jsonl"
+        mock_logger.session_file = tmp_path / "session.json"
         mock_logger_class.return_value = mock_logger
 
         with patch("builtins.print") as mock_print:
@@ -593,9 +595,30 @@ class TestUsageLoggerCli:
 
         # Real CLI output: "Log directory: {path}", "Log exists: {bool}",
         # "Session file exists: {bool}"
-        mock_print.assert_any_call("Log directory: /test/logs")
+        mock_print.assert_any_call(f"Log directory: {tmp_path}")
         mock_print.assert_any_call("Log exists: False")
         mock_print.assert_any_call("Session file exists: False")
+
+    @patch("usage_logger.GeminiUsageLogger")
+    @patch("sys.argv", ["usage_logger.py", "--validate"])
+    def test_cli_validate_fails_on_corrupt_log(
+        self, mock_logger_class, tmp_path
+    ) -> None:
+        """Given an unparseable usage log, --validate must exit nonzero."""
+        usage_log = tmp_path / "usage.jsonl"
+        usage_log.write_text('{"ok": 1}\nnot json at all\n')
+
+        mock_logger = MagicMock()
+        mock_logger.log_dir = tmp_path
+        mock_logger.usage_log = usage_log
+        mock_logger.session_file = tmp_path / "session.json"
+        mock_logger_class.return_value = mock_logger
+
+        # Appending to a log that can no longer be read compounds the damage,
+        # so validation has to fail rather than report the config as healthy.
+        with pytest.raises(SystemExit) as excinfo:
+            main()
+        assert excinfo.value.code == 1
 
     @patch("usage_logger.GeminiUsageLogger")
     @patch("sys.argv", ["usage_logger.py", "--status"])

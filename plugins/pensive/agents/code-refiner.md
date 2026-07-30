@@ -14,7 +14,6 @@ description: |
   ONLY invoke for: multi-file quality analysis, systematic refactoring, codebase-wide
   duplication scan, or architectural alignment review.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
-model: sonnet
 isolation: worktree
 escalation:
   to: opus
@@ -43,6 +42,8 @@ hooks:
       once: false
   Stop:
     - command: "echo '[code-refiner] Refinement completed at $(date)' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/refine-audit.log"
+model: sonnet
+effort: medium
 ---
 
 # Code Refiner Agent

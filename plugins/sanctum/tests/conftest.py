@@ -4,12 +4,17 @@
 from __future__ import annotations
 
 import json
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 from unittest.mock import Mock
 
 import pytest
+
+# Add hooks directory to path so tests can import hook modules directly.
+HOOKS_DIR = Path(__file__).parent.parent / "hooks"
+sys.path.insert(0, str(HOOKS_DIR))
 
 
 @dataclass

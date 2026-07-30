@@ -17,7 +17,10 @@ from pathlib import Path
 
 import pytest
 
-from memory_palace.corpus.index_analytics import load_capture_index
+from memory_palace.corpus.index_analytics import (
+    INERT_ROUTING_TYPE,
+    load_capture_index,
+)
 
 INDEX_PATH = Path(__file__).resolve().parents[1] / "hooks" / "memory-palace-index.yaml"
 
@@ -106,3 +109,23 @@ class TestCommittedCaptureIndex:
             if not 0 <= entry.get("importance_score", 0) <= 100
         }
         assert not out_of_range, f"importance_score outside [0, 100]: {out_of_range}"
+
+    def test_no_entry_is_left_pending(self, committed_index: dict) -> None:
+        """The committed index carries no undrained capture.
+
+        The index is tracked so the drain has something to converge on,
+        which only means anything if the committed state is drained. The
+        pre-commit gate (``check_capture_index_drained.py``) enforces
+        this before a commit lands; this test enforces it on whatever is
+        in the tree, so a bypassed hook still fails CI.
+        """
+        pending = sorted(
+            key
+            for key, entry in committed_index["entries"].items()
+            if entry.get("routing_type", INERT_ROUTING_TYPE) == INERT_ROUTING_TYPE
+        )
+        assert not pending, (
+            f"{len(pending)} capture(s) still pending: {pending[:10]}. "
+            "Run: uv run python scripts/memory_palace_cli.py "
+            "index promote --apply --top 0"
+        )

@@ -149,6 +149,20 @@ class TestEmptyGraph:
         assert analyzer.detect_communities() == {}
         g.close()
 
+    def test_communities_noded_but_edgeless(self) -> None:
+        """Entities with no synapses are a legal state: modularity is
+        undefined without edges, so each node is its own singleton
+        community rather than a ZeroDivisionError.
+        """
+        g = KnowledgeGraph(":memory:")
+        g.upsert_entity("a", "concept", "A")
+        g.upsert_entity("b", "concept", "B")
+        analyzer = PalaceGraphAnalyzer(g)
+        communities = analyzer.detect_communities()
+        members = {m for group in communities.values() for m in group}
+        assert members == {"a", "b"}
+        g.close()
+
     def test_predict_links_too_few_nodes(self) -> None:
         g = KnowledgeGraph(":memory:")
         g.upsert_entity("solo", "concept", "Solo")

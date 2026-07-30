@@ -12,9 +12,15 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 import pytest
-from tome.synthesis.ranker import compute_relevance_score, group_by_theme, rank_findings
 
 from tests.factories import make_finding
+from tome.synthesis import ranker
+from tome.synthesis.ranker import (
+    compute_ranked_score,
+    compute_relevance_score,
+    group_by_theme,
+    rank_findings,
+)
 
 _THIS_YEAR: int = datetime.now(tz=timezone.utc).year  # noqa: UP017 - keep timezone.utc for 3.9 compat
 
@@ -206,8 +212,72 @@ class TestRankFindings:
 
         result = rank_findings(findings)
 
-        scores = [compute_relevance_score(f) for f in result]
+        # Assert the actual sort key rank_findings uses (relevance +
+        # triangulation), not the superseded relevance-only score, so
+        # this stays a genuine guard if the ranking key ever changes.
+        scores = [compute_ranked_score(f, result) for f in result]
         assert scores == sorted(scores, reverse=True)
+
+    @pytest.mark.unit
+    def test_triangulation_can_overturn_relevance_order(self) -> None:
+        """
+        Scenario: Corroboration outranks a more relevant uncorroborated finding
+        Given a 0.60 finding echoed by two other channels
+        And an uncorroborated finding at 0.66
+        When rank_findings is called
+        Then the corroborated finding ranks first
+        """
+        corroborated = make_finding(
+            0.60, title="graph retrieval augmented generation", channel="academic"
+        )
+        loner = make_finding(0.66, title="entirely unrelated subject", channel="code")
+        echoes = [
+            make_finding(
+                0.10, title="graph retrieval augmented generation", channel="discourse"
+            ),
+            make_finding(
+                0.10, title="graph retrieval augmented generation", channel="triz"
+            ),
+        ]
+
+        result = rank_findings([loner, corroborated, *echoes])
+
+        # 0.60 + 0.10 (two corroborating channels) = 0.70 > 0.66.
+        assert compute_ranked_score(corroborated, result) == pytest.approx(0.70)
+        assert result.index(corroborated) < result.index(loner)
+
+    @pytest.mark.unit
+    def test_ranking_normalizes_each_title_once(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Scenario: Ranking does not renormalize titles inside a pairwise scan
+        Given 12 findings
+        When rank_findings is called
+        Then title normalization runs a bounded number of times per finding,
+        not once per pair
+        """
+        # Spread across channels: the cross-channel check must not
+        # short-circuit before the inner loop reaches normalization.
+        channels = ["code", "discourse", "academic", "triz"]
+        findings = [
+            make_finding(0.5, title=f"distinct topic {i}", channel=channels[i % 4])
+            for i in range(12)
+        ]
+        calls: list[str] = []
+        original = ranker._normalize_for_match
+
+        def counting(title: str) -> set:
+            calls.append(title)
+            return original(title)
+
+        monkeypatch.setattr(ranker, "_normalize_for_match", counting)
+
+        rank_findings(findings)
+
+        # The pairwise form costs n*(n-1) = 132 normalizations; normalizing
+        # up front costs n. Allow slack without admitting the quadratic form.
+        assert len(calls) <= 2 * len(findings)
 
     @pytest.mark.unit
     def test_rank_empty_list(self) -> None:
@@ -330,3 +400,48 @@ class TestGroupByTheme:
             metadata={"citations": 201},
         )
         assert compute_relevance_score(f) == pytest.approx(0.8)
+
+
+class TestTriangulationWiring:
+    """
+    Feature: cross-channel triangulation feeds ranking (increment 3)
+
+    As a synthesis pipeline
+    I want corroborated findings to outrank equally-relevant lone findings
+    So that agreement across channels is rewarded in the final order.
+    """
+
+    @pytest.mark.unit
+    def test_ranked_score_adds_triangulation_bonus(self) -> None:
+        """
+        Given a finding corroborated by another channel
+        When compute_ranked_score is computed with the full set
+        Then it exceeds the plain relevance score
+        """
+        target = make_finding(0.5, channel="code", title="graph rag retrieval")
+        corroborator = make_finding(
+            0.5, source="arxiv", channel="academic", title="graph rag retrieval"
+        )
+        findings = [target, corroborator]
+
+        ranked = compute_ranked_score(target, findings)
+
+        assert ranked > compute_relevance_score(target)
+
+    @pytest.mark.unit
+    def test_corroborated_finding_outranks_lone_peer(self) -> None:
+        """
+        Given two equally-relevant findings, one corroborated cross-channel
+        When rank_findings orders them
+        Then the corroborated one comes first
+        """
+        corroborated = make_finding(0.5, channel="code", title="vector search index")
+        cross = make_finding(
+            0.5, source="arxiv", channel="academic", title="vector search index"
+        )
+        lone = make_finding(0.5, channel="discourse", title="unrelated topic entirely")
+
+        result = rank_findings([lone, corroborated, cross])
+
+        assert result[0] is corroborated or result[0] is cross
+        assert result.index(lone) > 0

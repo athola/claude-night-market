@@ -2,19 +2,16 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
+from pr_blast_radius import main
 
-_HOOKS_DIR = Path(__file__).resolve().parents[2] / "hooks"
-_GAUNTLET_SRC = Path(__file__).resolve().parents[3] / "gauntlet" / "src"
-sys.path.insert(0, str(_HOOKS_DIR))
-sys.path.insert(0, str(_GAUNTLET_SRC))
+from gauntlet.graph import GraphStore
 
-from gauntlet.graph import GraphStore  # noqa: E402 - sys.path modified above
-from pr_blast_radius import main  # noqa: E402 - sys.path modified above
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestPrBlastRadiusHook:

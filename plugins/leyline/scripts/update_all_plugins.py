@@ -98,7 +98,7 @@ def process_plugin(
     plugin_full_name: str, plugin_info: dict[str, Any]
 ) -> dict[str, Any]:
     """Process a single plugin and return the result."""
-    plugin_name = plugin_full_name.split("@")[0]
+    plugin_name = plugin_full_name.split("@", maxsplit=1)[0]
     if "@" in plugin_full_name:
         marketplace = plugin_full_name.split("@")[1]
     else:

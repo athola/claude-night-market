@@ -16,7 +16,6 @@ tools:
 - Bash
 - Glob
 - Grep
-model: haiku
 permissionMode: default
 skills: sanctum:git-workspace-review
 hooks:
@@ -46,6 +45,8 @@ examples:
 - context: User exploring unfamiliar codebase
   user: Help me understand this project's structure
   assistant: I'll use the git-workspace-agent to map the codebase structure.
+model: haiku
+effort: low
 ---
 
 # Git Workspace Agent

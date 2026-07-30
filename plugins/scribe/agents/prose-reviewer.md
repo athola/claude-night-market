@@ -2,12 +2,13 @@
 name: prose-reviewer
 description: Review generated text for AI patterns, banned phrases, voice
   drift, and structural monotony against the user's voice register
-model: claude-sonnet-4-6
 tools:
   - Read
   - Grep
   - Glob
   - TodoWrite
+model: sonnet
+effort: medium
 ---
 
 # Prose Review Agent

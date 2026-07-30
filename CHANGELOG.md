@@ -7,6 +7,233 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.17] - 2026-07-26
+
+### Added
+
+- **Action-first output shaping (conserve).** `action-first-output`
+  ports the ruleset from
+  [ayghri/i-have-adhd](https://github.com/ayghri/i-have-adhd) (MIT):
+  the first line of a turn is a runnable action, multi-step work is
+  numbered, position is restated every turn, time estimates use
+  concrete units, and lists cap at five ranked items. The skill sets
+  `disable-model-invocation: true` because it restyles every
+  subsequent turn once active, so it must be invoked deliberately
+  rather than fired on a keyword match. A guard test enforces that
+  flag.
+
+  Two of its rules contradict `response-compression`, which deletes
+  trailing "Next steps:" blocks and end-of-turn recaps. The skill
+  carries a Precedence table resolving both: a single-line next action
+  and a position marker survive, while multi-item next-step blocks and
+  content recaps stay banned. `response-compression` gained a matching
+  override note so a reader arriving at either skill learns the other
+  one qualifies it.
+
+  Restatement holds full form at every context-pressure tier rather
+  than degrading. It costs about 16 tokens per turn, roughly 1,600
+  across a 100-turn session, which is 0.8% of a 200K window. One
+  500-line file read costs about three times that entire budget, so
+  trimming restatement to relieve pressure targets a rounding error.
+  At the 80% EMERGENCY threshold the restatement is promoted into the
+  `clear-context` handoff header, since the continuation subagent
+  reads it first. A test pins the cited thresholds to the skills that
+  own them, so the table cannot go stale silently.
+
+- **Every agent pins an explicit model tier and reasoning effort
+  (all plugins, abstract).** A subagent whose frontmatter omits
+  `model:` inherits the session model, so a throwaway search agent
+  dispatched from an Opus session was an Opus agent. All 56 agents now
+  declare `model` and `effort`. Two mechanisms keep it that way:
+  `scripts/check_agent_model_matrix.py` is a hard pre-commit gate that
+  fails an agent omitting either field, pinning a dated model ID such as
+  `claude-sonnet-4-6`, or using a value outside the documented
+  vocabulary, and it fails a `SKILL.md` carrying a dated ID or a roster
+  that has drifted from disk. `plugins/abstract/hooks/agent_dispatch_guard.py`
+  is a PreToolUse hook denying an `Agent` or `Task` dispatch that names
+  no `subagent_type`, since that path reaches the inheritance rung
+  regardless of frontmatter. `docs/agent-model-matrix.md` carries the
+  tier definitions, placement rules, and the reason each agent sits
+  where it does. The hand-maintained roster in
+  `plugins/abstract/docs/model-optimization-guide.md` was removed and
+  now points at the matrix: the copy had come to claim that every
+  pensive and spec-kit agent ran on Opus after several were retiered.
+  Five skills pinning `claude-sonnet-4-6` were moved to the `sonnet`
+  alias.
+
+- **memory-palace keyword index builder.** The keyword index was
+  emptied in 1.5.0 when the knowledge-corpus directory was removed, and
+  its own header named a `build_indexes.py` that was never written, so
+  the index sat at `entries: {}` and `cache_lookup` searched nothing.
+  The script now exists, rebuilds from the staging captures, and refuses
+  to write an empty index over a populated one, which is the failure
+  that took the corpus down. A dry-run mode reports what would be
+  indexed without touching disk, and `build_index()` takes a save flag
+  so a caller can inspect the result before committing to a write.
+
+- **memory-palace reports empty captures and computes capture scores.**
+  `corpus_stats` now counts entries the fetch hook flagged as carrying
+  no content, broken out by reason. Those entries are neither inert nor
+  orphaned, so a corpus full of them previously reported healthy at 0%
+  inert and 0 orphans. The capture template's Evaluation Scores table
+  read `TBD` on every criterion across all 554 entries, implying a
+  review that never ran; it is now computed from the same structural
+  signals the promotion ranker uses, so the note and the promote
+  decision cannot drift.
+
+- **scribe detects anthropomorphized non-human subjects.** The existing
+  analysis caught only the spatial copula. Three new tiers cover giving
+  code and systems mental states, volition, and bodies, split by how
+  often each verb carries a legitimate literal sense. Precision comes
+  from the subject rather than the verb: the regex requires a determiner
+  plus a technical subject noun, so "The parser understands nested
+  blocks" fires while "She knows the codebase" does not. Terms of art
+  (observer, supervisor, daemon, agent) are left alone.
+
+- **scribe detects significance inflation and loop metaphors.** Both
+  patterns were documented in a repo-local rule and in prose tables that
+  could not act on other codebases. They are now `tier5` sections in
+  `en.yaml`, the pattern source the analyzer loads at runtime, so any
+  repository it scans gets the same findings. `significance_cluster` is
+  high confidence and anchors on the full collocation, so "a last will
+  and testament" passes; `loop_vocabulary` is medium confidence.
+
+- **tome research engine: citation graph and semantic retrieval over
+  memory-palace (tome, memory-palace).** tome previously fetched
+  Semantic Scholar references and citations, then flattened them into a
+  list of papers and discarded which paper cited which. A frozen
+  `CitationEdge(citing_id, cited_id)` model and `parse_citation_edges()`
+  now preserve directed edges, a `CitationGraphWriter` writes them into
+  memory-palace's `KnowledgeGraph` as paper entities plus weighted
+  citation synapses (the edge form the graph analyzer traverses), and a
+  `ThreadFinder` reads the graph back as research threads
+  (community detection) and suggested next connections (Adamic-Adar link
+  prediction). A `SemanticRetriever` ranks findings by cosine similarity
+  through an `Embedder` protocol, backed by memory-palace's
+  `EmbeddingIndex`. `best_available_provider` auto-selects
+  sentence-transformers for real semantic vectors when installed and
+  falls back to a dependency-free hash provider otherwise. memory-palace
+  is an optional co-installed backend loaded through guarded imports:
+  when it is absent, tome raises an explicit `GraphBackendUnavailable`
+  rather than degrading silently. `KnowledgeGraph`, `PalaceGraphAnalyzer`,
+  and `EmbeddingIndex` are now part of memory-palace's public API.
+
+- **tome research-quality metrics harness.** `tome/metrics` adds
+  deterministic, offline, no-LLM proxies: `retrieval.py` scores nDCG@k,
+  MRR, and recall@k against a committed gold set; `corpus.py` scores
+  source diversity, dedup ratio, and findings per 1k tokens; and
+  `impact.py` computes the CD disruption index (Funk and Owen-Smith) and
+  PageRank centrality, with `assert_comparable` raising on cross-cohort
+  comparison to enforce the documented citation-bias correction. A `make
+  metrics` target runs the harness over a committed fixture with no
+  network or model access.
+
+### Changed
+
+- **memory-palace capture backlog drained and the SessionStart surfacer
+  enabled.** The 196 inert pending captures (41% of the index) were
+  promoted into the active corpus through the palace-index-curator
+  workflow, each gaining a real importance score, a routing type, and
+  maturity `seedling` to `growing`. `context_injection` is now enabled,
+  so the SessionStart surfacer names the top promoted captures. The inert
+  ratio drops from 41% to 0%.
+
+- **Python 3.9 support restored across all plugins.** Every plugin
+  `pyproject.toml` now pins `requires-python = ">=3.9"` (`conjure` keeps
+  `>=3.9,<3.14` for its delegation stack), and the dev-dependency floors
+  were lowered to match (`pytest>=8.0`, `pytest-cov>=4.1`, since `pytest`
+  9 drops 3.9) so hooks and test suites run on the macOS system
+  interpreter (3.9.6). Ruff `target-version` and first-party import
+  classification were unified across plugins in the same pass, and six
+  plugins had high-complexity functions refactored to satisfy the shared
+  `PLR`/`SIM` lint rules, removing the per-file `SIM102` ignores those
+  modules previously needed. Resolves TDB-014.
+
+### Fixed
+
+- **Version bumps no longer rewrite project scaffolding (sanctum).**
+  `update_versions.py` collected any file matching its version-file
+  patterns, including `plugins/attune/templates/python/__init__.py`.
+  That file is a template attune copies when it scaffolds a new
+  project, so its `__version__ = "0.1.0"` is the starting version of
+  some future user project rather than this repo's version. A release
+  bump silently rewrote it, and every project scaffolded afterward
+  claimed the marketplace's version as its own. The file now sits
+  behind a new `SCAFFOLD_EXCLUDES` set, kept separate from
+  `CACHE_EXCLUDES` because the two mean different things: cache
+  exclusion is a noise filter `--include-cache` may waive, while
+  scaffold exclusion is a correctness invariant no flag overrides.
+  Four tests cover the template case, the flag-override case, the
+  over-exclusion case (a directory merely named `templates_generator`
+  is still collected), and the specific attune file as a regression
+  guard.
+
+- **Quality gates can now fail (all plugins, abstract).** Makefile
+  probes across conjure, leyline, minister, parseltongue, and pensive
+  swallowed their own verdicts. `safety check || echo "[WARNING] Safety
+  check unavailable"` is a security scanner wired into `make security`
+  that could not fail, and in pensive `safety` was never a declared
+  dependency, so the command had never executed. parseltongue printed
+  "Linting clean or ruff not configured" on exactly the path where ruff
+  had found problems, invoked a bare `python` absent from the project
+  environment, and pointed its benchmark target at a test file that does
+  not exist. conjure's two demo targets imported a `tools` package that
+  does not exist and had never run. Fourteen sites used the `|| echo`
+  form, which replaces a checker's verdict with a sentence that reads
+  like a status report. Optional-tool detection is kept but made real:
+  an `if` consumes the exit code, so a skip message is true and a
+  genuine failure still fails the build, with pytest exit 5 still
+  distinguished from failure. Making the validators exit non-zero
+  surfaced two bugs inside `abstract_validator` that nobody had to look
+  at while it exited 0: the spoke-to-spoke check scanned raw file text,
+  so fenced blocks and directory trees counted as cross-references (16
+  of 69 findings were the skills documenting modular authoring being
+  flagged for demonstrating it), and `content.find(a) or content.find(b)`
+  never reached `b` because `find` returns -1 and -1 is truthy, so every
+  skill using a plain `## Resources` heading was reported as mis-ordered
+  while all three were ordered correctly. The remaining 53 hub-spoke
+  findings were real and now route through the hub.
+
+- **The agent matrix gate ran on only one of the three file kinds it
+  checks (abstract).** Its pre-commit `files:` pattern matched
+  `plugins/*/agents/*.md` alone, so a `SKILL.md` gaining a dated model
+  ID, or rows disappearing from `docs/agent-model-matrix.md`, committed
+  without the gate running. The pattern now covers all three, and a test
+  asserts the trigger scope matches what the gate enforces rather than
+  only asserting the entry exists.
+
+- **Two pre-existing test defects surfaced by running suites under
+  Python 3.9.** gauntlet's `test_module_imports_without_yaml` re-imported
+  `gauntlet.ml.scorer` through a fresh `sys.modules` entry, giving later
+  tests a divergent module object that silently bypassed their `urlopen`
+  mock. The canonical module is now reloaded in place under a scoped
+  `MonkeyPatch`. abstract's large-skill audit fixture sat on the
+  token-count threshold, so the `size_large` assertion flipped with the
+  estimator; the fixture is now large enough to clear the threshold under
+  any estimator.
+
+- **Citation edges are now visible to the graph analyzer (tome,
+  memory-palace).** `CitationGraphWriter` wrote edges as temporal
+  triples, but `PalaceGraphAnalyzer.build_graph` reads graph structure
+  only from synapses, so every written citation was invisible to
+  community detection and link prediction: research threads came back
+  empty and `common_threads()` raised `ZeroDivisionError` on the
+  resulting edgeless graph. The writer now records each edge as a
+  weighted synapse, and `detect_communities` treats a noded-but-edgeless
+  graph as singleton communities instead of dividing by zero. A new
+  contract test asserts a written edge appears in the analyzer's graph,
+  closing the gap that let the writer pass against a Fake while the real
+  backend saw nothing.
+
+- **Non-semantic retrieval degradation is now observable (tome).**
+  Opening the SHA-256 hash embedder (the fallback when
+  sentence-transformers is absent) emits a `NonSemanticRetrievalWarning`
+  instead of silently ranking over non-semantic vectors.
+
+- **`test_rank_findings_descending_order` guards the real sort key.** It
+  asserted the superseded relevance-only score; it now asserts
+  `compute_ranked_score`, the key `rank_findings` actually sorts by.
+
 ## [1.9.16] - 2026-07-14
 
 ### Added

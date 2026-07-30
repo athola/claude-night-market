@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+
 from tome.channels.github import (
     build_github_api_search,
     build_github_search_queries,

@@ -1,3 +1,5 @@
+"""Codebase learning through knowledge extraction, challenges, and spaced repetition."""
+
 from __future__ import annotations
 
 from gauntlet.knowledge_store import KnowledgeStore
@@ -24,7 +26,7 @@ from gauntlet.query import (
     validate_understanding,
 )
 
-__version__ = "1.9.16"
+__version__ = "1.9.17"
 
 __all__ = [
     "AnswerRecord",

@@ -3,10 +3,21 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
 from .config_loader import Condition, RuleConfig
+
+# Non-regex operators expressed as (pattern, value) -> bool. Regex is handled
+# separately because it needs a try/except around ``re.error``.
+_OPERATORS: dict[str, Callable[[str, str], bool]] = {
+    "contains": lambda pattern, value: pattern in value,
+    "equals": lambda pattern, value: pattern == value,
+    "not_contains": lambda pattern, value: pattern not in value,
+    "starts_with": lambda pattern, value: value.startswith(pattern),
+    "ends_with": lambda pattern, value: value.endswith(pattern),
+}
 
 
 @dataclass
@@ -156,18 +167,11 @@ class RuleEngine:
                 return bool(re.search(pattern, field_value, re.MULTILINE))
             except re.error:
                 return False
-        elif operator == "contains":
-            return pattern in field_value
-        elif operator == "equals":
-            return pattern == field_value
-        elif operator == "not_contains":
-            return pattern not in field_value
-        elif operator == "starts_with":
-            return field_value.startswith(pattern)
-        elif operator == "ends_with":
-            return field_value.endswith(pattern)
 
-        return False
+        matcher = _OPERATORS.get(operator)
+        if matcher is None:
+            return False
+        return matcher(pattern, field_value)
 
     _DEFAULT_FIELD_PRIORITY = [
         "command",

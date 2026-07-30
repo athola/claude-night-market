@@ -3,7 +3,6 @@ name: project-architect
 description: Architecture design specialist - analyzes requirements and generates
   component-based system architecture with technology selection and rationale.
   Use for greenfield projects, major refactors, or technology stack decisions.
-model: claude-sonnet-4-6
 tools_allowed:
 - Read
 - Write
@@ -17,6 +16,8 @@ tags:
 - planning
 - technical-decisions
 complexity: intermediate
+model: opus
+effort: high
 ---
 
 # Project Architect Agent

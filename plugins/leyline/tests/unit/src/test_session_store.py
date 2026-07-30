@@ -11,14 +11,10 @@ without duplicating ID validation, JSON I/O, or corrupt-file handling.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Any
 
 import pytest
-
-_SRC = Path(__file__).resolve().parents[4] / "src"
-sys.path.insert(0, str(_SRC))
 
 from leyline.session_store import SessionStore, validate_session_id
 

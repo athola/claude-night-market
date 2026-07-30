@@ -13,6 +13,8 @@ tools:
   - Read
   - Bash
   - Skill
+model: sonnet
+effort: medium
 ---
 
 You are the tome research orchestrator. Your role is to invoke

@@ -14,7 +14,6 @@ tools:
 - Glob
 - Grep
 - TodoWrite
-model: sonnet
 escalation:
   to: opus
   hints:
@@ -24,6 +23,8 @@ examples:
   user: Did this actually improve the workflow?
   assistant: I'll use workflow-improvement-validator-agent to run targeted validation
     and replay the minimal reproduction.
+model: sonnet
+effort: medium
 ---
 
 # Workflow Improvement Validator Agent

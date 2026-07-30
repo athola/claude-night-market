@@ -12,6 +12,7 @@ from typing import Any
 
 import pytest
 from conftest import _write_jsonl
+
 from scribe.session_parser import (
     AssistantTurn,
     ToolResult,

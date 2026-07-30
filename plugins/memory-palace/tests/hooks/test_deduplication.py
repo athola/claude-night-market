@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -22,6 +24,10 @@ from shared.deduplication import (
     needs_update,
     update_index,
 )
+
+# Resolved once: the staging tests shell out to git, and an absolute
+# path keeps them independent of whatever PATH the runner exports.
+_GIT = shutil.which("git") or "git"
 
 
 class TestGetContentHash:
@@ -641,3 +647,178 @@ class TestImportanceScoreBounds:
         # Index must remain untouched on validation failure.
         assert get_entry(url=f"https://example.com/score-{score}") is None
         assert get_index_stats()["total_entries"] == 0
+
+
+class TestNullCapturePersisted:
+    """update_index must write null_capture, or the promoter gate is dead.
+
+    The gate in memory_palace.corpus.index_promoter archives on this
+    field. If the write path drops it, the gate silently never fires and
+    empty captures promote exactly as before (issue #649).
+    """
+
+    @staticmethod
+    def _isolate_index(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+        """Redirect the index file to an isolated tmp_path location."""
+        index_path = tmp_path / "memory-palace-index.yaml"
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+        return index_path
+
+    def test_null_capture_round_trips_to_disk(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN an isolated empty index
+        WHEN update_index writes an entry flagged null_capture
+        THEN the on-disk entry carries the reason verbatim.
+        """
+        index_path = self._isolate_index(monkeypatch, tmp_path)
+        url = "https://hn.example/api/v1/search?query=x"
+
+        update_index(
+            content_hash=get_content_hash("redirect notice body"),
+            stored_at="data/staging/x.md",
+            importance_score=50,
+            url=url,
+            title="REDIRECT DETECTED: The URL redirects to a different host.",
+            maturity="seedling",
+            routing_type="pending",
+            null_capture="redirect-notice",
+        )
+
+        on_disk = real_yaml.safe_load(index_path.read_text())
+        assert on_disk["entries"][url]["null_capture"] == "redirect-notice"
+
+    def test_absent_flag_writes_no_key(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """A normal capture must not gain a null_capture key."""
+        index_path = self._isolate_index(monkeypatch, tmp_path)
+        url = "https://example.com/real-article"
+
+        update_index(
+            content_hash=get_content_hash("real article body"),
+            stored_at="data/staging/y.md",
+            importance_score=50,
+            url=url,
+            title="Real Article",
+            maturity="seedling",
+            routing_type="pending",
+        )
+
+        on_disk = real_yaml.safe_load(index_path.read_text())
+        assert "null_capture" not in on_disk["entries"][url]
+
+
+class TestUpdateIndexStaging:
+    """The write must stage the index, or the pre-commit drain never sees it.
+
+    ``pre-commit`` reverts unstaged changes to tracked files before
+    running any pre-commit-stage hook, restoring them afterward. An
+    index written but never staged is therefore absent from the tree
+    ``precommit_palace_maintenance.sh`` inspects: the drain reads the
+    HEAD version, converges on it, and the fresh capture survives the
+    commit still ``pending``. That is the mechanism behind the 47-entry
+    backlog drained in 2ed3737b.
+
+    Staging at write time puts the capture in the tree the drain reads,
+    which is what makes the zero-pending gate reachable rather than a
+    permanent block.
+    """
+
+    def setup_method(self) -> None:
+        """Reset dedup caches before each test."""
+        dedup_module._index_cache = None
+        dedup_module._index_mtime = 0
+
+    def teardown_method(self) -> None:
+        """Reset dedup caches after each test."""
+        dedup_module._index_cache = None
+        dedup_module._index_mtime = 0
+
+    @staticmethod
+    def _git_repo(tmp_path: Path) -> Path:
+        """Initialize a throwaway repo to observe staging in."""
+        subprocess.run([_GIT, "init", "--quiet"], cwd=tmp_path, check=True)
+        return tmp_path
+
+    @staticmethod
+    def _staged_paths(repo: Path) -> set[str]:
+        """Return the paths currently in the git index."""
+        result = subprocess.run(
+            [_GIT, "diff", "--cached", "--name-only"],
+            cwd=repo,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return {line for line in result.stdout.splitlines() if line}
+
+    def test_write_stages_the_index(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN an index inside a git repository
+        WHEN update_index persists an entry
+        THEN the index is staged.
+        """
+        repo = self._git_repo(tmp_path)
+        index_path = repo / "memory-palace-index.yaml"
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+
+        update_index(
+            content_hash="sha256:staged",
+            stored_at="data/staging/capture.md",
+            importance_score=50,
+            url="https://example.com/staged",
+        )
+
+        assert "memory-palace-index.yaml" in self._staged_paths(repo)
+
+    def test_write_outside_a_repository_still_persists(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN a tree that is not a git repository
+        WHEN update_index persists an entry
+        THEN the write succeeds and the failed staging stays silent.
+
+        Captures happen during ordinary work, not during a commit. A
+        WebFetch outside a repo, mid-rebase, or with git absent must
+        never take down the fetch hook.
+        """
+        index_path = tmp_path / "memory-palace-index.yaml"
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+
+        update_index(
+            content_hash="sha256:norepo",
+            stored_at="data/staging/capture.md",
+            importance_score=50,
+            url="https://example.com/norepo",
+        )
+
+        on_disk = real_yaml.safe_load(index_path.read_text())
+        assert "https://example.com/norepo" in on_disk["entries"]
+
+    def test_missing_git_binary_is_survivable(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """GIVEN git is not installed
+        WHEN update_index persists an entry
+        THEN the write still succeeds.
+        """
+        repo = self._git_repo(tmp_path)
+        index_path = repo / "memory-palace-index.yaml"
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+
+        def _no_git(*args: object, **kwargs: object) -> None:
+            raise FileNotFoundError("git")
+
+        monkeypatch.setattr(dedup_module.subprocess, "run", _no_git)
+
+        update_index(
+            content_hash="sha256:nogit",
+            stored_at="data/staging/capture.md",
+            importance_score=50,
+            url="https://example.com/nogit",
+        )
+
+        on_disk = real_yaml.safe_load(index_path.read_text())
+        assert "https://example.com/nogit" in on_disk["entries"]

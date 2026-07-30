@@ -112,6 +112,6 @@ See `Skill(abstract:hook-authoring)` for full hook development patterns includin
 
 ## Related Modules
 
-- **hook-types.md**: Event types to test
-- **sdk-callbacks.md**: Implementation patterns to test
-- **performance-guidelines.md**: Performance targets to verify
+See the Module References section in `SKILL.md` for the full module list and
+what each one covers. The hub owns that index so the modules do not have to
+keep parallel copies of it in sync.

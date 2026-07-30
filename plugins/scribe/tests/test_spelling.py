@@ -16,13 +16,13 @@ implementations wrong:
 from __future__ import annotations
 
 import pytest
+
+from scribe import spelling
 from scribe.spelling import (
     find_british_spellings,
     load_spelling_map,
     to_american,
 )
-
-from scribe import spelling
 
 # ---------------------------------------------------------------------------
 # load_spelling_map

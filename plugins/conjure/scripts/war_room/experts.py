@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import shutil
 import subprocess  # nosec B404 - Used safely with create_subprocess_exec (no shell)
+from collections.abc import Callable
 from pathlib import Path
 
 from scripts.war_room.config import (
@@ -100,8 +101,11 @@ _haiku_fallback_notices: list[str] = []
 # Command Resolution
 # ---------------------------------------------------------------------------
 
-# Registry of command resolvers (used by get_expert_command)
-_COMMAND_RESOLVERS: dict[str, object] = {}
+# Registry of command resolvers (used by get_expert_command). Typed as the
+# callable it actually holds: every registered resolver is a zero-argument
+# function returning the argv list. Declaring it as object made the resolver
+# call below unverifiable, which is the whole reason the registry exists.
+_COMMAND_RESOLVERS: dict[str, Callable[[], list[str]]] = {}
 
 
 def get_haiku_command() -> list[str]:

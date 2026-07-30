@@ -25,6 +25,9 @@ _ENTRY_PREFIXES = ("test_", "handle_", "on_", "do_")
 
 _MAX_FLOW_NODES = 1000
 
+# A flow with fewer nodes than this is a single call, not worth storing.
+_MIN_NONTRIVIAL_FLOW_NODES = 2
+
 
 def detect_entry_points(graph: GraphStore) -> list[GraphNode]:
     """Find execution entry points in the graph.
@@ -112,7 +115,7 @@ def trace_flows(
                     queue.append((target, depth + 1))
 
         # Only store non-trivial flows
-        if len(flow_nodes) >= 2:
+        if len(flow_nodes) >= _MIN_NONTRIVIAL_FLOW_NODES:
             criticality = compute_criticality(flow_nodes, graph)
             flows.append(
                 {

@@ -92,7 +92,8 @@ description: 'Review pull requests with line comments and
 
 If a competing skill outranks it, either narrow the competing
 skill's description or merge the two skills if they overlap
-substantively. See `description-writing.md` for the formula.
+substantively. The formula is in the description-writing module listed
+in `SKILL.md`.
 
 ## Symptom: skill loads but Claude ignores its content
 
@@ -126,13 +127,12 @@ SKILL.md exceeds 500 lines, move detail to modules.
 ### Fix
 
 Tighten the language. Replace "consider," "should," and
-"might" with "must" and "required." See
-`anti-rationalization.md` for the language hierarchy and
-`persuasion-principles.md` for the directive forms that
-work best.
+"might" with "must" and "required." `SKILL.md` lists the
+anti-rationalization module for the language hierarchy and the
+persuasion-principles module for the directive forms that work best.
 
-If the skill is too long, split using the patterns in
-`progressive-disclosure.md`.
+If the skill is too long, split using the patterns in the
+progressive-disclosure module.
 
 ## Symptom: skill works in tests, fails in production
 
@@ -162,8 +162,9 @@ representative.
 ### Fix
 
 Add the real prompt to the test corpus. If multiple skills
-conflict, see `advanced-patterns.md` for the multi-skill
-coordination pattern. If model dependence is the cause,
+conflict, the multi-skill coordination pattern is in the
+advanced-patterns module listed in `SKILL.md`. If model dependence is
+the cause,
 re-run RED/GREEN/REFACTOR on the production model.
 
 ## Symptom: module references broken
@@ -234,8 +235,8 @@ For each cited path, run `ls` to confirm it exists.
 
 Replace stale paths with current ones. Add a verification
 step at the end of the skill that runs the cited commands
-and checks their output. See `error-handling.md` for the
-"surface, stop, ask" pattern.
+and checks their output. The "surface, stop, ask" pattern is in the
+error-handling module listed in `SKILL.md`.
 
 ## Symptom: skill is very large and slow to maintain
 
@@ -250,8 +251,8 @@ small changes regress unrelated sections.
 
 ### Fix
 
-Split. The `progressive-disclosure.md` module specifies the
-rule: SKILL.md under 500 lines, modules 200-400 lines,
+Split. The progressive-disclosure module listed in `SKILL.md`
+specifies the rule: SKILL.md under 500 lines, modules 200-400 lines,
 references one level deep. Run the analyzer:
 
 ```bash
@@ -288,11 +289,10 @@ python plugins/abstract/scripts/skill_analyzer.py \
   plugins/<plugin>/skills/<skill>/SKILL.md
 ```
 
-If any check fails, fix before merging. The deployment
-checklist (`deployment-checklist.md`) gates merge on these
-results.
+If any check fails, fix before merging. The deployment checklist
+listed in `SKILL.md` gates merge on these results.
 
 Cross-reference: see `Skill(abstract:skills-eval)` for the
-auditing framework that detects most of these issues at scale,
-and `validation.md` in this skill for pre-merge structural
-checks.
+auditing framework that detects most of these issues at scale.
+`SKILL.md` lists this skill's validation module for pre-merge
+structural checks.

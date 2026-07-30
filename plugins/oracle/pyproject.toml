@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "oracle"
-version = "1.9.16"
+version = "1.9.17"
 description = "ONNX Runtime inference daemon for Claude Code plugins"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -27,7 +27,7 @@ dev = [
 
 [dependency-groups]
 dev = [
-    "mypy>=1.11.0",
+    "mypy>=1.11.0,<2",
     "pyyaml>=6.0",
     "pytest>=8.0",
     "pytest-cov>=4.0",
@@ -53,6 +53,7 @@ extend-ignore = ["S101", "E203", "D203", "D213", "UP017"]
     "D212", "S603", "S607", "PLW1510", "S310",
 ]
 "hooks/**/*.py" = ["S603", "S607", "PLR0911", "PLR2004", "UP045", "S105"]
+"src/oracle/provision.py" = ["S603", "S607"]
 
 [tool.mypy]
 python_version = "3.9"

@@ -132,6 +132,19 @@ End response immediately after:
 | "Hope this helps!" | Remove always |
 | Bullet recaps | Remove (redundant) |
 
+### Override: action-first-output
+
+When `Skill(conserve:action-first-output)` is active, two rows above
+are overridden:
+
+- **"Next steps:"**: one single-line next action is required, not
+  removed. The ban still holds for multi-item "Next steps:" blocks.
+- **Bullet recaps**: a position marker ("step 3 of 5 done") is
+  required every turn. The ban still holds for recapping content the
+  reader just read.
+
+See the Precedence table in that skill for the full resolution.
+
 ### Exceptions (When Summaries Help)
 
 - Multi-part tasks with many changes

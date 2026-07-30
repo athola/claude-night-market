@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.9.16"
+version = "1.9.17"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -32,7 +32,7 @@ include = [
 dev = [
   "black>=24.10.0",
   "ruff>=0.14.13",
-  "mypy>=1.13.0",
+  "mypy>=1.13.0,<2",
   "pre-commit>=4.0.0",
   "bandit>=1.7.9"
 ]
@@ -109,7 +109,9 @@ directory = "htmlcov"
 
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+# py39 to match every plugin's floor: ruff must not suggest 3.10+ idioms
+# (X | Y unions, StrEnum, etc.) on code that ships to Python 3.9 users.
+target-version = "py39"
 src = ["plugins", "tests"]
 
 [tool.ruff.lint.isort]
@@ -123,17 +125,24 @@ known-first-party = [
     "conftest_shared",
     "conjure",
     "conserve",
+    "gauntlet",
     "imbue",
     "leyline",
     "memory_palace",
     "minister",
+    "oracle",
     "parseltongue",
     "pensive",
+    "phantom",
     "plugin_project_init",
     "project_detector",
     "sanctum",
+    "scribe",
     "scry",
+    "shared",
     "spec_kit",
+    "speckit",
+    "tome",
     "sync_templates",
     "tasks_manager",
     "template_customizer",

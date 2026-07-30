@@ -28,8 +28,9 @@ high-quality domains.
 
 **Academic literature**: arXiv, Semantic Scholar, with an
 open-access discovery chain (Unpaywall, CORE, PubMed
-Central, OpenAlex). Parses PDFs and provides fallback
-guidance for paywalled content.
+Central, OpenAlex). Routes PDFs through markitdown for the
+agent to read, and provides fallback guidance for paywalled
+content.
 
 **TRIZ cross-domain**: Identifies adjacent fields where
 analogous problems have been solved. Depth scales

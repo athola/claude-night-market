@@ -33,6 +33,8 @@ SessionStart surfacing hook.
 
 ## When To Use
 
+- A commit was blocked because the index still carries `pending`
+  entries the drain held back.
 - The capture backlog has grown and most entries are still `pending`.
 - You want a corpus health report (inert ratio, orphans, topic clusters).
 - You want stored research surfaced automatically during sessions.
@@ -78,7 +80,33 @@ Applying is idempotent: promoted and archived entries are no longer
 `pending`, so a second run proposes nothing new. The dry-run diff is
 always shown before `--apply` writes.
 
-### 3. Surface (learn)
+Running these by hand is the exception. `--apply` runs on every commit
+from `scripts/precommit_palace_maintenance.sh`, so the backlog drains
+continuously rather than in occasional sweeps. Reach for the commands
+above when a commit is blocked, or when you want the dry-run diff before
+the hook decides for you.
+
+### 3. Committed state must be drained
+
+The commit that carries the index must carry it with zero `pending`
+entries. `scripts/check_capture_index_drained.py` runs at the end of the
+maintenance hook and fails the commit otherwise, and
+`tests/test_capture_index_artifact.py` re-checks the same invariant in
+CI so a bypassed hook does not land a backlog.
+
+Two things make that gate reachable rather than a standing block:
+
+- The capture write stages the index
+  (`hooks/shared/deduplication._stage_index`). Without it, pre-commit
+  reverts the unstaged write before any hook runs, so the drain reads a
+  tree the fresh capture is missing from and converges on a fixed point
+  that excludes exactly the entries it exists to process. That is how 47
+  captures accumulated behind a drain that reported nothing to do.
+- The drain resolves promote and archive by itself. Only `hold` survives
+  it, so a blocked commit means a specific capture needs a person to
+  score or archive it. The gate names the keys.
+
+### 4. Surface (learn)
 
 A SessionStart hook (`hooks/index_surfacer.py`) names the highest-value
 promoted captures at the start of a session. It is disabled by default.
@@ -92,19 +120,43 @@ feature_flags:
 The hook only speaks when promoted entries clear the importance floor,
 and it exits silently on any error so it can never block a session.
 
+## The corpus keyword index is a separate artifact
+
+The three steps above all operate on the capture index at
+`hooks/memory-palace-index.yaml`. Retrieval reads a different file:
+`data/indexes/keyword-index.yaml`, built from the staging captures and
+consumed by `cache_lookup`. Curating one does nothing to the other.
+
+That keyword index is derived data and is not tracked in git, so a
+fresh checkout has none at all. Rebuild it with:
+
+```bash
+# Report what would be indexed, writing nothing.
+uv run python scripts/build_indexes.py --dry-run
+
+# Write data/indexes/keyword-index.yaml.
+uv run python scripts/build_indexes.py
+```
+
+The builder refuses to write an empty index over a populated one. An
+empty corpus is reported with `"wrote": false` and any existing index
+is left untouched. Writing `entries: {}` over real data is how the
+corpus went dark in 1.5.0, and it stayed dark because the regeneration
+script named in that stub file had never been written.
+
 ## Design Notes
 
 - Promotion uses only structural signals (recency, domain authority,
-  cluster size). The decision logic is deterministic; no model call
+  cluster size). The decision logic is deterministic. No model call
   gates a transition.
 - The decay half-lives (14/30/90 days) are tunable priors, not retention
   constants. Wixted & Ebbesen (1997) and Murre & Dros (2015) show
-  forgetting follows a power law; FSRS (Ye, Su & Cao, 2022) validates
+  forgetting follows a power law. FSRS (Ye, Su & Cao, 2022) validates
   exponential decay only with a learned per-item half-life. Calibrate
   against reopen logs if usage data accrues.
-- Retrieval stays keyword-first (`cache_lookup` / `keyword_index`);
+- Retrieval stays keyword-first (`cache_lookup` / `keyword_index`), and
   embeddings are not required at the current corpus scale. BM25 is the
-  workhorse up to ~5000 documents; embeddings add value only for
+  workhorse up to ~5000 documents. Embeddings add value only for
   vocabulary-mismatch discovery.
 - Near-duplicate detection layers SHA-256 exact match (present via
   `content_hash`) then MinHash with k-shingling for near-duplicates
@@ -116,6 +168,10 @@ and it exits silently on any error so it can never block a session.
 
 ## Exit Criteria
 
+- [ ] `build_indexes.py --dry-run` reports a non-zero entry count and
+      leaves `data/indexes/keyword-index.yaml` byte-identical.
+- [ ] `build_indexes.py` against an empty corpus reports `"wrote":
+      false` and leaves an existing populated index untouched.
 - [ ] `index report` runs and prints the inert ratio and orphan count
       for the live index.
 - [ ] `index promote` (no flag) prints proposals and writes nothing
@@ -123,7 +179,11 @@ and it exits silently on any error so it can never block a session.
 - [ ] `index promote --apply` creates a timestamped backup under
       `data/backups/` before persisting, and a re-run proposes nothing.
 - [ ] With `context_injection: true`, a SessionStart event surfaces the
-      top promoted captures; with the flag off, it stays silent.
+      top promoted captures, and with the flag off it stays silent.
 - [ ] Failure modes (missing index, corrupt YAML, missing backing files)
       are handled without raising: report degrades, promote holds, hook
       exits silently.
+- [ ] `check_capture_index_drained.py` exits 0 against the committed
+      index and exits 1 naming the keys when one is left `pending`.
+- [ ] A capture written by `update_index` appears in `git diff --cached`
+      without anyone staging it by hand.

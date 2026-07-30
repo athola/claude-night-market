@@ -157,6 +157,30 @@ class TelemetryContext:
     latency_ms: int
 
 
+def _load_autonomy(
+    config: dict[str, Any],
+    feature_flags: dict[str, Any],
+) -> tuple[AutonomyStateStore | None, AutonomyProfile | None]:
+    """Load the autonomy store and profile (best-effort).
+
+    Returns ``(None, None)`` when the autonomy feature is disabled or the
+    profile cannot be built, leaving governance off without failing the hook.
+    """
+    if not feature_flags.get("autonomy", True):
+        return None, None
+    try:
+        store = AutonomyStateStore(plugin_root=PLUGIN_ROOT)
+        profile = store.build_profile(config_level=config.get("autonomy_level"))
+    except Exception as e:
+        logger.warning(
+            "research_interceptor: Failed to load autonomy profile; "
+            "autonomy governance disabled: %s",
+            e,
+        )
+        return None, None
+    return store, profile
+
+
 def main() -> None:
     """Intercept research requests through the hook."""
     try:
@@ -178,20 +202,7 @@ def main() -> None:
         sys.exit(0)
 
     # Load autonomy profile (best-effort)
-    autonomy_profile: AutonomyProfile | None = None
-    autonomy_store: AutonomyStateStore | None = None
-    if feature_flags.get("autonomy", True):
-        try:
-            autonomy_store = AutonomyStateStore(plugin_root=PLUGIN_ROOT)
-            autonomy_profile = autonomy_store.build_profile(
-                config_level=config.get("autonomy_level")
-            )
-        except Exception as e:
-            logger.warning(
-                "research_interceptor: Failed to load autonomy profile; "
-                "autonomy governance disabled: %s",
-                e,
-            )
+    autonomy_store, autonomy_profile = _load_autonomy(config, feature_flags)
 
     telemetry_logger: TelemetryLogger | None = None
     telemetry_config = config.get("telemetry", {})

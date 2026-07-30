@@ -10,6 +10,7 @@ import contextlib
 import hashlib
 import os
 import re
+import subprocess
 import sys
 import tempfile
 from datetime import datetime, timezone
@@ -37,6 +38,11 @@ except ImportError:
 # Index cache
 _index_cache: dict[str, Any] | None = None
 _index_mtime: float = 0
+
+# Ceiling on the staging call. `git add` on one file is milliseconds;
+# anything near this bound is a lock being held, and a capture waits for
+# no one.
+_STAGE_TIMEOUT_SECONDS = 5
 
 
 def _get_index_path() -> Path:
@@ -215,6 +221,7 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
     title: str | None = None,
     maturity: str | None = None,
     routing_type: str | None = None,
+    null_capture: str | None = None,
 ) -> None:
     """Add or update entry in index.
 
@@ -227,6 +234,9 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
         title: Content title
         maturity: Knowledge maturity level (seedling, growing, evergreen)
         routing_type: Application routing (local, meta, both)
+        null_capture: Reason a 2xx fetch carried no content
+            (redirect notice, empty result set). Set by the fetch
+            hook; the promoter archives rather than promotes these.
 
     Note: This does write to disk - use sparingly.
 
@@ -269,6 +279,8 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
         entry["maturity"] = maturity  # seedling, growing, evergreen
     if routing_type:
         entry["routing_type"] = routing_type  # local, meta, both
+    if null_capture:
+        entry["null_capture"] = null_capture
 
     key: str | None = None
     if url:
@@ -309,9 +321,38 @@ def update_index(  # noqa: PLR0913 - index entries have many metadata fields
             os.unlink(tmp_path)
         raise
 
+    _stage_index(index_path)
+
     # Update cache
     _index_cache = index
     _index_mtime = index_path.stat().st_mtime
+
+
+def _stage_index(index_path: Path) -> None:
+    """Stage the index so the pre-commit drain can see this capture.
+
+    ``pre-commit`` reverts unstaged changes to tracked files before
+    running any pre-commit-stage hook. An index written but never staged
+    is therefore absent from the tree the drain inspects: it reads the
+    HEAD version, converges on it, and the fresh capture survives the
+    commit still ``pending``. That is how the 47-entry backlog drained
+    in 2ed3737b accumulated while the drain reported nothing to do.
+
+    Best-effort by design. Captures happen during ordinary work, not
+    during a commit, so the common failures here are unremarkable: the
+    index lives outside a repository, git is absent, or an operation
+    holds the index lock. None of them are worth taking a WebFetch down
+    over, and none of them lose data, because the write already
+    completed.
+    """
+    with contextlib.suppress(OSError, subprocess.SubprocessError):
+        subprocess.run(
+            ["git", "add", "--", str(index_path)],
+            cwd=str(index_path.parent),
+            capture_output=True,
+            check=False,
+            timeout=_STAGE_TIMEOUT_SECONDS,
+        )
 
 
 def get_index_stats() -> dict[str, int]:

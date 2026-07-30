@@ -218,7 +218,9 @@ def get_phrase_patterns(patterns: dict[str, Any]) -> list[dict[str, Any]]:
     return result
 
 
-def get_tier5_patterns(patterns: dict[str, Any]) -> list[dict[str, Any]]:
+def get_tier5_patterns(
+    patterns: dict[str, Any], include_optional: bool = False
+) -> list[dict[str, Any]]:
     """Extract Tier 5 structural patterns from loaded patterns.
 
     Tier 5 covers the 2026 structural tells (spatial copula, negative
@@ -227,21 +229,34 @@ def get_tier5_patterns(patterns: dict[str, Any]) -> list[dict[str, Any]]:
     carries a score, a confidence level, and an ``ignore_case`` flag so
     callers can compile the regex with the correct flags.
 
+    A category may also set ``default_enabled: false`` to stay out of a
+    default sweep. That axis is independent of ``confidence``: a low
+    confidence category is one whose hits need human judgment before a
+    rewrite, which is not the same as one too noisy to report at all.
+    ``anthropomorphism_low`` is the first opt-in category (issue #646);
+    its verbs (``handles``, ``manages``, ``owns``) are load-bearing in
+    systems prose and would swamp a routine run.
+
     Languages without a ``tier5`` section return an empty list, which
     lets callers degrade gracefully until a language pack is translated.
 
     Args:
         patterns: Loaded language pattern dictionary.
+        include_optional: Include categories marked
+            ``default_enabled: false``. Defaults to False.
 
     Returns:
         List of dicts, one per category, each with ``category``,
         ``patterns`` (list of regex strings), ``score``, ``confidence``,
-        and ``ignore_case``.
+        ``ignore_case``, and ``default_enabled``.
     """
     tier5 = patterns.get("tier5", {})
     result: list[dict[str, Any]] = []
     for category_name, category_data in tier5.items():
         if not isinstance(category_data, dict):
+            continue
+        default_enabled = bool(category_data.get("default_enabled", True))
+        if not default_enabled and not include_optional:
             continue
         result.append(
             {
@@ -250,6 +265,7 @@ def get_tier5_patterns(patterns: dict[str, Any]) -> list[dict[str, Any]]:
                 "score": category_data.get("score", 2),
                 "confidence": category_data.get("confidence", "high"),
                 "ignore_case": bool(category_data.get("ignore_case", False)),
+                "default_enabled": default_enabled,
             }
         )
     return result

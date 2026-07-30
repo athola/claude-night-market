@@ -1,5 +1,5 @@
 name: conserve
-version: 1.9.16
+version: 1.9.17
 description: Resource optimization and performance monitoring toolkit for efficient Claude Code workflows
 keywords:
 - conserve
@@ -19,12 +19,14 @@ author:
   url: https://github.com/athola
 license: MIT
 skills:
+- skills/action-first-output
 - skills/bloat-detector
 - skills/clear-context
 - skills/code-quality-principles
 - skills/context-optimization
 - skills/cpu-gpu-performance
 - skills/decisive-action
+- skills/elegant-code
 - skills/mcp-code-execution
 - skills/response-compression
 - skills/smart-sourcing
@@ -35,6 +37,8 @@ skills:
 commands:
 - commands/ai-hygiene-audit.md
 - commands/bloat-scan.md
+- commands/elegant-code-review.md
+- commands/filter-log.md
 - commands/optimize-context.md
 - commands/unbloat.md
 agents:

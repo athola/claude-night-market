@@ -26,6 +26,7 @@ from urllib.parse import urlparse
 
 from shared.config import get_config
 from shared.deduplication import (
+    _load_index,
     get_content_hash,
     get_stored_at,
     is_known,
@@ -44,22 +45,81 @@ PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 STAGING_DIR = PLUGIN_ROOT / "data" / "staging"
 QUEUE_DIR = STAGING_DIR  # was docs/knowledge-corpus/queue before 1.5.0
 
-_EVAL_SCORES_TABLE = """## Evaluation Scores (Auto-Generated)
-
-| Criterion | Score | Rationale |
-|-----------|-------|-----------|
-| Novelty | TBD | Review needed |
-| Applicability | TBD | Review needed |
-| Durability | TBD | Review needed |
-| Connectivity | TBD | Review needed |
-| Authority | TBD | Review needed |"""
-
 # ---------------------------------------------------------------------------
 # src/ on sys.path so memory_palace.* imports work in hook context
 # ---------------------------------------------------------------------------
 _SRC_DIR = str(PLUGIN_ROOT / "src")
 if _SRC_DIR not in sys.path:
     sys.path.insert(0, _SRC_DIR)
+
+try:
+    from memory_palace.corpus.index_analytics import (
+        _domain,
+        _domain_authority,
+        cluster_by_domain,
+    )
+
+    _ANALYTICS_AVAILABLE = True
+except ImportError:  # pragma: no cover - src/ is not importable in every hook context
+    _ANALYTICS_AVAILABLE = False
+
+
+def _current_index() -> dict[str, Any]:
+    """Return the live capture index for connectivity scoring.
+
+    ``_load_index`` yields the empty sentinel on any read failure, so no
+    guard is needed here: a missing index scores connectivity 0 rather
+    than failing the capture.
+    """
+    return _load_index()
+
+
+def _first_result_url(results: list[dict[str, str]]) -> str:
+    """Best available URL for a search capture: the top hit's."""
+    return results[0].get("url", "") if results else ""
+
+
+def build_eval_table(url: str, index: dict[str, Any] | None) -> str:
+    """Render the evaluation table from signals the index actually has.
+
+    Emits only criteria that vary per capture and are derivable at fetch
+    time: Authority from domain rank, Connectivity from topic-cluster
+    size. Both reuse the helpers the promotion ranker scores on, so the
+    table and the promote decision cannot drift apart.
+
+    Novelty, Applicability, and Durability are deliberately omitted.
+    None is computable here: the first two need a judgment about content,
+    and durability is keyed on maturity tier, which is ``seedling`` for
+    every capture, so it would print an identical number on every file.
+    Previously all five read ``TBD`` on all 554 entries, implying a
+    review that never ran (issue #649). A constant dressed as a
+    measurement would be that same mistake in a new costume.
+    """
+    if not _ANALYTICS_AVAILABLE:
+        return ""
+
+    domain = _domain(url)
+    authority = _domain_authority(domain)
+
+    connectivity = 0.0
+    detail = "no sibling captures yet"
+    if index:
+        sizes = {d: len(keys) for d, keys in cluster_by_domain(index).items()}
+        if sizes:
+            largest = max(sizes.values())
+            mine = sizes.get(domain, 0)
+            connectivity = mine / largest if largest else 0.0
+            detail = f"{mine} of {largest} in largest cluster"
+
+    return f"""## Evaluation Scores (Auto-Generated)
+
+| Criterion | Score | Source |
+|-----------|-------|--------|
+| Authority | {authority:.2f} | domain rank ({domain}) |
+| Connectivity | {connectivity:.2f} | {detail} |
+
+Scored on structural signals only. Novelty and applicability need a
+judgment call this hook cannot make; run knowledge-intake for those."""
 
 
 def _try_register_graph_entity(
@@ -104,8 +164,60 @@ def _try_register_graph_entity(
         sys.stderr.write(f"web_research_handler: graph wiring skipped: {exc}\n")
 
 
+TITLE_MAX_CHARS = 100
+
+# Openers that mark a line as the model talking about the page rather than
+# the page's own title. Kept deliberately short: the shape checks in
+# _looks_like_title do most of the work, and a long phrase list would rot
+# as model phrasing drifts (#621).
+_PREAMBLE_OPENERS = (
+    "based on",
+    "here is",
+    "here's",
+    "here are",
+    "i cannot",
+    "i could not",
+    "i couldn't",
+    "i was unable",
+    "unfortunately",
+    "sorry",
+    "redirect detected",
+    "there are no",
+    "no results",
+)
+
+
+def _looks_like_title(line: str) -> bool:
+    """Report whether a line names a thing rather than describing it.
+
+    A title names; prose describes. Three shape checks separate them,
+    in order of how much junk each removes from the live index:
+
+    1. Length. A line past ``TITLE_MAX_CHARS`` is a paragraph. Accepting
+       it meant slicing mid-sentence, which is what stored
+       "To get accurate answers to your questions about ServiceTitan's
+       developer" as a page title.
+    2. Terminal punctuation. Titles do not end in ``.``, ``:`` or ``,``.
+       This alone rejects most model preambles. ``?`` and ``!`` are
+       allowed, because "What Is Rust Ownership?" is a real title.
+    3. Preamble openers, as a narrow backstop for preambles that carry no
+       terminal punctuation.
+    """
+    if len(line) > TITLE_MAX_CHARS:
+        return False
+    if line.endswith((".", ":", ",", ";")):
+        return False
+    lowered = line.casefold()
+    return not lowered.startswith(_PREAMBLE_OPENERS)
+
+
 def extract_title_from_content(content: str, url: str) -> str:
-    """Extract a reasonable title from content or URL."""
+    """Extract a reasonable title from content or URL.
+
+    Lines that read as model preamble rather than a page title are
+    skipped, so a later real heading can still win. When no line
+    qualifies, fall back to the URL slug (#621).
+    """
     # Try to find a title-like line at the start
     lines = content.strip().split("\n")[:10]
     for raw_line in lines:
@@ -113,11 +225,16 @@ def extract_title_from_content(content: str, url: str) -> str:
         # Skip empty lines and common prefixes
         if not line or (line.startswith("#") and len(line) < 5):
             continue
-        # Found a title-like line
+        # A heading is explicit markup, so it needs no length floor; a
+        # plain line does, to avoid promoting stray one-word fragments.
         if line.startswith("#"):
-            return line.lstrip("#").strip()[:100]
-        if len(line) > 10 and len(line) < 150:
-            return line[:100]
+            candidate = line.lstrip("#").strip()
+        elif len(line) > 10:
+            candidate = line
+        else:
+            continue
+        if _looks_like_title(candidate):
+            return candidate
 
     # Fall back to URL-based title
     parsed = urlparse(url)
@@ -185,6 +302,46 @@ def detect_failed_fetch_status(
     return None
 
 
+# WebFetch emits this exact notice when a URL bounces to a different
+# host: what follows is the notice itself, not the page. Anchoring on
+# the literal marker keeps this as precise as _FETCH_STATUS_RE.
+_REDIRECT_NOTICE = "REDIRECT DETECTED"
+
+
+def detect_null_capture(
+    tool_response: dict[str, Any] | str,
+    content: str,
+) -> str | None:
+    """Return why a 2xx response carried no content, or None if it did.
+
+    Sibling of :func:`detect_failed_fetch_status`, which covers non-2xx
+    responses. This covers fetches that succeeded but returned nothing
+    usable: a redirect notice, or a structured result set with zero
+    entries. Such captures were promoted on domain and cluster signals
+    alone, scoring above much of the real corpus (issue #649).
+
+    Only structural signals are used. The prose body is written by the
+    model summarizing the page, so phrases like "no stories found" are
+    not reliable: a capture can carry a full result table and still note
+    that one subset is absent. Two heuristics built on that prose were
+    tried against the live corpus and both deleted real research, which
+    is why nothing here reads the summary text.
+    """
+    if _REDIRECT_NOTICE in (content or ""):
+        return "redirect-notice"
+
+    if isinstance(tool_response, dict):
+        for key in ("results", "hits"):
+            val = tool_response.get(key)
+            if isinstance(val, list) and not val:
+                return "empty-results"
+        total = tool_response.get("nbHits")
+        if isinstance(total, int) and not isinstance(total, bool) and total == 0:
+            return "empty-results"
+
+    return None
+
+
 def extract_results_from_websearch(
     tool_response: dict[str, Any],
 ) -> list[dict[str, str]]:
@@ -209,12 +366,13 @@ def extract_results_from_websearch(
     return results
 
 
-def _store_to_queue(
+def _store_to_queue(  # noqa: PLR0913 - one queue entry carries this many fields
     filename: str,
     content: str,
     content_hash: str,
     source_ref: str,
     title: str,
+    null_capture: str | None = None,
 ) -> str | None:
     """Write a queue entry file and update the dedup index.
 
@@ -234,6 +392,7 @@ def _store_to_queue(
                 title=title,
                 maturity="seedling",
                 routing_type="pending",
+                null_capture=null_capture,
             )
         except Exception as idx_err:
             logger.error(
@@ -285,6 +444,7 @@ def store_webfetch_content(
     content: str,
     url: str,
     prompt: str,
+    null_capture: str | None = None,
 ) -> str | None:
     """Store WebFetch content to queue and return the stored path.
 
@@ -340,7 +500,7 @@ auto_generated: true
 
 </details>
 
-{_EVAL_SCORES_TABLE}
+{build_eval_table(url, _current_index())}
 
 ## Next Actions
 
@@ -351,7 +511,9 @@ auto_generated: true
 - [ ] Archive or delete if not valuable
 """
 
-    return _store_to_queue(filename, queue_entry, content_hash, url, title)
+    return _store_to_queue(
+        filename, queue_entry, content_hash, url, title, null_capture
+    )
 
 
 def store_websearch_results(
@@ -408,7 +570,7 @@ auto_generated: true
 
 {results_content}
 
-{_EVAL_SCORES_TABLE}
+{build_eval_table(_first_result_url(results), _current_index())}
 
 ## Next Actions
 
@@ -520,8 +682,15 @@ def _handle_webfetch(
         )
         return context_parts, None, None
 
+    # Computed here, where tool_response is still structured. Downstream
+    # only sees the model's prose summary, which cannot be read reliably
+    # for emptiness (issue #649).
+    null_capture = detect_null_capture(tool_response, content)
+
     if auto_capture:
-        stored_path = store_webfetch_content(content, url, prompt)
+        stored_path = store_webfetch_content(
+            content, url, prompt, null_capture=null_capture
+        )
         if stored_path:
             context_parts.append(
                 f"Memory Palace: Auto-captured web content from {url}\n"
@@ -554,6 +723,26 @@ def _handle_webfetch(
     return context_parts, stored_path, register_kwargs
 
 
+def _partition_by_known(
+    results: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Split WebSearch results into (new, known) by URL, dropping empty URLs."""
+    new_urls: list[dict[str, Any]] = []
+    known_urls: list[dict[str, Any]] = []
+    for result in results:
+        url = result.get("url")
+        if not url:
+            continue
+        target = known_urls if is_known(url=url) else new_urls
+        target.append(result)
+    return new_urls, known_urls
+
+
+def _format_new_url_lines(new_urls: list[dict[str, Any]]) -> list[str]:
+    """Format up to five new-source result rows for the context output."""
+    return [f"  - {r.get('title', 'Untitled')}: {r.get('url')}" for r in new_urls[:5]]
+
+
 def _handle_websearch(
     query: str,
     tool_response: dict[str, Any],
@@ -571,16 +760,7 @@ def _handle_websearch(
     if not results:
         return context_parts, None, None
 
-    new_urls: list[dict[str, Any]] = []
-    known_urls: list[dict[str, Any]] = []
-    for result in results:
-        url = result.get("url")
-        if not url:
-            continue
-        if is_known(url=url):
-            known_urls.append(result)
-        else:
-            new_urls.append(result)
+    new_urls, known_urls = _partition_by_known(results)
 
     if auto_capture and new_urls:
         stored_path = store_websearch_results(query, results)
@@ -598,16 +778,12 @@ def _handle_websearch(
                 f"Memory Palace: WebSearch found {len(new_urls)} new sources "
                 "not in memory palace (auto-capture failed):",
             )
-            for r in new_urls[:5]:
-                context_parts.append(
-                    f"  - {r.get('title', 'Untitled')}: {r.get('url')}"
-                )
+            context_parts.extend(_format_new_url_lines(new_urls))
     elif new_urls:
         context_parts.append(
             f"Memory Palace: WebSearch found {len(new_urls)} new sources not in memory palace:",
         )
-        for r in new_urls[:5]:
-            context_parts.append(f"  - {r.get('title', 'Untitled')}: {r.get('url')}")
+        context_parts.extend(_format_new_url_lines(new_urls))
 
     if known_urls:
         context_parts.append(

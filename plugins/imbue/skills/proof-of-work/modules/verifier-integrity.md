@@ -127,10 +127,43 @@ is not more ceremony; it is real evidence exactly where it pays.
      Passing run: [command + output reference]
 ```
 
+## Reusable verifier techniques
+
+Techniques from the formal-methods literature that transfer to an
+ordinary agentic coding loop:
+
+| Technique | Source | Application |
+|-----------|--------|-------------|
+| Prover-verifier game (helpful vs sneaky) | arXiv 2407.13692 | Gate on a small independent checker; spawn an adversarial test-writer that tries to slip a wrong-but-passing solution past it |
+| Error-driven targeted repair | Baldur (arXiv 2303.04910), APOLLO | Feed the checker's localized error back; repair only the failing fragment; cap attempts |
+| Mutation / revert-test | anti-cargo-cult, `sanctum:validate-pr` | Prove the check goes red when behavior breaks; a check that never fails is not a check |
+| Property-based verifier gate | Anthropic PBT, arXiv 2506.18315 | Infer invariants, fuzz inputs, use as the completion gate for non-math code |
+| Autoformalize-then-check | Draft-Sketch-Prove (arXiv 2210.12283) | Freeze a checkable skeleton (signatures, contracts, tests), fill and verify the gaps; review the spec, not just the code |
+| Best-of-N with external verifier | arXiv 2506.18203, 2402.08115 | Accept only what a sound external verifier passes; never self-judge |
+
+Two findings bound how far this goes. First, the generator must never
+be its own judge: LLM self-verification is unreliable, models are
+frequently no better at judging their own output than at producing it,
+and self-critique can degrade performance (arXiv 2402.08115). The
+generator-verifier asymmetry is real but only pays off with a
+genuinely independent, sound verifier.
+
+Second, and more limiting: **a green check is not correctness.** A
+machine-checked pass proves the code satisfies the spec, never that
+the spec captured human intent. The property-based-testing solver work
+found underspecification in about 10% of specs in state-of-the-art
+verified-code benchmarks. Spec-writing, not proof-search, is the wall,
+and LLMs are weakest exactly there. Match verifier strength to blast
+radius: specs earn their cost for automations with high cost-of-error,
+and are wasted on augmentations and easily-isolated errors.
+
 ## Sources
 
 - Prover-Verifier Games improve legibility
   (https://arxiv.org/abs/2407.13692)
+- Baldur: whole-proof generation and repair
+  (https://arxiv.org/abs/2303.04910)
+- Draft, Sketch, and Prove (https://arxiv.org/abs/2210.12283)
 - On the self-verification limitations of LLMs
   (https://arxiv.org/abs/2402.08115)
 - Property-based testing to bridge LLM code generation and validation
@@ -142,5 +175,9 @@ is not more ceremony; it is real evidence exactly where it pays.
   (https://logicalintelligence.com/blog/automatic-formal-verification-for-code-generation)
 - Using formal methods at work, Hillel Wayne
   (https://www.hillelwayne.com/post/using-formal-methods/)
-- Full synthesis:
-  `docs/research/2026-07-01-prover-verifier-loops-formal-verification.md`
+
+Evidence gaps to respect when quoting the above: the
+spec-is-the-oracle problem is unsolved, most real code has no formal
+spec (so "checked" is not "correct"), and the benchmarks behind these
+numbers are math-skewed (miniF2F, ProofNet, PutnamBench) while
+code-side verified-generation benchmarks are early and small.

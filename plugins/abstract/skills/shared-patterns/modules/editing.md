@@ -129,5 +129,5 @@ plugin's release notes rather than landing partial migrations.
 
 ## Cross-Reference
 
-See `creation.md` for adding a new pattern, and
-`troubleshooting.md` for diagnosing failures after a change.
+Detailed Resources in `SKILL.md` lists the modules covering how to add
+a new pattern, and how to diagnose failures after a change.

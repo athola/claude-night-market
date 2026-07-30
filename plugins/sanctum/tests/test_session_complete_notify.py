@@ -8,17 +8,11 @@ awaits input, supporting Linux, macOS, Windows, and WSL platforms.
 from __future__ import annotations
 
 import shutil
-import sys
 from pathlib import Path
 from subprocess import TimeoutExpired
 from unittest.mock import MagicMock, patch
 
 import pytest
-
-# Add hooks directory to path for import
-HOOKS_DIR = Path(__file__).parent.parent / "hooks"
-sys.path.insert(0, str(HOOKS_DIR))
-
 from session_complete_notify import (
     get_terminal_info,
     get_zellij_tab_name,

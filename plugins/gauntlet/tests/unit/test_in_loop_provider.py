@@ -12,14 +12,13 @@ from __future__ import annotations
 
 import importlib
 
+from gauntlet import challenges
 from gauntlet.models import BankProblem, Difficulty
 from gauntlet.providers.in_loop import (
     in_loop_variation_provider,
     is_running_in_claude_code,
     register_in_loop_provider_if_inside_claude_code,
 )
-
-from gauntlet import challenges
 
 
 def _sample_problem() -> BankProblem:

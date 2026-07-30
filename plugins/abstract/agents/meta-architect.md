@@ -1,6 +1,5 @@
 ---
 name: meta-architect
-model: sonnet
 agent: true
 allowed-tools:
   - Read
@@ -13,6 +12,8 @@ description: |
   Agent for architectural guidance, skill design patterns,
   and structural optimization. Provides consultation on
   modularization, token management, and dependency design.
+model: opus
+effort: high
 ---
 
 # Meta-Architect Agent

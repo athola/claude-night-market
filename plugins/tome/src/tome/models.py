@@ -57,6 +57,46 @@ class Finding:
             ) from exc
 
 
+@dataclass(frozen=True)
+class CitationEdge:
+    """A directed citation edge: ``citing_id`` cites ``cited_id``.
+
+    Both endpoints are Semantic Scholar paper IDs. The edge is the
+    relationship tome used to discard when flattening citation-chain
+    responses into a list of papers.
+
+    Edges are parsed from API responses and written straight into the
+    knowledge graph, so the shapes the graph cannot represent are
+    refused here instead of persisted: an empty ID becomes an
+    empty-keyed entity, and a self-citation becomes a synapse loop that
+    inflates the node's own centrality. Callers parsing untrusted
+    payloads skip such items at the boundary rather than construct them.
+
+    Raises:
+        ValueError: When either endpoint is blank, or when both
+            endpoints name the same paper.
+    """
+
+    citing_id: str
+    cited_id: str
+
+    def __post_init__(self) -> None:
+        if not self.citing_id.strip() or not self.cited_id.strip():
+            raise ValueError(
+                "citation edges require non-empty paper IDs, got "
+                f"citing_id={self.citing_id!r}, cited_id={self.cited_id!r}"
+            )
+        if self.citing_id == self.cited_id:
+            raise ValueError(f"a paper cannot cite itself: {self.citing_id!r}")
+
+    def to_dict(self) -> dict[str, str]:
+        return {"citing_id": self.citing_id, "cited_id": self.cited_id}
+
+    @classmethod
+    def from_dict(cls, d: dict[str, str]) -> CitationEdge:
+        return cls(citing_id=d["citing_id"], cited_id=d["cited_id"])
+
+
 @dataclass
 class DomainClassification:
     """Result of classifying a research topic into a domain."""

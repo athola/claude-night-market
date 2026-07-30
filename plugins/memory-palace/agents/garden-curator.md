@@ -2,7 +2,6 @@
 name: garden-curator
 description: Manage digital garden health, metrics, notes, and curation. Use for knowledge base maintenance and garden tending tasks.
 tools: [Read, Write, Bash, Grep, Glob]
-model: sonnet
 memory: project
 escalation:
   to: opus
@@ -19,6 +18,8 @@ examples:
   - context: User doing maintenance
     user: "What areas of my garden need attention?"
     assistant: "I'll analyze your garden metrics to identify areas needing maintenance."
+model: sonnet
+effort: medium
 ---
 
 # Garden Curator Agent

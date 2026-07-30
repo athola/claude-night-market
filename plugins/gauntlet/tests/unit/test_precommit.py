@@ -3,20 +3,13 @@
 from __future__ import annotations
 
 import json
-
-# The hook lives outside src/ so we import it by path manipulation.
 import sys
 import time
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-
-_HOOKS_DIR = Path(__file__).parents[2] / "hooks"
-if str(_HOOKS_DIR) not in sys.path:
-    sys.path.insert(0, str(_HOOKS_DIR))
-
-from precommit_gate import (  # noqa: E402 - hook lives outside src/, path inserted above
+from precommit_gate import (
     check_pass_token,
     generate_challenge_for_files,
     main,

@@ -8,12 +8,14 @@ avoid rate-limit exhaustion while keeping Claude in charge of strategy.
 
 from __future__ import annotations
 
+import importlib
 import json
 import logging
 import os
 import sys
 from collections.abc import Iterable
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 # Configuration limits for security and performance
@@ -27,53 +29,67 @@ ALLOWED_BASE_PATHS = [
 
 logger = logging.getLogger(__name__)
 
-# Import quota tracker for runtime use (with clean sys.path handling)
-_hook_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, _hook_dir)
-try:
-    import quota_tracker as _quota_tracker  # type: ignore[import-not-found]
 
-    _QUOTA_AVAILABLE = True
-except ImportError:
-    _QUOTA_AVAILABLE = False
-finally:
-    # Clean up sys.path to avoid polluting global module path
-    if _hook_dir in sys.path:
-        sys.path.remove(_hook_dir)
+class _FallbackQuotaTracker:
+    """Fallback quota tracker when the real module is unavailable."""
 
-if _QUOTA_AVAILABLE:
-    GeminiQuotaTracker = _quota_tracker.GeminiQuotaTracker  # type: ignore[attr-defined]
-    estimate_tokens_from_gemini_command = (
-        _quota_tracker.estimate_tokens_from_gemini_command  # type: ignore[attr-defined]
-    )
-else:
+    def __init__(self) -> None:
+        """Initialize fallback tracker."""
 
-    class _FallbackQuotaTracker:  # type: ignore[override]
-        """Fallback quota tracker when the real module is unavailable."""
+    def get_quota_status(self) -> tuple[str, list[str]]:
+        """Return unknown quota status."""
+        return "❓ Unknown", []
 
-        def __init__(self) -> None:
-            """Initialize fallback tracker."""
-
-        def get_quota_status(self) -> tuple[str, list[str]]:
-            """Return unknown quota status."""
-            return "❓ Unknown", []
-
-        def estimate_task_tokens(
-            self, paths: Iterable[str], prompt_len: int = 100
-        ) -> int:
-            """Return a conservative token estimate."""
-            return 10000
-
-        def can_handle_task(self, tokens: int) -> tuple[bool, list[str]]:
-            """Assume the task can be handled."""
-            return True, []
-
-    def _fallback_estimate_tokens(cmd: str) -> int:
-        """Fallback estimation when gemini command parsing is unavailable."""
+    def estimate_task_tokens(self, paths: Iterable[str], prompt_len: int = 100) -> int:
+        """Return a conservative token estimate."""
         return 10000
 
-    GeminiQuotaTracker = _FallbackQuotaTracker
-    estimate_tokens_from_gemini_command = _fallback_estimate_tokens
+    def can_handle_task(self, tokens: int) -> tuple[bool, list[str]]:
+        """Assume the task can be handled."""
+        return True, []
+
+
+def _fallback_estimate_tokens(cmd: str) -> int:
+    """Fallback estimation when gemini command parsing is unavailable."""
+    return 10000
+
+
+def _load_quota_tracker() -> ModuleType | None:
+    """Import the runtime-installed quota_tracker module, or None.
+
+    ``quota_tracker.py`` ships beside this hook in ``~/.claude/hooks/gemini/``
+    and is deliberately absent from the repo tree, so no static import can
+    resolve it. ``importlib`` is the honest way to say that, and it also types
+    cleanly: ``ModuleType`` declares ``__getattr__`` in typeshed, so the
+    attribute reads below need no suppression at all, where the plain
+    ``import quota_tracker`` form previously needed three.
+    """
+    hook_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, hook_dir)
+    try:
+        return importlib.import_module("quota_tracker")
+    except ImportError:
+        return None
+    finally:
+        # Clean up sys.path to avoid polluting global module path
+        if hook_dir in sys.path:
+            sys.path.remove(hook_dir)
+
+
+_quota_tracker = _load_quota_tracker()
+
+# Annotated Any so the real module and the fallback can share one name without
+# a redefinition error. The previous shape declared the class inside an else
+# branch and suppressed an [override] error code, which cannot apply to a class
+# statement in the first place: it silenced nothing that was ever reported.
+GeminiQuotaTracker: Any = _FallbackQuotaTracker
+estimate_tokens_from_gemini_command: Any = _fallback_estimate_tokens
+
+if _quota_tracker is not None:
+    GeminiQuotaTracker = _quota_tracker.GeminiQuotaTracker
+    estimate_tokens_from_gemini_command = (
+        _quota_tracker.estimate_tokens_from_gemini_command
+    )
 
 
 CONTEXT_THRESHOLD_BYTES = 100 * 1024

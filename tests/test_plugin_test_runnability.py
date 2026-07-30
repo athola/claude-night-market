@@ -24,10 +24,10 @@ tested, which is why this is pinned rather than left to luck.
 from __future__ import annotations
 
 import re
-import tomllib
 from pathlib import Path
 
 import pytest
+import tomllib
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PLUGINS_DIR = REPO_ROOT / "plugins"
@@ -133,7 +133,28 @@ def test_plugin_with_tests_has_runnable_config(plugin: Path) -> None:
     )
 
 
-@pytest.mark.parametrize("plugin", _plugins_with_tests(), ids=lambda p: p.name)
+def _plugins_with_nested_tests() -> list[Path]:
+    """The plugins the check below actually applies to.
+
+    Filtering here rather than skipping inside the test keeps the run free of
+    five permanent skips, and pairs with the discovery assertion below. A
+    runtime skip reports the same "s" whether the plugin genuinely keeps its
+    tests flat or ``_has_nested_tests`` has stopped working, and this file
+    exists to catch checks that go quiet.
+    """
+    return [p for p in _plugins_with_tests() if _has_nested_tests(p)]
+
+
+def test_nested_test_discovery_is_not_empty() -> None:
+    """Guard the guard: an empty list would make the check below vacuous."""
+    assert _plugins_with_nested_tests(), (
+        "No plugin was detected as keeping tests below tests/. Either every "
+        "plugin was flattened, or _has_nested_tests stopped matching. Until "
+        "this list is non-empty the pytest-config check asserts nothing."
+    )
+
+
+@pytest.mark.parametrize("plugin", _plugins_with_nested_tests(), ids=lambda p: p.name)
 def test_nested_tests_require_own_pytest_config(plugin: Path) -> None:
     """Tests below ``tests/`` need a local pytest config to be collected at all.
 
@@ -141,9 +162,6 @@ def test_nested_tests_require_own_pytest_config(plugin: Path) -> None:
     ``norecursedirs = ["plugins/*"]`` stops it descending into ``tests/unit/``.
     Collection yields zero items and the run exits without complaint.
     """
-    if not _has_nested_tests(plugin):
-        pytest.skip(f"{plugin.name} keeps its tests flat in tests/")
-
     assert _owns_pytest_config(plugin), (
         f"{plugin.name} keeps test files in subdirectories of tests/ but has no "
         f"[tool.pytest.ini_options] table, so pytest resolves rootdir to the "

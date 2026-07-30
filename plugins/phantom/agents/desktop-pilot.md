@@ -2,7 +2,6 @@
 name: desktop-pilot
 description: Autonomous desktop control agent using Claude's Computer Use API. Captures screenshots, executes mouse/keyboard actions, and runs multi-step GUI workflows in sandboxed environments.
 tools: [Read, Bash, Glob, Write]
-model: sonnet
 examples:
   - context: User wants to automate a GUI task
     user: "Fill out the form in the browser with these values"
@@ -10,6 +9,8 @@ examples:
   - context: User needs visual verification
     user: "Check if the deploy dashboard shows green"
     assistant: "I'll use the desktop-pilot agent to take a screenshot and analyze the dashboard state."
+model: sonnet
+effort: medium
 ---
 
 # Desktop Pilot Agent
@@ -62,7 +63,7 @@ result = run_loop(
     task="<user's task here>",
     api_key=os.environ["ANTHROPIC_API_KEY"],
     loop_config=LoopConfig(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_iterations=10,
     ),
 )

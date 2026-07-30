@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+
 from gauntlet.challenges import (
     _generate_problem_variation,
     get_variation_provider,
@@ -94,7 +95,6 @@ class TestGAT004BatchFTS:
         store.rebuild_fts()
 
         results = store.search_fts("compute_value")
-        qns = [r.qualified_name for r in results]
         # All inserted nodes that match should appear in results
         assert len(results) >= 1
         # Results must all be GraphNode instances

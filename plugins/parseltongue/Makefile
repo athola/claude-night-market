@@ -19,7 +19,7 @@ BANDIT_TARGETS := src/parseltongue
 COV_DIRS := src/parseltongue
 PYTEST_TARGETS := tests/
 TEST_UNIT_ARGS := -v -m unit
-SECURITY_EXTRA = $(UV_RUN) safety check || echo "[WARNING] Safety check unavailable"
+SECURITY_EXTRA = $(UV_RUN) safety check
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
@@ -94,10 +94,27 @@ testing-guidance-tests: ## Run testing guidance tests
 
 # ---------- Analysis ----------
 benchmark: ## Run performance benchmarks
-	$(PYTEST) tests/test_performance_optimization.py --benchmark-only --benchmark-sort=mean || echo "No benchmark tests"
+	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
+	@# real benchmark failure fails the target instead of being reported as a
+	@# missing plugin. pytest exit 5 means nothing was collected, not failure.
+	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
+		echo "Not applicable: pytest-benchmark is not installed"; \
+	else \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
+		status=$$?; \
+		if [ $$status -eq 5 ]; then \
+			echo "Not applicable: no benchmark tests are defined"; \
+		elif [ $$status -ne 0 ]; then \
+			exit $$status; \
+		fi; \
+	fi
 
 memory-profile: ## Profile memory usage
-	python -m memory_profiler tests/performance/memory_usage.py || echo "memory_profiler not installed"
+	@if $(UV_RUN) python -c "import memory_profiler" 2>/dev/null; then \
+		$(UV_RUN) python -m memory_profiler tests/performance/memory_usage.py; \
+	else \
+		echo "Not applicable: memory_profiler is not installed"; \
+	fi
 
 mutation-test: ## Run mutation testing
 	@if command -v mutmut >/dev/null 2>&1; then \
@@ -114,7 +131,10 @@ test-structure: ## Verify test structure
 
 test-perf: ## Analyze test performance
 	@echo "Analyzing test performance..."
-	@time $(PYTEST) --collect-only -q > /dev/null 2>&1 || true
+	@# stdout is the collected test list, discarded; stderr carries both the
+	@# timing and any collection error, so it stays. Timing a collection that
+	@# failed is meaningless, so a failure fails the target.
+	@time $(PYTEST) --collect-only -q > /dev/null
 	@echo "Test collection completed"
 
 test-duplicates: ## Check for duplicate test code
@@ -122,7 +142,7 @@ test-duplicates: ## Check for duplicate test code
 	@find tests/ -name "*.py" -exec wc -l {} \; 2>/dev/null | sort -n | tail -10
 
 test-fixtures: ## Validate test fixtures
-	@python -c "from tests.conftest import *; print('All fixtures imported successfully')" || echo "Fixture validation failed"
+	@$(UV_RUN) python -c "from tests.conftest import *; print('All fixtures imported successfully')"
 
 coverage-report: ## Generate coverage report
 	$(PYTEST) --cov=src/parseltongue --cov-report=html --cov-report=xml
@@ -171,12 +191,12 @@ demo-tests: ## Run tests to demonstrate testing patterns (LIVE)
 demo-coverage: ## Run coverage analysis (LIVE)
 	@echo "=== Parseltongue Coverage Demo (LIVE) ==="
 	@echo ""
-	$(PYTEST) --cov=src/parseltongue --cov-report=term-missing -q 2>/dev/null | head -30 || echo "Coverage: run 'make coverage' for full report"
+	$(PYTEST) --cov=src/parseltongue --cov-report=term-missing -q | head -30
 
 demo-lint: ## Run linting on parseltongue code (LIVE)
 	@echo "=== Parseltongue Lint Demo (LIVE) ==="
 	@echo ""
-	$(RUFF) check src/parseltongue/ --statistics 2>/dev/null || echo "Linting clean or ruff not configured"
+	$(RUFF) check src/parseltongue/ --statistics
 
 demo-skills: ## List parseltongue skills
 	@echo "=== Parseltongue Skills ==="

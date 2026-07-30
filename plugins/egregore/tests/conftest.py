@@ -3,8 +3,16 @@
 from __future__ import annotations
 
 import json
+import sys
+from pathlib import Path
 
 import pytest
+
+# Add hooks directory to path so test modules can import hook scripts
+# directly (e.g. `from session_start_hook import ...`). This runs at
+# collection time, before any test module in this directory is imported.
+HOOKS_DIR = Path(__file__).resolve().parent.parent / "hooks"
+sys.path.insert(0, str(HOOKS_DIR))
 
 
 @pytest.fixture

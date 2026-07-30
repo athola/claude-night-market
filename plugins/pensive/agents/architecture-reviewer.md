@@ -2,7 +2,6 @@
 name: architecture-reviewer
 description: Architecture review for system design, ADR compliance, and coupling analysis. Use for major refactors.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
-model: opus
 skills: pensive:architecture-review, imbue:proof-of-work, imbue:review-core
 
 # Claude Code 2.1.0+ lifecycle hooks
@@ -34,6 +33,8 @@ examples:
   - context: User checking ADR compliance
     user: "Is this implementation aligned with our ADRs?"
     assistant: "I'll use the architecture-reviewer agent to check ADR compliance."
+model: opus
+effort: high
 ---
 
 # Architecture Reviewer Agent

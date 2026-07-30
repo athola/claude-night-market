@@ -2,19 +2,14 @@
 
 from __future__ import annotations
 
-# Import the hook's internal function directly
-import sys
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from precommit_gate import _graph_risk_context
 
-_HOOKS_DIR = Path(__file__).resolve().parents[2] / "hooks"
-sys.path.insert(0, str(_HOOKS_DIR))
-
-from gauntlet.graph import GraphStore  # noqa: E402 - sys.path modified above
-from gauntlet.models import GraphNode, NodeKind  # noqa: E402 - sys.path modified above
-from precommit_gate import _graph_risk_context  # noqa: E402 - sys.path modified above
+from gauntlet.graph import GraphStore
+from gauntlet.models import GraphNode, NodeKind
 
 
 @pytest.fixture()

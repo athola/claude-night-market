@@ -6,6 +6,7 @@ import textwrap
 from pathlib import Path
 
 import pytest
+
 from gauntlet.challenges import generate_challenge, select_challenge_type
 from gauntlet.extraction import extract_from_file
 from gauntlet.knowledge_store import KnowledgeStore

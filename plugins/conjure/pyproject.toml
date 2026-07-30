@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conjure-dev"
-version = "1.9.16"
+version = "1.9.17"
 description = "Development tools for the conjure Claude Code plugin - intelligent delegation framework for external LLM services"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -18,7 +18,7 @@ maintainers = [
 license = {text = "MIT"}
 readme = "README.md"
 repository = "https://github.com/athola/conjure"
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.9,<3.14"
 dependencies = []
 
 [project.optional-dependencies]
@@ -42,9 +42,9 @@ dev = [
     "safety>=3.7.0,<4.0",
     "typos>=1.0.0",
     "ruff>=0.14.13",
-    "mypy>=1.18.2",
-    "pytest>=9.0.1",
-    "pytest-cov>=7.0.0",
+    "mypy>=1.18.2,<2",
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
     "pytest-mock>=3.15.1",
     "pytest-asyncio>=0.24.0",
 ]
@@ -54,7 +54,7 @@ packages = ["scripts", "hooks"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py39"
 exclude = [".venv", ".uv-cache"]
 
 [tool.ruff.lint]
@@ -116,7 +116,7 @@ leyline = { path = "../leyline" }
 "scripts/quota_tracker.py" = ["E402", "S603", "S607", "PLR0912", "D101"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -187,3 +187,15 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
+# ty runs alongside mypy in the typecheck target. It needs the same two
+# concessions mypy already gets above, or it reports import failures for
+# dependencies that are optional by design.
+#
+# leyline is a path dependency (see [tool.uv.sources]); point ty at its
+# source the way quota_tracker.py points sys.path at it. tiktoken is an
+# extra under [project.optional-dependencies].full, imported under
+# try/except ImportError with a working fallback, so it is legitimately
+# absent from a base install.
+[tool.ty.environment]
+extra-paths = ["../leyline/src"]

@@ -2,7 +2,6 @@
 name: python-optimizer
 description: Python profiling, bottleneck identification, and algorithm optimization. Use when code is slow.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
-model: sonnet
 escalation:
   to: opus
   hints:
@@ -18,6 +17,8 @@ examples:
   - context: User needs performance advice
     user: "What's the most efficient way to process this data?"
     assistant: "I'll use the python-optimizer agent to design an optimal data processing strategy."
+model: sonnet
+effort: medium
 ---
 
 # Python Optimizer Agent

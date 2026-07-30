@@ -9,10 +9,10 @@ So that research builds on itself rather than starting from scratch
 from __future__ import annotations
 
 import pytest
-from tome.memory import find_related_sessions, import_prior_findings
-from tome.models import ResearchSession
 
 from tests.factories import make_finding
+from tome.memory import find_related_sessions, import_prior_findings
+from tome.models import ResearchSession
 
 
 class TestFindRelatedSessions:

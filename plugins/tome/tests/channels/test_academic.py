@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+
 from tome.channels.academic import (
     build_arxiv_search_url,
     build_core_search_url,
@@ -22,9 +23,11 @@ from tome.channels.academic import (
     estimate_page_chunks,
     generate_access_fallback_guidance,
     parse_arxiv_response,
+    parse_citation_edges,
     parse_semantic_scholar_response,
     parse_unpaywall_response,
 )
+from tome.models import CitationEdge
 
 # ---------------------------------------------------------------------------
 # Sample fixtures
@@ -754,3 +757,187 @@ class TestPdfProcessing:
         prompt = build_paper_summary_prompt("Title", "Abstract text here.")
 
         assert "limitation" in prompt.lower()
+
+
+# ---------------------------------------------------------------------------
+# Citation edges (Increment 1: keep the edges tome used to discard)
+# ---------------------------------------------------------------------------
+
+S2_REFERENCES_SAMPLE: dict[str, Any] = {
+    "data": [
+        {
+            "citedPaper": {
+                "paperId": "REF1",
+                "title": "Referenced Paper",
+                "year": 2020,
+                "citationCount": 100,
+                "externalIds": {"ArXiv": "2001.00001"},
+                "authors": [{"name": "A. Author"}],
+            }
+        },
+        {"citedPaper": {"paperId": "", "title": "Reference With No Id"}},
+    ]
+}
+
+S2_CITATIONS_SAMPLE: dict[str, Any] = {
+    "data": [
+        {
+            "citingPaper": {
+                "paperId": "CIT1",
+                "title": "Citing Paper",
+                "year": 2024,
+                "citationCount": 5,
+                "authors": [],
+            }
+        }
+    ]
+}
+
+
+class TestParseCitationEdges:
+    """
+    Scenario: keep the source->target citation relationship as a graph edge.
+    """
+
+    def test_references_produce_source_cites_target_edges(self) -> None:
+        """
+        Given a Semantic Scholar /references response for paper SRC
+        When I parse it for edges
+        Then SRC is recorded as citing each referenced paper
+        """
+        edges = parse_citation_edges(S2_REFERENCES_SAMPLE, source_paper_id="SRC")
+
+        assert edges == [CitationEdge(citing_id="SRC", cited_id="REF1")]
+
+    def test_citations_produce_target_cites_source_edges(self) -> None:
+        """
+        Given a Semantic Scholar /citations response for paper SRC
+        When I parse it for edges
+        Then each citing paper is recorded as citing SRC
+        """
+        edges = parse_citation_edges(S2_CITATIONS_SAMPLE, source_paper_id="SRC")
+
+        assert edges == [CitationEdge(citing_id="CIT1", cited_id="SRC")]
+
+    def test_edges_require_both_endpoints(self) -> None:
+        """
+        Given a referenced paper with no paperId
+        When I parse edges
+        Then no dangling edge is emitted (both endpoints must exist)
+        """
+        edges = parse_citation_edges(S2_REFERENCES_SAMPLE, source_paper_id="SRC")
+
+        assert all(e.citing_id and e.cited_id for e in edges)
+        assert len(edges) == 1
+
+    def test_missing_source_id_raises(self) -> None:
+        """
+        Given an empty source paper id
+        When I parse edges
+        Then a ValueError is raised (an edge needs a real source, not a guard)
+        """
+        with pytest.raises(ValueError, match="source_paper_id"):
+            parse_citation_edges(S2_REFERENCES_SAMPLE, source_paper_id="")
+
+
+class TestCitationEdgeModel:
+    """Scenario: CitationEdge round-trips through dict form."""
+
+    def test_round_trip(self) -> None:
+        edge = CitationEdge(citing_id="A", cited_id="B")
+        assert CitationEdge.from_dict(edge.to_dict()) == edge
+
+
+class TestParseCitationEdgesMalformedInput:
+    """
+    Feature: malformed S2 payloads never reach the graph
+
+    ``parse_citation_edges`` sits on a trust boundary: it reads whatever
+    the Semantic Scholar API returned. Payload shapes that cannot yield
+    a real edge are skipped, and error-shaped responses must not
+    masquerade as "this paper has no citations".
+    """
+
+    @pytest.mark.unit
+    def test_non_list_data_yields_no_edges(self) -> None:
+        """
+        Scenario: The API returned an error object instead of a list
+        Given data["data"] is a dict, not a list
+        When parse_citation_edges is called
+        Then no edges are produced and nothing raises
+        """
+        payload: dict[str, Any] = {"data": {"error": "rate limited"}}
+
+        assert parse_citation_edges(payload, source_paper_id="SRC") == []
+
+    @pytest.mark.unit
+    def test_missing_data_key_yields_no_edges(self) -> None:
+        assert parse_citation_edges({}, source_paper_id="SRC") == []
+
+    @pytest.mark.unit
+    def test_null_cited_paper_is_skipped(self) -> None:
+        """A null ``citedPaper`` carries no endpoint to build an edge from."""
+        payload: dict[str, Any] = {"data": [{"citedPaper": None}]}
+
+        assert parse_citation_edges(payload, source_paper_id="SRC") == []
+
+    @pytest.mark.unit
+    def test_non_dict_items_are_skipped(self) -> None:
+        payload: dict[str, Any] = {"data": ["not-a-dict", 42, None]}
+
+        assert parse_citation_edges(payload, source_paper_id="SRC") == []
+
+    @pytest.mark.unit
+    def test_item_without_direction_key_is_skipped(self) -> None:
+        """Neither citedPaper nor citingPaper means no edge direction."""
+        payload: dict[str, Any] = {"data": [{"paperId": "X", "title": "orphan"}]}
+
+        assert parse_citation_edges(payload, source_paper_id="SRC") == []
+
+    @pytest.mark.unit
+    def test_non_dict_paper_value_is_skipped(self) -> None:
+        payload: dict[str, Any] = {"data": [{"citedPaper": "not-a-dict"}]}
+
+        assert parse_citation_edges(payload, source_paper_id="SRC") == []
+
+    @pytest.mark.unit
+    def test_empty_paper_id_is_skipped(self) -> None:
+        payload: dict[str, Any] = {"data": [{"citedPaper": {"paperId": ""}}]}
+
+        assert parse_citation_edges(payload, source_paper_id="SRC") == []
+
+    @pytest.mark.unit
+    def test_self_citation_is_skipped_not_raised(self) -> None:
+        """
+        Scenario: The API reports a paper citing itself
+        Given a cited paper whose ID equals the source paper
+        When parse_citation_edges is called
+        Then the bad edge is dropped rather than crashing the parse
+        """
+        payload: dict[str, Any] = {"data": [{"citedPaper": {"paperId": "SRC"}}]}
+
+        assert parse_citation_edges(payload, source_paper_id="SRC") == []
+
+    @pytest.mark.unit
+    def test_mixed_valid_and_malformed_keeps_only_valid(self) -> None:
+        """
+        Scenario: A realistic partially-broken page of results
+        Given valid entries interleaved with malformed ones
+        When parse_citation_edges is called
+        Then exactly the valid edges survive, in order
+        """
+        payload: dict[str, Any] = {
+            "data": [
+                {"citedPaper": {"paperId": "GOOD1"}},
+                {"citedPaper": None},
+                "not-a-dict",
+                {"citedPaper": {"paperId": ""}},
+                {"citedPaper": {"paperId": "SRC"}},
+                {"citedPaper": {"paperId": "GOOD2"}},
+            ]
+        }
+
+        edges = parse_citation_edges(payload, source_paper_id="SRC")
+
+        assert [e.cited_id for e in edges] == ["GOOD1", "GOOD2"]
+        assert all(e.citing_id == "SRC" for e in edges)

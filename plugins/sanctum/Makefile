@@ -77,7 +77,11 @@ ci-build: ## Build package for CI
 
 # ---------- Development Helpers ----------
 watch-test: ## Watch for changes and run tests
-	uv run pytest-watch -- tests/ || echo "pytest-watch not installed"
+	@if $(UV_RUN) python -c "import pytest_watch" 2>/dev/null; then \
+		$(UV_RUN) pytest-watch -- tests/; \
+	else \
+		echo "Not applicable: pytest-watch is not installed"; \
+	fi
 
 quick-check: ## Run quick lint and test checks
 	@echo "Running quick checks..."
@@ -85,7 +89,11 @@ quick-check: ## Run quick lint and test checks
 	$(PYTEST) -x -q
 
 profile-test: ## Profile test execution
-	$(PYTEST) --profile --profile-svg || echo "pytest-profiling not installed"
+	@if $(UV_RUN) python -c "import pytest_profiling" 2>/dev/null; then \
+		$(PYTEST) --profile --profile-svg; \
+	else \
+		echo "Not applicable: pytest-profiling is not installed"; \
+	fi
 
 docs: ## Generate documentation
 	@echo "Documentation is in markdown files in the docs/ directory"
