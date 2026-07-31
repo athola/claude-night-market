@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **MiniMax delegation provider (conjure).** The Conjure plugin
+  registered a MiniMax service alongside Gemini and Qwen so the
+  delegation executor and War Room can route work to MiniMax-M3 and
+  MiniMax-M2.7. `Delegator.SERVICES` gains a `minimax` entry
+  (`api_key` auth via `MINIMAX_API_KEY`, `DEFAULT_MINIMAX_LIMITS`
+  quota), `build_command` emits `--output-format` for MiniMax, and
+  `smart_delegate` considers MiniMax in its availability scan and
+  per-service model selection. The War Room gains two MiniMax experts,
+  `operational_advisor` (MiniMax-M3, intel/coa) and
+  `skeptical_analyst` (MiniMax-M2.7, red_team), sourced from new
+  `MINIMAX_M3`/`MINIMAX_M2_7` constants in `war_room/config.py`. A
+  `minimax-delegation` skill documents the global
+  (`https://api.minimax.io/v1`) and China (`https://api.minimaxi.com/v1`)
+  regional endpoints, and the Makefile exposes `make delegate-minimax`.
+
 ## [1.9.17] - 2026-07-26
 
 ### Added

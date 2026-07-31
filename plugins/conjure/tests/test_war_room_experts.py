@@ -13,6 +13,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+
 from scripts.war_room import (
     EXPERT_CONFIGS,
     FULL_COUNCIL,
@@ -37,7 +38,7 @@ class TestExpertConfiguration:
     def test_full_council_includes_all_experts(self) -> None:
         """Full council includes all configured experts."""
         assert set(FULL_COUNCIL) == set(EXPERT_CONFIGS.keys())
-        assert len(FULL_COUNCIL) == 7
+        assert len(FULL_COUNCIL) == 9
 
     def test_native_experts_have_no_command(self) -> None:
         """Native experts (Opus, Sonnet) should not have subprocess commands."""
@@ -64,6 +65,29 @@ class TestCommandResolution:
             "qwen",
             "--model",
             "qwen-turbo",
+            "-p",
+        ]
+
+    def test_minimax_experts_use_config_constants(self) -> None:
+        """MiniMax experts resolve commands from config model constants."""
+        advisor = EXPERT_CONFIGS["operational_advisor"]
+        analyst = EXPERT_CONFIGS["skeptical_analyst"]
+
+        assert advisor.service == "minimax"
+        assert advisor.model == "MiniMax-M3"
+        assert get_expert_command(advisor) == [
+            "minimax",
+            "--model",
+            "MiniMax-M3",
+            "-p",
+        ]
+
+        assert analyst.service == "minimax"
+        assert analyst.model == "MiniMax-M2.7"
+        assert get_expert_command(analyst) == [
+            "minimax",
+            "--model",
+            "MiniMax-M2.7",
             "-p",
         ]
 
