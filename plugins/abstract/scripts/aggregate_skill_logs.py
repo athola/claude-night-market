@@ -16,7 +16,7 @@ import json
 import statistics
 import sys
 from collections import Counter, defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -48,6 +48,12 @@ LOW_RATING_THRESHOLD = 3.0  # Ratings below this need attention
 EXCESSIVE_FAILURES_THRESHOLD = 10  # Total failures above this is concerning
 SLOW_EXECUTION_THRESHOLD_MS = 10000  # 10 seconds
 LOW_USER_RATING_THRESHOLD = 3.5  # For detection in aggregate view
+
+# duration_ms is measured between the PreToolUse and PostToolUse hooks on the
+# Skill tool, which brackets loading SKILL.md rather than the work the skill
+# goes on to perform over the turns that follow. Averages below this floor are
+# dispatch-bound: accurate for what they measure, but not a measure of work.
+DISPATCH_BOUND_DURATION_MS = 250
 
 
 @dataclass
@@ -81,6 +87,8 @@ class AggregationResult:
     slow_skills: list[dict[str, Any]]
     low_rated_skills: list[dict[str, Any]]
     metrics_by_skill: dict[str, SkillLogSummary]
+    rated_executions: int = 0
+    dispatch_bound_skills: list[str] = field(default_factory=list)
 
 
 def get_learnings_path() -> Path:
@@ -410,6 +418,20 @@ def aggregate_logs(days_back: int = 30) -> AggregationResult:
     # Calculate totals
     total_executions = sum(m.total_executions for m in metrics_by_skill.values())
 
+    # Signal coverage: which detectors received usable input this period
+    rated_executions = sum(
+        1
+        for entries in entries_by_skill.values()
+        for entry in entries
+        if entry.get("qualitative_evaluation") is not None
+    )
+    dispatch_bound_skills = sorted(
+        skill
+        for skill, metrics in metrics_by_skill.items()
+        if metrics.total_executions > 0
+        and metrics.avg_duration_ms < DISPATCH_BOUND_DURATION_MS
+    )
+
     return AggregationResult(
         timestamp=datetime.now(timezone.utc),
         skills_analyzed=len(metrics_by_skill),
@@ -418,7 +440,60 @@ def aggregate_logs(days_back: int = 30) -> AggregationResult:
         slow_skills=slow_skills,
         low_rated_skills=low_rated_skills,
         metrics_by_skill=metrics_by_skill,
+        rated_executions=rated_executions,
+        dispatch_bound_skills=dispatch_bound_skills,
     )
+
+
+def format_signal_coverage(result: AggregationResult) -> list[str]:
+    """Format what the detectors in this report could and could not see.
+
+    A detector that never receives usable input produces the same empty
+    output as a detector that looked and found nothing wrong. This section
+    keeps the two apart, so a report generated from missing signal is not
+    read as a clean bill of health.
+
+    Args:
+        result: Aggregation result
+
+    Returns:
+        Lines for the Signal Coverage section
+
+    """
+    lines = ["## Signal Coverage", ""]
+
+    if result.rated_executions == 0:
+        lines.append(
+            f"- **User ratings**: not measured. 0 of {result.total_executions} "
+            "executions carry a `qualitative_evaluation`, which is written only "
+            "by `/evaluate-skill` or the `skill-evaluator` agent. The low-rating "
+            "detectors did not run, so an empty Low User Ratings section below "
+            "is not evidence that ratings are good."
+        )
+    else:
+        lines.append(
+            f"- **User ratings**: {result.rated_executions} of "
+            f"{result.total_executions} executions carry an evaluation."
+        )
+
+    if result.dispatch_bound_skills:
+        lines.append(
+            f"- **Durations**: {len(result.dispatch_bound_skills)} of "
+            f"{result.skills_analyzed} skills average under "
+            f"{DISPATCH_BOUND_DURATION_MS}ms. `duration_ms` spans the PreToolUse "
+            "to PostToolUse window on the Skill tool, which brackets loading "
+            "SKILL.md rather than the work the skill performs over the turns "
+            "that follow. The slow-execution detector "
+            f"({SLOW_EXECUTION_THRESHOLD_MS // 1000}s threshold) cannot fire on "
+            "these values."
+        )
+    else:
+        lines.append(
+            f"- **Durations**: no skill averages under {DISPATCH_BOUND_DURATION_MS}ms."
+        )
+
+    lines.extend(["", "---", ""])
+    return lines
 
 
 def format_high_impact_issues(issues: list[dict[str, Any]]) -> list[str]:
@@ -657,15 +732,42 @@ def generate_learnings_md(result: AggregationResult, existing_pinned: str = "") 
         lines.append("")
         lines.extend(["---", ""])
 
+    # Coverage first: it qualifies how every section below should be read
+    lines.extend(format_signal_coverage(result))
+
     # Add sections using helper functions
     if result.high_impact_issues:
         lines.extend(format_high_impact_issues(result.high_impact_issues))
 
     if result.slow_skills:
         lines.extend(format_slow_skills(result.slow_skills))
+    elif result.dispatch_bound_skills:
+        lines.extend(
+            [
+                "## Slow Execution",
+                "",
+                "Not measured this period: every duration sample is "
+                "dispatch-bound (see Signal Coverage).",
+                "",
+                "---",
+                "",
+            ]
+        )
 
     if result.low_rated_skills:
         lines.extend(format_low_rated_skills(result.low_rated_skills))
+    elif result.rated_executions == 0:
+        lines.extend(
+            [
+                "## Low User Ratings",
+                "",
+                "Not measured this period: no execution carries a qualitative "
+                "evaluation (see Signal Coverage).",
+                "",
+                "---",
+                "",
+            ]
+        )
 
     # Skill performance summary
     lines.extend(format_skill_summary(result.metrics_by_skill))
