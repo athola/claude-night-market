@@ -264,25 +264,67 @@ class TestCheckAgent:
 class TestVocabulary:
     """The accepted vocabulary matches Claude Code's documented aliases."""
 
-    def test_model_aliases_are_the_three_tiers(self) -> None:
+    def test_model_aliases_cover_the_shipped_tiers(self) -> None:
         """
-        Scenario: The tier vocabulary is fixed
-        Given the Lightweight, Standard, and Deep tiers
+        Scenario: The tier vocabulary tracks the shipped roster
+        Given the Lightweight, Standard, Deep, and Fable tiers
         When the accepted model values are read
-        Then they are exactly haiku, sonnet, and opus
+        Then they are exactly haiku, sonnet, opus, and fable
         And no other alias is accepted
         """
-        assert VALID_MODELS == frozenset({"haiku", "sonnet", "opus"})
+        assert VALID_MODELS == frozenset({"haiku", "sonnet", "opus", "fable"})
 
     def test_effort_levels_cover_the_documented_range(self) -> None:
         """
-        Scenario: The effort vocabulary is fixed
+        Scenario: The effort vocabulary tracks the harness
         Given the effort levels agent frontmatter supports
         When the accepted effort values are read
-        Then they are exactly low, medium, and high
+        Then they are exactly low, medium, high, xhigh, and max
         And no other level is accepted
         """
-        assert VALID_EFFORTS == frozenset({"low", "medium", "high"})
+        assert VALID_EFFORTS == frozenset({"low", "medium", "high", "xhigh", "max"})
+
+
+class TestVocabularyTracksTheLedger:
+    """The gate can express everything the upstream ledger records.
+
+    This binding is the whole point of the ledger. A model release that
+    adds a tier updates ``.claude/upstream-baseline.json`` first; if the
+    gate is not widened to match, these tests fail immediately rather
+    than waiting for someone to try pinning the new tier months later.
+    """
+
+    @staticmethod
+    def _ledger() -> dict:
+        path = (
+            Path(__file__).resolve().parents[2] / ".claude" / "upstream-baseline.json"
+        )
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def test_every_recorded_tier_is_accepted(self) -> None:
+        """
+        Scenario: A tier is recorded upstream
+        Given the model tiers in the upstream ledger
+        When the gate vocabulary is read
+        Then the gate accepts every recorded tier
+        """
+        recorded = set(self._ledger()["models"]["tiers"])
+        assert recorded <= VALID_MODELS, (
+            f"ledger records tiers the gate rejects: {sorted(recorded - VALID_MODELS)}"
+        )
+
+    def test_every_recorded_effort_level_is_accepted(self) -> None:
+        """
+        Scenario: An effort level is recorded upstream
+        Given the effort levels in the upstream ledger
+        When the gate vocabulary is read
+        Then the gate accepts every recorded level
+        """
+        recorded = set(self._ledger()["vocabularies"]["effort_levels"])
+        assert recorded <= VALID_EFFORTS, (
+            f"ledger records levels the gate rejects: "
+            f"{sorted(recorded - VALID_EFFORTS)}"
+        )
 
 
 class TestRepositoryIsClean:

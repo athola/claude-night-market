@@ -49,12 +49,24 @@ addopts = [
 testpaths = ["tests"]
 # Exclude plugin test directories to avoid conftest.py import conflicts.
 # Plugin tests should be run from within each plugin directory.
+#
+# Setting this key replaces pytest's built-in ignore list rather than
+# extending it, so entries pytest would have skipped by default have to
+# be repeated here. Omitting ".hypothesis" made the hypothesis plugin
+# warn on every run that its cache directory was being collected.
 norecursedirs = [
     "plugins/*",
     ".venv",
     ".uv-cache",
+    ".hypothesis",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".worktrees",
     "__pycache__",
+    "*.egg",
     "*.egg-info",
+    "node_modules",
     "build",
     "dist",
 ]

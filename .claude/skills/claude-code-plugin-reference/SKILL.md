@@ -227,6 +227,27 @@ Survey of every `plugins/*/hooks/hooks.json` (2026-07-02):
 | `Setup`, `PermissionRequest`, `PermissionDenied` | conserve |
 | `ConfigChange` | sanctum |
 
+### Events available but unregistered here
+
+Added between Claude Code 2.1.80 and 2.1.220. Nothing in this repo
+registers them yet, which is a gap to consider rather than a defect.
+
+| Event | Shipped | Fires when |
+|-------|---------|------------|
+| `Notification` | 2.1.218 | A background agent needs input or completes |
+| `DirectoryAdded` | 2.1.220 | `/add-dir` or an SDK `register_repo_root` registers a working directory mid-session |
+
+`SessionStart` gained a third source value in 2.1.212: a session opened
+as a fork now reports `"fork"` rather than `"resume"`. Any hook
+branching on `source` should handle it, or a forked session will take
+the resume path by accident.
+
+Hook `if:` conditions changed in 2.1.214. A single-segment `dir/**`
+pattern now matches only `<cwd>/dir`, so a hook meant to fire at any
+depth needs `**/dir/**`. Note that `deny` and `ask` permission rules
+kept their any-depth behavior, so the two syntaxes no longer agree and
+copying a pattern from one to the other silently changes its scope.
+
 ### Registration: hooks/hooks.json, never the plugin.json array
 
 Claude Code auto-loads `hooks/hooks.json` from each installed plugin.

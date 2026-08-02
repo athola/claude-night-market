@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "harness": {
+    "product": "claude-code",
+    "version": "2.1.220",
+    "recorded_at": "2026-08-02"
+  },
+  "models": {
+    "tiers": [
+      "haiku",
+      "sonnet",
+      "opus",
+      "fable"
+    ],
+    "ids": {
+      "haiku": "claude-haiku-4-5-20251001",
+      "sonnet": "claude-sonnet-5",
+      "opus": "claude-opus-5",
+      "fable": "claude-fable-5"
+    },
+    "recorded_at": "2026-08-02"
+  },
+  "vocabularies": {
+    "effort_levels": [
+      "low",
+      "medium",
+      "high",
+      "xhigh",
+      "max"
+    ]
+  },
+  "ratchets": {
+    "dated_ids_backlog": 51
+  },
+  "last_migration": {
+    "id": "2026-08-02-harness-2-1-220",
+    "trigger": "harness-update",
+    "from": {
+      "harness": "2.1.80",
+      "model_tiers": [
+        "haiku",
+        "sonnet",
+        "opus",
+        "fable"
+      ]
+    },
+    "to": {
+      "harness": "2.1.220",
+      "model_tiers": [
+        "haiku",
+        "sonnet",
+        "opus",
+        "fable"
+      ]
+    },
+    "assets_changed": 2,
+    "report": "docs/model-harness-updates/migrations/2026-08-02-harness-2-1-220.md"
+  },
+  "history": [
+    {
+      "id": "2026-08-02-bootstrap",
+      "trigger": "bootstrap",
+      "from": {
+        "harness": null,
+        "model_tiers": []
+      },
+      "to": {
+        "harness": "2.1.220",
+        "model_tiers": [
+          "haiku",
+          "sonnet",
+          "opus",
+          "fable"
+        ]
+      },
+      "assets_changed": 2,
+      "report": "docs/model-harness-updates/migrations/2026-08-02-bootstrap.md"
+    }
+  ],
+  "deprecations": {
+    "claude-opus-4-1-20250805": {
+      "retires": "2026-08-05",
+      "live_pins": 0
+    }
+  },
+  "notes": {
+    "excluded_tiers": "claude-mythos-5 is invitation-only (Project Glasswing) and not a Claude Code tier",
+    "sonnet_intro_pricing_ends": "2026-08-31"
+  }
+}
