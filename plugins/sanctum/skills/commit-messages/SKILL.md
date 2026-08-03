@@ -97,6 +97,11 @@ estimated_tokens: 350
 - NEVER use `git commit --no-verify` or `-n`
 - Write for humans, not to impress
 - If pre-commit hooks fail, fix the issues
+- This skill drafts a message, it does not commit. Whoever commits
+  confirms HEAD advanced (`git rev-parse HEAD` before and after)
+  before reporting the commit as landed. An auto-fixing hook aborts
+  the commit while printing a tail that reads like success, so hook
+  output is not evidence. See discussion #614.
 
 ## Exit Criteria
 

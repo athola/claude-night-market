@@ -75,9 +75,9 @@ We design skills around single responsibility and loose coupling. Each module fo
 ## Quick Start
 
 ### Skill Analysis
-Analyze modularity using `scripts/analyze.py`. You can set a custom threshold for line counts to identify files that need splitting.
+Analyze modularity using `scripts/skill_analyzer.py`. You can set a custom threshold for line counts to identify files that need splitting.
 ```bash
-python scripts/analyze.py --threshold 100
+python scripts/skill_analyzer.py --file path/to/SKILL.md --threshold 100
 ```
 From Python, use `analyze_skill` from `abstract.skill_tools`.
 

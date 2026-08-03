@@ -223,11 +223,11 @@ translation.
 | `gauntlet.graph.GraphStore` | Optional | Tier 3 returns []; severities are not upgraded |
 
 The optional-import contract follows the precedent in
-`plugins/leyline/src/leyline/tokens.py:25-32` and
-`plugins/gauntlet/hooks/pr_blast_radius.py:52-56`: try-import
-to module-level sentinels, then early-return on `None` inside
-each tier helper. See `modules/gauntlet-integration.md` for the
-exact code shape.
+`plugins/leyline/src/leyline/tokens.py:25-32`: try-import to a
+module-level sentinel, then early-return on `None` inside each
+tier helper. `plugins/gauntlet/hooks/precommit_gate.py:35-40`
+is the boolean-flag variant of the same shape. See
+`modules/gauntlet-integration.md` for the exact code shape.
 
 ## Supporting Modules
 

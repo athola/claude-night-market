@@ -15,7 +15,7 @@ model_hint: standard
 ## When NOT To Use
 
 - Capturing a deferred item at runtime (use the plugin
-  wrapper directly, e.g. `scripts/deferred_capture.py`)
+  wrapper directly, e.g. `plugins/<plugin>/scripts/deferred_capture.py`)
 - Creating GitHub issues manually
 
 Specification that all plugin deferred-capture wrappers implement.
