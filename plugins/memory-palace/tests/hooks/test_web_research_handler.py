@@ -206,6 +206,104 @@ class TestTitleRejectsModelPreamble:
         assert extract_title_from_content(content, self.URL) == genuine
 
 
+class TestTitleRejectsListFragments:
+    """Feature: answer-body list items never become page titles (#624).
+
+    #621 taught the extractor to reject model preamble by shape:
+    length, terminal punctuation, and a short opener list. A list item
+    slips through all three. It is short, it ends on a word, and it
+    opens with a bullet rather than a known phrase.
+
+    Every string below is a live entry in the committed capture index.
+    They are fragments of a model's answer body, not page titles, and
+    the expected behaviour is to fall back to the URL slug.
+    """
+
+    URL = "https://docs.example.com/user-guide"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "fragment",
+        [
+            "- A loading state",
+            "- Acceptable forms of evidence (observations, photographs)",
+            "* A bulleted body line pretending to be a heading",
+            "+ Another bullet flavour",
+            "1. A readable version of the document, or",
+            "3. **Color swatches** - CMYK color definitions",
+            "2) Parenthesised ordered markers count too",
+        ],
+    )
+    def test_list_fragment_rejected_for_url_slug(self, fragment):
+        """Given a list item, fall back to the URL rather than store it."""
+        content = f"{fragment}\n\nSome body text follows here."
+        assert extract_title_from_content(content, self.URL) == "User Guide"
+
+    @pytest.mark.unit
+    def test_list_fragment_as_heading_also_rejected(self):
+        """Given a list item marked up as a heading, still reject it."""
+        content = "# - A loading state\n\nBody text."
+        assert extract_title_from_content(content, self.URL) == "User Guide"
+
+    @pytest.mark.unit
+    def test_real_title_after_list_fragment_is_used(self):
+        """Given a list fragment then a real heading, use the heading."""
+        content = (
+            "- A loading state\n- Acceptable forms of evidence\n\n"
+            "# Python Async Patterns\n\nBody text."
+        )
+        assert extract_title_from_content(content, self.URL) == (
+            "Python Async Patterns"
+        )
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "generic",
+        ["Response", "Summary", "Answer", "Analysis", "Overview"],
+    )
+    def test_generic_answer_heading_rejected(self, generic):
+        """Given a bare scaffolding heading, fall back to the URL.
+
+        The model emits `# Response` when it has no page title to
+        report. Matched whole-line rather than by prefix, so a real
+        title like "Response Times Explained" is untouched.
+        """
+        content = f"# {generic}\n\nBody text follows here."
+        assert extract_title_from_content(content, self.URL) == "User Guide"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "genuine",
+        [
+            "Response Times Explained",
+            "Summary of the 2026 Rust Survey",
+            "Analysis of Branch Prediction",
+            "Overview of the Tokio Runtime",
+        ],
+    )
+    def test_generic_word_inside_real_title_still_accepted(self, genuine):
+        """Given a real title that starts with a generic word, keep it."""
+        content = f"# {genuine}\n\nBody text."
+        assert extract_title_from_content(content, self.URL) == genuine
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "genuine",
+        [
+            "C++ Move Semantics",
+            "*args and **kwargs in Python",
+        ],
+    )
+    def test_punctuation_leading_titles_not_mistaken_for_lists(self, genuine):
+        """Given a real title opening on punctuation, do not reject it.
+
+        A list marker is a marker only when whitespace follows it.
+        "*args" is one token; "* args" is a bullet.
+        """
+        content = f"# {genuine}\n\nBody text."
+        assert extract_title_from_content(content, self.URL) == genuine
+
+
 class TestExtractContentFromWebfetch:
     """Feature: Extract content and URL from WebFetch responses."""
 

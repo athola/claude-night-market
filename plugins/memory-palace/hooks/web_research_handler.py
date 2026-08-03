@@ -186,11 +186,23 @@ _PREAMBLE_OPENERS = (
     "no results",
 )
 
+# A bullet or ordered marker followed by whitespace. The trailing \s is
+# load-bearing: it separates the bullet "* args" from the real title
+# "*args and **kwargs in Python" (#624).
+_LIST_MARKER = re.compile(r"^(?:[-*+]|\d+[.)])\s")
+
+# Scaffolding headings the model emits when it has no page title to
+# report. Matched whole-line rather than by prefix, so "Response Times
+# Explained" survives while a bare "Response" does not (#624).
+_GENERIC_HEADINGS = frozenset(
+    {"response", "summary", "answer", "analysis", "overview", "results"}
+)
+
 
 def _looks_like_title(line: str) -> bool:
     """Report whether a line names a thing rather than describing it.
 
-    A title names; prose describes. Three shape checks separate them,
+    A title names; prose describes. Five shape checks separate them,
     in order of how much junk each removes from the live index:
 
     1. Length. A line past ``TITLE_MAX_CHARS`` is a paragraph. Accepting
@@ -202,12 +214,22 @@ def _looks_like_title(line: str) -> bool:
        allowed, because "What Is Rust Ownership?" is a real title.
     3. Preamble openers, as a narrow backstop for preambles that carry no
        terminal punctuation.
+    4. List markers. A list item is a fragment of an answer body, and it
+       clears checks 1-3 easily: it is short, it ends on a word, and it
+       opens with a bullet rather than a known phrase. This is what
+       stored "- A loading state" and "1. A readable version of the
+       document, or" as page titles.
+    5. Generic scaffolding headings, whole-line only.
     """
     if len(line) > TITLE_MAX_CHARS:
         return False
     if line.endswith((".", ":", ",", ";")):
         return False
+    if _LIST_MARKER.match(line):
+        return False
     lowered = line.casefold()
+    if lowered in _GENERIC_HEADINGS:
+        return False
     return not lowered.startswith(_PREAMBLE_OPENERS)
 
 
