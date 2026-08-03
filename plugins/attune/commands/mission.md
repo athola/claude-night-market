@@ -14,12 +14,14 @@ Use this command when you need to:
 - Resume an interrupted project workflow from where you left off
 - Execute a focused tactical implementation from existing artifacts
 - Quick-fix from an existing implementation plan
+- Audit, dogfood, or review existing software and produce a findings report
 
 ## When NOT To Use
 
 Avoid this command if:
 - You want to run a single phase without auto-chaining (use `/attune:brainstorm --standalone`, `/attune:specify --standalone`, etc.)
-- Task is non-project work (debugging, code review, research)
+- Task is non-project work (debugging, ad-hoc research). Structured
+  review work is in scope: use `--type review`
 - You need fine-grained control over each phase transition
 
 > **Note**: Individual commands (`/brainstorm`, `/specify`, `/blueprint`) now auto-chain forward by default. Use `--standalone` to run a single phase without continuing. Use `/attune:mission` when you need state persistence, resume support, and damage-control.
@@ -38,6 +40,7 @@ Avoid this command if:
 /attune:mission --type standard
 /attune:mission --type tactical
 /attune:mission --type quickfix
+/attune:mission --type review
 
 # Custom phase sequence
 /attune:mission --phases brainstorm,execute
@@ -63,6 +66,16 @@ Avoid this command if:
 | `standard` | specify → plan → execute | Project brief exists |
 | `tactical` | plan → execute | Specification exists |
 | `quickfix` | execute only | Implementation plan exists |
+| `review` | scope → investigate → verify → report | The ask is to audit, dogfood, or review existing software |
+
+`review` is for observational work: the deliverable is a
+findings-and-recommendations report at
+`reports/<topic>-<YYYY-MM-DD>.md`, not implemented code. It needs no
+build artifacts as input, and it skips the war-room gate, which exists
+to guard a plan-to-execute transition a review mission does not have.
+It is selected from the wording of the request rather than from
+artifacts on disk, because a directory full of specs and plans looks
+identical whether you mean to ship it or audit it.
 
 ## Workflow
 
@@ -108,7 +121,7 @@ The resume command:
 
 | Argument | Description |
 |----------|-------------|
-| `--type <type>` | Override auto-detected mission type: `full`, `standard`, `tactical`, `quickfix` |
+| `--type <type>` | Override auto-detected mission type: `full`, `standard`, `tactical`, `quickfix`, `review` |
 | `--phases <list>` | Custom phase sequence (comma-separated): `brainstorm,specify,plan,execute` |
 | `--resume` | Resume from saved mission state |
 | `--force` | With `--resume`: reset failed phase and retry |
@@ -153,7 +166,16 @@ The mission command wraps the existing phase commands: you can still use individ
 # Continues: execute phase from task T013
 ```
 
-### Example 4: Force Full Lifecycle
+### Example 4: Dogfood an Existing Feature
+
+```bash
+/attune:mission --type review
+# Runs: scope -> investigate -> verify -> report
+# Produces: reports/<topic>-<YYYY-MM-DD>.md
+# No build artifacts read or written; war-room gate does not apply
+```
+
+### Example 5: Force Full Lifecycle
 
 ```bash
 /attune:mission --type full
