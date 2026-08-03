@@ -215,3 +215,18 @@ def test_gate_fails_on_pending_writeback_regardless_of_ratchet() -> None:
 def test_ratchet_is_a_cap_not_a_target(ratchet: int) -> None:
     """Fewer untriaged than the cap always passes."""
     assert rd.gate_status(rd.classify([], {}), ratchet=ratchet)[0] == 0
+
+
+def test_writeback_body_cites_the_commits_and_the_opt_out() -> None:
+    """The comment must be checkable and reversible by a human.
+
+    A write-back that says "fixed" and nothing else is the same dead
+    end as no comment at all: the next reader still has to go read the
+    code. And an automated closer with no stated opt-out invites people
+    to distrust the whole loop.
+    """
+    body = rd.writeback_body([("00459d48", "docs(discussions): record evidence")])
+    assert "00459d48" in body
+    assert "docs(discussions): record evidence" in body
+    assert "Addresses-Discussion:" in body
+    assert "reopen" in body

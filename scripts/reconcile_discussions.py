@@ -263,18 +263,19 @@ def fetch_board() -> list[dict[str, Any]]:
 
 def writeback_body(commits: list[tuple[str, str]]) -> str:
     """The comment posted when a commit has addressed a finding."""
-    lines = [
-        "Addressed. Evidence from the commit log:",
-        "",
-    ]
+    lines = ["Addressed. Commits carrying the resolution trailer:", ""]
     lines.extend(f"- `{sha}` {subject}" for sha, subject in commits)
     lines.extend(
         [
             "",
-            "Reconciled automatically by `scripts/reconcile_discussions.py`, "
-            "which joins this board against commit bodies that name a "
-            "discussion. If this is wrong, reopen and say so in a comment; "
-            "the comment alone stops the reconciler from touching it again.",
+            "Posted by `scripts/reconcile_discussions.py`, which joins this "
+            "board against commits carrying an `Addresses-Discussion:` "
+            "trailer. A commit that merely names a discussion in prose is "
+            "read as a mention and never written back.",
+            "",
+            "If this is wrong, reopen and say why. A comment of any kind "
+            "stops the reconciler from touching the discussion again, so "
+            "your reply is the whole opt-out.",
         ]
     )
     return "\n".join(lines)
