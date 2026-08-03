@@ -132,6 +132,49 @@ class TestLoopOptimizationSkillStructure:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_documents_branch_elimination_technique(self, skill_content: str) -> None:
+        """Scenario: Skill covers branch elimination as a distinct lever.
+
+        Given the loop-optimization SKILL.md
+        When reading the technique guidance
+        Then branchless/branch-elimination appears alongside the loop
+        transforms, because control flow is a separate axis from loop
+        structure and the compiler will not perform this rewrite
+        """
+        lower = skill_content.lower()
+        assert "branchless" in lower or "branch elimination" in lower
+        assert "mispredict" in lower
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_branchless_scoped_to_unpredictable_data(self, skill_content: str) -> None:
+        """Scenario: Skill scopes branchless to data-dependent branches.
+
+        Given the loop-optimization SKILL.md
+        When reading the branchless guidance
+        Then it restricts the technique to branches on unpredictable
+        data and states that predictable branches are already cheap
+        """
+        lower = skill_content.lower()
+        assert "unpredictable" in lower
+        assert "predictable" in lower
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_branchless_documents_worst_case_tradeoff(self, skill_content: str) -> None:
+        """Scenario: Skill states branchless trades best for worst case.
+
+        Given the loop-optimization SKILL.md
+        When reading the branchless guidance
+        Then it records that the technique flattens cost rather than
+        reducing it, and can be slower when the branch predicts well
+        """
+        lower = skill_content.lower()
+        assert "selectivity" in lower
+        assert "worst case" in lower or "worst-case" in lower
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_has_exit_criteria(self, skill_content: str) -> None:
         """Scenario: Skill has a falsifiable Exit Criteria section.
 

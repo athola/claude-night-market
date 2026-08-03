@@ -131,6 +131,50 @@ codegen check (not "I see SIMD in the source").
 No single clippy lint covers this; it is judgment. Decision rule and
 the two benchmark traps: `Skill(leyline:loop-optimization)`.
 
+#### The branchless exception
+
+Branch elimination is the one hand-rolled loop transform LLVM will
+not do for you, so Pattern 6 does not apply to it.
+
+```rust
+// Ordinary: one unpredictable branch per element
+input.iter().copied().filter(|&x| x > threshold).collect()
+
+// Branchless: store unconditionally, advance the index conditionally
+let mut out = vec![0.0; input.len()];
+let mut n = 0;
+for &x in input {
+    out[n] = x;
+    n += (x > threshold) as usize;
+}
+out.truncate(n);
+```
+
+The rewrite stores every element and lets the comparison decide
+where the next one lands. LLVM cannot generate this itself: writing
+to slots the original never touched is not a semantics-preserving
+transformation, so it has to come from the author.
+
+**Do not flag this as slop when all three hold.** The loop is a
+profiled hot path. The predicate depends on unpredictable data, so
+the branch actually mispredicts (a sorted or stably-skewed predicate
+predicts well and needs nothing). And the author reports measurements
+across a selectivity range rather than one point.
+
+**Do flag it when any are missing**, and flag these costs even when
+it is justified:
+
+- It flattens cost, it does not reduce it. On measured 1M-element
+  `f64` data it won the 50% worst case by about 4x and lost the 1%
+  best case by about 2x. On sorted input the plain branchy filter beat
+  it outright.
+- The output buffer is allocated at full input length. A 1% filter
+  over 1M `f64` reserves 8 MB to return 80 KB, which interacts badly
+  with the allocation guidance below.
+
+Full technique table, the benchmark numbers, and the source:
+`Skill(leyline:loop-optimization)`.
+
 ## Allocation slop
 
 ### Pattern A: `.clone()` to satisfy the borrow checker
