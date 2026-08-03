@@ -46,7 +46,13 @@ addopts = [
     "-ra",
     "--disable-warnings",
 ]
-testpaths = ["tests"]
+# prototypes/ is collected alongside tests/. An unwired prototype is
+# still shipped code: forced-eval went out in a tagged release with 20
+# passing tests that no gate ran, so its README's "all green" claim had
+# nothing checking it. Guarded by
+# tests/unit/test_test_collection_coverage.py, which fails when a test
+# file lands outside every collected path.
+testpaths = ["tests", "prototypes"]
 # Exclude plugin test directories to avoid conftest.py import conflicts.
 # Plugin tests should be run from within each plugin directory.
 #
