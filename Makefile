@@ -161,6 +161,18 @@ docs-sync-check: ## Verify capabilities docs match plugin registrations
 check-json-utils: ## Verify inlined JSON utilities match scripts/shared/json_utils.sh
 	@bash scripts/shared/check-json-utils-drift.sh
 
+# Needs network and an authenticated `gh`, so it is not in `make test`
+# or the pre-commit hook. Run it before a release, or after landing work
+# that carries an Addresses-Discussion trailer.
+check-discussions: ## Reconcile the Discussions board against the commit log
+	@uv run python scripts/reconcile_discussions.py
+
+writeback-discussions: ## Post resolution comments for trailered findings
+	@uv run python scripts/reconcile_discussions.py --apply --dry-run
+	@echo ""
+	@echo "Dry run only. Re-run without --dry-run in the script to post:"
+	@echo "  uv run python scripts/reconcile_discussions.py --apply"
+
 # ---------- Skrills binary (plugin bin/ support, v2.1.91+) ----------
 
 SKRILLS_REPO ?= $(HOME)/skrills
