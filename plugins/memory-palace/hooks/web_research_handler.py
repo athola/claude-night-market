@@ -22,7 +22,6 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
-from urllib.parse import urlparse
 
 from shared.config import get_config
 from shared.deduplication import (
@@ -51,6 +50,11 @@ QUEUE_DIR = STAGING_DIR  # was docs/knowledge-corpus/queue before 1.5.0
 _SRC_DIR = str(PLUGIN_ROOT / "src")
 if _SRC_DIR not in sys.path:
     sys.path.insert(0, _SRC_DIR)
+
+# Unguarded, unlike the analytics import below: the title rules are core
+# to what this hook stores, and the promoter shares them so a repaired
+# title matches what capture would produce today (#624).
+from memory_palace.corpus.titles import looks_like_title, title_from_url
 
 try:
     from memory_palace.corpus.index_analytics import (
@@ -164,73 +168,10 @@ def _try_register_graph_entity(
         sys.stderr.write(f"web_research_handler: graph wiring skipped: {exc}\n")
 
 
-TITLE_MAX_CHARS = 100
-
-# Openers that mark a line as the model talking about the page rather than
-# the page's own title. Kept deliberately short: the shape checks in
-# _looks_like_title do most of the work, and a long phrase list would rot
-# as model phrasing drifts (#621).
-_PREAMBLE_OPENERS = (
-    "based on",
-    "here is",
-    "here's",
-    "here are",
-    "i cannot",
-    "i could not",
-    "i couldn't",
-    "i was unable",
-    "unfortunately",
-    "sorry",
-    "redirect detected",
-    "there are no",
-    "no results",
-)
-
-# A bullet or ordered marker followed by whitespace. The trailing \s is
-# load-bearing: it separates the bullet "* args" from the real title
-# "*args and **kwargs in Python" (#624).
-_LIST_MARKER = re.compile(r"^(?:[-*+]|\d+[.)])\s")
-
-# Scaffolding headings the model emits when it has no page title to
-# report. Matched whole-line rather than by prefix, so "Response Times
-# Explained" survives while a bare "Response" does not (#624).
-_GENERIC_HEADINGS = frozenset(
-    {"response", "summary", "answer", "analysis", "overview", "results"}
-)
-
-
-def _looks_like_title(line: str) -> bool:
-    """Report whether a line names a thing rather than describing it.
-
-    A title names; prose describes. Five shape checks separate them,
-    in order of how much junk each removes from the live index:
-
-    1. Length. A line past ``TITLE_MAX_CHARS`` is a paragraph. Accepting
-       it meant slicing mid-sentence, which is what stored
-       "To get accurate answers to your questions about ServiceTitan's
-       developer" as a page title.
-    2. Terminal punctuation. Titles do not end in ``.``, ``:`` or ``,``.
-       This alone rejects most model preambles. ``?`` and ``!`` are
-       allowed, because "What Is Rust Ownership?" is a real title.
-    3. Preamble openers, as a narrow backstop for preambles that carry no
-       terminal punctuation.
-    4. List markers. A list item is a fragment of an answer body, and it
-       clears checks 1-3 easily: it is short, it ends on a word, and it
-       opens with a bullet rather than a known phrase. This is what
-       stored "- A loading state" and "1. A readable version of the
-       document, or" as page titles.
-    5. Generic scaffolding headings, whole-line only.
-    """
-    if len(line) > TITLE_MAX_CHARS:
-        return False
-    if line.endswith((".", ":", ",", ";")):
-        return False
-    if _LIST_MARKER.match(line):
-        return False
-    lowered = line.casefold()
-    if lowered in _GENERIC_HEADINGS:
-        return False
-    return not lowered.startswith(_PREAMBLE_OPENERS)
+# The title shape rules live in the corpus package because the index
+# promoter needs the same ruling to repair titles this hook stored
+# before the rules were right (#624).
+_looks_like_title = looks_like_title
 
 
 def extract_title_from_content(content: str, url: str) -> str:
@@ -259,11 +200,7 @@ def extract_title_from_content(content: str, url: str) -> str:
             return candidate
 
     # Fall back to URL-based title
-    parsed = urlparse(url)
-    path_parts = [p for p in parsed.path.split("/") if p]
-    if path_parts:
-        return path_parts[-1].replace("-", " ").replace("_", " ").title()[:100]
-    return parsed.netloc
+    return title_from_url(url)
 
 
 def extract_content_from_webfetch(

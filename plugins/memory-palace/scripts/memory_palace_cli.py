@@ -27,8 +27,10 @@ from memory_palace.corpus.index_promoter import (
     CorpusUnavailableError,
     apply_orphan_prunes,
     apply_promotions,
+    apply_title_repairs,
     propose_orphan_prunes,
     propose_promotions,
+    propose_title_repairs,
 )
 from memory_palace.garden_metrics import SECONDS_PER_DAY, compute_garden_metrics
 from memory_palace.palace_manager import MemoryPalaceManager
@@ -587,6 +589,50 @@ class _IndexMixin(_CLIBase):
         )
         return True
 
+    def index_retitle(self, apply: bool = False, top: int = 0) -> bool:
+        """Propose (and optionally apply) repairs to non-title titles.
+
+        Fixing the capture hook only governs future captures. Entries
+        stored before the title shape rules were right keep their bad
+        titles forever, so the index still shows "- A loading state" and
+        "Response" as page titles (#624). The replacement is the URL
+        slug, which is what the hook's own fallback would have produced.
+
+        Dry-run by default: prints the proposals but writes nothing.
+        Idempotent, because a repaired title is proposed no further.
+        """
+        index_path = self._capture_index_path()
+        index = load_capture_index(index_path)
+        proposals = propose_title_repairs(index)
+
+        self.print_status(f"Capture index: {index_path}")
+        print(f"  Titles to repair: {len(proposals)}")
+        shown = proposals if top <= 0 else proposals[:top]
+        for proposal in shown:
+            current = index["entries"].get(proposal.key, {}).get("title", "?")
+            print(f"  [RETITLE] {proposal.key}")
+            print(f"      from: {current!r}")
+            print(f"      to:   {proposal.changes['title']!r}")
+        if top > 0 and len(proposals) > top:
+            print(f"  ... and {len(proposals) - top} more")
+
+        if not apply:
+            print("\n  DRY RUN - no changes written. Re-run with --apply to commit.")
+            return True
+
+        if not proposals:
+            self.print_success("Nothing to retitle.")
+            return True
+
+        backup_dir = self.plugin_dir / "data" / "backups"
+        result = apply_title_repairs(
+            index, proposals, index_path, backup_dir=backup_dir
+        )
+        self.print_success(
+            f"Repaired {result.applied} titles. Backup: {result.backup_path}"
+        )
+        return True
+
     def index_prune_orphans(self, apply: bool = False, top: int = 0) -> bool:
         """Propose (and optionally apply) hard-deletion of orphan entries.
 
@@ -1104,6 +1150,22 @@ def _add_index_command(subparsers: Any) -> None:
         help="Limit how many proposals to print (0 = all)",
     )
 
+    retitle = index_sub.add_parser(
+        "retitle",
+        help="Repair stored titles that are not titles (dry-run by default)",
+    )
+    retitle.add_argument(
+        "--apply",
+        action="store_true",
+        help="Persist repairs after a timestamped backup (default: dry-run)",
+    )
+    retitle.add_argument(
+        "--top",
+        type=int,
+        default=0,
+        help="Limit how many repairs to print (0 = all)",
+    )
+
     prune = index_sub.add_parser(
         "prune-orphans",
         help="Hard-delete entries whose backing file is gone (dry-run by default)",
@@ -1273,6 +1335,8 @@ def main() -> None:
             cli.index_report(output_format=args.format, top=args.top)
         elif args.index_cmd == "promote":
             cli.index_promote(apply=args.apply, top=args.top)
+        elif args.index_cmd == "retitle":
+            cli.index_retitle(apply=args.apply, top=args.top)
         elif args.index_cmd == "prune-orphans":
             cli.index_prune_orphans(apply=args.apply, top=args.top)
         else:
