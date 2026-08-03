@@ -202,6 +202,50 @@ class TestLoopOptimizationProseCompliance:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_thematic_break_does_not_reopen_frontmatter(self) -> None:
+        """Scenario: a body `---` must not silence the length check.
+
+        Given a document whose body contains a thematic break
+        When the prose scanner walks past it
+        Then a long line after the break is still reported
+
+        #607 flagged that the `---` toggle could read a thematic break
+        as re-entering frontmatter, skipping every check after it. The
+        `frontmatter_closed` latch already prevents that, and this test
+        is what keeps the latch: delete it and both cases go silent.
+        """
+        long_line = "x" * 100
+
+        def scan(text: str) -> list[int]:
+            in_code = False
+            in_frontmatter = False
+            frontmatter_closed = False
+            violations = []
+            for i, line in enumerate(text.split("\n"), 1):
+                if line.startswith("```"):
+                    in_code = not in_code
+                    continue
+                if line == "---" and not frontmatter_closed:
+                    if i == 1:
+                        in_frontmatter = True
+                    elif in_frontmatter:
+                        in_frontmatter = False
+                        frontmatter_closed = True
+                    continue
+                if in_code or in_frontmatter:
+                    continue
+                if len(line) > MAX_PROSE_LINE_LENGTH and not line.startswith("|"):
+                    violations.append(i)
+            return violations
+
+        with_frontmatter = f"---\nname: t\n---\n\nintro\n\n---\n\n{long_line}\n"
+        without_frontmatter = f"# Title\n\nintro\n\n---\n\n{long_line}\n"
+
+        assert scan(with_frontmatter) == [9]
+        assert scan(without_frontmatter) == [7]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_skill_prose_under_80_chars(self, skill_content: str) -> None:
         """Scenario: SKILL.md prose lines stay under 80 chars.
 
