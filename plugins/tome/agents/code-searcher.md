@@ -22,16 +22,41 @@ existing implementations of the given topic on GitHub.
 1. **Read the research request** from the prompt.
    You'll receive a topic string and optional context.
 
-2. **Search GitHub** using WebSearch with queries like:
-   - `site:github.com {topic} implementation`
-   - `site:github.com {topic} library`
-   - `{topic} github stars:>100`
+2. **Build the queries with tome, do not improvise them.**
+
+   ```python
+   from tome.channels.github import (
+       build_github_search_queries,
+       build_github_api_search,
+   )
+   queries = build_github_search_queries(topic)   # WebSearch strings
+   api_url = build_github_api_search(topic)       # GitHub API URL
+   ```
+
+   Run exactly these. The queries you report are then the
+   queries tome generated, which is what makes the record
+   worth anything: a count you invent and a count tome
+   derives are indistinguishable to a reader, and only one
+   of them is evidence.
 
 3. **For the top 5-8 results**, use WebFetch to read
    the repository README or main source file to extract
    implementation patterns.
 
-4. **Return findings** as a JSON object with this
+4. **Parse with tome's parsers**, not by hand:
+
+   ```python
+   from tome.channels.github import (
+       parse_github_api_response,
+       parse_github_result,
+   )
+   ```
+
+   `result_count` in the envelope below is the length of
+   what the parser returned for that query, before any
+   filtering you apply.
+
+5. **Return findings** as a JSON object with this
    structure:
 
 ```json
@@ -53,10 +78,37 @@ existing implementations of the given topic on GitHub.
       }
     }
   ],
-  "errors": [],
-  "metadata": {"query_count": 3, "results_found": 8}
+  "errors": [
+    {"kind": "rate_limit", "source": "github_api", "message": "HTTP 429"}
+  ],
+  "metadata": {
+    "query_count": 3,
+    "results_found": 8,
+    "queries": [
+      {"source": "github", "query": "the exact string you ran",
+       "result_count": 5, "error": null}
+    ]
+  }
 }
 ```
+
+Envelope rules, identical across all four channel agents:
+
+- `errors` entries are objects, never bare strings.
+  `kind` is `rate_limit` or `source_error`. A rate limit
+  means "re-run me"; a source error means "investigate".
+  The two lead a reader to opposite actions, so guessing
+  between them is not acceptable.
+- `metadata.queries` carries one entry per query actually
+  issued, with the count that query returned. Report zero
+  honestly. A query that found nothing is the single most
+  informative record this channel produces, because it is
+  the only outcome that says anything about the topic
+  rather than about the search.
+- Never report a query you did not run. `tome.synthesis.quality.parse_envelope`
+  turns this list into the session's query record, and a
+  fabricated entry becomes a fabricated claim about how
+  well the topic was searched.
 
 ## Rules
 
@@ -64,5 +116,10 @@ existing implementations of the given topic on GitHub.
 - Prefer repos with >50 stars
 - Prefer repos updated within the last 2 years
 - Extract actual patterns, not just descriptions
-- If GitHub API rate limits hit, fall back to WebSearch
+- If GitHub API rate limits hit, fall back to WebSearch,
+  and record the rate limit in `errors` anyway. A fallback
+  that rescues findings makes the channel `degraded`, not
+  `ok`, and swallowing the limit hides that
 - Do NOT hallucinate repos: only return what you find
+- Do NOT hallucinate queries either: the query record is
+  held to the same standard as the findings

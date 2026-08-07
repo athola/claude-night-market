@@ -23,28 +23,47 @@ the given topic.
 1. **Read the research request**. You'll receive a topic
    and domain classification.
 
-2. **Search arXiv**:
-   - Use WebFetch on: `https://export.arxiv.org/api/query?search_query=all:{topic}&max_results=10&sortBy=relevance`
-   - Parse the Atom XML response for: title, authors,
-     abstract, categories, PDF link
+2. **Build every URL with tome**, so the query record is
+   what tome generated rather than what you recall running:
 
-3. **Search Semantic Scholar**:
-   - Use WebFetch on: `https://api.semanticscholar.org/graph/v1/paper/search?query={topic}&limit=10&fields=title,abstract,year,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,authors,venue,externalIds`
-   - Rank results by citation count
-   - Note which papers have open access PDFs
+   ```python
+   from tome.channels.academic import (
+       expand_academic_queries,
+       build_arxiv_search_url,
+       build_semantic_scholar_url,
+       build_unpaywall_url,
+       build_openalex_search_url,
+       build_core_search_url,
+   )
+   ```
 
-4. **For top 3-5 papers with open access**:
+3. **Search arXiv**: WebFetch `build_arxiv_search_url(topic)`
+   and parse the Atom XML with `parse_arxiv_response`.
+
+4. **Search Semantic Scholar**: WebFetch
+   `build_semantic_scholar_url(topic)` and parse with
+   `parse_semantic_scholar_response`. Rank by citation
+   count and note which papers have open access PDFs.
+
+   Both APIs rate-limit aggressively. When one returns 429,
+   record `{"kind": "rate_limit", "source": "..."}` in
+   `errors` and emit that source's `queries` entry with a
+   zero count. A rate limit is not an empty field, and the
+   report says so only if you say so.
+
+5. **For top 3-5 papers with open access**:
    - Download PDF via WebFetch
    - Read using the Read tool with page range (pages 1-10
      for key content)
    - Extract: key findings, methodology, limitations
 
-5. **For paywalled papers**, include fallback guidance:
-   - Check Unpaywall: `https://api.unpaywall.org/v2/{doi}?email=research@example.com`
+6. **For paywalled papers**, include fallback guidance:
+   - Check Unpaywall via `build_unpaywall_url(doi)`, parsed
+     with `parse_unpaywall_response`
    - If still locked: note that the paper exists and
      provide access suggestions (library, author request)
 
-6. **Return findings** as JSON:
+7. **Return findings** as JSON:
 
 ```json
 {
@@ -68,14 +87,45 @@ the given topic.
       }
     }
   ],
-  "errors": [],
+  "errors": [
+    {"kind": "rate_limit", "source": "semantic_scholar", "message": "HTTP 429"}
+  ],
   "metadata": {
     "papers_found": 15,
     "pdfs_parsed": 3,
-    "paywalled": 5
+    "paywalled": 5,
+    "query_count": 3,
+    "results_found": 15,
+    "queries": [
+      {"source": "arxiv", "query": "the exact URL you fetched",
+       "result_count": 15, "error": null},
+      {"source": "semantic_scholar", "query": "...", "result_count": 0,
+       "error": "rate_limit"}
+    ]
   }
 }
 ```
+
+Envelope rules, identical across all four channel agents:
+
+- `errors` entries are objects, never bare strings.
+  `kind` is `rate_limit` or `source_error`. A rate limit
+  means "re-run me"; a source error means "investigate".
+  The two lead a reader to opposite actions, so guessing
+  between them is not acceptable.
+- `metadata.queries` carries one entry per query actually
+  issued, with the count that query returned. Report zero
+  honestly. A query that found nothing is the single most
+  informative record this channel produces, because it is
+  the only outcome that says anything about the topic
+  rather than about the search.
+- Keep `papers_found` if you like it; `results_found` is
+  the key every channel shares and the one
+  `tome.synthesis.quality.parse_envelope` prefers.
+- Never report a query you did not run. That function
+  turns this list into the session's query record, and a
+  fabricated entry becomes a fabricated claim about how
+  well the topic was searched.
 
 ## Rules
 

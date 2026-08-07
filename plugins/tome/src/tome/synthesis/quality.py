@@ -24,7 +24,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
-from tome.models import Finding
+from tome.models import Finding, QueryLog
 
 if TYPE_CHECKING:
     from tome.models import ResearchSession
@@ -43,6 +43,137 @@ _RECENCY_GAP_YEARS = 3
 # It is separated from other failures because it carries a different
 # instruction: re-run, rather than investigate.
 RATE_LIMIT = "rate_limit"
+
+# Generic failure: the source was reached and did not answer usefully.
+SOURCE_ERROR = "source_error"
+
+# Query text for a log synthesized from an envelope that reported no
+# per-query breakdown. It is a marker, not a query: the alternative is
+# inventing query strings, and a record that quietly fabricates what was
+# asked is worse than one that admits it does not know.
+UNRECORDED_QUERY = "<unrecorded>"
+
+# Substrings that identify a rate limit inside an unstructured error
+# string. Tolerant-parse path only: the contract is a structured
+# {kind, source, message} error, and an agent honoring it never reaches
+# this. Kept because losing the rate-limit/source-error distinction
+# turns a re-runnable gap into an apparent dead end.
+# unvalidated: hand-picked from observed agent error text, not measured.
+_RATE_LIMIT_HINTS = (
+    "rate limit",
+    "rate-limit",
+    "ratelimit",
+    "429",
+    "too many requests",
+)
+
+
+def _classify_error_text(text: str) -> str:
+    """Map an error string onto an error kind.
+
+    A string that already *is* a kind passes through. The standard
+    envelope carries `"error": "rate_limit"` on a query record, and
+    running that through the prose heuristic would classify the word
+    "rate_limit" as a source error, because it contains none of the
+    hint substrings. Recognizing the vocabulary first keeps the
+    conforming path exact and leaves the heuristic for real prose.
+    """
+    lowered = text.lower()
+    if lowered in (RATE_LIMIT, SOURCE_ERROR):
+        return lowered
+    return RATE_LIMIT if any(h in lowered for h in _RATE_LIMIT_HINTS) else SOURCE_ERROR
+
+
+def _envelope_error_kind(errors: Any) -> str | None:
+    """Return the error kind an envelope's `errors` list implies.
+
+    Structured entries win. A rate limit anywhere outranks a generic
+    failure, matching ``channel_outcomes``: the reader's next action
+    differs, and "re-run this" is the more useful of the two.
+    """
+    if not errors:
+        return None
+    kinds: list[str] = []
+    for err in errors:
+        if isinstance(err, dict):
+            kinds.append(str(err.get("kind") or SOURCE_ERROR))
+        else:
+            kinds.append(_classify_error_text(str(err)))
+    return RATE_LIMIT if RATE_LIMIT in kinds else SOURCE_ERROR
+
+
+def parse_envelope(envelope: dict[str, Any]) -> list[QueryLog]:
+    """Turn one channel agent's returned envelope into query logs.
+
+    The envelope is what a channel agent hands back. Findings were the
+    only part ever consumed; `errors` and the per-channel metadata were
+    dropped at the parse boundary, which is why an empty channel could
+    not be told apart from a broken one.
+
+    Shapes accepted, in order of preference:
+
+    1. ``metadata.queries``: a list of per-query records. One log each.
+    2. Any count key (``results_found``, ``papers_found``) or, failing
+       that, ``len(findings)``. One synthesized log, its query text set
+       to ``UNRECORDED_QUERY``.
+
+    Tolerance is deliberate and bounded. An agent that has not adopted
+    the standard envelope degrades to a coarser record, never to no
+    record and never to invented detail.
+
+    Raises:
+        ValueError: if the envelope names no channel. A log that
+            belongs to no channel is invisible to every consumer, so
+            failing loudly at the boundary beats filing it nowhere.
+    """
+    channel = envelope.get("channel")
+    if not channel:
+        raise ValueError(
+            f"envelope names no channel; keys present = {sorted(envelope)}"
+        )
+
+    findings = envelope.get("findings") or []
+    metadata = envelope.get("metadata") or {}
+    envelope_error = _envelope_error_kind(envelope.get("errors"))
+
+    queries = metadata.get("queries")
+    if queries:
+        logs: list[QueryLog] = []
+        for entry in queries:
+            raw_error = entry.get("error")
+            kind = (
+                _classify_error_text(str(raw_error))
+                if raw_error and not isinstance(raw_error, dict)
+                else (
+                    str(raw_error.get("kind")) if isinstance(raw_error, dict) else None
+                )
+            )
+            logs.append(
+                QueryLog(
+                    channel=str(channel),
+                    query=str(entry.get("query", UNRECORDED_QUERY)),
+                    source=str(entry.get("source", channel)),
+                    result_count=int(entry.get("result_count", 0)),
+                    error=kind,
+                )
+            )
+        return logs
+
+    count = metadata.get("results_found")
+    if count is None:
+        count = metadata.get("papers_found")
+    if count is None:
+        count = len(findings)
+
+    return [
+        QueryLog(
+            channel=str(channel),
+            query=UNRECORDED_QUERY,
+            source=str(metadata.get("source", channel)),
+            result_count=int(count),
+            error=envelope_error,
+        )
+    ]
 
 
 def channel_outcomes(session: ResearchSession) -> dict[str, str]:

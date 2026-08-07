@@ -93,8 +93,25 @@ Each agent prompt must include:
 After all agents return:
 
 1. Parse each agent's findings into Finding objects
-2. Merge using `tome.synthesis.merger.merge_findings()`
-3. Rank using `tome.synthesis.ranker.rank_findings()`
+2. Record what each agent actually searched, before
+   merging anything:
+
+   ```python
+   from tome.synthesis.quality import parse_envelope
+
+   for envelope in agent_envelopes:      # one per dispatched agent
+       session.query_log.extend(parse_envelope(envelope))
+   ```
+
+   This is the step that makes an empty channel readable.
+   Findings record what was found; the query log records
+   what was looked for, and without it a channel that
+   errored and a channel that searched a thin topic are
+   the same thing: no findings. Skip this and every
+   channel in the report reads `unknown`.
+
+3. Merge using `tome.synthesis.merger.merge_findings()`
+4. Rank using `tome.synthesis.ranker.rank_findings()`
 
 ### Step 6: Generate Output
 
@@ -116,9 +133,17 @@ mgr.save(session)
 ### Step 7: Present Results
 
 Display a brief summary to the user:
-- Number of findings per channel
+- Number of findings per channel, with its outcome status
+  from `tome.synthesis.quality.channel_outcomes(session)`:
+  `ok`, `empty`, `error`, `rate_limited`, `degraded`, or
+  `unknown`
 - Top 3 findings by relevance
 - Path to saved report
+
+State plainly which channels did not return cleanly. A
+summary that reports "3 findings" without saying two
+channels were rate-limited invites the reader to treat a
+half-run search as a finding about the topic.
 
 Then offer interactive refinement:
 "Use `/tome:dig \"subtopic\"` to explore specific areas."
