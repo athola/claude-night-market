@@ -39,11 +39,35 @@ existing implementations of the given topic on GitHub.
    derives are indistinguishable to a reader, and only one
    of them is evidence.
 
-3. **For the top 5-8 results**, use WebFetch to read
+3. **Run the positive control before any topic query.**
+
+   ```python
+   from tome.channels.canary import build_canary_query, describe_canary_target
+   ```
+
+   WebFetch `build_canary_query("code")`. It asks GitHub for
+   the repository `torvalds/linux`, a document that has been in the
+   index for years. `describe_canary_target("code")` says what
+   a passing result looks like.
+
+   This is what separates "the topic is thin" from "the
+   channel is blind". Both produce zero results, and nothing
+   computed from result counts can tell them apart, so the
+   verdict downstream refuses to say anything about absence
+   unless this control passed.
+
+   Record it as a `queries` entry with `"source": "canary"`,
+   never as a finding. Record the control even if it fails:
+   a failed control is the most important thing this run can
+   report, and an agent that drops it produces a session
+   indistinguishable from one that never ran a control at
+   all. Do not substitute a different URL if it fails.
+
+4. **For the top 5-8 results**, use WebFetch to read
    the repository README or main source file to extract
    implementation patterns.
 
-4. **Parse with tome's parsers**, not by hand:
+5. **Parse with tome's parsers**, not by hand:
 
    ```python
    from tome.channels.github import (
@@ -56,7 +80,7 @@ existing implementations of the given topic on GitHub.
    what the parser returned for that query, before any
    filtering you apply.
 
-5. **Return findings** as a JSON object with this
+6. **Return findings** as a JSON object with this
    structure:
 
 ```json
@@ -85,6 +109,8 @@ existing implementations of the given topic on GitHub.
     "query_count": 3,
     "results_found": 8,
     "queries": [
+      {"source": "canary", "query": "the canary URL you fetched",
+       "result_count": 1, "error": null},
       {"source": "github", "query": "the exact string you ran",
        "result_count": 5, "error": null}
     ]

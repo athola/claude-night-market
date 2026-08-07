@@ -37,10 +37,34 @@ the given topic.
    )
    ```
 
-3. **Search arXiv**: WebFetch `build_arxiv_search_url(topic)`
+3. **Run the positive control before any topic query.**
+
+   ```python
+   from tome.channels.canary import build_canary_query, describe_canary_target
+   ```
+
+   WebFetch `build_canary_query("academic")`. It asks arXiv for
+   'Attention Is All You Need' (arXiv:1706.03762), a document that has been in the
+   index for years. `describe_canary_target("academic")` says what
+   a passing result looks like.
+
+   This is what separates "the topic is thin" from "the
+   channel is blind". Both produce zero results, and nothing
+   computed from result counts can tell them apart, so the
+   verdict downstream refuses to say anything about absence
+   unless this control passed.
+
+   Record it as a `queries` entry with `"source": "canary"`,
+   never as a finding. Record the control even if it fails:
+   a failed control is the most important thing this run can
+   report, and an agent that drops it produces a session
+   indistinguishable from one that never ran a control at
+   all. Do not substitute a different URL if it fails.
+
+4. **Search arXiv**: WebFetch `build_arxiv_search_url(topic)`
    and parse the Atom XML with `parse_arxiv_response`.
 
-4. **Search Semantic Scholar**: WebFetch
+5. **Search Semantic Scholar**: WebFetch
    `build_semantic_scholar_url(topic)` and parse with
    `parse_semantic_scholar_response`. Rank by citation
    count and note which papers have open access PDFs.
@@ -51,19 +75,19 @@ the given topic.
    zero count. A rate limit is not an empty field, and the
    report says so only if you say so.
 
-5. **For top 3-5 papers with open access**:
+6. **For top 3-5 papers with open access**:
    - Download PDF via WebFetch
    - Read using the Read tool with page range (pages 1-10
      for key content)
    - Extract: key findings, methodology, limitations
 
-6. **For paywalled papers**, include fallback guidance:
+7. **For paywalled papers**, include fallback guidance:
    - Check Unpaywall via `build_unpaywall_url(doi)`, parsed
      with `parse_unpaywall_response`
    - If still locked: note that the paper exists and
      provide access suggestions (library, author request)
 
-7. **Return findings** as JSON:
+8. **Return findings** as JSON:
 
 ```json
 {
@@ -97,6 +121,8 @@ the given topic.
     "query_count": 3,
     "results_found": 15,
     "queries": [
+      {"source": "canary", "query": "the canary URL you fetched",
+       "result_count": 1, "error": null},
       {"source": "arxiv", "query": "the exact URL you fetched",
        "result_count": 15, "error": null},
       {"source": "semantic_scholar", "query": "...", "result_count": 0,

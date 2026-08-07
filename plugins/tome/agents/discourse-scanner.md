@@ -36,20 +36,44 @@ opinions about the given topic.
    )
    ```
 
-3. **Search Hacker News**: WebFetch `build_hn_search_url(topic)`,
+3. **Run the positive control before any topic query.**
+
+   ```python
+   from tome.channels.canary import build_canary_query, describe_canary_target
+   ```
+
+   WebFetch `build_canary_query("discourse")`. It asks Hacker News for
+   story 1, 'Y Combinator', a document that has been in the
+   index for years. `describe_canary_target("discourse")` says what
+   a passing result looks like.
+
+   This is what separates "the topic is thin" from "the
+   channel is blind". Both produce zero results, and nothing
+   computed from result counts can tell them apart, so the
+   verdict downstream refuses to say anything about absence
+   unless this control passed.
+
+   Record it as a `queries` entry with `"source": "canary"`,
+   never as a finding. Record the control even if it fails:
+   a failed control is the most important thing this run can
+   report, and an agent that drops it produces a session
+   indistinguishable from one that never ran a control at
+   all. Do not substitute a different URL if it fails.
+
+4. **Search Hacker News**: WebFetch `build_hn_search_url(topic)`,
    parse with `parse_hn_response`, filter stories with
    score > 5, and note key comment themes.
 
-4. **Search Lobsters**: `build_lobsters_search_url(topic)`
+5. **Search Lobsters**: `build_lobsters_search_url(topic)`
    or `build_lobsters_websearch_query(topic)`, parse each
    hit with `parse_lobsters_result`.
 
-5. **Search Reddit**: WebFetch
+6. **Search Reddit**: WebFetch
    `build_reddit_search_url(topic, subreddit)` per suggested
    subreddit, parse with `parse_reddit_response`, filter
    posts with score > 10, and wait 2 seconds between calls.
 
-6. **Search tech blogs**: run `build_blog_search_queries(topic)`
+7. **Search tech blogs**: run `build_blog_search_queries(topic)`
    through WebSearch and parse hits with `parse_blog_result`.
    Fetch and summarize the top 2-3 posts.
 
@@ -59,7 +83,7 @@ opinions about the given topic.
    Reddit silently failed is exactly the gap the per-source
    record exists to expose.
 
-7. **Return findings** as JSON:
+8. **Return findings** as JSON:
 
 ```json
 {
@@ -83,6 +107,8 @@ opinions about the given topic.
     "query_count": 4,
     "results_found": 9,
     "queries": [
+      {"source": "canary", "query": "the canary URL you fetched",
+       "result_count": 1, "error": null},
       {"source": "hn", "query": "the exact URL or string you ran",
        "result_count": 6, "error": null},
       {"source": "reddit", "query": "...", "result_count": 0,
