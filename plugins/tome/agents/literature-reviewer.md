@@ -44,9 +44,10 @@ the given topic.
    ```
 
    WebFetch `build_canary_query("academic")`. It asks arXiv for
-   'Attention Is All You Need' (arXiv:1706.03762), a document that has been in the
-   index for years. `describe_canary_target("academic")` says what
-   a passing result looks like.
+   'Attention Is All You Need' (arXiv:1706.03762), a document
+   that has been in the index for years.
+   `describe_canary_target("academic")` says what a passing
+   result looks like.
 
    This is what separates "the topic is thin" from "the
    channel is blind". Both produce zero results, and nothing

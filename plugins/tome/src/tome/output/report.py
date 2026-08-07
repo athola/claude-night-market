@@ -6,7 +6,14 @@ import textwrap
 
 from tome.models import Finding, ResearchSession
 from tome.output.citations import generate_bibliography
-from tome.synthesis.frontier import frontier_verdict
+from tome.synthesis.frontier import (
+    ACT,
+    DECLINE,
+    DEFER,
+    ResearchStory,
+    frontier_stories,
+    frontier_verdict,
+)
 from tome.synthesis.quality import channel_outcomes, identify_gaps
 from tome.synthesis.ranker import compute_relevance_score, group_by_theme
 
@@ -142,6 +149,46 @@ def _format_coverage(session: ResearchSession, outcomes: dict[str, str]) -> str:
     return "\n".join(lines)
 
 
+def _format_stories(stories: list[ResearchStory]) -> str:
+    """Render this session's gaps as questions put to a person.
+
+    Each story prints its evidence and its next action, because a bare
+    title is a conclusion and a reader cannot disagree with a
+    conclusion whose basis is off the page.
+
+    The dispositions are printed as offered choices rather than
+    inferred. Nothing in a search record supports deciding what is
+    worth this project's time, so every story arrives ``undecided``
+    and a person moves it.
+    """
+    lines: list[str] = [
+        _wrap(
+            "Gaps this run turned up, for triage. A verdict describes one "
+            "session and then scrolls away, but these outlive it. Mark each "
+            f"one {ACT} (worth doing now), {DEFER} (file it as an issue and "
+            f"come back), or {DECLINE} (not worth this project's time). "
+            "They arrive undecided because nothing in a search record "
+            "says which one is right."
+        ),
+        "",
+    ]
+    for story in stories:
+        lines.extend(
+            [
+                _section(f"{story.title} [{story.kind}]", level=3),
+                _wrap(story.evidence),
+                "",
+                _wrap(f"Next: {story.next_action}"),
+                "",
+                _wrap(
+                    f"Disposition: {story.disposition} ({ACT} / {DEFER} / {DECLINE})"
+                ),
+                "",
+            ]
+        )
+    return "\n".join(lines)
+
+
 def format_report(session: ResearchSession) -> str:
     """Generate a full markdown research report."""
     groups = group_by_theme(session.findings)
@@ -190,6 +237,12 @@ def format_report(session: ResearchSession) -> str:
             parts.append(
                 _wrap(_EMPTY_CHANNEL_NOTES[outcomes.get(group_key, "unknown")])
             )
+
+    # --- Research Stories ---
+    stories = frontier_stories(session)
+    if stories:
+        parts.append(_section("Research Stories"))
+        parts.append(_format_stories(stories))
 
     # --- Recommendations ---
     parts.append(_section("Recommendations"))
