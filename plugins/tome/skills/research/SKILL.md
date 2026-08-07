@@ -143,12 +143,27 @@ Display a brief summary to the user:
   `unknown`
 - Top 3 findings by relevance
 - Path to saved report
+- Any research stories from
+  `tome.synthesis.frontier.frontier_stories(session)`. Each
+  is a gap with its evidence, and each arrives `undecided`.
+  Ask the user to mark it `act`, `defer`, or `decline`.
+  Do not decide for them and do not file an issue for a
+  story they have not marked `act`: nothing in a search
+  record says what is worth this project's time. On `defer`,
+  file it with `minister:create-issue`.
 
-Expect `INCONCLUSIVE` on any run with a gap in it. No
-channel emits a positive control yet, so a channel that
-returned nothing has not shown it could have returned
-anything. That reading is correct rather than a defect, and
-it stays until canary targets exist.
+The three retrieval channels run a positive control before
+their topic queries, so `INCONCLUSIVE` now means something
+specific rather than "controls do not exist yet". Read it as
+one of two things: a channel failed its canary and is blind,
+or a channel searched without running one. Both are named in
+the verdict's evidence, and both produce a story under
+`Research Stories`.
+
+`triz` runs no control and is excluded from the verdict. It
+generates analogies rather than retrieving prior work, so
+its output is not evidence about what has been published and
+its findings are not counted toward coverage.
 
 State plainly which channels did not return cleanly. A
 summary that reports "3 findings" without saying two
