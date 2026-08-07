@@ -184,18 +184,53 @@ class TestLabeledCorpusIsWellFormed:
     """Feature: The corpus is usable the moment labels are confirmed."""
 
     @pytest.mark.unit
-    def test_corpus_declares_itself_unconfirmed(self) -> None:
-        """Scenario: The file admits its own status.
+    def test_corpus_names_the_human_who_confirmed_it(self) -> None:
+        """Scenario: A confirmed corpus says who confirmed it.
 
-        Given the labels fixture
-        Then it is marked unconfirmed and names no confirming human
-        Because the day someone confirms it, this test failing is the
-             reminder to enable calibration. A corpus that quietly
-             looked confirmed would get used as though it were.
+        Given the labels fixture, confirmed on 2026-08-07
+        Then it names a confirming human and is not the model's own word
+        Because every label was drafted by the model that also wrote
+             the verdict being tested. The confirmation is what makes
+             the corpus admissible, so a status of confirmed with no
+             name attached would restore exactly the
+             generator-judging-itself arrangement it was meant to end.
+
+        This replaced test_corpus_declares_itself_unconfirmed, whose
+        failure on confirmation was the designed cue to get here.
         """
         labels = _load_labels()
-        assert labels["status"] == "proposed-awaiting-human-confirmation"
-        assert labels["confirmed_by"] is None
+        assert labels["status"] == "confirmed"
+        confirmed_by = labels["confirmed_by"]
+        assert confirmed_by, "status is confirmed but no human is named"
+        assert confirmed_by != labels["drafted_by"], (
+            "the drafter cannot be the confirmer"
+        )
+
+    @pytest.mark.unit
+    def test_the_feature_s_own_motivating_topic_is_not_labeled_thin(self) -> None:
+        """Scenario: The design does not grade its own premise.
+
+        Given canary-queries-retrieval-health, the topic the canary
+             feature was built to vindicate
+        Then it is not in the thin class
+        Because a corpus that labels the author's motivating example
+             thin cannot be used to validate the signal that calls
+             things thin. It sits in covered-obscure instead, where the
+             expectation runs against the design: the work exists under
+             matrix spikes, system suitability, known-item search and
+             synthetic monitoring, so a THIN_FIELD_CANDIDATE here is
+             the signal failing on the case its author most wanted it
+             to pass.
+        """
+        entry = next(
+            e
+            for e in _load_labels()["topics"]
+            if e["slug"] == "canary-queries-retrieval-health"
+        )
+        assert entry["label"] != "thin", (
+            "the feature's motivating topic is labeled thin by the feature's "
+            "own corpus; that is the circularity this test exists to block"
+        )
 
     @pytest.mark.unit
     def test_every_topic_has_a_class_and_a_reason(self) -> None:

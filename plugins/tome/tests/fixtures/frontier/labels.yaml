@@ -1,13 +1,20 @@
 # Labeled topic corpus for calibrating the frontier verdict.
 #
-# STATUS: PROPOSED. Not confirmed, not calibrated, not used by any
-# passing assertion. Every label below was drafted by the model that
-# also wrote the verdict being tested, which is precisely the
-# generator-judging-itself arrangement the repo evidence bar forbids.
-# A human confirming or correcting these labels is what makes them
-# usable; until then the negative controls in
-# tests/validation/test_frontier_corpus.py carry the whole validation
-# burden, and they are the part that needs no labels.
+# STATUS: CONFIRMED by a human on 2026-08-07, which is what makes
+# these labels usable. Every label was drafted by the model that also
+# wrote the verdict being tested, the generator-judging-itself
+# arrangement the repo evidence bar forbids, so the confirmation is
+# load-bearing rather than a formality.
+#
+# One label changed under review. canary-queries-retrieval-health was
+# drafted thin and moved to covered-obscure, because it is the topic
+# the canary feature was built to vindicate and a thin label there
+# would have been the feature grading its own premise.
+#
+# Still not calibrated. No envelopes are recorded, so _F_THIN remains
+# an uncalibrated guess and the negative controls in
+# tests/validation/test_frontier_corpus.py still carry the validation
+# burden, as they are the part that needs no labels.
 #
 # Classes:
 #
@@ -29,10 +36,11 @@
 # corpus is a specification for a run rather than a run.
 
 version: 1
-status: proposed-awaiting-human-confirmation
+status: confirmed
 drafted: 2026-08-07
 drafted_by: model
-confirmed_by: null
+confirmed_by: alexthola
+confirmed: 2026-08-07
 
 topics:
   # --- covered -------------------------------------------------------
@@ -132,18 +140,25 @@ topics:
       Industry term; the academic work is under "early defect
       detection" and "test-first development".
 
-  # --- thin ----------------------------------------------------------
   - slug: canary-queries-retrieval-health
     topic: canary queries for retrieval health in multi-channel research tools
-    label: thin
+    label: covered-obscure
     why: >
-      The code channel found no integrated implementation during the
-      2026-08-07 research pass; capture-recapture lives in R ecology
-      packages decoupled from review tooling, and ASReview's saturation
-      is heuristic. Treat as thin pending confirmation, and note this
-      is the topic that motivated the feature, so it is the most
-      motivated-reasoning-prone label in the file.
+      Drafted as thin, relabeled on human confirmation, and the reason
+      matters more than the label. This is the topic the canary feature
+      was built to vindicate, so a thin label here would have been the
+      feature grading its own premise. Under other vocabulary the work
+      is substantial: analytical chemistry has matrix spikes and
+      recovery controls, USP 621 gates a run on system suitability,
+      information retrieval has known-item search, and site reliability
+      has synthetic monitoring and canary requests. No integrated
+      implementation in review tooling is a claim about packaging, not
+      about the idea being unstudied. As the adversarial class it now
+      tests the design against its own bias: if the verdict calls this
+      thin, the signal is failing on the case its author most wanted
+      to be thin.
 
+  # --- thin ----------------------------------------------------------
   - slug: behavioral-contract-attestation
     topic: behavioral contract attestation for plugin marketplaces
     label: thin
