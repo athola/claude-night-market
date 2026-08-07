@@ -264,6 +264,6 @@ Uses `memory-palace:review-chamber` evaluation framework:
 
 ## Dependencies
 
-- `memory-palace:project-palace` - Project palace management
+- `memory-palace:memory-palace-architect` - Palace structure design
 - `memory-palace:review-chamber` - Room structure and evaluation
 - `memory-palace:knowledge-intake` - Evaluation framework

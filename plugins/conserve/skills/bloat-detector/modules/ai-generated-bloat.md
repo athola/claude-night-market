@@ -224,5 +224,6 @@ When AI bloat is detected, recommend:
 
 - `code-bloat-patterns` - Traditional anti-patterns (God class, Lava flow)
 - `documentation-bloat` - Readability metrics
-- `imbue:anti-cargo-cult` - Understanding verification protocol
+- `imbue:proof-of-work` - Understanding verification protocol (see its
+  `anti-cargo-cult` module)
 - Knowledge corpus: `agent-psychosis-codebase-hygiene.md`

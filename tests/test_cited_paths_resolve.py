@@ -1,4 +1,4 @@
-"""Every repo path cited in a workflow asset must exist on disk.
+"""Everything a workflow asset cites must exist: paths, and capabilities.
 
 `.claude/rules/slop-scan-for-docs.md` Layer 0 makes this a P0 rule:
 "every cited file path ... must resolve to a real thing". Nothing
@@ -11,6 +11,23 @@ A phantom citation is worse than a missing one. An agent that follows
 `plugins/gauntlet/hooks/pr_blast_radius.py:52-56` for the "exact code
 shape" gets nothing back and has no signal that the instruction was
 wrong rather than its own lookup.
+
+Two citation forms, two gates, one rule:
+
+``test_cited_paths_resolve``
+    Backticked repo paths, rooted at a tracked directory.
+
+``test_cited_capabilities_resolve``
+    Backticked ``plugin:name`` and ``/plugin:name`` -- the way a
+    document names a sibling skill, command, or agent in prose.
+
+The second form was unguarded until discussion #433's sweep found 11
+dangling instances. It slips between the two gates that already exist:
+``scripts/check_skill_graph_drift.py`` matches only the ``Skill(...)``
+call syntax, and the path gate above needs a slash to recognize a
+token. Write ``conserve:resource-management`` in backticks and neither
+one looks at it, which is how a skill deleted in 2026-03 kept being
+recommended by a command five months later.
 
 Scope: skills, commands, agents, and project rules -- the documents an
 agent reads as instructions. Prose docs and the changelog are excluded;
@@ -106,6 +123,20 @@ ALLOWLIST = {
 }
 
 
+# A backticked capability reference: `plugin:name` or `/plugin:name`.
+# The leading slash is how the docs write a command; both forms name the
+# same three-directory search, so the slash is read and not required to
+# mean anything stronger. Ten of the 797 live references use it against
+# a skill, so demanding it imply "command" would report house style as a
+# defect.
+CAPABILITY = re.compile(r"`/?(?P<plugin>[a-z][a-z0-9-]*):(?P<name>[a-z][a-z0-9-]*)`")
+
+# Capability references that name something outside this repo, or a
+# worked example. Same bar as ALLOWLIST: "it does not exist yet" is the
+# defect this gate catches, not a reason to be listed here.
+CAPABILITY_ALLOWLIST: set[str] = set()
+
+
 def _iter_assets() -> list[Path]:
     seen: list[Path] = []
     for pattern in ASSET_GLOBS:
@@ -175,12 +206,59 @@ def _phantoms(asset: Path) -> list[str]:
     return sorted(c for c in _citations(text) if not _resolves(c, asset))
 
 
+def _capabilities(text: str) -> set[str]:
+    """Backticked `plugin:name` refs whose plugin is real.
+
+    An unknown plugin segment means the token was never a capability
+    reference: `note:something`, `TODO:fix`, and every `key: value` in
+    prose share the shape. Anchoring on a directory that exists keeps
+    the gate to references it can actually adjudicate.
+    """
+    found = set()
+    for match in CAPABILITY.finditer(_strip_code_blocks(text)):
+        plugin, name = match.group("plugin"), match.group("name")
+        if not (REPO_ROOT / "plugins" / plugin).is_dir():
+            continue
+        ref = f"{plugin}:{name}"
+        if ref not in CAPABILITY_ALLOWLIST:
+            found.add(ref)
+    return found
+
+
+def _capability_resolves(ref: str) -> bool:
+    """A capability is a skill, a command, or an agent of its plugin."""
+    plugin, name = ref.split(":", 1)
+    root = REPO_ROOT / "plugins" / plugin
+    return (
+        (root / "skills" / name / "SKILL.md").exists()
+        or (root / "commands" / f"{name}.md").exists()
+        or (root / "agents" / f"{name}.md").exists()
+    )
+
+
+def _phantom_capabilities(asset: Path) -> list[str]:
+    text = asset.read_text(encoding="utf-8", errors="replace")
+    return sorted(c for c in _capabilities(text) if not _capability_resolves(c))
+
+
 ASSETS = _iter_assets()
 
 
 def test_assets_are_discovered() -> None:
     """Guard the glob itself: an empty sweep would pass everything."""
     assert len(ASSETS) > 100, f"only {len(ASSETS)} workflow assets found"
+
+
+def test_capability_references_are_found() -> None:
+    """Guard the regex: a pattern matching nothing would pass everything.
+
+    The path gate has ``test_assets_are_discovered`` for the same
+    reason. A parametrized sweep over assets that cite no capabilities
+    is vacuously green, and so is one whose regex silently stopped
+    matching.
+    """
+    total = sum(len(_capabilities(a.read_text(errors="replace"))) for a in ASSETS)
+    assert total > 300, f"only {total} capability references found"
 
 
 @pytest.mark.parametrize("asset", ASSETS, ids=lambda p: str(p.relative_to(REPO_ROOT)))
@@ -190,4 +268,14 @@ def test_cited_paths_resolve(asset: Path) -> None:
     assert not phantoms, (
         f"{asset.relative_to(REPO_ROOT)} cites "
         f"{len(phantoms)} path(s) that do not exist: " + ", ".join(phantoms)
+    )
+
+
+@pytest.mark.parametrize("asset", ASSETS, ids=lambda p: str(p.relative_to(REPO_ROOT)))
+def test_cited_capabilities_resolve(asset: Path) -> None:
+    """Every backticked `plugin:name` must be a real skill, command, or agent."""
+    phantoms = _phantom_capabilities(asset)
+    assert not phantoms, (
+        f"{asset.relative_to(REPO_ROOT)} cites "
+        f"{len(phantoms)} capability(ies) that do not exist: " + ", ".join(phantoms)
     )

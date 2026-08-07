@@ -311,8 +311,8 @@ Next: Run `/abstract:aggregate-logs` to update insights
 
 ## Related Skills
 
-- `abstract:skill-execution-logger` - Captures raw execution data (Phase 1)
-- `abstract:log-aggregator` - Processes evaluations into insights (Phase 3)
+- `plugins/abstract/hooks/skill_execution_logger.py` - Captures raw execution data (Phase 1)
+- `/abstract:aggregate-logs` - Processes evaluations into insights (Phase 3)
 - `abstract:skill-improver` - Acts on evaluation feedback (Phase 5)
 
 ## Metrics

@@ -226,7 +226,7 @@ Over 1000 responses: 150k-350k tokens saved.
 This skill works with:
 - `conserve:token-conservation` - Budget tracking
 - `conserve:context-optimization` - MECW management
-- `sanctum:code-review` - Review feedback
+- `sanctum:pr-review` - Review feedback
 
 ## Exit Criteria
 
