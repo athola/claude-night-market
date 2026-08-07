@@ -26,8 +26,9 @@ dangling instances. It slips between the two gates that already exist:
 ``scripts/check_skill_graph_drift.py`` matches only the ``Skill(...)``
 call syntax, and the path gate above needs a slash to recognize a
 token. Write ``conserve:resource-management`` in backticks and neither
-one looks at it, which is how a skill deleted in 2026-03 kept being
-recommended by a command five months later.
+one looks at it, which is how `conserve:resource-management`, deleted
+in `54e5b4b1` on 2026-01-18, was still recommended by
+`plugins/abstract/commands/plugin-review.md` almost seven months later.
 
 Scope: skills, commands, agents, and project rules -- the documents an
 agent reads as instructions. Prose docs and the changelog are excluded;
@@ -126,9 +127,9 @@ ALLOWLIST = {
 # A backticked capability reference: `plugin:name` or `/plugin:name`.
 # The leading slash is how the docs write a command; both forms name the
 # same three-directory search, so the slash is read and not required to
-# mean anything stronger. Ten of the 797 live references use it against
-# a skill, so demanding it imply "command" would report house style as a
-# defect.
+# mean anything stronger. Of the 180 slash-form references, 11 resolve
+# to a skill or an agent and to no command, so demanding that the slash
+# imply "command" would report house style as a defect.
 CAPABILITY = re.compile(r"`/?(?P<plugin>[a-z][a-z0-9-]*):(?P<name>[a-z][a-z0-9-]*)`")
 
 # Capability references that name something outside this repo, or a
