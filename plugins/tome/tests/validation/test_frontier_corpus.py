@@ -36,12 +36,14 @@ from pathlib import Path
 import pytest
 import yaml
 
-from tome.models import ResearchSession
+from tome.models import Finding, ResearchSession
 from tome.synthesis.frontier import (
     CANARY_SOURCE,
     INCONCLUSIVE,
+    MISMATCH_SUSPECTED,
     THIN_CANDIDATE,
     frontier_verdict,
+    retrieved_findings,
 )
 from tome.synthesis.quality import parse_envelope
 
@@ -63,11 +65,33 @@ def _session_from_envelopes(topic: str, envelopes: list[dict]) -> ResearchSessio
     )
     for envelope in envelopes:
         session.query_log.extend(parse_envelope(envelope))
+        # Findings come from the recorded findings array and from
+        # nowhere else. Synthesizing them from
+        # metadata.queries[].result_count would be the tempting
+        # shortcut and would quietly void the corpus: those counts
+        # already drive channel_outcomes, so a total derived from them
+        # would make the sparsity test and the outcome test functions
+        # of one input. They would then agree by construction rather
+        # than by evidence, and the confusion matrix would be scoring
+        # a tautology.
+        session.findings.extend(
+            Finding.from_dict(f) for f in envelope.get("findings") or []
+        )
     return session
 
 
-def _envelope(channel: str, *, results: int, canary: bool = True) -> dict:
-    """A recorded-shaped envelope, with an optional passing control."""
+def _envelope(
+    channel: str, *, results: int, canary: bool = True, findings: int = 0
+) -> dict:
+    """A recorded-shaped envelope, with an optional passing control.
+
+    ``results`` is what the query returned and ``findings`` is how many
+    of those the agent chose to report. They are separate arguments
+    because they are separate facts: agents cap their finding lists
+    ("at most 10", "top 2-3 posts"), so the two numbers routinely
+    disagree in a real recording, and a helper that derived one from
+    the other would hide the gap the corpus is meant to expose.
+    """
     queries = [
         {
             "source": channel,
@@ -88,7 +112,17 @@ def _envelope(channel: str, *, results: int, canary: bool = True) -> dict:
         )
     return {
         "channel": channel,
-        "findings": [],
+        "findings": [
+            {
+                "source": channel,
+                "channel": channel,
+                "title": f"{channel} finding {i}",
+                "url": f"https://example.invalid/{channel}/{i}",
+                "relevance": 0.5,
+                "summary": "",
+            }
+            for i in range(findings)
+        ],
         "errors": [],
         "metadata": {"query_count": len(queries), "queries": queries},
     }
@@ -274,3 +308,87 @@ class TestLabeledCorpusIsWellFormed:
             f"envelopes recorded ({recorded}); replace this test with the "
             "confusion-matrix run and calibrate _F_THIN"
         )
+
+
+class TestReplayCarriesFindings:
+    """Feature: Recorded findings survive the trip back into a session.
+
+    ``_session_from_envelopes`` rebuilt only the query log. Findings
+    recorded in an envelope were dropped at the replay boundary, so
+    every replayed session had ``total = 0`` regardless of what its
+    envelopes held.
+
+    The effect is asymmetric, which is why it survived. A covered topic
+    still lands on COVERED: every channel reads ``ok``, nothing is
+    ``proven_empty``, and the verdict falls through before the count is
+    consulted. The bug bites only where exactly two of three retrieval
+    channels are controlled-empty, which is the one band where
+    ``_F_THIN`` changes any answer, and there it forced
+    THIN_FIELD_CANDIDATE over CHANNEL_MISMATCH_SUSPECTED
+    unconditionally.
+
+    That is precisely the cell the labeled corpus exists to measure. A
+    matrix scored on the unfixed harness would have looked plausible
+    and been wrong exactly where it counted.
+    """
+
+    @pytest.mark.unit
+    def test_recorded_findings_reach_the_verdict(self) -> None:
+        """Scenario: An envelope's findings are not dropped on replay.
+
+        Given an envelope recording four findings
+        When the session is rebuilt from it
+        Then retrieved_findings sees four
+        Because everything downstream of this counts them, and a replay
+             that silently returns zero makes the corpus unscoreable
+             while still producing a confident-looking table.
+        """
+        session = _session_from_envelopes(
+            "t", [_envelope("code", results=4, findings=4)]
+        )
+        assert len(retrieved_findings(session)) == 4
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "recorded,expected",
+        [(3, THIN_CANDIDATE), (4, MISMATCH_SUSPECTED)],
+    )
+    def test_the_band_where_the_threshold_discriminates(
+        self, recorded: int, expected: str
+    ) -> None:
+        """Scenario: Two controlled-empty channels, one holding findings.
+
+        Given academic and discourse proved they retrieve, then found nothing
+        And code holds `recorded` findings
+        Then the verdict flips from thin to mismatch across _F_THIN
+        Because this is the only input shape in which the constant
+             changes an answer. Three of three empty yields THIN at any
+             threshold, and one of three never reaches the branch. If
+             the corpus is ever scored, it is scored here, so this band
+             is the one that must not be replayed wrong.
+        """
+        session = _session_from_envelopes(
+            "t",
+            [
+                _envelope("academic", results=0),
+                _envelope("discourse", results=0),
+                _envelope("code", results=recorded, findings=recorded),
+            ],
+        )
+        assert frontier_verdict(session).verdict == expected
+
+    @pytest.mark.unit
+    def test_generated_findings_do_not_return_through_replay(self) -> None:
+        """Scenario: A recorded triz envelope still does not vote.
+
+        Given a triz envelope recording four generated analogies
+        Then retrieved_findings ignores them
+        Because RETRIEVAL_CHANNELS closed this leak in the verdict, and
+             a replay path that re-counted them would reopen it from
+             the fixtures instead of from a live run. The corpus must
+             not be able to restore a hole the code removed.
+        """
+        session = _session_from_envelopes(
+            "t", [_envelope("triz", results=4, findings=4)]
+        )
+        assert retrieved_findings(session) == []
