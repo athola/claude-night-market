@@ -47,6 +47,14 @@ RATE_LIMIT = "rate_limit"
 # Generic failure: the source was reached and did not answer usefully.
 SOURCE_ERROR = "source_error"
 
+# A QueryLog with this source is a positive control, not a topic query.
+# Controls share the log list so one record covers everything the run
+# did, and stay distinguishable so a control's hit never inflates the
+# topic count it exists to qualify. Consumed by
+# tome.synthesis.frontier; defined here because channel_outcomes must
+# filter on it and the dependency runs that way.
+CANARY_SOURCE = "canary"
+
 # Query text for a log synthesized from an envelope that reported no
 # per-query breakdown. It is a marker, not a query: the alternative is
 # inventing query strings, and a record that quietly fabricates what was
@@ -207,7 +215,15 @@ def channel_outcomes(session: ResearchSession) -> dict[str, str]:
     """
     outcomes: dict[str, str] = {}
     for channel in session.channels:
-        logs = [q for q in session.query_log if q.channel == channel]
+        # Controls are excluded. A canary that retrieved its known
+        # target says the channel works, not that the topic is there,
+        # and counting its hit would make every healthy channel look
+        # productive: exactly the signal the control exists to create.
+        logs = [
+            q
+            for q in session.query_log
+            if q.channel == channel and q.source != CANARY_SOURCE
+        ]
         if not logs:
             outcomes[channel] = "unknown"
             continue
