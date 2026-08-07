@@ -10185,6 +10185,197 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://lite.duckduckgo.com/lite/?q=%E6%8A%80%E8%83%BD%E5%AE%9F%E7%BF%92%E6%97%A5%E8%AA%8C+%E5%B8%B3%E7%B0%BF%E6%9B%B8%E9%A1%9E+%E6%8A%80%E8%83%BD%E5%AE%9F%E7%BF%92%E6%8C%87%E5%B0%8E%E5%93%A1+%E8%A8%98%E9%8C%B2
+  https://arxiv.org/pdf/1205.1150:
+    content_hash: sha256:5900b9d5885cef4f
+    stored_at: data/staging/webfetch-1205-1150-2026-08-07_02-26-49.md
+    importance_score: 91
+    last_updated: '2026-08-07T02:26:49.350543+00:00'
+    title: '1205.1150'
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/pdf/1205.1150
+  https://github.com/asreview/asreview:
+    content_hash: sha256:b42bb134dc4d1d15
+    stored_at: data/staging/webfetch-asreview-2026-08-07_02-27-21.md
+    importance_score: 100
+    last_updated: '2026-08-07T02:27:21.728462+00:00'
+    title: Asreview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/asreview/asreview
+  https://www.triz40.com/aff_matrix_triz.php:
+    content_hash: sha256:37c0d7478226d3d5
+    stored_at: data/staging/webfetch-triz-contradiction-matrix-lookup-2026-08-07_02-27-24.md
+    importance_score: 80
+    last_updated: '2026-08-07T02:27:24.155037+00:00'
+    title: TRIZ Contradiction Matrix Lookup
+    maturity: growing
+    routing_type: meta
+    url: https://www.triz40.com/aff_Matrix_TRIZ.php
+  https://github.com/lyonzin/knowledge-rag:
+    content_hash: sha256:0ee884b38271d350
+    stored_at: data/staging/webfetch-zero-results-handling-search-data-model-2026-08-07_02-27-25.md
+    importance_score: 100
+    last_updated: '2026-08-07T02:27:25.760891+00:00'
+    title: Zero Results Handling & Search Data Model
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/lyonzin/knowledge-rag
+  https://github.com/rajfirke/provena:
+    content_hash: sha256:c255c4658c9e9684
+    stored_at: data/staging/webfetch-provena-audit-trail-data-structure-2026-08-07_02-27-29.md
+    importance_score: 100
+    last_updated: '2026-08-07T02:27:29.549477+00:00'
+    title: Provena Audit Trail Data Structure
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rajfirke/provena
+  https://www.eng.uwaterloo.ca/~jzelek/teaching/syde361/triz39.pdf:
+    content_hash: sha256:fd8e71535449465d
+    stored_at: data/staging/webfetch-triz39-pdf-2026-08-07_02-27-44.md
+    importance_score: 80
+    last_updated: '2026-08-07T02:27:44.440249+00:00'
+    title: Triz39.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.eng.uwaterloo.ca/~jzelek/teaching/syde361/TRIZ39.pdf
+  http://ir.dcs.gla.ac.uk/smooth/is-special-final.pdf:
+    content_hash: sha256:9aa619254824fa26
+    stored_at: data/staging/webfetch-is-special-final-pdf-2026-08-07_02-27-50.md
+    importance_score: 80
+    last_updated: '2026-08-07T02:27:50.953925+00:00'
+    title: Is Special Final.Pdf
+    maturity: growing
+    routing_type: meta
+    url: http://ir.dcs.gla.ac.uk/smooth/Is-special-final.pdf
+  https://hn.algolia.com/api/v1/search?query=literature-based%20discovery&tags=story&hitsperpage=10:
+    content_hash: sha256:5c4a44f01aab4ec3
+    stored_at: data/staging/webfetch-literature-based-discovery-search-results-2026-08-07_02-27-57.md
+    importance_score: 89
+    last_updated: '2026-08-07T02:27:57.478088+00:00'
+    title: Literature-Based Discovery Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=literature-based%20discovery&tags=story&hitsPerPage=10
+  https://github.com/mjwestgate/revtools:
+    content_hash: sha256:4865bf173bef1000
+    stored_at: data/staging/webfetch-revtools-deduplication-and-data-handling-2026-08-07_02-28-06.md
+    importance_score: 100
+    last_updated: '2026-08-07T02:28:06.891368+00:00'
+    title: revtools Deduplication and Data Handling
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/mjwestgate/revtools
+  https://github.com/dzhng/deep-seek:
+    content_hash: sha256:708391d3fa83970b
+    stored_at: data/staging/webfetch-deep-seek-confidence-scoring-and-retrieval-2026-08-07_02-28-09.md
+    importance_score: 100
+    last_updated: '2026-08-07T02:28:09.581712+00:00'
+    title: Deep-Seek Confidence Scoring and Retrieval
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/dzhng/deep-seek
+  https://github.com/dakshjain-1616/rag-with-retrieval-time-semantic-deduplication:
+    content_hash: sha256:1256a1939c438158
+    stored_at: data/staging/webfetch-semantic-deduplication-algorithm-2026-08-07_02-28-10.md
+    importance_score: 100
+    last_updated: '2026-08-07T02:28:10.963157+00:00'
+    title: Semantic Deduplication Algorithm
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/dakshjain-1616/RAG-with-Retrieval-Time-Semantic-Deduplication
+  https://aarontay.substack.com/p/ai-academic-search-and-the-missing:
+    content_hash: sha256:1727ce6dff66ee4a
+    stored_at: data/staging/webfetch-gaps-in-ai-academic-search-tools-2026-08-07_02-28-15.md
+    importance_score: 80
+    last_updated: '2026-08-07T02:28:15.113064+00:00'
+    title: Gaps in AI Academic Search Tools
+    maturity: growing
+    routing_type: meta
+    url: https://aarontay.substack.com/p/ai-academic-search-and-the-missing
+  https://aarontay.substack.com/p/were-good-at-search-just-not-the:
+    content_hash: sha256:01bddd014a6d20ce
+    stored_at: data/staging/webfetch-aaron-tay-s-argument-the-search-skills-gap-in-the-2026-08-07_02-28-16.md
+    importance_score: 80
+    last_updated: '2026-08-07T02:28:16.651697+00:00'
+    title: 'Aaron Tay''s Argument: The Search Skills Gap in the AI Era'
+    maturity: growing
+    routing_type: meta
+    url: https://aarontay.substack.com/p/were-good-at-search-just-not-the
+  https://github.com/conanhujinming/text_dedup:
+    content_hash: sha256:83dfe14e94c7f0c0
+    stored_at: data/staging/webfetch-text-deduplication-algorithm-overview-2026-08-07_02-28-31.md
+    importance_score: 100
+    last_updated: '2026-08-07T02:28:31.980477+00:00'
+    title: Text Deduplication Algorithm Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/conanhujinming/text_dedup
+  https://github.com/deepset-ai/haystack:
+    content_hash: sha256:9d8899a94a43ed3a
+    stored_at: data/staging/webfetch-haystack-2026-08-07_02-28-33.md
+    importance_score: 100
+    last_updated: '2026-08-07T02:28:33.471430+00:00'
+    title: Haystack
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/deepset-ai/haystack
+  https://github.com/chaokunhong/metascreener:
+    content_hash: sha256:f2885a0d005c3e43
+    stored_at: data/staging/webfetch-metascreener-results-tracking-and-export-2026-08-07_02-28-35.md
+    importance_score: 100
+    last_updated: '2026-08-07T02:28:35.078001+00:00'
+    title: MetaScreener Results Tracking and Export
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/ChaokunHong/MetaScreener
+  https://link.springer.com/article/10.1186/s12874-025-02528-y:
+    content_hash: sha256:e65666e164087ead
+    stored_at: data/staging/webfetch-original-url-https-link-springer-com-article-10-2026-08-07_02-28-44.md
+    importance_score: 50
+    last_updated: '2026-08-07T02:28:44.839701+00:00'
+    title: 'Original URL: https://link.springer.com/article/10.1186/s12874-025-02528-y'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://link.springer.com/article/10.1186/s12874-025-02528-y
+  https://news.ycombinator.com/item?id=41522196:
+    content_hash: sha256:f2145aa2e26753b1
+    stored_at: data/staging/webfetch-llm-novel-research-ideas-key-critiques-2026-08-07_02-29-16.md
+    importance_score: 80
+    last_updated: '2026-08-07T02:29:16.284572+00:00'
+    title: 'LLM Novel Research Ideas: Key Critiques'
+    maturity: growing
+    routing_type: meta
+    url: https://news.ycombinator.com/item?id=41522196
+  https://support.elicit.com/en/articles/549569:
+    content_hash: sha256:0d375a6609668d5b
+    stored_at: data/staging/webfetch-elicit-s-official-limitations-statement-2026-08-07_02-29-32.md
+    importance_score: 80
+    last_updated: '2026-08-07T02:29:32.678380+00:00'
+    title: Elicit's Official Limitations Statement
+    maturity: growing
+    routing_type: meta
+    url: https://support.elicit.com/en/articles/549569
+  https://www.ncbi.nlm.nih.gov/pmc/articles/pmc5490706:
+    content_hash: sha256:a6a1fa27c933cbb0
+    stored_at: data/staging/webfetch-original-url-https-www-ncbi-nlm-nih-gov-pmc-2026-08-07_02-29-49.md
+    importance_score: 50
+    last_updated: '2026-08-07T02:29:49.159572+00:00'
+    title: 'Original URL: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5490706/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5490706/
+  https://pmc.ncbi.nlm.nih.gov/articles/pmc5490706:
+    content_hash: sha256:c807b7934e6dd1f5
+    stored_at: data/staging/webfetch-core-competencies-for-librarians-in-systematic-2026-08-07_02-29-59.md
+    importance_score: 80
+    last_updated: '2026-08-07T02:29:59.450667+00:00'
+    title: Core Competencies for Librarians in Systematic Reviews
+    maturity: growing
+    routing_type: meta
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC5490706/
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -11312,3 +11503,24 @@ hashes:
   sha256:5e1ba72f81a013a6: data/staging/webfetch-kompetenznachweis-definition-2026-08-06_11-12-21.md
   sha256:eb16a5e59e8f2b49: data/staging/webfetch-what-apprentices-receive-upon-completion-2026-08-06_11-12-35.md
   sha256:42291b4f1e957ef4: data/staging/webfetch-search-results-technical-intern-training-logbooks-2026-08-06_11-12-41.md
+  sha256:5900b9d5885cef4f: data/staging/webfetch-1205-1150-2026-08-07_02-26-49.md
+  sha256:b42bb134dc4d1d15: data/staging/webfetch-asreview-2026-08-07_02-27-21.md
+  sha256:37c0d7478226d3d5: data/staging/webfetch-triz-contradiction-matrix-lookup-2026-08-07_02-27-24.md
+  sha256:0ee884b38271d350: data/staging/webfetch-zero-results-handling-search-data-model-2026-08-07_02-27-25.md
+  sha256:c255c4658c9e9684: data/staging/webfetch-provena-audit-trail-data-structure-2026-08-07_02-27-29.md
+  sha256:fd8e71535449465d: data/staging/webfetch-triz39-pdf-2026-08-07_02-27-44.md
+  sha256:9aa619254824fa26: data/staging/webfetch-is-special-final-pdf-2026-08-07_02-27-50.md
+  sha256:5c4a44f01aab4ec3: data/staging/webfetch-literature-based-discovery-search-results-2026-08-07_02-27-57.md
+  sha256:4865bf173bef1000: data/staging/webfetch-revtools-deduplication-and-data-handling-2026-08-07_02-28-06.md
+  sha256:708391d3fa83970b: data/staging/webfetch-deep-seek-confidence-scoring-and-retrieval-2026-08-07_02-28-09.md
+  sha256:1256a1939c438158: data/staging/webfetch-semantic-deduplication-algorithm-2026-08-07_02-28-10.md
+  sha256:1727ce6dff66ee4a: data/staging/webfetch-gaps-in-ai-academic-search-tools-2026-08-07_02-28-15.md
+  sha256:01bddd014a6d20ce: data/staging/webfetch-aaron-tay-s-argument-the-search-skills-gap-in-the-2026-08-07_02-28-16.md
+  sha256:83dfe14e94c7f0c0: data/staging/webfetch-text-deduplication-algorithm-overview-2026-08-07_02-28-31.md
+  sha256:9d8899a94a43ed3a: data/staging/webfetch-haystack-2026-08-07_02-28-33.md
+  sha256:f2885a0d005c3e43: data/staging/webfetch-metascreener-results-tracking-and-export-2026-08-07_02-28-35.md
+  sha256:e65666e164087ead: data/staging/webfetch-original-url-https-link-springer-com-article-10-2026-08-07_02-28-44.md
+  sha256:f2145aa2e26753b1: data/staging/webfetch-llm-novel-research-ideas-key-critiques-2026-08-07_02-29-16.md
+  sha256:0d375a6609668d5b: data/staging/webfetch-elicit-s-official-limitations-statement-2026-08-07_02-29-32.md
+  sha256:a6a1fa27c933cbb0: data/staging/webfetch-original-url-https-www-ncbi-nlm-nih-gov-pmc-2026-08-07_02-29-49.md
+  sha256:c807b7934e6dd1f5: data/staging/webfetch-core-competencies-for-librarians-in-systematic-2026-08-07_02-29-59.md
