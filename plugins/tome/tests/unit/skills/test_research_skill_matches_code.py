@@ -105,7 +105,7 @@ class TestTheSkillRoutesStoriesToAHuman:
     ) -> None:
         """
         Given the tool proposes and a person disposes
-        Then SKILL.md forbids filing a story nobody marked act
+        Then SKILL.md forbids filing a story nobody has marked
 
             An agent that files its own research directions as issues
             has decided what is worth the project's time, which is the
@@ -114,3 +114,24 @@ class TestTheSkillRoutesStoriesToAHuman:
         text = skill_text.lower()
         assert "do not decide for them" in text
         assert "have not marked" in text
+
+    def test_each_disposition_routes_somewhere_different(self, skill_text: str) -> None:
+        """
+        Given three dispositions with three different consequences
+        Then defer is the one that files an issue
+
+            The first draft of this instruction told the operator both
+            to file nothing unmarked-act and to file on defer, which
+            are incompatible. The guard above passed on both sides of
+            that contradiction because it matches substrings rather
+            than policy. This one pins the routing: a story only
+            becomes an issue when someone chose to come back to it.
+        """
+        text = skill_text.lower()
+        defer_clause = text[text.index("on `defer`") :][:200]
+        assert "minister:create-issue" in defer_clause, (
+            "defer must be the disposition that files an issue"
+        )
+        assert "not marked `act`" not in text, (
+            "filing is gated on defer, so act must not also gate it"
+        )

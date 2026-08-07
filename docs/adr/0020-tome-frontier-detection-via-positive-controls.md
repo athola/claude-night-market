@@ -40,6 +40,36 @@ result counts.
 4. A null is reported with the floor it was measured against, never as
    a bare zero.
 5. The verdict is a claim about the search, not about the literature.
+6. Only channels that answer by searching an external index may take
+   part in the verdict, and only their findings are counted toward it.
+
+## Only retrieval channels may testify
+
+`RETRIEVAL_CHANNELS` in `tome/models.py` names the three channels whose
+answers come from an index: `academic`, `code`, `discourse`. `triz` is
+excluded, and the exclusion is load-bearing in two directions.
+
+It must not be counted. `triz` generates cross-domain analogies rather
+than retrieving records of prior work. Counting its output toward the
+sparsity threshold lets the tool satisfy that threshold with text it
+wrote itself, so a topic with four invented bridges and no papers reads
+exactly like one with four papers. The verdict would then be grading
+the field on its own output, which is the failure mode the control
+mechanism exists to prevent, arriving through the denominator instead
+of through the numerator.
+
+It must not be controlled. A positive control asks whether a channel
+can retrieve a document known to be in its index. For a channel with no
+index the question is malformed rather than merely unanswered, and
+demanding one pins every session carrying `triz` to `INCONCLUSIVE` for
+a reason that says nothing about coverage.
+
+The narrow reading matters: this is not a general exemption. A
+retrieval channel that runs without a control still forces
+`INCONCLUSIVE`, and retrieved findings still suppress a thin verdict.
+Both negative cases are held by tests in
+`tests/unit/test_frontier_channel_roles.py`, because an exemption that
+quietly widened would restore the hole it was carved to avoid.
 
 ## Alternatives rejected
 

@@ -147,10 +147,12 @@ Display a brief summary to the user:
   `tome.synthesis.frontier.frontier_stories(session)`. Each
   is a gap with its evidence, and each arrives `undecided`.
   Ask the user to mark it `act`, `defer`, or `decline`.
-  Do not decide for them and do not file an issue for a
-  story they have not marked `act`: nothing in a search
-  record says what is worth this project's time. On `defer`,
-  file it with `minister:create-issue`.
+  Do not decide for them, and do not file an issue for a
+  story they have not marked: nothing in a search record
+  says what is worth this project's time. On `defer`, file
+  it with `minister:create-issue` so it survives the
+  session. On `act` the work starts now and needs no issue.
+  On `decline` record nothing.
 
 The three retrieval channels run a positive control before
 their topic queries, so `INCONCLUSIVE` now means something
