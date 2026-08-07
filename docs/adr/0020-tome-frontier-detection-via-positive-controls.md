@@ -61,10 +61,14 @@ with human reference management.
 **A query-performance-prediction term in the verdict.** Every strong
 predictor (Clarity, WIG, NQC, UEF) requires a populated ranked list to
 compute a mean or a standard deviation, so all are undefined at zero
-results. Only the pre-retrieval family is computable there, at roughly
-15% correlation with actual effectiveness against roughly 35% for the
-post-retrieval family. Worth using to trigger reformulation; not worth
-grading a finding with.
+results. That is the load-bearing fact here and it is mathematical, not
+empirical. Only the pre-retrieval family is computable in that regime,
+and it is the substantially weaker family: the survey literature
+consistently reports it as the cheaper and less accurate of the two.
+Specific correlation figures were quoted to this decision by a research
+agent that flagged its own source attribution as unverified, so they
+are deliberately not repeated. Worth using to trigger reformulation;
+not worth grading a finding with.
 
 **A fourth term inside `compute_quality_score`.** Every existing term
 measures the search, so a blend cannot separate a thin field from a
