@@ -54,9 +54,11 @@ issue.
 
 Exit codes follow the house gate convention: ``0`` clean, ``1`` when
 the gate finds work, ``2`` on a usage or environment error. The
-untriaged count is a ratchet rather than a hard zero, because 41
-pre-existing findings would hold a hard gate red permanently. Pending
-write-backs are not ratcheted: one is a bug, and it is cheap to fix.
+untriaged count is a ratchet, which existed because 41 pre-existing
+findings would have held a hard gate red permanently. Those 41 are
+answered, so the ratchet now sits at zero and behaves as the hard gate
+it was always meant to become. Pending write-backs are not ratcheted:
+one is a bug, and it is cheap to fix.
 """
 
 from __future__ import annotations
@@ -74,7 +76,13 @@ REPO = "athola/claude-night-market"
 
 # Baseline for the untriaged backlog. Lower it in the same change that
 # reduces the backlog; never raise it to make a red gate green.
-DEFAULT_RATCHET = 41
+#
+# Zero as of 2026-08-06: the backlog this ratchet was invented to
+# tolerate is gone, so it is now a hard gate. That means a newly posted
+# finding turns this red until somebody answers it, which is the
+# intended pressure and not a defect -- the gate runs from a make
+# target, not from pre-commit or CI, so it blocks no commit and no PR.
+DEFAULT_RATCHET = 0
 
 # Generated daily digests are observability output, not a backlog.
 DIGEST_TITLE = re.compile(r"^\[Learning\] \d{4}-\d{2}-\d{2}$")

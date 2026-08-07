@@ -56,8 +56,8 @@ repairs:
 
 ## Left open
 
-These are genuine backlog and are not closed by this pass. The
-reconciler's untriaged ratchet is set to the real remaining count.
+These were genuine backlog and were not closed by that pass. The
+reconciler's untriaged ratchet was set to the real remaining count.
 
 `#424` `#425` `#426` `#433` `#524` `#545` `#588` `#589` `#590` `#591`
 `#592` `#593` `#594` `#595` `#605` `#606` `#607` `#611` `#624` `#625`
@@ -67,3 +67,36 @@ reconciler's untriaged ratchet is set to the real remaining count.
 contract change, and a feature that landed on a release branch). Both
 are process observations about the past rather than defects in the
 tree, and neither can be repaired by editing code now.
+
+## Closed out, 2026-08-06
+
+All 21 are answered. The ratchet is 0 and the reconciler reports 33
+triaged, 0 pending write-back, 0 mentioned, 0 untriaged.
+
+Most were closed by commits carrying an `Addresses-Discussion:`
+trailer, which is the loop working as designed: the fix lands, the
+reconciler joins it against the board, and the comment posts itself.
+Four needed a hand-written write-back because they were fixed before
+the trailer convention existed (`#604`, `#610`, `#586`, `#520`), and
+three were dispositions rather than fixes (`#424`, `#545`, `#524`).
+
+Two results are worth keeping.
+
+**The mention heuristic has a false positive, and it is structural.**
+`#424` sat in the "mentioned in prose" bucket because commit
+`6b28aa1a` names it. That commit did not fix it: it is the dogfood run
+that *created* discussions #424-#436 by posting PR #417's findings to
+the board. A commit that creates a discussion and a commit that
+inspects one are the same shape to the heuristic. The bucket is still
+the right design, since it keeps unproven claims out of the write-back
+path, but it is a lead for a human and not a status. Read it as such.
+
+**A third citation form had no gate.** Chasing `#433` surfaced that a
+document naming a sibling capability as backticked `plugin:name` was
+watched by nothing: `scripts/check_skill_graph_drift.py` matches only
+the `Skill(...)` call syntax, and `tests/test_cited_paths_resolve.py`
+needed a slash to recognize a token. 797 such references existed and
+11 pointed at nothing, two of them at a `memory-palace:strategeion`
+that was proposed in `0157d500` and never built. The gate now covers
+that form, which is the same defect class as `#604`, `#610` and `#623`
+arriving through a door nobody had checked.
