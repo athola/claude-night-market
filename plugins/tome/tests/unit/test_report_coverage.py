@@ -22,6 +22,7 @@ import pytest
 
 from tome.models import Finding, QueryLog, ResearchSession
 from tome.output.report import _EMPTY_CHANNEL_NOTES, format_report
+from tome.synthesis.frontier import INCONCLUSIVE, frontier_verdict
 
 
 def _finding(channel: str = "code") -> Finding:
@@ -212,6 +213,51 @@ class TestCoverageSection:
         joined = " ".join(unsearchable)
         assert "discourse" in joined
         assert "academic" not in joined
+
+    @pytest.mark.unit
+    def test_report_states_the_frontier_verdict(self) -> None:
+        """Scenario: The verdict reaches the page.
+
+        Given a session with channel outcomes
+        When the report is rendered
+        Then the verdict label and its reason both appear
+        Because this mission began by finding identify_gaps written,
+             tested, and called by nothing outside its own tests. A
+             verdict function in that same state would be the same
+             defect wearing newer code.
+        """
+        session = _session(
+            ["code"], [QueryLog("code", "q", "github", result_count=1)], [_finding()]
+        )
+        text = format_report(session)
+        assert f"Verdict: {frontier_verdict(session).verdict}" in text
+        # The reason is wrapped for the page, so match a distinctive
+        # fragment rather than the whole sentence.
+        assert "no channel" in text
+
+    @pytest.mark.unit
+    def test_uncontrolled_run_reads_inconclusive(self) -> None:
+        """Scenario: Without controls the report says so on its face.
+
+        Given a session where one channel came back empty
+        And no channel ran a positive control
+        When the report is rendered
+        Then the verdict is INCONCLUSIVE
+        Because no channel yet emits a canary, so this is what a real
+             report says today about any gap it contains. Reaching
+             COVERED here would let the channel that found things vouch
+             for the one that stayed silent, which is the original
+             conflation in miniature.
+        """
+        session = _session(
+            ["code", "academic"],
+            [
+                QueryLog("code", "q", "github", result_count=1),
+                QueryLog("academic", "q", "arxiv", result_count=0),
+            ],
+            [_finding()],
+        )
+        assert INCONCLUSIVE in format_report(session)
 
     @pytest.mark.unit
     def test_quality_score_is_not_printed(self) -> None:

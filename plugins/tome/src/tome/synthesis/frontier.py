@@ -200,13 +200,25 @@ def frontier_verdict(session: ResearchSession) -> Verdict:
             {"dominant_channel": dominant[0], "empty": ", ".join(proven_empty)},
         )
 
-    if unproven and not total:
+    # An empty channel with no control is the original conflation in
+    # miniature: it came back with nothing and there is no way to tell
+    # whether it could have come back with something. Reaching COVERED
+    # here because a *different* channel found things would let the
+    # working channel vouch for the silent one.
+    uncontrolled_empty = [
+        c
+        for c in session.channels
+        if controls.get(c) == "absent" and outcomes.get(c) == "empty"
+    ]
+    if uncontrolled_empty or (unproven and not total):
+        silent = uncontrolled_empty or unproven
         return Verdict(
             INCONCLUSIVE,
-            f"{len(unproven)} channel(s) ran no positive control, so their "
-            "silence carries no weight. Nothing here supports a claim "
-            "either way.",
-            {"uncontrolled_channels": ", ".join(unproven)},
+            f"{len(silent)} channel(s) returned nothing without running a "
+            "positive control, so there is no evidence they could have "
+            "returned anything. Their silence carries no weight in either "
+            "direction.",
+            {"uncontrolled_channels": ", ".join(silent)},
         )
 
     return Verdict(

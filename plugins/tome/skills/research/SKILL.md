@@ -133,12 +133,22 @@ mgr.save(session)
 ### Step 7: Present Results
 
 Display a brief summary to the user:
+- The frontier verdict and its reason, from
+  `tome.synthesis.frontier.frontier_verdict(session)`. It is
+  the report's own answer to "did we find little because
+  there is little, or because the search went badly"
 - Number of findings per channel, with its outcome status
   from `tome.synthesis.quality.channel_outcomes(session)`:
   `ok`, `empty`, `error`, `rate_limited`, `degraded`, or
   `unknown`
 - Top 3 findings by relevance
 - Path to saved report
+
+Expect `INCONCLUSIVE` on any run with a gap in it. No
+channel emits a positive control yet, so a channel that
+returned nothing has not shown it could have returned
+anything. That reading is correct rather than a defect, and
+it stays until canary targets exist.
 
 State plainly which channels did not return cleanly. A
 summary that reports "3 findings" without saying two

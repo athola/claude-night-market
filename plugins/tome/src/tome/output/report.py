@@ -6,6 +6,7 @@ import textwrap
 
 from tome.models import Finding, ResearchSession
 from tome.output.citations import generate_bibliography
+from tome.synthesis.frontier import frontier_verdict
 from tome.synthesis.quality import channel_outcomes, identify_gaps
 from tome.synthesis.ranker import compute_relevance_score, group_by_theme
 
@@ -86,7 +87,12 @@ def _format_coverage(session: ResearchSession, outcomes: dict[str, str]) -> str:
     search as a thin field, which is the confusion this section exists
     to remove.
     """
+    result = frontier_verdict(session)
     lines = [
+        _wrap(f"Verdict: {result.verdict}"),
+        "",
+        _wrap(result.reason),
+        "",
         _wrap(
             "What each planned channel did. A channel that returned "
             "nothing is only informative about the topic when its "
