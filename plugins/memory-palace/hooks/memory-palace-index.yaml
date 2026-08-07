@@ -8397,6 +8397,1794 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://www.greyblake.com/blog/branchless-rust/
+  ? https://hn.algolia.com/api/v1/search?query=apprenticeship%20hours%20tracking%20experience%20verification&tags=story&hitsperpage=10
+  : content_hash: sha256:be7340eced481693
+    stored_at: data/staging/webfetch-search-2026-08-04_11-03-40.md
+    importance_score: 89
+    last_updated: '2026-08-04T11:03:40.733936+00:00'
+    title: Search
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=apprenticeship%20hours%20tracking%20experience%20verification&tags=story&hitsPerPage=10
+  https://play.google.com/store/apps/details?id=com.workhands.app&hl=en_us:
+    content_hash: sha256:ddaf0a37c0fb5724
+    stored_at: data/staging/webfetch-workhands-apprenticeship-limited-data-available-2026-08-04_11-04-01.md
+    importance_score: 80
+    last_updated: '2026-08-04T11:04:01.358829+00:00'
+    title: WorkHands Apprenticeship - Limited Data Available
+    maturity: growing
+    routing_type: meta
+    url: https://play.google.com/store/apps/details?id=com.workhands.app&hl=en_US
+  https://www.tdlr.texas.gov/electricians/forms/elc017%20electrician%20experience%20verification%20form.pdf:
+    content_hash: sha256:e2af2aa6ec1e2ce2
+    stored_at: data/staging/webfetch-elc017-20electrician-20experience-20verification-2026-08-04_11-04-06.md
+    importance_score: 80
+    last_updated: '2026-08-04T11:04:06.160006+00:00'
+    title: Elc017%20Electrician%20Experience%20Verification%20Form.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.tdlr.texas.gov/electricians/forms/ELC017%20Electrician%20Experience%20Verification%20Form.pdf
+  https://www.electrical-contractor.net/forums/ubbthreads.php/topics/70115/1.html:
+    content_hash: sha256:4e901dd8268282cd
+    stored_at: data/staging/webfetch-apprentice-responses-on-employer-hour-sign-off-2026-08-04_11-04-25.md
+    importance_score: 79
+    last_updated: '2026-08-04T11:04:25.247827+00:00'
+    title: Apprentice Responses on Employer Hour Sign-Off Issues
+    maturity: growing
+    routing_type: meta
+    url: https://www.electrical-contractor.net/forums/ubbthreads.php/topics/70115/1.html
+  https://support.apprentix.io/en/articles/12099209-when-apprentice-hours-don-t-count-6-disqualifiers:
+    content_hash: sha256:1d69b4791aa93481
+    stored_at: data/staging/webfetch-6-disqualifiers-for-apprentice-hours-under-ira-2026-08-04_11-04-26.md
+    importance_score: 79
+    last_updated: '2026-08-04T11:04:26.337970+00:00'
+    title: 6 Disqualifiers for Apprentice Hours Under IRA Compliance
+    maturity: growing
+    routing_type: meta
+    url: https://support.apprentix.io/en/articles/12099209-when-apprentice-hours-don-t-count-6-disqualifiers
+  ? https://export.arxiv.org/api/query?search_query=all:%22content+provenance%22+and+all:evidentiary&max_results=10&sortby=relevance
+  : content_hash: sha256:f23701e70967e6f5
+    stored_at: data/staging/webfetch-papers-on-content-provenance-and-evidentiary-2026-08-04_11-04-35.md
+    importance_score: 81
+    last_updated: '2026-08-04T11:04:35.011014+00:00'
+    title: Papers on Content Provenance and Evidentiary Authentication
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:%22content+provenance%22+AND+all:evidentiary&max_results=10&sortBy=relevance
+  https://www.youtube.com/watch?v=bgyevfp9eqa:
+    content_hash: sha256:7800fdc17c7710e4
+    stored_at: data/staging/webfetch-unable-to-extract-video-content-2026-08-04_11-05-02.md
+    importance_score: 79
+    last_updated: '2026-08-04T11:05:02.576188+00:00'
+    title: Unable to Extract Video Content
+    maturity: growing
+    routing_type: meta
+    url: https://www.youtube.com/watch?v=BGyevfp9eqA
+  https://arxiv.org/abs/2602.18681:
+    content_hash: sha256:55327894bcddae78
+    stored_at: data/staging/webfetch-abstract-2026-08-04_11-05-05.md
+    importance_score: 90
+    last_updated: '2026-08-04T11:05:05.921378+00:00'
+    title: Abstract
+    maturity: growing
+    routing_type: meta
+    url: https://arxiv.org/abs/2602.18681
+  https://sparkshift.app/florida-electrician-license:
+    content_hash: sha256:3758e65cc323fc9c
+    stored_at: data/staging/webfetch-hour-verification-issues-in-florida-electrician-2026-08-04_11-05-21.md
+    importance_score: 79
+    last_updated: '2026-08-04T11:05:21.820194+00:00'
+    title: Hour Verification Issues in Florida Electrician Licensing
+    maturity: growing
+    routing_type: meta
+    url: https://sparkshift.app/florida-electrician-license
+  https://www.toolgrit.com/tools/apprentice-hours-tracker:
+    content_hash: sha256:84b1d8c2df4033d9
+    stored_at: data/staging/webfetch-user-reviews-and-feedback-analysis-2026-08-04_11-05-59.md
+    importance_score: 79
+    last_updated: '2026-08-04T11:05:59.822261+00:00'
+    title: User Reviews and Feedback Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.toolgrit.com/tools/apprentice-hours-tracker
+  https://www.apprentiscope.com/ojt-tracking:
+    content_hash: sha256:9b93cce22a97eaf1
+    stored_at: data/staging/webfetch-hour-verification-and-documentation-pain-points-2026-08-04_11-06-31.md
+    importance_score: 79
+    last_updated: '2026-08-04T11:06:31.704112+00:00'
+    title: Hour Verification and Documentation Pain Points
+    maturity: growing
+    routing_type: meta
+    url: https://www.apprentiscope.com/ojt-tracking
+  https://blog.apprentiscope.com/posts/how-improve-apprenticeship-time-log:
+    content_hash: sha256:c36e7363b803a370
+    stored_at: data/staging/webfetch-apprenticeship-time-log-practitioner-tips-common-2026-08-04_11-06-32.md
+    importance_score: 79
+    last_updated: '2026-08-04T11:06:32.745247+00:00'
+    title: 'Apprenticeship Time Log: Practitioner Tips & Common Problems'
+    maturity: growing
+    routing_type: meta
+    url: https://blog.apprentiscope.com/posts/how-improve-apprenticeship-time-log
+  https://github.com/contentauth/c2pa-js/blob/main/packages/c2pa-web/changelog.md:
+    content_hash: sha256:9f8b4d4187d4ba35
+    stored_at: data/staging/webfetch-c2pa-web-changelog-summary-2026-08-04_11-06-43.md
+    importance_score: 100
+    last_updated: '2026-08-04T11:06:43.964888+00:00'
+    title: C2PA-Web Changelog Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/contentauth/c2pa-js/blob/main/packages/c2pa-web/CHANGELOG.md
+  https://github.com/learningeconomy/learncard:
+    content_hash: sha256:c2fa68a8ea3bc117
+    stored_at: data/staging/webfetch-learncard-project-analysis-2026-08-04_11-06-45.md
+    importance_score: 100
+    last_updated: '2026-08-04T11:06:45.677375+00:00'
+    title: LearnCard Project Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/learningeconomy/LearnCard
+  https://github.com/docknetwork/sdk:
+    content_hash: sha256:32c28b446d56b4e2
+    stored_at: data/staging/webfetch-dock-sdk-project-status-2026-08-04_11-07-26.md
+    importance_score: 100
+    last_updated: '2026-08-04T11:07:26.917402+00:00'
+    title: Dock SDK Project Status
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/docknetwork/sdk
+  https://github.com/microsoft/c2pa-extension-validator/blob/main/package.json:
+    content_hash: sha256:16fb1107ac032f7a
+    stored_at: data/staging/webfetch-package-json-2026-08-04_11-07-46.md
+    importance_score: 100
+    last_updated: '2026-08-04T11:07:46.919384+00:00'
+    title: Package.Json
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/microsoft/c2pa-extension-validator/blob/main/package.json
+  https://github.com/digimarc-corp/c2pa-content-credentials-extension/blob/main/package.json:
+    content_hash: sha256:0cdfd5d22f7c58c6
+    stored_at: data/staging/webfetch-package-json-2026-08-04_11-07-49.md
+    importance_score: 100
+    last_updated: '2026-08-04T11:07:49.835473+00:00'
+    title: Package.Json
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/digimarc-corp/c2pa-content-credentials-extension/blob/main/package.json
+  https://github.com/serelay/c2pa-web:
+    content_hash: sha256:56a980852487c2d2
+    stored_at: data/staging/webfetch-c2pa-web-project-overview-2026-08-04_11-08-29.md
+    importance_score: 100
+    last_updated: '2026-08-04T11:08:29.026702+00:00'
+    title: C2PA Web Project Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/serelay/c2pa-web
+  ? https://www.gov.ca.gov/2026/06/17/californias-career-passport-to-connect-qualified-workers-to-employment-with-or-without-a-four-year-degree
+  : content_hash: sha256:5e91dd389f22fc40
+    stored_at: data/staging/webfetch-california-career-passport-initiative-summary-2026-08-05_11-03-03.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:03:03.310685+00:00'
+    title: California Career Passport Initiative Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.ca.gov/2026/06/17/californias-career-passport-to-connect-qualified-workers-to-employment-with-or-without-a-four-year-degree/
+  ? https://www.workifystaffing.com/post/workify-staffing-and-builderfax-announce-transformational-strategic-alliance-to-redefine-skilled-tra
+  : content_hash: sha256:289260ec7e3449e2
+    stored_at: data/staging/webfetch-workify-staffing-and-builderfax-announce-2026-08-05_11-03-04.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:03:04.611798+00:00'
+    title: Workify Staffing And Builderfax Announce Transformational Strategic Alliance
+      To Redefine Skilled Tra
+    maturity: growing
+    routing_type: meta
+    url: https://www.workifystaffing.com/post/workify-staffing-and-builderfax-announce-transformational-strategic-alliance-to-redefine-skilled-tra
+  ? https://www.prnewswire.com/news-releases/lumber-acquires-builderfax-to-revolutionize-construction-workforce-credential-management-and-empower-skilled-craft-professionals-302443819.html
+  : content_hash: sha256:fead83ebcca487cb
+    stored_at: data/staging/webfetch-lumber-acquires-builderfax-press-release-summary-2026-08-05_11-03-05.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:03:05.878068+00:00'
+    title: Lumber Acquires BuilderFax Press Release Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.prnewswire.com/news-releases/lumber-acquires-builderfax-to-revolutionize-construction-workforce-credential-management-and-empower-skilled-craft-professionals-302443819.html
+  https://statescoop.com/california-launches-pilot-for-career-passport-digital-workforce-tool:
+    content_hash: sha256:4d079146cdcaa776
+    stored_at: data/staging/webfetch-california-career-passport-pilot-launch-2026-08-05_11-03-19.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:03:19.557127+00:00'
+    title: California Career Passport Pilot Launch
+    maturity: growing
+    routing_type: meta
+    url: https://statescoop.com/california-launches-pilot-for-career-passport-digital-workforce-tool/
+  ? https://www.losaltosonline.com/schools/foothill-de-anza-approves-500k-career-passport-pilot/article_1c0899e5-cbae-4465-88af-cdd532f679ab.html
+  : content_hash: sha256:81d9c6dab37fd494
+    stored_at: data/staging/webfetch-california-career-passport-pilot-key-details-2026-08-05_11-03-22.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:03:22.148746+00:00'
+    title: 'California Career Passport Pilot: Key Details'
+    maturity: growing
+    routing_type: meta
+    url: https://www.losaltosonline.com/schools/foothill-de-anza-approves-500k-career-passport-pilot/article_1c0899e5-cbae-4465-88af-cdd532f679ab.html
+  https://vendors.planetbids.com/portal/24809/bo/bo-detail/141049:
+    content_hash: sha256:aa48eaf0aef74f1b
+    stored_at: data/staging/webfetch-141049-2026-08-05_11-03-33.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:03:33.414269+00:00'
+    title: '141049'
+    maturity: growing
+    routing_type: meta
+    url: https://vendors.planetbids.com/portal/24809/bo/bo-detail/141049
+  https://certree.com:
+    content_hash: sha256:97bfca8fddd594b2
+    stored_at: data/staging/webfetch-certree-com-2026-08-05_11-03-35.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:03:35.397035+00:00'
+    title: certree.com
+    maturity: growing
+    routing_type: meta
+    url: https://certree.com/
+  https://foreflight.com/enhancements/logbook-instructor-tools:
+    content_hash: sha256:670848e408026b89
+    stored_at: data/staging/webfetch-foreflight-logbook-endorsements-technical-details-2026-08-05_11-03-45.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:03:45.511064+00:00'
+    title: 'ForeFlight Logbook Endorsements: Technical Details'
+    maturity: growing
+    routing_type: meta
+    url: https://foreflight.com/enhancements/logbook-instructor-tools
+  https://myflightbook.com/logbook/mvc/pub/cfisigs:
+    content_hash: sha256:ca8683318ad4c0da
+    stored_at: data/staging/webfetch-digital-signatures-in-myflightbook-pilot-logbook-2026-08-05_11-03-47.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:03:47.105154+00:00'
+    title: Digital Signatures in MyFlightbook Pilot Logbook
+    maturity: growing
+    routing_type: meta
+    url: https://myflightbook.com/logbook/mvc/pub/CFISigs
+  https://apps.apple.com/de/app/azubiheft-app/id1271475953:
+    content_hash: sha256:20094f07951a04bb
+    stored_at: data/staging/webfetch-azubiheft-app-analysis-2026-08-05_11-03-48.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:03:48.078200+00:00'
+    title: Azubiheft App Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/de/app/azubiheft-app/id1271475953
+  https://www.electrical-contractor.net/forums/ubbthreads.php/topics/70114/all/old_employer_will_not_sign_off.html:
+    content_hash: sha256:b33b1e54768f9938
+    stored_at: data/staging/webfetch-forum-discussion-former-employer-won-t-sign-off-2026-08-05_11-04-03.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:04:03.354812+00:00'
+    title: 'Forum Discussion: Former Employer Won''t Sign Off on Apprentice Hours'
+    maturity: growing
+    routing_type: meta
+    url: https://www.electrical-contractor.net/forums/ubbthreads.php/topics/70114/all/Old_employer_will_not_sign_off.html
+  https://digitales-berichtsheft.com:
+    content_hash: sha256:fd309fe5d5a12c69
+    stored_at: data/staging/webfetch-digital-berichtsheft-product-claims-2026-08-05_11-04-24.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:04:24.259129+00:00'
+    title: Digital Berichtsheft Product Claims
+    maturity: growing
+    routing_type: meta
+    url: https://digitales-berichtsheft.com/
+  https://www.bbs.ca.gov/pdf/publications/asw_faq.pdf:
+    content_hash: sha256:9a861c428e615903
+    stored_at: data/staging/webfetch-asw-faq-pdf-2026-08-05_11-04-34.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:04:34.585022+00:00'
+    title: Asw Faq.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.bbs.ca.gov/pdf/publications/asw_faq.pdf
+  https://www.ncarb.org/gain-axp-experience/start-axp/record-experience/hourly-reporting:
+    content_hash: sha256:56376e4df3cab6c5
+    stored_at: data/staging/webfetch-time-limits-and-supervisor-verification-2026-08-05_11-04-35.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:04:35.603119+00:00'
+    title: Time Limits and Supervisor Verification
+    maturity: growing
+    routing_type: meta
+    url: https://www.ncarb.org/gain-axp-experience/start-axp/record-experience/hourly-reporting
+  https://allthingsn.com/apps/apprent:
+    content_hash: sha256:29913958100a2816
+    stored_at: data/staging/webfetch-apprent-app-analysis-2026-08-05_11-04-50.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:04:50.205611+00:00'
+    title: Apprent App Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://allthingsn.com/apps/apprent/
+  https://apps.apple.com/us/app/apprent/id6772337103:
+    content_hash: sha256:dc045a1b0e82e138
+    stored_at: data/staging/webfetch-apprent-app-store-description-analysis-2026-08-05_11-04-51.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:04:51.531518+00:00'
+    title: Apprent App Store Description Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/us/app/apprent/id6772337103
+  https://www.ncarb.org/sites/default/files/axp-guide-booklet.pdf:
+    content_hash: sha256:b4e32f0b007a625a
+    stored_at: data/staging/webfetch-axp-guide-booklet-pdf-2026-08-05_11-04-55.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:04:55.046452+00:00'
+    title: Axp Guide Booklet.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.ncarb.org/sites/default/files/AXP-Guide-Booklet.pdf
+  https://www.ecfr.gov/current/title-14/chapter-i/subchapter-d/part-61/subpart-a/section-61.51:
+    content_hash: sha256:7caed77d2af9cae5
+    stored_at: data/staging/webfetch-redirect-url-https-unblock-federalregister-gov-2026-08-05_11-05-05.md
+    importance_score: 50
+    last_updated: '2026-08-05T11:05:05.779027+00:00'
+    title: 'Redirect URL: https://unblock.federalregister.gov/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.ecfr.gov/current/title-14/chapter-I/subchapter-D/part-61/subpart-A/section-61.51
+  https://www.law.cornell.edu/regulations/california/16-ccr-1833.1:
+    content_hash: sha256:cc48882a07298b30
+    stored_at: data/staging/webfetch-cal-code-regs-tit-16-1833-1-requirements-for-2026-08-05_11-05-09.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:05:09.255209+00:00'
+    title: "Cal. Code Regs. Tit. 16, \xA7 1833.1 - Requirements for Supervisors"
+    maturity: growing
+    routing_type: meta
+    url: https://www.law.cornell.edu/regulations/california/16-CCR-1833.1
+  https://www.shiftflow.app/blog/electrician-plumber-apprentice-hours:
+    content_hash: sha256:340d4cd1e7f42524
+    stored_at: data/staging/webfetch-shiftflow-product-claims-in-the-article-2026-08-05_11-05-12.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:05:12.449138+00:00'
+    title: ShiftFlow Product Claims in the Article
+    maturity: growing
+    routing_type: meta
+    url: https://www.shiftflow.app/blog/electrician-plumber-apprentice-hours
+  https://bud.co.uk/faqs:
+    content_hash: sha256:6d90001ad201c96e
+    stored_at: data/staging/webfetch-bud-platform-evidence-binding-hour-tracking-2026-08-05_11-05-17.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:05:17.656724+00:00'
+    title: 'Bud Platform: Evidence Binding & Hour Tracking Analysis'
+    maturity: growing
+    routing_type: meta
+    url: https://bud.co.uk/faqs
+  https://www.electriciantalk.com/threads/electrical-log-hours-question.72156:
+    content_hash: sha256:fa06f44fe62731a5
+    stored_at: data/staging/webfetch-original-url-https-www-electriciantalk-com-2026-08-05_11-05-24.md
+    importance_score: 50
+    last_updated: '2026-08-05T11:05:24.232508+00:00'
+    title: 'Original URL: https://www.electriciantalk.com/threads/electrical-log-hours-question.72156/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.electriciantalk.com/threads/electrical-log-hours-question.72156/
+  https://www.law.cornell.edu/regulations/california/16-ccr-1815.8:
+    content_hash: sha256:47aefd4bdfefc153
+    stored_at: data/staging/webfetch-cal-code-regs-tit-16-1815-8-2026-08-05_11-05-25.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:05:25.359568+00:00'
+    title: "Cal. Code Regs. Tit. 16, \xA7 1815.8"
+    maturity: growing
+    routing_type: meta
+    url: https://www.law.cornell.edu/regulations/california/16-CCR-1815.8
+  https://www.trackyourhours.com/about-trackyourhours:
+    content_hash: sha256:da12ba35a0885034
+    stored_at: data/staging/webfetch-about-trackyourhours-2026-08-05_11-05-28.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:05:28.675375+00:00'
+    title: About Trackyourhours
+    maturity: growing
+    routing_type: meta
+    url: https://www.trackyourhours.com/about-trackyourhours/
+  https://www.trackyourhours.com:
+    content_hash: sha256:73ac9a294a172486
+    stored_at: data/staging/webfetch-track-your-hours-feature-summary-2026-08-05_11-05-29.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:05:29.703273+00:00'
+    title: Track Your Hours - Feature Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.trackyourhours.com/
+  https://www.trackyourhours.com/faq:
+    content_hash: sha256:e0f1176aa9ec9b5c
+    stored_at: data/staging/webfetch-track-your-hours-faq-requested-information-2026-08-05_11-05-43.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:05:43.963482+00:00'
+    title: Track Your Hours FAQ - Requested Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.trackyourhours.com/faq/
+  https://mezamii.com/blog/best-digital-pilot-logbook-apps-2026:
+    content_hash: sha256:eba2e5e0a21452a1
+    stored_at: data/staging/webfetch-mezami-s-cryptographic-signature-system-2026-08-05_11-05-56.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:05:56.412471+00:00'
+    title: Mezami's Cryptographic Signature System
+    maturity: growing
+    routing_type: meta
+    url: https://mezamii.com/blog/best-digital-pilot-logbook-apps-2026
+  https://mezamii.com:
+    content_hash: sha256:c72c287b20f6e885
+    stored_at: data/staging/webfetch-mezami-product-analysis-2026-08-05_11-05-59.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:05:59.141809+00:00'
+    title: Mezami Product Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://mezamii.com/
+  https://www.ncarb.org/blog/ncarbs-top-10-faqs:
+    content_hash: sha256:62c8227f04b647f7
+    stored_at: data/staging/webfetch-ncarbs-top-10-faqs-2026-08-05_11-06-02.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:06:02.221618+00:00'
+    title: Ncarbs Top 10 Faqs
+    maturity: growing
+    routing_type: meta
+    url: https://www.ncarb.org/blog/ncarbs-top-10-faqs
+  https://www.law.cornell.edu/cfr/text/14/61.51:
+    content_hash: sha256:947ba3a69045184e
+    stored_at: data/staging/webfetch-14-cfr-61-51-pilot-logbooks-2026-08-05_11-06-03.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:06:03.222730+00:00'
+    title: 14 CFR 61.51 - Pilot Logbooks
+    maturity: growing
+    routing_type: meta
+    url: https://www.law.cornell.edu/cfr/text/14/61.51
+  https://help.ncees.org/article/70-work-experience-faqs:
+    content_hash: sha256:54dc18d95ba96e68
+    stored_at: data/staging/webfetch-self-verification-and-supervisor-verification-q-a-2026-08-05_11-06-22.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:06:22.254328+00:00'
+    title: Self-Verification and Supervisor Verification Q&A
+    maturity: growing
+    routing_type: meta
+    url: https://help.ncees.org/article/70-work-experience-faqs
+  https://mezamii.com/for-schools:
+    content_hash: sha256:8cd08100211b12c2
+    stored_at: data/staging/webfetch-mezami-available-information-2026-08-05_11-06-39.md
+    importance_score: 80
+    last_updated: '2026-08-05T11:06:39.519076+00:00'
+    title: Mezami - Available Information
+    maturity: growing
+    routing_type: meta
+    url: https://mezamii.com/for-schools
+  https://www.askacfi.com/10185/electronic-logbook-cfii-endorsements.htm:
+    content_hash: sha256:e7d330396de91bc2
+    stored_at: data/staging/webfetch-electronic-logbook-cfii-endorsements-htm-2026-08-05_11-06-45.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:06:45.105833+00:00'
+    title: Electronic Logbook Cfii Endorsements.Htm
+    maturity: growing
+    routing_type: meta
+    url: https://www.askacfi.com/10185/electronic-logbook-cfii-endorsements.htm
+  https://sheeo.org/wp-content/uploads/2025/08/pc25.bridgingworkforcegaps.pdf:
+    content_hash: sha256:ce9c64eaad8a6a7e
+    stored_at: data/staging/webfetch-pc25-bridgingworkforcegaps-pdf-2026-08-05_11-07-30.md
+    importance_score: 79
+    last_updated: '2026-08-05T11:07:30.836187+00:00'
+    title: Pc25.Bridgingworkforcegaps.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://sheeo.org/wp-content/uploads/2025/08/PC25.BridgingWorkforceGaps.pdf
+  https://github.com/spruceid/didkit-tezos-wallet-example:
+    content_hash: sha256:7335b66bfe4ba5e8
+    stored_at: data/staging/webfetch-didkit-tezos-wallet-example-analysis-2026-08-06_11-01-59.md
+    importance_score: 100
+    last_updated: '2026-08-06T11:01:59.611628+00:00'
+    title: DIDKit Tezos Wallet Example Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/spruceid/didkit-tezos-wallet-example
+  https://www.gesetze-im-internet.de/bbig_2005/__14.html:
+    content_hash: sha256:22387f8f08c13dd8
+    stored_at: data/staging/webfetch-14-bbig-berufsausbildung-verbatim-text-2026-08-06_11-02-05.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:02:05.083171+00:00'
+    title: "\xA7 14 BBiG - Berufsausbildung (Verbatim Text)"
+    maturity: growing
+    routing_type: meta
+    url: https://www.gesetze-im-internet.de/bbig_2005/__14.html
+  https://github.com/spruceid/degen-passport:
+    content_hash: sha256:1333d922ea08189a
+    stored_at: data/staging/webfetch-degen-passport-chrome-extension-analysis-2026-08-06_11-02-26.md
+    importance_score: 100
+    last_updated: '2026-08-06T11:02:26.250688+00:00'
+    title: Degen Passport Chrome Extension Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/spruceid/degen-passport
+  https://github.com/contentauth/c2pa-js/releases?page=1:
+    content_hash: sha256:6b3e53704951e03f
+    stored_at: data/staging/webfetch-c2pa-web-v0-13-2-released-on-04-aug-22-15-2026-08-06_11-02-56.md
+    importance_score: 100
+    last_updated: '2026-08-06T11:02:56.546330+00:00'
+    title: '**c2pa-web v0.13.2**: Released on "04 Aug 22:15"'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/contentauth/c2pa-js/releases?page=1
+  https://github.com/talentproof/workproof-schema:
+    content_hash: sha256:564d2e01dfb96e74
+    stored_at: data/staging/webfetch-workproof-schema-what-it-actually-is-2026-08-06_11-03-01.md
+    importance_score: 100
+    last_updated: '2026-08-06T11:03:01.206726+00:00'
+    title: 'WorkProof Schema: What It Actually Is'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/TalentProof/workproof-schema
+  https://docs.velocitynetwork.foundation:
+    content_hash: sha256:7ee4ee06df09d618
+    stored_at: data/staging/webfetch-docs-velocitynetwork-foundation-2026-08-06_11-03-07.md
+    importance_score: 87
+    last_updated: '2026-08-06T11:03:07.494204+00:00'
+    title: docs.velocitynetwork.foundation
+    maturity: growing
+    routing_type: meta
+    url: https://docs.velocitynetwork.foundation/
+  https://github.com/devyoma/digital-logbook:
+    content_hash: sha256:e9654e4db4e680f2
+    stored_at: data/staging/webfetch-digital-logbook-analysis-2026-08-06_11-03-09.md
+    importance_score: 100
+    last_updated: '2026-08-06T11:03:09.892294+00:00'
+    title: Digital Logbook Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/DevYoma/digital-logbook
+  https://github.com/vicolas11/elogbook:
+    content_hash: sha256:63885e612cfc4b40
+    stored_at: data/staging/webfetch-elogbook-overview-2026-08-06_11-03-10.md
+    importance_score: 100
+    last_updated: '2026-08-06T11:03:10.856172+00:00'
+    title: eLogbook Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Vicolas11/eLogbook
+  https://www.mboterra.nl/samenwerking/bpv-gids/begeleiding:
+    content_hash: sha256:a71a4808d21fee6f
+    stored_at: data/staging/webfetch-bpv-documentation-and-registration-systems-2026-08-06_11-03-27.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:03:27.114196+00:00'
+    title: BPV Documentation and Registration Systems
+    maturity: growing
+    routing_type: meta
+    url: https://www.mboterra.nl/samenwerking/bpv-gids/begeleiding
+  https://www.duaalleren.vlaanderen/leerling:
+    content_hash: sha256:0fe418cf7272f2d7
+    stored_at: data/staging/webfetch-analysis-of-dutch-page-content-2026-08-06_11-03-28.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:03:28.601813+00:00'
+    title: Analysis of Dutch Page Content
+    maturity: growing
+    routing_type: meta
+    url: https://www.duaalleren.vlaanderen/leerling
+  https://www.cccco.edu/-/media/cccco-website/docs/report/2026-career-passport-report-a11y.pdf:
+    content_hash: sha256:15d68a65479f8253
+    stored_at: data/staging/webfetch-2026-career-passport-report-a11y-pdf-2026-08-06_11-03-37.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:03:37.814292+00:00'
+    title: 2026 Career Passport Report A11Y.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.cccco.edu/-/media/CCCCO-Website/docs/report/2026-career-passport-report-a11y.pdf
+  https://www.xebic.com/nl/oplossingen/onstage:
+    content_hash: sha256:b8fb610904dba2bb
+    stored_at: data/staging/webfetch-original-url-https-www-xebic-com-nl-oplossingen-2026-08-06_11-03-39.md
+    importance_score: 50
+    last_updated: '2026-08-06T11:03:39.515523+00:00'
+    title: 'Original URL: https://www.xebic.com/nl/oplossingen/onstage'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.xebic.com/nl/oplossingen/onstage
+  https://www.roc-nijmegen.nl/downloads/onstage/262-handleiding-onstage-praktijkbegeleider/file:
+    content_hash: sha256:d5b096513900a5b6
+    stored_at: data/staging/webfetch-file-2026-08-06_11-03-48.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:03:48.394035+00:00'
+    title: File
+    maturity: growing
+    routing_type: meta
+    url: https://www.roc-nijmegen.nl/downloads/onstage/262-handleiding-onstage-praktijkbegeleider/file
+  https://www.ypareo.com/fonctionnalites/signature-electronique:
+    content_hash: sha256:9233871e0ee58e50
+    stored_at: data/staging/webfetch-electronic-signature-content-extraction-2026-08-06_11-03-49.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:03:50.006179+00:00'
+    title: Electronic Signature Content Extraction
+    maturity: growing
+    routing_type: meta
+    url: https://www.ypareo.com/fonctionnalites/signature-electronique
+  https://www.ypareo.com/fonctionnalites/livret-apprentissage-numerique:
+    content_hash: sha256:c0e80af28f80f3b9
+    stored_at: data/staging/webfetch-french-text-extracts-on-specified-topics-2026-08-06_11-03-51.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:03:51.299321+00:00'
+    title: French Text Extracts on Specified Topics
+    maturity: growing
+    routing_type: meta
+    url: https://www.ypareo.com/fonctionnalites/livret-apprentissage-numerique
+  https://www.plumbingzone.com/threads/hours-work-vs-hours-billed.16866:
+    content_hash: sha256:39dee3d1444efd43
+    stored_at: data/staging/webfetch-original-url-https-www-plumbingzone-com-threads-2026-08-06_11-03-53.md
+    importance_score: 50
+    last_updated: '2026-08-06T11:03:53.832568+00:00'
+    title: 'Original URL: https://www.plumbingzone.com/threads/hours-work-vs-hours-billed.16866/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.plumbingzone.com/threads/hours-work-vs-hours-billed.16866/
+  https://www.plumbingzone.com/threads/how-to-get-through-apprenticeship-fast.20265:
+    content_hash: sha256:0d7c576d853ede98
+    stored_at: data/staging/webfetch-original-url-https-www-plumbingzone-com-threads-2026-08-06_11-03-55.md
+    importance_score: 50
+    last_updated: '2026-08-06T11:03:55.063239+00:00'
+    title: 'Original URL: https://www.plumbingzone.com/threads/how-to-get-through-apprenticeship-fast.20265/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.plumbingzone.com/threads/how-to-get-through-apprenticeship-fast.20265/
+  https://learnworkecosystemlibrary.com/initiatives/career-passport-california:
+    content_hash: sha256:486022740062359f
+    stored_at: data/staging/webfetch-career-passport-california-vendor-financial-and-2026-08-06_11-03-56.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:03:56.323499+00:00'
+    title: "Career Passport\u2014California: Vendor, Financial, and Timeline Information"
+    maturity: growing
+    routing_type: meta
+    url: https://learnworkecosystemlibrary.com/initiatives/career-passport-california/
+  https://www.cslb.ca.gov/onlineservices/webapplication/interactivepdfs/certificationofworkexperience.aspx:
+    content_hash: sha256:55904c5489091f74
+    stored_at: data/staging/webfetch-certifier-contact-options-2026-08-06_11-04-00.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:00.784441+00:00'
+    title: Certifier Contact Options
+    maturity: growing
+    routing_type: meta
+    url: https://www.cslb.ca.gov/OnlineServices/WebApplication/InteractivePDFs/CertificationOfWorkExperience.aspx
+  https://www.tdlr.texas.gov/electricians/elecfaq.htm:
+    content_hash: sha256:611ad5a7825143ce
+    stored_at: data/staging/webfetch-elecfaq-htm-2026-08-06_11-04-01.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:01.812824+00:00'
+    title: Elecfaq.Htm
+    maturity: growing
+    routing_type: meta
+    url: https://www.tdlr.texas.gov/electricians/elecfaq.htm
+  https://www.konvink.ch/produkte:
+    content_hash: sha256:d7b51112102876d5
+    stored_at: data/staging/webfetch-search-results-for-lerndokumentation-and-related-2026-08-06_11-04-03.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:03.788662+00:00'
+    title: Search Results for Lerndokumentation and Related Terms
+    maturity: growing
+    routing_type: meta
+    url: https://www.konvink.ch/produkte/
+  https://www.onstagesoftware.com:
+    content_hash: sha256:cf144c75cc7b0f21
+    stored_at: data/staging/webfetch-onstage-platform-key-features-verbatim-quotes-2026-08-06_11-04-04.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:04.932196+00:00'
+    title: OnStage Platform - Key Features (Verbatim Quotes)
+    maturity: growing
+    routing_type: meta
+    url: https://www.onstagesoftware.com/
+  https://truepic.com:
+    content_hash: sha256:c56fc716b6cbae88
+    stored_at: data/staging/webfetch-truepic-products-overview-2026-08-06_11-04-06.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:06.168171+00:00'
+    title: Truepic Products Overview
+    maturity: growing
+    routing_type: meta
+    url: https://truepic.com/
+  https://spec.c2pa.org/specifications/specifications/2.1/specs/c2pa_specification.html:
+    content_hash: sha256:9c6ded7b2e3fa6d6
+    stored_at: data/staging/webfetch-c2pa-manifest-signing-technical-details-2026-08-06_11-04-07.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:07.763247+00:00'
+    title: 'C2PA Manifest Signing: Technical Details'
+    maturity: growing
+    routing_type: meta
+    url: https://spec.c2pa.org/specifications/specifications/2.1/specs/C2PA_Specification.html
+  https://ressources.cfa-ecclor.fr/wp-content/uploads/2023/06/y-sign-process-global-v06.pdf:
+    content_hash: sha256:664577aab83a5420
+    stored_at: data/staging/webfetch-y-sign-process-global-v06-pdf-2026-08-06_11-04-14.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:14.965321+00:00'
+    title: Y Sign Process Global V06.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://ressources.cfa-ecclor.fr/wp-content/uploads/2023/06/Y-Sign-process-global-V06.pdf
+  https://www.signhost.com/nl:
+    content_hash: sha256:2729ba104297e332
+    stored_at: data/staging/webfetch-original-url-https-www-signhost-com-nl-2026-08-06_11-04-20.md
+    importance_score: 50
+    last_updated: '2026-08-06T11:04:20.186202+00:00'
+    title: 'Original URL: https://www.signhost.com/nl/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.signhost.com/nl/
+  https://companycam.com:
+    content_hash: sha256:529174df64ac3ced
+    stored_at: data/staging/webfetch-companycam-com-2026-08-06_11-04-21.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:21.605376+00:00'
+    title: companycam.com
+    maturity: growing
+    routing_type: meta
+    url: https://companycam.com/
+  https://time2learn.ch/wp-content/uploads/time2learn_kv-anleitung_berufsbildner_de.pdf:
+    content_hash: sha256:f5c029a51a9da2af
+    stored_at: data/staging/webfetch-analysis-of-german-text-on-digital-signatures-and-2026-08-06_11-04-23.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:23.187222+00:00'
+    title: Analysis of German Text on Digital Signatures and Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://time2learn.ch/wp-content/uploads/time2learn_KV-Anleitung_Berufsbildner_DE.pdf
+  https://europa.eu/europass/en/europass-digital-credentials:
+    content_hash: sha256:22a8c4957e0803a0
+    stored_at: data/staging/webfetch-original-url-https-europa-eu-europass-en-europass-2026-08-06_11-04-24.md
+    importance_score: 50
+    last_updated: '2026-08-06T11:04:24.387194+00:00'
+    title: 'Original URL: https://europa.eu/europass/en/europass-digital-credentials'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://europa.eu/europass/en/europass-digital-credentials
+  https://docs.velocitynetwork.foundation/docs/developers/basics-credential-types:
+    content_hash: sha256:c76f7dd49a143190
+    stored_at: data/staging/webfetch-basics-credential-types-2026-08-06_11-04-29.md
+    importance_score: 87
+    last_updated: '2026-08-06T11:04:29.011619+00:00'
+    title: Basics Credential Types
+    maturity: growing
+    routing_type: meta
+    url: https://docs.velocitynetwork.foundation/docs/developers/basics-credential-types
+  https://www.studea.fr/livret-d-apprentissage-numerique-pourquoi-passer-au-digital:
+    content_hash: sha256:a3f6dde0e114d9cc
+    stored_at: data/staging/webfetch-analyse-du-contenu-sur-la-signature-lectronique-2026-08-06_11-04-33.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:33.674353+00:00'
+    title: "Analyse du contenu sur la signature \xE9lectronique"
+    maturity: growing
+    routing_type: meta
+    url: https://www.studea.fr/livret-d-apprentissage-numerique-pourquoi-passer-au-digital
+  https://www.imsglobal.org/spec/ob/v3p0:
+    content_hash: sha256:cf95c6e35729e1ff
+    stored_at: data/staging/webfetch-open-badges-specification-v3-0-analysis-2026-08-06_11-04-45.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:45.687206+00:00'
+    title: Open Badges Specification v3.0 Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.imsglobal.org/spec/ob/v3p0/
+  https://ausbildungsberufe.nhtm.de/blog/25-berichtsheft-unterschrift-fehlt:
+    content_hash: sha256:35e9aee6d82bb7c5
+    stored_at: data/staging/webfetch-missing-trainer-signatures-consequences-and-2026-08-06_11-04-47.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:47.115518+00:00'
+    title: 'Missing Trainer Signatures: Consequences and Solutions'
+    maturity: growing
+    routing_type: meta
+    url: https://ausbildungsberufe.nhtm.de/blog/25-berichtsheft-unterschrift-fehlt
+  https://syntraduaal.be/veelgestelde-vragen:
+    content_hash: sha256:4e8052326083689d
+    stored_at: data/staging/webfetch-veelgestelde-vragen-2026-08-06_11-04-49.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:49.582279+00:00'
+    title: Veelgestelde Vragen
+    maturity: growing
+    routing_type: meta
+    url: https://syntraduaal.be/veelgestelde-vragen/
+  ? https://europass.europa.eu/en/stakeholders/european-digital-credentials/stakeholder-information-about-european-digital-credentials
+  : content_hash: sha256:eb54df2e2007bdab
+    stored_at: data/staging/webfetch-european-digital-credentials-key-findings-2026-08-06_11-04-51.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:51.670608+00:00'
+    title: 'European Digital Credentials: Key Findings'
+    maturity: growing
+    routing_type: meta
+    url: https://europass.europa.eu/en/stakeholders/european-digital-credentials/stakeholder-information-about-european-digital-credentials
+  https://www.cscs.uk.com/checkcards/cscs-smart-check/cscs-smart-check-support-page:
+    content_hash: sha256:316d88489e8f0ed5
+    stored_at: data/staging/webfetch-cscs-smart-check-verification-method-2026-08-06_11-04-53.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:53.509070+00:00'
+    title: CSCS Smart Check Verification Method
+    maturity: growing
+    routing_type: meta
+    url: https://www.cscs.uk.com/checkcards/cscs-smart-check/cscs-smart-check-support-page/
+  https://www.galileivr.edu.it/doc/pcto/2022/vademecumpcto.pdf:
+    content_hash: sha256:944bc9c9b57fe861
+    stored_at: data/staging/webfetch-vademecumpcto-pdf-2026-08-06_11-04-55.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:04:55.108337+00:00'
+    title: Vademecumpcto.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.galileivr.edu.it/doc/PCTO/2022/VademecumPCTO.pdf
+  https://kh-dus.de/2010/03/08/prufungszulassung-fehlend-unterschriften-in-berichtsheften:
+    content_hash: sha256:e1a1f1daff83a22f
+    stored_at: data/staging/webfetch-missing-signatures-in-training-logbooks-and-exam-2026-08-06_11-05-05.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:05.430530+00:00'
+    title: Missing Signatures in Training Logbooks and Exam Admission
+    maturity: growing
+    routing_type: meta
+    url: https://kh-dus.de/2010/03/08/prufungszulassung-fehlend-unterschriften-in-berichtsheften/
+  https://www.imsglobal.org/spec/clr/v2p0:
+    content_hash: sha256:70f0e595ec071f60
+    stored_at: data/staging/webfetch-clr-2-0-analysis-proofs-signatures-and-employment-2026-08-06_11-05-07.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:07.814645+00:00'
+    title: 'CLR 2.0 Analysis: Proofs, Signatures, and Employment Coverage'
+    maturity: growing
+    routing_type: meta
+    url: https://www.imsglobal.org/spec/clr/v2p0/
+  https://uvm.dk/erhvervsuddannelser/oplaering/uddannelsesaftaler/indgaa-uddannelsesaftaler:
+    content_hash: sha256:72f2bc145049578d
+    stored_at: data/staging/webfetch-digital-signature-technology-for-educational-2026-08-06_11-05-09.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:09.225158+00:00'
+    title: Digital Signature Technology for Educational Agreements
+    maturity: growing
+    routing_type: meta
+    url: https://uvm.dk/erhvervsuddannelser/oplaering/uddannelsesaftaler/indgaa-uddannelsesaftaler
+  https://uvm.dk/media/0fgps0wf/230911vejledning-om-eud-beviser-pdf.pdf:
+    content_hash: sha256:f2e62e473ed4021a
+    stored_at: data/staging/webfetch-danish-passages-on-practical-training-attestation-2026-08-06_11-05-10.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:10.669484+00:00'
+    title: Danish Passages on Practical Training Attestation
+    maturity: growing
+    routing_type: meta
+    url: https://uvm.dk/media/0fgps0wf/230911vejledning-om-eud-beviser-pdf.pdf
+  https://web.spaggiari.eu/shop/prodotti/scuola-territorio:
+    content_hash: sha256:26ff88b62d6949c7
+    stored_at: data/staging/webfetch-progetto-scuola-territorio-product-summary-2026-08-06_11-05-12.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:12.264642+00:00'
+    title: Progetto Scuola&Territorio - Product Summary
+    maturity: growing
+    routing_type: meta
+    url: https://web.spaggiari.eu/shop/prodotti/scuola-territorio
+  https://docs.truepic.com:
+    content_hash: sha256:8a6903312d4c70cb
+    stored_at: data/staging/webfetch-original-url-https-docs-truepic-com-2026-08-06_11-05-13.md
+    importance_score: 50
+    last_updated: '2026-08-06T11:05:13.993046+00:00'
+    title: 'Original URL: https://docs.truepic.com/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://docs.truepic.com/
+  https://proofmode.org:
+    content_hash: sha256:7cbb356cafeace57
+    stored_at: data/staging/webfetch-proofmode-signing-details-2026-08-06_11-05-19.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:19.225012+00:00'
+    title: ProofMode Signing Details
+    maturity: growing
+    routing_type: meta
+    url: https://proofmode.org/
+  https://www.mlit.go.jp/tochi_fudousan_kensetsugyo/const/content/genba_flow.pdf:
+    content_hash: sha256:4e3dc554e62c209d
+    stored_at: data/staging/webfetch-genba-flow-pdf-2026-08-06_11-05-20.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:20.544914+00:00'
+    title: Genba Flow.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.mlit.go.jp/tochi_fudousan_kensetsugyo/const/content/genba_flow.pdf
+  https://competences.moncompteformation.gouv.fr/espace-public:
+    content_hash: sha256:d9d80334504a278c
+    stored_at: data/staging/webfetch-french-text-extraction-passeport-de-comp-tences-2026-08-06_11-05-22.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:22.495566+00:00'
+    title: "French Text Extraction - \"Passeport de comp\xE9tences\""
+    maturity: growing
+    routing_type: meta
+    url: https://competences.moncompteformation.gouv.fr/espace-public/
+  https://www.truepic.com/blog/verifying-reality-for-the-enterprise-market:
+    content_hash: sha256:9a8a3b63c84d0a89
+    stored_at: data/staging/webfetch-verifying-reality-for-the-enterprise-market-2026-08-06_11-05-23.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:23.947631+00:00'
+    title: Verifying Reality For The Enterprise Market
+    maturity: growing
+    routing_type: meta
+    url: https://www.truepic.com/blog/verifying-reality-for-the-enterprise-market
+  ? https://www.centre-inffo.fr/site-europe-international-formation/actualites-europe/actualites-francophonie-formation/la-caisse-des-depots-lance-son-passeport-dorientation-de-formation-et-de-competences
+  : content_hash: sha256:304601e01d66449b
+    stored_at: data/staging/webfetch-passeport-d-orientation-de-formation-et-de-comp-2026-08-06_11-05-25.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:25.912733+00:00'
+    title: "Passeport d'Orientation, de Formation et de Comp\xE9tences - Information\
+      \ Extract"
+    maturity: growing
+    routing_type: meta
+    url: https://www.centre-inffo.fr/site-europe-international-formation/actualites-europe/actualites-francophonie-formation/la-caisse-des-depots-lance-son-passeport-dorientation-de-formation-et-de-competences
+  https://www.landstedembo.nl/media/lvyn1ne4/bpv-urenregistratie-handleiding-eduarte-bedrijvenportaal.pdf:
+    content_hash: sha256:02eeb0358a1c295e
+    stored_at: data/staging/webfetch-bpv-urenregistratie-handleiding-eduarte-2026-08-06_11-05-27.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:27.797358+00:00'
+    title: Bpv Urenregistratie Handleiding Eduarte Bedrijvenportaal.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.landstedembo.nl/media/lvyn1ne4/bpv-urenregistratie-handleiding-eduarte-bedrijvenportaal.pdf
+  https://contractorslicenseguru.com/cslb-application-denials-and-the-appeals-process:
+    content_hash: sha256:491d6ca80341d25f
+    stored_at: data/staging/webfetch-cslb-application-denials-what-the-content-says-2026-08-06_11-05-29.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:29.395822+00:00'
+    title: 'CSLB Application Denials: What the Content Says'
+    maturity: growing
+    routing_type: meta
+    url: https://contractorslicenseguru.com/cslb-application-denials-and-the-appeals-process/
+  https://raw.githubusercontent.com/european-commission-empl/european-digital-credentials/master/edci-viewer/readme.md:
+    content_hash: sha256:65dc1dac48252c14
+    stored_at: data/staging/webfetch-verification-and-signature-information-from-edci-2026-08-06_11-05-39.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:39.470075+00:00'
+    title: Verification and Signature Information from EDCI Viewer Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/european-commission-empl/european-digital-credentials/master/edci-viewer/README.md
+  https://openbadgefactory.com/en/your-badges-are-now-open-badges-3-0:
+    content_hash: sha256:e99657e0d25ae18a
+    stored_at: data/staging/webfetch-open-badges-3-0-technical-details-2026-08-06_11-05-41.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:41.745247+00:00'
+    title: Open Badges 3.0 Technical Details
+    maturity: growing
+    routing_type: meta
+    url: https://openbadgefactory.com/en/your-badges-are-now-open-badges-3-0/
+  https://olkweb.no/nyheter/ny-funksjon-opplaeringsbok:
+    content_hash: sha256:6abcb8efd35d7552
+    stored_at: data/staging/webfetch-oppl-ringsbok-relevant-features-2026-08-06_11-05-42.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:42.912155+00:00'
+    title: "Oppl\xE6ringsbok - Relevant Features"
+    maturity: growing
+    routing_type: meta
+    url: https://olkweb.no/nyheter/ny-funksjon-opplaeringsbok/
+  https://www.bcdiploma.com/en/blog/ebsi-verifiable-credentials:
+    content_hash: sha256:ae60c1ce432cccdd
+    stored_at: data/staging/webfetch-fr-ebsi-project-key-information-2026-08-06_11-05-46.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:46.398960+00:00'
+    title: 'fr.EBSI Project: Key Information'
+    maturity: growing
+    routing_type: meta
+    url: https://www.bcdiploma.com/en/blog/ebsi-verifiable-credentials
+  https://truepic-website-42ef7248877ffe523886a2e.webflow.io/c2pa/capture:
+    content_hash: sha256:bba33d92d674fc7a
+    stored_at: data/staging/webfetch-c2pa-capture-signing-and-security-details-2026-08-06_11-05-54.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:54.590956+00:00'
+    title: 'C2PA Capture: Signing and Security Details'
+    maturity: growing
+    routing_type: meta
+    url: https://truepic-website-42ef7248877ffe523886a2e.webflow.io/c2pa/capture
+  https://github.com/guardianproject/proofmode:
+    content_hash: sha256:8047e2fe9c4b972e
+    stored_at: data/staging/webfetch-proofmode-android-signing-and-verification-summary-2026-08-06_11-05-56.md
+    importance_score: 100
+    last_updated: '2026-08-06T11:05:56.285178+00:00'
+    title: 'ProofMode Android: Signing and Verification Summary'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/guardianproject/proofmode
+  https://vision.truepic.dev:
+    content_hash: sha256:43d25ae5631ca423
+    stored_at: data/staging/webfetch-documentation-sections-available-2026-08-06_11-05-57.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:57.550442+00:00'
+    title: Documentation Sections Available
+    maturity: growing
+    routing_type: meta
+    url: https://vision.truepic.dev/
+  https://www.berufsbildung.ch/de/lexikon/lerndokumentation:
+    content_hash: sha256:309a509f3f6b0415
+    stored_at: data/staging/webfetch-lerndokumentation-key-information-2026-08-06_11-05-58.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:05:59.122483+00:00'
+    title: Lerndokumentation - Key Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.berufsbildung.ch/de/lexikon/lerndokumentation
+  https://www.digiforma.com/guide-signature-electronique/avancee:
+    content_hash: sha256:571fd59f85fde9e8
+    stored_at: data/staging/webfetch-extrait-sur-les-niveaux-eidas-et-la-signature-2026-08-06_11-06-01.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:01.858956+00:00'
+    title: Extrait sur les niveaux eIDAS et la signature chez Digiforma
+    maturity: growing
+    routing_type: meta
+    url: https://www.digiforma.com/guide-signature-electronique/avancee/
+  https://help.digiforma.com/fr/articles/8948033-tout-savoir-sur-la-signature-electronique-securisee-dans-digiforma:
+    content_hash: sha256:f90746b96bd7a4d4
+    stored_at: data/staging/webfetch-electronic-signature-technical-details-from-2026-08-06_11-06-03.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:03.839706+00:00'
+    title: Electronic Signature Technical Details from Digiforma
+    maturity: growing
+    routing_type: meta
+    url: https://help.digiforma.com/fr/articles/8948033-tout-savoir-sur-la-signature-electronique-securisee-dans-digiforma
+  https://help.digiforma.com/fr/articles/8944271-tutoriel-utiliser-l-emargement-securise-sur-digiforma:
+    content_hash: sha256:58ce05bf3bcf759a
+    stored_at: data/staging/webfetch-margement-s-curis-sur-digiforma-extraction-2026-08-06_11-06-05.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:05.459029+00:00'
+    title: "\xC9margement S\xE9curis\xE9 sur Digiforma - Extraction"
+    maturity: growing
+    routing_type: meta
+    url: https://help.digiforma.com/fr/articles/8944271-tutoriel-utiliser-l-emargement-securise-sur-digiforma
+  https://vision.truepic.dev/llms.txt:
+    content_hash: sha256:4778a82642f939cd
+    stored_at: data/staging/webfetch-documentation-urls-from-vision-documentation-2026-08-06_11-06-11.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:11.926141+00:00'
+    title: Documentation URLs from Vision Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://vision.truepic.dev/llms.txt
+  https://www.wko.at/lehre/lehrvertragsanmeldung-online-bundeslaender:
+    content_hash: sha256:5c2116553d9ca6e5
+    stored_at: data/staging/webfetch-lehrvertragsanmeldung-online-bundeslaender-2026-08-06_11-06-14.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:14.864007+00:00'
+    title: Lehrvertragsanmeldung Online Bundeslaender
+    maturity: growing
+    routing_type: meta
+    url: https://www.wko.at/lehre/lehrvertragsanmeldung-online-bundeslaender
+  https://www.wko.at/lehre/lehrvertrag:
+    content_hash: sha256:a04ce0e5d54cff6f
+    stored_at: data/staging/webfetch-lehrvertrag-signing-requirements-2026-08-06_11-06-18.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:18.347340+00:00'
+    title: 'Lehrvertrag: Signing Requirements'
+    maturity: growing
+    routing_type: meta
+    url: https://www.wko.at/lehre/lehrvertrag
+  https://www.zh.ch/de/bildung/berufslehre/informationen-berufslehre-betriebe/lehrvertrag-erstellen.html:
+    content_hash: sha256:34e49eed74f3d98a
+    stored_at: data/staging/webfetch-digital-vs-print-and-sign-for-lehrvertrag-in-2026-08-06_11-06-20.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:20.040222+00:00'
+    title: Digital vs. Print-and-Sign for Lehrvertrag in Lehrbetriebsportal
+    maturity: growing
+    routing_type: meta
+    url: https://www.zh.ch/de/bildung/berufslehre/informationen-berufslehre-betriebe/lehrvertrag-erstellen.html
+  https://ensuplr.fr/apprenti/presentation-du-livret-studea:
+    content_hash: sha256:91a6a9bb9421ae62
+    stored_at: data/staging/webfetch-what-it-contains-2026-08-06_11-06-22.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:22.066508+00:00'
+    title: '**What it contains:**'
+    maturity: growing
+    routing_type: meta
+    url: https://ensuplr.fr/apprenti/presentation-du-livret-studea/
+  https://bygud.dk/udvalg/lokale-uddannelsesudvalg/luu-universet/laerlingelogbogen:
+    content_hash: sha256:3bdcdfdcf92cba7d
+    stored_at: data/staging/webfetch-l-rlingelogbogen-key-features-analysis-2026-08-06_11-06-23.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:23.371730+00:00'
+    title: "L\xE6rlingelogbogen: Key Features Analysis"
+    maturity: growing
+    routing_type: meta
+    url: https://bygud.dk/udvalg/lokale-uddannelsesudvalg/luu-universet/laerlingelogbogen/
+  https://kennisplein-onstage.xebic.com/hc/nl/articles/115001152694-hoe-gebruik-ik-het-urenlogboek:
+    content_hash: sha256:8533dc762f0ccaa6
+    stored_at: data/staging/webfetch-status-301-moved-permanently-2026-08-06_11-06-25.md
+    importance_score: 50
+    last_updated: '2026-08-06T11:06:25.637403+00:00'
+    title: 'Status: 301 Moved Permanently'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://kennisplein-onstage.xebic.com/hc/nl/articles/115001152694-Hoe-gebruik-ik-het-urenlogboek
+  https://assets.vlaanderen.be/image/upload/v1625841295/wse_30_eindrapport_qrios_duaal_leren.pdf:
+    content_hash: sha256:4a4f720424c8d5ac
+    stored_at: data/staging/webfetch-digitale-applicaties-en-systemen-in-onderwijs-2026-08-06_11-06-27.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:27.067842+00:00'
+    title: Digitale Applicaties en Systemen in Onderwijs
+    maturity: growing
+    routing_type: meta
+    url: https://assets.vlaanderen.be/image/upload/v1625841295/WSE_30_Eindrapport_Qrios_duaal_leren.pdf
+  https://servicedesk.surf.nl/wiki/spaces/wiki/pages/142574713/metadatamodel+edubadges:
+    content_hash: sha256:b623652e04e54c0a
+    stored_at: data/staging/webfetch-open-badges-version-status-2026-08-06_11-06-28.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:28.795977+00:00'
+    title: Open Badges Version Status
+    maturity: growing
+    routing_type: meta
+    url: https://servicedesk.surf.nl/wiki/spaces/WIKI/pages/142574713/Metadatamodel+Edubadges
+  https://laneca.org:
+    content_hash: sha256:4d569a309bb46e29
+    stored_at: data/staging/webfetch-navigation-links-and-programs-found-2026-08-06_11-06-32.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:32.422149+00:00'
+    title: Navigation Links and Programs Found
+    maturity: growing
+    routing_type: meta
+    url: https://laneca.org/
+  https://brukerveiledning.olkweb.no/oppgave-innlevering/oppgave-innlevering:
+    content_hash: sha256:e8ba03490b74ca45
+    stored_at: data/staging/webfetch-oppgave-innlevering-2026-08-06_11-06-34.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:34.304673+00:00'
+    title: Oppgave Innlevering
+    maturity: growing
+    routing_type: meta
+    url: https://brukerveiledning.olkweb.no/oppgave-innlevering/oppgave-innlevering
+  https://wiki.eduuni.fi/spaces/ophppk/pages/502877406/omien+opintosuoritustietojen+jakaminen+oma+opintopolussa:
+    content_hash: sha256:6d7d8eb106081e1d
+    stored_at: data/staging/webfetch-suoritusjakolinkin-toiminnasta-2026-08-06_11-06-36.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:37.004698+00:00'
+    title: Suoritusjakolinkin Toiminnasta
+    maturity: growing
+    routing_type: meta
+    url: https://wiki.eduuni.fi/spaces/ophPPK/pages/502877406/Omien+opintosuoritustietojen+jakaminen+Oma+Opintopolussa
+  https://brukerveiledning.olkweb.no/vurdering/vurderingsskjema:
+    content_hash: sha256:01487125a0b334f4
+    stored_at: data/staging/webfetch-vurderingsskjema-signering-2026-08-06_11-06-38.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:38.201357+00:00'
+    title: Vurderingsskjema - Signering
+    maturity: growing
+    routing_type: meta
+    url: https://brukerveiledning.olkweb.no/vurdering/vurderingsskjema
+  https://www.mlit.go.jp/tec/content/001596260.pdf:
+    content_hash: sha256:bdf033decd822235
+    stored_at: data/staging/webfetch-001596260-pdf-2026-08-06_11-06-41.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:41.209684+00:00'
+    title: 001596260.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.mlit.go.jp/tec/content/001596260.pdf
+  https://aimaira.fr/livret-apprentissage-numerique:
+    content_hash: sha256:b5eba462d6316521
+    stored_at: data/staging/webfetch-analysis-of-french-text-on-digital-learning-record-2026-08-06_11-06-45.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:45.832694+00:00'
+    title: Analysis of French Text on Digital Learning Record
+    maturity: growing
+    routing_type: meta
+    url: https://aimaira.fr/livret-apprentissage-numerique
+  https://www.ypareo.com/blog-formation/accompagnement-apprentis-livret-electronique-lea:
+    content_hash: sha256:deffc3c27d3542f7
+    stored_at: data/staging/webfetch-extraction-sur-le-lea-livret-lectronique-de-l-2026-08-06_11-06-49.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:49.232105+00:00'
+    title: "Extraction sur le LEA (Livret \xC9lectronique de l'Apprenti)"
+    maturity: growing
+    routing_type: meta
+    url: https://www.ypareo.com/blog-formation/accompagnement-apprentis-livret-electronique-lea
+  https://raw.githubusercontent.com/european-commission-empl/european-digital-credentials/master/edci-wallet/readme.md:
+    content_hash: sha256:67c0ca83882b5d71
+    stored_at: data/staging/webfetch-signature-validation-in-edci-wallet-2026-08-06_11-06-53.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:53.478183+00:00'
+    title: Signature Validation in EDCI Wallet
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/european-commission-empl/european-digital-credentials/master/edci-wallet/README.md
+  https://ausbildex.at:
+    content_hash: sha256:52ad024fed3acb4a
+    stored_at: data/staging/webfetch-ausbildex-digital-documentation-features-2026-08-06_11-06-55.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:55.046126+00:00'
+    title: Ausbildex Digital Documentation Features
+    maturity: growing
+    routing_type: meta
+    url: https://ausbildex.at/
+  ? https://www.digitale-verwaltung-schweiz.ch/umsetzungsplan/projekte/behoerdenuebergreifende-digitale-identifikation-etablieren
+  : content_hash: sha256:6dd44300079996f9
+    stored_at: data/staging/webfetch-e-id-and-trust-infrastructure-verbatim-analysis-2026-08-06_11-06-56.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:56.645577+00:00'
+    title: 'E-ID and Trust Infrastructure: Verbatim Analysis'
+    maturity: growing
+    routing_type: meta
+    url: https://www.digitale-verwaltung-schweiz.ch/umsetzungsplan/projekte/behoerdenuebergreifende-digitale-identifikation-etablieren
+  https://mffu.dk/uddannelser/logboeger:
+    content_hash: sha256:cca61cac62b3f764
+    stored_at: data/staging/webfetch-logb-ger-format-and-features-2026-08-06_11-06-57.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:06:57.935947+00:00'
+    title: "Logb\xF8ger Format and Features"
+    maturity: growing
+    routing_type: meta
+    url: https://mffu.dk/uddannelser/logboeger/
+  https://www.nccer.org/workforce-development-programs/credentials-registry/nccer-digital-badging:
+    content_hash: sha256:c061896db53b0b49
+    stored_at: data/staging/webfetch-nccer-digital-badge-issuance-and-verification-2026-08-06_11-06-59.md
+    importance_score: 81
+    last_updated: '2026-08-06T11:06:59.767067+00:00'
+    title: NCCER Digital Badge Issuance and Verification
+    maturity: growing
+    routing_type: meta
+    url: https://www.nccer.org/workforce-development-programs/credentials-registry/nccer-digital-badging
+  https://www.kompetanseboka.no:
+    content_hash: sha256:0ecba5b8c7a54446
+    stored_at: data/staging/webfetch-kompetanseboka-produktfunksjoner-2026-08-06_11-07-03.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:03.360678+00:00'
+    title: Kompetanseboka - Produktfunksjoner
+    maturity: growing
+    routing_type: meta
+    url: https://www.kompetanseboka.no/
+  https://www.sva.ch/berufswelt/berufsbildung/lerndokumentation:
+    content_hash: sha256:7ac903572f4f9fea
+    stored_at: data/staging/webfetch-digital-lerndokumentation-tool-und-prozess-2026-08-06_11-07-15.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:15.815233+00:00'
+    title: Digital Lerndokumentation - Tool und Prozess
+    maturity: growing
+    routing_type: meta
+    url: https://www.sva.ch/berufswelt/berufsbildung/lerndokumentation
+  https://veng.it:
+    content_hash: sha256:10421add383da4ef
+    stored_at: data/staging/webfetch-veng-products-and-page-links-2026-08-06_11-07-17.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:17.352946+00:00'
+    title: Veng Products and Page Links
+    maturity: growing
+    routing_type: meta
+    url: https://veng.it/
+  ? https://www.stil.dk/administration-og-infrastruktur/systemer-til-laerepladsomraadet/udfasning-af-systemer-paa-laerepladsomraadet
+  : content_hash: sha256:fd18001d85b96c33
+    stored_at: data/staging/webfetch-systems-phased-out-and-replacements-2026-08-06_11-07-18.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:18.802836+00:00'
+    title: Systems Phased Out and Replacements
+    maturity: growing
+    routing_type: meta
+    url: https://www.stil.dk/administration-og-infrastruktur/systemer-til-laerepladsomraadet/udfasning-af-systemer-paa-laerepladsomraadet
+  https://www.oslo.kommune.no/skole-og-utdanning/opplaring-i-bedrift/larebedrift/elektronisk-kontrakt:
+    content_hash: sha256:1602fbb97e4906c8
+    stored_at: data/staging/webfetch-what-is-signed-2026-08-06_11-07-20.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:20.221802+00:00'
+    title: '**What is signed:**'
+    maturity: growing
+    routing_type: meta
+    url: https://www.oslo.kommune.no/skole-og-utdanning/opplaring-i-bedrift/larebedrift/elektronisk-kontrakt/
+  https://www.tromsfylke.no/tjenester/skole-og-opplaring/opplaring-i-bedrift/for-bedrifter/larekontrakt-og-digital-signatur:
+    content_hash: sha256:294f017af7c2c3dd
+    stored_at: data/staging/webfetch-l-rekontrakt-og-digital-signatur-oppsummering-2026-08-06_11-07-22.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:22.999673+00:00'
+    title: "L\xE6rekontrakt og digital signatur - Oppsummering"
+    maturity: growing
+    routing_type: meta
+    url: https://www.tromsfylke.no/tjenester/skole-og-opplaring/opplaring-i-bedrift/for-bedrifter/larekontrakt-og-digital-signatur/
+  https://docs.credentials.certdirectory.io/verification/open-badges:
+    content_hash: sha256:6d05625b2eb30d67
+    stored_at: data/staging/webfetch-open-badges-3-0-verification-technical-details-2026-08-06_11-07-24.md
+    importance_score: 87
+    last_updated: '2026-08-06T11:07:24.391642+00:00'
+    title: Open Badges 3.0 Verification Technical Details
+    maturity: growing
+    routing_type: meta
+    url: https://docs.credentials.certdirectory.io/verification/open-badges/
+  https://europass.europa.eu/en/stakeholders/european-digital-credentials/using-european-digital-credentials-learning:
+    content_hash: sha256:a4a2699d5dd859de
+    stored_at: data/staging/webfetch-european-digital-credentials-verification-and-2026-08-06_11-07-27.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:27.913016+00:00'
+    title: European Digital Credentials Verification and Trust Framework
+    maturity: growing
+    routing_type: meta
+    url: https://europass.europa.eu/en/stakeholders/european-digital-credentials/using-european-digital-credentials-learning
+  https://code.travail.gouv.fr/code-du-travail/r6223-10:
+    content_hash: sha256:b9826e3e540d3473
+    stored_at: data/staging/webfetch-full-french-text-of-article-r6223-10-2026-08-06_11-07-29.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:29.352091+00:00'
+    title: '**Full French text of Article R6223-10:**'
+    maturity: growing
+    routing_type: meta
+    url: https://code.travail.gouv.fr/code-du-travail/r6223-10
+  https://medialibrary.uantwerpen.be/files/100039/bb22fc57-dfe0-4237-b9b2-4c3c64a5c9e6.pdf:
+    content_hash: sha256:e75417556acf3c32
+    stored_at: data/staging/webfetch-could-you-please-provide-a-readable-version-of-2026-08-06_11-07-34.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:34.346952+00:00'
+    title: Could you please provide a readable version of the source material?
+    maturity: growing
+    routing_type: meta
+    url: https://medialibrary.uantwerpen.be/files/100039/bb22fc57-dfe0-4237-b9b2-4c3c64a5c9e6.pdf
+  https://veng.it/digital-logbog:
+    content_hash: sha256:3ee4206c501b5095
+    stored_at: data/staging/webfetch-analysis-of-den-digitale-logbog-content-2026-08-06_11-07-37.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:37.593909+00:00'
+    title: Analysis of "Den Digitale Logbog" Content
+    maturity: growing
+    routing_type: meta
+    url: https://veng.it/digital-logbog/
+  https://apps.apple.com/dk/app/logbog-nu/id1614221286:
+    content_hash: sha256:942bc3dd0e1862ab
+    stored_at: data/staging/webfetch-logbog-nu-app-analysis-2026-08-06_11-07-39.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:39.097068+00:00'
+    title: Logbog.nu App - Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/dk/app/logbog-nu/id1614221286
+  https://djhhadsten.dk/wp-content/uploads/2025/11/oplaeringserklaering-guide-for-h1.pdf:
+    content_hash: sha256:ac2eb79611fe3c5e
+    stored_at: data/staging/webfetch-oplaeringserklaering-guide-for-h1-pdf-2026-08-06_11-07-41.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:41.746861+00:00'
+    title: Oplaeringserklaering Guide For H1.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://djhhadsten.dk/wp-content/uploads/2025/11/Oplaeringserklaering-guide-for-H1.pdf
+  https://sus-udd.dk/frisoer/virksomhed/erklaering-om-oplaering:
+    content_hash: sha256:09269d760ec0f1a5
+    stored_at: data/staging/webfetch-erkl-ring-om-opl-ring-key-information-2026-08-06_11-07-43.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:43.476341+00:00'
+    title: "Erkl\xE6ring om Opl\xE6ring \u2013 Key Information"
+    maturity: growing
+    routing_type: meta
+    url: https://sus-udd.dk/frisoer/virksomhed/erklaering-om-oplaering/
+  https://eur-lex.europa.eu/legal-content/en/txt/html/?uri=celex:32024r1183:
+    content_hash: sha256:fcb04842835526df
+    stored_at: data/staging/webfetch-html-2026-08-06_11-07-47.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:47.152224+00:00'
+    title: Html
+    maturity: growing
+    routing_type: meta
+    url: https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32024R1183
+  https://raw.githubusercontent.com/european-commission-empl/european-learning-model/master/readme.md:
+    content_hash: sha256:2d939a0eb7127b05
+    stored_at: data/staging/webfetch-elm-coverage-and-work-related-content-2026-08-06_11-07-48.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:48.765185+00:00'
+    title: ELM Coverage and Work-Related Content
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/european-commission-empl/European-Learning-Model/master/README.md
+  https://openbadgepassport.com/faq_fi:
+    content_hash: sha256:62e91bddc92c6211
+    stored_at: data/staging/webfetch-badge-verification-information-2026-08-06_11-07-50.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:07:50.665974+00:00'
+    title: Badge Verification Information
+    maturity: growing
+    routing_type: meta
+    url: https://openbadgepassport.com/faq_fi/
+  https://campus-skills.com/blog/le-livret-electronique-dapprentissage-de-campus-skills:
+    content_hash: sha256:c2a296a487f30d19
+    stored_at: data/staging/webfetch-original-url-https-campus-skills-com-blog-le-2026-08-06_11-07-57.md
+    importance_score: 50
+    last_updated: '2026-08-06T11:07:57.191008+00:00'
+    title: 'Original URL: https://campus-skills.com/blog/le-livret-electronique-dapprentissage-de-campus-skills/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://campus-skills.com/blog/le-livret-electronique-dapprentissage-de-campus-skills/
+  https://www.cscs.uk.com/blog/cscs-smart-check-api-construction-site-access-systems:
+    content_hash: sha256:87fdce1407f17fd9
+    stored_at: data/staging/webfetch-cscs-smart-check-api-verification-method-2026-08-06_11-08-06.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:08:06.467248+00:00'
+    title: CSCS Smart Check API Verification Method
+    maturity: growing
+    routing_type: meta
+    url: https://www.cscs.uk.com/blog/cscs-smart-check-api-construction-site-access-systems/
+  https://novari.no/utdanning/vigo/vigo-app-fagopplaring:
+    content_hash: sha256:a42845e64259eaee
+    stored_at: data/staging/webfetch-contracts-and-training-information-2026-08-06_11-08-09.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:08:09.542703+00:00'
+    title: '**Contracts and training information:**'
+    maturity: growing
+    routing_type: meta
+    url: https://novari.no/utdanning/vigo/vigo-app-fagopplaring/
+  https://vision.truepic.dev/docs/verification-tests.md:
+    content_hash: sha256:13461aa85ce27b11
+    stored_at: data/staging/webfetch-authenticity-tests-list-2026-08-06_11-08-32.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:08:32.828318+00:00'
+    title: Authenticity Tests List
+    maturity: growing
+    routing_type: meta
+    url: https://vision.truepic.dev/docs/verification-tests.md
+  https://mboutrecht.nl/wp-content/uploads/2025/05/instructie-digitaal-ondertekenen-student-definitief.pdf:
+    content_hash: sha256:74aa101e3aadbc3a
+    stored_at: data/staging/webfetch-what-i-can-offer-instead-2026-08-06_11-08-34.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:08:34.206890+00:00'
+    title: '**What I can offer instead:**'
+    maturity: growing
+    routing_type: meta
+    url: https://mboutrecht.nl/wp-content/uploads/2025/05/Instructie-digitaal-ondertekenen-student-Definitief.pdf
+  https://mboutrecht.nl/wp-content/uploads/2025/04/instructie-digitaal-ondertekenen-leerbedrijf-definitief.pdf:
+    content_hash: sha256:e80e1f0e5f19efcb
+    stored_at: data/staging/webfetch-instructie-digitaal-ondertekenen-leerbedrijf-2026-08-06_11-08-35.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:08:35.805657+00:00'
+    title: Instructie Digitaal Ondertekenen Leerbedrijf Definitief.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://mboutrecht.nl/wp-content/uploads/2025/04/Instructie-Digitaal-ondertekenen-leerbedrijf-definitief.pdf
+  https://opensource.contentauthenticity.org/docs/getting-started/faqs:
+    content_hash: sha256:e78fe5346461251f
+    stored_at: data/staging/webfetch-c2pa-manifest-and-validation-information-2026-08-06_11-08-37.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:08:37.558409+00:00'
+    title: C2PA Manifest and Validation Information
+    maturity: growing
+    routing_type: meta
+    url: https://opensource.contentauthenticity.org/docs/getting-started/faqs/
+  https://koski.opintopolku.fi/koski/dokumentaatio:
+    content_hash: sha256:1b2a1259b64db382
+    stored_at: data/staging/webfetch-dokumentaatio-2026-08-06_11-08-50.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:08:50.135161+00:00'
+    title: Dokumentaatio
+    maturity: growing
+    routing_type: meta
+    url: https://koski.opintopolku.fi/koski/dokumentaatio
+  https://www.truepic.com/vision/construction-lending:
+    content_hash: sha256:e2e9601bc8ecce13
+    stored_at: data/staging/webfetch-photo-verification-claims-analysis-2026-08-06_11-08-55.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:08:55.415064+00:00'
+    title: Photo Verification Claims Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.truepic.com/vision/construction-lending
+  https://truepic-website-42ef7248877ffe523886a2e.webflow.io/c2pa/enterprise-c2pa:
+    content_hash: sha256:6ef0024a824b0e9e
+    stored_at: data/staging/webfetch-response-based-on-enterprise-c2pa-page-content-2026-08-06_11-08-58.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:08:58.709352+00:00'
+    title: Response Based on Enterprise C2PA Page Content
+    maturity: growing
+    routing_type: meta
+    url: https://truepic-website-42ef7248877ffe523886a2e.webflow.io/c2pa/enterprise-c2pa
+  https://leica-camera.com/en-us/photography/content-credentials:
+    content_hash: sha256:1d849242669188f1
+    stored_at: data/staging/webfetch-content-credentials-2026-08-06_11-09-00.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:00.087470+00:00'
+    title: Content Credentials
+    maturity: growing
+    routing_type: meta
+    url: https://leica-camera.com/en-US/photography/content-credentials
+  https://raw.githubusercontent.com/opetushallitus/ehoks/master/doc/tyopaikkajaksojen-kestojen-laskenta.md:
+    content_hash: sha256:512de0cdeae2cdd4
+    stored_at: data/staging/webfetch-ty-paikkajaksojen-kestonlaskenta-2026-08-06_11-09-09.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:09.182564+00:00'
+    title: "Ty\xF6paikkajaksojen kestonlaskenta"
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/Opetushallitus/ehoks/master/doc/tyopaikkajaksojen-kestojen-laskenta.md
+  https://www.cals.jacic.or.jp/cim/sharing/index_digital.html:
+    content_hash: sha256:fe046ab42a36378f
+    stored_at: data/staging/webfetch-untitled-2026-08-06_11-09-10.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:10.829328+00:00'
+    title: "\u30C7\u30B8\u30BF\u30EB\u5C0F\u9ED2\u677F\u306B\u3064\u3044\u3066"
+    maturity: growing
+    routing_type: meta
+    url: https://www.cals.jacic.or.jp/CIM/sharing/index_digital.html
+  https://contentauthenticity.org/blog/content-credentials-arrives-in-the-leica-sl3-s-camera:
+    content_hash: sha256:92ac9af98808a200
+    stored_at: data/staging/webfetch-content-credentials-implementation-in-leica-2026-08-06_11-09-18.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:18.328523+00:00'
+    title: Content Credentials Implementation in Leica Cameras
+    maturity: growing
+    routing_type: meta
+    url: https://contentauthenticity.org/blog/content-credentials-arrives-in-the-leica-sl3-s-camera
+  https://www.bundesdruckerei.de/en/innovation-hub/content-credentials-protection-against-image-manipulation-age-ai:
+    content_hash: sha256:35079fbb071cc904
+    stored_at: data/staging/webfetch-content-credentials-pki-for-leica-m11-p-2026-08-06_11-09-20.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:20.268865+00:00'
+    title: Content Credentials PKI for Leica M11-P
+    maturity: growing
+    routing_type: meta
+    url: https://www.bundesdruckerei.de/en/innovation-hub/content-credentials-protection-against-image-manipulation-age-ai
+  https://spec.c2pa.org/specifications/specifications/2.4/specs/c2pa_specification.html:
+    content_hash: sha256:019aea2c07d4563e
+    stored_at: data/staging/webfetch-c2pa-signature-and-validation-requirements-2026-08-06_11-09-24.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:24.677026+00:00'
+    title: C2PA Signature and Validation Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html
+  https://europass.europa.eu/en/europass-mobility:
+    content_hash: sha256:15b2a2c6a8f3e660
+    stored_at: data/staging/webfetch-europass-mobility-and-work-experience-2026-08-06_11-09-28.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:28.637864+00:00'
+    title: Europass Mobility and Work Experience
+    maturity: growing
+    routing_type: meta
+    url: https://europass.europa.eu/en/europass-mobility
+  https://www.vis-systems.com/sub-solutions/cscs-smart-check:
+    content_hash: sha256:0b57e5dbb79379c1
+    stored_at: data/staging/webfetch-cscs-smart-check-technical-integration-2026-08-06_11-09-31.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:31.033606+00:00'
+    title: CSCS Smart Check Technical Integration
+    maturity: growing
+    routing_type: meta
+    url: https://www.vis-systems.com/sub-solutions/cscs-smart-check
+  https://www.signhost.com/nl/glossary/wat-is-een-gekwalificeerde-elektronische-handtekening-qes:
+    content_hash: sha256:3470f48586908744
+    stored_at: data/staging/webfetch-redirect-url-https-www-entrust-com-nl-products-2026-08-06_11-09-37.md
+    importance_score: 50
+    last_updated: '2026-08-06T11:09:37.732606+00:00'
+    title: 'Redirect URL: https://www.entrust.com/nl/products/electronic-digital-signing/signhost'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.signhost.com/nl/glossary/wat-is-een-gekwalificeerde-elektronische-handtekening-qes
+  https://www.rakenapp.com:
+    content_hash: sha256:9b97253f8a87a5cd
+    stored_at: data/staging/webfetch-www-rakenapp-com-2026-08-06_11-09-39.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:39.546337+00:00'
+    title: www.rakenapp.com
+    maturity: growing
+    routing_type: meta
+    url: https://www.rakenapp.com/
+  https://www.quickstage.be:
+    content_hash: sha256:98c232da68a21510
+    stored_at: data/staging/webfetch-quickstage-feature-analysis-2026-08-06_11-09-43.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:43.701414+00:00'
+    title: Quickstage Feature Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.quickstage.be/
+  https://www.city.kobe.lg.jp/documents/10846/shokokubanr0507.pdf:
+    content_hash: sha256:1d26417a531c571c
+    stored_at: data/staging/webfetch-shokokubanr0507-pdf-2026-08-06_11-09-45.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:45.671782+00:00'
+    title: Shokokubanr0507.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.city.kobe.lg.jp/documents/10846/shokokubanr0507.pdf
+  https://duaal.topuntgent.be/c/index.php?groepid=1&n1=2&n2=153:
+    content_hash: sha256:de02de66bca3bfbb
+    stored_at: data/staging/webfetch-duaal-leren-vereiste-documenten-2026-08-06_11-09-47.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:09:47.212600+00:00'
+    title: 'Duaal Leren: Vereiste Documenten'
+    maturity: growing
+    routing_type: meta
+    url: https://duaal.topuntgent.be/c/index.php?groepid=1&n1=2&n2=153
+  https://www.sony.net/cas:
+    content_hash: sha256:825ad9a64a21e7f1
+    stored_at: data/staging/webfetch-original-url-https-www-sony-net-cas-2026-08-06_11-09-56.md
+    importance_score: 50
+    last_updated: '2026-08-06T11:09:56.648456+00:00'
+    title: 'Original URL: https://www.sony.net/cas/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.sony.net/cas/
+  https://www.nikonusa.com/content/nikon-authenticity-service:
+    content_hash: sha256:c8a1966ca0f639d5
+    stored_at: data/staging/webfetch-nikon-authenticity-service-key-details-2026-08-06_11-10-00.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:00.353672+00:00'
+    title: Nikon Authenticity Service - Key Details
+    maturity: growing
+    routing_type: meta
+    url: https://www.nikonusa.com/content/nikon-authenticity-service
+  https://credentialengine.org/2025/04/15/reimagining-learning-the-achievement-wallet-story:
+    content_hash: sha256:4d6cb75fe4032f50
+    stored_at: data/staging/webfetch-achievement-wallet-information-request-2026-08-06_11-10-01.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:01.735736+00:00'
+    title: Achievement Wallet Information Request
+    maturity: growing
+    routing_type: meta
+    url: https://credentialengine.org/2025/04/15/reimagining-learning-the-achievement-wallet-story/
+  https://eur-lex.europa.eu/legal-content/de/txt/html/?uri=celex:32014r0910:
+    content_hash: sha256:a86b841e5c9ce2d1
+    stored_at: data/staging/webfetch-html-2026-08-06_11-10-03.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:03.275810+00:00'
+    title: Html
+    maturity: growing
+    routing_type: meta
+    url: https://eur-lex.europa.eu/legal-content/DE/TXT/HTML/?uri=CELEX:32014R0910
+  https://dvv.fi/en/validate-document:
+    content_hash: sha256:54b814ced2f6c765
+    stored_at: data/staging/webfetch-dvv-document-validation-service-2026-08-06_11-10-10.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:10.826058+00:00'
+    title: DVV Document Validation Service
+    maturity: growing
+    routing_type: meta
+    url: https://dvv.fi/en/validate-document
+  https://authenticity.sony.net/camera:
+    content_hash: sha256:8ae9a9782de2e303
+    stored_at: data/staging/webfetch-camera-2026-08-06_11-10-12.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:12.545551+00:00'
+    title: Camera
+    maturity: growing
+    routing_type: meta
+    url: https://authenticity.sony.net/camera/
+  https://www.truelook.com:
+    content_hash: sha256:4b2fb56c55f57b62
+    stored_at: data/staging/webfetch-www-truelook-com-2026-08-06_11-10-14.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:14.312402+00:00'
+    title: www.truelook.com
+    maturity: growing
+    routing_type: meta
+    url: https://www.truelook.com/
+  https://www.hover.to:
+    content_hash: sha256:b05ec898936f4336
+    stored_at: data/staging/webfetch-hover-s-authentication-and-verification-claims-2026-08-06_11-10-16.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:16.064571+00:00'
+    title: Hover's Authentication and Verification Claims
+    maturity: growing
+    routing_type: meta
+    url: https://www.hover.to/
+  https://note.com/stii_timestamp/n/n9f064af6024d:
+    content_hash: sha256:5a79ebccb71af5ca
+    stored_at: data/staging/webfetch-stii-2026-08-06_11-10-17.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:18.005155+00:00'
+    title: "stii \u30BF\u30A4\u30E0\u30B9\u30BF\u30F3\u30D7\u30E1\u30FC\u30EB\u30B5\
+      \u30FC\u30D3\u30B9\u306E\u6A5F\u80FD"
+    maturity: growing
+    routing_type: meta
+    url: https://note.com/stii_timestamp/n/n9f064af6024d
+  https://mbodigitaal.nl/wp-content/uploads/2020/11/stimuleringsregeling-edubadges-1.pdf:
+    content_hash: sha256:74f10f8c157708df
+    stored_at: data/staging/webfetch-stimuleringsregeling-edubadges-1-pdf-2026-08-06_11-10-27.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:27.876830+00:00'
+    title: Stimuleringsregeling Edubadges 1.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://mbodigitaal.nl/wp-content/uploads/2020/11/Stimuleringsregeling-Edubadges-1.pdf
+  https://www.daitec.jp/catalog/genba/genbatf_03.html:
+    content_hash: sha256:96634fa25943bf19
+    stored_at: data/staging/webfetch-authenticity-verification-analysis-2026-08-06_11-10-30.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:30.119671+00:00'
+    title: "\u4FE1\u6191\u6027\u78BA\u8A8D (Authenticity Verification) Analysis"
+    maturity: growing
+    routing_type: meta
+    url: https://www.daitec.jp/catalog/genba/genbatf_03.html
+  https://www.kuraemon.com/jcomsia/certificates:
+    content_hash: sha256:d50e85dc4115b485
+    stored_at: data/staging/webfetch-untitled-2026-08-06_11-10-31.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:31.860685+00:00'
+    title: "\u975E\u6539\u3056\u3093\u8A3C\u660E\u66F8\u306B\u3064\u3044\u3066"
+    maturity: growing
+    routing_type: meta
+    url: https://www.kuraemon.com/jcomsia/certificates/
+  https://openbadgefactory.com/en:
+    content_hash: sha256:f72e1b169249f4c0
+    stored_at: data/staging/webfetch-technical-verification-statements-2026-08-06_11-10-34.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:34.284458+00:00'
+    title: Technical Verification Statements
+    maturity: growing
+    routing_type: meta
+    url: https://openbadgefactory.com/en/
+  https://opensource.contentauthenticity.org/docs/verify-known-cert-list:
+    content_hash: sha256:3139fa9eeaddde2f
+    stored_at: data/staging/webfetch-verify-known-cert-list-2026-08-06_11-10-46.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:46.071044+00:00'
+    title: Verify Known Cert List
+    maturity: growing
+    routing_type: meta
+    url: https://opensource.contentauthenticity.org/docs/verify-known-cert-list/
+  https://buildertrend.com:
+    content_hash: sha256:0f6b386cc88b5e63
+    stored_at: data/staging/webfetch-buildertrend-com-2026-08-06_11-10-51.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:51.171493+00:00'
+    title: buildertrend.com
+    maturity: growing
+    routing_type: meta
+    url: https://buildertrend.com/
+  https://www.eyewitness.global/using-metadata:
+    content_hash: sha256:b3b826269c3e5f93
+    stored_at: data/staging/webfetch-eyewitness-hashing-and-cryptography-2026-08-06_11-10-52.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:52.678219+00:00'
+    title: eyeWitness Hashing and Cryptography
+    maturity: growing
+    routing_type: meta
+    url: https://www.eyewitness.global/Using-metadata
+  https://europass.europa.eu/it/europass-digital-credentials:
+    content_hash: sha256:5393e84440433e48
+    stored_at: data/staging/webfetch-analysis-of-europass-digital-credentials-page-2026-08-06_11-10-58.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:10:58.888425+00:00'
+    title: Analysis of Europass Digital Credentials Page
+    maturity: growing
+    routing_type: meta
+    url: https://europass.europa.eu/it/europass-digital-credentials
+  https://europass.europa.eu/en/how-issue-european-digital-credentials-learning:
+    content_hash: sha256:a55835ce401de23c
+    stored_at: data/staging/webfetch-electronic-seal-requirements-for-edc-issuance-2026-08-06_11-11-13.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:11:13.270084+00:00'
+    title: Electronic Seal Requirements for EDC Issuance
+    maturity: growing
+    routing_type: meta
+    url: https://europass.europa.eu/en/how-issue-european-digital-credentials-learning
+  https://brukerveiledning.olkweb.no/administrering/innstilling-i-olkweb:
+    content_hash: sha256:d2d7c6c25220c174
+    stored_at: data/staging/webfetch-relevante-innstillinger-fra-dokumentasjonen-2026-08-06_11-11-38.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:11:38.103567+00:00'
+    title: Relevante innstillinger fra dokumentasjonen
+    maturity: growing
+    routing_type: meta
+    url: https://brukerveiledning.olkweb.no/administrering/innstilling-i-olkweb
+  https://navi.educa.ch/anwendung/konvink:
+    content_hash: sha256:86d4e10ef013e9c6
+    stored_at: data/staging/webfetch-konvink-overview-2026-08-06_11-12-19.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:12:19.463178+00:00'
+    title: Konvink Overview
+    maturity: growing
+    routing_type: meta
+    url: https://navi.educa.ch/anwendung/konvink
+  https://www.berufsbildung.ch/de/lexikon/kompetenznachweis:
+    content_hash: sha256:5e1ba72f81a013a6
+    stored_at: data/staging/webfetch-kompetenznachweis-definition-2026-08-06_11-12-21.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:12:21.994301+00:00'
+    title: Kompetenznachweis Definition
+    maturity: growing
+    routing_type: meta
+    url: https://www.berufsbildung.ch/de/lexikon/kompetenznachweis
+  https://www.apprenticeship.gov/help/what-will-i-receive-after-i-complete-registered-apprenticeship-program:
+    content_hash: sha256:eb16a5e59e8f2b49
+    stored_at: data/staging/webfetch-what-apprentices-receive-upon-completion-2026-08-06_11-12-35.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:12:35.820077+00:00'
+    title: What Apprentices Receive Upon Completion
+    maturity: growing
+    routing_type: meta
+    url: https://www.apprenticeship.gov/help/what-will-i-receive-after-i-complete-registered-apprenticeship-program
+  ? https://lite.duckduckgo.com/lite/?q=%e6%8a%80%e8%83%bd%e5%ae%9f%e7%bf%92%e6%97%a5%e8%aa%8c+%e5%b8%b3%e7%b0%bf%e6%9b%b8%e9%a1%9e+%e6%8a%80%e8%83%bd%e5%ae%9f%e7%bf%92%e6%8c%87%e5%b0%8e%e5%93%a1+%e8%a8%98%e9%8c%b2
+  : content_hash: sha256:42291b4f1e957ef4
+    stored_at: data/staging/webfetch-search-results-technical-intern-training-logbooks-2026-08-06_11-12-41.md
+    importance_score: 80
+    last_updated: '2026-08-06T11:12:41.428246+00:00'
+    title: 'Search Results: Technical Intern Training Logbooks'
+    maturity: growing
+    routing_type: meta
+    url: https://lite.duckduckgo.com/lite/?q=%E6%8A%80%E8%83%BD%E5%AE%9F%E7%BF%92%E6%97%A5%E8%AA%8C+%E5%B8%B3%E7%B0%BF%E6%9B%B8%E9%A1%9E+%E6%8A%80%E8%83%BD%E5%AE%9F%E7%BF%92%E6%8C%87%E5%B0%8E%E5%93%A1+%E8%A8%98%E9%8C%B2
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -9327,3 +11115,200 @@ hashes:
   sha256:b04b4bc61467c54f: data/staging/webfetch-oilfield-consulting-firm-take-rates-key-figures-2026-08-03_11-07-34.md
   sha256:17b07b4b56cf72cd: data/staging/webfetch-workrise-financial-business-overview-2026-08-03_11-07-36.md
   sha256:df0898211ce32be0: data/staging/webfetch-branchless-rust-filter-optimization-technical-2026-08-03_11-44-18.md
+  sha256:be7340eced481693: data/staging/webfetch-search-2026-08-04_11-03-40.md
+  sha256:ddaf0a37c0fb5724: data/staging/webfetch-workhands-apprenticeship-limited-data-available-2026-08-04_11-04-01.md
+  sha256:e2af2aa6ec1e2ce2: data/staging/webfetch-elc017-20electrician-20experience-20verification-2026-08-04_11-04-06.md
+  sha256:4e901dd8268282cd: data/staging/webfetch-apprentice-responses-on-employer-hour-sign-off-2026-08-04_11-04-25.md
+  sha256:1d69b4791aa93481: data/staging/webfetch-6-disqualifiers-for-apprentice-hours-under-ira-2026-08-04_11-04-26.md
+  sha256:f23701e70967e6f5: data/staging/webfetch-papers-on-content-provenance-and-evidentiary-2026-08-04_11-04-35.md
+  sha256:7800fdc17c7710e4: data/staging/webfetch-unable-to-extract-video-content-2026-08-04_11-05-02.md
+  sha256:55327894bcddae78: data/staging/webfetch-abstract-2026-08-04_11-05-05.md
+  sha256:3758e65cc323fc9c: data/staging/webfetch-hour-verification-issues-in-florida-electrician-2026-08-04_11-05-21.md
+  sha256:84b1d8c2df4033d9: data/staging/webfetch-user-reviews-and-feedback-analysis-2026-08-04_11-05-59.md
+  sha256:9b93cce22a97eaf1: data/staging/webfetch-hour-verification-and-documentation-pain-points-2026-08-04_11-06-31.md
+  sha256:c36e7363b803a370: data/staging/webfetch-apprenticeship-time-log-practitioner-tips-common-2026-08-04_11-06-32.md
+  sha256:9f8b4d4187d4ba35: data/staging/webfetch-c2pa-web-changelog-summary-2026-08-04_11-06-43.md
+  sha256:c2fa68a8ea3bc117: data/staging/webfetch-learncard-project-analysis-2026-08-04_11-06-45.md
+  sha256:32c28b446d56b4e2: data/staging/webfetch-dock-sdk-project-status-2026-08-04_11-07-26.md
+  sha256:16fb1107ac032f7a: data/staging/webfetch-package-json-2026-08-04_11-07-46.md
+  sha256:0cdfd5d22f7c58c6: data/staging/webfetch-package-json-2026-08-04_11-07-49.md
+  sha256:56a980852487c2d2: data/staging/webfetch-c2pa-web-project-overview-2026-08-04_11-08-29.md
+  sha256:5e91dd389f22fc40: data/staging/webfetch-california-career-passport-initiative-summary-2026-08-05_11-03-03.md
+  sha256:289260ec7e3449e2: data/staging/webfetch-workify-staffing-and-builderfax-announce-2026-08-05_11-03-04.md
+  sha256:fead83ebcca487cb: data/staging/webfetch-lumber-acquires-builderfax-press-release-summary-2026-08-05_11-03-05.md
+  sha256:4d079146cdcaa776: data/staging/webfetch-california-career-passport-pilot-launch-2026-08-05_11-03-19.md
+  sha256:81d9c6dab37fd494: data/staging/webfetch-california-career-passport-pilot-key-details-2026-08-05_11-03-22.md
+  sha256:aa48eaf0aef74f1b: data/staging/webfetch-141049-2026-08-05_11-03-33.md
+  sha256:97bfca8fddd594b2: data/staging/webfetch-certree-com-2026-08-05_11-03-35.md
+  sha256:670848e408026b89: data/staging/webfetch-foreflight-logbook-endorsements-technical-details-2026-08-05_11-03-45.md
+  sha256:ca8683318ad4c0da: data/staging/webfetch-digital-signatures-in-myflightbook-pilot-logbook-2026-08-05_11-03-47.md
+  sha256:20094f07951a04bb: data/staging/webfetch-azubiheft-app-analysis-2026-08-05_11-03-48.md
+  sha256:b33b1e54768f9938: data/staging/webfetch-forum-discussion-former-employer-won-t-sign-off-2026-08-05_11-04-03.md
+  sha256:fd309fe5d5a12c69: data/staging/webfetch-digital-berichtsheft-product-claims-2026-08-05_11-04-24.md
+  sha256:9a861c428e615903: data/staging/webfetch-asw-faq-pdf-2026-08-05_11-04-34.md
+  sha256:56376e4df3cab6c5: data/staging/webfetch-time-limits-and-supervisor-verification-2026-08-05_11-04-35.md
+  sha256:29913958100a2816: data/staging/webfetch-apprent-app-analysis-2026-08-05_11-04-50.md
+  sha256:dc045a1b0e82e138: data/staging/webfetch-apprent-app-store-description-analysis-2026-08-05_11-04-51.md
+  sha256:b4e32f0b007a625a: data/staging/webfetch-axp-guide-booklet-pdf-2026-08-05_11-04-55.md
+  sha256:7caed77d2af9cae5: data/staging/webfetch-redirect-url-https-unblock-federalregister-gov-2026-08-05_11-05-05.md
+  sha256:cc48882a07298b30: data/staging/webfetch-cal-code-regs-tit-16-1833-1-requirements-for-2026-08-05_11-05-09.md
+  sha256:340d4cd1e7f42524: data/staging/webfetch-shiftflow-product-claims-in-the-article-2026-08-05_11-05-12.md
+  sha256:6d90001ad201c96e: data/staging/webfetch-bud-platform-evidence-binding-hour-tracking-2026-08-05_11-05-17.md
+  sha256:fa06f44fe62731a5: data/staging/webfetch-original-url-https-www-electriciantalk-com-2026-08-05_11-05-24.md
+  sha256:47aefd4bdfefc153: data/staging/webfetch-cal-code-regs-tit-16-1815-8-2026-08-05_11-05-25.md
+  sha256:da12ba35a0885034: data/staging/webfetch-about-trackyourhours-2026-08-05_11-05-28.md
+  sha256:73ac9a294a172486: data/staging/webfetch-track-your-hours-feature-summary-2026-08-05_11-05-29.md
+  sha256:e0f1176aa9ec9b5c: data/staging/webfetch-track-your-hours-faq-requested-information-2026-08-05_11-05-43.md
+  sha256:eba2e5e0a21452a1: data/staging/webfetch-mezami-s-cryptographic-signature-system-2026-08-05_11-05-56.md
+  sha256:c72c287b20f6e885: data/staging/webfetch-mezami-product-analysis-2026-08-05_11-05-59.md
+  sha256:62c8227f04b647f7: data/staging/webfetch-ncarbs-top-10-faqs-2026-08-05_11-06-02.md
+  sha256:947ba3a69045184e: data/staging/webfetch-14-cfr-61-51-pilot-logbooks-2026-08-05_11-06-03.md
+  sha256:54dc18d95ba96e68: data/staging/webfetch-self-verification-and-supervisor-verification-q-a-2026-08-05_11-06-22.md
+  sha256:8cd08100211b12c2: data/staging/webfetch-mezami-available-information-2026-08-05_11-06-39.md
+  sha256:e7d330396de91bc2: data/staging/webfetch-electronic-logbook-cfii-endorsements-htm-2026-08-05_11-06-45.md
+  sha256:ce9c64eaad8a6a7e: data/staging/webfetch-pc25-bridgingworkforcegaps-pdf-2026-08-05_11-07-30.md
+  sha256:7335b66bfe4ba5e8: data/staging/webfetch-didkit-tezos-wallet-example-analysis-2026-08-06_11-01-59.md
+  sha256:22387f8f08c13dd8: data/staging/webfetch-14-bbig-berufsausbildung-verbatim-text-2026-08-06_11-02-05.md
+  sha256:1333d922ea08189a: data/staging/webfetch-degen-passport-chrome-extension-analysis-2026-08-06_11-02-26.md
+  sha256:6b3e53704951e03f: data/staging/webfetch-c2pa-web-v0-13-2-released-on-04-aug-22-15-2026-08-06_11-02-56.md
+  sha256:564d2e01dfb96e74: data/staging/webfetch-workproof-schema-what-it-actually-is-2026-08-06_11-03-01.md
+  sha256:7ee4ee06df09d618: data/staging/webfetch-docs-velocitynetwork-foundation-2026-08-06_11-03-07.md
+  sha256:e9654e4db4e680f2: data/staging/webfetch-digital-logbook-analysis-2026-08-06_11-03-09.md
+  sha256:63885e612cfc4b40: data/staging/webfetch-elogbook-overview-2026-08-06_11-03-10.md
+  sha256:a71a4808d21fee6f: data/staging/webfetch-bpv-documentation-and-registration-systems-2026-08-06_11-03-27.md
+  sha256:0fe418cf7272f2d7: data/staging/webfetch-analysis-of-dutch-page-content-2026-08-06_11-03-28.md
+  sha256:15d68a65479f8253: data/staging/webfetch-2026-career-passport-report-a11y-pdf-2026-08-06_11-03-37.md
+  sha256:b8fb610904dba2bb: data/staging/webfetch-original-url-https-www-xebic-com-nl-oplossingen-2026-08-06_11-03-39.md
+  sha256:d5b096513900a5b6: data/staging/webfetch-file-2026-08-06_11-03-48.md
+  sha256:9233871e0ee58e50: data/staging/webfetch-electronic-signature-content-extraction-2026-08-06_11-03-49.md
+  sha256:c0e80af28f80f3b9: data/staging/webfetch-french-text-extracts-on-specified-topics-2026-08-06_11-03-51.md
+  sha256:39dee3d1444efd43: data/staging/webfetch-original-url-https-www-plumbingzone-com-threads-2026-08-06_11-03-53.md
+  sha256:0d7c576d853ede98: data/staging/webfetch-original-url-https-www-plumbingzone-com-threads-2026-08-06_11-03-55.md
+  sha256:486022740062359f: data/staging/webfetch-career-passport-california-vendor-financial-and-2026-08-06_11-03-56.md
+  sha256:55904c5489091f74: data/staging/webfetch-certifier-contact-options-2026-08-06_11-04-00.md
+  sha256:611ad5a7825143ce: data/staging/webfetch-elecfaq-htm-2026-08-06_11-04-01.md
+  sha256:d7b51112102876d5: data/staging/webfetch-search-results-for-lerndokumentation-and-related-2026-08-06_11-04-03.md
+  sha256:cf144c75cc7b0f21: data/staging/webfetch-onstage-platform-key-features-verbatim-quotes-2026-08-06_11-04-04.md
+  sha256:c56fc716b6cbae88: data/staging/webfetch-truepic-products-overview-2026-08-06_11-04-06.md
+  sha256:9c6ded7b2e3fa6d6: data/staging/webfetch-c2pa-manifest-signing-technical-details-2026-08-06_11-04-07.md
+  sha256:664577aab83a5420: data/staging/webfetch-y-sign-process-global-v06-pdf-2026-08-06_11-04-14.md
+  sha256:2729ba104297e332: data/staging/webfetch-original-url-https-www-signhost-com-nl-2026-08-06_11-04-20.md
+  sha256:529174df64ac3ced: data/staging/webfetch-companycam-com-2026-08-06_11-04-21.md
+  sha256:f5c029a51a9da2af: data/staging/webfetch-analysis-of-german-text-on-digital-signatures-and-2026-08-06_11-04-23.md
+  sha256:22a8c4957e0803a0: data/staging/webfetch-original-url-https-europa-eu-europass-en-europass-2026-08-06_11-04-24.md
+  sha256:c76f7dd49a143190: data/staging/webfetch-basics-credential-types-2026-08-06_11-04-29.md
+  sha256:a3f6dde0e114d9cc: data/staging/webfetch-analyse-du-contenu-sur-la-signature-lectronique-2026-08-06_11-04-33.md
+  sha256:cf95c6e35729e1ff: data/staging/webfetch-open-badges-specification-v3-0-analysis-2026-08-06_11-04-45.md
+  sha256:35e9aee6d82bb7c5: data/staging/webfetch-missing-trainer-signatures-consequences-and-2026-08-06_11-04-47.md
+  sha256:4e8052326083689d: data/staging/webfetch-veelgestelde-vragen-2026-08-06_11-04-49.md
+  sha256:eb54df2e2007bdab: data/staging/webfetch-european-digital-credentials-key-findings-2026-08-06_11-04-51.md
+  sha256:316d88489e8f0ed5: data/staging/webfetch-cscs-smart-check-verification-method-2026-08-06_11-04-53.md
+  sha256:944bc9c9b57fe861: data/staging/webfetch-vademecumpcto-pdf-2026-08-06_11-04-55.md
+  sha256:e1a1f1daff83a22f: data/staging/webfetch-missing-signatures-in-training-logbooks-and-exam-2026-08-06_11-05-05.md
+  sha256:70f0e595ec071f60: data/staging/webfetch-clr-2-0-analysis-proofs-signatures-and-employment-2026-08-06_11-05-07.md
+  sha256:72f2bc145049578d: data/staging/webfetch-digital-signature-technology-for-educational-2026-08-06_11-05-09.md
+  sha256:f2e62e473ed4021a: data/staging/webfetch-danish-passages-on-practical-training-attestation-2026-08-06_11-05-10.md
+  sha256:26ff88b62d6949c7: data/staging/webfetch-progetto-scuola-territorio-product-summary-2026-08-06_11-05-12.md
+  sha256:8a6903312d4c70cb: data/staging/webfetch-original-url-https-docs-truepic-com-2026-08-06_11-05-13.md
+  sha256:7cbb356cafeace57: data/staging/webfetch-proofmode-signing-details-2026-08-06_11-05-19.md
+  sha256:4e3dc554e62c209d: data/staging/webfetch-genba-flow-pdf-2026-08-06_11-05-20.md
+  sha256:d9d80334504a278c: data/staging/webfetch-french-text-extraction-passeport-de-comp-tences-2026-08-06_11-05-22.md
+  sha256:9a8a3b63c84d0a89: data/staging/webfetch-verifying-reality-for-the-enterprise-market-2026-08-06_11-05-23.md
+  sha256:304601e01d66449b: data/staging/webfetch-passeport-d-orientation-de-formation-et-de-comp-2026-08-06_11-05-25.md
+  sha256:02eeb0358a1c295e: data/staging/webfetch-bpv-urenregistratie-handleiding-eduarte-2026-08-06_11-05-27.md
+  sha256:491d6ca80341d25f: data/staging/webfetch-cslb-application-denials-what-the-content-says-2026-08-06_11-05-29.md
+  sha256:65dc1dac48252c14: data/staging/webfetch-verification-and-signature-information-from-edci-2026-08-06_11-05-39.md
+  sha256:e99657e0d25ae18a: data/staging/webfetch-open-badges-3-0-technical-details-2026-08-06_11-05-41.md
+  sha256:6abcb8efd35d7552: data/staging/webfetch-oppl-ringsbok-relevant-features-2026-08-06_11-05-42.md
+  sha256:ae60c1ce432cccdd: data/staging/webfetch-fr-ebsi-project-key-information-2026-08-06_11-05-46.md
+  sha256:bba33d92d674fc7a: data/staging/webfetch-c2pa-capture-signing-and-security-details-2026-08-06_11-05-54.md
+  sha256:8047e2fe9c4b972e: data/staging/webfetch-proofmode-android-signing-and-verification-summary-2026-08-06_11-05-56.md
+  sha256:43d25ae5631ca423: data/staging/webfetch-documentation-sections-available-2026-08-06_11-05-57.md
+  sha256:309a509f3f6b0415: data/staging/webfetch-lerndokumentation-key-information-2026-08-06_11-05-58.md
+  sha256:571fd59f85fde9e8: data/staging/webfetch-extrait-sur-les-niveaux-eidas-et-la-signature-2026-08-06_11-06-01.md
+  sha256:f90746b96bd7a4d4: data/staging/webfetch-electronic-signature-technical-details-from-2026-08-06_11-06-03.md
+  sha256:58ce05bf3bcf759a: data/staging/webfetch-margement-s-curis-sur-digiforma-extraction-2026-08-06_11-06-05.md
+  sha256:4778a82642f939cd: data/staging/webfetch-documentation-urls-from-vision-documentation-2026-08-06_11-06-11.md
+  sha256:5c2116553d9ca6e5: data/staging/webfetch-lehrvertragsanmeldung-online-bundeslaender-2026-08-06_11-06-14.md
+  sha256:a04ce0e5d54cff6f: data/staging/webfetch-lehrvertrag-signing-requirements-2026-08-06_11-06-18.md
+  sha256:34e49eed74f3d98a: data/staging/webfetch-digital-vs-print-and-sign-for-lehrvertrag-in-2026-08-06_11-06-20.md
+  sha256:91a6a9bb9421ae62: data/staging/webfetch-what-it-contains-2026-08-06_11-06-22.md
+  sha256:3bdcdfdcf92cba7d: data/staging/webfetch-l-rlingelogbogen-key-features-analysis-2026-08-06_11-06-23.md
+  sha256:8533dc762f0ccaa6: data/staging/webfetch-status-301-moved-permanently-2026-08-06_11-06-25.md
+  sha256:4a4f720424c8d5ac: data/staging/webfetch-digitale-applicaties-en-systemen-in-onderwijs-2026-08-06_11-06-27.md
+  sha256:b623652e04e54c0a: data/staging/webfetch-open-badges-version-status-2026-08-06_11-06-28.md
+  sha256:4d569a309bb46e29: data/staging/webfetch-navigation-links-and-programs-found-2026-08-06_11-06-32.md
+  sha256:e8ba03490b74ca45: data/staging/webfetch-oppgave-innlevering-2026-08-06_11-06-34.md
+  sha256:6d7d8eb106081e1d: data/staging/webfetch-suoritusjakolinkin-toiminnasta-2026-08-06_11-06-36.md
+  sha256:01487125a0b334f4: data/staging/webfetch-vurderingsskjema-signering-2026-08-06_11-06-38.md
+  sha256:bdf033decd822235: data/staging/webfetch-001596260-pdf-2026-08-06_11-06-41.md
+  sha256:b5eba462d6316521: data/staging/webfetch-analysis-of-french-text-on-digital-learning-record-2026-08-06_11-06-45.md
+  sha256:deffc3c27d3542f7: data/staging/webfetch-extraction-sur-le-lea-livret-lectronique-de-l-2026-08-06_11-06-49.md
+  sha256:67c0ca83882b5d71: data/staging/webfetch-signature-validation-in-edci-wallet-2026-08-06_11-06-53.md
+  sha256:52ad024fed3acb4a: data/staging/webfetch-ausbildex-digital-documentation-features-2026-08-06_11-06-55.md
+  sha256:6dd44300079996f9: data/staging/webfetch-e-id-and-trust-infrastructure-verbatim-analysis-2026-08-06_11-06-56.md
+  sha256:cca61cac62b3f764: data/staging/webfetch-logb-ger-format-and-features-2026-08-06_11-06-57.md
+  sha256:c061896db53b0b49: data/staging/webfetch-nccer-digital-badge-issuance-and-verification-2026-08-06_11-06-59.md
+  sha256:0ecba5b8c7a54446: data/staging/webfetch-kompetanseboka-produktfunksjoner-2026-08-06_11-07-03.md
+  sha256:7ac903572f4f9fea: data/staging/webfetch-digital-lerndokumentation-tool-und-prozess-2026-08-06_11-07-15.md
+  sha256:10421add383da4ef: data/staging/webfetch-veng-products-and-page-links-2026-08-06_11-07-17.md
+  sha256:fd18001d85b96c33: data/staging/webfetch-systems-phased-out-and-replacements-2026-08-06_11-07-18.md
+  sha256:1602fbb97e4906c8: data/staging/webfetch-what-is-signed-2026-08-06_11-07-20.md
+  sha256:294f017af7c2c3dd: data/staging/webfetch-l-rekontrakt-og-digital-signatur-oppsummering-2026-08-06_11-07-22.md
+  sha256:6d05625b2eb30d67: data/staging/webfetch-open-badges-3-0-verification-technical-details-2026-08-06_11-07-24.md
+  sha256:a4a2699d5dd859de: data/staging/webfetch-european-digital-credentials-verification-and-2026-08-06_11-07-27.md
+  sha256:b9826e3e540d3473: data/staging/webfetch-full-french-text-of-article-r6223-10-2026-08-06_11-07-29.md
+  sha256:e75417556acf3c32: data/staging/webfetch-could-you-please-provide-a-readable-version-of-2026-08-06_11-07-34.md
+  sha256:3ee4206c501b5095: data/staging/webfetch-analysis-of-den-digitale-logbog-content-2026-08-06_11-07-37.md
+  sha256:942bc3dd0e1862ab: data/staging/webfetch-logbog-nu-app-analysis-2026-08-06_11-07-39.md
+  sha256:ac2eb79611fe3c5e: data/staging/webfetch-oplaeringserklaering-guide-for-h1-pdf-2026-08-06_11-07-41.md
+  sha256:09269d760ec0f1a5: data/staging/webfetch-erkl-ring-om-opl-ring-key-information-2026-08-06_11-07-43.md
+  sha256:fcb04842835526df: data/staging/webfetch-html-2026-08-06_11-07-47.md
+  sha256:2d939a0eb7127b05: data/staging/webfetch-elm-coverage-and-work-related-content-2026-08-06_11-07-48.md
+  sha256:62e91bddc92c6211: data/staging/webfetch-badge-verification-information-2026-08-06_11-07-50.md
+  sha256:c2a296a487f30d19: data/staging/webfetch-original-url-https-campus-skills-com-blog-le-2026-08-06_11-07-57.md
+  sha256:87fdce1407f17fd9: data/staging/webfetch-cscs-smart-check-api-verification-method-2026-08-06_11-08-06.md
+  sha256:a42845e64259eaee: data/staging/webfetch-contracts-and-training-information-2026-08-06_11-08-09.md
+  sha256:13461aa85ce27b11: data/staging/webfetch-authenticity-tests-list-2026-08-06_11-08-32.md
+  sha256:74aa101e3aadbc3a: data/staging/webfetch-what-i-can-offer-instead-2026-08-06_11-08-34.md
+  sha256:e80e1f0e5f19efcb: data/staging/webfetch-instructie-digitaal-ondertekenen-leerbedrijf-2026-08-06_11-08-35.md
+  sha256:e78fe5346461251f: data/staging/webfetch-c2pa-manifest-and-validation-information-2026-08-06_11-08-37.md
+  sha256:1b2a1259b64db382: data/staging/webfetch-dokumentaatio-2026-08-06_11-08-50.md
+  sha256:e2e9601bc8ecce13: data/staging/webfetch-photo-verification-claims-analysis-2026-08-06_11-08-55.md
+  sha256:6ef0024a824b0e9e: data/staging/webfetch-response-based-on-enterprise-c2pa-page-content-2026-08-06_11-08-58.md
+  sha256:1d849242669188f1: data/staging/webfetch-content-credentials-2026-08-06_11-09-00.md
+  sha256:512de0cdeae2cdd4: data/staging/webfetch-ty-paikkajaksojen-kestonlaskenta-2026-08-06_11-09-09.md
+  sha256:fe046ab42a36378f: data/staging/webfetch-untitled-2026-08-06_11-09-10.md
+  sha256:92ac9af98808a200: data/staging/webfetch-content-credentials-implementation-in-leica-2026-08-06_11-09-18.md
+  sha256:35079fbb071cc904: data/staging/webfetch-content-credentials-pki-for-leica-m11-p-2026-08-06_11-09-20.md
+  sha256:019aea2c07d4563e: data/staging/webfetch-c2pa-signature-and-validation-requirements-2026-08-06_11-09-24.md
+  sha256:15b2a2c6a8f3e660: data/staging/webfetch-europass-mobility-and-work-experience-2026-08-06_11-09-28.md
+  sha256:0b57e5dbb79379c1: data/staging/webfetch-cscs-smart-check-technical-integration-2026-08-06_11-09-31.md
+  sha256:3470f48586908744: data/staging/webfetch-redirect-url-https-www-entrust-com-nl-products-2026-08-06_11-09-37.md
+  sha256:9b97253f8a87a5cd: data/staging/webfetch-www-rakenapp-com-2026-08-06_11-09-39.md
+  sha256:98c232da68a21510: data/staging/webfetch-quickstage-feature-analysis-2026-08-06_11-09-43.md
+  sha256:1d26417a531c571c: data/staging/webfetch-shokokubanr0507-pdf-2026-08-06_11-09-45.md
+  sha256:de02de66bca3bfbb: data/staging/webfetch-duaal-leren-vereiste-documenten-2026-08-06_11-09-47.md
+  sha256:825ad9a64a21e7f1: data/staging/webfetch-original-url-https-www-sony-net-cas-2026-08-06_11-09-56.md
+  sha256:c8a1966ca0f639d5: data/staging/webfetch-nikon-authenticity-service-key-details-2026-08-06_11-10-00.md
+  sha256:4d6cb75fe4032f50: data/staging/webfetch-achievement-wallet-information-request-2026-08-06_11-10-01.md
+  sha256:a86b841e5c9ce2d1: data/staging/webfetch-html-2026-08-06_11-10-03.md
+  sha256:54b814ced2f6c765: data/staging/webfetch-dvv-document-validation-service-2026-08-06_11-10-10.md
+  sha256:8ae9a9782de2e303: data/staging/webfetch-camera-2026-08-06_11-10-12.md
+  sha256:4b2fb56c55f57b62: data/staging/webfetch-www-truelook-com-2026-08-06_11-10-14.md
+  sha256:b05ec898936f4336: data/staging/webfetch-hover-s-authentication-and-verification-claims-2026-08-06_11-10-16.md
+  sha256:5a79ebccb71af5ca: data/staging/webfetch-stii-2026-08-06_11-10-17.md
+  sha256:74f10f8c157708df: data/staging/webfetch-stimuleringsregeling-edubadges-1-pdf-2026-08-06_11-10-27.md
+  sha256:96634fa25943bf19: data/staging/webfetch-authenticity-verification-analysis-2026-08-06_11-10-30.md
+  sha256:d50e85dc4115b485: data/staging/webfetch-untitled-2026-08-06_11-10-31.md
+  sha256:f72e1b169249f4c0: data/staging/webfetch-technical-verification-statements-2026-08-06_11-10-34.md
+  sha256:3139fa9eeaddde2f: data/staging/webfetch-verify-known-cert-list-2026-08-06_11-10-46.md
+  sha256:0f6b386cc88b5e63: data/staging/webfetch-buildertrend-com-2026-08-06_11-10-51.md
+  sha256:b3b826269c3e5f93: data/staging/webfetch-eyewitness-hashing-and-cryptography-2026-08-06_11-10-52.md
+  sha256:5393e84440433e48: data/staging/webfetch-analysis-of-europass-digital-credentials-page-2026-08-06_11-10-58.md
+  sha256:a55835ce401de23c: data/staging/webfetch-electronic-seal-requirements-for-edc-issuance-2026-08-06_11-11-13.md
+  sha256:d2d7c6c25220c174: data/staging/webfetch-relevante-innstillinger-fra-dokumentasjonen-2026-08-06_11-11-38.md
+  sha256:86d4e10ef013e9c6: data/staging/webfetch-konvink-overview-2026-08-06_11-12-19.md
+  sha256:5e1ba72f81a013a6: data/staging/webfetch-kompetenznachweis-definition-2026-08-06_11-12-21.md
+  sha256:eb16a5e59e8f2b49: data/staging/webfetch-what-apprentices-receive-upon-completion-2026-08-06_11-12-35.md
+  sha256:42291b4f1e957ef4: data/staging/webfetch-search-results-technical-intern-training-logbooks-2026-08-06_11-12-41.md
