@@ -21,7 +21,7 @@ from __future__ import annotations
 import pytest
 
 from tome.models import Finding, QueryLog, ResearchSession
-from tome.output.report import format_report
+from tome.output.report import _EMPTY_CHANNEL_NOTES, format_report
 
 
 def _finding(channel: str = "code") -> Finding:
@@ -124,6 +124,44 @@ class TestEmptyChannelIsVisible:
         text = format_report(legacy).lower()
         assert "no query record" in text
         assert "genuinely thin" not in text
+
+
+class TestEveryOutcomeIsRenderable:
+    """Feature: No channel status can crash the report."""
+
+    @pytest.mark.unit
+    def test_ok_channel_whose_findings_all_dropped_renders(self) -> None:
+        """Scenario: A channel returned results but none survived.
+
+        Given a channel whose queries returned results
+        And no finding for it survived synthesis
+        When the report is rendered
+        Then it renders rather than raising
+        Because cross-channel deduplication keeps one finding per URL,
+             so a channel can legitimately lose every finding to a
+             sibling that reported the same source first. The status is
+             still `ok` because the search worked, and the first version
+             of the empty-channel note had no entry for `ok` and died
+             with a KeyError on a real path.
+        """
+        session = _session(
+            ["code"], [QueryLog("code", "q", "github", result_count=5)], []
+        )
+        assert "Code Implementations" in format_report(session)
+
+    @pytest.mark.unit
+    def test_every_derivable_status_has_a_note(self) -> None:
+        """Scenario: The note table covers the status vocabulary.
+
+        Given the set of statuses channel_outcomes can return
+        When the empty-channel note table is checked
+        Then every status has an entry
+        Because adding a seventh status later would otherwise crash the
+             report on the first session that produced it, and the
+             crash would land in rendering rather than in derivation.
+        """
+        derivable = {"ok", "empty", "error", "rate_limited", "degraded", "unknown"}
+        assert derivable <= set(_EMPTY_CHANNEL_NOTES)
 
 
 class TestCoverageSection:

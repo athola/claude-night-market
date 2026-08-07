@@ -24,7 +24,18 @@ _SECTIONS = [
 # they are written to be read rather than skimmed. The difference that
 # matters is between "this is weak evidence about the topic" and "this
 # is no evidence at all", and only `empty` is the former.
+#
+# Every status channel_outcomes can return needs an entry here, including
+# `ok`: deduplication keeps one finding per URL, so a channel whose
+# queries all succeeded can still contribute nothing to the report. A
+# test holds the two vocabularies in step.
 _EMPTY_CHANNEL_NOTES = {
+    "ok": (
+        "Returned results, none of which survived synthesis. "
+        "Deduplication keeps one finding per URL, so everything this "
+        "channel found was already reported by another. The search "
+        "worked; the channel added no new sources."
+    ),
     "empty": (
         "Searched, and found nothing. Every query for this channel "
         "completed, so this is the one outcome here that says something "
