@@ -1,19 +1,96 @@
-"""Research quality assessment: gap analysis and quality scoring."""
+"""Research quality assessment: gap analysis, outcomes, quality scoring.
+
+A note on what the two families here measure, because conflating them
+is the defect this module was extended to fix.
+
+``compute_quality_score`` measures the *search*: how many planned
+channels answered, how evenly findings spread across them, how relevant
+they were judged. Every term describes the retrieval process.
+
+``channel_outcomes`` measures what the *sources* did: whether a channel
+was asked and answered, asked and returned nothing, or never
+successfully asked at all. Only that second family can say anything
+about the field being researched, and only for channels that ran
+cleanly.
+
+A low quality score and a thin field look identical from the outside.
+They are not the same claim, and a report that prints one next to the
+other invites a reader to treat a bad search as a finding about the
+world.
+"""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from tome.models import Finding
 
+if TYPE_CHECKING:
+    from tome.models import ResearchSession
+
 _CURRENT_YEAR: int = datetime.now(tz=timezone.utc).year
 
-# A channel is "skewed" if it holds more than this fraction of findings
+# A channel is "skewed" if it holds more than this fraction of findings.
+# unvalidated: no source, never calibrated against labeled topics.
 _SKEW_THRESHOLD = 0.75
 
-# Findings older than this many years trigger a recency gap
+# Findings older than this many years trigger a recency gap.
+# unvalidated: no source, never calibrated against labeled topics.
 _RECENCY_GAP_YEARS = 3
+
+# Error kind meaning "the source refused us for volume, not for cause".
+# It is separated from other failures because it carries a different
+# instruction: re-run, rather than investigate.
+RATE_LIMIT = "rate_limit"
+
+
+def channel_outcomes(session: ResearchSession) -> dict[str, str]:
+    """Derive what each planned channel actually did.
+
+    Returns one of six statuses per planned channel:
+
+    ``unknown``
+        No query record. The session predates query logging, or the
+        agent returned no envelope. Nothing may be concluded.
+    ``error``
+        Every query failed, none on a rate limit.
+    ``rate_limited``
+        A rate limit was hit and nothing came back. Distinguished from
+        ``error`` because it tells the reader to re-run rather than to
+        investigate.
+    ``degraded``
+        Some query failed but results still arrived, typically via a
+        fallback source. The findings are real; the coverage is not
+        what was asked for, so the channel is not a clean probe.
+    ``empty``
+        Every query succeeded and none returned a result. This is the
+        only status under which absence says something about the field
+        rather than about the search.
+    ``ok``
+        Every query succeeded and results arrived.
+
+    The status is computed, never stored. A session carries the logs;
+    anything derived from them is derived on demand, so a stored status
+    can never contradict the evidence sitting next to it.
+    """
+    outcomes: dict[str, str] = {}
+    for channel in session.channels:
+        logs = [q for q in session.query_log if q.channel == channel]
+        if not logs:
+            outcomes[channel] = "unknown"
+            continue
+        results = sum(q.result_count for q in logs)
+        failed = [q for q in logs if not q.succeeded]
+        if not failed:
+            outcomes[channel] = "ok" if results else "empty"
+        elif results:
+            outcomes[channel] = "degraded"
+        elif any(q.error == RATE_LIMIT for q in failed):
+            outcomes[channel] = "rate_limited"
+        else:
+            outcomes[channel] = "error"
+    return outcomes
 
 
 def identify_gaps(
