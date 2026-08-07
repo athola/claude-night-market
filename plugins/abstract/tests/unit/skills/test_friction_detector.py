@@ -4,20 +4,48 @@ Validates that the friction-detector skill defines signal types,
 graduation tiers, detection workflow, anti-noise rules, and
 integration points for the friction-to-learning pipeline.
 
-Test graduation note (#442):
-The bulk of tests in this file assert text presence (``"X" in
-skill_content``). That style catches deletion but misses rewording
-and value drift inside numeric thresholds. The
-``TestFrictionDetectorInvariants`` class below shows the target
-pattern: assert structural and numeric invariants instead of literal
-strings. New tests should follow the invariant style; existing tests
-will be migrated incrementally as the file is touched.
+Coverage of the text-presence critique (issue #442, discussion #433),
+stated exactly rather than implied:
+
+============  =========================================================
+Frontmatter   Guarded as an invariant. The block is parsed as YAML and
+              the required keys are asserted as parsed values, so a
+              frontmatter that no longer parses fails here instead of
+              passing on a substring.
+Thresholds    Guarded as invariants in
+              ``TestFrictionDetectorInvariants``: tier ordering,
+              recency decay, signal weights, storage schema version.
+              These catch value drift, which was the specific defect
+              named -- "Tier 2: 6.0" becoming "Tier 2: 8.0" fails.
+Integration   Guarded, and moved. The four canaries here asserted the
+              document *mentions* skill-improver, LEARNINGS.md and
+              friends. That is backwards: the risk is not that the
+              document stops naming an integration point, it is that
+              the document keeps naming one that no longer exists.
+              ``tests/test_cited_paths_resolve.py`` now resolves every
+              ``plugin:name`` this file cites against the filesystem,
+              so the SKILL.md qualifies those names and the guard
+              lives where every other document gets the same check.
+Prose content Not guarded, deliberately. The remaining tests assert
+              that named concepts appear -- the six signal types, the
+              tier descriptions, the report sections. No invariant
+              underlies them: "the document must discuss anti-noise
+              rules" is an editorial judgment, and a test that spells
+              out the expected wording only restates the document. They
+              are kept because deletion detection is worth something,
+              and they are not dressed up as more than that.
+============  =========================================================
+
+The distinction that matters: an invariant fails when the document
+becomes *wrong*, a presence check fails when it becomes *different*.
 """
 
 import re
 from pathlib import Path
+from typing import Any
 
 import pytest
+import yaml
 
 SKILL_PATH = Path(__file__).parents[3] / "skills" / "friction-detector" / "SKILL.md"
 
@@ -34,6 +62,23 @@ def skill_lines(skill_content: str) -> list[str]:
     return skill_content.splitlines()
 
 
+@pytest.fixture
+def frontmatter(skill_content: str) -> dict[str, Any]:
+    """The frontmatter block, parsed.
+
+    Parsing is the point. `"name: friction-detector" in text` is
+    satisfied by that string appearing in a code fence, in prose, or
+    inside a block whose indentation stopped being valid YAML three
+    edits ago. Loading it asserts the harness can read the file the
+    same way this test does.
+    """
+    match = re.match(r"^---\s*\n(.*?)\n---\s*\n", skill_content, re.DOTALL)
+    assert match, "SKILL.md must open with a YAML frontmatter block"
+    loaded = yaml.safe_load(match.group(1))
+    assert isinstance(loaded, dict), "frontmatter must parse to a mapping"
+    return loaded
+
+
 class TestFrictionDetectorFrontmatter:
     """Feature: Friction-detector has valid skill frontmatter.
 
@@ -44,38 +89,50 @@ class TestFrictionDetectorFrontmatter:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_frontmatter_has_required_fields(self, skill_content: str) -> None:
-        """Scenario: Frontmatter contains all required fields.
+    def test_frontmatter_has_required_fields(self, frontmatter: dict[str, Any]) -> None:
+        """Scenario: Frontmatter carries the keys the loader needs.
 
         Given the friction-detector skill
-        When parsing frontmatter
-        Then it should have name, description, and trigger
+        When the frontmatter block is parsed as YAML
+        Then name, description, and trigger are present and non-empty
+        Because a key whose value is blank loads as None and the skill
+             registers with no description, which the substring form
+             could not tell apart from a correct one.
         """
-        assert "name: friction-detector" in skill_content
-        assert "description:" in skill_content
-        assert "trigger:" in skill_content
+        for key in ("name", "description", "trigger"):
+            assert key in frontmatter, f"frontmatter is missing `{key}`"
+            assert str(frontmatter[key] or "").strip(), f"`{key}` is empty"
+        assert frontmatter["name"] == "friction-detector"
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_frontmatter_not_always_apply(self, skill_content: str) -> None:
-        """Scenario: Skill is not always-apply (opt-in only).
+    def test_frontmatter_not_always_apply(self, frontmatter: dict[str, Any]) -> None:
+        """Scenario: Skill is opt-in, not always-apply.
 
         Given the friction-detector skill
-        When checking activation mode
-        Then alwaysApply should be false
+        When the parsed activation mode is read
+        Then alwaysApply is the boolean False
+        Because YAML reads `false`, `False` and `"false"` as three
+             different values, and only two of them keep the skill
+             opt-in. The substring form accepted all three.
         """
-        assert "alwaysApply: false" in skill_content
+        assert frontmatter.get("alwaysApply") is False
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_frontmatter_trigger_includes_friction(self, skill_content: str) -> None:
-        """Scenario: Trigger keywords include core terms.
+    def test_frontmatter_trigger_includes_friction(
+        self, frontmatter: dict[str, Any]
+    ) -> None:
+        """Scenario: Trigger keywords include the skill's own subject.
 
         Given the friction-detector skill
-        When checking trigger keywords
-        Then it should include friction-related terms
+        When the trigger list is parsed into terms
+        Then at least one term contains "friction"
+        Because a trigger list that never names what it detects cannot
+             activate on the topic it exists for.
         """
-        assert "friction" in skill_content.split("trigger:")[1].split("\n")[0]
+        terms = [t.strip() for t in str(frontmatter["trigger"]).split(",")]
+        assert any("friction" in t for t in terms), f"no friction term in {terms}"
 
 
 class TestFrictionSignalTypes:
@@ -317,56 +374,69 @@ class TestAntiNoiseRules:
 
 
 class TestIntegrationPoints:
-    """Feature: Friction-detector integrates with existing systems.
+    """Feature: Every integration point this skill names exists.
 
     As a plugin ecosystem
     I want clear integration contracts
     So that friction data flows to the right consumers
+
+    Four canaries used to live here, one per named consumer, each
+    asserting the document mentions it. They guarded the wrong
+    direction. A test that fails when the document stops saying
+    "skill-improver" protects the sentence; nothing protected the
+    reader who followed it. Delete the agent and every one of them
+    stayed green while the instruction became false.
+
+    The resolution guard is ``tests/test_cited_paths_resolve.py``,
+    which walks all ~968 workflow documents and resolves every
+    ``plugin:name`` citation against the filesystem. This skill's
+    integration names are qualified so that sweep covers them, which
+    is why the per-name canaries are gone rather than rewritten: the
+    invariant is ecosystem-wide and belongs in one place.
+
+    What is not guarded, and will not be: whether the document *should*
+    name a given consumer. That is an editorial call with no invariant
+    behind it, and a test asserting it would only restate the document.
     """
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_integrates_with_learnings(self, skill_content: str) -> None:
-        """Scenario: Tier 2 patterns feed LEARNINGS.md.
+    def test_integration_names_are_qualified(self, skill_content: str) -> None:
+        """Scenario: Named capabilities carry their plugin prefix.
 
-        Given the integration section
-        When reviewing data flow
-        Then LEARNINGS.md should be a target
+        Given the integration and related sections
+        When each backticked capability reference is read
+        Then it is qualified as `plugin:name`
+        Because the ecosystem resolution guard keys on that form. A
+             bare `skill-improver` resolves to nothing and is silently
+             skipped, so dropping the prefix removes the citation from
+             the only gate that checks it.
         """
-        assert "LEARNINGS.md" in skill_content
+        bare = re.findall(
+            r"`(skill-improver|metacognitive-self-mod|aggregate-logs)`",
+            skill_content,
+        )
+        assert not bare, (
+            "these capability references lost their plugin prefix and are "
+            f"no longer covered by tests/test_cited_paths_resolve.py: {bare}"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_integrates_with_skill_improver(self, skill_content: str) -> None:
-        """Scenario: Friction data informs skill-improver priority.
+    def test_learnings_target_is_a_concrete_path(self, skill_content: str) -> None:
+        """Scenario: The Tier 2 destination is written as a real path.
 
-        Given the integration section
-        When reviewing downstream consumers
-        Then skill-improver should be listed
+        Given the graduation pipeline writes Tier 2 patterns out
+        When the LEARNINGS.md destination is read
+        Then it is given as a resolvable path, not a bare filename
+        Because the file is created on first write in the user's home
+             and cannot be checked on disk here. Naming the directory
+             is what makes the instruction followable, and a bare
+             "LEARNINGS.md" was the whole content of the old canary.
         """
-        assert "skill-improver" in skill_content
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_integrates_with_metacognitive(self, skill_content: str) -> None:
-        """Scenario: Metacognitive-self-mod can analyze pipeline.
-
-        Given the integration section
-        When reviewing feedback loops
-        Then metacognitive-self-mod should be referenced
-        """
-        assert "metacognitive-self-mod" in skill_content
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_references_aggregate_logs(self, skill_content: str) -> None:
-        """Scenario: Skill references existing aggregate-logs command.
-
-        Given the integration section
-        When reviewing related commands
-        Then aggregate-logs should be mentioned
-        """
-        assert "aggregate-logs" in skill_content
+        assert re.search(r"~/\.claude/skills/LEARNINGS\.md", skill_content), (
+            "the Tier 2 destination must be written as a full path"
+        )
 
 
 class TestFrictionReportFormat:

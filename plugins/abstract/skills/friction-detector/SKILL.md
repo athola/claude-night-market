@@ -77,7 +77,8 @@ Tier 3 proposal:  graduation_score >= 12.0
 
 Run at session end, at 80% context usage (via
 `conserve:clear-context`), or after failed improvement
-cycles (when `metacognitive-self-mod` detects regression).
+cycles (when `abstract:metacognitive-self-mod` detects
+regression).
 
 ### Step 1: Scan Session for Signals
 
@@ -184,8 +185,9 @@ formula recency_factor).
 
 **Feeds into**: LEARNINGS.md (Tier 2 patterns, same
 format as `/abstract:aggregate-logs`),
-skill-improver (priority scoring), and
-metacognitive-self-mod (pipeline effectiveness).
+`abstract:skill-improver` (priority scoring), and
+`abstract:metacognitive-self-mod` (pipeline
+effectiveness).
 
 **Consumes from**: session transcripts,
 `aggregate_learnings_daily` hook data, and the
