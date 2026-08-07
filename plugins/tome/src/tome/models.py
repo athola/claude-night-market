@@ -15,6 +15,18 @@ def _now() -> datetime:
 
 _VALID_CHANNELS = frozenset({"code", "discourse", "academic", "triz"})
 
+# Channels that answer by probing an external index. Their silence is a
+# fact about the world once a positive control shows they were not
+# blind, so they are the only channels a coverage verdict may reason
+# over.
+#
+# ``triz`` is excluded because it generates cross-domain analogies
+# rather than retrieving records of prior work. Counting its output as
+# evidence would let the tool manufacture the finding that a field is
+# well covered, and demanding an index probe of a channel with no index
+# would pin every session to INCONCLUSIVE for an unrelated reason.
+RETRIEVAL_CHANNELS = frozenset({"academic", "code", "discourse"})
+
 
 @dataclass
 class Finding:

@@ -25,10 +25,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from tome.models import RETRIEVAL_CHANNELS
 from tome.synthesis.quality import _SKEW_THRESHOLD, CANARY_SOURCE, channel_outcomes
 
 if TYPE_CHECKING:
-    from tome.models import ResearchSession
+    from tome.models import Finding, ResearchSession
 
 __all__ = [
     "ACT",
@@ -40,11 +41,14 @@ __all__ = [
     "MISMATCH_SUSPECTED",
     "THIN_CANDIDATE",
     "UNDECIDED",
+    "RETRIEVAL_CHANNELS",
     "ResearchStory",
     "Verdict",
     "canary_outcomes",
     "frontier_stories",
     "frontier_verdict",
+    "retrieval_channels",
+    "retrieved_findings",
 ]
 
 INCONCLUSIVE = "INCONCLUSIVE"
@@ -76,8 +80,31 @@ class Verdict:
     evidence: dict[str, str] = field(default_factory=dict)
 
 
+def retrieval_channels(session: ResearchSession) -> list[str]:
+    """The planned channels whose answers came from an external index.
+
+    A coverage verdict is a claim about what exists, and only a channel
+    that searched something can support one. Filtering here rather than
+    at each use keeps the definition in one place, so a new generative
+    channel cannot silently acquire a vote by being added to a plan.
+    """
+    return [c for c in session.channels if c in RETRIEVAL_CHANNELS]
+
+
+def retrieved_findings(session: ResearchSession) -> list[Finding]:
+    """The findings that were retrieved rather than generated.
+
+    ``triz`` output is a proposed analogy, not a record of prior work.
+    Counting it toward the evidence that a field is well published lets
+    the tool satisfy its own sparsity threshold with text it wrote, so
+    a topic with four invented bridges and no papers would read the
+    same as one with four papers.
+    """
+    return [f for f in session.findings if f.channel in RETRIEVAL_CHANNELS]
+
+
 def canary_outcomes(session: ResearchSession) -> dict[str, str]:
-    """Per planned channel: did its positive control pass?
+    """Per retrieval channel: did its positive control pass?
 
     ``pass`` the channel retrieved a document known to be in its index.
     ``fail`` it did not, so it cannot be trusted to report absence.
@@ -88,7 +115,7 @@ def canary_outcomes(session: ResearchSession) -> dict[str, str]:
     authority of an instrumented one.
     """
     outcomes: dict[str, str] = {}
-    for channel in session.channels:
+    for channel in retrieval_channels(session):
         controls = [
             q
             for q in session.query_log
@@ -106,10 +133,14 @@ def canary_outcomes(session: ResearchSession) -> dict[str, str]:
 def frontier_verdict(session: ResearchSession) -> Verdict:
     """Classify why this session found what it found.
 
+    Only retrieval channels are considered, and only their findings are
+    counted. ``triz`` proposes analogies rather than retrieving prior
+    work, so it neither testifies about coverage nor owes a control.
+
     Rules, first match wins:
 
-    1. Any planned channel that errored, was rate-limited, or has no
-       record at all: ``INCONCLUSIVE``. The run is not evidence.
+    1. Any planned retrieval channel that errored, was rate-limited, or
+       has no record at all: ``INCONCLUSIVE``. The run is not evidence.
     2. Any control that failed: ``INCONCLUSIVE``. A blind channel
        cannot testify about absence.
     3. Two or more channels whose controls passed, which searched
@@ -140,8 +171,9 @@ def frontier_verdict(session: ResearchSession) -> Verdict:
     """
     outcomes = channel_outcomes(session)
     controls = canary_outcomes(session)
+    probes = retrieval_channels(session)
 
-    broken = [c for c in session.channels if outcomes.get(c, "unknown") not in _CLEAN]
+    broken = [c for c in probes if outcomes.get(c, "unknown") not in _CLEAN]
     if broken:
         detail = ", ".join(f"{c} ({outcomes.get(c, 'unknown')})" for c in broken)
         return Verdict(
@@ -151,7 +183,7 @@ def frontier_verdict(session: ResearchSession) -> Verdict:
             {"channels_not_clean": detail},
         )
 
-    blind = [c for c in session.channels if controls.get(c) == "fail"]
+    blind = [c for c in probes if controls.get(c) == "fail"]
     if blind:
         return Verdict(
             INCONCLUSIVE,
@@ -162,12 +194,10 @@ def frontier_verdict(session: ResearchSession) -> Verdict:
         )
 
     proven_empty = [
-        c
-        for c in session.channels
-        if controls.get(c) == "pass" and outcomes.get(c) == "empty"
+        c for c in probes if controls.get(c) == "pass" and outcomes.get(c) == "empty"
     ]
-    unproven = [c for c in session.channels if controls.get(c) == "absent"]
-    total = len(session.findings)
+    unproven = [c for c in probes if controls.get(c) == "absent"]
+    total = len(retrieved_findings(session))
 
     if len(proven_empty) >= 2 and total <= _F_THIN:
         return Verdict(
@@ -185,7 +215,7 @@ def frontier_verdict(session: ResearchSession) -> Verdict:
         )
 
     counts: dict[str, int] = {}
-    for f in session.findings:
+    for f in retrieved_findings(session):
         counts[f.channel] = counts.get(f.channel, 0) + 1
     dominant = [c for c, n in counts.items() if total and n / total > _SKEW_THRESHOLD]
     if dominant and proven_empty:
@@ -206,9 +236,7 @@ def frontier_verdict(session: ResearchSession) -> Verdict:
     # here because a *different* channel found things would let the
     # working channel vouch for the silent one.
     uncontrolled_empty = [
-        c
-        for c in session.channels
-        if controls.get(c) == "absent" and outcomes.get(c) == "empty"
+        c for c in probes if controls.get(c) == "absent" and outcomes.get(c) == "empty"
     ]
     if uncontrolled_empty or (unproven and not total):
         silent = uncontrolled_empty or unproven
@@ -269,12 +297,11 @@ def frontier_stories(session: ResearchSession) -> list[ResearchStory]:
     """
     outcomes = channel_outcomes(session)
     controls = canary_outcomes(session)
+    probes = retrieval_channels(session)
     stories: list[ResearchStory] = []
 
     proven_empty = [
-        c
-        for c in session.channels
-        if controls.get(c) == "pass" and outcomes.get(c) == "empty"
+        c for c in probes if controls.get(c) == "pass" and outcomes.get(c) == "empty"
     ]
     if proven_empty:
         stories.append(
@@ -284,8 +311,8 @@ def frontier_stories(session: ResearchSession) -> list[ResearchStory]:
                 evidence=(
                     f"Channels {', '.join(proven_empty)} each retrieved a "
                     "document known to be in their index, then returned "
-                    f"nothing for this topic. {len(session.findings)} "
-                    "finding(s) overall."
+                    f"nothing for this topic. {len(retrieved_findings(session))} "
+                    "retrieved finding(s) overall."
                 ),
                 next_action=(
                     "Re-run with reformulated vocabulary before treating this "
@@ -297,7 +324,7 @@ def frontier_stories(session: ResearchSession) -> list[ResearchStory]:
             )
         )
 
-    blind = [c for c in session.channels if controls.get(c) == "fail"]
+    blind = [c for c in probes if controls.get(c) == "fail"]
     if blind:
         stories.append(
             ResearchStory(
@@ -316,7 +343,7 @@ def frontier_stories(session: ResearchSession) -> list[ResearchStory]:
             )
         )
 
-    unproven = [c for c in session.channels if controls.get(c) == "absent"]
+    unproven = [c for c in probes if controls.get(c) == "absent"]
     if unproven:
         stories.append(
             ResearchStory(
