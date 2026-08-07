@@ -56,9 +56,28 @@ THIN_CANDIDATE = "THIN_FIELD_CANDIDATE"
 MISMATCH_SUSPECTED = "CHANNEL_MISMATCH_SUSPECTED"
 COVERED = "COVERED"
 
-# Total findings at or below which a topic is sparse enough to consider.
-# unvalidated: no source, not calibrated. Calibration needs the labeled
-# corpus in tests/fixtures/frontier/, which needs human-confirmed labels.
+# Total retrieved findings at or below which a topic is sparse enough
+# to consider. Unvalidated against recorded data, and deliberately not
+# tuned. Two facts bound what tuning it could mean, both verified
+# against this module rather than assumed:
+#
+# It discriminates in one narrow band. With three retrieval channels,
+# this constant changes the verdict only when exactly two are
+# controlled-empty and the third holds few findings. At three empty the
+# total is zero and THIN fires at any threshold. At one empty the branch
+# is unreachable. Most topics never enter the band at all.
+#
+# It counts a reported subset, not a retrieval count. `session.findings`
+# is what the agents chose to report, and their instructions cap it
+# ("at most 10", "top 2-3 posts"). The number of results a query
+# actually returned lives in the query log and drives channel_outcomes
+# instead. So a threshold tuned against this would move the next time an
+# agent's markdown reworded a cap.
+#
+# `make frontier-matrix` sweeps it across a range and reports how many
+# verdicts move, alongside the false-THIN rate on the adversarial class.
+# That rate is the honest measure of this signal's value. A single tuned
+# integer would not be. See ADR-0020.
 _F_THIN = 3
 
 # Outcomes under which a channel's silence says something about the
@@ -130,12 +149,20 @@ def canary_outcomes(session: ResearchSession) -> dict[str, str]:
     return outcomes
 
 
-def frontier_verdict(session: ResearchSession) -> Verdict:
+def frontier_verdict(session: ResearchSession, *, f_thin: int = _F_THIN) -> Verdict:
     """Classify why this session found what it found.
 
     Only retrieval channels are considered, and only their findings are
     counted. ``triz`` proposes analogies rather than retrieving prior
     work, so it neither testifies about coverage nor owes a control.
+
+    ``f_thin`` overrides the sparsity threshold for one call. It exists
+    so the scoring harness can sweep the constant across a range and
+    report how many verdicts move, which is the only honest form of
+    calibration available here. Sweeping by reassigning the module
+    global would work and would be worse: a test or a report that
+    mutates the constant other callers read is one interpreter away
+    from scoring a corpus under a threshold nobody chose.
 
     Rules, first match wins:
 
@@ -199,7 +226,7 @@ def frontier_verdict(session: ResearchSession) -> Verdict:
     unproven = [c for c in probes if controls.get(c) == "absent"]
     total = len(retrieved_findings(session))
 
-    if len(proven_empty) >= 2 and total <= _F_THIN:
+    if len(proven_empty) >= 2 and total <= f_thin:
         return Verdict(
             THIN_CANDIDATE,
             f"{len(proven_empty)} channels proved they can retrieve, then "

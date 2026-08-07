@@ -71,6 +71,60 @@ Both negative cases are held by tests in
 `tests/unit/test_frontier_channel_roles.py`, because an exemption that
 quietly widened would restore the hole it was carved to avoid.
 
+## The sparsity threshold is measured, not tuned
+
+`_F_THIN` is 3 and stays 3. It was never calibrated, and calibrating it
+against the labeled corpus would produce a number that looks earned and
+is not. Two facts bound what tuning could mean here, both verified
+against the code rather than argued from principle.
+
+It discriminates in one narrow band. With three retrieval channels, the
+constant changes a verdict only when exactly two are controlled-empty
+and the third holds few findings. At three empty the total is zero and
+`THIN_FIELD_CANDIDATE` fires under any threshold. At one empty the
+branch is unreachable. Most topics never enter the band, so the
+effective sample for tuning is far smaller than the corpus.
+
+It counts a reported subset. The threshold compares against
+`session.findings`, which is what the agents chose to report, and their
+own instructions cap that ("at most 10 findings", "top 2-3 posts"). The
+count of results a query actually returned lives in the query log and
+feeds `channel_outcomes` instead. A threshold fitted to the reported
+number would shift the next time an agent's markdown reworded a cap.
+
+So `make frontier-matrix` reports three things instead of one tuned
+integer: the confusion matrix of label against verdict, a sweep of the
+threshold across a range showing how many verdicts move, and the
+false-THIN rate on the `covered-obscure` class. That last is the honest
+headline. Those topics are abundantly published under vocabulary the
+obvious query misses, nothing in this design detects vocabulary
+mismatch, and `labels.yaml` already names the rate at which they read
+thin as "the bound on the signal's value". It is a property to report,
+not a defect to tune away.
+
+The matrix carries its own caveat and so does this decision: each topic
+is one recorded run from a nondeterministic, rate-limited pipeline, so
+the numbers describe the pipeline and the verdict jointly. No test
+asserts against them, deliberately. A test pinning an agreement rate
+would enshrine a calibration through the back door and turn honest
+degradation into a red build.
+
+## Canary targets are re-verified on demand
+
+The three targets are third-party documents, and from inside the
+verdict a moved target is indistinguishable from a broken channel: the
+control did not come back either way. The remedies are opposite, so
+`make verify-canaries` classifies four ways rather than two, separating
+`TARGET_MOVED` (edit `canary.py`) from `CHANNEL_ERROR` (investigate the
+channel), with `RATE_LIMITED` failing nothing.
+
+It is a script rather than a test on purpose. A test's binary result
+collapses the distinction the job exists to draw, and tome's pytest
+config carries no `-m "not network"` default, so a network test would
+run in CI and redden the suite whenever a third party hiccuped. The
+fetch is the only network I/O under `src/tome/`, contained in
+`scripts/`, wrapping a pure classifier that tests offline.
+
 ## Alternatives rejected
 
 **Capture-recapture over channel overlap.** This was the leading
