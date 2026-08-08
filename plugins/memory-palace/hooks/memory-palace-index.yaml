@@ -10376,6 +10376,360 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://pmc.ncbi.nlm.nih.gov/articles/PMC5490706/
+  https://registry.npmjs.org/@contentauth/c2pa-web:
+    content_hash: sha256:d318d2933f5f2de0
+    stored_at: data/staging/webfetch-latest-3-releases-of-contentauth-c2pa-web-2026-08-07_11-05-33.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:05:33.558298+00:00'
+    title: Latest 3 Releases of @contentauth/c2pa-web
+    maturity: growing
+    routing_type: meta
+    url: https://registry.npmjs.org/@contentauth/c2pa-web
+  https://github.com/contentauth/c2pa-js/issues/126:
+    content_hash: sha256:8accb75b042ea211
+    stored_at: data/staging/webfetch-workersrc-config-option-overview-2026-08-07_11-06-19.md
+    importance_score: 100
+    last_updated: '2026-08-07T11:06:19.512082+00:00'
+    title: workerSrc Config Option Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/contentauth/c2pa-js/issues/126
+  https://raw.githubusercontent.com/spruceid/ssi/main/cargo.toml:
+    content_hash: sha256:a8618467fa87a5cc
+    stored_at: data/staging/webfetch-wasm-configuration-analysis-2026-08-07_11-07-40.md
+    importance_score: 81
+    last_updated: '2026-08-07T11:07:40.127055+00:00'
+    title: WASM Configuration Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/spruceid/ssi/main/Cargo.toml
+  https://github.com/learningeconomy/learncard/pull/1444:
+    content_hash: sha256:dac2f5ebe61e00c2
+    stored_at: data/staging/webfetch-didkit-wasm-implementation-2026-08-07_11-08-33.md
+    importance_score: 100
+    last_updated: '2026-08-07T11:08:33.110064+00:00'
+    title: DIDKit WASM Implementation
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/learningeconomy/learncard/pull/1444
+  https://www.t3networkhub.org/project-showcase:
+    content_hash: sha256:9cac77079c158c56
+    stored_at: data/staging/webfetch-t3-network-organizations-and-projects-2026-08-07_11-09-51.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:09:51.963557+00:00'
+    title: T3 Network Organizations and Projects
+    maturity: growing
+    routing_type: meta
+    url: https://www.t3networkhub.org/project-showcase
+  https://hero-software.de/features/digitale-unterschrift:
+    content_hash: sha256:6ecf0027417dc23b
+    stored_at: data/staging/webfetch-analysis-of-hero-page-content-2026-08-07_11-10-11.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:10:12.003452+00:00'
+    title: Analysis of HERO Page Content
+    maturity: growing
+    routing_type: meta
+    url: https://hero-software.de/features/digitale-unterschrift
+  https://www.bps-system.de/blok-berichtsheft:
+    content_hash: sha256:5dfce6ae1b0c2b8f
+    stored_at: data/staging/webfetch-electronic-signature-in-blok-2026-08-07_11-10-13.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:10:13.550755+00:00'
+    title: Electronic Signature in BLok
+    maturity: growing
+    routing_type: meta
+    url: https://www.bps-system.de/blok-berichtsheft/
+  https://europa.eu/europass/en/europass-tools/digital-credentials/digital-credentials-issuers:
+    content_hash: sha256:a7a1ff4536ca1a88
+    stored_at: data/staging/webfetch-status-301-moved-permanently-2026-08-07_11-10-16.md
+    importance_score: 50
+    last_updated: '2026-08-07T11:10:16.832595+00:00'
+    title: 'Status: 301 Moved Permanently'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://europa.eu/europass/en/europass-tools/digital-credentials/digital-credentials-issuers
+  https://www.protocolhero.com/en/wissen/digitale-unterschrift-handwerk-rechtssicher:
+    content_hash: sha256:ded88bc246e0636a
+    stored_at: data/staging/webfetch-analysis-of-the-protocolhero-page-2026-08-07_11-10-18.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:10:18.526016+00:00'
+    title: Analysis of the ProtocolHero Page
+    maturity: growing
+    routing_type: meta
+    url: https://www.protocolhero.com/en/wissen/digitale-unterschrift-handwerk-rechtssicher
+  https://mein-handwerker-app.de/digitales-berichtsheft:
+    content_hash: sha256:2a426a9762e26339
+    stored_at: data/staging/webfetch-digital-signature-analysis-mein-handwerker-app-2026-08-07_11-10-35.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:10:35.977377+00:00'
+    title: 'Digital Signature Analysis: mein-handwerker-app Berichtsheft'
+    maturity: growing
+    routing_type: meta
+    url: https://mein-handwerker-app.de/digitales-berichtsheft/
+  https://www.skribble.com/de-de/blog/beste-softwares-baugewerbe:
+    content_hash: sha256:bf4b83fecba962e5
+    stored_at: data/staging/webfetch-construction-software-products-named-2026-08-07_11-10-38.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:10:38.779993+00:00'
+    title: Construction Software Products Named
+    maturity: growing
+    routing_type: meta
+    url: https://www.skribble.com/de-de/blog/beste-softwares-baugewerbe/
+  https://github.com/jettbrains/-l-:
+    content_hash: sha256:c17977ab691ac6cf
+    stored_at: data/staging/webfetch-analysis-of-the-repository-content-2026-08-07_11-10-40.md
+    importance_score: 100
+    last_updated: '2026-08-07T11:10:40.473510+00:00'
+    title: Analysis of the Repository Content
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/jettbrains/-L-
+  https://site.imsglobal.org/certifications:
+    content_hash: sha256:fd4a2d9283e7980a
+    stored_at: data/staging/webfetch-certifications-2026-08-07_11-10-57.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:10:57.615149+00:00'
+    title: Certifications
+    maturity: growing
+    routing_type: meta
+    url: https://site.imsglobal.org/certifications
+  https://123erfasst.de/bautagebuch:
+    content_hash: sha256:b0169ffaa282c76a
+    stored_at: data/staging/webfetch-digital-signature-analysis-of-123erfasst-2026-08-07_11-10-59.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:10:59.092524+00:00'
+    title: Digital Signature Analysis of 123erfasst Bautagebuch Page
+    maturity: growing
+    routing_type: meta
+    url: https://123erfasst.de/bautagebuch/
+  https://www.legifrance.gouv.fr/codes/section_lc/legitext000006072050/legiscta000018497156:
+    content_hash: sha256:5522e2df4e1d3629
+    stored_at: data/staging/webfetch-page-load-status-and-article-analysis-2026-08-07_11-11-02.md
+    importance_score: 80
+    last_updated: '2026-08-07T11:11:02.593053+00:00'
+    title: Page Load Status and Article Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006072050/LEGISCTA000018497156/
+  https://wetten.overheid.nl/bwbr0007625/2023-08-01:
+    content_hash: sha256:6d38a867fe090cad
+    stored_at: data/staging/webfetch-wet-educatie-en-beroepsonderwijs-web-analysis-2026-08-07_11-11-03.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:11:03.975044+00:00'
+    title: Wet educatie en beroepsonderwijs (WEB) - Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://wetten.overheid.nl/BWBR0007625/2023-08-01
+  ? https://www.zdh.de/ueber-uns/fachbereich-berufliche-bildung/ausbildung/ausbildungsqualitaet-im-handwerk/berichtsheft-im-handwerk
+  : content_hash: sha256:4e16923cb8a0f473
+    stored_at: data/staging/webfetch-zdh-page-on-digital-berichtsheft-key-findings-2026-08-07_11-11-06.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:11:06.025651+00:00'
+    title: ZDH Page on Digital Berichtsheft - Key Findings
+    maturity: growing
+    routing_type: meta
+    url: https://www.zdh.de/ueber-uns/fachbereich-berufliche-bildung/ausbildung/ausbildungsqualitaet-im-handwerk/berichtsheft-im-handwerk/
+  https://www.fedlex.admin.ch/eli/cc/2003/748/de:
+    content_hash: sha256:554752c9858d4d13
+    stored_at: data/staging/webfetch-page-load-and-content-assessment-2026-08-07_11-11-12.md
+    importance_score: 80
+    last_updated: '2026-08-07T11:11:12.564396+00:00'
+    title: Page Load and Content Assessment
+    maturity: growing
+    routing_type: meta
+    url: https://www.fedlex.admin.ch/eli/cc/2003/748/de
+  https://github.com/z7lab/scrollshot:
+    content_hash: sha256:03f0e5a9ac443555
+    stored_at: data/staging/webfetch-scrollshot-extension-overview-2026-08-07_11-11-15.md
+    importance_score: 100
+    last_updated: '2026-08-07T11:11:15.562784+00:00'
+    title: Scrollshot Extension Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Z7Lab/scrollshot
+  https://www.legifrance.gouv.fr/codes/section_lc/legitext000006072050/legiscta000018497322:
+    content_hash: sha256:e5cac23b8ec35b78
+    stored_at: data/staging/webfetch-articles-r6223-1-to-r6223-16-organization-of-2026-08-07_11-11-20.md
+    importance_score: 80
+    last_updated: '2026-08-07T11:11:20.016018+00:00'
+    title: Articles R6223-1 to R6223-16 - Organization of Apprenticeship
+    maturity: growing
+    routing_type: meta
+    url: https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006072050/LEGISCTA000018497322/
+  https://bau.bi/baumagazin/betriebsfuehrung/e-signatur-dokumente-rechtsgueltig-signieren-per-klick-b15473:
+    content_hash: sha256:11b743c473ba5087
+    stored_at: data/staging/webfetch-e-signature-vendors-and-standards-in-construction-2026-08-07_11-11-23.md
+    importance_score: 79
+    last_updated: '2026-08-07T11:11:23.801330+00:00'
+    title: E-Signature Vendors and Standards in Construction
+    maturity: growing
+    routing_type: meta
+    url: https://bau.bi/baumagazin/betriebsfuehrung/e-signatur-dokumente-rechtsgueltig-signieren-per-klick-b15473
+  https://www.fedlex.admin.ch/eli/cc/2003/748/de?print=true:
+    content_hash: sha256:1ee741e9bdafb764
+    stored_at: data/staging/webfetch-assessment-2026-08-07_11-11-27.md
+    importance_score: 80
+    last_updated: '2026-08-07T11:11:27.996106+00:00'
+    title: Assessment
+    maturity: growing
+    routing_type: meta
+    url: https://www.fedlex.admin.ch/eli/cc/2003/748/de?print=true
+  https://github.com/saloniingale70/front-line-truth-pipeline-built-on-stellar:
+    content_hash: sha256:8847974ef672d51d
+    stored_at: data/staging/webfetch-frontline-truth-pipeline-project-overview-2026-08-07_11-11-36.md
+    importance_score: 100
+    last_updated: '2026-08-07T11:11:36.929783+00:00'
+    title: 'Frontline Truth Pipeline: Project Overview'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/saloniingale70/FRONT-LINE-TRUTH-PIPELINE-Built-on-Stellar
+  https://raw.githubusercontent.com/digitalbazaar/vc/main/package.json:
+    content_hash: sha256:e6c17689b5bf1ba3
+    stored_at: data/staging/webfetch-digitalbazaar-vc-package-information-2026-08-08_11-07-18.md
+    importance_score: 81
+    last_updated: '2026-08-08T11:07:18.975928+00:00'
+    title: '@digitalbazaar/vc Package Information'
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/digitalbazaar/vc/main/package.json
+  https://raw.githubusercontent.com/digitalbazaar/vc/main/readme.md:
+    content_hash: sha256:07424126ac9086d6
+    stored_at: data/staging/webfetch-browser-support-and-library-features-2026-08-08_11-07-20.md
+    importance_score: 81
+    last_updated: '2026-08-08T11:07:20.248876+00:00'
+    title: Browser Support and Library Features
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/digitalbazaar/vc/main/README.md
+  https://raw.githubusercontent.com/spruceid/ssi/main/readme.md:
+    content_hash: sha256:cad16b97fdc710a6
+    stored_at: data/staging/webfetch-browser-and-wasm-support-for-ssi-2026-08-08_11-07-20.md
+    importance_score: 81
+    last_updated: '2026-08-08T11:07:21.387697+00:00'
+    title: Browser and WASM Support for SSI
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/spruceid/ssi/main/README.md
+  https://raw.githubusercontent.com/spruceid/didkit/main/readme.md:
+    content_hash: sha256:1ad15ec8fbccf063
+    stored_at: data/staging/webfetch-didkit-support-summary-2026-08-08_11-07-28.md
+    importance_score: 81
+    last_updated: '2026-08-08T11:07:28.894457+00:00'
+    title: DIDKit Support Summary
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/spruceid/didkit/main/README.md
+  https://news.ycombinator.com/item?id=1:
+    content_hash: sha256:9adb96b9b3db8236
+    stored_at: data/staging/webfetch-hacker-news-page-validation-2026-08-08_11-08-02.md
+    importance_score: 80
+    last_updated: '2026-08-08T11:08:02.364086+00:00'
+    title: Hacker News Page Validation
+    maturity: growing
+    routing_type: meta
+    url: https://news.ycombinator.com/item?id=1
+  https://www.imscert.org:
+    content_hash: sha256:6615ca2159c7ab7e
+    stored_at: data/staging/webfetch-original-url-https-www-imscert-org-2026-08-08_11-08-18.md
+    importance_score: 50
+    last_updated: '2026-08-08T11:08:18.530261+00:00'
+    title: 'Original URL: https://www.imscert.org'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.imscert.org
+  https://hn.algolia.com/api/v1/items/1:
+    content_hash: sha256:252b03a10e319455
+    stored_at: data/staging/webfetch-y-combinator-story-confirmation-2026-08-08_11-08-47.md
+    importance_score: 89
+    last_updated: '2026-08-08T11:08:47.690928+00:00'
+    title: Y Combinator Story Confirmation
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/items/1
+  https://www.accredible.com/blog/now-supporting-open-badge-3-0-and-w3c-verifiable-credentials:
+    content_hash: sha256:83eb72cfc4cff6cb
+    stored_at: data/staging/webfetch-search-results-for-apprenticeship-trades-and-2026-08-08_11-08-50.md
+    importance_score: 80
+    last_updated: '2026-08-08T11:08:50.419473+00:00'
+    title: Search Results for Apprenticeship, Trades, and Third-Party Verification
+      Terms
+    maturity: growing
+    routing_type: meta
+    url: https://www.accredible.com/blog/now-supporting-open-badge-3-0-and-w3c-verifiable-credentials
+  https://assets.publishing.service.gov.uk/media/6875204b55c4bd0544dcae08/apprenticeship_funding_rules_2025_to_2026_v2.pdf:
+    content_hash: sha256:4f3f3e7f2001f505
+    stored_at: data/staging/webfetch-apprenticeship-funding-rules-2025-to-2026-v2-pdf-2026-08-08_11-09-13.md
+    importance_score: 80
+    last_updated: '2026-08-08T11:09:13.396177+00:00'
+    title: Apprenticeship Funding Rules 2025 To 2026 V2.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://assets.publishing.service.gov.uk/media/6875204b55c4bd0544dcae08/Apprenticeship_funding_rules_2025_to_2026_v2.pdf
+  https://www.gov.uk/guidance/apprenticeship-funding-rules-for-employers/what-is-an-apprenticeship:
+    content_hash: sha256:ec9c81b8f9ee75d2
+    stored_at: data/staging/webfetch-what-is-an-apprenticeship-2026-08-08_11-09-22.md
+    importance_score: 80
+    last_updated: '2026-08-08T11:09:22.352443+00:00'
+    title: What Is An Apprenticeship
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/guidance/apprenticeship-funding-rules-for-employers/what-is-an-apprenticeship
+  https://www.cityandguilds.com/digital-credentials:
+    content_hash: sha256:0a016bd7208b3f92
+    stored_at: data/staging/webfetch-mentions-found-2026-08-08_11-09-26.md
+    importance_score: 80
+    last_updated: '2026-08-08T11:09:26.304929+00:00'
+    title: Mentions Found
+    maturity: growing
+    routing_type: meta
+    url: https://www.cityandguilds.com/digital-credentials
+  https://www.apprenticeships.gov.uk/apprentices/off-the-job-training:
+    content_hash: sha256:8c5f740704d11e43
+    stored_at: data/staging/webfetch-off-the-job-training-key-definitions-and-2026-08-08_11-09-46.md
+    importance_score: 80
+    last_updated: '2026-08-08T11:09:46.841464+00:00'
+    title: 'Off-the-Job Training: Key Definitions and Requirements'
+    maturity: growing
+    routing_type: meta
+    url: https://www.apprenticeships.gov.uk/apprentices/off-the-job-training
+  https://www.apprenticeships.gov.uk/employers/training-your-apprentice:
+    content_hash: sha256:883e0fff889c8c7a
+    stored_at: data/staging/webfetch-off-the-job-training-hours-2026-08-08_11-10-00.md
+    importance_score: 80
+    last_updated: '2026-08-08T11:10:00.786327+00:00'
+    title: '**Off-the-job training hours:**'
+    maturity: growing
+    routing_type: meta
+    url: https://www.apprenticeships.gov.uk/employers/training-your-apprentice
+  https://www.skillsofficenetwork.co.uk/post/funding-rules-apprenticeships:
+    content_hash: sha256:c2870431ccda879f
+    stored_at: data/staging/webfetch-off-the-job-training-requirements-key-compliance-2026-08-08_11-10-20.md
+    importance_score: 80
+    last_updated: '2026-08-08T11:10:20.779083+00:00'
+    title: 'Off-the-Job Training Requirements: Key Compliance Points'
+    maturity: growing
+    routing_type: meta
+    url: https://www.skillsofficenetwork.co.uk/post/funding-rules-apprenticeships
+  https://assets.publishing.service.gov.uk/media/695e85122a4a53b73d51384d/park_education_training_centre_outcome_report.pdf:
+    content_hash: sha256:cfb94e8eb38f3cad
+    stored_at: data/staging/webfetch-park-education-training-centre-outcome-report-pdf-2026-08-08_11-10-32.md
+    importance_score: 80
+    last_updated: '2026-08-08T11:10:32.036360+00:00'
+    title: Park Education Training Centre Outcome Report.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://assets.publishing.service.gov.uk/media/695e85122a4a53b73d51384d/Park_Education_Training_Centre_Outcome_Report.pdf
+  https://careerhive.com.au:
+    content_hash: sha256:4d926c6ed4040fcb
+    stored_at: data/staging/webfetch-relevant-mentions-in-careerhive-content-2026-08-08_11-11-01.md
+    importance_score: 80
+    last_updated: '2026-08-08T11:11:01.463105+00:00'
+    title: Relevant Mentions in CareerHive Content
+    maturity: growing
+    routing_type: meta
+    url: https://careerhive.com.au/
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -11524,3 +11878,42 @@ hashes:
   sha256:0d375a6609668d5b: data/staging/webfetch-elicit-s-official-limitations-statement-2026-08-07_02-29-32.md
   sha256:a6a1fa27c933cbb0: data/staging/webfetch-original-url-https-www-ncbi-nlm-nih-gov-pmc-2026-08-07_02-29-49.md
   sha256:c807b7934e6dd1f5: data/staging/webfetch-core-competencies-for-librarians-in-systematic-2026-08-07_02-29-59.md
+  sha256:d318d2933f5f2de0: data/staging/webfetch-latest-3-releases-of-contentauth-c2pa-web-2026-08-07_11-05-33.md
+  sha256:8accb75b042ea211: data/staging/webfetch-workersrc-config-option-overview-2026-08-07_11-06-19.md
+  sha256:a8618467fa87a5cc: data/staging/webfetch-wasm-configuration-analysis-2026-08-07_11-07-40.md
+  sha256:dac2f5ebe61e00c2: data/staging/webfetch-didkit-wasm-implementation-2026-08-07_11-08-33.md
+  sha256:9cac77079c158c56: data/staging/webfetch-t3-network-organizations-and-projects-2026-08-07_11-09-51.md
+  sha256:6ecf0027417dc23b: data/staging/webfetch-analysis-of-hero-page-content-2026-08-07_11-10-11.md
+  sha256:5dfce6ae1b0c2b8f: data/staging/webfetch-electronic-signature-in-blok-2026-08-07_11-10-13.md
+  sha256:a7a1ff4536ca1a88: data/staging/webfetch-status-301-moved-permanently-2026-08-07_11-10-16.md
+  sha256:ded88bc246e0636a: data/staging/webfetch-analysis-of-the-protocolhero-page-2026-08-07_11-10-18.md
+  sha256:2a426a9762e26339: data/staging/webfetch-digital-signature-analysis-mein-handwerker-app-2026-08-07_11-10-35.md
+  sha256:bf4b83fecba962e5: data/staging/webfetch-construction-software-products-named-2026-08-07_11-10-38.md
+  sha256:c17977ab691ac6cf: data/staging/webfetch-analysis-of-the-repository-content-2026-08-07_11-10-40.md
+  sha256:fd4a2d9283e7980a: data/staging/webfetch-certifications-2026-08-07_11-10-57.md
+  sha256:b0169ffaa282c76a: data/staging/webfetch-digital-signature-analysis-of-123erfasst-2026-08-07_11-10-59.md
+  sha256:5522e2df4e1d3629: data/staging/webfetch-page-load-status-and-article-analysis-2026-08-07_11-11-02.md
+  sha256:6d38a867fe090cad: data/staging/webfetch-wet-educatie-en-beroepsonderwijs-web-analysis-2026-08-07_11-11-03.md
+  sha256:4e16923cb8a0f473: data/staging/webfetch-zdh-page-on-digital-berichtsheft-key-findings-2026-08-07_11-11-06.md
+  sha256:554752c9858d4d13: data/staging/webfetch-page-load-and-content-assessment-2026-08-07_11-11-12.md
+  sha256:03f0e5a9ac443555: data/staging/webfetch-scrollshot-extension-overview-2026-08-07_11-11-15.md
+  sha256:e5cac23b8ec35b78: data/staging/webfetch-articles-r6223-1-to-r6223-16-organization-of-2026-08-07_11-11-20.md
+  sha256:11b743c473ba5087: data/staging/webfetch-e-signature-vendors-and-standards-in-construction-2026-08-07_11-11-23.md
+  sha256:1ee741e9bdafb764: data/staging/webfetch-assessment-2026-08-07_11-11-27.md
+  sha256:8847974ef672d51d: data/staging/webfetch-frontline-truth-pipeline-project-overview-2026-08-07_11-11-36.md
+  sha256:e6c17689b5bf1ba3: data/staging/webfetch-digitalbazaar-vc-package-information-2026-08-08_11-07-18.md
+  sha256:07424126ac9086d6: data/staging/webfetch-browser-support-and-library-features-2026-08-08_11-07-20.md
+  sha256:cad16b97fdc710a6: data/staging/webfetch-browser-and-wasm-support-for-ssi-2026-08-08_11-07-20.md
+  sha256:1ad15ec8fbccf063: data/staging/webfetch-didkit-support-summary-2026-08-08_11-07-28.md
+  sha256:9adb96b9b3db8236: data/staging/webfetch-hacker-news-page-validation-2026-08-08_11-08-02.md
+  sha256:6615ca2159c7ab7e: data/staging/webfetch-original-url-https-www-imscert-org-2026-08-08_11-08-18.md
+  sha256:252b03a10e319455: data/staging/webfetch-y-combinator-story-confirmation-2026-08-08_11-08-47.md
+  sha256:83eb72cfc4cff6cb: data/staging/webfetch-search-results-for-apprenticeship-trades-and-2026-08-08_11-08-50.md
+  sha256:4f3f3e7f2001f505: data/staging/webfetch-apprenticeship-funding-rules-2025-to-2026-v2-pdf-2026-08-08_11-09-13.md
+  sha256:ec9c81b8f9ee75d2: data/staging/webfetch-what-is-an-apprenticeship-2026-08-08_11-09-22.md
+  sha256:0a016bd7208b3f92: data/staging/webfetch-mentions-found-2026-08-08_11-09-26.md
+  sha256:8c5f740704d11e43: data/staging/webfetch-off-the-job-training-key-definitions-and-2026-08-08_11-09-46.md
+  sha256:883e0fff889c8c7a: data/staging/webfetch-off-the-job-training-hours-2026-08-08_11-10-00.md
+  sha256:c2870431ccda879f: data/staging/webfetch-off-the-job-training-requirements-key-compliance-2026-08-08_11-10-20.md
+  sha256:cfb94e8eb38f3cad: data/staging/webfetch-park-education-training-centre-outcome-report-pdf-2026-08-08_11-10-32.md
+  sha256:4d926c6ed4040fcb: data/staging/webfetch-relevant-mentions-in-careerhive-content-2026-08-08_11-11-01.md
