@@ -20,9 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `operational_advisor` (MiniMax-M3, intel/coa) and
   `skeptical_analyst` (MiniMax-M2.7, red_team), sourced from new
   `MINIMAX_M3`/`MINIMAX_M2_7` constants in `war_room/config.py`. A
-  `minimax-delegation` skill documents the global
-  (`https://api.minimax.io/v1`) and China (`https://api.minimaxi.com/v1`)
-  regional endpoints, and the Makefile exposes `make delegate-minimax`.
+  `minimax-delegation` skill documents the global and China regional
+  OpenAI- and Anthropic-compatible endpoints, model capabilities, and
+  token pricing, and the Makefile exposes `make delegate-minimax`.
 
 ## [1.9.17] - 2026-07-26
 

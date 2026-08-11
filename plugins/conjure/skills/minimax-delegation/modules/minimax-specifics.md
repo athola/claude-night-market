@@ -2,10 +2,19 @@
 
 ## Model Reference
 
-| Model | Use Case | Context |
-|-------|----------|---------|
-| `MiniMax-M3` | Complex analysis, large context | Up to 1M tokens |
-| `MiniMax-M2.7` | Fast, simple tasks | Standard context |
+`MiniMax-M3` is the default model.
+
+| Model | Use Case | Context | Input | Thinking |
+|-------|----------|---------|-------|----------|
+| `MiniMax-M3` | Complex analysis, large context | 1,000,000 tokens | Text, image, video | Adaptive or disabled |
+| `MiniMax-M2.7` | Fast, simple tasks | 204,800 tokens | Text | Always on |
+
+## Cost Reference (USD per 1M tokens)
+
+| Model | Input | Output | Cache Read | Cache Write |
+|-------|-------|--------|------------|-------------|
+| `MiniMax-M3` | $0.60 | $2.40 | $0.12 | Not available |
+| `MiniMax-M2.7` | $0.30 | $1.20 | $0.06 | $0.375 |
 
 ## CLI Options
 
@@ -18,13 +27,14 @@
 
 ## Regional Endpoints
 
-MiniMax serves two regions with separate base URLs. Set the one that
-matches your account before delegating:
+MiniMax serves two regions with separate OpenAI- and
+Anthropic-compatible base URLs. Set the compatibility and region that
+match your client and account before delegating:
 
-| Region | OpenAI-compatible base URL |
-|--------|---------------------------|
-| Global | `https://api.minimax.io/v1` |
-| China | `https://api.minimaxi.com/v1` |
+| Region | OpenAI-compatible | Anthropic-compatible | Documentation |
+|--------|-------------------|----------------------|---------------|
+| Global | `https://api.minimax.io/v1` | `https://api.minimax.io/anthropic` | `https://platform.minimax.io/docs` |
+| China | `https://api.minimaxi.com/v1` | `https://api.minimaxi.com/anthropic` | `https://platform.minimaxi.com/docs` |
 
 Both regions authenticate with the `MINIMAX_API_KEY` environment
 variable, sent as a bearer token by the `minimax` CLI.

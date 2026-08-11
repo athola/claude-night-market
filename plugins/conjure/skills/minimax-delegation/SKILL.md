@@ -71,11 +71,13 @@ minimax --version
 export MINIMAX_API_KEY="your-key"
 ```
 
-**Regional endpoints:** MiniMax serves two regions. Configure the
-endpoint your account uses before delegating:
+**Regional endpoints:** MiniMax serves two regions. Configure the API
+compatibility and region your account uses before delegating:
 
-- Global: `https://api.minimax.io/v1`
-- China: `https://api.minimaxi.com/v1`
+| Region | OpenAI-compatible | Anthropic-compatible | Documentation |
+|--------|-------------------|----------------------|---------------|
+| Global | `https://api.minimax.io/v1` | `https://api.minimax.io/anthropic` | `https://platform.minimax.io/docs` |
+| China | `https://api.minimaxi.com/v1` | `https://api.minimaxi.com/anthropic` | `https://platform.minimaxi.com/docs` |
 
 Point the `minimax` CLI at the matching base URL per its configuration
 guide. Both regions accept the same `MINIMAX_API_KEY` auth header.
