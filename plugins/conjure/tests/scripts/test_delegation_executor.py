@@ -137,7 +137,7 @@ class TestDelegator:
             if "MINIMAX_API_KEY" in os.environ:
                 del os.environ["MINIMAX_API_KEY"]
 
-        is_available, issues = delegator.verify_service("minimax")
+            is_available, issues = delegator.verify_service("minimax")
 
         assert is_available is False
         assert any("MINIMAX_API_KEY" in issue for issue in issues)
