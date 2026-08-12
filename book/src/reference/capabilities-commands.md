@@ -23,7 +23,7 @@ Scry, Hookify, Leyline](capabilities-commands-extended.md)
 |--------------|-------------|---------|
 | `--verbose` | Enable detailed output | `/bloat-scan --verbose` |
 | `--dry-run` | Preview without executing | `/unbloat --dry-run` |
-| `--force` | Skip confirmation prompts | `/attune:init --force` |
+| `--force` | Skip confirmation prompts | `/attune:project-init --force` |
 | `--report FILE` | Output to file | `/bloat-scan --report audit.md` |
 | `--level N` | Set intensity/depth | `/bloat-scan --level 3` |
 | `--skip-X` | Skip specific phase | `/prepare-pr --skip-updates` |
@@ -190,12 +190,12 @@ Evaluate skill execution quality.
 
 ## Attune Plugin
 
-### `/attune:init`
+### `/attune:project-init`
 Initialize project with complete development infrastructure.
 
 ```bash
 # Usage
-/attune:init [--lang LANGUAGE] [--name NAME] [--author AUTHOR]
+/attune:project-init [--lang LANGUAGE] [--name NAME] [--author AUTHOR]
 
 # Options
 --lang LANGUAGE         Project language: python|rust|typescript|go
@@ -209,8 +209,8 @@ Initialize project with complete development infrastructure.
 --no-git                Skip git initialization
 
 # Examples
-/attune:init --lang python --name my-cli
-/attune:init --lang rust --author "Your Name" --force
+/attune:project-init --lang python --name my-cli
+/attune:project-init --lang rust --author "Your Name" --force
 ```
 
 ### `/attune:brainstorm`

@@ -1887,7 +1887,7 @@ entries:
     stored_at: data/staging/webfetch-hit-found-2026-07-12_11-06-04.md
     importance_score: 89
     last_updated: '2026-07-12T11:06:04.182991+00:00'
-    title: '**Hit Found:**'
+    title: Search By Date
     maturity: growing
     routing_type: meta
     url: https://hn.algolia.com/api/v1/search_by_date?query=documentation%20tool&tags=show_hn&numericFilters=created_at_i%3E1783555200&hitsPerPage=15
@@ -3355,12 +3355,13 @@ entries:
   https://play.google.com/store/apps/details?id=com.skillcat&hl=en_us:
     content_hash: sha256:f26f8db4d4364b94
     stored_at: data/staging/webfetch-to-obtain-this-information-you-would-need-to-2026-07-16_11-17-37.md
-    importance_score: 79
+    importance_score: 50
     last_updated: '2026-07-16T11:17:37.989315+00:00'
     title: Details
-    maturity: growing
-    routing_type: meta
+    maturity: seedling
+    routing_type: archived
     url: https://play.google.com/store/apps/details?id=com.skillcat&hl=en_US
+    null_capture: model-reported-unreadable
   https://www.getguru.com/pricing:
     content_hash: sha256:af981e5fde4b3467
     stored_at: data/staging/webfetch-guru-pricing-analysis-2026-07-16_11-17-38.md
@@ -5953,12 +5954,13 @@ entries:
   https://www.alabamaachieves.org/wp-content/uploads/2021/05/form-105-2020-al-dept-of-education.pdf:
     content_hash: sha256:6742a6d2b6109b85
     stored_at: data/staging/webfetch-to-properly-assist-you-i-would-need-2026-07-29_11-06-42.md
-    importance_score: 79
+    importance_score: 50
     last_updated: '2026-07-29T11:06:42.368987+00:00'
-    title: '**To properly assist you, I would need:**'
-    maturity: growing
-    routing_type: meta
+    title: Form 105 2020 Al Dept Of Education.Pdf
+    maturity: seedling
+    routing_type: archived
     url: https://www.alabamaachieves.org/wp-content/uploads/2021/05/Form-105-2020-Al-Dept-of-Education.pdf
+    null_capture: model-reported-unreadable
   ? https://www.alabamaachieves.org/wp-content/uploads/2024/09/statesuperin_memos_20240910_fy24-3057-alabama-talent-triad-system_v1.0.pdf
   : content_hash: sha256:0c25b0606dff7eb8
     stored_at: data/staging/webfetch-a-text-based-document-or-article-about-the-2026-07-29_11-06-48.md
@@ -6317,12 +6319,13 @@ entries:
   https://le.utah.gov/interim/2025/pdf/00004478.pdf:
     content_hash: sha256:c795905c4ad25e91
     stored_at: data/staging/webfetch-i-cannot-locate-or-quote-any-content-about-2026-07-29_11-18-06.md
-    importance_score: 79
+    importance_score: 50
     last_updated: '2026-07-29T11:18:06.611052+00:00'
-    title: '**I cannot locate or quote any content about:**'
-    maturity: growing
-    routing_type: meta
+    title: 00004478.Pdf
+    maturity: seedling
+    routing_type: archived
     url: https://le.utah.gov/interim/2025/pdf/00004478.pdf
+    null_capture: model-reported-unreadable
   https://apps.apple.com/us/app/builderfax-by-lumber/id6754037484:
     content_hash: sha256:169c3d5257a70fe6
     stored_at: data/staging/webfetch-builderfax-by-lumber-app-information-2026-07-29_11-18-19.md
@@ -7102,12 +7105,13 @@ entries:
   ? https://assets.applytosupply.digitalmarketplace.service.gov.uk/g-cloud-14/documents/709019/173463782527186-pricing-document-2024-05-01-1108.pdf
   : content_hash: sha256:372056c75ffbc629
     stored_at: data/staging/webfetch-could-you-provide-2026-07-31_11-06-49.md
-    importance_score: 79
+    importance_score: 50
     last_updated: '2026-07-31T11:06:49.788487+00:00'
-    title: '**Could you provide:**'
-    maturity: growing
-    routing_type: meta
+    title: 173463782527186 Pricing Document 2024 05 01 1108.Pdf
+    maturity: seedling
+    routing_type: archived
     url: https://assets.applytosupply.digitalmarketplace.service.gov.uk/g-cloud-14/documents/709019/173463782527186-pricing-document-2024-05-01-1108.pdf
+    null_capture: model-reported-unreadable
   https://enterprise.certiverse.com/platform-pricing:
     content_hash: sha256:0efb4154320b5d13
     stored_at: data/staging/webfetch-original-url-https-enterprise-certiverse-com-2026-07-31_11-07-05.md
@@ -9465,7 +9469,7 @@ entries:
     stored_at: data/staging/webfetch-what-it-contains-2026-08-06_11-06-22.md
     importance_score: 80
     last_updated: '2026-08-06T11:06:22.066508+00:00'
-    title: '**What it contains:**'
+    title: Presentation Du Livret Studea
     maturity: growing
     routing_type: meta
     url: https://ensuplr.fr/apprenti/presentation-du-livret-studea/
@@ -9655,7 +9659,7 @@ entries:
     stored_at: data/staging/webfetch-what-is-signed-2026-08-06_11-07-20.md
     importance_score: 80
     last_updated: '2026-08-06T11:07:20.221802+00:00'
-    title: '**What is signed:**'
+    title: Elektronisk Kontrakt
     maturity: growing
     routing_type: meta
     url: https://www.oslo.kommune.no/skole-og-utdanning/opplaring-i-bedrift/larebedrift/elektronisk-kontrakt/
@@ -9691,7 +9695,7 @@ entries:
     stored_at: data/staging/webfetch-full-french-text-of-article-r6223-10-2026-08-06_11-07-29.md
     importance_score: 80
     last_updated: '2026-08-06T11:07:29.352091+00:00'
-    title: '**Full French text of Article R6223-10:**'
+    title: R6223 10
     maturity: growing
     routing_type: meta
     url: https://code.travail.gouv.fr/code-du-travail/r6223-10
@@ -9791,7 +9795,7 @@ entries:
     stored_at: data/staging/webfetch-contracts-and-training-information-2026-08-06_11-08-09.md
     importance_score: 80
     last_updated: '2026-08-06T11:08:09.542703+00:00'
-    title: '**Contracts and training information:**'
+    title: Vigo App Fagopplaring
     maturity: growing
     routing_type: meta
     url: https://novari.no/utdanning/vigo/vigo-app-fagopplaring/
@@ -9807,12 +9811,13 @@ entries:
   https://mboutrecht.nl/wp-content/uploads/2025/05/instructie-digitaal-ondertekenen-student-definitief.pdf:
     content_hash: sha256:74aa101e3aadbc3a
     stored_at: data/staging/webfetch-what-i-can-offer-instead-2026-08-06_11-08-34.md
-    importance_score: 80
+    importance_score: 50
     last_updated: '2026-08-06T11:08:34.206890+00:00'
-    title: '**What I can offer instead:**'
-    maturity: growing
-    routing_type: meta
+    title: Instructie Digitaal Ondertekenen Student Definitief.Pdf
+    maturity: seedling
+    routing_type: archived
     url: https://mboutrecht.nl/wp-content/uploads/2025/05/Instructie-digitaal-ondertekenen-student-Definitief.pdf
+    null_capture: model-reported-unreadable
   https://mboutrecht.nl/wp-content/uploads/2025/04/instructie-digitaal-ondertekenen-leerbedrijf-definitief.pdf:
     content_hash: sha256:e80e1f0e5f19efcb
     stored_at: data/staging/webfetch-instructie-digitaal-ondertekenen-leerbedrijf-2026-08-06_11-08-35.md
@@ -10699,7 +10704,7 @@ entries:
     stored_at: data/staging/webfetch-off-the-job-training-hours-2026-08-08_11-10-00.md
     importance_score: 80
     last_updated: '2026-08-08T11:10:00.786327+00:00'
-    title: '**Off-the-job training hours:**'
+    title: Training Your Apprentice
     maturity: growing
     routing_type: meta
     url: https://www.apprenticeships.gov.uk/employers/training-your-apprentice
@@ -10730,6 +10735,1829 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://careerhive.com.au/
+  https://api.github.com/search/repositories?q=repo:torvalds/linux&sort=stars&order=desc&per_page=1:
+    content_hash: sha256:4947d8ad936fe4f1
+    stored_at: data/staging/webfetch-repository-information-extract-2026-08-09_11-03-33.md
+    importance_score: 83
+    last_updated: '2026-08-09T11:03:33.235091+00:00'
+    title: Repository Information Extract
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=repo:torvalds/linux&sort=stars&order=desc&per_page=1
+  ? https://api.github.com/search/repositories?q=countersignature+supervisor+signature+witness+attestation+sign-off+workflow+approver+signature+dual+signature+evidence+co-sign+attestation+supervisor+approval+hours+verifier+signature&sort=stars&order=desc&per_page=30
+  : content_hash: sha256:cd414d3a4e540c9c
+    stored_at: data/staging/webfetch-github-api-response-analysis-2026-08-09_11-03-39.md
+    importance_score: 83
+    last_updated: '2026-08-09T11:03:39.899212+00:00'
+    title: GitHub API Response Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=countersignature+supervisor+signature+witness+attestation+sign-off+workflow+approver+signature+dual+signature+evidence+co-sign+attestation+supervisor+approval+hours+verifier+signature&sort=stars&order=desc&per_page=30
+  ? https://api.github.com/search/repositories?q=apprenticeship+hours+ojt+hours+tracker+journeyman+hours+nccer+off-the-job+training+trade+apprentice+log+site+diary+electrician+hours+log+welder+qualification+record+logbook+signed&sort=stars&order=desc&per_page=30
+  : content_hash: sha256:5393b0405682b040
+    stored_at: data/staging/webfetch-github-api-response-analysis-2026-08-09_11-03-47.md
+    importance_score: 83
+    last_updated: '2026-08-09T11:03:47.366416+00:00'
+    title: GitHub API Response Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=apprenticeship+hours+OJT+hours+tracker+journeyman+hours+NCCER+off-the-job+training+trade+apprentice+log+site+diary+electrician+hours+log+welder+qualification+record+logbook+signed&sort=stars&order=desc&per_page=30
+  ? https://api.github.com/search/repositories?q=attestation+of+work+proof+of+work+performed+verifiable+credential+trade+skill+open+badges+signed+w3c+verifiable+credential+apprenticeship+skills+passport&sort=stars&order=desc&per_page=30
+  : content_hash: sha256:5007b3b5c6170ba3
+    stored_at: data/staging/webfetch-github-api-response-analysis-2026-08-09_11-03-54.md
+    importance_score: 83
+    last_updated: '2026-08-09T11:03:54.783381+00:00'
+    title: GitHub API Response Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=attestation+of+work+proof+of+work+performed+verifiable+credential+trade+skill+open+badges+signed+W3C+verifiable+credential+apprenticeship+skills+passport&sort=stars&order=desc&per_page=30
+  https://github.com/jameshwang/apprentice_tracking:
+    content_hash: sha256:7516a0322fdc78b0
+    stored_at: data/staging/webfetch-apprentice-tracking-project-analysis-2026-08-09_11-04-19.md
+    importance_score: 100
+    last_updated: '2026-08-09T11:04:19.411167+00:00'
+    title: Apprentice Tracking Project Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/jameshwang/apprentice_tracking
+  https://github.com/aybangueco/ojt-hours-tracker:
+    content_hash: sha256:f9c0141c5edfd7ba
+    stored_at: data/staging/webfetch-ojt-hours-tracker-overview-2026-08-09_11-04-20.md
+    importance_score: 100
+    last_updated: '2026-08-09T11:04:20.987040+00:00'
+    title: OJT Hours Tracker Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/aybangueco/ojt-hours-tracker
+  https://github.com/protocol/send-for-signature:
+    content_hash: sha256:a7d346a156eecb25
+    stored_at: data/staging/webfetch-signature-sleigh-project-overview-2026-08-09_11-04-22.md
+    importance_score: 100
+    last_updated: '2026-08-09T11:04:22.316585+00:00'
+    title: Signature Sleigh Project Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/protocol/send-for-signature
+  https://github.com/itsaaryan/skillset-verified:
+    content_hash: sha256:31dbbf8e2fa1573c
+    stored_at: data/staging/webfetch-skillset-verified-project-overview-2026-08-09_11-04-46.md
+    importance_score: 100
+    last_updated: '2026-08-09T11:04:46.578058+00:00'
+    title: Skillset Verified Project Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/itsaaryan/skillset-verified
+  https://github.com/de-bund-bsi-tr-esor/erverifytool:
+    content_hash: sha256:97da794ec1cd7369
+    stored_at: data/staging/webfetch-evidence-record-verification-tool-overview-2026-08-09_11-04-47.md
+    importance_score: 100
+    last_updated: '2026-08-09T11:04:47.887584+00:00'
+    title: Evidence Record Verification Tool Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/de-bund-bsi-tr-esor/ERVerifyTool
+  https://github.com/adhithyaarun/skill-wallet:
+    content_hash: sha256:3738b41a03f931ab
+    stored_at: data/staging/webfetch-skillwallet-overview-2026-08-09_11-05-12.md
+    importance_score: 100
+    last_updated: '2026-08-09T11:05:12.156094+00:00'
+    title: SkillWallet Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/adhithyaarun/skill-wallet
+  https://github.com/hyperledger-labs/learning-tokens:
+    content_hash: sha256:62a39dc8a9d2cd8e
+    stored_at: data/staging/webfetch-learning-tokens-overview-2026-08-09_11-05-14.md
+    importance_score: 100
+    last_updated: '2026-08-09T11:05:14.323790+00:00'
+    title: Learning Tokens Overview
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/hyperledger-labs/learning-tokens
+  https://chromewebstore.google.com/search/screenshot:
+    content_hash: sha256:d0b8da5ae6d6c5ef
+    stored_at: data/staging/webfetch-chrome-web-store-screenshot-extensions-2026-08-09_11-06-11.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:06:11.428361+00:00'
+    title: Chrome Web Store Screenshot Extensions
+    maturity: growing
+    routing_type: meta
+    url: https://chromewebstore.google.com/search/screenshot
+  https://www.ncarb.org/gain-axp-experience/supervisors-mentors/understanding-your-role/reports:
+    content_hash: sha256:4f0aa21ed595747b
+    stored_at: data/staging/webfetch-axp-supervisor-review-process-2026-08-09_11-06-34.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:06:34.243731+00:00'
+    title: AXP Supervisor Review Process
+    maturity: growing
+    routing_type: meta
+    url: https://www.ncarb.org/gain-axp-experience/supervisors-mentors/understanding-your-role/reports
+  https://chromewebstore.google.com/detail/proofsnap-digital-evidenc/mfbhmfinogdedlgaoihbnmbldpabdhao:
+    content_hash: sha256:8469b5c8d4945c82
+    stored_at: data/staging/webfetch-proofsnap-user-reviews-and-usage-2026-08-09_11-06-56.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:06:56.353622+00:00'
+    title: ProofSnap User Reviews and Usage
+    maturity: growing
+    routing_type: meta
+    url: https://chromewebstore.google.com/detail/proofsnap-digital-evidenc/mfbhmfinogdedlgaoihbnmbldpabdhao
+  https://typhongroup.com/advanced-practice:
+    content_hash: sha256:4ad88cca259f6ffa
+    stored_at: data/staging/webfetch-npst-preceptor-approval-features-2026-08-09_11-06-57.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:06:57.681962+00:00'
+    title: NPST Preceptor Approval Features
+    maturity: growing
+    routing_type: meta
+    url: https://typhongroup.com/advanced-practice/
+  https://apps.apple.com/us/app/jetlog-pilot-logbook/id6468457179:
+    content_hash: sha256:33548dea5c77dc8f
+    stored_at: data/staging/webfetch-jetlog-pilot-logbook-app-report-2026-08-09_11-07-00.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:07:00.426688+00:00'
+    title: Jetlog - Pilot Logbook App Report
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/us/app/jetlog-pilot-logbook/id6468457179
+  https://www.roundtripapp.com/supervisors:
+    content_hash: sha256:821be0998fe34e3f
+    stored_at: data/staging/webfetch-roundtrip-nsw-learner-logbook-2026-08-09_11-07-02.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:07:02.338708+00:00'
+    title: Roundtrip NSW Learner Logbook
+    maturity: growing
+    routing_type: meta
+    url: https://www.roundtripapp.com/supervisors
+  https://apps.apple.com/us/app/timemark-photo-proof-for-work/id6446071834:
+    content_hash: sha256:f744de5f56cde2f9
+    stored_at: data/staging/webfetch-timemark-photo-proof-for-work-app-2026-08-09_11-07-04.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:07:04.047822+00:00'
+    title: 'Timemark: Photo Proof for Work App'
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/us/app/timemark-photo-proof-for-work/id6446071834
+  https://www.accaglobal.com/gb/en/student/practical-experience-per/practical-experience-supervisor.html:
+    content_hash: sha256:77d426f338e77959
+    stored_at: data/staging/webfetch-practical-experience-supervisor-requirements-2026-08-09_11-07-10.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:07:10.947028+00:00'
+    title: Practical Experience Supervisor Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://www.accaglobal.com/gb/en/student/practical-experience-per/practical-experience-supervisor.html
+  https://www.rakenapp.com/features/daily-reports:
+    content_hash: sha256:c57b335ce40cfb18
+    stored_at: data/staging/webfetch-daily-reports-2026-08-09_11-07-20.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:07:20.072960+00:00'
+    title: Daily Reports
+    maturity: growing
+    routing_type: meta
+    url: https://www.rakenapp.com/features/daily-reports
+  https://www.onefile.co.uk/features:
+    content_hash: sha256:1b9f9aee6470f973
+    stored_at: data/staging/webfetch-onefile-features-digital-signatures-evidence-and-2026-08-09_11-07-23.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:07:23.975561+00:00'
+    title: 'Onefile Features: Digital Signatures, Evidence, and Audit Trail'
+    maturity: growing
+    routing_type: meta
+    url: https://www.onefile.co.uk/features
+  https://www.onefile.co.uk:
+    content_hash: sha256:d563907913a54cae
+    stored_at: data/staging/webfetch-onefile-platform-analysis-2026-08-09_11-07-40.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:07:40.916056+00:00'
+    title: Onefile Platform Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.onefile.co.uk/
+  https://gosprout.app/ojt-hours-tracking-app-smarter-training-logs-2026:
+    content_hash: sha256:f85af82b25f7e1ba
+    stored_at: data/staging/webfetch-ojt-hours-tracking-app-analysis-2026-08-09_11-07-42.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:07:42.163925+00:00'
+    title: OJT Hours Tracking App Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://gosprout.app/ojt-hours-tracking-app-smarter-training-logs-2026/
+  https://www.oneadvanced.com/products/eportfolio:
+    content_hash: sha256:7c0d7ec52d438abc
+    stored_at: data/staging/webfetch-eportfolio-smart-assessor-key-features-summary-2026-08-09_11-07-44.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:07:44.412856+00:00'
+    title: ePortfolio (Smart Assessor) - Key Features Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.oneadvanced.com/products/eportfolio/
+  https://aptem.co.uk:
+    content_hash: sha256:c014c9b79182dfe3
+    stored_at: data/staging/webfetch-analysis-of-aptem-website-content-2026-08-09_11-07-45.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:07:45.780071+00:00'
+    title: Analysis of Aptem Website Content
+    maturity: growing
+    routing_type: meta
+    url: https://aptem.co.uk/
+  ? https://support.procore.com/products/online/user-guide/project-level/daily-log/tutorials/approve-or-reject-daily-log-entries
+  : content_hash: sha256:c8941337da917add
+    stored_at: data/staging/webfetch-daily-log-entry-approval-2026-08-09_11-08-00.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:08:00.444688+00:00'
+    title: Daily Log Entry Approval
+    maturity: growing
+    routing_type: meta
+    url: https://support.procore.com/products/online/user-guide/project-level/daily-log/tutorials/approve-or-reject-daily-log-entries
+  https://help.sitemate.com/en/articles/2442128-site-diary:
+    content_hash: sha256:aa373a1d944362ff
+    stored_at: data/staging/webfetch-site-diary-sign-off-and-approval-2026-08-09_11-08-02.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:08:02.871628+00:00'
+    title: Site Diary Sign-Off and Approval
+    maturity: growing
+    routing_type: meta
+    url: https://help.sitemate.com/en/articles/2442128-site-diary
+  https://prostamp.app:
+    content_hash: sha256:542b473b3b855524
+    stored_at: data/staging/webfetch-prostamp-summary-2026-08-09_11-08-06.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:08:06.220407+00:00'
+    title: ProStamp Summary
+    maturity: growing
+    routing_type: meta
+    url: https://prostamp.app/
+  https://www.acgme.org/globalassets/pfassets/programresources/case_log_guidelines.pdf:
+    content_hash: sha256:0df2cde0f1020e7c
+    stored_at: data/staging/webfetch-case-log-guidelines-pdf-2026-08-09_11-08-15.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:08:15.481199+00:00'
+    title: Case Log Guidelines.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.acgme.org/globalassets/PFAssets/ProgramResources/Case_Log_Guidelines.pdf
+  https://prostamp.app/verify:
+    content_hash: sha256:e74f8bf93d9096d7
+    stored_at: data/staging/webfetch-prostamp-verification-method-2026-08-09_11-08-20.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:08:20.998230+00:00'
+    title: ProStamp Verification Method
+    maturity: growing
+    routing_type: meta
+    url: https://prostamp.app/verify
+  https://www.inspectly360.com/apps/risk-management-compliance/photo-evidence-reporting-app:
+    content_hash: sha256:35ad200c1c21bbf9
+    stored_at: data/staging/webfetch-photo-evidence-reporting-app-key-phrases-2026-08-09_11-08-23.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:08:23.057216+00:00'
+    title: Photo Evidence Reporting App - Key Phrases
+    maturity: growing
+    routing_type: meta
+    url: https://www.inspectly360.com/apps/risk-management-compliance/photo-evidence-reporting-app
+  https://www.fulcrumapp.com/apps/contractor-daily-construction-report-app:
+    content_hash: sha256:5ea330ef8e937d99
+    stored_at: data/staging/webfetch-daily-construction-report-app-key-features-2026-08-09_11-08-31.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:08:31.992364+00:00'
+    title: Daily Construction Report App - Key Features
+    maturity: growing
+    routing_type: meta
+    url: https://www.fulcrumapp.com/apps/contractor-daily-construction-report-app/
+  https://signax.io/construction-daily-reports-software:
+    content_hash: sha256:9d34486994fb3889
+    stored_at: data/staging/webfetch-digital-signatures-and-qr-code-features-2026-08-09_11-08-36.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:08:36.213619+00:00'
+    title: Digital Signatures and QR Code Features
+    maturity: growing
+    routing_type: meta
+    url: https://signax.io/construction-daily-reports-software
+  https://fieldworkaba.com:
+    content_hash: sha256:0b4ca01b054b9384
+    stored_at: data/staging/webfetch-fieldworkaba-publisher-platform-pricing-overview-2026-08-09_11-08-40.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:08:40.858356+00:00'
+    title: 'FieldworkABA: Publisher, Platform & Pricing Overview'
+    maturity: growing
+    routing_type: meta
+    url: https://fieldworkaba.com/
+  https://fluix.io/features:
+    content_hash: sha256:8795f6e6b044c8e7
+    stored_at: data/staging/webfetch-fluix-e-signature-features-2026-08-09_11-08-47.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:08:47.834954+00:00'
+    title: Fluix E-Signature Features
+    maturity: growing
+    routing_type: meta
+    url: https://fluix.io/features
+  https://www.rakenapp.com/features/toolbox-talks:
+    content_hash: sha256:f50a6521093ec972
+    stored_at: data/staging/webfetch-toolbox-talks-signature-capture-and-documentation-2026-08-09_11-08-49.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:08:49.869976+00:00'
+    title: 'Toolbox Talks: Signature Capture and Documentation'
+    maturity: growing
+    routing_type: meta
+    url: https://www.rakenapp.com/features/toolbox-talks
+  https://play.google.com/store/apps/details?id=com.newinnov.newinnovations&hl=en_us:
+    content_hash: sha256:1b5ec8527e4a5205
+    stored_at: data/staging/webfetch-what-i-cannot-provide-based-on-this-content-2026-08-09_11-08-51.md
+    importance_score: 50
+    last_updated: '2026-08-09T11:08:51.825706+00:00'
+    title: Details
+    maturity: seedling
+    routing_type: archived
+    url: https://play.google.com/store/apps/details?id=com.newinnov.newinnovations&hl=en_US
+    null_capture: model-reported-unreadable
+  https://www.ojtlogbook.com/features:
+    content_hash: sha256:cfb599f36f2015da
+    stored_at: data/staging/webfetch-ojt-logbook-key-findings-2026-08-09_11-09-02.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:02.081499+00:00'
+    title: OJT Logbook - Key Findings
+    maturity: growing
+    routing_type: meta
+    url: https://www.ojtlogbook.com/features
+  https://sparkshift.app/ojt-tracking:
+    content_hash: sha256:5611fac31045c284
+    stored_at: data/staging/webfetch-problems-sparkshift-solves-2026-08-09_11-09-03.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:03.409494+00:00'
+    title: Problems SparkShift Solves
+    maturity: growing
+    routing_type: meta
+    url: https://sparkshift.app/ojt-tracking
+  https://companycam.com/features:
+    content_hash: sha256:7efc977942197e2c
+    stored_at: data/staging/webfetch-analysis-of-signatures-and-legal-documentation-2026-08-09_11-09-09.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:09:09.245945+00:00'
+    title: Analysis of Signatures and Legal Documentation Features
+    maturity: growing
+    routing_type: meta
+    url: https://companycam.com/features
+  https://sitediary.com:
+    content_hash: sha256:11a32c36f51787ad
+    stored_at: data/staging/webfetch-site-diary-key-features-analysis-2026-08-09_11-09-11.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:11.111849+00:00'
+    title: 'Site Diary: Key Features Analysis'
+    maturity: growing
+    routing_type: meta
+    url: https://sitediary.com/
+  https://la.workhands.us:
+    content_hash: sha256:eb8fca6434a48765
+    stored_at: data/staging/webfetch-original-url-https-la-workhands-us-2026-08-09_11-09-12.md
+    importance_score: 50
+    last_updated: '2026-08-09T11:09:12.407906+00:00'
+    title: 'Original URL: https://la.workhands.us/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://la.workhands.us/
+  https://apps.apple.com/us/app/sparkshift/id6737710285:
+    content_hash: sha256:2af2b9f20aad9520
+    stored_at: data/staging/webfetch-sparkshift-user-reviews-and-feedback-2026-08-09_11-09-13.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:09:13.860565+00:00'
+    title: SparkShift User Reviews and Feedback
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/us/app/sparkshift/id6737710285
+  https://wirehours.com:
+    content_hash: sha256:10ce13ec28fbcbfd
+    stored_at: data/staging/webfetch-wirehours-analysis-2026-08-09_11-09-15.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:15.498585+00:00'
+    title: WireHours Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://wirehours.com/
+  https://www.shiftflow.app:
+    content_hash: sha256:9483b60fecec5e8a
+    stored_at: data/staging/webfetch-shiftflow-content-analysis-2026-08-09_11-09-17.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:17.792650+00:00'
+    title: ShiftFlow Content Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.shiftflow.app/
+  https://sitemaxsystems.com/construction-daily-reports:
+    content_hash: sha256:aa0c1b0f5b0079ea
+    stored_at: data/staging/webfetch-signature-sign-off-and-approval-references-2026-08-09_11-09-22.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:22.835683+00:00'
+    title: Signature, Sign-Off, and Approval References
+    maturity: growing
+    routing_type: meta
+    url: https://sitemaxsystems.com/construction-daily-reports/
+  https://www.gocanvas.com/mobile-forms-apps:
+    content_hash: sha256:348a9e9dd6f9ddac
+    stored_at: data/staging/webfetch-gocanvas-signature-and-photo-capture-features-2026-08-09_11-09-23.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:24.038412+00:00'
+    title: GoCanvas Signature and Photo Capture Features
+    maturity: growing
+    routing_type: meta
+    url: https://www.gocanvas.com/mobile-forms-apps
+  https://www.new-innov.com/pub/gme_details.html:
+    content_hash: sha256:137dc4f4ceb488b8
+    stored_at: data/staging/webfetch-procedure-logger-information-2026-08-09_11-09-29.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:29.101678+00:00'
+    title: Procedure Logger Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.new-innov.com/pub/gme_details.html
+  https://www.mmcgmeservices.org/uploads/4/2/2/3/42234941/logger_module_training_manual_2024.pdf:
+    content_hash: sha256:7237e830752d1dfb
+    stored_at: data/staging/webfetch-to-provide-the-specific-information-you-re-2026-08-09_11-09-32.md
+    importance_score: 50
+    last_updated: '2026-08-09T11:09:32.673008+00:00'
+    title: Logger Module Training Manual 2024.Pdf
+    maturity: seedling
+    routing_type: archived
+    url: https://www.mmcgmeservices.org/uploads/4/2/2/3/42234941/logger_module_training_manual_2024.pdf
+    null_capture: model-reported-unreadable
+  https://exemplarsystems.com.au/product/full-apprenticeship-eprofiling-subscription:
+    content_hash: sha256:a731ae18f7ccfbff
+    stored_at: data/staging/webfetch-original-url-https-exemplarsystems-com-au-product-2026-08-09_11-09-38.md
+    importance_score: 50
+    last_updated: '2026-08-09T11:09:38.584372+00:00'
+    title: 'Original URL: https://exemplarsystems.com.au/product/full-apprenticeship-eprofiling-subscription/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://exemplarsystems.com.au/product/full-apprenticeship-eprofiling-subscription/
+  https://safetyculture.com/checklists:
+    content_hash: sha256:7d1e1668e408df92
+    stored_at: data/staging/webfetch-digital-checklist-features-from-safetyculture-2026-08-09_11-09-41.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:41.867447+00:00'
+    title: Digital Checklist Features from SafetyCulture
+    maturity: growing
+    routing_type: meta
+    url: https://safetyculture.com/checklists/
+  https://apps.apple.com/us/app/workhands-apprenticeship/id1632074287:
+    content_hash: sha256:e4d3402c05d99911
+    stored_at: data/staging/webfetch-workhands-apprenticeship-app-key-details-2026-08-09_11-09-51.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:09:51.022261+00:00'
+    title: WorkHands Apprenticeship App - Key Details
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/us/app/workhands-apprenticeship/id1632074287
+  https://exemplarservices.com.au/product/full-apprenticeship-eprofiling-subscription:
+    content_hash: sha256:e8e7fd47df596ead
+    stored_at: data/staging/webfetch-exemplar-services-key-extract-information-2026-08-09_11-09-53.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:53.804373+00:00'
+    title: 'Exemplar Services: Key Extract Information'
+    maturity: growing
+    routing_type: meta
+    url: https://exemplarservices.com.au/product/full-apprenticeship-eprofiling-subscription/
+  https://www.apprentiscope.com:
+    content_hash: sha256:3fcf79c6623fc0ad
+    stored_at: data/staging/webfetch-apprentiscope-content-extract-2026-08-09_11-09-55.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:55.553687+00:00'
+    title: ApprentiScope Content Extract
+    maturity: growing
+    routing_type: meta
+    url: https://www.apprentiscope.com/
+  https://arcsite.com:
+    content_hash: sha256:e34f49681a473b14
+    stored_at: data/staging/webfetch-what-arcsite-does-2026-08-09_11-09-57.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:57.037653+00:00'
+    title: What ArcSite Does
+    maturity: growing
+    routing_type: meta
+    url: https://arcsite.com/
+  https://gobridgit.com/features:
+    content_hash: sha256:fe6e31bf354efd9f
+    stored_at: data/staging/webfetch-bridgit-product-overview-2026-08-09_11-09-58.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:09:58.589289+00:00'
+    title: Bridgit Product Overview
+    maturity: growing
+    routing_type: meta
+    url: https://gobridgit.com/features/
+  https://onefile.co.uk/explore/how-does-our-eportfolio-support-apprenticeship-standards:
+    content_hash: sha256:58eef8c4ff0558f7
+    stored_at: data/staging/webfetch-analysis-of-onefile-eportfolio-content-2026-08-09_11-10-08.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:10:08.778492+00:00'
+    title: Analysis of Onefile Eportfolio Content
+    maturity: growing
+    routing_type: meta
+    url: https://onefile.co.uk/explore/how-does-our-eportfolio-support-apprenticeship-standards/
+  https://wirehours.com/blog/how-to-track-electrical-apprentice-hours-california-2026:
+    content_hash: sha256:269e80e9abb29ee7
+    stored_at: data/staging/webfetch-how-to-track-electrical-apprentice-hours-in-2026-08-09_11-10-10.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:10:10.637289+00:00'
+    title: '**"How to Track Electrical Apprentice Hours in California [2026 Guide]
+      | WireHours"**'
+    maturity: growing
+    routing_type: meta
+    url: https://wirehours.com/blog/how-to-track-electrical-apprentice-hours-california-2026
+  https://www.myoneflow.com/apprenticeship-management-software:
+    content_hash: sha256:4670cbdfff7cea99
+    stored_at: data/staging/webfetch-analysis-of-myoneflow-web-content-2026-08-09_11-10-12.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:10:12.522682+00:00'
+    title: Analysis of myOneFlow Web Content
+    maturity: growing
+    routing_type: meta
+    url: https://www.myoneflow.com/apprenticeship-management-software
+  https://cit.edu.au/apprentices-trainees/ready-skills:
+    content_hash: sha256:e0ace9be40f2b606
+    stored_at: data/staging/webfetch-ready-skills-overview-2026-08-09_11-10-14.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:10:14.037369+00:00'
+    title: Ready Skills Overview
+    maturity: growing
+    routing_type: meta
+    url: https://cit.edu.au/apprentices-trainees/ready-skills
+  https://www.fieldwire.com/integrations/docusign:
+    content_hash: sha256:3d7ca20b9d5fe966
+    stored_at: data/staging/webfetch-fieldwire-docusign-integration-2026-08-09_11-10-32.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:10:32.722485+00:00'
+    title: Fieldwire & DocuSign Integration
+    maturity: growing
+    routing_type: meta
+    url: https://www.fieldwire.com/integrations/docusign/
+  https://www.tes.com/news/employers-review-20-job-rule-apprentices:
+    content_hash: sha256:dd2088c0851d050f
+    stored_at: data/staging/webfetch-problems-with-the-20-off-the-job-rule-2026-08-09_11-10-34.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:10:34.397901+00:00'
+    title: Problems with the 20% Off-the-Job Rule
+    maturity: growing
+    routing_type: meta
+    url: https://www.tes.com/news/employers-review-20-job-rule-apprentices
+  https://www.tes.com/magazine/archive/apprentices-used-cheap-subsidised-labour-survey-suggests:
+    content_hash: sha256:bb704cbb0b45a738
+    stored_at: data/staging/webfetch-apprentices-key-complaints-2026-08-09_11-10-46.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:10:46.209977+00:00'
+    title: Apprentices' Key Complaints
+    maturity: growing
+    routing_type: meta
+    url: https://www.tes.com/magazine/archive/apprentices-used-cheap-subsidised-labour-survey-suggests
+  https://www.cpask.ca/becomeacpa/cpacertificationprogram/cpaper:
+    content_hash: sha256:4cae2b1cf5731fe6
+    stored_at: data/staging/webfetch-cpa-practical-experience-verification-2026-08-09_11-10-56.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:10:56.922724+00:00'
+    title: CPA Practical Experience Verification
+    maturity: growing
+    routing_type: meta
+    url: https://www.cpask.ca/becomeacpa/cpacertificationprogram/cpaper
+  https://www.mytrainingplan.com.au:
+    content_hash: sha256:be87411c11723150
+    stored_at: data/staging/webfetch-original-url-https-www-mytrainingplan-com-au-2026-08-09_11-11-03.md
+    importance_score: 50
+    last_updated: '2026-08-09T11:11:03.469148+00:00'
+    title: 'Original URL: https://www.mytrainingplan.com.au/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.mytrainingplan.com.au/
+  https://apps.apple.com/us/app/skillrecord-logbook/id920655205:
+    content_hash: sha256:12e18b3cf8464865
+    stored_at: data/staging/webfetch-skillrecord-logbook-app-report-2026-08-09_11-11-06.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:11:06.908751+00:00'
+    title: SkillRecord Logbook App Report
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/us/app/skillrecord-logbook/id920655205
+  https://www.readytech.com.au/readyskills:
+    content_hash: sha256:9699fe8432e151d6
+    stored_at: data/staging/webfetch-original-url-https-www-readytech-com-au-2026-08-09_11-11-12.md
+    importance_score: 50
+    last_updated: '2026-08-09T11:11:12.722172+00:00'
+    title: 'Original URL: https://www.readytech.com.au/readyskills'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.readytech.com.au/readyskills
+  https://www.fenews.co.uk/skills/why-apprentices-should-log-their-20-off-the-job-hours:
+    content_hash: sha256:9143a3262a2e7a37
+    stored_at: data/staging/webfetch-reasons-for-logging-apprenticeship-hours-2026-08-09_11-11-16.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:11:16.781856+00:00'
+    title: Reasons for Logging Apprenticeship Hours
+    maturity: growing
+    routing_type: meta
+    url: https://www.fenews.co.uk/skills/why-apprentices-should-log-their-20-off-the-job-hours/
+  https://readytech.io/readyskills:
+    content_hash: sha256:4a1c52c9bd350fcf
+    stored_at: data/staging/webfetch-ready-skills-product-summary-2026-08-09_11-11-41.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:11:41.011676+00:00'
+    title: Ready Skills Product Summary
+    maturity: growing
+    routing_type: meta
+    url: https://readytech.io/readyskills
+  https://yupro.com/blogs/the-biggest-barrier-to-apprenticeship-adoption-isnt-talent-its-friction:
+    content_hash: sha256:de1117d0ff8d28ef
+    stored_at: data/staging/webfetch-friction-points-in-apprenticeship-adoption-2026-08-09_11-11-43.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:11:43.459001+00:00'
+    title: Friction Points in Apprenticeship Adoption
+    maturity: growing
+    routing_type: meta
+    url: https://yupro.com/blogs/the-biggest-barrier-to-apprenticeship-adoption-isnt-talent-its-friction/
+  https://www.jobsthat.work/p/were-talking-about-apprenticeship:
+    content_hash: sha256:37e08d66a20d5534
+    stored_at: data/staging/webfetch-the-contrarian-view-on-apprenticeships-2026-08-09_11-11-56.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:11:56.107053+00:00'
+    title: The Contrarian View on Apprenticeships
+    maturity: growing
+    routing_type: meta
+    url: https://www.jobsthat.work/p/were-talking-about-apprenticeship
+  https://apps.apple.com/us/app/everything-apprenticeships/id6714476071:
+    content_hash: sha256:8edb1ced52678767
+    stored_at: data/staging/webfetch-everything-apprenticeships-app-report-2026-08-09_11-11-57.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:11:57.635048+00:00'
+    title: Everything Apprenticeships App Report
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/us/app/everything-apprenticeships/id6714476071
+  https://apps.apple.com/us/app/iauditor-inspections-checks/id499999532:
+    content_hash: sha256:8b05563d03c651fa
+    stored_at: data/staging/webfetch-safetyculture-iauditor-app-2026-08-09_11-12-15.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:12:15.533748+00:00'
+    title: SafetyCulture (iAuditor) App
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/us/app/iauditor-inspections-checks/id499999532
+  https://apps.apple.com/us/app/hashtime/id6756709105:
+    content_hash: sha256:58ed8d796cc07345
+    stored_at: data/staging/webfetch-hashtime-app-report-2026-08-09_11-12-31.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:12:31.590197+00:00'
+    title: HashTime App Report
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/us/app/hashtime/id6756709105
+  https://apps.apple.com/us/app/dashpivot/id1093802452:
+    content_hash: sha256:2d356f3ea53d6a5e
+    stored_at: data/staging/webfetch-dashpivot-app-app-store-summary-2026-08-09_11-12-35.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:12:35.340678+00:00'
+    title: Dashpivot App - App Store Summary
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/us/app/dashpivot/id1093802452
+  https://apps.apple.com/us/app/companycam/id960043499:
+    content_hash: sha256:3a94f642209c4056
+    stored_at: data/staging/webfetch-companycam-app-summary-2026-08-09_11-12-36.md
+    importance_score: 80
+    last_updated: '2026-08-09T11:12:36.678005+00:00'
+    title: CompanyCam App Summary
+    maturity: growing
+    routing_type: meta
+    url: https://apps.apple.com/us/app/companycam/id960043499
+  https://skillrecord.com:
+    content_hash: sha256:e66b33ea6522ad69
+    stored_at: data/staging/webfetch-skillrecord-passport-analysis-2026-08-09_11-13-01.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:13:01.783272+00:00'
+    title: SkillRecord Passport Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://skillrecord.com
+  https://www.medhub.com:
+    content_hash: sha256:d626b0882a31ee8a
+    stored_at: data/staging/webfetch-www-medhub-com-2026-08-09_11-14-21.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:14:21.196126+00:00'
+    title: www.medhub.com
+    maturity: growing
+    routing_type: meta
+    url: https://www.medhub.com/
+  https://passport.skillrecord.com:
+    content_hash: sha256:1321df9e064b9e94
+    stored_at: data/staging/webfetch-analysis-of-skillrecord-passport-web-page-2026-08-09_11-15-27.md
+    importance_score: 79
+    last_updated: '2026-08-09T11:15:27.119450+00:00'
+    title: Analysis of SkillRecord Passport Web Page
+    maturity: growing
+    routing_type: meta
+    url: https://passport.skillrecord.com
+  ? https://support.onefile.co.uk/support/solutions/articles/76000087498-document-safety-and-file-integrity-on-the-onefile-platform
+  : content_hash: sha256:63e9b2e6f8f6030e
+    stored_at: data/staging/webfetch-original-url-https-support-onefile-co-uk-support-2026-08-10_11-04-48.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:04:48.931921+00:00'
+    title: 'Original URL: https://support.onefile.co.uk/support/login'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://support.onefile.co.uk/support/solutions/articles/76000087498-document-safety-and-file-integrity-on-the-onefile-platform
+  https://support.onefile.co.uk/support/solutions/articles/76000086228-learning-journal-approval-process:
+    content_hash: sha256:d16ef4d10584c74e
+    stored_at: data/staging/webfetch-original-url-https-support-onefile-co-uk-support-2026-08-10_11-04-50.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:04:50.528276+00:00'
+    title: 'Original URL: https://support.onefile.co.uk/support/login'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://support.onefile.co.uk/support/solutions/articles/76000086228-learning-journal-approval-process
+  ? https://support.onefile.co.uk/support/solutions/articles/76000017683-how-do-i-allow-an-assessor-to-sign-on-behalf-of-a-learner-
+  : content_hash: sha256:2e32436cc15079fd
+    stored_at: data/staging/webfetch-original-url-https-support-onefile-co-uk-support-2026-08-10_11-04-52.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:04:52.257030+00:00'
+    title: 'Original URL: https://support.onefile.co.uk/support/login'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://support.onefile.co.uk/support/solutions/articles/76000017683-how-do-i-allow-an-assessor-to-sign-on-behalf-of-a-learner-
+  https://wsapi.onefile.co.uk/swagger/docs/v1:
+    content_hash: sha256:c920237a93ccf583
+    stored_at: data/staging/webfetch-signature-and-assessment-related-api-endpoints-2026-08-10_11-04-58.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:04:58.357188+00:00'
+    title: Signature and Assessment-Related API Endpoints
+    maturity: growing
+    routing_type: meta
+    url: https://wsapi.onefile.co.uk/swagger/docs/v1
+  https://api.github.com/search/repositories?q=torvalds+linux&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:621c4a9e1ff3c36c
+    stored_at: data/staging/webfetch-linux-repository-search-results-2026-08-10_11-05-15.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:05:15.569321+00:00'
+    title: Linux Repository Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=torvalds+linux&sort=stars&order=desc&per_page=10
+  https://www.pcc.edu/programs/apprenticeship/wp-content/uploads/sites/84/2020/08/tradeschool-training-agent-guide-2020.pdf:
+    content_hash: sha256:c0ba4583b680d602
+    stored_at: data/staging/webfetch-signing-and-approval-of-apprentice-work-reports-2026-08-10_11-05-17.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:05:17.256902+00:00'
+    title: Signing and Approval of Apprentice Work Reports
+    maturity: growing
+    routing_type: meta
+    url: https://www.pcc.edu/programs/apprenticeship/wp-content/uploads/sites/84/2020/08/TradeSchool-Training-Agent-Guide-2020.pdf
+  https://live.onefile.co.uk/userguidefiles?f=%5cassessments%5cinviting+external+assessors.pdf:
+    content_hash: sha256:5e6b5f05b0f9a619
+    stored_at: data/staging/webfetch-text-on-signing-and-verification-2026-08-10_11-05-18.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:05:18.527832+00:00'
+    title: Text on Signing and Verification
+    maturity: growing
+    routing_type: meta
+    url: https://live.onefile.co.uk/userguidefiles?f=%5CAssessments%5CInviting+External+Assessors.pdf
+  https://api.github.com/search/repositories?q=hyperledger-labs+learning-tokens&sort=stars&order=desc:
+    content_hash: sha256:8d301fbdce49285d
+    stored_at: data/staging/webfetch-total-count-0-incomplete-results-false-items-2026-08-10_11-05-24.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:05:24.080658+00:00'
+    title: '{"total_count":0,"incomplete_results":false,"items":[]}'
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=hyperledger-labs+learning-tokens&sort=stars&order=desc
+  https://api.github.com/search/repositories?q=open+badges+3.0+skills&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:e3662e15f673d555
+    stored_at: data/staging/webfetch-repository-extraction-2026-08-10_11-05-27.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:05:27.914574+00:00'
+    title: Repository Extraction
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=open+badges+3.0+skills&sort=stars&order=desc&per_page=10
+  https://api.github.com/search/repositories?q=ausbildungsnachweis&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:6261c13436d20b77
+    stored_at: data/staging/webfetch-github-repositories-ausbildungsnachweis-training-2026-08-10_11-05-33.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:05:33.025020+00:00'
+    title: GitHub Repositories - Ausbildungsnachweis (Training Record) Projects
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=ausbildungsnachweis&sort=stars&order=desc&per_page=10
+  https://api.github.com/search/repositories?q=c2pa+capture+app&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:7712e3d7044b1ac5
+    stored_at: data/staging/webfetch-github-repositories-extracted-2026-08-10_11-05-48.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:05:48.339029+00:00'
+    title: GitHub Repositories Extracted
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=c2pa+capture+app&sort=stars&order=desc&per_page=10
+  https://github.com/lara-learning/lara:
+    content_hash: sha256:11627f0af0335880
+    stored_at: data/staging/webfetch-lara-project-approval-and-verification-features-2026-08-10_11-05-52.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:05:52.101417+00:00'
+    title: 'Lara Project: Approval and Verification Features'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/lara-learning/lara
+  https://api.github.com/search/repositories?q=learning+employment+record&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:1375f6bd504e97b3
+    stored_at: data/staging/webfetch-github-repository-extraction-2026-08-10_11-05-54.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:05:54.420472+00:00'
+    title: GitHub Repository Extraction
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=learning+employment+record&sort=stars&order=desc&per_page=10
+  https://api.github.com/search/repositories?q=hyperledger+learning+credentials&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:56432fb115742c44
+    stored_at: data/staging/webfetch-repository-extraction-results-2026-08-10_11-06-04.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:06:04.596343+00:00'
+    title: Repository Extraction Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=hyperledger+learning+credentials&sort=stars&order=desc&per_page=10
+  https://api.github.com/search/repositories?q=logbook+trainer+sign+off&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:3ea55b4978af3746
+    stored_at: data/staging/webfetch-repository-extraction-results-2026-08-10_11-06-06.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:06:06.581332+00:00'
+    title: Repository Extraction Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=logbook+trainer+sign+off&sort=stars&order=desc&per_page=10
+  https://api.github.com/search/repositories?q=libretto+formativo+trainer&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:e304940fd5acf8a5
+    stored_at: data/staging/webfetch-repository-extraction-results-2026-08-10_11-06-09.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:06:09.109384+00:00'
+    title: Repository Extraction Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=libretto+formativo+trainer&sort=stars&order=desc&per_page=10
+  https://support.apprentiscope.com/how-to-approve-ojt-and-rti-submissions:
+    content_hash: sha256:5276130751e74151
+    stored_at: data/staging/webfetch-ojt-approval-requirements-2026-08-10_11-06-11.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:06:11.122589+00:00'
+    title: OJT Approval Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://support.apprentiscope.com/how-to-approve-ojt-and-rti-submissions
+  https://support.apprentiscope.com/overview-on-the-job-training-ojt-tracking:
+    content_hash: sha256:20c932da895f0076
+    stored_at: data/staging/webfetch-ojt-hour-submission-approval-verbatim-excerpts-2026-08-10_11-06-13.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:06:13.127995+00:00'
+    title: OJT Hour Submission & Approval - Verbatim Excerpts
+    maturity: growing
+    routing_type: meta
+    url: https://support.apprentiscope.com/overview-on-the-job-training-ojt-tracking
+  https://tradeschoolinc.com/apprenticeship/software/support/version-history.php:
+    content_hash: sha256:61eb275385e9587d
+    stored_at: data/staging/webfetch-original-url-https-www-tradeschoolinc-com-2026-08-10_11-06-21.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:06:21.472382+00:00'
+    title: 'Original URL: https://www.tradeschoolinc.com/apprenticeship/software/support/version-history.php'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://tradeschoolinc.com/apprenticeship/software/support/version-history.php
+  https://api.github.com/search/repositories?q=apprenticeship+signature+verification&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:37297aad0a35c4f8
+    stored_at: data/staging/webfetch-repository-extraction-results-2026-08-10_11-06-23.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:06:23.521469+00:00'
+    title: Repository Extraction Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=apprenticeship+signature+verification&sort=stars&order=desc&per_page=10
+  https://github.com/renose/open-renose:
+    content_hash: sha256:4b3311eb6c0afb46
+    stored_at: data/staging/webfetch-open-renose-2026-08-10_11-06-26.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:06:26.130133+00:00'
+    title: Open Renose
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/renose/open-renose
+  https://github.com/timon-schneider/python-berichtsheft-generator:
+    content_hash: sha256:ca8188d7dc460952
+    stored_at: data/staging/webfetch-berichtsheft-generator-signature-verification-2026-08-10_11-06-28.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:06:28.095656+00:00'
+    title: 'Berichtsheft Generator: Signature & Verification Analysis'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Timon-Schneider/Python-Berichtsheft-Generator
+  https://meded.ucsf.edu/sites/meded.ucsf.edu/files/archive/procedures%20in%20the%20medhub%20mobile%20app.pdf:
+    content_hash: sha256:808e44d242800451
+    stored_at: data/staging/webfetch-procedures-20in-20the-20medhub-20mobile-20app-pdf-2026-08-10_11-06-29.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:06:29.525416+00:00'
+    title: Procedures%20In%20The%20Medhub%20Mobile%20App.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://meded.ucsf.edu/sites/meded.ucsf.edu/files/archive/Procedures%20in%20the%20MedHub%20mobile%20app.pdf
+  https://www.medhub.com/software/residency-management-software:
+    content_hash: sha256:31e9d28e735eb64c
+    stored_at: data/staging/webfetch-medhub-procedure-logging-information-2026-08-10_11-06-31.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:06:31.451768+00:00'
+    title: MedHub Procedure Logging Information
+    maturity: growing
+    routing_type: meta
+    url: https://www.medhub.com/software/residency-management-software/
+  https://www.ncarb.org/sites/default/files/axp-guidelines_november-2025.pdf:
+    content_hash: sha256:893d140137500867
+    stored_at: data/staging/webfetch-axp-guidelines-november-2025-pdf-2026-08-10_11-06-34.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:06:34.816405+00:00'
+    title: Axp Guidelines November 2025.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.ncarb.org/sites/default/files/AXP-Guidelines_November-2025.pdf
+  https://www.bbs.ca.gov/pdf/forms/mft/lmft_expver_37a-301_option1.pdf:
+    content_hash: sha256:af4b1c5f146931e7
+    stored_at: data/staging/webfetch-supervisor-certification-attestation-language-2026-08-10_11-06-36.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:06:36.368381+00:00'
+    title: Supervisor Certification/Attestation Language
+    maturity: growing
+    routing_type: meta
+    url: https://www.bbs.ca.gov/pdf/forms/mft/lmft_expver_37a-301_option1.pdf
+  https://api.github.com/search/repositories?q=credentials+apprenticeship+blockchain&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:ae96dd777491f7a8
+    stored_at: data/staging/webfetch-repository-summary-2026-08-10_11-06-39.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:06:39.012546+00:00'
+    title: Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=credentials+apprenticeship+blockchain&sort=stars&order=desc&per_page=10
+  https://tradeschool.document360.io/v1/docs/updates:
+    content_hash: sha256:29dced3418063d71
+    stored_at: data/staging/webfetch-original-url-https-tradeschool-document360-io-v1-2026-08-10_11-06-40.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:06:40.769459+00:00'
+    title: 'Original URL: https://tradeschool.document360.io/v1/docs/updates'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://tradeschool.document360.io/v1/docs/updates
+  https://api.github.com/search/repositories?q=field+report+signature+photo&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:6f1d051f228b452d
+    stored_at: data/staging/webfetch-repository-extraction-2026-08-10_11-06-42.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:06:42.605707+00:00'
+    title: Repository Extraction
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=field+report+signature+photo&sort=stars&order=desc&per_page=10
+  https://www.tradeschoolinc.com/features/apprentice-web-services:
+    content_hash: sha256:fd68d927407f7286
+    stored_at: data/staging/webfetch-tradeschool-apprentice-web-services-overview-2026-08-10_11-06-44.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:06:44.202152+00:00'
+    title: TradeSchool Apprentice Web Services Overview
+    maturity: growing
+    routing_type: meta
+    url: https://www.tradeschoolinc.com/features/apprentice-web-services
+  https://github.com/stevenlence17/apprenticeship-skill-proof:
+    content_hash: sha256:5b61bec0209d352f
+    stored_at: data/staging/webfetch-apprenticeship-skill-proof-2026-08-10_11-06-53.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:06:53.347185+00:00'
+    title: Apprenticeship Skill Proof
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/stevenlence17/apprenticeship-skill-proof
+  https://api.github.com/search/repositories?q=learning+employment+record+verifiable&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:c893ec9cd6bd8a71
+    stored_at: data/staging/webfetch-repository-extraction-results-2026-08-10_11-06-54.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:06:55.878683+00:00'
+    title: Repository Extraction Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=learning+employment+record+verifiable&sort=stars&order=desc&per_page=10
+  https://api.github.com/search/repositories?q=w3c+verifiable+credential+issuer+approval&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:4a55c60b91952ec5
+    stored_at: data/staging/webfetch-repository-extraction-results-2026-08-10_11-07-10.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:07:10.797394+00:00'
+    title: Repository Extraction Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=w3c+verifiable+credential+issuer+approval&sort=stars&order=desc&per_page=10
+  https://github.com/luisgf/openbadgeslib:
+    content_hash: sha256:6e45f289ef234c93
+    stored_at: data/staging/webfetch-multi-party-signatures-and-approval-workflows-2026-08-10_11-07-12.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:07:12.854638+00:00'
+    title: Multi-Party Signatures and Approval Workflows
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/luisgf/openbadgeslib
+  https://med.stanford.edu/content/dam/sm/gme/program_portal/medhub/medhubonlineguideshclpchresidents.pdf:
+    content_hash: sha256:da20877b2b1b1809
+    stored_at: data/staging/webfetch-to-assist-you-effectively-i-would-need-2026-08-10_11-07-14.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:07:14.622079+00:00'
+    title: Medhubonlineguideshclpchresidents.Pdf
+    maturity: seedling
+    routing_type: archived
+    url: https://med.stanford.edu/content/dam/sm/gme/program_portal/medhub/MedHubOnlineGuideSHCLPCHResidents.pdf
+    null_capture: model-reported-unreadable
+  ? https://api.github.com/search/repositories?q=org:hyperledger%20learning%20tokens%20credential&sort=stars&order=desc&per_page=10
+  : content_hash: sha256:0a3a0958a2a7507a
+    stored_at: data/staging/webfetch-repository-extraction-results-2026-08-10_11-07-23.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:07:23.236861+00:00'
+    title: Repository Extraction Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=org:hyperledger%20learning%20tokens%20credential&sort=stars&order=desc&per_page=10
+  https://api.github.com/search/repositories?q=multisignature+training+record&sort=stars&order=desc&per_page=10:
+    content_hash: sha256:1f56820c6567da15
+    stored_at: data/staging/webfetch-repository-extraction-results-2026-08-10_11-07-24.md
+    importance_score: 83
+    last_updated: '2026-08-10T11:07:24.918710+00:00'
+    title: Repository Extraction Results
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=multisignature+training+record&sort=stars&order=desc&per_page=10
+  https://www.ecfr.gov/current/title-29/subtitle-a/part-29/section-29.6:
+    content_hash: sha256:4bf41e3fc34674b8
+    stored_at: data/staging/webfetch-original-url-https-www-ecfr-gov-current-title-29-2026-08-10_11-07-30.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:07:30.973819+00:00'
+    title: 'Original URL: https://www.ecfr.gov/current/title-29/subtitle-A/part-29/section-29.6'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.ecfr.gov/current/title-29/subtitle-A/part-29/section-29.6
+  https://www.gov.uk/search/all?keywords=funding+audit+report+apprenticeship+provider&order=relevance:
+    content_hash: sha256:b3f406a8a336e1e0
+    stored_at: data/staging/webfetch-results-relating-to-funding-audits-and-financial-2026-08-10_11-07-32.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:07:32.457786+00:00'
+    title: Results Relating to Funding Audits and Financial Assurance
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/search/all?keywords=funding+audit+report+apprenticeship+provider&order=relevance
+  https://www.bbs.ca.gov/consumers/enforcement_actions.html:
+    content_hash: sha256:1e3b88608d6d5c41
+    stored_at: data/staging/webfetch-enforcement-action-data-published-2026-08-10_11-07-44.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:07:44.579654+00:00'
+    title: Enforcement Action Data Published
+    maturity: growing
+    routing_type: meta
+    url: https://www.bbs.ca.gov/consumers/enforcement_actions.html
+  ? https://www.gov.uk/government/publications/esfa-assurance-work-on-post-16-funding/common-findings-from-funding-assurance-work-on-post-16-education-providers
+  : content_hash: sha256:a20a381329e6bae5
+    stored_at: data/staging/webfetch-common-findings-from-post-16-education-funding-2026-08-10_11-07-47.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:07:47.172003+00:00'
+    title: Common Findings from Post-16 Education Funding Assurance (2022-2023)
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/government/publications/esfa-assurance-work-on-post-16-funding/common-findings-from-funding-assurance-work-on-post-16-education-providers
+  https://www.gov.uk/government/publications/esfa-assurance-work-on-post-16-funding:
+    content_hash: sha256:514b4678cdaeac46
+    stored_at: data/staging/webfetch-dfe-post-16-funding-assurance-documents-2026-08-10_11-07-49.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:07:49.737894+00:00'
+    title: DfE Post-16 Funding Assurance Documents
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/government/publications/esfa-assurance-work-on-post-16-funding
+  https://www.law.cornell.edu/cfr/text/29/29.6:
+    content_hash: sha256:cb808a2466dfd102
+    stored_at: data/staging/webfetch-29-6-2026-08-10_11-07-52.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:07:52.490063+00:00'
+    title: '29.6'
+    maturity: growing
+    routing_type: meta
+    url: https://www.law.cornell.edu/cfr/text/29/29.6
+  https://www.law.cornell.edu/cfr/text/29/29.5:
+    content_hash: sha256:79edf01965625c48
+    stored_at: data/staging/webfetch-regulatory-requirements-summary-2026-08-10_11-07-54.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:07:54.343729+00:00'
+    title: Regulatory Requirements Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.law.cornell.edu/cfr/text/29/29.5
+  https://www.bbs.ca.gov/pdf/publications/dispguid.pdf:
+    content_hash: sha256:93b769553a86dfb1
+    stored_at: data/staging/webfetch-what-i-cannot-do-with-this-content-2026-08-10_11-07-59.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:07:59.880004+00:00'
+    title: Dispguid.Pdf
+    maturity: seedling
+    routing_type: archived
+    url: https://www.bbs.ca.gov/pdf/publications/dispguid.pdf
+    null_capture: model-reported-unreadable
+  https://www.medhub.com/training-and-consulting/integration:
+    content_hash: sha256:e44a7bbf960b88cf
+    stored_at: data/staging/webfetch-data-security-and-related-topics-from-medhub-2026-08-10_11-08-16.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:08:16.583596+00:00'
+    title: Data Security and Related Topics from MedHub
+    maturity: growing
+    routing_type: meta
+    url: https://www.medhub.com/training-and-consulting/integration/
+  ? https://github.com/decentralized-identity/labs/blob/main/proposals/beta-cohort-2-2025/anon-multi-sig-vc/anon_multi_sig_vc_proposal.md
+  : content_hash: sha256:c959af64e6a88681
+    stored_at: data/staging/webfetch-analysis-of-the-anonymous-multi-signature-vc-2026-08-10_11-08-24.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:08:24.476292+00:00'
+    title: Analysis of the Anonymous Multi-Signature VC Proposal
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/decentralized-identity/labs/blob/main/proposals/beta-cohort-2-2025/anon-multi-sig-vc/anon_multi_sig_vc_proposal.md
+  https://github.com/w3c-ccg/edu_occ_verifiable_credentials:
+    content_hash: sha256:85ec512434ece46a
+    stored_at: data/staging/webfetch-assessment-of-the-repository-2026-08-10_11-08-26.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:08:26.430540+00:00'
+    title: Assessment of the Repository
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/w3c-ccg/edu_occ_verifiable_credentials
+  https://github.com/nikhildsahu/e-certify:
+    content_hash: sha256:20ff279c040fa047
+    stored_at: data/staging/webfetch-certificate-approval-workflow-in-e-certify-2026-08-10_11-08-28.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:08:28.088754+00:00'
+    title: Certificate Approval Workflow in E-Certify
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/nikhildsahu/E-Certify
+  https://leginfo.legislature.ca.gov/faces/codes_displaysection.xhtml?lawcode=bpc&sectionnum=4982:
+    content_hash: sha256:44546a64edb5ab8b
+    stored_at: data/staging/webfetch-california-business-and-professions-code-4982-2026-08-10_11-08-34.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:08:34.667926+00:00'
+    title: "California Business and Professions Code \xA7 4982 - Subsections (r),\
+      \ (t), and (u)"
+    maturity: growing
+    routing_type: meta
+    url: https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=4982
+  https://www.lni.wa.gov/licensing-permits/apprenticeship/apprenticeship-registration-and-tracking-system:
+    content_hash: sha256:0610d8bf2c04581c
+    stored_at: data/staging/webfetch-apprenticeship-registration-and-tracking-system-2026-08-10_11-08-36.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:08:36.485317+00:00'
+    title: Apprenticeship Registration And Tracking System
+    maturity: growing
+    routing_type: meta
+    url: https://www.lni.wa.gov/licensing-permits/apprenticeship/apprenticeship-registration-and-tracking-system
+  https://www.new-innov.com/pub/support.html:
+    content_hash: sha256:b014fc6e9bb787fa
+    stored_at: data/staging/webfetch-support-html-2026-08-10_11-08-38.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:08:38.795724+00:00'
+    title: Support.Html
+    maturity: growing
+    routing_type: meta
+    url: https://www.new-innov.com/pub/support.html
+  https://certs.fsmb.org:
+    content_hash: sha256:b2b1a12f9de5ec2d
+    stored_at: data/staging/webfetch-fsmb-document-verification-methods-2026-08-10_11-08-41.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:08:41.858108+00:00'
+    title: FSMB Document Verification Methods
+    maturity: growing
+    routing_type: meta
+    url: https://certs.fsmb.org/
+  https://github.com/sergio11/trust_certification_system_blockchain:
+    content_hash: sha256:f4c9314008ec3a97
+    stored_at: data/staging/webfetch-trust-certification-system-approval-workflow-2026-08-10_11-08-43.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:08:43.356893+00:00'
+    title: Trust Certification System - Approval Workflow & Status
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/sergio11/trust_certification_system_blockchain
+  https://www.apprenticeship.gov/verify-my-apprenticeship:
+    content_hash: sha256:49db72136a5a5fcf
+    stored_at: data/staging/webfetch-verify-my-apprenticeship-service-analysis-2026-08-10_11-08-53.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:08:53.211184+00:00'
+    title: Verify My Apprenticeship Service Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.apprenticeship.gov/verify-my-apprenticeship
+  https://github.com/schroedinger-hat/certo:
+    content_hash: sha256:13c8e9ccaed476a0
+    stored_at: data/staging/webfetch-certo-countersignature-w3c-vc-and-deployment-2026-08-10_11-08-56.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:08:56.563368+00:00'
+    title: 'Certo: Countersignature, W3C VC, and Deployment Status'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/Schroedinger-Hat/certo
+  https://github.com/profoj/fowos-mvp:
+    content_hash: sha256:52533c35b93c3c96
+    stored_at: data/staging/webfetch-fowos-credential-workflows-2026-08-10_11-08-57.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:08:57.946034+00:00'
+    title: FOWOS Credential Workflows
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/ProfOJ/fowos-mvp
+  https://github.com/friesw/photoproof:
+    content_hash: sha256:120c14988b00c4a2
+    stored_at: data/staging/webfetch-photoproof-assessment-2026-08-10_11-09-16.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:09:16.712246+00:00'
+    title: PhotoProof Assessment
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/FriesW/PhotoProof
+  https://github.com/zipwireapp/proofpack:
+    content_hash: sha256:be9ee11c4354ef28
+    stored_at: data/staging/webfetch-proofpack-analysis-2026-08-10_11-09-18.md
+    importance_score: 100
+    last_updated: '2026-08-10T11:09:18.400771+00:00'
+    title: ProofPack Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/zipwireapp/ProofPack
+  https://pmc.ncbi.nlm.nih.gov/articles/pmc3886449:
+    content_hash: sha256:774ecd95ba14fbf5
+    stored_at: data/staging/webfetch-duty-hour-reporting-dishonesty-key-findings-2026-08-10_11-09-19.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:09:19.921770+00:00'
+    title: 'Duty Hour Reporting Dishonesty: Key Findings'
+    maturity: growing
+    routing_type: meta
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC3886449/
+  https://www.gao.gov/products/gao-05-886:
+    content_hash: sha256:abd22d4be0a62556
+    stored_at: data/staging/webfetch-registered-apprenticeship-programs-labor-can-2026-08-10_11-09-21.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:09:21.536822+00:00'
+    title: 'Registered Apprenticeship Programs: Labor Can Better Use Data to Target
+      Oversight'
+    maturity: growing
+    routing_type: meta
+    url: https://www.gao.gov/products/gao-05-886
+  https://www.uvaemergency.com/new-innovations-and-procedure-logging:
+    content_hash: sha256:8f896781edac3988
+    stored_at: data/staging/webfetch-new-innovations-and-procedure-logging-2026-08-10_11-09-24.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:09:24.468114+00:00'
+    title: New Innovations And Procedure Logging
+    maturity: growing
+    routing_type: meta
+    url: https://www.uvaemergency.com/new-innovations-and-procedure-logging
+  https://oig.hhs.gov/newsroom/media-materials/nightingale:
+    content_hash: sha256:fcd709ed144ec5b9
+    stored_at: data/staging/webfetch-operation-nightingale-enforcement-action-key-facts-2026-08-10_11-09-33.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:09:33.120589+00:00'
+    title: Operation Nightingale Enforcement Action - Key Facts
+    maturity: growing
+    routing_type: meta
+    url: https://oig.hhs.gov/newsroom/media-materials/nightingale/
+  https://oig.hhs.gov/fraud/enforcement/fraud-charges-filed-against-12-defendants-in-phase-ii-of-operation-nightingale:
+    content_hash: sha256:a0d65526ddd7797e
+    stored_at: data/staging/webfetch-operation-nightingale-key-details-2026-08-10_11-09-45.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:09:46.002136+00:00'
+    title: Operation Nightingale - Key Details
+    maturity: growing
+    routing_type: meta
+    url: https://oig.hhs.gov/fraud/enforcement/fraud-charges-filed-against-12-defendants-in-phase-ii-of-operation-nightingale/
+  https://www.ecfr.gov/current/title-14/chapter-i/subchapter-d/part-61/subpart-a/section-61.59:
+    content_hash: sha256:ca6514a3d516504c
+    stored_at: data/staging/webfetch-redirect-url-https-unblock-federalregister-gov-2026-08-10_11-09-48.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:09:48.610508+00:00'
+    title: 'Redirect URL: https://unblock.federalregister.gov/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.ecfr.gov/current/title-14/chapter-I/subchapter-D/part-61/subpart-A/section-61.59
+  ? https://www.oneadvanced.com/siteassets/resources/terms-and-conditions/service-descriptions/service-description.eportfolio.pdf
+  : content_hash: sha256:610a7aedd67b2ea3
+    stored_at: data/staging/webfetch-analysis-of-pdf-content-2026-08-10_11-10-08.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:10:08.235169+00:00'
+    title: Analysis of PDF Content
+    maturity: growing
+    routing_type: meta
+    url: https://www.oneadvanced.com/siteassets/resources/terms-and-conditions/service-descriptions/service-description.eportfolio.pdf
+  https://www.oregon.gov/boli/apprenticeship/standards/1028_0510.2.pdf:
+    content_hash: sha256:ddcb7443743bf5e0
+    stored_at: data/staging/webfetch-to-help-you-effectively-i-would-need-2026-08-10_11-10-12.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:10:12.811669+00:00'
+    title: 1028 0510.2.Pdf
+    maturity: seedling
+    routing_type: archived
+    url: https://www.oregon.gov/boli/apprenticeship/Standards/1028_0510.2.pdf
+    null_capture: model-reported-unreadable
+  https://www.medhub.com/globalsupportmanual:
+    content_hash: sha256:b36e7dfe9496a4e7
+    stored_at: data/staging/webfetch-globalsupportmanual-2026-08-10_11-10-21.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:10:21.151020+00:00'
+    title: Globalsupportmanual
+    maturity: growing
+    routing_type: meta
+    url: https://www.medhub.com/globalsupportmanual/
+  https://support.apprentiscope.com/apprentiscope-api-reference:
+    content_hash: sha256:94b6102488d52df0
+    stored_at: data/staging/webfetch-apprentiscope-api-ojt-hours-authentication-2026-08-10_11-10-32.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:10:32.232904+00:00'
+    title: 'ApprentiScope API: OJT Hours & Authentication Analysis'
+    maturity: growing
+    routing_type: meta
+    url: https://support.apprentiscope.com/apprentiscope-api-reference
+  https://support.apprentiscope.com/how-to-use-e-signatures-to-automate-apprentice-agreements:
+    content_hash: sha256:061288c89d59a8b6
+    stored_at: data/staging/webfetch-e-signature-information-from-apprentiscope-2026-08-10_11-10-34.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:10:34.055614+00:00'
+    title: E-Signature Information from ApprentiScope Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://support.apprentiscope.com/how-to-use-e-signatures-to-automate-apprentice-agreements
+  https://www.tradeschoolinc.com/products/mobile-app:
+    content_hash: sha256:65431778af8cc64f
+    stored_at: data/staging/webfetch-text-about-requested-topics-2026-08-10_11-10-37.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:10:37.022434+00:00'
+    title: Text About Requested Topics
+    maturity: growing
+    routing_type: meta
+    url: https://www.tradeschoolinc.com/products/mobile-app
+  https://wirelessestimator.com/articles/2024/fraudulent-training-certifications-a-persistent-issue-in-telecom-safety:
+    content_hash: sha256:2b7e5c53f2ef7221
+    stored_at: data/staging/webfetch-analysis-of-enforcement-actions-and-primary-2026-08-10_11-10-44.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:10:44.982446+00:00'
+    title: Analysis of Enforcement Actions and Primary Sources
+    maturity: growing
+    routing_type: meta
+    url: https://wirelessestimator.com/articles/2024/fraudulent-training-certifications-a-persistent-issue-in-telecom-safety/
+  https://www.bacb.com/documenting-fieldwork-helpful-answers-to-your-faqs:
+    content_hash: sha256:dd21cca05d85ef8c
+    stored_at: data/staging/webfetch-fieldwork-verification-form-requirements-2026-08-10_11-10-46.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:10:46.792777+00:00'
+    title: Fieldwork Verification Form Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://www.bacb.com/documenting-fieldwork-helpful-answers-to-your-faqs/
+  https://www.bbs.ca.gov/licensees/supervisor.html:
+    content_hash: sha256:e0732db3b91eb275
+    stored_at: data/staging/webfetch-supervisor-verification-resources-2026-08-10_11-10-54.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:10:54.143347+00:00'
+    title: Supervisor Verification Resources
+    maturity: growing
+    routing_type: meta
+    url: https://www.bbs.ca.gov/licensees/supervisor.html
+  https://help.ncees.org/article/69-professional-reference-faqs:
+    content_hash: sha256:f32641f720491c76
+    stored_at: data/staging/webfetch-professional-references-verification-ncees-2026-08-10_11-10-58.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:10:58.840179+00:00'
+    title: Professional References Verification - NCEES
+    maturity: growing
+    routing_type: meta
+    url: https://help.ncees.org/article/69-professional-reference-faqs
+  ? https://www.gov.uk/government/publications/esfa-assurance-work-on-post-16-funding/common-findings-from-assurance-work-on-post-16-education-providers-2023-to-2024-assurance-year
+  : content_hash: sha256:2bed9bbadb13e6cb
+    stored_at: data/staging/webfetch-key-verbatim-findings-on-off-the-job-training-and-2026-08-10_11-11-00.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:11:00.497783+00:00'
+    title: Key Verbatim Findings on Off-the-Job Training and Evidence
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/government/publications/esfa-assurance-work-on-post-16-funding/common-findings-from-assurance-work-on-post-16-education-providers-2023-to-2024-assurance-year
+  ? https://www.gov.uk/api/search.json?q=apprenticeship+funding+rules+main+providers&count=30&fields=title&fields=link&fields=public_timestamp
+  : content_hash: sha256:4526ffd846e2b975
+    stored_at: data/staging/webfetch-search-results-2026-08-10_11-11-08.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:11:08.821754+00:00'
+    title: Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/api/search.json?q=apprenticeship+funding+rules+main+providers&count=30&fields=title&fields=link&fields=public_timestamp
+  https://pubmed.ncbi.nlm.nih.gov/28529194:
+    content_hash: sha256:d1bc65b49f120276
+    stored_at: data/staging/webfetch-abstract-verbatim-2026-08-10_11-11-15.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:11:15.137184+00:00'
+    title: Abstract (Verbatim)
+    maturity: growing
+    routing_type: meta
+    url: https://pubmed.ncbi.nlm.nih.gov/28529194/
+  https://www.gov.uk/government/publications/apprenticeship-funding-rules-2025-to-2026:
+    content_hash: sha256:3aff0a15ab04dfea
+    stored_at: data/staging/webfetch-documents-and-attachments-2026-08-10_11-11-24.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:11:24.409705+00:00'
+    title: Documents and Attachments
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/government/publications/apprenticeship-funding-rules-2025-to-2026
+  https://www.gov.uk/government/publications/apprenticeship-provider-and-assessment-register-conditions-of-acceptance:
+    content_hash: sha256:048776ebc8276bf3
+    stored_at: data/staging/webfetch-attachment-url-2026-08-10_11-11-27.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:11:27.408060+00:00'
+    title: Attachment URL
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/government/publications/apprenticeship-provider-and-assessment-register-conditions-of-acceptance
+  https://www.ecfr.gov/current/title-30/chapter-i/subchapter-h/part-48/subpart-a/section-48.9:
+    content_hash: sha256:090499156bcb3905
+    stored_at: data/staging/webfetch-redirect-url-https-unblock-federalregister-gov-2026-08-10_11-11-34.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:11:34.456815+00:00'
+    title: 'Redirect URL: https://unblock.federalregister.gov/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://www.ecfr.gov/current/title-30/chapter-I/subchapter-H/part-48/subpart-A/section-48.9
+  https://www.law.cornell.edu/cfr/text/30/48.9:
+    content_hash: sha256:43b43b87334b77d1
+    stored_at: data/staging/webfetch-30-cfr-48-9-records-of-training-2026-08-10_11-11-42.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:11:42.843191+00:00'
+    title: "30 CFR \xA7 48.9 - Records of Training"
+    maturity: growing
+    routing_type: meta
+    url: https://www.law.cornell.edu/cfr/text/30/48.9
+  ? https://www.gov.uk/government/publications/apprenticeship-provider-and-assessment-register-conditions-of-acceptance/apar-conditions-of-acceptance
+  : content_hash: sha256:c7f0bf9858a74d0d
+    stored_at: data/staging/webfetch-apar-conditions-false-information-2026-08-10_11-11-45.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:11:45.171869+00:00'
+    title: 'APAR Conditions: False Information, Misrepresentation, and Removal Grounds'
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/government/publications/apprenticeship-provider-and-assessment-register-conditions-of-acceptance/apar-conditions-of-acceptance
+  https://services.corehighered.com/core-elms-externship-management:
+    content_hash: sha256:af8f27a687fbfe02
+    stored_at: data/staging/webfetch-hours-tracking-and-preceptor-verification-2026-08-10_11-11-51.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:11:51.109341+00:00'
+    title: Hours Tracking and Preceptor Verification
+    maturity: growing
+    routing_type: meta
+    url: https://services.corehighered.com/core-elms-externship-management
+  https://blog.apprentiscope.com/posts/how-to-manage-rapids-compliance:
+    content_hash: sha256:9c7fc9cc7ddfc5c2
+    stored_at: data/staging/webfetch-what-rapids-tracks-and-doesn-t-track-2026-08-10_11-11-53.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:11:53.366805+00:00'
+    title: What RAPIDS Tracks and Doesn't Track
+    maturity: growing
+    routing_type: meta
+    url: https://blog.apprentiscope.com/posts/how-to-manage-rapids-compliance
+  https://iuoe673.org/wp-content/uploads/2025/06/ojt-form-guide-pdf-2.pdf:
+    content_hash: sha256:a282d55b0274e6f1
+    stored_at: data/staging/webfetch-ojt-form-guide-pdf-2-pdf-2026-08-10_11-11-55.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:11:55.754386+00:00'
+    title: Ojt Form Guide Pdf 2.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://iuoe673.org/wp-content/uploads/2025/06/OJT-Form-Guide-PDF-2.pdf
+  https://readytech.io/what-we-do/education/products/ready-skills/overview:
+    content_hash: sha256:ae9e344465455a6f
+    stored_at: data/staging/webfetch-ready-skills-key-features-on-verification-2026-08-10_11-12-03.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:12:03.490503+00:00'
+    title: 'Ready Skills: Key Features on Verification & Compliance'
+    maturity: growing
+    routing_type: meta
+    url: https://readytech.io/what-we-do/education/products/ready-skills/overview
+  https://www.osha.gov/training/outreach/investigation-procedures:
+    content_hash: sha256:a87193e4946adf74
+    stored_at: data/staging/webfetch-osha-outreach-training-program-investigation-2026-08-10_11-12-18.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:12:18.100138+00:00'
+    title: OSHA Outreach Training Program Investigation Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.osha.gov/training/outreach/investigation-procedures
+  https://www.applytosupply.digitalmarketplace.service.gov.uk/g-cloud/services/968019853154653:
+    content_hash: sha256:0bd8f0cac4921f87
+    stored_at: data/staging/webfetch-eportfolio-smart-assessor-key-service-details-2026-08-10_11-12-30.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:12:30.110292+00:00'
+    title: ePortfolio (Smart Assessor) - Key Service Details
+    maturity: growing
+    routing_type: meta
+    url: https://www.applytosupply.digitalmarketplace.service.gov.uk/g-cloud/services/968019853154653
+  ? https://www.gov.uk/api/search.json?q=3aaa+aspire+achieve+advance&count=20&fields=title&fields=link&fields=public_timestamp&fields=format
+  : content_hash: sha256:208d9ffdbb46b9b5
+    stored_at: data/staging/webfetch-search-results-summary-2026-08-10_11-12-48.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:12:48.337984+00:00'
+    title: Search Results Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/api/search.json?q=3aaa+Aspire+Achieve+Advance&count=20&fields=title&fields=link&fields=public_timestamp&fields=format
+  https://www.typhongroup.com/advanced-practice:
+    content_hash: sha256:0f67a869cd92941b
+    stored_at: data/staging/webfetch-preceptors-can-easily-monitor-and-approve-2026-08-10_11-12-52.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:12:52.665925+00:00'
+    title: '**"Preceptors can easily monitor and approve students'' case logs and
+      time logs."**'
+    maturity: growing
+    routing_type: meta
+    url: https://www.typhongroup.com/advanced-practice/
+  ? https://www.gov.uk/api/search.json?q=apprenticeship+provider+investigation+funding+recovery+clawback&count=30&fields=title&fields=link&fields=public_timestamp&fields=format
+  : content_hash: sha256:01206b1f7cf1e7ea
+    stored_at: data/staging/webfetch-search-results-summary-2026-08-10_11-12-58.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:12:58.689560+00:00'
+    title: Search Results Summary
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/api/search.json?q=apprenticeship+provider+investigation+funding+recovery+clawback&count=30&fields=title&fields=link&fields=public_timestamp&fields=format
+  https://highpass.com/pages/california-bbs-acceptance-of-digital-signatures:
+    content_hash: sha256:261ec740a0852d67
+    stored_at: data/staging/webfetch-california-bbs-signature-acceptance-2026-08-10_11-13-01.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:13:01.333732+00:00'
+    title: California BBS Signature Acceptance
+    maturity: growing
+    routing_type: meta
+    url: https://highpass.com/pages/california-bbs-acceptance-of-digital-signatures
+  https://www.umc.edu/son/current%20students/son%20preceptors/aprn/medatrax.html:
+    content_hash: sha256:7fddc2cf1622729c
+    stored_at: data/staging/webfetch-medatrax-preceptor-functions-2026-08-10_11-13-09.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:13:09.062327+00:00'
+    title: Medatrax Preceptor Functions
+    maturity: growing
+    routing_type: meta
+    url: https://www.umc.edu/son/Current%20Students/SON%20Preceptors/APRN/Medatrax.html
+  https://www.gov.uk/government/publications/financial-assurance-monitoring-post-16-funding:
+    content_hash: sha256:8d32a5f0de492741
+    stored_at: data/staging/webfetch-documents-in-collection-2026-08-10_11-13-12.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:13:12.885117+00:00'
+    title: Documents in Collection
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/government/publications/financial-assurance-monitoring-post-16-funding
+  https://www.gov.uk/guidance/apprenticeship-funding-rules-for-training-providers/evidence-requirements:
+    content_hash: sha256:ac2918a8ad596437
+    stored_at: data/staging/webfetch-evidence-requirements-2026-08-10_11-13-15.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:13:15.117711+00:00'
+    title: Evidence Requirements
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/guidance/apprenticeship-funding-rules-for-training-providers/evidence-requirements
+  https://discover.castlebranch.com/industries/higher-education:
+    content_hash: sha256:ac1180118e306653
+    stored_at: data/staging/webfetch-original-url-https-discover-castlebranch-com-2026-08-10_11-13-22.md
+    importance_score: 50
+    last_updated: '2026-08-10T11:13:22.498177+00:00'
+    title: 'Original URL: https://discover.castlebranch.com/industries/higher-education/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://discover.castlebranch.com/industries/higher-education/
+  https://time2track.com/features/online-supervisor-approval:
+    content_hash: sha256:07bc524b79ad1781
+    stored_at: data/staging/webfetch-time2track-supervisor-approval-process-2026-08-10_11-13-27.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:13:27.410016+00:00'
+    title: Time2Track Supervisor Approval Process
+    maturity: growing
+    routing_type: meta
+    url: https://time2track.com/features/online-supervisor-approval/
+  https://inplacesoftware.com/help-center:
+    content_hash: sha256:8408a8979d4a295c
+    stored_at: data/staging/webfetch-inplace-support-resources-links-topics-2026-08-10_11-13-29.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:13:29.604746+00:00'
+    title: InPlace Support Resources - Links & Topics
+    maturity: growing
+    routing_type: meta
+    url: https://inplacesoftware.com/help-center/
+  https://feweek.co.uk/3aaa-forced-to-stop-recruiting-new-apprentices-following-esfa-investigation:
+    content_hash: sha256:25e5507c1e0c12db
+    stored_at: data/staging/webfetch-esfa-investigation-into-3aaa-verbatim-quotes-2026-08-10_11-13-41.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:13:41.713758+00:00'
+    title: 'ESFA Investigation into 3aaa: Verbatim Quotes'
+    maturity: growing
+    routing_type: meta
+    url: https://feweek.co.uk/3aaa-forced-to-stop-recruiting-new-apprentices-following-esfa-investigation/
+  https://feweek.co.uk/revealed-dfe-damning-investigation-into-3aaa:
+    content_hash: sha256:0bcea6ca4947e72d
+    stored_at: data/staging/webfetch-dfe-esfa-investigation-findings-on-3aaa-2026-08-10_11-13-44.md
+    importance_score: 80
+    last_updated: '2026-08-10T11:13:44.079819+00:00'
+    title: DfE/ESFA Investigation Findings on 3aaa
+    maturity: growing
+    routing_type: meta
+    url: https://feweek.co.uk/revealed-dfe-damning-investigation-into-3aaa/
+  https://seysolutions.com.au/articles/what-is-eprofiling:
+    content_hash: sha256:cf2950c405f04def
+    stored_at: data/staging/webfetch-eprofiling-cards-and-sign-off-2026-08-10_11-13-45.md
+    importance_score: 79
+    last_updated: '2026-08-10T11:13:45.899024+00:00'
+    title: eProfiling Cards and Sign-Off
+    maturity: growing
+    routing_type: meta
+    url: https://seysolutions.com.au/articles/what-is-eprofiling/
+  https://www.aptem.co.uk:
+    content_hash: sha256:e4db68dd24dd11f5
+    stored_at: data/staging/webfetch-search-results-for-digital-signatures-e-2026-08-11_11-05-06.md
+    importance_score: 80
+    last_updated: '2026-08-11T11:05:06.696209+00:00'
+    title: Search Results for Digital Signatures, E-signatures, Timestamps, Audit
+      Trails, and Related Terms
+    maturity: growing
+    routing_type: meta
+    url: https://www.aptem.co.uk/
+  https://hn.algolia.com/api/v1/search?query=y%20combinator:
+    content_hash: sha256:a32bfb825e134c67
+    stored_at: data/staging/webfetch-api-response-analysis-2026-08-11_11-06-25.md
+    importance_score: 87
+    last_updated: '2026-08-11T11:06:25.788270+00:00'
+    title: API Response Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=Y%20Combinator
+  https://hn.algolia.com/api/v1/search?query=apprenticeship%20hours%20sign-off:
+    content_hash: sha256:1442337db568dfe1
+    stored_at: data/staging/webfetch-results-summary-2026-08-11_11-06-43.md
+    importance_score: 87
+    last_updated: '2026-08-11T11:06:43.535125+00:00'
+    title: Results Summary
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=apprenticeship%20hours%20sign-off
+  https://shmck.substack.com/p/no-dogs-were-harmed-in-the-making:
+    content_hash: sha256:d80d87e18c4f6a7b
+    stored_at: data/staging/webfetch-no-dogs-were-harmed-in-the-making-2026-08-11_11-06-53.md
+    importance_score: 80
+    last_updated: '2026-08-11T11:06:53.390294+00:00'
+    title: No Dogs Were Harmed In The Making
+    maturity: growing
+    routing_type: meta
+    url: https://shmck.substack.com/p/no-dogs-were-harmed-in-the-making
+  https://feweek.co.uk/university-hit-by-seven-figure-apprenticeship-clawback:
+    content_hash: sha256:62070c910358693f
+    stored_at: data/staging/webfetch-aston-university-apprenticeship-clawback-summary-2026-08-11_11-07-22.md
+    importance_score: 80
+    last_updated: '2026-08-11T11:07:22.886547+00:00'
+    title: Aston University Apprenticeship Clawback Summary
+    maturity: growing
+    routing_type: meta
+    url: https://feweek.co.uk/university-hit-by-seven-figure-apprenticeship-clawback/
+  https://feweek.co.uk/provider-disputes-2-6m-clawback-following-esfa-investigation:
+    content_hash: sha256:4693cbd4e6cb1f19
+    stored_at: data/staging/webfetch-investigation-summary-2026-08-11_11-07-29.md
+    importance_score: 80
+    last_updated: '2026-08-11T11:07:29.416318+00:00'
+    title: Investigation Summary
+    maturity: growing
+    routing_type: meta
+    url: https://feweek.co.uk/provider-disputes-2-6m-clawback-following-esfa-investigation/
+  https://github.com/donnc/log_book:
+    content_hash: sha256:ad75d950eca731e3
+    stored_at: data/staging/webfetch-log-book-2026-08-11_11-09-29.md
+    importance_score: 100
+    last_updated: '2026-08-11T11:09:29.402388+00:00'
+    title: Log Book
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/DonnC/log_book
+  https://github.com/w3c-ccg/vc-ed:
+    content_hash: sha256:35b1ca8204939b6a
+    stored_at: data/staging/webfetch-apprenticeship-and-skills-based-credential-2026-08-11_11-09-31.md
+    importance_score: 100
+    last_updated: '2026-08-11T11:09:31.161877+00:00'
+    title: Apprenticeship and Skills-Based Credential Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/w3c-ccg/vc-ed
+  https://github.com/proofsnap/proofsnap-verify:
+    content_hash: sha256:fa8be9d0f7c0a9e3
+    stored_at: data/staging/webfetch-proofsnap-verify-chain-of-custody-verification-2026-08-11_11-09-42.md
+    importance_score: 100
+    last_updated: '2026-08-11T11:09:42.124018+00:00'
+    title: 'ProofSnap-Verify: Chain of Custody & Verification'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/proofsnap/proofsnap-verify
+  https://github.com/digitalcredentials/sign-and-verify:
+    content_hash: sha256:9179814c20e54fc1
+    stored_at: data/staging/webfetch-analysis-of-sign-and-verify-repository-2026-08-11_11-09-54.md
+    importance_score: 100
+    last_updated: '2026-08-11T11:09:54.749999+00:00'
+    title: Analysis of sign-and-verify Repository
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/digitalcredentials/sign-and-verify
+  https://github.com/skillsfundingagency/das-providerapprenticeshipsservice:
+    content_hash: sha256:b898f34948b2a258
+    stored_at: data/staging/webfetch-das-providerapprenticeshipsservice-2026-08-11_11-10-04.md
+    importance_score: 100
+    last_updated: '2026-08-11T11:10:04.127989+00:00'
+    title: Das Providerapprenticeshipsservice
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/SkillsFundingAgency/das-providerapprenticeshipsservice
+  https://feweek.co.uk/esfa-demands-final-off-the-job-hour-data-to-support-the-work-of-audit:
+    content_hash: sha256:0a23890d7c2cda34
+    stored_at: data/staging/webfetch-esfa-off-the-job-hours-requirement-summary-2026-08-11_11-10-13.md
+    importance_score: 80
+    last_updated: '2026-08-11T11:10:13.763117+00:00'
+    title: ESFA Off-the-Job Hours Requirement Summary
+    maturity: growing
+    routing_type: meta
+    url: https://feweek.co.uk/esfa-demands-final-off-the-job-hour-data-to-support-the-work-of-audit/
+  https://www.forensicosint.com/pricing:
+    content_hash: sha256:33877bb7eb90e6fd
+    stored_at: data/staging/webfetch-forensic-osint-pricing-analysis-2026-08-11_11-11-23.md
+    importance_score: 80
+    last_updated: '2026-08-11T11:11:23.113423+00:00'
+    title: Forensic OSINT Pricing Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://www.forensicosint.com/pricing
+  https://forums.whirlpool.net.au/archive/2532141:
+    content_hash: sha256:3bb50e7441467d60
+    stored_at: data/staging/webfetch-apprenticeship-sign-off-issue-summary-2026-08-11_11-12-50.md
+    importance_score: 80
+    last_updated: '2026-08-11T11:12:50.301093+00:00'
+    title: Apprenticeship Sign-Off Issue Summary
+    maturity: growing
+    routing_type: meta
+    url: https://forums.whirlpool.net.au/archive/2532141
+  https://microskills.au/rto-update-asqa-uncovers-fraud:
+    content_hash: sha256:2ca25ef53f102bcd
+    stored_at: data/staging/webfetch-rto-update-asqa-fraud-investigations-2026-08-11_11-12-51.md
+    importance_score: 80
+    last_updated: '2026-08-11T11:12:51.706013+00:00'
+    title: RTO Update - ASQA Fraud Investigations
+    maturity: growing
+    routing_type: meta
+    url: https://microskills.au/rto-update-asqa-uncovers-fraud/
+  https://cawg.io/identity/1.2:
+    content_hash: sha256:362b356e447754bd
+    stored_at: data/staging/webfetch-identity-assertion-specification-summary-2026-08-11_11-14-01.md
+    importance_score: 80
+    last_updated: '2026-08-11T11:14:01.211403+00:00'
+    title: Identity Assertion Specification Summary
+    maturity: growing
+    routing_type: meta
+    url: https://cawg.io/identity/1.2/
+  ? https://www.gov.uk/government/publications/esfa-assurance-work-on-post-16-funding/evidence-requirements-for-apprenticeships-funding-step-by-step-process-2024-to-2025-accessible
+  : content_hash: sha256:73266a4e4f37f80e
+    stored_at: data/staging/webfetch-evidence-requirements-for-apprenticeships-funding-2026-08-11_11-18-41.md
+    importance_score: 80
+    last_updated: '2026-08-11T11:18:41.900241+00:00'
+    title: Evidence Requirements for Apprenticeships Funding - Key Findings
+    maturity: growing
+    routing_type: meta
+    url: https://www.gov.uk/government/publications/esfa-assurance-work-on-post-16-funding/evidence-requirements-for-apprenticeships-funding-step-by-step-process-2024-to-2025-accessible
+  https://readytech.io/what-we-do/education/partners/readycred:
+    content_hash: sha256:e01855a04b910a6d
+    stored_at: data/staging/webfetch-readycred-body-copy-2026-08-11_11-19-03.md
+    importance_score: 80
+    last_updated: '2026-08-11T11:19:03.555379+00:00'
+    title: ReadyCred Body Copy
+    maturity: growing
+    routing_type: meta
+    url: https://readytech.io/what-we-do/education/partners/readycred
+  https://github.com/vercel-labs/skills:
+    content_hash: sha256:2fba31ce763569e0
+    stored_at: data/staging/webfetch-what-npx-skills-add-installs-2026-08-12_00-45-52.md
+    importance_score: 100
+    last_updated: '2026-08-12T00:45:52.348491+00:00'
+    title: What `npx skills add` Installs
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/vercel-labs/skills
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -11917,3 +13745,203 @@ hashes:
   sha256:c2870431ccda879f: data/staging/webfetch-off-the-job-training-requirements-key-compliance-2026-08-08_11-10-20.md
   sha256:cfb94e8eb38f3cad: data/staging/webfetch-park-education-training-centre-outcome-report-pdf-2026-08-08_11-10-32.md
   sha256:4d926c6ed4040fcb: data/staging/webfetch-relevant-mentions-in-careerhive-content-2026-08-08_11-11-01.md
+  sha256:4947d8ad936fe4f1: data/staging/webfetch-repository-information-extract-2026-08-09_11-03-33.md
+  sha256:cd414d3a4e540c9c: data/staging/webfetch-github-api-response-analysis-2026-08-09_11-03-39.md
+  sha256:5393b0405682b040: data/staging/webfetch-github-api-response-analysis-2026-08-09_11-03-47.md
+  sha256:5007b3b5c6170ba3: data/staging/webfetch-github-api-response-analysis-2026-08-09_11-03-54.md
+  sha256:7516a0322fdc78b0: data/staging/webfetch-apprentice-tracking-project-analysis-2026-08-09_11-04-19.md
+  sha256:f9c0141c5edfd7ba: data/staging/webfetch-ojt-hours-tracker-overview-2026-08-09_11-04-20.md
+  sha256:a7d346a156eecb25: data/staging/webfetch-signature-sleigh-project-overview-2026-08-09_11-04-22.md
+  sha256:31dbbf8e2fa1573c: data/staging/webfetch-skillset-verified-project-overview-2026-08-09_11-04-46.md
+  sha256:97da794ec1cd7369: data/staging/webfetch-evidence-record-verification-tool-overview-2026-08-09_11-04-47.md
+  sha256:3738b41a03f931ab: data/staging/webfetch-skillwallet-overview-2026-08-09_11-05-12.md
+  sha256:62a39dc8a9d2cd8e: data/staging/webfetch-learning-tokens-overview-2026-08-09_11-05-14.md
+  sha256:d0b8da5ae6d6c5ef: data/staging/webfetch-chrome-web-store-screenshot-extensions-2026-08-09_11-06-11.md
+  sha256:4f0aa21ed595747b: data/staging/webfetch-axp-supervisor-review-process-2026-08-09_11-06-34.md
+  sha256:8469b5c8d4945c82: data/staging/webfetch-proofsnap-user-reviews-and-usage-2026-08-09_11-06-56.md
+  sha256:4ad88cca259f6ffa: data/staging/webfetch-npst-preceptor-approval-features-2026-08-09_11-06-57.md
+  sha256:33548dea5c77dc8f: data/staging/webfetch-jetlog-pilot-logbook-app-report-2026-08-09_11-07-00.md
+  sha256:821be0998fe34e3f: data/staging/webfetch-roundtrip-nsw-learner-logbook-2026-08-09_11-07-02.md
+  sha256:f744de5f56cde2f9: data/staging/webfetch-timemark-photo-proof-for-work-app-2026-08-09_11-07-04.md
+  sha256:77d426f338e77959: data/staging/webfetch-practical-experience-supervisor-requirements-2026-08-09_11-07-10.md
+  sha256:c57b335ce40cfb18: data/staging/webfetch-daily-reports-2026-08-09_11-07-20.md
+  sha256:1b9f9aee6470f973: data/staging/webfetch-onefile-features-digital-signatures-evidence-and-2026-08-09_11-07-23.md
+  sha256:d563907913a54cae: data/staging/webfetch-onefile-platform-analysis-2026-08-09_11-07-40.md
+  sha256:f85af82b25f7e1ba: data/staging/webfetch-ojt-hours-tracking-app-analysis-2026-08-09_11-07-42.md
+  sha256:7c0d7ec52d438abc: data/staging/webfetch-eportfolio-smart-assessor-key-features-summary-2026-08-09_11-07-44.md
+  sha256:c014c9b79182dfe3: data/staging/webfetch-analysis-of-aptem-website-content-2026-08-09_11-07-45.md
+  sha256:c8941337da917add: data/staging/webfetch-daily-log-entry-approval-2026-08-09_11-08-00.md
+  sha256:aa373a1d944362ff: data/staging/webfetch-site-diary-sign-off-and-approval-2026-08-09_11-08-02.md
+  sha256:542b473b3b855524: data/staging/webfetch-prostamp-summary-2026-08-09_11-08-06.md
+  sha256:0df2cde0f1020e7c: data/staging/webfetch-case-log-guidelines-pdf-2026-08-09_11-08-15.md
+  sha256:e74f8bf93d9096d7: data/staging/webfetch-prostamp-verification-method-2026-08-09_11-08-20.md
+  sha256:35ad200c1c21bbf9: data/staging/webfetch-photo-evidence-reporting-app-key-phrases-2026-08-09_11-08-23.md
+  sha256:5ea330ef8e937d99: data/staging/webfetch-daily-construction-report-app-key-features-2026-08-09_11-08-31.md
+  sha256:9d34486994fb3889: data/staging/webfetch-digital-signatures-and-qr-code-features-2026-08-09_11-08-36.md
+  sha256:0b4ca01b054b9384: data/staging/webfetch-fieldworkaba-publisher-platform-pricing-overview-2026-08-09_11-08-40.md
+  sha256:8795f6e6b044c8e7: data/staging/webfetch-fluix-e-signature-features-2026-08-09_11-08-47.md
+  sha256:f50a6521093ec972: data/staging/webfetch-toolbox-talks-signature-capture-and-documentation-2026-08-09_11-08-49.md
+  sha256:1b5ec8527e4a5205: data/staging/webfetch-what-i-cannot-provide-based-on-this-content-2026-08-09_11-08-51.md
+  sha256:cfb599f36f2015da: data/staging/webfetch-ojt-logbook-key-findings-2026-08-09_11-09-02.md
+  sha256:5611fac31045c284: data/staging/webfetch-problems-sparkshift-solves-2026-08-09_11-09-03.md
+  sha256:7efc977942197e2c: data/staging/webfetch-analysis-of-signatures-and-legal-documentation-2026-08-09_11-09-09.md
+  sha256:11a32c36f51787ad: data/staging/webfetch-site-diary-key-features-analysis-2026-08-09_11-09-11.md
+  sha256:eb8fca6434a48765: data/staging/webfetch-original-url-https-la-workhands-us-2026-08-09_11-09-12.md
+  sha256:2af2b9f20aad9520: data/staging/webfetch-sparkshift-user-reviews-and-feedback-2026-08-09_11-09-13.md
+  sha256:10ce13ec28fbcbfd: data/staging/webfetch-wirehours-analysis-2026-08-09_11-09-15.md
+  sha256:9483b60fecec5e8a: data/staging/webfetch-shiftflow-content-analysis-2026-08-09_11-09-17.md
+  sha256:aa0c1b0f5b0079ea: data/staging/webfetch-signature-sign-off-and-approval-references-2026-08-09_11-09-22.md
+  sha256:348a9e9dd6f9ddac: data/staging/webfetch-gocanvas-signature-and-photo-capture-features-2026-08-09_11-09-23.md
+  sha256:137dc4f4ceb488b8: data/staging/webfetch-procedure-logger-information-2026-08-09_11-09-29.md
+  sha256:7237e830752d1dfb: data/staging/webfetch-to-provide-the-specific-information-you-re-2026-08-09_11-09-32.md
+  sha256:a731ae18f7ccfbff: data/staging/webfetch-original-url-https-exemplarsystems-com-au-product-2026-08-09_11-09-38.md
+  sha256:7d1e1668e408df92: data/staging/webfetch-digital-checklist-features-from-safetyculture-2026-08-09_11-09-41.md
+  sha256:e4d3402c05d99911: data/staging/webfetch-workhands-apprenticeship-app-key-details-2026-08-09_11-09-51.md
+  sha256:e8e7fd47df596ead: data/staging/webfetch-exemplar-services-key-extract-information-2026-08-09_11-09-53.md
+  sha256:3fcf79c6623fc0ad: data/staging/webfetch-apprentiscope-content-extract-2026-08-09_11-09-55.md
+  sha256:e34f49681a473b14: data/staging/webfetch-what-arcsite-does-2026-08-09_11-09-57.md
+  sha256:fe6e31bf354efd9f: data/staging/webfetch-bridgit-product-overview-2026-08-09_11-09-58.md
+  sha256:58eef8c4ff0558f7: data/staging/webfetch-analysis-of-onefile-eportfolio-content-2026-08-09_11-10-08.md
+  sha256:269e80e9abb29ee7: data/staging/webfetch-how-to-track-electrical-apprentice-hours-in-2026-08-09_11-10-10.md
+  sha256:4670cbdfff7cea99: data/staging/webfetch-analysis-of-myoneflow-web-content-2026-08-09_11-10-12.md
+  sha256:e0ace9be40f2b606: data/staging/webfetch-ready-skills-overview-2026-08-09_11-10-14.md
+  sha256:3d7ca20b9d5fe966: data/staging/webfetch-fieldwire-docusign-integration-2026-08-09_11-10-32.md
+  sha256:dd2088c0851d050f: data/staging/webfetch-problems-with-the-20-off-the-job-rule-2026-08-09_11-10-34.md
+  sha256:bb704cbb0b45a738: data/staging/webfetch-apprentices-key-complaints-2026-08-09_11-10-46.md
+  sha256:4cae2b1cf5731fe6: data/staging/webfetch-cpa-practical-experience-verification-2026-08-09_11-10-56.md
+  sha256:be87411c11723150: data/staging/webfetch-original-url-https-www-mytrainingplan-com-au-2026-08-09_11-11-03.md
+  sha256:12e18b3cf8464865: data/staging/webfetch-skillrecord-logbook-app-report-2026-08-09_11-11-06.md
+  sha256:9699fe8432e151d6: data/staging/webfetch-original-url-https-www-readytech-com-au-2026-08-09_11-11-12.md
+  sha256:9143a3262a2e7a37: data/staging/webfetch-reasons-for-logging-apprenticeship-hours-2026-08-09_11-11-16.md
+  sha256:4a1c52c9bd350fcf: data/staging/webfetch-ready-skills-product-summary-2026-08-09_11-11-41.md
+  sha256:de1117d0ff8d28ef: data/staging/webfetch-friction-points-in-apprenticeship-adoption-2026-08-09_11-11-43.md
+  sha256:37e08d66a20d5534: data/staging/webfetch-the-contrarian-view-on-apprenticeships-2026-08-09_11-11-56.md
+  sha256:8edb1ced52678767: data/staging/webfetch-everything-apprenticeships-app-report-2026-08-09_11-11-57.md
+  sha256:8b05563d03c651fa: data/staging/webfetch-safetyculture-iauditor-app-2026-08-09_11-12-15.md
+  sha256:58ed8d796cc07345: data/staging/webfetch-hashtime-app-report-2026-08-09_11-12-31.md
+  sha256:2d356f3ea53d6a5e: data/staging/webfetch-dashpivot-app-app-store-summary-2026-08-09_11-12-35.md
+  sha256:3a94f642209c4056: data/staging/webfetch-companycam-app-summary-2026-08-09_11-12-36.md
+  sha256:e66b33ea6522ad69: data/staging/webfetch-skillrecord-passport-analysis-2026-08-09_11-13-01.md
+  sha256:d626b0882a31ee8a: data/staging/webfetch-www-medhub-com-2026-08-09_11-14-21.md
+  sha256:1321df9e064b9e94: data/staging/webfetch-analysis-of-skillrecord-passport-web-page-2026-08-09_11-15-27.md
+  sha256:63e9b2e6f8f6030e: data/staging/webfetch-original-url-https-support-onefile-co-uk-support-2026-08-10_11-04-48.md
+  sha256:d16ef4d10584c74e: data/staging/webfetch-original-url-https-support-onefile-co-uk-support-2026-08-10_11-04-50.md
+  sha256:2e32436cc15079fd: data/staging/webfetch-original-url-https-support-onefile-co-uk-support-2026-08-10_11-04-52.md
+  sha256:c920237a93ccf583: data/staging/webfetch-signature-and-assessment-related-api-endpoints-2026-08-10_11-04-58.md
+  sha256:621c4a9e1ff3c36c: data/staging/webfetch-linux-repository-search-results-2026-08-10_11-05-15.md
+  sha256:c0ba4583b680d602: data/staging/webfetch-signing-and-approval-of-apprentice-work-reports-2026-08-10_11-05-17.md
+  sha256:5e6b5f05b0f9a619: data/staging/webfetch-text-on-signing-and-verification-2026-08-10_11-05-18.md
+  sha256:8d301fbdce49285d: data/staging/webfetch-total-count-0-incomplete-results-false-items-2026-08-10_11-05-24.md
+  sha256:e3662e15f673d555: data/staging/webfetch-repository-extraction-2026-08-10_11-05-27.md
+  sha256:6261c13436d20b77: data/staging/webfetch-github-repositories-ausbildungsnachweis-training-2026-08-10_11-05-33.md
+  sha256:7712e3d7044b1ac5: data/staging/webfetch-github-repositories-extracted-2026-08-10_11-05-48.md
+  sha256:11627f0af0335880: data/staging/webfetch-lara-project-approval-and-verification-features-2026-08-10_11-05-52.md
+  sha256:1375f6bd504e97b3: data/staging/webfetch-github-repository-extraction-2026-08-10_11-05-54.md
+  sha256:56432fb115742c44: data/staging/webfetch-repository-extraction-results-2026-08-10_11-06-04.md
+  sha256:3ea55b4978af3746: data/staging/webfetch-repository-extraction-results-2026-08-10_11-06-06.md
+  sha256:e304940fd5acf8a5: data/staging/webfetch-repository-extraction-results-2026-08-10_11-06-09.md
+  sha256:5276130751e74151: data/staging/webfetch-ojt-approval-requirements-2026-08-10_11-06-11.md
+  sha256:20c932da895f0076: data/staging/webfetch-ojt-hour-submission-approval-verbatim-excerpts-2026-08-10_11-06-13.md
+  sha256:61eb275385e9587d: data/staging/webfetch-original-url-https-www-tradeschoolinc-com-2026-08-10_11-06-21.md
+  sha256:37297aad0a35c4f8: data/staging/webfetch-repository-extraction-results-2026-08-10_11-06-23.md
+  sha256:4b3311eb6c0afb46: data/staging/webfetch-open-renose-2026-08-10_11-06-26.md
+  sha256:ca8188d7dc460952: data/staging/webfetch-berichtsheft-generator-signature-verification-2026-08-10_11-06-28.md
+  sha256:808e44d242800451: data/staging/webfetch-procedures-20in-20the-20medhub-20mobile-20app-pdf-2026-08-10_11-06-29.md
+  sha256:31e9d28e735eb64c: data/staging/webfetch-medhub-procedure-logging-information-2026-08-10_11-06-31.md
+  sha256:893d140137500867: data/staging/webfetch-axp-guidelines-november-2025-pdf-2026-08-10_11-06-34.md
+  sha256:af4b1c5f146931e7: data/staging/webfetch-supervisor-certification-attestation-language-2026-08-10_11-06-36.md
+  sha256:ae96dd777491f7a8: data/staging/webfetch-repository-summary-2026-08-10_11-06-39.md
+  sha256:29dced3418063d71: data/staging/webfetch-original-url-https-tradeschool-document360-io-v1-2026-08-10_11-06-40.md
+  sha256:6f1d051f228b452d: data/staging/webfetch-repository-extraction-2026-08-10_11-06-42.md
+  sha256:fd68d927407f7286: data/staging/webfetch-tradeschool-apprentice-web-services-overview-2026-08-10_11-06-44.md
+  sha256:5b61bec0209d352f: data/staging/webfetch-apprenticeship-skill-proof-2026-08-10_11-06-53.md
+  sha256:c893ec9cd6bd8a71: data/staging/webfetch-repository-extraction-results-2026-08-10_11-06-54.md
+  sha256:4a55c60b91952ec5: data/staging/webfetch-repository-extraction-results-2026-08-10_11-07-10.md
+  sha256:6e45f289ef234c93: data/staging/webfetch-multi-party-signatures-and-approval-workflows-2026-08-10_11-07-12.md
+  sha256:da20877b2b1b1809: data/staging/webfetch-to-assist-you-effectively-i-would-need-2026-08-10_11-07-14.md
+  sha256:0a3a0958a2a7507a: data/staging/webfetch-repository-extraction-results-2026-08-10_11-07-23.md
+  sha256:1f56820c6567da15: data/staging/webfetch-repository-extraction-results-2026-08-10_11-07-24.md
+  sha256:4bf41e3fc34674b8: data/staging/webfetch-original-url-https-www-ecfr-gov-current-title-29-2026-08-10_11-07-30.md
+  sha256:b3f406a8a336e1e0: data/staging/webfetch-results-relating-to-funding-audits-and-financial-2026-08-10_11-07-32.md
+  sha256:1e3b88608d6d5c41: data/staging/webfetch-enforcement-action-data-published-2026-08-10_11-07-44.md
+  sha256:a20a381329e6bae5: data/staging/webfetch-common-findings-from-post-16-education-funding-2026-08-10_11-07-47.md
+  sha256:514b4678cdaeac46: data/staging/webfetch-dfe-post-16-funding-assurance-documents-2026-08-10_11-07-49.md
+  sha256:cb808a2466dfd102: data/staging/webfetch-29-6-2026-08-10_11-07-52.md
+  sha256:79edf01965625c48: data/staging/webfetch-regulatory-requirements-summary-2026-08-10_11-07-54.md
+  sha256:93b769553a86dfb1: data/staging/webfetch-what-i-cannot-do-with-this-content-2026-08-10_11-07-59.md
+  sha256:e44a7bbf960b88cf: data/staging/webfetch-data-security-and-related-topics-from-medhub-2026-08-10_11-08-16.md
+  sha256:c959af64e6a88681: data/staging/webfetch-analysis-of-the-anonymous-multi-signature-vc-2026-08-10_11-08-24.md
+  sha256:85ec512434ece46a: data/staging/webfetch-assessment-of-the-repository-2026-08-10_11-08-26.md
+  sha256:20ff279c040fa047: data/staging/webfetch-certificate-approval-workflow-in-e-certify-2026-08-10_11-08-28.md
+  sha256:44546a64edb5ab8b: data/staging/webfetch-california-business-and-professions-code-4982-2026-08-10_11-08-34.md
+  sha256:0610d8bf2c04581c: data/staging/webfetch-apprenticeship-registration-and-tracking-system-2026-08-10_11-08-36.md
+  sha256:b014fc6e9bb787fa: data/staging/webfetch-support-html-2026-08-10_11-08-38.md
+  sha256:b2b1a12f9de5ec2d: data/staging/webfetch-fsmb-document-verification-methods-2026-08-10_11-08-41.md
+  sha256:f4c9314008ec3a97: data/staging/webfetch-trust-certification-system-approval-workflow-2026-08-10_11-08-43.md
+  sha256:49db72136a5a5fcf: data/staging/webfetch-verify-my-apprenticeship-service-analysis-2026-08-10_11-08-53.md
+  sha256:13c8e9ccaed476a0: data/staging/webfetch-certo-countersignature-w3c-vc-and-deployment-2026-08-10_11-08-56.md
+  sha256:52533c35b93c3c96: data/staging/webfetch-fowos-credential-workflows-2026-08-10_11-08-57.md
+  sha256:120c14988b00c4a2: data/staging/webfetch-photoproof-assessment-2026-08-10_11-09-16.md
+  sha256:be9ee11c4354ef28: data/staging/webfetch-proofpack-analysis-2026-08-10_11-09-18.md
+  sha256:774ecd95ba14fbf5: data/staging/webfetch-duty-hour-reporting-dishonesty-key-findings-2026-08-10_11-09-19.md
+  sha256:abd22d4be0a62556: data/staging/webfetch-registered-apprenticeship-programs-labor-can-2026-08-10_11-09-21.md
+  sha256:8f896781edac3988: data/staging/webfetch-new-innovations-and-procedure-logging-2026-08-10_11-09-24.md
+  sha256:fcd709ed144ec5b9: data/staging/webfetch-operation-nightingale-enforcement-action-key-facts-2026-08-10_11-09-33.md
+  sha256:a0d65526ddd7797e: data/staging/webfetch-operation-nightingale-key-details-2026-08-10_11-09-45.md
+  sha256:ca6514a3d516504c: data/staging/webfetch-redirect-url-https-unblock-federalregister-gov-2026-08-10_11-09-48.md
+  sha256:610a7aedd67b2ea3: data/staging/webfetch-analysis-of-pdf-content-2026-08-10_11-10-08.md
+  sha256:ddcb7443743bf5e0: data/staging/webfetch-to-help-you-effectively-i-would-need-2026-08-10_11-10-12.md
+  sha256:b36e7dfe9496a4e7: data/staging/webfetch-globalsupportmanual-2026-08-10_11-10-21.md
+  sha256:94b6102488d52df0: data/staging/webfetch-apprentiscope-api-ojt-hours-authentication-2026-08-10_11-10-32.md
+  sha256:061288c89d59a8b6: data/staging/webfetch-e-signature-information-from-apprentiscope-2026-08-10_11-10-34.md
+  sha256:65431778af8cc64f: data/staging/webfetch-text-about-requested-topics-2026-08-10_11-10-37.md
+  sha256:2b7e5c53f2ef7221: data/staging/webfetch-analysis-of-enforcement-actions-and-primary-2026-08-10_11-10-44.md
+  sha256:dd21cca05d85ef8c: data/staging/webfetch-fieldwork-verification-form-requirements-2026-08-10_11-10-46.md
+  sha256:e0732db3b91eb275: data/staging/webfetch-supervisor-verification-resources-2026-08-10_11-10-54.md
+  sha256:f32641f720491c76: data/staging/webfetch-professional-references-verification-ncees-2026-08-10_11-10-58.md
+  sha256:2bed9bbadb13e6cb: data/staging/webfetch-key-verbatim-findings-on-off-the-job-training-and-2026-08-10_11-11-00.md
+  sha256:4526ffd846e2b975: data/staging/webfetch-search-results-2026-08-10_11-11-08.md
+  sha256:d1bc65b49f120276: data/staging/webfetch-abstract-verbatim-2026-08-10_11-11-15.md
+  sha256:3aff0a15ab04dfea: data/staging/webfetch-documents-and-attachments-2026-08-10_11-11-24.md
+  sha256:048776ebc8276bf3: data/staging/webfetch-attachment-url-2026-08-10_11-11-27.md
+  sha256:090499156bcb3905: data/staging/webfetch-redirect-url-https-unblock-federalregister-gov-2026-08-10_11-11-34.md
+  sha256:43b43b87334b77d1: data/staging/webfetch-30-cfr-48-9-records-of-training-2026-08-10_11-11-42.md
+  sha256:c7f0bf9858a74d0d: data/staging/webfetch-apar-conditions-false-information-2026-08-10_11-11-45.md
+  sha256:af8f27a687fbfe02: data/staging/webfetch-hours-tracking-and-preceptor-verification-2026-08-10_11-11-51.md
+  sha256:9c7fc9cc7ddfc5c2: data/staging/webfetch-what-rapids-tracks-and-doesn-t-track-2026-08-10_11-11-53.md
+  sha256:a282d55b0274e6f1: data/staging/webfetch-ojt-form-guide-pdf-2-pdf-2026-08-10_11-11-55.md
+  sha256:ae9e344465455a6f: data/staging/webfetch-ready-skills-key-features-on-verification-2026-08-10_11-12-03.md
+  sha256:a87193e4946adf74: data/staging/webfetch-osha-outreach-training-program-investigation-2026-08-10_11-12-18.md
+  sha256:0bd8f0cac4921f87: data/staging/webfetch-eportfolio-smart-assessor-key-service-details-2026-08-10_11-12-30.md
+  sha256:208d9ffdbb46b9b5: data/staging/webfetch-search-results-summary-2026-08-10_11-12-48.md
+  sha256:0f67a869cd92941b: data/staging/webfetch-preceptors-can-easily-monitor-and-approve-2026-08-10_11-12-52.md
+  sha256:01206b1f7cf1e7ea: data/staging/webfetch-search-results-summary-2026-08-10_11-12-58.md
+  sha256:261ec740a0852d67: data/staging/webfetch-california-bbs-signature-acceptance-2026-08-10_11-13-01.md
+  sha256:7fddc2cf1622729c: data/staging/webfetch-medatrax-preceptor-functions-2026-08-10_11-13-09.md
+  sha256:8d32a5f0de492741: data/staging/webfetch-documents-in-collection-2026-08-10_11-13-12.md
+  sha256:ac2918a8ad596437: data/staging/webfetch-evidence-requirements-2026-08-10_11-13-15.md
+  sha256:ac1180118e306653: data/staging/webfetch-original-url-https-discover-castlebranch-com-2026-08-10_11-13-22.md
+  sha256:07bc524b79ad1781: data/staging/webfetch-time2track-supervisor-approval-process-2026-08-10_11-13-27.md
+  sha256:8408a8979d4a295c: data/staging/webfetch-inplace-support-resources-links-topics-2026-08-10_11-13-29.md
+  sha256:25e5507c1e0c12db: data/staging/webfetch-esfa-investigation-into-3aaa-verbatim-quotes-2026-08-10_11-13-41.md
+  sha256:0bcea6ca4947e72d: data/staging/webfetch-dfe-esfa-investigation-findings-on-3aaa-2026-08-10_11-13-44.md
+  sha256:cf2950c405f04def: data/staging/webfetch-eprofiling-cards-and-sign-off-2026-08-10_11-13-45.md
+  sha256:e4db68dd24dd11f5: data/staging/webfetch-search-results-for-digital-signatures-e-2026-08-11_11-05-06.md
+  sha256:a32bfb825e134c67: data/staging/webfetch-api-response-analysis-2026-08-11_11-06-25.md
+  sha256:1442337db568dfe1: data/staging/webfetch-results-summary-2026-08-11_11-06-43.md
+  sha256:d80d87e18c4f6a7b: data/staging/webfetch-no-dogs-were-harmed-in-the-making-2026-08-11_11-06-53.md
+  sha256:62070c910358693f: data/staging/webfetch-aston-university-apprenticeship-clawback-summary-2026-08-11_11-07-22.md
+  sha256:4693cbd4e6cb1f19: data/staging/webfetch-investigation-summary-2026-08-11_11-07-29.md
+  sha256:ad75d950eca731e3: data/staging/webfetch-log-book-2026-08-11_11-09-29.md
+  sha256:35b1ca8204939b6a: data/staging/webfetch-apprenticeship-and-skills-based-credential-2026-08-11_11-09-31.md
+  sha256:fa8be9d0f7c0a9e3: data/staging/webfetch-proofsnap-verify-chain-of-custody-verification-2026-08-11_11-09-42.md
+  sha256:9179814c20e54fc1: data/staging/webfetch-analysis-of-sign-and-verify-repository-2026-08-11_11-09-54.md
+  sha256:b898f34948b2a258: data/staging/webfetch-das-providerapprenticeshipsservice-2026-08-11_11-10-04.md
+  sha256:0a23890d7c2cda34: data/staging/webfetch-esfa-off-the-job-hours-requirement-summary-2026-08-11_11-10-13.md
+  sha256:33877bb7eb90e6fd: data/staging/webfetch-forensic-osint-pricing-analysis-2026-08-11_11-11-23.md
+  sha256:3bb50e7441467d60: data/staging/webfetch-apprenticeship-sign-off-issue-summary-2026-08-11_11-12-50.md
+  sha256:2ca25ef53f102bcd: data/staging/webfetch-rto-update-asqa-fraud-investigations-2026-08-11_11-12-51.md
+  sha256:362b356e447754bd: data/staging/webfetch-identity-assertion-specification-summary-2026-08-11_11-14-01.md
+  sha256:73266a4e4f37f80e: data/staging/webfetch-evidence-requirements-for-apprenticeships-funding-2026-08-11_11-18-41.md
+  sha256:e01855a04b910a6d: data/staging/webfetch-readycred-body-copy-2026-08-11_11-19-03.md
+  sha256:2fba31ce763569e0: data/staging/webfetch-what-npx-skills-add-installs-2026-08-12_00-45-52.md

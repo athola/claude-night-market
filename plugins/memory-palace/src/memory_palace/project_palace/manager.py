@@ -200,7 +200,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         self.save_project_palace(palace)
         return True
 
-    def search_review_chamber(  # noqa: PLR0913 - search needs all filter and sort parameters
+    def search_review_chamber(  # noqa: PLR0913, PLR0917 - search needs all filter and sort parameters
         self,
         palace_id: str,
         query: str,
@@ -233,7 +233,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         return results
 
-    def _search_review_chamber_text(  # noqa: PLR0913 - mirrors search_review_chamber parameters
+    def _search_review_chamber_text(  # noqa: PLR0913, PLR0917 - mirrors search_review_chamber parameters
         self,
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
@@ -271,7 +271,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         return results
 
-    def _search_review_chamber_semantic(  # noqa: PLR0913 - mirrors search_review_chamber parameters
+    def _search_review_chamber_semantic(  # noqa: PLR0913, PLR0917 - mirrors search_review_chamber parameters
         self,
         palace: dict[str, Any],
         review_chamber: dict[str, Any],

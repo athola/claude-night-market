@@ -325,7 +325,7 @@ def extract_results_from_websearch(
     return results
 
 
-def _store_to_queue(  # noqa: PLR0913 - one queue entry carries this many fields
+def _store_to_queue(  # noqa: PLR0913, PLR0917 - one queue entry carries this many fields
     filename: str,
     content: str,
     content_hash: str,

@@ -9,7 +9,7 @@ from .manager import ProjectPalaceManager
 from .rooms import ReviewSubroom
 
 
-def capture_pr_review_knowledge(  # noqa: PLR0913 - PR capture requires all review context fields
+def capture_pr_review_knowledge(  # noqa: PLR0913, PLR0917 - PR capture requires all review context fields
     repo_name: str,
     pr_number: int,
     pr_title: str,

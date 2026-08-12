@@ -419,7 +419,7 @@ def _produce_recommendation(
     return researcher.recommend_paradigm(research_findings)
 
 
-def _scaffold_project(  # noqa: PLR0913 - phase helper consolidates init steps; bundling its params would obscure the call site
+def _scaffold_project(  # noqa: PLR0913, PLR0917 - phase helper consolidates init steps; bundling its params would obscure the call site
     project_path: Path,
     project_name: str,
     context: Any,

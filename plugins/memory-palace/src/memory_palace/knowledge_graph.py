@@ -356,7 +356,7 @@ class KnowledgeGraph(SqliteGraphBase):
     # Triples (temporal facts)
     # ------------------------------------------------------------------
 
-    def add_triple(  # noqa: PLR0913 - triple requires subject, predicate, object plus metadata
+    def add_triple(  # noqa: PLR0913, PLR0917 - triple requires subject, predicate, object plus metadata
         self,
         subject_id: str,
         predicate: str,
@@ -509,7 +509,7 @@ class KnowledgeGraph(SqliteGraphBase):
         )
         self._conn.commit()
 
-    def add_waypoint(  # noqa: PLR0913 - waypoint requires all graph context fields
+    def add_waypoint(  # noqa: PLR0913, PLR0917 - waypoint requires all graph context fields
         self,
         journey_id: int,
         sequence: int,

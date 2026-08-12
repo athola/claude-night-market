@@ -2,12 +2,11 @@
 
 ## Quick Start
 
-Initialize a new plugin with `make create-plugin NAME=my-plugin`.
-This command generates the standard directory structure
-and configuration files. Before writing code,
-review the patterns in `plugins/abstract` to understand how existing plugins
+Initialize a new plugin by copying the directory layout of an
+existing one. `plugins/abstract` is a good reference. Before writing
+code, review its patterns to understand how existing plugins
 handle state and tool calls. Once you have a basic implementation,
-run `make validate` to check the structure,
+run `make validate-all` to check the structure,
 followed by `make lint` and `make test` to verify code quality.
 
 ## Structure
@@ -50,7 +49,7 @@ ecosystem.
 
 ### Foundation
 Start by installing dependencies with `uv` and setting up `pre-commit` hooks.
-The `make create-plugin` command generates the necessary scaffold.
+Copy an existing plugin's directory layout to get the scaffold.
 We recommend examining `plugins/abstract` to understand core patterns for state
 management and tool calls before starting your implementation.
 
@@ -251,9 +250,8 @@ except Exception as e:
 ### Utility Commands
 
 ```bash
-make validate              # Check plugin structure
+make validate-all          # Check plugin structure (from repo root)
 uv pip list                # Verify installed dependencies
-uv run python scripts/complexity_calculator.py
 ```
 
 ## Advanced Features

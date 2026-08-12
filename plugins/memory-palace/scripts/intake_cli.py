@@ -235,7 +235,7 @@ def write_prompt_pack(
     return prompt_path
 
 
-def append_curation_log(  # noqa: PLR0913 - log rows require all curation context fields
+def append_curation_log(  # noqa: PLR0913, PLR0917 - log rows require all curation context fields
     log_path: Path,
     candidate: Candidate,
     decision: IntegrationDecision,
@@ -270,7 +270,7 @@ def append_curation_log(  # noqa: PLR0913 - log rows require all curation contex
         handle.write(row)
 
 
-def process_candidate(  # noqa: PLR0913 - pipeline step needs all I/O paths and flags
+def process_candidate(  # noqa: PLR0913, PLR0917 - pipeline step needs all I/O paths and flags
     candidate_path: Path,
     corpus_dir: Path,
     index_dir: Path,

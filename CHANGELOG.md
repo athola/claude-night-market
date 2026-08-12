@@ -7,6 +7,137 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.18] - 2026-08-11
+
+### Added
+
+- **Research reports now say whether the search worked (tome).** A run
+  that comes back with three findings could mean a thin field or a
+  search that went wrong, and the two cases call for opposite
+  responses. `research_planner.replan()` down-weights a channel that
+  returned nothing, which is correct when the field is empty and
+  harmful when the query was wrong. Each retrieval channel now runs a
+  positive control, a query whose answer is known to be in that
+  channel's index. A channel that cannot retrieve a document it should
+  find is marked blind, and its silence carries no information about
+  the field.
+
+  The report ends with one of four verdicts, evaluated in order and
+  first match wins. `INCONCLUSIVE` means a channel errored, was
+  rate-limited, or failed its control, so the run is not evidence.
+  `THIN_FIELD_CANDIDATE` means two or more channels searched cleanly
+  and still returned few findings. `CHANNEL_MISMATCH_SUSPECTED` means
+  one channel holds most findings while a control-passing channel came
+  back empty, which points to a vocabulary mismatch more often than to
+  a thin field. `COVERED` covers the rest. Channel outcome is derived
+  from the per-channel query record rather than stored beside it, and a
+  session with no query record derives `unknown`, never `empty`.
+
+  Only channels answering from an external index take part in the
+  verdict. `RETRIEVAL_CHANNELS` in `tome/models.py` names them:
+  `academic`, `code`, and `discourse`. The `triz` channel writes
+  analogies instead of retrieving records, and its exclusion is
+  load-bearing in two directions. Counting its output would let a
+  session clear the sparsity threshold with text it wrote itself.
+  Demanding a control from a channel that has no index would pin every
+  session carrying `triz` to `INCONCLUSIVE` for a reason that says
+  nothing about coverage. Rationale and limits are in
+  [ADR-0020](docs/adr/0020-tome-frontier-detection-via-positive-controls.md).
+
+- **Two offline jobs that measure the frontier signal (tome).** `make
+  frontier-matrix` in `plugins/tome/` scores recorded envelopes against
+  the human labels and prints the confusion matrix, the false-THIN rate
+  on the covered-obscure class, and a sweep of the sparsity threshold.
+  It was written before the corpus was recorded on purpose, since a
+  scorer built while looking at results is shaped by the results its
+  author wanted, and this corpus was labeled by the same model that
+  wrote the signal being scored. On an empty corpus it reports
+  `0/23 recorded` instead of a zero error rate, because zero error and
+  no measurement read the same to a skimming reader and mean opposite
+  things.
+
+  `make verify-canaries` re-checks the three control targets live and
+  classifies four ways, separating `TARGET_MOVED` from `CHANNEL_ERROR`.
+  From inside the verdict those are one observation with two remedies.
+  A 429 fails nothing, because a job that reddened on throttling would
+  teach its operator to rerun until green, which is how a real defect
+  gets rerun away. The sparsity threshold `_F_THIN` stays at 3 and is
+  documented instead of tuned. It changes a verdict only when exactly
+  two of three retrieval channels are controlled-empty, and it counts
+  the findings agents chose to report under their own caps, so a fitted
+  value would move the next time an agent's markdown reworded a cap.
+  `frontier_verdict` takes `f_thin` as a keyword and the harness sweeps
+  it, so no report mutates the constant other callers read.
+
+### Changed
+
+- **Docs stop pointing at commands and targets that do not exist.**
+  `make create-plugin` and `make validate` were never defined in the
+  root Makefile, and `/attune:init` was renamed to
+  `/attune:project-init` without the prose following. README,
+  `docs/plugin-development-guide.md`, `docs/api-overview.md`, and
+  `book/src/getting-started/common-workflows.md` now name
+  `make validate-all` and the copy-an-existing-plugin scaffold route.
+  The `/attune:init` rename was applied across five book pages along
+  with the cross-reference anchor it broke.
+
+### Fixed
+
+- **Emphasis markers no longer smuggle model refusals into the
+  promotion tier (memory-palace).** `looks_like_title` rejects a line
+  that ends in a colon and a line that opens with a preamble phrase,
+  but both rules read the raw string. A title wrapped in `**` moves the
+  terminal colon inside the markers and pushes the opener off the front,
+  so `**What I cannot provide based on this content:**` passed while the
+  same sentence unwrapped was correctly rejected. Fifteen such titles
+  had reached the live index, three of them refusals scored 79 to 80
+  against the surfacing hook's floor of 70. Paired markers (`**`, `__`,
+  `*`, `_`) are now stripped from the evaluated copy before the shape
+  rules run. Only matched pairs are removed, so the unpaired marker in
+  `*args and **kwargs in Python` survives, and the stored title is never
+  rewritten by the predicate. This is the hole from #649 reached through
+  the title field rather than the score.
+
+  The capture hook and the index promoter share this predicate, so the
+  fix rejects the pattern at capture time as well as repairing what
+  landed. Nine of the fifteen repaired entries turned out to be failed
+  fetches on binary or truncated documents, carrying no research at all.
+  Those nine and one older entry that had already been given the same
+  filename title are archived at importance 50 with
+  `null_capture: model-reported-unreadable`, rather than left wearing a
+  filename title that would read as real research. The remaining six
+  were genuine captures whose section heading had been stored as the
+  title.
+
+- **The replay harness no longer drops recorded findings (tome).**
+  `_session_from_envelopes` rebuilt only the query log, so every
+  replayed session reported a total of zero no matter what its
+  envelopes held. The effect was asymmetric, which is what made it
+  worth catching before recording rather than after. A covered topic
+  still lands on `COVERED`, because the verdict falls through before
+  the count is consulted. The bug bit only where exactly two of three
+  retrieval channels are controlled-empty, the one band where `_F_THIN`
+  changes any answer, and there it forced `THIN_FIELD_CANDIDATE` over
+  `CHANNEL_MISMATCH_SUSPECTED` unconditionally. A matrix scored on the
+  unfixed harness would have looked plausible and been wrong in exactly
+  the cells the corpus was built to measure. Findings now come from the
+  recorded findings array and from nowhere else. Deriving them from
+  `metadata.queries[].result_count` is the tempting shortcut and would
+  void the corpus, because those counts already drive
+  `channel_outcomes`, so the sparsity test and the outcome test would
+  become functions of one input, agreeing by construction rather than
+  by evidence.
+
+- **Control fetches speak https or nothing (tome).** The canary fetch
+  is the only network I/O under `src/`. `build_opener(HTTPSHandler())`
+  keeps the default `FileHandler` and will read a local file, which was
+  confirmed by watching it return the contents of `/etc/hostname`. A
+  canary target edited to a local path would then pass a control while
+  touching no network, which is worse than a missing control because it
+  looks like evidence. The opener is now built handler by handler, and
+  two tests pin the property rather than the construction, so a future
+  swap back to `build_opener` turns red.
+
 ## [1.9.17] - 2026-07-26
 
 ### Added

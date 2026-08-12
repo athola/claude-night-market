@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.17-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.18-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-198-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-201-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 
 **A plugin marketplace for Claude Code.** Install only the
@@ -27,10 +27,12 @@ Requires **Claude Code 2.1.16+** and **Python 3.9+** for hooks.
 /plugin install spec-kit@claude-night-market   # Spec-driven dev
 ```
 
-Run `claude --init` once after installing. Prefer one command?
-`npx skills add athola/claude-night-market` installs everything;
+Run `claude --init` once after installing. Two other paths
+exist: [`npx skills`][skills-cli] pulls the skill files alone
+into `.claude/skills/`, without commands, agents, or hooks, and
 `opkg i gh@athola/claude-night-market --plugins sanctum,pensive`
-installs a subset. Full options are in the
+installs whole plugins from the `openpackage.yml` each one ships.
+Full options are in the
 [Installation Guide](book/src/getting-started/installation.md).
 
 > If the `Skill` tool is unavailable, read skill files directly
@@ -159,44 +161,32 @@ unavailable, and both can be turned off.
   security features).
 - **Python 3.9+** for hooks (macOS ships 3.9.6). Hook code must
   stay 3.9-compatible; plugin packages may target 3.10+ via
-  virtual environments. See the
+  virtual environments. Working on this repo itself needs
+  **Python 3.12+**, which the root `pyproject.toml` pins. See the
   [Plugin Development Guide][dev-guide] for the rules.
 
 ## What's New
 
-**1.9.17** upgrades `tome` from a multi-channel search tool into a
-research engine. It keeps the citation edges it already fetched and
-previously discarded, links them into `memory-palace`'s knowledge graph,
-and serves that graph back as research threads (community detection),
-suggested next connections (link prediction), and semantic retrieval
-ranked by embedding similarity. `memory-palace` is an optional
-co-installed backend: when it is absent, `tome` raises an explicit
-capability error rather than degrading silently. A new offline metrics
-harness (`make metrics`) scores retrieval quality (nDCG, MRR, recall),
-source diversity, and citation impact against a committed gold set with
-no network or model access.
-
-`memory-palace` also drained its capture backlog. The 196 inert pending
-captures (41% of the index) were promoted into the active corpus, and
-the SessionStart surfacer now names the top promoted captures.
-
-The release also restores Python 3.9 support across all 23 plugins.
-Every `pyproject.toml` pins `requires-python = ">=3.9"`, the `uv.lock`
-files were refreshed, and ruff targets py39 so hooks stop suggesting
-3.10+ idioms on code that ships to 3.9 users. See the
-[CHANGELOG](CHANGELOG.md) for the full history.
+**1.9.18** gives `tome` a way to tell a thin field from a search
+that went wrong. Each retrieval channel now runs a positive
+control, and a report that used to end in a bare finding count
+ends in a verdict about the search itself: `COVERED`,
+`THIN_FIELD_CANDIDATE`, `CHANNEL_MISMATCH_SUSPECTED`, or
+`INCONCLUSIVE` when a channel failed its control. `memory-palace`
+stopped promoting model refusals into the research corpus as page
+titles. Full history is in the [CHANGELOG](CHANGELOG.md).
 
 ## Plugin Development
 
 ```bash
-make create-plugin NAME=my-plugin
-make validate
+make validate-all
 make lint && make test
 ```
 
 A plugin directory holds `.claude-plugin/plugin.json` (metadata)
 plus any of `commands/`, `skills/`, `hooks/`, `agents/`, and
-`tests/`, with a `Makefile` and `pyproject.toml`. See the
+`tests/`, with a `Makefile` and `pyproject.toml`. Copy the layout
+from an existing plugin such as `plugins/abstract`, then see the
 [Plugin Development Guide][dev-guide] for structure and naming
 conventions.
 
@@ -209,6 +199,7 @@ conventions.
 - [Capabilities Reference](book/src/reference/capabilities-reference.md)
 - [Tutorials](book/src/tutorials/README.md)
 - [Architecture Decision Records](docs/adr/)
+- [CHANGELOG](CHANGELOG.md)
 
 Per-plugin pages are in `book/src/plugins/`.
 
@@ -241,3 +232,4 @@ each plugin's `pyproject.toml`.
 [superpowers-upstream]: https://github.com/obra/superpowers
 [superpowers-doc]: book/src/reference/superpowers-integration.md
 [quillx]: https://github.com/QAInsights/Quillx
+[skills-cli]: https://github.com/vercel-labs/skills

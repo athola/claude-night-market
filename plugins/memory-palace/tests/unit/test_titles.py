@@ -46,6 +46,59 @@ class TestLooksLikeTitle:
 
     @pytest.mark.unit
     @pytest.mark.parametrize(
+        ("wrapped", "why"),
+        [
+            (
+                "**What I cannot provide based on this content:**",
+                "bold wrapper hides the terminal colon and the opener",
+            ),
+            (
+                "**I cannot locate or quote any content about:**",
+                "bold wrapper hides the terminal colon and the opener",
+            ),
+            (
+                "**What I cannot do with this content:**",
+                "bold wrapper hides the terminal colon and the opener",
+            ),
+            ("*Based on the page provided:*", "single-asterisk wrapper"),
+            ("__Here is what the document shows:__", "underscore wrapper"),
+            ("_Unfortunately the page is empty_", "single-underscore wrapper"),
+        ],
+    )
+    def test_rejects_junk_behind_emphasis_wrappers(
+        self, wrapped: str, why: str
+    ) -> None:
+        """Given a rejected line wrapped in emphasis, still reject it.
+
+        The wrapper moves the terminal colon inside the markers and
+        pushes the preamble opener off the start of the string, so the
+        punctuation and opener rules both read the wrapper instead of
+        the sentence. Three such refusals reached the live index at
+        importance 79-80, above the 70 surfacing floor.
+        """
+        assert not looks_like_title(wrapped), why
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "genuine",
+        [
+            "*args and **kwargs in Python",
+            "**kwargs Explained",
+            "Understanding *args",
+            "_start and _end Conventions",
+        ],
+    )
+    def test_keeps_titles_carrying_unpaired_markers(self, genuine: str) -> None:
+        """Given an unpaired marker inside a real title, accept it.
+
+        Only matched pairs are stripped. An identifier such as
+        ``**kwargs`` opens a marker it never closes, so nothing is
+        removed and the title survives.
+        """
+        assert looks_like_title(genuine)
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
         ("junk", "why"),
         [
             ("Based on the repository data provided:", "preamble"),
