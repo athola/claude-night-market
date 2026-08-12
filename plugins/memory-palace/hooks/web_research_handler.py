@@ -325,12 +325,13 @@ def extract_results_from_websearch(
     return results
 
 
-def _store_to_queue(  # noqa: PLR0913, PLR0917 - one queue entry carries this many fields
+def _store_to_queue(  # noqa: PLR0913 - one queue entry carries this many fields
     filename: str,
     content: str,
     content_hash: str,
     source_ref: str,
     title: str,
+    *,
     null_capture: str | None = None,
 ) -> str | None:
     """Write a queue entry file and update the dedup index.
@@ -471,7 +472,7 @@ auto_generated: true
 """
 
     return _store_to_queue(
-        filename, queue_entry, content_hash, url, title, null_capture
+        filename, queue_entry, content_hash, url, title, null_capture=null_capture
     )
 
 

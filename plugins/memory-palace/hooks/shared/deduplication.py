@@ -212,10 +212,11 @@ def needs_update(
     return entry.get("content_hash") != content_hash
 
 
-def update_index(  # noqa: PLR0913, PLR0917 - index entries have many metadata fields
+def update_index(  # noqa: PLR0913 - index entries have many metadata fields
     content_hash: str,
     stored_at: str,
     importance_score: int,
+    *,
     url: str | None = None,
     path: str | None = None,
     title: str | None = None,

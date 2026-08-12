@@ -200,10 +200,11 @@ class ProjectPalaceManager(MemoryPalaceManager):
         self.save_project_palace(palace)
         return True
 
-    def search_review_chamber(  # noqa: PLR0913, PLR0917 - search needs all filter and sort parameters
+    def search_review_chamber(  # noqa: PLR0913 - search needs all filter and sort parameters
         self,
         palace_id: str,
         query: str,
+        *,
         room_type: str | ReviewSubroom | None = None,
         tags: list[str] | None = None,
         semantic: bool = False,
@@ -218,11 +219,21 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         if semantic:
             results = self._search_review_chamber_semantic(
-                palace, review_chamber, query, room_type, tags, sort_by
+                palace,
+                review_chamber,
+                query,
+                room_type=room_type,
+                tags=tags,
+                sort_by=sort_by,
             )
         else:
             results = self._search_review_chamber_text(
-                palace, review_chamber, query, room_type, tags, sort_by
+                palace,
+                review_chamber,
+                query,
+                room_type=room_type,
+                tags=tags,
+                sort_by=sort_by,
             )
 
         if sort_by == SortBy.IMPORTANCE:
@@ -233,11 +244,12 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         return results
 
-    def _search_review_chamber_text(  # noqa: PLR0913, PLR0917 - mirrors search_review_chamber parameters
+    def _search_review_chamber_text(  # noqa: PLR0913 - mirrors search_review_chamber parameters
         self,
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
         query: str,
+        *,
         room_type: str | ReviewSubroom | None,
         tags: list[str] | None,
         sort_by: str | SortBy = SortBy.RECENCY,
@@ -271,11 +283,12 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         return results
 
-    def _search_review_chamber_semantic(  # noqa: PLR0913, PLR0917 - mirrors search_review_chamber parameters
+    def _search_review_chamber_semantic(  # noqa: PLR0913 - mirrors search_review_chamber parameters
         self,
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
         query: str,
+        *,
         room_type: str | ReviewSubroom | None,
         tags: list[str] | None,
         sort_by: str | SortBy = SortBy.RECENCY,

@@ -682,8 +682,8 @@ class TestSemanticSearchSortByImportance:
 
         # Mock _search_review_chamber_semantic to return results
         # in similarity order (low, high, mid) -- NOT importance order
-        def fake_semantic(  # noqa: PLR0913, PLR0917 - matches _search_review_chamber_semantic signature
-            self_inner, palace_arg, chamber, query, room_type, tags, sort_by
+        def fake_semantic(  # noqa: PLR0913 - matches _search_review_chamber_semantic signature
+            self_inner, palace_arg, chamber, query, *, room_type, tags, sort_by
         ):
             # Return in similarity order (NOT importance order).
             # The production search_review_chamber must apply the sort.
@@ -750,8 +750,8 @@ class TestSemanticSearchSortByImportance:
         manager.add_review_entry(palace["id"], high)
 
         # Return low-importance first (higher similarity score)
-        def fake_semantic(  # noqa: PLR0913, PLR0917 - matches _search_review_chamber_semantic signature
-            self_inner, palace_arg, chamber, query, room_type, tags, sort_by
+        def fake_semantic(  # noqa: PLR0913 - matches _search_review_chamber_semantic signature
+            self_inner, palace_arg, chamber, query, *, room_type, tags, sort_by
         ):
             # Return in similarity order (low-importance first).
             # The production search_review_chamber must NOT re-sort

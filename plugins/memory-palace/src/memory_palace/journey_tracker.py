@@ -35,10 +35,11 @@ class JourneyTracker:
         """Start a new journey for an entity. Returns journey ID."""
         return self._kg.create_journey(entity_id=entity_id, trigger=trigger)
 
-    def record_waypoint(  # noqa: PLR0913, PLR0917 - waypoint requires all context fields
+    def record_waypoint(  # noqa: PLR0913 - waypoint requires all context fields
         self,
         journey_id: int,
         palace_id: str,
+        *,
         room_id: str = "",
         entity_delta: dict[str, Any] | None = None,
         palace_delta: dict[str, Any] | None = None,

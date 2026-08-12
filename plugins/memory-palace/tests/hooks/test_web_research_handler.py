@@ -1597,3 +1597,41 @@ class TestBuildEvalTable:
     def test_missing_index_degrades_without_raising(self):
         table = web_research_handler.build_eval_table("https://github.com/a/b", None)
         assert "Authority" in table
+
+
+class TestStoreWebfetchForwardsNullCapture:
+    """store_webfetch_content reaches _store_to_queue without a TypeError.
+
+    Every other test in this file mocks store_webfetch_content, so the
+    body was never executed and the call into _store_to_queue was
+    unguarded. When _store_to_queue made null_capture keyword-only, the
+    positional call site here raised TypeError at runtime and the whole
+    suite still passed. This calls the real function.
+    """
+
+    def _run(self, tmp_path: Path, null_capture: str | None):
+        with (
+            patch.object(web_research_handler, "QUEUE_DIR", tmp_path / "queue"),
+            patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path),
+            patch.object(web_research_handler, "update_index") as mock_index,
+        ):
+            stored = web_research_handler.store_webfetch_content(
+                "Substantive body text about a topic.",
+                "https://example.com/article",
+                "summarize this",
+                null_capture=null_capture,
+            )
+        return stored, mock_index
+
+    def test_stores_and_forwards_the_null_capture_reason(self, tmp_path: Path):
+        stored, mock_index = self._run(tmp_path, "redirect-notice")
+
+        assert stored is not None
+        assert Path(stored).exists()
+        assert mock_index.call_args.kwargs["null_capture"] == "redirect-notice"
+
+    def test_stores_a_healthy_capture_with_no_reason(self, tmp_path: Path):
+        stored, mock_index = self._run(tmp_path, None)
+
+        assert stored is not None
+        assert mock_index.call_args.kwargs["null_capture"] is None

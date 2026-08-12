@@ -9,12 +9,13 @@ from .manager import ProjectPalaceManager
 from .rooms import ReviewSubroom
 
 
-def capture_pr_review_knowledge(  # noqa: PLR0913, PLR0917 - PR capture requires all review context fields
+def capture_pr_review_knowledge(  # noqa: PLR0913 - PR capture requires all review context fields
     repo_name: str,
     pr_number: int,
     pr_title: str,
     findings: list[dict[str, Any]],
     participants: list[str],
+    *,
     config_path: str | None = None,
 ) -> list[str]:
     """Capture knowledge from PR review findings.

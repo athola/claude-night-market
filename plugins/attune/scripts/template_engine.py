@@ -55,8 +55,9 @@ class TemplateEngine:
         output_path.write_text(rendered)
 
 
-def get_default_variables(  # noqa: PLR0913, PLR0917 - template variables need all defaults
+def get_default_variables(  # noqa: PLR0913 - template variables need all defaults
     project_name: str,
+    *,
     language: str = "python",
     author: str = "Your Name",
     email: str = "you@example.com",
