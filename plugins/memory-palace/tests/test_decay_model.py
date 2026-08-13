@@ -498,3 +498,50 @@ class TestGetStaleEntriesWithImportance:
         )
         entry_ids = [s.entry_id for s in stale]
         assert "no-score" in entry_ids
+
+
+# --- unit-type decay: different lifetimes, different curves ------------------
+# A durable finding and the transient state-change that produced it must not
+# share a decay schedule. These guard the unit-type-keyed config.
+
+
+def test_state_decays_faster_than_finding_at_equal_age() -> None:
+    """At the same age, a transient state unit is worth less than a finding."""
+
+    model = DecayModel()
+    age = datetime.now(timezone.utc) - timedelta(days=30)
+    finding = model.calculate_decay("u1", "growing", age, unit_type="finding")
+    state = model.calculate_decay("u2", "growing", age, unit_type="state")
+    assert state.decay_factor < finding.decay_factor
+
+
+def test_open_thread_does_not_decay() -> None:
+    """An unresolved question is no less relevant for having sat unanswered."""
+
+    model = DecayModel()
+    old = datetime.now(timezone.utc) - timedelta(days=365)
+    result = model.calculate_decay("u3", "seedling", old, unit_type="open-thread")
+    assert result.decay_factor == 1.0
+
+
+def test_decision_sits_between_state_and_finding() -> None:
+    """A revisable choice ages faster than a fact, slower than a status."""
+
+    model = DecayModel()
+    age = datetime.now(timezone.utc) - timedelta(days=60)
+    factors = {
+        t: model.calculate_decay(f"u-{t}", "growing", age, unit_type=t).decay_factor
+        for t in ("state", "decision", "finding")
+    }
+    assert factors["state"] < factors["decision"] < factors["finding"]
+
+
+def test_omitting_unit_type_preserves_maturity_behavior() -> None:
+    """The default path is unchanged: maturity still selects the curve."""
+
+    model = DecayModel()
+    age = datetime.now(timezone.utc) - timedelta(days=21)
+    assert (
+        model.calculate_decay("u4", "seedling", age).decay_factor
+        == model.calculate_decay("u4", "seedling", age, unit_type=None).decay_factor
+    )

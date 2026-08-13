@@ -166,6 +166,15 @@ script named in that stub file had never been written.
   w3 * usage`. The plugin ships all three terms (`graph_analyzer`
   PageRank, `decay_model`, `usage_tracker`).
 
+## Archiving Completed Work
+
+Triage decides whether a single capture drains or accumulates. When a
+whole body of work finishes, freeze it behind an index instead of
+deleting it or leaving it in the active listing.
+
+See `modules/archive-pattern.md` for the structure, the closing-note
+requirement, and the two discoverability layers.
+
 ## Exit Criteria
 
 - [ ] `build_indexes.py --dry-run` reports a non-zero entry count and

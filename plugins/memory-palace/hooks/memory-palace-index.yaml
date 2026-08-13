@@ -12594,6 +12594,484 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://raw.githubusercontent.com/flutter/flutter/master/.github/PULL_REQUEST_TEMPLATE.md
+  https://github.com/contentauth/c2pa-rs/blob/main/docs/cawg-identity.md:
+    content_hash: sha256:b4a99b0ecbe2e7c2
+    stored_at: data/staging/webfetch-cawg-identity-md-2026-08-13_11-04-42.md
+    importance_score: 100
+    last_updated: '2026-08-13T11:04:42.691530+00:00'
+    title: Cawg Identity.Md
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/contentauth/c2pa-rs/blob/main/docs/cawg-identity.md
+  https://learn.credly.com/blog/credly-supports-open-badge-3.0:
+    content_hash: sha256:44d398e66766f954
+    stored_at: data/staging/webfetch-credly-s-open-badge-3-0-role-import-verify-not-2026-08-13_11-04-49.md
+    importance_score: 80
+    last_updated: '2026-08-13T11:04:49.171531+00:00'
+    title: 'Credly''s Open Badge 3.0 Role: Import/Verify, Not Issue'
+    maturity: growing
+    routing_type: meta
+    url: https://learn.credly.com/blog/credly-supports-open-badge-3.0
+  https://imscert.org:
+    content_hash: sha256:a64f06c55d96deee
+    stored_at: data/staging/webfetch-original-url-https-imscert-org-2026-08-13_11-05-01.md
+    importance_score: 50
+    last_updated: '2026-08-13T11:05:01.412690+00:00'
+    title: 'Original URL: https://imscert.org/'
+    maturity: seedling
+    routing_type: archived
+    null_capture: redirect-notice
+    url: https://imscert.org/
+  https://github.com/contentauth/c2pa-rs/blob/main/cli/docs/usage.md:
+    content_hash: sha256:cbf8b7e9f553b1aa
+    stored_at: data/staging/webfetch-multiple-signers-support-in-c2pa-tool-2026-08-13_11-05-05.md
+    importance_score: 100
+    last_updated: '2026-08-13T11:05:05.692150+00:00'
+    title: Multiple Signers Support in C2PA Tool
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/contentauth/c2pa-rs/blob/main/cli/docs/usage.md
+  https://github.com/contentauth/c2pa-rs/blob/main/cli/schemas/ingredient.json:
+    content_hash: sha256:2dc34f9679f1cf51
+    stored_at: data/staging/webfetch-ingredient-schema-analysis-2026-08-13_11-05-07.md
+    importance_score: 100
+    last_updated: '2026-08-13T11:05:07.466585+00:00'
+    title: Ingredient Schema Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/contentauth/c2pa-rs/blob/main/cli/schemas/ingredient.json
+  https://github.com/contentauth/c2pa-python/blob/main/docs/working-stores.md:
+    content_hash: sha256:5bad176619cf75d4
+    stored_at: data/staging/webfetch-multi-signer-patterns-in-c2pa-python-documentation-2026-08-13_11-05-28.md
+    importance_score: 100
+    last_updated: '2026-08-13T11:05:28.991514+00:00'
+    title: Multi-Signer Patterns in C2PA Python Documentation
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/contentauth/c2pa-python/blob/main/docs/working-stores.md
+  https://opensource.contentauthenticity.org/docs/c2pa-python/docs/examples:
+    content_hash: sha256:886b323854ce67c4
+    stored_at: data/staging/webfetch-examples-2026-08-13_11-05-39.md
+    importance_score: 80
+    last_updated: '2026-08-13T11:05:39.397540+00:00'
+    title: Examples
+    maturity: growing
+    routing_type: meta
+    url: https://opensource.contentauthenticity.org/docs/c2pa-python/docs/examples/
+  https://github.com/contentauth/c2pa-python/blob/main/examples/sign.py:
+    content_hash: sha256:fe4924249e7f23ba
+    stored_at: data/staging/webfetch-sign-py-2026-08-13_11-06-02.md
+    importance_score: 100
+    last_updated: '2026-08-13T11:06:02.841285+00:00'
+    title: Sign.Py
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/contentauth/c2pa-python/blob/main/examples/sign.py
+  https://github.com/mikecaronna/comfyui_c2pa_signer:
+    content_hash: sha256:e2736b8b0a39ab6e
+    stored_at: data/staging/webfetch-c2pa-signer-architecture-analysis-2026-08-13_11-06-04.md
+    importance_score: 100
+    last_updated: '2026-08-13T11:06:04.277172+00:00'
+    title: C2PA Signer Architecture Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/mikecaronna/comfyui_c2pa_signer
+  https://github.com/aloth/origin-lens:
+    content_hash: sha256:1455f8604a4081a4
+    stored_at: data/staging/webfetch-origin-lens-2026-08-13_11-06-26.md
+    importance_score: 100
+    last_updated: '2026-08-13T11:06:26.448482+00:00'
+    title: Origin Lens
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/aloth/origin-lens
+  https://assets.publishing.service.gov.uk/media/6841b352fa0289a17a3e87b5/dfe_post__16_funding_assurance_review_guidance.pdf:
+    content_hash: sha256:f8c79f95ca354dc4
+    stored_at: data/staging/webfetch-dfe-post-16-funding-assurance-review-guidance-pdf-2026-08-13_11-06-47.md
+    importance_score: 80
+    last_updated: '2026-08-13T11:06:47.222368+00:00'
+    title: Dfe Post 16 Funding Assurance Review Guidance.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://assets.publishing.service.gov.uk/media/6841b352fa0289a17a3e87b5/DfE_post__16_funding_assurance_review_guidance.pdf
+  https://github.com/decentralized-identity/cawg-endorsement-assertion:
+    content_hash: sha256:77df69b72c221abd
+    stored_at: data/staging/webfetch-cawg-endorsement-assertion-2026-08-13_11-07-02.md
+    importance_score: 100
+    last_updated: '2026-08-13T11:07:02.532863+00:00'
+    title: Cawg Endorsement Assertion
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/decentralized-identity/cawg-endorsement-assertion
+  ? https://qualifications.pearson.com/content/dam/pdf/support/quality%20assurance/btec-centre-guide-to-internal-assessment.pdf
+  : content_hash: sha256:94d0d3cc93981142
+    stored_at: data/staging/webfetch-btec-centre-guide-to-internal-assessment-pdf-2026-08-13_11-07-44.md
+    importance_score: 80
+    last_updated: '2026-08-13T11:07:44.514782+00:00'
+    title: Btec Centre Guide To Internal Assessment.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://qualifications.pearson.com/content/dam/pdf/Support/Quality%20Assurance/btec-centre-guide-to-internal-assessment.pdf
+  ? https://assets.publishing.service.gov.uk/media/5ec3a025d3bf7f5d404393a7/ofqual_revised_conditions_-_coming_into_force_oct2020_pdfa.pdf
+  : content_hash: sha256:06042b716a55da99
+    stored_at: data/staging/webfetch-ofqual-revised-conditions-coming-into-force-2026-08-13_11-07-46.md
+    importance_score: 80
+    last_updated: '2026-08-13T11:07:46.559235+00:00'
+    title: Ofqual Revised Conditions Coming Into Force Oct2020 Pdfa.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://assets.publishing.service.gov.uk/media/5ec3a025d3bf7f5d404393a7/Ofqual_Revised_Conditions_-_Coming_into_force_Oct2020_pdfa.pdf
+  https://github.com/contentauth/c2pa-conformance-tool:
+    content_hash: sha256:49623ea33aca7e6e
+    stored_at: data/staging/webfetch-c2pa-conformance-tool-2026-08-13_11-07-48.md
+    importance_score: 100
+    last_updated: '2026-08-13T11:07:48.587793+00:00'
+    title: C2Pa Conformance Tool
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/contentauth/c2pa-conformance-tool
+  https://github.com/numbersprotocol/pyc2pa:
+    content_hash: sha256:fb4f4eae0651f600
+    stored_at: data/staging/webfetch-pyc2pa-multiple-signer-and-workflow-support-2026-08-13_11-07-57.md
+    importance_score: 100
+    last_updated: '2026-08-13T11:07:57.684087+00:00'
+    title: PyC2PA Multiple Signer and Workflow Support
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/numbersprotocol/pyc2pa
+  https://assets.publishing.service.gov.uk/media/69e224202570f65c2716d98d/draft_apprenticeship_funding_rules_2026_2027.pdf:
+    content_hash: sha256:2b31525d07790145
+    stored_at: data/staging/webfetch-result-no-mention-found-2026-08-13_11-08-03.md
+    importance_score: 80
+    last_updated: '2026-08-13T11:08:03.177042+00:00'
+    title: '**Result: No mention found**'
+    maturity: growing
+    routing_type: meta
+    url: https://assets.publishing.service.gov.uk/media/69e224202570f65c2716d98d/draft_apprenticeship_funding_rules_2026_2027.pdf
+  https://tech.ebu.ch/news/2024/09/ebu-showcases-multi-partner-end-to-end-c2pa-workflow-at-ibc:
+    content_hash: sha256:b4e8d6ef2ba55e5a
+    stored_at: data/staging/webfetch-c2pa-workflow-demonstration-vs-implementation-2026-08-13_11-08-11.md
+    importance_score: 80
+    last_updated: '2026-08-13T11:08:11.909504+00:00'
+    title: 'C2PA Workflow: Demonstration vs. Implementation'
+    maturity: growing
+    routing_type: meta
+    url: https://tech.ebu.ch/news/2024/09/ebu-showcases-multi-partner-end-to-end-c2pa-workflow-at-ibc
+  https://github.com/tourmalinecore/c2pie:
+    content_hash: sha256:f3e9dba03f8b3412
+    stored_at: data/staging/webfetch-multi-signer-support-in-c2pie-2026-08-13_11-08-48.md
+    importance_score: 100
+    last_updated: '2026-08-13T11:08:48.841501+00:00'
+    title: Multi-Signer Support in c2pie
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/TourmalineCore/c2pie
+  https://www.westofengland-ca.gov.uk/wp-content/uploads/2025/06/funding-and-performance-management-rules-202526-final.pdf:
+    content_hash: sha256:5e54fc21d1386a76
+    stored_at: data/staging/webfetch-funding-and-performance-management-rules-202526-2026-08-13_11-09-01.md
+    importance_score: 80
+    last_updated: '2026-08-13T11:09:01.474177+00:00'
+    title: Funding And Performance Management Rules 202526 Final.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://www.westofengland-ca.gov.uk/wp-content/uploads/2025/06/Funding-and-Performance-Management-Rules-202526-FINAL.pdf
+  https://cogentskills.com/wp-content/uploads/2023/11/funding-rules-23-24-update-cogent.pdf:
+    content_hash: sha256:bd6ee07d47c7e50d
+    stored_at: data/staging/webfetch-funding-rules-23-24-update-cogent-pdf-2026-08-13_11-09-03.md
+    importance_score: 80
+    last_updated: '2026-08-13T11:09:03.417854+00:00'
+    title: Funding Rules 23 24 Update Cogent.Pdf
+    maturity: growing
+    routing_type: meta
+    url: https://cogentskills.com/wp-content/uploads/2023/11/Funding-Rules-23-24-update-Cogent.pdf
+  https://solvendis.co.uk/dfe-audit-findings-apprenticeships:
+    content_hash: sha256:382d6127fd9cd362
+    stored_at: data/staging/webfetch-signature-processes-not-being-suitably-robust-2026-08-13_11-09-26.md
+    importance_score: 80
+    last_updated: '2026-08-13T11:09:26.460199+00:00'
+    title: '"signature processes not being suitably robust"'
+    maturity: growing
+    routing_type: meta
+    url: https://solvendis.co.uk/dfe-audit-findings-apprenticeships/
+  ? https://gov.uk/government/publications/esf-action-notes-2014-to-2020-programme/06621-use-of-electronic-signatures-within-esf-programme-grant-recipient-documentation-and-as-verification-evidence-from-esf-participants
+  : content_hash: sha256:a8effedb40add90c
+    stored_at: data/staging/webfetch-electronic-signature-requirements-esf-programme-2026-08-13_11-09-29.md
+    importance_score: 80
+    last_updated: '2026-08-13T11:09:29.095855+00:00'
+    title: Electronic Signature Requirements - ESF Programme Guidance
+    maturity: growing
+    routing_type: meta
+    url: https://gov.uk/government/publications/esf-action-notes-2014-to-2020-programme/06621-use-of-electronic-signatures-within-esf-programme-grant-recipient-documentation-and-as-verification-evidence-from-esf-participants
+  https://github.com/guillaumemeyer/watermarks-remover:
+    content_hash: sha256:06bc9aa1efaf6378
+    stored_at: data/staging/webfetch-watermarks-remover-project-overview-2026-08-13_12-40-16.md
+    importance_score: 100
+    last_updated: '2026-08-13T12:40:16.453910+00:00'
+    title: 'Watermarks-Remover: Project Overview'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/guillaumemeyer/watermarks-remover
+  https://github.com/vbiroshak/ai-project-architect:
+    content_hash: sha256:1f0a2c0148c7b866
+    stored_at: data/staging/webfetch-ai-project-architect-repository-summary-2026-08-13_14-03-22.md
+    importance_score: 100
+    last_updated: '2026-08-13T14:03:22.511285+00:00'
+    title: AI Project Architect Repository Summary
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/vbiroshak/ai-project-architect
+  https://api.github.com/search/repositories?q=repo:torvalds/linux:
+    content_hash: sha256:ef567e09b917591e
+    stored_at: data/staging/webfetch-total-count-1-2026-08-13_14-19-31.md
+    importance_score: 83
+    last_updated: '2026-08-13T14:19:31.237579+00:00'
+    title: '**Total Count:** 1'
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=repo:torvalds/linux
+  ? https://api.github.com/search/repositories?q=persistent+session+memory+and+on-demand+recall+for+ai+coding+agents&sort=stars&order=desc&per_page=10
+  : content_hash: sha256:4e3972eeca159ad0
+    stored_at: data/staging/webfetch-search-results-analysis-2026-08-13_14-19-39.md
+    importance_score: 83
+    last_updated: '2026-08-13T14:19:39.181518+00:00'
+    title: Search Results Analysis
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=persistent+session+memory+and+on-demand+recall+for+AI+coding+agents&sort=stars&order=desc&per_page=10
+  https://github.com/athola/claude-night-market/tree/master/plugins/tome:
+    content_hash: sha256:aebc18a52c65b6b1
+    stored_at: data/staging/webfetch-tome-discourse-module-2026-08-13_14-19-56.md
+    importance_score: 100
+    last_updated: '2026-08-13T14:19:56.445139+00:00'
+    title: Tome Discourse Module
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/athola/claude-night-market/tree/master/plugins/tome
+  https://github.com/dcostenco/prism-coder:
+    content_hash: sha256:863e8cad01d32180
+    stored_at: data/staging/webfetch-prism-coder-architecture-memory-system-2026-08-13_14-20-08.md
+    importance_score: 100
+    last_updated: '2026-08-13T14:20:08.883674+00:00'
+    title: 'Prism Coder: Architecture & Memory System'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/dcostenco/prism-coder
+  https://github.com/rohitg00/agentmemory:
+    content_hash: sha256:71901bacf4446d51
+    stored_at: data/staging/webfetch-agentmemory-architecture-memory-system-2026-08-13_14-20-11.md
+    importance_score: 100
+    last_updated: '2026-08-13T14:20:11.598662+00:00'
+    title: 'agentmemory: Architecture & Memory System'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/rohitg00/agentmemory
+  https://github.com/akitaonrails/ai-memory:
+    content_hash: sha256:a2eb0fd3818d0962
+    stored_at: data/staging/webfetch-ai-memory-architecture-core-mechanisms-2026-08-13_14-20-13.md
+    importance_score: 100
+    last_updated: '2026-08-13T14:20:14.001828+00:00'
+    title: 'ai-memory: Architecture & Core Mechanisms'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/akitaonrails/ai-memory
+  https://github.com/octaviantocan/agent-memory:
+    content_hash: sha256:6c4e6c0e9f5fd43b
+    stored_at: data/staging/webfetch-agent-memory-architecture-design-analysis-2026-08-13_14-20-28.md
+    importance_score: 100
+    last_updated: '2026-08-13T14:20:28.075029+00:00'
+    title: 'Agent-Memory: Architecture & Design Analysis'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/OctavianTocan/agent-memory
+  https://api.github.com/repos/auriti-labs/kiro-memory:
+    content_hash: sha256:65f8408deb1c00c7
+    stored_at: data/staging/webfetch-kiro-memory-repository-information-2026-08-13_14-20-41.md
+    importance_score: 83
+    last_updated: '2026-08-13T14:20:41.442921+00:00'
+    title: kiro-memory Repository Information
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/Auriti-Labs/kiro-memory
+  https://api.github.com/repos/rohitg00/agentmemory:
+    content_hash: sha256:ba4bea432817ed83
+    stored_at: data/staging/webfetch-agentmemory-repository-extract-2026-08-13_14-20-43.md
+    importance_score: 83
+    last_updated: '2026-08-13T14:20:44.916202+00:00'
+    title: agentmemory Repository Extract
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/repos/rohitg00/agentmemory
+  https://export.arxiv.org/api/query?id_list=1706.03762:
+    content_hash: sha256:ffe903a65ea8d16a
+    stored_at: data/staging/webfetch-atom-feed-extract-2026-08-13_14-21-07.md
+    importance_score: 81
+    last_updated: '2026-08-13T14:21:07.256315+00:00'
+    title: Atom Feed Extract
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?id_list=1706.03762
+  ? https://export.arxiv.org/api/query?search_query=all:spaced+repetition+forgetting+curve+machine+memory&max_results=10&sortby=relevance
+  : content_hash: sha256:dadc4c0abfadbd3b
+    stored_at: data/staging/webfetch-arxiv-search-results-2026-08-13_14-21-28.md
+    importance_score: 81
+    last_updated: '2026-08-13T14:21:28.331861+00:00'
+    title: ArXiv Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:spaced+repetition+forgetting+curve+machine+memory&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:context+rot+long+context+degradation+retrieval&max_results=10&sortby=relevance
+  : content_hash: sha256:4c1b6386316242aa
+    stored_at: data/staging/webfetch-arxiv-search-results-summary-2026-08-13_14-21-30.md
+    importance_score: 81
+    last_updated: '2026-08-13T14:21:30.881519+00:00'
+    title: arXiv Search Results Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:context+rot+long+context+degradation+retrieval&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:long-term+memory+architecture+llm+agents&max_results=10&sortby=relevance
+  : content_hash: sha256:67037b1ec3d03730
+    stored_at: data/staging/webfetch-arxiv-research-papers-summary-2026-08-13_14-21-32.md
+    importance_score: 81
+    last_updated: '2026-08-13T14:21:32.940235+00:00'
+    title: arXiv Research Papers Summary
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:long-term+memory+architecture+LLM+agents&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:typed+schema+memory+units+llm+agent+retrieval+precision&max_results=10&sortby=relevance
+  : content_hash: sha256:7a9b2c2509bd0013
+    stored_at: data/staging/webfetch-arxiv-search-results-2026-08-13_14-21-34.md
+    importance_score: 81
+    last_updated: '2026-08-13T14:21:34.675778+00:00'
+    title: ArXiv Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:typed+schema+memory+units+LLM+agent+retrieval+precision&max_results=10&sortBy=relevance
+  https://export.arxiv.org/api/query?id_list=2304.03442:
+    content_hash: sha256:ae6df639c88045e1
+    stored_at: data/staging/webfetch-paper-extraction-2026-08-13_14-21-56.md
+    importance_score: 81
+    last_updated: '2026-08-13T14:21:56.164694+00:00'
+    title: Paper Extraction
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?id_list=2304.03442
+  ? https://export.arxiv.org/api/query?search_query=all:agent+memory+benchmark+task+performance+injected+context&max_results=10&sortby=relevance
+  : content_hash: sha256:6d98779a69dcab40
+    stored_at: data/staging/webfetch-arxiv-search-results-2026-08-13_14-22-09.md
+    importance_score: 81
+    last_updated: '2026-08-13T14:22:09.337469+00:00'
+    title: arXiv Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:agent+memory+benchmark+task+performance+injected+context&max_results=10&sortBy=relevance
+  https://blog.logrocket.com/context-rot-slowing-down-your-ai-agent-how-fix:
+    content_hash: sha256:d8c324f393e78312
+    stored_at: data/staging/webfetch-context-rot-in-ai-agents-2026-08-13_14-22-20.md
+    importance_score: 80
+    last_updated: '2026-08-13T14:22:20.639363+00:00'
+    title: Context Rot in AI Agents
+    maturity: growing
+    routing_type: meta
+    url: https://blog.logrocket.com/context-rot-slowing-down-your-ai-agent-how-fix/
+  ? https://medium.com/@micheal-lanham/knowledge-and-memory-beyond-rag-why-2026-agents-need-a-write-path-not-just-a-retriever-ae2547b7ffe9
+  : content_hash: sha256:9ca3df5ee291c29d
+    stored_at: data/staging/webfetch-why-a-write-path-matters-for-agent-memory-2026-08-13_14-22-22.md
+    importance_score: 80
+    last_updated: '2026-08-13T14:22:22.980941+00:00'
+    title: Why a Write Path Matters for Agent Memory
+    maturity: growing
+    routing_type: meta
+    url: https://medium.com/@Micheal-Lanham/knowledge-and-memory-beyond-rag-why-2026-agents-need-a-write-path-not-just-a-retriever-ae2547b7ffe9
+  ? https://api.github.com/search/repositories?q=stale+documentation+detection+when+source+code+changes+git+commit+time&sort=stars&order=desc&per_page=10
+  : content_hash: sha256:4981884de7e7fe63
+    stored_at: data/staging/webfetch-repositories-2026-08-13_14-59-23.md
+    importance_score: 83
+    last_updated: '2026-08-13T14:59:23.784222+00:00'
+    title: Repositories
+    maturity: growing
+    routing_type: meta
+    url: https://api.github.com/search/repositories?q=stale+documentation+detection+when+source+code+changes+git+commit+time&sort=stars&order=desc&per_page=10
+  ? https://export.arxiv.org/api/query?search_query=all:classification+with+a+reject+option+chow%27s+rule&max_results=10&sortby=relevance
+  : content_hash: sha256:75dc512d28c0fcda
+    stored_at: data/staging/webfetch-arxiv-search-results-2026-08-13_14-59-26.md
+    importance_score: 81
+    last_updated: '2026-08-13T14:59:26.182530+00:00'
+    title: ArXiv Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:classification+with+a+reject+option+Chow%27s+rule&max_results=10&sortBy=relevance
+  https://lobste.rs/search?q=mtime+staleness&what=stories&order=relevance:
+    content_hash: sha256:5e790c32c53f4548
+    stored_at: data/staging/webfetch-search-results-for-mtime-staleness-2026-08-13_14-59-27.md
+    importance_score: 80
+    last_updated: '2026-08-13T14:59:27.837043+00:00'
+    title: Search Results for "mtime staleness"
+    maturity: growing
+    routing_type: meta
+    url: https://lobste.rs/search?q=mtime+staleness&what=stories&order=relevance
+  https://hn.algolia.com/api/v1/search?query=stale%20documentation%20detection:
+    content_hash: sha256:3d75dc111e4efa7d
+    stored_at: data/staging/webfetch-stories-on-documentation-staleness-detection-2026-08-13_14-59-31.md
+    importance_score: 87
+    last_updated: '2026-08-13T14:59:31.638719+00:00'
+    title: Stories on Documentation Staleness & Detection
+    maturity: growing
+    routing_type: meta
+    url: https://hn.algolia.com/api/v1/search?query=stale%20documentation%20detection
+  ? https://export.arxiv.org/api/query?search_query=all:selective+classification+abstention+coverage+risk+tradeoff&max_results=10&sortby=relevance
+  : content_hash: sha256:36b3cbc904964f48
+    stored_at: data/staging/webfetch-arxiv-search-results-2026-08-13_14-59-33.md
+    importance_score: 81
+    last_updated: '2026-08-13T14:59:33.657130+00:00'
+    title: arXiv Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:selective+classification+abstention+coverage+risk+tradeoff&max_results=10&sortBy=relevance
+  https://github.com/fiberplane/drift:
+    content_hash: sha256:aeae4b7740f3c407
+    stored_at: data/staging/webfetch-drift-staleness-detection-mechanism-2026-08-13_14-59-49.md
+    importance_score: 100
+    last_updated: '2026-08-13T14:59:49.287796+00:00'
+    title: 'Drift: Staleness Detection Mechanism'
+    maturity: growing
+    routing_type: meta
+    url: https://github.com/fiberplane/drift
+  ? https://export.arxiv.org/api/query?search_query=all:selective+classification+reject+option+chow+rule&max_results=10&sortby=relevance
+  : content_hash: sha256:db594e4b4c1becf3
+    stored_at: data/staging/webfetch-arxiv-search-results-classification-with-reject-2026-08-13_14-59-51.md
+    importance_score: 81
+    last_updated: '2026-08-13T14:59:51.765704+00:00'
+    title: 'arXiv Search Results: Classification with Reject Option'
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:selective+classification+reject+option+Chow+rule&max_results=10&sortBy=relevance
+  ? https://export.arxiv.org/api/query?search_query=all:calibration+confidence+coverage+risk+classifier+abstain&max_results=10&sortby=relevance
+  : content_hash: sha256:bda4ec9aa19a3e06
+    stored_at: data/staging/webfetch-arxiv-search-results-2026-08-13_14-59-56.md
+    importance_score: 81
+    last_updated: '2026-08-13T14:59:56.910510+00:00'
+    title: arXiv Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:calibration+confidence+coverage+risk+classifier+abstain&max_results=10&sortBy=relevance
+  https://blog.hackerific.net/2016/04/30/git-file-age-a-script-to-show-when-files-were-last-modified-in-git:
+    content_hash: sha256:d3c0ea3cd989a3de
+    stored_at: data/staging/webfetch-git-log-1-pretty-format-ct-format-h-2026-08-13_15-00-00.md
+    importance_score: 80
+    last_updated: '2026-08-13T15:00:00.165774+00:00'
+    title: "git log -1 --pretty=\"format:%ct\t${format}\t%h\t\xA7;\" \xA7"
+    maturity: growing
+    routing_type: meta
+    url: https://blog.hackerific.net/2016/04/30/git-file-age-a-script-to-show-when-files-were-last-modified-in-git/
+  ? https://export.arxiv.org/api/query?search_query=all:cache+invalidation+provenance+lineage+derived+data&max_results=10&sortby=relevance
+  : content_hash: sha256:7208b1b684f4f7c2
+    stored_at: data/staging/webfetch-arxiv-search-results-2026-08-13_15-00-01.md
+    importance_score: 81
+    last_updated: '2026-08-13T15:00:01.975919+00:00'
+    title: ArXiv Search Results
+    maturity: growing
+    routing_type: meta
+    url: https://export.arxiv.org/api/query?search_query=all:cache+invalidation+provenance+lineage+derived+data&max_results=10&sortBy=relevance
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -13985,3 +14463,56 @@ hashes:
   sha256:e260a9f6536b61a9: data/staging/webfetch-dbt-labs-github-pull-request-template-2026-08-13_00-03-13.md
   sha256:89c8c3af443cb3ee: data/staging/webfetch-pr-template-structure-2026-08-13_00-04-08.md
   sha256:94c30db8dd2a145f: data/staging/webfetch-flutter-pull-request-template-structure-2026-08-13_00-04-10.md
+  sha256:b4a99b0ecbe2e7c2: data/staging/webfetch-cawg-identity-md-2026-08-13_11-04-42.md
+  sha256:44d398e66766f954: data/staging/webfetch-credly-s-open-badge-3-0-role-import-verify-not-2026-08-13_11-04-49.md
+  sha256:a64f06c55d96deee: data/staging/webfetch-original-url-https-imscert-org-2026-08-13_11-05-01.md
+  sha256:cbf8b7e9f553b1aa: data/staging/webfetch-multiple-signers-support-in-c2pa-tool-2026-08-13_11-05-05.md
+  sha256:2dc34f9679f1cf51: data/staging/webfetch-ingredient-schema-analysis-2026-08-13_11-05-07.md
+  sha256:5bad176619cf75d4: data/staging/webfetch-multi-signer-patterns-in-c2pa-python-documentation-2026-08-13_11-05-28.md
+  sha256:886b323854ce67c4: data/staging/webfetch-examples-2026-08-13_11-05-39.md
+  sha256:fe4924249e7f23ba: data/staging/webfetch-sign-py-2026-08-13_11-06-02.md
+  sha256:e2736b8b0a39ab6e: data/staging/webfetch-c2pa-signer-architecture-analysis-2026-08-13_11-06-04.md
+  sha256:1455f8604a4081a4: data/staging/webfetch-origin-lens-2026-08-13_11-06-26.md
+  sha256:f8c79f95ca354dc4: data/staging/webfetch-dfe-post-16-funding-assurance-review-guidance-pdf-2026-08-13_11-06-47.md
+  sha256:77df69b72c221abd: data/staging/webfetch-cawg-endorsement-assertion-2026-08-13_11-07-02.md
+  sha256:94d0d3cc93981142: data/staging/webfetch-btec-centre-guide-to-internal-assessment-pdf-2026-08-13_11-07-44.md
+  sha256:06042b716a55da99: data/staging/webfetch-ofqual-revised-conditions-coming-into-force-2026-08-13_11-07-46.md
+  sha256:49623ea33aca7e6e: data/staging/webfetch-c2pa-conformance-tool-2026-08-13_11-07-48.md
+  sha256:fb4f4eae0651f600: data/staging/webfetch-pyc2pa-multiple-signer-and-workflow-support-2026-08-13_11-07-57.md
+  sha256:2b31525d07790145: data/staging/webfetch-result-no-mention-found-2026-08-13_11-08-03.md
+  sha256:b4e8d6ef2ba55e5a: data/staging/webfetch-c2pa-workflow-demonstration-vs-implementation-2026-08-13_11-08-11.md
+  sha256:f3e9dba03f8b3412: data/staging/webfetch-multi-signer-support-in-c2pie-2026-08-13_11-08-48.md
+  sha256:5e54fc21d1386a76: data/staging/webfetch-funding-and-performance-management-rules-202526-2026-08-13_11-09-01.md
+  sha256:bd6ee07d47c7e50d: data/staging/webfetch-funding-rules-23-24-update-cogent-pdf-2026-08-13_11-09-03.md
+  sha256:382d6127fd9cd362: data/staging/webfetch-signature-processes-not-being-suitably-robust-2026-08-13_11-09-26.md
+  sha256:a8effedb40add90c: data/staging/webfetch-electronic-signature-requirements-esf-programme-2026-08-13_11-09-29.md
+  sha256:06bc9aa1efaf6378: data/staging/webfetch-watermarks-remover-project-overview-2026-08-13_12-40-16.md
+  sha256:1f0a2c0148c7b866: data/staging/webfetch-ai-project-architect-repository-summary-2026-08-13_14-03-22.md
+  sha256:ef567e09b917591e: data/staging/webfetch-total-count-1-2026-08-13_14-19-31.md
+  sha256:4e3972eeca159ad0: data/staging/webfetch-search-results-analysis-2026-08-13_14-19-39.md
+  sha256:aebc18a52c65b6b1: data/staging/webfetch-tome-discourse-module-2026-08-13_14-19-56.md
+  sha256:863e8cad01d32180: data/staging/webfetch-prism-coder-architecture-memory-system-2026-08-13_14-20-08.md
+  sha256:71901bacf4446d51: data/staging/webfetch-agentmemory-architecture-memory-system-2026-08-13_14-20-11.md
+  sha256:a2eb0fd3818d0962: data/staging/webfetch-ai-memory-architecture-core-mechanisms-2026-08-13_14-20-13.md
+  sha256:6c4e6c0e9f5fd43b: data/staging/webfetch-agent-memory-architecture-design-analysis-2026-08-13_14-20-28.md
+  sha256:65f8408deb1c00c7: data/staging/webfetch-kiro-memory-repository-information-2026-08-13_14-20-41.md
+  sha256:ba4bea432817ed83: data/staging/webfetch-agentmemory-repository-extract-2026-08-13_14-20-43.md
+  sha256:ffe903a65ea8d16a: data/staging/webfetch-atom-feed-extract-2026-08-13_14-21-07.md
+  sha256:dadc4c0abfadbd3b: data/staging/webfetch-arxiv-search-results-2026-08-13_14-21-28.md
+  sha256:4c1b6386316242aa: data/staging/webfetch-arxiv-search-results-summary-2026-08-13_14-21-30.md
+  sha256:67037b1ec3d03730: data/staging/webfetch-arxiv-research-papers-summary-2026-08-13_14-21-32.md
+  sha256:7a9b2c2509bd0013: data/staging/webfetch-arxiv-search-results-2026-08-13_14-21-34.md
+  sha256:ae6df639c88045e1: data/staging/webfetch-paper-extraction-2026-08-13_14-21-56.md
+  sha256:6d98779a69dcab40: data/staging/webfetch-arxiv-search-results-2026-08-13_14-22-09.md
+  sha256:d8c324f393e78312: data/staging/webfetch-context-rot-in-ai-agents-2026-08-13_14-22-20.md
+  sha256:9ca3df5ee291c29d: data/staging/webfetch-why-a-write-path-matters-for-agent-memory-2026-08-13_14-22-22.md
+  sha256:4981884de7e7fe63: data/staging/webfetch-repositories-2026-08-13_14-59-23.md
+  sha256:75dc512d28c0fcda: data/staging/webfetch-arxiv-search-results-2026-08-13_14-59-26.md
+  sha256:5e790c32c53f4548: data/staging/webfetch-search-results-for-mtime-staleness-2026-08-13_14-59-27.md
+  sha256:3d75dc111e4efa7d: data/staging/webfetch-stories-on-documentation-staleness-detection-2026-08-13_14-59-31.md
+  sha256:36b3cbc904964f48: data/staging/webfetch-arxiv-search-results-2026-08-13_14-59-33.md
+  sha256:aeae4b7740f3c407: data/staging/webfetch-drift-staleness-detection-mechanism-2026-08-13_14-59-49.md
+  sha256:db594e4b4c1becf3: data/staging/webfetch-arxiv-search-results-classification-with-reject-2026-08-13_14-59-51.md
+  sha256:bda4ec9aa19a3e06: data/staging/webfetch-arxiv-search-results-2026-08-13_14-59-56.md
+  sha256:d3c0ea3cd989a3de: data/staging/webfetch-git-log-1-pretty-format-ct-format-h-2026-08-13_15-00-00.md
+  sha256:7208b1b684f4f7c2: data/staging/webfetch-arxiv-search-results-2026-08-13_15-00-01.md

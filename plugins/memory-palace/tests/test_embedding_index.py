@@ -135,3 +135,46 @@ class TestMP011OptionalDepExceptionNarrowing:
             f"Module-level import blocks must use except ImportError, "
             f"found: {top_level_bare_exceptions} (MP-011)"
         )
+
+
+# --- Weighted ranking -------------------------------------------------------
+# Similarity alone cannot express that a decision was later revised. The
+# index stays time-agnostic; callers supply per-entry weights computed from
+# the decay model, and the index multiplies them into the score.
+
+
+def _index_with(tmp_path, entries: dict[str, list[float]]):
+    """Build an index whose hash-provider entries are set directly."""
+
+    path = tmp_path / "embeddings.yaml"
+    path.write_text(
+        yaml.safe_dump({"providers": {"hash": {"embeddings": entries}}}),
+        encoding="utf-8",
+    )
+    return EmbeddingIndex(str(path), provider="hash")
+
+
+def test_weights_reorder_entries_of_equal_similarity(tmp_path) -> None:
+    """Two equally similar entries rank by weight, freshest first."""
+    index = _index_with(tmp_path, {"stale": [1.0, 0.0], "fresh": [1.0, 0.0]})
+
+    unweighted = index.search("anything", top_k=2)
+    assert unweighted[0][1] == unweighted[1][1], "fixture must tie on similarity"
+
+    ranked = index.search("anything", top_k=2, weights={"stale": 0.1, "fresh": 1.0})
+    assert [entry for entry, _ in ranked] == ["fresh", "stale"]
+
+
+def test_missing_weight_defaults_to_unweighted(tmp_path) -> None:
+    """An entry absent from the weights map is not silently dropped."""
+    index = _index_with(tmp_path, {"alpha": [1.0, 0.0], "beta": [1.0, 0.0]})
+    ranked = index.search("anything", top_k=5, weights={"alpha": 0.5})
+    assert {entry for entry, _ in ranked} == {"alpha", "beta"}
+
+
+def test_omitting_weights_leaves_scores_untouched(tmp_path) -> None:
+    """The default path is unchanged for every existing caller."""
+    index = _index_with(tmp_path, {"alpha": [0.6, 0.8], "beta": [0.8, 0.6]})
+    assert index.search("query", top_k=5) == index.search(
+        "query", top_k=5, weights=None
+    )

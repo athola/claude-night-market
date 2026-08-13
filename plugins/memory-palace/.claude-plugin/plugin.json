@@ -10,15 +10,16 @@
     "./commands/skill-logs.md"
   ],
   "skills": [
-    "./skills/memory-palace-architect",
-    "./skills/knowledge-locator",
-    "./skills/session-palace-builder",
     "./skills/digital-garden-cultivator",
     "./skills/knowledge-intake",
-    "./skills/review-chamber",
-    "./skills/palace-diagram",
+    "./skills/knowledge-locator",
     "./skills/memory-clarity-probe",
-    "./skills/palace-index-curator"
+    "./skills/memory-palace-architect",
+    "./skills/palace-diagram",
+    "./skills/palace-index-curator",
+    "./skills/review-chamber",
+    "./skills/session-handoff",
+    "./skills/session-palace-builder"
   ],
   "agents": [
     "./agents/palace-architect.md",

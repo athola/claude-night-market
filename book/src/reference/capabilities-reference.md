@@ -157,6 +157,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `scope-guard` | [imbue](../plugins/imbue.md) | Anti-overengineering |
 | `sem-integration` | [leyline](../plugins/leyline.md) | Semantic diff CLI detection and fallback |
 | `service-registry` | [leyline](../plugins/leyline.md) | Service discovery patterns |
+| `session-handoff` | [memory-palace](../plugins/memory-palace.md) | Typed session handoff units and on-demand recall |
 | `session-management` | [sanctum](../plugins/sanctum.md) | Session naming, checkpointing, and resume strategies |
 | `session-palace-builder` | [memory-palace](../plugins/memory-palace.md) | Session-specific palaces |
 | `session-replay` | [scribe](../plugins/scribe.md) | Convert session JSONL into GIF/MP4/WebM replays via VHS |

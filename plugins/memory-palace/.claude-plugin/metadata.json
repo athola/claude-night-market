@@ -3,12 +3,13 @@
   "version": "1.9.18",
   "main": "skills",
   "skills": [
-    "skills/memory-palace-architect",
-    "skills/knowledge-locator",
-    "skills/session-palace-builder",
     "skills/digital-garden-cultivator",
     "skills/knowledge-intake",
-    "skills/memory-clarity-probe"
+    "skills/knowledge-locator",
+    "skills/memory-clarity-probe",
+    "skills/memory-palace-architect",
+    "skills/session-handoff",
+    "skills/session-palace-builder"
   ],
   "dependencies": {},
   "provides": {
