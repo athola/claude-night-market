@@ -6,6 +6,11 @@
 .claude/worktrees/
 .claude/logs/
 *.txt
+# ...but never swallow a dependency manifest. A bare `*.txt` rule
+# hid two stale spec-kit requirements files from every dependency
+# audit until one was found by hand. Ignoring build noise must not
+# mean ignoring what the project installs.
+!**/requirements*.txt
 
 # Transient PR-review findings cache (not source)
 .review/
