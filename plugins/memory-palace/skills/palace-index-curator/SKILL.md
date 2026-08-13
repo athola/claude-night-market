@@ -144,6 +144,32 @@ is left untouched. Writing `entries: {}` over real data is how the
 corpus went dark in 1.5.0, and it stayed dark because the regeneration
 script named in that stub file had never been written.
 
+## When a capture is missing from search
+
+A capture whose frontmatter will not parse contributes nothing to the
+keyword index. Body extraction is gated on that parse, so the whole
+document drops out rather than just its topic, and the drain above
+reports nothing wrong because the index entry itself looks ordinary.
+
+The usual cause is a page title or search query holding a double
+quote, which closed the YAML scalar early when the capture was
+written. The capture hooks escape their scalars now, so this reaches
+captures written before that fix and no others.
+
+```bash
+# Report which captures cannot be parsed, writing nothing.
+uv run python scripts/repair_capture_frontmatter.py
+
+# Re-quote them, backing the originals up under data/backups/.
+uv run python scripts/repair_capture_frontmatter.py --apply
+```
+
+The repair rewrites the broken scalar and nothing else, and refuses
+any file it cannot re-parse afterward: turning an invisible capture
+into a subtly wrong one is worse than leaving it alone. Rebuild the
+keyword index once it has run, since retrieval reads the separate
+artifact described above.
+
 ## Design Notes
 
 - Promotion uses only structural signals (recency, domain authority,
@@ -194,5 +220,8 @@ requirement, and the two discoverability layers.
       exits silently.
 - [ ] `check_capture_index_drained.py` exits 0 against the committed
       index and exits 1 naming the keys when one is left `pending`.
+- [ ] `repair_capture_frontmatter.py` reports zero repairable
+      captures against the committed corpus, and refuses a file it
+      cannot re-parse after repair.
 - [ ] A capture written by `update_index` appears in `git diff --cached`
       without anyone staging it by hand.
