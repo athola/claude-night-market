@@ -96,7 +96,26 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 
 # Skip version consistency check
 /pr-review --skip-version-check
+
+# Socratic comprehension loop: you explain the diff, the agent probes gaps
+/pr-review --interactive
 ```
+
+### Interactive Mode
+
+`--interactive` adds a comprehension loop to the review. You open
+each round by stating your understanding of a hunk, asking your own
+question, or admitting you do not follow it. The agent answers from
+the diff, then probes the gap your opening revealed.
+
+Each exchange is graded and written to gauntlet's progress store,
+so weak areas steer both later probes and later `/gauntlet`
+challenges. Probe results never change the merge recommendation.
+They are reported in a Comprehension section.
+
+Requires no `.gauntlet` knowledge base. See
+`Skill(sanctum:pr-review)` module `modules/interactive-review.md`
+for turn order, scoring, and the recording contract.
 
 ### Stack Mode (Multi-PR Review)
 
@@ -156,6 +175,7 @@ format used by both `/pr-review --stack` and
 8. **Test Plan** - Post verification checklist to PR (MANDATORY; or include in local file with `--local`)
 9. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY; skipped with `--local`)
 10. **Discussion Insights** - Post review findings as Insights to GitHub Discussions (DEFAULT; opt-out with `--no-insights`)
+11. **Comprehension Loop** - Socratic probe of the changed code, recorded to gauntlet (OPT-IN with `--interactive`)
 
 **MANDATORY OUTPUTS:** Review comment, Test plan comment, PR description update.
 If any are missing, the review is INCOMPLETE.

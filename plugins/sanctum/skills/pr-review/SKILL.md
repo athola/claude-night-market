@@ -26,11 +26,11 @@ modules:
 - modules/comment-guidelines.md
 - modules/educational-insights.md
 - modules/github-comments.md
+- modules/insight-generation.md
+- modules/interactive-review.md
 - modules/knowledge-capture.md
 - modules/pr-hygiene.md
 - modules/version-validation.md
-- modules/pr-hygiene.md
-- modules/insight-generation.md
 dependencies:
 - leyline:git-platform
 - sanctum:git-workspace-review
@@ -61,6 +61,7 @@ role: entrypoint
 - [Phase 5: Backlog Triage](#phase-5-backlog-triage)
 - [Phase 6: Generate Report](#phase-6-generate-report)
 - [Phase 7: Knowledge Capture](#phase-7-knowledge-capture)
+- [Phase 8: Comprehension Loop (`--interactive`)](#phase-8-comprehension-loop---interactive)
 - [Quality Gates](#quality-gates)
 - [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
 - [Don't: Scope Creep Review](#dont-scope-creep-review)
@@ -494,6 +495,36 @@ View: `/review-room list --palace <project>`
 
 See `modules/knowledge-capture.md` for full workflow.
 
+### Phase 8: Comprehension Loop (`--interactive`)
+
+Opt-in. Skip this phase unless the reviewer passed `--interactive`.
+
+Runs the socratic loop that makes the "Don't: Merge Code You Cannot
+Explain" anti-pattern below executable. The reviewer opens each round
+by stating their understanding, asking their own question, or
+admitting a gap. The agent answers from the diff, then probes what
+the opening revealed.
+
+Each exchange is graded `pass`, `partial`, or `fail` and written to
+gauntlet's shared progress store, tagged with one of gauntlet's seven
+knowledge categories. The same history steers `/gauntlet` challenges,
+so review sessions and challenge sessions compound. The selector
+favors untested categories first and weak ones second, so a failed
+probe raises that category's weight only against categories you have
+already answered well. Grade honestly: the weak-category bonus needs
+accuracy strictly below `0.5`, so a lone `partial` earns no steer.
+
+```bash
+python3 plugins/gauntlet/scripts/progress_tracker.py .gauntlet \
+  --developer "$(git config user.email)" --record '<answer-record-json>'
+```
+
+Probe results never change the merge recommendation. They add a
+Comprehension section to the report from Phase 6.
+
+Full turn order, scoring table, category mapping, and the recording
+contract: `modules/interactive-review.md`.
+
 ## Quality Gates
 
 A PR should be approved when:
@@ -563,6 +594,10 @@ This applies to self-reviews: run the same probe before
 requesting external review. Do not submit a PR for review that
 you yourself do not fully understand.
 
+`/pr-review --interactive` runs this probe as a graded loop and
+records what you could not explain. See Phase 8 and
+`modules/interactive-review.md`.
+
 ### Verify Findings Are Grounded (`pr-review:findings-verified`)
 
 Every finding must cite a real location and a verbatim anchor. Write
@@ -608,15 +643,21 @@ Apply `scribe:slop-detector` to PR body:
 
 ## Exit Criteria
 
-- Scope baseline established
-- All changes reviewed against scope
-- Findings classified correctly
-- Backlog items tracked as issues
-- Clear recommendation provided
-- Every BLOCKING and IN-SCOPE finding carries a `Location` (file:line) and
-  verbatim `Anchor`; `citation_verifier.py` confirmed all citations
-  (exit `0`) or unverified findings are dropped/labeled `UNVERIFIED`
+- [ ] Scope baseline established and recorded in the report
+- [ ] Every changed file classified in-scope, out-of-scope, or blocking
+- [ ] Each out-of-scope finding has a tracked issue number
+- [ ] Report states one recommendation: approve, comment, or request changes
+- [ ] Every BLOCKING and IN-SCOPE finding carries a `Location` (file:line)
+      and verbatim `Anchor`, and `citation_verifier.py` exits `0` or the
+      unverified findings are dropped or labeled `UNVERIFIED`
+- [ ] With `--interactive`: every hunk carrying a blocking or high-risk
+      finding was probed, or the reviewer ended the session
+- [ ] With `--interactive`: each graded exchange appears in
+      `.gauntlet/progress/<developer>.json`, and the report carries a
+      Comprehension section whose row count matches the probes recorded
 
 ## Supporting Modules
 
+- [Interactive comprehension loop](modules/interactive-review.md) -
+  socratic probes graded and recorded to gauntlet's adaptive selector
 - [GitHub PR comment patterns](modules/github-comments.md) - `gh api` patterns for inline and summary PR comments

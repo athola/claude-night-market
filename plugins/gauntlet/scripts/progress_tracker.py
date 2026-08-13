@@ -12,6 +12,7 @@ from pathlib import Path
 _SCRIPTS_DIR = Path(__file__).parent
 sys.path.insert(0, str(_SCRIPTS_DIR.parent / "src"))
 
+from gauntlet.models import AnswerRecord  # noqa: E402 - path set above
 from gauntlet.progress import ProgressTracker  # noqa: E402 - path set above
 
 _ALL_CATEGORIES = [
@@ -40,6 +41,15 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Developer ID (e.g. git email).",
     )
     parser.add_argument(
+        "--record",
+        metavar="JSON",
+        help=(
+            "Persist an answer record instead of printing stats. Accepts a JSON "
+            "object with the AnswerRecord fields. Used by reviewing agents "
+            "outside the challenge loop, such as /pr-review --interactive."
+        ),
+    )
+    parser.add_argument(
         "--format",
         choices=["text", "json"],
         default="text",
@@ -48,11 +58,52 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _record_answer(tracker: ProgressTracker, developer: str, raw: str) -> int:
+    """Persist one answer record supplied as JSON on the command line.
+
+    This is a trust boundary: the payload arrives from another process, so
+    both the JSON and the record fields are validated before anything is
+    written. A rejected payload persists nothing.
+    """
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        print(f"error: --record is not valid JSON: {exc}", file=sys.stderr)
+        return 1
+
+    if not isinstance(payload, dict):
+        print("error: --record must be a JSON object", file=sys.stderr)
+        return 1
+
+    # record_answer() stamps answered_at with the current time, so callers
+    # do not supply it. from_dict still requires the key to be present.
+    payload.setdefault("answered_at", "")
+
+    try:
+        record = AnswerRecord.from_dict(payload)
+    except (KeyError, TypeError, ValueError) as exc:
+        print(f"error: invalid answer record: {exc}", file=sys.stderr)
+        return 1
+
+    progress = tracker.get_or_create(developer)
+    tracker.record_answer(progress, record)
+    print(
+        f"recorded {record.result} on {record.category} "
+        f"(streak {progress.streak}, {len(progress.history)} total)"
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
+    """Record an answer with ``--record``, or print progress stats."""
     parser = _build_parser()
     args = parser.parse_args(argv)
 
     tracker = ProgressTracker(args.gauntlet_dir)
+
+    if args.record is not None:
+        return _record_answer(tracker, args.developer, args.record)
+
     progress = tracker.get_or_create(args.developer)
 
     overall = progress.overall_accuracy()
