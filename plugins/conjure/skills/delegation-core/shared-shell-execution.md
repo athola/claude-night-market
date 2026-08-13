@@ -33,8 +33,9 @@ class DelegationService:
 class CommandBuilder:
     """Builds standardized commands for different services"""
 
-    def build_command(self, service: DelegationService, prompt: str,
-                     files: List[str], options: Dict) -> str:
+    def build_command(
+        self, service: DelegationService, prompt: str, files: List[str], options: Dict
+    ) -> str:
         """Build service-specific command with standard options"""
 ```
 
@@ -113,7 +114,7 @@ result = delegator.delegate(
     service="gemini",
     prompt="Analyze these files for security issues",
     files=["src/main.py", "src/auth.py"],
-    options={"model": "gemini-3-pro"}
+    options={"model": "gemini-3-pro"},
 )
 ```
 
@@ -123,6 +124,6 @@ result = delegator.delegate(
 result = delegator.smart_delegate(
     prompt="Summarize this large codebase",
     files=["src/**/*"],
-    requirements={"large_context": True, "fast_response": False}
+    requirements={"large_context": True, "fast_response": False},
 )
 ```

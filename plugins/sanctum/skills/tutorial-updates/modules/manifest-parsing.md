@@ -113,11 +113,7 @@ Enter
 ```python
 def parse_tape_annotations(tape_content: str) -> dict:
     """Parse tape file for documentation annotations."""
-    result = {
-        "title": None,
-        "description": None,
-        "steps": []
-    }
+    result = {"title": None, "description": None, "steps": []}
 
     current_step = None
 
@@ -141,7 +137,7 @@ def parse_tape_annotations(tape_content: str) -> dict:
                 "name": step_name,
                 "docs_brief": None,
                 "book_detail": None,
-                "commands": []
+                "commands": [],
             }
         elif line.startswith("# @docs-brief"):
             if current_step:

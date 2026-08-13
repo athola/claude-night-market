@@ -79,7 +79,7 @@ Pattern examples:
 Detection approach:
 ```python
 # Look for: adjective, adjective, and adjective
-tricolon_pattern = r'\b(\w+), (\w+),? and (\w+)\b'
+tricolon_pattern = r"\b(\w+), (\w+),? and (\w+)\b"
 # Flag if words share first letter or similar endings
 
 # Count three-item lists of any kind per 500 words
@@ -100,8 +100,9 @@ def sentence_uniformity(sentences):
     lengths = [len(s.split()) for s in sentences]
     mean = sum(lengths) / len(lengths)
     variance = sum((l - mean) ** 2 for l in lengths) / len(lengths)
-    std_dev = variance ** 0.5
+    std_dev = variance**0.5
     return std_dev
+
 
 # std_dev < 5: Suspicious uniformity
 # std_dev 5-15: Normal variation
@@ -207,7 +208,7 @@ Examples:
 
 ```python
 # Detect sentences ending with ", [word]-ing ..."
-participial_tail = r',\s+\w+ing\s+[\w\s]+\.$'
+participial_tail = r",\s+\w+ing\s+[\w\s]+\.$"
 # 3+ matches in a paragraph is a strong signal
 ```
 
@@ -257,7 +258,7 @@ Examples:
 - "From ancient traditions to modern innovations"
 
 ```python
-from_to_pattern = r'\bfrom\s+[\w\s]+\s+to\s+[\w\s]+'
+from_to_pattern = r"\bfrom\s+[\w\s]+\s+to\s+[\w\s]+"
 ```
 
 ## Correlative Conjunction Overuse
@@ -509,7 +510,7 @@ Examples:
 
 ```python
 # Detect three single-word sentences in sequence
-three_fragment = r'\b([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\.'
+three_fragment = r"\b([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\.\s+([A-Z][a-z]+)\."
 ```
 
 | Count per 1000 words | Signal |
@@ -633,6 +634,7 @@ def length_clustering(sentences):
     lengths = [len(s.split()) for s in sentences]
     in_range = sum(1 for l in lengths if 15 <= l <= 25)
     return in_range / len(lengths)
+
 
 # > 0.7 (70% of sentences in 15-25 range): strong AI signal
 # > 0.85: very strong; only a deliberate style choice
@@ -783,65 +785,65 @@ empty paragraph (max 3 instances to cap at +6).
 ```python
 def structural_score(metrics):
     score = 0
-    if metrics['em_dash_density'] > 5:
+    if metrics["em_dash_density"] > 5:
         score += 2
-    if metrics['sentence_std_dev'] < 5:
+    if metrics["sentence_std_dev"] < 5:
         score += 2
-    if metrics['bullet_ratio'] > 0.5:
+    if metrics["bullet_ratio"] > 0.5:
         score += 2
-    if metrics['paragraph_uniformity'] > 0.8:
+    if metrics["paragraph_uniformity"] > 0.8:
         score += 2
-    if metrics['zero_contractions']:
+    if metrics["zero_contractions"]:
         score += 1
-    if metrics['emoji_bullets']:
+    if metrics["emoji_bullets"]:
         score += 3
     # 2025-2026 research patterns
-    if metrics.get('participial_tail_count', 0) > 3:
+    if metrics.get("participial_tail_count", 0) > 3:
         score += 2
     # Sentence rhythm (#2 Reddit tell, 4.0% citation rate):
     # weighted higher than in earlier versions.
-    if metrics.get('sentence_length_cluster_ratio', 0) > 0.7:
+    if metrics.get("sentence_length_cluster_ratio", 0) > 0.7:
         score += 3  # was 2; elevated to match empirical ranking
-    if metrics.get('sentence_length_cluster_ratio', 0) > 0.85:
+    if metrics.get("sentence_length_cluster_ratio", 0) > 0.85:
         score += 1  # extra point for extreme clustering
-    if metrics.get('semicolon_count', 1) == 0 and metrics.get('em_dash_density', 0) > 3:
+    if metrics.get("semicolon_count", 1) == 0 and metrics.get("em_dash_density", 0) > 3:
         score += 1
-    if metrics.get('correlative_pairs', 0) > 2:
+    if metrics.get("correlative_pairs", 0) > 2:
         score += 1
-    if metrics.get('arrow_connectors', 0) > 0:
+    if metrics.get("arrow_connectors", 0) > 0:
         score += 1
-    if metrics.get('plus_conjunctions', 0) > 1:
+    if metrics.get("plus_conjunctions", 0) > 1:
         score += 1
-    if metrics.get('triad_count', 0) > 2:
+    if metrics.get("triad_count", 0) > 2:
         score += 1  # rule of three (#8 tell, 1.2% citation)
     # Tier 5 / 2026 structural patterns
-    if metrics.get('spatial_copula_count', 0) >= 1:
+    if metrics.get("spatial_copula_count", 0) >= 1:
         score += 2
-    if metrics.get('negative_parallelism_count', 0) >= 1:
+    if metrics.get("negative_parallelism_count", 0) >= 1:
         score += 3
     # Affirmative antithesis: comparative form scores; judgment-level
     # matches (subject-swap, chiasmus) are surfaced, not scored.
-    if metrics.get('contrastive_parallelism_count', 0) >= 1:
+    if metrics.get("contrastive_parallelism_count", 0) >= 1:
         score += 2
-    if metrics.get('three_fragment_burst_count', 0) >= 2:
+    if metrics.get("three_fragment_burst_count", 0) >= 2:
         score += 2
-    if metrics.get('smart_quote_count', 0) >= 3:
+    if metrics.get("smart_quote_count", 0) >= 3:
         score += 1
-    if metrics.get('emphasis_crutch_count', 0) >= 1:
+    if metrics.get("emphasis_crutch_count", 0) >= 1:
         score += 2
     # Sycophancy / position-avoidance (#4 Reddit tell, 2.5% citation):
     # boilerplate phrases are lexically detectable.
-    if metrics.get('sycophancy_boilerplate_count', 0) >= 1:
+    if metrics.get("sycophancy_boilerplate_count", 0) >= 1:
         score += 2
     # Reader-detected sycophancy / fluent-empty prose: surfaced with
     # confidence:reader, not auto-scored. Callers may inject via:
     #   metrics['reader_sycophancy'] = True  (from manual review)
     #   metrics['reader_empty_prose_count'] = N (paragraphs)
-    if metrics.get('reader_sycophancy', False):
+    if metrics.get("reader_sycophancy", False):
         score += 3
-    score += min(6, metrics.get('reader_empty_prose_count', 0) * 2)
+    score += min(6, metrics.get("reader_empty_prose_count", 0) * 2)
     # Prevention mode: any em-dash in fresh prose is a finding
-    if metrics.get('mode') == 'prevention' and metrics.get('em_dash_count', 0) > 0:
-        score += min(5, metrics['em_dash_count'])
+    if metrics.get("mode") == "prevention" and metrics.get("em_dash_count", 0) > 0:
+        score += min(5, metrics["em_dash_count"])
     return min(10, score)
 ```

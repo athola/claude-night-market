@@ -138,19 +138,19 @@ phrases score 4 each, normalised per 100 words.
 
 ```python
 DE_TIER1_PATTERNS = [
-    r'\bumfassend\w*\b',    # umfassend, umfassende, umfassender ...
-    r'\bnutzen\b',
-    r'\bvielf[äa]ltig\w*\b',
-    r'\btiefgreifend\w*\b',
-    r'\bbahnbrechend\w*\b',
-    r'\bganzheitlich\w*\b',
-    r'\bmaßgeblich\w*\b',
-    r'\bwegweisend\w*\b',
+    r"\bumfassend\w*\b",  # umfassend, umfassende, umfassender ...
+    r"\bnutzen\b",
+    r"\bvielf[äa]ltig\w*\b",
+    r"\btiefgreifend\w*\b",
+    r"\bbahnbrechend\w*\b",
+    r"\bganzheitlich\w*\b",
+    r"\bmaßgeblich\w*\b",
+    r"\bwegweisend\w*\b",
 ]
 
 DE_PHRASE_PATTERNS = [
-    r'in der heutigen schnelllebigen welt',  # vapid opener
-    r'es sei darauf hingewiesen',            # filler
+    r"in der heutigen schnelllebigen welt",  # vapid opener
+    r"es sei darauf hingewiesen",  # filler
 ]
 ```
 
@@ -160,17 +160,17 @@ DE_PHRASE_PATTERNS = [
 
 ```python
 FR_TIER1_PATTERNS = [
-    r'\btirer parti de\b',
-    r'\bexhaustif(?:ve)?\b|\bexhaustive\b',  # exhaustif / exhaustive
-    r'\bpolyvalent\w*\b',
-    r'\bincontournable[s]?\b',
-    r'\bnovateur\b|\bnovatrice\b',
-    r'\bprimordial\w*\b',
+    r"\btirer parti de\b",
+    r"\bexhaustif(?:ve)?\b|\bexhaustive\b",  # exhaustif / exhaustive
+    r"\bpolyvalent\w*\b",
+    r"\bincontournable[s]?\b",
+    r"\bnovateur\b|\bnovatrice\b",
+    r"\bprimordial\w*\b",
 ]
 
 FR_PHRASE_PATTERNS = [
     r"dans le monde d'aujourd'hui",  # vapid opener
-    r'il convient de noter que',     # filler
+    r"il convient de noter que",  # filler
 ]
 ```
 
@@ -178,17 +178,17 @@ FR_PHRASE_PATTERNS = [
 
 ```python
 ES_TIER1_PATTERNS = [
-    r'\baprovechar?\b',          # aprovechar
-    r'\bintegral[e-z]?\b',       # integral
-    r'\bpolifac[eé]tico[s]?\b',  # polifacético
-    r'\binnovador[a-z]?\b',      # innovador
-    r'\bfundamental[e-z]?\b',    # fundamental
-    r'\bimprescindible[s]?\b',   # imprescindible
+    r"\baprovechar?\b",  # aprovechar
+    r"\bintegral[e-z]?\b",  # integral
+    r"\bpolifac[eé]tico[s]?\b",  # polifacético
+    r"\binnovador[a-z]?\b",  # innovador
+    r"\bfundamental[e-z]?\b",  # fundamental
+    r"\bimprescindible[s]?\b",  # imprescindible
 ]
 
 ES_PHRASE_PATTERNS = [
-    r'en el mundo acelerado de hoy',  # vapid opener
-    r'cabe destacar que',             # filler
+    r"en el mundo acelerado de hoy",  # vapid opener
+    r"cabe destacar que",  # filler
 ]
 ```
 

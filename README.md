@@ -50,8 +50,10 @@ A typical feature runs end to end on a handful of commands:
 3. **Review before you push.** `/full-review` runs a
    multi-discipline pass; `/refine-code` cleans up duplication
    and dead code.
-4. **Ship it.** `/prepare-pr` runs quality gates and leaves a
-   clean git state ready for a pull request.
+4. **Ship it.** `/prepare-pr` runs quality gates and drafts a
+   description that says who the change is for, where it lands
+   inside and outside the codebase, and when it is fully
+   integrated.
 5. **Pick up where you left off.** `/catchup` rebuilds context
    from recent git history after a break.
 

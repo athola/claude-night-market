@@ -29,8 +29,9 @@ existing implementations of the given topic on GitHub.
        build_github_search_queries,
        build_github_api_search,
    )
-   queries = build_github_search_queries(topic)   # WebSearch strings
-   api_url = build_github_api_search(topic)       # GitHub API URL
+
+   queries = build_github_search_queries(topic)  # WebSearch strings
+   api_url = build_github_api_search(topic)  # GitHub API URL
    ```
 
    Run exactly these. The queries you report are then the

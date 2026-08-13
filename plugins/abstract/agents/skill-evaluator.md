@@ -106,7 +106,7 @@ entry["qualitative_evaluation"] = {
     "friction_points": friction_list,
     "improvement_suggestions": suggestions_list,
     "evaluator_notes": notes,
-    "evaluator": "human"  # vs "automated" in future
+    "evaluator": "human",  # vs "automated" in future
 }
 
 # Write back to log file (replace line)
@@ -145,6 +145,7 @@ Evaluations saved to: ~/.claude/skills/logs/imbue/proof-of-work/
 ```python
 import json
 from pathlib import Path
+
 
 def update_evaluation(log_file: Path, invocation_id: str, evaluation: dict):
     lines = log_file.read_text().splitlines()
@@ -185,6 +186,7 @@ When `--all` flag is used:
 ```python
 from datetime import datetime, timedelta
 
+
 def filter_by_date(entries, target_date=None, days_back=7):
     if target_date:
         # Exact date match
@@ -192,8 +194,7 @@ def filter_by_date(entries, target_date=None, days_back=7):
     else:
         # Last N days
         cutoff = datetime.now() - timedelta(days=days_back)
-        return [e for e in entries
-                if datetime.fromisoformat(e["timestamp"]) > cutoff]
+        return [e for e in entries if datetime.fromisoformat(e["timestamp"]) > cutoff]
 ```
 
 ## Error Handling

@@ -11,20 +11,14 @@ estimated_tokens: 400
 ### Template Expansion
 ```python
 def build_command(
-    config: ServiceConfig,
-    prompt: str,
-    files: list[str],
-    model: str = None
+    config: ServiceConfig, prompt: str, files: list[str], model: str = None
 ) -> str:
     """Build command from template."""
     file_args = " ".join(f"@{f}" for f in files)
     model = model or config.default_model
 
     return config.command_template.format(
-        command=config.command,
-        prompt=prompt,
-        files=file_args,
-        model=model
+        command=config.command, prompt=prompt, files=file_args, model=model
     )
 ```
 
@@ -33,16 +27,14 @@ def build_command(
 import subprocess
 import shlex
 
+
 def execute_safely(command: str, timeout: int = 60) -> ExecutionResult:
     """Execute command with safety measures."""
     start = time.time()
 
     try:
         result = subprocess.run(
-            shlex.split(command),
-            capture_output=True,
-            text=True,
-            timeout=timeout
+            shlex.split(command), capture_output=True, text=True, timeout=timeout
         )
 
         return ExecutionResult(
@@ -51,14 +43,11 @@ def execute_safely(command: str, timeout: int = 60) -> ExecutionResult:
             stderr=result.stderr,
             exit_code=result.returncode,
             duration=time.time() - start,
-            tokens_used=estimate_tokens(result.stdout)
+            tokens_used=estimate_tokens(result.stdout),
         )
     except subprocess.TimeoutExpired:
         return ExecutionResult(
-            success=False,
-            stderr="Command timed out",
-            exit_code=-1,
-            duration=timeout
+            success=False, stderr="Command timed out", exit_code=-1, duration=timeout
         )
 ```
 
@@ -67,10 +56,7 @@ def execute_safely(command: str, timeout: int = 60) -> ExecutionResult:
 ### Exponential Backoff
 ```python
 def execute_with_retry(
-    registry: ServiceRegistry,
-    service: str,
-    prompt: str,
-    max_retries: int = 3
+    registry: ServiceRegistry, service: str, prompt: str, max_retries: int = 3
 ) -> ExecutionResult:
     """Execute with exponential backoff retry."""
     for attempt in range(max_retries):
@@ -80,7 +66,7 @@ def execute_with_retry(
             return result
 
         if "rate limit" in result.stderr.lower():
-            wait_time = 2 ** attempt  # 1, 2, 4 seconds
+            wait_time = 2**attempt  # 1, 2, 4 seconds
             time.sleep(wait_time)
         else:
             break  # Non-retryable error
@@ -125,16 +111,13 @@ class CircuitBreaker:
 ```python
 import asyncio
 
+
 async def execute_parallel(
-    registry: ServiceRegistry,
-    services: list[str],
-    prompt: str
+    registry: ServiceRegistry, services: list[str], prompt: str
 ) -> dict[str, ExecutionResult]:
     """Execute same prompt across multiple services."""
     tasks = {
-        service: asyncio.create_task(
-            registry.execute_async(service, prompt)
-        )
+        service: asyncio.create_task(registry.execute_async(service, prompt))
         for service in services
     }
 

@@ -35,7 +35,7 @@ class RetryWithBackoff:
                 if e.category != ErrorCategory.TRANSIENT:
                     raise
                 if attempt < self.max_retries - 1:
-                    delay = self.base_delay * (2 ** attempt)
+                    delay = self.base_delay * (2**attempt)
                     time.sleep(delay)
         raise MaxRetriesExceededError()
 ```
@@ -80,12 +80,7 @@ class UserActionRequired:
 ## Graceful Degradation
 
 ```python
-def execute_with_degradation(
-    primary_fn,
-            secondary_fn=None,
-
-    degraded_fn=None
-):
+def execute_with_degradation(primary_fn, secondary_fn=None, degraded_fn=None):
     """Execute with graceful degradation."""
     try:
         return primary_fn()
@@ -107,11 +102,9 @@ def log_error_with_context(error: LeylineError, context: dict):
         "error_type": type(error).__name__,
         "category": error.category.value,
         "message": str(error),
-        "recoverable": error.category in [
-            ErrorCategory.TRANSIENT,
-            ErrorCategory.RESOURCE
-        ],
-        "context": context
+        "recoverable": error.category
+        in [ErrorCategory.TRANSIENT, ErrorCategory.RESOURCE],
+        "context": context,
     }
 
     logger.error(json.dumps(log_entry))

@@ -66,6 +66,7 @@ Programmatic use:
 
 ```python
 from pensive.skills.performance_review import PerformanceReviewSkill
+
 skill = PerformanceReviewSkill()
 result = skill.analyze(context, "src/module.py")
 for f in result.issues:
@@ -130,6 +131,7 @@ For each Python target file, call:
 
 ```python
 from pensive.skills.performance_review import PerformanceReviewSkill
+
 result = PerformanceReviewSkill().analyze(context, path)
 ```
 
@@ -202,8 +204,8 @@ Findings use the shared `ReviewFinding` dataclass from
 ReviewFinding(
     file="src/module.py",
     line=42,
-    severity="HIGH",          # LOW | MEDIUM | HIGH | CRITICAL
-    category="time",          # time | space
+    severity="HIGH",  # LOW | MEDIUM | HIGH | CRITICAL
+    category="time",  # time | space
     message="Nested loop over the same iterable 'items'.",
     suggestion="Sort + two pointers, or hash-set membership.",
     anchor="verbatim source text at file:line",

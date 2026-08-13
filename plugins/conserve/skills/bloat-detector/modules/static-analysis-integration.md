@@ -70,8 +70,8 @@ sonar-scanner -Dsonar.sources=. -Dsonar.exclusions="**/node_modules/**"
 ## Tool Selection
 
 ```python
-PRIORITY = {'python': ['vulture', 'deadcode'], 'javascript': ['knip']}
-tool = next((t for t in PRIORITY.get(lang, []) if t in available), 'heuristic')
+PRIORITY = {"python": ["vulture", "deadcode"], "javascript": ["knip"]}
+tool = next((t for t in PRIORITY.get(lang, []) if t in available), "heuristic")
 ```
 
 ## Confidence Boosting

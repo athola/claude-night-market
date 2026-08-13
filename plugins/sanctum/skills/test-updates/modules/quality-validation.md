@@ -147,6 +147,7 @@ BDD_PATTERNS = {
     "and_pattern": r"AND\s+.+",
 }
 
+
 def validate_bdd_patterns(test_content):
     """Validate BDD pattern usage."""
     missing_patterns = []
@@ -188,13 +189,15 @@ def validate_test_execution(test_path):
     }
 
     # Run tests in isolated environment
-    test_result = pytest.main([
-        test_path,
-        "-v",
-        "--tb=short",
-        "--cov=src",
-        "--cov-report=json",
-    ])
+    test_result = pytest.main(
+        [
+            test_path,
+            "-v",
+            "--tb=short",
+            "--cov=src",
+            "--cov-report=json",
+        ]
+    )
 
     # Analyze results
     if test_result == 0:
@@ -256,8 +259,10 @@ def validate_coverage_metrics(coverage_data):
 
     metrics = {
         "line_coverage": coverage_data["lines_covered"] / coverage_data["lines_valid"],
-        "branch_coverage": coverage_data["branches_covered"] / coverage_data["branches_valid"],
-        "function_coverage": coverage_data["functions_covered"] / coverage_data["functions_valid"],
+        "branch_coverage": coverage_data["branches_covered"]
+        / coverage_data["branches_valid"],
+        "function_coverage": coverage_data["functions_covered"]
+        / coverage_data["functions_valid"],
     }
 
     standards = {

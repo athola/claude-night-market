@@ -30,12 +30,14 @@ pass. The classification drives the next module load.
 from dataclasses import dataclass
 from pathlib import Path
 
+
 @dataclass
 class ApiSlice:
-    style: str        # "rest", "graphql", "grpc", "library"
-    transport: str    # "http", "tcp", "in-process"
-    auth: str         # "none", "bearer", "oauth2", "mtls"
+    style: str  # "rest", "graphql", "grpc", "library"
+    transport: str  # "http", "tcp", "in-process"
+    auth: str  # "none", "bearer", "oauth2", "mtls"
     versioned: bool
+
 
 def classify(spec_path: Path) -> ApiSlice:
     text = spec_path.read_text(encoding="utf-8").lower()

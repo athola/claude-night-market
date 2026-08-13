@@ -37,6 +37,7 @@ Run the domain classifier on the topic:
 
 ```python
 from tome.scripts.domain_classifier import classify
+
 result = classify(topic)
 # result.domain, result.triz_depth, result.channel_weights
 ```
@@ -48,6 +49,7 @@ the domain classification before proceeding.
 
 ```python
 from tome.scripts.research_planner import plan
+
 research_plan = plan(result)
 # research_plan.channels, research_plan.weights, research_plan.triz_depth
 ```
@@ -56,6 +58,7 @@ research_plan = plan(result)
 
 ```python
 from tome.session import SessionManager
+
 mgr = SessionManager(Path.cwd())
 session = mgr.create(topic, result.domain, result.triz_depth, research_plan.channels)
 ```
@@ -99,7 +102,7 @@ After all agents return:
    ```python
    from tome.synthesis.quality import parse_envelope
 
-   for envelope in agent_envelopes:      # one per dispatched agent
+   for envelope in agent_envelopes:  # one per dispatched agent
        session.query_log.extend(parse_envelope(envelope))
    ```
 

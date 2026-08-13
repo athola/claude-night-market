@@ -175,14 +175,15 @@ done
 
 ```python
 AI_BLOAT_SCORES = {
-    'tab_completion_bloat': 25,
-    'massive_single_commit': 15,
-    'hallucinated_dependency': 35,
-    'happy_path_only': 30,
-    'premature_abstraction': 20,
-    'enterprise_cosplay': 25,
-    'documentation_slop': 10,
+    "tab_completion_bloat": 25,
+    "massive_single_commit": 15,
+    "hallucinated_dependency": 35,
+    "happy_path_only": 30,
+    "premature_abstraction": 20,
+    "enterprise_cosplay": 25,
+    "documentation_slop": 10,
 }
+
 
 def ai_bloat_score(detected_patterns):
     return min(100, sum(AI_BLOAT_SCORES.get(p, 0) for p in detected_patterns))

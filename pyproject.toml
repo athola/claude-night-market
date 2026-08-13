@@ -131,6 +131,20 @@ line-length = 88
 # (X | Y unions, StrEnum, etc.) on code that ships to Python 3.9 users.
 target-version = "py39"
 src = ["plugins", "tests"]
+# Ruff 0.16 began formatting Python inside Markdown fences. `make lint`
+# runs `ruff format plugins/`, so that upgrade turned a read-only gate
+# into a repo-wide doc rewriter (197 tracked .md files in one run).
+# Markdown here follows .claude/rules/markdown-formatting.md, and skill
+# docs show illustrative snippets a formatter must not "correct".
+# Guarded by tests/test_ruff_does_not_format_markdown.py.
+extend-exclude = ["*.md"]
+# force-exclude makes the line above apply to explicitly-named paths too,
+# not just directory traversal. `make lint` passes a directory, so the
+# exclude alone covers it, and the pre-commit ruff hooks are already
+# scoped to `types: [python]`. This covers the remaining case: a human
+# or script running `ruff format path/to/file.md` directly, which
+# bypasses both of those guards.
+force-exclude = true
 
 [tool.ruff.lint.isort]
 known-first-party = [

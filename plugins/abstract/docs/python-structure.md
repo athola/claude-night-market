@@ -149,12 +149,14 @@ from abstract.errors import ErrorHandler, ErrorSeverity, ToolError
 errors = ErrorHandler("my-tool")
 
 # Report an error
-errors.handle_error(ToolError(
-    severity=ErrorSeverity.HIGH,
-    error_code="VALIDATION_FAILED",
-    message="Skill validation failed",
-    suggestion="Check frontmatter format"
-))
+errors.handle_error(
+    ToolError(
+        severity=ErrorSeverity.HIGH,
+        error_code="VALIDATION_FAILED",
+        message="Skill validation failed",
+        suggestion="Check frontmatter format",
+    )
+)
 ```
 
 ### abstract.utils
@@ -302,6 +304,7 @@ Tests should import from the installed package:
 ```python
 # tests/test_config.py
 from abstract.config import AbstractConfig
+
 
 def test_config_loading():
     config = AbstractConfig.from_yaml("config/abstract_config.yaml")

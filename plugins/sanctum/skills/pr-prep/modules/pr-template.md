@@ -1,254 +1,285 @@
 # Pull Request Template Structure
 
-## Standard Template Sections
+A description exists to pre-load the model a reviewer would otherwise
+rebuild from the diff. Everything below serves that one job. The
+decision behind this structure, with sources, is ADR-0021.
 
-### 1. Summary (Required)
-Brief 1-2 sentence description of what the PR accomplishes and why.
+## The structure
 
-**Good Examples:**
+Six dimensions in two registers. Who, Where, and When are lookups and
+cost one table row each. Why and What-and-how are arguments and get
+headings. Test plan and Checklist follow when they apply.
+
 ```markdown
-## Summary
-Add support for modular skills to reduce token usage and improve skill maintainability through progressive loading.
+| | |
+|---|---|
+| **Who** | audience for the change; out-of-band reviewer if any |
+| **Where** | internal blast radius; external consumers or contracts |
+| **When** | when it lands; when it is fully integrated |
+
+## Why
+
+## What and how
+
+## Test plan
+
+## Checklist
 ```
 
+The title carries the summary. Write it imperative and self-contained,
+so it still reads correctly a year later in `git log`: "Delete the
+FizzBuzz RPC", never "Fix bug" or "Phase 1".
+
+## Worked example
+
 ```markdown
-## Summary
-Fix authentication bug causing session timeout errors by implementing proper token refresh logic.
+Add symmetric to_pdf and read_yaml I/O methods
+
+| | |
+|---|---|
+| **Who** | resume authors calling the Python API; @docs-owner for the migration note |
+| **Where** | `src/simple_resume/io.py`, 4 files. External: breaks the public `generate_pdf()` entry point used by the CLI wrapper |
+| **When** | on merge. `generate_pdf()` stays as a shim until 2.0 (est. 2026-10) |
+
+## Why
+
+Callers had to remember two unrelated spellings for the same
+operation, and the asymmetry showed up in three separate bug reports
+(#478, #481, #482). Merging this closes the API inconsistency before
+2.0 freezes the surface.
+
+## What and how
+
+Adds `read_yaml()` and `to_pdf()` on `Resume`, mirroring the pandas
+I/O naming the rest of the API already follows. `generate_pdf()`
+becomes a deprecation shim that forwards to `to_pdf()`.
+
+A mapper layer between the old and new signatures was considered and
+dropped: the shapes have not diverged, so a passthrough mapper would
+be a file to keep in sync for no gain.
+
+## Test plan
+
+1. `make test`: 147/147 passing, 5 new cases for the shim path.
+2. `make lint`: clean.
+3. Manual, CLI wrapper still works on the old entry point:
+   `simple-resume build examples/basic.yaml --pdf out.pdf`
+   Expected: `out.pdf` opens, one `DeprecationWarning` on stderr,
+   exit code 0.
+4. Manual, new API path:
+   `python -c "from simple_resume import read_yaml;
+   read_yaml('examples/basic.yaml').to_pdf('new.pdf')"`
+   Expected: `new.pdf` is byte-identical to `out.pdf`.
+
+## Checklist
+
+- [x] Tests fail if the change is reverted
+- [x] Docs updated (`README`, migration note in `CHANGELOG`)
+- [x] Breaking change called out in the Where row
 ```
 
-**Avoid:**
-- Implementation details (save for Changes section)
-- Vague descriptions like "various improvements"
-- AI/tool attribution
+## Section guidance
 
-### 2. Changes (Required)
-Bullet list of specific changes grouped logically, explaining both what and why.
+### The facts table
 
-**Structure:**
+Three rows, always present. A row that does not apply states that
+(`external: none`, `on merge`) instead of being deleted, because a
+reader cannot tell a missing blast radius from a blast radius of none.
+
+**Who**: who feels this change. Name the audience, not the author.
+Codeowners handle routine reviewer assignment, so only name a person
+when the change needs routing they would not get automatically
+(security review, a docs owner, a downstream team).
+
+**Where**: two halves, and the second is the one people forget.
+Internal is the module or package plus a file count. External is any
+consumer outside this repository: published APIs, wire formats, CLI
+contracts, database schemas, downstream services. Write
+`External: none` when the change is fully contained.
+
+**When**: when the change takes effect and when it is finished. For
+most PRs both are `on merge`. Say more when a feature flag, migration
+window, deprecation shim, or scheduled rollout means landing and
+integration are different dates.
+
+### Why
+
+One to three sentences. The motivating problem, and why merging it now
+matters. Link the issue. Source code shows what the software does and
+never why it exists, so this is the section a future reader cannot
+reconstruct from the diff.
+
+Ground it. "Three bug reports traced to this" beats "improves
+consistency".
+
+### What and how
+
+What changed, in the reader's terms rather than a restatement of the
+file list. Then how, but only when a real decision point existed:
+a non-obvious approach, a tradeoff, or an alternative someone will
+predictably ask about. Naming the rejected alternative pre-empts the
+review comment that would otherwise cost a round trip.
+
+Mechanical changes skip the how entirely.
+
+## Manual test plans
+
+Attach a test plan when any of these hold:
+
+- The change has no automated coverage.
+- It touches a user-facing or CLI-facing flow.
+- It is a bug fix. Give reproduce, fix, and verify steps.
+- It changes an external contract.
+
+Skip it when automated tests fully cover the change and the diff is
+internal. In that case list the commands and results under Test plan
+and stop.
+
+**Format**: numbered steps, each with the expected result. Gherkin
+belongs in a persisted BDD suite, not a PR body.
+
 ```markdown
-## Changes
-- **Category 1**: What changed and why
-  - Sub-detail if needed
-- **Category 2**: What changed and why
-- **Breaking changes**: Highlight any breaking changes first
+## Test plan
+
+1. `make test`: 142/142 passing.
+2. Start the dev server: `make serve`.
+3. POST an empty body to `/api/resume`.
+   Expected: HTTP 422 with `{"detail": "resume body required"}`,
+   not the HTTP 500 from #481.
+4. POST a 12 MB payload.
+   Expected: HTTP 413, and the worker process stays up
+   (check `make ps`).
 ```
 
-**Good Examples:**
-```markdown
-## Changes
-- **API**: Add `read_yaml()` and `to_pdf()` functions for symmetric I/O pattern
-- **Session Management**: Introduce `ResumeSession` class to centralize configuration
-- **Documentation**: Update README with new API examples and migration guide
-- **Breaking**: Remove deprecated `generate_pdf()` function (use `to_pdf()` instead)
-```
+State the expected result for every step. A step without one is a
+step the reviewer cannot fail.
 
-### 3. Testing (Required)
-List each validation step taken, with commands and results.
+If a step could not be run locally, say which and why, and what was
+done instead.
 
-**Format:**
-```markdown
-## Testing
-- `make test` - all 47 tests passing
-- `make lint` - no warnings
-- `pytest --cov` - 94% coverage (up from 89%)
-- Manual verification: Tested PDF generation with 3 resume templates
-- CI will run: cross-platform tests, integration tests
-```
+## Optional sections
 
-**Include:**
-- Exact commands run
-- Pass/fail status and counts
-- Coverage changes if significant
-- Manual testing performed
-- What will run in CI (if different from local)
+Add these only when the change calls for them.
 
-### 4. Checklist (Required)
-Standard quality checklist for all PRs.
+**Screenshots**, for UI or CLI output changes. Before and after.
 
-**Template:**
+**Migration guide**, for breaking changes. Show the old call and the
+new one side by side.
+
+**Performance**, with before and after numbers plus the benchmark
+command. No numbers means no claim.
+
+**Security**, when the change touches authentication, input handling,
+secrets, or permissions.
+
+**Follow-up work**, for anything deliberately deferred, each item
+linked to a tracked issue. An unlinked follow-up is a `TODO` that
+will not survive the merge.
+
+**Issue references**: `Fixes #456`, `Related to #789`, `Part of #101`.
+
+## Checklist
+
+Keep it to items that are machine-checkable or genuinely never
+skippable. Every soft item added lowers the scrutiny the hard items
+get, and belongs in `CONTRIBUTING` instead.
+
 ```markdown
 ## Checklist
-- [ ] Code follows project style guidelines
-- [ ] Tests pass locally
-- [ ] Documentation updated if needed
-- [ ] Breaking changes documented (if applicable)
+
+- [ ] Tests fail if the change is reverted
+- [ ] Docs updated
+- [ ] Breaking changes stated in the Where row
 ```
 
-**Extended Checklist (for complex PRs):**
+Extend it only where the change type earns it: a migration guide for
+breaking changes, a benchmark for performance work, a threat note for
+security work.
+
+## Size variations
+
+### Small fix
+
+The table plus two short sections. No test plan when automated
+coverage is complete.
+
 ```markdown
+Reject empty resume bodies with 422 instead of 500
+
+| | |
+|---|---|
+| **Who** | API callers hitting `/api/resume` |
+| **Where** | `src/api/routes.py`, 1 file. External: changes the status code on an empty POST from 500 to 422 |
+| **When** | on merge |
+
+## Why
+
+An empty POST raised an unhandled `KeyError` and returned 500, so
+clients retried a request that could never succeed (#481).
+
+## What and how
+
+Validates the body at the route boundary and returns 422. The guard
+sits at the trust boundary rather than deeper in the handler, so the
+model layer keeps its invariant that a body is present.
+
+## Test plan
+
+1. `pytest tests/test_routes.py`: 18/18, 2 new cases.
+2. `curl -X POST localhost:8000/api/resume -d '{}'`
+   Expected: HTTP 422, body `{"detail": "resume body required"}`.
+
 ## Checklist
-- [ ] Code follows project style guidelines
-- [ ] Tests pass locally
-- [ ] Tests added/updated for new functionality
-- [ ] Documentation updated if needed
-- [ ] Breaking changes documented (if applicable)
-- [ ] Migration guide provided (if needed)
-- [ ] Backward compatibility maintained (or breaking change justified)
-- [ ] Performance impact assessed
-- [ ] Security implications reviewed
+
+- [x] Tests fail if the change is reverted
+- [x] Docs updated
 ```
 
-## Optional Sections
+### Feature
 
-### Screenshots/Visual Changes
-For UI, CLI output, or visual changes:
-```markdown
-## Screenshots
-**Before:**
-[screenshot or command output]
+The full structure. The how section carries the design decision and
+the rejected alternative. Test plan covers the new path manually if
+any part is user-facing.
 
-**After:**
-[screenshot or command output]
-```
+### Breaking change
 
-### Follow-up TODOs
-For work deferred to future PRs:
-```markdown
-## Follow-up Work
-- [ ] Add integration tests for edge cases (Issue #123)
-- [ ] Update deployment documentation
-- [ ] Performance optimization for large files
-```
+Same structure, plus two hard requirements. The External half of the
+Where row names every consumer that breaks, and the When row states
+the deprecation window. Add a Migration guide section showing the old
+and new call.
 
-### Issue References
-Link related issues:
-```markdown
-Fixes #456
-Related to #789
-Part of #101
-```
+## Writing quality
 
-### Migration Guide
-For breaking changes:
-```markdown
-## Migration Guide
-**Before:**
-\`\`\`python
-generate_pdf(resume, "output.pdf")
-\`\`\`
+Apply `Skill(scribe:slop-detector)` before finalizing.
 
-**After:**
-\`\`\`python
-resume.to_pdf("output.pdf")
-\`\`\`
-```
-
-### Performance Impact
-For performance-related changes:
-```markdown
-## Performance Impact
-- PDF generation: 2.3s → 0.8s (65% improvement)
-- Memory usage: 150MB → 45MB
-- Benchmark results: [link to benchmark output]
-```
-
-### Security Considerations
-For security-related changes:
-```markdown
-## Security Considerations
-- Input validation added for all user-supplied paths
-- Sanitization applied to template variables
-- No secrets or credentials in code or tests
-```
-
-## Best Practices for PR Descriptions
-
-### Do's
-- Be concise but complete
-- Focus on "why" not just "what"
-- Use bullet points for scannability
-- Include actual commands and results
-- Link to relevant issues
-- Highlight breaking changes prominently
-- Use code blocks for examples
-- Group related changes together
-
-### Don'ts
-- Include AI/tool attribution
-- Copy-paste entire file diffs
-- Use vague descriptions
-- Skip testing documentation
-- Hide breaking changes in middle of list
-- Include work-in-progress notes
-- Reference internal tool commands unless relevant
-
-## Writing Quality (scribe Integration)
-
-Apply `scribe:doc-generator` principles to avoid AI-sounding text:
-
-### Vocabulary to Avoid
+### Vocabulary
 
 | Instead of | Use |
 |------------|-----|
-| leverage | use |
-| utilize | use |
-| comprehensive | thorough |
-| robust | solid |
+| leverage, utilize | use |
+| comprehensive | thorough, complete |
+| robust | solid, reliable |
 | facilitate | help |
 | streamline | simplify |
 | seamless | smooth |
 | delve | explore |
 
-### Phrase Patterns to Remove
+### Patterns to cut
 
-- "In order to..." → "To..."
-- "It should be noted that..." → (just state it)
-- "I'd be happy to..." → (not relevant in PR text)
-- "This ensures that..." → (ground with specifics instead)
-- Marketing language: "enterprise-ready", "cutting-edge", "best-in-class"
+- "In order to" becomes "To".
+- "It should be noted that" becomes the statement itself.
+- "This ensures that" becomes the specific guarantee.
+- Marketing language: "enterprise-ready", "cutting-edge",
+  "best-in-class".
+- Tool or AI attribution of any kind.
+- Work-in-progress notes. Squash or finish them first.
 
-### Quality Checklist
+### Before finalizing
 
-Before finalizing a PR description:
-
-- [ ] No tier-1 slop words present
-- [ ] All claims grounded with specifics (numbers, files, commands)
-- [ ] Active voice used throughout
-- [ ] No formulaic openers or closers
-- [ ] Balanced structure (not all bullets)
-
-## Template Variations
-
-### Small Bug Fix
-```markdown
-## Summary
-Fix null pointer exception in PDF generation when resume has no education section.
-
-## Changes
-- Add null check before accessing education fields
-- Add test case for resumes without education
-
-## Testing
-- `pytest tests/test_pdf_generation.py` - all passing
-- Verified fix with sample resume lacking education section
-
-## Checklist
-- [x] Code follows project style guidelines
-- [x] Tests pass locally
-- [x] Documentation updated if needed
-- [x] Breaking changes documented (if applicable)
-```
-
-### Feature Addition
-```markdown
-## Summary
-Add support for exporting resumes to HTML format alongside existing PDF export.
-
-## Changes
-- **Core API**: Add `to_html()` method to Resume class
-- **Templates**: Create Jinja2 HTML templates matching PDF layouts
-- **Testing**: Add HTML generation tests and snapshot testing
-- **Documentation**: Update README with HTML export examples
-
-## Testing
-- `make test` - 52 tests passing (added 5 new tests)
-- `make lint` - no warnings
-- Manual verification: Generated HTML from 4 resume templates, verified in Chrome/Firefox
-- Snapshot tests validate HTML output consistency
-
-## Checklist
-- [x] Code follows project style guidelines
-- [x] Tests pass locally
-- [x] Documentation updated if needed
-- [x] Breaking changes documented (if applicable)
-```
+- [ ] Title is imperative and reads correctly out of context
+- [ ] All three table rows filled, including `External:`
+- [ ] Why is grounded in a number, an issue, or an incident
+- [ ] Test plan steps each state an expected result
+- [ ] No tier-1 slop words
+- [ ] Active voice, no formulaic openers or closers
+- [ ] No tool or AI attribution

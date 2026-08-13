@@ -80,13 +80,17 @@ def mock_claude_tools():
 @pytest.fixture
 def mock_skill_factory():
     """Factory for creating mock skill execution functions."""
+
     def _create_skill_mock():
         calls = []
+
         def mock_skill_call(skill_name: str, context: dict) -> str:
             calls.append({"skill": skill_name, "context": context.copy()})
             return f"{skill_name} executed successfully"
+
         mock_skill_call.calls = calls
         return mock_skill_call
+
     return _create_skill_mock
 ```
 
@@ -95,14 +99,18 @@ def mock_skill_factory():
 @pytest.fixture
 def mock_bash_factory():
     """Factory for creating Bash tool mocks with predefined responses."""
+
     def _create_bash_mock(command_responses: dict[str, str] | None = None):
         responses = command_responses or {}
         calls = []
+
         def mock_bash_call(command: str) -> str:
             calls.append(command)
             return responses.get(command, "Mock bash output")
+
         mock_bash_call.calls = calls
         return mock_bash_call
+
     return _create_bash_mock
 ```
 
@@ -113,7 +121,12 @@ mock_validator = Mock()
 
 # After
 mock_validator = MagicMock(
-    spec=["plugin_root", "scan_review_workflows", "validate_review_workflows", "generate_report"]
+    spec=[
+        "plugin_root",
+        "scan_review_workflows",
+        "validate_review_workflows",
+        "generate_report",
+    ]
 )
 ```
 
@@ -219,11 +232,12 @@ Result: PASSED
 ```python
 from unittest.mock import Mock, patch
 
+
 def test_old_style():
     mock_tool = Mock()
     mock_tool.return_value = "output"
 
-    with patch('module.func') as mock_func:
+    with patch("module.func") as mock_func:
         # test code
         pass
 ```
@@ -232,16 +246,18 @@ def test_old_style():
 ```python
 from unittest.mock import MagicMock
 
+
 def test_new_style(mock_claude_tools):
     # Use fixture with clear configuration
     mock_claude_tools["Bash"].side_effect = ["output1", "output2"]
 
     # Or use factory for custom behavior
+
+
 def test_with_factory(mock_bash_factory):
-    bash_mock = mock_bash_factory({
-        "pwd": "/test/project",
-        "git status": "On branch main"
-    })
+    bash_mock = mock_bash_factory(
+        {"pwd": "/test/project", "git status": "On branch main"}
+    )
 ```
 
 ## Verification Commands

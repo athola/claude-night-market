@@ -51,9 +51,7 @@ warranted:
 from abstract.improvement_memory import ImprovementMemory
 from pathlib import Path
 
-memory = ImprovementMemory(
-    Path.home() / ".claude/skills/improvement_memory.json"
-)
+memory = ImprovementMemory(Path.home() / ".claude/skills/improvement_memory.json")
 
 # Check if metacognitive analysis is warranted
 effective = memory.get_effective_strategies()
@@ -164,7 +162,7 @@ memory.record_insight(
     skill_ref="_meta",  # Special ref for meta-insights
     category="causal_hypothesis",
     insight="Error handling improvements have 85% success rate",
-    evidence=["skill-A v1.1.0: +0.3", "skill-B v2.1.0: +0.15"]
+    evidence=["skill-A v1.1.0: +0.3", "skill-B v2.1.0: +0.15"],
 )
 ```
 
@@ -219,7 +217,7 @@ memory.record_insight(
     skill_ref="_meta",
     category="strategy_success",
     insight="Recommendation: Prioritize error handling and examples over restructuring",
-    evidence=[f"Success rate: error_handling={eh_rate:.0%}, restructure={rs_rate:.0%}"]
+    evidence=[f"Success rate: error_handling={eh_rate:.0%}, restructure={rs_rate:.0%}"],
 )
 ```
 

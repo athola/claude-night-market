@@ -12558,6 +12558,42 @@ entries:
     maturity: growing
     routing_type: meta
     url: https://github.com/vercel-labs/skills
+  https://shopify.engineering/on-the-importance-of-pull-request-discipline:
+    content_hash: sha256:0e9b2dfa0f25c554
+    stored_at: data/staging/webfetch-pr-description-quality-vs-size-2026-08-13_00-03-08.md
+    importance_score: 80
+    last_updated: '2026-08-13T00:03:08.581972+00:00'
+    title: PR Description Quality vs. Size
+    maturity: growing
+    routing_type: meta
+    url: https://shopify.engineering/on-the-importance-of-pull-request-discipline
+  https://docs.getdbt.com/blog/analytics-pull-request-template:
+    content_hash: sha256:e260a9f6536b61a9
+    stored_at: data/staging/webfetch-dbt-labs-github-pull-request-template-2026-08-13_00-03-13.md
+    importance_score: 87
+    last_updated: '2026-08-13T00:03:13.074346+00:00'
+    title: dbt Labs GitHub Pull Request Template
+    maturity: growing
+    routing_type: meta
+    url: https://docs.getdbt.com/blog/analytics-pull-request-template
+  https://raw.githubusercontent.com/github/docs/main/.github/pull_request_template.md:
+    content_hash: sha256:89c8c3af443cb3ee
+    stored_at: data/staging/webfetch-pr-template-structure-2026-08-13_00-04-08.md
+    importance_score: 81
+    last_updated: '2026-08-13T00:04:08.488027+00:00'
+    title: PR Template Structure
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/github/docs/main/.github/PULL_REQUEST_TEMPLATE.md
+  https://raw.githubusercontent.com/flutter/flutter/master/.github/pull_request_template.md:
+    content_hash: sha256:94c30db8dd2a145f
+    stored_at: data/staging/webfetch-flutter-pull-request-template-structure-2026-08-13_00-04-10.md
+    importance_score: 81
+    last_updated: '2026-08-13T00:04:10.060257+00:00'
+    title: Flutter Pull Request Template Structure
+    maturity: growing
+    routing_type: meta
+    url: https://raw.githubusercontent.com/flutter/flutter/master/.github/PULL_REQUEST_TEMPLATE.md
 hashes:
   sha256:7a0963abd9055d13: data/staging/webfetch-stories-about-tribal-knowledge-documentation-2026-07-02_11-04-24.md
   sha256:69753834b57e738f: data/staging/webfetch-stories-documentation-sop-capture-tools-2026-07-02_11-04-25.md
@@ -13945,3 +13981,7 @@ hashes:
   sha256:73266a4e4f37f80e: data/staging/webfetch-evidence-requirements-for-apprenticeships-funding-2026-08-11_11-18-41.md
   sha256:e01855a04b910a6d: data/staging/webfetch-readycred-body-copy-2026-08-11_11-19-03.md
   sha256:2fba31ce763569e0: data/staging/webfetch-what-npx-skills-add-installs-2026-08-12_00-45-52.md
+  sha256:0e9b2dfa0f25c554: data/staging/webfetch-pr-description-quality-vs-size-2026-08-13_00-03-08.md
+  sha256:e260a9f6536b61a9: data/staging/webfetch-dbt-labs-github-pull-request-template-2026-08-13_00-03-13.md
+  sha256:89c8c3af443cb3ee: data/staging/webfetch-pr-template-structure-2026-08-13_00-04-08.md
+  sha256:94c30db8dd2a145f: data/staging/webfetch-flutter-pull-request-template-structure-2026-08-13_00-04-10.md

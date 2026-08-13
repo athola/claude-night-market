@@ -19,12 +19,11 @@ def coordinate_pipeline_subagents(subagents, input_data):
             apply_emergency_compaction()
 
         # Execute subagent with minimal context
-        subagent_result = subagent.execute_focused_task({
-            'data': current_data,
-            'context_limit': get_mecw_limit() * 0.4
-        })
+        subagent_result = subagent.execute_focused_task(
+            {"data": current_data, "context_limit": get_mecw_limit() * 0.4}
+        )
 
-        current_data = subagent_result.get('next_input', current_data)
+        current_data = subagent_result.get("next_input", current_data)
         results.append(subagent_result)
 
         # Store intermediate results externally
@@ -53,10 +52,9 @@ def coordinate_parallel_subagents(subagents, input_data):
     # Launch subagents with minimal context
     futures = []
     for subagent, data_split in zip(subagents, data_splits):
-        future = subagent.execute_async({
-            'data': data_split,
-            'context_limit': get_mecw_limit() // len(subagents)
-        })
+        future = subagent.execute_async(
+            {"data": data_split, "context_limit": get_mecw_limit() // len(subagents)}
+        )
         futures.append(future)
 
     # Collect results with external storage
@@ -87,10 +85,7 @@ def coordinate_hybrid_subagents(phase_groups):
 
     for phase in phase_groups:
         # Execute subagents in this phase in parallel
-        phase_results = coordinate_parallel_subagents(
-            phase.subagents,
-            phase.input_data
-        )
+        phase_results = coordinate_parallel_subagents(phase.subagents, phase.input_data)
 
         # Synthesize phase results before next phase
         synthesized = synthesize_phase_results(phase_results)
@@ -127,7 +122,7 @@ def handle_context_overflow(subagent, current_state):
     for subtask in subtasks:
         sub_subagent = create_minimal_subagent(
             subtask,
-            max_tokens=50  # Ultra-conservative
+            max_tokens=50,  # Ultra-conservative
         )
         subresults.append(sub_subagent.execute())
 
@@ -172,6 +167,7 @@ def allocate_pipeline_budgets(subagents, total_budget):
 
     return budgets
 
+
 # Parallel: Equal distribution
 def allocate_parallel_budgets(subagents, total_budget):
     return [total_budget // len(subagents)] * len(subagents)
@@ -206,12 +202,12 @@ def validate_subagent_results(results):
 ```python
 def track_coordination_metrics(coordination_session):
     return {
-        'total_subagents': len(coordination_session.subagents),
-        'parallel_groups': count_parallel_groups(coordination_session),
-        'pipeline_depth': calculate_pipeline_depth(coordination_session),
-        'context_efficiency': calculate_context_efficiency(coordination_session),
-        'failure_rate': coordination_session.failures / coordination_session.total,
-        'average_subagent_time': calculate_average_time(coordination_session)
+        "total_subagents": len(coordination_session.subagents),
+        "parallel_groups": count_parallel_groups(coordination_session),
+        "pipeline_depth": calculate_pipeline_depth(coordination_session),
+        "context_efficiency": calculate_context_efficiency(coordination_session),
+        "failure_rate": coordination_session.failures / coordination_session.total,
+        "average_subagent_time": calculate_average_time(coordination_session),
     }
 ```
 
@@ -222,11 +218,11 @@ def log_coordination_event(event_type, subagent_id, details):
     """Structured logging for debugging coordination issues"""
 
     log_entry = {
-        'timestamp': datetime.now().isoformat(),
-        'event': event_type,
-        'subagent': subagent_id,
-        'details': details,
-        'context_snapshot': capture_context_state()
+        "timestamp": datetime.now().isoformat(),
+        "event": event_type,
+        "subagent": subagent_id,
+        "details": details,
+        "context_snapshot": capture_context_state(),
     }
 
     append_to_coordination_log(log_entry)

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.9.18] - 2026-08-11
+## [1.9.18] - 2026-08-12
 
 ### Added
 
@@ -81,7 +81,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The `/attune:init` rename was applied across five book pages along
   with the cross-reference anchor it broke.
 
+- **PR descriptions now answer six questions in two registers
+  (sanctum).** The template lived in three places that had already
+  drifted apart, and no test named its sections, so nothing went red
+  when `prepare-pr` grew two sections the source module never learned
+  about. Who, Where, and When are lookups, so each costs one table row.
+  Why and What-and-how are arguments, so each gets a heading. Routine
+  PRs land at roughly fifteen lines with all six answered.
+
+  Six mandatory prose headings were rejected. Attention is a fixed
+  budget, so a long form gets less scrutiny per item, and a heading
+  that is usually blank teaches contributors to skim past headings that
+  are not. Rows that do not apply say `External: none` rather than
+  being deleted, because a reader cannot otherwise tell an omitted
+  blast radius from a blast radius of none.
+
+  Manual test plans attach on four triggers: no automated coverage, a
+  user-facing flow, a bug fix, or a changed external contract. Steps
+  are numbered and each states its expected result, since a step
+  without one cannot be failed. `validate-pr` now reads the author's
+  plan instead of running a parallel mechanism, and reports a step it
+  cannot run as `MANUAL` rather than dropping it.
+
+  Reasoning and sources are in ADR-0021. The structure is pinned by
+  `plugins/sanctum/tests/test_pr_template_contract.py`, so deleting a
+  section from any copy turns a test red.
+
 ### Fixed
+
+- **Desktop notifications work when `notify-send` lives outside
+  `/usr/bin` (sanctum).** `notify_linux()` called an absolute
+  `/usr/bin/notify-send`, so every distro that installs it elsewhere
+  (Nix profiles, Homebrew on Linux, `/usr/local` builds) got a silent
+  `FileNotFoundError` and no notification. The path now resolves through
+  `shutil.which()`, falling back to the old location.
+
+  The bug survived because the integration test guarding it checked
+  `shutil.which("notify-send")`, which searches `PATH`, while the code
+  ignored `PATH` entirely. On an affected machine the guard passed and
+  the assertion then failed for an unrelated-looking reason. That test
+  is replaced by two that supply their own stub binary, so the real
+  subprocess path stays covered on machines with no desktop notifier.
 
 - **Emphasis markers no longer smuggle model refusals into the
   promotion tier (memory-palace).** `looks_like_title` rejects a line
@@ -137,6 +177,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   looks like evidence. The opener is now built handler by handler, and
   two tests pin the property rather than the construction, so a future
   swap back to `build_opener` turns red.
+
+- **`make lint` no longer rewrites documentation.** Ruff 0.16 began
+  formatting Python inside Markdown fences, and the `lint` target runs
+  `ruff format plugins/`, so a read-only quality gate had quietly
+  become a repo-wide doc rewriter: one run touched 197 tracked `.md`
+  files with cosmetic churn inside code examples. That gate is a
+  prerequisite step in `git-workspace-review`, `pr-prep`, and
+  pre-commit, and `pr-prep` Step 2.5 asks reviewers to reject exactly
+  the formatting-mixed-with-logic changes it was manufacturing.
+
+  Ruff now excludes `*.md`, with `force-exclude` so the rule also
+  applies to explicitly-named paths rather than directory traversal
+  alone. `make lint` passes a directory and the pre-commit ruff hooks
+  are already scoped to `types: [python]`, so the remaining exposure was
+  a human or script running `ruff format path/to/file.md` directly.
+  Guarded by `tests/test_ruff_does_not_format_markdown.py`.
 
 ## [1.9.17] - 2026-07-26
 

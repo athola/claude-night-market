@@ -34,7 +34,7 @@ This hook activates when ALL conditions are met:
 
 ```python
 # Pseudocode for detection
-if session.tool_calls.count('WebSearch') >= 3:
+if session.tool_calls.count("WebSearch") >= 3:
     if any(keyword in session.messages for keyword in RESEARCH_KEYWORDS):
         if session.output_length > 5000:  # Substantial output
             trigger_queue_creation()
@@ -139,17 +139,29 @@ Before creating queue entry, validate:
 ### Research Keywords
 ```python
 RESEARCH_KEYWORDS = [
-    'research', 'investigate', 'deep dive', 'detailed',
-    'brainstorm', 'explore', 'analyze', 'study',
-    'find tools', 'best practices', 'patterns', 'techniques',
-    'survey', 'landscape', 'comparison', 'evaluation'
+    "research",
+    "investigate",
+    "deep dive",
+    "detailed",
+    "brainstorm",
+    "explore",
+    "analyze",
+    "study",
+    "find tools",
+    "best practices",
+    "patterns",
+    "techniques",
+    "survey",
+    "landscape",
+    "comparison",
+    "evaluation",
 ]
 ```
 
 ### Thresholds
 ```python
-MIN_WEB_SEARCHES = 3        # Minimum searches to trigger
-MIN_OUTPUT_LENGTH = 5000    # Minimum output tokens
+MIN_WEB_SEARCHES = 3  # Minimum searches to trigger
+MIN_OUTPUT_LENGTH = 5000  # Minimum output tokens
 QUEUE_DIR = "docs/knowledge-corpus/queue/"
 ```
 

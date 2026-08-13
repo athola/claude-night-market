@@ -17,13 +17,17 @@ Efficiently scrape multiple URLs concurrently.
 import aiohttp
 import asyncio
 
+
 async def fetch_url(session: aiohttp.ClientSession, url: str) -> dict:
     try:
-        async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+        async with session.get(
+            url, timeout=aiohttp.ClientTimeout(total=10)
+        ) as response:
             text = await response.text()
             return {"url": url, "status": response.status, "length": len(text)}
     except Exception as e:
         return {"url": url, "error": str(e)}
+
 
 async def scrape_urls(urls: list[str]) -> list[dict]:
     async with aiohttp.ClientSession() as session:

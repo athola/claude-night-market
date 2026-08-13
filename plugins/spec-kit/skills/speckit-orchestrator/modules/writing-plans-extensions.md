@@ -194,11 +194,13 @@ class TemplateEnhancer:
 ### Quality Validation
 ```python
 # Run detailed quality validation
-quality_report = validator.validate_cross_artifact_alignment({
-    'spec.md': '/specs/1-user-auth/spec.md',
-    'plan.md': '/specs/1-user-auth/plan.md',
-    'tasks.md': '/specs/1-user-auth/tasks.md'
-})
+quality_report = validator.validate_cross_artifact_alignment(
+    {
+        "spec.md": "/specs/1-user-auth/spec.md",
+        "plan.md": "/specs/1-user-auth/plan.md",
+        "tasks.md": "/specs/1-user-auth/tasks.md",
+    }
+)
 
 print(f"Overall quality: {quality_report.overall_status}")
 print(f"Issues found: {len(quality_report.cross_artifact_issues)}")

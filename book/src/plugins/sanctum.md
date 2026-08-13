@@ -174,9 +174,11 @@ git-review:diff-stat
 git-review:diff-details
 pr-prep:workspace-reviewed
 pr-prep:quality-gates
+pr-prep:self-reviewed
 pr-prep:changes-summarized
 pr-prep:testing-documented
 pr-prep:pr-drafted
+pr-prep:content-verified
 ```
 
 ## Workflow Patterns

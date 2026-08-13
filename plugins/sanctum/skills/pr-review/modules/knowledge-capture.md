@@ -39,11 +39,13 @@ def extract_candidates(findings, pr_info):
         score = evaluate_finding(finding, pr_info)
 
         if score >= 60:
-            candidates.append({
-                "finding": finding,
-                "score": score,
-                "room_type": classify_room_type(finding),
-            })
+            candidates.append(
+                {
+                    "finding": finding,
+                    "score": score,
+                    "room_type": classify_room_type(finding),
+                }
+            )
 
     return candidates
 ```
@@ -119,6 +121,7 @@ from memory_palace.project_palace import (
     ReviewEntry,
     capture_pr_review_knowledge,
 )
+
 
 def store_findings(findings, pr_info):
     """Store findings in project palace."""

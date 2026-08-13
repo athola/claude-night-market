@@ -102,6 +102,7 @@ class UserFactoryFactory:
     def create_user_factory(self):
         return UserFactory()
 
+
 # Bad: Premature generalization
 class AbstractBaseEntityManagerInterface:
     pass
@@ -125,6 +126,7 @@ grep -A 5 "class.*:" src/**/*.py | grep "    class"
 def process_data(data):
     result = handle_item(data)
     return do_thing(result)
+
 
 # Good: Specific names
 def calculate_tax(order):
@@ -286,7 +288,7 @@ db_user = "admin"
 
 # Good: Specific roles
 db_user = "app_readonly"  # For queries
-db_user = "app_writer"    # For mutations
+db_user = "app_writer"  # For mutations
 ```
 
 **2. Capability Checks:**
@@ -341,7 +343,7 @@ for user in users:
     user.get_orders()  # Query per user
 
 # Good: Eager loading
-users = User.query.options(joinedload('orders')).all()
+users = User.query.options(joinedload("orders")).all()
 ```
 
 **Search:**

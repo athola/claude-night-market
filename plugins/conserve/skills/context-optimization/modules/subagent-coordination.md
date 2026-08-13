@@ -174,13 +174,13 @@ def preserve_subagent_state(progress):
     """
     # Write to TodoWrite for task state
     todo_state = {
-        'completed': progress.completed_tasks,
-        'pending': progress.pending_tasks,
-        'context': progress.critical_context
+        "completed": progress.completed_tasks,
+        "pending": progress.pending_tasks,
+        "context": progress.critical_context,
     }
 
     # Write to temporary file for complex state
-    with open('/tmp/subagent_checkpoint.json', 'w') as f:
+    with open("/tmp/subagent_checkpoint.json", "w") as f:
         json.dump(todo_state, f)
 
     # Key findings should be in output, not just memory
@@ -276,6 +276,7 @@ Before calling ANY subagent via Task tool:
 BASE_OVERHEAD = 8000  # System context inherited by every subagent
 MIN_EFFICIENCY = 0.20  # 20% minimum efficiency threshold
 
+
 def should_delegate(task, context_usage):
     """
     Determine if task should be delegated to subagent.
@@ -302,7 +303,10 @@ def should_delegate(task, context_usage):
 
     # Recommended delegation for complex tasks
     if task.estimated_reasoning_tokens > 2000:
-        return True, f"Substantial reasoning ({task.estimated_reasoning_tokens} tokens) justifies subagent"
+        return (
+            True,
+            f"Substantial reasoning ({task.estimated_reasoning_tokens} tokens) justifies subagent",
+        )
 
     if task.is_parallelizable and len(task.subtasks) >= 3:
         return True, "Parallel subtasks can run concurrently"
@@ -350,17 +354,21 @@ def decompose_workflow(task):
     # Identify independent components
     for component in task.components:
         if component.has_no_dependencies():
-            subtasks.append({
-                'type': 'parallel',
-                'component': component,
-                'can_run_concurrently': True
-            })
+            subtasks.append(
+                {
+                    "type": "parallel",
+                    "component": component,
+                    "can_run_concurrently": True,
+                }
+            )
         else:
-            subtasks.append({
-                'type': 'sequential',
-                'component': component,
-                'dependencies': component.dependencies
-            })
+            subtasks.append(
+                {
+                    "type": "sequential",
+                    "component": component,
+                    "dependencies": component.dependencies,
+                }
+            )
 
     return subtasks
 ```
@@ -405,10 +413,7 @@ def sequential_pipeline(tasks):
 # Split large operation, process in parallel, combine results
 def map_reduce(files, operation):
     # Map phase: delegate each file to subagent
-    results = parallel_delegate([
-        {'file': f, 'operation': operation}
-        for f in files
-    ])
+    results = parallel_delegate([{"file": f, "operation": operation} for f in files])
 
     # Reduce phase: synthesize results
     return synthesize_results(results)
@@ -444,9 +449,9 @@ class SubagentCoordinator:
     def synthesize(self):
         """Combine results from all subagents."""
         return {
-            'status': 'completed',
-            'results': list(self.results.values()),
-            'summary': create_summary(self.results)
+            "status": "completed",
+            "results": list(self.results.values()),
+            "summary": create_summary(self.results),
         }
 ```
 
@@ -466,20 +471,16 @@ def synthesize_exploration_results(results):
     """
     Combine results from parallel exploration subagents.
     """
-    synthesis = {
-        'files_found': [],
-        'patterns_identified': [],
-        'recommendations': []
-    }
+    synthesis = {"files_found": [], "patterns_identified": [], "recommendations": []}
 
     for result in results:
-        synthesis['files_found'].extend(result.get('files', []))
-        synthesis['patterns_identified'].extend(result.get('patterns', []))
-        synthesis['recommendations'].extend(result.get('recommendations', []))
+        synthesis["files_found"].extend(result.get("files", []))
+        synthesis["patterns_identified"].extend(result.get("patterns", []))
+        synthesis["recommendations"].extend(result.get("recommendations", []))
 
     # Deduplicate and prioritize
-    synthesis['files_found'] = list(set(synthesis['files_found']))
-    synthesis['recommendations'] = prioritize(synthesis['recommendations'])
+    synthesis["files_found"] = list(set(synthesis["files_found"]))
+    synthesis["recommendations"] = prioritize(synthesis["recommendations"])
 
     return synthesis
 ```

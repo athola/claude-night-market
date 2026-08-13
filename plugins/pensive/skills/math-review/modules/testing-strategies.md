@@ -13,14 +13,16 @@ estimated_tokens: 350
 # Bad: Undefined for negative
 result = math.sqrt(value)
 
+
 # Good: Validate domain
 def safe_sqrt(value: float) -> float:
     if value < 0:
         raise ValueError("sqrt requires non-negative input")
     return math.sqrt(value)
 
+
 # Test edge cases
-@pytest.mark.parametrize("value", [0, 1e-100, 1e100, float('inf')])
+@pytest.mark.parametrize("value", [0, 1e-100, 1e100, float("inf")])
 def test_sqrt_boundaries(value):
     result = safe_sqrt(value)
     assert result >= 0
@@ -41,6 +43,7 @@ def test_sqrt_boundaries(value):
 **Hypothesis Framework**
 ```python
 from hypothesis import given, strategies as st
+
 
 @given(st.floats(min_value=0, max_value=1e6))
 def test_sqrt_inverse(x):
@@ -76,7 +79,7 @@ def test_algorithm_performance(benchmark):
     # Verify result correctness
     assert len(result) == n
     # Performance constraint
-    assert benchmark.stats['mean'] < 0.1  # seconds
+    assert benchmark.stats["mean"] < 0.1  # seconds
 ```
 
 **Complexity Verification**
@@ -119,12 +122,7 @@ def test_against_reference():
     our_result = our_implementation(x)
     reference_result = scipy.special.reference_function(x)
 
-    np.testing.assert_allclose(
-        our_result,
-        reference_result,
-        rtol=1e-10,
-        atol=1e-12
-    )
+    np.testing.assert_allclose(our_result, reference_result, rtol=1e-10, atol=1e-12)
 ```
 
 **Cross-Validation**
@@ -144,10 +142,7 @@ np.testing.assert_allclose(result, expected, atol=1e-10)
 np.testing.assert_allclose(result, expected, rtol=1e-8)
 
 # Both
-np.testing.assert_allclose(
-    result, expected,
-    rtol=1e-8, atol=1e-10
-)
+np.testing.assert_allclose(result, expected, rtol=1e-8, atol=1e-10)
 ```
 
 **ULP (Units in Last Place) Testing**
