@@ -17,8 +17,6 @@ logger = logging.getLogger(__name__)
 # Default similarity threshold (0.8 matches ACE Playbook recommendation)
 DEFAULT_THRESHOLD = 0.8
 
-_HAS_FAISS = True  # Always True; faiss-cpu is a mandatory dependency
-
 
 def _jaccard_similarity(a: str, b: str) -> float:
     """Compute Jaccard similarity between two strings on their word sets."""

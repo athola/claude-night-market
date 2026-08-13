@@ -31,6 +31,14 @@ tokens = [
 fast = [
     "xxhash>=3.0",  # 10x faster hashing
 ]
+semantic = [
+    # corpus/semantic_deduplicator.py imports faiss at module top level.
+    # It went undeclared, so corpus/__init__.py caught the ImportError and
+    # set SemanticDeduplicator = None on every install, and the test suite
+    # skipped its coverage. faiss-cpu has no Python 3.9 wheel, hence the
+    # marker; on 3.9 the None fallback stays and the tests skip.
+    "faiss-cpu>=1.8.0 ; python_version >= '3.10'",
+]
 dev = [
     "pre-commit>=3.0.0",
     "ruff>=0.14.13",
@@ -54,6 +62,10 @@ dev = [
     "types-PyYAML>=6.0.12",
     "pytest>=8.0",
     "pytest-cov>=4.0",
+    # Belongs in the group, not the extra: run-plugin-tests.sh invokes a bare
+    # `uv run python -m pytest`, and uv syncs dependency-groups but not extras.
+    # In the extra, the semantic-dedup tests re-skipped under `make test`.
+    "faiss-cpu>=1.8.0 ; python_version >= '3.10'",
 ]
 
 [tool.pytest.ini_options]
