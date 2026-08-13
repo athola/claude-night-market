@@ -135,6 +135,36 @@ meant to extend.
 Before acting on any `state` unit, state the elapsed time since it was
 written. See `modules/temporal-awareness.md`.
 
+### When to suggest it mid-session
+
+The token is the user's to type, so the work here is to say when it
+would pay and leave the choice with them. Offer it in one line at the
+moment it applies, then answer the question that was actually asked.
+
+`plugins/memory-palace/hooks/recall.py` ranks units by keyword overlap
+between the prompt and each unit's `thread`, `state`, `why`, and
+`open` fields, scaled by type-aware decay. The rest follows from that:
+overlap is the retrieval, so a prompt naming its topic retrieves and a
+prompt gesturing at it does not.
+
+| Moment in the session | Offer | What makes it pay |
+|-----------------------|-------|-------------------|
+| The prompt names work from an earlier session in that work's own vocabulary | `+recall` | Overlap scoring has terms to match |
+| Work resumes after a clear or a compaction | `+recall` | The units are still on disk once the live context no longer holds them |
+| The user asks why a past decision went the way it did | `+recall` | `why` is one of the ranked fields |
+| The user doubts whether injected state is still current | `+recall?` | Visible mode shows what was retrieved and which dependencies moved |
+
+Stay quiet in the other cases. Say nothing when the answer is already
+in the live context, when the prompt shares no content words with any
+prior thread, or when this session already recalled that thread.
+Retrieval on a zero-overlap prompt returns nothing and costs the user
+a round trip, and units dedupe by thread and type, so a second
+`+recall` on a recalled thread returns what the user is reading now.
+
+Phrase it as an offer beside the answer, never as a precondition for
+one: "the prior session left notes on this, so add `+recall` if you
+want them."
+
 ## When NOT To Use
 
 - Capturing knowledge from an external article: use
@@ -170,3 +200,5 @@ staging exists rather than direct record writes.
 - [ ] On resume, elapsed time since the prior session is stated before
       any `state` unit is acted on
 - [ ] Open threads carry a non-empty `Open` field
+- [ ] A `+recall` offer names the thread it would retrieve, and is made
+      at most once per thread per session
