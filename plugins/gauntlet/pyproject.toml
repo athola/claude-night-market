@@ -19,13 +19,13 @@ dependencies = [
     "anthropic>=0.40",
     "pyyaml>=6.0",
     "tree-sitter>=0.23,<1",
-    "tree-sitter-language-pack>=0.3,<1",
+    "tree-sitter-language-pack>=0.3,<2",
     "networkx>=3.2,<4",
 ]
 
 [project.optional-dependencies]
 graph = [
-    "igraph>=0.11,<1",
+    "igraph>=0.11,<2",
 ]
 dev = [
     "ruff>=0.14.13",
