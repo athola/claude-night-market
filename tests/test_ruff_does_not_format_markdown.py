@@ -51,6 +51,17 @@ Prose below the fence.
 """
 
 
+# Both tests below run ruff and read the file back. Neither can tell a
+# well-behaved ruff from an absent one by the file alone, so both check
+# the exit code first and say which of the two happened.
+_MISSING_RUFF = (
+    "`python -m ruff` did not run (exit != 0), so this test proved "
+    "nothing about formatting. ruff is in the `dev` extra of "
+    "pyproject.toml; run the suite with `uv run --extra dev`. "
+    "ruff said: {stderr}"
+)
+
+
 @pytest.fixture
 def markdown_probe(tmp_path: Path) -> Path:
     """A throwaway markdown file holding reformattable Python."""
@@ -60,7 +71,15 @@ def markdown_probe(tmp_path: Path) -> Path:
 
 
 def _ruff_format(target: Path) -> subprocess.CompletedProcess[str]:
-    """Run the repo's exact format command against one path."""
+    """Run the repo's exact format command against one path.
+
+    The caller must assert on ``returncode``. A missing ruff exits
+    non-zero and touches nothing, which is byte-for-byte what "ruff
+    correctly left this file alone" looks like -- so an absent tool
+    reads as a passing exclusion test and a failing format test whose
+    message blames the exclusion. ruff lives in the ``dev`` extra, so
+    that is a live case, not a hypothetical one.
+    """
     return subprocess.run(
         [
             sys.executable,
@@ -88,6 +107,9 @@ def test_ruff_format_leaves_markdown_untouched(markdown_probe: Path) -> None:
     result = _ruff_format(markdown_probe)
     after = markdown_probe.read_text(encoding="utf-8")
 
+    assert result.returncode == 0, _MISSING_RUFF.format(
+        stderr=result.stderr.strip() or result.stdout.strip()
+    )
     assert after == before, (
         "ruff reformatted a markdown file. `make lint` runs this exact "
         "command over plugins/, so this rewrites every tracked .md in the "
@@ -121,8 +143,11 @@ def test_python_formatting_still_works(tmp_path: Path) -> None:
     probe.write_text("x = {'a':1,   'b':2}\n", encoding="utf-8")
     before = probe.read_text(encoding="utf-8")
 
-    _ruff_format(probe)
+    result = _ruff_format(probe)
 
+    assert result.returncode == 0, _MISSING_RUFF.format(
+        stderr=result.stderr.strip() or result.stdout.strip()
+    )
     assert probe.read_text(encoding="utf-8") != before, (
         "ruff stopped formatting Python files. The markdown exclusion "
         "was written too broadly and disabled the gate it was meant to "

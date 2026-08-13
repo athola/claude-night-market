@@ -39,6 +39,7 @@ longer exist.
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -102,7 +103,17 @@ ALLOWLIST = {
     ".claude/hookify.dangerous-rm.local.md",
     # Runtime state written by hooks and the continuation agent.
     ".claude/scheduled_tasks.json",
+    ".claude/session-state.md",
     ".claude/session-state.md.bak",
+    # Per-machine permission overrides. Claude Code writes this one; the
+    # repo ships .claude/settings.json and gitignores the local twin.
+    ".claude/settings.local.json",
+    # Deferred work captured by imbue:scope-guard, and the intake log
+    # memory-palace appends to. Destinations the workflows create.
+    "docs/backlog/queue.md",
+    "docs/backlog/technical-debt.md",
+    "docs/curation-log.md",
+    "plugins/memory-palace/data/intake_queue.jsonl",
     # Config attune tells the user to add to *their* project.
     ".claude/config.md",
     # Component-level pre-commit scripts attune scaffolds downstream.
@@ -188,6 +199,44 @@ def _owning_plugin(asset: Path) -> Path | None:
     return None
 
 
+def _tracked_paths() -> frozenset[str]:
+    """Every tracked file, plus the directory prefixes leading to one.
+
+    Citations are checked against git's index rather than the working
+    tree. Six of them -- `.claude/session-state.md`, `docs/backlog/
+    queue.md`, and four more -- are gitignored runtime artifacts: the
+    workflows write them, so they sit on any machine that has run the
+    workflows and on no fresh checkout. Asking the filesystem meant this
+    gate read the developer's machine instead of the repository, passing
+    locally and failing in CI for 11 assets at once.
+
+    The masking case is the worse half. Under a working-tree check, any
+    untracked file lying at the cited path answers "yes" -- so a genuine
+    phantom that happens to collide with local scratch state goes
+    unreported, which is the exact defect this gate exists to catch.
+
+    Directory prefixes are included because `_citations` only filters
+    tokens ending in a slash; `docs/adr` cites a real directory without
+    one, and git lists no directories of its own.
+    """
+    listing = subprocess.run(
+        ["git", "ls-files", "-z"],
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
+        check=True,
+    ).stdout
+    known = {entry for entry in listing.split("\0") if entry}
+    for entry in list(known):
+        parts = entry.split("/")
+        for depth in range(1, len(parts)):
+            known.add("/".join(parts[:depth]))
+    return frozenset(known)
+
+
+TRACKED = _tracked_paths()
+
+
 def _resolves(citation: str, asset: Path) -> bool:
     """A citation resolves against the repo root or its own plugin.
 
@@ -196,10 +245,12 @@ def _resolves(citation: str, asset: Path) -> bool:
     and hooks/ directories, and the docs address them unprefixed. Both
     readings are checked so the convention is not reported as a defect.
     """
-    if (REPO_ROOT / citation).exists():
+    if citation in TRACKED:
         return True
     plugin = _owning_plugin(asset)
-    return plugin is not None and (plugin / citation).exists()
+    if plugin is None:
+        return False
+    return (plugin / citation).relative_to(REPO_ROOT).as_posix() in TRACKED
 
 
 def _phantoms(asset: Path) -> list[str]:

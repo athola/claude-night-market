@@ -75,10 +75,16 @@ test: ## Run tests in all plugins AND the root ecosystem suite
 # a trigger and a boundary, and that plugin packages still import from the repo
 # root. It sat in no gate at all, so 75 of its assertions failed for months
 # without anyone hearing about it. It is part of `make test` now.
+#
+# --extra dev, because the suite asserts on the toolchain the lint gates run:
+# tests/test_ruff_does_not_format_markdown.py shells out to `python -m ruff`,
+# and ruff is an optional extra that plain `uv run` does not install. Without
+# it the tool was simply absent in CI, which reads as "ruff changed nothing"
+# and passed one test vacuously while failing another with the wrong cause.
 test-ecosystem: ## Run the root ecosystem suite (tests/): cross-plugin metadata gates
 	@echo ""
 	@echo ">>> Running root ecosystem tests (tests/)..."
-	@./scripts/without-git-env.sh uv run python -m pytest tests/ --tb=short --quiet
+	@./scripts/without-git-env.sh uv run --extra dev python -m pytest tests/ --tb=short --quiet
 
 lint: ## Run linting on all plugins (ALL code, not just changed)
 	@echo "=== Running Lint on ALL Code ==="
