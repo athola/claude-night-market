@@ -10,7 +10,7 @@ Structure and rationale: docs/adr/0021-pr-descriptions-in-two-registers.md
 | | |
 |---|---|
 | **Who** | <!-- audience for this change; name a reviewer only for out-of-band routing --> |
-| **Where** | <!-- internal: module + file count. External: consumers, APIs, wire formats, or `none` --> |
+| **Where** | <!-- internal: module and file count. External: consumers, APIs, wire formats, or `none` --> |
 | **When** | <!-- `on merge`, or the flag / migration window / full-integration date --> |
 
 ## Why

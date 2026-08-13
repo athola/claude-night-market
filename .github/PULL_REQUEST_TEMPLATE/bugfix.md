@@ -6,7 +6,7 @@ Title: name the wrong behavior and the correction.
 | | |
 |---|---|
 | **Who** | <!-- who hit this bug --> |
-| **Where** | <!-- internal: module + file count. External: any status code, payload, or contract that changes, or `none` --> |
+| **Where** | <!-- internal: module and file count. External: any status code, payload, or contract that changes, or `none` --> |
 | **When** | <!-- `on merge`, or the release that carries the fix --> |
 
 ## Why
@@ -16,7 +16,7 @@ see, and what did they do about it? -->
 
 ## What and how
 
-<!-- The fix. If the guard sits at a trust boundary rather than deeper
+<!-- The fix. If the guard is at a trust boundary rather than deeper
 in the call path, say so: that is a design decision a reviewer will
 otherwise ask about. -->
 

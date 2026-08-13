@@ -6,7 +6,7 @@ Title: imperative, naming the capability.
 | | |
 |---|---|
 | **Who** | <!-- audience for the capability; out-of-band reviewer if any --> |
-| **Where** | <!-- internal: module + file count. External: new or changed public surface, or `none` --> |
+| **Where** | <!-- internal: module and file count. External: new or changed public surface, or `none` --> |
 | **When** | <!-- `on merge`, or the flag and the date it is fully rolled out --> |
 
 ## Why

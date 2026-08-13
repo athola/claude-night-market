@@ -9,7 +9,7 @@ optional in this template.
 | | |
 |---|---|
 | **Who** | <!-- every consumer that has to change, and who owns them --> |
-| **Where** | <!-- internal: module + file count. External: REQUIRED. Name every API, wire format, CLI contract, or schema that breaks --> |
+| **Where** | <!-- internal: module and file count. External: REQUIRED. Name every API, wire format, CLI contract, or schema that breaks --> |
 | **When** | <!-- landing date, deprecation window, and the release that removes the old path --> |
 
 ## Why
