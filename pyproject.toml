@@ -260,14 +260,12 @@ members = [
     "plugins/abstract",
     "plugins/leyline",
     "plugins/conserve",
-    "plugins/core"
 ]
 
 [tool.uv.sources]
 # Explicit workspace member configuration
 leyline = { workspace = true }
 conserve = { workspace = true }
-core = { workspace = true }
 
 [tool.bandit]
 exclude_dirs = [
