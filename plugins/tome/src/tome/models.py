@@ -117,6 +117,10 @@ class DomainClassification:
     triz_depth: str
     channel_weights: dict[str, float]
     confidence: float
+    # Domains that had keyword support when the classifier abstained.
+    # Empty on a confident classification. This is what makes an
+    # abstention inspectable instead of silent.
+    candidates: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -128,6 +132,7 @@ class DomainClassification:
             triz_depth=d["triz_depth"],
             channel_weights=dict(d["channel_weights"]),
             confidence=d["confidence"],
+            candidates=list(d.get("candidates", [])),
         )
 
 

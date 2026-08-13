@@ -112,6 +112,24 @@ _DOMAIN_KEYWORDS: dict[str, list[str]] = {
         "pipeline",
         "infrastructure",
     ],
+    "ai-agents": [
+        "agent",
+        "llm",
+        "prompt",
+        "embedding",
+        "retrieval",
+        "rag",
+        "memory",
+        "recall",
+        "context window",
+        "fine-tuning",
+        "transformer",
+        "inference",
+        "vector database",
+        "semantic search",
+        "hallucination",
+        "session memory",
+    ],
     "security": [
         "encryption",
         "authentication",
@@ -130,6 +148,13 @@ _DOMAIN_KEYWORDS: dict[str, list[str]] = {
 # TRIZ depth per domain
 # ---------------------------------------------------------------------------
 
+_DEPTH_RANK: dict[str, int] = {"light": 0, "medium": 1, "deep": 2, "maximum": 3}
+
+# Match count at which purity is trusted at face value. Below it,
+# confidence is scaled down: two hits in one domain is thin evidence
+# even though it is perfectly pure.
+_CONFIDENT_MATCHES = 3
+
 _TRIZ_DEPTH: dict[str, str] = {
     "ui-ux": "light",
     "algorithm": "medium",
@@ -139,6 +164,7 @@ _TRIZ_DEPTH: dict[str, str] = {
     "financial": "medium",
     "devops": "light",
     "security": "medium",
+    "ai-agents": "deep",
     "general": "light",
 }
 
@@ -155,6 +181,12 @@ _CHANNEL_WEIGHTS: dict[str, dict[str, float]] = {
     "financial": {"code": 0.20, "discourse": 0.30, "academic": 0.35, "triz": 0.15},
     "devops": {"code": 0.35, "discourse": 0.40, "academic": 0.10, "triz": 0.15},
     "security": {"code": 0.30, "discourse": 0.25, "academic": 0.30, "triz": 0.15},
+    "ai-agents": {
+        "code": 0.25,
+        "discourse": 0.30,
+        "academic": 0.30,
+        "triz": 0.15,
+    },
     "general": {"code": 0.30, "discourse": 0.35, "academic": 0.20, "triz": 0.15},
 }
 
@@ -195,16 +227,62 @@ def classify(topic: str) -> DomainClassification:
     best_count = scores[best_domain]
     total_hits = sum(scores.values())
 
-    if best_count < _MIN_MATCHES or total_hits == 0:
+    # Purity alone rewards thin evidence: two hits in exactly one
+    # domain is perfectly pure but weakly supported. Scaling by match
+    # count makes confidence rise with evidence rather than with the
+    # absence of competing evidence.
+    if total_hits == 0:
         confidence = 0.0
-        domain = "general"
     else:
-        confidence = best_count / total_hits
-        domain = best_domain if confidence >= _MIN_CONFIDENCE else "general"
+        purity = best_count / total_hits
+        saturation = min(1.0, best_count / _CONFIDENT_MATCHES)
+        confidence = purity * saturation
+
+    confident = best_count >= _MIN_MATCHES and confidence >= _MIN_CONFIDENCE
+    if confident:
+        return DomainClassification(
+            domain=best_domain,
+            triz_depth=_TRIZ_DEPTH[best_domain],
+            channel_weights=dict(_CHANNEL_WEIGHTS[best_domain]),
+            confidence=confidence,
+            candidates=[],
+        )
+
+    candidates = sorted(
+        (d for d, count in scores.items() if count > 0),
+        key=lambda d: (-scores[d], d),
+    )
+    if not candidates:
+        # No signal at all. There is nothing to refine toward, and
+        # escalating gibberish to four channels would spend budget on
+        # noise, so the cheap plan is correct here.
+        return DomainClassification(
+            domain="general",
+            triz_depth=_TRIZ_DEPTH["general"],
+            channel_weights=dict(_CHANNEL_WEIGHTS["general"]),
+            confidence=confidence,
+            candidates=[],
+        )
+
+    # Refine rather than reject. The topic has support across several
+    # vocabularies, which is what cross-domain research is for, so the
+    # plan takes the deepest candidate's depth and a support-weighted
+    # blend of their channel weights. Narrowing coverage because a
+    # topic was hard to place is backwards.
+    depth = max((_TRIZ_DEPTH[d] for d in candidates), key=lambda d: _DEPTH_RANK[d])
+    total = sum(scores[d] for d in candidates)
+    blended: dict[str, float] = {}
+    for candidate in candidates:
+        share = scores[candidate] / total
+        for channel, weight in _CHANNEL_WEIGHTS[candidate].items():
+            blended[channel] = blended.get(channel, 0.0) + weight * share
+    normalizer = sum(blended.values()) or 1.0
+    blended = {c: w / normalizer for c, w in blended.items()}
 
     return DomainClassification(
-        domain=domain,
-        triz_depth=_TRIZ_DEPTH[domain],
-        channel_weights=dict(_CHANNEL_WEIGHTS[domain]),
+        domain="general",
+        triz_depth=depth,
+        channel_weights=blended,
         confidence=confidence,
+        candidates=candidates,
     )

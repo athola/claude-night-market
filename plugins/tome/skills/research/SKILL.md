@@ -42,8 +42,24 @@ result = classify(topic)
 # result.domain, result.triz_depth, result.channel_weights
 ```
 
-If confidence < 0.6, ask the user to confirm or override
-the domain classification before proceeding.
+If confidence < 0.6 the classifier abstains and **refines**
+rather than rejecting: `result.candidates` lists the domains
+that had keyword support, `triz_depth` becomes the deepest
+of those candidates, and `channel_weights` is a
+support-weighted blend. Coverage widens on ambiguity instead
+of narrowing, because a topic spanning several vocabularies
+is exactly what the cross-domain channel is for.
+
+Report the abstention to the user with the candidate list and
+let them override the domain. Do not treat a refined plan as
+a failure; treat it as the classifier declining to guess.
+
+When `candidates` is empty the topic produced no keyword hits
+at all. That stays on the cheap two-channel plan, since there
+is nothing to refine toward and escalating noise wastes
+budget. If the topic is genuinely researchable, the
+vocabulary in `_DOMAIN_KEYWORDS` is missing it: say so rather
+than forcing a domain.
 
 ### Step 2: Plan Research
 
