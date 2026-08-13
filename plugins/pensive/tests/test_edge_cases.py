@@ -7,7 +7,6 @@ unexpected input scenarios.
 from __future__ import annotations
 
 import contextlib
-import importlib.util
 import os
 import shutil
 import subprocess
@@ -231,26 +230,20 @@ class TestEdgeCasesAndErrorScenarios:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    @pytest.mark.skipif(
-        not importlib.util.find_spec("requests"),
-        reason="requests not installed",
-    )
-    def test_network_timeout_scenarios(self) -> None:
-        """Given network operations, when timeout occurs, then handles gracefully."""
-        # Arrange
-        skill = BugReviewSkill()
-        context = Mock()
+    def test_external_dependency_check_returns_documented_stub(self) -> None:
+        """Given the stub check, it returns its documented empty result.
 
-        with patch("requests.get") as mock_get:
-            # Simulate network timeout
-            mock_get.side_effect = TimeoutError("Network timeout")
+        This replaces a network-timeout test that patched ``requests.get``
+        and asserted only ``result is not None``. ``check_external_dependencies``
+        is a stub that never makes a network call (see B-15 in
+        ``_reporting.py``), so the mock was never invoked and the assertion
+        could not fail. It was also skipped whenever ``requests`` was absent,
+        which it is, since pensive does not depend on it. Pin the contract
+        the docstring actually promises instead.
+        """
+        result = BugReviewSkill().check_external_dependencies(Mock())
 
-            # Act
-            result = skill.check_external_dependencies(context)
-
-            # Assert
-            assert result is not None
-            # Should handle timeout without crashing
+        assert result == {"status": "ok", "checked": [], "issues": []}
 
     @pytest.mark.bdd
     @pytest.mark.unit
