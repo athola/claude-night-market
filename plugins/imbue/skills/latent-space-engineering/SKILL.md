@@ -75,6 +75,15 @@ incentives to increase rigor and thoroughness.
 | Style gene transfer | Code/doc generation | style-gene-transfer |
 | Competitive review | 3+ parallel reviewers | competitive-review |
 
+## Writing for the Delegate
+
+Framing shapes a delegate's output as much as it shapes a model's prose.
+Before dispatching, establish what model the delegate runs, what tools it
+has, and what project context it lacks, then write the prompt as a
+proposal rather than a procedure.
+
+See `modules/know-your-delegate.md`.
+
 ## Exit Criteria
 
 - [ ] Dispatch prompts contain no threat-based language ("you must",

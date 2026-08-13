@@ -20,6 +20,11 @@ Export research findings for memory-palace ingestion.
 /tome:export --session abc123
 ```
 
+## Implementation
+
+Runs `Skill(tome:export)`, which calls
+`tome.output.export.export_for_memory_palace` on the loaded session.
+
 ## What Happens
 
 1. Loads the specified or latest research session
