@@ -22,6 +22,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+import yaml
 
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
@@ -1635,3 +1636,64 @@ class TestStoreWebfetchForwardsNullCapture:
 
         assert stored is not None
         assert mock_index.call_args.kwargs["null_capture"] is None
+
+
+class TestFrontmatterSurvivesHostileValues:
+    """Feature: a capture stays machine-readable whatever the page says.
+
+    Page titles, search queries, and URLs are attacker- and
+    accident-controlled. Interpolating them raw into a YAML
+    double-quoted scalar makes the frontmatter unparsable, which
+    silently removes the capture from every downstream reader.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _isolated_queue(self, tmp_path, monkeypatch):
+        """Write captures into tmp_path and leave the real index alone."""
+        monkeypatch.setattr(web_research_handler, "QUEUE_DIR", tmp_path)
+        monkeypatch.setattr(web_research_handler, "PLUGIN_ROOT", tmp_path)
+        monkeypatch.setattr(web_research_handler, "update_index", lambda **kwargs: None)
+
+    def test_webfetch_title_containing_a_quote(self, tmp_path) -> None:
+        """Scenario: a page whose title carries a quoted phrase."""
+
+        stored = web_research_handler.store_webfetch_content(
+            content='# Search Results for "mtime staleness"\n\nBody text.\n',
+            url="https://example.test/search",
+            prompt="find staleness work",
+        )
+
+        assert stored is not None
+        frontmatter = Path(stored).read_text(encoding="utf-8").split("---")[1]
+        assert yaml.safe_load(frontmatter)["source_type"] == "webfetch"
+
+    def test_websearch_query_containing_a_quote(self, tmp_path) -> None:
+        """Scenario: a phrase search, which is the normal way to quote."""
+
+        stored = web_research_handler.store_websearch_results(
+            query='"mtime staleness"',
+            results=[
+                {
+                    "title": "A result",
+                    "url": "https://example.test/a",
+                    "snippet": "text",
+                }
+            ],
+        )
+
+        assert stored is not None
+        frontmatter = Path(stored).read_text(encoding="utf-8").split("---")[1]
+        assert yaml.safe_load(frontmatter)["source_type"] == "websearch"
+
+    def test_webfetch_url_containing_a_quote(self, tmp_path) -> None:
+        """Scenario: the url field is interpolated the same unsafe way."""
+
+        stored = web_research_handler.store_webfetch_content(
+            content="# Plain Title\n\nBody text.\n",
+            url='https://example.test/search?q="staleness"',
+            prompt="find staleness work",
+        )
+
+        assert stored is not None
+        frontmatter = Path(stored).read_text(encoding="utf-8").split("---")[1]
+        assert yaml.safe_load(frontmatter)["source_type"] == "webfetch"

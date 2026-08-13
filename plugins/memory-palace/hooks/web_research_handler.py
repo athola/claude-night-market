@@ -400,6 +400,18 @@ def _register_duplicate_url(
         )
 
 
+def _yaml_scalar(value: str) -> str:
+    """Quote *value* for use as a YAML double-quoted scalar.
+
+    JSON string syntax is a subset of YAML's double-quoted style, so
+    ``json.dumps`` escapes the quotes, newlines, and control characters
+    that would otherwise close the scalar early. Page titles, queries,
+    and URLs are all outside our control, and an unparsable capture is
+    invisible to every reader downstream.
+    """
+    return json.dumps(str(value))
+
+
 def store_webfetch_content(
     content: str,
     url: str,
@@ -424,10 +436,10 @@ queue_entry_id: {entry_id}
 created_at: {now.isoformat()}
 session_type: auto_capture
 source_type: webfetch
-topic: "{title}"
+topic: {_yaml_scalar(title)}
 status: pending_review
 priority: medium
-url: "{url}"
+url: {_yaml_scalar(url)}
 content_hash: "{content_hash}"
 content_length: {len(content)}
 auto_generated: true
@@ -509,10 +521,10 @@ queue_entry_id: {entry_id}
 created_at: {now.isoformat()}
 session_type: auto_capture
 source_type: websearch
-topic: "{query}"
+topic: {_yaml_scalar(query)}
 status: pending_review
 priority: medium
-query: "{query}"
+query: {_yaml_scalar(query)}
 result_count: {len(results)}
 content_hash: "{content_hash}"
 auto_generated: true

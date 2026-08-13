@@ -9,6 +9,28 @@ import yaml
 _FRONTMATTER_PARTS = 3
 
 
+def _split_on_delimiter_line(content: str) -> tuple[str, str] | None:
+    """Return (frontmatter, body) split at the closing ``---`` line.
+
+    The delimiter must occupy a whole line. Splitting on ``---`` wherever
+    it appears lets an ordinary value close the block early: a captured
+    URL with a triple hyphen in its path is enough, and the entry then
+    reads as having no frontmatter at all.
+
+    Returns None when no closing delimiter line is present.
+    """
+    lines = content.split("\n")
+    if lines[0].strip() != "---":
+        return None
+    for offset, line in enumerate(lines[1:], start=1):
+        if line.strip() == "---":
+            # The body keeps the newline that ended the delimiter line, so
+            # callers that already depend on the leading break still see it.
+            body = "\n" + "\n".join(lines[offset + 1 :])
+            return "\n".join(lines[1:offset]), body
+    return None
+
+
 def parse_entry_frontmatter(content: str) -> dict[str, Any] | None:
     """Parse YAML frontmatter from a corpus entry.
 
@@ -19,13 +41,11 @@ def parse_entry_frontmatter(content: str) -> dict[str, Any] | None:
         Parsed frontmatter dict, or None if missing/invalid.
 
     """
-    if not content.startswith("---"):
-        return None
-    parts = content.split("---", 2)
-    if len(parts) < _FRONTMATTER_PARTS:
+    split = _split_on_delimiter_line(content)
+    if split is None:
         return None
     try:
-        payload = yaml.safe_load(parts[1])
+        payload = yaml.safe_load(split[0])
         if isinstance(payload, dict):
             return payload
     except yaml.YAMLError:
@@ -43,15 +63,13 @@ def split_entry(content: str) -> tuple[dict[str, Any] | None, str]:
         Tuple of (metadata_dict_or_None, body_text).
 
     """
-    if not content.startswith("---"):
-        return None, content
-    parts = content.split("---", 2)
-    if len(parts) < _FRONTMATTER_PARTS:
+    split = _split_on_delimiter_line(content)
+    if split is None:
         return None, content
     try:
-        payload = yaml.safe_load(parts[1])
+        payload = yaml.safe_load(split[0])
         if isinstance(payload, dict):
-            return payload, parts[2]
+            return payload, split[1]
     except yaml.YAMLError:
         pass
     return None, content
