@@ -102,7 +102,7 @@ Load only what the run needs.
 - [ ] Every research claim applied carries a source URL, and release
       notes plus the model card were both consulted.
 - [ ] A migration report exists under
-      `docs/model-harness-updates/migrations/`.
+      `docs/migrations/`.
 - [ ] `.claude/upstream-baseline.json` records the new harness version,
       model roster, and `last_migration`, with the previous entry
       appended to `history`.

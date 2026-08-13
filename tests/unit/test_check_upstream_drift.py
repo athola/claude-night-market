@@ -60,7 +60,7 @@ def ledger() -> dict:
             "from": {"harness": None, "model_tiers": []},
             "to": {"harness": "2.1.220", "model_tiers": ["haiku"]},
             "assets_changed": 0,
-            "report": "docs/model-harness-updates/migrations/init.md",
+            "report": "docs/migrations/init.md",
         },
         "history": [],
     }
@@ -439,7 +439,7 @@ def test_record_migration_appends_previous_to_history(ledger: dict) -> None:
             id="2026-09-01-opus-6",
             trigger="model-release",
             assets_changed=7,
-            report="docs/model-harness-updates/migrations/2026-09-01-opus-6.md",
+            report="docs/migrations/2026-09-01-opus-6.md",
         ),
     )
     assert updated["history"][-1] == previous

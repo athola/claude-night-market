@@ -17,7 +17,7 @@ related_artifacts:
   - .claude/skills/claude-code-plugin-reference/SKILL.md
   - .claude/upstream-baseline.json
   - .claude/skills/night-market-model-and-harness-updates/SKILL.md
-  - docs/model-harness-updates/migrations/2026-08-02-harness-2-1-220.md
+  - docs/migrations/2026-08-02-harness-2-1-220.md
 last_updated: 2026-08-02
 ---
 

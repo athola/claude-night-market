@@ -54,7 +54,7 @@ ledger and the gate disagree, and one of them is wrong.
 Every run writes one, including a run that found no drift. Path:
 
 ```
-docs/model-harness-updates/migrations/<date>-<slug>.md
+docs/migrations/<date>-<slug>.md
 ```
 
 Required contents:
@@ -103,7 +103,7 @@ updated = cud.record_migration(
         "id": "<date>-<slug>",
         "trigger": "model-release",
         "assets_changed": <count>,
-        "report": "docs/model-harness-updates/migrations/<date>-<slug>.md",
+        "report": "docs/migrations/<date>-<slug>.md",
     },
     from_state=from_state,
 )

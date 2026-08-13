@@ -14,6 +14,7 @@ so the team replicates what worked and avoids what did not.
 | ID | Status | Title | Date |
 |----|--------|-------|------|
 | LL-001 | open | Linked-worktree commits corrupt the index via hook-run git subprocesses | 2026-07-04 |
+| LL-002 | open | A commit that creates a discussion and one that fixes it are the same shape to the reconciler | 2026-08-06 |
 
 ## Lessons
 
@@ -52,6 +53,36 @@ three of them left GIT_PREFIX, GIT_EDITOR, GIT_EXEC_PATH and the GIT_AUTHOR_*
 trio reaching the test. When the leak is a category the tool populates at will,
 scrub the category, not the three names you happened to think of. Declare pyyaml
 in leyline's test deps.
+
+## LL-002: A commit that creates a discussion and one that fixes it are the same shape to the reconciler
+
+- Status: open
+- Date: 2026-08-06
+- Phase: review
+- Category: process
+- Owner: -
+- Links: PR #417, discussions #424-#436, commit 6b28aa1a
+<!-- key: 19a7b929a791 -->
+
+### What happened
+
+The 2026-08-02 board sweep treated 46 uncommented findings as open work. Verifying them against the tree found roughly half already repaired, some months earlier. Discussion #424 in particular sat in the reconciler's "mentioned in prose" bucket because commit 6b28aa1a names it.
+
+### What went well / where we got lucky
+
+The mention bucket did its job. It kept an unproven claim out of the write-back path instead of posting a wrong "fixed" comment, so the false positive cost a human read rather than a bad board entry.
+
+### What did not work
+
+Reading the bucket as a status. Commit 6b28aa1a did not fix #424: it is the dogfood run that *created* discussions #424-#436 by posting PR #417's findings to the board. A commit that opens a discussion and a commit that repairs one both mention its number, and nothing in the text distinguishes them.
+
+### Root cause
+
+The house convention read a comment on a finding as "somebody triaged this", and no workflow step told the board when a fix landed. A fixed finding and an ignored one were the same shape from the board's side, so every sweep paid to re-derive the same answer. The mention heuristic inherits that ambiguity: mention is evidence of contact, not of repair.
+
+### Recommendation / action item
+
+Resolved for the forward path. scripts/reconcile_discussions.py and the Addresses-Discussion: trailer close the loop, so a fix now announces itself and the comment posts automatically. The mention bucket stays, and stays a lead for a human rather than a status: read an entry there as "a commit touched this number", then check which direction it touched it. Four findings fixed before the trailer convention existed (#604, #610, #586, #520) needed a hand-written write-back, which is the shape of every pre-trailer backlog item.
 
 ## Archive
 
