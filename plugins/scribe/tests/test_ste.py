@@ -369,6 +369,80 @@ def test_bare_filenames_do_not_form_noun_clusters():
     assert find_noun_clusters("trust-attestation.yml fires on the push.") == []
 
 
+# ---------------------------------------------------------------------------
+# Tokenizer defects found by running the checks over 5984 markdown files.
+# Each case below is a real finding, reduced. Together they accounted for
+# a large share of the noun-cluster noise.
+# ---------------------------------------------------------------------------
+
+
+def test_html_markup_is_not_prose():
+    """``<details><summary>`` was the single loudest false positive.
+
+    It produced 2584 identical noun-cluster findings, 11% of every
+    cluster reported across the repository.
+    """
+    text = "<details><summary>Click to expand full content summary</summary>"
+    assert find_noun_clusters(text) == []
+    assert check_sentence_length(text) == []
+
+
+def test_inline_html_tags_do_not_join_words_around_them():
+    text = "The <b>release</b> is ready."
+    assert find_noun_clusters(text) == []
+
+
+def test_slash_paths_are_one_token():
+    text = "Store it under /home/alext/claude/projects/foo/bar now."
+    assert find_noun_clusters(text) == []
+
+
+def test_bare_domain_urls_are_one_token():
+    text = "See news.ycombinator.com/item?id=99 for the thread."
+    assert find_noun_clusters(text) == []
+
+
+def test_acronyms_with_digits_stay_whole():
+    """``W3C`` tokenized to ``W`` and ``C``, inflating every run.
+
+    The cluster here is real and stays reported. What changes is its
+    shape: four nouns rather than six tokens, with the acronym intact
+    and the trailing verb excluded.
+    """
+    findings = find_noun_clusters("The W3C Verifiable Credentials spec applies.")
+    assert len(findings) == 1
+    assert findings[0].text == "W3C Verifiable Credentials spec"
+    assert findings[0].actual == 4
+
+
+def test_a_short_acronym_phrase_no_longer_reports():
+    """``The W3C spec applies.`` held two nouns, and reported six."""
+    assert find_noun_clusters("The W3C spec applies.") == []
+
+
+def test_ies_verbs_break_a_cluster():
+    """``applies`` is ``apply`` inflected, so it is a verb, not a noun."""
+    assert find_noun_clusters("The runtime capture pipeline applies.") == []
+
+
+def test_see_is_an_imperative():
+    kind, _ = classify_sentence("See the release runbook for the sequence.")
+    assert kind == "procedural"
+
+
+@pytest.mark.parametrize(
+    ("text", "expected", "why"),
+    [
+        ("Wait 30 ms before the retry.", 5, "a number and its unit are one word"),
+        ("Wait 5 kg of load.", 4, "unit stays merged"),
+        ("It ran for 3 days.", 5, "days is a word, not a unit"),
+        ("Read 4 files now.", 4, "files is a word, not a unit"),
+    ],
+)
+def test_number_unit_merging_uses_a_unit_list(text, expected, why):
+    assert count_words(text) == expected, why
+
+
 def test_noun_clusters_ignore_code_and_urls():
     text = "Run `plugins/scribe/src/scribe/pattern_loader.py` now."
     assert find_noun_clusters(text) == []

@@ -100,6 +100,20 @@ _DOT = "\x01"
 _FENCED_CODE = re.compile(r"```.*?```", re.DOTALL)
 _INLINE_CODE = re.compile(r"`[^`]*`")
 _URL = re.compile(r"\b(?:https?://|www\.)\S+")
+# A bare domain carries no scheme, so the rule above misses it and the
+# host tokenizes into "news ycombinator com". The TLD list is short on
+# purpose: a general domain shape would swallow "config.yaml" and any
+# sentence whose period lands next to a word.
+_BARE_DOMAIN = re.compile(
+    r"\b[\w-]+(?:\.[\w-]+)*\.(?:com|org|net|io|dev|ai|edu|gov|co)\b(?:/\S*)?"
+)
+# A path is one thing, and its slashes are not word breaks. Without
+# this, "/home/alext/claude/projects" reads as a four-word noun cluster.
+# The rule also merges "and/or", which counts as one word either way.
+_PATH = re.compile(r"(?<!\S)/?[\w.-]+(?:/[\w.-]+)+")
+# Inline markup, not prose. Replaced with a space rather than the mask
+# because a tag is not a word: "The <b>release</b> is ready" holds four.
+_HTML_TAG = re.compile(r"</?[a-zA-Z][^>]*>")
 # A bare filename or path is one thing. Without this, "config.yml"
 # tokenizes into "config" and "yml" and reads as a noun cluster.
 _FILENAME = re.compile(
@@ -108,9 +122,16 @@ _FILENAME = re.compile(
 )
 _PARENTHETICAL = re.compile(r"\([^()]*\)")
 _QUOTED = re.compile(r"\"[^\"]*\"")
-# A number followed by a short unit token: "25 Nm", "30 ms", "5 kg".
-# The unit is capped at four letters so "3 packages" stays two words.
-_NUMBER_UNIT = re.compile(r"\b\d[\d,.]*\s+[A-Za-z]{1,4}\b")
+# A number followed by its unit: "25 Nm", "30 ms", "5 kg". An earlier
+# version accepted any token of four letters or fewer, which merged
+# "3 days" and "2 runs" into one word. The unit has to be named.
+_UNITS = (
+    "ns|us|ms|s|sec|secs|min|mins|h|hr|hrs|"
+    "b|kb|mb|gb|tb|kib|mib|gib|"
+    "mg|g|kg|lb|lbs|nm|mm|cm|m|km|"
+    "px|pt|em|rem|hz|khz|mhz|ghz|v|w|kw|k"
+)
+_NUMBER_UNIT = re.compile(rf"\b\d[\d,.]*\s+(?:{_UNITS})\b", re.IGNORECASE)
 
 # Abbreviations whose trailing period does not end a sentence.
 _ABBREVIATIONS = (
@@ -140,12 +161,21 @@ _ABBREVIATIONS = (
 # the whitespace, or the two sentences merge into one.
 _SENTENCE_END = re.compile(r"[.!?]+[*_`]*(?=\s|$)")
 _HEADING = re.compile(r"^\s{0,3}#{1,6}\s")
+# A line opening with an HTML tag is an HTML block, which markdown
+# treats as markup rather than prose. Measuring it produced the single
+# loudest false positive in the corpus: "<details><summary>Click to
+# expand full content summary</summary>" alone reported 2584 noun
+# clusters, 11% of every cluster found.
+_HTML_BLOCK = re.compile(r"^\s*</?[a-zA-Z][^>]*>")
 _TABLE_ROW = re.compile(r"^\s*\|")
 _HORIZONTAL_RULE = re.compile(r"^\s*([-*_])\s*(\1\s*){2,}$")
 _FENCE_DELIMITER = re.compile(r"^\s*(```|~~~)")
 _ORDERED_ITEM = re.compile(r"^\s*\d+[.)]\s+")
 _UNORDERED_ITEM = re.compile(r"^\s*[-*+]\s+")
-_WORD = re.compile(r"[A-Za-z][A-Za-z'-]*")
+# A word may carry digits after its first letter. Without them "W3C"
+# splits into "W" and "C", and every acronym in the corpus turned into
+# single-letter shrapnel that padded noun clusters.
+_WORD = re.compile(r"[A-Za-z][A-Za-z0-9'-]*")
 
 # Punctuation that separates items. A noun cluster is one name, so a
 # run of nouns never spans a comma, colon, or dash.
@@ -231,7 +261,10 @@ def _mask_spans(text: str) -> str:
     """
     masked = _FENCED_CODE.sub(_MASK, text)
     masked = _INLINE_CODE.sub(_MASK, masked)
+    masked = _HTML_TAG.sub(" ", masked)
     masked = _URL.sub(_MASK, masked)
+    masked = _BARE_DOMAIN.sub(_MASK, masked)
+    masked = _PATH.sub(_MASK, masked)
     masked = _FILENAME.sub(_MASK, masked)
     masked = _PARENTHETICAL.sub(_MASK, masked)
     masked = _QUOTED.sub(_MASK, masked)
@@ -403,6 +436,7 @@ def _iter_blocks(text: str) -> list:
             _HEADING.match(line)
             or _TABLE_ROW.match(line)
             or _HORIZONTAL_RULE.match(line)
+            or _HTML_BLOCK.match(line)
         ):
             flush()
             continue
@@ -506,6 +540,8 @@ def _looks_like_verb(word: str, position: int, verbs: set) -> bool:
         return True
     if word.endswith("ed") and (word[:-2] in verbs or word[:-1] in verbs):
         return True
+    if word.endswith("ies") and word[:-3] + "y" in verbs:
+        return True
     if word.endswith("ing"):
         stem = word[:-3]
         # "running" -> "runn" -> "run"; "storing" -> "stor" -> "store".
@@ -520,7 +556,7 @@ def _looks_like_verb(word: str, position: int, verbs: set) -> bool:
 def _is_noun_like(word: str, position: int, lex: dict) -> bool:
     """True when a token can be part of a noun cluster."""
     lowered = word.lower()
-    if not lowered.replace("-", "").replace("'", "").isalpha():
+    if not lowered.replace("-", "").replace("'", "").isalnum():
         return False
     if lowered in lex["function_words"] or lowered in lex["descriptive_starters"]:
         return False

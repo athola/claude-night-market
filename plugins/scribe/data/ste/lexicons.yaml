@@ -228,6 +228,7 @@ imperative_verbs:
   - scan
   - score
   - search
+  - see
   - select
   - send
   - separate
