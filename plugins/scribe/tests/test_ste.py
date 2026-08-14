@@ -205,6 +205,65 @@ def test_a_colon_mid_sentence_is_not_a_label():
     assert classify_sentence(text)[0] == "descriptive"
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Never raise a baseline number to make a check pass.",
+        "First, run the migration.",
+        "Then merge to master.",
+        "Always confirm the working tree is clean.",
+        "Instead, use the documented flag.",
+    ],
+)
+def test_an_adverb_before_the_verb_still_reads_as_an_instruction(text):
+    """``Never raise X`` is an instruction, and was unclassifiable.
+
+    Measured over the corpus this reclassifies 798 sentences. It is a
+    small lever, and it is taken because every sample of it read as a
+    genuine instruction.
+    """
+    kind, confidence = classify_sentence(text)
+    assert kind == "procedural"
+    assert confidence < 0.75, "weaker evidence than a bare imperative"
+
+
+def test_an_adverb_before_a_noun_is_not_an_instruction():
+    """The adverb alone proves nothing. The verb after it does."""
+    assert classify_sentence("Never the whole story.")[0] == "unknown"
+    assert classify_sentence("First the cache, then the index.")[0] == "unknown"
+
+
+def test_split_sentences_carries_the_list_context():
+    """The register decision belongs where the sentence is read.
+
+    ``check_sentence_length`` used to patch the register afterwards,
+    which left the ordered-list branches in ``classify_sentence``
+    unreachable from any caller.
+    """
+    plain = split_sentences("Merge to master.")[0]
+    listed = split_sentences("Merge to master.", in_ordered_list=True)[0]
+    assert listed.kind == "procedural"
+    assert listed.confidence > plain.confidence
+
+
+def test_an_unclassifiable_numbered_step_gets_the_procedural_limit():
+    """A numbered step is a procedure even when its opening word is not.
+
+    23 words: clean under the descriptive limit, over the procedural
+    one. The numbering is the only signal available, and it is enough.
+    """
+    body = (
+        "Verification of the capture root, the index, and the release "
+        "manifest, across every plugin in the whole tree, before any "
+        "tag is pushed."
+    )
+    assert check_sentence_length(body) == []
+    findings = check_sentence_length(f"1. {body}")
+    assert len(findings) == 1
+    assert findings[0].limit == PROCEDURAL_MAX_WORDS
+    assert findings[0].actual == 23
+
+
 def test_unclassifiable_text_is_unknown_not_guessed():
     kind, confidence = classify_sentence("Possibly, in some cases.")
     assert kind == "unknown"

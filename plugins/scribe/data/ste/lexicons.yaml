@@ -31,6 +31,31 @@
 # testing whether the stem is in ``imperative_verbs``, so a word is only
 # read as a verb when its base form is one we listed.
 
+# Words that may stand between the start of an instruction and its
+# verb. "Never raise the baseline" is an instruction; the adverb does
+# not stop it being one. Kept apart from function_words because the
+# role differs: these are read only in front of a verb, and several of
+# them ("first", "please") are not function words at all.
+adverbial_openers:
+  - again
+  - also
+  - always
+  - finally
+  - first
+  - instead
+  - last
+  - lastly
+  - never
+  - next
+  - now
+  - once
+  - optionally
+  - otherwise
+  - please
+  - second
+  - then
+  - third
+
 imperative_verbs:
   - add
   - allow

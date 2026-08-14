@@ -304,8 +304,13 @@ def _protect_periods(text: str) -> str:
     return protected
 
 
-def split_sentences(text: str) -> list:
-    """Split text into sentences, guarding abbreviations and versions."""
+def split_sentences(text: str, *, in_ordered_list: bool = False) -> list:
+    """Split text into sentences, guarding abbreviations and versions.
+
+    ``in_ordered_list`` reaches the register decision, which is where
+    it belongs. Deciding afterwards, in the caller, left the classifier
+    unable to see the one structural signal it trusts most.
+    """
     if not text.strip():
         return []
     protected = _protect_periods(text)
@@ -325,7 +330,7 @@ def split_sentences(text: str) -> list:
         lead = len(segment) - len(segment.lstrip())
         absolute = span_start + lead
         restored = segment.strip().replace(_DOT, ".")
-        kind, confidence = classify_sentence(restored)
+        kind, confidence = classify_sentence(restored, in_ordered_list=in_ordered_list)
         sentences.append(
             Sentence(
                 text=restored,
@@ -373,6 +378,19 @@ def classify_sentence(text: str, *, in_ordered_list: bool = False) -> tuple:
 
     if first in lex["imperative_verbs"]:
         return ("procedural", 0.9 if in_ordered_list else 0.75)
+    # "Never raise the baseline" is an instruction with an adverb in
+    # front of its verb. The adverb alone proves nothing, so the verb
+    # after it has to be present, and the reading is weaker evidence
+    # than a bare imperative. This is tested before the descriptive
+    # starters because several openers ("then", "once", "only") sit in
+    # both lists, and an adverb followed by a verb is the stronger
+    # signal of the two.
+    if (
+        first in lex["adverbial_openers"]
+        and len(words) > 1
+        and words[1].lower() in lex["imperative_verbs"]
+    ):
+        return ("procedural", 0.7 if in_ordered_list else 0.6)
     if first in lex["descriptive_starters"]:
         return ("descriptive", 0.75)
     if in_ordered_list:
@@ -467,10 +485,8 @@ def check_sentence_length(text: str) -> list:
     """
     findings = []
     for block in _iter_blocks(text):
-        for sentence in split_sentences(block.text):
+        for sentence in split_sentences(block.text, in_ordered_list=block.is_ordered):
             kind = sentence.kind
-            if kind == "unknown" and block.is_ordered:
-                kind = "procedural"
             limit = (
                 PROCEDURAL_MAX_WORDS if kind == "procedural" else DESCRIPTIVE_MAX_WORDS
             )
@@ -504,7 +520,7 @@ def check_paragraph_length(text: str) -> list:
     """
     findings = []
     for block in _iter_blocks(text):
-        count = len(split_sentences(block.text))
+        count = len(split_sentences(block.text, in_ordered_list=block.is_ordered))
         if count > PARAGRAPH_MAX_SENTENCES:
             findings.append(
                 Finding(
@@ -576,7 +592,7 @@ def find_noun_clusters(text: str) -> list:
     findings = []
     lex = _sets()
     for block in _iter_blocks(text):
-        for sentence in split_sentences(block.text):
+        for sentence in split_sentences(block.text, in_ordered_list=block.is_ordered):
             masked = _mask_spans(sentence.text)
             position = 0
             for segment in _PUNCTUATION_BREAK.split(masked):
