@@ -71,12 +71,23 @@ A label is stripped because this repository's list items open with
 ``**Label**:``, and classifying on the label left most of them
 unreadable. The cost is that the sentence's real opening is discarded.
 ``Triggers: push to master`` then reads as an instruction to push,
-rather than a description of when a workflow fires, and no test on the
-tokens can separate it from ``Merge to master``, which is a real
-instruction. Measured across the corpus the reading is right about five
-times in six. Dropping the whole class would delete five right answers
-for each wrong one it removed, so the class is kept and the doubt is
-published with it.
+rather than a description of when a workflow fires. Nothing in the
+body separates it from ``Merge to master``, which is a real
+instruction, so the separating evidence has to be the label, and the
+label is therefore returned rather than thrown away.
+
+One label shape is evidence and the rest are not. A plural label names
+a set, so the words after it are that set's members and the first of
+them is a noun whatever the verb lexicon says. ``Fix:`` and
+``Action:`` name one thing and are followed by a genuine instruction
+often enough that they prove nothing. So a procedural reading is
+withdrawn when it came through a one-word plural label, and is kept
+otherwise. See :func:`_names_a_set` for what that costs.
+
+For every other label the reading is right about five times in six,
+measured across the corpus. Dropping the whole class would delete five
+right answers for each wrong one it removed, so the class is kept and
+the doubt is published with it.
 """
 
 from __future__ import annotations
@@ -388,21 +399,45 @@ def split_sentences(text: str, *, in_ordered_list: bool = False) -> list:
     return sentences
 
 
-def _strip_label(text: str) -> str:
+def _strip_label(text: str) -> tuple:
     """Drop a leading ``Label:`` so the register is read from the body.
 
-    Returns the text unchanged when the prefix is too long or too wordy
-    to be a label, which keeps a genuine clause ending in a colon
-    intact.
+    Returns the body and the label that was removed. The label is
+    returned rather than discarded because it is evidence about the
+    body: see :func:`_names_a_set`. When the prefix is too long or too
+    wordy to be a label, the text comes back unchanged with an empty
+    label, which keeps a genuine clause ending in a colon intact.
     """
     match = _LABEL_PREFIX.match(text)
     if match is None:
-        return text
+        return (text, "")
     label = match.group(1).strip()
     if not label or len(label.split()) > _LABEL_MAX_WORDS:
-        return text
+        return (text, "")
     remainder = text[match.end() :]
-    return remainder if remainder.strip() else text
+    if not remainder.strip():
+        return (text, "")
+    return (remainder, label)
+
+
+def _names_a_set(label: str) -> bool:
+    """True when a one-word label names a set rather than an action.
+
+    ``Triggers:`` names a set, so the words after it are the members of
+    that set and the first of them is a noun. ``Fix:`` and ``Action:``
+    name one thing and are routinely followed by a real instruction,
+    which is why only the plural form is evidence.
+
+    Measured over this repository's 6324 markdown files: 215 sentences
+    carry such a label, and one of them sits in the 21-to-25-word band
+    where the register decides whether it reports at all. The failure
+    mode is bounded by the same measurement. A label like ``Steps:`` in
+    front of a genuine instruction gets the 25-word descriptive limit
+    instead of the 20-word procedural one, on a check that is advisory
+    and ships off by default.
+    """
+    words = label.split()
+    return len(words) == 1 and words[0].lower().endswith("s")
 
 
 def _is_finite_verb(word: str, verbs: set) -> bool:
@@ -434,7 +469,7 @@ def classify_sentence(text: str, *, in_ordered_list: bool = False) -> tuple:
     check enabled.
     """
     lex = _sets()
-    body = _strip_label(text)
+    body, label = _strip_label(text)
     # A label hides the sentence's real opening, so a register read
     # through one rests on less than a register read from the sentence
     # itself. Measured over the corpus, the reading is right about five
@@ -443,6 +478,25 @@ def classify_sentence(text: str, *, in_ordered_list: bool = False) -> tuple:
     words = _WORD.findall(_mask_spans(body))
     if not words:
         return ("unknown", 0.0)
+
+    kind, confidence = _register_from_body(
+        words, lex, in_ordered_list=in_ordered_list, through_label=through_label
+    )
+    # One class of label is not merely weak evidence but evidence the
+    # other way. A plural label names a set, so the body enumerates the
+    # members of that set and its opening word is a noun, whatever the
+    # verb lexicon says about it. Only the procedural reading is
+    # withdrawn, because that is the only one the stripped opening
+    # could have manufactured.
+    if kind == "procedural" and through_label and _names_a_set(label):
+        return ("unknown", 0.3)
+    return (kind, confidence)
+
+
+def _register_from_body(
+    words: list, lex: dict, *, in_ordered_list: bool, through_label: bool
+) -> tuple:
+    """Read the register from the body's opening words."""
     first = words[0].lower()
 
     if first in lex["imperative_verbs"]:

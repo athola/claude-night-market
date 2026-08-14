@@ -701,14 +701,20 @@ def test_main_reports_a_missing_file_without_crashing(tmp_path, capsys):
 def test_a_register_dependent_finding_is_reported_as_medium():
     """The case this rule was written for.
 
-    ``Triggers: push to master`` describes when a workflow fires. The
-    label hides the real opening, and ``push`` is a verb, so the
-    sentence reads as an instruction. It is 23 words: over the
-    procedural limit, under the descriptive one, so the finding stands
-    or falls on a register the checker cannot settle. It says so.
+    ``Fix: push to master`` reads as an instruction, and it is one,
+    but the reading comes through a stripped label rather than from
+    the sentence's own opening. It is 23 words: over the procedural
+    limit, under the descriptive one, so the finding stands or falls
+    on a register the checker inferred. It says so.
+
+    The original exemplar here opened ``Triggers:``. A plural label
+    now withdraws the procedural reading outright, so that sentence
+    reports nothing and is pinned by
+    ``test_a_plural_label_heads_an_enumeration_not_an_instruction``.
+    A singular label keeps the doubt this rule publishes.
     """
     text = (
-        "Triggers: push to master or main touching `book/**` or the "
+        "Fix: push to master or main touching `book/**` or the "
         "workflow file itself, plus PRs on the same paths (build-only) "
         "and manual dispatch."
     )
@@ -739,3 +745,47 @@ def test_paragraph_findings_are_always_high():
     """Paragraph length rests on counting alone, never on a register."""
     para = " ".join(["The system works."] * (PARAGRAPH_MAX_SENTENCES + 1))
     assert check_paragraph_length(para)[0].confidence == "high"
+
+
+TRIGGERS_ITEM = (
+    "- Triggers: push to master or main touching `book/**` or the workflow\n"
+    "  file itself, plus PRs on the same paths (build-only) and manual\n"
+    "  dispatch.\n"
+)
+
+
+def test_a_plural_label_heads_an_enumeration_not_an_instruction():
+    """``Triggers:`` names a set, so what follows lists its members.
+
+    ``push`` opens the body and sits in the imperative lexicon, so the
+    stripped body read as an instruction to push rather than as a
+    description of when a workflow fires. The discarded label is the
+    evidence that separates them.
+    """
+    kind, _confidence = classify_sentence(
+        "Triggers: push to master or main touching the workflow file itself."
+    )
+    assert kind == "unknown"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "**Define Service Contracts**: Publish formal specifications using OpenAPI.",
+        "**Action**: Identify the offending parser and fix the regex.",
+        "Note: run the migration first.",
+        "**Fix**: cap every inner timeout below the budget.",
+    ],
+)
+def test_a_singular_label_still_reads_the_instruction_after_it(text):
+    """The plural-label rule must not swallow the class it lives in.
+
+    Most labels in this repository head a genuine instruction. Only a
+    label naming a set is evidence against the reading.
+    """
+    assert classify_sentence(text)[0] == "procedural"
+
+
+def test_the_enumeration_after_a_plural_label_gets_the_looser_limit():
+    """End to end: the book-publishing item stops reporting."""
+    assert check_sentence_length(TRIGGERS_ITEM) == []

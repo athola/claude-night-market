@@ -159,10 +159,22 @@ A label is stripped because list items here open with `**Label**:`, and
 classifying on the label leaves most of them unreadable. The cost is
 that the sentence's real opening is discarded. `Triggers: push to
 master` then reads as an instruction to push rather than a description
-of when a workflow fires, and no test on the tokens separates it from
-`Merge to master`, which is a real instruction. The reading is right
-about five times in six, so the class is kept and the doubt is
-published with it. Read a `medium` finding before you act on it.
+of when a workflow fires. Nothing in the body separates it from `Merge
+to master`, which is a real instruction, so the evidence has to be the
+label, and the label is kept for that purpose.
+
+One label shape is evidence and the rest are not. A one-word plural
+label names a set, so the words after it are that set's members and the
+first of them is a noun whatever the verb lexicon says. A procedural
+reading is withdrawn when it arrived through such a label. `Fix:` and
+`Action:` name one thing and are followed by a real instruction often
+enough to prove nothing, so they keep their reading. Across the corpus
+215 sentences carry a plural label, and one of them sits in the band
+where the register decides whether it reports.
+
+For every other label the reading is right about five times in six, so
+the class is kept and the doubt is published with it. Read a `medium`
+finding before you act on it.
 
 One limit worth knowing before you trust a clean run: 61% of
 sentences cannot be classified as procedural or descriptive, and those
