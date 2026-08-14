@@ -494,7 +494,7 @@ class TestRecentIntakePending:
         entry = {"query": "python asyncio patterns", "query_id": "abc123"}
         queue_file.write_text(json.dumps(entry) + "\n", encoding="utf-8")
 
-        with patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path):
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
             assert _recent_intake_pending("python asyncio patterns")
 
     @pytest.mark.unit
@@ -505,7 +505,7 @@ class TestRecentIntakePending:
         entry = {"query": "python asyncio patterns"}
         queue_file.write_text(json.dumps(entry) + "\n", encoding="utf-8")
 
-        with patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path):
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
             assert _recent_intake_pending("PYTHON ASYNCIO PATTERNS")
 
     @pytest.mark.unit
@@ -516,13 +516,13 @@ class TestRecentIntakePending:
         entry = {"query": "rust ownership model"}
         queue_file.write_text(json.dumps(entry) + "\n", encoding="utf-8")
 
-        with patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path):
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
             assert not _recent_intake_pending("python asyncio patterns")
 
     @pytest.mark.unit
     def test_returns_false_when_no_queue_file(self, tmp_path: Path):
         """Given no intake_queue.jsonl, return False."""
-        with patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path):
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
             assert not _recent_intake_pending("anything")
 
     @pytest.mark.unit
@@ -535,7 +535,7 @@ class TestRecentIntakePending:
             encoding="utf-8",
         )
 
-        with patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path):
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
             assert _recent_intake_pending("target query")
 
 
@@ -1613,7 +1613,7 @@ class TestStoreWebfetchForwardsNullCapture:
     def _run(self, tmp_path: Path, null_capture: str | None):
         with (
             patch.object(web_research_handler, "QUEUE_DIR", tmp_path / "queue"),
-            patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path),
+            patch.object(web_research_handler, "DATA_ROOT", tmp_path),
             patch.object(web_research_handler, "update_index") as mock_index,
         ):
             stored = web_research_handler.store_webfetch_content(
@@ -1651,7 +1651,7 @@ class TestFrontmatterSurvivesHostileValues:
     def _isolated_queue(self, tmp_path, monkeypatch):
         """Write captures into tmp_path and leave the real index alone."""
         monkeypatch.setattr(web_research_handler, "QUEUE_DIR", tmp_path)
-        monkeypatch.setattr(web_research_handler, "PLUGIN_ROOT", tmp_path)
+        monkeypatch.setattr(web_research_handler, "DATA_ROOT", tmp_path)
         monkeypatch.setattr(web_research_handler, "update_index", lambda **kwargs: None)
 
     def test_webfetch_title_containing_a_quote(self, tmp_path) -> None:

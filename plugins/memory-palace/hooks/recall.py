@@ -25,7 +25,6 @@ import sys
 from pathlib import Path
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
-SESSIONS_DIR = PLUGIN_ROOT / "data" / "sessions"
 
 # Hooks run as standalone scripts, so the package is not on the path.
 # Without this the memory_palace imports below fail and every weighting
@@ -54,11 +53,29 @@ def _tokenize(text: str) -> set[str]:
     }
 
 
+def _sessions_dir() -> Path:
+    """Return the directory holding session records.
+
+    Resolved on call, not at import. PLUGIN_ROOT is version scoped --
+    hooks run from ``cache/<marketplace>/<plugin>/<version>/`` -- so
+    session records written under it are stranded by the next update
+    (issue #661). The persistent root fixes that, but importing it at
+    module level would break the contract this hook is built on: recall
+    is opt-in and runs on every prompt, so nothing from
+    ``memory_palace`` may load until a prompt actually asks for it.
+    ``test_heavy_imports_are_deferred`` enforces that.
+    """
+    from memory_palace.paths import user_data_dir
+
+    return user_data_dir(PLUGIN_ROOT) / "sessions"
+
+
 def _recent_session_files() -> list[Path]:
     """Return the newest session records, newest first."""
-    if not SESSIONS_DIR.is_dir():
+    sessions_dir = _sessions_dir()
+    if not sessions_dir.is_dir():
         return []
-    files = [p for p in SESSIONS_DIR.glob("*.json") if p.name != "session_index.json"]
+    files = [p for p in sessions_dir.glob("*.json") if p.name != "session_index.json"]
     files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
     return files[:MAX_SESSIONS_SCANNED]
 

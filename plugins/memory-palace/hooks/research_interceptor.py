@@ -36,6 +36,20 @@ SRC_DIR = PLUGIN_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+# PLUGIN_ROOT is version scoped: hooks run from cache/<marketplace>/
+# <plugin>/<version>/, so user data written under it is invisible to
+# the next release (issue #661). DATA_ROOT is the version-independent
+# root, and equals PLUGIN_ROOT in a source checkout.
+#
+# Not everything under data/ moves. The wiki corpus and the index
+# directory stay on PLUGIN_ROOT: they hold shipped, tracked assets
+# (embeddings.yaml, query-templates.yaml) plus content regenerated from
+# the palaces by sync_wiki. Losing those to an update costs a re-sync,
+# not a capture. What moves is the content nothing can rebuild.
+from memory_palace.paths import persistent_root
+
+DATA_ROOT = persistent_root(PLUGIN_ROOT)
+
 _HAS_MEMORY_PALACE = False
 try:
     from memory_palace.corpus.cache_lookup import CacheLookup
@@ -169,7 +183,7 @@ def _load_autonomy(
     if not feature_flags.get("autonomy", True):
         return None, None
     try:
-        store = AutonomyStateStore(plugin_root=PLUGIN_ROOT)
+        store = AutonomyStateStore(plugin_root=DATA_ROOT)
         profile = store.build_profile(config_level=config.get("autonomy_level"))
     except Exception as e:
         logger.warning(
@@ -208,7 +222,7 @@ def main() -> None:
     telemetry_config = config.get("telemetry", {})
     if telemetry_config.get("enabled", True):
         telemetry_logger = TelemetryLogger(
-            resolve_telemetry_path(PLUGIN_ROOT, telemetry_config)
+            resolve_telemetry_path(DATA_ROOT, telemetry_config)
         )
 
     mode = config.get("research_mode", "cache_first")
@@ -257,7 +271,7 @@ def main() -> None:
         ResearchTelemetryEvent=ResearchTelemetryEvent,
     )
     queue_for_intake(
-        PLUGIN_ROOT,
+        DATA_ROOT,
         decision,
         IntakeContext(
             query_id=query_id,

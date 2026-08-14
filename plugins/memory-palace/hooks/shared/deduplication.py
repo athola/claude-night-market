@@ -27,6 +27,15 @@ except ImportError:
 if TYPE_CHECKING:
     from typing import Any
 
+# hooks/shared/ -> the plugin root's src/. Hooks already put this on the
+# path, but this module is imported directly by tests and by scripts
+# that never ran a hook, so it cannot rely on that.
+_SRC = str(Path(__file__).resolve().parents[2] / "src")
+if _SRC not in sys.path:
+    sys.path.insert(0, _SRC)
+
+from memory_palace.paths import persistent_root as _persistent_root
+
 # Try to use xxhash for speed, fall back to hashlib
 try:
     import xxhash
@@ -46,9 +55,23 @@ _STAGE_TIMEOUT_SECONDS = 5
 
 
 def _get_index_path() -> Path:
-    """Get path to index file."""
-    plugin_root = Path(__file__).parent.parent
-    return plugin_root / "memory-palace-index.yaml"
+    """Get path to the capture index.
+
+    The index accumulates an entry per capture, so it is user data and
+    must outlive the version that wrote it. Resolving it from
+    ``__file__`` alone made it version scoped: on this machine the
+    1.9.17 tree held a 5,467-line index and 1.9.18 started a fresh one,
+    each invisible to the other (issue #661).
+
+    The ``hooks/`` segment is kept deliberately. Entries record
+    ``stored_at`` relative to the root and a wall of consumers resolve
+    the index as ``<root>/hooks/memory-palace-index.yaml`` -- the
+    maintenance CLI, the pre-commit drain gate, the promoter. Because
+    ``persistent_root`` is the identity in a source checkout, all of
+    them keep reading the tracked file they read today.
+    """
+    hooks_dir = Path(__file__).resolve().parent.parent
+    return _persistent_root(hooks_dir.parent) / "hooks" / "memory-palace-index.yaml"
 
 
 def get_content_hash(content: str | bytes) -> str:

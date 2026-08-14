@@ -26,6 +26,14 @@ SRC_DIR = PLUGIN_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+# PLUGIN_ROOT is version scoped: hooks run from cache/<marketplace>/
+# <plugin>/<version>/, so user data written under it is invisible to
+# the next release (issue #661). DATA_ROOT is the version-independent
+# root, and equals PLUGIN_ROOT in a source checkout.
+from memory_palace.paths import persistent_root
+
+DATA_ROOT = persistent_root(PLUGIN_ROOT)
+
 _HAS_SESSION_HISTORY = False
 try:
     from memory_palace.session_history import (
@@ -140,7 +148,7 @@ def _safe_float(value: object, default: float = 0.0) -> float:
         return default
 
 
-_STAGING_PATH = PLUGIN_ROOT / "data" / "state" / "handoff_units.json"
+_STAGING_PATH = DATA_ROOT / "data" / "state" / "handoff_units.json"
 
 
 def _drain_staged_units(path: Path) -> list[dict]:
@@ -299,7 +307,7 @@ def main() -> None:
 
     try:
         record = _build_record(payload)
-        mgr = SessionHistoryManager(data_dir=PLUGIN_ROOT / "data")
+        mgr = SessionHistoryManager(data_dir=DATA_ROOT / "data")
         # Stop fires repeatedly and record_session overwrites by session_id,
         # so units must be merged forward or the next turn erases them.
         previous = mgr.get_session(record.session_id)
@@ -317,7 +325,7 @@ def main() -> None:
 
     # Graph wiring: record journey completion if cross-palace navigation occurred
     _try_record_journey_completion(
-        palaces_dir=PLUGIN_ROOT / "data" / "palaces",
+        palaces_dir=DATA_ROOT / "data" / "palaces",
         session_id=str(payload.get("session_id", "")),
         tools_used=list(payload.get("tools_used") or []),
     )

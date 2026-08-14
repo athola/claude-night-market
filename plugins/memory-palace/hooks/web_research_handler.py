@@ -41,8 +41,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
-STAGING_DIR = PLUGIN_ROOT / "data" / "staging"
-QUEUE_DIR = STAGING_DIR  # was docs/knowledge-corpus/queue before 1.5.0
 
 # ---------------------------------------------------------------------------
 # src/ on sys.path so memory_palace.* imports work in hook context
@@ -50,6 +48,18 @@ QUEUE_DIR = STAGING_DIR  # was docs/knowledge-corpus/queue before 1.5.0
 _SRC_DIR = str(PLUGIN_ROOT / "src")
 if _SRC_DIR not in sys.path:
     sys.path.insert(0, _SRC_DIR)
+
+# PLUGIN_ROOT is version scoped: hooks run from cache/<marketplace>/
+# <plugin>/<version>/, so anything written under it is invisible to the
+# next release. Captures are user data and outlive the version that
+# wrote them, so they resolve through the persistent root instead
+# (issue #661). DATA_ROOT equals PLUGIN_ROOT in a source checkout, which
+# is what keeps tests reading their own fixtures.
+from memory_palace.paths import persistent_root
+
+DATA_ROOT = persistent_root(PLUGIN_ROOT)
+STAGING_DIR = DATA_ROOT / "data" / "staging"
+QUEUE_DIR = STAGING_DIR  # was docs/knowledge-corpus/queue before 1.5.0
 
 # Unguarded, unlike the analytics import below: the title rules are core
 # to what this hook stores, and the promoter shares them so a repaired
@@ -301,6 +311,85 @@ def detect_null_capture(
     return None
 
 
+# WebFetch appends this when it saves a payload it could not decode.
+# It is emitted by the tool, not written by the model, which puts it in
+# the same class as _REDIRECT_NOTICE rather than in the class of prose.
+_BINARY_MARKER_RE = re.compile(
+    r"\[Binary content \(\s*([^,()]+?)\s*,\s*([\d.]+)\s*([KMG]?B)\s*\)",
+    re.IGNORECASE,
+)
+
+_UNIT_BYTES = {"B": 1, "KB": 1024, "MB": 1024**2, "GB": 1024**3}
+
+# Below this share of the source, the response carries a note about the
+# document rather than the document. The two captures in issue #661 sat
+# at 0.3% and 0.5%; a PDF that genuinely converts lands two orders of
+# magnitude above that, because text is a large fraction of a text PDF
+# even after fonts and images are counted. The gap is wide enough that
+# the exact cut does not have to be argued.
+_CONVERTED_TEXT_RATIO = 0.02
+
+
+def _binary_source_bytes(
+    tool_response: dict[str, Any] | str,
+    content: str,
+) -> int | None:
+    """Return the source size when the response says it was binary.
+
+    Reads the tool's own marker first, then the declared MIME type and
+    content length. Returns None when neither is present or the size
+    cannot be parsed: an unmeasurable response is left alone, because
+    the cost of a wrong rejection here is deleted research.
+    """
+    match = _BINARY_MARKER_RE.search(content or "")
+    if match:
+        size, unit = match.group(2), match.group(3).upper()
+        try:
+            return int(float(size) * _UNIT_BYTES[unit])
+        except (ValueError, KeyError):
+            return None
+
+    if not isinstance(tool_response, dict):
+        return None
+    mime = tool_response.get("content_type") or tool_response.get("mime_type")
+    if not isinstance(mime, str) or mime.startswith("text/"):
+        return None
+    length = tool_response.get("content_length")
+    if isinstance(length, bool) or not isinstance(length, int):
+        return None
+    return length
+
+
+def detect_unconverted_binary(
+    tool_response: dict[str, Any] | str,
+    content: str,
+) -> str | None:
+    """Return a reason when a binary payload never became text.
+
+    Third sibling of :func:`detect_failed_fetch_status` and
+    :func:`detect_null_capture`. Those cover non-2xx responses (#547)
+    and 2xx responses carrying nothing (#649). This covers the 2xx
+    response whose body is non-empty and is *about* the document rather
+    than being it: WebFetch could not decode a PDF, so the model wrote a
+    short note saying so and the note was stored as research (#661).
+
+    Only structural signals are read, for the reason
+    :func:`detect_null_capture` records: two heuristics built on the
+    prose were tried against the live corpus and both deleted real
+    research. Nothing here matches a sentence. The inputs are the
+    marker the tool emits, the MIME type the response declares, and the
+    length of the extracted text against the size of the source.
+
+    A converted PDF trips the marker too, which is why size decides.
+    """
+    source_bytes = _binary_source_bytes(tool_response, content)
+    if not source_bytes:
+        return None
+    if len(content or "") >= source_bytes * _CONVERTED_TEXT_RATIO:
+        return None
+    return "unconverted-binary"
+
+
 def extract_results_from_websearch(
     tool_response: dict[str, Any],
 ) -> list[dict[str, str]]:
@@ -346,7 +435,7 @@ def _store_to_queue(  # noqa: PLR0913 - one queue entry carries this many fields
         try:
             update_index(
                 content_hash=content_hash,
-                stored_at=str(queue_path.relative_to(PLUGIN_ROOT)),
+                stored_at=str(queue_path.relative_to(DATA_ROOT)),
                 importance_score=50,
                 url=source_ref,
                 title=title,
@@ -563,7 +652,7 @@ def _recent_intake_pending(query: str) -> bool:
 
     Merged from research_storage_prompt.py to avoid redundant prompts.
     """
-    queue_path = PLUGIN_ROOT / "data" / "intake_queue.jsonl"
+    queue_path = DATA_ROOT / "data" / "intake_queue.jsonl"
     if not queue_path.exists():
         return False
 
@@ -657,7 +746,9 @@ def _handle_webfetch(
     # Computed here, where tool_response is still structured. Downstream
     # only sees the model's prose summary, which cannot be read reliably
     # for emptiness (issue #649).
-    null_capture = detect_null_capture(tool_response, content)
+    null_capture = detect_null_capture(
+        tool_response, content
+    ) or detect_unconverted_binary(tool_response, content)
 
     if auto_capture:
         stored_path = store_webfetch_content(
@@ -814,7 +905,7 @@ def main() -> None:
         )
 
     if stored_path and register_kwargs:
-        palaces_dir = PLUGIN_ROOT / "data" / "palaces"
+        palaces_dir = DATA_ROOT / "data" / "palaces"
         _try_register_graph_entity(
             palaces_dir=palaces_dir,
             entity_id=register_kwargs["entity_id"],

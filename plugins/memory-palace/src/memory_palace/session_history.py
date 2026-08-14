@@ -16,6 +16,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from memory_palace.paths import user_data_dir
+
 try:
     from leyline.session_store import (
         SessionStore,
@@ -256,8 +258,12 @@ class SessionHistoryManager:
 
         """
         if data_dir is None:
-            # Resolve relative to this source file: src/memory_palace/ -> data/
-            data_dir = Path(__file__).resolve().parents[2] / "data"
+            # src/memory_palace/ -> the plugin root, then through the
+            # persistent root: session records are user data and an
+            # install's plugin root is version scoped, so deriving the
+            # directory from __file__ alone stranded them on every
+            # update (issue #661). Identity in a source checkout.
+            data_dir = user_data_dir(Path(__file__).resolve().parents[2])
         self.sessions_dir = data_dir / SESSIONS_DIR
         self.index_path = self.sessions_dir / SESSION_INDEX
         self._store = _SessionRecordStore(self.sessions_dir)

@@ -366,6 +366,6 @@ class TestCrossSessionSupersession:
         _write("old.json", "filesystem mtime", mtime=1_000_000)
         _write("new.json", "content digest", mtime=2_000_000)
 
-        monkeypatch.setattr(recall, "SESSIONS_DIR", sessions)
+        monkeypatch.setattr(recall, "_sessions_dir", lambda: sessions)
         loaded = recall._load_units()
         assert [u["state"] for u in loaded] == ["content digest"]
