@@ -226,21 +226,28 @@ Survey of every `plugins/*/hooks/hooks.json` (2026-07-02):
 | `PreCompact` | conserve, tome |
 | `Setup`, `PermissionRequest`, `PermissionDenied` | conserve |
 | `ConfigChange` | sanctum |
+| `Notification` | conserve |
 
 ### Events available but unregistered here
 
-Added between Claude Code 2.1.80 and 2.1.220. Nothing in this repo
-registers them yet, which is a gap to consider rather than a defect.
-
 | Event | Shipped | Fires when |
 |-------|---------|------------|
-| `Notification` | 2.1.218 | A background agent needs input or completes |
 | `DirectoryAdded` | 2.1.220 | `/add-dir` or an SDK `register_repo_root` registers a working directory mid-session |
 
-`SessionStart` gained a third source value in 2.1.212: a session opened
-as a fork now reports `"fork"` rather than `"resume"`. Any hook
-branching on `source` should handle it, or a forked session will take
-the resume path by accident.
+`Notification` (2.1.218) fires when a background agent needs input or
+completes. `conserve` records each event to `.claude/logs/`. Anthropic
+publishes the registration shape but not the stdin fields, so the hook
+writes the payload through verbatim and records its keys. Read the log
+before writing code against a field name.
+
+`SessionStart` gained a fifth source value in 2.1.212: a session opened
+as a fork reports `"fork"`. A matcher that enumerates the other four
+silently stops firing for forks, which is what
+`tests/unit/test_session_start_sources.py` now guards. `conserve` covers
+every source. `egregore` matches only `startup` and `resume`: `fork` and
+`compact` continue a conversation that already carries its banner, and
+`clear` was excluded before `fork` shipped, so this change leaves that
+choice as it found it.
 
 Hook `if:` conditions changed in 2.1.214. A single-segment `dir/**`
 pattern now matches only `<cwd>/dir`, so a hook meant to fire at any

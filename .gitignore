@@ -175,3 +175,12 @@ docs/curation-log.md
 # memory-palace graph DB; written by the test suite into an otherwise
 # untracked runtime directory, regenerated on demand
 plugins/memory-palace/data/palaces/*.db
+
+# Migration reports from Skill(night-market-model-and-harness-updates).
+# Each run writes one, and it names dated model IDs by necessity. The
+# durable content belongs elsewhere: findings in docs/knowledge-corpus/,
+# open items in docs/backlog/queue.md, state in
+# .claude/upstream-baseline.json. Keep the directory in SKIPPED_DIRS in
+# scripts/check_upstream_drift.py: ignoring a path does not stop the
+# walker from reading it off disk.
+docs/migrations/

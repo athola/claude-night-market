@@ -57,6 +57,28 @@ Every run writes one, including a run that found no drift. Path:
 docs/migrations/<date>-<slug>.md
 ```
 
+The directory is gitignored, so the report is a local working artifact
+and not a doc of record. Route its durable content out before you
+finish the run:
+
+| Content | Destination |
+|---------|-------------|
+| Model roster, pricing, deprecations | `docs/knowledge-corpus/anthropic-model-roster.md` |
+| Harness changes that affect plugin authors | `docs/knowledge-corpus/claude-code-harness-deltas.md` |
+| Harness version, roster, `last_migration` | `.claude/upstream-baseline.json` |
+| Tier placement and cost multipliers | `docs/agent-model-matrix.md` |
+| Open items awaiting a ranking decision | `docs/backlog/queue.md`, itself gitignored |
+
+Two reasons the report stays untracked. It names dated model IDs by
+necessity, so tracking it makes the dated-ID ratchet climb once per run
+on this workflow's own output. Its durable claims also belong beside the
+assets they govern, where the next reader looks for them, rather than in
+a dated file nobody opens twice.
+
+The `report` field in the ledger keeps pointing at the path even after
+the file is gone. Nothing stats it. The record states where the run
+wrote its working notes, and that stays true once the artifact expires.
+
 Required contents:
 
 | Section | Holds |

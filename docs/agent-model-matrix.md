@@ -39,9 +39,10 @@ pipeline steps by the same tiers.
 
 Relative cost is input price per MTok from the model card, normalized to
 Haiku: `haiku` $1, `sonnet` $3, `opus` $5, `fable` $10. Output prices
-scale the same way ($5 / $15 / $25 / $50). Sonnet 5 carries introductory
-pricing of $2 / $10 through 2026-08-31, so its real multiplier is nearer
-2x until then.
+scale the same way ($5 / $15 / $25 / $50). The multipliers above are
+list prices, so this table needs no change on the day a promotion ends.
+Sonnet 5 has an introductory price of $2 / $10 running to 2026-08-31,
+which puts its real multiplier nearer 2x until that date.
 
 `inherit` is not an accepted value. It is the default this matrix exists
 to eliminate, so accepting it explicitly would defeat the gate.

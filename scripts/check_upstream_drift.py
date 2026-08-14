@@ -24,8 +24,17 @@ and reports four drift classes:
     itself rotted, and no agent can pin the new tier.
 
 ``dated_ids``
-    A file pins a dated model ID such as ``claude-opus-4-6`` outside the
-    surfaces ``check_agent_model_matrix.py`` already covers.
+    A file names a dated model ID such as ``claude-opus-4-6`` outside
+    the surfaces ``check_agent_model_matrix.py`` already covers.
+
+    This class counts *mentions*, not *pins*, and the difference
+    matters when reading the ratchet. A lookup table keyed by legacy
+    IDs is mention-heavy by construction and does not rot: to price
+    Opus 4.6 you have to name Opus 4.6. What rots is a default or a
+    selection, and the count cannot tell the two apart. The backlog
+    rose from 44 to 51 when legacy pricing entries were added at the
+    same time the live pins were removed, so the number went up while
+    the risk went down. Read a movement here before acting on it.
 
 ``unknown_tier``
     A file references a tier absent from the ledger roster.

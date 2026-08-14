@@ -18,7 +18,6 @@ related_artifacts:
   - docs/agent-model-matrix.md
   - plugins/phantom/src/phantom/cost.py
   - .claude/skills/night-market-model-and-harness-updates/SKILL.md
-  - docs/migrations/2026-08-02-harness-2-1-220.md
 last_updated: 2026-08-02
 ---
 
