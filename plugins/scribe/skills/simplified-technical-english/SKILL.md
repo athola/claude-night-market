@@ -99,13 +99,14 @@ rules deliberately not adopted and why.
 Three checks need counting or noun detection, so they are code:
 
 ```bash
-cd plugins/scribe && uv run python -c "
-import sys; sys.path.insert(0, 'src')
-from scribe.ste import check
-for f in check(open('path/to/file.md').read()):
-    print(f'{f.line}: [{f.rule}/{f.confidence}] {f.detail}')
-"
+cd plugins/scribe && PYTHONPATH=src uv run python -m scribe.ste FILE.md
 ```
+
+Each finding prints as `file:line: [rule/confidence] detail`. The
+command exits 0 whenever it could read the files, because these checks
+are advisory and the noun-cluster rule must never gate a merge. Pass
+`--no-noun-clusters` to see only the two counting rules, which is the
+usual way to read a file that has never been checked before.
 
 Four more are regex and live in the language pack, gated off so a
 routine slop sweep never runs them:
@@ -124,34 +125,39 @@ Mask code, tables, and frontmatter before you run the regex set. The
 
 ## Read the findings honestly
 
-Measured across 4620 markdown files in this repository:
+Measured across 5984 markdown files in this repository:
 
 | Check | Files affected | Per file |
 |-------|----------------|----------|
-| `sentence_length` | 42% | 0.8 |
+| `sentence_length` | 39% | 0.8 |
 | `paragraph_length` | 1% | 0.0 |
-| `noun_cluster` | 91% | 3.8 |
+| `noun_cluster` | 76% | 3.0 |
 
 A noun-cluster finding is advisory. Detection subtracts function words
 and verb forms and calls what is left a noun, which a real
 part-of-speech tagger would do better. Reread the phrase it points at.
 Do not rewrite on it, and never gate a merge on it.
 
-Two limits worth knowing before you trust a clean run:
+One limit worth knowing before you trust a clean run: 64% of
+sentences cannot be classified as procedural or descriptive, and those
+get the looser 25-word limit. The checker under-reports rather than
+over-reports. A clean run is weaker evidence than a dirty one.
 
-- 61% of sentences cannot be classified as procedural or descriptive,
-  and those get the looser 25-word limit. The checker under-reports
-  rather than over-reports. A clean run is weaker evidence than a
-  dirty one.
-- Word counting merges a number with a short following word, so
-  "3 days" counts as one word. Deliberate, and wrong sometimes.
+That number stays high because most sentences open with a noun, and no
+word list reaches them. Across the corpus the unclassified sentences
+begin with 9407 distinct words, of which the commonest 60 cover 30%.
+Reclassifying them would also change almost nothing, because unknown
+text already receives the descriptive limit. Only unknown text that is
+really procedural is under-reported, and that was measured at about 20
+findings across the whole repository.
 
 ## Exit Criteria
 
 - [ ] The text's register is decided against the scope table above, and
       text outside the Apply column is left alone.
-- [ ] `scribe.ste.check()` runs over the target file and its output is
-      read, not just its exit state.
+- [ ] `python -m scribe.ste` runs over the target file and every line
+      it prints is read. The command exits 0 either way, so the exit
+      state carries no information.
 - [ ] Every `sentence_length` finding is fixed or has a stated reason
       to stand.
 - [ ] No `noun_cluster` finding was auto-rewritten.

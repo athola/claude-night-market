@@ -210,16 +210,28 @@ class TestDocumentedNumbersMatchTheCode:
 
     @pytest.mark.unit
     def test_hub_discloses_the_noun_cluster_noise(self) -> None:
-        """A 91%-of-files check must not be presented as a gate."""
+        """A 76%-of-files check must not be presented as a gate."""
         text = _read(SKILL)
-        assert "91%" in text
+        assert "76%" in text
         assert "advisory" in text.lower() or "do not rewrite" in text.lower()
 
     @pytest.mark.unit
     def test_hub_discloses_the_unclassified_share(self) -> None:
         """A clean run is weak evidence, and the skill must say so."""
         text = _read(SKILL)
-        assert "61%" in text
+        assert "64%" in text
+
+    @pytest.mark.unit
+    def test_hub_names_the_corpus_the_numbers_came_from(self) -> None:
+        """Percentages without a denominator are not evidence."""
+        assert "5984" in _read(SKILL)
+
+    @pytest.mark.unit
+    def test_hub_documents_the_runnable_entry_point(self) -> None:
+        """A check reachable only by hand-written Python is not run twice."""
+        text = _read(SKILL)
+        assert "python -m scribe.ste" in text
+        assert "--no-noun-clusters" in text
 
     @pytest.mark.unit
     def test_documented_snippets_use_python3_not_bare_python(self) -> None:

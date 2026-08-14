@@ -34,6 +34,7 @@ from scribe.ste import (
     count_words,
     find_noun_clusters,
     load_ste_lexicons,
+    main,
     split_sentences,
 )
 
@@ -606,3 +607,48 @@ def test_lexicons_are_lowercase_and_deduplicated():
     for name, words in lex.items():
         assert all(w == w.lower() for w in words), name
         assert len(words) == len(set(words)), f"{name} has duplicates"
+
+
+# ---------------------------------------------------------------------------
+# Command line. The checks were only reachable by hand-written Python,
+# which is not a way anybody runs a check twice.
+# ---------------------------------------------------------------------------
+
+
+def test_main_reports_findings_with_file_and_line(tmp_path, capsys):
+    target = tmp_path / "runbook.md"
+    target.write_text(
+        "Run the release, confirm the tag, push the branch, open the pull "
+        "request, wait for the checks, and then merge it to master.\n",
+        encoding="utf-8",
+    )
+    code = main([str(target)])
+    out = capsys.readouterr().out
+    assert f"{target}:1:" in out
+    assert "sentence_length" in out
+    assert code == 0, "the checks are advisory and never gate"
+
+
+def test_main_is_quiet_on_clean_input(tmp_path, capsys):
+    target = tmp_path / "clean.md"
+    target.write_text("Run the tests.\n", encoding="utf-8")
+    assert main([str(target)]) == 0
+    assert capsys.readouterr().out == ""
+
+
+def test_main_can_hold_back_the_advisory_rule(tmp_path, capsys):
+    """Noun clusters are 76% of files. A run drowns without a way off."""
+    target = tmp_path / "clusters.md"
+    target.write_text(
+        "Check the runtime capture pipeline root now.\n", encoding="utf-8"
+    )
+    main([str(target)])
+    assert "noun_cluster" in capsys.readouterr().out
+    main([str(target), "--no-noun-clusters"])
+    assert capsys.readouterr().out == ""
+
+
+def test_main_reports_a_missing_file_without_crashing(tmp_path, capsys):
+    code = main([str(tmp_path / "absent.md")])
+    assert code == 1
+    assert "absent.md" in capsys.readouterr().err

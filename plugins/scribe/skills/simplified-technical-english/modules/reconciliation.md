@@ -63,11 +63,11 @@ is in front of you, which is what `scope-boundaries.md` decides.
 A rule that fires everywhere gets disabled, and a disabled rule
 protects nothing.
 
-Measured across 4620 markdown files in this repository, the STE regex
-categories fire on 40% of files for semicolons, 45% for passive voice,
-and 29% for contractions. Those are correct findings against text that
-was never meant to be STE. Turning them on by default would bury the
-house slop signal under a register mismatch.
+Measured across 5984 markdown files in this repository, the STE regex
+categories fire on 38% of files for semicolons, 47% for passive voice,
+28% for contractions, and 19% for the banned tenses. Those are correct
+findings against text that was never meant to be STE. Turning them on
+by default would bury the house slop signal under a register mismatch.
 
 Every STE category in `en.yaml` therefore sets
 `default_enabled: false`, and `get_ste_patterns` returns nothing until

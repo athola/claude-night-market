@@ -60,7 +60,7 @@ off by default, because measured across this repository they fire on
 most files, and a check that noisy stops being run.
 
 Noun-cluster findings are advisory. Detection has no part-of-speech
-tagger, so it fires on 91% of files. Reread what it points at. Never
+tagger, so it fires on 76% of files. Reread what it points at. Never
 rewrite on it and never gate a merge on it.
 
 **Full reference:** `Skill(scribe:simplified-technical-english)` and its

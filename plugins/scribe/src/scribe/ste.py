@@ -64,7 +64,9 @@ guessing a part of speech.
 
 from __future__ import annotations
 
+import argparse
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -628,10 +630,61 @@ def _cluster_finding(run: list, block: _Block, sentence: Sentence) -> list:
     ]
 
 
-def check(text: str) -> list:
-    """Run all three structural checks and return every finding."""
-    return (
-        check_sentence_length(text)
-        + check_paragraph_length(text)
-        + find_noun_clusters(text)
+def check(text: str, *, noun_clusters: bool = True) -> list:
+    """Run the structural checks and return every finding.
+
+    ``noun_clusters`` is a switch because that rule alone reports on
+    76% of the markdown in this repository at ``low`` confidence. A
+    reader who wants the two counting rules should not have to wade
+    through it to reach them.
+    """
+    findings = check_sentence_length(text) + check_paragraph_length(text)
+    if noun_clusters:
+        findings += find_noun_clusters(text)
+    return findings
+
+
+def main(argv: list | None = None) -> int:
+    """Report findings for each named markdown file.
+
+    Always exits 0 when the files could be read. These checks are
+    advisory and ship off by default, and the noun-cluster rule must
+    never gate a merge, so an exit code that a pipeline could fail on
+    would misrepresent what the output means. A file that cannot be
+    read is a different matter and exits 1.
+    """
+    parser = argparse.ArgumentParser(
+        prog="python -m scribe.ste",
+        description=(
+            "STE-derived structural checks. An authoring aid, not an "
+            "implementation of ASD-STE100, and no output of it is STE "
+            "compliant."
+        ),
     )
+    parser.add_argument("paths", nargs="+", help="markdown files to read")
+    parser.add_argument(
+        "--no-noun-clusters",
+        action="store_true",
+        help="skip the low-confidence noun-cluster rule",
+    )
+    args = parser.parse_args(argv)
+
+    unreadable = 0
+    for name in args.paths:
+        path = Path(name)
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as error:
+            print(f"{path}: {error.strerror or error}", file=sys.stderr)
+            unreadable += 1
+            continue
+        for finding in check(text, noun_clusters=not args.no_noun_clusters):
+            print(
+                f"{path}:{finding.line}: "
+                f"[{finding.rule}/{finding.confidence}] {finding.detail}"
+            )
+    return 1 if unreadable else 0
+
+
+if __name__ == "__main__":  # pragma: no cover - exercised through main()
+    raise SystemExit(main())
