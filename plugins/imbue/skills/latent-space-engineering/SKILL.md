@@ -16,6 +16,7 @@ dependencies:
     - modules/emotional-framing.md
     - modules/style-gene-transfer.md
     - modules/competitive-review.md
+    - modules/named-register-invocation.md
 complexity: basic
 model_hint: fast
 estimated_tokens: 300
@@ -67,6 +68,14 @@ incentives to increase rigor and thoroughness.
 
 **Load module**: `modules/competitive-review.md`
 
+### 4. Named Register Invocation
+
+Name a published standard to pull a whole writing register
+into output at a cost of one line. Cheaper than exemplar
+injection and coarser, with a known mid-session decay.
+
+**Load module**: `modules/named-register-invocation.md`
+
 ## Quick Reference
 
 | Technique | When | Module |
@@ -74,6 +83,7 @@ incentives to increase rigor and thoroughness.
 | Emotional framing | Any agent prompt | emotional-framing |
 | Style gene transfer | Code/doc generation | style-gene-transfer |
 | Competitive review | 3+ parallel reviewers | competitive-review |
+| Named register | Operator or procedural text | named-register-invocation |
 
 ## Writing for the Delegate
 
@@ -86,6 +96,9 @@ See `modules/know-your-delegate.md`.
 
 ## Exit Criteria
 
+- [ ] When a named register is invoked (for example ASD-STE100),
+  a deterministic check verifies the register held, per
+  `modules/named-register-invocation.md`
 - [ ] Dispatch prompts contain no threat-based language ("you must",
   "don't fail", "or else"); replaced with calm, confident framing
   per `modules/emotional-framing.md`

@@ -24,7 +24,8 @@
     "./skills/voice-extract",
     "./skills/voice-generate",
     "./skills/voice-review",
-    "./skills/voice-learn"
+    "./skills/voice-learn",
+    "./skills/simplified-technical-english"
   ],
   "agents": [
     "./agents/doc-editor.md",

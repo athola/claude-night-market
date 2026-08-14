@@ -42,10 +42,12 @@ semicolons, is the only rule number this project cites, and that check
 lives in ``en.yaml`` because it is a regex property.
 
 This module is an STE-derived authoring aid. It does not implement
-ASD-STE100 and nothing here should be described as STE compliance. The
-STE Maintenance Group does not endorse, certify, or authorize software
-tools, and vocabulary checking against the controlled dictionary is out
-of scope entirely.
+ASD-STE100 and nothing here should be described as STE compliance. ASD
+and the STE Maintenance Group state that they do not endorse or certify
+sellers of tools claimed to be fully compliant with ASD-STE100, and that
+such providers have no authorization to use the ASD logo, copyright, or
+trademark. This project claims none of those things. Vocabulary checking
+against the controlled dictionary is out of scope entirely.
 
 PRECISION
 ---------
