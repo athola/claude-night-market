@@ -20,8 +20,10 @@ Three properties make the merge safe to attempt:
 - It reports by default. ``--apply`` is required to write anything.
 - It copies. The source tree is never deleted, so a merge judged wrong
   afterwards can be walked back by hand.
-- It never overwrites. A destination file that already exists wins, and
-  the source is reported as a conflict rather than resolved silently.
+- It never overwrites. A destination file that already exists wins. When
+  its bytes match the source the file is counted as already migrated,
+  which keeps a verification re-run quiet; when they differ it is
+  reported for a person to adjudicate rather than resolved silently.
 
 The capture index is carried under the same never-overwrite rule as
 everything else, because nothing regenerates it. It holds per-entry
@@ -90,10 +92,16 @@ class Plan:
     copies: list[Copy] = field(default_factory=list)
     conflicts: list[Conflict] = field(default_factory=list)
     rebuild_index: bool = False
+    already_migrated: int = 0
 
     def render(self) -> str:
         """Return a report an operator can check before applying."""
         if not self.copies and not self.conflicts:
+            if self.already_migrated:
+                return (
+                    f"Nothing to do: {self.already_migrated} file(s) already "
+                    f"present in {self.destination}."
+                )
             return "Nothing stranded: no version-scoped data found."
 
         lines = [
@@ -115,6 +123,9 @@ class Plan:
             if len(self.conflicts) > MAX_LISTED_CONFLICTS:
                 remaining = len(self.conflicts) - MAX_LISTED_CONFLICTS
                 lines.append(f"  ... and {remaining} more")
+
+        if self.already_migrated:
+            lines.append(f"Already migrated (skipped): {self.already_migrated}")
 
         if self.rebuild_index:
             lines.append(
@@ -206,9 +217,21 @@ def plan_migration(plugins_dir: Path, plugin: str = DEFAULT_PLUGIN) -> Plan:
         for source, relative in _candidates(version_root):
             existing = destination / relative
             if existing.exists():
-                plan.conflicts.append(
-                    Conflict(source, relative, "already present in the live palace")
-                )
+                # Re-running the dry run is how an operator confirms a
+                # recovery worked, so a file that already matches is
+                # counted rather than reported. Calling it a conflict
+                # would bury the handful that genuinely need a decision
+                # under every file the previous run just copied.
+                if _file_hash(source) == _file_hash(existing):
+                    plan.already_migrated += 1
+                else:
+                    plan.conflicts.append(
+                        Conflict(
+                            source,
+                            relative,
+                            "differs from the copy in the live palace",
+                        )
+                    )
                 continue
 
             claim = claimed.get(relative)

@@ -286,6 +286,64 @@ class TestCaptureIndexTravels:
         assert "build_indexes.py" in report
 
 
+class TestRerunAfterApply:
+    """Verifying a recovery must not look like a wall of problems."""
+
+    def test_a_second_run_reports_no_conflicts(self, tmp_path: Path) -> None:
+        """GIVEN a migration that was applied
+        WHEN it is planned again
+        THEN the files it just copied are not reported as conflicts.
+
+        Re-running the dry run is how an operator checks the recovery
+        worked. If every recovered file came back as a conflict, the
+        check would say the opposite of what happened, and the one
+        output that matters -- the handful of files that genuinely need
+        a person -- would be buried under thousands that do not.
+        """
+        _install(tmp_path, "1.9.17", {"staging/a.md": "alpha"})
+        _install(tmp_path, "1.9.18", {"staging/b.md": "beta"})
+        apply_plan(plan_migration(tmp_path / "plugins", "memory-palace"))
+
+        second = plan_migration(tmp_path / "plugins", "memory-palace")
+
+        assert second.conflicts == []
+        assert second.copies == []
+
+    def test_a_second_run_still_reports_a_genuine_clash(self, tmp_path: Path) -> None:
+        """GIVEN an applied migration and a destination file that was
+        then edited
+        WHEN the migration is planned again
+        THEN the differing file is reported.
+
+        Quieting the duplicate case must not quiet the real one: bytes
+        that disagree are exactly what the operator has to adjudicate.
+        """
+        _install(tmp_path, "1.9.17", {"staging/a.md": "alpha"})
+        apply_plan(plan_migration(tmp_path / "plugins", "memory-palace"))
+        (_dest(tmp_path) / "data" / "staging" / "a.md").write_text(
+            "curated since", encoding="utf-8"
+        )
+
+        second = plan_migration(tmp_path / "plugins", "memory-palace")
+
+        assert [c.relative for c in second.conflicts] == [Path("data/staging/a.md")]
+
+    def test_already_migrated_files_are_counted_for_the_operator(
+        self, tmp_path: Path
+    ) -> None:
+        """GIVEN a fully applied migration
+        WHEN the plan is rendered
+        THEN it says the work is already done rather than going silent,
+        so a re-run reads as confirmation instead of ambiguity.
+        """
+        _install(tmp_path, "1.9.17", {"staging/a.md": "alpha"})
+        apply_plan(plan_migration(tmp_path / "plugins", "memory-palace"))
+
+        report = plan_migration(tmp_path / "plugins", "memory-palace").render()
+
+        assert "already" in report.lower()
+
+
 class TestPlanIsInspectable:
     """An operator has to be able to read the plan before running it."""
 
