@@ -35,7 +35,20 @@ if _SRC_DIR not in sys.path:
 
 from memory_palace.corpus.keyword_index import KeywordIndexer
 
-DEFAULT_CORPUS_DIR = PLUGIN_ROOT / "data" / "staging"
+if str(PLUGIN_ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(PLUGIN_ROOT / "src"))
+
+from memory_palace.paths import user_data_dir  # noqa: E402 - needs sys.path above
+
+# The captures follow the persistent root: they are user data, and an
+# install's PLUGIN_ROOT is version scoped, so indexing from it would read
+# the tree the hooks stopped writing to (issue #661).
+DEFAULT_CORPUS_DIR = user_data_dir(PLUGIN_ROOT) / "staging"
+
+# The index directory does not. It holds tracked assets shipped with the
+# version (query-templates.yaml, embeddings.yaml) and a keyword index
+# rebuilt from the captures on demand, and research_interceptor reads it
+# from PLUGIN_ROOT. Moving one side alone would split reader from writer.
 DEFAULT_INDEX_DIR = PLUGIN_ROOT / "data" / "indexes"
 
 

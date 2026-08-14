@@ -29,6 +29,7 @@ from memory_palace.corpus.marginal_value import (
     IntegrationPlan,
     MarginalValueFilter,
 )
+from memory_palace.paths import user_data_dir as _user_data_dir
 
 # Make hooks/shared importable for slugify reuse
 _HOOKS_DIR = str(Path(__file__).resolve().parent.parent / "hooks")
@@ -353,7 +354,7 @@ def main(argv: list[str] | None = None) -> None:
         "--candidate", required=True, type=Path, help="Path to intake_candidate.json"
     )
     parser.add_argument(
-        "--corpus-dir", type=Path, default=PLUGIN_ROOT / "data" / "staging"
+        "--corpus-dir", type=Path, default=_user_data_dir(PLUGIN_ROOT) / "staging"
     )
     parser.add_argument(
         "--index-dir", type=Path, default=PLUGIN_ROOT / "data" / "indexes"

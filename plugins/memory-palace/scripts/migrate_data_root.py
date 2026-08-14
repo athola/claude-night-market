@@ -23,11 +23,15 @@ Three properties make the merge safe to attempt:
 - It never overwrites. A destination file that already exists wins, and
   the source is reported as a conflict rather than resolved silently.
 
-The capture index is excluded on purpose. Two indexes that disagree about
-an entry cannot be reconciled by choosing bytes, and picking one loses
-whatever the other knew. ``build_indexes.py`` regenerates the index from
-the captures on disk, which is the answer that cannot be wrong, so the
-plan asks for that instead.
+The capture index is carried under the same never-overwrite rule as
+everything else, because nothing regenerates it. It holds per-entry
+metadata the captures do not: importance scores, routing status,
+``null_capture`` reasons. ``build_indexes.py`` sounds like the recovery
+path and is not -- it writes ``data/indexes/keyword-index.yaml``, the
+corpus keyword index, which is a different artifact. So the newest
+tree's capture index is copied when the destination has none, older
+ones are reported rather than merged, and the plan says to rebuild the
+keyword index only because that one genuinely is derived.
 """
 
 from __future__ import annotations
@@ -45,13 +49,14 @@ PLUGIN_ROOT = SCRIPT_DIR.parent
 if str(PLUGIN_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(PLUGIN_ROOT / "src"))
 
-from memory_palace.paths import user_data_dir  # noqa: E402 - needs sys.path above
+from memory_palace.paths import persistent_root  # noqa: E402 - needs sys.path above
 
 DEFAULT_PLUGINS_DIR = Path.home() / ".claude" / "plugins"
 DEFAULT_PLUGIN = "memory-palace"
 
-#: Regenerated from the captures rather than merged. See module docstring.
-_EXCLUDED_NAMES = frozenset({"memory-palace-index.yaml"})
+#: Carried alongside ``data/``: the capture index sits under ``hooks/``
+#: but is user data, and nothing rebuilds its per-entry metadata.
+_CAPTURE_INDEX = Path("hooks") / "memory-palace-index.yaml"
 
 #: Conflicts listed before the report truncates. A plan over the trees on
 #: the machine this was written on reports six; a pathological one should
@@ -113,8 +118,8 @@ class Plan:
 
         if self.rebuild_index:
             lines.append(
-                "After applying, rebuild the capture index: "
-                "python3 scripts/build_indexes.py"
+                "After applying, rebuild the derived keyword index over the "
+                "captures that moved: python3 scripts/build_indexes.py"
             )
         return "\n".join(lines)
 
@@ -134,7 +139,7 @@ def _file_hash(path: Path) -> str:
 
 
 def _version_trees(plugins_dir: Path, plugin: str) -> list[tuple[str, Path]]:
-    """Return ``(version, data_dir)`` for every install tree with data.
+    """Return ``(version, version_root)`` for every install tree with data.
 
     Newest first, so the highest version is the one that claims a
     relative path when two trees disagree about its contents.
@@ -145,26 +150,35 @@ def _version_trees(plugins_dir: Path, plugin: str) -> list[tuple[str, Path]]:
 
     trees: list[tuple[str, Path]] = []
     for marketplace in sorted(cache.iterdir()):
-        version_root = marketplace / plugin
-        if not version_root.is_dir():
+        plugin_versions = marketplace / plugin
+        if not plugin_versions.is_dir():
             continue
-        for version_dir in sorted(version_root.iterdir()):
-            data_dir = version_dir / "data"
-            if data_dir.is_dir():
-                trees.append((version_dir.name, data_dir))
+        for version_dir in sorted(plugin_versions.iterdir()):
+            if (version_dir / "data").is_dir():
+                trees.append((version_dir.name, version_dir))
     trees.sort(key=lambda pair: _version_key(pair[0]), reverse=True)
     return trees
 
 
-def _has_stranded_index(plugins_dir: Path, plugin: str) -> bool:
-    """Report whether any install tree carries a capture index."""
-    cache = plugins_dir / "cache"
-    if not cache.is_dir():
-        return False
-    for name in _EXCLUDED_NAMES:
-        if any(cache.glob(f"*/{plugin}/*/hooks/{name}")):
-            return True
-    return False
+def _candidates(version_root: Path) -> list[tuple[Path, Path]]:
+    """Return ``(source, relative)`` for everything one tree can donate.
+
+    Relative paths are expressed against the plugin root rather than
+    against ``data/``, which puts them in the same space the capture
+    index records in ``stored_at`` (``data/staging/<file>.md``). The
+    index itself sits beside ``data/`` under ``hooks/``, so anchoring
+    one level up lets it travel through the same never-overwrite rule as
+    everything else instead of needing a second code path.
+    """
+    items = [
+        (path, path.relative_to(version_root))
+        for path in sorted((version_root / "data").rglob("*"))
+        if path.is_file()
+    ]
+    index = version_root / _CAPTURE_INDEX
+    if index.is_file():
+        items.append((index, _CAPTURE_INDEX))
+    return items
 
 
 def plan_migration(plugins_dir: Path, plugin: str = DEFAULT_PLUGIN) -> Plan:
@@ -184,19 +198,12 @@ def plan_migration(plugins_dir: Path, plugin: str = DEFAULT_PLUGIN) -> Plan:
     # Resolved from a tree that actually exists rather than assembled
     # from parts. The marketplace name is part of the destination
     # directory, and only the discovered path knows it.
-    destination = user_data_dir(trees[0][1].parent)
-    plan = Plan(
-        destination=destination,
-        rebuild_index=_has_stranded_index(plugins_dir, plugin),
-    )
+    destination = persistent_root(trees[0][1])
+    plan = Plan(destination=destination, rebuild_index=True)
 
     claimed: dict[Path, Copy] = {}
-    for version, data_dir in trees:
-        for source in sorted(p for p in data_dir.rglob("*") if p.is_file()):
-            if source.name in _EXCLUDED_NAMES:
-                continue
-            relative = source.relative_to(data_dir)
-
+    for version, version_root in trees:
+        for source, relative in _candidates(version_root):
             existing = destination / relative
             if existing.exists():
                 plan.conflicts.append(

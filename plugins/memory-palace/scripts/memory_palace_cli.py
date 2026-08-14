@@ -34,6 +34,7 @@ from memory_palace.corpus.index_promoter import (
 )
 from memory_palace.garden_metrics import SECONDS_PER_DAY, compute_garden_metrics
 from memory_palace.palace_manager import MemoryPalaceManager
+from memory_palace.paths import persistent_root
 
 
 @dataclass
@@ -86,6 +87,16 @@ class _CLIBase:
     plugin_dir: Path
     config_file: Path
     claude_config: Path
+
+    def _data_root(self) -> Path:
+        """Return the root holding user data across plugin versions.
+
+        ``plugin_dir`` is version scoped in an install, so resolving
+        captures, backups, and the intake queue from it made these
+        commands read a different tree than the hooks write to
+        (issue #661). Identity in a source checkout.
+        """
+        return persistent_root(self.plugin_dir)
 
     def _manager(self, palaces_dir: str | None = None) -> MemoryPalaceManager:
         """Create a palace manager (implemented by the coordinator)."""
@@ -480,7 +491,7 @@ class _IndexMixin(_CLIBase):
 
     def _capture_index_path(self) -> Path:
         """Resolve the capture index path (hooks/memory-palace-index.yaml)."""
-        return self.plugin_dir / "hooks" / "memory-palace-index.yaml"
+        return self._data_root() / "hooks" / "memory-palace-index.yaml"
 
     def index_report(self, output_format: str = "text", top: int = 10) -> bool:
         """Report read-only analytics over the capture index.
@@ -582,7 +593,7 @@ class _IndexMixin(_CLIBase):
             self.print_success("Nothing to apply.")
             return True
 
-        backup_dir = self.plugin_dir / "data" / "backups"
+        backup_dir = self._data_root() / "data" / "backups"
         result = apply_promotions(proposals, index_path, backup_dir=backup_dir)
         self.print_success(
             f"Applied {result.applied} proposals. Backup: {result.backup_path}"
@@ -624,7 +635,7 @@ class _IndexMixin(_CLIBase):
             self.print_success("Nothing to retitle.")
             return True
 
-        backup_dir = self.plugin_dir / "data" / "backups"
+        backup_dir = self._data_root() / "data" / "backups"
         result = apply_title_repairs(
             index, proposals, index_path, backup_dir=backup_dir
         )
@@ -672,7 +683,7 @@ class _IndexMixin(_CLIBase):
             self.print_success("Nothing to prune.")
             return True
 
-        backup_dir = self.plugin_dir / "data" / "backups"
+        backup_dir = self._data_root() / "data" / "backups"
         result = apply_orphan_prunes(keys, index_path, backup_dir=backup_dir)
         self.print_success(
             f"Pruned {result.applied} orphans. Backup: {result.backup_path}"
@@ -765,7 +776,7 @@ class _PalaceMixin(_CLIBase):
     def sync_queue(self, auto_create: bool = False, dry_run: bool = False) -> bool:
         """Sync intake queue into palaces."""
         try:
-            queue_path = self.plugin_dir / "data" / "intake_queue.jsonl"
+            queue_path = self._data_root() / "data" / "intake_queue.jsonl"
             results = self._manager().sync_from_queue(
                 str(queue_path),
                 auto_create=auto_create,

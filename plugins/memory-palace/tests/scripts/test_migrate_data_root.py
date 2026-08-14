@@ -45,7 +45,9 @@ def _install(root: Path, version: str, files: dict[str, str]) -> Path:
 
 
 def _dest(root: Path) -> Path:
-    return root / "plugins" / "data" / "memory-palace-claude-night-market" / "data"
+    """The persistent root. Relative paths under it keep their ``data/``
+    prefix, which is the shape ``stored_at`` already records."""
+    return root / "plugins" / "data" / "memory-palace-claude-night-market"
 
 
 class TestDiscovery:
@@ -65,8 +67,8 @@ class TestDiscovery:
         plan = plan_migration(tmp_path / "plugins", "memory-palace")
 
         assert {c.relative for c in plan.copies} == {
-            Path("staging/a.md"),
-            Path("staging/b.md"),
+            Path("data/staging/a.md"),
+            Path("data/staging/b.md"),
         }
 
     def test_reports_nothing_when_no_install_trees_exist(self, tmp_path: Path) -> None:
@@ -111,7 +113,7 @@ class TestApply:
         applied = apply_plan(plan_migration(tmp_path / "plugins", "memory-palace"))
 
         assert applied == 1
-        assert (_dest(tmp_path) / "staging" / "a.md").read_text() == "alpha"
+        assert (_dest(tmp_path) / "data" / "staging" / "a.md").read_text() == "alpha"
 
     def test_source_survives_the_copy(self, tmp_path: Path) -> None:
         """GIVEN an applied migration
@@ -163,8 +165,10 @@ class TestCollisions:
         apply_plan(plan)
 
         assert len(plan.conflicts) == 1
-        assert plan.conflicts[0].relative == Path("staging/a.md")
-        assert (_dest(tmp_path) / "staging" / "a.md").read_text() == "newer text"
+        assert plan.conflicts[0].relative == Path("data/staging/a.md")
+        assert (
+            _dest(tmp_path) / "data" / "staging" / "a.md"
+        ).read_text() == "newer text"
 
     def test_newest_version_wins_a_conflict(self, tmp_path: Path) -> None:
         """GIVEN differing copies where the newer tree is not last
@@ -179,7 +183,7 @@ class TestCollisions:
         plan = plan_migration(tmp_path / "plugins", "memory-palace")
         apply_plan(plan)
 
-        assert (_dest(tmp_path) / "staging" / "a.md").read_text() == "new"
+        assert (_dest(tmp_path) / "data" / "staging" / "a.md").read_text() == "new"
 
     def test_existing_destination_file_is_never_replaced(self, tmp_path: Path) -> None:
         """GIVEN the destination already holds a different file at that path
@@ -190,7 +194,7 @@ class TestCollisions:
         overwrote it would be the same data loss in the other direction.
         """
         _install(tmp_path, "1.9.17", {"staging/a.md": "from cache"})
-        dest_file = _dest(tmp_path) / "staging" / "a.md"
+        dest_file = _dest(tmp_path) / "data" / "staging" / "a.md"
         dest_file.parent.mkdir(parents=True)
         dest_file.write_text("already live", encoding="utf-8")
 
@@ -201,31 +205,85 @@ class TestCollisions:
         assert len(plan.conflicts) == 1
 
 
-class TestIndexIsLeftAlone:
-    """Merging two index files is a schema problem, not a copy."""
+class TestCaptureIndexTravels:
+    """The capture index moves; it is not rebuilt, because nothing rebuilds it."""
 
-    def test_the_capture_index_is_not_copied(self, tmp_path: Path) -> None:
-        """GIVEN version trees that each hold a capture index
-        WHEN a migration is planned
-        THEN the index is not among the copies, and the plan says to
-        rebuild it instead.
+    @staticmethod
+    def _with_index(root: Path, version: str, body: str) -> Path:
+        hooks = (
+            root
+            / "plugins"
+            / "cache"
+            / "claude-night-market"
+            / "memory-palace"
+            / version
+            / "hooks"
+        )
+        hooks.mkdir(parents=True, exist_ok=True)
+        index = hooks / "memory-palace-index.yaml"
+        index.write_text(body, encoding="utf-8")
+        return index
 
-        Two indexes disagreeing on the same entry cannot be resolved by
-        picking bytes; ``build_indexes.py`` regenerates the index from
-        the captures that just moved, which is the answer that cannot
-        be wrong.
+    def test_the_newest_capture_index_is_copied(self, tmp_path: Path) -> None:
+        """GIVEN install trees that each carry a capture index
+        WHEN the migration is applied
+        THEN the newest one lands beside ``data/`` under the persistent
+        root, at the path ``deduplication._get_index_path`` resolves.
+
+        It holds per-entry metadata the captures do not: importance
+        scores, routing status, null_capture reasons. Excluding it would
+        leave every migrated capture unindexed with no way back.
         """
-        base = tmp_path / "plugins" / "cache" / "claude-night-market" / "memory-palace"
-        for version in ("1.9.17", "1.9.18"):
-            hooks = base / version / "hooks"
-            hooks.mkdir(parents=True)
-            (hooks / "memory-palace-index.yaml").write_text("entries: {}\n")
-        _install(tmp_path, "1.9.18", {"staging/a.md": "alpha"})
+        _install(tmp_path, "1.9.17", {"staging/a.md": "alpha"})
+        _install(tmp_path, "1.9.18", {"staging/b.md": "beta"})
+        self._with_index(tmp_path, "1.9.17", "entries: {old: 1}\n")
+        self._with_index(tmp_path, "1.9.18", "entries: {new: 1}\n")
+
+        apply_plan(plan_migration(tmp_path / "plugins", "memory-palace"))
+
+        landed = _dest(tmp_path) / "hooks" / "memory-palace-index.yaml"
+        assert landed.read_text() == "entries: {new: 1}\n"
+
+    def test_an_older_differing_index_is_reported_not_merged(
+        self, tmp_path: Path
+    ) -> None:
+        """GIVEN two capture indexes that disagree
+        WHEN the migration is planned
+        THEN the older is a conflict.
+
+        Two indexes disagreeing about an entry cannot be reconciled by
+        choosing bytes, so the tool refuses to guess and names the file
+        instead.
+        """
+        _install(tmp_path, "1.9.17", {"staging/a.md": "alpha"})
+        _install(tmp_path, "1.9.18", {"staging/b.md": "beta"})
+        self._with_index(tmp_path, "1.9.17", "entries: {old: 1}\n")
+        self._with_index(tmp_path, "1.9.18", "entries: {new: 1}\n")
 
         plan = plan_migration(tmp_path / "plugins", "memory-palace")
 
-        assert all("memory-palace-index" not in str(c.relative) for c in plan.copies)
-        assert plan.rebuild_index is True
+        assert [c.relative for c in plan.conflicts] == [
+            Path("hooks/memory-palace-index.yaml")
+        ]
+
+    def test_the_report_names_the_derived_index_not_the_capture_index(
+        self, tmp_path: Path
+    ) -> None:
+        """GIVEN any non-empty plan
+        WHEN it is rendered
+        THEN the rebuild line points at the keyword index.
+
+        ``build_indexes.py`` writes ``data/indexes/keyword-index.yaml``,
+        the derived corpus index. Telling an operator it rebuilds the
+        capture index would send them looking for recovery that the
+        script does not perform.
+        """
+        _install(tmp_path, "1.9.18", {"staging/a.md": "alpha"})
+
+        report = plan_migration(tmp_path / "plugins", "memory-palace").render()
+
+        assert "keyword index" in report
+        assert "build_indexes.py" in report
 
 
 class TestPlanIsInspectable:
