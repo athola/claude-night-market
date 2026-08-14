@@ -46,7 +46,8 @@ def _install(root: Path, version: str, files: dict[str, str]) -> Path:
 
 def _dest(root: Path) -> Path:
     """The persistent root. Relative paths under it keep their ``data/``
-    prefix, which is the shape ``stored_at`` already records."""
+    prefix, which is the shape ``stored_at`` already records.
+    """
     return root / "plugins" / "data" / "memory-palace-claude-night-market"
 
 

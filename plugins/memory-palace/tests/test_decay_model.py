@@ -507,7 +507,6 @@ class TestGetStaleEntriesWithImportance:
 
 def test_state_decays_faster_than_finding_at_equal_age() -> None:
     """At the same age, a transient state unit is worth less than a finding."""
-
     model = DecayModel()
     age = datetime.now(timezone.utc) - timedelta(days=30)
     finding = model.calculate_decay("u1", "growing", age, unit_type="finding")
@@ -517,7 +516,6 @@ def test_state_decays_faster_than_finding_at_equal_age() -> None:
 
 def test_open_thread_does_not_decay() -> None:
     """An unresolved question is no less relevant for having sat unanswered."""
-
     model = DecayModel()
     old = datetime.now(timezone.utc) - timedelta(days=365)
     result = model.calculate_decay("u3", "seedling", old, unit_type="open-thread")
@@ -526,7 +524,6 @@ def test_open_thread_does_not_decay() -> None:
 
 def test_decision_sits_between_state_and_finding() -> None:
     """A revisable choice ages faster than a fact, slower than a status."""
-
     model = DecayModel()
     age = datetime.now(timezone.utc) - timedelta(days=60)
     factors = {
@@ -538,7 +535,6 @@ def test_decision_sits_between_state_and_finding() -> None:
 
 def test_omitting_unit_type_preserves_maturity_behavior() -> None:
     """The default path is unchanged: maturity still selects the curve."""
-
     model = DecayModel()
     age = datetime.now(timezone.utc) - timedelta(days=21)
     assert (

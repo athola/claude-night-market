@@ -571,7 +571,6 @@ class TestSkillQuality:
         When scanning for emoji characters
         Then none should be present
         """
-
         emoji_pattern = re.compile(
             "[\U0001f600-\U0001f64f"
             "\U0001f300-\U0001f5ff"

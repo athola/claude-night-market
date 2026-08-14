@@ -154,7 +154,8 @@ class TestYamlUnavailable:
     ) -> None:
         """A corrupt YAML index file must not take down web-research store
         calls. The loader catches yaml.YAMLError, logs to stderr, and
-        returns the empty-index sentinel (issue #528)."""
+        returns the empty-index sentinel (issue #528).
+        """
         index_path = tmp_path / "dedup-index.yaml"
         # Write a syntactically invalid YAML file.
         index_path.write_text(

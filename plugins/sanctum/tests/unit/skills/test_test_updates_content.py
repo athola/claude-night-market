@@ -43,7 +43,8 @@ class TestContentTestDiscoveryModuleContent:
     @pytest.mark.unit
     def test_module_exists_with_substance(self, module_path: Path) -> None:
         """Given the content test discovery module
-        Then it must exist with substantial content."""
+        Then it must exist with substantial content.
+        """
         assert module_path.exists()
         content = module_path.read_text()
         assert len(content.splitlines()) >= 40, "Module should be substantial"
@@ -54,7 +55,8 @@ class TestContentTestDiscoveryModuleContent:
         self, module_content: str
     ) -> None:
         """Given the module guides test discovery
-        Then it must define what execution markdown is."""
+        Then it must define what execution markdown is.
+        """
         assert "execution markdown" in module_content.lower()
         assert "skills/" in module_content or "agents/" in module_content
 
@@ -64,7 +66,8 @@ class TestContentTestDiscoveryModuleContent:
         self, module_content: str
     ) -> None:
         """Given execution markdown is not low-priority docs
-        Then the module must reclassify priorities."""
+        Then the module must reclassify priorities.
+        """
         content_lower = module_content.lower()
         assert "high" in content_lower
         assert "medium" in content_lower or "low" in content_lower
@@ -73,7 +76,8 @@ class TestContentTestDiscoveryModuleContent:
     @pytest.mark.unit
     def test_module_defines_when_to_skip(self, module_content: str) -> None:
         """Given not every markdown change needs tests
-        Then the module must define skip conditions."""
+        Then the module must define skip conditions.
+        """
         content_lower = module_content.lower()
         assert (
             "skip" in content_lower
@@ -85,7 +89,8 @@ class TestContentTestDiscoveryModuleContent:
     @pytest.mark.unit
     def test_module_references_leyline_taxonomy(self, module_content: str) -> None:
         """Given this module implements the leyline taxonomy
-        Then it must reference the canonical definition."""
+        Then it must reference the canonical definition.
+        """
         assert "content-assertion-levels" in module_content
 
     # --- L2: Code example validity ---
@@ -97,7 +102,8 @@ class TestContentTestDiscoveryModuleContent:
     ) -> None:
         """Given Python code blocks in the module
         When Claude copies them as detection logic
-        Then every block must be valid Python syntax."""
+        Then every block must be valid Python syntax.
+        """
         python_blocks = re.findall(
             r"```python\n(.*?)\n```",
             module_content,
@@ -142,7 +148,8 @@ class TestContentTestTemplatesModuleContent:
     @pytest.mark.unit
     def test_module_exists_with_substance(self, module_path: Path) -> None:
         """Given the content test templates module
-        Then it must exist with substantial content."""
+        Then it must exist with substantial content.
+        """
         assert module_path.exists()
         content = module_path.read_text()
         assert len(content.splitlines()) >= 100, "Module should be substantial"
@@ -161,14 +168,16 @@ class TestContentTestTemplatesModuleContent:
         self, module_content: str, level: str
     ) -> None:
         """Given the module provides BDD scaffolding
-        Then it must have templates for all three levels."""
+        Then it must have templates for all three levels.
+        """
         assert level in module_content, f"Missing template for '{level}'"
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_module_includes_common_fixtures(self, module_content: str) -> None:
         """Given test templates share common patterns
-        Then the module must document reusable fixtures."""
+        Then the module must document reusable fixtures.
+        """
         assert "fixture" in module_content.lower()
         assert "skill_path" in module_content or "skill_content" in module_content
 
@@ -176,7 +185,8 @@ class TestContentTestTemplatesModuleContent:
     @pytest.mark.unit
     def test_module_references_leyline_taxonomy(self, module_content: str) -> None:
         """Given this module implements the leyline taxonomy
-        Then it must reference the canonical definition."""
+        Then it must reference the canonical definition.
+        """
         assert "content-assertion-levels" in module_content
 
     # --- L2: Code example validity ---
@@ -188,7 +198,8 @@ class TestContentTestTemplatesModuleContent:
     ) -> None:
         """Given Python code blocks serve as copy-paste templates
         When Claude uses them to scaffold tests
-        Then every block must be valid Python syntax."""
+        Then every block must be valid Python syntax.
+        """
         python_blocks = re.findall(
             r"```python\n(.*?)\n```",
             module_content,
@@ -214,7 +225,8 @@ class TestContentTestTemplatesModuleContent:
     @pytest.mark.unit
     def test_templates_use_bdd_markers(self, module_content: str) -> None:
         """Given templates should follow BDD conventions
-        Then they must include pytest BDD markers."""
+        Then they must include pytest BDD markers.
+        """
         assert "@pytest.mark.bdd" in module_content
         assert "@pytest.mark.unit" in module_content
 
@@ -222,7 +234,8 @@ class TestContentTestTemplatesModuleContent:
     @pytest.mark.unit
     def test_templates_use_given_when_then(self, module_content: str) -> None:
         """Given templates should follow BDD conventions
-        Then docstrings must use Given/When/Then format."""
+        Then docstrings must use Given/When/Then format.
+        """
         assert "Given" in module_content
         assert "When" in module_content
         assert "Then" in module_content
@@ -251,14 +264,16 @@ class TestInvariantEncodingPhaseContent:
     @pytest.mark.unit
     def test_skill_has_invariant_encoding_philosophy(self, skill_content: str) -> None:
         """Given the test-updates core philosophy
-        Then it must list invariant-encoding as a principle."""
+        Then it must list invariant-encoding as a principle.
+        """
         assert "Invariant-Encoding" in skill_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_skill_has_invariant_encoding_phase(self, skill_content: str) -> None:
         """Given the test-updates workflow phases
-        Then Phase 2.5 must cover invariant-encoding tests."""
+        Then Phase 2.5 must cover invariant-encoding tests.
+        """
         assert "Phase 2.5" in skill_content
         assert "Invariant-Encoding Tests" in skill_content
 
@@ -266,7 +281,8 @@ class TestInvariantEncodingPhaseContent:
     @pytest.mark.unit
     def test_skill_defines_what_to_encode(self, skill_content: str) -> None:
         """Given the invariant-encoding phase
-        Then it must define categories of invariants to encode."""
+        Then it must define categories of invariants to encode.
+        """
         assert "Module boundary" in skill_content
         assert "Data flow direction" in skill_content
         assert "API contract" in skill_content
@@ -275,14 +291,16 @@ class TestInvariantEncodingPhaseContent:
     @pytest.mark.unit
     def test_skill_includes_concrete_example(self, skill_content: str) -> None:
         """Given developers need actionable guidance
-        Then the invariant-encoding phase must include a code example."""
+        Then the invariant-encoding phase must include a code example.
+        """
         assert "def test_plugins_never_import" in skill_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_skill_warns_about_compounding(self, skill_content: str) -> None:
         """Given bad invariant decisions compound
-        Then the skill must warn about compounding risk."""
+        Then the skill must warn about compounding risk.
+        """
         assert "compound" in skill_content.lower()
         assert "unsalvageable" in skill_content.lower()
 
@@ -292,7 +310,8 @@ class TestInvariantEncodingPhaseContent:
         self, skill_content: str
     ) -> None:
         """Given invariant-encoding tests should not be silently changed
-        Then the skill must require human review."""
+        Then the skill must require human review.
+        """
         assert "human" in skill_content.lower()
         assert "three options" in skill_content.lower() or (
             "preserve" in skill_content.lower() and "revise" in skill_content.lower()
@@ -302,7 +321,8 @@ class TestInvariantEncodingPhaseContent:
     @pytest.mark.unit
     def test_skill_has_invariant_quality_check(self, skill_content: str) -> None:
         """Given the quality assurance section
-        Then it must include invariant verification."""
+        Then it must include invariant verification.
+        """
         assert "Invariant" in skill_content
         assert "design-decision" in skill_content.lower() or (
             "design" in skill_content.lower() and "decision" in skill_content.lower()

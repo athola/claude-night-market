@@ -163,7 +163,8 @@ class TestOpenEmbedder:
     ) -> None:
         """Absence is simulated, not inherited from the environment, so
         this branch stays reachable in the dev setup where memory-palace
-        is installed for the contract tests."""
+        is installed for the contract tests.
+        """
         monkeypatch.setattr(semantic_module, "_EmbeddingIndex", None)
         with pytest.raises(GraphBackendUnavailable, match="memory-palace"):
             open_embedder(str(tmp_path / "tome-emb.yaml"))
@@ -173,7 +174,8 @@ class TestOpenEmbedder:
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """The predicate reports the backend it actually guards, so it
-        cannot drift from the branch ``open_embedder`` takes."""
+        cannot drift from the branch ``open_embedder`` takes.
+        """
         monkeypatch.setattr(semantic_module, "_EmbeddingIndex", None)
         assert embedder_available() is False
 

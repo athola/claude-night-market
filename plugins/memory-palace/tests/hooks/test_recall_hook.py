@@ -122,7 +122,6 @@ class TestChangedDependencyFlagging:
 
     def test_changed_dependency_is_surfaced_in_output(self, tmp_path) -> None:
         """Scenario: the reader is told which path moved."""
-
         from memory_palace.corpus.staleness_signals import Signal, check_dependencies
 
         (tmp_path / "ranking.py").write_text("original\n")

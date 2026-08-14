@@ -924,7 +924,6 @@ class TestSessionUnit:
 
     def test_valid_unit_constructs(self) -> None:
         """A unit with a known type and non-empty thread is accepted."""
-
         unit = SessionUnit(
             thread="Decay curve per unit type",
             type="decision",
@@ -940,19 +939,16 @@ class TestSessionUnit:
         TypeError). Raising TypeError means a corrupt stored unit degrades
         the same way every other malformed record already does.
         """
-
         with pytest.raises(TypeError):
             SessionUnit(thread="t", type="observation", date="2026-08-13", state="s")
 
     def test_empty_thread_rejected(self) -> None:
         """A unit with no thread label cannot be matched or superseded."""
-
         with pytest.raises(TypeError):
             SessionUnit(thread="", type="finding", date="2026-08-13", state="s")
 
     def test_round_trip_preserves_all_seven_fields(self) -> None:
         """Thread, Type, Date, State, Why, Open, Ref all survive storage."""
-
         unit = SessionUnit(
             thread="Retrieval ranking",
             type="open-thread",
@@ -971,7 +967,6 @@ class TestSessionRecordHandoffUnits:
 
     def test_defaults_to_empty_list(self) -> None:
         """A record built without units exposes an empty list, not None."""
-
         assert (
             SessionRecord(
                 session_id="s1", started_at="2026-08-13T00:00:00Z"
@@ -981,13 +976,11 @@ class TestSessionRecordHandoffUnits:
 
     def test_legacy_record_without_units_loads(self) -> None:
         """Records written before the field existed still load."""
-
         legacy = {"session_id": "s-legacy", "started_at": "2026-01-01T00:00:00Z"}
         assert SessionRecord.from_dict(legacy).handoff_units == []
 
     def test_from_dict_rebuilds_unit_objects(self) -> None:
         """Stored unit dicts come back as SessionUnit, not raw dicts."""
-
         raw = {
             "session_id": "s2",
             "started_at": "2026-08-13T00:00:00Z",
@@ -1019,14 +1012,12 @@ class TestMergeHandoffUnits:
 
     def test_new_thread_is_appended(self) -> None:
         """An unseen thread joins the list."""
-
         existing = [self._unit("A", "finding", "first")]
         merged = merge_handoff_units(existing, [self._unit("B", "state", "second")])
         assert [u.thread for u in merged] == ["A", "B"]
 
     def test_same_thread_and_type_is_superseded(self) -> None:
         """A newer unit replaces the older one in place."""
-
         existing = [self._unit("A", "finding", "old state")]
         merged = merge_handoff_units(
             existing, [self._unit("A", "finding", "new state")]
@@ -1036,7 +1027,6 @@ class TestMergeHandoffUnits:
 
     def test_same_thread_different_type_kept_separately(self) -> None:
         """The split rule survives the merge: two types, two units."""
-
         existing = [self._unit("A", "finding", "tool behaves this way")]
         merged = merge_handoff_units(
             existing, [self._unit("A", "state", "wired it up")]
@@ -1048,7 +1038,6 @@ class TestMergeHandoffUnits:
 
         This is the per-turn overwrite regression.
         """
-
         existing = [self._unit("A", "finding", "keep me")]
         assert merge_handoff_units(existing, []) == existing
 
@@ -1063,14 +1052,12 @@ class TestUnitDependencies:
 
     def test_files_defaults_to_empty(self) -> None:
         """Scenario: declaring nothing is allowed."""
-
         unit = SessionUnit(thread="t", type="finding", date="2026-08-13", state="s")
         assert unit.files == []
         assert unit.file_digests == {}
 
     def test_declared_files_round_trip(self) -> None:
         """Scenario: dependencies and fingerprints survive storage."""
-
         unit = SessionUnit(
             thread="Recall weighting",
             type="finding",
@@ -1085,7 +1072,6 @@ class TestUnitDependencies:
 
     def test_legacy_unit_without_dependencies_loads(self) -> None:
         """Scenario: units captured before this field existed still load."""
-
         legacy = {
             "thread": "t",
             "type": "state",

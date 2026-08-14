@@ -141,7 +141,8 @@ def test_load_methods_raises_on_empty_catalogue(monkeypatch) -> None:
 def test_load_methods_raises_when_method_missing_id(monkeypatch) -> None:
     """A method lacking an 'id' is rejected at load, so downstream
     ``m["id"]`` access (rotation_plan) and ``m.get("id")`` (select_methods)
-    are consistently safe."""
+    are consistently safe.
+    """
     bad = {"methods": [{"name": "x", "category": "c", "evidence": "weak"}]}
     monkeypatch.setattr(ideation, "_METHODS_CACHE", None)
     monkeypatch.setattr(ideation.yaml, "safe_load", lambda *_a, **_k: bad)

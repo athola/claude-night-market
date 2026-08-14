@@ -1656,7 +1656,6 @@ class TestFrontmatterSurvivesHostileValues:
 
     def test_webfetch_title_containing_a_quote(self, tmp_path) -> None:
         """Scenario: a page whose title carries a quoted phrase."""
-
         stored = web_research_handler.store_webfetch_content(
             content='# Search Results for "mtime staleness"\n\nBody text.\n',
             url="https://example.test/search",
@@ -1669,7 +1668,6 @@ class TestFrontmatterSurvivesHostileValues:
 
     def test_websearch_query_containing_a_quote(self, tmp_path) -> None:
         """Scenario: a phrase search, which is the normal way to quote."""
-
         stored = web_research_handler.store_websearch_results(
             query='"mtime staleness"',
             results=[
@@ -1687,7 +1685,6 @@ class TestFrontmatterSurvivesHostileValues:
 
     def test_webfetch_url_containing_a_quote(self, tmp_path) -> None:
         """Scenario: the url field is interpolated the same unsafe way."""
-
         stored = web_research_handler.store_webfetch_content(
             content="# Plain Title\n\nBody text.\n",
             url='https://example.test/search?q="staleness"',

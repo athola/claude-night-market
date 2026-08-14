@@ -196,6 +196,15 @@ select = [
     "UP",  # pyupgrade
     "PLC0415",  # import-outside-top-level
     "PLR0913",  # too-many-arguments (enforced ecosystem-wide, not ignored)
+    # Two pydocstyle rules, selected individually rather than by taking all
+    # of "D": the rest of that set argues with the house docstring style
+    # (D203/D213 contradict each other, D107 wants __init__ docstrings the
+    # dataclasses here do not need). These two only govern layout, so they
+    # cost nothing to obey and keep test docstrings from drifting apart.
+    # Plugin configs that select "D" lint `scripts src` only, which is why
+    # test files accumulated 298 violations nothing was watching.
+    "D202",  # no-blank-line-after-function-docstring
+    "D209",  # multi-line docstring closing quotes on their own line
 ]
 extend-ignore = [
     "E501",  # Line too long (handled by formatter)

@@ -104,7 +104,8 @@ def test_command_registered_in_plugin_manifest() -> None:
 
 def test_command_prose_wraps_at_80_chars() -> None:
     """Prose lines must wrap at 80 chars. Exempt: tables, code blocks,
-    frontmatter, headings, link definitions, URLs."""
+    frontmatter, headings, link definitions, URLs.
+    """
     text = COMMAND_FILE.read_text(encoding="utf-8")
     lines = text.splitlines()
     in_code = False

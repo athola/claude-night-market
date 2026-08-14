@@ -610,7 +610,6 @@ class TestEnforcementIsWired:
         The hook's own tests import the module directly, so they cannot
         detect an unregistered hook.
         """
-
         hooks = json.loads(
             (REPO_ROOT / "plugins/abstract/hooks/hooks.json").read_text(
                 encoding="utf-8"
@@ -630,7 +629,6 @@ class TestEnforcementIsWired:
         When its matcher is read
         Then it matches both the Agent and legacy Task tool names
         """
-
         hooks = json.loads(
             (REPO_ROOT / "plugins/abstract/hooks/hooks.json").read_text(
                 encoding="utf-8"
@@ -657,7 +655,6 @@ class TestEnforcementIsWired:
         Claude Code invokes the hook as a command, so a non-executable
         file fails at dispatch time rather than at test time.
         """
-
         path = REPO_ROOT / "plugins/abstract/hooks/agent_dispatch_guard.py"
         assert os.access(path, os.X_OK)
 

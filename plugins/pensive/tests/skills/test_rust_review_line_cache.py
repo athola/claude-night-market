@@ -67,7 +67,8 @@ class TestLineCacheMixin:
     def test_instances_do_not_share_cache(self) -> None:
         """The cache is per-instance, not shared via the class. The default
         is the None sentinel (no shared mutable list), so an untouched
-        instance never sees another instance's lines."""
+        instance never sees another instance's lines.
+        """
         a = LineCacheMixin()
         b = LineCacheMixin()
         a._get_lines("aaa\n")

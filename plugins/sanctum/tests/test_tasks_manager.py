@@ -147,7 +147,8 @@ def test_detect_ambiguity_flags_cross_cutting_keyword():
 
 def test_tasks_manager_fallback_lifecycle(tmp_path):
     """Lifecycle smoke: create manager in fallback mode, load a plan,
-    confirm pending_count tracks the plan size."""
+    confirm pending_count tracks the plan size.
+    """
     module = _load_script()
     state_file = tmp_path / "tasks-state.json"
     manager = module.TasksManager(

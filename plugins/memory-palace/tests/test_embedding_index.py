@@ -145,7 +145,6 @@ class TestMP011OptionalDepExceptionNarrowing:
 
 def _index_with(tmp_path, entries: dict[str, list[float]]):
     """Build an index whose hash-provider entries are set directly."""
-
     path = tmp_path / "embeddings.yaml"
     path.write_text(
         yaml.safe_dump({"providers": {"hash": {"embeddings": entries}}}),
