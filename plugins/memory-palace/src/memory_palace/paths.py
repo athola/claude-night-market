@@ -159,7 +159,14 @@ def _install_layout(plugin_root: Path) -> tuple[Path, str, str] | None:
     if len(parents) < _INSTALL_DEPTH:
         return None
 
-    plugin_dir, marketplace_dir, cache_dir, plugins_dir = parents[:_INSTALL_DEPTH]
+    # Indexed one at a time rather than sliced: Path.parents only became
+    # a full sequence in 3.10, and these plugins run on 3.9 in hooks. A
+    # slice raises TypeError there, which no linter flags because the
+    # syntax is valid at every version.
+    plugin_dir = parents[0]
+    marketplace_dir = parents[1]
+    cache_dir = parents[2]
+    plugins_dir = parents[3]
     if cache_dir.name != "cache" or plugins_dir.name != "plugins":
         return None
 
