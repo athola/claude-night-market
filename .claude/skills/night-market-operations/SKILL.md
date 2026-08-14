@@ -175,7 +175,7 @@ This is the mechanical sequence.
    It then creates the GitHub release.
 
    One precondition applies. The publish job fails when
-   `clawhub/manifest.json` does not exist, and when its
+   `clawhub/manifest.json` does not exist. It also fails when
    `total_exported` is 0. The current count is 188.
 
    ClawHub submission after the release stays manual. Run
