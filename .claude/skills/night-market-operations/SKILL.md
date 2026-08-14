@@ -101,9 +101,9 @@ is the version source of truth, fanned out to every plugin manifest.
 Gates and review policy are night-market-change-control territory.
 This is the mechanical sequence.
 
-1. **Preflight.** Run `Skill(sanctum:git-workspace-review)` (read-only
-   workspace check). Confirm you are on a `<topic>-<version>` branch,
-   not master.
+1. **Preflight.** Run `Skill(sanctum:git-workspace-review)` for a
+   read-only workspace check. Confirm you are on a
+   `<topic>-<version>` branch. Do not release from master.
 
 2. **Bump the version everywhere.** Dry-run first:
 
@@ -113,52 +113,72 @@ This is the mechanical sequence.
    git diff --stat
    ```
 
-   The script rejects anything not matching `^\d+\.\d+\.\d+$`, then
-   rewrites the version field in every match of these globs (cache and
-   venv dirs excluded): `**/pyproject.toml`, `**/Cargo.toml`,
-   `**/package.json`, `**/.claude-plugin/plugin.json`,
-   `**/.claude-plugin/metadata.json`,
-   `**/.claude-plugin/marketplace.json`, `**/openpackage.yml`, and any
-   `**/__init__.py` containing `__version__`. Expect a large diff
-   of roughly 100 files. That is the design.
+   The script rejects any version that does not match
+   `^\d+\.\d+\.\d+$`. It then rewrites the version field in every match
+   of these globs, and it skips cache and venv directories:
 
-3. **CHANGELOG entry.** CHANGELOG.md follows Keep a Changelog 1.1.0
-   with SemVer. Keep `## [Unreleased]` at the top and insert
-   `## [X.Y.Z] - YYYY-MM-DD` directly below it. Never rewrite or
+   - `**/pyproject.toml`
+   - `**/Cargo.toml`
+   - `**/package.json`
+   - `**/.claude-plugin/plugin.json`
+   - `**/.claude-plugin/metadata.json`
+   - `**/.claude-plugin/marketplace.json`
+   - `**/openpackage.yml`
+   - any `**/__init__.py` that contains `__version__`
+
+   Expect a large diff of roughly 100 files. That is the design.
+
+3. **Add the CHANGELOG entry.** CHANGELOG.md follows Keep a Changelog
+   1.1.0 with SemVer. Keep `## [Unreleased]` at the top. Insert
+   `## [X.Y.Z] - YYYY-MM-DD` directly below it. Do not rewrite or
    de-slop historical entries.
 
-4. **Docs sync.** Update the per-plugin version column in
-   `docs/api-overview.md`. Then:
+4. **Sync the docs.** Update the per-plugin version column in
+   `docs/api-overview.md`. Then run:
 
    ```bash
    make docs-sync-check
    ```
 
-   If it reports drift between plugin.json registrations and the
-   capabilities reference (`book/src/reference/`, generated content),
-   run `/sanctum:sync-capabilities --fix`.
+   The check compares plugin.json registrations against the generated
+   capabilities reference in `book/src/reference/`. If it reports
+   drift, run `/sanctum:sync-capabilities --fix`.
 
-5. **PR and gates.** Open the PR and clear the gates per
-   night-market-change-control (pre-commit hooks, slop-check on docs,
-   capabilities-sync, typecheck, security workflows).
+5. **Open the PR and clear the gates.** Follow
+   night-market-change-control. The gates are the pre-commit hooks, the
+   slop check on docs, capabilities-sync, typecheck, and the security
+   workflows.
 
-6. **Merge to master.** trust-attestation.yml fires on the push: it
-   runs `make test`, writes `trust-report.json`, and attaches a SLSA
-   provenance attestation via `actions/attest-build-provenance@v4`.
+6. **Merge to master.**
 
-7. **Tag.** Run `/sanctum:create-tag v1.9.16`. It pushes a v-prefixed
-   annotated tag and confirms the release pipeline started.
+   `trust-attestation.yml` fires on the push. It runs `make test`. It
+   writes `trust-report.json`. It attaches a SLSA provenance
+   attestation with `actions/attest-build-provenance@v4`.
 
-8. **Release pipeline.** cross-framework-publish.yml fires on `v*`
-   tags: it strips the `v`, validates the version against
-   `^[0-9]+\.[0-9]+\.[0-9]+`, runs the cross-framework unit tests
-   (clawhub_export, build_bridge, a2a_cards, framework_detect), runs
-   `make cross-framework`, packages four tarballs
-   (`night-market-clawhub`, `night-market-openclaw-bridge`,
-   `night-market-a2a-cards`, `night-market-cross-framework`), and
-   creates the GitHub release. Precondition: the publish job fails if
-   `clawhub/manifest.json` is missing or its `total_exported` is 0
-   (currently 188). Post-release ClawHub submission is manual:
+7. **Tag the release.** Run `/sanctum:create-tag v1.9.16`. The command
+   pushes a v-prefixed annotated tag. It then confirms that the release
+   pipeline started.
+
+8. **Let the release pipeline run.**
+
+   `cross-framework-publish.yml` fires on `v*` tags. It strips the `v`
+   and validates the version against `^[0-9]+\.[0-9]+\.[0-9]+`. It runs
+   the cross-framework unit tests: clawhub_export, build_bridge,
+   a2a_cards, and framework_detect. It runs `make cross-framework`. It
+   packages four tarballs:
+
+   - `night-market-clawhub`
+   - `night-market-openclaw-bridge`
+   - `night-market-a2a-cards`
+   - `night-market-cross-framework`
+
+   It then creates the GitHub release.
+
+   One precondition applies. The publish job fails when
+   `clawhub/manifest.json` does not exist, and when its
+   `total_exported` is 0. The current count is 188.
+
+   ClawHub submission after the release stays manual. Run
    `./scripts/clawhub-submit.sh v<version>`.
 
 Release checklist:
