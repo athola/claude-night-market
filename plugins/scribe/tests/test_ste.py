@@ -265,6 +265,43 @@ def test_an_unclassifiable_numbered_step_gets_the_procedural_limit():
     assert findings[0].actual == 23
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Categories are resolved at runtime through the GraphQL API.",
+        "Assistance should be choosable and fade-able across a session.",
+        "Nothing is narrower than a byte, so the cast truncates.",
+        "GRADE reports certainty apart from the recommendation strength.",
+        "Cache-aligned prefixes carries a cost the writer pays later.",
+    ],
+)
+def test_a_finite_verb_in_second_place_means_the_first_word_is_a_subject(text):
+    """A sentence with a subject is a statement, not an instruction.
+
+    Every one of these opens with a noun the verb lexicon does not
+    know, which left them unclassifiable and, inside a numbered list,
+    procedural by fallback.
+    """
+    assert classify_sentence(text)[0] == "descriptive"
+
+
+def test_a_bare_verb_in_second_place_is_still_an_object():
+    """``Use return dictionaries`` is an instruction. ``return`` is not
+    inflected here, so it reads as part of the object, not as a verb.
+    """
+    assert classify_sentence("Use return dictionaries to report the tier.")[0] == (
+        "procedural"
+    )
+
+
+def test_a_register_read_through_a_label_is_weaker_evidence():
+    """Stripping the label discards the sentence's real opening."""
+    bare = classify_sentence("Cap every inner timeout below the budget.")
+    labelled = classify_sentence("Fix: cap every inner timeout below the budget.")
+    assert bare[0] == labelled[0] == "procedural"
+    assert labelled[1] < bare[1]
+
+
 def test_unclassifiable_text_is_unknown_not_guessed():
     kind, confidence = classify_sentence("Possibly, in some cases.")
     assert kind == "unknown"
@@ -652,3 +689,53 @@ def test_main_reports_a_missing_file_without_crashing(tmp_path, capsys):
     code = main([str(tmp_path / "absent.md")])
     assert code == 1
     assert "absent.md" in capsys.readouterr().err
+
+
+# ---------------------------------------------------------------------------
+# Finding confidence. A sentence_length finding depends on the register
+# only while the sentence fits under the descriptive limit. Past 25
+# words it is over both limits and the count alone settles it.
+# ---------------------------------------------------------------------------
+
+
+def test_a_register_dependent_finding_is_reported_as_medium():
+    """The case this rule was written for.
+
+    ``Triggers: push to master`` describes when a workflow fires. The
+    label hides the real opening, and ``push`` is a verb, so the
+    sentence reads as an instruction. It is 23 words: over the
+    procedural limit, under the descriptive one, so the finding stands
+    or falls on a register the checker cannot settle. It says so.
+    """
+    text = (
+        "Triggers: push to master or main touching `book/**` or the "
+        "workflow file itself, plus PRs on the same paths (build-only) "
+        "and manual dispatch."
+    )
+    findings = check_sentence_length(text)
+    assert len(findings) == 1
+    assert findings[0].actual <= DESCRIPTIVE_MAX_WORDS
+    assert findings[0].confidence == "medium"
+
+
+def test_a_count_decided_finding_stays_high():
+    """Past the descriptive limit the register no longer matters."""
+    text = "Fix: " + " ".join(["the release step"] * 9) + " now."
+    findings = check_sentence_length(text)
+    assert len(findings) == 1
+    assert findings[0].actual > DESCRIPTIVE_MAX_WORDS
+    assert findings[0].confidence == "high"
+
+
+def test_a_bare_imperative_finding_stays_high():
+    text = "Run " + " ".join(["the release step"] * 7) + " now."
+    findings = check_sentence_length(text)
+    assert len(findings) == 1
+    assert findings[0].actual <= DESCRIPTIVE_MAX_WORDS
+    assert findings[0].confidence == "high"
+
+
+def test_paragraph_findings_are_always_high():
+    """Paragraph length rests on counting alone, never on a register."""
+    para = " ".join(["The system works."] * (PARAGRAPH_MAX_SENTENCES + 1))
+    assert check_paragraph_length(para)[0].confidence == "high"

@@ -138,7 +138,33 @@ and verb forms and calls what is left a noun, which a real
 part-of-speech tagger would do better. Reread the phrase it points at.
 Do not rewrite on it, and never gate a merge on it.
 
-One limit worth knowing before you trust a clean run: 64% of
+## What the confidence on a finding means
+
+Each finding prints its own confidence, and the three rules earn it
+differently.
+
+| Confidence | Where it appears |
+|------------|------------------|
+| `high` | Every paragraph finding, and any sentence over 25 words |
+| `medium` | A sentence of 21 to 25 words whose register was inferred |
+| `low` | Every noun-cluster finding |
+
+Past 25 words a sentence is over both limits, so the count settles it
+and the register does not matter. Between 21 and 25 words the finding
+exists only because the sentence was read as procedural, and when that
+reading came through a stripped label it is published as `medium`.
+Across the corpus 11% of sentence findings are `medium`.
+
+A label is stripped because list items here open with `**Label**:`, and
+classifying on the label leaves most of them unreadable. The cost is
+that the sentence's real opening is discarded. `Triggers: push to
+master` then reads as an instruction to push rather than a description
+of when a workflow fires, and no test on the tokens separates it from
+`Merge to master`, which is a real instruction. The reading is right
+about five times in six, so the class is kept and the doubt is
+published with it. Read a `medium` finding before you act on it.
+
+One limit worth knowing before you trust a clean run: 61% of
 sentences cannot be classified as procedural or descriptive, and those
 get the looser 25-word limit. The checker under-reports rather than
 over-reports. A clean run is weaker evidence than a dirty one.

@@ -219,7 +219,14 @@ class TestDocumentedNumbersMatchTheCode:
     def test_hub_discloses_the_unclassified_share(self) -> None:
         """A clean run is weak evidence, and the skill must say so."""
         text = _read(SKILL)
-        assert "64%" in text
+        assert "61%" in text
+
+    @pytest.mark.unit
+    def test_hub_explains_what_a_medium_finding_means(self) -> None:
+        """A checker that cannot settle a register must publish that."""
+        text = _read(SKILL)
+        assert "medium" in text
+        assert "register" in text.lower()
 
     @pytest.mark.unit
     def test_hub_names_the_corpus_the_numbers_came_from(self) -> None:

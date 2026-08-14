@@ -57,9 +57,26 @@ Noun-cluster detection works by subtracting function words and
 recognizable verb forms from the token stream and treating the
 remainder as nouns. That is crude next to a part-of-speech tagger, and
 it is why every noun-cluster finding is reported at ``low`` confidence:
-surface it for a human, never rewrite on it. Sentence and paragraph
-findings are ``high`` confidence because they rest on counting, not on
-guessing a part of speech.
+surface it for a human, never rewrite on it.
+
+Paragraph findings are always ``high``, because a sentence count needs
+no part of speech. Sentence findings are ``high`` or ``medium``,
+depending on whether the register mattered. Past 25 words a sentence is
+over both limits and the count alone settles it. Below that the finding
+exists only because the sentence was read as procedural, and when that
+reading came through a stripped label the finding is reported
+``medium``.
+
+A label is stripped because this repository's list items open with
+``**Label**:``, and classifying on the label left most of them
+unreadable. The cost is that the sentence's real opening is discarded.
+``Triggers: push to master`` then reads as an instruction to push,
+rather than a description of when a workflow fires, and no test on the
+tokens can separate it from ``Merge to master``, which is a real
+instruction. Measured across the corpus the reading is right about five
+times in six. Dropping the whole class would delete five right answers
+for each wrong one it removed, so the class is kept and the doubt is
+published with it.
 """
 
 from __future__ import annotations
@@ -189,6 +206,33 @@ _PUNCTUATION_BREAK = re.compile(r"[,;:()\[\]{}]|\s[-\u2013\u2014]\s")
 # never mistaken for a label.
 _LABEL_PREFIX = re.compile(r"^\s*(?:\*\*|__)?\s*([^:*_`]{1,40}?)\s*(?:\*\*|__)?:\s+")
 _LABEL_MAX_WORDS = 4
+
+# Verb forms that can only be finite: a copula, an auxiliary, or a
+# modal. A word in front of one of these is its subject, and a sentence
+# with a subject is a statement rather than an instruction.
+_FINITE_FORMS = frozenset(
+    {
+        "is",
+        "are",
+        "was",
+        "were",
+        "has",
+        "have",
+        "had",
+        "does",
+        "did",
+        "can",
+        "cannot",
+        "could",
+        "may",
+        "might",
+        "must",
+        "shall",
+        "should",
+        "will",
+        "would",
+    }
+)
 
 _LEXICON_CACHE: dict | None = None
 
@@ -361,6 +405,23 @@ def _strip_label(text: str) -> str:
     return remainder if remainder.strip() else text
 
 
+def _is_finite_verb(word: str, verbs: set) -> bool:
+    """True when the word can only be a finite verb, never a bare one.
+
+    A copula or modal qualifies outright. So does an inflected form of
+    a listed verb, because ``-s`` marks a third-person present verb.
+    The bare form is deliberately excluded: in ``Use return
+    dictionaries`` the second word is an object, not a predicate.
+    """
+    if word in _FINITE_FORMS:
+        return True
+    if word.endswith("ies") and word[:-3] + "y" in verbs:
+        return True
+    if word.endswith("es") and word[:-2] in verbs:
+        return True
+    return word.endswith("s") and word[:-1] in verbs
+
+
 def classify_sentence(text: str, *, in_ordered_list: bool = False) -> tuple:
     """Classify a sentence as procedural, descriptive, or unknown.
 
@@ -373,13 +434,21 @@ def classify_sentence(text: str, *, in_ordered_list: bool = False) -> tuple:
     check enabled.
     """
     lex = _sets()
-    words = _WORD.findall(_mask_spans(_strip_label(text)))
+    body = _strip_label(text)
+    # A label hides the sentence's real opening, so a register read
+    # through one rests on less than a register read from the sentence
+    # itself. Measured over the corpus, the reading is right about five
+    # times in six, which is worth reporting and not worth asserting.
+    through_label = body != text
+    words = _WORD.findall(_mask_spans(body))
     if not words:
         return ("unknown", 0.0)
     first = words[0].lower()
 
     if first in lex["imperative_verbs"]:
-        return ("procedural", 0.9 if in_ordered_list else 0.75)
+        if in_ordered_list:
+            return ("procedural", 0.75 if through_label else 0.9)
+        return ("procedural", 0.6 if through_label else 0.75)
     # "Never raise the baseline" is an instruction with an adverb in
     # front of its verb. The adverb alone proves nothing, so the verb
     # after it has to be present, and the reading is weaker evidence
@@ -395,6 +464,13 @@ def classify_sentence(text: str, *, in_ordered_list: bool = False) -> tuple:
         return ("procedural", 0.7 if in_ordered_list else 0.6)
     if first in lex["descriptive_starters"]:
         return ("descriptive", 0.75)
+    # "Categories are resolved", "GRADE reports certainty". The opening
+    # word is a noun the verb lexicon does not know, and the word after
+    # it can only be a predicate, so the opening word is its subject.
+    # Placed ahead of the numbered-list fallback on purpose: a step
+    # that turns out to be a statement is a statement.
+    if len(words) > 1 and _is_finite_verb(words[1].lower(), lex["imperative_verbs"]):
+        return ("descriptive", 0.7)
     if in_ordered_list:
         return ("procedural", 0.6)
     return ("unknown", 0.3)
@@ -479,6 +555,21 @@ def _iter_blocks(text: str) -> list:
     return blocks
 
 
+def _finding_confidence(actual: int, register_confidence: float) -> str:
+    """How far a sentence_length finding rests on the register.
+
+    Past the descriptive limit the sentence is over both limits, so the
+    count settles it and the register is irrelevant. Below that the
+    finding stands or falls on a register the checker inferred, and a
+    weak inference has to be reported as one. The alternative, dropping
+    the finding, deletes about five right answers for each wrong one it
+    removes.
+    """
+    if actual > DESCRIPTIVE_MAX_WORDS or register_confidence >= 0.75:
+        return "high"
+    return "medium"
+
+
 def check_sentence_length(text: str) -> list:
     """Report sentences over the limit for their register.
 
@@ -503,7 +594,7 @@ def check_sentence_length(text: str) -> list:
                             f"{kind} sentence runs {actual} words against a "
                             f"{limit}-word limit"
                         ),
-                        confidence="high",
+                        confidence=_finding_confidence(actual, sentence.confidence),
                         limit=limit,
                         actual=actual,
                     )
