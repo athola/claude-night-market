@@ -10,8 +10,9 @@ patterns. Each needs either word-count normalization or noun detection:
   measured. A checker that applies one global limit is measuring
   something other than STE.
 - :func:`check_paragraph_length` enforces the six-sentence paragraph
-  limit, and applies it only to prose paragraphs. A run of numbered
-  steps is a procedure, not a run-on paragraph.
+  limit against every prose block. A run of numbered steps is a
+  procedure rather than a run-on paragraph, and the block splitter
+  already encodes that by giving each step its own block.
 - :func:`find_noun_clusters` reports noun strings longer than three
   words.
 
@@ -459,16 +460,16 @@ def check_sentence_length(text: str) -> list:
 
 
 def check_paragraph_length(text: str) -> list:
-    """Report prose paragraphs longer than six sentences.
+    """Report prose blocks longer than six sentences.
 
-    List items are exempt. Seven numbered steps are seven procedures,
-    and collapsing them into a paragraph count would report a defect
-    where the structure is correct.
+    Seven numbered steps are seven procedures, not a run-on paragraph.
+    ``_iter_blocks`` already enforces that by giving each list item its
+    own block, so no second exemption is needed here. Skipping items
+    outright would let one eight-sentence bullet through, which is the
+    defect the limit exists to catch.
     """
     findings = []
     for block in _iter_blocks(text):
-        if block.is_list_item:
-            continue
         count = len(split_sentences(block.text))
         if count > PARAGRAPH_MAX_SENTENCES:
             findings.append(

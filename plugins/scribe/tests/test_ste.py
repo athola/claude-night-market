@@ -295,6 +295,24 @@ def test_ordered_list_steps_are_not_one_paragraph():
     assert check_paragraph_length(text) == []
 
 
+def test_one_overlong_list_item_is_still_flagged():
+    """A bullet is exempt from being merged, not from being counted.
+
+    ``_iter_blocks`` already gives each item its own block, so the
+    run-on-paragraph confusion cannot happen. Skipping items outright
+    on top of that let a single eight-sentence bullet through.
+    """
+    body = " ".join(["The system works."] * (PARAGRAPH_MAX_SENTENCES + 2))
+    findings = check_paragraph_length(f"- {body}")
+    assert len(findings) == 1
+    assert findings[0].actual == PARAGRAPH_MAX_SENTENCES + 2
+
+
+def test_a_list_item_at_the_limit_stays_clean():
+    body = " ".join(["The system works."] * PARAGRAPH_MAX_SENTENCES)
+    assert check_paragraph_length(f"- {body}") == []
+
+
 # ---------------------------------------------------------------------------
 # Noun clusters. Low confidence by construction: surface, do not autofix.
 # ---------------------------------------------------------------------------
