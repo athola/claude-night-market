@@ -17,6 +17,7 @@ from leyline.mecw import (
     calculate_context_pressure,
     check_mecw_compliance,
 )
+from leyline.plugin_data import HOST_ENV_VAR, plugin_data_dir
 from leyline.quota_tracker import QuotaConfig, QuotaStatus, QuotaTracker, UsageStats
 from leyline.session_store import SessionStore, validate_session_id
 from leyline.tokens import (
@@ -29,10 +30,12 @@ __version__ = "1.9.18"
 
 __all__ = [
     "FILE_OVERHEAD_TOKENS",
+    "HOST_ENV_VAR",
     # File system utilities
     "SKIP_DIRS",
     "SOURCE_EXTENSIONS",
     "iter_source_files",
+    "plugin_data_dir",
     # Token estimation
     "FILE_TOKEN_RATIOS",
     # MECW utilities

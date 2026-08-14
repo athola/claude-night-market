@@ -32,8 +32,11 @@ explicit step.
 
 from __future__ import annotations
 
+import importlib
 import os
+import sys
 from pathlib import Path
+from typing import Any
 
 #: An operator moving a palace, or the migration tool pointing at a
 #: destination, needs one lever that does not depend on where the code
@@ -45,6 +48,83 @@ ENV_OVERRIDE = "MEMORY_PALACE_DATA_DIR"
 _INSTALL_DEPTH = 4
 
 
+def _leyline_src(plugin_root: Path) -> Path | None:
+    """Locate leyline's ``src`` in either layout, or None.
+
+    A checkout puts sibling plugins next to each other
+    (``plugins/leyline/src``). An install nests them under a version
+    (``plugins/cache/<marketplace>/leyline/<version>/src``), which is why
+    ``leyline.bootstrap.add_plugin_src_to_path`` cannot be used here: it
+    resolves the checkout layout only, and its own docstring notes it
+    cannot bootstrap leyline itself. That paradox is why this handful of
+    lines is duplicated rather than shared.
+
+    Without this, the guarded import below would always land in its
+    except-branch inside an install, which is precisely where the bug
+    being fixed lives -- the hoist would move code without moving
+    behavior.
+    """
+    sibling = plugin_root.parent / "leyline" / "src"
+    if sibling.is_dir():
+        return sibling
+
+    versions = sorted(
+        (plugin_root.parent.parent / "leyline").glob("*/src"),
+        key=lambda path: _numeric_version(path.parent.name),
+    )
+    return versions[-1] if versions else None
+
+
+def _numeric_version(version: str) -> tuple[int, ...]:
+    """Order versions numerically so 1.9.9 ranks below 1.9.17."""
+    return tuple(int(part) if part.isdigit() else -1 for part in version.split("."))
+
+
+def _load_shared_resolver() -> Any | None:
+    """Return leyline's ``plugin_data_dir``, or None when unavailable.
+
+    The rule is shared because the audit behind issue #661 found the same
+    write shape in minister and oracle, and five false positives
+    elsewhere. Stating the distinction once is the point; the local copy
+    below exists only so a host without leyline still resolves, and
+    ``TestFallbackMatchesLeyline`` asserts the two agree.
+    """
+    src = _leyline_src(Path(__file__).resolve().parents[2])
+    if src is not None and str(src) not in sys.path:
+        sys.path.insert(0, str(src))
+    # Loaded dynamically rather than imported at module scope: the
+    # sys.path entry established just above is what makes leyline
+    # reachable, and at module scope it would not exist yet.
+    try:
+        module = importlib.import_module("leyline.plugin_data")
+    except ImportError:  # pragma: no cover - leyline genuinely absent
+        return None
+    return module.plugin_data_dir
+
+
+def _local_plugin_data_dir(
+    plugin_root: Path, *, env_override: str | None = None
+) -> Path:
+    """Resolve the data root without leyline. Mirrors ``plugin_data_dir``."""
+    if env_override:
+        override = os.environ.get(env_override)
+        if override:
+            return Path(override)
+
+    # An exported-but-empty variable reads as unset, and Path("") is the
+    # current directory, which would scatter captures wherever a hook ran.
+    host = os.environ.get("CLAUDE_PLUGIN_DATA")
+    if host:
+        return Path(host)
+
+    installed = _install_layout(plugin_root)
+    if installed is None:
+        return plugin_root
+
+    plugins_dir, plugin, marketplace = installed
+    return plugins_dir / "data" / f"{plugin}-{marketplace}"
+
+
 def persistent_root(plugin_root: Path) -> Path:
     """Return the root holding this plugin's user data across versions.
 
@@ -53,17 +133,13 @@ def persistent_root(plugin_root: Path) -> Path:
     version-independent sibling; otherwise it is ``plugin_root``
     unchanged, so a source checkout and its tests keep reading their own
     fixtures instead of the operator's real palace.
+
+    ``MEMORY_PALACE_DATA_DIR`` outranks the host's own
+    ``CLAUDE_PLUGIN_DATA`` so an operator can relocate this palace
+    without moving every plugin's data.
     """
-    override = os.environ.get(ENV_OVERRIDE)
-    if override:
-        return Path(override)
-
-    installed = _install_layout(plugin_root)
-    if installed is None:
-        return plugin_root
-
-    plugins_dir, plugin, marketplace = installed
-    return plugins_dir / "data" / f"{plugin}-{marketplace}"
+    resolver = _load_shared_resolver() or _local_plugin_data_dir
+    return Path(resolver(plugin_root, env_override=ENV_OVERRIDE))
 
 
 def user_data_dir(plugin_root: Path) -> Path:
