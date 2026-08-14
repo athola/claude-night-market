@@ -130,7 +130,7 @@ Measured across 4620 markdown files in this repository:
 |-------|----------------|----------|
 | `sentence_length` | 42% | 0.8 |
 | `paragraph_length` | 1% | 0.0 |
-| `noun_cluster` | 96% | 8.0 |
+| `noun_cluster` | 91% | 3.8 |
 
 A noun-cluster finding is advisory. Detection subtracts function words
 and verb forms and calls what is left a noun, which a real
@@ -139,7 +139,7 @@ Do not rewrite on it, and never gate a merge on it.
 
 Two limits worth knowing before you trust a clean run:
 
-- 62% of sentences cannot be classified as procedural or descriptive,
+- 61% of sentences cannot be classified as procedural or descriptive,
   and those get the looser 25-word limit. The checker under-reports
   rather than over-reports. A clean run is weaker evidence than a
   dirty one.

@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -66,6 +67,8 @@ def test_limits_match_the_corroborated_values():
         ("Install a version-independent data root.", 5, "hyphen inside phrase"),
         ("Torque the bolt to 25 Nm.", 5, "number with unit is one word"),
         ("Upgrade to 1.9.18 today.", 4, "dotted version is one word"),
+        ("Run trust-attestation.yml now.", 3, "a bare filename is one word"),
+        ("Open docs/api-overview.md first.", 3, "a path is one word"),
         (
             "Use the value (the default is 30 seconds) here.",
             5,
@@ -120,6 +123,9 @@ def test_count_words_is_never_greater_than_naive_split():
         ("The value is 0.5 in production.", 1, "a decimal is not a boundary"),
         ("Stop! Then check. Is it clear?", 3, "bang and question mark split"),
         ("i.e. this stays whole.", 1, "i.e. is not a boundary"),
+        ("**Bold lead.** Then the next one.", 2, "bold wrapper ends a sentence"),
+        ("*Emphasis.* Next.", 2, "single emphasis marker too"),
+        ("`code.` Next.", 2, "trailing backtick too"),
         ("", 0, "empty text yields no sentences"),
     ],
 )
@@ -316,10 +322,33 @@ def test_function_words_break_a_cluster():
     assert find_noun_clusters(text) == []
 
 
+def test_a_comma_breaks_a_cluster():
+    """List items are separate things, not one long noun.
+
+    "clawhub export, build bridge" is two names. Ignoring the comma
+    merged them into a four-word cluster.
+    """
+    assert find_noun_clusters("Run clawhub export, build bridge now.") == []
+
+
+def test_a_colon_breaks_a_cluster():
+    text = "Check the unit tests: capture pipeline root."
+    assert find_noun_clusters(text) == []
+
+
 def test_inflected_verbs_break_a_cluster():
     """``stores`` is inflected, so it reads as a verb, not a noun."""
     text = "The capture pipeline stores root data now."
     assert find_noun_clusters(text) == []
+
+
+def test_bare_filenames_do_not_form_noun_clusters():
+    """A filename is one thing, not a stack of nouns.
+
+    "trust-attestation.yml fires on the push" tokenized into trust,
+    attestation, and yml, which read as a four-word cluster.
+    """
+    assert find_noun_clusters("trust-attestation.yml fires on the push.") == []
 
 
 def test_noun_clusters_ignore_code_and_urls():
@@ -390,6 +419,35 @@ def test_lexicons_load_from_the_runtime_data_files():
     assert lex["function_words"], "function word lexicon is empty"
     assert "run" in lex["imperative_verbs"]
     assert "the" in lex["function_words"]
+
+
+def test_yaml_boolean_words_survive_loading():
+    """``on``, ``off``, ``no``, and ``yes`` are YAML 1.1 booleans.
+
+    Unquoted, PyYAML turns ``- on`` into ``True``, so the word is lost
+    and the string "true" is added in its place. That silently removed
+    four function words and let "the slop check on docs" read as a
+    four-word noun cluster.
+    """
+    lex = load_ste_lexicons()
+    for word in ("on", "off", "no"):
+        assert word in lex["function_words"], f"{word} lost to YAML booleans"
+    assert "no" in lex["descriptive_starters"]
+    for lexicon, words in lex.items():
+        for junk in ("true", "false"):
+            assert junk not in words, f"{junk} leaked into {lexicon}"
+
+
+def test_every_lexicon_entry_is_a_string_in_the_source():
+    """Guards the whole file, not just the four words known to break."""
+    with open(
+        Path(__file__).parent.parent / "data" / "ste" / "lexicons.yaml",
+        encoding="utf-8",
+    ) as handle:
+        raw = yaml.safe_load(handle)
+    for name, words in raw.items():
+        bad = [w for w in words if not isinstance(w, str)]
+        assert not bad, f"{name} has non-string entries (quote them): {bad}"
 
 
 def test_lexicons_are_lowercase_and_deduplicated():

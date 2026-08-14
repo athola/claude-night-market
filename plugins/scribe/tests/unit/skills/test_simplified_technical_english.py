@@ -210,16 +210,16 @@ class TestDocumentedNumbersMatchTheCode:
 
     @pytest.mark.unit
     def test_hub_discloses_the_noun_cluster_noise(self) -> None:
-        """A 96%-of-files check must not be presented as a gate."""
+        """A 91%-of-files check must not be presented as a gate."""
         text = _read(SKILL)
-        assert "96%" in text
+        assert "91%" in text
         assert "advisory" in text.lower() or "do not rewrite" in text.lower()
 
     @pytest.mark.unit
     def test_hub_discloses_the_unclassified_share(self) -> None:
         """A clean run is weak evidence, and the skill must say so."""
         text = _read(SKILL)
-        assert "62%" in text
+        assert "61%" in text
 
     @pytest.mark.unit
     def test_documented_snippets_use_python3_not_bare_python(self) -> None:

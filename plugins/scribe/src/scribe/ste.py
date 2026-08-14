@@ -99,6 +99,12 @@ _DOT = "\x01"
 _FENCED_CODE = re.compile(r"```.*?```", re.DOTALL)
 _INLINE_CODE = re.compile(r"`[^`]*`")
 _URL = re.compile(r"\b(?:https?://|www\.)\S+")
+# A bare filename or path is one thing. Without this, "config.yml"
+# tokenizes into "config" and "yml" and reads as a noun cluster.
+_FILENAME = re.compile(
+    r"\b[\w./-]+\.(?:ya?ml|json|md|py|toml|sh|bash|js|ts|txt|cfg|ini|lock|rs|"
+    r"tape|jsonl|csv|html|css|sql)\b"
+)
 _PARENTHETICAL = re.compile(r"\([^()]*\)")
 _QUOTED = re.compile(r"\"[^\"]*\"")
 # A number followed by a short unit token: "25 Nm", "30 ms", "5 kg".
@@ -128,7 +134,10 @@ _ABBREVIATIONS = (
     "p.m.",
 )
 
-_SENTENCE_END = re.compile(r"[.!?]+(?=\s|$)")
+# A sentence may end inside markdown emphasis: "**Bump the version.**".
+# The closing markers are allowed to sit between the punctuation and
+# the whitespace, or the two sentences merge into one.
+_SENTENCE_END = re.compile(r"[.!?]+[*_`]*(?=\s|$)")
 _HEADING = re.compile(r"^\s{0,3}#{1,6}\s")
 _TABLE_ROW = re.compile(r"^\s*\|")
 _HORIZONTAL_RULE = re.compile(r"^\s*([-*_])\s*(\1\s*){2,}$")
@@ -136,6 +145,10 @@ _FENCE_DELIMITER = re.compile(r"^\s*(```|~~~)")
 _ORDERED_ITEM = re.compile(r"^\s*\d+[.)]\s+")
 _UNORDERED_ITEM = re.compile(r"^\s*[-*+]\s+")
 _WORD = re.compile(r"[A-Za-z][A-Za-z'-]*")
+
+# Punctuation that separates items. A noun cluster is one name, so a
+# run of nouns never spans a comma, colon, or dash.
+_PUNCTUATION_BREAK = re.compile(r"[,;:()\[\]{}]|\s[-\u2013\u2014]\s")
 
 # A short label introducing a list item: "**Scope**:", "Note:". The
 # label names the item; the instruction or statement follows it. Capped
@@ -218,6 +231,7 @@ def _mask_spans(text: str) -> str:
     masked = _FENCED_CODE.sub(_MASK, text)
     masked = _INLINE_CODE.sub(_MASK, masked)
     masked = _URL.sub(_MASK, masked)
+    masked = _FILENAME.sub(_MASK, masked)
     masked = _PARENTHETICAL.sub(_MASK, masked)
     masked = _QUOTED.sub(_MASK, masked)
     return _NUMBER_UNIT.sub(_MASK, masked)
@@ -526,15 +540,18 @@ def find_noun_clusters(text: str) -> list:
     lex = _sets()
     for block in _iter_blocks(text):
         for sentence in split_sentences(block.text):
-            words = _WORD.findall(_mask_spans(sentence.text))
-            run: list = []
-            for position, word in enumerate(words):
-                if _is_noun_like(word, position, lex):
-                    run.append(word)
-                    continue
+            masked = _mask_spans(sentence.text)
+            position = 0
+            for segment in _PUNCTUATION_BREAK.split(masked):
+                run: list = []
+                for word in _WORD.findall(segment):
+                    if _is_noun_like(word, position, lex):
+                        run.append(word)
+                    else:
+                        findings.extend(_cluster_finding(run, block, sentence))
+                        run = []
+                    position += 1
                 findings.extend(_cluster_finding(run, block, sentence))
-                run = []
-            findings.extend(_cluster_finding(run, block, sentence))
     return findings
 
 

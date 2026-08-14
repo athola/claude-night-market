@@ -21,6 +21,10 @@
 # - ``function_words`` is subtracted from token runs to find noun
 #   clusters. Anything left after subtraction is treated as noun-like.
 #
+# QUOTING RULE: "on", "off", "no", and "yes" are YAML 1.1 booleans.
+# Unquoted, PyYAML loads `- on` as True and the word is lost. Keep
+# them quoted. test_ste.py fails on any non-string entry.
+#
 # DESIGN RULE, inherited from ``data/spelling/``: explicit word lists,
 # never suffix rules. A rule such as "-s means verb" would misread
 # "captures", "cases", and "series". Inflection is handled in code by
@@ -316,7 +320,7 @@ descriptive_starters:
   - most
   - my
   - neither
-  - no
+  - "no"
   - none
   - once
   - one
@@ -459,16 +463,16 @@ function_words:
   - neither
   - never
   - next
-  - no
+  - "no"
   - none
   - nor
   - not
   - nothing
   - now
   - of
-  - off
+  - "off"
   - often
-  - on
+  - "on"
   - once
   - one
   - only
