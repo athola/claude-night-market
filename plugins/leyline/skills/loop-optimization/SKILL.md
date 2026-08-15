@@ -1,6 +1,6 @@
 ---
 name: loop-optimization
-description: Decides hand-vs-compiler for loop transforms (unrolling, SIMD, fusion, hoisting). Use when reviewing/authoring a hot loop or tempted to hand-optimize one.
+description: Decides hand-vs-compiler for loop transforms (unrolling, SIMD, fusion, branchless). Use when reviewing/authoring a hot loop or tempted to hand-optimize one.
 alwaysApply: false
 category: cross-plugin-patterns
 tags:
@@ -12,7 +12,7 @@ tags:
 tools: []
 complexity: intermediate
 model_hint: standard
-estimated_tokens: 750
+estimated_tokens: 1150
 progressive_loading: false
 modules: []
 dependencies: []
@@ -64,7 +64,12 @@ benchmark).
    vectorize via NumPy, fuse passes via numexpr/Numba. Do not hand-unroll
    or hand-strength-reduce: the cost is bytecode dispatch, not loop
    control.
-6. Validate every claimed speedup on production-distribution data.
+6. Branch elimination is a separate lever from the five transforms
+   above, and the compiler will not apply it for you. Reach for it only
+   on a profiled hot loop whose branch outcome depends on unpredictable
+   data, and only after checking the production selectivity
+   distribution.
+7. Validate every claimed speedup on production-distribution data.
 
 ## Per-technique reality
 
@@ -75,6 +80,51 @@ benchmark).
 | Loop fusion | Bandwidth-bound array loops; Python via numexpr/Numba | When it spills registers or mixes strided access; compute-bound bodies; blocks vectorization |
 | Hoisting (LICM) | Python (no compiler does it); C/C++/Rust only when aliasing blocks the proof | `-O2`+ compiled code: redundant and can lengthen live ranges |
 | Strength reduction | Compilers do it; near-useless by hand | `-O2`+ compiled code: blocks the compiler's IV analysis and vectorization |
+| Branch elimination (branchless) | Hot loops whose branch tracks unpredictable data | Predictable branches; selectivity stably skewed toward one side; sorted or clustered input; before profiling |
+
+## Branch elimination (branchless)
+
+A separate axis from the five transforms above. Those change loop
+structure. This one removes control flow from inside the body. The
+compiler will not do it for you. Rewriting a conditional push as an
+unconditional store plus a conditional index advance changes which
+memory the loop writes, so LLVM cannot apply it as a
+semantics-preserving transformation.
+
+The lever is branch misprediction, not instruction count. A branch
+whose outcome tracks unpredictable data costs roughly 15-20 cycles per
+miss. A predictable branch (loop conditions, bounds checks) is close to
+free and needs no treatment at all.
+
+Worked example: filtering 1M random `f64` values against a threshold on
+an Intel i7-10875H.
+
+| Selectivity | `.filter().collect()` | Branchless |
+|---|---|---|
+| 1% | 0.59 ms | 1.09 ms |
+| 25% | 2.69 ms | 1.05 ms |
+| 50% | 3.94 ms | 1.03 ms |
+| 75% | 2.75 ms | 1.02 ms |
+| 99% | 1.49 ms | 1.11 ms |
+
+Read that table as variance, not speed. Branchless does not make the
+loop faster. It makes the cost independent of the data, winning the 50%
+worst case by about 4x and losing the 1% best case by about 2x. The
+same 50% case on sorted input runs at 0.93 ms under the ordinary
+branchy filter, beating branchless outright, because a sorted predicate
+predicts perfectly.
+
+The decision therefore turns on the production selectivity
+distribution, not on any single benchmark row. Apply it when the
+predicate is near-random and the worst case is what hurts. Skip it when
+selectivity is stably skewed, or when input arrives sorted or clustered.
+
+Two costs the timing column hides. The output buffer is allocated at
+full input length, so a 1% filter over 1M `f64` reserves 8 MB to return
+80 KB. And the branchless form is harder to read, which is a
+maintenance cost paid on every future edit rather than once.
+
+Source: https://www.greyblake.com/blog/branchless-rust/
 
 ## Two traps that invalidate "it is faster"
 
@@ -101,3 +151,6 @@ evidence on representative data, not assertion.
       check that the vectorized path actually executes.
 - [ ] Every speedup claim cites a benchmark on production-distribution
       data, not synthetic or reused input.
+- [ ] Any branchless rewrite names the branch it removes, shows that
+      branch is data-dependent and mispredicting, and reports the
+      selectivity range it was measured across, not a single point.

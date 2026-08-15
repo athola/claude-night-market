@@ -15,9 +15,9 @@ from collections.abc import Callable
 from pathlib import Path
 
 from scripts.war_room.config import (
-    CLAUDE_HAIKU_45,
-    CLAUDE_OPUS_48,
-    CLAUDE_SONNET_46,
+    CLAUDE_HAIKU,
+    CLAUDE_OPUS,
+    CLAUDE_SONNET,
     GEMINI_3_FLASH,
     GEMINI_3_PRO,
     GLM_52,
@@ -36,7 +36,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "supreme_commander": ExpertConfig(
         role="Supreme Commander",
         service="native",
-        model=CLAUDE_OPUS_48,
+        model=CLAUDE_OPUS,
         description="Final decision authority and synthesis",
         phases=["synthesis"],
         dangerous=False,
@@ -44,7 +44,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "chief_strategist": ExpertConfig(
         role="Chief Strategist",
         service="native",
-        model=CLAUDE_SONNET_46,
+        model=CLAUDE_SONNET,
         description="Approach generation and trade-off analysis",
         phases=["assessment", "coa"],
         dangerous=False,
@@ -166,7 +166,7 @@ def get_haiku_command() -> list[str]:
     Provides diversity through smaller/faster Claude model.
     """
     if shutil.which("claude"):
-        return ["claude", "--model", CLAUDE_HAIKU_45, "-p"]
+        return ["claude", "--model", CLAUDE_HAIKU, "-p"]
     raise FileNotFoundError("Claude CLI not found in PATH; cannot use Haiku fallback")
 
 

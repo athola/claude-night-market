@@ -205,46 +205,68 @@ demo-scribe-commands: demo-slop-scan demo-style-learn demo-doc-polish demo-doc-g
 	@echo "=== Scribe All Commands Demo Complete ==="
 
 # ---------- Test Targets ----------
-# Each test-* target runs the subset of tests matching the command name
+# Each test-* target runs the subset of tests matching the command name.
+#
+# The subset may legitimately be empty: several scribe commands are
+# skill-only and ship no unit tests. Reporting that as "not applicable"
+# is correct. Reporting a *failing* run that way is finding F-C from the
+# 2026-06-28 dogfooding pass, and it is what `pytest ... || echo` does,
+# because `||` cannot tell the two apart.
+#
+# pytest can: exit code 5 means "no tests collected". Branch on it and
+# re-raise every other status, so an empty subset skips and a broken test
+# fails. Guarded by tests/unit/test_plugin_check_harness.py.
+#
+# `|| status=$$?` rather than `; status=$$?` because this Makefile
+# inherits `.SHELLFLAGS := -euo pipefail -c`. Under errexit a bare
+# `;` aborts the shell the moment pytest returns non-zero, so the
+# capture never runs; consuming the status with `||` marks the
+# failure handled.
+#
+# --no-cov because a -k subset is not a coverage measurement. With
+# the project threshold applied, every subset run failed the 85% gate
+# on its own narrowness, which is the pressure that produced the
+# `|| echo` mask in the first place.
+define run_test_subset
+@status=0; \
+	cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "$(1)" \
+		--tb=short --no-cov || status=$$?; \
+	if [ "$$status" -eq 5 ]; then \
+		echo "Not applicable: no scribe test matches '$(1)'"; \
+	else \
+		exit "$$status"; \
+	fi
+endef
+
 test-slop-scan: ## Test slop-scan command (runs slop detection tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "slop" --tb=short 2>/dev/null || \
-		echo "Not applicable: slop-scan is skill-based; run 'make lint' to check for slop"
+	$(call run_test_subset,slop)
 
 test-style-learn: ## Test style-learn command (runs style tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "style" --tb=short 2>/dev/null || \
-		echo "Not applicable: style-learn is a skill-only command with no unit tests"
+	$(call run_test_subset,style)
 
 test-doc-polish: ## Test doc-polish command (runs doc tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "polish" --tb=short 2>/dev/null || \
-		echo "Not applicable: doc-polish is a skill-only command with no unit tests"
+	$(call run_test_subset,polish)
 
 test-doc-generate: ## Test doc-generate command (runs doc generation tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "generate" --tb=short 2>/dev/null || \
-		echo "Not applicable: doc-generate is a skill-only command with no unit tests"
+	$(call run_test_subset,generate)
 
 test-doc-verify: ## Test doc-verify command (runs doc verification tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "verify" --tb=short 2>/dev/null || \
-		echo "Not applicable: doc-verify is a skill-only command with no unit tests"
+	$(call run_test_subset,verify)
 
 test-pr-review: ## Test pr-review command (runs PR review tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "pr_review or pr-review" --tb=short \
-		2>/dev/null || echo "Not applicable: pr-review is a skill-only command with no unit tests"
+	$(call run_test_subset,pr_review or pr-review)
 
 test-update-docs: ## Test update-docs command (runs doc update tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "update_docs or update-docs" --tb=short \
-		2>/dev/null || echo "Not applicable: update-docs is a skill-only command with no unit tests"
+	$(call run_test_subset,update_docs or update-docs)
 
 test-update-readme: ## Test update-readme command (runs readme tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "update_readme or readme" --tb=short \
-		2>/dev/null || echo "Not applicable: update-readme is a skill-only command with no unit tests"
+	$(call run_test_subset,update_readme or readme)
 
 test-prepare-pr: ## Test prepare-pr command (runs PR prep tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "prepare_pr or prepare-pr" --tb=short \
-		2>/dev/null || echo "Not applicable: prepare-pr is a skill-only command with no unit tests"
+	$(call run_test_subset,prepare_pr or prepare-pr)
 
 test-pr: ## Test pr command (runs general PR tests)
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v -k "pr" --tb=short 2>/dev/null || \
-		echo "Not applicable: pr is a skill-only command with no unit tests"
+	$(call run_test_subset,pr)
 
 plugin-check: validate demo status ## Run all checks
 	@echo ""

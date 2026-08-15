@@ -38,7 +38,8 @@ def _ids(findings: list[object]) -> list[str]:
 
 class TestPY01UnsafeDeserialization:
     """PY01: stdlib unsafe-deserialization helper called on bytes you
-    do not control. CWE-502."""
+    do not control. CWE-502.
+    """
 
     def test_unsafe_loads_call_fires(self) -> None:
         src = textwrap.dedent("""
@@ -82,7 +83,8 @@ class TestPY03EvalExec:
     """PY03: dynamic-code helpers (eval/exec) on caller-supplied
     data. CWE-94. The literal call name is split via string
     concatenation in this test source so the file does not trip
-    the project's pre-commit security hook."""
+    the project's pre-commit security hook.
+    """
 
     def test_eval_on_user_input_fires(self) -> None:
         # Build the snippet via concat so this file has no literal

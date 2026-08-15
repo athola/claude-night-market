@@ -23,8 +23,9 @@ def validate_required_fields(data: dict, required: list[str]) -> list[str]:
 ### Third-Person Voice Check
 
 ```python
-FIRST_PERSON = ['I ', 'I\'m', 'my ', 'we ', 'our ']
-SECOND_PERSON = ['you ', 'your ', 'you\'re']
+FIRST_PERSON = ["I ", "I'm", "my ", "we ", "our "]
+SECOND_PERSON = ["you ", "your ", "you're"]
+
 
 def is_third_person(text: str) -> bool:
     """Check if text uses third-person voice."""
@@ -42,15 +43,16 @@ def is_third_person(text: str) -> bool:
 ```python
 from pathlib import Path
 
+
 def validate_references(skill_path: Path, references: list[str]) -> dict:
     """Validate that referenced files exist."""
-    results = {'valid': [], 'missing': []}
+    results = {"valid": [], "missing": []}
     for ref in references:
         ref_path = skill_path.parent / ref
         if ref_path.exists():
-            results['valid'].append(ref)
+            results["valid"].append(ref)
         else:
-            results['missing'].append(ref)
+            results["missing"].append(ref)
     return results
 ```
 
@@ -72,13 +74,14 @@ def check_line_count(file_path: Path, max_lines: int = 500) -> tuple[int, bool]:
 @dataclass
 class ValidationResult:
     level: str  # 'error', 'warning', 'info'
-    code: str   # 'E001', 'W001', etc.
+    code: str  # 'E001', 'W001', etc.
     message: str
     location: str  # file:line or just file
     suggestion: str | None = None
 
+
 def format_result(result: ValidationResult) -> str:
-    icon = {'error': 'X', 'warning': '!', 'info': 'i'}[result.level]
+    icon = {"error": "X", "warning": "!", "info": "i"}[result.level]
     msg = f"{icon} [{result.code}] {result.message}"
     if result.location:
         msg += f" ({result.location})"

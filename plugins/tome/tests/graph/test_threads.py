@@ -85,7 +85,8 @@ class TestOpenAnalyzer:
     ) -> None:
         """Absence is simulated, not inherited from the environment, so
         this branch stays reachable in the dev setup where memory-palace
-        is installed for the contract tests."""
+        is installed for the contract tests.
+        """
         monkeypatch.setattr(threads_module, "_PalaceGraphAnalyzer", None)
         with pytest.raises(GraphBackendUnavailable, match="memory-palace"):
             open_analyzer(object())
@@ -95,7 +96,8 @@ class TestOpenAnalyzer:
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """The predicate reports the backend it actually guards, so it
-        cannot drift from the branch ``open_analyzer`` takes."""
+        cannot drift from the branch ``open_analyzer`` takes.
+        """
         monkeypatch.setattr(threads_module, "_PalaceGraphAnalyzer", None)
         assert analyzer_available() is False
 

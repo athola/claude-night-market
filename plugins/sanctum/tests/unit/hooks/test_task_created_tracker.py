@@ -293,7 +293,8 @@ class TestMainPostToolUsePayload:
     """Feature: main() handles PostToolUse-shaped payloads for the
     TaskCreate tool. The legacy ``TaskCreated`` event never fires in
     Claude Code v2.1.89+, so the hook must read ``tool_input`` and
-    parse the task id from ``tool_response``."""
+    parse the task id from ``tool_response``.
+    """
 
     @pytest.mark.bdd
     @pytest.mark.unit

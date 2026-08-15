@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 import hashlib
 
+import post_learnings_to_discussions as mod
 from discussion_enrichment import parse_enriched_issues, parse_perf_summary
 from post_learnings_to_discussions import (
     DiscussionConfig,
@@ -27,6 +28,7 @@ from post_learnings_to_discussions import (
     create_discussion,
     format_discussion_body,
     get_repo_node_id,
+    has_substantive_findings,
     parse_learnings_md,
     post_learnings,
 )
@@ -272,7 +274,6 @@ class TestFormatDiscussionBody:
         When I format them as discussion bodies
         Then their content hashes are identical
         """
-
         summary1 = LearningSummary(
             skills_analyzed=1,
             total_executions=20,
@@ -311,7 +312,6 @@ class TestFormatDiscussionBody:
         When I format them
         Then their content hashes differ
         """
-
         summary1 = LearningSummary(
             skills_analyzed=1,
             total_executions=20,
@@ -870,7 +870,6 @@ class TestRecordPostArtifacts:
     @pytest.mark.unit
     def test_snapshot_history_appended_and_capped(self) -> None:
         """Scenario: After 6 posts, only the last 5 snapshots remain."""
-
         record = PostedRecord(posted={})
         for _ in range(6):
             _record_post_artifacts(
@@ -884,7 +883,6 @@ class TestRecordPostArtifacts:
     @pytest.mark.unit
     def test_fingerprint_records_skill_pipe_type(self) -> None:
         """Scenario: Fingerprint format is '{skill}|{issue_type}'."""
-
         record = PostedRecord(posted={})
         _record_post_artifacts(
             record,
@@ -956,3 +954,138 @@ class TestSafeParserEdgeCases:
         and display nothing than misrepresent counts.
         """
         assert _safe_int("42.5") == 0
+
+
+class TestSubstantiveDigestGate:
+    """A digest with nothing to say must not become a discussion.
+
+    52 of the 137 discussions on this board are daily [Learning]
+    digests. Every one of the 28 that carried an "Action Items"
+    section carried exactly one item::
+
+        - [ ] No high-priority actions this period. Continue monitoring.
+
+    That is the placeholder `discussion_enrichment.build_action_items`
+    emits when it found nothing, rendered as a checkbox so it reads
+    like work. Zero real action items across all 52. The board grew to
+    38% noise, and `reconcile_discussions.py` has to filter the whole
+    category out by title to see the backlog underneath.
+
+    The existing `_last_content_hash` guard does not catch this: the
+    digests differ day to day in dates and percentages, so the hash is
+    new every time even when the content says nothing.
+    """
+
+    PLACEHOLDER = "- [ ] No high-priority actions this period. Continue monitoring."
+
+    def test_placeholder_only_digest_is_not_substantive(self) -> None:
+        body = (
+            "## Summary Stats\n\n- Skills Analyzed: 27\n\n"
+            f"## Action Items\n\n{self.PLACEHOLDER}\n"
+        )
+        assert not has_substantive_findings(body)
+
+    def test_real_action_item_is_substantive(self) -> None:
+        body = (
+            "## Action Items\n\n"
+            "- [ ] File a tracking issue for **scribe:slop-detector** "
+            "(unchanged for 3 consecutive posts)\n"
+        )
+        assert has_substantive_findings(body)
+
+    def test_placeholder_beside_a_real_item_is_substantive(self) -> None:
+        """One real item carries the digest even if the placeholder rides along."""
+        body = (
+            f"## Action Items\n\n{self.PLACEHOLDER}\n"
+            "- [ ] Investigate regression in imbue:scope-guard\n"
+        )
+        assert has_substantive_findings(body)
+
+    def test_digest_with_no_action_section_is_not_substantive(self) -> None:
+        body = "## Summary Stats\n\n- Skills Analyzed: 27\n- Total Executions: 0\n"
+        assert not has_substantive_findings(body)
+
+    def test_completed_checkbox_does_not_count(self) -> None:
+        """A checked box is a record, not outstanding work."""
+        body = "## Action Items\n\n- [x] Already handled last week\n"
+        assert not has_substantive_findings(body)
+
+    def test_high_impact_issue_section_counts_as_substantive(self) -> None:
+        """Findings can arrive as issues rather than checkboxes."""
+        body = (
+            "## High-Impact Issues\n\n"
+            "- **scribe:slop-detector**: 41.6% failure rate over 24 runs\n"
+        )
+        assert has_substantive_findings(body)
+
+    def test_empty_digest_is_not_posted(self, tmp_path, monkeypatch) -> None:
+        """The gate has to sit in the publish path, not just exist."""
+        record = PostedRecord(posted={})
+        monkeypatch.setattr(PostedRecord, "load", classmethod(lambda cls: record))
+        monkeypatch.setattr(mod, "check_existing_discussion", lambda *a, **k: None)
+        monkeypatch.setattr(
+            mod,
+            "compose_enriched_body",
+            lambda *a, **k: f"## Action Items\n\n{self.PLACEHOLDER}\n",
+        )
+
+        created: list[tuple] = []
+        monkeypatch.setattr(
+            mod,
+            "create_discussion",
+            lambda *a: created.append(a) or "https://example.invalid/1",
+        )
+
+        summary = MagicMock()
+        result = mod._post_if_new(summary, "content", "o", "n", "cat-id")
+
+        assert result is None
+        assert not created, "posted a digest whose only action item is boilerplate"
+
+    def test_substantive_digest_still_posts(self, monkeypatch) -> None:
+        """Guard against the gate swallowing real digests."""
+        record = PostedRecord(posted={})
+        monkeypatch.setattr(PostedRecord, "load", classmethod(lambda cls: record))
+        monkeypatch.setattr(mod, "check_existing_discussion", lambda *a, **k: None)
+        monkeypatch.setattr(
+            mod,
+            "compose_enriched_body",
+            lambda *a, **k: "## Action Items\n\n- [ ] Fix the flaky gate\n",
+        )
+        monkeypatch.setattr(mod, "get_repo_node_id", lambda *a: "repo-id")
+
+        created: list[tuple] = []
+        monkeypatch.setattr(
+            mod,
+            "create_discussion",
+            lambda *a: (created.append(a), "https://example.invalid/2")[1],
+        )
+
+        result = mod._post_if_new(MagicMock(), "content", "o", "n", "cat-id")
+
+        assert result == "https://example.invalid/2"
+        assert created, "a digest with a real action item must still publish"
+
+    def test_rendered_top_issues_heading_counts(self) -> None:
+        """The gate reads the published body, not LEARNINGS.md.
+
+        `compose_enriched_body` renames "## High-Impact Issues" to
+        "## Top Issues". Matching only the source name suppressed a
+        digest reporting a 42.3% success rate as having nothing to say.
+        For a suppression gate the false negative deletes signal, which
+        is worse than the noise a false positive leaves behind.
+        """
+        body = (
+            "## Top Issues\n\n### imbue:proof-of-work [high]\n\n"
+            "- **Metric**: 42.3% success rate\n\n"
+            f"## Action Items\n\n{self.PLACEHOLDER}\n"
+        )
+        assert has_substantive_findings(body)
+
+    def test_end_to_end_sample_digest_is_substantive(self) -> None:
+        """Guard the whole compose path, not the heading string alone."""
+        summary = mod.parse_learnings_md(SAMPLE_LEARNINGS_MD)
+        body = mod.compose_enriched_body(
+            summary, SAMPLE_LEARNINGS_MD, PostedRecord(posted={})
+        )
+        assert has_substantive_findings(body)

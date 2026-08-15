@@ -317,12 +317,14 @@ def generate_readme_demos(tutorials: list) -> str:
     lines = ["## Demos", ""]
 
     for tutorial in tutorials:
-        lines.extend([
-            f"### {tutorial['title']}",
-            f"![{tutorial['title']} demo]({tutorial['gif_path']})",
-            f"*{tutorial['description']}. [Full tutorial]({tutorial['docs_path']})*",
-            ""
-        ])
+        lines.extend(
+            [
+                f"### {tutorial['title']}",
+                f"![{tutorial['title']} demo]({tutorial['gif_path']})",
+                f"*{tutorial['description']}. [Full tutorial]({tutorial['docs_path']})*",
+                "",
+            ]
+        )
 
     return "\n".join(lines)
 ```

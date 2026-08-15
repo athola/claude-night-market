@@ -350,13 +350,11 @@ from leyline.storage_templates import (
     EvergreenTemplate,
     GrowingTemplate,
     SeedlingTemplate,
-    ReferenceTemplate
+    ReferenceTemplate,
 )
 
 # Generate new document from template
 doc = SeedlingTemplate.create(
-    title="New Pattern",
-    insight="Core idea here",
-    action="Test and validate"
+    title="New Pattern", insight="Core idea here", action="Test and validate"
 )
 ```

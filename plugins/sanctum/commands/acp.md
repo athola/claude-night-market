@@ -37,19 +37,36 @@ are ready to go.
    - Body: what and why, wrapped at 72 chars
    - No AI attribution, no emojis, no slop
 
-5. **Commit** with the drafted message. Use a HEREDOC:
+5. **Commit** with the drafted message. Record HEAD first, so step 6
+   has something to compare against. Use a HEREDOC:
    ```bash
+   before=$(git rev-parse HEAD)
    git commit -m "$(cat <<'EOF'
    <message>
    EOF
    )"
    ```
 
-6. **If the commit fails** due to pre-commit hooks, fix the issues
-   and create a new commit. Do NOT use `--no-verify`.
+6. **Verify HEAD advanced** before treating the commit as landed:
+   ```bash
+   test "$(git rev-parse HEAD)" != "$before" && echo "committed" || echo "ABORTED"
+   git status --short
+   ```
+   An auto-fixing hook (Ruff - Fix, ruff format, prettier,
+   trailing-whitespace) rewrites a staged file and aborts the commit.
+   Its output tail reads "Passed / Restored changes from patch",
+   which is indistinguishable at a glance from a successful run, so
+   tailing hook output is not evidence that the commit landed. HEAD
+   is. See discussion #614.
 
-7. **Push** to the current branch:
+7. **If HEAD did not advance**, read the failure rather than retrying
+   blind. A `MM` row in `git status --short` means the hook rewrote a
+   file you had staged: re-stage the hook-fixed copy (`git add` the
+   `MM` paths) and commit again. Any other cause, fix the reported
+   issue. Do NOT use `--no-verify`.
+
+8. **Push** to the current branch:
    - If tracking a remote branch: `git push`
    - If no upstream set: `git push -u origin <branch>`
 
-8. **Report** the commit hash, branch, and remote URL.
+9. **Report** the commit hash, branch, and remote URL.

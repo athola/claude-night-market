@@ -328,6 +328,6 @@ python scripts/palace_manager.py export-reviews \
 ```python
 # Search result limits
 MAX_RESULTS = 50  # Per search
-MAX_DEPTH = 3     # For graph traversal
-TIMEOUT = 5000    # ms for search operations
+MAX_DEPTH = 3  # For graph traversal
+TIMEOUT = 5000  # ms for search operations
 ```

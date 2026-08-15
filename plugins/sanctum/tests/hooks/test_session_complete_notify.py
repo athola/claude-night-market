@@ -37,7 +37,8 @@ from session_complete_notify import (
 
 class TestPlatformDetectionIntegration:
     """Test that send_notification() dispatches to the correct platform
-    handler and that each handler invokes the expected subprocess command."""
+    handler and that each handler invokes the expected subprocess command.
+    """
 
     @pytest.mark.integration
     def test_linux_calls_notify_send_binary(self) -> None:
@@ -59,7 +60,8 @@ class TestPlatformDetectionIntegration:
     @pytest.mark.integration
     def test_macos_calls_osascript(self) -> None:
         """macOS path invokes osascript with an AppleScript display
-        notification command."""
+        notification command.
+        """
         with (
             patch("session_complete_notify.platform.system", return_value="Darwin"),
             patch("session_complete_notify.subprocess.run") as mock_run,
@@ -76,7 +78,8 @@ class TestPlatformDetectionIntegration:
     @pytest.mark.integration
     def test_windows_calls_powershell_toast(self) -> None:
         """Windows path invokes powershell with a toast notification
-        script containing the title and body."""
+        script containing the title and body.
+        """
         with (
             patch("session_complete_notify.platform.system", return_value="Windows"),
             patch("session_complete_notify.subprocess.run") as mock_run,
@@ -111,7 +114,8 @@ class TestPlatformDetectionIntegration:
     @pytest.mark.integration
     def test_wsl_tries_all_paths_before_failing(self) -> None:
         """WSL exhausts all PowerShell paths and BurntToast fallback
-        before returning False."""
+        before returning False.
+        """
         with (
             patch("session_complete_notify.platform.system", return_value="Linux"),
             patch("session_complete_notify.is_wsl", return_value=True),
@@ -155,7 +159,8 @@ class TestNotificationStateDeduplication:
     @pytest.mark.integration
     def test_should_notify_returns_false_after_notification(self) -> None:
         """After recording a notification, should_notify returns False
-        because notified_since_input is True."""
+        because notified_since_input is True.
+        """
         state = self._fresh_state()
         state.record_notification("hash_abc")
 
@@ -166,7 +171,8 @@ class TestNotificationStateDeduplication:
     @pytest.mark.integration
     def test_should_notify_resets_after_clear_input_flag(self, tmp_path: Path) -> None:
         """After clearing the input flag (simulating user input),
-        should_notify returns True again."""
+        should_notify returns True again.
+        """
         state = self._fresh_state("reset_test")
         state.record_notification("hash_abc")
 
@@ -195,7 +201,8 @@ class TestNotificationStateDeduplication:
     @pytest.mark.integration
     def test_content_dedup_expires_after_window(self) -> None:
         """Same content hash after CONTENT_DEDUP_SECONDS has elapsed is
-        allowed through."""
+        allowed through.
+        """
         state = self._fresh_state()
         state.last_notify_time = time.time() - (CONTENT_DEDUP_SECONDS + 1)
         state.last_content_hash = "hash_same"
@@ -207,7 +214,8 @@ class TestNotificationStateDeduplication:
     @pytest.mark.integration
     def test_different_content_bypasses_content_dedup(self) -> None:
         """Different content hash bypasses content deduplication even
-        within the time window (but may still be debounced)."""
+        within the time window (but may still be debounced).
+        """
         state = self._fresh_state()
         state.last_notify_time = time.time() - (DEBOUNCE_SECONDS + 1)
         state.last_content_hash = "hash_old"
@@ -219,7 +227,8 @@ class TestNotificationStateDeduplication:
     @pytest.mark.integration
     def test_debounce_within_window(self) -> None:
         """Notification within DEBOUNCE_SECONDS of last send is suppressed,
-        even with different content."""
+        even with different content.
+        """
         state = self._fresh_state()
         state.last_notify_time = time.time() - 1  # 1 second ago
         state.last_content_hash = "hash_old"
@@ -243,7 +252,8 @@ class TestNotificationStateDeduplication:
     @pytest.mark.integration
     def test_layer_priority_session_before_content(self) -> None:
         """Per-session flag (layer 1) takes priority over content dedup
-        (layer 2)."""
+        (layer 2).
+        """
         state = self._fresh_state()
         state.notified_since_input = True
         state.last_content_hash = "different"
@@ -328,7 +338,8 @@ class TestNotificationStateLoadSaveRoundtrip:
     @pytest.mark.integration
     def test_state_file_path_sanitizes_session_id(self) -> None:
         """Session IDs with special characters are sanitized for
-        filesystem safety."""
+        filesystem safety.
+        """
         path = NotificationState.state_file_path("sess/with\\special:chars!")
         filename = path.name
         # Should not contain /, \, or :
@@ -432,7 +443,8 @@ class TestMainBlockArgumentParsing:
     @pytest.mark.integration
     def test_background_with_session_and_cwd(self, tmp_path: Path) -> None:
         """--background session_id cwd invokes run_notification() with
-        the provided session_id and cwd."""
+        the provided session_id and cwd.
+        """
         with patch("session_complete_notify.run_notification") as mock_run:
             self._run_main_block(
                 ["script.py", "--background", "my_session", str(tmp_path)]
@@ -443,7 +455,8 @@ class TestMainBlockArgumentParsing:
     @pytest.mark.integration
     def test_background_legacy_fallback(self) -> None:
         """--background without session_id/cwd uses get_session_id()
-        and os.getcwd() as fallback."""
+        and os.getcwd() as fallback.
+        """
         with (
             patch("session_complete_notify.run_notification") as mock_run,
             patch(
@@ -492,7 +505,8 @@ class TestMainBlockArgumentParsing:
     @pytest.mark.integration
     def test_clear_state_clears_input_flag(self, tmp_path: Path) -> None:
         """clear_notification_state() loads state and clears the input
-        flag for the current session."""
+        flag for the current session.
+        """
         with (
             patch(
                 "session_complete_notify.get_session_id",
@@ -530,7 +544,8 @@ class TestMainBlockArgumentParsing:
 
 class TestTerminalInfoDetection:
     """Test get_terminal_info() with various environment variable
-    combinations."""
+    combinations.
+    """
 
     @pytest.mark.integration
     def test_bare_environment_returns_project_name(
@@ -558,7 +573,8 @@ class TestTerminalInfoDetection:
     @pytest.mark.integration
     def test_zellij_without_tab(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Zellij session without a resolved tab name shows only
-        session."""
+        session.
+        """
         monkeypatch.setenv("ZELLIJ_SESSION_NAME", "work")
         monkeypatch.delenv("TMUX", raising=False)
 
@@ -642,7 +658,8 @@ class TestTerminalInfoDetection:
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """tmux set but _get_tmux_session() returns None falls through
-        to TERM_PROGRAM."""
+        to TERM_PROGRAM.
+        """
         monkeypatch.delenv("ZELLIJ_SESSION_NAME", raising=False)
         monkeypatch.delenv("SSH_TTY", raising=False)
         monkeypatch.delenv("SSH_CONNECTION", raising=False)
@@ -812,12 +829,14 @@ class TestContentHashing:
 
 class TestRunNotificationIntegration:
     """Test run_notification() end-to-end including state machine
-    interactions."""
+    interactions.
+    """
 
     @pytest.mark.integration
     def test_first_call_sends_notification(self, tmp_path: Path) -> None:
         """First run_notification() call with fresh state sends a
-        notification."""
+        notification.
+        """
         state_file = tmp_path / "state.json"
         with (
             patch.object(
@@ -841,7 +860,8 @@ class TestRunNotificationIntegration:
     @pytest.mark.integration
     def test_second_call_is_deduplicated(self, tmp_path: Path) -> None:
         """Second immediate run_notification() call is suppressed by
-        deduplication."""
+        deduplication.
+        """
         state_file = tmp_path / "state.json"
         with (
             patch.object(

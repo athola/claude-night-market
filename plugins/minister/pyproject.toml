@@ -1,6 +1,6 @@
 [project]
 name = "minister"
-version = "1.9.17"
+version = "1.9.18"
 description = "GitHub-centric project management plugin for Claude Code"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
@@ -68,6 +68,14 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 strict = true
+
+# leyline is a soft dependency: it holds the shared plugin-data
+# resolution rule, but its src is not on sys.path when minister runs
+# from an install tree, so project_tracker imports it under a guard and
+# falls back. Mirrors memory-palace's override for the same reason.
+[[tool.mypy.overrides]]
+module = ["leyline", "leyline.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

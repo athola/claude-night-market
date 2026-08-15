@@ -108,10 +108,7 @@ def forecast_30d(weekly_counts):
     x_mean = sum(xs) / n
     y_mean = sum(weekly_counts) / n
 
-    numerator = sum(
-        (x - x_mean) * (y - y_mean)
-        for x, y in zip(xs, weekly_counts)
-    )
+    numerator = sum((x - x_mean) * (y - y_mean) for x, y in zip(xs, weekly_counts))
     denominator = sum((x - x_mean) ** 2 for x in xs)
 
     if denominator == 0:

@@ -76,15 +76,37 @@ Actions:
 Create tasks at workflow start:
 
 ```python
-TodoWrite({
-    "todos": [
-        {"content": "Establish review context", "status": "pending", "activeForm": "Establishing review context"},
-        {"content": "Create scope inventory", "status": "pending", "activeForm": "Creating scope inventory"},
-        {"content": "Perform deep analysis", "status": "pending", "activeForm": "Performing deep analysis"},
-        {"content": "Capture evidence", "status": "pending", "activeForm": "Capturing evidence"},
-        {"content": "Assemble final deliverable", "status": "pending", "activeForm": "Assembling final deliverable"}
-    ]
-})
+TodoWrite(
+    {
+        "todos": [
+            {
+                "content": "Establish review context",
+                "status": "pending",
+                "activeForm": "Establishing review context",
+            },
+            {
+                "content": "Create scope inventory",
+                "status": "pending",
+                "activeForm": "Creating scope inventory",
+            },
+            {
+                "content": "Perform deep analysis",
+                "status": "pending",
+                "activeForm": "Performing deep analysis",
+            },
+            {
+                "content": "Capture evidence",
+                "status": "pending",
+                "activeForm": "Capturing evidence",
+            },
+            {
+                "content": "Assemble final deliverable",
+                "status": "pending",
+                "activeForm": "Assembling final deliverable",
+            },
+        ]
+    }
+)
 ```
 
 Mark each as `in_progress` when starting, `completed` when finished.

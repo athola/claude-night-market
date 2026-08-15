@@ -272,14 +272,14 @@ Targeting: athola/other-repo
 
 ```python
 TYPE_PATTERNS = {
-    'feature': r'(feat|add|implement|create|enable|support)',
-    'bugfix': r'(fix|bug|broken|error|crash|fail)',
-    'test': r'(test|coverage|spec|mock|assert)',
-    'docs': r'(doc|readme|guide|example|tutorial)',
-    'refactor': r'(refactor|cleanup|rename|reorganize|simplify)',
-    'performance': r'(perf|optim|speed|slow|fast|memory|cache)',
-    'ci-cd': r'(ci|cd|pipeline|deploy|workflow|action)',
-    'research': r'(research|investigate|explore|discuss|question)',
+    "feature": r"(feat|add|implement|create|enable|support)",
+    "bugfix": r"(fix|bug|broken|error|crash|fail)",
+    "test": r"(test|coverage|spec|mock|assert)",
+    "docs": r"(doc|readme|guide|example|tutorial)",
+    "refactor": r"(refactor|cleanup|rename|reorganize|simplify)",
+    "performance": r"(perf|optim|speed|slow|fast|memory|cache)",
+    "ci-cd": r"(ci|cd|pipeline|deploy|workflow|action)",
+    "research": r"(research|investigate|explore|discuss|question)",
 }
 ```
 
@@ -287,20 +287,20 @@ TYPE_PATTERNS = {
 
 ```python
 EFFORT_INDICATORS = {
-    'small': ['quick', 'simple', 'trivial', 'typo', 'minor'],
-    'large': ['complex', 'significant', 'major', 'rewrite', 'architecture'],
+    "small": ["quick", "simple", "trivial", "typo", "minor"],
+    "large": ["complex", "significant", "major", "rewrite", "architecture"],
 }
 
 # Default effort by type
 DEFAULT_EFFORT = {
-    'feature': 'medium',
-    'bugfix': 'small',
-    'test': 'medium',
-    'docs': 'small',
-    'refactor': 'medium',
-    'performance': 'medium',
-    'ci-cd': 'medium',
-    'research': 'large',
+    "feature": "medium",
+    "bugfix": "small",
+    "test": "medium",
+    "docs": "small",
+    "refactor": "medium",
+    "performance": "medium",
+    "ci-cd": "medium",
+    "research": "large",
 }
 ```
 

@@ -91,8 +91,8 @@ task = create_task(team, subject, description, owner=None, blocks=[], metadata={
 
 ### Read
 ```python
-task = get_task(team, task_id)       # Single task
-tasks = list_tasks(team)             # All tasks
+task = get_task(team, task_id)  # Single task
+tasks = list_tasks(team)  # All tasks
 ```
 
 ### Update

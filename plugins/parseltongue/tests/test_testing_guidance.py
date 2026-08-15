@@ -578,7 +578,8 @@ class TestMixinDemotion:
     @pytest.mark.unit
     def test_quality_methods_are_module_level_functions(self) -> None:
         """``evaluate_test_quality`` etc. are importable from
-        ``_quality`` directly, with no ``self`` parameter."""
+        ``_quality`` directly, with no ``self`` parameter.
+        """
         for name in (
             "evaluate_test_quality",
             "evaluate_maintainability",
@@ -608,7 +609,8 @@ class TestMixinDemotion:
     @pytest.mark.unit
     def test_mixin_classes_no_longer_exported(self) -> None:
         """``TestQualityMixin`` / ``TestRecommendationMixin`` are no
-        longer part of the public testing_guide surface."""
+        longer part of the public testing_guide surface.
+        """
         assert not hasattr(testing_guide, "TestQualityMixin")
         assert not hasattr(testing_guide, "TestRecommendationMixin")
 

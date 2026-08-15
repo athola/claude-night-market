@@ -93,14 +93,15 @@ def foo():
 
 **Wrong:**
 ```python
-message = f"This is a very long message that exceeds the line length limit of 88 characters"
+message = (
+    f"This is a very long message that exceeds the line length limit of 88 characters"
+)
 ```
 
 **Correct:**
 ```python
 message = (
-    f"This is a very long message that "
-    f"exceeds the line length limit of 88 characters"
+    f"This is a very long message that exceeds the line length limit of 88 characters"
 )
 ```
 
@@ -126,12 +127,14 @@ if stability_gap > STABILITY_GAP_THRESHOLD:
 ```python
 def run():
     import subprocess  # Bad: inside function
+
     subprocess.run(...)
 ```
 
 **Correct:**
 ```python
 import subprocess  # Good: at module level
+
 
 def run():
     subprocess.run(...)
@@ -175,14 +178,19 @@ Example fix:
 ```python
 # Bad: stringly-typed with Literal
 ChallengeType = Literal["multiple_choice", "explain_why", "trace"]
-if challenge.type == "multiple_choice": ...
+if challenge.type == "multiple_choice":
+    ...
+
 
 # Good: proper Enum with member matching
 class ChallengeType(str, Enum):
     MULTIPLE_CHOICE = "multiple_choice"
     EXPLAIN_WHY = "explain_why"
     TRACE = "trace"
-if challenge.type == ChallengeType.MULTIPLE_CHOICE: ...
+
+
+if challenge.type == ChallengeType.MULTIPLE_CHOICE:
+    ...
 ```
 
 ## Workflow

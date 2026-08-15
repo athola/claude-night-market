@@ -56,9 +56,9 @@ def execute_create_new(route: Route) -> ExecutionResult:
     dest_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Generate content based on category
-    if route.chunk.category == 'decisions':
+    if route.chunk.category == "decisions":
         content = generate_adr_content(route)
-    elif route.chunk.category == 'actionable':
+    elif route.chunk.category == "actionable":
         content = generate_plan_content(route)
     else:
         content = generate_doc_content(route)
@@ -68,7 +68,7 @@ def execute_create_new(route: Route) -> ExecutionResult:
 
     return ExecutionResult(
         destination=route.destination,
-        action='created',
+        action="created",
         bytes_written=len(content),
     )
 ```
@@ -106,21 +106,22 @@ def execute_intelligent_weave(route: Route) -> ExecutionResult:
 
     return ExecutionResult(
         destination=route.destination,
-        action='weaved',
+        action="weaved",
         section=section_pattern.header,
         bytes_added=len(formatted),
     )
+
 
 def analyze_section_style(content: str, section: SectionMatch) -> Style:
     """Determine formatting style of existing section."""
     section_content = extract_section_content(content, section)
 
     return Style(
-        uses_bullets=bool(re.search(r'^[-*]\s', section_content, re.M)),
-        uses_numbers=bool(re.search(r'^\d+\.\s', section_content, re.M)),
-        uses_tables=bool(re.search(r'^\|.*\|$', section_content, re.M)),
+        uses_bullets=bool(re.search(r"^[-*]\s", section_content, re.M)),
+        uses_numbers=bool(re.search(r"^\d+\.\s", section_content, re.M)),
+        uses_tables=bool(re.search(r"^\|.*\|$", section_content, re.M)),
         indent_style=detect_indent(section_content),
-        has_blank_lines='\n\n' in section_content,
+        has_blank_lines="\n\n" in section_content,
     )
 ```
 
@@ -137,25 +138,29 @@ def execute_replace_section(route: Route) -> ExecutionResult:
     section = find_section_boundaries(original, route.target_section)
 
     if not section:
-        raise ExecutionError(f"Section '{route.target_section}' not found in {route.destination}")
+        raise ExecutionError(
+            f"Section '{route.target_section}' not found in {route.destination}"
+        )
 
     # Log what we're replacing (for rollback if needed)
-    replaced_content = original[section.start:section.end]
+    replaced_content = original[section.start : section.end]
     log_replacement(route.destination, route.target_section, replaced_content)
 
     # Build replacement with update marker
     replacement = f"{section.header}\n\n"
-    replacement += f"*Updated: {date.today().isoformat()} (consolidated from {route.source})*\n\n"
+    replacement += (
+        f"*Updated: {date.today().isoformat()} (consolidated from {route.source})*\n\n"
+    )
     replacement += route.chunk.content
 
     # Replace in document
-    updated = original[:section.start] + replacement + original[section.end:]
+    updated = original[: section.start] + replacement + original[section.end :]
 
     dest_path.write_text(updated)
 
     return ExecutionResult(
         destination=route.destination,
-        action='replaced',
+        action="replaced",
         section=route.target_section,
         bytes_before=len(replaced_content),
         bytes_after=len(replacement),
@@ -187,7 +192,7 @@ def execute_append_with_context(route: Route) -> ExecutionResult:
 
     return ExecutionResult(
         destination=route.destination,
-        action='appended',
+        action="appended",
         section=route.chunk.header,
         bytes_added=len(new_section),
     )
@@ -198,11 +203,13 @@ def execute_append_with_context(route: Route) -> ExecutionResult:
 After all merges complete successfully:
 
 ```python
-def delete_sources(plan: ConsolidationPlan, results: list[ExecutionResult]) -> list[str]:
+def delete_sources(
+    plan: ConsolidationPlan, results: list[ExecutionResult]
+) -> list[str]:
     """Delete source files after successful consolidation."""
 
     # Only delete if ALL operations succeeded
-    if any(r.status == 'failed' for r in results):
+    if any(r.status == "failed" for r in results):
         return []  # Don't delete anything
 
     deleted = []
@@ -220,7 +227,8 @@ def delete_sources(plan: ConsolidationPlan, results: list[ExecutionResult]) -> l
 Maintain log for potential rollback:
 
 ```python
-CONSOLIDATION_LOG = '.consolidation-log.json'
+CONSOLIDATION_LOG = ".consolidation-log.json"
+
 
 def log_operation(operation: dict):
     """Log operation for potential rollback."""
@@ -229,10 +237,11 @@ def log_operation(operation: dict):
     if log_path.exists():
         log = json.loads(log_path.read_text())
     else:
-        log = {'operations': [], 'timestamp': datetime.now().isoformat()}
+        log = {"operations": [], "timestamp": datetime.now().isoformat()}
 
-    log['operations'].append(operation)
+    log["operations"].append(operation)
     log_path.write_text(json.dumps(log, indent=2))
+
 
 def rollback_last():
     """Rollback most recent consolidation."""
@@ -243,12 +252,12 @@ def rollback_last():
     log = json.loads(log_path.read_text())
 
     # Reverse operations
-    for op in reversed(log['operations']):
-        if op['action'] == 'created':
-            Path(op['destination']).unlink()
-        elif op['action'] == 'replaced':
-            restore_section(op['destination'], op['section'], op['original'])
-        elif op['action'] == 'deleted':
+    for op in reversed(log["operations"]):
+        if op["action"] == "created":
+            Path(op["destination"]).unlink()
+        elif op["action"] == "replaced":
+            restore_section(op["destination"], op["section"], op["original"])
+        elif op["action"] == "deleted":
             # Cannot restore deleted sources automatically
             print(f"WARNING: Cannot restore deleted source: {op['source']}")
 
@@ -308,7 +317,9 @@ Consolidated from: API_REVIEW_REPORT.md
 ```python
 class ExecutionError(Exception):
     """Error during merge execution."""
+
     pass
+
 
 def execute_with_recovery(plan: ConsolidationPlan) -> ExecutionSummary:
     """Execute plan with error recovery."""
@@ -323,9 +334,9 @@ def execute_with_recovery(plan: ConsolidationPlan) -> ExecutionSummary:
 
         # Execute updates
         for route in plan.updates:
-            if route.strategy == 'INTELLIGENT_WEAVE':
+            if route.strategy == "INTELLIGENT_WEAVE":
                 result = execute_intelligent_weave(route)
-            elif route.strategy == 'REPLACE_SECTION':
+            elif route.strategy == "REPLACE_SECTION":
                 result = execute_replace_section(route)
             else:
                 result = execute_append_with_context(route)
@@ -336,16 +347,16 @@ def execute_with_recovery(plan: ConsolidationPlan) -> ExecutionSummary:
         # Delete sources
         deleted = delete_sources(plan, results)
         for source in deleted:
-            log_operation({'action': 'deleted', 'source': source})
+            log_operation({"action": "deleted", "source": source})
 
-        return ExecutionSummary(results=results, deleted=deleted, status='success')
+        return ExecutionSummary(results=results, deleted=deleted, status="success")
 
     except Exception as e:
         # Log failure but don't auto-rollback
         return ExecutionSummary(
             results=results,
-            status='partial_failure',
+            status="partial_failure",
             error=str(e),
-            message="Some operations failed. Use rollback if needed."
+            message="Some operations failed. Use rollback if needed.",
         )
 ```

@@ -49,14 +49,21 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 PLUGINS_ROOT = REPO_ROOT / "plugins"
 MATRIX_DOC = "docs/agent-model-matrix.md"
 
-# The three tier aliases Claude Code documents for agent frontmatter.
+# The tier aliases Claude Code documents for agent frontmatter.
 # ``inherit`` is deliberately excluded: it is the default this gate
 # exists to eliminate, so accepting it as an explicit value would defeat
 # the purpose.
-VALID_MODELS = frozenset({"haiku", "sonnet", "opus"})
+#
+# This set and ``VALID_EFFORTS`` below must cover everything recorded in
+# ``.claude/upstream-baseline.json``. A model release widens the ledger
+# first, and ``scripts/check_upstream_drift.py`` reports the gap until
+# these sets catch up. Fable was added this way: it shipped, the ledger
+# recorded it, and this gate rejected every agent that tried to pin it.
+VALID_MODELS = frozenset({"haiku", "sonnet", "opus", "fable"})
 
-# Reasoning-effort levels accepted in agent frontmatter.
-VALID_EFFORTS = frozenset({"low", "medium", "high"})
+# Reasoning-effort levels accepted in agent frontmatter. ``xhigh`` and
+# ``max`` arrived with the harness effort-level expansion.
+VALID_EFFORTS = frozenset({"low", "medium", "high", "xhigh", "max"})
 
 # A dated model ID names a specific generation (``claude-opus-4-1``,
 # ``claude-sonnet-4-6``). Those are retired on a rolling basis and the

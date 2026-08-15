@@ -85,9 +85,7 @@ from leyline.auth import verify_auth, AuthMethod
 
 # API Key verification
 status = verify_auth(
-    service="gemini",
-    method=AuthMethod.API_KEY,
-    env_var="GEMINI_API_KEY"
+    service="gemini", method=AuthMethod.API_KEY, env_var="GEMINI_API_KEY"
 )
 
 if not status.authenticated:
@@ -121,13 +119,9 @@ def check_credentials(service: str, env_var: str) -> bool:
 ### Step 2: Verify with Service
 ```python
 def verify_with_service(service: str) -> AuthStatus:
-    result = subprocess.run(
-        [service, "auth", "status"],
-        capture_output=True
-    )
+    result = subprocess.run([service, "auth", "status"], capture_output=True)
     return AuthStatus(
-        authenticated=(result.returncode == 0),
-        message=result.stdout.decode()
+        authenticated=(result.returncode == 0), message=result.stdout.decode()
     )
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
@@ -138,7 +132,7 @@ def handle_auth_failure(service: str, method: AuthMethod) -> str:
     actions = {
         AuthMethod.API_KEY: f"Set {service.upper()}_API_KEY environment variable",
         AuthMethod.OAUTH: f"Run '{service} auth login' for browser auth",
-        AuthMethod.TOKEN: f"Refresh token with '{service} token refresh'"
+        AuthMethod.TOKEN: f"Refresh token with '{service} token refresh'",
     }
     return actions[method]
 ```

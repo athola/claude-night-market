@@ -9,10 +9,40 @@ This module consolidates commonly duplicated fixtures:
 
 from __future__ import annotations
 
+import os
+from collections.abc import Iterator
 from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+
+
+@pytest.fixture(autouse=True, scope="session")
+def isolate_claude_home(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Iterator[Path]:
+    """Redirect ``CLAUDE_HOME`` so tests never write to the real ``~/.claude``.
+
+    Hooks resolve their log, config, and observability directories from
+    ``CLAUDE_HOME`` (defaulting to ``~/.claude``). Without this fixture a
+    test run appends fixture entries to the developer's live skill-execution
+    store, which is how 165 synthetic ``test-session`` records reached the
+    data behind the published daily digests (Discussion #654).
+
+    Session-scoped so state accumulated across a module still works, and
+    exported through ``os.environ`` rather than ``monkeypatch`` so hooks
+    spawned as subprocesses inherit it.
+    """
+    isolated = tmp_path_factory.mktemp("claude-home")
+    previous = os.environ.get("CLAUDE_HOME")
+    os.environ["CLAUDE_HOME"] = str(isolated)
+    try:
+        yield isolated
+    finally:
+        if previous is None:
+            os.environ.pop("CLAUDE_HOME", None)
+        else:
+            os.environ["CLAUDE_HOME"] = previous
 
 
 @pytest.fixture

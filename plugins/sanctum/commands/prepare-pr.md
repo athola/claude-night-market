@@ -54,7 +54,7 @@ Orchestrates the full PR preparation workflow by running documentation updates, 
 - **Quality Gates**: Runs project-specific formatting, linting, and tests
 - **Code Review Integration**: uses superpowers:receiving-code-review for automated review
 - **Scope Compliance**: Validates changes against branch requirements
-- **PR Template Generation**: Creates structured PR descriptions
+- **PR Template Generation**: Creates PR descriptions from the shared template
 
 ## When To Use
 
@@ -171,45 +171,54 @@ Unless `--skip-updates` is specified:
 
 The generated PR description includes:
 
+Section names come from
+`sanctum:pr-prep/modules/pr-template.md`, which is the source of
+record. Keep this block in sync with it. The pytest contract in
+`plugins/sanctum/tests/test_pr_template_contract.py` fails if they
+drift.
+
 ```markdown
-## Summary
-[Brief description of changes]
+[Imperative, self-contained title]
 
-## Changes
-- [Feature] What was implemented
-- [Fix] What was resolved
-- [Refactor] What was improved
+| | |
+|---|---|
+| **Who** | audience for the change; out-of-band reviewer if any |
+| **Where** | internal: module + file count. External: consumers, or `none` |
+| **When** | `on merge`, or the flag / migration window / integration date |
 
-## Documentation & Tests
-- [x] Documentation updated
-- [x] Makefile dogfooding updated
-- [x] README synchronized
-- [x] Test coverage reviewed
+## Why
+[Motivating problem, why merging now matters, linked issue]
 
-## Code Review Findings
-### Critical Issues (0)
+## What and how
+[What changed in the reader's terms; approach and rejected
+alternative when a real decision point existed]
+
+## Test plan
+1. `make test`: 142/142 passing
+2. `make lint`: clean (2 warnings)
+3. Manual: [command] Expected: [observable result]
+
+## Quality gates
+- [x] Formatting: passed
+- [x] Linting: passed (2 warnings)
+- [x] Tests: passed (142/142)
+
+## Code review findings
+### Critical issues (0)
 ### Suggestions (3)
 ### Observations (2)
 
-## Quality Gates
-- [x] Formatting: Passed
-- [x] Linting: Passed (2 warnings)
-- [x] Tests: Passed (142/142)
-
-## Testing
-- Unit tests: New coverage for X module
-- Integration tests: Verified API endpoints
-- Manual testing: Confirmed CLI behavior
-
 ## Checklist
-- [ ] Code follows project style guidelines
-- [ ] Self-review completed (read diff as a reviewer, no debug/TODO/fixups)
+- [ ] Tests fail if the change is reverted
+- [ ] Docs updated (README, Makefile dogfooding, capabilities reference)
+- [ ] Breaking changes stated in the Where row
 - [ ] One logical change per PR (no bundled formatting or unrelated refactors)
-- [ ] Tests break if fix is reverted (regression protection, not demonstration)
 - [ ] Agent-generated code curated (no redundant implementations or premature abstractions)
-- [ ] Documentation updated
-- [ ] Tests added/updated
 ```
+
+`Quality gates` and `Code review findings` are specific to this
+command, which runs the gates itself. The plain `pr-prep` workflow
+emits the template without them.
 
 ## Error Handling
 

@@ -38,63 +38,72 @@ class TestKuvaVisualizationModule:
     @pytest.mark.unit
     def test_module_file_exists(self) -> None:
         """Given the kuva-visualization module was added
-        Then the file must exist on disk."""
+        Then the file must exist on disk.
+        """
         assert _MODULE.exists()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_module_has_substance(self, content: str) -> None:
         """Given the module is meant to be load-worthy
-        Then it must be at least 30 lines."""
+        Then it must be at least 30 lines.
+        """
         assert len(content.splitlines()) >= 30
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_install_command_present(self, content: str) -> None:
         """Given kuva is an external dependency
-        Then the module must include the install command."""
+        Then the module must include the install command.
+        """
         assert "cargo install kuva" in content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_criterion_pattern_documented(self, content: str) -> None:
         """Given Rust projects use criterion for benchmarks
-        Then the module must cover criterion output."""
+        Then the module must cover criterion output.
+        """
         assert "criterion" in content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_pytest_benchmark_pattern_documented(self, content: str) -> None:
         """Given Python projects use pytest-benchmark
-        Then the module must cover pytest-benchmark JSON output."""
+        Then the module must cover pytest-benchmark JSON output.
+        """
         assert "pytest" in content and "benchmark" in content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_terminal_output_documented(self, content: str) -> None:
         """Given reviewers may not want to write SVG files in CI
-        Then the --terminal flag must be documented."""
+        Then the --terminal flag must be documented.
+        """
         assert "--terminal" in content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_proof_of_work_guidance_present(self, content: str) -> None:
         """Given charts serve as proof-of-work evidence
-        Then the module must explain when a chart satisfies [E1]/[E2]."""
+        Then the module must explain when a chart satisfies [E1]/[E2].
+        """
         assert "proof-of-work" in content.lower() or "evidence" in content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_when_not_to_use_section_present(self, content: str) -> None:
         """Given kuva is not always the right tool
-        Then the module must document when NOT to use it."""
+        Then the module must document when NOT to use it.
+        """
         assert "When NOT to use" in content or "when not" in content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_kuva_github_url_present(self, content: str) -> None:
         """Given attribution and discoverability matter
-        Then the module must reference the kuva GitHub repo."""
+        Then the module must reference the kuva GitHub repo.
+        """
         assert "Psy-Fer/kuva" in content
 
 
@@ -115,7 +124,8 @@ class TestPerformanceReviewSkillWiring:
     @pytest.mark.unit
     def test_module_in_frontmatter(self, skill_content: str) -> None:
         """Given progressive loading uses the frontmatter modules list
-        Then kuva-visualization.md must appear there."""
+        Then kuva-visualization.md must appear there.
+        """
         assert "kuva-visualization.md" in skill_content
 
     @pytest.mark.bdd
@@ -124,12 +134,14 @@ class TestPerformanceReviewSkillWiring:
         self, skill_content: str
     ) -> None:
         """Given the Supporting Modules section lists loadable modules
-        Then kuva-visualization.md must be mentioned there."""
+        Then kuva-visualization.md must be mentioned there.
+        """
         assert "kuva-visualization" in skill_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_verification_step_references_kuva(self, skill_content: str) -> None:
         """Given step 3 of Verification talks about before/after evidence
-        Then it must reference kuva for the chart requirement."""
+        Then it must reference kuva for the chart requirement.
+        """
         assert "kuva" in skill_content.lower()

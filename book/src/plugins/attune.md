@@ -62,10 +62,10 @@ graph LR
 
 ```bash
 # Interactive mode
-/attune:init
+/attune:project-init
 
 # Non-interactive
-/attune:init --lang python --name my-project --author "Your Name"
+/attune:project-init --lang python --name my-project --author "Your Name"
 ```
 
 ### Full Cycle Workflow
@@ -84,7 +84,7 @@ graph LR
 /attune:blueprint
 
 # 5. Initialize project
-/attune:init
+/attune:project-init
 
 # 6. Execute implementation
 /attune:execute
@@ -176,7 +176,7 @@ the Discussion is an additional cross-session discovery channel.
 ### Initialize Python CLI Project
 
 ```bash
-/attune:init --lang python --type cli
+/attune:project-init --lang python --type cli
 ```
 
 Creates:
@@ -213,5 +213,5 @@ Templates sync from reference projects:
 - `importobot` (automation)
 
 <div class="achievement-hint" data-achievement="project-initialized">
-Initialize your first project with /attune:init to unlock: Project Architect
+Initialize your first project with /attune:project-init to unlock: Project Architect
 </div>

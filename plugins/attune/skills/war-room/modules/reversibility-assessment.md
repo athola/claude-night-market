@@ -190,8 +190,7 @@ Using: express ≤0.40 | lightweight ≤0.60 | full_council ≤0.80 | delphi >0.
 
 ```python
 def select_deliberation_mode(
-    reversibility_score: float,
-    thresholds: dict | None = None
+    reversibility_score: float, thresholds: dict | None = None
 ) -> str:
     """Map RS to war room mode with configurable thresholds."""
     # Defaults (can be overridden at session start)

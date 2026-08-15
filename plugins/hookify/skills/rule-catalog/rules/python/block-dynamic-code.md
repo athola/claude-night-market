@@ -28,11 +28,13 @@ For expression evaluation:
 ```python
 # Use ast.literal_eval for safe evaluation
 import ast
+
 result = ast.literal_eval(user_input)  # Only evaluates literals
 
 # Use operator module for math
 import operator
-ops = {'+': operator.add, '-': operator.sub}
+
+ops = {"+": operator.add, "-": operator.sub}
 result = ops[op](a, b)
 ```
 
@@ -40,6 +42,7 @@ For dynamic behavior:
 ```python
 # Use importlib for dynamic imports
 import importlib
+
 module = importlib.import_module(module_name)
 
 # Use getattr for dynamic attribute access
@@ -48,6 +51,7 @@ result = fn(*args)
 
 # Use configuration files
 import json
+
 config = json.load(config_file)
 ```
 

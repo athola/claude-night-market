@@ -682,7 +682,7 @@ class TestEndToEnd:
             patch("sys.stdout", StringIO()),
             patch("shared.config.get_config", return_value=mock_config),
             patch("research_interceptor.search_local_knowledge", return_value=[]),
-            patch.object(research_interceptor, "PLUGIN_ROOT", tmp_path),
+            patch.object(research_interceptor, "DATA_ROOT", tmp_path),
             patch.object(research_interceptor, "_HAS_MEMORY_PALACE", True),
             pytest.raises(SystemExit),
         ):

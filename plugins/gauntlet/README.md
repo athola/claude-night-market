@@ -177,4 +177,16 @@ python3 scripts/answer_evaluator.py challenge.json "my answer"
 
 # Show progress stats
 python3 scripts/progress_tracker.py .gauntlet/ --developer you@example.com
+
+# Record an answer from outside the challenge loop
+python3 scripts/progress_tracker.py .gauntlet/ --developer you@example.com \
+  --record '{"challenge_id":"pr-12-h1","knowledge_entry_id":"pr:12:a.py:8",
+             "challenge_type":"explain_why","category":"error_handling",
+             "difficulty":3,"result":"fail"}'
 ```
+
+`--record` lets another tool write into the same progress store the
+challenge loop reads, so its answers steer later challenge selection.
+`/pr-review --interactive` uses it to record comprehension probes
+raised during code review. The tracker stamps `answered_at`, so
+callers omit it.

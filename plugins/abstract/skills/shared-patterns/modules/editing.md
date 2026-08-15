@@ -63,6 +63,7 @@ callers at the new one.
 ```python
 import warnings
 
+
 def validate_required_fields(data, required, fields=None):
     """Validate required fields in a dict.
 
@@ -71,8 +72,7 @@ def validate_required_fields(data, required, fields=None):
     """
     if fields is not None:
         warnings.warn(
-            "validate_required_fields(fields=) is deprecated; "
-            "use required= instead",
+            "validate_required_fields(fields=) is deprecated; use required= instead",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -89,8 +89,10 @@ contract changes.
 class ValidationError(AbstractError):
     """Original. Keep as-is."""
 
+
 class StrictValidationError(ValidationError):
     """New variant that includes a field path."""
+
     def __init__(self, message, field_path):
         super().__init__(message)
         self.field_path = field_path

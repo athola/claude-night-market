@@ -74,11 +74,11 @@ def generate_tests_for_changes(git_diff):
     changes = parse_git_diff(git_diff)
 
     for change in changes:
-        if change.type == 'new_function':
+        if change.type == "new_function":
             generate_new_function_test(change)
-        elif change.type == 'modified_signature':
+        elif change.type == "modified_signature":
             generate_updated_test(change)
-        elif change.type == 'new_class':
+        elif change.type == "new_class":
             generate_class_test_suite(change)
 ```
 
@@ -292,12 +292,13 @@ class TestExampleSkillContent:  # Rename to match your skill
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    @pytest.mark.parametrize("module_name", [
-        # List modules referenced in SKILL.md
-    ])
-    def test_referenced_modules_exist(
-        self, skill_path: Path, module_name: str
-    ) -> None:
+    @pytest.mark.parametrize(
+        "module_name",
+        [
+            # List modules referenced in SKILL.md
+        ],
+    )
+    def test_referenced_modules_exist(self, skill_path: Path, module_name: str) -> None:
         """Given modules referenced in the skill
         Then each must exist on disk with content."""
         module_path = skill_path.parent / "modules" / module_name
@@ -321,10 +322,12 @@ import re
 # --- Level 2: Code example validity ---
 # Add these methods inside your Test*Content class
 
+
 @pytest.fixture
 def json_code_blocks(self, skill_content: str):
     """Extract all JSON code blocks from the skill."""
     return re.findall(r"```json\n(.*?)```", skill_content, re.DOTALL)
+
 
 @pytest.mark.bdd
 @pytest.mark.unit
@@ -338,6 +341,7 @@ def test_all_json_examples_parse(self, json_code_blocks) -> None:
             json.loads(block)
         except json.JSONDecodeError as exc:
             pytest.fail(f"JSON block #{i + 1} is invalid: {exc}")
+
 
 @pytest.mark.bdd
 @pytest.mark.unit
@@ -360,6 +364,7 @@ anti-patterns.
 # Add these methods inside your Test*Content class
 # Requires: re (imported in Level 2), Path (imported in Level 1)
 
+
 @pytest.mark.bdd
 @pytest.mark.unit
 def test_no_forbidden_language(self, skill_content: str) -> None:
@@ -381,6 +386,7 @@ def test_no_forbidden_language(self, skill_content: str) -> None:
             "Instructions should be informational, not imperative."
         )
 
+
 @pytest.mark.bdd
 @pytest.mark.unit
 def test_offers_multiple_strategies(self, skill_content: str) -> None:
@@ -398,11 +404,10 @@ def test_offers_multiple_strategies(self, skill_content: str) -> None:
         f"Too few strategies: {found}, need at least {min_strategies}"
     )
 
+
 @pytest.mark.bdd
 @pytest.mark.unit
-def test_version_refs_cross_reference_docs(
-    self, skill_content: str
-) -> None:
+def test_version_refs_cross_reference_docs(self, skill_content: str) -> None:
     """Given version references in the skill
     Then each must exist in compatibility documentation.
 
@@ -422,8 +427,7 @@ def test_version_refs_cross_reference_docs(
     for minor in versions:
         version_str = f"2.1.{minor}"
         assert version_str in compat_content, (
-            f"References {version_str} but it's missing from "
-            "compatibility-features*.md"
+            f"References {version_str} but it's missing from compatibility-features*.md"
         )
 ```
 
@@ -449,16 +453,24 @@ def skill_path(self) -> Path:
     depth = 3  # Adjust based on test file location relative to plugin root
     return Path(__file__).parents[depth] / "skills" / "skill-name" / "SKILL.md"
 
+
 @pytest.fixture
 def skill_content(self, skill_path: Path) -> str:
     """Read the full skill content for assertion."""
     return skill_path.read_text()
 
+
 @pytest.fixture
 def module_path(self) -> Path:
     """Resolve path to a specific module file."""
     depth = 3  # Adjust based on test file location relative to plugin root
-    return Path(__file__).parents[depth] / "skills" / "skill-name" / "modules" / "module.md"
+    return (
+        Path(__file__).parents[depth]
+        / "skills"
+        / "skill-name"
+        / "modules"
+        / "module.md"
+    )
 ```
 
 Adjust `parents[N]` based on your test file's depth relative

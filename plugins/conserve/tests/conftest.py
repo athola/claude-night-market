@@ -15,20 +15,29 @@ from typing import Any
 
 import pytest
 
-# Make shared fixtures importable from plugins/conftest_shared.py
-_PLUGINS_ROOT = str(Path(__file__).resolve().parents[2])
-if _PLUGINS_ROOT not in sys.path:
-    sys.path.insert(0, _PLUGINS_ROOT)
+# Load plugins/conftest_shared.py by path rather than by putting plugins/ on
+# sys.path. A plugins/ entry binds every plugin directory that lacks an
+# __init__.py as a namespace package, shadowing the installed distribution
+# of the same name; see plugins/sanctum/tests/test_leyline_not_shadowed.py
+# for what that costs. Loading by path also keeps the imports at the top of
+# the file, so no E402 suppression is needed.
+_CONFTEST_SHARED = Path(__file__).resolve().parents[2] / "conftest_shared.py"
+_spec = importlib.util.spec_from_file_location("conftest_shared", _CONFTEST_SHARED)
+if _spec is None or _spec.loader is None:  # pragma: no cover - packaging error
+    raise ImportError(f"cannot load shared fixtures from {_CONFTEST_SHARED}")
+_conftest_shared = importlib.util.module_from_spec(_spec)
+sys.modules.setdefault("conftest_shared", _conftest_shared)
+_spec.loader.exec_module(_conftest_shared)
 
-from conftest_shared import (
-    mock_claude_tools,
-    mock_todo_write,
-    register_standard_markers,
-    tag_items_by_keywords,
-    temp_skill_file,
-)
+isolate_claude_home = _conftest_shared.isolate_claude_home
+mock_claude_tools = _conftest_shared.mock_claude_tools
+mock_todo_write = _conftest_shared.mock_todo_write
+register_standard_markers = _conftest_shared.register_standard_markers
+tag_items_by_keywords = _conftest_shared.tag_items_by_keywords
+temp_skill_file = _conftest_shared.temp_skill_file
 
 __all__ = [
+    "isolate_claude_home",
     "mock_claude_tools",
     "mock_todo_write",
     "register_standard_markers",

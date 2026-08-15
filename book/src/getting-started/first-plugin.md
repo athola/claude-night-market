@@ -127,31 +127,39 @@ Quality Gates:
 ### Generated PR Description
 
 ```markdown
-## Summary
+Add login form validation to user authentication
 
-Add user authentication with login form validation.
+| | |
+|---|---|
+| **Who** | users signing in; @security-owner for the credential path |
+| **Where** | `src/auth/`, 4 files. External: adds a 422 response to `POST /login` |
+| **When** | on merge. No flag, no migration window |
 
-## Changes
+## Why
 
-- **New Feature**: Login form component with email/password validation
-- **Types**: Auth request/response type definitions
-- **Tests**: Unit tests for login validation logic
+Malformed credentials reached the auth backend and returned a generic
+500, so users retried a request that could never succeed (#214).
 
-## Testing
+## What and how
 
-- [x] Manual testing of form submission
-- [x] Unit tests pass (15 new tests)
-- [x] Integration tests pass
+Adds a login form component that validates email and password shape
+before submission, plus request and response types for the auth call.
+Validation runs at the form boundary rather than in the backend client,
+so the client keeps its invariant that inputs are already well formed.
 
-## Screenshots
+## Test plan
 
-[Add screenshots if UI changes]
+1. `npm test`: 15 new unit tests passing.
+2. Submit the form with `not-an-email`.
+   Expected: inline field error, no network request issued.
+3. Submit valid credentials.
+   Expected: HTTP 200 and a redirect to the dashboard.
 
 ## Checklist
 
-- [x] Tests added
+- [x] Tests fail if the validation is reverted
 - [x] Documentation updated
-- [x] No breaking changes
+- [x] Breaking changes stated in the Where row
 ```
 
 <div class="achievement-unlock" data-achievement="first-pr">

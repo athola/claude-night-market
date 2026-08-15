@@ -74,10 +74,14 @@ git log -1 --format="%ar" -- docs/*.md | rg -E "year|months"
 ```python
 def doc_bloat_score(metrics):
     score = 0
-    if metrics['duplicate_ratio'] > 0.3: score += 30
-    if metrics['avg_words_per_section'] > 500: score += 20
-    if metrics['readability'] < 40: score += 15
-    if metrics['stale_months'] > 12: score += 25
+    if metrics["duplicate_ratio"] > 0.3:
+        score += 30
+    if metrics["avg_words_per_section"] > 500:
+        score += 20
+    if metrics["readability"] < 40:
+        score += 15
+    if metrics["stale_months"] > 12:
+        score += 25
     return min(100, score)
 ```
 

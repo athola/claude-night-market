@@ -41,6 +41,7 @@ def test_new_feature_behavior():
     # Assert - Verify the outcome
     assert result == expected_value
 
+
 # Run and verify it fails: pytest -xvs test_file.py::test_new_feature_behavior
 ```
 
@@ -126,10 +127,13 @@ def perform_action(context):
 
 ### Parameterized Tests
 ```python
-@pytest.mark.parametrize("input,expected", [
-    ("valid_input", "expected_output"),
-    ("edge_case", "edge_output"),
-])
+@pytest.mark.parametrize(
+    "input,expected",
+    [
+        ("valid_input", "expected_output"),
+        ("edge_case", "edge_output"),
+    ],
+)
 def test_multiple_scenarios(input, expected):
     assert process(input) == expected
 ```

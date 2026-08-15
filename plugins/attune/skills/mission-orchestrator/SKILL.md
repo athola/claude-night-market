@@ -124,6 +124,13 @@ Wraps the entire attune development lifecycle (brainstorm → specify → plan �
 | `standard` | specify → plan → execute | `docs/project-brief.md` exists |
 | `tactical` | plan → execute | `docs/specification.md` exists |
 | `quickfix` | execute | `docs/implementation-plan.md` exists |
+| `review` | scope → investigate → verify → report | the request names existing software to audit, dogfood, or review |
+
+`review` is the one type selected from request intent rather than from
+artifacts, because a tree of build artifacts looks the same whether the
+ask is "ship this" or "audit this". Its check runs first. It produces
+`reports/<topic>-<YYYY-MM-DD>.md` and never enters the war-room gate,
+which guards a plan-to-execute transition a review mission does not have.
 
 See `modules/mission-types.md` for full type definitions and custom type support.
 
@@ -135,6 +142,16 @@ See `modules/mission-types.md` for full type definitions and custom type support
 | specify | `Skill(attune:project-specification)` | `docs/specification.md` |
 | plan | `Skill(attune:project-planning)` | `docs/implementation-plan.md` |
 | execute | `Skill(attune:project-execution)` | Implemented code and tests |
+
+Review missions route to the existing review skills rather than to
+attune phase skills:
+
+| Phase | Skill Invoked | Artifact Produced |
+|-------|--------------|-------------------|
+| scope | `Skill(pensive:tiered-audit)` | Tier selection and bounded scope |
+| investigate | `Skill(imbue:feature-review)` plus the `pensive:*` domain lenses | Raw findings |
+| verify | `Skill(imbue:proof-of-work)` | Evidence references per finding |
+| report | `Skill(imbue:structured-output)` | `reports/<topic>-<YYYY-MM-DD>.md` |
 
 The orchestrator **never** re-implements phase logic. Each phase is a complete `Skill()` invocation that handles its own workflow.
 
@@ -276,6 +293,7 @@ phase runs.
 | `tactical` (plan -> execute) | yes | yes | if revising | if directive |
 | `standard` (specify -> plan -> execute) | yes | yes | if revising | if directive |
 | `full` (brainstorm -> specify -> plan -> execute) | yes | yes | yes | if directive |
+| `review` (scope -> investigate -> verify -> report) | yes | -- | if revising | if directive |
 
 Token cost (approximate, computed from `wc -w` on hub +
 loaded modules and converted at ~1.3 tokens per word):

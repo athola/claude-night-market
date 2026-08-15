@@ -39,7 +39,8 @@ class TestUnifiedReviewSkillContent:
     @pytest.mark.unit
     def test_sub_agent_isolation_guidance_present(self, skill_content: str) -> None:
         """Step 3 must instruct agents to be dispatched in a single parallel call
-        before synthesis begins (anti-flattery bias requirement)."""
+        before synthesis begins (anti-flattery bias requirement).
+        """
         assert "Sub-agent isolation" in skill_content
 
     @pytest.mark.bdd
@@ -48,7 +49,8 @@ class TestUnifiedReviewSkillContent:
         self, skill_content: str
     ) -> None:
         """Isolation guidance must specify waiting for ALL results before
-        synthesizing, rather than only dispatching concurrently."""
+        synthesizing, rather than only dispatching concurrently.
+        """
         assert "ALL agents have returned" in skill_content or (
             "all agent" in skill_content.lower()
             and "synthesize" in skill_content.lower()
@@ -58,7 +60,8 @@ class TestUnifiedReviewSkillContent:
     @pytest.mark.unit
     def test_isolation_names_anchoring_as_risk(self, skill_content: str) -> None:
         """Isolation guidance must name the bias being prevented so readers
-        understand why the constraint exists, not just what it is."""
+        understand why the constraint exists, not just what it is.
+        """
         assert "anchor" in skill_content.lower() or "bias" in skill_content.lower()
 
 

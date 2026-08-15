@@ -40,12 +40,14 @@ from session_complete_notify import (
 
 class TestGetSessionId:
     """Test get_session_id() returns a stable, deterministic string for each
-    supported environment variable priority."""
+    supported environment variable priority.
+    """
 
     @pytest.mark.integration
     def test_zellij_without_tab(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Zellij session with no resolvable tab produces
-        zellij_<session>_<project>."""
+        zellij_<session>_<project>.
+        """
         monkeypatch.setenv("ZELLIJ_SESSION_NAME", "work")
         monkeypatch.delenv("TMUX", raising=False)
         monkeypatch.delenv("SSH_TTY", raising=False)
@@ -69,7 +71,8 @@ class TestGetSessionId:
     @pytest.mark.integration
     def test_zellij_with_tab(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Zellij session with a custom tab includes tab name between
-        session and project."""
+        session and project.
+        """
         monkeypatch.setenv("ZELLIJ_SESSION_NAME", "dev")
         monkeypatch.delenv("TMUX", raising=False)
 
@@ -112,7 +115,8 @@ class TestGetSessionId:
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """When _get_tmux_session() returns None, tmux branch is skipped
-        and SSH_TTY is used instead."""
+        and SSH_TTY is used instead.
+        """
         monkeypatch.delenv("ZELLIJ_SESSION_NAME", raising=False)
         monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,1234,0")
         monkeypatch.setenv("SSH_TTY", "/dev/pts/2")
@@ -219,7 +223,8 @@ class TestGetZellijTabName:
     @pytest.mark.integration
     def test_returns_tab_name_on_success(self) -> None:
         """When zellij outputs a focused tab, the name is parsed and
-        returned."""
+        returned.
+        """
         layout_output = 'tab name="MyTab" cwd="/home/user" focus=true { pane; }'
         mock_result = MagicMock(returncode=0, stdout=layout_output)
         with patch("session_complete_notify.subprocess.run", return_value=mock_result):
@@ -334,7 +339,8 @@ class TestGetTmuxSession:
 
 class TestNotifyWSLContinuePaths:
     """Test that notify_wsl() continues past CalledProcessError and
-    TimeoutExpired instead of raising, and tries all three PS paths."""
+    TimeoutExpired instead of raising, and tries all three PS paths.
+    """
 
     @pytest.mark.integration
     def test_called_process_error_continues_to_next_path(self) -> None:
@@ -375,7 +381,8 @@ class TestNotifyWSLContinuePaths:
     @pytest.mark.integration
     def test_burnttoast_path_succeeds_after_all_toast_paths_fail(self) -> None:
         """When all 3 toast paths fail with CalledProcessError, the first
-        BurntToast path succeeds and returns True."""
+        BurntToast path succeeds and returns True.
+        """
         call_count = 0
 
         def side_effect(cmd, **kwargs):
@@ -396,7 +403,8 @@ class TestNotifyWSLContinuePaths:
     @pytest.mark.integration
     def test_title_quotes_escaped_for_burnttoast(self) -> None:
         """Double quotes in title and message are escaped to backtick-quote
-        in the BurntToast command."""
+        in the BurntToast command.
+        """
         # Make all toast paths fail so BurntToast is attempted
         call_count = 0
         recorded_cmds: list[list[str]] = []
@@ -484,7 +492,8 @@ class TestNotifyMacosDetails:
     @pytest.mark.integration
     def test_sound_enabled_by_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Without CLAUDE_NOTIFICATION_SOUND=0 the AppleScript includes
-        sound name."""
+        sound name.
+        """
         monkeypatch.delenv("CLAUDE_NOTIFICATION_SOUND", raising=False)
 
         with patch("session_complete_notify.subprocess.run") as mock_run:
@@ -554,7 +563,8 @@ class TestNotifyWindowsSoundControl:
     @pytest.mark.integration
     def test_sound_enabled_by_default(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Without CLAUDE_NOTIFICATION_SOUND=0 the PS script includes the
-        default audio element."""
+        default audio element.
+        """
         monkeypatch.delenv("CLAUDE_NOTIFICATION_SOUND", raising=False)
 
         with patch("session_complete_notify.subprocess.run") as mock_run:
@@ -581,7 +591,8 @@ class TestNotifyWindowsSoundControl:
     @pytest.mark.integration
     def test_html_escaping_in_ps_script(self) -> None:
         """HTML special characters in title/message are escaped before
-        injection into the XML template."""
+        injection into the XML template.
+        """
         with patch("session_complete_notify.subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=0)
             notify_windows("<Title> & more", 'Body with "quotes"')
@@ -605,7 +616,8 @@ class TestMainFunction:
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """CLAUDE_NO_NOTIFICATIONS=1 causes main() to sys.exit(0) without
-        spawning a subprocess."""
+        spawning a subprocess.
+        """
         monkeypatch.setenv("CLAUDE_NO_NOTIFICATIONS", "1")
 
         with (
@@ -622,7 +634,8 @@ class TestMainFunction:
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Without the disable flag, main() calls Popen with --background
-        and then exits."""
+        and then exits.
+        """
         monkeypatch.delenv("CLAUDE_NO_NOTIFICATIONS", raising=False)
 
         with (
@@ -712,7 +725,8 @@ class TestClearNotificationStateExceptionHandler:
     @pytest.mark.integration
     def test_exception_in_load_is_caught(self, capsys: pytest.CaptureFixture) -> None:
         """If NotificationState.load() raises, the error is caught and
-        printed to stderr."""
+        printed to stderr.
+        """
         with (
             patch(
                 "session_complete_notify.get_session_id",

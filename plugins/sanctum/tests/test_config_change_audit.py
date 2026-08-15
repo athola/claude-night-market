@@ -292,13 +292,15 @@ class TestPreToolUseSettingsAudit:
     Code (v2.1.89+), so the hook also accepts a PreToolUse payload
     for Edit/Write/MultiEdit when the target file is a settings.json
     family path inside a ``.claude/`` directory. Source is inferred
-    from the path so the audit line matches the legacy format."""
+    from the path so the audit line matches the legacy format.
+    """
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_audits_project_settings_edit(self) -> None:
         """Given a PreToolUse Edit on <project>/.claude/settings.json,
-        log an audit line with source=project_settings."""
+        log an audit line with source=project_settings.
+        """
         input_data = json.dumps(
             {
                 "session_id": "sess-pre-1",

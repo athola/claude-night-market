@@ -22,6 +22,7 @@ from scribe.pattern_loader import (
     get_all_language_patterns,
     get_calibration_factor,
     get_phrase_patterns,
+    get_ste_patterns,
     get_tier1_words,
     get_tier2_words,
     get_tier5_patterns,
@@ -416,3 +417,79 @@ class TestTier5RuntimeSource:
         compiled = self._compile(tier5["spatial_copula"])
         assert any(c.search("The skill lives in `plugins/scribe/`.") for c in compiled)
         assert not any(c.search("The skill is in plugins/scribe/.") for c in compiled)
+
+
+class TestSTEPatterns:
+    """Feature: the STE-derived regex rules load as an opt-in section.
+
+    The three structural STE checks (sentence length, paragraph length,
+    noun clusters) are not regex properties and live in ``scribe.ste``.
+    The four rules here are regex-tractable, so they follow the house
+    convention and ship in the language pack instead.
+    """
+
+    @pytest.fixture
+    def ste(self) -> dict:
+        """STE categories from the English source, keyed by name."""
+        patterns = load_language_patterns("en")
+        entries = get_ste_patterns(patterns, include_optional=True)
+        return {entry["category"]: entry for entry in entries}
+
+    @staticmethod
+    def _compile(entry: dict) -> list[re.Pattern]:
+        flags = re.IGNORECASE if entry.get("ignore_case") else 0
+        return [re.compile(p, flags) for p in entry["patterns"]]
+
+    @pytest.mark.unit
+    def test_english_yaml_has_ste_section(self) -> None:
+        """The English pattern source declares an ste section."""
+        patterns = load_language_patterns("en")
+        assert "ste" in patterns
+
+    @pytest.mark.unit
+    def test_exposes_the_four_regex_rules(self, ste: dict) -> None:
+        """Only the regex-tractable rules belong in the language pack."""
+        for category in (
+            "semicolons",
+            "banned_tenses",
+            "contractions",
+            "passive_voice",
+        ):
+            assert category in ste, f"Missing ste category: {category}"
+
+    @pytest.mark.unit
+    def test_every_pattern_compiles(self, ste: dict) -> None:
+        """Every STE regex in the source compiles without error."""
+        for entry in ste.values():
+            for pattern in self._compile(entry):
+                assert pattern is not None
+
+    @pytest.mark.unit
+    def test_whole_section_is_off_by_default(self) -> None:
+        """STE is a register, not a house rule, so it never runs unasked.
+
+        Measured on this repository, a default-on STE sweep would report
+        on nearly every file. A check that noisy stops being run at all,
+        so the section ships gated and the rule file names the surfaces
+        where it should be turned on.
+        """
+        patterns = load_language_patterns("en")
+        assert get_ste_patterns(patterns) == []
+
+    @pytest.mark.unit
+    def test_include_optional_surfaces_every_category(self, ste: dict) -> None:
+        """Asking for the gated categories returns all four."""
+        assert len(ste) == 4
+
+    @pytest.mark.unit
+    def test_ste_is_absent_from_the_tier5_sweep(self) -> None:
+        """STE must not leak into the default slop run through tier5."""
+        patterns = load_language_patterns("en")
+        tier5 = {e["category"] for e in get_tier5_patterns(patterns, True)}
+        for category in ("semicolons", "banned_tenses", "contractions"):
+            assert category not in tier5
+
+    @pytest.mark.unit
+    def test_missing_section_returns_empty(self) -> None:
+        """A language pack without an ste section degrades quietly."""
+        assert get_ste_patterns({}, include_optional=True) == []

@@ -521,6 +521,7 @@ When a command needs complex parameter translation or validation, create a wrapp
 from .wrapper_base import SuperpowerWrapper
 from typing import Dict, Any
 
+
 class MyCommandWrapper(SuperpowerWrapper):
     """Wrapper for my-command that delegates to target-superpower"""
 
@@ -528,7 +529,7 @@ class MyCommandWrapper(SuperpowerWrapper):
         super().__init__(
             source_plugin="my-plugin",
             source_command="my-command",
-            target_superpower="target-superpower"
+            target_superpower="target-superpower",
         )
 
     def execute(self, params: Dict[str, Any]) -> Dict[str, Any]:

@@ -369,7 +369,6 @@ class TestIntegrationRoundTrip:
         Then query_palace_insights returns 3 entries
         And each entry has correct metadata
         """
-
         staging = tmp_path / "staging"
         staging.mkdir()
 
@@ -468,7 +467,6 @@ class TestIntegrationRoundTrip:
         When ingest_findings is called again
         Then it returns 0 (skipped)
         """
-
         staging = tmp_path / "staging"
         staging.mkdir()
 

@@ -40,10 +40,10 @@ python tools/extracted_tool.py --input data.json --verbose --output results.json
 ### Before: Tool Chain (High Cost)
 ```python
 # Multiple tool calls, each adds context
-data = fetch_database_data()      # +5k tokens
-filtered = filter_records(data)   # +3k tokens
-transformed = standardize(data)   # +4k tokens
-analyzed = calculate_insights(data) # +6k tokens
+data = fetch_database_data()  # +5k tokens
+filtered = filter_records(data)  # +3k tokens
+transformed = standardize(data)  # +4k tokens
+analyzed = calculate_insights(data)  # +6k tokens
 # Total: 18k+ tokens in intermediate results
 ```
 
@@ -51,12 +51,15 @@ analyzed = calculate_insights(data) # +6k tokens
 ```python
 # Single execution, minimal context
 with mcp_code_execution() as exec:
-    result = exec.process_pipeline(data, [
-        ('fetch', fetch_database_data),
-        ('filter', filter_records),
-        ('transform', standardize),
-        ('analyze', calculate_insights)
-    ])
+    result = exec.process_pipeline(
+        data,
+        [
+            ("fetch", fetch_database_data),
+            ("filter", filter_records),
+            ("transform", standardize),
+            ("analyze", calculate_insights),
+        ],
+    )
 # Total: ~750 tokens (95% reduction)
 ```
 ## Step 1 – Identify Tool Chains (`mcp-patterns:identify-tool-chains`)

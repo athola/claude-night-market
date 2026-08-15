@@ -31,6 +31,7 @@ Guidelines for writing high-quality, maintainable tests.
        user = authenticate("user@example.com", "password")
        assert user.is_authenticated
 
+
    # Bad: Test implementation details
    def test_password_hash_algorithm():
        assert user._hash_password("pass").startswith("$2b$")
@@ -42,6 +43,7 @@ Guidelines for writing high-quality, maintainable tests.
    def test_user_creation_sets_email():
        user = User.create(email="test@example.com")
        assert user.email == "test@example.com"
+
 
    def test_user_creation_generates_id():
        user = User.create(email="test@example.com")
@@ -55,6 +57,7 @@ Guidelines for writing high-quality, maintainable tests.
    def user():
        return User(name="Test")
 
+
    # Bad: Tests share state
    shared_user = User(name="Test")
    ```
@@ -66,9 +69,9 @@ Guidelines for writing high-quality, maintainable tests.
        with pytest.raises(ValueError):
            User.create(email="invalid")
 
+
    # Bad: Unclear
-   def test_user_error():
-       ...
+   def test_user_error(): ...
    ```
 
 5. **Use fixtures** - Avoid setup duplication
@@ -83,6 +86,7 @@ Guidelines for writing high-quality, maintainable tests.
 # Bad: Testing private methods
 def test_private_hash_function():
     assert User._hash_password("test") == "..."
+
 
 # Good: Test through public interface
 def test_password_verification():
@@ -99,6 +103,7 @@ def test_calculation(mock_sqrt):
     mock_sqrt.return_value = 3
     assert calculate_distance(0, 0, 3, 4) == 5
 
+
 # Good: Test actual calculation
 def test_calculation():
     assert calculate_distance(0, 0, 3, 4) == 5
@@ -110,9 +115,11 @@ def test_calculation():
 # Bad: Shared mutable state
 cache = {}
 
+
 def test_cache_set():
     cache["key"] = "value"
     assert cache["key"] == "value"
+
 
 def test_cache_empty():  # Fails if test_cache_set runs first
     assert len(cache) == 0
@@ -125,6 +132,7 @@ def test_cache_empty():  # Fails if test_cache_set runs first
 def test_step_1():
     global state
     state = "initialized"
+
 
 def test_step_2():
     assert state == "initialized"  # Depends on test_step_1

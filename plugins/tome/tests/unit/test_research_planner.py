@@ -66,7 +66,6 @@ class TestResearchPlannerChannelInclusion:
         When plan is called
         Then channels contains code and discourse, not academic or triz
         """
-
         classification = _make_classification("ui-ux", "light")
         result = plan(classification)
 
@@ -83,7 +82,6 @@ class TestResearchPlannerChannelInclusion:
         When plan is called
         Then channels contains code, discourse, and academic but not triz
         """
-
         classification = _make_classification("algorithm", "medium")
         result = plan(classification)
 
@@ -100,7 +98,6 @@ class TestResearchPlannerChannelInclusion:
         When plan is called
         Then channels contains code, discourse, academic, and triz
         """
-
         classification = _make_classification("data-structure", "deep")
         result = plan(classification)
 
@@ -114,7 +111,6 @@ class TestResearchPlannerChannelInclusion:
         When plan is called
         Then channels contains all four
         """
-
         classification = DomainClassification(
             domain="scientific",
             triz_depth="maximum",
@@ -148,7 +144,6 @@ class TestResearchPlannerBudget:
         When plan is called
         Then estimated_budget is 2000
         """
-
         result = plan(_make_classification("ui-ux", "light"))
 
         assert result.estimated_budget == 2000
@@ -161,7 +156,6 @@ class TestResearchPlannerBudget:
         When plan is called
         Then estimated_budget is 4000
         """
-
         result = plan(_make_classification("algorithm", "medium"))
 
         assert result.estimated_budget == 4000
@@ -174,7 +168,6 @@ class TestResearchPlannerBudget:
         When plan is called
         Then estimated_budget is 6000
         """
-
         result = plan(_make_classification("data-structure", "deep"))
 
         assert result.estimated_budget == 6000
@@ -187,7 +180,6 @@ class TestResearchPlannerBudget:
         When plan is called
         Then estimated_budget is 8000
         """
-
         classification = DomainClassification(
             domain="scientific",
             triz_depth="maximum",
@@ -221,7 +213,6 @@ class TestResearchPlannerWeights:
         When plan is called
         Then the active-channel weights sum to 1.0
         """
-
         result = plan(_make_classification("ui-ux", "light"))
 
         total = sum(result.weights[ch] for ch in result.channels)
@@ -235,7 +226,6 @@ class TestResearchPlannerWeights:
         When plan is called
         Then the active-channel weights sum to 1.0
         """
-
         result = plan(_make_classification("algorithm", "medium"))
 
         total = sum(result.weights[ch] for ch in result.channels)
@@ -249,7 +239,6 @@ class TestResearchPlannerWeights:
         When plan is called
         Then the active-channel weights sum to 1.0
         """
-
         result = plan(_make_classification("data-structure", "deep"))
 
         total = sum(result.weights[ch] for ch in result.channels)
@@ -263,7 +252,6 @@ class TestResearchPlannerWeights:
         When plan is called
         Then plan weights for active channels preserve that ordering
         """
-
         # algorithm: code=0.25, discourse=0.20, academic=0.40, triz=0.15
         # active channels for medium: code, discourse, academic
         # after normalisation: academic > code > discourse
@@ -280,7 +268,6 @@ class TestResearchPlannerWeights:
         When plan is called
         Then result is a ResearchPlan
         """
-
         result = plan(_make_classification("devops", "light"))
 
         assert isinstance(result, ResearchPlan)

@@ -227,19 +227,17 @@ from leyline.storage_templates import (
     SeedlingTemplate,
     ReferenceTemplate,
     promote_content,
-    check_promotion_eligibility
+    check_promotion_eligibility,
 )
 
 # Create new seedling
 seedling = SeedlingTemplate.create(
-    title="New Pattern Idea",
-    insight="Core concept here",
-    action="Validate and test"
+    title="New Pattern Idea", insight="Core concept here", action="Validate and test"
 )
 
 # Check promotion eligibility
-if check_promotion_eligibility('2025-12-05-new-pattern.md'):
-    promote_content('2025-12-05-new-pattern.md', to='growing')
+if check_promotion_eligibility("2025-12-05-new-pattern.md"):
+    promote_content("2025-12-05-new-pattern.md", to="growing")
 ```
 
 ## Migration Strategy

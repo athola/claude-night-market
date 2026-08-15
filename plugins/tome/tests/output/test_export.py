@@ -27,7 +27,6 @@ class TestMemoryPalaceExport:
         When exporting to memory-palace format
         Then output includes YAML frontmatter
         """
-
         session = _make_session()
         result = export_for_memory_palace(session)
         assert result.startswith("---\n")
@@ -41,7 +40,6 @@ class TestMemoryPalaceExport:
         When exporting
         Then frontmatter contains the topic
         """
-
         session = _make_session()
         result = export_for_memory_palace(session)
         assert "async patterns" in result
@@ -54,7 +52,6 @@ class TestMemoryPalaceExport:
         When exporting
         Then all finding URLs appear in the output
         """
-
         session = _make_session()
         result = export_for_memory_palace(session)
         assert "https://github.com/example/async" in result
@@ -68,7 +65,6 @@ class TestMemoryPalaceExport:
         When exporting
         Then scores appear in the output
         """
-
         session = _make_session()
         result = export_for_memory_palace(session)
         assert "0.85" in result
@@ -81,7 +77,6 @@ class TestMemoryPalaceExport:
         When exporting
         Then valid markdown with frontmatter is returned
         """
-
         session = ResearchSession(
             topic="empty topic",
             domain="general",

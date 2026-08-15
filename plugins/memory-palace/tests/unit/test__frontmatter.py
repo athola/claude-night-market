@@ -132,3 +132,40 @@ class TestSplitEntry:
         assert "Part 1" in body
         assert "---" in body
         assert "Part 2" in body
+
+
+class TestDelimiterIsAWholeLine:
+    """Feature: only a line that is exactly ``---`` closes the frontmatter.
+
+    Splitting on ``---`` wherever it appears lets an ordinary value end
+    the block early. A captured URL containing a triple hyphen is enough,
+    and the whole entry then parses as no-frontmatter, which removes it
+    from every reader that keys off metadata.
+    """
+
+    @pytest.mark.unit
+    def test_triple_hyphen_inside_a_url_does_not_end_the_block(self) -> None:
+        """Scenario: a real captured URL with a triple hyphen in its path."""
+        content = (
+            "---\n"
+            "topic: A guidance document\n"
+            'url: "https://example.test/nccer---craft-guidance.pdf?sfvrsn=6"\n'
+            "---\n"
+            "# Body\n"
+        )
+
+        metadata, body = split_entry(content)
+
+        assert metadata is not None
+        assert metadata["url"].endswith("sfvrsn=6")
+        assert body.strip() == "# Body"
+
+    @pytest.mark.unit
+    def test_triple_hyphen_inside_body_prose_is_left_alone(self) -> None:
+        """Scenario: a horizontal rule in the body is not a delimiter."""
+        content = "---\ntopic: T\n---\n# Body\n\nsome --- prose\n"
+
+        metadata, body = split_entry(content)
+
+        assert metadata == {"topic": "T"}
+        assert "some --- prose" in body

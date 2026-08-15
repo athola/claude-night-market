@@ -28,16 +28,50 @@ declared `effort`.
 
 The tier vocabulary matches
 `plugins/egregore/skills/summon/modules/model-routing.md`, which routes
-pipeline steps by the same three tiers.
+pipeline steps by the same tiers.
 
 | Tier | Alias | Effort | Task shape | Relative cost |
 |------|-------|--------|------------|---------------|
-| Lightweight | `haiku` | `low` | Mechanical, single-turn, deterministic output | ~1x |
-| Standard | `sonnet` | `medium` | Judgment inside established patterns | ~3x |
-| Deep | `opus` | `high` | Architecture, adversarial reasoning, orchestration | ~10x |
+| Lightweight | `haiku` | `low` | Mechanical, single-turn, deterministic output | 1x |
+| Standard | `sonnet` | `medium` | Judgment inside established patterns | 3x |
+| Deep | `opus` | `high` | Architecture, adversarial reasoning, orchestration | 5x |
+| Frontier | `fable` | `high` | Long-running agents where a miss is expensive | 10x |
+
+Relative cost is input price per MTok from the model card, normalized to
+Haiku: `haiku` $1, `sonnet` $3, `opus` $5, `fable` $10. Output prices
+scale the same way ($5 / $15 / $25 / $50). The multipliers above are
+list prices, so this table needs no change on the day a promotion ends.
+Sonnet 5 has an introductory price of $2 / $10 running to 2026-08-31,
+which puts its real multiplier nearer 2x until that date.
 
 `inherit` is not an accepted value. It is the default this matrix exists
 to eliminate, so accepting it explicitly would defeat the gate.
+
+Accepted effort levels are `low`, `medium`, `high`, `xhigh`, and `max`.
+The last two are reserved for work where a missed finding costs more
+than the extra tokens: adversarial audits and multi-agent orchestration.
+No agent pins them today, and adding one needs a line in its roster
+entry saying why. On Opus 5 and Sonnet 5 the harness already defaults
+`effort` to `high`, so pinning `high` matches the default rather than
+raising it.
+
+`fable` is the Frontier tier, not a creative-writing tier. The model
+card describes Claude Fable 5 as Anthropic's most capable widely
+released model, built for long-running agents, at twice the input price
+of Opus 5 and with slower latency. It earns its place on work where an
+agent runs long enough that a wrong turn compounds. Reach for it when
+`opus` has already proven insufficient on the same task, not by default.
+
+Claude Mythos 5 shares Fable 5's specs but is invitation-only under
+Project Glasswing and is not exposed as a Claude Code tier, so it is
+deliberately absent from this table and from `VALID_MODELS`.
+
+The vocabulary here is not the source of truth for what upstream ships.
+`.claude/upstream-baseline.json` records that, and
+`scripts/check_upstream_drift.py` fails whenever this gate cannot
+express something the ledger records. Fable entered the matrix through
+exactly that path. See
+`Skill(night-market-model-and-harness-updates)` for the workflow.
 
 ## Placement rules
 
@@ -55,6 +89,18 @@ An agent belongs in **Deep** when any of these hold:
   refutation, hardening).
 - It orchestrates other agents and must judge their output.
 - Its whole value is divergent or analogical thinking.
+
+An agent belongs in **Frontier** when all of these hold:
+
+- It already sits in Deep and `opus` has measurably fallen short on the
+  same task, with the shortfall written down.
+- It runs long enough that an early wrong turn compounds instead of
+  surfacing immediately.
+- Doubling the input cost is cheaper than the failure it prevents.
+
+Frontier is empty today and that is the correct state. A tier being
+available is not a reason to use it. Moving an agent here is a separate
+change with its own evidence, never a side effect of a model release.
 
 Everything else is **Standard**. Standard is the floor for anything
 involving judgment, which is the deliberate bias of this matrix: review

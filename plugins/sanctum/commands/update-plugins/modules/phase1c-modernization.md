@@ -45,11 +45,13 @@ decision field entirely, or by producing no stdout.
 {"decision": "approve", "reason": "safe"}
 
 # After (current):
-{"hookSpecificOutput": {
-    "hookEventName": "PreToolUse",
-    "permissionDecision": "allow",
-    "permissionDecisionReason": "safe",
-}}
+{
+    "hookSpecificOutput": {
+        "hookEventName": "PreToolUse",
+        "permissionDecision": "allow",
+        "permissionDecisionReason": "safe",
+    }
+}
 ```
 
 **missing-stdin-error-handling**: Wrap stdin reads:

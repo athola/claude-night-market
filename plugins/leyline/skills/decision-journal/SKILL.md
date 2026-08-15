@@ -136,3 +136,10 @@ Must print a rendered entry containing `## TR-001:` and write nothing.
 - [ ] Re-running the same append is a no-op (idempotency holds).
 - [ ] A consumer with leyline absent still produces a correctly shaped entry
   from the in-file ENTRY TEMPLATE.
+
+The last criterion holds even for consumers that name `leyline` in their
+`dependencies`.
+That field is marketplace metadata; no installer acts on it, so
+`spec-kit` or `imbue` can be installed without leyline present.
+The fallback is the guard at that boundary, not leftover code.
+See `docs/metadata.md`, "What `dependencies` Does Not Mean".

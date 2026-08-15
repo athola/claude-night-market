@@ -52,7 +52,7 @@ def evaluate_novelty(finding, existing_entries):
     elif best_match.similarity < 0.8:
         return 10  # Partial overlap - may add context
     else:
-        return 0   # Duplicate - skip
+        return 0  # Duplicate - skip
 ```
 
 ### Applicability Check (30 points max)
@@ -86,14 +86,25 @@ def evaluate_durability(finding):
 
     # Architectural indicators
     architectural_keywords = [
-        'architecture', 'design', 'pattern', 'convention',
-        'security', 'performance', 'scalability', 'api'
+        "architecture",
+        "design",
+        "pattern",
+        "convention",
+        "security",
+        "performance",
+        "scalability",
+        "api",
     ]
 
     # Tactical indicators
     tactical_keywords = [
-        'typo', 'formatting', 'temporary', 'workaround',
-        'quick fix', 'hotfix', 'revert'
+        "typo",
+        "formatting",
+        "temporary",
+        "workaround",
+        "quick fix",
+        "hotfix",
+        "revert",
     ]
 
     content_lower = finding.content.lower()
@@ -106,7 +117,7 @@ def evaluate_durability(finding):
     elif arch_matches == tact_matches:
         return 10  # Mixed
     else:
-        return 0   # Tactical - skip
+        return 0  # Tactical - skip
 ```
 
 ### Connectivity Check (15 points max)
@@ -168,27 +179,23 @@ def classify_finding(finding, score):
     category = finding.category.lower()
 
     # Decisions: Architectural choices with rationale
-    if severity == "BLOCKING" and any(k in category for k in [
-        'architecture', 'design', 'security', 'api'
-    ]):
+    if severity == "BLOCKING" and any(
+        k in category for k in ["architecture", "design", "security", "api"]
+    ):
         return "decisions"
 
     # Patterns: Recurring issues or solutions
-    if is_recurring(finding) or any(k in category for k in [
-        'pattern', 'recurring', 'common', 'best-practice'
-    ]):
+    if is_recurring(finding) or any(
+        k in category for k in ["pattern", "recurring", "common", "best-practice"]
+    ):
         return "patterns"
 
     # Standards: Quality examples
-    if any(k in category for k in [
-        'quality', 'style', 'convention', 'standard'
-    ]):
+    if any(k in category for k in ["quality", "style", "convention", "standard"]):
         return "standards"
 
     # Lessons: Retrospective insights
-    if any(k in category for k in [
-        'lesson', 'learning', 'retrospective', 'insight'
-    ]):
+    if any(k in category for k in ["lesson", "learning", "retrospective", "insight"]):
         return "lessons"
 
     # Default: High-severity findings as patterns

@@ -75,19 +75,22 @@ class TestCoercionParamsDetector:
 
     def test_mut_string_ref_not_flagged(self, mock_skill_context) -> None:
         """`&mut String` can grow (push_str); `&mut str` cannot, so the
-        owned-type ref is load-bearing (clippy issue #9542)."""
+        owned-type ref is load-bearing (clippy issue #9542).
+        """
         issues = self._issues(mock_skill_context, "fn g(s: &mut String) {}\n")
         assert issues == []
 
     def test_mut_vec_ref_not_flagged(self, mock_skill_context) -> None:
         """`&mut Vec<T>` supports push/clear; `&mut [T]` cannot change
-        length, so it must not be narrowed (clippy issue #8463)."""
+        length, so it must not be narrowed (clippy issue #8463).
+        """
         issues = self._issues(mock_skill_context, "fn g(v: &mut Vec<u8>) {}\n")
         assert issues == []
 
     def test_box_ref_not_flagged(self, mock_skill_context) -> None:
         """clippy::ptr_arg deliberately does not flag `&Box<T>`; neither
-        does this detector (it would invent a rule clippy lacks)."""
+        does this detector (it would invent a rule clippy lacks).
+        """
         issues = self._issues(mock_skill_context, "fn g(b: &Box<u8>) {}\n")
         assert issues == []
 

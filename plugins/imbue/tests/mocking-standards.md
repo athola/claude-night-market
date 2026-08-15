@@ -34,9 +34,10 @@ mock_tool = Mock()  # Less functionality
 ```python
 # Good - using mocker fixture
 def test_something(mocker):
-    mock_bash = mocker.patch.object(some_obj, 'bash', return_value="output")
+    mock_bash = mocker.patch.object(some_obj, "bash", return_value="output")
     # Test code...
     mock_bash.assert_called_once()
+
 
 # Acceptable for simple cases - using conftest fixtures
 def test_something_else(mock_claude_tools):
@@ -85,10 +86,9 @@ Factory for Bash mocks with command-response mappings.
 
 ```python
 def test_git_commands(mock_bash_factory):
-    bash_mock = mock_bash_factory({
-        "pwd": "/test/project",
-        "git status": "On branch main"
-    })
+    bash_mock = mock_bash_factory(
+        {"pwd": "/test/project", "git status": "On branch main"}
+    )
     assert bash_mock("pwd") == "/test/project"
 ```
 
@@ -122,10 +122,13 @@ mock.assert_called_once_with(expected_arg)
 
 # Multiple calls in order
 from unittest.mock import call
-mock.assert_has_calls([
-    call("first"),
-    call("second"),
-])
+
+mock.assert_has_calls(
+    [
+        call("first"),
+        call("second"),
+    ]
+)
 
 # Call counting
 assert mock.call_count == 3
@@ -140,12 +143,13 @@ assert call("some_arg") in mock.call_args_list
 ```python
 from unittest.mock import Mock, patch
 
+
 def test_old_style():
     # Inconsistent patterns
     mock = Mock()
     mock.return_value = "value"
 
-    with patch('module.function') as mock_func:
+    with patch("module.function") as mock_func:
         # Test code
         pass
 ```
@@ -154,13 +158,16 @@ def test_old_style():
 ```python
 from unittest.mock import MagicMock
 
+
 def test_new_style(mock_claude_tools):
     # Use fixtures when possible
     mock_claude_tools["Bash"].return_value = "output"
 
     # Or use mocker for more control
+
+
 def test_with_mocker(mocker):
-    mock_func = mocker.patch('module.function', return_value="value")
+    mock_func = mocker.patch("module.function", return_value="value")
     mock_func.assert_called_once()
 ```
 
@@ -172,9 +179,9 @@ def test_with_mocker(mocker):
 def test_sequential_tool_calls(mock_claude_tools):
     """Test multiple tool calls with different outputs."""
     mock_claude_tools["Bash"].side_effect = [
-        "/test/project",           # pwd
-        "feature/auth",            # git branch
-        "On branch feature/auth", # git status
+        "/test/project",  # pwd
+        "feature/auth",  # git branch
+        "On branch feature/auth",  # git status
     ]
 
     # Execute test logic
@@ -193,10 +200,7 @@ def test_skill_orchestration(mock_claude_tools):
         executed_skills.append(skill_name)
         return f"{skill_name} completed"
 
-    mock_claude_tools["Skill"] = MagicMock(
-        name="Skill",
-        side_effect=track_skill
-    )
+    mock_claude_tools["Skill"] = MagicMock(name="Skill", side_effect=track_skill)
 
     # Test workflow
     assert "review-core" in executed_skills
@@ -247,6 +251,7 @@ mock.side_effect = ["first", "second", "third"]
 # Every test creates the same mock
 def test_one():
     mock_tools = {"Read": Mock(), "Bash": Mock()}
+
 
 def test_two():
     mock_tools = {"Read": Mock(), "Bash": Mock()}  # Duplicate

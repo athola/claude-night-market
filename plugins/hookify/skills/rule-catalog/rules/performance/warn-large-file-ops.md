@@ -24,12 +24,13 @@ You're writing a large amount of data (>10KB) in a single operation.
 For large data:
 ```python
 # Instead of one large write
-with open('huge_file.json', 'w') as f:
+with open("huge_file.json", "w") as f:
     f.write(massive_json_string)  # Large context
 
 # Use streaming or chunking
 import json
-with open('huge_file.json', 'w') as f:
+
+with open("huge_file.json", "w") as f:
     for chunk in data_chunks:
         json.dump(chunk, f)  # Smaller operations
 ```
@@ -37,9 +38,9 @@ with open('huge_file.json', 'w') as f:
 For generated code:
 ```python
 # Generate to file directly
-with open('generated.py', 'w') as f:
+with open("generated.py", "w") as f:
     for section in code_sections:
-        f.write(section + '\n')
+        f.write(section + "\n")
 ```
 
 **Resource monitoring:**

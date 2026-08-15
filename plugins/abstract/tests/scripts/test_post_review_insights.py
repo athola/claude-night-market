@@ -219,7 +219,6 @@ class TestSeverityContractInvariant:
     @pytest.mark.unit
     def test_every_blocker_becomes_high(self) -> None:
         """All blockers, regardless of count or content, get severity=high."""
-
         markdown = (
             "**Verdict:** Request changes\n\n"
             "## Blocking findings\n\n"
@@ -263,13 +262,11 @@ class TestExtractPrNumber:
     @pytest.mark.unit
     def test_extracts_from_standard_heading(self) -> None:
         """Scenario: '# PR Review: #417 - title' -> 417"""
-
         assert extract_pr_number("# PR Review: #417 - some title\n") == 417
 
     @pytest.mark.unit
     def test_missing_heading_returns_none(self) -> None:
         """Scenario: no heading at all"""
-
         assert extract_pr_number("no pr heading here\n") is None
 
     @pytest.mark.unit
@@ -281,7 +278,6 @@ class TestExtractPrNumber:
         evidence. A false match (e.g., pulling '417' from arbitrary
         prose) would corrupt the evidence link.
         """
-
         assert extract_pr_number("# Review of PR 417\n") is None
 
 

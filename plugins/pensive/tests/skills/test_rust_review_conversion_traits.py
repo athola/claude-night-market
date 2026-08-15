@@ -71,7 +71,8 @@ class TestConversionTraitsDetector:
 
     def test_into_trait_bound_not_flagged(self, mock_skill_context) -> None:
         """A `where`/generic bound `T: Into<U>` is correct and idiomatic;
-        only `impl Into` blocks are flagged, never bounds."""
+        only `impl Into` blocks are flagged, never bounds.
+        """
         issues = self._issues(
             mock_skill_context, "fn g<T: Into<u64>>(t: T) -> u64 { t.into() }\n"
         )

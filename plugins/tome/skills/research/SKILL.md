@@ -37,17 +37,35 @@ Run the domain classifier on the topic:
 
 ```python
 from tome.scripts.domain_classifier import classify
+
 result = classify(topic)
 # result.domain, result.triz_depth, result.channel_weights
 ```
 
-If confidence < 0.6, ask the user to confirm or override
-the domain classification before proceeding.
+If confidence < 0.6 the classifier abstains and **refines**
+rather than rejecting: `result.candidates` lists the domains
+that had keyword support, `triz_depth` becomes the deepest
+of those candidates, and `channel_weights` is a
+support-weighted blend. Coverage widens on ambiguity instead
+of narrowing, because a topic spanning several vocabularies
+is exactly what the cross-domain channel is for.
+
+Report the abstention to the user with the candidate list and
+let them override the domain. Do not treat a refined plan as
+a failure; treat it as the classifier declining to guess.
+
+When `candidates` is empty the topic produced no keyword hits
+at all. That stays on the cheap two-channel plan, since there
+is nothing to refine toward and escalating noise wastes
+budget. If the topic is genuinely researchable, the
+vocabulary in `_DOMAIN_KEYWORDS` is missing it: say so rather
+than forcing a domain.
 
 ### Step 2: Plan Research
 
 ```python
 from tome.scripts.research_planner import plan
+
 research_plan = plan(result)
 # research_plan.channels, research_plan.weights, research_plan.triz_depth
 ```
@@ -56,6 +74,7 @@ research_plan = plan(result)
 
 ```python
 from tome.session import SessionManager
+
 mgr = SessionManager(Path.cwd())
 session = mgr.create(topic, result.domain, result.triz_depth, research_plan.channels)
 ```
@@ -93,8 +112,25 @@ Each agent prompt must include:
 After all agents return:
 
 1. Parse each agent's findings into Finding objects
-2. Merge using `tome.synthesis.merger.merge_findings()`
-3. Rank using `tome.synthesis.ranker.rank_findings()`
+2. Record what each agent actually searched, before
+   merging anything:
+
+   ```python
+   from tome.synthesis.quality import parse_envelope
+
+   for envelope in agent_envelopes:  # one per dispatched agent
+       session.query_log.extend(parse_envelope(envelope))
+   ```
+
+   This is the step that makes an empty channel readable.
+   Findings record what was found; the query log records
+   what was looked for, and without it a channel that
+   errored and a channel that searched a thin topic are
+   the same thing: no findings. Skip this and every
+   channel in the report reads `unknown`.
+
+3. Merge using `tome.synthesis.merger.merge_findings()`
+4. Rank using `tome.synthesis.ranker.rank_findings()`
 
 ### Step 6: Generate Output
 
@@ -116,9 +152,44 @@ mgr.save(session)
 ### Step 7: Present Results
 
 Display a brief summary to the user:
-- Number of findings per channel
+- The frontier verdict and its reason, from
+  `tome.synthesis.frontier.frontier_verdict(session)`. It is
+  the report's own answer to "did we find little because
+  there is little, or because the search went badly"
+- Number of findings per channel, with its outcome status
+  from `tome.synthesis.quality.channel_outcomes(session)`:
+  `ok`, `empty`, `error`, `rate_limited`, `degraded`, or
+  `unknown`
 - Top 3 findings by relevance
 - Path to saved report
+- Any research stories from
+  `tome.synthesis.frontier.frontier_stories(session)`. Each
+  is a gap with its evidence, and each arrives `undecided`.
+  Ask the user to mark it `act`, `defer`, or `decline`.
+  Do not decide for them, and do not file an issue for a
+  story they have not marked: nothing in a search record
+  says what is worth this project's time. On `defer`, file
+  it with `minister:create-issue` so it survives the
+  session. On `act` the work starts now and needs no issue.
+  On `decline` record nothing.
+
+The three retrieval channels run a positive control before
+their topic queries, so `INCONCLUSIVE` now means something
+specific rather than "controls do not exist yet". Read it as
+one of two things: a channel failed its canary and is blind,
+or a channel searched without running one. Both are named in
+the verdict's evidence, and both produce a story under
+`Research Stories`.
+
+`triz` runs no control and is excluded from the verdict. It
+generates analogies rather than retrieving prior work, so
+its output is not evidence about what has been published and
+its findings are not counted toward coverage.
+
+State plainly which channels did not return cleanly. A
+summary that reports "3 findings" without saying two
+channels were rate-limited invites the reader to treat a
+half-run search as a finding about the topic.
 
 Then offer interactive refinement:
 "Use `/tome:dig \"subtopic\"` to explore specific areas."

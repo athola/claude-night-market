@@ -83,14 +83,14 @@ This skill provides a detailed framework for evaluating, auditing, and implement
 
 ```python
 HookEvent = Literal[
-    "PreToolUse",       # Before tool execution
-    "PostToolUse",      # After tool execution
-    "UserPromptSubmit", # When user submits prompt
-    "Stop",             # When stopping execution
-    "SubagentStop",     # When a subagent stops
-    "TeammateIdle",     # When teammate agent becomes idle (2.1.33+)
-    "TaskCompleted",    # When a task finishes execution (2.1.33+)
-    "PreCompact"        # Before message compaction
+    "PreToolUse",  # Before tool execution
+    "PostToolUse",  # After tool execution
+    "UserPromptSubmit",  # When user submits prompt
+    "Stop",  # When stopping execution
+    "SubagentStop",  # When a subagent stops
+    "TeammateIdle",  # When teammate agent becomes idle (2.1.33+)
+    "TaskCompleted",  # When a task finishes execution (2.1.33+)
+    "PreCompact",  # Before message compaction
 ]
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
@@ -108,10 +108,10 @@ Plugins can declare hooks via `"hooks": "./hooks/hooks.json"` in plugin.json. Th
 
 ```python
 async def my_hook(
-    input_data: dict[str, Any],    # Hook-specific input
-    tool_use_id: str | None,       # Tool ID (for tool hooks)
-    context: HookContext           # Additional context
-) -> dict[str, Any]:               # Return decision/messages
+    input_data: dict[str, Any],  # Hook-specific input
+    tool_use_id: str | None,  # Tool ID (for tool hooks)
+    context: HookContext,  # Additional context
+) -> dict[str, Any]:  # Return decision/messages
     ...
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
@@ -121,10 +121,10 @@ async def my_hook(
 ```python
 return {
     "hookSpecificOutput": {
-        "hookEventName": "PreToolUse",       # Match hook type
-        "permissionDecision": "deny",        # Optional: block action
-        "permissionDecisionReason": "...",   # Reason for denial
-        "additionalContext": "...",          # Optional: context added
+        "hookEventName": "PreToolUse",  # Match hook type
+        "permissionDecision": "deny",  # Optional: block action
+        "permissionDecisionReason": "...",  # Reason for denial
+        "additionalContext": "...",  # Optional: context added
     }
 }
 ```

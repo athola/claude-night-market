@@ -78,17 +78,17 @@ Scan these locations for potential destinations:
 
 ```python
 DOC_LOCATIONS = [
-    'docs/',
-    'docs/plans/',
-    'docs/adr/',
-    'README.md',
-    'CHANGELOG.md',
+    "docs/",
+    "docs/plans/",
+    "docs/adr/",
+    "README.md",
+    "CHANGELOG.md",
 ]
 
 # Plugin-specific locations
 PLUGIN_DOC_LOCATIONS = [
-    '{plugin}/docs/',
-    '{plugin}/README.md',
+    "{plugin}/docs/",
+    "{plugin}/README.md",
 ]
 ```
 
@@ -119,17 +119,18 @@ def extract_topic(chunk: ContentChunk, source_file: str) -> str:
 
     # Try source file name
     source_name = Path(source_file).stem
-    if '_REPORT' in source_name:
-        return slugify(source_name.replace('_REPORT', ''))
+    if "_REPORT" in source_name:
+        return slugify(source_name.replace("_REPORT", ""))
 
     # Fall back to category
     return chunk.category
 
+
 def slugify(text: str) -> str:
     """Convert text to kebab-case slug."""
     text = text.lower()
-    text = re.sub(r'[^a-z0-9]+', '-', text)
-    text = text.strip('-')
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    text = text.strip("-")
     return text[:50]  # Max length
 ```
 
@@ -252,11 +253,11 @@ def validate_routing(plan: RoutingPlan) -> list[str]:
     errors = []
 
     for route in plan.routes:
-        if route.strategy != 'CREATE_NEW':
+        if route.strategy != "CREATE_NEW":
             if not Path(route.destination).exists():
                 errors.append(f"Destination not found: {route.destination}")
 
-        if route.strategy == 'CREATE_NEW':
+        if route.strategy == "CREATE_NEW":
             if Path(route.destination).exists():
                 errors.append(f"Would overwrite existing: {route.destination}")
 

@@ -71,5 +71,5 @@ Performs maintenance actions on garden content.
 
 Uses the garden_metrics.py tool:
 ```bash
-python scripts/garden_metrics.py <path> [--format <format>]
+python -m memory_palace.garden_metrics <path> [--format <format>]
 ```

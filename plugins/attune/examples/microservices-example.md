@@ -240,6 +240,7 @@ from contextlib import asynccontextmanager
 from user_service.api import router
 from user_service.config import settings
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
@@ -248,6 +249,7 @@ async def lifespan(app: FastAPI):
     # Shutdown
     print(f"Shutting down {settings.service_name}")
 
+
 app = FastAPI(
     title="User Service",
     version="1.0.0",
@@ -255,6 +257,7 @@ app = FastAPI(
 )
 
 app.include_router(router, prefix="/api/v1")
+
 
 @app.get("/health")
 async def health():
@@ -271,22 +274,24 @@ from user_service.auth import get_current_user
 
 router = APIRouter(tags=["users"])
 
+
 def get_user_service() -> UserService:
     return UserService()
 
+
 @router.post("/users", response_model=User, status_code=status.HTTP_201_CREATED)
 async def create_user(
-    user: UserCreate,
-    service: UserService = Depends(get_user_service)
+    user: UserCreate, service: UserService = Depends(get_user_service)
 ):
     """Create a new user."""
     return await service.create_user(user)
+
 
 @router.get("/users/{user_id}", response_model=User)
 async def get_user(
     user_id: str,
     service: UserService = Depends(get_user_service),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """Get user by ID."""
     user = await service.get_user(user_id)
@@ -294,12 +299,13 @@ async def get_user(
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+
 @router.put("/users/{user_id}", response_model=User)
 async def update_user(
     user_id: str,
     updates: UserUpdate,
     service: UserService = Depends(get_user_service),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """Update user."""
     if current_user.id != user_id and not current_user.is_admin:
@@ -316,9 +322,11 @@ from user_service.repository import UserRepository
 from user_service.events import publish_event
 from shared.events import UserCreatedEvent, UserUpdatedEvent
 
+
 @dataclass
 class UserService:
     """User business logic."""
+
     repository: UserRepository = None
 
     def __post_init__(self):
@@ -335,11 +343,11 @@ class UserService:
         user = await self.repository.create(data)
 
         # Publish event for other services
-        await publish_event(UserCreatedEvent(
-            user_id=user.id,
-            email=user.email,
-            created_at=user.created_at
-        ))
+        await publish_event(
+            UserCreatedEvent(
+                user_id=user.id, email=user.email, created_at=user.created_at
+            )
+        )
 
         return user
 
@@ -351,10 +359,11 @@ class UserService:
         """Update user and publish event."""
         user = await self.repository.update(user_id, updates)
 
-        await publish_event(UserUpdatedEvent(
-            user_id=user.id,
-            updated_fields=updates.dict(exclude_unset=True)
-        ))
+        await publish_event(
+            UserUpdatedEvent(
+                user_id=user.id, updated_fields=updates.dict(exclude_unset=True)
+            )
+        )
 
         return user
 ```
@@ -369,9 +378,11 @@ from typing import Any, Dict
 import json
 import uuid
 
+
 @dataclass
 class Event:
     """Base event class."""
+
     event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: datetime = field(default_factory=datetime.utcnow)
     version: str = "1.0"
@@ -385,16 +396,18 @@ class Event:
             "event_type": self.__class__.__name__,
             "timestamp": self.timestamp.isoformat(),
             "version": self.version,
-            "data": self._get_data()
+            "data": self._get_data(),
         }
 
     def _get_data(self) -> Dict[str, Any]:
         """Override in subclasses to provide event data."""
         return {}
 
+
 @dataclass
 class UserCreatedEvent(Event):
     """Published when a user is created."""
+
     user_id: str = ""
     email: str = ""
     created_at: datetime = None
@@ -403,24 +416,25 @@ class UserCreatedEvent(Event):
         return {
             "user_id": self.user_id,
             "email": self.email,
-            "created_at": self.created_at.isoformat() if self.created_at else None
+            "created_at": self.created_at.isoformat() if self.created_at else None,
         }
+
 
 @dataclass
 class UserUpdatedEvent(Event):
     """Published when a user is updated."""
+
     user_id: str = ""
     updated_fields: Dict[str, Any] = field(default_factory=dict)
 
     def _get_data(self) -> Dict[str, Any]:
-        return {
-            "user_id": self.user_id,
-            "updated_fields": self.updated_fields
-        }
+        return {"user_id": self.user_id, "updated_fields": self.updated_fields}
+
 
 @dataclass
 class OrderCreatedEvent(Event):
     """Published when an order is created."""
+
     order_id: str = ""
     user_id: str = ""
     total_amount: float = 0.0
@@ -431,7 +445,7 @@ class OrderCreatedEvent(Event):
             "order_id": self.order_id,
             "user_id": self.user_id,
             "total_amount": self.total_amount,
-            "items": self.items
+            "items": self.items,
         }
 ```
 
@@ -461,6 +475,7 @@ SERVICES: Dict[str, str] = {
     "orders": "http://order-service:8000",
     "payments": "http://payment-service:8000",
 }
+
 
 @app.api_route("/{service}/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy(service: str, path: str, request: Request):

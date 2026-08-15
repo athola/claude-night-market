@@ -26,9 +26,22 @@ SRC_DIR = PLUGIN_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+# PLUGIN_ROOT is version scoped: hooks run from cache/<marketplace>/
+# <plugin>/<version>/, so user data written under it is invisible to
+# the next release (issue #661). DATA_ROOT is the version-independent
+# root, and equals PLUGIN_ROOT in a source checkout.
+from memory_palace.paths import persistent_root
+
+DATA_ROOT = persistent_root(PLUGIN_ROOT)
+
 _HAS_SESSION_HISTORY = False
 try:
-    from memory_palace.session_history import SessionHistoryManager, SessionRecord
+    from memory_palace.session_history import (
+        SessionHistoryManager,
+        SessionRecord,
+        SessionUnit,
+        merge_handoff_units,
+    )
 
     _HAS_SESSION_HISTORY = True
 except (ImportError, ModuleNotFoundError) as _import_err:
@@ -135,6 +148,72 @@ def _safe_float(value: object, default: float = 0.0) -> float:
         return default
 
 
+_STAGING_PATH = DATA_ROOT / "data" / "state" / "handoff_units.json"
+
+
+def _drain_staged_units(path: Path) -> list[dict]:
+    """Read and remove the staging file written by session-handoff.
+
+    The Stop payload carries no transcript content and the hook has no
+    model, so units cannot be extracted here. The skill stages them; this
+    drains them. Reading an external file, so a missing or corrupt one
+    yields nothing rather than blocking the session from ending.
+    """
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    try:
+        path.unlink()
+    except OSError:
+        pass
+    units = raw.get("units") if isinstance(raw, dict) else raw
+    return [u for u in (units or []) if isinstance(u, dict)]
+
+
+def _coerce_units(raw: list[dict]) -> list[SessionUnit]:
+    """Validate staged dicts into units, dropping any the schema rejects.
+
+    This is the single ingress boundary for the type vocabulary; every
+    downstream reader may assume the type is valid.
+    """
+    units: list[SessionUnit] = []
+    for item in raw:
+        try:
+            units.append(SessionUnit.from_dict(item))
+        except TypeError as exc:
+            logger.warning("session_lifecycle: dropping invalid unit: %s", exc)
+    _fingerprint_dependencies(units)
+    return units
+
+
+def _fingerprint_dependencies(units: list[SessionUnit]) -> None:
+    """Record a content digest for each declared dependency.
+
+    The writer names the files a claim rests on; the machine records
+    what they contained. Splitting it this way keeps the model out of
+    hashing and keeps the hook out of judging relevance.
+    """
+    try:
+        from memory_palace.corpus.staleness_signals import capture_digests
+    except ImportError:
+        return
+    root = Path.cwd()
+    for unit in units:
+        if unit.files and not unit.file_digests:
+            unit.file_digests = capture_digests(unit.files, root=root)
+
+
+def _derive_topics(units: list[SessionUnit]) -> list[str]:
+    """Thread labels, deduplicated, in first-seen order."""
+    return list(dict.fromkeys(u.thread for u in units))
+
+
+def _derive_key_decisions(units: list[SessionUnit]) -> list[str]:
+    """The state text of every decision unit."""
+    return [u.state for u in units if u.type == "decision"]
+
+
 def _build_record(payload: dict) -> SessionRecord:
     """Construct a SessionRecord from a Stop hook payload.
 
@@ -228,7 +307,17 @@ def main() -> None:
 
     try:
         record = _build_record(payload)
-        mgr = SessionHistoryManager(data_dir=PLUGIN_ROOT / "data")
+        mgr = SessionHistoryManager(data_dir=DATA_ROOT / "data")
+        # Stop fires repeatedly and record_session overwrites by session_id,
+        # so units must be merged forward or the next turn erases them.
+        previous = mgr.get_session(record.session_id)
+        staged = _coerce_units(_drain_staged_units(_STAGING_PATH))
+        record.handoff_units = merge_handoff_units(
+            list(previous.handoff_units) if previous else [], staged
+        )
+        if record.handoff_units:
+            record.topics = _derive_topics(record.handoff_units)
+            record.key_decisions = _derive_key_decisions(record.handoff_units)
         mgr.record_session(record)
     except Exception as exc:
         # Non-critical: never block the session from ending
@@ -236,7 +325,7 @@ def main() -> None:
 
     # Graph wiring: record journey completion if cross-palace navigation occurred
     _try_record_journey_completion(
-        palaces_dir=PLUGIN_ROOT / "data" / "palaces",
+        palaces_dir=DATA_ROOT / "data" / "palaces",
         session_id=str(payload.get("session_id", "")),
         tools_used=list(payload.get("tools_used") or []),
     )

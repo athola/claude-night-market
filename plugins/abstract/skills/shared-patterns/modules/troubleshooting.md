@@ -82,12 +82,14 @@ Two copies of the same exception class break `except` blocks:
 # In caller, imported at module load
 from abstract.shared_patterns.errors import ValidationError
 
+
 # Somewhere else (different version cached, vendored copy, etc)
-class ValidationError(Exception): ...   # different class!
+class ValidationError(Exception): ...  # different class!
+
 
 try:
     do_thing()
-except ValidationError:                  # only catches one
+except ValidationError:  # only catches one
     handle()
 ```
 
@@ -128,10 +130,8 @@ symbol is in use:
 import inspect
 from abstract.shared_patterns.errors import ValidationError
 
-print("ValidationError defined at:",
-      inspect.getfile(ValidationError))
-print("ValidationError MRO:",
-      [c.__name__ for c in ValidationError.__mro__])
+print("ValidationError defined at:", inspect.getfile(ValidationError))
+print("ValidationError MRO:", [c.__name__ for c in ValidationError.__mro__])
 ```
 
 If the file path is unexpected (e.g. a `.venv` cache, a

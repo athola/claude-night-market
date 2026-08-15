@@ -15,6 +15,7 @@ def capture_pr_review_knowledge(  # noqa: PLR0913 - PR capture requires all revi
     pr_title: str,
     findings: list[dict[str, Any]],
     participants: list[str],
+    *,
     config_path: str | None = None,
 ) -> list[str]:
     """Capture knowledge from PR review findings.

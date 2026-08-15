@@ -126,11 +126,37 @@ Use the notes from the workspace review and the output of `git diff --stat origi
 
 ## Step 4: Document Testing (`testing-documented`)
 
-List each test command executed and its result. Include manual verification steps where relevant. If tests were skipped, document the reason and the mitigation plan.
+List each test command executed and its result. If tests were skipped,
+document the reason and the mitigation plan.
+
+Attach a manual test plan when any of these hold:
+
+- The change has no automated coverage.
+- It touches a user-facing or CLI-facing flow.
+- It is a bug fix. Give reproduce, fix, and verify steps, where the
+  reproduce step fails on the parent commit.
+- It changes an external contract.
+
+Write it as numbered steps, each stating its expected result. A step
+without an expected result is a step the reviewer cannot fail. Format
+and examples are in `modules/pr-template.md`.
 
 ## Step 5: Draft the PR (`pr-drafted`)
 
-Populate the standard template with Summary, Changes, Testing, and Checklist sections. Include issue references, screenshots, or follow-up TODO items. Template structure and examples are available in `modules/pr-template.md`.
+Populate the template with the facts table (Who, Where, When), then
+the Why and What-and-how sections, then Test plan and Checklist. Write
+the title imperative and self-contained so it reads correctly in `git
+log` out of context.
+
+All three table rows are filled on every PR. A row that does not apply
+says so (`External: none`, `on merge`) rather than being deleted, so a
+reader can tell an omitted blast radius from a blast radius of none.
+
+Add issue references, screenshots, migration guides, or follow-up
+items as the change calls for them. Template structure, worked
+examples, and size variations are in `modules/pr-template.md`. The
+decision behind the structure, with its sources, is recorded in
+`docs/adr/0021-pr-descriptions-in-two-registers.md`.
 
 ## Step 6: Verify Content Quality (`content-verified`)
 
@@ -173,6 +199,12 @@ If project-specific commands like `make` or `npm` are unavailable, verify the en
       failure is fixed before proceeding, not skipped
 - [ ] PR description file written to the specified path and its
       contents displayed for confirmation
+- [ ] Facts table present with all three rows (Who, Where, When)
+      filled, including the `External:` half of Where
+- [ ] Why section grounded in an issue, a number, or an incident
+      rather than a general claim
+- [ ] Manual test plan attached whenever one of the four triggers in
+      Step 4 fires, with an expected result on every step
 - [ ] Additive bias score from `imbue:justify` is GREEN, or YELLOW
       with each flagged signal explicitly justified
 - [ ] PR description contains none of the tier-1 slop words (delve,

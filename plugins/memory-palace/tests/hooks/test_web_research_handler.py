@@ -22,6 +22,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+import yaml
 
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
@@ -203,6 +204,104 @@ class TestTitleRejectsModelPreamble:
     def test_genuine_titles_still_accepted(self, genuine):
         """Given a real title, the prose filter must not reject it."""
         content = f"{genuine}\n\nBody text follows."
+        assert extract_title_from_content(content, self.URL) == genuine
+
+
+class TestTitleRejectsListFragments:
+    """Feature: answer-body list items never become page titles (#624).
+
+    #621 taught the extractor to reject model preamble by shape:
+    length, terminal punctuation, and a short opener list. A list item
+    slips through all three. It is short, it ends on a word, and it
+    opens with a bullet rather than a known phrase.
+
+    Every string below is a live entry in the committed capture index.
+    They are fragments of a model's answer body, not page titles, and
+    the expected behaviour is to fall back to the URL slug.
+    """
+
+    URL = "https://docs.example.com/user-guide"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "fragment",
+        [
+            "- A loading state",
+            "- Acceptable forms of evidence (observations, photographs)",
+            "* A bulleted body line pretending to be a heading",
+            "+ Another bullet flavour",
+            "1. A readable version of the document, or",
+            "3. **Color swatches** - CMYK color definitions",
+            "2) Parenthesised ordered markers count too",
+        ],
+    )
+    def test_list_fragment_rejected_for_url_slug(self, fragment):
+        """Given a list item, fall back to the URL rather than store it."""
+        content = f"{fragment}\n\nSome body text follows here."
+        assert extract_title_from_content(content, self.URL) == "User Guide"
+
+    @pytest.mark.unit
+    def test_list_fragment_as_heading_also_rejected(self):
+        """Given a list item marked up as a heading, still reject it."""
+        content = "# - A loading state\n\nBody text."
+        assert extract_title_from_content(content, self.URL) == "User Guide"
+
+    @pytest.mark.unit
+    def test_real_title_after_list_fragment_is_used(self):
+        """Given a list fragment then a real heading, use the heading."""
+        content = (
+            "- A loading state\n- Acceptable forms of evidence\n\n"
+            "# Python Async Patterns\n\nBody text."
+        )
+        assert extract_title_from_content(content, self.URL) == (
+            "Python Async Patterns"
+        )
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "generic",
+        ["Response", "Summary", "Answer", "Analysis", "Overview"],
+    )
+    def test_generic_answer_heading_rejected(self, generic):
+        """Given a bare scaffolding heading, fall back to the URL.
+
+        The model emits `# Response` when it has no page title to
+        report. Matched whole-line rather than by prefix, so a real
+        title like "Response Times Explained" is untouched.
+        """
+        content = f"# {generic}\n\nBody text follows here."
+        assert extract_title_from_content(content, self.URL) == "User Guide"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "genuine",
+        [
+            "Response Times Explained",
+            "Summary of the 2026 Rust Survey",
+            "Analysis of Branch Prediction",
+            "Overview of the Tokio Runtime",
+        ],
+    )
+    def test_generic_word_inside_real_title_still_accepted(self, genuine):
+        """Given a real title that starts with a generic word, keep it."""
+        content = f"# {genuine}\n\nBody text."
+        assert extract_title_from_content(content, self.URL) == genuine
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "genuine",
+        [
+            "C++ Move Semantics",
+            "*args and **kwargs in Python",
+        ],
+    )
+    def test_punctuation_leading_titles_not_mistaken_for_lists(self, genuine):
+        """Given a real title opening on punctuation, do not reject it.
+
+        A list marker is a marker only when whitespace follows it.
+        "*args" is one token; "* args" is a bullet.
+        """
+        content = f"# {genuine}\n\nBody text."
         assert extract_title_from_content(content, self.URL) == genuine
 
 
@@ -395,7 +494,7 @@ class TestRecentIntakePending:
         entry = {"query": "python asyncio patterns", "query_id": "abc123"}
         queue_file.write_text(json.dumps(entry) + "\n", encoding="utf-8")
 
-        with patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path):
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
             assert _recent_intake_pending("python asyncio patterns")
 
     @pytest.mark.unit
@@ -406,7 +505,7 @@ class TestRecentIntakePending:
         entry = {"query": "python asyncio patterns"}
         queue_file.write_text(json.dumps(entry) + "\n", encoding="utf-8")
 
-        with patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path):
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
             assert _recent_intake_pending("PYTHON ASYNCIO PATTERNS")
 
     @pytest.mark.unit
@@ -417,13 +516,13 @@ class TestRecentIntakePending:
         entry = {"query": "rust ownership model"}
         queue_file.write_text(json.dumps(entry) + "\n", encoding="utf-8")
 
-        with patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path):
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
             assert not _recent_intake_pending("python asyncio patterns")
 
     @pytest.mark.unit
     def test_returns_false_when_no_queue_file(self, tmp_path: Path):
         """Given no intake_queue.jsonl, return False."""
-        with patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path):
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
             assert not _recent_intake_pending("anything")
 
     @pytest.mark.unit
@@ -436,7 +535,7 @@ class TestRecentIntakePending:
             encoding="utf-8",
         )
 
-        with patch.object(web_research_handler, "PLUGIN_ROOT", tmp_path):
+        with patch.object(web_research_handler, "DATA_ROOT", tmp_path):
             assert _recent_intake_pending("target query")
 
 
@@ -1499,3 +1598,99 @@ class TestBuildEvalTable:
     def test_missing_index_degrades_without_raising(self):
         table = web_research_handler.build_eval_table("https://github.com/a/b", None)
         assert "Authority" in table
+
+
+class TestStoreWebfetchForwardsNullCapture:
+    """store_webfetch_content reaches _store_to_queue without a TypeError.
+
+    Every other test in this file mocks store_webfetch_content, so the
+    body was never executed and the call into _store_to_queue was
+    unguarded. When _store_to_queue made null_capture keyword-only, the
+    positional call site here raised TypeError at runtime and the whole
+    suite still passed. This calls the real function.
+    """
+
+    def _run(self, tmp_path: Path, null_capture: str | None):
+        with (
+            patch.object(web_research_handler, "QUEUE_DIR", tmp_path / "queue"),
+            patch.object(web_research_handler, "DATA_ROOT", tmp_path),
+            patch.object(web_research_handler, "update_index") as mock_index,
+        ):
+            stored = web_research_handler.store_webfetch_content(
+                "Substantive body text about a topic.",
+                "https://example.com/article",
+                "summarize this",
+                null_capture=null_capture,
+            )
+        return stored, mock_index
+
+    def test_stores_and_forwards_the_null_capture_reason(self, tmp_path: Path):
+        stored, mock_index = self._run(tmp_path, "redirect-notice")
+
+        assert stored is not None
+        assert Path(stored).exists()
+        assert mock_index.call_args.kwargs["null_capture"] == "redirect-notice"
+
+    def test_stores_a_healthy_capture_with_no_reason(self, tmp_path: Path):
+        stored, mock_index = self._run(tmp_path, None)
+
+        assert stored is not None
+        assert mock_index.call_args.kwargs["null_capture"] is None
+
+
+class TestFrontmatterSurvivesHostileValues:
+    """Feature: a capture stays machine-readable whatever the page says.
+
+    Page titles, search queries, and URLs are attacker- and
+    accident-controlled. Interpolating them raw into a YAML
+    double-quoted scalar makes the frontmatter unparsable, which
+    silently removes the capture from every downstream reader.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _isolated_queue(self, tmp_path, monkeypatch):
+        """Write captures into tmp_path and leave the real index alone."""
+        monkeypatch.setattr(web_research_handler, "QUEUE_DIR", tmp_path)
+        monkeypatch.setattr(web_research_handler, "DATA_ROOT", tmp_path)
+        monkeypatch.setattr(web_research_handler, "update_index", lambda **kwargs: None)
+
+    def test_webfetch_title_containing_a_quote(self, tmp_path) -> None:
+        """Scenario: a page whose title carries a quoted phrase."""
+        stored = web_research_handler.store_webfetch_content(
+            content='# Search Results for "mtime staleness"\n\nBody text.\n',
+            url="https://example.test/search",
+            prompt="find staleness work",
+        )
+
+        assert stored is not None
+        frontmatter = Path(stored).read_text(encoding="utf-8").split("---")[1]
+        assert yaml.safe_load(frontmatter)["source_type"] == "webfetch"
+
+    def test_websearch_query_containing_a_quote(self, tmp_path) -> None:
+        """Scenario: a phrase search, which is the normal way to quote."""
+        stored = web_research_handler.store_websearch_results(
+            query='"mtime staleness"',
+            results=[
+                {
+                    "title": "A result",
+                    "url": "https://example.test/a",
+                    "snippet": "text",
+                }
+            ],
+        )
+
+        assert stored is not None
+        frontmatter = Path(stored).read_text(encoding="utf-8").split("---")[1]
+        assert yaml.safe_load(frontmatter)["source_type"] == "websearch"
+
+    def test_webfetch_url_containing_a_quote(self, tmp_path) -> None:
+        """Scenario: the url field is interpolated the same unsafe way."""
+        stored = web_research_handler.store_webfetch_content(
+            content="# Plain Title\n\nBody text.\n",
+            url='https://example.test/search?q="staleness"',
+            prompt="find staleness work",
+        )
+
+        assert stored is not None
+        frontmatter = Path(stored).read_text(encoding="utf-8").split("---")[1]
+        assert yaml.safe_load(frontmatter)["source_type"] == "webfetch"

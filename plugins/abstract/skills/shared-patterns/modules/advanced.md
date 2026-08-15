@@ -17,9 +17,7 @@ exercise the composed surface.
 # 1. Validate input first (validation-patterns)
 result = validate_required_fields(data, ["name", "description"])
 if result:
-    raise ValidationError(
-        f"Missing fields: {result}", code="E001"
-    )
+    raise ValidationError(f"Missing fields: {result}", code="E001")
 
 # 2. Run workflow logic (workflow-patterns)
 output = process_with_checklist(data)

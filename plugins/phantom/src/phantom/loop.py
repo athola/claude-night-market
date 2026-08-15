@@ -35,8 +35,8 @@ def _extract_screenshot_b64(tool_result: dict) -> str | None:
 TOOL_VERSIONS = {
     "claude-opus-4-6": "20251124",
     "claude-sonnet-4-6": "20251124",
-    "claude-opus-4-5-20250620": "20251124",
-    "claude-sonnet-4-5-20250514": "20250124",
+    "claude-opus-4-5-20251101": "20251124",
+    "claude-sonnet-4-5-20250929": "20250124",
     "claude-haiku-4-5-20251001": "20250124",
 }
 
@@ -80,7 +80,7 @@ def get_beta_flag(tool_version: str) -> str:
 class LoopConfig:
     """Configuration for the agent loop."""
 
-    model: str = "claude-sonnet-4-6"
+    model: str = "claude-sonnet-5"
     max_tokens: int = 4096
     max_iterations: int = 15
     thinking_budget: int | None = None

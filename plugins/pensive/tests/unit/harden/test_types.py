@@ -26,7 +26,8 @@ class TestFindingContract:
 
     def test_severity_literal_matches_skill_md(self) -> None:
         """Severity must match the SKILL.md classification:
-        CRITICAL / HIGH / MEDIUM / LOW / ADVISORY."""
+        CRITICAL / HIGH / MEDIUM / LOW / ADVISORY.
+        """
         args = typing.get_args(Severity)
         assert set(args) == {"CRITICAL", "HIGH", "MEDIUM", "LOW", "ADVISORY"}
 

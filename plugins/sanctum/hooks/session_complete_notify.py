@@ -17,6 +17,7 @@ import json
 import os
 import platform
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -267,10 +268,15 @@ def get_terminal_info() -> str:
 
 def notify_linux(title: str, message: str) -> bool:
     """Send notification on Linux using notify-send."""
+    # Resolve via PATH rather than hardcoding /usr/bin: Nix profiles,
+    # Homebrew on Linux, and /usr/local builds all install notify-send
+    # elsewhere, where a fixed path fails silently. Falls back to the
+    # historical location so a PATH-less environment still works.
+    notify_send = shutil.which("notify-send") or "/usr/bin/notify-send"
     try:
         subprocess.run(
             [
-                "/usr/bin/notify-send",
+                notify_send,
                 "--app-name=Claude Code",
                 "--urgency=normal",
                 title,
