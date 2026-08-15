@@ -204,10 +204,13 @@ git commit -m "improve(sanctum): <component> - <specific fix>
 Addresses recurring issue: <pattern from Step 0>
 Reduces <metric> by <percentage>
 
-Evidence: stability_gap reduced from 0.35 to 0.12
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+Evidence: stability_gap reduced from 0.35 to 0.12"
 ```
+
+No AI-attribution trailer. `plugins/imbue/hooks/vow_no_ai_attribution.py`
+blocks co-authorship and generated-by trailers naming an AI model at
+PreToolUse, so a template carrying one hands the agent a commit its
+own toolchain refuses.
 
 ### 7.2: Post Tooling Learnings to Discussions (Preferred)
 
@@ -217,11 +220,17 @@ https://github.com/athola/claude-night-market/discussions,
 not local memory. Always target the night-market repo
 regardless of which repo you are currently working in.
 
-```bash
-# Post to night-market Learnings category
-# See fix-pr Step 6.7 for the full GraphQL pattern
-# targeting athola/claude-night-market explicitly
-```
+Use the GraphQL pattern in
+`plugins/sanctum/commands/fix-pr-modules/steps/6-complete.md`
+Sub-Step 6.7. It resolves the night-market repository and the
+Learnings category by ID and hardcodes `athola/claude-night-market`
+as the target, so it works from any repo.
+
+Do not reach for
+`plugins/abstract/scripts/post_learnings_to_discussions.py` here. It
+takes no arguments: it parses `LEARNINGS.md` and posts the aggregated
+daily digest, which is a different artifact from one observation
+captured mid-workflow.
 
 > Repo-specific learnings stay in the current repo. Tooling
 > learnings always go to

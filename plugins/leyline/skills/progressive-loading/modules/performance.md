@@ -96,7 +96,7 @@ common pitfalls.
 # O(n^2): nested membership check on a list
 def has_duplicate_slow(items: list[int]) -> bool:
     for i, item in enumerate(items):
-        if item in items[i + 1:]:  # O(n) inside O(n)
+        if item in items[i + 1 :]:  # O(n) inside O(n)
             return True
     return False
 

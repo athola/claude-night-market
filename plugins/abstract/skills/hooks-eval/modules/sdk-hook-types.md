@@ -13,32 +13,32 @@ Supported hook event types in the Python SDK.
 from typing import Literal
 
 HookEvent = Literal[
-    "Setup",             # Called when plugin installed/enabled
-    "SessionStart",      # Called when session begins
-    "SessionEnd",        # Called when session ends normally
+    "Setup",  # Called when plugin installed/enabled
+    "SessionStart",  # Called when session begins
+    "SessionEnd",  # Called when session ends normally
     "UserPromptSubmit",  # Called when user submits a prompt
-    "PreToolUse",        # Called before tool execution
-    "PostToolUse",       # Called after tool execution
-    "PostToolUseFailure",# Called when tool execution fails (2.1.20+)
-    "PermissionRequest", # Called when permission dialog would appear
-    "Notification",      # Called on system notification (2.1.20+)
-    "SubagentStart",     # Called when subagent spawns (2.1.20+)
-    "SubagentStop",      # Called when a subagent stops
-    "Stop",              # Called when stopping execution
-    "TeammateIdle",      # Called when teammate agent becomes idle (2.1.33+)
-    "TaskCompleted",     # Called when a task finishes execution (2.1.33+)
-    "ConfigChange",      # Called when config is modified (2.1.49+)
-    "InstructionsLoaded",# Called when instructions are loaded (2.1.33+)
-    "PreCompact",        # Called before message compaction
-    "PostCompact",       # Called after compaction (2.1.76+)
-    "WorktreeCreate",    # Called when git worktree is created (2.1.50+)
-    "WorktreeRemove",    # Called when git worktree is removed (2.1.50+)
-    "StopFailure",       # Called on error (2.1.78+)
-    "TaskCreated",       # Called when task created (2.1.84+)
-    "CwdChanged",        # Called on working dir change (2.1.83+)
-    "FileChanged",       # Called on file change (2.1.83+)
-    "Elicitation",       # MCP elicitation request (2.1.76+)
-    "ElicitationResult", # MCP elicitation response (2.1.76+)
+    "PreToolUse",  # Called before tool execution
+    "PostToolUse",  # Called after tool execution
+    "PostToolUseFailure",  # Called when tool execution fails (2.1.20+)
+    "PermissionRequest",  # Called when permission dialog would appear
+    "Notification",  # Called on system notification (2.1.20+)
+    "SubagentStart",  # Called when subagent spawns (2.1.20+)
+    "SubagentStop",  # Called when a subagent stops
+    "Stop",  # Called when stopping execution
+    "TeammateIdle",  # Called when teammate agent becomes idle (2.1.33+)
+    "TaskCompleted",  # Called when a task finishes execution (2.1.33+)
+    "ConfigChange",  # Called when config is modified (2.1.49+)
+    "InstructionsLoaded",  # Called when instructions are loaded (2.1.33+)
+    "PreCompact",  # Called before message compaction
+    "PostCompact",  # Called after compaction (2.1.76+)
+    "WorktreeCreate",  # Called when git worktree is created (2.1.50+)
+    "WorktreeRemove",  # Called when git worktree is removed (2.1.50+)
+    "StopFailure",  # Called on error (2.1.78+)
+    "TaskCreated",  # Called when task created (2.1.84+)
+    "CwdChanged",  # Called on working dir change (2.1.83+)
+    "FileChanged",  # Called on file change (2.1.83+)
+    "Elicitation",  # MCP elicitation request (2.1.76+)
+    "ElicitationResult",  # MCP elicitation response (2.1.76+)
 ]
 ```
 
@@ -112,8 +112,7 @@ of 2.1.69+.
 from typing import Any, Awaitable, Callable
 
 HookCallback = Callable[
-    [dict[str, Any], str | None, HookContext],
-    Awaitable[dict[str, Any]]
+    [dict[str, Any], str | None, HookContext], Awaitable[dict[str, Any]]
 ]
 ```
 
@@ -149,42 +148,39 @@ class HookMatcher:
 from claude_agent_sdk import query, ClaudeAgentOptions, HookMatcher, HookContext
 from typing import Any
 
+
 async def validate_bash_command(
-    input_data: dict[str, Any],
-    tool_use_id: str | None,
-    context: HookContext
+    input_data: dict[str, Any], tool_use_id: str | None, context: HookContext
 ) -> dict[str, Any]:
     """Block dangerous bash commands."""
-    if input_data['tool_name'] == 'Bash':
-        command = input_data['tool_input'].get('command', '')
-        if 'rm -rf /' in command:
+    if input_data["tool_name"] == "Bash":
+        command = input_data["tool_input"].get("command", "")
+        if "rm -rf /" in command:
             return {
-                'hookSpecificOutput': {
-                    'hookEventName': 'PreToolUse',
-                    'permissionDecision': 'deny',
-                    'permissionDecisionReason': 'Dangerous command blocked'
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "deny",
+                    "permissionDecisionReason": "Dangerous command blocked",
                 }
             }
     return {}
 
+
 async def log_tool_use(
-    input_data: dict[str, Any],
-    tool_use_id: str | None,
-    context: HookContext
+    input_data: dict[str, Any], tool_use_id: str | None, context: HookContext
 ) -> dict[str, Any]:
     """Log all tool usage for auditing."""
     print(f"Tool used: {input_data.get('tool_name')}")
     return {}
 
+
 options = ClaudeAgentOptions(
     hooks={
-        'PreToolUse': [
-            HookMatcher(matcher='Bash', hooks=[validate_bash_command], timeout=120),
-            HookMatcher(hooks=[log_tool_use])
+        "PreToolUse": [
+            HookMatcher(matcher="Bash", hooks=[validate_bash_command], timeout=120),
+            HookMatcher(hooks=[log_tool_use]),
         ],
-        'PostToolUse': [
-            HookMatcher(hooks=[log_tool_use])
-        ]
+        "PostToolUse": [HookMatcher(hooks=[log_tool_use])],
     }
 )
 
@@ -201,25 +197,41 @@ async for message in query(prompt="Analyze this codebase", options=options):
 {"tool_name": "Bash", "tool_input": {"command": "ls -la"}}
 
 # PostToolUse (adds result)
-{"tool_name": "Bash", "tool_input": {"command": "ls -la"},
- "tool_result": "file1.txt\nfile2.txt", "error": None}
+{
+    "tool_name": "Bash",
+    "tool_input": {"command": "ls -la"},
+    "tool_result": "file1.txt\nfile2.txt",
+    "error": None,
+}
 ```
 
 ### PermissionRequest (CLI only)
 
 ```python
 # Input
-{"session_id": "abc123", "tool_name": "Bash",
- "tool_input": {"command": "npm install"},
- "permission_mode": "default", "cwd": "/path/to/project"}
+{
+    "session_id": "abc123",
+    "tool_name": "Bash",
+    "tool_input": {"command": "npm install"},
+    "permission_mode": "default",
+    "cwd": "/path/to/project",
+}
 
 # Output: allow
-{"hookSpecificOutput": {"hookEventName": "PermissionRequest",
- "decision": {"behavior": "allow"}}}
+{
+    "hookSpecificOutput": {
+        "hookEventName": "PermissionRequest",
+        "decision": {"behavior": "allow"},
+    }
+}
 
 # Output: deny
-{"hookSpecificOutput": {"hookEventName": "PermissionRequest",
- "decision": {"behavior": "deny", "message": "Reason"}}}
+{
+    "hookSpecificOutput": {
+        "hookEventName": "PermissionRequest",
+        "decision": {"behavior": "deny", "message": "Reason"},
+    }
+}
 ```
 
 ### Other Events
@@ -246,7 +258,7 @@ return {
     "hookSpecificOutput": {
         "hookEventName": "PreToolUse",
         "permissionDecision": "deny",
-        "permissionDecisionReason": "Explanation"
+        "permissionDecisionReason": "Explanation",
     }
 }
 

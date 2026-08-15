@@ -59,9 +59,38 @@ See `Skill(sanctum:validate-pr)` for the full algorithm:
 3. Execute each step, capture output as evidence (`[E1]`, `[E2]`, ...)
 4. Run a revert-test quality check: break a representative fix, confirm
    the corresponding test fails, restore via `git checkout -- <file>`
-5. Run the final full-suite test (cargo test --workspace or uv run pytest)
-6. Produce a summary table: Area | Step | Evidence | Result
-7. If `--post`: post the table as a PR comment
+5. Read the PR body's `## Test plan`. Execute every step that can run
+   here and capture evidence the same way. Report a step that needs a
+   human (a browser, a device, a staging credential) as `MANUAL`
+   rather than silently dropping it
+6. Run the final full-suite test (cargo test --workspace or uv run pytest)
+7. Produce a summary table: Area | Step | Evidence | Result
+8. If `--post`: post the table as a PR comment
+
+## Manual Test Plans
+
+Step 5 is the bridge between the diff-derived steps this command
+generates and the manual test plan the author wrote. The two are not
+the same: diff-derived steps cover what changed, and a manual plan
+covers what a reviewer would otherwise have to figure out how to
+exercise.
+
+Triggers for a manual test plan, and its numbered-step format, are in
+`sanctum:pr-prep/modules/pr-template.md`. This command consumes that
+section rather than defining its own.
+
+Three outcomes for an author-written step:
+
+| Outcome | Meaning |
+|---------|---------|
+| PASS / FAIL | Ran here, with evidence captured |
+| MANUAL | Needs a human or an environment this run lacks. Reported, never dropped |
+| MALFORMED | The step states no expected result, so it cannot be failed |
+
+A PR that fires a trigger but carries no `## Test plan` is reported as
+a gap in the summary table. That is a finding, not a hard failure: the
+author may have a reason, and the report puts it in front of a
+reviewer.
 
 ## Failure Behaviour
 

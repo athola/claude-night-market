@@ -74,11 +74,11 @@ role: hook-target
 ```python
 def select_optimal_modules(context_situation, task_complexity):
     if context_situation == "CRITICAL":
-        return ['mecw-assessment', 'subagent-coordination']
-    elif task_complexity == 'high':
-        return ['mecw-principles', 'subagent-coordination']
+        return ["mecw-assessment", "subagent-coordination"]
+    elif task_complexity == "high":
+        return ["mecw-principles", "subagent-coordination"]
     else:
-        return ['mecw-assessment']
+        return ["mecw-assessment"]
 ```
 
 ## Context Classification

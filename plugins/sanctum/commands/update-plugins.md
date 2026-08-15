@@ -186,7 +186,7 @@ This command complements:
 
 ## See Also
 
-- `abstract:validate-plugin-structure` - Full plugin
+- `abstract:validate-plugin` - Full plugin
   validation
 - `capabilities-reference.md` - Central capability listing
 - `pensive:skill-review` - Performance analysis and

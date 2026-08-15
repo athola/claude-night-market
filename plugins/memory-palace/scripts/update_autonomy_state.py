@@ -12,11 +12,14 @@ from pathlib import Path
 from typing import Any
 
 from memory_palace.lifecycle.autonomy_state import AutonomyStateStore
+from memory_palace.paths import user_data_dir as _user_data_dir
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 
 DEFAULT_HISTORY = PLUGIN_ROOT / "telemetry" / "autonomy_history.json"
-DEFAULT_STATE = PLUGIN_ROOT / "data" / "state" / "autonomy-state.yaml"
+# The learned autonomy level is user data and outlives the version that
+# wrote it, matching where AutonomyStateStore now resolves it (#661).
+DEFAULT_STATE = _user_data_dir(PLUGIN_ROOT) / "state" / "autonomy-state.yaml"
 DEFAULT_ALERTS = PLUGIN_ROOT / "telemetry" / "alerts" / "autonomy.json"
 GLOBAL_MIN_EVENTS = 20
 GLOBAL_PROMOTE_ACCURACY = 0.9

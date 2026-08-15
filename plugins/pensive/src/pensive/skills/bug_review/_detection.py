@@ -11,7 +11,8 @@ from ..base import PatternSearch
 
 class DetectionMixin:
     """Detects null pointer, race conditions, memory leaks, SQL injection,
-    off-by-one, and integer overflow bugs."""
+    off-by-one, and integer overflow bugs.
+    """
 
     if TYPE_CHECKING:
 

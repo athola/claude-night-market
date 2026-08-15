@@ -15,6 +15,7 @@ The `conjure` plugin implements quota tracking for Gemini API delegation to prev
 ```python
 from leyline import QuotaTracker, QuotaConfig
 
+
 class GeminiQuotaTracker(QuotaTracker):
     """Gemini-specific quota tracker with advanced token estimation"""
 
@@ -24,7 +25,7 @@ class GeminiQuotaTracker(QuotaTracker):
         super().__init__(
             service="gemini",
             config=config,
-            storage_dir=Path.home() / ".claude" / "hooks" / "gemini"
+            storage_dir=Path.home() / ".claude" / "hooks" / "gemini",
         )
 ```
 
@@ -73,12 +74,14 @@ GEMINI_QUOTA_CONFIG = QuotaConfig(
 
 ```python
 # Legacy dict format (backward compatible)
-tracker = GeminiQuotaTracker(limits={
-    "requests_per_minute": 100,
-    "requests_per_day": 1500,
-    "tokens_per_minute": 50000,
-    "tokens_per_day": 1500000,
-})
+tracker = GeminiQuotaTracker(
+    limits={
+        "requests_per_minute": 100,
+        "requests_per_day": 1500,
+        "tokens_per_minute": 50000,
+        "tokens_per_day": 1500000,
+    }
+)
 
 # Modern QuotaConfig (recommended)
 from leyline import QuotaConfig
@@ -111,40 +114,26 @@ The tracker uses a multi-tier estimation strategy:
 ### Implementation
 
 ```python
-def estimate_task_tokens(
-    self,
-    file_paths: list[Path],
-    prompt_length: int
-) -> int:
+def estimate_task_tokens(self, file_paths: list[Path], prompt_length: int) -> int:
     """Estimate total tokens for a task"""
 
     # Try tiktoken estimation first
     try:
         encoder = self._get_encoder()
         if encoder:
-            return self._estimate_with_encoder(
-                file_paths,
-                prompt_length,
-                encoder
-            )
+            return self._estimate_with_encoder(file_paths, prompt_length, encoder)
     except ImportError:
         pass  # Fall back to heuristic
 
     # Use heuristic as secondary strategy
-    return self._estimate_with_heuristic(
-        file_paths,
-        prompt_length
-    )
+    return self._estimate_with_heuristic(file_paths, prompt_length)
 ```
 
 ### File Token Estimation
 
 ```python
 def _estimate_with_encoder(
-    self,
-    file_paths: list[Path],
-    prompt_length: int,
-    encoder
+    self, file_paths: list[Path], prompt_length: int, encoder
 ) -> int:
     """Accurate estimation using tiktoken"""
 
@@ -152,7 +141,7 @@ def _estimate_with_encoder(
 
     for file_path in self._iter_source_paths(file_paths):
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
                 tokens = encoder.encode(content)
                 total_tokens += len(tokens)
@@ -182,8 +171,7 @@ if not healthy:
 
 # Estimate task tokens
 tokens = tracker.estimate_task_tokens(
-    file_paths=[Path("src/main.py")],
-    prompt_length=500
+    file_paths=[Path("src/main.py")], prompt_length=500
 )
 
 # Check if task can be handled
@@ -208,6 +196,7 @@ The tracker is integrated into Gemini hooks:
 from quota_tracker import GeminiQuotaTracker
 
 tracker = GeminiQuotaTracker()
+
 
 def check_quota_before_execution(command: str) -> tuple[bool, str]:
     """Check if quota allows execution"""
@@ -326,7 +315,7 @@ def test_quota_status_checking():
     tracker = GeminiQuotaTracker()
 
     # Normal usage
-    with patch.object(tracker, 'get_current_usage') as mock_usage:
+    with patch.object(tracker, "get_current_usage") as mock_usage:
         mock_usage.return_value = {
             "requests_last_minute": 30,
             "tokens_last_minute": 15000,
@@ -339,7 +328,7 @@ def test_quota_status_checking():
         assert len(warnings) == 0
 
     # High usage
-    with patch.object(tracker, 'get_current_usage') as mock_usage:
+    with patch.object(tracker, "get_current_usage") as mock_usage:
         mock_usage.return_value = {
             "requests_last_minute": 58,  # Near limit
             "tokens_last_minute": 31000,  # Near limit

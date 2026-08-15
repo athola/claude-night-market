@@ -316,6 +316,62 @@ def get_calibration_factor(language: str) -> float:
     return LANGUAGE_CALIBRATION.get(language, 1.0)
 
 
+def get_ste_patterns(
+    patterns: dict[str, Any], include_optional: bool = False
+) -> list[dict[str, Any]]:
+    """Extract the ASD-STE100-derived regex categories.
+
+    Four STE rules are regex properties and ship in the language pack:
+    the ban on semicolons (rule 8.1), the banned perfect and continuous
+    tenses, contractions, and passive-voice markers. The three
+    structural STE checks are not regex properties and live in
+    :mod:`scribe.ste` instead.
+
+    Every category in this section sets ``default_enabled: false``, so a
+    default call returns an empty list. STE is a register for
+    operator-facing and procedural text rather than a house style for
+    all prose, and a default-on sweep would report on nearly every file.
+    Callers that want the rules ask for them explicitly.
+
+    A getter is what makes a YAML section reachable. The ``sycophantic``
+    section has no getter and is dead data, which is the failure this
+    function exists to avoid.
+
+    Languages without an ``ste`` section return an empty list, which
+    lets callers degrade gracefully until a language pack is translated.
+
+    Args:
+        patterns: Loaded language pattern dictionary.
+        include_optional: Include categories marked
+            ``default_enabled: false``. Every STE category is marked so,
+            which makes this effectively required. Defaults to False.
+
+    Returns:
+        List of dicts, one per category, each with ``category``,
+        ``patterns`` (list of regex strings), ``score``, ``confidence``,
+        ``ignore_case``, and ``default_enabled``.
+    """
+    ste = patterns.get("ste", {})
+    result: list[dict[str, Any]] = []
+    for category_name, category_data in ste.items():
+        if not isinstance(category_data, dict):
+            continue
+        default_enabled = bool(category_data.get("default_enabled", True))
+        if not default_enabled and not include_optional:
+            continue
+        result.append(
+            {
+                "category": category_name,
+                "patterns": list(category_data.get("patterns", [])),
+                "score": category_data.get("score", 2),
+                "confidence": category_data.get("confidence", "high"),
+                "ignore_case": bool(category_data.get("ignore_case", False)),
+                "default_enabled": default_enabled,
+            }
+        )
+    return result
+
+
 def get_all_language_patterns(languages: list[str] | None = None) -> dict[str, dict]:
     """Load patterns for multiple languages at once.
 

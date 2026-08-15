@@ -497,12 +497,12 @@ in all but the most necessary cases.
 
 ```python
 TIER5_COPULA_PATTERNS = [
-    r'\b(?:lives?|sits?|stands?|rests?|dwells?)\s+(?:in|at|on|between|within|atop)\b',
-    r'\bserves?\s+as\b',
-    r'\bmarks?\s+(?:a|the|an)\s+(?:turning|pivotal|key|defining)\b',
-    r'\brepresents?\s+(?:a|the|an)\s+(?:shift|transformation|paradigm)\b',
-    r'\b(?:rooted|anchored|nestled|situated)\s+in\b',
-    r'\bboasts?\s+(?:a|an|the|over|more than)\b',
+    r"\b(?:lives?|sits?|stands?|rests?|dwells?)\s+(?:in|at|on|between|within|atop)\b",
+    r"\bserves?\s+as\b",
+    r"\bmarks?\s+(?:a|the|an)\s+(?:turning|pivotal|key|defining)\b",
+    r"\brepresents?\s+(?:a|the|an)\s+(?:shift|transformation|paradigm)\b",
+    r"\b(?:rooted|anchored|nestled|situated)\s+in\b",
+    r"\bboasts?\s+(?:a|an|the|over|more than)\b",
 ]
 
 TIER5_THROAT_CLEARING = [
@@ -540,24 +540,24 @@ TIER5_NEGATIVE_PARALLELISM = [
 ]
 
 TIER5_LOOP_VOCAB = [
-    r'\bunpack (?:this|that|the)\b',
-    r'\bsurface (?:the|a) (?:issue|question|tension|point)\b',
-    r'\ba quiet (?:shift|revolution|change|moment)\b',
-    r'\bthe signal (?:here|is)\b',
-    r'\ba sharp (?:framing|take|distinction)\b',
+    r"\bunpack (?:this|that|the)\b",
+    r"\bsurface (?:the|a) (?:issue|question|tension|point)\b",
+    r"\ba quiet (?:shift|revolution|change|moment)\b",
+    r"\bthe signal (?:here|is)\b",
+    r"\ba sharp (?:framing|take|distinction)\b",
 ]
 
 TIER5_SIGNIFICANCE = [
-    r'\bstands? as a testament to\b',
-    r'\bmarks? a turning point\b',
-    r'\brepresents? a (?:shift|transformation)\b',
-    r'\bindelible mark\b',
-    r'\bdeeply rooted\b',
-    r'\bsetting the stage for\b',
-    r'\bshaping the future of\b',
-    r'\breflects broader\b',
-    r'\bplays? a (?:key|pivotal|crucial) role\b',
-    r'\bunderscores? the importance\b',
+    r"\bstands? as a testament to\b",
+    r"\bmarks? a turning point\b",
+    r"\brepresents? a (?:shift|transformation)\b",
+    r"\bindelible mark\b",
+    r"\bdeeply rooted\b",
+    r"\bsetting the stage for\b",
+    r"\bshaping the future of\b",
+    r"\breflects broader\b",
+    r"\bplays? a (?:key|pivotal|crucial) role\b",
+    r"\bunderscores? the importance\b",
 ]
 
 TIER5_PERFORMATIVE_HONESTY = [
@@ -785,56 +785,86 @@ For automated scanning:
 
 ```python
 TIER1_PATTERNS = [
-    r'\bdelve\b', r'\bembark\b', r'\btapestry\b', r'\brealm\b',
-    r'\bbeacon\b', r'\bmultifaceted\b', r'\bpivotal\b', r'\bnuanced\b',
-    r'\bmeticulous(?:ly)?\b', r'\bintricate\b', r'\bshowcasing\b',
-    r'\bleveraging\b', r'\bstreamline\b', r'\bunleash\b',
+    r"\bdelve\b",
+    r"\bembark\b",
+    r"\btapestry\b",
+    r"\brealm\b",
+    r"\bbeacon\b",
+    r"\bmultifaceted\b",
+    r"\bpivotal\b",
+    r"\bnuanced\b",
+    r"\bmeticulous(?:ly)?\b",
+    r"\bintricate\b",
+    r"\bshowcasing\b",
+    r"\bleveraging\b",
+    r"\bstreamline\b",
+    r"\bunleash\b",
 ]
 
 TIER1_NEW_PATTERNS = [
-    r'\bunderscore[sd]?\b', r'\bbolster\b', r'\bfoster\b',
-    r'\billuminat[es]\b', r'\belucidat[es]\b', r'\bgrapple\b',
-    r'\breimagin[es]\b', r'\bintertwine[ds]?\b', r'\bexemplif(?:y|ies)\b',
-    r'\bseamless(?:ly)?\b', r'\binvaluable\b', r'\bvibrant\b',
-    r'\binterplay\b', r'\bfacet[s]?\b', r'\bendeavor[s]?\b',
-    r'\baptly\b', r'\btirelessly\b', r'\bvividly\b',
+    r"\bunderscore[sd]?\b",
+    r"\bbolster\b",
+    r"\bfoster\b",
+    r"\billuminat[es]\b",
+    r"\belucidat[es]\b",
+    r"\bgrapple\b",
+    r"\breimagin[es]\b",
+    r"\bintertwine[ds]?\b",
+    r"\bexemplif(?:y|ies)\b",
+    r"\bseamless(?:ly)?\b",
+    r"\binvaluable\b",
+    r"\bvibrant\b",
+    r"\binterplay\b",
+    r"\bfacet[s]?\b",
+    r"\bendeavor[s]?\b",
+    r"\baptly\b",
+    r"\btirelessly\b",
+    r"\bvividly\b",
 ]
 
 PHRASE_PATTERNS = [
     r"in today's fast-paced",
-    r'cannot be overstated',
+    r"cannot be overstated",
     r"it's worth noting",
-    r'at its core',
-    r'a testament to',
-    r'unlock the (?:full )?potential',
-    r'embark on (?:a |the )?journey',
-    r'nestled in the heart',
-    r'treasure trove',
-    r'game[- ]changer',
+    r"at its core",
+    r"a testament to",
+    r"unlock the (?:full )?potential",
+    r"embark on (?:a |the )?journey",
+    r"nestled in the heart",
+    r"treasure trove",
+    r"game[- ]changer",
     r"it's important to (?:note|remember|understand) that",
-    r'generally speaking',
-    r'from a broader perspective',
-    r'one might argue',
-    r'it could be said',
-    r'there is growing evidence',
-    r'areas for improvement',
-    r'invaluable resource',
-    r'underscores the importance',
+    r"generally speaking",
+    r"from a broader perspective",
+    r"one might argue",
+    r"it could be said",
+    r"there is growing evidence",
+    r"areas for improvement",
+    r"invaluable resource",
+    r"underscores the importance",
 ]
 
 # Conclusion starters (check first word of last paragraph)
 CONCLUSION_STARTERS = [
-    r'^Overall,',
-    r'^In conclusion,',
-    r'^In summary,',
-    r'^Ultimately,',
-    r'^To sum up,',
+    r"^Overall,",
+    r"^In conclusion,",
+    r"^In summary,",
+    r"^Ultimately,",
+    r"^To sum up,",
 ]
 
 # Co-occurrence test: 5+ of these in one paragraph = strong signal
 HIGH_FREQ_SHIFT_WORDS = [
-    'across', 'additionally', 'comprehensive', 'crucial', 'enhancing',
-    'exhibited', 'insights', 'notably', 'particularly', 'within',
+    "across",
+    "additionally",
+    "comprehensive",
+    "crucial",
+    "enhancing",
+    "exhibited",
+    "insights",
+    "notably",
+    "particularly",
+    "within",
 ]
 ```
 

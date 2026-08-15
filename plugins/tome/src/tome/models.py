@@ -15,6 +15,18 @@ def _now() -> datetime:
 
 _VALID_CHANNELS = frozenset({"code", "discourse", "academic", "triz"})
 
+# Channels that answer by probing an external index. Their silence is a
+# fact about the world once a positive control shows they were not
+# blind, so they are the only channels a coverage verdict may reason
+# over.
+#
+# ``triz`` is excluded because it generates cross-domain analogies
+# rather than retrieving records of prior work. Counting its output as
+# evidence would let the tool manufacture the finding that a field is
+# well covered, and demanding an index probe of a channel with no index
+# would pin every session to INCONCLUSIVE for an unrelated reason.
+RETRIEVAL_CHANNELS = frozenset({"academic", "code", "discourse"})
+
 
 @dataclass
 class Finding:
@@ -105,6 +117,10 @@ class DomainClassification:
     triz_depth: str
     channel_weights: dict[str, float]
     confidence: float
+    # Domains that had keyword support when the classifier abstained.
+    # Empty on a confident classification. This is what makes an
+    # abstention inspectable instead of silent.
+    candidates: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -116,6 +132,7 @@ class DomainClassification:
             triz_depth=d["triz_depth"],
             channel_weights=dict(d["channel_weights"]),
             confidence=d["confidence"],
+            candidates=list(d.get("candidates", [])),
         )
 
 
@@ -166,6 +183,13 @@ class ResearchSession:
     status: str = "pending"
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    # What each channel actually searched. Findings record what was
+    # found; this records what was looked for, which is the only thing
+    # that makes an empty channel interpretable. Channel status is
+    # derived from these logs (tome.synthesis.quality.channel_outcomes)
+    # and deliberately not stored: a stored status and the logs behind
+    # it can drift apart, and then neither can be trusted.
+    query_log: list[QueryLog] = field(default_factory=list)
 
     def add_finding(self, finding: Finding) -> None:
         """Append a finding and update the modified timestamp."""
@@ -199,6 +223,7 @@ class ResearchSession:
             "status": self.status,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "query_log": [q.to_dict() for q in self.query_log],
         }
 
     @classmethod
@@ -216,6 +241,10 @@ class ResearchSession:
                 status=d.get("status", "pending"),
                 created_at=datetime.fromisoformat(raw_created) if raw_created else None,
                 updated_at=datetime.fromisoformat(raw_updated) if raw_updated else None,
+                # Sessions on disk predate this field. Defaulting to []
+                # makes them load as "no record", which channel_outcomes
+                # reads as unknown rather than as an empty field.
+                query_log=[QueryLog.from_dict(q) for q in d.get("query_log", [])],
             )
         except KeyError as exc:
             raise KeyError(
@@ -256,13 +285,37 @@ class Citation:
 
 @dataclass
 class QueryLog:
-    """A record of a query attempted during research."""
+    """A record of a query attempted during research.
+
+    ``error`` names why a query failed, and ``succeeded`` is derived
+    from it rather than set independently. The two fields express one
+    fact, so letting callers set both invites them to disagree: a log
+    reading ``succeeded=False, error=None`` is the unexplained failure
+    this record exists to eliminate, and one reading
+    ``succeeded=True, error="rate_limit"`` is worse, because a reader
+    downstream will believe the count.
+    """
 
     channel: str
     query: str
     source: str
     result_count: int = 0
     succeeded: bool = True
+    # Error kind, not an error message: "rate_limit" and "source_error"
+    # carry different instructions to a reader (re-run vs investigate),
+    # and a free-text message cannot be dispatched on.
+    error: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.error is not None:
+            self.succeeded = False
+        elif not self.succeeded:
+            raise ValueError(
+                "QueryLog(succeeded=False) requires an error kind; a failure "
+                "with no named cause is indistinguishable from a channel that "
+                "searched properly and found nothing, which is the confusion "
+                "this record exists to remove"
+            )
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -275,6 +328,7 @@ class QueryLog:
             source=d["source"],
             result_count=d.get("result_count", 0),
             succeeded=d.get("succeeded", True),
+            error=d.get("error"),
         )
 
 

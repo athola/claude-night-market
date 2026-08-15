@@ -44,7 +44,8 @@ class TestNativeTypeModelingDetector:
 
     def test_flags_stringly_typed_equality(self, mock_skill_context) -> None:
         """Given an identifier compared to a string literal,
-        the skill suggests an enum + matches!."""
+        the skill suggests an enum + matches!.
+        """
         code = """
         fn is_active(status: &str) -> bool {
             status == "active"
@@ -73,7 +74,8 @@ class TestNativeTypeModelingDetector:
 
     def test_empty_string_comparison_not_flagged(self, mock_skill_context) -> None:
         """Comparison to "" is an emptiness check, not a stringly-typed
-        enum candidate; it must not be flagged here."""
+        enum candidate; it must not be flagged here.
+        """
         code = 'fn f(s: &str) -> bool { s == "" }\n'
         mock_skill_context.get_file_content.return_value = code
         issues = self.skill.analyze_native_type_modeling(mock_skill_context, "e.rs")[
@@ -83,7 +85,8 @@ class TestNativeTypeModelingDetector:
 
     def test_flags_boolean_blindness_two_bool_params(self, mock_skill_context) -> None:
         """Given a fn with two bool params, the skill flags boolean
-        blindness and recommends enums."""
+        blindness and recommends enums.
+        """
         code = "fn paint(immediate: bool, antialias: bool) {}\n"
         mock_skill_context.get_file_content.return_value = code
         issues = self.skill.analyze_native_type_modeling(mock_skill_context, "draw.rs")[
@@ -95,7 +98,8 @@ class TestNativeTypeModelingDetector:
 
     def test_single_bool_param_not_flagged(self, mock_skill_context) -> None:
         """A single, self-evident bool param is idiomatic and must not
-        be flagged as boolean blindness."""
+        be flagged as boolean blindness.
+        """
         code = "fn set_visible(visible: bool) {}\n"
         mock_skill_context.get_file_content.return_value = code
         issues = self.skill.analyze_native_type_modeling(mock_skill_context, "ui.rs")[
@@ -125,7 +129,8 @@ class TestNativeTypeModelingDetector:
 
     def test_flags_integer_state_constant(self, mock_skill_context) -> None:
         """Given a named integer state constant, the skill suggests an
-        enum (C-style integer discriminants are a missing enum)."""
+        enum (C-style integer discriminants are a missing enum).
+        """
         code = "const STATUS_ACTIVE: u8 = 0;\nconst STATUS_CLOSED: u8 = 1;\n"
         mock_skill_context.get_file_content.return_value = code
         issues = self.skill.analyze_native_type_modeling(mock_skill_context, "s.rs")[
@@ -155,7 +160,8 @@ class TestNativeTypeModelingDetector:
 
     def test_bitflag_shift_constant_not_flagged(self, mock_skill_context) -> None:
         """A bitmask using a shift is a `bitflags` candidate, not an enum;
-        it must not be flagged as a magic-number state constant."""
+        it must not be flagged as a magic-number state constant.
+        """
         code = "const STATE_MASK: u32 = 1 << 2;\n"
         mock_skill_context.get_file_content.return_value = code
         issues = self.skill.analyze_native_type_modeling(mock_skill_context, "b.rs")[
@@ -195,7 +201,8 @@ class TestNativeTypeModelingModuleDoc:
 
     def test_covers_integer_state_constants(self, text: str) -> None:
         """Module must document the integer-state-constant port and the
-        bitflags exclusion that keeps it conservative."""
+        bitflags exclusion that keeps it conservative.
+        """
         low = text.lower()
         assert "const" in low and "discriminant" in low
         assert "bitflags" in low

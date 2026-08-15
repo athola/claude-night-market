@@ -105,9 +105,11 @@ except ImportError:
         print("ERROR: Cannot import abstract package", file=sys.stderr)
         sys.exit(1)
 
+
 def main():
     # Script logic here
     pass
+
 
 if __name__ == "__main__":
     main()

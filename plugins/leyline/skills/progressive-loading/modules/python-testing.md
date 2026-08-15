@@ -55,10 +55,10 @@ def test_extras(project_root: Path) -> set[str]:
         return set()
     data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
     project = data.get("project", {})
-    deps = project.get("dependencies", []) + project.get(
-        "optional-dependencies", {}
-    ).get("dev", []) + project.get("optional-dependencies", {}).get(
-        "test", []
+    deps = (
+        project.get("dependencies", [])
+        + project.get("optional-dependencies", {}).get("dev", [])
+        + project.get("optional-dependencies", {}).get("test", [])
     )
     return {dep.split(">=")[0].split("==")[0].strip() for dep in deps}
 ```

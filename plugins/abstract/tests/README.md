@@ -332,7 +332,7 @@ python -m pytest tests/unit/test_skill_analyzer.py::TestSkillAnalyzer::test_skil
 Tests use Python's `tempfile` module for creating temporary files and directories:
 
 ```python
-with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
+with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
     f.write(content)
     temp_path = f.name
 
@@ -351,7 +351,7 @@ Fixtures provide consistent test data and setup:
 ```python
 @pytest.fixture
 def sample_skill_file(self):
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
         f.write(sample_content)
         temp_path = f.name
 

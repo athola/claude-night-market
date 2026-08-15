@@ -10,9 +10,14 @@ materially.
 ## Status
 
 PROTOTYPE. Not wired into any `plugin.json` and not installed
-globally. The core logic is unit-tested (6 tests, all green). The
-live activation lift is not measured here. Measuring it requires the
-sandboxed-eval methodology below.
+globally. The live activation lift is not measured here. Measuring it
+requires the sandboxed-eval methodology below.
+
+The core logic is unit-tested, and since `prototypes/` joined
+`testpaths` those tests run in the root ecosystem suite
+(`make test-ecosystem`). Before that they were green and uncollected,
+which is the same as unverified: this file claimed a passing suite that
+no gate had run since the release it shipped in.
 
 ## How it works
 

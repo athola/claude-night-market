@@ -18,7 +18,11 @@ import pytest
 # (de-tautologized per Discussion #542).
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from scribe.pattern_loader import get_tier5_patterns, load_language_patterns
+from scribe.pattern_loader import (
+    get_ste_patterns,
+    get_tier5_patterns,
+    load_language_patterns,
+)
 
 
 def _tier5_category(name: str) -> dict:
@@ -1400,3 +1404,107 @@ class TestTier5LoopVocabulary:
         """Guard: Literal unpacking (tuples, archives) is not the metaphor."""
         text = "The function unpacks the tuple into three variables."
         assert _category_hits(self.CATEGORY, text) == 0
+
+
+def _ste_hits(category: str, text: str) -> int:
+    """Count matches for one STE category, sourced from the runtime YAML."""
+    patterns = load_language_patterns("en")
+    for entry in get_ste_patterns(patterns, include_optional=True):
+        if entry["category"] == category:
+            flags = re.IGNORECASE if entry.get("ignore_case") else 0
+            return sum(
+                len(re.findall(pattern, text, flags)) for pattern in entry["patterns"]
+            )
+    raise AssertionError(f"ste category not found in runtime source: {category}")
+
+
+class TestSTESemicolons:
+    """ASD-STE100 rule 8.1 bans the semicolon outright.
+
+    This is stricter than the house ``semicolon_splice`` rule, which
+    only flags a semicolon joining two independent clauses.
+    """
+
+    CATEGORY = "semicolons"
+
+    @pytest.mark.unit
+    def test_detects_a_splicing_semicolon(self) -> None:
+        assert _ste_hits(self.CATEGORY, "The system is fast; it scales.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_a_list_semicolon_the_house_rule_permits(self) -> None:
+        """The house rule keeps this one. STE does not."""
+        text = "Use red, which is hot; blue, which is cold; and green."
+        assert _ste_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_prose_without_semicolons_passes(self) -> None:
+        assert _ste_hits(self.CATEGORY, "The system is fast. It scales.") == 0
+
+
+class TestSTEBannedTenses:
+    """STE permits simple tenses only: no perfect, no continuous."""
+
+    CATEGORY = "banned_tenses"
+
+    @pytest.mark.unit
+    def test_detects_present_perfect(self) -> None:
+        assert _ste_hits(self.CATEGORY, "The build has finished already.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_past_perfect(self) -> None:
+        assert _ste_hits(self.CATEGORY, "The job had failed before we saw it.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_continuous(self) -> None:
+        assert _ste_hits(self.CATEGORY, "The daemon is running the migration.") >= 1
+
+    @pytest.mark.unit
+    def test_simple_present_passes(self) -> None:
+        assert _ste_hits(self.CATEGORY, "The daemon runs the migration.") == 0
+
+    @pytest.mark.unit
+    def test_simple_past_passes(self) -> None:
+        assert _ste_hits(self.CATEGORY, "The build finished at noon.") == 0
+
+
+class TestSTEContractions:
+    """STE spells words out. Contractions are not approved forms."""
+
+    CATEGORY = "contractions"
+
+    @pytest.mark.unit
+    def test_detects_negative_contraction(self) -> None:
+        assert _ste_hits(self.CATEGORY, "Do not worry, it won't break.") >= 1
+
+    @pytest.mark.unit
+    def test_detects_pronoun_contraction(self) -> None:
+        assert _ste_hits(self.CATEGORY, "It's ready and we'll ship it.") >= 2
+
+    @pytest.mark.unit
+    def test_possessive_apostrophe_passes(self) -> None:
+        """A possessive is not a contraction."""
+        assert _ste_hits(self.CATEGORY, "The daemon's log file grew.") == 0
+
+    @pytest.mark.unit
+    def test_expanded_forms_pass(self) -> None:
+        assert _ste_hits(self.CATEGORY, "It is ready and we will ship it.") == 0
+
+
+class TestSTEPassiveVoice:
+    """STE requires the active voice in procedures."""
+
+    CATEGORY = "passive_voice"
+
+    @pytest.mark.unit
+    def test_detects_passive_with_agent(self) -> None:
+        text = "The migration was executed by the daemon."
+        assert _ste_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_detects_agentless_passive(self) -> None:
+        assert _ste_hits(self.CATEGORY, "The file is removed automatically.") >= 1
+
+    @pytest.mark.unit
+    def test_active_voice_passes(self) -> None:
+        assert _ste_hits(self.CATEGORY, "The daemon executes the migration.") == 0

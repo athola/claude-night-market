@@ -213,7 +213,6 @@ def test_build_context_passes_optional_args():
     WHEN build_context is called,
     THEN they appear in the context.
     """
-
     ctx = build_context(
         metrics={"a": "b"},
         trigger="agent",

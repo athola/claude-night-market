@@ -146,14 +146,28 @@ class EmbeddingIndex:
             return [v / norm for v in vector]
         return _hash_vector(text)
 
-    def search(self, query: str, top_k: int = 5) -> list[tuple[str, float]]:
-        """Return top-k matches for a query."""
+    def search(
+        self,
+        query: str,
+        top_k: int = 5,
+        weights: dict[str, float] | None = None,
+    ) -> list[tuple[str, float]]:
+        """Return top-k matches for a query.
+
+        The index stays time-agnostic. Callers that want recency- or
+        type-aware ranking compute a per-entry weight (see
+        ``corpus.decay_model``) and pass it here, which is the
+        relevance-times-decay shape used by memory-stream retrieval.
+        An entry absent from ``weights`` keeps its raw similarity.
+        """
         if not self.entries:
             return []
         query_vec = self.vectorize(query)
         scores = []
         for entry, vector in self.entries.items():
             score = self._dot(query_vec, vector)
+            if weights is not None:
+                score *= weights.get(entry, 1.0)
             scores.append((entry, score))
         scores.sort(key=lambda x: x[1], reverse=True)
         return scores[:top_k]

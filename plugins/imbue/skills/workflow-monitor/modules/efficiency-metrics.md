@@ -182,7 +182,9 @@ def calculate_efficiency_score(metrics: WorkflowMetrics) -> float:
         penalties += 0.05
 
     # Over-fetching penalty
-    over_fetches = metrics.large_reads_without_limit + metrics.full_reads_with_extraction
+    over_fetches = (
+        metrics.large_reads_without_limit + metrics.full_reads_with_extraction
+    )
     if over_fetches > 2:
         penalties += 0.15
     elif over_fetches > 0:

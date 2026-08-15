@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING, Any
 
 import yaml
 
+from memory_palace.paths import user_data_dir
+
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
@@ -209,7 +211,12 @@ class AutonomyStateStore:
         """Return default state file path under plugin data directory."""
         if plugin_root is None:
             plugin_root = Path(__file__).resolve().parents[3]
-        return plugin_root / "data" / "state" / "autonomy-state.yaml"
+        # The autonomy level is learned over many sessions, so it is user
+        # data and must survive an update. An install's plugin root is
+        # version scoped; persistent_root is the identity in a checkout,
+        # and is also the identity when a caller has already resolved it
+        # (issue #661).
+        return user_data_dir(plugin_root) / "state" / "autonomy-state.yaml"
 
     @staticmethod
     def _clamp_level(level: int) -> int:

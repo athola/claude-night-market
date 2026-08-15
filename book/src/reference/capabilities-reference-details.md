@@ -41,7 +41,7 @@ with working examples.
 
 | Task | Start Here |
 |------|------------|
-| New project setup | [/attune:init](capabilities-commands.md#attuneinit) |
+| New project setup | [/attune:project-init](capabilities-commands.md#attuneproject-init) |
 | Code review | [/pensive:full-review](capabilities-commands-extended.md#pensivefull-review) |
 | PR preparation | [/sanctum:prepare-pr](capabilities-commands.md#sanctumprepare-pr-alias-pr) |
 | Context optimization | [/conserve:bloat-scan](capabilities-commands.md#conservebloat-scan) |

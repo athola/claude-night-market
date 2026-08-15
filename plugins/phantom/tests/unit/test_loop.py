@@ -10,8 +10,10 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+from phantom.cost import PRICING
 from phantom.display import ActionResult, DisplayConfig, DisplayToolkit
 from phantom.loop import (
+    TOOL_VERSIONS,
     ClientSetup,
     IterationConfig,
     IterationContext,
@@ -46,7 +48,13 @@ class TestResolveToolVersion:
         assert resolve_tool_version("claude-sonnet-4-6") == "20251124"
 
     def test_sonnet_45_uses_older(self):
-        assert resolve_tool_version("claude-sonnet-4-5-20250514") == "20250124"
+        """Keyed by the published ID, claude-sonnet-4-5-20250929.
+
+        This asserted against 20250514, a date Sonnet 4.5 never shipped
+        under, so it passed while the real model fell through to the
+        newest tool version.
+        """
+        assert resolve_tool_version("claude-sonnet-4-5-20250929") == "20250124"
 
     def test_unknown_model_falls_back_to_latest(self):
         """
@@ -151,11 +159,20 @@ class TestLoopConfig:
     """Feature: Loop configuration defaults."""
 
     def test_defaults(self):
+        """The default model is the current Sonnet generation.
+
+        Sonnet 4.6 is legacy; Sonnet 5 replaced it as the default across
+        Anthropic's products on 2026-06-30. Same tier, same list price.
+        """
         config = LoopConfig()
-        assert config.model == "claude-sonnet-4-6"
+        assert config.model == "claude-sonnet-5"
         assert config.max_iterations == 15
         assert config.max_tokens == 4096
         assert config.thinking_budget is None
+
+    def test_default_model_is_priced(self):
+        """A default nobody priced silently bills at the fallback rate."""
+        assert LoopConfig().model in PRICING
 
     def test_custom_values(self):
         config = LoopConfig(
@@ -634,3 +651,49 @@ class TestProcessIterationBudgetExceeded:
 
         mock_client.beta.messages.create.assert_called_once()
         assert stop_reason == "completed"
+
+
+class TestToolVersionsUseRealModelIds:
+    """Feature: Tool-version keys name models that actually exist.
+
+    As an automation developer
+    I want TOOL_VERSIONS keyed by published model IDs
+    So that a model resolves to the tool version it supports rather
+    than silently falling through to the newest one
+
+    Two keys carried invented dates: claude-opus-4-5-20250620 and
+    claude-sonnet-4-5-20250514. The published IDs are 20251101 and
+    20250929. A real Sonnet 4.5 call therefore matched no prefix and
+    received computer_20251124 instead of its own tool version.
+    """
+
+    def test_dated_keys_are_published_model_ids(self):
+        """
+        Scenario: A key pins a specific generation
+        Given every dated key in TOOL_VERSIONS
+        When checked against the verified pricing table
+        Then each names a model that exists
+        """
+        dated = [k for k in TOOL_VERSIONS if k.count("-") >= 4]
+        unknown = [k for k in dated if k not in PRICING]
+        assert not unknown, f"TOOL_VERSIONS names nonexistent models: {unknown}"
+
+    def test_sonnet_45_resolves_to_its_own_tool_version(self):
+        """
+        Scenario: Sonnet 4.5 requests a tool version
+        Given the published ID claude-sonnet-4-5-20250929
+        When the tool version is resolved
+        Then it is 20250124, not the newest version
+        """
+        assert resolve_tool_version("claude-sonnet-4-5-20250929") == "20250124"
+
+    def test_unknown_model_still_gets_the_newest_tools(self):
+        """
+        Scenario: A model ships that this table does not list
+        Given an unrecognized model ID
+        When the tool version is resolved
+        Then it falls back to the newest version
+
+        The fallback is deliberate and stays. New models get new tools.
+        """
+        assert resolve_tool_version("claude-opus-5") == "20251124"

@@ -31,25 +31,25 @@ from typing import Optional
 class DeliberationNode:
     """A single contribution in the deliberation graph."""
 
-    node_id: str           # Short hash (first 16 chars)
+    node_id: str  # Short hash (first 16 chars)
     parent_id: Optional[str]  # Previous version (for revisions)
-    round_number: int      # Which deliberation round
-    phase: str             # intel, coa, red_team, vote, premortem, synthesis
+    round_number: int  # Which deliberation round
+    phase: str  # intel, coa, red_team, vote, premortem, synthesis
 
     # Anonymized during deliberation
-    anonymous_label: str   # "Response A", "Expert 2", etc.
-    content: str           # The actual contribution
+    anonymous_label: str  # "Response A", "Expert 2", etc.
+    content: str  # The actual contribution
 
     # Revealed after decision (sealed until then)
-    expert_role: str       # "Intelligence Officer", "Red Team", etc.
-    expert_model: str      # "gemini-3-pro", "qwen-turbo", etc.
+    expert_role: str  # "Intelligence Officer", "Red Team", etc.
+    expert_model: str  # "gemini-3-pro", "qwen-turbo", etc.
 
     # Merkle linkage
-    content_hash: str      # SHA-256 of content only
-    metadata_hash: str     # SHA-256 of role + model
-    combined_hash: str     # SHA-256 of content_hash + metadata_hash
+    content_hash: str  # SHA-256 of content only
+    metadata_hash: str  # SHA-256 of role + model
+    combined_hash: str  # SHA-256 of content_hash + metadata_hash
 
-    timestamp: str         # ISO format
+    timestamp: str  # ISO format
 
 
 @dataclass
@@ -57,7 +57,7 @@ class MerkleDAG:
     """Directed Acyclic Graph tracking deliberation history."""
 
     session_id: str
-    sealed: bool = True    # Attribution hidden until unsealed
+    sealed: bool = True  # Attribution hidden until unsealed
     root_hash: Optional[str] = None
     nodes: dict[str, DeliberationNode] = field(default_factory=dict)
     label_counter: dict[str, int] = field(default_factory=dict)
@@ -69,7 +69,7 @@ class MerkleDAG:
         round_number: int,
         expert_role: str,
         expert_model: str,
-        parent_id: Optional[str] = None
+        parent_id: Optional[str] = None,
     ) -> DeliberationNode:
         """Add a contribution and compute hashes."""
 
@@ -93,7 +93,7 @@ class MerkleDAG:
             content_hash=content_hash,
             metadata_hash=metadata_hash,
             combined_hash=combined_hash,
-            timestamp=datetime.now().isoformat()
+            timestamp=datetime.now().isoformat(),
         )
 
         self.nodes[node.node_id] = node
@@ -155,8 +155,12 @@ class MerkleDAG:
     def _verify_node(self, node: DeliberationNode) -> bool:
         """Verify node hash integrity."""
         expected_content = sha256(node.content.encode()).hexdigest()
-        expected_meta = sha256(f"{node.expert_role}:{node.expert_model}".encode()).hexdigest()
-        expected_combined = sha256(f"{expected_content}:{expected_meta}".encode()).hexdigest()
+        expected_meta = sha256(
+            f"{node.expert_role}:{node.expert_model}".encode()
+        ).hexdigest()
+        expected_combined = sha256(
+            f"{expected_content}:{expected_meta}".encode()
+        ).hexdigest()
         return expected_combined[:16] == node.node_id
 ```
 
@@ -209,7 +213,7 @@ def to_json(self) -> dict:
                 "timestamp": n.timestamp,
             }
             for nid, n in self.nodes.items()
-        }
+        },
     }
 ```
 
@@ -224,7 +228,7 @@ dag.add_contribution(
     phase="coa",
     round_number=1,
     expert_role="Field Tactician",
-    expert_model="glm-5.2"
+    expert_model="glm-5.2",
 )
 
 # Present to Red Team anonymized

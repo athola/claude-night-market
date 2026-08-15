@@ -46,7 +46,7 @@ Makefiles, CI/CD pipelines, and pre-commit hooks.
 
 ```bash
 # Quick initialization when you know the architecture
-/attune:init --lang python --name my-project
+/attune:project-init --lang python --name my-project
 ```
 
 ### Step 3: Establish Persistent State
@@ -471,11 +471,12 @@ Skill(memory-palace:concept-linking)
 ### Create a New Plugin
 
 ```bash
-# Scaffold new plugin
-make create-plugin NAME=my-plugin
+# Create the directory layout by hand
+mkdir -p plugins/my-plugin/{.claude-plugin,commands,skills,agents,tests}
+cp plugins/abstract/.claude-plugin/plugin.json plugins/my-plugin/.claude-plugin/
 
-# Or using attune for plugins
-/attune:init --type plugin --name my-plugin
+# Then edit plugin.json and use plugins/abstract as a reference
+# for skill, command, and hook structure
 ```
 
 ### Validate Plugin Structure
@@ -485,7 +486,7 @@ make create-plugin NAME=my-plugin
 /abstract:validate-plugin
 
 # Audit skill quality
-/abstract:skill-audit
+/abstract:skills-eval
 ```
 
 ### Update Plugin Documentation
@@ -496,9 +497,6 @@ make create-plugin NAME=my-plugin
 
 # Update Makefile demo targets
 /abstract:make-dogfood
-
-# Sync templates with reference projects
-/attune:sync-templates
 ```
 
 ### Testing
@@ -508,10 +506,10 @@ make create-plugin NAME=my-plugin
 make test
 
 # Validate structure
-make validate
+make validate-all
 
 # Full quality check
-make lint && make test && make build
+make lint && make typecheck && make test
 ```
 
 ---

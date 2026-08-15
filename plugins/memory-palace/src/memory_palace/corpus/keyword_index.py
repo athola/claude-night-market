@@ -74,11 +74,15 @@ class KeywordIndexer:
                 if "tags" in metadata and isinstance(metadata["tags"], list):
                     keywords.update(tag.lower() for tag in metadata["tags"])
 
-                # Extract from title
-                if "title" in metadata:
-                    title = metadata["title"].lower()
-                    title_words = re.findall(rf"\b[a-z]{{{MIN_WORD_LEN},}}\b", title)
-                    keywords.update(title_words)
+                # Extract from the name fields. Hand-authored notes carry
+                # `title`; the web-capture hooks carry `topic`. Reading
+                # only one of them leaves the captured corpus searchable
+                # by body headings alone.
+                for name_field in ("title", "topic"):
+                    if name_field in metadata:
+                        name = str(metadata[name_field]).lower()
+                        name_words = re.findall(rf"\b[a-z]{{{MIN_WORD_LEN},}}\b", name)
+                        keywords.update(name_words)
 
                 # Extract from palace/district
                 if "palace" in metadata:

@@ -28,6 +28,14 @@ _SRC_DIR = str(_PLUGIN_ROOT / "src")
 if _SRC_DIR not in sys.path:
     sys.path.insert(0, _SRC_DIR)
 
+# _PLUGIN_ROOT is version scoped: hooks run from cache/<marketplace>/
+# <plugin>/<version>/, so user data written under it is invisible to
+# the next release (issue #661). _DATA_ROOT is the version-independent
+# root, and equals _PLUGIN_ROOT in a source checkout.
+from memory_palace.paths import persistent_root
+
+_DATA_ROOT = persistent_root(_PLUGIN_ROOT)
+
 
 def _try_register_graph_entity(
     palaces_dir: Path,
@@ -158,7 +166,7 @@ def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with many valid
         context_parts.append(msg)
 
         # Register in knowledge graph (non-blocking)
-        palaces_dir = _PLUGIN_ROOT / "data" / "palaces"
+        palaces_dir = _DATA_ROOT / "data" / "palaces"
         entity_id = "doc_" + content_hash[:16]
         _try_register_graph_entity(
             palaces_dir=palaces_dir,

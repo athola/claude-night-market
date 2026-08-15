@@ -180,9 +180,9 @@ def fiction_slop_score(text):
     normalized = (raw_score / word_count) * 500
 
     return {
-        'score': min(10, normalized),
-        'patterns': patterns_found,
-        'density': len(patterns_found) / (word_count / 500)
+        "score": min(10, normalized),
+        "patterns": patterns_found,
+        "density": len(patterns_found) / (word_count / 500),
     }
 ```
 

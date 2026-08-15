@@ -16,6 +16,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from conftest_shared import (
+    isolate_claude_home,
     register_standard_markers,
     tag_items_by_keywords,
     temp_skill_dir,
@@ -23,6 +24,7 @@ from conftest_shared import (
 )
 
 __all__ = [
+    "isolate_claude_home",
     "register_standard_markers",
     "tag_items_by_keywords",
     "temp_skill_dir",

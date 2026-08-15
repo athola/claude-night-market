@@ -258,8 +258,7 @@ def test_plugins_never_import_from_other_plugins():
         imports = extract_imports(plugin_dir)
         for imp in imports:
             assert not imp.startswith("plugins."), (
-                f"{plugin_dir} imports {imp} — "
-                f"violates plugin independence invariant"
+                f"{plugin_dir} imports {imp} — violates plugin independence invariant"
             )
 ```
 

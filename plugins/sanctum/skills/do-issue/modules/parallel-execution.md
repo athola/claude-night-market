@@ -175,7 +175,16 @@ Each task will:
 3. Follow TDD - write failing test first
 4. Verify no regressions
 5. Commit with conventional format
+6. Confirm HEAD advanced before reporting the commit as landed
 ```
+
+Step 6 is not ceremony. An auto-fixing pre-commit hook rewrites a
+staged file and aborts the commit, printing a tail that reads like a
+successful run. A parallel task that reports "committed" on that
+output leaves the branch missing work nobody notices until later.
+Compare `git rev-parse HEAD` before and after; a `MM` row in
+`git status --short` names the file the hook rewrote. See discussion
+#614.
 
 **WRONG PATTERN** - Sequential invocations:
 

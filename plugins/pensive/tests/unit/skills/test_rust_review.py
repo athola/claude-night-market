@@ -35,28 +35,32 @@ class TestMlockGuidance:
     @pytest.mark.unit
     def test_rlimit_memlock_documented(self, module_content: str) -> None:
         """Given the mlock section
-        Then it must document the RLIMIT_MEMLOCK requirement."""
+        Then it must document the RLIMIT_MEMLOCK requirement.
+        """
         assert "RLIMIT_MEMLOCK" in module_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_page_alignment_documented(self, module_content: str) -> None:
         """Given the mlock section
-        Then it must require page-aligned allocation."""
+        Then it must require page-aligned allocation.
+        """
         assert "page-align" in module_content or "posix_memalign" in module_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_enomem_fallback_documented(self, module_content: str) -> None:
         """Given the mlock section
-        Then it must specify ENOMEM as a recoverable error with fallback."""
+        Then it must specify ENOMEM as a recoverable error with fallback.
+        """
         assert "ENOMEM" in module_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_lifetime_coupling_documented(self, module_content: str) -> None:
         """Given the mlock section
-        Then it must document the buffer-lifetime / munlock coupling."""
+        Then it must document the buffer-lifetime / munlock coupling.
+        """
         assert "munlock" in module_content
 
     @pytest.mark.bdd
@@ -64,7 +68,8 @@ class TestMlockGuidance:
     def test_symptom_described(self, module_content: str) -> None:
         """Given a reviewer who has not seen this bug before
         Then the section must describe the production symptom
-        so it is recognisable without prior experience."""
+        so it is recognisable without prior experience.
+        """
         # The key symptom: tokio-console doesn't help; kernel paging is the cause
         assert "tokio-console" in module_content or "page" in module_content.lower()
 
@@ -72,7 +77,8 @@ class TestMlockGuidance:
     @pytest.mark.unit
     def test_safety_comment_example_present(self, module_content: str) -> None:
         """Given the module requires SAFETY comments on mlock call sites
-        Then a concrete example comment must exist."""
+        Then a concrete example comment must exist.
+        """
         assert "SAFETY:" in module_content
 
 
@@ -93,14 +99,16 @@ class TestKernelPagingLatencyTier:
     @pytest.mark.unit
     def test_level_6_present_in_hierarchy(self, module_content: str) -> None:
         """Given the cost hierarchy table
-        Then Level 6 must be a row."""
+        Then Level 6 must be a row.
+        """
         assert "| 6 |" in module_content or "Level 6" in module_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_kernel_page_fault_named(self, module_content: str) -> None:
         """Given Level 6
-        Then it must be identified as a kernel page fault."""
+        Then it must be identified as a kernel page fault.
+        """
         assert (
             "page fault" in module_content.lower()
             or "page-fault" in module_content.lower()
@@ -110,14 +118,16 @@ class TestKernelPagingLatencyTier:
     @pytest.mark.unit
     def test_tokio_console_blind_spot_noted(self, module_content: str) -> None:
         """Given the diagnostic guidance
-        Then it must note that tokio-console misses this latency tier."""
+        Then it must note that tokio-console misses this latency tier.
+        """
         assert "tokio-console" in module_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_mlock_cross_reference_present(self, module_content: str) -> None:
         """Given the fix is mlock
-        Then the module must cross-reference the unsafe-audit module."""
+        Then the module must cross-reference the unsafe-audit module.
+        """
         assert "unsafe-audit" in module_content
 
 
@@ -138,42 +148,48 @@ class TestBoxDynDispatchPattern:
     @pytest.mark.unit
     def test_pattern_e2_present(self, module_content: str) -> None:
         """Given the allocation slop module
-        Then Pattern E2 must exist."""
+        Then Pattern E2 must exist.
+        """
         assert "E2" in module_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_vtable_overhead_explained(self, module_content: str) -> None:
         """Given Pattern E2
-        Then it must explain the vtable / inlining-barrier mechanism."""
+        Then it must explain the vtable / inlining-barrier mechanism.
+        """
         assert "vtable" in module_content or "inlining barrier" in module_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_dispatch_vs_allocation_distinguished(self, module_content: str) -> None:
         """Given the key lesson that &dyn has the same overhead as Box<dyn>
-        Then the module must state this distinction explicitly."""
+        Then the module must state this distinction explicitly.
+        """
         assert "&dyn" in module_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_batch_first_fix_documented(self, module_content: str) -> None:
         """Given the recommended fix is to flip the loop order
-        Then the module must describe the batch-first pattern."""
+        Then the module must describe the batch-first pattern.
+        """
         assert "batch" in module_content.lower() or "flip" in module_content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_enum_dispatch_fix_documented(self, module_content: str) -> None:
         """Given enum dispatch is an alternative fix
-        Then the module must mention it."""
+        Then the module must mention it.
+        """
         assert "enum" in module_content.lower() and "dispatch" in module_content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detection_command_present(self, module_content: str) -> None:
         """Given reviewers need a grep/rg command to find the pattern
-        Then a detection command must be present."""
+        Then a detection command must be present.
+        """
         assert "Vec<Box<dyn" in module_content
 
 
@@ -194,5 +210,6 @@ class TestSkillChecklistMlock:
     @pytest.mark.unit
     def test_mlock_in_safety_checklist(self, skill_content: str) -> None:
         """Given the Safety checklist in SKILL.md
-        Then it must include an mlock/munlock item."""
+        Then it must include an mlock/munlock item.
+        """
         assert "mlock" in skill_content

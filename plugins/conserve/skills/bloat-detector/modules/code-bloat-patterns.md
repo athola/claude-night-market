@@ -156,8 +156,12 @@ For the full set of AI-specific patterns, see: `@module:ai-generated-bloat`
 
 ```python
 PATTERN_SCORES = {
-    'god_class': 30, 'lava_flow': 25, 'dead_code': 35,
-    'import_bloat': 15, 'duplication': 20, 'dead_wrapper': 30
+    "god_class": 30,
+    "lava_flow": 25,
+    "dead_code": 35,
+    "import_bloat": 15,
+    "duplication": 20,
+    "dead_wrapper": 30,
 }
 score = min(100, sum(PATTERN_SCORES[p] for p in detected))
 ```

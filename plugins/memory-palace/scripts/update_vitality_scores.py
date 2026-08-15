@@ -121,10 +121,22 @@ def main() -> None:
         else effective_decay(rate, last_recomputed, now)
     )
 
-    # Persist only when something actually changed: a real decay, or a
-    # first-run bootstrap that needs to record the baseline timestamp.
+    # Persist only when something actually changed: an entry that really
+    # decayed, or a first-run bootstrap recording the baseline timestamp.
+    #
+    # Elapsed time alone is not a change. With no decayable entries the
+    # only field that moves is ``last_recomputed``, and the pre-commit
+    # maintenance hook re-stages any file whose bytes moved -- so that
+    # bump rides into whatever unrelated commit runs first that day
+    # (#605), and resists reverting because the next commit regenerates
+    # it (#611).
     bootstrap = last_recomputed is None
-    changed = decay > 0 or bootstrap
+    decayable = any(
+        not _is_evergreen(payload)
+        for payload in data.get("entries", {}).values()
+        if isinstance(payload, dict)
+    )
+    changed = bootstrap or (decay > 0 and decayable)
 
     queue = decay_entries(data, decay)
 

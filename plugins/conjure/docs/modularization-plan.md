@@ -74,10 +74,9 @@ from leyline.tokens import estimate_tokens, FILE_TOKEN_RATIOS
 from leyline.quota_tracker import QuotaTracker, QuotaConfig
 
 GEMINI_QUOTA_CONFIG = QuotaConfig(
-    requests_per_minute=60,
-    requests_per_day=1000,
-    tokens_per_day=1000000
+    requests_per_minute=60, requests_per_day=1000, tokens_per_day=1000000
 )
+
 
 class GeminiQuotaTracker(QuotaTracker):
     def __init__(self):

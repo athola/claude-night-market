@@ -118,23 +118,23 @@ step or CLI entry point.
 def classify_workflow_for_mecw(workflow):
     """Determine appropriate MCP modules and MECW strategy"""
 
-    if has_tool_chains(workflow) and workflow.complexity == 'high':
+    if has_tool_chains(workflow) and workflow.complexity == "high":
         return {
-            'modules': ['mcp-subagents', 'mcp-patterns'],
-            'mecw_strategy': 'aggressive',
-            'token_budget': 600
+            "modules": ["mcp-subagents", "mcp-patterns"],
+            "mecw_strategy": "aggressive",
+            "token_budget": 600,
         }
-    elif workflow.data_size > '10k_rows':
+    elif workflow.data_size > "10k_rows":
         return {
-            'modules': ['mcp-patterns', 'mcp-validation'],
-            'mecw_strategy': 'moderate',
-            'token_budget': 400
+            "modules": ["mcp-patterns", "mcp-validation"],
+            "mecw_strategy": "moderate",
+            "token_budget": 400,
         }
     else:
         return {
-            'modules': ['mcp-patterns'],
-            'mecw_strategy': 'conservative',
-            'token_budget': 200
+            "modules": ["mcp-patterns"],
+            "mecw_strategy": "conservative",
+            "token_budget": 200,
         }
 ```
 
@@ -143,8 +143,7 @@ Delegate to mcp-validation module for detailed risk analysis:
 ```python
 def delegate_mecw_assessment(workflow):
     return mcp_validation_assess_mecw_risk(
-        workflow,
-        hub_allocated_tokens=self.token_budget * 0.5
+        workflow, hub_allocated_tokens=self.token_budget * 0.5
     )
 ```
 
@@ -155,21 +154,21 @@ def delegate_mecw_assessment(workflow):
 class MCPExecutionHub:
     def __init__(self):
         self.modules = {
-            'mcp-subagents': MCPSubagentsModule(),
-            'mcp-patterns': MCPatternsModule(),
-            'mcp-validation': MCPValidationModule()
+            "mcp-subagents": MCPSubagentsModule(),
+            "mcp-patterns": MCPatternsModule(),
+            "mcp-validation": MCPValidationModule(),
         }
 
     def execute_workflow(self, workflow, classification):
         results = []
 
         # Execute modules in optimal order
-        for module_name in classification['modules']:
+        for module_name in classification["modules"]:
             module = self.modules[module_name]
             result = module.execute(
                 workflow,
-                mecw_budget=classification['token_budget'] //
-                len(classification['modules'])
+                mecw_budget=classification["token_budget"]
+                // len(classification["modules"]),
             )
             results.append(result)
 
@@ -192,11 +191,11 @@ def synthesize_module_results(module_results):
     """Combine module results into a single status dict."""
 
     return {
-        'status': 'completed',
-        'token_savings': calculate_savings(module_results),
-        'mecw_compliance': verify_mecw_rules(module_results),
-        'hallucination_risk': assess_hallucination_prevention(module_results),
-        'results': consolidate_results(module_results)
+        "status": "completed",
+        "token_savings": calculate_savings(module_results),
+        "mecw_compliance": verify_mecw_rules(module_results),
+        "hallucination_risk": assess_hallucination_prevention(module_results),
+        "results": consolidate_results(module_results),
     }
 ```
 

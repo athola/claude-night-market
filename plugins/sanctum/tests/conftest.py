@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import sys
 from dataclasses import dataclass, field
@@ -15,6 +16,29 @@ import pytest
 # Add hooks directory to path so tests can import hook modules directly.
 HOOKS_DIR = Path(__file__).parent.parent / "hooks"
 sys.path.insert(0, str(HOOKS_DIR))
+
+# Load plugins/conftest_shared.py by path rather than by putting plugins/ on
+# sys.path. sanctum's ledger and deferred-item hooks resolve paths from
+# CLAUDE_HOME, so the isolation fixture keeps them out of the developer's
+# real ~/.claude -- but importing it must not cost us leyline.
+#
+# plugins/leyline/ has no __init__.py, and leyline is an editable install
+# whose finder sits behind PathFinder on sys.meta_path. Put plugins/ on
+# sys.path and `import leyline` binds to the bare directory as a namespace
+# package; sys.modules caches that, and every later `leyline.cli_envelope`
+# fails even though scripts/quality_checker.py adds leyline/src itself. That
+# is 87 sanctum tests, all passing in isolation and failing in a full run.
+_CONFTEST_SHARED = Path(__file__).resolve().parents[2] / "conftest_shared.py"
+_spec = importlib.util.spec_from_file_location("conftest_shared", _CONFTEST_SHARED)
+if _spec is None or _spec.loader is None:  # pragma: no cover - packaging error
+    raise ImportError(f"cannot load shared fixtures from {_CONFTEST_SHARED}")
+_conftest_shared = importlib.util.module_from_spec(_spec)
+sys.modules.setdefault("conftest_shared", _conftest_shared)
+_spec.loader.exec_module(_conftest_shared)
+
+isolate_claude_home = _conftest_shared.isolate_claude_home
+
+__all__ = ["isolate_claude_home"]
 
 
 @dataclass

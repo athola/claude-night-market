@@ -138,7 +138,7 @@ lock_path = inbox_dir / ".lock"
 lock_path.touch()
 
 with open(lock_path) as lock_fd:
-    fcntl.flock(lock_fd, fcntl.LOCK_EX)   # Acquire exclusive lock
+    fcntl.flock(lock_fd, fcntl.LOCK_EX)  # Acquire exclusive lock
     try:
         # Read, modify, write inbox JSON
         messages = json.loads(inbox_path.read_text())

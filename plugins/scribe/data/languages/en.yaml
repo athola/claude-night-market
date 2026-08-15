@@ -437,3 +437,81 @@ tier5:
     ignore_case: true
     patterns:
       - '\b(?:the|this|that|these|those|a|an|its|our|their)\s+(?:[a-z]+\s+){0,2}[a-z]+\s+(?:handles?|manages?|owns?|talks?\s+to|sees?)\b'
+
+# ---------------------------------------------------------------------
+# ASD-STE100-derived rules that are regex properties.
+#
+# SCOPE. The three canonical STE structural checks (sentence length,
+# paragraph length, noun clusters) are NOT regex properties: they need
+# word-count normalization, sentence segmentation, and noun detection.
+# Those live in ``scribe.ste`` and are tested in ``test_ste.py``. Only
+# the four rules below can be expressed here, and putting them here
+# rather than in a skill file is what makes them portable to any repo
+# that loads this pack.
+#
+# GATED OFF. Every category sets ``default_enabled: false``. STE is a
+# register for operator-facing and procedural text, not a house style
+# for all prose, and a default-on sweep would report on nearly every
+# file in a normal repository. Callers opt in with
+# ``get_ste_patterns(patterns, include_optional=True)``.
+#
+# CITATION. Rule 8.1 is the one rule number this project cites, because
+# it is the one verifiable in public sources. The other three
+# categories are cited by content, not by number. The controlled
+# dictionary is copyright ASD and is not reproduced anywhere here, so
+# vocabulary checking is out of scope.
+#
+# MASK CODE FIRST. These regexes assume the caller has already removed
+# fenced code, inline code, and URLs. A semicolon in a shell snippet is
+# not prose.
+ste:
+  semicolons:
+    # Rule 8.1: the semicolon is not permitted. Stricter than the house
+    # ``semicolon_splice`` category, which keeps a semicolon when a
+    # list's items carry internal commas. STE keeps none.
+    score: 2
+    confidence: high
+    default_enabled: false
+    ignore_case: false
+    patterns:
+      - '\S;(?:\s|$)'
+
+  banned_tenses:
+    # STE permits the simple tenses, the infinitive, the imperative,
+    # and the past participle used as an adjective. The perfect and
+    # continuous forms are not approved.
+    score: 2
+    confidence: medium
+    default_enabled: false
+    ignore_case: true
+    patterns:
+      # Present and past perfect: "has finished", "had been removed".
+      - '\b(?:have|has|had)\s+(?:been\s+|already\s+|not\s+)*[a-z]+(?:ed|en|ne|un|it)\b'
+      # Continuous: "is running", "was being checked".
+      - '\b(?:am|is|are|was|were|be|been|being)\s+(?:not\s+)?[a-z]+ing\b'
+
+  contractions:
+    # STE spells the words out. "Do not", never "don't".
+    score: 1
+    confidence: high
+    default_enabled: false
+    ignore_case: true
+    patterns:
+      # n't forms: don't, won't, cannot-contracted, isn't.
+      - "\\b[a-z]+n't\\b"
+      # Pronoun and demonstrative contractions: it's, we'll, they've.
+      - "\\b(?:i|you|we|they|he|she|it|that|there|here|what|who)'(?:s|re|ll|ve|d|m)\\b"
+
+  passive_voice:
+    # STE requires the active voice in procedures. Reported at warning
+    # level because the passive is legitimate in descriptive text when
+    # the actor is genuinely unknown or irrelevant.
+    score: 1
+    confidence: low
+    default_enabled: false
+    ignore_case: true
+    patterns:
+      # Passive with a named agent: "was executed by the daemon".
+      - '\b(?:am|is|are|was|were|be|been|being)\s+[a-z]+(?:ed|en)\s+by\b'
+      # Agentless passive: "is removed", "were checked".
+      - '\b(?:am|is|are|was|were)\s+(?:not\s+)?[a-z]+(?:ed|en)\b(?!\s+by\b)'

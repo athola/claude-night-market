@@ -29,6 +29,7 @@ from memory_palace.corpus.marginal_value import (
     IntegrationPlan,
     MarginalValueFilter,
 )
+from memory_palace.paths import user_data_dir as _user_data_dir
 
 # Make hooks/shared importable for slugify reuse
 _HOOKS_DIR = str(Path(__file__).resolve().parent.parent / "hooks")
@@ -241,6 +242,7 @@ def append_curation_log(  # noqa: PLR0913 - log rows require all curation contex
     decision: IntegrationDecision,
     palace_path: Path,
     dev_doc: Path,
+    *,
     prompt_path: Path | None = None,
     prompt_pack: str | None = None,
 ) -> None:
@@ -276,6 +278,7 @@ def process_candidate(  # noqa: PLR0913 - pipeline step needs all I/O paths and 
     index_dir: Path,
     output_root: Path,
     curation_log: Path,
+    *,
     auto_accept: bool,
     dual_output: bool = False,
     prompt_pack: str | None = None,
@@ -351,7 +354,7 @@ def main(argv: list[str] | None = None) -> None:
         "--candidate", required=True, type=Path, help="Path to intake_candidate.json"
     )
     parser.add_argument(
-        "--corpus-dir", type=Path, default=PLUGIN_ROOT / "data" / "staging"
+        "--corpus-dir", type=Path, default=_user_data_dir(PLUGIN_ROOT) / "staging"
     )
     parser.add_argument(
         "--index-dir", type=Path, default=PLUGIN_ROOT / "data" / "indexes"

@@ -183,11 +183,11 @@ Phase 1 tasks are delegated to haiku-class models for efficiency:
 
 ```python
 # plugins/sanctum/scripts/consolidation_planner.py handles:
-- scan_for_candidates()
-- extract_content_chunks()
-- categorize_chunks()
-- score_value()
-- find_semantic_matches()
+-scan_for_candidates()
+-extract_content_chunks()
+-categorize_chunks()
+-score_value()
+-find_semantic_matches()
 ```
 
 Phase 2 stays on the main model for careful merge execution.

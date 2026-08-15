@@ -8,8 +8,15 @@ and their corresponding CLI command arguments.
 from __future__ import annotations
 
 # Native Claude models (served by the orchestrating Claude process)
-CLAUDE_OPUS_48 = "claude-opus-4-8"
-CLAUDE_SONNET_46 = "claude-sonnet-4-6"
+#
+# Named by tier rather than generation on purpose. The previous names
+# encoded the version (CLAUDE_OPUS_48, CLAUDE_SONNET_46), which meant
+# every model release either forced a rename across every consumer or
+# left a constant whose name contradicted its value.
+#
+# Refreshed by Skill(night-market-model-and-harness-updates).
+CLAUDE_OPUS = "claude-opus-5"
+CLAUDE_SONNET = "claude-sonnet-5"
 
 # Gemini models (served via gemini CLI)
 GEMINI_3_PRO = "gemini-3-pro"
@@ -27,7 +34,7 @@ MINIMAX_M2_7 = "MiniMax-M2.7"
 GLM_52 = "glm-5.2"
 
 # Haiku fallback (used when external LLMs are unavailable)
-CLAUDE_HAIKU_45 = "claude-haiku-4-5"
+CLAUDE_HAIKU = "claude-haiku-4-5"
 
 
 def validate_model_ids(model_ids: dict[str, str]) -> None:
@@ -52,8 +59,8 @@ def validate_model_ids(model_ids: dict[str, str]) -> None:
 # invocation. Validate at import time so the failure is loud.
 validate_model_ids(
     {
-        "CLAUDE_OPUS_48": CLAUDE_OPUS_48,
-        "CLAUDE_SONNET_46": CLAUDE_SONNET_46,
+        "CLAUDE_OPUS": CLAUDE_OPUS,
+        "CLAUDE_SONNET": CLAUDE_SONNET,
         "GEMINI_3_PRO": GEMINI_3_PRO,
         "GEMINI_3_FLASH": GEMINI_3_FLASH,
         "QWEN_TURBO": QWEN_TURBO,
@@ -61,6 +68,6 @@ validate_model_ids(
         "MINIMAX_M3": MINIMAX_M3,
         "MINIMAX_M2_7": MINIMAX_M2_7,
         "GLM_52": GLM_52,
-        "CLAUDE_HAIKU_45": CLAUDE_HAIKU_45,
+        "CLAUDE_HAIKU": CLAUDE_HAIKU,
     }
 )

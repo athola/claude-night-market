@@ -68,6 +68,7 @@ TRACKER_FILE = Path.home() / ".claude/skills/performance_history.json"
 improvement_context = {}
 try:
     from abstract.improvement_memory import ImprovementMemory
+
     memory = ImprovementMemory(MEMORY_FILE)
 
     # Get strategies that worked and failed
@@ -79,7 +80,8 @@ try:
         "failed_strategies": failed,
         "effectiveness_rate": (
             len(effective) / (len(effective) + len(failed))
-            if (effective or failed) else None
+            if (effective or failed)
+            else None
         ),
     }
 except ImportError:
@@ -89,6 +91,7 @@ except ImportError:
 tracker_context = {}
 try:
     from abstract.performance_tracker import PerformanceTracker
+
     tracker = PerformanceTracker(TRACKER_FILE)
 
     # Identify skills with degrading trends
@@ -97,10 +100,12 @@ try:
         skill_ref = entry["skill_ref"]
         trend = tracker.get_improvement_trend(skill_ref)
         if trend is not None and trend < -0.05:
-            degrading_skills.append({
-                "skill": skill_ref,
-                "trend": trend,
-            })
+            degrading_skills.append(
+                {
+                    "skill": skill_ref,
+                    "trend": trend,
+                }
+            )
 
     tracker_context = {
         "degrading_skills": degrading_skills,
@@ -413,9 +418,7 @@ future improvement cycles can learn from what worked:
 from abstract.improvement_memory import ImprovementMemory, ImprovementOutcome
 from pathlib import Path
 
-memory = ImprovementMemory(
-    Path.home() / ".claude/skills/improvement_memory.json"
-)
+memory = ImprovementMemory(Path.home() / ".claude/skills/improvement_memory.json")
 
 # Record the improvement outcome
 memory.record_improvement_outcome(
@@ -424,9 +427,9 @@ memory.record_improvement_outcome(
         version="2.1.0",
         change_summary="Added error handling + examples",
         before_score=0.423,  # Previous success rate
-        after_score=0.423,   # Will be updated after eval window
+        after_score=0.423,  # Will be updated after eval window
         hypothesis="Error handling reduces failure rate by "
-                   "catching missing prerequisites",
+        "catching missing prerequisites",
     ),
 )
 
@@ -434,8 +437,7 @@ memory.record_improvement_outcome(
 memory.record_insight(
     skill_ref="imbue:proof-of-work",
     category="causal_hypothesis",
-    insight="High failure rate caused by missing PROOF.md "
-            "prerequisite check",
+    insight="High failure rate caused by missing PROOF.md prerequisite check",
     evidence=[
         "11/26 executions failed",
         "Error logs show FileNotFoundError",

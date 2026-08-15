@@ -43,23 +43,28 @@ class TestGifDemoHelp:
 class TestGifDemoDependencies:
     """Tests for gif_demo.sh dependency checking."""
 
-    @pytest.mark.skipif(
-        shutil.which("ffmpeg") is not None,
-        reason=(
-            "ffmpeg is installed; cannot test missing dependency behavior "
-            "without complex mocking"
-        ),
-    )
-    def test_requires_ffmpeg(
-        self, gif_demo_script: Path, has_ffmpeg: bool, tmp_path: Path
-    ) -> None:
-        """Script should fail gracefully without ffmpeg."""
-        # This test only runs when ffmpeg is NOT installed
+    def test_requires_ffmpeg(self, gif_demo_script: Path, tmp_path: Path) -> None:
+        """Script should fail gracefully without ffmpeg.
+
+        This used to be skipped whenever ffmpeg was installed, which is
+        every developer machine and every CI runner that can run the rest
+        of the suite, so the error path it guards was never exercised.
+        The script reaches its ffmpeg check using only bash builtins, so
+        handing it a PATH that contains bash and nothing else reproduces
+        a machine without ffmpeg without mocking anything.
+        """
+        stub_bin = tmp_path / "bin"
+        stub_bin.mkdir()
+        bash = shutil.which("bash")
+        assert bash, "bash is required to run the script under test"
+        # `#!/usr/bin/env bash` still resolves, `command -v ffmpeg` does not.
+        (stub_bin / "bash").symlink_to(bash)
+
         result = subprocess.run(
             [str(gif_demo_script)],
             capture_output=True,
             text=True,
-            env={"TMP_DIR": str(tmp_path), "PATH": os.environ.get("PATH", "")},
+            env={"TMP_DIR": str(tmp_path), "PATH": str(stub_bin)},
         )
         assert result.returncode != 0
         # Check for the specific error message from the script

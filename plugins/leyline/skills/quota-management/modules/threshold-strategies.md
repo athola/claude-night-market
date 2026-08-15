@@ -38,9 +38,9 @@ def get_degradation_strategy(usage_percent: float) -> str:
 def wait_for_reset(quota_type: str) -> int:
     """Returns seconds until quota resets."""
     reset_times = {
-        "rpm": 60,           # Per-minute resets
-        "tpm": 60,           # Token per minute
-        "daily": seconds_until_midnight()
+        "rpm": 60,  # Per-minute resets
+        "tpm": 60,  # Token per minute
+        "daily": seconds_until_midnight(),
     }
     return reset_times.get(quota_type, 3600)
 ```

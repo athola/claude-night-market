@@ -240,7 +240,7 @@ def rank_stability(scores, weights, variation=0.20, top_k=3):
             new = rank(scores, perturbed)[:top_k]
             if set(new) != set(base):
                 flips += 1
-    return flips / (2 * len(weights))    # 0.0 = stable, 1.0 = chaos
+    return flips / (2 * len(weights))  # 0.0 = stable, 1.0 = chaos
 ```
 
 A flip rate above 0.3 means the ranking is fragile. Either

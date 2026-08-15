@@ -408,7 +408,6 @@ For Full Council and Delphi modes, experts can optionally run as persistent Clau
 
 - `/attune:brainstorm` - Pre-War Room ideation
 - `/attune:specify` - Post-War Room specification
-- `/memory-palace:strategeion` - War Room history
 - `/imbue:feature-review` - Feature worthiness check
 
 ## Related Skills

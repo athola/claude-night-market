@@ -18,10 +18,7 @@ def analyze_dependencies(issues):
         if issue.has_no_blockers(issues):
             independent.append(issue)
         else:
-            dependent.append({
-                'issue': issue,
-                'blocked_by': issue.get_blockers(issues)
-            })
+            dependent.append({"issue": issue, "blocked_by": issue.get_blockers(issues)})
 
     return independent, dependent
 ```

@@ -13,11 +13,12 @@ estimated_tokens: 450
 ```python
 # Tokens per character ratios by file type
 TOKEN_RATIOS = {
-    "code": 3.2,      # .py, .js, .ts, .go, .rs
-    "json": 3.6,      # .json, .yaml, .toml
-    "text": 4.2,      # .md, .txt, .rst
-    "default": 4.0
+    "code": 3.2,  # .py, .js, .ts, .go, .rs
+    "json": 3.6,  # .json, .yaml, .toml
+    "text": 4.2,  # .md, .txt, .rst
+    "default": 4.0,
 }
+
 
 def estimate_file_tokens(path: Path) -> int:
     """Estimate tokens for a file."""
@@ -48,11 +49,7 @@ def estimate_file_tokens(path: Path) -> int:
 ### Cost Calculation
 
 ```python
-def estimate_cost(
-    input_tokens: int,
-    output_tokens: int,
-    model: str
-) -> float:
+def estimate_cost(input_tokens: int, output_tokens: int, model: str) -> float:
     """Estimate cost in USD."""
     rates = {
         "gemini-pro": {"input": 0.50, "output": 1.50},
@@ -92,6 +89,6 @@ def preflight_check(files: list[Path], prompt: str) -> dict:
         "input_tokens": input_tokens,
         "output_tokens": output_tokens,
         "estimated_cost": cost,
-        "within_quota": can_handle_task(input_tokens)
+        "within_quota": can_handle_task(input_tokens),
     }
 ```

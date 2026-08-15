@@ -9,6 +9,7 @@ The `AgentHooks` class from `claude_agent_sdk` provides the foundation for all S
 ```python
 from claude_agent_sdk import AgentHooks
 
+
 class MyHooks(AgentHooks):
     """Custom hooks for agent lifecycle events."""
 
@@ -75,16 +76,20 @@ Block operations that violate security policies:
 from typing import Any
 from claude_agent_sdk import AgentHooks
 
+
 class ValidationHooks(AgentHooks):
     """Validate tool inputs against security policies."""
 
     def __init__(self, config: dict[str, Any] | None = None):
         self.config = config or {}
-        self.blocked_patterns = self.config.get('blocked_patterns', [
-            r'rm\s+-rf\s+/',
-            r':(){ :|:& };:',  # Fork bomb
-            r'dd\s+if=/dev/zero',
-        ])
+        self.blocked_patterns = self.config.get(
+            "blocked_patterns",
+            [
+                r"rm\s+-rf\s+/",
+                r":(){ :|:& };:",  # Fork bomb
+                r"dd\s+if=/dev/zero",
+            ],
+        )
 
     async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
         """Validate tool inputs before execution."""
@@ -93,6 +98,7 @@ class ValidationHooks(AgentHooks):
 
             # Check for dangerous patterns
             import re
+
             for pattern in self.blocked_patterns:
                 if re.search(pattern, command):
                     raise ValueError(
@@ -117,6 +123,7 @@ class ValidationHooks(AgentHooks):
         """Check if production access is approved."""
         # Implementation: check environment, file, or API
         import os
+
         return os.getenv("PRODUCTION_APPROVED") == "true"
 ```
 
@@ -132,6 +139,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 from claude_agent_sdk import AgentHooks
+
 
 class LoggingHooks(AgentHooks):
     """Audit logging for all tool operations."""
@@ -152,12 +160,14 @@ class LoggingHooks(AgentHooks):
 
     async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
         """Log tool use initiation."""
-        await self._queue_log({
-            'event': 'pre_tool_use',
-            'tool': tool_name,
-            'input_size': len(str(tool_input)),
-            'timestamp': datetime.now().isoformat()
-        })
+        await self._queue_log(
+            {
+                "event": "pre_tool_use",
+                "tool": tool_name,
+                "input_size": len(str(tool_input)),
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
         return None
 
     async def on_post_tool_use(
@@ -166,23 +176,23 @@ class LoggingHooks(AgentHooks):
         """Log tool completion with sanitized output."""
         safe_output = self._sanitize_secrets(tool_output)
 
-        await self._queue_log({
-            'event': 'post_tool_use',
-            'tool': tool_name,
-            'input_size': len(str(tool_input)),
-            'output_size': len(tool_output),
-            'output_preview': safe_output[:200],
-            'timestamp': datetime.now().isoformat()
-        })
+        await self._queue_log(
+            {
+                "event": "post_tool_use",
+                "tool": tool_name,
+                "input_size": len(str(tool_input)),
+                "output_size": len(tool_output),
+                "output_preview": safe_output[:200],
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
         return None
 
     async def on_stop(self, reason: str, result: Any) -> None:
         """Log session completion."""
-        await self._queue_log({
-            'event': 'stop',
-            'reason': reason,
-            'timestamp': datetime.now().isoformat()
-        })
+        await self._queue_log(
+            {"event": "stop", "reason": reason, "timestamp": datetime.now().isoformat()}
+        )
 
         # validate all logs are written before exit
         await self._flush_logs()
@@ -190,7 +200,7 @@ class LoggingHooks(AgentHooks):
     def _sanitize_secrets(self, text: str) -> str:
         """Remove potential secrets from text."""
         for pattern in self.SECRET_PATTERNS:
-            text = re.sub(pattern, r'\1***REDACTED***', text, flags=re.IGNORECASE)
+            text = re.sub(pattern, r"\1***REDACTED***", text, flags=re.IGNORECASE)
         return text
 
     async def _queue_log(self, entry: dict[str, Any]) -> None:
@@ -209,8 +219,8 @@ class LoggingHooks(AgentHooks):
 
                 # Append to log file
                 async with asyncio.Lock():
-                    with open(self.log_file, 'a') as f:
-                        f.write(json.dumps(entry) + '\n')
+                    with open(self.log_file, "a") as f:
+                        f.write(json.dumps(entry) + "\n")
 
             except asyncio.TimeoutError:
                 break
@@ -227,6 +237,7 @@ Modify tool inputs or outputs:
 
 ```python
 from claude_agent_sdk import AgentHooks
+
 
 class TransformationHooks(AgentHooks):
     """Transform tool inputs and outputs."""
@@ -258,6 +269,7 @@ class TransformationHooks(AgentHooks):
     def _normalize_path(self, path: str) -> str:
         """Normalize file path to absolute path."""
         from pathlib import Path
+
         return str(Path(path).resolve())
 ```
 
@@ -270,6 +282,7 @@ import time
 from collections import defaultdict
 from typing import Any
 from claude_agent_sdk import AgentHooks
+
 
 class MetricsHooks(AgentHooks):
     """Collect performance and usage metrics."""
@@ -318,12 +331,14 @@ class MetricsHooks(AgentHooks):
             print(f"  {tool}: {count} calls, avg {avg_duration:.3f}s")
 
         # Save metrics to file
-        await self._save_metrics({
-            'session_duration': session_duration,
-            'tool_counts': dict(self._tool_counts),
-            'tool_durations': {k: sum(v) for k, v in self._tool_durations.items()},
-            'stop_reason': reason
-        })
+        await self._save_metrics(
+            {
+                "session_duration": session_duration,
+                "tool_counts": dict(self._tool_counts),
+                "tool_durations": {k: sum(v) for k, v in self._tool_durations.items()},
+                "stop_reason": reason,
+            }
+        )
 
     async def _save_metrics(self, metrics: dict[str, Any]) -> None:
         """Save metrics to JSON file."""
@@ -331,10 +346,12 @@ class MetricsHooks(AgentHooks):
         from pathlib import Path
         from datetime import datetime
 
-        metrics_file = Path.home() / ".claude" / "metrics" / f"{datetime.now().isoformat()}.json"
+        metrics_file = (
+            Path.home() / ".claude" / "metrics" / f"{datetime.now().isoformat()}.json"
+        )
         metrics_file.parent.mkdir(exist_ok=True)
 
-        with open(metrics_file, 'w') as f:
+        with open(metrics_file, "w") as f:
             json.dump(metrics, f, indent=2)
 ```
 
@@ -346,6 +363,7 @@ Enhance user prompts with additional context:
 from pathlib import Path
 from claude_agent_sdk import AgentHooks
 
+
 class ContextInjectionHooks(AgentHooks):
     """Inject project context into user prompts."""
 
@@ -355,7 +373,15 @@ class ContextInjectionHooks(AgentHooks):
     async def on_user_prompt_submit(self, message: str) -> str | None:
         """Inject relevant project context."""
         # Detect if user is asking about code/files
-        code_keywords = ['file', 'function', 'class', 'code', 'implement', 'edit', 'change']
+        code_keywords = [
+            "file",
+            "function",
+            "class",
+            "code",
+            "implement",
+            "edit",
+            "change",
+        ]
 
         if any(kw in message.lower() for kw in code_keywords):
             context = await self._load_project_context()
@@ -398,19 +424,16 @@ Maintain state across hook invocations within a session:
 ```python
 from claude_agent_sdk import AgentHooks
 
+
 class StatefulHooks(AgentHooks):
     """Maintain state across hook invocations."""
 
     def __init__(self):
-        self._session_state = {
-            'tools_used': [],
-            'errors': [],
-            'warnings': []
-        }
+        self._session_state = {"tools_used": [], "errors": [], "warnings": []}
 
     async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
         """Track tool usage."""
-        self._session_state['tools_used'].append(tool_name)
+        self._session_state["tools_used"].append(tool_name)
         return None
 
     async def on_post_tool_use(
@@ -418,10 +441,9 @@ class StatefulHooks(AgentHooks):
     ) -> str | None:
         """Detect errors in output."""
         if "error" in tool_output.lower():
-            self._session_state['errors'].append({
-                'tool': tool_name,
-                'output': tool_output[:200]
-            })
+            self._session_state["errors"].append(
+                {"tool": tool_name, "output": tool_output[:200]}
+            )
         return None
 
     async def on_stop(self, reason: str, result: Any) -> None:
@@ -440,6 +462,7 @@ import json
 from pathlib import Path
 from claude_agent_sdk import AgentHooks
 
+
 class PersistentHooks(AgentHooks):
     """Maintain state across sessions."""
 
@@ -451,7 +474,7 @@ class PersistentHooks(AgentHooks):
         """Load state from file."""
         if self.state_file.exists():
             return json.loads(self.state_file.read_text())
-        return {'session_count': 0, 'total_tools': 0}
+        return {"session_count": 0, "total_tools": 0}
 
     def _save_state(self) -> None:
         """Save state to file."""
@@ -460,15 +483,17 @@ class PersistentHooks(AgentHooks):
 
     async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
         """Increment tool counter."""
-        self._state['total_tools'] += 1
+        self._state["total_tools"] += 1
         self._save_state()
         return None
 
     async def on_stop(self, reason: str, result: Any) -> None:
         """Increment session counter."""
-        self._state['session_count'] += 1
+        self._state["session_count"] += 1
         self._save_state()
-        print(f"Session #{self._state['session_count']}, Total tools: {self._state['total_tools']}")
+        print(
+            f"Session #{self._state['session_count']}, Total tools: {self._state['total_tools']}"
+        )
 ```
 
 ## Error Handling
@@ -480,6 +505,7 @@ import logging
 from claude_agent_sdk import AgentHooks
 
 logger = logging.getLogger(__name__)
+
 
 class ResilientHooks(AgentHooks):
     """Handle errors gracefully without blocking agent."""
@@ -522,6 +548,7 @@ class ResilientHooks(AgentHooks):
 import asyncio
 from claude_agent_sdk import AgentHooks
 
+
 class TimeoutHooks(AgentHooks):
     """Apply timeouts to hook operations."""
 
@@ -531,8 +558,7 @@ class TimeoutHooks(AgentHooks):
         """Validation with timeout."""
         try:
             result = await asyncio.wait_for(
-                self._validate_input(tool_input),
-                timeout=self.HOOK_TIMEOUT
+                self._validate_input(tool_input), timeout=self.HOOK_TIMEOUT
             )
             return result
 
@@ -555,6 +581,7 @@ class TimeoutHooks(AgentHooks):
 import pytest
 from my_hooks import ValidationHooks, LoggingHooks
 
+
 @pytest.mark.asyncio
 async def test_validation_blocks_dangerous_command():
     hooks = ValidationHooks()
@@ -562,11 +589,13 @@ async def test_validation_blocks_dangerous_command():
     with pytest.raises(ValueError, match="blocked by security policy"):
         await hooks.on_pre_tool_use("Bash", {"command": "rm -rf /"})
 
+
 @pytest.mark.asyncio
 async def test_validation_allows_safe_command():
     hooks = ValidationHooks()
     result = await hooks.on_pre_tool_use("Bash", {"command": "ls -la"})
     assert result is None
+
 
 @pytest.mark.asyncio
 async def test_logging_sanitizes_secrets():
@@ -578,11 +607,7 @@ async def test_logging_sanitizes_secrets():
 
     hooks = LoggingHooks(log_file)
 
-    await hooks.on_post_tool_use(
-        "Bash",
-        {"command": "echo"},
-        "api_key=secret123"
-    )
+    await hooks.on_post_tool_use("Bash", {"command": "echo"}, "api_key=secret123")
 
     await hooks._flush_logs()
 
@@ -600,6 +625,7 @@ import pytest
 from claude_agent_sdk import Agent
 from my_hooks import MyHooks
 
+
 @pytest.mark.asyncio
 async def test_hooks_integration():
     hooks = MyHooks()
@@ -610,7 +636,7 @@ async def test_hooks_integration():
 
     # Verify hooks were called
     assert len(hooks._log_entries) > 0
-    assert any(entry['tool'] == 'Bash' for entry in hooks._log_entries)
+    assert any(entry["tool"] == "Bash" for entry in hooks._log_entries)
 ```
 
 ## Related Modules

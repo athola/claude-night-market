@@ -22,11 +22,13 @@ def analyze_context_usage(conversation):
     Break down context usage by component.
     """
     return {
-        'system_prompt': count_tokens(conversation.system),
-        'user_messages': sum(count_tokens(m) for m in conversation.user_msgs),
-        'assistant_responses': sum(count_tokens(m) for m in conversation.assistant_msgs),
-        'tool_calls': sum(count_tokens(t) for t in conversation.tool_calls),
-        'tool_results': sum(count_tokens(r) for r in conversation.tool_results),
+        "system_prompt": count_tokens(conversation.system),
+        "user_messages": sum(count_tokens(m) for m in conversation.user_msgs),
+        "assistant_responses": sum(
+            count_tokens(m) for m in conversation.assistant_msgs
+        ),
+        "tool_calls": sum(count_tokens(t) for t in conversation.tool_calls),
+        "tool_results": sum(count_tokens(r) for r in conversation.tool_results),
     }
 ```
 
@@ -58,19 +60,23 @@ def identify_context_risks(usage_analysis):
     """
     risks = []
 
-    if usage_analysis['tool_results'] > usage_analysis['user_messages'] * 2:
-        risks.append({
-            'type': 'tool_output_heavy',
-            'severity': 'medium',
-            'recommendation': 'Summarize tool outputs before storing'
-        })
+    if usage_analysis["tool_results"] > usage_analysis["user_messages"] * 2:
+        risks.append(
+            {
+                "type": "tool_output_heavy",
+                "severity": "medium",
+                "recommendation": "Summarize tool outputs before storing",
+            }
+        )
 
-    if usage_analysis['assistant_responses'] > 0.4 * sum(usage_analysis.values()):
-        risks.append({
-            'type': 'verbose_responses',
-            'severity': 'low',
-            'recommendation': 'Consider more concise response patterns'
-        })
+    if usage_analysis["assistant_responses"] > 0.4 * sum(usage_analysis.values()):
+        risks.append(
+            {
+                "type": "verbose_responses",
+                "severity": "low",
+                "recommendation": "Consider more concise response patterns",
+            }
+        )
 
     return risks
 ```
@@ -102,27 +108,33 @@ class OptimizationRecommender:
 
         # Priority 1: Tool output compression
         if self._has_heavy_tool_output():
-            recommendations.append({
-                'action': 'compress_tool_output',
-                'priority': 1,
-                'estimated_savings': 0.15
-            })
+            recommendations.append(
+                {
+                    "action": "compress_tool_output",
+                    "priority": 1,
+                    "estimated_savings": 0.15,
+                }
+            )
 
         # Priority 2: History summarization
         if self._has_long_history():
-            recommendations.append({
-                'action': 'summarize_history',
-                'priority': 2,
-                'estimated_savings': 0.20
-            })
+            recommendations.append(
+                {
+                    "action": "summarize_history",
+                    "priority": 2,
+                    "estimated_savings": 0.20,
+                }
+            )
 
         # Priority 3: Subagent delegation
         if self._can_delegate():
-            recommendations.append({
-                'action': 'delegate_to_subagent',
-                'priority': 3,
-                'estimated_savings': 0.30
-            })
+            recommendations.append(
+                {
+                    "action": "delegate_to_subagent",
+                    "priority": 3,
+                    "estimated_savings": 0.30,
+                }
+            )
 
         return recommendations
 ```
@@ -141,12 +153,12 @@ def generate_compliance_report(session):
     percentage = (total / session.max_context) * 100
 
     return {
-        'compliant': percentage < 50,
-        'usage_percentage': percentage,
-        'breakdown': usage,
-        'risks': identify_context_risks(usage),
-        'recommendations': get_recommendations(percentage),
-        'trend': calculate_growth_trend(session.history)
+        "compliant": percentage < 50,
+        "usage_percentage": percentage,
+        "breakdown": usage,
+        "risks": identify_context_risks(usage),
+        "recommendations": get_recommendations(percentage),
+        "trend": calculate_growth_trend(session.history),
     }
 ```
 

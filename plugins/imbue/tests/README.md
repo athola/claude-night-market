@@ -214,6 +214,7 @@ Use pytest markers to categorize tests:
 import pytest
 from unittest.mock import Mock, patch
 
+
 class TestNewFeature:
     """
     Feature: [Feature description]
@@ -256,14 +257,14 @@ class TestNewFeature:
 def test_function_with_external_dependency(self, mock_claude_tools):
     """Test function that uses Claude Code tools."""
     # Arrange
-    mock_claude_tools['Read'].return_value = "expected content"
+    mock_claude_tools["Read"].return_value = "expected content"
 
     # Act
     result = function_under_test()
 
     # Assert
     assert result == "expected result"
-    mock_claude_tools['Read'].assert_called_once_with("expected_file")
+    mock_claude_tools["Read"].assert_called_once_with("expected_file")
 ```
 
 #### Testing Git Operations
@@ -278,8 +279,8 @@ def test_git_analysis(self, mock_git_repository):
     result = analyze_git_repository(str(repo_path))
 
     # Assert
-    assert result['status'] == 'clean'
-    assert result['branch'] == 'main'
+    assert result["status"] == "clean"
+    assert result["branch"] == "main"
 ```
 
 #### Testing Evidence Logging
@@ -295,7 +296,7 @@ def test_evidence_capturing(self, sample_evidence_log):
 
     # Assert
     assert len(evidence_logger.evidence) == 1
-    assert evidence_logger.evidence[0]['command'] == "git status"
+    assert evidence_logger.evidence[0]["command"] == "git status"
 ```
 
 ## Debugging Tests

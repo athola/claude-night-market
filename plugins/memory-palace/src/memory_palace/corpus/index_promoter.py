@@ -44,6 +44,7 @@ from memory_palace.corpus.index_analytics import (
     load_capture_index,
     rank_promotion_candidates,
 )
+from memory_palace.corpus.titles import looks_like_title, slug_title_from_url
 
 logger = logging.getLogger(__name__)
 
@@ -263,6 +264,98 @@ def apply_promotions(
         entry = entries.get(proposal.key)
         if entry is None:
             logger.warning("Proposal key not in index, skipping: %s", proposal.key)
+            continue
+        entry.update(proposal.changes)
+        applied += 1
+
+    _write_index_atomic(index, index_path)
+    return ApplyResult(applied=applied, backup_path=backup_path)
+
+
+def propose_title_repairs(index: dict[str, Any]) -> list[Proposal]:
+    """Return retitle proposals for entries holding a non-title.
+
+    Fixing the capture hook only governs future captures. Entries stored
+    before the shape rules were right keep their bad titles forever, so
+    the index still shows "- A loading state" and "Response" as page
+    titles (#624).
+
+    The replacement is the URL slug, which is precisely what the hook's
+    own fallback would have produced had the filter been right at
+    capture time. That keeps repaired entries indistinguishable from
+    freshly captured ones instead of inventing a third title source.
+
+    Pure: proposes, writes nothing. An entry is left alone when its URL
+    offers nothing better, because churning the index to gain nothing
+    is its own defect (#605).
+    """
+    proposals: list[Proposal] = []
+    for key, entry in index.get("entries", {}).items():
+        if not isinstance(entry, dict):
+            continue
+        title = entry.get("title")
+        if not isinstance(title, str) or not title.strip():
+            continue
+        if looks_like_title(title.strip()):
+            continue
+        replacement = slug_title_from_url(entry.get("url") or "")
+        if replacement is None or not looks_like_title(replacement):
+            continue
+        if replacement == title.strip():
+            continue
+        proposals.append(
+            Proposal(
+                key=key,
+                action="retitle",
+                changes={"title": replacement},
+                reasons=[f"stored title is not a title: {title.strip()[:60]!r}"],
+            )
+        )
+    return proposals
+
+
+def apply_title_repairs(
+    index: dict[str, Any],
+    proposals: list[Proposal],
+    index_path: Path,
+    *,
+    backup_dir: Path | None = None,
+) -> ApplyResult:
+    """Back up the index, apply retitle proposals, and persist.
+
+    Unlike :func:`apply_promotions`, the caller owns loading: this
+    mutates and writes the ``index`` it is handed. The repair is driven
+    from an already-loaded index in every caller, and reloading here
+    would silently discard edits the caller had made.
+
+    Args:
+        index: The loaded index to mutate and persist.
+        proposals: Retitle proposals from :func:`propose_title_repairs`.
+        index_path: Path the index is persisted to.
+        backup_dir: Directory for the pre-repair backup. Defaults to the
+            index's own directory.
+
+    Returns:
+        An :class:`ApplyResult` with the count applied and the backup
+        path. Re-running is a no-op, because a repaired title passes
+        :func:`looks_like_title` and is proposed no further.
+
+    """
+    index_path = Path(index_path)
+    backup_dir = Path(backup_dir) if backup_dir is not None else index_path.parent
+    backup_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    backup_path = backup_dir / f"memory-palace-index-{timestamp}.pre-retitle.yaml"
+    if index_path.exists():
+        shutil.copyfile(index_path, backup_path)
+
+    entries = index.get("entries", {})
+    applied = 0
+    for proposal in proposals:
+        entry = entries.get(proposal.key)
+        if entry is None:
+            logger.warning("Retitle key not in index, skipping: %s", proposal.key)
             continue
         entry.update(proposal.changes)
         applied += 1

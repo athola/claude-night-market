@@ -32,11 +32,11 @@ def test_basic_functionality(skill_path: str) -> FunctionalityResults:
         return results
 
     # Test 2: Frontmatter is valid
-    if content.startswith('---\n'):
+    if content.startswith("---\n"):
         results.valid_frontmatter = True
 
     # Test 3: Required sections present
-    required_sections = ['## Overview', '## When to Use']
+    required_sections = ["## Overview", "## When to Use"]
     for section in required_sections:
         if section in content:
             results.sections_present.append(section)
@@ -63,7 +63,7 @@ def test_tool_integration(skill_path: str) -> ToolIntegrationResults:
 
     # Parse skill frontmatter
     frontmatter = parse_frontmatter(skill_path)
-    declared_tools = frontmatter.get('tools', [])
+    declared_tools = frontmatter.get("tools", [])
 
     # Test each declared tool
     for tool in declared_tools:
@@ -77,9 +77,7 @@ def test_tool_integration(skill_path: str) -> ToolIntegrationResults:
 
             # Test tool runs with --help
             try:
-                subprocess.run([tool_path, '--help'],
-                              capture_output=True,
-                              timeout=5)
+                subprocess.run([tool_path, "--help"], capture_output=True, timeout=5)
                 results.tools_functional.append(tool)
             except Exception as e:
                 results.tool_errors.append(f"{tool}: {e}")
@@ -111,18 +109,18 @@ def test_context_management(skill_path: str) -> ContextResults:
 
     # Test 1: Token usage
     estimated_tokens = len(content) // 4
-    declared_tokens = frontmatter.get('estimated_tokens', 0)
+    declared_tokens = frontmatter.get("estimated_tokens", 0)
 
     results.estimated_tokens = estimated_tokens
     results.declared_tokens = declared_tokens
     results.token_accuracy = abs(estimated_tokens - declared_tokens) / estimated_tokens
 
     # Test 2: Progressive disclosure
-    if '## Overview' in content and 'modules/' in content.lower():
+    if "## Overview" in content and "modules/" in content.lower():
         results.has_progressive_disclosure = True
 
     # Test 3: Module references
-    module_refs = re.findall(r'modules/([a-z-]+\.md)', content, re.IGNORECASE)
+    module_refs = re.findall(r"modules/([a-z-]+\.md)", content, re.IGNORECASE)
     results.module_references = module_refs
 
     return results
@@ -148,7 +146,7 @@ def test_sdk_compliance(skill_path: str) -> ComplianceResults:
     frontmatter = parse_frontmatter(skill_path)
 
     # Required SDK fields
-    required_fields = ['name', 'description', 'version', 'category']
+    required_fields = ["name", "description", "version", "category"]
     for field in required_fields:
         if field in frontmatter:
             results.required_fields_present.append(field)
@@ -156,13 +154,13 @@ def test_sdk_compliance(skill_path: str) -> ComplianceResults:
             results.missing_fields.append(field)
 
     # Recommended SDK fields (2024 standards)
-    recommended_fields = ['provides', 'estimated_tokens', 'usage_patterns']
+    recommended_fields = ["provides", "estimated_tokens", "usage_patterns"]
     for field in recommended_fields:
         if field in frontmatter:
             results.recommended_fields_present.append(field)
 
     # Check for SDK compatibility declaration
-    if 'sdk_features' in frontmatter.get('provides', {}):
+    if "sdk_features" in frontmatter.get("provides", {}):
         results.sdk_compatible = True
 
     return results
@@ -197,10 +195,11 @@ class IntegrationTester:
     def _calculate_overall_score(self, results: IntegrationTestResults) -> float:
         """Calculate weighted overall integration score"""
         scores = {
-            'functionality': self._score_functionality(results.basic_functionality) * 0.25,
-            'tools': self._score_tool_integration(results.tool_integration) * 0.25,
-            'context': self._score_context_handling(results.context_handling) * 0.25,
-            'compliance': self._score_compliance(results.api_compliance) * 0.25
+            "functionality": self._score_functionality(results.basic_functionality)
+            * 0.25,
+            "tools": self._score_tool_integration(results.tool_integration) * 0.25,
+            "context": self._score_context_handling(results.context_handling) * 0.25,
+            "compliance": self._score_compliance(results.api_compliance) * 0.25,
         }
         return sum(scores.values())
 ```
@@ -292,7 +291,7 @@ def test_with_specialist_agents(skill_path: str) -> Dict:
     specialists = {
         "performance": "agents-network-engineer",
         "debugging": "superpowers:systematic-debugging",
-        "documentation": "elements-of-style:writing-clearly-and-concisely"
+        "documentation": "elements-of-style:writing-clearly-and-concisely",
     }
 
     results = {}

@@ -54,7 +54,7 @@ A digital garden approach to knowledge management that:
 
 ### Calculate Garden Metrics
 ```bash
-python scripts/garden_metrics.py path/to/garden.json --format brief
+python -m memory_palace.garden_metrics path/to/garden.json --format brief
 ```
 **Verification:** Run `python --version` to verify Python environment.
 
@@ -154,7 +154,7 @@ Check hook output and fix reported issues before committing again
 
 ## Exit Criteria
 
-- [ ] `scripts/garden_metrics.py` runs without error on the target
+- [ ] `python -m memory_palace.garden_metrics` runs without error on the target
       `garden.json` and outputs link density, bidirectional coverage,
       freshness, and maturity ratio
 - [ ] Stale notes (inactive for more than 7 days) are identified and

@@ -104,15 +104,49 @@ different fields. You systematically find these bridges.
       }
     }
   ],
-  "errors": [],
+  "errors": [
+    {"kind": "source_error", "source": "triz40.com", "message": "matrix cell unreadable"}
+  ],
   "metadata": {
     "depth": "deep",
     "fields_explored": ["neuroscience", "logistics", "materials-science"],
     "contradiction": "Improving X worsens Y",
-    "ideal_result": "Statement of ideal outcome"
+    "ideal_result": "Statement of ideal outcome",
+    "query_count": 3,
+    "results_found": 4,
+    "queries": [
+      {"source": "neuroscience", "query": "the exact cross-domain query you ran",
+       "result_count": 2, "error": null},
+      {"source": "logistics", "query": "...", "result_count": 0, "error": null}
+    ]
   }
 }
 ```
+
+Build the cross-domain queries with
+`tome.channels.triz.build_cross_domain_search_queries` and
+pick fields with `get_adjacent_fields(domain, depth)`,
+rather than composing them freehand. The record is then
+what tome asked, which is the only version of it worth
+anything downstream.
+
+Envelope rules, identical across all four channel agents:
+
+- `errors` entries are objects, never bare strings.
+  `kind` is `rate_limit` or `source_error`. A rate limit
+  means "re-run me"; a source error means "investigate".
+  The two lead a reader to opposite actions, so guessing
+  between them is not acceptable.
+- `metadata.queries` carries one entry per query actually
+  issued, with the count that query returned. Report zero
+  honestly. For this channel a zero is a real result: a
+  field explored that yielded no usable analogy is exactly
+  what the depth setting is spending budget to discover.
+- Never report a query you did not run.
+  `tome.synthesis.quality.parse_envelope` turns this list
+  into the session's query record, and a fabricated entry
+  becomes a fabricated claim about how well the topic was
+  searched.
 
 ## Rules
 

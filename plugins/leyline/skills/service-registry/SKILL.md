@@ -109,13 +109,16 @@ from leyline.service_registry import ServiceRegistry
 
 registry = ServiceRegistry()
 
-registry.register("gemini", ServiceConfig(
-    name="gemini",
-    command="gemini",
-    auth_method="api_key",
-    auth_env_var="GEMINI_API_KEY",
-    quota_limits={"rpm": 60, "daily": 1000}
-))
+registry.register(
+    "gemini",
+    ServiceConfig(
+        name="gemini",
+        command="gemini",
+        auth_method="api_key",
+        auth_env_var="GEMINI_API_KEY",
+        quota_limits={"rpm": 60, "daily": 1000},
+    ),
+)
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
@@ -125,7 +128,7 @@ result = registry.execute(
     service="gemini",
     prompt="Analyze this code",
     files=["src/main.py"],
-    model="gemini-3-pro"
+    model="gemini-3-pro",
 )
 
 if result.success:
@@ -151,10 +154,7 @@ for service, healthy in all_status.items():
 ```python
 # Select best service for task
 service = registry.select_service(
-    requirements={
-        "large_context": True,
-        "fast_response": False
-    }
+    requirements={"large_context": True, "fast_response": False}
 )
 ```
 **Verification:** Run the command with `--help` flag to verify availability.

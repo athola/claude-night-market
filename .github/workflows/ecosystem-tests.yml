@@ -13,15 +13,28 @@ name: Ecosystem Tests (root tests/ suite)
 # The suite is cross-cutting by nature: a skill added to any plugin is a new
 # parametrized case here. That is why the path filter is broad across plugins/
 # rather than scoped to a language or directory.
+#
+# The filter below must stay at least as wide as what the gates read.
+# `test_cited_paths_resolve.py` and `test_assets_respect_enforced_vows.py`
+# sweep `plugins/*/skills/**/*.md`, `plugins/*/commands/**/*.md`,
+# `plugins/*/agents/**/*.md`, and `.claude/rules/*.md`. An earlier version of
+# this filter listed only `plugins/**/SKILL.md` and omitted `.claude/`
+# entirely, which left 547 of those files unable to trigger the gate that
+# reads them: every skill `modules/` file, and every project rule. Too narrow
+# a filter does not fail, it reports green by not running.
+#
+# `tests/test_ci_covers_ecosystem_gates.py` derives both sides from their
+# sources and fails if they drift apart again.
 
 on:
   push:
     branches: [main, master]
     paths:
-      - "plugins/**/SKILL.md"
-      - "plugins/**/commands/**"
-      - "plugins/**/agents/**"
+      - "plugins/*/skills/**"
+      - "plugins/*/commands/**"
+      - "plugins/*/agents/**"
       - "plugins/abstract/scripts/validate_budget.py"
+      - ".claude/rules/**"
       - "tests/**"
       - "conftest.py"
       - "pyproject.toml"
@@ -29,10 +42,11 @@ on:
       - ".github/workflows/ecosystem-tests.yml"
   pull_request:
     paths:
-      - "plugins/**/SKILL.md"
-      - "plugins/**/commands/**"
-      - "plugins/**/agents/**"
+      - "plugins/*/skills/**"
+      - "plugins/*/commands/**"
+      - "plugins/*/agents/**"
       - "plugins/abstract/scripts/validate_budget.py"
+      - ".claude/rules/**"
       - "tests/**"
       - "conftest.py"
       - "pyproject.toml"

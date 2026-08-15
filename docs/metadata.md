@@ -90,6 +90,30 @@ but the official schema rejects.
   - `sdk_compatibility` - SDK version and feature requirements
   - `agent_integration` - Agent system capabilities
 
+## What `dependencies` Does Not Mean
+
+`dependencies` is a declaration, not an installation.
+Nothing in this repo or in Claude Code reads the field and
+installs what it names.
+It travels to the marketplace as `requires` (see
+`scripts/clawhub_export.py`) so a browsing user can see what a
+plugin expects, and that is the whole of its effect.
+A user can install `spec-kit` on its own, and `leyline` will not
+appear alongside it.
+
+The consequence for skill and command authors: a declared
+dependency does not license you to assume the other plugin is
+loaded.
+Every cross-plugin `Skill(other:thing)` invocation still needs a
+path for when the skill is absent, which is why the
+`Skill(leyline:decision-journal)` consumers each carry an in-file
+`ENTRY TEMPLATE` fallback and why that fallback is an exit
+criterion of the skill rather than dead code.
+
+Reviewers reach for the opposite reading, because "dependency"
+means "installed for you" in every package manager.
+It does not here.
+
 ## Why Two Files?
 
 We split metadata because the official `plugin.json` validator is strict.

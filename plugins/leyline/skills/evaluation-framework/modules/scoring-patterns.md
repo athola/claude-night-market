@@ -211,7 +211,7 @@ penalties = {
     "security_vulnerability": -20,
     "breaking_change": -15,
     "missing_tests": -10,
-    "documentation_gap": -5
+    "documentation_gap": -5,
 }
 
 final_score = max(0, base_score - sum(applicable_penalties))
@@ -226,7 +226,7 @@ base_score = 75
 bonuses = {
     "innovation": +10,
     "exceptional_performance": +10,
-    "comprehensive_testing": +5
+    "comprehensive_testing": +5,
 }
 
 final_score = min(100, base_score + sum(applicable_bonuses))
@@ -238,7 +238,7 @@ Some criteria may warrant non-linear scales:
 
 ```python
 # Exponential for critical metrics
-security_score = 100 * (1 - e^(-vulnerabilities))
+security_score = 100 * (1 - e ^ (-vulnerabilities))
 
 # Logarithmic for diminishing returns
 feature_score = 100 * log(features_implemented + 1) / log(total_features + 1)
