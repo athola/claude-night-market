@@ -15,9 +15,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from delegation_executor import (
     MAX_INLINE_CONTEXT_BYTES,
+    VERIFIED_BINARIES,
     Delegator,
     ExecutionResult,
     ServiceConfig,
+    _missing_required_fields,
     estimate_tokens,
     main,
 )
@@ -667,3 +669,199 @@ class TestDelegatorCli:
 
 
 # Import os for environment variable mocking
+
+
+class TestProviderContractMechanics:
+    """The provider contract is data, so each axis is independently testable."""
+
+    @pytest.mark.bdd
+    def test_optional_fields_with_factories_are_not_required(self) -> None:
+        """A field with a default_factory must not read as required.
+
+        ``_missing_required_fields`` decides whether a custom config entry is
+        incomplete. Treating a defaulted field as required would silently skip
+        valid user configs.
+        """
+        assert (
+            _missing_required_fields(
+                {"name": "x", "command": "x", "auth_method": "cli"}
+            )
+            == set()
+        )
+
+    @pytest.mark.bdd
+    @patch("subprocess.run")
+    def test_env_overlay_reaches_the_child_process(
+        self, mock_run, temp_config_dir
+    ) -> None:
+        """A service env overlay is applied to the child, not the parent.
+
+        Endpoint-swap harnesses run a stock binary against a different base
+        URL. The overlay is how that is expressed without mutating the
+        delegating process's own environment.
+        """
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = "ok"
+        mock_run.return_value.stderr = ""
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["probe"] = ServiceConfig(
+            name="probe",
+            command="probe-bin",
+            auth_method="none",
+            env={"PROBE_BASE_URL": "https://example.invalid"},
+        )
+
+        delegator.execute("probe", "hello")
+
+        passed_env = mock_run.call_args.kwargs["env"]
+        assert passed_env["PROBE_BASE_URL"] == "https://example.invalid"
+        assert "PATH" in passed_env, (
+            "overlay must extend the environment, not replace it"
+        )
+        assert "PROBE_BASE_URL" not in os.environ
+
+    @pytest.mark.bdd
+    @patch("subprocess.run")
+    def test_env_overlay_expands_references_to_real_variables(
+        self, mock_run, temp_config_dir
+    ) -> None:
+        """``${VAR}`` in an overlay resolves from the caller's environment.
+
+        Credentials must not be written into config files, so an overlay
+        names the variable that holds the secret instead of the secret.
+        """
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = "ok"
+        mock_run.return_value.stderr = ""
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["probe"] = ServiceConfig(
+            name="probe",
+            command="probe-bin",
+            auth_method="none",
+            env={"DOWNSTREAM_TOKEN": "${PROBE_SECRET}"},
+        )
+
+        with patch.dict(os.environ, {"PROBE_SECRET": "s3cret"}):
+            delegator.execute("probe", "hello")
+
+        assert mock_run.call_args.kwargs["env"]["DOWNSTREAM_TOKEN"] == "s3cret"
+
+    @pytest.mark.bdd
+    @patch("subprocess.run")
+    def test_missing_overlay_variable_fails_verification(
+        self, mock_run, temp_config_dir
+    ) -> None:
+        """An overlay referencing an unset variable is reported, not guessed."""
+        mock_run.return_value.returncode = 0
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["probe"] = ServiceConfig(
+            name="probe",
+            command="probe-bin",
+            auth_method="none",
+            env={"DOWNSTREAM_TOKEN": "${PROBE_SECRET_ABSENT}"},
+        )
+
+        is_available, issues = delegator.verify_service("probe")
+
+        assert is_available is False
+        assert any("PROBE_SECRET_ABSENT" in issue for issue in issues)
+
+    @pytest.mark.bdd
+    @patch("subprocess.run")
+    def test_stdin_delivery_keeps_the_prompt_out_of_argv(
+        self, mock_run, temp_config_dir
+    ) -> None:
+        """A stdin-delivering service sends the prompt on stdin.
+
+        argv entries are capped at 128 KiB by execve, so a large inlined
+        context has to travel on stdin rather than as an argument.
+        """
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = "ok"
+        mock_run.return_value.stderr = ""
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["probe"] = ServiceConfig(
+            name="probe",
+            command="probe-bin",
+            auth_method="none",
+            stdin_prompt=True,
+        )
+
+        command = delegator.build_command("probe", "secret prompt text")
+        assert "secret prompt text" not in command
+
+        delegator.execute("probe", "secret prompt text")
+        assert mock_run.call_args.kwargs["input"] == "secret prompt text"
+
+    @pytest.mark.bdd
+    @patch("subprocess.run")
+    def test_version_probe_is_part_of_the_contract(
+        self, mock_run, temp_config_dir
+    ) -> None:
+        """Not every CLI answers ``--version``; the probe is configurable."""
+        mock_run.return_value.returncode = 0
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["probe"] = ServiceConfig(
+            name="probe",
+            command="probe-bin",
+            auth_method="none",
+            version_probe=("--help",),
+        )
+
+        delegator.verify_service("probe")
+
+        assert ["probe-bin", "--help"] in [
+            call.args[0] for call in mock_run.call_args_list if call.args
+        ]
+
+    @pytest.mark.bdd
+    @patch("subprocess.run")
+    def test_missing_binary_reports_the_install_command(
+        self, mock_run, temp_config_dir
+    ) -> None:
+        """A missing CLI names its install command instead of stranding the user."""
+        mock_run.side_effect = FileNotFoundError("probe-bin")
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["probe"] = ServiceConfig(
+            name="probe",
+            command="probe-bin",
+            auth_method="none",
+            install_hint="npm install -g probe-cli",
+        )
+
+        _, issues = delegator.verify_service("probe")
+
+        assert any("npm install -g probe-cli" in issue for issue in issues)
+
+
+class TestBinaryProvenance:
+    """Every binary we spawn is one whose publisher we checked."""
+
+    @pytest.mark.bdd
+    def test_every_registered_binary_has_declared_provenance(self) -> None:
+        """A binary name is a dependency: spawning it by name trusts PATH.
+
+        #655 shipped a service that spawned ``minimax``, a name owned by an
+        unaffiliated npm package. This test makes that class of mistake fail
+        in CI rather than in a user's shell.
+        """
+        for name, config in Delegator.SERVICES.items():
+            assert config.command in VERIFIED_BINARIES, (
+                f"service {name!r} spawns {config.command!r}, which has no entry "
+                f"in VERIFIED_BINARIES. Add the official package and source URL."
+            )
+
+    @pytest.mark.bdd
+    def test_provenance_entries_cite_a_source(self) -> None:
+        """Each provenance record names a package and a URL to check it."""
+        for binary, record in VERIFIED_BINARIES.items():
+            assert record.get("package"), f"{binary} has no package name"
+            assert record.get("source", "").startswith("https://"), (
+                f"{binary} has no verifiable source URL"
+            )

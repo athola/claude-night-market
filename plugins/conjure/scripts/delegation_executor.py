@@ -11,10 +11,11 @@ import argparse
 import json
 import logging
 import os
+import re
 import subprocess  # nosec B404
 import sys
 import time
-from dataclasses import MISSING, dataclass, fields
+from dataclasses import MISSING, dataclass, field, fields
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -80,6 +81,31 @@ MAX_INLINE_CONTEXT_BYTES = 96 * 1024
 # walk stops instead of emitting header-only blocks.
 _MIN_INLINE_FILE_BYTES = 512
 
+# Spawning a binary by name trusts whatever PATH resolves it to, so every name
+# this module spawns is recorded here with the package that publishes it and a
+# source a reviewer can check. A service whose command is absent from this map
+# fails its test rather than reaching a user's shell.
+VERIFIED_BINARIES: dict[str, dict[str, str]] = {
+    "gemini": {
+        "package": "@google/gemini-cli",
+        "publisher": "Google",
+        "install": "npm install -g @google/gemini-cli",
+        "source": "https://github.com/google-gemini/gemini-cli",
+    },
+    "qwen": {
+        "package": "@qwen-code/qwen-code",
+        "publisher": "Alibaba / QwenLM",
+        "install": "npm install -g @qwen-code/qwen-code",
+        "source": "https://github.com/QwenLM/qwen-code",
+    },
+    "mmx": {
+        "package": "mmx-cli",
+        "publisher": "MiniMax-AI",
+        "install": "npm install -g mmx-cli",
+        "source": "https://github.com/MiniMax-AI/cli",
+    },
+}
+
 
 @dataclass
 class ServiceConfig:
@@ -101,10 +127,39 @@ class ServiceConfig:
     # Tuple rather than list: a default_factory field would read as required
     # to _missing_required_fields and silently skip valid custom configs.
     subcommand: tuple[str, ...] = ()
-    prompt_flag: str = "-p"
+    # None means the prompt is positional. ``muse exec <prompt>``,
+    # ``codex exec <prompt>`` and ``opencode run <prompt>`` all take it that
+    # way, so a flag name is not universal enough to be mandatory.
+    prompt_flag: str | None = "-p"
     output_format_flag: str = "--output-format"
     temperature_flag: str | None = "--temperature"
     inline_files: bool = False
+    # Prompt on stdin rather than argv. execve caps a single argument at
+    # 128 KiB, which a large inlined context exceeds.
+    stdin_prompt: bool = False
+    # Environment applied to the child only. An endpoint-swap harness runs a
+    # stock binary against a different base URL, which is environment, not
+    # argv. Values may reference the caller's variables as ``${VAR}`` so a
+    # credential is named here rather than stored here.
+    env: dict[str, str] = field(default_factory=dict)
+    # Probes, because not every CLI answers --version or `auth status`.
+    version_probe: tuple[str, ...] = ("--version",)
+    auth_probe: tuple[str, ...] = ("auth", "status")
+    # Shown when the binary is missing, so a failure names its own remedy.
+    install_hint: str = ""
+    # Selection metadata. smart_delegate derives both its candidate order and
+    # its model choice from these, so registering a provider is the only step
+    # needed to make it selectable. The previous design kept the order and the
+    # model ids in module-level dicts that had to be edited in step with
+    # SERVICES, and forgetting either one failed silently or raised KeyError.
+    priority: int = 50
+    default_model: str | None = None
+    large_context_model: str | None = None
+    fast_response_model: str | None = None
+    # Requirement keys this service is preferred for, e.g. ("code_execution",).
+    # This is how "qwen is the one for code execution" survives the move off
+    # the hardcoded if/elif chain without becoming a branch per provider.
+    strengths: tuple[str, ...] = ()
 
 
 def _missing_required_fields(service_config: Any) -> set[str]:
@@ -122,8 +177,42 @@ def _missing_required_fields(service_config: Any) -> set[str]:
     keys = set(service_config)
     if not keys <= known:
         return set()
-    required = {f.name for f in fields(ServiceConfig) if f.default is MISSING}
+    required = {
+        f.name
+        for f in fields(ServiceConfig)
+        if f.default is MISSING and f.default_factory is MISSING
+    }
     return required - keys
+
+
+_ENV_REFERENCE = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def _resolve_env_overlay(service: ServiceConfig) -> tuple[dict[str, str], list[str]]:
+    """Expand ``${VAR}`` references in a service's environment overlay.
+
+    Returns the resolved overlay and the names of any referenced variables
+    that are unset. A credential is named in the config rather than stored
+    there, so an unset reference is a configuration error worth reporting
+    rather than a value to guess: substituting an empty string would send an
+    unauthenticated request and surface as a confusing downstream 401.
+    """
+    resolved: dict[str, str] = {}
+    missing: list[str] = []
+
+    for key, template in service.env.items():
+
+        def _substitute(match: re.Match[str]) -> str:
+            variable = match.group(1)
+            value = os.getenv(variable)
+            if value is None:
+                missing.append(variable)
+                return ""
+            return value
+
+        resolved[key] = _ENV_REFERENCE.sub(_substitute, template)
+
+    return resolved, missing
 
 
 @dataclass(frozen=True)
@@ -136,6 +225,8 @@ class LaunchSpec:
     files: list[str] | None
     timeout: int
     start_time: float
+    env: dict[str, str] | None = None
+    stdin_input: str | None = None
 
 
 @dataclass
@@ -162,6 +253,12 @@ class Delegator:
             auth_method="api_key",
             auth_env_var="GEMINI_API_KEY",
             quota_limits=DEFAULT_GEMINI_LIMITS,
+            install_hint="npm install -g @google/gemini-cli",
+            priority=10,
+            default_model="gemini-3-pro",
+            large_context_model="gemini-3-pro",
+            fast_response_model="gemini-3-flash",
+            strengths=("large_context", "fast_response"),
         ),
         "qwen": ServiceConfig(
             name="qwen",
@@ -170,6 +267,12 @@ class Delegator:
             auth_env_var=None,
             quota_limits=DEFAULT_QWEN_LIMITS,
             output_format_flag="--format",
+            install_hint="npm install -g @qwen-code/qwen-code",
+            priority=20,
+            default_model="qwen-max",
+            large_context_model="qwen-max",
+            fast_response_model="qwen-turbo",
+            strengths=("code_execution",),
         ),
         # The official MiniMax CLI is npm ``mmx-cli``, which installs a
         # binary named ``mmx``. The name ``minimax`` belongs to an unrelated
@@ -188,6 +291,12 @@ class Delegator:
             output_format_flag="--output",
             temperature_flag=None,
             inline_files=True,
+            install_hint="npm install -g mmx-cli",
+            priority=30,
+            default_model="MiniMax-M3",
+            large_context_model="MiniMax-M3",
+            fast_response_model="MiniMax-M2.7",
+            strengths=("code_execution",),
         ),
     }
 
@@ -262,37 +371,52 @@ class Delegator:
             return False, [f"Unknown service: {service_name}"]
 
         service = self.services[service_name]
-        issues = []
+        issues: list[str] = []
 
-        # Check command availability
+        # An overlay naming an unset variable is reported here rather than at
+        # spawn time, so `--verify` is the one place a misconfigured
+        # endpoint-swap service is diagnosed.
+        overlay, missing_vars = _resolve_env_overlay(service)
+        issues.extend(
+            f"Environment variable {variable} is referenced by the "
+            f"{service.name} environment overlay but is not set"
+            for variable in missing_vars
+        )
+        child_env = {**os.environ, **overlay}
+
+        # Check command availability with the service's own probe. Not every
+        # CLI answers --version, so the argv comes from the config.
         try:
-            # CLI tool runs commands
             subprocess.run(  # nosec B603
-                [service.command, "--version"],
+                [service.command, *service.version_probe],
                 capture_output=True,
                 timeout=10,
                 check=True,
+                env=child_env,
             )
-        except (
-            subprocess.CalledProcessError,
-            FileNotFoundError,
-            subprocess.TimeoutExpired,
-        ):
+        except FileNotFoundError:
+            remedy = (
+                f". Install with: {service.install_hint}"
+                if service.install_hint
+                else ""
+            )
+            issues.append(f"Command '{service.command}' not found{remedy}")
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             issues.append(f"Command '{service.command}' not found or not working")
 
         # Check authentication
         if service.auth_method == "api_key" and service.auth_env_var:
             if not os.getenv(service.auth_env_var):
                 issues.append(f"Environment variable {service.auth_env_var} not set")
-        elif service.auth_method == "cli":
+        elif service.auth_method == "cli" and service.auth_probe:
             try:
-                # CLI auth check
                 result = subprocess.run(  # nosec B603
-                    [service.command, "auth", "status"],
+                    [service.command, *service.auth_probe],
                     check=False,
                     capture_output=True,
                     timeout=10,
                     text=True,
+                    env=child_env,
                 )
                 if result.returncode != 0:
                     issues.append("Service not authenticated")
@@ -331,11 +455,15 @@ class Delegator:
                     [service.temperature_flag, str(options["temperature"])],
                 )
 
-        full_prompt = prompt
-        if files:
-            full_prompt = _compose_prompt_with_files(service, prompt, files)
+        full_prompt = _delivered_prompt(service, prompt, files)
 
-        command.extend([service.prompt_flag, full_prompt])
+        # A stdin-delivering service keeps the prompt out of argv entirely, so
+        # there is nothing to append. A service with no prompt_flag takes it
+        # positionally (``muse exec <prompt>``).
+        if not service.stdin_prompt:
+            if service.prompt_flag:
+                command.append(service.prompt_flag)
+            command.append(full_prompt)
 
         return command
 
@@ -349,6 +477,8 @@ class Delegator:
                 text=True,
                 timeout=spec.timeout,
                 cwd=Path.cwd(),
+                env=spec.env,
+                input=spec.stdin_input,
             )
             return ExecutionResult(
                 success=result.returncode == 0,
@@ -398,7 +528,10 @@ class Delegator:
     ) -> ExecutionResult:
         """Execute delegation command."""
         start_time = time.time()
+        service = self.services[service_name]
         command = self.build_command(service_name, prompt, files, options)
+        overlay, _ = _resolve_env_overlay(service)
+        delivered = _delivered_prompt(service, prompt, files)
         execution_result = self._launch_process(
             LaunchSpec(
                 cmd=command,
@@ -407,6 +540,10 @@ class Delegator:
                 files=files,
                 timeout=timeout,
                 start_time=start_time,
+                # Extend the caller's environment rather than replacing it: a
+                # child spawned with only the overlay would lose PATH.
+                env={**os.environ, **overlay},
+                stdin_input=delivered if service.stdin_prompt else None,
             )
         )
         self.log_usage(service_name, command, execution_result)
@@ -517,38 +654,58 @@ class Delegator:
     ) -> tuple[str, ExecutionResult]:
         """Automatically select and execute with best service."""
         requirements = requirements or {}
+        service_name = self._select_service(requirements)
 
-        # Service selection logic
-        if requirements.get("large_context") and requirements.get("gemini_available"):
-            service = "gemini"
-        elif requirements.get("code_execution") and requirements.get("qwen_available"):
-            service = "qwen"
-        elif requirements.get("code_execution") and requirements.get(
-            "minimax_available"
-        ):
-            service = "minimax"
-        elif requirements.get("fast_response"):
-            service = "gemini"  # Gemini flash is typically faster
-        else:
-            # Default to first available service
-            for service_name in ["gemini", "qwen", "minimax"]:
-                is_available, _ = self.verify_service(service_name)
-                if is_available:
-                    service = service_name
-                    break
-            else:
-                msg = "No delegation services available"
-                raise RuntimeError(msg)
+        options: dict[str, Any] = {}
+        for requirement in ("large_context", "fast_response"):
+            if requirements.get(requirement):
+                model = _smart_delegate_model(self.services[service_name], requirement)
+                if model:
+                    options["model"] = model
+                break
 
-        # Execute with optimal settings
-        options = {}
-        if requirements.get("large_context"):
-            options["model"] = _smart_delegate_model(service, "large_context")
-        elif requirements.get("fast_response"):
-            options["model"] = _smart_delegate_model(service, "fast_response")
+        result = self.execute(service_name, prompt, files, options)
+        return service_name, result
 
-        result = self.execute(service, prompt, files, options)
-        return service, result
+    def _candidate_order(self) -> list[str]:
+        """Return registered service names in declared preference order.
+
+        Derived from the registry, so a provider becomes selectable the moment
+        it is registered. The previous hardcoded list meant a service could be
+        registered, authenticated, and still never chosen.
+        """
+        return sorted(
+            self.services,
+            key=lambda name: (self.services[name].priority, name),
+        )
+
+    def _select_service(self, requirements: dict[str, Any]) -> str:
+        """Choose a service from the caller's stated requirements.
+
+        A caller that already knows a service is up says so with
+        ``{"<name>_available": True}``. That key is generated from the
+        registry rather than enumerated, so it works for every provider
+        instead of only the three that used to be spelled out here.
+        """
+        candidates = self._candidate_order()
+
+        for name in candidates:
+            if requirements.get(f"{name}_available"):
+                return name
+
+        # Services declaring a requested strength are probed first; everything
+        # else keeps its registry order behind them.
+        wanted = {key for key, value in requirements.items() if value}
+        preferred = [n for n in candidates if wanted & set(self.services[n].strengths)]
+        ordered = preferred + [n for n in candidates if n not in preferred]
+
+        for name in ordered:
+            is_available, _ = self.verify_service(name)
+            if is_available:
+                return name
+
+        msg = "No delegation services available"
+        raise RuntimeError(msg)
 
 
 def _iter_context_files(files: list[str]) -> list[Path]:
@@ -621,6 +778,22 @@ def _inline_context(files: list[str]) -> str:
     return "\n".join(blocks)
 
 
+def _delivered_prompt(
+    service: ServiceConfig,
+    prompt: str,
+    files: list[str] | None,
+) -> str:
+    """Build the prompt text as the service will receive it, files included.
+
+    Shared by ``build_command`` and ``execute`` so the argv form and the stdin
+    form cannot drift: a stdin-delivering service must send exactly what an
+    argv-delivering one would have carried.
+    """
+    if files:
+        return _compose_prompt_with_files(service, prompt, files)
+    return prompt
+
+
 def _compose_prompt_with_files(
     service: ServiceConfig,
     prompt: str,
@@ -645,31 +818,21 @@ def _compose_prompt_with_files(
     return prompt
 
 
-def _smart_delegate_model(service: str, requirement: str) -> str:
+def _smart_delegate_model(service: ServiceConfig, requirement: str) -> str | None:
     """Resolve the model id ``smart_delegate`` selects for a service.
 
-    Centralising the per-service model ids keeps the table in one place
-    instead of repeating nested ternaries in the caller. ``requirement``
-    is the key into the lookup (``large_context`` or ``fast_response``);
-    an unknown requirement falls back to the service's default model. An
-    unrecognised service raises KeyError: smart_delegate only ever passes a
-    built-in service name, so reaching that path is a programming error and
-    is better surfaced than papered over with a wrong model id.
+    The ids live on the service config, so registering a provider carries its
+    own model choices with it. A service that declares none returns None and
+    the CLI's own default applies. That is deliberate: the previous
+    module-level table raised KeyError for any service registered without a
+    matching edit here, which made a data addition fail at runtime rather
+    than degrade.
     """
-    table = {
-        "large_context": {
-            "gemini": "gemini-3-pro",
-            "qwen": "qwen-max",
-            "minimax": "MiniMax-M3",
-        },
-        "fast_response": {
-            "gemini": "gemini-3-flash",
-            "qwen": "qwen-turbo",
-            "minimax": "MiniMax-M2.7",
-        },
-    }
-    defaults = {"gemini": "gemini-3-pro", "qwen": "qwen-max", "minimax": "MiniMax-M3"}
-    return table.get(requirement, {}).get(service, defaults[service])
+    preferred = {
+        "large_context": service.large_context_model,
+        "fast_response": service.fast_response_model,
+    }.get(requirement)
+    return preferred or service.default_model
 
 
 def _print_services(delegator: Delegator) -> None:
