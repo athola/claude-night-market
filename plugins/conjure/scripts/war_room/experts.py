@@ -21,6 +21,8 @@ from scripts.war_room.config import (
     GEMINI_3_FLASH,
     GEMINI_3_PRO,
     GLM_52,
+    MINIMAX_M2_7,
+    MINIMAX_M3,
     QWEN_MAX,
     QWEN_TURBO,
 )
@@ -86,6 +88,22 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         description="Resource estimation and dependency analysis",
         phases=["coa"],
         command=["qwen", "--model", QWEN_MAX, "-p"],
+    ),
+    "operational_advisor": ExpertConfig(
+        role="Operational Advisor",
+        service="minimax",
+        model=MINIMAX_M3,
+        description="Operational trade-off analysis with a large context window",
+        phases=["intel", "coa"],
+        command=["minimax", "--model", MINIMAX_M3, "-p"],
+    ),
+    "skeptical_analyst": ExpertConfig(
+        role="Skeptical Analyst",
+        service="minimax",
+        model=MINIMAX_M2_7,
+        description="Rapid second-opinion challenge of proposed courses of action",
+        phases=["red_team"],
+        command=["minimax", "--model", MINIMAX_M2_7, "-p"],
     ),
 }
 

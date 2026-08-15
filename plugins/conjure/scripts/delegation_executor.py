@@ -19,7 +19,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from scripts.quota_tracker import DEFAULT_GEMINI_LIMITS, DEFAULT_QWEN_LIMITS
+from scripts.quota_tracker import (
+    DEFAULT_GEMINI_LIMITS,
+    DEFAULT_MINIMAX_LIMITS,
+    DEFAULT_QWEN_LIMITS,
+)
 
 try:
     from leyline.tokens import estimate_tokens
@@ -140,6 +144,13 @@ class Delegator:
             auth_method="cli",
             auth_env_var=None,
             quota_limits=DEFAULT_QWEN_LIMITS,
+        ),
+        "minimax": ServiceConfig(
+            name="minimax",
+            command="minimax",
+            auth_method="api_key",
+            auth_env_var="MINIMAX_API_KEY",
+            quota_limits=DEFAULT_MINIMAX_LIMITS,
         ),
     }
 
@@ -278,6 +289,8 @@ class Delegator:
                     command.extend(["--output-format", options["output_format"]])
                 elif service_name == "qwen":
                     command.extend(["--format", options["output_format"]])
+                elif service_name == "minimax":
+                    command.extend(["--output-format", options["output_format"]])
             if "temperature" in options:
                 command.extend(["--temperature", str(options["temperature"])])
 
@@ -484,11 +497,15 @@ class Delegator:
             service = "gemini"
         elif requirements.get("code_execution") and requirements.get("qwen_available"):
             service = "qwen"
+        elif requirements.get("code_execution") and requirements.get(
+            "minimax_available"
+        ):
+            service = "minimax"
         elif requirements.get("fast_response"):
             service = "gemini"  # Gemini flash is typically faster
         else:
             # Default to first available service
-            for service_name in ["gemini", "qwen"]:
+            for service_name in ["gemini", "qwen", "minimax"]:
                 is_available, _ = self.verify_service(service_name)
                 if is_available:
                     service = service_name
@@ -500,12 +517,37 @@ class Delegator:
         # Execute with optimal settings
         options = {}
         if requirements.get("large_context"):
-            options["model"] = "gemini-3-pro" if service == "gemini" else "qwen-max"
+            options["model"] = _smart_delegate_model(service, "large_context")
         elif requirements.get("fast_response"):
-            options["model"] = "gemini-3-flash" if service == "gemini" else "qwen-turbo"
+            options["model"] = _smart_delegate_model(service, "fast_response")
 
         result = self.execute(service, prompt, files, options)
         return service, result
+
+
+def _smart_delegate_model(service: str, requirement: str) -> str:
+    """Resolve the model id ``smart_delegate`` selects for a service.
+
+    Centralising the per-service model ids keeps the table in one place
+    instead of repeating nested ternaries in the caller. ``requirement``
+    is the key into the lookup (``large_context`` or ``fast_response``);
+    an unknown requirement or service falls back to the service's
+    default model.
+    """
+    table = {
+        "large_context": {
+            "gemini": "gemini-3-pro",
+            "qwen": "qwen-max",
+            "minimax": "MiniMax-M3",
+        },
+        "fast_response": {
+            "gemini": "gemini-3-flash",
+            "qwen": "qwen-turbo",
+            "minimax": "MiniMax-M2.7",
+        },
+    }
+    defaults = {"gemini": "gemini-3-pro", "qwen": "qwen-max", "minimax": "MiniMax-M3"}
+    return table.get(requirement, {}).get(service, defaults[service])
 
 
 def _print_services(delegator: Delegator) -> None:
@@ -553,7 +595,11 @@ def _print_result(result: ExecutionResult) -> bool:
 def _create_parser() -> argparse.ArgumentParser:
     """Create argument parser for CLI."""
     parser = argparse.ArgumentParser(description="Unified delegation executor")
-    parser.add_argument("service", nargs="?", help="Service name (gemini, qwen, auto)")
+    parser.add_argument(
+        "service",
+        nargs="?",
+        help="Service name (gemini, qwen, minimax, auto)",
+    )
     parser.add_argument("prompt", nargs="?", help="Prompt to send to the service")
     parser.add_argument("--files", nargs="+", help="Files to include")
     parser.add_argument("--model", help="Model to use")

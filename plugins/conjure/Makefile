@@ -4,7 +4,7 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY:
-.PHONY: benchmark check clean debug-variables delegate-auto delegate-gemini delegate-qwen \
+.PHONY: benchmark check clean debug-variables delegate-auto delegate-gemini delegate-minimax delegate-qwen \
 	delegate-status delegate-test delegate-usage delegate-verify demo-delegation demo-plugin \
 	demo-skills demo-status demo-token-estimate deps fix format help install-hooks lint memory-profile \
 	mutation-test plugin-check precommit quota-status security spellcheck status test test-plugin \
@@ -31,6 +31,7 @@ help: ## Show this help message
 	@echo "Usage examples:"
 	@echo "  make delegate-gemini PROMPT='Analyze code' FILES='src/main.py'"
 	@echo "  make delegate-qwen PROMPT='Extract patterns' FILES='src/**/*.py'"
+	@echo "  make delegate-minimax PROMPT='Summarize' FILES='src/**/*.py'"
 	@echo "  make delegate-auto PROMPT='Best analysis' FILES='src/'"
 
 # Dependency management
@@ -126,12 +127,13 @@ delegate-status: ## Check delegation service availability
 
 delegate-verify: ## Verify authentication for all services
 	@echo "Verifying delegation services..."
-	@# Both services are verified before the target fails, so one broken
-	@# service does not hide the state of the other. 'fail' is collected
-	@# across the two runs rather than short-circuiting on the first.
+	@# Every service is verified before the target fails, so one broken
+	@# service does not hide the state of the others. 'fail' is collected
+	@# across the runs rather than short-circuiting on the first.
 	@fail=0; \
 	uv run python scripts/delegation_executor.py gemini --verify || fail=1; \
 	uv run python scripts/delegation_executor.py qwen --verify || fail=1; \
+	uv run python scripts/delegation_executor.py minimax --verify || fail=1; \
 	exit $$fail
 
 delegate-usage: ## Show usage analytics across services
@@ -146,6 +148,10 @@ delegate-qwen: ## Delegate to Qwen
 	@echo "Delegating to Qwen..."
 	uv run python scripts/delegation_executor.py qwen "$(PROMPT)" $(if $(FILES),--files $(FILES))
 
+delegate-minimax: ## Delegate to MiniMax
+	@echo "Delegating to MiniMax..."
+	uv run python scripts/delegation_executor.py minimax "$(PROMPT)" $(if $(FILES),--files $(FILES))
+
 delegate-auto: ## Auto-select best delegation service
 	@echo "Auto-selecting best delegation service..."
 	uv run python scripts/delegation_executor.py auto "$(PROMPT)" $(if $(FILES),--files $(FILES))
@@ -156,6 +162,8 @@ delegate-test: ## Test all delegation services
 	uv run python scripts/delegation_executor.py gemini "Respond with 'OK'" || echo "Gemini not available"
 	@echo "Testing Qwen..."
 	uv run python scripts/delegation_executor.py qwen "Respond with 'OK'" || echo "Qwen not available"
+	@echo "Testing MiniMax..."
+	uv run python scripts/delegation_executor.py minimax "Respond with 'OK'" || echo "MiniMax not available"
 	@echo "Showing usage..."
 	uv run python scripts/delegation_executor.py --usage
 
@@ -218,6 +226,7 @@ demo-skills: ## Validate conjure skill structure
 	@echo "  delegation-core:    $$(test -f skills/delegation-core/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo "  gemini-delegation:  $$(test -f skills/gemini-delegation/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo "  qwen-delegation:    $$(test -f skills/qwen-delegation/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "  minimax-delegation: $$(test -f skills/minimax-delegation/SKILL.md && echo '[OK]' || echo '[X]')"
 
 plugin-check: demo-delegation demo-skills status ## Run all demo workflows
 	@echo ""

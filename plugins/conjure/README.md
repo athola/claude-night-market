@@ -1,7 +1,7 @@
 # Conjure
 
 Delegate tasks to external models from Claude Code.
-Delegate analysis, bulk work, and summarization to services like Gemini or Qwen.
+Delegate analysis, bulk work, and summarization to services like Gemini, Qwen, or MiniMax.
 
 Track quotas, log usage, and suggest delegation for large tasks.
 
@@ -40,7 +40,7 @@ pip install tiktoken
 
 Per [docs/inclusive-defaults.md][inc] (TRUE-exception
 category 3), conjure delegation requires external CLIs
-(`gemini`, `qwen`) that must be separately installed and
+(`gemini`, `qwen`, `minimax`) that must be separately installed and
 authenticated against third-party LLM providers. There is
 no reasonable default: flipping is impossible, not merely
 unwise.
@@ -100,6 +100,7 @@ make delegate-usage
 make delegate-test
 make delegate-gemini PROMPT="Analyze" FILES="src/main.py"
 make delegate-qwen   PROMPT="Extract" FILES="src/**/*.py"
+make delegate-minimax PROMPT="Summarize" FILES="src/**/*.py"
 make delegate-auto   PROMPT="Best service" FILES="src/"
 
 # Quota & usage
@@ -129,6 +130,7 @@ Use skills directly in chat:
 Skill(conjure:delegation-core)
 Skill(conjure:gemini-delegation)
 Skill(conjure:qwen-delegation)
+Skill(conjure:minimax-delegation)
 ```
 
 Hooks surface delegation suggestions for large tasks.
@@ -139,7 +141,7 @@ Hooks surface delegation suggestions for large tasks.
 
 Select the best external service based on requirements.
 
-### `delegate-gemini` / `delegate-qwen`
+### `delegate-gemini` / `delegate-qwen` / `delegate-minimax`
 
 Force a specific service with optional file globs and model hints.
 
