@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ballots in the Borda count. The `minimax-delegation` skill is
   registered in `plugin.json` and `metadata.json`, and its docs record
   the verified endpoints, region-bound keys, and prices.
+
 ## [1.9.18] - 2026-08-12
 
 ### Added
