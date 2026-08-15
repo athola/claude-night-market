@@ -583,7 +583,6 @@ class TestPerformanceReviewSkill:
         When _tier2_findings is invoked
         Then it returns [] without raising
         """
-
         monkeypatch.setattr(pr_mod, "_gt_parse", None)
         skill = pr_mod.PerformanceReviewSkill()
         # Tier 2 helper must not raise even with an unsupported file
@@ -601,7 +600,6 @@ class TestPerformanceReviewSkill:
         When _tier3_findings is invoked
         Then it returns [] without raising
         """
-
         monkeypatch.setattr(pr_mod, "_GraphStore", None)
         skill = pr_mod.PerformanceReviewSkill()
         out = skill._tier3_findings(mock_skill_context, [], "module.py")
@@ -619,7 +617,6 @@ class TestPerformanceReviewSkill:
         Then it still returns the T1 finding (Tier 1 always works)
         And does NOT raise ModuleNotFoundError
         """
-
         monkeypatch.setattr(pr_mod, "_gt_parse", None)
         monkeypatch.setattr(pr_mod, "_GraphStore", None)
 

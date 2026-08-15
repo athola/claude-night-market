@@ -72,22 +72,40 @@ def plan(classification: DomainClassification) -> ResearchPlan:
 def replan(
     original: ResearchPlan,
     partial_results: dict[str, list[Finding]],
+    outcomes: dict[str, str] | None = None,
 ) -> ResearchPlan:
     """Adjust channel weights based on partial results.
 
     Channels that yielded more findings gain weight; channels that
-    returned nothing lose weight. If all channels are empty, weights
-    remain equal.
+    searched cleanly and returned nothing lose weight. If all channels
+    are empty, weights remain equal.
+
+    ``outcomes`` (from ``tome.synthesis.quality.channel_outcomes``)
+    decides which zero counts as evidence. Without it, every empty
+    channel is down-weighted, which is right for a channel that ran and
+    found nothing and backwards for one that never ran: an outage would
+    teach the next pass to query the broken source less. A channel whose
+    outcome is not ``ok`` or ``empty`` keeps its original weight,
+    because nothing was learned about its usefulness for this topic.
 
     Args:
         original: The plan from the first research pass.
         partial_results: Channel name to findings list.
+        outcomes: Channel name to derived status. Optional; callers
+            written before outcome tracking keep the old behavior.
 
     Returns:
         A new ResearchPlan with adjusted weights.
     """
     if not original.channels:
         return original
+
+    outcomes = outcomes or {}
+    # A channel is re-weightable only when its zero is informative.
+    # Absent outcomes every channel qualifies, which is the old rule.
+    informative = {
+        ch: outcomes.get(ch, "empty") in ("ok", "empty") for ch in original.channels
+    }
 
     counts = {ch: len(partial_results.get(ch, [])) for ch in original.channels}
     total_findings = sum(counts.values())
@@ -97,9 +115,13 @@ def replan(
         equal = 1.0 / len(original.channels)
         weights = dict.fromkeys(original.channels, equal)
     else:
-        # Blend: 50% original weight + 50% proportional to findings
+        # Blend: 50% original weight + 50% proportional to findings,
+        # but only for channels whose emptiness means something.
         raw: dict[str, float] = {}
         for ch in original.channels:
+            if not informative[ch]:
+                raw[ch] = original.weights.get(ch, 0.0)
+                continue
             proportion = counts[ch] / total_findings
             raw[ch] = 0.5 * original.weights.get(ch, 0.0) + 0.5 * proportion
 

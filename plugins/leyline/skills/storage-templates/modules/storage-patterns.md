@@ -67,7 +67,8 @@ data/
 
 ```python
 from pathlib import Path
-import frontmatter   # python-frontmatter
+import frontmatter  # python-frontmatter
+
 
 def load_record(path: Path) -> dict:
     """Read a markdown record with YAML frontmatter."""
@@ -117,6 +118,7 @@ CREATE INDEX IF NOT EXISTS idx_records_maturity
     ON records(maturity);
 """
 
+
 def open_db(path: Path) -> sqlite3.Connection:
     conn = sqlite3.connect(str(path))
     conn.row_factory = sqlite3.Row
@@ -160,10 +162,10 @@ One file per record, named by stable id. Used for sessions in
 import json
 from pathlib import Path
 
-def write_session(session_dir: Path, session_id: str,
-                  data: dict) -> None:
+
+def write_session(session_dir: Path, session_id: str, data: dict) -> None:
     target = session_dir / f"{session_id}.json"
-    write_atomic_json(target, data)   # see Atomic Writes
+    write_atomic_json(target, data)  # see Atomic Writes
 ```
 
 ### JSONL Append Log
@@ -196,6 +198,7 @@ The reference implementation is in
 import json, os, tempfile, contextlib
 from pathlib import Path
 from typing import Any
+
 
 def write_atomic_json(target: Path, data: dict[str, Any]) -> None:
     """Write JSON to target atomically via a sibling tempfile."""
@@ -260,8 +263,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import frontmatter
 
-def find_expired_seedlings(root: Path,
-                           max_age_days: int = 90) -> list[Path]:
+
+def find_expired_seedlings(root: Path, max_age_days: int = 90) -> list[Path]:
     """Return seedling files older than max_age_days."""
     cutoff = datetime.now() - timedelta(days=max_age_days)
     out: list[Path] = []

@@ -73,14 +73,19 @@ grep -c "try:" --include="*.py" -r . | awk -F: '$2>3{print "HIGH_TRY_COUNT:", $0
 ```python
 # Before: Repeated validation in 3 handlers
 def handler_a(data):
-    if not data.get('name'): raise ValueError("Missing name")
-    if len(data['name']) > 100: raise ValueError("Name too long")
+    if not data.get("name"):
+        raise ValueError("Missing name")
+    if len(data["name"]) > 100:
+        raise ValueError("Name too long")
     ...
+
 
 # After: Shared validation
 def validate_name(data):
-    if not data.get('name'): raise ValueError("Missing name")
-    if len(data['name']) > 100: raise ValueError("Name too long")
+    if not data.get("name"):
+        raise ValueError("Missing name")
+    if len(data["name"]) > 100:
+        raise ValueError("Name too long")
 ```
 
 ### Strategy 2: Extract Base Class / Mixin

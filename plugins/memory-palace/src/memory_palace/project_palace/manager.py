@@ -204,6 +204,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         self,
         palace_id: str,
         query: str,
+        *,
         room_type: str | ReviewSubroom | None = None,
         tags: list[str] | None = None,
         semantic: bool = False,
@@ -218,11 +219,21 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         if semantic:
             results = self._search_review_chamber_semantic(
-                palace, review_chamber, query, room_type, tags, sort_by
+                palace,
+                review_chamber,
+                query,
+                room_type=room_type,
+                tags=tags,
+                sort_by=sort_by,
             )
         else:
             results = self._search_review_chamber_text(
-                palace, review_chamber, query, room_type, tags, sort_by
+                palace,
+                review_chamber,
+                query,
+                room_type=room_type,
+                tags=tags,
+                sort_by=sort_by,
             )
 
         if sort_by == SortBy.IMPORTANCE:
@@ -238,6 +249,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
         query: str,
+        *,
         room_type: str | ReviewSubroom | None,
         tags: list[str] | None,
         sort_by: str | SortBy = SortBy.RECENCY,
@@ -276,6 +288,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         palace: dict[str, Any],
         review_chamber: dict[str, Any],
         query: str,
+        *,
         room_type: str | ReviewSubroom | None,
         tags: list[str] | None,
         sort_by: str | SortBy = SortBy.RECENCY,

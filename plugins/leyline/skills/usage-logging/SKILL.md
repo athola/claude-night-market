@@ -115,7 +115,7 @@ logger.log_usage(
     tokens=5000,
     success=True,
     duration=2.5,
-    metadata={"files": 10}
+    metadata={"files": 10},
 )
 ```
 **Verification:** Run the command with `--help` flag to verify availability.

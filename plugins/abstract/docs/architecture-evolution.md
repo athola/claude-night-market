@@ -52,8 +52,8 @@ When 2+ skills/scripts share similar code:
 
 ```python
 # BAD: Duplicated in multiple places
-def parse_frontmatter(content):
-    ...
+def parse_frontmatter(content): ...
+
 
 # GOOD: Extracted to shared package
 from abstract.parsers import parse_frontmatter

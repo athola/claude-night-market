@@ -17,6 +17,7 @@ from memory_palace.knowledge_graph import KnowledgeGraph
 from memory_palace.palace_maintenance import PalaceMaintenance
 from memory_palace.palace_repository import PalaceRepository
 from memory_palace.palace_search import PalaceSearchEngine
+from memory_palace.paths import user_data_dir
 
 
 class MemoryPalaceManager:
@@ -42,7 +43,11 @@ class MemoryPalaceManager:
         self.config_path = config_path
         self.config = self.load_config()
 
-        default_palaces_dir = str(self._plugin_dir / "data" / "palaces")
+        # config/ holds shipped settings and stays with the version.
+        # The palaces are the user's knowledge and do not (issue #661);
+        # persistent_root is the identity in a source checkout, so tests
+        # and local development keep reading their own fixtures.
+        default_palaces_dir = str(user_data_dir(self._plugin_dir) / "palaces")
         override_env = os.environ.get("PALACES_DIR")
         chosen_dir = palaces_dir_override or override_env
         if chosen_dir:

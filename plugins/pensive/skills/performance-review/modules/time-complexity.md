@@ -69,6 +69,7 @@ and explicit.
 ```python
 _PAT = re.compile(r"\d+")
 
+
 def matches(items):
     return [s for s in items if _PAT.search(s)]
 ```
@@ -110,6 +111,7 @@ Memoization makes the same recurrence linear.
 ```python
 from functools import lru_cache
 
+
 @lru_cache(maxsize=None)
 def fib(n):
     if n < 2:
@@ -122,8 +124,7 @@ effects on each call), suppress with a comment marker:
 
 ```python
 # perf-review: intentional, side-effects on each call
-def walk(node):
-    ...
+def walk(node): ...
 ```
 
 ## T6: List comprehension passed to a reducer (LOW)

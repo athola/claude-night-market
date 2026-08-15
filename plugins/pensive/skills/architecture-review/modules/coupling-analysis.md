@@ -106,6 +106,7 @@ class Order:
     def save(self):
         db.execute("INSERT INTO orders...")
 
+
 # Good: Infrastructure handles persistence
 class OrderRepository:
     def save(self, order: Order):
@@ -143,6 +144,7 @@ auth_service.handle_email_changed()  # Subscribes to event
 # Bad: Exposing internal structure
 def get_user():
     return user_database_model
+
 
 # Good: Return boundary type
 def get_user():
@@ -235,8 +237,8 @@ Unstable → Stable
 # Track mutations
 def process_order(order):
     order.status = "PROCESSED"  # Mutation
-    notify_customer(order)       # Side effect
-    log_event(order)            # Side effect
+    notify_customer(order)  # Side effect
+    log_event(order)  # Side effect
 ```
 
 **2. External I/O:**
@@ -265,6 +267,7 @@ def place_order(order) -> None
 ```python
 # Explicit effect types
 Effect = Database | API | Cache | Event
+
 
 def process_payment(order) -> tuple[Result, list[Effect]]:
     effects = []

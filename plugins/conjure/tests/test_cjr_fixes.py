@@ -18,9 +18,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from scripts.delegation_executor import Delegator
 from scripts.war_room.config import (
-    CLAUDE_HAIKU_45,
-    CLAUDE_OPUS_48,
-    CLAUDE_SONNET_46,
+    CLAUDE_HAIKU,
+    CLAUDE_OPUS,
+    CLAUDE_SONNET,
     GEMINI_3_FLASH,
     GEMINI_3_PRO,
     GLM_52,
@@ -46,14 +46,14 @@ class TestModelIdConstants:
         THEN each constant equals its canonical model ID string
         AND all eight expected models are present
         """
-        assert CLAUDE_OPUS_48 == "claude-opus-4-8"
-        assert CLAUDE_SONNET_46 == "claude-sonnet-4-6"
+        assert CLAUDE_OPUS == "claude-opus-5"
+        assert CLAUDE_SONNET == "claude-sonnet-5"
         assert GEMINI_3_PRO == "gemini-3-pro"
         assert GLM_52 == "glm-5.2"
         assert QWEN_TURBO == "qwen-turbo"
         assert GEMINI_3_FLASH == "gemini-3-flash"
         assert QWEN_MAX == "qwen-max"
-        assert CLAUDE_HAIKU_45 == "claude-haiku-4-5"
+        assert CLAUDE_HAIKU == "claude-haiku-4-5"
 
     def test_validate_model_ids_rejects_empty_string(self) -> None:
         """Reject an empty model ID with a ValueError.
@@ -74,9 +74,7 @@ class TestModelIdConstants:
         THEN no exception is raised
         AND the validator returns None on the success path
         """
-        outcome = validate_model_ids(
-            {"CLAUDE_OPUS_48": "claude-opus-4-8", "GLM": "glm-5.2"}
-        )
+        outcome = validate_model_ids({"CLAUDE_OPUS": "claude-opus-5", "GLM": "glm-5.2"})
         assert outcome is None
 
     def test_experts_uses_constants_not_inline_strings(self) -> None:

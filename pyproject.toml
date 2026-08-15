@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.9.17"
+version = "1.9.18"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -46,15 +46,33 @@ addopts = [
     "-ra",
     "--disable-warnings",
 ]
-testpaths = ["tests"]
+# prototypes/ is collected alongside tests/. An unwired prototype is
+# still shipped code: forced-eval went out in a tagged release with 20
+# passing tests that no gate ran, so its README's "all green" claim had
+# nothing checking it. Guarded by
+# tests/unit/test_test_collection_coverage.py, which fails when a test
+# file lands outside every collected path.
+testpaths = ["tests", "prototypes"]
 # Exclude plugin test directories to avoid conftest.py import conflicts.
 # Plugin tests should be run from within each plugin directory.
+#
+# Setting this key replaces pytest's built-in ignore list rather than
+# extending it, so entries pytest would have skipped by default have to
+# be repeated here. Omitting ".hypothesis" made the hypothesis plugin
+# warn on every run that its cache directory was being collected.
 norecursedirs = [
     "plugins/*",
     ".venv",
     ".uv-cache",
+    ".hypothesis",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".worktrees",
     "__pycache__",
+    "*.egg",
     "*.egg-info",
+    "node_modules",
     "build",
     "dist",
 ]
@@ -113,6 +131,20 @@ line-length = 88
 # (X | Y unions, StrEnum, etc.) on code that ships to Python 3.9 users.
 target-version = "py39"
 src = ["plugins", "tests"]
+# Ruff 0.16 began formatting Python inside Markdown fences. `make lint`
+# runs `ruff format plugins/`, so that upgrade turned a read-only gate
+# into a repo-wide doc rewriter (197 tracked .md files in one run).
+# Markdown here follows .claude/rules/markdown-formatting.md, and skill
+# docs show illustrative snippets a formatter must not "correct".
+# Guarded by tests/test_ruff_does_not_format_markdown.py.
+extend-exclude = ["*.md"]
+# force-exclude makes the line above apply to explicitly-named paths too,
+# not just directory traversal. `make lint` passes a directory, so the
+# exclude alone covers it, and the pre-commit ruff hooks are already
+# scoped to `types: [python]`. This covers the remaining case: a human
+# or script running `ruff format path/to/file.md` directly, which
+# bypasses both of those guards.
+force-exclude = true
 
 [tool.ruff.lint.isort]
 known-first-party = [
@@ -164,6 +196,15 @@ select = [
     "UP",  # pyupgrade
     "PLC0415",  # import-outside-top-level
     "PLR0913",  # too-many-arguments (enforced ecosystem-wide, not ignored)
+    # Two pydocstyle rules, selected individually rather than by taking all
+    # of "D": the rest of that set argues with the house docstring style
+    # (D203/D213 contradict each other, D107 wants __init__ docstrings the
+    # dataclasses here do not need). These two only govern layout, so they
+    # cost nothing to obey and keep test docstrings from drifting apart.
+    # Plugin configs that select "D" lint `scripts src` only, which is why
+    # test files accumulated 298 violations nothing was watching.
+    "D202",  # no-blank-line-after-function-docstring
+    "D209",  # multi-line docstring closing quotes on their own line
 ]
 extend-ignore = [
     "E501",  # Line too long (handled by formatter)
@@ -228,14 +269,12 @@ members = [
     "plugins/abstract",
     "plugins/leyline",
     "plugins/conserve",
-    "plugins/core"
 ]
 
 [tool.uv.sources]
 # Explicit workspace member configuration
 leyline = { workspace = true }
 conserve = { workspace = true }
-core = { workspace = true }
 
 [tool.bandit]
 exclude_dirs = [

@@ -579,3 +579,139 @@ class TestBrainstormSocraticWiring:
             "project-brainstorming no longer delegates to "
             "superpowers:brainstorming for the Socratic method"
         )
+
+
+class TestReviewMissionType:
+    """Feature: a first-class mission type for observational work.
+
+    Discussion #586: attune's four types all assume building from
+    artifacts in sequence. Review work (dogfooding, audits, feature
+    review) produces findings, not code, and the 2026-06-28 dogfooding
+    run only completed by leaning on directive overrides because state
+    detection would have selected `quickfix` from leftover build
+    artifacts.
+    """
+
+    _TYPES = MODULES_DIR / "mission-types.md"
+
+    @pytest.mark.bdd
+    def test_review_type_is_defined(self) -> None:
+        """Scenario: review is a documented type
+        Given the mission-types module
+        When its type definitions are read
+        Then `review` appears alongside the four build types
+        """
+        content = self._TYPES.read_text()
+        assert "### review" in content, (
+            "mission-types.md does not define a `review` mission type"
+        )
+
+    @pytest.mark.bdd
+    def test_review_declares_its_four_phases(self) -> None:
+        """Scenario: the phase sequence is stated
+        Given the review type definition
+        When its phases are read
+        Then scope, investigate, verify, and report are all named
+        """
+        content = self._TYPES.read_text()
+        section = content[content.index("### review") :]
+        section = section[: section.find("\n## ")]
+        for phase in ("scope", "investigate", "verify", "report"):
+            assert phase in section, (
+                f"the review type no longer declares its `{phase}` phase"
+            )
+
+    @pytest.mark.bdd
+    def test_review_is_intent_detected_not_artifact_detected(self) -> None:
+        """Scenario: detection runs before the artifact ladder
+        Given the auto-detection logic
+        When the review branch is read
+        Then it is checked before the implementation-plan branch
+
+        Artifact detection cannot distinguish "audit this" from "build
+        this": both run in a tree full of build artifacts. Review is
+        selected from request intent, so its check must come first or
+        leftover artifacts silently win.
+        """
+        content = self._TYPES.read_text()
+        detect = content[content.index("function detect_mission_type") :]
+        detect = detect[: detect.index("```", 10)]
+        review_at = detect.find("review")
+        plan_at = detect.find("implementation-plan.md")
+        assert review_at != -1, "detect_mission_type never returns `review`"
+        assert review_at < plan_at, (
+            "the review branch runs after artifact detection, so a stale "
+            "implementation-plan.md would select quickfix for audit work"
+        )
+
+    @pytest.mark.bdd
+    def test_review_names_its_output_artifact(self) -> None:
+        """Scenario: the report has a canonical home
+        Given the review type definition
+        When its output is read
+        Then it names a path under reports/
+        """
+        content = self._TYPES.read_text()
+        assert "reports/" in content, (
+            "the review type does not name a canonical output path"
+        )
+
+    @pytest.mark.bdd
+    def test_review_states_the_war_room_gate_does_not_apply(self) -> None:
+        """Scenario: the plan-review gate is scoped out
+        Given the review type definition
+        When its interaction with the war-room gate is read
+        Then it says the gate does not apply
+
+        The mandatory war-room gate guards the plan-to-execute
+        transition. A review mission never executes, so leaving the
+        question open would strand the mission at a gate with no
+        matching phase.
+        """
+        content = self._TYPES.read_text().lower()
+        assert "war-room" in content or "war room" in content, (
+            "the review type does not say how it interacts with the war-room gate"
+        )
+
+    @pytest.mark.bdd
+    def test_skill_hub_lists_review_in_the_type_table(self) -> None:
+        """Scenario: the hub advertises the type
+        Given the mission-orchestrator SKILL.md
+        When its mission type table is read
+        Then `review` is listed
+        """
+        content = SKILL_FILE.read_text()
+        assert "`review`" in content, "SKILL.md's mission type table omits `review`"
+
+    @pytest.mark.bdd
+    def test_skill_hub_maps_review_phases_to_skills(self) -> None:
+        """Scenario: each review phase routes to a real skill
+        Given the phase-to-skill mapping
+        When the review phases are read
+        Then each names a skill that exists in the ecosystem
+        """
+        content = SKILL_FILE.read_text()
+        for skill in (
+            "Skill(pensive:tiered-audit)",
+            "Skill(imbue:feature-review)",
+            "Skill(imbue:proof-of-work)",
+            "Skill(imbue:structured-output)",
+        ):
+            assert skill in content, (
+                f"the review phase mapping does not route to {skill}"
+            )
+
+    @pytest.mark.bdd
+    def test_command_documents_the_review_type(self) -> None:
+        """Scenario: /attune:mission advertises the type
+        Given the mission command
+        When its mission types table is read
+        Then `review` is listed with its phases
+        """
+        command = (
+            Path(__file__).resolve().parent.parent.parent.parent
+            / "commands"
+            / "mission.md"
+        )
+        content = command.read_text()
+        assert "review" in content, "mission.md omits the review type"

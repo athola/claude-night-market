@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pensive"
-version = "1.9.17"
+version = "1.9.18"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
@@ -44,7 +44,7 @@ dev = [
     "ruff>=0.14.13",
     "mypy>=1.11.0,<2",
     "pre-commit>=4.0.0",
-    "safety>=2.0.0",
+    "safety>=3.7.0,<4.0",
     "types-PyYAML>=6.0.0",
 ]
 

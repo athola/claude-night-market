@@ -109,15 +109,24 @@ def verify_log_file(log_dir: Path) -> bool:
 
 
 @pytest.mark.integration
-def test_full_dual_hook_with_metrics() -> None:
-    """Test PreToolUse + PostToolUse with continual metrics calculation."""
+def test_full_dual_hook_with_metrics(isolate_claude_home: Path) -> None:
+    """Test PreToolUse + PostToolUse with continual metrics calculation.
+
+    The log directory is resolved from the ``isolate_claude_home`` fixture
+    rather than ``Path.home()``. That fixture exports ``CLAUDE_HOME`` so the
+    hook subprocesses write into an isolated tree, and the hook honours it,
+    so an assertion anchored on the real ``~/.claude`` reads a directory
+    nothing in this test ever writes to. It then passes or fails on whether
+    an unrelated log happens to exist for today's UTC date, which is how it
+    passed until the real store's newest file aged past midnight.
+    """
     assert PRE_HOOK.exists(), f"hook missing at {PRE_HOOK}"
 
     print("Testing Dual-Hook Continual Metrics System")
     print("=" * 70)
 
     skill_ref = "abstract:skill-auditor"
-    log_dir = Path.home() / ".claude" / "skills" / "logs" / "abstract" / "skill-auditor"
+    log_dir = isolate_claude_home / "skills" / "logs" / "abstract" / "skill-auditor"
 
     # Run 5 iterations to build up history
     for i in range(5):

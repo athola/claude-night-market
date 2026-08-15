@@ -30,8 +30,10 @@ from memory_palace.corpus.index_promoter import (
     Proposal,
     apply_orphan_prunes,
     apply_promotions,
+    apply_title_repairs,
     propose_orphan_prunes,
     propose_promotions,
+    propose_title_repairs,
 )
 
 
@@ -630,3 +632,151 @@ class TestCorpusAbsenceRefusesMassPrune:
         }
         proposals = propose_promotions(index, empty_plugin_root)
         assert [p.action for p in proposals if p.action == "archive"] == []
+
+
+class TestProposeTitleRepairs:
+    """Feature: repair titles the extractor should never have stored.
+
+    #621 and #624 fixed the extractor, but a fix to the extractor only
+    governs future captures. 59 of the 929 titles already committed
+    still fail the repaired filter. The repair re-derives them from the
+    stored URL, which is exactly what the extractor's own fallback
+    would have produced had the filter been right at capture time.
+    """
+
+    @pytest.mark.unit
+    def test_junk_title_is_proposed_for_repair(self) -> None:
+        """Given a list-fragment title, propose the URL-derived title."""
+        index = {
+            "entries": {
+                "https://docs.example.com/user-guide": _entry(
+                    title="- A loading state",
+                    url="https://docs.example.com/user-guide",
+                )
+            }
+        }
+        proposals = propose_title_repairs(index)
+        assert len(proposals) == 1
+        assert proposals[0].action == "retitle"
+        assert proposals[0].changes["title"] == "User Guide"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "junk",
+        [
+            "Based on the repository data provided:",
+            "Response",
+            "1. A readable version of the document, or",
+            "3. **Color swatches** - CMYK color definitions",
+        ],
+    )
+    def test_every_live_junk_shape_is_caught(self, junk: str) -> None:
+        """Given each junk shape seen in the live index, propose a repair."""
+        index = {
+            "entries": {
+                "https://docs.example.com/user-guide": _entry(
+                    title=junk, url="https://docs.example.com/user-guide"
+                )
+            }
+        }
+        assert len(propose_title_repairs(index)) == 1
+
+    @pytest.mark.unit
+    def test_good_title_is_left_alone(self) -> None:
+        """Given a real title, propose nothing."""
+        index = {
+            "entries": {
+                "https://docs.example.com/user-guide": _entry(
+                    title="Python Async Patterns",
+                    url="https://docs.example.com/user-guide",
+                )
+            }
+        }
+        assert propose_title_repairs(index) == []
+
+    @pytest.mark.unit
+    def test_entry_whose_url_yields_no_better_title_is_skipped(self) -> None:
+        """Given a URL with no usable slug, leave the entry alone.
+
+        Replacing junk with a bare hostname is not an improvement, and
+        churning the index for no gain is what #605 objects to.
+        """
+        index = {
+            "entries": {
+                "https://example.com": _entry(
+                    title="Response", url="https://example.com"
+                )
+            }
+        }
+        assert propose_title_repairs(index) == []
+
+    @pytest.mark.unit
+    def test_missing_url_is_skipped_not_crashed(self) -> None:
+        """Given an entry with no URL, skip it rather than fail."""
+        index = {"entries": {"k": {"title": "Response"}}}
+        assert propose_title_repairs(index) == []
+
+
+class TestApplyTitleRepairs:
+    """Feature: applying repairs is atomic and idempotent."""
+
+    def _index_file(self, tmp_path: Path, title: str) -> Path:
+        path = tmp_path / "memory-palace-index.yaml"
+        path.write_text(
+            yaml.safe_dump(
+                {
+                    "entries": {
+                        "https://docs.example.com/user-guide": _entry(
+                            title=title,
+                            url="https://docs.example.com/user-guide",
+                        )
+                    }
+                }
+            )
+        )
+        return path
+
+    @pytest.mark.unit
+    def test_apply_rewrites_the_title(self, tmp_path: Path) -> None:
+        """Given a junk title on disk, apply writes the repaired one."""
+        path = self._index_file(tmp_path, "- A loading state")
+        index = yaml.safe_load(path.read_text())
+        result = apply_title_repairs(index, propose_title_repairs(index), path)
+        assert result.applied == 1
+        written = yaml.safe_load(path.read_text())
+        entry = written["entries"]["https://docs.example.com/user-guide"]
+        assert entry["title"] == "User Guide"
+
+    @pytest.mark.unit
+    def test_apply_is_idempotent(self, tmp_path: Path) -> None:
+        """Given an already-repaired index, a second pass changes nothing."""
+        path = self._index_file(tmp_path, "- A loading state")
+        index = yaml.safe_load(path.read_text())
+        apply_title_repairs(index, propose_title_repairs(index), path)
+
+        reloaded = yaml.safe_load(path.read_text())
+        assert propose_title_repairs(reloaded) == []
+
+    @pytest.mark.unit
+    def test_apply_leaves_a_backup(self, tmp_path: Path) -> None:
+        """Given a repair, the pre-repair index is recoverable."""
+        path = self._index_file(tmp_path, "- A loading state")
+        index = yaml.safe_load(path.read_text())
+        result = apply_title_repairs(index, propose_title_repairs(index), path)
+        assert result.backup_path.exists()
+        backed_up = yaml.safe_load(result.backup_path.read_text())
+        entry = backed_up["entries"]["https://docs.example.com/user-guide"]
+        assert entry["title"] == "- A loading state"
+
+    @pytest.mark.unit
+    def test_apply_preserves_other_fields(self, tmp_path: Path) -> None:
+        """Given a repair, only the title changes."""
+        path = self._index_file(tmp_path, "- A loading state")
+        index = yaml.safe_load(path.read_text())
+        before = copy.deepcopy(index)
+        apply_title_repairs(index, propose_title_repairs(index), path)
+        written = yaml.safe_load(path.read_text())
+        key = "https://docs.example.com/user-guide"
+        for field_name, value in before["entries"][key].items():
+            if field_name != "title":
+                assert written["entries"][key][field_name] == value

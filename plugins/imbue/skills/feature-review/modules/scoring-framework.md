@@ -307,7 +307,7 @@ def priority_sensitivity_analysis(features, weights, variation=0.20):
 
             sensitivity[factor] = {
                 "avg_correlation": (correlation_plus + correlation_minus) / 2,
-                "sensitive": correlation_plus < 0.8 or correlation_minus < 0.8
+                "sensitive": correlation_plus < 0.8 or correlation_minus < 0.8,
             }
 
     return sensitivity

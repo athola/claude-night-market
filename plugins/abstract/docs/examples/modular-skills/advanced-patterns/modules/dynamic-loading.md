@@ -28,12 +28,12 @@ tools: [provider-selector, compliance-checker, cost-estimator]
 # Example: scripts/provider-selector.py
 def select_provider(context):
     """Intelligently select cloud provider based on context"""
-    if context.get('compliance_level') == 'government':
-        return 'aws'  # GovCloud support
-    elif context.get('workload_type') == 'ml':
-        return 'gcp'  # ML capabilities
-    elif context.get('existing_ms') == True:
-        return 'azure'  # Microsoft integration
+    if context.get("compliance_level") == "government":
+        return "aws"  # GovCloud support
+    elif context.get("workload_type") == "ml":
+        return "gcp"  # ML capabilities
+    elif context.get("existing_ms") == True:
+        return "azure"  # Microsoft integration
     else:
         return analyze_cost_performance(context)
 ```

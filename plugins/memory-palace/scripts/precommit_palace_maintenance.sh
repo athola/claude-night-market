@@ -5,8 +5,10 @@
 # any artifact that actually changed, so the commit reflects curated
 # state. All cycles are safe to run on every commit:
 #
-#   1. Capture-index drain  (promote + prune-orphans): idempotent;
-#      converges to a fixed point, so quiet commits are a no-op.
+#   1. Capture-index drain  (promote + prune-orphans + retitle):
+#      idempotent; converges to a fixed point, so quiet commits are a
+#      no-op. Retitle repairs entries whose stored title is not a title
+#      (#624); a repaired title is proposed no further, so it settles.
 #   2. Vitality refresh     (time-based decay): decays by elapsed days
 #      since last recompute, so a burst of same-day commits adds ~0
 #      decay while a post-gap commit decays proportionally.
@@ -43,6 +45,8 @@ queue_before=$(hash_of "${QUEUE}")
     uv run --quiet python scripts/memory_palace_cli.py index promote --apply --top 0 \
       >/dev/null
     uv run --quiet python scripts/memory_palace_cli.py index prune-orphans --apply --top 0 \
+      >/dev/null
+    uv run --quiet python scripts/memory_palace_cli.py index retitle --apply --top 0 \
       >/dev/null
   fi
   uv run --quiet python scripts/update_vitality_scores.py >/dev/null

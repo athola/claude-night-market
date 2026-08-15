@@ -59,15 +59,9 @@ def isolate_tests(tmp_path: Path, monkeypatch):
 
 def pytest_configure(config):
     """Configure custom pytest markers."""
-    config.addinivalue_line(
-        "markers", "unit: Mark test as unit test"
-    )
-    config.addinivalue_line(
-        "markers", "integration: Mark test as integration test"
-    )
-    config.addinivalue_line(
-        "markers", "slow: Mark test as slow running"
-    )
+    config.addinivalue_line("markers", "unit: Mark test as unit test")
+    config.addinivalue_line("markers", "integration: Mark test as integration test")
+    config.addinivalue_line("markers", "slow: Mark test as slow running")
 ```
 
 ## Sample Data Fixtures

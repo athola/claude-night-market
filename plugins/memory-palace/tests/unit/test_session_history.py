@@ -19,7 +19,9 @@ from memory_palace.session_history import (
     SessionHistoryManager,
     SessionQuery,
     SessionRecord,
+    SessionUnit,
     _validate_session_id,
+    merge_handoff_units,
 )
 
 # ---------------------------------------------------------------------------
@@ -909,3 +911,171 @@ class TestSessionIdSanitization:
         assert _validate_session_id("_start") is False
         assert _validate_session_id("has space") is False
         assert _validate_session_id("a/../b") is False
+
+
+# --- Typed handoff units ----------------------------------------------------
+# A session that ends mid-decision must carry the state of thinking forward,
+# not a binary open/closed marker. Units are typed so that a durable finding
+# and the transient state-change that produced it can age on separate curves.
+
+
+class TestSessionUnit:
+    """Feature: A handoff unit validates its own type vocabulary."""
+
+    def test_valid_unit_constructs(self) -> None:
+        """A unit with a known type and non-empty thread is accepted."""
+        unit = SessionUnit(
+            thread="Decay curve per unit type",
+            type="decision",
+            date="2026-08-13",
+            state="Chose type-keyed curves over a single maturity curve.",
+        )
+        assert unit.type == "decision"
+
+    def test_unknown_type_rejected(self) -> None:
+        """An unknown type is a TypeError, matching loader expectations.
+
+        Both session-store loaders catch (JSONDecodeError, KeyError,
+        TypeError). Raising TypeError means a corrupt stored unit degrades
+        the same way every other malformed record already does.
+        """
+        with pytest.raises(TypeError):
+            SessionUnit(thread="t", type="observation", date="2026-08-13", state="s")
+
+    def test_empty_thread_rejected(self) -> None:
+        """A unit with no thread label cannot be matched or superseded."""
+        with pytest.raises(TypeError):
+            SessionUnit(thread="", type="finding", date="2026-08-13", state="s")
+
+    def test_round_trip_preserves_all_seven_fields(self) -> None:
+        """Thread, Type, Date, State, Why, Open, Ref all survive storage."""
+        unit = SessionUnit(
+            thread="Retrieval ranking",
+            type="open-thread",
+            date="2026-08-13",
+            state="Semantic-only ranking surfaces stale decisions.",
+            why="Similarity alone cannot express that a decision was revised.",
+            open="Where the decay weight is computed.",
+            ref="Session 12",
+        )
+        restored = SessionUnit.from_dict(unit.to_dict())
+        assert restored == unit
+
+
+class TestSessionRecordHandoffUnits:
+    """Feature: Units ride along with the session record."""
+
+    def test_defaults_to_empty_list(self) -> None:
+        """A record built without units exposes an empty list, not None."""
+        assert (
+            SessionRecord(
+                session_id="s1", started_at="2026-08-13T00:00:00Z"
+            ).handoff_units
+            == []
+        )
+
+    def test_legacy_record_without_units_loads(self) -> None:
+        """Records written before the field existed still load."""
+        legacy = {"session_id": "s-legacy", "started_at": "2026-01-01T00:00:00Z"}
+        assert SessionRecord.from_dict(legacy).handoff_units == []
+
+    def test_from_dict_rebuilds_unit_objects(self) -> None:
+        """Stored unit dicts come back as SessionUnit, not raw dicts."""
+        raw = {
+            "session_id": "s2",
+            "started_at": "2026-08-13T00:00:00Z",
+            "handoff_units": [
+                {
+                    "thread": "Recall trigger",
+                    "type": "decision",
+                    "date": "2026-08-13",
+                    "state": "Build +recall now rather than defer.",
+                }
+            ],
+        }
+        rebuilt = SessionRecord.from_dict(raw)
+        assert isinstance(rebuilt.handoff_units[0], SessionUnit)
+        assert rebuilt.handoff_units[0].thread == "Recall trigger"
+
+
+class TestMergeHandoffUnits:
+    """Feature: Evolving state supersedes rather than duplicates.
+
+    The Stop hook fires repeatedly and record_session overwrites by
+    session_id, so a merge is what keeps captured units from being
+    erased on the next turn.
+    """
+
+    def _unit(self, thread: str, type_: str, state: str):
+
+        return SessionUnit(thread=thread, type=type_, date="2026-08-13", state=state)
+
+    def test_new_thread_is_appended(self) -> None:
+        """An unseen thread joins the list."""
+        existing = [self._unit("A", "finding", "first")]
+        merged = merge_handoff_units(existing, [self._unit("B", "state", "second")])
+        assert [u.thread for u in merged] == ["A", "B"]
+
+    def test_same_thread_and_type_is_superseded(self) -> None:
+        """A newer unit replaces the older one in place."""
+        existing = [self._unit("A", "finding", "old state")]
+        merged = merge_handoff_units(
+            existing, [self._unit("A", "finding", "new state")]
+        )
+        assert len(merged) == 1
+        assert merged[0].state == "new state"
+
+    def test_same_thread_different_type_kept_separately(self) -> None:
+        """The split rule survives the merge: two types, two units."""
+        existing = [self._unit("A", "finding", "tool behaves this way")]
+        merged = merge_handoff_units(
+            existing, [self._unit("A", "state", "wired it up")]
+        )
+        assert len(merged) == 2
+
+    def test_empty_incoming_preserves_existing(self) -> None:
+        """A Stop with nothing staged must not blank prior units.
+
+        This is the per-turn overwrite regression.
+        """
+        existing = [self._unit("A", "finding", "keep me")]
+        assert merge_handoff_units(existing, []) == existing
+
+
+class TestUnitDependencies:
+    """Feature: a unit declares what its claim rests on.
+
+    The writer knows which files a claim depends on; the reader cannot
+    infer it. Declaring them is the write-time validity assertion that
+    makes change-driven invalidation possible at all.
+    """
+
+    def test_files_defaults_to_empty(self) -> None:
+        """Scenario: declaring nothing is allowed."""
+        unit = SessionUnit(thread="t", type="finding", date="2026-08-13", state="s")
+        assert unit.files == []
+        assert unit.file_digests == {}
+
+    def test_declared_files_round_trip(self) -> None:
+        """Scenario: dependencies and fingerprints survive storage."""
+        unit = SessionUnit(
+            thread="Recall weighting",
+            type="finding",
+            date="2026-08-13",
+            state="Weights multiply into the similarity score.",
+            files=["src/memory_palace/corpus/embedding_index.py"],
+            file_digests={"src/memory_palace/corpus/embedding_index.py": "abc123"},
+        )
+        restored = SessionUnit.from_dict(unit.to_dict())
+        assert restored.files == unit.files
+        assert restored.file_digests == unit.file_digests
+
+    def test_legacy_unit_without_dependencies_loads(self) -> None:
+        """Scenario: units captured before this field existed still load."""
+        legacy = {
+            "thread": "t",
+            "type": "state",
+            "date": "2026-08-13",
+            "state": "s",
+        }
+        assert SessionUnit.from_dict(legacy).files == []

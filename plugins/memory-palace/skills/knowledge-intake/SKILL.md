@@ -334,15 +334,14 @@ from memory_palace.corpus import MarginalValueFilter
 
 # Initialize filter with corpus and index directories
 filter = MarginalValueFilter(
-    corpus_dir="docs/knowledge-corpus",
-    index_dir="docs/knowledge-corpus/indexes"
+    corpus_dir="docs/knowledge-corpus", index_dir="docs/knowledge-corpus/indexes"
 )
 
 # Evaluate new content
 redundancy, delta, integration = filter.evaluate_content(
     content=article_text,
     title="Structured Concurrency in Python",
-    tags=["async", "concurrency", "python"]
+    tags=["async", "concurrency", "python"],
 )
 
 # Get human-readable explanation
@@ -481,8 +480,7 @@ from memory_palace.corpus import KnowledgeOrchestrator, UsageSignal
 
 # Initialize orchestrator
 orchestrator = KnowledgeOrchestrator(
-    corpus_dir="docs/knowledge-corpus",
-    index_dir="docs/knowledge-corpus/indexes"
+    corpus_dir="docs/knowledge-corpus", index_dir="docs/knowledge-corpus/indexes"
 )
 
 # Record usage events
@@ -509,12 +507,10 @@ source = SourceReference(
     source_id="src-1",
     source_type=SourceType.DOCUMENTATION,
     url="https://docs.example.com/api",
-    title="API Documentation"
+    title="API Documentation",
 )
 entry_id, decision = orchestrator.ingest_with_lineage(
-    content="# API Reference\n...",
-    title="API Documentation",
-    source=source
+    content="# API Reference\n...", title="API Documentation", source=source
 )
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
@@ -530,9 +526,7 @@ filter = MarginalValueFilter(corpus_dir, index_dir)
 
 # Evaluate with RL signal emission
 redundancy, delta, integration, rl_signal = filter.evaluate_with_rl(
-    content=article_text,
-    title="New Article",
-    tags=["python", "async"]
+    content=article_text, title="New Article", tags=["python", "async"]
 )
 
 # RL signal contains:

@@ -92,7 +92,8 @@ class TestMain:
     @pytest.mark.unit
     def test_outdated_advisory_exits_zero_with_notice(self, monkeypatch, capsys):
         """Given locked behind latest and advisory mode,
-        Then exit 0 with an actionable notice on stderr."""
+        Then exit 0 with an actionable notice on stderr.
+        """
         monkeypatch.setattr(crv, "locked_version", lambda: "0.14.13")
         monkeypatch.setattr(crv, "latest_version", lambda: "0.15.20")
         monkeypatch.setattr(crv, "OUTDATED_IS_BLOCKING", False)

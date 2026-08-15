@@ -161,7 +161,7 @@ execution_mode = {
     "auto_continue": False,
     "source_command": None,
     "remaining_tasks": [],
-    "dangerous_mode": False
+    "dangerous_mode": False,
 }
 
 # Check for dangerous/unattended mode indicators

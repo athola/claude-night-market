@@ -30,6 +30,7 @@ Fixtures provide reusable setup and teardown logic:
 import pytest
 from typing import Generator
 
+
 @pytest.fixture
 def db_session() -> Generator[Session, None, None]:
     """Fixture that provides database session."""
@@ -38,6 +39,7 @@ def db_session() -> Generator[Session, None, None]:
     yield session
     session.rollback()
     session.close()
+
 
 def test_user_creation(db_session):
     user = User(name="Test")
@@ -55,9 +57,11 @@ Verify: Run `pytest tests/test_fixtures.py -v` to confirm fixtures handle setup/
 def user():
     return User(name="Test")
 
+
 @pytest.fixture(scope="class")  # Shared across test class
 def api_client():
     return APIClient()
+
 
 @pytest.fixture(scope="module")  # Shared across module
 def database():
@@ -65,6 +69,7 @@ def database():
     db.connect()
     yield db
     db.disconnect()
+
 
 @pytest.fixture(scope="session")  # Once per test session
 def app_config():
@@ -76,13 +81,16 @@ def app_config():
 Test multiple inputs efficiently:
 
 ```python
-@pytest.mark.parametrize("email,is_valid", [
-    ("user@example.com", True),
-    ("test.user@domain.co.uk", True),
-    ("invalid.email", False),
-    ("@example.com", False),
-    ("", False),
-])
+@pytest.mark.parametrize(
+    "email,is_valid",
+    [
+        ("user@example.com", True),
+        ("test.user@domain.co.uk", True),
+        ("invalid.email", False),
+        ("@example.com", False),
+        ("", False),
+    ],
+)
 def test_email_validation(email, is_valid):
     assert validate_email(email) == is_valid
 ```
@@ -90,11 +98,14 @@ def test_email_validation(email, is_valid):
 ### Multiple Parameters
 
 ```python
-@pytest.mark.parametrize("input_value,expected", [
-    (0, "zero"),
-    (1, "one"),
-    (5, "many"),
-])
+@pytest.mark.parametrize(
+    "input_value,expected",
+    [
+        (0, "zero"),
+        (1, "one"),
+        (5, "many"),
+    ],
+)
 @pytest.mark.parametrize("locale", ["en", "es", "fr"])
 def test_number_formatting(input_value, expected, locale):
     result = format_number(input_value, locale)
@@ -107,6 +118,7 @@ Mock external services and APIs:
 
 ```python
 from unittest.mock import Mock, patch
+
 
 @patch("requests.get")
 def test_api_client(mock_get):
@@ -159,11 +171,13 @@ def admin_user(db_session):
     db_session.flush()
     return user
 
+
 @pytest.fixture
 def authenticated_client(admin_user):
     client = APIClient()
     client.authenticate(admin_user)
     return client
+
 
 def test_admin_endpoint(authenticated_client):
     response = authenticated_client.get("/admin/users")

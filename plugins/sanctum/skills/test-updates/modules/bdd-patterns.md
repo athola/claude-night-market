@@ -75,19 +75,21 @@ Feature: Git Workflow Management
 #### Step Definitions
 
 ```python
-@given('a git repository with staged changes')
+@given("a git repository with staged changes")
 def step_given_git_repo_with_changes(context):
     context.repo = create_test_repo()
-    context.repo.stage_changes(['file1.py', 'file2.py'])
+    context.repo.stage_changes(["file1.py", "file2.py"])
 
-@when('I run the commit workflow')
+
+@when("I run the commit workflow")
 def step_when_run_commit_workflow(context):
     context.result = run_commit_workflow(context.repo)
 
-@then('a commit should be created with proper message')
+
+@then("a commit should be created with proper message")
 def step_then_commit_created(context):
     assert context.repo.has_commit()
-    assert context.repo.last_commit_message().startswith('feat:')
+    assert context.repo.last_commit_message().startswith("feat:")
 ```
 
 #### When to Use
@@ -120,7 +122,7 @@ class TestGitWorkflow:
         """
         # Given
         repo = create_git_repo()
-        repo.stage_changes(['feature.py'])
+        repo.stage_changes(["feature.py"])
 
         # When
         result = run_commit_workflow(repo)
@@ -128,7 +130,7 @@ class TestGitWorkflow:
         # Then
         assert result.success is True
         assert repo.has_commit()
-        assert repo.last_commit_message().startswith('feat:')
+        assert repo.last_commit_message().startswith("feat:")
 
     @pytest.mark.bdd
     def test_commit_workflow_rejects_empty_changes(self):
@@ -188,9 +190,9 @@ def test_git_status_parsing():
 
     result = parse_git_status(status_output)
 
-    assert 'modified_file.py' in result.modified
-    assert 'added_file.py' in result.added
-    assert 'untracked_file.py' in result.untracked
+    assert "modified_file.py" in result.modified
+    assert "added_file.py" in result.added
+    assert "untracked_file.py" in result.untracked
 ```
 
 #### Best Practices

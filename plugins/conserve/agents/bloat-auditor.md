@@ -57,17 +57,18 @@ Orchestrates progressive bloat detection from quick heuristic scans to deep stat
 ```python
 def execute_scan(config):
     findings = []
-    findings.extend(run_quick_scan(config))       # Tier 1
+    findings.extend(run_quick_scan(config))  # Tier 1
     findings.extend(run_git_analysis(config))
 
-    if config['level'] >= 2 and tools_available():
+    if config["level"] >= 2 and tools_available():
         findings.extend(run_static_analysis(config))
         findings.extend(run_doc_bloat_analysis(config))
 
-    if config['level'] >= 3:
+    if config["level"] >= 3:
         findings.extend(run_cross_file_analysis(config))
 
     return prioritize_findings(findings)
+
 
 def prioritize_findings(findings):
     for f in findings:

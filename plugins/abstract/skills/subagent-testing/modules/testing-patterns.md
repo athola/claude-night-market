@@ -430,6 +430,7 @@ Usage:
     python run_skill_tests.py --phase rationalization --adversarial
 """
 
+
 def run_baseline_tests(scenarios_dir):
     """
     Generate test prompts for baseline testing.
@@ -437,11 +438,13 @@ def run_baseline_tests(scenarios_dir):
     """
     pass
 
+
 def analyze_results(test_results_dir):
     """
     Parse test results and generate compliance reports.
     """
     pass
+
 
 def compare_baseline_vs_skill(baseline_dir, with_skill_dir):
     """
@@ -454,8 +457,7 @@ def compare_baseline_vs_skill(baseline_dir, with_skill_dir):
 ### Compliance Calculator
 
 ```python
-def calculate_compliance(requirements: list[str],
-                        met_requirements: list[str]) -> dict:
+def calculate_compliance(requirements: list[str], met_requirements: list[str]) -> dict:
     """
     Calculate compliance metrics.
 
@@ -475,11 +477,11 @@ def calculate_compliance(requirements: list[str],
     missing = [r for r in requirements if r not in met_requirements]
 
     return {
-        'total': total,
-        'met': met,
-        'missed': missed,
-        'percentage': (met / total * 100) if total > 0 else 0,
-        'missing': missing
+        "total": total,
+        "met": met,
+        "missed": missed,
+        "percentage": (met / total * 100) if total > 0 else 0,
+        "missing": missing,
     }
 ```
 

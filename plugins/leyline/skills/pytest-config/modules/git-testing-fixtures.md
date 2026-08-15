@@ -36,7 +36,9 @@ class GitRepository:
 
     def config(self, key: str, value: str) -> None:
         """Set Git configuration."""
-        subprocess.run(self.git_cmd + ["config", key, value], check=True, capture_output=True)
+        subprocess.run(
+            self.git_cmd + ["config", key, value], check=True, capture_output=True
+        )
 
     def add_file(self, file_path: str, content: str = "") -> Path:
         """Add a file to the repository."""
@@ -47,9 +49,15 @@ class GitRepository:
 
     def commit(self, message: str = "Test commit") -> str:
         """Create a commit."""
-        subprocess.run(self.git_cmd + ["commit", "-m", message], check=True, capture_output=True)
-        result = subprocess.run(self.git_cmd + ["rev-parse", "HEAD"],
-                               check=True, capture_output=True, text=True)
+        subprocess.run(
+            self.git_cmd + ["commit", "-m", message], check=True, capture_output=True
+        )
+        result = subprocess.run(
+            self.git_cmd + ["rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
         return result.stdout.strip()
 ```
 

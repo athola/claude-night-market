@@ -429,4 +429,4 @@ confirm):
 - `Skill(sanctum:validate-pr)` - Diff-derived test plan and revert-test quality checks
 - `Skill(sanctum:stack-mode)` - Shared multi-PR stack iteration contract
 - `Skill(sanctum:stack-create)` / `stack-push` / `stack-rebase` - Stack lifecycle primitives
-- **Attune Workflow**: `plugins/attune/commands/attune.md`
+- **Attune Workflow**: `plugins/attune/commands/mission.md`

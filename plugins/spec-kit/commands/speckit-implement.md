@@ -1,6 +1,6 @@
 ---
 description: Execute the implementation plan by processing all tasks from tasks.md
-argument-hint: "Path to tasks.md or task ID"
+argument-hint: "Optional context to focus the implementation run"
 ---
 
 Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:executing-plans` and `superpowers:systematic-debugging` for enhanced implementation capabilities.

@@ -75,10 +75,16 @@ test: ## Run tests in all plugins AND the root ecosystem suite
 # a trigger and a boundary, and that plugin packages still import from the repo
 # root. It sat in no gate at all, so 75 of its assertions failed for months
 # without anyone hearing about it. It is part of `make test` now.
+#
+# --extra dev, because the suite asserts on the toolchain the lint gates run:
+# tests/test_ruff_does_not_format_markdown.py shells out to `python -m ruff`,
+# and ruff is an optional extra that plain `uv run` does not install. Without
+# it the tool was simply absent in CI, which reads as "ruff changed nothing"
+# and passed one test vacuously while failing another with the wrong cause.
 test-ecosystem: ## Run the root ecosystem suite (tests/): cross-plugin metadata gates
 	@echo ""
 	@echo ">>> Running root ecosystem tests (tests/)..."
-	@./scripts/without-git-env.sh uv run python -m pytest tests/ --tb=short --quiet
+	@./scripts/without-git-env.sh uv run --extra dev python -m pytest tests/ --tb=short --quiet
 
 lint: ## Run linting on all plugins (ALL code, not just changed)
 	@echo "=== Running Lint on ALL Code ==="
@@ -160,6 +166,18 @@ docs-sync-check: ## Verify capabilities docs match plugin registrations
 
 check-json-utils: ## Verify inlined JSON utilities match scripts/shared/json_utils.sh
 	@bash scripts/shared/check-json-utils-drift.sh
+
+# Needs network and an authenticated `gh`, so it is not in `make test`
+# or the pre-commit hook. Run it before a release, or after landing work
+# that carries an Addresses-Discussion trailer.
+check-discussions: ## Reconcile the Discussions board against the commit log
+	@uv run python scripts/reconcile_discussions.py
+
+writeback-discussions: ## Post resolution comments for trailered findings
+	@uv run python scripts/reconcile_discussions.py --apply --dry-run
+	@echo ""
+	@echo "Dry run only. Re-run without --dry-run in the script to post:"
+	@echo "  uv run python scripts/reconcile_discussions.py --apply"
 
 # ---------- Skrills binary (plugin bin/ support, v2.1.91+) ----------
 

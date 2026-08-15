@@ -16,6 +16,7 @@ Implement `__aenter__` and `__aexit__` for async resource management.
 ```python
 import asyncio
 
+
 class AsyncDatabaseConnection:
     def __init__(self, dsn: str):
         self.dsn = dsn
@@ -32,6 +33,7 @@ class AsyncDatabaseConnection:
         await asyncio.sleep(0.1)  # Simulate cleanup
         self.connection = None
 
+
 async def query_database():
     async with AsyncDatabaseConnection("postgresql://localhost") as conn:
         print(f"Using connection: {conn}")
@@ -46,14 +48,16 @@ Use `async for` to iterate over asynchronous data sources.
 ```python
 from typing import AsyncIterator
 
+
 async def fetch_pages(url: str, max_pages: int) -> AsyncIterator[dict]:
     for page in range(1, max_pages + 1):
         await asyncio.sleep(0.2)  # Simulate API call
         yield {
             "page": page,
             "url": f"{url}?page={page}",
-            "data": [f"item_{page}_{i}" for i in range(5)]
+            "data": [f"item_{page}_{i}" for i in range(5)],
         }
+
 
 async def consume_pages():
     async for page_data in fetch_pages("https://api.example.com", 3):
@@ -67,6 +71,7 @@ Decouple producers and consumers using async queues.
 ```python
 from asyncio import Queue
 
+
 async def producer(queue: Queue, producer_id: int, num_items: int):
     for i in range(num_items):
         item = f"Item-{producer_id}-{i}"
@@ -74,6 +79,7 @@ async def producer(queue: Queue, producer_id: int, num_items: int):
         print(f"Producer {producer_id}: {item}")
         await asyncio.sleep(0.1)
     await queue.put(None)  # Signal completion
+
 
 async def consumer(queue: Queue, consumer_id: int):
     while True:

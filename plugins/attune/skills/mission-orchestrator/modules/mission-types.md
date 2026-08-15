@@ -45,11 +45,44 @@ estimated_tokens: 200
 
 **Auto-detected when**: `docs/implementation-plan.md` exists.
 
+### review
+
+**Phases**: scope → investigate → verify → report
+
+**Use when**: The work is observational rather than constructive.
+Dogfooding the ecosystem, auditing a subsystem, or reviewing an
+existing feature. The deliverable is findings with evidence, not
+implemented code.
+
+**Auto-detected when**: The request names existing software to review,
+audit, or dogfood rather than a new artifact to build. This is the one
+type selected from request intent instead of from artifacts, so its
+check runs before the artifact ladder below.
+
+**Output**: `reports/<topic>-<YYYY-MM-DD>.md`, a findings-and-recommendations
+report with evidence references. No build artifact is required as input
+and none is produced.
+
+**War-room gate**: does not apply. The mandatory war-room approval in
+`plan-review.md` guards the plan-to-execute transition, and a review
+mission never plans or executes. Gating it there would strand the
+mission at a checkpoint with no matching phase. Directive overrides
+("ignore scope guard", "ultrathink") apply as they do elsewhere.
+
+**Reuses**: `imbue:feature-review` for scoring, the `pensive:*` review
+skills for domain lenses, and `imbue:proof-of-work` for the evidence
+bar. The orchestrator adds sequencing, not new review logic.
+
 ## Auto-Detection Logic
 
 ```
-function detect_mission_type():
-    if exists("docs/implementation-plan.md"):
+function detect_mission_type(request):
+    # Intent first. A tree full of build artifacts looks identical
+    # whether the ask is "ship this" or "audit this", so artifact
+    # detection cannot distinguish them. Issue: discussion #586.
+    if request_is_observational(request):
+        return "review"
+    elif exists("docs/implementation-plan.md"):
         return "quickfix"
     elif exists("docs/specification.md"):
         return "tactical"
@@ -59,7 +92,12 @@ function detect_mission_type():
         return "full"
 ```
 
-**Priority**: Later artifacts take precedence. If both a brief and a spec exist, the type is `tactical` (because the spec is a more advanced artifact).
+`request_is_observational` matches asks to review, audit, dogfood,
+assess, or evaluate existing software, as opposed to asks to build,
+add, implement, or fix. When the wording is genuinely ambiguous, the
+orchestrator surfaces both candidates rather than guessing.
+
+**Priority**: Among the build types, later artifacts take precedence. If both a brief and a spec exist, the type is `tactical` (because the spec is a more advanced artifact).
 
 **Quality check**: Existence alone is not sufficient. The artifact must be non-empty and contain expected sections. See `state-detection.md` for validation rules.
 
@@ -79,6 +117,9 @@ Users can override auto-detection:
 
 # Execute existing plan
 /attune:mission --type quickfix
+
+# Audit or dogfood without building anything
+/attune:mission --type review
 ```
 
 ## Custom Phase Sequences
@@ -93,7 +134,7 @@ For non-standard workflows, users can specify exact phases:
 /attune:mission --phases specify,plan
 ```
 
-**Validation**: Custom sequences must maintain phase order (brainstorm < specify < plan < execute). Out-of-order phases are rejected.
+**Validation**: Custom sequences must maintain phase order (brainstorm < specify < plan < execute). Out-of-order phases are rejected. Review phases (scope < investigate < verify < report) form their own ordered set and cannot be interleaved with build phases: a mission either builds or reviews.
 
 ## Type Selection Display
 

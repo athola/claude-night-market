@@ -23,10 +23,10 @@ The agent picks one silently and ships.
 **Bad shape**
 
 ```python
-def export_users(format='json'):
+def export_users(format="json"):
     users = User.query.all()
-    if format == 'json':
-        with open('users.json', 'w') as f:
+    if format == "json":
+        with open("users.json", "w") as f:
             json.dump([u.to_dict() for u in users], f)
 ```
 
@@ -98,9 +98,14 @@ class DiscountStrategy(ABC):
     @abstractmethod
     def calculate(self, amount: float) -> float: ...
 
+
 class PercentageDiscount(DiscountStrategy):
-    def __init__(self, p): self.p = p
-    def calculate(self, a): return a * (self.p / 100)
+    def __init__(self, p):
+        self.p = p
+
+    def calculate(self, a):
+        return a * (self.p / 100)
+
 
 # Plus FixedDiscount, DiscountConfig, DiscountCalculator
 # for what should be one function

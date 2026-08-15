@@ -14,7 +14,7 @@
     ],
     "SessionStart": [
       {
-        "_comment": "Resume egregore orchestration on session start",
+        "_comment": "Resume egregore orchestration on session start. Excludes fork and compact, which continue a conversation that already carries this banner. Excludes clear as well, a choice that predates the fork source and is left as found.",
         "matcher": "startup|resume",
         "hooks": [
           {

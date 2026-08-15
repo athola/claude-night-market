@@ -8,15 +8,15 @@ Available in all templates:
 
 ```python
 {
-    "PROJECT_NAME": "my-awesome-project",       # Project name with hyphens
-    "PROJECT_MODULE": "my_awesome_project",     # Python module name (underscores)
-    "AUTHOR": "Alex Thola",                     # Author name
-    "EMAIL": "alex@example.com",                # Author email
-    "PYTHON_VERSION": "3.12",                   # Python version (e.g., "3.12")
-    "PYTHON_VERSION_SHORT": "312",              # Short version (e.g., "312")
-    "LICENSE": "MIT",                           # License type
-    "DESCRIPTION": "A CLI tool",                # Short description
-    "YEAR": "2026",                             # Current year
+    "PROJECT_NAME": "my-awesome-project",  # Project name with hyphens
+    "PROJECT_MODULE": "my_awesome_project",  # Python module name (underscores)
+    "AUTHOR": "Alex Thola",  # Author name
+    "EMAIL": "alex@example.com",  # Author email
+    "PYTHON_VERSION": "3.12",  # Python version (e.g., "3.12")
+    "PYTHON_VERSION_SHORT": "312",  # Short version (e.g., "312")
+    "LICENSE": "MIT",  # License type
+    "DESCRIPTION": "A CLI tool",  # Short description
+    "YEAR": "2026",  # Current year
 }
 ```
 
@@ -131,8 +131,7 @@ except OSError as e:
    src_dir.mkdir(parents=True, exist_ok=True)
 
    (src_dir / "__init__.py").write_text(
-       f'"""{{metadata["PROJECT_MODULE"]}} package."""\n\n'
-       f'__version__ = "0.1.0"\n'
+       f'"""{{metadata["PROJECT_MODULE"]}} package."""\n\n__version__ = "0.1.0"\n'
    )
    ```
 

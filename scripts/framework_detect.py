@@ -98,7 +98,6 @@ _INSTALL_HINTS = {
 
 def detect_framework() -> FrameworkInfo:
     """Detect the active agentic framework from environment."""
-
     # NemoClaw check first (runs on top of OpenClaw)
     if os.environ.get("NEMOCLAW_SANDBOX"):
         return FrameworkInfo(

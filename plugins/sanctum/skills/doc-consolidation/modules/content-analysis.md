@@ -68,14 +68,14 @@ def extract_chunks(content: str) -> list[ContentChunk]:
     current_section = None
     current_content = []
 
-    for line in content.split('\n'):
+    for line in content.split("\n"):
         # New section header
-        if line.startswith('## '):
+        if line.startswith("## "):
             if current_section:
                 chunks.append(make_chunk(current_section, current_content))
             current_section = line[3:].strip()
             current_content = []
-        elif line.startswith('### '):
+        elif line.startswith("### "):
             # Subsection - append to current or create new
             if current_section:
                 current_content.append(line)
@@ -91,17 +91,13 @@ def extract_chunks(content: str) -> list[ContentChunk]:
 
     return chunks
 
+
 def make_chunk(header: str, content: list[str]) -> ContentChunk:
-    text = '\n'.join(content).strip()
+    text = "\n".join(content).strip()
     category = categorize(header, text)
     value = score_value(text, category)
 
-    return ContentChunk(
-        header=header,
-        content=text,
-        category=category,
-        value=value
-    )
+    return ContentChunk(header=header, content=text, category=category, value=value)
 ```
 
 ## Categorization Rules
@@ -110,50 +106,50 @@ Match in order (first match wins):
 
 ```python
 CATEGORY_PATTERNS = {
-    'actionable': [
-        r'action\s*items?',
-        r'next\s*steps?',
-        r'todo',
-        r'tasks?',
-        r'- \[ \]',  # Unchecked checkboxes
+    "actionable": [
+        r"action\s*items?",
+        r"next\s*steps?",
+        r"todo",
+        r"tasks?",
+        r"- \[ \]",  # Unchecked checkboxes
     ],
-    'decisions': [
-        r'decision',
-        r'chose|chosen',
-        r'tradeoff',
-        r'rationale',
-        r'why\s+we',
-        r'approach',
+    "decisions": [
+        r"decision",
+        r"chose|chosen",
+        r"tradeoff",
+        r"rationale",
+        r"why\s+we",
+        r"approach",
     ],
-    'findings': [
-        r'finding',
-        r'observation',
-        r'analysis',
-        r'discovered',
-        r'audit',
-        r'review\s+result',
+    "findings": [
+        r"finding",
+        r"observation",
+        r"analysis",
+        r"discovered",
+        r"audit",
+        r"review\s+result",
     ],
-    'metrics': [
-        r'\d+%',
-        r'before.*after',
-        r'improvement',
-        r'reduction',
-        r'benchmark',
-        r'\|\s*\d+\s*\|',  # Table with numbers
+    "metrics": [
+        r"\d+%",
+        r"before.*after",
+        r"improvement",
+        r"reduction",
+        r"benchmark",
+        r"\|\s*\d+\s*\|",  # Table with numbers
     ],
-    'migration': [
-        r'migration',
-        r'step\s*\d',
-        r'how\s+to',
-        r'procedure',
-        r'```bash',  # Code blocks with commands
+    "migration": [
+        r"migration",
+        r"step\s*\d",
+        r"how\s+to",
+        r"procedure",
+        r"```bash",  # Code blocks with commands
     ],
-    'api_changes': [
-        r'api',
-        r'breaking\s+change',
-        r'deprecat',
-        r'endpoint',
-        r'interface',
+    "api_changes": [
+        r"api",
+        r"breaking\s+change",
+        r"deprecat",
+        r"endpoint",
+        r"interface",
     ],
 }
 ```
@@ -191,7 +187,7 @@ CATEGORY_PATTERNS = {
 Preserve markdown tables intact - they often contain valuable structured data:
 ```python
 def is_table(lines: list[str]) -> bool:
-    return any('|' in line and line.count('|') >= 2 for line in lines)
+    return any("|" in line and line.count("|") >= 2 for line in lines)
 ```
 
 ### Code Blocks
@@ -211,5 +207,5 @@ Preserve checkbox lists - they indicate actionable items:
 Note internal references for destination routing:
 ```python
 # Links like "See also: docs/security.md" suggest destinations
-REFERENCE_PATTERN = r'see\s+(?:also:?\s*)?([^\s,]+\.md)'
+REFERENCE_PATTERN = r"see\s+(?:also:?\s*)?([^\s,]+\.md)"
 ```

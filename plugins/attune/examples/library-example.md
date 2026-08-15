@@ -171,15 +171,19 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional, Dict
 from enum import Enum
 
+
 class ValidationSeverity(Enum):
     """Severity level for validation errors."""
+
     ERROR = "error"
     WARNING = "warning"
     INFO = "info"
 
+
 @dataclass(frozen=True)
 class ValidationError:
     """A single validation error."""
+
     path: str
     message: str
     severity: ValidationSeverity = ValidationSeverity.ERROR
@@ -189,29 +193,33 @@ class ValidationError:
     def __str__(self) -> str:
         return f"{self.path}: {self.message}"
 
+
 @dataclass(frozen=True)
 class ValidationResult:
     """Result of validating data against a schema."""
+
     valid: bool
     errors: List[ValidationError] = field(default_factory=list)
     warnings: List[ValidationError] = field(default_factory=list)
 
     @classmethod
-    def success(cls) -> 'ValidationResult':
+    def success(cls) -> "ValidationResult":
         """Create a successful validation result."""
         return cls(valid=True)
 
     @classmethod
-    def failure(cls, errors: List[ValidationError]) -> 'ValidationResult':
+    def failure(cls, errors: List[ValidationError]) -> "ValidationResult":
         """Create a failed validation result."""
         return cls(valid=False, errors=errors)
 
     def __bool__(self) -> bool:
         return self.valid
 
+
 @dataclass(frozen=True)
 class SchemaField:
     """Definition of a schema field."""
+
     name: str
     type: str
     required: bool = False
@@ -219,9 +227,11 @@ class SchemaField:
     default: Any = None
     description: Optional[str] = None
 
+
 @dataclass(frozen=True)
 class Schema:
     """A validation schema."""
+
     name: str
     version: str
     fields: List[SchemaField]
@@ -240,6 +250,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict
 from schema_validator.domain.models import Schema, ValidationResult
 
+
 class ValidateDataUseCase(ABC):
     """Use case for validating data against a schema."""
 
@@ -247,6 +258,7 @@ class ValidateDataUseCase(ABC):
     def execute(self, data: Dict[str, Any], schema: Schema) -> ValidationResult:
         """Validate data against schema."""
         ...
+
 
 class ParseSchemaUseCase(ABC):
     """Use case for parsing schema definitions."""
@@ -262,6 +274,7 @@ class ParseSchemaUseCase(ABC):
 from abc import ABC, abstractmethod
 from typing import Optional
 from schema_validator.domain.models import Schema
+
 
 class SchemaRepository(ABC):
     """Repository for schema storage and retrieval."""
@@ -289,16 +302,22 @@ class SchemaRepository(ABC):
 from dataclasses import dataclass
 from typing import Any, Dict, List, Callable, Optional
 from schema_validator.domain.models import (
-    Schema, SchemaField, ValidationResult, ValidationError, ValidationSeverity
+    Schema,
+    SchemaField,
+    ValidationResult,
+    ValidationError,
+    ValidationSeverity,
 )
 from schema_validator.domain.ports.input import ValidateDataUseCase
 
 # Type alias for validators
 Validator = Callable[[Any, SchemaField], Optional[ValidationError]]
 
+
 @dataclass
 class ValidationService(ValidateDataUseCase):
     """Core validation service."""
+
     validators: Dict[str, Validator] = None
 
     def __post_init__(self):
@@ -314,11 +333,13 @@ class ValidationService(ValidateDataUseCase):
             known_fields = {f.name for f in schema.fields}
             for key in data.keys():
                 if key not in known_fields:
-                    errors.append(ValidationError(
-                        path=key,
-                        message=f"Unknown field '{key}' in strict schema",
-                        code="UNKNOWN_FIELD"
-                    ))
+                    errors.append(
+                        ValidationError(
+                            path=key,
+                            message=f"Unknown field '{key}' in strict schema",
+                            code="UNKNOWN_FIELD",
+                        )
+                    )
 
         # Validate each field
         for field in schema.fields:
@@ -330,21 +351,19 @@ class ValidationService(ValidateDataUseCase):
             return ValidationResult.failure(errors)
         return ValidationResult.success()
 
-    def _validate_field(
-        self,
-        field: SchemaField,
-        value: Any
-    ) -> List[ValidationError]:
+    def _validate_field(self, field: SchemaField, value: Any) -> List[ValidationError]:
         """Validate a single field."""
         errors = []
 
         # Check required
         if field.required and value is None:
-            errors.append(ValidationError(
-                path=field.name,
-                message=f"Field '{field.name}' is required",
-                code="REQUIRED"
-            ))
+            errors.append(
+                ValidationError(
+                    path=field.name,
+                    message=f"Field '{field.name}' is required",
+                    code="REQUIRED",
+                )
+            )
             return errors
 
         if value is None:
@@ -366,10 +385,7 @@ class ValidationService(ValidateDataUseCase):
         return errors
 
     def _check_type(
-        self,
-        path: str,
-        value: Any,
-        expected_type: str
+        self, path: str, value: Any, expected_type: str
     ) -> Optional[ValidationError]:
         """Check if value matches expected type."""
         type_map = {
@@ -386,7 +402,7 @@ class ValidationService(ValidateDataUseCase):
             return ValidationError(
                 path=path,
                 message=f"Expected {expected_type}, got {type(value).__name__}",
-                code="TYPE_MISMATCH"
+                code="TYPE_MISMATCH",
             )
         return None
 
@@ -401,63 +417,63 @@ def get_default_validators() -> Dict[str, Validator]:
         "pattern": validate_pattern,
     }
 
+
 def validate_email(value: Any, field: SchemaField) -> Optional[ValidationError]:
     """Validate email format."""
     import re
+
     if not re.match(r"^[^@]+@[^@]+\.[^@]+$", str(value)):
         return ValidationError(
-            path=field.name,
-            message="Invalid email format",
-            code="INVALID_EMAIL"
+            path=field.name, message="Invalid email format", code="INVALID_EMAIL"
         )
     return None
+
 
 def validate_url(value: Any, field: SchemaField) -> Optional[ValidationError]:
     """Validate URL format."""
     from urllib.parse import urlparse
+
     try:
         result = urlparse(str(value))
         if not all([result.scheme, result.netloc]):
             raise ValueError()
     except Exception:
         return ValidationError(
-            path=field.name,
-            message="Invalid URL format",
-            code="INVALID_URL"
+            path=field.name, message="Invalid URL format", code="INVALID_URL"
         )
     return None
+
 
 def validate_min_length(value: Any, field: SchemaField) -> Optional[ValidationError]:
     """Validate minimum length."""
     min_len = field.context.get("min_length", 0)
     if len(str(value)) < min_len:
         return ValidationError(
-            path=field.name,
-            message=f"Minimum length is {min_len}",
-            code="MIN_LENGTH"
+            path=field.name, message=f"Minimum length is {min_len}", code="MIN_LENGTH"
         )
     return None
 
+
 def validate_max_length(value: Any, field: SchemaField) -> Optional[ValidationError]:
     """Validate maximum length."""
-    max_len = field.context.get("max_length", float('inf'))
+    max_len = field.context.get("max_length", float("inf"))
     if len(str(value)) > max_len:
         return ValidationError(
-            path=field.name,
-            message=f"Maximum length is {max_len}",
-            code="MAX_LENGTH"
+            path=field.name, message=f"Maximum length is {max_len}", code="MAX_LENGTH"
         )
     return None
+
 
 def validate_pattern(value: Any, field: SchemaField) -> Optional[ValidationError]:
     """Validate against regex pattern."""
     import re
+
     pattern = field.context.get("pattern")
     if pattern and not re.match(pattern, str(value)):
         return ValidationError(
             path=field.name,
             message=f"Does not match pattern: {pattern}",
-            code="PATTERN_MISMATCH"
+            code="PATTERN_MISMATCH",
         )
     return None
 ```
@@ -474,9 +490,11 @@ import json
 from schema_validator.domain.models import Schema, SchemaField
 from schema_validator.domain.ports.output import SchemaRepository
 
+
 @dataclass
 class FileSchemaRepository(SchemaRepository):
     """File-based schema repository."""
+
     base_path: Path
 
     def get(self, name: str, version: Optional[str] = None) -> Optional[Schema]:
@@ -530,7 +548,7 @@ class FileSchemaRepository(SchemaRepository):
             name=data["name"],
             version=data["version"],
             fields=fields,
-            strict=data.get("strict", False)
+            strict=data.get("strict", False),
         )
 
     def _schema_to_dict(self, schema: Schema) -> dict:
@@ -549,7 +567,7 @@ class FileSchemaRepository(SchemaRepository):
                     "description": f.description,
                 }
                 for f in schema.fields
-            ]
+            ],
         }
 ```
 
@@ -587,6 +605,7 @@ __all__ = [
     # Convenience functions
     "validate",
 ]
+
 
 def validate(data: dict, schema: Schema) -> ValidationResult:
     """Convenience function to validate data against a schema.
@@ -632,24 +651,27 @@ For this library project:
 import pytest
 from schema_validator import Schema, SchemaField, ValidationService
 
+
 @pytest.fixture
 def user_schema():
     return Schema(
         name="user",
         version="1.0",
         fields=[
-            SchemaField(name="email", type="string", required=True, validators=["email"]),
+            SchemaField(
+                name="email", type="string", required=True, validators=["email"]
+            ),
             SchemaField(name="age", type="integer", required=False),
             SchemaField(name="name", type="string", required=True),
-        ]
+        ],
     )
+
 
 class TestValidationService:
     def test_valid_data(self, user_schema):
         service = ValidationService()
         result = service.execute(
-            {"email": "test@example.com", "name": "Test User", "age": 25},
-            user_schema
+            {"email": "test@example.com", "name": "Test User", "age": 25}, user_schema
         )
         assert result.valid
         assert len(result.errors) == 0
@@ -658,17 +680,14 @@ class TestValidationService:
         service = ValidationService()
         result = service.execute(
             {"email": "test@example.com"},  # Missing 'name'
-            user_schema
+            user_schema,
         )
         assert not result.valid
         assert any(e.code == "REQUIRED" for e in result.errors)
 
     def test_invalid_email(self, user_schema):
         service = ValidationService()
-        result = service.execute(
-            {"email": "not-an-email", "name": "Test"},
-            user_schema
-        )
+        result = service.execute({"email": "not-an-email", "name": "Test"}, user_schema)
         assert not result.valid
         assert any(e.code == "INVALID_EMAIL" for e in result.errors)
 ```

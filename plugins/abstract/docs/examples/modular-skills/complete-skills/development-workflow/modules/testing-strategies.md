@@ -111,6 +111,7 @@ class TestUserAuthentication:
         """Test authentication fails for unknown user"""
         pass
 
+
 class TestUserRegistration:
     def test_valid_registration_creates_user(self):
         """Test user creation with valid data"""
@@ -126,8 +127,9 @@ class TestUserRegistration:
 from unittest.mock import Mock, patch
 import pytest
 
+
 class TestUserService:
-    @patch('services.email_service.EmailService.send_welcome_email')
+    @patch("services.email_service.EmailService.send_welcome_email")
     def test_user_registration_sends_welcome_email(self, mock_email):
         # Arrange
         mock_email.return_value = True
@@ -150,6 +152,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+
 @pytest.fixture
 def test_db():
     engine = create_engine("sqlite:///:memory:")
@@ -158,6 +161,7 @@ def test_db():
     session = Session()
     yield session
     session.close()
+
 
 def test_user_repository_integration(test_db):
     # Arrange
@@ -178,18 +182,23 @@ def test_user_repository_integration(test_db):
 from fastapi.testclient import TestClient
 import pytest
 
+
 @pytest.fixture
 def client():
     app = create_app()
     return TestClient(app)
 
+
 def test_user_registration_flow(client):
     # Test complete registration flow
-    response = client.post("/register", json={
-        "email": "test@example.com",
-        "password": "secure_password",
-        "name": "Test User"
-    })
+    response = client.post(
+        "/register",
+        json={
+            "email": "test@example.com",
+            "password": "secure_password",
+            "name": "Test User",
+        },
+    )
 
     assert response.status_code == 201
     user_data = response.json()
@@ -204,13 +213,11 @@ def test_payment_service_integration():
     # Test payment processing with external provider
     payment_service = PaymentService(
         payment_gateway=MockPaymentGateway(),
-        notification_service=MockNotificationService()
+        notification_service=MockNotificationService(),
     )
 
     result = payment_service.process_payment(
-        amount=100.0,
-        currency="USD",
-        payment_method="credit_card"
+        amount=100.0, currency="USD", payment_method="credit_card"
     )
 
     assert result.success
@@ -267,11 +274,14 @@ def test_complete_order_workflow_api():
     """Test complete order workflow through API endpoints"""
     with TestClient() as client:
         # 1. User registration
-        register_response = client.post("/api/users/register", json={
-            "email": "customer@example.com",
-            "password": "secure_password",
-            "name": "Test Customer"
-        })
+        register_response = client.post(
+            "/api/users/register",
+            json={
+                "email": "customer@example.com",
+                "password": "secure_password",
+                "name": "Test Customer",
+            },
+        )
         user_id = register_response.json()["id"]
         token = register_response.json()["token"]
 
@@ -283,22 +293,24 @@ def test_complete_order_workflow_api():
         product_id = products_response.json()[0]["id"]
 
         # 4. Add to cart
-        cart_response = client.post("/api/cart/items",
+        cart_response = client.post(
+            "/api/cart/items",
             headers=auth_headers,
-            json={"product_id": product_id, "quantity": 2}
+            json={"product_id": product_id, "quantity": 2},
         )
 
         # 5. Create order
-        order_response = client.post("/api/orders",
+        order_response = client.post(
+            "/api/orders",
             headers=auth_headers,
             json={
                 "shipping_address": {
                     "street": "123 Main St",
                     "city": "Anytown",
-                    "zip": "12345"
+                    "zip": "12345",
                 },
-                "payment_method": "credit_card"
-            }
+                "payment_method": "credit_card",
+            },
         )
 
         assert order_response.status_code == 201
@@ -315,16 +327,20 @@ import factory
 from factory import fuzzy
 from datetime import datetime, timedelta
 
+
 class UserFactory(factory.Factory):
     class Meta:
         model = User
 
-    email = factory.LazyAttribute(lambda obj: f"{obj.first_name.lower()}.{obj.last_name.lower()}@example.com")
+    email = factory.LazyAttribute(
+        lambda obj: f"{obj.first_name.lower()}.{obj.last_name.lower()}@example.com"
+    )
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
     password = factory.PostGenerationMethodCall("set_password", "password123")
     is_active = True
     created_at = factory.LazyFunction(datetime.now)
+
 
 class OrderFactory(factory.Factory):
     class Meta:
@@ -332,8 +348,11 @@ class OrderFactory(factory.Factory):
 
     user = factory.SubFactory(UserFactory)
     status = fuzzy.FuzzyChoice(["pending", "processing", "shipped", "delivered"])
-    total_amount = factory.LazyAttribute(lambda obj: sum(item.price * item.quantity for item in obj.items))
+    total_amount = factory.LazyAttribute(
+        lambda obj: sum(item.price * item.quantity for item in obj.items)
+    )
     created_at = factory.LazyFunction(datetime.now)
+
 
 class OrderItemFactory(factory.Factory):
     class Meta:
@@ -354,6 +373,7 @@ def sample_user():
     yield user
     user.delete()
 
+
 @pytest.fixture
 def populated_cart():
     """Create a cart with sample items"""
@@ -362,6 +382,7 @@ def populated_cart():
         cart.add_item(product, quantity=2)
     yield cart
     cart.clear()
+
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_database():
@@ -425,15 +446,15 @@ markers =
 ```python
 from locust import HttpUser, task, between
 
+
 class WebsiteUser(HttpUser):
     wait_time = between(1, 5)
 
     def on_start(self):
         """Called when a user starts"""
-        response = self.client.post("/login", json={
-            "username": "test_user",
-            "password": "test_password"
-        })
+        response = self.client.post(
+            "/login", json={"username": "test_user", "password": "test_password"}
+        )
         if response.status_code == 200:
             self.token = response.json()["token"]
             self.headers = {"Authorization": f"Bearer {self.token}"}
@@ -451,18 +472,20 @@ class WebsiteUser(HttpUser):
     @task(1)
     def add_to_cart(self):
         """Add item to cart"""
-        self.client.post("/cart/items",
+        self.client.post(
+            "/cart/items",
             json={"product_id": 1, "quantity": 1},
-            headers=getattr(self, 'headers', {})
+            headers=getattr(self, "headers", {}),
         )
 
     @task(1)
     def checkout(self):
         """Complete checkout process"""
-        if hasattr(self, 'headers'):
-            self.client.post("/orders",
+        if hasattr(self, "headers"):
+            self.client.post(
+                "/orders",
                 json={"shipping_address": {}, "payment_method": "credit_card"},
-                headers=self.headers
+                headers=self.headers,
             )
 ```
 
@@ -471,6 +494,7 @@ class WebsiteUser(HttpUser):
 import time
 import statistics
 from typing import List
+
 
 def benchmark_function(func, *args, iterations=100) -> dict:
     """Benchmark a function's performance"""
@@ -487,15 +511,16 @@ def benchmark_function(func, *args, iterations=100) -> dict:
         "median": statistics.median(times),
         "min": min(times),
         "max": max(times),
-        "std_dev": statistics.stdev(times) if len(times) > 1 else 0
+        "std_dev": statistics.stdev(times) if len(times) > 1 else 0,
     }
+
 
 def test_search_performance():
     """Test search function performance"""
     results = benchmark_function(search_service.search, "test query")
 
     assert results["mean"] < 0.1  # Average under 100ms
-    assert results["max"] < 0.5   # Maximum under 500ms
+    assert results["max"] < 0.5  # Maximum under 500ms
     assert results["std_dev"] < 0.05  # Consistent performance
 ```
 
@@ -511,7 +536,7 @@ def run_tests_with_coverage():
         "--cov=src",
         "--cov-report=html",
         "--cov-report=term-missing",
-        "--cov-fail-under=85"
+        "--cov-fail-under=85",
     ]
     subprocess.run(cmd, check=True)
 ```
@@ -525,7 +550,7 @@ def analyze_test_quality(test_files: List[str]) -> dict:
         "test_classes": 0,
         "assertions_per_test": [],
         "test_names_length": [],
-        "mock_usage": 0
+        "mock_usage": 0,
     }
 
     for file in test_files:
@@ -536,7 +561,7 @@ def analyze_test_quality(test_files: List[str]) -> dict:
     return {
         "average_assertions": statistics.mean(metrics["assertions_per_test"]),
         "average_test_name_length": statistics.mean(metrics["test_names_length"]),
-        "mock_ratio": metrics["mock_usage"] / metrics["total_tests"]
+        "mock_ratio": metrics["mock_usage"] / metrics["total_tests"],
     }
 ```
 

@@ -132,22 +132,22 @@ def calculate_quick_scan_score(file_path, metrics):
     score = 0
 
     # Size penalty
-    if metrics['lines'] > 500:
-        score += (metrics['lines'] - 500) / 100 * 10
+    if metrics["lines"] > 500:
+        score += (metrics["lines"] - 500) / 100 * 10
 
     # Staleness penalty
-    months_unchanged = metrics['months_since_change']
+    months_unchanged = metrics["months_since_change"]
     if months_unchanged > 12:
         score += 30  # High penalty
     elif months_unchanged > 6:
         score += 15  # Medium penalty
 
     # Commented code penalty
-    commented_lines = metrics['commented_code_lines']
+    commented_lines = metrics["commented_code_lines"]
     score += commented_lines * 0.5
 
     # Old TODOs
-    old_todos = metrics['todos_older_than_6mo']
+    old_todos = metrics["todos_older_than_6mo"]
     score += old_todos * 2
 
     # Normalize to 0-100

@@ -8,8 +8,15 @@ and their corresponding CLI command arguments.
 from __future__ import annotations
 
 # Native Claude models (served by the orchestrating Claude process)
-CLAUDE_OPUS_48 = "claude-opus-4-8"
-CLAUDE_SONNET_46 = "claude-sonnet-4-6"
+#
+# Named by tier rather than generation on purpose. The previous names
+# encoded the version (CLAUDE_OPUS_48, CLAUDE_SONNET_46), which meant
+# every model release either forced a rename across every consumer or
+# left a constant whose name contradicted its value.
+#
+# Refreshed by Skill(night-market-model-and-harness-updates).
+CLAUDE_OPUS = "claude-opus-5"
+CLAUDE_SONNET = "claude-sonnet-5"
 
 # Gemini models (served via gemini CLI)
 GEMINI_3_PRO = "gemini-3-pro"
@@ -23,7 +30,7 @@ QWEN_MAX = "qwen-max"
 GLM_52 = "glm-5.2"
 
 # Haiku fallback (used when external LLMs are unavailable)
-CLAUDE_HAIKU_45 = "claude-haiku-4-5"
+CLAUDE_HAIKU = "claude-haiku-4-5"
 
 
 def validate_model_ids(model_ids: dict[str, str]) -> None:

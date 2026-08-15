@@ -32,21 +32,21 @@ class ExecutionBenchmark:
         results = {}
 
         # Warm-up run
-        subprocess.run([tool_path, '--help'], capture_output=True)
+        subprocess.run([tool_path, "--help"], capture_output=True)
 
         # Benchmark runs
         times = []
         for _ in range(10):
             start = time.perf_counter()
-            subprocess.run([tool_path, '--help'], capture_output=True)
+            subprocess.run([tool_path, "--help"], capture_output=True)
             end = time.perf_counter()
             times.append((end - start) * 1000)
 
-        results['mean'] = statistics.mean(times)
-        results['median'] = statistics.median(times)
-        results['std_dev'] = statistics.stdev(times)
-        results['min'] = min(times)
-        results['max'] = max(times)
+        results["mean"] = statistics.mean(times)
+        results["median"] = statistics.median(times)
+        results["std_dev"] = statistics.stdev(times)
+        results["min"] = min(times)
+        results["max"] = max(times)
 
         return results
 ```
@@ -133,30 +133,26 @@ class TokenEfficiencyBenchmark:
         # Calculate base metrics
         benchmark.char_count = len(content)
         benchmark.estimated_tokens = self.estimate_tokens(content)
-        benchmark.declared_tokens = frontmatter.get('estimated_tokens', 0)
+        benchmark.declared_tokens = frontmatter.get("estimated_tokens", 0)
 
         # Calculate efficiency ratios
-        features = len(frontmatter.get('usage_patterns', []))
+        features = len(frontmatter.get("usage_patterns", []))
         benchmark.tokens_per_feature = (
             benchmark.estimated_tokens / features if features > 0 else 0
         )
 
         # Compare against targets
-        targets = {
-            'excellent': 1500,
-            'good': 2000,
-            'acceptable': 2500
-        }
+        targets = {"excellent": 1500, "good": 2000, "acceptable": 2500}
         benchmark.efficiency_category = self._categorize_efficiency(
-            benchmark.estimated_tokens,
-            targets
+            benchmark.estimated_tokens, targets
         )
 
         # Calculate optimization potential
-        if benchmark.estimated_tokens > targets['good']:
+        if benchmark.estimated_tokens > targets["good"]:
             benchmark.optimization_potential = (
-                (benchmark.estimated_tokens - targets['good']) /
-                benchmark.estimated_tokens * 100
+                (benchmark.estimated_tokens - targets["good"])
+                / benchmark.estimated_tokens
+                * 100
             )
 
         return benchmark
@@ -192,9 +188,7 @@ class ScalabilityBenchmark:
     """Test skill scalability characteristics"""
 
     def test_concurrent_execution(
-        self,
-        skill_path: str,
-        concurrency_levels: List[int]
+        self, skill_path: str, concurrency_levels: List[int]
     ) -> Dict[int, float]:
         """Test performance at different concurrency levels"""
         results = {}
@@ -215,9 +209,7 @@ class ScalabilityBenchmark:
         return results
 
     def test_large_dataset_handling(
-        self,
-        tool_path: str,
-        dataset_sizes: List[int]
+        self, tool_path: str, dataset_sizes: List[int]
     ) -> Dict[int, PerformanceMetrics]:
         """Test tool performance with varying dataset sizes"""
         results = {}
@@ -267,8 +259,7 @@ class PerformanceBenchmarkSuite:
         # Scalability benchmarks
         scale_bench = ScalabilityBenchmark()
         results.concurrency_performance = scale_bench.test_concurrent_execution(
-            skill_path,
-            concurrency_levels=[1, 2, 4, 8]
+            skill_path, concurrency_levels=[1, 2, 4, 8]
         )
 
         # Calculate overall performance score
@@ -282,10 +273,11 @@ class PerformanceBenchmarkSuite:
     def _calculate_performance_score(self, results: BenchmarkResults) -> float:
         """Calculate weighted overall performance score"""
         scores = {
-            'execution': self._score_execution(results.load_time) * 0.25,
-            'memory': self._score_memory(results.memory_profile) * 0.25,
-            'token': self._score_token_efficiency(results.token_efficiency) * 0.30,
-            'scalability': self._score_scalability(results.concurrency_performance) * 0.20
+            "execution": self._score_execution(results.load_time) * 0.25,
+            "memory": self._score_memory(results.memory_profile) * 0.25,
+            "token": self._score_token_efficiency(results.token_efficiency) * 0.30,
+            "scalability": self._score_scalability(results.concurrency_performance)
+            * 0.20,
         }
         return sum(scores.values())
 
@@ -490,8 +482,7 @@ class PerformanceMonitor:
 
 ```python
 def compare_skill_versions(
-    original_path: str,
-    optimized_path: str
+    original_path: str, optimized_path: str
 ) -> ComparisonResults:
     """Compare performance before/after optimization"""
     suite = PerformanceBenchmarkSuite()
@@ -504,9 +495,12 @@ def compare_skill_versions(
         (original.load_time - optimized.load_time) / original.load_time * 100
     )
     comparison.token_reduction = (
-        (original.token_efficiency.estimated_tokens -
-         optimized.token_efficiency.estimated_tokens) /
-        original.token_efficiency.estimated_tokens * 100
+        (
+            original.token_efficiency.estimated_tokens
+            - optimized.token_efficiency.estimated_tokens
+        )
+        / original.token_efficiency.estimated_tokens
+        * 100
     )
 
     return comparison
@@ -518,7 +512,7 @@ def compare_skill_versions(
 def detect_performance_regression(
     current_results: BenchmarkResults,
     baseline_results: BenchmarkResults,
-    threshold: float = 0.10  # 10% degradation threshold
+    threshold: float = 0.10,  # 10% degradation threshold
 ) -> List[str]:
     """Detect performance regressions"""
     regressions = []

@@ -31,10 +31,7 @@ time.sleep(2)  # Guess optimization will finish in 2 seconds
 context_status = check_context_usage()
 
 #  AFTER: Wait for condition
-context_status = wait_for_context_pressure(
-    threshold=0.5,
-    timeout_ms=5000
-)
+context_status = wait_for_context_pressure(threshold=0.5, timeout_ms=5000)
 ```
 
 ### 2. Optimization Completion Waiting
@@ -46,8 +43,7 @@ result = get_optimization_result()
 
 #  AFTER: Wait for completion
 result = wait_for_optimization_completion(
-    optimization_id=opt_id,
-    success_condition=lambda r: r.compression_ratio > 0.3
+    optimization_id=opt_id, success_condition=lambda r: r.compression_ratio > 0.3
 )
 ```
 
@@ -59,11 +55,7 @@ while not resource_available():
     time.sleep(0.5)  # Arbitrary polling interval
 
 #  AFTER: Condition-based polling
-wait_for_resource(
-    resource_type="memory",
-    min_available_mb=100,
-    poll_interval_ms=10
-)
+wait_for_resource(resource_type="memory", min_available_mb=100, poll_interval_ms=10)
 ```
 
 ## Waiting Functions
@@ -74,11 +66,12 @@ wait_for_resource(
 import time
 from typing import Callable, Optional, Any
 
+
 def wait_for_condition(
     condition: Callable[[], Any],
     description: str,
     timeout_ms: int = 5000,
-    poll_interval_ms: int = 10
+    poll_interval_ms: int = 10,
 ) -> Any:
     """
     Wait for a condition to be met, with timeout and proper error handling.
@@ -118,7 +111,7 @@ def wait_for_condition(
 def wait_for_context_pressure(
     threshold: float = 0.5,
     timeout_ms: int = 10000,
-    context_checker: Optional[Callable[[], float]] = None
+    context_checker: Optional[Callable[[], float]] = None,
 ) -> dict:
     """Wait for context usage to exceed threshold"""
 
@@ -129,22 +122,15 @@ def wait_for_context_pressure(
             usage = get_current_context_usage()
         return usage if usage > threshold else None
 
-    usage = wait_for_condition(
-        condition,
-        f"context pressure > {threshold}",
-        timeout_ms
-    )
+    usage = wait_for_condition(condition, f"context pressure > {threshold}", timeout_ms)
 
-    return {
-        "usage": usage,
-        "threshold": threshold,
-        "timestamp": time.time()
-    }
+    return {"usage": usage, "threshold": threshold, "timestamp": time.time()}
+
 
 def wait_for_optimization_completion(
     optimization_id: str,
     success_condition: Optional[Callable[[dict], bool]] = None,
-    timeout_ms: int = 30000
+    timeout_ms: int = 30000,
 ) -> dict:
     """Wait for optimization to complete successfully"""
 
@@ -156,16 +142,15 @@ def wait_for_optimization_completion(
         return None
 
     return wait_for_condition(
-        condition,
-        f"optimization {optimization_id} completion",
-        timeout_ms
+        condition, f"optimization {optimization_id} completion", timeout_ms
     )
+
 
 def wait_for_resource_availability(
     resource_type: str,
     min_required: float,
     resource_checker: Optional[Callable[[], float]] = None,
-    timeout_ms: int = 15000
+    timeout_ms: int = 15000,
 ) -> float:
     """Wait for resource to become available"""
 
@@ -177,9 +162,7 @@ def wait_for_resource_availability(
         return available if available >= min_required else None
 
     return wait_for_condition(
-        condition,
-        f"{resource_type} >= {min_required}",
-        timeout_ms
+        condition, f"{resource_type} >= {min_required}", timeout_ms
     )
 ```
 
@@ -194,9 +177,7 @@ class ContextMonitor:
         self.pressure_handlers = []
 
     def wait_for_pressure_threshold(
-        self,
-        threshold: float,
-        on_pressure_reached: Optional[Callable] = None
+        self, threshold: float, on_pressure_reached: Optional[Callable] = None
     ) -> dict:
         """Monitor context and wait for threshold breach"""
 
@@ -211,9 +192,7 @@ class ContextMonitor:
 
         self.monitoring = True
         return wait_for_condition(
-            condition,
-            f"context pressure threshold {threshold}",
-            timeout_ms=30000
+            condition, f"context pressure threshold {threshold}", timeout_ms=30000
         )
 
     def calculate_context_usage(self) -> float:
@@ -230,26 +209,19 @@ class OptimizationCoordinator:
         self.active_optimizations = {}
 
     def wait_for_batch_completion(
-        self,
-        optimization_ids: List[str],
-        timeout_ms: int = 60000
+        self, optimization_ids: List[str], timeout_ms: int = 60000
     ) -> List[dict]:
         """Wait for multiple optimizations to complete"""
 
         results = []
         for opt_id in optimization_ids:
-            result = wait_for_optimization_completion(
-                opt_id,
-                timeout_ms=timeout_ms
-            )
+            result = wait_for_optimization_completion(opt_id, timeout_ms=timeout_ms)
             results.append(result)
 
         return results
 
     def coordinate_with_other_plugins(
-        self,
-        required_plugins: List[str],
-        coordination_timeout_ms: int = 20000
+        self, required_plugins: List[str], coordination_timeout_ms: int = 20000
     ) -> dict:
         """Wait for other plugins to be ready for optimization"""
 
@@ -266,7 +238,7 @@ class OptimizationCoordinator:
         return wait_for_condition(
             condition,
             f"plugin coordination: {required_plugins}",
-            timeout_ms=coordination_timeout_ms
+            timeout_ms=coordination_timeout_ms,
         )
 ```
 
@@ -282,15 +254,12 @@ def dynamic_optimization_loop():
         pressure_info = wait_for_context_pressure(threshold=0.6)
 
         # Optimize based on actual need
-        result = optimize_context(
-            target_reduction=0.3,
-            strategy="priority"
-        )
+        result = optimize_context(target_reduction=0.3, strategy="priority")
 
         # Wait for completion before continuing
         wait_for_optimization_completion(
             result["optimization_id"],
-            success_condition=lambda r: r["compression_ratio"] > 0.25
+            success_condition=lambda r: r["compression_ratio"] > 0.25,
         )
 
         print(f"Optimization completed: {result['compression_ratio']:.2f}")
@@ -306,7 +275,7 @@ def coordinate_plugin_resources(plugins: List[str]):
     coordination = wait_for_condition(
         lambda: all(check_plugin_ready(p) for p in plugins),
         f"plugin readiness: {plugins}",
-        timeout_ms=10000
+        timeout_ms=10000,
     )
 
     # Monitor collective resource usage
@@ -318,14 +287,16 @@ def coordinate_plugin_resources(plugins: List[str]):
             optimize_result = wait_for_condition(
                 lambda: trigger_collective_optimization(plugins),
                 "collective optimization",
-                timeout_ms=15000
+                timeout_ms=15000,
             )
 
             # Wait for optimizations to take effect
             wait_for_condition(
-                lambda: sum(get_plugin_resource_usage(p) for p in plugins) < RESOURCE_LIMIT,
+                lambda: (
+                    sum(get_plugin_resource_usage(p) for p in plugins) < RESOURCE_LIMIT
+                ),
                 "resource usage reduction",
-                timeout_ms=10000
+                timeout_ms=10000,
             )
 
         time.sleep(1)  # Normal monitoring interval

@@ -236,3 +236,46 @@ class TestKeywordIndexer:
         assert "last_updated" in metadata
         assert metadata["total_entries"] == self.TOTAL_ENTRIES_EXPECTED
         assert metadata["total_keywords"] > 0
+
+
+class TestTopicFieldIsIndexed:
+    """Feature: auto-captured research is findable by its own topic words.
+
+    The capture hooks write ``topic:``; only hand-authored notes write
+    ``title:``. A reader that knows one and not the other indexes almost
+    nothing from frontmatter, and the corpus quietly retrieves on body
+    headings alone.
+    """
+
+    def test_topic_words_become_keywords(self, tmp_path) -> None:
+        """Scenario: a capture is findable by a word only its topic carries."""
+        corpus = tmp_path / "corpus"
+        corpus.mkdir()
+        index = tmp_path / "index"
+        index.mkdir()
+        (corpus / "capture.md").write_text(
+            '---\ntopic: "Search Results for mtime staleness"\n'
+            "source_type: webfetch\n---\n\n# Results\n\nUnrelated prose.\n"
+        )
+
+        indexer = KeywordIndexer(corpus_dir=str(corpus), index_dir=str(index))
+        keywords = indexer.extract_keywords(corpus / "capture.md")
+
+        assert "mtime" in keywords
+        assert "staleness" in keywords
+
+    def test_title_still_wins_when_both_are_present(self, tmp_path) -> None:
+        """Scenario: adding the alias does not displace the original field."""
+        corpus = tmp_path / "corpus"
+        corpus.mkdir()
+        index = tmp_path / "index"
+        index.mkdir()
+        (corpus / "both.md").write_text(
+            "---\ntitle: Curated Heading\ntopic: Captured Phrase\n---\n\n# X\n\ny\n"
+        )
+
+        indexer = KeywordIndexer(corpus_dir=str(corpus), index_dir=str(index))
+        keywords = indexer.extract_keywords(corpus / "both.md")
+
+        assert "curated" in keywords
+        assert "captured" in keywords

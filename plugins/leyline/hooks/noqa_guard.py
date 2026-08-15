@@ -52,6 +52,24 @@ def check_for_suppressions(text: str) -> list[str]:
     return hits
 
 
+def _coerce_tool_input(value: Any) -> dict[str, Any]:
+    """Normalize ``tool_input`` to a dict regardless of source.
+
+    Stdin delivers it already parsed; the legacy env var delivers a JSON
+    string. A non-object value collapses to an empty dict rather than
+    raising, matching the lenient behavior the hooks relied on.
+    """
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+    return {}
+
+
 def _read_payload() -> dict[str, Any]:
     """Read the PreToolUse payload Claude Code delivers as JSON on stdin.
 
@@ -59,11 +77,16 @@ def _read_payload() -> dict[str, Any]:
     environment variables when stdin is empty, so the existing test
     harness and any older callers keep working.
 
+    Returns ``tool_name`` as a ``str`` and ``tool_input`` as a ``dict`` on
+    every path, including a stdin payload that omits them or sends them as
+    null. Callers index both without checking.
+
     Sync note: this stdin-unless-tty / decode-or-warn / env-fallback shape is
     duplicated by ``sanctum/hooks/deferred_item_watcher.read_payload`` and
     ``abstract/hooks/shared/hook_io.read_hook_payload``. Plugin isolation
     forbids a cross-plugin import, so the three copies must be changed
-    together.
+    together. ``tests/unit/test_hook_payload_readers.py`` at the repo root
+    is what makes that requirement fail a run instead of a review.
     """
     raw = ""
     try:
@@ -72,6 +95,7 @@ def _read_payload() -> dict[str, Any]:
     except (OSError, ValueError):
         raw = ""
 
+    payload: Any = None
     if raw.strip():
         try:
             payload = json.loads(raw)
@@ -80,17 +104,17 @@ def _read_payload() -> dict[str, Any]:
             # guard is distinguishable from an idle one.
             sys.stderr.write(f"noqa_guard: malformed stdin payload: {exc}\n")
             payload = None
-        if isinstance(payload, dict):
-            return payload
 
-    raw_input = os.environ.get("CLAUDE_TOOL_INPUT", "")
-    try:
-        tool_input = json.loads(raw_input) if raw_input else {}
-    except (json.JSONDecodeError, TypeError):
-        tool_input = {}
+    if not isinstance(payload, dict):
+        payload = {
+            "tool_name": os.environ.get("CLAUDE_TOOL_NAME", ""),
+            "tool_input": os.environ.get("CLAUDE_TOOL_INPUT", ""),
+        }
+
     return {
-        "tool_name": os.environ.get("CLAUDE_TOOL_NAME", ""),
-        "tool_input": tool_input,
+        **payload,
+        "tool_name": payload.get("tool_name") or "",
+        "tool_input": _coerce_tool_input(payload.get("tool_input", {})),
     }
 
 

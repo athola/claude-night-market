@@ -13,10 +13,7 @@ category: conservation
 ```python
 from leyline import calculate_context_pressure
 
-pressure = calculate_context_pressure(
-    current_tokens=80000,
-    max_tokens=1000000
-)
+pressure = calculate_context_pressure(current_tokens=80000, max_tokens=1000000)
 print(pressure)  # "MODERATE"
 ```
 
@@ -25,12 +22,9 @@ print(pressure)  # "MODERATE"
 ```python
 from leyline import check_mecw_compliance
 
-result = check_mecw_compliance(
-    current_tokens=120000,
-    max_tokens=1000000
-)
+result = check_mecw_compliance(current_tokens=120000, max_tokens=1000000)
 
-if not result['compliant']:
+if not result["compliant"]:
     print(f"Overage: {result['overage']:,} tokens")
     print(f"Action: {result['action']}")
 ```
@@ -80,13 +74,13 @@ def calculate_context_pressure(current_tokens, max_tokens):
     usage_ratio = current_tokens / max_tokens
 
     if usage_ratio < 0.3:
-        return "LOW"      # Plenty of headroom
+        return "LOW"  # Plenty of headroom
     elif usage_ratio < 0.5:
-        return "MODERATE" # Within MECW limits
+        return "MODERATE"  # Within MECW limits
     elif usage_ratio < 0.7:
-        return "HIGH"     # Exceeding MECW, risk zone
+        return "HIGH"  # Exceeding MECW, risk zone
     else:
-        return "CRITICAL" # Severe hallucination risk
+        return "CRITICAL"  # Severe hallucination risk
 ```
 
 ## Hallucination Prevention
@@ -404,6 +398,7 @@ hooks benefit most from this fix.
 ```python
 class MECWMonitor:
     """max_context defaults to 1M (Opus 4.6 GA default)."""
+
     def __init__(self, max_context=1_000_000):
         self.max_context = max_context
         self.mecw_threshold = max_context * 0.5
@@ -411,11 +406,11 @@ class MECWMonitor:
     def check_compliance(self, current_tokens):
         if current_tokens > self.mecw_threshold:
             return {
-                'compliant': False,
-                'overage': current_tokens - self.mecw_threshold,
-                'action': 'immediate_optimization_required'
+                "compliant": False,
+                "overage": current_tokens - self.mecw_threshold,
+                "action": "immediate_optimization_required",
             }
-        return {'compliant': True}
+        return {"compliant": True}
 ```
 
 ### Compression Techniques

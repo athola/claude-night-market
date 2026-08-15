@@ -93,7 +93,7 @@ def scan_for_accuracy(file_path: str, content: str) -> list[AccuracyWarning]:
     actual_versions = load_plugin_versions()
 
     # Find version references
-    version_pattern = r'(\w+)[\s\(]v?(\d+\.\d+\.\d+)'
+    version_pattern = r"(\w+)[\s\(]v?(\d+\.\d+\.\d+)"
     for match in re.finditer(version_pattern, content):
         plugin_name = match.group(1).lower()
         claimed_version = match.group(2)
@@ -101,29 +101,33 @@ def scan_for_accuracy(file_path: str, content: str) -> list[AccuracyWarning]:
         if plugin_name in actual_versions:
             actual = actual_versions[plugin_name]
             if claimed_version != actual:
-                warnings.append({
-                    'type': 'version_mismatch',
-                    'plugin': plugin_name,
-                    'claimed': claimed_version,
-                    'actual': actual,
-                    'line': get_line_number(content, match.start())
-                })
+                warnings.append(
+                    {
+                        "type": "version_mismatch",
+                        "plugin": plugin_name,
+                        "claimed": claimed_version,
+                        "actual": actual,
+                        "line": get_line_number(content, match.start()),
+                    }
+                )
 
     # Find count claims
-    count_pattern = r'(\d+)\s+(plugins?|skills?|commands?|agents?)'
+    count_pattern = r"(\d+)\s+(plugins?|skills?|commands?|agents?)"
     for match in re.finditer(count_pattern, content, re.IGNORECASE):
         claimed_count = int(match.group(1))
-        item_type = match.group(2).lower().rstrip('s')
+        item_type = match.group(2).lower().rstrip("s")
         actual_count = count_items(item_type)
 
         if abs(claimed_count - actual_count) > 0:
-            warnings.append({
-                'type': 'count_mismatch',
-                'item_type': item_type,
-                'claimed': claimed_count,
-                'actual': actual_count,
-                'line': get_line_number(content, match.start())
-            })
+            warnings.append(
+                {
+                    "type": "count_mismatch",
+                    "item_type": item_type,
+                    "claimed": claimed_count,
+                    "actual": actual_count,
+                    "line": get_line_number(content, match.start()),
+                }
+            )
 
     return warnings
 ```

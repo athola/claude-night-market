@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.9.17"
+version = "1.9.18"
 description = "Spec Driven Development toolkit with enhanced superpowers integration (synced with upstream spec-kit v0.5.0)"
 readme = "README.md"
 license = "MIT"
@@ -49,12 +49,12 @@ dev = [
 
     # Advanced testing
     "pytest-xdist>=3.0",                # Parallel testing
-    "pytest-benchmark>=4.0.0,<5.0.0",   # Performance testing
+    "pytest-benchmark>=4.0.0,<6.0.0",   # Performance testing
     "factory-boy>=3.3.0,<4.0.0",        # Test data generation
 
     # Security scanning
     "bandit>=1.7.5,<2.0.0",             # Security vulnerability scanner
-    "safety>=2.3.0,<3.0.0",             # Dependency vulnerability checker
+    "safety>=3.7.0,<4.0",             # Dependency vulnerability checker
 ]
 
 [project.urls]

@@ -170,11 +170,14 @@ from dataclasses import dataclass
 from typing import Iterator, Protocol
 from analytics_pipeline.pipeline.config import SourceConfig
 
+
 class DataSource(Protocol):
     """Protocol for data sources."""
+
     def extract(self, config: SourceConfig) -> Iterator[dict]:
         """Extract data from source."""
         ...
+
 
 @dataclass
 class APIExtractor:
@@ -185,14 +188,13 @@ class APIExtractor:
         import requests
 
         response = requests.get(
-            config.endpoint,
-            headers=config.headers,
-            params=config.params
+            config.endpoint, headers=config.headers, params=config.params
         )
         response.raise_for_status()
 
-        for record in response.json()['data']:
+        for record in response.json()["data"]:
             yield record
+
 
 @dataclass
 class DatabaseExtractor:
@@ -209,6 +211,7 @@ class DatabaseExtractor:
             for row in result:
                 yield dict(row._mapping)
 
+
 @dataclass
 class FileExtractor:
     """Extract data from files."""
@@ -220,12 +223,12 @@ class FileExtractor:
 
         file_path = Path(config.path)
 
-        if file_path.suffix == '.csv':
+        if file_path.suffix == ".csv":
             df = pd.read_csv(file_path, chunksize=10000)
             for chunk in df:
                 for _, row in chunk.iterrows():
                     yield row.to_dict()
-        elif file_path.suffix == '.parquet':
+        elif file_path.suffix == ".parquet":
             df = pd.read_parquet(file_path)
             for _, row in df.iterrows():
                 yield row.to_dict()
@@ -239,30 +242,29 @@ from dataclasses import dataclass
 from typing import Iterator, Callable, List
 from functools import reduce
 
+
 @dataclass
 class TransformPipeline:
     """Chain of transformations."""
+
     transformers: List[Callable[[dict], dict]]
 
     def transform(self, records: Iterator[dict]) -> Iterator[dict]:
         """Apply all transformations to records."""
         for record in records:
             try:
-                result = reduce(
-                    lambda r, t: t(r),
-                    self.transformers,
-                    record
-                )
+                result = reduce(lambda r, t: t(r), self.transformers, record)
                 yield result
             except Exception as e:
                 yield {"_error": str(e), "_original": record}
+
 
 # Individual transformers
 def normalize_dates(record: dict) -> dict:
     """Normalize date fields to ISO format."""
     from datetime import datetime
 
-    date_fields = ['created_at', 'updated_at', 'order_date']
+    date_fields = ["created_at", "updated_at", "order_date"]
     result = record.copy()
 
     for field in date_fields:
@@ -272,22 +274,24 @@ def normalize_dates(record: dict) -> dict:
 
     return result
 
+
 def enrich_customer(record: dict) -> dict:
     """Enrich customer data with derived fields."""
     result = record.copy()
 
-    if 'email' in result:
-        result['email_domain'] = result['email'].split('@')[-1]
+    if "email" in result:
+        result["email_domain"] = result["email"].split("@")[-1]
 
-    if 'total_orders' in result and 'total_spent' in result:
-        if result['total_orders'] > 0:
-            result['avg_order_value'] = result['total_spent'] / result['total_orders']
+    if "total_orders" in result and "total_spent" in result:
+        if result["total_orders"] > 0:
+            result["avg_order_value"] = result["total_spent"] / result["total_orders"]
 
     return result
 
+
 def validate_required_fields(record: dict) -> dict:
     """Validate required fields are present."""
-    required = ['customer_id', 'email']
+    required = ["customer_id", "email"]
 
     missing = [f for f in required if f not in record or not record[f]]
     if missing:
@@ -304,16 +308,14 @@ from dataclasses import dataclass
 from typing import Iterator, List
 from analytics_pipeline.pipeline.config import TargetConfig
 
+
 @dataclass
 class WarehouseLoader:
     """Load data into data warehouse."""
+
     batch_size: int = 1000
 
-    def load(
-        self,
-        records: Iterator[dict],
-        config: TargetConfig
-    ) -> dict:
+    def load(self, records: Iterator[dict], config: TargetConfig) -> dict:
         """Load records into warehouse."""
         import sqlalchemy
 
@@ -345,11 +347,12 @@ class WarehouseLoader:
         import pandas as pd
 
         df = pd.DataFrame(batch)
-        df.to_sql(table, engine, if_exists='append', index=False)
+        df.to_sql(table, engine, if_exists="append", index=False)
 
     def _log_error(self, record: dict):
         """Log error record for later review."""
         import logging
+
         logging.error(f"Failed record: {record}")
 ```
 
@@ -359,29 +362,32 @@ class WarehouseLoader:
 # src/analytics_pipeline/pipeline/orchestrator.py
 from dataclasses import dataclass
 from typing import Optional
-from analytics_pipeline.stages.extract import DataSource, APIExtractor, DatabaseExtractor
+from analytics_pipeline.stages.extract import (
+    DataSource,
+    APIExtractor,
+    DatabaseExtractor,
+)
 from analytics_pipeline.stages.transform import (
     TransformPipeline,
     normalize_dates,
     enrich_customer,
-    validate_required_fields
+    validate_required_fields,
 )
 from analytics_pipeline.stages.load import WarehouseLoader
 from analytics_pipeline.pipeline.config import PipelineConfig
 
+
 @dataclass
 class PipelineOrchestrator:
     """Orchestrate the ETL pipeline."""
+
     config: PipelineConfig
 
     def run(self, source_name: Optional[str] = None) -> dict:
         """Run the complete pipeline."""
         results = {}
 
-        sources = (
-            [source_name] if source_name
-            else self.config.sources.keys()
-        )
+        sources = [source_name] if source_name else self.config.sources.keys()
 
         for name in sources:
             source_config = self.config.sources[name]
@@ -391,11 +397,9 @@ class PipelineOrchestrator:
             records = extractor.extract(source_config)
 
             # Transform
-            transformer = TransformPipeline([
-                normalize_dates,
-                enrich_customer,
-                validate_required_fields
-            ])
+            transformer = TransformPipeline(
+                [normalize_dates, enrich_customer, validate_required_fields]
+            )
             transformed = transformer.transform(records)
 
             # Load
@@ -427,32 +431,33 @@ from analytics_pipeline.pipeline.orchestrator import PipelineOrchestrator
 from analytics_pipeline.pipeline.config import PipelineConfig
 
 default_args = {
-    'owner': 'data-team',
-    'depends_on_past': False,
-    'email_on_failure': True,
-    'email_on_retry': False,
-    'retries': 3,
-    'retry_delay': timedelta(minutes=5),
+    "owner": "data-team",
+    "depends_on_past": False,
+    "email_on_failure": True,
+    "email_on_retry": False,
+    "retries": 3,
+    "retry_delay": timedelta(minutes=5),
 }
+
 
 def run_pipeline(**kwargs):
     """Run the analytics pipeline."""
-    config = PipelineConfig.from_file('config/pipeline.yaml')
+    config = PipelineConfig.from_file("config/pipeline.yaml")
     orchestrator = PipelineOrchestrator(config)
     return orchestrator.run()
 
+
 with DAG(
-    'analytics_etl',
+    "analytics_etl",
     default_args=default_args,
-    description='Customer analytics ETL pipeline',
-    schedule_interval='0 2 * * *',  # Daily at 2 AM
+    description="Customer analytics ETL pipeline",
+    schedule_interval="0 2 * * *",  # Daily at 2 AM
     start_date=datetime(2026, 1, 1),
     catchup=False,
-    tags=['analytics', 'etl'],
+    tags=["analytics", "etl"],
 ) as dag:
-
     extract_transform_load = PythonOperator(
-        task_id='run_pipeline',
+        task_id="run_pipeline",
         python_callable=run_pipeline,
     )
 ```
@@ -475,23 +480,25 @@ from dataclasses import dataclass
 from pathlib import Path
 import json
 
+
 @dataclass
 class Checkpoint:
     """Pipeline checkpoint for recovery."""
+
     stage: str
     position: int
     state: dict
 
     def save(self, path: Path):
         """Save checkpoint to file."""
-        path.write_text(json.dumps({
-            "stage": self.stage,
-            "position": self.position,
-            "state": self.state
-        }))
+        path.write_text(
+            json.dumps(
+                {"stage": self.stage, "position": self.position, "state": self.state}
+            )
+        )
 
     @classmethod
-    def load(cls, path: Path) -> 'Checkpoint':
+    def load(cls, path: Path) -> "Checkpoint":
         """Load checkpoint from file."""
         data = json.loads(path.read_text())
         return cls(**data)

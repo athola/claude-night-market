@@ -76,23 +76,32 @@ Expert agent for detailed pull request preparation and documentation.
 - Coverage reporting
 
 ### Change Documentation
-- High-level summary writing
-- What/why bullet formatting
+- Imperative title writing
+- Blast radius identification (internal files, external consumers)
+- Rollout and integration timing (flags, migration windows)
 - Breaking change highlighting
 - Migration step documentation
 - Dependency update notes
 
 ### Testing Evidence
 - Command and output capture
-- Manual verification recording
+- Manual test plan authoring: numbered steps with expected results,
+  attached when the change lacks automated coverage, touches a
+  user-facing flow, fixes a bug, or changes an external contract
 - Environment constraint documentation
 - Skipped test justification
 - Mitigation plan writing
 
 ### PR Template
-- Summary section (1-2 sentences)
-- Changes section (2-4 bullets)
-- Testing section (commands and results)
+
+Section names come from `sanctum:pr-prep/modules/pr-template.md`.
+
+- Imperative, self-contained title (doubles as the summary)
+- Facts table: Who, Where (internal and external), When
+- Why section (1-3 sentences, grounded in an issue or a number)
+- What and how section (change, plus rejected alternative when a real
+  decision point existed)
+- Test plan (numbered steps, expected result on each)
 - Checklist completion
 - Issue/screenshot linking
 

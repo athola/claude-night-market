@@ -14,9 +14,7 @@ def smoke_test(service: str) -> bool:
     """Test auth with minimal request."""
     try:
         result = subprocess.run(
-            [service, "-p", "Respond with OK"],
-            capture_output=True,
-            timeout=30
+            [service, "-p", "Respond with OK"], capture_output=True, timeout=30
         )
         return result.returncode == 0
     except subprocess.TimeoutExpired:
@@ -28,8 +26,7 @@ def smoke_test(service: str) -> bool:
 def test_model_access(service: str, model: str) -> bool:
     """Verify access to specific model."""
     result = subprocess.run(
-        [service, "--model", model, "-p", "ping"],
-        capture_output=True
+        [service, "--model", model, "-p", "ping"], capture_output=True
     )
     return result.returncode == 0
 ```
@@ -44,7 +41,7 @@ def preflight_auth_check(service: str) -> dict:
         "env_var_set": False,
         "cli_available": False,
         "auth_valid": False,
-        "model_access": False
+        "model_access": False,
     }
 
     # Check environment variable

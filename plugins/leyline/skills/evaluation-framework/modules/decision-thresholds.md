@@ -127,7 +127,7 @@ percentiles = {
 # Set thresholds based on desired selectivity
 thresholds = {
     "excellent": percentiles["p90"],  # Top 10%
-    "good": percentiles["p75"],       # Top 25%
+    "good": percentiles["p75"],  # Top 25%
     "acceptable": percentiles["p50"],  # Top 50%
 }
 ```
@@ -242,8 +242,8 @@ def validate_thresholds(historical_data, thresholds):
     metrics = {
         "false_positives": 0,  # Approved but failed
         "false_negatives": 0,  # Rejected but would succeed
-        "true_positives": 0,   # Approved and succeeded
-        "true_negatives": 0,   # Rejected correctly
+        "true_positives": 0,  # Approved and succeeded
+        "true_negatives": 0,  # Rejected correctly
     }
 
     for case in historical_data:
@@ -406,8 +406,8 @@ evaluation_result = {
     "distance_to_next_tier": 2,  # Points to reach 80
     "improvements_needed": [
         "Increase test coverage by 5%",
-        "Resolve 2 remaining linting issues"
-    ]
+        "Resolve 2 remaining linting issues",
+    ],
 }
 ```
 

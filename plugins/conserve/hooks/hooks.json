@@ -73,11 +73,23 @@
     "SessionStart": [
       {
         "_comment": "Order 1: Initialize conservation metrics and context tracking on session start/resume",
-        "matcher": "startup|resume|clear|compact",
+        "matcher": "startup|resume|clear|compact|fork",
         "hooks": [
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "_comment": "Record background-agent notifications. Completion already reaches the model; this catches the agent that is blocked waiting for input, which is otherwise invisible.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/background_agent_notice.py",
             "timeout": 2
           }
         ]

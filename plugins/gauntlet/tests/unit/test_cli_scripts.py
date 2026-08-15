@@ -362,3 +362,155 @@ class TestProgressTrackerCLI:
         assert exit_code == 0
         parsed = json.loads(buf.getvalue())
         assert "developer_id" in parsed or "accuracy" in parsed
+
+
+# ---------------------------------------------------------------------------
+# Feature: progress_tracker CLI --record
+# ---------------------------------------------------------------------------
+
+
+class TestProgressTrackerRecordCLI:
+    """
+    Feature: progress_tracker.py --record
+
+    As a reviewing agent outside the challenge loop
+    I want to persist an answer record from the CLI
+    So that comprehension probes raised during PR review steer the same
+    adaptive selector that gauntlet challenges use
+    """
+
+    @staticmethod
+    def _record(**overrides: object) -> str:
+        payload = {
+            "challenge_id": "pr-1234-h1",
+            "knowledge_entry_id": "pr:1234:src/foo.py:42",
+            "challenge_type": "explain_why",
+            "category": "data_flow",
+            "difficulty": 3,
+            "result": "partial",
+        }
+        payload.update(overrides)
+        return json.dumps(payload)
+
+    @pytest.mark.unit
+    def test_records_answer_for_new_developer(self, tmp_path: Path) -> None:
+        """
+        Scenario: Record a probe result with no prior history
+        Given a gauntlet dir with no progress files
+        When main() is called with --record and a valid answer payload
+        Then it exits 0 and the record is persisted to the progress file
+        """
+        gauntlet_dir = tmp_path / ".gauntlet"
+        gauntlet_dir.mkdir()
+
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            exit_code = progress_main(
+                [
+                    str(gauntlet_dir),
+                    "--developer",
+                    "dev@example.com",
+                    "--record",
+                    self._record(),
+                ]
+            )
+
+        assert exit_code == 0
+        saved = json.loads(
+            (gauntlet_dir / "progress" / "dev_example.com.json").read_text()
+        )
+        assert len(saved["history"]) == 1
+        assert saved["history"][0]["category"] == "data_flow"
+        assert saved["history"][0]["knowledge_entry_id"] == "pr:1234:src/foo.py:42"
+
+    @pytest.mark.unit
+    def test_recorded_answer_is_visible_to_stats(self, tmp_path: Path) -> None:
+        """
+        Scenario: A recorded probe feeds the shared progress store
+        Given a probe result recorded via --record
+        When main() is called again in stats mode
+        Then the stats reflect the recorded answer
+        """
+        gauntlet_dir = tmp_path / ".gauntlet"
+        gauntlet_dir.mkdir()
+        args = [str(gauntlet_dir), "--developer", "dev@example.com"]
+
+        with contextlib.redirect_stdout(io.StringIO()):
+            assert progress_main([*args, "--record", self._record(result="pass")]) == 0
+
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            exit_code = progress_main([*args, "--format", "json"])
+
+        assert exit_code == 0
+        stats = json.loads(buf.getvalue())
+        assert stats["total_challenges"] == 1
+
+    @pytest.mark.unit
+    def test_records_without_a_knowledge_base(self, tmp_path: Path) -> None:
+        """
+        Scenario: Graceful degradation when no knowledge base exists
+        Given a gauntlet dir with no knowledge.json
+        When a PR-sourced probe is recorded
+        Then it still exits 0 and persists
+        """
+        gauntlet_dir = tmp_path / ".gauntlet"
+        gauntlet_dir.mkdir()
+        assert not (gauntlet_dir / "knowledge.json").exists()
+
+        with contextlib.redirect_stdout(io.StringIO()):
+            exit_code = progress_main(
+                [
+                    str(gauntlet_dir),
+                    "--developer",
+                    "d@e.com",
+                    "--record",
+                    self._record(),
+                ]
+            )
+
+        assert exit_code == 0
+
+    @pytest.mark.unit
+    def test_rejects_malformed_record_json(self, tmp_path: Path) -> None:
+        """
+        Scenario: Malformed payload
+        Given a --record value that is not valid JSON
+        When main() is called
+        Then it exits non-zero rather than writing a partial record
+        """
+        gauntlet_dir = tmp_path / ".gauntlet"
+        gauntlet_dir.mkdir()
+
+        with contextlib.redirect_stderr(io.StringIO()):
+            exit_code = progress_main(
+                [str(gauntlet_dir), "--developer", "d@e.com", "--record", "{not json"]
+            )
+
+        assert exit_code != 0
+        assert not (gauntlet_dir / "progress" / "d_e.com.json").exists()
+
+    @pytest.mark.unit
+    def test_rejects_out_of_range_difficulty(self, tmp_path: Path) -> None:
+        """
+        Scenario: Difficulty outside the 1-4 scale
+        Given a --record payload with difficulty 9
+        When main() is called
+        Then it exits non-zero and nothing is persisted
+        """
+        gauntlet_dir = tmp_path / ".gauntlet"
+        gauntlet_dir.mkdir()
+
+        with contextlib.redirect_stderr(io.StringIO()):
+            exit_code = progress_main(
+                [
+                    str(gauntlet_dir),
+                    "--developer",
+                    "d@e.com",
+                    "--record",
+                    self._record(difficulty=9),
+                ]
+            )
+
+        assert exit_code != 0
+        assert not (gauntlet_dir / "progress" / "d_e.com.json").exists()

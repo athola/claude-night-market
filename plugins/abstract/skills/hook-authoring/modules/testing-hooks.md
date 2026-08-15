@@ -75,8 +75,9 @@ async def test_graceful_failure():
 ```python
 @pytest.fixture
 def temp_log_file():
-    with tempfile.NamedTemporaryFile(suffix='.log') as f:
+    with tempfile.NamedTemporaryFile(suffix=".log") as f:
         yield Path(f.name)
+
 
 @pytest.fixture
 def mock_file_system():

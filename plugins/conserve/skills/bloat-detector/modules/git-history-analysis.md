@@ -155,29 +155,29 @@ def calculate_bloat_confidence(file):
     # Staleness
     months = months_since_last_change(file)
     if months > 12:
-        signals.append(('stale', 85, months))
+        signals.append(("stale", 85, months))
 
     # No references
     refs = count_references(file)
     if refs == 0:
-        signals.append(('unused', 90, refs))
+        signals.append(("unused", 90, refs))
 
     # Low churn
     churn = calculate_churn(file)
     if churn < 50:  # < 50 changes/year
-        signals.append(('low_churn', 70, churn))
+        signals.append(("low_churn", 70, churn))
 
     # Inactive owner
     if is_owner_inactive(file):
-        signals.append(('inactive_owner', 65, None))
+        signals.append(("inactive_owner", 65, None))
 
     # Combined confidence
     if len(signals) >= 3:
-        return 'HIGH', signals
+        return "HIGH", signals
     elif len(signals) == 2:
-        return 'MEDIUM', signals
+        return "MEDIUM", signals
     else:
-        return 'LOW', signals
+        return "LOW", signals
 ```
 
 ### Example Output
@@ -283,11 +283,11 @@ def validate_quick_scan_finding(finding):
     git_score = analyze_git_history(finding.file)
 
     if quick_scan.score > 80 and git_score > 80:
-        return 'HIGH_CONFIDENCE'
+        return "HIGH_CONFIDENCE"
     elif quick_scan.score > 60 and git_score > 60:
-        return 'MEDIUM_CONFIDENCE'
+        return "MEDIUM_CONFIDENCE"
     else:
-        return 'LOW_CONFIDENCE'  # Conflicting signals
+        return "LOW_CONFIDENCE"  # Conflicting signals
 ```
 
 ## Next Steps

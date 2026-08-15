@@ -64,15 +64,15 @@ Orchestrates code quality analysis and generates actionable refactoring plans.
 ```python
 def initialize_refinement(args):
     config = {
-        'level': args.get('level', 1),
-        'focus': args.get('focus', 'all'),
-        'report': args.get('report'),
-        'path': args.get('path', '.'),
-        'apply': args.get('apply', False),
+        "level": args.get("level", 1),
+        "focus": args.get("focus", "all"),
+        "report": args.get("report"),
+        "path": args.get("path", "."),
+        "apply": args.get("apply", False),
     }
 
     # Detect project characteristics
-    context = detect_project_context(config['path'])
+    context = detect_project_context(config["path"])
     # context: {languages, framework, size, paradigm}
 
     return config, context
@@ -97,13 +97,15 @@ Execute detection patterns from each module.
 ```python
 def prioritize(findings):
     """Sort by: HIGH impact + SMALL effort + LOW risk first."""
-    IMPACT = {'HIGH': 3, 'MEDIUM': 2, 'LOW': 1}
-    EFFORT = {'SMALL': 3, 'MEDIUM': 2, 'LARGE': 1}
-    RISK = {'LOW': 3, 'MEDIUM': 2, 'HIGH': 1}
+    IMPACT = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
+    EFFORT = {"SMALL": 3, "MEDIUM": 2, "LARGE": 1}
+    RISK = {"LOW": 3, "MEDIUM": 2, "HIGH": 1}
 
-    return sorted(findings, key=lambda f: (
-        IMPACT[f.impact] + EFFORT[f.effort] + RISK[f.risk]
-    ), reverse=True)
+    return sorted(
+        findings,
+        key=lambda f: IMPACT[f.impact] + EFFORT[f.effort] + RISK[f.risk],
+        reverse=True,
+    )
 ```
 
 ### Phase 4: Generate Plan
@@ -165,14 +167,16 @@ def detect_plugins():
     available = {}
 
     # Check imbue (evidence logging)
-    available['imbue'] = skill_exists('imbue:proof-of-work')
+    available["imbue"] = skill_exists("imbue:proof-of-work")
 
     # Check conserve (code-quality-principles, detect_duplicates.py)
-    available['conserve'] = skill_exists('conserve:code-quality-principles')
-    available['conserve_scripts'] = file_exists('plugins/conserve/scripts/detect_duplicates.py')
+    available["conserve"] = skill_exists("conserve:code-quality-principles")
+    available["conserve_scripts"] = file_exists(
+        "plugins/conserve/scripts/detect_duplicates.py"
+    )
 
     # Check archetypes (paradigm detection)
-    available['archetypes'] = skill_exists('archetypes:architecture-paradigms')
+    available["archetypes"] = skill_exists("archetypes:architecture-paradigms")
 
     return available
 ```

@@ -144,7 +144,7 @@ memory.record_insight(
     skill_ref=trace["skill"],
     category="causal_hypothesis",
     insight="Failure correlated with choosing X over Y",
-    evidence=[f"trace:{trace['trace_id']}"]
+    evidence=[f"trace:{trace['trace_id']}"],
 )
 ```
 
