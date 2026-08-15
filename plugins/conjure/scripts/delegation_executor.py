@@ -76,6 +76,10 @@ logger = logging.getLogger(__name__)
 # reported as truncated rather than failing the exec with E2BIG.
 MAX_INLINE_CONTEXT_BYTES = 96 * 1024
 
+# Below this much remaining budget a file cannot carry useful content, so the
+# walk stops instead of emitting header-only blocks.
+_MIN_INLINE_FILE_BYTES = 512
+
 
 @dataclass
 class ServiceConfig:
@@ -577,19 +581,31 @@ def _inline_context(files: list[str]) -> str:
     truncated = False
 
     for path in _iter_context_files(files):
+        remaining = MAX_INLINE_CONTEXT_BYTES - used
+        if remaining <= _MIN_INLINE_FILE_BYTES:
+            truncated = True
+            break
+
         try:
             content = path.read_text(encoding="utf-8", errors="replace")
         except OSError as e:
             logger.warning("Skipping unreadable context file %s: %s", path, e)
             continue
 
-        block = f"--- BEGIN FILE: {path} ---\n{content}\n--- END FILE: {path} ---"
-        size = len(block.encode("utf-8")) + 1
-        if used + size > MAX_INLINE_CONTEXT_BYTES:
+        header = f"--- BEGIN FILE: {path} ---\n"
+        footer = f"\n--- END FILE: {path} ---"
+        budget = remaining - len(header.encode("utf-8")) - len(footer.encode("utf-8"))
+        encoded = content.encode("utf-8")
+        if len(encoded) > budget:
+            # Carry as much of the file as fits rather than dropping it whole:
+            # one oversized file must not yield a prompt with no context at all.
+            content = encoded[:budget].decode("utf-8", errors="ignore")
+            content += f"\n[file truncated at {budget} bytes]"
             truncated = True
-            break
+
+        block = header + content + footer
         blocks.append(block)
-        used += size
+        used += len(block.encode("utf-8")) + 1
 
     if truncated:
         logger.warning(

@@ -250,6 +250,25 @@ class TestDelegator:
         prompt = command[-1]
         assert len(prompt.encode("utf-8")) <= MAX_INLINE_CONTEXT_BYTES + 1024
         assert "truncated" in prompt.lower()
+        # A file too large for the budget is carried in part, not dropped: a
+        # prompt with no context at all would delegate nothing and report
+        # success.
+        assert "x" * 1000 in prompt
+
+    @pytest.mark.bdd
+    def test_oversized_file_does_not_starve_the_prompt(
+        self, temp_config_dir, tmp_path
+    ) -> None:
+        """A single file larger than the budget still contributes context."""
+        target = tmp_path / "huge.txt"
+        target.write_text("y" * (MAX_INLINE_CONTEXT_BYTES * 3))
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        command = delegator.build_command("minimax", "summarize", files=[str(target)])
+
+        prompt = command[-1]
+        assert prompt.count("y") > MAX_INLINE_CONTEXT_BYTES // 2
+        assert "summarize" in prompt
 
     @pytest.mark.bdd
     def test_build_gemini_command_still_uses_at_references(
