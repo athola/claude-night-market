@@ -89,13 +89,17 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         phases=["coa"],
         command=["qwen", "--model", QWEN_MAX, "-p"],
     ),
+    # ``mmx text chat --message`` is the official MiniMax CLI contract; the
+    # orchestrator appends the prompt as the final argv element, so the
+    # message flag has to be last.
     "operational_advisor": ExpertConfig(
         role="Operational Advisor",
         service="minimax",
         model=MINIMAX_M3,
         description="Operational trade-off analysis with a large context window",
         phases=["intel", "coa"],
-        command=["minimax", "--model", MINIMAX_M3, "-p"],
+        command=["mmx", "text", "chat", "--model", MINIMAX_M3, "--message"],
+        optional=True,
     ),
     "skeptical_analyst": ExpertConfig(
         role="Skeptical Analyst",
@@ -103,12 +107,41 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         model=MINIMAX_M2_7,
         description="Rapid second-opinion challenge of proposed courses of action",
         phases=["red_team"],
-        command=["minimax", "--model", MINIMAX_M2_7, "-p"],
+        command=["mmx", "text", "chat", "--model", MINIMAX_M2_7, "--message"],
+        optional=True,
     ),
 }
 
 LIGHTWEIGHT_PANEL = ["supreme_commander", "chief_strategist", "red_team"]
 FULL_COUNCIL = list(EXPERT_CONFIGS.keys())
+
+
+def active_panel(panel: list[str]) -> list[str]:
+    """Drop opt-in experts whose CLI is not installed.
+
+    An expert that is configured but unreachable does not sit out: it votes
+    through the Haiku fallback, so an uninstalled provider adds duplicate
+    ballots to the Borda count. Gating keeps opt-in providers from changing
+    a deliberation for users who never installed them. Established experts
+    are unaffected; their fallback behaviour is unchanged.
+    """
+    active: list[str] = []
+    for key in panel:
+        expert = EXPERT_CONFIGS.get(key)
+        if expert is None:
+            continue
+        if expert.optional and not _optional_expert_installed(expert):
+            continue
+        active.append(key)
+    return active
+
+
+def _optional_expert_installed(expert: ExpertConfig) -> bool:
+    """Report whether an opt-in expert's CLI is on PATH."""
+    if not expert.command:
+        return True
+    return shutil.which(expert.command[0]) is not None
+
 
 # Track which experts have been tested and their availability
 _expert_availability: dict[str, bool] = {}

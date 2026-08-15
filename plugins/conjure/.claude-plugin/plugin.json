@@ -6,6 +6,7 @@
     "./skills/delegation-core",
     "./skills/gemini-delegation",
     "./skills/qwen-delegation",
+    "./skills/minimax-delegation",
     "./skills/agent-teams"
   ],
   "keywords": [
@@ -13,6 +14,7 @@
     "llm",
     "gemini",
     "qwen",
+    "minimax",
     "orchestration",
     "routing",
     "agent-teams",

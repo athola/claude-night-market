@@ -24,6 +24,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   OpenAI- and Anthropic-compatible endpoints, model capabilities, and
   token pricing, and the Makefile exposes `make delegate-minimax`.
 
+### Fixed
+
+- **MiniMax delegation targets the official `mmx` CLI (conjure).** The
+  MiniMax service and both War Room experts spawned a binary named
+  `minimax`, which the official CLI does not provide: it ships as npm
+  `mmx-cli` and installs `mmx`. Every MiniMax invocation failed at
+  runtime, and the unqualified install instruction pointed at an
+  unrelated third-party package that does claim the `minimax` name.
+  `ServiceConfig` now carries the CLI contract (subcommand, prompt flag,
+  output-format flag, temperature support, file-reference style), so
+  MiniMax builds `mmx text chat --model M --message P`, authenticates
+  through `mmx auth status` instead of an unread `MINIMAX_API_KEY`, and
+  inlines file contents because `mmx` has no `@path` syntax. War Room
+  experts marked `optional` join a panel only when their CLI is
+  installed, so an uninstalled provider no longer casts Haiku fallback
+  ballots in the Borda count. The `minimax-delegation` skill is
+  registered in `plugin.json` and `metadata.json`, and its docs record
+  the verified endpoints, region-bound keys, and prices.
+
 ## [1.9.17] - 2026-07-26
 
 ### Added

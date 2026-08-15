@@ -13,12 +13,12 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-
 from scripts.war_room import (
     EXPERT_CONFIGS,
     FULL_COUNCIL,
     LIGHTWEIGHT_PANEL,
     ExpertConfig,
+    active_panel,
     get_expert_command,
     get_glm_command,
 )
@@ -68,28 +68,47 @@ class TestCommandResolution:
             "-p",
         ]
 
-    def test_minimax_experts_use_config_constants(self) -> None:
-        """MiniMax experts resolve commands from config model constants."""
+    def test_minimax_experts_use_official_mmx_command(self) -> None:
+        """MiniMax experts invoke the official ``mmx`` CLI contract.
+
+        ``mmx text chat --message`` is the documented text interface; the
+        orchestrator appends the prompt as the final argv element, so
+        ``--message`` must be the trailing flag.
+        """
         advisor = EXPERT_CONFIGS["operational_advisor"]
         analyst = EXPERT_CONFIGS["skeptical_analyst"]
 
         assert advisor.service == "minimax"
         assert advisor.model == "MiniMax-M3"
         assert get_expert_command(advisor) == [
-            "minimax",
+            "mmx",
+            "text",
+            "chat",
             "--model",
             "MiniMax-M3",
-            "-p",
+            "--message",
         ]
 
         assert analyst.service == "minimax"
         assert analyst.model == "MiniMax-M2.7"
         assert get_expert_command(analyst) == [
-            "minimax",
+            "mmx",
+            "text",
+            "chat",
             "--model",
             "MiniMax-M2.7",
-            "-p",
+            "--message",
         ]
+
+    def test_minimax_experts_are_optional(self) -> None:
+        """MiniMax experts are opt-in so they cannot change existing councils."""
+        assert EXPERT_CONFIGS["operational_advisor"].optional is True
+        assert EXPERT_CONFIGS["skeptical_analyst"].optional is True
+
+    def test_established_experts_are_not_optional(self) -> None:
+        """Gating applies only to experts added after the council existed."""
+        for key in ("supreme_commander", "chief_strategist", "red_team", "scout"):
+            assert EXPERT_CONFIGS[key].optional is False
 
     def test_get_expert_command_native_raises(self) -> None:
         """Native experts (no command) raise RuntimeError."""
@@ -179,3 +198,39 @@ class TestCommandResolution:
         with patch.dict(_COMMAND_RESOLVERS, {"bad_resolver": bad_resolver}):
             with pytest.raises(RuntimeError, match="did not return list"):
                 get_expert_command(fake_expert)
+
+
+class TestActivePanel:
+    """Optional experts join a panel only when their CLI is installed."""
+
+    def test_optional_experts_dropped_when_cli_missing(self) -> None:
+        """Without ``mmx`` on PATH the MiniMax experts cast no ballots.
+
+        Otherwise they fall back to Haiku and add duplicate votes to the
+        Borda count for users who never installed MiniMax.
+        """
+        with patch("scripts.war_room.experts.shutil.which", return_value=None):
+            panel = active_panel(FULL_COUNCIL)
+
+        assert "operational_advisor" not in panel
+        assert "skeptical_analyst" not in panel
+        assert "chief_strategist" in panel
+        assert "red_team" in panel
+
+    def test_optional_experts_kept_when_cli_present(self) -> None:
+        """With ``mmx`` installed the MiniMax experts join the full council."""
+        with patch(
+            "scripts.war_room.experts.shutil.which", return_value="/usr/bin/mmx"
+        ):
+            panel = active_panel(FULL_COUNCIL)
+
+        assert "operational_advisor" in panel
+        assert "skeptical_analyst" in panel
+
+    def test_active_panel_preserves_order_and_membership(self) -> None:
+        """Gating never reorders or invents panel members."""
+        with patch(
+            "scripts.war_room.experts.shutil.which", return_value="/usr/bin/mmx"
+        ):
+            assert active_panel(FULL_COUNCIL) == FULL_COUNCIL
+            assert active_panel(LIGHTWEIGHT_PANEL) == LIGHTWEIGHT_PANEL

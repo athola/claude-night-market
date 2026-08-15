@@ -70,16 +70,37 @@ except ImportError:  # pragma: no cover
 # Configure logging for error tracking
 logger = logging.getLogger(__name__)
 
+# Linux caps a single argv entry at MAX_ARG_STRLEN (128 KiB). A CLI without a
+# file-reference syntax must carry file contents inside the prompt argument, so
+# inlined context is bounded well below that ceiling and the remainder is
+# reported as truncated rather than failing the exec with E2BIG.
+MAX_INLINE_CONTEXT_BYTES = 96 * 1024
+
 
 @dataclass
 class ServiceConfig:
-    """Configuration for a delegation service."""
+    """Configuration for a delegation service.
+
+    The trailing fields describe the CLI contract. They exist because the
+    supported CLIs genuinely diverge: ``mmx`` puts text generation behind a
+    ``text chat`` subcommand, names its prompt flag ``--message``, spells
+    output format ``--output``, documents no temperature flag, and has no
+    ``@path`` context syntax. Defaults reproduce the Gemini contract, so
+    existing services and custom entries in ``config.json`` are unaffected.
+    """
 
     name: str
     command: str
     auth_method: str
     auth_env_var: str | None = None
     quota_limits: dict[str, int] | None = None
+    # Tuple rather than list: a default_factory field would read as required
+    # to _missing_required_fields and silently skip valid custom configs.
+    subcommand: tuple[str, ...] = ()
+    prompt_flag: str = "-p"
+    output_format_flag: str = "--output-format"
+    temperature_flag: str | None = "--temperature"
+    inline_files: bool = False
 
 
 def _missing_required_fields(service_config: Any) -> set[str]:
@@ -144,13 +165,25 @@ class Delegator:
             auth_method="cli",
             auth_env_var=None,
             quota_limits=DEFAULT_QWEN_LIMITS,
+            output_format_flag="--format",
         ),
+        # The official MiniMax CLI is npm ``mmx-cli``, which installs a
+        # binary named ``mmx``. The name ``minimax`` belongs to an unrelated
+        # third-party npm package, so it must not be spawned here.
+        # Credentials live in ~/.mmx/config.json via ``mmx auth login``; there
+        # is no MINIMAX_API_KEY env var to check, and ``mmx auth status`` is
+        # the documented way to verify them.
         "minimax": ServiceConfig(
             name="minimax",
-            command="minimax",
-            auth_method="api_key",
-            auth_env_var="MINIMAX_API_KEY",
+            command="mmx",
+            auth_method="cli",
+            auth_env_var=None,
             quota_limits=DEFAULT_MINIMAX_LIMITS,
+            subcommand=("text", "chat"),
+            prompt_flag="--message",
+            output_format_flag="--output",
+            temperature_flag=None,
+            inline_files=True,
         ),
     }
 
@@ -278,38 +311,27 @@ class Delegator:
     ) -> list[str]:
         """Build command for delegation."""
         service = self.services[service_name]
-        command = [service.command]
+        command = [service.command, *service.subcommand]
 
-        # Add options
+        # Add options. Every flag spelling comes from the service config, so a
+        # CLI that names things differently is a data change, not a new branch.
         if options:
             if "model" in options:
                 command.extend(["--model", options["model"]])
             if "output_format" in options:
-                if service_name == "gemini":
-                    command.extend(["--output-format", options["output_format"]])
-                elif service_name == "qwen":
-                    command.extend(["--format", options["output_format"]])
-                elif service_name == "minimax":
-                    command.extend(["--output-format", options["output_format"]])
-            if "temperature" in options:
-                command.extend(["--temperature", str(options["temperature"])])
+                command.extend(
+                    [service.output_format_flag, options["output_format"]],
+                )
+            if "temperature" in options and service.temperature_flag:
+                command.extend(
+                    [service.temperature_flag, str(options["temperature"])],
+                )
 
-        # Add prompt with files
         full_prompt = prompt
         if files:
-            file_refs = []
-            for file_path in files:
-                path = Path(file_path)
-                if path.exists():
-                    if path.is_file():
-                        file_refs.append(f"@{file_path}")
-                    elif path.is_dir():
-                        # Use glob pattern for directories
-                        file_refs.append(f"@{file_path}/**/*")
-            if file_refs:
-                full_prompt = " ".join(file_refs) + " " + full_prompt
+            full_prompt = _compose_prompt_with_files(service, prompt, files)
 
-        command.extend(["-p", full_prompt])
+        command.extend([service.prompt_flag, full_prompt])
 
         return command
 
@@ -525,14 +547,98 @@ class Delegator:
         return service, result
 
 
+def _iter_context_files(files: list[str]) -> list[Path]:
+    """Expand the requested paths into a stable list of readable files."""
+    skip_dirs = {".git", ".venv", "venv", "node_modules", "__pycache__"}
+    resolved: list[Path] = []
+    for file_path in files:
+        path = Path(file_path)
+        if path.is_file():
+            resolved.append(path)
+        elif path.is_dir():
+            for child in sorted(path.rglob("*")):
+                if any(part in skip_dirs for part in child.parts):
+                    continue
+                if child.is_file():
+                    resolved.append(child)
+    return resolved
+
+
+def _inline_context(files: list[str]) -> str:
+    """Read file contents into a prompt block for CLIs without ``@path``.
+
+    Reading the filesystem is a trust boundary, so unreadable files are
+    skipped rather than aborting the delegation. The byte budget is an OS
+    limit (see MAX_INLINE_CONTEXT_BYTES), and hitting it is reported in the
+    prompt and the log instead of silently dropping context.
+    """
+    blocks: list[str] = []
+    used = 0
+    truncated = False
+
+    for path in _iter_context_files(files):
+        try:
+            content = path.read_text(encoding="utf-8", errors="replace")
+        except OSError as e:
+            logger.warning("Skipping unreadable context file %s: %s", path, e)
+            continue
+
+        block = f"--- BEGIN FILE: {path} ---\n{content}\n--- END FILE: {path} ---"
+        size = len(block.encode("utf-8")) + 1
+        if used + size > MAX_INLINE_CONTEXT_BYTES:
+            truncated = True
+            break
+        blocks.append(block)
+        used += size
+
+    if truncated:
+        logger.warning(
+            "Inline context truncated at %d bytes; %d file(s) included",
+            MAX_INLINE_CONTEXT_BYTES,
+            len(blocks),
+        )
+        blocks.append(
+            f"[context truncated at {MAX_INLINE_CONTEXT_BYTES} bytes; "
+            f"{len(blocks)} file(s) included]"
+        )
+
+    return "\n".join(blocks)
+
+
+def _compose_prompt_with_files(
+    service: ServiceConfig,
+    prompt: str,
+    files: list[str],
+) -> str:
+    """Attach file context to a prompt using the service's own convention."""
+    if service.inline_files:
+        context = _inline_context(files)
+        return f"{context}\n\n{prompt}" if context else prompt
+
+    file_refs = []
+    for file_path in files:
+        path = Path(file_path)
+        if path.exists():
+            if path.is_file():
+                file_refs.append(f"@{file_path}")
+            elif path.is_dir():
+                # Use glob pattern for directories
+                file_refs.append(f"@{file_path}/**/*")
+    if file_refs:
+        return " ".join(file_refs) + " " + prompt
+    return prompt
+
+
 def _smart_delegate_model(service: str, requirement: str) -> str:
     """Resolve the model id ``smart_delegate`` selects for a service.
 
     Centralising the per-service model ids keeps the table in one place
     instead of repeating nested ternaries in the caller. ``requirement``
     is the key into the lookup (``large_context`` or ``fast_response``);
-    an unknown requirement or service falls back to the service's
-    default model.
+    an unknown requirement falls back to the service's default model. An
+    unrecognised service raises KeyError: smart_delegate only ever passes a
+    built-in service name, so reaching that path is a programming error and
+    is better surfaced than papered over with a wrong model id.
     """
     table = {
         "large_context": {

@@ -1,6 +1,6 @@
 ---
 name: minimax-delegation
-description: Delegates tasks to the MiniMax CLI via delegation-core for MiniMax-M3 and MiniMax-M2.7. Use when delegation-core selects MiniMax or large-context batch processing is needed.
+description: Delegates tasks to the MiniMax CLI (mmx) via delegation-core. Use when delegation-core selects MiniMax or large-context batch work is needed.
 alwaysApply: false
 category: delegation-implementation
 tags:
@@ -11,10 +11,10 @@ tags:
 dependencies:
 - delegation-core
 tools:
-- minimax-cli
+- mmx-cli
 - delegation_executor.py
 usage_patterns:
-- minimax-cli-integration
+- mmx-cli-integration
 - large-context-analysis
 - bulk-processing
 complexity: intermediate
@@ -39,9 +39,9 @@ references:
 
 ## Overview
 
-This skill implements `conjure:delegation-core` for the MiniMax CLI.
-It provides MiniMax-specific authentication, quota management,
-and command construction.
+This skill implements `conjure:delegation-core` for the official MiniMax
+CLI, `mmx`. It provides MiniMax-specific authentication, quota
+management, and command construction.
 
 For shared delegation patterns, see `Skill(conjure:delegation-core)`.
 
@@ -50,7 +50,7 @@ For shared delegation patterns, see `Skill(conjure:delegation-core)`.
 - After `Skill(conjure:delegation-core)` determines MiniMax is suitable
 - When you need MiniMax-M3's large context window (1M tokens)
 - For batch processing, summarization, or multi-file analysis
-- If the `minimax` CLI is installed and configured
+- If the `mmx` CLI is installed and authenticated
 
 ## When NOT To Use
 
@@ -61,28 +61,39 @@ For shared delegation patterns, see `Skill(conjure:delegation-core)`.
 
 **Installation:**
 
-Install the MiniMax CLI, then verify it is on `PATH`:
+Install the official CLI, published as `mmx-cli` and maintained by
+MiniMax at `https://github.com/MiniMax-AI/cli`. It requires Node.js 18
+or later and installs a binary named `mmx`.
 
 ```bash
-# Verify installation
-minimax --version
-
-# Or set API key
-export MINIMAX_API_KEY="your-key"
+npm install -g mmx-cli
+mmx --version
 ```
 
-**Regional endpoints:** MiniMax serves two regions. Configure the API
-compatibility and region your account uses before delegating:
+Install `mmx-cli` by that exact name. Unrelated third-party packages
+publish a binary called `minimax`, and this skill never invokes that
+name.
 
-| Region | OpenAI-compatible | Anthropic-compatible | Documentation |
-|--------|-------------------|----------------------|---------------|
-| Global | `https://api.minimax.io/v1` | `https://api.minimax.io/anthropic` | `https://platform.minimax.io/docs` |
-| China | `https://api.minimaxi.com/v1` | `https://api.minimaxi.com/anthropic` | `https://platform.minimaxi.com/docs` |
+**Authentication:**
 
-Point the `minimax` CLI at the matching base URL per its configuration
-guide. Both regions accept the same `MINIMAX_API_KEY` auth header.
+Credentials are managed by the CLI, not by an environment variable.
+`mmx` stores them in `~/.mmx/config.json`.
 
-**Verification:** Run the command with `--help` to confirm availability.
+```bash
+mmx auth login                      # interactive: OAuth or an API key
+mmx auth login --api-key sk-xxxxx   # non-interactive, for CI
+mmx auth status                     # canonical readiness check
+```
+
+`mmx auth status` is what `delegation_executor.py --verify` runs. A
+successful `mmx --version` alone does not mean the CLI is authenticated.
+
+**Regions:** MiniMax serves a global region (`api.minimax.io`) and a
+mainland China region (`api.minimaxi.com`). API keys are issued per
+region and are not interchangeable. API-key login detects the matching
+region by probing both, so no manual base URL is normally needed. Set
+the region explicitly with `mmx config set --key region --value cn` or
+the `MINIMAX_REGION` environment variable.
 
 ## Quick Start
 
@@ -90,32 +101,41 @@ guide. Both regions accept the same `MINIMAX_API_KEY` auth header.
 
 ```bash
 # Basic file analysis
-python ~/conjure/tools/delegation_executor.py minimax "Analyze this code" --files src/main.py
+python scripts/delegation_executor.py minimax "Analyze this code" --files src/main.py
 
 # With specific model
-python ~/conjure/tools/delegation_executor.py minimax "Summarize" --files src/**/*.py --model MiniMax-M3
+python scripts/delegation_executor.py minimax "Summarize" --files src/ --model MiniMax-M3
 
-# With output format
-python ~/conjure/tools/delegation_executor.py minimax "Extract functions" --files src/main.py --format json
+# Verify the CLI is installed and authenticated
+python scripts/delegation_executor.py minimax --verify
 ```
+
+The executor reads the requested files and inlines their contents into
+the prompt, because `mmx` has no `@path` context syntax. Inlined context
+is capped at 96 KiB to stay inside the operating system limit on a
+single argument, and any remainder is reported in the prompt and the
+log.
 
 ### Direct CLI Usage
 
 ```bash
 # Basic command
-minimax -p "@path/to/file Analyze this code"
-
-# Multiple files
-minimax -p "@src/**/*.py Summarize these files"
+mmx text chat --message "Analyze this code"
 
 # Specific model
-minimax --model MiniMax-M3 -p "..."
+mmx text chat --model MiniMax-M3 --message "Summarize this design"
+
+# JSON output
+mmx text chat --message "Extract the function names" --output json
+
+# File contents must be passed in, not referenced
+mmx text chat --message "Review this: $(cat src/main.py)"
 ```
 
 ### Save Output
 
 ```bash
-minimax -p "..." > delegations/minimax/$(date +%Y%m%d_%H%M%S).md
+mmx text chat --message "..." > delegations/minimax/$(date +%Y%m%d_%H%M%S).md
 ```
 
 ## Smart Delegation
@@ -123,9 +143,8 @@ minimax -p "..." > delegations/minimax/$(date +%Y%m%d_%H%M%S).md
 The shared delegation executor can auto-select the best service:
 
 ```bash
-# Auto-select based on requirements
-python ~/conjure/tools/delegation_executor.py auto "Analyze large codebase" \
-  --files src/**/* --requirement large_context
+python scripts/delegation_executor.py auto "Analyze large codebase" \
+  --files src/ --requirement large_context
 ```
 
 ## MiniMax-Specific Details
@@ -135,11 +154,15 @@ and troubleshooting, see `modules/minimax-specifics.md`.
 
 ## Exit Criteria
 
-- [ ] `minimax --version` (and `MINIMAX_API_KEY` env var set) both exit 0 before any task is
-  delegated; missing installation or failed authentication is reported and stops execution.
-- [ ] The delegated task output is saved to `delegations/minimax/YYYYMMDD_HHMMSS.md` (timestamp
-  format matching the Quick Start example), and that file exists on disk after delegation.
-- [ ] If `conjure:delegation-core` selected a different provider, this skill is not invoked;
-  MiniMax delegation only runs when delegation-core explicitly routes to MiniMax.
-- [ ] Smart delegation via `delegation_executor.py auto` logs which provider was selected and
-  why before executing the task, so the selection is auditable.
+- [ ] `mmx --version` and `mmx auth status` both exit 0 before any task is
+  delegated. A missing installation or failed authentication is reported and
+  stops execution.
+- [ ] Every spawned command starts with the `mmx` binary. No command in this
+  skill or in `Delegator.SERVICES["minimax"]` invokes a binary named `minimax`.
+- [ ] File context reaches the model as inlined contents. No `@path` reference
+  appears in a prompt sent to `mmx`.
+- [ ] The delegated task output is saved to
+  `delegations/minimax/YYYYMMDD_HHMMSS.md` (timestamp format matching the
+  Quick Start example), and that file exists on disk after delegation.
+- [ ] If `conjure:delegation-core` selected a different provider, this skill is
+  not invoked. MiniMax delegation only runs when delegation-core routes to it.

@@ -14,6 +14,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from delegation_executor import (
+    MAX_INLINE_CONTEXT_BYTES,
     Delegator,
     ExecutionResult,
     ServiceConfig,
@@ -108,45 +109,60 @@ class TestDelegator:
     def test_delegator_registers_minimax_service(self, temp_config_dir) -> None:
         """Given default config when initializing Delegator.
 
-        then MiniMax is registered as a delegation service.
+        then MiniMax is registered against the official ``mmx`` binary.
+
+        The official MiniMax CLI is published as npm ``mmx-cli`` and installs
+        a binary named ``mmx``. A service named ``minimax`` would resolve to
+        an unaffiliated third-party package of that name.
         """
         delegator = Delegator(config_dir=temp_config_dir)
 
         assert "minimax" in delegator.services
         minimax = delegator.services["minimax"]
-        assert minimax.command == "minimax"
-        assert minimax.auth_method == "api_key"
-        assert minimax.auth_env_var == "MINIMAX_API_KEY"
+        assert minimax.command == "mmx"
         assert minimax.quota_limits is not None
 
     @pytest.mark.bdd
-    @patch("subprocess.run")
-    def test_verify_minimax_service_missing_auth(
-        self, mock_run, temp_config_dir
-    ) -> None:
-        """Given missing auth env var when verifying MiniMax then report it.
+    def test_minimax_authenticates_through_the_cli(self, temp_config_dir) -> None:
+        """Given the MiniMax service when inspecting its auth method.
 
-        MiniMax authenticates with an API key, so the verifier must flag a
-        missing ``MINIMAX_API_KEY`` instead of reporting the service ready.
+        then it verifies through ``mmx auth status`` rather than an env var.
+
+        ``mmx`` stores OAuth or API-key credentials in ``~/.mmx/config.json``
+        and reads no ``MINIMAX_API_KEY``. Checking an env var would report a
+        logged-in user as unauthenticated and vice versa.
         """
-        mock_run.return_value.returncode = 0
-
         delegator = Delegator(config_dir=temp_config_dir)
+        minimax = delegator.services["minimax"]
 
-        with patch.dict(os.environ, {}, clear=False):
-            if "MINIMAX_API_KEY" in os.environ:
-                del os.environ["MINIMAX_API_KEY"]
-
-            is_available, issues = delegator.verify_service("minimax")
-
-        assert is_available is False
-        assert any("MINIMAX_API_KEY" in issue for issue in issues)
+        assert minimax.auth_method == "cli"
+        assert minimax.auth_env_var is None
 
     @pytest.mark.bdd
-    def test_build_minimax_command_with_model(self, temp_config_dir) -> None:
+    @patch("subprocess.run")
+    def test_verify_minimax_runs_mmx_auth_status(
+        self, mock_run, temp_config_dir
+    ) -> None:
+        """Given an unauthenticated CLI when verifying MiniMax then report it."""
+        mock_run.return_value.returncode = 1
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        is_available, issues = delegator.verify_service("minimax")
+
+        auth_calls = [
+            call.args[0]
+            for call in mock_run.call_args_list
+            if call.args and call.args[0][:1] == ["mmx"] and "auth" in call.args[0]
+        ]
+        assert ["mmx", "auth", "status"] in auth_calls
+        assert is_available is False
+        assert any("not authenticated" in issue for issue in issues)
+
+    @pytest.mark.bdd
+    def test_build_minimax_command_matches_mmx_contract(self, temp_config_dir) -> None:
         """Given a model option when building the MiniMax command.
 
-        then the command carries the model flag and ``-p`` prompt.
+        then the argv matches ``mmx text chat --model M --message P``.
         """
         delegator = Delegator(config_dir=temp_config_dir)
 
@@ -156,7 +172,106 @@ class TestDelegator:
             options={"model": "MiniMax-M3"},
         )
 
-        assert command == ["minimax", "--model", "MiniMax-M3", "-p", "summarize this"]
+        assert command == [
+            "mmx",
+            "text",
+            "chat",
+            "--model",
+            "MiniMax-M3",
+            "--message",
+            "summarize this",
+        ]
+
+    @pytest.mark.bdd
+    def test_build_minimax_command_uses_output_flag(self, temp_config_dir) -> None:
+        """MiniMax takes ``--output``, not Gemini's ``--output-format``."""
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        command = delegator.build_command(
+            "minimax",
+            "extract",
+            options={"output_format": "json"},
+        )
+
+        assert "--output" in command
+        assert "--output-format" not in command
+        assert command[command.index("--output") + 1] == "json"
+
+    @pytest.mark.bdd
+    def test_build_minimax_command_drops_unsupported_temperature(
+        self, temp_config_dir
+    ) -> None:
+        """``mmx text chat`` documents no temperature flag, so none is emitted."""
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        command = delegator.build_command(
+            "minimax",
+            "extract",
+            options={"temperature": 0.2},
+        )
+
+        assert "--temperature" not in command
+
+    @pytest.mark.bdd
+    def test_build_minimax_command_inlines_file_contents(
+        self, temp_config_dir, tmp_path
+    ) -> None:
+        """Given files when building a MiniMax command then inline them.
+
+        ``mmx`` has no ``@path`` context syntax, so a bare reference would
+        reach the model as literal text with the file contents missing.
+        """
+        target = tmp_path / "sample.py"
+        target.write_text("def marker_function():\n    return 42\n")
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        command = delegator.build_command(
+            "minimax",
+            "summarize",
+            files=[str(target)],
+        )
+
+        prompt = command[-1]
+        assert "marker_function" in prompt
+        assert f"@{target}" not in prompt
+        assert "summarize" in prompt
+
+    @pytest.mark.bdd
+    def test_build_minimax_command_truncates_oversized_inline_context(
+        self, temp_config_dir, tmp_path
+    ) -> None:
+        """Inlined context stays under the single-argument limit of execve."""
+        target = tmp_path / "big.txt"
+        target.write_text("x" * (MAX_INLINE_CONTEXT_BYTES * 2))
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        command = delegator.build_command("minimax", "summarize", files=[str(target)])
+
+        prompt = command[-1]
+        assert len(prompt.encode("utf-8")) <= MAX_INLINE_CONTEXT_BYTES + 1024
+        assert "truncated" in prompt.lower()
+
+    @pytest.mark.bdd
+    def test_build_gemini_command_still_uses_at_references(
+        self, temp_config_dir, tmp_path
+    ) -> None:
+        """Regression guard: the Gemini/Qwen ``@path`` contract is unchanged."""
+        target = tmp_path / "sample.py"
+        target.write_text("print('hi')\n")
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        command = delegator.build_command(
+            "gemini",
+            "summarize",
+            files=[str(target)],
+            options={"output_format": "json", "temperature": 0.5},
+        )
+
+        assert command[0] == "gemini"
+        assert "--output-format" in command
+        assert "--temperature" in command
+        assert command[-2] == "-p"
+        assert f"@{target}" in command[-1]
 
     def test_load_configurations_with_custom_config(
         self,

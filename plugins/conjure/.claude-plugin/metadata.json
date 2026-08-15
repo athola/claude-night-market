@@ -5,7 +5,9 @@
   "skills": [
     "skills/delegation-core",
     "skills/gemini-delegation",
-    "skills/qwen-delegation"
+    "skills/qwen-delegation",
+    "skills/minimax-delegation",
+    "skills/agent-teams"
   ],
   "dependencies": {
     "leyline": ">=1.0.0"

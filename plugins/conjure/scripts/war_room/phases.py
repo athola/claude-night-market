@@ -14,6 +14,7 @@ from scripts.war_room.experts import (
     EXPERT_CONFIGS,
     FULL_COUNCIL,
     LIGHTWEIGHT_PANEL,
+    active_panel,
 )
 from scripts.war_room.models import WarRoomSession
 from scripts.war_room.prompts import (
@@ -245,7 +246,9 @@ async def phase_voting(orch: WarRoomOrchestrator, session: WarRoomSession) -> No
     coas_with_challenges += f"\n\n## RED TEAM CHALLENGES\n{challenges}"
 
     # Get active panel for voting
-    panel = FULL_COUNCIL if session.mode == "full_council" else LIGHTWEIGHT_PANEL
+    panel = active_panel(
+        FULL_COUNCIL if session.mode == "full_council" else LIGHTWEIGHT_PANEL
+    )
     voting_experts = [e for e in panel if e != "supreme_commander"]
 
     prompts: dict[str, str] = {}
@@ -324,7 +327,9 @@ async def phase_premortem(orch: WarRoomOrchestrator, session: WarRoomSession) ->
     )
 
     # All active experts do premortem
-    panel = FULL_COUNCIL if session.mode == "full_council" else LIGHTWEIGHT_PANEL
+    panel = active_panel(
+        FULL_COUNCIL if session.mode == "full_council" else LIGHTWEIGHT_PANEL
+    )
     premortem_experts = [e for e in panel if e != "supreme_commander"]
 
     prompts: dict[str, str] = {}

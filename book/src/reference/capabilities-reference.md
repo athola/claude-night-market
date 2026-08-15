@@ -140,6 +140,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `quality-gate` | [egregore](../plugins/egregore.md) | Pre-merge quality validation for autonomous sessions |
 | `quota-management` | [leyline](../plugins/leyline.md) | Rate limiting and quotas |
 | `qwen-delegation` | [conjure](../plugins/conjure.md) | Qwen MCP integration |
+| `minimax-delegation` | [conjure](../plugins/conjure.md) | MiniMax CLI (mmx) integration |
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
 | `research` | [tome](../plugins/tome.md) | Multi-source research orchestration |
 | `response-compression` | [conserve](../plugins/conserve.md) | Response compression patterns |
