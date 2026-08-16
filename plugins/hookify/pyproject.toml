@@ -27,6 +27,8 @@ exclude = [
 ]
 
 [tool.ruff]
+# Inherit the repo-wide rule floor; this file may only add.
+extend = "../../pyproject.toml"
 target-version = "py39"
 line-length = 88
 exclude = [
@@ -37,7 +39,7 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "UP", "B", "C4", "PLR0913"]
+extend-select = ["E", "F", "W", "I", "UP", "B", "C4", "PLR0913"]
 ignore = ["E501"]
 
 [tool.pytest.ini_options]

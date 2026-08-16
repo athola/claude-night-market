@@ -37,11 +37,13 @@ markers = [
 ]
 
 [tool.ruff]
+# Inherit the repo-wide rule floor; this file may only add.
+extend = "../../pyproject.toml"
 line-length = 88
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "PLR0913"]
+extend-select = ["E", "W", "F", "I", "B", "C4", "PLR0913"]
 
 [tool.mypy]
 python_version = "3.9"
