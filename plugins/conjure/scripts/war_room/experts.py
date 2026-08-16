@@ -20,9 +20,10 @@ from scripts.war_room.config import (
     CLAUDE_SONNET,
     GEMINI_3_FLASH,
     GEMINI_3_PRO,
-    GLM_52,
+    GLM_53,
     MINIMAX_M2_7,
     MINIMAX_M3,
+    MUSE_SPARK,
     QWEN_MAX,
     QWEN_TURBO,
 )
@@ -60,7 +61,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "field_tactician": ExpertConfig(
         role="Field Tactician",
         service="glm",
-        model=GLM_52,
+        model=GLM_53,
         description="Implementation feasibility assessment",
         phases=["coa"],
         command_resolver="get_glm_command",
@@ -108,6 +109,20 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         description="Rapid second-opinion challenge of proposed courses of action",
         phases=["red_team"],
         command=["mmx", "text", "chat", "--model", MINIMAX_M2_7, "--message"],
+        optional=True,
+    ),
+    # ``muse exec <prompt>`` takes the prompt positionally: Meta documents no
+    # prompt flag, so the command ends at the subcommand and the orchestrator's
+    # trailing prompt lands in the right slot. No --model flag is documented
+    # for exec either, so the model here records what Muse Code runs on rather
+    # than selecting it.
+    "systems_engineer": ExpertConfig(
+        role="Systems Engineer",
+        service="muse",
+        model=MUSE_SPARK,
+        description="Repository-scale implementation review across a large codebase",
+        phases=["intel", "coa"],
+        command=["muse", "exec"],
         optional=True,
     ),
 }
@@ -241,7 +256,7 @@ def get_glm_command() -> list[str]:
         return [str(local_bin), "--dangerously-skip-permissions", "-p"]
 
     raise RuntimeError(
-        "GLM-5.2 not available. Install claude-glm or configure ccgd alias.\n"
+        "GLM not available. Install claude-glm or configure the ccgd alias.\n"
         "Add to ~/.bashrc: alias ccgd='claude-glm --dangerously-skip-permissions'"
     )
 

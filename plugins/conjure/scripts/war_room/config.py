@@ -30,8 +30,17 @@ QWEN_MAX = "qwen-max"
 MINIMAX_M3 = "MiniMax-M3"
 MINIMAX_M2_7 = "MiniMax-M2.7"
 
-# GLM models (served via ccgd / claude-glm)
+# Meta Muse models. muse-spark-1.2 is served by the muse CLI; the Glimmer
+# weights are Apache 2.0 and run locally, served here through ollama.
+MUSE_SPARK = "muse-spark-1.2"
+MUSE_GLIMMER = "muse-glimmer:30b"
+
+# GLM models, served through ccgd / claude-glm or the glm delegation service
+# against Z.ai's Anthropic-compatible endpoint. GLM-5.2 stays defined: 5.3 was
+# still rolling out when it was added, so a caller pinning the older id is
+# making a deliberate choice rather than lagging behind.
 GLM_52 = "glm-5.2"
+GLM_53 = "glm-5.3"
 
 # Haiku fallback (used when external LLMs are unavailable)
 CLAUDE_HAIKU = "claude-haiku-4-5"
@@ -67,7 +76,10 @@ validate_model_ids(
         "QWEN_MAX": QWEN_MAX,
         "MINIMAX_M3": MINIMAX_M3,
         "MINIMAX_M2_7": MINIMAX_M2_7,
+        "MUSE_SPARK": MUSE_SPARK,
+        "MUSE_GLIMMER": MUSE_GLIMMER,
         "GLM_52": GLM_52,
+        "GLM_53": GLM_53,
         "CLAUDE_HAIKU": CLAUDE_HAIKU,
     }
 )

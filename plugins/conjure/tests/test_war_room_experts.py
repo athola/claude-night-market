@@ -38,7 +38,7 @@ class TestExpertConfiguration:
     def test_full_council_includes_all_experts(self) -> None:
         """Full council includes all configured experts."""
         assert set(FULL_COUNCIL) == set(EXPERT_CONFIGS.keys())
-        assert len(FULL_COUNCIL) == 9
+        assert len(FULL_COUNCIL) == 10
 
     def test_native_experts_have_no_command(self) -> None:
         """Native experts (Opus, Sonnet) should not have subprocess commands."""
@@ -234,3 +234,30 @@ class TestActivePanel:
         ):
             assert active_panel(FULL_COUNCIL) == FULL_COUNCIL
             assert active_panel(LIGHTWEIGHT_PANEL) == LIGHTWEIGHT_PANEL
+
+
+class TestMuseExpert:
+    """Meta's Muse Code joins the council on its documented contract."""
+
+    def test_muse_expert_uses_the_documented_exec_contract(self) -> None:
+        """``muse exec`` takes the prompt positionally.
+
+        The orchestrator appends the prompt as the final argv element, so a
+        command ending in a flag would consume it as that flag's value.
+        Muse documents no prompt flag at all, so the command ends at
+        ``exec`` and the prompt lands in the right place.
+        """
+        expert = EXPERT_CONFIGS["systems_engineer"]
+
+        assert expert.service == "muse"
+        assert expert.model == "muse-spark-1.2"
+        assert get_expert_command(expert) == ["muse", "exec"]
+
+    def test_muse_expert_is_optional(self) -> None:
+        """Muse is not installed by default, so it must opt in.
+
+        An expert whose CLI is absent otherwise votes through the Haiku
+        fallback, which puts a ballot in the Borda count that no external
+        model actually cast.
+        """
+        assert EXPERT_CONFIGS["systems_engineer"].optional is True

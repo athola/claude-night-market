@@ -4,7 +4,9 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY:
-.PHONY: benchmark check clean debug-variables delegate-auto delegate-gemini delegate-minimax delegate-qwen \
+.PHONY: benchmark check clean debug-variables delegate-auto delegate-codex delegate-doctor \
+	delegate-gemini delegate-glimmer delegate-glm delegate-install delegate-minimax delegate-muse \
+	delegate-opencode delegate-qwen delegate-setup \
 	delegate-status delegate-test delegate-usage delegate-verify demo-delegation demo-plugin \
 	demo-skills demo-status demo-token-estimate deps fix format help install-hooks lint memory-profile \
 	mutation-test plugin-check precommit quota-status security spellcheck status test test-plugin \
@@ -32,6 +34,14 @@ help: ## Show this help message
 	@echo "  make delegate-gemini PROMPT='Analyze code' FILES='src/main.py'"
 	@echo "  make delegate-qwen PROMPT='Extract patterns' FILES='src/**/*.py'"
 	@echo "  make delegate-minimax PROMPT='Summarize' FILES='src/**/*.py'"
+	@echo "  make delegate-glm PROMPT='Review this design'"
+	@echo "  make delegate-muse PROMPT='Run the tests and summarize failures'"
+	@echo "  make delegate-codex PROMPT='Explain this module'"
+	@echo "  make delegate-opencode PROMPT='Find the bug'"
+	@echo "  make delegate-glimmer PROMPT='Summarize' FILES='src/'   # local, no quota"
+	@echo "  make delegate-setup      # which providers are installed?"
+	@echo "  make delegate-doctor     # what is broken and how to fix it"
+	@echo "  make delegate-install    # install what is missing, with confirmation"
 	@echo "  make delegate-auto PROMPT='Best analysis' FILES='src/'"
 
 # Dependency management
@@ -125,15 +135,25 @@ delegate-status: ## Check delegation service availability
 	@echo "Checking delegation service status..."
 	uv run python scripts/delegation_executor.py --list-services
 
-delegate-verify: ## Verify authentication for all services
+delegate-setup: ## Show which provider CLIs are installed and authenticated
+	@uv run python scripts/delegation_setup.py --status
+
+delegate-doctor: ## Explain each unhealthy provider and the command that fixes it
+	@uv run python scripts/delegation_setup.py --doctor
+
+delegate-install: ## Offer to install every missing provider CLI, one confirmation each
+	@uv run python scripts/delegation_setup.py --all
+
+delegate-verify: ## Verify authentication for all registered services
 	@echo "Verifying delegation services..."
-	@# Every service is verified before the target fails, so one broken
-	@# service does not hide the state of the others. 'fail' is collected
-	@# across the runs rather than short-circuiting on the first.
+	@# The service list comes from the registry rather than being spelled
+	@# out here, so a newly registered provider is verified without editing
+	@# this target. Every service is verified before the target fails, so
+	@# one broken service does not hide the state of the others.
 	@fail=0; \
-	uv run python scripts/delegation_executor.py gemini --verify || fail=1; \
-	uv run python scripts/delegation_executor.py qwen --verify || fail=1; \
-	uv run python scripts/delegation_executor.py minimax --verify || fail=1; \
+	for svc in $$(uv run python scripts/delegation_executor.py --list-services | awk -F: '{print $$1}'); do \
+		uv run python scripts/delegation_executor.py $$svc --verify || fail=1; \
+	done; \
 	exit $$fail
 
 delegate-usage: ## Show usage analytics across services
@@ -152,18 +172,39 @@ delegate-minimax: ## Delegate to MiniMax
 	@echo "Delegating to MiniMax..."
 	uv run python scripts/delegation_executor.py minimax "$(PROMPT)" $(if $(FILES),--files $(FILES))
 
+delegate-glm: ## Delegate to GLM-5.3 via Z.ai
+	@echo "Delegating to GLM..."
+	uv run python scripts/delegation_executor.py glm "$(PROMPT)" $(if $(FILES),--files $(FILES))
+
+delegate-muse: ## Delegate to Meta Muse Code
+	@echo "Delegating to Muse..."
+	uv run python scripts/delegation_executor.py muse "$(PROMPT)" $(if $(FILES),--files $(FILES))
+
+delegate-codex: ## Delegate to OpenAI Codex CLI
+	@echo "Delegating to Codex..."
+	uv run python scripts/delegation_executor.py codex "$(PROMPT)" $(if $(FILES),--files $(FILES))
+
+delegate-opencode: ## Delegate to OpenCode
+	@echo "Delegating to OpenCode..."
+	uv run python scripts/delegation_executor.py opencode "$(PROMPT)" $(if $(FILES),--files $(FILES))
+
+delegate-glimmer: ## Delegate to Muse Glimmer running locally via ollama
+	@echo "Delegating to Muse Glimmer (local)..."
+	uv run python scripts/delegation_executor.py glimmer "$(PROMPT)" $(if $(FILES),--files $(FILES))
+
 delegate-auto: ## Auto-select best delegation service
 	@echo "Auto-selecting best delegation service..."
 	uv run python scripts/delegation_executor.py auto "$(PROMPT)" $(if $(FILES),--files $(FILES))
 
 delegate-test: ## Test all delegation services
 	@echo "Testing delegation services..."
-	@echo "Testing Gemini..."
-	uv run python scripts/delegation_executor.py gemini "Respond with 'OK'" || echo "Gemini not available"
-	@echo "Testing Qwen..."
-	uv run python scripts/delegation_executor.py qwen "Respond with 'OK'" || echo "Qwen not available"
-	@echo "Testing MiniMax..."
-	uv run python scripts/delegation_executor.py minimax "Respond with 'OK'" || echo "MiniMax not available"
+	@# Iterates the registry so a newly registered provider is exercised
+	@# here without editing this target.
+	@for svc in $$(uv run python scripts/delegation_executor.py --list-services | awk -F: '{print $$1}'); do \
+		echo "Testing $$svc..."; \
+		uv run python scripts/delegation_executor.py $$svc "Respond with 'OK'" \
+			|| echo "$$svc not available"; \
+	done
 	@echo "Showing usage..."
 	uv run python scripts/delegation_executor.py --usage
 
