@@ -44,7 +44,7 @@ class TestCompositeScoring:
         assert len(scores) == graph.entity_count()
 
     def test_scores_between_zero_and_one(self, manager: TierManager) -> None:
-        """Every composite score is normalised into the unit interval."""
+        """Every composite score is normalized into the unit interval."""
         scores = manager.compute_scores()
         for score in scores.values():
             assert 0.0 <= score <= 1.0

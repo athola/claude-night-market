@@ -228,7 +228,9 @@ You can run full checks on-demand.
 For daily development, rely on the automatic pre-commit hooks (10-30s).
 Before submitting a PR, run `./scripts/check-all-quality.sh` (2-5min) to ensure
 everything is clean. We run full reports monthly using the `--report` flag.
-CI/CD pipelines execute `make lint && make typecheck && make test`.
+CI runs the gates as separate workflows: `lint.yml` (ruff, per-plugin
+union), `typecheck.yml` (`make typecheck`), and `ecosystem-tests.yml`
+(`make test-ecosystem`).
 
 ## Configuration Files
 

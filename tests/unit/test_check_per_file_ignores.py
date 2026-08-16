@@ -43,6 +43,25 @@ class TestDiffPerFileIgnores:
         result = diff_per_file_ignores(old, new)
         assert result == {"tests/**/*.py": ["PLR2004"]}
 
+    def test_new_rule_detected_under_extend_key(self) -> None:
+        """The extend- form is the one plugin configs use, so the guard must
+        read it too. A config that extends the repo floor states its
+        additions as ``extend-per-file-ignores``; reading only the plain key
+        would let every new suppression through unseen.
+        """
+        old = textwrap.dedent("""\
+            [tool.ruff.lint.extend-per-file-ignores]
+            "tests/**/*.py" = ["S101"]
+        """)
+        new = textwrap.dedent("""\
+            [tool.ruff.lint.extend-per-file-ignores]
+            "tests/**/*.py" = ["S101", "E501"]
+        """)
+
+        added = diff_per_file_ignores(old, new)
+
+        assert added == {"tests/**/*.py": ["E501"]}
+
     def test_new_pattern_detected(self) -> None:
         """When an entirely new file pattern is added, all its rules are flagged."""
         old = textwrap.dedent("""\

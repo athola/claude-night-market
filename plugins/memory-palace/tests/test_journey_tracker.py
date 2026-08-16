@@ -94,7 +94,7 @@ class TestSynapseStrengthening:
     def test_enriched_strengthens_synapse(
         self, tracker: JourneyTracker, graph: KnowledgeGraph
     ) -> None:
-        """An enriching journey rewards the synapse it travelled."""
+        """An enriching journey rewards the synapse it traveled."""
         syn_id = graph.create_synapse("anchor_a", "anchor_b", strength=0.3)
         journey_id = tracker.start_journey("traveler", trigger="search")
         tracker.record_waypoint(journey_id, palace_id="p1", synapse_id=syn_id)
@@ -138,6 +138,6 @@ class TestJourneyQueries:
         assert len(journeys) == 2
 
     def test_empty_journeys(self, tracker: JourneyTracker) -> None:
-        """An entity that has travelled nowhere yields an empty list."""
+        """An entity that has traveled nowhere yields an empty list."""
         journeys = tracker.get_entity_journeys("nonexistent")
         assert journeys == []

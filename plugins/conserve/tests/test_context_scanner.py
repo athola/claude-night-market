@@ -457,7 +457,7 @@ class TestEntryPointDetection:
         assert any("__main__.py" in p for p in paths)
 
     def test_detects_app_py(self, tmp_path: Path) -> None:
-        """app.py is recognised alongside main.py."""
+        """app.py is recognized alongside main.py."""
         (tmp_path / "app.py").write_text("app = Flask(__name__)\n")
         result = cs.detect_entry_points(tmp_path, [])
         paths = [e.path for e in result]
@@ -528,7 +528,7 @@ class TestStrategicSummarizer:
         assert "## Frameworks" not in md
 
     def test_token_estimate_under_target(self, tmp_project: Path) -> None:
-        """Summarising keeps the rendered map inside its token target."""
+        """Summarizing keeps the rendered map inside its token target."""
         result = cs.scan_directory(tmp_project)
         md = cs.render_markdown(result)
         estimated_tokens = len(md) / 4
@@ -566,7 +566,7 @@ class TestRenderers:
         assert "directories" in parsed
 
     def test_json_roundtrips(self, tmp_project: Path) -> None:
-        """Counts survive serialisation unchanged."""
+        """Counts survive serialization unchanged."""
         result = cs.scan_directory(tmp_project)
         j = cs.render_json(result)
         parsed = json.loads(j)
@@ -833,14 +833,14 @@ class TestRouteDetection:
         assert "POST" in methods
 
     def test_detects_flask_routes(self, flask_project: Path) -> None:
-        """Flask's decorator form is recognised too."""
+        """Flask's decorator form is recognized too."""
         routes = cs.detect_routes(flask_project)
         assert len(routes) >= 2
         paths = [r.path for r in routes]
         assert "/health" in paths
 
     def test_detects_express_routes(self, express_project: Path) -> None:
-        """Express router calls are recognised in JavaScript sources."""
+        """Express router calls are recognized in JavaScript sources."""
         routes = cs.detect_routes(express_project)
         assert len(routes) >= 2
         paths = [r.path for r in routes]

@@ -158,7 +158,7 @@ class TestASCIIOverview:
         assert "1" in ascii_art  # Data Structures has 1 entity
 
     def test_ascii_empty_palace(self, graph: KnowledgeGraph) -> None:
-        """An empty palace is labelled as such rather than rendered blank."""
+        """An empty palace is labeled as such rather than rendered blank."""
         graph.upsert_entity("p_empty", "palace", "Empty")
         renderer = PalaceRenderer(graph)
         ascii_art = renderer.ascii_overview("p_empty")
@@ -198,7 +198,7 @@ class TestJourneyReplay:
         assert "p1" in result
 
     def test_multiple_waypoints_ordered(self, graph: KnowledgeGraph) -> None:
-        """Waypoints appear in the order they were travelled."""
+        """Waypoints appear in the order they were traveled."""
         journey_id = graph.create_journey("e1", trigger="traverse")
         graph.add_waypoint(journey_id, 1, "p1", entity_delta='{"a": 1}')
         graph.add_waypoint(journey_id, 2, "p_second", entity_delta='{"b": 2}')

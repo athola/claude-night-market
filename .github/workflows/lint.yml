@@ -1,0 +1,61 @@
+name: Lint (per-plugin ruff union)
+
+# Enforces the ruff rule union across every plugin on each PR. The local
+# pre-commit `ruff-check` hook runs the same check, but only fires for
+# people who have hooks installed and only on commit. This gate guarantees
+# the whole monorepo is linted before merge, so violations stop
+# accumulating in plugins a given change did not touch.
+#
+# Why no `--config`: each plugin's pyproject.toml carries
+# `extend = "../../pyproject.toml"` and states its additions as
+# `extend-select`. Passing `--config pyproject.toml` would force the root
+# file onto every path and collapse that union back to the root subset,
+# which is the drift this gate exists to prevent. Letting ruff resolve
+# config per file gives each plugin its own stricter set on top of the
+# shared floor.
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "plugins/**/*.py"
+      - "plugins/**/pyproject.toml"
+      - "pyproject.toml"
+      - "scripts/**/*.py"
+      - "tests/**/*.py"
+      - "Makefile"
+      - ".github/workflows/lint.yml"
+  pull_request:
+    paths:
+      - "plugins/**/*.py"
+      - "plugins/**/pyproject.toml"
+      - "pyproject.toml"
+      - "scripts/**/*.py"
+      - "tests/**/*.py"
+      - "Makefile"
+      - ".github/workflows/lint.yml"
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: ruff check across all plugins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.0.1
+
+      - name: Check formatting
+        run: uv run ruff format --check --config pyproject.toml plugins/
+
+      - name: Run ruff check
+        run: uv run ruff check .
