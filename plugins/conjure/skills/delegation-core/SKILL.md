@@ -1,6 +1,6 @@
 ---
 name: delegation-core
-description: Delegates tasks to Gemini or Qwen with quota tracking and error handling. Use when tasks exceed context window or need cheaper processing.
+description: Delegates tasks to Gemini, Qwen, or MiniMax with quota tracking and error handling. Use when tasks exceed context window or need cheaper processing.
 alwaysApply: false
 category: delegation-framework
 tags:
@@ -8,6 +8,7 @@ tags:
 - external-llm
 - gemini
 - qwen
+- minimax
 - task-management
 - quality-control
 dependencies:
@@ -179,6 +180,7 @@ See `modules/cost-estimation.md` for leyline integration examples.
 For detailed service workflows:
 - `Skill(conjure:gemini-delegation)`: Gemini CLI specifics.
 - `Skill(conjure:qwen-delegation)`: Qwen MCP specifics.
+- `Skill(conjure:minimax-delegation)`: MiniMax CLI specifics.
 
 ## Execution Modes
 

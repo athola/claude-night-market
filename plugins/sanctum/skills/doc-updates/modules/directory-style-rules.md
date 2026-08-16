@@ -113,15 +113,17 @@ def detect_wall_of_text(content: str, max_sentences: int) -> list[Violation]:
     paragraphs = extract_paragraphs(content)
 
     for i, para in enumerate(paragraphs):
-        sentence_count = len(re.split(r'[.!?]+', para.strip()))
+        sentence_count = len(re.split(r"[.!?]+", para.strip()))
         if sentence_count > max_sentences:
-            violations.append({
-                'type': 'wall_of_text',
-                'location': f'paragraph {i+1}',
-                'actual': sentence_count,
-                'limit': max_sentences,
-                'suggestion': 'Break into smaller paragraphs or convert to bullet list'
-            })
+            violations.append(
+                {
+                    "type": "wall_of_text",
+                    "location": f"paragraph {i + 1}",
+                    "actual": sentence_count,
+                    "limit": max_sentences,
+                    "suggestion": "Break into smaller paragraphs or convert to bullet list",
+                }
+            )
 
     return violations
 ```
@@ -130,24 +132,27 @@ def detect_wall_of_text(content: str, max_sentences: int) -> list[Violation]:
 
 ```python
 FILLER_PHRASES = [
-    r'\bin order to\b',
-    r'\bit should be noted\b',
-    r'\bas mentioned (above|below|earlier|previously)\b',
-    r'\bmoving on\b',
-    r'\bnow let\'?s (look at|explore|consider)\b',
-    r'\bthis (document|section|chapter) (describes|explains|covers)\b',
+    r"\bin order to\b",
+    r"\bit should be noted\b",
+    r"\bas mentioned (above|below|earlier|previously)\b",
+    r"\bmoving on\b",
+    r"\bnow let\'?s (look at|explore|consider)\b",
+    r"\bthis (document|section|chapter) (describes|explains|covers)\b",
 ]
+
 
 def detect_filler(content: str) -> list[Violation]:
     violations = []
     for pattern in FILLER_PHRASES:
         matches = re.findall(pattern, content, re.IGNORECASE)
         for match in matches:
-            violations.append({
-                'type': 'filler_phrase',
-                'phrase': match,
-                'suggestion': 'Remove or rewrite directly'
-            })
+            violations.append(
+                {
+                    "type": "filler_phrase",
+                    "phrase": match,
+                    "suggestion": "Remove or rewrite directly",
+                }
+            )
     return violations
 ```
 
@@ -157,13 +162,13 @@ def detect_filler(content: str) -> list[Violation]:
 
 ```python
 def get_ruleset(file_path: str) -> RuleSet:
-    if file_path.startswith('book/'):
+    if file_path.startswith("book/"):
         return BOOK_RULES
-    elif file_path.startswith('docs/'):
+    elif file_path.startswith("docs/"):
         return DOCS_RULES
-    elif file_path.startswith('wiki/'):
+    elif file_path.startswith("wiki/"):
         return WIKI_RULES
-    elif re.match(r'plugins/[^/]+/README\.md$', file_path):
+    elif re.match(r"plugins/[^/]+/README\.md$", file_path):
         return PLUGIN_README_RULES
     else:
         return DOCS_RULES  # Default to strict
@@ -177,14 +182,16 @@ def validate_file(file_path: str, content: str) -> ValidationResult:
     violations = []
 
     # Structure checks
-    lines = content.split('\n')
+    lines = content.split("\n")
     if len(lines) > rules.max_lines:
-        violations.append({
-            'severity': 'warning',
-            'type': 'file_length',
-            'actual': len(lines),
-            'limit': rules.max_lines
-        })
+        violations.append(
+            {
+                "severity": "warning",
+                "type": "file_length",
+                "actual": len(lines),
+                "limit": rules.max_lines,
+            }
+        )
 
     # Wall-of-text check
     violations.extend(detect_wall_of_text(content, rules.max_sentences))
@@ -196,7 +203,7 @@ def validate_file(file_path: str, content: str) -> ValidationResult:
         file_path=file_path,
         ruleset=rules.name,
         violations=violations,
-        passed=len([v for v in violations if v.get('severity') == 'error']) == 0
+        passed=len([v for v in violations if v.get("severity") == "error"]) == 0,
     )
 ```
 

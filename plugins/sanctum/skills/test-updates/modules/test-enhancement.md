@@ -64,8 +64,8 @@ behavior specifications.
 ```python
 def test_commit():
     repo = GitRepo()
-    repo.add('file.txt')
-    result = repo.commit('message')
+    repo.add("file.txt")
+    result = repo.commit("message")
     assert result is True
 ```
 
@@ -82,14 +82,14 @@ def test_commit_workflow_with_staged_file():
     """
     # Given
     repo = GitRepo()
-    repo.add('file.txt')
+    repo.add("file.txt")
 
     # When
-    result = repo.commit('Add new feature')
+    result = repo.commit("Add new feature")
 
     # Then
     assert result is True
-    assert repo.get_last_commit_message() == 'Add new feature'
+    assert repo.get_last_commit_message() == "Add new feature"
 ```
 
 #### Transformation Steps
@@ -122,13 +122,16 @@ def test_parse_number():
 
 **Enhanced:**
 ```python
-@pytest.mark.parametrize("input_str,expected,description", [
-    ("123", 123, "valid positive integer"),
-    ("-456", -456, "valid negative integer"),
-    ("0", 0, "zero value"),
-    ("3.14", 3.14, "valid float"),
-    ("1e5", 100000, "scientific notation"),
-])
+@pytest.mark.parametrize(
+    "input_str,expected,description",
+    [
+        ("123", 123, "valid positive integer"),
+        ("-456", -456, "valid negative integer"),
+        ("0", 0, "zero value"),
+        ("3.14", 3.14, "valid float"),
+        ("1e5", 100000, "scientific notation"),
+    ],
+)
 def test_parse_number_valid_inputs(input_str, expected, description):
     """
     GIVEN various valid number strings
@@ -137,13 +140,17 @@ def test_parse_number_valid_inputs(input_str, expected, description):
     """
     assert parse_number(input_str) == expected
 
-@pytest.mark.parametrize("invalid_input", [
-    "abc",
-    "",
-    "12.34.56",
-    "1,234",
-    None,
-])
+
+@pytest.mark.parametrize(
+    "invalid_input",
+    [
+        "abc",
+        "",
+        "12.34.56",
+        "1,234",
+        None,
+    ],
+)
 def test_parse_number_invalid_inputs(invalid_input):
     """
     GIVEN invalid number inputs

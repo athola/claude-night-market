@@ -252,16 +252,18 @@ file-organizer/
 import click
 from file_organizer.business.services import OrganizationService
 
+
 @click.group()
 def cli():
     """File Organizer - Organize your files intelligently."""
     pass
 
+
 @cli.command()
-@click.argument('source', type=click.Path(exists=True))
-@click.option('--target', '-t', type=click.Path(), help='Target directory')
-@click.option('--strategy', '-s', default='type', help='Organization strategy')
-@click.option('--dry-run', is_flag=True, help='Show what would be done')
+@click.argument("source", type=click.Path(exists=True))
+@click.option("--target", "-t", type=click.Path(), help="Target directory")
+@click.option("--strategy", "-s", default="type", help="Organization strategy")
+@click.option("--dry-run", is_flag=True, help="Show what would be done")
 def organize(source: str, target: str, strategy: str, dry_run: bool):
     """Organize files in SOURCE directory."""
     service = OrganizationService()
@@ -278,6 +280,7 @@ from pathlib import Path
 from file_organizer.business.models import OrganizationResult
 from file_organizer.data.repositories import FileRepository
 
+
 @dataclass
 class OrganizationService:
     """Service for organizing files."""
@@ -288,11 +291,7 @@ class OrganizationService:
         self.repository = self.repository or FileRepository()
 
     def organize(
-        self,
-        source: str,
-        target: str,
-        strategy: str,
-        dry_run: bool
+        self, source: str, target: str, strategy: str, dry_run: bool
     ) -> OrganizationResult:
         """Organize files from source to target using strategy."""
         files = self.repository.list_files(Path(source))
@@ -312,16 +311,13 @@ from pathlib import Path
 from typing import List
 from file_organizer.data.models import FileInfo, FileAction
 
+
 class FileRepository:
     """Repository for file system operations."""
 
     def list_files(self, directory: Path) -> List[FileInfo]:
         """List all files in directory recursively."""
-        return [
-            FileInfo.from_path(p)
-            for p in directory.rglob('*')
-            if p.is_file()
-        ]
+        return [FileInfo.from_path(p) for p in directory.rglob("*") if p.is_file()]
 
     def execute_actions(self, actions: List[FileAction]) -> None:
         """Execute file organization actions."""

@@ -51,6 +51,12 @@ test-output: ## Run output tests (export, visualizer)
 metrics: ## Score the retrieval gold set (offline, no network)
 	$(UV_RUN) python -m tome.metrics.harness
 
+frontier-matrix: ## Score the frontier verdict vs labels (offline, no network)
+	$(UV_RUN) python -m tome.metrics.frontier_matrix
+
+verify-canaries: ## LIVE. Re-check the canary targets against their services
+	$(UV_RUN) python -m tome.scripts.verify_canaries
+
 # ---------- Code Quality ----------
 fix: ## Auto-fix lint issues
 	$(RUFF) check --fix $(RUFF_TARGETS)

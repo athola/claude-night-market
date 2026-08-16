@@ -30,6 +30,7 @@ You're adding `print()` calls to Python code.
 ```python
 # Use logging module
 import logging
+
 logger = logging.getLogger(__name__)
 
 # Instead of print
@@ -44,9 +45,9 @@ logging.basicConfig(level=logging.INFO)
 **Quick logging setup:**
 ```python
 import logging
+
 logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 ```

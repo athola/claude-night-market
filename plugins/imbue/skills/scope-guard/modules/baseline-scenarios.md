@@ -150,11 +150,12 @@ Total: 50+ lines for a 2-format problem
 **GREEN Phase Result**:
 ```python
 def load_yaml_config(path: str) -> dict:
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         return yaml.safe_load(f)
 
+
 def load_json_config(path: str) -> dict:
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         return json.load(f)
 ```
 

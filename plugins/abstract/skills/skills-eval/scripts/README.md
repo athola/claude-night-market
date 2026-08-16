@@ -12,13 +12,13 @@ Shared utilities module that provides common functions for skill parsing, token 
 
 ```python
 from skill_utils import (
-    parse_frontmatter,    # Parse YAML frontmatter from skill content
-    estimate_tokens,      # Estimate token count (4 chars/token)
-    load_skill_file,      # Load and parse a skill file
-    get_skill_name,       # Extract skill name from frontmatter
-    format_score,         # Format scores for display
-    get_efficiency_grade, # Calculate efficiency grades (A-D)
-    get_optimization_level # Get optimization level descriptions
+    parse_frontmatter,  # Parse YAML frontmatter from skill content
+    estimate_tokens,  # Estimate token count (4 chars/token)
+    load_skill_file,  # Load and parse a skill file
+    get_skill_name,  # Extract skill name from frontmatter
+    format_score,  # Format scores for display
+    get_efficiency_grade,  # Calculate efficiency grades (A-D)
+    get_optimization_level,  # Get optimization level descriptions
 )
 ```
 
@@ -29,7 +29,10 @@ import sys
 from pathlib import Path
 
 # Add abstract's scripts directory to path (installed from claude-night-market marketplace)
-abstract_scripts = Path.home() / ".claude/plugins/marketplaces/claude-night-market/plugins/abstract/skills/skills-eval/scripts"
+abstract_scripts = (
+    Path.home()
+    / ".claude/plugins/marketplaces/claude-night-market/plugins/abstract/skills/skills-eval/scripts"
+)
 sys.path.insert(0, str(abstract_scripts))
 
 # Import shared utilities
@@ -186,9 +189,13 @@ import sys
 from pathlib import Path
 
 # Import from abstract (installed from claude-night-market marketplace)
-abstract_scripts = Path.home() / ".claude/plugins/marketplaces/claude-night-market/plugins/abstract/skills/skills-eval/scripts"
+abstract_scripts = (
+    Path.home()
+    / ".claude/plugins/marketplaces/claude-night-market/plugins/abstract/skills/skills-eval/scripts"
+)
 sys.path.insert(0, str(abstract_scripts))
 from skill_utils import estimate_tokens, parse_frontmatter
+
 
 def analyze_resource_usage(skill_path: str):
     """Analyze resource usage using abstract's utilities"""

@@ -20,6 +20,14 @@ But it never blocks on *inability* to check -- offline, rate-limited, or
 unparseable responses skip cleanly (exit 0). A flaky network must never
 wedge a commit.
 
+Advisory mode is reachable without editing this file: set
+``PINNED_VERSIONS_ADVISORY=1`` and a behind pin is reported on stderr but
+exits 0. Sometimes the bump is a separate piece of work (a breaking major,
+or a pin another repo has to move first) and the alternative to an escape
+hatch is not a bumped pin, it is a deleted hook. The override only relaxes
+the gate, never tightens it, and the blocking notice names the variable so
+the way out is discoverable from the failure itself.
+
 Runs only when ``.pre-commit-config.yaml`` or a workflow file is staged
 (see the hook's ``files:`` filter), so ordinary commits pay no network
 cost.
@@ -32,6 +40,7 @@ Exit codes:
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -42,6 +51,11 @@ from pathlib import Path
 PRECOMMIT_CONFIG = ".pre-commit-config.yaml"
 WORKFLOWS_DIR = ".github/workflows"
 OUTDATED_IS_BLOCKING = True
+
+# Operator escape hatch. Set to an on value to downgrade a confirmed
+# behind-upstream pin from a blocking failure to a printed notice.
+ADVISORY_ENV_VAR = "PINNED_VERSIONS_ADVISORY"
+_ENV_ON = frozenset({"1", "true", "yes", "on"})
 
 # Pins deliberately held behind upstream, repo -> reason. main() reports
 # these as informational holds instead of blocking: bumping them would break
@@ -205,6 +219,20 @@ def collect_pins() -> list[tuple[str, str, str]]:
     return pins
 
 
+def is_blocking() -> bool:
+    """Return whether a confirmed behind-upstream pin should fail the run.
+
+    ``OUTDATED_IS_BLOCKING`` is the default; the environment can only relax
+    it, never tighten it, so a CI job cannot be made stricter by accident.
+    Presence alone is not opt-in: ``PINNED_VERSIONS_ADVISORY=0`` is how a
+    caller turns a flag off, and reading presence would turn the gate off
+    instead.
+    """
+    if not OUTDATED_IS_BLOCKING:
+        return False
+    return os.environ.get(ADVISORY_ENV_VAR, "").strip().lower() not in _ENV_ON
+
+
 def main() -> int:
     pins = collect_pins()
     if not pins:
@@ -240,8 +268,9 @@ def main() -> int:
         lines.append(f"  [{source}] {repo}: {pinned} -> {latest}")
     lines.append("  Bump pre-commit pins with: uv run pre-commit autoupdate")
     lines.append("  Bump CI actions by editing the uses: pins in .github/workflows/.")
+    lines.append(f"  To report without blocking, set {ADVISORY_ENV_VAR}=1 for the run.")
     print("\n".join(lines), file=sys.stderr)
-    return 1 if OUTDATED_IS_BLOCKING else 0
+    return 1 if is_blocking() else 0
 
 
 if __name__ == "__main__":

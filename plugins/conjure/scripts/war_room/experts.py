@@ -15,12 +15,14 @@ from collections.abc import Callable
 from pathlib import Path
 
 from scripts.war_room.config import (
-    CLAUDE_HAIKU_45,
-    CLAUDE_OPUS_48,
-    CLAUDE_SONNET_46,
+    CLAUDE_HAIKU,
+    CLAUDE_OPUS,
+    CLAUDE_SONNET,
     GEMINI_3_FLASH,
     GEMINI_3_PRO,
     GLM_52,
+    MINIMAX_M2_7,
+    MINIMAX_M3,
     QWEN_MAX,
     QWEN_TURBO,
 )
@@ -34,7 +36,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "supreme_commander": ExpertConfig(
         role="Supreme Commander",
         service="native",
-        model=CLAUDE_OPUS_48,
+        model=CLAUDE_OPUS,
         description="Final decision authority and synthesis",
         phases=["synthesis"],
         dangerous=False,
@@ -42,7 +44,7 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "chief_strategist": ExpertConfig(
         role="Chief Strategist",
         service="native",
-        model=CLAUDE_SONNET_46,
+        model=CLAUDE_SONNET,
         description="Approach generation and trade-off analysis",
         phases=["assessment", "coa"],
         dangerous=False,
@@ -87,6 +89,22 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         phases=["coa"],
         command=["qwen", "--model", QWEN_MAX, "-p"],
     ),
+    "operational_advisor": ExpertConfig(
+        role="Operational Advisor",
+        service="minimax",
+        model=MINIMAX_M3,
+        description="Operational trade-off analysis with a large context window",
+        phases=["intel", "coa"],
+        command=["minimax", "--model", MINIMAX_M3, "-p"],
+    ),
+    "skeptical_analyst": ExpertConfig(
+        role="Skeptical Analyst",
+        service="minimax",
+        model=MINIMAX_M2_7,
+        description="Rapid second-opinion challenge of proposed courses of action",
+        phases=["red_team"],
+        command=["minimax", "--model", MINIMAX_M2_7, "-p"],
+    ),
 }
 
 LIGHTWEIGHT_PANEL = ["supreme_commander", "chief_strategist", "red_team"]
@@ -115,7 +133,7 @@ def get_haiku_command() -> list[str]:
     Provides diversity through smaller/faster Claude model.
     """
     if shutil.which("claude"):
-        return ["claude", "--model", CLAUDE_HAIKU_45, "-p"]
+        return ["claude", "--model", CLAUDE_HAIKU, "-p"]
     raise FileNotFoundError("Claude CLI not found in PATH; cannot use Haiku fallback")
 
 

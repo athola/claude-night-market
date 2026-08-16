@@ -325,11 +325,20 @@ PR preparation guidelines.
 
 **Invocation**: `Skill(sanctum:pr-prep)`
 
-**PR Template**:
+**PR Template**: six dimensions in two registers. Who, Where, and
+When are lookups and cost one table row each. Why and What-and-how are
+arguments and get headings. See ADR-0021.
+
 ```markdown
-## Summary
-## Changes
-## Testing
+| | |
+|---|---|
+| **Who** | audience; out-of-band reviewer if any |
+| **Where** | internal blast radius; external consumers or `none` |
+| **When** | when it lands; when it is fully integrated |
+
+## Why
+## What and how
+## Test plan
 ## Checklist
 ```
 

@@ -476,7 +476,6 @@ block the war room workflow.
 
 - `/attune:war-room` - Invoke this skill
 - `/attune:brainstorm` - Pre-War Room ideation
-- `/memory-palace:strategeion` - Access War Room history
 
 ## References
 

@@ -395,12 +395,11 @@ echo "Your description here" | wc -c
 def extract_discovery_terms(description: str) -> list[str]:
     """Extract potential discovery keywords from description."""
     # Common stop words to exclude
-    stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for'}
+    stop_words = {"the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for"}
 
     # Split and filter
     words = description.lower().split()
-    terms = [w.strip('.,!?;:') for w in words
-             if w not in stop_words and len(w) > 3]
+    terms = [w.strip(".,!?;:") for w in words if w not in stop_words and len(w) > 3]
 
     return sorted(set(terms))
 ```

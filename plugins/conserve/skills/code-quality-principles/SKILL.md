@@ -99,9 +99,11 @@ class AbstractDataProcessor:
     def validate(self, data): ...
     def transform(self, data): ...
 
+
 class CSVProcessor(AbstractDataProcessor):
     def process(self, data):
         return self.transform(self.validate(data))
+
 
 # Good: Simple function until more cases appear
 def process_csv(data: list[str]) -> list[dict]:
@@ -136,14 +138,17 @@ Each module/class should have one reason to change.
 class UserManager:
     def create_user(self, data): ...
     def send_welcome_email(self, user): ...  # Email responsibility
-    def generate_report(self, users): ...     # Reporting responsibility
+    def generate_report(self, users): ...  # Reporting responsibility
+
 
 # Good: Separated responsibilities
 class UserRepository:
     def create(self, data): ...
 
+
 class EmailService:
     def send_welcome(self, user): ...
+
 
 class UserReportGenerator:
     def generate(self, users): ...
@@ -157,23 +162,27 @@ Open for extension, closed for modification.
 # Bad: Requires modification for new types
 def calculate_area(shape):
     if shape.type == "circle":
-        return 3.14 * shape.radius ** 2
+        return 3.14 * shape.radius**2
     elif shape.type == "rectangle":
         return shape.width * shape.height
     # Must modify to add new shapes
 
+
 # Good: Extensible without modification
 from abc import ABC, abstractmethod
+
 
 class Shape(ABC):
     @abstractmethod
     def area(self) -> float: ...
 
+
 class Circle(Shape):
     def __init__(self, radius: float):
         self.radius = radius
+
     def area(self) -> float:
-        return 3.14 * self.radius ** 2
+        return 3.14 * self.radius**2
 ```
 
 ### Liskov Substitution Principle
@@ -183,20 +192,27 @@ Subtypes must be substitutable for their base types.
 ```python
 # Bad: Violates LSP - Square changes Rectangle behavior
 class Rectangle:
-    def set_width(self, w): self.width = w
-    def set_height(self, h): self.height = h
+    def set_width(self, w):
+        self.width = w
+
+    def set_height(self, h):
+        self.height = h
+
 
 class Square(Rectangle):  # Breaks when used as Rectangle
     def set_width(self, w):
         self.width = self.height = w  # Unexpected side effect
+
 
 # Good: Separate types with common interface
 class Shape(ABC):
     @abstractmethod
     def area(self) -> float: ...
 
+
 class Rectangle(Shape):
     def __init__(self, width: float, height: float): ...
+
 
 class Square(Shape):
     def __init__(self, side: float): ...
@@ -239,12 +255,15 @@ class OrderService:
     def __init__(self):
         self.db = PostgresDatabase()  # Tight coupling
 
+
 # Good: Depend on abstraction
 from abc import ABC, abstractmethod
+
 
 class Database(ABC):
     @abstractmethod
     def save(self, data): ...
+
 
 class OrderService:
     def __init__(self, db: Database):

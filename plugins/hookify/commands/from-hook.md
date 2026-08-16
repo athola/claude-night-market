@@ -53,5 +53,5 @@ Cannot convert hooks with:
 
 ## See Also
 
-- `hookify:browse` - Browse available rules
+- `hookify:rule-catalog` - Browse available rules
 - `hookify:install` - Install rules

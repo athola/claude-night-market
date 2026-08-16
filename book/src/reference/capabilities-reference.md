@@ -12,8 +12,9 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 
 | Skill | Plugin | Description |
 |-------|--------|-------------|
-| `agent-expenditure` | [conserve](../plugins/conserve.md) | Per-agent token usage tracking |
+| `action-first-output` | [conserve](../plugins/conserve.md) | Action-first output shaping |
 | `additive-bias-defense` | [leyline](../plugins/leyline.md) | Scrutiny questions to challenge unnecessary additions |
+| `agent-expenditure` | [conserve](../plugins/conserve.md) | Per-agent token usage tracking |
 | `agent-teams` | [conjure](../plugins/conjure.md) | Coordinate Claude Code Agent Teams through filesystem-based protocol |
 | `api-review` | [pensive](../plugins/pensive.md) | API surface evaluation |
 | `architecture-aware-init` | [attune](../plugins/attune.md) | Architecture-aware project initialization with research |
@@ -34,12 +35,11 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `architecture-paradigm-space-based` | [archetypes](../plugins/archetypes.md) | Data-grid architecture |
 | `architecture-paradigms` | [archetypes](../plugins/archetypes.md) | Orchestrator for paradigm selection |
 | `architecture-review` | [pensive](../plugins/pensive.md) | Architecture assessment |
+| `assisted-mastery` | [imbue](../plugins/imbue.md) | Assistance-dilemma resolution: visible reasoning, tradeoff surfacing, and fading help to build judgment |
 | `authentication-patterns` | [leyline](../plugins/leyline.md) | Auth flow patterns |
 | `blast-radius` | [pensive](../plugins/pensive.md) | Code change blast radius analysis with risk scoring |
 | `bloat-detector` | [conserve](../plugins/conserve.md) | Detection algorithms for dead code, God classes, documentation duplication |
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
-| `assisted-mastery` | [imbue](../plugins/imbue.md) | Assistance-dilemma resolution: visible reasoning, tradeoff surfacing, and fading help to build judgment |
-| `graduated-implementation` | [imbue](../plugins/imbue.md) | Bounded start then ramp the next increment's ambition only on demonstrated competence of the prior one |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `call-chain` | [cartograph](../plugins/cartograph.md) | Trace execution paths through code knowledge graph |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
@@ -82,6 +82,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
 | `evaluation-framework` | [leyline](../plugins/leyline.md) | Decision thresholds |
+| `export` | [tome](../plugins/tome.md) | Export research findings for knowledge-intake |
 | `extract` | [gauntlet](../plugins/gauntlet.md) | Analyze codebase and build a knowledge base |
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization with RICE/WSJF/Kano scoring and optional research enrichment via tome (`--research`) |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
@@ -92,6 +93,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
 | `git-workspace-review` | [sanctum](../plugins/sanctum.md) | Repo state analysis |
 | `github-initiative-pulse` | [minister](../plugins/minister.md) | Initiative progress tracking |
+| `graduated-implementation` | [imbue](../plugins/imbue.md) | Bounded start then ramp the next increment's ambition only on demonstrated competence of the prior one |
 | `graph-build` | [gauntlet](../plugins/gauntlet.md) | Build or update the code knowledge graph |
 | `graph-search` | [gauntlet](../plugins/gauntlet.md) | FTS5 search of the code knowledge graph |
 | `harden` | [pensive](../plugins/pensive.md) | Active codebase hardening with NIST/CWE-cited findings and concrete remediation proposals |
@@ -104,7 +106,6 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `karpathy-principles` | [imbue](../plugins/imbue.md) | Compact four-principle synthesis for LLM coding pitfalls |
 | `knowledge-intake` | [memory-palace](../plugins/memory-palace.md) | Intake and curation |
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |
-| `memory-clarity-probe` | [memory-palace](../plugins/memory-palace.md) | Memory clarity assessment via anchor questions |
 | `latent-space-engineering` | [imbue](../plugins/imbue.md) | Agent behavior shaping through instruction framing |
 | `loop-optimization` | [leyline](../plugins/leyline.md) | Hand-vs-compiler decision rule for loop transforms |
 | `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
@@ -112,15 +113,18 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `markdown-formatting` | [leyline](../plugins/leyline.md) | Line wrapping and style conventions |
 | `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
 | `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |
-| `performance-review` | [pensive](../plugins/pensive.md) | Time and space complexity hotspot detection |
 | `media-composition` | [scry](../plugins/scry.md) | Multi-source media stitching |
+| `memory-clarity-probe` | [memory-palace](../plugins/memory-palace.md) | Memory clarity assessment via anchor questions |
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `metacognitive-self-mod` | [abstract](../plugins/abstract.md) | Hyperagents self-improvement analysis |
 | `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |
 | `mission-orchestrator` | [attune](../plugins/attune.md) | Unified lifecycle orchestrator for project development |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
 | `onboard` | [gauntlet](../plugins/gauntlet.md) | Guided five-stage onboarding path through a codebase |
+| `palace-diagram` | [memory-palace](../plugins/memory-palace.md) | Visual palace structure diagrams |
+| `palace-index-curator` | [memory-palace](../plugins/memory-palace.md) | Web-capture index curation |
 | `papers` | [tome](../plugins/tome.md) | Academic literature search |
+| `performance-review` | [pensive](../plugins/pensive.md) | Time and space complexity hotspot detection |
 | `plugin-review` | [abstract](../plugins/abstract.md) | Tiered plugin quality review with dependency-aware scoping |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
@@ -143,9 +147,6 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
 | `research` | [tome](../plugins/tome.md) | Multi-source research orchestration |
 | `response-compression` | [conserve](../plugins/conserve.md) | Response compression patterns |
-| `action-first-output` | [conserve](../plugins/conserve.md) | Action-first output shaping |
-| `palace-diagram` | [memory-palace](../plugins/memory-palace.md) | Visual palace structure diagrams |
-| `palace-index-curator` | [memory-palace](../plugins/memory-palace.md) | Web-capture index curation |
 | `review-chamber` | [memory-palace](../plugins/memory-palace.md) | PR review knowledge capture and retrieval |
 | `review-core` | [imbue](../plugins/imbue.md) | Scaffolding for detailed reviews |
 | `rigorous-reasoning` | [imbue](../plugins/imbue.md) | Anti-sycophancy guardrails |
@@ -157,6 +158,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `scope-guard` | [imbue](../plugins/imbue.md) | Anti-overengineering |
 | `sem-integration` | [leyline](../plugins/leyline.md) | Semantic diff CLI detection and fallback |
 | `service-registry` | [leyline](../plugins/leyline.md) | Service discovery patterns |
+| `session-handoff` | [memory-palace](../plugins/memory-palace.md) | Typed session handoff units and on-demand recall |
 | `session-management` | [sanctum](../plugins/sanctum.md) | Session naming, checkpointing, and resume strategies |
 | `session-palace-builder` | [memory-palace](../plugins/memory-palace.md) | Session-specific palaces |
 | `session-replay` | [scribe](../plugins/scribe.md) | Convert session JSONL into GIF/MP4/WebM replays via VHS |
@@ -164,6 +166,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `setup` | [oracle](../plugins/oracle.md) | Install and configure the oracle ONNX inference daemon |
 | `shared-patterns` | [abstract](../plugins/abstract.md) | Reusable plugin development patterns |
 | `shell-review` | [pensive](../plugins/pensive.md) | Shell script auditing for safety and portability |
+| `simplified-technical-english` | [scribe](../plugins/scribe.md) | Apply an ASD-STE100-derived register to operator and procedural text |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
 | `skill-graph-audit` | [abstract](../plugins/abstract.md) | Map Skill() refs across plugins; detect hubs, isolates, dangling targets |
 | `skill-library-mission` | [attune](../plugins/attune.md) | Build a project skill library via discovery, parallel authoring, and review |
@@ -284,11 +287,11 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/makefile-review` | pensive | Makefile review |
 | `/math-review` | pensive | Mathematical review |
 | `/merge-docs` | sanctum | Consolidate ephemeral docs |
-| `/performance-review` | pensive | Time and space complexity hotspot review |
 | `/navigate` | memory-palace | Search palaces |
 | `/optimize-context` | conserve | Context optimization |
 | `/oracle-setup` | oracle | Install and configure the oracle ONNX inference daemon |
 | `/palace` | memory-palace | Manage palaces |
+| `/performance-review` | pensive | Time and space complexity hotspot review |
 | `/plugin-review` | abstract | Tiered plugin quality review (branch/pr/release) |
 | `/pr-review` | sanctum | Enhanced PR review |
 | `/prepare-pr` | sanctum | Complete PR preparation with updates and validation |
@@ -365,11 +368,11 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `code-refiner` | pensive | Code quality refinement orchestrator |
 | `code-reviewer` | pensive | Expert code review |
 | `code-searcher` | tome | GitHub code search |
-| `craft-reviewer` | scribe | Writing craft evaluation (naming, structure, anchoring) |
 | `codebase-explorer` | cartograph | Codebase structure analysis for diagrams |
 | `commit-agent` | sanctum | Commit message generator |
 | `context-optimizer` | conserve | Context optimization |
 | `continuation-agent` | conserve | Continue work from session state checkpoint |
+| `craft-reviewer` | scribe | Writing craft evaluation (naming, structure, anchoring) |
 | `dependency-updater` | sanctum | Dependency version management |
 | `desktop-pilot` | phantom | Autonomous desktop control via Computer Use API |
 | `discourse-scanner` | tome | Community discourse scanning |
@@ -380,6 +383,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `git-workspace-agent` | sanctum | Repository state analyzer |
 | `harden-orchestrator` | pensive | Active hardening orchestrator (composes rust-review, supply-chain-advisory, bug-review) |
 | `implementation-executor` | spec-kit | Task executor |
+| `insight-engine` | abstract | Deep analysis for bugs, optimizations, and improvements |
 | `knowledge-librarian` | memory-palace | Knowledge routing |
 | `knowledge-navigator` | memory-palace | Palace search |
 | `literature-reviewer` | tome | Academic literature review |
@@ -389,21 +393,20 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `palace-architect` | memory-palace | Palace design |
 | `plugin-validator` | abstract | Plugin validation |
 | `pr-agent` | sanctum | PR preparation |
-| `prose-reviewer` | scribe | AI patterns, banned phrases, voice drift detection |
-| `research` | tome | Multi-source research orchestrator (delegates to `Skill(tome:research)`) |
 | `project-architect` | attune | Guides full-cycle workflow (brainstorm to plan) |
 | `project-implementer` | attune | Executes implementation with TDD |
+| `prose-reviewer` | scribe | AI patterns, banned phrases, voice drift detection |
 | `python-linter` | parseltongue | Strict ruff linting without bypasses |
 | `python-optimizer` | parseltongue | Performance optimization |
 | `python-pro` | parseltongue | Python 3.9+ expertise |
 | `python-tester` | parseltongue | Testing expertise |
+| `research` | tome | Multi-source research orchestrator (delegates to `Skill(tome:research)`) |
 | `review-analyst` | imbue | Structured reviews |
 | `rust-auditor` | pensive | Rust security audit |
 | `sentinel` | egregore | Watchdog agent for crash recovery |
 | `skill-auditor` | abstract | Skill quality audit |
 | `skill-evaluator` | abstract | Skill execution evaluator |
 | `skill-improver` | abstract | Implements skill improvements from observability |
-| `insight-engine` | abstract | Deep analysis for bugs, optimizations, and improvements |
 | `slop-hunter` | scribe | Full-document AI slop detection |
 | `spec-analyzer` | spec-kit | Spec consistency |
 | `task-generator` | spec-kit | Task creation |
@@ -462,9 +465,9 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `tool_output_summarizer.py` | conserve | PostToolUse | Monitor and warn about tool output bloat |
 | `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
+| `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
+| `verify_workflow_complete.py` | sanctum | Stop | End-of-session workflow verification |
 | `vow_bounded_reads.py` | imbue | PreToolUse | Warns when discovery read budget (15 reads) is exceeded per session |
 | `vow_no_ai_attribution.py` | imbue | PreToolUse | Blocks AI attribution strings (Co-authored-by: Claude, etc.) in commits |
 | `vow_no_emoji_commits.py` | imbue | PreToolUse | Blocks emoji characters in git commit messages |
-| `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
-| `verify_workflow_complete.py` | sanctum | Stop | End-of-session workflow verification |
 | `web_research_handler.py` | memory-palace | PostToolUse | Web research processing and storage prompting; skips non-2xx error pages (#547) |

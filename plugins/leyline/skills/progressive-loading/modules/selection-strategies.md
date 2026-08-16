@@ -16,8 +16,9 @@ INTENT_MODULE_MAP = {
     "git-analysis": ["git-catchup-patterns.md"],
     "document-review": ["document-analysis-patterns.md"],
     "log-analysis": ["log-analysis-patterns.md"],
-    "architecture-review": ["architecture-patterns.md", "design-principles.md"]
+    "architecture-review": ["architecture-patterns.md", "design-principles.md"],
 }
+
 
 def select_by_intent(user_input, skill_modules):
     # Detect intent from keywords, context, explicit requests
@@ -53,10 +54,10 @@ def select_by_artifacts(detected_files, detected_systems):
     modules = []
 
     # File-based detection
-    if any(f.endswith('.git') for f in detected_files):
+    if any(f.endswith(".git") for f in detected_files):
         modules.append("git-workflow.md")
 
-    if any(f.endswith('.py') for f in detected_files):
+    if any(f.endswith(".py") for f in detected_files):
         modules.append("python-analysis.md")
 
     # System-based detection
@@ -89,6 +90,7 @@ Load modules within available token budget, prioritizing by importance.
 **Pattern:**
 ```python
 from leyline import MECWMonitor, estimate_tokens
+
 
 def select_by_budget(available_modules, max_tokens):
     monitor = MECWMonitor()
@@ -322,7 +324,7 @@ modules = progressive_load(
     skill="my-skill",
     context={"intent": "analysis", "artifacts": [".py"]},
     strategy="budget-aware",
-    max_tokens=safe_budget
+    max_tokens=safe_budget,
 )
 ```
 

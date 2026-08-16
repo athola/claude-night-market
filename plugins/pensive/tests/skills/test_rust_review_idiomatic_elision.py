@@ -44,7 +44,8 @@ class TestIdiomaticElisionDetector:
 
     def test_flags_needless_single_input_lifetime(self, mock_skill_context) -> None:
         """One input reference + matching output lifetime is elidable
-        (elision rule 2)."""
+        (elision rule 2).
+        """
         code = "fn first<'a>(x: &'a str) -> &'a str { x }\n"
         mock_skill_context.get_file_content.return_value = code
         issues = self.skill.analyze_idiomatic_elision(mock_skill_context, "l.rs")[
@@ -56,7 +57,8 @@ class TestIdiomaticElisionDetector:
 
     def test_flags_needless_lifetime_on_self_receiver(self, mock_skill_context) -> None:
         """`&'a self` with a matching output lifetime is elidable
-        (elision rule 3)."""
+        (elision rule 3).
+        """
         code = "fn name<'a>(&'a self) -> &'a str { self.name }\n"
         mock_skill_context.get_file_content.return_value = code
         issues = self.skill.analyze_idiomatic_elision(mock_skill_context, "s.rs")[
@@ -66,7 +68,8 @@ class TestIdiomaticElisionDetector:
 
     def test_two_shared_input_lifetimes_not_flagged(self, mock_skill_context) -> None:
         """Two inputs tied to the same lifetime cannot be elided; the
-        explicit annotation is load-bearing and must not be flagged."""
+        explicit annotation is load-bearing and must not be flagged.
+        """
         code = "fn longest<'a>(x: &'a str, y: &'a str) -> &'a str { x }\n"
         mock_skill_context.get_file_content.return_value = code
         issues = self.skill.analyze_idiomatic_elision(mock_skill_context, "g.rs")[
@@ -85,7 +88,8 @@ class TestIdiomaticElisionDetector:
 
     def test_type_param_signature_not_flagged(self, mock_skill_context) -> None:
         """A signature with a type param alongside the lifetime is the
-        conservative skip case (bounds may force the annotation)."""
+        conservative skip case (bounds may force the annotation).
+        """
         code = "fn f<'a, T>(x: &'a T) -> &'a T { x }\n"
         mock_skill_context.get_file_content.return_value = code
         issues = self.skill.analyze_idiomatic_elision(mock_skill_context, "t.rs")[
@@ -106,7 +110,8 @@ class TestIdiomaticElisionDetector:
 
     def test_early_return_not_flagged(self, mock_skill_context) -> None:
         """An early guard `return` (not the block tail) is control flow,
-        not a needless trailing return."""
+        not a needless trailing return.
+        """
         code = (
             "fn f(x: i32) -> i32 {\n"
             "    if x < 0 {\n"
@@ -125,7 +130,8 @@ class TestIdiomaticElisionDetector:
         self, mock_skill_context
     ) -> None:
         """A tail return is still flagged when another item follows the
-        function (the common multi-function-file case)."""
+        function (the common multi-function-file case).
+        """
         code = (
             "fn first(x: i32) -> i32 {\n"
             "    return x;\n"
@@ -147,7 +153,8 @@ class TestIdiomaticElisionDetector:
         self, mock_skill_context
     ) -> None:
         """A guard return followed by more body statements, in a file
-        with a following function, is still not flagged."""
+        with a following function, is still not flagged.
+        """
         code = (
             "fn f(x: i32) -> i32 {\n"
             "    if x < 0 {\n"
@@ -168,7 +175,8 @@ class TestIdiomaticElisionDetector:
         """A guard `return` whose continuation begins with a comment is still
         an early return, not a needless tail return. The comment precedes the
         happy-path statement, so it must not be read as an item boundary
-        (PR #577 finding I1)."""
+        (PR #577 finding I1).
+        """
         code = (
             "fn f(x: i32) -> i32 {\n"
             "    if x < 0 {\n"
@@ -195,7 +203,8 @@ class TestIdiomaticElisionDetector:
         code stops at `///` as a boundary; the new code skips `///` and stops
         at `fn second`). The discriminating revert test for I1 is
         test_guard_return_before_comment_not_flagged above, which fails on
-        revert. This one is a forward over-correction guard."""
+        revert. This one is a forward over-correction guard.
+        """
         code = (
             "fn first(x: i32) -> i32 {\n"
             "    return x;\n"
@@ -213,7 +222,8 @@ class TestIdiomaticElisionDetector:
 
     def test_flags_explicit_unit_return(self, mock_skill_context) -> None:
         """`-> ()` writes the unit return the compiler already elides
-        (clippy::unused_unit)."""
+        (clippy::unused_unit).
+        """
         code = 'fn log(msg: &str) -> () {\n    println!("{msg}");\n}\n'
         mock_skill_context.get_file_content.return_value = code
         issues = self.skill.analyze_idiomatic_elision(mock_skill_context, "u.rs")[

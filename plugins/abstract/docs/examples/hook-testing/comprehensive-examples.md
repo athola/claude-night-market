@@ -10,6 +10,7 @@ Comprehensive test examples for hook development, extracted from the hook-author
 import pytest
 from my_hooks import ValidationHooks
 
+
 @pytest.mark.asyncio
 async def test_dangerous_command_blocked():
     """Verify dangerous commands are blocked."""
@@ -17,6 +18,7 @@ async def test_dangerous_command_blocked():
 
     with pytest.raises(ValueError, match="Dangerous command"):
         await hooks.on_pre_tool_use("Bash", {"command": "rm -rf /"})
+
 
 @pytest.mark.asyncio
 async def test_safe_command_allowed():
@@ -26,14 +28,13 @@ async def test_safe_command_allowed():
     result = await hooks.on_pre_tool_use("Bash", {"command": "ls -la"})
     assert result is None  # None means allow
 
+
 @pytest.mark.asyncio
 async def test_input_transformation():
     """Verify input transformation works."""
     hooks = TransformationHooks()
 
-    result = await hooks.on_pre_tool_use("Read", {
-        "file_path": "relative/path.txt"
-    })
+    result = await hooks.on_pre_tool_use("Read", {"file_path": "relative/path.txt"})
 
     assert result is not None
     assert result["file_path"].startswith("/")  # Transformed to absolute
@@ -45,12 +46,14 @@ async def test_input_transformation():
 import pytest
 from my_hooks import MyHooks
 
+
 @pytest.mark.asyncio
 async def test_pre_tool_use_returns_none():
     """Test hook returns None to allow unchanged."""
     hooks = MyHooks()
     result = await hooks.on_pre_tool_use("Bash", {"command": "echo hello"})
     assert result is None
+
 
 @pytest.mark.asyncio
 async def test_pre_tool_use_returns_modified_input():
@@ -61,13 +64,12 @@ async def test_pre_tool_use_returns_modified_input():
     assert isinstance(result, dict)
     assert "file_path" in result
 
+
 @pytest.mark.asyncio
 async def test_post_tool_use_returns_modified_output():
     """Test hook returns modified output."""
     hooks = MyHooks()
-    result = await hooks.on_post_tool_use(
-        "Bash", {"command": "ls"}, "file1\nfile2"
-    )
+    result = await hooks.on_post_tool_use("Bash", {"command": "ls"}, "file1\nfile2")
 
     assert isinstance(result, str)
     assert "file1" in result
@@ -79,6 +81,7 @@ async def test_post_tool_use_returns_modified_output():
 import pytest
 from my_hooks import ResilientHooks
 
+
 @pytest.mark.asyncio
 async def test_validation_error_doesnt_block():
     """Verify validation errors don't block operations."""
@@ -88,15 +91,14 @@ async def test_validation_error_doesnt_block():
     result = await hooks.on_pre_tool_use("Bash", {"invalid": "input"})
     assert result is None
 
+
 @pytest.mark.asyncio
 async def test_logging_error_doesnt_block():
     """Verify logging errors don't block operations."""
     hooks = ResilientHooks()
 
     # Should not raise even if logging fails
-    result = await hooks.on_post_tool_use(
-        "Bash", {"command": "ls"}, "output"
-    )
+    result = await hooks.on_post_tool_use("Bash", {"command": "ls"}, "output")
     assert result is None
 ```
 
@@ -108,6 +110,7 @@ async def test_logging_error_doesnt_block():
 import pytest
 from unittest.mock import AsyncMock, Mock
 from my_hooks import MyHooks
+
 
 @pytest.mark.asyncio
 async def test_hooks_with_mock_agent():
@@ -124,9 +127,7 @@ async def test_hooks_with_mock_agent():
     assert modified_input is None or isinstance(modified_input, dict)
 
     # PostToolUse
-    modified_output = await hooks.on_post_tool_use(
-        tool_name, tool_input, tool_output
-    )
+    modified_output = await hooks.on_post_tool_use(tool_name, tool_input, tool_output)
     assert modified_output is None or isinstance(modified_output, str)
 
     # Verify hooks were called correctly
@@ -138,6 +139,7 @@ async def test_hooks_with_mock_agent():
 ```python
 import pytest
 from my_hooks import ValidationHooks, LoggingHooks, MetricsHooks
+
 
 @pytest.mark.asyncio
 async def test_multiple_hooks_execute():
@@ -172,12 +174,13 @@ async def test_multiple_hooks_execute():
 import pytest
 from my_hooks import SecretProtectionHooks
 
+
 @pytest.mark.asyncio
 async def test_api_key_sanitized():
     """Verify API keys are redacted from logs."""
     hooks = SecretProtectionHooks()
 
-    output_with_secret = 'api_key=sk_live_1234567890abcdef'
+    output_with_secret = "api_key=sk_live_1234567890abcdef"
 
     await hooks.on_post_tool_use("Bash", {}, output_with_secret)
 
@@ -185,6 +188,7 @@ async def test_api_key_sanitized():
     log_content = await hooks._get_log_content()
     assert "sk_live_1234567890abcdef" not in log_content
     assert "REDACTED" in log_content
+
 
 @pytest.mark.asyncio
 async def test_password_sanitized():
@@ -208,6 +212,7 @@ import pytest
 from pathlib import Path
 from my_hooks import PathSecurityHooks
 
+
 @pytest.mark.asyncio
 async def test_path_traversal_blocked():
     """Verify path traversal attempts are blocked."""
@@ -224,6 +229,7 @@ async def test_path_traversal_blocked():
     for attempt in traversal_attempts:
         with pytest.raises(ValueError, match="access denied"):
             await hooks.on_pre_tool_use("Read", {"file_path": attempt})
+
 
 @pytest.mark.asyncio
 async def test_allowed_path_accepted():
@@ -243,6 +249,7 @@ async def test_allowed_path_accepted():
 import pytest
 from my_hooks import CommandSanitizationHooks
 
+
 @pytest.mark.asyncio
 async def test_command_injection_blocked():
     """Verify command injection attempts are blocked."""
@@ -259,6 +266,7 @@ async def test_command_injection_blocked():
     for attempt in injection_attempts:
         with pytest.raises(ValueError, match="injection"):
             await hooks.on_pre_tool_use("Bash", {"command": attempt})
+
 
 @pytest.mark.asyncio
 async def test_safe_command_allowed():
@@ -285,6 +293,7 @@ import pytest
 import time
 from my_hooks import ValidationHooks
 
+
 @pytest.mark.asyncio
 async def test_validation_meets_timing_budget():
     """Verify validation completes within timing budget."""
@@ -298,6 +307,7 @@ async def test_validation_meets_timing_budget():
 
     # PreToolUse should complete < 100ms
     assert duration_ms < 100, f"Validation too slow: {duration_ms:.2f}ms"
+
 
 @pytest.mark.asyncio
 async def test_logging_meets_timing_budget():
@@ -320,6 +330,7 @@ async def test_logging_meets_timing_budget():
 import pytest
 import tracemalloc
 from my_hooks import BoundedStateHooks
+
 
 @pytest.mark.asyncio
 async def test_memory_bounded():
@@ -345,6 +356,7 @@ async def test_memory_bounded():
 import pytest
 import time
 from my_hooks import MyHooks
+
 
 @pytest.mark.asyncio
 async def test_hook_performance_benchmark():
@@ -383,10 +395,11 @@ import tempfile
 from pathlib import Path
 from my_hooks import MyHooks
 
+
 @pytest.fixture
 def temp_log_file():
     """Create temporary log file for testing."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.log') as f:
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".log") as f:
         log_file = Path(f.name)
 
     yield log_file
@@ -395,10 +408,12 @@ def temp_log_file():
     if log_file.exists():
         log_file.unlink()
 
+
 @pytest.fixture
 def hooks_with_temp_log(temp_log_file):
     """Create hooks instance with temporary log file."""
     return MyHooks(log_file=temp_log_file)
+
 
 @pytest.fixture
 async def initialized_hooks():
@@ -417,6 +432,7 @@ async def initialized_hooks():
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
+
 @pytest.fixture
 def mock_file_system():
     """Mock file system for testing."""
@@ -425,6 +441,7 @@ def mock_file_system():
     mock_fs.is_file.return_value = True
     mock_fs.stat.return_value.st_size = 1024
     return mock_fs
+
 
 @pytest.fixture
 def mock_async_logger():
@@ -482,6 +499,7 @@ import subprocess
 import json
 from pathlib import Path
 
+
 def test_json_hook_validation():
     """Test JSON hook script execution."""
     hook_script = Path("hooks/scripts/validate.sh")
@@ -489,14 +507,10 @@ def test_json_hook_validation():
     # Test dangerous command
     env = {
         "CLAUDE_TOOL_NAME": "Bash",
-        "CLAUDE_TOOL_INPUT": json.dumps({"command": "rm -rf /"})
+        "CLAUDE_TOOL_INPUT": json.dumps({"command": "rm -rf /"}),
     }
 
-    result = subprocess.run(
-        [str(hook_script)],
-        env=env,
-        capture_output=True
-    )
+    result = subprocess.run([str(hook_script)], env=env, capture_output=True)
 
     # Should exit with error
     assert result.returncode != 0
@@ -504,11 +518,7 @@ def test_json_hook_validation():
     # Test safe command
     env["CLAUDE_TOOL_INPUT"] = json.dumps({"command": "ls -la"})
 
-    result = subprocess.run(
-        [str(hook_script)],
-        env=env,
-        capture_output=True
-    )
+    result = subprocess.run([str(hook_script)], env=env, capture_output=True)
 
     # Should succeed
     assert result.returncode == 0

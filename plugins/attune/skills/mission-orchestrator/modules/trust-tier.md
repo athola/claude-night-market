@@ -162,7 +162,9 @@ across missions; they track long-term skill reliability,
 not single-mission state. If the file does not exist,
 all skills default to T1.
 
-For `/attune:status`, display current trust tiers:
+When a mission reports progress, whether at a phase
+checkpoint or on `/attune:mission --resume`, display
+current trust tiers:
 
 ```
 Trust Tiers:

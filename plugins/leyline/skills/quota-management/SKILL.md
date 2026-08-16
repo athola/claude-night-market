@@ -111,11 +111,7 @@ if status == "CRITICAL":
 
 ### Record Usage
 ```python
-tracker.record_request(
-    tokens=estimated_tokens,
-    success=True,
-    duration=elapsed_seconds
-)
+tracker.record_request(tokens=estimated_tokens, success=True, duration=elapsed_seconds)
 ```
 
 ### Estimate Before Execution

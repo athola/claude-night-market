@@ -45,6 +45,19 @@ DECAY_CONFIG: dict[str, dict] = {
     },
 }
 
+# Retention bound at write time by unit type, not guessed per item. A status
+# update and a durable finding differ in how fast they stop being true, so
+# they cannot share a curve. Mirrors series-level retention in records
+# management: the writer picks a class, never a TTL.
+UNIT_TYPE_DECAY: dict[str, dict] = {
+    "finding": {"half_life_days": 365, "curve": DecayCurve.LOGARITHMIC},
+    "decision": {"half_life_days": 90, "curve": DecayCurve.EXPONENTIAL},
+    "state": {"half_life_days": 7, "curve": DecayCurve.EXPONENTIAL},
+    # An unresolved question is no less relevant for having sat unanswered.
+    "open-thread": {"half_life_days": 365, "curve": DecayCurve.LINEAR, "floor": 1.0},
+}
+
+
 # Importance classification (0-100 scale)
 IMPORTANCE_CLASSES: dict[str, dict[str, Any]] = {
     "constitutional": {"min_score": 90, "decay_floor": 0.5},
@@ -113,6 +126,7 @@ class DecayModel:
         maturity: str,
         last_validated: datetime,
         importance_score: int | None = None,
+        unit_type: str | None = None,
     ) -> DecayState:
         """Calculate current decay state for an entry.
 
@@ -121,6 +135,8 @@ class DecayModel:
             maturity: The maturity level (seedling, growing, evergreen)
             last_validated: When the entry was last validated
             importance_score: Importance score (0-100) for decay floor
+            unit_type: Handoff unit type; when given it selects the
+                retention class instead of the maturity curve
 
         Returns:
             DecayState with current decay metrics
@@ -135,8 +151,11 @@ class DecayModel:
         delta = now - last_validated
         days_since = max(0, delta.days)
 
-        # Get decay config for maturity level
-        config = DECAY_CONFIG.get(maturity, DECAY_CONFIG["growing"])
+        # A unit type states its own retention; maturity is the fallback.
+        if unit_type is not None and unit_type in UNIT_TYPE_DECAY:
+            config = UNIT_TYPE_DECAY[unit_type]
+        else:
+            config = DECAY_CONFIG.get(maturity, DECAY_CONFIG["growing"])
         half_life = config["half_life_days"]
         curve = config["curve"]
 
@@ -149,7 +168,7 @@ class DecayModel:
         # Enforce importance-based decay floor
         if importance_score is None:
             importance_score = DEFAULT_IMPORTANCE_SCORE
-        floor = get_decay_floor(importance_score)
+        floor = max(get_decay_floor(importance_score), config.get("floor", 0.0))
         decay_factor = max(decay_factor, floor)
 
         # Determine status

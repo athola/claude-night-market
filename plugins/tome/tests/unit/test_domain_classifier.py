@@ -31,7 +31,6 @@ class TestDomainClassifierBasicRouting:
         When classify is called
         Then domain is algorithm and triz_depth is medium
         """
-
         result = classify("async python patterns")
 
         assert result.domain == "algorithm"
@@ -45,7 +44,6 @@ class TestDomainClassifierBasicRouting:
         When classify is called
         Then domain is ui-ux and triz_depth is light
         """
-
         result = classify("react component library design")
 
         assert result.domain == "ui-ux"
@@ -59,7 +57,6 @@ class TestDomainClassifierBasicRouting:
         When classify is called
         Then domain is algorithm or architecture, triz_depth is medium
         """
-
         result = classify("raft consensus algorithm")
 
         assert result.domain in ("algorithm", "architecture")
@@ -73,7 +70,6 @@ class TestDomainClassifierBasicRouting:
         When classify is called
         Then domain is data-structure and triz_depth is deep
         """
-
         result = classify("novel cache eviction policy")
 
         assert result.domain == "data-structure"
@@ -87,7 +83,6 @@ class TestDomainClassifierBasicRouting:
         When classify is called
         Then domain is devops and triz_depth is light
         """
-
         result = classify("kubernetes deployment pipeline")
 
         assert result.domain == "devops"
@@ -111,7 +106,6 @@ class TestDomainClassifierFallback:
         When classify is called
         Then domain is general and triz_depth is light
         """
-
         result = classify("random gibberish xyz")
 
         assert result.domain == "general"
@@ -125,7 +119,6 @@ class TestDomainClassifierFallback:
         When classify is called
         Then confidence is below 0.6 and domain falls back to general
         """
-
         # Only one algorithm keyword, not enough for confident classification
         result = classify("sort")
 
@@ -140,7 +133,6 @@ class TestDomainClassifierFallback:
         When classify is called
         Then domain is general and triz_depth is light
         """
-
         result = classify("")
 
         assert result.domain == "general"
@@ -164,7 +156,6 @@ class TestDomainClassifierOutputShape:
         When classify is called
         Then result is a DomainClassification
         """
-
         result = classify("async python patterns")
 
         assert isinstance(result, DomainClassification)
@@ -177,7 +168,6 @@ class TestDomainClassifierOutputShape:
         When classify is called
         Then channel_weights sum to 1.0 (within floating-point tolerance)
         """
-
         result = classify("async python patterns")
 
         total = sum(result.channel_weights.values())
@@ -191,7 +181,6 @@ class TestDomainClassifierOutputShape:
         When classify is called
         Then channel_weights sum to 1.0
         """
-
         result = classify("react component library design")
 
         total = sum(result.channel_weights.values())
@@ -205,7 +194,6 @@ class TestDomainClassifierOutputShape:
         When classify is called
         Then channel_weights sum to 1.0
         """
-
         result = classify("random gibberish xyz")
 
         total = sum(result.channel_weights.values())
@@ -219,7 +207,6 @@ class TestDomainClassifierOutputShape:
         When classify is called
         Then channel_weights has keys code, discourse, academic, triz
         """
-
         result = classify("kubernetes deployment pipeline")
 
         assert set(result.channel_weights.keys()) == {
@@ -237,7 +224,6 @@ class TestDomainClassifierOutputShape:
         When classify is called
         Then confidence is in [0.0, 1.0]
         """
-
         for topic in [
             "async python patterns",
             "random gibberish xyz",

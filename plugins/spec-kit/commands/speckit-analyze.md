@@ -1,6 +1,6 @@
 ---
 description: Cross-artifact consistency analysis across spec.md, plan.md, and tasks.md after task generation
-argument-hint: "Path to spec/plan/tasks artifacts"
+argument-hint: "Optional context to focus the consistency analysis"
 ---
 
 Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:systematic-debugging` and `superpowers:verification-before-completion` for enhanced analysis capabilities.

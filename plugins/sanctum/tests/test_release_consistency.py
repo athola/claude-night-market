@@ -156,7 +156,7 @@ class TestVersionBumpFanOut:
         WHEN I compare it with the plugin.json version
         THEN the two versions agree
         (Plugins without the file, and metadata schemas that carry no
-        version field at all — e.g. tome's — are skipped.)
+        version field at all, are skipped.)
         """
         mismatches = []
         for plugin_dir in _all_plugin_dirs():

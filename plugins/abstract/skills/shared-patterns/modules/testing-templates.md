@@ -6,8 +6,10 @@ Reusable test patterns for skills and scripts.
 
 ```python
 """Test module for [component]."""
+
 import pytest
 from pathlib import Path
+
 
 # Fixtures
 @pytest.fixture
@@ -67,6 +69,7 @@ class TestValidation:
 
 ```python
 """Integration tests for [workflow]."""
+
 import subprocess
 from pathlib import Path
 
@@ -80,7 +83,7 @@ class TestWorkflow:
         result = subprocess.run(
             ["python", "scripts/validator.py", str(skill_directory)],
             capture_output=True,
-            text=True
+            text=True,
         )
 
         # Check exit code
@@ -94,7 +97,7 @@ class TestWorkflow:
         result = subprocess.run(
             ["python", "scripts/validator.py", str(invalid_directory)],
             capture_output=True,
-            text=True
+            text=True,
         )
 
         # Should fail but not crash
@@ -106,6 +109,7 @@ class TestWorkflow:
 
 ```python
 """Common mock fixtures."""
+
 import pytest
 from unittest.mock import Mock, patch
 
@@ -113,34 +117,37 @@ from unittest.mock import Mock, patch
 @pytest.fixture
 def mock_filesystem():
     """Mock filesystem operations."""
-    with patch('pathlib.Path.exists') as mock_exists:
-        with patch('pathlib.Path.read_text') as mock_read:
-            yield {'exists': mock_exists, 'read_text': mock_read}
+    with patch("pathlib.Path.exists") as mock_exists:
+        with patch("pathlib.Path.read_text") as mock_read:
+            yield {"exists": mock_exists, "read_text": mock_read}
 
 
 @pytest.fixture
 def mock_skill_data() -> dict:
     """Standard skill frontmatter for testing."""
     return {
-        'name': 'test-skill',
-        'description': 'Test skill for validation. Use when testing.',
-        'version': '1.0.0',
-        'category': 'testing',
-        'tags': ['test', 'validation'],
+        "name": "test-skill",
+        "description": "Test skill for validation. Use when testing.",
+        "version": "1.0.0",
+        "category": "testing",
+        "tags": ["test", "validation"],
     }
 ```
 
 ## Parameterized Tests
 
 ```python
-@pytest.mark.parametrize("name,expected_valid", [
-    ("valid-name", True),
-    ("also-valid-123", True),
-    ("Invalid_Name", False),  # Underscore not allowed
-    ("UPPERCASE", False),     # Must be lowercase
-    ("with spaces", False),   # Spaces not allowed
-    ("a" * 65, False),        # Too long
-])
+@pytest.mark.parametrize(
+    "name,expected_valid",
+    [
+        ("valid-name", True),
+        ("also-valid-123", True),
+        ("Invalid_Name", False),  # Underscore not allowed
+        ("UPPERCASE", False),  # Must be lowercase
+        ("with spaces", False),  # Spaces not allowed
+        ("a" * 65, False),  # Too long
+    ],
+)
 def test_name_validation(name: str, expected_valid: bool):
     """Test name field validation with various inputs."""
     result = validate_name(name)

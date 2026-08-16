@@ -57,9 +57,7 @@ impl Client {
 #### Python
 ```python
 # Consistent optional parameters
-def read_data(path: str,
-              format: str = "csv",
-              encoding: str = "utf-8") -> DataFrame:
+def read_data(path: str, format: str = "csv", encoding: str = "utf-8") -> DataFrame:
     pass
 ```
 

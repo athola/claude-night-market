@@ -47,7 +47,7 @@ MY_SERVICE_QUOTA = QuotaConfig(
     requests_per_minute=100,
     requests_per_day=5000,
     tokens_per_minute=500000,
-    tokens_per_day=10000000
+    tokens_per_day=10000000,
 )
 
 tracker = QuotaTracker(service="my-service", config=MY_SERVICE_QUOTA)

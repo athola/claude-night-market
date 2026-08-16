@@ -86,10 +86,10 @@ Standardized error handling patterns for consistent, production-grade behavior a
 
 ```python
 class ErrorCategory(Enum):
-    TRANSIENT = "transient"      # Retry likely to succeed
-    PERMANENT = "permanent"       # Retry won't help
-    CONFIGURATION = "config"      # User action needed
-    RESOURCE = "resource"         # Quota/limit issue
+    TRANSIENT = "transient"  # Retry likely to succeed
+    PERMANENT = "permanent"  # Retry won't help
+    CONFIGURATION = "config"  # User action needed
+    RESOURCE = "resource"  # Quota/limit issue
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
@@ -102,14 +102,13 @@ from leyline.error_patterns import handle_error, ErrorCategory
 try:
     result = service.execute(prompt)
 except RateLimitError as e:
-    return handle_error(e, ErrorCategory.RESOURCE, {
-        "retry_after": e.retry_after,
-        "service": "gemini"
-    })
+    return handle_error(
+        e, ErrorCategory.RESOURCE, {"retry_after": e.retry_after, "service": "gemini"}
+    )
 except AuthError as e:
-    return handle_error(e, ErrorCategory.CONFIGURATION, {
-        "action": "Run 'gemini auth login'"
-    })
+    return handle_error(
+        e, ErrorCategory.CONFIGURATION, {"action": "Run 'gemini auth login'"}
+    )
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 

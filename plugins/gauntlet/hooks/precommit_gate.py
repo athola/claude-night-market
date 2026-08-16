@@ -54,11 +54,13 @@ def write_pass_token(
     """Write a one-time pass token to state/pass_token.json."""
     state_dir = gauntlet_dir / "state"
     state_dir.mkdir(parents=True, exist_ok=True)
-    expires_at = (
-        datetime.datetime.now(datetime.timezone.utc)
-        + datetime.timedelta(seconds=ttl_seconds)
-    ).isoformat()
-    token = {"staged_hash": staged_hash, "expires_at": expires_at}
+    issued_at = datetime.datetime.now(datetime.timezone.utc)
+    expires_at = issued_at + datetime.timedelta(seconds=ttl_seconds)
+    token = {
+        "staged_hash": staged_hash,
+        "issued_at": issued_at.isoformat(),
+        "expires_at": expires_at.isoformat(),
+    }
     (state_dir / _TOKEN_FILENAME).write_text(json.dumps(token))
 
 
@@ -68,6 +70,7 @@ def check_pass_token(gauntlet_dir: Path, staged_hash: str) -> bool:
     A token is valid when:
     - The file exists.
     - The stored hash matches *staged_hash*.
+    - The token was not stamped ahead of now (a backward clock jump).
     - The token has not expired.
 
     The token is deleted on a successful check (one-time use).
@@ -90,7 +93,20 @@ def check_pass_token(gauntlet_dir: Path, staged_hash: str) -> bool:
     except ValueError:
         return False
 
+    issued_at_str = data.get("issued_at", "")
+    try:
+        issued_at = datetime.datetime.fromisoformat(issued_at_str)
+    except ValueError:
+        return False
+
     now = datetime.datetime.now(datetime.timezone.utc)
+    # A token stamped ahead of now means the wall clock moved backward
+    # since it was written. Honoring it would stretch the pass window
+    # past the TTL the gate intended, so reject the anomaly instead.
+    if now < issued_at:
+        token_path.unlink(missing_ok=True)
+        return False
+
     if now >= expires_at:
         token_path.unlink(missing_ok=True)
         return False

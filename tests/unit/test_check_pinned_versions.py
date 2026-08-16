@@ -304,6 +304,67 @@ class TestMain:
         assert "actions/checkout" in capsys.readouterr().err
 
     @pytest.mark.unit
+    def test_env_override_reaches_advisory_mode(self, monkeypatch, capsys):
+        """
+        GIVEN the module default is blocking and a pin is behind upstream
+        WHEN the operator sets PINNED_VERSIONS_ADVISORY=1
+        THEN main exits 0 without editing the source
+        AND the behind repo is still named on stderr
+        """
+        monkeypatch.setattr(
+            cpv,
+            "collect_pins",
+            lambda: [("actions/checkout", "v4", "ci")],
+        )
+        monkeypatch.setattr(cpv, "latest_github_tag", lambda _repo: "v5.0.0")
+        monkeypatch.setattr(cpv, "OUTDATED_IS_BLOCKING", True)
+        monkeypatch.setenv("PINNED_VERSIONS_ADVISORY", "1")
+        assert cpv.main() == 0
+        assert "actions/checkout" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("value", ["", "0", "false", "no", "off"])
+    def test_env_override_off_values_still_block(self, monkeypatch, value):
+        """
+        GIVEN a behind pin under the blocking default
+        WHEN PINNED_VERSIONS_ADVISORY is set to an off value
+        THEN main still exits 1
+
+        An unset-looking value must not be mistaken for opt-in: `FOO=0` is
+        how a caller turns a flag off, and reading mere presence would make
+        it turn the gate off instead.
+        """
+        monkeypatch.setattr(
+            cpv,
+            "collect_pins",
+            lambda: [("actions/checkout", "v4", "ci")],
+        )
+        monkeypatch.setattr(cpv, "latest_github_tag", lambda _repo: "v5.0.0")
+        monkeypatch.setattr(cpv, "OUTDATED_IS_BLOCKING", True)
+        monkeypatch.setenv("PINNED_VERSIONS_ADVISORY", value)
+        assert cpv.main() == 1
+
+    @pytest.mark.unit
+    def test_advisory_notice_names_the_override(self, monkeypatch, capsys):
+        """
+        GIVEN a behind pin blocking the commit
+        WHEN main reports it
+        THEN the notice tells the operator how to downgrade it to advisory
+
+        A gate that can be turned off but does not say so is a gate people
+        work around by deleting the hook.
+        """
+        monkeypatch.setattr(
+            cpv,
+            "collect_pins",
+            lambda: [("actions/checkout", "v4", "ci")],
+        )
+        monkeypatch.setattr(cpv, "latest_github_tag", lambda _repo: "v5.0.0")
+        monkeypatch.setattr(cpv, "OUTDATED_IS_BLOCKING", True)
+        assert cpv.main() == 1
+        assert "PINNED_VERSIONS_ADVISORY" in capsys.readouterr().err
+
+    @pytest.mark.unit
     def test_all_current_exits_zero(self, monkeypatch, capsys):
         """
         GIVEN every discovered pin is at its latest release

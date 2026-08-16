@@ -975,6 +975,78 @@ class TestSpeckitCommands:
                 "converge must rank constitution violations as highest severity"
             )
 
+    class TestArgumentHintContract:
+        """The advertised argument must be the argument the body reads.
+
+        ``argument-hint`` is what the user sees before typing. A command
+        that derives ``SPEC``/``PLAN``/``TASKS`` from
+        ``check-prerequisites.sh`` never reads a path off the command line,
+        so advertising "Path to ..." sends the user to type an argument
+        that is silently discarded.
+        """
+
+        COMMANDS_DIR = Path(__file__).resolve().parent.parent / "commands"
+
+        @staticmethod
+        def _hint(content: str) -> str:
+            frontmatter = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+            if not frontmatter:
+                return ""
+            match = re.search(
+                r"^argument-hint:\s*(.+)$", frontmatter.group(1), re.MULTILINE
+            )
+            return match.group(1).strip().strip("\"'") if match else ""
+
+        def test_should_find_commands_when_scanning_directory(self) -> None:
+            """The scan must find files, or every assertion below is vacuous.
+
+            Given: the spec-kit commands directory
+            When: globbing for command files
+            Then: at least one is found
+            """
+            assert list(self.COMMANDS_DIR.glob("speckit-*.md")), (
+                "no spec-kit commands found; the hint contract test would pass "
+                "on an empty set"
+            )
+
+        def test_should_not_promise_a_path_when_paths_come_from_prerequisites(
+            self,
+        ) -> None:
+            """A script-discovered command must not advertise a path argument.
+
+            Given: every spec-kit command file
+            When: the body derives its artifact paths from check-prerequisites
+            Then: its argument-hint must not promise a path to those artifacts
+            """
+            liars = []
+            for command in sorted(self.COMMANDS_DIR.glob("speckit-*.md")):
+                content = command.read_text()
+                if "check-prerequisites" not in content:
+                    continue
+                hint = self._hint(content)
+                if re.match(r"^path to\b", hint, re.IGNORECASE):
+                    liars.append(f"{command.name}: {hint!r}")
+
+            assert not liars, (
+                "these commands advertise a path they never read (paths come "
+                "from check-prerequisites.sh):\n  " + "\n  ".join(liars)
+            )
+
+        def test_should_declare_a_hint_when_body_reads_arguments(self) -> None:
+            """A command that consumes $ARGUMENTS must say what to pass.
+
+            Given: every spec-kit command file
+            When: the body interpolates $ARGUMENTS
+            Then: the frontmatter declares a non-empty argument-hint
+            """
+            missing = [
+                command.name
+                for command in sorted(self.COMMANDS_DIR.glob("speckit-*.md"))
+                if "$ARGUMENTS" in command.read_text()
+                and not self._hint(command.read_text())
+            ]
+            assert not missing, f"commands read $ARGUMENTS with no hint: {missing}"
+
     @pytest.fixture
     def mock_command_execution(self):
         """Mock command execution environment.

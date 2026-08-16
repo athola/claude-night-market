@@ -34,6 +34,7 @@ Optimization techniques for writing fast, efficient hooks that don't degrade age
 import time
 from claude_agent_sdk import AgentHooks
 
+
 class PerformanceMonitoringHooks(AgentHooks):
     """Monitor hook execution time."""
 
@@ -50,20 +51,22 @@ class PerformanceMonitoringHooks(AgentHooks):
 
         finally:
             duration_ms = (time.perf_counter() - start) * 1000
-            self._hook_timings.append({
-                'hook': 'pre_tool_use',
-                'tool': tool_name,
-                'duration_ms': duration_ms
-            })
+            self._hook_timings.append(
+                {"hook": "pre_tool_use", "tool": tool_name, "duration_ms": duration_ms}
+            )
 
             if duration_ms > 100:  # Warn if over target
-                print(f"[WARN]  Slow hook: {tool_name} validation took {duration_ms:.2f}ms")
+                print(
+                    f"[WARN]  Slow hook: {tool_name} validation took {duration_ms:.2f}ms"
+                )
 
     async def on_stop(self, reason: str, result: Any) -> None:
         """Report hook performance."""
         if self._hook_timings:
-            avg_time = sum(t['duration_ms'] for t in self._hook_timings) / len(self._hook_timings)
-            max_time = max(t['duration_ms'] for t in self._hook_timings)
+            avg_time = sum(t["duration_ms"] for t in self._hook_timings) / len(
+                self._hook_timings
+            )
+            max_time = max(t["duration_ms"] for t in self._hook_timings)
 
             print(f"\nHook Performance:")
             print(f"  Average: {avg_time:.2f}ms")
@@ -82,6 +85,7 @@ import asyncio
 import aiofiles
 from claude_agent_sdk import AgentHooks
 
+
 class AsyncIOHooks(AgentHooks):
     """Use async I/O for performance."""
 
@@ -94,7 +98,7 @@ class AsyncIOHooks(AgentHooks):
         #     f.write(f"{tool_name}\n")
 
         #  NON-BLOCKING (fast)
-        async with aiofiles.open('log.txt', 'a') as f:
+        async with aiofiles.open("log.txt", "a") as f:
             await f.write(f"{tool_name}\n")
 
         return None
@@ -109,7 +113,7 @@ class AsyncIOHooks(AgentHooks):
 
         #  NON-BLOCKING
         async with aiohttp.ClientSession() as session:
-            async with session.get('http://api.example.com/config') as resp:
+            async with session.get("http://api.example.com/config") as resp:
                 return await resp.json()
 ```
 
@@ -120,6 +124,7 @@ Use background tasks for non-critical operations:
 ```python
 import asyncio
 from claude_agent_sdk import AgentHooks
+
 
 class BackgroundTaskHooks(AgentHooks):
     """Offload work to background tasks."""
@@ -133,11 +138,13 @@ class BackgroundTaskHooks(AgentHooks):
     ) -> str | None:
         """Queue log entry without blocking."""
         # Add to queue (fast, non-blocking)
-        await self._log_queue.put({
-            'tool': tool_name,
-            'timestamp': time.time(),
-            'output_size': len(tool_output)
-        })
+        await self._log_queue.put(
+            {
+                "tool": tool_name,
+                "timestamp": time.time(),
+                "output_size": len(tool_output),
+            }
+        )
 
         # Start background writer if not running
         if self._background_task is None or self._background_task.done():
@@ -152,8 +159,8 @@ class BackgroundTaskHooks(AgentHooks):
                 entry = await asyncio.wait_for(self._log_queue.get(), timeout=1.0)
 
                 # Write to file (in background)
-                async with aiofiles.open('audit.log', 'a') as f:
-                    await f.write(json.dumps(entry) + '\n')
+                async with aiofiles.open("audit.log", "a") as f:
+                    await f.write(json.dumps(entry) + "\n")
 
             except asyncio.TimeoutError:
                 break
@@ -175,6 +182,7 @@ import asyncio
 import aiofiles
 from claude_agent_sdk import AgentHooks
 
+
 class BatchWriteHooks(AgentHooks):
     """Batch writes for efficiency."""
 
@@ -188,15 +196,12 @@ class BatchWriteHooks(AgentHooks):
         self, tool_name: str, tool_input: dict, tool_output: str
     ) -> str | None:
         """Add to batch, flush when full."""
-        self._batch.append({
-            'tool': tool_name,
-            'timestamp': time.time()
-        })
+        self._batch.append({"tool": tool_name, "timestamp": time.time()})
 
         # Flush if batch is full or time elapsed
         should_flush = (
-            len(self._batch) >= self._batch_size or
-            time.time() - self._last_flush >= self._flush_interval
+            len(self._batch) >= self._batch_size
+            or time.time() - self._last_flush >= self._flush_interval
         )
 
         if should_flush:
@@ -210,9 +215,9 @@ class BatchWriteHooks(AgentHooks):
             return
 
         # Write all entries in one operation
-        async with aiofiles.open('audit.log', 'a') as f:
-            lines = '\n'.join(json.dumps(entry) for entry in self._batch)
-            await f.write(lines + '\n')
+        async with aiofiles.open("audit.log", "a") as f:
+            lines = "\n".join(json.dumps(entry) for entry in self._batch)
+            await f.write(lines + "\n")
 
         # Clear batch
         self._batch.clear()
@@ -233,6 +238,7 @@ Never accumulate unbounded state:
 from collections import deque
 from claude_agent_sdk import AgentHooks
 
+
 class BoundedStateHooks(AgentHooks):
     """Maintain bounded state to prevent memory growth."""
 
@@ -249,10 +255,7 @@ class BoundedStateHooks(AgentHooks):
     ) -> str | None:
         """Track recent operations with bounded memory."""
         # Automatically evicts oldest when full
-        self._recent_operations.append({
-            'tool': tool_name,
-            'timestamp': time.time()
-        })
+        self._recent_operations.append({"tool": tool_name, "timestamp": time.time()})
 
         # Update counts (bounded by tool types)
         self._tool_counts[tool_name] = self._tool_counts.get(tool_name, 0) + 1
@@ -268,6 +271,7 @@ Periodically clean up old state:
 import time
 from claude_agent_sdk import AgentHooks
 
+
 class CleanupHooks(AgentHooks):
     """Periodically clean up old state."""
 
@@ -280,10 +284,7 @@ class CleanupHooks(AgentHooks):
         self, tool_name: str, tool_input: dict, tool_output: str
     ) -> str | None:
         """Track with periodic cleanup."""
-        self._operations.append({
-            'tool': tool_name,
-            'timestamp': time.time()
-        })
+        self._operations.append({"tool": tool_name, "timestamp": time.time()})
 
         # Cleanup every 100 operations
         if len(self._operations) % 100 == 0:
@@ -294,10 +295,7 @@ class CleanupHooks(AgentHooks):
     def _cleanup_old_operations(self) -> None:
         """Remove operations older than max_age."""
         cutoff = time.time() - self._max_age
-        self._operations = [
-            op for op in self._operations
-            if op['timestamp'] > cutoff
-        ]
+        self._operations = [op for op in self._operations if op["timestamp"] > cutoff]
 ```
 
 ## Fast Validation
@@ -308,6 +306,7 @@ Return as soon as possible:
 
 ```python
 from claude_agent_sdk import AgentHooks
+
 
 class FastValidationHooks(AgentHooks):
     """Optimize validation with early returns."""
@@ -335,9 +334,9 @@ class FastValidationHooks(AgentHooks):
     # Compile regex once at init
     def __init__(self):
         import re
+
         self._dangerous_pattern = re.compile(
-            r'rm\s+-rf\s+/|:(){ :|:& };:',
-            re.IGNORECASE
+            r"rm\s+-rf\s+/|:(){ :|:& };:", re.IGNORECASE
         )
 ```
 
@@ -349,6 +348,7 @@ Pre-compile expensive operations:
 import re
 from claude_agent_sdk import AgentHooks
 
+
 class CompiledPatternHooks(AgentHooks):
     """Use compiled patterns for speed."""
 
@@ -357,8 +357,10 @@ class CompiledPatternHooks(AgentHooks):
         # self.pattern_str = r'rm\s+-rf'
 
         #  FAST: Compile once
-        self.dangerous_cmd = re.compile(r'rm\s+-rf\s+/', re.IGNORECASE)
-        self.secret_api_key = re.compile(r'(api[_-]?key["\s:=]+)([^\s,}]+)', re.IGNORECASE)
+        self.dangerous_cmd = re.compile(r"rm\s+-rf\s+/", re.IGNORECASE)
+        self.secret_api_key = re.compile(
+            r'(api[_-]?key["\s:=]+)([^\s,}]+)', re.IGNORECASE
+        )
         self.secret_token = re.compile(r'(token["\s:=]+)([^\s,}]+)', re.IGNORECASE)
 
     async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
@@ -382,6 +384,7 @@ Cache expensive operations:
 ```python
 from functools import lru_cache
 from claude_agent_sdk import AgentHooks
+
 
 class CachingHooks(AgentHooks):
     """Cache expensive computations."""
@@ -420,6 +423,7 @@ import time
 from typing import Any
 from claude_agent_sdk import AgentHooks
 
+
 class TTLCacheHooks(AgentHooks):
     """Cache with expiration."""
 
@@ -435,7 +439,7 @@ class TTLCacheHooks(AgentHooks):
 
     async def _get_config(self) -> dict:
         """Get config with TTL caching."""
-        cache_key = 'validation_config'
+        cache_key = "validation_config"
         now = time.time()
 
         # Check cache
@@ -453,7 +457,7 @@ class TTLCacheHooks(AgentHooks):
         """Expensive config fetch."""
         # Simulate slow operation
         await asyncio.sleep(0.1)
-        return {'max_command_length': 10000}
+        return {"max_command_length": 10000}
 ```
 
 ## Profiling Hooks
@@ -465,6 +469,7 @@ import cProfile
 import pstats
 from io import StringIO
 from claude_agent_sdk import AgentHooks
+
 
 class ProfilingHooks(AgentHooks):
     """Profile hook performance."""
@@ -491,7 +496,7 @@ class ProfilingHooks(AgentHooks):
         if self.enable_profiling:
             s = StringIO()
             ps = pstats.Stats(self._profiler, stream=s)
-            ps.sort_stats('cumulative')
+            ps.sort_stats("cumulative")
             ps.print_stats(20)  # Top 20 functions
             print(s.getvalue())
 ```
@@ -504,6 +509,7 @@ class ProfilingHooks(AgentHooks):
 import pytest
 import time
 from my_hooks import ValidationHooks
+
 
 @pytest.mark.asyncio
 async def test_validation_performance():
@@ -521,6 +527,7 @@ async def test_validation_performance():
 
     # Assert meets target (< 100ms per validation)
     assert avg_duration_ms < 100, f"Validation too slow: {avg_duration_ms:.2f}ms"
+
 
 @pytest.mark.asyncio
 async def test_logging_performance():
@@ -558,11 +565,11 @@ Before deploying hooks, verify:
 
 ```python
 #  SLOW: Blocking I/O
-with open('log.txt', 'a') as f:
+with open("log.txt", "a") as f:
     f.write(f"{tool_name}\n")
 
 #  FAST: Async I/O
-async with aiofiles.open('log.txt', 'a') as f:
+async with aiofiles.open("log.txt", "a") as f:
     await f.write(f"{tool_name}\n")
 ```
 
@@ -580,7 +587,7 @@ self._recent_operations.append(operation)  # maxlen=1000
 
 ```python
 #  SLOW: Recompile every time
-if re.search(r'dangerous', command):
+if re.search(r"dangerous", command):
     ...
 
 #  FAST: Compiled once
@@ -593,12 +600,14 @@ if self._dangerous_pattern.search(command):
 ```python
 #  SLOW: Blocking HTTP
 import requests
-config = requests.get('http://api.example.com/config').json()
+
+config = requests.get("http://api.example.com/config").json()
 
 #  FAST: Async HTTP
 import aiohttp
+
 async with aiohttp.ClientSession() as session:
-    async with session.get('http://api.example.com/config') as resp:
+    async with session.get("http://api.example.com/config") as resp:
         config = await resp.json()
 ```
 

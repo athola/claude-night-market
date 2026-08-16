@@ -1,6 +1,6 @@
 ---
 description: Assess the codebase against spec, plan, and tasks, then append unbuilt work as new convergence tasks
-argument-hint: "Path to spec/plan/tasks artifacts"
+argument-hint: "Optional context to focus the convergence assessment"
 ---
 
 Before proceeding, load the `speckit-orchestrator` skill for workflow

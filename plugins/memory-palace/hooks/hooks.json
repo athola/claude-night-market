@@ -29,6 +29,11 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/url_detector.py",
             "timeout": 2
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/recall.py",
+            "timeout": 3
           }
         ]
       }
@@ -74,6 +79,17 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session_lifecycle.py",
             "timeout": 2
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/research_queue.py",
+            "timeout": 5
           }
         ]
       }

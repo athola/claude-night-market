@@ -83,7 +83,7 @@ assert user.role == UserRole.ADMIN
 # Structured assertions
 assert response.json() == {
     "user": {"email": expected_email, "verified": True},
-    "token": {"expires_at": ANY_DATETIME}
+    "token": {"expires_at": ANY_DATETIME},
 }
 ```
 
@@ -102,14 +102,13 @@ wait_until(lambda: element.is_visible(), timeout=5)
 ### 2. Mocking Internals
 ```python
 # BAD: mocking implementation details
-@patch('module.internal._private_helper')
-def test_feature(mock_helper):
-    ...
+@patch("module.internal._private_helper")
+def test_feature(mock_helper): ...
+
 
 # GOOD: mock external dependencies only
-@patch('requests.get')
-def test_api_call(mock_get):
-    ...
+@patch("requests.get")
+def test_api_call(mock_get): ...
 ```
 
 ### 3. Repeated Boilerplate
@@ -121,11 +120,13 @@ def test_user_creation():
     user = User("alice")
     ...
 
+
 def test_user_deletion():
     db = Database("test.db")
     db.connect()
     user = User("bob")
     ...
+
 
 # GOOD: fixture/helper
 @pytest.fixture
@@ -143,8 +144,10 @@ def test_01_create_user():
     global user_id
     user_id = create_user()
 
+
 def test_02_delete_user():
     delete_user(user_id)  # Depends on test_01!
+
 
 # GOOD: isolated tests
 def test_delete_user():
@@ -174,6 +177,7 @@ assert user.role == "admin", "User should have admin role"
 @given('a user with email "{email}"')
 def create_user(context, email):
     context.user = User(email=email)
+
 
 @when('they submit credentials with password "{password}"')
 def submit_credentials(context, password):

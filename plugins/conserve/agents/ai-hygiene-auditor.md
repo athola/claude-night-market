@@ -96,39 +96,45 @@ def detect_tutorial_shape(code_path):
 
     # Placeholder data signatures
     placeholder_patterns = [
-        r'\bexample\.com\b', r'\bfoo@bar\b', r'\bhello[,\s]+world\b',
-        r'\b(?:dummy|fake|placeholder|sample|test)\s+data\b',
+        r"\bexample\.com\b",
+        r"\bfoo@bar\b",
+        r"\bhello[,\s]+world\b",
+        r"\b(?:dummy|fake|placeholder|sample|test)\s+data\b",
         r'user(?:name)?["\s]*[:=]["\s]*["\']?admin["\']?',
         r'"id"\s*:\s*["\']?(?:1|123|uuid-1234)',
-        r'\bLorem ipsum\b',
+        r"\bLorem ipsum\b",
     ]
     for pat in placeholder_patterns:
         hits = bash(f'rg -rl "{pat}" --type py --type js --type ts . 2>/dev/null')
         if hits:
-            findings.append({
-                'type': 'placeholder_data',
-                'severity': 'MEDIUM',
-                'files': hits.strip().split('\n'),
-                'recommendation': 'Replace placeholder data with real config or env vars',
-            })
+            findings.append(
+                {
+                    "type": "placeholder_data",
+                    "severity": "MEDIUM",
+                    "files": hits.strip().split("\n"),
+                    "recommendation": "Replace placeholder data with real config or env vars",
+                }
+            )
 
     # Generic-function entry points with no real integration
     generic_mains = bash(
         r'rg -n "def main\(\)|if __name__ == .\"__main__\"" '
-        r'--type py . 2>/dev/null | head -20'
+        r"--type py . 2>/dev/null | head -20"
     )
     if generic_mains:
         # Only flag if the file is < 100 lines (textbook demo size)
-        for hit in (generic_mains or '').splitlines():
-            filepath = hit.split(':')[0]
-            line_count = int(bash(f'wc -l < {filepath}').strip() or 0)
+        for hit in (generic_mains or "").splitlines():
+            filepath = hit.split(":")[0]
+            line_count = int(bash(f"wc -l < {filepath}").strip() or 0)
             if line_count < 100:
-                findings.append({
-                    'type': 'tutorial_main',
-                    'severity': 'LOW',
-                    'file': filepath,
-                    'recommendation': 'Verify this is production entry point, not a demo stub',
-                })
+                findings.append(
+                    {
+                        "type": "tutorial_main",
+                        "severity": "LOW",
+                        "file": filepath,
+                        "recommendation": "Verify this is production entry point, not a demo stub",
+                    }
+                )
 
     return findings
 ```
@@ -151,46 +157,56 @@ def detect_style_mismatch(changed_files, baseline_sample=None):
     # than the rest of the codebase (numpy vs google vs reST)
     repo_docstyle = bash(
         r'rg -l "Parameters\s*\n\s*----------" --type py . | '
-        r'head -5'
+        r"head -5"
     )
     numpy_style = bool(repo_docstyle.strip())
 
-    for f in (changed_files or []):
-        if not f.endswith('.py'):
+    for f in changed_files or []:
+        if not f.endswith(".py"):
             continue
         file_has_google = bash(f'rg -l "Args:\\n" {f}').strip()
         if numpy_style and file_has_google:
-            findings.append({
-                'type': 'docstring_style_mismatch',
-                'severity': 'LOW',
-                'file': f,
-                'recommendation': 'Use numpy-style docstrings to match the codebase',
-            })
+            findings.append(
+                {
+                    "type": "docstring_style_mismatch",
+                    "severity": "LOW",
+                    "file": f,
+                    "recommendation": "Use numpy-style docstrings to match the codebase",
+                }
+            )
 
     # --- Import style mismatch ---
     # If codebase uses relative imports, new file uses absolute?
-    relative_imports = bash(
-        r'rg -c "^from \." --type py . 2>/dev/null | '
-        r'awk -F: "NR>1{sum+=$2} END{print sum}"'
-    ).strip() or '0'
-    absolute_imports = bash(
-        r'rg -c "^from [a-z]" --type py . 2>/dev/null | '
-        r'awk -F: "NR>1{sum+=$2} END{print sum}"'
-    ).strip() or '0'
+    relative_imports = (
+        bash(
+            r'rg -c "^from \." --type py . 2>/dev/null | '
+            r'awk -F: "NR>1{sum+=$2} END{print sum}"'
+        ).strip()
+        or "0"
+    )
+    absolute_imports = (
+        bash(
+            r'rg -c "^from [a-z]" --type py . 2>/dev/null | '
+            r'awk -F: "NR>1{sum+=$2} END{print sum}"'
+        ).strip()
+        or "0"
+    )
     # Only flag if the imbalance is severe
     if int(relative_imports) > 3 * int(absolute_imports):
-        for f in (changed_files or []):
-            if f.endswith('.py'):
-                uses_absolute = bash(
-                    f'rg -c "^from [a-z]" {f} 2>/dev/null'
-                ).strip() or '0'
+        for f in changed_files or []:
+            if f.endswith(".py"):
+                uses_absolute = (
+                    bash(f'rg -c "^from [a-z]" {f} 2>/dev/null').strip() or "0"
+                )
                 if int(uses_absolute) > 2:
-                    findings.append({
-                        'type': 'import_style_mismatch',
-                        'severity': 'LOW',
-                        'file': f,
-                        'recommendation': 'Codebase uses relative imports; align new file',
-                    })
+                    findings.append(
+                        {
+                            "type": "import_style_mismatch",
+                            "severity": "LOW",
+                            "file": f,
+                            "recommendation": "Codebase uses relative imports; align new file",
+                        }
+                    )
 
     return findings
 ```
@@ -209,24 +225,28 @@ def analyze_git_patterns(repo_path):
         head -20
     """)
     if massive_commits:
-        findings.append({
-            'type': 'massive_commits',
-            'severity': 'MEDIUM',
-            'evidence': massive_commits,
-            'recommendation': 'Break into smaller, reviewable commits'
-        })
+        findings.append(
+            {
+                "type": "massive_commits",
+                "severity": "MEDIUM",
+                "evidence": massive_commits,
+                "recommendation": "Break into smaller, reviewable commits",
+            }
+        )
 
     # Refactoring ratio
     refactor_commits = bash("git log --oneline | grep -ci refactor")
     total_commits = bash("git rev-list --count HEAD")
     ratio = int(refactor_commits) / max(int(total_commits), 1)
     if ratio < 0.05:  # Less than 5% refactoring
-        findings.append({
-            'type': 'refactoring_deficit',
-            'severity': 'HIGH',
-            'metric': f'{ratio:.1%} refactoring commits',
-            'recommendation': 'Add refactoring to every 4th commit'
-        })
+        findings.append(
+            {
+                "type": "refactoring_deficit",
+                "severity": "HIGH",
+                "metric": f"{ratio:.1%} refactoring commits",
+                "recommendation": "Add refactoring to every 4th commit",
+            }
+        )
 
     return findings
 ```
@@ -239,16 +259,20 @@ def analyze_duplication(code_path):
     findings = []
 
     # Run built-in duplicate detector (no external deps required)
-    report = bash("python3 plugins/conserve/scripts/detect_duplicates.py . --format json")
+    report = bash(
+        "python3 plugins/conserve/scripts/detect_duplicates.py . --format json"
+    )
     duplicates = json.loads(report)
-    if duplicates['summary']['duplication_percentage'] > 10:
-        findings.append({
-            'type': 'tab_completion_bloat',
-            'severity': 'HIGH',
-            'metric': f'{duplicates["summary"]["duplication_percentage"]}% duplication',
-            'blocks': len(duplicates['duplicates']),
-            'recommendation': 'Extract repeated blocks to shared utilities'
-        })
+    if duplicates["summary"]["duplication_percentage"] > 10:
+        findings.append(
+            {
+                "type": "tab_completion_bloat",
+                "severity": "HIGH",
+                "metric": f"{duplicates['summary']['duplication_percentage']}% duplication",
+                "blocks": len(duplicates["duplicates"]),
+                "recommendation": "Extract repeated blocks to shared utilities",
+            }
+        )
 
     # Heuristic: similar function names
     similar_funcs = bash("""
@@ -258,12 +282,14 @@ def analyze_duplication(code_path):
         sort -rn | awk '$1 > 2'
     """)
     if similar_funcs:
-        findings.append({
-            'type': 'repetitive_naming',
-            'severity': 'MEDIUM',
-            'evidence': similar_funcs,
-            'recommendation': 'Review for abstraction opportunities'
-        })
+        findings.append(
+            {
+                "type": "repetitive_naming",
+                "severity": "MEDIUM",
+                "evidence": similar_funcs,
+                "recommendation": "Review for abstraction opportunities",
+            }
+        )
 
     return findings
 ```
@@ -276,32 +302,36 @@ def verify_dependencies(project_path):
     findings = []
 
     # Python
-    if exists('requirements.txt') or exists('pyproject.toml'):
+    if exists("requirements.txt") or exists("pyproject.toml"):
         imports = bash("""
             grep -rh "^import \\|^from " --include="*.py" . |
             sed 's/^import //;s/^from //;s/ import.*//' |
             cut -d. -f1 | sort -u
         """)
-        for pkg in imports.split('\n'):
+        for pkg in imports.split("\n"):
             if not is_stdlib(pkg) and not is_installed(pkg):
-                findings.append({
-                    'type': 'hallucinated_dependency',
-                    'severity': 'HIGH',
-                    'package': pkg,
-                    'recommendation': f'Verify {pkg} exists: pip show {pkg}'
-                })
+                findings.append(
+                    {
+                        "type": "hallucinated_dependency",
+                        "severity": "HIGH",
+                        "package": pkg,
+                        "recommendation": f"Verify {pkg} exists: pip show {pkg}",
+                    }
+                )
 
     # JavaScript
-    if exists('package.json'):
+    if exists("package.json"):
         deps = bash("jq -r '.dependencies // {} | keys[]' package.json")
-        for pkg in deps.split('\n'):
+        for pkg in deps.split("\n"):
             if not npm_exists(pkg):
-                findings.append({
-                    'type': 'hallucinated_dependency',
-                    'severity': 'HIGH',
-                    'package': pkg,
-                    'recommendation': f'Verify {pkg} exists: npm view {pkg}'
-                })
+                findings.append(
+                    {
+                        "type": "hallucinated_dependency",
+                        "severity": "HIGH",
+                        "package": pkg,
+                        "recommendation": f"Verify {pkg} exists: npm view {pkg}",
+                    }
+                )
 
     return findings
 ```
@@ -319,24 +349,32 @@ def assess_test_quality(test_path):
             --include="test_*.py" .
     """)
     if happy_only:
-        findings.append({
-            'type': 'happy_path_only',
-            'severity': 'HIGH',
-            'files': happy_only.split('\n'),
-            'recommendation': 'Add error path tests to each file'
-        })
+        findings.append(
+            {
+                "type": "happy_path_only",
+                "severity": "HIGH",
+                "files": happy_only.split("\n"),
+                "recommendation": "Add error path tests to each file",
+            }
+        )
 
     # Test-to-code ratio
-    test_lines = bash("find . -name 'test_*.py' ! -path '*/.venv/*' ! -path '*/__pycache__/*' ! -path '*/node_modules/*' ! -path '*/.git/*' | xargs wc -l | tail -1")
-    code_lines = bash("find . -name '*.py' ! -name 'test_*' ! -path '*/.venv/*' ! -path '*/__pycache__/*' ! -path '*/node_modules/*' ! -path '*/.git/*' | xargs wc -l | tail -1")
+    test_lines = bash(
+        "find . -name 'test_*.py' ! -path '*/.venv/*' ! -path '*/__pycache__/*' ! -path '*/node_modules/*' ! -path '*/.git/*' | xargs wc -l | tail -1"
+    )
+    code_lines = bash(
+        "find . -name '*.py' ! -name 'test_*' ! -path '*/.venv/*' ! -path '*/__pycache__/*' ! -path '*/node_modules/*' ! -path '*/.git/*' | xargs wc -l | tail -1"
+    )
     ratio = int(test_lines) / max(int(code_lines), 1)
     if ratio < 0.3:  # Less than 30% test coverage by lines
-        findings.append({
-            'type': 'test_deficit',
-            'severity': 'MEDIUM',
-            'metric': f'{ratio:.1%} test-to-code ratio',
-            'recommendation': 'Target minimum 50% test-to-code ratio'
-        })
+        findings.append(
+            {
+                "type": "test_deficit",
+                "severity": "MEDIUM",
+                "metric": f"{ratio:.1%} test-to-code ratio",
+                "recommendation": "Target minimum 50% test-to-code ratio",
+            }
+        )
 
     return findings
 ```
@@ -373,17 +411,31 @@ def detect_documentation_slop(docs_path):
     findings = []
 
     hedge_words = [
-        "worth noting", "arguably", "to some extent",
-        "it's important", "consider that", "generally speaking",
+        "worth noting",
+        "arguably",
+        "to some extent",
+        "it's important",
+        "consider that",
+        "generally speaking",
         # 2026 cross-source consensus tells (Wikipedia, Field
         # Guide, Stop-Slop, OliviaCal, George Kao). Quick
         # triage only; delegate full check to scribe.
-        "lives in", "sits at", "stands as", "rests on",
-        "rooted in", "serves as", "boasts",
-        "here's the thing", "let that sink in",
+        "lives in",
+        "sits at",
+        "stands as",
+        "rests on",
+        "rooted in",
+        "serves as",
+        "boasts",
+        "here's the thing",
+        "let that sink in",
         "the uncomfortable truth is",
-        "not just", "not only", "it's not", ", not ",
-        "stands as a testament", "marks a turning point",
+        "not just",
+        "not only",
+        "it's not",
+        ", not ",
+        "stands as a testament",
+        "marks a turning point",
         "underscores the importance",
     ]
 
@@ -395,13 +447,15 @@ def detect_documentation_slop(docs_path):
         if word_count > 100:
             density = (hedge_count * 1000) / word_count
             if density > 15:  # More than 15 per 1000 words
-                findings.append({
-                    'type': 'documentation_slop',
-                    'severity': 'LOW',
-                    'file': md_file,
-                    'metric': f'{density:.0f} hedges per 1000 words',
-                    'recommendation': 'Rewrite with concrete specifics'
-                })
+                findings.append(
+                    {
+                        "type": "documentation_slop",
+                        "severity": "LOW",
+                        "file": md_file,
+                        "metric": f"{density:.0f} hedges per 1000 words",
+                        "recommendation": "Rewrite with concrete specifics",
+                    }
+                )
 
     return findings
 ```
@@ -425,47 +479,68 @@ def detect_ai_code_debt(code_path):
         if total < 20:
             continue
 
-        comment_lines = sum(1 for l in lines if l.strip().startswith('#'))
+        comment_lines = sum(1 for l in lines if l.strip().startswith("#"))
         comment_ratio = comment_lines / total
 
-        funcs = [l for l in lines if l.strip().startswith('def ')]
+        funcs = [l for l in lines if l.strip().startswith("def ")]
         func_count = max(len(funcs), 1)
 
         log_calls = sum(
-            1 for l in lines
-            if any(p in l for p in [
-                'print(', 'logging.', 'logger.', 'console.log',
-                'console.warn', 'console.error',
-            ])
+            1
+            for l in lines
+            if any(
+                p in l
+                for p in [
+                    "print(",
+                    "logging.",
+                    "logger.",
+                    "console.log",
+                    "console.warn",
+                    "console.error",
+                ]
+            )
         )
         log_density = log_calls / func_count
 
         guard_hits = sum(
-            1 for l in lines
-            if any(p in l for p in [
-                'is None', 'is not None', '== None', '!= None',
-                'if not ', 'try:', 'except Exception',
-                '=== null', '!== null', '=== undefined',
-            ])
+            1
+            for l in lines
+            if any(
+                p in l
+                for p in [
+                    "is None",
+                    "is not None",
+                    "== None",
+                    "!= None",
+                    "if not ",
+                    "try:",
+                    "except Exception",
+                    "=== null",
+                    "!== null",
+                    "=== undefined",
+                ]
+            )
         )
         guard_density = guard_hits / func_count
 
         signals = []
         if comment_ratio > 0.30:
-            signals.append(f'comment_ratio={comment_ratio:.0%}')
+            signals.append(f"comment_ratio={comment_ratio:.0%}")
         if log_density > 3.0:
-            signals.append(f'log_density={log_density:.1f}')
+            signals.append(f"log_density={log_density:.1f}")
         if guard_density > 2.0:
-            signals.append(f'guard_density={guard_density:.1f}')
+            signals.append(f"guard_density={guard_density:.1f}")
 
         if signals:
-            findings.append({
-                'type': 'ai_code_debt_signals',
-                'severity': 'MEDIUM',
-                'file': src_file,
-                'signals': signals,
-                'recommendation': 'Review for AI-generated boilerplate'
-            })
+            findings.append(
+                {
+                    "type": "ai_code_debt_signals",
+                    "severity": "MEDIUM",
+                    "file": src_file,
+                    "signals": signals,
+                    "recommendation": "Review for AI-generated boilerplate",
+                }
+            )
 
     # --- Pattern-based detection (codebase-wide) ---
 
@@ -496,16 +571,18 @@ def detect_ai_code_debt(code_path):
         head -20
     """)
     if generic_names:
-        findings.append({
-            'type': 'generic_naming',
-            'severity': 'LOW',
-            'evidence': generic_names,
-            'recommendation': (
-                'Replace generic names with domain terms. '
-                '"handle_data" tells you nothing; '
-                '"reconcile_invoice" tells you everything.'
-            )
-        })
+        findings.append(
+            {
+                "type": "generic_naming",
+                "severity": "LOW",
+                "evidence": generic_names,
+                "recommendation": (
+                    "Replace generic names with domain terms. "
+                    '"handle_data" tells you nothing; '
+                    '"reconcile_invoice" tells you everything.'
+                ),
+            }
+        )
 
     return findings
 ```

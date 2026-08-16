@@ -27,11 +27,14 @@ from memory_palace.corpus.index_promoter import (
     CorpusUnavailableError,
     apply_orphan_prunes,
     apply_promotions,
+    apply_title_repairs,
     propose_orphan_prunes,
     propose_promotions,
+    propose_title_repairs,
 )
 from memory_palace.garden_metrics import SECONDS_PER_DAY, compute_garden_metrics
 from memory_palace.palace_manager import MemoryPalaceManager
+from memory_palace.paths import persistent_root
 
 
 @dataclass
@@ -84,6 +87,16 @@ class _CLIBase:
     plugin_dir: Path
     config_file: Path
     claude_config: Path
+
+    def _data_root(self) -> Path:
+        """Return the root holding user data across plugin versions.
+
+        ``plugin_dir`` is version scoped in an install, so resolving
+        captures, backups, and the intake queue from it made these
+        commands read a different tree than the hooks write to
+        (issue #661). Identity in a source checkout.
+        """
+        return persistent_root(self.plugin_dir)
 
     def _manager(self, palaces_dir: str | None = None) -> MemoryPalaceManager:
         """Create a palace manager (implemented by the coordinator)."""
@@ -478,7 +491,7 @@ class _IndexMixin(_CLIBase):
 
     def _capture_index_path(self) -> Path:
         """Resolve the capture index path (hooks/memory-palace-index.yaml)."""
-        return self.plugin_dir / "hooks" / "memory-palace-index.yaml"
+        return self._data_root() / "hooks" / "memory-palace-index.yaml"
 
     def index_report(self, output_format: str = "text", top: int = 10) -> bool:
         """Report read-only analytics over the capture index.
@@ -580,10 +593,54 @@ class _IndexMixin(_CLIBase):
             self.print_success("Nothing to apply.")
             return True
 
-        backup_dir = self.plugin_dir / "data" / "backups"
+        backup_dir = self._data_root() / "data" / "backups"
         result = apply_promotions(proposals, index_path, backup_dir=backup_dir)
         self.print_success(
             f"Applied {result.applied} proposals. Backup: {result.backup_path}"
+        )
+        return True
+
+    def index_retitle(self, apply: bool = False, top: int = 0) -> bool:
+        """Propose (and optionally apply) repairs to non-title titles.
+
+        Fixing the capture hook only governs future captures. Entries
+        stored before the title shape rules were right keep their bad
+        titles forever, so the index still shows "- A loading state" and
+        "Response" as page titles (#624). The replacement is the URL
+        slug, which is what the hook's own fallback would have produced.
+
+        Dry-run by default: prints the proposals but writes nothing.
+        Idempotent, because a repaired title is proposed no further.
+        """
+        index_path = self._capture_index_path()
+        index = load_capture_index(index_path)
+        proposals = propose_title_repairs(index)
+
+        self.print_status(f"Capture index: {index_path}")
+        print(f"  Titles to repair: {len(proposals)}")
+        shown = proposals if top <= 0 else proposals[:top]
+        for proposal in shown:
+            current = index["entries"].get(proposal.key, {}).get("title", "?")
+            print(f"  [RETITLE] {proposal.key}")
+            print(f"      from: {current!r}")
+            print(f"      to:   {proposal.changes['title']!r}")
+        if top > 0 and len(proposals) > top:
+            print(f"  ... and {len(proposals) - top} more")
+
+        if not apply:
+            print("\n  DRY RUN - no changes written. Re-run with --apply to commit.")
+            return True
+
+        if not proposals:
+            self.print_success("Nothing to retitle.")
+            return True
+
+        backup_dir = self._data_root() / "data" / "backups"
+        result = apply_title_repairs(
+            index, proposals, index_path, backup_dir=backup_dir
+        )
+        self.print_success(
+            f"Repaired {result.applied} titles. Backup: {result.backup_path}"
         )
         return True
 
@@ -626,7 +683,7 @@ class _IndexMixin(_CLIBase):
             self.print_success("Nothing to prune.")
             return True
 
-        backup_dir = self.plugin_dir / "data" / "backups"
+        backup_dir = self._data_root() / "data" / "backups"
         result = apply_orphan_prunes(keys, index_path, backup_dir=backup_dir)
         self.print_success(
             f"Pruned {result.applied} orphans. Backup: {result.backup_path}"
@@ -719,7 +776,7 @@ class _PalaceMixin(_CLIBase):
     def sync_queue(self, auto_create: bool = False, dry_run: bool = False) -> bool:
         """Sync intake queue into palaces."""
         try:
-            queue_path = self.plugin_dir / "data" / "intake_queue.jsonl"
+            queue_path = self._data_root() / "data" / "intake_queue.jsonl"
             results = self._manager().sync_from_queue(
                 str(queue_path),
                 auto_create=auto_create,
@@ -1104,6 +1161,22 @@ def _add_index_command(subparsers: Any) -> None:
         help="Limit how many proposals to print (0 = all)",
     )
 
+    retitle = index_sub.add_parser(
+        "retitle",
+        help="Repair stored titles that are not titles (dry-run by default)",
+    )
+    retitle.add_argument(
+        "--apply",
+        action="store_true",
+        help="Persist repairs after a timestamped backup (default: dry-run)",
+    )
+    retitle.add_argument(
+        "--top",
+        type=int,
+        default=0,
+        help="Limit how many repairs to print (0 = all)",
+    )
+
     prune = index_sub.add_parser(
         "prune-orphans",
         help="Hard-delete entries whose backing file is gone (dry-run by default)",
@@ -1273,6 +1346,8 @@ def main() -> None:
             cli.index_report(output_format=args.format, top=args.top)
         elif args.index_cmd == "promote":
             cli.index_promote(apply=args.apply, top=args.top)
+        elif args.index_cmd == "retitle":
+            cli.index_retitle(apply=args.apply, top=args.top)
         elif args.index_cmd == "prune-orphans":
             cli.index_prune_orphans(apply=args.apply, top=args.top)
         else:

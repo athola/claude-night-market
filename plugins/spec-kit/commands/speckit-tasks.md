@@ -2,7 +2,7 @@
 name: speckit-tasks
 description: Generate dependency-ordered tasks.md from design artifacts
 usage: /speckit-tasks [feature-dir] [--no-tdd]
-argument-hint: "Path to plan.md or feature directory"
+argument-hint: "Optional context for task generation"
 ---
 
 # Speckit Tasks

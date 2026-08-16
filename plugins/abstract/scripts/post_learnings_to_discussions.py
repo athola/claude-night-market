@@ -742,6 +742,56 @@ def _resolve_and_post(learnings_path: Path | None) -> str | None:
     return _post_if_new(summary, content, owner, name, category_id)
 
 
+NO_ACTION_PLACEHOLDER = (
+    "- [ ] No high-priority actions this period. Continue monitoring."
+)
+
+
+def has_substantive_findings(body: str) -> bool:
+    """True when the digest has something a reader could act on.
+
+    52 of this repo's 137 discussions are daily digests, and not one
+    carried a real action item. Every "Action Items" section that
+    existed held only the placeholder ``build_action_items`` emits when
+    it finds nothing, formatted as a checkbox so it reads like work.
+
+    The ``_last_content_hash`` guard does not catch this. Digests differ
+    day to day in dates and percentages, so the hash is new every time
+    even when the content says nothing. Substance has to be judged from
+    what the body claims, not from whether the bytes changed.
+
+    Substantive means at least one unchecked action item that is not the
+    placeholder, or a High-Impact Issues section with an entry. A
+    checked box is a record of finished work, not outstanding work.
+    """
+    substantive_items = [
+        line
+        for line in body.splitlines()
+        if line.strip().startswith("- [ ]")
+        and line.strip() != NO_ACTION_PLACEHOLDER.strip()
+    ]
+    if substantive_items:
+        return True
+
+    # Match the *rendered* heading, not the source one. `parse_learnings_md`
+    # reads "## High-Impact Issues" from LEARNINGS.md, but
+    # `compose_enriched_body` publishes it as "## Top Issues". A gate that
+    # matched only the source name scored a digest reporting
+    # imbue:proof-of-work at a 42.3% success rate as having nothing to say.
+    # For a suppression gate the false negative is the costly direction:
+    # it deletes signal, where a false positive merely leaves noise.
+    in_issues = False
+    for line in body.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            heading = stripped.lower()
+            in_issues = "top issues" in heading or "high-impact issue" in heading
+            continue
+        if in_issues and stripped.startswith(("-", "###")):
+            return True
+    return False
+
+
 def _post_if_new(
     summary: LearningSummary,
     content: str,
@@ -779,6 +829,15 @@ def _post_if_new(
     if record.posted.get("_last_content_hash") == content_hash:
         print(
             "Content identical to last post. Skipping.",
+            file=sys.stderr,
+        )
+        return None
+
+    if not has_substantive_findings(body):
+        print(
+            "Digest has no action items or high-impact issues. Skipping. "
+            "(Observability output is still written to LEARNINGS.md; a "
+            "discussion is for work somebody needs to see.)",
             file=sys.stderr,
         )
         return None

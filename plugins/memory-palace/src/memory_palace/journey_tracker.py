@@ -39,6 +39,7 @@ class JourneyTracker:
         self,
         journey_id: int,
         palace_id: str,
+        *,
         room_id: str = "",
         entity_delta: dict[str, Any] | None = None,
         palace_delta: dict[str, Any] | None = None,

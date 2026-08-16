@@ -71,6 +71,52 @@ def format_context(entries: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+# Gap thresholds. Below the floor a session is a continuation and needs no
+# announcement; above it, stale state units become an active hazard.
+GAP_NARRATION_FLOOR_HOURS = 12
+
+
+def format_session_gap(last_ended_at: str | None) -> str | None:
+    """Narrate elapsed time since the previous session, or stay silent.
+
+    Returns None when there is no prior session, when the gap is short
+    enough to be a continuation, or when the stored timestamp cannot be
+    parsed. Silence is the correct output in all three cases: a model
+    with no reading will otherwise fabricate one from a stale anchor,
+    and a fabricated gap is worse than an absent one.
+    """
+    if not last_ended_at:
+        return None
+    from datetime import datetime, timezone
+
+    try:
+        ended = datetime.fromisoformat(str(last_ended_at))
+    except (TypeError, ValueError):
+        return None
+    if ended.tzinfo is None:
+        ended = ended.replace(tzinfo=timezone.utc)
+
+    elapsed = datetime.now(timezone.utc) - ended
+    hours = elapsed.total_seconds() / 3600
+    if hours < GAP_NARRATION_FLOOR_HOURS:
+        return None
+
+    days = elapsed.days
+    if days < 1:
+        span = f"{int(hours)} hours"
+    else:
+        span = f"{days} days"
+
+    message = f"Memory Palace: {span} since the last recorded session."
+    if days >= 3:
+        message += (
+            " Handoff units of type 'state' are likely stale; verify them "
+            "against the repository before acting. Findings and decisions "
+            "remain usable."
+        )
+    return message
+
+
 def build_session_context(
     index: dict[str, Any],
     enabled: bool,

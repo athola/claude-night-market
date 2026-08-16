@@ -278,7 +278,7 @@ This command orchestrates multiple evaluation tools:
 - `abstract:modular-skills` - Architecture patterns
 - `abstract:hooks-eval` - Hook evaluation framework
 - `conserve:bloat-detector` - Bloat detection
-- `conserve:resource-management` - Token optimization
+- `conserve:token-conservation` - Token optimization
 
 ## Configuration
 

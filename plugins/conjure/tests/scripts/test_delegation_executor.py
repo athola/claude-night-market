@@ -104,6 +104,60 @@ class TestDelegator:
         assert delegator.config_file == temp_config_dir / "config.json"
         assert delegator.usage_log == temp_config_dir / "usage.jsonl"
 
+    @pytest.mark.bdd
+    def test_delegator_registers_minimax_service(self, temp_config_dir) -> None:
+        """Given default config when initializing Delegator.
+
+        then MiniMax is registered as a delegation service.
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        assert "minimax" in delegator.services
+        minimax = delegator.services["minimax"]
+        assert minimax.command == "minimax"
+        assert minimax.auth_method == "api_key"
+        assert minimax.auth_env_var == "MINIMAX_API_KEY"
+        assert minimax.quota_limits is not None
+
+    @pytest.mark.bdd
+    @patch("subprocess.run")
+    def test_verify_minimax_service_missing_auth(
+        self, mock_run, temp_config_dir
+    ) -> None:
+        """Given missing auth env var when verifying MiniMax then report it.
+
+        MiniMax authenticates with an API key, so the verifier must flag a
+        missing ``MINIMAX_API_KEY`` instead of reporting the service ready.
+        """
+        mock_run.return_value.returncode = 0
+
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        with patch.dict(os.environ, {}, clear=False):
+            if "MINIMAX_API_KEY" in os.environ:
+                del os.environ["MINIMAX_API_KEY"]
+
+            is_available, issues = delegator.verify_service("minimax")
+
+        assert is_available is False
+        assert any("MINIMAX_API_KEY" in issue for issue in issues)
+
+    @pytest.mark.bdd
+    def test_build_minimax_command_with_model(self, temp_config_dir) -> None:
+        """Given a model option when building the MiniMax command.
+
+        then the command carries the model flag and ``-p`` prompt.
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        command = delegator.build_command(
+            "minimax",
+            "summarize this",
+            options={"model": "MiniMax-M3"},
+        )
+
+        assert command == ["minimax", "--model", "MiniMax-M3", "-p", "summarize this"]
+
     def test_load_configurations_with_custom_config(
         self,
         temp_config_dir,

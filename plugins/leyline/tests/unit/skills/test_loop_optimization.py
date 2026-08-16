@@ -132,6 +132,49 @@ class TestLoopOptimizationSkillStructure:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_documents_branch_elimination_technique(self, skill_content: str) -> None:
+        """Scenario: Skill covers branch elimination as a distinct lever.
+
+        Given the loop-optimization SKILL.md
+        When reading the technique guidance
+        Then branchless/branch-elimination appears alongside the loop
+        transforms, because control flow is a separate axis from loop
+        structure and the compiler will not perform this rewrite
+        """
+        lower = skill_content.lower()
+        assert "branchless" in lower or "branch elimination" in lower
+        assert "mispredict" in lower
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_branchless_scoped_to_unpredictable_data(self, skill_content: str) -> None:
+        """Scenario: Skill scopes branchless to data-dependent branches.
+
+        Given the loop-optimization SKILL.md
+        When reading the branchless guidance
+        Then it restricts the technique to branches on unpredictable
+        data and states that predictable branches are already cheap
+        """
+        lower = skill_content.lower()
+        assert "unpredictable" in lower
+        assert "predictable" in lower
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_branchless_documents_worst_case_tradeoff(self, skill_content: str) -> None:
+        """Scenario: Skill states branchless trades best for worst case.
+
+        Given the loop-optimization SKILL.md
+        When reading the branchless guidance
+        Then it records that the technique flattens cost rather than
+        reducing it, and can be slower when the branch predicts well
+        """
+        lower = skill_content.lower()
+        assert "selectivity" in lower
+        assert "worst case" in lower or "worst-case" in lower
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_has_exit_criteria(self, skill_content: str) -> None:
         """Scenario: Skill has a falsifiable Exit Criteria section.
 
@@ -156,6 +199,50 @@ class TestLoopOptimizationProseCompliance:
         """Load SKILL.md content."""
         path = Path(__file__).parents[3] / "skills" / "loop-optimization" / "SKILL.md"
         return path.read_text()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_thematic_break_does_not_reopen_frontmatter(self) -> None:
+        """Scenario: a body `---` must not silence the length check.
+
+        Given a document whose body contains a thematic break
+        When the prose scanner walks past it
+        Then a long line after the break is still reported
+
+        #607 flagged that the `---` toggle could read a thematic break
+        as re-entering frontmatter, skipping every check after it. The
+        `frontmatter_closed` latch already prevents that, and this test
+        is what keeps the latch: delete it and both cases go silent.
+        """
+        long_line = "x" * 100
+
+        def scan(text: str) -> list[int]:
+            in_code = False
+            in_frontmatter = False
+            frontmatter_closed = False
+            violations = []
+            for i, line in enumerate(text.split("\n"), 1):
+                if line.startswith("```"):
+                    in_code = not in_code
+                    continue
+                if line == "---" and not frontmatter_closed:
+                    if i == 1:
+                        in_frontmatter = True
+                    elif in_frontmatter:
+                        in_frontmatter = False
+                        frontmatter_closed = True
+                    continue
+                if in_code or in_frontmatter:
+                    continue
+                if len(line) > MAX_PROSE_LINE_LENGTH and not line.startswith("|"):
+                    violations.append(i)
+            return violations
+
+        with_frontmatter = f"---\nname: t\n---\n\nintro\n\n---\n\n{long_line}\n"
+        without_frontmatter = f"# Title\n\nintro\n\n---\n\n{long_line}\n"
+
+        assert scan(with_frontmatter) == [9]
+        assert scan(without_frontmatter) == [7]
 
     @pytest.mark.bdd
     @pytest.mark.unit

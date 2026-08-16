@@ -7,7 +7,6 @@ awaits input, supporting Linux, macOS, Windows, and WSL platforms.
 
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
 from subprocess import TimeoutExpired
 from unittest.mock import MagicMock, patch
@@ -643,30 +642,72 @@ class TestNotificationSoundToggle:
         assert 'silent="true"' in script
 
 
-@pytest.mark.requires_notify_send
-class TestIntegrationWithNotifySend:
-    """Integration tests requiring notify-send command.
+class TestLinuxNotifyResolvesBinary:
+    """notify_linux finds notify-send wherever it is installed.
 
-    These tests only run when notify-send is available on the system.
-    Use pytest -m "requires_notify_send" to run these tests.
+    The function used to hardcode `/usr/bin/notify-send`. Every distro
+    that ships it elsewhere (Nix profiles, Homebrew on Linux,
+    /usr/local/bin builds) got a silent FileNotFoundError and no
+    notification, and the integration test above could not catch it: the
+    test guards on `shutil.which`, which searches PATH, while the code
+    ignored PATH entirely. On such a machine the guard passes, the call
+    fails, and the assertion goes red for the wrong reason.
+
+    These tests run everywhere because they supply their own
+    notify-send, so the real subprocess path stays covered on machines
+    that have no desktop notifier at all.
     """
 
+    @staticmethod
+    def _fake_notify_send(directory: Path) -> Path:
+        """Write an executable stub that records the argv it received."""
+        log = directory / "argv.txt"
+        stub = directory / "notify-send"
+        stub.write_text(
+            f'#!/bin/sh\nprintf "%s\\n" "$@" > {log}\nexit 0\n',
+            encoding="utf-8",
+        )
+        stub.chmod(0o755)
+        return log
+
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_actual_linux_notification(self) -> None:
-        """Given notify-send installed, sends actual notification."""
-        if not shutil.which("notify-send"):
-            pytest.skip("notify-send not found on system")
+    def test_uses_notify_send_from_path(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """GIVEN notify-send installed somewhere other than /usr/bin
+        WHEN notify_linux sends a notification
+        THEN it resolves the binary from PATH and reports success
+        AND it passes the app name, urgency, title, and message through.
+        """
+        log = self._fake_notify_send(tmp_path)
+        monkeypatch.setenv("PATH", str(tmp_path))
 
-        result = notify_linux("Integration Test", "This is a test notification")
-        assert result is True
+        result = notify_linux("Title Here", "Message body")
+
+        assert result is True, (
+            "notify_linux did not find notify-send on PATH. A hardcoded "
+            "/usr/bin path silently disables notifications for anyone "
+            "whose distro installs it elsewhere."
+        )
+        argv = log.read_text(encoding="utf-8").splitlines()
+        assert argv == [
+            "--app-name=Claude Code",
+            "--urgency=normal",
+            "Title Here",
+            "Message body",
+        ]
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_notify_send_not_installed_returns_false(self) -> None:
-        """Given notify-send missing, notification returns False gracefully."""
-        with patch("session_complete_notify.subprocess.run") as mock_run:
-            mock_run.side_effect = FileNotFoundError()
-            result = notify_linux("Test", "Message")
+    def test_reports_failure_when_binary_is_absent(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """GIVEN no notify-send anywhere on PATH
+        WHEN notify_linux runs
+        THEN it returns False rather than raising, so a missing desktop
+        notifier degrades quietly instead of breaking the hook.
+        """
+        monkeypatch.setenv("PATH", str(tmp_path))
 
-        assert result is False
+        assert notify_linux("Title", "Message") is False

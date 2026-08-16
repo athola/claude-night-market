@@ -353,27 +353,28 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import yaml
 
+
 def check_promotion_criteria(filepath: Path) -> str | None:
     """Check if content meets promotion criteria."""
     with open(filepath) as f:
         content = f.read()
-        frontmatter = yaml.safe_load(content.split('---')[1])
+        frontmatter = yaml.safe_load(content.split("---")[1])
 
-    maturity = frontmatter.get('maturity')
-    created = datetime.fromisoformat(frontmatter.get('created'))
-    updated = datetime.fromisoformat(frontmatter.get('updated', created))
+    maturity = frontmatter.get("maturity")
+    created = datetime.fromisoformat(frontmatter.get("created"))
+    updated = datetime.fromisoformat(frontmatter.get("updated", created))
     age_days = (datetime.now() - created).days
 
     # Seedling → Growing criteria
-    if maturity == 'seedling' and age_days > 14:
+    if maturity == "seedling" and age_days > 14:
         # Check access count, connections, etc.
-        return 'growing'
+        return "growing"
 
     # Growing → Evergreen criteria
-    if maturity == 'growing' and age_days > 90:
+    if maturity == "growing" and age_days > 90:
         days_since_update = (datetime.now() - updated).days
         if days_since_update > 30:
-            return 'evergreen'
+            return "evergreen"
 
     return None
 ```
@@ -385,11 +386,11 @@ def generate_review_list() -> list[Path]:
     """Generate list of content due for review."""
     due_for_review = []
 
-    for filepath in Path('.').rglob('*.md'):
+    for filepath in Path(".").rglob("*.md"):
         with open(filepath) as f:
             frontmatter = extract_frontmatter(f.read())
 
-        review_date = frontmatter.get('review_after') or frontmatter.get('review_date')
+        review_date = frontmatter.get("review_after") or frontmatter.get("review_date")
         if review_date and datetime.fromisoformat(review_date) <= datetime.now():
             due_for_review.append(filepath)
 
@@ -416,13 +417,13 @@ from leyline.storage_templates import (
     check_promotion_eligibility,
     promote_content,
     archive_content,
-    generate_review_schedule
+    generate_review_schedule,
 )
 
 # Check if content ready for promotion
-if check_promotion_eligibility('async-patterns.md'):
-    promote_content('async-patterns.md', to='evergreen')
+if check_promotion_eligibility("async-patterns.md"):
+    promote_content("async-patterns.md", to="evergreen")
 
 # Schedule reviews
-schedule = generate_review_schedule(maturity='growing', interval='quarterly')
+schedule = generate_review_schedule(maturity="growing", interval="quarterly")
 ```

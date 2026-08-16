@@ -18,6 +18,7 @@ def test_something(mock_claude_tools):
 ```python
 from unittest.mock import MagicMock
 
+
 def test_custom():
     """Create a custom mock when needed."""
     mock_obj = MagicMock(name="MyObject", spec=["method1", "method2"])
@@ -40,9 +41,9 @@ def test_custom():
 ```python
 # Returns different values on each call
 mock_claude_tools["Bash"].side_effect = [
-    "/test/project",     # First call
-    "feature/auth",      # Second call
-    "On branch main",    # Third call
+    "/test/project",  # First call
+    "feature/auth",  # Second call
+    "On branch main",  # Third call
 ]
 ```
 
@@ -72,11 +73,13 @@ def test_skills(mock_skill_factory):
 
 ```python
 def test_git(mock_bash_factory):
-    bash = mock_bash_factory({
-        "pwd": "/test/project",
-        "git status": "On branch main",
-        "git diff": "diff content",
-    })
+    bash = mock_bash_factory(
+        {
+            "pwd": "/test/project",
+            "git status": "On branch main",
+            "git diff": "diff content",
+        }
+    )
 
     assert bash("pwd") == "/test/project"
     assert "pwd" in bash.calls
@@ -91,10 +94,13 @@ mock.assert_called_once_with("expected_arg")
 
 # Multiple calls in order
 from unittest.mock import call
-mock.assert_has_calls([
-    call("first"),
-    call("second"),
-])
+
+mock.assert_has_calls(
+    [
+        call("first"),
+        call("second"),
+    ]
+)
 
 # Call counting
 assert mock.call_count == 3
@@ -147,20 +153,13 @@ def test_workflow(mock_claude_tools):
         executed_steps.append(skill_name)
         return f"{skill_name} done"
 
-    mock_claude_tools["Skill"] = MagicMock(
-        name="Skill",
-        side_effect=track_skill
-    )
+    mock_claude_tools["Skill"] = MagicMock(name="Skill", side_effect=track_skill)
 
     # Execute workflow
     run_workflow()
 
     # Verify
-    assert executed_steps == [
-        "review-core",
-        "evidence-logging",
-        "structured-output"
-    ]
+    assert executed_steps == ["review-core", "evidence-logging", "structured-output"]
 ```
 
 ### Example 3: Error Handling
@@ -202,10 +201,7 @@ print(f"Side effect: {mock.side_effect}")
 ### Attribute Error?
 ```python
 # Add spec to prevent invalid access
-mock = MagicMock(
-    name="MyMock",
-    spec=["valid_method1", "valid_method2"]
-)
+mock = MagicMock(name="MyMock", spec=["valid_method1", "valid_method2"])
 ```
 
 ## More Information

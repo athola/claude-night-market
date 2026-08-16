@@ -422,6 +422,7 @@ def _produce_recommendation(
 def _scaffold_project(  # noqa: PLR0913 - phase helper consolidates init steps; bundling its params would obscure the call site
     project_path: Path,
     project_name: str,
+    *,
     context: Any,
     context_data: dict,
     customizer: TemplateCustomizer,
@@ -557,10 +558,10 @@ def main() -> None:
     created_files, arch_dirs = _scaffold_project(
         project_path,
         project_name,
-        context,
-        context_data,
-        customizer,
-        recommendation,
+        context=context,
+        context_data=context_data,
+        customizer=customizer,
+        recommendation=recommendation,
     )
 
     _write_architecture_docs(project_path, customizer, researcher)

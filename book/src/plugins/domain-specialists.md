@@ -158,7 +158,7 @@ Skill(parseltongue:python-testing)
 /attune:blueprint
 # Design architecture and break down tasks
 
-/attune:init
+/attune:project-init
 # Initialize project with tooling
 
 /attune:execute

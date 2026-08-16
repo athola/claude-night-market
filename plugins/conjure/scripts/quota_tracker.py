@@ -160,6 +160,12 @@ DEFAULT_QWEN_LIMITS: dict[str, int] = {
     "tokens_per_day": 2000000,
 }
 
+DEFAULT_MINIMAX_LIMITS: dict[str, int] = {
+    "requests_per_minute": 120,
+    "requests_per_day": 2000,
+    "tokens_per_day": 2000000,
+}
+
 
 # QuotaTracker is either leyline's or the stub defined above, depending on
 # whether the optional dependency imported. ty sees the union of both class

@@ -42,14 +42,18 @@ For remediation types (DELETE, REFACTOR, CONSOLIDATE, ARCHIVE) and risk assessme
 ```python
 def initialize_unbloat(args):
     config = {
-        'from_scan': args.get('from_scan'),
-        'auto_approve': args.get('auto_approve', 'none'),
-        'dry_run': args.get('dry_run', False),
-        'focus': args.get('focus', 'all'),
-        'backup_branch': args.get('backup_branch') or f"backup/unbloat-{timestamp()}"
+        "from_scan": args.get("from_scan"),
+        "auto_approve": args.get("auto_approve", "none"),
+        "dry_run": args.get("dry_run", False),
+        "focus": args.get("focus", "all"),
+        "backup_branch": args.get("backup_branch") or f"backup/unbloat-{timestamp()}",
     }
 
-    findings = load_from_report(config['from_scan']) if config['from_scan'] else run_bloat_scan(level=1)
+    findings = (
+        load_from_report(config["from_scan"])
+        if config["from_scan"]
+        else run_bloat_scan(level=1)
+    )
 
     # Sort by risk (LOW first) then priority score
     findings.sort(key=lambda f: (risk_order(f.risk), -f.priority_score))
@@ -60,43 +64,45 @@ def initialize_unbloat(args):
 
 ```python
 def create_backup(config):
-    if config.get('no_backup') or config['dry_run']:
-        return config['backup_branch']
+    if config.get("no_backup") or config["dry_run"]:
+        return config["backup_branch"]
 
     run_bash(f"git checkout -b {config['backup_branch']}")
     run_bash("git add -A && git commit -m 'Backup before unbloat'")
     run_bash("git checkout -")  # Return to working branch
-    return config['backup_branch']
+    return config["backup_branch"]
 ```
 
 ### Phase 4: Interactive Remediation
 
 ```python
 def remediate_interactive(findings, config):
-    results = {'applied': [], 'skipped': [], 'failed': []}
+    results = {"applied": [], "skipped": [], "failed": []}
 
     for idx, finding in enumerate(findings, 1):
         print(f"[{idx}/{len(findings)}] {finding.file}")
-        print(f"  Action: {finding.action} | Confidence: {finding.confidence}% ({finding.risk})")
+        print(
+            f"  Action: {finding.action} | Confidence: {finding.confidence}% ({finding.risk})"
+        )
         show_preview(finding)
 
-        if should_auto_approve(finding, config['auto_approve']):
-            action = 'y'
+        if should_auto_approve(finding, config["auto_approve"]):
+            action = "y"
             print("  Auto-approved")
         else:
             action = prompt_user("Approve? [y/n/d/s/q]: ")
 
-        if action == 'y':
+        if action == "y":
             if execute_remediation(finding) and run_tests_quick():
-                results['applied'].append(finding)
+                results["applied"].append(finding)
             else:
                 rollback_change(finding)
-                results['failed'].append(finding)
-        elif action in ['s', 'q']:
-            results['skipped'].extend(findings[idx:])
+                results["failed"].append(finding)
+        elif action in ["s", "q"]:
+            results["skipped"].extend(findings[idx:])
             break
         else:
-            results['skipped'].append(finding)
+            results["skipped"].append(finding)
 
     return results
 ```
@@ -106,18 +112,19 @@ def remediate_interactive(findings, config):
 ```python
 def execute_remediation(finding):
     actions = {
-        'DELETE': lambda f: run_bash(f"git rm {f.file}"),
-        'REFACTOR': lambda f: execute_refactor_plan(f.metadata['refactoring_plan']),
-        'CONSOLIDATE': lambda f: consolidate_files(f.file, f.metadata['target_file']),
-        'ARCHIVE': lambda f: run_bash(f"git mv {f.file} {f.metadata['archive_path']}")
+        "DELETE": lambda f: run_bash(f"git rm {f.file}"),
+        "REFACTOR": lambda f: execute_refactor_plan(f.metadata["refactoring_plan"]),
+        "CONSOLIDATE": lambda f: consolidate_files(f.file, f.metadata["target_file"]),
+        "ARCHIVE": lambda f: run_bash(f"git mv {f.file} {f.metadata['archive_path']}"),
     }
     return actions.get(finding.action, lambda f: False)(finding)
 
+
 def rollback_change(finding):
-    if finding.action == 'DELETE':
+    if finding.action == "DELETE":
         run_bash(f"git checkout HEAD -- {finding.file}")
-    elif finding.action in ['REFACTOR', 'CONSOLIDATE']:
-        for f in finding.metadata.get('affected_files', []):
+    elif finding.action in ["REFACTOR", "CONSOLIDATE"]:
+        for f in finding.metadata.get("affected_files", []):
             run_bash(f"git checkout HEAD -- {f}")
 ```
 
@@ -125,10 +132,10 @@ def rollback_change(finding):
 
 ```python
 def generate_summary(results, backup_branch):
-    savings = sum(f.token_estimate for f in results['applied'])
+    savings = sum(f.token_estimate for f in results["applied"])
     return f"""
 === Unbloat Summary ===
-Applied: {len(results['applied'])} | Skipped: {len(results['skipped'])} | Failed: {len(results['failed'])}
+Applied: {len(results["applied"])} | Skipped: {len(results["skipped"])} | Failed: {len(results["failed"])}
 Token savings: ~{savings:,}
 Backup: {backup_branch}
 Rollback: git reset --hard {backup_branch}

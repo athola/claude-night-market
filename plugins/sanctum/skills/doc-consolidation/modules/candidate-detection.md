@@ -114,11 +114,9 @@ def detect_candidates(repo_path: str) -> list[CandidateFile]:
 
         # Threshold: score >= 2
         if score >= 2:
-            candidates.append(CandidateFile(
-                path=file_path,
-                score=score,
-                reasons=reasons
-            ))
+            candidates.append(
+                CandidateFile(path=file_path, score=score, reasons=reasons)
+            )
 
     return sorted(candidates, key=lambda c: c.score, reverse=True)
 ```

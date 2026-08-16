@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import json
 import sys
 import time
@@ -70,6 +71,25 @@ class TestPassToken:
         """
         write_pass_token(tmp_gauntlet_dir, "abc123", ttl_seconds=0)
         time.sleep(0.1)
+        assert check_pass_token(tmp_gauntlet_dir, "abc123") is False
+
+    @pytest.mark.unit
+    def test_token_stamped_in_the_future_fails(self, tmp_gauntlet_dir: Path) -> None:
+        """
+        Scenario: A token whose issue time is in the future is rejected
+        Given the wall clock moved backward after the token was written
+        When check_pass_token is called while expires_at is still ahead
+        Then it returns False instead of honoring the unexpired token
+        """
+        state_dir = tmp_gauntlet_dir / "state"
+        state_dir.mkdir(parents=True, exist_ok=True)
+        now = datetime.datetime.now(datetime.timezone.utc)
+        token = {
+            "staged_hash": "abc123",
+            "issued_at": (now + datetime.timedelta(seconds=60)).isoformat(),
+            "expires_at": (now + datetime.timedelta(seconds=360)).isoformat(),
+        }
+        (state_dir / "pass_token.json").write_text(json.dumps(token))
         assert check_pass_token(tmp_gauntlet_dir, "abc123") is False
 
     @pytest.mark.unit

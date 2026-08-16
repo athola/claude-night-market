@@ -27,9 +27,12 @@ from memory_palace.corpus.index_analytics import (
     INERT_ROUTING_TYPE,
     load_capture_index,
 )
+from memory_palace.paths import persistent_root as _persistent_root
 
 DEFAULT_INDEX = (
-    Path(__file__).resolve().parents[1] / "hooks" / "memory-palace-index.yaml"
+    _persistent_root(Path(__file__).resolve().parents[1])
+    / "hooks"
+    / "memory-palace-index.yaml"
 )
 
 # Keys listed before the report truncates. A backlog the size of the one

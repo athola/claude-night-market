@@ -29,21 +29,22 @@ grep -oE "\b\w+'(t|s|d|ll|ve|re|m)\b" file.md | wc -l
 ```python
 import re
 
+
 def analyze_sentences(text):
     # Split on sentence boundaries
-    sentences = re.split(r'[.!?]+', text)
+    sentences = re.split(r"[.!?]+", text)
     sentences = [s.strip() for s in sentences if s.strip()]
 
     lengths = [len(s.split()) for s in sentences]
 
     return {
-        'count': len(sentences),
-        'avg_length': sum(lengths) / len(lengths),
-        'min_length': min(lengths),
-        'max_length': max(lengths),
-        'std_dev': statistics.stdev(lengths) if len(lengths) > 1 else 0,
-        'questions': sum(1 for s in sentences if '?' in s),
-        'fragments': sum(1 for l in lengths if l < 5)
+        "count": len(sentences),
+        "avg_length": sum(lengths) / len(lengths),
+        "min_length": min(lengths),
+        "max_length": max(lengths),
+        "std_dev": statistics.stdev(lengths) if len(lengths) > 1 else 0,
+        "questions": sum(1 for s in sentences if "?" in s),
+        "fragments": sum(1 for l in lengths if l < 5),
     }
 ```
 

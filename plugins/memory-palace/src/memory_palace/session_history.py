@@ -16,6 +16,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from memory_palace.paths import user_data_dir
+
 try:
     from leyline.session_store import (
         SessionStore,
@@ -47,6 +49,81 @@ SESSIONS_DIR = "sessions"
 SESSION_INDEX = "session_index.json"
 
 
+UNIT_TYPES: frozenset[str] = frozenset({"finding", "decision", "open-thread", "state"})
+
+
+@dataclass
+class SessionUnit:
+    """One thread of work from a session, typed by how fast it ages.
+
+    The type is what lets a durable finding and the transient action that
+    produced it live on separate decay curves. A unit whose ``open`` field
+    is non-empty carries the state of thinking rather than a binary marker.
+    """
+
+    thread: str
+    type: str
+    date: str
+    state: str
+    why: str = ""
+    open: str = ""
+    ref: str = ""
+    # Paths this claim rests on, declared by the writer. The reader
+    # cannot infer them, which is why they are stated at capture time.
+    files: list[str] = field(default_factory=list)
+    # Content fingerprints of those paths, filled in by the capture
+    # path rather than by the writer. A change here is a staleness
+    # signal that does not depend on elapsed time.
+    file_digests: dict[str, str] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Reject units the recall path could not rank or supersede.
+
+        Raises TypeError rather than ValueError because both session-store
+        loaders catch (JSONDecodeError, KeyError, TypeError); a corrupt
+        stored unit then degrades exactly like any other malformed record.
+        """
+        if self.type not in UNIT_TYPES:
+            raise TypeError(
+                f"type must be one of {sorted(UNIT_TYPES)}, got {self.type!r}"
+            )
+        if not self.thread:
+            raise TypeError("thread must be non-empty")
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize the unit to a plain dictionary."""
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> SessionUnit:
+        """Deserialize a unit, ignoring unknown keys."""
+        known = set(cls.__dataclass_fields__)
+        return cls(**{k: v for k, v in data.items() if k in known})
+
+
+def merge_handoff_units(
+    existing: list[SessionUnit], incoming: list[SessionUnit]
+) -> list[SessionUnit]:
+    """Supersede by (thread, type); append anything new, preserving order.
+
+    The Stop hook fires repeatedly and ``record_session`` overwrites by
+    session_id, so merging is what keeps captured units from being erased
+    on the next turn. A new unit for the same thread AND type replaces the
+    old one; the same thread under a different type stays separate, which
+    is what the split rule requires.
+    """
+    merged = list(existing)
+    index = {(u.thread, u.type): i for i, u in enumerate(merged)}
+    for unit in incoming:
+        key = (unit.thread, unit.type)
+        if key in index:
+            merged[index[key]] = unit
+        else:
+            index[key] = len(merged)
+            merged.append(unit)
+    return merged
+
+
 @dataclass
 class SessionRecord:
     """A record of a single Claude Code session."""
@@ -67,6 +144,7 @@ class SessionRecord:
     parent_session_id: str | None = None  # for continuation chains
     tags: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
+    handoff_units: list[SessionUnit] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize the record to a plain dictionary."""
@@ -79,7 +157,12 @@ class SessionRecord:
         Unknown keys are silently ignored for forward-compatibility.
         """
         known = set(cls.__dataclass_fields__)
-        return cls(**{k: v for k, v in data.items() if k in known})
+        filtered = {k: v for k, v in data.items() if k in known}
+        units = filtered.get("handoff_units") or []
+        filtered["handoff_units"] = [
+            u if isinstance(u, SessionUnit) else SessionUnit.from_dict(u) for u in units
+        ]
+        return cls(**filtered)
 
 
 @dataclass
@@ -175,8 +258,12 @@ class SessionHistoryManager:
 
         """
         if data_dir is None:
-            # Resolve relative to this source file: src/memory_palace/ -> data/
-            data_dir = Path(__file__).resolve().parents[2] / "data"
+            # src/memory_palace/ -> the plugin root, then through the
+            # persistent root: session records are user data and an
+            # install's plugin root is version scoped, so deriving the
+            # directory from __file__ alone stranded them on every
+            # update (issue #661). Identity in a source checkout.
+            data_dir = user_data_dir(Path(__file__).resolve().parents[2])
         self.sessions_dir = data_dir / SESSIONS_DIR
         self.index_path = self.sessions_dir / SESSION_INDEX
         self._store = _SessionRecordStore(self.sessions_dir)

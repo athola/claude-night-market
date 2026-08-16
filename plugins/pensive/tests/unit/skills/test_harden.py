@@ -55,7 +55,8 @@ class TestHardenSkillFrontmatter:
     def test_skill_file_exists(self) -> None:
         """Given the pensive plugin
         When /harden is invoked
-        Then the harden SKILL.md must exist on disk."""
+        Then the harden SKILL.md must exist on disk.
+        """
         assert SKILL_FILE.is_file(), (
             f"Expected SKILL.md at {SKILL_FILE}, but it is missing."
         )
@@ -64,7 +65,8 @@ class TestHardenSkillFrontmatter:
         """Given the SKILL.md frontmatter
         When the loader parses it
         Then it must declare name, description, category, complexity,
-        modules, and dependencies."""
+        modules, and dependencies.
+        """
         fm = _read_frontmatter(_read_skill())
         for key in (
             "name: harden",
@@ -79,7 +81,8 @@ class TestHardenSkillFrontmatter:
     def test_estimated_tokens_within_budget(self) -> None:
         """Given the project's progressive-loading discipline
         When the skill declares estimated_tokens
-        Then the value must be within the project's ~1500-token cap."""
+        Then the value must be within the project's ~1500-token cap.
+        """
         fm = _read_frontmatter(_read_skill())
         # Find `estimated_tokens: NNN`
         for line in fm.splitlines():
@@ -113,7 +116,8 @@ class TestHardenSkillReferences:
     def test_each_dependency_skill_exists(self, dep: str) -> None:
         """Given each declared dependency
         When the skill graph is resolved
-        Then the dependency skill directory must exist on disk."""
+        Then the dependency skill directory must exist on disk.
+        """
         plugin, skill = dep.split(":", 1)
         skill_path = REPO_ROOT / "plugins" / plugin / "skills" / skill
         assert skill_path.is_dir(), (
@@ -139,7 +143,8 @@ class TestHardenSkillModules:
     def test_module_file_exists(self, module_name: str) -> None:
         """Given a module file name listed in SKILL.md frontmatter
         When the harden workflow loads modules progressively
-        Then the file must exist on disk and be non-empty."""
+        Then the file must exist on disk and be non-empty.
+        """
         module_path = MODULES_DIR / module_name
         assert module_path.is_file(), (
             f"Module {module_name} listed in SKILL.md but missing at {module_path}."
@@ -153,7 +158,8 @@ class TestHardenSkillModules:
         When a proposal is drafted from it
         Then the module must document the required proposal fields:
         file/lines, diff or config snippet, blast radius, reversal plan,
-        expected-passing test, citation."""
+        expected-passing test, citation.
+        """
         module = MODULES_DIR / "proposal-shape.md"
         if not module.is_file():
             pytest.fail("proposal-shape.md missing")
@@ -177,7 +183,8 @@ class TestHardenSkillContract:
     def test_required_sections_present(self) -> None:
         """Given the SKILL.md body
         When a reader scans for the contract
-        Then the required sections must be present."""
+        Then the required sections must be present.
+        """
         body = _read_skill()
         for heading in (
             "## When To Use",
@@ -195,7 +202,8 @@ class TestHardenSkillContract:
         """Given the citation discipline of the harden workflow
         When a finding is generated
         Then the SKILL.md must state that findings without a
-        NIST/CWE/RustSec citation are advisory only."""
+        NIST/CWE/RustSec citation are advisory only.
+        """
         body = _read_skill().lower()
         assert "citation is mandatory" in body or (
             "citation" in body and "advisory only" in body
@@ -205,7 +213,8 @@ class TestHardenSkillContract:
         """Given the active-proposal feature
         When a proposal is generated
         Then the SKILL.md must state that proposals require user
-        approval before being applied."""
+        approval before being applied.
+        """
         body = _read_skill().lower()
         assert "never apply without approval" in body or (
             "approval gate" in body and "auto-apply" in body
@@ -215,7 +224,8 @@ class TestHardenSkillContract:
         """Given the commit-shape contract
         When proposals are applied
         Then each finding must land as a discrete commit so reverts
-        are per-finding."""
+        are per-finding.
+        """
         body = _read_skill().lower()
         assert "one finding per commit" in body or (
             "discrete commit" in body and "revert" in body
@@ -228,7 +238,8 @@ class TestHardenCommandRegistered:
     def test_command_file_exists(self) -> None:
         """Given the /harden command
         When the user invokes it
-        Then the command markdown must exist."""
+        Then the command markdown must exist.
+        """
         cmd = REPO_ROOT / "plugins" / "pensive" / "commands" / "harden.md"
         assert cmd.is_file(), f"/harden command missing at {cmd}"
 
@@ -236,7 +247,8 @@ class TestHardenCommandRegistered:
         """Given the command file
         When the command activates
         Then it must reference Skill(pensive:harden) so the skill
-        loads under the command."""
+        loads under the command.
+        """
         cmd = REPO_ROOT / "plugins" / "pensive" / "commands" / "harden.md"
         text = cmd.read_text(encoding="utf-8")
         assert "pensive:harden" in text, (
@@ -247,7 +259,8 @@ class TestHardenCommandRegistered:
         """Given the pensive plugin manifest
         When Claude Code loads the plugin
         Then plugin.json must register both the skill directory and
-        the command file."""
+        the command file.
+        """
         pj = REPO_ROOT / "plugins" / "pensive" / ".claude-plugin" / "plugin.json"
         text = pj.read_text(encoding="utf-8")
         assert "./skills/harden" in text, (

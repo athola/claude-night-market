@@ -121,6 +121,7 @@ Create a validation hook using the SDK:
 ```python
 from claude_agent_sdk import AgentHooks
 
+
 class ValidationHooks(AgentHooks):
     async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
         """Validate tool inputs before execution."""
@@ -332,6 +333,7 @@ The hook POSTs the standard hook input as JSON and expects a standard hook respo
 ```python
 from claude_agent_sdk import AgentHooks
 
+
 class MyHooks(AgentHooks):
     async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
         # Complex validation logic
@@ -380,15 +382,16 @@ Claude Code now validates heredoc delimiters to prevent command smuggling. The r
 import re
 from claude_agent_sdk import AgentHooks
 
+
 class SecureLoggingHooks(AgentHooks):
     # Patterns that might contain secrets
     SECRET_PATTERNS = [
-        r'api[_-]?key',
-        r'password',
-        r'token',
-        r'secret',
-        r'credential',
-        r'auth',
+        r"api[_-]?key",
+        r"password",
+        r"token",
+        r"secret",
+        r"credential",
+        r"auth",
     ]
 
     def _sanitize_output(self, text: str) -> str:
@@ -396,9 +399,9 @@ class SecureLoggingHooks(AgentHooks):
         for pattern in self.SECRET_PATTERNS:
             text = re.sub(
                 rf'({pattern}["\s:=]+)([^\s,}}]+)',
-                r'\1***REDACTED***',
+                r"\1***REDACTED***",
                 text,
-                flags=re.IGNORECASE
+                flags=re.IGNORECASE,
             )
         return text
 
@@ -430,6 +433,7 @@ See `modules/testing-hooks.md` for detailed security guidance.
 import asyncio
 from claude_agent_sdk import AgentHooks
 
+
 class EfficientHooks(AgentHooks):
     def __init__(self):
         self._log_queue = asyncio.Queue()
@@ -445,10 +449,7 @@ class EfficientHooks(AgentHooks):
         self, tool_name: str, tool_input: dict, tool_output: str
     ) -> str | None:
         # Queue log entry without blocking
-        await self._log_queue.put({
-            'tool': tool_name,
-            'timestamp': time.time()
-        })
+        await self._log_queue.put({"tool": tool_name, "timestamp": time.time()})
         return None
 
     def _is_valid_input(self, tool_input: dict) -> bool:
@@ -529,13 +530,15 @@ Audit all tool operations:
 async def on_post_tool_use(
     self, tool_name: str, tool_input: dict, tool_output: str
 ) -> str | None:
-    await self._log_entry({
-        'timestamp': datetime.now().isoformat(),
-        'tool': tool_name,
-        'input_size': len(str(tool_input)),
-        'output_size': len(tool_output),
-        'success': True
-    })
+    await self._log_entry(
+        {
+            "timestamp": datetime.now().isoformat(),
+            "tool": tool_name,
+            "input_size": len(str(tool_input)),
+            "output_size": len(tool_output),
+            "success": True,
+        }
+    )
     return None
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
@@ -559,8 +562,10 @@ Inject context before a tool executes using `additionalContext`:
 ```python
 #!/usr/bin/env python3
 """PreToolUse hook that injects context before WebFetch."""
+
 import json
 import sys
+
 
 def main():
     payload = json.load(sys.stdin)
@@ -571,13 +576,18 @@ def main():
         # Check cache or knowledge base
         cached = lookup_knowledge_base(url)
         if cached:
-            print(json.dumps({
-                "hookSpecificOutput": {
-                    "hookEventName": "PreToolUse",
-                    "additionalContext": f"Relevant cached info: {cached}"
-                }
-            }))
+            print(
+                json.dumps(
+                    {
+                        "hookSpecificOutput": {
+                            "hookEventName": "PreToolUse",
+                            "additionalContext": f"Relevant cached info: {cached}",
+                        }
+                    }
+                )
+            )
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
@@ -593,12 +603,14 @@ This pattern is useful for: cache hints before web requests, security warnings b
 import pytest
 from my_hooks import ValidationHooks
 
+
 @pytest.mark.asyncio
 async def test_dangerous_command_blocked():
     hooks = ValidationHooks()
 
     with pytest.raises(ValueError, match="Dangerous command"):
         await hooks.on_pre_tool_use("Bash", {"command": "rm -rf /"})
+
 
 @pytest.mark.asyncio
 async def test_safe_command_allowed():

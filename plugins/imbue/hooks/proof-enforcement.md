@@ -298,35 +298,33 @@ def requires_proof_of_work(message: str) -> bool:
 
     # Completion signals
     completion_patterns = [
-        r'\b(done|finished|complete|completed)\b',
-        r'\bready to (use|go|test)\b',
-        r'\b(setup|configuration|installation) is (done|complete)\b',
-        r'\b(should|will|would) work\b',
-        r'\bjust (restart|run|install|enable)\b',
-        r'\b(implemented|built|created|added|fixed)\b',
-        r'\byou can now\b',
-        r'\ball set\b',
+        r"\b(done|finished|complete|completed)\b",
+        r"\bready to (use|go|test)\b",
+        r"\b(setup|configuration|installation) is (done|complete)\b",
+        r"\b(should|will|would) work\b",
+        r"\bjust (restart|run|install|enable)\b",
+        r"\b(implemented|built|created|added|fixed)\b",
+        r"\byou can now\b",
+        r"\ball set\b",
     ]
 
     has_completion_signal = any(
-        re.search(pattern, message, re.IGNORECASE)
-        for pattern in completion_patterns
+        re.search(pattern, message, re.IGNORECASE) for pattern in completion_patterns
     )
 
     if not has_completion_signal:
         return False  # No completion claim, no proof needed
 
     # Check for exemptions
-    question_patterns = [r'\?$', r'^(what|how|why|when|where|which|can you)\b']
+    question_patterns = [r"\?$", r"^(what|how|why|when|where|which|can you)\b"]
     is_question = any(
         re.search(pattern, message, re.IGNORECASE | re.MULTILINE)
         for pattern in question_patterns
     )
 
-    in_progress_patterns = [r'\bin progress\b', r'\bworking on\b', r'\bstill\b']
+    in_progress_patterns = [r"\bin progress\b", r"\bworking on\b", r"\bstill\b"]
     is_in_progress = any(
-        re.search(pattern, message, re.IGNORECASE)
-        for pattern in in_progress_patterns
+        re.search(pattern, message, re.IGNORECASE) for pattern in in_progress_patterns
     )
 
     if is_question or is_in_progress:
@@ -334,10 +332,10 @@ def requires_proof_of_work(message: str) -> bool:
 
     # Check for evidence markers
     evidence_patterns = [
-        r'\[E\d+\]',  # Evidence references
-        r'```bash\n.*\n```.*\nResult:',  # Command with result
-        r'✅ (PASS|COMPLETE)|❌ (FAIL|BLOCKED)',  # Test results
-        r'(Tested|Verified|Evidence):',  # Explicit markers
+        r"\[E\d+\]",  # Evidence references
+        r"```bash\n.*\n```.*\nResult:",  # Command with result
+        r"✅ (PASS|COMPLETE)|❌ (FAIL|BLOCKED)",  # Test results
+        r"(Tested|Verified|Evidence):",  # Explicit markers
     ]
 
     has_evidence = any(

@@ -22,11 +22,15 @@ def _get_or_create_session(self) -> str:
 
     # Create new session
     session_id = f"session_{int(time.time())}"
-    session_file.write_text(json.dumps({
-        "session_id": session_id,
-        "created_at": time.time(),
-        "last_activity": time.time()
-    }))
+    session_file.write_text(
+        json.dumps(
+            {
+                "session_id": session_id,
+                "created_at": time.time(),
+                "last_activity": time.time(),
+            }
+        )
+    )
     return session_id
 ```
 
@@ -64,7 +68,7 @@ def get_session_stats(self, session_id: str) -> dict:
         "operation_count": len(ops),
         "total_tokens": sum(o.get("tokens", 0) for o in ops),
         "success_rate": sum(1 for o in ops if o["success"]) / len(ops),
-        "total_duration": sum(o.get("duration_seconds", 0) for o in ops)
+        "total_duration": sum(o.get("duration_seconds", 0) for o in ops),
     }
 ```
 

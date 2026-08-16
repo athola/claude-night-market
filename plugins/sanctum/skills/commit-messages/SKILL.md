@@ -48,7 +48,32 @@ estimated_tokens: 350
 3. **Draft the message**:
    - **Subject**: `<type>(<scope>): <imperative summary>` (50 chars max)
    - **Body**: What and why, wrapped at 72 chars
-   - **Footer**: BREAKING CHANGE or issue refs
+   - **Footer**: BREAKING CHANGE, issue refs, and the
+     discussion trailer below
+
+3a. **Discussion trailer**: when the change resolves a finding
+   from the Discussions board, add a trailer on its own line:
+
+   ```
+   Addresses-Discussion: #654
+   Addresses-Discussion: #604, #610
+   ```
+
+   This is the only signal `scripts/reconcile_discussions.py`
+   accepts as proof a finding is done. It posts the resolution
+   comment and closes the discussion, so the board stops
+   carrying work that is already finished.
+
+   **Only add it when this commit resolves the finding.** Prose
+   that merely names a discussion is read as a mention and is
+   never written back. That distinction is load-bearing:
+   `6b28aa1a` says "posted 13 insights to discussions
+   #424-#436", which is the commit that *opened* those
+   discussions. A trailer there would have announced
+   "Addressed" on findings nobody had looked at yet.
+
+   Cite a discussion in the body for context as often as it
+   helps. Reserve the trailer for resolution.
 
 4. **Slop check**: reject these words and replace with plain
    alternatives:
@@ -97,6 +122,11 @@ estimated_tokens: 350
 - NEVER use `git commit --no-verify` or `-n`
 - Write for humans, not to impress
 - If pre-commit hooks fail, fix the issues
+- This skill drafts a message, it does not commit. Whoever commits
+  confirms HEAD advanced (`git rev-parse HEAD` before and after)
+  before reporting the commit as landed. An auto-fixing hook aborts
+  the commit while printing a tail that reads like success, so hook
+  output is not evidence. See discussion #614.
 
 ## Exit Criteria
 

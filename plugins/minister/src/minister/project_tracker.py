@@ -10,8 +10,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import importlib
 import json
 import logging
+import os
 import sys
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -46,6 +48,77 @@ class InitiativeTracker:
     last_updated: str
 
 
+def _leyline_src(plugin_root: Path) -> Path | None:
+    """Locate leyline's ``src`` in either layout, or None.
+
+    A checkout puts sibling plugins next to each other
+    (``plugins/leyline/src``). An install nests them under a version
+    (``plugins/cache/<marketplace>/leyline/<version>/src``), which is why
+    ``leyline.bootstrap.add_plugin_src_to_path`` cannot be used here: it
+    resolves the checkout layout only, and in any case its own docstring
+    notes it cannot bootstrap leyline itself. That paradox is why this
+    handful of lines is duplicated rather than shared.
+    """
+    sibling = plugin_root.parent / "leyline" / "src"
+    if sibling.is_dir():
+        return sibling
+
+    versions = sorted(
+        (plugin_root.parent.parent / "leyline").glob("*/src"),
+        key=lambda path: _version_key(path.parent.name),
+    )
+    return versions[-1] if versions else None
+
+
+def _version_key(version: str) -> tuple[int, ...]:
+    """Order versions numerically so 1.9.9 ranks below 1.9.17."""
+    return tuple(int(part) if part.isdigit() else -1 for part in version.split("."))
+
+
+def _load_shared_resolver(plugin_root: Path) -> Any | None:
+    """Return leyline's ``plugin_data_dir``, putting it on the path first."""
+    src = _leyline_src(plugin_root)
+    if src is not None and str(src) not in sys.path:
+        sys.path.insert(0, str(src))
+    # Loaded dynamically rather than imported at module scope: the
+    # sys.path entry established just above is what makes leyline
+    # reachable, and at module scope it would not exist yet.
+    try:
+        module = importlib.import_module("leyline.plugin_data")
+    except ImportError:  # pragma: no cover - leyline genuinely absent
+        return None
+    return module.plugin_data_dir
+
+
+def _default_data_file() -> Path:
+    """Return the tracking store's default location.
+
+    Tracking data accumulates across releases, so it cannot live under
+    the version that happened to write it. In an install the plugin root
+    is ``~/.claude/plugins/cache/<marketplace>/minister/<version>/``, and
+    a default derived from ``__file__`` alone would be abandoned by the
+    next update -- the defect issue #661 measured in memory-palace, where
+    1,470 staged entries were stranded across a single upgrade.
+
+    leyline holds the resolution rule so plugins cannot drift apart on
+    it. The import is guarded because leyline's ``src`` is not on
+    sys.path when this runs from an install tree, which is precisely the
+    case that matters; the fallback keeps the version-scoped behavior
+    rather than inventing a third answer, and is only reached on a host
+    that both lacks leyline and predates ``CLAUDE_PLUGIN_DATA``.
+    """
+    plugin_root = Path(__file__).resolve().parents[2]
+    resolver = _load_shared_resolver(plugin_root)
+    if resolver is None:
+        # Reached only on a host that has neither leyline nor the
+        # variable, i.e. Claude Code before 2.1.78 with leyline
+        # uninstalled. Keeping the old location beats guessing a new one.
+        root = Path(os.environ.get("CLAUDE_PLUGIN_DATA") or plugin_root)
+    else:
+        root = resolver(plugin_root)
+    return root / "data" / "project-data.json"
+
+
 class ProjectTracker:
     """Manage the project tracking system."""
 
@@ -59,9 +132,7 @@ class ProjectTracker:
         self, data_file: Path | None = None, initiatives: list[str] | None = None
     ) -> None:
         """Initialize the project tracker."""
-        plugin_root = Path(__file__).resolve().parents[2]
-        default_data = plugin_root / "data" / "project-data.json"
-        self.data_file = data_file or default_data
+        self.data_file = data_file or _default_data_file()
         self.initiatives = initiatives or self.DEFAULT_INITIATIVES
         self.data = self._load_data()
 

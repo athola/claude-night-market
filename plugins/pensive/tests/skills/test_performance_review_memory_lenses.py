@@ -38,6 +38,33 @@ def _parse_frontmatter(content: str) -> dict:
     return yaml.safe_load(content[3:end])
 
 
+def _section(content: str, heading: str) -> str:
+    """Return one markdown section, whitespace-normalized to one line.
+
+    Slices from ``heading`` to the next heading at the same or a
+    shallower depth. Normalizing collapses the 80-column prose wrap so
+    assertions can quote a phrase without knowing where it breaks.
+    """
+    start = content.index(heading)
+    depth = len(heading) - len(heading.lstrip("#"))
+    rest = content[start + len(heading) :]
+    end = len(rest)
+    for line_start, line in _line_offsets(rest):
+        stripped = line.lstrip("#")
+        if line.startswith("#") and len(line) - len(stripped) <= depth:
+            end = line_start
+            break
+    return " ".join((heading + rest[:end]).split())
+
+
+def _line_offsets(text: str):
+    """Yield ``(offset, line)`` for every line in ``text``."""
+    offset = 0
+    for line in text.splitlines(keepends=True):
+        yield offset, line
+        offset += len(line)
+
+
 class TestMemoryLensesModuleExists:
     """Feature: the module exists and declares itself correctly."""
 
@@ -95,9 +122,27 @@ class TestSkillMdWiresInMemoryLenses:
         Given performance-review SKILL.md
         When the scan step is read
         Then it references applying the manual lenses alongside the scan
+
+        The assertion anchors on the Step-2 instruction sentence rather
+        than the bare module name. The module name also appears in the
+        frontmatter list and the Supporting Modules table, and the word
+        "manual" pre-dates this wiring elsewhere in the file, so an
+        assertion on either alone survives deleting the instruction it
+        is supposed to guard.
         """
-        assert "memory-allocation-lenses.md" in skill_text
-        assert "manual" in skill_text.lower()
+        step_two = _section(skill_text, "### Step 2:")
+        assert "modules/memory-allocation-lenses.md" in step_two, (
+            "Step 2 no longer tells the reviewer to load the lenses module"
+        )
+        assert "apply its three" in step_two, (
+            "Step 2 no longer instructs applying the three manual lenses"
+        )
+        for lens in (
+            "unbounded external-source collections",
+            "hot-path recompute",
+            "serial blocking I/O",
+        ):
+            assert lens in step_two, f"Step 2 no longer names the {lens!r} lens"
 
 
 class TestMemoryLensesContent:

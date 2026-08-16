@@ -1,0 +1,218 @@
+# Labeled topic corpus for calibrating the frontier verdict.
+#
+# STATUS: CONFIRMED by a human on 2026-08-07, which is what makes
+# these labels usable. Every label was drafted by the model that also
+# wrote the verdict being tested, the generator-judging-itself
+# arrangement the repo evidence bar forbids, so the confirmation is
+# load-bearing rather than a formality.
+#
+# One label changed under review. canary-queries-retrieval-health was
+# drafted thin and moved to covered-obscure, because it is the topic
+# the canary feature was built to vindicate and a thin label there
+# would have been the feature grading its own premise.
+#
+# Still not calibrated. No envelopes are recorded, so _F_THIN remains
+# an uncalibrated guess and the negative controls in
+# tests/validation/test_frontier_corpus.py still carry the validation
+# burden, as they are the part that needs no labels.
+#
+# Classes:
+#
+#   covered          Abundant work across channels under the obvious
+#                    query terms. The verdict should reach COVERED.
+#   covered-obscure  Abundant work that the obvious terms miss, because
+#                    the field publishes under different words. The
+#                    adversarial class. The verdict SHOULD NOT reach
+#                    THIN_FIELD_CANDIDATE, and the honest expectation
+#                    is that some of these will, because no mechanism
+#                    in the design detects vocabulary mismatch. The
+#                    rate at which they do is the bound on the signal's
+#                    value and belongs in the docstring, not tuned away.
+#   thin             Little published work exists. The verdict may
+#                    reach THIN_FIELD_CANDIDATE when controls pass.
+#
+# Recording: each topic needs its four agent envelopes captured once
+# into <slug>.json beside this file. None are captured yet, so the
+# corpus is a specification for a run rather than a run.
+
+version: 1
+status: confirmed
+drafted: 2026-08-07
+drafted_by: model
+confirmed_by: alexthola
+confirmed: 2026-08-07
+
+topics:
+  # --- covered -------------------------------------------------------
+  - slug: retrieval-augmented-generation
+    topic: retrieval augmented generation
+    label: covered
+    why: Thousands of papers and repos; the obvious term is the term.
+
+  - slug: property-based-testing
+    topic: property-based testing
+    label: covered
+    why: Hypothesis, QuickCheck, and a long literature under this exact name.
+
+  - slug: crdt-conflict-free-replicated-data-types
+    topic: conflict-free replicated data types
+    label: covered
+    why: Established distributed-systems literature, stable terminology.
+
+  - slug: kubernetes-operator-pattern
+    topic: kubernetes operator pattern
+    label: covered
+    why: Heavy code and discourse presence; canonical naming.
+
+  - slug: transformer-attention-mechanism
+    topic: transformer attention mechanism
+    label: covered
+    why: Saturated across every channel.
+
+  - slug: differential-privacy
+    topic: differential privacy
+    label: covered
+    why: Mature formal literature under a fixed name.
+
+  - slug: consistent-hashing
+    topic: consistent hashing
+    label: covered
+    why: Long-standing, stable term, abundant implementations.
+
+  - slug: sat-solver-cdcl
+    topic: conflict-driven clause learning SAT solvers
+    label: covered
+    why: Deep academic coverage, standard vocabulary.
+
+  # --- covered-obscure (the adversarial class) -----------------------
+  - slug: vibe-coding
+    topic: vibe coding
+    label: covered-obscure
+    why: >
+      Coined 2025. A large literature on the same practice exists under
+      "AI-assisted programming", "LLM pair programming" and
+      "AI-accelerated development". The new term retrieves little from
+      academic channels while the underlying work is abundant.
+
+  - slug: context-rot
+    topic: context rot
+    label: covered-obscure
+    why: >
+      Practitioner coinage. Academic work sits under "long-context
+      degradation", "lost in the middle", and "positional bias".
+
+  - slug: llm-as-judge
+    topic: LLM as judge
+    label: covered-obscure
+    why: >
+      Published variously as "automatic evaluation with language
+      models", "model-based evaluation", and "reference-free
+      evaluation". Discourse uses the short name; papers often do not.
+
+  - slug: prompt-injection
+    topic: prompt injection
+    label: covered-obscure
+    why: >
+      Security literature frames the same class as "confused deputy",
+      "indirect injection", and "instruction hierarchy violation". The
+      academic channel under-returns on the popular term.
+
+  - slug: agentic-rag
+    topic: agentic RAG
+    label: covered-obscure
+    why: >
+      Overlaps heavily with "tool-augmented generation", "ReAct", and
+      "iterative retrieval". The compound term is newer than the work.
+
+  - slug: unventing
+    topic: unventing
+    label: covered-obscure
+    why: >
+      A real named concept (rediscovering something already invented)
+      whose literature lives under "multiple discovery", "simultaneous
+      invention", and "prior art search". Nearly nothing publishes
+      under the coinage itself.
+
+  - slug: shift-left-testing
+    topic: shift-left testing
+    label: covered-obscure
+    why: >
+      Industry term; the academic work is under "early defect
+      detection" and "test-first development".
+
+  - slug: canary-queries-retrieval-health
+    topic: canary queries for retrieval health in multi-channel research tools
+    label: covered-obscure
+    why: >
+      Drafted as thin, relabeled on human confirmation, and the reason
+      matters more than the label. This is the topic the canary feature
+      was built to vindicate, so a thin label here would have been the
+      feature grading its own premise. Under other vocabulary the work
+      is substantial: analytical chemistry has matrix spikes and
+      recovery controls, USP 621 gates a run on system suitability,
+      information retrieval has known-item search, and site reliability
+      has synthetic monitoring and canary requests. No integrated
+      implementation in review tooling is a claim about packaging, not
+      about the idea being unstudied. As the adversarial class it now
+      tests the design against its own bias: if the verdict calls this
+      thin, the signal is failing on the case its author most wanted
+      to be thin.
+
+  # --- thin ----------------------------------------------------------
+  - slug: behavioral-contract-attestation
+    topic: behavioral contract attestation for plugin marketplaces
+    label: thin
+    why: >
+      ADR-0008 in this repo states there is no mechanism to prove a
+      plugin's behavioral contract holds; SLSA covers bytes, not
+      behavior. A literature-absence claim, re-checkable.
+
+  - slug: skill-activation-quality-metric
+    topic: activation quality metrics for large agent skill libraries
+    label: thin
+    why: >
+      The repo's own frontier notes claim no published metric exists
+      for "this library activates the right skill X% of the time".
+      Unverified against the literature by an independent pass.
+
+  - slug: hook-budget-cross-plugin-composition
+    topic: cross-plugin structured data exchange under a hard hook latency budget
+    label: thin
+    why: >
+      Plugin ecosystems either share a registry or exchange nothing;
+      composition under a sub-second budget with graceful peer absence
+      is not a named research area.
+
+  - slug: verifier-integrity-agent-loops
+    topic: proving an automated check was worth passing
+    label: thin
+    why: >
+      Distinct from test adequacy and mutation testing, which measure
+      suite strength rather than whether a green check implies the work
+      is correct. Possibly a vocabulary problem rather than a thin
+      field, which makes it a useful borderline case.
+
+  - slug: llm-error-message-provenance
+    topic: provenance of paths cited in machine-generated error messages
+    label: thin
+    why: >
+      Narrow. Related work exists on error-message quality and on
+      documentation link rot, but not on this intersection.
+
+  # --- borderline, deliberately included -----------------------------
+  - slug: mutation-testing
+    topic: mutation testing
+    label: covered
+    why: >
+      Included next to verifier-integrity on purpose. If the verdict
+      calls this thin, the signal is failing on a well-covered topic
+      with stable vocabulary, which is a stronger indictment than any
+      covered-obscure miss.
+
+  - slug: capture-recapture-literature-search
+    topic: capture-recapture estimation of literature search completeness
+    label: covered
+    why: >
+      The 2026-08-07 pass found primary sources back to 1996 with a
+      named estimator and a critique literature. Included because the
+      first instinct was to call it thin, and it is not.

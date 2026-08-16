@@ -25,7 +25,6 @@ class TestMermaidDiagram:
         When generating visualization
         Then a mermaid code block is returned
         """
-
         findings = [
             Finding(
                 source="github",
@@ -49,7 +48,6 @@ class TestMermaidDiagram:
         When generating visualization
         Then a markdown comparison table is returned
         """
-
         findings = [
             Finding(
                 source="github",
@@ -82,7 +80,6 @@ class TestMermaidDiagram:
         When generating visualization
         Then an empty string is returned
         """
-
         result = generate_visualization([], "general")
         assert result == ""
 
@@ -94,7 +91,6 @@ class TestMermaidDiagram:
         When generating visualization
         Then a numbered list is returned
         """
-
         findings = [
             Finding(
                 source="hn",
@@ -127,7 +123,6 @@ class TestVisualizationDomainRouting:
         When generating visualization
         Then output references chart/data visualization
         """
-
         findings = [
             Finding(
                 source="github",
@@ -151,7 +146,6 @@ class TestVisualizationDomainRouting:
         When generating visualization
         Then a comparison table is returned
         """
-
         findings = [
             Finding(
                 source="arxiv",

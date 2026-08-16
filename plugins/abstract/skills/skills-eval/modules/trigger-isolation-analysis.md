@@ -109,11 +109,11 @@ The `compliance_checker.py` script checks:
 
 ```python
 # Trigger isolation checks
-- description_has_triggers()    # "Triggers:" in description
-- description_has_use_when()    # "Use when:" in description
-- description_has_not_use()     # "DO NOT use when:" in description
-- body_has_when_to_use()        # Should be False
-- body_duplicates_triggers()    # Should be False
+-description_has_triggers()  # "Triggers:" in description
+-description_has_use_when()  # "Use when:" in description
+-description_has_not_use()  # "DO NOT use when:" in description
+-body_has_when_to_use()  # Should be False
+-body_duplicates_triggers()  # Should be False
 ```
 
 ## Workflow

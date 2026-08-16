@@ -22,7 +22,7 @@ The notification hook now:
 **Before:**
 ```python
 terminal_info = get_terminal_info()  # 2s
-send_notification(title, message)    # 3-5s
+send_notification(title, message)  # 3-5s
 # Total: 5-7 seconds blocking
 ```
 

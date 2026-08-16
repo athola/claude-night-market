@@ -65,7 +65,7 @@ errors.handle_error(
         severity=ErrorSeverity.HIGH,
         error_code="VALIDATION_FAILED",
         message="Skill validation failed",
-        suggestion="Check frontmatter format"
+        suggestion="Check frontmatter format",
     )
 )
 ```
@@ -141,6 +141,7 @@ except ImportError:
         print("ERROR: Cannot import abstract package", file=sys.stderr)
         sys.exit(1)
 
+
 def main():
     # Initialize error handler
     errors = ErrorHandler("my-script")
@@ -162,9 +163,10 @@ def main():
                     severity=ErrorSeverity.MEDIUM,
                     error_code="LOAD_FAILED",
                     message=f"Failed to load {skill_path}",
-                    details=str(e)
+                    details=str(e),
                 )
             )
+
 
 if __name__ == "__main__":
     main()

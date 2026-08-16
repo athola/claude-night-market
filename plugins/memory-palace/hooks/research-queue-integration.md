@@ -12,6 +12,11 @@ enabled: true
 
 # Research Queue Integration Hook
 
+> Implemented by `research_queue.py` in this directory and registered
+> on `SessionEnd` in `hooks.json`. The sections below describe the
+> contract; the script is the behavior. Thresholds live in
+> `research_queue.py` as `MIN_WEB_SEARCHES` and `QUEUE_DIR`.
+
 ## Purpose
 
 Automatically captures research session outputs into the knowledge corpus queue for later evaluation, preventing loss of valuable findings.
@@ -33,8 +38,8 @@ This hook activates when ALL conditions are met:
 ### Detection Phase
 
 ```python
-# Pseudocode for detection
-if session.tool_calls.count('WebSearch') >= 3:
+# Shape of the detection, implemented in research_queue.py
+if session.tool_calls.count("WebSearch") >= 3:
     if any(keyword in session.messages for keyword in RESEARCH_KEYWORDS):
         if session.output_length > 5000:  # Substantial output
             trigger_queue_creation()
@@ -139,17 +144,28 @@ Before creating queue entry, validate:
 ### Research Keywords
 ```python
 RESEARCH_KEYWORDS = [
-    'research', 'investigate', 'deep dive', 'detailed',
-    'brainstorm', 'explore', 'analyze', 'study',
-    'find tools', 'best practices', 'patterns', 'techniques',
-    'survey', 'landscape', 'comparison', 'evaluation'
+    "research",
+    "investigate",
+    "deep dive",
+    "detailed",
+    "brainstorm",
+    "explore",
+    "analyze",
+    "study",
+    "find tools",
+    "best practices",
+    "patterns",
+    "techniques",
+    "survey",
+    "landscape",
+    "comparison",
+    "evaluation",
 ]
 ```
 
 ### Thresholds
 ```python
-MIN_WEB_SEARCHES = 3        # Minimum searches to trigger
-MIN_OUTPUT_LENGTH = 5000    # Minimum output tokens
+MIN_WEB_SEARCHES = 3  # Minimum searches to trigger
 QUEUE_DIR = "docs/knowledge-corpus/queue/"
 ```
 
@@ -198,11 +214,3 @@ Track hook effectiveness:
 - Approval rate (approved / total)
 - Time to review (queue creation → processing)
 - Corpus growth from queued research
-
-## Future Enhancements
-
-- [ ] Smart topic extraction using LLM
-- [ ] Auto-scoring based on session context
-- [ ] Duplicate detection via semantic similarity
-- [ ] Integration with digital garden for seedlings
-- [ ] Slack/email notifications for high-priority queues

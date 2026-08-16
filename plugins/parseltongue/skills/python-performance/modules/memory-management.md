@@ -22,7 +22,7 @@ tracemalloc.start()
 result = memory_intensive_operation()
 
 snapshot = tracemalloc.take_snapshot()
-top_stats = snapshot.statistics('lineno')
+top_stats = snapshot.statistics("lineno")
 
 print("Top 10 memory allocations:")
 for stat in top_stats[:10]:
@@ -36,6 +36,7 @@ import weakref
 
 # Allows garbage collection when no strong references
 weak_cache = weakref.WeakValueDictionary()
+
 
 def get_resource(key):
     resource = weak_cache.get(key)

@@ -69,23 +69,50 @@ class TestQueryLog:
         assert restored.succeeded == original.succeeded
 
     @pytest.mark.unit
-    def test_failed_query_log(self) -> None:
+    def test_empty_result_is_a_success_not_a_failure(self) -> None:
         """
-        Scenario: Record a failed query
-        Given a query that returned no results
-        When QueryLog is constructed with succeeded=False
-        Then result_count is 0 and succeeded is False
+        Scenario: Record a search that worked and found nothing
+        Given a query on a topic nobody discusses
+        When QueryLog is constructed with no error
+        Then result_count is 0 and succeeded is True
+
+        This test previously constructed the same query with
+        succeeded=False, on the reading that "returned no results"
+        meant "failed". It does not. A source that answers and has
+        nothing to offer is the one case where absence says something
+        about the topic rather than about the search, and recording it
+        as a failure is where that distinction was first lost.
         """
         log = QueryLog(
             channel="discourse",
             query="obscure topic nobody discusses",
             source="hn",
             result_count=0,
-            succeeded=False,
+        )
+
+        assert log.result_count == 0
+        assert log.succeeded is True
+        assert log.error is None
+
+    @pytest.mark.unit
+    def test_failed_query_log(self) -> None:
+        """
+        Scenario: Record a query that actually failed
+        Given a source that refused the request
+        When QueryLog is constructed with an error kind
+        Then succeeded is False and the cause is retained
+        """
+        log = QueryLog(
+            channel="discourse",
+            query="obscure topic nobody discusses",
+            source="hn",
+            result_count=0,
+            error="rate_limit",
         )
 
         assert log.result_count == 0
         assert log.succeeded is False
+        assert log.error == "rate_limit"
 
     @pytest.mark.unit
     def test_default_values(self) -> None:
