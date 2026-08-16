@@ -111,7 +111,7 @@ claude --model glm-5.3 -p "Review this design"
 
 ## Smart Delegation
 
-`glm` declares `code_execution` and `large_context` strengths and sits
+`glm` declares `code_execution` and `large_context` strengths and ranks
 behind gemini, qwen and minimax in the candidate order. It declares
 `glm-5.3` as its default, `glm-5.3[1m]` for large context, and
 `glm-4.7` for fast response.
@@ -135,7 +135,7 @@ directly.
 Two operational notes. Environment changes only take effect in a
 freshly launched shell, so an already-open session keeps reaching
 Anthropic's real endpoint. And `claude` shows a first-run trust prompt
-when it sees a non-Anthropic base URL; the `-p` non-interactive form
+when it sees a non-Anthropic base URL. The `-p` non-interactive form
 this service uses does not block on it.
 
 Rollout caveat: at the time of writing, `docs.z.ai/devpack/latest-model`

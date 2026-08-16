@@ -57,8 +57,8 @@ selects, including a local one.
 
 - No provider credentials are configured. `opencode auth list` shows
   what is present
-- A specific model must be pinned from this side. Model choice lives
-  in OpenCode's own config, not in the delegation call
+- A specific model must be pinned from this side. Model choice belongs
+  to OpenCode's own config, not to the delegation call
 
 ## Prerequisites
 
@@ -75,7 +75,7 @@ upstream.
 
 Credentials resolve per provider through environment variables such as
 `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`, through a `.env` file, or
-through `opencode auth login`. Stored credentials live in
+through `opencode auth login`. Stored credentials are written to
 `~/.local/share/opencode/auth.json`, and the config file supports
 `{env:VARIABLE_NAME}` interpolation.
 
@@ -105,7 +105,7 @@ opencode run "Explain the use of context in this package"
 
 ## Smart Delegation
 
-`opencode` declares the `code_execution` strength and sits last among
+`opencode` declares the `code_execution` strength and ranks last among
 the network providers in the candidate order, ahead only of the local
 `glimmer` service. It declares no model ids, since model choice
 belongs to OpenCode's own configuration.

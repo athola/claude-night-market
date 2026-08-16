@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   positionally, which is what `muse exec`, `codex exec` and
   `opencode run` all do. An endpoint swap runs the stock `claude`
   binary against a provider's Anthropic-compatible endpoint, which is
-  how GLM reaches Z.ai without shipping a CLI of its own; Z.ai wants
+  how GLM reaches Z.ai without shipping a CLI of its own. Z.ai wants
   the key in `ANTHROPIC_AUTH_TOKEN` rather than `ANTHROPIC_API_KEY`,
   and the overlay names the variable instead of storing the secret.
 

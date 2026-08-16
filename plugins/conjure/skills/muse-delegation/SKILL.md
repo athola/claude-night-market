@@ -118,7 +118,7 @@ muse exec "Explain the retry logic in this package"
 ## Smart Delegation
 
 `muse` declares the strengths `code_execution` and `large_context`,
-and sits behind gemini, qwen, minimax and glm in the candidate order.
+and ranks behind gemini, qwen, minimax and glm in the candidate order.
 It declares no model ids, so `smart_delegate` leaves model selection
 to the CLI rather than passing a flag Meta does not document.
 

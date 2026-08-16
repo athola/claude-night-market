@@ -106,7 +106,7 @@ codex exec "Explain the retry logic in this package"
 
 ## Smart Delegation
 
-`codex` declares the `code_execution` strength and sits behind gemini,
+`codex` declares the `code_execution` strength and ranks behind gemini,
 qwen, minimax, glm and muse in the candidate order. It declares no
 model ids, so `smart_delegate` leaves model selection to the CLI.
 
