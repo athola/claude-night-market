@@ -38,7 +38,7 @@ This skill provides reusable patterns for building skills that:
 Reference this skill in your plugin's skill frontmatter:
 
 ```yaml
-dependencies: [leyline:progressive-loading, leyline:mecw-patterns]
+dependencies: [leyline:progressive-loading, conserve:context-optimization]
 progressive_loading: true
 ```
 

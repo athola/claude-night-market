@@ -13,7 +13,6 @@ tags:
 - performance-metrics
 dependencies:
 - modular-skills
-- performance-optimization
 tools: []
 provides:
   infrastructure:

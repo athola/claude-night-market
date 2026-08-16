@@ -19,7 +19,6 @@ modules:
   - modules/deferred-capture.md
 dependencies:
   - conjure:delegation-core
-  - memory-palace:strategeion
   - leyline:git-platform
 tools: []
 role: entrypoint

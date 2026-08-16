@@ -420,6 +420,7 @@ KNOWN_EXTERNAL_PLUGINS = frozenset(
         "feature-dev",
         "frontend-design",
         "interface-design",
+        "plugin-dev",
         "plugin-developer",
         "pr-review-toolkit",
         "ralph-wiggum",

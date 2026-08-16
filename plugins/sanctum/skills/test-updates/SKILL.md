@@ -11,7 +11,7 @@ tags:
 - test-generation
 - pytest
 dependencies:
-- test-driven-development
+- superpowers:test-driven-development
 - git-workspace-review
 - file-analysis
 tools: []
