@@ -1599,3 +1599,172 @@ class TestSkillSummaryTableSeparatesAbsentSignalFromMeasurement:
             line for line in format_skill_summary(metrics) if "zero-rated" in line
         )
         assert "0.0/5.0" in row
+
+
+class TestCoverageSeparatesUnrunInstrumentsFromWrongOnes:
+    """Naming an absence is not enough; the report must say whether to act.
+
+    Reported at #656 by the repository owner: a meta-learning system
+    settles into local minima, so a section that only labels signal as
+    missing lets a legitimate area of reflection be bypassed period after
+    period. Both absences in this report currently read alike, yet only
+    one of them is anyone's to close. Ratings are absent because a working
+    instrument was not run, and `/evaluate-skill` closes that gap. Durations
+    are absent because the measurement point brackets loading SKILL.md
+    rather than the work, so no command closes it and the gap holds until
+    the instrumentation moves. The first absence must not be carried
+    forward as a standing condition; the second may be.
+    """
+
+    @pytest.mark.unit
+    def test_absent_ratings_name_the_run_that_closes_the_gap(self) -> None:
+        """Scenario: no execution carries an evaluation.
+        Given a period with zero rated executions
+        When the coverage section is rendered
+        Then it states the instrument was not run and must not be carried forward
+        """
+        text = "\n".join(format_signal_coverage(_make_result(total_executions=101)))
+        assert "was not run" in text
+        assert "next period" in text
+
+    @pytest.mark.unit
+    def test_absent_durations_state_that_no_run_closes_the_gap(self) -> None:
+        """Scenario: every timed skill is dispatch-bound.
+        Given a period whose durations all fall under the dispatch floor
+        When the coverage section is rendered
+        Then it states no command closes this absence, so it may persist
+        """
+        text = "\n".join(
+            format_signal_coverage(
+                _make_result(skills_analyzed=2, dispatch_bound_skills=["p:a", "p:b"])
+            )
+        )
+        assert "No command closes this one" in text
+
+    @pytest.mark.unit
+    def test_measured_ratings_carry_no_repair_instruction(self) -> None:
+        """Scenario: the instrument was run and produced ratings.
+        Given a period with rated executions
+        When the coverage section is rendered
+        Then no repair instruction appears, because there is no gap to close
+        """
+        text = "\n".join(
+            format_signal_coverage(
+                _make_result(total_executions=20, rated_executions=5)
+            )
+        )
+        assert "was not run" not in text
+        assert "next period" not in text
+
+
+class TestCoverageOfAnEmptyPeriod:
+    """A period with no executions has no coverage to describe.
+
+    Rendering "0 of 0 executions carry a `qualitative_evaluation`" invites
+    the reader to treat an empty log as a measured ratings shortfall. The
+    report has no input at all, which is a different statement.
+    """
+
+    @pytest.mark.unit
+    def test_an_empty_period_says_so_instead_of_counting_zero_of_zero(self) -> None:
+        """Scenario: the period contains no executions whatsoever.
+        Given an aggregation over zero executions
+        When the coverage section is rendered
+        Then it reports the absent input rather than a 0 of 0 ratio
+        """
+        text = "\n".join(
+            format_signal_coverage(_make_result(skills_analyzed=0, total_executions=0))
+        )
+        assert "0 of 0" not in text
+        assert "no executions were recorded" in text
+
+    @pytest.mark.unit
+    def test_an_empty_period_still_renders_the_section(self) -> None:
+        """Scenario: the period contains no executions whatsoever.
+        Given an aggregation over zero executions
+        When the coverage section is rendered
+        Then the section header and its closing rule are still emitted
+        """
+        lines = format_signal_coverage(
+            _make_result(skills_analyzed=0, total_executions=0)
+        )
+        assert "## Signal Coverage" in lines
+        assert lines[-2] == "---"
+
+
+class TestImpossibleDurationsAreNotSamples:
+    """A negative duration is a corrupt reading, not a fast one.
+
+    Found by running #656's own unchecked manual test-plan item, which
+    regenerates the report against this repository's real logs:
+    `attune:mission-orchestrator` rendered an average of `-0.1s`, traced to
+    a single stored sample of `-2375`. `duration_ms` is the interval
+    between two hooks, so a mismatched or clock-adjusted pair can store an
+    interval no execution could have taken. Averaging it in drags the mean
+    below the dispatch floor and classifies the skill as averaging under
+    250ms on the strength of a value that cannot be a measurement. The
+    reading is discarded rather than clamped to zero, because clamping
+    would assert the execution took no time, which invents a measurement
+    where the PR's whole purpose is to stop doing that.
+    """
+
+    @pytest.mark.unit
+    def test_a_negative_duration_is_not_counted_as_a_sample(self) -> None:
+        """Scenario: the hook pair stored an impossible interval.
+        Given a lone entry whose duration_ms is negative
+        When metrics are calculated
+        Then it contributes no sample, so the skill counts as untimed
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:clock-skewed",
+            [{"outcome": "success", "duration_ms": -2375}],
+        )
+        assert metrics.duration_samples == 0
+        assert metrics.avg_duration_ms == 0.0
+
+    @pytest.mark.unit
+    def test_a_negative_duration_does_not_drag_a_real_average(self) -> None:
+        """Scenario: one corrupt reading sits among valid ones.
+        Given two 100ms samples and one negative sample
+        When metrics are calculated
+        Then the average reflects only the two real samples
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:mostly-fine",
+            [
+                {"outcome": "success", "duration_ms": 100},
+                {"outcome": "success", "duration_ms": -2375},
+                {"outcome": "success", "duration_ms": 100},
+            ],
+        )
+        assert metrics.duration_samples == 2
+        assert metrics.avg_duration_ms == 100
+
+    @pytest.mark.unit
+    def test_a_zero_duration_remains_a_valid_sample(self) -> None:
+        """Scenario: a genuine reading rounded to zero milliseconds.
+        Given an entry whose duration_ms is exactly 0
+        When metrics are calculated
+        Then it still counts, because zero is possible and negative is not
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:instant",
+            [{"outcome": "success", "duration_ms": 0}],
+        )
+        assert metrics.duration_samples == 1
+
+    @pytest.mark.unit
+    def test_max_duration_ignores_the_corrupt_reading(self) -> None:
+        """Scenario: a corrupt reading sits alongside a real peak.
+        Given one negative sample and one 500ms sample
+        When metrics are calculated
+        Then the maximum reports the real peak
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:peaky",
+            [
+                {"outcome": "success", "duration_ms": -2375},
+                {"outcome": "success", "duration_ms": 500},
+            ],
+        )
+        assert metrics.max_duration_ms == 500

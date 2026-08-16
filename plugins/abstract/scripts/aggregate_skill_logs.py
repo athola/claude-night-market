@@ -214,7 +214,16 @@ def calculate_skill_metrics(
     partial_count = outcome_counts["partial"]
 
     # Duration stats
-    durations = [e["duration_ms"] for e in entries if e.get("duration_ms") is not None]
+    # `duration_ms` is the interval between two hooks, so a mismatched or
+    # clock-adjusted pair can store an interval no execution could have
+    # taken. A negative reading is discarded rather than clamped to zero:
+    # clamping would assert the execution took no time, inventing a
+    # measurement where the point of this report is to stop doing that.
+    durations = [
+        e["duration_ms"]
+        for e in entries
+        if e.get("duration_ms") is not None and e["duration_ms"] >= 0
+    ]
     # Counted, not inferred: an average of 0.0 means "nothing was timed" and
     # "everything timed at zero" alike, and the coverage section has to tell
     # those apart to be worth printing.
@@ -482,13 +491,28 @@ def format_signal_coverage(result: AggregationResult) -> list[str]:
     """
     lines = ["## Signal Coverage", ""]
 
+    # A period with no input at all is not a period that measured zero.
+    # "0 of 0 executions carry an evaluation" invites reading an empty log
+    # as a ratings shortfall, which is a finding this report cannot have.
+    if result.total_executions == 0:
+        lines.append(
+            "- **All signals**: no executions were recorded in this period. "
+            "Every section below is empty for want of input rather than for "
+            "want of findings, so nothing here is a result."
+        )
+        lines.extend(["", "---", ""])
+        return lines
+
     if result.rated_executions == 0:
         lines.append(
             f"- **User ratings**: not measured. 0 of {result.total_executions} "
             "executions carry a `qualitative_evaluation`, which is written only "
             "by `/evaluate-skill` or the `skill-evaluator` agent. The low-rating "
             "detectors did not run, so an empty Low User Ratings section below "
-            "is not evidence that ratings are good."
+            "is not evidence that ratings are good. The instrument works and "
+            "was not run, so this gap closes by running `/evaluate-skill`. Do "
+            "not carry it into the next period as a standing condition of the "
+            "report."
         )
     else:
         lines.append(
@@ -505,7 +529,9 @@ def format_signal_coverage(result: AggregationResult) -> list[str]:
             "SKILL.md rather than the work the skill performs over the turns "
             "that follow. The slow-execution detector "
             f"({SLOW_EXECUTION_THRESHOLD_MS // 1000}s threshold) cannot fire on "
-            "these values."
+            "these values. No command closes this one: the measurement point "
+            "is wrong rather than unused, so the gap holds until duration "
+            "is captured elsewhere in the lifecycle."
         )
     elif not result.untimed_skills:
         lines.append(
