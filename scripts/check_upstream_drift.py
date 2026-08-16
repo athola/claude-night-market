@@ -37,7 +37,13 @@ and reports four drift classes:
     the risk went down. It rose again from 51 to 57 when ``docs`` was
     added to the scan, and from 57 to 60 when ``SKILL.md`` bodies
     stopped being exempt. Both surfaced pre-existing mentions rather
-    than new ones. Read a movement here before acting on it.
+    than new ones. It then fell to 55, because five of the mentions
+    those two changes exposed turned out to be live selections: a CLI
+    default, a scaffolder's generated frontmatter, an agent template,
+    and a config doc that had drifted behind the module it documents.
+    That is the shape a working ratchet makes. Widening the lens raises
+    the number, and reading what it exposed lowers it again. Read a
+    movement here before acting on it.
 
 ``unknown_tier``
     A file references a tier absent from the ledger roster.
