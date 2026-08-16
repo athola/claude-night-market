@@ -219,7 +219,7 @@ def test_dated_id_outside_gated_surface_is_drift(tmp_path: Path) -> None:
 
 
 def test_dated_id_inside_gated_surface_is_skipped(tmp_path: Path) -> None:
-    """Agent frontmatter and SKILL.md are already gated elsewhere.
+    """Agent files and SKILL.md frontmatter are already gated elsewhere.
 
     Reporting them here would double-count a violation that
     check_agent_model_matrix.py already fails on.
@@ -229,8 +229,30 @@ def test_dated_id_inside_gated_surface_is_skipped(tmp_path: Path) -> None:
     agent.write_text("model: claude-opus-4-6\n", encoding="utf-8")
     skill = tmp_path / "skills" / "s" / "SKILL.md"
     skill.parent.mkdir(parents=True)
-    skill.write_text("claude-sonnet-4-6\n", encoding="utf-8")
+    skill.write_text(
+        "---\nname: s\nmodel: claude-sonnet-4-6\n---\n\nBody.\n", encoding="utf-8"
+    )
     assert cud.detect_dated_ids([tmp_path]) == []
+
+
+def test_dated_id_in_a_skill_body_is_drift(tmp_path: Path) -> None:
+    """The matrix gate reads a skill's ``model:`` field, not its prose.
+
+    ``check_skill`` parses frontmatter and checks that one value, so a
+    dated ID anywhere in the body is outside it. This gate then skipped
+    the whole file on the assumption the other one covered it, and the
+    body fell between them. A SKILL.md carrying an SDK snippet pins a
+    model exactly as a docs guide does, which is the case PR #659 found.
+    """
+    skill = tmp_path / "skills" / "s" / "SKILL.md"
+    skill.parent.mkdir(parents=True)
+    skill.write_text(
+        "---\nname: s\nmodel: sonnet\n---\n\nCall claude-3-5-sonnet-20241022.\n",
+        encoding="utf-8",
+    )
+    drifts = cud.detect_dated_ids([tmp_path])
+    assert len(drifts) == 1
+    assert "claude-3-5-sonnet-20241022" in drifts[0].detail
 
 
 def test_default_scan_covers_docs() -> None:

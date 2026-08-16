@@ -35,8 +35,9 @@ and reports four drift classes:
     rose from 44 to 51 when legacy pricing entries were added at the
     same time the live pins were removed, so the number went up while
     the risk went down. It rose again from 51 to 57 when ``docs`` was
-    added to the scan, which surfaced six pre-existing mentions rather
-    than six new ones. Read a movement here before acting on it.
+    added to the scan, and from 57 to 60 when ``SKILL.md`` bodies
+    stopped being exempt. Both surfaced pre-existing mentions rather
+    than new ones. Read a movement here before acting on it.
 
 ``unknown_tier``
     A file references a tier absent from the ledger roster.
@@ -424,8 +425,27 @@ def detect_vocabulary_drift(ledger: dict, gate_source: str) -> list[Drift]:
 
 
 def _is_gated_surface(path: Path) -> bool:
-    """True when check_agent_model_matrix.py already covers this file."""
-    return "agents" in path.parts or path.name == "SKILL.md"
+    """True when check_agent_model_matrix.py already covers this file.
+
+    Only agent definitions qualify. ``SKILL.md`` does not: the matrix
+    gate reads a skill's ``model:`` frontmatter field and nothing else,
+    so its body is nobody's territory unless this gate takes it. See
+    ``_scannable_text``.
+    """
+    return "agents" in path.parts
+
+
+def _scannable_text(path: Path) -> str:
+    """Return the part of a file this gate owns.
+
+    For ``SKILL.md`` that is the body: the matrix gate owns the
+    ``model:`` field in the frontmatter, and counting it here would
+    double-report one violation. Everything else is scanned whole.
+    """
+    text = _read(path)
+    if path.name == "SKILL.md":
+        return FRONTMATTER_RE.sub("", text)
+    return text
 
 
 def _iter_files(roots: list[Path] | tuple[Path, ...]):
@@ -462,7 +482,7 @@ def detect_dated_ids(
     for path in _iter_files(roots):
         if _is_gated_surface(path):
             continue
-        found = set(DATED_ID_RE.findall(_read(path))) - known
+        found = set(DATED_ID_RE.findall(_scannable_text(path))) - known
         for model_id in sorted(found):
             drifts.append(
                 Drift(
