@@ -185,6 +185,12 @@ class ServiceConfig:
     auth_probe: tuple[str, ...] = ("auth", "status")
     # Shown when the binary is missing, so a failure names its own remedy.
     install_hint: str = ""
+    # How an operator logs this CLI in, when the CLI owns its own
+    # credentials. Recorded only where the command was read off the
+    # installed binary's own help output, never inferred from the
+    # binary name: an invented login command is the same class of
+    # error as an invented install command.
+    login_hint: str = ""
     # Selection metadata. smart_delegate derives both its candidate order and
     # its model choice from these, so registering a provider is the only step
     # needed to make it selectable. The previous design kept the order and the
@@ -342,6 +348,7 @@ class Delegator:
             temperature_flag=None,
             inline_files=True,
             install_hint="npm install -g mmx-cli",
+            login_hint="mmx auth login",
             priority=30,
             default_model="MiniMax-M3",
             large_context_model="MiniMax-M3",
@@ -414,6 +421,7 @@ class Delegator:
             inline_files=True,
             auth_probe=("login", "status"),
             install_hint="npm install -g @openai/codex",
+            login_hint="codex login",
             priority=60,
             strengths=("code_execution",),
         ),
@@ -431,6 +439,7 @@ class Delegator:
             inline_files=True,
             auth_probe=("auth", "list"),
             install_hint="npm install -g opencode-ai@latest",
+            login_hint="opencode auth",
             priority=70,
             strengths=("code_execution",),
         ),

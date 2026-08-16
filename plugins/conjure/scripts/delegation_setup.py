@@ -46,6 +46,11 @@ class ProviderState:
     authenticated: bool
     issues: tuple[str, ...]
     missing_variables: tuple[str, ...]
+    # False when the provider's credentials live inside the CLI. The probe
+    # does not spawn CLIs, so for those it has no evidence either way, and
+    # `authenticated` below is an absence of findings rather than a finding.
+    auth_checked: bool = True
+    login_hint: str = ""
 
 
 def _probe_version(binary: str, probe: Sequence[str]) -> str | None:
@@ -123,6 +128,8 @@ def probe_provider(delegator: Delegator, name: str) -> ProviderState:
         else None,
         authenticated=installed and not issues,
         issues=tuple(issues),
+        auth_checked=service.auth_method != "cli",
+        login_hint=service.login_hint,
     )
 
 
@@ -155,12 +162,19 @@ def render_status(states: Sequence[ProviderState]) -> str:
 def _auth_cell(state: ProviderState) -> str:
     """Render one provider's authentication cell.
 
-    A provider that is not installed reports "-" rather than "missing": its
-    credentials are not the thing to fix yet.
+    Three states, not two. A provider that is not installed reports "-"
+    rather than "missing": its credentials are not the thing to fix yet. A
+    provider whose CLI owns its credentials reports "unknown", because the
+    probe never spawned it and has no evidence. Only "ok" and "missing"
+    are claims, and both rest on a check that actually ran.
     """
+    if not state.installed:
+        return "-"
+    if not state.auth_checked:
+        return "unknown"
     if state.authenticated:
         return "ok"
-    return "missing" if state.installed else "-"
+    return "missing"
 
 
 def install_command_for(binary: str) -> str:
@@ -229,6 +243,14 @@ def doctor_lines(states: Sequence[ProviderState]) -> list[str]:
     lines: list[str] = []
 
     for state in states:
+        if state.installed and not state.auth_checked:
+            lines.append(f"{state.name}:")
+            lines.append("  - this CLI owns its credentials, so the probe cannot")
+            lines.append("    confirm them without spawning it")
+            if state.login_hint:
+                lines.append(f"    check: {state.login_hint}")
+            continue
+
         if state.authenticated:
             continue
 

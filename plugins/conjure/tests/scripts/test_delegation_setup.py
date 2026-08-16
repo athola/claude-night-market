@@ -191,3 +191,69 @@ class TestDoctor:
 
         assert "export GEMINI_API_KEY=" in text
         assert "npm install -g @google/gemini-cli" not in text
+
+
+class TestCliManagedAuthIsNotOverclaimed:
+    """A credential the probe never inspected is reported as unknown.
+
+    The probe deliberately does not spawn each CLI, so for providers whose
+    credentials live inside the CLI it has no evidence either way. Reporting
+    "ok" there turned a skipped check into a claim: `delegate-setup` showed
+    minimax as authenticated while `mmx` had no credentials at all and the
+    delegation failed on the first call.
+    """
+
+    @pytest.mark.bdd
+    def test_a_cli_managed_provider_is_reported_unknown_not_ok(self) -> None:
+        """GIVEN a provider whose auth lives in the CLI
+        WHEN the status table is rendered
+        THEN its auth cell reads unknown rather than ok
+        """
+        delegator = Delegator()
+        states = {state.name: state for state in probe_all(delegator)}
+        cli_managed = [
+            name
+            for name, service in delegator.services.items()
+            if service.auth_method == "cli" and states[name].installed
+        ]
+        assert cli_managed, "registry has no installed cli-auth provider to check"
+
+        rendered = render_status(probe_all(delegator))
+        for name in cli_managed:
+            row = next(
+                line for line in rendered.splitlines() if line.startswith(f"{name} ")
+            )
+            assert row.split()[-1] == "unknown", (
+                f"{name} manages its own credentials, so the probe has no "
+                f"evidence of auth; row claimed: {row!r}"
+            )
+
+    @pytest.mark.bdd
+    def test_an_api_key_provider_still_reports_ok_when_set(self, monkeypatch) -> None:
+        """GIVEN an api_key provider whose variable is set
+        WHEN the status table is rendered
+        THEN it still reads ok, because that check really ran
+        """
+        delegator = Delegator()
+        for service in delegator.services.values():
+            if service.auth_method == "api_key" and service.auth_env_var:
+                monkeypatch.setenv(service.auth_env_var, "test-key")
+        states = {state.name: state for state in probe_all(delegator)}
+        checked = [
+            name
+            for name, service in delegator.services.items()
+            if service.auth_method == "api_key" and states[name].installed
+        ]
+        assert checked, "registry has no installed api_key provider to check"
+        for name in checked:
+            assert states[name].authenticated is True
+
+    @pytest.mark.bdd
+    def test_doctor_names_the_verified_login_command(self) -> None:
+        """GIVEN a cli-auth provider with a recorded login command
+        WHEN doctor explains it
+        THEN the recorded command appears, and none is invented
+        """
+        delegator = Delegator()
+        lines = "\n".join(doctor_lines(probe_all(delegator)))
+        assert "mmx auth login" in lines
