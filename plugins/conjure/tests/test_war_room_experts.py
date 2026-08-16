@@ -128,7 +128,10 @@ class TestCommandResolution:
         # Also mock Path.exists to return False for direct path check
         with patch("shutil.which", side_effect=mock_which):
             with patch.object(Path, "exists", return_value=False):
-                with pytest.raises(RuntimeError, match="GLM-5.2 not available"):
+                # Asserts the remedy, not the version. The message used to
+                # name GLM-5.2 and outlived that release; pinning a version
+                # here is what turned a model bump into a test failure.
+                with pytest.raises(RuntimeError, match="Install claude-glm"):
                     get_expert_command(tactician)
 
     def test_get_glm_command_with_ccgd_alias(self) -> None:

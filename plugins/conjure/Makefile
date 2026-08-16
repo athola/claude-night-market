@@ -10,7 +10,7 @@
 	delegate-status delegate-test delegate-usage delegate-verify demo-delegation demo-plugin \
 	demo-skills demo-status demo-token-estimate deps fix format help install-hooks lint memory-profile \
 	mutation-test plugin-check precommit quota-status security spellcheck status test test-plugin \
-	test-status type-check typecheck usage-report validate-all validate-delegation
+	test-status test-suite type-check typecheck usage-report validate-all validate-delegation
 
 # Override source directories for this plugin
 SRC_DIRS := scripts hooks
@@ -68,8 +68,16 @@ spellcheck: ## Run spell check
 	@echo "Running spell check..."
 	$(UV_RUN) typos $(SRC_DIRS)
 
-test: check lint type-check security ## Run all quality checks
+test: check lint type-check security test-suite ## Run all quality checks
 	@echo "All checks passed!"
+
+test-suite: ## Run the pytest suite
+	@# This target is why `test` exists. Without it `make test` ran style
+	@# and typing only, so the pre-commit "Test Changed Plugins" hook
+	@# reported passing tests for this plugin while the suite was red. A
+	@# gate that cannot fail is not a gate.
+	@echo "Running test suite..."
+	$(PYTEST) tests/
 
 precommit: ## Run pre-commit against all files
 	@echo "Running pre-commit hooks..."
