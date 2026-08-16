@@ -120,6 +120,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `metacognitive-self-mod` | [abstract](../plugins/abstract.md) | Hyperagents self-improvement analysis |
 | `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |
+| `minimax-delegation` | [conjure](../plugins/conjure.md) | MiniMax CLI (mmx) integration |
 | `mission-orchestrator` | [attune](../plugins/attune.md) | Unified lifecycle orchestrator for project development |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
 | `muse-delegation` | [conjure](../plugins/conjure.md) | Meta Muse Code CLI (muse exec) integration |
@@ -148,7 +149,6 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `quality-gate` | [egregore](../plugins/egregore.md) | Pre-merge quality validation for autonomous sessions |
 | `quota-management` | [leyline](../plugins/leyline.md) | Rate limiting and quotas |
 | `qwen-delegation` | [conjure](../plugins/conjure.md) | Qwen MCP integration |
-| `minimax-delegation` | [conjure](../plugins/conjure.md) | MiniMax CLI (mmx) integration |
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
 | `research` | [tome](../plugins/tome.md) | Multi-source research orchestration |
 | `response-compression` | [conserve](../plugins/conserve.md) | Response compression patterns |
