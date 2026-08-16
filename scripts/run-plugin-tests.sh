@@ -64,6 +64,14 @@ run_plugin_tests() {
                 return 0
             else
                 echo -e "  ${RED}✗ Tests failed${NC}"
+                # Print the run that actually failed before re-running. The
+                # re-run is a different run: when the failure is intermittent
+                # it passes, and deleting this capture unread leaves no record
+                # of what broke.
+                echo -e "${YELLOW}Output of the failing run:${NC}"
+                echo
+                cat "$temp_output"
+                echo
                 echo -e "${YELLOW}Re-running with verbose output:${NC}"
                 echo
                 (cd "$plugin_dir" && "$WITHOUT_GIT_ENV" make test 2>&1)
@@ -105,6 +113,12 @@ run_plugin_tests() {
                 return 0
             else
                 echo -e "  ${RED}✗ Tests failed${NC}"
+                # See the Makefile branch above: print the failing run before
+                # the re-run, so an intermittent failure leaves evidence.
+                echo -e "${YELLOW}Output of the failing run:${NC}"
+                echo
+                cat "$temp_output"
+                echo
                 echo -e "${YELLOW}Re-running with verbose output:${NC}"
                 echo
                 (cd "$plugin_dir" && "$WITHOUT_GIT_ENV" uv run python -m pytest tests/ --tb=short "${cov_flag[@]}" 2>&1)
