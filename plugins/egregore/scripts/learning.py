@@ -127,10 +127,7 @@ def extract_patterns(
     return sorted_patterns[:max_patterns]
 
 
-def build_learning_context(
-    patterns: list[LearnedPattern],
-    max_tokens_estimate: int = 500,
-) -> str:
+def build_learning_context(patterns: list[LearnedPattern]) -> str:
     """Build a context string from learned patterns for injection.
 
     Produces a concise summary of relevant patterns that can be

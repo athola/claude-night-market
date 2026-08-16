@@ -228,16 +228,11 @@ class SourceLineageManager:
 
         lineage.validation_chain.append(validation_record)
 
-    def upgrade_to_full_lineage(
-        self,
-        entry_id: str,
-        new_importance: float | None = None,
-    ) -> bool:
+    def upgrade_to_full_lineage(self, entry_id: str) -> bool:
         """Upgrade simple lineage to full lineage.
 
         Args:
             entry_id: ID of the knowledge entry
-            new_importance: New importance score triggering upgrade
 
         Returns:
             True if upgraded, False if already full or not found
