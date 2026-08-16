@@ -31,6 +31,7 @@ from aggregate_skill_logs import (
     detect_slow_skills,
     format_high_impact_issues,
     format_low_rated_skills,
+    format_signal_coverage,
     format_skill_summary,
     format_slow_skills,
     generate_learnings_md,
@@ -858,6 +859,90 @@ class TestFormatSkillSummary:
 
 
 # ---------------------------------------------------------------------------
+# Tests: format_signal_coverage
+# ---------------------------------------------------------------------------
+
+
+def _make_result(  # noqa: PLR0913 - test factory mirrors AggregationResult fields for flexible fixture creation
+    *,
+    skills_analyzed: int = 1,
+    total_executions: int = 10,
+    rated_executions: int = 0,
+    dispatch_bound_skills: list[str] | None = None,
+    slow_skills: list[dict] | None = None,
+    low_rated_skills: list[dict] | None = None,
+) -> AggregationResult:
+    return AggregationResult(
+        timestamp=datetime.now(timezone.utc),
+        skills_analyzed=skills_analyzed,
+        total_executions=total_executions,
+        high_impact_issues=[],
+        slow_skills=slow_skills or [],
+        low_rated_skills=low_rated_skills or [],
+        metrics_by_skill={},
+        rated_executions=rated_executions,
+        dispatch_bound_skills=dispatch_bound_skills or [],
+    )
+
+
+class TestFormatSignalCoverage:
+    """Test format_signal_coverage separates missing signal from clean data."""
+
+    @pytest.mark.unit
+    def test_zero_rated_executions_marked_not_measured(self) -> None:
+        """Scenario: no execution carries a qualitative evaluation.
+        Given an aggregation over 108 executions with 0 rated
+        When format_signal_coverage is called
+        Then the ratings line reports it as not measured
+        """
+        lines = format_signal_coverage(
+            _make_result(skills_analyzed=32, total_executions=108)
+        )
+        text = "\n".join(lines)
+        assert "Signal Coverage" in text
+        assert "not measured" in text
+        assert "0 of 108" in text
+
+    @pytest.mark.unit
+    def test_rated_executions_reported_as_coverage(self) -> None:
+        """Scenario: some executions carry evaluations.
+        Given 5 of 20 executions rated
+        When format_signal_coverage is called
+        Then the ratings line reports the coverage instead of a warning
+        """
+        lines = format_signal_coverage(
+            _make_result(total_executions=20, rated_executions=5)
+        )
+        text = "\n".join(lines)
+        assert "5 of 20 executions carry an evaluation" in text
+        assert "not measured" not in text
+
+    @pytest.mark.unit
+    def test_dispatch_bound_skills_explain_dead_slow_detector(self) -> None:
+        """Scenario: every duration sample is dispatch-bound.
+        Given 2 of 3 skills averaging under the dispatch floor
+        When format_signal_coverage is called
+        Then the durations line states the slow detector cannot fire
+        """
+        lines = format_signal_coverage(
+            _make_result(skills_analyzed=3, dispatch_bound_skills=["p:fast", "p:quick"])
+        )
+        text = "\n".join(lines)
+        assert "2 of 3 skills" in text
+        assert "cannot fire" in text
+
+    @pytest.mark.unit
+    def test_no_dispatch_bound_skills_reports_durations_usable(self) -> None:
+        """Scenario: all durations are above the dispatch floor.
+        Given no dispatch-bound skills
+        When format_signal_coverage is called
+        Then the durations line makes no claim about a dead detector
+        """
+        text = "\n".join(format_signal_coverage(_make_result()))
+        assert "cannot fire" not in text
+
+
+# ---------------------------------------------------------------------------
 # Tests: generate_learnings_md
 # ---------------------------------------------------------------------------
 
@@ -961,6 +1046,38 @@ class TestGenerateLearningsMd:
         content = generate_learnings_md(result)
         assert "Low User Ratings" in content
 
+    @pytest.mark.unit
+    def test_unrated_period_renders_explicit_not_measured_section(self) -> None:
+        """Scenario: ratings absent rather than good.
+        Given zero rated executions and no low-rated skills
+        When generate_learnings_md is called
+        Then Low User Ratings appears and states it was not measured
+        """
+        content = generate_learnings_md(_make_result(rated_executions=0))
+        assert "Low User Ratings" in content
+        assert "Not measured this period" in content
+
+    @pytest.mark.unit
+    def test_dispatch_bound_period_renders_explicit_slow_section(self) -> None:
+        """Scenario: durations too short to feed the slow detector.
+        Given dispatch-bound skills and no slow skills
+        When generate_learnings_md is called
+        Then Slow Execution appears and states it was not measured
+        """
+        content = generate_learnings_md(_make_result(dispatch_bound_skills=["p:fast"]))
+        assert "Slow Execution" in content
+        assert "dispatch-bound" in content
+
+    @pytest.mark.unit
+    def test_coverage_section_always_present(self) -> None:
+        """Scenario: every report states what it could see.
+        Given any aggregation result
+        When generate_learnings_md is called
+        Then the Signal Coverage section is included
+        """
+        content = generate_learnings_md(_make_result())
+        assert "Signal Coverage" in content
+
 
 # ---------------------------------------------------------------------------
 # Tests: aggregate_logs
@@ -1018,6 +1135,72 @@ class TestAggregateLogs:
         mock_get_log_dir.assert_called_once()
         assert result.skills_analyzed == 1
         assert result.total_executions == 10
+
+    @pytest.mark.unit
+    def test_aggregate_logs_counts_rated_executions(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Scenario: only some executions carry an evaluation.
+        Given 2 rated entries and 3 unrated entries
+        When aggregate_logs is called
+        Then rated_executions is 2
+        """
+        skill_dir = tmp_path / "my-plugin" / "my-skill"
+        skill_dir.mkdir(parents=True)
+
+        entries = [_make_entry(rating=4.0) for _ in range(2)] + [
+            _make_entry() for _ in range(3)
+        ]
+        (skill_dir / "log.jsonl").write_text("\n".join(json.dumps(e) for e in entries))
+        monkeypatch.setattr(
+            "aggregate_skill_logs.get_log_directory", Mock(return_value=tmp_path)
+        )
+
+        result = aggregate_logs(days_back=30)
+        assert result.rated_executions == 2
+
+    @pytest.mark.unit
+    def test_aggregate_logs_flags_dispatch_bound_skill(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Scenario: a skill's durations only cover dispatch.
+        Given entries averaging 100ms, below the dispatch floor
+        When aggregate_logs is called
+        Then the skill is listed in dispatch_bound_skills
+        """
+        skill_dir = tmp_path / "my-plugin" / "my-skill"
+        skill_dir.mkdir(parents=True)
+
+        entries = [_make_entry(duration_ms=100) for _ in range(4)]
+        (skill_dir / "log.jsonl").write_text("\n".join(json.dumps(e) for e in entries))
+        monkeypatch.setattr(
+            "aggregate_skill_logs.get_log_directory", Mock(return_value=tmp_path)
+        )
+
+        result = aggregate_logs(days_back=30)
+        assert result.dispatch_bound_skills == ["my-plugin:my-skill"]
+        assert result.slow_skills == []
+
+    @pytest.mark.unit
+    def test_aggregate_logs_does_not_flag_real_durations(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Scenario: durations plausibly cover real work.
+        Given entries averaging 4000ms
+        When aggregate_logs is called
+        Then dispatch_bound_skills is empty
+        """
+        skill_dir = tmp_path / "my-plugin" / "my-skill"
+        skill_dir.mkdir(parents=True)
+
+        entries = [_make_entry(duration_ms=4000) for _ in range(4)]
+        (skill_dir / "log.jsonl").write_text("\n".join(json.dumps(e) for e in entries))
+        monkeypatch.setattr(
+            "aggregate_skill_logs.get_log_directory", Mock(return_value=tmp_path)
+        )
+
+        result = aggregate_logs(days_back=30)
+        assert result.dispatch_bound_skills == []
 
 
 # ---------------------------------------------------------------------------
