@@ -34,7 +34,9 @@ and reports four drift classes:
     selection, and the count cannot tell the two apart. The backlog
     rose from 44 to 51 when legacy pricing entries were added at the
     same time the live pins were removed, so the number went up while
-    the risk went down. Read a movement here before acting on it.
+    the risk went down. It rose again from 51 to 57 when ``docs`` was
+    added to the scan, which surfaced six pre-existing mentions rather
+    than six new ones. Read a movement here before acting on it.
 
 ``unknown_tier``
     A file references a tier absent from the ledger roster.
@@ -68,7 +70,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 DEFAULT_LEDGER = REPO_ROOT / ".claude" / "upstream-baseline.json"
 DEFAULT_GATE = REPO_ROOT / "scripts" / "check_agent_model_matrix.py"
-DEFAULT_SCAN = (REPO_ROOT / "plugins", REPO_ROOT / ".claude")
+# ``docs`` is scanned because prose carries runnable examples: a guide
+# that hands the reader a ``messages.create(model=...)`` snippet pins a
+# model as surely as any frontmatter does, and a retired ID there is a
+# 404 the reader inherits. ``scripts`` and ``tests`` stay out, because
+# the only dated IDs in them are this gate's own specimens and the
+# ratchet would end up measuring its own fixtures.
+DEFAULT_SCAN = (
+    REPO_ROOT / "plugins",
+    REPO_ROOT / ".claude",
+    REPO_ROOT / "docs",
+)
 
 SUPPORTED_SCHEMA_VERSION = 1
 
@@ -117,8 +129,21 @@ SKIPPED_DIRS = frozenset(
     }
 )
 
-# A dated model ID: a family followed by a version number.
-DATED_ID_RE = re.compile(r"claude-(?:opus|sonnet|haiku|fable)-\d[\w.-]*")
+# A dated model ID, in either of the two naming conventions Anthropic
+# has used. Claude 4 onward puts the version after the family name
+# (``claude-sonnet-4-6``); Claude 3.x and earlier put it before
+# (``claude-3-5-sonnet-20241022``), and ``claude-2.1`` carries no family
+# at all. Encoding only the later shape left every retired 3.x ID
+# invisible to this ratchet, which is how a ``claude-3-5-sonnet-20241022``
+# call sat in a docs example past its 2025-10-28 retirement until an
+# outside contributor read the line by hand.
+#
+# The family list stays explicit for the post-4 branch so a hyphenated
+# product name cannot be read as a model. The pre-4 branch cannot use one:
+# the version comes first, so there is nothing to anchor on but the digit.
+DATED_ID_RE = re.compile(
+    r"claude-(?:(?:opus|sonnet|haiku|fable)-)?\d[\w.-]*|claude-instant[\w.-]*"
+)
 
 # A ``model:`` frontmatter assignment naming a tier alias.
 MODEL_LINE_RE = re.compile(r"^[ \t]*model:[ \t]*([A-Za-z][\w.-]*)[ \t]*$", re.MULTILINE)

@@ -174,7 +174,20 @@ class TestCheckAgent:
         path = write_agent(tmp_path, "---\nname: demo\nmodel: sonnet\n---\n\nB.\n")
         assert [v.rule for v in check_agent(path)] == ["missing-effort"]
 
-    @pytest.mark.parametrize("dated", ["claude-sonnet-4-6", "claude-opus-4-1"])
+    @pytest.mark.parametrize(
+        "dated",
+        [
+            "claude-sonnet-4-6",
+            "claude-opus-4-1",
+            # Claude 3.x and earlier put the version before the family
+            # name. A pattern written for the 4.x shape misses these and
+            # reports invalid-model instead, which names the wrong repair:
+            # the fix is to pin a tier alias, not to invent a valid ID.
+            "claude-3-5-sonnet-20241022",
+            "claude-3-opus-20240229",
+            "claude-2.1",
+        ],
+    )
     def test_rejects_dated_model_ids(self, tmp_path: Path, dated: str) -> None:
         """
         Scenario: An agent pins a specific model generation

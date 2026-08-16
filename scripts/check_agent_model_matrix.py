@@ -68,7 +68,13 @@ VALID_EFFORTS = frozenset({"low", "medium", "high", "xhigh", "max"})
 # A dated model ID names a specific generation (``claude-opus-4-1``,
 # ``claude-sonnet-4-6``). Those are retired on a rolling basis and the
 # alias resolves to the current generation instead.
-_DATED_MODEL_RE = re.compile(r"^claude-[a-z]+-\d")
+#
+# The family segment is optional because Anthropic changed the ordering:
+# Claude 4 onward writes ``claude-sonnet-4-6``, Claude 3.x wrote
+# ``claude-3-5-sonnet-20241022``, and ``claude-2.1`` carries no family.
+# Without the option a pre-4 pin fell through to invalid-model, which
+# names the wrong repair: pin a tier alias, do not hunt for a valid ID.
+_DATED_MODEL_RE = re.compile(r"^claude-(?:[a-z]+-)?\d")
 
 # Matches a top-level ``key: value`` line. Leading whitespace is
 # significant: an indented line belongs to a block scalar or a nested
