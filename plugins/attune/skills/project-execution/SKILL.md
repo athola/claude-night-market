@@ -3,7 +3,7 @@ name: project-execution
 description: Executes implementation plans with progress tracking, checkpoint validation, and quality gates. Use after planning is complete and tasks are ready to implement.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model_preference: claude-sonnet-4-6
+model_preference: claude-sonnet-5
 tools_allowed: all
 category: workflow
 tags: [execution, implementation, progress-tracking, quality-gates, tdd]

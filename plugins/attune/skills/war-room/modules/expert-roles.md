@@ -16,7 +16,7 @@ EXPERT_CONFIGS = {
     "supreme_commander": {
         "role": "Supreme Commander",
         "service": "native",
-        "model": "claude-opus-4-8",
+        "model": "claude-opus-5",
         "description": "Final decision authority and synthesis",
         "phases": ["synthesis"],
         "dangerous": False,
@@ -24,7 +24,7 @@ EXPERT_CONFIGS = {
     "chief_strategist": {
         "role": "Chief Strategist",
         "service": "native",
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5",
         "description": "Approach generation and trade-off analysis",
         "phases": ["assessment", "coa_development"],
         "dangerous": False,
@@ -61,7 +61,7 @@ EXPERT_CONFIGS = {
     "prosecution_counsel": {
         "role": "Prosecution Counsel",
         "service": "native",
-        "model": "claude-sonnet-4-6",
+        "model": "claude-sonnet-5",
         "description": "Challenges every addition using additive-bias-defense scrutiny questions",
         "phases": ["red_team", "coa_development"],
         "dangerous": False,

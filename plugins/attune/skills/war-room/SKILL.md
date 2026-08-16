@@ -3,7 +3,7 @@ name: war-room
 description: Convenes a multi-LLM expert panel to pressure-test hard-to-reverse decisions. Use when reversibility score is low and adversarial review is warranted.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model_preference: claude-opus-4-8
+model_preference: claude-opus-5
 category: strategic-planning
 tags: [deliberation, multi-llm, strategy, decision-making, council, reversibility]
 complexity: advanced

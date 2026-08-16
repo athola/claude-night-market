@@ -8,8 +8,12 @@ Agents = specialized roles. Focus on capabilities and delegation context.
 ---
 name: agent-name
 description: "[Role] - [capability] to achieve [outcome]. Use when: [context], [decision type]."
-# Custom metadata (not used by Claude for matching):
-model: claude-sonnet-4-6
+# model and effort are read by Claude Code to select the subagent's
+# model; the rest is custom metadata not used for matching. Pin a tier
+# alias, never a dated ID: an agent that omits model inherits the
+# session's, and a dated ID is retired on a rolling basis.
+model: sonnet
+effort: medium
 tools_allowed: [Read, Write, Grep, Glob]
 max_iterations: 10
 category: agent
@@ -42,7 +46,8 @@ Delegate when:
 ---
 name: project-architect
 description: Architecture design specialist - analyzes requirements and generates component-based system architecture with technology selection. Use when: designing system architecture, defining components, selecting technology stack, making architectural decisions.
-model: claude-sonnet-4-6
+model: sonnet
+effort: medium
 tools_allowed: [Read, Write, Grep, Glob]
 max_iterations: 10
 ---
