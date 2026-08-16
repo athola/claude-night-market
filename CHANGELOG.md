@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Four more delegation providers and guided setup (conjure).** The
+  delegation registry gained GLM-5.3, Meta Muse Code, the OpenAI Codex
+  CLI and OpenCode, plus Muse Glimmer served locally through ollama.
+  Providers fall into two archetypes now. A native CLI takes the prompt
+  positionally, which is what `muse exec`, `codex exec` and
+  `opencode run` all do. An endpoint swap runs the stock `claude`
+  binary against a provider's Anthropic-compatible endpoint, which is
+  how GLM reaches Z.ai without shipping a CLI of its own; Z.ai wants
+  the key in `ANTHROPIC_AUTH_TOKEN` rather than `ANTHROPIC_API_KEY`,
+  and the overlay names the variable instead of storing the secret.
+
+  Registering a provider is a data change. `ServiceConfig` carries
+  priority, model ids and strengths, so `smart_delegate` derives its
+  candidate order and model choice from the registry instead of three
+  hardcoded lists, one of which raised `KeyError` for any service
+  missing from it. `verify_service` reads the `version_probe` and
+  `auth_probe` fields it previously declared and ignored, which is what
+  lets Muse register despite publishing no auth-status command.
+
+  `delegation_setup.py` reports which provider CLIs are installed and
+  authenticated, and installs missing ones after a confirmation naming
+  the package, publisher and source URL. Two of these install by piping
+  a remote script into a shell, so the source is shown before anything
+  runs, and install commands come only from `VERIFIED_BINARIES`: an
+  unrecorded binary raises rather than resolving to a guess. Exposed as
+  `make delegate-setup`, `delegate-doctor` and `delegate-install`.
+
 - **MiniMax delegation provider (conjure).** The Conjure plugin
   registered a MiniMax service alongside Gemini and Qwen so the
   delegation executor and War Room can route work to MiniMax-M3 and
@@ -25,6 +52,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   token pricing, and the Makefile exposes `make delegate-minimax`.
 
 ### Fixed
+
+- **`make test` runs the tests in conjure.** The target read
+  `check lint type-check security` and invoked no pytest, so the
+  pre-commit hook that runs `make test` for each changed plugin
+  reported passing tests whether the suite was green or red. A
+  regression reached a commit under that message. `test` now depends on
+  a `test-suite` target, confirmed falsifiable by emptying a model
+  constant and watching the target exit non-zero rather than assuming
+  it would.
 
 - **MiniMax delegation targets the official `mmx` CLI (conjure).** The
   MiniMax service and both War Room experts spawned a binary named

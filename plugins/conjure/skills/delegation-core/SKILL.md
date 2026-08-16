@@ -1,6 +1,6 @@
 ---
 name: delegation-core
-description: Delegates tasks to Gemini, Qwen, or MiniMax with quota tracking and error handling. Use when tasks exceed context window or need cheaper processing.
+description: Delegates tasks to Gemini, Qwen, MiniMax, GLM, Muse, Codex or OpenCode with quota tracking. Use when tasks exceed context window or need cheaper processing.
 alwaysApply: false
 category: delegation-framework
 tags:
@@ -9,6 +9,10 @@ tags:
 - gemini
 - qwen
 - minimax
+- glm
+- muse
+- codex
+- opencode
 - task-management
 - quality-control
 dependencies:
@@ -181,6 +185,10 @@ For detailed service workflows:
 - `Skill(conjure:gemini-delegation)`: Gemini CLI specifics.
 - `Skill(conjure:qwen-delegation)`: Qwen MCP specifics.
 - `Skill(conjure:minimax-delegation)`: MiniMax CLI specifics.
+- `Skill(conjure:glm-delegation)`: GLM via the Z.ai endpoint swap.
+- `Skill(conjure:muse-delegation)`: Meta Muse Code CLI specifics.
+- `Skill(conjure:codex-delegation)`: OpenAI Codex CLI specifics.
+- `Skill(conjure:opencode-delegation)`: OpenCode CLI specifics.
 
 ## Execution Modes
 

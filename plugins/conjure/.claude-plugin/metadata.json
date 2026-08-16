@@ -7,6 +7,10 @@
     "skills/gemini-delegation",
     "skills/qwen-delegation",
     "skills/minimax-delegation",
+    "skills/glm-delegation",
+    "skills/muse-delegation",
+    "skills/codex-delegation",
+    "skills/opencode-delegation",
     "skills/agent-teams"
   ],
   "dependencies": {

@@ -50,6 +50,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `code-quality-principles` | [conserve](../plugins/conserve.md) | Core principles for AI-assisted code quality |
 | `code-refinement` | [pensive](../plugins/pensive.md) | Duplication, algorithms, and clean code analysis |
 | `code-search` | [tome](../plugins/tome.md) | GitHub implementation search |
+| `codex-delegation` | [conjure](../plugins/conjure.md) | OpenAI Codex CLI (codex exec) integration |
 | `commit-messages` | [sanctum](../plugins/sanctum.md) | Conventional commits |
 | `compression-strategy` | [conserve](../plugins/conserve.md) | Context compression analysis and recommendations |
 | `computer-control` | [phantom](../plugins/phantom.md) | Desktop automation via Claude's vision and action API |
@@ -93,6 +94,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
 | `git-workspace-review` | [sanctum](../plugins/sanctum.md) | Repo state analysis |
 | `github-initiative-pulse` | [minister](../plugins/minister.md) | Initiative progress tracking |
+| `glm-delegation` | [conjure](../plugins/conjure.md) | Z.ai GLM-5.x via Anthropic-compatible endpoint swap |
 | `graduated-implementation` | [imbue](../plugins/imbue.md) | Bounded start then ramp the next increment's ambition only on demonstrated competence of the prior one |
 | `graph-build` | [gauntlet](../plugins/gauntlet.md) | Build or update the code knowledge graph |
 | `graph-search` | [gauntlet](../plugins/gauntlet.md) | FTS5 search of the code knowledge graph |
@@ -120,7 +122,9 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |
 | `mission-orchestrator` | [attune](../plugins/attune.md) | Unified lifecycle orchestrator for project development |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
+| `muse-delegation` | [conjure](../plugins/conjure.md) | Meta Muse Code CLI (muse exec) integration |
 | `onboard` | [gauntlet](../plugins/gauntlet.md) | Guided five-stage onboarding path through a codebase |
+| `opencode-delegation` | [conjure](../plugins/conjure.md) | OpenCode CLI (opencode run) integration |
 | `palace-diagram` | [memory-palace](../plugins/memory-palace.md) | Visual palace structure diagrams |
 | `palace-index-curator` | [memory-palace](../plugins/memory-palace.md) | Web-capture index curation |
 | `papers` | [tome](../plugins/tome.md) | Academic literature search |
