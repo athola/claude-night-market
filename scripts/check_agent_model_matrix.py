@@ -186,26 +186,67 @@ def check_agent(path: Path) -> list[AgentViolation]:
     return violations
 
 
+# The one field name a skill may not use to state its tier. Six skills
+# carried their tier under ``model_preference`` while five used
+# ``model``: same job, different key, and only ``model`` was read by
+# anything. The values under the unread name drifted a generation
+# behind before anyone noticed, which is what a second name for one
+# concept buys you. Narrow on purpose: this rejects the one shadow that
+# existed, not every unrecognized frontmatter key.
+_SHADOW_MODEL_FIELD = "model_preference"
+
+
 def check_skill(path: Path) -> list[AgentViolation]:
-    """Return dated-model-ID violations in one ``SKILL.md``.
+    """Return every model-field violation in one ``SKILL.md``.
 
     A skill spawns no subagent, so an absent ``model`` carries none of
-    the inheritance hazard that makes it a violation for an agent. Only
-    the dated-ID rule applies here.
+    the inheritance hazard that makes it a violation for an agent. What
+    a skill states, though, it must state in the field this gate reads
+    and in the vocabulary the ledger records.
     """
     fields = parse_frontmatter(path.read_text(encoding="utf-8"))
-    model = fields.get("model")
-    if model is None or not _DATED_MODEL_RE.match(model):
-        return []
-    return [
-        AgentViolation(
-            path,
-            "dated-model-id",
-            f"model '{model}' pins a model generation that will be retired. "
-            f"Use the tier alias instead ({sorted(VALID_MODELS)}), or drop "
-            f"the field: a skill spawns nothing, so it need not pin a model.",
+    violations: list[AgentViolation] = []
+
+    if _SHADOW_MODEL_FIELD in fields:
+        violations.append(
+            AgentViolation(
+                path,
+                "shadow-model-field",
+                f"'{_SHADOW_MODEL_FIELD}: "
+                f"{fields[_SHADOW_MODEL_FIELD]}' states a tier under a name "
+                "nothing reads. Use 'model:' with a tier alias "
+                f"({sorted(VALID_MODELS)}), or drop it: a skill spawns "
+                "nothing, so it need not name a model at all.",
+            )
         )
-    ]
+
+    model = fields.get("model")
+    if model is None:
+        return violations
+
+    if _DATED_MODEL_RE.match(model):
+        violations.append(
+            AgentViolation(
+                path,
+                "dated-model-id",
+                f"model '{model}' pins a model generation that will be "
+                f"retired. Use the tier alias instead ({sorted(VALID_MODELS)}"
+                "), or drop the field: a skill spawns nothing, so it need "
+                "not pin a model.",
+            )
+        )
+    elif model not in VALID_MODELS:
+        violations.append(
+            AgentViolation(
+                path,
+                "invalid-model",
+                f"model '{model}' is not a recognized tier alias. Use one of "
+                f"{sorted(VALID_MODELS)}, or drop the field: a skill spawns "
+                "nothing, so it need not pin a model.",
+            )
+        )
+
+    return violations
 
 
 def agent_slug(path: Path) -> str:
