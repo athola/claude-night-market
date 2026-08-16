@@ -22,8 +22,8 @@ model_hint: standard
 
 ## When NOT To Use
 
-- Academic research (use `/tome:papers`)
-- Code examples (use `/tome:code-search`)
+- Academic research (use `Skill(tome:papers)`)
+- Code examples (use `Skill(tome:code-search)`)
 
 Scan community channels for discussions on a topic.
 

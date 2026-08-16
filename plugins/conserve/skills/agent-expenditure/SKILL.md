@@ -1,6 +1,6 @@
 ---
 name: agent-expenditure
-role: library
+role: entrypoint
 description: Tracks per-agent token usage and flags waste in parallel dispatch. Use when evaluating parallel agent efficiency or after a multi-agent run.
 alwaysApply: false
 category: resource-optimization

@@ -43,8 +43,14 @@ _BARE_SKILL_NAME_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 # Map of frontmatter field -> whether bare names resolve to skill refs.
 # `dependencies:` allows bare names (sibling-skill shorthand);
 # `modules:` only counts fully-qualified `plugin:name` entries.
+# `orchestrates:` is the hub spelling of the same claim: tome:research
+# and pensive:unified-review list the skills they dispatch under it
+# rather than under `dependencies:`. Both declare "this skill loads that
+# one"; only the verb differs. Reading one and not the other left every
+# skill a hub drives counted as an uncalled library.
 _FRONTMATTER_DEP_FIELDS: tuple[tuple[str, bool], ...] = (
     ("dependencies", True),
+    ("orchestrates", True),
     ("modules", False),
 )
 

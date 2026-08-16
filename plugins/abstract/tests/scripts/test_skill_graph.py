@@ -372,6 +372,45 @@ class TestFrontmatterDependencies:
         assert ("src:main", "superpowers:brainstorming") in result["external"]
         assert result["bugs"] == []
 
+    @pytest.mark.unit
+    def test_orchestrates_declares_an_edge(self, tmp_path: Path) -> None:
+        """Scenario: A hub that lists its steps under ``orchestrates:``
+        produces the same inbound edge a ``dependencies:`` entry would.
+
+        Both fields declare "this skill loads that one"; only the verb
+        differs. Reading one and not the other leaves every skill a hub
+        drives looking uncalled, which is a false orphan signal.
+        """
+        root = tmp_path / "plugins"
+        (root / "src" / "skills" / "hub").mkdir(parents=True)
+        (root / "src" / "skills" / "hub" / "SKILL.md").write_text(
+            textwrap.dedent("""\
+                ---
+                name: hub
+                description: x
+                orchestrates:
+                  - src:step
+                ---
+                Body.
+                """)
+        )
+        (root / "src" / "skills" / "step").mkdir(parents=True)
+        (root / "src" / "skills" / "step" / "SKILL.md").write_text(
+            textwrap.dedent("""\
+                ---
+                name: step
+                description: x
+                role: library
+                ---
+                Body.
+                """)
+        )
+
+        graph = build_graph(root)
+
+        assert "src:hub" in graph.inbound.get("src:step", set())
+        assert detect_uncalled_libraries(graph) == []
+
 
 class TestBuildGraph:
     """Feature: Build directed graph from skill files in a marketplace tree."""

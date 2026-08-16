@@ -23,8 +23,8 @@ model_hint: standard
 
 ## When NOT To Use
 
-- Community opinions (use `/tome:discourse`)
-- Code implementations (use `/tome:code-search`)
+- Community opinions (use `Skill(tome:discourse)`)
+- Code implementations (use `Skill(tome:code-search)`)
 
 Search arXiv, Semantic Scholar, and open-access sources.
 
