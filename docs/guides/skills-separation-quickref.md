@@ -81,7 +81,7 @@ class MyAgent:
 
     def chat(self, message: str):
         return self.client.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-sonnet-4-6",
             system=self.system_prompt,  # ← Runtime skills here
             messages=[{"role": "user", "content": message}]
         )
