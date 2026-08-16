@@ -44,6 +44,11 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Rebuild the gauntlet knowledge base from a target source tree.
+
+    Returns the process exit code: 0 once the base is written, non-zero when
+    the target directory cannot be parsed.
+    """
     parser = _build_parser()
     args = parser.parse_args(argv)
 

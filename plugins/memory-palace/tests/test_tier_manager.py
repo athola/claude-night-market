@@ -39,15 +39,18 @@ class TestCompositeScoring:
     def test_compute_scores_returns_all_entities(
         self, manager: TierManager, graph: KnowledgeGraph
     ) -> None:
+        """Scoring covers every entity in the graph, leaving none unranked."""
         scores = manager.compute_scores()
         assert len(scores) == graph.entity_count()
 
     def test_scores_between_zero_and_one(self, manager: TierManager) -> None:
+        """Every composite score is normalised into the unit interval."""
         scores = manager.compute_scores()
         for score in scores.values():
             assert 0.0 <= score <= 1.0
 
     def test_hub_scores_higher_than_isolated(self, manager: TierManager) -> None:
+        """Connectivity raises the composite score."""
         scores = manager.compute_scores()
         assert scores["hub"] > scores["isolated"]
 
@@ -58,6 +61,7 @@ class TestTierAssignment:
     def test_assign_all_tiers(
         self, manager: TierManager, graph: KnowledgeGraph
     ) -> None:
+        """Every entity lands in one of the four defined tiers."""
         manager.assign_all_tiers()
         # All entities should have tier assignments
         for eid in ("hub", "spoke0", "spoke1", "isolated"):
@@ -68,6 +72,7 @@ class TestTierAssignment:
     def test_hub_gets_lower_tier_number(
         self, manager: TierManager, graph: KnowledgeGraph
     ) -> None:
+        """A better-connected entity earns a nearer tier, which is the lower number."""
         manager.assign_all_tiers()
         hub_tier = graph.get_tier("hub")
         iso_tier = graph.get_tier("isolated")
@@ -76,6 +81,7 @@ class TestTierAssignment:
 
     def test_tier_thresholds(self, manager: TierManager) -> None:
         # Test the threshold mapping directly
+        """The score-to-tier boundaries are fixed, so tiering is reproducible."""
         assert manager._score_to_tier(0.80) == 0
         assert manager._score_to_tier(0.60) == 1
         assert manager._score_to_tier(0.30) == 2
@@ -86,12 +92,14 @@ class TestTokenBudgets:
     """Token budget enforcement per tier."""
 
     def test_token_budgets(self, manager: TierManager) -> None:
+        """Each tier carries a fixed token allowance, growing as tiers get further out."""
         assert manager.token_budget(0) == 50
         assert manager.token_budget(1) == 200
         assert manager.token_budget(2) == 500
         assert manager.token_budget(3) == 1000
 
     def test_invalid_tier_returns_zero(self, manager: TierManager) -> None:
+        """An out-of-range tier is budgeted nothing rather than raising."""
         assert manager.token_budget(5) == 0
 
 
@@ -100,12 +108,14 @@ class TestUsageScoreIntegration:
 
     def test_with_usage_scores(self, manager: TierManager) -> None:
         # Provide external usage scores
+        """Supplied usage figures feed into the composite ranking."""
         usage = {"hub": 0.9, "spoke0": 0.5, "isolated": 0.1}
         scores = manager.compute_scores(usage_scores=usage)
         # Usage scores should influence the final score
         assert scores["hub"] > scores["isolated"]
 
     def test_without_usage_scores_defaults_to_zero(self, manager: TierManager) -> None:
+        """Absent usage data still yields numeric scores."""
         scores = manager.compute_scores()
         # Should still work, just with zero usage component
         assert all(isinstance(v, float) for v in scores.values())

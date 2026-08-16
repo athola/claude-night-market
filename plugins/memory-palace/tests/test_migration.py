@@ -69,6 +69,7 @@ class TestMigrateSinglePalace:
     def test_creates_palace_entity(
         self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
     ) -> None:
+        """The palace itself becomes a typed node, not just a container for its rooms."""
         migrator = PalaceMigrator(graph)
         migrator.migrate_palace(sample_palace)
         palace = graph.get_entity("abc12345")
@@ -79,6 +80,7 @@ class TestMigrateSinglePalace:
     def test_creates_room_entities(
         self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
     ) -> None:
+        """Each room in the source file becomes its own node under its own name."""
         migrator = PalaceMigrator(graph)
         migrator.migrate_palace(sample_palace)
         rooms = graph.get_entities_by_type("room")
@@ -90,6 +92,7 @@ class TestMigrateSinglePalace:
     def test_creates_concept_entities(
         self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
     ) -> None:
+        """Every concept in the source file survives the move."""
         migrator = PalaceMigrator(graph)
         migrator.migrate_palace(sample_palace)
         concepts = graph.get_entities_by_type("concept")
@@ -98,6 +101,7 @@ class TestMigrateSinglePalace:
     def test_creates_residencies(
         self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
     ) -> None:
+        """Concepts are linked to the palace they came from."""
         migrator = PalaceMigrator(graph)
         migrator.migrate_palace(sample_palace)
         # Concepts should reside in their rooms within the palace
@@ -109,6 +113,7 @@ class TestMigrateSinglePalace:
     def test_creates_synapses_from_connections(
         self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
     ) -> None:
+        """Declared connections become synapses pointing at the named target."""
         migrator = PalaceMigrator(graph)
         migrator.migrate_palace(sample_palace)
         # Connections between rooms become synapses
@@ -120,6 +125,7 @@ class TestMigrateSinglePalace:
     def test_room_residencies_in_palace(
         self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
     ) -> None:
+        """A room's residency records the role it plays, not only its address."""
         migrator = PalaceMigrator(graph)
         migrator.migrate_palace(sample_palace)
         # Rooms should have residencies as curators
@@ -130,6 +136,7 @@ class TestMigrateSinglePalace:
     def test_returns_report(
         self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
     ) -> None:
+        """The migration reports what it moved rather than returning silently."""
         migrator = PalaceMigrator(graph)
         report = migrator.migrate_palace(sample_palace)
         assert isinstance(report, MigrationReport)
@@ -145,6 +152,7 @@ class TestIdempotency:
     def test_running_twice_same_result(
         self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
     ) -> None:
+        """A second run adds no entities, so migration can be retried safely."""
         migrator = PalaceMigrator(graph)
         migrator.migrate_palace(sample_palace)
         count1 = graph.entity_count()
@@ -155,6 +163,7 @@ class TestIdempotency:
     def test_synapse_count_stable(
         self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
     ) -> None:
+        """A second run adds no synapses either."""
         migrator = PalaceMigrator(graph)
         migrator.migrate_palace(sample_palace)
         syn1 = graph.synapse_count()
@@ -171,6 +180,7 @@ class TestMigrateAll:
         graph: KnowledgeGraph,
         palace_dir: Path,
     ) -> None:
+        """A directory sweep migrates the palaces it finds and populates the graph."""
         migrator = PalaceMigrator(graph)
         report = migrator.migrate_all(str(palace_dir))
         assert report.palaces == 1
@@ -182,6 +192,7 @@ class TestMigrateAll:
         palace_dir: Path,
     ) -> None:
         # Write a non-palace file
+        """Files that are not palaces are passed over rather than half-parsed."""
         (palace_dir / "master_index.json").write_text("{}")
         (palace_dir / "notes.txt").write_text("not a palace")
         migrator = PalaceMigrator(graph)
@@ -193,6 +204,7 @@ class TestEdgeCases:
     """Edge cases in migration."""
 
     def test_palace_without_rooms(self, graph: KnowledgeGraph) -> None:
+        """A palace with no rooms migrates to zero rooms rather than failing."""
         palace = {
             "id": "empty1",
             "name": "Empty",
@@ -206,6 +218,7 @@ class TestEdgeCases:
         assert report.concepts == 0
 
     def test_palace_without_associations(self, graph: KnowledgeGraph) -> None:
+        """A room with no concepts migrates to zero concepts rather than failing."""
         palace = {
             "id": "noassoc",
             "name": "No Assoc",

@@ -42,6 +42,7 @@ class TestJourneyLifecycle:
     def test_start_journey(
         self, tracker: JourneyTracker, graph: KnowledgeGraph
     ) -> None:
+        """Starting a journey binds it to the entity that travels it."""
         journey_id = tracker.start_journey("traveler", trigger="search")
         journey = graph.get_journey(journey_id)
         assert journey is not None
@@ -51,6 +52,7 @@ class TestJourneyLifecycle:
     def test_record_waypoint(
         self, tracker: JourneyTracker, graph: KnowledgeGraph
     ) -> None:
+        """The first waypoint is numbered one, not zero."""
         journey_id = tracker.start_journey("traveler", trigger="search")
         tracker.record_waypoint(
             journey_id=journey_id,
@@ -66,6 +68,7 @@ class TestJourneyLifecycle:
     def test_multiple_waypoints_auto_sequence(
         self, tracker: JourneyTracker, graph: KnowledgeGraph
     ) -> None:
+        """Sequence numbers are assigned in arrival order without the caller supplying them."""
         journey_id = tracker.start_journey("traveler", trigger="search")
         tracker.record_waypoint(journey_id, palace_id="p1")
         tracker.record_waypoint(journey_id, palace_id="p2")
@@ -76,6 +79,7 @@ class TestJourneyLifecycle:
     def test_complete_journey_enriched(
         self, tracker: JourneyTracker, graph: KnowledgeGraph
     ) -> None:
+        """Completing stamps both the outcome and the finish time."""
         journey_id = tracker.start_journey("traveler", trigger="search")
         tracker.record_waypoint(journey_id, palace_id="p1")
         tracker.complete_journey(journey_id, outcome="enriched")
@@ -90,6 +94,7 @@ class TestSynapseStrengthening:
     def test_enriched_strengthens_synapse(
         self, tracker: JourneyTracker, graph: KnowledgeGraph
     ) -> None:
+        """An enriching journey rewards the synapse it travelled."""
         syn_id = graph.create_synapse("anchor_a", "anchor_b", strength=0.3)
         journey_id = tracker.start_journey("traveler", trigger="search")
         tracker.record_waypoint(journey_id, palace_id="p1", synapse_id=syn_id)
@@ -100,6 +105,7 @@ class TestSynapseStrengthening:
     def test_unchanged_weakly_strengthens(
         self, tracker: JourneyTracker, graph: KnowledgeGraph
     ) -> None:
+        """A journey that changed nothing still nudges the synapse, but less."""
         syn_id = graph.create_synapse("anchor_a", "anchor_b", strength=0.3)
         journey_id = tracker.start_journey("traveler", trigger="search")
         tracker.record_waypoint(journey_id, palace_id="p1", synapse_id=syn_id)
@@ -110,6 +116,7 @@ class TestSynapseStrengthening:
     def test_contradicted_no_strengthening(
         self, tracker: JourneyTracker, graph: KnowledgeGraph
     ) -> None:
+        """A contradicted journey leaves the synapse strength untouched."""
         syn_id = graph.create_synapse("anchor_a", "anchor_b", strength=0.3)
         journey_id = tracker.start_journey("traveler", trigger="search")
         tracker.record_waypoint(journey_id, palace_id="p1", synapse_id=syn_id)
@@ -124,11 +131,13 @@ class TestJourneyQueries:
     def test_get_entity_journeys(
         self, tracker: JourneyTracker, graph: KnowledgeGraph
     ) -> None:
+        """Every journey an entity has taken is retrievable by that entity."""
         tracker.start_journey("traveler", trigger="search1")
         tracker.start_journey("traveler", trigger="search2")
         journeys = tracker.get_entity_journeys("traveler")
         assert len(journeys) == 2
 
     def test_empty_journeys(self, tracker: JourneyTracker) -> None:
+        """An entity that has travelled nowhere yields an empty list."""
         journeys = tracker.get_entity_journeys("nonexistent")
         assert journeys == []

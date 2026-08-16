@@ -65,7 +65,8 @@ class TestAgentTeamsSkillStructure:
 
     @pytest.mark.bdd
     def test_skill_file_exists(self) -> None:
-        """Scenario: Skill file present
+        """Scenario: Skill file present.
+
         Given the conjure plugin
         When checking for agent-teams skill
         Then SKILL.md should exist.
@@ -74,7 +75,8 @@ class TestAgentTeamsSkillStructure:
 
     @pytest.mark.bdd
     def test_frontmatter_has_required_fields(self) -> None:
-        """Scenario: Valid frontmatter
+        """Scenario: Valid frontmatter.
+
         Given the agent-teams SKILL.md
         When parsing frontmatter
         Then all required fields should be present.
@@ -93,7 +95,8 @@ class TestAgentTeamsSkillStructure:
 
     @pytest.mark.bdd
     def test_frontmatter_declares_modules(self) -> None:
-        """Scenario: Module declarations
+        """Scenario: Module declarations.
+
         Given the agent-teams SKILL.md frontmatter
         When checking module list
         Then all four protocol modules should be declared.
@@ -109,7 +112,8 @@ class TestAgentTeamsSkillStructure:
 
     @pytest.mark.bdd
     def test_skill_has_required_sections(self) -> None:
-        """Scenario: Required documentation sections
+        """Scenario: Required documentation sections.
+
         Given the agent-teams SKILL.md
         When checking content sections
         Then overview, prerequisites, workflow, and exit criteria should exist.
@@ -137,7 +141,8 @@ class TestAgentTeamsModules:
 
     @pytest.mark.bdd
     def test_all_modules_exist(self) -> None:
-        """Scenario: Module files present
+        """Scenario: Module files present.
+
         Given the agent-teams skill directory
         When checking for module files
         Then all declared modules should exist on disk.
@@ -150,7 +155,8 @@ class TestAgentTeamsModules:
 
     @pytest.mark.bdd
     def test_modules_have_frontmatter(self) -> None:
-        """Scenario: Module frontmatter
+        """Scenario: Module frontmatter.
+
         Given each module file
         When parsing content
         Then each should have valid YAML frontmatter with name and parent_skill.
@@ -174,7 +180,8 @@ class TestTeamManagementModule:
 
     @pytest.mark.bdd
     def test_documents_config_json_schema(self) -> None:
-        """Scenario: Config format documented
+        """Scenario: Config format documented.
+
         Given team-management module
         When reading content
         Then it should document the config.json structure.
@@ -186,7 +193,8 @@ class TestTeamManagementModule:
 
     @pytest.mark.bdd
     def test_documents_team_name_validation(self) -> None:
-        """Scenario: Name validation rules
+        """Scenario: Name validation rules.
+
         Given team-management module
         When reading content
         Then it should specify the allowed name pattern.
@@ -197,7 +205,8 @@ class TestTeamManagementModule:
 
     @pytest.mark.bdd
     def test_documents_atomic_writes(self) -> None:
-        """Scenario: Atomic write pattern
+        """Scenario: Atomic write pattern.
+
         Given team-management module
         When reading content
         Then it should describe the atomic write mechanism.
@@ -216,7 +225,8 @@ class TestMessagingProtocolModule:
 
     @pytest.mark.bdd
     def test_documents_message_format(self) -> None:
-        """Scenario: Message JSON format
+        """Scenario: Message JSON format.
+
         Given messaging-protocol module
         When reading content
         Then it should document the InboxMessage fields.
@@ -228,7 +238,8 @@ class TestMessagingProtocolModule:
 
     @pytest.mark.bdd
     def test_documents_message_types(self) -> None:
-        """Scenario: Message type catalog
+        """Scenario: Message type catalog.
+
         Given messaging-protocol module
         When reading content
         Then it should document all message types.
@@ -241,7 +252,8 @@ class TestMessagingProtocolModule:
 
     @pytest.mark.bdd
     def test_documents_fcntl_locking(self) -> None:
-        """Scenario: Concurrency safety
+        """Scenario: Concurrency safety.
+
         Given messaging-protocol module
         When reading content
         Then it should explain fcntl-based file locking.
@@ -261,7 +273,8 @@ class TestTaskCoordinationModule:
 
     @pytest.mark.bdd
     def test_documents_task_states(self) -> None:
-        """Scenario: Task state machine
+        """Scenario: Task state machine.
+
         Given task-coordination module
         When reading content
         Then all valid task statuses should be documented.
@@ -272,7 +285,8 @@ class TestTaskCoordinationModule:
 
     @pytest.mark.bdd
     def test_documents_forward_only_transitions(self) -> None:
-        """Scenario: No backward state transitions
+        """Scenario: No backward state transitions.
+
         Given task-coordination module
         When reading content
         Then it should state that backward transitions are prohibited.
@@ -282,7 +296,8 @@ class TestTaskCoordinationModule:
 
     @pytest.mark.bdd
     def test_documents_dependency_fields(self) -> None:
-        """Scenario: Dependency tracking
+        """Scenario: Dependency tracking.
+
         Given task-coordination module
         When reading content
         Then blocks and blocked_by fields should be documented.
@@ -293,7 +308,8 @@ class TestTaskCoordinationModule:
 
     @pytest.mark.bdd
     def test_documents_cycle_detection(self) -> None:
-        """Scenario: Circular dependency prevention
+        """Scenario: Circular dependency prevention.
+
         Given task-coordination module
         When reading content
         Then it should describe cycle detection via BFS.
@@ -313,7 +329,8 @@ class TestSpawningPatternsModule:
 
     @pytest.mark.bdd
     def test_documents_cli_flags(self) -> None:
-        """Scenario: Required CLI flags
+        """Scenario: Required CLI flags.
+
         Given spawning-patterns module
         When reading content
         Then all undocumented Claude CLI flags should be listed.
@@ -324,7 +341,8 @@ class TestSpawningPatternsModule:
 
     @pytest.mark.bdd
     def test_documents_tmux_integration(self) -> None:
-        """Scenario: tmux pane management
+        """Scenario: tmux pane management.
+
         Given spawning-patterns module
         When reading content
         Then tmux split-window pattern should be documented.
@@ -335,7 +353,8 @@ class TestSpawningPatternsModule:
 
     @pytest.mark.bdd
     def test_documents_environment_variables(self) -> None:
-        """Scenario: Required environment
+        """Scenario: Required environment.
+
         Given spawning-patterns module
         When reading content
         Then required env vars should be documented.
@@ -347,7 +366,8 @@ class TestSpawningPatternsModule:
 
     @pytest.mark.bdd
     def test_documents_agent_id_format(self) -> None:
-        """Scenario: Agent identity format
+        """Scenario: Agent identity format.
+
         Given spawning-patterns module
         When reading content
         Then the name@team format should be documented.
@@ -368,7 +388,8 @@ class TestPluginJsonRegistration:
 
     @pytest.mark.bdd
     def test_skill_registered_in_plugin_json(self) -> None:
-        """Scenario: Plugin.json includes agent-teams
+        """Scenario: Plugin.json includes agent-teams.
+
         Given the conjure plugin.json
         When checking skills array
         Then agent-teams should be registered.

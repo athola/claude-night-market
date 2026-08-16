@@ -433,13 +433,13 @@ repos:
       # 2. Fix auto-fixable lint issues
       - id: ruff-fix
         name: Ruff - Fix
-        entry: uv run ruff check --fix --config pyproject.toml
+        entry: uv run ruff check --fix
         language: system
         types: [python]
       # 3. Verify no remaining lint issues
       - id: ruff-check
         name: Ruff - Check
-        entry: uv run ruff check --config pyproject.toml
+        entry: uv run ruff check
         language: system
         types: [python]
       # 4. Flag when the locked ruff lags the latest PyPI release

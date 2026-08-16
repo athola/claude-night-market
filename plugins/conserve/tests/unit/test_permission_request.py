@@ -21,7 +21,7 @@ import pytest
 hooks_dir = Path(__file__).parents[2] / "hooks"
 sys.path.insert(0, str(hooks_dir))
 
-from permission_request import (
+from permission_request import (  # noqa: E402 - sys.path extended above to reach hooks/
     Decision,
     PermissionDecision,
     check_dangerous,

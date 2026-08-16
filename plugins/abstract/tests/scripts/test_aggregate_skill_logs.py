@@ -50,6 +50,7 @@ from aggregate_skill_logs import (
 
 def _make_entry(  # noqa: PLR0913 - test factory with many optional fields for flexible fixture creation
     outcome: str = "success",
+    *,
     duration_ms: int = 1000,
     rating: float | None = None,
     friction: list[str] | None = None,
@@ -76,6 +77,7 @@ def _make_entry(  # noqa: PLR0913 - test factory with many optional fields for f
 
 def _make_metrics(  # noqa: PLR0913 - test factory mirrors SkillLogSummary fields for flexible fixture creation
     skill: str = "myplugin:my-skill",
+    *,
     total: int = 10,
     success: int = 8,
     failure: int = 2,

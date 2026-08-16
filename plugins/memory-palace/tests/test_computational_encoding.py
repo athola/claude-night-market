@@ -53,6 +53,7 @@ class TestSavePalaceComputationalEncoding:
         tmp_path: Path,
         sample_palace_with_sensory: dict[str, Any],
     ) -> None:
+        """Saving drops the retired sensory block rather than carrying it forward."""
         repo = PalaceRepository(str(tmp_path))
         (tmp_path / "backups").mkdir(exist_ok=True)
         palace = dict(sample_palace_with_sensory)
@@ -66,6 +67,7 @@ class TestSavePalaceComputationalEncoding:
         tmp_path: Path,
         sample_palace_with_sensory: dict[str, Any],
     ) -> None:
+        """Saving writes the computational block that replaced it."""
         repo = PalaceRepository(str(tmp_path))
         (tmp_path / "backups").mkdir(exist_ok=True)
         palace = dict(sample_palace_with_sensory)
@@ -79,6 +81,7 @@ class TestSavePalaceComputationalEncoding:
         tmp_path: Path,
         sample_palace_with_sensory: dict[str, Any],
     ) -> None:
+        """Each encoded entity carries the centrality figure the tiering reads."""
         repo = PalaceRepository(str(tmp_path))
         (tmp_path / "backups").mkdir(exist_ok=True)
         palace = dict(sample_palace_with_sensory)
@@ -161,6 +164,7 @@ class TestMigrateSensoryToComputational:
         tmp_path: Path,
         sample_palace_with_sensory: dict[str, Any],
     ) -> None:
+        """Every palace file loses the sensory block and gains the computational one."""
         palaces_dir = tmp_path / "palaces"
         palaces_dir.mkdir()
         (palaces_dir / "enc_test.json").write_text(
@@ -178,6 +182,7 @@ class TestMigrateSensoryToComputational:
         tmp_path: Path,
         sample_palace_with_sensory: dict[str, Any],
     ) -> None:
+        """The master index is left intact; it holds no encoding to convert."""
         palaces_dir = tmp_path / "palaces"
         palaces_dir.mkdir()
         (palaces_dir / "master_index.json").write_text('{"palaces": []}')
@@ -196,6 +201,7 @@ class TestMigrateSensoryToComputational:
         tmp_path: Path,
         sample_palace_with_sensory: dict[str, Any],
     ) -> None:
+        """Re-running leaves an already-converted file structurally unchanged."""
         palaces_dir = tmp_path / "palaces"
         palaces_dir.mkdir()
         (palaces_dir / "enc_test.json").write_text(

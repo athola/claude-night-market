@@ -12,11 +12,11 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _SRC_DIR = _SCRIPT_DIR.parent / "src"
 sys.path.insert(0, str(_SRC_DIR))
 
-from gauntlet.blast_radius import (
-    analyze_changes,  # noqa: E402 - sys.path modified above
+from gauntlet.blast_radius import (  # noqa: E402 - sys.path modified above
+    analyze_changes,
 )
-from gauntlet.communities import (
-    get_architecture_overview,  # noqa: E402 - sys.path modified above
+from gauntlet.communities import (  # noqa: E402 - sys.path modified above
+    get_architecture_overview,
 )
 from gauntlet.flows import trace_flows  # noqa: E402 - sys.path modified above
 from gauntlet.graph import GraphStore  # noqa: E402 - sys.path modified above

@@ -767,7 +767,7 @@ class TestBugReviewSkill:
     def test_detect_logical_errors_ignores_age_comparison(
         self, mock_skill_context
     ) -> None:
-        r"""age > 18 in non-auth code must not be flagged as a logic error.
+        r"""Age > 18 in non-auth code must not be flagged as a logic error.
 
         The pattern r"age\s*>\s*18" fires on any variable named 'age'
         compared to 18 — a game engine, log rotation, materials check.

@@ -24,6 +24,7 @@ def _run(payload: dict, cwd: Path) -> subprocess.CompletedProcess:
         text=True,
         timeout=10,
         cwd=str(cwd),
+        check=False,
     )
 
 
@@ -95,6 +96,7 @@ def test_disabled_by_environment(tmp_path: Path) -> None:
         timeout=10,
         cwd=str(tmp_path),
         env=env,
+        check=False,
     )
     assert result.returncode == 0
     assert not (tmp_path / "docs" / "knowledge-corpus" / "queue").exists()
@@ -109,19 +111,20 @@ def test_malformed_stdin_does_not_crash(tmp_path: Path) -> None:
         text=True,
         timeout=10,
         cwd=str(tmp_path),
+        check=False,
     )
     assert result.returncode == 0
 
 
 def _entry_path(cwd: Path) -> Path:
-    """The single queue entry the hook wrote."""
+    """Return the single queue entry the hook wrote, asserting exactly one."""
     written = list((cwd / "docs" / "knowledge-corpus" / "queue").glob("*.yaml"))
     assert written, "hook wrote no queue entry"
     return written[0]
 
 
 def _entry_text(cwd: Path) -> str:
-    """The single queue entry the hook wrote, as raw text."""
+    """Return the single queue entry the hook wrote, as raw text."""
     return _entry_path(cwd).read_text(encoding="utf-8")
 
 

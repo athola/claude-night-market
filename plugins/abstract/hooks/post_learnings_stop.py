@@ -19,6 +19,8 @@ from pathlib import Path
 
 _START = time.monotonic()
 _BUDGET_SECONDS = 8.5  # Leave headroom within 10s hook timeout
+# Skip the lens pass rather than start one that cannot finish in the budget.
+_MIN_LENS_SECONDS = 2.0
 
 # ------------------------------------------------------------------
 # Path setup — same pattern as aggregate_learnings_daily.py
@@ -109,7 +111,7 @@ def main() -> None:
 
     # Run insight engine lenses if budget remains
     remaining = _BUDGET_SECONDS - (time.monotonic() - _START)
-    if _HAS_INSIGHT_ENGINE and remaining > 2.0:
+    if _HAS_INSIGHT_ENGINE and remaining > _MIN_LENS_SECONDS:
         try:
             _run_insight_lenses()
         except Exception:

@@ -47,21 +47,21 @@ class DecisionRequest:
     autonomy_profile: Any | None = None
 
 
-def classify_redundancy(score: float, RedundancyLevel: Any) -> Any:
+def classify_redundancy(score: float, redundancy_level_cls: Any) -> Any:
     """Map a match score to a RedundancyLevel enum value."""
     if score >= 0.9:
-        return RedundancyLevel.EXACT_MATCH
+        return redundancy_level_cls.EXACT_MATCH
     if score >= 0.8:
-        return RedundancyLevel.HIGHLY_REDUNDANT
+        return redundancy_level_cls.HIGHLY_REDUNDANT
     if score >= 0.4:
-        return RedundancyLevel.PARTIAL_OVERLAP
-    return RedundancyLevel.NOVEL
+        return redundancy_level_cls.PARTIAL_OVERLAP
+    return redundancy_level_cls.NOVEL
 
 
 def calculate_novelty_and_duplicates(
     results: list[dict[str, Any]],
     *,
-    RedundancyLevel: Any,
+    redundancy_level_cls: Any,
     novelty_by_redundancy: dict[Any, float],
 ) -> tuple[float, list[str]]:
     """Compute novelty score and collect duplicate entry IDs."""
@@ -69,7 +69,7 @@ def calculate_novelty_and_duplicates(
         return 1.0, []
 
     best_score = float(results[0].get("match_score") or 0.0)
-    redundancy = classify_redundancy(best_score, RedundancyLevel)
+    redundancy = classify_redundancy(best_score, redundancy_level_cls)
     novelty = (
         novelty_by_redundancy.get(redundancy, 0.5) if redundancy is not None else 0.5
     )
@@ -88,14 +88,14 @@ def calculate_novelty_and_duplicates(
 def detect_domain_alignment(
     query: str,
     domains: list[str],
-    DomainAlignment: Any,
+    domain_alignment_cls: Any,
 ) -> Any:
     """Match query against configured domains of interest."""
     normalized_query = query.lower()
     matched = [
         domain for domain in domains if domain and domain.lower() in normalized_query
     ]
-    return DomainAlignment(configured_domains=domains, matched_domains=matched)
+    return domain_alignment_cls(configured_domains=domains, matched_domains=matched)
 
 
 def build_delta_reasoning(
@@ -135,7 +135,7 @@ def finalize_decision(
     cfg = request.config or {}
     novelty_score, duplicate_entry_ids = calculate_novelty_and_duplicates(
         request.results,
-        RedundancyLevel=deps.RedundancyLevel,
+        redundancy_level_cls=deps.RedundancyLevel,
         novelty_by_redundancy=deps.novelty_by_redundancy,
     )
     alignment = detect_domain_alignment(

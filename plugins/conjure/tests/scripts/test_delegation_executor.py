@@ -746,7 +746,7 @@ class TestProviderContractMechanics:
         with patch.dict(os.environ, {"PROBE_SECRET": "s3cret"}):
             delegator.execute("probe", "hello")
 
-        assert mock_run.call_args.kwargs["env"]["DOWNSTREAM_TOKEN"] == "s3cret"
+        assert mock_run.call_args.kwargs["env"]["DOWNSTREAM_TOKEN"] == "s3cret"  # noqa: S105 - fixture value, asserts the env is forwarded
 
     @pytest.mark.bdd
     @patch("subprocess.run")
@@ -908,7 +908,7 @@ class TestRegisteredProviders:
         assert service.env["ANTHROPIC_BASE_URL"] == "https://api.z.ai/api/anthropic"
         # The documented variable is ANTHROPIC_AUTH_TOKEN. ANTHROPIC_API_KEY
         # is the common wrong guess and yields a 401 against Z.ai.
-        assert service.env["ANTHROPIC_AUTH_TOKEN"] == "${ZAI_API_KEY}"
+        assert service.env["ANTHROPIC_AUTH_TOKEN"] == "${ZAI_API_KEY}"  # noqa: S105 - asserts the literal placeholder, not a secret
         assert "z.ai" not in " ".join(delegator.build_command("glm", "PROMPT"))
 
     @pytest.mark.bdd

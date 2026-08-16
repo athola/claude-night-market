@@ -160,7 +160,7 @@ class TestMainEntryPoint:
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
         output_capture = StringIO()
-        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+        monkeypatch.setattr("builtins.print", output_capture.write)
 
         result = context_warning_full_module.main()
 
@@ -179,7 +179,7 @@ class TestMainEntryPoint:
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
         output_capture = StringIO()
-        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+        monkeypatch.setattr("builtins.print", output_capture.write)
 
         result = context_warning_full_module.main()
 
@@ -197,7 +197,7 @@ class TestMainEntryPoint:
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
         output_capture = StringIO()
-        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+        monkeypatch.setattr("builtins.print", output_capture.write)
 
         result = context_warning_full_module.main()
 
@@ -216,7 +216,7 @@ class TestMainEntryPoint:
         monkeypatch.setattr("sys.stdin", StringIO("not valid json {"))
 
         output_capture = StringIO()
-        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+        monkeypatch.setattr("builtins.print", output_capture.write)
 
         result = context_warning_full_module.main()
 
@@ -237,7 +237,7 @@ class TestMainEntryPoint:
         monkeypatch.setattr("sys.stdin", StringIO(hook_input))
 
         output_capture = StringIO()
-        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+        monkeypatch.setattr("builtins.print", output_capture.write)
 
         result = context_warning_full_module.main()
 
@@ -257,7 +257,7 @@ class TestMainEntryPoint:
         monkeypatch.setattr("sys.stdin", StringIO(hook_input))
 
         output_capture = StringIO()
-        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+        monkeypatch.setattr("builtins.print", output_capture.write)
 
         result = context_warning_full_module.main()
 
@@ -277,7 +277,7 @@ class TestMainEntryPoint:
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
         output_capture = StringIO()
-        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+        monkeypatch.setattr("builtins.print", output_capture.write)
 
         result = context_warning_full_module.main()
 
@@ -298,7 +298,7 @@ class TestMainEntryPoint:
         monkeypatch.setattr("sys.stdin", StringIO(hook_input))
 
         output_capture = StringIO()
-        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+        monkeypatch.setattr("builtins.print", output_capture.write)
 
         result = context_warning_full_module.main()
 
@@ -317,7 +317,7 @@ class TestMainEntryPoint:
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
         output_capture = StringIO()
-        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+        monkeypatch.setattr("builtins.print", output_capture.write)
 
         result = context_warning_full_module.main()
 
@@ -339,7 +339,7 @@ class TestMainEntryPoint:
         monkeypatch.setattr("sys.stdin", StringIO("{}"))
 
         output_capture = StringIO()
-        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+        monkeypatch.setattr("builtins.print", output_capture.write)
 
         result = context_warning_full_module.main()
 

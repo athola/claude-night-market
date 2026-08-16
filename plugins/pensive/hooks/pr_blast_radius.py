@@ -8,14 +8,13 @@ branch's changes and add risk context as additionalContext.
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 from typing import Any
 
 
 def _find_graph_db() -> Path | None:
-    cwd = Path(os.getcwd())
+    cwd = Path.cwd()
     for parent in [cwd, *cwd.parents]:
         candidate = parent / ".gauntlet" / "graph.db"
         if candidate.exists():

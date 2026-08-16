@@ -49,6 +49,11 @@ def _challenge_from_dict(data: dict[str, Any]) -> Challenge:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Score a submitted answer against a challenge file.
+
+    Returns the process exit code: 0 when the answer was scored, non-zero
+    when the challenge file is missing or unreadable.
+    """
     parser = _build_parser()
     args = parser.parse_args(argv)
 

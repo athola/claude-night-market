@@ -1,3 +1,5 @@
+"""Guards that the retired XPL010 rule stays retired and unreferenced."""
+
 import warnings
 
 from abstract.tokens import estimate_tokens

@@ -22,10 +22,12 @@ class TestClearContextSkillContent:
 
     @pytest.fixture
     def skill_path(self) -> Path:
+        """Locate the clear-context SKILL.md relative to this test file."""
         return Path(__file__).parents[3] / "skills" / "clear-context" / "SKILL.md"
 
     @pytest.fixture
     def skill_content(self, skill_path: Path) -> str:
+        """Read the skill once so each assertion works off the same text."""
         return skill_path.read_text()
 
     # --- Level 2: Template validity ---
@@ -35,7 +37,8 @@ class TestClearContextSkillContent:
     def test_session_state_template_has_required_sections(
         self, skill_content: str
     ) -> None:
-        """Given the session state template in the skill
+        """Given the session state template in the skill.
+
         When Claude generates a checkpoint file from it
         Then the template must include all required sections.
         """
@@ -55,7 +58,8 @@ class TestClearContextSkillContent:
     def test_session_state_template_includes_execution_mode(
         self, skill_content: str
     ) -> None:
-        """Given the session state template
+        """Given the session state template.
+
         When Claude generates a checkpoint for batch/unattended workflows
         Then it must include execution mode for proper continuation behavior.
         """
@@ -71,7 +75,8 @@ class TestClearContextSkillContent:
     def test_skill_does_not_use_mandatory_language_for_handoffs(
         self, skill_content: str
     ) -> None:
-        """Given the skill instructs Claude on context handoffs
+        """Given the skill instructs Claude on context handoffs.
+
         When Claude reads the handoff instructions
         Then it must NOT find imperative/manipulative language
         And it SHOULD use advisory, informational tone instead.
@@ -115,7 +120,8 @@ class TestClearContextSkillContent:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_skill_documents_clear_cache_fix(self, skill_content: str) -> None:
-        """Given the /clear skill cache bug was fixed in 2.1.63
+        """Given the /clear skill cache bug was fixed in 2.1.63.
+
         When Claude advises on context recovery
         Then it should know /clear properly resets cached skills.
 
@@ -132,7 +138,8 @@ class TestClearContextSkillContent:
     def test_skill_offers_multiple_recovery_strategies(
         self, skill_content: str
     ) -> None:
-        """Given a user needs context recovery
+        """Given a user needs context recovery.
+
         When Claude reads the skill
         Then it should find multiple strategies, not just one forced path.
         """

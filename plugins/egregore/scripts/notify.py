@@ -163,7 +163,7 @@ def _is_event_enabled(alerts_cfg: AlertsConfig, event: Any) -> bool:
 # --- Egregore wrappers (source defaults to "egregore") --------------
 
 
-def _build_ctx(  # noqa: PLR0913 - mirrors AlertContext fields
+def _build_ctx(  # noqa: PLR0913, PLR0917 - mirrors AlertContext field order for positional callers
     ctx: Any | None,
     work_item_id: str,
     work_item_ref: str,
@@ -188,7 +188,7 @@ def _build_ctx(  # noqa: PLR0913 - mirrors AlertContext fields
     )
 
 
-def build_issue_body(  # noqa: PLR0913 - backward-compat wrapper
+def build_issue_body(  # noqa: PLR0913, PLR0917 - backward-compat wrapper; positional order is the published contract
     event: Any,
     ctx: Any | None = None,
     work_item_id: str = "",
@@ -253,7 +253,7 @@ def _build_alert_title(event: Any, ctx: Any, source: str) -> str:
     return title
 
 
-def alert(  # noqa: PLR0913 - backward-compat wrapper
+def alert(  # noqa: PLR0913, PLR0917 - backward-compat wrapper; positional order is the published contract
     event: Any,
     overseer_method: str = "github-repo-owner",
     webhook_url: str | None = None,
@@ -304,7 +304,7 @@ def alert(  # noqa: PLR0913 - backward-compat wrapper
     return success
 
 
-def config_alert(  # noqa: PLR0913 - config-aware entry point
+def config_alert(  # noqa: PLR0913, PLR0917 - config-aware entry point; positional order is the published contract
     event: Any,
     alerts_cfg: AlertsConfig,
     overseer_cfg: OverseerConfig,

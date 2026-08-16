@@ -183,7 +183,7 @@ class TestHashBlock:
 
 
 def _write_py_file(directory: Path, name: str, lines: list[str]) -> Path:
-    """Helper: write a .py file with given lines."""
+    """Write a .py file holding the given lines and return its path."""
     f = directory / name
     f.write_text("\n".join(lines) + "\n")
     return f

@@ -20,6 +20,8 @@ def _ctx(metrics=None):
 
 
 class MockSummary:
+    """Stand-in for the aggregate-log summary row the health lens scores."""
+
     def __init__(self, skill, total=0, success_rate=100.0, failure_count=0):
         self.skill = skill
         self.total_executions = total

@@ -94,7 +94,10 @@ lint: ## Run linting on all plugins (ALL code, not just changed)
 	@echo "Ruff format passed"
 	@echo ""
 	@echo ">>> Running ruff check with auto-fix on plugins/..."
-	@uv run ruff check --fix --config pyproject.toml plugins/ || (echo "Ruff check failed" && exit 1)
+	@# No --config: ruff resolves each file against its own plugin's
+	@# pyproject.toml, which extends the root floor. That yields the union
+	@# of repo-wide and plugin-specific rules rather than the root subset.
+	@uv run ruff check --fix plugins/ || (echo "Ruff check failed" && exit 1)
 	@echo "Ruff check passed"
 	@echo ""
 	@echo ">>> Running ruff format again (to fix any formatting from check)..."

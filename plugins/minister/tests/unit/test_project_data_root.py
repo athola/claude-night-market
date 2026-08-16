@@ -51,7 +51,8 @@ class TestDataFileLocation:
     """Where the tracker puts its store when no path is passed."""
 
     def test_an_explicit_path_is_always_honored(self, tmp_path: Path) -> None:
-        """GIVEN a caller passes data_file
+        """GIVEN a caller passes data_file.
+
         WHEN the tracker is built
         THEN that path is used.
 
@@ -63,7 +64,8 @@ class TestDataFileLocation:
         assert ProjectTracker(data_file=explicit).data_file == explicit
 
     def test_a_checkout_keeps_its_own_data_file(self) -> None:
-        """GIVEN the tracker running from a source checkout
+        """GIVEN the tracker running from a source checkout.
+
         WHEN it resolves its default
         THEN the path stays inside the checkout's ``data/``.
 
@@ -80,7 +82,8 @@ class TestDataFileLocation:
     def test_an_install_resolves_outside_the_version_directory(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """GIVEN the module located inside an install tree
+        """GIVEN the module located inside an install tree.
+
         WHEN the default is resolved
         THEN the path is not under the version directory, so an update
         cannot strand what was written there.
@@ -97,7 +100,8 @@ class TestDataFileLocation:
     def test_an_install_resolves_to_the_provisioned_directory(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """GIVEN the same install
+        """GIVEN the same install.
+
         WHEN the default is resolved
         THEN it is ``plugins/data/minister-<marketplace>/data/``, the
         location Claude Code provisions, rather than a path of our own.
@@ -121,7 +125,8 @@ class TestDataFileLocation:
     def test_the_host_variable_is_honored(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """GIVEN the host sets CLAUDE_PLUGIN_DATA
+        """GIVEN the host sets CLAUDE_PLUGIN_DATA.
+
         WHEN the default is resolved
         THEN the store sits under that directory.
 
@@ -139,7 +144,8 @@ class TestSharedResolution:
     """The rule is leyline's, so minister must not restate it."""
 
     def test_resolution_agrees_with_the_shared_helper(self, tmp_path: Path) -> None:
-        """GIVEN an install tree
+        """GIVEN an install tree.
+
         WHEN leyline's helper resolves it
         THEN minister's default sits under that root.
 
@@ -174,7 +180,8 @@ class TestLeylineBootstrap:
     """
 
     def test_the_sibling_layout_is_found(self, tmp_path: Path) -> None:
-        """GIVEN a checkout with leyline beside this plugin
+        """GIVEN a checkout with leyline beside this plugin.
+
         WHEN the source is located
         THEN the sibling path is returned.
         """
@@ -186,7 +193,8 @@ class TestLeylineBootstrap:
         assert _leyline_src(plugin_root) == plugins / "leyline" / "src"
 
     def test_the_install_layout_is_found(self, tmp_path: Path) -> None:
-        """GIVEN an install where leyline sits under its own version
+        """GIVEN an install where leyline sits under its own version.
+
         WHEN the source is located
         THEN that path is returned.
 
@@ -202,7 +210,8 @@ class TestLeylineBootstrap:
         assert _leyline_src(plugin_root) == (marketplace / "leyline" / "1.9.18" / "src")
 
     def test_the_newest_installed_leyline_wins(self, tmp_path: Path) -> None:
-        """GIVEN two installed leyline versions
+        """GIVEN two installed leyline versions.
+
         WHEN the source is located
         THEN the highest is chosen, compared numerically so 1.9.9 does
         not outrank 1.9.17.
@@ -218,7 +227,8 @@ class TestLeylineBootstrap:
     def test_absent_leyline_reports_nothing_rather_than_guessing(
         self, tmp_path: Path
     ) -> None:
-        """GIVEN neither layout present
+        """GIVEN neither layout present.
+
         WHEN the source is located
         THEN None is returned, so the caller takes its documented
         fallback instead of inserting a path that does not exist.
@@ -235,7 +245,8 @@ class TestFallbackWithoutLeyline:
     def test_the_previous_location_is_kept(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """GIVEN the shared resolver cannot be loaded and no host variable
+        """GIVEN the shared resolver cannot be loaded and no host variable.
+
         WHEN the default is resolved
         THEN the store stays under the plugin root.
 
@@ -255,7 +266,8 @@ class TestFallbackWithoutLeyline:
     def test_the_host_variable_still_wins_without_leyline(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """GIVEN no leyline but CLAUDE_PLUGIN_DATA is set
+        """GIVEN no leyline but CLAUDE_PLUGIN_DATA is set.
+
         WHEN the default is resolved
         THEN the host's directory is used.
 

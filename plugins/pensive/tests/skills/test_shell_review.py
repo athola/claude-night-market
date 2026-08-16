@@ -224,7 +224,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_echo_usage(self, tmp_path: Path) -> None:
-        """rg pattern from the skill catches raw echo calls."""
+        """Rg pattern from the skill catches raw echo calls."""
         script = self._write_fixture(
             tmp_path,
             """\
@@ -260,7 +260,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_unbraced_variable(self, tmp_path: Path) -> None:
-        """rg pattern catches $VAR without braces."""
+        """Rg pattern catches $VAR without braces."""
         script = self._write_fixture(
             tmp_path,
             """\
@@ -280,7 +280,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_bare_cd_outside_subshell(self, tmp_path: Path) -> None:
-        """rg pattern catches cd not wrapped in a subshell."""
+        """Rg pattern catches cd not wrapped in a subshell."""
         script = self._write_fixture(
             tmp_path,
             """\
@@ -300,7 +300,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_basename_dirname_usage(self, tmp_path: Path) -> None:
-        """rg pattern catches basename/dirname calls."""
+        """Rg pattern catches basename/dirname calls."""
         script = self._write_fixture(
             tmp_path,
             """\
@@ -320,7 +320,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_good_library_guard_form(self, tmp_path: Path) -> None:
-        """case \"${__logging_loaded:-NULL}\" in is the required guard form."""
+        """Case \"${__logging_loaded:-NULL}\" in is the required guard form."""
         script = self._write_fixture(
             tmp_path,
             """\
@@ -335,7 +335,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_bad_library_guard_form_detectable(self, tmp_path: Path) -> None:
-        """if [ -z \"$__logging_loaded\" ] pattern should be flagged."""
+        """If [ -z \"$__logging_loaded\" ] pattern should be flagged."""
         script = self._write_fixture(
             tmp_path,
             """\

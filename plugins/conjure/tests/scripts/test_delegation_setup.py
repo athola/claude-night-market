@@ -205,7 +205,8 @@ class TestCliManagedAuthIsNotOverclaimed:
 
     @pytest.mark.bdd
     def test_a_cli_managed_provider_is_reported_unknown_not_ok(self) -> None:
-        """GIVEN a provider whose auth lives in the CLI
+        """GIVEN a provider whose auth lives in the CLI.
+
         WHEN the status table is rendered
         THEN its auth cell reads unknown rather than ok
         """
@@ -230,7 +231,8 @@ class TestCliManagedAuthIsNotOverclaimed:
 
     @pytest.mark.bdd
     def test_an_api_key_provider_still_reports_ok_when_set(self, monkeypatch) -> None:
-        """GIVEN an api_key provider whose variable is set
+        """GIVEN an api_key provider whose variable is set.
+
         WHEN the status table is rendered
         THEN it still reads ok, because that check really ran
         """
@@ -250,7 +252,8 @@ class TestCliManagedAuthIsNotOverclaimed:
 
     @pytest.mark.bdd
     def test_doctor_names_the_verified_login_command(self) -> None:
-        """GIVEN a cli-auth provider with a recorded login command
+        """GIVEN a cli-auth provider with a recorded login command.
+
         WHEN doctor explains it
         THEN the recorded command appears, and none is invented
         """
