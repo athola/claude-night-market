@@ -84,6 +84,7 @@ def _make_metrics(  # noqa: PLR0913 - test factory mirrors SkillLogSummary field
     max_duration: int = 1000,
     success_rate: float = 80.0,
     avg_rating: float | None = None,
+    duration_samples: int = 1,
     common_friction: list[str] | None = None,
     improvement_suggestions: list[str] | None = None,
     recent_errors: list[str] | None = None,
@@ -101,6 +102,7 @@ def _make_metrics(  # noqa: PLR0913 - test factory mirrors SkillLogSummary field
         max_duration_ms=max_duration,
         success_rate=success_rate,
         avg_rating=avg_rating,
+        duration_samples=duration_samples,
         common_friction=common_friction or [],
         improvement_suggestions=improvement_suggestions or [],
         recent_errors=recent_errors or [],
@@ -1520,3 +1522,80 @@ class TestRatedCoverageMatchesWhatTheDetectorsConsume:
             [{"outcome": "success", "qualitative_evaluation": {"rating": 4.0}}],
         )
         assert metrics.rated_executions == 1
+
+
+class TestSkillSummaryTableSeparatesAbsentSignalFromMeasurement:
+    """The summary table must not restate the conflation the report removes.
+
+    Signal Coverage reports which detectors received usable input. The
+    Skill Performance Summary is the table a reader actually scans, and it
+    rendered `avg_duration_ms` unconditionally: a skill with no duration
+    sample printed `0.0s`, the same cell a genuinely instantaneous skill
+    would print. The report therefore contradicted its own coverage
+    section. The Rating column had the mirror defect, testing the value for
+    truthiness rather than for presence, so a real rating of 0.0 displayed
+    as `N/A` and read as missing signal.
+    """
+
+    @pytest.mark.unit
+    def test_an_untimed_skill_does_not_render_as_zero_seconds(self) -> None:
+        """Scenario: the logger never recorded a duration for this skill.
+        Given metrics carrying no duration samples
+        When the summary table is rendered
+        Then the duration cell reports not-measured rather than 0.0s
+        """
+        metrics = {
+            "p:never-timed": _make_metrics(
+                skill="p:never-timed", avg_duration=0.0, duration_samples=0
+            )
+        }
+        row = next(
+            line for line in format_skill_summary(metrics) if "never-timed" in line
+        )
+        assert "0.0s" not in row
+        assert "N/A" in row
+
+    @pytest.mark.unit
+    def test_a_measured_fast_skill_still_renders_its_duration(self) -> None:
+        """Scenario: the skill was timed and was genuinely fast.
+        Given metrics carrying a real 90ms sample
+        When the summary table is rendered
+        Then the measured duration is shown, not suppressed as absent
+        """
+        metrics = {
+            "p:really-fast": _make_metrics(
+                skill="p:really-fast", avg_duration=90.0, duration_samples=1
+            )
+        }
+        row = next(
+            line for line in format_skill_summary(metrics) if "really-fast" in line
+        )
+        assert "0.1s" in row
+
+    @pytest.mark.unit
+    def test_a_skill_measured_at_zero_still_renders_a_duration(self) -> None:
+        """Scenario: a real sample happened to round to zero.
+        Given metrics carrying a sample whose average is 0.0
+        When the summary table is rendered
+        Then the cell shows the measurement rather than claiming none exists
+        """
+        metrics = {
+            "p:instant": _make_metrics(
+                skill="p:instant", avg_duration=0.0, duration_samples=3
+            )
+        }
+        row = next(line for line in format_skill_summary(metrics) if "instant" in line)
+        assert "0.0s" in row
+
+    @pytest.mark.unit
+    def test_a_rating_of_zero_is_not_reported_as_absent(self) -> None:
+        """Scenario: an evaluation carries a rating of exactly 0.0.
+        Given metrics whose avg_rating is 0.0 rather than None
+        When the summary table is rendered
+        Then the rating is shown, because it was measured
+        """
+        metrics = {"p:zero-rated": _make_metrics(skill="p:zero-rated", avg_rating=0.0)}
+        row = next(
+            line for line in format_skill_summary(metrics) if "zero-rated" in line
+        )
+        assert "0.0/5.0" in row

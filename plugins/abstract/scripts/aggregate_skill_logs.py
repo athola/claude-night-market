@@ -622,11 +622,22 @@ def format_skill_summary(metrics_by_skill: dict[str, SkillLogSummary]) -> list[s
     )[:20]  # Top 20 most-used
 
     for skill, metrics in sorted_skills:
-        rating_str = f"{metrics.avg_rating:.1f}/5.0" if metrics.avg_rating else "N/A"
-        duration_sec = metrics.avg_duration_ms / 1000
+        # Presence, not truthiness: a measured rating of 0.0 is a rating,
+        # and rendering it as N/A would report signal as absent.
+        rating_str = (
+            f"{metrics.avg_rating:.1f}/5.0" if metrics.avg_rating is not None else "N/A"
+        )
+        # A skill with no duration sample has nothing to average. Printing
+        # the 0.0 fallback as "0.0s" states a measurement this row does not
+        # have, which is the conflation Signal Coverage exists to remove.
+        duration_str = (
+            f"{metrics.avg_duration_ms / 1000:.1f}s"
+            if metrics.duration_samples > 0
+            else "N/A"
+        )
         lines.append(
             f"| `{skill}` | {metrics.total_executions} | "
-            f"{metrics.success_rate:.1f}% | {duration_sec:.1f}s | {rating_str} |"
+            f"{metrics.success_rate:.1f}% | {duration_str} | {rating_str} |"
         )
 
     return lines
