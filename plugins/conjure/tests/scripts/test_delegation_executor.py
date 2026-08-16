@@ -865,3 +865,120 @@ class TestBinaryProvenance:
             assert record.get("source", "").startswith("https://"), (
                 f"{binary} has no verifiable source URL"
             )
+
+
+class TestRegisteredProviders:
+    """Each provider's argv is the contract its vendor documents."""
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize(
+        ("service", "expected"),
+        [
+            ("muse", ["muse", "exec", "PROMPT"]),
+            ("codex", ["codex", "exec", "PROMPT"]),
+            ("opencode", ["opencode", "run", "PROMPT"]),
+        ],
+        ids=["muse-exec", "codex-exec", "opencode-run"],
+    )
+    def test_native_clis_take_the_prompt_positionally(
+        self, service, expected, temp_config_dir
+    ) -> None:
+        """``muse exec <prompt>`` has no prompt flag to emit.
+
+        All three vendors document a bare positional argument. Emitting a
+        ``-p`` ahead of it would make the prompt look like a flag value and
+        the CLI would reject the invocation.
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        assert delegator.build_command(service, "PROMPT") == expected
+
+    @pytest.mark.bdd
+    def test_glm_reaches_zai_by_environment_not_argv(self, temp_config_dir) -> None:
+        """GLM is the stock claude binary pointed at a different base URL.
+
+        Z.ai serves an Anthropic-compatible endpoint, so there is no GLM CLI
+        to install. The redirection is environment, which is why it must not
+        appear in the command.
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+        service = delegator.services["glm"]
+
+        assert service.command == "claude"
+        assert service.env["ANTHROPIC_BASE_URL"] == "https://api.z.ai/api/anthropic"
+        # The documented variable is ANTHROPIC_AUTH_TOKEN. ANTHROPIC_API_KEY
+        # is the common wrong guess and yields a 401 against Z.ai.
+        assert service.env["ANTHROPIC_AUTH_TOKEN"] == "${ZAI_API_KEY}"
+        assert "z.ai" not in " ".join(delegator.build_command("glm", "PROMPT"))
+
+    @pytest.mark.bdd
+    def test_glimmer_keeps_the_prompt_on_stdin(self, temp_config_dir) -> None:
+        """A local 30B model is fed inlined context that argv cannot hold."""
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        command = delegator.build_command("glimmer", "PROMPT")
+
+        assert command == ["ollama", "run", "muse-glimmer:30b"]
+        assert "PROMPT" not in command
+
+    @pytest.mark.bdd
+    def test_candidate_order_follows_declared_priority(self, temp_config_dir) -> None:
+        """Selection order is data, so it cannot drift from the registry."""
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        order = delegator._candidate_order()
+
+        assert order[:3] == ["gemini", "qwen", "minimax"]
+        assert set(order) == set(delegator.services)
+
+    @pytest.mark.bdd
+    @patch.object(Delegator, "execute")
+    @patch.object(Delegator, "verify_service")
+    def test_a_newly_registered_provider_is_selectable(
+        self, mock_verify, mock_execute, temp_config_dir
+    ) -> None:
+        """Registering a service is the only step needed to make it usable.
+
+        This is the regression guard for the three hardcoded lists that used
+        to govern selection. A provider added to SERVICES but missing from
+        them was either never chosen or raised KeyError on the model lookup.
+        """
+        mock_execute.return_value = ExecutionResult(
+            success=True, stdout="", stderr="", exit_code=0, duration=1.0
+        )
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["newcomer"] = ServiceConfig(
+            name="newcomer",
+            command="newcomer-bin",
+            auth_method="none",
+            priority=1,
+            large_context_model="newcomer-xl",
+        )
+        mock_verify.side_effect = lambda name: (name == "newcomer", [])
+
+        service, _ = delegator.smart_delegate("p", requirements={"large_context": True})
+
+        assert service == "newcomer"
+        assert mock_execute.call_args.args[3]["model"] == "newcomer-xl"
+
+    @pytest.mark.bdd
+    @patch.object(Delegator, "execute")
+    @patch.object(Delegator, "verify_service")
+    def test_a_provider_without_model_ids_uses_the_cli_default(
+        self, mock_verify, mock_execute, temp_config_dir
+    ) -> None:
+        """Declaring no model id must degrade, not raise.
+
+        muse, codex and opencode document no --model flag for their headless
+        subcommand, so passing one would be inventing a contract.
+        """
+        mock_execute.return_value = ExecutionResult(
+            success=True, stdout="", stderr="", exit_code=0, duration=1.0
+        )
+        delegator = Delegator(config_dir=temp_config_dir)
+        mock_verify.side_effect = lambda name: (name == "muse", [])
+
+        service, _ = delegator.smart_delegate("p", requirements={"large_context": True})
+
+        assert service == "muse"
+        assert "model" not in mock_execute.call_args.args[3]

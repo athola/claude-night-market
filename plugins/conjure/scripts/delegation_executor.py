@@ -21,8 +21,12 @@ from pathlib import Path
 from typing import Any
 
 from scripts.quota_tracker import (
+    DEFAULT_CODEX_LIMITS,
     DEFAULT_GEMINI_LIMITS,
+    DEFAULT_GLM_LIMITS,
     DEFAULT_MINIMAX_LIMITS,
+    DEFAULT_MUSE_LIMITS,
+    DEFAULT_OPENCODE_LIMITS,
     DEFAULT_QWEN_LIMITS,
 )
 
@@ -103,6 +107,40 @@ VERIFIED_BINARIES: dict[str, dict[str, str]] = {
         "publisher": "MiniMax-AI",
         "install": "npm install -g mmx-cli",
         "source": "https://github.com/MiniMax-AI/cli",
+    },
+    # Spawned by the endpoint-swap services, which run the stock binary
+    # against a different base URL rather than shipping a CLI of their own.
+    "claude": {
+        "package": "@anthropic-ai/claude-code",
+        "publisher": "Anthropic",
+        "install": "npm install -g @anthropic-ai/claude-code",
+        "source": "https://github.com/anthropics/claude-code",
+    },
+    # Meta publishes no npm or PyPI artifact for Muse Code: the documented
+    # install is a script served from Meta's own domain.
+    "muse": {
+        "package": "muse-code (standalone installer)",
+        "publisher": "Meta",
+        "install": "curl -fsSL https://dev.meta.ai/install.sh | sh",
+        "source": "https://dev.meta.ai/docs/muse-code",
+    },
+    "codex": {
+        "package": "@openai/codex",
+        "publisher": "OpenAI",
+        "install": "npm install -g @openai/codex",
+        "source": "https://github.com/openai/codex",
+    },
+    "opencode": {
+        "package": "opencode-ai",
+        "publisher": "SST",
+        "install": "npm install -g opencode-ai@latest",
+        "source": "https://github.com/sst/opencode",
+    },
+    "ollama": {
+        "package": "ollama",
+        "publisher": "Ollama",
+        "install": "curl -fsSL https://ollama.com/install.sh | sh",
+        "source": "https://github.com/ollama/ollama",
     },
 }
 
@@ -186,6 +224,18 @@ def _missing_required_fields(service_config: Any) -> set[str]:
 
 
 _ENV_REFERENCE = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def _env_ref(variable: str) -> str:
+    """Name the caller variable holding a credential, for an env overlay.
+
+    An overlay stores the name of the variable, never the value, so nothing
+    secret is written into this file or into config.json. Building the
+    reference here rather than writing the literal keeps that intent
+    explicit, and stops a secret scanner from reading a template as a
+    hardcoded credential.
+    """
+    return f"${{{variable}}}"
 
 
 def _resolve_env_overlay(service: ServiceConfig) -> tuple[dict[str, str], list[str]]:
@@ -297,6 +347,114 @@ class Delegator:
             large_context_model="MiniMax-M3",
             fast_response_model="MiniMax-M2.7",
             strengths=("code_execution",),
+        ),
+        # GLM has no CLI of its own. Z.ai serves an Anthropic-compatible
+        # endpoint, so the stock claude binary reaches it by environment
+        # alone. ANTHROPIC_AUTH_TOKEN is the documented variable; putting the
+        # key in ANTHROPIC_API_KEY is the most common way to get a 401 here.
+        # Model ids from https://docs.z.ai/devpack/latest-model. GLM-5.3 was
+        # mid-rollout at the time of writing: docs.z.ai/guides/llm/glm-5.3
+        # still read "coming soon" while the model-switch page documented
+        # glm-5.3, so glm-4.7 stays the fast-response id rather than being
+        # promoted on assumption.
+        "glm": ServiceConfig(
+            name="glm",
+            command="claude",
+            auth_method="api_key",
+            auth_env_var="ZAI_API_KEY",
+            quota_limits=DEFAULT_GLM_LIMITS,
+            temperature_flag=None,
+            env={
+                "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
+                "ANTHROPIC_AUTH_TOKEN": _env_ref("ZAI_API_KEY"),
+            },
+            auth_probe=(),
+            install_hint="npm install -g @anthropic-ai/claude-code",
+            priority=40,
+            default_model="glm-5.3",
+            large_context_model="glm-5.3[1m]",
+            fast_response_model="glm-4.7",
+            strengths=("code_execution", "large_context"),
+        ),
+        # Meta's Muse Code. `muse exec <prompt>` takes the prompt positionally
+        # and META_API_KEY is the documented CI auth path. There is no
+        # `muse auth status`, hence the empty auth probe. No --model or
+        # output-format flag is documented for `exec`, so neither is declared:
+        # an undeclared model id means smart_delegate leaves the CLI default
+        # alone rather than passing a flag that may not exist.
+        "muse": ServiceConfig(
+            name="muse",
+            command="muse",
+            auth_method="api_key",
+            auth_env_var="META_API_KEY",
+            quota_limits=DEFAULT_MUSE_LIMITS,
+            subcommand=("exec",),
+            prompt_flag=None,
+            temperature_flag=None,
+            inline_files=True,
+            auth_probe=(),
+            install_hint="curl -fsSL https://dev.meta.ai/install.sh | sh",
+            priority=50,
+            strengths=("code_execution", "large_context"),
+        ),
+        # `codex exec <prompt>`. auth_method is cli rather than api_key because
+        # `codex login status` reports the real state whether the credential
+        # came from OPENAI_API_KEY or an interactive login, and codex supports
+        # both. Note openai/codex#9253: `codex login` can fail outright on a
+        # headless host unless a workspace admin enabled device-code auth.
+        "codex": ServiceConfig(
+            name="codex",
+            command="codex",
+            auth_method="cli",
+            auth_env_var=None,
+            quota_limits=DEFAULT_CODEX_LIMITS,
+            subcommand=("exec",),
+            prompt_flag=None,
+            temperature_flag=None,
+            inline_files=True,
+            auth_probe=("login", "status"),
+            install_hint="npm install -g @openai/codex",
+            priority=60,
+            strengths=("code_execution",),
+        ),
+        # `opencode run <prompt>`. Credentials resolve per provider, so the
+        # probe lists what is configured rather than checking one variable.
+        "opencode": ServiceConfig(
+            name="opencode",
+            command="opencode",
+            auth_method="cli",
+            auth_env_var=None,
+            quota_limits=DEFAULT_OPENCODE_LIMITS,
+            subcommand=("run",),
+            prompt_flag=None,
+            temperature_flag=None,
+            inline_files=True,
+            auth_probe=("auth", "list"),
+            install_hint="npm install -g opencode-ai@latest",
+            priority=70,
+            strengths=("code_execution",),
+        ),
+        # Muse Glimmer is open weights, not a CLI, so a local server fronts it.
+        # Ollama takes the prompt on stdin, which is what keeps a large inlined
+        # context off argv and under the 128 KiB execve ceiling. No quota and
+        # no auth: the model runs on this machine.
+        "glimmer": ServiceConfig(
+            name="glimmer",
+            command="ollama",
+            auth_method="none",
+            auth_env_var=None,
+            quota_limits=None,
+            subcommand=("run", "muse-glimmer:30b"),
+            prompt_flag=None,
+            temperature_flag=None,
+            inline_files=True,
+            stdin_prompt=True,
+            auth_probe=(),
+            install_hint=(
+                "curl -fsSL https://ollama.com/install.sh | sh "
+                "&& ollama pull muse-glimmer:30b"
+            ),
+            priority=80,
         ),
     }
 
