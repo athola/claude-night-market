@@ -14,12 +14,8 @@ from cli_scaffold import create_parser, format_result, setup_src_path, write_out
 setup_src_path()
 
 from abstract.skills_eval import (  # noqa: E402 - import after setup_src_path() call
-    SkillsAuditor as CoreSkillsAuditor,
+    SkillsAuditor,
 )
-
-
-class SkillsAuditor(CoreSkillsAuditor):
-    """CLI wrapper for core skills auditing functionality."""
 
 
 def _format_audit_text(results: dict, skills_dir: Path) -> str:

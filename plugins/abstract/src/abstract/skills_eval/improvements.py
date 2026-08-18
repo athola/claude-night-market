@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from ..frontmatter import FrontmatterProcessor
-from ..tokens import estimate_tokens
+from ..tokens import estimate_text_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +128,7 @@ class ImprovementSuggester:
             suggestions.append("Add practical examples and code blocks")
 
         # Check token efficiency
-        estimated_tokens = estimate_tokens(content)
+        estimated_tokens = estimate_text_tokens(content)
         if estimated_tokens > TOKEN_LARGE_SKILL:
             suggestions.append(
                 "Consider modularization or content optimization "
@@ -156,7 +156,7 @@ class ImprovementSuggester:
             return ["Error reading skill file"]
 
         # Check content length
-        estimated_tokens = estimate_tokens(content)
+        estimated_tokens = estimate_text_tokens(content)
         if estimated_tokens > TOKEN_MAX_EFFICIENT:
             suggestions.append("Extract large content sections to separate modules")
             suggestions.append("Use tools/ directory for automation scripts")

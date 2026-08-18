@@ -10,10 +10,10 @@ This skill teaches how to create behavioral interventions for Claude that are em
 
 ```bash
 # Validate skill structure
-python scripts/skill_validator.py
+python3 plugins/abstract/scripts/skill_validator.py
 
 # From any skill directory
-python /path/to/skill-authoring/scripts/skill_validator.py --path SKILL.md
+python3 plugins/abstract/scripts/skill_validator.py --path SKILL.md
 ```
 
 ## Core Principles
@@ -38,8 +38,6 @@ skill-authoring/
 │   ├── graphviz-conventions.md      # Process diagrams
 │   ├── testing-with-subagents.md    # Empirical validation
 │   └── deployment-checklist.md      # Final validation
-├── scripts/
-│   └── skill_validator.py           # Validation tool
 └── README.md                         # This file
 ```
 
@@ -84,13 +82,13 @@ Common patterns to counter:
 
 ```bash
 # Validate current skill
-python scripts/skill_validator.py
+python3 plugins/abstract/scripts/skill_validator.py
 
 # Validate other skill
-python scripts/skill_validator.py --path /path/to/SKILL.md
+python3 plugins/abstract/scripts/skill_validator.py --path /path/to/SKILL.md
 
 # Strict mode (warnings as errors)
-python scripts/skill_validator.py --strict
+python3 plugins/abstract/scripts/skill_validator.py --strict
 ```
 
 Exit codes:

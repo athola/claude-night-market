@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from ..frontmatter import FrontmatterProcessor
-from ..tokens import estimate_tokens
+from ..tokens import estimate_text_tokens
 from ..utils import safe_json_load
 
 logger = logging.getLogger(__name__)
@@ -239,7 +239,7 @@ class ComplianceChecker:
                     content = f.read()
 
                 # Check content length first (always check regardless of frontmatter)
-                estimated_tokens = estimate_tokens(content)
+                estimated_tokens = estimate_text_tokens(content)
                 max_tokens = self.rules.get("max_tokens", 4000)
                 if estimated_tokens > max_tokens:
                     warnings.append(

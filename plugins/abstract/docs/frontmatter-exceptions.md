@@ -6,37 +6,39 @@ This document documents markdown files in the skills directory that intentionall
 
 ## Files Without YAML Frontmatter (Exceptions)
 
-The following 23 files intentionally lack YAML frontmatter because they serve as documentation, examples, or reference material rather than as loadable skills:
+The following 22 files intentionally lack YAML frontmatter because they serve as documentation, examples, or reference material rather than as loadable skills:
+
 
 ### README Files (6 files)
-- `modular-skills/README.md` - Project overview and setup instructions
-- `modular-skills/examples/advanced-patterns/README.md` - Advanced patterns examples overview
-- `modular-skills/examples/basic-implementation/README.md` - Basic implementation examples overview
-- `modular-skills/examples/complete-skills/README.md` - Complete skill examples overview
-- `skills-eval/README.md` - Skills evaluation framework overview
-- `skills-eval/scripts/README.md` - Scripts documentation
 
-### Example Documentation Files (12 files)
-- `modular-skills/examples/advanced-patterns/modules/cross-cutting-concerns.md` - Example of cross-cutting concerns
-- `modular-skills/examples/advanced-patterns/modules/dynamic-loading.md` - Example of dynamic loading patterns
-- `modular-skills/examples/advanced-patterns/modules/hierarchical-dependencies.md` - Example of dependency hierarchies
-- `modular-skills/examples/sample-migration.md` - Migration case study overview
-- `modular-skills/examples/sample-migration/modules/focused-modules.md` - Example of focused module extraction
-- `modular-skills/examples/sample-migration/modules/hub-extraction.md` - Example of hub pattern extraction
-- `modular-skills/examples/sample-migration/modules/migration-results.md` - Migration results documentation
-- `modular-skills/examples/sample-migration/modules/original-analysis.md` - Original monolithic analysis
-- `modular-skills/examples/sample-migration/modules/shared-scripts.md` - Shared scripts documentation
+- `skills/modular-skills/README.md` - Project overview and setup instructions
+- `docs/examples/modular-skills/advanced-patterns/README.md` - Advanced patterns examples overview
+- `docs/examples/modular-skills/basic-implementation/README.md` - Basic implementation examples overview
+- `docs/examples/modular-skills/complete-skills/README.md` - Complete skill examples overview
+- `skills/skills-eval/README.md` - Skills evaluation framework overview
+- `skills/skills-eval/scripts/README.md` - Scripts documentation
 
-### Framework Documentation Files (5 files)
-- `skills-eval/modules/advanced-tool-use-analysis.md` - Advanced tool use analysis framework
-- `skills-eval/modules/evaluation-framework.md` - Evaluation criteria and scoring system
-- `skills-eval/modules/evaluation-workflows.md` - Evaluation process workflows
-- `skills-eval/modules/integration-testing.md` - Integration testing framework
-- `skills-eval/modules/integration.md` - Integration patterns and approaches
-- `skills-eval/modules/performance-benchmarking.md` - Performance benchmarking framework
-- `skills-eval/modules/quality-metrics.md` - Quality metrics definitions
-- `skills-eval/modules/troubleshooting.md` - Troubleshooting guide for evaluation framework
+### Example Documentation Files (9 files)
 
+- `docs/examples/modular-skills/advanced-patterns/modules/cross-cutting-concerns.md` - Example of cross-cutting concerns
+- `docs/examples/modular-skills/advanced-patterns/modules/dynamic-loading.md` - Example of dynamic loading patterns
+- `docs/examples/modular-skills/advanced-patterns/modules/hierarchical-dependencies.md` - Example of dependency hierarchies
+- `docs/examples/modular-skills/sample-migration.md` - Migration case study overview
+- `docs/examples/modular-skills/sample-migration/modules/focused-modules.md` - Example of focused module extraction
+- `docs/examples/modular-skills/sample-migration/modules/hub-extraction.md` - Example of hub pattern extraction
+- `docs/examples/modular-skills/sample-migration/modules/migration-results.md` - Migration results documentation
+- `docs/examples/modular-skills/sample-migration/modules/original-analysis.md` - Original monolithic analysis
+- `docs/examples/modular-skills/sample-migration/modules/shared-scripts.md` - Shared scripts documentation
+
+### Framework Documentation Files (7 files)
+
+- `skills/skills-eval/modules/advanced-tool-use-analysis.md` - Advanced tool use analysis framework
+- `skills/skills-eval/modules/evaluation-framework.md` - Evaluation criteria and scoring system
+- `skills/skills-eval/modules/evaluation-workflows.md` - Evaluation process workflows
+- `skills/skills-eval/modules/integration-testing.md` - Integration testing framework
+- `skills/skills-eval/modules/integration.md` - Integration patterns and approaches
+- `skills/skills-eval/modules/performance-benchmarking.md` - Performance benchmarking framework
+- `skills/skills-eval/modules/troubleshooting.md` - Troubleshooting guide for evaluation framework
 ## Exception Rationale
 
 ### Documentation Files

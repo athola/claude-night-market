@@ -125,8 +125,6 @@ def _needs_metacognition(claude_home: Path) -> bool:  # noqa: PLR0911 - multi-cr
                 all_outcomes.sort(key=lambda o: o.get("timestamp", ""))
                 if all_outcomes[-1].get("outcome_type") == "failure":
                     return True
-    except ImportError:
-        pass  # ImprovementMemory not available
     except (OSError, KeyError) as e:
         sys.stderr.write(f"homeostatic_monitor: _needs_metacognition: {e}\n")
     return False
