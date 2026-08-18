@@ -14,7 +14,6 @@ from __future__ import annotations
 import json
 import sys
 import time
-import traceback
 from pathlib import Path
 
 _START = time.monotonic()
@@ -34,6 +33,12 @@ _candidate_dirs = [
 for _d in _candidate_dirs:
     if _d.is_dir() and str(_d) not in sys.path:
         sys.path.insert(0, str(_d))
+if str(_hooks_dir) not in sys.path:
+    sys.path.insert(0, str(_hooks_dir))
+
+from shared.best_effort import best_effort  # noqa: E402 - import after path setup
+
+_HOOK = "post_learnings_stop"
 
 try:
     from auto_promote_learnings import (
@@ -92,33 +97,15 @@ def main() -> None:
         return
 
     # Auto-promote high-severity items to Issues
-    try:
-        _promote()
-    except Exception:
-        print(
-            f"[post_learnings_stop] auto-promote: {traceback.format_exc()}",
-            file=sys.stderr,
-        )
+    best_effort(_HOOK, "auto-promote", _promote)
 
     # Post learnings summary to Discussions
-    try:
-        _post_learnings()
-    except Exception:
-        print(
-            f"[post_learnings_stop] post-learnings: {traceback.format_exc()}",
-            file=sys.stderr,
-        )
+    best_effort(_HOOK, "post-learnings", _post_learnings)
 
     # Run insight engine lenses if budget remains
     remaining = _BUDGET_SECONDS - (time.monotonic() - _START)
     if _HAS_INSIGHT_ENGINE and remaining > _MIN_LENS_SECONDS:
-        try:
-            _run_insight_lenses()
-        except Exception:
-            print(
-                f"[post_learnings_stop] insight-engine: {traceback.format_exc()}",
-                file=sys.stderr,
-            )
+        best_effort(_HOOK, "insight-engine", _run_insight_lenses)
     elif _HAS_INSIGHT_ENGINE:
         print(
             f"[post_learnings_stop] skipping insight lenses "
@@ -148,13 +135,11 @@ def _run_insight_lenses() -> None:
     # Ingest findings into memory palace if available
     if _HAS_PALACE_BRIDGE:
         remaining = _BUDGET_SECONDS - (time.monotonic() - _START)
-        try:
-            _ingest_to_palace(findings, budget_remaining=remaining)
-        except Exception:
-            print(
-                f"[post_learnings_stop] palace-bridge: {traceback.format_exc()}",
-                file=sys.stderr,
-            )
+        best_effort(
+            _HOOK,
+            "palace-bridge",
+            lambda: _ingest_to_palace(findings, budget_remaining=remaining),
+        )
 
     # Save current metrics as snapshot for next delta comparison
     snapshot = {

@@ -41,6 +41,8 @@ __all__ = [
     "find_project_root",
     # Path utilities
     "get_config_dir",
+    "extract_bold_field",
+    "get_learnings_path",
     "get_log_directory",
     "get_observability_dir",
     # Skill file utilities
@@ -74,6 +76,21 @@ def find_project_root(start_path: Path) -> Path:
             return current
         current = current.parent
     return Path.cwd()
+
+
+def get_learnings_path() -> Path:
+    """Get the path to the LEARNINGS.md file.
+
+    Respects CLAUDE_HOME the same way :func:`get_log_directory` does, so
+    a non-standard installation keeps its logs and its learnings under
+    one root.
+
+    Returns:
+        Path to ~/.claude/skills/LEARNINGS.md (or under $CLAUDE_HOME).
+
+    """
+    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
+    return claude_home / "skills" / "LEARNINGS.md"
 
 
 def get_log_directory(*, create: bool = False) -> Path:
@@ -460,6 +477,20 @@ def find_dependency_file(skill_path: Path, dependency_name: str) -> Path | None:
             return path
 
     return None
+
+
+def extract_bold_field(text: str, field: str) -> str:
+    """Extract a ``**Field**: value`` pair from a markdown body.
+
+    Companion to :func:`extract_section`: that returns a section body,
+    this reads one labelled field out of it.
+
+    Returns:
+        The trimmed value, or an empty string when the field is absent.
+
+    """
+    match = re.search(rf"\*\*{re.escape(field)}\*\*:\s*(.+)", text)
+    return match.group(1).strip() if match else ""
 
 
 def extract_section(content: str, heading: str) -> str | None:

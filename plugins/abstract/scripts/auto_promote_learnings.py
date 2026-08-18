@@ -44,6 +44,10 @@ from post_learnings_to_discussions import (  # noqa: E402 - sibling script
     resolve_category_id,
 )
 
+from abstract.utils import (
+    extract_bold_field,
+    get_learnings_path,
+)
 from abstract.utils import (  # noqa: E402 - import after sys.path setup
     extract_section as _extract_section,
 )
@@ -69,11 +73,6 @@ EXCESSIVE_FAILURE_IMPACT = 8.0
 HEALTHY_IMPACT = 0.1
 EASE_BY_SEVERITY = {"high": 2.0, "medium": 3.0, "low": 5.0}
 DEFAULT_EASE = 5.0
-
-
-def get_learnings_path() -> Path:
-    """Get path to LEARNINGS.md file."""
-    return Path.home() / ".claude" / "skills" / "LEARNINGS.md"
 
 
 def get_repo_root() -> Path:
@@ -245,12 +244,6 @@ def calculate_priority(item: dict[str, Any]) -> float:
 # ---------------------------------------------------------------------------
 
 
-def _extract_bold_field(text: str, field_name: str) -> str:
-    """Extract a bold field value from text."""
-    match = re.search(rf"\*\*{re.escape(field_name)}\*\*:\s*(.+)", text)
-    return match.group(1).strip() if match else ""
-
-
 def _parse_summary_table(content: str) -> dict[str, dict[str, Any]]:
     """Parse the Skill Performance Summary table for execution counts."""
     metrics: dict[str, dict[str, Any]] = {}
@@ -307,10 +300,10 @@ def parse_improvement_items(content: str) -> list[dict[str, Any]]:  # noqa: PLR0
         ):
             skill = match.group(1).strip()
             body = match.group(2).strip()
-            issue_type = _extract_bold_field(body, "Type")
-            severity = _extract_bold_field(body, "Severity")
-            metric = _extract_bold_field(body, "Metric")
-            detail = _extract_bold_field(body, "Detail")
+            issue_type = extract_bold_field(body, "Type")
+            severity = extract_bold_field(body, "Severity")
+            metric = extract_bold_field(body, "Metric")
+            detail = extract_bold_field(body, "Detail")
 
             item: dict[str, Any] = {
                 "skill": skill,

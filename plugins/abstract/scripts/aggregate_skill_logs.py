@@ -26,7 +26,10 @@ _src = Path(__file__).resolve().parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
 
-from abstract.utils import get_log_directory  # noqa: E402 - import after sys.path setup
+from abstract.utils import (  # noqa: E402 - import after sys.path setup
+    get_learnings_path,
+    get_log_directory,
+)
 
 try:
     from abstract.improvement_memory import ImprovementMemory
@@ -97,12 +100,6 @@ class AggregationResult:
     rated_executions: int = 0
     dispatch_bound_skills: list[str] = field(default_factory=list)
     untimed_skills: list[str] = field(default_factory=list)
-
-
-def get_learnings_path() -> Path:
-    """Get path to LEARNINGS.md file."""
-    claude_home = Path.home() / ".claude"
-    return claude_home / "skills" / "LEARNINGS.md"
 
 
 # Session-id prefixes used by tests, dogfood runs, and other synthetic
