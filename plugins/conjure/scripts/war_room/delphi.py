@@ -149,9 +149,13 @@ async def delphi_revision_round(
 
 
 def compute_convergence(session: WarRoomSession) -> float:
-    """Compute expert convergence score based on voting agreement.
+    """Compute expert convergence from the spread of Borda scores.
 
-    Returns a score between 0 and 1, where:
+    Returns the coefficient of variation (std_dev / mean) of the Borda
+    scores, capped at 1.0. The metric is dispersion, read as agreement:
+    a high value means one COA dominates and the experts concur, a low
+    value means the scores are uniform and they do not.
+
     - 1.0 = perfect agreement (all experts rank COAs identically)
     - 0.0 = complete disagreement
 
@@ -176,5 +180,5 @@ def compute_convergence(session: WarRoomSession) -> float:
 
     # Coefficient of variation (CV = std_dev / mean). For Borda counts,
     # high CV means one COA dominates, indicating expert agreement.
-    convergence: float = min(1.0, std_dev / mean_score)
-    return convergence
+    borda_cv: float = min(1.0, std_dev / mean_score)
+    return borda_cv

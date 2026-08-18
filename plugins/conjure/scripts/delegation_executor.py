@@ -15,7 +15,7 @@ import re
 import subprocess  # nosec B404
 import sys
 import time
-from dataclasses import MISSING, dataclass, field, fields
+from dataclasses import MISSING, dataclass, field, fields, replace
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -204,6 +204,31 @@ class ServiceConfig:
     # This is how "qwen is the one for code execution" survives the move off
     # the hardcoded if/elif chain without becoming a branch per provider.
     strengths: tuple[str, ...] = ()
+
+
+def _apply_overrides(
+    current: ServiceConfig, service_name: str, overrides: Any
+) -> ServiceConfig:
+    """Return ``current`` with the fields named in ``overrides`` replaced.
+
+    Every field the config file does not mention keeps the value it
+    already had, so a partial override cannot reset the CLI contract.
+    An unrecognised field name raises rather than being ignored, matching
+    the new-service branch (CJR-003: config load must not swallow
+    unexpected errors).
+    """
+    if not isinstance(overrides, dict):
+        msg = f"service config for {service_name!r} must be an object"
+        raise TypeError(msg)
+    known = {f.name for f in fields(ServiceConfig)}
+    unknown = set(overrides) - known
+    if unknown:
+        msg = (
+            f"unknown ServiceConfig field(s) for {service_name!r}: "
+            f"{', '.join(sorted(unknown))}"
+        )
+        raise TypeError(msg)
+    return replace(current, **{k: v for k, v in overrides.items() if k != "name"})
 
 
 def _missing_required_fields(service_config: Any) -> set[str]:
@@ -492,23 +517,14 @@ class Delegator:
                         return
                     for service_name, service_config in services_raw.items():
                         if service_name in self.services:
-                            # Update existing service config
+                            # Override only the keys the file names. Listing
+                            # fields by hand here reset every unlisted one to
+                            # its default, so overriding minimax's quota
+                            # silently dropped the subcommand and prompt flag
+                            # that make its CLI contract work.
                             current = self.services[service_name]
-                            self.services[service_name] = ServiceConfig(
-                                name=current.name,
-                                command=service_config.get("command", current.command),
-                                auth_method=service_config.get(
-                                    "auth_method",
-                                    current.auth_method,
-                                ),
-                                auth_env_var=service_config.get(
-                                    "auth_env_var",
-                                    current.auth_env_var,
-                                ),
-                                quota_limits=service_config.get(
-                                    "quota_limits",
-                                    current.quota_limits,
-                                ),
+                            self.services[service_name] = _apply_overrides(
+                                current, service_name, service_config
                             )
                         else:
                             # Add a new service. An entry that uses only
@@ -603,8 +619,15 @@ class Delegator:
         prompt: str,
         files: list[str] | None = None,
         options: dict[str, Any] | None = None,
+        *,
+        delivered: str | None = None,
     ) -> list[str]:
-        """Build command for delegation."""
+        """Build command for delegation.
+
+        ``delivered`` lets execute() pass the prompt it already assembled,
+        so an inline_files service does not walk and read the same files
+        twice. Standalone callers omit it and it is computed here.
+        """
         service = self.services[service_name]
         command = [service.command, *service.subcommand]
 
@@ -622,7 +645,11 @@ class Delegator:
                     [service.temperature_flag, str(options["temperature"])],
                 )
 
-        full_prompt = _delivered_prompt(service, prompt, files)
+        full_prompt = (
+            delivered
+            if delivered is not None
+            else _delivered_prompt(service, prompt, files)
+        )
 
         # A stdin-delivering service keeps the prompt out of argv entirely, so
         # there is nothing to append. A service with no prompt_flag takes it
@@ -696,9 +723,11 @@ class Delegator:
         """Execute delegation command."""
         start_time = time.time()
         service = self.services[service_name]
-        command = self.build_command(service_name, prompt, files, options)
-        overlay, _ = _resolve_env_overlay(service)
         delivered = _delivered_prompt(service, prompt, files)
+        command = self.build_command(
+            service_name, prompt, files, options, delivered=delivered
+        )
+        overlay, _ = _resolve_env_overlay(service)
         execution_result = self._launch_process(
             LaunchSpec(
                 cmd=command,

@@ -49,17 +49,31 @@ from scripts.war_room.phases import (
     phase_voting,
     should_escalate,
 )
-from scripts.war_room.prompts import (
-    ASSESSMENT_PROMPT,
-    COA_PROMPT,
-    DELPHI_REVISION_PROMPT,
-    INTEL_PROMPT_OFFICER,
-    INTEL_PROMPT_SCOUT,
-    PREMORTEM_PROMPT,
-    RED_TEAM_PROMPT,
-    SYNTHESIS_PROMPT,
-    VOTING_PROMPT,
-)
+
+# Written as 120.0 at two call sites and as the literal "120s" in four
+# messages before this, so changing it meant editing six places.
+_SUBPROCESS_TIMEOUT_SECONDS = 120.0
+
+
+# Built once at import rather than on every attribute miss. Phase methods
+# are reached through __getattr__ so the class stays thin; the cost is that
+# a typo in a phase name is a runtime AttributeError, not a static error.
+_ORCH_BOUND: dict[str, Any] = {
+    "_phase_intel": phase_intel,
+    "_phase_assessment": phase_assessment,
+    "_phase_coa_development": phase_coa_development,
+    "_phase_red_team": phase_red_team,
+    "_phase_voting": phase_voting,
+    "_phase_premortem": phase_premortem,
+    "_phase_synthesis": phase_synthesis,
+    "_escalate": escalate,
+    "_delphi_revision_round": delphi_revision_round,
+}
+_PLAIN: dict[str, Any] = {
+    "_should_escalate": should_escalate,
+    "_compute_convergence": compute_convergence,
+    "_compute_borda_scores": compute_borda_scores,
+}
 
 
 class WarRoomOrchestrator:
@@ -73,17 +87,6 @@ class WarRoomOrchestrator:
     - Merkle-DAG maintenance
     - Strategeion persistence
     """
-
-    # Prompt templates as class attributes for backward compatibility
-    INTEL_PROMPT_SCOUT = INTEL_PROMPT_SCOUT
-    INTEL_PROMPT_OFFICER = INTEL_PROMPT_OFFICER
-    ASSESSMENT_PROMPT = ASSESSMENT_PROMPT
-    COA_PROMPT = COA_PROMPT
-    RED_TEAM_PROMPT = RED_TEAM_PROMPT
-    VOTING_PROMPT = VOTING_PROMPT
-    PREMORTEM_PROMPT = PREMORTEM_PROMPT
-    SYNTHESIS_PROMPT = SYNTHESIS_PROMPT
-    DELPHI_REVISION_PROMPT = DELPHI_REVISION_PROMPT
 
     def __init__(self, strategeion_path: Path | None = None) -> None:
         """Initialize orchestrator with Strategeion storage path."""
@@ -210,6 +213,34 @@ class WarRoomOrchestrator:
 
         return result
 
+    async def _run_subprocess(self, cmd: list[str], label: str, not_found: str) -> str:
+        """Run ``cmd`` and return its stdout, or a bracketed failure note.
+
+        Both invocation paths share this: the same create_subprocess_exec
+        call, the same timeout, the same returncode check and the same three
+        failure modes. Only the wording differs, which is what ``label`` and
+        ``not_found`` carry.
+        """
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            stdout, stderr = await asyncio.wait_for(
+                proc.communicate(),
+                timeout=_SUBPROCESS_TIMEOUT_SECONDS,
+            )
+            if proc.returncode != 0:
+                return f"[{label} failed: {stderr.decode()[:500]}]"
+            return stdout.decode()
+        except TimeoutError:
+            return f"[{label} timed out after {_SUBPROCESS_TIMEOUT_SECONDS:.0f}s]"
+        except FileNotFoundError:
+            return not_found
+        except Exception as e:
+            return f"[{label} error: {e}]"
+
     async def _invoke_haiku_fallback(self, expert: Any, prompt: str) -> str:
         """Invoke Haiku as fallback for unavailable external expert.
 
@@ -223,30 +254,14 @@ class WarRoomOrchestrator:
 
         try:
             cmd = get_haiku_command()
-            cmd.append(full_prompt)
-
-            proc = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=120.0,
-            )
-
-            if proc.returncode != 0:
-                err = stderr.decode()[:500]
-                return f"[{expert.role} (Haiku fallback) failed: {err}]"
-
-            return stdout.decode()
-
-        except TimeoutError:
-            return f"[{expert.role} (Haiku fallback) timed out after 120s]"
-        except FileNotFoundError:
-            return f"[{expert.role} fallback failed: Claude CLI not found]"
         except Exception as e:
             return f"[{expert.role} (Haiku fallback) error: {e}]"
+        cmd.append(full_prompt)
+        return await self._run_subprocess(
+            cmd,
+            f"{expert.role} (Haiku fallback)",
+            f"[{expert.role} fallback failed: Claude CLI not found]",
+        )
 
     async def _invoke_external(self, expert: Any, prompt: str) -> str:
         """Invoke external expert via CLI.
@@ -256,29 +271,11 @@ class WarRoomOrchestrator:
         """
         cmd = get_expert_command(expert)
         cmd.append(prompt)
-
-        try:
-            proc = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=120.0,
-            )
-
-            if proc.returncode != 0:
-                return f"[{expert.role} failed: {stderr.decode()[:500]}]"
-
-            return stdout.decode()
-
-        except TimeoutError:
-            return f"[{expert.role} timed out after 120s]"
-        except FileNotFoundError:
-            return f"[{expert.role} command not found: {cmd[0]}]"
-        except Exception as e:
-            return f"[{expert.role} error: {e}]"
+        return await self._run_subprocess(
+            cmd,
+            expert.role,
+            f"[{expert.role} command not found: {cmd[0]}]",
+        )
 
     async def _invoke_parallel(
         self,
@@ -310,26 +307,10 @@ class WarRoomOrchestrator:
 
     def __getattr__(self, name: str) -> Any:
         """Delegate phase and utility method lookups to module-level functions."""
-        _orch_bound: dict[str, Any] = {
-            "_phase_intel": phase_intel,
-            "_phase_assessment": phase_assessment,
-            "_phase_coa_development": phase_coa_development,
-            "_phase_red_team": phase_red_team,
-            "_phase_voting": phase_voting,
-            "_phase_premortem": phase_premortem,
-            "_phase_synthesis": phase_synthesis,
-            "_escalate": escalate,
-            "_delphi_revision_round": delphi_revision_round,
-        }
-        _plain: dict[str, Any] = {
-            "_should_escalate": should_escalate,
-            "_compute_convergence": compute_convergence,
-            "_compute_borda_scores": compute_borda_scores,
-        }
-        if name in _orch_bound:
-            return functools.partial(_orch_bound[name], self)
-        if name in _plain:
-            return _plain[name]
+        if name in _ORCH_BOUND:
+            return functools.partial(_ORCH_BOUND[name], self)
+        if name in _PLAIN:
+            return _PLAIN[name]
         raise AttributeError(
             f"{type(self).__name__!r} object has no attribute {name!r}"
         )

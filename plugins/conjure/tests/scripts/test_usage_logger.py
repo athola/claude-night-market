@@ -542,17 +542,20 @@ class TestUsageLoggerCli:
     )
     @pytest.mark.bdd
     def test_cli_log_usage_invalid_tokens(self, mock_logger_class) -> None:
-        """Given invalid tokens argument when running CLI then should show error."""
+        """Given invalid tokens argument when running CLI then should exit non-zero.
+
+        A malformed --log argument used to be swallowed with `pass`, so the
+        CLI wrote nothing and still exited 0 and a caller checking the exit
+        code read a constant.
+        """
         mock_logger = MagicMock()
         mock_logger_class.return_value = mock_logger
 
-        with patch("builtins.print"):
-            # main imported at top level
-
+        with patch("builtins.print"), pytest.raises(SystemExit) as exc_info:
             main()
 
+        assert exc_info.value.code == 1
         mock_logger.log_usage.assert_not_called()
-        # The real CLI catches ValueError with `pass` - no error message is printed
 
     @patch("usage_logger.GeminiUsageLogger")
     @patch("sys.argv", ["usage_logger.py", "--report"])

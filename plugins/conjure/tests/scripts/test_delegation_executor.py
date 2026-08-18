@@ -328,6 +328,55 @@ class TestDelegator:
         assert custom_service.command == "custom"
         assert custom_service.auth_env_var == "CUSTOM_API_KEY"
 
+    def test_partial_override_keeps_the_rest_of_the_cli_contract(
+        self,
+        temp_config_dir,
+    ) -> None:
+        """Given a config that overrides one field of a known service.
+
+        then every field it does not name keeps its default.
+
+        Overriding minimax's quota used to rebuild ServiceConfig from five
+        named fields, which reset subcommand to () and prompt_flag to "-p"
+        and produced a bare `mmx -p <prompt>` that mmx does not accept.
+        """
+        config_file = temp_config_dir / "config.json"
+        config_file.write_text(
+            json.dumps(
+                {
+                    "services": {
+                        "minimax": {
+                            "quota_limits": {"requests_per_minute": 5},
+                        },
+                    },
+                },
+            ),
+        )
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        minimax = delegator.services["minimax"]
+
+        assert minimax.quota_limits == {"requests_per_minute": 5}
+        assert minimax.subcommand == Delegator.SERVICES["minimax"].subcommand
+        assert minimax.prompt_flag == Delegator.SERVICES["minimax"].prompt_flag
+        assert minimax.command == Delegator.SERVICES["minimax"].command
+
+    def test_override_with_an_unknown_field_raises(
+        self,
+        temp_config_dir,
+    ) -> None:
+        """Given a config naming a field ServiceConfig does not have.
+
+        then loading raises rather than ignoring it (CJR-003).
+        """
+        config_file = temp_config_dir / "config.json"
+        config_file.write_text(
+            json.dumps({"services": {"minimax": {"promt_flag": "--message"}}}),
+        )
+
+        with pytest.raises(TypeError, match="promt_flag"):
+            Delegator(config_dir=temp_config_dir)
+
     @pytest.mark.bdd
     @patch("subprocess.run")
     def test_verify_service_success(self, mock_run, temp_config_dir) -> None:

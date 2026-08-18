@@ -238,7 +238,9 @@ def clear_availability_cache() -> None:
 
 
 def get_glm_command() -> list[str]:
-    """Resolve GLM-5.2 invocation command with fallback.
+    """Resolve the GLM invocation command with fallback.
+
+    The model id comes from the ExpertConfig, not from here.
 
     Priority:
     1. ccgd (alias) - if available in PATH
@@ -269,14 +271,14 @@ def get_expert_command(expert: ExpertConfig) -> list[str]:
     """Get the command to invoke an expert."""
     if expert.command_resolver:
         resolver = _COMMAND_RESOLVERS.get(expert.command_resolver)
-        if resolver and callable(resolver):
-            cmd = resolver()
-            if isinstance(cmd, list):
-                return cmd
+        if resolver is None:
+            raise RuntimeError(f"Unknown command resolver: {expert.command_resolver}")
+        cmd = resolver()
+        if not isinstance(cmd, list):
             raise RuntimeError(
                 f"Resolver {expert.command_resolver} did not return list"
             )
-        raise RuntimeError(f"Unknown command resolver: {expert.command_resolver}")
+        return cmd
     if expert.command:
         return expert.command.copy()
     raise RuntimeError(f"No command configured for {expert.role}")

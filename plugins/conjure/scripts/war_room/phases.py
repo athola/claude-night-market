@@ -32,6 +32,38 @@ if TYPE_CHECKING:
     from scripts.war_room.orchestrator import WarRoomOrchestrator
 
 
+# A ranked line in an expert's vote runs at most this many characters, so
+# a COA label further than this from its "N." marker belongs to a
+# different rank. Unvalidated: chosen to span one wrapped line, never
+# measured against recorded votes.
+_RANK_PROXIMITY_CHARS = 200
+
+# What each expert is asked to bring to a COA. Shared by COA development
+# and by escalation, which invokes the same experts on the same prompt.
+_COA_EXPERTISE = {
+    "chief_strategist": "Strategic architecture and long-term viability",
+    "field_tactician": "Implementation feasibility and technical complexity",
+    "logistics_officer": "Resource requirements and dependency management",
+}
+
+
+def _coa_prompts(
+    expert_keys: list[str], session: WarRoomSession, assessment: str
+) -> dict[str, str]:
+    """Build the COA prompt for each expert that has a config."""
+    prompts: dict[str, str] = {}
+    for expert_key in expert_keys:
+        expert = EXPERT_CONFIGS.get(expert_key)
+        if expert:
+            prompts[expert_key] = COA_PROMPT.format(
+                role=expert.role,
+                problem=session.problem_statement,
+                assessment=assessment,
+                expertise=_COA_EXPERTISE.get(expert_key, "General analysis"),
+            )
+    return prompts
+
+
 async def phase_intel(
     orch: WarRoomOrchestrator,
     session: WarRoomSession,
@@ -100,22 +132,7 @@ async def phase_coa_development(
     if session.mode == "full_council":
         experts_to_invoke.extend(["field_tactician", "logistics_officer"])
 
-    expertise_map = {
-        "chief_strategist": "Strategic architecture and long-term viability",
-        "field_tactician": "Implementation feasibility and technical complexity",
-        "logistics_officer": "Resource requirements and dependency management",
-    }
-
-    prompts: dict[str, str] = {}
-    for expert_key in experts_to_invoke:
-        expert = EXPERT_CONFIGS.get(expert_key)
-        if expert:
-            prompts[expert_key] = COA_PROMPT.format(
-                role=expert.role,
-                problem=session.problem_statement,
-                assessment=assessment,
-                expertise=expertise_map.get(expert_key, "General analysis"),
-            )
+    prompts = _coa_prompts(experts_to_invoke, session, assessment)
 
     results = await orch._invoke_parallel(experts_to_invoke, prompts, session, "coa")
 
@@ -186,21 +203,7 @@ async def escalate(
     assessment = session.artifacts.get("assessment", {}).get("content", "N/A")
     additional_experts = ["field_tactician", "logistics_officer"]
 
-    expertise_map = {
-        "field_tactician": "Implementation feasibility and technical complexity",
-        "logistics_officer": "Resource requirements and dependency management",
-    }
-
-    prompts: dict[str, str] = {}
-    for expert_key in additional_experts:
-        expert = EXPERT_CONFIGS.get(expert_key)
-        if expert:
-            prompts[expert_key] = COA_PROMPT.format(
-                role=expert.role,
-                problem=session.problem_statement,
-                assessment=assessment,
-                expertise=expertise_map.get(expert_key, "General analysis"),
-            )
+    prompts = _coa_prompts(additional_experts, session, assessment)
 
     results = await orch._invoke_parallel(additional_experts, prompts, session, "coa")
 
@@ -303,7 +306,7 @@ def compute_borda_scores(
                 rp = rank_pos.get(rank, -1)
                 if rp < 0:
                     continue
-                if 0 <= rp < label_pos < rp + 200:
+                if 0 <= rp < label_pos < rp + _RANK_PROXIMITY_CHARS:
                     scores[label] += n - rank + 1
                     break
 
