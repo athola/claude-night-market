@@ -384,7 +384,7 @@ rebuild_binary() {
       ;;
     make)
       echo "Rebuilding with Make..."
-      make build --quiet
+      make --quiet
       ;;
     *)
       echo "ERROR: Cannot rebuild, unknown build system"

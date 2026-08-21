@@ -77,8 +77,8 @@ Analyze the `git status -sb` output for staged and unstaged changes. Stage or un
 Run `make lint` from the repository root to validate code quality
 before committing. It formats with ruff, applies the per-plugin check
 with autofix, and runs bandit, so no separate format step is needed.
-There is no root `make format` target; the plugin Makefiles that define
-one only apply inside their own directory.
+The root Makefile defines no `format` target, and the plugin Makefiles
+that define one only apply inside their own directory.
 
 Fix any errors immediately. Do not bypass pre-commit hooks with
 `--no-verify`. This check identifies issues early and avoids

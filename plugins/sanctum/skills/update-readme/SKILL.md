@@ -172,7 +172,8 @@ Agent(scribe:doc-editor) --target README.md
 ### Common Issues
 
 **Documentation out of sync**
-Run `make docs-update` to regenerate from code
+Run `make docs-sync-check` to verify the capabilities docs still
+match the plugin registrations
 
 **Build failures**
 Check that all required dependencies are installed

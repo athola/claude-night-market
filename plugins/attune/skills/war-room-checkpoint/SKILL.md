@@ -31,7 +31,8 @@ Lightweight inline assessment for determining whether a decision point within a 
 
 ## Verification
 
-Run `make test-checkpoint` to verify checkpoint logic works correctly after changes.
+Run `make attune-test` from the repository root to verify checkpoint
+logic still works after changes.
 
 ## Purpose
 

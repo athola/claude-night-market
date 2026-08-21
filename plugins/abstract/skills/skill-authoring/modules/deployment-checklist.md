@@ -252,7 +252,7 @@ Validation results:
 
 ```bash
 # Run all automated checks
-make validate-skill PATH=/path/to/skill/SKILL.md
+make validate-skills
 
 # Or manually:
 python scripts/skill_validator.py --path /path/to/skill/SKILL.md --strict

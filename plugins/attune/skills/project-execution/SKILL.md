@@ -207,7 +207,7 @@ def authenticate(email: str, password: str) -> Optional[User]:
 make lint          # Linting passes
 make typecheck     # Type checking passes
 make test          # All tests pass
-make coverage      # Coverage threshold met
+uv run pytest --cov  # Coverage threshold met
 ```
 **Verification:** Run `pytest -v` to verify tests pass.
 

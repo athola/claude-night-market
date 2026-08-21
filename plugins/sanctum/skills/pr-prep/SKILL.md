@@ -67,7 +67,11 @@ Confirm that `Skill(sanctum:git-workspace-review)` is complete. If changes were 
 
 ## Step 2: Run Quality Gates (`quality-gates`)
 
-Execute formatting, linting, and tests using project-specific commands (e.g., `make fmt`, `make lint`, `make test`). Resolve all failures before proceeding. If a task cannot be executed locally, document the reason and the alternative validation performed. Language-specific commands and failure handling are detailed in `modules/quality-gates.md`.
+Execute formatting, linting, and tests using project-specific commands
+(e.g., `make lint`, `make test`). Resolve all failures before
+proceeding. If a task cannot be executed locally, document the reason
+and the alternative validation performed. Language-specific commands
+and failure handling are detailed in `modules/quality-gates.md`.
 
 ### Capabilities Reference Sync
 

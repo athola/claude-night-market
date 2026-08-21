@@ -358,7 +358,8 @@ When `ENABLE_LSP_TOOL=1` is set, enhance accuracy verification with semantic ana
 ### Common Issues
 
 **Documentation out of sync**
-Run `make docs-update` to regenerate from code
+Run `make docs-sync-check` to verify the capabilities docs still
+match the plugin registrations
 
 **Build failures**
 Check that all required dependencies are installed

@@ -69,7 +69,7 @@ make test
 make test VERBOSE=1
 \`\`\`
 
-**Verification**: Run `make build && make test` to confirm build works.
+**Verification**: Run `make test` to confirm the plugin gate passes.
 ## When To Use
 
 - Extended conversations requiring context preservation
