@@ -16,8 +16,11 @@ than quietly narrowing enforcement.
 
 from __future__ import annotations
 
+import re
+import shlex
 from pathlib import Path
 
+import tomllib
 import yaml
 
 WORKFLOWS = Path(__file__).resolve().parent.parent / ".github" / "workflows"
@@ -72,3 +75,74 @@ def test_ci_lint_does_not_pin_the_root_config() -> None:
         assert "--config" not in script, (
             f"CI lint pins a config and loses the per-plugin union:\n{script}"
         )
+
+
+def _dev_extra_tools() -> set[str]:
+    """Console-script names provided only by the ``dev`` optional extra.
+
+    ``uv run`` resolves the default dependency set. Anything declared under
+    ``[project.optional-dependencies] dev`` is absent unless the step also
+    passes ``--extra dev``, so these are the names that need the flag.
+    """
+    pyproject = Path(__file__).resolve().parent.parent / "pyproject.toml"
+    doc = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+    dev = doc["project"]["optional-dependencies"]["dev"]
+    return {re.split(r"[><=!~\[]", spec, maxsplit=1)[0].strip() for spec in dev}
+
+
+def _uv_run_invocations(script: str) -> list[list[str]]:
+    """Split a ``run:`` script into the token lists of its ``uv run`` calls.
+
+    Returns one token list per ``uv run`` invocation, starting at the token
+    after ``run``. Lines that shell out to ``make`` are excluded: the
+    Makefile prepends ``.uv-tools`` to PATH and carries its own contract.
+    """
+    calls: list[list[str]] = []
+    for line in script.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "uv run" not in stripped:
+            continue
+        if re.search(r"\bmake\b", stripped):
+            continue
+        try:
+            tokens = shlex.split(stripped, comments=True)
+        except ValueError:
+            continue
+        for i in range(len(tokens) - 1):
+            if tokens[i] == "uv" and tokens[i + 1] == "run":
+                calls.append(tokens[i + 2 :])
+    return calls
+
+
+def test_ci_installs_the_dev_extra_before_running_its_tools() -> None:
+    """A ``uv run`` of a dev-extra tool must also pass ``--extra dev``.
+
+    Without the flag uv builds an environment that lacks the tool and the
+    step dies on "Failed to spawn", reporting failure without having
+    checked anything. That is the silent-gate failure this module exists
+    to prevent, one level down: the step is present but cannot run.
+    """
+    tools = _dev_extra_tools()
+    offenders: list[str] = []
+
+    for script in _run_steps():
+        for tokens in _uv_run_invocations(script):
+            # Exact token match, never substring: a path like
+            # --paths-to-mutate=plugins/black/x names a dev tool without
+            # invoking one, and a guard that cries wolf gets deleted.
+            reached = sorted({tok for tok in tokens if tok in tools})
+            if not reached:
+                continue
+            flagged = any(
+                tokens[i] == "--extra" and tokens[i + 1] == "dev"
+                for i in range(len(tokens) - 1)
+            ) or any(tok in ("--extra=dev", "--all-extras") for tok in tokens)
+            if not flagged:
+                offenders.append(
+                    f"  uv run {' '.join(tokens)}  (needs: {', '.join(reached)})"
+                )
+
+    assert not offenders, (
+        "uv run reaches for a dev-extra tool without --extra dev:\n"
+        + "\n".join(offenders)
+    )
