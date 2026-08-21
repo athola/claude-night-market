@@ -19,14 +19,19 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 
 _SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
 if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 
 from correct_fabricated_durations import (  # noqa: E402 - import after sys.path setup
+    _atomic_write,
+    backup_logs,
     correct_entry,
     correct_file,
+    main,
 )
 
 PAIRED = "abstract:skill-auditor:1786591624.0"
@@ -157,3 +162,196 @@ class TestCorrectFile:
 
         assert stats.corrected == 0
         assert log.stat().st_mtime_ns == mtime_before, "clean file was rewritten"
+
+
+class TestBackupLogs:
+    """The copy taken before anything is rewritten."""
+
+    def test_backup_copies_the_whole_tree(self, tmp_path: Path) -> None:
+        """The backup reproduces the log tree in full.
+
+        Given: a log tree with entries in nested skill directories
+        When: backup_logs runs
+        Then: a sibling directory holds an identical copy
+        """
+        logs = tmp_path / "logs"
+        nested = logs / "abstract" / "skill-auditor"
+        nested.mkdir(parents=True)
+        (nested / "2026-08-03.jsonl").write_text(json.dumps(_entry(UNPAIRED, 0)) + "\n")
+
+        destination = backup_logs(logs)
+
+        assert destination.exists()
+        copied = destination / "abstract" / "skill-auditor" / "2026-08-03.jsonl"
+        assert copied.read_text() == (nested / "2026-08-03.jsonl").read_text()
+
+    def test_backup_replaces_a_stale_one(self, tmp_path: Path) -> None:
+        """A previous backup is replaced, not merged into.
+
+        Given: a backup directory left by an earlier run
+        When: backup_logs runs again
+        Then: the stale contents are gone rather than merged with the new
+
+        A merged backup is worse than none: it would restore files the
+        current tree no longer contains.
+        """
+        logs = tmp_path / "logs"
+        logs.mkdir()
+        (logs / "current.jsonl").write_text("{}\n")
+        stale = tmp_path / "logs.pre-671-backup"
+        stale.mkdir()
+        (stale / "from-an-older-run.jsonl").write_text("{}\n")
+
+        destination = backup_logs(logs)
+
+        assert (destination / "current.jsonl").exists()
+        assert not (destination / "from-an-older-run.jsonl").exists()
+
+
+class TestAtomicWrite:
+    """The rewrite must not leave a log half-written."""
+
+    def test_failed_write_leaves_no_temp_file_behind(self, tmp_path: Path) -> None:
+        """A failed write strands no temporary file.
+
+        Given: a value that raises while the replacement text is built
+        When: _atomic_write is called
+        Then: the error propagates, the original stands, and no .tmp remains
+
+        A stranded temp file would accumulate silently on every failure.
+        """
+        target = tmp_path / "2026-08-03.jsonl"
+        target.write_text("original\n")
+
+        class Exploding:
+            def __str__(self) -> str:
+                raise RuntimeError("boom")
+
+        with pytest.raises((RuntimeError, TypeError)):
+            _atomic_write(  # type: ignore[list-item] - a non-str is the point
+                target, ["fine", Exploding()]
+            )
+
+        assert target.read_text() == "original\n"
+        assert not list(tmp_path.glob("*.tmp")), "a temp file was stranded"
+
+
+class TestBlankLines:
+    """Formatting artifacts are not entries."""
+
+    def test_blank_lines_are_skipped_and_not_counted(self, tmp_path: Path) -> None:
+        """Blank padding is neither counted nor flagged.
+
+        Given: a log padded with blank lines between entries
+        When: correct_file scans it
+        Then: only real entries are counted, and none is reported unparseable
+        """
+        log = tmp_path / "2026-08-03.jsonl"
+        log.write_text(
+            "\n"
+            + json.dumps(_entry(PAIRED, 126))
+            + "\n\n\n"
+            + json.dumps(_entry(UNPAIRED, 0))
+            + "\n\n"
+        )
+
+        stats = correct_file(log, apply=False)
+
+        assert stats.entries == 2
+        assert stats.unparseable == 0
+        assert stats.corrected == 1
+
+
+class TestCommandLine:
+    """The entry point, including the safety of its default."""
+
+    def _tree(self, tmp_path: Path, entries: list[dict]) -> Path:
+        logs = tmp_path / "logs"
+        nested = logs / "abstract" / "skill-auditor"
+        nested.mkdir(parents=True)
+        (nested / "2026-08-03.jsonl").write_text(
+            "\n".join(json.dumps(e) for e in entries) + "\n"
+        )
+        return logs
+
+    @staticmethod
+    def _rows(path: Path) -> list[dict]:
+        return [
+            json.loads(line) for line in path.read_text().splitlines() if line.strip()
+        ]
+
+    def test_default_run_writes_nothing(self, tmp_path, monkeypatch, capsys) -> None:
+        """The default run reports without touching the logs.
+
+        Given: a log tree containing a fabricated zero
+        When: the tool runs with no flags
+        Then: it reports what it would correct and changes nothing on disk
+
+        Reporting is the default precisely so that inspecting the damage
+        can never be the thing that causes it.
+        """
+        logs = self._tree(tmp_path, [_entry(UNPAIRED, 0), _entry(PAIRED, 126)])
+        log = logs / "abstract" / "skill-auditor" / "2026-08-03.jsonl"
+        before = log.read_text()
+        monkeypatch.setattr(sys, "argv", ["prog", "--log-dir", str(logs)])
+
+        assert main() == 0
+
+        assert "would correct 1" in capsys.readouterr().out
+        assert log.read_text() == before
+        assert not (tmp_path / "logs.pre-671-backup").exists()
+
+    def test_apply_backs_up_before_rewriting(self, tmp_path, monkeypatch, capsys):
+        """Applying corrections leaves the original recoverable.
+
+        Given: a log tree containing a fabricated zero
+        When: the tool runs with --apply
+        Then: the entry is corrected and the pre-change tree is recoverable
+        """
+        logs = self._tree(tmp_path, [_entry(UNPAIRED, 0), _entry(PAIRED, 126)])
+        monkeypatch.setattr(sys, "argv", ["prog", "--apply", "--log-dir", str(logs)])
+
+        assert main() == 0
+
+        assert "corrected 1" in capsys.readouterr().out
+        rows = self._rows(logs / "abstract" / "skill-auditor" / "2026-08-03.jsonl")
+        assert rows[0]["duration_ms"] is None
+        assert rows[1]["duration_ms"] == 126
+
+        backup = tmp_path / "logs.pre-671-backup"
+        restored = self._rows(
+            backup / "abstract" / "skill-auditor" / "2026-08-03.jsonl"
+        )
+        assert restored[0]["duration_ms"] == 0, "the backup lost the original value"
+
+    def test_missing_log_directory_is_an_error(self, tmp_path, monkeypatch, capsys):
+        """A missing log tree exits non-zero.
+
+        Given: a log directory path that does not exist
+        When: the tool runs
+        Then: it exits non-zero rather than reporting a clean run
+
+        Exiting 0 on a missing tree would read as "nothing to correct".
+        """
+        monkeypatch.setattr(sys, "argv", ["prog", "--log-dir", str(tmp_path / "gone")])
+
+        assert main() == 1
+        assert "no log directory" in capsys.readouterr().err
+
+    def test_a_clean_tree_reports_zero_and_skips_the_advice(
+        self, tmp_path, monkeypatch, capsys
+    ) -> None:
+        """A clean tree reports zero and offers no advice.
+
+        Given: a log tree with nothing fabricated in it
+        When: the tool runs with no flags
+        Then: it reports zero corrections and does not suggest --apply
+        """
+        logs = self._tree(tmp_path, [_entry(PAIRED, 126)])
+        monkeypatch.setattr(sys, "argv", ["prog", "--log-dir", str(logs)])
+
+        assert main() == 0
+
+        out = capsys.readouterr().out
+        assert "would correct 0" in out
+        assert "--apply" not in out
