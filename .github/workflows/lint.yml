@@ -54,8 +54,13 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v10.0.1
 
+      # --extra dev on both steps: ruff is an optional extra, and plain
+      # `uv run` installs only the default dependency set. Without the flag
+      # uv resolved the environment without ruff and the step died on
+      # "Failed to spawn: ruff" before linting a single file. The same trap
+      # is documented on `make test-ecosystem` in the Makefile.
       - name: Check formatting
-        run: uv run ruff format --check --config pyproject.toml plugins/
+        run: uv run --extra dev ruff format --check --config pyproject.toml plugins/
 
       - name: Run ruff check
-        run: uv run ruff check .
+        run: uv run --extra dev ruff check .
