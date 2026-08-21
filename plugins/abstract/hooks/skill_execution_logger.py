@@ -16,6 +16,7 @@ import json
 import os
 import re
 import sys
+import time
 import traceback
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -64,14 +65,15 @@ class ContinualEvaluator:
             json.dump(dict(self.skill_history), f, indent=None, separators=(",", ":"))
 
     def evaluate_iteration(
-        self, skill_ref: str, success: bool, duration_ms: int
+        self, skill_ref: str, success: bool, duration_ms: int | None
     ) -> dict[str, Any]:
         """Evaluate single iteration using continual metrics.
 
         Args:
             skill_ref: Skill reference (e.g., "abstract:skill-auditor")
             success: Whether execution succeeded
-            duration_ms: Execution duration in milliseconds
+            duration_ms: Execution duration in milliseconds, or None when the
+                execution could not be timed
 
         Returns:
             Dictionary with continual evaluation metrics
@@ -79,7 +81,11 @@ class ContinualEvaluator:
         """
         history = self.skill_history[skill_ref]
         history["accuracies"].append(1 if success else 0)
-        history["durations"].append(duration_ms)
+        # An untimed execution still counts as an execution, so it lands in
+        # accuracies but not in durations. Appending a placeholder would put a
+        # number that was never measured into the average (#671).
+        if duration_ms is not None:
+            history["durations"].append(duration_ms)
 
         # Save history after each iteration
         self._save_history()
@@ -93,7 +99,7 @@ class ContinualEvaluator:
         stability_gap = avg_accuracy - worst_case  # Key innovation!
 
         # Additional metrics
-        avg_duration = sum(durations) / len(durations)
+        avg_duration = sum(durations) / len(durations) if durations else 0.0
         execution_count = len(accuracies)
 
         return {
@@ -179,6 +185,47 @@ def sanitize_output(output: str, max_length: int = 5000) -> str:
     return output
 
 
+# A pre-execution state older than this belongs to an invocation whose post
+# hook never ran. The bound is deliberately generous: a long agent-backed skill
+# can legitimately run for many minutes, and purging a live invocation's state
+# would turn a good measurement into a missing one.
+ORPHAN_STATE_MAX_AGE_S = 3600
+
+
+def _purge_orphan_states(state_files: list[Path]) -> list[Path]:
+    """Delete abandoned pre-execution states, returning the live ones.
+
+    A state file is written by the pre hook and removed by the post hook. One
+    that outlives any plausible execution means the post hook never ran, so it
+    will sit in the directory forever, making every later completion of that
+    skill look ambiguous.
+
+    Args:
+        state_files: Candidate state files for one skill ref.
+
+    Returns:
+        The subset young enough to belong to a live invocation.
+
+    """
+    now = time.time()
+    live: list[Path] = []
+    for path in state_files:
+        try:
+            age = now - path.stat().st_mtime
+        except OSError:
+            continue
+        if age <= ORPHAN_STATE_MAX_AGE_S:
+            live.append(path)
+            continue
+        try:
+            path.unlink()
+        except OSError as exc:
+            sys.stderr.write(
+                f"skill_execution_logger: orphan cleanup failed for {path}: {exc}\n"
+            )
+    return live
+
+
 def create_log_entry(
     tool_input: dict[str, Any],
     tool_output: str,
@@ -207,13 +254,21 @@ def create_log_entry(
     skill_ref = f"{plugin}:{skill}"
     end_time = datetime.now(timezone.utc)
 
-    # Calculate duration from pre-execution state if available
+    # An execution this hook could not time reports None, never 0. A zero is
+    # indistinguishable from a real sub-millisecond reading, so it survives
+    # every downstream ">= 0" filter and counts as a sample, pulling averages
+    # toward zero and hiding the fact that nothing was measured (#671).
+    #
+    # A negative interval is discarded for the same reason. It means the wall
+    # clock moved backward between the two hooks, so no execution took that
+    # long; storing it and leaving the report to filter it out kept a
+    # non-measurement in the record.
+    duration_ms: int | None = None
     if pre_state and "timestamp" in pre_state:
         start_time = datetime.fromisoformat(pre_state["timestamp"])
-        duration_ms = int((end_time - start_time).total_seconds() * 1000)
-    else:
-        # Fallback: approximate with current time
-        duration_ms = 0
+        measured = int((end_time - start_time).total_seconds() * 1000)
+        if measured >= 0:
+            duration_ms = measured
 
     # Determine outcome based on output
     # Check warning first since warnings mentioning "failed" are still partial
@@ -313,13 +368,30 @@ def main() -> None:
         state_dir = get_observability_dir()
         state_files = list(state_dir.glob(f"{skill_ref}:*.json"))
 
-        if state_files:
-            # Get most recent state file
-            latest_file = max(state_files, key=lambda p: p.stat().st_mtime)
-            processing_file = latest_file.with_suffix(".processing")
+        # Orphans first: a state file older than any execution could plausibly
+        # run belongs to an invocation whose post hook never ran, usually a
+        # killed session. Left in place it is indistinguishable from a live
+        # invocation and makes every later completion of this skill ambiguous.
+        state_files = _purge_orphan_states(state_files)
+
+        # The glob keys on skill ref alone, and nothing in a PostToolUse
+        # payload identifies which invocation it belongs to, so with more than
+        # one live candidate this hook cannot know which start time is its
+        # own. Picking either end of the mtime order guesses: newest hands
+        # this entry the start of an invocation still running, which is how a
+        # completion reports an interval that began after it ended, and oldest
+        # is only right when completions happen to be first-in-first-out.
+        #
+        # An unidentifiable pairing is reported as unmeasured rather than
+        # guessed. A wrong interval is worse than a missing one: it is
+        # indistinguishable from a real reading downstream, which is the
+        # conflation #671 exists to remove.
+        if len(state_files) == 1:
+            state_file = state_files[0]
+            processing_file = state_file.with_suffix(".processing")
             try:
                 # Atomic rename to claim the file before reading
-                latest_file.rename(processing_file)
+                state_file.rename(processing_file)
                 with open(processing_file) as f:
                     pre_state = json.load(f)
                 try:
