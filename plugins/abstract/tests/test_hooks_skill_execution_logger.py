@@ -285,7 +285,12 @@ class TestDurationTracking:
 
         Given: No pre-execution state file exists
         When: The PostToolUse hook executes
-        Then: Duration should default to 0 and execution should continue
+        Then: Duration is None and execution should continue
+
+        This asserted a duration of 0 until #671. A zero is indistinguishable
+        from a real sub-millisecond reading, so it passed every downstream
+        ">= 0" filter and was counted as a timing sample that no clock ever
+        produced. None is the honest value for an execution nothing timed.
         """
         # Given
         skill_ref = "abstract:skill-auditor"
@@ -306,7 +311,10 @@ class TestDurationTracking:
         log_file = log_dir / f"{log_date}.jsonl"
         entry = json.loads(log_file.read_text().strip())
 
-        assert entry["duration_ms"] == 0, "Duration should be 0 without pre-state"
+        assert entry["duration_ms"] is None, (
+            f"unmeasured execution reported {entry['duration_ms']!r}, "
+            "which is indistinguishable from a real measurement"
+        )
 
 
 class TestOutcomeDetection:
