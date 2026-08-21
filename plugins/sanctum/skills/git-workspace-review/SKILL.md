@@ -74,7 +74,15 @@ Analyze the `git status -sb` output for staged and unstaged changes. Stage or un
 
 ## Step 3: Check Code Quality (`code-quality-check`)
 
-Run `make format && make lint` to validate code quality before committing. Fix any errors immediately. Do not bypass pre-commit hooks with `--no-verify`. This check identifies issues early and avoids late-stage pipeline failures.
+Run `make lint` from the repository root to validate code quality
+before committing. It formats with ruff, applies the per-plugin check
+with autofix, and runs bandit, so no separate format step is needed.
+There is no root `make format` target; the plugin Makefiles that define
+one only apply inside their own directory.
+
+Fix any errors immediately. Do not bypass pre-commit hooks with
+`--no-verify`. This check identifies issues early and avoids
+late-stage pipeline failures.
 
 ## Step 4: Review Diff Statistics (`diff-stat`)
 
@@ -103,4 +111,7 @@ Complete all progress tracking items. You should have a clear understanding of m
 
 ## Troubleshooting
 
-If pre-commit hooks block a commit, resolve the reported issues instead of using `--no-verify`. Run `make format` to fix styling errors automatically and use `make lint` to isolate logical failures. If merge conflicts occur, use `git merge --abort` to return to a clean state before retrying.
+If pre-commit hooks block a commit, resolve the reported issues instead
+of using `--no-verify`. `make lint` fixes styling automatically and
+surfaces the logical failures that remain. If merge conflicts occur, use
+`git merge --abort` to return to a clean state before retrying.

@@ -62,7 +62,12 @@ def _entries(claude_home: Path, plugin: str, skill: str) -> list[dict]:
 
 
 def test_logs_real_skill_invocation_from_stdin(tmp_path):
-    """A Skill PostToolUse payload on stdin writes a telemetry entry."""
+    """A Skill PostToolUse payload on stdin writes a telemetry entry.
+
+    Given: a Skill PostToolUse payload carrying a real session id
+    When: the hook reads it from stdin
+    Then: an entry is written, and it carries that session id
+    """
     payload = {
         "hook_event_name": "PostToolUse",
         "tool_name": "Skill",
@@ -82,7 +87,12 @@ def test_logs_real_skill_invocation_from_stdin(tmp_path):
 
 
 def test_non_skill_payload_writes_nothing(tmp_path):
-    """A non-Skill tool payload on stdin is ignored."""
+    """A non-Skill tool payload on stdin is ignored.
+
+    Given: a Bash PostToolUse payload
+    When: the hook reads it from stdin
+    Then: the hook exits 0, and no telemetry file is created
+    """
     payload = {
         "tool_name": "Bash",
         "tool_input": {"command": "ls"},
@@ -140,6 +150,10 @@ def _payload(skill_ref: str) -> dict:
 def test_unmeasured_execution_reports_none_not_zero(tmp_path):
     """With no pre-state, duration_ms is None rather than a fabricated 0.
 
+    Given: no pre-execution state file for the skill
+    When: the post hook runs
+    Then: an entry is written, and its duration_ms is None
+
     A zero is indistinguishable from a real sub-millisecond measurement, so
     it passes every downstream ">= 0" filter and counts as a sample. None
     says "not measured", which is the truth the entry has to carry.
@@ -157,10 +171,14 @@ def test_unmeasured_execution_reports_none_not_zero(tmp_path):
 def test_ambiguous_pairing_is_unmeasured_not_guessed(tmp_path):
     """Two live states for one skill: report None rather than pick one.
 
+    Given: two live pre-execution states for one skill
+    When: the post hook runs
+    Then: duration_ms is None, and no start time is guessed
+
     The state glob keys on skill ref alone and a PostToolUse payload carries
     nothing identifying its invocation, so with two live candidates the hook
     cannot know which start time is its own. Newest-by-mtime yields the start
-    of an invocation still running (the source of negative intervals);
+    of an invocation still running, the source of negative intervals, and
     oldest-by-mtime is right only when completions are first-in-first-out.
     Guessing produces a number indistinguishable from a real measurement,
     which is the conflation this issue removes.
@@ -183,6 +201,10 @@ def test_ambiguous_pairing_is_unmeasured_not_guessed(tmp_path):
 
 def test_orphaned_state_is_purged_so_a_live_pairing_still_resolves(tmp_path):
     """An abandoned state must not make every later completion ambiguous.
+
+    Given: one state abandoned hours ago beside one live state
+    When: the post hook runs
+    Then: the live interval is measured, and the orphan is purged
 
     The pre hook writes a state the post hook removes. When a session dies
     between them the file survives forever. Treating it as a live candidate
@@ -217,6 +239,10 @@ def test_orphaned_state_is_purged_so_a_live_pairing_still_resolves(tmp_path):
 
 def test_future_dated_pre_state_is_unmeasured_not_negative(tmp_path):
     """A start time after the end time yields None, never a negative.
+
+    Given: a pre-execution state dated after the hook will finish
+    When: the post hook runs
+    Then: duration_ms is None, and no negative interval is stored
 
     A backward wall-clock adjustment between the two hooks stores an
     interval no execution could have taken. Reporting it as a measurement

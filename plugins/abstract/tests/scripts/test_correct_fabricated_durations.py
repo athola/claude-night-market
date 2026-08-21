@@ -55,7 +55,12 @@ class TestCorrectEntry:
     """The decision of which readings were never measured."""
 
     def test_unpaired_zero_becomes_none(self) -> None:
-        """A zero on an unpaired entry is the logger's fallback, not a reading."""
+        """A zero on an unpaired entry is the logger's fallback, not a reading.
+
+        Given: an entry with a bare uuid4 invocation_id and duration_ms 0
+        When: correct_entry inspects it
+        Then: a corrected copy is returned, and its duration_ms is None
+        """
         corrected = correct_entry(_entry(UNPAIRED, 0))
         assert corrected is not None
         assert corrected["duration_ms"] is None
@@ -63,28 +68,52 @@ class TestCorrectEntry:
     def test_paired_zero_is_left_alone(self) -> None:
         """A zero on a paired entry could be a real sub-millisecond reading.
 
+        Given: an entry with a plugin:skill:timestamp id and duration_ms 0
+        When: correct_entry inspects it
+        Then: None is returned, meaning no correction is due
+
         This is the precision half of the correction. The fallback and a
-        genuine fast execution both store 0; only the invocation_id shape
-        separates them, so a paired zero must survive untouched.
+        genuine fast execution both store 0, and only the invocation_id
+        shape separates them, so a paired zero must survive untouched.
         """
         assert correct_entry(_entry(PAIRED, 0)) is None
 
     def test_negative_becomes_none(self) -> None:
-        """No execution takes negative time, however the entry was paired."""
+        """No execution takes negative time, however the entry was paired.
+
+        Given: a paired entry whose duration_ms is negative
+        When: correct_entry inspects it
+        Then: a corrected copy is returned, and its duration_ms is None
+        """
         corrected = correct_entry(_entry(PAIRED, -2375))
         assert corrected is not None
         assert corrected["duration_ms"] is None
 
     def test_ordinary_reading_is_untouched(self) -> None:
-        """A positive measurement is left exactly as recorded."""
+        """A positive measurement is left exactly as recorded.
+
+        Given: a paired entry with an ordinary positive duration_ms
+        When: correct_entry inspects it
+        Then: None is returned, and the reading stands unaltered
+        """
         assert correct_entry(_entry(PAIRED, 126)) is None
 
     def test_already_none_is_untouched(self) -> None:
-        """An entry the fixed producer wrote needs no second pass."""
+        """An entry the fixed producer wrote needs no second pass.
+
+        Given: an entry whose duration_ms is already None
+        When: correct_entry inspects it
+        Then: None is returned, and the pass stays idempotent
+        """
         assert correct_entry(_entry(UNPAIRED, None)) is None
 
     def test_unpaired_positive_is_untouched(self) -> None:
-        """Only the zero is fabricated; an unpaired positive is still a reading."""
+        """Only the zero is fabricated, and an unpaired positive still counts.
+
+        Given: an unpaired entry with a positive duration_ms
+        When: correct_entry inspects it
+        Then: None is returned, because the interval was genuinely measured
+        """
         assert correct_entry(_entry(UNPAIRED, 140)) is None
 
 
@@ -95,7 +124,12 @@ class TestCorrectFile:
         path.write_text("\n".join(json.dumps(e) for e in entries) + "\n")
 
     def test_dry_run_reports_without_writing(self, tmp_path: Path) -> None:
-        """Counting the damage must never be what changes it."""
+        """Counting the damage must never be what changes it.
+
+        Given: a log holding one fabricated zero and one real reading
+        When: correct_file scans it with apply False
+        Then: the count reports one correction, and the bytes are unchanged
+        """
         log = tmp_path / "2026-08-03.jsonl"
         self._write(log, [_entry(UNPAIRED, 0), _entry(PAIRED, 126)])
         before = log.read_text()
@@ -106,7 +140,12 @@ class TestCorrectFile:
         assert log.read_text() == before, "dry run modified the file"
 
     def test_apply_corrects_only_the_fabricated_rows(self, tmp_path: Path) -> None:
-        """Every other row survives byte-for-byte in its original order."""
+        """Every other row survives byte-for-byte in its original order.
+
+        Given: a log of four rows, two of them fabricated
+        When: correct_file rewrites it with apply True
+        Then: the two are nulled, and the real reading and paired zero stand
+        """
         log = tmp_path / "2026-08-03.jsonl"
         rows = [
             _entry(PAIRED, 126),
@@ -127,7 +166,12 @@ class TestCorrectFile:
         assert out[3]["duration_ms"] == 0, "a paired zero was rewritten"
 
     def test_every_other_field_round_trips(self, tmp_path: Path) -> None:
-        """Correction touches duration_ms and nothing else."""
+        """Correction touches duration_ms and nothing else.
+
+        Given: a fabricated entry carrying every other telemetry field
+        When: correct_file rewrites it
+        Then: duration_ms is None, and each remaining field round-trips
+        """
         log = tmp_path / "2026-08-03.jsonl"
         original = _entry(UNPAIRED, 0)
         self._write(log, [original])
@@ -141,7 +185,12 @@ class TestCorrectFile:
         assert out == expected
 
     def test_malformed_line_is_preserved_not_dropped(self, tmp_path: Path) -> None:
-        """A line this tool cannot parse is data it must not delete."""
+        """A line this tool cannot parse is data it must not delete.
+
+        Given: a log holding one fabricated entry and one unparseable line
+        When: correct_file rewrites it
+        Then: the bad line is counted, and it survives verbatim
+        """
         log = tmp_path / "2026-08-03.jsonl"
         log.write_text(json.dumps(_entry(UNPAIRED, 0)) + "\n{ not json\n")
 
@@ -153,7 +202,12 @@ class TestCorrectFile:
         assert lines[1] == "{ not json"
 
     def test_a_clean_file_is_not_rewritten(self, tmp_path: Path) -> None:
-        """No corrections means the file is left completely alone."""
+        """No corrections means the file is left completely alone.
+
+        Given: a log with nothing fabricated in it
+        When: correct_file runs with apply True
+        Then: zero corrections are reported, and the mtime does not move
+        """
         log = tmp_path / "2026-08-03.jsonl"
         self._write(log, [_entry(PAIRED, 126)])
         mtime_before = log.stat().st_mtime_ns
@@ -172,7 +226,7 @@ class TestBackupLogs:
 
         Given: a log tree with entries in nested skill directories
         When: backup_logs runs
-        Then: a sibling directory holds an identical copy
+        Then: a sibling directory exists, and its copy matches byte for byte
         """
         logs = tmp_path / "logs"
         nested = logs / "abstract" / "skill-auditor"
@@ -190,7 +244,7 @@ class TestBackupLogs:
 
         Given: a backup directory left by an earlier run
         When: backup_logs runs again
-        Then: the stale contents are gone rather than merged with the new
+        Then: the current file is present, and the stale one is gone
 
         A merged backup is worse than none: it would restore files the
         current tree no longer contains.
@@ -329,7 +383,7 @@ class TestCommandLine:
 
         Given: a log directory path that does not exist
         When: the tool runs
-        Then: it exits non-zero rather than reporting a clean run
+        Then: it returns 1, and says so on stderr rather than reporting clean
 
         Exiting 0 on a missing tree would read as "nothing to correct".
         """

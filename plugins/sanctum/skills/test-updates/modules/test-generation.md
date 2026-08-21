@@ -113,7 +113,8 @@ patterns.
 
 ```python
 def test_{function_name}_{scenario}():
-    """
+    """{summary}
+
     GIVEN {given_context}
     WHEN {when_action}
     THEN {then_expected}
@@ -136,7 +137,8 @@ class Test{ClassName}:
 
     @pytest.mark.bdd
     def test_{method_name}_{scenario}(self):
-        """
+        """{summary}
+
         GIVEN {given_context}
         WHEN {when_action}
         THEN {then_expected}
@@ -154,7 +156,8 @@ class Test{ClassName}:
 ```python
 @pytest.mark.bdd
 def test_{endpoint}_{method}_{scenario}(client):
-    """
+    """{summary}
+
     GIVEN {given_context}
     WHEN making {method} request to {endpoint}
     THEN response should be {expected_status}

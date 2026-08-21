@@ -312,7 +312,8 @@ class TestGitWorkflow:
     """BDD-style tests for Git workflow operations."""
 
     def test_commit_workflow_with_staged_changes(self):
-        """
+        """Committing with staged changes produces a formatted commit.
+
         GIVEN a Git repository with staged changes
         WHEN the user runs the commit workflow
         THEN it should create a commit with proper message format

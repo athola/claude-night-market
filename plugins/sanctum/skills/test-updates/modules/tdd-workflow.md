@@ -27,7 +27,8 @@ Implements strict Test-Driven Development workflow with RED-GREEN-REFACTOR cycle
 **Implementation Pattern:**
 ```python
 def test_new_feature_behavior():
-    """
+    """The behavior holds in the context described.
+
     GIVEN a specific context
     WHEN an action is performed
     THEN expected outcome occurs

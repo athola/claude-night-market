@@ -106,6 +106,24 @@ def step_then_commit_created(context):
 BDD-style pytest tests with descriptive names and docstrings
 for unit and API testing.
 
+#### The summary line is not optional
+
+Every docstring below opens with a one-line summary, then a blank
+line, then the GIVEN/WHEN/THEN clauses. Both halves are load-bearing
+and they answer to different checkers:
+
+- ruff's `D212` rejects a docstring whose summary does not start on
+  the first line, so opening with a bare `"""` and dropping straight
+  into `GIVEN` fails the repo lint gate.
+- `scripts/quality_checker.py` scores a test file on whether each
+  docstring contains all four of `given`, `when`, `then`, and `and`.
+  The match is a case-insensitive substring, so `Given:` counts the
+  same as `GIVEN`.
+
+Writing only the summary passes lint and scores poorly. Writing only
+the clauses scores well and fails lint. Both, in that order, satisfy
+each.
+
 #### Structure Example
 
 ```python
@@ -114,7 +132,8 @@ class TestGitWorkflow:
 
     @pytest.mark.bdd
     def test_commit_workflow_with_staged_changes(self):
-        """
+        """Committing with staged changes produces a formatted commit.
+
         GIVEN a Git repository with staged changes
         WHEN the user runs the commit workflow
         THEN it should create a commit with proper message format
@@ -134,7 +153,8 @@ class TestGitWorkflow:
 
     @pytest.mark.bdd
     def test_commit_workflow_rejects_empty_changes(self):
-        """
+        """Committing with nothing staged is rejected.
+
         GIVEN a Git repository with no staged changes
         WHEN the user runs the commit workflow
         THEN it should reject with appropriate error message
