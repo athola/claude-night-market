@@ -8,6 +8,8 @@ So that agents can find non-obvious analogies from other fields
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+
 import pytest
 
 from tome.channels import triz
@@ -833,6 +835,19 @@ class TestCanonicalMatrixLookup:
     So that I can cross-check the software heuristics against the source data
     """
 
+    @pytest.fixture(autouse=True)
+    def _clear_matrix_cache(self) -> Iterator[None]:
+        """Clear the loader cache around every test in this class.
+
+        The loader is memoized with ``functools.cache``. Clearing only on
+        the way in would let a test that feeds it a mocked data file leave
+        that result cached for whatever runs next, so the teardown half
+        matters as much as the setup half.
+        """
+        triz._load_canonical_matrix.cache_clear()
+        yield
+        triz._load_canonical_matrix.cache_clear()
+
     @pytest.mark.unit
     def test_known_cell_returns_expected_principles(self) -> None:
         """
@@ -893,7 +908,6 @@ class TestCanonicalMatrixLookup:
         def _raise_missing(*_args: object, **_kwargs: object) -> object:
             raise FileNotFoundError("simulated missing vendored data file")
 
-        monkeypatch.setattr(triz, "_CANONICAL_MATRIX_CACHE", None)
         monkeypatch.setattr(triz.resources, "files", _raise_missing)
 
         assert triz._load_canonical_matrix() == {}
@@ -920,7 +934,6 @@ class TestCanonicalMatrixLookup:
             def read_text(self, encoding: str = "utf-8") -> str:
                 return csv_text
 
-        monkeypatch.setattr(triz, "_CANONICAL_MATRIX_CACHE", None)
         monkeypatch.setattr(triz.resources, "files", lambda *_a, **_k: _FakeResource())
 
         assert triz._load_canonical_matrix() == {(1, 2): [1, 8, 15]}
@@ -972,7 +985,6 @@ class TestCanonicalMatrixLookup:
             def read_text(self, encoding: str = "utf-8") -> str:
                 return csv_text
 
-        monkeypatch.setattr(triz, "_CANONICAL_MATRIX_CACHE", None)
         monkeypatch.setattr(triz.resources, "files", lambda *_a, **_k: _FakeResource())
 
         assert triz._load_canonical_matrix() == {}
@@ -1002,7 +1014,6 @@ class TestCanonicalMatrixLookup:
             def read_text(self, encoding: str = "utf-8") -> str:
                 return csv_text
 
-        monkeypatch.setattr(triz, "_CANONICAL_MATRIX_CACHE", None)
         monkeypatch.setattr(triz.resources, "files", lambda *_a, **_k: _FakeResource())
 
         assert triz._load_canonical_matrix() == {(1, 2): [1, 8, 15]}

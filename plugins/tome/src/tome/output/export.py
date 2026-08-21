@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import yaml
+
 from tome.models import ResearchSession
 from tome.synthesis.ranker import group_by_theme
 
@@ -18,25 +20,22 @@ def export_for_memory_palace(session: ResearchSession) -> str:
     if session.created_at:
         created = session.created_at.strftime("%Y-%m-%d")
 
-    def _yaml_quote(val: str) -> str:
-        if any(c in val for c in (":", "#", "\n", '"', "'", "{", "}")):
-            return (
-                '"'
-                + val.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
-                + '"'
-            )
-        return val
-
-    # Build YAML frontmatter
+    # Frontmatter goes through the YAML writer rather than hand-rolled
+    # quoting: a topic starting with "-", "[" or "%", or one that is bare
+    # yes/no/null, re-parses as the wrong type when emitted unquoted, and
+    # memory-palace then cannot ingest it.
+    front = {
+        "topic": session.topic,
+        "domain": session.domain,
+        "session_id": session.id,
+        "date": created,
+        "finding_count": len(session.findings),
+        "channels": list(session.channels),
+        "type": "research-export",
+    }
     lines = [
         "---",
-        f"topic: {_yaml_quote(session.topic)}",
-        f"domain: {_yaml_quote(session.domain)}",
-        f"session_id: {session.id}",
-        f"date: {created}",
-        f"finding_count: {len(session.findings)}",
-        f"channels: [{', '.join(session.channels)}]",
-        "type: research-export",
+        yaml.safe_dump(front, sort_keys=False, allow_unicode=True).rstrip(),
         "---",
         "",
         f"# Research: {session.topic}",

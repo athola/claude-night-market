@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import quote_plus
 
+from tome.channels import deduplicate_queries
 from tome.models import Finding
 from tome.synthesis.ranker import compute_relevance_score
 
@@ -41,14 +42,7 @@ def expand_github_queries(topic: str, max_variants: int = 5) -> list[str]:
         f"site:github.com {topic} framework example",
     ]
 
-    seen: set[str] = set()
-    unique: list[str] = []
-    for q in queries:
-        if q not in seen:
-            seen.add(q)
-            unique.append(q)
-
-    return unique[:max_variants]
+    return deduplicate_queries(queries)[:max_variants]
 
 
 # ---------------------------------------------------------------------------
