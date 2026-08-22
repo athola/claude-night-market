@@ -261,6 +261,31 @@ class TestBackupLogs:
         assert (destination / "current.jsonl").exists()
         assert not (destination / "from-an-older-run.jsonl").exists()
 
+    def test_a_second_run_does_not_overwrite_the_original_backup(
+        self, tmp_path: Path
+    ) -> None:
+        """The copy of the uncorrected logs survives a second --apply.
+
+        Given: a backup taken before the first correction
+        When:  backup_logs runs again, now over the corrected tree
+        Then:  the first backup still holds the uncorrected values
+
+        Replacing the destination in place makes the second run copy the
+        already-corrected logs over the only record of what they said
+        before, which is the one thing a backup is for.
+        """
+        logs = tmp_path / "logs"
+        logs.mkdir()
+        (logs / "run.jsonl").write_text('{"duration_ms": 0}\n')
+
+        first = backup_logs(logs)
+        (logs / "run.jsonl").write_text('{"duration_ms": null}\n')
+        second = backup_logs(logs)
+
+        assert first != second
+        assert (first / "run.jsonl").read_text() == '{"duration_ms": 0}\n'
+        assert (second / "run.jsonl").read_text() == '{"duration_ms": null}\n'
+
 
 class TestAtomicWrite:
     """The rewrite must not leave a log half-written."""

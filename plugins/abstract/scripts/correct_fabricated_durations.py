@@ -157,13 +157,22 @@ def _atomic_write(path: Path, lines: list[str]) -> None:
 def backup_logs(log_dir: Path) -> Path:
     """Copy the log tree next to itself before any rewrite.
 
+    Each run gets its own destination. Copying over an existing backup
+    would put the already-corrected tree where the uncorrected one was,
+    so a second ``--apply`` would destroy the only record of what the
+    logs said before the first. A fresh directory also keeps the copy
+    unmerged: nothing from an earlier run survives inside a later one.
+
     Returns:
-        The backup directory.
+        The backup directory, which is new and did not exist before.
 
     """
-    destination = log_dir.with_name(log_dir.name + ".pre-671-backup")
-    if destination.exists():
-        shutil.rmtree(destination)
+    base = log_dir.with_name(log_dir.name + ".pre-671-backup")
+    destination = base
+    suffix = 2
+    while destination.exists():
+        destination = base.with_name(f"{base.name}.{suffix}")
+        suffix += 1
     shutil.copytree(log_dir, destination)
     return destination
 
