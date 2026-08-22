@@ -15,6 +15,7 @@ so the team replicates what worked and avoids what did not.
 |----|--------|-------|------|
 | LL-001 | open | Linked-worktree commits corrupt the index via hook-run git subprocesses | 2026-07-04 |
 | LL-002 | open | A commit that creates a discussion and one that fixes it are the same shape to the reconciler | 2026-08-06 |
+| LL-003 | open | A completeness score measured a different gap than the one I was closing | 2026-08-22 |
 
 ## Lessons
 
@@ -83,6 +84,38 @@ The house convention read a comment on a finding as "somebody triaged this", and
 ### Recommendation / action item
 
 Resolved for the forward path. scripts/reconcile_discussions.py and the Addresses-Discussion: trailer close the loop, so a fix now announces itself and the comment posts automatically. The mention bucket stays, and stays a lead for a human rather than a status: read an entry there as "a commit touched this number", then check which direction it touched it. Four findings fixed before the trailer convention existed (#604, #610, #586, #520) needed a hand-written write-back, which is the shape of every pre-trailer backlog item.
+
+## LL-003: A completeness score measured a different gap than the one I was closing
+
+- Status: open
+- Date: 2026-08-22
+- Phase: review
+- Category: process
+- Owner: alext
+- Links: PR #662, commit 80e22e0f, discussion #682
+<!-- key: 74088a4034cd -->
+
+### What happened
+
+Running /abstract:make-dogfood over PR #662, the dogfooder scored conjure at 100% coverage, 0 targets missing. Inspecting the plugin anyway showed demo-conjure-commands depending on two targets whose every recipe line is an @echo, all three advertising (LIVE). Running the aggregate printed "Demo Complete" having executed no plugin code.
+
+### What went well / where we got lucky
+
+Running `make help` on the real target, rather than trusting the score, surfaced delegate-setup and delegate-doctor already running the exact commands I had just drafted as new targets. The duplication was caught before it reached a commit.
+
+### What did not work
+
+I wrote demo-provider-status and demo-provider-doctor, about twenty lines, before discovering they duplicated existing targets. Reverted whole. The committed fix adds no targets at all: it repoints one prerequisite at delegate-setup and deletes three false (LIVE) labels, five insertions against five deletions.
+
+### Root cause
+
+The dogfooder measures documented commands against Makefile targets. Under that metric conjure was genuinely complete, and the report was correct. The metric cannot see "the aggregate runs nothing real", so a 100% score was consistent with the defect rather than evidence against it. I read a high score on one question as an answer to a different one, then reached for addition rather than inspection.
+
+### Recommendation / action item
+
+Action: before adding a target because a coverage tool reports a gap, or declines to, run the plugin's own `help` and read what already exists -- Owner: alext -- Due: standing -- Status: applied in 80e22e0f.
+
+A score answers the question its metric asks, not necessarily the one you have, so treat a perfect score as a prompt to check what was measured. Guarded forward by tests/test_provider_status_demo_is_live.py, which fails any target advertising LIVE with an echo-only recipe.
 
 ## Archive
 
