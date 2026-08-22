@@ -4,7 +4,7 @@ description: Shared shell execution contract for external LLM delegation service
 category: delegation-infrastructure
 tags: [shell-execution, delegation, cli, services]
 dependencies: []
-estimated_tokens: 400
+estimated_tokens: 1100
 ---
 
 # Shared Shell Execution Capability
@@ -31,7 +31,7 @@ where it differs.
 | `command` | required | Binary spawned; must appear in `VERIFIED_BINARIES` |
 | `subcommand` | `()` | Words between the binary and the flags |
 | `prompt_flag` | `"-p"` | `None` delivers the prompt positionally |
-| `output_format_flag` | `"--output-format"` | Spelling of the format flag |
+| `output_format_flag` | `"--output-format"` | Spelling; `None` emits no format flag |
 | `temperature_flag` | `"--temperature"` | `None` suppresses the flag entirely |
 | `inline_files` | `False` | Read file contents into the prompt |
 | `stdin_prompt` | `False` | Deliver the prompt on stdin, not argv |
@@ -40,6 +40,128 @@ where it differs.
 | `auth_probe` | `("auth", "status")` | Argv that reports credential state |
 | `priority` | `50` | Position in the candidate order |
 | `strengths` | `()` | Requirement keys this provider is preferred for |
+
+## The provider dialects
+
+The table below was probed against the installed binaries on
+2026-08-22, not read off documentation.
+Flag spellings drift between releases, so the versions are part of the
+claim: re-probe before trusting a row against a newer CLI.
+
+| Provider | Binary (version) | Subcommand | Prompt | Format flag | Temperature |
+|----------|------------------|------------|--------|-------------|-------------|
+| `gemini` | gemini 0.26.0 | none | `-p` | `--output-format` | none |
+| `qwen` | qwen 0.4.0 | none | `-p`, deprecated | `--output-format` | none |
+| `minimax` | mmx 1.0.19 | `text chat` | `--message` | `--output` | `--temperature` |
+| `glm` | claude 2.1.240 | none | `-p` | `--output-format` | none |
+| `muse` | muse 0.2.1 | `exec` | positional | boolean `--json` | none |
+| `codex` | codex-cli 0.77.0 | `exec` | positional | boolean `--json` | none |
+| `opencode` | opencode 1.18.18 | `run` | positional | `--format` | none |
+| `glimmer` | ollama 0.13.1 | `run <model>` | stdin | `--format` | none |
+
+Four of the eight disagreed with what the registry declared, and the
+mismatch was reachable from a documented invocation: passing
+`--format json` reached the CLI as an unknown argument.
+`TestFlagSpellingsMatchTheRealClis` pins every spelling above against
+argv, so the suite stays hermetic while the binaries stay the source.
+
+### What each CLI does that changes caller code
+
+**gemini** documents no temperature flag and exits 1 on one.
+Its `auth status` subcommand is not a status report: it attempts
+authentication and can exit with a stack trace.
+That probe never runs, because gemini authenticates by API key and the
+registry checks `GEMINI_API_KEY` instead.
+The check errs the safe way: a host holding cached OAuth credentials
+reports `FAILED` for the unset variable rather than claiming a health it
+has not confirmed.
+
+**qwen** deprecated `-p` in favor of a positional prompt, which still
+works but is documented for removal.
+More importantly, it exits 0 on a rejected credential: `qwen auth
+status` prints `[API Error: 401 Incorrect API key provided]` and exits
+0, and a real delegation returns an envelope carrying
+`"subtype":"success","is_error":false` while the result text holds the
+same error.
+Exit code is not a success signal for this CLI, and `--verify` reports
+`qwen: OK` today because of it.
+Tracked in issue #685.
+
+**minimax** is the one provider in the fleet that accepts a
+temperature, and it branches its output on whether stdout is a
+terminal.
+With stdout captured it answers `{"error": {"code": 3, ...}}` and exits
+3.
+With stdout attached to a terminal it opens an interactive picker
+asking how to authenticate, and waits.
+`verify_service` passes `capture_output=True`, which is what keeps the
+probe on the first path, so that argument is load-bearing rather than
+incidental: streaming the probe's output for friendlier progress
+reporting would hang it until the timeout.
+
+**glm** has no CLI of its own.
+The stock `claude` binary reaches Z.ai through the environment overlay,
+so its failures read as Anthropic errors and the credential to check is
+`ZAI_API_KEY`.
+
+**muse** writes diagnostics to stderr and the result to stdout, so the
+captured stdout is clean even though a run prints workspace and skill
+warnings.
+`muse exec --provider echo "say hi"` runs without credentials and
+returns `echo: say hi`, which makes it the one provider that can be
+exercised end to end for free.
+
+**codex** reports credentials honestly: `codex login status` answers
+`Logged in using ChatGPT` and exits 0 only when a login exists.
+
+**muse and codex** both control JSON with a valueless `--json`.
+The contract emits a flag and a value together, and neither CLI can
+take that shape: both take the prompt positionally, so a stray `json`
+would displace it.
+Both therefore declare no format flag, and a caller's `output_format`
+request is dropped without a signal.
+Tracked in issue #684.
+
+**opencode** exits 0 from `auth list` whether or not any credential is
+stored, reporting the count in its output instead.
+It spells the format flag `--format` and offers `--variant` where other
+CLIs offer a temperature.
+
+**glimmer** takes the prompt on stdin, which is what keeps a large
+inlined context off argv and under the 128 KiB `execve` ceiling.
+Its probe checks the `ollama` binary rather than the model named in its
+subcommand, so `--verify` answers `glimmer: OK` on a host where
+`ollama list` is empty and every delegation would fail at spawn.
+Tracked in issue #685.
+
+### Reproducing the probes
+
+Each row above came from asking the binary rather than the docs.
+Redirect stderr into the pipe: `mmx` prints its help there, so a probe
+that drops stderr reports every `mmx` flag as absent.
+
+```bash
+gemini --help 2>&1 | grep -i 'output-format\|temperature'
+mmx text chat --help 2>&1 | grep -i temperature
+codex exec --output-format json >/dev/null 2>&1; echo "exit=$?"
+```
+
+A rejected format flag exits 2 on `codex` and `muse`, and 1 on
+`opencode`, `qwen` and `ollama`.
+
+Two behaviors need a terminal, because the CLI branches on one.
+Run those under `tmux`, which is what separates "the probe is broken"
+from "the CLI asked a question":
+
+```bash
+tmux new-session -d -s probe -x 200 -y 50 'mmx auth status; sleep 20'
+sleep 5
+tmux capture-pane -t probe -p
+tmux kill-session -t probe
+```
+
+Nothing in this flow reaches a browser, so browser automation has no
+target here.
 
 ## Supply chain
 
@@ -93,8 +215,14 @@ provider's quota cannot silently reset the flags that make its CLI work.
 ```bash
 uv run python scripts/delegation_executor.py gemini "Analyze this module" \
   --files src/
-uv run python scripts/delegation_executor.py --verify
+uv run python scripts/delegation_executor.py gemini --verify
 ```
+
+`--verify` names one service.
+Bare, it exits 2: `main` routes the flag only when a service is given,
+and the Makefile, the README and the provider skills all pass one.
+`make -C plugins/conjure delegate-verify` is the loop over every
+registered service.
 
 ### Through the Makefile
 
