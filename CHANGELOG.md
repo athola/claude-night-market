@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.19] - 2026-08-21
+
 ### Added
 
 - **Four more delegation providers and guided setup (conjure).** The
@@ -51,6 +53,106 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   OpenAI- and Anthropic-compatible endpoints, model capabilities, and
   token pricing, and the Makefile exposes `make delegate-minimax`.
 
+- **The skill LEARNINGS report says which signals it did not have
+  (abstract).** The aggregator omitted the ratings and slow-execution
+  sections when their lists were empty, so a detector that never
+  received usable input produced the same report as a detector that
+  looked and found nothing wrong. The summary then closed with "No
+  high-priority actions this period", which reads as a clean bill of
+  health.
+
+  Two of its inputs are structurally absent in normal operation.
+  `qualitative_evaluation` is written as `None` by the execution logger
+  and populated only by `/evaluate-skill` or the skill-evaluator agent,
+  so both rating detectors sit idle unless someone runs them by hand.
+  `duration_ms` spans the PreToolUse to PostToolUse window on the Skill
+  tool, which brackets loading SKILL.md rather than the work the skill
+  performs over the turns that follow, so averages land far below the
+  10s slow-execution threshold and it cannot fire.
+
+  A Signal Coverage section now reports rating coverage, flags
+  dispatch-bound durations, and renders explicit "not measured" blocks
+  where sections used to vanish. It also names whose absence each one
+  is, because the two do not close the same way. Ratings are missing
+  because a working instrument was not run, and `/evaluate-skill`
+  closes that gap. Durations are missing because the measurement point
+  brackets the wrong window, so no command closes it and the gap holds
+  until the instrumentation moves. A period with no executions at all
+  now says so rather than rendering "0 of 0 executions carry a
+  qualitative_evaluation", which invited reading an empty log as a
+  measured shortfall.
+
+### Changed
+
+- **Per-plugin ruff configs extend the repo floor instead of replacing
+  it.** Every gate that ran (`make lint`, the pre-commit ruff hooks, CI)
+  passed `--config pyproject.toml`, so the 21 per-plugin `[tool.ruff]`
+  sections decided nothing. Enforcing them as written would have been
+  wrong in both directions: they add S, PL, D, N and SIM, and they also
+  drop D202, D209 and PLC0415, which root selects. Two TOML keys cause
+  that. `select` replaces the inherited list rather than extending it,
+  and a local `[tool.ruff.lint.per-file-ignores]` table replaces root's
+  rather than merging, so each config discarded root's rule floor and
+  root's exemptions for `**/tests/**` and `**/hooks/*.py` at once.
+
+  Each config now carries `extend = "../../pyproject.toml"` and states
+  its additions as `extend-select` and `extend-per-file-ignores`. The
+  resolved rule set is the union, so a plugin can raise its own bar and
+  can no longer lower the repo's. Restoring the exemptions alone dropped
+  the violation count from 468 to 389, the 79 difference being tests and
+  hooks code that root already exempted.
+
+  Clearing those 389 is what let the gates move onto the union. 238 were
+  D102 and every one was in a test file, so each docstring now states
+  what the test asserts rather than restating its name. 51 were D205
+  docstrings running an unterminated summary straight into
+  Given/When/Then. `make lint` and the two pre-commit ruff check hooks
+  drop `--config pyproject.toml`, so ruff resolves each file against its
+  own plugin's config. `ruff format` keeps the root config, so
+  formatting stays uniform repo-wide and only the rule set varies by
+  plugin. A D102 planted in memory-palace passes under the forced root
+  config and fails under the resolved one, which is the proof the gate
+  moved. The contract is written down in `docs/quality-gates.md`.
+
+- **Three ratchets that were mostly slack now hold at zero.** A ratchet
+  only holds if someone tightens it, and these had been printing that
+  advice on every run while the allowance stayed where it started.
+
+  `max_missing_exit_criteria` permitted 127 SKILL.md files to lack an
+  Exit Criteria section. One did, and it was a teaching example under
+  `plugins/abstract/docs/` that `.claude/rules/skill-exit-criteria.md`
+  explicitly puts out of scope, so a bare rglob over `plugins/` was
+  judging reference documentation by a standard written for shipped
+  skills. The walk now matches the rule. Count and allowance both reach
+  zero, which makes the guard a hard gate rather than a ratchet.
+
+  `max_dangling_bugs` tolerated 31 broken `Skill()` references and six
+  were left. Five were data: `abstract:performance-optimization` is
+  gone, `memory-palace:strategeion` is a palace directory rather than a
+  skill, `sanctum:fix-workflow` is a command, `leyline:mecw-patterns`
+  folded into `conserve:context-optimization`, and a bare
+  `test-driven-development` resolved in-plugin when the skill is
+  superpowers'. The sixth was the checker missing `plugin-dev` from its
+  known-external list, so a valid cross-marketplace reference counted
+  against the budget.
+
+  `max_uncalled_libraries` held seven library skills with no inbound
+  edge and six of them were never uncalled. Three were hidden because
+  the graph read `dependencies:` and not `orchestrates:`, though both
+  fields say the same thing. One declared its dependency in a module
+  file the parser never opens. Two are entrypoints that nothing loads
+  by design and now carry `role: entrypoint`, and
+  `docs/skill-integration-guide.md` had recorded a caller for each that
+  does not exist. Nothing was folded or deleted to reach the number.
+
+  The same shape turned up in the test suite.
+  `test_no_ai_attribution_trailer` skipped the vow-enforcement SKILL.md
+  because the skill once had to quote the banned trailer. It no longer
+  contains that form, so the exemption bought the file out of a check
+  it already passed, and a skip reports neither pass nor fail. The entry
+  is removed and each remaining one now has to resolve on disk and still
+  contain the trailer it was granted for.
+
 ### Fixed
 
 - **`make test` runs the tests in conjure.** The target read
@@ -78,6 +180,222 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ballots in the Borda count. The `minimax-delegation` skill is
   registered in `plugin.json` and `metadata.json`, and its docs record
   the verified endpoints, region-bound keys, and prices.
+
+- **CI ran no ruff at all.** `make typecheck` and `make test-ecosystem`
+  had workflows. Lint had none, so the rule set was enforced only for
+  people with pre-commit installed, and `docs/quality-gates.md` claimed
+  CI executed `make lint && make typecheck && make test` when it
+  executed two of the three. `lint.yml` runs ruff on the same triggers
+  as `typecheck.yml` and deliberately passes no `--config`, since
+  forcing the root file onto every path is the collapse the union config
+  undid. `tests/test_ci_enforces_lint.py` holds both halves, so deleting
+  the workflow or pinning a config there turns the suite red.
+
+  The first version of that workflow died before it linted anything.
+  ruff is declared in the `dev` optional extra and plain `uv run` installs
+  only the default set, so the step exited on "Failed to spawn: ruff"
+  and reported failure without having checked a file. Its guard passed
+  anyway, because it asserted the workflow contained a ruff invocation
+  rather than that the invocation could execute. The guard now reads the
+  tool names out of the dev extra in `pyproject.toml` and flags any
+  `uv run` of one without `--extra dev`, `--extra=dev` or
+  `--all-extras`. Matching is on exact tokens, so a path such as
+  `--paths-to-mutate=plugins/black/x` names a tool without invoking one
+  and does not cry wolf.
+
+  Renaming each plugin's ignore table to `extend-per-file-ignores`
+  silenced `scripts/check_per_file_ignores.py`, which read only the
+  plain key, so a fresh suppression staged under the new spelling
+  returned exit 0. The audit reads both spellings, because both grant
+  the same suppression. Separately, every workflow pinned
+  `astral-sh/setup-uv@v9.0.0` against an upstream v10.0.1 whose break is
+  that `enable-cache: auto` now disables the cache for events prone to
+  cache poisoning. No workflow here sets `enable-cache`, so all ten
+  inherit the safer default and nothing else changes. One pin lived in
+  `cron-memory-palace.yaml`, the only workflow using the `.yaml`
+  spelling, so a `*.yml` sweep had left it behind.
+
+- **Durations nothing measured were averaged in as measurements
+  (abstract).** Three places treated the absence of a timing sample as a
+  timing sample worth zero, and the Signal Coverage section above was
+  contradicted by the table directly beneath it.
+
+  `create_log_entry` fell back to `duration_ms` 0 whenever it could not
+  find the matching pre-execution state. A zero is indistinguishable
+  from a real sub-millisecond reading, so it passed every downstream
+  `>= 0` filter. It reports `None` now, which the read side already
+  excludes. A negative interval is discarded at the producer for the
+  same reason: it means the wall clock moved backward between the two
+  hooks, so no execution took that long. The post hook also paired
+  itself to a pre-state by taking the newest state file by mtime, and a
+  PostToolUse payload carries nothing identifying its invocation, so
+  with two live candidates neither end of the order was better than a
+  guess. It pairs only when exactly one live candidate exists, and
+  states older than an hour are purged as orphans so one abandoned file
+  cannot poison every later completion of its skill.
+
+  On the read side, `avg_duration_ms` fell back to 0.0 for a skill with
+  no sample, and 0.0 sits below every threshold, so an untimed skill was
+  classified dispatch-bound and reported as averaging under 250ms.
+  Dispatch-bound now requires a sample. The Skill Performance Summary
+  rendered that same fallback as "0.0s", the cell a genuinely
+  instantaneous skill prints, and gates on `duration_samples` now so it
+  prints N/A instead. The Rating column had the mirror defect, testing
+  `avg_rating` for truthiness rather than presence, so a measured rating
+  of exactly 0.0 read as missing signal. `rated_executions` counted any
+  entry carrying a `qualitative_evaluation` while the detectors read
+  `ev["rating"]`, which inflated coverage while they stayed dead.
+
+  The entries already on disk stayed fabricated after the producer was
+  fixed, so `correct_fabricated_durations` identifies them by the two
+  `invocation_id` shapes the pre hook writes: a zero on an unpaired
+  entry is the fallback, and a zero on a paired entry may be real and is
+  left alone. Across 492 entries in 166 files it corrected 9, eight
+  fabricated zeros and one impossible interval, moving
+  `abstract:skill-auditor` from 320 samples to 312 and from 116.8ms to
+  119.8ms. Reporting is the default and writes nothing. `--apply` copies
+  the tree to a backup first and rewrites through a temporary file, and
+  a line that does not parse is copied through rather than dropped.
+  Coverage on that script went from 64% to 99%, checked by mutation
+  rather than by coverage alone: five mutations, all killed, including
+  widening the correction to paired zeros.
+
+- **Model-ID gates could not see pre-4.x naming.** PR #659 found a
+  retired `claude-3-5-sonnet-20241022` in a docs SDK example, by hand,
+  by an outside contributor. Anthropic changed the naming convention
+  between generations. Claude 4 onward puts the version after the family
+  (`claude-sonnet-4-6`), Claude 3.x put it before, and `claude-2.1`
+  carries no family at all. Both gates encoded only the later shape, so
+  every `claude-3-*`, `claude-2.x` and `claude-instant-*` ID read as
+  ordinary prose. Those are the IDs most worth catching, because a
+  legacy 4.x ID still answers where a retired 3.x ID returns 404.
+
+  The scan was too narrow in two more ways. `DEFAULT_SCAN` held
+  `plugins` and `.claude`, leaving out `docs`, which is the directory
+  the finding lived in. And every SKILL.md was skipped whole on the
+  stated grounds that `check_agent_model_matrix.py` covered it, when
+  that gate parses frontmatter and tests the one `model:` value, so a
+  dated ID in a body was outside both. SKILL.md is now scanned with its
+  frontmatter stripped, and agent files stay skipped whole. Widening the
+  lens moved the backlog from 51 to 60, and fixing the five live
+  selections it exposed brought it to 55. The rest are lookup tables, a
+  historical plan and a compatibility note.
+
+- **Two names for one model field, and a routing guide pointing at eight
+  things that are not there.** Six attune skills stated their tier as
+  `model_preference: claude-sonnet-5` while five others stated the same
+  thing as `model: sonnet`. Only the second name was read by anything,
+  so the values under the first drifted a generation behind unwatched. A
+  full ID goes stale the day the next generation ships, so the six
+  become `model:` with the tier alias every other skill and all 56
+  agents use, and `check_skill` grows two rules: `shadow-model-field`
+  rejects `model_preference` outright and names the repair, and
+  `invalid-model` rejects a value outside `VALID_MODELS`. Verified
+  against all 210 SKILL.md the gate walks, so the stricter rule fails
+  nothing that was passing.
+
+  Two attune teaching surfaces emitted what the gate forbids. The
+  example SKILL.md the scaffolder writes pinned `model:` at all, which
+  `check_agent_model_matrix.py` rejects outright, and the field is
+  dropped rather than updated because a skill spawns no subagent. The
+  agent-discoverability template pinned a dated ID and filed `model`
+  under metadata Claude does not read, which is wrong: Claude Code reads
+  it to select the subagent's model.
+
+  `plugins/abstract/docs/model-optimization-guide.md` tiers each
+  command, skill and agent by model, and eight rows named things absent
+  from disk. Six had successors and were repointed, two had none and
+  were dropped. Phantom's CLI declared a `--model` default while
+  `LoopConfig.model` declared another and they had drifted a generation
+  apart, so which model a run got depended on how it was constructed.
+  The CLI default binds to `LoopConfig.model` now, and the parser moved
+  into `build_parser()` so the argument contract can be asserted without
+  running the program. `docs/knowledge-corpus/anthropic-model-roster.md`
+  says Opus 4.1 is retired rather than retiring, its date having passed,
+  and says why the $15 / $75 rate stays in the cost tracker.
+
+- **Instructions told the reader to run make targets that do not
+  exist.** `git-workspace-review` step 3 said to run
+  `make format && make lint`, and there is no root `format` target, so
+  the step stopped at "No rule to make target" before checking
+  anything. `make lint`
+  already runs `ruff format` before the check, so it is the whole of the
+  step. Thirteen more citations across skills, commands and agents named
+  targets no Makefile defines: `fmt`, `build`, `docs-update`,
+  `validate-skill`, `test-checkpoint`, `coverage`, and a cross-plugin
+  format. Each now names something real, with `docs-update` becoming
+  `docs-sync-check` and `validate-skill` becoming `validate-skills`.
+
+  A make target slips between both existing citation gates, because
+  `test_cited_paths_resolve` needs a slash to see a token and the
+  capability gate needs a colon, which is why the count was thirteen
+  rather than eight. The new gate resolves against the root Makefile,
+  the root's generated delegation targets, and the Makefile of the
+  plugin that owns the document. Scoping to the owner is what
+  makes it useful, since two plugins define `format` and an
+  "exists in some Makefile" check would have passed the citation that
+  started this. Three targets are allowlisted as worked examples
+  describing another project's Makefile, and a second test fails if one
+  of them ever becomes real.
+
+  In the same area, every GIVEN/WHEN/THEN example in the
+  `sanctum:test-updates` skill opened with a bare triple quote and
+  dropped straight into GIVEN, which D212 rejects, so following the
+  skill produced code the repo's own lint gate refused. All twelve
+  examples lead with a summary line now, and the skill's
+  `modules/bdd-patterns.md` says which half answers to which checker.
+  D212 wants the summary on line one, and
+  `plugins/sanctum/scripts/quality_checker.py` scores a file on whether
+  each docstring contains given, when, then and and.
+
+- **Two tome cleanups landed without the imports they call.**
+  `expand_github_queries` dropped its inline dedup loop for the shared
+  `deduplicate_queries` helper and
+  `_load_canonical_matrix` dropped its hand-rolled module global for
+  `functools.cache`, and neither added the import. `triz.py` raised
+  `NameError` at import time, so the whole module was unloadable, and
+  `github.py` raised on first call. Four loader tests reset state
+  through `monkeypatch.setattr` on a cache global that no longer exists,
+  and now clear both caches on each side of the test, because a
+  one-directional clear would let a test that mocks the data file leave
+  that result cached for whatever ran next. Separately,
+  `export_for_memory_palace` emits frontmatter through `yaml.safe_dump`
+  instead of hand-rolled quoting, so a topic starting with `-`, `[` or
+  `%`, or a bare yes/no/null, no longer re-parses as the wrong type.
+
+- **A session dead for a day was resurrected, and a bad CLI argument
+  exited 0 (conjure).** `usage_logger` measured session age with
+  `timedelta.seconds`, which is the sub-day remainder, so a session file
+  last touched 24h30m ago read as 1800 seconds, landed inside the
+  one-hour window, and reused a dead session id. It uses
+  `total_seconds()` now. A malformed `--log` argument was swallowed with
+  `pass`, so the CLI wrote nothing and still exited 0 and a caller
+  checking the exit code read a constant. It reports the bad value and
+  exits 1. The test that pinned the old behavior said so in a comment
+  and asserts the real contract now.
+
+- **The test runner deleted the output of the run that failed.** Both
+  failure branches in `scripts/run-plugin-tests.sh` captured the quiet
+  run into a temp file, reported the failure, re-ran the plugin
+  verbosely, then removed the capture without printing it. That is
+  survivable while a failure is deterministic. A full `make test` on
+  this branch reported abstract failed, the verbose re-run passed, the
+  capture was removed, and nothing recorded what broke. Each branch
+  prints the captured file before re-running now, and the test walks
+  every failure branch rather than the first, since the Makefile path
+  and the pytest path each have one.
+
+- **Three parameters that documented work they never did.** Each was
+  declared, described in its docstring, and never read.
+  `build_learning_context(max_tokens_estimate=500)` advertised a token
+  budget for text injected into the orchestrator's context while nothing
+  truncated anything, and the real cap is upstream in
+  `select_relevant_patterns(max_patterns)`. `_analyze_delta(new_title)`
+  is private with one caller passing a title into a void.
+  `upgrade_to_full_lineage(new_importance)` is public and its test
+  passed 0.9 to it, but neither `FullLineage` nor `SimpleLineage`
+  carries an importance field. No caller passed the first or third
+  outside tests, so the signatures narrow without a shim.
 
 ## [1.9.18] - 2026-08-12
 

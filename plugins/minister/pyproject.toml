@@ -1,6 +1,6 @@
 [project]
 name = "minister"
-version = "1.9.18"
+version = "1.9.19"
 description = "GitHub-centric project management plugin for Claude Code"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}

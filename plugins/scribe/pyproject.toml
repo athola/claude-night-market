@@ -1,6 +1,6 @@
 [project]
 name = "scribe"
-version = "1.9.18"
+version = "1.9.19"
 description = "Documentation review, cleanup, and generation with AI slop detection and style learning"
 requires-python = ">=3.9"
 dependencies = ["pyyaml"]

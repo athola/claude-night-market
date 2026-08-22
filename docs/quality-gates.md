@@ -199,6 +199,41 @@ We use standard hooks for formatting (`trailing-whitespace`,
 `check-json`), security (`bandit`), linting (`ruff`),
 and type checking (`mypy`).
 
+### Ruff Config: The Union Rule
+
+A plugin's `[tool.ruff]` section adds to the repo floor. It cannot
+replace it, and it cannot lower it. Write a plugin config this way:
+
+```toml
+[tool.ruff]
+# Inherit the repo-wide rule floor; this file may only add.
+extend = "../../pyproject.toml"
+
+[tool.ruff.lint]
+extend-select = ["S", "PL", "D", "N", "SIM"]
+extend-ignore = ["S101"]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"tests/**" = ["D103"]
+```
+
+Two keys make the plain spellings unsafe. `select` replaces the
+inherited rule list rather than extending it, and a local
+`[tool.ruff.lint.per-file-ignores]` table replaces root's rather than
+merging with it. A config using either one discards root's rule floor
+and root's exemptions for `**/tests/**` and `**/hooks/*.py` at the same
+time, which is how 21 plugin configs came to loosen three rules while
+reading as though they tightened five.
+
+The gates resolve each file against its own plugin's config, so
+`make lint`, the pre-commit ruff check hooks, and `lint.yml` pass no
+`--config`. Only `ruff format` keeps the root config, so formatting
+stays uniform repo-wide while the rule set varies by plugin.
+
+`scripts/check_per_file_ignores.py` audits new suppressions and reads
+both the `per-file-ignores` and `extend-per-file-ignores` spellings,
+because both grant the same exemption.
+
 ## Manual Quality Scripts
 
 ### Individual Scripts
@@ -231,6 +266,30 @@ everything is clean. We run full reports monthly using the `--report` flag.
 CI runs the gates as separate workflows: `lint.yml` (ruff, per-plugin
 union), `typecheck.yml` (`make typecheck`), and `ecosystem-tests.yml`
 (`make test-ecosystem`).
+
+### Cited Make Targets Must Resolve
+
+`tests/test_cited_make_targets_resolve.py` fails when a skill, command,
+agent, or rule file names a `make` target that no Makefile defines. It
+reads two forms, both of which read as commands rather than prose, which
+is what keeps "make sure" and "make it clear" out of the results: a
+backticked `make <target>` mid-sentence, and a `make <target>` opening a
+line inside a fenced block.
+
+A citation resolves against the root Makefile, the root's generated
+`<plugin>` and `<plugin>-<target>` delegation, or the Makefile of the
+plugin that owns the document. Scoping to the owner is what gives the
+gate its reach. Two plugins define `format`, so an "exists in some
+Makefile" check would have passed the `make format` citation that
+motivated the gate. Targets named inside a worked example
+describing another project's Makefile are allowlisted, and a second test
+fails if an allowlisted target ever becomes real.
+
+`tests/test_cited_paths_resolve.py` covers the other two citation
+forms, backticked file paths and `plugin:name` capabilities. A make
+target slipped between them: it carries no slash, so the path gate did
+not recognize it as a token, and no colon, so the capability gate
+ignored it.
 
 ## Configuration Files
 

@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.18-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.19-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-201-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-209-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 
 **A plugin marketplace for Claude Code.** Install only the
@@ -87,10 +87,11 @@ dependencies pull their shared runtime automatically.
 (TDD enforcement, proof-of-work, scope guarding).
 
 **Utility** handles cross-cutting concerns: `conserve` (context
-and token optimization), `conjure` (delegation to Gemini and
-Qwen), `hookify` (a behavioral rules engine with a security
-catalog), `egregore` (autonomous agent orchestration),
-`herald` (notifications), and `oracle` (local ML inference).
+and token optimization), `conjure` (delegation to seven external
+model CLIs plus a local runner), `hookify` (a behavioral rules
+engine with a security catalog), `egregore` (autonomous agent
+orchestration), `herald` (notifications), and `oracle` (local ML
+inference).
 
 **Domain** is where the day-to-day work happens: `pensive` (code
 and architecture review), `attune` (project lifecycle), `spec-kit`
@@ -169,14 +170,14 @@ unavailable, and both can be turned off.
 
 ## What's New
 
-**1.9.18** gives `tome` a way to tell a thin field from a search
-that went wrong. Each retrieval channel now runs a positive
-control, and a report that used to end in a bare finding count
-ends in a verdict about the search itself: `COVERED`,
-`THIN_FIELD_CANDIDATE`, `CHANNEL_MISMATCH_SUSPECTED`, or
-`INCONCLUSIVE` when a channel failed its control. `memory-palace`
-stopped promoting model refusals into the research corpus as page
-titles. Full history is in the [CHANGELOG](CHANGELOG.md).
+**1.9.19** takes `conjure` from two delegation targets to eight.
+GLM-5.3, Meta Muse Code, the OpenAI Codex CLI, OpenCode and a
+locally served Muse Glimmer join Gemini, Qwen and MiniMax, and
+`make delegate-doctor` reports what is installed and how to fix
+what is not. `abstract` stopped averaging untimed skill runs in as
+readings of zero, and its LEARNINGS report now names the signals
+it did not have instead of dropping the section. Full history is
+in the [CHANGELOG](CHANGELOG.md).
 
 ## Plugin Development
 
@@ -211,7 +212,7 @@ Every plugin is entrusted to the community: steward rather than
 own, and think several iterations ahead. Each plugin maintains
 its own tests and docs; run `make test` at the repo root to
 execute every suite, and `/stewardship-health` to view per-plugin
-health. Contribution guidelines live in the
+health. Contribution guidelines are in the
 [Plugin Development Guide][dev-guide].
 
 ## Acknowledgements
