@@ -4,7 +4,7 @@ description: Shared shell execution contract for external LLM delegation service
 category: delegation-infrastructure
 tags: [shell-execution, delegation, cli, services]
 dependencies: []
-estimated_tokens: 1100
+estimated_tokens: 1600
 ---
 
 # Shared Shell Execution Capability
@@ -75,6 +75,10 @@ registry checks `GEMINI_API_KEY` instead.
 The check errs the safe way: a host holding cached OAuth credentials
 reports `FAILED` for the unset variable rather than claiming a health it
 has not confirmed.
+Those two reasons are not the same reason, and the probe cannot say so.
+The cached credentials do load, and the delegation fails anyway,
+because the account requires `GOOGLE_CLOUD_PROJECT`.
+`FAILED` was the right answer for a cause it never named.
 
 **qwen** deprecated `-p` in favor of a positional prompt, which still
 works but is documented for removal.
@@ -85,6 +89,13 @@ status` prints `[API Error: 401 Incorrect API key provided]` and exits
 same error.
 Exit code is not a success signal for this CLI, and `--verify` reports
 `qwen: OK` today because of it.
+That envelope is reachable only with `--output-format json`, which the
+executor sends when the caller asks for a format and not otherwise.
+Without it the CLI writes nothing but a newline on a rejected
+credential, so the documented invocation answers `Success:` and a blank
+line.
+That byte matters: an empty stdout would have printed `No output`, and
+a newline is truthy, so the absence arrives unnamed.
 Tracked in issue #685.
 
 **minimax** is the one provider in the fleet that accepts a
@@ -108,11 +119,19 @@ so its failures read as Anthropic errors and the credential to check is
 captured stdout is clean even though a run prints workspace and skill
 warnings.
 `muse exec --provider echo "say hi"` runs without credentials and
-returns `echo: say hi`, which makes it the one provider that can be
-exercised end to end for free.
+returns `echo: say hi`, but no caller reaches that path through this
+module: `--provider` is not a `ServiceConfig` field, so the free run
+exists for a hand-typed command and not for a delegation.
+Through the executor, muse stops at `META_API_KEY`.
 
-**codex** reports credentials honestly: `codex login status` answers
-`Logged in using ChatGPT` and exits 0 only when a login exists.
+**codex** answers `Logged in using ChatGPT` and exits 0 from `codex
+login status`, which records that a login happened rather than that the
+credential still works.
+On this host the probe kept reporting success while the delegation
+failed with `your refresh token was already used`.
+Its diagnostics go to stderr and reached 123 KB for a four-word prompt,
+594 of those lines unrelated skill-loading errors, with the sentence
+naming the failure on the last one.
 
 **muse and codex** both control JSON with a valueless `--json`.
 The contract emits a flag and a value together, and neither CLI can
@@ -124,6 +143,12 @@ Tracked in issue #684.
 
 **opencode** exits 0 from `auth list` whether or not any credential is
 stored, reporting the count in its output instead.
+It reports zero and exits 0 anyway, then falls back at run time to
+whatever provider variables the environment holds.
+`OPENAI_API_KEY` selected `gpt-5.3-chat-latest` here, and the
+delegation ended at `Could not find the appropriate key in your
+authentication token`, so the probe's exit code described the file it
+read and not the credential it would use.
 It spells the format flag `--format` and offers `--variant` where other
 CLIs offer a temperature.
 
@@ -131,8 +156,46 @@ CLIs offer a temperature.
 inlined context off argv and under the 128 KiB `execve` ceiling.
 Its probe checks the `ollama` binary rather than the model named in its
 subcommand, so `--verify` answers `glimmer: OK` on a host where
-`ollama list` is empty and every delegation would fail at spawn.
+`ollama list` is empty.
+The delegation does not fail at spawn: `ollama run` accepts the model
+name and tries to pull it, so the failure arrives from the registry as
+a 412 asking for a newer ollama.
+That attempt writes spinner escapes to a captured stdout, so the
+result the caller receives carries terminal control bytes wrapped
+around the error text.
 Tracked in issue #685.
+
+### What a delegation actually returns
+
+`--verify` answers a narrower question than the one a caller asks, and
+the gap is measurable rather than theoretical.
+Every row below ran the documented invocation from `plugins/conjure` on
+2026-08-22 against the credentials this host happened to hold.
+
+| Provider | `--verify` | Delegation | Elapsed | What the caller receives |
+|----------|-----------|------------|---------|--------------------------|
+| `glm` | OK | exit 0 | 11.8s | `pong`, the one path that completes |
+| `qwen` | OK | exit 0 | 2.8s | `Success:` and a blank line |
+| `codex` | OK | exit 1 | 10.4s | 123 KB of stderr, cause on the last line |
+| `opencode` | OK | exit 1 | 3.6s | The provider rejects the token |
+| `glimmer` | OK | exit 1 | 0.9s | A model pull fails with 412 |
+| `gemini` | FAILED | exit 1 | 8.4s | A failure the probe did not name |
+| `minimax` | FAILED | exit 1 | 0.2s | The JSON error the probe predicted |
+| `muse` | FAILED | exit 1 | 0.3s | The credential the probe named |
+
+Five probes answered `OK` and one delegation returned an answer.
+Read the other way, the three probes that answered `FAILED` were right
+every time, so the failure is one-directional: `FAILED` is a finding
+and `OK` is an absence of one.
+Callers that gate on `--verify` should treat it as a way to skip a
+provider rather than as a promise about the one it keeps.
+
+Two truncations decide how much of that reaches the caller.
+`_print_result` cuts a successful stdout at 200 characters and prints a
+failed stderr whole, so a long answer is lost on the quiet path while
+all 123 KB of codex's noise arrives on the loud one.
+Every CLI here puts its diagnosis at the tail, which is the half a
+head-truncation would remove.
 
 ### Reproducing the probes
 
@@ -149,9 +212,22 @@ codex exec --output-format json >/dev/null 2>&1; echo "exit=$?"
 A rejected format flag exits 2 on `codex` and `muse`, and 1 on
 `opencode`, `qwen` and `ollama`.
 
-Two behaviors need a terminal, because the CLI branches on one.
-Run those under `tmux`, which is what separates "the probe is broken"
-from "the CLI asked a question":
+What a delegation returns needs the executor rather than the binary,
+because the question there is what reaches a caller.
+Run the pair per provider and compare, from `plugins/conjure`:
+
+```bash
+uv run python scripts/delegation_executor.py codex --verify
+uv run python scripts/delegation_executor.py codex "Reply with: pong"
+```
+
+Redirect each to a file before reading it: codex answers a four-word
+prompt with 123 KB of stderr, and the line that explains the failure is
+the last one.
+
+A CLI that branches on a terminal needs one to show the other branch.
+`tmux` is what separates "the probe is broken" from "the CLI asked a
+question":
 
 ```bash
 tmux new-session -d -s probe -x 200 -y 50 'mmx auth status; sleep 20'
@@ -160,8 +236,22 @@ tmux capture-pane -t probe -p
 tmux kill-session -t probe
 ```
 
-Nothing in this flow reaches a browser, so browser automation has no
-target here.
+Run that against every live `auth_probe` and only `mmx` blocks.
+`qwen auth status`, `codex login status` and `opencode auth list` print
+the same bytes to a terminal as to a pipe, and `gemini auth status`
+exits 1 with a stack trace either way.
+One TTY branch in four is the reason `capture_output=True` is
+load-bearing rather than the reason to distrust every probe.
+
+No delegation reaches a browser.
+The login flows behind four of these CLIs are OAuth and do, so the two
+are worth keeping apart: `mmx auth login` offers two OAuth
+destinations before it offers an API key.
+Driving one under Playwright was tried and dropped.
+Completing an OAuth flow authenticates a real account, which is not a
+probe, and this host has no browser to drive: `DISPLAY` is unset and
+neither Chrome nor Chromium is installed, so the handoff would go
+through `wslview` to the Windows host and out of Playwright's reach.
 
 ## Supply chain
 
@@ -217,6 +307,11 @@ uv run python scripts/delegation_executor.py gemini "Analyze this module" \
   --files src/
 uv run python scripts/delegation_executor.py gemini --verify
 ```
+
+Run these from `plugins/conjure`.
+The module imports its siblings as `scripts.quota_tracker`, so the same
+command from the repository root exits 1 on `ModuleNotFoundError`
+before it reads its arguments.
 
 `--verify` names one service.
 Bare, it exits 2: `main` routes the flag only when a service is given,

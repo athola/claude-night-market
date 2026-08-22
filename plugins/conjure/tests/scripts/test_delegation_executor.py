@@ -23,6 +23,7 @@ from delegation_executor import (
     ServiceConfig,
     _create_parser,
     _missing_required_fields,
+    _print_result,
     estimate_tokens,
     main,
 )
@@ -1336,3 +1337,106 @@ class TestDocumentedInstallsMatchProvenance:
                     divergent.append((doc.name, match.group(1).strip()))
 
         assert divergent == []
+
+
+RESULT_STDOUT_TRUNCATION = 200
+
+
+def _result(*, success: bool, stdout: str = "", stderr: str = "") -> ExecutionResult:
+    """Build an ExecutionResult carrying only what _print_result reads."""
+    return ExecutionResult(
+        success=success,
+        stdout=stdout,
+        stderr=stderr,
+        exit_code=0 if success else 1,
+        duration=0.0,
+        tokens_used=0,
+    )
+
+
+class TestPrintResultTruncatesOnlyTheQuietPath:
+    """What a caller sees is not what the CLI wrote, and the cut is uneven.
+
+    Dogfooded through the executor on 2026-08-22. `_print_result` cuts a
+    successful stdout at 200 characters and prints a failed stderr whole:
+
+        codex "Reply with: pong" -> exit 1, 123571 bytes of stderr, all
+            of it printed, 594 lines of unrelated skill-load errors
+            ahead of the sentence that names the failure
+        glm  "Reply with: pong" -> exit 0, "pong", well under the cut
+
+    Both halves matter and pull opposite ways. A provider that answers
+    at length loses the tail of its answer, while a provider that fails
+    noisily delivers every byte. Every CLI in the registry puts its
+    diagnosis last, which is the half a head-truncation removes.
+
+    These pass an ExecutionResult straight to the printer, so the suite
+    stays hermetic while the numbers stay the source.
+    """
+
+    @pytest.mark.bdd
+    def test_a_long_successful_answer_is_cut_at_two_hundred_characters(
+        self,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """GIVEN a delegation that succeeded with a long answer.
+
+        WHEN the executor prints the result
+        THEN only the first 200 characters of stdout reach the caller
+
+        Documented in shared-shell-execution.md. A provider answering at
+        length loses its tail, so a caller needing the whole answer must
+        read `ExecutionResult.stdout` rather than the printed line.
+        """
+        answer = "".join(str(index % 10) for index in range(500))
+
+        _print_result(_result(success=True, stdout=answer))
+
+        printed = capsys.readouterr().out
+        assert answer[:RESULT_STDOUT_TRUNCATION] in printed
+        assert answer[RESULT_STDOUT_TRUNCATION:] not in printed
+        assert answer not in printed
+
+    @pytest.mark.bdd
+    def test_a_failed_delegation_prints_every_byte_of_stderr(
+        self,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """GIVEN a delegation that failed with noisy diagnostics.
+
+        WHEN the executor prints the result
+        THEN the whole stderr reaches the caller, tail included
+
+        codex reached 123 KB here for a four-word prompt. The line that
+        explains the failure is the last one, so a truncation added for
+        tidiness would remove the only useful part.
+        """
+        noise = "\n".join(f"unrelated warning {index}" for index in range(600))
+        diagnosis = "your refresh token was already used"
+
+        _print_result(_result(success=False, stderr=f"{noise}\n{diagnosis}"))
+
+        printed = capsys.readouterr().out
+        assert diagnosis in printed
+        assert "unrelated warning 0" in printed
+        assert "unrelated warning 599" in printed
+
+    @pytest.mark.bdd
+    def test_an_empty_successful_stdout_is_reported_as_no_output(
+        self,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """GIVEN a delegation that exited 0 without writing anything.
+
+        WHEN the executor prints the result
+        THEN the caller is told there was no output
+
+        No provider reached this branch on 2026-08-22, and qwen missed
+        it by one byte: a rejected credential left `stdout` holding a
+        bare newline, which is truthy, so it printed as `Success:` and a
+        blank line instead. The branch is guarded because that byte is
+        the whole difference between a named absence and a silent one.
+        """
+        _print_result(_result(success=True, stdout=""))
+
+        assert "No output" in capsys.readouterr().out
