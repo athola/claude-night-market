@@ -299,3 +299,103 @@ class TestCliManagedAuthIsNotOverclaimed:
         delegator = Delegator()
         lines = "\n".join(doctor_lines(probe_all(delegator)))
         assert "mmx auth login" in lines
+
+
+class TestCliDispatch:
+    """The flags reach the code that answers them.
+
+    `doctor_lines`, `install_provider` and the DECLINED/FAILED triage are
+    each covered above in isolation. What was not covered is `main`
+    routing a flag to them, which is the part an operator actually runs.
+    Every branch below was reachable only through the CLI.
+    """
+
+    @pytest.mark.bdd
+    def test_an_unknown_service_is_rejected_by_name(self, monkeypatch, capsys) -> None:
+        """GIVEN a --install argument naming no registered service.
+
+        WHEN the CLI runs
+        THEN it exits 1 and names the unknown service on stderr
+
+        The registry is the list of installable things. Accepting a name
+        absent from it would send an unverified binary to install_provider,
+        which is the check UnverifiedBinaryError exists to make loud.
+        """
+        assert main(["--install", "not-a-provider"]) == 1
+        assert "not-a-provider" in capsys.readouterr().err
+
+    @pytest.mark.bdd
+    def test_declining_a_single_install_is_not_an_error(self, monkeypatch) -> None:
+        """GIVEN one named provider whose offer the operator declines.
+
+        WHEN --install runs for it
+        THEN the command exits 0
+
+        This is the NB4 rule applied to the single-provider path. The
+        --all path is guarded in TestInstallAll; without this, --install
+        could regress to treating a decline as a failure while --all
+        stayed correct.
+        """
+        monkeypatch.setattr(
+            "delegation_setup.install_provider",
+            lambda *_args, **_kwargs: DECLINED,
+        )
+        assert main(["--install", "gemini"]) == 0
+
+    @pytest.mark.bdd
+    def test_a_failed_single_install_is_an_error(self, monkeypatch) -> None:
+        """GIVEN an install that ran and failed.
+
+        WHEN --install runs for it
+        THEN the command exits 1
+        """
+        monkeypatch.setattr(
+            "delegation_setup.install_provider",
+            lambda *_args, **_kwargs: FAILED,
+        )
+        assert main(["--install", "gemini"]) == 1
+
+    @pytest.mark.bdd
+    def test_nothing_to_install_is_reported_as_success(
+        self,
+        monkeypatch,
+        capsys,
+    ) -> None:
+        """GIVEN every registered provider is already on PATH.
+
+        WHEN --all runs
+        THEN it says so and exits 0 without offering anything
+
+        Reaching install_provider here would prompt the operator about
+        software they already have.
+        """
+        monkeypatch.setattr(
+            "delegation_setup.shutil.which",
+            lambda _: "/usr/bin/stub",
+        )
+
+        def _refuse(*_args, **_kwargs):
+            raise AssertionError("offered an install for a present binary")
+
+        monkeypatch.setattr("delegation_setup.install_provider", _refuse)
+
+        assert main(["--all"]) == 0
+        assert "already installed" in capsys.readouterr().out
+
+    @pytest.mark.bdd
+    def test_doctor_output_reaches_stdout(self, monkeypatch, capsys) -> None:
+        """GIVEN no provider CLI is installed, so every row is unhealthy.
+
+        WHEN --doctor runs
+        THEN the status table and the per-provider fixes are both printed
+
+        doctor_lines is guarded directly in TestDoctor. This guards the
+        wiring: the flag was parsed, the lines were built, and they were
+        printed rather than discarded.
+        """
+        monkeypatch.setattr("delegation_setup.shutil.which", lambda _: None)
+
+        assert main(["--doctor"]) == 0
+        out = capsys.readouterr().out
+        assert "PROVIDER" in out, "status table missing"
+        assert "fix:" in out, "doctor explanations missing"
