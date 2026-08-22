@@ -69,17 +69,17 @@ make usage-report
 
 ```bash
 # List services
-uv run python tools/delegation_executor.py --list-services
+uv run python scripts/delegation_executor.py --list-services
 
 # Verify a service
-uv run python tools/delegation_executor.py --verify gemini
+uv run python scripts/delegation_executor.py --verify gemini
 
-# Auto-select based on requirements
-uv run python tools/delegation_executor.py auto "Analyze this code" \
-  --files src/ --requirement large_context
+# Auto-select a service for the task
+uv run python scripts/delegation_executor.py auto "Analyze this code" \
+  --files src/
 
 # Force a specific service
-uv run python tools/delegation_executor.py gemini "Summarize" \
+uv run python scripts/delegation_executor.py gemini "Summarize" \
   --files docs/*.md --model gemini-3-pro
 ```
 

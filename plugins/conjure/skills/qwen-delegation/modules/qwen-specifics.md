@@ -30,11 +30,11 @@
 ## Qwen-Specific Troubleshooting
 
 ### Rate Limits
-- Check with: `python ~/conjure/tools/delegation_executor.py verify qwen`
+- Check with: `uv run python scripts/delegation_executor.py --verify qwen`
 - Consider `qwen-turbo` for faster responses with lower limits
 
 ### Installation Issues
-- Install: `pip install qwen-cli`
+- Install: `npm install -g @qwen-code/qwen-code`
 - PATH issues: validate `~/.local/bin` is in PATH
 - Verify: `which qwen` and `qwen --version`
 

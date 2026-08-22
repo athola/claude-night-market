@@ -64,7 +64,7 @@ For shared delegation patterns, see `Skill(conjure:delegation-core)`.
 **Installation:**
 ```bash
 # Install Qwen CLI
-pip install qwen-cli
+npm install -g @qwen-code/qwen-code
 
 # Verify installation
 qwen --version
@@ -85,13 +85,16 @@ export QWEN_API_KEY="your-key"
 ### Using Shared Delegation Executor
 ```bash
 # Basic file analysis
-python ~/conjure/tools/delegation_executor.py qwen "Analyze this code" --files src/main.py
+uv run python scripts/delegation_executor.py qwen "Analyze this code" \
+  --files src/main.py
 
 # With specific model
-python ~/conjure/tools/delegation_executor.py qwen "Summarize" --files src/**/*.py --model qwen-max
+uv run python scripts/delegation_executor.py qwen "Summarize" \
+  --files src/**/*.py --model qwen-max
 
 # With output format
-python ~/conjure/tools/delegation_executor.py qwen "Extract functions" --files src/main.py --format json
+uv run python scripts/delegation_executor.py qwen "Extract functions" \
+  --files src/main.py --format json
 ```
 
 ### Direct CLI Usage
@@ -115,9 +118,9 @@ qwen -p "..." > delegations/qwen/$(date +%Y%m%d_%H%M%S).md
 
 The shared delegation executor can auto-select the best service:
 ```bash
-# Auto-select based on requirements
-python ~/conjure/tools/delegation_executor.py auto "Analyze large codebase" \
-  --files src/**/* --requirement large_context
+# Auto-select a service for the task
+uv run python scripts/delegation_executor.py auto "Analyze large codebase" \
+  --files src/**/*
 ```
 
 ## Qwen-Specific Details

@@ -143,8 +143,8 @@ mmx text chat --message "..." > delegations/minimax/$(date +%Y%m%d_%H%M%S).md
 The shared delegation executor can auto-select the best service:
 
 ```bash
-python scripts/delegation_executor.py auto "Analyze large codebase" \
-  --files src/ --requirement large_context
+uv run python scripts/delegation_executor.py auto "Analyze large codebase" \
+  --files src/
 ```
 
 ## MiniMax-Specific Details

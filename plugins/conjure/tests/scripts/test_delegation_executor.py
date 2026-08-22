@@ -2,6 +2,8 @@
 
 import json
 import os
+import re
+import shlex
 import subprocess
 
 # Import the module under test
@@ -19,6 +21,7 @@ from delegation_executor import (
     Delegator,
     ExecutionResult,
     ServiceConfig,
+    _create_parser,
     _missing_required_fields,
     estimate_tokens,
     main,
@@ -1186,3 +1189,150 @@ class TestFlagSpellingsMatchTheRealClis:
         assert "--output-format" not in command
         assert "--json" not in command
         assert "json" not in command
+
+
+def _plugin_root() -> Path:
+    """Return the conjure plugin root that holds skills/ and scripts/."""
+    return Path(__file__).resolve().parents[2]
+
+
+_INVOCATION = re.compile(
+    r"python\s+(?P<path>\S*delegation_executor\.py)(?P<rest>(?:\\\n|[^\n`])*)"
+)
+
+_INSTALL = re.compile(
+    r"^\s*(?:[-*]\s*)?`?((?:pip|npm|brew|cargo)\s+install[^`\n]*|curl\s+[^`\n]*install[^`\n]*)`?\s*$",
+    re.MULTILINE,
+)
+
+
+def _documented_invocations() -> list[tuple[Path, str, list[str]]]:
+    """Collect every `python ... delegation_executor.py ...` line in the docs.
+
+    Returns (file, script path as written, argv after the script path).
+    """
+    found: list[tuple[Path, str, list[str]]] = []
+    for doc in sorted(_plugin_root().rglob("*.md")):
+        for match in _INVOCATION.finditer(doc.read_text(encoding="utf-8")):
+            rest = match.group("rest").replace("\\\n", " ")
+            found.append(
+                (
+                    doc.relative_to(_plugin_root()),
+                    match.group("path"),
+                    shlex.split(rest),
+                )
+            )
+    return found
+
+
+class TestDocumentedInvocationsRunAsWritten:
+    """The docs are the interface; a reader pastes them verbatim.
+
+    Nothing checked that a documented command reached a flag the parser
+    accepts or a service the registry knows, and for one skill it did
+    neither. Probed against the parser on 2026-08-22:
+
+        auto "..." --files src/ --requirement large_context -> exit 2,
+            "unrecognized arguments: --requirement large_context"
+        verify qwen -> exit 1, unhandled traceback; `verify` parses as
+            the service name and `qwen` as the prompt
+
+    The second is the worse failure: argparse accepts it, so the command
+    looks like it ran. These parse argv rather than spawning anything,
+    so the suite stays hermetic.
+    """
+
+    @pytest.mark.bdd
+    def test_the_docs_invoke_a_path_that_exists(self) -> None:
+        """GIVEN a documented invocation of the shared executor.
+
+        WHEN the reader pastes it from the plugin root
+        THEN the script path it names is a file on disk
+
+        `~/conjure/tools/delegation_executor.py` names an install layout
+        this plugin has never had.
+        """
+        invocations = _documented_invocations()
+        assert invocations, "extractor found nothing; the regex has drifted"
+
+        missing = [
+            (str(doc), path)
+            for doc, path, _ in invocations
+            if not (_plugin_root() / path).is_file()
+        ]
+
+        assert missing == []
+
+    @pytest.mark.bdd
+    def test_the_docs_pass_only_flags_the_parser_declares(self) -> None:
+        """GIVEN a documented invocation of the shared executor.
+
+        WHEN argparse reads its flags
+        THEN none are left over as unrecognized
+
+        `--requirement large_context` exits 2 before any delegation runs.
+        """
+        rejected = []
+        for doc, _, argv in _documented_invocations():
+            _, unknown = _create_parser().parse_known_args(argv)
+            if unknown:
+                rejected.append((str(doc), unknown))
+
+        assert rejected == []
+
+    @pytest.mark.bdd
+    def test_the_docs_name_a_service_the_registry_knows(self) -> None:
+        """GIVEN a documented invocation that names a positional service.
+
+        WHEN the registry is asked for it
+        THEN the name resolves, or is the `auto` sentinel
+
+        `verify qwen` parses cleanly and then dies in `execute`, because
+        the real spelling is the `--verify` flag.
+        """
+        known = set(Delegator().services) | {"auto"}
+        unknown_services = []
+        for doc, _, argv in _documented_invocations():
+            namespace, _ = _create_parser().parse_known_args(argv)
+            if namespace.service is not None and namespace.service not in known:
+                unknown_services.append((str(doc), namespace.service))
+
+        assert unknown_services == []
+
+
+class TestDocumentedInstallsMatchProvenance:
+    """`VERIFIED_BINARIES` is the provenance record; the docs must agree.
+
+    #655 shipped a service naming a binary an unaffiliated npm package
+    publishes, which is why that map exists. A skill that documents a
+    different install command than the map records reintroduces the same
+    exposure through prose instead of code.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize(
+        "skill_dir",
+        sorted(p.name for p in (_plugin_root() / "skills").glob("*-delegation")),
+    )
+    def test_a_provider_skill_documents_its_verified_install(
+        self, skill_dir: str
+    ) -> None:
+        """GIVEN a provider skill that documents how to install its CLI.
+
+        WHEN the command is compared to the provenance record
+        THEN it is the command that record names
+
+        qwen documents `pip install qwen-cli`; the verified install is
+        `npm install -g @qwen-code/qwen-code` from Alibaba / QwenLM.
+        """
+        service = skill_dir.removesuffix("-delegation")
+        binary = Delegator().services[service].command
+        verified = VERIFIED_BINARIES[binary]["install"]
+
+        divergent = []
+        for doc in sorted((_plugin_root() / "skills" / skill_dir).rglob("*.md")):
+            for match in _INSTALL.finditer(doc.read_text(encoding="utf-8")):
+                if match.group(1).strip() != verified:
+                    divergent.append((doc.name, match.group(1).strip()))
+
+        assert divergent == []
