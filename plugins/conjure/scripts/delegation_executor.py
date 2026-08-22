@@ -863,8 +863,12 @@ class Delegator:
         result = self.execute(service_name, prompt, files, options)
         return service_name, result
 
-    def _candidate_order(self) -> list[str]:
+    def candidate_order(self) -> list[str]:
         """Return registered service names in declared preference order.
+
+        Public because delegation_setup builds its operator-facing table
+        from it: a report that walked a private ordering would drift from
+        the one selection actually uses.
 
         Derived from the registry, so a provider becomes selectable the moment
         it is registered. The previous hardcoded list meant a service could be
@@ -883,7 +887,7 @@ class Delegator:
         registry rather than enumerated, so it works for every provider
         instead of only the three that used to be spelled out here.
         """
-        candidates = self._candidate_order()
+        candidates = self.candidate_order()
 
         for name in candidates:
             if requirements.get(f"{name}_available"):
@@ -948,6 +952,15 @@ def _inline_context(files: list[str]) -> str:
         header = f"--- BEGIN FILE: {path} ---\n"
         footer = f"\n--- END FILE: {path} ---"
         budget = remaining - len(header.encode("utf-8")) - len(footer.encode("utf-8"))
+        if budget <= 0:
+            # The markers alone outgrow what is left, which a deep path can
+            # do while `remaining` still clears _MIN_INLINE_FILE_BYTES. Skip
+            # rather than slice: a negative bound counts from the end of the
+            # file, so the tighter the budget the more it would admit, and
+            # the argument would exceed the execve limit this ceiling exists
+            # to stay under.
+            truncated = True
+            continue
         encoded = content.encode("utf-8")
         if len(encoded) > budget:
             # Carry as much of the file as fits rather than dropping it whole:

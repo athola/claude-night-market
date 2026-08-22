@@ -258,6 +258,44 @@ class TestDelegator:
         assert "x" * 1000 in prompt
 
     @pytest.mark.bdd
+    def test_a_deep_path_cannot_push_the_prompt_past_the_ceiling(
+        self, temp_config_dir, tmp_path
+    ) -> None:
+        """A file whose header outgrows its budget is skipped, not inverted.
+
+        Given: enough context to leave a remainder smaller than one deeply
+               nested file's own BEGIN/END markers
+        When:  that file is inlined
+        Then:  the prompt still fits the byte ceiling
+
+        The per-file budget is the remainder minus the two markers, and the
+        markers grow with the path. A remainder above the minimum but below
+        the marker cost makes that budget negative, and a negative bound on
+        a slice counts from the end of the file instead of the start, so the
+        tighter the budget the more of the file it admits.
+        """
+        deep = tmp_path
+        for _ in range(12):
+            deep = deep / ("d" * 20)
+        deep.mkdir(parents=True)
+        nested = deep / ("n" * 40 + ".txt")
+        nested.write_text("x" * (MAX_INLINE_CONTEXT_BYTES * 2))
+
+        filler = tmp_path / "filler.txt"
+        markers = len(f"--- BEGIN FILE: {filler} ---\n\n--- END FILE: {filler} ---")
+        # Leave a remainder above _MIN_INLINE_FILE_BYTES but below the
+        # nested file's own marker cost.
+        filler.write_text("f" * (MAX_INLINE_CONTEXT_BYTES - 600 - markers - 1))
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        command = delegator.build_command(
+            "minimax", "summarize", files=[str(filler), str(nested)]
+        )
+
+        prompt = command[-1]
+        assert len(prompt.encode("utf-8")) <= MAX_INLINE_CONTEXT_BYTES + 1024
+
+    @pytest.mark.bdd
     def test_oversized_file_does_not_starve_the_prompt(
         self, temp_config_dir, tmp_path
     ) -> None:
@@ -975,7 +1013,7 @@ class TestRegisteredProviders:
         """Selection order is data, so it cannot drift from the registry."""
         delegator = Delegator(config_dir=temp_config_dir)
 
-        order = delegator._candidate_order()
+        order = delegator.candidate_order()
 
         assert order[:3] == ["gemini", "qwen", "minimax"]
         assert set(order) == set(delegator.services)

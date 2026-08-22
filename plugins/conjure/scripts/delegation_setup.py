@@ -30,6 +30,14 @@ from scripts.delegation_executor import (
 
 _PROBE_TIMEOUT_SECONDS = 10
 
+# Outcomes of one install offer. Three, not two: an operator who declines
+# has made a choice, and reporting that as a failed install turns the
+# ordinary path through `--all`, where somebody wants two of eight CLIs,
+# into a non-zero exit and a red build.
+INSTALLED = "installed"
+DECLINED = "declined"
+FAILED = "failed"
+
 
 class UnverifiedBinaryError(RuntimeError):
     """Raised when an install is requested for a binary with no provenance."""
@@ -47,8 +55,11 @@ class ProviderState:
     issues: tuple[str, ...]
     missing_variables: tuple[str, ...]
     # False when the provider's credentials live inside the CLI. The probe
-    # does not spawn CLIs, so for those it has no evidence either way, and
-    # `authenticated` below is an absence of findings rather than a finding.
+    # spawns each installed binary for its version and nothing more: an auth
+    # probe per provider would multiply the cost of a status table by the
+    # number of CLIs, and several prompt on failure. So for those providers
+    # it has no evidence either way, and `authenticated` below is an absence
+    # of findings rather than a finding.
     auth_checked: bool = True
     login_hint: str = ""
 
@@ -135,7 +146,7 @@ def probe_provider(delegator: Delegator, name: str) -> ProviderState:
 
 def probe_all(delegator: Delegator) -> list[ProviderState]:
     """Read every registered provider, in the delegator's own order."""
-    return [probe_provider(delegator, name) for name in delegator._candidate_order()]
+    return [probe_provider(delegator, name) for name in delegator.candidate_order()]
 
 
 def render_status(states: Sequence[ProviderState]) -> str:
@@ -164,9 +175,10 @@ def _auth_cell(state: ProviderState) -> str:
 
     Three states, not two. A provider that is not installed reports "-"
     rather than "missing": its credentials are not the thing to fix yet. A
-    provider whose CLI owns its credentials reports "unknown", because the
-    probe never spawned it and has no evidence. Only "ok" and "missing"
-    are claims, and both rest on a check that actually ran.
+    provider whose CLI owns its credentials reports "unknown", because this
+    table never runs that CLI's auth probe and so holds no evidence either
+    way. Only "ok" and "missing" are claims, and both rest on a check that
+    actually ran.
     """
     if not state.installed:
         return "-"
@@ -209,12 +221,16 @@ def install_provider(
     binary: str,
     confirm: Callable[[str], bool] = _default_confirm,
     runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
-) -> bool:
+) -> str:
     """Install one provider CLI after the operator approves the command.
 
     The prompt names the publisher and source URL because several of these
     install by piping a remote script into a shell. Approving that without
     seeing who serves it is not consent.
+
+    Returns:
+        One of ``INSTALLED``, ``DECLINED`` or ``FAILED``.
+
     """
     command = install_command_for(binary)
     record = VERIFIED_BINARIES[binary]
@@ -227,7 +243,7 @@ def install_provider(
         f"  command    {command}"
     )
     if not confirm(prompt):
-        return False
+        return DECLINED
 
     # Several install strings are shell pipelines, so a shell has to run
     # them. Naming /bin/sh in the argv rather than passing shell=True keeps
@@ -235,7 +251,7 @@ def install_provider(
     # re-split. The string is never caller-supplied: install_command_for has
     # already established it came from the reviewed provenance map.
     result = runner(["/bin/sh", "-c", command], check=False)  # nosec B603
-    return result.returncode == 0
+    return INSTALLED if result.returncode == 0 else FAILED
 
 
 def doctor_lines(states: Sequence[ProviderState]) -> list[str]:
@@ -314,16 +330,20 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Unknown service: {args.install}", file=sys.stderr)
             return 1
         binary = delegator.services[args.install].command
-        return 0 if install_provider(binary) else 1
+        return 0 if install_provider(binary) != FAILED else 1
 
     if args.all:
         missing = [state for state in states if not state.installed]
         if not missing:
             print("Every registered provider is already installed.")
             return 0
-        failed = [state.name for state in missing if not install_provider(state.binary)]
+        outcomes = {state.name: install_provider(state.binary) for state in missing}
+        declined = [name for name, out in outcomes.items() if out == DECLINED]
+        failed = [name for name, out in outcomes.items() if out == FAILED]
+        if declined:
+            print(f"Skipped at your request: {', '.join(declined)}")
         if failed:
-            print(f"Not installed: {', '.join(failed)}", file=sys.stderr)
+            print(f"Install failed: {', '.join(failed)}", file=sys.stderr)
             return 1
         return 0
 

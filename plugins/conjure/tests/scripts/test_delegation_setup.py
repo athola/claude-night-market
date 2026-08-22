@@ -13,10 +13,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from delegation_executor import Delegator
 from delegation_setup import (
+    DECLINED,
+    FAILED,
+    INSTALLED,
     UnverifiedBinaryError,
     doctor_lines,
     install_command_for,
     install_provider,
+    main,
     probe_all,
     render_status,
 )
@@ -83,9 +87,9 @@ class TestInstallProvenance:
         """Consent gates execution, so declining must be inert."""
         runner = MagicMock()
 
-        installed = install_provider("codex", confirm=lambda _: False, runner=runner)
+        outcome = install_provider("codex", confirm=lambda _: False, runner=runner)
 
-        assert installed is False
+        assert outcome == DECLINED
         runner.assert_not_called()
 
     @pytest.mark.bdd
@@ -93,9 +97,9 @@ class TestInstallProvenance:
         """A confirmed install runs the vouched-for command and nothing else."""
         runner = MagicMock(return_value=subprocess.CompletedProcess([], 0))
 
-        installed = install_provider("codex", confirm=lambda _: True, runner=runner)
+        outcome = install_provider("codex", confirm=lambda _: True, runner=runner)
 
-        assert installed is True
+        assert outcome == INSTALLED
         assert runner.call_args.args[0] == [
             "/bin/sh",
             "-c",
@@ -119,6 +123,41 @@ class TestInstallProvenance:
 
         assert "Meta" in shown[0]
         assert "https://dev.meta.ai/docs/muse-code" in shown[0]
+
+
+class TestInstallAll:
+    """Declining an offer is a choice, not a failure."""
+
+    @pytest.mark.bdd
+    def test_declining_every_offer_still_exits_clean(self, monkeypatch) -> None:
+        """--all reports success when the operator installs nothing.
+
+        Given: no provider CLI is installed
+        When:  the operator declines every offer
+        Then:  the command exits 0 and names nothing as failed
+
+        Conflating a decline with a failed install turns the normal path
+        through `make delegate-install`, where an operator wants two of
+        eight, into a red build.
+        """
+        monkeypatch.setattr("delegation_setup.shutil.which", lambda _: None)
+        monkeypatch.setattr(
+            "delegation_setup.install_provider",
+            lambda *_args, **_kwargs: DECLINED,
+        )
+
+        assert main(["--all"]) == 0
+
+    @pytest.mark.bdd
+    def test_a_failed_install_is_still_an_error(self, monkeypatch) -> None:
+        """An install that ran and failed is reported as a failure."""
+        monkeypatch.setattr("delegation_setup.shutil.which", lambda _: None)
+        monkeypatch.setattr(
+            "delegation_setup.install_provider",
+            lambda *_args, **_kwargs: FAILED,
+        )
+
+        assert main(["--all"]) == 1
 
 
 class TestDoctor:
