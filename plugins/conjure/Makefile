@@ -285,8 +285,8 @@ plugin-check: demo-delegation demo-skills status ## Run all demo workflows
 Makefile.local:;
 -include Makefile.local
 
-demo-plugin: ## Demo plugin command (LIVE)
-	@echo "=== plugin Demo (LIVE) ==="
+demo-plugin: ## Print how to install the plugin (informational, runs nothing)
+	@echo "=== plugin (informational) ==="
 	@echo ""
 	@echo "Command: /plugin install athola@claude-night-market"
 	@echo "Plugin: conjure"
@@ -296,8 +296,8 @@ demo-plugin: ## Demo plugin command (LIVE)
 	@echo ""
 	@echo "Use /plugin install athola@claude-night-market for full workflow."
 
-demo-status: ## Demo status command (LIVE)
-	@echo "=== status Demo (LIVE) ==="
+demo-status: ## Print how to reach /status (informational, runs nothing)
+	@echo "=== status (informational) ==="
 	@echo ""
 	@echo "Command: /status"
 	@echo "Plugin: conjure"
@@ -308,7 +308,7 @@ demo-status: ## Demo status command (LIVE)
 	@echo "Use /status for full workflow."
 
 
-demo-conjure-commands: demo-plugin demo-status ## Run all conjure documented command demos
+demo-conjure-commands: demo-plugin demo-status delegate-setup ## Run all conjure documented command demos
 	@echo ""
 	@echo "=== Conjure All Commands Demo Complete ==="
 	@echo ""
