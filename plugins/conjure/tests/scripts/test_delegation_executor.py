@@ -200,21 +200,6 @@ class TestDelegator:
         assert command[command.index("--output") + 1] == "json"
 
     @pytest.mark.bdd
-    def test_build_minimax_command_drops_unsupported_temperature(
-        self, temp_config_dir
-    ) -> None:
-        """``mmx text chat`` documents no temperature flag, so none is emitted."""
-        delegator = Delegator(config_dir=temp_config_dir)
-
-        command = delegator.build_command(
-            "minimax",
-            "extract",
-            options={"temperature": 0.2},
-        )
-
-        assert "--temperature" not in command
-
-    @pytest.mark.bdd
     def test_build_minimax_command_inlines_file_contents(
         self, temp_config_dir, tmp_path
     ) -> None:
@@ -328,7 +313,8 @@ class TestDelegator:
 
         assert command[0] == "gemini"
         assert "--output-format" in command
-        assert "--temperature" in command
+        # gemini 0.26.0 documents no temperature flag and exits 1 on one.
+        assert "--temperature" not in command
         assert command[-2] == "-p"
         assert f"@{target}" in command[-1]
 
@@ -511,8 +497,10 @@ class TestDelegator:
         assert "gemini-3-pro" in command
         assert "--output-format" in command
         assert "json" in command
-        assert "--temperature" in command
-        assert "0.7" in command
+        # Passed but not emitted: gemini rejects --temperature outright, so
+        # the contract drops it rather than failing the delegation.
+        assert "--temperature" not in command
+        assert "0.7" not in command
 
     @pytest.mark.bdd
     def test_build_command_with_files(self, sample_files, temp_config_dir) -> None:
@@ -1069,3 +1057,132 @@ class TestRegisteredProviders:
 
         assert service == "muse"
         assert "model" not in mock_execute.call_args.args[3]
+
+
+class TestFlagSpellingsMatchTheRealClis:
+    """Every flag spelling below was probed against the installed binary.
+
+    The ServiceConfig defaults reproduce the Gemini dialect and a provider
+    declares only where it differs. Nothing verified that a declared flag
+    exists in the CLI it targets, and for four of eight providers it did
+    not. `delegation_executor.py <svc> "<prompt>" --format json` is a
+    documented invocation, and it reached the CLI as an unknown argument.
+
+    Probe results, 2026-08-22, from the installed versions:
+
+        gemini 0.26.0   --temperature      -> exit 1 Unknown argument
+        qwen 0.4.0      --format           -> exit 1 Unknown argument
+        qwen 0.4.0      --temperature      -> exit 1 Unknown argument
+        mmx 1.0.19      --temperature <n>  -> documented and accepted
+        muse 0.2.1      --output-format    -> exit 2 unknown option
+        codex-cli 0.77  --output-format    -> exit 2 unexpected argument
+        opencode 1.18   --output-format    -> exit 1; --format json parses
+        ollama 0.13.1   --output-format    -> exit 1 unknown flag
+
+    These assert on argv rather than spawning anything, so the suite stays
+    hermetic. The binaries are the source; this is the pin.
+    """
+
+    @pytest.mark.bdd
+    def test_qwen_takes_the_default_output_format_spelling(
+        self, temp_config_dir
+    ) -> None:
+        """GIVEN qwen 0.4.0, whose flag is -o/--output-format.
+
+        WHEN a caller asks for JSON
+        THEN --output-format is emitted and --format is not
+
+        `qwen --format json` exits 1 with "Unknown argument: format".
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+        command = delegator.build_command(
+            "qwen", "extract", options={"output_format": "json"}
+        )
+
+        assert "--output-format" in command
+        assert "--format" not in command
+        assert command[command.index("--output-format") + 1] == "json"
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize("service", ["gemini", "qwen"])
+    def test_a_cli_without_a_temperature_flag_is_sent_none(
+        self, temp_config_dir, service: str
+    ) -> None:
+        """GIVEN a CLI that documents no temperature flag.
+
+        WHEN a caller passes a temperature
+        THEN no temperature token reaches argv
+
+        Both CLIs reject the flag outright, so emitting it turns a tuning
+        hint into a failed delegation.
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+        command = delegator.build_command(
+            service, "extract", options={"temperature": 0.5}
+        )
+
+        assert "--temperature" not in command
+        assert "0.5" not in command
+
+    @pytest.mark.bdd
+    def test_minimax_carries_the_temperature_it_supports(self, temp_config_dir) -> None:
+        """GIVEN `mmx text chat`, which documents --temperature <n>.
+
+        WHEN a caller passes a temperature
+        THEN it is emitted rather than dropped
+
+        The registry declared None here, so the one provider in the fleet
+        that accepts a temperature was the one silently denied it.
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+        command = delegator.build_command(
+            "minimax", "extract", options={"temperature": 0.2}
+        )
+
+        assert "--temperature" in command
+        assert command[command.index("--temperature") + 1] == "0.2"
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize("service", ["opencode", "glimmer"])
+    def test_a_cli_spelling_it_format_gets_format(
+        self, temp_config_dir, service: str
+    ) -> None:
+        """GIVEN opencode and ollama, which both spell the flag --format.
+
+        WHEN a caller asks for JSON
+        THEN --format is emitted and --output-format is not
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+        command = delegator.build_command(
+            service, "extract", options={"output_format": "json"}
+        )
+
+        assert "--format" in command
+        assert "--output-format" not in command
+        assert command[command.index("--format") + 1] == "json"
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize("service", ["muse", "codex"])
+    def test_a_cli_with_only_a_boolean_json_flag_emits_no_format_token(
+        self, temp_config_dir, service: str
+    ) -> None:
+        """GIVEN a CLI whose only JSON control is a boolean --json.
+
+        WHEN a caller asks for JSON
+        THEN no format flag and no format value reach argv
+
+        `--json` takes no value, so the key-and-value shape build_command
+        emits cannot express it: `--json json` would land "json" as a
+        positional and displace the prompt. Suppressing is the honest
+        answer until the contract can carry a valueless flag, tracked in
+        issue #684. Emitting --output-format is not the honest answer:
+        muse exits 2 on it, and so does codex.
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+        command = delegator.build_command(
+            service, "extract", options={"output_format": "json"}
+        )
+
+        assert "--output-format" not in command
+        assert "--json" not in command
+        assert "json" not in command

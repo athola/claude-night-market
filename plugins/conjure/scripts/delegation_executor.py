@@ -152,9 +152,15 @@ class ServiceConfig:
     The trailing fields describe the CLI contract. They exist because the
     supported CLIs genuinely diverge: ``mmx`` puts text generation behind a
     ``text chat`` subcommand, names its prompt flag ``--message``, spells
-    output format ``--output``, documents no temperature flag, and has no
-    ``@path`` context syntax. Defaults reproduce the Gemini contract, so
-    existing services and custom entries in ``config.json`` are unaffected.
+    output format ``--output``, and has no ``@path`` context syntax.
+    Defaults reproduce the Gemini contract, so existing services and custom
+    entries in ``config.json`` are unaffected.
+
+    A default is a claim about a CLI, not a neutral placeholder: a provider
+    that leaves ``output_format_flag`` alone is asserting that its binary
+    spells the flag ``--output-format``. Four did not, and the mismatch
+    only surfaced when a caller passed the matching option. Probe the
+    binary before trusting a default here.
     """
 
     name: str
@@ -169,7 +175,9 @@ class ServiceConfig:
     # ``codex exec <prompt>`` and ``opencode run <prompt>`` all take it that
     # way, so a flag name is not universal enough to be mandatory.
     prompt_flag: str | None = "-p"
-    output_format_flag: str = "--output-format"
+    # None where the CLI takes no format value. muse and codex offer only a
+    # boolean ``--json``, which a flag-and-value pair cannot express.
+    output_format_flag: str | None = "--output-format"
     temperature_flag: str | None = "--temperature"
     inline_files: bool = False
     # Prompt on stdin rather than argv. execve caps a single argument at
@@ -334,6 +342,9 @@ class Delegator:
             auth_method="api_key",
             auth_env_var="GEMINI_API_KEY",
             quota_limits=DEFAULT_GEMINI_LIMITS,
+            # gemini 0.26.0 documents -p, -m and -o/--output-format and no
+            # temperature flag; passing one exits 1 on "Unknown argument".
+            temperature_flag=None,
             install_hint="npm install -g @google/gemini-cli",
             priority=10,
             default_model="gemini-3-pro",
@@ -347,7 +358,10 @@ class Delegator:
             auth_method="cli",
             auth_env_var=None,
             quota_limits=DEFAULT_QWEN_LIMITS,
-            output_format_flag="--format",
+            # qwen 0.4.0 spells it -o/--output-format like gemini, so the
+            # default stands. The earlier "--format" exited 1 as an unknown
+            # argument. No temperature flag exists either.
+            temperature_flag=None,
             install_hint="npm install -g @qwen-code/qwen-code",
             priority=20,
             default_model="qwen-max",
@@ -370,7 +384,9 @@ class Delegator:
             subcommand=("text", "chat"),
             prompt_flag="--message",
             output_format_flag="--output",
-            temperature_flag=None,
+            # `mmx text chat --help` documents "--temperature <n> Sampling
+            # temperature (0.0, 1.0]". Declaring None dropped it silently.
+            temperature_flag="--temperature",
             inline_files=True,
             install_hint="npm install -g mmx-cli",
             login_hint="mmx auth login",
@@ -423,6 +439,9 @@ class Delegator:
             subcommand=("exec",),
             prompt_flag=None,
             temperature_flag=None,
+            # muse 0.2.1 offers only a boolean --json, which this contract's
+            # flag-and-value shape cannot express; --output-format exits 2.
+            output_format_flag=None,
             inline_files=True,
             auth_probe=(),
             install_hint="curl -fsSL https://dev.meta.ai/install.sh | sh",
@@ -443,6 +462,10 @@ class Delegator:
             subcommand=("exec",),
             prompt_flag=None,
             temperature_flag=None,
+            # codex-cli 0.77.0 has boolean --json plus --output-schema and
+            # --output-last-message, both file paths. No --output-format:
+            # passing it exits 2 on "unexpected argument".
+            output_format_flag=None,
             inline_files=True,
             auth_probe=("login", "status"),
             install_hint="npm install -g @openai/codex",
@@ -461,6 +484,9 @@ class Delegator:
             subcommand=("run",),
             prompt_flag=None,
             temperature_flag=None,
+            # opencode 1.18.18: "--format  format: default (formatted) or
+            # json (raw JSON events)". --output-format exits 1.
+            output_format_flag="--format",
             inline_files=True,
             auth_probe=("auth", "list"),
             install_hint="npm install -g opencode-ai@latest",
@@ -481,6 +507,9 @@ class Delegator:
             subcommand=("run", "muse-glimmer:30b"),
             prompt_flag=None,
             temperature_flag=None,
+            # ollama 0.13.1: "--format string  Response format (e.g. json)".
+            # --output-format exits 1 on "unknown flag".
+            output_format_flag="--format",
             inline_files=True,
             stdin_prompt=True,
             auth_probe=(),
@@ -636,7 +665,7 @@ class Delegator:
         if options:
             if "model" in options:
                 command.extend(["--model", options["model"]])
-            if "output_format" in options:
+            if "output_format" in options and service.output_format_flag:
                 command.extend(
                     [service.output_format_flag, options["output_format"]],
                 )
