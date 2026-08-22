@@ -4,7 +4,7 @@ description: Shared shell execution contract for external LLM delegation service
 category: delegation-infrastructure
 tags: [shell-execution, delegation, cli, services]
 dependencies: []
-estimated_tokens: 1600
+estimated_tokens: 2300
 ---
 
 # Shared Shell Execution Capability
@@ -197,6 +197,90 @@ all 123 KB of codex's noise arrives on the loud one.
 Every CLI here puts its diagnosis at the tail, which is the half a
 head-truncation would remove.
 
+### What the failure shapes look like
+
+A negative sweep on 2026-08-22 ran each shape below against the real
+binaries and a real filesystem rather than a mock.
+Argument parsing, file reading and `execve` all happen before any
+network call, so most of these cost nothing to reproduce.
+
+| Shape | Result |
+|-------|--------|
+| Prompt `""`, or absent | exit 2 from `parser.error` |
+| Bare `--verify` | exit 2 |
+| Unknown service name | `KeyError` traceback, exit 1 |
+| Prompt `--usage` | exit 0, prints the usage report, delegates nothing |
+| Context file absent | dropped, no signal at any log level |
+| Context file oversized | cut, and the marker names the ceiling |
+| Prompt past 128 KiB | `OSError` E2BIG, reported as a named failure |
+| Shell metacharacters | one literal argv entry, no expansion |
+| `--timeout 1` | exit 1, `Command timed out after 1 seconds` |
+| `--format yaml` | exit 1, the CLI lists the values it accepts |
+
+Four of those change caller code.
+
+**A prompt beginning with a dash is read as a flag, and which parser
+reads it depends on the entry point.**
+From the command line the executor's own argparse takes it first, so
+`delegation_executor.py gemini "--usage"` prints the usage report and
+exits 0 without delegating anything.
+From Python there is no argparse in the way, and the string lands in
+the child's argv: `Delegator.execute("muse", "--help")` returned
+`success=True` and exit 0 with muse's help text standing in for the
+answer, while the same call to opencode returned success and an empty
+stdout.
+Neither reached a model and neither needed a credential.
+The contract has no way to say "the rest is data", because the three
+positional-prompt providers take the prompt in the slot their flags
+occupy.
+`test_a_dash_leading_prompt_lands_where_a_flag_is_parsed` pins that
+exposure rather than endorsing it, so closing it turns the test red on
+purpose: whoever emits an end-of-options separator should rewrite that
+test rather than work around it.
+
+**Absent context is the one loss that goes unnamed.**
+An oversized file is cut, marked in the prompt as `[context truncated
+at 98304 bytes; N file(s) included]`, and logged at warning level.
+A file that cannot be resolved contributes nothing and says nothing,
+even at debug.
+Passing a good path and a bad one together returns a prompt built from
+the good one alone, which reads as complete: nothing in it separates
+one file requested from two requested and one lost.
+
+**The inline ceiling bounds file context, not the prompt.**
+`MAX_INLINE_CONTEXT_BYTES` is 96 KiB, which leaves headroom under the
+128 KiB `execve` limit for the prompt that carries it.
+A prompt is never capped, so a large enough one reaches that limit on
+its own: 127 KiB spawned and 128 KiB, which is `MAX_ARG_STRLEN`
+exactly, failed with `[Errno 7] Argument list too long`.
+The executor turns that into `success=False` and a stderr naming the
+cause rather than truncating behind the caller's back, which is the
+behavior to keep.
+
+**Asking for JSON can hide the error it was meant to reveal.**
+`--format json` is how qwen's rejected credential becomes visible at
+all, and through the command line it becomes less visible instead.
+The envelope front-loads its `system` and `init` entries, so the 401
+sat 1041 bytes into a 2075-byte answer while `_print_result` kept the
+first 200 and exited 0.
+The error is in the result the Python caller receives, and not in the
+line the shell caller reads.
+
+Two smaller asymmetries are worth knowing before debugging one.
+`verify_service` answers an unknown service with a named issue while
+`execute` raises `KeyError`, so the same typo is a diagnosis on one
+path and a traceback on the other.
+And in `config.json` a misspelled field raises `TypeError` naming the
+field, while a missing brace is swallowed at debug level and leaves the
+defaults in place, so the louder mistake is the smaller one.
+
+`VERIFIED_BINARIES` does not gate any of this.
+A service added through `config.json` registers under whatever binary
+it names, verifies as `not found`, and executes to exit 127.
+The map gates install advice in `delegation_setup.py`, where
+`install_command_for` raises `UnverifiedBinaryError` rather than
+guessing a command, which is the check #655 exists to keep.
+
 ### Reproducing the probes
 
 Each row above came from asking the binary rather than the docs.
@@ -224,6 +308,29 @@ uv run python scripts/delegation_executor.py codex "Reply with: pong"
 Redirect each to a file before reading it: codex answers a four-word
 prompt with 123 KB of stderr, and the line that explains the failure is
 the last one.
+
+The failure shapes need no credentials, and the two that matter most
+are one command each:
+
+```bash
+uv run python scripts/delegation_executor.py gemini "--usage"
+uv run python -c "import sys; sys.path.insert(0, '.'); \
+from scripts.delegation_executor import _delivered_prompt, Delegator; \
+print(repr(_delivered_prompt(Delegator().services['minimax'], 'ASK', ['/nope'])))"
+```
+
+The first prints a usage report and exits 0.
+The second prints `'ASK'`, which is the whole signal a caller gets when
+the context it asked for did not resolve.
+
+Reproducing any of this writes to the same log `--usage` reads.
+Nothing marks a probe as a probe, so a sweep of the eight providers
+skews the report it will later be read from: this round left 27 rows in
+a log that held 6.
+The effect stops there. Quota lives in its own store under
+`~/.claude/hooks/gemini`, and `_select_service` orders candidates by
+priority and strengths without consulting usage at all, so probe
+traffic changes what `--usage` says and not what runs.
 
 A CLI that branches on a terminal needs one to show the other branch.
 `tmux` is what separates "the probe is broken" from "the CLI asked a
