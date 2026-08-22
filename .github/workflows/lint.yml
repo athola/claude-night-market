@@ -6,13 +6,15 @@ name: Lint (per-plugin ruff union)
 # the whole monorepo is linted before merge, so violations stop
 # accumulating in plugins a given change did not touch.
 #
-# Why no `--config`: each plugin's pyproject.toml carries
+# Why `ruff check` takes no `--config`: each plugin's pyproject.toml carries
 # `extend = "../../pyproject.toml"` and states its additions as
 # `extend-select`. Passing `--config pyproject.toml` would force the root
 # file onto every path and collapse that union back to the root subset,
 # which is the drift this gate exists to prevent. Letting ruff resolve
 # config per file gives each plugin its own stricter set on top of the
-# shared floor.
+# shared floor. The format step is the opposite case and does pass
+# `--config`: formatting is one style for the whole repo, and per-plugin
+# resolution there would let a plugin drift its own line length.
 
 on:
   push:
