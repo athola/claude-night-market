@@ -23,10 +23,12 @@ class FakeRunner:
         """Map a command substring to the (exit code, output) it yields."""
         self.script = script or {}
         self.calls: list[str] = []
+        self.invocations: list[tuple[str, Path | None]] = []
 
     def run(self, command: str, cwd: Path | None = None, timeout: int = 0):
-        del cwd, timeout
+        del timeout
         self.calls.append(command)
+        self.invocations.append((command, cwd))
         for key, (code, out) in self.script.items():
             if key in command:
                 return night_run.Completed(returncode=code, output=out)
@@ -463,3 +465,113 @@ class TestRateLimitParksTheRun:
             babysitter=lambda **_: ("FAIL", "no", ""),
         )
         assert result.status == "parked_task"
+
+
+#: A runner script whose keys are ordered most-specific first, because
+#: FakeRunner returns the first substring match.
+def dirty_script(exit_code: int = 1) -> dict:
+    """Scripted git output for a tree with one edited and one new file."""
+    return {
+        "git diff --name-only": (0, "a/T1.py\n"),
+        "git diff --numstat": (0, "3\t1\ta/T1.py\n"),
+        "git diff --unified=0": (0, "@@ -1 +1 @@\n-old\n+new\n"),
+        "git status --porcelain": (0, " M a/T1.py\n?? a/scratch.tmp\n"),
+        "git diff": (0, "diff --git a/a/T1.py b/a/T1.py\n+new line\n"),
+        "pytest": (exit_code, "1 failed"),
+    }
+
+
+class TestWorktreeIsCutFromTheProjectRoot:
+    """Where `git worktree add` runs decides which repository is cut."""
+
+    def test_the_worktree_add_runs_in_the_project_root(self, tmp_path: Path) -> None:
+        """It must not inherit whatever directory the process is in.
+
+        With ``cwd=None`` the command runs wherever the driver happens to
+        have been started, so a night run launched from another checkout
+        would cut the item's worktree out of the wrong repository.
+        """
+        runner = FakeRunner({"pytest": (0, "1 passed")})
+        night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        add = [(c, cwd) for c, cwd in runner.invocations if "worktree add" in c]
+        assert add, "the item must get its own worktree"
+        assert add[0][1] == tmp_path
+
+
+class TestParkLeavesACleanTree:
+    """A parked item must not leave unjudged edits lying in the worktree.
+
+    The task that did not finish was still dispatched, so the implementer
+    already wrote something. It carries no proof row and no commit. Left
+    in place it is invisible to the morning review and it is re-applied
+    on top of itself when the task is dispatched again.
+    """
+
+    def test_a_parked_task_reverts_what_it_left_behind(self, tmp_path: Path) -> None:
+        runner = FakeRunner(dirty_script())
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [])],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        assert result.status == "parked_task"
+        reverts = [c for c in runner.calls if "checkout -- ." in c]
+        assert reverts, "the parked tree must be reverted to HEAD"
+
+    def test_what_was_discarded_is_recorded_before_it_is_reverted(
+        self, tmp_path: Path
+    ) -> None:
+        runner = FakeRunner(dirty_script())
+        result = night_run.run_item(
+            HANDOFF, [mktask("T1", [])], tmp_path, runner, babysitter=passing_sitter
+        )
+        assert result.discarded is not None
+        assert "a/T1.py" in result.discarded.files
+        assert result.discarded.diff
+
+    def test_untracked_files_are_recorded_and_not_deleted(self, tmp_path: Path) -> None:
+        """Recording beats a blind clean, which would take setup with it."""
+        runner = FakeRunner(dirty_script())
+        result = night_run.run_item(
+            HANDOFF, [mktask("T1", [])], tmp_path, runner, babysitter=passing_sitter
+        )
+        assert result.discarded is not None
+        assert "a/scratch.tmp" in result.discarded.untracked
+        assert not [c for c in runner.calls if "clean -fd" in c]
+
+    def test_the_ceiling_park_also_cleans_up(self, tmp_path: Path) -> None:
+        handoff = dict(HANDOFF)
+        handoff["budget"] = {**HANDOFF["budget"], "claude_token_ceiling": 1}
+        runner = FakeRunner(dirty_script(exit_code=0))
+        result = night_run.run_item(
+            handoff, [mktask("T1", [])], tmp_path, runner, babysitter=passing_sitter
+        )
+        assert result.status == "parked_budget"
+        assert [c for c in runner.calls if "checkout -- ." in c]
+
+    def test_a_clean_tree_records_nothing(self, tmp_path: Path) -> None:
+        """No discard section when the implementer left nothing behind."""
+        runner = FakeRunner({"pytest": (1, "1 failed")})
+        result = night_run.run_item(
+            HANDOFF, [mktask("T1", [])], tmp_path, runner, babysitter=passing_sitter
+        )
+        assert result.status == "parked_task"
+        assert result.discarded is None
+
+    def test_the_proof_shows_what_was_discarded(self, tmp_path: Path) -> None:
+        runner = FakeRunner(dirty_script())
+        result = night_run.run_item(
+            HANDOFF, [mktask("T1", [])], tmp_path, runner, babysitter=passing_sitter
+        )
+        proof = night_run.write_proof(tmp_path / "item", result).read_text()
+        assert "Discarded at park" in proof
+        assert "a/T1.py" in proof
+        assert "a/scratch.tmp" in proof

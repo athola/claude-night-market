@@ -317,6 +317,26 @@ def render_proof(result: TaskResult) -> str:
 CHARS_PER_TOKEN = 4
 
 
+#: Characters of the discarded diff kept in the proof. The same bound
+#: the babysitter uses: enough to see what was attempted, not enough to
+#: turn a ledger into a dump.
+DISCARD_DIFF_CHARS = 4000
+
+
+@dataclass
+class Discarded:
+    """What the working tree held when the item parked.
+
+    ``files`` were reverted. ``untracked`` were left where they are: a
+    blind ``git clean -fd`` would take the setup artifacts with them and
+    make the resume pay for setup a second time.
+    """
+
+    files: list[str] = field(default_factory=list)
+    untracked: list[str] = field(default_factory=list)
+    diff: str = ""
+
+
 @dataclass
 class ItemResult:
     """The outcome of walking one work item to a stopping point."""
@@ -328,6 +348,7 @@ class ItemResult:
     tasks: list[TaskResult] = field(default_factory=list)
     full_suite: dict[str, Any] | None = None
     estimated_tokens: int = 0
+    discarded: Discarded | None = None
 
 
 def estimate_tokens(text: str) -> int:
@@ -385,6 +406,40 @@ def _headers_in(text: str) -> dict[str, str]:
 def _git(runner: Runner, workdir: Path | None, *args: str) -> Completed:
     """Run one git command as argv."""
     return runner.run(shlex.join(["git", *args]), cwd=workdir)
+
+
+def _untracked(runner: Runner, workdir: Path) -> list[str]:
+    """List files git does not track yet."""
+    result = runner.run("git status --porcelain", cwd=workdir)
+    return [
+        line[3:].strip()
+        for line in result.output.splitlines()
+        if line.startswith("??") and line[3:].strip()
+    ]
+
+
+def _discard_uncommitted(runner: Runner, worktree: Path) -> Discarded | None:
+    """Record what a parked task left behind, then revert it.
+
+    The task that parked the item was dispatched before it was judged,
+    so the implementer had already written something. Those edits carry
+    no proof row and no commit: invisible to the morning review, and
+    applied a second time on top of themselves when the task is
+    dispatched again. Recording them keeps them reviewable, and
+    reverting keeps the resume honest about what the diff contains.
+
+    Returns None when there was nothing to discard, so a clean park does
+    not grow an empty section.
+    """
+    files = _changed_files(runner, worktree)
+    untracked = _untracked(runner, worktree)
+    if not files and not untracked:
+        return None
+
+    diff = runner.run("git diff", cwd=worktree).output[-DISCARD_DIFF_CHARS:]
+    if files:
+        _git(runner, worktree, "checkout", "--", ".")
+    return Discarded(files=files, untracked=untracked, diff=diff)
 
 
 class BudgetExhausted(Exception):
@@ -477,7 +532,7 @@ def run_item(
 
     _git(
         runner,
-        None,
+        root,
         "worktree",
         "add",
         "-b",
@@ -530,6 +585,9 @@ def run_item(
 
     result.estimated_tokens = spend[0]
 
+    if result.status != "ready":
+        result.discarded = _discard_uncommitted(runner, worktree)
+
     if result.status == "ready":
         full = (handoff.get("commands") or {}).get("full_test")
         if full:
@@ -581,6 +639,27 @@ def write_proof(item_dir: Path, result: ItemResult) -> Path:
             "",
             f"`{result.full_suite['command']}` exited {result.full_suite['exit']}",
         ]
+    if result.discarded is not None:
+        lines += [
+            "",
+            "## Discarded at park",
+            "",
+            "The task that parked this item had already been dispatched, so "
+            "these edits existed with no proof row and no commit. They are "
+            "recorded here and the tree was reverted, so a resume does not "
+            "apply them twice.",
+        ]
+        if result.discarded.files:
+            lines += ["", f"**Reverted**: {', '.join(result.discarded.files)}"]
+        if result.discarded.untracked:
+            lines += [
+                "",
+                "**Left in place, untracked**: "
+                f"{', '.join(result.discarded.untracked)}",
+            ]
+        if result.discarded.diff:
+            lines += ["", "```diff", result.discarded.diff.rstrip(), "```"]
+
     lines += ["", "## Committed", ""]
     lines += [f"- {tid}" for tid in result.committed] or ["- (nothing)"]
     lines.append("")
