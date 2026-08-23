@@ -83,8 +83,20 @@ Flipping the default is impossible, not just unwise.
 
 - Egregore Tier 2 webhooks (Slack/Discord/ntfy.sh): no
   reasonable default URL
-- Conjure delegation (Gemini/Qwen CLIs): requires
-  external CLI authentication
+
+**Graduated out of this category:**
+
+- Conjure delegation. It qualified while `smart_delegate`
+  raised on an empty registry: turning it on for a machine
+  with no CLI authenticated would have failed every mission
+  that reached it, which is the "flipping is impossible"
+  condition this category describes. The provider chain
+  removed the condition rather than argued with it. An
+  unconfigured machine now gets a `providers_exhausted`
+  result and does the work locally, so the reasonable
+  default does exist and it is "try, then do it yourself".
+  A feature leaves this category by removing the failure,
+  not by deciding the failure is acceptable.
 
 ### 4. OS-level or cross-process state changes
 

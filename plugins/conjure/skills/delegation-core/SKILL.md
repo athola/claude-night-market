@@ -29,7 +29,7 @@ usage_patterns:
 - integration-workflows
 complexity: intermediate
 model_hint: standard
-estimated_tokens: 250
+estimated_tokens: 600
 progressive_loading: true
 modules:
 - modules/task-assessment.md
@@ -98,7 +98,7 @@ Keep the work local when any of these hold:
 - Correctness cannot be validated after the fact.
 
 The first is the standing exception and covers most of what Claude does.
-The rest are the red flags `modules/handoff-patterns.md` already lists.
+The rest are the red flags `modules/task-assessment.md` already lists.
 
 ## Declining Delegation
 

@@ -37,15 +37,31 @@ For accurate token counts, install tiktoken:
 pip install tiktoken
 ```
 
-### Why delegation stays opt-in
+### Why delegation is on by default
 
-Per [docs/inclusive-defaults.md][inc] (TRUE-exception
-category 3), conjure delegation requires external CLIs
-(`gemini`, `qwen`, `mmx`, `muse`, `codex`, `opencode`, `claude`,
-`ollama`) that must be separately installed and
-authenticated against third-party LLM providers. There is
-no reasonable default: flipping is impossible, not merely
-unwise.
+It was opt-in until the provider chain landed, under
+[docs/inclusive-defaults.md][inc] TRUE-exception category
+3: the external CLIs (`gemini`, `qwen`, `mmx`, `muse`,
+`codex`, `opencode`, `claude`, `ollama`) are separately
+installed and authenticated, and `smart_delegate` raised
+when none of them was. Defaulting on would have failed
+every task on an unconfigured machine.
+
+The chain removed that failure. An unconfigured machine
+now costs one availability probe per provider and gets a
+`providers_exhausted` result, which the caller reads as
+"do this work yourself". The reasonable default the
+category asked for exists, and it is "try, then do it
+yourself".
+
+Two switches decline it, environment over file:
+
+| Scope | How |
+|-------|-----|
+| One run | `CONJURE_DELEGATION=off` |
+| One machine | `"enabled": false` in `~/.claude/hooks/delegation/config.json` |
+
+A disabled delegator probes and spawns nothing.
 
 [inc]: ../../docs/inclusive-defaults.md
 
