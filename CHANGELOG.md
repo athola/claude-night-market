@@ -46,6 +46,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Tome's channel fan-out becomes a pipeline, and its overlap is
+  stated (tome).** `plugins/tome/workflows/research.js` dispatches one
+  agent per selected channel and merges the results, deduplicating by
+  URL so a finding two channels returned outranks one that only came
+  back once. The barrier is deliberate here: synthesis needs every
+  channel at once to dedupe and to report which came back empty.
+
+  Empty, failed and skipped stay three separate states in the returned
+  coverage, each with what the channel searched for, because a thin
+  topic and a broken channel must not look alike.
+
+  The README now says plainly that the harness bundles `/deep-research`
+  over a similar channel set. Tome is worth reaching for when the
+  result must land in a session with domain weights, the TRIZ channel,
+  citations and the memory-palace export. The dispatch alone is no
+  longer tome's to claim, and pretending otherwise would waste a
+  reader's time.
+
 - **/fix-workflow's analysis half becomes a pipeline, and stops before
   the edits (sanctum).** Stages 2 to 4 of Phase 1 were three agents in
   a fixed order with structured handoffs, described in prose across
