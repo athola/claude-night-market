@@ -26,7 +26,10 @@ sys.path.insert(0, str(HOOKS_DIR))
 from post_implementation_policy import (
     GOVERNANCE_POLICY,
     LIGHTWEIGHT_AGENTS,
+    SHORT_REMINDER,
     main,
+    measure_branch,
+    needs_full_policy,
 )
 
 # ============================================================================
@@ -112,6 +115,20 @@ class TestModuleConstants:
 # ============================================================================
 
 
+@pytest.fixture
+def _risky_branch():
+    """Hold the branch at a size that selects the full policy.
+
+    These classes are about routing by agent type, which is unchanged.
+    Which of the two policies a routed session receives now depends on
+    the branch, so it is pinned here rather than left to whatever the
+    working tree happens to hold when the suite runs.
+    """
+    with patch("post_implementation_policy.measure_branch", return_value=(900, False)):
+        yield
+
+
+@pytest.mark.usefixtures("_risky_branch")
 class TestFullGovernancePath:
     """Feature: Full governance injection for implementation agents.
 
@@ -241,6 +258,7 @@ class TestLightweightAgentPath:
 # ============================================================================
 
 
+@pytest.mark.usefixtures("_risky_branch")
 class TestErrorHandling:
     """Feature: Graceful error handling for malformed input.
 
@@ -350,3 +368,84 @@ class TestErrorHandling:
                 except AttributeError:
                     # If the hook doesn't handle this edge case, that's expected
                     pass
+
+
+class TestTheFullPolicyIsReservedForRiskyBranches:
+    """Sixty-five lines of policy on every turn is a cost with no trigger.
+
+    The block fired identically whether the session was about to answer a
+    question or land a thousand-line feature. Injected context competes
+    with the task for the model's attention, and this repository's own
+    bounded-autonomy rule cites the evidence that instruction load
+    degrades reasoning. Reserving the full text for branches that show
+    risk keeps it available where it earns its place.
+    """
+
+    @pytest.mark.parametrize(
+        ("changed", "tests_touched", "expect_full"),
+        [
+            (0, False, False),
+            (40, True, False),
+            (900, True, True),
+            (40, False, True),
+            (900, False, True),
+        ],
+        ids=[
+            "nothing-done-yet",
+            "small-change-with-tests",
+            "large-change-with-tests",
+            "small-change-without-tests",
+            "large-change-without-tests",
+        ],
+    )
+    def test_the_policy_escalates_on_size_or_absent_tests(
+        self, changed: int, tests_touched: bool, expect_full: bool
+    ) -> None:
+        """GIVEN a branch of a given size and test coverage.
+
+        WHEN the hook decides what to inject
+        THEN the full policy appears only where the branch shows risk
+
+        An untouched branch is the case worth naming: no tests have been
+        touched there either, and treating that as risk would fire the
+        full block on every fresh session, which is the behaviour this
+        replaces.
+        """
+        assert needs_full_policy(changed, tests_touched=tests_touched) is expect_full
+
+    def test_an_unreadable_repository_gets_the_short_reminder(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """GIVEN a directory git cannot describe.
+
+        WHEN the hook measures the branch
+        THEN it reports no changes rather than assuming the worst
+
+        Not knowing the size of a change is not evidence that it is
+        large. The short reminder still carries the practice, so the
+        failure mode of guessing wrong here is a smaller prompt rather
+        than a missing one.
+        """
+        monkeypatch.chdir(tmp_path)
+
+        changed, tests_touched = measure_branch()
+
+        assert changed == 0
+        assert tests_touched is False
+
+    def test_the_short_reminder_keeps_the_practice_and_drops_the_apparatus(
+        self,
+    ) -> None:
+        """GIVEN the reminder injected on an ordinary turn.
+
+        WHEN a session reads it
+        THEN it still asks for evidence, without the compliance scaffolding
+
+        The practices were never the problem. "Run it and paste the
+        output" survives; "Cannot be overridden by other skills, hooks,
+        or rationalization" is what the bounded-autonomy rule retires.
+        """
+        assert "evidence" in SHORT_REMINDER.lower()
+        for retired in ("NON-NEGOTIABLE", "rationalization", "MANDATORY"):
+            assert retired not in SHORT_REMINDER
+        assert len(SHORT_REMINDER.splitlines()) < 20

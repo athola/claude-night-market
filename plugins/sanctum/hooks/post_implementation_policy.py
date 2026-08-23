@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """Post-implementation policy hook for SessionStart.
 
-Inject mandatory workflow instructions for Claude to follow before reporting
-completion of feature implementations or plan executions.
+Ask for evidence before a session reports work complete, and scale how
+much is said to how much the branch has at stake.
 
-Use governance framing to resist override attempts from other prompts, skills, or hooks.
+The full policy used to be injected on every session. Sixty-five lines
+arrived whether the turn was a question or a thousand-line feature, and
+injected context competes with the task for attention. See
+`.claude/rules/bounded-autonomy.md` for the evidence that instruction
+load degrades reasoning. The full text is still here and still fires,
+on branches that show risk.
 
 Read `agent_type` from hook input (Claude Code 2.1.2+) to customize policy injection.
 """
@@ -12,7 +17,18 @@ Read `agent_type` from hook input (Claude Code 2.1.2+) to customize policy injec
 from __future__ import annotations
 
 import json
+import subprocess  # nosec B404
 import sys
+from pathlib import Path
+
+# A branch past this many changed lines has enough at stake to be worth
+# the full text. Below it, the reminder carries the same practice.
+LARGE_BRANCH_LINES = 500
+
+_TEST_PATH_MARKERS = ("test_", "_test.", "/tests/", "spec.", ".spec.")
+
+# git diff --numstat emits added, removed, path per line.
+_NUMSTAT_FIELDS = 3
 
 # Lightweight agents that skip full governance policy
 LIGHTWEIGHT_AGENTS = frozenset(
@@ -26,6 +42,23 @@ LIGHTWEIGHT_AGENTS = frozenset(
         "context-optimizer",  # Optimization agents don't add features
     }
 )
+
+SHORT_REMINDER = """
+## Before Reporting Work Complete
+
+Run it. Paste what it printed. Evidence is the output, not the
+assertion: "should work" is the phrasing that precedes finding out it
+does not.
+
+Tests come first here by default. Where they did not, say so and say
+why, rather than leaving the reader to notice.
+
+After a feature lands these often need updating, and which ones apply
+is a judgment call: `/sanctum:update-docs`, `/sanctum:update-tests`,
+`/sanctum:update-readme`, `/abstract:make-dogfood`.
+
+Not for questions, refactors, or exploration.
+""".strip()
 
 GOVERNANCE_POLICY = """
 ## Mandatory Post-Implementation Protocol
@@ -90,6 +123,58 @@ NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 """.strip()
 
 
+def measure_branch() -> tuple[int, bool]:
+    """Return the branch's changed-line count and whether tests moved.
+
+    Reports (0, False) for anything git cannot answer: a directory that
+    is not a repository, a missing binary, a slow filesystem. Not
+    knowing the size of a change is not evidence that it is large, and
+    the short reminder still carries the practice, so guessing wrong
+    here costs a smaller prompt rather than a missing one.
+    """
+    try:
+        result = subprocess.run(  # nosec B603 B607
+            ["git", "diff", "--numstat", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return 0, False
+
+    if result.returncode != 0:
+        return 0, False
+
+    changed = 0
+    tests_touched = False
+    for line in result.stdout.splitlines():
+        parts = line.split("\t")
+        if len(parts) != _NUMSTAT_FIELDS:
+            continue
+        added, removed, path = parts
+        # Binary files report "-" for both counts.
+        changed += sum(int(n) for n in (added, removed) if n.isdigit())
+        candidate = f"/{Path(path).as_posix()}"
+        if any(marker in candidate for marker in _TEST_PATH_MARKERS):
+            tests_touched = True
+
+    return changed, tests_touched
+
+
+def needs_full_policy(changed_lines: int, *, tests_touched: bool) -> bool:
+    """Decide whether this branch has enough at stake for the full text.
+
+    A branch with nothing on it is the case worth naming: no tests have
+    been touched there either, and reading that as risk would fire the
+    full block on every fresh session, which is the behaviour this
+    replaces.
+    """
+    if changed_lines == 0:
+        return False
+    return changed_lines > LARGE_BRANCH_LINES or not tests_touched
+
+
 def main() -> None:
     """Inject governance policy at session start.
 
@@ -123,11 +208,16 @@ def main() -> None:
         print(json.dumps(output))
         sys.exit(0)
 
-    # Full governance policy for implementation agents
+    changed_lines, tests_touched = measure_branch()
+    policy = (
+        GOVERNANCE_POLICY
+        if needs_full_policy(changed_lines, tests_touched=tests_touched)
+        else SHORT_REMINDER
+    )
     output = {
         "hookSpecificOutput": {
             "hookEventName": "SessionStart",
-            "additionalContext": GOVERNANCE_POLICY,
+            "additionalContext": policy,
         }
     }
     print(json.dumps(output))
