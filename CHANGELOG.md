@@ -102,6 +102,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   not touched: there are no workflow rows to sync until a plugin ships
   one.
 
+  The catalog-copy drift now fails a test instead of relying on a note.
+  `tests/test_catalog_rules_mirror_canonical.py` pairs every hookify
+  catalog rule with the canonical rule of the same name and requires
+  the frontmatter to match exactly: prose may be condensed for the
+  catalog, but the trigger regex, the event and the action decide when
+  a rule fires, and a copy that fires differently is a different rule
+  wearing the same name. It also requires the condensed copy to name
+  its source. This came from the review of f0790a1f itself, which
+  observed that the commit fixing the drift added a note rather than an
+  invariant.
+
 ### Fixed
 
 - **The test-quality rubric scored file length, not test quality
