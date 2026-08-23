@@ -46,6 +46,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The first shipped workflow, and the barrier it replaces (pensive).**
+  `unified-review` required every lens dispatched in one call with no
+  output read until all returned, so one lens could not colour how the
+  next was read. `plugins/pensive/workflows/unified-review.js` serves
+  that purpose better: a script is not a reasoning entity, so it cannot
+  be anchored by reading stage one before stage two, and findings pass
+  between stages without entering anyone's context. Verification starts
+  per dimension instead of waiting for the slowest lens.
+
+  The prose rule is not deleted. It is one of two paths, and the Agent
+  tool stays the default, because a workflow never starts unasked and a
+  roster that must adapt to the first lens's findings is not a script's
+  shape.
+
+  Two properties are stated where a reader meets them: the subagents
+  run in `acceptEdits` whatever the session's permission mode, so the
+  shipped prompts are scoped to reading, and the script has no
+  filesystem, so its return is a claim that survived refutation rather
+  than evidence.
+
+  The script ran before it shipped: ten agents against two commits on
+  this branch, 688k subagent tokens, no errors, four findings each
+  surviving two adversarial lenses. Two were real defects in this
+  repository's own work, and both are fixed in this release.
+
 - **Dynamic workflows: the orchestration this repo already wrote in
   prose (rules, hookify, imbue, plugin reference).**
   `.claude/rules/plan-before-large-dispatch.md` demanded an agent
