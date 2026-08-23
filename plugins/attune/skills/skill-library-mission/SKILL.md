@@ -110,6 +110,12 @@ here. Fold the answers into every later phase.
 
 ## Phase 2: Author
 
+`workflows/skill-library.js` runs authoring and review as one
+pipeline, so each skill's review starts when that skill is written
+rather than when the slowest one is. It runs only when asked for, and
+it returns review findings instead of applying them, because fixing
+edits files that already exist. Without it, dispatch by hand:
+
 Dispatch one authoring agent per skill, in parallel, following the
 taxonomy in `modules/taxonomy.md` (adapt it: merge thin categories,
 split deep ones, add domain categories). Aim for 10 to 16 skills.

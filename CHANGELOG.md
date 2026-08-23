@@ -46,6 +46,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The skill library authors and reviews as a pipeline, and does not
+  fix (attune).** `plugins/attune/workflows/skill-library.js` authors
+  one skill per topic and reviews each through two lenses, starting a
+  skill's review when that skill is written rather than when the
+  slowest one is.
+
+  It uses no worktree isolation, and that corrects the recommendation
+  that proposed it. Authoring writes one new directory per skill, which
+  is disjoint by construction, and this repository's own dispatch rule
+  says disjoint writers skip isolation. A worktree per skill would have
+  cost a worktree and prevented no conflict. What the writes needed was
+  the fence in each prompt: create only under this skill's path, and
+  modify nothing that already exists.
+
+  The fixer stays in the session. Authoring creates files that did not
+  exist, which is bounded and visible in `git status`; applying review
+  findings edits files that do exist, and a workflow's subagents run in
+  `acceptEdits` whatever the session's permission mode. Tests fail if
+  isolation is added or the write fence is dropped.
+
 - **Tome's channel fan-out becomes a pipeline, and its overlap is
   stated (tome).** `plugins/tome/workflows/research.js` dispatches one
   agent per selected channel and merges the results, deduplicating by
