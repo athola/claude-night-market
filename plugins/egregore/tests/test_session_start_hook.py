@@ -6,6 +6,7 @@ import json
 from io import StringIO
 
 import pytest
+from _manifest_utils import consume_stdin
 from session_start_hook import find_manifest, main
 
 
@@ -105,3 +106,14 @@ def test_main_corrupt_manifest(tmp_path, monkeypatch, capsys):
         main()
     assert exc_info.value.code == 0
     assert capsys.readouterr().out == ""
+
+
+def test_consume_stdin_swallows_a_malformed_payload(monkeypatch):
+    """A hook that discards its payload still survives bad input.
+
+    GIVEN stdin holding something that is not JSON
+    WHEN the hook consumes and discards it
+    THEN nothing is raised, so the hook reaches its own logic
+    """
+    monkeypatch.setattr("sys.stdin", StringIO("{{not json"))
+    consume_stdin()

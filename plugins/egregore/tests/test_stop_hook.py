@@ -7,8 +7,16 @@ import os
 from io import StringIO
 
 import pytest
-from _manifest_utils import ACTIVE_STATUSES, get_items
-from stop_hook import DEFAULT_MAX_STALLS, STATE_FILENAME, has_active_work, main
+from _manifest_utils import ACTIVE_STATUSES, get_items, read_stdin_payload
+from stop_hook import (
+    DEFAULT_MAX_STALLS,
+    STATE_FILENAME,
+    consecutive_blocks,
+    has_active_work,
+    main,
+    manifest_fingerprint,
+    max_stalls,
+)
 
 
 def test_has_active_work_with_active_items(tmp_path):
@@ -345,3 +353,86 @@ def test_unwritable_state_releases_the_stop(tmp_path, monkeypatch, capsys):
     finally:
         egregore_dir.chmod(0o700)
     assert json.loads(capsys.readouterr().out)["decision"] == "approve"
+
+
+# --- Guards for the branches the stall bound falls back through ---
+
+
+def test_read_stdin_payload_survives_malformed_json(monkeypatch):
+    """Unparseable stdin reads as an empty payload.
+
+    GIVEN stdin holding something that is not JSON
+    WHEN the hook reads its payload
+    THEN it gets an empty dict rather than an exception
+    """
+    monkeypatch.setattr("sys.stdin", StringIO("not json at all"))
+    assert read_stdin_payload() == {}
+
+
+def test_read_stdin_payload_rejects_a_non_mapping(monkeypatch):
+    """A JSON payload that is not an object reads as empty.
+
+    GIVEN stdin holding a JSON array
+    WHEN the hook reads its payload
+    THEN it gets an empty dict, so field lookups stay safe
+    """
+    monkeypatch.setattr("sys.stdin", StringIO("[1, 2, 3]"))
+    assert read_stdin_payload() == {}
+
+
+def test_fingerprint_of_an_unreadable_manifest_is_empty(tmp_path):
+    """An unreadable manifest fingerprints as the empty string.
+
+    GIVEN a manifest whose bytes cannot be read
+    WHEN the hook fingerprints it
+    THEN it gets "" instead of raising, and the stall count restarts
+    """
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        pytest.skip("root ignores file permissions")
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text("{}")
+    manifest.chmod(0o000)
+    try:
+        assert manifest_fingerprint(manifest) == ""
+    finally:
+        manifest.chmod(0o600)
+
+
+def test_non_numeric_stall_count_reads_as_zero():
+    """A corrupted count in the state file spends no budget.
+
+    GIVEN state whose consecutive_blocks is not a number
+    WHEN the hook reads how much budget was spent
+    THEN it reads zero, so a bad state file cannot release a live loop
+    """
+    state = {"session_id": "s", "fingerprint": "f", "consecutive_blocks": "many"}
+    assert consecutive_blocks(state, "s", "f") == 0
+
+
+@pytest.mark.parametrize("value", ["", "three", "0", "-2"])
+def test_unusable_stall_budget_falls_back_to_the_default(monkeypatch, value):
+    """A budget that is not a positive number is ignored.
+
+    GIVEN EGREGORE_STOP_MAX_STALLS set to something unusable
+    WHEN the hook reads the budget
+    THEN it uses the default, because zero would block every stop forever
+    """
+    monkeypatch.setenv("EGREGORE_STOP_MAX_STALLS", value)
+    assert max_stalls() == DEFAULT_MAX_STALLS
+
+
+def test_release_records_why_it_released(tmp_path, monkeypatch, capsys):
+    """The released state says what happened and how to change it.
+
+    GIVEN a loop that has spent its stall budget
+    WHEN the hook releases the stop
+    THEN the state file records the release and names the override
+    """
+    egregore_dir = _manifest_with_active_work(tmp_path)
+    for _ in range(DEFAULT_MAX_STALLS + 1):
+        _run_stop_hook(monkeypatch, tmp_path)
+        capsys.readouterr()
+    state = json.loads((egregore_dir / STATE_FILENAME).read_text())
+    assert state["released"] is True
+    assert state["consecutive_blocks"] == DEFAULT_MAX_STALLS
+    assert "EGREGORE_STOP_MAX_STALLS" in state["reason"]
