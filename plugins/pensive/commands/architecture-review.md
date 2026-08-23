@@ -1,3 +1,8 @@
+---
+name: architecture-review
+description: Principal-level architecture assessment against ADRs and design patterns.
+---
+
 # Architecture Review Command
 
 Principal-level architecture assessment against ADRs and design patterns.

@@ -1,3 +1,8 @@
+---
+name: palace
+description: Create and manage memory palaces, the unified storage for knowledge captured from research sessions.
+---
+
 # Memory Palace Command
 
 ## Usage

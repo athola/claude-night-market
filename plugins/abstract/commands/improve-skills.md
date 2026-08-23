@@ -1,3 +1,8 @@
+---
+name: improve-skills
+description: Identify and implement skill improvements from execution logs and user evaluations.
+---
+
 # Improve Skills from Observability Data
 
 Automatically identify and implement skill improvements based on execution logs and user evaluations.

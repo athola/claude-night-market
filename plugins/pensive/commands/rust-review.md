@@ -1,3 +1,8 @@
+---
+name: rust-review
+description: Expert-level Rust audits for safety and correctness.
+---
+
 # Rust Review Command
 
 Expert-level Rust audits for safety and correctness.

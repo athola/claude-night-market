@@ -1,3 +1,8 @@
+---
+name: analyze-tests
+description: Analyze Python test suites for quality, coverage, and improvement opportunities.
+---
+
 # Analyze Tests Command
 
 ## Usage

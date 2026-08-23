@@ -1,3 +1,8 @@
+---
+name: makefile-review
+description: Audit Makefiles for best practices and portability.
+---
+
 # Makefile Review Command
 
 Audit Makefiles for best practices and portability.

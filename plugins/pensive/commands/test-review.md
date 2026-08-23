@@ -1,3 +1,8 @@
+---
+name: test-review
+description: Evaluate and upgrade test suites with TDD/BDD rigor.
+---
+
 # Test Review Command
 
 Evaluate and upgrade test suites with TDD/BDD rigor.

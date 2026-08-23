@@ -1,3 +1,8 @@
+---
+name: visualize
+description: Generate visual diagrams of codebase structure using Mermaid Chart MCP rendering.
+---
+
 # Visualize Codebase
 
 Generate visual diagrams of codebase structure using

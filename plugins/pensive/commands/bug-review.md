@@ -1,3 +1,8 @@
+---
+name: bug-review
+description: Systematic bug detection with language-specific expertise.
+---
+
 # Bug Review Command
 
 Systematic bug detection with language-specific expertise.

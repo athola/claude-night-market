@@ -1,3 +1,8 @@
+---
+name: garden
+description: Manage and analyze digital gardens for evolving knowledge bases, including health metrics.
+---
+
 # Digital Garden Command
 
 ## Usage

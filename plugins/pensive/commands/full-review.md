@@ -1,3 +1,8 @@
+---
+name: full-review
+description: Run a detailed review that picks its dimensions from what the codebase and diff contain.
+---
+
 # Unified Review Command
 
 Run a detailed review using intelligent skill selection based on codebase analysis.

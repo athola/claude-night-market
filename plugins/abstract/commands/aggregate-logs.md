@@ -1,3 +1,8 @@
+---
+name: aggregate-logs
+description: Generate LEARNINGS.md from skill execution logs over a configurable time window.
+---
+
 # Aggregate Skill Execution Logs
 
 Generate LEARNINGS.md from skill execution logs.

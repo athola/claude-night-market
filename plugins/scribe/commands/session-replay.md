@@ -1,3 +1,8 @@
+---
+name: session-replay
+description: Convert a Claude Code or Codex session JSONL file into an animated replay of the conversation.
+---
+
 # Session Replay
 
 Convert a Claude Code or Codex session JSONL file into an

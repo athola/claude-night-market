@@ -1,3 +1,8 @@
+---
+name: review-room
+description: Capture and retrieve PR review knowledge in project memory palaces.
+---
+
 # /review-room Command
 
 Manage PR review knowledge in project memory palaces.

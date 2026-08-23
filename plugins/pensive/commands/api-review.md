@@ -1,3 +1,8 @@
+---
+name: api-review
+description: Evaluate public API surfaces against guidelines and exemplars.
+---
+
 # API Review Command
 
 Evaluate public API surfaces against guidelines and exemplars.

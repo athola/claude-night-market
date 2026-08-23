@@ -1,3 +1,8 @@
+---
+name: skill-review
+description: Analyze skill execution metrics and identify unstable or underperforming skills.
+---
+
 # Skill Performance Review
 
 Analyze skill execution metrics and identify unstable or underperforming skills using continual learning analysis.

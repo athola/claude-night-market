@@ -1,3 +1,8 @@
+---
+name: evaluate-skill
+description: Manually evaluate a recent skill execution to record qualitative feedback.
+---
+
 # Evaluate Skill Execution
 
 Manually evaluate a recent skill execution for qualitative feedback.

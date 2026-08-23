@@ -1,3 +1,8 @@
+---
+name: doc-polish
+description: Clean up AI-generated content and improve documentation quality.
+---
+
 # Doc Polish
 
 Clean up AI-generated content and improve documentation quality.

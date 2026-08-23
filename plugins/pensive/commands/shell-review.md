@@ -1,3 +1,8 @@
+---
+name: shell-review
+description: Audit shell scripts for correctness, safety, and portability.
+---
+
 # Shell Script Review Command
 
 Audit shell scripts for correctness, safety, and portability.

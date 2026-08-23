@@ -1,3 +1,8 @@
+---
+name: math-review
+description: Intensive mathematical analysis for numerical stability and correctness.
+---
+
 # Math Review Command
 
 Intensive mathematical analysis for numerical stability and correctness.
