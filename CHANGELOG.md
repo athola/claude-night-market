@@ -83,9 +83,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `node --check` calls a correct script a syntax error. The runtime
   runs the body inside an async function.
 
-  This repo still ships no workflows, and `abstract_validator.py`
-  still knows four component types. Teaching it a fifth is proposed,
-  not done, and needs its own change with a failing test first.
+  `validate_plugin.py` now knows the fifth type. `workflows/` is
+  optional, so its absence is silent and every current plugin is
+  unaffected; when a plugin does ship one, each `.js` must open with a
+  literal `export const meta` carrying `name` and `description`, only
+  comments may precede it, and a `workflows/` directory misplaced under
+  `.claude-plugin/` is reported the way a misplaced `skills/` is.
+  Syntax is checked structurally and never with `node --check`, for the
+  ESM reason above, with a test that makes any `subprocess.run` call
+  fatal so the shortcut cannot come back.
+
+  Validated against three real inputs: all 23 plugins in this repo stay
+  silent, the worked example passes with its leading comment block, and
+  Anthropic's own minified `claude-security/workflows/scan.js` passes,
+  which is the shape we do not control.
+
+  The capabilities reference and `sync-capabilities` are deliberately
+  not touched: there are no workflow rows to sync until a plugin ships
+  one.
 
 ### Fixed
 

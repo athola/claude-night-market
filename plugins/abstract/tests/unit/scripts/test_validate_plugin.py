@@ -9,6 +9,7 @@ Feature: Plugin Validator Enhancements
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -796,3 +797,134 @@ class TestMain:
         pd = _make_plugin(tmp_path, {"name": "my-plugin"})
         monkeypatch.setattr(sys, "argv", ["validate_plugin.py", str(pd)])
         assert main() == 0
+
+
+# --- Workflows: the fifth asset type ---
+
+
+def _make_workflow_plugin(
+    tmp_path: Path, script: str | None, name: str = "demo.js"
+) -> Path:
+    """Create a plugin, optionally with one workflow script."""
+    plugin = _make_plugin(
+        tmp_path, {"name": "wf-plugin", "description": "d", "version": "1.0.0"}
+    )
+    if script is not None:
+        wf = plugin / "workflows"
+        wf.mkdir()
+        (wf / name).write_text(script)
+    return plugin
+
+
+GOOD_SCRIPT = """// A leading comment is fine: the runtime accepts it.
+export const meta = {
+  name: 'demo',
+  description: 'Demonstrate the shape',
+}
+
+const r = await agent('do the thing')
+return { r }
+"""
+
+
+def test_plugin_without_workflows_directory_is_valid(tmp_path: Path) -> None:
+    """Absence of workflows/ is not a finding.
+
+    GIVEN a plugin that ships no workflows
+    WHEN it is validated
+    THEN nothing is reported, because every plugin in this repo is that plugin
+    """
+    validator = PluginValidator(_make_workflow_plugin(tmp_path, None))
+    validator.validate()
+    joined = " ".join(validator.issues["critical"] + validator.issues["warnings"])
+    assert "workflow" not in joined.lower()
+
+
+def test_well_formed_workflow_script_passes(tmp_path: Path) -> None:
+    """A script with a complete meta block is accepted.
+
+    GIVEN a workflow whose meta carries name and description
+    WHEN the plugin is validated
+    THEN no workflow issue is raised, leading comments notwithstanding
+    """
+    validator = PluginValidator(_make_workflow_plugin(tmp_path, GOOD_SCRIPT))
+    validator.validate()
+    joined = " ".join(validator.issues["critical"] + validator.issues["warnings"])
+    assert "workflow" not in joined.lower()
+
+
+def test_workflow_without_meta_is_critical(tmp_path: Path) -> None:
+    """A script with no meta block cannot load.
+
+    GIVEN a workflow script that never declares meta
+    WHEN the plugin is validated
+    THEN it is reported as critical, naming the file
+    """
+    validator = PluginValidator(
+        _make_workflow_plugin(tmp_path, "const r = await agent('x')\nreturn r\n")
+    )
+    validator.validate()
+    assert any("demo.js" in i for i in validator.issues["critical"])
+
+
+def test_meta_must_carry_name_and_description(tmp_path: Path) -> None:
+    """An incomplete meta block is reported.
+
+    GIVEN a workflow whose meta omits description
+    WHEN the plugin is validated
+    THEN the missing field is named
+    """
+    script = "export const meta = { name: 'demo' }\nreturn {}\n"
+    validator = PluginValidator(_make_workflow_plugin(tmp_path, script))
+    validator.validate()
+    joined = " ".join(validator.issues["critical"] + validator.issues["warnings"])
+    assert "description" in joined
+
+
+def test_code_before_meta_is_reported(tmp_path: Path) -> None:
+    """Meta must come first, ahead of any statement.
+
+    GIVEN a script that runs code before declaring meta
+    WHEN the plugin is validated
+    THEN it is reported, because the runtime reads meta from the top
+    """
+    script = "const x = 1\nexport const meta = { name: 'd', description: 'd' }\n"
+    validator = PluginValidator(_make_workflow_plugin(tmp_path, script))
+    validator.validate()
+    joined = " ".join(validator.issues["critical"] + validator.issues["warnings"])
+    assert "demo.js" in joined
+
+
+def test_workflows_directory_inside_claude_plugin_is_critical(tmp_path: Path) -> None:
+    """workflows/ belongs at the plugin root.
+
+    GIVEN a workflows directory nested under .claude-plugin/
+    WHEN the plugin is validated
+    THEN it is reported the way a misplaced skills/ directory is
+    """
+    plugin = _make_workflow_plugin(tmp_path, None)
+    (plugin / ".claude-plugin" / "workflows").mkdir()
+    validator = PluginValidator(plugin)
+    validator.validate()
+    assert any("workflows/" in i for i in validator.issues["critical"])
+
+
+def test_validator_never_shells_out_to_check_workflow_syntax(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Syntax is checked structurally, never with a bare node --check.
+
+    GIVEN a valid workflow script
+    WHEN the plugin is validated with subprocess use made fatal
+    THEN validation completes, because `export` plus a top-level `return`
+      is not legal ESM and `node --check` calls a correct script broken
+    """
+
+    def explode(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("the validator shelled out")
+
+    monkeypatch.setattr(subprocess, "run", explode)
+    validator = PluginValidator(_make_workflow_plugin(tmp_path, GOOD_SCRIPT))
+    validator.validate()
+    joined = " ".join(validator.issues["critical"] + validator.issues["warnings"])
+    assert "workflow" not in joined.lower()

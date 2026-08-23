@@ -438,7 +438,7 @@ installed official marketplace, not from documentation alone.
   mode.
 
 This repo ships no workflows, and its tooling does not yet know the
-type: `plugins/abstract/scripts/abstract_validator.py` iterates skills,
+type: `plugins/abstract/scripts/validate_plugin.py` iterates skills,
 commands, agents and hooks only, and the capabilities reference has no
 workflow rows. Adding a fifth type means teaching both, or a shipped
 script will drift unnoticed. Analysis and the proposed sequence:
