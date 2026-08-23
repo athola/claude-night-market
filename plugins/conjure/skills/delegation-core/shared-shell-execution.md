@@ -53,7 +53,7 @@ claim: re-probe before trusting a row against a newer CLI.
 | `gemini` | gemini 0.26.0 | none | `-p` | `--output-format` | none |
 | `qwen` | qwen 0.4.0 | none | `-p`, deprecated | `--output-format` | none |
 | `minimax` | mmx 1.0.19 | `text chat` | `--message` | `--output` | `--temperature` |
-| `glm` | claude 2.1.240 | none | `-p` | `--output-format` | none |
+| `glm` | claude 2.1.240 | `-p` | positional | `--output-format` | none |
 | `muse` | muse 0.2.1 | `exec` | positional | boolean `--json` | none |
 | `codex` | codex-cli 0.77.0 | `exec` | positional | boolean `--json` | none |
 | `opencode` | opencode 1.18.18 | `run` | positional | `--format` | none |
@@ -219,24 +219,42 @@ network call, so most of these cost nothing to reproduce.
 
 Four of those change caller code.
 
-**A prompt beginning with a dash is read as a flag, and which parser
-reads it depends on the entry point.**
-From the command line the executor's own argparse takes it first, so
+**A prompt beginning with a dash was read as a flag by seven of the
+eight providers, and is now escaped.**
+The first account of this named the three positional-prompt providers
+and implied a flag protected the rest.
+Probing the other four disproved that: `gemini -p "--help"`, `qwen -p
+"--help"` and `mmx text chat --message "--help"` each printed a help
+page and exited 0, exactly as `muse exec "--help"` did.
+Only glimmer was immune, because its prompt goes on stdin and never
+reaches a parser that reads flags.
+
+The two escapes are not interchangeable, which is why one field could
+not cover both.
+An end-of-options `--` protects the next positional argument, so it
+closes the positional providers and does nothing for a flag's operand:
+`gemini -p -- "--help"` still printed the help page.
+Attaching the value does close it, and needs the long spelling, so
+`prompt_long_flag` names `--prompt` for gemini and qwen and `--message`
+for minimax.
+Both escapes apply only to a prompt that begins with a dash, so every
+ordinary invocation builds the argv it always built.
+
+`glm` moved groups in the process.
+`claude --help` documents `claude [options] [prompt]` and `-p,
+--print`, so `-p` selects non-interactive mode and the prompt is
+positional.
+Declaring it as a `prompt_flag` produced working argv by coincidence
+and put glm in the group the separator cannot help; it is now a
+subcommand, and takes `--` like the other positional providers.
+
+The entry points still differ, and the executor's own layer is
+unchanged.
 `delegation_executor.py gemini "--usage"` prints the usage report and
-exits 0 without delegating anything.
-From Python there is no argparse in the way, and the string lands in
-the child's argv: `Delegator.execute("muse", "--help")` returned
-`success=True` and exit 0 with muse's help text standing in for the
-answer, while the same call to opencode returned success and an empty
-stdout.
-Neither reached a model and neither needed a credential.
-The contract has no way to say "the rest is data", because the three
-positional-prompt providers take the prompt in the slot their flags
-occupy.
-`test_a_dash_leading_prompt_lands_where_a_flag_is_parsed` pins that
-exposure rather than endorsing it, so closing it turns the test red on
-purpose: whoever emits an end-of-options separator should rewrite that
-test rather than work around it.
+exits 0 without delegating, because argparse reads it before any of
+this applies.
+Passing `--` first is the escape there: `gemini -- "--usage"` delivers
+the string as a prompt.
 
 **Absent context is the one loss that goes unnamed.**
 An oversized file is cut, marked in the prompt as `[context truncated

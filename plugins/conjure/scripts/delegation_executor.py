@@ -175,6 +175,12 @@ class ServiceConfig:
     # ``codex exec <prompt>`` and ``opencode run <prompt>`` all take it that
     # way, so a flag name is not universal enough to be mandatory.
     prompt_flag: str | None = "-p"
+    # Long form of the prompt flag, used to attach a dash-leading prompt as
+    # ``--prompt=-x``. A separator does not protect a flag's value: probed on
+    # 2026-08-22, ``gemini -p -- --help`` still printed the help page while
+    # ``gemini --prompt=--help`` reached authentication. Positional providers
+    # need no entry here; they take ``--`` instead.
+    prompt_long_flag: str | None = None
     # None where the CLI takes no format value. muse and codex offer only a
     # boolean ``--json``, which a flag-and-value pair cannot express.
     output_format_flag: str | None = "--output-format"
@@ -342,6 +348,7 @@ class Delegator:
             auth_method="api_key",
             auth_env_var="GEMINI_API_KEY",
             quota_limits=DEFAULT_GEMINI_LIMITS,
+            prompt_long_flag="--prompt",
             # gemini 0.26.0 documents -p, -m and -o/--output-format and no
             # temperature flag; passing one exits 1 on "Unknown argument".
             temperature_flag=None,
@@ -358,6 +365,7 @@ class Delegator:
             auth_method="cli",
             auth_env_var=None,
             quota_limits=DEFAULT_QWEN_LIMITS,
+            prompt_long_flag="--prompt",
             # qwen 0.4.0 spells it -o/--output-format like gemini, so the
             # default stands. The earlier "--format" exited 1 as an unknown
             # argument. No temperature flag exists either.
@@ -383,6 +391,7 @@ class Delegator:
             quota_limits=DEFAULT_MINIMAX_LIMITS,
             subcommand=("text", "chat"),
             prompt_flag="--message",
+            prompt_long_flag="--message",
             output_format_flag="--output",
             # `mmx text chat --help` documents "--temperature <n> Sampling
             # temperature (0.0, 1.0]". Declaring None dropped it silently.
@@ -411,6 +420,13 @@ class Delegator:
             auth_method="api_key",
             auth_env_var="ZAI_API_KEY",
             quota_limits=DEFAULT_GLM_LIMITS,
+            # `claude --help` documents "claude [options] [prompt]" and
+            # "-p, --print", so -p selects non-interactive mode and the
+            # prompt is positional. Declaring it as prompt_flag worked by
+            # coincidence and put glm in the wrong escaping group; as a
+            # subcommand it takes `--` like the other positional providers.
+            subcommand=("-p",),
+            prompt_flag=None,
             temperature_flag=None,
             env={
                 "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
@@ -684,9 +700,7 @@ class Delegator:
         # there is nothing to append. A service with no prompt_flag takes it
         # positionally (``muse exec <prompt>``).
         if not service.stdin_prompt:
-            if service.prompt_flag:
-                command.append(service.prompt_flag)
-            command.append(full_prompt)
+            command.extend(_prompt_argv(service, full_prompt))
 
         return command
 
@@ -1014,6 +1028,33 @@ def _inline_context(files: list[str]) -> str:
         )
 
     return "\n".join(blocks)
+
+
+def _prompt_argv(service: ServiceConfig, prompt: str) -> list[str]:
+    """Return the argv tail that delivers ``prompt`` as data, never as flags.
+
+    Every CLI in the registry except the stdin one reads a dash-leading
+    prompt as its own flag and answers with a help page, exiting 0. That
+    is indistinguishable from an answer to a caller, and it needs no
+    credential to trigger. The two escapes are not interchangeable:
+
+    - a positional provider takes ``--``, which ends option parsing
+    - a provider whose flag takes a value needs the value attached, as
+      ``--prompt=<text>``, because ``--`` protects the next positional
+      argument and not the flag's operand
+
+    Both are applied only to a prompt that begins with a dash, so an
+    ordinary call builds the argv it always built.
+    """
+    needs_escape = prompt.startswith("-")
+
+    if service.prompt_flag is None:
+        return ["--", prompt] if needs_escape else [prompt]
+
+    if needs_escape and service.prompt_long_flag:
+        return [f"{service.prompt_long_flag}={prompt}"]
+
+    return [service.prompt_flag, prompt]
 
 
 def _delivered_prompt(

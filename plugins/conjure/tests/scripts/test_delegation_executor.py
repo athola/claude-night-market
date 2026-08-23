@@ -1468,25 +1468,89 @@ class TestAPromptIsDataAndNeverArgv:
 
     @pytest.mark.bdd
     @pytest.mark.parametrize("service", POSITIONAL_PROMPT_SERVICES)
-    def test_a_dash_leading_prompt_lands_where_a_flag_is_parsed(
+    def test_a_positional_provider_separates_a_dash_leading_prompt(
         self,
         service: str,
     ) -> None:
         """GIVEN a prompt that begins with a dash.
 
         WHEN a positional-prompt provider builds its argv
-        THEN the prompt occupies the slot the CLI reads flags from
+        THEN an end-of-options separator precedes the prompt
 
-        This documents the exposure rather than a fix: the contract has
-        nowhere to say "everything after here is data". A caller passing
-        untrusted text to these three should expect the child to parse it.
+        Replaces the tripwire this file used to carry, which pinned the
+        exposure and said in its own docstring to rewrite it once the
+        hole was closed. Probed on 2026-08-22:
+
+            muse exec --provider echo -- "--help" -> `echo: --help`
+            muse exec --provider echo    "--help" -> the help page
+
+        The separator is emitted only for a dash-leading prompt, so every
+        ordinary invocation keeps the argv it had.
         """
         command = Delegator().build_command(service, "--help")
 
-        assert command[-1] == "--help"
-        assert "--" not in command[:-1], (
-            "an end-of-options separator would close this; none is emitted"
-        )
+        assert command[-2:] == ["--", "--help"]
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize("service", POSITIONAL_PROMPT_SERVICES)
+    def test_an_ordinary_prompt_gains_no_separator(self, service: str) -> None:
+        """GIVEN a prompt that does not begin with a dash.
+
+        WHEN the argv is built
+        THEN no separator is added
+
+        The fix is scoped to the shape that needs it. A separator on every
+        call would be a change to eight CLI contracts at once, and only
+        three of them were probed for it.
+        """
+        command = Delegator().build_command(service, "Reply with: pong")
+
+        assert "--" not in command
+        assert command[-1] == "Reply with: pong"
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize(
+        ("service", "long_flag"),
+        [("gemini", "--prompt"), ("qwen", "--prompt"), ("minimax", "--message")],
+    )
+    def test_a_value_flag_provider_attaches_a_dash_leading_prompt(
+        self,
+        service: str,
+        long_flag: str,
+    ) -> None:
+        """GIVEN a prompt that begins with a dash.
+
+        WHEN a provider that passes the prompt as a flag value builds argv
+        THEN the value is attached to the long flag with an equals sign
+
+        A separator does not help here, and assuming it did is why the
+        first version of this documentation called these providers safe.
+        Probed on 2026-08-22:
+
+            gemini -p    "--help" -> the help page
+            gemini -p -- "--help" -> the help page
+            gemini --prompt="--help" -> reached authentication
+
+        `mmx --message=` and `qwen --prompt=` behave the same way.
+        """
+        command = Delegator().build_command(service, "--help")
+
+        assert f"{long_flag}=--help" in command
+        assert "--help" not in command[:-1] or command[-1].startswith(long_flag)
+
+    @pytest.mark.bdd
+    def test_a_stdin_provider_is_structurally_immune(self) -> None:
+        """GIVEN a prompt that begins with a dash.
+
+        WHEN a stdin-delivering provider builds its argv
+        THEN the prompt is absent from argv entirely
+
+        glimmer is the one provider no escaping applies to, because the
+        prompt never reaches a parser that reads flags.
+        """
+        command = Delegator().build_command("glimmer", "--help")
+
+        assert "--help" not in command
 
     @pytest.mark.bdd
     def test_shell_metacharacters_survive_as_one_literal_argument(self) -> None:
