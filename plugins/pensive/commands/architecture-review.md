@@ -15,19 +15,9 @@ Principal-level architecture assessment against ADRs and design patterns.
 
 ## What It Does
 
-1. **Context**: Establish review scope
-2. **ADR Audit**: Check architecture decisions
-3. **Interaction Mapping**: Diagram dependencies
-4. **Principle Checks**: Validate design patterns
-5. **Risk Assessment**: Document consequences
-
-## Scope
-
-- Module boundaries
-- Dependency graphs
-- Data flow patterns
-- Coupling analysis
-- ADR compliance
+Runs `Skill(pensive:architecture-review)`, which carries the workflow, the
+checklist, and the output format. The skill is the one copy of that
+methodology; this command is the entry point that invokes it.
 
 ## War Room Checkpoint (Automatic)
 
@@ -70,12 +60,3 @@ Skill(attune:war-room-checkpoint) with context:
 - All ADRs compliant
 - Coupling within acceptable thresholds
 - No boundary violations
-
-## Output
-
-- Architecture assessment
-- ADR compliance status
-- Coupling violations
-- Principle adherence
-- Recommendations (Approve/Block)
-- War Room session ID (if escalated)
