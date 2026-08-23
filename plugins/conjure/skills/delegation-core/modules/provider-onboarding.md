@@ -25,13 +25,15 @@ are trustworthy.
 | Column | Meaning |
 |--------|---------|
 | `INSTALLED: no` | The binary is absent. Install it, or ignore the provider |
-| `AUTH: missing` | A required environment variable is unset. The probe can see this |
-| `AUTH: ok` | A probe command confirmed credentials |
-| `AUTH: unknown` | The CLI owns its own credentials and the probe will not spawn it to find out |
+| `AUTH: missing` | A variable is unset, a credential file is absent, or one states an expiry that has passed |
+| `AUTH: ok` | A check confirmed credentials |
+| `AUTH: unknown` | The CLI owns its credentials, holds a file, and states no expiry |
 
-**`unknown` is not `ok`.** Four of the eight CLIs keep credentials in
-their own config files and expose no cheap status command, so the probe
-declines to guess.
+**`unknown` is not `ok`.** It means every cheap check came back
+inconclusive, not that anything passed.
+None of these checks spawns a provider CLI: they read the environment
+and the credential files each CLI names in its own error messages.
+
 The only way to resolve an `unknown` is to run one delegation and read
 what comes back. Run it from `plugins/conjure`, substituting the
 provider whose row you are resolving:
@@ -39,6 +41,10 @@ provider whose row you are resolving:
 ```bash
 uv run python scripts/delegation_executor.py codex "Reply with exactly: pong"
 ```
+
+`codex` is the honest example: its `auth.json` records a
+`last_refresh` and no deadline, so a spent refresh token looks
+identical to a working one until a call is made.
 
 ## Per-Provider Steps
 
@@ -65,24 +71,23 @@ Each of these was observed on a real machine. They matter because none
 of them looks like an authentication problem at a glance.
 
 **A provider that exits 0 with an empty answer is unauthenticated.**
-`qwen` with a rejected key prints
+`qwen` with a rejected credential prints
 `[API Error: 401 Incorrect API key provided]` and exits 0 with nothing
 on stdout.
-Before the chain existed, selection stopped at qwen because it verified
-as available, and returned that silence as the answer.
-The chain now advances past it, so the symptom of a bad qwen key is a
-slower delegation rather than an empty one. Read the `attempts` trail
-to see it.
+Verification reads `~/.qwen/oauth_creds.json` and its stated
+`expiry_date`, so an expired qwen is skipped before it is spawned and
+the trail reads `Credential ... expired <date>`.
+A credential that is present, unexpired and still refused would get
+past that and produce the empty answer, which the chain advances past.
 
-**An ambient `OPENAI_API_KEY` reaches the wrong endpoint.**
-`qwen` is an OpenAI-compatible client with its own base URL, and with
-no credentials in `~/.qwen/settings.json` it picks up whatever
-`OPENAI_API_KEY` the shell exports.
-An OpenAI key sent to Alibaba's endpoint is rejected, which is the 401
-above.
-Nothing warns about this, because from the CLI's side a key was
-supplied. Authenticate qwen on its own terms rather than relying on an
-inherited variable.
+**`qwen` has no `auth` subcommand, and asking for one costs money.**
+Anything after `qwen` that is not a recognized flag becomes the prompt,
+so the inherited `qwen auth status` probe asked Qwen the question "auth
+status" and was billed for a completion, on every chain walk, while
+reporting success because it exited 0.
+The registry now declares no auth probe for qwen.
+`~/.qwen/settings.json` exists whether or not credentials do, so it is
+not the file to test.
 
 **A Google Workspace account needs a project, not a key.**
 `gemini` authenticated through OAuth on a Workspace account fails with
@@ -109,11 +114,16 @@ That trail is the diagnostic, and it distinguishes cases the doctor
 cannot:
 
 ```
-gemini     GEMINI_API_KEY not set          -> set the key
-qwen       exit 0 with an empty answer     -> key present and rejected
-minimax    Service not authenticated       -> mmx auth login
-glm        answered                        -> nothing to do
+gemini     Environment variable GEMINI_API_KEY not set
+qwen       Credential ~/.qwen/oauth_creds.json expired 2026-03-25
+minimax    No credential file found; looked for ~/.mmx/config.json
+glm        answered
 ```
+
+An `exit=None` on an attempt means the provider was ruled out without
+being spawned, which is the cheap path working.
+An attempt carrying an exit code means a delegation ran and did not
+answer, and those are the ones no local check could have predicted.
 
 A machine where every line reads "not set" needs credentials.
 A machine where lines read "exit 0 with an empty answer" has
@@ -137,3 +147,5 @@ delays every delegation behind it. Either fix it or drop its priority.
 - [ ] At least one provider returns a non-empty answer.
 - [ ] Any provider that exits 0 with an empty answer is fixed or
       deprioritized, not left in the chain.
+- [ ] No provider is reached by a delegation that a credential file
+      already ruled out.

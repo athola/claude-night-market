@@ -149,6 +149,11 @@ VERIFIED_BINARIES: dict[str, dict[str, str]] = {
 # is read at Delegator construction and overrides the config file, so the
 # narrower scope wins: an operator can decline delegation for one command
 # without editing a file they then have to remember to edit back.
+# Above this, an epoch timestamp is milliseconds rather than seconds. The
+# boundary sits in the year 5138 read as seconds, so no real deadline is
+# ambiguous.
+_EPOCH_MILLISECOND_FLOOR = 100_000_000_000
+
 DELEGATION_ENV_VAR = "CONJURE_DELEGATION"
 _ENV_OFF_VALUES = frozenset({"0", "off", "false", "no"})
 _ENV_ON_VALUES = frozenset({"1", "on", "true", "yes"})
@@ -213,6 +218,14 @@ class ServiceConfig:
     # Probes, because not every CLI answers --version or `auth status`.
     version_probe: tuple[str, ...] = ("--version",)
     auth_probe: tuple[str, ...] = ("auth", "status")
+    # Files the CLI writes its credentials to, ``~`` accepted. The check is
+    # one-directional: all of them absent means the CLI cannot be
+    # authenticated, and any of them present means only that the question
+    # stays open. Presence is never evidence of a working credential.
+    # `opencode auth list` exits 0 naming a credentials path that does not
+    # exist, and `codex login status` prints "Logged in using ChatGPT" over
+    # a refresh token that has already been spent.
+    auth_files: tuple[str, ...] = ()
     # Shown when the binary is missing, so a failure names its own remedy.
     install_hint: str = ""
     # How an operator logs this CLI in, when the CLI owns its own
@@ -404,6 +417,16 @@ class Delegator:
             auth_env_var=None,
             quota_limits=DEFAULT_QWEN_LIMITS,
             prompt_long_flag="--prompt",
+            # `qwen --help` lists no auth subcommand, so the inherited
+            # ("auth", "status") probe was delivered to the model as the
+            # prompt "auth status" and billed as a completion. It answered
+            # `[API Error: 401 ...]` and exited 0, so it reported success
+            # while paying for a rejected call, on every chain walk.
+            # Credentials live in oauth_creds.json, which a `qwen` run
+            # writes; settings.json exists without them, so it is not the
+            # file to test.
+            auth_probe=(),
+            auth_files=("~/.qwen/oauth_creds.json",),
             # qwen 0.4.0 spells it -o/--output-format like gemini, so the
             # default stands. The earlier "--format" exited 1 as an unknown
             # argument. No temperature flag exists either.
@@ -428,6 +451,7 @@ class Delegator:
             auth_env_var=None,
             quota_limits=DEFAULT_MINIMAX_LIMITS,
             subcommand=("text", "chat"),
+            auth_files=("~/.mmx/config.json",),
             prompt_flag="--message",
             prompt_long_flag="--message",
             output_format_flag="--output",
@@ -491,6 +515,7 @@ class Delegator:
             auth_env_var="META_API_KEY",
             quota_limits=DEFAULT_MUSE_LIMITS,
             subcommand=("exec",),
+            auth_files=("~/.config/muse/auth.json",),
             prompt_flag=None,
             temperature_flag=None,
             # muse 0.2.1 offers only a boolean --json, which this contract's
@@ -514,6 +539,7 @@ class Delegator:
             auth_env_var=None,
             quota_limits=DEFAULT_CODEX_LIMITS,
             subcommand=("exec",),
+            auth_files=("~/.codex/auth.json",),
             prompt_flag=None,
             temperature_flag=None,
             # codex-cli 0.77.0 has boolean --json plus --output-schema and
@@ -536,6 +562,7 @@ class Delegator:
             auth_env_var=None,
             quota_limits=DEFAULT_OPENCODE_LIMITS,
             subcommand=("run",),
+            auth_files=("~/.local/share/opencode/auth.json",),
             prompt_flag=None,
             temperature_flag=None,
             # opencode 1.18.18: "--format  format: default (formatted) or
@@ -677,49 +704,70 @@ class Delegator:
                 logger.debug("Failed to load service configurations: %s", e)
 
     def verify_service(self, service_name: str) -> tuple[bool, list[str]]:
-        """Verify a service is available and authenticated."""
+        """Report whether a service can take work, cheapest question first.
+
+        The chain skips a provider that fails here, so this is the only
+        thing standing between an unauthenticated CLI and a full
+        delegation round trip. Ordering matters as much as the checks: a
+        question answered by reading the environment must not wait behind
+        a process spawn that cannot change the answer.
+
+        The order is environment, then credential files, then the binary,
+        then the CLI's own probe. Each stage short-circuits, so a provider
+        ruled out by a variable or a missing file costs no subprocess at
+        all.
+        """
         if service_name not in self.services:
             return False, [f"Unknown service: {service_name}"]
 
         service = self.services[service_name]
-        issues: list[str] = []
 
         # An overlay naming an unset variable is reported here rather than at
         # spawn time, so `--verify` is the one place a misconfigured
         # endpoint-swap service is diagnosed.
         overlay, missing_vars = _resolve_env_overlay(service)
-        issues.extend(
+        issues: list[str] = [
             f"Environment variable {variable} is referenced by the "
             f"{service.name} environment overlay but is not set"
             for variable in missing_vars
-        )
+        ]
+
+        issues.extend(credential_issues(service))
+
+        if issues:
+            return False, issues
+
         child_env = {**os.environ, **overlay}
 
         # Check command availability with the service's own probe. Not every
         # CLI answers --version, so the argv comes from the config.
-        try:
-            subprocess.run(  # nosec B603
-                [service.command, *service.version_probe],
-                capture_output=True,
-                timeout=10,
-                check=True,
-                env=child_env,
-            )
-        except FileNotFoundError:
-            remedy = (
-                f". Install with: {service.install_hint}"
-                if service.install_hint
-                else ""
-            )
-            issues.append(f"Command '{service.command}' not found{remedy}")
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            issues.append(f"Command '{service.command}' not found or not working")
+        if service.version_probe:
+            try:
+                subprocess.run(  # nosec B603
+                    [service.command, *service.version_probe],
+                    capture_output=True,
+                    timeout=10,
+                    check=True,
+                    env=child_env,
+                )
+            except FileNotFoundError:
+                remedy = (
+                    f". Install with: {service.install_hint}"
+                    if service.install_hint
+                    else ""
+                )
+                issues.append(f"Command '{service.command}' not found{remedy}")
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+                issues.append(f"Command '{service.command}' not found or not working")
 
-        # Check authentication
-        if service.auth_method == "api_key" and service.auth_env_var:
-            if not os.getenv(service.auth_env_var):
-                issues.append(f"Environment variable {service.auth_env_var} not set")
-        elif service.auth_method == "cli" and service.auth_probe:
+        if issues:
+            return False, issues
+
+        # The CLI's own probe runs last because it is the most expensive and
+        # the least conclusive. Three of the four that declare one exit 0
+        # whatever the credential state, so it can only add a failure the
+        # cheaper checks missed.
+        if service.auth_method == "cli" and service.auth_probe:
             try:
                 result = subprocess.run(  # nosec B603
                     [service.command, *service.auth_probe],
@@ -1120,6 +1168,116 @@ class Delegator:
         rest = [n for n in candidates if n not in asserted and n not in preferred]
 
         return asserted + preferred + rest
+
+
+def credential_issues(service: ServiceConfig) -> list[str]:
+    """Report credential problems that need no subprocess to establish.
+
+    A provider has as many credential routes as it declares, and it is
+    unauthenticated only when every one of them fails. muse states both
+    of its own in one error message: run `muse login`, or set
+    META_API_KEY, or save credentials to auth.json. Reporting either
+    absence alone called a working install broken, in opposite
+    directions.
+
+    Shared with ``delegation_setup`` so the doctor's table and the
+    chain's skip decision rest on one answer. A table that disagreed
+    with the thing it describes would be worse than no table.
+    """
+    issues = credential_file_issues(service)
+
+    if (
+        service.auth_method == "api_key"
+        and service.auth_env_var
+        and not _env_satisfies(service)
+        and not _has_credential_file(service)
+    ):
+        issues.append(f"Environment variable {service.auth_env_var} not set")
+    return issues
+
+
+def credential_file_issues(service: ServiceConfig) -> list[str]:
+    """Report what the declared credential files say about themselves.
+
+    Split from ``credential_issues`` because the doctor reports unset
+    variables through its own path and wants only these. Selecting them
+    by searching the combined list for a substring worked until the
+    expiry finding was worded differently, and silently dropped it.
+
+    Empty when the environment already satisfies the provider, because a
+    file is then one route among several and its state decides nothing.
+    """
+    if _env_satisfies(service):
+        return []
+
+    issues = [
+        f"Credential {path} expired {expired_on}"
+        for path, expired_on in _expired_credentials(service)
+    ]
+    if _has_credential_file(service) is False:
+        issues.append(
+            "No credential file found; looked for " + ", ".join(service.auth_files)
+        )
+    return issues
+
+
+def _env_satisfies(service: ServiceConfig) -> bool:
+    """Report whether the provider's own auth variable is set."""
+    return bool(service.auth_env_var and os.getenv(service.auth_env_var))
+
+
+def _expired_credentials(service: ServiceConfig) -> list[tuple[str, str]]:
+    """Name each credential file that says, in itself, that it has expired.
+
+    A credential on disk is not a credential that works. qwen's
+    oauth_creds.json on the machine this was written for expired in March
+    and was still there in August, so a presence check cleared it, the
+    chain spent a call on it, and it answered an empty string at exit 0.
+
+    Only a stated expiry counts. A file with no expiry field, an
+    unparseable one, or a non-numeric value produces no finding, because
+    ruling out a working provider costs more than the round trip this
+    saves. codex writes `last_refresh`, which records a renewal rather
+    than a deadline, and is deliberately not read as one.
+    """
+    now = time.time()
+    expired: list[tuple[str, str]] = []
+
+    for raw in service.auth_files:
+        path = Path(raw).expanduser()
+        try:
+            payload = json.loads(path.read_text())
+        except (OSError, ValueError):
+            continue
+        if not isinstance(payload, dict):
+            continue
+
+        for key in ("expiry_date", "expires_at", "expiry"):
+            value = payload.get(key)
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                continue
+            # Epoch milliseconds where the value is too large to be seconds.
+            seconds = value / 1000 if value > _EPOCH_MILLISECOND_FLOOR else value
+            if seconds < now:
+                expired.append(
+                    (raw, datetime.fromtimestamp(seconds).date().isoformat())
+                )
+            break
+
+    return expired
+
+
+def _has_credential_file(service: ServiceConfig) -> bool | None:
+    """Report whether any declared credential file is present.
+
+    Returns None when the service declares none, so a caller can tell
+    "not applicable" from "checked and absent". Only False rules a
+    provider out; True means the question is still open, because a file
+    on disk says nothing about whether the token inside it still works.
+    """
+    if not service.auth_files:
+        return None
+    return any(Path(path).expanduser().is_file() for path in service.auth_files)
 
 
 def _answered(result: ExecutionResult) -> bool:

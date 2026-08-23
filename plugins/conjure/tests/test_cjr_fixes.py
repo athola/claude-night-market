@@ -12,6 +12,7 @@ from __future__ import annotations
 import ast
 import json
 import subprocess
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -121,7 +122,27 @@ class TestModelIdConstants:
 
 
 class TestVerifyServiceNarrowException:
-    """Auth probe must not swallow unexpected exceptions."""
+    """Auth probe must not swallow unexpected exceptions.
+
+    These used to run against qwen, which no longer declares an auth
+    probe: it has no auth subcommand, so the inherited one was delivered
+    to the model as a prompt. The contract under test is the probe's
+    exception handling, so the class moved to a provider that still runs
+    one, and plants a credential file so the cheaper checks do not settle
+    the question first.
+    """
+
+    @staticmethod
+    def _probed(tmp_path: Path) -> Delegator:
+        """Return a delegator whose codex entry reaches its auth probe."""
+        credential = tmp_path / "auth.json"
+        credential.write_text("{}")
+        delegator = Delegator(config_dir=tmp_path)
+        delegator.services["codex"] = replace(
+            delegator.services["codex"],
+            auth_files=(str(credential),),
+        )
+        return delegator
 
     def test_unexpected_exception_propagates_from_auth_probe(
         self, tmp_path: Path
@@ -134,7 +155,7 @@ class TestVerifyServiceNarrowException:
         THEN the RuntimeError propagates
         AND it is not swallowed as a normal issue
         """
-        delegator = Delegator(config_dir=tmp_path)
+        delegator = self._probed(tmp_path)
 
         # --version call succeeds, auth status raises unexpected error
         ok_result = MagicMock()
@@ -145,7 +166,7 @@ class TestVerifyServiceNarrowException:
             side_effect=[ok_result, RuntimeError("unexpected auth failure")],
         ):
             with pytest.raises(RuntimeError, match="unexpected auth failure"):
-                delegator.verify_service("qwen")
+                delegator.verify_service("codex")
 
     def test_timeout_is_caught_as_issue(self, tmp_path: Path) -> None:
         """Report an auth-probe timeout as a service issue.
@@ -156,7 +177,7 @@ class TestVerifyServiceNarrowException:
         THEN the service is reported unavailable
         AND an auth-related issue is included
         """
-        delegator = Delegator(config_dir=tmp_path)
+        delegator = self._probed(tmp_path)
 
         ok_result = MagicMock()
         ok_result.returncode = 0
@@ -165,10 +186,10 @@ class TestVerifyServiceNarrowException:
             "scripts.delegation_executor.subprocess.run",
             side_effect=[
                 ok_result,
-                subprocess.TimeoutExpired(cmd=["qwen", "auth", "status"], timeout=10),
+                subprocess.TimeoutExpired(cmd=["codex", "login", "status"], timeout=10),
             ],
         ):
-            is_available, issues = delegator.verify_service("qwen")
+            is_available, issues = delegator.verify_service("codex")
             assert not is_available
             assert any("auth" in i.lower() for i in issues)
 
@@ -181,16 +202,16 @@ class TestVerifyServiceNarrowException:
         THEN the service is reported unavailable
         AND an auth-related issue is included
         """
-        delegator = Delegator(config_dir=tmp_path)
+        delegator = self._probed(tmp_path)
 
         ok_result = MagicMock()
         ok_result.returncode = 0
 
         with patch(
             "scripts.delegation_executor.subprocess.run",
-            side_effect=[ok_result, FileNotFoundError("qwen not found")],
+            side_effect=[ok_result, FileNotFoundError("codex not found")],
         ):
-            is_available, issues = delegator.verify_service("qwen")
+            is_available, issues = delegator.verify_service("codex")
             assert not is_available
             assert any("auth" in i.lower() for i in issues)
 

@@ -26,6 +26,7 @@ from scripts.delegation_executor import (
     VERIFIED_BINARIES,
     Delegator,
     _resolve_env_overlay,
+    credential_file_issues,
 )
 
 _PROBE_TIMEOUT_SECONDS = 10
@@ -129,6 +130,13 @@ def probe_provider(delegator: Delegator, name: str) -> ProviderState:
         f"environment variable {variable} is not set" for variable in missing_variables
     )
 
+    # The same answer the chain skips on, so the table cannot disagree with
+    # the thing it describes. Reading the filesystem and the environment
+    # spawns nothing, which holds the constraint that this table never runs
+    # a provider's own CLI.
+    file_issues = credential_file_issues(service)
+    issues.extend(issue[0].lower() + issue[1:] for issue in file_issues)
+
     return ProviderState(
         missing_variables=tuple(missing_variables),
         name=name,
@@ -139,7 +147,12 @@ def probe_provider(delegator: Delegator, name: str) -> ProviderState:
         else None,
         authenticated=installed and not issues,
         issues=tuple(issues),
-        auth_checked=service.auth_method != "cli",
+        # A cli-auth provider is normally unknown, because this table does
+        # not spawn the CLI that holds the answer. An absent credential
+        # file is the exception: it is evidence, and it is a negative, so
+        # the cell can say "missing" instead of shrugging. A present file
+        # buys nothing and leaves the provider unknown.
+        auth_checked=service.auth_method != "cli" or bool(file_issues),
         login_hint=service.login_hint,
     )
 
@@ -287,6 +300,15 @@ def doctor_lines(states: Sequence[ProviderState]) -> list[str]:
             f"    fix: export {variable}=<your key>"
             for variable in state.missing_variables
         )
+
+        # A provider ruled out by an absent credential file is fixed by
+        # logging in, not by exporting anything. Without this the doctor
+        # named the problem and withheld the command, which is the one
+        # thing it exists to supply.
+        if state.login_hint and any(
+            "credential file" in issue for issue in state.issues
+        ):
+            lines.append(f"    fix: {state.login_hint}")
 
     return lines
 

@@ -8,6 +8,7 @@ import subprocess
 
 # Import the module under test
 import sys
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
 
@@ -150,12 +151,25 @@ class TestDelegator:
     @pytest.mark.bdd
     @patch("subprocess.run")
     def test_verify_minimax_runs_mmx_auth_status(
-        self, mock_run, temp_config_dir
+        self, mock_run, temp_config_dir, tmp_path
     ) -> None:
-        """Given an unauthenticated CLI when verifying MiniMax then report it."""
+        """Given an unauthenticated CLI when verifying MiniMax then report it.
+
+        The credential file is planted because the cheaper checks now run
+        first and short-circuit. minimax declares ~/.mmx/config.json, and
+        an absent one answers the question without spawning anything,
+        which is the point of the reorder. This test is about the probe
+        that runs when the file is there, so it puts one there.
+        """
         mock_run.return_value.returncode = 1
+        credential = tmp_path / "config.json"
+        credential.write_text("{}")
 
         delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["minimax"] = replace(
+            delegator.services["minimax"],
+            auth_files=(str(credential),),
+        )
         is_available, issues = delegator.verify_service("minimax")
 
         auth_calls = [
@@ -426,11 +440,18 @@ class TestDelegator:
     @pytest.mark.bdd
     @patch("subprocess.run")
     def test_verify_service_command_not_found(self, mock_run, temp_config_dir) -> None:
-        """Given missing command when verifying then should return error."""
+        """Given missing command when verifying then should return error.
+
+        The key is supplied because verification now answers the cheapest
+        question first: an unset GEMINI_API_KEY settles availability
+        without spawning anything, so a test about a missing binary has
+        to get past the variable to reach the binary.
+        """
         mock_run.side_effect = FileNotFoundError("Command not found")
 
         delegator = Delegator(config_dir=temp_config_dir)
-        is_available, issues = delegator.verify_service("gemini")
+        with patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}):
+            is_available, issues = delegator.verify_service("gemini")
 
         assert is_available is False
         assert any("not found" in issue for issue in issues)
@@ -2046,3 +2067,246 @@ def _init_with(config_dir):
         real_init(self, config_dir=config_dir)
 
     return _init
+
+
+class TestAuthIsSettledBeforeAProviderIsSpawned:
+    """Verification must cost less than the delegation it decides against.
+
+    The chain skips a provider that fails verification, so verification is
+    the only thing standing between an unauthenticated CLI and a full
+    delegation round trip. It was not doing that job: three of the four
+    CLI-auth probes exit 0 whatever the credential state, and one of them
+    was not an auth command at all.
+    """
+
+    @pytest.mark.bdd
+    def test_qwen_asks_its_api_nothing_to_learn_whether_it_is_authenticated(
+        self, temp_config_dir
+    ) -> None:
+        """GIVEN qwen, which has no auth subcommand.
+
+        WHEN its authentication is verified
+        THEN no probe argv is spawned
+
+        `qwen --help` lists no auth command, so `qwen auth status` was
+        delivered to the model as the prompt "auth status" and billed as
+        a completion. Probed on 2026-08-22 it answered
+        `[API Error: 401 Incorrect API key provided]` and exited 0, so
+        the probe reported success while paying for a rejected call.
+        Every chain walk paid it before reaching a provider that answers.
+        """
+        service = Delegator(config_dir=temp_config_dir).services["qwen"]
+
+        assert service.auth_probe == ()
+
+    @pytest.mark.bdd
+    def test_a_provider_with_no_credential_file_is_ruled_out_without_spawning(
+        self, temp_config_dir, tmp_path
+    ) -> None:
+        """GIVEN a provider whose credential files are all absent.
+
+        WHEN it is verified
+        THEN it is unauthenticated and nothing was executed
+
+        The cheapest honest signal available. A CLI that stores
+        credentials in a file it names cannot be authenticated when the
+        file is not there, and learning that costs a stat rather than a
+        process.
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["filebound"] = replace(
+            delegator.services["opencode"],
+            name="filebound",
+            auth_files=(str(tmp_path / "nothing-here.json"),),
+        )
+
+        with patch("subprocess.run") as spawn:
+            is_available, issues = delegator.verify_service("filebound")
+
+        assert is_available is False
+        assert any("credential" in issue.lower() for issue in issues)
+        spawn.assert_not_called()
+
+    @pytest.mark.bdd
+    def test_a_credential_file_that_exists_does_not_prove_authentication(
+        self, temp_config_dir, tmp_path
+    ) -> None:
+        """GIVEN a provider whose credential file is present.
+
+        WHEN it is verified
+        THEN the file check clears it to continue, and nothing more
+
+        The check is one-directional on purpose. `opencode auth list`
+        exits 0 listing a credentials path that does not exist, and
+        `codex login status` prints "Logged in using ChatGPT" over a
+        refresh token that has already been spent. Presence of a file is
+        the same class of evidence: it rules a provider out, never in.
+        """
+        credential = tmp_path / "auth.json"
+        credential.write_text("{}")
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["filebound"] = replace(
+            delegator.services["opencode"],
+            name="filebound",
+            auth_files=(str(credential),),
+            auth_probe=(),
+            version_probe=(),
+        )
+
+        with patch("subprocess.run") as spawn:
+            spawn.return_value = subprocess.CompletedProcess([], 0, "", "")
+            _, issues = delegator.verify_service("filebound")
+
+        assert not any("credential" in issue.lower() for issue in issues)
+
+    @pytest.mark.bdd
+    def test_muse_accepts_a_credential_file_in_place_of_the_variable(
+        self, temp_config_dir, tmp_path, monkeypatch
+    ) -> None:
+        """GIVEN muse authenticated by file rather than by variable.
+
+        WHEN it is verified
+        THEN the missing variable is not reported as missing credentials
+
+        muse says so itself: "run `muse login` or set META_API_KEY, or
+        save credentials at ~/.config/muse/auth.json". The check knew
+        only the variable, so an operator who ran `muse login` was told
+        their working install was unauthenticated.
+        """
+        monkeypatch.delenv("META_API_KEY", raising=False)
+        credential = tmp_path / "auth.json"
+        credential.write_text("{}")
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["muse"] = replace(
+            delegator.services["muse"],
+            auth_files=(str(credential),),
+        )
+
+        _, issues = delegator.verify_service("muse")
+
+        assert not any("META_API_KEY" in issue for issue in issues)
+
+    @pytest.mark.bdd
+    def test_the_variable_still_authenticates_when_no_file_is_written(
+        self, temp_config_dir, monkeypatch
+    ) -> None:
+        """GIVEN muse authenticated by variable, with no credential file.
+
+        WHEN it is verified
+        THEN the absent file is not reported as missing credentials
+
+        The mirror of the file-in-place-of-variable case, and the one a
+        file check gets wrong if it forgets the other route exists. Both
+        routes are muse's own: "run `muse login` or set META_API_KEY, or
+        save credentials at ~/.config/muse/auth.json". Either satisfies
+        it, so neither absence is a finding on its own.
+        """
+        monkeypatch.setenv("META_API_KEY", "test-key")
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["muse"] = replace(
+            delegator.services["muse"],
+            auth_files=("/nonexistent/muse/auth.json",),
+            version_probe=(),
+        )
+
+        _, issues = delegator.verify_service("muse")
+
+        assert not any("credential" in issue.lower() for issue in issues)
+
+    @pytest.mark.bdd
+    def test_a_credential_that_states_its_own_expiry_is_read_not_spawned(
+        self, temp_config_dir, tmp_path
+    ) -> None:
+        """GIVEN a credential file whose stated expiry has passed.
+
+        WHEN the provider is verified
+        THEN it is ruled out without spawning anything
+
+        The case that started this. qwen's oauth_creds.json on this
+        machine expired 2026-03-25 and was still on disk in August, so a
+        presence check cleared it, the chain executed it, and it answered
+        an empty string at exit 0. The expiry was in the file the whole
+        time.
+        """
+        credential = tmp_path / "oauth_creds.json"
+        credential.write_text(json.dumps({"expiry_date": 1_000_000_000_000}))
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["qwen"] = replace(
+            delegator.services["qwen"],
+            auth_files=(str(credential),),
+        )
+
+        with patch("subprocess.run") as spawn:
+            is_available, issues = delegator.verify_service("qwen")
+
+        assert is_available is False
+        assert any("expired" in issue.lower() for issue in issues)
+        spawn.assert_not_called()
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {"last_refresh": "2025-12-26T19:01:43Z"},
+            {"expiry_date": "not a number"},
+            {"access_token": "x"},
+            "not json at all",
+        ],
+        ids=["no-expiry-field", "unparseable-expiry", "bare-token", "not-json"],
+    )
+    def test_a_credential_that_states_no_expiry_is_not_called_expired(
+        self, temp_config_dir, tmp_path, payload
+    ) -> None:
+        """GIVEN a credential file with no readable expiry.
+
+        WHEN the provider is verified
+        THEN nothing is claimed about it either way
+
+        codex writes `last_refresh` and no expiry, which says when a
+        token was renewed and nothing about when it dies. Reading that as
+        an expiry would rule out a working provider, which is worse than
+        the round trip this check exists to save.
+        """
+        credential = tmp_path / "auth.json"
+        credential.write_text(
+            payload if isinstance(payload, str) else json.dumps(payload)
+        )
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["codex"] = replace(
+            delegator.services["codex"],
+            auth_files=(str(credential),),
+            version_probe=(),
+            auth_probe=(),
+        )
+
+        _, issues = delegator.verify_service("codex")
+
+        assert not any("expired" in issue.lower() for issue in issues)
+
+    @pytest.mark.bdd
+    def test_a_missing_variable_is_reported_without_spawning_the_binary(
+        self, temp_config_dir, monkeypatch
+    ) -> None:
+        """GIVEN a provider whose required variable is unset.
+
+        WHEN it is verified
+        THEN the answer arrives before any subprocess
+
+        Verification ran the version probe first, so gemini paid a node
+        process start to confirm a binary exists before reading the
+        environment variable that already decided the question. Ordering
+        the checks by cost is the whole of "settle auth before trying".
+        """
+        monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        with patch("subprocess.run") as spawn:
+            is_available, issues = delegator.verify_service("gemini")
+
+        assert is_available is False
+        assert any("GEMINI_API_KEY" in issue for issue in issues)
+        spawn.assert_not_called()

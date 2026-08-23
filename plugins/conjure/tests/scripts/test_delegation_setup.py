@@ -1,9 +1,11 @@
 """Tests for delegation_setup.py following TDD/BDD principles."""
 
+import json
 import subprocess
 
 # Import the module under test
 import sys
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -22,6 +24,7 @@ from delegation_setup import (
     install_provider,
     main,
     probe_all,
+    probe_provider,
     render_status,
 )
 
@@ -263,10 +266,97 @@ class TestCliManagedAuthIsNotOverclaimed:
             row = next(
                 line for line in rendered.splitlines() if line.startswith(f"{name} ")
             )
-            assert row.split()[-1] == "unknown", (
+            assert row.split()[-1] != "ok", (
                 f"{name} manages its own credentials, so the probe has no "
-                f"evidence of auth; row claimed: {row!r}"
+                f"evidence it is authenticated; row claimed: {row!r}"
             )
+
+    @pytest.mark.bdd
+    def test_an_absent_credential_file_is_reported_missing_not_unknown(
+        self, tmp_path
+    ) -> None:
+        """GIVEN a cli-auth provider whose credential file is absent.
+
+        WHEN the status table is rendered
+        THEN its auth cell reads missing
+
+        "Unknown" was honest while absence of evidence was all the probe
+        had. A CLI that names the file it stores credentials in gives up
+        more than that: the file not being there is evidence, and it
+        costs a stat rather than a spawn, so the NB3 constraint that this
+        table spawns no CLI still holds.
+        """
+        delegator = Delegator()
+        delegator.services["filebound"] = replace(
+            delegator.services["opencode"],
+            name="filebound",
+            command="sh",
+            auth_files=(str(tmp_path / "absent.json"),),
+        )
+
+        state = probe_provider(delegator, "filebound")
+
+        assert state.auth_checked is True
+        assert state.authenticated is False
+        assert any("credential" in issue.lower() for issue in state.issues)
+
+    @pytest.mark.bdd
+    def test_an_expired_credential_is_reported_missing_not_unknown(
+        self, tmp_path
+    ) -> None:
+        """GIVEN a credential file whose stated expiry has passed.
+
+        WHEN the table is rendered
+        THEN the provider reads missing rather than unknown
+
+        The table is the surface an operator reads before deciding what
+        to fix. A provider whose credential says of itself that it died
+        in March must not be shrugged at, or the operator reinstalls a
+        CLI that was never the problem.
+        """
+        credential = tmp_path / "oauth_creds.json"
+        credential.write_text(json.dumps({"expiry_date": 1_000_000_000_000}))
+
+        delegator = Delegator()
+        delegator.services["filebound"] = replace(
+            delegator.services["opencode"],
+            name="filebound",
+            command="sh",
+            auth_files=(str(credential),),
+        )
+
+        state = probe_provider(delegator, "filebound")
+
+        assert state.auth_checked is True
+        assert state.authenticated is False
+        assert any("expired" in issue.lower() for issue in state.issues)
+
+    @pytest.mark.bdd
+    def test_a_present_credential_file_stays_unknown(self, tmp_path) -> None:
+        """GIVEN a cli-auth provider whose credential file exists.
+
+        WHEN the status table is rendered
+        THEN its auth cell still reads unknown
+
+        The check only rules out. `codex login status` printed "Logged in
+        using ChatGPT" over a spent refresh token, and its auth.json was
+        on disk the whole time. Promoting presence to "ok" would restore
+        exactly the overclaim this class exists to prevent.
+        """
+        credential = tmp_path / "auth.json"
+        credential.write_text("{}")
+
+        delegator = Delegator()
+        delegator.services["filebound"] = replace(
+            delegator.services["opencode"],
+            name="filebound",
+            command="sh",
+            auth_files=(str(credential),),
+        )
+
+        state = probe_provider(delegator, "filebound")
+
+        assert state.auth_checked is False
 
     @pytest.mark.bdd
     def test_an_api_key_provider_still_reports_ok_when_set(self, monkeypatch) -> None:
