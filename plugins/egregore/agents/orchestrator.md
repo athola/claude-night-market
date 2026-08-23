@@ -285,10 +285,12 @@ When you encounter a rate limit error:
 
 3. **Save all state** to manifest.json.
 
-4. **Schedule in-session recovery** (2.1.71+, preferred):
-   Use `CronCreate` to schedule a one-shot resume prompt
-   at the cooldown expiry time. This keeps the session
-   alive and avoids restart overhead:
+4. **Schedule in-session recovery** (attended sessions
+   only): `CronCreate` schedules a one-shot resume prompt
+   at the cooldown expiry. Its jobs live only in the
+   running session and are written to no disk, so use this
+   only when the session will still be alive and idle at
+   that time. For an unattended run, skip to step 5:
 
    ```
    CronCreate(
@@ -298,15 +300,17 @@ When you encounter a rate limit error:
    )
    ```
 
-   Calculate the cron expression from `cooldown_until`.
-   The session stays idle until the scheduled prompt
-   fires, then the orchestration loop resumes with full
-   context preserved.
+   Build the cron with `window.cron_for(reset_at)`, which
+   pins the day and month. A `<min> <hour> * * *` form is a
+   daily expression and fires on the wrong day whenever the
+   reset is more than 24 hours out.
 
-5. **Fallback: exit cleanly.** If `CronCreate` is
-   unavailable (pre-2.1.71) or the cooldown exceeds 7
-   days, exit with code 0. The watchdog will relaunch
-   after the cooldown period expires.
+5. **Exit cleanly, and let the watchdog resume.** This is
+   the default for any unattended run. Exit with code 0.
+   The watchdog reads `budget.cooldown_until` and relaunches
+   once the window has renewed. It is the only path here
+   that survives the session exiting or the machine
+   rebooting.
 
 Do not retry in a loop. Do not sleep. Schedule or exit.
 

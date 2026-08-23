@@ -192,13 +192,15 @@ If the last skill call returned a rate limit error:
    `budget.record_rate_limit(cooldown_minutes)`.
 2. Save `budget.json`.
 3. Alert the overseer (see `notify.py`).
-4. **Schedule in-session recovery** (2.1.71+): use
-   `CronCreate` to schedule a one-shot resume prompt at
-   the cooldown expiry time. The session stays alive and
-   resumes automatically with context preserved.
-5. **Fallback** (pre-2.1.71 or cooldown > 7 days): exit
-   gracefully. The watchdog checks cooldown before
-   relaunching.
+4. **Schedule in-session recovery** (attended sessions
+   only): use `CronCreate` for a one-shot resume at the
+   cooldown expiry. Its jobs live only in the running
+   session, so this works only when that session is still
+   alive and idle when the window renews.
+5. **Otherwise exit gracefully**, which is the default for
+   an unattended run. The watchdog reads the recorded
+   cooldown and relaunches after the window renews. Call
+   `window.plan_resume()` rather than choosing by hand.
 
 ### 8. Repeat
 
@@ -293,6 +295,12 @@ This serves two purposes:
    or unexpected error breaks the orchestration loop, the
    next heartbeat detects stalled items and re-enters the
    pipeline automatically.
+
+Both depend on the session staying alive: a recurring job
+also lives only in the session that created it, and it fires
+only while the REPL is idle. Recurring jobs auto-expire after
+7 days, firing one last time before they are deleted, so a
+run longer than a week needs the heartbeat rescheduled.
 
 The cron task auto-expires after 7 days by default. Use
 `durable: true` to persist across restarts, or

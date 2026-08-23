@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Protocol
 
@@ -183,3 +184,105 @@ def unattended_env(env: Mapping[str, str]) -> dict[str, str]:
     updated = dict(env)
     updated.setdefault("CLAUDE_CODE_RETRY_WATCHDOG", "1")
     return updated
+
+
+#: Mechanism names :func:`plan_resume` chooses between.
+WATCHDOG = "watchdog"
+CRON = "cron"
+NOTHING = "nothing"
+
+#: How far ahead a session-only job is worth scheduling, in hours.
+#: This is a judgment, not a documented limit. ``CronCreate`` jobs die
+#: with the session, and holding one idle for longer than a day is a bet
+#: rather than a plan. The tool's published 7-day expiry bounds the job,
+#: not the session that carries it.
+SESSION_JOB_HORIZON_HOURS = 24
+
+
+@dataclass(frozen=True)
+class ResumePlan:
+    """Which mechanism will fire the resume, when, and why that one."""
+
+    mechanism: str
+    fire_at: datetime
+    cron: Optional[str]
+    why: str
+
+
+def plan_resume(
+    reset_at: datetime,
+    *,
+    session_survives: bool,
+    watchdog_installed: bool,
+    grace_minutes: int = 2,
+    now: Optional[datetime] = None,
+) -> ResumePlan:
+    """Name the mechanism that can actually resume work at ``reset_at``.
+
+    The choice is decided by the harness contract, not by preference.
+    ``CronCreate`` schedules a prompt **inside the running session**: its
+    own description says jobs "live only in this Claude session", that
+    nothing is written to disk, that ``durable`` "has no effect", and
+    that jobs fire only while the REPL is idle. None of that holds for
+    the case this project cares about, which is a headless ``claude -p``
+    night run stopping on a usage limit and exiting.
+
+    So durability wins over precision. The OS timer behind
+    ``watchdog.sh`` fires within one poll interval instead of on the
+    instant, and it is the only option here that survives the session
+    ending, the machine rebooting, or a weekly window that renews days
+    from now.
+    """
+    moment = _now(now)
+    fire_at = reset_at + timedelta(minutes=grace_minutes)
+
+    if watchdog_installed:
+        return ResumePlan(
+            mechanism=WATCHDOG,
+            fire_at=fire_at,
+            cron=None,
+            why=(
+                "the OS timer reads budget.cooldown_until and survives the "
+                "session exiting, the machine rebooting, and a window that "
+                "renews days from now. It fires within one poll interval "
+                "rather than on the instant, which is the price of that."
+            ),
+        )
+
+    if not session_survives:
+        return ResumePlan(
+            mechanism=NOTHING,
+            fire_at=fire_at,
+            cron=None,
+            why=(
+                "a CronCreate job lives only in the running session and is "
+                "written to no disk, so it cannot outlive a headless run "
+                "that exits on a usage limit. Install the watchdog "
+                "(scripts/install_systemd.sh or scripts/install_launchd.sh) "
+                "to get an unattended resume."
+            ),
+        )
+
+    hours_out = (reset_at - moment).total_seconds() / 3600
+    if hours_out > SESSION_JOB_HORIZON_HOURS:
+        return ResumePlan(
+            mechanism=NOTHING,
+            fire_at=fire_at,
+            cron=None,
+            why=(
+                f"the window renews about {hours_out:.0f} hours out, which "
+                "would outlive any session held open waiting for it. A "
+                "weekly window needs the watchdog, not a session job."
+            ),
+        )
+
+    return ResumePlan(
+        mechanism=CRON,
+        fire_at=fire_at,
+        cron=cron_for(reset_at, grace_minutes),
+        why=(
+            "the session stays alive and idle until then, so a one-shot "
+            "CronCreate fires inside it with context intact. It is lost if "
+            "the session exits first."
+        ),
+    )

@@ -72,11 +72,21 @@ night-market skill (attune, pensive, sanctum, conserve).
 pattern. At 80% context, saves state and spawns a fresh
 agent that reads the manifest and continues.
 
-**Token window exhaustion (2.1.71+):** When hitting a rate
-limit, egregore schedules a one-shot resume via `CronCreate`
-at the cooldown expiry time. The session stays alive and
-self-recovers with full context preserved. No watchdog
-needed for rate limits.
+**Token window exhaustion:** When a run hits a usage limit,
+`scripts/window.py` reads the reset instant from what the API
+actually returned and records it in `budget.cooldown_until`.
+The watchdog's OS timer polls that value and relaunches once
+the window has renewed.
+
+`CronCreate` can schedule the resume instead, but only inside
+a session that stays alive to run it. The tool's own
+description says its jobs live only in the running session,
+that nothing is written to disk, that `durable` has no
+effect, and that jobs fire only while the REPL is idle. A
+headless `claude -p` night run that exits on a usage limit is
+exactly the case it cannot cover, so the watchdog is the
+default and `CronCreate` is the attended-session shortcut.
+`plan_resume()` picks between them and says why.
 
 **Token window exhaustion (pre-2.1.71 fallback):** Saves a
 cooldown timestamp to `budget.json` and exits. The watchdog
@@ -163,7 +173,7 @@ Stored in `.egregore/config.json`:
 | Loop mechanism | Stop hook re-injects same prompt | Stop hook reads manifest, injects current step |
 | State awareness | None (reads files each time) | Full pipeline state in manifest.json |
 | Session management | None | Continuation agents and watchdog daemon |
-| Token budgets | None | In-session CronCreate recovery (2.1.71+) + watchdog fallback |
+| Token budgets | None | Watchdog resume at the recorded reset instant; CronCreate only while a session survives |
 | Crash recovery | None | Watchdog and GitHub issue alerts |
 | Progress visibility | None | `/loop 5m /egregore:status` auto-scheduled |
 | Decision making | Blind repetition | Autonomous with decision logging |

@@ -73,13 +73,19 @@ When a rate limit is detected:
    channel (see `notify.py`) with the rate limit details and
    expected resume time.
 
-### In-Session Recovery (2.1.71+, all providers 2.1.73+)
+### In-Session Recovery (attended sessions only)
 
-Use `CronCreate` to schedule a one-shot resume at the
-cooldown expiry time. As of 2.1.73, `/loop` and
-`CronCreate` are available on Bedrock, Vertex, Foundry,
-and with telemetry disabled (previously first-party API
-only).
+`CronCreate` schedules a one-shot resume at the cooldown
+expiry, and it works only while the session that created it
+is still running. Its own description is explicit: jobs
+"live only in this Claude session", nothing is written to
+disk, the `durable` parameter "has no effect", and jobs fire
+only while the REPL is idle.
+
+So this path applies when a person is sitting with an open
+session. It does not apply to the unattended night run,
+which is headless and exits when the limit stops it. Ask
+`window.plan_resume()` rather than choosing by hand.
 
 ```
 CronCreate(
@@ -91,13 +97,17 @@ CronCreate(
 )
 ```
 
-**Advantages over watchdog restart:**
+**What it buys, and what it costs:**
 
-- Session stays alive: no context loss, no manifest
-  re-read overhead, no fresh session startup cost
-- Exact timing: fires at cooldown_until instead of
-  polling every 5 minutes
-- No OS-level setup: works without launchd/systemd
+- Buys: the session stays alive, so no context is lost and
+  no manifest is re-read
+- Buys: fires at cooldown_until instead of within a
+  five-minute poll
+- Costs: the job dies with the session, so nothing resumes
+  if the session exits, the terminal closes, or the machine
+  reboots
+- Costs: a weekly window can renew days out, longer than
+  any session should be held open for it
 
 The session remains idle between the rate limit and the
 scheduled prompt. When the cron fires, the orchestration
@@ -105,10 +115,10 @@ loop resumes with the full conversation context intact.
 
 ### Fallback: Exit and Watchdog
 
-If `CronCreate` is unavailable (pre-2.1.71, or
-pre-2.1.73 on Bedrock/Vertex/Foundry), the cooldown
-exceeds 7 days (cron task auto-expiry), or the session
-itself needs to exit for other reasons:
+This is the default path, not a degraded one. Use it
+whenever the session will not survive the wait, whenever
+the reset is more than a day out, and whenever the run is
+unattended:
 
 5. **Exit cleanly**: exit with code 0. A non-zero exit
    would trigger the watchdog's crash handler instead of

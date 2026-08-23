@@ -155,3 +155,81 @@ def test_malformed_timestamps_do_not_crash(bad: str) -> None:
     assert (
         window.parse_reset({"anthropic-ratelimit-tokens-reset": bad}, "", NOW) is None
     )
+
+
+class TestPlanResume:
+    """Which mechanism can actually fire a resume when the window renews.
+
+    The harness contract decides this, not preference. ``CronCreate``
+    schedules a prompt in the running session only: its own description
+    says jobs "live only in this Claude session", that nothing is
+    written to disk, and that the ``durable`` parameter "has no effect".
+    A night run that stops on a usage limit is the case where the
+    session does not survive, so the only mechanism left is the OS timer
+    that ``watchdog.sh`` already runs.
+    """
+
+    RESET = datetime(2026, 8, 23, 5, 30, 0, tzinfo=timezone.utc)
+
+    def test_the_watchdog_carries_it_when_the_session_will_not(self) -> None:
+        plan = window.plan_resume(
+            self.RESET, session_survives=False, watchdog_installed=True, now=NOW
+        )
+        assert plan.mechanism == window.WATCHDOG
+        assert plan.cron is None
+
+    def test_cron_is_refused_when_the_session_will_not_survive(self) -> None:
+        """The documented failure: a session-only job cannot outlive exit."""
+        plan = window.plan_resume(
+            self.RESET, session_survives=False, watchdog_installed=False, now=NOW
+        )
+        assert plan.mechanism == window.NOTHING
+        assert "session" in plan.why.lower()
+
+    def test_cron_is_offered_only_to_a_surviving_session(self) -> None:
+        plan = window.plan_resume(
+            self.RESET, session_survives=True, watchdog_installed=False, now=NOW
+        )
+        assert plan.mechanism == window.CRON
+        assert plan.cron is not None
+
+    def test_the_cron_pins_the_day_and_month(self) -> None:
+        """A one-shot must pin day-of-month and month.
+
+        The prose in ``modules/budget.md`` showed ``"<min> <hour> * * *"``,
+        which is a daily expression. Left unpinned, a reset instant more
+        than a day out fires on the wrong day.
+        """
+        plan = window.plan_resume(
+            self.RESET, session_survives=True, watchdog_installed=False, now=NOW
+        )
+        assert plan.cron is not None
+        fields = plan.cron.split()
+        assert fields[2] != "*"
+        assert fields[3] != "*"
+
+    def test_a_durable_timer_beats_a_session_job_when_both_exist(self) -> None:
+        """A coarse timer that fires beats an exact one that may not."""
+        plan = window.plan_resume(
+            self.RESET, session_survives=True, watchdog_installed=True, now=NOW
+        )
+        assert plan.mechanism == window.WATCHDOG
+
+    def test_the_grace_period_pushes_the_fire_time_past_the_boundary(self) -> None:
+        plan = window.plan_resume(
+            self.RESET,
+            session_survives=True,
+            watchdog_installed=False,
+            grace_minutes=3,
+            now=NOW,
+        )
+        assert plan.fire_at == self.RESET + timedelta(minutes=3)
+
+    def test_a_weekly_window_is_never_given_to_a_session_job(self) -> None:
+        """A reset days away outlives any session, attended or not."""
+        far = NOW + timedelta(days=4)
+        plan = window.plan_resume(
+            far, session_survives=True, watchdog_installed=False, now=NOW
+        )
+        assert plan.mechanism == window.NOTHING
+        assert "7 days" in plan.why or "outlive" in plan.why.lower()
