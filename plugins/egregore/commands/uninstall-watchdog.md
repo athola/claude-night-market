@@ -10,27 +10,8 @@ usage: /egregore:uninstall-watchdog
 Remove the egregore watchdog daemon and clean up all
 related files.
 
-This command runs `Skill(egregore:uninstall-watchdog)`, which is the single copy of
-the methodology described below. Where the two disagree, the skill is
-the one to trust and this file is the one to fix.
-
-## What It Does
-
-On macOS, unloads and removes the launchd agent plist at
-`~/Library/LaunchAgents/com.egregore.watchdog.plist`.
-
-On Linux, disables and removes the systemd user timer
-and service files for `egregore-watchdog`.
-
-## Files Removed
-
-- macOS: `~/Library/LaunchAgents/com.egregore.watchdog.plist`
-- Linux: `~/.config/systemd/user/egregore-watchdog.timer`
-- Linux: `~/.config/systemd/user/egregore-watchdog.service`
-
-The `.egregore/` directory and its contents (manifest,
-budget, logs) are not removed. Delete them manually if
-you no longer need them.
+Runs `Skill(egregore:uninstall-watchdog)`, which carries the uninstall
+steps and the list of files removed.
 
 ## See Also
 
