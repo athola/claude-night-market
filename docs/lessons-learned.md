@@ -16,6 +16,7 @@ so the team replicates what worked and avoids what did not.
 | LL-001 | open | Linked-worktree commits corrupt the index via hook-run git subprocesses | 2026-07-04 |
 | LL-002 | open | A commit that creates a discussion and one that fixes it are the same shape to the reconciler | 2026-08-06 |
 | LL-003 | open | A completeness score measured a different gap than the one I was closing | 2026-08-22 |
+| LL-004 | open | Dogfooding priced a loop the test suite could not reach | 2026-08-23 |
 
 ## Lessons
 
@@ -116,6 +117,37 @@ The dogfooder measures documented commands against Makefile targets. Under that 
 Action: before adding a target because a coverage tool reports a gap, or declines to, run the plugin's own `help` and read what already exists -- Owner: alext -- Due: standing -- Status: applied in 80e22e0f.
 
 A score answers the question its metric asks, not necessarily the one you have, so treat a perfect score as a prompt to check what was measured. Guarded forward by tests/test_provider_status_demo_is_live.py, which fails any target advertising LIVE with an echo-only recipe.
+
+## LL-004: Dogfooding priced a loop the test suite could not reach
+
+- Status: open
+- Date: 2026-08-23
+- Phase: review
+- Category: testing
+- Owner: egregore maintainers
+- Links: 9f31a878, e8f7ca78, docs/adr/0022-stop-hook-reinjection-as-continuation.md
+<!-- key: 482f21373792 -->
+
+### What happened
+
+Egregore's Stop hook blocked the session from stopping whenever the manifest held active work, which is how the loop continues without a human turn. Twenty-eight unit tests covered that hook and all of them passed. Running the watchdog against a real project in tmux found three defects in the resume path within one session, including a one-word prompt that cost ten turns and roughly $0.70 of Opus because the block had no bound.
+
+### What went well / where we got lucky
+
+tmux was the right instrument and cost minutes. The measured numbers, one byte of log, a three second stall, ten turns, made each defect specific enough to fix without further investigation.
+
+### What did not work
+
+The unit tests. They asserted the hook's decision for a given manifest, which was correct in every case. The defect was that the same correct decision repeated forever, and repetition is not a property a single invocation can show.
+
+### Root cause
+
+The hook blocked on a static condition. A manifest with active work stays true until something advances the pipeline, so the hook's answer did not depend on whether the session could advance it. Nothing in the test suite modeled a sequence of stops, so nothing could have caught it.
+
+### Recommendation / action item
+
+- Action: bound the hook by stall detection and test the sequence, not the single decision (done, 9f31a878) -- Owner: egregore maintainers -- Due: 2026-08-23 -- Status: done
+- Action: when a hook's decision feeds back into the next turn, write at least one test that calls it repeatedly and asserts the loop ends -- Owner: egregore maintainers -- Due: ongoing -- Status: open
 
 ## Archive
 

@@ -73,6 +73,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   relaunch does not bound their product, and that product is the timer
   decision, not this hook's.
 
+  The reliance the bound does not settle is recorded in
+  `docs/adr/0022-stop-hook-reinjection-as-continuation.md`, as weak
+  point 6 in `night-market-architecture-contract`, as problem 6 in
+  `night-market-research-frontier`, and as LL-004 in
+  `docs/lessons-learned.md`. ralph-wiggum rides the same harness
+  behavior and bounds it by an iteration count, which the egregore
+  README comparison table now states correctly.
+
 ## [1.9.19] - 2026-08-21
 
 ### Added

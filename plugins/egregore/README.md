@@ -170,7 +170,7 @@ Stored in `.egregore/config.json`:
 
 | | Ralph Wiggum | Egregore |
 |---|---|---|
-| Loop mechanism | Stop hook re-injects same prompt, unbounded | Stop hook reads manifest, injects current step, bounded by stall detection |
+| Loop mechanism | Stop hook re-injects same prompt, bounded by an iteration count | Stop hook reads manifest, injects current step, bounded by stall detection |
 | State awareness | None (reads files each time) | Full pipeline state in manifest.json |
 | Session management | None | Continuation agents and watchdog daemon |
 | Token budgets | None | Watchdog resume at the recorded reset instant; CronCreate only while a session survives |
@@ -211,7 +211,11 @@ give such steps more room.
 **What the bound does not settle.** Stop-hook re-injection is not an
 upstream-documented continuation mechanism. The sanctioned primitives,
 `/loop` and `CronCreate`, are session-scoped, so neither replaces it.
-This bound prices the ride; it does not sanction it. The bound also
+This bound prices the ride, and does not sanction it. The full record,
+including the alternatives that were considered and what would retire
+the reliance, is
+[ADR-0022](../../docs/adr/0022-stop-hook-reinjection-as-continuation.md).
+The bound also
 takes manifest bytes as its definition of progress, so a session that
 writes the manifest every turn without advancing the pipeline still
 loops. That is not the measured failure, where a stuck session wrote
