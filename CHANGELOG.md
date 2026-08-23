@@ -44,6 +44,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   tokens and 20 files" is why most eligible work never left the
   session. Thresholds now rank payoff and gate nothing.
 
+### Changed
+
+- **Dynamic workflows: the orchestration this repo already wrote in
+  prose (rules, hookify, imbue, plugin reference).**
+  `.claude/rules/plan-before-large-dispatch.md` demanded an agent
+  roster, a scope per agent, an output contract and a failure strategy
+  before any 4-agent dispatch. Those are constructs the Workflow tool
+  provides in code, and the three risks
+  `sanctum:do-issue/modules/parallel-execution.md:16-20` names to
+  justify the rule are the three properties it changes: results stay in
+  script variables instead of the session, `resumeFromRunId` replays a
+  partial run, and `schema` enforces the contract at the tool-call
+  layer.
+
+  The rule keeps its threshold and its purpose, and gains a second
+  compliant path. Plan mode forces user alignment before compute is
+  spent; a workflow's explicit-opt-in requirement is that same gate
+  relocated into the harness. Path 2 also carries four constraints
+  worth stating once: never start one unasked, its subagents run in
+  `acceptEdits` whatever the session's permission mode, the `ultracode`
+  keyword does not fire from headless routes, and a script has no
+  filesystem, so it can find and rank but cannot prove a test passed.
+  That last point is now stated where the evidence rule lives, in
+  `imbue:proof-of-work`.
+
+  The hookify catalog copy of the rule had already drifted from the
+  canonical one. It now mirrors the new content, names the canonical
+  copy, and loses the arrow-as-conjunction prose the house style bans.
+
+  `claude-code-plugin-reference` gains the fifth asset type. Plugins
+  can ship workflows from a `workflows/` directory at the plugin root,
+  verified against two official plugins on disk rather than from
+  documentation: neither declares a manifest key, so discovery is by
+  convention. One gotcha is recorded because it would have bitten our
+  validator first: a workflow script opens with `export const meta` and
+  ends with a top-level `return`, which cannot both be legal ESM, so
+  `node --check` calls a correct script a syntax error. The runtime
+  runs the body inside an async function.
+
+  This repo still ships no workflows, and `abstract_validator.py`
+  still knows four component types. Teaching it a fifth is proposed,
+  not done, and needs its own change with a failing test first.
+
 ### Fixed
 
 - **The test-quality rubric scored file length, not test quality

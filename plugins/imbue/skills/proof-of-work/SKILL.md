@@ -123,6 +123,18 @@ explain each line of a configuration or why a specific practice
 applies to the current context, the necessary validation steps have
 been skipped.
 
+### An agent's report is a claim, not evidence
+
+This holds wherever the work happened, and it binds hardest inside a
+Workflow script, because a script has no filesystem and no shell.
+Everything it knows, an agent told it. A stage that returns "the tests
+pass" is the same kind of statement as a session saying "should work,"
+and it carries the same weight, which is none.
+
+So a workflow may find, rank, structure and propose. The run that
+produces evidence happens where its output can be pasted. A workflow's
+return value feeds a gate. It is not one.
+
 ## Validation Protocol
 
 ### Step 1: Reproduce the Problem (`proof:problem-reproduced`)

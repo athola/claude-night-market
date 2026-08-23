@@ -15,12 +15,57 @@ Tasks involving comprehensive analysis, audits, or
 research across the codebase typically require 4+
 parallel agents. Before dispatching:
 
-**MUST enter plan mode first:**
+**MUST get user alignment first.** There are two
+compliant paths, and the second one did not exist when
+this rule was written:
 
-1. `EnterPlanMode`: design the agent strategy
-2. Specify: agent roster, scope per agent, output
-   contract
-3. Get user approval before launching agents
+1. `EnterPlanMode`: design the agent strategy, specify
+   the agent roster, the scope per agent and the output
+   contract, and get approval before launching agents.
+2. A **Workflow script**. The script is the plan, in a
+   form that executes. It carries its own user gate: a
+   workflow only runs when the user asks for one, by
+   name or with the `ultracode` keyword, so the
+   alignment this rule exists to force is still forced.
+
+Pick path 2 when the shape is known before the work
+(fan out, verify, synthesize, migrate a list). Pick
+path 1 when the roster has to adapt to what the first
+agents find.
+
+**What the script provides, that the plan asks for:**
+
+| This rule demands | A workflow provides |
+|-------------------|---------------------|
+| Agent roster | the `agent()` calls |
+| Scope per agent | each call's prompt |
+| Output contract | `schema`, validated at the tool-call layer, with model retry on mismatch |
+| Result integration | the script body |
+| Failure strategy | failed agents return `null`; a throwing stage drops that item |
+| Worktree isolation decision | `isolation: "worktree"` per agent |
+
+Results also stay in script variables rather than in
+the session, which is the direct answer to the context
+overflow this rule was written to prevent.
+
+**Constraints that come with path 2:**
+
+- Never start a workflow unasked. A quoted tip is not
+  a request.
+- Subagents in a workflow run in `acceptEdits` and
+  inherit the tool allowlist, whatever the session's
+  permission mode. Scope their prompts accordingly.
+- The `ultracode` keyword does not fire from headless
+  routes (`-p`, SDK without a human-origin stamp,
+  scheduled prompts, webhooks), so nothing in egregore
+  or a night run starts one implicitly.
+- A script has no filesystem and no shell. A workflow
+  may find, rank and structure. It cannot be the step
+  that proves a test passed.
+
+Full analysis, with the source for each claim:
+`reports/dynamic-workflows-integration-2026-08-23.md`
+(machine-local; `reports/` is gitignored).
 
 **Prefer tiered audit over full-codebase dispatch:**
 

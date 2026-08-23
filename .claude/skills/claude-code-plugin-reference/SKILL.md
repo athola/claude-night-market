@@ -411,6 +411,39 @@ Exit code and stdout JSON are the assertions. Hook test subtrees (for
 example `plugins/imbue/tests/unit/hooks/`) run under 3.9 in CI, so keep
 them stdlib-plus-pytest only.
 
+## Workflows: the asset type this repo does not ship yet
+
+A plugin can ship dynamic-workflow scripts alongside its skills,
+commands, agents and hooks. Verified on disk 2026-08-23 against the
+installed official marketplace, not from documentation alone.
+
+- **Location**: `workflows/` at the plugin root. Two official plugins
+  use it today (`claude-security/workflows/scan.js`,
+  `code-modernization/workflows/*.js`), and neither declares a
+  `workflows` key in `plugin.json`, so discovery is by convention. The
+  manifest field exists only to point somewhere else.
+- **Invocation**: namespaced, `/plugin-name:workflow-name`, where the
+  name comes from the script's `meta.name`.
+- **Format**: JavaScript opening with a literal
+  `export const meta = { name, description, whenToUse?, phases? }`.
+  The body uses `agent()`, `pipeline()`, `parallel()`, `phase()` and
+  `log()`, and may `await` and `return` at top level.
+- **Not an ES module.** The `export` and the top-level `return` cannot
+  coexist in real ESM, so `node --check` on a valid script reports
+  "Illegal return statement". The runtime extracts `meta` and runs the
+  body inside an async function. Any validator must wrap before it
+  checks, or check `meta` structurally and leave syntax to the runtime.
+- **Permissions**: subagents spawned by a workflow run in `acceptEdits`
+  and inherit the tool allowlist, whatever the session's permission
+  mode.
+
+This repo ships no workflows, and its tooling does not yet know the
+type: `plugins/abstract/scripts/abstract_validator.py` iterates skills,
+commands, agents and hooks only, and the capabilities reference has no
+workflow rows. Adding a fifth type means teaching both, or a shipped
+script will drift unnoticed. Analysis and the proposed sequence:
+`reports/dynamic-workflows-integration-2026-08-23.md` (machine-local).
+
 ## Marketplace mechanics
 
 - Registry: root `.claude-plugin/marketplace.json`. Top-level `name`,
