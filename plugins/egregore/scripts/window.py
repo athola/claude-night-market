@@ -30,8 +30,12 @@ resume-at-renewal scheduler without any new scheduling machinery.
 
 For the in-session case, Claude Code documents
 ``CLAUDE_CODE_RETRY_WATCHDOG=1``, which retries 429 and 529 capacity
-errors indefinitely in unattended sessions but fails immediately on a
-spend-limit 429. See :func:`unattended_env`.
+errors indefinitely in unattended sessions. That description is only
+true from CLI 2.1.239 onward: before it, the watchdog retried
+spend-limit 429s indefinitely too. Enabling it on an older CLI turns a
+recoverable park into an unbounded wait, and a spend cap can be a month
+out. So :func:`unattended_env` asks the version first, and treats not
+knowing as a reason not to.
 """
 
 from __future__ import annotations
@@ -54,6 +58,13 @@ RESET_HEADERS = (
     "anthropic-ratelimit-input-tokens-reset",
     "anthropic-ratelimit-output-tokens-reset",
 )
+
+#: First CLI version where the retry watchdog stops retrying a
+#: spend-limit 429. Before it, the watchdog waits out a cap that may not
+#: lift for weeks.
+RETRY_WATCHDOG_MIN_VERSION = (2, 1, 239)
+
+_VERSION = re.compile(r"(\d+)\.(\d+)\.(\d+)")
 
 _SPEND_MARKERS = ("enforced_spend_limit_reached", "reached your api usage limits")
 _SPEND_TIME = re.compile(
@@ -174,15 +185,50 @@ def cron_for(reset_at: datetime, grace_minutes: int = 0) -> str:
     return f"{fire.minute} {fire.hour} {fire.day} {fire.month} *"
 
 
-def unattended_env(env: Mapping[str, str]) -> dict[str, str]:
-    """Return ``env`` with the documented unattended retry watchdog on.
+def parse_cli_version(text: str) -> Optional[tuple[int, int, int]]:
+    """Read the version out of ``claude --version``, or return None.
+
+    The CLI prints something like ``2.1.241 (Claude Code)``. Anything
+    that does not carry three numbers returns None, because a guessed
+    version is worse than an admitted unknown: it is what decides
+    whether a spend cap is waited out or refused.
+    """
+    match = _VERSION.search(text or "")
+    if not match:
+        return None
+    return (int(match.group(1)), int(match.group(2)), int(match.group(3)))
+
+
+def supports(
+    version: Optional[tuple[int, int, int]],
+    minimum: tuple[int, int, int],
+) -> bool:
+    """Say whether ``version`` is at least ``minimum``. Unknown is no."""
+    return version is not None and version >= minimum
+
+
+def unattended_env(
+    env: Mapping[str, str],
+    cli_version: Optional[tuple[int, int, int]] = None,
+) -> dict[str, str]:
+    """Return ``env`` with the retry watchdog on, where it is safe.
 
     ``CLAUDE_CODE_RETRY_WATCHDOG=1`` retries 429 and 529 capacity errors
-    indefinitely in unattended sessions, and fails immediately on a
-    spend-limit 429. An operator who set it explicitly keeps their value.
+    indefinitely, which is what an unattended run wants. From CLI 2.1.239
+    it fails immediately on a spend-limit 429; before that it waited
+    those out too, which can mean waiting until next month.
+
+    So the variable is set only on a version known to be safe. An
+    unknown version is left alone rather than assumed current: the cost
+    of being wrong is a run that hangs instead of one that parks with a
+    recorded reset instant the watchdog can act on. An operator who set
+    the variable explicitly keeps their value either way.
     """
     updated = dict(env)
-    updated.setdefault("CLAUDE_CODE_RETRY_WATCHDOG", "1")
+    if "CLAUDE_CODE_RETRY_WATCHDOG" in updated:
+        return updated
+    if supports(cli_version, RETRY_WATCHDOG_MIN_VERSION):
+        updated["CLAUDE_CODE_RETRY_WATCHDOG"] = "1"
     return updated
 
 
