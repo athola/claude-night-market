@@ -32,6 +32,7 @@ model_hint: standard
 estimated_tokens: 600
 progressive_loading: true
 modules:
+- modules/provider-onboarding.md
 - modules/task-assessment.md
 - modules/cost-estimation.md
 - modules/handoff-patterns.md
@@ -131,6 +132,11 @@ which providers were tried and why none answered, and then do the task
 yourself.
 Do not treat it as an error to report and stop on: a machine with no CLI
 installed is the ordinary case for this default, not a fault.
+
+When the operator wants providers answering rather than falling back,
+`modules/provider-onboarding.md` carries the per-provider steps and the
+failure shapes that do not look like authentication problems.
+Start with `make -C plugins/conjure delegate-doctor`.
 
 ## Philosophy
 
@@ -260,6 +266,8 @@ matrix, mode compatibility notes, and anti-patterns to avoid.
 
 ## Module Reference
 
+- **provider-onboarding.md**: Install and auth per provider, and how
+  to read a half-configured one.
 - **task-assessment.md**: Complexity classification, decision matrix.
 - **cost-estimation.md**: Pricing, budgets, cost tracking.
 - **handoff-patterns.md**: Request templates, workflows.

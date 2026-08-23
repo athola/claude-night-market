@@ -26,6 +26,9 @@ DELEGATION_CORE = REPO / "plugins/conjure/skills/delegation-core/SKILL.md"
 TASK_ASSESSMENT = (
     REPO / "plugins/conjure/skills/delegation-core/modules/task-assessment.md"
 )
+ONBOARDING = (
+    REPO / "plugins/conjure/skills/delegation-core/modules/provider-onboarding.md"
+)
 MISSION = REPO / "plugins/attune/skills/mission-orchestrator/SKILL.md"
 EXECUTION = REPO / "plugins/attune/skills/project-execution/SKILL.md"
 SUMMON = REPO / "plugins/egregore/skills/summon/SKILL.md"
@@ -165,3 +168,37 @@ def test_the_war_room_refuses_to_fill_empty_seats_with_claude() -> None:
 
     assert "is not a panel" in text
     assert "Do not fill the empty seats with Claude" in text
+
+
+@pytest.mark.bdd
+def test_the_fallback_points_at_the_way_out_of_it() -> None:
+    """GIVEN an operator whose delegations keep falling back.
+
+    WHEN they read delegation-core
+    THEN it names the module that gets providers answering
+
+    A default-on feature that falls back forever, with no route from
+    the fallback to a working provider, is opt-in with extra steps.
+    """
+    assert ONBOARDING.exists()
+
+    text = DELEGATION_CORE.read_text()
+    assert "modules/provider-onboarding.md" in text
+    assert "delegate-doctor" in text
+
+
+@pytest.mark.bdd
+def test_onboarding_warns_that_unknown_is_not_authenticated() -> None:
+    """GIVEN a doctor report showing AUTH unknown.
+
+    WHEN the operator reads what it means
+    THEN they are told the probe declined to guess, not that it passed
+
+    Four of the eight CLIs own their credentials and expose no cheap
+    status command. Reading `unknown` as `ok` is why a provider can sit
+    in the chain failing every task while the doctor looks healthy.
+    """
+    text = ONBOARDING.read_text()
+
+    assert "`unknown` is not `ok`" in text
+    assert "exits 0 with nothing" in text
