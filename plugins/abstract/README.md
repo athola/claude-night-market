@@ -47,7 +47,7 @@ and `meta-architect` assist during review.
     *   `iron-law-interlock.md`:
         Hard gate for TDD compliance in creation workflows.
     *   `enforcement-language.md`: Language intensity calibration.
-    *   `anti-rationalization.md`: Bypass prevention patterns.
+    *   `skill-selection-judgment.md`: Bypass prevention patterns.
     *   `trigger-patterns.md`: Skill trigger design patterns.
 *   `docs/`: Technical documentation, ADRs, and examples.
     *   `docs/examples/modular-skills/`:

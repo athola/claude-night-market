@@ -70,7 +70,7 @@ We design skills around single responsibility and loose coupling. Each module fo
 
 **Deprecated**: `skills/shared/modules/` directories. This pattern caused orphaned references when shared modules were updated or removed.
 
-**Current pattern**: Each skill owns its modules at `skills/<skill-name>/modules/`. When multiple skills need the same content, the primary owner holds the module and others reference it via relative path (e.g., `../skill-authoring/modules/anti-rationalization.md`). The validator flags any remaining `skills/shared/` directories.
+**Current pattern**: Each skill owns its modules at `skills/<skill-name>/modules/`. When multiple skills need the same content, the primary owner holds the module and others reference it via relative path (e.g., `../skill-authoring/modules/description-writing.md`). The validator flags any remaining `skills/shared/` directories.
 
 ## Quick Start
 
@@ -121,10 +121,10 @@ Our standards prioritize concrete examples and a consistent voice. Always provid
 ## Resources
 
 ### Shared Modules: Cross-Skill Patterns
-Standard patterns for triggers, enforcement language, and anti-rationalization:
-- **Trigger Patterns**: See [trigger-patterns.md](modules/enforcement-patterns.md)
+Standard patterns for triggers and for deciding whether a skill applies:
+- **Trigger Patterns**: See [enforcement-patterns.md](modules/enforcement-patterns.md)
 - **Enforcement Language**: See [enforcement-language.md](../shared-patterns/modules/workflow-patterns.md)
-- **Anti-Rationalization**: See [anti-rationalization.md](../skill-authoring/modules/anti-rationalization.md)
+- **Skill Selection**: See [skill-selection-judgment.md](../../shared-modules/skill-selection-judgment.md)
 
 ### Skill-Specific Modules
 Detailed guides for implementation and maintenance:

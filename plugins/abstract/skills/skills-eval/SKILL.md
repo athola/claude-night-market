@@ -132,12 +132,12 @@ Improvements are prioritized by impact. Critical issues include security vulnera
 
 **Deprecated**: `skills/shared/modules/` directories. Shared modules must be relocated into the consuming skill's own `modules/` directory. The evaluator flags any remaining `skills/shared/` as a structural warning.
 
-**Current**: Each skill owns its modules at `skills/<skill-name>/modules/`. Cross-skill references use relative paths (e.g., `../skill-authoring/modules/anti-rationalization.md`).
+**Current**: Each skill owns its modules at `skills/<skill-name>/modules/`. Cross-skill references use relative paths (e.g., `../skill-authoring/modules/description-writing.md`).
 
 ## Resources
 
 ### Shared Modules: Cross-Skill Patterns
-- **Anti-Rationalization Patterns**: See [anti-rationalization.md](../skill-authoring/modules/anti-rationalization.md)
+- **Skill Selection**: See [skill-selection-judgment.md](../../shared-modules/skill-selection-judgment.md)
 - **Enforcement Language**: See [enforcement-language.md](../shared-patterns/modules/workflow-patterns.md)
 - **Trigger Patterns**: See [trigger-patterns.md](modules/evaluation-criteria.md)
 

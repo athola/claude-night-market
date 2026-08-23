@@ -211,5 +211,5 @@ See [Iron Law Interlock](../../../abstract/shared-modules/iron-law-interlock.md)
 ## Related Modules
 
 - [enforcement-language.md](enforcement-language.md) - Language intensity calibration
-- [anti-rationalization.md](anti-rationalization.md) - Bypass prevention patterns
+- [skill-selection-judgment.md](skill-selection-judgment.md) - Bypass prevention patterns
 - [iron-law-enforcement.md](iron-law-enforcement.md) - Full TDD enforcement

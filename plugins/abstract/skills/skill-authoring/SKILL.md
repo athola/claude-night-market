@@ -15,7 +15,6 @@ modules:
 - modules/persuasion-principles.md
 - modules/description-writing.md
 - modules/progressive-disclosure.md
-- modules/anti-rationalization.md
 - modules/graphviz-conventions.md
 - modules/deployment-checklist.md
 - modules/advanced-patterns.md
@@ -43,7 +42,7 @@ model_hint: standard
 
 Writing effective Claude Code skills requires Test-Driven Development (TDD) and persuasion principles from compliance research. We treat skill writing as process documentation that needs empirical validation rather than just theoretical instruction. Skills are behavioral interventions designed to change model behavior in measurable ways.
 
-By using TDD, we ensure skills address actual failure modes identified through testing. Optimized descriptions improve discovery, while a modular structure supports progressive disclosure to manage token usage. This framework also includes anti-rationalization patterns to prevent the assistant from bypassing requirements.
+By using TDD, we ensure skills address actual failure modes identified through testing. Optimized descriptions improve discovery, while a modular structure supports progressive disclosure to manage token usage. It states intent, constraints and exit criteria, and leaves the path between them to the session doing the work; see `.claude/rules/bounded-autonomy.md`.
 
 ### The Iron Law
 
@@ -100,10 +99,10 @@ Establish empirical evidence that an intervention is needed. Create at least thr
 ### GREEN Phase: Minimal Skill Implementation
 Create the smallest intervention that addresses the documented failures. Write the `SKILL.md` with required frontmatter and content that directly counters the baseline failures. Include one example of correct behavior and verify that the same pressure scenarios now show measurable improvement.
 
-### REFACTOR Phase: Anti-Rationalization
+### REFACTOR Phase: Sharpen the Triggers
 Eliminate the ability for Claude to explain away requirements. Run pressure scenarios with the skill active to identify common rationalizations, such as claiming a task is "too simple" for the full process. Add explicit counters, such as exception tables and red flag lists, until rationalizations stop.
 
-## Anti-Rationalization
+## Deciding Whether a Skill Applies
 
 Skills must explicitly counter patterns where Claude attempts to bypass requirements. Common excuses include claiming a task is "too simple" or that a "spirit vs letter of the law" approach is sufficient. Skills should include red flag lists for self-checking, such as "Stop if you think: this is too simple for the full process." When exceptions are necessary, document them explicitly to prevent unauthorized shortcuts.
 
@@ -113,10 +112,10 @@ For detailed implementation guidance:
 
 **Core authoring cycle:**
 - **TDD Methodology**: See `modules/tdd-methodology.md` for RED-GREEN-REFACTOR cycle details
-- **Persuasion Principles**: See `modules/persuasion-principles.md` for compliance research and techniques
+- **Instruction Strength**: See `modules/persuasion-principles.md` for how hard to push, and what earns an invariant
 - **Description Writing**: See `modules/description-writing.md` for discovery optimization
 - **Progressive Disclosure**: See `modules/progressive-disclosure.md` for file structure patterns
-- **Anti-Rationalization**: See `modules/anti-rationalization.md` for bulletproofing techniques
+- **Skill Selection**: See `../../shared-modules/skill-selection-judgment.md` for deciding whether a skill applies
 - **Graphviz Conventions**: See `modules/graphviz-conventions.md` for process diagram standards
 
 **Working with concrete skills (load when implementing or debugging):**
