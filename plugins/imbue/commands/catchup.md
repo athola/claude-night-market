@@ -8,6 +8,10 @@ usage: /catchup [baseline]
 
 Rapidly acquires context on recent changes using imbue's catchup methodology: confirm context, capture delta, extract insights, and record follow-ups.
 
+This command runs `Skill(imbue:catchup)`, which is the single copy of
+the methodology described below. Where the two disagree, the skill is
+the one to trust and this file is the one to fix.
+
 ## Usage
 
 ```bash

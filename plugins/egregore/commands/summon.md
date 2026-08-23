@@ -17,6 +17,10 @@ creation. By default the egregore runs indefinitely,
 scanning for new work after completing its current
 manifest. Use `/egregore:dismiss` to stop it.
 
+This command runs `Skill(egregore:summon)`, which is the single copy of
+the methodology described below. Where the two disagree, the skill is
+the one to trust and this file is the one to fix.
+
 ## When To Use
 
 - You have one or more issues or tasks to process

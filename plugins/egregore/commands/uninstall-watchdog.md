@@ -10,6 +10,10 @@ usage: /egregore:uninstall-watchdog
 Remove the egregore watchdog daemon and clean up all
 related files.
 
+This command runs `Skill(egregore:uninstall-watchdog)`, which is the single copy of
+the methodology described below. Where the two disagree, the skill is
+the one to trust and this file is the one to fix.
+
 ## What It Does
 
 On macOS, unloads and removes the launchd agent plist at

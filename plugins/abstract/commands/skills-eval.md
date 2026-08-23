@@ -6,6 +6,10 @@ usage: /skills-eval [skill-name]
 
 # Skills Evaluation Command
 
+This command runs `Skill(abstract:skills-eval)`, which is the single copy of
+the methodology described below. Where the two disagree, the skill is
+the one to trust and this file is the one to fix.
+
 ## When To Use
 
 Use this command when you need to:

@@ -9,6 +9,10 @@ usage: /do-issue <issue-number | issue-url | space-delimited-list> [--dry-run] [
 A progressive workflow for implementing issues from the detected git platform (GitHub, GitLab, or Bitbucket), following the attune pattern:
 **analyze** → **specify** → **plan** → **implement** → **validate** → **complete**
 
+This command runs `Skill(sanctum:do-issue)`, which is the single copy of
+the methodology described below. Where the two disagree, the skill is
+the one to trust and this file is the one to fix.
+
 ## When To Use
 
 Use this command when you need to:

@@ -14,6 +14,10 @@ Install a system-level daemon that monitors the egregore
 and relaunches it after crashes, rate limits, or context
 overflows.
 
+This command runs `Skill(egregore:install-watchdog)`, which is the single copy of
+the methodology described below. Where the two disagree, the skill is
+the one to trust and this file is the one to fix.
+
 ## What It Does
 
 On macOS, installs a launchd agent
