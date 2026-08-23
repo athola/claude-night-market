@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Delegation runs by default, and falls back on its own (conjure,
+  attune, egregore).** Delegation was opt-in in the only sense that
+  matters: it happened where a caller remembered to ask for it. It now
+  happens wherever a mission phase, an egregore pipeline step or a
+  conjure operation reaches execution work, and declining it is the
+  step that takes a decision.
+
+  Two switches turn it off, environment over file.
+  `CONJURE_DELEGATION=off` declines for one run;
+  `"enabled": false` in `~/.claude/hooks/delegation/config.json`
+  declines for a machine. A disabled delegator probes and spawns
+  nothing, which is what makes the opt-out worth having.
+
+  `smart_delegate` walks the whole candidate order instead of stopping
+  at the first available provider, because availability is not
+  answering. It advances past an exit-0 empty stdout too. That is not
+  hypothetical: on a machine where gemini has no key and minimax is
+  unauthenticated, `qwen` exits 0 with nothing in it, and the old
+  selection returned that silence as the answer. The chain now walks
+  past it to `glm`.
+
+  An exhausted chain returns rather than raises, carrying
+  `fallback_reason` and a per-provider `attempts` trail. Turning
+  delegation on by default makes "no CLI installed" the ordinary path,
+  and a traceback is the wrong shape for a state the caller recovers
+  from by doing the work itself. `smart_delegate` returns one
+  `ExecutionResult` rather than a tuple; the answering provider is in
+  `result.service`.
+
+  The skills carry the other half. `delegation-core` states a default
+  posture with four Keep Local clauses, and `task-assessment` loses the
+  size thresholds that gated eligibility: "keep local under 10,000
+  tokens and 20 files" is why most eligible work never left the
+  session. Thresholds now rank payoff and gate nothing.
+
 ## [1.9.19] - 2026-08-21
 
 ### Added
