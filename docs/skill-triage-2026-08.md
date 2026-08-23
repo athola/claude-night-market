@@ -38,6 +38,32 @@ deleting anything in a family.
 better connected than a 217-skill count suggests, which is an argument
 against a large indiscriminate cull.
 
+## What the duplication baseline says
+
+[GitSkills](https://arxiv.org/abs/2608.10906) (MSR '27) mined 3,797,117
+`SKILL.md` files from 282,200 public repositories and grouped them into
+1,877,981 distinct contents. Slightly over half of every skill file on
+public GitHub is a byte-identical copy of another one, because the
+format has no registry and spreads by copying folders.
+
+This repository was measured against that baseline:
+
+| Measure | Here | Public GitHub |
+|---------|-----:|--------------:|
+| Skill markdown files | 759 | 3,797,117 |
+| Distinct contents | 759 | 1,877,981 |
+| Byte-identical copies | 0% | 50.5% |
+| Near-duplicate bodies, frontmatter stripped | 0 groups | not reported |
+
+Zero. That matters for what to do next: the dominant failure mode in
+this ecosystem is copied sediment nobody prunes, and it is not the
+failure mode here. Whatever is wrong with 209 skills, it is not that
+they are each other.
+
+An argument for a large cull has to rest on something else, and the
+reference distribution above is the place to look rather than a raw
+count.
+
 ## Already removed
 
 Deleted in this branch, with all references repaired:
@@ -58,7 +84,7 @@ mechanical to repair.
 
 | Asset | Refs | Note |
 |-------|-----:|------|
-| `shared-modules/iron-law-enforcement.md` | 8 | 517 lines. Contains real TDD methodology alongside the enforcement apparatus. Worth splitting rather than deleting |
+| `shared-modules/iron-law-enforcement.md` | 8 | **Recommendation withdrawn.** A split was proposed here before the file was read closely. It is a reference document carrying substantive TDD content: BDD structure, cargo-cult anti-patterns, coverage and mutation requirements, git-history verification. Its self-check was reframed from a gate into diagnostics and its "Enforcement Levels" heading now says what those levels are, which is the change it actually needed |
 | `superpowers:*` (external plugin) | - | You said you have not used it in months. Disabling a plugin is reversible; deleting skills is not. Start there |
 | `conserve:action-first-output` | 1 | 297 lines for an output-formatting preference |
 | `abstract:friction-detector` | 1 | 220 lines, one caller |

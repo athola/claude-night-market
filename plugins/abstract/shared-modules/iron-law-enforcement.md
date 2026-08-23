@@ -42,11 +42,17 @@ Classic TDD works because humans "feel their way through uncertainty":
 
 When AI pre-plans implementation before writing tests, the RED phase becomes theater. The Iron Law prevents this by requiring **documented evidence of failure before any intervention**.
 
-## Enforcement Levels
+## Five Ways to Check It Held
 
-### Level 1: Self-Enforcement (Default)
+These run from cheapest and least reliable to most mechanical. The
+later ones are machine contracts rather than advice, and
+`.claude/rules/bounded-autonomy.md` exempts those from its guidance on
+purpose: a pre-commit hook and a coverage gate cannot be reasoned with,
+which is the point of them.
 
-Claude recognizes Iron Law violations in its own thought process.
+### Level 1: Reading Your Own Work (Default)
+
+Notice when the test was written to match code that already existed.
 
 **Red Flags That Trigger Self-Enforcement:**
 
@@ -65,16 +71,20 @@ Claude recognizes Iron Law violations in its own thought process.
 **Self-Check Protocol:**
 
 ```markdown
-## Iron Law Self-Check
+## Questions Worth Asking First
 
-Before writing ANY code:
-1. [ ] Do I have documented evidence of a failure/need?
-2. [ ] Am I about to write a test that validates a pre-conceived implementation?
-3. [ ] Am I feeling uncertainty about the design? (Good - that's what tests are for)
-4. [ ] Have I let the test drive the implementation, or vice versa?
-5. [ ] Can I explain WHY this approach, not just WHAT it does?
+These are diagnostic, not a gate. A confident "no" to any of them is
+useful information about the change, and sometimes the honest answer
+is that this change does not need a test first. Say which and why.
 
-If I answered "no" to #1, #3, or #5, or "yes" to #2 or #4: STOP AND RESET.
+1. Is there documented evidence of the failure or the need?
+2. Would this test validate a pre-conceived implementation rather
+   than drive one?
+3. Is there real uncertainty about the design? Uncertainty is what
+   tests are for, and its absence often means the design is already
+   decided.
+4. Did the test drive the implementation, or the reverse?
+5. Can the choice of approach be explained, not just its behavior?
 ```
 
 ### Execution Markdown = Code
