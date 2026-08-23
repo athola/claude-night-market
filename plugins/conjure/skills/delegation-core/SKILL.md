@@ -1,6 +1,6 @@
 ---
 name: delegation-core
-description: Delegates execution to Gemini, Qwen, MiniMax, GLM, Muse, Codex or OpenCode by default, falling back to local work when none answers. Use for execution tasks.
+description: Delegates execution to an external CLI (Gemini, Qwen, GLM, Codex, OpenCode) with local fallback. Use for execution tasks. Do not use for reasoning or secrets.
 alwaysApply: false
 category: delegation-framework
 tags:

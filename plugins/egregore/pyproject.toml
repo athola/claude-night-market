@@ -41,6 +41,12 @@ line-length = 88
 target-version = "py39"
 exclude = [".venv", ".uv-cache"]
 
+[tool.ruff.lint.pylint]
+# objective_check takes five facts that together are one observation;
+# splitting them into an object would obscure that they arrive together.
+max-args = 6
+max-positional-args = 5
+
 [tool.ruff.lint]
 extend-select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
 extend-ignore = ["S101", "E203", "D203", "D213", "UP017", "E501"]
