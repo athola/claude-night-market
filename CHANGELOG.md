@@ -161,6 +161,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `node --check` calls a correct script a syntax error. The runtime
   runs the body inside an async function.
 
+  Two gates now know the fifth type. `validate_plugin.py` validates
+  shipped scripts, and `tests/test_cited_paths_resolve.py` resolves
+  `plugin:name` against `workflows/name.js`, which it had to learn the
+  moment a command cited one: without that arm the first shipped
+  workflow read as a phantom capability, and the repo's own guard
+  caught it.
+
   `validate_plugin.py` now knows the fifth type. `workflows/` is
   optional, so its absence is silent and every current plugin is
   unaffected; when a plugin does ship one, each `.js` must open with a

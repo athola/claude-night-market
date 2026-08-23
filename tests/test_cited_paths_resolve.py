@@ -30,7 +30,7 @@ one looks at it, which is how `conserve:resource-management`, deleted
 in `54e5b4b1` on 2026-01-18, was still recommended by
 `plugins/abstract/commands/plugin-review.md` almost seven months later.
 
-Scope: skills, commands, agents, and project rules -- the documents an
+Scope: skills, commands, agents, workflows, and project rules -- the documents an
 agent reads as instructions. Prose docs and the changelog are excluded;
 they narrate history, and history legitimately references files that no
 longer exist.
@@ -278,13 +278,20 @@ def _capabilities(text: str) -> set[str]:
 
 
 def _capability_resolves(ref: str) -> bool:
-    """A capability is a skill, a command, or an agent of its plugin."""
+    """A capability is a skill, command, agent, or workflow of its plugin.
+
+    Workflows are the fifth type. A plugin shipping `workflows/name.js`
+    makes `/plugin:name` invocable, so a document citing it is citing
+    something real; without this arm, the first shipped workflow reads
+    as a phantom.
+    """
     plugin, name = ref.split(":", 1)
     root = REPO_ROOT / "plugins" / plugin
     return (
         (root / "skills" / name / "SKILL.md").exists()
         or (root / "commands" / f"{name}.md").exists()
         or (root / "agents" / f"{name}.md").exists()
+        or (root / "workflows" / f"{name}.js").exists()
     )
 
 
