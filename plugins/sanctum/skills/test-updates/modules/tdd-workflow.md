@@ -1,140 +1,53 @@
-# TDD Workflow Module
+---
+name: tdd-workflow
+description: What TDD means for generated tests in this repository, deferring the cycle itself to superpowers
+parent_skill: sanctum:test-updates
+category: testing
+estimated_tokens: 250
+---
 
-## Table of Contents
-- [Overview](#overview)
-- [The TDD Cycle](#the-tdd-cycle)
-  - [RED Phase: Write Failing Test](#red-phase-write-failing-test)
-  - [GREEN Phase: Minimal Implementation](#green-phase-minimal-implementation)
-  - [REFACTOR Phase: Clean Up](#refactor-phase-clean-up)
-- [TDD Discipline Rules](#tdd-discipline-rules)
-- [Error Handling in TDD](#error-handling-in-tdd)
-- [Advanced TDD Patterns](#advanced-tdd-patterns)
+# TDD for Generated Tests
 
-## Overview
+## The Cycle Lives Elsewhere
 
-Implements strict Test-Driven Development workflow with RED-GREEN-REFACTOR cycle. This module validates all test creation follows proper TDD discipline.
+`Skill(superpowers:test-driven-development)` carries RED-GREEN-REFACTOR:
+the phases, what each one forbids, and why watching the test fail is
+not optional. This skill already declares it as a dependency, and this
+module used to restate all of it in 140 lines.
 
-## The TDD Cycle
+That restatement is gone. A second copy of a general practice is not
+free even when it agrees: it is a second thing to keep current, and
+the two drift apart silently because nothing checks them against each
+other. What follows is only what is true here and not there.
 
-### RED Phase: Write Failing Test
+## Generated Tests Are Supposed to Fail
 
-**Principles:**
-- Write ONE test at a time
-- Test must FAIL for the right reason
-- No production code exists yet
-- Test describes desired behavior
+`sanctum:test-updates` writes tests before the code exists, so a run
+that goes red immediately after generation is the tool working. Read
+the failure before treating it as one.
 
-**Implementation Pattern:**
-```python
-def test_new_feature_behavior():
-    """The behavior holds in the context described.
+| What you see | What it means |
+|--------------|---------------|
+| Assertion fails | Expected. This is RED |
+| ImportError, SyntaxError, fixture error | A defect in the generated test. Fix it now |
+| Passes on the first run | The behavior already existed, or the test asserts nothing |
 
-    GIVEN a specific context
-    WHEN an action is performed
-    THEN expected outcome occurs
-    """
-    # Arrange - Set up test context
-    context = create_test_context()
+The third row is the one that costs time later. A generated test that
+passes before any implementation is usually asserting something
+trivially true, and it will keep passing after the behavior breaks.
 
-    # Act - Execute the behavior
-    result = perform_action(context)
+## Where the Local Conventions Are
 
-    # Assert - Verify the outcome
-    assert result == expected_value
+- Docstring shape, GIVEN/WHEN/THEN: `modules/bdd-patterns.md`
+- Assertion depth and coverage thresholds:
+  `Skill(leyline:testing-quality-standards)`
+- Fixtures, markers, and `conftest.py` layout:
+  `Skill(leyline:pytest-config)`
+- Whether a test is a real guard: `modules/quality-validation.md`
 
+## Exit Criteria
 
-# Run and verify it fails: pytest -xvs test_file.py::test_new_feature_behavior
-```
-
-### Verification Steps
-1. **Run the test**: Must fail
-2. **Check failure reason**: Should be "feature not implemented"
-3. **Confirm test quality**: Clear, focused, one behavior
-
-### GREEN Phase: Minimal Implementation
-
-**Principles:**
-- Write simplest code to pass
-- No extra features
-- Don't fix other tests
-- Keep it ugly if it works
-
-**Implementation Pattern:**
-```python
-# Minimal implementation - just enough to pass
-def perform_action(context):
-    if context.should_succeed:
-        return expected_value
-    raise NotImplementedError("Feature not yet implemented")
-```
-
-### Verification Steps
-1. **Run the test**: Must pass
-2. **Check other tests**: All still passing
-3. **No warnings/errors**: Clean execution
-
-### REFACTOR Phase: Clean Up
-
-**Principles:**
-- Tests must stay green
-- Remove duplication
-- Improve names and structure
-- Add necessary abstractions
-
-**Refactoring Checklist:**
-- [ ] Extract magic numbers to constants
-- [ ] Improve variable names
-- [ ] Remove code duplication
-- [ ] Add helpful comments
-- [ ] validate single responsibility
-
-## TDD Discipline Rules
-
-### Iron Rules
-1. **NO production code without a failing test first**
-2. **Watch it fail** - Don't skip this step
-3. **Write minimal code** - No extra features
-4. **Refactor only when green** - Clean up with safety net
-
-### Common Violations to Avoid
-- Writing code before tests
-- "I'll test it after" mentality
-- Keeping implementation as "reference"
-- Skipping the failure verification
-- Adding extra features in GREEN phase
-
-## Error Handling in TDD
-
-### Test Errors vs Failures
-- **Error**: Syntax, imports, setup issues - Fix immediately
-- **Failure**: Assertion fails - Good! This is expected
-
-### Debugging Process
-1. Test fails unexpectedly → Check test logic
-2. Implementation doesn't work → Simplify further
-3. Other tests break → Check for side effects
-
-## Advanced TDD Patterns
-
-### Outside-In TDD
-- Start with acceptance/feature tests
-- Work inward to unit tests
-- Maintain failing test chain
-
-### Mocking Strategies
-- Mock external dependencies
-- Use dependency injection
-- Test behavior, not implementation
-
-### Parameterized Tests
-```python
-@pytest.mark.parametrize(
-    "input,expected",
-    [
-        ("valid_input", "expected_output"),
-        ("edge_case", "edge_output"),
-    ],
-)
-def test_multiple_scenarios(input, expected):
-    assert process(input) == expected
-```
+- [ ] Every generated test failed once for a reason that names the
+      missing behavior, not a missing import
+- [ ] No generated test passed before its implementation existed
+- [ ] The suite is green before the change is reported complete

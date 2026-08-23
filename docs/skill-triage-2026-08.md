@@ -64,6 +64,44 @@ An argument for a large cull has to rest on something else, and the
 reference distribution above is the place to look rather than a raw
 count.
 
+## Overlap with superpowers
+
+superpowers stays installed. The question is where this repository
+restates what it already provides.
+
+Measured two ways, on SKILL.md bodies with frontmatter and code blocks
+stripped, comparing word bags by Jaccard similarity:
+
+| Comparison | Pairs above 0.22 | Highest |
+|------------|-----------------:|---------|
+| This repo against superpowers | 0 | 0.17, `sanctum:test-updates` against `test-driven-development` |
+| This repo against itself, across plugins | 1 | 0.25, `leyline:pytest-config` against `parseltongue:python-testing` |
+
+Both results are lower than expected and worth stating plainly: there
+is no large body of duplicated skill text here to cut. The repository
+already defers to superpowers in 14 skills and 172 references, with
+`brainstorming`, `systematic-debugging`, `writing-plans` and
+`test-driven-development` the most cited.
+
+The one pair worth looking at internally turned out not to be
+redundant. `leyline:pytest-config` is infrastructure configuration and
+`parseltongue:python-testing` is testing practice; they already
+cross-reference each other and the boundary is stated in both. The
+similarity is shared pytest vocabulary.
+
+The single real case was `sanctum:test-updates`, which declared
+`superpowers:test-driven-development` as a dependency and shipped a
+140-line generic restatement of RED-GREEN-REFACTOR beside it. That
+module is now 53 lines and carries only what is local: that generated
+tests are supposed to fail, and how to tell a real RED from a broken
+test. Everything general defers.
+
+`abstract:methodology-curator` was checked and left alone. Its modules
+look like duplicates by filename (`debugging.md`, `testing.md`,
+`code-review.md`) but are literature surveys of named methodologies,
+Zeller's delta debugging among them, rather than workflows. A survey
+of prior art is not a second copy of a procedure.
+
 ## Already removed
 
 Deleted in this branch, with all references repaired:

@@ -280,7 +280,8 @@ the "average" of training data and get these wrong far
 too often.
 
 ### Phase 3: Implementation
-1. Write failing tests (RED) - see `modules/tdd-workflow.md`
+1. Write failing tests (RED) - `Skill(superpowers:test-driven-development)`
+   for the cycle; `modules/tdd-workflow.md` for what is local
 2. Implement minimal passing code (GREEN)
 3. Refactor for clarity (REFACTOR)
 
