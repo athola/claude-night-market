@@ -31,10 +31,12 @@ import web_research_handler
 from web_research_handler import (
     _build_storage_reminder,
     _recent_intake_pending,
+    capture_notice,
     detect_failed_fetch_status,
     extract_content_from_webfetch,
     extract_results_from_websearch,
     extract_title_from_content,
+    prune_queue,
     slugify,
 )
 
@@ -780,8 +782,11 @@ class TestMainWebFetchHandling:
         output = capsys.readouterr().out.strip()
         result = json.loads(output)
         ctx = result["hookSpecificOutput"]["additionalContext"]
-        assert "Auto-captured" in ctx
-        assert "pending_review" in ctx
+        assert "Memory Palace: captured" in ctx
+        # The stored file still records status: pending_review. The notice
+        # no longer echoes it, because a status repeated on every capture
+        # for five months was read by nobody.
+        assert "stored.md" in ctx
         mock_known.assert_called_once()
         mock_hash.assert_called_once()
         mock_store.assert_called_once()
@@ -871,7 +876,7 @@ class TestMainWebSearchHandling:
         output = capsys.readouterr().out.strip()
         result = json.loads(output)
         ctx = result["hookSpecificOutput"]["additionalContext"]
-        assert "Auto-captured" in ctx
+        assert "Memory Palace: captured" in ctx
         assert "python async patterns" in ctx
         mock_pending.assert_called_once()
         mock_store.assert_called_once()
@@ -1015,7 +1020,7 @@ class TestMainWebFetchSanitization:
         output = capsys.readouterr().out.strip()
         result = json.loads(output)
         ctx = result["hookSpecificOutput"]["additionalContext"]
-        assert "Auto-captured" in ctx
+        assert "Memory Palace: captured" in ctx
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -1694,3 +1699,120 @@ class TestFrontmatterSurvivesHostileValues:
         assert stored is not None
         frontmatter = Path(stored).read_text(encoding="utf-8").split("---")[1]
         assert yaml.safe_load(frontmatter)["source_type"] == "webfetch"
+
+
+class TestTheStagingQueueBoundsItself:
+    """A capture hook that only ever adds is a queue with no consumer.
+
+    Measured on 2026-08-23: 2,544 gitignored `webfetch-*.md` files had
+    accumulated in staging since March, 12MB, with nothing draining
+    them. Every one of those captures also emitted "IMPORTANT: Do NOT
+    delete without evaluation - run knowledge-intake to review", an
+    instruction that fired thousands of times and was acted on none.
+    Output that is always ignored teaches a reader to ignore the
+    channel.
+    """
+
+    def test_the_queue_keeps_the_newest_and_drops_the_rest(
+        self, tmp_path: Path
+    ) -> None:
+        """GIVEN more staged captures than the cap allows.
+
+        WHEN the queue is pruned
+        THEN the newest survive and the oldest are removed
+
+        Newest-first because a capture's value decays: the fetch from
+        this session is the one a reader might still act on, and the
+        one from March is not.
+        """
+        for i in range(10):
+            f = tmp_path / f"webfetch-{i:03d}.md"
+            f.write_text("x")
+            os.utime(f, (i, i))
+
+        removed = prune_queue(tmp_path, keep=4)
+
+        survivors = sorted(p.name for p in tmp_path.glob("webfetch-*.md"))
+        assert survivors == [
+            "webfetch-006.md",
+            "webfetch-007.md",
+            "webfetch-008.md",
+            "webfetch-009.md",
+        ]
+        assert removed == 6
+
+    def test_only_auto_captures_are_pruned(self, tmp_path: Path) -> None:
+        """GIVEN staged files that a person named and filed.
+
+        WHEN the queue is pruned
+        THEN only the `webfetch-` prefix is touched
+
+        The prefix is the line between what a hook wrote unattended and
+        what someone chose to keep. Fifteen files in this directory are
+        tracked in git and carry no such prefix; deleting those would
+        be destroying curated work to tidy a machine's leavings.
+        """
+        curated = tmp_path / "capturing-expert-knowledge.md"
+        curated.write_text("kept")
+        os.utime(curated, (0, 0))
+        for i in range(6):
+            f = tmp_path / f"webfetch-{i:03d}.md"
+            f.write_text("x")
+            os.utime(f, (i + 1, i + 1))
+
+        prune_queue(tmp_path, keep=2)
+
+        assert curated.exists()
+
+    def test_a_queue_under_the_cap_is_left_alone(self, tmp_path: Path) -> None:
+        """GIVEN fewer captures than the cap.
+
+        WHEN the queue is pruned
+        THEN nothing is removed
+        """
+        for i in range(3):
+            (tmp_path / f"webfetch-{i}.md").write_text("x")
+
+        assert prune_queue(tmp_path, keep=10) == 0
+        assert len(list(tmp_path.glob("webfetch-*.md"))) == 3
+
+    def test_a_missing_directory_is_not_an_error(self, tmp_path: Path) -> None:
+        """GIVEN no staging directory yet.
+
+        WHEN the queue is pruned
+        THEN it reports nothing removed rather than raising
+
+        Pruning runs after a capture, so it must never be the reason a
+        capture is reported as failed.
+        """
+        assert prune_queue(tmp_path / "absent", keep=5) == 0
+
+    def test_the_notice_stays_quiet_until_the_backlog_matters(self) -> None:
+        """GIVEN a small backlog.
+
+        WHEN the capture notice is built
+        THEN it states what happened and asks for nothing
+
+        The old notice demanded review on every single capture. A
+        request repeated thousands of times without being met is not a
+        request, it is noise with a verb in it.
+        """
+        notice = capture_notice("http://x", "webfetch-a.md", 1200, backlog=12)
+
+        assert "webfetch-a.md" in notice
+        assert "IMPORTANT" not in notice
+        assert "Do NOT delete" not in notice
+
+    def test_the_notice_speaks_up_once_the_backlog_is_real(self) -> None:
+        """GIVEN a backlog past the point of usefulness.
+
+        WHEN the capture notice is built
+        THEN it says how many are waiting and names the drain
+
+        Saying it at 500 rather than at 1 is what makes it worth
+        reading when it does appear.
+        """
+        notice = capture_notice("http://x", "webfetch-a.md", 1200, backlog=900)
+
+        assert "900" in notice
+        assert "palace-index-curator" in notice

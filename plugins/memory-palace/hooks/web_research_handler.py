@@ -414,6 +414,71 @@ def extract_results_from_websearch(
     return results
 
 
+# The staging queue is written by a hook and drained by a person, so it
+# grows without a ceiling unless one is stated. Measured on 2026-08-23:
+# 2,544 files reaching back to March, none reviewed. Newest-first is the
+# right order to keep, because a capture's value decays: this week's
+# fetch may still be acted on, a March one will not.
+QUEUE_KEEP = 400
+
+# Below this the backlog is not worth mentioning. Above it, saying so
+# once per capture is worth the line.
+QUEUE_NOTICE_THRESHOLD = 500
+
+
+def prune_queue(directory: Path, keep: int = QUEUE_KEEP) -> int:
+    """Drop the oldest auto-captures beyond ``keep``, and report how many.
+
+    Only files carrying the ``webfetch-`` prefix are eligible. That
+    prefix is the line between what this hook wrote unattended and what
+    a person named and filed: the curated entries in this directory are
+    tracked in git and carry no prefix, and deleting those to tidy a
+    machine's leavings would be the wrong trade.
+
+    Never raises. Pruning runs after a capture succeeds, so it must not
+    become the reason a capture is reported as failed.
+    """
+    try:
+        captures = sorted(
+            directory.glob("webfetch-*.md"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+    except OSError:
+        return 0
+
+    removed = 0
+    for stale in captures[keep:]:
+        try:
+            stale.unlink()
+        except OSError:
+            continue
+        removed += 1
+    return removed
+
+
+def capture_notice(url: str, filename: str, length: int, backlog: int) -> str:
+    """Report a capture, and mention the backlog only when it is one.
+
+    The previous notice ended every capture with "IMPORTANT: Do NOT
+    delete without evaluation - run knowledge-intake to review". It
+    fired on every fetch for five months and was acted on none of those
+    times. An instruction repeated that often without being met stops
+    reading as an instruction, and teaches a reader to skim the whole
+    channel it arrives on.
+    """
+    lines = [
+        f"Memory Palace: captured {url}",
+        f"  stored as {filename}, {length:,} chars",
+    ]
+    if backlog >= QUEUE_NOTICE_THRESHOLD:
+        lines.append(
+            f"  {backlog} captures are waiting review;"
+            " Skill(memory-palace:palace-index-curator) drains them"
+        )
+    return "\n".join(lines)
+
+
 def _store_to_queue(  # noqa: PLR0913 - one queue entry carries this many fields
     filename: str,
     content: str,
@@ -755,13 +820,10 @@ def _handle_webfetch(
             content, url, prompt, null_capture=null_capture
         )
         if stored_path:
+            prune_queue(QUEUE_DIR)
+            backlog = len(list(QUEUE_DIR.glob("webfetch-*.md")))
             context_parts.append(
-                f"Memory Palace: Auto-captured web content from {url}\n"
-                f"  Stored to: {Path(stored_path).name}\n"
-                f"  Content length: {len(content):,} chars\n"
-                "  Status: pending_review\n"
-                "  IMPORTANT: Do NOT delete without evaluation"
-                " - run knowledge-intake to review",
+                capture_notice(url, Path(stored_path).name, len(content), backlog),
             )
         else:
             context_parts.append(
@@ -828,13 +890,16 @@ def _handle_websearch(
     if auto_capture and new_urls:
         stored_path = store_websearch_results(query, results)
         if stored_path:
+            prune_queue(QUEUE_DIR)
+            backlog = len(list(QUEUE_DIR.glob("webfetch-*.md")))
+            notice = capture_notice(
+                f"search: {query}", Path(stored_path).name, 0, backlog
+            )
             context_parts.append(
-                f"Memory Palace: Auto-captured WebSearch results for '{query}'\n"
-                f"  Stored to: {Path(stored_path).name}\n"
-                f"  New sources: {len(new_urls)}, Known: {len(known_urls)}\n"
-                "  Status: pending_review\n"
-                "  IMPORTANT: Do NOT delete without evaluation"
-                " - run knowledge-intake to review",
+                notice.replace(
+                    ", 0 chars",
+                    f", {len(new_urls)} new and {len(known_urls)} known sources",
+                ),
             )
         else:
             context_parts.append(
