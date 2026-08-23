@@ -1,12 +1,11 @@
 # ruff: noqa: D101,D102,D103,PLR2004,E501,E402
 """Tests for post_implementation_policy.py hook.
 
-Tests the governance policy injection hook that enforces
-proof-of-work and Iron Law TDD compliance at session start.
-All branches and error paths are covered via in-process calls
-so that coverage tools can track statement execution.
-
-The Iron Law: NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
+Tests the governance policy injected at session start: it asks for
+evidence, and since 7400ab52 it no longer restates the Iron Law
+mandate, which the bounded-autonomy rule retired. All branches and
+error paths are covered via in-process calls so that coverage tools
+can track statement execution.
 """
 
 from __future__ import annotations
@@ -25,6 +24,7 @@ sys.path.insert(0, str(HOOKS_DIR))
 
 from post_implementation_policy import (
     LIGHTWEIGHT_AGENTS,
+    RISK_POLICY,
     SHORT_REMINDER,
     format_risk_policy,
     main,
@@ -515,3 +515,34 @@ class TestTheFullPolicyIsReservedForRiskyBranches:
         for retired in ("NON-NEGOTIABLE", "rationalization", "MANDATORY"):
             assert retired not in SHORT_REMINDER
         assert len(SHORT_REMINDER.splitlines()) < 20
+
+
+def test_no_injected_policy_restates_the_iron_law_mandate() -> None:
+    """GIVEN the two policy texts this hook can inject.
+
+    WHEN either reaches a session
+    THEN neither carries the Iron Law mandate or its TodoWrite items
+
+    Retired deliberately in 7400ab52: a session-start injection that
+    restates a mandate is the instruction load `.claude/rules/
+    bounded-autonomy.md` exists to keep out. The practice survives in
+    `Skill(imbue:proof-of-work)`, which a session loads when it applies.
+
+    This guard lives here, in the plugin that owns the file. The
+    assertion it replaces lived in imbue's suite and read across the
+    plugin boundary, so sanctum's own gate never ran it and the
+    removal in 7400ab52 passed while leaving imbue red.
+    """
+    retired = (
+        "Iron Law",
+        "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST",
+        "iron-law-red",
+        "iron-law-green",
+        "iron-law-refactor",
+    )
+    for text_name, text in (
+        ("SHORT_REMINDER", SHORT_REMINDER),
+        ("RISK_POLICY", RISK_POLICY),
+    ):
+        for phrase in retired:
+            assert phrase not in text, f"{phrase!r} came back in {text_name}"

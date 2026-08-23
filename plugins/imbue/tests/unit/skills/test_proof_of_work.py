@@ -223,59 +223,6 @@ class TestIronLawEnforcementModule:
         assert "Violation" in module_content or "violation" in module_content.lower()
 
 
-class TestGovernancePolicyIronLaw:
-    """Feature: Governance policy includes Iron Law enforcement.
-
-    As a session participant
-    I want Iron Law enforced at session start
-    So that TDD compliance is reminded
-    """
-
-    @pytest.fixture
-    def policy_path(self) -> Path:
-        """Path to the post_implementation_policy.py."""
-        return (
-            Path(__file__).parents[4]
-            / "sanctum"
-            / "hooks"
-            / "post_implementation_policy.py"
-        )
-
-    @pytest.fixture
-    def policy_content(self, policy_path: Path) -> str:
-        """Load the governance policy content."""
-        return policy_path.read_text()
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_policy_includes_iron_law_statement(self, policy_content: str) -> None:
-        """Scenario: Governance policy includes Iron Law statement.
-
-        Given the post_implementation_policy hook
-        When reading the hook content
-        Then it should include the Iron Law statement.
-        """
-        # Assert - Iron Law statement exists
-        assert "Iron Law" in policy_content
-        assert "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" in policy_content
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_policy_includes_iron_law_todowrite_items(
-        self, policy_content: str
-    ) -> None:
-        """Scenario: Governance policy mentions Iron Law TodoWrite items.
-
-        Given the post_implementation_policy hook
-        When reading the hook content
-        Then it should mention iron-law TodoWrite items.
-        """
-        # Assert - TodoWrite items mentioned
-        assert "iron-law-red" in policy_content
-        assert "iron-law-green" in policy_content
-        assert "iron-law-refactor" in policy_content
-
-
 class TestSessionStartIronLaw:
     """Feature: Session start hook includes Iron Law quick reference.
 
