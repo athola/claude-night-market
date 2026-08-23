@@ -90,25 +90,55 @@ reminder competing for context with the repository's actual secrets.
 ## Why this rule exists
 
 The concern is not stylistic. Instruction load measurably degrades
-reasoning, and reasoning models are hit hardest.
+reasoning, and the effect is largest where a working prompt gets
+surrounded by accumulated additions.
+
+Every row below was read from the paper's own abstract. An earlier
+version of this table claimed the first paper found a threshold of
+"roughly 15 simultaneous constraints". It contains no such number.
+That claim came from a research summary, was not checked against the
+source, and was wrong. The real finding is sharper.
 
 | Source | Finding |
 |--------|---------|
-| "Prompt Complexity Dilutes Structured Reasoning" ([arXiv 2603.13351](https://arxiv.org/pdf/2603.13351)) | Beyond roughly 15 simultaneous constraints, nearly all models show a distinct drop in compliance; the effect is more pronounced for reasoning models |
-| "On the Paradoxical Interference between Instruction-Following and Task Solving" ([arXiv 2601.22047](https://arxiv.org/pdf/2601.22047)) | Explicit instruction-following pressure trades off against task-solving accuracy |
-| "When Built-in Thinking Helps and Hurts" ([arXiv 2606.09662](https://arxiv.org/pdf/2606.09662)) | Format-restricting instructions cause measurable reasoning degradation, worse under stricter constraints |
-| "When Thinking Fails: The Pitfalls of Reasoning for Instruction-Following" ([OpenReview](https://openreview.net/forum?id=w5uUvxp81b)) | Instruction-following and reasoning interfere rather than compose |
+| "Prompt Complexity Dilutes Structured Reasoning" ([arXiv 2603.13351](https://arxiv.org/abs/2603.13351)) | A STAR-structured prompt scored 100% on a reasoning task in isolation, verified at n=100. The same reasoning scored 0% and 30% when placed inside a 60-line production prompt that had grown by iterative additions of style guidelines, format instructions and profile features. Claude Sonnet 4.6, 20 trials per condition |
+| "On the Paradoxical Interference between Instruction-Following and Task Solving" ([arXiv 2601.22047](https://arxiv.org/abs/2601.22047)) | Inserting a constraint that the model's own correct answer already satisfied still caused substantial performance drops, across mathematics, multi-hop QA and code generation, including on Claude Sonnet 4.5. Failed cases allocated significantly more attention to the constraint than successful ones |
+| "When Built-in Thinking Helps and Hurts" ([arXiv 2606.09662](https://arxiv.org/abs/2606.09662)) | On IFEval with Qwen3 1.7B-32B, reasoning moves the aggregate pass rate by only -0.55 to -3.52 points while 10-20% of individual prompts flip between pass and fail. It helps Planning constraints (counting, structure, coordination) and consistently hurts Precision constraints (exact local form) |
 | Matt Pocock, [mattpocock/skills](https://github.com/mattpocock/skills) | Skills should be "small, easy to adapt, and composable"; the reader is invited to "hack around with them, make them your own" |
 | Matt Pocock, "The Missing Manual: How to Write Great Skills" ([talk](https://youtu.be/UNzCG3lw6O0)) | Names pruning as one of four things separating good skill sets from bad: sediment accumulates when people add and never remove |
 
-The arXiv results are independent of Pocock and were not authored in
-response to any skill framework. They corroborate the mechanism rather
-than the framing.
+The first row is the one to sit with. Nothing was wrong with the
+reasoning prompt, and nothing in the production prompt contradicted
+it. Style guidelines and format instructions were enough to take a
+task from solved to unsolved. That is the mechanism this rule exists
+to avoid, and this repository's session-start injections are the same
+shape as the prompt that caused it.
 
-Read the last row against this repository's own numbers: 217 skills,
-163 commands, 56 agents, 169 hooks. The constraint ceiling in the
-first row is a per-prompt count, and a session that loads several
-skills plus injected session-start policy passes it easily.
+The second row removes the obvious defence. If the added constraint
+were merely redundant, the cost would be tokens. It is not: a
+constraint the model was already satisfying still cost accuracy, and
+the attention measurement says why. Constraints are not free even when
+they are right.
+
+The third row is the reason this rule keeps its exceptions. Precision
+constraints are exactly the trust boundaries and machine contracts
+listed above, and they are where added structure helps least, so
+stating them plainly and once matters more than stating them loudly.
+
+### What GitSkills does and does not say
+
+[GitSkills](https://arxiv.org/abs/2608.10906) (MSR '27) mined
+3,797,117 `SKILL.md` files from 282,200 public repositories in July
+2026 and found 1,877,981 distinct contents. Slightly over half of all
+skill files in public GitHub are byte-identical copies of another
+file: the format has no registry and no package manager, so it spreads
+by copying folders.
+
+That is a corpus finding about distribution. **It measures nothing
+about reasoning, prompt complexity, or instruction load**, and it must
+not be cited for those. It earns its place here for one reason: the
+dominant failure mode in this ecosystem is duplication nobody prunes,
+which is the same sediment the Pocock row names.
 
 ## Sibling rules
 

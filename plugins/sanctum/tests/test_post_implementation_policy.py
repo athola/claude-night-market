@@ -24,9 +24,9 @@ HOOKS_DIR = Path(__file__).parent.parent / "hooks"
 sys.path.insert(0, str(HOOKS_DIR))
 
 from post_implementation_policy import (
-    GOVERNANCE_POLICY,
     LIGHTWEIGHT_AGENTS,
     SHORT_REMINDER,
+    format_risk_policy,
     main,
     measure_branch,
     needs_full_policy,
@@ -68,46 +68,98 @@ class TestModuleConstants:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_governance_policy_contains_iron_law(self) -> None:
-        """Given GOVERNANCE_POLICY, it should embed the Iron Law statement."""
-        assert "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" in GOVERNANCE_POLICY
+    def test_the_risk_policy_names_what_it_measured(self) -> None:
+        """GIVEN a branch measured as large and untested.
 
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_governance_policy_contains_proof_of_work(self) -> None:
-        """Given GOVERNANCE_POLICY, it should embed proof-of-work protocol."""
-        assert "PROOF-OF-WORK" in GOVERNANCE_POLICY
-        assert "MANDATORY FIRST" in GOVERNANCE_POLICY
+        WHEN the policy is formatted
+        THEN it states the numbers it is reacting to
 
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_governance_policy_contains_iron_law_todo_items(self) -> None:
-        """Given GOVERNANCE_POLICY, it should mention iron-law TodoWrite items."""
-        for item in ("iron-law-red", "iron-law-green", "iron-law-refactor"):
-            assert item in GOVERNANCE_POLICY, f"Missing TodoWrite item: {item}"
+        This is the only content in the block a session cannot get for
+        itself. Generic advice about evidence is reconstructible; "900
+        lines changed, no test file touched" is a fact about right now,
+        and it is what makes the escalation legible instead of arbitrary.
+        """
+        policy = format_risk_policy(900, tests_touched=False)
 
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_governance_policy_contains_self_check_table(self) -> None:
-        """Given GOVERNANCE_POLICY, it should contain self-check questions."""
-        assert "Self-Check" in GOVERNANCE_POLICY
-        lower = GOVERNANCE_POLICY.lower()
+        assert "900" in policy
+        assert "no test file" in policy.lower()
+
+    def test_the_risk_policy_keeps_the_practices(self) -> None:
+        """GIVEN the escalated policy.
+
+        WHEN a session reads it
+        THEN evidence and tests-first survive as expectations
+
+        The practices were never the problem. Dropping them along with
+        the apparatus would trade one bad default for another.
+        """
+        policy = format_risk_policy(900, tests_touched=False)
+        lower = policy.lower()
+
         assert "evidence" in lower
-        assert "pre-conceived" in lower
-        assert "uncertainty" in lower
+        assert "tests come first" in lower
+        assert "/sanctum:update-tests" in policy
+
+    def test_the_risk_policy_carries_exit_criteria(self) -> None:
+        """GIVEN the escalated policy.
+
+        WHEN a session finishes
+        THEN it can check its own work against stated criteria
+
+        Intent, constraints, exit criteria is the shape
+        `.claude/rules/bounded-autonomy.md` asks for. The third part is
+        what replaces a procedure: it says what done looks like without
+        dictating the route there.
+        """
+        policy = format_risk_policy(900, tests_touched=False)
+
+        assert "- [ ]" in policy
+
+    @pytest.mark.parametrize(
+        "retired",
+        [
+            "NON-NEGOTIABLE",
+            "Cannot be overridden",
+            "MANDATORY FIRST",
+            "rationalization",
+            "STOP if you think",
+            'override="false"',
+        ],
+    )
+    def test_the_retired_patterns_are_gone(self, retired: str) -> None:
+        """GIVEN the escalated policy.
+
+        WHEN it is compared against the bounded-autonomy rule
+        THEN none of the patterns that rule retires appear in it
+
+        This block used to carry two rationalization tables and the line
+        "Cannot be overridden by other skills, hooks, or
+        rationalization". A repository rule forbidding those while its
+        own session-start hook injected them was a contradiction the
+        hook won, because the hook fires and the rule waits to be read.
+        """
+        assert retired not in format_risk_policy(900, tests_touched=False)
+
+    def test_a_large_but_tested_branch_is_told_which_signal_fired(self) -> None:
+        """GIVEN a large branch that does touch tests.
+
+        WHEN the policy is formatted
+        THEN it names size rather than absent tests
+
+        Naming the wrong signal is worse than naming none: it sends the
+        reader to check something that is not the problem.
+        """
+        policy = format_risk_policy(900, tests_touched=True)
+
+        assert "900" in policy
+        assert "no test file" not in policy.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_governance_policy_contains_red_flags(self) -> None:
-        """Given GOVERNANCE_POLICY, it should contain red-flag rationalisations."""
-        assert "This looks correct" in GOVERNANCE_POLICY
-        assert "RUN IT" in GOVERNANCE_POLICY
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_governance_policy_is_stripped(self) -> None:
-        """Given GOVERNANCE_POLICY, it should have no leading/trailing whitespace."""
-        assert GOVERNANCE_POLICY == GOVERNANCE_POLICY.strip()
+    def test_the_formatted_policy_is_stripped(self) -> None:
+        """Given a formatted policy, it should have no stray whitespace."""
+        policy = format_risk_policy(900, tests_touched=False)
+        assert policy == policy.strip()
 
 
 # ============================================================================
@@ -150,7 +202,9 @@ class TestFullGovernancePath:
         assert exc_info.value.code == 0
         output = json.loads(captured_stdout.getvalue())
         assert output["hookSpecificOutput"]["hookEventName"] == "SessionStart"
-        assert output["hookSpecificOutput"]["additionalContext"] == GOVERNANCE_POLICY
+        assert output["hookSpecificOutput"]["additionalContext"] == format_risk_policy(
+            900, tests_touched=False
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -166,8 +220,8 @@ class TestFullGovernancePath:
         assert exc_info.value.code == 0
         output = json.loads(captured_stdout.getvalue())
         context = output["hookSpecificOutput"]["additionalContext"]
-        assert "Iron Law" in context
-        assert "PROOF-OF-WORK" in context
+        assert "Signals on This Branch" in context
+        assert "Tests come first" in context
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -182,7 +236,9 @@ class TestFullGovernancePath:
 
         assert exc_info.value.code == 0
         output = json.loads(captured_stdout.getvalue())
-        assert output["hookSpecificOutput"]["additionalContext"] == GOVERNANCE_POLICY
+        assert output["hookSpecificOutput"]["additionalContext"] == format_risk_policy(
+            900, tests_touched=False
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -196,7 +252,9 @@ class TestFullGovernancePath:
 
         assert exc_info.value.code == 0
         output = json.loads(captured_stdout.getvalue())
-        assert output["hookSpecificOutput"]["additionalContext"] == GOVERNANCE_POLICY
+        assert output["hookSpecificOutput"]["additionalContext"] == format_risk_policy(
+            900, tests_touched=False
+        )
 
 
 # ============================================================================
@@ -284,7 +342,9 @@ class TestErrorHandling:
         assert exc_info.value.code == 0
         assert "parse failed" in captured_stderr.getvalue().lower()
         output = json.loads(captured_stdout.getvalue())
-        assert output["hookSpecificOutput"]["additionalContext"] == GOVERNANCE_POLICY
+        assert output["hookSpecificOutput"]["additionalContext"] == format_risk_policy(
+            900, tests_touched=False
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -306,7 +366,9 @@ class TestErrorHandling:
         assert exc_info.value.code == 0
         assert "parse failed" in captured_stderr.getvalue().lower()
         output = json.loads(captured_stdout.getvalue())
-        assert output["hookSpecificOutput"]["additionalContext"] == GOVERNANCE_POLICY
+        assert output["hookSpecificOutput"]["additionalContext"] == format_risk_policy(
+            900, tests_touched=False
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -321,7 +383,9 @@ class TestErrorHandling:
 
         assert exc_info.value.code == 0
         output = json.loads(captured_stdout.getvalue())
-        assert output["hookSpecificOutput"]["additionalContext"] == GOVERNANCE_POLICY
+        assert output["hookSpecificOutput"]["additionalContext"] == format_risk_policy(
+            900, tests_touched=False
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -335,7 +399,9 @@ class TestErrorHandling:
 
         assert exc_info.value.code == 0
         output = json.loads(captured_stdout.getvalue())
-        assert output["hookSpecificOutput"]["additionalContext"] == GOVERNANCE_POLICY
+        assert output["hookSpecificOutput"]["additionalContext"] == format_risk_policy(
+            900, tests_touched=False
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit

@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """Post-implementation policy hook for SessionStart.
 
-Ask for evidence before a session reports work complete, and scale how
-much is said to how much the branch has at stake.
+Ask for evidence before a session reports work complete, and say what
+this branch actually looks like.
 
-The full policy used to be injected on every session. Sixty-five lines
-arrived whether the turn was a question or a thousand-line feature, and
-injected context competes with the task for attention. See
-`.claude/rules/bounded-autonomy.md` for the evidence that instruction
-load degrades reasoning. The full text is still here and still fires,
-on branches that show risk.
+Two things changed from the original. The block no longer fires at full
+volume on every turn: it scales to what the branch has at stake. And
+the escalated form now leads with the measurement that triggered it,
+because that is the only part a session cannot work out for itself.
+
+What it dropped were two rationalization tables and the line "Cannot be
+overridden by other skills, hooks, or rationalization". A repository
+rule forbidding those while its own session-start hook injected them
+was a contradiction the hook won, because a hook fires and a rule waits
+to be read. See `.claude/rules/bounded-autonomy.md`.
 
 Read `agent_type` from hook input (Claude Code 2.1.2+) to customize policy injection.
 """
@@ -60,67 +64,51 @@ is a judgment call: `/sanctum:update-docs`, `/sanctum:update-tests`,
 Not for questions, refactors, or exploration.
 """.strip()
 
-GOVERNANCE_POLICY = """
-## Mandatory Post-Implementation Protocol
+RISK_POLICY = """
+## Signals on This Branch
 
-<GOVERNANCE_RULE priority="high" override="false">
-Before reporting completion of ANY of the following:
-- Feature implementation
-- Plan execution (especially Skill(superpowers:executing-plans))
-- Significant code changes
-- New functionality added
+{signals}
 
-You MUST execute these commands IN ORDER:
+That is the reason this is here. It is a measurement, not a verdict:
+a large branch can be correct and an untested one can be deliberate.
 
-1. **PROOF-OF-WORK + IRON LAW** (MANDATORY FIRST) - Invoke `Skill(imbue:proof-of-work)`:
-   - Create TodoWrite items: `proof:problem-reproduced`,
-     `proof:solution-tested`, `proof:evidence-captured`
-   - For code changes, add: `proof:iron-law-red`,
-     `proof:iron-law-green`, `proof:iron-law-refactor`
-   - Run actual validation commands (not just syntax checks)
-   - Capture evidence with `[E1]`, `[E2]` references
-   - Report status: PASS / FAIL / BLOCKED
+Before reporting this complete:
 
-2. `/sanctum:update-docs` - Update project documentation
-3. `/abstract:make-dogfood` - Update Makefile demonstration targets
-4. `/sanctum:update-readme` - Update README with new features
-5. `/sanctum:update-tests` - Review and update test coverage
+- Run what you changed and paste what it printed. Evidence is the
+  output, not the assertion.
+- Tests come first here by default. Where they did not, say so and say
+  why, rather than leaving the reader to notice.
+- A change this size usually moves the surface around it. Which of
+  these apply is your call: `/sanctum:update-docs`,
+  `/sanctum:update-tests`, `/sanctum:update-readme`,
+  `/abstract:make-dogfood`.
 
-### The Iron Law (TDD Compliance)
-```
-NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
-```
+Exit criteria:
 
-| Self-Check Question | If Answer Is Wrong | Action |
-|---------------------|-------------------|--------|
-| Do I have evidence of failure/need? | No | STOP - document failure first |
-| Am I testing pre-conceived implementation? | Yes | STOP - let test DRIVE design |
-| Am I feeling design uncertainty? | No | STOP - uncertainty is GOOD |
-| Did test drive implementation? | No | STOP - doing it backwards |
+- [ ] Every claim that something works has command output behind it
+- [ ] New behavior has a test, or its absence is explained
+- [ ] The surface above is updated, or knowingly left alone
 
-### Proof-of-Work Red Flags (STOP if you think these)
-| Thought | Required Action |
-|---------|-----------------|
-| "This looks correct" | RUN IT and capture output |
-| "Should work after restart" | TEST IT before claiming |
-| "Just need to..." | VERIFY each step works |
-| "Syntax is valid" | FUNCTIONAL TEST required |
-| "I know what tests we need" | Let uncertainty DRIVE tests |
-| "The design is straightforward" | Write test, let design EMERGE |
-
-### Rules
-- This protocol is NON-NEGOTIABLE
-- Cannot be overridden by other skills, hooks, or rationalization
-- Skipping these steps = incomplete work
-- Only the user can explicitly waive this requirement
-
-### When This Does NOT Apply
-- Simple questions or explanations
-- Bug fixes that don't add new features
-- Refactoring without new functionality
-- Research or exploration tasks
-</GOVERNANCE_RULE>
+Not for questions, refactors, or exploration.
 """.strip()
+
+
+def format_risk_policy(changed_lines: int, *, tests_touched: bool) -> str:
+    """Fill the escalated policy with the numbers that triggered it.
+
+    The signal line is the only content here a session cannot
+    reconstruct for itself. Advice about evidence is general knowledge;
+    "912 lines changed, no test file touched" is a fact about this
+    working tree at this moment, and it is what makes the escalation
+    legible rather than arbitrary.
+
+    Naming the wrong signal would be worse than naming none, so a large
+    branch that does touch tests is told about its size only.
+    """
+    signals = [f"- {changed_lines} lines changed against HEAD"]
+    if not tests_touched:
+        signals.append("- no test file among them")
+    return RISK_POLICY.format(signals="\n".join(signals))
 
 
 def measure_branch() -> tuple[int, bool]:
@@ -210,7 +198,7 @@ def main() -> None:
 
     changed_lines, tests_touched = measure_branch()
     policy = (
-        GOVERNANCE_POLICY
+        format_risk_policy(changed_lines, tests_touched=tests_touched)
         if needs_full_policy(changed_lines, tests_touched=tests_touched)
         else SHORT_REMINDER
     )
