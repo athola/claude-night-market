@@ -302,9 +302,11 @@ only while the REPL is idle. Recurring jobs auto-expire after
 7 days, firing one last time before they are deleted, so a
 run longer than a week needs the heartbeat rescheduled.
 
-The cron task auto-expires after 7 days by default. Use
-`durable: true` to persist across restarts, or
-`CronDelete` to cancel early.
+`durable: true` does not persist the job across restarts.
+The parameter is accepted, but the tool's description says
+it "has no effect" and that durable persistence is not
+available. Use `CronDelete` to cancel a job early, and the
+watchdog for anything that must survive the session.
 
 ## Token Budget Protocol
 

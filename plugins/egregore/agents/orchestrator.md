@@ -160,20 +160,24 @@ Understand the current state before doing anything else:
 - What pipeline stage and step is each active item on?
 - Is there a cooldown in effect from a prior rate limit?
 
-Then schedule a progress pulse (2.1.71+, all providers
-2.1.73+):
+Then schedule a progress pulse:
 
 ```
 CronCreate(
   cron: "*/5 * * * *",
   prompt: "/egregore:status",
-  recurring: true,
-  durable: true
+  recurring: true
 )
 ```
 
 This emits a status summary every 5 minutes between turns,
 giving live visibility into autonomous runs.
+
+Do not pass `durable: true`. The parameter exists but the
+tool's description says it "has no effect": every job is
+session-only and held in memory. The pulse therefore lasts
+as long as this session does, and recurring jobs auto-expire
+after 7 days, firing once more before they are deleted.
 
 ## Orchestration Loop
 
@@ -388,6 +392,10 @@ considering whether to exit:
    issues or TODOs. Stay alive. Do not exit. Only
    `/egregore:dismiss` can stop you.
 
+   Staying alive is what makes this work: the poll job is
+   session-only, so exiting discards it. Re-schedule it
+   after 7 days, when recurring jobs auto-expire.
+
    **Bounded mode**: check if the time window has
    expired (`now >= started_at + time_window`). If yes,
    save the manifest, remove the pidfile, and exit. If
@@ -448,14 +456,17 @@ work, it re-enters the loop:
 CronCreate(
   cron: "*/5 * * * *",
   prompt: "Check .egregore/manifest.json. If there are pending or active items that are not being processed, resume the orchestration loop by invoking Skill(egregore:summon).",
-  recurring: true,
-  durable: true
+  recurring: true
 )
 ```
 
 This catches edge cases where the loop breaks despite the
 UserPromptSubmit and Stop hooks (e.g., context compaction
 losing state, unexpected tool errors).
+
+It cannot catch the session ending, because the heartbeat
+ends with it. Crash recovery across a dead session is the
+watchdog's job, not this one's.
 
 ## Completion Checklist
 
