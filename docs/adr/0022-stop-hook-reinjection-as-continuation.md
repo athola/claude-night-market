@@ -3,8 +3,9 @@
 **Date**: 2026-08-23
 **Status**: Accepted, with a named open problem
 **Deciders**: Claude Night Market maintainers
-**Related**: ADR-0007 (records where findings like this one live);
-`night-market-research-frontier` problem 6
+**Related**: ADR-0007 (records where findings like this one live),
+`night-market-research-frontier` problem 6, and Discussion
+[#686](https://github.com/athola/claude-night-market/discussions/686)
 
 ## Context
 
