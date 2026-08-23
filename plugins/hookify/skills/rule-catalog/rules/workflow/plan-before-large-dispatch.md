@@ -22,7 +22,7 @@ Tasks involving comprehensive analysis, audits, or research across the codebase 
 1. `EnterPlanMode`: design the agent strategy, specify the roster, the scope per agent and the output contract, then get approval before launching.
 2. A Workflow script. The script is the plan in executable form, and it carries its own user gate, because a workflow only runs when the user asks for one.
 
-Pick path 2 when the shape is known before the work. Pick path 1 when the roster has to adapt to what the first agents find. A workflow never starts unasked, its subagents run in `acceptEdits` whatever the session's permission mode, and its script has no filesystem or shell, so it can find and rank but cannot prove a test passed.
+Pick path 2 when the shape is known before the work. Pick path 1 when the roster has to adapt to what the first agents find. A workflow never starts unasked, its subagents inherit the tool allowlist, and its script has no filesystem or shell, so it can find and rank but cannot prove a test passed. The docs say subagents always run in `acceptEdits`. Measured once on CLI 2.1.241 a subagent's edit still prompted from a manual-mode session, so do not rely on unattended completion.
 
 **Agent Dispatch Plan template:**
 

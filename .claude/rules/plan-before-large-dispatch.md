@@ -52,9 +52,19 @@ overflow this rule was written to prevent.
 
 - Never start a workflow unasked. A quoted tip is not
   a request.
-- Subagents in a workflow run in `acceptEdits` and
-  inherit the tool allowlist, whatever the session's
-  permission mode. Scope their prompts accordingly.
+- A workflow's subagents inherit the tool allowlist.
+  The docs add that they always run in `acceptEdits`
+  with file edits auto-approved, whatever the
+  session's mode. Measured once on CLI 2.1.241, that
+  second half did not hold: from a manual-mode
+  session, a subagent's Edit raised an ordinary
+  permission prompt labelled `from the "probe"
+  workflow`, and the file was unchanged until it was
+  approved. Treat unattended completion as something
+  the session's mode decides, not something the
+  workflow guarantees, and scope subagent prompts on
+  the assumption that edits may land without review
+  in an `auto` or `accept edits` session.
 - The `ultracode` keyword does not fire from headless
   routes (`-p`, SDK without a human-origin stamp,
   scheduled prompts, webhooks), so nothing in egregore
@@ -79,7 +89,8 @@ default, so the agent count Claude aims for does not
 move. Pinning it does change one thing: a guideline
 you choose replaces the default 25-agent threshold on
 the advisory `Large workflow` warning, so that warning
-fires here at 15 rather than 25. The pin is written
+fires here at 15 rather than 25, unless an environment
+override or a server-side gate moves it again. The pin is written
 down so a change to the default cannot silently resize
 the four workflows this repo ships, whose agent counts
 were sized against it. The key needs Claude Code
