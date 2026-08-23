@@ -46,6 +46,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The test-quality rubric scored file length, not test quality
+  (sanctum).** `quality_checker.py` returned 0/100 for a 37-test file
+  where every test passed and every branch it guarded was covered. Four
+  defects, each of which punished something that was not a defect.
+
+  Deductions were linear and uncapped, so thirty terse docstrings cost
+  150 points and any long file floored at 0. A score of 0 meant "long
+  file", not "bad tests". Categories now have budgets, and the ones
+  describing individual tests are charged by the share of tests they
+  touch: a suite where a third of the tests lack BDD clauses no longer
+  scores like one where none of them have any. The result carries a
+  `score_breakdown` naming each deduction.
+
+  `AND` was required as a BDD keyword. It continues a previous step in
+  Gherkin, so a GIVEN/WHEN/THEN docstring is complete without one, and
+  requiring it failed every three-clause test in the repo. Only GIVEN,
+  WHEN and THEN are required now, and the suggestion text never asks
+  for AND.
+
+  `assert result == {"id": "w1"}` was reported as a vague assertion
+  because the variable was named `result`. The rule now flags what is
+  actually vague: a bare name, or a comparison against `None`. Neither
+  states an expected value. A comparison against a concrete expectation
+  is specific whatever it is called.
+
+  Dynamic validation ran the target's tests under the checker's own
+  interpreter, which for a plugin test file lacks the pytest plugins
+  that plugin's `pyproject.toml` requires. pytest exited 4 with a usage
+  error, and an all-passing suite was scored as unmeasurable. The
+  runner now resolves the project's own `.venv` interpreter and runs
+  from its root, passing an absolute test path, and records which
+  interpreter it used.
+
+  Measured on `plugins/egregore/tests/test_stop_hook.py`: 0/100 before,
+  88/100 after, with BDD the only remaining deduction (12 of a 15-point
+  budget, for 30 of 37 tests with terse docstrings). A file with no
+  assertions and no docstrings scores 28.
+
+  Five existing tests pinned the two revised rules and were updated,
+  not deleted. Called out for review rather than changed silently:
+  `assert result == 5` no longer counts as vague, `assert result` now
+  does, and the score-clamp test now drives the floor with a file bad
+  in every category instead of one category repeated fifty times.
+
 - **The Stop hook re-injected forever, and dogfooding priced it
   (egregore).** The hook blocked the session from stopping whenever
   the manifest held active work. That condition is static, so a

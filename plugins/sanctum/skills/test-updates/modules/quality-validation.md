@@ -140,19 +140,21 @@ def validate_static_quality(test_file):
 #### Pattern Validation
 
 ```python
-BDD_PATTERNS = {
+REQUIRED_BDD_PATTERNS = {
     "given_pattern": r"GIVEN\s+.+",
     "when_pattern": r"WHEN\s+.+",
     "then_pattern": r"THEN\s+.+",
-    "and_pattern": r"AND\s+.+",
 }
+# AND continues a previous step. A scenario is complete without one, so
+# it is never reported as missing.
+OPTIONAL_BDD_PATTERNS = {"and_pattern": r"AND\s+.+"}
 
 
 def validate_bdd_patterns(test_content):
     """Validate BDD pattern usage."""
     missing_patterns = []
 
-    for pattern_name, pattern_regex in BDD_PATTERNS.items():
+    for pattern_name, pattern_regex in REQUIRED_BDD_PATTERNS.items():
         if not re.search(pattern_regex, test_content, re.IGNORECASE):
             missing_patterns.append(pattern_name)
 
@@ -308,9 +310,25 @@ def calculate_test_complexity(test_file):
 
 #### Quality Score Calculation
 
-Combine multiple metrics into an overall score:
-- Static analysis (20%)
-- Dynamic validation (30%)
-- Coverage metrics (20%)
-- Mutation testing (20%)
-- Complexity (10%)
+`quality_checker.py` starts at 100 and deducts. Each category has a
+budget, and the categories that describe individual tests are charged
+by the share of tests they touch, not by raw issue count. Counting
+every issue at full weight made file length decide the score: thirty
+terse docstrings cost 150 points, so any long file floored at 0.
+
+| Category | Budget | Charged by |
+|----------|--------|------------|
+| `structure_issues` | 20 | severity, capped |
+| `assertion_issues` | 20 | share of tests affected |
+| `bdd_compliance` | 15 | share of tests affected |
+| `naming_issues` | 10 | share of tests affected |
+| `documentation` | 10 | severity, capped |
+| Execution (real failures or an unmeasurable run) | 20 | flat |
+| Metrics (no tests, or documentation ratio below the floor) | 30 + 10 | flat |
+
+A run where every test passes adds 5 back. The result carries a
+`score_breakdown` naming each deduction, so a low score says which
+part of the rubric produced it.
+
+Coverage and mutation testing are not inputs to this score. Neither is
+measured by the checker.

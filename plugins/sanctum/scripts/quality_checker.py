@@ -69,6 +69,51 @@ class QualityIssue:
     suggestion: str | None = None
 
 
+def resolve_project_interpreter(test_path: Path) -> tuple[str, Path | None]:
+    """Pick the interpreter and working directory the test file's project uses.
+
+    A test file under ``plugins/<name>/`` is configured by that plugin's
+    ``pyproject.toml``, whose addopts may require plugins (pytest-cov, for
+    one) that the checker's own interpreter does not have. Running it under
+    the ambient interpreter then exits 4 with a usage error, which reads as a
+    broken suite when the suite is fine.
+
+    Returns the project's ``.venv`` interpreter and project root when there is
+    one, and the running interpreter otherwise.
+    """
+    path = Path(test_path).resolve()
+    start = path if path.is_dir() else path.parent
+    project_root: Path | None = None
+    for directory in [start, *start.parents]:
+        if not (directory / "pyproject.toml").exists():
+            continue
+        if project_root is None:
+            project_root = directory
+        for candidate in (
+            directory / ".venv" / "bin" / "python",
+            directory / ".venv" / "Scripts" / "python.exe",
+        ):
+            if candidate.exists():
+                return str(candidate), directory
+    return _sys.executable, project_root
+
+
+def _has_json_report(python_path: str) -> bool:
+    """Return True when pytest-jsonreport is importable by ``python_path``."""
+    if python_path == _sys.executable:
+        return importlib.util.find_spec("pytest_jsonreport") is not None
+    try:
+        probe = subprocess.run(
+            [python_path, "-c", "import pytest_jsonreport"],
+            capture_output=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return probe.returncode == 0
+
+
 class TestQualityChecker:
     """Validate and score test quality."""
 
@@ -99,6 +144,7 @@ class TestQualityChecker:
             "metrics": self.calculate_metrics(),
             "quality_score": 0,
             "quality_level": QualityLevel.POOR,
+            "score_breakdown": {},
             "recommendations": [],
         }
 
@@ -213,16 +259,28 @@ class TestQualityChecker:
                     )
 
     def _is_vague_result_assertion(self, assert_node: ast.Assert) -> bool:
-        """Return True when the assertion compares a bare ``result`` name.
+        """Return True when the assertion only proves that something exists.
 
-        Catches ``assert result == <value>`` patterns where the generic
-        variable name gives no information about what was verified.
+        Two shapes qualify: a bare name (``assert result``) and a comparison
+        against ``None`` (``assert result is not None``). Neither states an
+        expected value, so neither fails when the value is wrong.
+
+        A comparison against a concrete expectation does NOT qualify, whatever
+        the variable is called. ``assert result == {"id": "w1"}`` names exactly
+        what it wants; treating it as vague because the variable is named
+        ``result`` scored real assertions as defects and cost the file points
+        it had earned.
         """
-        return (
-            isinstance(assert_node.test, ast.Compare)
-            and isinstance(assert_node.test.left, ast.Name)
-            and assert_node.test.left.id == "result"
-        )
+        test = assert_node.test
+        if isinstance(test, ast.Name):
+            return True
+        if isinstance(test, ast.Compare):
+            operands = [test.left, *test.comparators]
+            return any(
+                isinstance(node, ast.Constant) and node.value is None
+                for node in operands
+            )
+        return False
 
     @staticmethod
     def _is_raises_context(node: ast.AST) -> bool:
@@ -282,7 +340,9 @@ class TestQualityChecker:
                     ),
                 )
 
-    _BDD_KEYWORDS = ("given", "when", "then", "and")
+    # AND continues a previous step in Gherkin, so a scenario is complete
+    # without one. Requiring it made every three-clause docstring fail.
+    _BDD_KEYWORDS = ("given", "when", "then")
 
     def _check_bdd_compliance(self, tree: ast.AST, analysis: dict) -> None:
         """Check BDD pattern compliance using AST docstring extraction."""
@@ -346,23 +406,24 @@ class TestQualityChecker:
             "errors": [],
             "skipped": 0,
             "passed": 0,
+            "runner": None,
         }
 
         try:
             # Run pytest with JSON output
             start_time = time.time()
-            # Use the interpreter already running this checker rather than
-            # resolving `python` from PATH: bare `python` does not exist on
-            # Debian/WSL boxes, and a PATH interpreter may not be the
-            # environment whose pytest/pytest_jsonreport we probed above.
-            python_path = _sys.executable
+            # Prefer the interpreter the target project defines, falling back
+            # to the one running this checker. Never resolve `python` from
+            # PATH: bare `python` does not exist on Debian/WSL boxes.
+            python_path, project_root = resolve_project_interpreter(self.test_path)
+            validation["runner"] = python_path
 
             # The json-report plugin gives rich pass/fail data but is optional.
             # Only request it when installed, otherwise a missing plugin makes
             # pytest exit with a usage error that looks like a failing run.
             report_path = None
             json_args = []
-            if importlib.util.find_spec("pytest_jsonreport") is not None:
+            if _has_json_report(python_path):
                 with tempfile.NamedTemporaryFile(
                     mode="w", suffix=".json", delete=False
                 ) as tmp_file:
@@ -375,7 +436,10 @@ class TestQualityChecker:
                         python_path,
                         "-m",
                         "pytest",
-                        str(self.test_path),
+                        # Absolute: the run happens from the project root, so a
+                        # path relative to the caller's directory would resolve
+                        # against the wrong tree and exit as a usage error.
+                        str(Path(self.test_path).resolve()),
                         *json_args,
                         "-q",
                     ],
@@ -383,6 +447,7 @@ class TestQualityChecker:
                     capture_output=True,
                     text=True,
                     timeout=30,
+                    cwd=str(project_root) if project_root else None,
                 )
                 validation["test_duration"] = time.time() - start_time
                 validation["execution_result"] = result.returncode
@@ -537,41 +602,79 @@ class TestQualityChecker:
         """
         return bool(dynamic["failures"] or dynamic["errors"])
 
+    # What each static category may cost, and which categories scale with the
+    # share of tests they touch. Counting every issue at full weight let file
+    # length decide the score: thirty terse docstrings cost 150 points, so any
+    # long file floored at 0 and the number stopped carrying information.
+    _CATEGORY_BUDGET = {
+        "structure_issues": 20,
+        "naming_issues": 10,
+        "assertion_issues": 20,
+        "bdd_compliance": 15,
+        "documentation": 10,
+    }
+    _PER_TEST_CATEGORIES = ("naming_issues", "assertion_issues", "bdd_compliance")
+    _SEVERITY_POINTS = {"error": 10, "warning": 5, "info": 2}
+
+    def _category_deduction(self, name: str, issues: list, test_count: int) -> int:
+        """Cost one static category, bounded by its budget.
+
+        Per-test categories are charged by the share of tests affected, so a
+        suite where a third of the tests lack BDD clauses is not scored like
+        one where none of them have any.
+        """
+        if not issues:
+            return 0
+        budget = self._CATEGORY_BUDGET.get(name, 10)
+        if name in self._PER_TEST_CATEGORIES and test_count > 0:
+            share = min(1.0, len(issues) / test_count)
+            return int(round(budget * share))
+        raw = sum(self._SEVERITY_POINTS.get(i.severity, 5) for i in issues)
+        return min(budget, raw)
+
     def _calculate_overall_score(self, results: dict) -> int:
-        """Calculate overall quality score (0-100)."""
+        """Calculate overall quality score (0-100).
+
+        Records a per-category breakdown in ``results["score_breakdown"]`` so a
+        low score says which part of the rubric produced it.
+        """
         score = 100
+        breakdown: dict[str, int] = {}
 
         # Deduct points for issues
         static = results["static_analysis"]
-        for category in static.values():
-            for issue in category:
-                if issue.severity == "error":
-                    score -= 10
-                elif issue.severity == "warning":
-                    score -= 5
-                elif issue.severity == "info":
-                    score -= 2
+        test_count = results["metrics"]["test_count"]
+        for name, issues in static.items():
+            deduction = self._category_deduction(name, issues, test_count)
+            breakdown[name] = deduction
+            score -= deduction
 
         # Consider test execution. A nonzero pytest exit code alone does not
         # mean tests failed (a coverage threshold can fail the run while every
         # test passes), so penalize on real failures/errors or on a run that
         # could not be measured (inconclusive); never on exit code alone.
         dynamic = results["dynamic_validation"]
+        breakdown["execution"] = 0
         if self._has_real_failures(dynamic) or dynamic.get("inconclusive"):
+            breakdown["execution"] = 20
             score -= 20
 
         # Consider metrics
         metrics = results["metrics"]
+        breakdown["metrics"] = 0
         if metrics["test_count"] == 0:
+            breakdown["metrics"] += 30
             score -= 30
 
         if metrics["documentation_ratio"] < MIN_DOCUMENTATION_RATIO:
+            breakdown["metrics"] += 10
             score -= 10
 
         # Bonus points for good practices
         if dynamic["passed"] == metrics["test_count"] and metrics["test_count"] > 0:
             score += 5
 
+        results["score_breakdown"] = breakdown
         score = max(0, min(100, score))
         return int(score)
 
