@@ -86,6 +86,16 @@ were sized against it. The key needs Claude Code
 v2.1.219 or later. Before that the effective
 guideline is `unrestricted`.
 
+This much is verified rather than read: on CLI
+2.1.241 the harness parses this repo's
+`.claude/settings.json`, recognizes the key, and
+rejects any value outside the four named above.
+Feeding it a fifth prints `Invalid settings` naming
+the file and the key.
+`tests/test_workflow_spend_posture.py` replays that
+check. What the guideline then does to the model's
+sizing is documented, not measured here.
+
 Two things follow from pinning it in a settings file:
 
 - A settings file takes precedence over `/config`,
@@ -97,10 +107,32 @@ Two things follow from pinning it in a settings file:
   16 concurrent agents, fewer on fewer CPUs, and
   1,000 per run.
 
-`ultracode` is deliberately left unset. Setting it
-would have Claude plan a workflow for every
-substantive task, which is the unasked start the
-first constraint above forbids.
+**What this file does not set, and why:**
+
+Project settings may bound what a workflow spends.
+They may not enable the capability that does the
+spending. `workflowSizeGuideline` bounds, so it is
+pinned. `enableWorkflows`, `disableWorkflows` and
+`ultracode` switch a billable feature on or off for
+everyone who clones the repo, so that stays with the
+person, not the checkout.
+
+`ultracode` is the one that matters most. It would
+have Claude plan a workflow for every substantive
+task, which is the unasked start the first constraint
+above forbids. CLI 2.1.241 does not validate the key,
+and an unrecognized key is dropped without an error,
+so setting it would be honored or ignored silently
+with no signal either way. The test is what notices.
+
+One consequence to know before you go looking: the
+docs say that when workflows are off, the bundled
+workflow commands become unavailable, and the four
+this repo ships presumably go with them. A
+contributor whose plan has workflows off will not see
+`/pensive:unified-review` or its siblings. Turning
+them on belongs in their `/config`, not in this
+file.
 
 The guideline sizes a run before it starts. Nothing
 in it measures what a run cost, so pair it with
