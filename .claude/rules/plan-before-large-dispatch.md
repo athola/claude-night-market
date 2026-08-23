@@ -55,16 +55,18 @@ overflow this rule was written to prevent.
 - A workflow's subagents inherit the tool allowlist.
   The docs add that they always run in `acceptEdits`
   with file edits auto-approved, whatever the
-  session's mode. Measured once on CLI 2.1.241, that
-  second half did not hold: from a manual-mode
-  session, a subagent's Edit raised an ordinary
-  permission prompt labelled `from the "probe"
-  workflow`, and the file was unchanged until it was
-  approved. Treat unattended completion as something
-  the session's mode decides, not something the
-  workflow guarantees, and scope subagent prompts on
-  the assumption that edits may land without review
-  in an `auto` or `accept edits` session.
+  session's mode. Measured on CLI 2.1.241, the
+  session's mode decides it instead. One workflow,
+  one agent, one edited line in a scratch directory:
+  run from a manual-mode session it raised an
+  ordinary permission prompt both times and left the
+  file unchanged until approved, and run from an
+  accept-edits session it prompted for nothing and
+  finished in five seconds. So scope subagent prompts
+  on the assumption that edits land without review in
+  an `auto` or `accept edits` session, and do not
+  expect a manual-mode session to carry a long
+  fan-out to the end unattended.
 - The `ultracode` keyword does not fire from headless
   routes (`-p`, SDK without a human-origin stamp,
   scheduled prompts, webhooks), so nothing in egregore
@@ -112,7 +114,12 @@ Two things follow from pinning it in a settings file:
 - A settings file takes precedence over `/config`,
   and the `/config` row is hidden while one supplies
   a value. `/config workflowSizeGuideline=small` will
-  not take while this file sets the key.
+  not take while this file sets the key. Among
+  settings files this key resolves local over
+  project, measured by giving
+  `.claude/settings.local.json` and
+  `.claude/settings.json` different values and
+  reading back which one reached the model.
 - The guideline is advice to the model, not a cap.
   The runtime bounds are what actually hold: up to
   16 concurrent agents, fewer on fewer CPUs, and
