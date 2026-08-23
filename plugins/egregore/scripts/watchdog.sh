@@ -78,6 +78,11 @@ else
     prompt_content="Egregore resuming. Read .egregore/manifest.json and invoke Skill(egregore:summon) to continue the pipeline."
 fi
 
-nohup claude -p "$prompt_content" >> "$LOG" 2>&1 &
+# --output-format json because the default text format is swallowed
+# when the Stop hook blocks the stop, leaving no record of the run.
+# </dev/null because hooks read stdin, and nohup leaves it attached to
+# nothing: each hook then stalls 3s and prints a warning onto the same
+# stream as the result, which corrupts it.
+nohup claude -p "$prompt_content" --output-format json < /dev/null >> "$LOG" 2>&1 &
 echo $! > "$PIDFILE"
 log "Launched with PID $!"
