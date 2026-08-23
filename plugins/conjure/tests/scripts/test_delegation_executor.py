@@ -16,6 +16,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from delegation_executor import (
+    FALLBACK_DISABLED,
+    FALLBACK_EXHAUSTED,
     MAX_INLINE_CONTEXT_BYTES,
     VERIFIED_BINARIES,
     Delegator,
@@ -645,7 +647,7 @@ class TestDelegator:
         mock_verify.return_value = (True, [])
         mock_execute.return_value = ExecutionResult(
             success=True,
-            stdout="",
+            stdout="gemini answered",
             stderr="",
             exit_code=0,
             duration=1.0,
@@ -653,21 +655,30 @@ class TestDelegator:
 
         delegator = Delegator(config_dir=temp_config_dir)
 
-        service, _result = delegator.smart_delegate("test prompt")
+        result = delegator.smart_delegate("test prompt")
 
-        assert service == "gemini"
+        assert result.service == "gemini"
         mock_execute.assert_called_once()
 
     @pytest.mark.bdd
     @patch("delegation_executor.Delegator.verify_service")
     def test_smart_delegate_no_services(self, mock_verify, temp_config_dir) -> None:
-        """Given no services available when smart delegating then should raise error."""
+        """Given no services available when smart delegating then should report it.
+
+        This asserted a RuntimeError while delegation was opt-in, when an
+        empty chain meant a caller had asked for something the machine
+        could not do. Delegation now runs by default, which makes an
+        operator with no CLI installed the ordinary case, so the empty
+        chain became a returned fallback signal instead of a traceback.
+        """
         mock_verify.return_value = (False, ["Service not available"])
 
         delegator = Delegator(config_dir=temp_config_dir)
 
-        with pytest.raises(RuntimeError, match="No delegation services available"):
-            delegator.smart_delegate("test prompt")
+        result = delegator.smart_delegate("test prompt")
+
+        assert result.success is False
+        assert result.fallback_reason == FALLBACK_EXHAUSTED
 
 
 class TestDelegatorCli:
@@ -1024,7 +1035,7 @@ class TestRegisteredProviders:
         them was either never chosen or raised KeyError on the model lookup.
         """
         mock_execute.return_value = ExecutionResult(
-            success=True, stdout="", stderr="", exit_code=0, duration=1.0
+            success=True, stdout="answered", stderr="", exit_code=0, duration=1.0
         )
         delegator = Delegator(config_dir=temp_config_dir)
         delegator.services["newcomer"] = ServiceConfig(
@@ -1036,9 +1047,9 @@ class TestRegisteredProviders:
         )
         mock_verify.side_effect = lambda name: (name == "newcomer", [])
 
-        service, _ = delegator.smart_delegate("p", requirements={"large_context": True})
+        result = delegator.smart_delegate("p", requirements={"large_context": True})
 
-        assert service == "newcomer"
+        assert result.service == "newcomer"
         assert mock_execute.call_args.args[3]["model"] == "newcomer-xl"
 
     @pytest.mark.bdd
@@ -1053,14 +1064,14 @@ class TestRegisteredProviders:
         subcommand, so passing one would be inventing a contract.
         """
         mock_execute.return_value = ExecutionResult(
-            success=True, stdout="", stderr="", exit_code=0, duration=1.0
+            success=True, stdout="answered", stderr="", exit_code=0, duration=1.0
         )
         delegator = Delegator(config_dir=temp_config_dir)
         mock_verify.side_effect = lambda name: (name == "muse", [])
 
-        service, _ = delegator.smart_delegate("p", requirements={"large_context": True})
+        result = delegator.smart_delegate("p", requirements={"large_context": True})
 
-        assert service == "muse"
+        assert result.service == "muse"
         assert "model" not in mock_execute.call_args.args[3]
 
 
@@ -1699,3 +1710,339 @@ class TestMissingContextIsDroppedWithoutASignal:
         assert "truncated" in delivered
         assert str(MAX_INLINE_CONTEXT_BYTES) in delivered
         assert len(delivered) < MAX_ARG_STRLEN
+
+
+class TestDelegationIsOnUnlessRefused:
+    """Delegation runs by default, and every way out of it is explicit.
+
+    The opt-in framing put the burden on the caller to remember an
+    external CLI existed. These tests pin the inverted default: a caller
+    that says nothing gets delegation, and the two ways to decline it
+    both leave a reason a reader can act on.
+    """
+
+    @pytest.mark.bdd
+    def test_an_operator_who_configured_nothing_gets_delegation(
+        self, temp_config_dir
+    ) -> None:
+        """GIVEN no config file and no environment variable.
+
+        WHEN the delegator reports its policy
+        THEN delegation is on
+
+        This is the whole inversion in one assertion. Under the previous
+        framing there was no policy to read at all, which is what made
+        delegation opt-in: it happened only where a caller spelled it out.
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        assert delegator.delegation_enabled is True
+        assert delegator.delegation_off_reason is None
+
+    @pytest.mark.bdd
+    def test_a_config_file_can_turn_delegation_off_for_a_machine(
+        self, temp_config_dir
+    ) -> None:
+        """GIVEN a config file declaring ``"enabled": false``.
+
+        WHEN the delegator loads it
+        THEN delegation is off and names the config as the source
+
+        The persistent opt-out. Named so a caller reporting the fallback
+        can say which of the two switches was thrown.
+        """
+        (temp_config_dir / "config.json").write_text(json.dumps({"enabled": False}))
+
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        assert delegator.delegation_enabled is False
+        assert delegator.delegation_off_reason is not None
+        assert "config" in delegator.delegation_off_reason
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize("value", ["off", "0", "false", "no", "OFF"])
+    def test_an_environment_variable_turns_delegation_off_for_one_session(
+        self, temp_config_dir, value: str
+    ) -> None:
+        """GIVEN CONJURE_DELEGATION set to a falsy spelling.
+
+        WHEN the delegator loads its policy
+        THEN delegation is off and names the environment as the source
+
+        The per-session opt-out, for the run where a prompt should not
+        leave the machine. Case and spelling vary because an operator
+        typing this at a shell prompt should not have to guess.
+        """
+        with patch.dict(os.environ, {"CONJURE_DELEGATION": value}):
+            delegator = Delegator(config_dir=temp_config_dir)
+
+        assert delegator.delegation_enabled is False
+        assert delegator.delegation_off_reason is not None
+        assert "CONJURE_DELEGATION" in delegator.delegation_off_reason
+
+    @pytest.mark.bdd
+    def test_the_environment_can_re_enable_what_the_config_turned_off(
+        self, temp_config_dir
+    ) -> None:
+        """GIVEN a config file that disables delegation.
+
+        WHEN CONJURE_DELEGATION says on
+        THEN delegation is on
+
+        Precedence runs environment over file, so the narrower scope
+        wins. Without this the persistent switch would strand an operator
+        who wanted delegation back for a single command.
+        """
+        (temp_config_dir / "config.json").write_text(json.dumps({"enabled": False}))
+
+        with patch.dict(os.environ, {"CONJURE_DELEGATION": "on"}):
+            delegator = Delegator(config_dir=temp_config_dir)
+
+        assert delegator.delegation_enabled is True
+
+    @pytest.mark.bdd
+    @patch.object(Delegator, "verify_service")
+    def test_an_opted_out_delegator_probes_no_provider(
+        self, mock_verify, temp_config_dir
+    ) -> None:
+        """GIVEN delegation turned off.
+
+        WHEN smart_delegate is called anyway
+        THEN no provider is probed and the result names the opt-out
+
+        Opting out has to cost nothing, or it is not an opt-out. A
+        disabled delegator that still shells out to eight CLIs to
+        discover it should not have would be the worst of both.
+        """
+        with patch.dict(os.environ, {"CONJURE_DELEGATION": "off"}):
+            delegator = Delegator(config_dir=temp_config_dir)
+            result = delegator.smart_delegate("test prompt")
+
+        mock_verify.assert_not_called()
+        assert result.success is False
+        assert result.fallback_reason == FALLBACK_DISABLED
+
+
+class TestTheProviderChainRunsToExhaustion:
+    """A single provider's failure is not the end of the delegation.
+
+    Selection used to stop at the first available provider and run it
+    once. Availability is not the same as answering, so a provider that
+    was installed and authenticated but broke on the call ended the
+    attempt with a failure the caller had to notice on its own.
+    """
+
+    @staticmethod
+    def _answer(stdout: str, exit_code: int = 0) -> ExecutionResult:
+        return ExecutionResult(
+            success=exit_code == 0,
+            stdout=stdout,
+            stderr="",
+            exit_code=exit_code,
+            duration=0.1,
+        )
+
+    @pytest.mark.bdd
+    @patch.object(Delegator, "execute")
+    @patch.object(Delegator, "verify_service")
+    def test_a_failed_provider_hands_the_work_to_the_next_one(
+        self, mock_verify, mock_execute, temp_config_dir
+    ) -> None:
+        """GIVEN the first provider in the order exits non-zero.
+
+        WHEN smart_delegate runs
+        THEN the second provider is tried and its answer is returned
+
+        The behaviour the opt-out default depends on: with delegation on
+        for every eligible task, a provider that is merely installed
+        should not be able to sink the task on its own.
+        """
+        mock_verify.return_value = (True, [])
+        mock_execute.side_effect = [
+            self._answer("", exit_code=1),
+            self._answer("second provider answered"),
+        ]
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        result = delegator.smart_delegate("test prompt")
+
+        assert result.success is True
+        assert result.stdout == "second provider answered"
+        assert result.service == delegator.candidate_order()[1]
+
+    @pytest.mark.bdd
+    @patch.object(Delegator, "execute")
+    @patch.object(Delegator, "verify_service")
+    def test_an_empty_answer_counts_as_a_failure_worth_advancing_past(
+        self, mock_verify, mock_execute, temp_config_dir
+    ) -> None:
+        """GIVEN a provider that exits 0 and prints nothing.
+
+        WHEN smart_delegate runs
+        THEN the chain advances rather than returning the silence
+
+        Exit code alone is not the failure signal here. This repository
+        already recorded `opencode run` returning success with an empty
+        stdout, and a help page printed at exit 0 for a dash-leading
+        prompt. Both are answers to nobody.
+        """
+        mock_verify.return_value = (True, [])
+        mock_execute.side_effect = [
+            self._answer("   \n"),
+            self._answer("a real answer"),
+        ]
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        result = delegator.smart_delegate("test prompt")
+
+        assert result.stdout == "a real answer"
+
+    @pytest.mark.bdd
+    @patch.object(Delegator, "execute")
+    @patch.object(Delegator, "verify_service")
+    def test_exhausting_every_provider_asks_the_caller_to_do_it_locally(
+        self, mock_verify, mock_execute, temp_config_dir
+    ) -> None:
+        """GIVEN no provider is installed.
+
+        WHEN smart_delegate runs
+        THEN it returns a fallback signal instead of raising
+
+        Turning delegation on by default makes "nothing installed" the
+        ordinary path, not the exceptional one: it is what every operator
+        who has not set up a CLI will hit on their first mission. A
+        traceback is the wrong shape for a state the caller is expected
+        to recover from by doing the work itself.
+        """
+        mock_verify.return_value = (False, ["not installed"])
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        result = delegator.smart_delegate("test prompt")
+
+        assert result.success is False
+        assert result.fallback_reason == FALLBACK_EXHAUSTED
+        mock_execute.assert_not_called()
+
+    @pytest.mark.bdd
+    @patch.object(Delegator, "execute")
+    @patch.object(Delegator, "verify_service")
+    def test_the_exhausted_result_records_what_each_provider_did(
+        self, mock_verify, mock_execute, temp_config_dir
+    ) -> None:
+        """GIVEN every provider fails for a different reason.
+
+        WHEN the chain is exhausted
+        THEN each attempt is named in the result
+
+        A bare "delegation failed" gives an operator nothing to fix. The
+        trail distinguishes a machine with nothing installed from one
+        where every CLI is present and every credential has expired.
+        """
+        mock_verify.side_effect = lambda name: (
+            (True, []) if name == "gemini" else (False, ["not installed"])
+        )
+        mock_execute.return_value = self._answer("", exit_code=1)
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        result = delegator.smart_delegate("test prompt")
+
+        attempted = {attempt.service: attempt.reason for attempt in result.attempts}
+        assert set(attempted) == set(delegator.services)
+        assert "exit 1" in attempted["gemini"]
+        assert "not installed" in attempted["qwen"]
+
+    @pytest.mark.bdd
+    @patch.object(Delegator, "execute")
+    @patch.object(Delegator, "verify_service")
+    def test_a_provider_that_answers_ends_the_chain(
+        self, mock_verify, mock_execute, temp_config_dir
+    ) -> None:
+        """GIVEN the first provider answers.
+
+        WHEN smart_delegate runs
+        THEN no further provider is probed or executed
+
+        The chain is a fallback, not a fan-out. Running all eight on
+        every task would multiply the cost of the new default by eight.
+        """
+        mock_verify.return_value = (True, [])
+        mock_execute.return_value = self._answer("first answered")
+
+        delegator = Delegator(config_dir=temp_config_dir)
+        result = delegator.smart_delegate("test prompt")
+
+        assert result.service == delegator.candidate_order()[0]
+        mock_execute.assert_called_once()
+        assert len(result.attempts) == 1
+
+
+class TestTheCliSaysWhenNothingRan:
+    """An absent answer must not read like an empty one.
+
+    The `auto` path used to raise out of selection and the CLI caught it.
+    Now it returns a result, and the risk moves: a fallback result printed
+    on stdout at exit 0 is indistinguishable from a provider that answered
+    with nothing.
+    """
+
+    @pytest.mark.bdd
+    @patch.object(Delegator, "verify_service")
+    @patch("sys.argv", ["delegation_executor.py", "auto", "summarize this"])
+    def test_an_exhausted_chain_exits_non_zero_and_names_each_provider(
+        self, mock_verify, capsys, temp_config_dir
+    ) -> None:
+        """GIVEN no provider is installed.
+
+        WHEN the CLI runs an auto delegation
+        THEN it exits 1 and reports every provider it tried on stderr
+
+        The trail is the actionable half. A bare failure line cannot tell
+        an operator whether to install a CLI or renew a credential.
+        """
+        mock_verify.return_value = (False, ["binary not found"])
+
+        with (
+            patch.object(Delegator, "__init__", _init_with(temp_config_dir)),
+            pytest.raises(SystemExit) as exit_info,
+        ):
+            main()
+
+        assert exit_info.value.code == 1
+        stderr = capsys.readouterr().err
+        assert FALLBACK_EXHAUSTED in stderr
+        assert "gemini: binary not found" in stderr
+
+    @pytest.mark.bdd
+    @patch.object(Delegator, "verify_service")
+    @patch("sys.argv", ["delegation_executor.py", "auto", "summarize this"])
+    def test_an_opted_out_run_says_which_switch_was_thrown(
+        self, mock_verify, capsys, temp_config_dir
+    ) -> None:
+        """GIVEN delegation turned off in the environment.
+
+        WHEN the CLI runs an auto delegation
+        THEN stderr names the variable rather than blaming the providers
+
+        Someone who forgot the variable was exported should not spend the
+        afternoon reinstalling CLIs that were never consulted.
+        """
+        with (
+            patch.dict(os.environ, {"CONJURE_DELEGATION": "off"}),
+            patch.object(Delegator, "__init__", _init_with(temp_config_dir)),
+            pytest.raises(SystemExit),
+        ):
+            main()
+
+        stderr = capsys.readouterr().err
+        assert "CONJURE_DELEGATION" in stderr
+        mock_verify.assert_not_called()
+
+
+def _init_with(config_dir):
+    """Pin a Delegator built by main() to the test's config directory."""
+    real_init = Delegator.__init__
+
+    def _init(self, config_dir_arg=None):
+        real_init(self, config_dir=config_dir)
+
+    return _init

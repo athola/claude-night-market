@@ -15,7 +15,11 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from scripts.delegation_executor import Delegator, ExecutionResult
+from scripts.delegation_executor import (
+    FALLBACK_EXHAUSTED,
+    Delegator,
+    ExecutionResult,
+)
 
 # -------------------------------------------------------------------
 # smart_delegate - no services
@@ -26,21 +30,27 @@ class TestSmartDelegateNoServices:
     """Test smart_delegate() when no services are available."""
 
     @patch.object(Delegator, "verify_service")
-    def test_smart_delegate_raises_when_no_services_available(
+    def test_smart_delegate_reports_when_no_services_available(
         self,
         mock_verify: MagicMock,
+        temp_config_dir,
     ) -> None:
-        """smart_delegate raises RuntimeError when no services configured."""
+        """smart_delegate returns a fallback signal when nothing can take the work.
+
+        This asserted a RuntimeError while delegation was opt-in. Under the
+        default-on policy an operator with no CLI installed is the ordinary
+        case, so an empty chain became a returned result the caller acts on.
+        """
         mock_verify.return_value = (False, ["Service not available"])
-        delegator = Delegator()
+        delegator = Delegator(config_dir=temp_config_dir)
 
-        with pytest.raises(RuntimeError, match="No delegation services available"):
-            delegator.smart_delegate(
-                "test prompt",
-                files=None,
-                requirements=None,
-            )
+        result = delegator.smart_delegate(
+            "test prompt",
+            files=None,
+            requirements=None,
+        )
 
+        assert result.fallback_reason == FALLBACK_EXHAUSTED
         # Verify every service was probed
         assert mock_verify.call_count == len(delegator.services)
 
@@ -48,8 +58,9 @@ class TestSmartDelegateNoServices:
     def test_smart_delegate_tries_all_services_before_failing(
         self,
         mock_verify: MagicMock,
+        temp_config_dir,
     ) -> None:
-        """smart_delegate checks all services before raising error."""
+        """smart_delegate checks all services before reporting the fallback."""
         checked: list[str] = []
 
         def track_verify(name: str) -> tuple[bool, list[str]]:
@@ -57,10 +68,9 @@ class TestSmartDelegateNoServices:
             return False, [f"{name} not available"]
 
         mock_verify.side_effect = track_verify
-        delegator = Delegator()
+        delegator = Delegator(config_dir=temp_config_dir)
 
-        with pytest.raises(RuntimeError):
-            delegator.smart_delegate("test prompt")
+        assert delegator.smart_delegate("test prompt").fallback_reason
 
         assert "gemini" in checked
         assert "qwen" in checked
@@ -85,6 +95,7 @@ class TestSmartDelegateNoServices:
         mock_execute: MagicMock,
         unavailable_service: str,
         expected_service: str,
+        temp_config_dir,
     ) -> None:
         """smart_delegate picks the first available service."""
 
@@ -102,10 +113,10 @@ class TestSmartDelegateNoServices:
             duration=1.0,
         )
 
-        delegator = Delegator()
-        service, result = delegator.smart_delegate("test prompt")
+        delegator = Delegator(config_dir=temp_config_dir)
+        result = delegator.smart_delegate("test prompt")
 
-        assert service == expected_service
+        assert result.service == expected_service
         assert result.success
         mock_execute.assert_called_once()
         # Verify the prompt was passed through

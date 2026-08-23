@@ -80,19 +80,19 @@ class TestDelegationExecutorIntegration:
         with patch.object(delegator, "verify_service") as mock_verify:
             # Test case 1: Gemini available and large context needed
             mock_verify.return_value = (True, [])
-            service, result = delegator.smart_delegate(
+            result = delegator.smart_delegate(
                 "Analyze this large codebase",
                 requirements={"large_context": True, "gemini_available": True},
             )
-            assert service == "gemini"
+            assert result.service == "gemini"
 
             # Test case 2: Qwen available for code execution
             mock_verify.side_effect = [(False, ["Gemini not available"]), (True, [])]
-            service, _result = delegator.smart_delegate(
+            second = delegator.smart_delegate(
                 "Execute this code",
                 requirements={"code_execution": True, "qwen_available": True},
             )
-            assert service == "qwen"
+            assert second.service == "qwen"
 
 
 class TestQuotaTrackerIntegration:

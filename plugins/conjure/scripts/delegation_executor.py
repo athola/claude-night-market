@@ -145,6 +145,22 @@ VERIFIED_BINARIES: dict[str, dict[str, str]] = {
 }
 
 
+# Delegation is on unless someone says otherwise. The environment variable
+# is read at Delegator construction and overrides the config file, so the
+# narrower scope wins: an operator can decline delegation for one command
+# without editing a file they then have to remember to edit back.
+DELEGATION_ENV_VAR = "CONJURE_DELEGATION"
+_ENV_OFF_VALUES = frozenset({"0", "off", "false", "no"})
+_ENV_ON_VALUES = frozenset({"1", "on", "true", "yes"})
+
+# Why a delegation produced no answer. Both values mean the same thing to a
+# caller, which is "do this work yourself", and different things to whoever
+# has to fix it: one is a switch that was thrown on purpose, the other is a
+# machine with no provider that could take the work.
+FALLBACK_DISABLED = "delegation_disabled"
+FALLBACK_EXHAUSTED = "providers_exhausted"
+
+
 @dataclass
 class ServiceConfig:
     """Configuration for a delegation service.
@@ -324,6 +340,21 @@ class LaunchSpec:
     stdin_input: str | None = None
 
 
+@dataclass(frozen=True)
+class Attempt:
+    """One provider's turn at a delegation, and what came of it.
+
+    Kept per provider rather than collapsed into a single message because
+    "delegation failed" is not something an operator can act on. Whether
+    every CLI is missing or every credential has expired decides what they
+    do next, and only the trail distinguishes the two.
+    """
+
+    service: str
+    reason: str
+    exit_code: int | None = None
+
+
 @dataclass
 class ExecutionResult:
     """Result of a delegation execution."""
@@ -335,6 +366,13 @@ class ExecutionResult:
     duration: float
     tokens_used: int | None = None
     service: str | None = None
+    # Populated by smart_delegate only. A direct execute() call is one
+    # provider by name and has no chain to report.
+    attempts: tuple[Attempt, ...] = ()
+    # Set when no provider answered, naming which of the two causes it was.
+    # None on every result that carries an answer, so a caller tests this
+    # field rather than inferring intent from an exit code.
+    fallback_reason: str | None = None
 
 
 class Delegator:
@@ -547,8 +585,47 @@ class Delegator:
         # Per-instance copy to avoid mutating class-level default
         self.services = dict(self.SERVICES)
 
+        # Delegation is on until something turns it off. Resolved once here
+        # rather than per call so that a disabled delegator costs nothing:
+        # the caller learns the answer without a provider being probed.
+        self.delegation_enabled = True
+        self.delegation_off_reason: str | None = None
+        self._config_disables_delegation = False
+
         # Load custom configurations
         self.load_configurations()
+        self._resolve_delegation_policy()
+
+    def _resolve_delegation_policy(self) -> None:
+        """Decide whether delegation runs, and record why when it does not.
+
+        Two switches, environment over file. The file is the machine-wide
+        answer for an operator who does not want external CLIs at all; the
+        variable is the answer for a single run, which is what a prompt
+        that should not leave the machine needs.
+
+        Anything the variable spells that is neither on nor off is ignored
+        rather than guessed at, and the file's answer stands.
+        """
+        raw = os.environ.get(DELEGATION_ENV_VAR)
+        if raw is not None:
+            spelling = raw.strip().lower()
+            if spelling in _ENV_OFF_VALUES:
+                self.delegation_enabled = False
+                self.delegation_off_reason = (
+                    f"{DELEGATION_ENV_VAR}={raw} in the environment"
+                )
+                return
+            if spelling in _ENV_ON_VALUES:
+                self.delegation_enabled = True
+                self.delegation_off_reason = None
+                return
+
+        if self._config_disables_delegation:
+            self.delegation_enabled = False
+            self.delegation_off_reason = (
+                f'"enabled": false in config {self.config_file}'
+            )
 
     def load_configurations(self) -> None:
         """Load custom service configurations from config file."""
@@ -556,6 +633,12 @@ class Delegator:
             try:
                 with open(self.config_file) as f:
                     custom_config = json.load(f)
+                    # Absent means on. Only an explicit false opts out, so a
+                    # config file written for some other key cannot turn
+                    # delegation off as a side effect.
+                    self._config_disables_delegation = (
+                        custom_config.get("enabled") is False
+                    )
                     # Merge custom configurations
                     services_raw = custom_config.get("services", {})
                     if not isinstance(services_raw, dict):
@@ -890,21 +973,108 @@ class Delegator:
         prompt: str,
         files: list[str] | None = None,
         requirements: dict[str, Any] | None = None,
-    ) -> tuple[str, ExecutionResult]:
-        """Automatically select and execute with best service."""
-        requirements = requirements or {}
-        service_name = self._select_service(requirements)
+    ) -> ExecutionResult:
+        """Work down the provider chain until one answers, or report that none did.
 
-        options: dict[str, Any] = {}
+        Returns the answering provider's result, or a result carrying a
+        ``fallback_reason`` and the trail of what each provider did. It
+        does not raise on an empty chain: with delegation on by default,
+        an operator who has installed no CLI is the ordinary case rather
+        than the exceptional one, and a traceback is the wrong shape for a
+        state the caller recovers from by doing the work itself.
+
+        The chain stops at the first real answer. It is a fallback and not
+        a fan-out, so the cost of the new default stays one provider deep
+        on a working machine.
+        """
+        if not self.delegation_enabled:
+            return self._no_delegation(
+                FALLBACK_DISABLED,
+                f"Delegation is off: {self.delegation_off_reason}",
+            )
+
+        requirements = requirements or {}
+        attempts: list[Attempt] = []
+
+        for service_name in self._ordered_candidates(requirements):
+            # A caller that already knows a service is up says so, and is
+            # taken at its word. Probing it anyway would spend a subprocess
+            # to re-learn what the caller just said, on every task, now that
+            # delegation runs by default.
+            if not requirements.get(f"{service_name}_available"):
+                is_available, problems = self.verify_service(service_name)
+                if not is_available:
+                    attempts.append(
+                        Attempt(service=service_name, reason="; ".join(problems))
+                    )
+                    continue
+
+            result = self.execute(
+                service_name,
+                prompt,
+                files,
+                self._smart_options(service_name, requirements),
+            )
+            if _answered(result):
+                # The chain names the service rather than trusting the result
+                # to carry it: smart_delegate is what chose the provider, and
+                # a caller reading result.service after a fallback chain
+                # wants the one that answered.
+                return replace(
+                    result,
+                    service=service_name,
+                    attempts=(
+                        *attempts,
+                        Attempt(
+                            service=service_name,
+                            reason="answered",
+                            exit_code=result.exit_code,
+                        ),
+                    ),
+                )
+
+            attempts.append(
+                Attempt(
+                    service=service_name,
+                    reason=_failure_reason(result),
+                    exit_code=result.exit_code,
+                )
+            )
+
+        return self._no_delegation(
+            FALLBACK_EXHAUSTED,
+            "No provider answered; handle this task locally.",
+            attempts=tuple(attempts),
+        )
+
+    @staticmethod
+    def _no_delegation(
+        reason: str,
+        message: str,
+        attempts: tuple[Attempt, ...] = (),
+    ) -> ExecutionResult:
+        """Build the result that hands the work back to the caller."""
+        return ExecutionResult(
+            success=False,
+            stdout="",
+            stderr=message,
+            exit_code=1,
+            duration=0.0,
+            attempts=attempts,
+            fallback_reason=reason,
+        )
+
+    def _smart_options(
+        self,
+        service_name: str,
+        requirements: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Resolve the model a stated requirement asks this service for."""
         for requirement in ("large_context", "fast_response"):
             if requirements.get(requirement):
                 model = _smart_delegate_model(self.services[service_name], requirement)
-                if model:
-                    options["model"] = model
-                break
-
-        result = self.execute(service_name, prompt, files, options)
-        return service_name, result
+                return {"model": model} if model else {}
+        return {}
 
     def candidate_order(self) -> list[str]:
         """Return registered service names in declared preference order.
@@ -922,33 +1092,55 @@ class Delegator:
             key=lambda name: (self.services[name].priority, name),
         )
 
-    def _select_service(self, requirements: dict[str, Any]) -> str:
-        """Choose a service from the caller's stated requirements.
+    def _ordered_candidates(self, requirements: dict[str, Any]) -> list[str]:
+        """Order every registered provider by how well it fits the request.
+
+        Ordering only. Probing belongs to the caller walking this list,
+        because the chain has to know why each provider dropped out and a
+        function that returns one winner cannot say.
 
         A caller that already knows a service is up says so with
-        ``{"<name>_available": True}``. That key is generated from the
-        registry rather than enumerated, so it works for every provider
-        instead of only the three that used to be spelled out here.
+        ``{"<name>_available": True}`` and that service goes first. The key
+        is generated from the registry rather than enumerated, so it works
+        for every provider instead of the three that used to be spelled
+        out here.
         """
         candidates = self.candidate_order()
 
-        for name in candidates:
-            if requirements.get(f"{name}_available"):
-                return name
+        asserted = [n for n in candidates if requirements.get(f"{n}_available")]
 
         # Services declaring a requested strength are probed first; everything
         # else keeps its registry order behind them.
         wanted = {key for key, value in requirements.items() if value}
-        preferred = [n for n in candidates if wanted & set(self.services[n].strengths)]
-        ordered = preferred + [n for n in candidates if n not in preferred]
+        preferred = [
+            n
+            for n in candidates
+            if n not in asserted and wanted & set(self.services[n].strengths)
+        ]
+        rest = [n for n in candidates if n not in asserted and n not in preferred]
 
-        for name in ordered:
-            is_available, _ = self.verify_service(name)
-            if is_available:
-                return name
+        return asserted + preferred + rest
 
-        msg = "No delegation services available"
-        raise RuntimeError(msg)
+
+def _answered(result: ExecutionResult) -> bool:
+    """Report whether a provider produced something a caller can use.
+
+    An exit code is not enough on its own. This repository has recorded
+    ``opencode run`` exiting 0 with an empty stdout, and every CLI but the
+    stdin one printing a help page at exit 0 for a dash-leading prompt.
+    Both are successes by returncode and answers to nobody, and a chain
+    that stopped at either would hand back silence.
+    """
+    return result.success and bool(result.stdout.strip())
+
+
+def _failure_reason(result: ExecutionResult) -> str:
+    """Describe why a provider that ran did not answer."""
+    if result.success:
+        return "exit 0 with an empty answer"
+    detail = result.stderr.strip().splitlines()
+    summary = detail[0] if detail else "no stderr"
+    return f"exit {result.exit_code}: {summary}"
 
 
 def _iter_context_files(files: list[str]) -> list[Path]:
@@ -1147,6 +1339,21 @@ def _verify_service(delegator: Delegator, service_name: str) -> bool:
     return is_available
 
 
+def _report_fallback(result: ExecutionResult) -> None:
+    """Tell the caller no delegation happened, and what to do about it.
+
+    Printed to stderr and paired with a non-zero exit so that a script
+    piping stdout cannot mistake an absent answer for an empty one. The
+    per-provider trail goes out too: "delegation failed" leaves an
+    operator nowhere, while "every CLI is missing" and "every credential
+    expired" point at different fixes.
+    """
+    print(f"Delegation produced no answer ({result.fallback_reason}).", file=sys.stderr)
+    print(result.stderr, file=sys.stderr)
+    for attempt in result.attempts:
+        print(f"  {attempt.service}: {attempt.reason}", file=sys.stderr)
+
+
 def _print_result(result: ExecutionResult) -> bool:
     """Print execution result and report whether it succeeded."""
     if result.success:
@@ -1202,13 +1409,10 @@ def main() -> None:
         parser.error("service and prompt are required for delegation execution")
 
     if args.service == "auto":
-        try:
-            _, result = delegator.smart_delegate(args.prompt, args.files)
-        except RuntimeError as exc:
-            # No service could take the work. Returning here exited 0 and left
-            # the caller believing the delegation ran.
-            print(f"Failed: {exc}", file=sys.stderr)
-            raise SystemExit(1) from exc
+        result = delegator.smart_delegate(args.prompt, args.files)
+        if result.fallback_reason:
+            _report_fallback(result)
+            raise SystemExit(1)
     else:
         options: dict[str, Any] = {}
         if args.model:

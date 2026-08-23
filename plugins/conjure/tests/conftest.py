@@ -8,6 +8,17 @@ from unittest.mock import MagicMock
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def _delegation_policy_unset(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep a developer's own opt-out out of the test run.
+
+    Delegation reads CONJURE_DELEGATION from the environment, so whoever
+    exported it to decline delegation for their own work would otherwise
+    watch the chain tests fail on a machine where nothing is wrong.
+    """
+    monkeypatch.delenv("CONJURE_DELEGATION", raising=False)
+
+
 @pytest.fixture
 def temp_config_dir(tmp_path: Path) -> Path:
     """Create a temporary configuration directory."""
