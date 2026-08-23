@@ -170,7 +170,7 @@ Stored in `.egregore/config.json`:
 
 | | Ralph Wiggum | Egregore |
 |---|---|---|
-| Loop mechanism | Stop hook re-injects same prompt | Stop hook reads manifest, injects current step |
+| Loop mechanism | Stop hook re-injects same prompt, unbounded | Stop hook reads manifest, injects current step, bounded by stall detection |
 | State awareness | None (reads files each time) | Full pipeline state in manifest.json |
 | Session management | None | Continuation agents and watchdog daemon |
 | Token budgets | None | Watchdog resume at the recorded reset instant; CronCreate only while a session survives |
@@ -178,6 +178,46 @@ Stored in `.egregore/config.json`:
 | Progress visibility | None | `/loop 5m /egregore:status` auto-scheduled |
 | Decision making | Blind repetition | Autonomous with decision logging |
 | Pipeline | None | 16-step across 4 stages |
+
+## Stop Hook Stall Bound
+
+The Stop hook blocks the session from stopping while the manifest
+holds active work, which is how the loop continues without a human
+turn. That condition is static, so blocking on it alone re-injects
+the prompt forever. Dogfooding measured ten turns and roughly $0.70
+of Opus for a one-word prompt in a project whose manifest had active
+items and no way to advance them.
+
+The block is now bounded by stall detection. The hook hashes
+`manifest.json` and keeps a count in `.egregore/stop-hook-state.json`:
+
+| Event | Effect |
+|---|---|
+| Manifest hash changed since the last block | Count resets to zero |
+| New `session_id` (a watchdog relaunch) | Count resets to zero |
+| Block with the hash unchanged | Count increments |
+| Count reaches `EGREGORE_STOP_MAX_STALLS` (default 3) | Hook approves the stop and stays released until the hash changes |
+| State file cannot be written | Hook approves the stop |
+
+The last row is deliberate. An unbounded block is the failure being
+bounded here, and a released stop is recoverable because the watchdog
+relaunches the session.
+
+A step that legitimately runs longer than three turns without writing
+the manifest is paused rather than lost: the watchdog relaunches it on
+the next tick with a fresh count. Raise `EGREGORE_STOP_MAX_STALLS` to
+give such steps more room.
+
+**Residual cost, unbounded by this change.** A watchdog tick that
+finds a dead session relaunches into a fresh stall budget. An item
+stuck without manifest writes therefore costs about three turns per
+relaunch, every tick, for as long as the timer runs. Bounding one
+relaunch does not bound their product. That product is the systemd
+timer decision, and the escape hatch stays the same:
+
+```bash
+systemctl --user disable --now egregore-watchdog.timer
+```
 
 ## Watchdog Setup
 

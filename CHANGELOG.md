@@ -44,6 +44,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   tokens and 20 files" is why most eligible work never left the
   session. Thresholds now rank payoff and gate nothing.
 
+### Fixed
+
+- **The Stop hook re-injected forever, and dogfooding priced it
+  (egregore).** The hook blocked the session from stopping whenever
+  the manifest held active work. That condition is static, so a
+  session that could not advance the pipeline was handed the prompt
+  back on every stop. Measured against a real project: ten turns and
+  roughly $0.70 of Opus for a one-word prompt.
+
+  The block is now bounded by stall detection. The hook hashes
+  `manifest.json` and counts consecutive blocks in
+  `.egregore/stop-hook-state.json`. A changed hash is progress and
+  resets the count, as is a new `session_id`, which is what a watchdog
+  relaunch looks like. At `EGREGORE_STOP_MAX_STALLS` blocks (default 3)
+  the hook approves the stop and stays released until the hash changes
+  again. State that cannot be written approves the stop too: an
+  unbounded block is the failure being fixed, and a released stop is
+  recoverable because the watchdog relaunches the session.
+
+  Reading `session_id` meant reading the payload the hook had been
+  discarding, so `_manifest_utils` gains `read_stdin_payload` beside
+  the existing `consume_stdin`, which the other two hooks still use.
+
+  What this does not bound: a watchdog tick that finds a dead session
+  relaunches into a fresh budget, so a stuck item costs about three
+  turns per relaunch for as long as the timer runs. Bounding one
+  relaunch does not bound their product, and that product is the timer
+  decision, not this hook's.
+
 ## [1.9.19] - 2026-08-21
 
 ### Added

@@ -2,7 +2,7 @@
   "hooks": {
     "Stop": [
       {
-        "_comment": "Block exit when egregore has active work items",
+        "_comment": "Block exit when egregore has active work items. Bounded: after EGREGORE_STOP_MAX_STALLS blocks with no manifest change the hook approves the stop, so a session that cannot advance the pipeline does not re-inject forever.",
         "hooks": [
           {
             "type": "command",
