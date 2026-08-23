@@ -62,10 +62,49 @@ overflow this rule was written to prevent.
 - A script has no filesystem and no shell. A workflow
   may find, rank and structure. It cannot be the step
   that proves a test passed.
+- No module loading. A script containing `import()`
+  fails before the run starts, so work needing a
+  library belongs inside an agent's task.
 
 Full analysis, with the source for each claim:
 `reports/dynamic-workflows-integration-2026-08-23.md`
 (machine-local; `reports/` is gitignored).
+
+**The spend posture is pinned, not inherited:**
+
+`.claude/settings.json` sets `workflowSizeGuideline`
+to `medium`, which asks for fewer than 15 agents when
+Claude writes a workflow. That is also the built-in
+default, so the agent count Claude aims for does not
+move. Pinning it does change one thing: a guideline
+you choose replaces the default 25-agent threshold on
+the advisory `Large workflow` warning, so that warning
+fires here at 15 rather than 25. The pin is written
+down so a change to the default cannot silently resize
+the four workflows this repo ships, whose agent counts
+were sized against it. The key needs Claude Code
+v2.1.219 or later. Before that the effective
+guideline is `unrestricted`.
+
+Two things follow from pinning it in a settings file:
+
+- A settings file takes precedence over `/config`,
+  and the `/config` row is hidden while one supplies
+  a value. `/config workflowSizeGuideline=small` will
+  not take while this file sets the key.
+- The guideline is advice to the model, not a cap.
+  The runtime bounds are what actually hold: up to
+  16 concurrent agents, fewer on fewer CPUs, and
+  1,000 per run.
+
+`ultracode` is deliberately left unset. Setting it
+would have Claude plan a workflow for every
+substantive task, which is the unasked start the
+first constraint above forbids.
+
+The guideline sizes a run before it starts. Nothing
+in it measures what a run cost, so pair it with
+`Skill(conserve:agent-expenditure)` afterward.
 
 **Prefer tiered audit over full-codebase dispatch:**
 

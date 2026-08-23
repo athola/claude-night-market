@@ -1,3 +1,4 @@
 {
-  "description": "claude-night-market project settings"
+  "description": "claude-night-market project settings",
+  "workflowSizeGuideline": "medium"
 }
