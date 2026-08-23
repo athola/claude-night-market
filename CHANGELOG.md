@@ -85,10 +85,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   assertions and no docstrings scores 28.
 
   Five existing tests pinned the two revised rules and were updated,
-  not deleted. Called out for review rather than changed silently:
-  `assert result == 5` no longer counts as vague, `assert result` now
-  does, and the score-clamp test now drives the floor with a file bad
-  in every category instead of one category repeated fifty times.
+  not deleted. The sequence was modify, flag, ratify: the changes were
+  surfaced with the preserve, layer and revise options stated, and the
+  revision was ratified rather than reverted. `docs/tradeoffs.md`
+  TR-001 records the alternatives weighed, the naming smell given up,
+  and the one-predicate path back. Each revised test now says in its
+  own docstring what it used to pin and why that changed.
+
+  One interaction is pinned rather than changed: a test with no
+  docstring is charged to documentation and to the metrics floor, and
+  the BDD check skips it, because a missing docstring cannot hold a
+  missing clause and charging both would count one absence twice.
 
 - **The Stop hook re-injected forever, and dogfooding priced it
   (egregore).** The hook blocked the session from stopping whenever

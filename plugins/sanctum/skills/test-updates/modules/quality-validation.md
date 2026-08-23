@@ -165,7 +165,10 @@ def validate_bdd_patterns(test_content):
 
 - **Naming**: Descriptive, behavior-focused test names
 - **Structure**: Proper BDD patterns and organization
-- **Assertions**: Specific, meaningful checks
+- **Assertions**: Checks that state an expectation. A bare name
+  (`assert result`) or a comparison against `None` proves only that
+  something exists; a comparison against a concrete value is specific
+  whatever the variable is named
 - **Independence**: No test dependencies
 - **Documentation**: Clear docstrings and comments
 
@@ -332,3 +335,12 @@ part of the rubric produced it.
 
 Coverage and mutation testing are not inputs to this score. Neither is
 measured by the checker.
+
+A test with no docstring is charged to `documentation` and to the
+metrics floor, and to nothing else. The BDD check skips it, because a
+missing docstring cannot hold a missing clause, and charging the same
+absence to both categories would count it twice. Pinned by
+`test_undocumented_tests_are_charged_to_documentation_not_bdd`.
+
+The rubric revision, the alternatives weighed, and the one-predicate
+reversal path are recorded in `docs/tradeoffs.md` as TR-001.

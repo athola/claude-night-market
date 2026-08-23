@@ -68,7 +68,7 @@ def _bad_test_file(tmp_path: Path) -> Path:
         "\n"
         "def test_vague():\n"
         "    result = 5\n"
-        "    assert result\n"  # existence-only assertion
+        "    assert result\n"  # existence-only assertion (TR-001)
     )
     return p
 
@@ -276,9 +276,16 @@ def test_determine_quality_level_thresholds(tmp_path):
 
 
 def test_calculate_overall_score_clamps_to_range(tmp_path):
+    """The score never leaves [0, 100], however bad or good the file.
+
+    The invariant is preserved from the original test; the input was
+    revised (TR-001). Category budgets mean one category repeated fifty
+    times no longer reaches the floor, so the floor case is now a file
+    that is bad in every category, and the ceiling case was added.
+    """
     qc = _load_script()
     c = qc.TestQualityChecker(tmp_path)
-    # Build a synthetic result with many errors to push score negative
+    # Bad in every category, with a failing run and no tests: past the floor
     err = qc.QualityIssue("error", "structure", "x")
     results = {
         "static_analysis": {
@@ -921,7 +928,12 @@ def test_is_vague_result_assertion_false_for_a_named_expectation(tmp_path):
 
 
 def test_check_assertion_quality_still_flags_vague_result(tmp_path):
-    """Behavior guard: vague assertion is still reported after refactor."""
+    """Behavior guard: a vague assertion is still reported after refactor.
+
+    The pinned shape changed with TR-001. It was `assert result == 5`,
+    which states an expectation and is no longer vague. It is now
+    `assert result is not None`, which does not.
+    """
     qc = _load_script()
     f = tmp_path / "test_vague.py"
     f.write_text(
@@ -1294,3 +1306,31 @@ def test_dynamic_run_finds_the_test_file_from_the_project_root(tmp_path, monkeyp
     checker = qc.TestQualityChecker(Path("widget/tests/test_widget.py"))
     out = checker.run_dynamic_validation()
     assert out["execution_result"] == 0, out
+
+
+def test_undocumented_tests_are_charged_to_documentation_not_bdd(tmp_path):
+    """A test with no docstring is a documentation problem, charged once.
+
+    GIVEN a file whose tests carry no docstrings at all
+    WHEN the file is scored
+    THEN the BDD category charges nothing, because there is no docstring
+      to hold clauses, and the documentation category and the metrics
+      floor carry the cost instead
+
+    Pinned deliberately (TR-001): making the BDD check treat a missing
+    docstring as a missing clause would charge the same absence twice.
+    """
+    qc = _load_script()
+    f = tmp_path / "test_undocumented.py"
+    f.write_text(
+        "import pytest\n\n"
+        "def test_widget_adds_two_numbers():\n"
+        "    assert 1 + 1 == 2\n\n"
+        "def test_widget_subtracts_two_numbers():\n"
+        "    assert 3 - 1 == 2\n"
+    )
+    results = qc.TestQualityChecker(f).run_full_validation()
+    assert results["static_analysis"]["bdd_compliance"] == []
+    assert results["score_breakdown"]["bdd_compliance"] == 0
+    assert results["score_breakdown"]["documentation"] > 0
+    assert results["score_breakdown"]["metrics"] > 0
