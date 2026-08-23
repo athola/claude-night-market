@@ -437,7 +437,6 @@ Other plugins reference individual gates:
 | `sanctum:pr-review` | proof-of-work, scope-guard | parallel, ad-hoc |
 | `attune:project-execution` | proof-of-work, scope-guard | per-task |
 | `scribe:session-to-post` | proof-of-work | once at end |
-| `abstract:bulletproof-skill` | rigorous-reasoning | once before refactor |
 
 No caller invokes the full federation in the order the
 gate authors intended. `imbue:vow-enforcement` is invoked

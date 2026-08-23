@@ -325,7 +325,6 @@ These require creative, architectural, or adversarial thinking:
 - Architectural reasoning and design decisions
 
 ### Abstract Plugin
-- `bulletproof-skill` - Adversarial thinking for anti-rationalization
 - `skill-authoring` - Behavioral psychology for effectiveness
 - `hook-authoring` - Security reasoning for hook design
 - `skills-eval` - Nuanced quality assessment

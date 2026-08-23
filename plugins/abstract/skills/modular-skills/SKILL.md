@@ -123,7 +123,6 @@ Our standards prioritize concrete examples and a consistent voice. Always provid
 ### Shared Modules: Cross-Skill Patterns
 Standard patterns for triggers and for deciding whether a skill applies:
 - **Trigger Patterns**: See [enforcement-patterns.md](modules/enforcement-patterns.md)
-- **Enforcement Language**: See [enforcement-language.md](../shared-patterns/modules/workflow-patterns.md)
 - **Skill Selection**: See [skill-selection-judgment.md](../../shared-modules/skill-selection-judgment.md)
 
 ### Skill-Specific Modules

@@ -160,7 +160,6 @@ Before shipping a skill, verify:
 - [ ] No "When to Use" section in the body duplicates description triggers
 - [ ] Triggers use concrete, searchable keywords
 - [ ] Negative triggers explicitly name alternatives
-- [ ] Enforcement language matches skill category (see enforcement-language.md)
 - [ ] Description is self-contained (readable without skill body)
 
 ## Usage

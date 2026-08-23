@@ -246,7 +246,6 @@ Warning: Test results vary between runs
 
 - `/create-skill` - Create new skills with built-in testing
 - `/skills-eval` - detailed skill evaluation
-- `/bulletproof-skill` - Anti-rationalization hardening
 - `/validate-plugin` - Plugin structure validation
 
 ## Version History

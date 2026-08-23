@@ -46,7 +46,6 @@ skills:
 commands:
 - commands/aggregate-logs.md
 - commands/analyze-skill.md
-- commands/bulletproof-skill.md
 - commands/context-report.md
 - commands/create-command.md
 - commands/create-hook.md

@@ -8,7 +8,6 @@ usage: /create-hook [hook-description] [--skip-brainstorm] [--plugin <name>] [--
 
 Creates new hooks through a structured workflow: **iron-law → brainstorm → design → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed, secure hooks before generating any files.
 
-**Important**: This workflow enforces the Iron Law. You cannot create hook files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
 
 ## When To Use
 
@@ -58,7 +57,6 @@ Avoid this command if:
 
 **This phase is required and cannot be skipped.**
 
-Before any file creation, satisfy the Iron Law interlock. See [iron-law-interlock.md](../shared-modules/iron-law-interlock.md) for full details.
 
 #### Quick Reference
 
@@ -75,7 +73,6 @@ Before any file creation, satisfy the Iron Law interlock. See [iron-law-interloc
    Output: FAILED - FileNotFoundError
    Status: RED - Interlock satisfied
    ```
-5. **TodoWrite**: `proof:iron-law-red`, `proof:iron-law-interlock-satisfied`
 
 **Only after completing Phase -1 may you proceed.**
 

@@ -99,7 +99,6 @@ For complete testing patterns, examples, and templates:
 ## See Also
 
 - **skill-authoring**: Creating effective skills
-- **bulletproof-skill**: Anti-rationalization patterns
 - **test-skill**: Automated skill testing command
 
 ## Exit Criteria

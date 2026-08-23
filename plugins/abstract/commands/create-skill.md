@@ -8,7 +8,6 @@ usage: /create-skill [skill-description] [--skip-brainstorm] [--plugin <name>]
 
 Creates new skills through a structured workflow: **iron-law → brainstorm → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed skills before generating any files.
 
-**Important**: This workflow enforces the Iron Law. You cannot create skill files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
 
 ## Usage
 
@@ -29,7 +28,6 @@ Creates new skills through a structured workflow: **iron-law → brainstorm → 
 
 **This phase is required and cannot be skipped.**
 
-Before any file creation, satisfy the Iron Law interlock. See [iron-law-interlock.md](../shared-modules/iron-law-interlock.md) for full details.
 
 #### Quick Reference
 
@@ -46,7 +44,6 @@ Before any file creation, satisfy the Iron Law interlock. See [iron-law-interloc
    Output: FAILED - FileNotFoundError
    Status: RED - Interlock satisfied
    ```
-5. **TodoWrite**: `proof:iron-law-red`, `proof:iron-law-interlock-satisfied`
 
 **Only after completing Phase -1 may you proceed.**
 
@@ -351,7 +348,6 @@ Next Steps (TDD Workflow):
    - Add explicit counters and close loopholes
    - Create rationalization table
    - Re-test until bulletproof
-   - Command: /bulletproof-skill skills/${skill_name}
 
 4. VALIDATE & DEPLOY
    - Run final validation: /validate-plugin
@@ -486,13 +482,11 @@ This command is the entry point to the full TDD skill development cycle:
 1. **Create** → Use this command for scaffolding
 2. **Red** → Use `/test-skill --phase red` for baseline testing
 3. **Green** → Edit SKILL.md, then `/test-skill --phase green`
-4. **Refactor** → Use `/bulletproof-skill` for anti-rationalization
 5. **Validate** → Use `/validate-plugin` for final checks
 
 ## See Also
 
 - `/test-skill` - TDD testing workflow
-- `/bulletproof-skill` - Anti-rationalization hardening
 - `/analyze-skill` - Complexity analysis
 - `/validate-plugin` - Structure validation
 - `Skill(superpowers:writing-skills)` - Upstream superpowers skill-authoring reference

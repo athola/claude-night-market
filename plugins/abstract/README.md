@@ -44,9 +44,7 @@ and `meta-architect` assist during review.
 *   `scripts/`: Validation and analysis tools.
 *   `src/abstract/`: Shared Python package.
 *   `shared-modules/`: Reusable enforcement patterns for cross-skill reference.
-    *   `iron-law-interlock.md`:
         Hard gate for TDD compliance in creation workflows.
-    *   `enforcement-language.md`: Language intensity calibration.
     *   `skill-selection-judgment.md`: Bypass prevention patterns.
     *   `trigger-patterns.md`: Skill trigger design patterns.
 *   `docs/`: Technical documentation, ADRs, and examples.
@@ -100,7 +98,6 @@ Ways to leave this plugin better than you found it:
   concrete before/after examples from real sessions
 - Hook stability tests could cover more edge cases,
   especially around Python 3.9 compatibility boundaries
-- Shared modules like `iron-law-interlock.md` would benefit
   from inline examples showing correct and incorrect usage
 - Skill trigger patterns in `trigger-patterns.md` have room
   for additional real-world discovery scenarios

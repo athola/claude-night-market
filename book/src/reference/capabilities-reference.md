@@ -245,7 +245,6 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/attune:war-room` | attune | Multi-LLM expert deliberation with reversibility-based routing |
 | `/bloat-scan` | conserve | Progressive bloat detection (3-tier scan) |
 | `/bug-review` | pensive | Bug hunting review |
-| `/bulletproof-skill` | abstract | Anti-rationalization workflow |
 | `/catchup` | imbue | Quick context recovery |
 | `/check-async` | parseltongue | Async pattern validation |
 | `/close-issue` | minister | Analyze if GitHub issues can be closed based on commits |
