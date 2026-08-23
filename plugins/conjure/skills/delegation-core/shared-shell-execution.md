@@ -465,13 +465,31 @@ result = delegator.execute(
     options={"model": "gemini-3-pro"},
 )
 
-service, result = delegator.smart_delegate(
+result = delegator.smart_delegate(
     "Summarize this codebase",
     files=["src"],
     requirements={"large_context": True},
 )
+if result.fallback_reason:
+    for attempt in result.attempts:
+        print(attempt.service, attempt.reason)
+    # No provider answered. Do the work here.
 ```
 
-`smart_delegate` returns the chosen service name alongside the result,
-and passes a `--model` flag only where the provider declares model ids.
+`smart_delegate` returns one `ExecutionResult`, with the answering
+provider in `result.service`.
+It used to return that name in a tuple alongside the result, which was
+redundant once the chain became the thing that chose the provider.
+
+It walks the registry order and returns the first real answer, treating
+a missing binary, a failed exit and an exit-0 empty stdout alike as
+reasons to try the next provider.
+A `--model` flag goes out only where the provider declares model ids.
 A provider that declares none keeps its CLI's own default.
+
+When the chain is exhausted, or when delegation is turned off,
+`result.fallback_reason` is set (`providers_exhausted` or
+`delegation_disabled`) and `result.attempts` names what each provider
+did.
+It does not raise: with delegation on by default, an operator who has
+installed no CLI is the ordinary case rather than an error condition.

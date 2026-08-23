@@ -37,6 +37,7 @@ Terms used once, defined once:
 | LSP config | `.cclsp.json` | `pylsp` for py/pyi; `typescript-language-server` for js/ts and markdown | Production | Manual |
 | Feature-review scoring | `.feature-review.yaml` | `version: 1`; weight tables for value and cost; thresholds `high_priority` 2.8, `medium_priority` 1.8, `confidence_warning` 0.6 | Production | Consumed by imbue:feature-review |
 | Egregore runtime config | `.egregore/config.json` (runtime file, created in the target repo, not committed here) | Nested dataclasses in `plugins/egregore/scripts/config.py`: overseer, alerts, pipeline, budget, discussions. `pipeline.completion_integrity = False` | Experimental opt-in flag inside production config | Unit tests in `plugins/egregore/tests/test_config.py` (default, roundtrip, and raw-JSON opt-in paths) |
+| Conjure delegation | `~/.claude/hooks/delegation/config.json` (runtime file, per machine, not committed here) | Top-level `enabled` defaults to on when absent; only an explicit `false` opts out. `services` overrides per-provider `ServiceConfig` fields | Production, default-on | `plugins/conjure/tests/scripts/test_delegation_executor.py::TestDelegationIsOnUnlessRefused` |
 | Herald Stop-hook judge | `plugins/herald/hooks/hooks.json` + env vars | Stop hook `double_shot_latte.py` registered with `timeout: 10`; internal `LLM_TIMEOUT_SECONDS = 8` | Hook production, LLM path experimental | Guard test asserts LLM timeout stays under the registered hook budget |
 
 Caveat on the two `.claude/*.json` policy files: no Python
@@ -126,6 +127,7 @@ easy to confuse:
 | `DOUBLE_SHOT_LATTE_MODEL` | same hook | Default `"haiku"` | Model used for the second shot | Experimental |
 | `DOUBLE_SHOT_LATTE_MAX_CONTINUATIONS` | same hook | Integer (read from env; see hook source for cap semantics) | Caps forced continuations | Production guard |
 | `CLAUDE_HOOK_JUDGE_MODE` | same hook | `"true"` disables the LLM path | Prevents the judge from invoking itself recursively | Production guard |
+| `CONJURE_DELEGATION` | `plugins/conjure/scripts/delegation_executor.py` | `off`/`0`/`false`/`no` and their opposites, any case; unset means on | Declines delegation for one run. A disabled delegator probes and spawns nothing, and returns `fallback_reason="delegation_disabled"`. Overrides the config file in both directions | Production, opt-out |
 
 ## Experimental and opt-in flags
 

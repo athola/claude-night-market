@@ -222,6 +222,17 @@ Agent Teams extends the conjure delegation model:
 
 Use `Skill(conjure:delegation-core)` first to determine if the task benefits from multi-agent coordination vs. single-service delegation.
 
+Delegation is on by default there, so the question a team formation
+answers is which shape of delegation fits, not whether to delegate.
+A teammate holding execution work delegates it the same way a single
+session would. A teammate holding design work keeps it, under the same
+Keep Local clauses.
+
+When a teammate's delegation returns a `fallback_reason`, that teammate
+does the work itself and reports which providers it tried. It does not
+message the crew for a reassignment: no other teammate has a provider
+this one lacks, because the registry is machine-wide.
+
 ## Worktree Isolation Alternative (Claude Code 2.1.49+)
 
 For parallel agents that modify files, `isolation: worktree` provides a lightweight alternative to filesystem-based coordination. Each agent runs in its own temporary git worktree, eliminating the need for `fcntl` locking or inbox-based conflict avoidance on shared files.

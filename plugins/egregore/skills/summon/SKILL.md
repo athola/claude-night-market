@@ -231,6 +231,26 @@ The intake stage steps (parse, validate, prioritize) are
 handled inline by the orchestrator.
 See `modules/intake.md` for details.
 
+### Delegation Inside the Loop
+
+The build and quality stages delegate execution by default through
+`Skill(conjure:delegation-core)`.
+An unattended loop is where the default earns most: nobody is present to
+notice that an external CLI was available and unused.
+
+The orchestrator does not decide per task.
+It invokes the mapped skill, and that skill applies the delegation
+posture with its own Keep Local clauses.
+
+A `providers_exhausted` result is not a step failure.
+The orchestrator must not retry the step or mark the work item failed on
+it. The skill completes the work locally and the pipeline advances.
+Treating it as a failure would burn the retry budget on a machine where
+nothing is broken.
+
+To run the egregore with no external models, export
+`CONJURE_DELEGATION=off` in the environment that launches it.
+
 ## Context Overflow Protocol
 
 The orchestrator runs inside a finite context window.

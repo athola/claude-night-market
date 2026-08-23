@@ -1,6 +1,6 @@
 ---
 name: delegation-core
-description: Delegates tasks to Gemini, Qwen, MiniMax, GLM, Muse, Codex or OpenCode with quota tracking. Use when tasks exceed context window or need cheaper processing.
+description: Delegates execution to Gemini, Qwen, MiniMax, GLM, Muse, Codex or OpenCode by default, falling back to local work when none answers. Use for execution tasks.
 alwaysApply: false
 category: delegation-framework
 tags:
@@ -47,7 +47,10 @@ references:
 ## Table of Contents
 
 - [Overview](#overview)
-- [When to Use](#when-to-use)
+- [Default Posture](#default-posture)
+- [Keep Local](#keep-local)
+- [Declining Delegation](#declining-delegation)
+- [When No Provider Answers](#when-no-provider-answers)
 - [Philosophy](#philosophy)
 - [Delegation Flow](#delegation-flow)
 - [Quick Decision Matrix](#quick-decision-matrix)
@@ -68,15 +71,66 @@ references:
 
 A method for deciding when and how to delegate tasks to external LLM services. Core principle: **delegate execution, retain high-level reasoning**.
 
-## When To Use
-- Before invoking external LLMs for task assistance.
-- When operations are token-heavy and exceed local context limits.
-- When batch processing benefits from different model characteristics.
-- When tasks require routing between models.
+## Default Posture
 
-## When NOT To Use
+**Delegation is on. Declining it is the step that takes a decision.**
 
-- Task requires reasoning by Claude
+Any conjure operation, mission phase, or workflow that reaches eligible
+work delegates it without being asked.
+Eligible means the work is execution rather than reasoning, which the
+philosophy below defines and `modules/task-assessment.md` classifies.
+An operator who wants delegation off says so once, in one of the two
+places under Declining Delegation.
+
+This inverts the earlier framing, which listed the occasions on which to
+delegate and so made delegation something a caller had to remember.
+The occasions were correct and are now the exception list instead.
+
+## Keep Local
+
+Delegation stops at the boundary the philosophy draws.
+Keep the work local when any of these hold:
+
+- The task is reasoning: architecture, design, trade-offs, judgment.
+- The prompt or context carries a secret, a credential, or data that
+  should not leave the machine.
+- The task needs iteration with the operator turn by turn.
+- Correctness cannot be validated after the fact.
+
+The first is the standing exception and covers most of what Claude does.
+The rest are the red flags `modules/handoff-patterns.md` already lists.
+
+## Declining Delegation
+
+Two switches, environment over file.
+
+| Scope | How | Effect |
+|-------|-----|--------|
+| One run | `CONJURE_DELEGATION=off` | No provider is probed or spawned |
+| One machine | `"enabled": false` in `~/.claude/hooks/delegation/config.json` | Same, until the key changes |
+
+`CONJURE_DELEGATION` accepts `off`, `0`, `false`, `no` and their
+opposites, in any case.
+Setting it to an on spelling re-enables delegation that the config file
+turned off, so the narrower scope wins.
+A disabled delegator returns a result whose `fallback_reason` is
+`delegation_disabled` and spawns nothing, so opting out costs nothing.
+
+## When No Provider Answers
+
+`smart_delegate` works down the registry order and returns the first
+real answer.
+A provider that is missing, unauthenticated, failing, or answering with
+an empty stdout is recorded and the chain moves on.
+
+When it reaches the end, it returns a result with
+`fallback_reason` set to `providers_exhausted` and an `attempts` trail
+naming what each provider did.
+**That result is the instruction to do the work locally.** Read it, say
+which providers were tried and why none answered, and then do the task
+yourself.
+Do not treat it as an error to report and stop on: a machine with no CLI
+installed is the ordinary case for this default, not a fault.
 
 ## Philosophy
 
@@ -214,6 +268,8 @@ matrix, mode compatibility notes, and anti-patterns to avoid.
 ## Exit Criteria
 
 - [ ] Task assessed and classified.
-- [ ] Delegation decision justified.
+- [ ] Work that stayed local names which Keep Local clause held it.
+- [ ] A `providers_exhausted` result was reported with its attempts
+      trail and then completed locally, not abandoned.
 - [ ] Results validated before integration.
 - [ ] Lessons captured.

@@ -40,11 +40,18 @@ dependencies:
 
 ## Decision Matrix
 
+Delegation is the default. This matrix says what overrides it, not what
+earns it.
+
 | Intelligence | Context | Recommendation |
 |-------------|---------|----------------|
-| High | Any | Keep local |
+| High | Any | Keep local: the standing exception |
 | Low | Large | Delegate |
-| Low | Small | Either |
+| Low | Small | Delegate |
+
+The "Low, Small: either" row used to sit at the bottom, and "either" in
+practice meant local, because local was what happened when nobody
+decided. Under the default-on posture the row resolves to delegate.
 
 ## Assessment Checklist
 
@@ -54,6 +61,7 @@ Record the following for each task:
 - [ ] **Intelligence Level**: High or Low?
 - [ ] **Context Size**: Large or Small?
 - [ ] **Failure Impact**: What happens if delegation fails?
+- [ ] **Keep Local clause**: which one held, or none
 
 ## Token Usage Estimates
 
@@ -70,11 +78,25 @@ Record the following for each task:
 - Large codebase (200+ files): 300,000+ tokens
 
 **Delegation Thresholds:**
-- **Efficient to delegate**: >25,000 total tokens or >50 files
-- **Consider delegation**: 10,000-25,000 tokens or 20-50 files
-- **Keep local**: <10,000 tokens and <20 files
+
+These rank the payoff. They are not eligibility, and no row here is a
+Keep Local clause: the four clauses in the parent skill are the whole
+list. A task that clears none of these still delegates.
+
+- **Clear win**: >25,000 total tokens or >50 files
+- **Worth it**: 10,000-25,000 tokens or 20-50 files
+- **Marginal**: <10,000 tokens and <20 files
+
+One efficiency exemption, and it is about latency rather than fit: below
+roughly 500 tokens of work the subprocess round trip costs more than the
+task, so answering in place is the cheaper move. Do not stretch this
+into a general small-task exemption. That is the shape the earlier
+threshold had, and it is why most eligible work never left the session.
 
 ## Red Flags (Stay Local)
+
+These are the parent skill's Keep Local clauses, stated per task. A task
+matching any of them stays local and the reason is recorded.
 
 - Security-sensitive operations (auth, crypto, secrets)
 - Tasks requiring real-time iteration
