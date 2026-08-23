@@ -29,7 +29,7 @@ $(1):
 endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
-.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan
+.PHONY: help all test lint typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan
 
 # Default target
 all: lint test ## Run lint and test across all plugins
@@ -120,6 +120,9 @@ status: ## Show status of all plugins
 		echo ">>> $$plugin:"; \
 		$(MAKE) -C $$plugin status 2>/dev/null || echo "  (status unavailable)"; \
 	done
+
+prune-plugin-cache: ## Delete plugin cache versions nothing installed points at
+	@python3 scripts/prune_plugin_cache.py $(if $(DRY_RUN),--dry-run,)
 
 clean: ## Clean all plugin artifacts
 	@echo "Cleaning all plugins..."
