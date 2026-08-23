@@ -208,6 +208,15 @@ the manifest is paused rather than lost: the watchdog relaunches it on
 the next tick with a fresh count. Raise `EGREGORE_STOP_MAX_STALLS` to
 give such steps more room.
 
+**What the bound does not settle.** Stop-hook re-injection is not an
+upstream-documented continuation mechanism. The sanctioned primitives,
+`/loop` and `CronCreate`, are session-scoped, so neither replaces it.
+This bound prices the ride; it does not sanction it. The bound also
+takes manifest bytes as its definition of progress, so a session that
+writes the manifest every turn without advancing the pipeline still
+loops. That is not the measured failure, where a stuck session wrote
+nothing at all.
+
 **Residual cost, unbounded by this change.** A watchdog tick that
 finds a dead session relaunches into a fresh stall budget. An item
 stuck without manifest writes therefore costs about three turns per
