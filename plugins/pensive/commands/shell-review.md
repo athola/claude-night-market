@@ -17,6 +17,5 @@ Without arguments, reviews all `.sh` files in `scripts/` and `.git/hooks/`.
 
 ## What It Does
 
-Runs `Skill(pensive:shell-review)`, which carries the workflow, the
-checklist, and the output format. The skill is the one copy of that
-methodology; this command is the entry point that invokes it.
+Invoke `Skill(pensive:shell-review)`, which carries the audit workflow, the
+anti-pattern checks and the output format.

@@ -16,10 +16,8 @@ pr (quality scoring), release (full ecosystem audit).
 Detects affected plugins from git diff and reviews
 related plugins for side effects.
 
-Runs `Skill(abstract:plugin-review)`, which with its four modules carries
-the tier definitions, the scope detection, the verdict and the output
-format. The CI wiring and the script invocation below belong to the
-command.
+Invoke `Skill(abstract:plugin-review)`, which carries the tier definitions,
+the scope detection, the verdict and the output format.
 
 ## When To Use
 

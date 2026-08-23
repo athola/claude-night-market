@@ -15,6 +15,5 @@ Audit Makefiles for best practices and portability.
 
 ## What It Does
 
-Runs `Skill(pensive:makefile-review)`, which carries the workflow, the
-checklist, and the output format. The skill is the one copy of that
-methodology; this command is the entry point that invokes it.
+Invoke `Skill(pensive:makefile-review)`, which carries the audit workflow,
+the portability checks and the output format.

@@ -15,6 +15,5 @@ Evaluate and upgrade test suites with TDD/BDD rigor.
 
 ## What It Does
 
-Runs `Skill(pensive:test-review)`, which carries the workflow, the
-checklist, and the output format. The skill is the one copy of that
-methodology; this command is the entry point that invokes it.
+Invoke `Skill(pensive:test-review)`, which carries the review workflow, the
+TDD and BDD checks and the output format.

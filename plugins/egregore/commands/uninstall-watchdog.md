@@ -10,7 +10,7 @@ usage: /egregore:uninstall-watchdog
 Remove the egregore watchdog daemon and clean up all
 related files.
 
-Runs `Skill(egregore:uninstall-watchdog)`, which carries the uninstall
+Invoke `Skill(egregore:uninstall-watchdog)`, which carries the uninstall
 steps and the list of files removed.
 
 ## See Also

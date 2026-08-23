@@ -15,9 +15,8 @@ Expert-level Rust audits for safety and correctness.
 
 ## What It Does
 
-Runs `Skill(pensive:rust-review)`, which carries the audit workflow and
-the output format. The dimensions below are the surface this command
-reviews; the skill is the one copy of how each is audited.
+Invoke `Skill(pensive:rust-review)`, which carries the audit workflow and
+the output format. The dimensions below are what this command reviews.
 
 1. **Borrowing & Lifetimes**: Check ownership patterns
 2. **Error Handling**: Evaluate Result/Option usage

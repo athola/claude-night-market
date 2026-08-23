@@ -6,9 +6,8 @@ usage: /skills-eval [skill-name]
 
 # Skills Evaluation Command
 
-Runs `Skill(abstract:skills-eval)`, which with its twelve modules carries
-the evaluation criteria, the workflow and the output format. That skill
-is 3038 lines against this file; it is the one copy.
+Invoke `Skill(abstract:skills-eval)`, which carries the evaluation criteria,
+the workflow and the output format across its modules.
 
 ## When To Use
 

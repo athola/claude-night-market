@@ -15,6 +15,5 @@ Intensive mathematical analysis for numerical stability and correctness.
 
 ## What It Does
 
-Runs `Skill(pensive:math-review)`, which carries the workflow, the
-checklist, and the output format. The skill is the one copy of that
-methodology; this command is the entry point that invokes it.
+Invoke `Skill(pensive:math-review)`, which carries the analysis workflow,
+the numerical-stability checks and the output format.

@@ -8,9 +8,8 @@ usage: /rules-eval [rules-path] [options]
 
 Evaluate and validate Claude Code rules in `.claude/rules/` directories. Checks YAML frontmatter, glob patterns, content quality, and directory organization.
 
-Runs `Skill(abstract:rules-eval)`, which with its four modules carries the
-scoring, the frontmatter and glob validations and the organization
-patterns. The script invocation below belongs to the command.
+Invoke `Skill(abstract:rules-eval)`, which carries the scoring, the
+frontmatter and glob validations and the organization patterns.
 
 ## When To Use
 

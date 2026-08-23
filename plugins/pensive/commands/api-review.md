@@ -15,6 +15,5 @@ Evaluate public API surfaces against guidelines and exemplars.
 
 ## What It Does
 
-Runs `Skill(pensive:api-review)`, which carries the workflow, the
-checklist, and the output format. The skill is the one copy of that
-methodology; this command is the entry point that invokes it.
+Invoke `Skill(pensive:api-review)`, which carries the review workflow, the
+API quality checklist and the output format.

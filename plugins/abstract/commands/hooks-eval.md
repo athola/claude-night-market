@@ -8,10 +8,8 @@ usage: /hooks-eval [plugin-path] [options]
 
 Detailed evaluation framework for analyzing all hooks within a plugin (or across project/global scopes) with advanced security scanning, performance benchmarking, and compliance validation. Built on the same principles as skills-eval but specifically tailored for Claude Code hook architecture.
 
-Runs `Skill(abstract:hooks-eval)`, which with its two modules carries the
-evaluation criteria, the SDK hook types and the integration points. The
-options, the script invocation and the exit codes below belong to the
-command.
+Invoke `Skill(abstract:hooks-eval)`, which carries the evaluation criteria,
+the SDK hook types and the integration points.
 
 ## When To Use
 

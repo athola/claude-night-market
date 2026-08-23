@@ -9,12 +9,10 @@ usage: /do-issue <issue-number | issue-url | space-delimited-list> [--dry-run] [
 A progressive workflow for implementing issues from the detected git platform (GitHub, GitLab, or Bitbucket), following the attune pattern:
 **analyze** → **specify** → **plan** → **implement** → **validate** → **complete**
 
-Runs `Skill(sanctum:do-issue)`, which with its six modules carries the
-six-step workflow, the task planning, the parallel execution, the
-quality gates and the completion steps. That skill is 972 lines against
-this command; it is the one copy of the procedure. What stays here is
-what the command owns: its arguments, its step-skipping rules, and the
-War Room gate that decides when planning escalates.
+Invoke `Skill(sanctum:do-issue)`, which carries the six-step workflow, the
+task planning, the parallel execution, the quality gates and the
+completion steps. The arguments, step-skipping rules and War Room gate
+below are applied by this command.
 
 ## When To Use
 
