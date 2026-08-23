@@ -46,6 +46,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **/fix-workflow's analysis half becomes a pipeline, and stops before
+  the edits (sanctum).** Stages 2 to 4 of Phase 1 were three agents in
+  a fixed order with structured handoffs, described in prose across
+  three agent files, and the command exceeded the repository's own
+  4-agent plan-mode threshold on every run.
+  `plugins/sanctum/workflows/fix-workflow-analysis.js` runs them as one
+  pipeline with a schema per handoff and returns a plan.
+
+  It deliberately stops before the implementer. A workflow's subagents
+  run in `acceptEdits` whatever the session's permission mode, so an
+  implementer stage inside the script would apply edits nobody saw
+  proposed, and the script has no shell, so it could not check one
+  acceptance criterion it writes. Implementation and validation stay in
+  the session. A test fails if an editing agent is ever added back.
+
 - **The first shipped workflow, and the barrier it replaces (pensive).**
   `unified-review` required every lens dispatched in one call with no
   output read until all returned, so one lens could not colour how the
