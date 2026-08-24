@@ -52,6 +52,14 @@ class Verdict:
     dissent: bool = False
 
 
+#: Exit codes that mean the command never ran to a conclusion. They
+#: satisfied `expect: fail` on nonzero alone, so a guard that could not
+#: be found, or that hung until the timeout killed it, was recorded as
+#: proven able to go red. 127 is the shell's "not found"; 124 is what
+#: `SubprocessRunner` reports for a timeout.
+_COULD_NOT_RUN = frozenset({127, 124})
+
+
 def objective_check(
     evidence: Mapping[str, Any],
     exit_code: int,
@@ -79,6 +87,18 @@ def objective_check(
     # this reads the field as what it is.
     expects_failure = evidence.get("expect", "pass") == "fail"
     match = evidence.get("match")
+
+    if expects_failure and exit_code in _COULD_NOT_RUN:
+        return Objective(
+            ok=False,
+            why=(
+                f"the check exited {exit_code}, which is not the guard going "
+                "red. A command that could not be found, or that never "
+                "finished, has proved nothing about whether it guards the "
+                "task, and `expect: fail` counted it as proof."
+            ),
+            blocking=True,
+        )
 
     if expects_failure and exit_code == 0:
         return Objective(

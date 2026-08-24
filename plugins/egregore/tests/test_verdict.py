@@ -180,3 +180,41 @@ class TestScopeIntegration:
             allow_paths=["a/b.py"], changed=[".github/workflows/x.yml"]
         )
         assert result.reason == "denylist"
+
+
+class TestAGuardThatCouldNotRunIsNotAGuardProvenRed:
+    """`expect: fail` was satisfied by any nonzero exit code.
+
+    127 is a command that was never found and 124 is one the timeout
+    killed. Neither says anything about whether the check guards the
+    task, and both were recorded as proof that it does.
+    """
+
+    @staticmethod
+    def _check(exit_code: int):
+        return verdict.objective_check(
+            evidence={"expect": "fail"},
+            exit_code=exit_code,
+            output="",
+            diff_lines=0,
+            cap=100,
+            implementer_output="",
+        )
+
+    def test_a_command_that_was_never_found_is_not_proof(self) -> None:
+        result = self._check(127)
+        assert not result.ok
+        assert result.blocking
+
+    def test_a_command_the_timeout_killed_is_not_proof(self) -> None:
+        result = self._check(124)
+        assert not result.ok
+        assert result.blocking
+
+    def test_an_ordinary_failure_still_counts(self) -> None:
+        assert self._check(1).ok
+
+    def test_a_pass_where_a_failure_was_declared_still_blocks(self) -> None:
+        result = self._check(0)
+        assert not result.ok
+        assert result.blocking

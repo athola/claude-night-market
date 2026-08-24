@@ -118,6 +118,27 @@ def within(allowed: str, path: str) -> bool:
     return path_parts[: len(allowed_parts)] == allowed_parts
 
 
+def _normalized_allow(allow_paths: Sequence[str]) -> list[str]:
+    """Drop allowlist entries that reach outside the scope they declare.
+
+    A ``..`` segment is never legitimate in a scope allowlist, and
+    ``within`` compares segments without resolving one, so an entry of
+    ``plugins/conjure/..`` authorized every sibling of conjure while
+    reading as a narrower scope than ``plugins``. An entry naming an
+    absolute path is refused for the same reason: it is not a path
+    inside the tree the gate is fencing.
+
+    Dropping rather than raising, because an allowlist that cannot be
+    trusted should narrow the scope, not widen it. An item whose every
+    entry is dropped allows nothing, which is the safe reading.
+    """
+    return [
+        entry
+        for entry in allow_paths
+        if ".." not in PurePosixPath(entry).parts and not entry.startswith("/")
+    ]
+
+
 def check(allow_paths: Sequence[str], changed: Sequence[str]) -> ScopeResult:
     """Check ``changed`` against the denylist, then against ``allow_paths``.
 
@@ -129,7 +150,8 @@ def check(allow_paths: Sequence[str], changed: Sequence[str]) -> ScopeResult:
     if denied:
         return ScopeResult(ok=False, violating=tuple(denied), reason="denylist")
 
-    outside = [p for p in changed if not any(within(a, p) for a in allow_paths if a)]
+    allowed = _normalized_allow(allow_paths)
+    outside = [p for p in changed if not any(within(a, p) for a in allowed if a)]
     if outside:
         return ScopeResult(
             ok=False, violating=tuple(outside), reason="outside_allowlist"

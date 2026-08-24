@@ -884,3 +884,51 @@ class TestQuotaClassificationReadsTheRightThing:
         )
 
         assert not result.status.startswith("parked_rate")
+
+
+class TestTheHandoffWorktreeKeyIsValidated:
+    """`root / declared` is not a containment check.
+
+    Python's path join discards the left side when the right is
+    absolute, so a handoff naming `/` put the run in the filesystem
+    root, and `..` segments walked out of the repository. What runs
+    inside the result is `git checkout -- .` and `git clean -fd`.
+    """
+
+    @staticmethod
+    def _walk(tmp_path: Path, worktree: object):
+        handoff = {**HANDOFF, "worktree": worktree}
+        return night_run.run_item(
+            handoff,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            FakeRunner({"pytest": (0, "1 passed")}),
+            babysitter=passing_sitter,
+        )
+
+    def test_an_absolute_worktree_is_refused(self, tmp_path: Path) -> None:
+        result = self._walk(tmp_path, "/")
+        assert result.status == "setup_failed"
+        assert "relative path" in result.reason
+
+    def test_a_parent_segment_is_refused(self, tmp_path: Path) -> None:
+        result = self._walk(tmp_path, "../elsewhere")
+        assert result.status == "setup_failed"
+        assert "relative path" in result.reason
+
+    def test_a_non_string_worktree_is_refused(self, tmp_path: Path) -> None:
+        result = self._walk(tmp_path, 17)
+        assert result.status == "setup_failed"
+        assert "must be a string" in result.reason
+
+    def test_an_ordinary_relative_worktree_is_still_used(self, tmp_path: Path) -> None:
+        runner = FakeRunner({"pytest": (0, "1 passed")})
+        night_run.run_item(
+            {**HANDOFF, "worktree": "trees/ns-001"},
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        add = [c for c in runner.calls if "worktree add" in c]
+        assert add and "trees/ns-001" in add[0]

@@ -153,3 +153,32 @@ class TestScopeResultCannotContradictItself:
         result = scope.ScopeResult(ok=True)
         with pytest.raises(dataclasses.FrozenInstanceError):
             result.ok = False  # type: ignore[misc]  # illegal is the assertion
+
+
+class TestAnAllowlistEntryCannotReachOutsideItsScope:
+    """A `..` segment in an allowlist entry is not a narrower scope.
+
+    `within` compares segments without resolving one, so
+    `plugins/conjure/..` authorized every sibling of conjure while
+    reading as narrower than `plugins`. Such an entry is dropped rather
+    than honored: an allowlist that cannot be trusted should narrow the
+    scope, not widen it.
+    """
+
+    def test_a_parent_segment_does_not_authorize_a_sibling(self) -> None:
+        result = scope.check(
+            allow_paths=["plugins/conjure/.."],
+            changed=["plugins/conjure/../pensive/x.py"],
+        )
+        assert not result.ok
+        assert result.reason == "outside_allowlist"
+
+    def test_an_absolute_entry_is_not_an_allowlist_entry(self) -> None:
+        result = scope.check(allow_paths=["/"], changed=["plugins/conjure/x.py"])
+        assert not result.ok
+
+    def test_an_ordinary_entry_still_authorizes_its_own_tree(self) -> None:
+        result = scope.check(
+            allow_paths=["plugins/conjure"], changed=["plugins/conjure/x.py"]
+        )
+        assert result.ok

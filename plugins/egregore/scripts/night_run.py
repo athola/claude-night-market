@@ -43,7 +43,7 @@ import shlex
 import subprocess
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any, Protocol
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -711,6 +711,35 @@ def _final_full_suite(
     return record, None
 
 
+def _item_worktree(root: Path, item: str, declared: object) -> Path:
+    """Resolve the item's worktree, refusing one that leaves the repository.
+
+    ``root / declared`` is not a containment check. Python's path join
+    discards the left side when the right is absolute, so a handoff
+    naming ``/`` put the run in the filesystem root, and ``..`` segments
+    walked out of it. Nothing validated this key, and what runs inside
+    the result is ``git checkout -- .`` and ``git clean -fd``.
+    """
+    if declared is None or declared == "":
+        return root / f".egregore/worktrees/{item}"
+    if not isinstance(declared, str):
+        raise ValueError(
+            f"handoff worktree must be a string, got {type(declared).__name__}"
+        )
+
+    candidate = PurePosixPath(declared)
+    if candidate.is_absolute() or ".." in candidate.parts:
+        raise ValueError(
+            f"handoff worktree {declared!r} must be a relative path inside "
+            "the repository, with no parent segments"
+        )
+
+    resolved = (root / candidate).resolve()
+    if resolved != root.resolve() and root.resolve() not in resolved.parents:
+        raise ValueError(f"handoff worktree {declared!r} resolves outside {root}")
+    return resolved
+
+
 def run_item(
     handoff: Mapping[str, Any],
     tasks: Sequence[Mapping[str, Any]],
@@ -730,9 +759,14 @@ def run_item(
     item = str(handoff.get("item"))
     limits = handoff.get("budget") or {}
     ceiling = int(limits.get("claude_token_ceiling", 0)) or None
-    worktree = root / str(handoff.get("worktree") or f".egregore/worktrees/{item}")
-
     result = ItemResult(item=item, status="ready")
+
+    try:
+        worktree = _item_worktree(root, item, handoff.get("worktree"))
+    except ValueError as exc:
+        result.status = "setup_failed"
+        result.reason = str(exc)
+        return result
 
     unprepared = _prepare_worktree(runner, root, worktree, handoff)
     if unprepared is not None:
