@@ -16,7 +16,7 @@ against the baseline, never on its own.
 
 The rule names what it does not cover, and this guard has to agree with
 it or it judges documents by a standard written for something else. See
-``_EXCLUDED_PARTS``.
+``_is_ours``.
 
 It is deterministic, read-only, and idempotent.
 """
@@ -66,22 +66,41 @@ def evaluate_drift(current: int, baseline: int) -> tuple[bool, str]:
     )
 
 
-# Path segments whose SKILL.md files this gate must not judge.
-#
-# ``.venv`` is vendored code we did not author. ``docs`` is the rule's
-# own carve-out: .claude/rules/skill-exit-criteria.md exempts reference
-# documentation, and the one SKILL.md under a docs tree here is an
-# example teaching hub-and-spoke structure, not a shipped skill. Counting
-# it made the example the entire remaining backlog, and the repair would
-# have been to write exit criteria into a document whose subject is
-# something else.
-_EXCLUDED_PARTS = frozenset({".venv", "docs"})
+# ``docs`` is the rule's own carve-out:
+# .claude/rules/skill-exit-criteria.md exempts reference documentation,
+# and the one SKILL.md under a docs tree here is an example teaching
+# hub-and-spoke structure, not a shipped skill. Counting it made the
+# example the entire remaining backlog, and the repair would have been to
+# write exit criteria into a document whose subject is something else.
+_EXCLUDED_PARTS = frozenset({"docs"})
+
+
+def _is_ours(relative: Path) -> bool:
+    """Return True if a plugins-relative SKILL.md is this repo's to judge.
+
+    Vendored and build-created trees are excluded by rule rather than by
+    name. ``.venv`` was enumerated first; ``.uv-cache`` then appeared,
+    created by ``plugins/memory-palace/Makefile`` during ``make test``
+    itself, and carried a vendored ``typer`` SKILL.md into a gate that had
+    just been tightened to a zero allowance. Two instances of one category
+    is enough: every tree we did not author arrives under a dot-directory,
+    and no SKILL.md this repository tracks sits under one.
+
+    The path is taken relative to ``PLUGINS_ROOT`` on purpose. Reading dot
+    segments off the absolute path would empty the whole surface for
+    anyone whose checkout lives under a hidden directory.
+    """
+    if not _EXCLUDED_PARTS.isdisjoint(relative.parts):
+        return False
+    return not any(part.startswith(".") for part in relative.parts)
 
 
 def iter_skill_files() -> list[Path]:
     """All SKILL.md files under plugins/ that the rule actually governs."""
     return [
-        p for p in PLUGINS_ROOT.rglob("SKILL.md") if _EXCLUDED_PARTS.isdisjoint(p.parts)
+        p
+        for p in PLUGINS_ROOT.rglob("SKILL.md")
+        if _is_ours(p.relative_to(PLUGINS_ROOT))
     ]
 
 

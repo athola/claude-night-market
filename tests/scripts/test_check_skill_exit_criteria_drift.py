@@ -121,6 +121,34 @@ class TestSurfaceMatchesTheRule:
         monkeypatch.setattr(gate, "PLUGINS_ROOT", tmp_path)
         assert gate.iter_skill_files() == []
 
+    def test_excludes_a_cache_tree_the_build_itself_creates(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """
+        Scenario: A build-created cache tree carries a vendored SKILL.md
+        Given a plugin tree containing a .uv-cache
+        When skill files are enumerated
+        Then no path from the cache is returned
+
+        ``plugins/memory-palace/Makefile`` sets
+        ``UV_CACHE_DIR=$(PWD)/.uv-cache``, so ``make test`` creates this
+        directory inside the plugin before the later ``make
+        test-ecosystem`` step walks it. The vendored ``typer`` package
+        ships a SKILL.md with no Exit Criteria, so a single ``make test``
+        invocation made itself fail: the allowance had absorbed the stray
+        file at 127 and could not at 0.
+
+        Enumerating ``.venv`` and ``.uv-cache`` by name would leave the
+        third instance of the category to be found the same way, so the
+        exclusion is a rule about dot-directories rather than a list.
+        """
+        cached = tmp_path / "p" / ".uv-cache" / "archive-v0" / "x" / "SKILL.md"
+        cached.parent.mkdir(parents=True)
+        cached.write_text(self.WITHOUT, encoding="utf-8")
+
+        monkeypatch.setattr(gate, "PLUGINS_ROOT", tmp_path)
+        assert gate.iter_skill_files() == []
+
 
 class TestRepositoryIsClean:
     """The live repository satisfies the rule at a zero allowance."""
