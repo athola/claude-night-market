@@ -18,7 +18,7 @@ import time
 from dataclasses import MISSING, dataclass, field, fields, replace
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from scripts.quota_tracker import (
     DEFAULT_CODEX_LIMITS,
@@ -617,7 +617,7 @@ class Delegator:
         # the caller learns the answer without a provider being probed.
         self.delegation_enabled = True
         self.delegation_off_reason: str | None = None
-        self._config_disables_delegation = False
+        self._config_off_reason: str | None = None
 
         # Load custom configurations
         self.load_configurations()
@@ -648,60 +648,94 @@ class Delegator:
                 self.delegation_off_reason = None
                 return
 
-        if self._config_disables_delegation:
+        if self._config_off_reason is not None:
             self.delegation_enabled = False
-            self.delegation_off_reason = (
-                f'"enabled": false in config {self.config_file}'
-            )
+            self.delegation_off_reason = self._config_off_reason
+
+    def _read_config(self) -> dict[str, Any] | None:
+        """Parse the config file. ``None`` means there is no config file.
+
+        Absent and unreadable are different events and must not collapse
+        into one answer: an operator who never wrote a config wants the
+        default posture, while a config that cannot be parsed is a switch
+        that was thrown and cannot be read. Only the first is a reason to
+        carry on.
+
+        Opening directly rather than testing ``exists()`` first also
+        closes the window between the two calls.
+        """
+        try:
+            with open(self.config_file) as handle:
+                return cast("dict[str, Any]", json.load(handle))
+        except FileNotFoundError:
+            return None
 
     def load_configurations(self) -> None:
-        """Load custom service configurations from config file."""
-        if self.config_file.exists():
-            try:
-                with open(self.config_file) as f:
-                    custom_config = json.load(f)
-                    # Absent means on. Only an explicit false opts out, so a
-                    # config file written for some other key cannot turn
-                    # delegation off as a side effect.
-                    self._config_disables_delegation = (
-                        custom_config.get("enabled") is False
+        """Load custom service configurations from config file.
+
+        A config that cannot be read fails closed. Delegation is on by
+        default, so treating an unparseable file as saying nothing would
+        let a single trailing comma undo the operator's opt-out and ship
+        prompts, and up to 96 KiB of inlined source, to an external CLI.
+        The error is reported at ``error`` because the previous ``debug``
+        is off in every default configuration, so the switch flipped back
+        on with nothing printed to any stream.
+        """
+        try:
+            custom_config = self._read_config()
+        except (json.JSONDecodeError, OSError) as exc:
+            logger.error(
+                "Cannot read delegation config %s (%s). Delegation is off "
+                "until the file parses.",
+                self.config_file,
+                exc,
+            )
+            self._config_off_reason = (
+                f"config {self.config_file} could not be read ({exc})"
+            )
+            return
+        if custom_config is None:
+            return
+
+        # Absent means on. Only an explicit false opts out, so a config
+        # file written for some other key cannot turn delegation off as a
+        # side effect.
+        if custom_config.get("enabled") is False:
+            self._config_off_reason = f'"enabled": false in config {self.config_file}'
+
+        # Merge custom configurations
+        services_raw = custom_config.get("services", {})
+        if not isinstance(services_raw, dict):
+            return
+        for service_name, service_config in services_raw.items():
+            if service_name in self.services:
+                # Override only the keys the file names. Listing fields by
+                # hand here reset every unlisted one to its default, so
+                # overriding minimax's quota silently dropped the
+                # subcommand and prompt flag that make its CLI contract
+                # work.
+                current = self.services[service_name]
+                self.services[service_name] = _apply_overrides(
+                    current, service_name, service_config
+                )
+            else:
+                # Add a new service. An entry that uses only known fields
+                # but omits required ones is incomplete and skipped so the
+                # defaults survive. An entry with unknown fields is
+                # malformed and is allowed to raise (CJR-003: config load
+                # must not swallow unexpected errors).
+                missing = _missing_required_fields(service_config)
+                if missing:
+                    logger.warning(
+                        "Skipping incomplete service config %r: "
+                        "missing required field(s) %s",
+                        service_name,
+                        ", ".join(sorted(missing)),
                     )
-                    # Merge custom configurations
-                    services_raw = custom_config.get("services", {})
-                    if not isinstance(services_raw, dict):
-                        return
-                    for service_name, service_config in services_raw.items():
-                        if service_name in self.services:
-                            # Override only the keys the file names. Listing
-                            # fields by hand here reset every unlisted one to
-                            # its default, so overriding minimax's quota
-                            # silently dropped the subcommand and prompt flag
-                            # that make its CLI contract work.
-                            current = self.services[service_name]
-                            self.services[service_name] = _apply_overrides(
-                                current, service_name, service_config
-                            )
-                        else:
-                            # Add a new service. An entry that uses only
-                            # known fields but omits required ones is
-                            # incomplete and skipped so the defaults survive.
-                            # An entry with unknown fields is malformed and is
-                            # allowed to raise (CJR-003: config load must not
-                            # swallow unexpected errors).
-                            missing = _missing_required_fields(service_config)
-                            if missing:
-                                logger.warning(
-                                    "Skipping incomplete service config %r: "
-                                    "missing required field(s) %s",
-                                    service_name,
-                                    ", ".join(sorted(missing)),
-                                )
-                                continue
-                            self.services[service_name] = ServiceConfig(
-                                **service_config,
-                            )
-            except (json.JSONDecodeError, OSError) as e:
-                logger.debug("Failed to load service configurations: %s", e)
+                    continue
+                self.services[service_name] = ServiceConfig(
+                    **service_config,
+                )
 
     def verify_service(self, service_name: str) -> tuple[bool, list[str]]:
         """Report whether a service can take work, cheapest question first.

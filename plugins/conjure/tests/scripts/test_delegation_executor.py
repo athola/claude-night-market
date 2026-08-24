@@ -1781,6 +1781,52 @@ class TestDelegationIsOnUnlessRefused:
         assert "config" in delegator.delegation_off_reason
 
     @pytest.mark.bdd
+    def test_a_config_that_cannot_be_parsed_does_not_re_enable_delegation(
+        self, temp_config_dir
+    ) -> None:
+        """GIVEN a config file with a trailing comma after ``"enabled": false``.
+
+        WHEN the delegator loads it
+        THEN delegation is off and names the unreadable config
+
+        A switch an operator threw must not be undone by a typo in the
+        file that carries it. The parse used to be wrapped whole, so a
+        JSONDecodeError left ``_config_disables_delegation`` at its
+        initial False and delegation ran: prompts and up to 96 KiB of
+        inlined source would ship to an external CLI after the operator
+        turned delegation off. The failure was logged at debug, which is
+        off in every default configuration, so nothing reached any stream.
+        """
+        (temp_config_dir / "config.json").write_text('{"enabled": false,}')
+
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        assert delegator.delegation_enabled is False
+        assert delegator.delegation_off_reason is not None
+        assert "config" in delegator.delegation_off_reason
+
+    @pytest.mark.bdd
+    def test_an_absent_config_is_not_treated_as_an_unreadable_one(
+        self, temp_config_dir
+    ) -> None:
+        """GIVEN no config file at all.
+
+        WHEN the delegator loads its policy
+        THEN delegation is on
+
+        The counterpart to the test above, and the reason failing closed
+        on a parse error is safe. Never having written a config is not
+        the same event as writing one that cannot be read, so the two
+        must not collapse into the same answer.
+        """
+        assert not (temp_config_dir / "config.json").exists()
+
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        assert delegator.delegation_enabled is True
+        assert delegator.delegation_off_reason is None
+
+    @pytest.mark.bdd
     @pytest.mark.parametrize("value", ["off", "0", "false", "no", "OFF"])
     def test_an_environment_variable_turns_delegation_off_for_one_session(
         self, temp_config_dir, value: str
