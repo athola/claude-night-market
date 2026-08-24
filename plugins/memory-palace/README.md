@@ -142,6 +142,42 @@ memory-palace/
 └── tests/
 ```
 
+### Why the capture index is committed
+
+`hooks/memory-palace-index.yaml` is tracked in git although a session
+hook rewrites it. Issue #620 proposed untracking it and set the
+tiebreak: the committed copy stays only if something needs it. Something
+does.
+
+The file is a work queue, not a cache. `web_research_handler` appends a
+capture as `pending`. `scripts/precommit_palace_maintenance.sh` runs the
+`index_promoter` drain on every commit and re-stages what changed. The
+drain promotes an entry into `docs/knowledge-corpus/`, which is itself
+committed, or archives it, or holds it. So the queue and the durable
+output it feeds have to move together. Untracking the queue would leave
+a committed corpus whose provenance lived on one contributor's disk.
+
+Three gates hold it, and they run in `make test`:
+
+- `test_capture_index_drain_gate.py` fails a commit carrying any entry
+  still `pending`, so the drain cannot quietly fall behind.
+- `test_capture_index_artifact.py` applies the dedup invariants to the
+  shipped file rather than to a fixture, so a hook that corrupts the
+  artifact fails a gate instead of landing in a commit.
+- `test_index_prune_cli_guard.py` covers the prune path that once left
+  dangling hash references behind.
+
+Issue #620 also asked for a check that the committed content matches a
+freshly derived index. That one is not implementable as written: the
+file is a log of what live sessions fetched, and there is no source to
+re-derive it from. The three gates above are the achievable equivalent,
+and they check invariants rather than provenance.
+
+What none of this cures is the diff noise #620 was filed about. The file
+still goes dirty mid-session and still conflicts between concurrent
+branches that both ran a hook. The gates make that cost safe to carry,
+not zero.
+
 ## Requirements
 
 - Python 3.9+
