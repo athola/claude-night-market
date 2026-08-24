@@ -932,3 +932,43 @@ class TestTheHandoffWorktreeKeyIsValidated:
         )
         add = [c for c in runner.calls if "worktree add" in c]
         assert add and "trees/ns-001" in add[0]
+
+
+class TestTheProofRecordsABabysitterDissent:
+    """The dissent section was pinned by nothing.
+
+    Deleting it left the suite green. That section is the only place a
+    reviewer learns the judge disagreed with a task the evidence
+    passed, which is `verdict.reconcile`'s one deliberate loosening:
+    the objection is not a 3am block, it is a note for the morning. A
+    proof that silently drops it turns a recorded disagreement into no
+    disagreement at all.
+    """
+
+    @staticmethod
+    def _result(dissent: bool):
+        return night_run.ItemResult(
+            item="NS-001",
+            status="done",
+            tasks=[
+                night_run.TaskResult(
+                    task_id="T1",
+                    verdict="PASS",
+                    reason="the judge wanted a wider assertion",
+                    dissent=dissent,
+                )
+            ],
+        )
+
+    def test_a_dissent_reaches_the_proof(self, tmp_path: Path) -> None:
+        proof = night_run.write_proof(tmp_path / "item", self._result(True)).read_text()
+
+        assert "Babysitter dissents" in proof
+        assert "the judge wanted a wider assertion" in proof
+
+    def test_an_undissented_run_carries_no_such_section(self, tmp_path: Path) -> None:
+        proof = night_run.write_proof(
+            tmp_path / "item", self._result(False)
+        ).read_text()
+
+        assert "Babysitter dissents" not in proof

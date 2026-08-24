@@ -14,6 +14,7 @@ exists:
 from __future__ import annotations
 
 import pytest
+import scope
 import verdict
 
 
@@ -169,14 +170,12 @@ class TestScopeIntegration:
     """Scope violations are surfaced through the verdict module."""
 
     def test_out_of_scope_change_fails_before_any_verdict(self) -> None:
-        result = verdict.check_scope(
-            allow_paths=["a/b.py"], changed=["a/b.py", "c/d.py"]
-        )
+        result = scope.check(allow_paths=["a/b.py"], changed=["a/b.py", "c/d.py"])
         assert not result.ok
         assert result.violating == ("c/d.py",)
 
     def test_denied_path_is_reported_as_a_denylist_breach(self) -> None:
-        result = verdict.check_scope(
+        result = scope.check(
             allow_paths=["a/b.py"], changed=[".github/workflows/x.yml"]
         )
         assert result.reason == "denylist"

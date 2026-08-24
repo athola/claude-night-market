@@ -1,9 +1,17 @@
-"""The night-shift handoff gate: no valid handoff, no run.
+"""The night-shift handoff gate: the rule that no valid handoff, no run.
 
 A work item may only execute unattended when four documents exist and
 agree with each other. This module is the only place that judgment is
 made, and it makes it without a model, because a rule a model can be
 talked out of at 3am is not a rule.
+
+**The gate is not yet wired into the runner.** ``check_item`` is
+reachable through this module's CLI (``python handoff_gate.py <item>``)
+and from its tests, and nothing in ``night_run`` consults it. The whole
+night-shift cluster is latent until a commit activates it, and this
+sentence stays until the runner calls the gate. Read the paragraph
+above as the rule the gate implements, not as a description of what
+currently guards a run.
 
 The gate refuses more often than a person would. That is deliberate. A
 refusal costs a one-line edit the evening before; a bad pass costs the

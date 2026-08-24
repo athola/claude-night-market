@@ -10,11 +10,18 @@ Three rules:
 only so callers can pass it without ceremony, and provably ignores it.
 The test suite asserts that passing a boast changes nothing.
 
-**The deterministic check can tighten, not loosen.** A babysitter PASS
-over red evidence becomes FAIL. A babysitter FAIL over green evidence
-becomes PASS with the objection recorded as ``dissent``, because a model
+**Past a block, the evidence decides.** Not "the check can tighten,
+not loosen", which is what this said and is not what it does. A
+babysitter PASS over red evidence becomes FAIL, which is tightening. A
+babysitter FAIL over green evidence becomes PASS with the objection
+recorded as ``dissent``, which is loosening, and is deliberate: a model
 disagreeing with a passing test is a comment on the specification, and
 specifications are a human's call in the morning, not a 3am block.
+
+What the babysitter can do alone is BLOCK. Past that arm it selects the
+wording of the reason and whether ``dissent`` is set, and the evidence
+selects the verdict. ``reconcile`` is written in that shape so the rule
+is legible from the control flow rather than from this paragraph.
 
 **A check that was supposed to fail and did not is blocking.** This is
 Guard 2 of ``Skill(imbue:proof-of-work)`` module ``verifier-integrity``:
@@ -24,12 +31,9 @@ anything. Nothing downstream may proceed on an unproven guard.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
-
-import scope
-from scope import ScopeResult
 
 
 @dataclass(frozen=True)
@@ -138,13 +142,20 @@ def reconcile(
     if babysitter == "BLOCKED":
         return Verdict(verdict="BLOCKED", reason=babysitter_reason)
 
-    if babysitter == "PASS" and not objective.ok:
+    # Past the two blocking arms the verdict is the evidence's. The
+    # babysitter string selects only the wording and the dissent flag.
+    if not objective.ok:
+        overridden = babysitter == "PASS"
         return Verdict(
             verdict="FAIL",
-            reason=f"babysitter passed it; overridden by evidence: {objective.why}",
+            reason=(
+                f"babysitter passed it; overridden by evidence: {objective.why}"
+                if overridden
+                else objective.why
+            ),
         )
 
-    if babysitter == "FAIL" and objective.ok:
+    if babysitter == "FAIL":
         return Verdict(
             verdict="PASS",
             reason=(
@@ -154,15 +165,7 @@ def reconcile(
             dissent=True,
         )
 
-    if not objective.ok:
-        return Verdict(verdict="FAIL", reason=objective.why)
-
     return Verdict(verdict="PASS", reason=babysitter_reason)
-
-
-def check_scope(allow_paths: Sequence[str], changed: Sequence[str]) -> ScopeResult:
-    """Check changed paths against the item's allowlist and the denylist."""
-    return scope.check(allow_paths, changed)
 
 
 def babysitter_schema() -> dict[str, Any]:

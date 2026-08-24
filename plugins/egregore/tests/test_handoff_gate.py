@@ -625,3 +625,31 @@ class TestGateResultRejectsAnUnknownCode:
         result = gate.GateResult(code=gate.READY)
         with pytest.raises(dataclasses.FrozenInstanceError):
             result.code = gate.UNSAFE  # type: ignore[misc]  # illegal is the assertion
+
+
+class TestTraceabilityRejectsATaskThatDoesNotExist:
+    """The unknown-task branch was pinned by nothing.
+
+    Deleting it left the suite green, so a design tracing an acceptance
+    criterion to a task id nobody wrote would have been certified
+    READY. An untraced criterion and one traced into thin air are the
+    same defect at the gate: nothing performs the criterion.
+    """
+
+    CRITERIA = [{"id": "AC1"}]
+
+    def test_a_criterion_tracing_to_an_unknown_task_is_a_problem(self) -> None:
+        problems = gate._check_traceability(
+            self.CRITERIA, {"AC1": ["T9"]}, {"T1", "T2"}
+        )
+        assert problems
+        assert "unknown tasks" in problems[0]
+        assert "T9" in problems[0]
+
+    def test_a_criterion_traced_to_no_task_is_still_a_problem(self) -> None:
+        problems = gate._check_traceability(self.CRITERIA, {}, {"T1"})
+        assert problems
+        assert "traced to no task" in problems[0]
+
+    def test_a_criterion_traced_to_a_real_task_passes(self) -> None:
+        assert gate._check_traceability(self.CRITERIA, {"AC1": ["T1"]}, {"T1"}) == []

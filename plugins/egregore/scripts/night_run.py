@@ -50,6 +50,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from budget import Budget
 
 import budget as budget_mod
+import scope
 import verdict as verdict_mod
 import window as window_mod
 
@@ -286,9 +287,7 @@ def run_task(
             )
             return result
 
-        scope_result = verdict_mod.check_scope(
-            allow_paths, _touched_files(runner, workdir)
-        )
+        scope_result = scope.check(allow_paths, _touched_files(runner, workdir))
         if not scope_result.ok:
             offenders = scope_result.violating
             unreverted = _revert_offenders(runner, workdir, offenders)

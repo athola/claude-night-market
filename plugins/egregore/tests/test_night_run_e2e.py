@@ -32,6 +32,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import handoff_gate
 import night_run
 import pytest
 from claude_babysitter import ClaudeBabysitter
@@ -202,10 +203,45 @@ class TestTheWorktreeIsCutFromTheProject:
         assert worktree.is_dir()
         assert (worktree / "calc.py").is_file()
 
-    def test_no_worktree_was_cut_from_this_repository(self, walked) -> None:
-        """Prove the driver did not use the process's own directory."""
-        _, _ = walked
-        assert not (Path.cwd() / ".egregore/worktrees/E2E-1").exists()
+    def test_the_worktree_is_cut_inside_the_project_it_was_given(
+        self, project, walked
+    ) -> None:
+        """Prove the driver used the root it was handed, not somewhere else.
+
+        The assertion this replaces read `not (Path.cwd() /
+        ".egregore/worktrees/E2E-1").exists()`, which `run_item` cannot
+        fail: it joins the worktree onto the `root` argument, so the
+        process's own directory is not consulted and the path under
+        `cwd` is never created. Containment against the root actually
+        passed in is the property worth holding.
+        """
+        _, worktree = walked
+        assert worktree.resolve().is_relative_to(project.resolve())
+
+
+class TestTheEndToEndHandoffIsNotOneTheGateWouldAdmit:
+    """A pinned mismatch, not an accident, and not a passing grade.
+
+    `handoff_gate._check_iron_law` requires at least one task declaring
+    `evidence.expect: fail`, and both tasks here declare `pass`. The
+    fixture is tuned around measured token costs (see `CEILING`) and
+    exercises the driver, which does not consult the gate at all: see
+    the wiring note in `handoff_gate`'s module docstring.
+
+    Asserting the mismatch keeps it visible. This test turns red on the
+    commit that wires the gate into the runner, which is the commit
+    where the fixture has to become a handoff the gate admits.
+    """
+
+    def test_the_iron_law_arm_refuses_this_fixture(self) -> None:
+        problems = handoff_gate._check_iron_law(TASKS)
+        assert problems, "the fixture became gate-admissible; wire it and delete this"
+        assert any("expect: fail" in p for p in problems)
+
+    def test_the_runner_does_not_consult_the_gate(self) -> None:
+        """The reason the mismatch is currently harmless."""
+        source = Path(night_run.__file__).read_text()
+        assert "handoff_gate" not in source
 
 
 class TestTheParkedTreeIsClean:
