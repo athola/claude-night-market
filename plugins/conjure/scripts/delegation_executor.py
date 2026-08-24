@@ -162,6 +162,9 @@ _ENV_ON_VALUES = frozenset({"1", "on", "true", "yes"})
 # caller, which is "do this work yourself", and different things to whoever
 # has to fix it: one is a switch that was thrown on purpose, the other is a
 # machine with no provider that could take the work.
+#: The only output format a valueless boolean flag can request.
+_BOOLEAN_FORMAT = "json"
+
 FALLBACK_DISABLED = "delegation_disabled"
 FALLBACK_EXHAUSTED = "providers_exhausted"
 
@@ -221,6 +224,13 @@ class ServiceConfig:
     # `mmx text chat --model` likewise.
     model_flag: str | None = "--model"
     output_format_flag: str | None = "--output-format"
+    # True when the flag above takes no value. `muse exec --json` and
+    # `codex exec --json` are booleans: "Emit machine-readable JSONL
+    # events on stdout", read off each binary's own --help. The
+    # key-and-value shape cannot express that, since `--json json` lands
+    # "json" as a positional and both providers take the prompt
+    # positionally, so the request used to be dropped in silence.
+    output_format_is_boolean: bool = False
     temperature_flag: str | None = "--temperature"
     inline_files: bool = False
     # Prompt on stdin rather than argv. execve caps a single argument at
@@ -242,6 +252,22 @@ class ServiceConfig:
     # exist, and `codex login status` prints "Logged in using ChatGPT" over
     # a refresh token that has already been spent.
     auth_files: tuple[str, ...] = ()
+    # Text in the auth probe's own output that means the credential was
+    # refused, whatever the exit code. qwen 0.4.0 prints
+    # "[API Error: 401 Incorrect API key provided...]" and exits 0, and
+    # its delegation envelope reports "is_error": false over the same
+    # text, so the exit code is not a signal for this CLI and the output
+    # is the only honest one. Matched case-insensitively.
+    auth_failure_markers: tuple[str, ...] = ()
+    # A check beyond "the binary exists". `ollama --version` answers
+    # whenever ollama is installed, and says nothing about whether the
+    # model named in `subcommand` was ever pulled, so `--verify` reported
+    # OK for a provider that fails at spawn. The probe runs
+    # `command + readiness_probe` and requires `readiness_expect` in its
+    # output.
+    readiness_probe: tuple[str, ...] = ()
+    readiness_expect: str = ""
+    readiness_hint: str = ""
     # Shown when the binary is missing, so a failure names its own remedy.
     install_hint: str = ""
     # How an operator logs this CLI in, when the CLI owns its own
@@ -470,6 +496,7 @@ class Delegator:
             # argument. No temperature flag exists either.
             temperature_flag=None,
             install_hint="npm install -g @qwen-code/qwen-code",
+            auth_failure_markers=("API Error: 401", "Incorrect API key"),
             priority=20,
             default_model="qwen-max",
             large_context_model="qwen-max",
@@ -558,7 +585,8 @@ class Delegator:
             temperature_flag=None,
             # muse 0.2.1 offers only a boolean --json, which this contract's
             # flag-and-value shape cannot express; --output-format exits 2.
-            output_format_flag=None,
+            output_format_flag="--json",
+            output_format_is_boolean=True,
             inline_files=True,
             auth_probe=(),
             install_hint="curl -fsSL https://dev.meta.ai/install.sh | sh",
@@ -583,7 +611,8 @@ class Delegator:
             # codex-cli 0.77.0 has boolean --json plus --output-schema and
             # --output-last-message, both file paths. No --output-format:
             # passing it exits 2 on "unexpected argument".
-            output_format_flag=None,
+            output_format_flag="--json",
+            output_format_is_boolean=True,
             inline_files=True,
             auth_probe=("login", "status"),
             install_hint="npm install -g @openai/codex",
@@ -640,6 +669,9 @@ class Delegator:
                 "curl -fsSL https://ollama.com/install.sh | sh "
                 "&& ollama pull muse-glimmer:30b"
             ),
+            readiness_probe=("list",),
+            readiness_expect="muse-glimmer:30b",
+            readiness_hint="Pull it with: ollama pull muse-glimmer:30b",
             priority=80,
         ),
     }
@@ -865,8 +897,19 @@ class Delegator:
                     text=True,
                     env=child_env,
                 )
+                combined = f"{result.stdout}{result.stderr}".lower()
+                refused = [
+                    marker
+                    for marker in service.auth_failure_markers
+                    if marker.lower() in combined
+                ]
                 if result.returncode != 0:
                     issues.append("Service not authenticated")
+                elif refused:
+                    issues.append(
+                        f"Service not authenticated: the probe exited 0 and "
+                        f"reported {refused[0]!r}"
+                    )
             except (
                 subprocess.CalledProcessError,
                 FileNotFoundError,
@@ -875,7 +918,43 @@ class Delegator:
             ):
                 issues.append("Could not verify authentication status")
 
+        if issues:
+            return False, issues
+
+        # Last, and only for a provider that declares one: the binary
+        # being present is not the same question as the provider being
+        # able to serve a delegation.
+        if service.readiness_probe:
+            issues.extend(self._readiness_issues(service, child_env))
+
         return len(issues) == 0, issues
+
+    @staticmethod
+    def _readiness_issues(
+        service: ServiceConfig, child_env: dict[str, str]
+    ) -> list[str]:
+        """Run a provider's readiness probe and report what it says."""
+        try:
+            result = subprocess.run(  # nosec B603
+                [service.command, *service.readiness_probe],
+                check=False,
+                capture_output=True,
+                timeout=15,
+                text=True,
+                env=child_env,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return [f"Could not run the {service.name} readiness probe"]
+
+        if result.returncode != 0:
+            return [f"{service.name} readiness probe exited {result.returncode}"]
+        if service.readiness_expect and service.readiness_expect not in result.stdout:
+            remedy = f". {service.readiness_hint}" if service.readiness_hint else ""
+            return [
+                f"{service.name} is installed but {service.readiness_expect!r} "
+                f"is not available to it{remedy}"
+            ]
+        return []
 
     def build_command(
         self,
@@ -901,9 +980,22 @@ class Delegator:
             if "model" in options and service.model_flag:
                 command.extend([service.model_flag, options["model"]])
             if "output_format" in options and service.output_format_flag:
-                command.extend(
-                    [service.output_format_flag, options["output_format"]],
-                )
+                if not service.output_format_is_boolean:
+                    command.extend(
+                        [service.output_format_flag, options["output_format"]],
+                    )
+                elif options["output_format"] == _BOOLEAN_FORMAT:
+                    command.append(service.output_format_flag)
+                else:
+                    # Raised rather than dropped. A caller that asked for
+                    # a format is entitled to know it cannot have one,
+                    # and this CLI has exactly one machine-readable mode.
+                    raise ValueError(
+                        f"{service.name} spells its output format as the "
+                        f"valueless {service.output_format_flag!r}, so it "
+                        f"supports {_BOOLEAN_FORMAT!r} and not "
+                        f"{options['output_format']!r}"
+                    )
             if "temperature" in options and service.temperature_flag:
                 command.extend(
                     [service.temperature_flag, str(options["temperature"])],

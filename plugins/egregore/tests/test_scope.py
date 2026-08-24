@@ -182,3 +182,41 @@ class TestAnAllowlistEntryCannotReachOutsideItsScope:
             allow_paths=["plugins/conjure"], changed=["plugins/conjure/x.py"]
         )
         assert result.ok
+
+
+class TestTheDenylistIsAnchoredAtEveryDepth:
+    """A nested `.claude/` is a real control surface, not a curiosity.
+
+    Claude Code reads directory-scoped settings and rules, and this
+    repository already ships them under `plugins/`. The root-anchored
+    spellings denied `.claude/rules/foo.md` and allowed
+    `plugins/conjure/.claude/rules/evil.md`, which is the same edit one
+    directory down. `**/hooks/**` was already written the right way.
+    """
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            ".claude/rules/foo.md",
+            "plugins/conjure/.claude/rules/evil.md",
+            ".claude/settings.json",
+            "plugins/conjure/.claude/settings.json",
+            "docs/.claude/settings.local.json",
+            "CONSTITUTION.md",
+            "plugins/conjure/CONSTITUTION.md",
+            "plugins/conjure/hooks/anything.py",
+        ],
+    )
+    def test_a_governing_file_is_denied_wherever_it_sits(self, path: str) -> None:
+        assert scope.is_denied(path)
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "plugins/conjure/README.md",
+            "plugins/conjure/scripts/delegation_executor.py",
+            "docs/quality-gates.md",
+        ],
+    )
+    def test_ordinary_work_is_still_allowed(self, path: str) -> None:
+        assert not scope.is_denied(path)

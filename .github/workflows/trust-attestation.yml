@@ -22,6 +22,11 @@ jobs:
         uses: astral-sh/setup-uv@v10.0.1
       - name: Run tests and capture results
         run: |
+          # Without this the step's exit code is tee's, which is always 0,
+          # so a red suite still produced a signed attestation reporting a
+          # green one. tome-integration.yml already sets it; this step did
+          # not, and this is the step whose output gets signed.
+          set -o pipefail
           make test 2>&1 | tee test-output.txt
           COMMIT_SHA="$(git rev-parse HEAD)"
           python3 -c "

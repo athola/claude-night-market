@@ -1201,20 +1201,21 @@ class TestFlagSpellingsMatchTheRealClis:
 
     @pytest.mark.bdd
     @pytest.mark.parametrize("service", ["muse", "codex"])
-    def test_a_cli_with_only_a_boolean_json_flag_emits_no_format_token(
+    def test_a_cli_with_only_a_boolean_json_flag_emits_that_flag(
         self, temp_config_dir, service: str
     ) -> None:
         """GIVEN a CLI whose only JSON control is a boolean --json.
 
         WHEN a caller asks for JSON
-        THEN no format flag and no format value reach argv
+        THEN the valueless flag reaches argv and no value follows it
 
-        `--json` takes no value, so the key-and-value shape build_command
-        emits cannot express it: `--json json` would land "json" as a
-        positional and displace the prompt. Suppressing is the honest
-        answer until the contract can carry a valueless flag, tracked in
-        issue #684. Emitting --output-format is not the honest answer:
-        muse exits 2 on it, and so does codex.
+        `--json` takes no value, so the key-and-value shape cannot
+        express it: `--json json` would land "json" as a positional and
+        displace the prompt, since both providers take the prompt
+        positionally. The request used to be dropped in silence for
+        that reason. `output_format_is_boolean` carries the shape now,
+        which is issue #684. Emitting --output-format is still not the
+        answer: muse exits 2 on it, and so does codex.
         """
         delegator = Delegator(config_dir=temp_config_dir)
         command = delegator.build_command(
@@ -1222,8 +1223,32 @@ class TestFlagSpellingsMatchTheRealClis:
         )
 
         assert "--output-format" not in command
-        assert "--json" not in command
-        assert "json" not in command
+        assert "--json" in command
+        assert command[command.index("--json") + 1] != "json", (
+            "a valueless flag must not be followed by its own name"
+        )
+        assert command[-1] == "extract", "the prompt stays positional and last"
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize("service", ["muse", "codex"])
+    def test_an_unsupported_format_is_refused_rather_than_dropped(
+        self, temp_config_dir, service: str
+    ) -> None:
+        """GIVEN a CLI with exactly one machine-readable mode.
+
+        WHEN a caller asks for a different format
+        THEN the call raises rather than returning argv without it
+
+        A caller that asked for a format is entitled to know it cannot
+        have one. Silence was the previous answer and is what issue
+        #684 asked to end.
+        """
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        with pytest.raises(ValueError, match="valueless"):
+            delegator.build_command(
+                service, "extract", options={"output_format": "yaml"}
+            )
 
 
 def _plugin_root() -> Path:

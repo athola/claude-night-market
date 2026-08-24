@@ -40,10 +40,17 @@ DENY_PATTERNS = (
     "**/poetry.lock",
     "**/Cargo.lock",
     "**/yarn.lock",
-    "CONSTITUTION.md",
-    ".claude/settings.json",
-    ".claude/settings.local.json",
-    ".claude/rules/**",
+    # Anchored at any depth, not at the repository root. Claude Code
+    # reads directory-scoped settings and rules, so a nested `.claude/`
+    # is a real control surface and this repo already ships one under
+    # `plugins/`. The root-anchored spellings denied
+    # `.claude/rules/foo.md` and allowed
+    # `plugins/conjure/.claude/rules/evil.md`, which is the same edit
+    # one directory down. `**/hooks/**` was already written this way.
+    "**/CONSTITUTION.md",
+    "**/.claude/settings.json",
+    "**/.claude/settings.local.json",
+    "**/.claude/rules/**",
     "**/hooks/**",
 )
 

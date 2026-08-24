@@ -209,3 +209,58 @@ def test_ci_installs_the_dev_extra_before_running_its_tools() -> None:
         "uv run reaches for a dev-extra tool without --extra dev:\n"
         + "\n".join(offenders)
     )
+
+
+def _piped_run_steps() -> list[tuple[str, str]]:
+    """Every ``run:`` script containing a pipeline, with its workflow name."""
+    found: list[tuple[str, str]] = []
+    for wf in sorted(WORKFLOWS.glob("*.y*ml")):
+        try:
+            doc = yaml.safe_load(wf.read_text(encoding="utf-8"))
+        except yaml.YAMLError:
+            continue
+        if not isinstance(doc, dict):
+            continue
+        for job in (doc.get("jobs") or {}).values():
+            if not isinstance(job, dict):
+                continue
+            for step in job.get("steps") or []:
+                if not (isinstance(step, dict) and isinstance(step.get("run"), str)):
+                    continue
+                if "|" in step["run"]:
+                    found.append((wf.name, step["run"]))
+    return found
+
+
+#: Commands whose exit code is the thing the step exists to report. A
+#: pipeline that starts with one of these and does not set pipefail
+#: reports the last stage's status instead, which is usually `tee`.
+_GATE_COMMANDS = ("make test", "make lint", "make typecheck", "pytest", "ruff check")
+
+
+def test_a_gate_piped_into_another_command_still_reports_its_own_failure() -> None:
+    """A gate in a pipeline needs ``set -o pipefail`` to be able to fail.
+
+    GitHub runs `run:` blocks under `bash -e`, which does not include
+    `pipefail`. `make test 2>&1 | tee test-output.txt` therefore exits
+    with tee's status, always 0, and the trust-attestation workflow
+    signed an SLSA attestation over a report built from a red suite.
+    """
+    offenders: list[str] = []
+
+    for name, script in _piped_run_steps():
+        for line in script.splitlines():
+            stripped = line.strip()
+            if "|" not in stripped or stripped.startswith("#"):
+                continue
+            head = stripped.split("|", 1)[0]
+            if not any(gate in head for gate in _GATE_COMMANDS):
+                continue
+            if "pipefail" not in script:
+                offenders.append(f"  {name}: {stripped}")
+
+    assert not offenders, (
+        "a quality gate is piped without `set -o pipefail`, so the step "
+        "reports the pipeline's last stage rather than the gate:\n"
+        + "\n".join(offenders)
+    )
