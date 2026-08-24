@@ -346,7 +346,7 @@ Nothing marks a probe as a probe, so a sweep of the eight providers
 skews the report it will later be read from: this round left 27 rows in
 a log that held 6.
 The effect stops there. Quota lives in its own store under
-`~/.claude/hooks/gemini`, and `_select_service` orders candidates by
+`~/.claude/hooks/gemini`, and `_ordered_candidates` orders candidates by
 priority and strengths without consulting usage at all, so probe
 traffic changes what `--usage` says and not what runs.
 
@@ -389,8 +389,9 @@ unaffiliated npm package publishes.
 
 ## Delegation flow
 
-1. `Delegator._select_service` reads the requirements and the registry to
-   pick a provider.
+1. `Delegator._ordered_candidates` reads the requirements and the registry
+   to rank the providers, over the priority order `Delegator.candidate_order`
+   returns.
 2. `verify_service` probes the binary and its credentials, resolving the
    environment overlay first so an unset `${VAR}` is a named issue.
 3. `quota_tracker` checks the provider's limits.
