@@ -71,10 +71,16 @@ def objective_check(
     """
     del implementer_output
 
-    expect = evidence.get("expect", "pass")
+    # Binary, read once. Comparing against both spellings separately made
+    # the field tri-state: any third value fell through both arms and
+    # returned ok=True whatever the exit code, so `expect: Pass` over a
+    # command exiting 1 produced a PASS proof row. The gate rejects
+    # anything outside the two legal values (handoff_gate._LEGAL_EXPECT);
+    # this reads the field as what it is.
+    expects_failure = evidence.get("expect", "pass") == "fail"
     match = evidence.get("match")
 
-    if expect == "fail" and exit_code == 0:
+    if expects_failure and exit_code == 0:
         return Objective(
             ok=False,
             why=(
@@ -85,7 +91,7 @@ def objective_check(
             blocking=True,
         )
 
-    if expect == "pass" and exit_code != 0:
+    if not expects_failure and exit_code != 0:
         return Objective(ok=False, why=f"expected a pass, exit code was {exit_code}")
 
     if match and match not in output:

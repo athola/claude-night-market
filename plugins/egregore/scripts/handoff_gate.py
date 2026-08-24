@@ -81,6 +81,12 @@ _FRONTMATTER_PARTS = 3
 #: Substrings that bypass a quality gate or destroy work. A handoff
 #: command containing any of these is refused outright, because an
 #: unattended run is exactly when nobody is watching the bypass.
+#: The two values ``evidence.expect`` may take. ``objective_check`` reads
+#: the field as a binary, so a third spelling used to mean "check
+#: nothing": a task written ``expect: Pass`` whose command exited 1
+#: produced a proof row reading exit 1, expect Pass, verdict PASS.
+_LEGAL_EXPECT = frozenset({"pass", "fail"})
+
 FORBIDDEN_COMMAND_FRAGMENTS = (
     "--no-verify",
     "push --force",
@@ -171,8 +177,9 @@ def _load_documents(item_dir: Path) -> tuple[dict[str, Any], list[str], int]:
     return docs, [], READY
 
 
-def _check_unsafe(handoff: dict[str, Any]) -> list[str]:
+def _check_unsafe(docs: dict[str, Any]) -> list[str]:
     """Refuse anything no work item may ask for, whatever its author wrote."""
+    handoff = docs["handoff.md"]
     problems: list[str] = []
     item_scope = handoff.get("scope") or {}
     allow_paths = item_scope.get("allow_paths") or []
@@ -190,16 +197,73 @@ def _check_unsafe(handoff: dict[str, Any]) -> list[str]:
             )
 
     cap = item_scope.get("max_diff_lines", DEFAULT_DIFF_CAP)
-    over_cap = isinstance(cap, int) and cap > DEFAULT_DIFF_CAP
-    if over_cap and not item_scope.get("spec_ref"):
+    if not _is_plain_int(cap):
+        problems.append(
+            f"scope.max_diff_lines is {cap!r}, which is not a number. A cap "
+            "that cannot be read is not an absent cap."
+        )
+    elif cap > DEFAULT_DIFF_CAP and not item_scope.get("spec_ref"):
         problems.append(
             f"scope.max_diff_lines is {cap} (over {DEFAULT_DIFF_CAP}) with no "
             "scope.spec_ref to justify it"
         )
 
-    for name, command in (handoff.get("commands") or {}).items():
-        problems += _check_command(name, str(command))
+    max_tasks = (handoff.get("budget") or {}).get("max_tasks")
+    if max_tasks is not None and not _is_plain_int(max_tasks):
+        problems.append(
+            f"budget.max_tasks is {max_tasks!r}, which is not a number. A "
+            "budget that cannot be read is not an absent budget."
+        )
+
+    for task in docs["tasks.md"].get("tasks") or []:
+        expect = (task.get("evidence") or {}).get("expect", "pass")
+        if expect not in _LEGAL_EXPECT:
+            problems.append(
+                f"task {task.get('id')} declares evidence.expect={expect!r}; "
+                f"the only legal values are {' and '.join(sorted(_LEGAL_EXPECT))}"
+            )
+
+    for label, command in _executable_commands(docs):
+        problems += _check_command(label, command)
     return problems
+
+
+def _is_plain_int(value: object) -> bool:
+    """Return True for an int that is not a bool.
+
+    The guards these replace were ``isinstance(x, int)``, which skips the
+    check on anything else rather than rejecting it, while the driver
+    reads the same fields through ``int(...)`` and accepts a string. Two
+    quote characters therefore lifted the surgical-edit ceiling on an
+    unattended run. ``bool`` is excluded because it is an int subclass:
+    ``max_diff_lines: true`` passed an isinstance check and then made the
+    downstream cap 1.
+    """
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _executable_commands(docs: dict[str, Any]) -> list[tuple[str, str]]:
+    """Every string the driver will execute, with a label for the message.
+
+    One generator so the command gate cannot be applied to some of them.
+    ``_check_command`` used to be reached from a single call site over
+    ``handoff["commands"]`` while a task's ``evidence.command`` was
+    checked for non-emptiness and then run by the driver as plain argv --
+    which is all ``rm -rf``, ``git reset --hard`` and ``git push --force``
+    need. The gate refused a string on one path and ran the identical
+    string on the other.
+    """
+    handoff = docs["handoff.md"]
+    commands = [
+        (f"commands.{name}", str(command))
+        for name, command in (handoff.get("commands") or {}).items()
+    ]
+    commands += [
+        (f"task {task.get('id')} evidence.command", str(command))
+        for task in docs["tasks.md"].get("tasks") or []
+        if (command := (task.get("evidence") or {}).get("command"))
+    ]
+    return commands
 
 
 def _check_command(name: str, command: str) -> list[str]:
@@ -337,8 +401,10 @@ def _check_incoherent(docs: dict[str, Any]) -> list[str]:
     allow_paths = (handoff.get("scope") or {}).get("allow_paths") or []
 
     problems: list[str] = []
-    max_tasks = (handoff.get("budget") or {}).get("max_tasks")
-    if isinstance(max_tasks, int) and len(tasks) > max_tasks:
+    # Annotated because it comes from parsed YAML: the value is whatever
+    # the author wrote, and _is_plain_int is what decides it is readable.
+    max_tasks: Any = (handoff.get("budget") or {}).get("max_tasks")
+    if _is_plain_int(max_tasks) and len(tasks) > max_tasks:
         problems.append(
             f"tasks.md declares {len(tasks)} tasks, over budget.max_tasks={max_tasks}"
         )
@@ -364,7 +430,7 @@ def check_item(item_dir: Path) -> GateResult:
     if code != READY:
         return GateResult(code=code, problems=problems)
 
-    unsafe = _check_unsafe(docs["handoff.md"])
+    unsafe = _check_unsafe(docs)
     if unsafe:
         return GateResult(code=UNSAFE, problems=unsafe)
 

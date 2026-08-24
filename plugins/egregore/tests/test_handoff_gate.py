@@ -385,3 +385,156 @@ class TestShellMetacharacters:
         )
         result = gate.check_item(write_item(tmp_path, **{"handoff.md": body}))
         assert result.code == gate.UNSAFE
+
+
+class TestEveryExecutedStringPassesTheCommandGate:
+    """A command the driver runs must have been judged before it runs."""
+
+    def test_a_task_evidence_command_is_refused_like_a_handoff_command(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A task's evidence.command names a forbidden command
+        Given the identical string is refused in handoff.commands
+        When the gate reads the item
+        Then it is refused there too
+
+        _check_command was reached from one call site, over
+        handoff["commands"]. A task's evidence.command was checked for
+        non-emptiness and nothing else, then executed by the driver as
+        plain argv -- which is all `rm -rf`, `git reset --hard` and
+        `git push --force` need. The gate refused a string on one path
+        and ran it on the other.
+        """
+        tasks = GOOD_TASKS.replace(
+            "command: uv run pytest tests/test_delegation_error_paths.py -q\n"
+            "      expect: fail",
+            "command: git commit --no-verify\n      expect: fail",
+        )
+        item = write_item(tmp_path, **{"tasks.md": tasks})
+
+        result = gate.check_item(item)
+
+        assert result.state == "UNSAFE"
+        assert any("--no-verify" in p for p in result.problems)
+
+    def test_the_control_string_is_still_refused_in_handoff_commands(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The same string in handoff.commands
+        When the gate reads the item
+        Then it is refused
+
+        The control the finding used. Kept so the test above is evidence
+        that both paths agree rather than that one path fires.
+        """
+        handoff = GOOD_HANDOFF.replace(
+            "test: uv run pytest tests/ -q", "test: git commit --no-verify"
+        )
+        item = write_item(tmp_path, **{"handoff.md": handoff})
+
+        result = gate.check_item(item)
+
+        assert result.state == "UNSAFE"
+
+
+class TestNumericBudgetsAreParsedNotSniffed:
+    """A cap that is not a number is a malformed cap, not an absent one."""
+
+    def test_a_quoted_max_diff_lines_does_not_bypass_the_cap(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: max_diff_lines is written as a quoted string
+        Given no scope.spec_ref to justify going over the cap
+        When the gate reads the item
+        Then it is refused
+
+        The guard was `isinstance(cap, int) and cap > DEFAULT_DIFF_CAP`,
+        so a non-int skipped the check rather than failing it, while the
+        driver read the same field through `int(...)` and accepted the
+        string. Two quote characters therefore lifted the surgical-edit
+        ceiling on an unattended run with no spec reference.
+        """
+        handoff = GOOD_HANDOFF.replace("max_diff_lines: 200", 'max_diff_lines: "900"')
+        item = write_item(tmp_path, **{"handoff.md": handoff})
+
+        result = gate.check_item(item)
+
+        assert result.state == "UNSAFE"
+
+    def test_a_boolean_max_diff_lines_is_refused(self, tmp_path: Path) -> None:
+        """
+        Scenario: max_diff_lines is written as YAML true
+        When the gate reads the item
+        Then it is refused
+
+        bool is a subclass of int, so an isinstance check admits it and
+        the downstream cap becomes 1. Excluded explicitly rather than
+        left to the reader.
+        """
+        handoff = GOOD_HANDOFF.replace("max_diff_lines: 200", "max_diff_lines: true")
+        item = write_item(tmp_path, **{"handoff.md": handoff})
+
+        result = gate.check_item(item)
+
+        assert result.state == "UNSAFE"
+
+    def test_a_quoted_max_tasks_is_refused(self, tmp_path: Path) -> None:
+        """
+        Scenario: budget.max_tasks is written as a quoted string
+        When the gate reads the item
+        Then it is refused
+
+        Same shape as max_diff_lines, same bypass: the isinstance guard
+        skipped the budget check on anything that was not an int.
+        """
+        handoff = GOOD_HANDOFF.replace("max_tasks: 6", 'max_tasks: "6"')
+        item = write_item(tmp_path, **{"handoff.md": handoff})
+
+        result = gate.check_item(item)
+
+        assert result.state in {"UNSAFE", "INCOHERENT"}
+
+
+class TestExpectIsBinary:
+    """``expect`` has two legal values and no third meaning."""
+
+    def test_a_mistyped_expect_is_refused_by_the_gate(self, tmp_path: Path) -> None:
+        """
+        Scenario: A task declares `expect: Pass`
+        When the gate reads the item
+        Then it is refused
+
+        objective_check compared against the exact strings "fail" and
+        "pass", so any other value fell through both branches and
+        returned ok=True whatever the exit code. A task written
+        `expect: Pass` whose command exits 1 produced a proof row reading
+        "exit 1, expect Pass, verdict PASS". Nothing validated the field.
+        """
+        tasks = GOOD_TASKS.replace("expect: pass", "expect: Pass")
+        item = write_item(tmp_path, **{"tasks.md": tasks})
+
+        result = gate.check_item(item)
+
+        assert result.state in {"UNSAFE", "INCOHERENT"}
+        assert any("expect" in p for p in result.problems)
+
+    def test_yaml_parsing_expect_no_as_a_boolean_is_refused(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A task declares `expect: no`
+        When the gate reads the item
+        Then it is refused
+
+        YAML reads an unquoted `no` as the boolean False, which is
+        neither legal value and would have fallen through the same way.
+        """
+        tasks = GOOD_TASKS.replace("expect: pass", "expect: no")
+        item = write_item(tmp_path, **{"tasks.md": tasks})
+
+        result = gate.check_item(item)
+
+        assert result.state in {"UNSAFE", "INCOHERENT"}
