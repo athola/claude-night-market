@@ -29,10 +29,25 @@ class FakeRunner:
         del timeout
         self.calls.append(command)
         self.invocations.append((command, cwd))
+        matchable = self._without_absolute_paths(command)
         for key, (code, out) in self.script.items():
-            if key in command:
+            if key in matchable:
                 return night_run.Completed(returncode=code, output=out)
         return night_run.Completed(returncode=0, output="")
+
+    @staticmethod
+    def _without_absolute_paths(command: str) -> str:
+        """Drop absolute-path arguments before matching a script key.
+
+        Every script key names a command -- "pytest", "uv sync",
+        "git commit". None names a path. Matching against the whole
+        command line let an argument decide the answer: ``tmp_path`` is
+        ``/tmp/pytest-of-<user>/pytest-N/...``, so the worktree path
+        carried the substring "pytest" and ``git worktree add`` returned
+        whatever the suite had scripted for the test command. That was
+        harmless only while the walker discarded the exit code.
+        """
+        return " ".join(t for t in command.split() if not t.startswith("/"))
 
 
 def mktask(tid: str, deps: list[str], expect: str = "pass") -> dict:
@@ -703,3 +718,169 @@ class TestScopeSeesFilesTheImplementerCreates:
 
         assert result.tasks and result.tasks[-1].verdict == "BLOCKED"
         assert "could not be reverted" in result.tasks[-1].reason
+
+
+class TestTheRunDoesNotProceedOverASilentFailure:
+    """A git command whose exit code nobody read is not evidence."""
+
+    def test_a_failed_worktree_add_stops_the_item(self, tmp_path: Path) -> None:
+        """
+        Scenario: `git worktree add` fails
+        When the item walks
+        Then it stops instead of running tasks somewhere else
+
+        The exit code was discarded, so a branch name already in use or a
+        stale worktree left the run proceeding against whatever directory
+        happened to be at that path -- or against none.
+        """
+        runner = FakeRunner(
+            {"worktree add": (128, "fatal: branch 'night/NS-001' already exists")}
+        )
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.status == "setup_failed"
+        assert not result.committed
+
+    def test_a_failed_setup_command_stops_the_item(self, tmp_path: Path) -> None:
+        """
+        Scenario: `commands.setup` fails
+        When the item walks
+        Then it stops rather than testing an unbuilt tree
+
+        A failed `uv sync` leaves every later test failing for a reason
+        that has nothing to do with the task, and the babysitter is asked
+        to judge the resulting mess.
+        """
+        runner = FakeRunner({"uv sync": (1, "error: no such package")})
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.status == "setup_failed"
+
+    def test_a_failed_commit_does_not_record_the_task_as_committed(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: `git commit` fails after a passing task
+        When the item walks
+        Then the task is not listed as committed
+
+        The exit codes were discarded and the task id was appended
+        unconditionally, so the morning's proof named commits that do not
+        exist. A pre-commit hook rejecting the change is the ordinary way
+        this happens.
+        """
+        runner = FakeRunner(
+            {
+                "pytest": (1, "1 failed"),
+                "git commit": (1, "pre-commit hook rejected the change"),
+            }
+        )
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.committed == []
+        assert "commit" in result.reason.lower()
+
+    def test_the_per_task_commit_stages_only_the_task_files(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A task passes and is committed
+        When the change is staged
+        Then `git add -A` is not used
+
+        `git add -A` stages the whole tree, so anything the implementer
+        left outside the task's files rides along in the commit, and the
+        later scope checks -- which read `git diff`, the unstaged view --
+        pass vacuously over it.
+        """
+        runner = FakeRunner({"pytest": (1, "1 failed")})
+
+        night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert not [c for c in runner.calls if "add -A" in c]
+
+    def test_an_absent_full_test_is_recorded_rather_than_skipped(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The handoff declares no commands.full_test
+        When the item finishes
+        Then the proof records that the final gate never ran
+
+        The gate was skipped silently and the proof simply omitted the
+        section, so "no full-suite section" read identically to "the file
+        predates the feature". A reviewer cannot tell a gate that passed
+        from one that was never asked to run.
+        """
+        handoff = {**HANDOFF, "commands": {"setup": "uv sync", "test": "pytest -q"}}
+        runner = FakeRunner({"pytest": (1, "1 failed")})
+
+        result = night_run.run_item(
+            handoff,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.full_suite is not None
+        assert result.full_suite.get("skipped") is True
+
+
+class TestQuotaClassificationReadsTheRightThing:
+    """A 429 in a test's own output is not the account being throttled."""
+
+    def test_a_test_failure_mentioning_429_is_not_a_rate_limit(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A task's own test output contains "429"
+        When the evidence command exits non-zero
+        Then the item fails rather than parking for quota
+
+        classify() reads any "429" in the output, and the evidence command
+        is a test suite -- one asserting on an HTTP status is ordinary.
+        Parking on it records no failure, and the watchdog relaunches
+        every thirty minutes against a red test that will never go green
+        on its own.
+        """
+        runner = FakeRunner(
+            {"pytest": (1, "assert response.status_code == 429\n1 failed")}
+        )
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="pass")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert not result.status.startswith("parked_rate")

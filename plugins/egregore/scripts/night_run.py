@@ -25,8 +25,11 @@ The order of operations is the contract:
    raw output.
 4. Ask the babysitter for a verdict, showing it only the diff and the
    captured output.
-5. Reconcile: the deterministic reading may tighten the babysitter's
-   verdict but never loosen it. See ``scripts/verdict.py``.
+5. Reconcile: past the two BLOCKED arms the verdict is the evidence's,
+   in both directions. A babysitter FAIL over green evidence becomes a
+   PASS with the objection recorded as dissent, on the reasoning that a
+   model disagreeing with a passing test is a comment on the
+   specification. See ``scripts/verdict.py``.
 
 Every command runs as argv with no shell. The gate refuses any handoff
 command containing a shell metacharacter, so by the time the driver sees
@@ -535,9 +538,35 @@ def _raise_if_usage_limited(observed: Completed) -> None:
     """
     if observed.returncode == 0:
         return
+    if not _looks_like_a_refusal(observed.output):
+        return
     kind = window_mod.classify(observed.output)
     if kind in ("rate_limit", "spend_limit"):
         raise UsageLimited(kind, observed.output)
+
+
+#: Text that only an API refusal produces. ``classify`` reads a bare
+#: "429" anywhere in the output, which is right for a provider response
+#: and wrong for the evidence command, because that command is a test
+#: suite and a suite asserting on an HTTP status is ordinary. Parking on
+#: one recorded no failure and had the watchdog relaunch every thirty
+#: minutes against a red test that could never go green on its own.
+_REFUSAL_MARKERS = (
+    "rate_limit_error",
+    "rate limit",
+    "usage limit",
+    "quota",
+    "credit balance",
+    "anthropic",
+    "api error",
+    "overloaded_error",
+)
+
+
+def _looks_like_a_refusal(text: str) -> bool:
+    """Return True if the output reads as an API refusal, not a test failure."""
+    low = text.lower()
+    return any(marker in low for marker in _REFUSAL_MARKERS)
 
 
 def _metered_babysitter(
@@ -571,6 +600,99 @@ def _metered_babysitter(
     return metered
 
 
+def _prepare_worktree(
+    runner: Runner, root: Path, worktree: Path, handoff: Mapping[str, Any]
+) -> str | None:
+    """Cut the item's worktree and run its setup command.
+
+    Returns ``None`` when the item is ready to walk, or the reason it
+    cannot start. Both exit codes used to be discarded, so a branch name
+    already in use, or a stale worktree, left the run executing tasks
+    against whatever directory happened to sit at that path -- and a
+    failed ``uv sync`` left every later test failing for a reason that
+    had nothing to do with the task the babysitter was judging.
+    """
+    added = _git(
+        runner,
+        root,
+        "worktree",
+        "add",
+        "-b",
+        str(handoff.get("branch")),
+        str(worktree),
+        str(handoff.get("base_branch")),
+    )
+    if added.returncode != 0:
+        return f"git worktree add exited {added.returncode}: {added.output[:200]}"
+
+    setup = (handoff.get("commands") or {}).get("setup")
+    if not setup:
+        return None
+
+    prepared = runner.run(str(setup), cwd=worktree)
+    if prepared.returncode != 0:
+        return f"{setup} exited {prepared.returncode}: {prepared.output[:200]}"
+    return None
+
+
+def _commit_task(runner: Runner, worktree: Path, task: Mapping[str, Any]) -> str | None:
+    """Commit one passing task. Returns the failure reason, or ``None``.
+
+    Stages the task's own files rather than ``git add -A``. Staging the
+    whole tree swept in anything the implementer left outside the task,
+    and then hid it from the later scope checks, which read ``git diff``
+    -- the unstaged view -- and so passed vacuously over staged strays.
+
+    Both exit codes are read. They used to be discarded while the task id
+    was appended to ``committed`` unconditionally, so the morning's proof
+    named commits that do not exist. A pre-commit hook rejecting the
+    change is the ordinary way that happens.
+    """
+    tid = str(task.get("id"))
+    staged = _git(
+        runner, worktree, "add", "--", *[str(f) for f in task.get("files") or []]
+    )
+    committed = _git(runner, worktree, "commit", "-m", f"{tid}: {task.get('title')}")
+    if staged.returncode == 0 and committed.returncode == 0:
+        return None
+
+    failure = staged if staged.returncode != 0 else committed
+    return (
+        f"{tid} passed but could not be committed (exit "
+        f"{failure.returncode}): {failure.output[:200]}"
+    )
+
+
+def _final_full_suite(
+    runner: Runner, worktree: Path, handoff: Mapping[str, Any]
+) -> tuple[dict[str, Any], str | None]:
+    """Run the item's last gate. Returns its record and any failure reason."""
+    full = (handoff.get("commands") or {}).get("full_test")
+    if not full:
+        # Recorded rather than skipped. Omitting the section made "the
+        # gate passed" and "the gate was never asked to run" read
+        # identically in the morning's proof.
+        return (
+            {
+                "command": None,
+                "skipped": True,
+                "reason": "the handoff declares no commands.full_test",
+            },
+            None,
+        )
+
+    observed = runner.run(str(full), cwd=worktree)
+    record = {
+        "command": str(full),
+        "exit": observed.returncode,
+        "output": observed.output,
+        "skipped": False,
+    }
+    if observed.returncode != 0:
+        return record, f"the full suite exited {observed.returncode}"
+    return record, None
+
+
 def run_item(
     handoff: Mapping[str, Any],
     tasks: Sequence[Mapping[str, Any]],
@@ -594,19 +716,11 @@ def run_item(
 
     result = ItemResult(item=item, status="ready")
 
-    _git(
-        runner,
-        root,
-        "worktree",
-        "add",
-        "-b",
-        str(handoff.get("branch")),
-        str(worktree),
-        str(handoff.get("base_branch")),
-    )
-    setup = (handoff.get("commands") or {}).get("setup")
-    if setup:
-        runner.run(str(setup), cwd=worktree)
+    unprepared = _prepare_worktree(runner, root, worktree, handoff)
+    if unprepared is not None:
+        result.status = "setup_failed"
+        result.reason = unprepared
+        return result
 
     spend = [0]
     for task in topo_sort(tasks):
@@ -643,8 +757,11 @@ def run_item(
             result.reason = f"{tid} ended {task_result.verdict}: {task_result.reason}"
             break
 
-        _git(runner, worktree, "add", "-A")
-        _git(runner, worktree, "commit", "-m", f"{tid}: {task.get('title')}")
+        uncommitted = _commit_task(runner, worktree, task)
+        if uncommitted is not None:
+            result.status = "commit_failed"
+            result.reason = uncommitted
+            break
         result.committed.append(tid)
 
     result.estimated_tokens = spend[0]
@@ -653,17 +770,10 @@ def run_item(
         result.discarded = _discard_uncommitted(runner, worktree)
 
     if result.status == "ready":
-        full = (handoff.get("commands") or {}).get("full_test")
-        if full:
-            observed = runner.run(str(full), cwd=worktree)
-            result.full_suite = {
-                "command": str(full),
-                "exit": observed.returncode,
-                "output": observed.output,
-            }
-            if observed.returncode != 0:
-                result.status = "full_suite_red"
-                result.reason = f"the full suite exited {observed.returncode}"
+        result.full_suite, red = _final_full_suite(runner, worktree, handoff)
+        if red is not None:
+            result.status = "full_suite_red"
+            result.reason = red
 
     return result
 

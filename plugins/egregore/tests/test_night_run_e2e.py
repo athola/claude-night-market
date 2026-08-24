@@ -90,6 +90,14 @@ def project(tmp_path: Path) -> Path:
     executor.write_text(IMPLEMENTER)
     executor.chmod(0o755)
 
+    # A real Python repository ignores its own build artifacts. Without
+    # this the worktree accumulates `__pycache__/` and `.pytest_cache/`
+    # from running the evidence command, and the scope fence -- which
+    # reads `git status --porcelain`, and so honors .gitignore -- reports
+    # them as edits outside the task's allowlist. The fence is right to
+    # do that; the fixture was the thing that did not match reality.
+    (repo / ".gitignore").write_text("__pycache__/\n.pytest_cache/\n*.pyc\n")
+
     _git("init", "-q", "-b", "main", cwd=repo)
     _git("config", "user.email", "night@example.invalid", cwd=repo)
     _git("config", "user.name", "Night Run", cwd=repo)
