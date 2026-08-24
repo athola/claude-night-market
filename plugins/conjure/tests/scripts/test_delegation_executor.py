@@ -1,5 +1,6 @@
 """Tests for delegation_executor.py following TDD/BDD principles."""
 
+import dataclasses
 import json
 import os
 import re
@@ -2356,3 +2357,107 @@ class TestAuthIsSettledBeforeAProviderIsSpawned:
         assert is_available is False
         assert any("GEMINI_API_KEY" in issue for issue in issues)
         spawn.assert_not_called()
+
+
+class TestTheContractCannotBeRewrittenUnderneath:
+    """Provider contracts are shared, so they must not be assignable."""
+
+    @pytest.mark.bdd
+    def test_a_service_config_refuses_field_assignment(self) -> None:
+        """GIVEN the registry entry every Delegator shares.
+
+        WHEN a caller assigns to one of its fields
+        THEN the assignment raises
+
+        ``Delegator.__init__`` does ``dict(self.SERVICES)``, which copies
+        the mapping and not the values, so every Delegator in a process
+        holds the same ServiceConfig objects as the class default. While
+        the dataclass was mutable, one field assignment anywhere rewrote
+        the contract for every later Delegator, including ones already
+        constructed. ``_apply_overrides`` already returns a new object via
+        ``replace``, so nothing needed the mutability.
+        """
+        service = Delegator.SERVICES["gemini"]
+
+        # setattr rather than a plain assignment: assigning to a frozen
+        # field is the behavior under test, so a direct write is exactly
+        # what the type checker is right to reject.
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            service.priority = 1
+
+    @pytest.mark.bdd
+    def test_overriding_one_delegator_leaves_the_class_default_alone(
+        self, temp_config_dir
+    ) -> None:
+        """GIVEN a config file overriding gemini's priority.
+
+        WHEN a delegator loads it
+        THEN the class default keeps its original priority
+
+        The behavior the frozen dataclass protects, stated as the caller
+        sees it rather than as an exception type.
+        """
+        before = Delegator.SERVICES["gemini"].priority
+        (temp_config_dir / "config.json").write_text(
+            json.dumps({"services": {"gemini": {"priority": 999}}})
+        )
+
+        delegator = Delegator(config_dir=temp_config_dir)
+
+        assert delegator.services["gemini"].priority == 999
+        assert Delegator.SERVICES["gemini"].priority == before
+
+
+class TestVerifyReportsFailureThroughTheExitCode:
+    """``--verify`` is read by CI wrappers, which see only the status."""
+
+    @pytest.mark.bdd
+    def test_a_failing_verification_exits_nonzero(self, capsys) -> None:
+        """GIVEN a service whose verification fails.
+
+        WHEN --verify runs for it
+        THEN the process exits 1
+
+        _verify_service's own docstring records that --verify used to exit
+        0 whatever it found. The repair was a raise at the call site, and
+        nothing pinned it: replacing that raise with a bare call left the
+        whole suite green, so a CI wrapper checking the status would
+        report success over a missing binary or an expired credential.
+        """
+        delegator = Delegator.__new__(Delegator)
+        delegator.services = {"gemini": Delegator.SERVICES["gemini"]}
+
+        with (
+            patch.object(
+                Delegator, "verify_service", return_value=(False, ["binary missing"])
+            ),
+            patch(
+                "sys.argv",
+                ["delegation_executor.py", "--verify", "gemini"],
+            ),
+            patch("delegation_executor.Delegator", return_value=delegator),
+            pytest.raises(SystemExit) as exit_info,
+        ):
+            main()
+
+        assert exit_info.value.code == 1
+
+    @pytest.mark.bdd
+    def test_a_passing_verification_exits_zero(self) -> None:
+        """GIVEN a service that verifies cleanly.
+
+        WHEN --verify runs for it
+        THEN the process does not raise SystemExit
+
+        The counterpart, so the guard above pins the exit code rather than
+        merely pinning that --verify raises.
+        """
+        delegator = Delegator.__new__(Delegator)
+        delegator.services = {"gemini": Delegator.SERVICES["gemini"]}
+
+        with (
+            patch.object(Delegator, "verify_service", return_value=(True, [])),
+            patch("sys.argv", ["delegation_executor.py", "--verify", "gemini"]),
+            patch("delegation_executor.Delegator", return_value=delegator),
+        ):
+            main()

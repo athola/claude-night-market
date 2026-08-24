@@ -166,9 +166,16 @@ FALLBACK_DISABLED = "delegation_disabled"
 FALLBACK_EXHAUSTED = "providers_exhausted"
 
 
-@dataclass
+@dataclass(frozen=True)
 class ServiceConfig:
     """Configuration for a delegation service.
+
+    Frozen because the registry is shared. ``Delegator.__init__`` copies
+    the ``SERVICES`` mapping and not its values, so every Delegator in a
+    process holds these same objects; while this was mutable, one field
+    assignment rewrote the contract process wide. ``_apply_overrides``
+    already builds a new object with ``replace``, so nothing needed to
+    assign.
 
     The trailing fields describe the CLI contract. They exist because the
     supported CLIs genuinely diverge: ``mmx`` puts text generation behind a
