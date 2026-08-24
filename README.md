@@ -185,7 +185,7 @@ answers, the work stays on your machine.
 
 ## What's New
 
-**1.9.19** takes `conjure` from two delegation targets to eight and
+**1.9.19** takes `conjure` from three delegation targets to eight and
 turns delegation on by default. GLM-5.3, Meta Muse Code, the OpenAI
 Codex CLI, OpenCode and a locally served Muse Glimmer join Gemini,
 Qwen and MiniMax. `make delegate-doctor` reports what is installed

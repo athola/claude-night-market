@@ -74,8 +74,9 @@ Rewrite or split.
 ### REFACTOR: pressure the skill
 
 Run the skill against scenarios designed to invite
-rationalization. From the anti-rationalization module listed in
-`SKILL.md`, common pressure shapes:
+rationalization. From
+`../../../shared-modules/skill-selection-judgment.md`, common
+pressure shapes:
 
 - "Quickly add..." (time pressure)
 - "Just a simple..." (scope minimization)

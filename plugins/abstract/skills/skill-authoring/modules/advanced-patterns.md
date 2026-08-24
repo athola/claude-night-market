@@ -208,7 +208,7 @@ A gate that says "only use in production environments" is a
 behavioral promise. Without a baseline test that runs the skill
 in development and verifies refusal, the gate is decoration.
 Claude will rationalize past it under pressure. The counter pattern is
-in the anti-rationalization module listed in `SKILL.md`.
+in `../../../shared-modules/skill-selection-judgment.md`.
 
 ### Spoke depth creep
 

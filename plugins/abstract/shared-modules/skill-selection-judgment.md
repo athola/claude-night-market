@@ -2,7 +2,8 @@
 
 ## What This Replaces
 
-This file was `skill-selection-judgment.md`. It carried a table pairing
+This file replaces `shared-modules/anti-rationalization.md`. That
+file carried a table pairing
 thoughts a session might have with the reason each one was wrong, and
 a rule that a skill must be read whenever there was "even 1% chance"
 it applied. Sample rows:

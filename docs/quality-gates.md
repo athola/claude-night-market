@@ -315,10 +315,12 @@ never existed.
 The other two were `abstract:skill-execution-logger`, which names a
 hook rather than a skill and appeared in four files, and the
 `abstract:skill-auditor` agent above. The gap became load-bearing on
-this branch, where seventeen commands were reduced to a delegation
-whose whole body is one `Skill(...)` call. An unresolvable reference
-there is no longer a stale cross-link. It is a command that does
-nothing when invoked.
+this branch, where seventeen commands handed their procedure to a
+skill and kept a `Skill(...)` call as the step that performs it. The
+bodies vary from nineteen lines to `plugins/sanctum/commands/do-issue.md`
+at 290, and what they share is that the call, not the surrounding
+prose, is what does the work. An unresolvable reference there is no longer a
+stale cross-link. It is a command that does nothing when invoked.
 
 ## Configuration Files
 
