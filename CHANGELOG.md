@@ -42,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   captures are gitignored and carried several hundred findings a fresh
   checkout does not have, and a threshold that moves with local state
   fires on work nobody committed. Only a missing file is absorbed by the
-  count; a file that is present and cannot be read propagates, because a
+  count. A file that is present and cannot be read propagates, because a
   ratchet subtracts every skipped file from its own total and one
   unreadable document can otherwise absorb a real rise elsewhere.
 
@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   that created a file handed the fence an empty list, and creating a
   workflow file overnight is precisely what the denylist's `.github/**`
   entry exists for. The code reads `_touched_files`, which unions the
-  diff with `git status --porcelain -uall`; the contract now says so.
+  diff with `git status --porcelain -uall`, and the contract now says so.
 
 ## [1.9.19] - 2026-08-23
 
