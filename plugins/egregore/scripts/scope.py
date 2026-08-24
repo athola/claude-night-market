@@ -21,7 +21,7 @@ import fnmatch
 import json
 import sys
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import PurePosixPath
 
 #: Paths no handoff may authorize, as POSIX-style glob patterns matched
@@ -48,13 +48,29 @@ DENY_PATTERNS = (
 )
 
 
-@dataclass
+@dataclass(frozen=True)
 class ScopeResult:
-    """Outcome of a scope check over one set of changed paths."""
+    """Outcome of a scope check over one set of changed paths.
+
+    Frozen, and the two halves must agree. A pass with violating paths
+    and a failure with neither a path nor a reason are both readable as
+    the opposite of what happened, and this type is what the night run
+    consults before deciding whether to revert a tree.
+    """
 
     ok: bool
-    violating: list[str] = field(default_factory=list)
+    violating: tuple[str, ...] = ()
     reason: str = ""
+
+    def __post_init__(self) -> None:
+        """Refuse a result whose two halves disagree."""
+        if self.ok and (self.violating or self.reason):
+            raise ValueError(
+                f"a passing scope check cannot name violations: "
+                f"{list(self.violating)} {self.reason!r}"
+            )
+        if not self.ok and not self.reason:
+            raise ValueError("a failing scope check must carry a reason")
 
 
 def _match_segments(pattern: Sequence[str], target: Sequence[str]) -> bool:
@@ -111,11 +127,13 @@ def check(allow_paths: Sequence[str], changed: Sequence[str]) -> ScopeResult:
     """
     denied = [p for p in changed if is_denied(p)]
     if denied:
-        return ScopeResult(ok=False, violating=denied, reason="denylist")
+        return ScopeResult(ok=False, violating=tuple(denied), reason="denylist")
 
     outside = [p for p in changed if not any(within(a, p) for a in allow_paths if a)]
     if outside:
-        return ScopeResult(ok=False, violating=outside, reason="outside_allowlist")
+        return ScopeResult(
+            ok=False, violating=tuple(outside), reason="outside_allowlist"
+        )
 
     return ScopeResult(ok=True)
 
@@ -137,7 +155,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         json.dumps(
             {
                 "ok": result.ok,
-                "violating": result.violating,
+                "violating": list(result.violating),
                 "reason": result.reason,
             }
         )

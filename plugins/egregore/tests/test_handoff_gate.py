@@ -11,6 +11,7 @@ one of these red, that check was not load-bearing.
 
 from __future__ import annotations
 
+import dataclasses
 import textwrap
 from pathlib import Path
 
@@ -131,7 +132,7 @@ class TestReady:
         result = gate.check_item(write_item(tmp_path))
         assert result.code == gate.READY, result.problems
         assert result.state == "READY"
-        assert result.problems == []
+        assert result.problems == ()
 
 
 class TestMissing:
@@ -595,3 +596,32 @@ class TestForbiddenFragmentsSurviveSpacing:
         result = gate.check_item(item)
 
         assert any(p.startswith("commands.test contains") for p in result.problems)
+
+
+class TestGateResultRejectsAnUnknownCode:
+    """An invented code is refused where it is invented.
+
+    ``state`` is reached from the CLI's JSON path. An unrecognized code
+    used to survive construction and surface as a ``KeyError`` raised
+    inside a property, naming the lookup at the point of formatting
+    rather than the caller that supplied the code.
+    """
+
+    def test_an_unknown_code_is_refused_at_construction(self) -> None:
+        with pytest.raises(ValueError, match="unknown gate code"):
+            gate.GateResult(code=999)
+
+    def test_every_declared_state_is_accepted(self) -> None:
+        for code in (
+            gate.READY,
+            gate.MISSING,
+            gate.MALFORMED,
+            gate.UNSAFE,
+            gate.INCOHERENT,
+        ):
+            assert gate.GateResult(code=code).state
+
+    def test_a_verdict_cannot_be_edited_after_the_gate_ran(self) -> None:
+        result = gate.GateResult(code=gate.READY)
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            result.code = gate.UNSAFE  # type: ignore[misc]  # illegal is the assertion

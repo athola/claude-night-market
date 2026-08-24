@@ -105,38 +105,79 @@ def format_risk_policy(changed_lines: int, *, tests_touched: bool) -> str:
     Naming the wrong signal would be worse than naming none, so a large
     branch that does touch tests is told about its size only.
     """
-    signals = [f"- {changed_lines} lines changed against HEAD"]
+    signals = [f"- {changed_lines} lines changed on this branch"]
     if not tests_touched:
         signals.append("- no test file among them")
     return RISK_POLICY.format(signals="\n".join(signals))
 
 
-def measure_branch() -> tuple[int, bool]:
-    """Return the branch's changed-line count and whether tests moved.
+#: Candidate base branches, in the order the merge base is looked for.
+#: Remote-tracking names come first: a stale local `master` is common in
+#: a long-lived checkout, and it would understate the branch.
+_BASE_CANDIDATES = (
+    "origin/master",
+    "origin/main",
+    "master",
+    "main",
+)
 
-    Reports (0, False) for anything git cannot answer: a directory that
-    is not a repository, a missing binary, a slow filesystem. Not
-    knowing the size of a change is not evidence that it is large, and
-    the short reminder still carries the practice, so guessing wrong
-    here costs a smaller prompt rather than a missing one.
-    """
+
+def _git(args: list[str]) -> str | None:
+    """Run a git command, returning its stdout or None if it cannot answer."""
     try:
         result = subprocess.run(  # nosec B603 B607
-            ["git", "diff", "--numstat", "HEAD"],
+            ["git", *args],
             capture_output=True,
             text=True,
             timeout=5,
             check=False,
         )
     except (OSError, subprocess.SubprocessError):
-        return 0, False
-
+        return None
     if result.returncode != 0:
+        return None
+    return result.stdout
+
+
+def _branch_base() -> str | None:
+    """Return the commit this branch left, or None if there is no base.
+
+    On the base branch itself the merge base is HEAD, which makes the
+    diff below the working tree alone. That is the right answer there:
+    no branch work has happened.
+    """
+    for candidate in _BASE_CANDIDATES:
+        base = _git(["merge-base", "HEAD", candidate])
+        if base and base.strip():
+            return base.strip()
+    return None
+
+
+def measure_branch() -> tuple[int, bool]:
+    """Return the branch's changed-line count and whether tests moved.
+
+    Measured from the point this branch left its base, so committed work
+    counts. `git diff HEAD` reads the working tree only, which meant a
+    session that had committed its work measured zero and was handed the
+    short reminder the escalation exists to replace. The escalation is
+    for branches with something at stake, and committing is not what
+    lowers the stakes.
+
+    Reports (0, False) for anything git cannot answer: a directory that
+    is not a repository, a missing binary, a slow filesystem, a clone
+    with no recognizable base branch. Not knowing the size of a change
+    is not evidence that it is large, and the short reminder still
+    carries the practice, so guessing wrong here costs a smaller prompt
+    rather than a missing one.
+    """
+    base = _branch_base()
+    stdout = _git(["diff", "--numstat", base or "HEAD"])
+    if stdout is None:
         return 0, False
 
     changed = 0
     tests_touched = False
-    for line in result.stdout.splitlines():
+    for line in stdout.splitlines():
         parts = line.split("\t")
         if len(parts) != _NUMSTAT_FIELDS:
             continue

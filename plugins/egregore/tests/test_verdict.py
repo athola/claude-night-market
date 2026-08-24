@@ -173,7 +173,7 @@ class TestScopeIntegration:
             allow_paths=["a/b.py"], changed=["a/b.py", "c/d.py"]
         )
         assert not result.ok
-        assert result.violating == ["c/d.py"]
+        assert result.violating == ("c/d.py",)
 
     def test_denied_path_is_reported_as_a_denylist_breach(self) -> None:
         result = verdict.check_scope(

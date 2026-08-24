@@ -29,7 +29,7 @@ import argparse
 import json
 import shlex
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -107,12 +107,26 @@ FORBIDDEN_COMMAND_FRAGMENTS = (
 SHELL_METACHARACTERS = ("&", ";", "|", ">", "<", "`", "$(", "\n")
 
 
-@dataclass
+@dataclass(frozen=True)
 class GateResult:
-    """The verdict on one work item."""
+    """The verdict on one work item.
+
+    ``code`` is checked at construction rather than when ``state`` is
+    read. The property is reached from the CLI's JSON path, where an
+    unrecognized code used to surface as a ``KeyError`` from inside a
+    property: a traceback naming the lookup, at the point of
+    formatting, rather than the caller that invented the code.
+    """
 
     code: int
-    problems: list[str] = field(default_factory=list)
+    problems: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        """Refuse a code no state name covers."""
+        if self.code not in _STATES:
+            raise ValueError(
+                f"unknown gate code {self.code!r}; expected one of {sorted(_STATES)}"
+            )
 
     @property
     def state(self) -> str:
@@ -437,15 +451,15 @@ def check_item(item_dir: Path) -> GateResult:
     """
     docs, problems, code = _load_documents(Path(item_dir))
     if code != READY:
-        return GateResult(code=code, problems=problems)
+        return GateResult(code=code, problems=tuple(problems))
 
     unsafe = _check_unsafe(docs)
     if unsafe:
-        return GateResult(code=UNSAFE, problems=unsafe)
+        return GateResult(code=UNSAFE, problems=tuple(unsafe))
 
     incoherent = _check_incoherent(docs)
     if incoherent:
-        return GateResult(code=INCOHERENT, problems=incoherent)
+        return GateResult(code=INCOHERENT, problems=tuple(incoherent))
 
     return GateResult(code=READY)
 
@@ -464,7 +478,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 {
                     "state": result.state,
                     "code": result.code,
-                    "problems": result.problems,
+                    "problems": list(result.problems),
                 },
                 indent=2,
             )

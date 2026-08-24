@@ -16,6 +16,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from scripts.delegation_executor import (
+    FALLBACK_DISABLED,
     FALLBACK_EXHAUSTED,
     Delegator,
     ExecutionResult,
@@ -368,3 +369,57 @@ class TestGeneralErrorHandling:
             mock_run.assert_called_once()
             cmd_args = mock_run.call_args.args[0]
             assert cmd_args[0] == "gemini"
+
+
+class TestAResultCannotAnswerAndReportExhaustion:
+    """The two rules stated in the `fallback_reason` comment, enforced.
+
+    The mission orchestrator, project-execution and the egregore summon
+    skill each branch on this field alone. A result that carries output
+    *and* an exhaustion reason sends all three down the no-answer path
+    over a real answer.
+    """
+
+    @staticmethod
+    def _kwargs(**over: object) -> dict:
+        base = {
+            "success": False,
+            "stdout": "",
+            "stderr": "",
+            "exit_code": 1,
+            "duration": 0.0,
+        }
+        base.update(over)
+        return base
+
+    def test_a_success_cannot_carry_a_fallback_reason(self) -> None:
+        """An answer and an exhaustion reason cannot travel together."""
+        with pytest.raises(ValueError, match="carries no fallback_reason"):
+            ExecutionResult(
+                **self._kwargs(
+                    success=True,
+                    stdout="a real answer",
+                    exit_code=0,
+                    fallback_reason=FALLBACK_EXHAUSTED,
+                )
+            )
+
+    def test_an_unknown_reason_is_refused(self) -> None:
+        """Only the two declared constants name a fallback."""
+        with pytest.raises(ValueError, match="unknown fallback_reason"):
+            ExecutionResult(**self._kwargs(fallback_reason="ran_out_of_ideas"))
+
+    def test_the_two_declared_reasons_are_accepted(self) -> None:
+        """The guard rejects the invalid without rejecting the valid."""
+        for reason in (FALLBACK_DISABLED, FALLBACK_EXHAUSTED):
+            assert (
+                ExecutionResult(**self._kwargs(fallback_reason=reason)).fallback_reason
+                == reason
+            )
+
+    def test_an_ordinary_answer_carries_no_reason(self) -> None:
+        """A plain success is unaffected by the guard."""
+        result = ExecutionResult(
+            **self._kwargs(success=True, stdout="output", exit_code=0)
+        )
+        assert result.fallback_reason is None

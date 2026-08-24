@@ -247,12 +247,47 @@ SESSION_JOB_HORIZON_HOURS = 24
 
 @dataclass(frozen=True)
 class ResumePlan:
-    """Which mechanism will fire the resume, when, and why that one."""
+    """Which mechanism will fire the resume, when, and why that one.
+
+    Each mechanism pins the other two fields, so a plan cannot describe
+    a resume nothing performs:
+
+    ``WATCHDOG``
+        A ``fire_at``, and no cron. The OS timer reads the cooldown.
+    ``CRON``
+        A ``fire_at`` and the cron expression that carries it.
+    ``NOTHING``
+        Neither. This is the shape that mattered: a ``NOTHING`` plan
+        used to carry a real ``fire_at``, so a caller reading the time
+        without first reading the mechanism scheduled against a
+        mechanism that had already declined to schedule anything.
+        ``why`` then says what to install to get one.
+    """
 
     mechanism: str
-    fire_at: datetime
+    fire_at: Optional[datetime]
     cron: Optional[str]
     why: str
+
+    def __post_init__(self) -> None:
+        """Refuse a plan whose mechanism and fields disagree."""
+        if self.mechanism not in (WATCHDOG, CRON, NOTHING):
+            raise ValueError(f"unknown resume mechanism {self.mechanism!r}")
+        if not self.why:
+            raise ValueError("a resume plan must say why it chose its mechanism")
+        if self.mechanism == NOTHING:
+            if self.fire_at is not None or self.cron is not None:
+                raise ValueError(
+                    "a NOTHING plan schedules nothing, so it carries no "
+                    f"fire_at and no cron: {self.fire_at!r} {self.cron!r}"
+                )
+            return
+        if self.fire_at is None:
+            raise ValueError(f"a {self.mechanism} plan needs a fire_at")
+        if self.mechanism == CRON and not self.cron:
+            raise ValueError("a CRON plan needs the cron expression that fires it")
+        if self.mechanism == WATCHDOG and self.cron is not None:
+            raise ValueError("a WATCHDOG plan is not carried by a cron expression")
 
 
 def plan_resume(
@@ -298,7 +333,7 @@ def plan_resume(
     if not session_survives:
         return ResumePlan(
             mechanism=NOTHING,
-            fire_at=fire_at,
+            fire_at=None,
             cron=None,
             why=(
                 "a CronCreate job lives only in the running session and is "
@@ -313,7 +348,7 @@ def plan_resume(
     if hours_out > SESSION_JOB_HORIZON_HOURS:
         return ResumePlan(
             mechanism=NOTHING,
-            fire_at=fire_at,
+            fire_at=None,
             cron=None,
             why=(
                 f"the window renews about {hours_out:.0f} hours out, which "

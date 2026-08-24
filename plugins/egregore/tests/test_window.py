@@ -272,3 +272,53 @@ class TestPlanResume:
         )
         assert plan.mechanism == window.NOTHING
         assert "7 days" in plan.why or "outlive" in plan.why.lower()
+
+
+class TestAResumePlanCannotDescribeAResumeNothingPerforms:
+    """Each mechanism pins the other two fields.
+
+    The shape that mattered is ``NOTHING`` with a real ``fire_at``: a
+    caller reading the time without first reading the mechanism would
+    schedule against a mechanism that had declined to schedule.
+    """
+
+    FIRE = NOW + timedelta(hours=1)
+
+    def test_a_nothing_plan_carries_no_fire_time(self) -> None:
+        with pytest.raises(ValueError, match="schedules nothing"):
+            window.ResumePlan(
+                mechanism=window.NOTHING, fire_at=self.FIRE, cron=None, why="w"
+            )
+
+    def test_a_cron_plan_without_its_expression_is_refused(self) -> None:
+        with pytest.raises(ValueError, match="needs the cron expression"):
+            window.ResumePlan(
+                mechanism=window.CRON, fire_at=self.FIRE, cron=None, why="w"
+            )
+
+    def test_a_watchdog_plan_is_not_carried_by_a_cron(self) -> None:
+        with pytest.raises(ValueError, match="not carried by a cron"):
+            window.ResumePlan(
+                mechanism=window.WATCHDOG, fire_at=self.FIRE, cron="0 * * * *", why="w"
+            )
+
+    def test_a_scheduling_plan_needs_a_fire_time(self) -> None:
+        with pytest.raises(ValueError, match="needs a fire_at"):
+            window.ResumePlan(
+                mechanism=window.WATCHDOG, fire_at=None, cron=None, why="w"
+            )
+
+    def test_an_unknown_mechanism_is_refused(self) -> None:
+        with pytest.raises(ValueError, match="unknown resume mechanism"):
+            window.ResumePlan(mechanism="somehow", fire_at=None, cron=None, why="w")
+
+    def test_the_planner_declines_with_no_time_attached(self) -> None:
+        """The branch the invariant exists for, reached through the planner."""
+        plan = window.plan_resume(
+            NOW + timedelta(days=4),
+            session_survives=True,
+            watchdog_installed=False,
+            now=NOW,
+        )
+        assert plan.mechanism == window.NOTHING
+        assert plan.fire_at is None

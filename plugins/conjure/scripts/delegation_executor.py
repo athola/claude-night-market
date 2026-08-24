@@ -394,6 +394,28 @@ class ExecutionResult:
     # field rather than inferring intent from an exit code.
     fallback_reason: str | None = None
 
+    def __post_init__(self) -> None:
+        """Hold the two rules the comment above states.
+
+        Both were prose only. A success carrying an exhaustion reason is
+        the one that costs: `plan_resume`, the mission orchestrator and
+        the egregore summon skill all branch on this field alone, so a
+        result that answered *and* reported exhaustion sends every one
+        of them down the no-answer path over real output.
+        """
+        if self.fallback_reason is None:
+            return
+        if self.fallback_reason not in (FALLBACK_DISABLED, FALLBACK_EXHAUSTED):
+            raise ValueError(
+                f"unknown fallback_reason {self.fallback_reason!r}; expected "
+                f"{FALLBACK_DISABLED!r} or {FALLBACK_EXHAUSTED!r}"
+            )
+        if self.success:
+            raise ValueError(
+                "a successful delegation carries no fallback_reason, and "
+                f"this one reports {self.fallback_reason!r}"
+            )
+
 
 class Delegator:
     """Unified delegation executor for multiple LLM services."""

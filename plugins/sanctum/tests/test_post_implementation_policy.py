@@ -11,6 +11,7 @@ can track statement execution.
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from io import StringIO
 from pathlib import Path
@@ -546,3 +547,59 @@ def test_no_injected_policy_restates_the_iron_law_mandate() -> None:
     ):
         for phrase in retired:
             assert phrase not in text, f"{phrase!r} came back in {text_name}"
+
+
+class TestCommittedWorkStillCountsAsBranchSize:
+    """The escalation measures the branch, not the working tree.
+
+    `git diff --numstat HEAD` reads uncommitted changes only, so a
+    session that had committed its work measured zero and was handed
+    the short reminder the escalation exists to replace. Committing is
+    not what lowers the stakes on a branch.
+    """
+
+    @staticmethod
+    def _repo(tmp_path):
+        """A git repo on a branch off master, with its work committed."""
+
+        def run(*a: str) -> None:
+            subprocess.run(
+                ["git", *a], cwd=tmp_path, capture_output=True, text=True, check=True
+            )
+
+        run("init", "-b", "master")
+        run("config", "user.email", "t@example.com")
+        run("config", "user.name", "T")
+        (tmp_path / "seed.txt").write_text("seed\n")
+        run("add", "-A")
+        run("commit", "-m", "seed")
+        run("checkout", "-b", "feature")
+        (tmp_path / "big.py").write_text("\n".join(f"line {i}" for i in range(600)))
+        run("add", "-A")
+        run("commit", "-m", "work")
+        return tmp_path
+
+    def test_a_committed_branch_measures_its_own_size(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        monkeypatch.chdir(self._repo(tmp_path))
+
+        changed, tests_touched = measure_branch()
+
+        assert changed >= 600, "committed branch work measured as nothing"
+        assert tests_touched is False
+        assert needs_full_policy(changed, tests_touched=tests_touched) is True
+
+    def test_the_base_branch_itself_measures_its_working_tree(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """On master the merge base is HEAD, so only uncommitted work counts."""
+        repo = self._repo(tmp_path)
+        subprocess.run(
+            ["git", "checkout", "master"], cwd=repo, capture_output=True, check=True
+        )
+        monkeypatch.chdir(repo)
+
+        changed, _ = measure_branch()
+
+        assert changed == 0

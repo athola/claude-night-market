@@ -7,6 +7,7 @@ property, not just a path match.
 
 from __future__ import annotations
 
+import dataclasses
 import io
 
 import pytest
@@ -65,7 +66,7 @@ class TestAllowlist:
             changed=["plugins/conjure/scripts/delegation_executor.py"],
         )
         assert result.ok
-        assert result.violating == []
+        assert result.violating == ()
 
     def test_file_outside_allowlist_violates(self) -> None:
         result = scope.check(
@@ -76,7 +77,7 @@ class TestAllowlist:
             ],
         )
         assert not result.ok
-        assert result.violating == ["plugins/conjure/scripts/quota_tracker.py"]
+        assert result.violating == ("plugins/conjure/scripts/quota_tracker.py",)
         assert result.reason == "outside_allowlist"
 
     def test_directory_prefix_allows_children(self) -> None:
@@ -126,3 +127,29 @@ class TestCli:
         code = scope.main(["--allow", ".github"])
         assert code == 1
         assert "denylist" in capsys.readouterr().out
+
+
+class TestScopeResultCannotContradictItself:
+    """The two halves of a result must agree, and neither can be edited.
+
+    A pass carrying violations and a failure carrying no reason both
+    read as the opposite of what happened, and the night run consults
+    this type before deciding whether to revert a working tree.
+    """
+
+    def test_a_passing_result_cannot_name_violations(self) -> None:
+        with pytest.raises(ValueError, match="cannot name violations"):
+            scope.ScopeResult(ok=True, violating=("a/b.py",))
+
+    def test_a_passing_result_cannot_carry_a_reason(self) -> None:
+        with pytest.raises(ValueError, match="cannot name violations"):
+            scope.ScopeResult(ok=True, reason="denylist")
+
+    def test_a_failing_result_must_say_why(self) -> None:
+        with pytest.raises(ValueError, match="must carry a reason"):
+            scope.ScopeResult(ok=False, violating=("a/b.py",))
+
+    def test_a_result_cannot_be_edited_after_the_check(self) -> None:
+        result = scope.ScopeResult(ok=True)
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            result.ok = False  # type: ignore[misc]  # illegal is the assertion
