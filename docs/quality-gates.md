@@ -285,11 +285,40 @@ motivated the gate. Targets named inside a worked example
 describing another project's Makefile are allowlisted, and a second test
 fails if an allowlisted target ever becomes real.
 
-`tests/test_cited_paths_resolve.py` covers the other two citation
-forms, backticked file paths and `plugin:name` capabilities. A make
-target slipped between them: it carries no slash, so the path gate did
-not recognize it as a token, and no colon, so the capability gate
-ignored it.
+`tests/test_cited_paths_resolve.py` covers the other three citation
+forms: backticked file paths, `plugin:name` capabilities, and
+`Skill(plugin:name)` calls. A make target slipped between the first
+two: it carries no slash, so the path gate did not recognize it as a
+token, and no colon, so the capability gate ignored it.
+
+### Invoked Skills Must Be Callable
+
+`tests/test_cited_paths_resolve.py::test_invoked_skills_resolve` fails
+when a command, agent, or project rule writes `Skill(plugin:name)` for
+a target that cannot be reached that way. Skills are left out of the
+sweep on purpose. A `Skill()` call inside a SKILL.md is already the
+subject of `scripts/check_skill_graph_drift.py`, and a second gate over
+the same references would put two baselines on one rule.
+
+Two decisions give this arm its reach. Agents do not resolve: the
+harness offers skills, commands, and workflows to the Skill tool and
+offers agents to the Agent tool, so `Skill(abstract:skill-auditor)`
+names a real asset by the wrong verb and fails at invocation. The
+capability gate accepts the same name in backticks, because prose only
+claims the thing exists. And unlike the path gate, this arm keeps
+fenced blocks, since a fenced `Skill(...)` line in these documents is
+the instruction rather than decoration. One of the three defects it
+caught on its first run sat inside a fence: sample output in
+`plugins/attune/commands/validate.md` recommended a skill that had
+never existed.
+
+The other two were `abstract:skill-execution-logger`, which names a
+hook rather than a skill and appeared in four files, and the
+`abstract:skill-auditor` agent above. The gap became load-bearing on
+this branch, where seventeen commands were reduced to a delegation
+whose whole body is one `Skill(...)` call. An unresolvable reference
+there is no longer a stale cross-link. It is a command that does
+nothing when invoked.
 
 ## Configuration Files
 

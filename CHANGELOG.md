@@ -7,6 +7,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.19] - 2026-08-23
+
+### Added
+
+- **Four more delegation providers and guided setup (conjure).** The
+  delegation registry gained GLM-5.3, Meta Muse Code, the OpenAI Codex
+  CLI and OpenCode, plus Muse Glimmer served locally through ollama.
+  Providers fall into two archetypes now. A native CLI takes the prompt
+  positionally, which is what `muse exec`, `codex exec` and
+  `opencode run` all do. An endpoint swap runs the stock `claude`
+  binary against a provider's Anthropic-compatible endpoint, which is
+  how GLM reaches Z.ai without shipping a CLI of its own. Z.ai wants
+  the key in `ANTHROPIC_AUTH_TOKEN` rather than `ANTHROPIC_API_KEY`,
+  and the overlay names the variable instead of storing the secret.
+
+  Registering a provider is a data change. `ServiceConfig` carries
+  priority, model ids and strengths, so `smart_delegate` derives its
+  candidate order and model choice from the registry instead of three
+  hardcoded lists, one of which raised `KeyError` for any service
+  missing from it. `verify_service` reads the `version_probe` and
+  `auth_probe` fields it previously declared and ignored, which is what
+  lets Muse register despite publishing no auth-status command.
+
+  `delegation_setup.py` reports which provider CLIs are installed and
+  authenticated, and installs missing ones after a confirmation naming
+  the package, publisher and source URL. Two of these install by piping
+  a remote script into a shell, so the source is shown before anything
+  runs, and install commands come only from `VERIFIED_BINARIES`: an
+  unrecorded binary raises rather than resolving to a guess. Exposed as
+  `make delegate-setup`, `delegate-doctor` and `delegate-install`.
+
+- **MiniMax delegation provider (conjure).** The Conjure plugin
+  registered a MiniMax service alongside Gemini and Qwen so the
+  delegation executor and War Room can route work to MiniMax-M3 and
+  MiniMax-M2.7. `Delegator.SERVICES` gains a `minimax` entry
+  (`api_key` auth via `MINIMAX_API_KEY`, `DEFAULT_MINIMAX_LIMITS`
+  quota), `build_command` emits `--output-format` for MiniMax, and
+  `smart_delegate` considers MiniMax in its availability scan and
+  per-service model selection. The War Room gains two MiniMax experts,
+  `operational_advisor` (MiniMax-M3, intel/coa) and
+  `skeptical_analyst` (MiniMax-M2.7, red_team), sourced from new
+  `MINIMAX_M3`/`MINIMAX_M2_7` constants in `war_room/config.py`. A
+  `minimax-delegation` skill documents the global and China regional
+  OpenAI- and Anthropic-compatible endpoints, model capabilities, and
+  token pricing, and the Makefile exposes `make delegate-minimax`.
+
+- **The skill LEARNINGS report says which signals it did not have
+  (abstract).** The aggregator omitted the ratings and slow-execution
+  sections when their lists were empty, so a detector that never
+  received usable input produced the same report as a detector that
+  looked and found nothing wrong. The summary then closed with "No
+  high-priority actions this period", which reads as a clean bill of
+  health.
+
+  Two of its inputs are structurally absent in normal operation.
+  `qualitative_evaluation` is written as `None` by the execution logger
+  and populated only by `/evaluate-skill` or the skill-evaluator agent,
+  so both rating detectors sit idle unless someone runs them by hand.
+  `duration_ms` spans the PreToolUse to PostToolUse window on the Skill
+  tool, which brackets loading SKILL.md rather than the work the skill
+  performs over the turns that follow, so averages land far below the
+  10s slow-execution threshold and it cannot fire.
+
+  A Signal Coverage section now reports rating coverage, flags
+  dispatch-bound durations, and renders explicit "not measured" blocks
+  where sections used to vanish. It also names whose absence each one
+  is, because the two do not close the same way. Ratings are missing
+  because a working instrument was not run, and `/evaluate-skill`
+  closes that gap. Durations are missing because the measurement point
+  brackets the wrong window, so no command closes it and the gap holds
+  until the instrumentation moves. A period with no executions at all
+  now says so rather than rendering "0 of 0 executions carry a
+  qualitative_evaluation", which invited reading an empty log as a
+  measured shortfall.
+
 ### Changed
 
 - **Delegation runs by default, and falls back on its own (conjure,
@@ -43,8 +118,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   size thresholds that gated eligibility: "keep local under 10,000
   tokens and 20 files" is why most eligible work never left the
   session. Thresholds now rank payoff and gate nothing.
-
-### Changed
 
 - **The skill library authors and reviews as a pipeline, and does not
   fix (attune).** `plugins/attune/workflows/skill-library.js` authors
@@ -198,7 +271,109 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   observed that the commit fixing the drift added a note rather than an
   invariant.
 
+- **Per-plugin ruff configs extend the repo floor instead of replacing
+  it.** Every gate that ran (`make lint`, the pre-commit ruff hooks, CI)
+  passed `--config pyproject.toml`, so the 21 per-plugin `[tool.ruff]`
+  sections decided nothing. Enforcing them as written would have been
+  wrong in both directions: they add S, PL, D, N and SIM, and they also
+  drop D202, D209 and PLC0415, which root selects. Two TOML keys cause
+  that. `select` replaces the inherited list rather than extending it,
+  and a local `[tool.ruff.lint.per-file-ignores]` table replaces root's
+  rather than merging, so each config discarded root's rule floor and
+  root's exemptions for `**/tests/**` and `**/hooks/*.py` at once.
+
+  Each config now carries `extend = "../../pyproject.toml"` and states
+  its additions as `extend-select` and `extend-per-file-ignores`. The
+  resolved rule set is the union, so a plugin can raise its own bar and
+  can no longer lower the repo's. Restoring the exemptions alone dropped
+  the violation count from 468 to 389, the 79 difference being tests and
+  hooks code that root already exempted.
+
+  Clearing those 389 is what let the gates move onto the union. 238 were
+  D102 and every one was in a test file, so each docstring now states
+  what the test asserts rather than restating its name. 51 were D205
+  docstrings running an unterminated summary straight into
+  Given/When/Then. `make lint` and the two pre-commit ruff check hooks
+  drop `--config pyproject.toml`, so ruff resolves each file against its
+  own plugin's config. `ruff format` keeps the root config, so
+  formatting stays uniform repo-wide and only the rule set varies by
+  plugin. A D102 planted in memory-palace passes under the forced root
+  config and fails under the resolved one, which is the proof the gate
+  moved. The contract is written down in `docs/quality-gates.md`.
+
+- **Three ratchets that were mostly slack now hold at zero.** A ratchet
+  only holds if someone tightens it, and these had been printing that
+  advice on every run while the allowance stayed where it started.
+
+  `max_missing_exit_criteria` permitted 127 SKILL.md files to lack an
+  Exit Criteria section. One did, and it was a teaching example under
+  `plugins/abstract/docs/` that `.claude/rules/skill-exit-criteria.md`
+  explicitly puts out of scope, so a bare rglob over `plugins/` was
+  judging reference documentation by a standard written for shipped
+  skills. The walk now matches the rule. Count and allowance both reach
+  zero, which makes the guard a hard gate rather than a ratchet.
+
+  `max_dangling_bugs` tolerated 31 broken `Skill()` references and six
+  were left. Five were data: `abstract:performance-optimization` is
+  gone, `memory-palace:strategeion` is a palace directory rather than a
+  skill, `sanctum:fix-workflow` is a command, `leyline:mecw-patterns`
+  folded into `conserve:context-optimization`, and a bare
+  `test-driven-development` resolved in-plugin when the skill is
+  superpowers'. The sixth was the checker missing `plugin-dev` from its
+  known-external list, so a valid cross-marketplace reference counted
+  against the budget.
+
+  `max_uncalled_libraries` held seven library skills with no inbound
+  edge and six of them were never uncalled. Three were hidden because
+  the graph read `dependencies:` and not `orchestrates:`, though both
+  fields say the same thing. One declared its dependency in a module
+  file the parser never opens. Two are entrypoints that nothing loads
+  by design and now carry `role: entrypoint`, and
+  `docs/skill-integration-guide.md` had recorded a caller for each that
+  does not exist. Nothing was folded or deleted to reach the number.
+
+  The same shape turned up in the test suite.
+  `test_no_ai_attribution_trailer` skipped the vow-enforcement SKILL.md
+  because the skill once had to quote the banned trailer. It no longer
+  contains that form, so the exemption bought the file out of a check
+  it already passed, and a skip reports neither pass nor fail. The entry
+  is removed and each remaining one now has to resolve on disk and still
+  contain the trailer it was granted for.
+
 ### Fixed
+
+- **Seven `Skill()` calls named three targets that cannot be called
+  that way.**
+  Nothing adjudicated the call form written outside a SKILL.md.
+  `test_cited_capabilities_resolve` needs the backtick flush against
+  the token, so `` `Skill(pensive:bug-review)` `` matched neither it
+  nor `scripts/check_skill_graph_drift.py`, which reads the call syntax
+  but globs only `plugins/*/skills/*/SKILL.md`. A command citing a
+  skill by the call form answered to no gate at all.
+
+  That gap became load-bearing on this branch, where seventeen commands
+  were reduced to a delegation whose whole body is one `Skill(...)`
+  call. An unresolvable reference there is no longer a stale
+  cross-link. It is a command that does nothing when invoked.
+
+  `test_invoked_skills_resolve` reads commands, agents, and project
+  rules, and it found three targets across five files.
+  `abstract:skill-execution-logger` names a hook, not a skill, and was
+  cited in four of them. `sanctum:license-generation` never existed,
+  and `plugins/attune/commands/validate.md` recommended it in sample
+  output, inside a fence. `abstract:skill-auditor` is an agent, which
+  the harness offers to the Agent tool rather than the Skill tool, so
+  the call named a real asset by the wrong verb.
+
+  Two choices follow from those three. The gate keeps fenced blocks,
+  unlike the path gate that strips them, because a fenced `Skill(...)`
+  line in these documents is the instruction. Measured across every
+  asset it reads, keeping fences produced no example-shaped false
+  positive. And agents do not resolve, though the prose gate still
+  accepts them, since a backticked `plugin:name` claims only that the
+  thing exists while a call claims it is reachable this way. Skills
+  stay out of the sweep so the drift ratchet keeps sole ownership of
+  the references it baselines.
 
 - **The test-quality rubric scored file length, not test quality
   (sanctum).** `quality_checker.py` returned 0/100 for a 37-test file
@@ -285,154 +460,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `docs/lessons-learned.md`. ralph-wiggum rides the same harness
   behavior and bounds it by an iteration count, which the egregore
   README comparison table now states correctly.
-
-## [1.9.19] - 2026-08-21
-
-### Added
-
-- **Four more delegation providers and guided setup (conjure).** The
-  delegation registry gained GLM-5.3, Meta Muse Code, the OpenAI Codex
-  CLI and OpenCode, plus Muse Glimmer served locally through ollama.
-  Providers fall into two archetypes now. A native CLI takes the prompt
-  positionally, which is what `muse exec`, `codex exec` and
-  `opencode run` all do. An endpoint swap runs the stock `claude`
-  binary against a provider's Anthropic-compatible endpoint, which is
-  how GLM reaches Z.ai without shipping a CLI of its own. Z.ai wants
-  the key in `ANTHROPIC_AUTH_TOKEN` rather than `ANTHROPIC_API_KEY`,
-  and the overlay names the variable instead of storing the secret.
-
-  Registering a provider is a data change. `ServiceConfig` carries
-  priority, model ids and strengths, so `smart_delegate` derives its
-  candidate order and model choice from the registry instead of three
-  hardcoded lists, one of which raised `KeyError` for any service
-  missing from it. `verify_service` reads the `version_probe` and
-  `auth_probe` fields it previously declared and ignored, which is what
-  lets Muse register despite publishing no auth-status command.
-
-  `delegation_setup.py` reports which provider CLIs are installed and
-  authenticated, and installs missing ones after a confirmation naming
-  the package, publisher and source URL. Two of these install by piping
-  a remote script into a shell, so the source is shown before anything
-  runs, and install commands come only from `VERIFIED_BINARIES`: an
-  unrecorded binary raises rather than resolving to a guess. Exposed as
-  `make delegate-setup`, `delegate-doctor` and `delegate-install`.
-
-- **MiniMax delegation provider (conjure).** The Conjure plugin
-  registered a MiniMax service alongside Gemini and Qwen so the
-  delegation executor and War Room can route work to MiniMax-M3 and
-  MiniMax-M2.7. `Delegator.SERVICES` gains a `minimax` entry
-  (`api_key` auth via `MINIMAX_API_KEY`, `DEFAULT_MINIMAX_LIMITS`
-  quota), `build_command` emits `--output-format` for MiniMax, and
-  `smart_delegate` considers MiniMax in its availability scan and
-  per-service model selection. The War Room gains two MiniMax experts,
-  `operational_advisor` (MiniMax-M3, intel/coa) and
-  `skeptical_analyst` (MiniMax-M2.7, red_team), sourced from new
-  `MINIMAX_M3`/`MINIMAX_M2_7` constants in `war_room/config.py`. A
-  `minimax-delegation` skill documents the global and China regional
-  OpenAI- and Anthropic-compatible endpoints, model capabilities, and
-  token pricing, and the Makefile exposes `make delegate-minimax`.
-
-- **The skill LEARNINGS report says which signals it did not have
-  (abstract).** The aggregator omitted the ratings and slow-execution
-  sections when their lists were empty, so a detector that never
-  received usable input produced the same report as a detector that
-  looked and found nothing wrong. The summary then closed with "No
-  high-priority actions this period", which reads as a clean bill of
-  health.
-
-  Two of its inputs are structurally absent in normal operation.
-  `qualitative_evaluation` is written as `None` by the execution logger
-  and populated only by `/evaluate-skill` or the skill-evaluator agent,
-  so both rating detectors sit idle unless someone runs them by hand.
-  `duration_ms` spans the PreToolUse to PostToolUse window on the Skill
-  tool, which brackets loading SKILL.md rather than the work the skill
-  performs over the turns that follow, so averages land far below the
-  10s slow-execution threshold and it cannot fire.
-
-  A Signal Coverage section now reports rating coverage, flags
-  dispatch-bound durations, and renders explicit "not measured" blocks
-  where sections used to vanish. It also names whose absence each one
-  is, because the two do not close the same way. Ratings are missing
-  because a working instrument was not run, and `/evaluate-skill`
-  closes that gap. Durations are missing because the measurement point
-  brackets the wrong window, so no command closes it and the gap holds
-  until the instrumentation moves. A period with no executions at all
-  now says so rather than rendering "0 of 0 executions carry a
-  qualitative_evaluation", which invited reading an empty log as a
-  measured shortfall.
-
-### Changed
-
-- **Per-plugin ruff configs extend the repo floor instead of replacing
-  it.** Every gate that ran (`make lint`, the pre-commit ruff hooks, CI)
-  passed `--config pyproject.toml`, so the 21 per-plugin `[tool.ruff]`
-  sections decided nothing. Enforcing them as written would have been
-  wrong in both directions: they add S, PL, D, N and SIM, and they also
-  drop D202, D209 and PLC0415, which root selects. Two TOML keys cause
-  that. `select` replaces the inherited list rather than extending it,
-  and a local `[tool.ruff.lint.per-file-ignores]` table replaces root's
-  rather than merging, so each config discarded root's rule floor and
-  root's exemptions for `**/tests/**` and `**/hooks/*.py` at once.
-
-  Each config now carries `extend = "../../pyproject.toml"` and states
-  its additions as `extend-select` and `extend-per-file-ignores`. The
-  resolved rule set is the union, so a plugin can raise its own bar and
-  can no longer lower the repo's. Restoring the exemptions alone dropped
-  the violation count from 468 to 389, the 79 difference being tests and
-  hooks code that root already exempted.
-
-  Clearing those 389 is what let the gates move onto the union. 238 were
-  D102 and every one was in a test file, so each docstring now states
-  what the test asserts rather than restating its name. 51 were D205
-  docstrings running an unterminated summary straight into
-  Given/When/Then. `make lint` and the two pre-commit ruff check hooks
-  drop `--config pyproject.toml`, so ruff resolves each file against its
-  own plugin's config. `ruff format` keeps the root config, so
-  formatting stays uniform repo-wide and only the rule set varies by
-  plugin. A D102 planted in memory-palace passes under the forced root
-  config and fails under the resolved one, which is the proof the gate
-  moved. The contract is written down in `docs/quality-gates.md`.
-
-- **Three ratchets that were mostly slack now hold at zero.** A ratchet
-  only holds if someone tightens it, and these had been printing that
-  advice on every run while the allowance stayed where it started.
-
-  `max_missing_exit_criteria` permitted 127 SKILL.md files to lack an
-  Exit Criteria section. One did, and it was a teaching example under
-  `plugins/abstract/docs/` that `.claude/rules/skill-exit-criteria.md`
-  explicitly puts out of scope, so a bare rglob over `plugins/` was
-  judging reference documentation by a standard written for shipped
-  skills. The walk now matches the rule. Count and allowance both reach
-  zero, which makes the guard a hard gate rather than a ratchet.
-
-  `max_dangling_bugs` tolerated 31 broken `Skill()` references and six
-  were left. Five were data: `abstract:performance-optimization` is
-  gone, `memory-palace:strategeion` is a palace directory rather than a
-  skill, `sanctum:fix-workflow` is a command, `leyline:mecw-patterns`
-  folded into `conserve:context-optimization`, and a bare
-  `test-driven-development` resolved in-plugin when the skill is
-  superpowers'. The sixth was the checker missing `plugin-dev` from its
-  known-external list, so a valid cross-marketplace reference counted
-  against the budget.
-
-  `max_uncalled_libraries` held seven library skills with no inbound
-  edge and six of them were never uncalled. Three were hidden because
-  the graph read `dependencies:` and not `orchestrates:`, though both
-  fields say the same thing. One declared its dependency in a module
-  file the parser never opens. Two are entrypoints that nothing loads
-  by design and now carry `role: entrypoint`, and
-  `docs/skill-integration-guide.md` had recorded a caller for each that
-  does not exist. Nothing was folded or deleted to reach the number.
-
-  The same shape turned up in the test suite.
-  `test_no_ai_attribution_trailer` skipped the vow-enforcement SKILL.md
-  because the skill once had to quote the banned trailer. It no longer
-  contains that form, so the exemption bought the file out of a check
-  it already passed, and a skip reports neither pass nor fail. The entry
-  is removed and each remaining one now has to resolve on disk and still
-  contain the trailer it was granted for.
-
-### Fixed
 
 - **`make test` runs the tests in conjure.** The target read
   `check lint type-check security` and invoked no pytest, so the

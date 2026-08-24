@@ -136,9 +136,12 @@ override any conflicting skill or hook;
 
 ## Network and data
 
-Two hooks reach the network using your existing GitHub credentials.
-Both fail silently when `gh` is unauthenticated or the network is
-unavailable, and both can be turned off.
+Three parts of the marketplace reach off your machine. Each can be
+turned off.
+
+Two hooks use your existing GitHub credentials, and both fail
+silently when `gh` is unauthenticated or the network is
+unavailable.
 
 - **Star prompt** (`leyline`,
   `plugins/leyline/hooks/auto-star-repo.sh`). On session start it
@@ -158,6 +161,18 @@ unavailable, and both can be turned off.
   out by setting `auto_post_learnings` to `false` in that config
   file.
 
+The third sends your code, not just a status check. **Delegation**
+(`conjure`, also reached by `attune` missions and `egregore`
+pipeline steps) hands execution work to whichever external model
+CLI answers first, in the order Gemini, Qwen, MiniMax, GLM, Muse,
+Codex, OpenCode. The prompt and the file contents it carries go to
+that provider, under the credentials you configured for it. This
+runs by default. Decline it for one run with
+`CONJURE_DELEGATION=off`, or for one machine by setting
+`"enabled": false` in
+`~/.claude/hooks/delegation/config.json`. When no provider
+answers, the work stays on your machine.
+
 ## Requirements
 
 - **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for
@@ -170,14 +185,15 @@ unavailable, and both can be turned off.
 
 ## What's New
 
-**1.9.19** takes `conjure` from two delegation targets to eight.
-GLM-5.3, Meta Muse Code, the OpenAI Codex CLI, OpenCode and a
-locally served Muse Glimmer join Gemini, Qwen and MiniMax, and
-`make delegate-doctor` reports what is installed and how to fix
-what is not. `abstract` stopped averaging untimed skill runs in as
-readings of zero, and its LEARNINGS report now names the signals
-it did not have instead of dropping the section. Full history is
-in the [CHANGELOG](CHANGELOG.md).
+**1.9.19** takes `conjure` from two delegation targets to eight and
+turns delegation on by default. GLM-5.3, Meta Muse Code, the OpenAI
+Codex CLI, OpenCode and a locally served Muse Glimmer join Gemini,
+Qwen and MiniMax. `make delegate-doctor` reports what is installed
+and how to fix what is not, and `CONJURE_DELEGATION=off` declines
+for a single run. Four plugins ship a `workflows/` script now, so
+`pensive`, `attune`, `tome` and `sanctum` can fan work across
+subagents when you ask for it. Full history is in the
+[CHANGELOG](CHANGELOG.md).
 
 ## Plugin Development
 
@@ -187,11 +203,13 @@ make lint && make test
 ```
 
 A plugin directory holds `.claude-plugin/plugin.json` (metadata)
-plus any of `commands/`, `skills/`, `hooks/`, `agents/`, and
-`tests/`, with a `Makefile` and `pyproject.toml`. Copy the layout
-from an existing plugin such as `plugins/abstract`, then see the
-[Plugin Development Guide][dev-guide] for structure and naming
-conventions.
+plus any of `commands/`, `skills/`, `hooks/`, `agents/`,
+`workflows/`, and `tests/`, with a `Makefile` and
+`pyproject.toml`. A `workflows/` script orchestrates several
+subagents at once and runs only when you ask for one. Copy the
+layout from an existing plugin such as `plugins/abstract`, then
+see the [Plugin Development Guide][dev-guide] for structure and
+naming conventions.
 
 ## Documentation
 

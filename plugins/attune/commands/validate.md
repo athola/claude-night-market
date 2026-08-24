@@ -113,7 +113,7 @@ Score: 17/20 (85%)
 
 Recommendations:
   1. Add .github/workflows/typecheck.yml (run: /attune:upgrade-project --component workflows)
-  2. Add LICENSE file (run: Skill(sanctum:license-generation))
+  2. Add LICENSE file (pick one at https://choosealicense.com)
   3. Update uv.lock (run: make install)
 ```
 

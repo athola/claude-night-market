@@ -12,7 +12,7 @@ A phantom citation is worse than a missing one. An agent that follows
 shape" gets nothing back and has no signal that the instruction was
 wrong rather than its own lookup.
 
-Two citation forms, two gates, one rule:
+Three citation forms, three gates, one rule:
 
 ``test_cited_paths_resolve``
     Backticked repo paths, rooted at a tracked directory.
@@ -21,8 +21,14 @@ Two citation forms, two gates, one rule:
     Backticked ``plugin:name`` and ``/plugin:name`` -- the way a
     document names a sibling skill, command, or agent in prose.
 
+``test_invoked_skills_resolve``
+    ``Skill(plugin:name)`` -- the call form, which claims more than
+    the prose form does. A backtick says the thing exists; a call
+    says it is reachable through the Skill tool, so this arm rejects
+    an agent that the prose arm accepts.
+
 The second form was unguarded until discussion #433's sweep found 11
-dangling instances. It slips between the two gates that already exist:
+dangling instances. It slips between the two gates that predate it:
 ``scripts/check_skill_graph_drift.py`` matches only the ``Skill(...)``
 call syntax, and the path gate above needs a slash to recognize a
 token. Write ``conserve:resource-management`` in backticks and neither
@@ -38,8 +44,10 @@ longer exist.
 
 from __future__ import annotations
 
+import importlib.util
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -337,4 +345,149 @@ def test_cited_capabilities_resolve(asset: Path) -> None:
     assert not phantoms, (
         f"{asset.relative_to(REPO_ROOT)} cites "
         f"{len(phantoms)} capability(ies) that do not exist: " + ", ".join(phantoms)
+    )
+
+
+# --- The third gate: the `Skill(plugin:name)` call form ---------------
+#
+# `test_cited_capabilities_resolve` above needs the backtick flush
+# against the token, so `` `Skill(pensive:bug-review)` `` matches
+# neither it nor `scripts/check_skill_graph_drift.py`, which reads the
+# call syntax but globs only `plugins/*/skills/*/SKILL.md`. A command
+# citing a skill by the call form was adjudicated by nothing.
+#
+# That gap became load-bearing on this branch. Seventeen commands were
+# reduced to a delegation whose entire body is one `Skill(...)` call, so
+# an unresolvable reference is no longer a stale cross-link: it is a
+# command that does nothing when invoked.
+
+SKILL_GRAPH = REPO_ROOT / "plugins" / "abstract" / "scripts" / "skill_graph.py"
+
+
+def _load_skill_graph():
+    """Import the classifier the drift ratchet runs, rather than copy it.
+
+    ``KNOWN_EXTERNAL_PLUGINS`` and ``_is_placeholder`` decide which
+    dangling references are defects and which are cross-marketplace
+    links or template text. Two gates holding two copies of that list
+    is the failure ``test_discoverability_metadata`` records: its
+    private copy of the description cap outlived the rule by months
+    while the live hook passed. One definition, imported.
+
+    The module is a script, not an installed package, so it is loaded
+    by path; it must be registered in ``sys.modules`` before execution
+    because its ``@dataclass`` decorators resolve annotations through
+    that entry.
+    """
+    spec = importlib.util.spec_from_file_location("skill_graph", SKILL_GRAPH)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(
+            f"cannot load the reference classifier from {SKILL_GRAPH}. "
+            "scripts/check_skill_graph_drift.py runs this same module; if it "
+            "has moved, that ratchet and this gate have drifted apart."
+        )
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["skill_graph"] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+_SKILL_GRAPH = _load_skill_graph()
+
+# A `Skill(plugin:name)` call, with or without trailing arguments:
+# `Skill(abstract:skill-auditor, quiet=true)` names the same target as
+# `Skill(pensive:bug-review)`. The bare form `Skill(test-updates)`,
+# which omits the plugin, is a separate defect and is not adjudicated
+# here -- an unqualified name has no single resolution to check.
+INVOCATION = re.compile(
+    r"Skill\((?P<plugin>[a-z][a-z0-9-]*):(?P<name>[a-z0-9][a-z0-9-]*)\s*[,)]"
+)
+
+# Skills are deliberately absent: `Skill(...)` inside a SKILL.md is
+# already the drift ratchet's subject, and a second gate counting the
+# same references would put two baselines on one rule.
+INVOCATION_GLOBS = (
+    "plugins/*/commands/**/*.md",
+    "plugins/*/agents/**/*.md",
+    ".claude/rules/*.md",
+)
+
+
+def _iter_invocation_assets() -> list[Path]:
+    seen: list[Path] = []
+    for pattern in INVOCATION_GLOBS:
+        seen.extend(sorted(REPO_ROOT.glob(pattern)))
+    return seen
+
+
+def _invocations(text: str) -> set[str]:
+    """Every `plugin:name` invoked through `Skill()`, fences included.
+
+    The path gate strips fenced blocks because a shell example cites
+    paths that need not exist. This gate must not: in this repository a
+    fenced `Skill(...)` line *is* the instruction. One of the three
+    defects caught the first time this gate ran sat inside a fence --
+    the sample output in `plugins/attune/commands/validate.md` told the
+    user to run a skill that had never existed, and a fence-stripping
+    gate would have read that recommendation as decoration. Measured
+    across every asset below, keeping fences produced no example-shaped
+    false positive.
+    """
+    found = set()
+    for match in INVOCATION.finditer(text):
+        plugin, name = match.group("plugin"), match.group("name")
+        if _SKILL_GRAPH._is_placeholder(plugin, name):
+            continue
+        if plugin in _SKILL_GRAPH.KNOWN_EXTERNAL_PLUGINS:
+            continue
+        found.add(f"{plugin}:{name}")
+    return found
+
+
+def _invocation_resolves(ref: str) -> bool:
+    """A `Skill()` target is a skill, a command, or a workflow.
+
+    Agents are excluded on purpose, and that exclusion is the point of
+    the arm. The harness lists skills, commands, and workflows to the
+    Skill tool and lists agents separately to the Agent tool, so
+    `Skill(abstract:skill-auditor)` names a real asset by the wrong
+    verb and fails at invocation. `_capability_resolves` accepts agents
+    because a backticked `plugin:name` in prose only claims the thing
+    exists; a call claims it is callable this way.
+    """
+    plugin, name = ref.split(":", 1)
+    root = REPO_ROOT / "plugins" / plugin
+    return (
+        (root / "skills" / name / "SKILL.md").exists()
+        or (root / "commands" / f"{name}.md").exists()
+        or (root / "workflows" / f"{name}.js").exists()
+    )
+
+
+def _phantom_invocations(asset: Path) -> list[str]:
+    text = asset.read_text(encoding="utf-8", errors="replace")
+    return sorted(c for c in _invocations(text) if not _invocation_resolves(c))
+
+
+INVOCATION_ASSETS = _iter_invocation_assets()
+
+
+def test_invocations_are_found() -> None:
+    """Guard the regex: a pattern matching nothing would pass everything."""
+    total = sum(
+        len(_invocations(a.read_text(errors="replace"))) for a in INVOCATION_ASSETS
+    )
+    assert total > 150, f"only {total} Skill() invocations found"
+
+
+@pytest.mark.parametrize(
+    "asset", INVOCATION_ASSETS, ids=lambda p: str(p.relative_to(REPO_ROOT))
+)
+def test_invoked_skills_resolve(asset: Path) -> None:
+    """Every `Skill(plugin:name)` must name something callable that way."""
+    phantoms = _phantom_invocations(asset)
+    assert not phantoms, (
+        f"{asset.relative_to(REPO_ROOT)} invokes "
+        f"{len(phantoms)} target(s) that are not callable through Skill(): "
+        + ", ".join(phantoms)
     )
