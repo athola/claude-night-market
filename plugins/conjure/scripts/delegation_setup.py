@@ -304,12 +304,24 @@ def doctor_lines(states: Sequence[ProviderState]) -> list[str]:
             for variable in state.missing_variables
         )
 
-        # A provider ruled out by an absent credential file is fixed by
-        # logging in, not by exporting anything. Without this the doctor
-        # named the problem and withheld the command, which is the one
-        # thing it exists to supply.
-        if state.login_hint and any(
-            "credential file" in issue for issue in state.issues
+        # A provider whose credentials live inside its CLI is fixed by
+        # logging in, not by exporting anything. The condition was a
+        # substring test over the issue prose, so it fired only for the
+        # one sentence that says "credential file". An expired credential
+        # produces no such sentence: the file is present, and this table
+        # deliberately does not spawn the CLI that would find out, so the
+        # provider lands in the auth-unknown cell. That is exactly the
+        # case an operator needs the login command for, and it was the
+        # case that never printed it.
+        #
+        # Structural now: offer the command wherever the provider is
+        # installed and its authentication is not confirmed. A provider
+        # confirmed authenticated gets nothing, which is what keeps this
+        # from printing under every row.
+        if (
+            state.login_hint
+            and state.installed
+            and not (state.authenticated and state.auth_checked)
         ):
             lines.append(f"    fix: {state.login_hint}")
 
@@ -362,7 +374,19 @@ def main(argv: list[str] | None = None) -> int:
         if not missing:
             print("Every registered provider is already installed.")
             return 0
-        outcomes = {state.name: install_provider(state.binary) for state in missing}
+        outcomes = {}
+        for state in missing:
+            try:
+                outcomes[state.name] = install_provider(state.binary)
+            except UnverifiedBinaryError as exc:
+                # A provider registered in the operator's own config.json
+                # has no VERIFIED_BINARIES entry, and this loop let the
+                # exception out: the run died mid-sweep on a traceback,
+                # after installing some providers and before offering the
+                # rest. Refusing to invent an install command is correct;
+                # taking the whole sweep down with it is not.
+                print(f"{state.name}: no install command ({exc})", file=sys.stderr)
+                outcomes[state.name] = FAILED
         declined = [name for name, out in outcomes.items() if out == DECLINED]
         failed = [name for name, out in outcomes.items() if out == FAILED]
         if declined:

@@ -11,7 +11,8 @@
     "./skills/muse-delegation",
     "./skills/codex-delegation",
     "./skills/opencode-delegation",
-    "./skills/agent-teams"
+    "./skills/agent-teams",
+    "./skills/glimmer-delegation"
   ],
   "keywords": [
     "delegation",
@@ -34,5 +35,7 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"]
+  "dependencies": [
+    "leyline"
+  ]
 }

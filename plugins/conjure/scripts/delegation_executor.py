@@ -211,6 +211,15 @@ class ServiceConfig:
     prompt_long_flag: str | None = None
     # None where the CLI takes no format value. muse and codex offer only a
     # boolean ``--json``, which a flag-and-value pair cannot express.
+    # How this CLI is told which model to use. `--model` was hardcoded at
+    # the call site while the comment above it claimed every flag spelling
+    # comes from the config, and it is not universal: `ollama run --help`
+    # (0.13.1) lists no --model at all, because `ollama run MODEL [PROMPT]`
+    # takes the model positionally. None means the model is not passed as a
+    # flag. Recorded from each CLI's own --help: gemini 0.26.0, qwen, codex,
+    # opencode and muse document `-m, --model`; `claude --model` and
+    # `mmx text chat --model` likewise.
+    model_flag: str | None = "--model"
     output_format_flag: str | None = "--output-format"
     temperature_flag: str | None = "--temperature"
     inline_files: bool = False
@@ -617,6 +626,10 @@ class Delegator:
             subcommand=("run", "muse-glimmer:30b"),
             prompt_flag=None,
             temperature_flag=None,
+            # ollama 0.13.1 `run --help`: "ollama run MODEL [PROMPT]", and the
+            # flag list carries --format, --think, --verbose and no --model.
+            # The model is the positional above; passing a flag exits 1.
+            model_flag=None,
             # ollama 0.13.1: "--format string  Response format (e.g. json)".
             # --output-format exits 1 on "unknown flag".
             output_format_flag="--format",
@@ -735,6 +748,18 @@ class Delegator:
         # Merge custom configurations
         services_raw = custom_config.get("services", {})
         if not isinstance(services_raw, dict):
+            # Reported at error, matching the parse failure above. This
+            # returned bare at no log level, so a "services" key written as
+            # a list, or as the name of one service, discarded every
+            # override the operator wrote and ran the stock registry. The
+            # config was read, so nothing else signalled that it had not
+            # been applied.
+            logger.error(
+                'Delegation config %s has "services" as %s, expected an '
+                "object keyed by service name. No override was applied.",
+                self.config_file,
+                type(services_raw).__name__,
+            )
             return
         for service_name, service_config in services_raw.items():
             if service_name in self.services:
@@ -873,8 +898,8 @@ class Delegator:
         # Add options. Every flag spelling comes from the service config, so a
         # CLI that names things differently is a data change, not a new branch.
         if options:
-            if "model" in options:
-                command.extend(["--model", options["model"]])
+            if "model" in options and service.model_flag:
+                command.extend([service.model_flag, options["model"]])
             if "output_format" in options and service.output_format_flag:
                 command.extend(
                     [service.output_format_flag, options["output_format"]],
@@ -1003,8 +1028,20 @@ class Delegator:
         try:
             with open(self.usage_log, "a") as f:
                 f.write(json.dumps(log_entry) + "\n")
-        except Exception as e:
-            logger.debug("Failed to write usage log: %s", e)
+        except OSError as e:
+            # Reported at warning, not debug. This is the audit trail: it
+            # is what `--usage` reads and the only record that a prompt
+            # left the machine. At debug, which is off in every default
+            # configuration, a read-only config directory and a run where
+            # no delegation happened produced the same empty log and the
+            # same silence. The delegation itself already succeeded, so
+            # this does not fail the call, it just stops being quiet.
+            logger.warning(
+                "Could not append to the delegation usage log %s (%s). "
+                "The call succeeded; the audit trail did not record it.",
+                self.usage_log,
+                e,
+            )
 
     def _init_service_stats(self) -> dict[str, Any]:
         """Initialize empty service statistics dictionary."""

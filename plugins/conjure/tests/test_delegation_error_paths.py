@@ -8,8 +8,10 @@ and adds mock verification (assert_called_with / call_args).
 from __future__ import annotations
 
 import json
+import logging
 import subprocess
 import time
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -423,3 +425,70 @@ class TestAResultCannotAnswerAndReportExhaustion:
             **self._kwargs(success=True, stdout="output", exit_code=0)
         )
         assert result.fallback_reason is None
+
+
+class TestTheModelFlagComesFromTheServiceConfig:
+    """`--model` was the one flag hardcoded past ServiceConfig.
+
+    The comment two lines above the call claimed every flag spelling
+    comes from the config. It is not even universal: `ollama run --help`
+    (0.13.1) documents `ollama run MODEL [PROMPT]` and lists no
+    `--model`, so passing one to glimmer exits 1 on an unknown flag.
+    """
+
+    def test_glimmer_takes_its_model_positionally(self) -> None:
+        """Ollama run has no --model; the model rides the subcommand."""
+        command = Delegator().build_command("glimmer", "hi", None, {"model": "x"})
+        assert "--model" not in command
+        assert "muse-glimmer:30b" in command
+
+    def test_a_provider_with_the_flag_still_receives_it(self) -> None:
+        """Broadening the rule must not drop the flag where it is real."""
+        command = Delegator().build_command(
+            "minimax", "hi", None, {"model": "MiniMax-M3"}
+        )
+        assert "--model" in command
+        assert command[command.index("--model") + 1] == "MiniMax-M3"
+
+    def test_the_spelling_is_data_not_a_branch(self) -> None:
+        """Changing the config changes the argv, with no code change."""
+        delegator = Delegator()
+        delegator.services["minimax"] = replace(
+            delegator.services["minimax"], model_flag="--llm"
+        )
+        command = delegator.build_command("minimax", "hi", None, {"model": "m"})
+        assert "--llm" in command
+        assert "--model" not in command
+
+
+class TestTheAuditTrailAndTheOverridesAreNotSilent:
+    """Two failures that returned or logged at a level nobody reads."""
+
+    def test_a_services_key_of_the_wrong_type_is_reported(
+        self, tmp_path, caplog
+    ) -> None:
+        """A dropped override is announced rather than returned past."""
+        config = tmp_path / "config.json"
+        config.write_text(json.dumps({"services": ["gemini"]}))
+        delegator = Delegator(config_dir=tmp_path)
+        delegator.config_file = config
+
+        with caplog.at_level(logging.ERROR):
+            delegator.load_configurations()
+
+        assert any("expected an object" in r.message for r in caplog.records), (
+            "every override was dropped with no log at any level"
+        )
+
+    def test_an_unwritable_usage_log_is_reported(self, tmp_path, caplog) -> None:
+        """The audit trail failing is louder than debug."""
+        delegator = Delegator(config_dir=tmp_path)
+        delegator.usage_log = tmp_path / "no-such-dir" / "usage.jsonl"
+        result = ExecutionResult(
+            success=True, stdout="", stderr="", exit_code=0, duration=0.1
+        )
+
+        with caplog.at_level(logging.WARNING):
+            delegator.log_usage("gemini", ["gemini"], result)
+
+        assert any("audit trail" in r.message for r in caplog.records)

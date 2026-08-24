@@ -94,6 +94,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
 | `git-workspace-review` | [sanctum](../plugins/sanctum.md) | Repo state analysis |
 | `github-initiative-pulse` | [minister](../plugins/minister.md) | Initiative progress tracking |
+| `glimmer-delegation` | [conjure](../plugins/conjure.md) | Muse Glimmer served locally through ollama, no quota |
 | `glm-delegation` | [conjure](../plugins/conjure.md) | Z.ai GLM-5.x via Anthropic-compatible endpoint swap |
 | `graduated-implementation` | [imbue](../plugins/imbue.md) | Bounded start then ramp the next increment's ambition only on demonstrated competence of the prior one |
 | `graph-build` | [gauntlet](../plugins/gauntlet.md) | Build or update the code knowledge graph |

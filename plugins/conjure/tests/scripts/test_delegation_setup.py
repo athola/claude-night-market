@@ -18,6 +18,7 @@ from delegation_setup import (
     DECLINED,
     FAILED,
     INSTALLED,
+    ProviderState,
     UnverifiedBinaryError,
     doctor_lines,
     install_command_for,
@@ -161,6 +162,38 @@ class TestInstallAll:
         )
 
         assert main(["--all"]) == 1
+
+    @pytest.mark.bdd
+    def test_an_unvouched_provider_does_not_abort_the_sweep(
+        self, monkeypatch, capsys
+    ) -> None:
+        """A provider with no VERIFIED_BINARIES entry is reported, not raised.
+
+        Given: one registered provider has no vouched-for install command
+        When:  the operator runs --all
+        Then:  the sweep finishes and names it, rather than dying mid-run
+
+        A provider registered in the operator's own config.json has no
+        entry here, and the loop let `UnverifiedBinaryError` out. The run
+        died on a traceback after installing some providers and before
+        offering the rest. Refusing to invent an install command is
+        correct; taking the sweep down with it is not.
+        """
+        monkeypatch.setattr("delegation_setup.shutil.which", lambda _: None)
+
+        seen: list[str] = []
+
+        def one_bad(binary, *_args, **_kwargs):
+            seen.append(binary)
+            if len(seen) == 1:
+                raise UnverifiedBinaryError(f"{binary!r} has no entry")
+            return DECLINED
+
+        monkeypatch.setattr("delegation_setup.install_provider", one_bad)
+
+        assert main(["--all"]) == 1
+        assert len(seen) > 1, "the sweep stopped at the unvouched provider"
+        assert "no install command" in capsys.readouterr().err
 
 
 class TestDoctor:
@@ -489,3 +522,70 @@ class TestCliDispatch:
         out = capsys.readouterr().out
         assert "PROVIDER" in out, "status table missing"
         assert "fix:" in out, "doctor explanations missing"
+
+
+class TestTheDoctorOffersTheLoginCommandWhereAuthIsUnconfirmed:
+    """The hint was selected by a substring test over the issue prose.
+
+    It printed only when some issue contained the words "credential
+    file", so the decision rode on the wording of a sentence written
+    elsewhere. A provider whose authentication failed for any other
+    stated reason got the problem and not the command.
+
+    The auth-unknown case is handled by the earlier arm of
+    `doctor_lines`, which prints the hint as `check:` and returns, so
+    these cases are the ones that reach the arm under test: installed,
+    probed, and unhealthy for a reason the old phrase did not cover.
+    """
+
+    @staticmethod
+    def _state(**over):
+        base = {
+            "name": "gemini",
+            "binary": "gemini",
+            "installed": True,
+            "version": "0.26.0",
+            "authenticated": False,
+            "issues": ("environment variable GEMINI_API_KEY is not set",),
+            "missing_variables": ("GEMINI_API_KEY",),
+            "auth_checked": True,
+            "login_hint": "gemini auth login",
+        }
+        base.update(over)
+        return ProviderState(**base)
+
+    def test_an_unhealthy_provider_gets_the_login_command(self) -> None:
+        """The reachable case the substring test refused to print for."""
+        lines = doctor_lines([self._state()])
+        assert any("gemini auth login" in line for line in lines)
+
+    def test_the_export_command_is_still_offered_beside_it(self) -> None:
+        """Broadening the login arm must not displace the other remedy."""
+        lines = doctor_lines([self._state()])
+        assert any("export GEMINI_API_KEY" in line for line in lines)
+
+    def test_an_absent_credential_file_still_gets_it(self) -> None:
+        """The case the old substring test did cover stays covered."""
+        lines = doctor_lines(
+            [
+                self._state(
+                    issues=("credential file ~/.gemini/auth.json is absent",),
+                    missing_variables=(),
+                )
+            ]
+        )
+        assert any("gemini auth login" in line for line in lines)
+
+    def test_a_healthy_provider_is_not_told_to_log_in(self) -> None:
+        """A confirmed provider gets no remedy at all."""
+        lines = doctor_lines(
+            [self._state(authenticated=True, issues=(), missing_variables=())]
+        )
+        assert not any("gemini auth login" in line for line in lines)
+
+    def test_an_uninstalled_provider_is_told_to_install_not_log_in(self) -> None:
+        """An absent binary is fixed by installing, not by logging in."""
+        lines = doctor_lines(
+            [self._state(installed=False, issues=("gemini is not installed",))]
+        )
+        assert not any("gemini auth login" in line for line in lines)
