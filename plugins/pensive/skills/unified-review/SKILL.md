@@ -149,7 +149,7 @@ Use this mapping to resolve skill names to agent types:
 | makefile-review | `general-purpose` | Prompt: invoke `Skill(pensive:makefile-review)` |
 | shell-review | `general-purpose` | Prompt: invoke `Skill(pensive:shell-review)` |
 
-**Sub-agent isolation (required).** One lens must not colour how the
+**Sub-agent isolation (required).** One lens must not color how the
 next is read. Two ways to get that, and the second only runs when the
 user asks for it:
 

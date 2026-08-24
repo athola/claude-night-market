@@ -43,6 +43,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CONJURE_MAKEFILE = REPO_ROOT / "plugins" / "conjure" / "Makefile"
 AGGREGATE = "demo-conjure-commands"
@@ -102,15 +104,27 @@ def test_the_demo_aggregate_runs_at_least_one_real_target() -> None:
     )
 
 
-def test_no_target_claims_live_while_only_echoing() -> None:
-    """A `(LIVE)` label must be backed by a recipe that runs something."""
+PLUGIN_MAKEFILES = sorted((REPO_ROOT / "plugins").glob("*/Makefile"))
+
+
+@pytest.mark.parametrize("makefile", PLUGIN_MAKEFILES, ids=lambda p: p.parent.name)
+def test_no_target_claims_live_while_only_echoing(makefile: Path) -> None:
+    """A `(LIVE)` label must be backed by a recipe that runs something.
+
+    Scoped to every plugin rather than to conjure. The first version of
+    this guard read one Makefile, so the fix it certified held in one
+    plugin while 61 targets across ten others went on advertising LIVE
+    over recipes that were nothing but ``@echo``. A guard that reads one
+    instance of a repo-wide claim reports the claim as kept.
+    """
     liars = [
         name
-        for name, (help_text, body) in _targets(CONJURE_MAKEFILE).items()
+        for name, (help_text, body) in _targets(makefile).items()
         if "LIVE" in help_text and body and not _does_real_work(body)
     ]
     assert not liars, (
-        f"These targets advertise (LIVE) but only echo: {liars}. Either run "
-        "the feature or drop the label; a false LIVE claim is what let "
-        "conjure's broken demo-delegation stay invisible."
+        f"In {makefile.parent.name}, these targets advertise (LIVE) but "
+        f"only echo: {liars}. Either run the feature or drop the label; a "
+        "false LIVE claim is what let conjure's broken demo-delegation "
+        "stay invisible."
     )

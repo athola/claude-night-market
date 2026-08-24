@@ -140,8 +140,8 @@ demo-skills: ## Validate attune skill structure
 	@echo "  precommit-setup:      $$(test -f skills/precommit-setup/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo "  workflow-setup:       $$(test -f skills/workflow-setup/SKILL.md && echo '[OK]' || echo '[X]')"
 
-demo-attune: ## Demo attune command (LIVE)
-	@echo "=== attune Demo (LIVE) ==="
+demo-attune: ## Demo attune command
+	@echo "=== attune Demo ==="
 	@echo ""
 	@echo "Command: /attune :validate"
 	@echo "Plugin: attune"

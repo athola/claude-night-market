@@ -174,7 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **The first shipped workflow, and the barrier it replaces (pensive).**
   `unified-review` required every lens dispatched in one call with no
-  output read until all returned, so one lens could not colour how the
+  output read until all returned, so one lens could not color how the
   next was read. `plugins/pensive/workflows/unified-review.js` serves
   that purpose better: a script is not a reasoning entity, so it cannot
   be anchored by reading stage one before stage two, and findings pass

@@ -263,8 +263,8 @@ demo-bloat-scan: ## Demo bloat-scan command (LIVE)
 	@echo "Use /bloat-scan for full workflow."
 
 
-demo-unbloat: ## Demo unbloat command (LIVE)
-	@echo "=== unbloat Demo (LIVE) ==="
+demo-unbloat: ## Demo unbloat command
+	@echo "=== unbloat Demo ==="
 	@echo ""
 	@echo "Command: /unbloat"
 	@echo "Plugin: conserve"

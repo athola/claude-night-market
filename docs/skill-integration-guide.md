@@ -184,7 +184,7 @@ preflight for commit / PR / review),
 Invoked by hooks (PreToolUse / PostToolUse /
 SessionStart / Stop) rather than by other skills or
 users. Their value is enforcement; the hook system
-reads the SKILL.md to shape its own behaviour.
+reads the SKILL.md to shape its own behavior.
 
 Signature: plugin has hooks registered in
 `hooks/hooks.json` that reference the skill by name or

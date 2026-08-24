@@ -114,7 +114,7 @@ task from solved to unsolved. That is the mechanism this rule exists
 to avoid, and this repository's session-start injections are the same
 shape as the prompt that caused it.
 
-The second row removes the obvious defence. If the added constraint
+The second row removes the obvious defense. If the added constraint
 were merely redundant, the cost would be tokens. It is not: a
 constraint the model was already satisfying still cost accuracy, and
 the attention measurement says why. Constraints are not free even when

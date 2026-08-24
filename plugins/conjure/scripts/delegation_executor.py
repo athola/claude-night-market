@@ -319,7 +319,7 @@ def _env_ref(variable: str) -> str:
     return f"${{{variable}}}"
 
 
-def _resolve_env_overlay(service: ServiceConfig) -> tuple[dict[str, str], list[str]]:
+def resolve_env_overlay(service: ServiceConfig) -> tuple[dict[str, str], list[str]]:
     """Expand ``${VAR}`` references in a service's environment overlay.
 
     Returns the resolved overlay and the names of any referenced variables
@@ -766,7 +766,7 @@ class Delegator:
         # An overlay naming an unset variable is reported here rather than at
         # spawn time, so `--verify` is the one place a misconfigured
         # endpoint-swap service is diagnosed.
-        overlay, missing_vars = _resolve_env_overlay(service)
+        overlay, missing_vars = resolve_env_overlay(service)
         issues: list[str] = [
             f"Environment variable {variable} is referenced by the "
             f"{service.name} environment overlay but is not set"
@@ -942,7 +942,7 @@ class Delegator:
         command = self.build_command(
             service_name, prompt, files, options, delivered=delivered
         )
-        overlay, _ = _resolve_env_overlay(service)
+        overlay, _ = resolve_env_overlay(service)
         execution_result = self._launch_process(
             LaunchSpec(
                 cmd=command,

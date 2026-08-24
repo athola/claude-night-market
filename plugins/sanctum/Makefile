@@ -212,8 +212,8 @@ plugin-check: demo-commit demo-pr-prep demo-git-workspace demo-skills ## Run all
 Makefile.local:;
 -include Makefile.local
 
-demo-rename: ## Demo rename command (LIVE)
-	@echo "=== rename Demo (LIVE) ==="
+demo-rename: ## Demo rename command
+	@echo "=== rename Demo ==="
 	@echo ""
 	@echo "Command: /rename"
 	@echo "Plugin: sanctum"
@@ -224,8 +224,8 @@ demo-rename: ## Demo rename command (LIVE)
 	@echo "Use /rename for full workflow."
 
 
-demo-resume: ## Demo resume command (LIVE)
-	@echo "=== resume Demo (LIVE) ==="
+demo-resume: ## Demo resume command
+	@echo "=== resume Demo ==="
 	@echo ""
 	@echo "Command: /resume"
 	@echo "Plugin: sanctum"
@@ -236,8 +236,8 @@ demo-resume: ## Demo resume command (LIVE)
 	@echo "Use /resume for full workflow."
 
 
-demo-git-catchup: ## Demo git-catchup command (LIVE)
-	@echo "=== git-catchup Demo (LIVE) ==="
+demo-git-catchup: ## Demo git-catchup command
+	@echo "=== git-catchup Demo ==="
 	@echo ""
 	@echo "Command: /git-catchup"
 	@echo "Plugin: sanctum"
@@ -258,8 +258,8 @@ demo-commit-msg: ## Demo commit-msg command (LIVE)
 	@echo "Use /commit-msg for full workflow."
 
 
-demo-do-issue: ## Demo do-issue command (LIVE)
-	@echo "=== do-issue Demo (LIVE) ==="
+demo-do-issue: ## Demo do-issue command
+	@echo "=== do-issue Demo ==="
 	@echo ""
 	@echo "Command: /do-issue"
 	@echo "Plugin: sanctum"
@@ -270,8 +270,8 @@ demo-do-issue: ## Demo do-issue command (LIVE)
 	@echo "Use /do-issue for full workflow."
 
 
-demo-fix-workflow: ## Demo fix-workflow command (LIVE)
-	@echo "=== fix-workflow Demo (LIVE) ==="
+demo-fix-workflow: ## Demo fix-workflow command
+	@echo "=== fix-workflow Demo ==="
 	@echo ""
 	@echo "Command: /fix-workflow"
 	@echo "Plugin: sanctum"
@@ -282,8 +282,8 @@ demo-fix-workflow: ## Demo fix-workflow command (LIVE)
 	@echo "Use /fix-workflow for full workflow."
 
 
-demo-fix-pr: ## Demo fix-pr command (LIVE)
-	@echo "=== fix-pr Demo (LIVE) ==="
+demo-fix-pr: ## Demo fix-pr command
+	@echo "=== fix-pr Demo ==="
 	@echo ""
 	@echo "Command: /fix-pr"
 	@echo "Plugin: sanctum"
@@ -294,8 +294,8 @@ demo-fix-pr: ## Demo fix-pr command (LIVE)
 	@echo "Use /fix-pr for full workflow."
 
 
-demo-pr: ## Demo pr command (LIVE)
-	@echo "=== pr Demo (LIVE) ==="
+demo-pr: ## Demo pr command
+	@echo "=== pr Demo ==="
 	@echo ""
 	@echo "Command: /pr"
 	@echo "Plugin: sanctum"
@@ -306,8 +306,8 @@ demo-pr: ## Demo pr command (LIVE)
 	@echo "Use /pr for full workflow."
 
 
-demo-update-docs: ## Demo update-docs command (LIVE)
-	@echo "=== update-docs Demo (LIVE) ==="
+demo-update-docs: ## Demo update-docs command
+	@echo "=== update-docs Demo ==="
 	@echo ""
 	@echo "Command: /update-docs"
 	@echo "Plugin: sanctum"
@@ -318,8 +318,8 @@ demo-update-docs: ## Demo update-docs command (LIVE)
 	@echo "Use /update-docs for full workflow."
 
 
-demo-update-readme: ## Demo update-readme command (LIVE)
-	@echo "=== update-readme Demo (LIVE) ==="
+demo-update-readme: ## Demo update-readme command
+	@echo "=== update-readme Demo ==="
 	@echo ""
 	@echo "Command: /update-readme"
 	@echo "Plugin: sanctum"
@@ -403,8 +403,8 @@ test-update-version: ## Test update-version command (runs version update tests)
 test-update-dependencies: ## Test update-dependencies command (not applicable: skill-only)
 	@echo "Not applicable: update-dependencies is a skill-only command with no unit tests"
 
-demo-create-tag: ## Demo create-tag command (LIVE)
-	@echo "=== create-tag Demo (LIVE) ==="
+demo-create-tag: ## Demo create-tag command
+	@echo "=== create-tag Demo ==="
 	@echo ""
 	@echo "Command: /create-tag"
 	@echo "Plugin: sanctum"
@@ -414,8 +414,8 @@ demo-create-tag: ## Demo create-tag command (LIVE)
 	@echo ""
 	@echo "Use /create-tag for full workflow."
 
-demo-merge-docs: ## Demo merge-docs command (LIVE)
-	@echo "=== merge-docs Demo (LIVE) ==="
+demo-merge-docs: ## Demo merge-docs command
+	@echo "=== merge-docs Demo ==="
 	@echo ""
 	@echo "Command: /merge-docs"
 	@echo "Plugin: sanctum"
@@ -425,8 +425,8 @@ demo-merge-docs: ## Demo merge-docs command (LIVE)
 	@echo ""
 	@echo "Use /merge-docs for full workflow."
 
-demo-pr-review: ## Demo pr-review command (LIVE)
-	@echo "=== pr-review Demo (LIVE) ==="
+demo-pr-review: ## Demo pr-review command
+	@echo "=== pr-review Demo ==="
 	@echo ""
 	@echo "Command: /pr-review"
 	@echo "Plugin: sanctum"
@@ -436,8 +436,8 @@ demo-pr-review: ## Demo pr-review command (LIVE)
 	@echo ""
 	@echo "Use /pr-review for full workflow."
 
-demo-prepare-pr: ## Demo prepare-pr command (LIVE)
-	@echo "=== prepare-pr Demo (LIVE) ==="
+demo-prepare-pr: ## Demo prepare-pr command
+	@echo "=== prepare-pr Demo ==="
 	@echo ""
 	@echo "Command: /prepare-pr"
 	@echo "Plugin: sanctum"
@@ -447,8 +447,8 @@ demo-prepare-pr: ## Demo prepare-pr command (LIVE)
 	@echo ""
 	@echo "Use /prepare-pr for full workflow."
 
-demo-resolve-threads: ## Demo resolve-threads command (LIVE)
-	@echo "=== resolve-threads Demo (LIVE) ==="
+demo-resolve-threads: ## Demo resolve-threads command
+	@echo "=== resolve-threads Demo ==="
 	@echo ""
 	@echo "Command: /resolve-threads"
 	@echo "Plugin: sanctum"
@@ -458,8 +458,8 @@ demo-resolve-threads: ## Demo resolve-threads command (LIVE)
 	@echo ""
 	@echo "Use /resolve-threads for full workflow."
 
-demo-update-dependencies: ## Demo update-dependencies command (LIVE)
-	@echo "=== update-dependencies Demo (LIVE) ==="
+demo-update-dependencies: ## Demo update-dependencies command
+	@echo "=== update-dependencies Demo ==="
 	@echo ""
 	@echo "Command: /update-dependencies"
 	@echo "Plugin: sanctum"
@@ -469,8 +469,8 @@ demo-update-dependencies: ## Demo update-dependencies command (LIVE)
 	@echo ""
 	@echo "Use /update-dependencies for full workflow."
 
-demo-update-plugins: ## Demo update-plugins command (LIVE)
-	@echo "=== update-plugins Demo (LIVE) ==="
+demo-update-plugins: ## Demo update-plugins command
+	@echo "=== update-plugins Demo ==="
 	@echo ""
 	@echo "Command: /update-plugins"
 	@echo "Plugin: sanctum"
@@ -480,8 +480,8 @@ demo-update-plugins: ## Demo update-plugins command (LIVE)
 	@echo ""
 	@echo "Use /update-plugins for full workflow."
 
-demo-update-tests: ## Demo update-tests command (LIVE)
-	@echo "=== update-tests Demo (LIVE) ==="
+demo-update-tests: ## Demo update-tests command
+	@echo "=== update-tests Demo ==="
 	@echo ""
 	@echo "Command: /update-tests"
 	@echo "Plugin: sanctum"
@@ -491,8 +491,8 @@ demo-update-tests: ## Demo update-tests command (LIVE)
 	@echo ""
 	@echo "Use /update-tests for full workflow."
 
-demo-update-tutorial: ## Demo update-tutorial command (LIVE)
-	@echo "=== update-tutorial Demo (LIVE) ==="
+demo-update-tutorial: ## Demo update-tutorial command
+	@echo "=== update-tutorial Demo ==="
 	@echo ""
 	@echo "Command: /update-tutorial"
 	@echo "Plugin: sanctum"
@@ -502,8 +502,8 @@ demo-update-tutorial: ## Demo update-tutorial command (LIVE)
 	@echo ""
 	@echo "Use /update-tutorial for full workflow."
 
-demo-update-version: ## Demo update-version command (LIVE)
-	@echo "=== update-version Demo (LIVE) ==="
+demo-update-version: ## Demo update-version command
+	@echo "=== update-version Demo ==="
 	@echo ""
 	@echo "Command: /update-version"
 	@echo "Plugin: sanctum"

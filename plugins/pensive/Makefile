@@ -220,8 +220,8 @@ plugin-check: demo-makefile-review demo-bug-review demo-skills ## Run all demo w
 Makefile.local:;
 -include Makefile.local
 
-demo-full-review: ## Demo full-review command (LIVE)
-	@echo "=== full-review Demo (LIVE) ==="
+demo-full-review: ## Demo full-review command
+	@echo "=== full-review Demo ==="
 	@echo ""
 	@echo "Command: /full-review"
 	@echo "Plugin: pensive"
@@ -232,8 +232,8 @@ demo-full-review: ## Demo full-review command (LIVE)
 	@echo "Use /full-review for full workflow."
 
 
-demo-api-review: ## Demo api-review command (LIVE)
-	@echo "=== api-review Demo (LIVE) ==="
+demo-api-review: ## Demo api-review command
+	@echo "=== api-review Demo ==="
 	@echo ""
 	@echo "Command: /api-review"
 	@echo "Plugin: pensive"
@@ -244,8 +244,8 @@ demo-api-review: ## Demo api-review command (LIVE)
 	@echo "Use /api-review for full workflow."
 
 
-demo-architecture-review: ## Demo architecture-review command (LIVE)
-	@echo "=== architecture-review Demo (LIVE) ==="
+demo-architecture-review: ## Demo architecture-review command
+	@echo "=== architecture-review Demo ==="
 	@echo ""
 	@echo "Command: /architecture-review"
 	@echo "Plugin: pensive"
@@ -255,8 +255,8 @@ demo-architecture-review: ## Demo architecture-review command (LIVE)
 	@echo ""
 	@echo "Use /architecture-review for full workflow."
 
-demo-rust-review: ## Demo rust-review command (LIVE)
-	@echo "=== rust-review Demo (LIVE) ==="
+demo-rust-review: ## Demo rust-review command
+	@echo "=== rust-review Demo ==="
 	@echo ""
 	@echo "Command: /rust-review"
 	@echo "Plugin: pensive"
@@ -267,8 +267,8 @@ demo-rust-review: ## Demo rust-review command (LIVE)
 	@echo "Use /rust-review for full workflow."
 
 
-demo-test-review: ## Demo test-review command (LIVE)
-	@echo "=== test-review Demo (LIVE) ==="
+demo-test-review: ## Demo test-review command
+	@echo "=== test-review Demo ==="
 	@echo ""
 	@echo "Command: /test-review"
 	@echo "Plugin: pensive"
@@ -279,8 +279,8 @@ demo-test-review: ## Demo test-review command (LIVE)
 	@echo "Use /test-review for full workflow."
 
 
-demo-math-review: ## Demo math-review command (LIVE)
-	@echo "=== math-review Demo (LIVE) ==="
+demo-math-review: ## Demo math-review command
+	@echo "=== math-review Demo ==="
 	@echo ""
 	@echo "Command: /math-review"
 	@echo "Plugin: pensive"
@@ -290,8 +290,8 @@ demo-math-review: ## Demo math-review command (LIVE)
 	@echo ""
 	@echo "Use /math-review for full workflow."
 
-demo-shell-review: ## Demo shell-review command (LIVE)
-	@echo "=== shell-review Demo (LIVE) ==="
+demo-shell-review: ## Demo shell-review command
+	@echo "=== shell-review Demo ==="
 	@echo ""
 	@echo "Command: /shell-review"
 	@echo "Plugin: pensive"
@@ -302,8 +302,8 @@ demo-shell-review: ## Demo shell-review command (LIVE)
 	@echo "Use /shell-review for full workflow."
 
 
-demo-fpf-review: ## Demo fpf-review command (LIVE)
-	@echo "=== fpf-review Demo (LIVE) ==="
+demo-fpf-review: ## Demo fpf-review command
+	@echo "=== fpf-review Demo ==="
 	@echo ""
 	@echo "Command: /fpf-review"
 	@echo "Plugin: pensive"

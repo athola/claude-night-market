@@ -25,8 +25,8 @@ from dataclasses import dataclass
 from scripts.delegation_executor import (
     VERIFIED_BINARIES,
     Delegator,
-    _resolve_env_overlay,
     credential_file_issues,
+    resolve_env_overlay,
 )
 
 _PROBE_TIMEOUT_SECONDS = 10
@@ -103,7 +103,7 @@ def _missing_credentials(delegator: Delegator, name: str) -> list[str]:
     """
     service = delegator.services[name]
 
-    _, missing_overlay = _resolve_env_overlay(service)
+    _, missing_overlay = resolve_env_overlay(service)
     candidates = list(missing_overlay)
 
     if (
@@ -131,9 +131,12 @@ def probe_provider(delegator: Delegator, name: str) -> ProviderState:
     )
 
     # The same answer the chain skips on, so the table cannot disagree with
-    # the thing it describes. Reading the filesystem and the environment
-    # spawns nothing, which holds the constraint that this table never runs
-    # a provider's own CLI.
+    # the thing it describes. This part reads the filesystem and the
+    # environment and spawns nothing; the version probe below does spawn
+    # each installed binary, which is why _missing_credentials above is
+    # deliberately env-only. The constraint is that authentication is
+    # never decided by running a provider's own CLI, not that the table
+    # runs no process at all.
     file_issues = credential_file_issues(service)
     issues.extend(issue[0].lower() + issue[1:] for issue in file_issues)
 
