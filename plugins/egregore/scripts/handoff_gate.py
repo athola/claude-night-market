@@ -89,6 +89,10 @@ _LEGAL_EXPECT = frozenset({"pass", "fail"})
 
 FORBIDDEN_COMMAND_FRAGMENTS = (
     "--no-verify",
+    # `git commit -n` is the short spelling of --no-verify and is named
+    # alongside it in .claude/rules, but the list carried only the long
+    # form, so the one an author is likelier to type went through.
+    "commit -n",
     "push --force",
     "--force-with-lease",
     "push -f",
@@ -278,17 +282,22 @@ def _check_command(name: str, command: str) -> list[str]:
     ``uv run --directory plugins/conjure pytest -q``.
     """
     problems: list[str] = []
+    # Normalized before matching. The fragments were tested against the
+    # raw string, so ordinary spacing variants walked straight through:
+    # `git  reset  --hard` with two spaces, and `git push  -f`, were both
+    # allowed while their single-spaced forms were refused.
+    normalized = " ".join(command.split())
     for fragment in FORBIDDEN_COMMAND_FRAGMENTS:
-        if fragment in command:
+        if fragment in normalized:
             problems.append(
-                f"commands.{name} contains {fragment!r}, which bypasses a "
+                f"{name} contains {fragment!r}, which bypasses a "
                 "quality gate or destroys work"
             )
 
     found = [ch for ch in SHELL_METACHARACTERS if ch in command]
     if found:
         problems.append(
-            f"commands.{name} contains shell metacharacters {found}. Commands "
+            f"{name} contains shell metacharacters {found}. Commands "
             "run as argv with no shell. Use a tool's own directory flag "
             "instead of 'cd X &&'."
         )
@@ -296,9 +305,9 @@ def _check_command(name: str, command: str) -> list[str]:
 
     try:
         if not shlex.split(command):
-            problems.append(f"commands.{name} is empty")
+            problems.append(f"{name} is empty")
     except ValueError as exc:
-        problems.append(f"commands.{name} is not a parseable shell word list: {exc}")
+        problems.append(f"{name} is not a parseable shell word list: {exc}")
     return problems
 
 

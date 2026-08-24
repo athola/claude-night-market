@@ -538,3 +538,60 @@ class TestExpectIsBinary:
         result = gate.check_item(item)
 
         assert result.state in {"UNSAFE", "INCOHERENT"}
+
+
+class TestForbiddenFragmentsSurviveSpacing:
+    """A destructive command is not made safe by an extra space."""
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "git commit -n -m x",
+            "git  reset  --hard",
+            "git push  -f",
+        ],
+    )
+    def test_a_spacing_variant_is_still_refused(
+        self, tmp_path: Path, command: str
+    ) -> None:
+        """
+        Scenario: A forbidden command written with unusual spacing
+        When the gate reads it
+        Then it is refused
+
+        The fragments were matched as raw substrings against the command
+        text, so these three walked through while their single-spaced
+        forms were refused. `git commit -n` is the short spelling of
+        --no-verify and is named beside it in .claude/rules; the list
+        carried only the long form.
+        """
+        handoff = GOOD_HANDOFF.replace(
+            "test: uv run pytest tests/ -q", f"test: {command}"
+        )
+        item = write_item(tmp_path, **{"handoff.md": handoff})
+
+        result = gate.check_item(item)
+
+        assert result.state == "UNSAFE"
+
+    def test_a_handoff_command_problem_still_names_it_as_commands_dot_name(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A handoff command is refused
+        When the problem is reported
+        Then it is labelled `commands.<name>` exactly as before
+
+        Routing task commands through the same check made the label a
+        parameter. This pins that the handoff-side wording did not change
+        with it, so an operator reading yesterday's message and today's
+        sees the same thing.
+        """
+        handoff = GOOD_HANDOFF.replace(
+            "test: uv run pytest tests/ -q", "test: git commit --no-verify"
+        )
+        item = write_item(tmp_path, **{"handoff.md": handoff})
+
+        result = gate.check_item(item)
+
+        assert any(p.startswith("commands.test contains") for p in result.problems)
