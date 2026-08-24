@@ -9,6 +9,8 @@ improvising when it runs out of attempts, budget, or evidence.
 
 from __future__ import annotations
 
+import shlex
+from collections.abc import Sequence
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -18,18 +20,34 @@ from budget import Budget
 
 
 class FakeRunner:
-    """A scripted command runner. Records every command it was given."""
+    """A scripted command runner. Records every command it was given.
+
+    ``Runner.run`` takes argv, so ``argv`` holds what the driver
+    actually built. ``calls`` holds the same commands joined back into
+    strings, which is what the substring assertions below read. The
+    join happens here, in a test double, and not on the path to
+    ``subprocess.run``.
+    """
 
     def __init__(self, script: dict[str, tuple[int, str]]) -> None:
         """Map a command substring to the (exit code, output) it yields."""
         self.script = script
         self.calls: list[str] = []
+        self.argv: list[list[str]] = []
 
-    def run(self, command: str, cwd: Path | None = None, timeout: int = 0, env=None):
+    def run(
+        self,
+        command: Sequence[str],
+        cwd: Path | None = None,
+        timeout: int = 0,
+        env=None,
+    ):
         del cwd, timeout
-        self.calls.append(command)
+        self.argv.append(list(command))
+        joined = shlex.join(command)
+        self.calls.append(joined)
         for key, (code, out) in self.script.items():
-            if key in command:
+            if key in joined:
                 return night_run.Completed(returncode=code, output=out)
         return night_run.Completed(returncode=0, output="")
 
@@ -271,7 +289,7 @@ class TestSubprocessRunner:
     """The real runner. This is the argv path the security review shaped."""
 
     def test_runs_a_command_and_captures_stdout(self, tmp_path: Path) -> None:
-        result = night_run.SubprocessRunner().run("echo hello", cwd=tmp_path)
+        result = night_run.SubprocessRunner().run(["echo", "hello"], cwd=tmp_path)
         assert result.returncode == 0
         assert "hello" in result.output
 
@@ -279,7 +297,9 @@ class TestSubprocessRunner:
         """A crash is evidence. A runner that drops stderr is silent on it."""
         script = tmp_path / "boom.py"
         script.write_text("import sys\nsys.stderr.write('boom')\nsys.exit(3)\n")
-        result = night_run.SubprocessRunner().run(f"python3 {script}", cwd=tmp_path)
+        result = night_run.SubprocessRunner().run(
+            ["python3", str(script)], cwd=tmp_path
+        )
         assert result.returncode == 3
         assert "boom" in result.output
 
@@ -287,21 +307,47 @@ class TestSubprocessRunner:
         """`;` reaches echo as an argument; it does not start a new command."""
         marker = tmp_path / "pwned"
         result = night_run.SubprocessRunner().run(
-            f"echo a ; touch {marker}", cwd=tmp_path
+            ["echo", "a", ";", "touch", str(marker)], cwd=tmp_path
         )
         assert result.returncode == 0
         assert ";" in result.output
         assert not marker.exists(), "a shell would have created this file"
 
+    def test_a_command_line_passed_as_one_word_is_not_re_split(
+        self, tmp_path: Path
+    ) -> None:
+        """The runner takes argv, so it never parses a string into words.
+
+        This is what the protocol change bought. The runner used to
+        ``shlex.split`` whatever it was handed, so a caller who built the
+        string by hand had its quoting honoured and its words separated.
+        Handing the same text as one argv element now looks for a binary
+        by that literal name and fails at 127, which is loud, rather than
+        running ``touch`` as a second word, which is not.
+        """
+        marker = tmp_path / "pwned"
+        result = night_run.SubprocessRunner().run(
+            [f"echo a ; touch {marker}"], cwd=tmp_path
+        )
+        assert result.returncode == 127
+        assert not marker.exists()
+
     def test_a_missing_binary_is_reported_not_raised(self, tmp_path: Path) -> None:
         result = night_run.SubprocessRunner().run(
-            "definitely-not-a-binary", cwd=tmp_path
+            ["definitely-not-a-binary"], cwd=tmp_path
         )
         assert result.returncode == 127
         assert "definitely-not-a-binary" in result.output
 
     def test_an_empty_command_is_reported(self, tmp_path: Path) -> None:
-        result = night_run.SubprocessRunner().run("   ", cwd=tmp_path)
+        """An empty argv still reaches the runner from the text boundary.
+
+        ``_argv_from_text`` returns ``[]`` for a handoff that declares a
+        blank command, so this guard defends a real boundary rather than
+        an internal invariant.
+        """
+        assert night_run._argv_from_text("   ") == []
+        result = night_run.SubprocessRunner().run([], cwd=tmp_path)
         assert result.returncode == 1
         assert "empty" in result.output
 
@@ -311,7 +357,7 @@ class TestSubprocessRunner:
         script = tmp_path / "slow.py"
         script.write_text("import time\ntime.sleep(5)\n")
         result = night_run.SubprocessRunner().run(
-            f"python3 {script}", cwd=tmp_path, timeout=1
+            ["python3", str(script)], cwd=tmp_path, timeout=1
         )
         assert result.returncode == night_run.TIMEOUT_EXIT
         assert "timed out" in result.output

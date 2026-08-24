@@ -9,6 +9,7 @@ must fail closed (an unreadable answer is BLOCKED, never PASS).
 from __future__ import annotations
 
 import json
+import shlex
 
 import night_run
 from claude_babysitter import ClaudeBabysitter
@@ -22,11 +23,15 @@ class FakeCli:
         self.code = code
         self.output = output
         self.calls: list[str] = []
+        self.argv: list[list[str]] = []
         self.env: dict[str, str] | None = None
 
     def run(self, command, cwd=None, timeout=0, env=None):
         del cwd, timeout
-        self.calls.append(command)
+        # Runner.run takes argv; joined here so the assertions below can
+        # read one string.
+        self.calls.append(shlex.join(command))
+        self.argv.append(list(command))
         self.env = dict(env) if env is not None else None
         return night_run.Completed(returncode=self.code, output=self.output)
 

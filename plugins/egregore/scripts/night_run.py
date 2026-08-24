@@ -76,17 +76,38 @@ class Completed:
     output: str = ""
 
 
+def _argv_from_text(text: str) -> list[str]:
+    """Split a command an operator wrote as text into argv.
+
+    Three commands reach the runner as text rather than as a word list:
+    a task's ``evidence.command``, and a handoff's ``commands.setup``
+    and ``commands.full_test``. All three are read from JSON someone
+    wrote by hand, so text is the shape they genuinely arrive in.
+
+    Splitting them here, and nowhere else, is the point. Every other
+    caller already holds an argv and passes it through, so there is no
+    join-then-split round trip left for a caller to imitate by building
+    the string by hand. The gate refuses shell metacharacters before a
+    handoff command gets this far, so this parses a plain word list.
+    """
+    return shlex.split(text)
+
+
 class Runner(Protocol):
     """Anything that can run a command and report what happened."""
 
     def run(
         self,
-        command: str,
+        command: Sequence[str],
         cwd: Path | None = None,
         timeout: int = 0,
         env: Mapping[str, str] | None = None,
     ) -> Completed:
-        """Run ``command`` and return its exit code and combined output.
+        """Run ``command`` as argv and return its exit code and output.
+
+        ``command`` is a word list, never a string to be split. A caller
+        that has an argv passes it through, so quoting is not something
+        any caller can get wrong.
 
         ``env`` replaces the child environment when given. The babysitter
         uses it to mark its own child as a judge, which is what stops a
@@ -98,22 +119,22 @@ class Runner(Protocol):
 class SubprocessRunner:
     """The real runner.
 
-    Splits the command into argv and runs it without a shell, so a
-    metacharacter that slipped past the gate would fail loudly as a
-    literal argument rather than quietly executing. Stderr is merged into
-    stdout because a crash is evidence too, and a filter that only reads
-    stdout is silent on exactly the runs worth waking up for.
+    Runs the given argv without a shell, so a metacharacter that slipped
+    past the gate fails loudly as a literal argument rather than quietly
+    executing. Stderr is merged into stdout because a crash is evidence
+    too, and a filter that only reads stdout is silent on exactly the
+    runs worth waking up for.
     """
 
     def run(
         self,
-        command: str,
+        command: Sequence[str],
         cwd: Path | None = None,
         timeout: int = 0,
         env: Mapping[str, str] | None = None,
     ) -> Completed:
         """Run ``command`` as argv and capture everything it printed."""
-        argv = shlex.split(command)
+        argv = list(command)
         if not argv:
             return Completed(returncode=1, output="empty command")
         try:
@@ -154,7 +175,7 @@ class TaskResult:
 
 def _diff_line_count(runner: Runner, workdir: Path) -> int:
     """Count added and removed lines in the working tree."""
-    result = runner.run("git diff --numstat", cwd=workdir)
+    result = runner.run(["git", "diff", "--numstat"], cwd=workdir)
     total = 0
     for line in result.output.splitlines():
         parts = line.split()
@@ -166,7 +187,7 @@ def _diff_line_count(runner: Runner, workdir: Path) -> int:
 
 def _changed_files(runner: Runner, workdir: Path) -> list[str]:
     """List the tracked files the implementer modified."""
-    result = runner.run("git diff --name-only", cwd=workdir)
+    result = runner.run(["git", "diff", "--name-only"], cwd=workdir)
     return [line.strip() for line in result.output.splitlines() if line.strip()]
 
 
@@ -211,7 +232,7 @@ def _dispatch_implementer(
     ]
     if files:
         argv += ["--files", *files]
-    return runner.run(shlex.join(argv), cwd=workdir, timeout=timeout)
+    return runner.run(argv, cwd=workdir, timeout=timeout)
 
 
 def _record(
@@ -313,7 +334,9 @@ def run_task(
             result.reason = f"out of scope ({scope_result.reason}): {offenders}"
             continue
 
-        observed = runner.run(str(evidence.get("command", "")), cwd=workdir)
+        observed = runner.run(
+            _argv_from_text(str(evidence.get("command", ""))), cwd=workdir
+        )
         _raise_if_usage_limited(observed)
         objective = verdict_mod.objective_check(
             evidence,
@@ -329,7 +352,7 @@ def run_task(
         else:
             sitter_verdict, sitter_reason, next_instruction = babysitter(
                 task=task,
-                diff=runner.run("git diff --unified=0", cwd=workdir).output,
+                diff=runner.run(["git", "diff", "--unified=0"], cwd=workdir).output,
                 test_output=observed.output,
                 test_exit=observed.returncode,
             )
@@ -452,7 +475,7 @@ def _headers_in(text: str) -> dict[str, str]:
 
 def _git(runner: Runner, workdir: Path | None, *args: str) -> Completed:
     """Run one git command as argv."""
-    return runner.run(shlex.join(["git", *args]), cwd=workdir)
+    return runner.run(["git", *args], cwd=workdir)
 
 
 def _untracked(runner: Runner, workdir: Path) -> list[str]:
@@ -464,7 +487,7 @@ def _untracked(runner: Runner, workdir: Path) -> list[str]:
     steer message, so the implementer is told the wrong path and a
     nested allowlist entry cannot be judged at all.
     """
-    result = runner.run("git status --porcelain -uall", cwd=workdir)
+    result = runner.run(["git", "status", "--porcelain", "-uall"], cwd=workdir)
     return [
         line[3:].strip()
         for line in result.output.splitlines()
@@ -520,7 +543,7 @@ def _discard_uncommitted(runner: Runner, worktree: Path) -> Discarded | None:
     if not files and not untracked:
         return None
 
-    diff = runner.run("git diff", cwd=worktree).output[-DISCARD_DIFF_CHARS:]
+    diff = runner.run(["git", "diff"], cwd=worktree).output[-DISCARD_DIFF_CHARS:]
     if files:
         _git(runner, worktree, "checkout", "--", ".")
     return Discarded(files=files, untracked=untracked, diff=diff)
@@ -646,7 +669,7 @@ def _prepare_worktree(
     if not setup:
         return None
 
-    prepared = runner.run(str(setup), cwd=worktree)
+    prepared = runner.run(_argv_from_text(str(setup)), cwd=worktree)
     if prepared.returncode != 0:
         return f"{setup} exited {prepared.returncode}: {prepared.output[:200]}"
     return None
@@ -698,7 +721,7 @@ def _final_full_suite(
             None,
         )
 
-    observed = runner.run(str(full), cwd=worktree)
+    observed = runner.run(_argv_from_text(str(full)), cwd=worktree)
     record = {
         "command": str(full),
         "exit": observed.returncode,

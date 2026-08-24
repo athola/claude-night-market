@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import json
 import os
-import shlex
 from collections.abc import Mapping
 from typing import Any
 
@@ -119,19 +118,17 @@ class ClaudeBabysitter:
         **_: Any,
     ) -> tuple[str, str, str]:
         """Judge one attempt. Returns (verdict, reason, next_instruction)."""
-        command = shlex.join(
-            [
-                "claude",
-                "--print",
-                "--model",
-                self.model,
-                "--output-format",
-                "json",
-                "--json-schema",
-                self.schema(),
-                self._prompt(task, diff, test_output, test_exit),
-            ]
-        )
+        command = [
+            "claude",
+            "--print",
+            "--model",
+            self.model,
+            "--output-format",
+            "json",
+            "--json-schema",
+            self.schema(),
+            self._prompt(task, diff, test_output, test_exit),
+        ]
         result = self.runner.run(command, timeout=self.timeout, env=self.guard_env())
         if result.returncode != 0:
             return ("BLOCKED", self._why_it_failed(result), "")

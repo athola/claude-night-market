@@ -9,6 +9,8 @@ with everything already committed still committed.
 
 from __future__ import annotations
 
+import shlex
+from collections.abc import Sequence
 from pathlib import Path
 
 import night_run
@@ -17,19 +19,34 @@ from budget import Budget
 
 
 class FakeRunner:
-    """A scripted runner that records every command, in order."""
+    """A scripted runner that records every command, in order.
+
+    ``Runner.run`` takes argv. ``argv`` holds what the driver built;
+    ``calls`` and ``invocations`` hold the joined strings the substring
+    assertions read. The join lives in this double, not on the path to
+    ``subprocess.run``.
+    """
 
     def __init__(self, script: dict[str, tuple[int, str]] | None = None) -> None:
         """Map a command substring to the (exit code, output) it yields."""
         self.script = script or {}
         self.calls: list[str] = []
+        self.argv: list[list[str]] = []
         self.invocations: list[tuple[str, Path | None]] = []
 
-    def run(self, command: str, cwd: Path | None = None, timeout: int = 0, env=None):
+    def run(
+        self,
+        command: Sequence[str],
+        cwd: Path | None = None,
+        timeout: int = 0,
+        env=None,
+    ):
         del timeout
-        self.calls.append(command)
-        self.invocations.append((command, cwd))
-        matchable = self._without_absolute_paths(command)
+        self.argv.append(list(command))
+        joined = shlex.join(command)
+        self.calls.append(joined)
+        self.invocations.append((joined, cwd))
+        matchable = self._without_absolute_paths(joined)
         for key, (code, out) in self.script.items():
             if key in matchable:
                 return night_run.Completed(returncode=code, output=out)
