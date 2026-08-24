@@ -37,35 +37,75 @@ from pathlib import Path
 DEFAULT_ROOT = Path.home() / ".claude" / "plugins"
 
 
+def _canonical(path: Path | str) -> str:
+    """One spelling per directory, so the two sides can be compared.
+
+    The manifest holds absolute paths while the walk builds its paths
+    from whatever root the caller passed. A relative ``--plugins-root``
+    therefore produced strings that matched no manifest entry, and every
+    live version was classified unreferenced: an rmtree of the live cache
+    reported as a successful prune. Both sides run through here now.
+    """
+    return str(Path(path).expanduser().resolve())
+
+
 def referenced_paths(plugins_root: Path) -> set[str]:
-    """Every install path the manifest currently points at."""
+    """Every install path the manifest currently points at.
+
+    A manifest missing its ``plugins`` key raises rather than reporting
+    an empty set. This file is the only authority on what is in use, and
+    an authority that cannot be read is not an authority saying nothing:
+    treating it that way makes every cached version deletable at once.
+    """
     manifest = plugins_root / "installed_plugins.json"
     data = json.loads(manifest.read_text())
+    if "plugins" not in data:
+        raise KeyError(
+            f"{manifest} has no 'plugins' key. Refusing to prune against a "
+            f"manifest that cannot be read as the record of what is installed."
+        )
     paths: set[str] = set()
-    for entries in data.get("plugins", {}).values():
+    for entries in data["plugins"].values():
         for entry in entries if isinstance(entries, list) else [entries]:
             path = entry.get("installPath")
             if path:
-                paths.add(str(Path(path)))
+                paths.add(_canonical(path))
     return paths
 
 
 def unreferenced_versions(plugins_root: Path) -> list[Path]:
-    """Version directories under the cache that nothing points at."""
+    """Version directories under the cache that nothing points at.
+
+    Raises when the manifest names installs but none of them land under
+    this cache. That is the signature of a mismatched root, and the
+    reading it would otherwise produce -- that everything is stale -- is
+    the most destructive one available.
+
+    A manifest that names no installs at all is a different event: it is
+    what an operator who uninstalled everything actually has, so it
+    prunes normally.
+    """
     cache = plugins_root / "cache"
     if not cache.is_dir():
         return []
     live = referenced_paths(plugins_root)
-    stale = [
+    versions = [
         version
         for marketplace in sorted(cache.iterdir())
         if marketplace.is_dir()
         for plugin in sorted(marketplace.iterdir())
         if plugin.is_dir()
         for version in sorted(plugin.iterdir())
-        if version.is_dir() and str(version) not in live
+        if version.is_dir()
     ]
-    return stale
+    if live and versions and not any(_canonical(v) in live for v in versions):
+        raise ValueError(
+            f"The manifest names {len(live)} install(s), none of which is "
+            f"any of the {len(versions)} cached version(s) under {cache}. "
+            f"Refusing to treat that as 'all stale'; check that "
+            f"--plugins-root names the root the manifest was written for."
+        )
+    return [v for v in versions if _canonical(v) not in live]
 
 
 def prune(plugins_root: Path, dry_run: bool = False) -> tuple[list[Path], list[Path]]:
@@ -75,7 +115,7 @@ def prune(plugins_root: Path, dry_run: bool = False) -> tuple[list[Path], list[P
     for version in unreferenced_versions(plugins_root):
         # Re-read the manifest per delete: an update landing mid-run
         # would otherwise let a now-live directory be removed.
-        if str(version) in referenced_paths(plugins_root):
+        if _canonical(version) in referenced_paths(plugins_root):
             skipped.append(version)
             continue
         if not dry_run:

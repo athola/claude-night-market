@@ -95,3 +95,125 @@ def test_a_version_that_goes_live_mid_run_is_skipped(
     assert removed == []
     assert [p.name for p in skipped] == ["1.0"]
     assert Path(stale_dir).exists(), "a directory that went live must survive"
+
+
+def test_a_relative_plugins_root_does_not_condemn_every_live_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """
+    Scenario: The root is given as a relative path
+    Given a manifest whose installPath entries are absolute
+    When the same root is passed in relative form
+    Then the live version is still recognized as live
+
+    ``referenced_paths`` stores the manifest's own strings while
+    ``unreferenced_versions`` builds its strings from ``iterdir()`` on
+    whatever root it was handed. Neither side was resolved, so the two
+    forms of one path never compared equal and every live version was
+    classified unreferenced. Without ``--dry-run`` that is an rmtree of
+    a live plugin, printed as "removed 1 unreferenced version(s)".
+    """
+    root = _make_root(tmp_path, live=["alpha/1.0.0"], stale=[])
+    monkeypatch.chdir(tmp_path)
+
+    assert prune_plugin_cache.unreferenced_versions(Path("plugins")) == []
+
+
+def test_a_manifest_without_a_plugins_key_stops_the_prune(tmp_path: Path) -> None:
+    """
+    Scenario: The manifest parses but carries no "plugins" key
+    Given schema drift or a partial write
+    When the pruner reads it
+    Then it raises rather than reporting that nothing is referenced
+
+    ``data.get("plugins", {})`` made an unreadable authority into an
+    authority saying nothing, so every cached version became deletable.
+    The docstring calls this file "the only authority on what is in
+    use"; a malformed one should stop the prune, not authorize a total
+    one. The stakes are the 14GB the module docstring cites, restored
+    only by reinstalling everything.
+    """
+    root = _make_root(tmp_path, live=["alpha/1.0.0"], stale=[])
+    (root / "installed_plugins.json").write_text(json.dumps({"version": 2}))
+
+    with pytest.raises(KeyError, match="plugins"):
+        prune_plugin_cache.referenced_paths(root)
+
+
+def test_the_mid_run_recheck_also_compares_canonical_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """
+    Scenario: A version becomes live mid-run under a relative root
+    Given the pruner listed it as stale before the manifest changed
+    When the per-delete re-read runs
+    Then it is skipped rather than deleted
+
+    The re-read is the guard against an update landing mid-run, and it
+    compared a raw ``str(version)`` against manifest paths. That is the
+    same unresolved comparison as the listing walk, so under a relative
+    root the guard silently stopped guarding: the directory it was meant
+    to rescue would be removed.
+    """
+    root = _make_root(tmp_path, live=["beta/1.0.0"], stale=["alpha/1.0.0"])
+    monkeypatch.chdir(tmp_path)
+    relative = Path("plugins")
+    version = (root / "cache" / "mk" / "alpha" / "1.0.0").resolve()
+
+    original = prune_plugin_cache.referenced_paths
+
+    def _goes_live(plugins_root: Path) -> set[str]:
+        # First call (the listing walk) sees nothing live; the per-delete
+        # re-read sees the install that landed in between.
+        calls.append(1)
+        if len(calls) == 1:
+            return original(plugins_root)
+        return original(plugins_root) | {str(version)}
+
+    calls: list[int] = []
+    monkeypatch.setattr(prune_plugin_cache, "referenced_paths", _goes_live)
+
+    removed, skipped = prune_plugin_cache.prune(relative, dry_run=False)
+
+    assert removed == []
+    assert skipped == [Path("plugins/cache/mk/alpha/1.0.0")]
+    assert version.is_dir()
+
+
+def test_a_manifest_pointing_somewhere_else_stops_the_prune(tmp_path: Path) -> None:
+    """
+    Scenario: The manifest names installs, none under this cache
+    Given a root that is not the one the manifest was written for
+    When versions are listed
+    Then it raises rather than reporting every version stale
+
+    The reading the pruner would otherwise take -- "nothing here is
+    referenced, so delete all of it" -- is the most destructive one
+    available, and a mismatched ``--plugins-root`` produces it silently.
+    """
+    root = _make_root(tmp_path, live=["alpha/1.0.0"], stale=[])
+    manifest = json.loads((root / "installed_plugins.json").read_text())
+    manifest["plugins"] = {"alpha@mk": [{"installPath": str(tmp_path / "elsewhere")}]}
+    (root / "installed_plugins.json").write_text(json.dumps(manifest))
+
+    with pytest.raises(ValueError, match="Refusing to treat that as"):
+        prune_plugin_cache.unreferenced_versions(root)
+
+
+def test_an_empty_manifest_still_prunes(tmp_path: Path) -> None:
+    """
+    Scenario: Every plugin has been uninstalled
+    Given a manifest naming no installs at all
+    When versions are listed
+    Then the leftover directories are reported stale
+
+    The counterpart to the test above, and the reason the refusal keys
+    on "names installs, none of them here" rather than on an empty
+    intersection. An operator who uninstalled everything has exactly
+    this manifest, and pruning is what they came for.
+    """
+    root = _make_root(tmp_path, live=[], stale=["alpha/1.0.0"])
+
+    stale = prune_plugin_cache.unreferenced_versions(root)
+
+    assert [p.name for p in stale] == ["1.0.0"]
