@@ -143,9 +143,23 @@ def _diff_line_count(runner: Runner, workdir: Path) -> int:
 
 
 def _changed_files(runner: Runner, workdir: Path) -> list[str]:
-    """List the files the implementer touched."""
+    """List the tracked files the implementer modified."""
     result = runner.run("git diff --name-only", cwd=workdir)
     return [line.strip() for line in result.output.splitlines() if line.strip()]
+
+
+def _touched_files(runner: Runner, workdir: Path) -> list[str]:
+    """Every path the implementer wrote, created ones included.
+
+    ``git diff --name-only`` lists tracked modifications only, so an
+    implementer that creates a file produced an empty list and the scope
+    fence was handed nothing to judge. The denylist's own headline entry
+    is ``.github/**``, named as a path where an unattended overnight edit
+    changes the rules the harness runs under -- and creating a workflow
+    file is precisely that, so the case the fence exists for was the case
+    it could not see.
+    """
+    return _changed_files(runner, workdir) + _untracked(runner, workdir)
 
 
 def _dispatch_implementer(
@@ -252,11 +266,24 @@ def run_task(
             return result
 
         scope_result = verdict_mod.check_scope(
-            allow_paths, _changed_files(runner, workdir)
+            allow_paths, _touched_files(runner, workdir)
         )
         if not scope_result.ok:
             offenders = scope_result.violating
-            runner.run(shlex.join(["git", "checkout", "--", *offenders]), cwd=workdir)
+            unreverted = _revert_offenders(runner, workdir, offenders)
+            if unreverted:
+                steer = (
+                    "Your last attempt edited files outside the task's scope "
+                    f"({', '.join(offenders)}). Reverting "
+                    f"{', '.join(unreverted)} failed, so those edits are still "
+                    "in the tree. Touch only the files the task names."
+                )
+                result.verdict = "BLOCKED"
+                result.reason = (
+                    f"out of scope ({scope_result.reason}): {offenders}; "
+                    f"{unreverted} could not be reverted"
+                )
+                return result
             steer = (
                 "Your last attempt edited files outside the task's scope "
                 f"({', '.join(offenders)}). Those edits were reverted. Touch "
@@ -409,13 +436,50 @@ def _git(runner: Runner, workdir: Path | None, *args: str) -> Completed:
 
 
 def _untracked(runner: Runner, workdir: Path) -> list[str]:
-    """List files git does not track yet."""
-    result = runner.run("git status --porcelain", cwd=workdir)
+    """List files git does not track yet.
+
+    ``-uall`` because the plain form collapses a wholly-new directory to
+    a single entry like ``.github/``. That happens to still match the
+    denylist, but it reports a directory to the allowlist and into the
+    steer message, so the implementer is told the wrong path and a
+    nested allowlist entry cannot be judged at all.
+    """
+    result = runner.run("git status --porcelain -uall", cwd=workdir)
     return [
         line[3:].strip()
         for line in result.output.splitlines()
         if line.startswith("??") and line[3:].strip()
     ]
+
+
+def _revert_offenders(
+    runner: Runner, workdir: Path, offenders: Sequence[str]
+) -> list[str]:
+    """Undo out-of-scope edits. Returns the paths still in the tree.
+
+    Tracked and created files need different commands: ``git checkout --``
+    cannot remove a file git has never seen, and exits 1 with "pathspec
+    ... did not match any file(s) known to git" while leaving it in place.
+
+    Both exit codes are read. They used to be discarded while the steer
+    text and the proof asserted the tree had been reverted, so an
+    implementer worked from a false premise on every later attempt and
+    the morning's proof recorded a revert that never happened.
+    """
+    tracked = set(_changed_files(runner, workdir))
+    created = [path for path in offenders if path not in tracked]
+    modified = [path for path in offenders if path in tracked]
+
+    unreverted: list[str] = []
+    if modified:
+        result = _git(runner, workdir, "checkout", "--", *modified)
+        if result.returncode != 0:
+            unreverted += modified
+    if created:
+        result = _git(runner, workdir, "clean", "-fd", "--", *created)
+        if result.returncode != 0:
+            unreverted += created
+    return unreverted
 
 
 def _discard_uncommitted(runner: Runner, worktree: Path) -> Discarded | None:

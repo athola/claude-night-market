@@ -575,3 +575,131 @@ class TestParkLeavesACleanTree:
         assert "Discarded at park" in proof
         assert "a/T1.py" in proof
         assert "a/scratch.tmp" in proof
+
+
+class TestScopeSeesFilesTheImplementerCreates:
+    """A created file is in scope for the fence, or the fence is decorative."""
+
+    def test_a_created_file_outside_the_allowlist_is_refused(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The implementer creates a file the allowlist forbids
+        Given `git diff --name-only` lists tracked modifications only
+        When the scope fence runs
+        Then the task fails as out of scope
+
+        The fence read only tracked modifications, so an implementer that
+        creates a file produced an empty changed list and check_scope was
+        never given anything to judge. The first entry in DENY_PATTERNS is
+        `.github/**`, described as a path where an unattended overnight
+        edit changes the rules the harness itself runs under -- and
+        creating a workflow file is exactly that, so the denylist's own
+        headline case was the one it could not see.
+        """
+        runner = FakeRunner(
+            {
+                "git status --porcelain": (0, "?? .github/workflows/evil.yml\n"),
+                "pytest": (0, "1 passed"),
+            }
+        )
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.status != "DONE"
+        assert result.tasks and result.tasks[-1].verdict == "FAIL"
+        assert "out of scope" in result.tasks[-1].reason
+        assert ".github/workflows/evil.yml" in result.tasks[-1].reason
+
+    def test_a_created_offender_is_removed_not_checked_out(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The offending file is untracked
+        When the fence reverts it
+        Then git clean runs against it, not git checkout
+
+        The second, independent gap. `git checkout --` cannot remove a
+        file git has never seen: it exits 1 with "pathspec ... did not
+        match any file(s) known to git" and leaves the file in place,
+        while the steer text and the proof both assert the tree was
+        reverted.
+        """
+        runner = FakeRunner(
+            {
+                "git status --porcelain": (0, "?? .github/workflows/evil.yml\n"),
+                "pytest": (0, "1 passed"),
+            }
+        )
+
+        night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        cleans = [c for c in runner.calls if "git clean" in c]
+        assert cleans, "an untracked offender must be removed with git clean"
+        assert ".github/workflows/evil.yml" in cleans[0]
+
+    def test_untracked_listing_names_the_file_not_its_directory(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The implementer creates a wholly new directory
+        When untracked paths are listed
+        Then the file is reported, not the directory
+
+        Plain `--porcelain` collapses a new directory to `.github/`. That
+        still matches the denylist by luck, but it reports the directory
+        to the allowlist and into the steer message, so the implementer
+        is told the wrong thing and a nested allowlist entry cannot be
+        judged. `-uall` names the file.
+        """
+        runner = FakeRunner({"git status --porcelain": (0, "?? .github/\n")})
+
+        night_run._untracked(runner, tmp_path)
+
+        listing = [c for c in runner.calls if "git status" in c]
+        assert listing and "-uall" in listing[0]
+
+    def test_a_revert_that_fails_does_not_claim_the_tree_was_reverted(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The revert command exits non-zero
+        When the steer message is written for the next attempt
+        Then it does not assert the edits were reverted
+
+        Both revert exit codes were discarded while the steer text and
+        the proof asserted the tree was clean. An implementer told its
+        edits were undone, over a tree where they survive, works from a
+        false premise on every later attempt.
+        """
+        runner = FakeRunner(
+            {
+                "git status --porcelain": (0, "?? .github/workflows/evil.yml\n"),
+                "git checkout": (1, "error: pathspec did not match"),
+                "git clean": (1, "error: refusing to clean"),
+                "pytest": (0, "1 passed"),
+            }
+        )
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.tasks and result.tasks[-1].verdict == "BLOCKED"
+        assert "could not be reverted" in result.tasks[-1].reason
