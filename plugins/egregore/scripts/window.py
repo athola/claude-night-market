@@ -138,7 +138,14 @@ def parse_reset(
     ]
     if candidates:
         latest = max(candidates)
-        return latest if latest > moment else None
+        if latest > moment:
+            return latest
+        # A stale reset says nothing about now, so it is not an answer.
+        # It used to return one anyway, and returning None here skipped
+        # the retry-after below: a response carrying both a reset header
+        # from the previous window and a live retry-after was read as
+        # "did not say", which parks the run for a fixed wait rather
+        # than the one the response asked for.
 
     retry_after = headers.get("retry-after")
     if retry_after:

@@ -26,11 +26,15 @@ import shlex
 from collections.abc import Mapping
 from typing import Any
 
-from night_run import Runner, SubprocessRunner
+import window
+from night_run import Completed, Runner, SubprocessRunner
 from verdict import babysitter_schema
 
 #: Environment marker that stops a judge session from spawning a judge.
 JUDGE_MODE_ENV = "EGREGORE_BABYSITTER_MODE"
+
+#: How much of a failed judge call's output to carry into the reason.
+_ERROR_TAIL_CHARS = 300
 
 #: Verdicts the reconciler understands. Anything else is not an answer.
 VALID_VERDICTS = ("PASS", "FAIL", "BLOCKED")
@@ -128,14 +132,32 @@ class ClaudeBabysitter:
                 self._prompt(task, diff, test_output, test_exit),
             ]
         )
-        result = self.runner.run(command, timeout=self.timeout)
+        result = self.runner.run(command, timeout=self.timeout, env=self.guard_env())
         if result.returncode != 0:
-            return (
-                "BLOCKED",
-                f"the babysitter call exited {result.returncode}",
-                "",
-            )
+            return ("BLOCKED", self._why_it_failed(result), "")
         return self._read(result.output)
+
+    @staticmethod
+    def _why_it_failed(result: Completed) -> str:
+        """Say why the judge call failed, and name a quota refusal as one.
+
+        The exit code alone was the whole report, and the output was
+        dropped. Two things went with it. A judge that cannot start
+        prints the reason on stderr, and the morning review had only
+        "exited 1" to work from. And this is the one call in the run
+        that spends Anthropic quota, while `window.classify` was applied
+        to every other command's output and not to this one, so hitting
+        a rate limit here read as an ordinary judge failure and the run
+        kept spending against a refusal.
+        """
+        detail = result.output.strip()[-_ERROR_TAIL_CHARS:]
+        refusal = window.classify(result.output)
+        if refusal is not None:
+            return (
+                f"the babysitter call hit a {refusal} "
+                f"(exit {result.returncode}): {detail}"
+            )
+        return f"the babysitter call exited {result.returncode}: {detail}"
 
     @staticmethod
     def _read(output: str) -> tuple[str, str, str]:

@@ -22,10 +22,12 @@ class FakeCli:
         self.code = code
         self.output = output
         self.calls: list[str] = []
+        self.env: dict[str, str] | None = None
 
-    def run(self, command, cwd=None, timeout=0):
+    def run(self, command, cwd=None, timeout=0, env=None):
         del cwd, timeout
         self.calls.append(command)
+        self.env = dict(env) if env is not None else None
         return night_run.Completed(returncode=self.code, output=self.output)
 
 
@@ -142,3 +144,45 @@ class TestNoRecursion:
         sitter = ClaudeBabysitter(runner=cli)
         assert sitter.env_marker in sitter.guard_env()
         assert sitter.guard_env()[sitter.env_marker] == "true"
+
+
+class TestTheJudgeCallCarriesItsGuardAndReportsItsFailure:
+    """The recursion marker reaches the child, and a failure says why.
+
+    ``guard_env`` built the marker and nothing passed it, because
+    ``Runner.run`` had no env parameter. A judge could therefore spawn a
+    judge. Separately, a failed judge call reported only its exit code,
+    dropping both the CLI's own error text and the fact that this is the
+    one call in the run that spends Anthropic quota.
+    """
+
+    @staticmethod
+    def _judge(cli: FakeCli) -> tuple[str, str, str]:
+        return ClaudeBabysitter(runner=cli)(
+            task={"id": "T1", "change": "x"},
+            diff="d",
+            test_output="out",
+            test_exit=0,
+        )
+
+    def test_the_recursion_marker_reaches_the_child(self) -> None:
+        cli = FakeCli(0, envelope("PASS"))
+        sitter = ClaudeBabysitter(runner=cli)
+
+        sitter(task={"id": "T1"}, diff="d", test_output="o", test_exit=0)
+
+        assert cli.env is not None, "the judge child ran with no env at all"
+        assert cli.env[sitter.env_marker] == "true"
+
+    def test_a_failed_call_carries_the_error_text(self) -> None:
+        verdict, reason, _ = self._judge(FakeCli(1, "claude: no such model"))
+
+        assert verdict == "BLOCKED"
+        assert "no such model" in reason
+
+    def test_a_quota_refusal_is_named_as_one(self) -> None:
+        _, reason, _ = self._judge(FakeCli(1, "429 rate_limit_error: slow down"))
+
+        assert "rate_limit" in reason, (
+            "the one call that spends quota did not classify its own refusal"
+        )

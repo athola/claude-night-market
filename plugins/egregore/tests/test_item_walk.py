@@ -25,7 +25,7 @@ class FakeRunner:
         self.calls: list[str] = []
         self.invocations: list[tuple[str, Path | None]] = []
 
-    def run(self, command: str, cwd: Path | None = None, timeout: int = 0):
+    def run(self, command: str, cwd: Path | None = None, timeout: int = 0, env=None):
         del timeout
         self.calls.append(command)
         self.invocations.append((command, cwd))

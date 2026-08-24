@@ -78,8 +78,19 @@ class Completed:
 class Runner(Protocol):
     """Anything that can run a command and report what happened."""
 
-    def run(self, command: str, cwd: Path | None = None, timeout: int = 0) -> Completed:
-        """Run ``command`` and return its exit code and combined output."""
+    def run(
+        self,
+        command: str,
+        cwd: Path | None = None,
+        timeout: int = 0,
+        env: Mapping[str, str] | None = None,
+    ) -> Completed:
+        """Run ``command`` and return its exit code and combined output.
+
+        ``env`` replaces the child environment when given. The babysitter
+        uses it to mark its own child as a judge, which is what stops a
+        judge from spawning a judge.
+        """
         ...
 
 
@@ -93,7 +104,13 @@ class SubprocessRunner:
     stdout is silent on exactly the runs worth waking up for.
     """
 
-    def run(self, command: str, cwd: Path | None = None, timeout: int = 0) -> Completed:
+    def run(
+        self,
+        command: str,
+        cwd: Path | None = None,
+        timeout: int = 0,
+        env: Mapping[str, str] | None = None,
+    ) -> Completed:
         """Run ``command`` as argv and capture everything it printed."""
         argv = shlex.split(command)
         if not argv:
@@ -106,6 +123,7 @@ class SubprocessRunner:
                 text=True,
                 timeout=timeout or None,
                 check=False,
+                env=dict(env) if env is not None else None,
             )
         except subprocess.TimeoutExpired:
             return Completed(

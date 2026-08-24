@@ -25,7 +25,7 @@ class FakeRunner:
         self.script = script
         self.calls: list[str] = []
 
-    def run(self, command: str, cwd: Path | None = None, timeout: int = 0):
+    def run(self, command: str, cwd: Path | None = None, timeout: int = 0, env=None):
         del cwd, timeout
         self.calls.append(command)
         for key, (code, out) in self.script.items():

@@ -322,3 +322,50 @@ class TestAResumePlanCannotDescribeAResumeNothingPerforms:
         )
         assert plan.mechanism == window.NOTHING
         assert plan.fire_at is None
+
+
+class TestAStaleResetDoesNotDiscardALiveRetryAfter:
+    """A reset header from the previous window is not an answer about now.
+
+    It used to short-circuit the whole function: a response carrying
+    both a spent reset header and a live `retry-after` was read as "did
+    not say", so the run waited a fixed interval instead of the one the
+    response asked for.
+    """
+
+    def test_a_stale_reset_falls_through_to_retry_after(self) -> None:
+        plan = window.parse_reset(
+            {
+                "anthropic-ratelimit-requests-reset": (
+                    (NOW - timedelta(hours=2)).isoformat()
+                ),
+                "retry-after": "600",
+            },
+            "",
+            now=NOW,
+        )
+        assert plan == NOW + timedelta(seconds=600)
+
+    def test_a_live_reset_still_wins_over_retry_after(self) -> None:
+        fresh = NOW + timedelta(hours=1)
+        plan = window.parse_reset(
+            {
+                "anthropic-ratelimit-requests-reset": fresh.isoformat(),
+                "retry-after": "600",
+            },
+            "",
+            now=NOW,
+        )
+        assert plan == fresh
+
+    def test_a_stale_reset_with_nothing_behind_it_is_still_no_answer(self) -> None:
+        plan = window.parse_reset(
+            {
+                "anthropic-ratelimit-requests-reset": (
+                    (NOW - timedelta(hours=2)).isoformat()
+                )
+            },
+            "",
+            now=NOW,
+        )
+        assert plan is None
