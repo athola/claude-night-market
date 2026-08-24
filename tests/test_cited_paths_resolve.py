@@ -406,11 +406,30 @@ INVOCATION = re.compile(
 # Skills are deliberately absent: `Skill(...)` inside a SKILL.md is
 # already the drift ratchet's subject, and a second gate counting the
 # same references would put two baselines on one rule.
+# The call form reaches further than the path form: a skill invokes a
+# sibling skill, and a workflow script carries `Skill(...)` into the
+# prompt it hands a subagent. Both are instructions an agent executes,
+# so both are in the scope this module's docstring claims.
 INVOCATION_GLOBS = (
+    "plugins/*/skills/**/*.md",
     "plugins/*/commands/**/*.md",
     "plugins/*/agents/**/*.md",
+    "plugins/*/workflows/**/*.js",
     ".claude/rules/*.md",
 )
+
+# Losing a lane must not be silent. A single total across every lane
+# hides the loss of any one of them: dropping both the agent and rule
+# lanes still cleared a global floor of 150, because the command lane
+# alone carries more than that. Each lane therefore answers for itself,
+# at a floor set below today's count and above zero.
+INVOCATION_LANE_FLOORS = {
+    "plugins/*/skills/**/*.md": 250,
+    "plugins/*/commands/**/*.md": 130,
+    "plugins/*/agents/**/*.md": 12,
+    "plugins/*/workflows/**/*.js": 1,
+    ".claude/rules/*.md": 8,
+}
 
 
 def _iter_invocation_assets() -> list[Path]:
@@ -472,12 +491,48 @@ def _phantom_invocations(asset: Path) -> list[str]:
 INVOCATION_ASSETS = _iter_invocation_assets()
 
 
-def test_invocations_are_found() -> None:
-    """Guard the regex: a pattern matching nothing would pass everything."""
-    total = sum(
-        len(_invocations(a.read_text(errors="replace"))) for a in INVOCATION_ASSETS
+@pytest.mark.parametrize("pattern", sorted(INVOCATION_LANE_FLOORS))
+def test_every_invocation_lane_is_scanned(pattern: str) -> None:
+    """Guard each lane separately: a lane matching nothing passes everything.
+
+    The regex guard used to be one total over every lane, which a single
+    lane could satisfy on its own. Deleting the agent and rule globs was
+    therefore undetectable. Per-lane floors make each glob answer for
+    its own contribution.
+    """
+    assert pattern in INVOCATION_GLOBS, (
+        f"lane {pattern} has a floor but is not scanned; "
+        "INVOCATION_GLOBS and INVOCATION_LANE_FLOORS must agree"
     )
-    assert total > 150, f"only {total} Skill() invocations found"
+    assets = sorted(REPO_ROOT.glob(pattern))
+    assert set(assets) <= set(INVOCATION_ASSETS), (
+        f"lane {pattern} matches files the scanner never collects"
+    )
+    found = sum(len(_invocations(a.read_text(errors="replace"))) for a in assets)
+    floor = INVOCATION_LANE_FLOORS[pattern]
+    assert found >= floor, (
+        f"lane {pattern} yields {found} Skill() invocations across "
+        f"{len(assets)} file(s), below its floor of {floor}"
+    )
+
+
+def test_a_skill_call_on_an_agent_does_not_resolve() -> None:
+    """The agent exclusion is the point of this arm, so it is pinned here.
+
+    `_capability_resolves` accepts an agent because backticked prose
+    only claims the thing exists. A `Skill()` call claims it is callable
+    that way, and the harness lists agents to the Agent tool instead.
+    Collapsing this arm into the capability resolver left the whole
+    suite green, so the distinction needs its own guard in both
+    directions: a real agent must fail, a real skill must pass.
+    """
+    agent = REPO_ROOT / "plugins" / "abstract" / "agents" / "skill-auditor.md"
+    assert agent.exists(), "fixture drifted: pick another real agent"
+    assert not _invocation_resolves("abstract:skill-auditor")
+
+    skill = REPO_ROOT / "plugins" / "abstract" / "skills" / "skill-authoring"
+    assert (skill / "SKILL.md").exists(), "fixture drifted: pick another skill"
+    assert _invocation_resolves("abstract:skill-authoring")
 
 
 @pytest.mark.parametrize(

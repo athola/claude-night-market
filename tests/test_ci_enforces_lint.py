@@ -63,6 +63,69 @@ def test_a_workflow_runs_the_lint_gate() -> None:
     )
 
 
+def _lint_workflows() -> list[tuple[Path, dict]]:
+    """Every workflow document whose steps invoke the lint gate."""
+    found: list[tuple[Path, dict]] = []
+    for wf in sorted(WORKFLOWS.glob("*.y*ml")):
+        try:
+            doc = yaml.safe_load(wf.read_text(encoding="utf-8"))
+        except yaml.YAMLError:
+            continue
+        if not isinstance(doc, dict):
+            continue
+        for job in (doc.get("jobs") or {}).values():
+            if not isinstance(job, dict):
+                continue
+            for step in job.get("steps") or []:
+                if not (isinstance(step, dict) and isinstance(step.get("run"), str)):
+                    continue
+                script = step["run"]
+                if (
+                    "make lint" in script
+                    or "run-plugin-lint.sh" in script
+                    or ("ruff check" in script and "--select" not in script)
+                ):
+                    found.append((wf, doc))
+                    break
+            else:
+                continue
+            break
+    return found
+
+
+def _triggers(doc: dict) -> dict:
+    """The workflow's ``on:`` mapping.
+
+    YAML 1.1 reads a bare ``on`` key as the boolean ``True``, so the
+    parsed document keys it under ``True`` and not the string. Both are
+    checked, because a quoted ``"on":`` is equally valid YAML.
+    """
+    for key in (True, "on"):
+        value = doc.get(key)
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
+def test_the_lint_gate_runs_on_pull_requests() -> None:
+    """The lint workflow must carry a ``pull_request:`` trigger.
+
+    Nothing read the ``on:`` block, so deleting the entire
+    ``pull_request:`` trigger left this module green while the gate it
+    guards stopped firing before merge. That is the same silent
+    narrowing the module docstring describes, one level up: the step is
+    present and correct, and no event ever reaches it.
+    """
+    workflows = _lint_workflows()
+    assert workflows, "no workflow invokes the lint gate"
+
+    without = [wf.name for wf, doc in workflows if "pull_request" not in _triggers(doc)]
+    assert len(without) < len(workflows), (
+        "no workflow that runs the lint gate is triggered by pull_request, "
+        f"so the union rule set is never enforced before merge: {without}"
+    )
+
+
 def test_ci_lint_does_not_pin_the_root_config() -> None:
     """The CI lint step must not pass --config, which would collapse the
     per-plugin union back to the root subset it replaced.

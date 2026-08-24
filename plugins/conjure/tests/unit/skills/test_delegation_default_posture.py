@@ -134,7 +134,7 @@ def test_each_orchestrator_carries_the_posture(path: Path, anchor: str) -> None:
 @pytest.mark.parametrize(
     ("path", "anchor"),
     [
-        (MISSION, "providers_exhausted"),
+        (MISSION, "do the task in the mission itself"),
         (EXECUTION, "fallback_reason"),
         (SUMMON, "not a step failure"),
     ],
@@ -149,8 +149,19 @@ def test_each_orchestrator_handles_the_fallback(path: Path, anchor: str) -> None
     The egregore case is the one with teeth: an exhausted chain counted
     as a step failure would spend the retry budget on a machine where
     nothing is broken.
+
+    The uniqueness check enforces this module's opening claim rather
+    than restating it. `providers_exhausted` was the mission anchor and
+    appears twice in that file, once in the handling instruction this
+    guards and once in the exit criteria below it, so deleting the
+    guarded passage left the assertion satisfied by the survivor.
     """
-    assert anchor in path.read_text()
+    text = path.read_text()
+    assert text.count(anchor) == 1, (
+        f"{path.name} contains {text.count(anchor)} occurrences of "
+        f"{anchor!r}; an anchor that repeats cannot fail when the "
+        "passage it guards is deleted"
+    )
 
 
 @pytest.mark.bdd

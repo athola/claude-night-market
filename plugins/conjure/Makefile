@@ -271,11 +271,8 @@ demo-skills: ## Validate conjure skill structure
 		echo "  - $$name"; \
 	done
 	@echo ""
-	@echo "Skill coverage:"
-	@echo "  delegation-core:    $$(test -f skills/delegation-core/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  gemini-delegation:  $$(test -f skills/gemini-delegation/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  qwen-delegation:    $$(test -f skills/qwen-delegation/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  minimax-delegation: $$(test -f skills/minimax-delegation/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "Skill coverage (registration vs disk):"
+	@uv run python scripts/check_skill_coverage.py
 
 plugin-check: demo-delegation demo-skills status ## Run all demo workflows
 	@echo ""
