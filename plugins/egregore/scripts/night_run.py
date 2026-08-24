@@ -18,9 +18,16 @@ The order of operations is the contract:
 
 1. Dispatch the implementer off-plan, through conjure's delegation
    executor. Its output goes to a log and is read by nothing.
-2. Read the changed file list, and revert anything out of scope
-   **before** any judge is invoked. A judge that never sees the
-   violation cannot be argued into permitting it.
+2. Read every path the implementer wrote, and revert anything out of
+   scope **before** any judge is invoked. A judge that never sees the
+   violation cannot be argued into permitting it. "Every path" is
+   load-bearing and was once untrue: the fence read ``git diff
+   --name-only``, which lists tracked modifications only, so an
+   implementer that created a file was judged against an empty list.
+   ``_touched_files`` unions that diff with ``git status --porcelain
+   -uall``, and ``_revert_offenders`` reverts each kind with the command
+   that works on it, since ``git checkout --`` cannot remove a file git
+   has never seen.
 3. Run the task's own evidence command and keep the exit code and the
    raw output.
 4. Ask the babysitter for a verdict, showing it only the diff and the
