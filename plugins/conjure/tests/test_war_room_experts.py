@@ -142,7 +142,12 @@ class TestCommandResolution:
             assert cmd == ["ccgd", "-p"]
 
     def test_get_glm_command_with_claude_glm(self) -> None:
-        """GLM command falls back to claude-glm when ccgd unavailable."""
+        """GLM command falls back to claude-glm when ccgd unavailable.
+
+        The permission bypass is not part of that fallback. It was
+        passed unconditionally here, and an expert asked for an opinion
+        through ``-p`` uses no tools, so it has nothing to bypass.
+        """
 
         def which_side_effect(cmd: str) -> str | None:
             if cmd == "ccgd":
@@ -152,8 +157,44 @@ class TestCommandResolution:
             return None
 
         with patch("shutil.which", side_effect=which_side_effect):
-            cmd = get_glm_command()
-            assert cmd == ["claude-glm", "--dangerously-skip-permissions", "-p"]
+            assert get_glm_command() == ["claude-glm", "-p"]
+
+    def test_the_permission_bypass_is_opt_in(self) -> None:
+        """A caller that asks for it still gets it, before the -p."""
+
+        def which_side_effect(cmd: str) -> str | None:
+            return "/usr/local/bin/claude-glm" if cmd == "claude-glm" else None
+
+        with patch("shutil.which", side_effect=which_side_effect):
+            cmd = get_glm_command(skip_permissions=True)
+
+        assert cmd == ["claude-glm", "--dangerously-skip-permissions", "-p"]
+
+    def test_the_glm_expert_does_not_ask_for_the_bypass(self) -> None:
+        """`dangerous` is what carries the decision, and it is read now."""
+        assert EXPERT_CONFIGS["field_tactician"].dangerous is False
+
+        with patch("shutil.which", return_value="/usr/local/bin/ccgd"):
+            cmd = get_expert_command(EXPERT_CONFIGS["field_tactician"])
+
+        assert "--dangerously-skip-permissions" not in cmd
+
+    def test_a_resolver_built_command_carries_the_audited_model(self) -> None:
+        """The model in the sealed record is the model the call names.
+
+        `WarRoomSession` hashes `expert.model` into the provenance and
+        stores it as `expert_model`. The resolver path named no model at
+        all, so editing the id rewrote the audit trail and left the
+        invocation alone.
+        """
+        tactician = EXPERT_CONFIGS["field_tactician"]
+
+        with patch("shutil.which", return_value="/usr/local/bin/ccgd"):
+            cmd = get_expert_command(tactician)
+
+        assert "--model" in cmd
+        assert cmd[cmd.index("--model") + 1] == tactician.model
+        assert cmd[-1] == "-p", "the print flag must stay last"
 
     def test_get_glm_command_local_bin_fallback(self) -> None:
         """GLM command falls back to ~/.local/bin/claude-glm path."""
@@ -164,7 +205,7 @@ class TestCommandResolution:
         with patch("shutil.which", side_effect=which_returns_none):
             with patch.object(Path, "exists", return_value=True):
                 cmd = get_glm_command()
-                assert "--dangerously-skip-permissions" in cmd
+                assert "--dangerously-skip-permissions" not in cmd
                 assert "-p" in cmd
                 assert ".local/bin/claude-glm" in cmd[0]
 
@@ -186,7 +227,7 @@ class TestCommandResolution:
         """get_expert_command raises when resolver returns non-list."""
 
         # Create a resolver that returns a string instead of list
-        def bad_resolver() -> str:
+        def bad_resolver(**_kwargs: object) -> str:
             return "not a list"
 
         fake_expert = ExpertConfig(

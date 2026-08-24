@@ -267,3 +267,51 @@ class TestDelphiRevisionRound:
             await delphi_revision_round(orchestrator, session, 2)
 
         assert session.artifacts["coa"]["delphi_round"] == 2
+
+
+class TestAUnanimousPanelCanActuallyConverge:
+    """The scale has to reach the threshold the loop stops on.
+
+    The raw coefficient of variation of Borda counts is bounded by
+    `2*sqrt((n+1)/(12*(n-1)))`: 0.816 at three COAs, 0.707 at five,
+    falling toward 0.577. The default `convergence_threshold` is 0.85,
+    so a unanimous panel could not clear it for any COA count above two
+    and every Delphi run paid for `max_rounds`.
+    """
+
+    DEFAULT_THRESHOLD = 0.85
+
+    @staticmethod
+    def _convergence(scores: dict[str, float]) -> float:
+        session = WarRoomSession(session_id="s", problem_statement="p")
+        session.artifacts["voting"] = {"borda_scores": scores}
+        return compute_convergence(session)
+
+    @pytest.mark.parametrize("count", [2, 3, 4, 5, 8])
+    def test_a_unanimous_panel_scores_one(self, count: int) -> None:
+        """Unanimous ranking is 1.0 whatever the number of COAs."""
+        scores = {chr(97 + i): float(count - 1 - i) for i in range(count)}
+
+        assert self._convergence(scores) == pytest.approx(1.0)
+
+    @pytest.mark.parametrize("count", [3, 4, 5, 8])
+    def test_a_unanimous_panel_clears_the_default_threshold(self, count: int) -> None:
+        """The case that burned every paid round."""
+        scores = {chr(97 + i): float(count - 1 - i) for i in range(count)}
+
+        assert self._convergence(scores) >= self.DEFAULT_THRESHOLD
+
+    def test_uniform_scores_are_still_zero(self) -> None:
+        """Normalizing must not turn disagreement into agreement."""
+        assert self._convergence({"A": 2.0, "B": 2.0, "C": 2.0}) == 0.0
+
+    def test_partial_agreement_lands_between(self) -> None:
+        """A narrower spread scores below a unanimous one."""
+        partial = self._convergence({"A": 3.0, "B": 2.0, "C": 1.0})
+        unanimous = self._convergence({"A": 2.0, "B": 1.0, "C": 0.0})
+
+        assert 0.0 < partial < unanimous
+
+    def test_the_result_never_exceeds_one(self) -> None:
+        """A spread wider than any ranking can produce is still capped."""
+        assert self._convergence({"A": 100.0, "B": 0.0, "C": 0.0}) <= 1.0

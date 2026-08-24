@@ -65,6 +65,9 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         description="Implementation feasibility assessment",
         phases=["coa"],
         command_resolver="get_glm_command",
+        # Asked for an opinion through -p and uses no tools, so it needs
+        # no permission bypass. See get_glm_command.
+        dangerous=False,
     ),
     "scout": ExpertConfig(
         role="Scout",
@@ -171,7 +174,10 @@ _haiku_fallback_notices: list[str] = []
 # callable it actually holds: every registered resolver is a zero-argument
 # function returning the argv list. Declaring it as object made the resolver
 # call below unverifiable, which is the whole reason the registry exists.
-_COMMAND_RESOLVERS: dict[str, Callable[[], list[str]]] = {}
+#: Resolvers take keyword arguments only, so a new one can be added
+#: without every existing resolver changing shape. `skip_permissions`
+#: is the first, carried from `ExpertConfig.dangerous`.
+_COMMAND_RESOLVERS: dict[str, Callable[..., list[str]]] = {}
 
 
 def get_haiku_command() -> list[str]:
@@ -237,29 +243,39 @@ def clear_availability_cache() -> None:
     _haiku_fallback_notices.clear()
 
 
-def get_glm_command() -> list[str]:
+def get_glm_command(*, skip_permissions: bool = False) -> list[str]:
     """Resolve the GLM invocation command with fallback.
 
     The model id comes from the ExpertConfig, not from here.
 
+    ``--dangerously-skip-permissions`` was passed unconditionally at two
+    of the three call sites below, and the error message recommended
+    making it permanent as a shell alias. A war-room expert is asked for
+    an opinion through ``-p`` and uses no tools, so there is nothing for
+    it to need a permission bypass for. It is opt-in now, carried by the
+    ``dangerous`` field on ExpertConfig, which existed for this and was
+    read nowhere.
+
     Priority:
     1. ccgd (alias) - if available in PATH
-    2. claude-glm --dangerously-skip-permissions - explicit fallback
+    2. claude-glm - explicit fallback
     3. ~/.local/bin/claude-glm - direct path fallback
     """
+    flags = ["--dangerously-skip-permissions"] if skip_permissions else []
+
     if shutil.which("ccgd"):
-        return ["ccgd", "-p"]
+        return ["ccgd", *flags, "-p"]
 
     if shutil.which("claude-glm"):
-        return ["claude-glm", "--dangerously-skip-permissions", "-p"]
+        return ["claude-glm", *flags, "-p"]
 
     local_bin = Path.home() / ".local" / "bin" / "claude-glm"
     if local_bin.exists():
-        return [str(local_bin), "--dangerously-skip-permissions", "-p"]
+        return [str(local_bin), *flags, "-p"]
 
     raise RuntimeError(
         "GLM not available. Install claude-glm or configure the ccgd alias.\n"
-        "Add to ~/.bashrc: alias ccgd='claude-glm --dangerously-skip-permissions'"
+        "Add to ~/.bashrc: alias ccgd='claude-glm'"
     )
 
 
@@ -268,16 +284,31 @@ _COMMAND_RESOLVERS["get_glm_command"] = get_glm_command
 
 
 def get_expert_command(expert: ExpertConfig) -> list[str]:
-    """Get the command to invoke an expert."""
+    """Get the command to invoke an expert.
+
+    A resolver-built command carries ``expert.model`` explicitly. It did
+    not, and the sealed audit record attributes the answer to that id
+    through ``expert_model`` and the metadata hash, so editing the id
+    rewrote the provenance and left the call untouched. The two must
+    move together or the record is a claim about a run that did not
+    happen.
+
+    Statically configured experts already name the model in ``command``
+    and are returned unchanged.
+    """
     if expert.command_resolver:
         resolver = _COMMAND_RESOLVERS.get(expert.command_resolver)
         if resolver is None:
             raise RuntimeError(f"Unknown command resolver: {expert.command_resolver}")
-        cmd = resolver()
+        cmd = resolver(skip_permissions=expert.dangerous)
         if not isinstance(cmd, list):
             raise RuntimeError(
                 f"Resolver {expert.command_resolver} did not return list"
             )
+        if expert.model and "--model" not in cmd:
+            # Before the trailing -p, which claude reads as "print this".
+            insert_at = cmd.index("-p") if "-p" in cmd else len(cmd)
+            cmd[insert_at:insert_at] = ["--model", expert.model]
         return cmd
     if expert.command:
         return expert.command.copy()
