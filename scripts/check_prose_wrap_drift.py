@@ -154,12 +154,12 @@ def iter_markdown_files() -> list[Path]:
     )
 
 
-def count_overlong(files: list[Path]) -> int:
-    """Total overlong prose lines across ``files``.
+def overlong_in(path: Path) -> list[int]:
+    """The overlong prose lines in one file, or none when it is gone.
 
     Only a missing file is absorbed. ``git ls-files`` lists tracked
     paths, so one deleted from the working tree is listed and is not
-    there; its prose really is gone and zero is the honest count.
+    there; its prose really is gone and empty is the honest answer.
 
     Anything else propagates. A ratchet subtracts every skipped file from
     its own total, so a document that is present and cannot be read has
@@ -168,15 +168,22 @@ def count_overlong(files: list[Path]) -> int:
     Discussions #530 and #531 recorded that shape twice already. A denied
     file or one that is not UTF-8 is an anomaly worth stopping for, not a
     number to guess at.
+
+    The gate and the ``--top`` ranking both read files through here. They
+    read them by separate routes once, and only the gate knew about the
+    deleted case, so sizing the backlog raised on a tree the gate itself
+    passed over without complaint.
     """
-    total = 0
-    for path in files:
-        try:
-            text = path.read_text(encoding="utf-8")
-        except FileNotFoundError:
-            continue
-        total += len(overlong_prose_lines(text))
-    return total
+    try:
+        text = path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return []
+    return overlong_prose_lines(text)
+
+
+def count_overlong(files: list[Path]) -> int:
+    """Total overlong prose lines across ``files``."""
+    return sum(len(overlong_in(path)) for path in files)
 
 
 def evaluate_drift(current: int, baseline: int) -> tuple[bool, str]:
@@ -232,13 +239,7 @@ def main() -> int:
     print(f"[prose-wrap-drift] {message}")
 
     if args.top:
-        ranked = sorted(
-            (
-                (len(overlong_prose_lines(p.read_text(encoding="utf-8"))), p)
-                for p in files
-            ),
-            reverse=True,
-        )
+        ranked = sorted(((len(overlong_in(p)), p) for p in files), reverse=True)
         for count, path in ranked[: args.top]:
             if count:
                 print(f"  {count:5d}  {path.relative_to(REPO_ROOT)}")

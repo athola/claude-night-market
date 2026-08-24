@@ -171,6 +171,15 @@ class TestUnreadableFiles:
         finally:
             denied.chmod(0o600)
 
+    def test_the_ranking_path_absorbs_a_missing_file_too(self, tmp_path: Path) -> None:
+        """`--top` and the gate must agree about what a deleted file is.
+
+        They read files by separate routes once, and only the gate knew
+        about the deleted case, so sizing the backlog raised on a tree
+        the gate itself passed over without complaint.
+        """
+        assert mod.overlong_in(tmp_path / "gone.md") == []
+
     def test_a_readable_file_is_still_counted(self, tmp_path: Path) -> None:
         good = tmp_path / "good.md"
         good.write_text(f"{LONG}\n", encoding="utf-8")
