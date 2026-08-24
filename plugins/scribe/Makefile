@@ -192,7 +192,7 @@ demo-pr: ## Demo pr command
 	@echo "Execute manually in Claude Code for full functionality."
 
 demo-cli-plugins: ## Demo CLI invocation: plugins install scribe
-	@echo "=== cli-plugins Demo (LIVE) ==="
+	@echo "=== cli-plugins Demo (informational) ==="
 	@echo ""
 	@echo "Command: plugins install scribe"
 	@echo "Plugin: scribe"

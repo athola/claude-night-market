@@ -77,13 +77,24 @@ class MakefileTargetGenerator:
 
         """
         target_name = f"demo-{command_name.replace('/', '')}"
-        target_desc = description or f"Demo {command_name} command (LIVE)"
 
         # Check if we have a live command for this
         live_cmd = self._get_live_command(plugin, command_name)
 
+        # The label follows the recipe rather than leading it. Both the
+        # help text and the banner used to say LIVE unconditionally, so a
+        # target whose entire recipe was `@echo` still advertised that it
+        # ran the tool. That is the dogfooding claim this generator
+        # exists to make, asserted precisely where it is false.
+        label = "LIVE" if live_cmd else "informational"
+        target_desc = description or (
+            f"Demo {command_name} command (LIVE)"
+            if live_cmd
+            else f"Print how to run {command_name} (informational, runs nothing)"
+        )
+
         recipe_lines = [
-            f'\t@echo "=== {command_name} Demo (LIVE) ==="',
+            f'\t@echo "=== {command_name} Demo ({label}) ==="',
             '\t@echo ""',
         ]
 
@@ -146,7 +157,9 @@ class MakefileTargetGenerator:
                 plugin=plugin,
                 command_name=cmd_name,
                 invocation=invocation,
-                description=f"Demo {cmd_name} command (LIVE)",
+                # No description: let generate_target decide the label
+                # from whether it found a command to run. Passing one
+                # here hardcoded (LIVE) onto the echo-only branch.
             )
             targets.append(target)
 

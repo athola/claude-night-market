@@ -315,7 +315,7 @@ demo-fpf-review: ## Demo fpf-review command
 
 
 demo-cli---fork-session: ## Demo CLI invocation: --fork-session --session-id "security-audit"
-	@echo "=== cli---fork-session Demo (LIVE) ==="
+	@echo "=== cli---fork-session Demo (informational) ==="
 	@echo ""
 	@echo "Command: --fork-session --session-id "security-audit""
 	@echo "Plugin: pensive"
@@ -327,7 +327,7 @@ demo-cli---fork-session: ## Demo CLI invocation: --fork-session --session-id "se
 
 
 demo-cli-plugins: ## Demo CLI invocation: plugins install pensive
-	@echo "=== cli-plugins Demo (LIVE) ==="
+	@echo "=== cli-plugins Demo (informational) ==="
 	@echo ""
 	@echo "Command: plugins install pensive"
 	@echo "Plugin: pensive"

@@ -441,7 +441,13 @@ class TestMakefileSynthesis:
         # Should generate demo-update-docs and demo-pr-review targets
         assert "demo-update-docs:" in generated
         assert "demo-pr-review:" in generated
-        assert "## Demo update-docs command" in generated
+        # "test-plugin" has no entry in PLUGIN_TOOLS, so both targets
+        # fall to the echo-only branch and must not claim LIVE. The
+        # label used to be emitted unconditionally.
+        assert "## Print how to run update-docs (informational, runs nothing)" in (
+            generated
+        )
+        assert "LIVE" not in generated
 
     def test_generates_test_targets(self, tmp_path: Path) -> None:
         """Test generation of test-* targets for slash commands."""
