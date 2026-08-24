@@ -8,7 +8,7 @@
 //      findings across lenses is that case. Everything before it pipelines.
 //
 //   2. This replaces the prose barrier in SKILL.md, and serves its purpose
-//      better. That rule exists so one lens cannot colour how the next is
+//      better. That rule exists so one lens cannot color how the next is
 //      read. A script is not a reasoning entity, so it cannot be anchored by
 //      reading stage one before stage two, and results pass between stages
 //      without entering anyone's context.

@@ -42,7 +42,7 @@ class TestModuleConstants:
 
     As a developer inspecting the hook
     I want constants to be correctly defined
-    So that runtime behaviour matches expectations.
+    So that runtime behavior matches expectations.
     """
 
     @pytest.mark.bdd
@@ -413,7 +413,7 @@ class TestErrorHandling:
         is valid JSON but not the expected dict shape.
         """
         # The hook does hook_input.get() which works on dict; list has no .get
-        # But list does have .get? No. Let's verify the behaviour.
+        # But list does have .get? No. Let's verify the behavior.
         # Actually list does NOT have .get, so this will raise AttributeError.
         # The hook's except only catches (OSError, json.JSONDecodeError).
         # So this would be an unhandled error: let's verify.
@@ -474,7 +474,7 @@ class TestTheFullPolicyIsReservedForRiskyBranches:
 
         An untouched branch is the case worth naming: no tests have been
         touched there either, and treating that as risk would fire the
-        full block on every fresh session, which is the behaviour this
+        full block on every fresh session, which is the behavior this
         replaces.
         """
         assert needs_full_policy(changed, tests_touched=tests_touched) is expect_full

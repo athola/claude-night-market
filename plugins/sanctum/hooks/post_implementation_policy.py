@@ -155,7 +155,7 @@ def needs_full_policy(changed_lines: int, *, tests_touched: bool) -> bool:
 
     A branch with nothing on it is the case worth naming: no tests have
     been touched there either, and reading that as risk would fire the
-    full block on every fresh session, which is the behaviour this
+    full block on every fresh session, which is the behavior this
     replaces.
     """
     if changed_lines == 0:

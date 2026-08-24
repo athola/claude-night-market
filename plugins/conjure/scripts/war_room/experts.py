@@ -138,7 +138,7 @@ def active_panel(panel: list[str]) -> list[str]:
     through the Haiku fallback, so an uninstalled provider adds duplicate
     ballots to the Borda count. Gating keeps opt-in providers from changing
     a deliberation for users who never installed them. Established experts
-    are unaffected; their fallback behaviour is unchanged.
+    are unaffected; their fallback behavior is unchanged.
     """
     active: list[str] = []
     for key in panel:

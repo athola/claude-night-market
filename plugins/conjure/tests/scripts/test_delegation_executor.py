@@ -1921,7 +1921,7 @@ class TestTheProviderChainRunsToExhaustion:
         WHEN smart_delegate runs
         THEN the second provider is tried and its answer is returned
 
-        The behaviour the opt-out default depends on: with delegation on
+        The behavior the opt-out default depends on: with delegation on
         for every eligible task, a provider that is merely installed
         should not be able to sink the task on its own.
         """

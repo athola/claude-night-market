@@ -263,7 +263,7 @@ def _apply_overrides(
 
     Every field the config file does not mention keeps the value it
     already had, so a partial override cannot reset the CLI contract.
-    An unrecognised field name raises rather than being ignored, matching
+    An unrecognized field name raises rather than being ignored, matching
     the new-service branch (CJR-003: config load must not swallow
     unexpected errors).
     """

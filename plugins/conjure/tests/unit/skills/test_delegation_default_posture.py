@@ -5,7 +5,7 @@ Feature: Delegation By Default
   I want every workflow that reaches execution work to delegate it
   So that installed CLIs are used without anyone remembering to ask
 
-The executor's behaviour has its own tests. What those cannot catch is
+The executor's behavior has its own tests. What those cannot catch is
 the posture being reverted in the text a session actually reads: a
 `When To Use` list restored to delegation-core, or the size threshold
 put back into task-assessment, would turn delegation opt-in again with

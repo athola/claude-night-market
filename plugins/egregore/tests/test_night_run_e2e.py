@@ -60,7 +60,7 @@ if "T1" in prompt:
 elif "T2" in prompt:
     snippet = "\\n\\ndef mul(a, b):\\n    return a * b\\n"
 else:
-    print("no task recognised")
+    print("no task recognized")
     sys.exit(1)
 target = pathlib.Path("calc.py")
 target.write_text(target.read_text() + snippet)

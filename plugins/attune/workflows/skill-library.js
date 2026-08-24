@@ -71,7 +71,7 @@ const LENSES = [
   {
     key: 'accuracy',
     brief:
-      'Check every claim against the repository. A cited path that does not resolve, a command that does not exist, or a described behaviour the code does not have is blocking.',
+      'Check every claim against the repository. A cited path that does not resolve, a command that does not exist, or a described behavior the code does not have is blocking.',
   },
   {
     key: 'economy',

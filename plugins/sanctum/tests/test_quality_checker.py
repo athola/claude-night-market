@@ -1088,11 +1088,11 @@ def test_dynamic_validation_runs_without_python_on_path(tmp_path):
 
 def _many_tests_file(tmp_path: Path, count: int, *, bdd: int = 0) -> Path:
     """Write a file of documented, well-asserted tests, `bdd` of them BDD-style."""
-    parts = ['"""Module of behaviour tests."""\n', "import pytest\n\n"]
+    parts = ['"""Module of behavior tests."""\n', "import pytest\n\n"]
     for i in range(count):
         if i < bdd:
             doc = (
-                f'    """Behaviour {i}.\n\n'
+                f'    """Behavior {i}.\n\n'
                 "    GIVEN a prepared value\n"
                 "    WHEN it is doubled\n"
                 "    THEN the result matches the expected product\n"
@@ -1101,7 +1101,7 @@ def _many_tests_file(tmp_path: Path, count: int, *, bdd: int = 0) -> Path:
         else:
             doc = f'    """Doubling {i} produces the expected product."""\n'
         parts.append(
-            f"def test_behaviour_{i}_doubles_its_input():\n{doc}    assert {i} * 2 == {i * 2}\n\n"
+            f"def test_behavior_{i}_doubles_its_input():\n{doc}    assert {i} * 2 == {i * 2}\n\n"
         )
     p = tmp_path / "test_many.py"
     p.write_text("".join(parts))
