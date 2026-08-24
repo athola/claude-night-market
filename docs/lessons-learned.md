@@ -17,6 +17,7 @@ so the team replicates what worked and avoids what did not.
 | LL-002 | open | A commit that creates a discussion and one that fixes it are the same shape to the reconciler | 2026-08-06 |
 | LL-003 | open | A completeness score measured a different gap than the one I was closing | 2026-08-22 |
 | LL-004 | open | Dogfooding priced a loop the test suite could not reach | 2026-08-23 |
+| LL-005 | open | A guard I wrote to catch a defect reproduced it, and only the revert-test noticed | 2026-08-24 |
 
 ## Lessons
 
@@ -186,3 +187,40 @@ does this automatically; this block is the fallback for hand-editing.
 
 - Action: <specific change> -- Owner: <name> -- Due: <date> -- Status: <...>
 -->
+
+## LL-005: A guard I wrote to catch a defect reproduced it, and only the revert-test noticed
+
+- Status: open
+- Date: 2026-08-24
+- Phase: review
+- Category: testing
+- Owner: night-market maintainers
+- Links: 100e045a, aaa42cf5, PR #662
+
+### What happened
+
+Cycle 3 of #662 closed 43 review findings. Several were of the form "this behavior is pinned by no test", so the fix was a new guard. Twice the guard I wrote had the same defect as the code it was guarding, and passed.
+
+NB32 asked for per-lane coverage of a scan, because one global total could be satisfied by a single lane. My replacement parametrized over the lanes and globbed each pattern off the filesystem, so it measured the world rather than the scanner. Deleting two lanes from `INVOCATION_GLOBS` left it green.
+
+NB40 asked for a login hint to stop being selected by a substring over prose. My test constructed the auth-unknown case, which `doctor_lines` handles in an earlier arm that prints the hint and returns. The test passed through code my change never touched.
+
+### What went well / where we got lucky
+
+Nothing about the passing suite distinguished either guard from a real one. The revert-test did, both times, at a cost of about a minute each: restore the old code, run the test, watch it stay green. Adopting revert-testing as a per-finding step rather than a per-cycle summary is what made the failures visible while the context was still loaded.
+
+Probing installed binaries rather than inferring flags also paid: `ollama run --help` has no `--model`, which turned a cosmetic consistency fix into a latent bug fix.
+
+### What did not work
+
+Writing the guard and reading it back. Both guards looked right, named the right thing, and asserted something true. The assertion was true for a reason unrelated to the change.
+
+### Root cause
+
+A test written immediately after a fix is written against the author's model of the code, and the model is what was wrong in the first place. Green is not evidence. The only evidence a guard is load-bearing is that it goes red when its subject is removed. The two guards that failed this way were both cases where the code under test had a structure I had not fully read: a parametrized helper that took its data from the filesystem, and a function with an early `continue`.
+
+### Recommendation / action item
+
+- Action: revert-test every new guard individually before reporting it, not as a batch at the end of the cycle (done this cycle) -- Owner: night-market maintainers -- Due: 2026-08-24 -- Status: done
+- Action: when a revert leaves a new test green, read the function's control flow before rewriting the test. Both misses here were an unread branch rather than a bad assertion -- Owner: night-market maintainers -- Due: ongoing -- Status: open
+- Action: prefer probing an installed binary over inferring a CLI contract, and record the probe output in the comment that states the default -- Owner: conjure maintainers -- Due: ongoing -- Status: open
