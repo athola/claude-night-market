@@ -62,16 +62,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Four tests asserted on whatever the machine happened to have.**
+- **Nine tests asserted on whatever the machine happened to have.**
   Two in attune mocked `sync_language_templates` but not
   `check_reference_projects`, so `main()` exited 1 unless
   `~/simple-resume` and `~/skrills` existed; both mocks together make
-  the assertion about argument routing deterministic. Two in conjure
-  assert on how an *installed* cli-auth provider renders and had a bare
-  `assert`, which failed rather than skipped where `mmx` was absent.
-  Four more in pensive shell out to `shellcheck` and `shfmt`; they are
-  the repository's only automated shell gate, so the new CI job installs
-  both rather than letting them skip there.
+  the assertion about argument routing deterministic. Three in conjure
+  assert on how an *installed* provider renders and had a bare `assert`,
+  which failed rather than skipped where the CLI was absent. Four in
+  pensive shell out to `shellcheck` and `shfmt`; they are the
+  repository's only automated shell gate, so the CI job installs both
+  rather than letting them skip there, and installs ripgrep for the
+  pattern-detection tests in the same file, which fail outright without
+  it.
+
+  A sweep with `HOME` pointed at an empty directory found the first six.
+  The first CI run found the rest, including one that no local run can
+  reproduce: `uv run` installs a PEP 735 `[dependency-groups] dev` by
+  default but not a `[project.optional-dependencies] dev`, and leyline
+  and phantom declare pytest only in the second form. Their jobs died on
+  "No module named pytest" while passing locally, where a repo-root
+  `.venv` already carried pytest from an earlier run. The workflow
+  passes `--all-extras` to cover both conventions.
 
 - **The night-run scope fence documents the wider read it now does.**
   The `night_run.py` module docstring said step 2 reads "the changed
