@@ -1,6 +1,6 @@
 ---
 name: minimax-delegation
-description: Delegates tasks to the MiniMax CLI via delegation-core for MiniMax-M3 and MiniMax-M2.7. Use when delegation-core selects MiniMax or large-context batch processing is needed.
+description: Delegates tasks to MiniMax CLI via delegation-core for MiniMax-M3 and M2.7. Use when delegation-core selects MiniMax or large-context batching is needed.
 alwaysApply: false
 category: delegation-implementation
 tags:
