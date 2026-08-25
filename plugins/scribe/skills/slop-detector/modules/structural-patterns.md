@@ -447,6 +447,88 @@ isn't, then what it does.
 | "The API is clear, not clever." | "The API is clear." (drop the corrective tail) |
 | "We use Python, not Java." | "We use Python instead of Java." (keep the contrast, drop the negation) |
 
+## Negative Framing (Litotes, Vacuous Negation, Negative Definition)
+
+Negative parallelism above is a scaffold: *not X, but Y*. This is a
+different failure, and it has three shapes plus a document-level
+measure. All four mirror `data/languages/en.yaml`; change one, change
+the other, and run `pytest tests/test_slop_patterns.py
+tests/test_negation_density.py`.
+
+### Litotes (double negation)
+
+`tier5.litotes`. Score 2, high confidence, on by default. Two
+negations to say one positive thing costs the reader a step and buys
+nothing, and the positive form always exists, so these are safe to
+rewrite rather than merely surface.
+
+| Slop | Rewrite |
+|------|---------|
+| "This failure is not uncommon" | "This failure is common" or give the rate |
+| "The syntax is not unlike Python" | "The syntax resembles Python" |
+| "The cost is not insignificant" | "The cost is 40ms per call" |
+| "It never fails to surface the bug" | "It surfaces the bug every time" |
+| "The argument is not without merit" | "The argument has merit" |
+
+The stems are enumerated in the YAML rather than matched with
+`not\s+(?:un|in)\w+`. The general form fires on "not until", "not
+inside", "not intended" and "not include", which are ordinary prose.
+
+### Vacuous negation
+
+`tier5.vacuous_negation`. Score 2, high confidence, on by default.
+Negation clichés that claim weight and supply none. The test is
+deletion: if the sentence says the same thing without the phrase, the
+phrase was filler.
+
+| Slop | Rewrite |
+|------|---------|
+| "The importance cannot be overstated" | State the consequence, or delete |
+| "The risk is not to be underestimated" | Name the risk and its size |
+| "It goes without saying that X" | "X" |
+| "Needless to say, Y" | "Y" |
+| "Shipping this was no small feat" | Say what made it hard |
+
+Negation carrying a fact is left alone: "the hook cannot reach the
+registry, so it warns" is a mechanism, not a cliché.
+
+### Negative definition (opt-in)
+
+`tier5.negative_definition`. Score 1, low confidence,
+`default_enabled: false`. Behavior described only by what it will not
+do leaves the reader to infer the rest.
+
+| Slop | Rewrite |
+|------|---------|
+| "The parser doesn't handle nested blocks" | "The parser accepts flat blocks" |
+| "The exporter does not support CSV" | "The exporter emits JSON and Parquet" |
+| "The daemon is unable to recover" | "The daemon requires a clean restart" |
+
+This one stays gated off for the same reason as
+`anthropomorphism_low`: precise negation is how contracts,
+invariants and trust boundaries are correctly written, and a rule file
+built out of "do not use for", "must not" and "never" is doing its
+job. A default-on version buries one real finding under hundreds of
+correct sentences. Enable it when auditing reference documentation,
+where negative definition is a genuine tell. Surface every hit for a
+human to judge; never auto-rewrite. Prohibitions, invariants, and a
+bare "cannot" carrying a fact are deliberately unmatched.
+
+### Density (the "overly relies" measure)
+
+`scribe.negation.check_negation_density`. A regex counts instances and
+cannot measure over-reliance, which is a property of the page: a
+document where most sentences say what something will not do reads as
+evasive even when every sentence is correct.
+
+The check splits prose into sentences, drops fenced and inline code,
+and reports the share carrying a negation marker against an advisory
+bar of 35%, with a floor of 8 sentences because a ratio over a handful
+of sentences describes the sample rather than the writing. The finding
+carries its own arithmetic so a reader can check it without rerunning.
+
+Advisory only. Never gate a merge on it.
+
 ## Contrastive Parallelism (Affirmative Antithesis)
 
 The affirmative sibling of contrastive negation: two parallel
@@ -821,6 +903,13 @@ def structural_score(metrics):
         score += 2
     if metrics.get("negative_parallelism_count", 0) >= 1:
         score += 3
+    if metrics.get("litotes_count", 0) >= 1:
+        score += 2
+    if metrics.get("vacuous_negation_count", 0) >= 1:
+        score += 2
+    # negative_definition and negation density are surfaced, not scored:
+    # one is opt-in and low confidence, the other is a document-level
+    # reading rather than a per-instance finding.
     # Affirmative antithesis: comparative form scores; judgment-level
     # matches (subject-swap, chiasmus) are surfaced, not scored.
     if metrics.get("contrastive_parallelism_count", 0) >= 1:

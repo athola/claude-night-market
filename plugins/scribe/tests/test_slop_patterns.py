@@ -46,6 +46,22 @@ def _category_hits(name: str, text: str) -> int:
     return sum(len(p.findall(text)) for p in _compile_category(name))
 
 
+def _tier5_category_including_optional(name: str) -> dict:
+    """Return one Tier 5 category, including the opt-in ones."""
+    patterns = load_language_patterns("en")
+    for entry in get_tier5_patterns(patterns, include_optional=True):
+        if entry["category"] == name:
+            return entry
+    raise AssertionError(f"tier5 category not found in runtime source: {name}")
+
+
+def _category_hits_including_optional(name: str, text: str) -> int:
+    """Total matches for a category that may be gated off by default."""
+    entry = _tier5_category_including_optional(name)
+    flags = re.IGNORECASE if entry.get("ignore_case") else 0
+    return sum(len(re.compile(p, flags).findall(text)) for p in entry["patterns"])
+
+
 class TestTier1VocabularyPatterns:
     """Feature: Detect highest-confidence AI slop words.
 
@@ -1508,3 +1524,185 @@ class TestSTEPassiveVoice:
     @pytest.mark.unit
     def test_active_voice_passes(self) -> None:
         assert _ste_hits(self.CATEGORY, "The daemon executes the migration.") == 0
+
+
+class TestTier5Litotes:
+    """Feature: Detect double negation used where a positive form exists.
+
+    "not uncommon", "not unlike", "never fails to" say a positive thing
+    through two negations, which costs the reader a step and buys
+    nothing. The positive form always exists, so these are safe to
+    rewrite rather than merely surface.
+
+    Sourced from data/languages/en.yaml section tier5.litotes.
+    """
+
+    CATEGORY = "litotes"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: Litotes findings are high-confidence."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+
+    @pytest.mark.unit
+    def test_category_is_enabled_by_default(self) -> None:
+        """Scenario: The positive rewrite is unambiguous, so it runs by default."""
+        assert _tier5_category(self.CATEGORY)["default_enabled"] is True
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "This failure mode is not uncommon in production.",
+            "The syntax is not unlike Python's.",
+            "The change is not unreasonable.",
+            "The cost is not insignificant.",
+            "It never fails to surface the same bug.",
+            "The argument is not without merit.",
+        ],
+    )
+    def test_detects_double_negation(self, text: str) -> None:
+        """Scenario: A negated negative is flagged for positive rewrite."""
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The key was not until 2.1.85 recognized by the harness.",
+            "The gate does not sit in the matcher group.",
+            "The value is not inside the cache file.",
+            "This does not include the hook subset.",
+            "The estimate is not intended to be exact.",
+        ],
+    )
+    def test_plain_negation_is_not_litotes(self, text: str) -> None:
+        """Guard: 'not' before a word starting un-/in- is not double negation.
+
+        A stem list rather than a bare ``not\\s+(?:un|in)\\w+`` is what
+        keeps "not until", "not inside" and "not include" out. Those
+        three appear throughout this repository's own prose.
+        """
+        assert _category_hits(self.CATEGORY, text) == 0
+
+
+class TestTier5VacuousNegation:
+    """Feature: Detect negation clichés that assert importance and stop.
+
+    "cannot be overstated" and "it goes without saying" are filler in
+    negative dress: they claim weight without supplying any, and the
+    sentence reads the same with them deleted.
+
+    Sourced from data/languages/en.yaml section tier5.vacuous_negation.
+    """
+
+    CATEGORY = "vacuous_negation"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: Vacuous-negation findings are high-confidence."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The importance of this cannot be overstated.",
+            "Its value cannot be overemphasized.",
+            "The risk is not to be underestimated.",
+            "It goes without saying that tests matter.",
+            "Needless to say, the build broke.",
+            "Shipping this was no small feat.",
+            "It is not hard to see why this fails.",
+        ],
+    )
+    def test_detects_vacuous_negation(self, text: str) -> None:
+        """Scenario: A negation cliché carrying no information is flagged."""
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The estimate cannot be verified from this machine.",
+            "The hook cannot reach the registry, so it warns.",
+            "This claim is not supported by the measurement.",
+        ],
+    )
+    def test_substantive_negation_passes(self, text: str) -> None:
+        """Guard: negation that carries a real fact is not the cliché."""
+        assert _category_hits(self.CATEGORY, text) == 0
+
+
+class TestTier5NegativeDefinition:
+    """Feature: Surface behavior described only by what it will not do.
+
+    "the parser doesn't handle nested blocks" leaves the reader to infer
+    what it does handle. The positive form is usually shorter and always
+    more useful.
+
+    This is the category that must stay opt-in. Precise negation is how
+    contracts, invariants and trust boundaries are correctly written,
+    and this repository's own rule files are built out of "do not use
+    for", "must not", and "never". A default-on version would bury a
+    real finding under hundreds of correct sentences, which is the
+    failure mode ``anthropomorphism_low`` was gated off for.
+
+    Sourced from data/languages/en.yaml section tier5.negative_definition.
+    """
+
+    CATEGORY = "negative_definition"
+
+    @pytest.mark.unit
+    def test_category_is_opt_in(self) -> None:
+        """Scenario: The category stays out of a default sweep."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["default_enabled"] is False
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: Hits are surfaced for judgment, never auto-rewritten."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_default_sweep_excludes_the_category(self) -> None:
+        """Scenario: A routine run does not load it."""
+        patterns = load_language_patterns("en")
+        default_categories = {
+            entry["category"] for entry in get_tier5_patterns(patterns)
+        }
+        assert self.CATEGORY not in default_categories
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The parser doesn't handle nested blocks.",
+            "The exporter does not support CSV.",
+            "The daemon is unable to recover from a partial write.",
+            "The probe fails to detect a stale session.",
+            "This helper cannot handle Unicode paths.",
+        ],
+    )
+    def test_detects_negative_definition(self, text: str) -> None:
+        """Scenario: Capability stated only in the negative is surfaced."""
+        assert _category_hits_including_optional(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The write must not follow a symlink.",
+            "Do not use this for ops; use night-market-operations.",
+            "The hook never gates anything when the key is misplaced.",
+        ],
+    )
+    def test_imperative_and_invariant_negation_passes(self, text: str) -> None:
+        """Guard: prohibitions and invariants are precision, not slop.
+
+        These three shapes carry the repository's trust boundaries. A
+        pattern that caught them would make the category unusable even
+        as an opt-in.
+        """
+        assert _category_hits_including_optional(self.CATEGORY, text) == 0

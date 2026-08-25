@@ -196,6 +196,70 @@ tier5:
       # "clear, not clever." Genuine either/or choices are slop too;
       # rewrite as "Y instead of X".
       - '\b\w+,\s+not\s+(?:just\s+|a\s+|an\s+|the\s+)?\w+[.!?]'
+  litotes:
+    # Double negation where a positive form exists: "not uncommon",
+    # "not unlike", "never fails to". Two negations to say one positive
+    # thing costs the reader a step and buys nothing, so unlike the
+    # negation categories below this one is safe to rewrite rather than
+    # merely surface.
+    #
+    # The stems are enumerated on purpose. A bare `not\s+(?:un|in)\w+`
+    # fires on "not until", "not inside", "not intended" and "not
+    # include", all of which are ordinary prose and all of which appear
+    # throughout this repository.
+    score: 2
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\bnot\s+un(?:common|like|usual|important|reasonable|clear|related|helpful|welcome|expected|aware|willing|able|necessary|fair|true|kind|familiar)\b'
+      - '\bnot\s+in(?:significant|frequent|accurate|correct|considerable|expensive|valid|capable|conceivable|elegant)\b'
+      - '\bnever\s+fails?\s+to\b'
+      - '\bnot\s+without\s+(?:merit|precedent|risk|cost|value|some|its)\b'
+  vacuous_negation:
+    # Negation clichés that claim weight and supply none. Deleting the
+    # phrase leaves the sentence saying exactly what it said before,
+    # which is the test for filler. "cannot be overstated" is the
+    # canonical one: it asserts importance in place of evidence.
+    #
+    # Distinct from negation that carries a fact ("the hook cannot
+    # reach the registry"), which these patterns leave alone.
+    score: 2
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\bcannot\s+be\s+over(?:stated|emphasi[sz]ed|estimated)\b'
+      - '\bnot\s+to\s+be\s+(?:underestimated|overlooked|understated|missed)\b'
+      - '\bit\s+goes\s+without\s+saying\b'
+      - '\bneedless\s+to\s+say\b'
+      - '\bno\s+small\s+(?:feat|task|thing|matter)\b'
+      - '\bit(?:\s+is|''s)\s+not\s+hard\s+to\s+see\b'
+  negative_definition:
+    # Behavior described only by what it will not do: "the parser
+    # doesn't handle nested blocks", "the exporter does not support
+    # CSV". The positive form is usually shorter and always more
+    # useful, because it tells the reader what to do next.
+    #
+    # Gated off by default, and low confidence when enabled, for the
+    # same reason as anthropomorphism_low. Precise negation is how
+    # contracts, invariants and trust boundaries are correctly
+    # written, and this repository's rule files are built out of "do
+    # not use for", "must not" and "never". A default-on version would
+    # bury a real finding under hundreds of correct sentences.
+    #
+    # Enable it when auditing reference documentation, where negative
+    # definition is a genuine tell, rather than on a routine sweep.
+    # Surface every hit for a human to judge; never auto-rewrite.
+    # Prohibitions ("must not", "do not"), invariants ("never gates")
+    # and bare "cannot" carrying a fact are deliberately not matched.
+    score: 1
+    confidence: low
+    ignore_case: true
+    default_enabled: false
+    patterns:
+      - '\b(?:does\s+not|doesn''t)\s+(?:support|handle|accept|allow|provide|implement|cover|expose|understand|recogni[sz]e)\b'
+      - '\b(?:is|are|was|were)\s+unable\s+to\b'
+      - '\bfails?\s+to\s+(?:detect|handle|support|provide|recogni[sz]e|resolve|parse|account)\b'
+      - '\bcannot\s+(?:handle|support|parse|resolve|represent|express|accommodate)\b'
   contrastive_parallelism:
     score: 2
     confidence: low

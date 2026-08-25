@@ -216,6 +216,27 @@ ever apply to this repo.
   "And that's okay." Positively state Y; drop the X half. The
   copula-led trailing form is the one that survives casual
   proofreading because the opener reads as a plain definition.
+- **Negative framing**: three shapes and a measure, all in
+  `tier5`. **Litotes** (`not uncommon`, `not unlike`, `never fails
+  to`, `not without merit`) says a positive thing through two
+  negations; rewrite positively, high confidence. **Vacuous negation**
+  (`cannot be overstated`, `not to be underestimated`, `it goes
+  without saying`, `needless to say`, `no small feat`) claims weight
+  and supplies none; delete it or state the consequence, high
+  confidence. **Negative definition** (`doesn't handle X`, `does not
+  support Y`, `is unable to`) describes behavior only as absence;
+  rewrite to what the thing does. That third one is
+  `default_enabled: false` and low confidence on purpose: precise
+  negation is how contracts, invariants and trust boundaries are
+  written, and these rule files are built out of "do not use for",
+  "must not" and "never". Enable it for a documentation audit, surface
+  every hit, and never auto-rewrite. Prohibitions and invariants are
+  deliberately unmatched.
+
+  For over-reliance rather than instances, `scribe.negation`
+  `check_negation_density` reports the share of sentences carrying a
+  negation marker against an advisory 35% bar, with an 8-sentence
+  floor. It is a prompt to reread, never a merge gate.
 - **Contrastive parallelism (affirmative antithesis)**: the
   same scaffold without a "not" anchor. Rewrite "Less X,
   more Y", "Where others X, we Y", subject-swap clauses
