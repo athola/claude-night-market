@@ -5,6 +5,7 @@
   "skills": [
     "./skills/delegation-core",
     "./skills/gemini-delegation",
+    "./skills/minimax-delegation",
     "./skills/qwen-delegation",
     "./skills/agent-teams"
   ],
@@ -24,5 +25,7 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"]
+  "dependencies": [
+    "leyline"
+  ]
 }

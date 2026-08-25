@@ -118,6 +118,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `metacognitive-self-mod` | [abstract](../plugins/abstract.md) | Hyperagents self-improvement analysis |
 | `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |
+| `minimax-delegation` | [conjure](../plugins/conjure.md) | MiniMax CLI integration |
 | `mission-orchestrator` | [attune](../plugins/attune.md) | Unified lifecycle orchestrator for project development |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
 | `onboard` | [gauntlet](../plugins/gauntlet.md) | Guided five-stage onboarding path through a codebase |
