@@ -415,7 +415,12 @@ class TestCliManagedAuthIsNotOverclaimed:
             for name, service in delegator.services.items()
             if service.auth_method == "api_key" and states[name].installed
         ]
-        assert checked, "registry has no installed api_key provider to check"
+        if not checked:
+            # Same machine dependence as the two cli-auth tests above: the
+            # claim is about how an installed api_key provider renders, so
+            # a runner with no provider CLI has nothing to assert against.
+            pytest.skip("no installed api_key provider on this machine")
+
         for name in checked:
             assert states[name].authenticated is True
 

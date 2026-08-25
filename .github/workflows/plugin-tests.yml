@@ -19,6 +19,13 @@ name: Plugin Tests (per-plugin suites)
 #     two plugins (archetypes, cartograph) do not depend on pytest-cov
 #     at all, so passing `--no-cov` globally is an error rather than an
 #     optimization.
+#   - `--all-extras` is required. `uv run` installs a PEP 735
+#     `[dependency-groups] dev` by default but not a
+#     `[project.optional-dependencies] dev`, and this repository uses
+#     both conventions. leyline and phantom declare pytest only in the
+#     latter, so without the flag their jobs die on "No module named
+#     pytest" -- which does not reproduce locally, where a repo-root
+#     `.venv` already has pytest from some earlier run.
 #
 # The matrix is discovered rather than listed. A static list would need
 # its own gate to stay in step with the directory tree, which is the
@@ -91,19 +98,22 @@ jobs:
         uses: astral-sh/setup-uv@v10.0.1
 
       # pensive's shell-review suite is the only automated shellcheck and
-      # shfmt gate in the repository. Both tests skip when the tool is
-      # absent, so without this step they would quietly stop asserting.
+      # shfmt gate in the repository, and its pattern-detection tests
+      # shell out to ripgrep. The first two skip when the tool is absent,
+      # so without this step they would quietly stop asserting; the
+      # ripgrep ones fail outright, which is how the runner found them.
       - name: Install shell tooling
         if: matrix.plugin == 'pensive'
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck
+          sudo apt-get install -y shellcheck ripgrep
           curl -fsSL -o /tmp/shfmt \
             https://github.com/mvdan/sh/releases/download/v3.10.0/shfmt_v3.10.0_linux_amd64
           sudo install -m 0755 /tmp/shfmt /usr/local/bin/shfmt
           shellcheck --version
           shfmt --version
+          rg --version
 
       - name: Run the plugin suite
         working-directory: plugins/${{ matrix.plugin }}
-        run: uv run python -m pytest tests/ -q --tb=short
+        run: uv run --all-extras python -m pytest tests/ -q --tb=short

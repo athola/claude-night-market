@@ -95,6 +95,19 @@ def test_each_suite_runs_from_its_plugin_directory(pytest_step: dict) -> None:
     )
 
 
+def test_optional_dependency_extras_are_installed(pytest_step: dict) -> None:
+    """`uv run` skips optional-dependencies, and two plugins keep pytest there.
+
+    A PEP 735 `[dependency-groups] dev` is installed by default; a
+    `[project.optional-dependencies] dev` is not. leyline and phantom use
+    the second form, so without `--all-extras` their jobs die on "No
+    module named pytest". It does not reproduce locally, where a
+    repo-root `.venv` already carries pytest from an earlier run, which
+    is why the first CI run is what found it.
+    """
+    assert "--all-extras" in pytest_step["run"]
+
+
 def test_coverage_is_not_disabled(pytest_step: dict) -> None:
     assert "--no-cov" not in pytest_step["run"], (
         "archetypes and cartograph do not depend on pytest-cov, so --no-cov "
