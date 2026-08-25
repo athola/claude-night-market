@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **CI runs every plugin's own test suite.** No workflow did.
+  `ecosystem-tests.yml` runs the root `tests/` suite and
+  `python39-compat.yml` runs the hook subset for hook-registering
+  plugins, so roughly 13,900 tests across 23 plugin suites were gated
+  only by the pre-commit hook on a contributor's machine -- the same
+  hook that, until this branch, reported failure without running
+  anything for any plugin with no coverage threshold.
+  `plugin-tests.yml` discovers the matrix from `plugins/*/tests` rather
+  than listing it, runs each suite from its own plugin directory
+  because several resolve imports against their own pyproject, and
+  leaves coverage on because two plugins do not depend on pytest-cov at
+  all. `tests/test_ci_runs_plugin_suites.py` pins those three
+  properties and the `plugins/**` path filter.
+
 - **A fourth ratchet, on the wrap rule nothing had ever checked.**
   `.claude/rules/markdown-formatting.md` requires prose to wrap at 80
   columns and says so for every document in the codebase, plugin READMEs
@@ -47,6 +61,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   unreadable document can otherwise absorb a real rise elsewhere.
 
 ### Fixed
+
+- **Four tests asserted on whatever the machine happened to have.**
+  Two in attune mocked `sync_language_templates` but not
+  `check_reference_projects`, so `main()` exited 1 unless
+  `~/simple-resume` and `~/skrills` existed; both mocks together make
+  the assertion about argument routing deterministic. Two in conjure
+  assert on how an *installed* cli-auth provider renders and had a bare
+  `assert`, which failed rather than skipped where `mmx` was absent.
+  Four more in pensive shell out to `shellcheck` and `shfmt`; they are
+  the repository's only automated shell gate, so the new CI job installs
+  both rather than letting them skip there.
 
 - **The night-run scope fence documents the wider read it now does.**
   The `night_run.py` module docstring said step 2 reads "the changed

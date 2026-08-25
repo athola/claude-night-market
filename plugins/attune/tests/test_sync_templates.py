@@ -469,11 +469,19 @@ class TestMain:
                 main()
             assert excinfo.value.code == 1
 
+    # `main()` re-checks availability after syncing and exits 1 when the
+    # reference project is absent, so mocking only the sync leaves these
+    # two depending on ~/simple-resume and ~/skrills existing on the
+    # machine running them. They passed for whoever had those checkouts
+    # and failed everywhere else, CI included. Both mocks together are
+    # what makes the assertion about argument routing deterministic.
+    @patch("sync_templates.TemplateSynchronizer.check_reference_projects")
     @patch("sync_templates.TemplateSynchronizer.sync_language_templates")
-    def test_main_syncs_specific_language(self, mock_sync_lang):
+    def test_main_syncs_specific_language(self, mock_sync_lang, mock_check_refs):
         """Given --language flag, when running main, then syncs that language."""
         # Given
         mock_sync_lang.return_value = []
+        mock_check_refs.return_value = {"python": True, "rust": True}
         with patch(
             "sys.argv", ["sync_templates.py", "--language", "python", "--dry-run"]
         ):
@@ -484,11 +492,13 @@ class TestMain:
             mock_sync_lang.assert_called_once()
             assert mock_sync_lang.call_args[0][0] == "python"
 
+    @patch("sync_templates.TemplateSynchronizer.check_reference_projects")
     @patch("sync_templates.TemplateSynchronizer.sync_language_templates")
-    def test_main_passes_force_flag(self, mock_sync_lang):
+    def test_main_passes_force_flag(self, mock_sync_lang, mock_check_refs):
         """Given --force flag, when running main, then passes force=True."""
         # Given
         mock_sync_lang.return_value = []
+        mock_check_refs.return_value = {"python": True, "rust": True}
         with patch("sys.argv", ["sync_templates.py", "-l", "python", "-f"]):
             # When
             main()

@@ -292,7 +292,14 @@ class TestCliManagedAuthIsNotOverclaimed:
             for name, service in delegator.services.items()
             if service.auth_method == "cli" and states[name].installed
         ]
-        assert cli_managed, "registry has no installed cli-auth provider to check"
+        if not cli_managed:
+            # The claim under test is about how an *installed* cli-auth
+            # provider is rendered, so there is nothing to render without
+            # one. This was a bare assert, which made the test a function
+            # of which CLIs the machine happened to have: green on a
+            # developer box with mmx, red on every CI runner and on any
+            # contributor who had not installed it.
+            pytest.skip("no installed cli-auth provider on this machine")
 
         rendered = render_status(probe_all(delegator))
         for name in cli_managed:
@@ -420,6 +427,13 @@ class TestCliManagedAuthIsNotOverclaimed:
         THEN the recorded command appears, and none is invented
         """
         delegator = Delegator()
+        states = {state.name: state for state in probe_all(delegator)}
+        if not states["minimax"].installed:
+            # doctor only names a login command for a provider it found,
+            # so this asserts nothing when mmx is absent. Same machine
+            # dependence as the status-table test above.
+            pytest.skip("mmx is not installed on this machine")
+
         lines = "\n".join(doctor_lines(probe_all(delegator)))
         assert "mmx auth login" in lines
 
