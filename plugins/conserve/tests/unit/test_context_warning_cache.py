@@ -146,3 +146,58 @@ class TestEstimateIsCachedWithinTheWindow:
 
         assert module.estimate_context_from_session() == spy.value
         assert spy.calls == 2
+
+
+class TestCachePathIsNotFollowedThroughASymlink:
+    """Feature: a planted symlink cannot redirect the cache write.
+
+    The cache path is derived from the transcript path, so it is
+    predictable to anyone who can read the projects directory. A
+    truncating write onto a symlink at that path lands on the target
+    instead (CWE-59). imbue keeps the same defense in
+    `hooks/shared/vow_utils.py` for its state files; conserve cannot
+    import across plugins, so it carries its own copy.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_write_refuses_a_symlinked_cache_path(
+        self, context_warning_full_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: the victim file is left untouched."""
+        module = context_warning_full_module
+        _fake_session(monkeypatch, tmp_path)
+        spy = _EstimatorSpy()
+        monkeypatch.setattr(module, "_estimate_from_recent_turns", spy)
+
+        victim = tmp_path / "victim.txt"
+        victim.write_text("do not clobber me")
+        state = tmp_path / "state"
+        state.mkdir(parents=True, exist_ok=True)
+        session_file = module._resolve_session_file()
+        module._cache_path(session_file).symlink_to(victim)
+
+        usage = module.estimate_context_from_session()
+
+        assert usage == spy.value
+        assert victim.read_text() == "do not clobber me"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_read_refuses_a_symlinked_cache_path(
+        self, context_warning_full_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: a planted symlink cannot feed the hook a value."""
+        module = context_warning_full_module
+        _fake_session(monkeypatch, tmp_path)
+        spy = _EstimatorSpy()
+        monkeypatch.setattr(module, "_estimate_from_recent_turns", spy)
+
+        planted = tmp_path / "planted.json"
+        planted.write_text('{"at": 9e9, "usage": 0.99}')
+        state = tmp_path / "state"
+        state.mkdir(parents=True, exist_ok=True)
+        session_file = module._resolve_session_file()
+        module._cache_path(session_file).symlink_to(planted)
+
+        assert module.estimate_context_from_session() == spy.value

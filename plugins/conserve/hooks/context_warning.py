@@ -246,10 +246,33 @@ def _cache_path(session_file: Path) -> Path:
     return root / f"context-estimate-{key}.json"
 
 
+# The cache path is derived from the transcript path, so anyone who can
+# read the projects directory can predict it. O_NOFOLLOW makes open()
+# fail with ELOOP when the final component is a symlink, so a planted
+# link cannot redirect this hook's truncating write onto its target, nor
+# feed it a chosen number (CWE-59). imbue keeps the same defense in
+# hooks/shared/vow_utils.py; a plugin cannot import another's hooks, so
+# this is a deliberate second copy rather than a shared one.
+_O_NOFOLLOW = getattr(os, "O_NOFOLLOW", 0)
+
+
+def _open_cache(path: Path, flags: int) -> int:
+    """Open *path* refusing symlinks, and refuse a file we do not own."""
+    fd = os.open(str(path), flags | _O_NOFOLLOW, 0o600)
+    geteuid = getattr(os, "geteuid", None)
+    if geteuid is not None and os.fstat(fd).st_uid != geteuid():
+        os.close(fd)
+        msg = f"{path} is not owned by this user"
+        raise OSError(msg)
+    return fd
+
+
 def _read_cached_estimate(session_file: Path) -> float | None:
     """Return the cached estimate, or None if absent, stale or unreadable."""
     try:
-        payload = json.loads(_cache_path(session_file).read_text())
+        fd = _open_cache(_cache_path(session_file), os.O_RDONLY)
+        with os.fdopen(fd, encoding="utf-8") as fh:
+            payload = json.loads(fh.read())
         if time.time() - payload["at"] > _CACHE_TTL_SECONDS:
             return None
         usage = payload["usage"]
@@ -260,10 +283,11 @@ def _read_cached_estimate(session_file: Path) -> float | None:
 
 def _write_cached_estimate(session_file: Path, usage: float) -> None:
     """Record *usage* for the next call inside the window."""
+    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
     try:
-        _cache_path(session_file).write_text(
-            json.dumps({"at": time.time(), "usage": usage})
-        )
+        fd = _open_cache(_cache_path(session_file), flags)
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"at": time.time(), "usage": usage}))
     except OSError as e:
         # A cache we cannot write makes the hook slower, not wrong.
         logger.debug("Could not write context estimate cache: %s", e)
