@@ -23,6 +23,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `minimax-delegation` skill documents the global and China regional
   OpenAI- and Anthropic-compatible endpoints, model capabilities, and
   token pricing, and the Makefile exposes `make delegate-minimax`.
+
+### Fixed
+
+- **Hook `if` gates were on the wrong object and never ran.** Measured
+  on Claude Code 2.1.245: the harness reads `if` from the hook entry,
+  and the same key on the enclosing matcher group is dropped without an
+  error. Every `if` this repo shipped sat on the group, so gauntlet's
+  precommit gate, pensive's blast-radius hook and cartograph's graph
+  refresh spawned on every Bash call while their configs read as gated.
+  The keys moved into their entries, imbue's three `PreToolUse:Bash`
+  hooks gained gates now that the mechanism works, and
+  `scripts/check_hook_modernization.py` rejects both silent failure
+  modes: a misplaced key that never gates, and an array-valued `if`
+  that suppresses the hook outright with a matching rule present.
+- **A plugin with no coverage threshold reported failure having run
+  nothing.** bash 3.2, which macOS ships, treats an empty array as
+  unset, so `"${cov_flag[@]}"` under `set -u` aborted
+  `scripts/run-plugin-tests.sh` before pytest was invoked. bash 4+
+  expands the same line to nothing, so CI never reproduced it.
+- **The conserve context-estimate cache followed symlinks.** Its path
+  is derived from the transcript path and so is predictable; it now
+  opens with `O_NOFOLLOW` and refuses a file this user does not own
+  (CWE-59), matching the defense imbue keeps in
+  `hooks/shared/vow_utils.py`.
+
+### Changed
+
+- **Session start no longer injects three reference manuals.** Eight
+  plugins register `SessionStart`; three printed documentation totaling
+  9,973 of the 10,770 characters measured across the set, so every
+  session paid for guidance about work most sessions never did. The
+  payloads are now pointers into the skills that already held the
+  detail, down to 2,743 characters, and conserve stopped restating
+  imbue's scope-guard reference that every session paid for twice. A
+  per-payload budget test holds the line.
+- **The context monitor stopped re-reading the transcript per tool
+  call.** `conserve/context_warning.py` parsed up to 4MB of session
+  JSONL on every Write, Edit, Bash, Skill and Task. The alert bands are
+  40%, 50% and 80%, which no session crosses inside half a minute, so
+  the estimate is cached for 30 seconds.
+- **A prompt with no URL stopped paying for the memory-palace shared
+  package.** `url_detector.py` imported `shared.config` and
+  `shared.deduplication` at module scope, 100ms measured with
+  `-X importtime`, for names unreachable until a URL is found.
+  Deferring them takes the quiet path from 90ms to 40ms.
+
 ## [1.9.18] - 2026-08-12
 
 ### Added
