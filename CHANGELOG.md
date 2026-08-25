@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Slop detection for prose framed in the negative (scribe).** The
+  existing `negative_parallelism` catches a scaffold, "not X but Y".
+  Three new `tier5` categories catch writing that reaches for the
+  negative where a positive statement was available: `litotes` ("not
+  uncommon", "never fails to"), `vacuous_negation` ("cannot be
+  overstated", "needless to say") and `negative_definition` ("doesn't
+  handle X"). The first two are high confidence and on by default. The
+  third ships `default_enabled: false` and low confidence, because
+  precise negation is how contracts, invariants and trust boundaries
+  are written and a default-on version would bury one real finding
+  under hundreds of correct sentences.
+
+  Over-reliance is a property of a page rather than of any sentence, so
+  a regex cannot measure it. `scribe.negation.check_negation_density`
+  reports the share of sentences carrying a negation marker against an
+  advisory 35% bar, with an 8-sentence floor. It gates nothing.
+
+- **The CI slop gate reads the pattern source instead of a copy.**
+  `slop-check.yml` carried its own inline `TIER1=`/`TIER2=` grep
+  alternations, so it enforced a snapshot of
+  `plugins/scribe/data/languages/en.yaml`: every Tier 5 category added
+  since was invisible to CI, and a regex category cannot be written as
+  a word alternation at all. `scripts/slop_score.py` loads the YAML, so
+  a category added there reaches CI with no workflow edit. Only
+  high-confidence categories score, since the house rule says a low
+  confidence finding is surfaced for a human and never auto-applied;
+  the rest are listed under a heading that says they did not count.
+  `.slop-config.yaml` carries the project allowlist, and a test fails
+  any entry that does not state why the word is correct here.
+
 - **CI runs every plugin's own test suite.** No workflow did.
   `ecosystem-tests.yml` runs the root `tests/` suite and
   `python39-compat.yml` runs the hook subset for hook-registering

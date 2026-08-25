@@ -1,0 +1,14 @@
+# Slop-detector configuration for this repository.
+#
+# Schema: Skill(scribe:slop-detector) module config-file.md.
+# scripts/slop_score.py, which backs the CI gate, reads `allowlist`
+# only. Setting another documented field here has no effect and raises
+# no error, so check the scorer before relying on one.
+#
+# Every entry states why the word is correct here. An allowlist without
+# reasons becomes a place to silence findings, and
+# tests/unit/test_slop_score.py fails an entry that carries none.
+allowlist:
+  - paradigm    # the archetypes plugin is built on it: 15 architecture-paradigm-* skills
+  - paradigms   # same, the plural names the router skill archetypes:architecture-paradigms
+  - scalability # a named requirement axis in the paradigm selector, not a booster word
