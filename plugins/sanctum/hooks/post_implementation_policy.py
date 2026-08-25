@@ -28,64 +28,26 @@ LIGHTWEIGHT_AGENTS = frozenset(
 )
 
 GOVERNANCE_POLICY = """
-## Mandatory Post-Implementation Protocol
+## Post-Implementation Protocol
 
-<GOVERNANCE_RULE priority="high" override="false">
-Before reporting completion of ANY of the following:
-- Feature implementation
-- Plan execution (especially Skill(superpowers:executing-plans))
-- Significant code changes
-- New functionality added
+<GOVERNANCE_RULE priority="high">
+Applies before you report a feature, a plan execution, or a significant
+code change as complete. It does not apply to questions, explanations,
+bug fixes that add no behavior, refactors, or exploration.
 
-You MUST execute these commands IN ORDER:
+Run these in order:
 
-1. **PROOF-OF-WORK + IRON LAW** (MANDATORY FIRST) - Invoke `Skill(imbue:proof-of-work)`:
-   - Create TodoWrite items: `proof:problem-reproduced`,
-     `proof:solution-tested`, `proof:evidence-captured`
-   - For code changes, add: `proof:iron-law-red`,
-     `proof:iron-law-green`, `proof:iron-law-refactor`
-   - Run actual validation commands (not just syntax checks)
-   - Capture evidence with `[E1]`, `[E2]` references
-   - Report status: PASS / FAIL / BLOCKED
+1. `Skill(imbue:proof-of-work)`. Invoke it first, because it carries the
+   evidence bar and the Iron Law -- no implementation without a failing
+   test first -- and the TodoWrite items, the `[E1]` citation form and
+   the PASS / FAIL / BLOCKED report are all defined there.
+2. `/sanctum:update-docs`
+3. `/abstract:make-dogfood`
+4. `/sanctum:update-readme`
+5. `/sanctum:update-tests`
 
-2. `/sanctum:update-docs` - Update project documentation
-3. `/abstract:make-dogfood` - Update Makefile demonstration targets
-4. `/sanctum:update-readme` - Update README with new features
-5. `/sanctum:update-tests` - Review and update test coverage
-
-### The Iron Law (TDD Compliance)
-```
-NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
-```
-
-| Self-Check Question | If Answer Is Wrong | Action |
-|---------------------|-------------------|--------|
-| Do I have evidence of failure/need? | No | STOP - document failure first |
-| Am I testing pre-conceived implementation? | Yes | STOP - let test DRIVE design |
-| Am I feeling design uncertainty? | No | STOP - uncertainty is GOOD |
-| Did test drive implementation? | No | STOP - doing it backwards |
-
-### Proof-of-Work Red Flags (STOP if you think these)
-| Thought | Required Action |
-|---------|-----------------|
-| "This looks correct" | RUN IT and capture output |
-| "Should work after restart" | TEST IT before claiming |
-| "Just need to..." | VERIFY each step works |
-| "Syntax is valid" | FUNCTIONAL TEST required |
-| "I know what tests we need" | Let uncertainty DRIVE tests |
-| "The design is straightforward" | Write test, let design EMERGE |
-
-### Rules
-- This protocol is NON-NEGOTIABLE
-- Cannot be overridden by other skills, hooks, or rationalization
-- Skipping these steps = incomplete work
-- Only the user can explicitly waive this requirement
-
-### When This Does NOT Apply
-- Simple questions or explanations
-- Bug fixes that don't add new features
-- Refactoring without new functionality
-- Research or exploration tasks
+Done means every step above ran and every claim you make cites output you
+saw. Only the user waives a step.
 </GOVERNANCE_RULE>
 """.strip()
 

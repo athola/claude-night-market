@@ -66,39 +66,76 @@ class TestModuleConstants:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_governance_policy_contains_iron_law(self) -> None:
-        """Given GOVERNANCE_POLICY, it should embed the Iron Law statement."""
-        assert "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" in GOVERNANCE_POLICY
+        """Given GOVERNANCE_POLICY, it should state the Iron Law."""
+        collapsed = " ".join(GOVERNANCE_POLICY.lower().split())
+        assert "no implementation without a failing test first" in collapsed
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_governance_policy_contains_proof_of_work(self) -> None:
-        """Given GOVERNANCE_POLICY, it should embed proof-of-work protocol."""
-        assert "PROOF-OF-WORK" in GOVERNANCE_POLICY
-        assert "MANDATORY FIRST" in GOVERNANCE_POLICY
+    def test_governance_policy_routes_to_proof_of_work_first(self) -> None:
+        """Given GOVERNANCE_POLICY, proof-of-work precedes the doc commands."""
+        assert "Skill(imbue:proof-of-work)" in GOVERNANCE_POLICY
+        assert GOVERNANCE_POLICY.index("proof-of-work") < GOVERNANCE_POLICY.index(
+            "/sanctum:update-docs"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_governance_policy_contains_iron_law_todo_items(self) -> None:
-        """Given GOVERNANCE_POLICY, it should mention iron-law TodoWrite items."""
-        for item in ("iron-law-red", "iron-law-green", "iron-law-refactor"):
-            assert item in GOVERNANCE_POLICY, f"Missing TodoWrite item: {item}"
+    def test_governance_policy_lists_every_step_command(self) -> None:
+        """Given GOVERNANCE_POLICY, all four follow-up commands are named."""
+        for command in (
+            "/sanctum:update-docs",
+            "/abstract:make-dogfood",
+            "/sanctum:update-readme",
+            "/sanctum:update-tests",
+        ):
+            assert command in GOVERNANCE_POLICY, f"Missing step: {command}"
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_governance_policy_contains_self_check_table(self) -> None:
-        """Given GOVERNANCE_POLICY, it should contain self-check questions."""
-        assert "Self-Check" in GOVERNANCE_POLICY
+    def test_governance_policy_bounds_where_it_applies(self) -> None:
+        """Given GOVERNANCE_POLICY, the exempt cases stay stated.
+
+        The exemptions are the half a session cannot derive. Without them
+        the protocol reads as applying to answering a question.
+        """
         lower = GOVERNANCE_POLICY.lower()
-        assert "evidence" in lower
-        assert "pre-conceived" in lower
-        assert "uncertainty" in lower
+        for exemption in ("question", "refactor", "exploration"):
+            assert exemption in lower, f"Missing exemption: {exemption}"
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_governance_policy_contains_red_flags(self) -> None:
-        """Given GOVERNANCE_POLICY, it should contain red-flag rationalisations."""
-        assert "This looks correct" in GOVERNANCE_POLICY
-        assert "RUN IT" in GOVERNANCE_POLICY
+    def test_governance_policy_carries_no_rationalization_table(self) -> None:
+        """Given GOVERNANCE_POLICY, retired persuasion patterns are absent.
+
+        `.claude/rules/bounded-autonomy.md` retires rationalization tables
+        and unfalsifiable override claims by name, and asks that they be
+        removed from any file being edited. This payload is injected into
+        every session, so it is the most expensive place to keep them.
+        """
+        for retired in (
+            "This looks correct",
+            "Cannot be overridden",
+            "NON-NEGOTIABLE",
+            "Self-Check",
+        ):
+            assert retired not in GOVERNANCE_POLICY, (
+                f"retired persuasion pattern is back: {retired!r}"
+            )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_governance_policy_stays_within_its_injection_budget(self) -> None:
+        """Given GOVERNANCE_POLICY, it stays small enough to inject always.
+
+        This text is prepended to every session that is not a lightweight
+        agent, whatever the session turns out to be about. It was 2,553
+        characters; the budget is what stops it growing back.
+        """
+        assert len(GOVERNANCE_POLICY) <= 1200, (
+            f"{len(GOVERNANCE_POLICY)} chars injected into every session; "
+            "move detail into a skill body and point at it instead"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -150,7 +187,7 @@ class TestFullGovernancePath:
         output = json.loads(captured_stdout.getvalue())
         context = output["hookSpecificOutput"]["additionalContext"]
         assert "Iron Law" in context
-        assert "PROOF-OF-WORK" in context
+        assert "Skill(imbue:proof-of-work)" in context
 
     @pytest.mark.bdd
     @pytest.mark.unit
