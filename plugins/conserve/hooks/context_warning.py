@@ -19,10 +19,12 @@ Environment variables:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
 import sys
+import tempfile
 import time
 from dataclasses import dataclass
 from enum import Enum
@@ -217,6 +219,56 @@ def _resolve_session_file() -> Path | None:
     return _find_current_session(jsonl_files)
 
 
+# The transcript estimate is reused for this long. The alert bands are
+# 40%, 50% and 80% of the window, and context does not cross one inside
+# half a minute, so per-call resolution buys nothing and costs a 4MB
+# read on every Write, Edit, Bash, Skill and Task.
+_CACHE_TTL_SECONDS = 30
+
+
+def _cache_path(session_file: Path) -> Path:
+    """Return the file holding the last estimate for *session_file*.
+
+    Keyed by the transcript path, which is the one input the cached
+    number is derived from: a second session, in this checkout or
+    another, resolves to a different transcript and gets its own entry.
+    ``CONSERVE_STATE_DIR`` overrides the base directory.
+    """
+    override = os.environ.get("CONSERVE_STATE_DIR")
+    if override:
+        root = Path(override)
+    else:
+        uid = getattr(os, "geteuid", lambda: 0)()
+        root = Path(tempfile.gettempdir()) / f"conserve-{uid}"
+    root.mkdir(mode=0o700, parents=True, exist_ok=True)
+
+    key = hashlib.sha256(str(session_file).encode()).hexdigest()[:16]
+    return root / f"context-estimate-{key}.json"
+
+
+def _read_cached_estimate(session_file: Path) -> float | None:
+    """Return the cached estimate, or None if absent, stale or unreadable."""
+    try:
+        payload = json.loads(_cache_path(session_file).read_text())
+        if time.time() - payload["at"] > _CACHE_TTL_SECONDS:
+            return None
+        usage = payload["usage"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    return usage if isinstance(usage, float) else None
+
+
+def _write_cached_estimate(session_file: Path, usage: float) -> None:
+    """Record *usage* for the next call inside the window."""
+    try:
+        _cache_path(session_file).write_text(
+            json.dumps({"at": time.time(), "usage": usage})
+        )
+    except OSError as e:
+        # A cache we cannot write makes the hook slower, not wrong.
+        logger.debug("Could not write context estimate cache: %s", e)
+
+
 def estimate_context_from_session() -> float | None:
     """Estimate context usage from current session's JSONL conversation data.
 
@@ -243,7 +295,13 @@ def estimate_context_from_session() -> float | None:
         if current_session is None:
             return None
 
+        cached = _read_cached_estimate(current_session)
+        if cached is not None:
+            return cached
+
         usage = _estimate_from_recent_turns(current_session)
+        if usage is not None:
+            _write_cached_estimate(current_session, usage)
         logger.debug(
             "Estimated context from %s: %.1f%%",
             current_session.name,
