@@ -220,6 +220,69 @@ def check_python_source(
     return findings
 
 
+def check_hooks_json_config(
+    config: dict[str, object],
+    plugin: str,
+) -> list[Finding]:
+    """Return findings for `if` conditions the harness will not read.
+
+    Measured on Claude Code 2.1.245: a PreToolUse hook whose entry
+    carries ``"if": "Bash(zzzznevermatch*)"`` is not spawned, and the
+    identical key on the enclosing matcher group is dropped without an
+    error, leaving the hook to fire on every matching call. The failure
+    is silent in both directions -- JSON has no schema here, so the
+    config reads as gated while the process count says otherwise.
+    """
+    findings: list[Finding] = []
+    hooks = config.get("hooks", config)
+    if not isinstance(hooks, dict):
+        return findings
+
+    for event, groups in hooks.items():
+        if not isinstance(groups, list):
+            continue
+        for group in groups:
+            if not isinstance(group, dict) or "if" not in group:
+                continue
+            findings.append(
+                Finding(
+                    plugin=plugin,
+                    file="hooks.json",
+                    pattern="misplaced-if-condition",
+                    severity="error",
+                    message=(
+                        f"{event}: 'if' sits on the matcher group, where "
+                        f"the harness ignores it, so {group['if']!r} gates "
+                        "nothing. Move it into the hook entry, beside "
+                        "'command'."
+                    ),
+                )
+            )
+        for group in groups:
+            if not isinstance(group, dict):
+                continue
+            for entry in group.get("hooks", []):
+                if not isinstance(entry, dict) or "if" not in entry:
+                    continue
+                if isinstance(entry["if"], str):
+                    continue
+                findings.append(
+                    Finding(
+                        plugin=plugin,
+                        file="hooks.json",
+                        pattern="non-string-if-condition",
+                        severity="error",
+                        message=(
+                            f"{event}: 'if' must be a single string. An "
+                            "array suppressed the hook outright when "
+                            "measured, matching rule included, so the hook "
+                            "never runs. Split it into one entry per rule."
+                        ),
+                    )
+                )
+    return findings
+
+
 def run_audit(repo_root: Path) -> AuditResult:
     """Run the full modernization audit."""
     result = AuditResult()
@@ -272,6 +335,16 @@ def run_audit(repo_root: Path) -> AuditResult:
 
         findings = check_python_source(source, plugin_name, py_file.name, event_types)
         result.findings.extend(findings)
+
+    for hooks_json in find_hooks_json(repo_root):
+        try:
+            config = json.loads(hooks_json.read_text())
+        except (json.JSONDecodeError, OSError):
+            # Already reported as unparseable-hooks-json above.
+            continue
+        result.findings.extend(
+            check_hooks_json_config(config, hooks_json.parent.parent.name)
+        )
 
     return result
 

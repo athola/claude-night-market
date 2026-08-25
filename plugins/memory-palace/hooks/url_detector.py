@@ -12,9 +12,6 @@ import re
 import sys
 from typing import TYPE_CHECKING
 
-from shared.config import get_config
-from shared.deduplication import is_known
-
 if TYPE_CHECKING:
     from typing import Any
 
@@ -98,6 +95,12 @@ def main() -> None:
 
     if not urls:
         sys.exit(0)
+
+    # Imported here, not at module scope: this hook runs on every
+    # prompt and `shared` pulls in memory_palace.paths and xxhash,
+    # about 100ms that a prompt with no URL has no use for.
+    from shared.config import get_config
+    from shared.deduplication import is_known
 
     config = get_config()
     if not config.get("enabled", True):

@@ -5,8 +5,8 @@
   "skills": [
     "./skills/delegation-core",
     "./skills/gemini-delegation",
-    "./skills/qwen-delegation",
     "./skills/minimax-delegation",
+    "./skills/qwen-delegation",
     "./skills/glm-delegation",
     "./skills/muse-delegation",
     "./skills/codex-delegation",

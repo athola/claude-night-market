@@ -28,7 +28,8 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_ai_attribution.py",
-            "timeout": 2
+            "timeout": 2,
+            "if": "Bash(git commit*)"
           }
         ]
       },
@@ -38,7 +39,8 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_emoji_commits.py",
-            "timeout": 2
+            "timeout": 2,
+            "if": "Bash(git commit*)"
           }
         ]
       },
@@ -48,7 +50,74 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
-            "timeout": 8
+            "timeout": 8,
+            "if": "Bash(*pip*)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "timeout": 8,
+            "if": "Bash(uv add*)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "timeout": 8,
+            "if": "Bash(poetry add*)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "timeout": 8,
+            "if": "Bash(pdm add*)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "timeout": 8,
+            "if": "Bash(*npm *)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "timeout": 8,
+            "if": "Bash(yarn add*)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "timeout": 8,
+            "if": "Bash(cargo add*)"
           }
         ]
       },

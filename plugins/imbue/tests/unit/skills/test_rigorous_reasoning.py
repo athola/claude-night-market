@@ -442,12 +442,22 @@ class TestSessionStartHookIntegration:
 
         Given the imbue session-start.sh hook
         When reading the hook content
-        Then it should mention sycophantic patterns to avoid.
+        Then it should route to the skill that lists those patterns.
+
+        The list itself was a rationalization table, which
+        `.claude/rules/bounded-autonomy.md` retires by name. It lives in
+        the skill body, and this pins it there.
         """
-        assert (
-            "I agree that" in session_hook_content
-            or "sycophantic" in session_hook_content.lower()
-        )
+        assert "Skill(imbue:rigorous-reasoning)" in session_hook_content
+
+        skill = (
+            Path(__file__).parents[3]
+            / "skills"
+            / "rigorous-reasoning"
+            / "modules"
+            / "priority-signals.md"
+        ).read_text()
+        assert "courtesy agreement" in skill.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit

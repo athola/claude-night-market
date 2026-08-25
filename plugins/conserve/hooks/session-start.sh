@@ -101,92 +101,24 @@ EOF
 esac
 
 # Build conservation skills summary for session context injection
-conservation_summary='## Conservation Skills - Session Optimization
+conservation_summary='## conserve: session optimization
 
-**Active at session start to optimize performance, tokens, and context.**
+Context bands, and what each asks for: under 40% carry on; 40-50% plan the
+optimization; 50-80% act on it, summarizing or delegating; at 80% invoke
+`Skill(conserve:clear-context)`, which checkpoints state and hands off to a
+continuation agent. `CLAUDE_CONTEXT_USAGE` is often unset, so run `/context`
+at natural breakpoints rather than waiting to be told a number.
 
-### Quick Reference
+Skills: `Skill(conserve:context-optimization)` for MECW assessment,
+`Skill(conserve:token-conservation)` for quota planning,
+`Skill(conserve:cpu-gpu-performance)` before builds, tests and training runs.
 
-| Skill | Purpose | When to Use |
-|-------|---------|-------------|
-| `context-optimization` | MECW principles, 50% context rule | Context > 30% utilization |
-| `clear-context` | **Auto-clear workflow** | Context > 80% OR long multi-step tasks |
-| `token-conservation` | Token usage strategies, quota tracking | Start of session, before heavy loads |
-| `cpu-gpu-performance` | Resource monitoring, selective testing | Before builds/tests/training |
+A 1M window retires none of this, it changes the arithmetic. 1M of stale
+tool output reasons worse than 200K of relevant state, and every turn pays
+for the whole window against quota. Plan, `/clear`, then implement.
 
-### Key Thresholds (Three-Tier MECW Alerts)
-
-| Level | Threshold | Action |
-|-------|-----------|--------|
-| OK | < 40% | Continue normally |
-| WARNING | 40-50% | Plan optimization, monitor growth |
-| CRITICAL | 50-80% | Immediate optimization, summarize/delegate |
-| **EMERGENCY** | **80%+** | **Invoke `Skill(conserve:clear-context)` NOW** |
-
-### Proactive Self-Monitoring (IMPORTANT)
-
-During **long-running or multi-step tasks** (brainstorms, execute-plan, large refactors):
-
-1. **Check context periodically**: Run `/context` at natural breakpoints
-2. **At 80%+ usage**: Immediately invoke `Skill(conserve:clear-context)`
-3. **The skill will**: Save session state, spawn continuation agent, resume seamlessly
-
-**Why self-monitor?** The `CLAUDE_CONTEXT_USAGE` env var may not be set.
-Proactive checking prevents auto-compact penalties.
-
-### 1M Context Strategy
-
-The 1M window (GA for Opus/Sonnet 4.6) does not replace
-conservation; it changes what conservation means.
-A 1M window full of stale tool outputs performs worse
-than 200K of relevant, well-organized state.
-
-**Plan-Clear-Implement pattern** (recommended workflow):
-1. Build the full plan (spec-kit, built-in planning, etc.)
-2. `/clear` or `/compact` to start clean
-3. Implement without compaction: maintain full context
-4. Iterate while still on topic with the same context
-5. Repeat for the next plan
-
-**Quota awareness**: Larger context = more input tokens
-per turn = faster quota burn. Surgical reads protect
-your budget even when the window allows more.
-
-**Agentic isolation**: Parallel agents compound bloat.
-Use git worktrees (`isolation: "worktree"`) to keep each
-agent context lean and prevent cross-contamination.
-
-### Conservation Tactics
-
-1. **Prefer targeted over broad**: `rg`/`sed -n` slices vs whole files
-2. **Delegate compute**: Use external tooling for intensive tasks
-3. **Compress context**: Summarize prior steps, remove redundant history
-4. **Scope narrow**: Diff-based testing vs full suite
-5. **Checkpoint long tasks**: Save state at natural breakpoints
-
-### Skill Invocation
-
-- `Skill(conserve:clear-context)` - **Auto-clear with continuation agent**
-- `Skill(conserve:context-optimization)` - MECW assessment and optimization
-- `Skill(conserve:token-conservation)` - Token budget planning
-- `Skill(conserve:cpu-gpu-performance)` - Resource monitoring discipline
-
-### Bypass Modes
-
-Set `CONSERVATION_MODE` environment variable:
-- `quick` - Skip guidance for fast processing
-- `deep` - Allow extended resources for thorough analysis
-- `normal` - Default, full conservation guidance
-
-### Scope-Guard Principles (from imbue)
-
-- **Worthiness**: `(BizValue + TimeCrit + RiskReduce) / (Complexity + TokenCost + ScopeDrift)`: >2.0 implement, 1-2 discuss, <1 defer
-- **Anti-overengineering**: Ask before proposing; no abstraction until 3rd use; defer nice-to-haves; stay within branch budget
-- **Branch thresholds**: 1000/1500/2000 lines | 15/25/30 commits | 3/7/7+ days (green/yellow/red)
-- **Proof-of-work**: Never claim "should work"; run it, test it, cite evidence `[E1]`/`[E2]`
-- **Iron Law**: No implementation without a failing test first
-- **Rigorous reasoning**: No courtesy agreement; follow analysis checklists, not gut reactions
-- Invoke `Skill(imbue:scope-guard)`, `Skill(imbue:proof-of-work)`, or `Skill(imbue:rigorous-reasoning)` for full methodology'
+`CONSERVATION_MODE` selects the register: `quick` skips this guidance,
+`deep` allows extended resources, `normal` is the default.'
 
 # Add deep mode notice if applicable
 if [ -n "$deep_mode_msg" ]; then

@@ -254,7 +254,8 @@ class TestSessionStartIronLaw:
         """
         # Assert - Iron Law section exists
         assert "Iron Law" in session_hook_content
-        assert "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" in session_hook_content
+        collapsed = " ".join(session_hook_content.lower().split())
+        assert "no implementation without a failing test first" in collapsed
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -265,12 +266,23 @@ class TestSessionStartIronLaw:
 
         Given the imbue session-start.sh hook
         When reading the hook content
-        Then it should mention iron-law TodoWrite items.
+        Then it should route to the skill that defines those items.
+
+        The hook injects into every session, so it carries the pointer
+        and the skill carries the procedure.
         """
-        # Assert - TodoWrite items mentioned
-        assert "iron-law-red" in session_hook_content
-        assert "iron-law-green" in session_hook_content
-        assert "iron-law-refactor" in session_hook_content
+        # Assert - the injection routes to the skill that defines them
+        assert "Skill(imbue:proof-of-work)" in session_hook_content
+
+        skill = (
+            Path(__file__).parents[3]
+            / "skills"
+            / "proof-of-work"
+            / "modules"
+            / "iron-law-enforcement.md"
+        ).read_text()
+        for item in ("iron-law-red", "iron-law-green", "iron-law-refactor"):
+            assert item in skill
 
 
 class TestProofEnforcementIronLaw:

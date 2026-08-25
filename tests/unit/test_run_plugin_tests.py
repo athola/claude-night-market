@@ -497,3 +497,48 @@ class TestTestsWithoutConfigAreAFailure:
             f"{result.stdout}"
         )
         assert "real" in result.stdout
+
+
+class TestEmptyCoverageFlagUnderSetU:
+    """Feature: a plugin with no coverage_threshold still runs its tests.
+
+    bash 3.2, which is what macOS ships, treats an empty array as unset,
+    so `"${cov_flag[@]}"` under `set -u` aborts the script with
+    `cov_flag[@]: unbound variable` before pytest is ever invoked. Every
+    plugin without a threshold -- cartograph among them -- reported
+    "Tests failed" having run no tests. bash 4+ does not reproduce it,
+    which is why it survived CI.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_empty_array_expansion_survives_set_u(self):
+        expansions = re.findall(r"\$\{?cov_flag\[@\][^\n]{0,24}", SCRIPT.read_text())
+        assert expansions, "cov_flag expansion disappeared; update this test"
+        for expansion in expansions:
+            assert expansion.startswith("${cov_flag[@]+"), (
+                f"{expansion!r} aborts under `set -u` on bash 3.2; use the "
+                '${cov_flag[@]+"${cov_flag[@]}"} guarded form'
+            )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_guarded_form_expands_to_nothing_when_empty(self):
+        script = 'set -u; cov_flag=(); set -- ${cov_flag[@]+"${cov_flag[@]}"}; echo $#'
+        result = subprocess.run(
+            ["bash", "-c", script], capture_output=True, text=True, check=False
+        )
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "0"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_guarded_form_still_passes_a_set_threshold(self):
+        script = (
+            "set -u; cov_flag=(--cov-fail-under=85); "
+            'set -- ${cov_flag[@]+"${cov_flag[@]}"}; echo "$# $1"'
+        )
+        result = subprocess.run(
+            ["bash", "-c", script], capture_output=True, text=True, check=False
+        )
+        assert result.stdout.strip() == "1 --cov-fail-under=85"

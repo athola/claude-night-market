@@ -91,3 +91,41 @@ class TestExtractUrls:
         urls = extract_urls(text)
         assert len(urls) == 1
         assert "docs.example.com" in urls[0]
+
+
+class TestQuietPathImports:
+    """Feature: a prompt with no URL costs nothing but the regex.
+
+    This hook is one of five on UserPromptSubmit, an event that blocks
+    the turn and that telemetry showed timing out on roughly 16% of
+    prompts. `shared.config` and `shared.deduplication` pull in
+    memory_palace.paths and xxhash, about 100ms measured with
+    `python -X importtime`, and neither is reachable until a URL has
+    already been found. Its sibling `recall.py` pins the same contract
+    for the same reason.
+    """
+
+    def test_shared_package_is_not_imported_at_module_scope(self) -> None:
+        """Scenario: a promptless-of-URLs turn pays only for the regex."""
+        import ast
+        from pathlib import Path
+
+        hook = Path(__file__).resolve().parents[2] / "hooks" / "url_detector.py"
+        tree = ast.parse(hook.read_text())
+        toplevel = {
+            node.module
+            for node in tree.body
+            if isinstance(node, ast.ImportFrom) and node.module
+        }
+        toplevel |= {
+            alias.name
+            for node in tree.body
+            if isinstance(node, ast.Import)
+            for alias in node.names
+        }
+        offenders = {
+            name for name in toplevel if name.startswith(("shared", "memory_palace"))
+        }
+        assert not offenders, (
+            f"imported at module scope, so every prompt pays for them: {offenders}"
+        )
