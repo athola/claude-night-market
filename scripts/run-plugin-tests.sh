@@ -98,7 +98,7 @@ run_plugin_tests() {
 
             # Run using uv/pytest - capture output, show on failure.
             # Redirect stdout before stderr; see the Makefile branch above.
-            if (cd "$plugin_dir" && "$WITHOUT_GIT_ENV" uv run python -m pytest tests/ --tb=short --quiet "${cov_flag[@]}" > "$temp_output" 2>&1); then
+            if (cd "$plugin_dir" && "$WITHOUT_GIT_ENV" uv run python -m pytest tests/ --tb=short --quiet ${cov_flag[@]+"${cov_flag[@]}"} > "$temp_output" 2>&1); then
                 echo -e "  ${GREEN}✓ Tests passed${NC}"
                 PASSED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
@@ -107,7 +107,7 @@ run_plugin_tests() {
                 echo -e "  ${RED}✗ Tests failed${NC}"
                 echo -e "${YELLOW}Re-running with verbose output:${NC}"
                 echo
-                (cd "$plugin_dir" && "$WITHOUT_GIT_ENV" uv run python -m pytest tests/ --tb=short "${cov_flag[@]}" 2>&1)
+                (cd "$plugin_dir" && "$WITHOUT_GIT_ENV" uv run python -m pytest tests/ --tb=short ${cov_flag[@]+"${cov_flag[@]}"} 2>&1)
                 FAILED_PLUGINS+=("$plugin_name")
                 rm -f "$temp_output"
                 return 1
