@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 from check_hook_modernization import (
     AuditResult,
     Finding,
+    check_hooks_json_config,
     check_python_source,
     format_json,
     format_text,
@@ -659,3 +660,155 @@ class TestSilentDropSurfacing:
         bad.write_text("{ not json")
         with pytest.raises(json.JSONDecodeError):
             get_hook_event_types(bad)
+
+
+# ============================================================================
+# check_hooks_json_config: `if` placement (measured on CLI 2.1.245)
+# ============================================================================
+
+
+class TestMisplacedIfCondition:
+    """Feature: Detect an `if` condition the harness will silently ignore.
+
+    Measured on CLI 2.1.245: an `if` key on the matcher-group object is
+    dropped, so the hook fires on every matching tool call. The same key
+    inside the hook entry suppresses the spawn. A misplaced key produces
+    a config that reads as gated and behaves as ungated, with no error.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_flags_if_on_matcher_group(self):
+        config = {
+            "hooks": {
+                "PreToolUse": [
+                    {
+                        "matcher": "Bash",
+                        "if": "Bash(git commit*)",
+                        "hooks": [{"type": "command", "command": "gate.py"}],
+                    }
+                ]
+            }
+        }
+        findings = check_hooks_json_config(config, "gauntlet")
+        assert [f.pattern for f in findings] == ["misplaced-if-condition"]
+        assert findings[0].severity == "error"
+        assert "hook entry" in findings[0].message
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_accepts_if_inside_hook_entry(self):
+        config = {
+            "hooks": {
+                "PreToolUse": [
+                    {
+                        "matcher": "Bash",
+                        "hooks": [
+                            {
+                                "type": "command",
+                                "command": "gate.py",
+                                "if": "Bash(git commit*)",
+                            }
+                        ],
+                    }
+                ]
+            }
+        }
+        assert check_hooks_json_config(config, "gauntlet") == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_accepts_group_with_no_if(self):
+        config = {
+            "hooks": {
+                "PreToolUse": [
+                    {
+                        "matcher": "Bash",
+                        "hooks": [{"type": "command", "command": "x.py"}],
+                    }
+                ]
+            }
+        }
+        assert check_hooks_json_config(config, "pensive") == []
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_reports_every_misplaced_group(self):
+        group = {
+            "matcher": "Bash",
+            "if": "Bash(git commit*)",
+            "hooks": [{"type": "command", "command": "x.py"}],
+        }
+        config = {"hooks": {"PreToolUse": [dict(group)], "PostToolUse": [dict(group)]}}
+        findings = check_hooks_json_config(config, "gauntlet")
+        assert len(findings) == 2
+        assert {f.file for f in findings} == {"hooks.json"}
+
+
+class TestShippedHooksJsonPlacement:
+    """Feature: no shipped hooks.json carries a silently-ignored `if`."""
+
+    @pytest.mark.bdd
+    @pytest.mark.integration
+    def test_no_plugin_ships_a_misplaced_if(self):
+        repo_root = Path(__file__).resolve().parents[2]
+        offenders = []
+        for hooks_json in sorted(repo_root.glob("plugins/*/hooks/hooks.json")):
+            config = json.loads(hooks_json.read_text())
+            plugin = hooks_json.parts[-3]
+            offenders.extend(
+                f"{plugin}: {f.message}"
+                for f in check_hooks_json_config(config, plugin)
+            )
+        assert offenders == []
+
+
+class TestNonStringIfCondition:
+    """Feature: an array-valued `if` is a silent kill switch.
+
+    Measured on CLI 2.1.245: an entry whose `if` is a list is never
+    spawned, even when one element of the list matches the command.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_flags_array_valued_if(self):
+        config = {
+            "hooks": {
+                "PreToolUse": [
+                    {
+                        "matcher": "Bash",
+                        "hooks": [
+                            {
+                                "type": "command",
+                                "command": "gate.py",
+                                "if": ["Bash(git commit*)", "Bash(pip install*)"],
+                            }
+                        ],
+                    }
+                ]
+            }
+        }
+        findings = check_hooks_json_config(config, "imbue")
+        assert [f.pattern for f in findings] == ["non-string-if-condition"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_accepts_string_if(self):
+        config = {
+            "hooks": {
+                "PreToolUse": [
+                    {
+                        "matcher": "Bash",
+                        "hooks": [
+                            {
+                                "type": "command",
+                                "command": "gate.py",
+                                "if": "Bash(git commit*)",
+                            }
+                        ],
+                    }
+                ]
+            }
+        }
+        assert check_hooks_json_config(config, "imbue") == []
