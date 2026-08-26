@@ -123,7 +123,10 @@ def test_meta_name_matches_the_filename(script: Path) -> None:
 def test_a_script_that_cannot_start_refuses_instead_of_dispatching(
     script: Path,
 ) -> None:
-    """A missing-input guard must name what would supply the input.
+    """GIVEN a shipped workflow that requires input to run.
+
+    WHEN it is started without that input
+    THEN it returns a refusal naming the command that would supply it
 
     `claude-code-plugin-reference` states this as one of two conventions
     every shipped script holds, and until now only the other one

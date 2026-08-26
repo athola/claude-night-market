@@ -128,7 +128,10 @@ class TestADamagedLedgerDegradesToACacheMiss:
     def test_an_unfamiliar_version_is_ignored_wholesale(
         self, ledger_path: Path
     ) -> None:
-        """A later schema must not be half-read by an earlier reader.
+        """GIVEN a ledger written by a later schema version.
+
+        WHEN this reader loads it
+        THEN no record is taken from it
 
         Reading unknown fields as a partial record would let a newer
         writer's meaning be silently reinterpreted. Discarding costs one
@@ -153,9 +156,13 @@ class TestADamagedLedgerDegradesToACacheMiss:
     def test_one_malformed_entry_does_not_discard_the_others(
         self, ledger_path: Path
     ) -> None:
-        """Invariant: per-entry damage is contained to that entry.
+        """GIVEN a ledger with one good record and one malformed one.
 
-        This is the property that makes the ledger worth keeping across
+        WHEN it is loaded
+        THEN the good record survives and only the malformed one is dropped
+
+        Invariant: per-entry damage is contained to that entry. This is
+        the property that makes the ledger worth keeping across
         a partial write. Discarding the whole file on one bad record
         would turn a one-provider problem into a full re-probe.
 
