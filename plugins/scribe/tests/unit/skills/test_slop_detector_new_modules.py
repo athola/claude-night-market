@@ -349,3 +349,39 @@ class TestRuleFileWiresInNewLayers:
         """Rule must point readers at evidence-backed-claims."""
         text_lower = rule_text.lower()
         assert "evidence" in text_lower and "claim" in text_lower
+
+
+class TestContrastiveCategoriesAreDocumented:
+    """The shipped module has to describe what the YAML enforces.
+
+    `structural-patterns.md` is what a marketplace install reads. A
+    category that exists only in `en.yaml` fires findings a reader
+    cannot look up, which is the same dangling-reference failure as a
+    citation pointing at a file that is not there.
+    """
+
+    @staticmethod
+    def _module_text() -> str:
+        path = (
+            Path(__file__).parents[3]
+            / "skills"
+            / "slop-detector"
+            / "modules"
+            / "structural-patterns.md"
+        )
+        return " ".join(path.read_text().split())
+
+    def test_trailing_contrastive_negation_is_documented(self) -> None:
+        """The mid-sentence tail form and its runtime section are named."""
+        text = self._module_text()
+
+        assert "Trailing Contrastive Negation" in text
+        assert "tier5.contrastive_negation_trailing" in text
+
+    def test_contrastive_scaffold_documents_its_opt_in_reason(self) -> None:
+        """The opt-in gating is explained, not merely asserted."""
+        text = self._module_text()
+
+        assert "tier5.contrastive_scaffold" in text
+        assert "not a documented AI tell" in text
+        assert "504 times" in text

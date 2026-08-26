@@ -447,6 +447,54 @@ isn't, then what it does.
 | "The API is clear, not clever." | "The API is clear." (drop the corrective tail) |
 | "We use Python, not Java." | "We use Python instead of Java." (keep the contrast, drop the negation) |
 
+## Trailing Contrastive Negation (mid-sentence)
+
+The bare trailing regex above requires the sentence to end one word
+after "not", so a longer tail slips past it. "The third sends your
+code, not just a status check." was live in this repository's README
+until review caught it by eye.
+
+Four surface forms, all named independently by GC AI, Programmer.ie,
+the Wikipedia *Negative parallelism* article, and DEV Community:
+
+| Pattern | Example | Rewrite |
+|---------|---------|---------|
+| `X, not just Y` (any position) | "sends your code, not just a status check" | "sends the contents of your files" |
+| `isn't just X, but Y` | "isn't just a linter, but a review harness" | "is a review harness" |
+| `more than X, it's Y` | "more than a document, it's a co-editing surface" | "is a co-editing surface" |
+| `not about X, it's about Y` | "not about looking modern, it's about being usable" | "is about being usable" |
+
+The negated half has to be an elevation for this to fire. "The probe
+does not run, because gemini authenticates by key" states a fact and
+is deliberately unmatched: every regex needs "just", "about ... it's
+about", or a copula after the comma.
+
+Runtime source: `data/languages/en.yaml` §
+`tier5.contrastive_negation_trailing`, scored `high` confidence.
+
+## Contrastive Scaffold ("rather than" / "instead of", opt-in)
+
+A definitional frame built on a connective: "the gate reports the
+failure rather than swallowing it".
+
+**This is not a documented AI tell, and the category is off by
+default.** No source in the contrastive-negation literature names
+either connective, and both are ordinary English. Measured across this
+repository's markdown, "rather than" appears 504 times and "instead
+of" 299, almost all correctly, including in the rule files that define
+house style. A default-on version would bury a real finding under
+hundreds of correct sentences.
+
+Enable it for a documentation audit where defining things by contrast
+is the suspected habit. Surface every hit for a human; never
+auto-rewrite. It is scoped to the verb-phrase form, so the
+"Y instead of X" rewrite recommended in the table above stays valid:
+that is a noun comparison, and it keeps the alternative the reader
+needed.
+
+Runtime source: `data/languages/en.yaml` § `tier5.contrastive_scaffold`,
+`default_enabled: false`, `confidence: low`.
+
 ## Negative Framing (Litotes, Vacuous Negation, Negative Definition)
 
 Negative parallelism above is a scaffold: *not X, but Y*. This is a

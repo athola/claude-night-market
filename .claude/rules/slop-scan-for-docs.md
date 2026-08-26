@@ -216,6 +216,23 @@ ever apply to this repo.
   "And that's okay." Positively state Y; drop the X half. The
   copula-led trailing form is the one that survives casual
   proofreading because the opener reads as a plain definition.
+- **Trailing contrastive negation**: the mid-sentence tail the
+  `negative_parallelism` regex misses, because that one needs the
+  sentence to end a word after "not". Four forms, high confidence:
+  "X, not just Y" anywhere in the sentence, "isn't just X, but Y",
+  "more than X, it's Y", and "not about X, it's about Y". Rewrite by
+  stating the affirmed half and deleting the negated one. A negated
+  half that carries a fact ("the probe does not run, because gemini
+  authenticates by key") is deliberately unmatched.
+- **Contrastive scaffold**: "does X rather than Y" and "does X
+  instead of Y" as a definitional frame. Off by default and low
+  confidence, and the reason is worth keeping: no source in the
+  contrastive-negation literature names either connective, and this
+  repository writes "rather than" 504 times and "instead of" 299,
+  almost all correctly, these rule files included. Scoped to the
+  verb-phrase form, so a noun comparison ("use rg rather than grep")
+  stays untouched. Enable it for a documentation audit, surface every
+  hit, never auto-rewrite.
 - **Negative framing**: three shapes and a measure, all in
   `tier5`. **Litotes** (`not uncommon`, `not unlike`, `never fails
   to`, `not without merit`) says a positive thing through two

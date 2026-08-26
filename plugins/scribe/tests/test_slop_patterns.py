@@ -1706,3 +1706,174 @@ class TestTier5NegativeDefinition:
         as an opt-in.
         """
         assert _category_hits_including_optional(self.CATEGORY, text) == 0
+
+
+class TestContrastiveNegationTrailing:
+    """The trailing corrective that survives proofreading.
+
+    Review on PR #662 flagged `README.md`: "The third sends your code,
+    not just a status check." The `negative_parallelism` bare-trailing
+    regex needs the sentence to end one word after "not", so a three-word
+    tail slips through. Every AI-writing source that names contrastive
+    negation names this surface form, so the miss was in the regex rather
+    than in the category.
+
+    Forms covered here come from the cross-source sweep run for that
+    review: the mid-sentence "X, not just Y" tail, "isn't just X, but Y",
+    "more than X, it's Y", and "not about X, it's about Y".
+    """
+
+    @pytest.mark.unit
+    def test_detects_mid_sentence_not_just_tail(self) -> None:
+        """Scenario: the exact README sentence that review flagged."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "The third sends your code, not just a status check.",
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_detects_not_just_tail_mid_clause(self) -> None:
+        """Scenario: the tail continues into another clause, no period."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "It runs the tool, not just a description of it, and reports.",
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_detects_isnt_just_but_form(self) -> None:
+        """Scenario: 'isn't just X, but Y' correction."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "This isn't just a linter, but a whole review harness.",
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_detects_more_than_copula_form(self) -> None:
+        """Scenario: 'more than X, it's Y' elevation."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "It is more than a document, it's a co-editing surface.",
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_detects_not_about_it_is_about_form(self) -> None:
+        """Scenario: 'not about X, it's about Y' reframing."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "This is not about looking modern, it's about being usable.",
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_plain_exclusion_is_not_flagged(self) -> None:
+        """Guard: 'not' carrying a fact is left alone.
+
+        "The probe does not run" states a behavior. Only the corrective
+        scaffold, where a negated half exists to set up an affirmed half,
+        is the tell.
+        """
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "The probe does not run, because gemini authenticates by key.",
+            )
+            == 0
+        )
+
+    @pytest.mark.unit
+    def test_comparative_more_than_is_not_flagged(self) -> None:
+        """Guard: an ordinary comparison must not trip the elevation regex."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "The sweep found more than fifteen files across seven plugins.",
+            )
+            == 0
+        )
+
+
+class TestContrastiveScaffold:
+    """ "Rather than" and "instead of" as a definitional frame.
+
+    Review on PR #662 asked that "does X instead of Y" and "does X rather
+    than Y" be caught. The research run for it does not support treating
+    either as an AI tell on its own: no source in the contrastive-negation
+    literature names them, and both are ordinary English connectives. This
+    repository writes "rather than" 504 times and "instead of" 299 times
+    in its own markdown, almost all correctly, including in the rule files
+    that define house style.
+
+    So the category ships the way ``negative_definition`` does: off by
+    default, low confidence, surfaced for a human and never scored toward
+    the merge gate. It is scoped to the verb-phrase scaffold, where the
+    connective joins two actions to define one by the other, rather than
+    to the bare connective.
+
+    Sourced from data/languages/en.yaml section tier5.contrastive_scaffold.
+    """
+
+    CATEGORY = "contrastive_scaffold"
+
+    @pytest.mark.unit
+    def test_category_is_opt_in(self) -> None:
+        """Scenario: The category stays out of a default sweep."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["default_enabled"] is False
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: Hits are surfaced for judgment, never scored."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_default_sweep_excludes_the_category(self) -> None:
+        """Scenario: A routine run does not load it."""
+        patterns = load_language_patterns("en")
+        default_categories = {
+            entry["category"] for entry in get_tier5_patterns(patterns)
+        }
+        assert self.CATEGORY not in default_categories
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The gate reports the failure rather than swallowing it.",
+            "It raises instead of falling back to a guess.",
+            "The probe records the version rather than inferring it.",
+        ],
+    )
+    def test_detects_verb_phrase_scaffold(self, text: str) -> None:
+        """Scenario: Two actions joined to define one by the other."""
+        assert _category_hits_including_optional(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "Use rg rather than grep for file search.",
+            "Pass argv instead of a joined string.",
+            "Prefer a frozen dataclass rather than a dict.",
+        ],
+    )
+    def test_noun_comparison_is_not_flagged(self, text: str) -> None:
+        """Guard: a recommendation between two nouns is ordinary prose.
+
+        Rewriting one loses the alternative the reader needed.
+        """
+        assert _category_hits_including_optional(self.CATEGORY, text) == 0

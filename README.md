@@ -161,7 +161,7 @@ unavailable.
   out by setting `auto_post_learnings` to `false` in that config
   file.
 
-The third sends your code, not just a status check. **Delegation**
+The third sends the contents of your files. **Delegation**
 (`conjure`, also reached by `attune` missions and `egregore`
 pipeline steps) hands execution work to whichever external model
 CLI answers first, in the order Gemini, Qwen, MiniMax, GLM, Muse,
