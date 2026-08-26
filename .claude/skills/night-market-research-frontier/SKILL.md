@@ -334,6 +334,37 @@ survives the session ending and fires when a unit of work finishes
 rather than when a clock does. Full statement of the dependency:
 `docs/adr/0022-stop-hook-reinjection-as-continuation.md`.
 
+### Result, 2026-08-25: the detection half is closed
+
+Framed with TRIZ at review's request, this is a physical contradiction
+rather than a technical one. The trigger must be inside the session,
+which alone knows a unit finished, and outside it, which alone
+survives the session ending. Compromise is the wrong move for that
+shape, and the compromise is what existed: a clock-driven poller that
+is durable and not responsive, beside a Stop hook that is responsive
+and not durable.
+
+The separation axis is system scale, and three fields converge on one
+shape for it. A rail dead man's control proves liveness by a repeated
+positive act, making the absence of the act the signal. A cell-cycle
+checkpoint has the producer write state at the moment it is true, with
+the consumer decoupled and possibly absent. A kanban card is itself
+the handoff and outlives whoever placed it.
+
+`plugins/egregore/scripts/continuation_baton.py` is the mechanism. The
+session records each handoff with a sequence number and the deadline
+by which the next turn should have started, so a dropped turn strands
+a baton with its sequence unmoved. Stranded means stalled, not old,
+which is what separates this from a timeout: a run that keeps
+advancing is healthy at any age.
+
+What stays open is the primitive itself. Continuation still rides the
+undocumented Stop-hook reinjection, and nothing published gives a loop
+continuation that both survives session end and fires on work
+completion. The baton makes the ride's failure observable; it does not
+replace the ride. Full record:
+`docs/adr/0023-continuation-baton-makes-a-dropped-turn-observable.md`.
+
 ### This repo's specific asset
 
 - A working two-layer design: the Stop hook carries continuation

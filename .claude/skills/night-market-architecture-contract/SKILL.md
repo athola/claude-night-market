@@ -210,14 +210,26 @@ by decision or by neglect, not secrets.
    ralph-wiggum rides the same behavior, bounded by an iteration
    count. Egregore's cost is bounded as of `9f31a878` (stall
    detection, default 3), and the reliance is not. No test can cover the
-   harness end of it, so the first symptom of an upstream change is a
-   loop that stops after one turn. Full record:
+   harness end of it. Full record:
    `docs/adr/0022-stop-hook-reinjection-as-continuation.md`
    (2026-08-23).
 
+   The reliance stands. What changed is that its failure is now
+   observable rather than silent.
+   `plugins/egregore/scripts/continuation_baton.py` has the session
+   record each handoff with the deadline by which the next turn should
+   have started, so reinjection quietly ceasing strands a baton with
+   the process still alive. That is a distinct signal, where before an
+   upstream change and a finished run looked the same from outside.
+   Stranded means stalled rather than old, so a long healthy run never
+   reads as one. The watchdog does not consume the baton yet, which is
+   accepted debt in
+   `docs/adr/0023-continuation-baton-makes-a-dropped-turn-observable.md`
+   (2026-08-25).
+
 ## ADR digest
 
-All 22 records live in `docs/adr/`. Statuses for 0001 to 0017 were
+All 23 records live in `docs/adr/`. Statuses for 0001 to 0017 were
 read from the files on 2026-07-02, and 0018 to 0022 on 2026-08-23.
 
 | ADR | Title | Status | One-line takeaway |
