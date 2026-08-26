@@ -544,3 +544,23 @@ class TestSkillRegistration:
         registered = {Path(entry).name for entry in manifest["skills"]}
 
         assert self._skill_dirs() - registered == set()
+
+    @pytest.mark.bdd
+    def test_metadata_json_spells_every_skill_path_the_same_way(self) -> None:
+        """One spelling per manifest, because the set test cannot see two.
+
+        ``test_metadata_json_registers_every_skill`` compares
+        ``Path(entry).name``, which is identical for ``skills/x`` and
+        ``./skills/x``. A tenth entry arrived in the second form and the
+        suite stayed green. Every other plugin metadata file in this
+        repository writes the bare form, so that is what this pins.
+        """
+        manifest = json.loads(
+            (self._plugin_root() / ".claude-plugin" / "metadata.json").read_text()
+        )
+        dot_prefixed = [e for e in manifest["skills"] if e.startswith("./")]
+
+        assert dot_prefixed == [], (
+            f"metadata.json mixes path spellings: {dot_prefixed} use './' "
+            "while the rest of the list does not"
+        )
