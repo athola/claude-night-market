@@ -7,239 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- **A workflow per plugin, and a gate that keeps them runnable.** Four
-  plugins shipped dynamic-workflow scripts. The other 19 did not, and
-  `claude-code-plugin-reference` still headed the section "the asset
-  type this repo does not ship yet". All 23 ship one now, each
-  encoding that plugin's own fan-out rather than a demonstration:
-  scribe runs its four document reviewers blind to each other,
-  parseltongue its four Python specialists over the same paths,
-  egregore audits each pipeline gate for whether it can return a
-  failing verdict. Two conventions hold across all of them, because
-  the violation fails at dispatch rather than at authoring. A script
-  that cannot start returns `{started: false, reason, next}` with
-  `next` naming the command that supplies the missing input, instead
-  of dispatching agents against nothing. And none calls `Date.now()`,
-  `Math.random()`, argless `new Date()` or `import()`: the first three
-  throw, because a run has to replay identically from its journal on
-  resume, and the fourth fails the script before the run starts.
-  `tests/test_shipped_workflows.py` gates coverage, `meta` placement,
-  `meta.name` agreeing with the filename, the refusal shape, and a row
-  in the capabilities reference. The filename check earns its place:
-  the harness invokes by `meta.name`, so a script whose declared name
-  disagrees with its file exists under a name nobody can type, and no
-  syntax check sees it.
-
-- **A continuation baton that makes a dropped turn observable
-  (egregore).** ADR-0022 recorded that the autonomous loop continues by
-  riding an undocumented harness behavior, and closed on a defect
-  nobody could act on: no test can cover the harness end, so the first
-  symptom of an upstream change is a loop that stops after one turn,
-  which looks identical to a loop that finished. Framed with TRIZ this
-  is a physical contradiction, not a technical one: the trigger must
-  be inside the session, which alone knows a unit finished, and
-  outside it, which alone survives the session ending. The separation
-  axis is system scale, and a rail dead man's control, a cell-cycle
-  checkpoint and a kanban card all land on the same shape for it. So
-  the session records each handoff with a sequence number and the
-  deadline by which the next turn should have started, so a dropped
-  turn leaves a baton past its deadline with its sequence unmoved. Stranded
-  means stalled rather than old, which is what separates it from a
-  timeout. Four states are distinguishable where the pidfile
-  distinguished one, including reinjection ceasing while the process
-  is still alive. The dependency is unchanged and the watchdog does
-  not consume the baton yet. ADR-0023 states both.
-
-- **Provider setup for delegation, with a ledger (conjure).**
-  `delegation_setup.py` already probed, explained and installed, but
-  had no skill in front of it and wrote nothing down, so every call
-  re-derived the same facts by spawning up to sixteen subprocesses and
-  an unconfigured provider surfaced only as a failed delegation.
-  `Skill(conjure:provider-setup)` and `--available` answer what this
-  machine can call. `provider_ledger.py` stores it, and what it may
-  remember is asymmetric on purpose: installed facts cache under a
-  six-hour TTL, a confirmed credential is a timestamp and never a
-  boolean because a token expires without touching the binary, and a
-  recorded failure clears the confirmation immediately. A provider
-  whose auth was never probed carries `auth_checked: false`, which
-  never becomes a confirmation, because "we did not look" and "it
-  works" are different claims. The ledger deliberately does not reach
-  the routing path, and the skill says so.
-
-- **Slop detection for the trailing corrective (scribe).**
-  `negative_parallelism` already named the "X, not just Y" form, but
-  its bare-trailing regex needs the sentence to end one word after
-  "not", so "sends your code, not just a status check" was live in
-  `README.md`. `contrastive_negation_trailing` carries the four forms
-  the sources agree on, at high confidence.
-  `contrastive_scaffold` covers "does X rather than Y" and "does X
-  instead of Y", and ships `default_enabled: false` at low confidence:
-  no source in the contrastive-negation literature names either
-  connective, and this repository writes "rather than" 504 times and
-  "instead of" 299 in its own markdown, almost all correctly.
-
-### Changed
-
-- **Shipped documents no longer cite a path a marketplace install
-  lacks.** A plugin installed from the marketplace gets that plugin's
-  directory and nothing else, with no `.claude/rules/`. Fifteen files
-  under `plugins/` told their reader to see a rule file there. The
-  substance now travels with the plugin: stated inline, or cited from
-  a module under the same plugin. Deleting the pointers alone would
-  have left the reader with less.
-  `tests/test_shipped_plugin_docs_avoid_repo_local_rules.py` gates the
-  shipped surface, allowlisting the four cases where the rules
-  directory is an operand rather than a reference.
-
-- **The Iron Law says what a test is for, not only that one exists.**
-  Read as an unqualified "a failing test before every change", it
-  produces a suite where every changed line grew an assertion, and
-  that is not a neutral cost: a test pinning a convenience default
-  reports failure when nothing broke. The RED phase now begins by
-  naming the constraint the test defends, one of a business rule, an
-  invariant, a contract at a boundary, or a recorded defect. When none
-  fits, "this change does not need a test first" is a valid answer
-  that has to be said with its reason. leyline's anti-pattern catalog
-  gains the case it was missing, since it covered how a test is
-  written and said nothing about whether the constraint was required.
-
-- **`docs/testing-guide.md` counts are measured rather than
-  estimated.** The table claimed 938 tests across 12 plugins, listed
-  abstract at 331 where it collects 2,378, and carried coverage and
-  mutation columns with no evidence behind them. Rebuilt from
-  `pytest --collect-only`: 14,048 across 23 plugins, plus 6,944 in the
-  root suite that no plugin runner sees. The command that regenerates
-  it ships alongside, because the numbers drift.
-
-- **Session start no longer injects reference manuals.** Eight plugins
-  register `SessionStart`; three printed documentation totaling 9,973 of
-  the 10,770 characters measured across the set, so every session paid
-  for guidance about work most sessions never did. conserve went from
-  ~4,000 characters to 951 and imbue from ~3,100 to 990, both now
-  pointers into the skills that already held the detail; sanctum's was
-  cut to 533 separately on this branch. conserve also stopped restating
-  imbue's scope-guard reference, which every session paid for twice. A
-  per-payload budget test holds the line.
-- **The context monitor stopped re-reading the transcript per tool
-  call.** `conserve/context_warning.py` parsed up to 4MB of session
-  JSONL on every Write, Edit, Bash, Skill and Task. The alert bands are
-  40%, 50% and 80%, which no session crosses inside half a minute, so
-  the estimate is cached for 30 seconds.
-- **A prompt with no URL stopped paying for the memory-palace shared
-  package.** `url_detector.py` imported `shared.config` and
-  `shared.deduplication` at module scope, 100ms measured with
-  `-X importtime`, for names unreachable until a URL is found.
-  Deferring them takes the quiet path from 90ms to 40ms.
-
-### Fixed
-
-- **A metadata entry used a path spelling no other plugin uses.**
-  conjure's `metadata.json` listed nine skills as `skills/<name>` and
-  glimmer as `./skills/<name>`, the single outlier repo-wide. The
-  registration test compares `Path(entry).name`, identical for both,
-  so the tenth entry arrived in the wrong form and the suite stayed
-  green. The spelling is pinned directly now.
-
-- **Five branches added this cycle and never exercised.**
-  `provider_ledger` and `continuation_baton` reach 100% from 95% and
-  94%: an unfamiliar schema version must discard the file wholesale,
-  and one malformed entry must not discard the others.
-  `render_available`, the one function whose whole job is telling an
-  operator the truth, had no test at all. Three guards were decorative
-  on the first attempt and the revert test is what caught them. The
-  record is `LL-006`.
-
-- **Slop detection for prose framed in the negative (scribe).** The
-  existing `negative_parallelism` catches a scaffold, "not X but Y".
-  Three new `tier5` categories catch writing that reaches for the
-  negative where a positive statement was available: `litotes` ("not
-  uncommon", "never fails to"), `vacuous_negation` ("cannot be
-  overstated", "needless to say") and `negative_definition` ("doesn't
-  handle X"). The first two are high confidence and on by default. The
-  third ships `default_enabled: false` and low confidence, because
-  precise negation is how contracts, invariants and trust boundaries
-  are written and a default-on version would bury one real finding
-  under hundreds of correct sentences.
-
-  Over-reliance is a property of a page rather than of any sentence, so
-  a regex cannot measure it. `scribe.negation.check_negation_density`
-  reports the share of sentences carrying a negation marker against an
-  advisory 35% bar, with an 8-sentence floor. It gates nothing.
-
-- **The CI slop gate reads the pattern source instead of a copy.**
-  `slop-check.yml` carried its own inline `TIER1=`/`TIER2=` grep
-  alternations, so it enforced a snapshot of
-  `plugins/scribe/data/languages/en.yaml`: every Tier 5 category added
-  since was invisible to CI, and a regex category cannot be written as
-  a word alternation at all. `scripts/slop_score.py` loads the YAML, so
-  a category added there reaches CI with no workflow edit. Only
-  high-confidence categories score, since the house rule says a low
-  confidence finding is surfaced for a human and never auto-applied;
-  the rest are listed under a heading that says they did not count.
-  `.slop-config.yaml` carries the project allowlist, and a test fails
-  any entry that does not state why the word is correct here.
-
-- **CI runs every plugin's own test suite.** No workflow did.
-  `ecosystem-tests.yml` runs the root `tests/` suite and
-  `python39-compat.yml` runs the hook subset for hook-registering
-  plugins, so roughly 13,900 tests across 23 plugin suites were gated
-  only by the pre-commit hook on a contributor's machine -- the same
-  hook that, until this branch, reported failure without running
-  anything for any plugin with no coverage threshold.
-  `plugin-tests.yml` discovers the matrix from `plugins/*/tests` rather
-  than listing it, runs each suite from its own plugin directory
-  because several resolve imports against their own pyproject, and
-  leaves coverage on because two plugins do not depend on pytest-cov at
-  all. `tests/test_ci_runs_plugin_suites.py` pins those three
-  properties and the `plugins/**` path filter.
-
-- **Nine tests asserted on whatever the machine happened to have.**
-  Two in attune mocked `sync_language_templates` but not
-  `check_reference_projects`, so `main()` exited 1 unless
-  `~/simple-resume` and `~/skrills` existed; both mocks together make
-  the assertion about argument routing deterministic. Three in conjure
-  assert on how an *installed* provider renders and had a bare `assert`,
-  which failed rather than skipped where the CLI was absent. Four in
-  pensive shell out to `shellcheck` and `shfmt`; they are the
-  repository's only automated shell gate, so the CI job installs both
-  rather than letting them skip there, and installs ripgrep for the
-  pattern-detection tests in the same file, which fail outright without
-  it.
-
-  A sweep with `HOME` pointed at an empty directory found the first six.
-  The first CI run found the rest, including one that no local run can
-  reproduce: `uv run` installs a PEP 735 `[dependency-groups] dev` by
-  default but not a `[project.optional-dependencies] dev`, and leyline
-  and phantom declare pytest only in the second form. Their jobs died on
-  "No module named pytest" while passing locally, where a repo-root
-  `.venv` already carried pytest from an earlier run. The workflow
-  passes `--all-extras` to cover both conventions.
-
-- **Hook `if` gates were on the wrong object and never ran.** Measured
-  on Claude Code 2.1.245: the harness reads `if` from the hook entry,
-  and the same key on the enclosing matcher group is dropped without an
-  error. Every `if` this repo shipped sat on the group, so gauntlet's
-  precommit gate, pensive's blast-radius hook and cartograph's graph
-  refresh spawned on every Bash call while their configs read as gated.
-  The keys moved into their entries, imbue's three `PreToolUse:Bash`
-  hooks gained gates now that the mechanism works, and
-  `scripts/check_hook_modernization.py` rejects both silent failure
-  modes: a misplaced key that never gates, and an array-valued `if`
-  that suppresses the hook outright with a matching rule present.
-- **A plugin with no coverage threshold reported failure having run
-  nothing.** bash 3.2, which macOS ships, treats an empty array as
-  unset, so `"${cov_flag[@]}"` under `set -u` aborted
-  `scripts/run-plugin-tests.sh` before pytest was invoked. bash 4+
-  expands the same line to nothing, so CI never reproduced it.
-- **The conserve context-estimate cache followed symlinks.** Its path
-  is derived from the transcript path and so is predictable; it now
-  opens with `O_NOFOLLOW` and refuses a file this user does not own
-  (CWE-59), matching the defense imbue keeps in
-  `hooks/shared/vow_utils.py`.
-
-## [1.9.19] - 2026-08-23
+## [1.9.19] - 2026-08-26
 
 ### Added
 
@@ -350,6 +118,77 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   count. A file that is present and cannot be read propagates, because a
   ratchet subtracts every skipped file from its own total and one
   unreadable document can otherwise absorb a real rise elsewhere.
+
+- **A workflow per plugin, and a gate that keeps them runnable.** Four
+  plugins shipped dynamic-workflow scripts. The other 19 did not, and
+  `claude-code-plugin-reference` still headed the section "the asset
+  type this repo does not ship yet". All 23 ship one now, each
+  encoding that plugin's own fan-out rather than a demonstration:
+  scribe runs its four document reviewers blind to each other,
+  parseltongue its four Python specialists over the same paths,
+  egregore audits each pipeline gate for whether it can return a
+  failing verdict. Two conventions hold across all of them, because
+  the violation fails at dispatch rather than at authoring. A script
+  that cannot start returns `{started: false, reason, next}` with
+  `next` naming the command that supplies the missing input, instead
+  of dispatching agents against nothing. And none calls `Date.now()`,
+  `Math.random()`, argless `new Date()` or `import()`: the first three
+  throw, because a run has to replay identically from its journal on
+  resume, and the fourth fails the script before the run starts.
+  `tests/test_shipped_workflows.py` gates coverage, `meta` placement,
+  `meta.name` agreeing with the filename, the refusal shape, and a row
+  in the capabilities reference. The filename check earns its place:
+  the harness invokes by `meta.name`, so a script whose declared name
+  disagrees with its file exists under a name nobody can type, and no
+  syntax check sees it.
+
+- **A continuation baton that makes a dropped turn observable
+  (egregore).** ADR-0022 recorded that the autonomous loop continues by
+  riding an undocumented harness behavior, and closed on a defect
+  nobody could act on: no test can cover the harness end, so the first
+  symptom of an upstream change is a loop that stops after one turn,
+  which looks identical to a loop that finished. Framed with TRIZ this
+  is a physical contradiction, not a technical one: the trigger must
+  be inside the session, which alone knows a unit finished, and
+  outside it, which alone survives the session ending. The separation
+  axis is system scale, and a rail dead man's control, a cell-cycle
+  checkpoint and a kanban card all land on the same shape for it. So
+  the session records each handoff with a sequence number and the
+  deadline by which the next turn should have started, so a dropped
+  turn leaves a baton past its deadline with its sequence unmoved. Stranded
+  means stalled rather than old, which is what separates it from a
+  timeout. Four states are distinguishable where the pidfile
+  distinguished one, including reinjection ceasing while the process
+  is still alive. The dependency is unchanged and the watchdog does
+  not consume the baton yet. ADR-0023 states both.
+
+- **Provider setup for delegation, with a ledger (conjure).**
+  `delegation_setup.py` already probed, explained and installed, but
+  had no skill in front of it and wrote nothing down, so every call
+  re-derived the same facts by spawning up to sixteen subprocesses and
+  an unconfigured provider surfaced only as a failed delegation.
+  `Skill(conjure:provider-setup)` and `--available` answer what this
+  machine can call. `provider_ledger.py` stores it, and what it may
+  remember is asymmetric on purpose: installed facts cache under a
+  six-hour TTL, a confirmed credential is a timestamp and never a
+  boolean because a token expires without touching the binary, and a
+  recorded failure clears the confirmation immediately. A provider
+  whose auth was never probed carries `auth_checked: false`, which
+  never becomes a confirmation, because "we did not look" and "it
+  works" are different claims. The ledger deliberately does not reach
+  the routing path, and the skill says so.
+
+- **Slop detection for the trailing corrective (scribe).**
+  `negative_parallelism` already named the "X, not just Y" form, but
+  its bare-trailing regex needs the sentence to end one word after
+  "not", so "sends your code, not just a status check" was live in
+  `README.md`. `contrastive_negation_trailing` carries the four forms
+  the sources agree on, at high confidence.
+  `contrastive_scaffold` covers "does X rather than Y" and "does X
+  instead of Y", and ships `default_enabled: false` at low confidence:
+  no source in the contrastive-negation literature names either
+  connective, and this repository writes "rather than" 504 times and
+  "instead of" 299 in its own markdown, almost all correctly.
 
 ### Changed
 
@@ -608,6 +447,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   it already passed, and a skip reports neither pass nor fail. The entry
   is removed and each remaining one now has to resolve on disk and still
   contain the trailer it was granted for.
+
+- **Shipped documents no longer cite a path a marketplace install
+  lacks.** A plugin installed from the marketplace gets that plugin's
+  directory and nothing else, with no `.claude/rules/`. Fifteen files
+  under `plugins/` told their reader to see a rule file there. The
+  substance now travels with the plugin: stated inline, or cited from
+  a module under the same plugin. Deleting the pointers alone would
+  have left the reader with less.
+  `tests/test_shipped_plugin_docs_avoid_repo_local_rules.py` gates the
+  shipped surface, allowlisting the four cases where the rules
+  directory is an operand rather than a reference.
+
+- **The Iron Law says what a test is for, not only that one exists.**
+  Read as an unqualified "a failing test before every change", it
+  produces a suite where every changed line grew an assertion, and
+  that is not a neutral cost: a test pinning a convenience default
+  reports failure when nothing broke. The RED phase now begins by
+  naming the constraint the test defends, one of a business rule, an
+  invariant, a contract at a boundary, or a recorded defect. When none
+  fits, "this change does not need a test first" is a valid answer
+  that has to be said with its reason. leyline's anti-pattern catalog
+  gains the case it was missing, since it covered how a test is
+  written and said nothing about whether the constraint was required.
+
+- **`docs/testing-guide.md` counts are measured rather than
+  estimated.** The table claimed 938 tests across 12 plugins, listed
+  abstract at 331 where it collects 2,378, and carried coverage and
+  mutation columns with no evidence behind them. Rebuilt from
+  `pytest --collect-only`: 14,048 across 23 plugins, plus 6,944 in the
+  root suite that no plugin runner sees. The command that regenerates
+  it ships alongside, because the numbers drift.
+
+- **Session start no longer injects reference manuals.** Eight plugins
+  register `SessionStart`; three printed documentation totaling 9,973 of
+  the 10,770 characters measured across the set, so every session paid
+  for guidance about work most sessions never did. conserve went from
+  ~4,000 characters to 951 and imbue from ~3,100 to 990, both now
+  pointers into the skills that already held the detail; sanctum's was
+  cut to 533 separately on this branch. conserve also stopped restating
+  imbue's scope-guard reference, which every session paid for twice. A
+  per-payload budget test holds the line.
+- **The context monitor stopped re-reading the transcript per tool
+  call.** `conserve/context_warning.py` parsed up to 4MB of session
+  JSONL on every Write, Edit, Bash, Skill and Task. The alert bands are
+  40%, 50% and 80%, which no session crosses inside half a minute, so
+  the estimate is cached for 30 seconds.
+- **A prompt with no URL stopped paying for the memory-palace shared
+  package.** `url_detector.py` imported `shared.config` and
+  `shared.deduplication` at module scope, 100ms measured with
+  `-X importtime`, for names unreachable until a URL is found.
+  Deferring them takes the quiet path from 90ms to 40ms.
 
 ### Fixed
 
@@ -980,6 +870,110 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workflow file overnight is precisely what the denylist's `.github/**`
   entry exists for. The code reads `_touched_files`, which unions the
   diff with `git status --porcelain -uall`, and the contract now says so.
+
+- **A metadata entry used a path spelling no other plugin uses.**
+  conjure's `metadata.json` listed nine skills as `skills/<name>` and
+  glimmer as `./skills/<name>`, the single outlier repo-wide. The
+  registration test compares `Path(entry).name`, identical for both,
+  so the tenth entry arrived in the wrong form and the suite stayed
+  green. The spelling is pinned directly now.
+
+- **Five branches added this cycle and never exercised.**
+  `provider_ledger` and `continuation_baton` reach 100% from 95% and
+  94%: an unfamiliar schema version must discard the file wholesale,
+  and one malformed entry must not discard the others.
+  `render_available`, the one function whose whole job is telling an
+  operator the truth, had no test at all. Three guards were decorative
+  on the first attempt and the revert test is what caught them. The
+  record is `LL-006`.
+
+- **Slop detection for prose framed in the negative (scribe).** The
+  existing `negative_parallelism` catches a scaffold, "not X but Y".
+  Three new `tier5` categories catch writing that reaches for the
+  negative where a positive statement was available: `litotes` ("not
+  uncommon", "never fails to"), `vacuous_negation` ("cannot be
+  overstated", "needless to say") and `negative_definition` ("doesn't
+  handle X"). The first two are high confidence and on by default. The
+  third ships `default_enabled: false` and low confidence, because
+  precise negation is how contracts, invariants and trust boundaries
+  are written and a default-on version would bury one real finding
+  under hundreds of correct sentences.
+
+  Over-reliance is a property of a page rather than of any sentence, so
+  a regex cannot measure it. `scribe.negation.check_negation_density`
+  reports the share of sentences carrying a negation marker against an
+  advisory 35% bar, with an 8-sentence floor. It gates nothing.
+
+- **The CI slop gate reads the pattern source instead of a copy.**
+  `slop-check.yml` carried its own inline `TIER1=`/`TIER2=` grep
+  alternations, so it enforced a snapshot of
+  `plugins/scribe/data/languages/en.yaml`: every Tier 5 category added
+  since was invisible to CI, and a regex category cannot be written as
+  a word alternation at all. `scripts/slop_score.py` loads the YAML, so
+  a category added there reaches CI with no workflow edit. Only
+  high-confidence categories score, since the house rule says a low
+  confidence finding is surfaced for a human and never auto-applied;
+  the rest are listed under a heading that says they did not count.
+  `.slop-config.yaml` carries the project allowlist, and a test fails
+  any entry that does not state why the word is correct here.
+
+- **CI runs every plugin's own test suite.** No workflow did.
+  `ecosystem-tests.yml` runs the root `tests/` suite and
+  `python39-compat.yml` runs the hook subset for hook-registering
+  plugins, so roughly 13,900 tests across 23 plugin suites were gated
+  only by the pre-commit hook on a contributor's machine -- the same
+  hook that, until this branch, reported failure without running
+  anything for any plugin with no coverage threshold.
+  `plugin-tests.yml` discovers the matrix from `plugins/*/tests` rather
+  than listing it, runs each suite from its own plugin directory
+  because several resolve imports against their own pyproject, and
+  leaves coverage on because two plugins do not depend on pytest-cov at
+  all. `tests/test_ci_runs_plugin_suites.py` pins those three
+  properties and the `plugins/**` path filter.
+
+- **Nine tests asserted on whatever the machine happened to have.**
+  Two in attune mocked `sync_language_templates` but not
+  `check_reference_projects`, so `main()` exited 1 unless
+  `~/simple-resume` and `~/skrills` existed; both mocks together make
+  the assertion about argument routing deterministic. Three in conjure
+  assert on how an *installed* provider renders and had a bare `assert`,
+  which failed rather than skipped where the CLI was absent. Four in
+  pensive shell out to `shellcheck` and `shfmt`; they are the
+  repository's only automated shell gate, so the CI job installs both
+  rather than letting them skip there, and installs ripgrep for the
+  pattern-detection tests in the same file, which fail outright without
+  it.
+
+  A sweep with `HOME` pointed at an empty directory found the first six.
+  The first CI run found the rest, including one that no local run can
+  reproduce: `uv run` installs a PEP 735 `[dependency-groups] dev` by
+  default but not a `[project.optional-dependencies] dev`, and leyline
+  and phantom declare pytest only in the second form. Their jobs died on
+  "No module named pytest" while passing locally, where a repo-root
+  `.venv` already carried pytest from an earlier run. The workflow
+  passes `--all-extras` to cover both conventions.
+
+- **Hook `if` gates were on the wrong object and never ran.** Measured
+  on Claude Code 2.1.245: the harness reads `if` from the hook entry,
+  and the same key on the enclosing matcher group is dropped without an
+  error. Every `if` this repo shipped sat on the group, so gauntlet's
+  precommit gate, pensive's blast-radius hook and cartograph's graph
+  refresh spawned on every Bash call while their configs read as gated.
+  The keys moved into their entries, imbue's three `PreToolUse:Bash`
+  hooks gained gates now that the mechanism works, and
+  `scripts/check_hook_modernization.py` rejects both silent failure
+  modes: a misplaced key that never gates, and an array-valued `if`
+  that suppresses the hook outright with a matching rule present.
+- **A plugin with no coverage threshold reported failure having run
+  nothing.** bash 3.2, which macOS ships, treats an empty array as
+  unset, so `"${cov_flag[@]}"` under `set -u` aborted
+  `scripts/run-plugin-tests.sh` before pytest was invoked. bash 4+
+  expands the same line to nothing, so CI never reproduced it.
+- **The conserve context-estimate cache followed symlinks.** Its path
+  is derived from the transcript path and so is predictable; it now
+  opens with `O_NOFOLLOW` and refuses a file this user does not own
+  (CWE-59), matching the defense imbue keeps in
+  `hooks/shared/vow_utils.py`.
 
 ## [1.9.18] - 2026-08-12
 
