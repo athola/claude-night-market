@@ -175,43 +175,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   all. `tests/test_ci_runs_plugin_suites.py` pins those three
   properties and the `plugins/**` path filter.
 
-- **A fourth ratchet, on the wrap rule nothing had ever checked.**
-  `.claude/rules/markdown-formatting.md` requires prose to wrap at 80
-  columns and says so for every document in the codebase, plugin READMEs
-  and skill files included. The only markdown hook was
-  `check-markdown-links`, which validates link targets and has never had
-  an opinion about line length. Issue #681 recorded the gap.
-
-  `scripts/check_prose_wrap_drift.py` counts overlong prose lines across
-  tracked markdown and compares the total against
-  `scripts/prose_wrap_baseline.json`. The repository holds 3558 of them,
-  so a hard gate would have failed the first commit that touched a
-  document and every one after. The count may fall and may hold, and it
-  may not rise. A drop passes and prints the number to write back,
-  because a baseline parked above the real count is permission nobody
-  granted, which is the state `max_missing_exit_criteria` sat in at 127
-  while the true count was 1.
-
-  Most of the work is staying quiet. The rule names its own exemptions
-  and a checker that counted every long line would report thousands of
-  findings against tables and fenced code it already excuses, and a
-  check that noisy stops being run. Tables, headings, indented code,
-  HTML, link definitions, image references and frontmatter are excluded,
-  and so is any line carrying a URL, since the rule forbids breaking
-  inside one and a finding with no available repair is noise.
-  Frontmatter is honored only at the top of a file: a `---` further down
-  is a thematic break, and reading it as a fence opener would silence
-  every prose line below the first horizontal rule in the document.
-
-  Enumeration goes through `git ls-files` rather than a filesystem walk.
-  On one machine `clawhub/`, `reviews/` and the memory-palace web
-  captures are gitignored and carried several hundred findings a fresh
-  checkout does not have, and a threshold that moves with local state
-  fires on work nobody committed. Only a missing file is absorbed by the
-  count. A file that is present and cannot be read propagates, because a
-  ratchet subtracts every skipped file from its own total and one
-  unreadable document can otherwise absorb a real rise elsewhere.
-
 ### Fixed
 
 - **Nine tests asserted on whatever the machine happened to have.**
@@ -235,15 +198,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   "No module named pytest" while passing locally, where a repo-root
   `.venv` already carried pytest from an earlier run. The workflow
   passes `--all-extras` to cover both conventions.
-
-- **The night-run scope fence documents the wider read it now does.**
-  The `night_run.py` module docstring said step 2 reads "the changed
-  file list", which is the phrase whose narrowness was the defect: `git
-  diff --name-only` lists tracked modifications only, so an implementer
-  that created a file handed the fence an empty list, and creating a
-  workflow file overnight is precisely what the denylist's `.github/**`
-  entry exists for. The code reads `_touched_files`, which unions the
-  diff with `git status --porcelain -uall`, and the contract now says so.
 
 - **Hook `if` gates were on the wrong object and never ran.** Measured
   on Claude Code 2.1.245: the harness reads `if` from the hook entry,
@@ -364,6 +318,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now says so rather than rendering "0 of 0 executions carry a
   qualitative_evaluation", which invited reading an empty log as a
   measured shortfall.
+
+- **A fourth ratchet, on the wrap rule nothing had ever checked.**
+  `.claude/rules/markdown-formatting.md` requires prose to wrap at 80
+  columns and says so for every document in the codebase, plugin READMEs
+  and skill files included. The only markdown hook was
+  `check-markdown-links`, which validates link targets and has never had
+  an opinion about line length. Issue #681 recorded the gap.
+
+  `scripts/check_prose_wrap_drift.py` counts overlong prose lines across
+  tracked markdown and compares the total against
+  `scripts/prose_wrap_baseline.json`. The repository holds 3558 of them,
+  so a hard gate would have failed the first commit that touched a
+  document and every one after. The count may fall and may hold, and it
+  may not rise. A drop passes and prints the number to write back,
+  because a baseline parked above the real count is permission nobody
+  granted, which is the state `max_missing_exit_criteria` sat in at 127
+  while the true count was 1.
+
+  Most of the work is staying quiet. The rule names its own exemptions
+  and a checker that counted every long line would report thousands of
+  findings against tables and fenced code it already excuses, and a
+  check that noisy stops being run. Tables, headings, indented code,
+  HTML, link definitions, image references and frontmatter are excluded,
+  and so is any line carrying a URL, since the rule forbids breaking
+  inside one and a finding with no available repair is noise.
+  Frontmatter is honored only at the top of a file: a `---` further down
+  is a thematic break, and reading it as a fence opener would silence
+  every prose line below the first horizontal rule in the document.
+
+  Enumeration goes through `git ls-files` rather than a filesystem walk.
+  On one machine `clawhub/`, `reviews/` and the memory-palace web
+  captures are gitignored and carried several hundred findings a fresh
+  checkout does not have, and a threshold that moves with local state
+  fires on work nobody committed. Only a missing file is absorbed by the
+  count. A file that is present and cannot be read propagates, because a
+  ratchet subtracts every skipped file from its own total and one
+  unreadable document can otherwise absorb a real rise elsewhere.
 
 ### Changed
 
@@ -985,6 +976,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   passed 0.9 to it, but neither `FullLineage` nor `SimpleLineage`
   carries an importance field. No caller passed the first or third
   outside tests, so the signatures narrow without a shim.
+
+- **The night-run scope fence documents the wider read it now does.**
+  The `night_run.py` module docstring said step 2 reads "the changed
+  file list", which is the phrase whose narrowness was the defect: `git
+  diff --name-only` lists tracked modifications only, so an implementer
+  that created a file handed the fence an empty list, and creating a
+  workflow file overnight is precisely what the denylist's `.github/**`
+  entry exists for. The code reads `_touched_files`, which unions the
+  diff with `git status --porcelain -uall`, and the contract now says so.
 
 ## [1.9.18] - 2026-08-12
 
