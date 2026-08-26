@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/version-1.9.19-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-209-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-211-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 
 **A plugin marketplace for Claude Code.** Install only the
@@ -188,11 +188,16 @@ answers, the work stays on your machine.
 **1.9.19** takes `conjure` from three delegation targets to eight and
 turns delegation on by default. GLM-5.3, Meta Muse Code, the OpenAI
 Codex CLI, OpenCode and a locally served Muse Glimmer join Gemini,
-Qwen and MiniMax. `make delegate-doctor` reports what is installed
-and how to fix what is not, and `CONJURE_DELEGATION=off` declines
-for a single run. Four plugins ship a `workflows/` script now, so
-`pensive`, `attune`, `tome` and `sanctum` can fan work across
-subagents when you ask for it. Full history is in the
+Qwen and MiniMax. `/conjure:provider-setup` reports which of them
+this machine can actually call, installs the missing ones on request,
+and stores the answer instead of re-probing every call. Setting
+`CONJURE_DELEGATION=off` declines for a single run. Every plugin ships
+a `workflows/` script now, so
+every plugin can fan work across subagents when you ask for it.
+Each script encodes that plugin's own fan-out: `scribe` runs its
+four document reviewers blind to each other, `egregore` audits each
+pipeline gate for whether it can return a failing verdict. A
+workflow only runs when you ask for one. Full history is in the
 [CHANGELOG](CHANGELOG.md).
 
 ## Plugin Development
