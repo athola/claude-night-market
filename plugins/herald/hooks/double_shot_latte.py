@@ -361,7 +361,7 @@ def _llm_second_shot(text: str) -> tuple[bool, str] | None:
     env = dict(os.environ)
     env[JUDGE_MODE_ENV] = "true"
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 - claude_bin is resolved from PATH by shutil.which, not user input
             [
                 claude_bin,
                 "--print",

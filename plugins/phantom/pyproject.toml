@@ -1,6 +1,6 @@
 [project]
 name = "phantom"
-version = "1.9.18"
+version = "1.9.19"
 description = "Computer use toolkit for Claude - screenshot capture, mouse/keyboard control, and agent loop"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -29,11 +29,13 @@ build-backend = "hatchling.build"
 packages = ["src/phantom"]
 
 [tool.ruff]
+# Inherit the repo-wide rule floor; this file may only add.
+extend = "../../pyproject.toml"
 target-version = "py39"
 line-length = 88
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "UP", "B", "SIM", "PLR0913"]
+extend-select = ["E", "F", "W", "I", "UP", "B", "SIM", "PLR0913"]
 ignore = ["UP017", "UP007"]
 
 [tool.mypy]

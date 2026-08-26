@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from ..frontmatter import FrontmatterProcessor
-from ..tokens import TokenAnalyzer, estimate_tokens
+from ..tokens import TokenAnalyzer, estimate_text_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -426,7 +426,7 @@ class TokenUsageTracker:
             except OSError:
                 return ["Error reading skill file"]
 
-            total_tokens = estimate_tokens(content)
+            total_tokens = estimate_text_tokens(content)
             if total_tokens > self.optimal_limit:
                 return ["Reduce content size for better performance"]
             if total_tokens > self.max_limit:
@@ -460,4 +460,4 @@ class TokenUsageTracker:
         if parsed is not None and "frontmatter_tokens" in parsed:
             return int(parsed.get("frontmatter_tokens", 0))
         frontmatter, _ = FrontmatterProcessor.extract_raw(content)
-        return estimate_tokens(frontmatter)
+        return estimate_text_tokens(frontmatter)

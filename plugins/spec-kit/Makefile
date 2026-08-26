@@ -153,8 +153,8 @@ plugin-check: demo-spec demo-tasks demo-skills ## Run all demo workflows
 Makefile.local:;
 -include Makefile.local
 
-demo-speckit-startup: ## Demo speckit-startup command (LIVE)
-	@echo "=== speckit-startup Demo (LIVE) ==="
+demo-speckit-startup: ## Demo speckit-startup command
+	@echo "=== speckit-startup Demo ==="
 	@echo ""
 	@echo "Command: /speckit-startup"
 	@echo "Plugin: spec-kit"
@@ -165,8 +165,8 @@ demo-speckit-startup: ## Demo speckit-startup command (LIVE)
 	@echo "Use /speckit-startup for full workflow."
 
 
-demo-speckit-specify: ## Demo speckit-specify command (LIVE)
-	@echo "=== speckit-specify Demo (LIVE) ==="
+demo-speckit-specify: ## Demo speckit-specify command
+	@echo "=== speckit-specify Demo ==="
 	@echo ""
 	@echo "Command: /speckit-specify"
 	@echo "Plugin: spec-kit"
@@ -177,8 +177,8 @@ demo-speckit-specify: ## Demo speckit-specify command (LIVE)
 	@echo "Use /speckit-specify for full workflow."
 
 
-demo-speckit-clarify: ## Demo speckit-clarify command (LIVE)
-	@echo "=== speckit-clarify Demo (LIVE) ==="
+demo-speckit-clarify: ## Demo speckit-clarify command
+	@echo "=== speckit-clarify Demo ==="
 	@echo ""
 	@echo "Command: /speckit-clarify"
 	@echo "Plugin: spec-kit"
@@ -189,8 +189,8 @@ demo-speckit-clarify: ## Demo speckit-clarify command (LIVE)
 	@echo "Use /speckit-clarify for full workflow."
 
 
-demo-speckit-plan: ## Demo speckit-plan command (LIVE)
-	@echo "=== speckit-plan Demo (LIVE) ==="
+demo-speckit-plan: ## Demo speckit-plan command
+	@echo "=== speckit-plan Demo ==="
 	@echo ""
 	@echo "Command: /speckit-plan"
 	@echo "Plugin: spec-kit"
@@ -201,8 +201,8 @@ demo-speckit-plan: ## Demo speckit-plan command (LIVE)
 	@echo "Use /speckit-plan for full workflow."
 
 
-demo-speckit-tasks: ## Demo speckit-tasks command (LIVE)
-	@echo "=== speckit-tasks Demo (LIVE) ==="
+demo-speckit-tasks: ## Demo speckit-tasks command
+	@echo "=== speckit-tasks Demo ==="
 	@echo ""
 	@echo "Command: /speckit-tasks"
 	@echo "Plugin: spec-kit"
@@ -213,8 +213,8 @@ demo-speckit-tasks: ## Demo speckit-tasks command (LIVE)
 	@echo "Use /speckit-tasks for full workflow."
 
 
-demo-speckit-implement: ## Demo speckit-implement command (LIVE)
-	@echo "=== speckit-implement Demo (LIVE) ==="
+demo-speckit-implement: ## Demo speckit-implement command
+	@echo "=== speckit-implement Demo ==="
 	@echo ""
 	@echo "Command: /speckit-implement"
 	@echo "Plugin: spec-kit"
@@ -225,8 +225,8 @@ demo-speckit-implement: ## Demo speckit-implement command (LIVE)
 	@echo "Use /speckit-implement for full workflow."
 
 
-demo-speckit-analyze: ## Demo speckit-analyze command (LIVE)
-	@echo "=== speckit-analyze Demo (LIVE) ==="
+demo-speckit-analyze: ## Demo speckit-analyze command
+	@echo "=== speckit-analyze Demo ==="
 	@echo ""
 	@echo "Command: /speckit-analyze"
 	@echo "Plugin: spec-kit"
@@ -237,8 +237,8 @@ demo-speckit-analyze: ## Demo speckit-analyze command (LIVE)
 	@echo "Use /speckit-analyze for full workflow."
 
 
-demo-speckit-checklist: ## Demo speckit-checklist command (LIVE)
-	@echo "=== speckit-checklist Demo (LIVE) ==="
+demo-speckit-checklist: ## Demo speckit-checklist command
+	@echo "=== speckit-checklist Demo ==="
 	@echo ""
 	@echo "Command: /speckit-checklist"
 	@echo "Plugin: spec-kit"
@@ -249,8 +249,8 @@ demo-speckit-checklist: ## Demo speckit-checklist command (LIVE)
 	@echo "Use /speckit-checklist for full workflow."
 
 
-demo-speckit-constitution: ## Demo speckit-constitution command (LIVE)
-	@echo "=== speckit-constitution Demo (LIVE) ==="
+demo-speckit-constitution: ## Demo speckit-constitution command
+	@echo "=== speckit-constitution Demo ==="
 	@echo ""
 	@echo "Command: /speckit-constitution"
 	@echo "Plugin: spec-kit"
@@ -261,7 +261,7 @@ demo-speckit-constitution: ## Demo speckit-constitution command (LIVE)
 	@echo "Use /speckit-constitution for full workflow."
 
 
-	@echo "=== speckit-startup Demo (LIVE) ==="
+	@echo "=== speckit-startup Demo ==="
 	@echo ""
 	@echo "Command: /speckit-startup"
 	@echo "Plugin: spec-kit"

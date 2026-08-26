@@ -46,6 +46,22 @@ def _category_hits(name: str, text: str) -> int:
     return sum(len(p.findall(text)) for p in _compile_category(name))
 
 
+def _tier5_category_including_optional(name: str) -> dict:
+    """Return one Tier 5 category, including the opt-in ones."""
+    patterns = load_language_patterns("en")
+    for entry in get_tier5_patterns(patterns, include_optional=True):
+        if entry["category"] == name:
+            return entry
+    raise AssertionError(f"tier5 category not found in runtime source: {name}")
+
+
+def _category_hits_including_optional(name: str, text: str) -> int:
+    """Total matches for a category that may be gated off by default."""
+    entry = _tier5_category_including_optional(name)
+    flags = re.IGNORECASE if entry.get("ignore_case") else 0
+    return sum(len(re.compile(p, flags).findall(text)) for p in entry["patterns"])
+
+
 class TestTier1VocabularyPatterns:
     """Feature: Detect highest-confidence AI slop words.
 
@@ -1508,3 +1524,356 @@ class TestSTEPassiveVoice:
     @pytest.mark.unit
     def test_active_voice_passes(self) -> None:
         assert _ste_hits(self.CATEGORY, "The daemon executes the migration.") == 0
+
+
+class TestTier5Litotes:
+    """Feature: Detect double negation used where a positive form exists.
+
+    "not uncommon", "not unlike", "never fails to" say a positive thing
+    through two negations, which costs the reader a step and buys
+    nothing. The positive form always exists, so these are safe to
+    rewrite rather than merely surface.
+
+    Sourced from data/languages/en.yaml section tier5.litotes.
+    """
+
+    CATEGORY = "litotes"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: Litotes findings are high-confidence."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+
+    @pytest.mark.unit
+    def test_category_is_enabled_by_default(self) -> None:
+        """Scenario: The positive rewrite is unambiguous, so it runs by default."""
+        assert _tier5_category(self.CATEGORY)["default_enabled"] is True
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "This failure mode is not uncommon in production.",
+            "The syntax is not unlike Python's.",
+            "The change is not unreasonable.",
+            "The cost is not insignificant.",
+            "It never fails to surface the same bug.",
+            "The argument is not without merit.",
+        ],
+    )
+    def test_detects_double_negation(self, text: str) -> None:
+        """Scenario: A negated negative is flagged for positive rewrite."""
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The key was not until 2.1.85 recognized by the harness.",
+            "The gate does not sit in the matcher group.",
+            "The value is not inside the cache file.",
+            "This does not include the hook subset.",
+            "The estimate is not intended to be exact.",
+        ],
+    )
+    def test_plain_negation_is_not_litotes(self, text: str) -> None:
+        """Guard: 'not' before a word starting un-/in- is not double negation.
+
+        A stem list rather than a bare ``not\\s+(?:un|in)\\w+`` is what
+        keeps "not until", "not inside" and "not include" out. Those
+        three appear throughout this repository's own prose.
+        """
+        assert _category_hits(self.CATEGORY, text) == 0
+
+
+class TestTier5VacuousNegation:
+    """Feature: Detect negation clichés that assert importance and stop.
+
+    "cannot be overstated" and "it goes without saying" are filler in
+    negative dress: they claim weight without supplying any, and the
+    sentence reads the same with them deleted.
+
+    Sourced from data/languages/en.yaml section tier5.vacuous_negation.
+    """
+
+    CATEGORY = "vacuous_negation"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: Vacuous-negation findings are high-confidence."""
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The importance of this cannot be overstated.",
+            "Its value cannot be overemphasized.",
+            "The risk is not to be underestimated.",
+            "It goes without saying that tests matter.",
+            "Needless to say, the build broke.",
+            "Shipping this was no small feat.",
+            "It is not hard to see why this fails.",
+        ],
+    )
+    def test_detects_vacuous_negation(self, text: str) -> None:
+        """Scenario: A negation cliché carrying no information is flagged."""
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The estimate cannot be verified from this machine.",
+            "The hook cannot reach the registry, so it warns.",
+            "This claim is not supported by the measurement.",
+        ],
+    )
+    def test_substantive_negation_passes(self, text: str) -> None:
+        """Guard: negation that carries a real fact is not the cliché."""
+        assert _category_hits(self.CATEGORY, text) == 0
+
+
+class TestTier5NegativeDefinition:
+    """Feature: Surface behavior described only by what it will not do.
+
+    "the parser doesn't handle nested blocks" leaves the reader to infer
+    what it does handle. The positive form is usually shorter and always
+    more useful.
+
+    This is the category that must stay opt-in. Precise negation is how
+    contracts, invariants and trust boundaries are correctly written,
+    and this repository's own rule files are built out of "do not use
+    for", "must not", and "never". A default-on version would bury a
+    real finding under hundreds of correct sentences, which is the
+    failure mode ``anthropomorphism_low`` was gated off for.
+
+    Sourced from data/languages/en.yaml section tier5.negative_definition.
+    """
+
+    CATEGORY = "negative_definition"
+
+    @pytest.mark.unit
+    def test_category_is_opt_in(self) -> None:
+        """Scenario: The category stays out of a default sweep."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["default_enabled"] is False
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: Hits are surfaced for judgment, never auto-rewritten."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_default_sweep_excludes_the_category(self) -> None:
+        """Scenario: A routine run does not load it."""
+        patterns = load_language_patterns("en")
+        default_categories = {
+            entry["category"] for entry in get_tier5_patterns(patterns)
+        }
+        assert self.CATEGORY not in default_categories
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The parser doesn't handle nested blocks.",
+            "The exporter does not support CSV.",
+            "The daemon is unable to recover from a partial write.",
+            "The probe fails to detect a stale session.",
+            "This helper cannot handle Unicode paths.",
+        ],
+    )
+    def test_detects_negative_definition(self, text: str) -> None:
+        """Scenario: Capability stated only in the negative is surfaced."""
+        assert _category_hits_including_optional(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The write must not follow a symlink.",
+            "Do not use this for ops; use night-market-operations.",
+            "The hook never gates anything when the key is misplaced.",
+        ],
+    )
+    def test_imperative_and_invariant_negation_passes(self, text: str) -> None:
+        """Guard: prohibitions and invariants are precision, not slop.
+
+        These three shapes carry the repository's trust boundaries. A
+        pattern that caught them would make the category unusable even
+        as an opt-in.
+        """
+        assert _category_hits_including_optional(self.CATEGORY, text) == 0
+
+
+class TestContrastiveNegationTrailing:
+    """The trailing corrective that survives proofreading.
+
+    Review on PR #662 flagged `README.md`: "The third sends your code,
+    not just a status check." The `negative_parallelism` bare-trailing
+    regex needs the sentence to end one word after "not", so a three-word
+    tail slips through. Every AI-writing source that names contrastive
+    negation names this surface form, so the miss was in the regex rather
+    than in the category.
+
+    Forms covered here come from the cross-source sweep run for that
+    review: the mid-sentence "X, not just Y" tail, "isn't just X, but Y",
+    "more than X, it's Y", and "not about X, it's about Y".
+    """
+
+    @pytest.mark.unit
+    def test_detects_mid_sentence_not_just_tail(self) -> None:
+        """Scenario: the exact README sentence that review flagged."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "The third sends your code, not just a status check.",
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_detects_not_just_tail_mid_clause(self) -> None:
+        """Scenario: the tail continues into another clause, no period."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "It runs the tool, not just a description of it, and reports.",
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_detects_isnt_just_but_form(self) -> None:
+        """Scenario: 'isn't just X, but Y' correction."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "This isn't just a linter, but a whole review harness.",
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_detects_more_than_copula_form(self) -> None:
+        """Scenario: 'more than X, it's Y' elevation."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "It is more than a document, it's a co-editing surface.",
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_detects_not_about_it_is_about_form(self) -> None:
+        """Scenario: 'not about X, it's about Y' reframing."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "This is not about looking modern, it's about being usable.",
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_plain_exclusion_is_not_flagged(self) -> None:
+        """Guard: 'not' carrying a fact is left alone.
+
+        "The probe does not run" states a behavior. Only the corrective
+        scaffold, where a negated half exists to set up an affirmed half,
+        is the tell.
+        """
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "The probe does not run, because gemini authenticates by key.",
+            )
+            == 0
+        )
+
+    @pytest.mark.unit
+    def test_comparative_more_than_is_not_flagged(self) -> None:
+        """Guard: an ordinary comparison must not trip the elevation regex."""
+        assert (
+            _category_hits(
+                "contrastive_negation_trailing",
+                "The sweep found more than fifteen files across seven plugins.",
+            )
+            == 0
+        )
+
+
+class TestContrastiveScaffold:
+    """ "Rather than" and "instead of" as a definitional frame.
+
+    Review on PR #662 asked that "does X instead of Y" and "does X rather
+    than Y" be caught. The research run for it does not support treating
+    either as an AI tell on its own: no source in the contrastive-negation
+    literature names them, and both are ordinary English connectives. This
+    repository writes "rather than" 504 times and "instead of" 299 times
+    in its own markdown, almost all correctly, including in the rule files
+    that define house style.
+
+    So the category ships the way ``negative_definition`` does: off by
+    default, low confidence, surfaced for a human and never scored toward
+    the merge gate. It is scoped to the verb-phrase scaffold, where the
+    connective joins two actions to define one by the other, rather than
+    to the bare connective.
+
+    Sourced from data/languages/en.yaml section tier5.contrastive_scaffold.
+    """
+
+    CATEGORY = "contrastive_scaffold"
+
+    @pytest.mark.unit
+    def test_category_is_opt_in(self) -> None:
+        """Scenario: The category stays out of a default sweep."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["default_enabled"] is False
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: Hits are surfaced for judgment, never scored."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_default_sweep_excludes_the_category(self) -> None:
+        """Scenario: A routine run does not load it."""
+        patterns = load_language_patterns("en")
+        default_categories = {
+            entry["category"] for entry in get_tier5_patterns(patterns)
+        }
+        assert self.CATEGORY not in default_categories
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The gate reports the failure rather than swallowing it.",
+            "It raises instead of falling back to a guess.",
+            "The probe records the version rather than inferring it.",
+        ],
+    )
+    def test_detects_verb_phrase_scaffold(self, text: str) -> None:
+        """Scenario: Two actions joined to define one by the other."""
+        assert _category_hits_including_optional(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "Use rg rather than grep for file search.",
+            "Pass argv instead of a joined string.",
+            "Prefer a frozen dataclass rather than a dict.",
+        ],
+    )
+    def test_noun_comparison_is_not_flagged(self, text: str) -> None:
+        """Guard: a recommendation between two nouns is ordinary prose.
+
+        Rewriting one loses the alternative the reader needed.
+        """
+        assert _category_hits_including_optional(self.CATEGORY, text) == 0

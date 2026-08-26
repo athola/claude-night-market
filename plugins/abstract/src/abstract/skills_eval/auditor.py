@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from ..frontmatter import FrontmatterProcessor
-from ..tokens import estimate_tokens
+from ..tokens import estimate_text_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -85,8 +85,6 @@ class SkillsAuditor:
             ],
             "token_optimal": 1500,
             "token_acceptable": 2500,
-            "structure_indicators": ["## Overview", "## Quick Start", "## Examples"],
-            "documentation_indicators": ["code blocks", "step-by-step", "examples"],
         }
 
     def audit_skills(self) -> dict[str, Any]:
@@ -150,7 +148,7 @@ class SkillsAuditor:
         completeness_score = self._calculate_completeness_score(frontmatter, content)
         structure_score = self._calculate_structure_score(content)
         documentation_score = self._calculate_documentation_score(content)
-        token_count = estimate_tokens(content)
+        token_count = estimate_text_tokens(content)
 
         # Calculate overall score
         weights = self.audit_metrics["scoring_weights"]
@@ -422,8 +420,10 @@ class SkillsAuditor:
                         }
                         for i in m.issues
                     ],
+                    "strengths": list(m.strengths),
                     "recommendations": [
-                        {"action": r, "priority": "medium"} for r in m.strengths
+                        {"action": r, "priority": "medium"}
+                        for r in self._generate_recommendations([m])
                     ],
                 },
             )

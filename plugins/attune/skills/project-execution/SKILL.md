@@ -3,7 +3,7 @@ name: project-execution
 description: Executes implementation plans with progress tracking, checkpoint validation, and quality gates. Use after planning is complete and tasks are ready to implement.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model_preference: claude-sonnet-4-6
+model: sonnet
 tools_allowed: all
 category: workflow
 tags: [execution, implementation, progress-tracking, quality-gates, tdd]
@@ -144,6 +144,25 @@ This is the **final phase** of the attune workflow. No auto-continuation occurs 
 
 ## Task Execution Pattern
 
+### Delegation Check (First, Per Task)
+
+Before implementing a task, delegate it.
+`Skill(conjure:delegation-core)` is on by default, so the decision to
+make is whether a Keep Local clause holds, not whether to bother.
+
+Keep the task local when it is design or trade-off work, when its
+context carries a secret, when it needs turn-by-turn iteration, or when
+its output cannot be validated afterward.
+Otherwise hand it to the delegator and validate what comes back through
+the same TDD workflow below.
+The tests are the validation: a delegated implementation that fails the
+RED test is rejected exactly like a local one.
+
+If the result carries a `fallback_reason`, no external model ran.
+Report which providers were tried, then implement the task here.
+An exhausted chain is not a blocked task and does not belong in
+`docs/lessons-learned.md`.
+
 ### TDD Workflow
 
 **RED Phase**:
@@ -207,7 +226,7 @@ def authenticate(email: str, password: str) -> Optional[User]:
 make lint          # Linting passes
 make typecheck     # Type checking passes
 make test          # All tests pass
-make coverage      # Coverage threshold met
+uv run pytest --cov  # Coverage threshold met
 ```
 **Verification:** Run `pytest -v` to verify tests pass.
 
@@ -420,6 +439,10 @@ On track? = Estimated completion <= Sprint end date
 - [ ] A completion report is generated.
 - [ ] Any rework, failed approach, or exhausted-retry blocker is recorded to
   `docs/lessons-learned.md` as an `open` entry (a clean run needs none).
+- [ ] Every task was either delegated or held back by a named Keep Local
+  clause.
+- [ ] Delegated output passed the same tests a local implementation
+  would have.
 - [ ] No subsequent phase is auto-invoked (this is the terminal phase).
 
 ## Related Skills
@@ -428,6 +451,7 @@ On track? = Estimated completion <= Sprint end date
 - `Skill(superpowers:systematic-debugging)` - Debugging (if available)
 - `Skill(superpowers:test-driven-development)` - TDD (if available)
 - `Skill(superpowers:verification-before-completion)` - Validation (if available)
+- `Skill(conjure:delegation-core)` - Default-on delegation of task execution
 - `Skill(attune:mission-orchestrator)` - Full lifecycle orchestration
 
 ## Related Agents

@@ -148,10 +148,37 @@ async def delphi_revision_round(
     session.artifacts["coa"]["delphi_round"] = round_number
 
 
-def compute_convergence(session: WarRoomSession) -> float:
-    """Compute expert convergence score based on voting agreement.
+def _max_borda_cv(coa_count: int) -> float:
+    """Return the largest coefficient of variation ``coa_count`` COAs admit.
 
-    Returns a score between 0 and 1, where:
+    A unanimous panel gives Borda scores proportional to
+    ``n-1, n-2, ... 0``. That set has mean ``(n-1)/2`` and variance
+    ``(n^2-1)/12``, so its coefficient of variation is
+    ``2*sqrt((n+1)/(12*(n-1)))``: 1.0 at two COAs, 0.816 at three, 0.707
+    at five, falling toward 0.577.
+
+    This is why the raw CV could not be read as agreement. The default
+    ``convergence_threshold`` is 0.85, which three or more COAs cannot
+    reach however unanimous the panel, so every Delphi run paid for
+    ``max_rounds`` and stopped on the round limit rather than on
+    agreement.
+    """
+    if coa_count < 2:
+        return 0.0
+    spread: float = ((coa_count + 1) / (12 * (coa_count - 1))) ** 0.5
+    return 2 * spread
+
+
+def compute_convergence(session: WarRoomSession) -> float:
+    """Compute expert convergence from the spread of Borda scores.
+
+    The metric is dispersion, read as agreement: a high value means one
+    COA dominates and the experts concur, a low value means the scores
+    are uniform and they do not.
+
+    The coefficient of variation is divided by the largest value the
+    observed number of COAs admits, so the scale means what it says:
+
     - 1.0 = perfect agreement (all experts rank COAs identically)
     - 0.0 = complete disagreement
 
@@ -162,11 +189,7 @@ def compute_convergence(session: WarRoomSession) -> float:
     if not borda_scores or len(borda_scores) < 2:
         return 0.0
 
-    # Compute normalized standard deviation of scores
     scores = list(borda_scores.values())
-    if not scores:
-        return 0.0
-
     mean_score = sum(scores) / len(scores)
     if mean_score == 0:
         return 0.0
@@ -174,7 +197,9 @@ def compute_convergence(session: WarRoomSession) -> float:
     variance = sum((s - mean_score) ** 2 for s in scores) / len(scores)
     std_dev = variance**0.5
 
-    # Coefficient of variation (CV = std_dev / mean). For Borda counts,
-    # high CV means one COA dominates, indicating expert agreement.
-    convergence: float = min(1.0, std_dev / mean_score)
-    return convergence
+    ceiling = _max_borda_cv(len(scores))
+    if ceiling == 0:
+        return 0.0
+
+    borda_cv: float = min(1.0, (std_dev / mean_score) / ceiling)
+    return borda_cv

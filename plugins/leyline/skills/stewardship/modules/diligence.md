@@ -16,7 +16,7 @@
 
 ## Practice
 
-- Run `make format && make lint && make test` before
+- Run `make lint && make test` before
   every commit. Treat quality gates as practice, not
   obstacles.
 - When you notice something small that is wrong, fix it

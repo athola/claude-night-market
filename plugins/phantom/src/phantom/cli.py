@@ -88,8 +88,13 @@ def run_task(args: argparse.Namespace) -> None:
         print(result.final_text)
 
 
-def main() -> None:
-    """Parse arguments and dispatch."""
+def build_parser() -> argparse.ArgumentParser:
+    """Return the CLI argument parser.
+
+    Split out of ``main`` so the argument contract can be asserted
+    without running the program. It was not testable before, which is
+    how ``--model`` kept a default the library had already moved off.
+    """
     parser = argparse.ArgumentParser(
         description="Phantom: Claude Computer Use toolkit",
     )
@@ -100,8 +105,12 @@ def main() -> None:
     )
     parser.add_argument(
         "--model",
-        default="claude-sonnet-4-6",
-        help="Claude model to use (default: claude-sonnet-4-6)",
+        # Read from LoopConfig rather than repeated here. Two literals
+        # for one default is what let the CLI keep Sonnet 4.6 after the
+        # library moved to Sonnet 5, so a run's model depended on which
+        # entry point it came through.
+        default=LoopConfig.model,
+        help=f"Claude model to use (default: {LoopConfig.model})",
     )
     parser.add_argument(
         "--width",
@@ -156,6 +165,12 @@ def main() -> None:
         help="Task description for Claude",
     )
 
+    return parser
+
+
+def main() -> None:
+    """Parse arguments and dispatch."""
+    parser = build_parser()
     args = parser.parse_args()
 
     if args.verbose:

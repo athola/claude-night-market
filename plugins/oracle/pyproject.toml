@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "oracle"
-version = "1.9.18"
+version = "1.9.19"
 description = "ONNX Runtime inference daemon for Claude Code plugins"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -39,15 +39,17 @@ dev = [
 packages = ["src/oracle"]
 
 [tool.ruff]
+# Inherit the repo-wide rule floor; this file may only add.
+extend = "../../pyproject.toml"
 line-length = 88
 target-version = "py39"
 exclude = [".venv", ".uv-cache"]
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
+extend-select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
 extend-ignore = ["S101", "E203", "D203", "D213", "UP017"]
 
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "tests/**/*.py" = [
     "S101", "S108", "PLR2004", "D102", "D103", "D205", "D400", "D415",
     "D212", "S603", "S607", "PLW1510", "S310",

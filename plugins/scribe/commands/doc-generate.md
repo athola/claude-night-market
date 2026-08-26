@@ -1,3 +1,8 @@
+---
+name: doc-generate
+description: Generate new documentation with human-quality writing.
+---
+
 # Doc Generate
 
 Generate new documentation with human-quality writing.

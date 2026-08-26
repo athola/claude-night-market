@@ -1,3 +1,8 @@
+---
+name: skill-history
+description: View recent skill executions with full context and error details.
+---
+
 # Skill Execution History
 
 View recent skill executions with full context and error details for review.

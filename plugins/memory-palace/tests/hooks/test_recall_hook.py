@@ -25,6 +25,7 @@ def _run(prompt: str, cwd: Path | None = None) -> subprocess.CompletedProcess:
         text=True,
         timeout=10,
         cwd=str(cwd) if cwd else None,
+        check=False,
     )
 
 
@@ -100,6 +101,7 @@ class TestTriggeredPath:
             capture_output=True,
             text=True,
             timeout=10,
+            check=False,
         )
         assert result.returncode == 0
 
@@ -138,11 +140,11 @@ class TestChangedDependencyFlagging:
     def test_render_marks_units_with_moved_dependencies(self) -> None:
         """Scenario: rendering names the changed path in the output."""
         import importlib.util
-        from pathlib import Path as _P
+        from pathlib import Path as _PathAlias
 
         spec = importlib.util.spec_from_file_location(
             "recall_mod",
-            _P(__file__).resolve().parent.parent.parent / "hooks" / "recall.py",
+            _PathAlias(__file__).resolve().parent.parent.parent / "hooks" / "recall.py",
         )
         recall = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(recall)
@@ -163,11 +165,11 @@ class TestChangedDependencyFlagging:
     def test_unit_with_moved_dependency_is_still_returned(self) -> None:
         """Scenario: flagging does not remove the unit from results."""
         import importlib.util
-        from pathlib import Path as _P
+        from pathlib import Path as _PathAlias
 
         spec = importlib.util.spec_from_file_location(
             "recall_mod2",
-            _P(__file__).resolve().parent.parent.parent / "hooks" / "recall.py",
+            _PathAlias(__file__).resolve().parent.parent.parent / "hooks" / "recall.py",
         )
         recall = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(recall)
@@ -197,9 +199,11 @@ class TestImportsActuallyResolve:
     def test_memory_palace_is_importable_from_the_hook(self) -> None:
         """Scenario: running the hook's path setup makes the package load."""
         import importlib.util
-        from pathlib import Path as _P
+        from pathlib import Path as _PathAlias
 
-        hook = _P(__file__).resolve().parent.parent.parent / "hooks" / "recall.py"
+        hook = (
+            _PathAlias(__file__).resolve().parent.parent.parent / "hooks" / "recall.py"
+        )
         spec = importlib.util.spec_from_file_location("recall_imports", hook)
         recall = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(recall)
@@ -216,7 +220,11 @@ class TestImportsActuallyResolve:
             "print(s.Signal.CHANGED.value)"
         )
         result = subprocess.run(
-            [_sys.executable, "-c", probe], capture_output=True, text=True, timeout=20
+            [_sys.executable, "-c", probe],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
         )
         assert result.returncode == 0, result.stderr
         assert "changed" in result.stdout
@@ -228,9 +236,11 @@ class TestImportsActuallyResolve:
         keyword overlap alone and this ordering would not hold.
         """
         import importlib.util
-        from pathlib import Path as _P
+        from pathlib import Path as _PathAlias
 
-        hook = _P(__file__).resolve().parent.parent.parent / "hooks" / "recall.py"
+        hook = (
+            _PathAlias(__file__).resolve().parent.parent.parent / "hooks" / "recall.py"
+        )
         spec = importlib.util.spec_from_file_location("recall_weight", hook)
         recall = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(recall)

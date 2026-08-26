@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pensive"
-version = "1.9.18"
+version = "1.9.19"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
@@ -112,6 +112,8 @@ precision = 2
 directory = "htmlcov"
 
 [tool.ruff]
+# Inherit the repo-wide rule floor; this file may only add.
+extend = "../../pyproject.toml"
 target-version = "py39"
 line-length = 88
 
@@ -120,7 +122,7 @@ extend-ignore = [
     "S101",   # Use of assert detected (assert is fine outside production paths)
     "E501",   # Line too long (root config ignores this plugin-wide; formatter-owned)
 ]
-select = [
+extend-select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
     "F",   # pyflakes
@@ -144,7 +146,7 @@ unfixable = [
     "RUF001", # Remove ambiguous unicode character
 ]
 
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "tests/**/*" = [
     "ARG001",  # Unused function args in tests
     "ARG002",  # Unused method args in tests

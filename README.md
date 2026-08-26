@@ -1,9 +1,9 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.18-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.19-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-201-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-211-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 
 **A plugin marketplace for Claude Code.** Install only the
@@ -87,10 +87,11 @@ dependencies pull their shared runtime automatically.
 (TDD enforcement, proof-of-work, scope guarding).
 
 **Utility** handles cross-cutting concerns: `conserve` (context
-and token optimization), `conjure` (delegation to Gemini and
-Qwen), `hookify` (a behavioral rules engine with a security
-catalog), `egregore` (autonomous agent orchestration),
-`herald` (notifications), and `oracle` (local ML inference).
+and token optimization), `conjure` (delegation to seven external
+model CLIs plus a local runner), `hookify` (a behavioral rules
+engine with a security catalog), `egregore` (autonomous agent
+orchestration), `herald` (notifications), and `oracle` (local ML
+inference).
 
 **Domain** is where the day-to-day work happens: `pensive` (code
 and architecture review), `attune` (project lifecycle), `spec-kit`
@@ -135,9 +136,12 @@ override any conflicting skill or hook;
 
 ## Network and data
 
-Two hooks reach the network using your existing GitHub credentials.
-Both fail silently when `gh` is unauthenticated or the network is
-unavailable, and both can be turned off.
+Three parts of the marketplace reach off your machine. Each can be
+turned off.
+
+Two hooks use your existing GitHub credentials, and both fail
+silently when `gh` is unauthenticated or the network is
+unavailable.
 
 - **Star prompt** (`leyline`,
   `plugins/leyline/hooks/auto-star-repo.sh`). On session start it
@@ -157,6 +161,18 @@ unavailable, and both can be turned off.
   out by setting `auto_post_learnings` to `false` in that config
   file.
 
+The third sends the contents of your files. **Delegation**
+(`conjure`, also reached by `attune` missions and `egregore`
+pipeline steps) hands execution work to whichever external model
+CLI answers first, in the order Gemini, Qwen, MiniMax, GLM, Muse,
+Codex, OpenCode. The prompt and the file contents it carries go to
+that provider, under the credentials you configured for it. This
+runs by default. Decline it for one run with
+`CONJURE_DELEGATION=off`, or for one machine by setting
+`"enabled": false` in
+`~/.claude/hooks/delegation/config.json`. When no provider
+answers, the work stays on your machine.
+
 ## Requirements
 
 - **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for
@@ -169,14 +185,20 @@ unavailable, and both can be turned off.
 
 ## What's New
 
-**1.9.18** gives `tome` a way to tell a thin field from a search
-that went wrong. Each retrieval channel now runs a positive
-control, and a report that used to end in a bare finding count
-ends in a verdict about the search itself: `COVERED`,
-`THIN_FIELD_CANDIDATE`, `CHANNEL_MISMATCH_SUSPECTED`, or
-`INCONCLUSIVE` when a channel failed its control. `memory-palace`
-stopped promoting model refusals into the research corpus as page
-titles. Full history is in the [CHANGELOG](CHANGELOG.md).
+**1.9.19** takes `conjure` from three delegation targets to eight and
+turns delegation on by default. GLM-5.3, Meta Muse Code, the OpenAI
+Codex CLI, OpenCode and a locally served Muse Glimmer join Gemini,
+Qwen and MiniMax. `/conjure:provider-setup` reports which of them
+this machine can actually call, installs the missing ones on request,
+and stores the answer instead of re-probing every call. Setting
+`CONJURE_DELEGATION=off` declines for a single run. Every plugin ships
+a `workflows/` script now, so
+every plugin can fan work across subagents when you ask for it.
+Each script encodes that plugin's own fan-out: `scribe` runs its
+four document reviewers blind to each other, `egregore` audits each
+pipeline gate for whether it can return a failing verdict. A
+workflow only runs when you ask for one. Full history is in the
+[CHANGELOG](CHANGELOG.md).
 
 ## Plugin Development
 
@@ -186,11 +208,13 @@ make lint && make test
 ```
 
 A plugin directory holds `.claude-plugin/plugin.json` (metadata)
-plus any of `commands/`, `skills/`, `hooks/`, `agents/`, and
-`tests/`, with a `Makefile` and `pyproject.toml`. Copy the layout
-from an existing plugin such as `plugins/abstract`, then see the
-[Plugin Development Guide][dev-guide] for structure and naming
-conventions.
+plus any of `commands/`, `skills/`, `hooks/`, `agents/`,
+`workflows/`, and `tests/`, with a `Makefile` and
+`pyproject.toml`. A `workflows/` script orchestrates several
+subagents at once and runs only when you ask for one. Copy the
+layout from an existing plugin such as `plugins/abstract`, then
+see the [Plugin Development Guide][dev-guide] for structure and
+naming conventions.
 
 ## Documentation
 
@@ -211,7 +235,7 @@ Every plugin is entrusted to the community: steward rather than
 own, and think several iterations ahead. Each plugin maintains
 its own tests and docs; run `make test` at the repo root to
 execute every suite, and `/stewardship-health` to view per-plugin
-health. Contribution guidelines live in the
+health. Contribution guidelines are in the
 [Plugin Development Guide][dev-guide].
 
 ## Acknowledgements

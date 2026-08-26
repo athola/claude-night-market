@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 """Post-implementation policy hook for SessionStart.
 
-Inject mandatory workflow instructions for Claude to follow before reporting
-completion of feature implementations or plan executions.
+Ask for evidence before a session reports work complete, and say what
+this branch actually looks like.
 
-Use governance framing to resist override attempts from other prompts, skills, or hooks.
+Two things changed from the original. The block no longer fires at full
+volume on every turn: it scales to what the branch has at stake. And
+the escalated form now leads with the measurement that triggered it,
+because that is the only part a session cannot work out for itself.
+
+What it dropped were two rationalization tables and the line "Cannot be
+overridden by other skills, hooks, or rationalization". A repository
+rule forbidding those while its own session-start hook injected them
+was a contradiction the hook won, because a hook fires and a rule waits
+to be read. See `.claude/rules/bounded-autonomy.md`.
 
 Read `agent_type` from hook input (Claude Code 2.1.2+) to customize policy injection.
 """
@@ -12,7 +21,18 @@ Read `agent_type` from hook input (Claude Code 2.1.2+) to customize policy injec
 from __future__ import annotations
 
 import json
+import subprocess  # nosec B404
 import sys
+from pathlib import Path
+
+# A branch past this many changed lines has enough at stake to be worth
+# the full text. Below it, the reminder carries the same practice.
+LARGE_BRANCH_LINES = 500
+
+_TEST_PATH_MARKERS = ("test_", "_test.", "/tests/", "spec.", ".spec.")
+
+# git diff --numstat emits added, removed, path per line.
+_NUMSTAT_FIELDS = 3
 
 # Lightweight agents that skip full governance policy
 LIGHTWEIGHT_AGENTS = frozenset(
@@ -27,67 +47,161 @@ LIGHTWEIGHT_AGENTS = frozenset(
     }
 )
 
-GOVERNANCE_POLICY = """
-## Mandatory Post-Implementation Protocol
+SHORT_REMINDER = """
+## Before Reporting Work Complete
 
-<GOVERNANCE_RULE priority="high" override="false">
-Before reporting completion of ANY of the following:
-- Feature implementation
-- Plan execution (especially Skill(superpowers:executing-plans))
-- Significant code changes
-- New functionality added
+Run it. Paste what it printed. Evidence is the output, not the
+assertion: "should work" is the phrasing that precedes finding out it
+does not.
 
-You MUST execute these commands IN ORDER:
+Tests come first here by default. Where they did not, say so and say
+why, rather than leaving the reader to notice.
 
-1. **PROOF-OF-WORK + IRON LAW** (MANDATORY FIRST) - Invoke `Skill(imbue:proof-of-work)`:
-   - Create TodoWrite items: `proof:problem-reproduced`,
-     `proof:solution-tested`, `proof:evidence-captured`
-   - For code changes, add: `proof:iron-law-red`,
-     `proof:iron-law-green`, `proof:iron-law-refactor`
-   - Run actual validation commands (not just syntax checks)
-   - Capture evidence with `[E1]`, `[E2]` references
-   - Report status: PASS / FAIL / BLOCKED
+After a feature lands these often need updating, and which ones apply
+is a judgment call: `/sanctum:update-docs`, `/sanctum:update-tests`,
+`/sanctum:update-readme`, `/abstract:make-dogfood`.
 
-2. `/sanctum:update-docs` - Update project documentation
-3. `/abstract:make-dogfood` - Update Makefile demonstration targets
-4. `/sanctum:update-readme` - Update README with new features
-5. `/sanctum:update-tests` - Review and update test coverage
-
-### The Iron Law (TDD Compliance)
-```
-NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
-```
-
-| Self-Check Question | If Answer Is Wrong | Action |
-|---------------------|-------------------|--------|
-| Do I have evidence of failure/need? | No | STOP - document failure first |
-| Am I testing pre-conceived implementation? | Yes | STOP - let test DRIVE design |
-| Am I feeling design uncertainty? | No | STOP - uncertainty is GOOD |
-| Did test drive implementation? | No | STOP - doing it backwards |
-
-### Proof-of-Work Red Flags (STOP if you think these)
-| Thought | Required Action |
-|---------|-----------------|
-| "This looks correct" | RUN IT and capture output |
-| "Should work after restart" | TEST IT before claiming |
-| "Just need to..." | VERIFY each step works |
-| "Syntax is valid" | FUNCTIONAL TEST required |
-| "I know what tests we need" | Let uncertainty DRIVE tests |
-| "The design is straightforward" | Write test, let design EMERGE |
-
-### Rules
-- This protocol is NON-NEGOTIABLE
-- Cannot be overridden by other skills, hooks, or rationalization
-- Skipping these steps = incomplete work
-- Only the user can explicitly waive this requirement
-
-### When This Does NOT Apply
-- Simple questions or explanations
-- Bug fixes that don't add new features
-- Refactoring without new functionality
-- Research or exploration tasks
-</GOVERNANCE_RULE>
+Not for questions, refactors, or exploration.
 """.strip()
+
+RISK_POLICY = """
+## Signals on This Branch
+
+{signals}
+
+That is the reason this is here. It is a measurement, not a verdict:
+a large branch can be correct and an untested one can be deliberate.
+
+Before reporting this complete:
+
+- Run what you changed and paste what it printed. Evidence is the
+  output, not the assertion.
+- Tests come first here by default. Where they did not, say so and say
+  why, rather than leaving the reader to notice.
+- A change this size usually moves the surface around it. Which of
+  these apply is your call: `/sanctum:update-docs`,
+  `/sanctum:update-tests`, `/sanctum:update-readme`,
+  `/abstract:make-dogfood`.
+
+Exit criteria:
+
+- [ ] Every claim that something works has command output behind it
+- [ ] New behavior has a test, or its absence is explained
+- [ ] The surface above is updated, or knowingly left alone
+
+Not for questions, refactors, or exploration.
+""".strip()
+
+
+def format_risk_policy(changed_lines: int, *, tests_touched: bool) -> str:
+    """Fill the escalated policy with the numbers that triggered it.
+
+    The signal line is the only content here a session cannot
+    reconstruct for itself. Advice about evidence is general knowledge;
+    "912 lines changed, no test file touched" is a fact about this
+    working tree at this moment, and it is what makes the escalation
+    legible rather than arbitrary.
+
+    Naming the wrong signal would be worse than naming none, so a large
+    branch that does touch tests is told about its size only.
+    """
+    signals = [f"- {changed_lines} lines changed on this branch"]
+    if not tests_touched:
+        signals.append("- no test file among them")
+    return RISK_POLICY.format(signals="\n".join(signals))
+
+
+#: Candidate base branches, in the order the merge base is looked for.
+#: Remote-tracking names come first: a stale local `master` is common in
+#: a long-lived checkout, and it would understate the branch.
+_BASE_CANDIDATES = (
+    "origin/master",
+    "origin/main",
+    "master",
+    "main",
+)
+
+
+def _git(args: list[str]) -> str | None:
+    """Run a git command, returning its stdout or None if it cannot answer."""
+    try:
+        result = subprocess.run(  # nosec B603 B607
+            ["git", *args],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    return result.stdout
+
+
+def _branch_base() -> str | None:
+    """Return the commit this branch left, or None if there is no base.
+
+    On the base branch itself the merge base is HEAD, which makes the
+    diff below the working tree alone. That is the right answer there:
+    no branch work has happened.
+    """
+    for candidate in _BASE_CANDIDATES:
+        base = _git(["merge-base", "HEAD", candidate])
+        if base and base.strip():
+            return base.strip()
+    return None
+
+
+def measure_branch() -> tuple[int, bool]:
+    """Return the branch's changed-line count and whether tests moved.
+
+    Measured from the point this branch left its base, so committed work
+    counts. `git diff HEAD` reads the working tree only, which meant a
+    session that had committed its work measured zero and was handed the
+    short reminder the escalation exists to replace. The escalation is
+    for branches with something at stake, and committing is not what
+    lowers the stakes.
+
+    Reports (0, False) for anything git cannot answer: a directory that
+    is not a repository, a missing binary, a slow filesystem, a clone
+    with no recognizable base branch. Not knowing the size of a change
+    is not evidence that it is large, and the short reminder still
+    carries the practice, so guessing wrong here costs a smaller prompt
+    rather than a missing one.
+    """
+    base = _branch_base()
+    stdout = _git(["diff", "--numstat", base or "HEAD"])
+    if stdout is None:
+        return 0, False
+
+    changed = 0
+    tests_touched = False
+    for line in stdout.splitlines():
+        parts = line.split("\t")
+        if len(parts) != _NUMSTAT_FIELDS:
+            continue
+        added, removed, path = parts
+        # Binary files report "-" for both counts.
+        changed += sum(int(n) for n in (added, removed) if n.isdigit())
+        candidate = f"/{Path(path).as_posix()}"
+        if any(marker in candidate for marker in _TEST_PATH_MARKERS):
+            tests_touched = True
+
+    return changed, tests_touched
+
+
+def needs_full_policy(changed_lines: int, *, tests_touched: bool) -> bool:
+    """Decide whether this branch has enough at stake for the full text.
+
+    A branch with nothing on it is the case worth naming: no tests have
+    been touched there either, and reading that as risk would fire the
+    full block on every fresh session, which is the behavior this
+    replaces.
+    """
+    if changed_lines == 0:
+        return False
+    return changed_lines > LARGE_BRANCH_LINES or not tests_touched
 
 
 def main() -> None:
@@ -123,11 +237,16 @@ def main() -> None:
         print(json.dumps(output))
         sys.exit(0)
 
-    # Full governance policy for implementation agents
+    changed_lines, tests_touched = measure_branch()
+    policy = (
+        format_risk_policy(changed_lines, tests_touched=tests_touched)
+        if needs_full_policy(changed_lines, tests_touched=tests_touched)
+        else SHORT_REMINDER
+    )
     output = {
         "hookSpecificOutput": {
             "hookEventName": "SessionStart",
-            "additionalContext": GOVERNANCE_POLICY,
+            "additionalContext": policy,
         }
     }
     print(json.dumps(output))

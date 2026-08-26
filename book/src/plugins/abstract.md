@@ -33,19 +33,23 @@ and maintaining Claude Code plugins. It's the toolkit for plugin developers.
 
 | Command | Description |
 |---------|-------------|
-| `/validate-plugin [path]` | Check plugin structure against requirements |
-| `/create-skill` | Scaffold new skill with best practices |
+| `/aggregate-logs` | Build LEARNINGS.md from skill execution logs |
+| `/analyze-skill` | Get modularization recommendations |
+| `/context-report` | Context optimization report |
 | `/create-command` | Scaffold new command |
 | `/create-hook` | Scaffold hook with security-first design |
-| `/analyze-skill` | Get modularization recommendations |
-| `/bulletproof-skill` | Anti-rationalization workflow for hardening |
-| `/context-report` | Context optimization report |
-| `/hooks-eval` | detailed hook evaluation |
+| `/create-skill` | Scaffold new skill with best practices |
+| `/evaluate-skill` | Record qualitative feedback on a skill execution |
+| `/hooks-eval` | Detailed hook evaluation |
+| `/improve-skills` | Implement skill improvements from logs and evaluations |
 | `/make-dogfood` | Analyze and enhance Makefiles |
+| `/plugin-review` | Tiered plugin quality review: branch, pr, release |
+| `/promote-discussions` | Promote highly voted Discussions to Issues |
 | `/rules-eval` | Evaluate Claude Code rules quality |
 | `/skills-eval` | Run skill quality assessment |
 | `/test-skill` | Skill testing with TDD methodology |
 | `/validate-hook` | Validate hook compliance |
+| `/validate-plugin [path]` | Check plugin structure against requirements |
 
 ## Agents
 

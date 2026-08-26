@@ -68,7 +68,7 @@ def _bad_test_file(tmp_path: Path) -> Path:
         "\n"
         "def test_vague():\n"
         "    result = 5\n"
-        "    assert result == 5\n"  # vague 'result' assertion
+        "    assert result\n"  # existence-only assertion (TR-001)
     )
     return p
 
@@ -276,22 +276,29 @@ def test_determine_quality_level_thresholds(tmp_path):
 
 
 def test_calculate_overall_score_clamps_to_range(tmp_path):
+    """The score never leaves [0, 100], however bad or good the file.
+
+    The invariant is preserved from the original test; the input was
+    revised (TR-001). Category budgets mean one category repeated fifty
+    times no longer reaches the floor, so the floor case is now a file
+    that is bad in every category, and the ceiling case was added.
+    """
     qc = _load_script()
     c = qc.TestQualityChecker(tmp_path)
-    # Build a synthetic result with many errors to push score negative
+    # Bad in every category, with a failing run and no tests: past the floor
     err = qc.QualityIssue("error", "structure", "x")
     results = {
         "static_analysis": {
             "structure_issues": [err] * 50,
-            "naming_issues": [],
-            "assertion_issues": [],
-            "bdd_compliance": [],
-            "documentation": [],
+            "naming_issues": [err] * 50,
+            "assertion_issues": [err] * 50,
+            "bdd_compliance": [err] * 50,
+            "documentation": [err] * 50,
         },
         "dynamic_validation": {
             "execution_result": 1,
             "test_duration": 0,
-            "failures": [],
+            "failures": ["boom"],
             "errors": [],
             "skipped": 0,
             "passed": 0,
@@ -306,6 +313,32 @@ def test_calculate_overall_score_clamps_to_range(tmp_path):
     }
     score = c._calculate_overall_score(results)
     assert score == 0
+
+    clean = {
+        "static_analysis": {
+            "structure_issues": [],
+            "naming_issues": [],
+            "assertion_issues": [],
+            "bdd_compliance": [],
+            "documentation": [],
+        },
+        "dynamic_validation": {
+            "execution_result": 0,
+            "test_duration": 0,
+            "failures": [],
+            "errors": [],
+            "skipped": 0,
+            "passed": 4,
+        },
+        "metrics": {
+            "test_count": 4,
+            "assertion_count": 8,
+            "average_test_length": 5,
+            "complexity_score": 1,
+            "documentation_ratio": 1.0,
+        },
+    }
+    assert c._calculate_overall_score(clean) == 100
 
 
 def test_passing_tests_not_penalized_for_coverage_gate_exit(tmp_path):
@@ -856,12 +889,18 @@ def test_is_vague_result_assertion_exists():
     assert callable(getattr(qc.TestQualityChecker, "_is_vague_result_assertion", None))
 
 
-def test_is_vague_result_assertion_true_for_result_compare(tmp_path):
-    """Identifies 'assert result ==' as vague."""
+def test_is_vague_result_assertion_true_for_existence_only(tmp_path):
+    """Identifies assertions that only prove something exists.
+
+    Revised from the original 'assert result == 5' case: a comparison
+    against a concrete value states an expectation, so it is not vague.
+    What is vague is asserting existence and nothing more.
+    """
     qc = _load_script()
-    node = ast.parse("assert result == 5").body[0]
     c = qc.TestQualityChecker(tmp_path / "t.py")
-    assert c._is_vague_result_assertion(node) is True
+    for source in ("assert result", "assert result is not None", "assert x != None"):
+        node = ast.parse(source).body[0]
+        assert c._is_vague_result_assertion(node) is True, source
 
 
 def test_is_vague_result_assertion_false_for_specific_compare(tmp_path):
@@ -872,22 +911,35 @@ def test_is_vague_result_assertion_false_for_specific_compare(tmp_path):
     assert c._is_vague_result_assertion(node) is False
 
 
-def test_is_vague_result_assertion_false_for_non_compare(tmp_path):
-    """Does not flag a bare bool assertion as vague."""
+def test_is_vague_result_assertion_false_for_a_predicate_call(tmp_path):
+    """Does not flag a call that carries its own meaning."""
     qc = _load_script()
-    node = ast.parse("assert result").body[0]
+    node = ast.parse("assert is_valid(payload)").body[0]
+    c = qc.TestQualityChecker(tmp_path / "t.py")
+    assert c._is_vague_result_assertion(node) is False
+
+
+def test_is_vague_result_assertion_false_for_a_named_expectation(tmp_path):
+    """Does not flag a comparison against a concrete value."""
+    qc = _load_script()
+    node = ast.parse("assert result == {'id': 'w1'}").body[0]
     c = qc.TestQualityChecker(tmp_path / "t.py")
     assert c._is_vague_result_assertion(node) is False
 
 
 def test_check_assertion_quality_still_flags_vague_result(tmp_path):
-    """Behavior guard: vague assertion is still reported after refactor."""
+    """Behavior guard: a vague assertion is still reported after refactor.
+
+    The pinned shape changed with TR-001. It was `assert result == 5`,
+    which states an expectation and is no longer vague. It is now
+    `assert result is not None`, which does not.
+    """
     qc = _load_script()
     f = tmp_path / "test_vague.py"
     f.write_text(
         "import x\ndef test_something_returns_correctly():\n"
         "    result = do_thing()\n"
-        "    assert result == 5\n"
+        "    assert result is not None\n"
     )
     checker = qc.TestQualityChecker(f)
     out = checker.run_static_analysis()
@@ -1029,3 +1081,256 @@ def test_dynamic_validation_runs_without_python_on_path(tmp_path):
     )
     assert not setup_failures, f"checker depends on PATH python: {setup_failures}"
     assert validation["execution_result"] == 0
+
+
+# ---------------------- rubric: what the score is allowed to punish ----------
+
+
+def _many_tests_file(tmp_path: Path, count: int, *, bdd: int = 0) -> Path:
+    """Write a file of documented, well-asserted tests, `bdd` of them BDD-style."""
+    parts = ['"""Module of behavior tests."""\n', "import pytest\n\n"]
+    for i in range(count):
+        if i < bdd:
+            doc = (
+                f'    """Behavior {i}.\n\n'
+                "    GIVEN a prepared value\n"
+                "    WHEN it is doubled\n"
+                "    THEN the result matches the expected product\n"
+                '    """\n'
+            )
+        else:
+            doc = f'    """Doubling {i} produces the expected product."""\n'
+        parts.append(
+            f"def test_behavior_{i}_doubles_its_input():\n{doc}    assert {i} * 2 == {i * 2}\n\n"
+        )
+    p = tmp_path / "test_many.py"
+    p.write_text("".join(parts))
+    return p
+
+
+def test_bdd_check_accepts_given_when_then_without_and(tmp_path):
+    """AND is an optional continuation, not a required BDD keyword.
+
+    GIVEN a docstring with GIVEN, WHEN and THEN but no AND
+    WHEN the BDD check runs
+    THEN the test is treated as compliant
+    """
+    qc = _load_script()
+    f = tmp_path / "test_no_and.py"
+    f.write_text(
+        '"""Module."""\n'
+        "import pytest\n\n"
+        "def test_thing_behaves():\n"
+        '    """Summary.\n\n'
+        "    GIVEN a value\n"
+        "    WHEN it is used\n"
+        "    THEN the outcome holds\n"
+        '    """\n'
+        "    assert 1 == 1\n"
+    )
+    checker = qc.TestQualityChecker(f)
+    out = checker.run_static_analysis()
+    assert out["bdd_compliance"] == []
+
+
+def test_bdd_suggestion_never_asks_for_and(tmp_path):
+    """A missing-keyword suggestion names only the required keywords.
+
+    GIVEN a docstring with GIVEN but neither WHEN nor THEN
+    WHEN the BDD check runs
+    THEN the suggestion asks for WHEN and THEN, and never for AND
+    """
+    qc = _load_script()
+    f = tmp_path / "test_partial.py"
+    f.write_text(
+        '"""Module."""\n'
+        "import pytest\n\n"
+        "def test_thing_behaves():\n"
+        '    """GIVEN a value only."""\n'
+        "    assert 1 == 1\n"
+    )
+    checker = qc.TestQualityChecker(f)
+    out = checker.run_static_analysis()
+    suggestions = " ".join(i.suggestion or "" for i in out["bdd_compliance"])
+    assert "WHEN" in suggestions
+    assert "THEN" in suggestions
+    assert "AND" not in suggestions
+
+
+def test_specific_comparison_is_not_a_vague_assertion(tmp_path):
+    """Comparing a value to a concrete expectation is specific, whatever it is named.
+
+    GIVEN an assertion comparing `result` to a literal
+    WHEN the assertion check runs
+    THEN nothing is flagged, because the expectation is stated
+    """
+    qc = _load_script()
+    f = tmp_path / "test_specific.py"
+    f.write_text(
+        '"""Module."""\n'
+        "import pytest\n\n"
+        "def test_lookup_returns_the_stored_row():\n"
+        "    result = {'id': 'w1'}\n"
+        "    assert result == {'id': 'w1'}\n"
+    )
+    checker = qc.TestQualityChecker(f)
+    out = checker.run_static_analysis()
+    assert out["assertion_issues"] == []
+
+
+@pytest.mark.parametrize(
+    "assertion", ["assert result", "assert result is not None", "assert result != None"]
+)
+def test_truthiness_and_none_checks_are_vague(tmp_path, assertion):
+    """An assertion that only proves something exists is vague.
+
+    GIVEN an assertion that checks truthiness or non-None
+    WHEN the assertion check runs
+    THEN it is flagged, because no expectation was stated
+    """
+    qc = _load_script()
+    f = tmp_path / "test_truthy.py"
+    f.write_text(
+        '"""Module."""\n'
+        "import pytest\n\n"
+        "def test_lookup_returns_something():\n"
+        "    result = {'id': 'w1'}\n"
+        f"    {assertion}\n"
+    )
+    checker = qc.TestQualityChecker(f)
+    out = checker.run_static_analysis()
+    assert any("Vague assertion" in i.message for i in out["assertion_issues"])
+
+
+def test_terse_docstrings_do_not_floor_the_score(tmp_path):
+    """A large, well-asserted suite is not scored as worthless for terse docstrings.
+
+    GIVEN 30 documented tests with specific assertions and no BDD keywords
+    WHEN the file is scored
+    THEN it lands in the usable range instead of collapsing to zero
+    """
+    qc = _load_script()
+    f = _many_tests_file(tmp_path, 30)
+    checker = qc.TestQualityChecker(f)
+    results = checker.run_full_validation()
+    assert results["quality_score"] >= 70
+
+
+def test_bdd_penalty_is_proportional_to_the_tests_that_lack_it(tmp_path):
+    """Half a suite in BDD style scores between none of it and all of it.
+
+    GIVEN three suites of equal size with 0, half, and full BDD coverage
+    WHEN each is scored
+    THEN the scores increase with coverage
+    """
+    qc = _load_script()
+    scores = []
+    for bdd in (0, 5, 10):
+        d = tmp_path / f"bdd{bdd}"
+        d.mkdir()
+        f = _many_tests_file(d, 10, bdd=bdd)
+        scores.append(qc.TestQualityChecker(f).run_full_validation()["quality_score"])
+    assert scores[0] < scores[1] < scores[2]
+
+
+def test_score_breakdown_names_what_each_category_cost(tmp_path):
+    """The score explains itself, so a low number can be acted on.
+
+    GIVEN a file with no BDD keywords
+    WHEN it is scored
+    THEN the result carries a breakdown naming the BDD deduction
+    """
+    qc = _load_script()
+    f = _many_tests_file(tmp_path, 10)
+    results = qc.TestQualityChecker(f).run_full_validation()
+    breakdown = results["score_breakdown"]
+    assert breakdown["bdd_compliance"] > 0
+    assert breakdown["structure_issues"] == 0
+
+
+def test_project_interpreter_prefers_the_project_venv(tmp_path):
+    """Tests run under the interpreter their own project defines.
+
+    GIVEN a test file inside a project that has a .venv
+    WHEN the runner resolves an interpreter
+    THEN it picks the project's python and runs from the project root
+    """
+    qc = _load_script()
+    project = tmp_path / "plugins" / "widget"
+    (project / "tests").mkdir(parents=True)
+    (project / "pyproject.toml").write_text("[project]\nname = 'widget'\n")
+    venv_python = project / ".venv" / "bin" / "python"
+    venv_python.parent.mkdir(parents=True)
+    venv_python.write_text("#!/bin/sh\n")
+    venv_python.chmod(0o755)
+    test_file = project / "tests" / "test_widget.py"
+    test_file.write_text("def test_x():\n    assert True\n")
+
+    interpreter, cwd = qc.resolve_project_interpreter(test_file)
+    assert interpreter == str(venv_python)
+    assert cwd == project
+
+
+def test_project_interpreter_falls_back_to_the_running_one(tmp_path):
+    """Without a project venv the checker uses the interpreter it runs under.
+
+    GIVEN a test file with no project venv above it
+    WHEN the runner resolves an interpreter
+    THEN it falls back to the current interpreter
+    """
+    qc = _load_script()
+    test_file = tmp_path / "test_loose.py"
+    test_file.write_text("def test_x():\n    assert True\n")
+    interpreter, _cwd = qc.resolve_project_interpreter(test_file)
+    assert interpreter == sys.executable
+
+
+def test_dynamic_run_finds_the_test_file_from_the_project_root(tmp_path, monkeypatch):
+    """A relative test path still resolves once the run moves to the project root.
+
+    GIVEN a test file addressed relatively from outside its project
+    WHEN the dynamic validation runs it from that project's root
+    THEN pytest finds the file and reports the run, not a usage error
+    """
+    qc = _load_script()
+    project = tmp_path / "widget"
+    (project / "tests").mkdir(parents=True)
+    (project / "pyproject.toml").write_text(
+        "[project]\nname = 'widget'\nversion = '0'\n"
+    )
+    (project / "tests" / "test_widget.py").write_text(
+        '"""Widget tests."""\n\ndef test_widget_adds():\n    assert 1 + 1 == 2\n'
+    )
+    monkeypatch.chdir(tmp_path)
+
+    checker = qc.TestQualityChecker(Path("widget/tests/test_widget.py"))
+    out = checker.run_dynamic_validation()
+    assert out["execution_result"] == 0, out
+
+
+def test_undocumented_tests_are_charged_to_documentation_not_bdd(tmp_path):
+    """A test with no docstring is a documentation problem, charged once.
+
+    GIVEN a file whose tests carry no docstrings at all
+    WHEN the file is scored
+    THEN the BDD category charges nothing, because there is no docstring
+      to hold clauses, and the documentation category and the metrics
+      floor carry the cost instead
+
+    Pinned deliberately (TR-001): making the BDD check treat a missing
+    docstring as a missing clause would charge the same absence twice.
+    """
+    qc = _load_script()
+    f = tmp_path / "test_undocumented.py"
+    f.write_text(
+        "import pytest\n\n"
+        "def test_widget_adds_two_numbers():\n"
+        "    assert 1 + 1 == 2\n\n"
+        "def test_widget_subtracts_two_numbers():\n"
+        "    assert 3 - 1 == 2\n"
+    )
+    results = qc.TestQualityChecker(f).run_full_validation()
+    assert results["static_analysis"]["bdd_compliance"] == []
+    assert results["score_breakdown"]["bdd_compliance"] == 0
+    assert results["score_breakdown"]["documentation"] > 0
+    assert results["score_breakdown"]["metrics"] > 0

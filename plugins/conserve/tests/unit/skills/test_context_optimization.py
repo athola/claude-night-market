@@ -167,6 +167,7 @@ class TestSubagentCoordinationModuleContent:
 
     @pytest.fixture
     def module_path(self) -> Path:
+        """Locate the subagent-coordination module relative to this test file."""
         return (
             Path(__file__).parents[THREE]
             / "skills"
@@ -177,6 +178,7 @@ class TestSubagentCoordinationModuleContent:
 
     @pytest.fixture
     def module_content(self, module_path: Path) -> str:
+        """Read the module once so each assertion works off the same text."""
         return module_path.read_text()
 
     # --- Level 2: Version gate consistency ---
@@ -184,7 +186,8 @@ class TestSubagentCoordinationModuleContent:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_worktree_features_are_version_gated(self, module_content: str) -> None:
-        """Given worktree isolation features in the module
+        """Given worktree isolation features in the module.
+
         When Claude reads about worktree capabilities
         Then each capability must have a version gate so Claude doesn't
         recommend features unavailable in the user's version.
@@ -208,7 +211,8 @@ class TestSubagentCoordinationModuleContent:
     def test_version_refs_cross_reference_compatibility_docs(
         self, module_content: str
     ) -> None:
-        """Given version references in the module
+        """Given version references in the module.
+
         Then each referenced version must exist in compatibility docs.
 
         This prevents Claude from citing nonexistent versions.
@@ -246,7 +250,8 @@ class TestSubagentCoordinationModuleContent:
     def test_delegation_framework_has_efficiency_threshold(
         self, module_content: str
     ) -> None:
-        """Given the delegation decision framework
+        """Given the delegation decision framework.
+
         When Claude decides whether to spawn a subagent
         Then the framework must include a minimum efficiency threshold
         to prevent wasteful delegation of simple tasks.
@@ -261,7 +266,8 @@ class TestSubagentCoordinationModuleContent:
     def test_delegation_framework_has_pre_invocation_check(
         self, module_content: str
     ) -> None:
-        """Given the delegation framework
+        """Given the delegation framework.
+
         When Claude is about to spawn a subagent
         Then the framework must instruct a pre-invocation complexity check.
 
@@ -274,7 +280,8 @@ class TestSubagentCoordinationModuleContent:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_worktree_config_sharing_documented(self, module_content: str) -> None:
-        """Given worktree-isolated agents share configs since 2.1.63
+        """Given worktree-isolated agents share configs since 2.1.63.
+
         When Claude dispatches a worktree agent
         Then it should know configs and memory are inherited, not blank.
 

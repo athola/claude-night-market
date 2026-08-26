@@ -262,8 +262,9 @@ Capture the failing run as part of `[E1]` (or a fresh `[E1.test]`).
 **Purpose**: Smallest change that makes the RED test pass.
 
 Apply `Skill(imbue:karpathy-principles)` module `surgical-edits`. Avoid
-adjacent refactors. New comments or docstrings must clear the project rule
-at `.claude/rules/slop-scan-for-docs.md`.
+adjacent refactors. New comments or docstrings must clear
+`Skill(scribe:slop-detector)`: no identity leaks, no cited path that does
+not resolve, and no bare `TODO` without a tracked issue.
 
 Re-run the failing test. If it still fails, return to step 4 (hypothesis
 ladder) rather than mutating the test or the fix repeatedly. Apply the

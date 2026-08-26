@@ -146,8 +146,8 @@ plugin-check: demo-tracking demo-initiatives demo-skills status ## Run all demo 
 Makefile.local:;
 -include Makefile.local
 
-demo-create-issue: ## Demo create-issue command (LIVE)
-	@echo "=== create-issue Demo (LIVE) ==="
+demo-create-issue: ## Demo create-issue command
+	@echo "=== create-issue Demo ==="
 	@echo ""
 	@echo "Command: /create-issue"
 	@echo "Plugin: minister"
@@ -158,8 +158,8 @@ demo-create-issue: ## Demo create-issue command (LIVE)
 	@echo "Use /create-issue for full workflow."
 
 
-demo-close-issue: ## Demo close-issue command (LIVE)
-	@echo "=== close-issue Demo (LIVE) ==="
+demo-close-issue: ## Demo close-issue command
+	@echo "=== close-issue Demo ==="
 	@echo ""
 	@echo "Command: /close-issue"
 	@echo "Plugin: minister"
@@ -170,8 +170,8 @@ demo-close-issue: ## Demo close-issue command (LIVE)
 	@echo "Use /close-issue for full workflow."
 
 
-demo-update-labels: ## Demo update-labels command (LIVE)
-	@echo "=== update-labels Demo (LIVE) ==="
+demo-update-labels: ## Demo update-labels command
+	@echo "=== update-labels Demo ==="
 	@echo ""
 	@echo "Command: /update-labels"
 	@echo "Plugin: minister"

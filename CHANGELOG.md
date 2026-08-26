@@ -9,6 +9,267 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **A workflow per plugin, and a gate that keeps them runnable.** Four
+  plugins shipped dynamic-workflow scripts. The other 19 did not, and
+  `claude-code-plugin-reference` still headed the section "the asset
+  type this repo does not ship yet". All 23 ship one now, each
+  encoding that plugin's own fan-out rather than a demonstration:
+  scribe runs its four document reviewers blind to each other,
+  parseltongue its four Python specialists over the same paths,
+  egregore audits each pipeline gate for whether it can return a
+  failing verdict. Two conventions hold across all of them, because
+  the violation fails at dispatch rather than at authoring. A script
+  that cannot start returns `{started: false, reason, next}` with
+  `next` naming the command that supplies the missing input, instead
+  of dispatching agents against nothing. And none calls `Date.now()`,
+  `Math.random()`, argless `new Date()` or `import()`: the first three
+  throw, because a run has to replay identically from its journal on
+  resume, and the fourth fails the script before the run starts.
+  `tests/test_shipped_workflows.py` gates coverage, `meta` placement,
+  `meta.name` agreeing with the filename, the refusal shape, and a row
+  in the capabilities reference. The filename check earns its place:
+  the harness invokes by `meta.name`, so a script whose declared name
+  disagrees with its file exists under a name nobody can type, and no
+  syntax check sees it.
+
+- **A continuation baton that makes a dropped turn observable
+  (egregore).** ADR-0022 recorded that the autonomous loop continues by
+  riding an undocumented harness behavior, and closed on a defect
+  nobody could act on: no test can cover the harness end, so the first
+  symptom of an upstream change is a loop that stops after one turn,
+  which looks identical to a loop that finished. Framed with TRIZ this
+  is a physical contradiction, not a technical one: the trigger must
+  be inside the session, which alone knows a unit finished, and
+  outside it, which alone survives the session ending. The separation
+  axis is system scale, and a rail dead man's control, a cell-cycle
+  checkpoint and a kanban card all land on the same shape for it. So
+  the session records each handoff with a sequence number and the
+  deadline by which the next turn should have started, so a dropped
+  turn leaves a baton past its deadline with its sequence unmoved. Stranded
+  means stalled rather than old, which is what separates it from a
+  timeout. Four states are distinguishable where the pidfile
+  distinguished one, including reinjection ceasing while the process
+  is still alive. The dependency is unchanged and the watchdog does
+  not consume the baton yet. ADR-0023 states both.
+
+- **Provider setup for delegation, with a ledger (conjure).**
+  `delegation_setup.py` already probed, explained and installed, but
+  had no skill in front of it and wrote nothing down, so every call
+  re-derived the same facts by spawning up to sixteen subprocesses and
+  an unconfigured provider surfaced only as a failed delegation.
+  `Skill(conjure:provider-setup)` and `--available` answer what this
+  machine can call. `provider_ledger.py` stores it, and what it may
+  remember is asymmetric on purpose: installed facts cache under a
+  six-hour TTL, a confirmed credential is a timestamp and never a
+  boolean because a token expires without touching the binary, and a
+  recorded failure clears the confirmation immediately. A provider
+  whose auth was never probed carries `auth_checked: false`, which
+  never becomes a confirmation, because "we did not look" and "it
+  works" are different claims. The ledger deliberately does not reach
+  the routing path, and the skill says so.
+
+- **Slop detection for the trailing corrective (scribe).**
+  `negative_parallelism` already named the "X, not just Y" form, but
+  its bare-trailing regex needs the sentence to end one word after
+  "not", so "sends your code, not just a status check" was live in
+  `README.md`. `contrastive_negation_trailing` carries the four forms
+  the sources agree on, at high confidence.
+  `contrastive_scaffold` covers "does X rather than Y" and "does X
+  instead of Y", and ships `default_enabled: false` at low confidence:
+  no source in the contrastive-negation literature names either
+  connective, and this repository writes "rather than" 504 times and
+  "instead of" 299 in its own markdown, almost all correctly.
+
+### Changed
+
+- **Shipped documents no longer cite a path a marketplace install
+  lacks.** A plugin installed from the marketplace gets that plugin's
+  directory and nothing else, with no `.claude/rules/`. Fifteen files
+  under `plugins/` told their reader to see a rule file there. The
+  substance now travels with the plugin: stated inline, or cited from
+  a module under the same plugin. Deleting the pointers alone would
+  have left the reader with less.
+  `tests/test_shipped_plugin_docs_avoid_repo_local_rules.py` gates the
+  shipped surface, allowlisting the four cases where the rules
+  directory is an operand rather than a reference.
+
+- **The Iron Law says what a test is for, not only that one exists.**
+  Read as an unqualified "a failing test before every change", it
+  produces a suite where every changed line grew an assertion, and
+  that is not a neutral cost: a test pinning a convenience default
+  reports failure when nothing broke. The RED phase now begins by
+  naming the constraint the test defends, one of a business rule, an
+  invariant, a contract at a boundary, or a recorded defect. When none
+  fits, "this change does not need a test first" is a valid answer
+  that has to be said with its reason. leyline's anti-pattern catalog
+  gains the case it was missing, since it covered how a test is
+  written and said nothing about whether the constraint was required.
+
+- **`docs/testing-guide.md` counts are measured rather than
+  estimated.** The table claimed 938 tests across 12 plugins, listed
+  abstract at 331 where it collects 2,378, and carried coverage and
+  mutation columns with no evidence behind them. Rebuilt from
+  `pytest --collect-only`: 14,048 across 23 plugins, plus 6,944 in the
+  root suite that no plugin runner sees. The command that regenerates
+  it ships alongside, because the numbers drift.
+
+- **Session start no longer injects reference manuals.** Eight plugins
+  register `SessionStart`; three printed documentation totaling 9,973 of
+  the 10,770 characters measured across the set, so every session paid
+  for guidance about work most sessions never did. conserve went from
+  ~4,000 characters to 951 and imbue from ~3,100 to 990, both now
+  pointers into the skills that already held the detail; sanctum's was
+  cut to 533 separately on this branch. conserve also stopped restating
+  imbue's scope-guard reference, which every session paid for twice. A
+  per-payload budget test holds the line.
+- **The context monitor stopped re-reading the transcript per tool
+  call.** `conserve/context_warning.py` parsed up to 4MB of session
+  JSONL on every Write, Edit, Bash, Skill and Task. The alert bands are
+  40%, 50% and 80%, which no session crosses inside half a minute, so
+  the estimate is cached for 30 seconds.
+- **A prompt with no URL stopped paying for the memory-palace shared
+  package.** `url_detector.py` imported `shared.config` and
+  `shared.deduplication` at module scope, 100ms measured with
+  `-X importtime`, for names unreachable until a URL is found.
+  Deferring them takes the quiet path from 90ms to 40ms.
+
+### Fixed
+
+- **A metadata entry used a path spelling no other plugin uses.**
+  conjure's `metadata.json` listed nine skills as `skills/<name>` and
+  glimmer as `./skills/<name>`, the single outlier repo-wide. The
+  registration test compares `Path(entry).name`, identical for both,
+  so the tenth entry arrived in the wrong form and the suite stayed
+  green. The spelling is pinned directly now.
+
+- **Five branches added this cycle and never exercised.**
+  `provider_ledger` and `continuation_baton` reach 100% from 95% and
+  94%: an unfamiliar schema version must discard the file wholesale,
+  and one malformed entry must not discard the others.
+  `render_available`, the one function whose whole job is telling an
+  operator the truth, had no test at all. Three guards were decorative
+  on the first attempt and the revert test is what caught them. The
+  record is `LL-006`.
+
+- **Slop detection for prose framed in the negative (scribe).** The
+  existing `negative_parallelism` catches a scaffold, "not X but Y".
+  Three new `tier5` categories catch writing that reaches for the
+  negative where a positive statement was available: `litotes` ("not
+  uncommon", "never fails to"), `vacuous_negation` ("cannot be
+  overstated", "needless to say") and `negative_definition` ("doesn't
+  handle X"). The first two are high confidence and on by default. The
+  third ships `default_enabled: false` and low confidence, because
+  precise negation is how contracts, invariants and trust boundaries
+  are written and a default-on version would bury one real finding
+  under hundreds of correct sentences.
+
+  Over-reliance is a property of a page rather than of any sentence, so
+  a regex cannot measure it. `scribe.negation.check_negation_density`
+  reports the share of sentences carrying a negation marker against an
+  advisory 35% bar, with an 8-sentence floor. It gates nothing.
+
+- **The CI slop gate reads the pattern source instead of a copy.**
+  `slop-check.yml` carried its own inline `TIER1=`/`TIER2=` grep
+  alternations, so it enforced a snapshot of
+  `plugins/scribe/data/languages/en.yaml`: every Tier 5 category added
+  since was invisible to CI, and a regex category cannot be written as
+  a word alternation at all. `scripts/slop_score.py` loads the YAML, so
+  a category added there reaches CI with no workflow edit. Only
+  high-confidence categories score, since the house rule says a low
+  confidence finding is surfaced for a human and never auto-applied;
+  the rest are listed under a heading that says they did not count.
+  `.slop-config.yaml` carries the project allowlist, and a test fails
+  any entry that does not state why the word is correct here.
+
+- **CI runs every plugin's own test suite.** No workflow did.
+  `ecosystem-tests.yml` runs the root `tests/` suite and
+  `python39-compat.yml` runs the hook subset for hook-registering
+  plugins, so roughly 13,900 tests across 23 plugin suites were gated
+  only by the pre-commit hook on a contributor's machine -- the same
+  hook that, until this branch, reported failure without running
+  anything for any plugin with no coverage threshold.
+  `plugin-tests.yml` discovers the matrix from `plugins/*/tests` rather
+  than listing it, runs each suite from its own plugin directory
+  because several resolve imports against their own pyproject, and
+  leaves coverage on because two plugins do not depend on pytest-cov at
+  all. `tests/test_ci_runs_plugin_suites.py` pins those three
+  properties and the `plugins/**` path filter.
+
+- **Nine tests asserted on whatever the machine happened to have.**
+  Two in attune mocked `sync_language_templates` but not
+  `check_reference_projects`, so `main()` exited 1 unless
+  `~/simple-resume` and `~/skrills` existed; both mocks together make
+  the assertion about argument routing deterministic. Three in conjure
+  assert on how an *installed* provider renders and had a bare `assert`,
+  which failed rather than skipped where the CLI was absent. Four in
+  pensive shell out to `shellcheck` and `shfmt`; they are the
+  repository's only automated shell gate, so the CI job installs both
+  rather than letting them skip there, and installs ripgrep for the
+  pattern-detection tests in the same file, which fail outright without
+  it.
+
+  A sweep with `HOME` pointed at an empty directory found the first six.
+  The first CI run found the rest, including one that no local run can
+  reproduce: `uv run` installs a PEP 735 `[dependency-groups] dev` by
+  default but not a `[project.optional-dependencies] dev`, and leyline
+  and phantom declare pytest only in the second form. Their jobs died on
+  "No module named pytest" while passing locally, where a repo-root
+  `.venv` already carried pytest from an earlier run. The workflow
+  passes `--all-extras` to cover both conventions.
+
+- **Hook `if` gates were on the wrong object and never ran.** Measured
+  on Claude Code 2.1.245: the harness reads `if` from the hook entry,
+  and the same key on the enclosing matcher group is dropped without an
+  error. Every `if` this repo shipped sat on the group, so gauntlet's
+  precommit gate, pensive's blast-radius hook and cartograph's graph
+  refresh spawned on every Bash call while their configs read as gated.
+  The keys moved into their entries, imbue's three `PreToolUse:Bash`
+  hooks gained gates now that the mechanism works, and
+  `scripts/check_hook_modernization.py` rejects both silent failure
+  modes: a misplaced key that never gates, and an array-valued `if`
+  that suppresses the hook outright with a matching rule present.
+- **A plugin with no coverage threshold reported failure having run
+  nothing.** bash 3.2, which macOS ships, treats an empty array as
+  unset, so `"${cov_flag[@]}"` under `set -u` aborted
+  `scripts/run-plugin-tests.sh` before pytest was invoked. bash 4+
+  expands the same line to nothing, so CI never reproduced it.
+- **The conserve context-estimate cache followed symlinks.** Its path
+  is derived from the transcript path and so is predictable; it now
+  opens with `O_NOFOLLOW` and refuses a file this user does not own
+  (CWE-59), matching the defense imbue keeps in
+  `hooks/shared/vow_utils.py`.
+
+## [1.9.19] - 2026-08-23
+
+### Added
+
+- **Four more delegation providers and guided setup (conjure).** The
+  delegation registry gained GLM-5.3, Meta Muse Code, the OpenAI Codex
+  CLI and OpenCode, plus Muse Glimmer served locally through ollama.
+  Providers fall into two archetypes now. A native CLI takes the prompt
+  positionally, which is what `muse exec`, `codex exec` and
+  `opencode run` all do. An endpoint swap runs the stock `claude`
+  binary against a provider's Anthropic-compatible endpoint, which is
+  how GLM reaches Z.ai without shipping a CLI of its own. Z.ai wants
+  the key in `ANTHROPIC_AUTH_TOKEN` rather than `ANTHROPIC_API_KEY`,
+  and the overlay names the variable instead of storing the secret.
+
+  Registering a provider is a data change. `ServiceConfig` carries
+  priority, model ids and strengths, so `smart_delegate` derives its
+  candidate order and model choice from the registry instead of three
+  hardcoded lists, one of which raised `KeyError` for any service
+  missing from it. `verify_service` reads the `version_probe` and
+  `auth_probe` fields it previously declared and ignored, which is what
+  lets Muse register despite publishing no auth-status command.
+
+  `delegation_setup.py` reports which provider CLIs are installed and
+  authenticated, and installs missing ones after a confirmation naming
+  the package, publisher and source URL. Two of these install by piping
+  a remote script into a shell, so the source is shown before anything
+  runs, and install commands come only from `VERIFIED_BINARIES`: an
+  unrecorded binary raises rather than resolving to a guess. Exposed as
+  `make delegate-setup`, `delegate-doctor` and `delegate-install`.
+
 - **MiniMax delegation provider (conjure).** The Conjure plugin
   registered a MiniMax service alongside Gemini and Qwen so the
   delegation executor and War Room can route work to MiniMax-M3 and
@@ -23,6 +284,703 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `minimax-delegation` skill documents the global and China regional
   OpenAI- and Anthropic-compatible endpoints, model capabilities, and
   token pricing, and the Makefile exposes `make delegate-minimax`.
+
+- **The skill LEARNINGS report says which signals it did not have
+  (abstract).** The aggregator omitted the ratings and slow-execution
+  sections when their lists were empty, so a detector that never
+  received usable input produced the same report as a detector that
+  looked and found nothing wrong. The summary then closed with "No
+  high-priority actions this period", which reads as a clean bill of
+  health.
+
+  Two of its inputs are structurally absent in normal operation.
+  `qualitative_evaluation` is written as `None` by the execution logger
+  and populated only by `/evaluate-skill` or the skill-evaluator agent,
+  so both rating detectors sit idle unless someone runs them by hand.
+  `duration_ms` spans the PreToolUse to PostToolUse window on the Skill
+  tool, which brackets loading SKILL.md rather than the work the skill
+  performs over the turns that follow, so averages land far below the
+  10s slow-execution threshold and it cannot fire.
+
+  A Signal Coverage section now reports rating coverage, flags
+  dispatch-bound durations, and renders explicit "not measured" blocks
+  where sections used to vanish. It also names whose absence each one
+  is, because the two do not close the same way. Ratings are missing
+  because a working instrument was not run, and `/evaluate-skill`
+  closes that gap. Durations are missing because the measurement point
+  brackets the wrong window, so no command closes it and the gap holds
+  until the instrumentation moves. A period with no executions at all
+  now says so rather than rendering "0 of 0 executions carry a
+  qualitative_evaluation", which invited reading an empty log as a
+  measured shortfall.
+
+- **A fourth ratchet, on the wrap rule nothing had ever checked.**
+  `.claude/rules/markdown-formatting.md` requires prose to wrap at 80
+  columns and says so for every document in the codebase, plugin READMEs
+  and skill files included. The only markdown hook was
+  `check-markdown-links`, which validates link targets and has never had
+  an opinion about line length. Issue #681 recorded the gap.
+
+  `scripts/check_prose_wrap_drift.py` counts overlong prose lines across
+  tracked markdown and compares the total against
+  `scripts/prose_wrap_baseline.json`. The repository holds 3558 of them,
+  so a hard gate would have failed the first commit that touched a
+  document and every one after. The count may fall and may hold, and it
+  may not rise. A drop passes and prints the number to write back,
+  because a baseline parked above the real count is permission nobody
+  granted, which is the state `max_missing_exit_criteria` sat in at 127
+  while the true count was 1.
+
+  Most of the work is staying quiet. The rule names its own exemptions
+  and a checker that counted every long line would report thousands of
+  findings against tables and fenced code it already excuses, and a
+  check that noisy stops being run. Tables, headings, indented code,
+  HTML, link definitions, image references and frontmatter are excluded,
+  and so is any line carrying a URL, since the rule forbids breaking
+  inside one and a finding with no available repair is noise.
+  Frontmatter is honored only at the top of a file: a `---` further down
+  is a thematic break, and reading it as a fence opener would silence
+  every prose line below the first horizontal rule in the document.
+
+  Enumeration goes through `git ls-files` rather than a filesystem walk.
+  On one machine `clawhub/`, `reviews/` and the memory-palace web
+  captures are gitignored and carried several hundred findings a fresh
+  checkout does not have, and a threshold that moves with local state
+  fires on work nobody committed. Only a missing file is absorbed by the
+  count. A file that is present and cannot be read propagates, because a
+  ratchet subtracts every skipped file from its own total and one
+  unreadable document can otherwise absorb a real rise elsewhere.
+
+### Changed
+
+- **Delegation runs by default, and falls back on its own (conjure,
+  attune, egregore).** Delegation was opt-in in the only sense that
+  matters: it happened where a caller remembered to ask for it. It now
+  happens wherever a mission phase, an egregore pipeline step or a
+  conjure operation reaches execution work, and declining it is the
+  step that takes a decision.
+
+  Two switches turn it off, environment over file.
+  `CONJURE_DELEGATION=off` declines for one run;
+  `"enabled": false` in `~/.claude/hooks/delegation/config.json`
+  declines for a machine. A disabled delegator probes and spawns
+  nothing, which is what makes the opt-out worth having.
+
+  `smart_delegate` walks the whole candidate order instead of stopping
+  at the first available provider, because availability is not
+  answering. It advances past an exit-0 empty stdout too. That is not
+  hypothetical: on a machine where gemini has no key and minimax is
+  unauthenticated, `qwen` exits 0 with nothing in it, and the old
+  selection returned that silence as the answer. The chain now walks
+  past it to `glm`.
+
+  An exhausted chain returns rather than raises, carrying
+  `fallback_reason` and a per-provider `attempts` trail. Turning
+  delegation on by default makes "no CLI installed" the ordinary path,
+  and a traceback is the wrong shape for a state the caller recovers
+  from by doing the work itself. `smart_delegate` returns one
+  `ExecutionResult` rather than a tuple; the answering provider is in
+  `result.service`.
+
+  The skills carry the other half. `delegation-core` states a default
+  posture with four Keep Local clauses, and `task-assessment` loses the
+  size thresholds that gated eligibility: "keep local under 10,000
+  tokens and 20 files" is why most eligible work never left the
+  session. Thresholds now rank payoff and gate nothing.
+
+- **The skill library authors and reviews as a pipeline, and does not
+  fix (attune).** `plugins/attune/workflows/skill-library.js` authors
+  one skill per topic and reviews each through two lenses, starting a
+  skill's review when that skill is written rather than when the
+  slowest one is.
+
+  It uses no worktree isolation, and that corrects the recommendation
+  that proposed it. Authoring writes one new directory per skill, which
+  is disjoint by construction, and this repository's own dispatch rule
+  says disjoint writers skip isolation. A worktree per skill would have
+  cost a worktree and prevented no conflict. What the writes needed was
+  the fence in each prompt: create only under this skill's path, and
+  modify nothing that already exists.
+
+  The fixer stays in the session. Authoring creates files that did not
+  exist, which is bounded and visible in `git status`; applying review
+  findings edits files that do exist, and a workflow's subagents run in
+  `acceptEdits` whatever the session's permission mode. Tests fail if
+  isolation is added or the write fence is dropped.
+
+- **Tome's channel fan-out becomes a pipeline, and its overlap is
+  stated (tome).** `plugins/tome/workflows/research.js` dispatches one
+  agent per selected channel and merges the results, deduplicating by
+  URL so a finding two channels returned outranks one that only came
+  back once. The barrier is deliberate here: synthesis needs every
+  channel at once to dedupe and to report which came back empty.
+
+  Empty, failed and skipped stay three separate states in the returned
+  coverage, each with what the channel searched for, because a thin
+  topic and a broken channel must not look alike.
+
+  The README now says plainly that the harness bundles `/deep-research`
+  over a similar channel set. Tome is worth reaching for when the
+  result must land in a session with domain weights, the TRIZ channel,
+  citations and the memory-palace export. The dispatch alone is no
+  longer tome's to claim, and pretending otherwise would waste a
+  reader's time.
+
+- **/fix-workflow's analysis half becomes a pipeline, and stops before
+  the edits (sanctum).** Stages 2 to 4 of Phase 1 were three agents in
+  a fixed order with structured handoffs, described in prose across
+  three agent files, and the command exceeded the repository's own
+  4-agent plan-mode threshold on every run.
+  `plugins/sanctum/workflows/fix-workflow-analysis.js` runs them as one
+  pipeline with a schema per handoff and returns a plan.
+
+  It deliberately stops before the implementer. A workflow's subagents
+  run in `acceptEdits` whatever the session's permission mode, so an
+  implementer stage inside the script would apply edits nobody saw
+  proposed, and the script has no shell, so it could not check one
+  acceptance criterion it writes. Implementation and validation stay in
+  the session. A test fails if an editing agent is ever added back.
+
+- **The first shipped workflow, and the barrier it replaces (pensive).**
+  `unified-review` required every lens dispatched in one call with no
+  output read until all returned, so one lens could not color how the
+  next was read. `plugins/pensive/workflows/unified-review.js` serves
+  that purpose better: a script is not a reasoning entity, so it cannot
+  be anchored by reading stage one before stage two, and findings pass
+  between stages without entering anyone's context. Verification starts
+  per dimension instead of waiting for the slowest lens.
+
+  The prose rule is not deleted. It is one of two paths, and the Agent
+  tool stays the default, because a workflow never starts unasked and a
+  roster that must adapt to the first lens's findings is not a script's
+  shape.
+
+  Two properties are stated where a reader meets them: the subagents
+  run in `acceptEdits` whatever the session's permission mode, so the
+  shipped prompts are scoped to reading, and the script has no
+  filesystem, so its return is a claim that survived refutation rather
+  than evidence.
+
+  The script ran before it shipped: ten agents against two commits on
+  this branch, 688k subagent tokens, no errors, four findings each
+  surviving two adversarial lenses. Two were real defects in this
+  repository's own work, and both are fixed in this release.
+
+- **Dynamic workflows: the orchestration this repo already wrote in
+  prose (rules, hookify, imbue, plugin reference).**
+  `.claude/rules/plan-before-large-dispatch.md` demanded an agent
+  roster, a scope per agent, an output contract and a failure strategy
+  before any 4-agent dispatch. Those are constructs the Workflow tool
+  provides in code, and the three risks
+  `sanctum:do-issue/modules/parallel-execution.md:16-20` names to
+  justify the rule are the three properties it changes: results stay in
+  script variables instead of the session, `resumeFromRunId` replays a
+  partial run, and `schema` enforces the contract at the tool-call
+  layer.
+
+  The rule keeps its threshold and its purpose, and gains a second
+  compliant path. Plan mode forces user alignment before compute is
+  spent; a workflow's explicit-opt-in requirement is that same gate
+  relocated into the harness. Path 2 also carries four constraints
+  worth stating once: never start one unasked, its subagents run in
+  `acceptEdits` whatever the session's permission mode, the `ultracode`
+  keyword does not fire from headless routes, and a script has no
+  filesystem, so it can find and rank but cannot prove a test passed.
+  That last point is now stated where the evidence rule lives, in
+  `imbue:proof-of-work`.
+
+  The hookify catalog copy of the rule had already drifted from the
+  canonical one. It now mirrors the new content, names the canonical
+  copy, and loses the arrow-as-conjunction prose the house style bans.
+
+  `claude-code-plugin-reference` gains the fifth asset type. Plugins
+  can ship workflows from a `workflows/` directory at the plugin root,
+  verified against two official plugins on disk rather than from
+  documentation: neither declares a manifest key, so discovery is by
+  convention. One gotcha is recorded because it would have bitten our
+  validator first: a workflow script opens with `export const meta` and
+  ends with a top-level `return`, which cannot both be legal ESM, so
+  `node --check` calls a correct script a syntax error. The runtime
+  runs the body inside an async function.
+
+  Two gates now know the fifth type. `validate_plugin.py` validates
+  shipped scripts, and `tests/test_cited_paths_resolve.py` resolves
+  `plugin:name` against `workflows/name.js`, which it had to learn the
+  moment a command cited one: without that arm the first shipped
+  workflow read as a phantom capability, and the repo's own guard
+  caught it.
+
+  `validate_plugin.py` now knows the fifth type. `workflows/` is
+  optional, so its absence is silent and every current plugin is
+  unaffected; when a plugin does ship one, each `.js` must open with a
+  literal `export const meta` carrying `name` and `description`, only
+  comments may precede it, and a `workflows/` directory misplaced under
+  `.claude-plugin/` is reported the way a misplaced `skills/` is.
+  Syntax is checked structurally and never with `node --check`, for the
+  ESM reason above, with a test that makes any `subprocess.run` call
+  fatal so the shortcut cannot come back.
+
+  Validated against three real inputs: all 23 plugins in this repo stay
+  silent, the worked example passes with its leading comment block, and
+  Anthropic's own minified `claude-security/workflows/scan.js` passes,
+  which is the shape we do not control.
+
+  The capabilities reference and `sync-capabilities` are deliberately
+  not touched: there are no workflow rows to sync until a plugin ships
+  one.
+
+  The catalog-copy drift now fails a test instead of relying on a note.
+  `tests/test_catalog_rules_mirror_canonical.py` pairs every hookify
+  catalog rule with the canonical rule of the same name and requires
+  the frontmatter to match exactly: prose may be condensed for the
+  catalog, but the trigger regex, the event and the action decide when
+  a rule fires, and a copy that fires differently is a different rule
+  wearing the same name. It also requires the condensed copy to name
+  its source. This came from the review of f0790a1f itself, which
+  observed that the commit fixing the drift added a note rather than an
+  invariant.
+
+- **Per-plugin ruff configs extend the repo floor instead of replacing
+  it.** Every gate that ran (`make lint`, the pre-commit ruff hooks, CI)
+  passed `--config pyproject.toml`, so the 21 per-plugin `[tool.ruff]`
+  sections decided nothing. Enforcing them as written would have been
+  wrong in both directions: they add S, PL, D, N and SIM, and they also
+  drop D202, D209 and PLC0415, which root selects. Two TOML keys cause
+  that. `select` replaces the inherited list rather than extending it,
+  and a local `[tool.ruff.lint.per-file-ignores]` table replaces root's
+  rather than merging, so each config discarded root's rule floor and
+  root's exemptions for `**/tests/**` and `**/hooks/*.py` at once.
+
+  Each config now carries `extend = "../../pyproject.toml"` and states
+  its additions as `extend-select` and `extend-per-file-ignores`. The
+  resolved rule set is the union, so a plugin can raise its own bar and
+  can no longer lower the repo's. Restoring the exemptions alone dropped
+  the violation count from 468 to 389, the 79 difference being tests and
+  hooks code that root already exempted.
+
+  Clearing those 389 is what let the gates move onto the union. 238 were
+  D102 and every one was in a test file, so each docstring now states
+  what the test asserts rather than restating its name. 51 were D205
+  docstrings running an unterminated summary straight into
+  Given/When/Then. `make lint` and the two pre-commit ruff check hooks
+  drop `--config pyproject.toml`, so ruff resolves each file against its
+  own plugin's config. `ruff format` keeps the root config, so
+  formatting stays uniform repo-wide and only the rule set varies by
+  plugin. A D102 planted in memory-palace passes under the forced root
+  config and fails under the resolved one, which is the proof the gate
+  moved. The contract is written down in `docs/quality-gates.md`.
+
+- **Three ratchets that were mostly slack now hold at zero.** A ratchet
+  only holds if someone tightens it, and these had been printing that
+  advice on every run while the allowance stayed where it started.
+
+  `max_missing_exit_criteria` permitted 127 SKILL.md files to lack an
+  Exit Criteria section. One did, and it was a teaching example under
+  `plugins/abstract/docs/` that `.claude/rules/skill-exit-criteria.md`
+  explicitly puts out of scope, so a bare rglob over `plugins/` was
+  judging reference documentation by a standard written for shipped
+  skills. The walk now matches the rule. Count and allowance both reach
+  zero, which makes the guard a hard gate rather than a ratchet.
+
+  `max_dangling_bugs` tolerated 31 broken `Skill()` references and six
+  were left. Five were data: `abstract:performance-optimization` is
+  gone, `memory-palace:strategeion` is a palace directory rather than a
+  skill, `sanctum:fix-workflow` is a command, `leyline:mecw-patterns`
+  folded into `conserve:context-optimization`, and a bare
+  `test-driven-development` resolved in-plugin when the skill is
+  superpowers'. The sixth was the checker missing `plugin-dev` from its
+  known-external list, so a valid cross-marketplace reference counted
+  against the budget.
+
+  `max_uncalled_libraries` held seven library skills with no inbound
+  edge and six of them were never uncalled. Three were hidden because
+  the graph read `dependencies:` and not `orchestrates:`, though both
+  fields say the same thing. One declared its dependency in a module
+  file the parser never opens. Two are entrypoints that nothing loads
+  by design and now carry `role: entrypoint`, and
+  `docs/skill-integration-guide.md` had recorded a caller for each that
+  does not exist. Nothing was folded or deleted to reach the number.
+
+  The same shape turned up in the test suite.
+  `test_no_ai_attribution_trailer` skipped the vow-enforcement SKILL.md
+  because the skill once had to quote the banned trailer. It no longer
+  contains that form, so the exemption bought the file out of a check
+  it already passed, and a skip reports neither pass nor fail. The entry
+  is removed and each remaining one now has to resolve on disk and still
+  contain the trailer it was granted for.
+
+### Fixed
+
+- **Seven `Skill()` calls named three targets that cannot be called
+  that way.**
+  Nothing adjudicated the call form written outside a SKILL.md.
+  `test_cited_capabilities_resolve` needs the backtick flush against
+  the token, so `` `Skill(pensive:bug-review)` `` matched neither it
+  nor `scripts/check_skill_graph_drift.py`, which reads the call syntax
+  but globs only `plugins/*/skills/*/SKILL.md`. A command citing a
+  skill by the call form answered to no gate at all.
+
+  That gap became load-bearing on this branch, where seventeen commands
+  were reduced to a delegation whose whole body is one `Skill(...)`
+  call. An unresolvable reference there is no longer a stale
+  cross-link. It is a command that does nothing when invoked.
+
+  `test_invoked_skills_resolve` reads commands, agents, and project
+  rules, and it found three targets across five files.
+  `abstract:skill-execution-logger` names a hook, not a skill, and was
+  cited in four of them. `sanctum:license-generation` never existed,
+  and `plugins/attune/commands/validate.md` recommended it in sample
+  output, inside a fence. `abstract:skill-auditor` is an agent, which
+  the harness offers to the Agent tool rather than the Skill tool, so
+  the call named a real asset by the wrong verb.
+
+  Two choices follow from those three. The gate keeps fenced blocks,
+  unlike the path gate that strips them, because a fenced `Skill(...)`
+  line in these documents is the instruction. Measured across every
+  asset it reads, keeping fences produced no example-shaped false
+  positive. And agents do not resolve, though the prose gate still
+  accepts them, since a backticked `plugin:name` claims only that the
+  thing exists while a call claims it is reachable this way. Skills
+  stay out of the sweep so the drift ratchet keeps sole ownership of
+  the references it baselines.
+
+- **The test-quality rubric scored file length, not test quality
+  (sanctum).** `quality_checker.py` returned 0/100 for a 37-test file
+  where every test passed and every branch it guarded was covered. Four
+  defects, each of which punished something that was not a defect.
+
+  Deductions were linear and uncapped, so thirty terse docstrings cost
+  150 points and any long file floored at 0. A score of 0 meant "long
+  file", not "bad tests". Categories now have budgets, and the ones
+  describing individual tests are charged by the share of tests they
+  touch: a suite where a third of the tests lack BDD clauses no longer
+  scores like one where none of them have any. The result carries a
+  `score_breakdown` naming each deduction.
+
+  `AND` was required as a BDD keyword. It continues a previous step in
+  Gherkin, so a GIVEN/WHEN/THEN docstring is complete without one, and
+  requiring it failed every three-clause test in the repo. Only GIVEN,
+  WHEN and THEN are required now, and the suggestion text never asks
+  for AND.
+
+  `assert result == {"id": "w1"}` was reported as a vague assertion
+  because the variable was named `result`. The rule now flags what is
+  actually vague: a bare name, or a comparison against `None`. Neither
+  states an expected value. A comparison against a concrete expectation
+  is specific whatever it is called.
+
+  Dynamic validation ran the target's tests under the checker's own
+  interpreter, which for a plugin test file lacks the pytest plugins
+  that plugin's `pyproject.toml` requires. pytest exited 4 with a usage
+  error, and an all-passing suite was scored as unmeasurable. The
+  runner now resolves the project's own `.venv` interpreter and runs
+  from its root, passing an absolute test path, and records which
+  interpreter it used.
+
+  Measured on `plugins/egregore/tests/test_stop_hook.py`: 0/100 before,
+  88/100 after, with BDD the only remaining deduction (12 of a 15-point
+  budget, for 30 of 37 tests with terse docstrings). A file with no
+  assertions and no docstrings scores 28.
+
+  Five existing tests pinned the two revised rules and were updated,
+  not deleted. The sequence was modify, flag, ratify: the changes were
+  surfaced with the preserve, layer and revise options stated, and the
+  revision was ratified rather than reverted. `docs/tradeoffs.md`
+  TR-001 records the alternatives weighed, the naming smell given up,
+  and the one-predicate path back. Each revised test now says in its
+  own docstring what it used to pin and why that changed.
+
+  One interaction is pinned rather than changed: a test with no
+  docstring is charged to documentation and to the metrics floor, and
+  the BDD check skips it, because a missing docstring cannot hold a
+  missing clause and charging both would count one absence twice.
+
+- **The Stop hook re-injected forever, and dogfooding priced it
+  (egregore).** The hook blocked the session from stopping whenever
+  the manifest held active work. That condition is static, so a
+  session that could not advance the pipeline was handed the prompt
+  back on every stop. Measured against a real project: ten turns and
+  roughly $0.70 of Opus for a one-word prompt.
+
+  The block is now bounded by stall detection. The hook hashes
+  `manifest.json` and counts consecutive blocks in
+  `.egregore/stop-hook-state.json`. A changed hash is progress and
+  resets the count, as is a new `session_id`, which is what a watchdog
+  relaunch looks like. At `EGREGORE_STOP_MAX_STALLS` blocks (default 3)
+  the hook approves the stop and stays released until the hash changes
+  again. State that cannot be written approves the stop too: an
+  unbounded block is the failure being fixed, and a released stop is
+  recoverable because the watchdog relaunches the session.
+
+  Reading `session_id` meant reading the payload the hook had been
+  discarding, so `_manifest_utils` gains `read_stdin_payload` beside
+  the existing `consume_stdin`, which the other two hooks still use.
+
+  What this does not bound: a watchdog tick that finds a dead session
+  relaunches into a fresh budget, so a stuck item costs about three
+  turns per relaunch for as long as the timer runs. Bounding one
+  relaunch does not bound their product, and that product is the timer
+  decision, not this hook's.
+
+  The reliance the bound does not settle is recorded in
+  `docs/adr/0022-stop-hook-reinjection-as-continuation.md`, as weak
+  point 6 in `night-market-architecture-contract`, as problem 6 in
+  `night-market-research-frontier`, and as LL-004 in
+  `docs/lessons-learned.md`. ralph-wiggum rides the same harness
+  behavior and bounds it by an iteration count, which the egregore
+  README comparison table now states correctly.
+
+- **`make test` runs the tests in conjure.** The target read
+  `check lint type-check security` and invoked no pytest, so the
+  pre-commit hook that runs `make test` for each changed plugin
+  reported passing tests whether the suite was green or red. A
+  regression reached a commit under that message. `test` now depends on
+  a `test-suite` target, confirmed falsifiable by emptying a model
+  constant and watching the target exit non-zero rather than assuming
+  it would.
+
+- **MiniMax delegation targets the official `mmx` CLI (conjure).** The
+  MiniMax service and both War Room experts spawned a binary named
+  `minimax`, which the official CLI does not provide: it ships as npm
+  `mmx-cli` and installs `mmx`. Every MiniMax invocation failed at
+  runtime, and the unqualified install instruction pointed at an
+  unrelated third-party package that does claim the `minimax` name.
+  `ServiceConfig` now carries the CLI contract (subcommand, prompt flag,
+  output-format flag, temperature support, file-reference style), so
+  MiniMax builds `mmx text chat --model M --message P`, authenticates
+  through `mmx auth status` instead of an unread `MINIMAX_API_KEY`, and
+  inlines file contents because `mmx` has no `@path` syntax. War Room
+  experts marked `optional` join a panel only when their CLI is
+  installed, so an uninstalled provider no longer casts Haiku fallback
+  ballots in the Borda count. The `minimax-delegation` skill is
+  registered in `plugin.json` and `metadata.json`, and its docs record
+  the verified endpoints, region-bound keys, and prices.
+
+- **CI ran no ruff at all.** `make typecheck` and `make test-ecosystem`
+  had workflows. Lint had none, so the rule set was enforced only for
+  people with pre-commit installed, and `docs/quality-gates.md` claimed
+  CI executed `make lint && make typecheck && make test` when it
+  executed two of the three. `lint.yml` runs ruff on the same triggers
+  as `typecheck.yml` and deliberately passes no `--config`, since
+  forcing the root file onto every path is the collapse the union config
+  undid. `tests/test_ci_enforces_lint.py` holds both halves, so deleting
+  the workflow or pinning a config there turns the suite red.
+
+  The first version of that workflow died before it linted anything.
+  ruff is declared in the `dev` optional extra and plain `uv run` installs
+  only the default set, so the step exited on "Failed to spawn: ruff"
+  and reported failure without having checked a file. Its guard passed
+  anyway, because it asserted the workflow contained a ruff invocation
+  rather than that the invocation could execute. The guard now reads the
+  tool names out of the dev extra in `pyproject.toml` and flags any
+  `uv run` of one without `--extra dev`, `--extra=dev` or
+  `--all-extras`. Matching is on exact tokens, so a path such as
+  `--paths-to-mutate=plugins/black/x` names a tool without invoking one
+  and does not cry wolf.
+
+  Renaming each plugin's ignore table to `extend-per-file-ignores`
+  silenced `scripts/check_per_file_ignores.py`, which read only the
+  plain key, so a fresh suppression staged under the new spelling
+  returned exit 0. The audit reads both spellings, because both grant
+  the same suppression. Separately, every workflow pinned
+  `astral-sh/setup-uv@v9.0.0` against an upstream v10.0.1 whose break is
+  that `enable-cache: auto` now disables the cache for events prone to
+  cache poisoning. No workflow here sets `enable-cache`, so all ten
+  inherit the safer default and nothing else changes. One pin lived in
+  `cron-memory-palace.yaml`, the only workflow using the `.yaml`
+  spelling, so a `*.yml` sweep had left it behind.
+
+- **Durations nothing measured were averaged in as measurements
+  (abstract).** Three places treated the absence of a timing sample as a
+  timing sample worth zero, and the Signal Coverage section above was
+  contradicted by the table directly beneath it.
+
+  `create_log_entry` fell back to `duration_ms` 0 whenever it could not
+  find the matching pre-execution state. A zero is indistinguishable
+  from a real sub-millisecond reading, so it passed every downstream
+  `>= 0` filter. It reports `None` now, which the read side already
+  excludes. A negative interval is discarded at the producer for the
+  same reason: it means the wall clock moved backward between the two
+  hooks, so no execution took that long. The post hook also paired
+  itself to a pre-state by taking the newest state file by mtime, and a
+  PostToolUse payload carries nothing identifying its invocation, so
+  with two live candidates neither end of the order was better than a
+  guess. It pairs only when exactly one live candidate exists, and
+  states older than an hour are purged as orphans so one abandoned file
+  cannot poison every later completion of its skill.
+
+  On the read side, `avg_duration_ms` fell back to 0.0 for a skill with
+  no sample, and 0.0 sits below every threshold, so an untimed skill was
+  classified dispatch-bound and reported as averaging under 250ms.
+  Dispatch-bound now requires a sample. The Skill Performance Summary
+  rendered that same fallback as "0.0s", the cell a genuinely
+  instantaneous skill prints, and gates on `duration_samples` now so it
+  prints N/A instead. The Rating column had the mirror defect, testing
+  `avg_rating` for truthiness rather than presence, so a measured rating
+  of exactly 0.0 read as missing signal. `rated_executions` counted any
+  entry carrying a `qualitative_evaluation` while the detectors read
+  `ev["rating"]`, which inflated coverage while they stayed dead.
+
+  The entries already on disk stayed fabricated after the producer was
+  fixed, so `correct_fabricated_durations` identifies them by the two
+  `invocation_id` shapes the pre hook writes: a zero on an unpaired
+  entry is the fallback, and a zero on a paired entry may be real and is
+  left alone. Across 492 entries in 166 files it corrected 9, eight
+  fabricated zeros and one impossible interval, moving
+  `abstract:skill-auditor` from 320 samples to 312 and from 116.8ms to
+  119.8ms. Reporting is the default and writes nothing. `--apply` copies
+  the tree to a backup first and rewrites through a temporary file, and
+  a line that does not parse is copied through rather than dropped.
+  Coverage on that script went from 64% to 99%, checked by mutation
+  rather than by coverage alone: five mutations, all killed, including
+  widening the correction to paired zeros.
+
+- **Model-ID gates could not see pre-4.x naming.** PR #659 found a
+  retired `claude-3-5-sonnet-20241022` in a docs SDK example, by hand,
+  by an outside contributor. Anthropic changed the naming convention
+  between generations. Claude 4 onward puts the version after the family
+  (`claude-sonnet-4-6`), Claude 3.x put it before, and `claude-2.1`
+  carries no family at all. Both gates encoded only the later shape, so
+  every `claude-3-*`, `claude-2.x` and `claude-instant-*` ID read as
+  ordinary prose. Those are the IDs most worth catching, because a
+  legacy 4.x ID still answers where a retired 3.x ID returns 404.
+
+  The scan was too narrow in two more ways. `DEFAULT_SCAN` held
+  `plugins` and `.claude`, leaving out `docs`, which is the directory
+  the finding lived in. And every SKILL.md was skipped whole on the
+  stated grounds that `check_agent_model_matrix.py` covered it, when
+  that gate parses frontmatter and tests the one `model:` value, so a
+  dated ID in a body was outside both. SKILL.md is now scanned with its
+  frontmatter stripped, and agent files stay skipped whole. Widening the
+  lens moved the backlog from 51 to 60, and fixing the five live
+  selections it exposed brought it to 55. The rest are lookup tables, a
+  historical plan and a compatibility note.
+
+- **Two names for one model field, and a routing guide pointing at eight
+  things that are not there.** Six attune skills stated their tier as
+  `model_preference: claude-sonnet-5` while five others stated the same
+  thing as `model: sonnet`. Only the second name was read by anything,
+  so the values under the first drifted a generation behind unwatched. A
+  full ID goes stale the day the next generation ships, so the six
+  become `model:` with the tier alias every other skill and all 56
+  agents use, and `check_skill` grows two rules: `shadow-model-field`
+  rejects `model_preference` outright and names the repair, and
+  `invalid-model` rejects a value outside `VALID_MODELS`. Verified
+  against all 210 SKILL.md the gate walks, so the stricter rule fails
+  nothing that was passing.
+
+  Two attune teaching surfaces emitted what the gate forbids. The
+  example SKILL.md the scaffolder writes pinned `model:` at all, which
+  `check_agent_model_matrix.py` rejects outright, and the field is
+  dropped rather than updated because a skill spawns no subagent. The
+  agent-discoverability template pinned a dated ID and filed `model`
+  under metadata Claude does not read, which is wrong: Claude Code reads
+  it to select the subagent's model.
+
+  `plugins/abstract/docs/model-optimization-guide.md` tiers each
+  command, skill and agent by model, and eight rows named things absent
+  from disk. Six had successors and were repointed, two had none and
+  were dropped. Phantom's CLI declared a `--model` default while
+  `LoopConfig.model` declared another and they had drifted a generation
+  apart, so which model a run got depended on how it was constructed.
+  The CLI default binds to `LoopConfig.model` now, and the parser moved
+  into `build_parser()` so the argument contract can be asserted without
+  running the program. `docs/knowledge-corpus/anthropic-model-roster.md`
+  says Opus 4.1 is retired rather than retiring, its date having passed,
+  and says why the $15 / $75 rate stays in the cost tracker.
+
+- **Instructions told the reader to run make targets that do not
+  exist.** `git-workspace-review` step 3 said to run
+  `make format && make lint`, and there is no root `format` target, so
+  the step stopped at "No rule to make target" before checking
+  anything. `make lint`
+  already runs `ruff format` before the check, so it is the whole of the
+  step. Thirteen more citations across skills, commands and agents named
+  targets no Makefile defines: `fmt`, `build`, `docs-update`,
+  `validate-skill`, `test-checkpoint`, `coverage`, and a cross-plugin
+  format. Each now names something real, with `docs-update` becoming
+  `docs-sync-check` and `validate-skill` becoming `validate-skills`.
+
+  A make target slips between both existing citation gates, because
+  `test_cited_paths_resolve` needs a slash to see a token and the
+  capability gate needs a colon, which is why the count was thirteen
+  rather than eight. The new gate resolves against the root Makefile,
+  the root's generated delegation targets, and the Makefile of the
+  plugin that owns the document. Scoping to the owner is what
+  makes it useful, since two plugins define `format` and an
+  "exists in some Makefile" check would have passed the citation that
+  started this. Three targets are allowlisted as worked examples
+  describing another project's Makefile, and a second test fails if one
+  of them ever becomes real.
+
+  In the same area, every GIVEN/WHEN/THEN example in the
+  `sanctum:test-updates` skill opened with a bare triple quote and
+  dropped straight into GIVEN, which D212 rejects, so following the
+  skill produced code the repo's own lint gate refused. All twelve
+  examples lead with a summary line now, and the skill's
+  `modules/bdd-patterns.md` says which half answers to which checker.
+  D212 wants the summary on line one, and
+  `plugins/sanctum/scripts/quality_checker.py` scores a file on whether
+  each docstring contains given, when, then and and.
+
+- **Two tome cleanups landed without the imports they call.**
+  `expand_github_queries` dropped its inline dedup loop for the shared
+  `deduplicate_queries` helper and
+  `_load_canonical_matrix` dropped its hand-rolled module global for
+  `functools.cache`, and neither added the import. `triz.py` raised
+  `NameError` at import time, so the whole module was unloadable, and
+  `github.py` raised on first call. Four loader tests reset state
+  through `monkeypatch.setattr` on a cache global that no longer exists,
+  and now clear both caches on each side of the test, because a
+  one-directional clear would let a test that mocks the data file leave
+  that result cached for whatever ran next. Separately,
+  `export_for_memory_palace` emits frontmatter through `yaml.safe_dump`
+  instead of hand-rolled quoting, so a topic starting with `-`, `[` or
+  `%`, or a bare yes/no/null, no longer re-parses as the wrong type.
+
+- **A session dead for a day was resurrected, and a bad CLI argument
+  exited 0 (conjure).** `usage_logger` measured session age with
+  `timedelta.seconds`, which is the sub-day remainder, so a session file
+  last touched 24h30m ago read as 1800 seconds, landed inside the
+  one-hour window, and reused a dead session id. It uses
+  `total_seconds()` now. A malformed `--log` argument was swallowed with
+  `pass`, so the CLI wrote nothing and still exited 0 and a caller
+  checking the exit code read a constant. It reports the bad value and
+  exits 1. The test that pinned the old behavior said so in a comment
+  and asserts the real contract now.
+
+- **The test runner deleted the output of the run that failed.** Both
+  failure branches in `scripts/run-plugin-tests.sh` captured the quiet
+  run into a temp file, reported the failure, re-ran the plugin
+  verbosely, then removed the capture without printing it. That is
+  survivable while a failure is deterministic. A full `make test` on
+  this branch reported abstract failed, the verbose re-run passed, the
+  capture was removed, and nothing recorded what broke. Each branch
+  prints the captured file before re-running now, and the test walks
+  every failure branch rather than the first, since the Makefile path
+  and the pytest path each have one.
+
+- **Three parameters that documented work they never did.** Each was
+  declared, described in its docstring, and never read.
+  `build_learning_context(max_tokens_estimate=500)` advertised a token
+  budget for text injected into the orchestrator's context while nothing
+  truncated anything, and the real cap is upstream in
+  `select_relevant_patterns(max_patterns)`. `_analyze_delta(new_title)`
+  is private with one caller passing a title into a void.
+  `upgrade_to_full_lineage(new_importance)` is public and its test
+  passed 0.9 to it, but neither `FullLineage` nor `SimpleLineage`
+  carries an importance field. No caller passed the first or third
+  outside tests, so the signatures narrow without a shim.
+
+- **The night-run scope fence documents the wider read it now does.**
+  The `night_run.py` module docstring said step 2 reads "the changed
+  file list", which is the phrase whose narrowness was the defect: `git
+  diff --name-only` lists tracked modifications only, so an implementer
+  that created a file handed the fence an empty list, and creating a
+  workflow file overnight is precisely what the denylist's `.github/**`
+  entry exists for. The code reads `_touched_files`, which unions the
+  diff with `git status --porcelain -uall`, and the contract now says so.
+
 ## [1.9.18] - 2026-08-12
 
 ### Added

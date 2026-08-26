@@ -34,8 +34,8 @@ The Claude Night Market provides three types of capabilities:
 
 ## Achievement: Getting Started
 
-Complete the installation steps to unlock the **Marketplace Pioneer** badge.
+Complete the installation steps to earn the **Marketplace Pioneer** badge.
 
 <div class="achievement-hint" data-achievement="marketplace-added">
-Install the marketplace to unlock: Marketplace Pioneer
+Install the marketplace to earn: Marketplace Pioneer
 </div>

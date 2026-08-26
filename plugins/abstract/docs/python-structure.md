@@ -258,7 +258,6 @@ The centralized package structure eliminated significant code duplication:
 - `scripts/context_optimizer.py`: 241 → 193 lines (-20%)
 
 **Nested Scripts**:
-- `skills/skills-eval/scripts/skill_utils.py`: 137 → 94 lines (-31%)
 
 ### Code Eliminated
 

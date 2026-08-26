@@ -23,7 +23,7 @@ modules:
 - modules/modes-and-fading.md
 - modules/tradeoff-ledger.md
 - modules/research-basis.md
-role: library
+role: entrypoint
 ---
 
 > A finished diff hides the thinking that produced it. The

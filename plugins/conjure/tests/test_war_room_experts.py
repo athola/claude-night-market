@@ -13,12 +13,12 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-
 from scripts.war_room import (
     EXPERT_CONFIGS,
     FULL_COUNCIL,
     LIGHTWEIGHT_PANEL,
     ExpertConfig,
+    active_panel,
     get_expert_command,
     get_glm_command,
 )
@@ -38,7 +38,7 @@ class TestExpertConfiguration:
     def test_full_council_includes_all_experts(self) -> None:
         """Full council includes all configured experts."""
         assert set(FULL_COUNCIL) == set(EXPERT_CONFIGS.keys())
-        assert len(FULL_COUNCIL) == 9
+        assert len(FULL_COUNCIL) == 10
 
     def test_native_experts_have_no_command(self) -> None:
         """Native experts (Opus, Sonnet) should not have subprocess commands."""
@@ -68,28 +68,47 @@ class TestCommandResolution:
             "-p",
         ]
 
-    def test_minimax_experts_use_config_constants(self) -> None:
-        """MiniMax experts resolve commands from config model constants."""
+    def test_minimax_experts_use_official_mmx_command(self) -> None:
+        """MiniMax experts invoke the official ``mmx`` CLI contract.
+
+        ``mmx text chat --message`` is the documented text interface; the
+        orchestrator appends the prompt as the final argv element, so
+        ``--message`` must be the trailing flag.
+        """
         advisor = EXPERT_CONFIGS["operational_advisor"]
         analyst = EXPERT_CONFIGS["skeptical_analyst"]
 
         assert advisor.service == "minimax"
         assert advisor.model == "MiniMax-M3"
         assert get_expert_command(advisor) == [
-            "minimax",
+            "mmx",
+            "text",
+            "chat",
             "--model",
             "MiniMax-M3",
-            "-p",
+            "--message",
         ]
 
         assert analyst.service == "minimax"
         assert analyst.model == "MiniMax-M2.7"
         assert get_expert_command(analyst) == [
-            "minimax",
+            "mmx",
+            "text",
+            "chat",
             "--model",
             "MiniMax-M2.7",
-            "-p",
+            "--message",
         ]
+
+    def test_minimax_experts_are_optional(self) -> None:
+        """MiniMax experts are opt-in so they cannot change existing councils."""
+        assert EXPERT_CONFIGS["operational_advisor"].optional is True
+        assert EXPERT_CONFIGS["skeptical_analyst"].optional is True
+
+    def test_established_experts_are_not_optional(self) -> None:
+        """Gating applies only to experts added after the council existed."""
+        for key in ("supreme_commander", "chief_strategist", "red_team", "scout"):
+            assert EXPERT_CONFIGS[key].optional is False
 
     def test_get_expert_command_native_raises(self) -> None:
         """Native experts (no command) raise RuntimeError."""
@@ -109,7 +128,10 @@ class TestCommandResolution:
         # Also mock Path.exists to return False for direct path check
         with patch("shutil.which", side_effect=mock_which):
             with patch.object(Path, "exists", return_value=False):
-                with pytest.raises(RuntimeError, match="GLM-5.2 not available"):
+                # Asserts the remedy, not the version. The message used to
+                # name GLM-5.2 and outlived that release; pinning a version
+                # here is what turned a model bump into a test failure.
+                with pytest.raises(RuntimeError, match="Install claude-glm"):
                     get_expert_command(tactician)
 
     def test_get_glm_command_with_ccgd_alias(self) -> None:
@@ -120,7 +142,12 @@ class TestCommandResolution:
             assert cmd == ["ccgd", "-p"]
 
     def test_get_glm_command_with_claude_glm(self) -> None:
-        """GLM command falls back to claude-glm when ccgd unavailable."""
+        """GLM command falls back to claude-glm when ccgd unavailable.
+
+        The permission bypass is not part of that fallback. It was
+        passed unconditionally here, and an expert asked for an opinion
+        through ``-p`` uses no tools, so it has nothing to bypass.
+        """
 
         def which_side_effect(cmd: str) -> str | None:
             if cmd == "ccgd":
@@ -130,8 +157,44 @@ class TestCommandResolution:
             return None
 
         with patch("shutil.which", side_effect=which_side_effect):
-            cmd = get_glm_command()
-            assert cmd == ["claude-glm", "--dangerously-skip-permissions", "-p"]
+            assert get_glm_command() == ["claude-glm", "-p"]
+
+    def test_the_permission_bypass_is_opt_in(self) -> None:
+        """A caller that asks for it still gets it, before the -p."""
+
+        def which_side_effect(cmd: str) -> str | None:
+            return "/usr/local/bin/claude-glm" if cmd == "claude-glm" else None
+
+        with patch("shutil.which", side_effect=which_side_effect):
+            cmd = get_glm_command(skip_permissions=True)
+
+        assert cmd == ["claude-glm", "--dangerously-skip-permissions", "-p"]
+
+    def test_the_glm_expert_does_not_ask_for_the_bypass(self) -> None:
+        """`dangerous` is what carries the decision, and it is read now."""
+        assert EXPERT_CONFIGS["field_tactician"].dangerous is False
+
+        with patch("shutil.which", return_value="/usr/local/bin/ccgd"):
+            cmd = get_expert_command(EXPERT_CONFIGS["field_tactician"])
+
+        assert "--dangerously-skip-permissions" not in cmd
+
+    def test_a_resolver_built_command_carries_the_audited_model(self) -> None:
+        """The model in the sealed record is the model the call names.
+
+        `WarRoomSession` hashes `expert.model` into the provenance and
+        stores it as `expert_model`. The resolver path named no model at
+        all, so editing the id rewrote the audit trail and left the
+        invocation alone.
+        """
+        tactician = EXPERT_CONFIGS["field_tactician"]
+
+        with patch("shutil.which", return_value="/usr/local/bin/ccgd"):
+            cmd = get_expert_command(tactician)
+
+        assert "--model" in cmd
+        assert cmd[cmd.index("--model") + 1] == tactician.model
+        assert cmd[-1] == "-p", "the print flag must stay last"
 
     def test_get_glm_command_local_bin_fallback(self) -> None:
         """GLM command falls back to ~/.local/bin/claude-glm path."""
@@ -142,7 +205,7 @@ class TestCommandResolution:
         with patch("shutil.which", side_effect=which_returns_none):
             with patch.object(Path, "exists", return_value=True):
                 cmd = get_glm_command()
-                assert "--dangerously-skip-permissions" in cmd
+                assert "--dangerously-skip-permissions" not in cmd
                 assert "-p" in cmd
                 assert ".local/bin/claude-glm" in cmd[0]
 
@@ -164,7 +227,7 @@ class TestCommandResolution:
         """get_expert_command raises when resolver returns non-list."""
 
         # Create a resolver that returns a string instead of list
-        def bad_resolver() -> str:
+        def bad_resolver(**_kwargs: object) -> str:
             return "not a list"
 
         fake_expert = ExpertConfig(
@@ -179,3 +242,66 @@ class TestCommandResolution:
         with patch.dict(_COMMAND_RESOLVERS, {"bad_resolver": bad_resolver}):
             with pytest.raises(RuntimeError, match="did not return list"):
                 get_expert_command(fake_expert)
+
+
+class TestActivePanel:
+    """Optional experts join a panel only when their CLI is installed."""
+
+    def test_optional_experts_dropped_when_cli_missing(self) -> None:
+        """Without ``mmx`` on PATH the MiniMax experts cast no ballots.
+
+        Otherwise they fall back to Haiku and add duplicate votes to the
+        Borda count for users who never installed MiniMax.
+        """
+        with patch("scripts.war_room.experts.shutil.which", return_value=None):
+            panel = active_panel(FULL_COUNCIL)
+
+        assert "operational_advisor" not in panel
+        assert "skeptical_analyst" not in panel
+        assert "chief_strategist" in panel
+        assert "red_team" in panel
+
+    def test_optional_experts_kept_when_cli_present(self) -> None:
+        """With ``mmx`` installed the MiniMax experts join the full council."""
+        with patch(
+            "scripts.war_room.experts.shutil.which", return_value="/usr/bin/mmx"
+        ):
+            panel = active_panel(FULL_COUNCIL)
+
+        assert "operational_advisor" in panel
+        assert "skeptical_analyst" in panel
+
+    def test_active_panel_preserves_order_and_membership(self) -> None:
+        """Gating never reorders or invents panel members."""
+        with patch(
+            "scripts.war_room.experts.shutil.which", return_value="/usr/bin/mmx"
+        ):
+            assert active_panel(FULL_COUNCIL) == FULL_COUNCIL
+            assert active_panel(LIGHTWEIGHT_PANEL) == LIGHTWEIGHT_PANEL
+
+
+class TestMuseExpert:
+    """Meta's Muse Code joins the council on its documented contract."""
+
+    def test_muse_expert_uses_the_documented_exec_contract(self) -> None:
+        """``muse exec`` takes the prompt positionally.
+
+        The orchestrator appends the prompt as the final argv element, so a
+        command ending in a flag would consume it as that flag's value.
+        Muse documents no prompt flag at all, so the command ends at
+        ``exec`` and the prompt lands in the right place.
+        """
+        expert = EXPERT_CONFIGS["systems_engineer"]
+
+        assert expert.service == "muse"
+        assert expert.model == "muse-spark-1.2"
+        assert get_expert_command(expert) == ["muse", "exec"]
+
+    def test_muse_expert_is_optional(self) -> None:
+        """Muse is not installed by default, so it must opt in.
+
+        An expert whose CLI is absent otherwise votes through the Haiku
+        fallback, which puts a ballot in the Borda count that no external
+        model actually cast.
+        """
+        assert EXPERT_CONFIGS["systems_engineer"].optional is True

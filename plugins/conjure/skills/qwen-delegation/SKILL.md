@@ -64,34 +64,50 @@ For shared delegation patterns, see `Skill(conjure:delegation-core)`.
 **Installation:**
 ```bash
 # Install Qwen CLI
-pip install qwen-cli
+npm install -g @qwen-code/qwen-code
 
 # Verify installation
 qwen --version
 
-# Check authentication
-qwen auth status
-
-# Login if needed
-qwen auth login
-
-# Or set API key
-export QWEN_API_KEY="your-key"
+# Authenticate: run qwen once and complete the flow it offers
+qwen
 ```
-**Verification:** Run `python --version` to verify Python environment.
+
+**There is no `qwen auth` subcommand.** `qwen --help` lists none, and
+this file documented three that do not exist: `qwen auth status`,
+`qwen auth login` and `QWEN_API_KEY`.
+Anything after `qwen` that is not a recognized flag is delivered to the
+model as the prompt, so `qwen auth status` asked Qwen the question
+"auth status" and was billed for it.
+Probed on 2026-08-22 it answered
+`[API Error: 401 Incorrect API key provided]` and exited 0, which is
+why the delegation registry now declares no auth probe for qwen.
+
+Credentials land in `~/.qwen/oauth_creds.json`, which carries its own
+`expiry_date`.
+`~/.qwen/settings.json` exists without credentials, so it is not the
+file to test.
+The delegator reads the stated expiry and skips qwen without spawning
+it, which is what stopped every chain walk paying for a rejected call.
+
+**Verification:** `make -C plugins/conjure delegate-doctor` reports
+qwen's credential state, including an expiry that has passed.
 
 ## Quick Start
 
 ### Using Shared Delegation Executor
 ```bash
 # Basic file analysis
-python ~/conjure/tools/delegation_executor.py qwen "Analyze this code" --files src/main.py
+uv run python scripts/delegation_executor.py qwen "Analyze this code" \
+  --files src/main.py
 
 # With specific model
-python ~/conjure/tools/delegation_executor.py qwen "Summarize" --files src/**/*.py --model qwen-max
+uv run python scripts/delegation_executor.py qwen "Summarize" \
+  --files src/**/*.py --model qwen-max
 
 # With output format
-python ~/conjure/tools/delegation_executor.py qwen "Extract functions" --files src/main.py --format json
+uv run python scripts/delegation_executor.py qwen "Extract functions" \
+  --files src/main.py --format json
 ```
 
 ### Direct CLI Usage
@@ -115,9 +131,9 @@ qwen -p "..." > delegations/qwen/$(date +%Y%m%d_%H%M%S).md
 
 The shared delegation executor can auto-select the best service:
 ```bash
-# Auto-select based on requirements
-python ~/conjure/tools/delegation_executor.py auto "Analyze large codebase" \
-  --files src/**/* --requirement large_context
+# Auto-select a service for the task
+uv run python scripts/delegation_executor.py auto "Analyze large codebase" \
+  --files src/**/*
 ```
 
 ## Qwen-Specific Details
@@ -127,9 +143,11 @@ and troubleshooting, see `modules/qwen-specifics.md`.
 
 ## Exit Criteria
 
-- [ ] `qwen --version` and `qwen auth status` (or `QWEN_API_KEY` env var set) both exit 0
-  before any task is delegated; missing installation or failed authentication is reported
-  and stops execution.
+- [ ] `qwen --version` exits 0 and `~/.qwen/oauth_creds.json` exists with
+  an `expiry_date` in the future before any task is delegated. A missing
+  installation or an expired credential is reported and stops execution.
+  There is no `qwen auth status` to run, and asking for one bills a
+  completion.
 - [ ] The delegated task output is saved to `delegations/qwen/YYYYMMDD_HHMMSS.md` (timestamp
   format matching the Quick Start example), and that file exists on disk after delegation.
 - [ ] If `conjure:delegation-core` selected a different provider (Gemini or local), this skill

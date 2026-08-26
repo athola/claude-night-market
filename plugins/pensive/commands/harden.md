@@ -1,3 +1,8 @@
+---
+name: harden
+description: Active security hardening of the existing codebase, with a report and concrete proposals to apply.
+---
+
 # Harden Codebase Command
 
 Active security hardening for the existing codebase, paired with a

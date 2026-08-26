@@ -51,6 +51,10 @@ from discussion_enrichment import (
     track_issue_persistence,
 )
 
+from abstract.utils import (
+    extract_bold_field,
+    get_learnings_path,
+)
 from abstract.utils import (  # noqa: E402 - import after sys.path setup
     extract_section as _extract_section,
 )
@@ -78,11 +82,6 @@ def get_config_dir() -> Path:
     tests that patch the module-level symbol keep working (D-04).
     """
     return _shared_get_config_dir()
-
-
-def get_learnings_path() -> Path:
-    """Get path to LEARNINGS.md file."""
-    return Path.home() / ".claude" / "skills" / "LEARNINGS.md"
 
 
 @dataclass
@@ -175,12 +174,6 @@ def _extract_metadata_field(content: str, field: str) -> str:
     return match.group(1).strip() if match else ""
 
 
-def _extract_bold_field(text: str, field: str) -> str:
-    """Extract a bold field value from a subsection body."""
-    match = re.search(rf"\*\*{re.escape(field)}\*\*:\s*(.+)", text)
-    return match.group(1).strip() if match else ""
-
-
 def parse_learnings_md(content: str) -> LearningSummary:
     """Parse LEARNINGS.md into structured summary.
 
@@ -254,7 +247,7 @@ def _parse_high_impact_issues(section: str) -> list[dict[str, Any]]:
         issue: dict[str, Any] = {"skill": skill_name}
 
         for field_name in ("Type", "Severity", "Metric"):
-            value = _extract_bold_field(body, field_name)
+            value = extract_bold_field(body, field_name)
             if value:
                 issue[field_name.lower()] = value
 

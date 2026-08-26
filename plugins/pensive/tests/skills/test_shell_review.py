@@ -9,6 +9,7 @@ Fixture-based tests verifying:
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import textwrap
 from pathlib import Path
@@ -18,6 +19,18 @@ import pytest
 REPO_ROOT = Path(__file__).parent.parent.parent.parent.parent
 LOGGING_SH = REPO_ROOT / "scripts" / "logging.sh"
 SHELLCHECK_SH = REPO_ROOT / "scripts" / "shellcheck.sh"
+
+# These four are the repository's only automated shell gate, and they
+# shell out to tools that are not guaranteed to be present. Without a
+# guard they fail rather than skip, which reads as a broken repository
+# on any machine that has not installed them. The CI job installs both
+# so the assertions do run there; see plugin-tests.yml.
+needs_shellcheck = pytest.mark.skipif(
+    shutil.which("shellcheck") is None, reason="shellcheck is not installed"
+)
+needs_shfmt = pytest.mark.skipif(
+    shutil.which("shfmt") is None, reason="shfmt is not installed"
+)
 
 
 class TestReferenceScriptsExist:
@@ -53,6 +66,7 @@ class TestReferenceScriptsExist:
 class TestReferenceScriptsSelfValidate:
     @pytest.mark.bdd
     @pytest.mark.integration
+    @needs_shellcheck
     def test_logging_sh_passes_shellcheck(self) -> None:
         """logging.sh must pass shellcheck -s sh with no warnings."""
         assert LOGGING_SH.exists()
@@ -68,6 +82,7 @@ class TestReferenceScriptsSelfValidate:
 
     @pytest.mark.bdd
     @pytest.mark.integration
+    @needs_shellcheck
     def test_shellcheck_sh_passes_shellcheck(self) -> None:
         """shellcheck.sh must pass shellcheck -s sh -x (follows sources) with no warnings."""
         assert SHELLCHECK_SH.exists()
@@ -84,6 +99,7 @@ class TestReferenceScriptsSelfValidate:
 
     @pytest.mark.bdd
     @pytest.mark.integration
+    @needs_shfmt
     def test_logging_sh_formatted_by_shfmt(self) -> None:
         """logging.sh must be formatted exactly as shfmt -p -i 2 -ci produces."""
         assert LOGGING_SH.exists()
@@ -99,6 +115,7 @@ class TestReferenceScriptsSelfValidate:
 
     @pytest.mark.bdd
     @pytest.mark.integration
+    @needs_shfmt
     def test_shellcheck_sh_formatted_by_shfmt(self) -> None:
         """shellcheck.sh must be formatted exactly as shfmt -p -i 2 -ci produces."""
         assert SHELLCHECK_SH.exists()
@@ -224,7 +241,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_echo_usage(self, tmp_path: Path) -> None:
-        """rg pattern from the skill catches raw echo calls."""
+        """Rg pattern from the skill catches raw echo calls."""
         script = self._write_fixture(
             tmp_path,
             """\
@@ -260,7 +277,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_unbraced_variable(self, tmp_path: Path) -> None:
-        """rg pattern catches $VAR without braces."""
+        """Rg pattern catches $VAR without braces."""
         script = self._write_fixture(
             tmp_path,
             """\
@@ -280,7 +297,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_bare_cd_outside_subshell(self, tmp_path: Path) -> None:
-        """rg pattern catches cd not wrapped in a subshell."""
+        """Rg pattern catches cd not wrapped in a subshell."""
         script = self._write_fixture(
             tmp_path,
             """\
@@ -300,7 +317,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_basename_dirname_usage(self, tmp_path: Path) -> None:
-        """rg pattern catches basename/dirname calls."""
+        """Rg pattern catches basename/dirname calls."""
         script = self._write_fixture(
             tmp_path,
             """\
@@ -320,7 +337,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_good_library_guard_form(self, tmp_path: Path) -> None:
-        """case \"${__logging_loaded:-NULL}\" in is the required guard form."""
+        """Case \"${__logging_loaded:-NULL}\" in is the required guard form."""
         script = self._write_fixture(
             tmp_path,
             """\
@@ -335,7 +352,7 @@ class TestPatternDetection:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_bad_library_guard_form_detectable(self, tmp_path: Path) -> None:
-        """if [ -z \"$__logging_loaded\" ] pattern should be flagged."""
+        """If [ -z \"$__logging_loaded\" ] pattern should be flagged."""
         script = self._write_fixture(
             tmp_path,
             """\

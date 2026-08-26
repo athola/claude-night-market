@@ -1,6 +1,6 @@
 {
   "name": "leyline",
-  "version": "1.9.18",
+  "version": "1.9.19",
   "main": "skills",
   "dependencies": {},
   "provides": {

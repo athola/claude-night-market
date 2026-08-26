@@ -20,9 +20,10 @@ from scripts.war_room.config import (
     CLAUDE_SONNET,
     GEMINI_3_FLASH,
     GEMINI_3_PRO,
-    GLM_52,
+    GLM_53,
     MINIMAX_M2_7,
     MINIMAX_M3,
+    MUSE_SPARK,
     QWEN_MAX,
     QWEN_TURBO,
 )
@@ -60,10 +61,13 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "field_tactician": ExpertConfig(
         role="Field Tactician",
         service="glm",
-        model=GLM_52,
+        model=GLM_53,
         description="Implementation feasibility assessment",
         phases=["coa"],
         command_resolver="get_glm_command",
+        # Asked for an opinion through -p and uses no tools, so it needs
+        # no permission bypass. See get_glm_command.
+        dangerous=False,
     ),
     "scout": ExpertConfig(
         role="Scout",
@@ -89,13 +93,17 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         phases=["coa"],
         command=["qwen", "--model", QWEN_MAX, "-p"],
     ),
+    # ``mmx text chat --message`` is the official MiniMax CLI contract; the
+    # orchestrator appends the prompt as the final argv element, so the
+    # message flag has to be last.
     "operational_advisor": ExpertConfig(
         role="Operational Advisor",
         service="minimax",
         model=MINIMAX_M3,
         description="Operational trade-off analysis with a large context window",
         phases=["intel", "coa"],
-        command=["minimax", "--model", MINIMAX_M3, "-p"],
+        command=["mmx", "text", "chat", "--model", MINIMAX_M3, "--message"],
+        optional=True,
     ),
     "skeptical_analyst": ExpertConfig(
         role="Skeptical Analyst",
@@ -103,12 +111,55 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         model=MINIMAX_M2_7,
         description="Rapid second-opinion challenge of proposed courses of action",
         phases=["red_team"],
-        command=["minimax", "--model", MINIMAX_M2_7, "-p"],
+        command=["mmx", "text", "chat", "--model", MINIMAX_M2_7, "--message"],
+        optional=True,
+    ),
+    # ``muse exec <prompt>`` takes the prompt positionally: Meta documents no
+    # prompt flag, so the command ends at the subcommand and the orchestrator's
+    # trailing prompt lands in the right slot. No --model flag is documented
+    # for exec either, so the model here records what Muse Code runs on rather
+    # than selecting it.
+    "systems_engineer": ExpertConfig(
+        role="Systems Engineer",
+        service="muse",
+        model=MUSE_SPARK,
+        description="Repository-scale implementation review across a large codebase",
+        phases=["intel", "coa"],
+        command=["muse", "exec"],
+        optional=True,
     ),
 }
 
 LIGHTWEIGHT_PANEL = ["supreme_commander", "chief_strategist", "red_team"]
 FULL_COUNCIL = list(EXPERT_CONFIGS.keys())
+
+
+def active_panel(panel: list[str]) -> list[str]:
+    """Drop opt-in experts whose CLI is not installed.
+
+    An expert that is configured but unreachable does not sit out: it votes
+    through the Haiku fallback, so an uninstalled provider adds duplicate
+    ballots to the Borda count. Gating keeps opt-in providers from changing
+    a deliberation for users who never installed them. Established experts
+    are unaffected; their fallback behavior is unchanged.
+    """
+    active: list[str] = []
+    for key in panel:
+        expert = EXPERT_CONFIGS.get(key)
+        if expert is None:
+            continue
+        if expert.optional and not _optional_expert_installed(expert):
+            continue
+        active.append(key)
+    return active
+
+
+def _optional_expert_installed(expert: ExpertConfig) -> bool:
+    """Report whether an opt-in expert's CLI is on PATH."""
+    if not expert.command:
+        return True
+    return shutil.which(expert.command[0]) is not None
+
 
 # Track which experts have been tested and their availability
 _expert_availability: dict[str, bool] = {}
@@ -123,7 +174,10 @@ _haiku_fallback_notices: list[str] = []
 # callable it actually holds: every registered resolver is a zero-argument
 # function returning the argv list. Declaring it as object made the resolver
 # call below unverifiable, which is the whole reason the registry exists.
-_COMMAND_RESOLVERS: dict[str, Callable[[], list[str]]] = {}
+#: Resolvers take keyword arguments only, so a new one can be added
+#: without every existing resolver changing shape. `skip_permissions`
+#: is the first, carried from `ExpertConfig.dangerous`.
+_COMMAND_RESOLVERS: dict[str, Callable[..., list[str]]] = {}
 
 
 def get_haiku_command() -> list[str]:
@@ -189,27 +243,39 @@ def clear_availability_cache() -> None:
     _haiku_fallback_notices.clear()
 
 
-def get_glm_command() -> list[str]:
-    """Resolve GLM-5.2 invocation command with fallback.
+def get_glm_command(*, skip_permissions: bool = False) -> list[str]:
+    """Resolve the GLM invocation command with fallback.
+
+    The model id comes from the ExpertConfig, not from here.
+
+    ``--dangerously-skip-permissions`` was passed unconditionally at two
+    of the three call sites below, and the error message recommended
+    making it permanent as a shell alias. A war-room expert is asked for
+    an opinion through ``-p`` and uses no tools, so there is nothing for
+    it to need a permission bypass for. It is opt-in now, carried by the
+    ``dangerous`` field on ExpertConfig, which existed for this and was
+    read nowhere.
 
     Priority:
     1. ccgd (alias) - if available in PATH
-    2. claude-glm --dangerously-skip-permissions - explicit fallback
+    2. claude-glm - explicit fallback
     3. ~/.local/bin/claude-glm - direct path fallback
     """
+    flags = ["--dangerously-skip-permissions"] if skip_permissions else []
+
     if shutil.which("ccgd"):
-        return ["ccgd", "-p"]
+        return ["ccgd", *flags, "-p"]
 
     if shutil.which("claude-glm"):
-        return ["claude-glm", "--dangerously-skip-permissions", "-p"]
+        return ["claude-glm", *flags, "-p"]
 
     local_bin = Path.home() / ".local" / "bin" / "claude-glm"
     if local_bin.exists():
-        return [str(local_bin), "--dangerously-skip-permissions", "-p"]
+        return [str(local_bin), *flags, "-p"]
 
     raise RuntimeError(
-        "GLM-5.2 not available. Install claude-glm or configure ccgd alias.\n"
-        "Add to ~/.bashrc: alias ccgd='claude-glm --dangerously-skip-permissions'"
+        "GLM not available. Install claude-glm or configure the ccgd alias.\n"
+        "Add to ~/.bashrc: alias ccgd='claude-glm'"
     )
 
 
@@ -218,17 +284,32 @@ _COMMAND_RESOLVERS["get_glm_command"] = get_glm_command
 
 
 def get_expert_command(expert: ExpertConfig) -> list[str]:
-    """Get the command to invoke an expert."""
+    """Get the command to invoke an expert.
+
+    A resolver-built command carries ``expert.model`` explicitly. It did
+    not, and the sealed audit record attributes the answer to that id
+    through ``expert_model`` and the metadata hash, so editing the id
+    rewrote the provenance and left the call untouched. The two must
+    move together or the record is a claim about a run that did not
+    happen.
+
+    Statically configured experts already name the model in ``command``
+    and are returned unchanged.
+    """
     if expert.command_resolver:
         resolver = _COMMAND_RESOLVERS.get(expert.command_resolver)
-        if resolver and callable(resolver):
-            cmd = resolver()
-            if isinstance(cmd, list):
-                return cmd
+        if resolver is None:
+            raise RuntimeError(f"Unknown command resolver: {expert.command_resolver}")
+        cmd = resolver(skip_permissions=expert.dangerous)
+        if not isinstance(cmd, list):
             raise RuntimeError(
                 f"Resolver {expert.command_resolver} did not return list"
             )
-        raise RuntimeError(f"Unknown command resolver: {expert.command_resolver}")
+        if expert.model and "--model" not in cmd:
+            # Before the trailing -p, which claude reads as "print this".
+            insert_at = cmd.index("-p") if "-p" in cmd else len(cmd)
+            cmd[insert_at:insert_at] = ["--model", expert.model]
+        return cmd
     if expert.command:
         return expert.command.copy()
     raise RuntimeError(f"No command configured for {expert.role}")

@@ -9,7 +9,9 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 from .cli_framework import AbstractCLI, CLIResult
 from .skills_eval import (
@@ -18,6 +20,24 @@ from .skills_eval import (
     SkillsAuditor,
     TokenUsageTracker,
 )
+
+
+def _run(command: AbstractCLI, work: Callable[[], Any]) -> CLIResult:
+    """Run a command body under this CLI's single error policy.
+
+    Expected I/O and input failures become a failed CLIResult the caller
+    can print; anything else is a bug, so it is logged with the command
+    that raised it and re-raised rather than reported as a clean failure.
+    """
+    try:
+        return CLIResult(success=True, data=work())
+    except (FileNotFoundError, OSError, ValueError) as exc:
+        return CLIResult(success=False, error=str(exc))
+    except Exception:
+        logging.getLogger(__name__).exception(
+            "Unexpected error in %s", type(command).__name__
+        )
+        raise
 
 
 class ComplianceCLI(AbstractCLI):
@@ -53,16 +73,7 @@ class ComplianceCLI(AbstractCLI):
     def execute(self, args: argparse.Namespace) -> CLIResult:
         """Execute compliance check."""
         checker = ComplianceChecker(args.directory, args.rules_file)
-        try:
-            results = checker.check_compliance()
-            return CLIResult(success=True, data=results)
-        except (FileNotFoundError, OSError, ValueError) as e:
-            return CLIResult(success=False, error=str(e))
-        except Exception:
-            logging.getLogger(__name__).exception(
-                "Unexpected error in %s", type(self).__name__
-            )
-            raise
+        return _run(self, checker.check_compliance)
 
     def format_text(self, data: dict) -> str:
         """Format compliance results as text."""
@@ -122,16 +133,7 @@ class AuditCLI(AbstractCLI):
     def execute(self, args: argparse.Namespace) -> CLIResult:
         """Execute skills audit."""
         auditor = SkillsAuditor(args.directory)
-        try:
-            results = auditor.audit_skills()
-            return CLIResult(success=True, data=results)
-        except (FileNotFoundError, OSError, ValueError) as e:
-            return CLIResult(success=False, error=str(e))
-        except Exception:
-            logging.getLogger(__name__).exception(
-                "Unexpected error in %s", type(self).__name__
-            )
-            raise
+        return _run(self, auditor.audit_skills)
 
     def format_text(self, data: dict) -> str:
         """Format audit results as text."""
@@ -185,26 +187,17 @@ class SuggestCLI(AbstractCLI):
     def execute(self, args: argparse.Namespace) -> CLIResult:
         """Execute improvement suggestion."""
         skill_path = args.skill_path
-        try:
+
+        def _suggest() -> list:
             if skill_path.is_dir():
                 # If directory, analyze all skills in it
-                suggester = ImprovementSuggester(skill_path)
-                suggestions = suggester.analyze_all_skills()
-            else:
-                # If file, find parent skills dir and analyze that skill
-                skills_dir = skill_path.parent.parent
-                skill_name = skill_path.parent.name
-                suggester = ImprovementSuggester(skills_dir)
-                result = suggester.analyze_skill(skill_name)
-                suggestions = [result] if result else []
-            return CLIResult(success=True, data=suggestions)
-        except (FileNotFoundError, OSError, ValueError) as e:
-            return CLIResult(success=False, error=str(e))
-        except Exception:
-            logging.getLogger(__name__).exception(
-                "Unexpected error in %s", type(self).__name__
-            )
-            raise
+                return ImprovementSuggester(skill_path).analyze_all_skills()
+            # If file, find parent skills dir and analyze that skill
+            suggester = ImprovementSuggester(skill_path.parent.parent)
+            result = suggester.analyze_skill(skill_path.parent.name)
+            return [result] if result else []
+
+        return _run(self, _suggest)
 
     def format_text(self, data: list) -> str:
         """Format suggestions as text."""
@@ -259,16 +252,7 @@ class TokenCLI(AbstractCLI):
     def execute(self, args: argparse.Namespace) -> CLIResult:
         """Execute token usage tracking."""
         tracker = TokenUsageTracker(args.path)
-        try:
-            results = tracker.analyze_all_skills()
-            return CLIResult(success=True, data=results)
-        except (FileNotFoundError, OSError, ValueError) as e:
-            return CLIResult(success=False, error=str(e))
-        except Exception:
-            logging.getLogger(__name__).exception(
-                "Unexpected error in %s", type(self).__name__
-            )
-            raise
+        return _run(self, tracker.analyze_all_skills)
 
     def format_text(self, data: dict) -> str:
         """Format token analysis as text."""

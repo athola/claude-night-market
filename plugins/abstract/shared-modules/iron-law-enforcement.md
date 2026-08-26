@@ -42,11 +42,65 @@ Classic TDD works because humans "feel their way through uncertainty":
 
 When AI pre-plans implementation before writing tests, the RED phase becomes theater. The Iron Law prevents this by requiring **documented evidence of failure before any intervention**.
 
-## Enforcement Levels
+## What the Failing Test Has to Protect
 
-### Level 1: Self-Enforcement (Default)
+The Iron Law asks for a failing test before the change. It does not
+ask for one test per changed line, and a suite grown that way is worse
+than a smaller one. Every test is a claim about what must stay true.
+A test pinning something nobody required reports failure when nothing
+broke, and the cost lands on whoever changes that code next, who has
+to decide whether the assertion meant anything.
 
-Claude recognizes Iron Law violations in its own thought process.
+Before writing the RED test, name the constraint it defends:
+
+| The test protects | Looks like |
+|-------------------|-----------|
+| A business rule | An order below the minimum quantity is rejected |
+| An invariant | A result's two halves cannot disagree about the verdict |
+| A contract at a boundary | The hook exits 2 on a denied command, and 0 otherwise |
+| A recorded defect | The exact input that produced the reported failure |
+
+If none of the four fits, the honest answer is that this change does
+not need a test first. Say which and say why. That answer is a
+finding about the change, not a gap in the process.
+
+### The test that enforces the wrong constraint
+
+Two failure modes, and only the first one is loud:
+
+- **Pins an implementation detail.** It asserts the call order, the
+  private helper, the intermediate data shape. The behavior is
+  unchanged and the test is red, so the next author edits the test to
+  match the code. From then on the test asserts whatever the code
+  does, which is nothing.
+- **Freezes a decision that was never a requirement.** A default
+  value, a log string, a field order that happened to be convenient.
+  Nobody remembers whether it was chosen or defaulted into, so it
+  survives every review as though it were load-bearing.
+
+The check that separates them: state the constraint in the language of
+the domain, without naming a function or a file. If that sentence
+cannot be written, the test is pinning a decision rather than a rule.
+
+### BDD earns its ceremony the same way
+
+Given-When-Then is worth its verbosity when the Then clause is a
+business outcome somebody outside the code would recognize. Written
+against an internal call sequence it is the same implementation-detail
+test with three more lines of scaffolding.
+
+## Five Ways to Check It Held
+
+These run from cheapest and least reliable to most mechanical. The
+later ones are machine contracts rather than advice, and the guidance
+to write intent and constraints instead of steps does not reach them:
+a pre-commit hook and a coverage gate cannot be reasoned with, which
+is the point of them. The strength budget that draws that line lives
+in `../skills/skill-authoring/modules/persuasion-principles.md`.
+
+### Level 1: Reading Your Own Work (Default)
+
+Notice when the test was written to match code that already existed.
 
 **Red Flags That Trigger Self-Enforcement:**
 
@@ -65,16 +119,20 @@ Claude recognizes Iron Law violations in its own thought process.
 **Self-Check Protocol:**
 
 ```markdown
-## Iron Law Self-Check
+## Questions Worth Asking First
 
-Before writing ANY code:
-1. [ ] Do I have documented evidence of a failure/need?
-2. [ ] Am I about to write a test that validates a pre-conceived implementation?
-3. [ ] Am I feeling uncertainty about the design? (Good - that's what tests are for)
-4. [ ] Have I let the test drive the implementation, or vice versa?
-5. [ ] Can I explain WHY this approach, not just WHAT it does?
+These are diagnostic, not a gate. A confident "no" to any of them is
+useful information about the change, and sometimes the honest answer
+is that this change does not need a test first. Say which and why.
 
-If I answered "no" to #1, #3, or #5, or "yes" to #2 or #4: STOP AND RESET.
+1. Is there documented evidence of the failure or the need?
+2. Would this test validate a pre-conceived implementation rather
+   than drive one?
+3. Is there real uncertainty about the design? Uncertainty is what
+   tests are for, and its absence often means the design is already
+   decided.
+4. Did the test drive the implementation, or the reverse?
+5. Can the choice of approach be explained, not just its behavior?
 ```
 
 ### Execution Markdown = Code

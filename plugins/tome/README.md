@@ -19,6 +19,15 @@ domain-appropriate reports.
 
 ## Research Channels
 
+> **Overlap worth knowing.** Claude Code bundles `/deep-research`,
+> which fans out over a similar channel set. Prefer it for a one-off
+> question. Prefer tome when the result has to land in a session with
+> domain weights, the TRIZ cross-domain channel, citations and the
+> memory-palace export, which is what tome adds beyond the dispatch.
+> `workflows/research.js` runs tome's own fan-out as a pipeline for
+> callers who want that half alone; it only runs when asked for.
+
+
 **Code archaeology**: GitHub implementations via API and
 WebSearch. Extracts patterns, not just links.
 

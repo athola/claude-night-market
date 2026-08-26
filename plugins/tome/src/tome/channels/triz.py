@@ -9,6 +9,7 @@ an agent passes to WebSearch/WebFetch tool calls.
 from __future__ import annotations
 
 import csv
+import functools
 from importlib import resources
 from typing import Any
 
@@ -563,19 +564,14 @@ def suggest_inventive_principles(
 # 39x39 engineering-parameter matrix and is OPTIONAL grounding, secondary to
 # the software-friendly suggest_inventive_principles catalogue above.
 
-_CANONICAL_MATRIX_CACHE: dict[tuple[int, int], list[int]] | None = None
 
-
+@functools.cache
 def _load_canonical_matrix() -> dict[tuple[int, int], list[int]]:
     """Lazily load and cache the vendored sparse contradiction matrix.
 
     Returns an empty dict (and caches it) when the data file is absent, so
     the optional lookup degrades gracefully rather than raising.
     """
-    global _CANONICAL_MATRIX_CACHE
-    if _CANONICAL_MATRIX_CACHE is not None:
-        return _CANONICAL_MATRIX_CACHE
-
     matrix: dict[tuple[int, int], list[int]] = {}
     try:
         data_file = resources.files("tome.channels.triz_data").joinpath(
@@ -583,7 +579,6 @@ def _load_canonical_matrix() -> dict[tuple[int, int], list[int]]:
         )
         text = data_file.read_text(encoding="utf-8")
     except (FileNotFoundError, ModuleNotFoundError, OSError):
-        _CANONICAL_MATRIX_CACHE = matrix
         return matrix
 
     for row in csv.DictReader(text.splitlines()):
@@ -600,7 +595,6 @@ def _load_canonical_matrix() -> dict[tuple[int, int], list[int]]:
             continue
         matrix[(improving, worsening)] = principles
 
-    _CANONICAL_MATRIX_CACHE = matrix
     return matrix
 
 

@@ -565,7 +565,7 @@ class TestPreCompactMain:
         monkeypatch.setattr(preserve_module, "resolve_session_file", lambda: None)
         monkeypatch.setattr("sys.stdin", io.StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0
@@ -582,7 +582,7 @@ class TestPreCompactMain:
         monkeypatch.setattr(preserve_module, "resolve_session_file", lambda: session)
         monkeypatch.setattr("sys.stdin", io.StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0
@@ -612,7 +612,7 @@ class TestPreCompactMain:
         monkeypatch.setattr(preserve_module, "get_archive_dir", lambda: archive_dir)
         monkeypatch.setattr("sys.stdin", io.StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0
@@ -625,7 +625,7 @@ class TestPreCompactMain:
         monkeypatch.setattr(preserve_module, "resolve_session_file", lambda: None)
         monkeypatch.setattr("sys.stdin", io.StringIO("not json"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0
@@ -644,7 +644,7 @@ class TestPreCompactMain:
         hook_input = json.dumps({"trigger": "auto-compact"})
         monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0

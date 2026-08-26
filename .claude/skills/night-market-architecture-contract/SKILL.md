@@ -201,10 +201,36 @@ by decision or by neglect, not secrets.
    with no repo change. Candidate fix: pin a version. Not done as of
    2026-07-02.
 
+6. The autonomous loop rides an undocumented harness behavior.
+   Egregore continues across turns because its Stop hook returns
+   `{"decision": "block", "reason": ...}` and the harness feeds the
+   reason back as the next instruction. Upstream documents Stop hooks
+   as a gate on stopping, not as a continuation primitive, and the
+   sanctioned alternatives (`/loop`, `CronCreate`) are session-scoped.
+   ralph-wiggum rides the same behavior, bounded by an iteration
+   count. Egregore's cost is bounded as of `9f31a878` (stall
+   detection, default 3), and the reliance is not. No test can cover the
+   harness end of it. Full record:
+   `docs/adr/0022-stop-hook-reinjection-as-continuation.md`
+   (2026-08-23).
+
+   The reliance stands. What changed is that its failure is now
+   observable rather than silent.
+   `plugins/egregore/scripts/continuation_baton.py` has the session
+   record each handoff with the deadline by which the next turn should
+   have started, so reinjection quietly ceasing strands a baton with
+   the process still alive. That is a distinct signal, where before an
+   upstream change and a finished run looked the same from outside.
+   Stranded means stalled rather than old, so a long healthy run never
+   reads as one. The watchdog does not consume the baton yet, which is
+   accepted debt in
+   `docs/adr/0023-continuation-baton-makes-a-dropped-turn-observable.md`
+   (2026-08-25).
+
 ## ADR digest
 
-All 17 records live in `docs/adr/`. Statuses read from the files on
-2026-07-02.
+All 23 records live in `docs/adr/`. Statuses for 0001 to 0017 were
+read from the files on 2026-07-02, and 0018 to 0022 on 2026-08-23.
 
 | ADR | Title | Status | One-line takeaway |
 |-----|-------|--------|-------------------|
@@ -225,6 +251,11 @@ All 17 records live in `docs/adr/`. Statuses read from the files on
 | 0015 | Over-Built Orchestrator Skill Simplification | Accepted (data-collection phase) | Collect 30 days of usage data before simplifying over-built skills |
 | 0016 | Wire-or-Archive for Three Orphan Skills | Accepted (decisions recorded) | Orphans judged on demand signal, wiring cost, and reference value |
 | 0017 | Decisions on Confidence-Tagging and Theory-Building | Accepted (2026-06-18) | No enforcement mechanisms and voluntary use. Supersedes 0012 and 0013 |
+| 0018 | Reuse memory-palace's Graph for the Tome Research Engine | Accepted | Tome builds on the existing graph instead of a second one |
+| 0019 | Retire docs/superpowers/ and Record Its Shipped Design Decisions | Accepted | The design folder became ADR text; the folder is gone |
+| 0020 | Detect a Thin Field with Positive Controls, Not Overlap Estimation | Accepted | Frontier detection uses positive controls, not overlap math |
+| 0021 | PR Descriptions Carry Six Dimensions in Two Registers | Accepted (2026-08-12) | Six dimensions, but only some earn a heading |
+| 0022 | The Autonomous Loop Continues by Riding the Stop Hook | Accepted, with a named open problem (2026-08-23) | Stop-hook re-injection is the loop. Cost bounded by stall detection; the reliance stays open |
 
 ## When NOT to use
 

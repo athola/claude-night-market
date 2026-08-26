@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
-"""Ratchet guard against SKILL.md files shipping without Exit Criteria.
+"""Guard against SKILL.md files shipping without Exit Criteria.
 
 ``.claude/rules/skill-exit-criteria.md`` requires every SKILL.md to carry
-an ``## Exit Criteria`` section (issue #454 tracks the backfill of the
-existing gap). This guard counts SKILL.md files under ``plugins/`` that
-lack such a heading and fails the commit only when that count rises above
-the committed baseline in ``scripts/skill_exit_criteria_baseline.json``.
+an ``## Exit Criteria`` section. This guard counts the SKILL.md files
+under ``plugins/`` that the rule governs and fails when that count rises
+above the committed baseline in
+``scripts/skill_exit_criteria_baseline.json``.
 
-This stops new skills from shipping without exit criteria while letting
-the existing backlog be cleared in batches. When the count drops, the
-guard passes and nudges you to lower the baseline so the ratchet tightens.
+The baseline is now zero, so the ratchet is a hard gate: the first skill
+to ship without the section fails the commit. It was built as a ratchet
+because the backfill it tracked (issue #454) started at 127 files, and it
+stayed a ratchet at 127 long after the count fell to 1, which is 126
+skills of permission nobody meant to grant. Read a movement in the count
+against the baseline, never on its own.
+
+The rule names what it does not cover, and this guard has to agree with
+it or it judges documents by a standard written for something else. See
+``_is_ours``.
+
 It is deterministic, read-only, and idempotent.
 """
 
@@ -58,9 +66,42 @@ def evaluate_drift(current: int, baseline: int) -> tuple[bool, str]:
     )
 
 
+# ``docs`` is the rule's own carve-out:
+# .claude/rules/skill-exit-criteria.md exempts reference documentation,
+# and the one SKILL.md under a docs tree here is an example teaching
+# hub-and-spoke structure, not a shipped skill. Counting it made the
+# example the entire remaining backlog, and the repair would have been to
+# write exit criteria into a document whose subject is something else.
+_EXCLUDED_PARTS = frozenset({"docs"})
+
+
+def _is_ours(relative: Path) -> bool:
+    """Return True if a plugins-relative SKILL.md is this repo's to judge.
+
+    Vendored and build-created trees are excluded by rule rather than by
+    name. ``.venv`` was enumerated first; ``.uv-cache`` then appeared,
+    created by ``plugins/memory-palace/Makefile`` during ``make test``
+    itself, and carried a vendored ``typer`` SKILL.md into a gate that had
+    just been tightened to a zero allowance. Two instances of one category
+    is enough: every tree we did not author arrives under a dot-directory,
+    and no SKILL.md this repository tracks sits under one.
+
+    The path is taken relative to ``PLUGINS_ROOT`` on purpose. Reading dot
+    segments off the absolute path would empty the whole surface for
+    anyone whose checkout lives under a hidden directory.
+    """
+    if not _EXCLUDED_PARTS.isdisjoint(relative.parts):
+        return False
+    return not any(part.startswith(".") for part in relative.parts)
+
+
 def iter_skill_files() -> list[Path]:
-    """All SKILL.md files under plugins/, excluding vendored venvs."""
-    return [p for p in PLUGINS_ROOT.rglob("SKILL.md") if ".venv" not in p.parts]
+    """All SKILL.md files under plugins/ that the rule actually governs."""
+    return [
+        p
+        for p in PLUGINS_ROOT.rglob("SKILL.md")
+        if _is_ours(p.relative_to(PLUGINS_ROOT))
+    ]
 
 
 def count_missing(files: list[Path]) -> int:

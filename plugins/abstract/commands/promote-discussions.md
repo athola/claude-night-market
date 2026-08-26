@@ -1,3 +1,8 @@
+---
+name: promote-discussions
+description: Check GitHub Discussions for highly voted learnings and promote them to Issues.
+---
+
 # Promote Community Learnings
 
 Check GitHub Discussions for highly-voted learnings and promote them to Issues.

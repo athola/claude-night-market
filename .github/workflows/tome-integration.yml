@@ -46,7 +46,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v9.0.0
+        uses: astral-sh/setup-uv@v10.0.1
 
       # A skip here means the backend failed to install and the contract went
       # unverified, which is the exact failure this workflow exists to catch,

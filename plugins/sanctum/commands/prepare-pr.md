@@ -119,8 +119,7 @@ Unless `--skip-updates` is specified:
 6. **Quality Gates**
    ```bash
    # Project-specific commands detected automatically
-   make fmt  # or equivalent
-   make lint  # or equivalent
+   make lint  # or equivalent (formats, then checks)
    make test  # or equivalent
    ```
 

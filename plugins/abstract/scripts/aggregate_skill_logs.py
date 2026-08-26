@@ -26,7 +26,10 @@ _src = Path(__file__).resolve().parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
 
-from abstract.utils import get_log_directory  # noqa: E402 - import after sys.path setup
+from abstract.utils import (  # noqa: E402 - import after sys.path setup
+    get_learnings_path,
+    get_log_directory,
+)
 
 try:
     from abstract.improvement_memory import ImprovementMemory
@@ -74,6 +77,13 @@ class SkillLogSummary:
     common_friction: list[str]
     improvement_suggestions: list[str]
     recent_errors: list[str]
+    # Defaulted and last so existing positional constructions keep working.
+    # How much signal fed the averages above: an average of 0.0 means
+    # "nothing was timed" and "everything timed at zero" alike, and
+    # avg_rating is None for both an absent evaluation and one that carried
+    # no rating key.
+    duration_samples: int = 0
+    rated_executions: int = 0
 
 
 @dataclass
@@ -89,12 +99,7 @@ class AggregationResult:
     metrics_by_skill: dict[str, SkillLogSummary]
     rated_executions: int = 0
     dispatch_bound_skills: list[str] = field(default_factory=list)
-
-
-def get_learnings_path() -> Path:
-    """Get path to LEARNINGS.md file."""
-    claude_home = Path.home() / ".claude"
-    return claude_home / "skills" / "LEARNINGS.md"
+    untimed_skills: list[str] = field(default_factory=list)
 
 
 # Session-id prefixes used by tests, dogfood runs, and other synthetic
@@ -206,7 +211,20 @@ def calculate_skill_metrics(
     partial_count = outcome_counts["partial"]
 
     # Duration stats
-    durations = [e["duration_ms"] for e in entries if e.get("duration_ms") is not None]
+    # `duration_ms` is the interval between two hooks, so a mismatched or
+    # clock-adjusted pair can store an interval no execution could have
+    # taken. A negative reading is discarded rather than clamped to zero:
+    # clamping would assert the execution took no time, inventing a
+    # measurement where the point of this report is to stop doing that.
+    durations = [
+        e["duration_ms"]
+        for e in entries
+        if e.get("duration_ms") is not None and e["duration_ms"] >= 0
+    ]
+    # Counted, not inferred: an average of 0.0 means "nothing was timed" and
+    # "everything timed at zero" alike, and the coverage section has to tell
+    # those apart to be worth printing.
+    duration_samples = len(durations)
     avg_duration = statistics.mean(durations) if durations else 0.0
     max_duration = max(durations) if durations else 0
 
@@ -224,6 +242,9 @@ def calculate_skill_metrics(
     # Average rating
     ratings = [ev["rating"] for ev in evaluations if "rating" in ev]
     avg_rating = statistics.mean(ratings) if ratings else None
+    # An evaluation without a rating key feeds no rating detector, so it must
+    # not inflate the coverage number that describes those detectors.
+    rated_executions = len(ratings)
 
     # Common friction points (aggregate across evaluations)
     friction_points: list[str] = []
@@ -259,6 +280,8 @@ def calculate_skill_metrics(
         failure_count=failure_count,
         partial_count=partial_count,
         avg_duration_ms=avg_duration,
+        duration_samples=duration_samples,
+        rated_executions=rated_executions,
         max_duration_ms=max_duration,
         success_rate=success_rate,
         avg_rating=avg_rating,
@@ -419,17 +442,19 @@ def aggregate_logs(days_back: int = 30) -> AggregationResult:
     total_executions = sum(m.total_executions for m in metrics_by_skill.values())
 
     # Signal coverage: which detectors received usable input this period
-    rated_executions = sum(
-        1
-        for entries in entries_by_skill.values()
-        for entry in entries
-        if entry.get("qualitative_evaluation") is not None
-    )
+    rated_executions = sum(m.rated_executions for m in metrics_by_skill.values())
+    # A skill with no duration sample at all is unmeasured, not fast. Only a
+    # skill that was timed can be called dispatch-bound.
     dispatch_bound_skills = sorted(
         skill
         for skill, metrics in metrics_by_skill.items()
-        if metrics.total_executions > 0
+        if metrics.duration_samples > 0
         and metrics.avg_duration_ms < DISPATCH_BOUND_DURATION_MS
+    )
+    untimed_skills = sorted(
+        skill
+        for skill, metrics in metrics_by_skill.items()
+        if metrics.total_executions > 0 and metrics.duration_samples == 0
     )
 
     return AggregationResult(
@@ -442,6 +467,7 @@ def aggregate_logs(days_back: int = 30) -> AggregationResult:
         metrics_by_skill=metrics_by_skill,
         rated_executions=rated_executions,
         dispatch_bound_skills=dispatch_bound_skills,
+        untimed_skills=untimed_skills,
     )
 
 
@@ -462,13 +488,28 @@ def format_signal_coverage(result: AggregationResult) -> list[str]:
     """
     lines = ["## Signal Coverage", ""]
 
+    # A period with no input at all is not a period that measured zero.
+    # "0 of 0 executions carry an evaluation" invites reading an empty log
+    # as a ratings shortfall, which is a finding this report cannot have.
+    if result.total_executions == 0:
+        lines.append(
+            "- **All signals**: no executions were recorded in this period. "
+            "Every section below is empty for want of input rather than for "
+            "want of findings, so nothing here is a result."
+        )
+        lines.extend(["", "---", ""])
+        return lines
+
     if result.rated_executions == 0:
         lines.append(
             f"- **User ratings**: not measured. 0 of {result.total_executions} "
             "executions carry a `qualitative_evaluation`, which is written only "
             "by `/evaluate-skill` or the `skill-evaluator` agent. The low-rating "
             "detectors did not run, so an empty Low User Ratings section below "
-            "is not evidence that ratings are good."
+            "is not evidence that ratings are good. The instrument works and "
+            "was not run, so this gap closes by running `/evaluate-skill`. Do "
+            "not carry it into the next period as a standing condition of the "
+            "report."
         )
     else:
         lines.append(
@@ -485,11 +526,21 @@ def format_signal_coverage(result: AggregationResult) -> list[str]:
             "SKILL.md rather than the work the skill performs over the turns "
             "that follow. The slow-execution detector "
             f"({SLOW_EXECUTION_THRESHOLD_MS // 1000}s threshold) cannot fire on "
-            "these values."
+            "these values. No command closes this one: the measurement point "
+            "is wrong rather than unused, so the gap holds until duration "
+            "is captured elsewhere in the lifecycle."
         )
-    else:
+    elif not result.untimed_skills:
         lines.append(
             f"- **Durations**: no skill averages under {DISPATCH_BOUND_DURATION_MS}ms."
+        )
+
+    if result.untimed_skills:
+        lines.append(
+            f"- **Durations, unrecorded**: {len(result.untimed_skills)} of "
+            f"{result.skills_analyzed} skills executed with no duration recorded "
+            "at all. They carry no timing to average, so they are absent from "
+            "the measurement above rather than fast within it."
         )
 
     lines.extend(["", "---", ""])
@@ -594,11 +645,22 @@ def format_skill_summary(metrics_by_skill: dict[str, SkillLogSummary]) -> list[s
     )[:20]  # Top 20 most-used
 
     for skill, metrics in sorted_skills:
-        rating_str = f"{metrics.avg_rating:.1f}/5.0" if metrics.avg_rating else "N/A"
-        duration_sec = metrics.avg_duration_ms / 1000
+        # Presence, not truthiness: a measured rating of 0.0 is a rating,
+        # and rendering it as N/A would report signal as absent.
+        rating_str = (
+            f"{metrics.avg_rating:.1f}/5.0" if metrics.avg_rating is not None else "N/A"
+        )
+        # A skill with no duration sample has nothing to average. Printing
+        # the 0.0 fallback as "0.0s" states a measurement this row does not
+        # have, which is the conflation Signal Coverage exists to remove.
+        duration_str = (
+            f"{metrics.avg_duration_ms / 1000:.1f}s"
+            if metrics.duration_samples > 0
+            else "N/A"
+        )
         lines.append(
             f"| `{skill}` | {metrics.total_executions} | "
-            f"{metrics.success_rate:.1f}% | {duration_sec:.1f}s | {rating_str} |"
+            f"{metrics.success_rate:.1f}% | {duration_str} | {rating_str} |"
         )
 
     return lines
@@ -741,13 +803,13 @@ def generate_learnings_md(result: AggregationResult, existing_pinned: str = "") 
 
     if result.slow_skills:
         lines.extend(format_slow_skills(result.slow_skills))
-    elif result.dispatch_bound_skills:
+    elif result.dispatch_bound_skills or result.untimed_skills:
         lines.extend(
             [
                 "## Slow Execution",
                 "",
                 "Not measured this period: every duration sample is "
-                "dispatch-bound (see Signal Coverage).",
+                "dispatch-bound or absent (see Signal Coverage).",
                 "",
                 "---",
                 "",

@@ -21,7 +21,6 @@ Use this command when you need to:
 Avoid this command if:
 - Evaluating skill quality metrics - use /skills-eval instead
 - Creating new skills - use /create-skill instead
-- Hardening against rationalization - use /bulletproof-skill
 
 ## How It Works
 

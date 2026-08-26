@@ -1,18 +1,30 @@
 {
   "name": "conjure",
-  "version": "1.9.18",
+  "version": "1.9.19",
   "description": "Intelligent delegation framework for routing tasks to external LLM services while retaining strategic oversight",
   "skills": [
     "./skills/delegation-core",
     "./skills/gemini-delegation",
+    "./skills/minimax-delegation",
     "./skills/qwen-delegation",
-    "./skills/agent-teams"
+    "./skills/glm-delegation",
+    "./skills/muse-delegation",
+    "./skills/codex-delegation",
+    "./skills/opencode-delegation",
+    "./skills/agent-teams",
+    "./skills/glimmer-delegation",
+    "./skills/provider-setup"
   ],
   "keywords": [
     "delegation",
     "llm",
     "gemini",
     "qwen",
+    "minimax",
+    "glm",
+    "muse",
+    "codex",
+    "opencode",
     "orchestration",
     "routing",
     "agent-teams",
@@ -24,5 +36,7 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "dependencies": ["leyline"]
+  "dependencies": [
+    "leyline"
+  ]
 }

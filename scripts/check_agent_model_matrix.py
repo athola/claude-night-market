@@ -68,7 +68,13 @@ VALID_EFFORTS = frozenset({"low", "medium", "high", "xhigh", "max"})
 # A dated model ID names a specific generation (``claude-opus-4-1``,
 # ``claude-sonnet-4-6``). Those are retired on a rolling basis and the
 # alias resolves to the current generation instead.
-_DATED_MODEL_RE = re.compile(r"^claude-[a-z]+-\d")
+#
+# The family segment is optional because Anthropic changed the ordering:
+# Claude 4 onward writes ``claude-sonnet-4-6``, Claude 3.x wrote
+# ``claude-3-5-sonnet-20241022``, and ``claude-2.1`` carries no family.
+# Without the option a pre-4 pin fell through to invalid-model, which
+# names the wrong repair: pin a tier alias, do not hunt for a valid ID.
+_DATED_MODEL_RE = re.compile(r"^claude-(?:[a-z]+-)?\d")
 
 # Matches a top-level ``key: value`` line. Leading whitespace is
 # significant: an indented line belongs to a block scalar or a nested
@@ -180,26 +186,67 @@ def check_agent(path: Path) -> list[AgentViolation]:
     return violations
 
 
+# The one field name a skill may not use to state its tier. Six skills
+# carried their tier under ``model_preference`` while five used
+# ``model``: same job, different key, and only ``model`` was read by
+# anything. The values under the unread name drifted a generation
+# behind before anyone noticed, which is what a second name for one
+# concept buys you. Narrow on purpose: this rejects the one shadow that
+# existed, not every unrecognized frontmatter key.
+_SHADOW_MODEL_FIELD = "model_preference"
+
+
 def check_skill(path: Path) -> list[AgentViolation]:
-    """Return dated-model-ID violations in one ``SKILL.md``.
+    """Return every model-field violation in one ``SKILL.md``.
 
     A skill spawns no subagent, so an absent ``model`` carries none of
-    the inheritance hazard that makes it a violation for an agent. Only
-    the dated-ID rule applies here.
+    the inheritance hazard that makes it a violation for an agent. What
+    a skill states, though, it must state in the field this gate reads
+    and in the vocabulary the ledger records.
     """
     fields = parse_frontmatter(path.read_text(encoding="utf-8"))
-    model = fields.get("model")
-    if model is None or not _DATED_MODEL_RE.match(model):
-        return []
-    return [
-        AgentViolation(
-            path,
-            "dated-model-id",
-            f"model '{model}' pins a model generation that will be retired. "
-            f"Use the tier alias instead ({sorted(VALID_MODELS)}), or drop "
-            f"the field: a skill spawns nothing, so it need not pin a model.",
+    violations: list[AgentViolation] = []
+
+    if _SHADOW_MODEL_FIELD in fields:
+        violations.append(
+            AgentViolation(
+                path,
+                "shadow-model-field",
+                f"'{_SHADOW_MODEL_FIELD}: "
+                f"{fields[_SHADOW_MODEL_FIELD]}' states a tier under a name "
+                "nothing reads. Use 'model:' with a tier alias "
+                f"({sorted(VALID_MODELS)}), or drop it: a skill spawns "
+                "nothing, so it need not name a model at all.",
+            )
         )
-    ]
+
+    model = fields.get("model")
+    if model is None:
+        return violations
+
+    if _DATED_MODEL_RE.match(model):
+        violations.append(
+            AgentViolation(
+                path,
+                "dated-model-id",
+                f"model '{model}' pins a model generation that will be "
+                f"retired. Use the tier alias instead ({sorted(VALID_MODELS)}"
+                "), or drop the field: a skill spawns nothing, so it need "
+                "not pin a model.",
+            )
+        )
+    elif model not in VALID_MODELS:
+        violations.append(
+            AgentViolation(
+                path,
+                "invalid-model",
+                f"model '{model}' is not a recognized tier alias. Use one of "
+                f"{sorted(VALID_MODELS)}, or drop the field: a skill spawns "
+                "nothing, so it need not pin a model.",
+            )
+        )
+
+    return violations
 
 
 def agent_slug(path: Path) -> str:

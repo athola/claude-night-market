@@ -51,6 +51,7 @@ def try_skrills(
             capture_output=capture,
             text=True,
             timeout=timeout,
+            check=False,
         )
     except (FileNotFoundError, PermissionError, subprocess.TimeoutExpired):
         return None

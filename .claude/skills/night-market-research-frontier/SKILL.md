@@ -41,6 +41,7 @@ Follow these before starting any problem below.
 | 3 | Collective memory across context resets | ADR-0007 Discussions + memory-palace | Open, partially blocked |
 | 4 | Insight-palace bridge under a hook budget | Draft spec v0.1.0 + hook infrastructure | Open, spec drafted |
 | 5 | Behavioral contract attestation | ADR-0008 SLSA path + trust workflow | Open |
+| 6 | Continuation for autonomous loops | egregore night-run driver + watchdog + bounded Stop hook | Open, cost baseline measured |
 
 ## 1. Completion integrity in autonomous loops
 
@@ -315,17 +316,105 @@ unproven beyond that: whether behavioral attestation generalizes past
 hooks (skills and agents are prose, with no test harness for their
 behavior yet). Label any generalization claim open until one exists.
 
+## 6. Continuation for autonomous loops without an undocumented ride
+
+### Why current SOTA fails
+
+An agent loop continues in one of three ways today. A human sends the
+next turn, which is not autonomy. A wrapper process re-invokes the CLI
+once per iteration, the Ralph technique, which pays a cold start and
+drops in-session context every iteration. Or the loop rides a harness
+side effect: a Stop hook returns `block` and the harness feeds the
+reason back as the next instruction. Egregore and ralph-wiggum both
+take the third route. It is not documented as a continuation
+primitive, and the documented primitives do not cover the case: `/loop`
+and `CronCreate` are session-scoped, and cloud Routines have a one-hour
+minimum interval. Nothing published gives a loop continuation that both
+survives the session ending and fires when a unit of work finishes
+rather than when a clock does. Full statement of the dependency:
+`docs/adr/0022-stop-hook-reinjection-as-continuation.md`.
+
+### Result, 2026-08-25: the detection half is closed
+
+Framed with TRIZ at review's request, this is a physical contradiction
+rather than a technical one. The trigger must be inside the session,
+which alone knows a unit finished, and outside it, which alone
+survives the session ending. Compromise is the wrong move for that
+shape, and the compromise is what existed: a clock-driven poller that
+is durable and not responsive, beside a Stop hook that is responsive
+and not durable.
+
+The separation axis is system scale, and three fields converge on one
+shape for it. A rail dead man's control proves liveness by a repeated
+positive act, making the absence of the act the signal. A cell-cycle
+checkpoint has the producer write state at the moment it is true, with
+the consumer decoupled and possibly absent. A kanban card is itself
+the handoff and outlives whoever placed it.
+
+`plugins/egregore/scripts/continuation_baton.py` is the mechanism. The
+session records each handoff with a sequence number and the deadline
+by which the next turn should have started, so a dropped turn strands
+a baton with its sequence unmoved. Stranded means stalled, not old,
+which is what separates this from a timeout: a run that keeps
+advancing is healthy at any age.
+
+What stays open is the primitive itself. Continuation still rides the
+undocumented Stop-hook reinjection, and nothing published gives a loop
+continuation that both survives session end and fires on work
+completion. The baton makes the ride's failure observable; it does not
+replace the ride. Full record:
+`docs/adr/0023-continuation-baton-makes-a-dropped-turn-observable.md`.
+
+### This repo's specific asset
+
+- A working two-layer design: the Stop hook carries continuation
+  inside a live session, `plugins/egregore/scripts/watchdog.sh`
+  relaunches a dead one.
+- Durable state that is not the conversation: `.egregore/manifest.json`
+  holds pipeline position, so a relaunched session resumes from disk.
+- A cost baseline that was measured, not estimated: unbounded blocking
+  cost 10 turns and roughly $0.70 for a one-word prompt, and the stall
+  bound in `9f31a878` caps it at 3 turns per session.
+- An end-to-end harness for the driver:
+  `plugins/egregore/tests/test_night_run_e2e.py`, scripted by default
+  and live under `EGREGORE_E2E_LIVE=1`.
+
+### First three steps in this repo
+
+1. Instrument the baseline. Record turns and dollars per completed
+   pipeline step in the night-run proof rows, so the comparison below
+   has a number on both sides rather than one anecdote.
+2. Build the supervisor candidate behind a flag: a `claude --bg` driver
+   that carries continuation from outside the session, with
+   `watchdog.sh` kept as the fallback path.
+3. Run one real work item both ways, same item and same manifest, and
+   compare turns and dollars per completed step.
+
+### You have a result when
+
+The night-run E2E completes a multi-step item with the egregore Stop
+hook disabled, so continuation is carried by the supervisor rather than
+bounded inside the ride, at a cost per completed step no worse than the
+hook-driven baseline from step 1.
+
+The falsifier is cheap and worth stating: if the supervisor path costs
+more per step, or cannot resume after the session exits, then riding
+the Stop hook is the correct engineering answer for now and the
+reliance recorded in ADR-0022 stands as documented rather than as a
+problem waiting to be solved.
+
 ## What beyond-SOTA means here
 
 Inferred from the project's own research docs, and labeled as
 inference: the ambition is harness-level guardrails that keep
-autonomous loops honest and legible. The five problems above are one
+autonomous loops honest and legible. The six problems above are one
 thread: gates the agent cannot fake (1), a skill library whose
 activation is measured rather than hoped (2), memory that survives
 resets and proves its retrieval (3), cross-plugin composition under
-hard budgets (4), and trust signals that cover behavior, not bytes
-(5). Advancing any one of them past its milestone is a contribution
-the wider agent-tooling field does not yet have.
+hard budgets (4), trust signals that cover behavior, not bytes (5),
+and a loop that continues on a mechanism meant to carry it (6).
+Advancing any one of them past its milestone is a contribution the
+wider agent-tooling field does not yet have.
 
 ## When NOT to use
 
@@ -343,7 +432,7 @@ the wider agent-tooling field does not yet have.
 
 ## Exit Criteria
 
-- [ ] A specific problem number (1 to 5) was chosen and its listed
+- [ ] A specific problem number (1 to 6) was chosen and its listed
       first three steps were either started as written or a documented
       deviation exists in the work log or PR description.
 - [ ] Any claimed result names its "you have a result when" milestone
@@ -360,7 +449,8 @@ the wider agent-tooling field does not yet have.
 ## Provenance and maintenance
 
 Compiled 2026-07-02 against repo v1.9.15 (branch
-discussions-fix-1.9.14). Volatile facts and how to re-verify them:
+discussions-fix-1.9.14). Problem 6 was added 2026-08-23 against branch
+fix/minimax-cli-contract. Volatile facts and how to re-verify them:
 
 - Skill count (198 SKILL.md files, 2026-07-02):
   `find plugins -name SKILL.md | wc -l`
@@ -378,6 +468,10 @@ discussions-fix-1.9.14). Volatile facts and how to re-verify them:
   `rg -l "Approve with actions" plugins/pensive/skills/*/SKILL.md | wc -l`
 - Discovery-budget note:
   `rg -n "16K characters" docs/quality-gates.md`
+- Stop-hook stall bound (default 3, 2026-08-23):
+  `rg -n "DEFAULT_MAX_STALLS" plugins/egregore/hooks/stop_hook.py`
+- ralph-wiggum's iteration bound (2026-08-23, plugin 1.0.0):
+  `rg -n "MAX_ITERATIONS" ~/.claude/plugins/cache/claude-code-plugins/ralph-wiggum/1.0.0/hooks/stop-hook.sh`
 - Commits cited: 83281337, cd903cbf, 29081fda, 3d22f02a, 268cff89,
   5683e89b. Re-verify with `git log --oneline -1 <hash>`.
 

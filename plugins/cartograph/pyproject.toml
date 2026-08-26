@@ -1,6 +1,6 @@
 [project]
 name = "cartograph"
-version = "1.9.18"
+version = "1.9.19"
 description = "Codebase visualization: architecture, data flow, dependency, call chain, community, and class diagrams via Mermaid"
 requires-python = ">=3.9"
 # The suite imports gauntlet.graph and gauntlet.models, both stdlib-only, off a

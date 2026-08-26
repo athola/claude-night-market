@@ -66,6 +66,7 @@ role: entrypoint
 - [Interactive Plan Review](#interactive-plan-review)
 - [Mission Types](#mission-types)
 - [Phase-to-Skill Mapping](#phase-to-skill-mapping)
+- [Delegation During a Mission](#delegation-during-a-mission)
 - [Session Recovery](#session-recovery)
 - [Module Reference](#module-reference)
 - [Related Skills](#related-skills)
@@ -154,6 +155,38 @@ attune phase skills:
 | report | `Skill(imbue:structured-output)` | `reports/<topic>-<YYYY-MM-DD>.md` |
 
 The orchestrator **never** re-implements phase logic. Each phase is a complete `Skill()` invocation that handles its own workflow.
+
+## Delegation During a Mission
+
+Missions delegate execution by default.
+`Skill(conjure:delegation-core)` governs the decision, and its default
+posture is on: a phase that reaches execution work hands it to an
+external CLI without waiting to be asked.
+
+| Phase | Delegates | Why |
+|-------|-----------|-----|
+| brainstorm | No | Reasoning; the Keep Local clause holds |
+| specify | No | Reasoning |
+| plan | No | Reasoning |
+| execute | Yes, per task | Task execution is the eligible half |
+| scope, investigate, verify, report | Report and verify only | Findings are judgment; bulk extraction is not |
+
+The split follows conjure's own line: delegate execution, retain
+reasoning.
+A mission phase that is entirely judgment stays local and does not
+consult the delegator at all.
+
+Two outcomes need handling rather than reporting:
+
+- `fallback_reason` is `providers_exhausted`: no CLI answered. Say which
+  were tried, then do the task in the mission itself. This is the
+  ordinary path on a machine with no CLI installed and it does not fail
+  the phase.
+- `fallback_reason` is `delegation_disabled`: the operator declined.
+  Do the task locally and do not offer to re-enable it.
+
+To run a whole mission without external models, set
+`CONJURE_DELEGATION=off` before invoking it.
 
 ## Session Recovery
 
@@ -331,6 +364,7 @@ mission-type baseline.
 - `Skill(attune:war-room-checkpoint)` - Risk assessment for RED/CRITICAL tasks
 - `Skill(leyline:risk-classification)` - Task risk classification
 - `Skill(leyline:damage-control)` - Error recovery during phases
+- `Skill(conjure:delegation-core)` - Default-on delegation of execution work
 
 ## Related Commands
 
@@ -344,4 +378,8 @@ mission-type baseline.
 - Artifacts exist for each completed phase
 - Mission state saved to `.attune/mission-state.json`
 - Risk summary generated (tier counts across all tasks)
+- Execute-phase work either delegated or held back by a named Keep
+  Local clause, never skipped for want of a delegation decision
+- Any `providers_exhausted` result completed locally and reported with
+  the providers it tried
 - No unresolved errors or blockers

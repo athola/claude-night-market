@@ -12,7 +12,8 @@ from unittest.mock import patch
 
 import pytest
 
-from phantom.cli import check_environment, main
+from phantom.cli import build_parser, check_environment, main
+from phantom.loop import LoopConfig
 
 
 class TestCheckEnvironment:
@@ -102,3 +103,37 @@ class TestMain:
             pytest.raises(SystemExit),
         ):
             main()
+
+
+class TestModelDefault:
+    """Feature: one default model, not two.
+
+    The CLI declared its own ``--model`` default and ``LoopConfig``
+    declared another. Nothing tied them together, so they drifted: the
+    CLI kept a Sonnet generation the library had already moved off, and
+    which one a run got depended on whether it came through ``main()``
+    or constructed a config directly.
+
+    Asserting the two agree, rather than asserting a literal, is what
+    keeps the next model release from reopening the gap.
+    """
+
+    def test_cli_default_matches_loop_config_default(self):
+        """
+        Scenario: The CLI and the library disagree about the default
+        Given LoopConfig declares a default model
+        When the CLI's --model default is read
+        Then the two are the same string
+        """
+        default = build_parser().get_default("model")
+        assert default == LoopConfig.model
+
+    def test_cli_help_text_states_the_real_default(self):
+        """
+        Scenario: Help text repeats the default as prose
+        Given --model's help mentions a default
+        When the help string is read
+        Then it names the value argparse would actually apply
+        """
+        action = next(a for a in build_parser()._actions if a.dest == "model")
+        assert action.default in action.help

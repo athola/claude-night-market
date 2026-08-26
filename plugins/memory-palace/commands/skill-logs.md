@@ -1,3 +1,8 @@
+---
+name: skill-logs
+description: View and manage skill execution memories stored by memory-palace.
+---
+
 # Skill Execution Logs
 
 View and manage skill execution memories stored by memory-palace.

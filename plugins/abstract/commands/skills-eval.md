@@ -6,6 +6,9 @@ usage: /skills-eval [skill-name]
 
 # Skills Evaluation Command
 
+Invoke `Skill(abstract:skills-eval)`, which carries the evaluation criteria,
+the workflow and the output format across its modules.
+
 ## When To Use
 
 Use this command when you need to:
@@ -37,32 +40,6 @@ Evaluates all discovered skills and generates improvement recommendations.
 /prompt:skills-eval <skill-name>
 ```
 Evaluates a specific skill (e.g., `/prompt:skills-eval modular-skills`).
-
-## What It Does
-
-1. **Discovers Skills**: Finds all SKILL.md files in ~/.claude/ hierarchy
-2. **Quality Analysis**: Evaluates structure, content, token efficiency, and activation reliability
-3. **Compliance Checking**: Validates against Claude Skills standards and security guidelines
-4. **Improvement Generation**: Provides specific improvement suggestions
-5. **Prioritization**: Ranks improvements by impact and effort
-
-## Evaluation Criteria
-
-- **Structure Compliance**: YAML frontmatter, progressive disclosure, organization
-- **Content Quality**: Clarity, completeness, practical value
-- **Token Efficiency**: Content density, loading optimization
-- **Activation Reliability**: Naming, tags, trigger patterns
-- **Tool Integration**: Executable components, automation value
-- **Security Compliance**: Safe practices, dependency validation
-
-## Output Format
-
-For each skill, provides:
-- Overall quality score (0-100)
-- Detailed breakdown by category
-- Specific improvement recommendations
-- Priority ranking and estimated effort
-- Implementation roadmap
 
 ## Examples
 

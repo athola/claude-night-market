@@ -14,21 +14,8 @@ Install a system-level daemon that monitors the egregore
 and relaunches it after crashes, rate limits, or context
 overflows.
 
-## What It Does
-
-On macOS, installs a launchd agent
-(`com.egregore.watchdog`) that runs the watchdog script
-at a fixed interval. On Linux, installs a systemd user
-timer (`egregore-watchdog.timer`) instead.
-
-The watchdog checks:
-
-1. Whether active work items remain in the manifest.
-2. Whether a cooldown period is still active.
-3. Whether a session is already running (via pidfile).
-
-If work remains and no session is running, the watchdog
-relaunches the egregore.
+Invoke `Skill(egregore:install-watchdog)`, which carries the launchd and
+systemd installation steps and the troubleshooting.
 
 ## Prerequisites
 

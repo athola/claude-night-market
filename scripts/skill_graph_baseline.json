@@ -1,6 +1,6 @@
 {
-  "max_dangling_bugs": 31,
-  "max_uncalled_libraries": 8,
+  "max_dangling_bugs": 0,
+  "max_uncalled_libraries": 0,
   "_comment": "Ratchet baselines for check_skill_graph_drift.py. max_dangling_bugs is the count of genuine broken Skill(plugin:name) references (the 'bugs' category from skill_graph.py, excluding external cross-marketplace refs and template placeholders). max_uncalled_libraries is the count of library-role skills with no inbound Skill() consumer (the AP-3 risk that shared-utility-consumer-rule.md targets). Lower either number whenever you fix refs or wire a consumer to lock in the win. The guard fails if a live count exceeds its baseline. A new library skill legitimately starts uncalled, so raising max_uncalled_libraries records the grace period the rule grants.",
-  "_recorded": "2026-06-01"
+  "_recorded": "2026-08-16"
 }

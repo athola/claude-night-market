@@ -349,9 +349,6 @@ class AbstractCLI(ABC):
         parser = self.create_parser()
         args = parser.parse_args(argv)
 
-        # Handle project root (for future use)
-        _project_root = args.project_root or self._script.find_project_root()
-
         # Load config if specified
         if args.config:
             try:

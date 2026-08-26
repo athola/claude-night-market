@@ -1,11 +1,19 @@
 {
   "name": "conjure",
-  "version": "1.9.18",
+  "version": "1.9.19",
   "main": "skills",
   "skills": [
     "skills/delegation-core",
     "skills/gemini-delegation",
-    "skills/qwen-delegation"
+    "skills/qwen-delegation",
+    "skills/minimax-delegation",
+    "skills/glm-delegation",
+    "skills/muse-delegation",
+    "skills/codex-delegation",
+    "skills/opencode-delegation",
+    "skills/agent-teams",
+    "skills/glimmer-delegation",
+    "skills/provider-setup"
   ],
   "dependencies": {
     "leyline": ">=1.0.0"

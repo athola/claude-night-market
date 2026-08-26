@@ -34,7 +34,16 @@ and reports four drift classes:
     selection, and the count cannot tell the two apart. The backlog
     rose from 44 to 51 when legacy pricing entries were added at the
     same time the live pins were removed, so the number went up while
-    the risk went down. Read a movement here before acting on it.
+    the risk went down. It rose again from 51 to 57 when ``docs`` was
+    added to the scan, and from 57 to 60 when ``SKILL.md`` bodies
+    stopped being exempt. Both surfaced pre-existing mentions rather
+    than new ones. It then fell to 55, because five of the mentions
+    those two changes exposed turned out to be live selections: a CLI
+    default, a scaffolder's generated frontmatter, an agent template,
+    and a config doc that had drifted behind the module it documents.
+    That is the shape a working ratchet makes. Widening the lens raises
+    the number, and reading what it exposed lowers it again. Read a
+    movement here before acting on it.
 
 ``unknown_tier``
     A file references a tier absent from the ledger roster.
@@ -68,7 +77,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 DEFAULT_LEDGER = REPO_ROOT / ".claude" / "upstream-baseline.json"
 DEFAULT_GATE = REPO_ROOT / "scripts" / "check_agent_model_matrix.py"
-DEFAULT_SCAN = (REPO_ROOT / "plugins", REPO_ROOT / ".claude")
+# ``docs`` is scanned because prose carries runnable examples: a guide
+# that hands the reader a ``messages.create(model=...)`` snippet pins a
+# model as surely as any frontmatter does, and a retired ID there is a
+# 404 the reader inherits. ``scripts`` and ``tests`` stay out, because
+# the only dated IDs in them are this gate's own specimens and the
+# ratchet would end up measuring its own fixtures.
+DEFAULT_SCAN = (
+    REPO_ROOT / "plugins",
+    REPO_ROOT / ".claude",
+    REPO_ROOT / "docs",
+)
 
 SUPPORTED_SCHEMA_VERSION = 1
 
@@ -117,8 +136,21 @@ SKIPPED_DIRS = frozenset(
     }
 )
 
-# A dated model ID: a family followed by a version number.
-DATED_ID_RE = re.compile(r"claude-(?:opus|sonnet|haiku|fable)-\d[\w.-]*")
+# A dated model ID, in either of the two naming conventions Anthropic
+# has used. Claude 4 onward puts the version after the family name
+# (``claude-sonnet-4-6``); Claude 3.x and earlier put it before
+# (``claude-3-5-sonnet-20241022``), and ``claude-2.1`` carries no family
+# at all. Encoding only the later shape left every retired 3.x ID
+# invisible to this ratchet, which is how a ``claude-3-5-sonnet-20241022``
+# call sat in a docs example past its 2025-10-28 retirement until an
+# outside contributor read the line by hand.
+#
+# The family list stays explicit for the post-4 branch so a hyphenated
+# product name cannot be read as a model. The pre-4 branch cannot use one:
+# the version comes first, so there is nothing to anchor on but the digit.
+DATED_ID_RE = re.compile(
+    r"claude-(?:(?:opus|sonnet|haiku|fable)-)?\d[\w.-]*|claude-instant[\w.-]*"
+)
 
 # A ``model:`` frontmatter assignment naming a tier alias.
 MODEL_LINE_RE = re.compile(r"^[ \t]*model:[ \t]*([A-Za-z][\w.-]*)[ \t]*$", re.MULTILINE)
@@ -399,8 +431,27 @@ def detect_vocabulary_drift(ledger: dict, gate_source: str) -> list[Drift]:
 
 
 def _is_gated_surface(path: Path) -> bool:
-    """True when check_agent_model_matrix.py already covers this file."""
-    return "agents" in path.parts or path.name == "SKILL.md"
+    """True when check_agent_model_matrix.py already covers this file.
+
+    Only agent definitions qualify. ``SKILL.md`` does not: the matrix
+    gate reads a skill's ``model:`` frontmatter field and nothing else,
+    so its body is nobody's territory unless this gate takes it. See
+    ``_scannable_text``.
+    """
+    return "agents" in path.parts
+
+
+def _scannable_text(path: Path) -> str:
+    """Return the part of a file this gate owns.
+
+    For ``SKILL.md`` that is the body: the matrix gate owns the
+    ``model:`` field in the frontmatter, and counting it here would
+    double-report one violation. Everything else is scanned whole.
+    """
+    text = _read(path)
+    if path.name == "SKILL.md":
+        return FRONTMATTER_RE.sub("", text)
+    return text
 
 
 def _iter_files(roots: list[Path] | tuple[Path, ...]):
@@ -437,7 +488,7 @@ def detect_dated_ids(
     for path in _iter_files(roots):
         if _is_gated_surface(path):
             continue
-        found = set(DATED_ID_RE.findall(_read(path))) - known
+        found = set(DATED_ID_RE.findall(_scannable_text(path))) - known
         for model_id in sorted(found):
             drifts.append(
                 Drift(

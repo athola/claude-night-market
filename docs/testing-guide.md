@@ -54,27 +54,65 @@ runs automatically before every commit, and blocks commits if any tests fail.
 
 We maintain automated tests for the following plugins:
 
-| Plugin | Test Framework | Test Count | Coverage | Advanced |
-|--------|---------------|------------|----------|----------|
-| **abstract** | pytest | 331 tests | 68% | mutation |
-| **minister** | pytest | 145 tests | 98% | mutation |
-| **spec-kit** | pytest | 184 tests | 90%+ | - |
-| **sanctum** | pytest | 60+ tests | 85%+ | - |
-| **scry** | pytest | 53+ tests | 80%+ | integration |
-| **pensive** | pytest | ~45 tests | 85%+ | - |
-| **imbue** | pytest | ~40 tests | 80%+ | mutation |
-| **parseltongue** | pytest | ~25 tests | 75%+ | - |
-| **conserve** | pytest | ~20 tests | 80%+ | mutation, bench |
-| **conjure** | pytest | ~15 tests | 75%+ | mutation, bench |
-| **memory-palace** | pytest | ~10 tests | 70%+ | mutation, bench |
-| **leyline** | pytest | ~10 tests | 75%+ | mutation, bench |
+| Plugin | Framework | Collected |
+|--------|-----------|----------:|
+| **abstract** | pytest | 2,378 |
+| **memory-palace** | pytest | 1,427 |
+| **sanctum** | pytest | 1,413 |
+| **scribe** | pytest | 1,008 |
+| **pensive** | pytest | 891 |
+| **tome** | pytest | 853 |
+| **imbue** | pytest | 822 |
+| **conserve** | pytest | 787 |
+| **egregore** | pytest | 783 |
+| **leyline** | pytest | 736 |
+| **conjure** | pytest | 586 |
+| **attune** | pytest | 517 |
+| **gauntlet** | pytest | 503 |
+| **hookify** | pytest | 315 |
+| **minister** | pytest | 302 |
+| **spec-kit** | pytest | 212 |
+| **parseltongue** | pytest | 105 |
+| **herald** | pytest | 105 |
+| **phantom** | pytest | 104 |
+| **scry** | pytest | 76 |
+| **oracle** | pytest | 54 |
+| **cartograph** | pytest | 40 |
+| **archetypes** | pytest | 31 |
 
-**Total**: ~938+ tests across 12 plugins
+**Plugin total**: 14,048 across 23 plugins. The root
+`tests/` suite adds 6,944 more, which no plugin runner sees, because
+`norecursedirs` excludes `plugins/*` from the root run and duplicate
+module names across plugins force the per-plugin split.
 
-**Advanced Testing:**
-- **mutation**: Mutation testing with mutmut
-- **bench**: Performance benchmarking
-- **integration**: End-to-end workflow tests
+**Grand total**: 20,992.
+
+Counts are `pytest --collect-only` output on 2026-08-25, not
+estimates. They drift, so re-measure before quoting them:
+
+```bash
+for p in plugins/*/; do
+  n=$(basename "$p")
+  c=$( (cd "$p" && uv run python -m pytest --collect-only -q 2>/dev/null \
+        | tail -1 | grep -oE '^[0-9]+') )
+  echo "$n ${c:-0}"
+done | sort -k2 -rn
+```
+
+**Beyond the default suite.** Three additions are configured per
+plugin rather than ecosystem-wide, and the lists below are read from
+each plugin's `Makefile` and `tests/` tree rather than asserted:
+
+| Addition | Configured in | What it adds |
+|----------|---------------|--------------|
+| Mutation (`mutmut`) | abstract, conjure, conserve, imbue, leyline, memory-palace, minister, parseltongue, pensive, tome | Breaks the code and fails if no test notices |
+| Benchmarks | conjure, conserve, imbue, leyline, memory-palace, minister, parseltongue, pensive, tome | Timing a run so a regression is measurable |
+| Integration (`tests/integration/`) | abstract, conserve, gauntlet, imbue, minister, oracle | End-to-end paths a unit test cannot reach |
+
+Mutation testing is the one worth reaching for when a suite passes and
+you do not trust it. A guard that stays green while its subject is
+deleted proves nothing, and mutation is the mechanical form of the
+revert test that catches it.
 
 ### Test Discovery
 

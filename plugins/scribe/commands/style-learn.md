@@ -1,3 +1,8 @@
+---
+name: style-learn
+description: Extract writing style from exemplar text to create a reusable style profile.
+---
+
 # Style Learn
 
 Extract writing style from exemplar text to create a style profile.

@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tome"
-version = "1.9.18"
+version = "1.9.19"
 description = "Multi-source research plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -46,14 +46,15 @@ integration = [
 memory-palace = { path = "../memory-palace" }
 
 [tool.ruff]
+extend = "../../pyproject.toml"
 target-version = "py39"
 line-length = 88
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "S", "PLR0913"]
+extend-select = ["E", "F", "I", "UP", "B", "SIM", "S", "PLR0913"]
 ignore = ["UP017", "S101", "E501"]  # E501 line length handled by formatter (matches root config)
 
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "**/__init__.py" = ["F401"]
 "tests/**/*.py" = ["S101", "PLR2004"]
 "tests/conftest.py" = ["F401"]  # Re-exported fixtures

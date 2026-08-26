@@ -231,8 +231,8 @@ plugin-check: demo-import garden-metrics list search demo-export
 Makefile.local:;
 -include Makefile.local
 
-demo-palace: ## Demo palace command (LIVE)
-	@echo "=== palace Demo (LIVE) ==="
+demo-palace: ## Demo palace command
+	@echo "=== palace Demo ==="
 	@echo ""
 	@echo "Command: /palace"
 	@echo "Plugin: memory-palace"
@@ -243,8 +243,8 @@ demo-palace: ## Demo palace command (LIVE)
 	@echo "Use /palace for full workflow."
 
 
-demo-garden: ## Demo garden command (LIVE)
-	@echo "=== garden Demo (LIVE) ==="
+demo-garden: ## Demo garden command
+	@echo "=== garden Demo ==="
 	@echo ""
 	@echo "Command: /garden"
 	@echo "Plugin: memory-palace"
@@ -255,8 +255,8 @@ demo-garden: ## Demo garden command (LIVE)
 	@echo "Use /garden for full workflow."
 
 
-demo-navigate: ## Demo navigate command (LIVE)
-	@echo "=== navigate Demo (LIVE) ==="
+demo-navigate: ## Demo navigate command
+	@echo "=== navigate Demo ==="
 	@echo ""
 	@echo "Command: /navigate"
 	@echo "Plugin: memory-palace"
@@ -267,8 +267,8 @@ demo-navigate: ## Demo navigate command (LIVE)
 	@echo "Use /navigate for full workflow."
 
 
-demo-review-room: ## Demo review-room command (LIVE)
-	@echo "=== review-room Demo (LIVE) ==="
+demo-review-room: ## Demo review-room command
+	@echo "=== review-room Demo ==="
 	@echo ""
 	@echo "Command: /review-room"
 	@echo "Plugin: memory-palace"
@@ -278,8 +278,8 @@ demo-review-room: ## Demo review-room command (LIVE)
 	@echo ""
 	@echo "Use /review-room for full workflow."
 
-demo-skill-logs: ## Demo skill-logs command (LIVE)
-	@echo "=== skill-logs Demo (LIVE) ==="
+demo-skill-logs: ## Demo skill-logs command
+	@echo "=== skill-logs Demo ==="
 	@echo ""
 	@echo "Command: /skill-logs"
 	@echo "Plugin: memory-palace"

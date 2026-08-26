@@ -379,11 +379,27 @@ class TestExportForMemoryPalace:
 
     @pytest.mark.unit
     def test_yaml_quote_escapes_special_chars(self) -> None:
-        # Topic containing ":" forces quoting via _yaml_quote
-        session = _session(topic='colon: needed "quoting"', findings=[])
-        out = export_for_memory_palace(session)
-        # The quoted field appears wrapped in double quotes with escapes
-        assert 'topic: "colon' in out
+        """Frontmatter round-trips a topic carrying YAML metacharacters.
+
+        Asserting the round-trip rather than a quoting style: what matters
+        is that memory-palace parses back the topic that went in, not which
+        quote character the emitter chose.
+        """
+        topic = 'colon: needed "quoting"'
+        out = export_for_memory_palace(_session(topic=topic, findings=[]))
+        assert yaml.safe_load(out.split("---")[1])["topic"] == topic
+
+    @pytest.mark.unit
+    def test_frontmatter_round_trips_a_hostile_topic(self) -> None:
+        """A topic that reads as YAML syntax survives the round trip.
+
+        Hand-rolled quoting only escaped : # newline " ' { }, so a topic
+        opening with "-" or "[", or one that is bare yes/no/null, was
+        emitted unquoted and re-parsed as a list, a bool, or None.
+        """
+        for topic in ("- yes: [maybe]", "no", "null", "*anchor", "%directive"):
+            out = export_for_memory_palace(_session(topic=topic, findings=[]))
+            assert yaml.safe_load(out.split("---")[1])["topic"] == topic
 
 
 # ============================================================================

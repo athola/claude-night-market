@@ -127,6 +127,40 @@ class TestIronLawEnforcementModule:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_red_test_must_name_the_constraint_it_defends(
+        self, module_content: str
+    ) -> None:
+        """Scenario: the author states what the test protects before writing it.
+
+        Given a change about to enter the RED phase
+        When the author consults the Iron Law
+        Then it asks which business rule, invariant, contract or recorded
+        defect the test defends, and accepts a reasoned "none of these".
+        """
+        flat = " ".join(module_content.split())
+
+        assert "What the Failing Test Has to Protect" in flat
+        for constraint in ("business rule", "invariant", "contract at a boundary"):
+            assert constraint in flat, f"missing constraint category: {constraint}"
+        assert "does not need a test first" in flat
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_wrong_constraint_test_is_named_as_a_cost(
+        self, module_content: str
+    ) -> None:
+        """Scenario: a test pinning an implementation detail is a liability.
+
+        Given a test asserting a call order or an internal data shape
+        When the implementation legitimately changes
+        Then the module says the test reports failure though nothing broke.
+        """
+        flat = " ".join(module_content.split())
+
+        assert "reports failure when nothing broke" in flat
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_module_defines_enforcement_levels(self, module_content: str) -> None:
         """Scenario: Iron Law module defines multiple enforcement levels.
 
@@ -223,59 +257,6 @@ class TestIronLawEnforcementModule:
         assert "Violation" in module_content or "violation" in module_content.lower()
 
 
-class TestGovernancePolicyIronLaw:
-    """Feature: Governance policy includes Iron Law enforcement.
-
-    As a session participant
-    I want Iron Law enforced at session start
-    So that TDD compliance is reminded
-    """
-
-    @pytest.fixture
-    def policy_path(self) -> Path:
-        """Path to the post_implementation_policy.py."""
-        return (
-            Path(__file__).parents[4]
-            / "sanctum"
-            / "hooks"
-            / "post_implementation_policy.py"
-        )
-
-    @pytest.fixture
-    def policy_content(self, policy_path: Path) -> str:
-        """Load the governance policy content."""
-        return policy_path.read_text()
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_policy_includes_iron_law_statement(self, policy_content: str) -> None:
-        """Scenario: Governance policy includes Iron Law statement.
-
-        Given the post_implementation_policy hook
-        When reading the hook content
-        Then it should include the Iron Law statement.
-        """
-        # Assert - Iron Law statement exists
-        assert "Iron Law" in policy_content
-        assert "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" in policy_content
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_policy_includes_iron_law_todowrite_items(
-        self, policy_content: str
-    ) -> None:
-        """Scenario: Governance policy mentions Iron Law TodoWrite items.
-
-        Given the post_implementation_policy hook
-        When reading the hook content
-        Then it should mention iron-law TodoWrite items.
-        """
-        # Assert - TodoWrite items mentioned
-        assert "iron-law-red" in policy_content
-        assert "iron-law-green" in policy_content
-        assert "iron-law-refactor" in policy_content
-
-
 class TestSessionStartIronLaw:
     """Feature: Session start hook includes Iron Law quick reference.
 
@@ -307,7 +288,8 @@ class TestSessionStartIronLaw:
         """
         # Assert - Iron Law section exists
         assert "Iron Law" in session_hook_content
-        assert "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" in session_hook_content
+        collapsed = " ".join(session_hook_content.lower().split())
+        assert "no implementation without a failing test first" in collapsed
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -318,12 +300,23 @@ class TestSessionStartIronLaw:
 
         Given the imbue session-start.sh hook
         When reading the hook content
-        Then it should mention iron-law TodoWrite items.
+        Then it should route to the skill that defines those items.
+
+        The hook injects into every session, so it carries the pointer
+        and the skill carries the procedure.
         """
-        # Assert - TodoWrite items mentioned
-        assert "iron-law-red" in session_hook_content
-        assert "iron-law-green" in session_hook_content
-        assert "iron-law-refactor" in session_hook_content
+        # Assert - the injection routes to the skill that defines them
+        assert "Skill(imbue:proof-of-work)" in session_hook_content
+
+        skill = (
+            Path(__file__).parents[3]
+            / "skills"
+            / "proof-of-work"
+            / "modules"
+            / "iron-law-enforcement.md"
+        ).read_text()
+        for item in ("iron-law-red", "iron-law-green", "iron-law-refactor"):
+            assert item in skill
 
 
 class TestProofEnforcementIronLaw:

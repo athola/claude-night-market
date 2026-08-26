@@ -25,18 +25,29 @@ except ImportError:
     tomllib = None
 
 
+# A config that inherits the repo floor via ``extend`` must state its
+# exemptions as ``extend-per-file-ignores``: the plain key would replace
+# root's table instead of merging with it. Both spellings grant the same
+# suppression, so the audit reads both or it audits nothing.
+_IGNORE_KEYS = ("per-file-ignores", "extend-per-file-ignores")
+
+
 def _get_per_file_ignores(toml_text: str) -> dict[str, list[str]]:
-    """Extract per-file-ignores from a TOML string."""
+    """Extract per-file-ignores from a TOML string, in either spelling."""
     try:
         data = tomllib.loads(toml_text)
     except Exception:
         return {}
-    pfi = (
-        data.get("tool", {}).get("ruff", {}).get("lint", {}).get("per-file-ignores", {})
-    )
-    if not isinstance(pfi, dict):
-        return {}
-    return {k: sorted(v) if isinstance(v, list) else [] for k, v in pfi.items()}
+    lint = data.get("tool", {}).get("ruff", {}).get("lint", {})
+    merged: dict[str, list[str]] = {}
+    for key in _IGNORE_KEYS:
+        pfi = lint.get(key, {})
+        if not isinstance(pfi, dict):
+            continue
+        for pattern, rules in pfi.items():
+            existing = merged.setdefault(pattern, [])
+            existing.extend(rules if isinstance(rules, list) else [])
+    return {k: sorted(set(v)) for k, v in merged.items()}
 
 
 def diff_per_file_ignores(old_text: str, new_text: str) -> dict[str, list[str]]:

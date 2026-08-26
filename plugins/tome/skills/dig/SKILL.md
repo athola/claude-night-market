@@ -20,7 +20,7 @@ model_hint: standard
 ## When NOT To Use
 
 - Starting a new research topic (use `/tome:research` first)
-- Synthesizing results (use `/tome:synthesize`)
+- Synthesizing results (use `Skill(tome:synthesize)`)
 
 Refine an active research session interactively.
 

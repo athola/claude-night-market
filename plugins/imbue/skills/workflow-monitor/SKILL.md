@@ -12,7 +12,7 @@ tags:
 dependencies:
 - leyline:git-platform
 - imbue:proof-of-work
-- sanctum:fix-workflow
+- sanctum:workflow-improvement
 tools: []
 usage_patterns:
 - error-detection

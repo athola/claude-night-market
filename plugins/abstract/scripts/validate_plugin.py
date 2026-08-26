@@ -28,6 +28,30 @@ class Colors:
     END = "\033[0m"
 
 
+def _extract_object_literal(content: str, start: int) -> str | None:
+    """Return the ``{...}`` literal beginning at or after ``start``.
+
+    Brace matching rather than a regex, because a workflow's meta block nests
+    (``phases`` is an array of objects) and the shipped official scripts are
+    minified onto one line. Braces inside string literals are not tracked; a
+    meta block that carries one would be misread, which no observed script
+    does.
+    """
+    opened = content.find("{", start)
+    if opened == -1:
+        return None
+    depth = 0
+    for index in range(opened, len(content)):
+        char = content[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return content[opened : index + 1]
+    return None
+
+
 class PluginValidator:
     """Validate Claude Code plugin structure."""
 
@@ -58,6 +82,7 @@ class PluginValidator:
             self._validate_dependencies()
             self._validate_directory_structure()
             self._validate_skills()
+            self._validate_workflows()
             self._validate_claude_config()
 
         self._print_report()
@@ -167,7 +192,7 @@ class PluginValidator:
     def _validate_paths(self) -> None:
         """Validate path references in plugin.json."""
         config = self._require_config()
-        path_fields = ["skills", "commands", "agents"]
+        path_fields = ["skills", "commands", "agents", "workflows"]
 
         for field in path_fields:
             if field not in config:
@@ -314,7 +339,7 @@ class PluginValidator:
                 )
 
         # Check that component directories are at plugin root, not in .claude-plugin
-        for dirname in ["skills", "commands", "agents", "hooks"]:
+        for dirname in ["skills", "commands", "agents", "hooks", "workflows"]:
             wrong_location = self.plugin_path / ".claude-plugin" / dirname
             if wrong_location.exists():
                 self.issues["critical"].append(
@@ -393,6 +418,71 @@ class PluginValidator:
 
         except Exception as e:
             self.issues["warnings"].append(f"Error validating skill {skill_path}: {e}")
+
+    def _validate_workflows(self) -> None:
+        """Validate dynamic-workflow scripts, when the plugin ships any.
+
+        A plugin may ship workflow scripts in ``workflows/`` at its root; the
+        directory is discovered by convention, so its absence is not a finding
+        and most plugins will never have one.
+
+        Syntax is checked structurally and never by shelling out to
+        ``node --check``. A workflow script opens with ``export const meta``
+        and ends with a top-level ``return``, which cannot both be legal in an
+        ES module, so a correct script is reported as a syntax error by any
+        naive check. The runtime extracts ``meta`` and runs the body inside an
+        async function.
+        """
+        workflows_dir = self.plugin_path / "workflows"
+        if not workflows_dir.is_dir():
+            return
+
+        for script in sorted(workflows_dir.glob("*.js")):
+            self._validate_workflow_script(script)
+
+    _META_DECL = re.compile(r"^export\s+const\s+meta\s*=", re.MULTILINE)
+
+    def _validate_workflow_script(self, script: Path) -> None:
+        """Check one workflow script's meta block."""
+        name = script.name
+        try:
+            content = script.read_text()
+        except OSError as exc:
+            self.issues["critical"].append(f"workflows/{name}: cannot be read ({exc})")
+            return
+
+        match = self._META_DECL.search(content)
+        if match is None:
+            self.issues["critical"].append(
+                f"workflows/{name}: no `export const meta` declaration, "
+                "so the workflow cannot be loaded",
+            )
+            return
+
+        # Only comments and blank lines may precede it. The runtime tolerates a
+        # leading comment block; it does not tolerate a statement.
+        preamble = content[: match.start()]
+        for line in preamble.splitlines():
+            stripped = line.strip()
+            if stripped and not stripped.startswith(("//", "/*", "*", "*/")):
+                self.issues["critical"].append(
+                    f"workflows/{name}: code precedes `export const meta`; "
+                    "meta must be the first statement",
+                )
+                break
+
+        meta = _extract_object_literal(content, match.end())
+        if meta is None:
+            self.issues["critical"].append(
+                f"workflows/{name}: `meta` is not an object literal",
+            )
+            return
+
+        for field in ("name", "description"):
+            if not re.search(rf"\b{field}\s*:", meta):
+                self.issues["critical"].append(
+                    f"workflows/{name}: meta is missing `{field}`",
+                )
 
     def _validate_claude_config(self) -> None:
         """Validate Claude-specific configuration."""

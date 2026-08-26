@@ -114,9 +114,7 @@ class MarginalValueFilter:
 
         delta = None
         if redundancy.level == RedundancyLevel.PARTIAL_OVERLAP:
-            delta = self._analyze_delta(
-                content, title, redundancy.matching_entries, keywords
-            )
+            delta = self._analyze_delta(content, redundancy.matching_entries, keywords)
 
         integration = self._decide_integration(redundancy, delta)
 
@@ -233,7 +231,6 @@ class MarginalValueFilter:
     def _analyze_delta(
         self,
         new_content: str,
-        new_title: str,
         matching_entry_ids: list[str],
         new_keywords: set[str],
     ) -> DeltaAnalysis:
@@ -241,7 +238,6 @@ class MarginalValueFilter:
 
         Args:
             new_content: New content text
-            new_title: New content title
             matching_entry_ids: IDs of overlapping entries
             new_keywords: Keywords from new content
 

@@ -1,3 +1,8 @@
+---
+name: bug-review
+description: Systematic bug detection with language-specific expertise.
+---
+
 # Bug Review Command
 
 Systematic bug detection with language-specific expertise.
@@ -10,25 +15,5 @@ Systematic bug detection with language-specific expertise.
 
 ## What It Does
 
-1. **Language Detection**: Identify frameworks
-2. **Reproduction Plan**: Document how to reproduce
-3. **Defect Documentation**: Log all bugs found
-4. **Fix Preparation**: Draft patches
-5. **Verification Plan**: Outline testing
-
-## Scope
-
-- Logic errors
-- API misuse
-- Concurrency issues
-- Resource leaks
-- Validation gaps
-- Security vulnerabilities
-
-## Output
-
-- Defect list with severity
-- Root cause analysis
-- Proposed fixes
-- Test updates
-- Evidence log
+Invoke `Skill(pensive:bug-review)`, which carries the detection workflow,
+the language-specific checks and the output format.

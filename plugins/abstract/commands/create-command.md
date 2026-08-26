@@ -8,7 +8,6 @@ usage: /create-command [command-description] [--skip-brainstorm] [--plugin <name
 
 Creates new slash commands through a structured workflow: **iron-law → brainstorm → design → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed commands before generating any files.
 
-**Important**: This workflow enforces the Iron Law. You cannot create command files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
 
 ## When To Use
 
@@ -152,7 +151,6 @@ Status: RED - Interlock satisfied
 
 ```
 proof:iron-law-red - Test failure captured for ${command_name}
-proof:iron-law-interlock-satisfied - Proceeding to design phase
 ```
 
 **Only after completing Phase 0 may you proceed to Phase 1.**

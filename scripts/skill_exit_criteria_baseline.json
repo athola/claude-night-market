@@ -1,5 +1,5 @@
 {
-  "max_missing_exit_criteria": 127,
-  "_comment": "Ratchet baseline for check_skill_exit_criteria_drift.py. This is the count of SKILL.md files under plugins/ that lack an '## Exit Criteria' heading (the backlog tracked in issue #454, required by .claude/rules/skill-exit-criteria.md). Lower this number whenever you backfill exit criteria to lock in the win. The pre-commit guard fails if the live count exceeds this value.",
-  "_recorded": "2026-05-28"
+  "max_missing_exit_criteria": 0,
+  "_comment": "Ratchet baseline for check_skill_exit_criteria_drift.py: the number of SKILL.md files under plugins/ permitted to lack an '## Exit Criteria' heading, as required by .claude/rules/skill-exit-criteria.md. The issue #454 backfill that started this at 127 is complete, so the allowance is 0 and the guard is a hard gate rather than a ratchet. Do not raise this to land a skill without exit criteria; write the section instead. Reference documentation under docs/ is out of scope per the rule and is excluded by the guard, not absorbed by this number.",
+  "_recorded": "2026-08-16"
 }

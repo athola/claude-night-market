@@ -175,6 +175,10 @@ docs/curation-log.md
 # memory-palace graph DB; written by the test suite into an otherwise
 # untracked runtime directory, regenerated on demand
 plugins/memory-palace/data/palaces/*.db
+# SQLite writes -shm/-wal beside the db; without these the test suite
+# leaves the tree dirty and `git status` stops being a clean signal.
+plugins/memory-palace/data/palaces/*.db-shm
+plugins/memory-palace/data/palaces/*.db-wal
 
 # Migration reports from Skill(night-market-model-and-harness-updates).
 # Each run writes one, and it names dated model IDs by necessity. The

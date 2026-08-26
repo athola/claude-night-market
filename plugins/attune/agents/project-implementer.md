@@ -128,7 +128,7 @@ REPEAT until all criteria met
 make lint          # ✓ No linting errors
 make typecheck     # ✓ Type checking passes
 make test          # ✓ All tests pass
-make coverage      # ✓ Coverage threshold met
+uv run pytest --cov  # ✓ Coverage threshold met
 ```
 
 **Acceptance Criteria Review**:

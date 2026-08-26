@@ -203,8 +203,8 @@ demo-skills: ## Validate scry skill and agent structure
 	@echo "Agent coverage:"
 	@echo "  media-recorder:     $$(test -f agents/media-recorder.md && echo '[OK]' || echo '[pending]')"
 
-demo-record-terminal: ## Demo record-terminal command (LIVE)
-	@echo "=== record-terminal Demo (LIVE) ==="
+demo-record-terminal: ## Demo record-terminal command
+	@echo "=== record-terminal Demo ==="
 	@echo ""
 	@echo "Command: /record-terminal"
 	@echo "Plugin: scry"
@@ -212,8 +212,8 @@ demo-record-terminal: ## Demo record-terminal command (LIVE)
 	@echo "This demonstrates record-terminal usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
-demo-record-browser: ## Demo record-browser command (LIVE)
-	@echo "=== record-browser Demo (LIVE) ==="
+demo-record-browser: ## Demo record-browser command
+	@echo "=== record-browser Demo ==="
 	@echo ""
 	@echo "Command: /record-browser"
 	@echo "Plugin: scry"

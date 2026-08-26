@@ -8,6 +8,9 @@ usage: /rules-eval [rules-path] [options]
 
 Evaluate and validate Claude Code rules in `.claude/rules/` directories. Checks YAML frontmatter, glob patterns, content quality, and directory organization.
 
+Invoke `Skill(abstract:rules-eval)`, which carries the scoring, the
+frontmatter and glob validations and the organization patterns.
+
 ## When To Use
 
 Use this command when you need to:
@@ -38,48 +41,6 @@ Avoid this command if:
 # Evaluate a plugin's rules
 /rules-eval plugins/conserve/.claude/rules/
 ```
-
-## Scoring System (100 points)
-
-| Category | Points | Focus |
-|----------|--------|-------|
-| Frontmatter Validity | 25 | YAML syntax, correct fields, no Cursor-specific fields |
-| Glob Pattern Quality | 20 | Syntax, specificity, quoting |
-| Content Quality | 25 | Actionable, concise, focused |
-| Organization | 15 | Naming conventions, directory structure |
-| Token Efficiency | 15 | Rule size, redundancy |
-
-### Quality Levels
-
-- **91-100**: Excellent - Production-ready
-- **76-90**: Good - Minor improvements possible
-- **51-75**: Basic - Needs optimization
-- **26-50**: Below Standards - Significant issues
-- **0-25**: Critical - Invalid or broken rules
-
-## Key Validations
-
-### Frontmatter
-- Valid YAML syntax
-- No Cursor-specific fields (`globs`, `alwaysApply`)
-- `paths` is a list of quoted glob patterns
-- Only known fields (`paths`, `description`)
-
-### Glob Patterns
-- Valid glob syntax
-- Not overly broad (`**/*`)
-- Properly quoted special characters
-
-### Content
-- Actionable guidance (not just descriptions)
-- Concise (< 500 tokens per file)
-- Single focused topic per file
-
-### Organization
-- Descriptive kebab-case filenames
-- No generic names (`rules1.md`, `misc.md`)
-- Subdirectories for large rule sets
-- No broken symlinks
 
 ## Implementation
 

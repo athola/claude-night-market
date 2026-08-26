@@ -192,13 +192,15 @@ If the last skill call returned a rate limit error:
    `budget.record_rate_limit(cooldown_minutes)`.
 2. Save `budget.json`.
 3. Alert the overseer (see `notify.py`).
-4. **Schedule in-session recovery** (2.1.71+): use
-   `CronCreate` to schedule a one-shot resume prompt at
-   the cooldown expiry time. The session stays alive and
-   resumes automatically with context preserved.
-5. **Fallback** (pre-2.1.71 or cooldown > 7 days): exit
-   gracefully. The watchdog checks cooldown before
-   relaunching.
+4. **Schedule in-session recovery** (attended sessions
+   only): use `CronCreate` for a one-shot resume at the
+   cooldown expiry. Its jobs live only in the running
+   session, so this works only when that session is still
+   alive and idle when the window renews.
+5. **Otherwise exit gracefully**, which is the default for
+   an unattended run. The watchdog reads the recorded
+   cooldown and relaunches after the window renews. Call
+   `window.plan_resume()` rather than choosing by hand.
 
 ### 8. Repeat
 
@@ -230,6 +232,26 @@ or a budget limit is reached.
 The intake stage steps (parse, validate, prioritize) are
 handled inline by the orchestrator.
 See `modules/intake.md` for details.
+
+### Delegation Inside the Loop
+
+The build and quality stages delegate execution by default through
+`Skill(conjure:delegation-core)`.
+An unattended loop is where the default earns most: nobody is present to
+notice that an external CLI was available and unused.
+
+The orchestrator does not decide per task.
+It invokes the mapped skill, and that skill applies the delegation
+posture with its own Keep Local clauses.
+
+A `providers_exhausted` result is not a step failure.
+The orchestrator must not retry the step or mark the work item failed on
+it. The skill completes the work locally and the pipeline advances.
+Treating it as a failure would burn the retry budget on a machine where
+nothing is broken.
+
+To run the egregore with no external models, export
+`CONJURE_DELEGATION=off` in the environment that launches it.
 
 ## Context Overflow Protocol
 
@@ -274,9 +296,17 @@ This serves two purposes:
    next heartbeat detects stalled items and re-enters the
    pipeline automatically.
 
-The cron task auto-expires after 7 days by default. Use
-`durable: true` to persist across restarts, or
-`CronDelete` to cancel early.
+Both depend on the session staying alive: a recurring job
+also lives only in the session that created it, and it fires
+only while the REPL is idle. Recurring jobs auto-expire after
+7 days, firing one last time before they are deleted, so a
+run longer than a week needs the heartbeat rescheduled.
+
+`durable: true` does not persist the job across restarts.
+The parameter is accepted, but the tool's description says
+it "has no effect" and that durable persistence is not
+available. Use `CronDelete` to cancel a job early, and the
+watchdog for anything that must survive the session.
 
 ## Token Budget Protocol
 

@@ -436,3 +436,58 @@ class TestValidateWorkingDirectory:
             assert result is True
         finally:
             os.chdir(original)
+
+
+class TestALiveLabelMeansSomethingRuns:
+    """Feature: only a target that runs a tool is labeled LIVE
+
+    As a reviewer reading a plugin's Makefile
+    I want the LIVE label to distinguish targets that execute something
+    So that `make demo-*` output is evidence rather than advertisement
+    """
+
+    @pytest.mark.unit
+    def test_a_target_with_no_live_command_is_not_labeled_live(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: A plugin/command pair absent from PLUGIN_TOOLS
+        Given generate_target falls through to the echo-only branch
+        When the target is generated
+        Then neither its help text nor its banner claims LIVE
+
+        The label was emitted unconditionally, so a target whose entire
+        recipe is `@echo` still advertised LIVE. That is the dogfooding
+        claim this generator exists to make, asserted where it is false.
+        """
+        gen = MakefileTargetGenerator(tmp_path)
+        result = gen.generate_target(
+            plugin="nosuchplugin",
+            command_name="nosuchcommand",
+            invocation="/nosuchcommand",
+        )
+
+        assert "LIVE" not in result
+        assert "runs nothing" in result
+
+    @pytest.mark.unit
+    def test_a_target_that_runs_a_tool_keeps_the_live_label(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: A plugin/command pair present in PLUGIN_TOOLS
+        Given generate_target embeds a real script invocation
+        When the target is generated
+        Then it is labeled LIVE
+
+        The label has to keep meaning something, or removing it from the
+        false cases would just delete the distinction instead of fixing
+        it.
+        """
+        gen = MakefileTargetGenerator(tmp_path)
+        result = gen.generate_target(
+            plugin="conserve",
+            command_name="bloat-scan",
+            invocation="/bloat-scan",
+        )
+
+        assert "LIVE" in result
+        assert "bloat_detector.py" in result

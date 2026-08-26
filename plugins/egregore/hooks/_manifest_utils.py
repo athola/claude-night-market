@@ -19,6 +19,20 @@ def consume_stdin() -> None:
         pass
 
 
+def read_stdin_payload() -> dict:
+    """Read the hook payload from stdin.
+
+    Returns an empty dict when stdin holds nothing parseable, so a
+    caller can read optional fields without gating on the shape of
+    the payload.
+    """
+    try:
+        payload = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
 def load_manifest_data(manifest_path: Path) -> dict | None:
     """Load and parse manifest JSON, returning None on failure."""
     try:

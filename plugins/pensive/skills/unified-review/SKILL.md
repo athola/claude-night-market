@@ -149,14 +149,24 @@ Use this mapping to resolve skill names to agent types:
 | makefile-review | `general-purpose` | Prompt: invoke `Skill(pensive:makefile-review)` |
 | shell-review | `general-purpose` | Prompt: invoke `Skill(pensive:shell-review)` |
 
-**Sub-agent isolation (required):**
+**Sub-agent isolation (required).** One lens must not color how the
+next is read. Two ways to get that, and the second only runs when the
+user asks for it:
 
-Dispatch ALL selected agents in a SINGLE parallel Agent tool
-call. Do not read or process any agent's output until ALL agents
-have returned their results. Reading the first result before the
-others are in anchors synthesis toward that perspective: each
-subsequent result gets evaluated against the first rather than
-independently. Collect all results, then synthesize once.
+| Path | How isolation holds |
+|------|---------------------|
+| Agent tool | Dispatch ALL selected agents in a SINGLE parallel call, and read no output until every agent has returned. Reading the first result anchors synthesis toward it: each later result gets judged against the first rather than independently. Collect all, then synthesize once |
+| `/pensive:unified-review` workflow (`workflows/unified-review.js`) | The script holds the results. It is not a reasoning entity, so it cannot be anchored by reading one stage before another, and findings pass between stages without entering anyone's context. Verification also starts per dimension instead of waiting for the slowest lens |
+
+Prefer the workflow when the dimension list is known before the work
+and each finding should face an adversarial check. Prefer the Agent
+tool when the roster has to adapt to what the first lens finds, or when
+no workflow was requested: a workflow never starts unasked.
+
+Its subagents run in `acceptEdits` whatever the session's permission
+mode, so the shipped script scopes its prompts to reading. And it has
+no filesystem, so what it returns is a claim that survived refutation,
+not proof-of-work evidence. Reproduce before acting on a finding.
 
 **Rules:**
 - Never use skill names as agent types (e.g., `pensive:math-review` is NOT an agent)

@@ -50,6 +50,7 @@ from aggregate_skill_logs import (
 
 def _make_entry(  # noqa: PLR0913 - test factory with many optional fields for flexible fixture creation
     outcome: str = "success",
+    *,
     duration_ms: int = 1000,
     rating: float | None = None,
     friction: list[str] | None = None,
@@ -76,6 +77,7 @@ def _make_entry(  # noqa: PLR0913 - test factory with many optional fields for f
 
 def _make_metrics(  # noqa: PLR0913 - test factory mirrors SkillLogSummary fields for flexible fixture creation
     skill: str = "myplugin:my-skill",
+    *,
     total: int = 10,
     success: int = 8,
     failure: int = 2,
@@ -84,6 +86,7 @@ def _make_metrics(  # noqa: PLR0913 - test factory mirrors SkillLogSummary field
     max_duration: int = 1000,
     success_rate: float = 80.0,
     avg_rating: float | None = None,
+    duration_samples: int = 1,
     common_friction: list[str] | None = None,
     improvement_suggestions: list[str] | None = None,
     recent_errors: list[str] | None = None,
@@ -101,6 +104,7 @@ def _make_metrics(  # noqa: PLR0913 - test factory mirrors SkillLogSummary field
         max_duration_ms=max_duration,
         success_rate=success_rate,
         avg_rating=avg_rating,
+        duration_samples=duration_samples,
         common_friction=common_friction or [],
         improvement_suggestions=improvement_suggestions or [],
         recent_errors=recent_errors or [],
@@ -869,6 +873,7 @@ def _make_result(  # noqa: PLR0913 - test factory mirrors AggregationResult fiel
     total_executions: int = 10,
     rated_executions: int = 0,
     dispatch_bound_skills: list[str] | None = None,
+    untimed_skills: list[str] | None = None,
     slow_skills: list[dict] | None = None,
     low_rated_skills: list[dict] | None = None,
 ) -> AggregationResult:
@@ -882,6 +887,7 @@ def _make_result(  # noqa: PLR0913 - test factory mirrors AggregationResult fiel
         metrics_by_skill={},
         rated_executions=rated_executions,
         dispatch_bound_skills=dispatch_bound_skills or [],
+        untimed_skills=untimed_skills or [],
     )
 
 
@@ -1418,3 +1424,349 @@ class TestLoadLogEntriesFiltersSynthetic:
 
         result = load_log_entries(log_dir, days_back=7, include_synthetic=True)
         assert len(result.get("abstract:skill-auditor", [])) == 1
+
+
+# ---------------------------------------------------------------------------
+# Tests: signal coverage does not conflate absent samples with measured ones
+# ---------------------------------------------------------------------------
+
+
+class TestUnmeasuredDurationsAreNotCalledDispatchBound:
+    """An absent duration sample is not a fast one.
+
+    `avg_duration_ms` falls back to 0.0 when a skill has no `duration_ms`
+    samples at all, and 0.0 is below every threshold. Classifying that as
+    dispatch-bound rebuilds, inside the coverage section, the same
+    conflation the section exists to remove: the report would state that a
+    skill "averages under 250ms" when nothing was ever timed.
+    """
+
+    @pytest.mark.unit
+    def test_a_skill_with_no_duration_samples_is_not_dispatch_bound(self) -> None:
+        """Scenario: the logger never wrote a duration for this skill.
+        Given entries that carry no duration_ms at all
+        When metrics are calculated
+        Then the skill records zero duration samples
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:never-timed",
+            [
+                {"outcome": "success", "qualitative_evaluation": None},
+                {"outcome": "success", "qualitative_evaluation": None},
+            ],
+        )
+        assert metrics.total_executions == 2
+        assert metrics.duration_samples == 0
+
+    @pytest.mark.unit
+    def test_a_measured_fast_skill_still_records_its_samples(self) -> None:
+        """Scenario: the skill was timed and was genuinely fast.
+        Given entries carrying a real 90ms sample
+        When metrics are calculated
+        Then the sample is counted, so it stays distinguishable from silence
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:really-fast",
+            [{"outcome": "success", "duration_ms": 90, "qualitative_evaluation": None}],
+        )
+        assert metrics.duration_samples == 1
+        assert metrics.avg_duration_ms == 90
+
+    @pytest.mark.unit
+    def test_coverage_separates_untimed_skills_from_dispatch_bound_ones(self) -> None:
+        """Scenario: one skill was never timed, another was timed and fast.
+        Given both in one aggregation
+        When the coverage section is rendered
+        Then the untimed skill is reported as unrecorded, not as a fast average
+        """
+        result = _make_result(
+            skills_analyzed=2,
+            total_executions=3,
+            dispatch_bound_skills=["abstract:really-fast"],
+            untimed_skills=["abstract:never-timed"],
+        )
+        text = "\n".join(format_signal_coverage(result))
+        assert "no duration recorded" in text
+        assert "abstract:never-timed" not in text.split("no duration recorded")[0]
+
+
+class TestRatedCoverageMatchesWhatTheDetectorsConsume:
+    """An evaluation without a rating cannot feed a rating detector."""
+
+    @pytest.mark.unit
+    def test_an_evaluation_without_a_rating_is_not_counted_as_rated(self) -> None:
+        """Scenario: an evaluation carries friction points but no rating.
+        Given one such entry
+        When metrics are calculated
+        Then it does not count toward rated executions
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:eval-without-rating",
+            [
+                {
+                    "outcome": "success",
+                    "qualitative_evaluation": {"friction_points": ["x"]},
+                }
+            ],
+        )
+        assert metrics.avg_rating is None
+        assert metrics.rated_executions == 0
+
+    @pytest.mark.unit
+    def test_an_evaluation_with_a_rating_is_counted(self) -> None:
+        """Scenario: an evaluation carries a rating.
+        Given one such entry
+        When metrics are calculated
+        Then it counts toward rated executions
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:eval-with-rating",
+            [{"outcome": "success", "qualitative_evaluation": {"rating": 4.0}}],
+        )
+        assert metrics.rated_executions == 1
+
+
+class TestSkillSummaryTableSeparatesAbsentSignalFromMeasurement:
+    """The summary table must not restate the conflation the report removes.
+
+    Signal Coverage reports which detectors received usable input. The
+    Skill Performance Summary is the table a reader actually scans, and it
+    rendered `avg_duration_ms` unconditionally: a skill with no duration
+    sample printed `0.0s`, the same cell a genuinely instantaneous skill
+    would print. The report therefore contradicted its own coverage
+    section. The Rating column had the mirror defect, testing the value for
+    truthiness rather than for presence, so a real rating of 0.0 displayed
+    as `N/A` and read as missing signal.
+    """
+
+    @pytest.mark.unit
+    def test_an_untimed_skill_does_not_render_as_zero_seconds(self) -> None:
+        """Scenario: the logger never recorded a duration for this skill.
+        Given metrics carrying no duration samples
+        When the summary table is rendered
+        Then the duration cell reports not-measured rather than 0.0s
+        """
+        metrics = {
+            "p:never-timed": _make_metrics(
+                skill="p:never-timed", avg_duration=0.0, duration_samples=0
+            )
+        }
+        row = next(
+            line for line in format_skill_summary(metrics) if "never-timed" in line
+        )
+        assert "0.0s" not in row
+        assert "N/A" in row
+
+    @pytest.mark.unit
+    def test_a_measured_fast_skill_still_renders_its_duration(self) -> None:
+        """Scenario: the skill was timed and was genuinely fast.
+        Given metrics carrying a real 90ms sample
+        When the summary table is rendered
+        Then the measured duration is shown, not suppressed as absent
+        """
+        metrics = {
+            "p:really-fast": _make_metrics(
+                skill="p:really-fast", avg_duration=90.0, duration_samples=1
+            )
+        }
+        row = next(
+            line for line in format_skill_summary(metrics) if "really-fast" in line
+        )
+        assert "0.1s" in row
+
+    @pytest.mark.unit
+    def test_a_skill_measured_at_zero_still_renders_a_duration(self) -> None:
+        """Scenario: a real sample happened to round to zero.
+        Given metrics carrying a sample whose average is 0.0
+        When the summary table is rendered
+        Then the cell shows the measurement rather than claiming none exists
+        """
+        metrics = {
+            "p:instant": _make_metrics(
+                skill="p:instant", avg_duration=0.0, duration_samples=3
+            )
+        }
+        row = next(line for line in format_skill_summary(metrics) if "instant" in line)
+        assert "0.0s" in row
+
+    @pytest.mark.unit
+    def test_a_rating_of_zero_is_not_reported_as_absent(self) -> None:
+        """Scenario: an evaluation carries a rating of exactly 0.0.
+        Given metrics whose avg_rating is 0.0 rather than None
+        When the summary table is rendered
+        Then the rating is shown, because it was measured
+        """
+        metrics = {"p:zero-rated": _make_metrics(skill="p:zero-rated", avg_rating=0.0)}
+        row = next(
+            line for line in format_skill_summary(metrics) if "zero-rated" in line
+        )
+        assert "0.0/5.0" in row
+
+
+class TestCoverageSeparatesUnrunInstrumentsFromWrongOnes:
+    """Naming an absence is not enough; the report must say whether to act.
+
+    Reported at #656 by the repository owner: a meta-learning system
+    settles into local minima, so a section that only labels signal as
+    missing lets a legitimate area of reflection be bypassed period after
+    period. Both absences in this report currently read alike, yet only
+    one of them is anyone's to close. Ratings are absent because a working
+    instrument was not run, and `/evaluate-skill` closes that gap. Durations
+    are absent because the measurement point brackets loading SKILL.md
+    rather than the work, so no command closes it and the gap holds until
+    the instrumentation moves. The first absence must not be carried
+    forward as a standing condition; the second may be.
+    """
+
+    @pytest.mark.unit
+    def test_absent_ratings_name_the_run_that_closes_the_gap(self) -> None:
+        """Scenario: no execution carries an evaluation.
+        Given a period with zero rated executions
+        When the coverage section is rendered
+        Then it states the instrument was not run and must not be carried forward
+        """
+        text = "\n".join(format_signal_coverage(_make_result(total_executions=101)))
+        assert "was not run" in text
+        assert "next period" in text
+
+    @pytest.mark.unit
+    def test_absent_durations_state_that_no_run_closes_the_gap(self) -> None:
+        """Scenario: every timed skill is dispatch-bound.
+        Given a period whose durations all fall under the dispatch floor
+        When the coverage section is rendered
+        Then it states no command closes this absence, so it may persist
+        """
+        text = "\n".join(
+            format_signal_coverage(
+                _make_result(skills_analyzed=2, dispatch_bound_skills=["p:a", "p:b"])
+            )
+        )
+        assert "No command closes this one" in text
+
+    @pytest.mark.unit
+    def test_measured_ratings_carry_no_repair_instruction(self) -> None:
+        """Scenario: the instrument was run and produced ratings.
+        Given a period with rated executions
+        When the coverage section is rendered
+        Then no repair instruction appears, because there is no gap to close
+        """
+        text = "\n".join(
+            format_signal_coverage(
+                _make_result(total_executions=20, rated_executions=5)
+            )
+        )
+        assert "was not run" not in text
+        assert "next period" not in text
+
+
+class TestCoverageOfAnEmptyPeriod:
+    """A period with no executions has no coverage to describe.
+
+    Rendering "0 of 0 executions carry a `qualitative_evaluation`" invites
+    the reader to treat an empty log as a measured ratings shortfall. The
+    report has no input at all, which is a different statement.
+    """
+
+    @pytest.mark.unit
+    def test_an_empty_period_says_so_instead_of_counting_zero_of_zero(self) -> None:
+        """Scenario: the period contains no executions whatsoever.
+        Given an aggregation over zero executions
+        When the coverage section is rendered
+        Then it reports the absent input rather than a 0 of 0 ratio
+        """
+        text = "\n".join(
+            format_signal_coverage(_make_result(skills_analyzed=0, total_executions=0))
+        )
+        assert "0 of 0" not in text
+        assert "no executions were recorded" in text
+
+    @pytest.mark.unit
+    def test_an_empty_period_still_renders_the_section(self) -> None:
+        """Scenario: the period contains no executions whatsoever.
+        Given an aggregation over zero executions
+        When the coverage section is rendered
+        Then the section header and its closing rule are still emitted
+        """
+        lines = format_signal_coverage(
+            _make_result(skills_analyzed=0, total_executions=0)
+        )
+        assert "## Signal Coverage" in lines
+        assert lines[-2] == "---"
+
+
+class TestImpossibleDurationsAreNotSamples:
+    """A negative duration is a corrupt reading, not a fast one.
+
+    Found by running #656's own unchecked manual test-plan item, which
+    regenerates the report against this repository's real logs:
+    `attune:mission-orchestrator` rendered an average of `-0.1s`, traced to
+    a single stored sample of `-2375`. `duration_ms` is the interval
+    between two hooks, so a mismatched or clock-adjusted pair can store an
+    interval no execution could have taken. Averaging it in drags the mean
+    below the dispatch floor and classifies the skill as averaging under
+    250ms on the strength of a value that cannot be a measurement. The
+    reading is discarded rather than clamped to zero, because clamping
+    would assert the execution took no time, which invents a measurement
+    where the PR's whole purpose is to stop doing that.
+    """
+
+    @pytest.mark.unit
+    def test_a_negative_duration_is_not_counted_as_a_sample(self) -> None:
+        """Scenario: the hook pair stored an impossible interval.
+        Given a lone entry whose duration_ms is negative
+        When metrics are calculated
+        Then it contributes no sample, so the skill counts as untimed
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:clock-skewed",
+            [{"outcome": "success", "duration_ms": -2375}],
+        )
+        assert metrics.duration_samples == 0
+        assert metrics.avg_duration_ms == 0.0
+
+    @pytest.mark.unit
+    def test_a_negative_duration_does_not_drag_a_real_average(self) -> None:
+        """Scenario: one corrupt reading sits among valid ones.
+        Given two 100ms samples and one negative sample
+        When metrics are calculated
+        Then the average reflects only the two real samples
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:mostly-fine",
+            [
+                {"outcome": "success", "duration_ms": 100},
+                {"outcome": "success", "duration_ms": -2375},
+                {"outcome": "success", "duration_ms": 100},
+            ],
+        )
+        assert metrics.duration_samples == 2
+        assert metrics.avg_duration_ms == 100
+
+    @pytest.mark.unit
+    def test_a_zero_duration_remains_a_valid_sample(self) -> None:
+        """Scenario: a genuine reading rounded to zero milliseconds.
+        Given an entry whose duration_ms is exactly 0
+        When metrics are calculated
+        Then it still counts, because zero is possible and negative is not
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:instant",
+            [{"outcome": "success", "duration_ms": 0}],
+        )
+        assert metrics.duration_samples == 1
+
+    @pytest.mark.unit
+    def test_max_duration_ignores_the_corrupt_reading(self) -> None:
+        """Scenario: a corrupt reading sits alongside a real peak.
+        Given one negative sample and one 500ms sample
+        When metrics are calculated
+        Then the maximum reports the real peak
+        """
+        metrics = calculate_skill_metrics(
+            "abstract:peaky",
+            [
+                {"outcome": "success", "duration_ms": -2375},
+                {"outcome": "success", "duration_ms": 500},
+            ],
+        )
+        assert metrics.max_duration_ms == 500

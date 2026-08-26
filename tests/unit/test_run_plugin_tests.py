@@ -141,6 +141,42 @@ class TestGitEnvScrub:
         )
 
     @pytest.mark.unit
+    def test_failure_branch_shows_the_run_that_actually_failed(self) -> None:
+        """
+        Scenario: a plugin's quiet run fails and its output is preserved
+        Given the failure branch captures the run into a temp file
+        When the branch reports the failure
+        Then it prints that file before removing it
+
+        The branch re-runs the plugin verbosely to get detail, but a re-run
+        is a different run. When the failure is intermittent the re-run
+        passes, the captured output is deleted unread, and the only record
+        of what broke is gone. Printing the captured file first means a
+        transient failure still leaves evidence.
+        """
+        text = SCRIPT.read_text()
+        # There is one failure branch per runner path (Makefile and pytest).
+        # Each spans from its "Tests failed" report to the `rm -f` that
+        # discards the capture. Checking only the first would let the second
+        # keep discarding evidence.
+        starts = [m.start() for m in re.finditer(r"Tests failed", text)]
+        assert len(starts) >= 2, (
+            f"expected a failure branch per runner path, found {len(starts)}"
+        )
+
+        silent = []
+        for start in starts:
+            end = text.index('rm -f "$temp_output"', start)
+            if 'cat "$temp_output"' not in text[start:end]:
+                silent.append(text[:start].count("\n") + 1)
+
+        assert not silent, (
+            f"failure branches at lines {silent} delete the captured output of "
+            "the run that failed without printing it; an intermittent failure "
+            "whose verbose re-run passes leaves no evidence at all"
+        )
+
+    @pytest.mark.unit
     def test_wrapper_removes_every_git_variable(self) -> None:
         """
         Scenario: the wrapper hides the whole GIT_* category from children
@@ -461,3 +497,48 @@ class TestTestsWithoutConfigAreAFailure:
             f"{result.stdout}"
         )
         assert "real" in result.stdout
+
+
+class TestEmptyCoverageFlagUnderSetU:
+    """Feature: a plugin with no coverage_threshold still runs its tests.
+
+    bash 3.2, which is what macOS ships, treats an empty array as unset,
+    so `"${cov_flag[@]}"` under `set -u` aborts the script with
+    `cov_flag[@]: unbound variable` before pytest is ever invoked. Every
+    plugin without a threshold -- cartograph among them -- reported
+    "Tests failed" having run no tests. bash 4+ does not reproduce it,
+    which is why it survived CI.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_empty_array_expansion_survives_set_u(self):
+        expansions = re.findall(r"\$\{?cov_flag\[@\][^\n]{0,24}", SCRIPT.read_text())
+        assert expansions, "cov_flag expansion disappeared; update this test"
+        for expansion in expansions:
+            assert expansion.startswith("${cov_flag[@]+"), (
+                f"{expansion!r} aborts under `set -u` on bash 3.2; use the "
+                '${cov_flag[@]+"${cov_flag[@]}"} guarded form'
+            )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_guarded_form_expands_to_nothing_when_empty(self):
+        script = 'set -u; cov_flag=(); set -- ${cov_flag[@]+"${cov_flag[@]}"}; echo $#'
+        result = subprocess.run(
+            ["bash", "-c", script], capture_output=True, text=True, check=False
+        )
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "0"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_guarded_form_still_passes_a_set_threshold(self):
+        script = (
+            "set -u; cov_flag=(--cov-fail-under=85); "
+            'set -- ${cov_flag[@]+"${cov_flag[@]}"}; echo "$# $1"'
+        )
+        result = subprocess.run(
+            ["bash", "-c", script], capture_output=True, text=True, check=False
+        )
+        assert result.stdout.strip() == "1 --cov-fail-under=85"

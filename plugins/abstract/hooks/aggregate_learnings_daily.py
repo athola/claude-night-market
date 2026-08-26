@@ -16,7 +16,6 @@ from __future__ import annotations
 import json
 import sys
 import time
-import traceback
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +31,12 @@ _candidate_dirs = [
 for _d in _candidate_dirs:
     if _d.is_dir() and str(_d) not in sys.path:
         sys.path.insert(0, str(_d))
+if str(_hooks_dir) not in sys.path:
+    sys.path.insert(0, str(_hooks_dir))
+
+from shared.best_effort import best_effort  # noqa: E402 - import after path setup
+
+_HOOK = "aggregate_learnings_daily"
 
 try:
     from aggregate_skill_logs import (
@@ -160,45 +165,26 @@ def run_aggregation() -> bool:
         True if aggregation succeeded, False on error.
 
     """
-    try:
-        result = _run_aggregate()
-        _write_learnings(result)
+
+    def _aggregate() -> bool:
+        _write_learnings(_run_aggregate())
         return True
-    except Exception:
-        # Hook must not block the user, but log to stderr for diagnostics
-        print(
-            f"[aggregate_learnings_daily] aggregation: {traceback.format_exc()}",
-            file=sys.stderr,
-        )
-        return False
+
+    return bool(best_effort(_HOOK, "aggregation", _aggregate))
 
 
 def run_auto_promote() -> None:
     """Chain to auto-promotion after successful aggregation."""
     if not _HAS_SCRIPTS:
         return
-    try:
-        _promote()
-    except Exception:
-        # Promotion is best-effort, but log to stderr for diagnostics
-        print(
-            f"[aggregate_learnings_daily] auto-promote: {traceback.format_exc()}",
-            file=sys.stderr,
-        )
+    best_effort(_HOOK, "auto-promote", _promote)
 
 
 def run_post_learnings() -> None:
     """Chain to learnings Discussion posting after aggregation."""
     if not _HAS_SCRIPTS:
         return
-    try:
-        _post_learnings()
-    except Exception:
-        # Posting is best-effort; log for diagnostics
-        print(
-            f"[aggregate_learnings_daily] post-learnings: {traceback.format_exc()}",
-            file=sys.stderr,
-        )
+    best_effort(_HOOK, "post-learnings", _post_learnings)
 
 
 def run_daily_pipeline() -> None:
@@ -223,22 +209,10 @@ def run_daily_pipeline() -> None:
 def main() -> None:
     """Hook entry point — reads stdin, runs pipeline, outputs JSON."""
     # Read and discard stdin (hook protocol)
-    try:
-        sys.stdin.read()
-    except Exception:
-        print(
-            f"[aggregate_learnings_daily] stdin read: {traceback.format_exc()}",
-            file=sys.stderr,
-        )
+    best_effort(_HOOK, "stdin read", sys.stdin.read)
 
     # Run the daily pipeline (silent, fast)
-    try:
-        run_daily_pipeline()
-    except Exception:
-        print(
-            f"[aggregate_learnings_daily] pipeline: {traceback.format_exc()}",
-            file=sys.stderr,
-        )
+    best_effort(_HOOK, "pipeline", run_daily_pipeline)
 
     # Always allow the prompt through
     print(format_hook_output())

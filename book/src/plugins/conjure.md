@@ -21,6 +21,7 @@ or when specialized models are better suited.
 | `delegation-core` | Framework for delegation decisions | Assessing if tasks should be offloaded |
 | `gemini-delegation` | Gemini CLI integration | Processing massive context windows |
 | `qwen-delegation` | Qwen MCP integration | Tasks requiring specific privacy needs |
+| `minimax-delegation` | MiniMax CLI (mmx) integration | Large-context batch analysis |
 
 ## Commands (Makefile)
 
@@ -82,6 +83,9 @@ Skill(conjure:gemini-delegation)
 
 # Force Qwen for privacy-sensitive tasks
 Skill(conjure:qwen-delegation)
+
+# Force MiniMax for large-context batch analysis
+Skill(conjure:minimax-delegation)
 ```
 
 ## Delegation Decision Framework

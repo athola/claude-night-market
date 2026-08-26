@@ -44,27 +44,32 @@ class TestMermaidPalaceMap:
     """Palace map as Mermaid flowchart."""
 
     def test_generates_valid_mermaid(self, renderer: PalaceRenderer) -> None:
+        """The map opens with a flowchart directive and names the palace."""
         mermaid = renderer.palace_map("p1")
         assert mermaid.startswith("flowchart TD")
         assert "Architecture Palace" in mermaid
 
     def test_includes_rooms_as_subgraphs(self, renderer: PalaceRenderer) -> None:
+        """Rooms become subgraphs so the diagram keeps the palace's shape."""
         mermaid = renderer.palace_map("p1")
         assert "subgraph" in mermaid
         assert "Design Patterns" in mermaid
         assert "Data Structures" in mermaid
 
     def test_includes_entities_in_rooms(self, renderer: PalaceRenderer) -> None:
+        """Entities are drawn inside the room they reside in."""
         mermaid = renderer.palace_map("p1")
         assert "Dependency Injection" in mermaid
         assert "Binary Tree" in mermaid
 
     def test_includes_synapse_edges(self, renderer: PalaceRenderer) -> None:
+        """Synapses are drawn as edges between the nodes they join."""
         mermaid = renderer.palace_map("p1")
         # Synapses should render as edges between entities
         assert "-->" in mermaid or "---" in mermaid
 
     def test_empty_palace_returns_minimal(self, graph: KnowledgeGraph) -> None:
+        """A palace with no contents still renders a valid, named diagram."""
         graph.upsert_entity("p_empty", "palace", "Empty Palace")
         renderer = PalaceRenderer(graph)
         mermaid = renderer.palace_map("p_empty")
@@ -72,6 +77,7 @@ class TestMermaidPalaceMap:
         assert "Empty Palace" in mermaid
 
     def test_nonexistent_palace_returns_empty(self, renderer: PalaceRenderer) -> None:
+        """An unknown palace renders nothing rather than an empty diagram."""
         mermaid = renderer.palace_map("nonexistent")
         assert mermaid == ""
 
@@ -80,11 +86,13 @@ class TestMermaidEntityGraph:
     """Single entity's relationships as Mermaid graph."""
 
     def test_entity_relationship_graph(self, renderer: PalaceRenderer) -> None:
+        """The entity view is left-to-right and centres on the named entity."""
         mermaid = renderer.entity_graph("e1")
         assert "flowchart LR" in mermaid
         assert "Dependency Injection" in mermaid
 
     def test_includes_connected_entities(self, renderer: PalaceRenderer) -> None:
+        """Neighbours of the focus entity are drawn alongside it."""
         mermaid = renderer.entity_graph("e1")
         # e1 has a synapse to e2
         assert "Observer Pattern" in mermaid
@@ -94,6 +102,7 @@ class TestMermaidSynapseHeatmap:
     """Synapse strength visualization."""
 
     def test_heatmap_renders_edges(self, renderer: PalaceRenderer) -> None:
+        """Edge thickness encodes synapse strength in the rendered diagram."""
         mermaid = renderer.synapse_heatmap("p1")
         assert "flowchart LR" in mermaid
         # Strong synapse (0.7) and weak synapse (0.3) should render differently
@@ -104,6 +113,7 @@ class TestEntityGraphTriples:
     """Entity graph with triples and incoming synapses."""
 
     def test_entity_graph_with_triples(self, graph: KnowledgeGraph) -> None:
+        """Triple predicates become edge labels."""
         graph.add_triple(subject_id="e1", predicate="uses", object_id="e3")
         renderer = PalaceRenderer(graph)
         mermaid = renderer.entity_graph("e1")
@@ -113,16 +123,19 @@ class TestEntityGraphTriples:
     def test_entity_graph_with_incoming(self, graph: KnowledgeGraph) -> None:
         # e2 has a synapse TO e1 (incoming for e1 perspective is
         # from e2->e3 perspective, but let's add one directly)
+        """Edges pointing at the focus entity are drawn, not just those leaving it."""
         graph.create_synapse("e3", "e1", strength=0.5)
         renderer = PalaceRenderer(graph)
         mermaid = renderer.entity_graph("e1")
         assert "Binary Tree" in mermaid
 
     def test_nonexistent_entity_returns_empty(self, graph: KnowledgeGraph) -> None:
+        """An unknown entity renders nothing."""
         renderer = PalaceRenderer(graph)
         assert renderer.entity_graph("nonexistent") == ""
 
     def test_synapse_heatmap_nonexistent(self, graph: KnowledgeGraph) -> None:
+        """An unknown palace renders no heatmap."""
         renderer = PalaceRenderer(graph)
         assert renderer.synapse_heatmap("nonexistent") == ""
 
@@ -131,24 +144,28 @@ class TestASCIIOverview:
     """ASCII box-drawing palace overview."""
 
     def test_ascii_overview(self, renderer: PalaceRenderer) -> None:
+        """The text view names the palace and its rooms without Mermaid."""
         ascii_art = renderer.ascii_overview("p1")
         assert "Architecture Palace" in ascii_art
         assert "Design Patterns" in ascii_art
         assert "Data Structures" in ascii_art
 
     def test_ascii_includes_entity_counts(self, renderer: PalaceRenderer) -> None:
+        """Each room carries the number of entities it holds."""
         ascii_art = renderer.ascii_overview("p1")
         # Should show entity counts per room
         assert "2" in ascii_art  # Design Patterns has 2 entities
         assert "1" in ascii_art  # Data Structures has 1 entity
 
     def test_ascii_empty_palace(self, graph: KnowledgeGraph) -> None:
+        """An empty palace is labeled as such rather than rendered blank."""
         graph.upsert_entity("p_empty", "palace", "Empty")
         renderer = PalaceRenderer(graph)
         ascii_art = renderer.ascii_overview("p_empty")
         assert "Empty" in ascii_art
 
     def test_nonexistent_palace_returns_empty(self, renderer: PalaceRenderer) -> None:
+        """An unknown palace renders nothing."""
         assert renderer.ascii_overview("nonexistent") == ""
 
 
@@ -161,11 +178,13 @@ class TestJourneyReplay:
     """Journey replay as Mermaid sequenceDiagram."""
 
     def test_no_journey_data_returns_empty(self, graph: KnowledgeGraph) -> None:
+        """With no waypoints there is nothing to replay."""
         renderer = PalaceRenderer(graph)
         result = renderer.journey_replay("e1")
         assert result == ""
 
     def test_single_waypoint_renders_sequence(self, graph: KnowledgeGraph) -> None:
+        """One waypoint is enough to produce a sequence diagram."""
         journey_id = graph.create_journey("e1", trigger="test")
         graph.add_waypoint(
             journey_id=journey_id,
@@ -179,6 +198,7 @@ class TestJourneyReplay:
         assert "p1" in result
 
     def test_multiple_waypoints_ordered(self, graph: KnowledgeGraph) -> None:
+        """Waypoints appear in the order they were traveled."""
         journey_id = graph.create_journey("e1", trigger="traverse")
         graph.add_waypoint(journey_id, 1, "p1", entity_delta='{"a": 1}')
         graph.add_waypoint(journey_id, 2, "p_second", entity_delta='{"b": 2}')
@@ -192,6 +212,7 @@ class TestJourneyReplay:
         assert idx_p1 < idx_p2
 
     def test_state_delta_shown_as_note(self, graph: KnowledgeGraph) -> None:
+        """A state change between waypoints is annotated rather than dropped."""
         journey_id = graph.create_journey("e2", trigger="note_test")
         graph.add_waypoint(journey_id, 1, "p1", entity_delta='{"status": "updated"}')
         renderer = PalaceRenderer(graph)
@@ -218,6 +239,7 @@ class TestTemporalView:
 
     def test_no_active_triples_returns_empty(self, graph: KnowledgeGraph) -> None:
         # Add an expired triple
+        """A moment with nothing valid renders nothing."""
         self._add_temporal_triple(graph, valid_from="2020-01-01", valid_to="2021-01-01")
         renderer = PalaceRenderer(graph)
         result = renderer.temporal_view("p1", "2022-01-01T00:00:00")
@@ -225,6 +247,7 @@ class TestTemporalView:
 
     def test_active_triple_renders_flowchart(self, graph: KnowledgeGraph) -> None:
         # valid_from in past, no expiry (always active)
+        """A triple valid at the given moment is drawn."""
         self._add_temporal_triple(graph, valid_from="2020-01-01", valid_to="")
         renderer = PalaceRenderer(graph)
         result = renderer.temporal_view("p1", "2022-01-01T00:00:00")
@@ -235,6 +258,7 @@ class TestTemporalView:
         self, graph: KnowledgeGraph
     ) -> None:
         # Empty valid_from means always-valid start
+        """A triple with no start date counts as valid at any moment."""
         self._add_temporal_triple(graph, valid_from="", valid_to="")
         renderer = PalaceRenderer(graph)
         result = renderer.temporal_view("p1", "2022-01-01T00:00:00")
@@ -242,12 +266,14 @@ class TestTemporalView:
 
     def test_future_triple_excluded(self, graph: KnowledgeGraph) -> None:
         # Starts in the far future
+        """A triple that starts later is absent from an earlier moment's view."""
         self._add_temporal_triple(graph, valid_from="2030-01-01", valid_to="")
         renderer = PalaceRenderer(graph)
         result = renderer.temporal_view("p1", "2022-01-01T00:00:00")
         assert result == ""
 
     def test_nonexistent_palace_returns_empty(self, graph: KnowledgeGraph) -> None:
+        """An unknown palace renders nothing at any moment."""
         renderer = PalaceRenderer(graph)
         assert renderer.temporal_view("no_palace", "2022-01-01T00:00:00") == ""
 
@@ -256,16 +282,19 @@ class TestAlgoInformedErGraph:
     """Algorithm-informed ER graph as Mermaid flowchart LR."""
 
     def test_produces_flowchart_lr(self, graph: KnowledgeGraph) -> None:
+        """The algorithm-informed view uses the left-to-right layout."""
         renderer = PalaceRenderer(graph)
         result = renderer.algo_informed_er_graph("p1")
         assert result.startswith("flowchart LR")
 
     def test_nonexistent_palace_returns_empty(self, graph: KnowledgeGraph) -> None:
+        """An unknown palace renders nothing."""
         renderer = PalaceRenderer(graph)
         result = renderer.algo_informed_er_graph("no_palace")
         assert result == ""
 
     def test_includes_entities(self, graph: KnowledgeGraph) -> None:
+        """Entities reach the diagram by name or by id."""
         renderer = PalaceRenderer(graph)
         result = renderer.algo_informed_er_graph("p1")
         # Should include at least some entity names
@@ -275,6 +304,7 @@ class TestAlgoInformedErGraph:
         self, graph: KnowledgeGraph
     ) -> None:
         # Add extra entity to create articulation point possibility
+        """Keystone styling is emitted only when the analysis found keystones."""
         graph.upsert_entity("e4", "concept", "Connector")
         graph.create_synapse("e1", "e4", strength=0.5)
         graph.create_synapse("e4", "e3", strength=0.5)

@@ -27,7 +27,7 @@ from memory_palace.corpus.staleness_signals import (
 
 @pytest.fixture
 def tree(tmp_path: Path) -> Path:
-    """A small file tree standing in for a working copy."""
+    """Build a small file tree standing in for a working copy."""
     (tmp_path / "a.py").write_text("original\n")
     (tmp_path / "b.py").write_text("also original\n")
     return tmp_path

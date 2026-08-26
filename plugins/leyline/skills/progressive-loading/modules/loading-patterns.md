@@ -423,7 +423,7 @@ class ModuleLoader:
 
 **Git Catchup**: Load `modules/git-catchup-patterns.md`
 - Triggers: git commands, branch mentions, commit analysis
-- Dependencies: leyline:mecw-patterns, sanctum:git-workspace-review
+- Dependencies: conserve:context-optimization, sanctum:git-workspace-review
 
 **Document Catchup**: Load `modules/document-analysis-patterns.md`
 - Triggers: markdown files, meeting notes, sprint docs
@@ -431,7 +431,7 @@ class ModuleLoader:
 
 **Log Catchup**: Load `modules/log-analysis-patterns.md`
 - Triggers: log files, time-series data, event streams
-- Dependencies: leyline:mecw-patterns
+- Dependencies: conserve:context-optimization
 ```
 
 ### With Conservation Context-Optimization

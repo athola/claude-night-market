@@ -10,7 +10,7 @@ tags:
 - token-optimization
 - lazy-loading
 dependencies:
-- leyline:mecw-patterns
+- conserve:context-optimization
 tools: []
 provides:
   infrastructure:
@@ -255,7 +255,7 @@ This skill provides foundational patterns referenced by:
 
 Reference in your skill's frontmatter:
 ```yaml
-dependencies: [leyline:progressive-loading, leyline:mecw-patterns]
+dependencies: [leyline:progressive-loading, conserve:context-optimization]
 progressive_loading: true
 ```
 **Verification:** Run the command with `--help` flag to verify availability.

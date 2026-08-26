@@ -10,10 +10,10 @@ This skill teaches how to create behavioral interventions for Claude that are em
 
 ```bash
 # Validate skill structure
-python scripts/skill_validator.py
+python3 plugins/abstract/scripts/skill_validator.py
 
 # From any skill directory
-python /path/to/skill-authoring/scripts/skill_validator.py --path SKILL.md
+python3 plugins/abstract/scripts/skill_validator.py --path SKILL.md
 ```
 
 ## Core Principles
@@ -22,7 +22,7 @@ python /path/to/skill-authoring/scripts/skill_validator.py --path SKILL.md
 2. **TDD Cycle**: RED (document failures) → GREEN (minimal fix) → REFACTOR (bulletproof)
 3. **Persuasion Research**: Based on studies showing 2x compliance improvement
 4. **Progressive Disclosure**: Keep SKILL.md under 500 lines, use modules for details
-5. **Anti-Rationalization**: Explicitly counter Claude's tendency to bypass requirements
+5. **Bounded autonomy**: State intent, constraints and exit criteria; leave the path between them to the session
 
 ## File Structure
 
@@ -34,12 +34,9 @@ skill-authoring/
 │   ├── persuasion-principles.md     # Compliance research
 │   ├── description-writing.md       # Discovery optimization
 │   ├── progressive-disclosure.md    # Token efficiency
-│   ├── anti-rationalization.md      # Bulletproofing
 │   ├── graphviz-conventions.md      # Process diagrams
 │   ├── testing-with-subagents.md    # Empirical validation
 │   └── deployment-checklist.md      # Final validation
-├── scripts/
-│   └── skill_validator.py           # Validation tool
 └── README.md                         # This file
 ```
 
@@ -84,13 +81,13 @@ Common patterns to counter:
 
 ```bash
 # Validate current skill
-python scripts/skill_validator.py
+python3 plugins/abstract/scripts/skill_validator.py
 
 # Validate other skill
-python scripts/skill_validator.py --path /path/to/SKILL.md
+python3 plugins/abstract/scripts/skill_validator.py --path /path/to/SKILL.md
 
 # Strict mode (warnings as errors)
-python scripts/skill_validator.py --strict
+python3 plugins/abstract/scripts/skill_validator.py --strict
 ```
 
 Exit codes:
@@ -127,7 +124,7 @@ Exit codes:
 - **Persuasion Principles**: `modules/persuasion-principles.md` - Research-backed compliance techniques
 - **Description Writing**: `modules/description-writing.md` - Discovery optimization patterns
 - **Progressive Disclosure**: `modules/progressive-disclosure.md` - File structure and token efficiency
-- **Anti-Rationalization**: `modules/anti-rationalization.md` - Bulletproofing against bypasses
+- **Skill Selection**: `../../shared-modules/skill-selection-judgment.md` - Deciding whether a skill applies
 - **Graphviz Conventions**: `modules/graphviz-conventions.md` - Process diagram standards
 - **Testing with Subagents**: `modules/testing-with-subagents.md` - Empirical validation methodology
 - **Deployment Checklist**: `modules/deployment-checklist.md` - Final validation gates

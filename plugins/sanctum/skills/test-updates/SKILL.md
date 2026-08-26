@@ -11,7 +11,7 @@ tags:
 - test-generation
 - pytest
 dependencies:
-- test-driven-development
+- superpowers:test-driven-development
 - git-workspace-review
 - file-analysis
 tools: []
@@ -280,7 +280,8 @@ the "average" of training data and get these wrong far
 too often.
 
 ### Phase 3: Implementation
-1. Write failing tests (RED) - see `modules/tdd-workflow.md`
+1. Write failing tests (RED) - `Skill(superpowers:test-driven-development)`
+   for the cycle; `modules/tdd-workflow.md` for what is local
 2. Implement minimal passing code (GREEN)
 3. Refactor for clarity (REFACTOR)
 
@@ -312,7 +313,8 @@ class TestGitWorkflow:
     """BDD-style tests for Git workflow operations."""
 
     def test_commit_workflow_with_staged_changes(self):
-        """
+        """Committing with staged changes produces a formatted commit.
+
         GIVEN a Git repository with staged changes
         WHEN the user runs the commit workflow
         THEN it should create a commit with proper message format

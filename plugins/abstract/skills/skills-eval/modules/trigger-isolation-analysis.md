@@ -155,5 +155,4 @@ python scripts/compliance_checker.py --plugin abstract --report markdown
 ## Related Resources
 
 - [Trigger Patterns](../../../shared-modules/trigger-patterns.md) - Description field templates
-- [Enforcement Language](../../../shared-modules/enforcement-language.md) - Intensity calibration
-- [Anti-Rationalization](../../../shared-modules/anti-rationalization.md) - Bypass prevention
+- [Anti-Rationalization](../../../shared-modules/skill-selection-judgment.md) - Bypass prevention

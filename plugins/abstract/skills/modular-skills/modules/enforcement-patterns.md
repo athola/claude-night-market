@@ -2,7 +2,7 @@
 
 ## Overview
 
-This module provides patterns for designing skill frontmatter that validates reliable discovery and appropriate enforcement. These patterns complement the shared modules in `shared-modules/` with skill-specific guidance.
+This module provides patterns for designing skill frontmatter so a session finds the skill when it fits and skips it when it does not. These patterns complement the shared modules in `shared-modules/` with skill-specific guidance.
 
 ## The Frontmatter-Only Trigger Pattern
 
@@ -37,7 +37,7 @@ When creating a new skill:
 
 - [ ] Write description with Triggers, Use when, DO NOT use when
 - [ ] Do NOT add "When to Use" section in body
-- [ ] Match enforcement language to skill category
+- [ ] Triggers describe fit accurately, without pressure language
 - [ ] Name alternative skills explicitly in negative triggers
 - [ ] Verify description is self-contained (readable alone)
 
@@ -52,78 +52,59 @@ Classify your skill to determine appropriate enforcement language:
 | **Technique** | Best practices, optional patterns | Caching, optimization |
 | **Reference** | Information retrieval | API docs, examples |
 
-## Enforcement Language by Category
+## How Hard Should the Description Push
 
-### Discipline-Enforcing Skills (Maximum Intensity)
+The description's job is discovery: helping a session find this skill
+when it is the right one, and skip it when it is not. That is a
+matching problem, and it is solved by accurate triggers rather than by
+pressure.
 
-```yaml
-description: |
-  [Capability statement].
+This section used to prescribe four intensity tiers, escalating to
+"YOU MUST", "NON-NEGOTIABLE", "NEVER skip", "No exceptions" for the
+top one. The workflow tier told the reader: "If you think this doesn't
+apply, reconsider - it probably does."
 
-  Triggers: [keywords]
+That instruction is the problem in one line. It tells a session to
+distrust its own read of the situation in favour of an author who
+never saw the situation. When the author was right, it adds nothing
+that accurate triggers would not have. When the author was wrong, it
+is the only thing standing between the session and the correct call.
 
-  Use when: [conditions]
-
-  DO NOT use when: [exclusions] - use [alternative] instead.
-
-  YOU MUST use this skill when [critical conditions]. This is NON-NEGOTIABLE.
-  NEVER skip this skill when [requirements].
-  No exceptions without explicit user permission.
-```
-
-**Key phrases**: "YOU MUST", "NON-NEGOTIABLE", "NEVER skip", "No exceptions"
-
-### Workflow Skills (High Intensity)
+Write the description to be accurate about fit:
 
 ```yaml
 description: |
-  [Capability statement].
+  [ACTION VERB + CAPABILITY]. [1-2 sentences max]
 
-  Triggers: [keywords]
+  Triggers: [comma-separated keywords for discovery]
 
-  Use when: [conditions]
+  Use when: [specific scenarios, symptoms, or contexts]
 
-  DO NOT use when: [exclusions] - use [alternative] instead.
-
-  Use this skill BEFORE starting [task type]. Check even if unsure.
-  If you think this doesn't apply, reconsider - it probably does.
+  DO NOT use when: [explicit negative triggers] - use [ALTERNATIVE] instead.
 ```
 
-**Key phrases**: "BEFORE starting", "Check even if unsure", "reconsider"
+If a skill is being passed over where it genuinely applies, the fix is
+in the triggers: the words are wrong, too generic, or absent. Pressure
+language papers over a discovery bug and leaves it in place.
 
-### Technique Skills (Medium Intensity)
+### Where a Line Genuinely Has to Hold
 
-```yaml
-description: |
-  [Capability statement].
+A few skills guard something unrecoverable: a trust boundary, a
+destructive command, a safety-critical contract. Those say so plainly,
+once, in the body, naming what is behind the line:
 
-  Triggers: [keywords]
-
-  Use when: [conditions]
-
-  DO NOT use when: [exclusions] - use [alternative] instead.
-
-  Consider this skill when [symptoms appear].
+```markdown
+Never pass unvalidated input to this API. It reaches the query
+planner directly, and `tests/security/test_injection.py` is what
+catches a regression here.
 ```
 
-**Key phrases**: "Use when", "Consider when", "Recommended for"
-
-### Reference Skills (Low Intensity)
-
-```yaml
-description: |
-  [Capability statement].
-
-  Triggers: [keywords]
-
-  Use when: [conditions]
-
-  DO NOT use when: [exclusions] - use [alternative] instead.
-
-  Available for [use cases]. Consult when needed.
-```
-
-**Key phrases**: "Available for", "Consult when needed"
+Plain, specific, and checkable beats emphatic. Note the difference
+from the tiers above: this constrains one concrete action and says
+why, rather than instructing a reader not to trust their own judgment
+in general. `Skill(pensive:safety-critical-patterns)` is the
+documented case where defense in depth is required by design, and it
+is deliberately exempt from this guidance.
 
 ## Negative Trigger Design
 
@@ -215,6 +196,5 @@ Expected output:
 ## Related Resources
 
 - [Trigger Patterns](../../../shared-modules/trigger-patterns.md) - Description field templates
-- [Enforcement Language](../../../shared-modules/enforcement-language.md) - Intensity calibration
-- [Anti-Rationalization](../../../shared-modules/anti-rationalization.md) - Bypass prevention
+- [Instruction Strength](../../skill-authoring/modules/persuasion-principles.md) - How much to push, and when
 - [Trigger Isolation Analysis](../../skills-eval/modules/trigger-isolation-analysis.md) - Evaluation criteria

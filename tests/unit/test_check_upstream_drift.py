@@ -219,7 +219,7 @@ def test_dated_id_outside_gated_surface_is_drift(tmp_path: Path) -> None:
 
 
 def test_dated_id_inside_gated_surface_is_skipped(tmp_path: Path) -> None:
-    """Agent frontmatter and SKILL.md are already gated elsewhere.
+    """Agent files and SKILL.md frontmatter are already gated elsewhere.
 
     Reporting them here would double-count a violation that
     check_agent_model_matrix.py already fails on.
@@ -229,7 +229,89 @@ def test_dated_id_inside_gated_surface_is_skipped(tmp_path: Path) -> None:
     agent.write_text("model: claude-opus-4-6\n", encoding="utf-8")
     skill = tmp_path / "skills" / "s" / "SKILL.md"
     skill.parent.mkdir(parents=True)
-    skill.write_text("claude-sonnet-4-6\n", encoding="utf-8")
+    skill.write_text(
+        "---\nname: s\nmodel: claude-sonnet-4-6\n---\n\nBody.\n", encoding="utf-8"
+    )
+    assert cud.detect_dated_ids([tmp_path]) == []
+
+
+def test_dated_id_in_a_skill_body_is_drift(tmp_path: Path) -> None:
+    """The matrix gate reads a skill's ``model:`` field, not its prose.
+
+    ``check_skill`` parses frontmatter and checks that one value, so a
+    dated ID anywhere in the body is outside it. This gate then skipped
+    the whole file on the assumption the other one covered it, and the
+    body fell between them. A SKILL.md carrying an SDK snippet pins a
+    model exactly as a docs guide does, which is the case PR #659 found.
+    """
+    skill = tmp_path / "skills" / "s" / "SKILL.md"
+    skill.parent.mkdir(parents=True)
+    skill.write_text(
+        "---\nname: s\nmodel: sonnet\n---\n\nCall claude-3-5-sonnet-20241022.\n",
+        encoding="utf-8",
+    )
+    drifts = cud.detect_dated_ids([tmp_path])
+    assert len(drifts) == 1
+    assert "claude-3-5-sonnet-20241022" in drifts[0].detail
+
+
+def test_default_scan_covers_docs() -> None:
+    """A ratchet that never reads ``docs/`` cannot police prose examples.
+
+    ``DEFAULT_SCAN`` held only ``plugins/`` and ``.claude/``, so a runnable
+    SDK snippet in ``docs/guides/`` was outside the gate entirely. That is
+    the second half of why a retired ID survived here: the pattern could
+    not match it, and nothing looked in the directory it lived in.
+
+    ``scripts/`` and ``tests/`` stay out on purpose. The only dated IDs
+    there are this gate's own specimens, so counting them would make the
+    ratchet measure its own test fixtures.
+    """
+    scanned = {p.name for p in cud.DEFAULT_SCAN}
+    assert "docs" in scanned
+    assert {"scripts", "tests"}.isdisjoint(scanned)
+
+
+@pytest.mark.parametrize(
+    "legacy_id",
+    [
+        "claude-3-5-sonnet-20241022",
+        "claude-3-opus-20240229",
+        "claude-3-7-sonnet-20250219",
+        "claude-3-5-haiku-20241022",
+        "claude-2.1",
+        "claude-instant-1.2",
+    ],
+)
+def test_pre_4x_naming_is_detected(tmp_path: Path, legacy_id: str) -> None:
+    """Anthropic moved the version from before the family name to after it.
+
+    Claude 3.x and earlier wrote ``claude-3-5-sonnet-20241022``; Claude 4
+    onward writes ``claude-sonnet-4-6``. A detector that encodes only the
+    later shape reads every retired 3.x ID as ordinary prose, which is how
+    ``claude-3-5-sonnet-20241022`` sat in a docs example past its 2025-10-28
+    retirement without this ratchet moving. These are the IDs most worth
+    catching: unlike a legacy 4.x ID, calling one returns a 404.
+    """
+    target = tmp_path / "docs" / "guide.md"
+    target.parent.mkdir(parents=True)
+    target.write_text(f"Use {legacy_id} here.\n", encoding="utf-8")
+    drifts = cud.detect_dated_ids([tmp_path])
+    assert len(drifts) == 1
+    assert legacy_id in drifts[0].detail
+
+
+def test_tier_aliases_are_not_dated_ids(tmp_path: Path) -> None:
+    """Widening the pattern must not start flagging the bare aliases.
+
+    ``haiku``/``sonnet``/``opus``/``fable`` are what the gate wants agents
+    to pin, and ``claude-code`` is a product name, not a model.
+    """
+    target = tmp_path / "docs" / "guide.md"
+    target.parent.mkdir(parents=True)
+    target.write_text(
+        "Pin sonnet or opus. claude-code is the harness.\n", encoding="utf-8"
+    )
     assert cud.detect_dated_ids([tmp_path]) == []
 
 

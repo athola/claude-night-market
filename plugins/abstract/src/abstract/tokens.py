@@ -117,13 +117,6 @@ class TokenAnalyzer:
 
     """
 
-    # Standard token estimation ratio (characters per token)
-    CHARS_PER_TOKEN = CHARS_PER_TOKEN
-
-    # Multipliers for different content types
-    FRONTMATTER_MULTIPLIER = FRONTMATTER_MULTIPLIER
-    CODE_MULTIPLIER = CODE_MULTIPLIER
-
     @staticmethod
     def analyze_content(content: str) -> dict[str, int]:
         """Analyze content and return token breakdown by component type.
@@ -169,11 +162,11 @@ class TokenAnalyzer:
         # Calculate tokens for each component with appropriate multipliers
         frontmatter_tokens = TokenAnalyzer._estimate_tokens(
             frontmatter,
-            TokenAnalyzer.FRONTMATTER_MULTIPLIER,
+            FRONTMATTER_MULTIPLIER,
         )
         code_tokens = TokenAnalyzer._estimate_tokens(
             code_content,
-            TokenAnalyzer.CODE_MULTIPLIER,
+            CODE_MULTIPLIER,
         )
 
         # Body tokens exclude code blocks to avoid double counting
@@ -285,7 +278,7 @@ class TokenAnalyzer:
         """
         if not text:
             return 0
-        return int((len(text) / TokenAnalyzer.CHARS_PER_TOKEN) * multiplier)
+        return int((len(text) / CHARS_PER_TOKEN) * multiplier)
 
 
 # Module-level convenience functions for common use cases

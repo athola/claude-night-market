@@ -1,3 +1,8 @@
+---
+name: run-profiler
+description: Profile Python code for performance bottlenecks using cProfile, memory_profiler, or py-spy.
+---
+
 # Run Profiler Command
 
 ## Usage

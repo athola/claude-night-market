@@ -361,6 +361,22 @@ repos:
         stages: [pre-commit]
 
       # =================================================================
+      # Prose Wrap Ratchet
+      # Fails only when prose lines running past the 80-column wrap in
+      # .claude/rules/markdown-formatting.md exceed the committed
+      # baseline (issue #681). A ratchet, not a hard gate: the backlog
+      # predates the guard. Deterministic, idempotent, read-only.
+      # =================================================================
+
+      - id: check-prose-wrap-drift
+        name: Block New Unwrapped Markdown Prose
+        entry: python3 scripts/check_prose_wrap_drift.py
+        language: system
+        files: \.md$
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # =================================================================
       # Agent Model/Effort Matrix Gate
       # Subagents inherit the session model when 'model:' is absent, so
       # an unpinned search agent on an Opus session is an Opus agent.
@@ -433,13 +449,13 @@ repos:
       # 2. Fix auto-fixable lint issues
       - id: ruff-fix
         name: Ruff - Fix
-        entry: uv run ruff check --fix --config pyproject.toml
+        entry: uv run ruff check --fix
         language: system
         types: [python]
       # 3. Verify no remaining lint issues
       - id: ruff-check
         name: Ruff - Check
-        entry: uv run ruff check --config pyproject.toml
+        entry: uv run ruff check
         language: system
         types: [python]
       # 4. Flag when the locked ruff lags the latest PyPI release

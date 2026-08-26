@@ -508,7 +508,7 @@ class TestMain:
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.10")
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])
@@ -519,7 +519,7 @@ class TestMain:
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.45")
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])
@@ -532,7 +532,7 @@ class TestMain:
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.85")
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])
@@ -548,7 +548,7 @@ class TestMain:
         monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])
@@ -561,7 +561,7 @@ class TestMain:
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.10")
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("not json"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
 
@@ -572,7 +572,7 @@ class TestMain:
         hook_input = json.dumps({"context_usage": 0.45})
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO(hook_input))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])
@@ -587,7 +587,7 @@ class TestMain:
         hook_input = json.dumps({"context_usage": 5.0})
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO(hook_input))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
 
@@ -606,7 +606,7 @@ class TestEstimationSeverityCapping:
         )
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])
@@ -627,7 +627,7 @@ class TestEstimationSeverityCapping:
         )
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])
@@ -643,7 +643,7 @@ class TestEstimationSeverityCapping:
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.85")
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])
@@ -661,7 +661,7 @@ class TestEstimationSeverityCapping:
         )
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])
@@ -679,7 +679,7 @@ class TestEstimationSeverityCapping:
         )
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])
@@ -696,7 +696,7 @@ class TestEstimationSeverityCapping:
         )
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
         rc = main()
         assert rc == 0
         output = json.loads(captured[0])

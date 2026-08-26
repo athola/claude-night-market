@@ -201,6 +201,5 @@ All Python scripts in this project use the abstract package:
 - `validate_abstract.py`: Pre-commit validation hook
 
 **Nested Scripts** (skills/*/scripts/):
-- `skills/skills-eval/scripts/skill_utils.py`: Imports and extends abstract.utils
 
 This eliminates ~449 lines of duplicate code across the project.

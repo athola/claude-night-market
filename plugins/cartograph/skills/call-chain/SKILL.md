@@ -1,6 +1,6 @@
 ---
 name: call-chain
-role: library
+role: entrypoint
 description: Traces execution paths through the code graph with criticality scoring and Mermaid charts. Use when understanding how a function propagates through the system.
 ---
 

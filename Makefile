@@ -29,7 +29,7 @@ $(1):
 endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
-.PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan
+.PHONY: help all test lint typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan
 
 # Default target
 all: lint test ## Run lint and test across all plugins
@@ -94,7 +94,10 @@ lint: ## Run linting on all plugins (ALL code, not just changed)
 	@echo "Ruff format passed"
 	@echo ""
 	@echo ">>> Running ruff check with auto-fix on plugins/..."
-	@uv run ruff check --fix --config pyproject.toml plugins/ || (echo "Ruff check failed" && exit 1)
+	@# No --config: ruff resolves each file against its own plugin's
+	@# pyproject.toml, which extends the root floor. That yields the union
+	@# of repo-wide and plugin-specific rules rather than the root subset.
+	@uv run ruff check --fix plugins/ || (echo "Ruff check failed" && exit 1)
 	@echo "Ruff check passed"
 	@echo ""
 	@echo ">>> Running ruff format again (to fix any formatting from check)..."
@@ -117,6 +120,9 @@ status: ## Show status of all plugins
 		echo ">>> $$plugin:"; \
 		$(MAKE) -C $$plugin status 2>/dev/null || echo "  (status unavailable)"; \
 	done
+
+prune-plugin-cache: ## Delete plugin cache versions nothing installed points at
+	@python3 scripts/prune_plugin_cache.py $(if $(DRY_RUN),--dry-run,)
 
 clean: ## Clean all plugin artifacts
 	@echo "Cleaning all plugins..."

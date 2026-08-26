@@ -106,10 +106,13 @@ skill's guidance.
    Claude to summarize, dropping requirements.
 2. **Requirements buried**. Critical requirements appear
    below 200 lines of preamble.
-3. **Hedging language**. "You might want to consider X"
-   reads as optional. Claude treats it as optional.
-4. **Rationalizations not blocked**. The user prompt invites
-   a shortcut and the skill has no explicit counter.
+3. **Strength mismatch**. A constraint that is genuinely
+   unrecoverable is phrased as a suggestion, or a defensible
+   default is phrased as an order.
+4. **Missing context**. The skill states a rule without the
+   local fact that makes it the right rule here, so a session
+   that meets a situation the author did not imagine has
+   nothing to reason from.
 
 ### Diagnosis
 
@@ -126,10 +129,19 @@ SKILL.md exceeds 500 lines, move detail to modules.
 
 ### Fix
 
-Tighten the language. Replace "consider," "should," and
-"might" with "must" and "required." `SKILL.md` lists the
-anti-rationalization module for the language hierarchy and the
-persuasion-principles module for the directive forms that work best.
+Match each statement to what it is. The persuasion-principles
+module carries the strength budget: invariant for the
+unrecoverable, default for this repository's pick among
+defensible options, map for everything else. Most content
+belongs in the third row, and raising everything to "must"
+costs accuracy in exactly the situations the author did not
+anticipate.
+
+The older advice here was to escalate phrasing until the model
+complied. `../../../shared-modules/skill-selection-judgment.md`
+records why it was retired: compliance and correctness are
+different measurements, and phrasing tuned to defeat a session's
+judgment defeats it when that judgment was the better one.
 
 If the skill is too long, split using the patterns in the
 progressive-disclosure module.

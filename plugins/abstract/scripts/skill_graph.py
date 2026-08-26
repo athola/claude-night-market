@@ -43,8 +43,14 @@ _BARE_SKILL_NAME_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 # Map of frontmatter field -> whether bare names resolve to skill refs.
 # `dependencies:` allows bare names (sibling-skill shorthand);
 # `modules:` only counts fully-qualified `plugin:name` entries.
+# `orchestrates:` is the hub spelling of the same claim: tome:research
+# and pensive:unified-review list the skills they dispatch under it
+# rather than under `dependencies:`. Both declare "this skill loads that
+# one"; only the verb differs. Reading one and not the other left every
+# skill a hub drives counted as an uncalled library.
 _FRONTMATTER_DEP_FIELDS: tuple[tuple[str, bool], ...] = (
     ("dependencies", True),
+    ("orchestrates", True),
     ("modules", False),
 )
 
@@ -72,6 +78,9 @@ class SkillNode:
     path: Path
     description: str = ""
     role: str = ""
+    # Raw SKILL.md text, read once by _discover_skills so that reference
+    # extraction does not re-read every file (three reads per skill before).
+    text: str = ""
 
     def __str__(self) -> str:
         """Return the canonical 'plugin:name' identifier."""
@@ -127,7 +136,11 @@ def extract_skill_references(skill_md: Path) -> set[tuple[str | None, str]]:
     Self-references (a skill referencing itself in examples) are not filtered
     here; the caller decides.
     """
-    text = skill_md.read_text(encoding="utf-8", errors="replace")
+    return _refs_from_text(skill_md.read_text(encoding="utf-8", errors="replace"))
+
+
+def _refs_from_text(text: str) -> set[tuple[str | None, str]]:
+    """Extract Skill() references from already-read SKILL.md text."""
     refs: set[tuple[str | None, str]] = set()
     for match in _SKILL_REF_RE.finditer(text):
         first, second = match.group(1), match.group(2)
@@ -138,23 +151,6 @@ def extract_skill_references(skill_md: Path) -> set[tuple[str | None, str]]:
             # unqualified form
             refs.add((None, first))
     return refs
-
-
-def _parse_frontmatter_field(text: str, field_name: str) -> str:
-    """Best-effort extraction of a top-level frontmatter scalar.
-
-    Note: ``field_name`` is named explicitly to avoid shadowing
-    ``dataclasses.field`` imported at module top (S1, PR #470).
-    """
-    pattern = re.compile(rf"^{field_name}:\s*(.*)$", re.MULTILINE)
-    m = pattern.search(text)
-    if not m:
-        return ""
-    val = m.group(1).strip()
-    # Strip surrounding quotes
-    if val.startswith(("'", '"')) and val.endswith(("'", '"')):
-        val = val[1:-1]
-    return val
 
 
 _FRONTMATTER_BLOCK_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
@@ -249,7 +245,13 @@ def extract_frontmatter_skill_refs(
     File-path entries (e.g. ``modules/usage.md``) are filtered out
     everywhere.
     """
-    text = skill_md.read_text(encoding="utf-8", errors="replace")
+    return _fm_refs_from_text(
+        skill_md.read_text(encoding="utf-8", errors="replace"), default_plugin
+    )
+
+
+def _fm_refs_from_text(text: str, default_plugin: str) -> set[tuple[str, str]]:
+    """Extract frontmatter dep refs from already-read SKILL.md text."""
     fm = _parse_frontmatter(text)
     refs: set[tuple[str, str]] = set()
     for field_name, allow_bare in _FRONTMATTER_DEP_FIELDS:
@@ -280,10 +282,11 @@ def _discover_skills(plugins_root: Path) -> list[SkillNode]:
         except ValueError:
             continue
         text = skill_md.read_text(encoding="utf-8", errors="replace")
+        fm = _parse_frontmatter(text)
         # frontmatter name overrides directory name if present
-        fm_name = _parse_frontmatter_field(text, "name") or name
-        description = _parse_frontmatter_field(text, "description")
-        role = _parse_frontmatter_field(text, "role")
+        fm_name = str(fm.get("name") or "") or name
+        description = str(fm.get("description") or "")
+        role = str(fm.get("role") or "")
         if role and role not in VALID_ROLES:
             role = ""  # ignore unknown role values rather than error
         nodes.append(
@@ -293,6 +296,7 @@ def _discover_skills(plugins_root: Path) -> list[SkillNode]:
                 path=skill_md,
                 description=description,
                 role=role,
+                text=text,
             )
         )
     return nodes
@@ -319,10 +323,10 @@ def build_graph(plugins_root: Path) -> SkillGraph:
 
     for node in nodes:
         src_key = str(node)
-        # Inline Skill() refs.
-        inline_refs = extract_skill_references(node.path)
+        # Inline Skill() refs, from the text _discover_skills already read.
+        inline_refs = _refs_from_text(node.text)
         # Frontmatter declarative deps; bare names resolve to same-plugin.
-        fm_refs = extract_frontmatter_skill_refs(node.path, default_plugin=node.plugin)
+        fm_refs = _fm_refs_from_text(node.text, default_plugin=node.plugin)
         # Merge: inline refs may have None plugin (unqualified, ignored
         # below); frontmatter refs always have a concrete plugin.
         all_refs: set[tuple[str | None, str]] = set(inline_refs)
@@ -420,6 +424,7 @@ KNOWN_EXTERNAL_PLUGINS = frozenset(
         "feature-dev",
         "frontend-design",
         "interface-design",
+        "plugin-dev",
         "plugin-developer",
         "pr-review-toolkit",
         "ralph-wiggum",

@@ -1,11 +1,13 @@
 [project]
 name = "scribe"
-version = "1.9.18"
+version = "1.9.19"
 description = "Documentation review, cleanup, and generation with AI slop detection and style learning"
 requires-python = ">=3.9"
 dependencies = ["pyyaml"]
 
 [tool.ruff]
+# Inherit the repo-wide rule floor; this file may only add.
+extend = "../../pyproject.toml"
 target-version = "py39"
 line-length = 88
 exclude = [

@@ -8,7 +8,7 @@ resolution-markers = [
 
 [[package]]
 name = "archetypes"
-version = "1.9.18"
+version = "1.9.19"
 source = { virtual = "." }
 
 [package.dev-dependencies]

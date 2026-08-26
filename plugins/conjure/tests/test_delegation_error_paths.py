@@ -8,14 +8,21 @@ and adds mock verification (assert_called_with / call_args).
 from __future__ import annotations
 
 import json
+import logging
 import subprocess
 import time
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from scripts.delegation_executor import Delegator, ExecutionResult
+from scripts.delegation_executor import (
+    FALLBACK_DISABLED,
+    FALLBACK_EXHAUSTED,
+    Delegator,
+    ExecutionResult,
+)
 
 # -------------------------------------------------------------------
 # smart_delegate - no services
@@ -26,21 +33,27 @@ class TestSmartDelegateNoServices:
     """Test smart_delegate() when no services are available."""
 
     @patch.object(Delegator, "verify_service")
-    def test_smart_delegate_raises_when_no_services_available(
+    def test_smart_delegate_reports_when_no_services_available(
         self,
         mock_verify: MagicMock,
+        temp_config_dir,
     ) -> None:
-        """smart_delegate raises RuntimeError when no services configured."""
+        """smart_delegate returns a fallback signal when nothing can take the work.
+
+        This asserted a RuntimeError while delegation was opt-in. Under the
+        default-on policy an operator with no CLI installed is the ordinary
+        case, so an empty chain became a returned result the caller acts on.
+        """
         mock_verify.return_value = (False, ["Service not available"])
-        delegator = Delegator()
+        delegator = Delegator(config_dir=temp_config_dir)
 
-        with pytest.raises(RuntimeError, match="No delegation services available"):
-            delegator.smart_delegate(
-                "test prompt",
-                files=None,
-                requirements=None,
-            )
+        result = delegator.smart_delegate(
+            "test prompt",
+            files=None,
+            requirements=None,
+        )
 
+        assert result.fallback_reason == FALLBACK_EXHAUSTED
         # Verify every service was probed
         assert mock_verify.call_count == len(delegator.services)
 
@@ -48,8 +61,9 @@ class TestSmartDelegateNoServices:
     def test_smart_delegate_tries_all_services_before_failing(
         self,
         mock_verify: MagicMock,
+        temp_config_dir,
     ) -> None:
-        """smart_delegate checks all services before raising error."""
+        """smart_delegate checks all services before reporting the fallback."""
         checked: list[str] = []
 
         def track_verify(name: str) -> tuple[bool, list[str]]:
@@ -57,10 +71,9 @@ class TestSmartDelegateNoServices:
             return False, [f"{name} not available"]
 
         mock_verify.side_effect = track_verify
-        delegator = Delegator()
+        delegator = Delegator(config_dir=temp_config_dir)
 
-        with pytest.raises(RuntimeError):
-            delegator.smart_delegate("test prompt")
+        assert delegator.smart_delegate("test prompt").fallback_reason
 
         assert "gemini" in checked
         assert "qwen" in checked
@@ -85,6 +98,7 @@ class TestSmartDelegateNoServices:
         mock_execute: MagicMock,
         unavailable_service: str,
         expected_service: str,
+        temp_config_dir,
     ) -> None:
         """smart_delegate picks the first available service."""
 
@@ -102,10 +116,10 @@ class TestSmartDelegateNoServices:
             duration=1.0,
         )
 
-        delegator = Delegator()
-        service, result = delegator.smart_delegate("test prompt")
+        delegator = Delegator(config_dir=temp_config_dir)
+        result = delegator.smart_delegate("test prompt")
 
-        assert service == expected_service
+        assert result.service == expected_service
         assert result.success
         mock_execute.assert_called_once()
         # Verify the prompt was passed through
@@ -357,3 +371,210 @@ class TestGeneralErrorHandling:
             mock_run.assert_called_once()
             cmd_args = mock_run.call_args.args[0]
             assert cmd_args[0] == "gemini"
+
+
+class TestAResultCannotAnswerAndReportExhaustion:
+    """The two rules stated in the `fallback_reason` comment, enforced.
+
+    The mission orchestrator, project-execution and the egregore summon
+    skill each branch on this field alone. A result that carries output
+    *and* an exhaustion reason sends all three down the no-answer path
+    over a real answer.
+    """
+
+    @staticmethod
+    def _kwargs(**over: object) -> dict:
+        base = {
+            "success": False,
+            "stdout": "",
+            "stderr": "",
+            "exit_code": 1,
+            "duration": 0.0,
+        }
+        base.update(over)
+        return base
+
+    def test_a_success_cannot_carry_a_fallback_reason(self) -> None:
+        """An answer and an exhaustion reason cannot travel together."""
+        with pytest.raises(ValueError, match="carries no fallback_reason"):
+            ExecutionResult(
+                **self._kwargs(
+                    success=True,
+                    stdout="a real answer",
+                    exit_code=0,
+                    fallback_reason=FALLBACK_EXHAUSTED,
+                )
+            )
+
+    def test_an_unknown_reason_is_refused(self) -> None:
+        """Only the two declared constants name a fallback."""
+        with pytest.raises(ValueError, match="unknown fallback_reason"):
+            ExecutionResult(**self._kwargs(fallback_reason="ran_out_of_ideas"))
+
+    def test_the_two_declared_reasons_are_accepted(self) -> None:
+        """The guard rejects the invalid without rejecting the valid."""
+        for reason in (FALLBACK_DISABLED, FALLBACK_EXHAUSTED):
+            assert (
+                ExecutionResult(**self._kwargs(fallback_reason=reason)).fallback_reason
+                == reason
+            )
+
+    def test_an_ordinary_answer_carries_no_reason(self) -> None:
+        """A plain success is unaffected by the guard."""
+        result = ExecutionResult(
+            **self._kwargs(success=True, stdout="output", exit_code=0)
+        )
+        assert result.fallback_reason is None
+
+
+class TestTheModelFlagComesFromTheServiceConfig:
+    """`--model` was the one flag hardcoded past ServiceConfig.
+
+    The comment two lines above the call claimed every flag spelling
+    comes from the config. It is not even universal: `ollama run --help`
+    (0.13.1) documents `ollama run MODEL [PROMPT]` and lists no
+    `--model`, so passing one to glimmer exits 1 on an unknown flag.
+    """
+
+    def test_glimmer_takes_its_model_positionally(self) -> None:
+        """Ollama run has no --model; the model rides the subcommand."""
+        command = Delegator().build_command("glimmer", "hi", None, {"model": "x"})
+        assert "--model" not in command
+        assert "muse-glimmer:30b" in command
+
+    def test_a_provider_with_the_flag_still_receives_it(self) -> None:
+        """Broadening the rule must not drop the flag where it is real."""
+        command = Delegator().build_command(
+            "minimax", "hi", None, {"model": "MiniMax-M3"}
+        )
+        assert "--model" in command
+        assert command[command.index("--model") + 1] == "MiniMax-M3"
+
+    def test_the_spelling_is_data_not_a_branch(self) -> None:
+        """Changing the config changes the argv, with no code change."""
+        delegator = Delegator()
+        delegator.services["minimax"] = replace(
+            delegator.services["minimax"], model_flag="--llm"
+        )
+        command = delegator.build_command("minimax", "hi", None, {"model": "m"})
+        assert "--llm" in command
+        assert "--model" not in command
+
+
+class TestTheAuditTrailAndTheOverridesAreNotSilent:
+    """Two failures that returned or logged at a level nobody reads."""
+
+    def test_a_services_key_of_the_wrong_type_is_reported(
+        self, tmp_path, caplog
+    ) -> None:
+        """A dropped override is announced rather than returned past."""
+        config = tmp_path / "config.json"
+        config.write_text(json.dumps({"services": ["gemini"]}))
+        delegator = Delegator(config_dir=tmp_path)
+        delegator.config_file = config
+
+        with caplog.at_level(logging.ERROR):
+            delegator.load_configurations()
+
+        assert any("expected an object" in r.message for r in caplog.records), (
+            "every override was dropped with no log at any level"
+        )
+
+    def test_an_unwritable_usage_log_is_reported(self, tmp_path, caplog) -> None:
+        """The audit trail failing is louder than debug."""
+        delegator = Delegator(config_dir=tmp_path)
+        delegator.usage_log = tmp_path / "no-such-dir" / "usage.jsonl"
+        result = ExecutionResult(
+            success=True, stdout="", stderr="", exit_code=0, duration=0.1
+        )
+
+        with caplog.at_level(logging.WARNING):
+            delegator.log_usage("gemini", ["gemini"], result)
+
+        assert any("audit trail" in r.message for r in caplog.records)
+
+
+class TestVerifyAnswersCanThisProviderTakeWork:
+    """`--verify` reported OK for two providers that cannot serve a call.
+
+    Both were found by running the real binaries. qwen 0.4.0 prints
+    "[API Error: 401 Incorrect API key provided...]" and exits 0, and
+    its delegation envelope reports `is_error: false` over the same
+    text, so the exit code is not a signal for that CLI. glimmer probes
+    `ollama --version`, which answers whenever ollama is installed and
+    says nothing about whether the model was ever pulled.
+    """
+
+    def test_a_probe_that_exits_zero_over_a_rejection_is_not_authenticated(
+        self, tmp_path
+    ) -> None:
+        """The exit code is not a signal for a CLI that prints its 401."""
+        delegator = Delegator(config_dir=tmp_path)
+        service = replace(
+            delegator.services["qwen"],
+            auth_method="cli",
+            auth_probe=("auth", "status"),
+            auth_files=(),
+            auth_env_var=None,
+            env={},
+        )
+        delegator.services["qwen"] = service
+
+        rejected = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout="[API Error: 401 Incorrect API key]",
+            stderr="",
+        )
+        with patch("subprocess.run", return_value=rejected):
+            ok, issues = delegator.verify_service("qwen")
+
+        assert not ok
+        assert any("exited 0" in issue for issue in issues)
+
+    def test_a_clean_probe_still_verifies(self, tmp_path) -> None:
+        """The marker must not condemn a provider that is actually fine."""
+        delegator = Delegator(config_dir=tmp_path)
+        delegator.services["qwen"] = replace(
+            delegator.services["qwen"],
+            auth_method="cli",
+            auth_probe=("auth", "status"),
+            auth_files=(),
+            auth_env_var=None,
+            env={},
+        )
+
+        good = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="Logged in as someone", stderr=""
+        )
+        with patch("subprocess.run", return_value=good):
+            ok, issues = delegator.verify_service("qwen")
+
+        assert ok, issues
+
+    def test_an_unpulled_model_is_not_a_ready_provider(self, tmp_path) -> None:
+        """An installed runtime is not a served model."""
+        delegator = Delegator(config_dir=tmp_path)
+        empty_list = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="NAME  ID  SIZE  MODIFIED\n", stderr=""
+        )
+        with patch("subprocess.run", return_value=empty_list):
+            ok, issues = delegator.verify_service("glimmer")
+
+        assert not ok
+        assert any("muse-glimmer:30b" in issue for issue in issues)
+        assert any("ollama pull" in issue for issue in issues)
+
+    def test_a_pulled_model_verifies(self, tmp_path) -> None:
+        """The probe must not condemn a provider that is ready."""
+        delegator = Delegator(config_dir=tmp_path)
+        listed = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout="NAME              ID    SIZE\nmuse-glimmer:30b  abc   19 GB\n",
+            stderr="",
+        )
+        with patch("subprocess.run", return_value=listed):
+            ok, issues = delegator.verify_service("glimmer")
+
+        assert ok, issues

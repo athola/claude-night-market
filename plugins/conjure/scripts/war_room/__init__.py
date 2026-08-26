@@ -19,6 +19,7 @@ from scripts.war_room.experts import (
     EXPERT_CONFIGS,
     FULL_COUNCIL,
     LIGHTWEIGHT_PANEL,
+    active_panel,
     check_expert_availability,
     clear_availability_cache,
     get_expert_command,
@@ -49,6 +50,7 @@ __all__ = [
     "EXPERT_CONFIGS",
     "FULL_COUNCIL",
     "LIGHTWEIGHT_PANEL",
+    "active_panel",
     # Command resolution
     "get_expert_command",
     "get_glm_command",

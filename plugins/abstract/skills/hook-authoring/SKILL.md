@@ -636,7 +636,8 @@ For detailed guidance on specific topics:
 
 ## Tools
 
-- **hook_validator.py**: Validate hook structure and syntax (in `scripts/`)
+- **hook_validator.py**: Validate hook structure and syntax (at
+  `plugins/abstract/scripts/hook_validator.py`)
 
 ## Related Skills
 

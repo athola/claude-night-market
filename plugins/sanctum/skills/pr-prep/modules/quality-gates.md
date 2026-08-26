@@ -5,8 +5,7 @@
 ### Python Projects
 ```bash
 # Formatting
-make format          # or: black . && isort .
-ruff format .
+ruff format .        # or: black . && isort .
 uv run ruff format .
 
 # Linting

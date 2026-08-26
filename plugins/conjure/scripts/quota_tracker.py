@@ -166,6 +166,36 @@ DEFAULT_MINIMAX_LIMITS: dict[str, int] = {
     "tokens_per_day": 2000000,
 }
 
+# The four dicts below are deliberately conservative placeholders in the shape
+# the tracker expects, not quoted vendor numbers. Z.ai's rate-limit page is a
+# JS-rendered app that publishes nothing machine-readable, and the per-plan
+# figures circulating in blog posts are not sourced from docs.z.ai. Guessing
+# high would let the tracker wave through calls the provider then rejects, so
+# these start low and are meant to be raised against a published figure.
+DEFAULT_GLM_LIMITS: dict[str, int] = {
+    "requests_per_minute": 60,
+    "requests_per_day": 1000,
+    "tokens_per_day": 1000000,
+}
+
+DEFAULT_MUSE_LIMITS: dict[str, int] = {
+    "requests_per_minute": 60,
+    "requests_per_day": 1000,
+    "tokens_per_day": 1000000,
+}
+
+DEFAULT_CODEX_LIMITS: dict[str, int] = {
+    "requests_per_minute": 60,
+    "requests_per_day": 1000,
+    "tokens_per_day": 1000000,
+}
+
+DEFAULT_OPENCODE_LIMITS: dict[str, int] = {
+    "requests_per_minute": 60,
+    "requests_per_day": 1000,
+    "tokens_per_day": 1000000,
+}
+
 
 # QuotaTracker is either leyline's or the stub defined above, depending on
 # whether the optional dependency imported. ty sees the union of both class

@@ -35,6 +35,9 @@ from insight_types import (  # noqa: E402 - sys.path adjusted above to discover 
     AnalysisContext,
     Finding,
 )
+from lenses import (
+    run_lenses as _package_run_lenses,  # noqa: E402 - sys.path adjusted above
+)
 
 from abstract.utils import (  # noqa: E402 - import after sys.path setup
     extract_section as _extract_section,
@@ -272,28 +275,10 @@ def run_lenses(
         improvement_memory=None,
         trigger="discussion-post",
     )
-    findings: list[Finding] = []
-    for module_name in (
-        "lenses.pattern_lens",
-        "lenses.delta_lens",
-        "lenses.health_lens",
-        "lenses.trend_lens",
-    ):
-        try:
-            module = __import__(module_name, fromlist=["analyze"])
-        except ImportError:
-            continue
-        if not hasattr(module, "analyze"):
-            continue
-        try:
-            findings.extend(module.analyze(context))
-        except (AttributeError, KeyError, TypeError, ValueError) as exc:
-            # Lens failure must not block posting.
-            print(
-                f"Warning: lens {module_name} raised {type(exc).__name__}: {exc}",
-                file=sys.stderr,
-            )
-    return findings
+    # The lenses package discovers every lens module and already logs a
+    # per-lens failure to stderr without blocking the post, so a new lens
+    # needs no edit here.
+    return _package_run_lenses(context)
 
 
 def rank_findings(findings: list[Finding]) -> list[Finding]:

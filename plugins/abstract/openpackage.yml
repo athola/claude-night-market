@@ -1,5 +1,5 @@
 name: abstract
-version: 1.9.18
+version: 1.9.19
 description: Meta-skills infrastructure for Claude Code plugin ecosystem - skill authoring, hook development, modular design
   patterns, and evaluation frameworks
 keywords:
@@ -46,7 +46,6 @@ skills:
 commands:
 - commands/aggregate-logs.md
 - commands/analyze-skill.md
-- commands/bulletproof-skill.md
 - commands/context-report.md
 - commands/create-command.md
 - commands/create-hook.md

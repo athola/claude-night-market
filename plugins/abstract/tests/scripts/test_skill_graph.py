@@ -9,6 +9,7 @@ Feature: Skill Graph Audit
 
 from __future__ import annotations
 
+import re
 import sys
 import textwrap
 from pathlib import Path
@@ -23,6 +24,7 @@ from skill_graph import (  # noqa: E402 - import after sys.path mutation
     VALID_ROLES,
     SkillGraph,
     SkillNode,
+    _is_placeholder,
     build_graph,
     classify_by_role,
     classify_dangling_refs,
@@ -370,6 +372,45 @@ class TestFrontmatterDependencies:
         assert ("src:main", "superpowers:brainstorming") in result["external"]
         assert result["bugs"] == []
 
+    @pytest.mark.unit
+    def test_orchestrates_declares_an_edge(self, tmp_path: Path) -> None:
+        """Scenario: A hub that lists its steps under ``orchestrates:``
+        produces the same inbound edge a ``dependencies:`` entry would.
+
+        Both fields declare "this skill loads that one"; only the verb
+        differs. Reading one and not the other leaves every skill a hub
+        drives looking uncalled, which is a false orphan signal.
+        """
+        root = tmp_path / "plugins"
+        (root / "src" / "skills" / "hub").mkdir(parents=True)
+        (root / "src" / "skills" / "hub" / "SKILL.md").write_text(
+            textwrap.dedent("""\
+                ---
+                name: hub
+                description: x
+                orchestrates:
+                  - src:step
+                ---
+                Body.
+                """)
+        )
+        (root / "src" / "skills" / "step").mkdir(parents=True)
+        (root / "src" / "skills" / "step" / "SKILL.md").write_text(
+            textwrap.dedent("""\
+                ---
+                name: step
+                description: x
+                role: library
+                ---
+                Body.
+                """)
+        )
+
+        graph = build_graph(root)
+
+        assert "src:hub" in graph.inbound.get("src:step", set())
+        assert detect_uncalled_libraries(graph) == []
+
 
 class TestBuildGraph:
     """Feature: Build directed graph from skill files in a marketplace tree."""
@@ -638,6 +679,37 @@ class TestClassifyDanglingRefs:
         """Scenario: superpowers is recognised as an external ecosystem plugin."""
         assert "superpowers" in KNOWN_EXTERNAL_PLUGINS
         assert "elements-of-style" in KNOWN_EXTERNAL_PLUGINS
+
+    @pytest.mark.unit
+    def test_known_external_plugins_covers_every_referenced_absent_plugin(
+        self,
+    ) -> None:
+        """Scenario: Every plugin referenced by repo skills but absent from
+        plugins/ is on the allowlist, so a valid cross-marketplace ref is
+        never counted as a dangling bug.
+        """
+        repo_root = Path(__file__).resolve().parents[4]
+        plugins_root = repo_root / "plugins"
+        on_disk = {d.name for d in plugins_root.iterdir() if d.is_dir()}
+
+        referenced: set[str] = set()
+        for skill_md in plugins_root.glob("*/skills/*/SKILL.md"):
+            for plugin, _name in re.findall(
+                r"Skill\(([a-z][a-z0-9-]*):([a-z][a-z0-9-]*)\)",
+                skill_md.read_text(encoding="utf-8"),
+            ):
+                referenced.add(plugin)
+
+        unresolved = {
+            p
+            for p in referenced
+            if p not in on_disk
+            and p not in KNOWN_EXTERNAL_PLUGINS
+            and not _is_placeholder(p, "real-name")
+        }
+        assert unresolved == set(), (
+            f"referenced plugins neither on disk nor allowlisted: {sorted(unresolved)}"
+        )
 
 
 class TestSkillNode:

@@ -1,3 +1,8 @@
+---
+name: session-to-post
+description: Convert the current session's work into a shareable blog post, case study, or social thread.
+---
+
 # Session to Post
 
 Convert the current session's work into a shareable blog post, case study, or social thread.

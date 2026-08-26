@@ -30,6 +30,8 @@ if str(SRC_DIR) not in sys.path:
 # <plugin>/<version>/, so user data written under it is invisible to
 # the next release (issue #661). DATA_ROOT is the version-independent
 # root, and equals PLUGIN_ROOT in a source checkout.
+import contextlib
+
 from memory_palace.paths import persistent_root
 
 DATA_ROOT = persistent_root(PLUGIN_ROOT)
@@ -163,10 +165,8 @@ def _drain_staged_units(path: Path) -> list[dict]:
         raw = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return []
-    try:
+    with contextlib.suppress(OSError):
         path.unlink()
-    except OSError:
-        pass
     units = raw.get("units") if isinstance(raw, dict) else raw
     return [u for u in (units or []) if isinstance(u, dict)]
 
@@ -210,7 +210,7 @@ def _derive_topics(units: list[SessionUnit]) -> list[str]:
 
 
 def _derive_key_decisions(units: list[SessionUnit]) -> list[str]:
-    """The state text of every decision unit."""
+    """Return the state text of every unit typed as a decision."""
     return [u.state for u in units if u.type == "decision"]
 
 

@@ -24,20 +24,20 @@ Validates hook files for syntax, structure, and compliance with hook specificati
 
 ```bash
 # Make executable (first time only)
-chmod +x hook_validator.py
+# hook_validator.py ships executable in git
 
 # Validate JSON hook file
-./hook_validator.py hooks/hooks.json
+python3 plugins/abstract/scripts/hook_validator.py hooks/hooks.json
 
 # Validate Python SDK hook file
-./hook_validator.py my_hooks.py
+python3 plugins/abstract/scripts/hook_validator.py my_hooks.py
 
 # Specify type explicitly
-./hook_validator.py hooks.json --type json
-./hook_validator.py my_hooks.py --type python
+python3 plugins/abstract/scripts/hook_validator.py hooks.json --type json
+python3 plugins/abstract/scripts/hook_validator.py my_hooks.py --type python
 
 # Verbose output (show info messages)
-./hook_validator.py hooks.json --verbose
+python3 plugins/abstract/scripts/hook_validator.py hooks.json --verbose
 ```
 
 ### Exit Codes
@@ -106,7 +106,7 @@ python_hooks=$(find . -name "*_hooks.py" -not -path "*/tests/*" -not -path "*/.g
 
 # Validate JSON hooks
 for hook in $json_hooks; do
-    if ! ./scripts/hook_validator.py "$hook"; then
+    if ! python3 plugins/abstract/scripts/hook_validator.py "$hook"; then
         echo "Hook validation failed: $hook"
         exit 1
     fi
@@ -114,7 +114,7 @@ done
 
 # Validate Python hooks
 for hook in $python_hooks; do
-    if ! ./scripts/hook_validator.py "$hook"; then
+    if ! python3 plugins/abstract/scripts/hook_validator.py "$hook"; then
         echo "Hook validation failed: $hook"
         exit 1
     fi
@@ -148,7 +148,7 @@ jobs:
           find . -name "hooks.json" \
             -not -path "*/node_modules/*" -not -path "*/.venv/*" \
             -not -path "*/__pycache__/*" -not -path "*/.git/*" | while read hook; do
-            python scripts/hook_validator.py "$hook" --verbose
+            python3 plugins/abstract/scripts/hook_validator.py "$hook" --verbose
           done
 
       - name: Validate Python hooks
@@ -156,7 +156,7 @@ jobs:
           find . -name "*_hooks.py" -not -path "*/tests/*" \
             -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
             -not -path "*/node_modules/*" -not -path "*/.git/*" | while read hook; do
-            python scripts/hook_validator.py "$hook" --verbose
+            python3 plugins/abstract/scripts/hook_validator.py "$hook" --verbose
           done
 ```
 
@@ -173,13 +173,13 @@ echo '{
   }]
 }' > test_hooks.json
 
-./hook_validator.py test_hooks.json
+python3 plugins/abstract/scripts/hook_validator.py test_hooks.json
 # Should exit with 0
 
 # Test with invalid JSON hook
 echo '{"invalid": "structure"}' > test_invalid.json
 
-./hook_validator.py test_invalid.json
+python3 plugins/abstract/scripts/hook_validator.py test_invalid.json
 # Should exit with 1 or 2
 
 # Clean up

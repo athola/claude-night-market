@@ -71,7 +71,7 @@ def _try_register_graph_entity(
                     sys.stderr.write(
                         f"local_doc_processor: link predictions: {suggestions[:3]}\n"
                     )
-            except Exception:  # noqa: BLE001 - link prediction is optional; entity write already succeeded
+            except Exception:  # noqa: BLE001, S110 - link prediction is optional; entity write already succeeded
                 pass
         finally:
             graph.close()

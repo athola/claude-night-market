@@ -107,8 +107,14 @@ and troubleshooting, see `modules/gemini-specifics.md`.
 
 ## Exit Criteria
 
-- [ ] `gemini --version` and `gemini auth status` both exit 0 before any task is delegated;
-  missing installation or failed authentication is reported and stops execution.
+- [ ] `gemini --version` exits 0 before any task is delegated, and a missing
+  installation is reported and stops execution.
+- [ ] Authentication is judged from `GEMINI_API_KEY` and from the delegation's
+  own exit code, never from `gemini auth status`. That command exits 0 while
+  printing `Error authenticating: ProjectIdRequiredError` over a credential
+  that cannot be used, so its status is not evidence. `delegation-core`'s
+  shared module states the rule: authentication is never decided by running a
+  provider's own CLI.
 - [ ] The delegated task output is saved to
   `delegations/gemini/YYYYMMDD_HHMMSS.md` (timestamp format matching the Quick Start example),
   and that file exists on disk after the delegation completes.

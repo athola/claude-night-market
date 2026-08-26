@@ -268,7 +268,7 @@ def main() -> None:
             results=results,
             latency_ms=latency_ms,
         ),
-        ResearchTelemetryEvent=ResearchTelemetryEvent,
+        research_telemetry_event_cls=ResearchTelemetryEvent,
     )
     queue_for_intake(
         DATA_ROOT,

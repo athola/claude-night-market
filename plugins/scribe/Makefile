@@ -101,8 +101,8 @@ count-slop: ## Count slop words in FILE
 # Parameterized: each demo-* target shows usage for one command
 SCRIBE_COMMANDS := slop-scan style-learn doc-polish doc-generate doc-verify pr-review update-docs update-readme prepare-pr pr
 
-demo-slop-scan: ## Demo slop-scan command (LIVE)
-	@echo "=== slop-scan Demo (LIVE) ==="
+demo-slop-scan: ## Demo slop-scan command
+	@echo "=== slop-scan Demo ==="
 	@echo ""
 	@echo "Command: /slop-scan"
 	@echo "Plugin: scribe"
@@ -110,8 +110,8 @@ demo-slop-scan: ## Demo slop-scan command (LIVE)
 	@echo "This demonstrates slop-scan usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
-demo-style-learn: ## Demo style-learn command (LIVE)
-	@echo "=== style-learn Demo (LIVE) ==="
+demo-style-learn: ## Demo style-learn command
+	@echo "=== style-learn Demo ==="
 	@echo ""
 	@echo "Command: /style-learn"
 	@echo "Plugin: scribe"
@@ -119,8 +119,8 @@ demo-style-learn: ## Demo style-learn command (LIVE)
 	@echo "This demonstrates style-learn usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
-demo-doc-polish: ## Demo doc-polish command (LIVE)
-	@echo "=== doc-polish Demo (LIVE) ==="
+demo-doc-polish: ## Demo doc-polish command
+	@echo "=== doc-polish Demo ==="
 	@echo ""
 	@echo "Command: /doc-polish"
 	@echo "Plugin: scribe"
@@ -128,8 +128,8 @@ demo-doc-polish: ## Demo doc-polish command (LIVE)
 	@echo "This demonstrates doc-polish usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
-demo-doc-generate: ## Demo doc-generate command (LIVE)
-	@echo "=== doc-generate Demo (LIVE) ==="
+demo-doc-generate: ## Demo doc-generate command
+	@echo "=== doc-generate Demo ==="
 	@echo ""
 	@echo "Command: /doc-generate"
 	@echo "Plugin: scribe"
@@ -137,8 +137,8 @@ demo-doc-generate: ## Demo doc-generate command (LIVE)
 	@echo "This demonstrates doc-generate usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
-demo-doc-verify: ## Demo doc-verify command (LIVE)
-	@echo "=== doc-verify Demo (LIVE) ==="
+demo-doc-verify: ## Demo doc-verify command
+	@echo "=== doc-verify Demo ==="
 	@echo ""
 	@echo "Command: /doc-verify"
 	@echo "Plugin: scribe"
@@ -146,8 +146,8 @@ demo-doc-verify: ## Demo doc-verify command (LIVE)
 	@echo "This demonstrates doc-verify usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
-demo-pr-review: ## Demo pr-review command (LIVE)
-	@echo "=== pr-review Demo (LIVE) ==="
+demo-pr-review: ## Demo pr-review command
+	@echo "=== pr-review Demo ==="
 	@echo ""
 	@echo "Command: /pr-review"
 	@echo "Plugin: scribe"
@@ -155,8 +155,8 @@ demo-pr-review: ## Demo pr-review command (LIVE)
 	@echo "This demonstrates pr-review usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
-demo-update-docs: ## Demo update-docs command (LIVE)
-	@echo "=== update-docs Demo (LIVE) ==="
+demo-update-docs: ## Demo update-docs command
+	@echo "=== update-docs Demo ==="
 	@echo ""
 	@echo "Command: /update-docs"
 	@echo "Plugin: scribe"
@@ -164,8 +164,8 @@ demo-update-docs: ## Demo update-docs command (LIVE)
 	@echo "This demonstrates update-docs usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
-demo-update-readme: ## Demo update-readme command (LIVE)
-	@echo "=== update-readme Demo (LIVE) ==="
+demo-update-readme: ## Demo update-readme command
+	@echo "=== update-readme Demo ==="
 	@echo ""
 	@echo "Command: /update-readme"
 	@echo "Plugin: scribe"
@@ -173,8 +173,8 @@ demo-update-readme: ## Demo update-readme command (LIVE)
 	@echo "This demonstrates update-readme usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
-demo-prepare-pr: ## Demo prepare-pr command (LIVE)
-	@echo "=== prepare-pr Demo (LIVE) ==="
+demo-prepare-pr: ## Demo prepare-pr command
+	@echo "=== prepare-pr Demo ==="
 	@echo ""
 	@echo "Command: /prepare-pr"
 	@echo "Plugin: scribe"
@@ -182,8 +182,8 @@ demo-prepare-pr: ## Demo prepare-pr command (LIVE)
 	@echo "This demonstrates prepare-pr usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
-demo-pr: ## Demo pr command (LIVE)
-	@echo "=== pr Demo (LIVE) ==="
+demo-pr: ## Demo pr command
+	@echo "=== pr Demo ==="
 	@echo ""
 	@echo "Command: /pr"
 	@echo "Plugin: scribe"
@@ -192,7 +192,7 @@ demo-pr: ## Demo pr command (LIVE)
 	@echo "Execute manually in Claude Code for full functionality."
 
 demo-cli-plugins: ## Demo CLI invocation: plugins install scribe
-	@echo "=== cli-plugins Demo (LIVE) ==="
+	@echo "=== cli-plugins Demo (informational) ==="
 	@echo ""
 	@echo "Command: plugins install scribe"
 	@echo "Plugin: scribe"

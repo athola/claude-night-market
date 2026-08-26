@@ -67,12 +67,15 @@ Pinning `high` matches the default rather than raising it.
 
 | Model | Status |
 |-------|--------|
-| `claude-opus-4-1-20250805` | Deprecated, retires 2026-08-05 |
+| `claude-opus-4-1-20250805` | Retired 2026-08-05, calls return 404 |
 | Opus 4.8, 4.7, 4.6; Sonnet 4.6, 4.5; Opus 4.5 | Legacy, still callable |
 
 Legacy Opus generations are $5 / $25, not the $15 / $75 that Opus 4.1
-charges. Copying Opus 4.1's rate onto a newer Opus overstates cost
-threefold, which is the error this repo's cost tracker carried.
+charged. Copying Opus 4.1's rate onto a newer Opus overstates cost
+threefold, which is the error this repo's cost tracker carried. The
+rate stays in the tracker's table because pricing a past run needs it.
+What retired is the ability to call the model, not the record of what
+it cost.
 
 ## Why a budget guard needs this table
 

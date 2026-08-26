@@ -25,6 +25,29 @@ def test_user_creation_validates_email():
         service.create_user("Alice", "invalid-email")
 ```
 
+## Assertions on a Constraint Nobody Requires
+
+The two anti-patterns above are about how a test is written. This one
+is about whether it should exist. A test that freezes a decision the
+domain never required reports failure when nothing broke, and the next
+author has to decide whether the assertion meant anything.
+
+```python
+# Bad: freezes a default that was convenient, not required
+def test_retry_count_is_three():
+    assert RetryPolicy().attempts == 3
+
+# Good: pins the rule the domain actually has
+def test_transient_failure_retries_until_the_deadline():
+    policy = RetryPolicy(deadline=timedelta(seconds=5))
+    assert policy.should_retry(elapsed=timedelta(seconds=4)) is True
+    assert policy.should_retry(elapsed=timedelta(seconds=6)) is False
+```
+
+The check: state the constraint in the language of the domain, naming
+no function and no file. If that sentence cannot be written, the test
+pins a decision rather than a rule, and deleting it costs nothing.
+
 ## Over-Mocking
 
 ```python

@@ -79,7 +79,12 @@ class GeminiUsageLogger:
                     last_activity = datetime.fromisoformat(
                         session_data.get("last_activity", ""),
                     )
-                    elapsed = (datetime.now(timezone.utc) - last_activity).seconds
+                    # total_seconds(), not .seconds: the latter is the
+                    # sub-day remainder, so a file 24h30m old measured as
+                    # 1800 and resurrected a dead session id.
+                    elapsed = (
+                        datetime.now(timezone.utc) - last_activity
+                    ).total_seconds()
                     if elapsed < SESSION_TIMEOUT_SECONDS:
                         return str(session_data.get("session_id", "unknown"))
             except (json.JSONDecodeError, ValueError, OSError) as e:
@@ -282,8 +287,9 @@ def main() -> None:
                 duration=duration_float,
             )
             usage_logger.log_usage(entry)
-        except ValueError:
-            pass
+        except ValueError as exc:
+            print(f"--log: invalid argument: {exc}", file=sys.stderr)
+            raise SystemExit(1) from exc
 
     elif args.report:
         summary = usage_logger.get_usage_summary()

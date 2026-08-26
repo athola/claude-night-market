@@ -219,9 +219,8 @@ These tasks are deterministic, rule-based, and don't require reasoning:
 | Component | Type | Rationale |
 |-----------|------|-----------|
 | `validate-plugin` | command | JSON schema validation, path checks |
-| `estimate-tokens` | command | Token counting algorithm |
 | `context-report` | command | File metrics and statistics |
-| `analyze-hook` | command | Static analysis checks |
+| `hooks-eval` | command | Static analysis checks |
 | `validate-hook` | command | Compliance rule checking |
 
 ### Sanctum Plugin
@@ -235,9 +234,9 @@ These tasks are deterministic, rule-based, and don't require reasoning:
 ### Conservation Plugin
 | Component | Type | Rationale |
 |-----------|------|-----------|
-| `analyze-growth` | command | Git history metrics |
+| `bloat-scan` | command | Git history metrics |
 | `optimize-context` | command | Token budget calculations |
-| `performance-monitoring` | skill | Metrics collection |
+| `cpu-gpu-performance` | skill | Metrics collection |
 | `token-conservation` | skill | Budget tracking |
 
 ### Parseltongue Plugin
@@ -257,7 +256,6 @@ These tasks are deterministic, rule-based, and don't require reasoning:
 | Component | Type | Rationale |
 |-----------|------|-----------|
 | `error-patterns` | skill | Pattern reference |
-| `mecw-patterns` | skill | Principle lookup |
 | `progressive-loading` | skill | Template application |
 | `pytest-config` | skill | Config generation |
 | `quota-management` | skill | Quota calculations |
@@ -288,10 +286,10 @@ These involve pattern analysis with some judgment but not deep reasoning:
 ### Sanctum Plugin
 | Component | Type | Rationale |
 |-----------|------|-----------|
-| `catchup` | command | Change enumeration and basic summary |
-| `pr` | command | PR template population |
+| `git-catchup` | command | Change enumeration and basic summary |
+| `prepare-pr` | command | PR template population |
 | `update-docs` | command | Doc structure updates |
-| `update-readme` | command | README section updates |
+| `update-readme` | skill | README section updates |
 
 ### Imbue Plugin
 | Component | Type | Rationale |
@@ -327,7 +325,6 @@ These require creative, architectural, or adversarial thinking:
 - Architectural reasoning and design decisions
 
 ### Abstract Plugin
-- `bulletproof-skill` - Adversarial thinking for anti-rationalization
 - `skill-authoring` - Behavioral psychology for effectiveness
 - `hook-authoring` - Security reasoning for hook design
 - `skills-eval` - Nuanced quality assessment

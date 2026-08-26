@@ -453,7 +453,7 @@ class TestToolOutputSummarizerMain:
         hook_input = json.dumps({"tool_name": "Write"})
         monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0
@@ -466,7 +466,7 @@ class TestToolOutputSummarizerMain:
         monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
         monkeypatch.setattr(summarizer, "resolve_session_file", lambda: None)
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0
@@ -483,7 +483,7 @@ class TestToolOutputSummarizerMain:
         monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
         monkeypatch.setattr(summarizer, "resolve_session_file", lambda: session)
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0
@@ -506,7 +506,7 @@ class TestToolOutputSummarizerMain:
         monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
         monkeypatch.setattr(summarizer, "resolve_session_file", lambda: session)
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0
@@ -518,7 +518,7 @@ class TestToolOutputSummarizerMain:
         """Handles invalid JSON stdin gracefully."""
         monkeypatch.setattr("sys.stdin", io.StringIO("not json"))
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0
@@ -530,7 +530,7 @@ class TestToolOutputSummarizerMain:
         monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
         monkeypatch.setattr(summarizer, "resolve_session_file", lambda: None)
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0
@@ -542,7 +542,7 @@ class TestToolOutputSummarizerMain:
         monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
         monkeypatch.setattr(summarizer, "resolve_session_file", lambda: None)
         captured: list[str] = []
-        monkeypatch.setattr("builtins.print", lambda s: captured.append(s))
+        monkeypatch.setattr("builtins.print", captured.append)
 
         rc = main()
         assert rc == 0

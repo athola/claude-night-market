@@ -4,6 +4,7 @@ Following BDD principles with Given/When/Then structure.
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -238,6 +239,35 @@ class TestInitializePluginProject:
         content = skill_path.read_text()
         assert "name: example-skill" in content
         assert "my-plugin" in content
+
+    @patch("plugin_project_init.copy_templates")
+    @patch("plugin_project_init.initialize_git")
+    def test_example_skill_pins_no_dated_model_id(
+        self, mock_init_git, mock_copy_templates, tmp_path
+    ):
+        """
+        Scenario: The scaffolder writes frontmatter a new project copies
+        Given a generated example SKILL.md
+        When its frontmatter is read
+        Then it names no dated model ID
+
+        A scaffolder is a teaching surface: whatever it emits gets
+        copied into every skill the new project writes. This one pinned
+        a dated Sonnet generation, the form
+        check_agent_model_matrix.py rejects outright, so it taught new
+        projects to write what this repo forbids. A skill spawns no
+        subagent, so the field carries no meaning here at all: 204 of
+        this repo's 209 skills omit it.
+        """
+        project_path = tmp_path / "my-plugin"
+        project_path.mkdir()
+        mock_init_git.return_value = True
+        mock_copy_templates.return_value = []
+
+        initialize_plugin_project(project_path, "my-plugin")
+
+        content = (project_path / "skills" / "example-skill" / "SKILL.md").read_text()
+        assert re.search(r"claude-(?:[a-z]+-)?\d", content) is None
 
     @patch("plugin_project_init.copy_templates")
     @patch("plugin_project_init.initialize_git")

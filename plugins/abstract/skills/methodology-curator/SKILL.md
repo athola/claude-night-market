@@ -121,7 +121,6 @@ After curating methodologies, the skill authoring workflow benefits from:
 ### For Evaluation
 - `/skills-eval` - Evaluate skill quality (complements methodology audit)
 - `/analyze-skill` - Analyze skill complexity
-- `/bulletproof-skill` - Harden against rationalization
 - `pensive:code-reviewer` - Code review (uses code-review domain)
 
 ## Exit Criteria

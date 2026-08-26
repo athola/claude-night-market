@@ -57,6 +57,11 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Emit a challenge set drawn from the gauntlet knowledge base.
+
+    Returns the process exit code: 0 on a generated set, non-zero when the
+    knowledge base is absent or holds too few entries to draw from.
+    """
     parser = _build_parser()
     args = parser.parse_args(argv)
 

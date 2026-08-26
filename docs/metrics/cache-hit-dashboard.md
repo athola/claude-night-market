@@ -1,6 +1,6 @@
 # Cache Hit Dashboard
 
-The cache intercept rollout depends on demonstrating stable hit ratios
+The cache intercept rollout depends on stable hit ratios
 and reversible behavior.
 
 ## KPIs
@@ -31,11 +31,12 @@ Store the rendered panel markdown and SVG in
 
 ## Alert Routes
 
-- **Warning:** hit ratio drops below 0.35 for 15 minutes → notify
+- **Warning:** hit ratio drops below 0.35 for 15 minutes, then notify
   `#memory-palace`.
-- **Critical:** trust overrides > 0 for two consecutive hours → page governance
+- **Critical:** trust overrides > 0 for two consecutive hours, then page
+  governance
   engineer.
-- **Info:** new corpus seed completes (`seed_corpus.py` success) → annotate
+- **Info:** new corpus seed completes (`seed_corpus.py` success), then annotate
   dashboard timeline.
 
 ## Rollback Guide

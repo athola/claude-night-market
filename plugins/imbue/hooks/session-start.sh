@@ -120,92 +120,26 @@ if [ "$in_git_repo" = true ]; then
 fi
 
 # Read scope-guard skill summary (lightweight version for session context)
-scope_guard_summary="## scope-guard Quick Reference
+scope_guard_summary="## imbue quick reference
 
-**When to invoke** \`Skill(imbue:scope-guard)\`:
-- After brainstorming sessions (before documenting designs)
-- Before finalizing implementation plans
-- When proposing new features or abstractions
-- When branch metrics approach thresholds
+Routing only. Each skill body carries its own checklists and thresholds.
 
-**Worthiness Formula**: \`(BizValue + TimeCrit + RiskReduce) / (Complexity + TokenCost + ScopeDrift)\`
-- Score > 2.0: Implement now
-- Score 1.0-2.0: Discuss first
-- Score < 1.0: Defer to backlog
+\`Skill(imbue:scope-guard)\` -- after brainstorming, before finalizing a
+plan, when proposing a feature or an abstraction, or when branch metrics
+approach the limits. Worthiness is
+\`(BizValue + TimeCrit + RiskReduce) / (Complexity + TokenCost + ScopeDrift)\`:
+above 2.0 implement, 1.0 to 2.0 discuss first, below 1.0 defer. Branch
+thresholds are 1000/1500/2000 lines, 15/25/30 commits, 3/7/7+ days.
 
-**Anti-Overengineering Rules**:
-- Ask clarifying questions BEFORE proposing solutions
-- No abstraction until 3rd use case
-- Defer 'nice to have' features to backlog
-- Stay within branch budget (default: 3 major features)
+\`Skill(imbue:proof-of-work)\` -- before claiming an implementation is
+complete, or recommending a solution you have not run. Evidence is command
+output cited as \`[E1]\`, from a functional test rather than a syntax check,
+reported PASS / FAIL / BLOCKED. The Iron Law it enforces: no implementation
+without a failing test first.
 
-**Branch Thresholds**: 1000/1500/2000 lines | 15/25/30 commits | 3/7/7+ days
-
-## proof-of-work Quick Reference
-
-**When to invoke** \`Skill(imbue:proof-of-work)\`:
-- Before claiming ANY implementation is complete
-- Before saying 'should work' or 'will work'
-- Before recommending untested solutions
-- After making code changes that need verification
-
-**Required Evidence**:
-- \`[E1]\`, \`[E2]\` references with command outputs
-- Functional tests (not just syntax checks)
-- Status: PASS / FAIL / BLOCKED
-
-**Red Flags (STOP immediately)**:
-| Thought | Action |
-|---------|--------|
-| 'This looks correct' | RUN IT |
-| 'Should work' | TEST IT |
-| 'Syntax valid' | FUNCTIONAL TEST |
-
-## The Iron Law (TDD Compliance)
-
-\`\`\`
-NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
-\`\`\`
-
-**Self-Check Before Writing Code**:
-| Question | Wrong Answer | Action |
-|----------|--------------|--------|
-| Evidence of failure/need? | No | STOP - document failure first |
-| Testing pre-conceived impl? | Yes | STOP - let test DRIVE design |
-| Feeling design uncertainty? | No | STOP - uncertainty is GOOD |
-| Did test drive impl? | No | STOP - doing it backwards |
-
-**TDD TodoWrite Items**:
-- \`proof:iron-law-red\` - Failing test written FIRST
-- \`proof:iron-law-green\` - Minimal implementation passes
-- \`proof:iron-law-refactor\` - Improved without behavior change
-
-## rigorous-reasoning Quick Reference
-
-**When to invoke** \`Skill(imbue:rigorous-reasoning)\`:
-- Analyzing conflicts, disagreements, or ethical questions
-- Evaluating contested claims or competing positions
-- When self-monitoring detects sycophantic patterns
-
-**Priority Signals (override defaults)**:
-- No courtesy agreement: Agreement requires validity, not politeness
-- Checklist over intuition: Follow analysis, not initial reactions
-- Uncomfortable conclusions stay uncomfortable: Don't sand down edges
-
-**Red Flags (STOP - you're being sycophantic)**:
-| Thought | Action |
-|---------|--------|
-| 'I agree that...' | VALIDATE first |
-| 'You're right...' | CHECK for evidence |
-| 'Great point!' | Does this ADD value? |
-| 'To be fair...' | Are you HEDGING without evidence? |
-
-**Conflict Analysis Checklist**:
-1. Set aside initial reactions (name the bias)
-2. Complete harm/rights checklist (concrete harm? which right?)
-3. Assess proportionality (was response proportionate?)
-4. Commit to conclusion (follow checklist, not gut)
-5. Guard against retraction (only update for substantive reasons)"
+\`Skill(imbue:rigorous-reasoning)\` -- when analyzing a conflict, a contested
+claim, or competing positions, where the comfortable answer and the correct
+one may differ."
 
 summary_escaped=$(escape_for_json "$scope_guard_summary")
 reminder_escaped=$(escape_for_json "$scope_guard_reminder")

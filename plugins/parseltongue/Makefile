@@ -213,8 +213,8 @@ plugin-check: demo-tests demo-lint demo-skills ## Run all live demos
 Makefile.local:;
 -include Makefile.local
 
-demo-analyze-tests: ## Demo analyze-tests command (LIVE)
-	@echo "=== analyze-tests Demo (LIVE) ==="
+demo-analyze-tests: ## Demo analyze-tests command
+	@echo "=== analyze-tests Demo ==="
 	@echo ""
 	@echo "Command: /analyze-tests"
 	@echo "Plugin: parseltongue"
@@ -225,8 +225,8 @@ demo-analyze-tests: ## Demo analyze-tests command (LIVE)
 	@echo "Use /analyze-tests for full workflow."
 
 
-demo-run-profiler: ## Demo run-profiler command (LIVE)
-	@echo "=== run-profiler Demo (LIVE) ==="
+demo-run-profiler: ## Demo run-profiler command
+	@echo "=== run-profiler Demo ==="
 	@echo ""
 	@echo "Command: /run-profiler"
 	@echo "Plugin: parseltongue"
@@ -237,8 +237,8 @@ demo-run-profiler: ## Demo run-profiler command (LIVE)
 	@echo "Use /run-profiler for full workflow."
 
 
-demo-check-async: ## Demo check-async command (LIVE)
-	@echo "=== check-async Demo (LIVE) ==="
+demo-check-async: ## Demo check-async command
+	@echo "=== check-async Demo ==="
 	@echo ""
 	@echo "Command: /check-async"
 	@echo "Plugin: parseltongue"

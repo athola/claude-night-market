@@ -67,6 +67,27 @@ intra-plugin edges (src plugin == dst plugin) suggests a
 plugin-internal federation worth documenting in the plugin's
 README.
 
+## Neither Reference Count Is Trustworthy Alone
+
+An August 2026 triage of 209 skills ran the count two ways and got two
+different answers. Both are wrong, and the way each fails is what a
+reader of this skill's output needs:
+
+| Measure | Result | How it fails |
+|---------|-------:|--------------|
+| Qualified `plugin:skill` outside its own directory | 21 skills at zero | Undercounts. A router naming its targets by bare name scores all of them zero while they are demonstrably reachable |
+| Bare directory name as a whole word outside its own directory | 0 skills at zero | Overcounts, badly. Short names collide with ordinary English |
+
+The overcount is not marginal. `tome:papers` scored 10,571
+"references", `tome:research` 5,315, `gauntlet:extract` 4,818. Those
+are occurrences of the words *papers*, *research* and *extract*.
+
+Read a zero as a prompt to look, never as a verdict. Before acting on
+one, check whether a router or a command names the skill by bare name,
+and whether the name is a common word. A skill whose name is a common
+English word cannot be measured this way at all, and the audit should
+say so instead of reporting a number.
+
 ## Common False Positives
 
 - Skill names in code blocks demonstrating example usage are still

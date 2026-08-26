@@ -33,6 +33,11 @@ LOG_DIR = (
 
 
 def main() -> None:
+    """Record a denied tool call to the permission log, then exit quietly.
+
+    Runs as a hook, so any failure to parse or write must still exit 0:
+    a logging hook may never block the tool path it observes.
+    """
     try:
         input_data = json.loads(sys.stdin.read())
     except (json.JSONDecodeError, ValueError):

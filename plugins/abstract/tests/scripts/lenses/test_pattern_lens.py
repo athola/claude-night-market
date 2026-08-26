@@ -20,6 +20,8 @@ def _ctx(metrics=None):
 
 
 class MockSummary:
+    """Stand-in for the aggregate-log summary row the pattern lens scores."""
+
     def __init__(self, skill, errors=None, friction=None, success_rate=50.0):
         self.skill = skill
         self.recent_errors = errors or []

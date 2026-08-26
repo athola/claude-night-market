@@ -1,3 +1,8 @@
+---
+name: evaluate-skill
+description: Manually evaluate a recent skill execution to record qualitative feedback.
+---
+
 # Evaluate Skill Execution
 
 Manually evaluate a recent skill execution for qualitative feedback.
@@ -123,7 +128,8 @@ Updates the log entry with:
 
 ## Related
 
-- `Skill(abstract:skill-execution-logger)` - Captures initial execution data
+- `plugins/abstract/hooks/skill_execution_logger.py` -
+  Captures initial execution data
 - `/abstract:aggregate-logs` - Rolls up evaluations to LEARNINGS.md (Phase 3)
 - `/abstract:improve-skills` - Acts on evaluation insights (Phase 5)
 

@@ -41,7 +41,7 @@ RECALL_TOKEN = re.compile(r"(?:^|\s)\+recall(\?)?(?=\s|$)", re.IGNORECASE)
 MAX_SESSIONS_SCANNED = 60
 MAX_UNITS_RETURNED = 6
 _STOPWORDS = frozenset(
-    "a an and are as at be but by for from how in into is it of on or that the "
+    "a an and are as at be but by for from how in into is it of on or that the "  # noqa: SIM905 - a stopword list reads as prose; 34 literals do not
     "then there these this to was what when where which who why with we you i".split()
 )
 

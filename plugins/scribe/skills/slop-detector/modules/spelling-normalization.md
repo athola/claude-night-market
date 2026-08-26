@@ -19,9 +19,8 @@ British document is still English; only its spelling shifts.
 
 Convert British spellings to American in any scanned document, unless
 the document opts out (see Opt-out) or a word is on the allowlist.
-This matches the project rule `.claude/rules/slop-scan-for-docs.md`:
-in prevention mode the target is zero British spellings in docs the
-agent just generated.
+In prevention mode, meaning documents the agent just generated, the
+target is zero British spellings.
 
 ## The one rule that matters
 

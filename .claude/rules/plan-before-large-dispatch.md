@@ -15,12 +15,146 @@ Tasks involving comprehensive analysis, audits, or
 research across the codebase typically require 4+
 parallel agents. Before dispatching:
 
-**MUST enter plan mode first:**
+**MUST get user alignment first.** There are two
+compliant paths, and the second one did not exist when
+this rule was written:
 
-1. `EnterPlanMode`: design the agent strategy
-2. Specify: agent roster, scope per agent, output
-   contract
-3. Get user approval before launching agents
+1. `EnterPlanMode`: design the agent strategy, specify
+   the agent roster, the scope per agent and the output
+   contract, and get approval before launching agents.
+2. A **Workflow script**. The script is the plan, in a
+   form that executes. It carries its own user gate: a
+   workflow only runs when the user asks for one, by
+   name or with the `ultracode` keyword, so the
+   alignment this rule exists to force is still forced.
+
+Pick path 2 when the shape is known before the work
+(fan out, verify, synthesize, migrate a list). Pick
+path 1 when the roster has to adapt to what the first
+agents find.
+
+**What the script provides, that the plan asks for:**
+
+| This rule demands | A workflow provides |
+|-------------------|---------------------|
+| Agent roster | the `agent()` calls |
+| Scope per agent | each call's prompt |
+| Output contract | `schema`, validated at the tool-call layer, with model retry on mismatch |
+| Result integration | the script body |
+| Failure strategy | failed agents return `null`; a throwing stage drops that item |
+| Worktree isolation decision | `isolation: "worktree"` per agent |
+
+Results also stay in script variables rather than in
+the session, which is the direct answer to the context
+overflow this rule was written to prevent.
+
+**Constraints that come with path 2:**
+
+- Never start a workflow unasked. A quoted tip is not
+  a request.
+- A workflow's subagents inherit the tool allowlist.
+  The docs add that they always run in `acceptEdits`
+  with file edits auto-approved, whatever the
+  session's mode. Measured on CLI 2.1.241, the
+  session's mode decides it instead. One workflow,
+  one agent, one edited line in a scratch directory:
+  run from a manual-mode session it raised an
+  ordinary permission prompt both times and left the
+  file unchanged until approved, and run from an
+  accept-edits session it prompted for nothing and
+  finished in five seconds. So scope subagent prompts
+  on the assumption that edits land without review in
+  an `auto` or `accept edits` session, and do not
+  expect a manual-mode session to carry a long
+  fan-out to the end unattended.
+- The `ultracode` keyword does not fire from headless
+  routes (`-p`, SDK without a human-origin stamp,
+  scheduled prompts, webhooks), so nothing in egregore
+  or a night run starts one implicitly.
+- A script has no filesystem and no shell. A workflow
+  may find, rank and structure. It cannot be the step
+  that proves a test passed.
+- No module loading. A script containing `import()`
+  fails before the run starts, so work needing a
+  library belongs inside an agent's task.
+
+Full analysis, with the source for each claim:
+`reports/dynamic-workflows-integration-2026-08-23.md`
+(machine-local; `reports/` is gitignored).
+
+**The spend posture is pinned, not inherited:**
+
+`.claude/settings.json` sets `workflowSizeGuideline`
+to `medium`, which asks for fewer than 15 agents when
+Claude writes a workflow. That is also the built-in
+default, so the agent count Claude aims for does not
+move. Pinning it does change one thing: a guideline
+you choose replaces the default 25-agent threshold on
+the advisory `Large workflow` warning, so that warning
+fires here at 15 rather than 25, unless an environment
+override or a server-side gate moves it again. The pin is written
+down so a change to the default cannot silently resize
+the four workflows this repo ships, whose agent counts
+were sized against it. The key needs Claude Code
+v2.1.219 or later. Before that the effective
+guideline is `unrestricted`.
+
+This much is verified rather than read: on CLI
+2.1.241 the harness parses this repo's
+`.claude/settings.json`, recognizes the key, and
+rejects any value outside the four named above.
+Feeding it a fifth prints `Invalid settings` naming
+the file and the key.
+`tests/test_workflow_spend_posture.py` replays that
+check. What the guideline then does to the model's
+sizing is documented, not measured here.
+
+Two things follow from pinning it in a settings file:
+
+- A settings file takes precedence over `/config`,
+  and the `/config` row is hidden while one supplies
+  a value. `/config workflowSizeGuideline=small` will
+  not take while this file sets the key. Among
+  settings files this key resolves local over
+  project, measured by giving
+  `.claude/settings.local.json` and
+  `.claude/settings.json` different values and
+  reading back which one reached the model.
+- The guideline is advice to the model, not a cap.
+  The runtime bounds are what actually hold: up to
+  16 concurrent agents, fewer on fewer CPUs, and
+  1,000 per run.
+
+**What this file does not set, and why:**
+
+Project settings may bound what a workflow spends.
+They may not enable the capability that does the
+spending. `workflowSizeGuideline` bounds, so it is
+pinned. `enableWorkflows`, `disableWorkflows` and
+`ultracode` switch a billable feature on or off for
+everyone who clones the repo, so that stays with the
+person, not the checkout.
+
+`ultracode` is the one that matters most. It would
+have Claude plan a workflow for every substantive
+task, which is the unasked start the first constraint
+above forbids. CLI 2.1.241 does not validate the key,
+and an unrecognized key is dropped without an error,
+so setting it would be honored or ignored silently
+with no signal either way. The test is what notices.
+
+One consequence to know before you go looking: the
+docs say that when workflows are off, the bundled
+workflow commands become unavailable, and the four
+this repo ships presumably go with them. A
+contributor whose plan has workflows off will not see
+`/pensive:unified-review` or its siblings. Turning
+them on belongs in their `/config`, not in this
+file.
+
+The guideline sizes a run before it starts. Nothing
+in it measures what a run cost, so pair it with
+`Skill(conserve:agent-expenditure)` afterward.
 
 **Prefer tiered audit over full-codebase dispatch:**
 

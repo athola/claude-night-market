@@ -104,6 +104,20 @@ git log -p --since="30 days ago" --grep="workflow" -- plugins/sanctum/
 
 ### Phase 1: Retrospective Analysis
 
+Stages 2 to 4 below are three agents in a fixed order with structured
+handoffs, which is a script's shape. `/sanctum:fix-workflow-analysis`
+(`workflows/fix-workflow-analysis.js`) runs them as one pipeline and
+returns a plan. Use it when the slice is already captured and the
+roster does not need to adapt; use the agents directly otherwise. It
+only runs when asked for: a workflow never starts unasked.
+
+It deliberately stops before step 5. A workflow's subagents run in
+`acceptEdits` whatever the session's permission mode, so an implementer
+stage there would apply edits nobody saw proposed. The script also has
+no shell, so it cannot run one acceptance criterion it writes.
+Implementation and validation stay in the session, where the diff is
+visible and a command can actually be run.
+
 1. **Capture the target slice and key evidence:**
    - Load workflow-improvement skill: `Skill(sanctum:workflow-improvement)` or read `plugins/sanctum/skills/workflow-improvement/SKILL.md`
    - **Include Phase 0 findings** as additional context

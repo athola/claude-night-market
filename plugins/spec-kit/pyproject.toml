@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.9.18"
+version = "1.9.19"
 description = "Spec Driven Development toolkit with enhanced superpowers integration (synced with upstream spec-kit v0.5.0)"
 readme = "README.md"
 license = "MIT"
@@ -81,12 +81,14 @@ packages = ["src/speckit"]
 
 # Ruff configuration
 [tool.ruff]
+# Inherit the repo-wide rule floor; this file may only add.
+extend = "../../pyproject.toml"
 target-version = "py39"
 line-length = 88
 
 [tool.ruff.lint]
 extend-ignore = ["S101"]
-select = [
+extend-select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # pyflakes
@@ -102,7 +104,7 @@ ignore = [
     "C901",  # too complex
 ]
 
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "__init__.py" = ["F401"]
 "tests/*" = ["B011", "S101", "PLR2004", "D102", "D103", "S108", "D205"]
 "scripts/**/*.py" = ["S603", "T201"]

@@ -127,8 +127,10 @@ recurring patterns across those harnesses:
 | Legibility anchor | A persisted current-state or repo-map file that lets a human re-enter the loop | Aider repo map, agentic-os |
 | Human observer checkpoint | Watch early iterations, monitor diffs, reserve loops for defined problems | anthropics, ghuntley |
 
-Further rationale: `.claude/rules/prefer-invariants-over-fallbacks.md`
-(evidence base) and Armin Ronacher, "The Coming Loop" (2026),
+Further rationale: make the illegal state unrepresentable before
+guarding against it, because a fallback that hides an impossible case
+becomes silent corruption instead of a locatable crash. Armin
+Ronacher, "The Coming Loop" (2026),
 https://lucumr.pocoo.org/2026/6/23/the-coming-loop/. The flag
 is off by default; enabling it is a deliberate choice to keep a
 human as the final judge.

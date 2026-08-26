@@ -184,7 +184,7 @@ preflight for commit / PR / review),
 Invoked by hooks (PreToolUse / PostToolUse /
 SessionStart / Stop) rather than by other skills or
 users. Their value is enforcement; the hook system
-reads the SKILL.md to shape its own behaviour.
+reads the SKILL.md to shape its own behavior.
 
 Signature: plugin has hooks registered in
 `hooks/hooks.json` that reference the skill by name or
@@ -213,15 +213,23 @@ exposed the audit's measurement bug:
 | `tome:code-search` | orphan | library (loaded by `tome:research`) |
 | `tome:discourse` | orphan | library (loaded by `tome:research`) |
 | `leyline:supply-chain-advisory` | orphan | hook-target (read by dependency hooks) |
-| `conserve:agent-expenditure` | orphan | library (loaded by parallel-dispatch) |
-| `cartograph:call-chain` | orphan | library (loaded by visualize) |
+| `conserve:agent-expenditure` | orphan | entrypoint (agent-invoked; no skill loads it) |
+| `cartograph:call-chain` | orphan | entrypoint (`/cartograph:visualize call-chain`) |
 
-Verdict: 8 of 10 were correctly populated libraries that
+Verdict: 6 of 10 were correctly populated libraries that
 the `Skill()` regex could not see because their callers
-load them via `dependencies:` arrays in frontmatter, not
-inline `Skill(...)` invocations. The remaining two were
+load them via `dependencies:` or `orchestrates:` arrays in
+frontmatter, not inline `Skill(...)` invocations. Two were
 a genuine entrypoint (`pensive:blast-radius`) and a real
 hook-target (`leyline:supply-chain-advisory`).
+
+The last two were mislabeled by this table itself. It
+recorded a caller for each that does not exist: no skill
+or command loads `conserve:agent-expenditure`, and
+`/cartograph:visualize` did not route `call-chain` until
+2026-08-16. Both are agent- or command-invoked, so both
+now declare `role: entrypoint`. A library is a skill some
+other skill loads; naming a caller does not create one.
 
 This is a measurement bug in the audit rather than a
 coverage problem in the marketplace. The taxonomy is now the

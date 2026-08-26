@@ -1,3 +1,8 @@
+---
+name: visualize
+description: Generate visual diagrams of codebase structure using Mermaid Chart MCP rendering.
+---
+
 # Visualize Codebase
 
 Generate visual diagrams of codebase structure using
@@ -29,6 +34,8 @@ Mermaid Chart MCP rendering.
 | `dependency` | `cartograph:dependency-graph` | flowchart LR |
 | `workflow` | `cartograph:workflow-diagram` | flowchart TD/LR |
 | `class` | `cartograph:class-diagram` | classDiagram |
+| `call-chain` | `cartograph:call-chain` | flowchart TD |
+| `communities` | `cartograph:code-communities` | flowchart TD |
 
 ## Workflow
 
@@ -42,6 +49,9 @@ Mermaid Chart MCP rendering.
    - `workflow` invokes
      `Skill(cartograph:workflow-diagram)`
    - `class` invokes `Skill(cartograph:class-diagram)`
+   - `call-chain` invokes `Skill(cartograph:call-chain)`
+   - `communities` invokes
+     `Skill(cartograph:code-communities)`
 3. Pass scope argument to the skill
 4. Skill handles exploration, Mermaid generation, and
    MCP rendering

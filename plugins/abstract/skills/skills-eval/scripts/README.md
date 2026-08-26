@@ -4,43 +4,13 @@ This directory contains evaluation and analysis tools for Claude Skills, along w
 
 ## Shared Utilities
 
-### skill_utils.py
-
-Shared utilities module that provides common functions for skill parsing, token estimation, and analysis. Other plugins can import these utilities to avoid duplication.
-
-**Available Functions:**
+The parsing, token-estimation and formatting helpers this directory once
+documented live in the plugin package, not here. Import them from
+`abstract.utils` and `abstract.tokens`:
 
 ```python
-from skill_utils import (
-    parse_frontmatter,  # Parse YAML frontmatter from skill content
-    estimate_tokens,  # Estimate token count (4 chars/token)
-    load_skill_file,  # Load and parse a skill file
-    get_skill_name,  # Extract skill name from frontmatter
-    format_score,  # Format scores for display
-    get_efficiency_grade,  # Calculate efficiency grades (A-D)
-    get_optimization_level,  # Get optimization level descriptions
-)
-```
-
-**Usage in Other Plugins:**
-
-```python
-import sys
-from pathlib import Path
-
-# Add abstract's scripts directory to path (installed from claude-night-market marketplace)
-abstract_scripts = (
-    Path.home()
-    / ".claude/plugins/marketplaces/claude-night-market/plugins/abstract/skills/skills-eval/scripts"
-)
-sys.path.insert(0, str(abstract_scripts))
-
-# Import shared utilities
-from skill_utils import parse_frontmatter, estimate_tokens, load_skill_file
-
-# Use the utilities
-content, frontmatter = load_skill_file("path/to/SKILL.md")
-tokens = estimate_tokens(content)
+from abstract.frontmatter import FrontmatterProcessor
+from abstract.tokens import estimate_text_tokens
 ```
 
 ## Evaluation Tools
@@ -188,13 +158,7 @@ Conservation plugin example:
 import sys
 from pathlib import Path
 
-# Import from abstract (installed from claude-night-market marketplace)
-abstract_scripts = (
-    Path.home()
-    / ".claude/plugins/marketplaces/claude-night-market/plugins/abstract/skills/skills-eval/scripts"
-)
-sys.path.insert(0, str(abstract_scripts))
-from skill_utils import estimate_tokens, parse_frontmatter
+from abstract.tokens import estimate_text_tokens
 
 
 def analyze_resource_usage(skill_path: str):
@@ -202,7 +166,7 @@ def analyze_resource_usage(skill_path: str):
     with open(skill_path) as f:
         content = f.read()
 
-    tokens = estimate_tokens(content)
+    tokens = estimate_text_tokens(content)
     frontmatter = parse_frontmatter(content)
 
     # Conservation-specific analysis
@@ -258,7 +222,7 @@ done
 
 ### Adding New Utilities
 
-When adding new shared utilities to `skill_utils.py`:
+When adding new shared utilities to `src/abstract/`:
 
 1. Keep functions pure and focused
 2. Add type hints
@@ -286,7 +250,7 @@ def new_utility_function(param: str) -> Dict:
 
 ```bash
 # Test shared utilities
-python3 -c "from skill_utils import *; print(estimate_tokens('test' * 100))"
+python3 -c "from abstract.tokens import estimate_text_tokens; print(estimate_text_tokens('test' * 100))"
 
 # Test individual tools
 ./token-usage-tracker --skill-path ../SKILL.md

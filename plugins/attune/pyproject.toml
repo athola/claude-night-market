@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "attune-dev"
-version = "1.9.18"
+version = "1.9.19"
 description = "Development tools for the attune Claude Code plugin - project initialization and workflow automation"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -45,12 +45,14 @@ dev = [
 packages = ["scripts"]
 
 [tool.ruff]
+# Inherit the repo-wide rule floor; this file may only add.
+extend = "../../pyproject.toml"
 line-length = 88
 target-version = "py39"
 exclude = [".venv", ".uv-cache", "__pycache__"]
 
 [tool.ruff.lint]
-select = [
+extend-select = [
   "E",   # pycodestyle errors
   "W",   # pycodestyle warnings
   "F",   # pyflakes
@@ -70,7 +72,7 @@ extend-ignore = [
     "D213",   # multi-line-summary-second-line
 ]
 
-[tool.ruff.lint.per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "**/__init__.py" = ["F401", "D107"]
 "tests/**/*.py" = [
     "S101",     # Allow asserts in tests

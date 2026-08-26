@@ -74,7 +74,8 @@ def test_commit():
 ```python
 @pytest.mark.bdd
 def test_commit_workflow_with_staged_file():
-    """
+    """A staged file is reported as staged.
+
     GIVEN a Git repository with a staged file
     WHEN the user commits with a message
     THEN the commit should be created successfully
@@ -133,7 +134,8 @@ def test_parse_number():
     ],
 )
 def test_parse_number_valid_inputs(input_str, expected, description):
-    """
+    """Valid numeric strings parse to their value.
+
     GIVEN various valid number strings
     WHEN parsing the string
     THEN it should return the correct number
@@ -152,7 +154,8 @@ def test_parse_number_valid_inputs(input_str, expected, description):
     ],
 )
 def test_parse_number_invalid_inputs(invalid_input):
-    """
+    """Invalid input is rejected rather than coerced.
+
     GIVEN invalid number inputs
     WHEN parsing the string
     THEN it should raise a ValueError
@@ -190,7 +193,8 @@ class TestGitRepository:
 
     @pytest.mark.bdd
     def test_init_creates_git_directory(self):
-        """
+        """A plain directory is not mistaken for a repository.
+
         GIVEN a directory path
         WHEN initializing a git repository
         THEN it should create a .git directory
@@ -199,7 +203,8 @@ class TestGitRepository:
 
     @pytest.mark.bdd
     def test_init_with_existing_repo_raises_error(self):
-        """
+        """An initialized repository is recognized.
+
         GIVEN an existing git repository
         WHEN initializing again
         THEN it should raise RepositoryError

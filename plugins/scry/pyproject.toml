@@ -1,6 +1,6 @@
 [project]
 name = "scry"
-version = "1.9.18"
+version = "1.9.19"
 description = "Media generation capabilities for terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
@@ -37,11 +37,13 @@ markers = [
 ]
 
 [tool.ruff]
+# Inherit the repo-wide rule floor; this file may only add.
+extend = "../../pyproject.toml"
 line-length = 88
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "PLR0913"]
+extend-select = ["E", "W", "F", "I", "B", "C4", "PLR0913"]
 
 [tool.mypy]
 python_version = "3.9"

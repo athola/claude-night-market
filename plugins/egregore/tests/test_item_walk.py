@@ -1,0 +1,991 @@
+"""Tests for walking a whole work item, not just one task.
+
+The walker is where a night either produces reviewable branches or
+produces a mess. What is pinned here: dependency order is honored, each
+passing task becomes its own commit, a failing task parks the item
+instead of pressing on, and the on-plan token ceiling stops the run
+with everything already committed still committed.
+"""
+
+from __future__ import annotations
+
+import shlex
+from collections.abc import Sequence
+from pathlib import Path
+
+import night_run
+import pytest
+from budget import Budget
+
+
+class FakeRunner:
+    """A scripted runner that records every command, in order.
+
+    ``Runner.run`` takes argv. ``argv`` holds what the driver built;
+    ``calls`` and ``invocations`` hold the joined strings the substring
+    assertions read. The join lives in this double, not on the path to
+    ``subprocess.run``.
+    """
+
+    def __init__(self, script: dict[str, tuple[int, str]] | None = None) -> None:
+        """Map a command substring to the (exit code, output) it yields."""
+        self.script = script or {}
+        self.calls: list[str] = []
+        self.argv: list[list[str]] = []
+        self.invocations: list[tuple[str, Path | None]] = []
+
+    def run(
+        self,
+        command: Sequence[str],
+        cwd: Path | None = None,
+        timeout: int = 0,
+        env=None,
+    ):
+        del timeout
+        self.argv.append(list(command))
+        joined = shlex.join(command)
+        self.calls.append(joined)
+        self.invocations.append((joined, cwd))
+        matchable = self._without_absolute_paths(joined)
+        for key, (code, out) in self.script.items():
+            if key in matchable:
+                return night_run.Completed(returncode=code, output=out)
+        return night_run.Completed(returncode=0, output="")
+
+    @staticmethod
+    def _without_absolute_paths(command: str) -> str:
+        """Drop absolute-path arguments before matching a script key.
+
+        Every script key names a command -- "pytest", "uv sync",
+        "git commit". None names a path. Matching against the whole
+        command line let an argument decide the answer: ``tmp_path`` is
+        ``/tmp/pytest-of-<user>/pytest-N/...``, so the worktree path
+        carried the substring "pytest" and ``git worktree add`` returned
+        whatever the suite had scripted for the test command. That was
+        harmless only while the walker discarded the exit code.
+        """
+        return " ".join(t for t in command.split() if not t.startswith("/"))
+
+
+def mktask(tid: str, deps: list[str], expect: str = "pass") -> dict:
+    return {
+        "id": tid,
+        "title": f"task {tid}",
+        "change": "do it",
+        "files": [f"a/{tid}.py"],
+        "evidence": {
+            "command": f"pytest -q -k {tid}",
+            "expect": expect,
+            "match": "1 failed" if expect == "fail" else "1 passed",
+        },
+        "depends_on": deps,
+    }
+
+
+HANDOFF = {
+    "item": "NS-001",
+    "branch": "night/NS-001",
+    "base_branch": "main",
+    "worktree": ".egregore/worktrees/NS-001",
+    "scope": {"allow_paths": ["a/"], "max_diff_lines": 200},
+    "commands": {
+        "setup": "uv sync",
+        "test": "pytest -q",
+        "full_test": "pytest -q",
+    },
+    "budget": {
+        "max_tasks": 6,
+        "max_attempts_per_task": 1,
+        "implementer_timeout_s": 900,
+        "claude_token_ceiling": 120000,
+    },
+    "implementer": {"provider": "auto", "allow_on_plan_fallback": False},
+    "babysitter": {"model": "sonnet"},
+}
+
+
+def passing_sitter(**_):
+    return ("PASS", "", "")
+
+
+class TestTopoSort:
+    """Dependency order, decided once and not by the model."""
+
+    def test_dependencies_come_first(self) -> None:
+        tasks = [mktask("T2", ["T1"]), mktask("T1", [])]
+        assert [t["id"] for t in night_run.topo_sort(tasks)] == ["T1", "T2"]
+
+    def test_independent_tasks_keep_their_declared_order(self) -> None:
+        tasks = [mktask("T1", []), mktask("T2", []), mktask("T3", [])]
+        assert [t["id"] for t in night_run.topo_sort(tasks)] == ["T1", "T2", "T3"]
+
+    def test_a_diamond_resolves(self) -> None:
+        tasks = [
+            mktask("T4", ["T2", "T3"]),
+            mktask("T2", ["T1"]),
+            mktask("T3", ["T1"]),
+            mktask("T1", []),
+        ]
+        order = [t["id"] for t in night_run.topo_sort(tasks)]
+        assert order[0] == "T1"
+        assert order[-1] == "T4"
+        assert order.index("T2") < order.index("T4")
+
+    def test_a_cycle_raises_rather_than_guessing(self) -> None:
+        tasks = [mktask("T1", ["T2"]), mktask("T2", ["T1"])]
+        with pytest.raises(ValueError, match="cycle"):
+            night_run.topo_sort(tasks)
+
+
+class TestWorktreeSetup:
+    """The item gets its own tree, cut from the declared base."""
+
+    def test_worktree_is_created_from_the_base_branch(self, tmp_path: Path) -> None:
+        runner = FakeRunner({"pytest": (0, "1 passed")})
+        night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        add = [c for c in runner.calls if "worktree add" in c]
+        assert add, "the item must get its own worktree"
+        assert "night/NS-001" in add[0]
+        assert "main" in add[0]
+
+    def test_setup_command_runs_before_any_task(self, tmp_path: Path) -> None:
+        runner = FakeRunner({"pytest": (0, "1 passed")})
+        night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        setup = next(i for i, c in enumerate(runner.calls) if "uv sync" in c)
+        first_dispatch = next(
+            i for i, c in enumerate(runner.calls) if "delegation_executor" in c
+        )
+        assert setup < first_dispatch
+
+
+class TestCommitPerTask:
+    """One commit per task, so the morning diff reads in order."""
+
+    def test_each_passing_task_is_committed(self, tmp_path: Path) -> None:
+        runner = FakeRunner(
+            {"pytest -q -k T1": (1, "1 failed"), "pytest": (0, "1 passed")}
+        )
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail"), mktask("T2", ["T1"])],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        commits = [c for c in runner.calls if "git" in c and "commit" in c]
+        assert len(commits) == 2
+        assert "T1" in commits[0]
+        assert "T2" in commits[1]
+        assert result.committed == ["T1", "T2"]
+
+    def test_a_failing_task_is_not_committed_and_parks_the_item(
+        self, tmp_path: Path
+    ) -> None:
+        runner = FakeRunner({"pytest": (1, "1 failed")})
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail"), mktask("T2", ["T1"])],
+            tmp_path,
+            runner,
+            babysitter=lambda **_: ("FAIL", "not done", ""),
+        )
+        assert result.status == "parked_task"
+        assert result.committed == ["T1"]
+        assert "T2" in result.reason
+
+    def test_a_later_task_does_not_run_after_a_park(self, tmp_path: Path) -> None:
+        runner = FakeRunner({"pytest": (1, "1 failed")})
+        night_run.run_item(
+            HANDOFF,
+            [mktask("T1", []), mktask("T2", ["T1"])],
+            tmp_path,
+            runner,
+            babysitter=lambda **_: ("FAIL", "no", ""),
+        )
+        assert not any("-k T2" in c for c in runner.calls)
+
+
+class TestFullSuite:
+    """The item is only ready when the whole suite agrees."""
+
+    def test_full_suite_runs_after_every_task_passes(self, tmp_path: Path) -> None:
+        runner = FakeRunner(
+            {"pytest -q -k T1": (1, "1 failed"), "pytest": (0, "1 passed")}
+        )
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        assert result.status == "ready"
+        assert result.full_suite is not None
+        assert result.full_suite["exit"] == 0
+
+    def test_a_red_full_suite_does_not_report_ready(self, tmp_path: Path) -> None:
+        runner = FakeRunner(
+            {
+                "pytest -q -k T1": (1, "1 failed"),
+                "-q -k": (0, "1 passed"),
+                "pytest -q": (1, "3 failed"),
+            }
+        )
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        assert result.status == "full_suite_red"
+
+
+class TestTokenCeiling:
+    """The ceiling stops the run; it does not discard what already passed."""
+
+    def test_the_ceiling_stops_the_run(self, tmp_path: Path) -> None:
+        handoff = {
+            **HANDOFF,
+            "budget": {**HANDOFF["budget"], "claude_token_ceiling": 1},
+        }
+        runner = FakeRunner(
+            {"pytest -q -k T1": (1, "1 failed"), "pytest": (0, "1 passed")}
+        )
+        # A ceiling of 1 admits nothing at all, which is the correct
+        # reading of a ceiling of 1.
+        result = night_run.run_item(
+            handoff,
+            [mktask("T1", [], expect="fail"), mktask("T2", ["T1"])],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        assert result.status == "parked_budget"
+        assert "ceiling" in result.reason
+
+    def test_work_done_before_the_ceiling_stays_committed(self, tmp_path: Path) -> None:
+        """A ceiling stops the run. It does not roll back proven work."""
+        # 40 chars of diff plus a short tail costs roughly 12 tokens per
+        # check, so 20 admits T1's check and refuses T2's.
+        handoff = {
+            **HANDOFF,
+            "budget": {**HANDOFF["budget"], "claude_token_ceiling": 20},
+        }
+        runner = FakeRunner(
+            {
+                "git diff --unified=0": (0, "x" * 40),
+                "pytest -q -k T1": (1, "1 failed"),
+                "pytest": (0, "1 passed"),
+            }
+        )
+        result = night_run.run_item(
+            handoff,
+            [mktask("T1", [], expect="fail"), mktask("T2", ["T1"])],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        assert result.status == "parked_budget"
+        assert result.committed == ["T1"], "the ceiling must not discard a proven task"
+        assert any("commit" in c and "T1" in c for c in runner.calls)
+
+    def test_spend_accumulates_into_the_shared_budget(self, tmp_path: Path) -> None:
+        budget = Budget()
+        runner = FakeRunner(
+            {"pytest -q -k T1": (1, "1 failed"), "pytest": (0, "1 passed")}
+        )
+        night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+            budget=budget,
+        )
+        assert budget.estimated_tokens_used > 0
+
+
+class TestProofFile:
+    """Every item leaves a ledger a human reads without rerunning anything."""
+
+    def test_proof_is_written_next_to_the_item(self, tmp_path: Path) -> None:
+        item_dir = tmp_path / "items" / "NS-001"
+        item_dir.mkdir(parents=True)
+        runner = FakeRunner(
+            {"pytest -q -k T1": (1, "1 failed"), "pytest": (0, "1 passed")}
+        )
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        proof = night_run.write_proof(item_dir, result)
+        assert proof.exists()
+        text = proof.read_text()
+        assert "NS-001" in text
+        assert "| T1 |" in text
+        assert result.status in text
+
+
+class TestCeilingIsHard:
+    """A ceiling that can be overshot is not a ceiling.
+
+    Checking only between tasks lets a run exceed its limit by a whole
+    task's cost. The check belongs where the spend happens: immediately
+    before the babysitter call that would cross the line.
+    """
+
+    def test_the_ceiling_is_never_exceeded(self, tmp_path: Path) -> None:
+        handoff = {
+            **HANDOFF,
+            "budget": {**HANDOFF["budget"], "claude_token_ceiling": 150},
+        }
+        runner = FakeRunner(
+            {
+                "git diff --unified=0": (0, "x" * 400),
+                "pytest -q -k T1": (1, "1 failed"),
+                "pytest": (0, "1 passed"),
+            }
+        )
+        result = night_run.run_item(
+            handoff,
+            [mktask("T1", [], expect="fail"), mktask("T2", ["T1"])],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        assert result.estimated_tokens <= 150, (
+            f"spent {result.estimated_tokens} against a ceiling of 150"
+        )
+        assert result.status == "parked_budget"
+
+    def test_a_run_that_fits_is_not_parked(self, tmp_path: Path) -> None:
+        runner = FakeRunner(
+            {
+                "git diff --unified=0": (0, "x" * 40),
+                "pytest -q -k T1": (1, "1 failed"),
+                "pytest": (0, "1 passed"),
+            }
+        )
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail"), mktask("T2", ["T1"])],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        assert result.status == "ready"
+        assert result.committed == ["T1", "T2"]
+
+    def test_the_task_that_would_cross_the_line_is_not_committed(
+        self, tmp_path: Path
+    ) -> None:
+        handoff = {
+            **HANDOFF,
+            "budget": {**HANDOFF["budget"], "claude_token_ceiling": 150},
+        }
+        runner = FakeRunner(
+            {
+                "git diff --unified=0": (0, "x" * 400),
+                "pytest -q -k T1": (1, "1 failed"),
+                "pytest": (0, "1 passed"),
+            }
+        )
+        result = night_run.run_item(
+            handoff,
+            [mktask("T1", [], expect="fail"), mktask("T2", ["T1"])],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        assert "T2" not in result.committed
+
+
+class TestRateLimitParksTheRun:
+    """A refusal from the provider or the judge stops the night cleanly.
+
+    The reset instant lands in the same `cooldown_until` that
+    `scripts/watchdog.sh` already reads, so the OS timer egregore already
+    installs becomes the resume-at-renewal scheduler. No second scheduler
+    is introduced, because the reset semantics of the usage windows are
+    not publicly documented and a second scheduler would have to guess.
+    """
+
+    def test_a_rate_limited_evidence_run_parks_the_item(self, tmp_path: Path) -> None:
+        runner = FakeRunner(
+            {
+                "pytest": (
+                    1,
+                    "API Error: Request rejected (429)\n"
+                    "anthropic-ratelimit-tokens-reset: 2099-01-01T00:00:00Z",
+                )
+            }
+        )
+        budget = Budget()
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+            budget=budget,
+        )
+        assert result.status == "parked_rate_limit"
+        assert budget.cooldown_until is not None
+        assert budget.cooldown_until.startswith("2099-01-01")
+
+    def test_an_unparseable_rate_limit_still_parks_with_a_wait(
+        self, tmp_path: Path
+    ) -> None:
+        runner = FakeRunner({"pytest": (1, "API Error: Request rejected (429)")})
+        budget = Budget()
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+            budget=budget,
+        )
+        assert result.status == "parked_rate_limit"
+        assert budget.cooldown_until is not None
+
+    def test_a_spend_cap_is_named_separately(self, tmp_path: Path) -> None:
+        """Waiting out a spend cap can mean waiting until next month."""
+        runner = FakeRunner(
+            {
+                "pytest": (
+                    1,
+                    "You have reached your API usage limits: You will regain "
+                    "access on 2099-09-01 at 00:00 UTC.",
+                )
+            }
+        )
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        assert result.status == "parked_spend_limit"
+
+    def test_an_ordinary_test_failure_is_not_mistaken_for_a_limit(
+        self, tmp_path: Path
+    ) -> None:
+        runner = FakeRunner({"pytest": (1, "1 failed: assert 4 == 5")})
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [])],
+            tmp_path,
+            runner,
+            babysitter=lambda **_: ("FAIL", "no", ""),
+        )
+        assert result.status == "parked_task"
+
+
+#: A runner script whose keys are ordered most-specific first, because
+#: FakeRunner returns the first substring match.
+def dirty_script(exit_code: int = 1) -> dict:
+    """Scripted git output for a tree with one edited and one new file."""
+    return {
+        "git diff --name-only": (0, "a/T1.py\n"),
+        "git diff --numstat": (0, "3\t1\ta/T1.py\n"),
+        "git diff --unified=0": (0, "@@ -1 +1 @@\n-old\n+new\n"),
+        "git status --porcelain": (0, " M a/T1.py\n?? a/scratch.tmp\n"),
+        "git diff": (0, "diff --git a/a/T1.py b/a/T1.py\n+new line\n"),
+        "pytest": (exit_code, "1 failed"),
+    }
+
+
+class TestWorktreeIsCutFromTheProjectRoot:
+    """Where `git worktree add` runs decides which repository is cut."""
+
+    def test_the_worktree_add_runs_in_the_project_root(self, tmp_path: Path) -> None:
+        """It must not inherit whatever directory the process is in.
+
+        With ``cwd=None`` the command runs wherever the driver happens to
+        have been started, so a night run launched from another checkout
+        would cut the item's worktree out of the wrong repository.
+        """
+        runner = FakeRunner({"pytest": (0, "1 passed")})
+        night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        add = [(c, cwd) for c, cwd in runner.invocations if "worktree add" in c]
+        assert add, "the item must get its own worktree"
+        assert add[0][1] == tmp_path
+
+
+class TestParkLeavesACleanTree:
+    """A parked item must not leave unjudged edits lying in the worktree.
+
+    The task that did not finish was still dispatched, so the implementer
+    already wrote something. It carries no proof row and no commit. Left
+    in place it is invisible to the morning review and it is re-applied
+    on top of itself when the task is dispatched again.
+    """
+
+    def test_a_parked_task_reverts_what_it_left_behind(self, tmp_path: Path) -> None:
+        runner = FakeRunner(dirty_script())
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [])],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        assert result.status == "parked_task"
+        reverts = [c for c in runner.calls if "checkout -- ." in c]
+        assert reverts, "the parked tree must be reverted to HEAD"
+
+    def test_what_was_discarded_is_recorded_before_it_is_reverted(
+        self, tmp_path: Path
+    ) -> None:
+        runner = FakeRunner(dirty_script())
+        result = night_run.run_item(
+            HANDOFF, [mktask("T1", [])], tmp_path, runner, babysitter=passing_sitter
+        )
+        assert result.discarded is not None
+        assert "a/T1.py" in result.discarded.files
+        assert result.discarded.diff
+
+    def test_untracked_files_are_recorded_and_not_deleted(self, tmp_path: Path) -> None:
+        """Recording beats a blind clean, which would take setup with it."""
+        runner = FakeRunner(dirty_script())
+        result = night_run.run_item(
+            HANDOFF, [mktask("T1", [])], tmp_path, runner, babysitter=passing_sitter
+        )
+        assert result.discarded is not None
+        assert "a/scratch.tmp" in result.discarded.untracked
+        assert not [c for c in runner.calls if "clean -fd" in c]
+
+    def test_the_ceiling_park_also_cleans_up(self, tmp_path: Path) -> None:
+        handoff = dict(HANDOFF)
+        handoff["budget"] = {**HANDOFF["budget"], "claude_token_ceiling": 1}
+        runner = FakeRunner(dirty_script(exit_code=0))
+        result = night_run.run_item(
+            handoff, [mktask("T1", [])], tmp_path, runner, babysitter=passing_sitter
+        )
+        assert result.status == "parked_budget"
+        assert [c for c in runner.calls if "checkout -- ." in c]
+
+    def test_a_clean_tree_records_nothing(self, tmp_path: Path) -> None:
+        """No discard section when the implementer left nothing behind."""
+        runner = FakeRunner({"pytest": (1, "1 failed")})
+        result = night_run.run_item(
+            HANDOFF, [mktask("T1", [])], tmp_path, runner, babysitter=passing_sitter
+        )
+        assert result.status == "parked_task"
+        assert result.discarded is None
+
+    def test_the_proof_shows_what_was_discarded(self, tmp_path: Path) -> None:
+        runner = FakeRunner(dirty_script())
+        result = night_run.run_item(
+            HANDOFF, [mktask("T1", [])], tmp_path, runner, babysitter=passing_sitter
+        )
+        proof = night_run.write_proof(tmp_path / "item", result).read_text()
+        assert "Discarded at park" in proof
+        assert "a/T1.py" in proof
+        assert "a/scratch.tmp" in proof
+
+
+class TestScopeSeesFilesTheImplementerCreates:
+    """A created file is in scope for the fence, or the fence is decorative."""
+
+    def test_a_created_file_outside_the_allowlist_is_refused(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The implementer creates a file the allowlist forbids
+        Given `git diff --name-only` lists tracked modifications only
+        When the scope fence runs
+        Then the task fails as out of scope
+
+        The fence read only tracked modifications, so an implementer that
+        creates a file produced an empty changed list and check_scope was
+        never given anything to judge. The first entry in DENY_PATTERNS is
+        `.github/**`, described as a path where an unattended overnight
+        edit changes the rules the harness itself runs under -- and
+        creating a workflow file is exactly that, so the denylist's own
+        headline case was the one it could not see.
+        """
+        runner = FakeRunner(
+            {
+                "git status --porcelain": (0, "?? .github/workflows/evil.yml\n"),
+                "pytest": (0, "1 passed"),
+            }
+        )
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.status != "DONE"
+        assert result.tasks and result.tasks[-1].verdict == "FAIL"
+        assert "out of scope" in result.tasks[-1].reason
+        assert ".github/workflows/evil.yml" in result.tasks[-1].reason
+
+    def test_a_created_offender_is_removed_not_checked_out(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The offending file is untracked
+        When the fence reverts it
+        Then git clean runs against it, not git checkout
+
+        The second, independent gap. `git checkout --` cannot remove a
+        file git has never seen: it exits 1 with "pathspec ... did not
+        match any file(s) known to git" and leaves the file in place,
+        while the steer text and the proof both assert the tree was
+        reverted.
+        """
+        runner = FakeRunner(
+            {
+                "git status --porcelain": (0, "?? .github/workflows/evil.yml\n"),
+                "pytest": (0, "1 passed"),
+            }
+        )
+
+        night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        cleans = [c for c in runner.calls if "git clean" in c]
+        assert cleans, "an untracked offender must be removed with git clean"
+        assert ".github/workflows/evil.yml" in cleans[0]
+
+    def test_untracked_listing_names_the_file_not_its_directory(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The implementer creates a wholly new directory
+        When untracked paths are listed
+        Then the file is reported, not the directory
+
+        Plain `--porcelain` collapses a new directory to `.github/`. That
+        still matches the denylist by luck, but it reports the directory
+        to the allowlist and into the steer message, so the implementer
+        is told the wrong thing and a nested allowlist entry cannot be
+        judged. `-uall` names the file.
+        """
+        runner = FakeRunner({"git status --porcelain": (0, "?? .github/\n")})
+
+        night_run._untracked(runner, tmp_path)
+
+        listing = [c for c in runner.calls if "git status" in c]
+        assert listing and "-uall" in listing[0]
+
+    def test_a_revert_that_fails_does_not_claim_the_tree_was_reverted(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The revert command exits non-zero
+        When the steer message is written for the next attempt
+        Then it does not assert the edits were reverted
+
+        Both revert exit codes were discarded while the steer text and
+        the proof asserted the tree was clean. An implementer told its
+        edits were undone, over a tree where they survive, works from a
+        false premise on every later attempt.
+        """
+        runner = FakeRunner(
+            {
+                "git status --porcelain": (0, "?? .github/workflows/evil.yml\n"),
+                "git checkout": (1, "error: pathspec did not match"),
+                "git clean": (1, "error: refusing to clean"),
+                "pytest": (0, "1 passed"),
+            }
+        )
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.tasks and result.tasks[-1].verdict == "BLOCKED"
+        assert "could not be reverted" in result.tasks[-1].reason
+
+
+class TestTheRunDoesNotProceedOverASilentFailure:
+    """A git command whose exit code nobody read is not evidence."""
+
+    def test_a_failed_worktree_add_stops_the_item(self, tmp_path: Path) -> None:
+        """
+        Scenario: `git worktree add` fails
+        When the item walks
+        Then it stops instead of running tasks somewhere else
+
+        The exit code was discarded, so a branch name already in use or a
+        stale worktree left the run proceeding against whatever directory
+        happened to be at that path -- or against none.
+        """
+        runner = FakeRunner(
+            {"worktree add": (128, "fatal: branch 'night/NS-001' already exists")}
+        )
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.status == "setup_failed"
+        assert not result.committed
+
+    def test_a_failed_setup_command_stops_the_item(self, tmp_path: Path) -> None:
+        """
+        Scenario: `commands.setup` fails
+        When the item walks
+        Then it stops rather than testing an unbuilt tree
+
+        A failed `uv sync` leaves every later test failing for a reason
+        that has nothing to do with the task, and the babysitter is asked
+        to judge the resulting mess.
+        """
+        runner = FakeRunner({"uv sync": (1, "error: no such package")})
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.status == "setup_failed"
+
+    def test_a_failed_commit_does_not_record_the_task_as_committed(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: `git commit` fails after a passing task
+        When the item walks
+        Then the task is not listed as committed
+
+        The exit codes were discarded and the task id was appended
+        unconditionally, so the morning's proof named commits that do not
+        exist. A pre-commit hook rejecting the change is the ordinary way
+        this happens.
+        """
+        runner = FakeRunner(
+            {
+                "pytest": (1, "1 failed"),
+                "git commit": (1, "pre-commit hook rejected the change"),
+            }
+        )
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.committed == []
+        assert "commit" in result.reason.lower()
+
+    def test_the_per_task_commit_stages_only_the_task_files(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A task passes and is committed
+        When the change is staged
+        Then `git add -A` is not used
+
+        `git add -A` stages the whole tree, so anything the implementer
+        left outside the task's files rides along in the commit, and the
+        later scope checks -- which read `git diff`, the unstaged view --
+        pass vacuously over it.
+        """
+        runner = FakeRunner({"pytest": (1, "1 failed")})
+
+        night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert not [c for c in runner.calls if "add -A" in c]
+
+    def test_an_absent_full_test_is_recorded_rather_than_skipped(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The handoff declares no commands.full_test
+        When the item finishes
+        Then the proof records that the final gate never ran
+
+        The gate was skipped silently and the proof simply omitted the
+        section, so "no full-suite section" read identically to "the file
+        predates the feature". A reviewer cannot tell a gate that passed
+        from one that was never asked to run.
+        """
+        handoff = {**HANDOFF, "commands": {"setup": "uv sync", "test": "pytest -q"}}
+        runner = FakeRunner({"pytest": (1, "1 failed")})
+
+        result = night_run.run_item(
+            handoff,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert result.full_suite is not None
+        assert result.full_suite.get("skipped") is True
+
+
+class TestQuotaClassificationReadsTheRightThing:
+    """A 429 in a test's own output is not the account being throttled."""
+
+    def test_a_test_failure_mentioning_429_is_not_a_rate_limit(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: A task's own test output contains "429"
+        When the evidence command exits non-zero
+        Then the item fails rather than parking for quota
+
+        classify() reads any "429" in the output, and the evidence command
+        is a test suite -- one asserting on an HTTP status is ordinary.
+        Parking on it records no failure, and the watchdog relaunches
+        every thirty minutes against a red test that will never go green
+        on its own.
+        """
+        runner = FakeRunner(
+            {"pytest": (1, "assert response.status_code == 429\n1 failed")}
+        )
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="pass")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert not result.status.startswith("parked_rate")
+
+
+class TestTheHandoffWorktreeKeyIsValidated:
+    """`root / declared` is not a containment check.
+
+    Python's path join discards the left side when the right is
+    absolute, so a handoff naming `/` put the run in the filesystem
+    root, and `..` segments walked out of the repository. What runs
+    inside the result is `git checkout -- .` and `git clean -fd`.
+    """
+
+    @staticmethod
+    def _walk(tmp_path: Path, worktree: object):
+        handoff = {**HANDOFF, "worktree": worktree}
+        return night_run.run_item(
+            handoff,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            FakeRunner({"pytest": (0, "1 passed")}),
+            babysitter=passing_sitter,
+        )
+
+    def test_an_absolute_worktree_is_refused(self, tmp_path: Path) -> None:
+        result = self._walk(tmp_path, "/")
+        assert result.status == "setup_failed"
+        assert "relative path" in result.reason
+
+    def test_a_parent_segment_is_refused(self, tmp_path: Path) -> None:
+        result = self._walk(tmp_path, "../elsewhere")
+        assert result.status == "setup_failed"
+        assert "relative path" in result.reason
+
+    def test_a_non_string_worktree_is_refused(self, tmp_path: Path) -> None:
+        result = self._walk(tmp_path, 17)
+        assert result.status == "setup_failed"
+        assert "must be a string" in result.reason
+
+    def test_an_ordinary_relative_worktree_is_still_used(self, tmp_path: Path) -> None:
+        runner = FakeRunner({"pytest": (0, "1 passed")})
+        night_run.run_item(
+            {**HANDOFF, "worktree": "trees/ns-001"},
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+        add = [c for c in runner.calls if "worktree add" in c]
+        assert add and "trees/ns-001" in add[0]
+
+
+class TestTheProofRecordsABabysitterDissent:
+    """The dissent section was pinned by nothing.
+
+    Deleting it left the suite green. That section is the only place a
+    reviewer learns the judge disagreed with a task the evidence
+    passed, which is `verdict.reconcile`'s one deliberate loosening:
+    the objection is not a 3am block, it is a note for the morning. A
+    proof that silently drops it turns a recorded disagreement into no
+    disagreement at all.
+    """
+
+    @staticmethod
+    def _result(dissent: bool):
+        return night_run.ItemResult(
+            item="NS-001",
+            status="done",
+            tasks=[
+                night_run.TaskResult(
+                    task_id="T1",
+                    verdict="PASS",
+                    reason="the judge wanted a wider assertion",
+                    dissent=dissent,
+                )
+            ],
+        )
+
+    def test_a_dissent_reaches_the_proof(self, tmp_path: Path) -> None:
+        proof = night_run.write_proof(tmp_path / "item", self._result(True)).read_text()
+
+        assert "Babysitter dissents" in proof
+        assert "the judge wanted a wider assertion" in proof
+
+    def test_an_undissented_run_carries_no_such_section(self, tmp_path: Path) -> None:
+        proof = night_run.write_proof(
+            tmp_path / "item", self._result(False)
+        ).read_text()
+
+        assert "Babysitter dissents" not in proof

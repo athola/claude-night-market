@@ -160,20 +160,24 @@ Understand the current state before doing anything else:
 - What pipeline stage and step is each active item on?
 - Is there a cooldown in effect from a prior rate limit?
 
-Then schedule a progress pulse (2.1.71+, all providers
-2.1.73+):
+Then schedule a progress pulse:
 
 ```
 CronCreate(
   cron: "*/5 * * * *",
   prompt: "/egregore:status",
-  recurring: true,
-  durable: true
+  recurring: true
 )
 ```
 
 This emits a status summary every 5 minutes between turns,
 giving live visibility into autonomous runs.
+
+Do not pass `durable: true`. The parameter exists but the
+tool's description says it "has no effect": every job is
+session-only and held in memory. The pulse therefore lasts
+as long as this session does, and recurring jobs auto-expire
+after 7 days, firing once more before they are deleted.
 
 ## Orchestration Loop
 
@@ -285,10 +289,12 @@ When you encounter a rate limit error:
 
 3. **Save all state** to manifest.json.
 
-4. **Schedule in-session recovery** (2.1.71+, preferred):
-   Use `CronCreate` to schedule a one-shot resume prompt
-   at the cooldown expiry time. This keeps the session
-   alive and avoids restart overhead:
+4. **Schedule in-session recovery** (attended sessions
+   only): `CronCreate` schedules a one-shot resume prompt
+   at the cooldown expiry. Its jobs live only in the
+   running session and are written to no disk, so use this
+   only when the session will still be alive and idle at
+   that time. For an unattended run, skip to step 5:
 
    ```
    CronCreate(
@@ -298,15 +304,17 @@ When you encounter a rate limit error:
    )
    ```
 
-   Calculate the cron expression from `cooldown_until`.
-   The session stays idle until the scheduled prompt
-   fires, then the orchestration loop resumes with full
-   context preserved.
+   Build the cron with `window.cron_for(reset_at)`, which
+   pins the day and month. A `<min> <hour> * * *` form is a
+   daily expression and fires on the wrong day whenever the
+   reset is more than 24 hours out.
 
-5. **Fallback: exit cleanly.** If `CronCreate` is
-   unavailable (pre-2.1.71) or the cooldown exceeds 7
-   days, exit with code 0. The watchdog will relaunch
-   after the cooldown period expires.
+5. **Exit cleanly, and let the watchdog resume.** This is
+   the default for any unattended run. Exit with code 0.
+   The watchdog reads `budget.cooldown_until` and relaunches
+   once the window has renewed. It is the only path here
+   that survives the session exiting or the machine
+   rebooting.
 
 Do not retry in a loop. Do not sleep. Schedule or exit.
 
@@ -384,6 +392,10 @@ considering whether to exit:
    issues or TODOs. Stay alive. Do not exit. Only
    `/egregore:dismiss` can stop you.
 
+   Staying alive is what makes this work: the poll job is
+   session-only, so exiting discards it. Re-schedule it
+   after 7 days, when recurring jobs auto-expire.
+
    **Bounded mode**: check if the time window has
    expired (`now >= started_at + time_window`). If yes,
    save the manifest, remove the pidfile, and exit. If
@@ -444,14 +456,17 @@ work, it re-enters the loop:
 CronCreate(
   cron: "*/5 * * * *",
   prompt: "Check .egregore/manifest.json. If there are pending or active items that are not being processed, resume the orchestration loop by invoking Skill(egregore:summon).",
-  recurring: true,
-  durable: true
+  recurring: true
 )
 ```
 
 This catches edge cases where the loop breaks despite the
 UserPromptSubmit and Stop hooks (e.g., context compaction
 losing state, unexpected tool errors).
+
+It cannot catch the session ending, because the heartbeat
+ends with it. Crash recovery across a dead session is the
+watchdog's job, not this one's.
 
 ## Completion Checklist
 

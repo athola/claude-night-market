@@ -1,7 +1,8 @@
 # Conjure
 
 Delegate tasks to external models from Claude Code.
-Delegate analysis, bulk work, and summarization to services like Gemini, Qwen, or MiniMax.
+Delegate analysis, bulk work, and summarization to Gemini, Qwen, MiniMax,
+GLM, Meta Muse, Codex, OpenCode, or a Muse Glimmer running locally.
 
 Track quotas, log usage, and suggest delegation for large tasks.
 
@@ -36,14 +37,43 @@ For accurate token counts, install tiktoken:
 pip install tiktoken
 ```
 
-### Why delegation stays opt-in
+### Why delegation is on by default
 
-Per [docs/inclusive-defaults.md][inc] (TRUE-exception
-category 3), conjure delegation requires external CLIs
-(`gemini`, `qwen`, `minimax`) that must be separately installed and
-authenticated against third-party LLM providers. There is
-no reasonable default: flipping is impossible, not merely
-unwise.
+It was opt-in until the provider chain landed, under
+[docs/inclusive-defaults.md][inc] TRUE-exception category
+3: the external CLIs (`gemini`, `qwen`, `mmx`, `muse`,
+`codex`, `opencode`, `claude`, `ollama`) are separately
+installed and authenticated, and `smart_delegate` raised
+when none of them was. Defaulting on would have failed
+every task on an unconfigured machine.
+
+The chain removed that failure. An unconfigured machine
+now costs one availability probe per provider and gets a
+`providers_exhausted` result, which the caller reads as
+"do this work yourself". The reasonable default the
+category asked for exists, and it is "try, then do it
+yourself".
+
+`Skill(conjure:provider-setup)` is how an operator stops
+paying that cost. It prints which CLIs are installed and
+authenticated, explains each unhealthy one, installs the
+missing ones after confirmation, and stores the result at
+`~/.claude/hooks/delegation/provider-state.json`:
+
+```bash
+python3 scripts/delegation_setup.py --available
+python3 scripts/delegation_setup.py --doctor
+python3 scripts/delegation_setup.py --install gemini
+```
+
+Two switches decline it, environment over file:
+
+| Scope | How |
+|-------|-----|
+| One run | `CONJURE_DELEGATION=off` |
+| One machine | `"enabled": false` in `~/.claude/hooks/delegation/config.json` |
+
+A disabled delegator probes and spawns nothing.
 
 [inc]: ../../docs/inclusive-defaults.md
 
@@ -67,17 +97,17 @@ make usage-report
 
 ```bash
 # List services
-uv run python tools/delegation_executor.py --list-services
+uv run python scripts/delegation_executor.py --list-services
 
 # Verify a service
-uv run python tools/delegation_executor.py --verify gemini
+uv run python scripts/delegation_executor.py --verify gemini
 
-# Auto-select based on requirements
-uv run python tools/delegation_executor.py auto "Analyze this code" \
-  --files src/ --requirement large_context
+# Auto-select a service for the task
+uv run python scripts/delegation_executor.py auto "Analyze this code" \
+  --files src/
 
 # Force a specific service
-uv run python tools/delegation_executor.py gemini "Summarize" \
+uv run python scripts/delegation_executor.py gemini "Summarize" \
   --files docs/*.md --model gemini-3-pro
 ```
 
@@ -101,7 +131,17 @@ make delegate-test
 make delegate-gemini PROMPT="Analyze" FILES="src/main.py"
 make delegate-qwen   PROMPT="Extract" FILES="src/**/*.py"
 make delegate-minimax PROMPT="Summarize" FILES="src/**/*.py"
+make delegate-glm     PROMPT="Review this design"
+make delegate-muse    PROMPT="Run the tests and summarize failures"
+make delegate-codex   PROMPT="Explain this module"
+make delegate-opencode PROMPT="Find the bug"
+make delegate-glimmer PROMPT="Summarize" FILES="src/"   # local, no quota
 make delegate-auto   PROMPT="Best service" FILES="src/"
+
+# Getting set up
+make delegate-setup     # which providers are installed and authenticated?
+make delegate-doctor    # what is broken, and the command that fixes it
+make delegate-install   # install what is missing, one confirmation each
 
 # Quota & usage
 make quota-status
@@ -131,6 +171,10 @@ Skill(conjure:delegation-core)
 Skill(conjure:gemini-delegation)
 Skill(conjure:qwen-delegation)
 Skill(conjure:minimax-delegation)
+Skill(conjure:glm-delegation)
+Skill(conjure:muse-delegation)
+Skill(conjure:codex-delegation)
+Skill(conjure:opencode-delegation)
 ```
 
 Hooks surface delegation suggestions for large tasks.
@@ -141,9 +185,19 @@ Hooks surface delegation suggestions for large tasks.
 
 Select the best external service based on requirements.
 
-### `delegate-gemini` / `delegate-qwen` / `delegate-minimax`
+### `delegate-<service>`
 
 Force a specific service with optional file globs and model hints.
+One target per registered provider: `gemini`, `qwen`, `minimax`,
+`glm`, `muse`, `codex`, `opencode`, `glimmer`.
+
+### `delegate-setup` / `delegate-doctor` / `delegate-install`
+
+Report which provider CLIs are present and authenticated, name the
+command that fixes each unhealthy one, and install the missing ones
+after a confirmation showing the package, publisher, and source URL.
+Install commands come only from the vetted provenance map, so an
+unrecorded binary is refused rather than guessed at.
 
 ### `quota-status`
 

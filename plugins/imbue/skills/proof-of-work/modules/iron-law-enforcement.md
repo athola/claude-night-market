@@ -42,6 +42,53 @@ Classic TDD works because humans "feel their way through uncertainty":
 
 When AI pre-plans implementation before writing tests, the RED phase becomes theater. The Iron Law prevents this by requiring **documented evidence of failure before any intervention**.
 
+## What the Failing Test Has to Protect
+
+The Iron Law asks for a failing test before the change. It does not
+ask for one test per changed line, and a suite grown that way is worse
+than a smaller one. Every test is a claim about what must stay true.
+A test pinning something nobody required reports failure when nothing
+broke, and the cost lands on whoever changes that code next, who has
+to decide whether the assertion meant anything.
+
+Before writing the RED test, name the constraint it defends:
+
+| The test protects | Looks like |
+|-------------------|-----------|
+| A business rule | An order below the minimum quantity is rejected |
+| An invariant | A result's two halves cannot disagree about the verdict |
+| A contract at a boundary | The hook exits 2 on a denied command, and 0 otherwise |
+| A recorded defect | The exact input that produced the reported failure |
+
+If none of the four fits, the honest answer is that this change does
+not need a test first. Say which and say why. That answer is a
+finding about the change, not a gap in the process.
+
+### The test that enforces the wrong constraint
+
+Two failure modes, and only the first one is loud:
+
+- **Pins an implementation detail.** It asserts the call order, the
+  private helper, the intermediate data shape. The behavior is
+  unchanged and the test is red, so the next author edits the test to
+  match the code. From then on the test asserts whatever the code
+  does, which is nothing.
+- **Freezes a decision that was never a requirement.** A default
+  value, a log string, a field order that happened to be convenient.
+  Nobody remembers whether it was chosen or defaulted into, so it
+  survives every review as though it were load-bearing.
+
+The check that separates them: state the constraint in the language of
+the domain, without naming a function or a file. If that sentence
+cannot be written, the test is pinning a decision rather than a rule.
+
+### BDD earns its ceremony the same way
+
+Given-When-Then is worth its verbosity when the Then clause is a
+business outcome somebody outside the code would recognize. Written
+against an internal call sequence it is the same implementation-detail
+test with three more lines of scaffolding.
+
 ## Enforcement Levels
 
 ### Level 1: Self-Enforcement (Default)

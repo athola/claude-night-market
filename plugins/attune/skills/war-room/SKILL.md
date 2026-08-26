@@ -3,7 +3,7 @@ name: war-room
 description: Convenes a multi-LLM expert panel to pressure-test hard-to-reverse decisions. Use when reversibility score is low and adversarial review is warranted.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model_preference: claude-opus-4-8
+model: opus
 category: strategic-planning
 tags: [deliberation, multi-llm, strategy, decision-making, council, reversibility]
 complexity: advanced
@@ -19,7 +19,6 @@ modules:
   - modules/deferred-capture.md
 dependencies:
   - conjure:delegation-core
-  - memory-palace:strategeion
   - leyline:git-platform
 tools: []
 role: entrypoint
@@ -162,6 +161,28 @@ Experts are invoked via conjure delegation:
 - `conjure:gemini-delegation` for Gemini models
 - `conjure:qwen-delegation` for Qwen models
 - Direct CLI for GLM-5.2 (`ccgd` or `claude-glm --dangerously-skip-permissions`)
+
+Delegation being on by default changes nothing here, because a War Room
+delegates by construction: a panel is external models or it is not a
+panel.
+
+What does change is the fallback. `conjure:delegation-core` now returns
+a `fallback_reason` instead of raising when no provider answers or when
+an operator has declined delegation, and Claude answering every seat is
+the wrong way to spend that result.
+
+**A panel that could not reach external models is not a panel.** When
+delegation is off or the chain is exhausted:
+
+1. Say so before deliberating, naming the reason and the providers tried.
+2. Do not fill the empty seats with Claude and present the output as a
+   multi-model panel. Seven roles played by one model produce agreement
+   that looks like consensus and is not.
+3. Offer the choice: run a single-model review labeled as one, or stop
+   until a provider is available.
+
+This is the one place in the repository where a silent local fallback
+would misrepresent the result rather than merely slow it down.
 
 ## Usage
 

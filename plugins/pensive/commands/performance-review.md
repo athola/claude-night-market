@@ -1,3 +1,8 @@
+---
+name: performance-review
+description: Static-analysis hot-spot review for time and space complexity.
+---
+
 # Performance Review Command
 
 Static-analysis hot-spot review for time and space complexity.

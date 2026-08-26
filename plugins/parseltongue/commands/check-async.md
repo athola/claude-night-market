@@ -1,3 +1,8 @@
+---
+name: check-async
+description: Analyze Python async code for correctness, patterns, and potential issues.
+---
+
 # Check Async Command
 
 ## Usage

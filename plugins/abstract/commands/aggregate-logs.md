@@ -1,3 +1,8 @@
+---
+name: aggregate-logs
+description: Generate LEARNINGS.md from skill execution logs over a configurable time window.
+---
+
 # Aggregate Skill Execution Logs
 
 Generate LEARNINGS.md from skill execution logs.
@@ -179,7 +184,8 @@ cat ~/.claude/skills/LEARNINGS.md
 - `/abstract:evaluate-skill` - Capture qualitative feedback (Phase 2)
 - `/abstract:improve-skills` - Act on insights (Phase 5)
 - `/abstract:promote-discussions` - Promote highly-voted learnings to Issues (Phase 6c)
-- `Skill(abstract:skill-execution-logger)` - Raw data capture (Phase 1)
+- `plugins/abstract/hooks/skill_execution_logger.py` -
+  Raw data capture (Phase 1)
 
 ## Version
 

@@ -102,10 +102,7 @@ def format_session_gap(last_ended_at: str | None) -> str | None:
         return None
 
     days = elapsed.days
-    if days < 1:
-        span = f"{int(hours)} hours"
-    else:
-        span = f"{days} days"
+    span = f"{int(hours)} hours" if days < 1 else f"{days} days"
 
     message = f"Memory Palace: {span} since the last recorded session."
     if days >= 3:

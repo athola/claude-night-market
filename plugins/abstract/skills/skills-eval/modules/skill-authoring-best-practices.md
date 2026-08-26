@@ -125,23 +125,29 @@ plugins/<plugin>/skills/<skill>/tests/
 Each file contains the dispatch prompt verbatim, the response
 verbatim, and a notes section listing failures observed.
 
-## Practice 4: directive language, no hedges
+## Practice 4: state a claim at its real strength
 
-The auditor flags hedging language ("consider," "might want
-to," "you can") as a quality issue. High-scoring skills use
-imperative or declarative forms.
+The auditor flags a statement whose grammar does not match
+what it is. Both directions are defects. "Consider validating
+input" hides a trust boundary behind a suggestion, and "You
+must always extract a helper on the second use" gives an order
+where the repository merely has a preference.
 
-| Hedge (low score) | Directive (high score) |
-|-------------------|------------------------|
-| "Consider adding validation" | "Add input validation" |
-| "You might want to test this" | "Run the test scenarios" |
-| "It would be good to use..." | "Use..." |
-| "Try to keep it under 500 lines" | "Keep it under 500 lines" |
+| Statement | Strength it earns |
+|-----------|-------------------|
+| "Never commit a credential" | Invariant: unrecoverable if wrong |
+| "Use rg; grep if unavailable" | Default: a pick among defensible options |
+| "The auth boundary is in `session.py`" | Map: a local fact, no order at all |
 
-The reason is behavioral. Claude treats "consider" as
-optional. Optional requirements get skipped under pressure.
-See the `anti-rationalization` module of the `skill-authoring`
-skill (under `plugins/abstract/`) for the full pattern.
+Most of a skill belongs in the third row. Raising everything
+to "must" reads as rigor and costs accuracy, because a
+constraint applied where it does not fit fails silently: the
+instruction was followed.
+
+`../../skill-authoring/modules/persuasion-principles.md` states
+the budget, and `../../../shared-modules/skill-selection-judgment.md`
+records why the older advice here, which was to escalate phrasing
+until the model complied, was retired.
 
 ## Practice 5: concrete commands in Quick Start
 

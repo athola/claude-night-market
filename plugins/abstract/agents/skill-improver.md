@@ -326,17 +326,17 @@ Fix: Add "acceptance_criteria": [...] to your PROOF.md
 **3. Add --quiet Flag**
 ```markdown
 ---
-name: skill-auditor
+name: your-skill
 version: 2.1.0  # Incremented from 2.0.0
 ---
 
-# Skill Auditor
+# Your Skill
 
 ## Usage
 
 \`\`\`bash
-Skill(abstract:skill-auditor)                    # Normal output
-Skill(abstract:skill-auditor, quiet=true)        # Minimal output
+Skill(your-plugin:your-skill)                    # Normal output
+Skill(your-plugin:your-skill, quiet=true)        # Minimal output
 \`\`\`
 
 ## Parameters
@@ -664,8 +664,8 @@ Next: Monitor impact in next aggregation cycle
 - `/abstract:evaluate-skill` - Qualitative feedback
   (Phase 2)
 - `/fix-workflow` - Uses LEARNINGS for analysis (Phase 4)
-- `Skill(abstract:skill-execution-logger)` - Raw data
-  (Phase 1)
+- `plugins/abstract/hooks/skill_execution_logger.py` -
+  Raw data (Phase 1)
 - `Skill(abstract:metacognitive-self-mod)` - Analyze and
   improve the improvement process (Hyperagents)
 - `PerformanceTracker` - Cross-generation trend tracking

@@ -32,7 +32,7 @@ and detailed implementation guides for 13 architectural patterns.
 | `architecture-paradigm-event-driven` | Async communication | Real-time processing |
 | `architecture-paradigm-serverless` | Function-as-a-Service | Event-driven with minimal infra |
 | `architecture-paradigm-pipeline` | Pipes-and-filters | ETL, media processing |
-| `architecture-paradigm-cqrs-es` | CQRS + Event Sourcing | Audit trails, event replay |
+| `architecture-paradigm-cqrs-es` | CQRS with Event Sourcing | Audit trails, event replay |
 | `architecture-paradigm-microkernel` | Plugin-based | Minimal core with extensions |
 | `architecture-paradigm-modular-monolith` | Internal boundaries | Module separation without distribution |
 | `architecture-paradigm-space-based` | Data-grid | High-scale stateful workloads |

@@ -58,8 +58,7 @@ The framework evaluates compliance based on five weighted criteria. Trigger isol
 
 Located in `plugins/abstract/shared-modules/`:
 
-- `anti-rationalization.md`: Red flags table for common excuses
-- `enforcement-language.md`: Tiered language templates
+- `skill-selection-judgment.md`: Red flags table for common excuses
 - `trigger-patterns.md`: Description field templates
 
 Reference these in skills that need enforcement patterns.

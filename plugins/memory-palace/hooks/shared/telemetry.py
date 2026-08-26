@@ -15,7 +15,7 @@ def emit_telemetry_event(
     telemetry_logger: Any | None,
     ctx: TelemetryContext,
     *,
-    ResearchTelemetryEvent: Any,
+    research_telemetry_event_cls: Any,
 ) -> None:
     """Best-effort telemetry emission.
 
@@ -39,7 +39,7 @@ def emit_telemetry_event(
         if decision.intake_payload and decision.intake_payload.duplicate_entry_ids:
             duplicate_ids = "|".join(decision.intake_payload.duplicate_entry_ids)
 
-        event = ResearchTelemetryEvent.build(
+        event = research_telemetry_event_cls.build(
             query_id=ctx.query_id,
             query=ctx.query,
             tool_name=ctx.tool_name,

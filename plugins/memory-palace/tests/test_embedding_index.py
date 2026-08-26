@@ -104,7 +104,7 @@ class TestMP011OptionalDepExceptionNarrowing:
     """MP-011: module-level optional-dep catches must use ImportError, not Exception."""
 
     def test_optional_import_blocks_catch_only_import_error(self) -> None:
-        """numpy and sentence_transformers import try/except must catch ImportError.
+        """Numpy and sentence_transformers import try/except must catch ImportError.
 
         except Exception swallows AttributeError, RuntimeError, and other bugs in
         optional dependencies. Only ImportError (and its subclass ModuleNotFoundError)
@@ -127,9 +127,11 @@ class TestMP011OptionalDepExceptionNarrowing:
             for handler in node.handlers:
                 if handler.type is None:
                     top_level_bare_exceptions.append("bare except")
-                elif isinstance(handler.type, ast.Name):
-                    if handler.type.id == "Exception":
-                        top_level_bare_exceptions.append("except Exception")
+                elif (
+                    isinstance(handler.type, ast.Name)
+                    and handler.type.id == "Exception"
+                ):
+                    top_level_bare_exceptions.append("except Exception")
 
         assert top_level_bare_exceptions == [], (
             f"Module-level import blocks must use except ImportError, "

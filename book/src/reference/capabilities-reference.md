@@ -8,6 +8,41 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 
 ## Quick Reference Index
 
+### All Workflows (Alphabetical)
+
+Dynamic-workflow scripts under each plugin's `workflows/`. Discovery
+is by convention, so none is declared in `plugin.json`. Invoke as
+`/plugin-name:workflow-name`, where the name comes from the script's
+`meta.name`.
+
+A workflow only runs when it is asked for. None starts implicitly.
+
+| Workflow | Plugin | Description |
+|----------|--------|-------------|
+| `atlas` | [cartograph](../plugins/cartograph.md) | Generate the architecture, dependency, data-flow and community diagrams of one codebase in parallel and report where they disagree |
+| `bloat-sweep` | [conserve](../plugins/conserve.md) | Run the deep bloat scan across several code areas at once and consolidate the findings that span more than one |
+| `capture-set` | [scry](../plugins/scry.md) | Capture several terminal or browser recordings in parallel and report which flows failed without stopping the rest |
+| `doc-sweep` | [scribe](../plugins/scribe.md) | Review documents through four independent layers, from identity leaks and hallucinated paths down to sentence-level slop |
+| `evidence-sweep` | [imbue](../plugins/imbue.md) | Check each completion claim in a change against the evidence offered for it, and report the ones running on assertion alone |
+| `fix-workflow-analysis` | [sanctum](../plugins/sanctum.md) | Recreate a workflow slice, generate improvement options with trade-offs, and converge on one plan with acceptance criteria |
+| `gate-audit` | [egregore](../plugins/egregore.md) | Check each pipeline gate for whether it can return a failing verdict, and prove each finding with an input that walks past it |
+| `initiative-pulse` | [minister](../plugins/minister.md) | Gather delivery health for several GitHub milestones in parallel and roll them up into one programme view |
+| `judge-panel` | [herald](../plugins/herald.md) | Judge one completion claim through three independent lenses and report the verdict with any dissent |
+| `knowledge-extract` | [gauntlet](../plugins/gauntlet.md) | Extract and enrich the gauntlet knowledge base one subsystem per agent, then merge into a single corpus |
+| `palace-sweep` | [memory-palace](../plugins/memory-palace.md) | Ask one question of every memory palace in parallel and rank the answers, including the ones filed under an unexpected domain |
+| `paradigm-panel` | [archetypes](../plugins/archetypes.md) | Score candidate architecture paradigms independently against one requirement set and return a ranked comparison |
+| `plugin-health` | [leyline](../plugins/leyline.md) | Check every plugin against the shared leyline contracts in parallel, then report contracts that no plugin satisfies |
+| `provider-sweep` | [conjure](../plugins/conjure.md) | Ask every delegation provider in parallel whether this machine can call it, and separate a missing binary from a rejected credential |
+| `python-sweep` | [parseltongue](../plugins/parseltongue.md) | Run the lint, type, performance and test specialists over the same Python in parallel and merge their findings |
+| `quality-bench` | [oracle](../plugins/oracle.md) | Score a set of skills through the oracle in parallel and report each score against the distribution rather than alone |
+| `research` | [tome](../plugins/tome.md) | Fan out one research question across tome channels and merge the findings into a ranked, per-channel report |
+| `rule-sweep` | [hookify](../plugins/hookify.md) | Check each catalog rule against the codebase it governs and report the ones that no longer describe it |
+| `skill-audit` | [abstract](../plugins/abstract.md) | Audit a set of skills across four independent quality dimensions, then verify each finding before reporting it |
+| `skill-library` | [attune](../plugins/attune.md) | Discover what a project knows, author one skill per topic in parallel, and review each adversarially |
+| `spec-review` | [spec-kit](../plugins/spec-kit.md) | Read one specification through four independent lenses and report what must be settled before planning starts |
+| `surface-check` | [phantom](../plugins/phantom.md) | Verify each desktop control surface independently so one failing surface does not hide the state of the others |
+| `unified-review` | [pensive](../plugins/pensive.md) | Review changed code across dimensions, adversarially verify each finding, and return one ranked list |
+
 ### All Skills (Alphabetical)
 
 | Skill | Plugin | Description |
@@ -50,6 +85,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `code-quality-principles` | [conserve](../plugins/conserve.md) | Core principles for AI-assisted code quality |
 | `code-refinement` | [pensive](../plugins/pensive.md) | Duplication, algorithms, and clean code analysis |
 | `code-search` | [tome](../plugins/tome.md) | GitHub implementation search |
+| `codex-delegation` | [conjure](../plugins/conjure.md) | OpenAI Codex CLI (codex exec) integration |
 | `commit-messages` | [sanctum](../plugins/sanctum.md) | Conventional commits |
 | `compression-strategy` | [conserve](../plugins/conserve.md) | Context compression analysis and recommendations |
 | `computer-control` | [phantom](../plugins/phantom.md) | Desktop automation via Claude's vision and action API |
@@ -93,6 +129,8 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
 | `git-workspace-review` | [sanctum](../plugins/sanctum.md) | Repo state analysis |
 | `github-initiative-pulse` | [minister](../plugins/minister.md) | Initiative progress tracking |
+| `glimmer-delegation` | [conjure](../plugins/conjure.md) | Muse Glimmer served locally through ollama, no quota |
+| `glm-delegation` | [conjure](../plugins/conjure.md) | Z.ai GLM-5.x via Anthropic-compatible endpoint swap |
 | `graduated-implementation` | [imbue](../plugins/imbue.md) | Bounded start then ramp the next increment's ambition only on demonstrated competence of the prior one |
 | `graph-build` | [gauntlet](../plugins/gauntlet.md) | Build or update the code knowledge graph |
 | `graph-search` | [gauntlet](../plugins/gauntlet.md) | FTS5 search of the code knowledge graph |
@@ -118,9 +156,12 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `metacognitive-self-mod` | [abstract](../plugins/abstract.md) | Hyperagents self-improvement analysis |
 | `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |
+| `minimax-delegation` | [conjure](../plugins/conjure.md) | MiniMax CLI (mmx) integration |
 | `mission-orchestrator` | [attune](../plugins/attune.md) | Unified lifecycle orchestrator for project development |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
+| `muse-delegation` | [conjure](../plugins/conjure.md) | Meta Muse Code CLI (muse exec) integration |
 | `onboard` | [gauntlet](../plugins/gauntlet.md) | Guided five-stage onboarding path through a codebase |
+| `opencode-delegation` | [conjure](../plugins/conjure.md) | OpenCode CLI (opencode run) integration |
 | `palace-diagram` | [memory-palace](../plugins/memory-palace.md) | Visual palace structure diagrams |
 | `palace-index-curator` | [memory-palace](../plugins/memory-palace.md) | Web-capture index curation |
 | `papers` | [tome](../plugins/tome.md) | Academic literature search |
@@ -136,6 +177,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `project-planning` | [attune](../plugins/attune.md) | Architecture and task breakdown |
 | `project-specification` | [attune](../plugins/attune.md) | Spec creation from brainstorm |
 | `proof-of-work` | [imbue](../plugins/imbue.md) | Evidence-based work validation |
+| `provider-setup` | [conjure](../plugins/conjure.md) | Reports, installs and records which delegation CLIs this machine can call |
 | `pytest-config` | [leyline](../plugins/leyline.md) | Pytest configuration patterns |
 | `python-async` | [parseltongue](../plugins/parseltongue.md) | Async patterns |
 | `python-packaging` | [parseltongue](../plugins/parseltongue.md) | Packaging with uv |
@@ -240,7 +282,6 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `/attune:war-room` | attune | Multi-LLM expert deliberation with reversibility-based routing |
 | `/bloat-scan` | conserve | Progressive bloat detection (3-tier scan) |
 | `/bug-review` | pensive | Bug hunting review |
-| `/bulletproof-skill` | abstract | Anti-rationalization workflow |
 | `/catchup` | imbue | Quick context recovery |
 | `/check-async` | parseltongue | Async pattern validation |
 | `/close-issue` | minister | Analyze if GitHub issues can be closed based on commits |

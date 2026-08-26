@@ -174,7 +174,20 @@ class TestCheckAgent:
         path = write_agent(tmp_path, "---\nname: demo\nmodel: sonnet\n---\n\nB.\n")
         assert [v.rule for v in check_agent(path)] == ["missing-effort"]
 
-    @pytest.mark.parametrize("dated", ["claude-sonnet-4-6", "claude-opus-4-1"])
+    @pytest.mark.parametrize(
+        "dated",
+        [
+            "claude-sonnet-4-6",
+            "claude-opus-4-1",
+            # Claude 3.x and earlier put the version before the family
+            # name. A pattern written for the 4.x shape misses these and
+            # reports invalid-model instead, which names the wrong repair:
+            # the fix is to pin a tier alias, not to invent a valid ID.
+            "claude-3-5-sonnet-20241022",
+            "claude-3-opus-20240229",
+            "claude-2.1",
+        ],
+    )
     def test_rejects_dated_model_ids(self, tmp_path: Path, dated: str) -> None:
         """
         Scenario: An agent pins a specific model generation
@@ -329,6 +342,23 @@ class TestVocabularyTracksTheLedger:
 
 class TestRepositoryIsClean:
     """The live repository satisfies the gate."""
+
+    def test_no_skill_carries_the_shadow_model_field(self) -> None:
+        """
+        Scenario: The shipped skills state their tier one way
+        Given every SKILL.md in this repository
+        When their frontmatter is read
+        Then none carries ``model_preference``
+        And the tier lives in the field the gate reads
+        """
+        carriers = [
+            path
+            for path in iter_skill_files()
+            if "model_preference" in parse_frontmatter(path.read_text(encoding="utf-8"))
+        ]
+        assert carriers == [], "\n".join(
+            str(p.relative_to(REPO_ROOT)) for p in carriers
+        )
 
     def test_discovers_agent_files(self) -> None:
         """
@@ -536,6 +566,46 @@ class TestSkillModelIds:
         path = tmp_path / "SKILL.md"
         path.write_text("---\nname: demo\nmodel: sonnet\n---\n\nB.\n", encoding="utf-8")
         assert check_skill(path) == []
+
+    def test_rejects_a_skill_naming_an_unknown_tier(self, tmp_path: Path) -> None:
+        """
+        Scenario: A skill invents a tier name
+        Given a SKILL.md with ``model: turbo``
+        And "turbo" is not a documented alias
+        When it is checked
+        Then an invalid-model violation is reported
+
+        The dated-ID rule alone let any other string through, so the
+        field was only half governed: it caught the value that rots and
+        ignored the value that never meant anything.
+        """
+        path = tmp_path / "SKILL.md"
+        path.write_text("---\nname: demo\nmodel: turbo\n---\n\nB.\n", encoding="utf-8")
+        violations = check_skill(path)
+        assert [v.rule for v in violations] == ["invalid-model"]
+        assert "turbo" in violations[0].message
+
+    def test_rejects_the_model_preference_shadow_field(self, tmp_path: Path) -> None:
+        """
+        Scenario: A skill states its tier under a second field name
+        Given a SKILL.md carrying ``model_preference``
+        When it is checked
+        Then the shadow field is reported
+        And the message names ``model:`` as the repair
+
+        ``model_preference`` was a parallel spelling of ``model``: same
+        job, different key, read by nothing. Two names for one concept
+        means whichever one the gate does not know about drifts unseen,
+        which is exactly what happened to its values.
+        """
+        path = tmp_path / "SKILL.md"
+        path.write_text(
+            "---\nname: demo\nmodel_preference: claude-sonnet-5\n---\n\nB.\n",
+            encoding="utf-8",
+        )
+        violations = check_skill(path)
+        assert [v.rule for v in violations] == ["shadow-model-field"]
+        assert "model:" in violations[0].message
 
     def test_rejects_a_skill_pinning_a_dated_model_id(self, tmp_path: Path) -> None:
         """

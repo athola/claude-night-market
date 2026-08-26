@@ -1,3 +1,8 @@
+---
+name: improve-skills
+description: Identify and implement skill improvements from execution logs and user evaluations.
+---
+
 # Improve Skills from Observability Data
 
 Automatically identify and implement skill improvements based on execution logs and user evaluations.
@@ -233,7 +238,8 @@ These metrics feed back into future LEARNINGS.md reports.
 
 - `/abstract:aggregate-logs` - Generates LEARNINGS.md (Phase 3)
 - `/abstract:evaluate-skill` - Captures qualitative feedback (Phase 2)
-- `Skill(abstract:skill-execution-logger)` - Raw data capture (Phase 1)
+- `plugins/abstract/hooks/skill_execution_logger.py` -
+  Raw data capture (Phase 1)
 - `/fix-workflow` - Uses LEARNINGS for workflow analysis (Phase 4)
 
 ## Version

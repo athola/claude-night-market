@@ -294,7 +294,7 @@ class TestSourceLineageManager:
         manager.register_lineage(simple)
 
         # Upgrade to full
-        manager.upgrade_to_full_lineage("entry-1", new_importance=0.9)
+        manager.upgrade_to_full_lineage("entry-1")
 
         retrieved = manager.get_lineage("entry-1")
         assert isinstance(retrieved, FullLineage)

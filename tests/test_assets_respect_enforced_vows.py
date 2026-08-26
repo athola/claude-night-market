@@ -38,9 +38,11 @@ AI_TRAILER = re.compile(
 )
 
 # Assets whose subject *is* the rule, and so must quote the banned form.
-DOCUMENTS_THE_RULE = {
-    "plugins/imbue/skills/vow-enforcement/SKILL.md",
-}
+# Empty today: vow-enforcement/SKILL.md held the only entry until it stopped
+# quoting the trailer, at which point the exemption bought it out of a check
+# it already passed. test_rule_documenting_exemptions_are_still_earned fails
+# on any entry that stops earning its place.
+DOCUMENTS_THE_RULE: set[str] = set()
 
 
 def _iter_assets() -> list[Path]:
@@ -56,6 +58,27 @@ ASSETS = _iter_assets()
 def test_assets_are_discovered() -> None:
     """Guard the glob: an empty sweep would pass everything."""
     assert len(ASSETS) > 100, f"only {len(ASSETS)} workflow assets found"
+
+
+def test_rule_documenting_exemptions_are_still_earned() -> None:
+    """Every exemption must still need to exist.
+
+    An entry in ``DOCUMENTS_THE_RULE`` buys a file out of the sweep, and a
+    skip reports neither pass nor fail, so an exemption that outlives its
+    cause is invisible: the file stops quoting the banned form, the entry
+    stays, and the asset is silently no longer checked. Requiring each
+    entry to resolve on disk *and* still contain the form it was granted
+    for makes the exemption expire loudly instead.
+    """
+    for rel in sorted(DOCUMENTS_THE_RULE):
+        path = REPO_ROOT / rel
+        assert path.is_file(), f"exempted asset no longer exists: {rel}"
+        hits = AI_TRAILER.findall(path.read_text(encoding="utf-8", errors="replace"))
+        assert hits, (
+            f"{rel} is exempted but no longer contains the banned trailer, "
+            f"so the exemption suppresses a check that would pass. "
+            f"Remove it from DOCUMENTS_THE_RULE."
+        )
 
 
 @pytest.mark.parametrize("asset", ASSETS, ids=lambda p: str(p.relative_to(REPO_ROOT)))

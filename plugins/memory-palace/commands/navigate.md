@@ -1,3 +1,8 @@
+---
+name: navigate
+description: Search and navigate across memory palaces to find and retrieve stored information.
+---
+
 # Navigate Command
 
 ## Usage

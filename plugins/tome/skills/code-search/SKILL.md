@@ -21,7 +21,7 @@ model_hint: standard
 ## When NOT To Use
 
 - Searching local codebase (use Grep or Explore agent)
-- Academic literature (use `/tome:papers`)
+- Academic literature (use `Skill(tome:papers)`)
 
 Search GitHub for implementations of a given topic.
 

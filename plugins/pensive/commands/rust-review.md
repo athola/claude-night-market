@@ -1,3 +1,8 @@
+---
+name: rust-review
+description: Expert-level Rust audits for safety and correctness.
+---
+
 # Rust Review Command
 
 Expert-level Rust audits for safety and correctness.
@@ -9,6 +14,9 @@ Expert-level Rust audits for safety and correctness.
 ```
 
 ## What It Does
+
+Invoke `Skill(pensive:rust-review)`, which carries the audit workflow and
+the output format. The dimensions below are what this command reviews.
 
 1. **Borrowing & Lifetimes**: Check ownership patterns
 2. **Error Handling**: Evaluate Result/Option usage

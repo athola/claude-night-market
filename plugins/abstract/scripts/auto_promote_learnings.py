@@ -44,6 +44,10 @@ from post_learnings_to_discussions import (  # noqa: E402 - sibling script
     resolve_category_id,
 )
 
+from abstract.utils import (
+    extract_bold_field,
+    get_learnings_path,
+)
 from abstract.utils import (  # noqa: E402 - import after sys.path setup
     extract_section as _extract_section,
 )
@@ -56,10 +60,19 @@ MEDIUM_PRIORITY_THRESHOLD = 0.1
 # Slow execution reference (10s = threshold from aggregate_skill_logs.py)
 SLOW_THRESHOLD_MS = 10000
 
-
-def get_learnings_path() -> Path:
-    """Get path to LEARNINGS.md file."""
-    return Path.home() / ".claude" / "skills" / "LEARNINGS.md"
+# Priority model: impact / ease, weighted by how often the skill runs.
+# A failure rate of 0% success scores FAILURE_IMPACT_DIVISOR points of
+# impact, a rating one star below perfect scores RATING_GAP_WEIGHT, and
+# a skill failing outright is worth EXCESSIVE_FAILURE_IMPACT regardless
+# of magnitude. Ease is the inverse: the more severe an issue, the
+# cheaper it is judged to fix.
+FAILURE_IMPACT_DIVISOR = 10.0
+RATING_GAP_WEIGHT = 2.0
+SLOW_SECONDS_PER_IMPACT_POINT = 10.0
+EXCESSIVE_FAILURE_IMPACT = 8.0
+HEALTHY_IMPACT = 0.1
+EASE_BY_SEVERITY = {"high": 2.0, "medium": 3.0, "low": 5.0}
+DEFAULT_EASE = 5.0
 
 
 def get_repo_root() -> Path:
@@ -204,25 +217,24 @@ def calculate_priority(item: dict[str, Any]) -> float:
     if issue_type == "high_failure_rate":
         success_rate = item.get("success_rate", 100.0)
         # Impact scales with failure severity: 0% success = 10, 50% = 5
-        impact = max(0, (100.0 - success_rate) / 10.0)
+        impact = max(0, (100.0 - success_rate) / FAILURE_IMPACT_DIVISOR)
     elif issue_type == "low_rating":
         avg_rating = item.get("avg_rating", 5.0)
-        # Impact = gap from perfect score × 2
-        impact = (5.0 - avg_rating) * 2.0
+        # Impact = gap from perfect score, weighted
+        impact = (5.0 - avg_rating) * RATING_GAP_WEIGHT
     elif issue_type == "slow_execution":
         avg_duration_ms = item.get("avg_duration_ms", 0)
         # Impact = seconds over threshold / 10
         seconds_over = max(0, (avg_duration_ms - SLOW_THRESHOLD_MS)) / 1000.0
-        impact = seconds_over / 10.0
+        impact = seconds_over / SLOW_SECONDS_PER_IMPACT_POINT
     elif issue_type == "excessive_failures":
-        impact = 8.0  # High fixed impact
+        impact = EXCESSIVE_FAILURE_IMPACT
     else:
         # Unknown or healthy — minimal impact
-        impact = 0.1
+        impact = HEALTHY_IMPACT
 
     # Estimate ease based on severity
-    ease_map = {"high": 2.0, "medium": 3.0, "low": 5.0}
-    ease = ease_map.get(severity, 5.0)
+    ease = EASE_BY_SEVERITY.get(severity, DEFAULT_EASE)
 
     return float((frequency * impact) / ease)
 
@@ -230,12 +242,6 @@ def calculate_priority(item: dict[str, Any]) -> float:
 # ---------------------------------------------------------------------------
 # LEARNINGS.md parsing
 # ---------------------------------------------------------------------------
-
-
-def _extract_bold_field(text: str, field_name: str) -> str:
-    """Extract a bold field value from text."""
-    match = re.search(rf"\*\*{re.escape(field_name)}\*\*:\s*(.+)", text)
-    return match.group(1).strip() if match else ""
 
 
 def _parse_summary_table(content: str) -> dict[str, dict[str, Any]]:
@@ -294,10 +300,10 @@ def parse_improvement_items(content: str) -> list[dict[str, Any]]:  # noqa: PLR0
         ):
             skill = match.group(1).strip()
             body = match.group(2).strip()
-            issue_type = _extract_bold_field(body, "Type")
-            severity = _extract_bold_field(body, "Severity")
-            metric = _extract_bold_field(body, "Metric")
-            detail = _extract_bold_field(body, "Detail")
+            issue_type = extract_bold_field(body, "Type")
+            severity = extract_bold_field(body, "Severity")
+            metric = extract_bold_field(body, "Metric")
+            detail = extract_bold_field(body, "Detail")
 
             item: dict[str, Any] = {
                 "skill": skill,
