@@ -68,8 +68,9 @@ some consumer outside your deploy unit depends on the shape.
 One implementation, no test double using it, no second implementation
 planned. The interface is an indirection with a single destination. Inline
 it. This is Karpathy AP-3 (Strategy Pattern for One Function) at the type
-level, and it is the same instinct that
-`.claude/rules/shared-utility-consumer-rule.md` applies to skills.
+level, and it is the same instinct that says a utility-named skill
+with fewer than two inbound consumers should be folded back into its
+first consumer.
 
 ## Reporting
 
@@ -98,5 +99,7 @@ something that was holding the roof up.
 
 Related: the IO boundary rule in
 `Skill(archetypes:architecture-paradigm-domain-driven)`, which is the
-positive statement of the same constraint, and
-`.claude/rules/ceremony-requires-need.md`, which binds new work.
+positive statement of the same constraint. The rule that binds new
+work is the same one this lens audits old work against: no DTO,
+mapper, command object, or layer boundary without a named, current
+need, stated in the pull request that adds it.

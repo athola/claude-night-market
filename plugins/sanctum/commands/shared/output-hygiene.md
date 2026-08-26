@@ -48,9 +48,7 @@ printf '%s\n' "$TEXT" | grep -nE '[“”‘’]'      && echo "fix: smart quote
 ```
 
 Any match is fixed in the text before posting, not just reported.
-The full prose rule set lives in
-`.claude/rules/slop-scan-for-docs.md` and
-`Skill(scribe:slop-detector)`.
+The full prose rule set lives in `Skill(scribe:slop-detector)`.
 
 ## Contract B: Describe the effect, never the slop or what was stripped
 

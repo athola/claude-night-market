@@ -197,5 +197,4 @@ Expected output:
 
 - [Trigger Patterns](../../../shared-modules/trigger-patterns.md) - Description field templates
 - [Instruction Strength](../../skill-authoring/modules/persuasion-principles.md) - How much to push, and when
-- `.claude/rules/bounded-autonomy.md` - The repository-wide statement
 - [Trigger Isolation Analysis](../../skills-eval/modules/trigger-isolation-analysis.md) - Evaluation criteria

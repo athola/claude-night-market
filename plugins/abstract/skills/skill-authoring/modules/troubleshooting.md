@@ -137,12 +137,11 @@ belongs in the third row, and raising everything to "must"
 costs accuracy in exactly the situations the author did not
 anticipate.
 
-`.claude/rules/bounded-autonomy.md` retired the older advice
-here, which was to escalate phrasing until the model complied.
-`../../../shared-modules/skill-selection-judgment.md` records
-why: compliance and correctness are different measurements,
-and phrasing tuned to defeat a session's judgment defeats it
-when that judgment was the better one.
+The older advice here was to escalate phrasing until the model
+complied. `../../../shared-modules/skill-selection-judgment.md`
+records why it was retired: compliance and correctness are
+different measurements, and phrasing tuned to defeat a session's
+judgment defeats it when that judgment was the better one.
 
 If the skill is too long, split using the patterns in the
 progressive-disclosure module.

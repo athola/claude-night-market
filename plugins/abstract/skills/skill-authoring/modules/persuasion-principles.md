@@ -112,7 +112,6 @@ A skill nobody can adapt without breaking it is over-specified.
 
 ## Related
 
-- `.claude/rules/bounded-autonomy.md`: the repository-wide statement
 - `../../modular-skills/modules/enforcement-patterns.md`: when a skill
   genuinely needs to hold a line, and how
 - `Skill(pensive:safety-critical-patterns)`: the deliberate exception

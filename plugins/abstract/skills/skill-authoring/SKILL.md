@@ -42,7 +42,7 @@ model_hint: standard
 
 Writing effective Claude Code skills requires Test-Driven Development (TDD) and persuasion principles from compliance research. We treat skill writing as process documentation that needs empirical validation rather than just theoretical instruction. Skills are behavioral interventions designed to change model behavior in measurable ways.
 
-By using TDD, we ensure skills address actual failure modes identified through testing. Optimized descriptions improve discovery, while a modular structure supports progressive disclosure to manage token usage. It states intent, constraints and exit criteria, and leaves the path between them to the session doing the work; see `.claude/rules/bounded-autonomy.md`.
+By using TDD, we ensure skills address actual failure modes identified through testing. Optimized descriptions improve discovery, while a modular structure supports progressive disclosure to manage token usage. It states intent, constraints and exit criteria, and leaves the path between them to the session doing the work. `modules/persuasion-principles.md` carries the strength budget that decides which of the three each statement is.
 
 ### The Iron Law
 

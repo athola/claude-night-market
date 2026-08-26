@@ -192,7 +192,8 @@ need for more appears.
 ## Risks and Mitigations
 
 - **Ceremony without need**:
-  - **Mitigation**: Apply `.claude/rules/ceremony-requires-need.md` and the
+  - **Mitigation**: Name the current need in the pull request that adds
+    any DTO, mapper, command object, or layer boundary, and apply the
     `ceremony-audit` lens in `Skill(pensive:architecture-review)`. A mapper
     whose fields are all 1:1 copies is a mapper with no job.
 - **Anemic model**:

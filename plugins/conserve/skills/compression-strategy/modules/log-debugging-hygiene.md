@@ -171,9 +171,9 @@ Avoid these patterns when handling logs:
   per-test verbose lines are almost always discardable.
 - Quoting byte savings without measuring tokens. The two
   are not equivalent.
-- Adding a compression dependency "in case we need it." Per
-  `.claude/rules/shared-utility-consumer-rule.md`, scaffolding
-  needs 2+ documented consumers within 30 days.
+- Adding a compression dependency "in case we need it."
+  Scaffolding needs 2+ documented consumers within 30 days, or
+  it folds back into its first consumer.
 - Using compression on already-filtered logs. Diminishing
   returns: filter already removed the highest-ratio repeats.
 - Repeating the claim "LLMs work better on compressed logs"
@@ -188,17 +188,16 @@ Avoid these patterns when handling logs:
 - [ ] If a compressor was invoked, the savings claim cites
       tokens, names the tool, and links to its license.
 - [ ] No new compression dependency was added unless 2+
-      concrete consumers are documented per
-      `.claude/rules/shared-utility-consumer-rule.md`.
+      concrete consumers are documented.
 - [ ] `tests/test_log_debugging_hygiene.py` passes, including
       the reproducible filter-first benchmark.
 
 ## References
 
-- `.claude/rules/bounded-discovery.md`: discovery read budgets.
-- `.claude/rules/slop-scan-for-docs.md`: evidence-backed claims.
-- `.claude/rules/shared-utility-consumer-rule.md`: utility
-  scaffolding requires consumers.
+- `Skill(conserve:context-optimization)`: discovery read budgets.
+- `Skill(scribe:slop-detector)`: evidence-backed claims. A quality
+  claim needs its evidence in the same repository, or it is deleted
+  rather than softened.
 - `Skill(conserve:token-conservation)`: session-level token
   budget tracking.
 - `Skill(conserve:context-optimization)`: MECW principles.

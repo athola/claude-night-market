@@ -138,5 +138,6 @@ Avoid the following:
   the full three-tier workflow and benchmarks.
 - `plugins/conserve/tests/test_log_debugging_hygiene.py` for
   the reproducible filter-first claim.
-- `.claude/rules/bounded-discovery.md` for the discovery budget
-  this command stays within.
+- `Skill(conserve:context-optimization)` for the discovery budget
+  this command stays within: read the file you are fixing, not the
+  module around it.

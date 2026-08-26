@@ -68,8 +68,9 @@ detection criteria.
 
 ## Cross-References
 
-- `.claude/rules/plan-before-large-dispatch.md` for the 4+ agent
-  planning requirement
+- Dispatching 4 or more agents needs an agreed plan first: the
+  roster, each agent's scope, and the output contract it returns.
+  1-3 agents may dispatch directly.
 - `conserve:token-conservation` for session-level token budgeting
 - `conjure:agent-teams` for dispatch coordination
 

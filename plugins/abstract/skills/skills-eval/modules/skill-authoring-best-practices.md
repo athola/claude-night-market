@@ -144,9 +144,9 @@ to "must" reads as rigor and costs accuracy, because a
 constraint applied where it does not fit fails silently: the
 instruction was followed.
 
-`.claude/rules/bounded-autonomy.md` states the budget, and
-`../../../shared-modules/skill-selection-judgment.md` records
-why the older advice here, which was to escalate phrasing
+`../../skill-authoring/modules/persuasion-principles.md` states
+the budget, and `../../../shared-modules/skill-selection-judgment.md`
+records why the older advice here, which was to escalate phrasing
 until the model complied, was retired.
 
 ## Practice 5: concrete commands in Quick Start

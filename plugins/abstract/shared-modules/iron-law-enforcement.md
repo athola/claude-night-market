@@ -45,10 +45,11 @@ When AI pre-plans implementation before writing tests, the RED phase becomes the
 ## Five Ways to Check It Held
 
 These run from cheapest and least reliable to most mechanical. The
-later ones are machine contracts rather than advice, and
-`.claude/rules/bounded-autonomy.md` exempts those from its guidance on
-purpose: a pre-commit hook and a coverage gate cannot be reasoned with,
-which is the point of them.
+later ones are machine contracts rather than advice, and the guidance
+to write intent and constraints instead of steps does not reach them:
+a pre-commit hook and a coverage gate cannot be reasoned with, which
+is the point of them. The strength budget that draws that line lives
+in `../skills/skill-authoring/modules/persuasion-principles.md`.
 
 ### Level 1: Reading Your Own Work (Default)
 
