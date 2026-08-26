@@ -113,6 +113,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   root suite that no plugin runner sees. The command that regenerates
   it ships alongside, because the numbers drift.
 
+- **Session start no longer injects reference manuals.** Eight plugins
+  register `SessionStart`; three printed documentation totaling 9,973 of
+  the 10,770 characters measured across the set, so every session paid
+  for guidance about work most sessions never did. conserve went from
+  ~4,000 characters to 951 and imbue from ~3,100 to 990, both now
+  pointers into the skills that already held the detail; sanctum's was
+  cut to 533 separately on this branch. conserve also stopped restating
+  imbue's scope-guard reference, which every session paid for twice. A
+  per-payload budget test holds the line.
+- **The context monitor stopped re-reading the transcript per tool
+  call.** `conserve/context_warning.py` parsed up to 4MB of session
+  JSONL on every Write, Edit, Bash, Skill and Task. The alert bands are
+  40%, 50% and 80%, which no session crosses inside half a minute, so
+  the estimate is cached for 30 seconds.
+- **A prompt with no URL stopped paying for the memory-palace shared
+  package.** `url_detector.py` imported `shared.config` and
+  `shared.deduplication` at module scope, 100ms measured with
+  `-X importtime`, for names unreachable until a URL is found.
+  Deferring them takes the quiet path from 90ms to 40ms.
+
 ### Fixed
 
 - **A metadata entry used a path spelling no other plugin uses.**
@@ -175,8 +195,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   all. `tests/test_ci_runs_plugin_suites.py` pins those three
   properties and the `plugins/**` path filter.
 
-### Fixed
-
 - **Nine tests asserted on whatever the machine happened to have.**
   Two in attune mocked `sync_language_templates` but not
   `check_reference_projects`, so `main()` exited 1 unless
@@ -220,29 +238,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   opens with `O_NOFOLLOW` and refuses a file this user does not own
   (CWE-59), matching the defense imbue keeps in
   `hooks/shared/vow_utils.py`.
-
-
-### Changed
-
-- **Session start no longer injects reference manuals.** Eight plugins
-  register `SessionStart`; three printed documentation totaling 9,973 of
-  the 10,770 characters measured across the set, so every session paid
-  for guidance about work most sessions never did. conserve went from
-  ~4,000 characters to 951 and imbue from ~3,100 to 990, both now
-  pointers into the skills that already held the detail; sanctum's was
-  cut to 533 separately on this branch. conserve also stopped restating
-  imbue's scope-guard reference, which every session paid for twice. A
-  per-payload budget test holds the line.
-- **The context monitor stopped re-reading the transcript per tool
-  call.** `conserve/context_warning.py` parsed up to 4MB of session
-  JSONL on every Write, Edit, Bash, Skill and Task. The alert bands are
-  40%, 50% and 80%, which no session crosses inside half a minute, so
-  the estimate is cached for 30 seconds.
-- **A prompt with no URL stopped paying for the memory-palace shared
-  package.** `url_detector.py` imported `shared.config` and
-  `shared.deduplication` at module scope, 100ms measured with
-  `-X importtime`, for names unreachable until a URL is found.
-  Deferring them takes the quiet path from 90ms to 40ms.
 
 ## [1.9.19] - 2026-08-23
 
