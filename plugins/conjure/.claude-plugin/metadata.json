@@ -12,7 +12,8 @@
     "skills/codex-delegation",
     "skills/opencode-delegation",
     "skills/agent-teams",
-    "skills/glimmer-delegation"
+    "skills/glimmer-delegation",
+    "skills/provider-setup"
   ],
   "dependencies": {
     "leyline": ">=1.0.0"

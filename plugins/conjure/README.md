@@ -54,6 +54,18 @@ now costs one availability probe per provider and gets a
 category asked for exists, and it is "try, then do it
 yourself".
 
+`Skill(conjure:provider-setup)` is how an operator stops
+paying that cost. It prints which CLIs are installed and
+authenticated, explains each unhealthy one, installs the
+missing ones after confirmation, and stores the result at
+`~/.claude/hooks/delegation/provider-state.json`:
+
+```bash
+python3 scripts/delegation_setup.py --available
+python3 scripts/delegation_setup.py --doctor
+python3 scripts/delegation_setup.py --install gemini
+```
+
 Two switches decline it, environment over file:
 
 | Scope | How |

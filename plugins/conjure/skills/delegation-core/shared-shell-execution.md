@@ -65,6 +65,13 @@ mismatch was reachable from a documented invocation: passing
 `TestFlagSpellingsMatchTheRealClis` pins every spelling above against
 argv, so the suite stays hermetic while the binaries stay the source.
 
+The auth and availability failures catalogued below are what
+`Skill(conjure:provider-setup)` exists to answer. It reports which of
+these harnesses are installed and authenticated on this machine,
+explains each unhealthy one with its fix, installs the missing ones on
+request, and stores the answer so an operator is not rediscovering it
+from a failed delegation.
+
 ### What each CLI does that changes caller code
 
 **gemini** documents no temperature flag and exits 1 on one.

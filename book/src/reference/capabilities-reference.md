@@ -142,6 +142,7 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 | `project-planning` | [attune](../plugins/attune.md) | Architecture and task breakdown |
 | `project-specification` | [attune](../plugins/attune.md) | Spec creation from brainstorm |
 | `proof-of-work` | [imbue](../plugins/imbue.md) | Evidence-based work validation |
+| `provider-setup` | [conjure](../plugins/conjure.md) | Reports, installs and records which delegation CLIs this machine can call |
 | `pytest-config` | [leyline](../plugins/leyline.md) | Pytest configuration patterns |
 | `python-async` | [parseltongue](../plugins/parseltongue.md) | Async patterns |
 | `python-packaging` | [parseltongue](../plugins/parseltongue.md) | Packaging with uv |

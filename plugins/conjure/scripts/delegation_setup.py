@@ -19,8 +19,10 @@ import os
 import shutil
 import subprocess  # nosec B404
 import sys
+import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 
 from scripts.delegation_executor import (
     VERIFIED_BINARIES,
@@ -28,6 +30,7 @@ from scripts.delegation_executor import (
     credential_file_issues,
     resolve_env_overlay,
 )
+from scripts.provider_ledger import ProviderLedger, ProviderRecord
 
 _PROBE_TIMEOUT_SECONDS = 10
 
@@ -328,6 +331,80 @@ def doctor_lines(states: Sequence[ProviderState]) -> list[str]:
     return lines
 
 
+def write_ledger(
+    states: Sequence[ProviderState],
+    path: Path | None = None,
+    now: float | None = None,
+) -> ProviderLedger:
+    """Store this probe round so the next caller does not repeat it.
+
+    ``ProviderState.authenticated`` defaults True for providers whose
+    credentials live inside the CLI, because the status table does not
+    spawn the probe that would find out; ``auth_checked`` is what says
+    so. Only a checked confirmation reaches the ledger, so "we did not
+    look" cannot be read back as "it works".
+    """
+    stamp = time.time() if now is None else now
+    ledger = ProviderLedger(path)
+    for state in states:
+        confirmed = state.authenticated and state.auth_checked and not state.issues
+        ledger.record(
+            ProviderRecord(
+                name=state.name,
+                binary=state.binary,
+                installed=state.installed,
+                version=state.version,
+                auth_confirmed_at=stamp if confirmed else None,
+                recorded_at=stamp,
+                last_error=state.issues[0] if state.issues else None,
+            )
+        )
+    ledger.save()
+    return ledger
+
+
+def render_available(ledger: ProviderLedger) -> str:
+    """Name the harnesses conjure can call on this machine right now."""
+    ready = ledger.available()
+    if not ready:
+        return (
+            "No provider is confirmed ready. Run --doctor for the reason "
+            "per provider, or --install <service> to add one."
+        )
+    return "Available to conjure: " + ", ".join(ready)
+
+
+def install_every_missing(states: Sequence[ProviderState]) -> int:
+    """Offer each uninstalled provider in turn, and report the outcomes."""
+    missing = [state for state in states if not state.installed]
+    if not missing:
+        print("Every registered provider is already installed.")
+        return 0
+
+    outcomes = {}
+    for state in missing:
+        try:
+            outcomes[state.name] = install_provider(state.binary)
+        except UnverifiedBinaryError as exc:
+            # A provider registered in the operator's own config.json has
+            # no VERIFIED_BINARIES entry, and this loop let the exception
+            # out: the run died mid-sweep on a traceback, after installing
+            # some providers and before offering the rest. Refusing to
+            # invent an install command is correct; taking the whole sweep
+            # down with it is not.
+            print(f"{state.name}: no install command ({exc})", file=sys.stderr)
+            outcomes[state.name] = FAILED
+
+    declined = [name for name, out in outcomes.items() if out == DECLINED]
+    failed = [name for name, out in outcomes.items() if out == FAILED]
+    if declined:
+        print(f"Skipped at your request: {', '.join(declined)}")
+    if failed:
+        print(f"Install failed: {', '.join(failed)}", file=sys.stderr)
+        return 1
+    return 0
+
+
 def _create_parser() -> argparse.ArgumentParser:
     """Create the argument parser for the setup CLI."""
     parser = argparse.ArgumentParser(
@@ -353,6 +430,11 @@ def _create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="With --install omitted, offer every missing provider in turn",
     )
+    parser.add_argument(
+        "--available",
+        action="store_true",
+        help="Name the harnesses confirmed ready to take delegation work",
+    )
     return parser
 
 
@@ -361,6 +443,11 @@ def main(argv: list[str] | None = None) -> int:
     args = _create_parser().parse_args(argv)
     delegator = Delegator()
     states = probe_all(delegator)
+    ledger = write_ledger(states)
+
+    if args.available:
+        print(render_available(ledger))
+        return 0
 
     if args.install:
         if args.install not in delegator.services:
@@ -370,31 +457,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if install_provider(binary) != FAILED else 1
 
     if args.all:
-        missing = [state for state in states if not state.installed]
-        if not missing:
-            print("Every registered provider is already installed.")
-            return 0
-        outcomes = {}
-        for state in missing:
-            try:
-                outcomes[state.name] = install_provider(state.binary)
-            except UnverifiedBinaryError as exc:
-                # A provider registered in the operator's own config.json
-                # has no VERIFIED_BINARIES entry, and this loop let the
-                # exception out: the run died mid-sweep on a traceback,
-                # after installing some providers and before offering the
-                # rest. Refusing to invent an install command is correct;
-                # taking the whole sweep down with it is not.
-                print(f"{state.name}: no install command ({exc})", file=sys.stderr)
-                outcomes[state.name] = FAILED
-        declined = [name for name, out in outcomes.items() if out == DECLINED]
-        failed = [name for name, out in outcomes.items() if out == FAILED]
-        if declined:
-            print(f"Skipped at your request: {', '.join(declined)}")
-        if failed:
-            print(f"Install failed: {', '.join(failed)}", file=sys.stderr)
-            return 1
-        return 0
+        return install_every_missing(states)
 
     print(render_status(states))
 
