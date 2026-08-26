@@ -14,6 +14,7 @@ we deliberately gave up. Records the *why*, not just the *what*.
 | ID | Status | Title | Date |
 |----|--------|-------|------|
 | TR-001 | accepted | Test-quality vagueness is about the expectation, not the variable name | 2026-08-23 |
+| TR-002 | accepted | Retiring the coercion apparatus in favour of a strength budget | 2026-08-25 |
 
 ## Decisions
 
@@ -58,6 +59,89 @@ In the context of scoring test quality, facing a rubric that returned 0/100 for 
 
 - Positive: The same file scores 88 where it scored 0, a file with no assertions and no docstrings scores 28, and every result carries a score_breakdown naming the deduction per category
 - Negative / debt accepted: Reversal is one predicate (`_is_vague_result_assertion`) plus its three tests, so this is cheap to undo if the naming smell turns out to be worth the false positives. Revisit if reviewers start seeing `result` variables spread through new test files
+
+## TR-002: Retiring the coercion apparatus in favour of a strength budget
+
+- Status: accepted
+- Date: 2026-08-25
+- Phase: review
+- Deciders: repository owner (PR #662 review), Claude session
+- Links: ed8726dd, .claude/rules/bounded-autonomy.md,
+  plugins/abstract/skills/skill-authoring/modules/persuasion-principles.md
+
+### Context & problem
+
+Four assets existed to make the model comply: the `abstract:bulletproof-skill`
+command, whose stated purpose was hardening skills "against rationalization and
+bypass behaviors", and three shared modules carrying a tiered intensity ladder,
+a ceremonial declaration ("Iron Law Checkpoint: I am about to create
+[filename]") and a rationalization table. Their shared premise came from a study
+measuring persuasive phrasing: 33% instruction compliance plain, 72%
+persuasion-enhanced.
+
+That study measured compliance, and compliance is not correctness. Doubling the
+rate at which a model follows an instruction helps only where the instruction
+fits the situation, and doubles the damage where it does not, most reliably in
+exactly the situations the author never saw.
+
+### Decision drivers
+
+- None of the four had zero references, so none met the strict auto-delete bar.
+  The case had to be made on subject matter.
+- A large cull could not be justified on duplication. Measured against the
+  GitSkills baseline (3,797,117 public `SKILL.md` files, 50.5% byte-identical
+  copies), this repository's 759 skill files have 759 distinct contents and zero
+  byte-identical copies. Whatever is wrong with 209 skills, it is not that they
+  are each other.
+- Overlap with `superpowers` is also small. On bodies with frontmatter and code
+  blocks stripped, no pair exceeds 0.22 Jaccard similarity; the highest is 0.17.
+  The repository already defers to superpowers in 14 skills and 172 references.
+
+### Options considered
+
+| Option | Pros | Cons / what it sacrifices |
+|--------|------|---------------------------|
+| Retire the four, state a strength budget (chosen) | Each statement is classified invariant, default, or map, and most content is a map. An invariant needs a named failure this repository actually hit | Loses a per-skill hardening pass that produced visible ceremony, so "we hardened it" is no longer a thing anyone can report |
+| Keep them, soften the phrasing | No reference repair, no lost capability | The premise stays. Softer coercion is still coercion tuned to defeat a session's judgment |
+| Delete and replace nothing | Smallest surface | Leaves authors with no answer to "how hard should this push", which is the question the retired modules were answering badly |
+
+### Decision
+
+Option A.
+`plugins/abstract/skills/skill-authoring/modules/persuasion-principles.md` is
+the viable alternative and it ships with the plugin: it carries the three-row
+budget, what earns an invariant, the intent-constraints-exit-criteria shape, and
+the anti-patterns each retired asset embodied.
+`shared-modules/skill-selection-judgment.md` records why the older advice was
+retired. Repository-wide, `.claude/rules/bounded-autonomy.md` states the same
+for local work.
+
+References were repaired mechanically: 7 for the command, 7, 4 and 21 for the
+modules.
+
+### Y-statement
+
+In the context of skill authoring, facing four assets built to maximize model
+compliance, we chose a strength budget that classifies each statement as
+invariant, default or map over a per-skill hardening pass and an intensity
+ladder, to keep instructions accurate in situations their author did not
+anticipate, accepting that a skill can no longer be declared "bulletproofed" as
+a discrete step.
+
+### Consequences
+
+- Positive: An author now has a test for how hard to push, and an invariant
+  carries a burden of proof (a linked issue or journal entry, not "a model might
+  get this wrong")
+- Negative / debt accepted: Three deletions were recommended by the same triage
+  and not executed, each for a stated reason rather than an oversight.
+  `conserve:action-first-output` is 297 lines for an output-formatting
+  preference with one caller. `abstract:friction-detector` is 220 lines with one
+  caller. `sanctum:tutorial-updates` is 626 lines, and its "one caller" came
+  from the qualified count, which undercounts. Revisit these when the reference
+  measurement is trustworthy; the failure modes of both counting methods are
+  recorded in
+  `plugins/abstract/skills/skill-graph-audit/modules/interpretation.md`
 
 ## Archive
 
