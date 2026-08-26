@@ -411,7 +411,7 @@ Exit code and stdout JSON are the assertions. Hook test subtrees (for
 example `plugins/imbue/tests/unit/hooks/`) run under 3.9 in CI, so keep
 them stdlib-plus-pytest only.
 
-## Workflows: the asset type this repo does not ship yet
+## Workflows: one per plugin, discovered by convention
 
 A plugin can ship dynamic-workflow scripts alongside its skills,
 commands, agents and hooks. Verified on disk 2026-08-23 against the
@@ -437,12 +437,34 @@ installed official marketplace, not from documentation alone.
   and inherit the tool allowlist, whatever the session's permission
   mode.
 
-This repo ships no workflows, and its tooling does not yet know the
-type: `plugins/abstract/scripts/validate_plugin.py` iterates skills,
-commands, agents and hooks only, and the capabilities reference has no
-workflow rows. Adding a fifth type means teaching both, or a shipped
-script will drift unnoticed. Analysis and the proposed sequence:
-`reports/dynamic-workflows-integration-2026-08-23.md` (machine-local).
+Every plugin in `plugins/` ships one. Each encodes the fan-out that
+plugin's flagship work already describes: `scribe/doc-sweep.js` runs
+its four reviewers over one document, `parseltongue/python-sweep.js`
+runs its four specialists over the same Python, `conjure/provider-sweep.js`
+asks every provider whether this machine can call it.
+
+Two conventions hold across all of them, both because a violation
+fails at dispatch time rather than at author time:
+
+- A script that cannot start returns `{started: false, reason, next}`
+  instead of dispatching agents against missing input. `next` names
+  the command that produces what was missing.
+- No script calls `Date.now()`, `Math.random()`, argless `new Date()`
+  or `import()`. The first three throw, because a run has to replay
+  identically from its journal on resume; `import()` fails the script
+  before the run starts.
+
+`tests/test_shipped_workflows.py` is the gate: it fails when a plugin
+ships none, when `meta` is not the first statement, when `meta.name`
+disagrees with the filename, or when a forbidden call appears.
+
+Two things still do not know the type. `validate_plugin.py` iterates
+skills, commands, agents and hooks only, and the capabilities
+reference has no workflow rows. Neither gap can hide a broken script
+now that the root gate exists, but a workflow is still invisible to
+anyone reading the capabilities table. Analysis and the proposed
+sequence: `reports/dynamic-workflows-integration-2026-08-23.md`
+(machine-local).
 
 ## Marketplace mechanics
 
