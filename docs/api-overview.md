@@ -17,11 +17,11 @@ with public APIs. We also maintain 58 executable hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 1.9.19 | 18 | 15 | 6 | Yes | abstract-skills |
+| abstract | 1.9.19 | 17 | 15 | 6 | Yes | abstract-skills |
 | archetypes | 1.9.19 | 0 | 15 | 0 | No | - |
 | attune | 1.9.19 | 11 | 14 | 2 | No | - |
 | cartograph | 1.9.19 | 1 | 7 | 1 | No | - |
-| conjure | 1.9.19 | 0 | 9 | 0 | No | quota-tracker, usage-logger, delegator |
+| conjure | 1.9.19 | 0 | 11 | 0 | No | quota-tracker, usage-logger, delegator |
 | conserve | 1.9.19 | 6 | 15 | 5 | No | - |
 | egregore | 1.9.19 | 5 | 4 | 2 | No | - |
 | gauntlet | 1.9.19 | 6 | 7 | 1 | Yes | - |
