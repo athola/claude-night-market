@@ -65,19 +65,31 @@ class TestRoundTrip:
     """Persistence, and how a damaged or absent file behaves."""
 
     def test_a_written_baton_reads_back(self, baton_path: Path) -> None:
-        """The next process over reads what the session put down."""
+        """GIVEN a session that recorded a handoff.
+
+        WHEN another process reads the baton
+        THEN it sees the unit that session finished
+        """
         write_baton(_baton(), baton_path)
 
         assert read_baton(baton_path).unit == "implement-the-parser"
 
     def test_the_file_carries_a_version(self, baton_path: Path) -> None:
-        """A later shape change must be able to recognise this one."""
+        """GIVEN a baton written by this version.
+
+        WHEN the file is inspected
+        THEN it carries the version a later reader would check
+        """
         write_baton(_baton(), baton_path)
 
         assert json.loads(baton_path.read_text())["version"] == BATON_VERSION
 
     def test_absent_baton_reads_as_none(self, baton_path: Path) -> None:
-        """No baton means no claim, which is the state before a run."""
+        """GIVEN no run has handed off yet.
+
+        WHEN the baton is read
+        THEN there is no claim to read
+        """
         assert read_baton(baton_path) is None
 
     def test_corrupt_baton_reads_as_none(self, baton_path: Path) -> None:
@@ -101,7 +113,11 @@ class TestDamageIsReadAsNoClaim:
     """
 
     def test_an_unfamiliar_version_reads_as_no_baton(self, baton_path: Path) -> None:
-        """A later schema is not half-read by an earlier reader.
+        """GIVEN a baton written by a later schema version.
+
+        WHEN this reader reads it
+        THEN it reads as no claim rather than as a partial record
+
 
         The body here is a **complete and valid** baton, so the version
         check is the only thing that can reject it. An earlier version
@@ -124,7 +140,11 @@ class TestDamageIsReadAsNoClaim:
     def test_a_baton_missing_its_fields_reads_as_no_baton(
         self, baton_path: Path
     ) -> None:
-        """A partial record is not a claim about anything."""
+        """GIVEN a baton payload missing required fields.
+
+        WHEN it is read
+        THEN it reads as no claim
+        """
         baton_path.write_text(
             json.dumps({"version": BATON_VERSION, "baton": {"sequence": 1}})
         )
@@ -134,13 +154,21 @@ class TestDamageIsReadAsNoClaim:
     def test_a_payload_with_no_baton_key_reads_as_no_baton(
         self, baton_path: Path
     ) -> None:
-        """The envelope can be right while the contents are absent."""
+        """GIVEN a payload with a valid version and no baton body.
+
+        WHEN it is read
+        THEN it reads as no claim
+        """
         baton_path.write_text(json.dumps({"version": BATON_VERSION}))
 
         assert read_baton(baton_path) is None
 
     def test_a_non_object_payload_reads_as_no_baton(self, baton_path: Path) -> None:
-        """Valid JSON that is not a mapping is still not a baton."""
+        """GIVEN a payload that parses as JSON but is a list.
+
+        WHEN it is read
+        THEN it reads as no claim
+        """
         baton_path.write_text(json.dumps(["not", "an", "object"]))
 
         assert read_baton(baton_path) is None
@@ -150,7 +178,11 @@ class TestStrandedMeansStalledNotOld:
     """The distinction the mechanism exists to make."""
 
     def test_a_baton_past_its_deadline_is_stranded(self, baton_path: Path) -> None:
-        """The session put it down and no turn picked it up."""
+        """GIVEN a handoff whose deadline has passed.
+
+        WHEN the watcher checks it
+        THEN the baton reads as stranded
+        """
         write_baton(_baton(sequence=1, deadline=2000.0), baton_path)
 
         assert is_stranded(baton_path, now=2000.1)
@@ -158,7 +190,11 @@ class TestStrandedMeansStalledNotOld:
     def test_a_baton_inside_its_deadline_is_not_stranded(
         self, baton_path: Path
     ) -> None:
-        """The next turn still has time to start."""
+        """GIVEN a handoff whose deadline has not passed.
+
+        WHEN the watcher checks it
+        THEN the baton does not read as stranded
+        """
         write_baton(_baton(sequence=1, deadline=2000.0), baton_path)
 
         assert not is_stranded(baton_path, now=1999.9)
@@ -218,7 +254,11 @@ class TestStrandedMeansStalledNotOld:
         assert is_stranded(baton_path, now=9000.1)
 
     def test_no_baton_is_not_stranded(self, baton_path: Path) -> None:
-        """Nothing was handed off, so nothing was dropped."""
+        """GIVEN no baton on disk.
+
+        WHEN the watcher checks for a stall
+        THEN nothing reads as stranded, because nothing was dropped
+        """
         assert not is_stranded(baton_path, now=9999.0)
 
     def test_a_cleared_baton_is_not_stranded(self, baton_path: Path) -> None:
