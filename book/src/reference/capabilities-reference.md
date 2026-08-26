@@ -8,6 +8,41 @@ See [Capabilities Reference Details](capabilities-reference-details.md).
 
 ## Quick Reference Index
 
+### All Workflows (Alphabetical)
+
+Dynamic-workflow scripts under each plugin's `workflows/`. Discovery
+is by convention, so none is declared in `plugin.json`. Invoke as
+`/plugin-name:workflow-name`, where the name comes from the script's
+`meta.name`.
+
+A workflow only runs when it is asked for. None starts implicitly.
+
+| Workflow | Plugin | Description |
+|----------|--------|-------------|
+| `atlas` | [cartograph](../plugins/cartograph.md) | Generate the architecture, dependency, data-flow and community diagrams of one codebase in parallel and report where they disagree |
+| `bloat-sweep` | [conserve](../plugins/conserve.md) | Run the deep bloat scan across several code areas at once and consolidate the findings that span more than one |
+| `capture-set` | [scry](../plugins/scry.md) | Capture several terminal or browser recordings in parallel and report which flows failed without stopping the rest |
+| `doc-sweep` | [scribe](../plugins/scribe.md) | Review documents through four independent layers, from identity leaks and hallucinated paths down to sentence-level slop |
+| `evidence-sweep` | [imbue](../plugins/imbue.md) | Check each completion claim in a change against the evidence offered for it, and report the ones running on assertion alone |
+| `fix-workflow-analysis` | [sanctum](../plugins/sanctum.md) | Recreate a workflow slice, generate improvement options with trade-offs, and converge on one plan with acceptance criteria |
+| `gate-audit` | [egregore](../plugins/egregore.md) | Check each pipeline gate for whether it can return a failing verdict, and prove each finding with an input that walks past it |
+| `initiative-pulse` | [minister](../plugins/minister.md) | Gather delivery health for several GitHub milestones in parallel and roll them up into one programme view |
+| `judge-panel` | [herald](../plugins/herald.md) | Judge one completion claim through three independent lenses and report the verdict with any dissent |
+| `knowledge-extract` | [gauntlet](../plugins/gauntlet.md) | Extract and enrich the gauntlet knowledge base one subsystem per agent, then merge into a single corpus |
+| `palace-sweep` | [memory-palace](../plugins/memory-palace.md) | Ask one question of every memory palace in parallel and rank the answers, including the ones filed under an unexpected domain |
+| `paradigm-panel` | [archetypes](../plugins/archetypes.md) | Score candidate architecture paradigms independently against one requirement set and return a ranked comparison |
+| `plugin-health` | [leyline](../plugins/leyline.md) | Check every plugin against the shared leyline contracts in parallel, then report contracts that no plugin satisfies |
+| `provider-sweep` | [conjure](../plugins/conjure.md) | Ask every delegation provider in parallel whether this machine can call it, and separate a missing binary from a rejected credential |
+| `python-sweep` | [parseltongue](../plugins/parseltongue.md) | Run the lint, type, performance and test specialists over the same Python in parallel and merge their findings |
+| `quality-bench` | [oracle](../plugins/oracle.md) | Score a set of skills through the oracle in parallel and report each score against the distribution rather than alone |
+| `research` | [tome](../plugins/tome.md) | Fan out one research question across tome channels and merge the findings into a ranked, per-channel report |
+| `rule-sweep` | [hookify](../plugins/hookify.md) | Check each catalog rule against the codebase it governs and report the ones that no longer describe it |
+| `skill-audit` | [abstract](../plugins/abstract.md) | Audit a set of skills across four independent quality dimensions, then verify each finding before reporting it |
+| `skill-library` | [attune](../plugins/attune.md) | Discover what a project knows, author one skill per topic in parallel, and review each adversarially |
+| `spec-review` | [spec-kit](../plugins/spec-kit.md) | Read one specification through four independent lenses and report what must be settled before planning starts |
+| `surface-check` | [phantom](../plugins/phantom.md) | Verify each desktop control surface independently so one failing surface does not hide the state of the others |
+| `unified-review` | [pensive](../plugins/pensive.md) | Review changed code across dimensions, adversarially verify each finding, and return one ranked list |
+
 ### All Skills (Alphabetical)
 
 | Skill | Plugin | Description |

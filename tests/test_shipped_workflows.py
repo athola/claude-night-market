@@ -157,3 +157,31 @@ def test_a_script_that_cannot_start_refuses_instead_of_dispatching(
         f"{script}: a refusal must name what would supply the missing input, "
         "or the caller improvises it"
     )
+
+
+@pytest.mark.parametrize(
+    "script", _workflow_scripts(), ids=lambda p: f"{p.parents[1].name}/{p.name}"
+)
+def test_every_workflow_has_a_row_in_the_capabilities_reference(
+    script: Path,
+) -> None:
+    """GIVEN a workflow script shipped under a plugin.
+
+    WHEN a reader looks it up in the capabilities reference
+    THEN a row names it and its plugin
+
+    Adding the table without this gate would trade one drift surface
+    for another: the reference already carries skills, commands, agents
+    and hooks, and each of those is kept honest by a check. A workflow
+    absent from the table is invisible to anyone who reads the table
+    rather than the directory, which is most people.
+    """
+    reference = (
+        REPO_ROOT / "book" / "src" / "reference" / "capabilities-reference.md"
+    ).read_text()
+    name = re.search(r"name:\s*'([^']+)'", script.read_text()).group(1)
+    plugin = script.parents[1].name
+
+    assert f"| `{name}` | [{plugin}]" in reference, (
+        f"{plugin}:{name} ships but has no row in capabilities-reference.md"
+    )

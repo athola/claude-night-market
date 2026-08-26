@@ -9,6 +9,128 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **A workflow per plugin, and a gate that keeps them runnable.** Four
+  plugins shipped dynamic-workflow scripts. The other 19 did not, and
+  `claude-code-plugin-reference` still headed the section "the asset
+  type this repo does not ship yet". All 23 ship one now, each
+  encoding that plugin's own fan-out rather than a demonstration:
+  scribe runs its four document reviewers blind to each other,
+  parseltongue its four Python specialists over the same paths,
+  egregore audits each pipeline gate for whether it can return a
+  failing verdict. Two conventions hold across all of them, because
+  the violation fails at dispatch rather than at authoring. A script
+  that cannot start returns `{started: false, reason, next}` with
+  `next` naming the command that supplies the missing input, instead
+  of dispatching agents against nothing. And none calls `Date.now()`,
+  `Math.random()`, argless `new Date()` or `import()`: the first three
+  throw, because a run has to replay identically from its journal on
+  resume, and the fourth fails the script before the run starts.
+  `tests/test_shipped_workflows.py` gates coverage, `meta` placement,
+  `meta.name` agreeing with the filename, the refusal shape, and a row
+  in the capabilities reference. The filename check earns its place:
+  the harness invokes by `meta.name`, so a script whose declared name
+  disagrees with its file exists under a name nobody can type, and no
+  syntax check sees it.
+
+- **A continuation baton that makes a dropped turn observable
+  (egregore).** ADR-0022 recorded that the autonomous loop continues by
+  riding an undocumented harness behavior, and closed on a defect
+  nobody could act on: no test can cover the harness end, so the first
+  symptom of an upstream change is a loop that stops after one turn,
+  which looks identical to a loop that finished. Framed with TRIZ this
+  is a physical contradiction, not a technical one: the trigger must
+  be inside the session, which alone knows a unit finished, and
+  outside it, which alone survives the session ending. The separation
+  axis is system scale, and a rail dead man's control, a cell-cycle
+  checkpoint and a kanban card all land on the same shape for it. So
+  the session records each handoff with a sequence number and the
+  deadline by which the next turn should have started, so a dropped
+  turn leaves a baton past its deadline with its sequence unmoved. Stranded
+  means stalled rather than old, which is what separates it from a
+  timeout. Four states are distinguishable where the pidfile
+  distinguished one, including reinjection ceasing while the process
+  is still alive. The dependency is unchanged and the watchdog does
+  not consume the baton yet. ADR-0023 states both.
+
+- **Provider setup for delegation, with a ledger (conjure).**
+  `delegation_setup.py` already probed, explained and installed, but
+  had no skill in front of it and wrote nothing down, so every call
+  re-derived the same facts by spawning up to sixteen subprocesses and
+  an unconfigured provider surfaced only as a failed delegation.
+  `Skill(conjure:provider-setup)` and `--available` answer what this
+  machine can call. `provider_ledger.py` stores it, and what it may
+  remember is asymmetric on purpose: installed facts cache under a
+  six-hour TTL, a confirmed credential is a timestamp and never a
+  boolean because a token expires without touching the binary, and a
+  recorded failure clears the confirmation immediately. A provider
+  whose auth was never probed carries `auth_checked: false`, which
+  never becomes a confirmation, because "we did not look" and "it
+  works" are different claims. The ledger deliberately does not reach
+  the routing path, and the skill says so.
+
+- **Slop detection for the trailing corrective (scribe).**
+  `negative_parallelism` already named the "X, not just Y" form, but
+  its bare-trailing regex needs the sentence to end one word after
+  "not", so "sends your code, not just a status check" was live in
+  `README.md`. `contrastive_negation_trailing` carries the four forms
+  the sources agree on, at high confidence.
+  `contrastive_scaffold` covers "does X rather than Y" and "does X
+  instead of Y", and ships `default_enabled: false` at low confidence:
+  no source in the contrastive-negation literature names either
+  connective, and this repository writes "rather than" 504 times and
+  "instead of" 299 in its own markdown, almost all correctly.
+
+### Changed
+
+- **Shipped documents no longer cite a path a marketplace install
+  lacks.** A plugin installed from the marketplace gets that plugin's
+  directory and nothing else, with no `.claude/rules/`. Fifteen files
+  under `plugins/` told their reader to see a rule file there. The
+  substance now travels with the plugin: stated inline, or cited from
+  a module under the same plugin. Deleting the pointers alone would
+  have left the reader with less.
+  `tests/test_shipped_plugin_docs_avoid_repo_local_rules.py` gates the
+  shipped surface, allowlisting the four cases where the rules
+  directory is an operand rather than a reference.
+
+- **The Iron Law says what a test is for, not only that one exists.**
+  Read as an unqualified "a failing test before every change", it
+  produces a suite where every changed line grew an assertion, and
+  that is not a neutral cost: a test pinning a convenience default
+  reports failure when nothing broke. The RED phase now begins by
+  naming the constraint the test defends, one of a business rule, an
+  invariant, a contract at a boundary, or a recorded defect. When none
+  fits, "this change does not need a test first" is a valid answer
+  that has to be said with its reason. leyline's anti-pattern catalog
+  gains the case it was missing, since it covered how a test is
+  written and said nothing about whether the constraint was required.
+
+- **`docs/testing-guide.md` counts are measured rather than
+  estimated.** The table claimed 938 tests across 12 plugins, listed
+  abstract at 331 where it collects 2,378, and carried coverage and
+  mutation columns with no evidence behind them. Rebuilt from
+  `pytest --collect-only`: 14,048 across 23 plugins, plus 6,944 in the
+  root suite that no plugin runner sees. The command that regenerates
+  it ships alongside, because the numbers drift.
+
+### Fixed
+
+- **A metadata entry used a path spelling no other plugin uses.**
+  conjure's `metadata.json` listed nine skills as `skills/<name>` and
+  glimmer as `./skills/<name>`, the single outlier repo-wide. The
+  registration test compares `Path(entry).name`, identical for both,
+  so the tenth entry arrived in the wrong form and the suite stayed
+  green. The spelling is pinned directly now.
+
+- **Five branches added this cycle and never exercised.**
+  `provider_ledger` and `continuation_baton` reach 100% from 95% and
+  94%: an unfamiliar schema version must discard the file wholesale,
+  and one malformed entry must not discard the others.
+  `render_available`, the one function whose whole job is telling an
+  operator the truth, had no test at all. Three guards were decorative
+  on the first attempt and the revert test is what caught them. The
+  record is `LL-006`.
+
 - **Slop detection for prose framed in the negative (scribe).** The
   existing `negative_parallelism` catches a scaffold, "not X but Y".
   Three new `tier5` categories catch writing that reaches for the

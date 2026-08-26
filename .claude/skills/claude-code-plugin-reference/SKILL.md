@@ -458,11 +458,14 @@ fails at dispatch time rather than at author time:
 ships none, when `meta` is not the first statement, when `meta.name`
 disagrees with the filename, or when a forbidden call appears.
 
-Two things still do not know the type. `validate_plugin.py` iterates
-skills, commands, agents and hooks only, and the capabilities
-reference has no workflow rows. Neither gap can hide a broken script
-now that the root gate exists, but a workflow is still invisible to
-anyone reading the capabilities table. Analysis and the proposed
+The capabilities reference carries a workflow table now, and
+`tests/test_shipped_workflows.py` fails if a shipped script has no
+row, so the table cannot drift behind the directory.
+
+One gap stays: `validate_plugin.py` iterates skills, commands, agents
+and hooks only, so a fifth asset type is invisible to per-plugin
+validation. The root gate covers what that would have caught, which
+is why this is a gap rather than a defect. Analysis and the proposed
 sequence: `reports/dynamic-workflows-integration-2026-08-23.md`
 (machine-local).
 
