@@ -115,3 +115,42 @@ def test_meta_name_matches_the_filename(script: Path) -> None:
         f"{script.name} declares meta.name '{declared.group(1)}'. The harness "
         "invokes by meta.name, so a mismatch makes the filename a lie."
     )
+
+
+@pytest.mark.parametrize(
+    "script", _workflow_scripts(), ids=lambda p: f"{p.parents[1].name}/{p.name}"
+)
+def test_a_script_that_cannot_start_refuses_instead_of_dispatching(
+    script: Path,
+) -> None:
+    """A missing-input guard must name what would supply the input.
+
+    `claude-code-plugin-reference` states this as one of two conventions
+    every shipped script holds, and until now only the other one
+    (forbidden calls) was gated. A convention documented and unenforced
+    is the defect that put the workflow section's own heading out of
+    date, so it gets a test rather than a sentence.
+
+    The shape: return `{started: false, reason, next}` rather than fan
+    out agents against nothing. `next` is the load-bearing field. A
+    refusal that does not say what to run leaves the caller exactly
+    where they were, and the caller here is a model that will otherwise
+    improvise the missing input.
+
+    A script with no required input has nothing to refuse and is
+    exempt, which the `args` check below establishes.
+    """
+    content = script.read_text()
+
+    reads_required_input = "started: false" in content or "started: true" in content
+    if not reads_required_input:
+        pytest.skip(f"{script.name} requires no input, so it has nothing to refuse")
+
+    assert "started: false" in content, (
+        f"{script} tracks a started flag but has no refusal branch"
+    )
+    assert "reason:" in content, f"{script}: a refusal must carry a reason"
+    assert "next:" in content, (
+        f"{script}: a refusal must name what would supply the missing input, "
+        "or the caller improvises it"
+    )

@@ -29,6 +29,7 @@ signal; a missed handoff is.
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
@@ -87,6 +88,60 @@ class TestRoundTrip:
         spawn sessions.
         """
         baton_path.write_text("{ truncated")
+
+        assert read_baton(baton_path) is None
+
+
+class TestDamageIsReadAsNoClaim:
+    """A baton that parses into the wrong shape must not strand a run.
+
+    Every damage case answers None, and None means "nothing was handed
+    off". That default is chosen: the opposite would let a corrupt or
+    future-shaped file relaunch sessions.
+    """
+
+    def test_an_unfamiliar_version_reads_as_no_baton(self, baton_path: Path) -> None:
+        """A later schema is not half-read by an earlier reader.
+
+        The body here is a **complete and valid** baton, so the version
+        check is the only thing that can reject it. An earlier version
+        of this test used a partial body, which the field-shape guard
+        rejected on its own: the test passed with the version check
+        deleted, which is LL-006's failure repeating one commit later.
+        """
+        baton_path.write_text(
+            json.dumps(
+                {
+                    "version": BATON_VERSION + 1,
+                    "baton": asdict(_baton(sequence=9, deadline=2000.0)),
+                }
+            )
+        )
+
+        assert read_baton(baton_path) is None
+        assert not is_stranded(baton_path, now=9999.0)
+
+    def test_a_baton_missing_its_fields_reads_as_no_baton(
+        self, baton_path: Path
+    ) -> None:
+        """A partial record is not a claim about anything."""
+        baton_path.write_text(
+            json.dumps({"version": BATON_VERSION, "baton": {"sequence": 1}})
+        )
+
+        assert read_baton(baton_path) is None
+
+    def test_a_payload_with_no_baton_key_reads_as_no_baton(
+        self, baton_path: Path
+    ) -> None:
+        """The envelope can be right while the contents are absent."""
+        baton_path.write_text(json.dumps({"version": BATON_VERSION}))
+
+        assert read_baton(baton_path) is None
+
+    def test_a_non_object_payload_reads_as_no_baton(self, baton_path: Path) -> None:
+        """Valid JSON that is not a mapping is still not a baton."""
+        baton_path.write_text(json.dumps(["not", "an", "object"]))
 
         assert read_baton(baton_path) is None
 

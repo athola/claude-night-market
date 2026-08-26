@@ -25,15 +25,23 @@ the load-bearing decision here, and it is asymmetric on purpose:
 from __future__ import annotations
 
 import json
+import time
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
-from scripts.delegation_setup import ProviderState, write_ledger
+from scripts.delegation_setup import (
+    ProviderState,
+    render_available,
+    write_ledger,
+)
 from scripts.provider_ledger import (
     LEDGER_VERSION,
     ProviderLedger,
     ProviderRecord,
 )
+
+from scripts import delegation_setup, provider_ledger
 
 
 @pytest.fixture
@@ -106,6 +114,72 @@ class TestRoundTrip:
         ledger_path.write_text("{not json")
 
         assert ProviderLedger(ledger_path).names() == ()
+
+
+class TestADamagedLedgerDegradesToACacheMiss:
+    """Whole-file and per-entry damage, which are different failures.
+
+    The round-trip tests cover a file that will not parse. These cover a
+    file that parses into the wrong shape, which is what a future schema
+    change produces on an old reader, and a file where one entry is
+    malformed while the rest are fine.
+    """
+
+    def test_an_unfamiliar_version_is_ignored_wholesale(
+        self, ledger_path: Path
+    ) -> None:
+        """A later schema must not be half-read by an earlier reader.
+
+        Reading unknown fields as a partial record would let a newer
+        writer's meaning be silently reinterpreted. Discarding costs one
+        round of probes, which is the price this module is built to pay.
+
+        The record here is **complete and valid**, so the version check
+        is the only thing that can reject it. With a malformed record
+        the per-entry guard rejects it anyway and this test passes with
+        the version check deleted, which is LL-006's failure mode.
+        """
+        ledger_path.write_text(
+            json.dumps(
+                {
+                    "version": LEDGER_VERSION + 1,
+                    "providers": {"gemini": asdict(_record("gemini"))},
+                }
+            )
+        )
+
+        assert ProviderLedger(ledger_path).names() == ()
+
+    def test_one_malformed_entry_does_not_discard_the_others(
+        self, ledger_path: Path
+    ) -> None:
+        """Invariant: per-entry damage is contained to that entry.
+
+        This is the property that makes the ledger worth keeping across
+        a partial write. Discarding the whole file on one bad record
+        would turn a one-provider problem into a full re-probe.
+
+        If this assertion ever needs to change, that is a decision about
+        the invariant rather than about the test: preserve it, layer a
+        repair pass on top, or revise it with a stated reason.
+        """
+        good = _record("gemini")
+        ledger_path.write_text(
+            json.dumps(
+                {
+                    "version": LEDGER_VERSION,
+                    "providers": {
+                        "gemini": asdict(good),
+                        "qwen": {"name": "qwen", "unexpected_field": 1},
+                    },
+                }
+            )
+        )
+
+        loaded = ProviderLedger(ledger_path)
+
+        assert loaded.names() == ("gemini",)
+        assert loaded.get("gemini").version == "1.0.0"
 
 
 class TestFreshness:
@@ -259,3 +333,174 @@ class TestSetupWritesTheLedger:
         )
 
         assert ProviderLedger(ledger_path).get("qwen").last_error == "401 rejected"
+
+
+class TestTheAvailabilityReport:
+    """What an operator reads when they ask what conjure can call.
+
+    `render_available` is the answer to the review question "report to
+    the user which harnesses are properly setup and authenticated on
+    this machine". It had no test, which for the one function whose
+    whole job is telling a human the truth is the wrong place to have a
+    gap.
+    """
+
+    def test_a_ready_provider_is_named(self, ledger_path: Path) -> None:
+        """GIVEN a ledger holding one confirmed provider.
+
+        WHEN the operator asks what is available
+        THEN the provider is named in the line they read
+
+        `render_available` reads the wall clock, because an operator
+        asking "what can I call" means now. So these records carry a
+        live timestamp rather than the fixed one the freshness tests
+        use, which would read as stale against any real clock.
+        """
+        ledger = ProviderLedger(ledger_path, ttl_seconds=10**9)
+        ledger.record(_record("gemini", recorded_at=time.time()))
+
+        assert "gemini" in render_available(ledger)
+
+    def test_several_ready_providers_are_listed_in_order(
+        self, ledger_path: Path
+    ) -> None:
+        """GIVEN more than one confirmed provider.
+
+        WHEN the operator asks what is available
+        THEN all of them are listed, ordered so the line is stable
+        """
+        now = time.time()
+        ledger = ProviderLedger(ledger_path, ttl_seconds=10**9)
+        ledger.record(_record("qwen", recorded_at=now))
+        ledger.record(_record("codex", recorded_at=now))
+
+        assert render_available(ledger) == "Available to conjure: codex, qwen"
+
+    def test_an_empty_ledger_says_what_to_run_next(self, ledger_path: Path) -> None:
+        """GIVEN no provider is confirmed ready.
+
+        WHEN the operator asks what is available
+        THEN the reply names the commands that would fix it
+
+        A bare "none" leaves the operator where they started. This is
+        the branch they hit on a fresh machine, so it is the one that
+        has to carry the next step.
+        """
+        line = render_available(ProviderLedger(ledger_path))
+
+        assert "--doctor" in line
+        assert "--install" in line
+
+    def test_a_provider_with_a_failure_is_not_reported_available(
+        self, ledger_path: Path
+    ) -> None:
+        """GIVEN a provider that was confirmed and has since refused work.
+
+        WHEN the operator asks what is available
+        THEN it is absent, because the report must not outlive the
+        credential that earned it
+        """
+        ledger = ProviderLedger(ledger_path, ttl_seconds=10**9)
+        ledger.record(_record("muse", recorded_at=time.time()))
+        ledger.record_failure("muse", "auth expired")
+
+        assert "muse" not in render_available(ledger)
+
+    def test_a_directly_recorded_confirmed_failure_is_still_excluded(
+        self, ledger_path: Path
+    ) -> None:
+        """GIVEN a record carrying both a confirmation and an error.
+
+        WHEN the operator asks what is available
+        THEN it is absent, because the error wins
+
+        `record_failure` clears the confirmation, so the pair cannot
+        arise through it, and a test that goes through it cannot tell
+        the `last_error` clause from the `auth_confirmed_at` one. But
+        `record` is public and takes whatever it is given, so the pair
+        is reachable and the clause is load-bearing rather than
+        redundant. This is the only path that proves it.
+        """
+        ledger = ProviderLedger(ledger_path, ttl_seconds=10**9)
+        ledger.record(
+            ProviderRecord(
+                name="glm",
+                binary="claude",
+                installed=True,
+                version="2.1.240",
+                auth_confirmed_at=time.time(),
+                recorded_at=time.time(),
+                last_error="endpoint swap rejected the key",
+            )
+        )
+
+        assert "glm" not in render_available(ledger)
+
+
+class TestTheAvailableFlagIsReachable:
+    """The CLI wiring for the report, not the report itself.
+
+    `render_available` is tested above. This covers the branch that
+    connects it to `--available`, which is the entry point the review
+    asked for: "report to the user which harnesses are properly setup
+    and authenticated on this machine". A correct report behind an
+    unreachable flag answers nobody.
+
+    `probe_all` is stubbed because it spawns one subprocess per
+    installed CLI. That is the external dependency; the flag dispatch
+    is the system under test.
+    """
+
+    def test_available_prints_the_report_and_exits_zero(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys
+    ) -> None:
+        """GIVEN one provider probed as installed and authenticated.
+
+        WHEN the operator runs the setup CLI with --available
+        THEN the provider is named on stdout and the exit code is 0
+        """
+        probed = [
+            ProviderState(
+                name="gemini",
+                binary="gemini",
+                installed=True,
+                version="0.26.0",
+                authenticated=True,
+                issues=(),
+                missing_variables=(),
+                auth_checked=True,
+            )
+        ]
+        monkeypatch.setattr(delegation_setup, "probe_all", lambda _: probed)
+        monkeypatch.setattr(delegation_setup, "Delegator", object)
+        monkeypatch.setattr(
+            provider_ledger, "DEFAULT_LEDGER_PATH", tmp_path / "state.json"
+        )
+
+        code = delegation_setup.main(["--available"])
+
+        assert code == 0
+        assert "gemini" in capsys.readouterr().out
+
+    def test_available_reports_an_unconfigured_machine_without_failing(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys
+    ) -> None:
+        """GIVEN no provider is installed.
+
+        WHEN the operator runs --available
+        THEN it says so and still exits 0
+
+        A fresh machine is the ordinary case, not an error. Exiting
+        non-zero here would fail any script that asks the question
+        before deciding whether to delegate.
+        """
+        monkeypatch.setattr(delegation_setup, "probe_all", lambda _: [])
+        monkeypatch.setattr(delegation_setup, "Delegator", object)
+        monkeypatch.setattr(
+            provider_ledger, "DEFAULT_LEDGER_PATH", tmp_path / "state.json"
+        )
+
+        code = delegation_setup.main(["--available"])
+
+        assert code == 0
+        assert "--doctor" in capsys.readouterr().out
