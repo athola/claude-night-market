@@ -224,3 +224,73 @@ A test written immediately after a fix is written against the author's model of 
 - Action: revert-test every new guard individually before reporting it, not as a batch at the end of the cycle (done this cycle) -- Owner: night-market maintainers -- Due: 2026-08-24 -- Status: done
 - Action: when a revert leaves a new test green, read the function's control flow before rewriting the test. Both misses here were an unread branch rather than a bad assertion -- Owner: night-market maintainers -- Due: ongoing -- Status: open
 - Action: prefer probing an installed binary over inferring a CLI contract, and record the probe output in the comment that states the default -- Owner: conjure maintainers -- Due: ongoing -- Status: open
+
+## LL-006: A mechanism and the thing it claims to beat were indistinguishable to its own tests
+
+- Status: open
+- Date: 2026-08-25
+- Phase: review
+- Category: testing
+- Owner: night-market maintainers
+- Links: 3466862e,
+  docs/adr/0023-continuation-baton-makes-a-dropped-turn-observable.md, PR #662
+
+### What happened
+
+The continuation baton exists to tell a stalled autonomous loop from a finished
+one. Its entire claim over a plain timeout is that it measures a missed handoff
+rather than elapsed time, so the session records a deadline at each handoff and
+a turn that happens sets a new one.
+
+Thirteen tests covered the round trip, the stranded case, the advancing case,
+the cleared case and the corrupt file. All thirteen passed with `is_stranded`
+mutated from `now > baton.deadline` into `now > baton.written_at + 1000.0`,
+which is a plain age timeout and is exactly what the mechanism is supposed to
+improve on.
+
+The cause was in the implementation, not the tests. `advance_baton` recorded
+`written_at=deadline`, collapsing two fields into one, so every fixture had the
+two values equal and no assertion could separate them.
+
+### What went well / where we got lucky
+
+The revert test was run because LL-005 made it a per-guard step this cycle. It
+cost under a minute and it caught a defect that thirteen green tests, a passing
+type check and a passing lint did not.
+
+The fix improved the design rather than only the test: `advance_baton` now takes
+`now` as a required keyword, so the write time and the deadline cannot silently
+be the same value again.
+
+### What did not work
+
+Reading the tests back. They named the right property ("stranded means stalled,
+not old"), had a test class named after it, and asserted things that were true.
+They were true for a reason unrelated to the mechanism, because the fixture data
+made the two rules equivalent.
+
+### Root cause
+
+A guard can only distinguish two rules if some fixture separates them. Every
+fixture here had `written_at` and `deadline` at values where an age rule and a
+deadline rule agree, so the suite had no case that could tell them apart. Naming
+the property in a class name is not the same as constructing the input that
+discriminates it.
+
+This generalizes past this module: when a design's whole justification is "not
+the obvious simpler thing", at least one test has to be built from inputs where
+the two diverge, and the honest way to find out whether one exists is to
+implement the simpler thing and watch what fails.
+
+### Recommendation / action item
+
+- Action: when a mechanism is justified by being better than a simpler
+  alternative, revert-test by substituting the simpler alternative, not only by
+  deleting the code -- Owner: night-market maintainers -- Due: ongoing --
+  Status: open
+- Action: check that a dataclass's fields are independent in test fixtures
+  before trusting assertions that depend on their difference -- Owner:
+  night-market maintainers -- Due: ongoing -- Status: open
+- Action: wire the watchdog to consume the baton, with the dogfooding that
+  ADR-0022's defect table came from -- Owner: egregore maintainers -- Due:
+  unscheduled -- Status: open
