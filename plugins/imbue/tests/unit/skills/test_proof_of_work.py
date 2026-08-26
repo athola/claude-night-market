@@ -127,6 +127,40 @@ class TestIronLawEnforcementModule:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_red_test_must_name_the_constraint_it_defends(
+        self, module_content: str
+    ) -> None:
+        """Scenario: the author states what the test protects before writing it.
+
+        Given a change about to enter the RED phase
+        When the author consults the Iron Law
+        Then it asks which business rule, invariant, contract or recorded
+        defect the test defends, and accepts a reasoned "none of these".
+        """
+        flat = " ".join(module_content.split())
+
+        assert "What the Failing Test Has to Protect" in flat
+        for constraint in ("business rule", "invariant", "contract at a boundary"):
+            assert constraint in flat, f"missing constraint category: {constraint}"
+        assert "does not need a test first" in flat
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_wrong_constraint_test_is_named_as_a_cost(
+        self, module_content: str
+    ) -> None:
+        """Scenario: a test pinning an implementation detail is a liability.
+
+        Given a test asserting a call order or an internal data shape
+        When the implementation legitimately changes
+        Then the module says the test reports failure though nothing broke.
+        """
+        flat = " ".join(module_content.split())
+
+        assert "reports failure when nothing broke" in flat
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_module_defines_enforcement_levels(self, module_content: str) -> None:
         """Scenario: Iron Law module defines multiple enforcement levels.
 
