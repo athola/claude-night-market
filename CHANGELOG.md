@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The SessionEnd research-queue hook was cancelled on every exit,
+  and could not have qualified a session if it had run.** Two defects
+  in one hook.
+
+  Claude Code bounds the whole SessionEnd batch by
+  `max(1500ms, max timeout declared in settings-level hooks)`. A
+  plugin's own `hooks.json` timeout does not raise that ceiling, so
+  memory-palace's declared 5 s was ignored while `research_queue.py`
+  cost 1.1 s to 1.9 s, most of it `/usr/bin/python3` startup. Every
+  session ended with `SessionEnd hook [...] failed: Hook cancelled` on
+  stderr, whether or not anyone pressed Ctrl-C. The hook is registered
+  `async` now, which detaches it from that deadline; measured on CLI
+  2.1.251, an async SessionEnd hook still receives its full stdin
+  payload and still runs to completion after the session exits.
+
+  The second defect was quieter. The hook read `web_search_count`,
+  `tools_used` and `prompt` from the payload, and the SessionEnd
+  payload contains none of them: it carries `session_id`,
+  `transcript_path`, `cwd`, `prompt_id`, `hook_event_name` and
+  `reason`. Qualification was therefore always false, and the queue
+  that `knowledge-intake` documents at `docs/knowledge-corpus/queue/`
+  had never received an entry. The tests passed because they
+  constructed the payload they wanted rather than the one the harness
+  sends.
+
+  Both counts now come from the transcript. Records marked `isMeta`
+  are skipped: an expanded slash command or skill body is long enough
+  to carry a research cue by accident, and four of eight real
+  transcripts with three or more web searches qualified on a command
+  manual before that exclusion. A message opening with a tag is
+  skipped for the same reason, which is what a resumed session's
+  caveat block and a `bash-input` line both look like. Scanning is
+  bounded by a substring test before any JSON parse, so the largest
+  transcript on this machine, 54 MB across 9990 lines, reads in 80 ms.
+
 - **UserPromptSubmit hooks were being killed before they produced
   output.** Every hook registered on this event declared a timeout of
   1 to 3 seconds, and every one of them takes longer than that. A bare

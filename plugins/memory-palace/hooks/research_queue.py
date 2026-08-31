@@ -7,9 +7,17 @@ the queue the skill told readers to check was never written to. This is
 the implementation of that contract.
 
 Fires on SessionEnd. A session qualifies when it ran enough web searches
-and its prompt reads as research. The entry is a review stub, not a
+and its opening prompt reads as research. Both facts come from the
+transcript: the SessionEnd payload carries a ``transcript_path`` and no
+account of what the session did. The entry is a review stub, not a
 verdict: scoring stays with ``Skill(memory-palace:knowledge-intake)``,
 which owns the rubric.
+
+Registered with ``async: true``. The SessionEnd batch is bounded by
+``max(1500ms, max timeout declared in settings-level hooks)``, a ceiling
+this plugin's own ``timeout`` does not raise, and interpreter startup
+alone can exceed it. The queue file is the record; nothing this hook
+prints reaches a session that has already ended.
 """
 
 from __future__ import annotations
@@ -24,6 +32,7 @@ from pathlib import Path
 MIN_WEB_SEARCHES = 3
 QUEUE_DIR = Path("docs") / "knowledge-corpus" / "queue"
 MAX_ENTRY_BYTES = 100_000
+WEB_TOOLS = {"WebSearch", "WebFetch"}
 
 RESEARCH_CUES = (
     "research",
@@ -69,23 +78,82 @@ def _slug(text: str, limit: int = 40) -> str:
     return (cleaned[:limit].rstrip("-")) or "session"
 
 
-def _search_count(payload: dict) -> int:
-    """Count web searches, tolerating either payload shape."""
-    explicit = payload.get("web_search_count")
-    if isinstance(explicit, int):
-        return explicit
-    tools = payload.get("tools_used") or []
-    return sum(1 for t in tools if str(t) in {"WebSearch", "WebFetch"})
+def _message_text(content: object) -> str:
+    """Read prompt text from either message shape.
+
+    A plain prompt is a string. A prompt carrying attachments is a list
+    of blocks, and only the text ones hold what the user typed.
+    """
+    if isinstance(content, str):
+        return content.strip()
+    if isinstance(content, list):
+        parts = [
+            block.get("text", "")
+            for block in content
+            if isinstance(block, dict) and block.get("type") == "text"
+        ]
+        return " ".join(part for part in parts if part).strip()
+    return ""
 
 
-def _qualifies(payload: dict) -> bool:
-    """Decide whether this session is worth a corpus review."""
-    if _search_count(payload) < MIN_WEB_SEARCHES:
+def _is_topic(text: str) -> bool:
+    """Decide whether a user message names a research subject.
+
+    A message opening with a tag is machinery rather than a prompt:
+    resumed sessions start with a caveat block, and shell lines arrive
+    as ``bash-input``. Three of eight real transcripts carrying web
+    searches begin that way, so reading only the first user record
+    would disqualify them all.
+    """
+    if not text or text.startswith("<"):
         return False
-    haystack = " ".join(
-        str(payload.get(k, "")) for k in ("prompt", "summary", "topic")
-    ).lower()
+    haystack = text.lower()
     return any(cue in haystack for cue in RESEARCH_CUES)
+
+
+def _transcript_signal(transcript_path: str) -> tuple[int, str]:
+    """Count web searches and find the prompt that reads as research.
+
+    Returns ``(0, "")`` for a transcript that cannot be read, which
+    fails closed: no signal means no queue entry.
+    """
+    searches = 0
+    topic = ""
+    try:
+        with open(transcript_path, encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                # Only user records and tool calls can change the
+                # verdict. Skipping the rest on a substring test keeps a
+                # 54 MB transcript under 100 ms.
+                if '"user"' not in line and '"tool_use"' not in line:
+                    continue
+                try:
+                    record = json.loads(line)
+                except ValueError:
+                    continue
+                if not isinstance(record, dict):
+                    continue
+                content = (record.get("message") or {}).get("content")
+                kind = record.get("type")
+                if kind == "user" and not topic and not record.get("isMeta"):
+                    # isMeta marks content the harness injected rather
+                    # than content the user typed: an expanded slash
+                    # command, a skill body. Those are long enough to
+                    # carry a research cue by accident.
+                    text = _message_text(content)
+                    if _is_topic(text):
+                        topic = text
+                elif kind == "assistant" and isinstance(content, list):
+                    searches += sum(
+                        1
+                        for block in content
+                        if isinstance(block, dict)
+                        and block.get("type") == "tool_use"
+                        and block.get("name") in WEB_TOOLS
+                    )
+    except OSError:
+        return 0, ""
+    return searches, topic
 
 
 def _already_queued(queue_dir: Path, session_id: str) -> bool:
@@ -95,26 +163,30 @@ def _already_queued(queue_dir: Path, session_id: str) -> bool:
     return any(queue_dir.glob(f"*{session_id[:8]}*.yaml"))
 
 
-def _render(payload: dict, topic: str, now: datetime) -> str:
-    """Build the review stub. Scoring is deliberately left unfilled."""
-    body = SECRET_PATTERN.sub("[redacted]", str(payload.get("prompt", "")))
+def _render(
+    session_id: str, prompt: str, searches: int, topic: str, now: datetime
+) -> str:
+    """Build the review stub. Scoring is deliberately left unfilled.
+
+    *prompt* and *topic* arrive redacted; see the call site.
+    """
     return "\n".join(
         [
             "---",
             f"created_at: {now.isoformat()}",
-            f"session_id: {payload.get('session_id', 'unknown')}",
+            f"session_id: {session_id or 'unknown'}",
             "session_type: research",
             f"topic: {_yaml_scalar(topic)}",
             "status: pending_review",
             "auto_generated: true",
-            f"web_searches: {_search_count(payload)}",
+            f"web_searches: {searches}",
             "---",
             "",
             f"# Research Session: {topic}",
             "",
             "## Context",
             "",
-            body[:4000] or "No prompt text recorded.",
+            prompt[:4000] or "No prompt text recorded.",
             "",
             "## Next Actions",
             "",
@@ -133,7 +205,11 @@ def main() -> None:
         payload = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
         sys.exit(0)
-    if not isinstance(payload, dict) or not _qualifies(payload):
+    if not isinstance(payload, dict):
+        sys.exit(0)
+
+    searches, subject = _transcript_signal(str(payload.get("transcript_path", "")))
+    if searches < MIN_WEB_SEARCHES or not subject:
         sys.exit(0)
 
     session_id = str(payload.get("session_id", ""))
@@ -142,14 +218,12 @@ def main() -> None:
         sys.exit(0)
 
     now = datetime.now(timezone.utc)
-    # Redact here rather than at render: this one value reaches the
-    # frontmatter, the heading, and the filename, and the entry outlives
-    # the session on disk.
-    topic = SECRET_PATTERN.sub(
-        "[redacted]",
-        str(payload.get("topic") or payload.get("prompt") or "session"),
-    )[:120]
-    entry = _render(payload, topic, now)
+    # Redact once, here: this one value reaches the frontmatter, the
+    # heading, the body, and the filename, and the entry outlives the
+    # session on disk.
+    prompt = SECRET_PATTERN.sub("[redacted]", subject)
+    topic = prompt[:120]
+    entry = _render(session_id, prompt, searches, topic, now)
     if len(entry.encode("utf-8")) > MAX_ENTRY_BYTES:
         entry = entry[:MAX_ENTRY_BYTES]
 
@@ -159,21 +233,6 @@ def main() -> None:
         (queue_dir / name).write_text(entry, encoding="utf-8")
     except OSError:
         sys.exit(0)
-
-    print(
-        json.dumps(
-            {
-                "hookSpecificOutput": {
-                    "hookEventName": "SessionEnd",
-                    "additionalContext": (
-                        f"Memory Palace: research session queued at "
-                        f"{QUEUE_DIR}/{name}. Review with "
-                        f"Skill(memory-palace:knowledge-intake)."
-                    ),
-                }
-            }
-        )
-    )
     sys.exit(0)
 
 
