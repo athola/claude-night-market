@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **UserPromptSubmit hooks were being killed before they produced
+  output.** Every hook registered on this event declared a timeout of
+  1 to 3 seconds, and every one of them takes longer than that. A bare
+  `python3 -c pass` costs 0.8 s on macOS system Python 3.9.6, so the
+  five Python hooks land between 1.1 s and 2.3 s before doing anything
+  useful, and imbue's `user-prompt-submit.sh` runs 3.0 to 3.7 s warm
+  because it shells out to git for branch statistics.
+
+  The failure is silent by construction. Claude Code kills a hook that
+  overruns and discards its output, with no non-zero exit anywhere, so
+  the session simply loses the recall context, the URL capture and the
+  scope-guard warning without being told. Budgets are now 5 s for the
+  Python hooks and 10 s for the shell hook, each a small multiple of
+  that hook's slowest measured run.
+
+  Raising a ceiling costs nothing while a hook is healthy, since it
+  exits when it is done. It costs only when a hook hangs, which is why
+  the new numbers are a small multiple of the measurement rather than
+  an open-ended value. `tests/unit/test_user_prompt_submit_timeouts.py`
+  holds the floor so a future edit cannot quietly tighten it again.
+
 ## [1.9.19] - 2026-08-26
 
 ### Added

@@ -158,7 +158,7 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/user-prompt-submit.sh",
-            "timeout": 3
+            "timeout": 10
           }
         ]
       }
