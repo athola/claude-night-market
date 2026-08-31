@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The attestation workflow signed a report of a sweep it could not
+  run.** `trust-attestation.yml` runs `make test`, which runs every
+  plugin suite, and pensive's shell-review suite shells out to
+  ripgrep, shellcheck and shfmt. The runner had none of them, so five
+  pattern-detection tests failed on `FileNotFoundError: 'rg'` and took
+  the whole sweep red while the other 22 plugins passed. Four
+  shellcheck and shfmt tests skipped in the same job without
+  asserting, which matters more here than elsewhere: an attestation
+  naming a suite as passed is a claim about tests that ran.
+  `plugin-tests.yml` had installed all three for its pensive matrix
+  job since the runner first found this; the attesting job now
+  installs the same block, shfmt pin included, and
+  `tests/test_ci_installs_shell_tooling.py` holds the rule for any
+  future job that runs the full sweep.
+
 - **The SessionEnd research-queue hook was cancelled on every exit,
   and could not have qualified a session if it had run.** Two defects
   in one hook.
