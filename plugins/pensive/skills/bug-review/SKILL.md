@@ -167,17 +167,9 @@ Assign owners and deadlines for follow-up items.
 
 ### Step 6: Verify Findings Are Grounded (`bug-review:findings-verified`)
 
-Every defect must cite a real `file:line` and a verbatim `Anchor`. Write
-findings to `.review/findings.json` and confirm each citation resolves:
-
-```bash
-python plugins/imbue/scripts/citation_verifier.py \
-  --findings .review/findings.json --repo-root .
-```
-
-Drop or label `UNVERIFIED` any defect the verifier fails (exit `1`); only
-verified defects enter the report. See `Skill(imbue:review-core)` Step 5
-for the protocol and `Skill(imbue:structured-output)` for the schema.
+Write defects to `.review/findings.json` and run the citation verifier
+as `Skill(imbue:review-core)` Step 5 describes. Only defects the
+verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
 
 ## Defect Classification (Condensed)
 

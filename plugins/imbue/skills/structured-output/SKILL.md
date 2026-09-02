@@ -89,7 +89,7 @@ Mark each item complete as you finish the corresponding step.
   source text at `Location` (not a paraphrase). It is what a second
   pass re-reads to confirm the finding is real. A finding whose anchor
   does not appear at its cited line is treated as a hallucination and
-  dropped. The check is mechanical: `imbue:review-core` Step 6 runs
+  dropped. The check is mechanical: `imbue:review-core` Step 5 runs
   `plugins/imbue/scripts/citation_verifier.py` over the findings.
 
 ## Step 3: Assign Actions (`structured-output:actions-assigned`)

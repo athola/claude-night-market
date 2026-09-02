@@ -111,16 +111,10 @@ jupyter nbconvert --execute derivation.ipynb
 Log deviations, recommend: Approve / Approve with actions / Block. **Load**: `modules/testing-strategies.md`
 
 ### 6. Verify Findings Are Grounded (`math-review:findings-verified`)
-Every issue must cite a real location and a verbatim anchor. Write
-findings to `.review/findings.json` and confirm each citation resolves:
-```bash
-python plugins/imbue/scripts/citation_verifier.py \
-  --findings .review/findings.json --repo-root .
-```
-Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`);
-only verified findings enter the report. See `Skill(imbue:review-core)`
-Step 5 for the protocol and `Skill(imbue:structured-output)` for the
-finding schema.
+
+Write issues to `.review/findings.json` and run the citation verifier
+as `Skill(imbue:review-core)` Step 5 describes. Only issues the
+verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
 
 ## Progressive Loading
 
