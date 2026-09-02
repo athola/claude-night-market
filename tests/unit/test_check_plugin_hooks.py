@@ -20,6 +20,48 @@ class TestCheckPluginHooks:
     """Verify detection of the auto-loaded hooks/hooks.json in manifests."""
 
     @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "spelling",
+        ["hooks/hooks.json", "hooks//hooks.json", "./hooks/./hooks.json"],
+    )
+    def test_rejects_equivalent_spellings_of_the_auto_loaded_path(
+        self, tmp_path: Path, spelling: str
+    ) -> None:
+        """
+        Scenario: plugin.json lists the auto-loaded hooks file, spelled differently
+        Given a plugin.json whose hooks array holds another spelling of ./hooks/hooks.json
+        When check_file runs
+        Then it still returns an error about duplicate hooks
+
+        These three passed the check before the comparison was normalised, and
+        each one names the same file Claude Code auto-loads -- so each produced
+        the "Duplicate hooks file" error this hook exists to prevent.
+        """
+        manifest = tmp_path / "plugin.json"
+        manifest.write_text(json.dumps({"name": "test-plugin", "hooks": [spelling]}))
+        errors = check_file(manifest)
+        assert errors, f"{spelling!r} names the auto-loaded file and must be rejected"
+
+    @pytest.mark.parametrize(
+        "spelling",
+        ["./hooks/extra.json", "hooks/other/hooks.json", "hooks/hooks2.json"],
+    )
+    def test_allows_genuinely_additional_hook_files(
+        self, tmp_path: Path, spelling: str
+    ) -> None:
+        """
+        Scenario: plugin.json lists a hook file that is NOT the auto-loaded one
+        Given a plugin.json whose hooks array holds an additional hook file
+        When check_file runs
+        Then it returns no errors
+
+        The negative half of the case above: normalising the comparison must not
+        start rejecting the additional files the hooks array is FOR.
+        """
+        manifest = tmp_path / "plugin.json"
+        manifest.write_text(json.dumps({"name": "test-plugin", "hooks": [spelling]}))
+        assert check_file(manifest) == []
+
     def test_rejects_explicit_hooks_json(self, tmp_path: Path) -> None:
         """
         Scenario: plugin.json lists the auto-loaded hooks file
