@@ -171,9 +171,10 @@ test that runs the skill on `master` and verifies Claude refuses.
 ## Shared module extraction
 
 When three or more skills reference the same content, extract it
-to `plugins/<plugin>/skills/shared-patterns/modules/` and link
-from each consumer. The `abstract:shared-patterns` skill owns
-this directory in the abstract plugin.
+to `plugins/<plugin>/shared-modules/` and link from each consumer.
+abstract keeps `trigger-patterns.md` and
+`skill-selection-judgment.md` there, each linked from the skills
+that use it.
 
 ### Migration anti-pattern
 
@@ -182,7 +183,7 @@ plugin root. The current evaluator
 (`plugins/abstract/scripts/skills_auditor.py`) flags any
 `skills/shared/` path as a structural warning. Move the file
 into the consuming skill's `modules/` directory or into
-`shared-patterns/modules/` with cross-references.
+`shared-modules/` with cross-references.
 
 ## Anti-patterns
 

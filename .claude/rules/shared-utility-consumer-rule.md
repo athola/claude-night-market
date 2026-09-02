@@ -55,6 +55,7 @@ The exception belongs in the skill's frontmatter as
 - Issue #457 (origin)
 - Discussion #449 (April 2026 skill audit synthesis)
 - Karpathy AP-3: Strategy Pattern for One Function
-- Examples: ``abstract:shared-patterns`` (audit found near-zero
-  consumers); ``imbue:review-core`` (Wave 1 found and wired the
+- Examples: abstract's former shared-patterns skill (the audit found
+  near-zero consumers, and it was deleted under this rule on
+  2026-09-02); ``imbue:review-core`` (Wave 1 found and wired the
   consumers that justify keeping it)
