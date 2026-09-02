@@ -95,7 +95,7 @@ python scripts/abstract_validator.py --scan
 
 ## Workflow and Tasks
 
-Start by assessing complexity with `skill_analyzer.py`. If a skill exceeds 150 lines, break it into focused modules following the patterns in `../../docs/examples/modular-skills/`. Use `token_estimator.py` to check efficiency and `abstract_validator.py` to verify the final structure. This iterative process maintains module maintainability and token efficiency.
+Start by assessing complexity with `skill_analyzer.py`. If a skill exceeds 150 lines, break it into focused modules following the patterns in `modules/implementation-patterns.md`. Use `token_estimator.py` to check efficiency and `abstract_validator.py` to verify the final structure. This iterative process maintains module maintainability and token efficiency.
 
 ## Quality Checks
 
@@ -135,9 +135,8 @@ Detailed guides for implementation and maintenance:
 - **Troubleshooting**: See `modules/troubleshooting.md`
 - **Optimization Techniques**: See `modules/optimization-techniques.md` - reducing large skill file sizes through externalization, consolidation, and progressive loading
 
-### Tools and Examples
+### Tools
 - **Tools**: `skill_analyzer.py`, `token_estimator.py`, and `abstract_validator.py` in `../../scripts/`.
-- **Examples**: See `../../docs/examples/modular-skills/` for reference implementations.
 
 ## Exit Criteria
 
