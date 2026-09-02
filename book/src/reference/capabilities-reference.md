@@ -90,7 +90,6 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `compression-strategy` | [conserve](../plugins/conserve.md) | Context compression analysis and recommendations |
 | `computer-control` | [phantom](../plugins/phantom.md) | Desktop automation via Claude's vision and action API |
 | `content-sanitization` | [leyline](../plugins/leyline.md) | External content sanitization |
-| `context-map` | [conserve](../plugins/conserve.md) | Pre-scan project structure to reduce exploration token waste |
 | `context-optimization` | [conserve](../plugins/conserve.md) | MECW principles and 50% context rule |
 | `cpu-gpu-performance` | [conserve](../plugins/conserve.md) | Resource monitoring and selective testing |
 | `curate` | [gauntlet](../plugins/gauntlet.md) | Add or edit knowledge annotations with tribal context |
