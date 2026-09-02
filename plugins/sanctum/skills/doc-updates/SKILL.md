@@ -30,22 +30,6 @@ dependencies:
 optional_dependencies:
 - elements-of-style:writing-clearly-and-concisely
 ---
-## Table of Contents
-
-- [When to Use](#when-to-use)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Step 1: Collect Context](#step-1-collect-context-context-collected)
-- [Step 2: Identify Targets](#step-2-identify-targets-targets-identified)
-- [Step 2.5: Check for Consolidation](#step-25-check-for-consolidation-consolidation-checked)
-- [Step 3: Apply Edits](#step-3-apply-edits-edits-applied)
-- [Step 4: Enforce Guidelines](#step-4-enforce-guidelines-guidelines-verified)
-- [Step 4.25: AI Slop Detection](#step-425-ai-slop-detection-slop-scanned)
-- [Step 4.75: Sync Capabilities Documentation](#step-475-sync-capabilities-documentation-capabilities-synced)
-- [Step 5: Verify Accuracy](#step-5-verify-accuracy-accuracy-verified)
-- [Step 6: Preview Changes](#step-6-preview-changes-preview)
-- [Exit Criteria](#exit-criteria)
-- [Flags](#flags)
-
 
 # Documentation Update Workflow
 

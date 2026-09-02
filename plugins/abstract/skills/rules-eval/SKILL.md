@@ -39,14 +39,6 @@ role: entrypoint
 - Evaluating hooks (use `abstract:hooks-eval`)
 - Writing a new rule (use `hookify:writing-rules`)
 
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Quick Start](#quick-start)
-3. [Evaluation Workflow](#evaluation-workflow)
-4. [Scoring](#scoring)
-5. [Resources](#resources)
-
 ## Overview
 
 This skill evaluates Claude Code rules in `.claude/rules/` directories against quality standards. It validates YAML frontmatter, glob pattern syntax, content quality, and directory organization. Rules files support path-scoped conditional loading via `paths` frontmatter and unconditional rules (no `paths` field).

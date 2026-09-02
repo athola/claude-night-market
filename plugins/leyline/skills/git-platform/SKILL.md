@@ -34,17 +34,6 @@ modules:
 - modules/command-mapping.md
 role: library
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Platform Detection](#platform-detection)
-- [Quick Command Reference](#quick-command-reference)
-- [Terminology](#terminology)
-- [Integration Pattern](#integration-pattern)
-- [Detailed Resources](#detailed-resources)
-- [Exit Criteria](#exit-criteria)
-
 
 # Git Platform Detection & Command Mapping
 

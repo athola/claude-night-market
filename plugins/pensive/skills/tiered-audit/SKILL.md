@@ -28,15 +28,6 @@ dependencies:
 ---
 # Tiered Audit
 
-## Table of Contents
-
-- [When to Use](#when-to-use)
-- [When NOT to Use](#when-not-to-use)
-- [Tier 1: Git History Audit](#tier-1-git-history-audit)
-- [Tier 2: Targeted Area Audit](#tier-2-targeted-area-audit)
-- [Tier 3: Full Codebase Audit](#tier-3-full-codebase-audit)
-- [Output Contract](#output-contract)
-
 ## When To Use
 
 - Auditing codebase quality, patterns, or problems

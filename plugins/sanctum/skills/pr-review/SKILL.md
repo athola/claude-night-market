@@ -45,32 +45,6 @@ dependencies:
 - scribe:doc-generator
 role: entrypoint
 ---
-## Table of Contents
-
-- [Core Principle](#core-principle)
-- [When to Use](#when-to-use)
-- [Scope Classification Framework](#scope-classification-framework)
-- [Classification Examples](#classification-examples)
-- [Workflow](#workflow)
-- [Phase 1: Establish Scope Baseline](#phase-1-establish-scope-baseline)
-- [Phase 2: Gather Changes](#phase-2-gather-changes)
-- [Phase 3: Requirements Validation](#phase-3-requirements-validation)
-- [Phase 1.5: Version Validation (MANDATORY)](#phase-15-version-validation-mandatory)
-- [Phase 4: Code Review with Scope Context](#phase-4-code-review-with-scope-context)
-- [Phase 4.5: Additive Bias Audit](#phase-45-additive-bias-audit)
-- [Phase 5: Backlog Triage](#phase-5-backlog-triage)
-- [Phase 6: Generate Report](#phase-6-generate-report)
-- [Phase 7: Knowledge Capture](#phase-7-knowledge-capture)
-- [Phase 8: Comprehension Loop (`--interactive`)](#phase-8-comprehension-loop---interactive)
-- [Quality Gates](#quality-gates)
-- [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
-- [Don't: Scope Creep Review](#dont-scope-creep-review)
-- [Don't: Perfect is Enemy of Good](#dont-perfect-is-enemy-of-good)
-- [Don't: Blocking on Style](#dont-blocking-on-style)
-- [Don't: Reviewing Unchanged Code](#dont-reviewing-unchanged-code)
-- [Integration with Other Tools](#integration-with-other-tools)
-- [Exit Criteria](#exit-criteria)
-
 
 # Scope-Focused PR Review
 

@@ -33,21 +33,6 @@ modules:
 - modules/threshold-strategies.md
 - modules/estimation-patterns.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Core Concepts](#core-concepts)
-- [Quota Thresholds](#quota-thresholds)
-- [Quota Types](#quota-types)
-- [Quick Start](#quick-start)
-- [Check Quota Status](#check-quota-status)
-- [Record Usage](#record-usage)
-- [Estimate Before Execution](#estimate-before-execution)
-- [Integration Pattern](#integration-pattern)
-- [Detailed Resources](#detailed-resources)
-- [Exit Criteria](#exit-criteria)
-
 
 # Quota Management
 

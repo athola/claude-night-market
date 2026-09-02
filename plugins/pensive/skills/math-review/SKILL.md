@@ -25,29 +25,6 @@ dependencies:
 - imbue:review-core
 - imbue:structured-output
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Core Workflow](#core-workflow)
-- [1. Context Sync](#1-context-sync)
-- [2. Requirements Mapping](#2-requirements-mapping)
-- [3. Derivation Verification](#3-derivation-verification)
-- [4. Stability Assessment](#4-stability-assessment)
-- [5. Proof of Work](#5-proof-of-work)
-- [Progressive Loading](#progressive-loading)
-- [Essential Checklist](#essential-checklist)
-- [Output Format](#output-format)
-- [Summary](#summary)
-- [Context](#context)
-- [Requirements Analysis](#requirements-analysis)
-- [Derivation Review](#derivation-review)
-- [Stability Analysis](#stability-analysis)
-- [Issues](#issues)
-- [Recommendation](#recommendation)
-- [Exit Criteria](#exit-criteria)
-
 
 # Mathematical Algorithm Review
 

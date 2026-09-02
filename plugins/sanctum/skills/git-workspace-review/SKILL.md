@@ -37,11 +37,6 @@ role: library
 - Writing the commit message (use `sanctum:commit-messages`)
 - Running the full pre-PR gate (use `sanctum:pr-prep`)
 
-## Table of Contents
-
-1. [Usage](#usage)
-2. [Required Progress Tracking](#required-progress-tracking)
-
 ## Verification
 
 Run `git status` after review to verify workspace state matches expectations.

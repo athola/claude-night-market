@@ -73,10 +73,12 @@ What to copy:
    Most of its content is in the `subagent-testing` skill's
    testing-patterns module, loaded only when needed.
 
-3. **Hub Table of Contents**. The hub starts with a TOC. For
-   skills above 100 lines, the TOC pays for itself in
-   navigation. The `skills-eval` rubric penalizes skills above
-   100 lines that lack one (see `evaluation-criteria.md`).
+3. **No Table of Contents**. The hub goes from frontmatter
+   straight to content. An anchor list restates the headings
+   below it and costs tokens on every load, and grep finds the
+   headings directly. `bloat-detector` names this ToC bloat and
+   the `skills-eval` rubric docks it (see
+   `evaluation-criteria.md`).
 
 ## Example 4: an enforcement skill
 

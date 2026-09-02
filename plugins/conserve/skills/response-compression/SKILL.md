@@ -13,15 +13,6 @@ complexity: low
 model_hint: fast
 estimated_tokens: 500
 ---
-## Table of Contents
-
-- [Elimination Rules](#elimination-rules)
-- [Before/After Transformations](#beforeafter-transformations)
-- [Termination Guidelines](#termination-guidelines)
-- [Directness Guidelines](#directness-guidelines)
-- [Quick Reference Checklist](#quick-reference-checklist)
-- [Token Impact](#token-impact)
-- [Integration](#integration)
 
 # Response Compression
 

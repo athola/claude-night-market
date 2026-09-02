@@ -29,13 +29,6 @@ modules:
 - modules/structure-patterns.md
 role: entrypoint
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Workflow](#workflow)
-- [Output Format](#output-format)
 
 # Shell Script Review
 

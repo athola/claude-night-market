@@ -30,15 +30,6 @@ modules:
 - modules/configuration.md
 - modules/multi-metric-evaluation-methodology.md
 ---
-## Table of Contents
-
-- [Philosophy](#philosophy)
-- [When to Use](#when-to-use)
-- [When NOT to Use](#when-not-to-use)
-- [Quick Start](#quick-start)
-- [1. Inventory Current Features](#1-inventory-current-features)
-- [2. Score and Classify](#2-score-and-classify)
-- [3. Generate Suggestions](#3-generate-suggestions)
 
 ## Verification
 

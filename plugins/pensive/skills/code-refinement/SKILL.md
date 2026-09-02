@@ -33,16 +33,6 @@ modules:
 - modules/architectural-fit.md
 - modules/insight-generation.md
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Analysis Dimensions](#analysis-dimensions)
-- [Progressive Loading](#progressive-loading)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Workflow](#workflow)
-- [Tiered Analysis](#tiered-analysis)
-- [Cross-Plugin Dependencies](#cross-plugin-dependencies)
 
 # Code Refinement Workflow
 

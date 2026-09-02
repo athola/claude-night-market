@@ -33,22 +33,6 @@ modules:
 - modules/verification-patterns.md
 - modules/interactive-auth.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Authentication Methods](#authentication-methods)
-- [Quick Start](#quick-start)
-- [Verify Authentication](#verify-authentication)
-- [Smoke Test](#smoke-test)
-- [Standard Flow](#standard-flow)
-- [Step 1: Check Environment](#step-1:-check-environment)
-- [Step 2: Verify with Service](#step-2:-verify-with-service)
-- [Step 3: Handle Failures](#step-3:-handle-failures)
-- [Integration Pattern](#integration-pattern)
-- [Detailed Resources](#detailed-resources)
-- [Exit Criteria](#exit-criteria)
-
 
 # Authentication Patterns
 

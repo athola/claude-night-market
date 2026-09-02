@@ -36,12 +36,6 @@ modules:
   `pensive:code-refinement`)
 - Coupling and layering questions (use `pensive:architecture-review`)
 
-## Table of Contents
-
-1. [Usage](#usage)
-2. [Required Progress Tracking](#required-progress-tracking)
-3. [Workflow](#workflow)
-
 ## Usage
 
 Use this skill to review public API changes, design new surfaces, audit consistency, and validate documentation completeness. Run it before any API release to confirm alignment with project guidelines.

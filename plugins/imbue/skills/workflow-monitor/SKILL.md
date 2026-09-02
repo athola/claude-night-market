@@ -33,18 +33,6 @@ modules:
   `superpowers:systematic-debugging`)
 - Rewriting the workflow's assets (use `sanctum:workflow-improvement`)
 
-## Table of Contents
-
-- [Philosophy](#philosophy)
-- [Quick Start](#quick-start)
-- [Detection Patterns](#detection-patterns)
-- [Workflow](#workflow)
-- [Issue Template](#issue-template)
-- [Configuration](#configuration)
-- [Guardrails](#guardrails)
-- [Integration Points](#integration-points)
-- [Output Format](#output-format)
-
 # Workflow Monitor
 
 Monitor workflow executions for errors and inefficiencies, automatically creating issues on the detected git platform (GitHub/GitLab) for improvements. Check session context for `git_platform:` and use `Skill(leyline:git-platform)` for CLI command mapping.

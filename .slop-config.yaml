@@ -13,6 +13,7 @@ allowlist:
   - paradigm    # the archetypes plugin is built on it: 15 architecture-paradigm-* skills
   - paradigms   # same, the plural names the router skill archetypes:architecture-paradigms
   - scalability # a named requirement axis in the paradigm selector, not a booster word
+  - forge       # git forge is the term of art for GitHub, GitLab and Bitbucket in leyline:git-platform
 
 # A document that defines a pattern matches it. These quote every tell
 # they describe, so the gate and the ratchet skip them. `--audit` still
@@ -24,3 +25,4 @@ exclude_patterns:
   - .claude/rules/slop-scan-for-docs.md                          # the house checklist quotes every category it bans
   - plugins/hookify/skills/rule-catalog/rules/documentation/*    # the two slop hookify rules carry the regexes and rewrite tables
   - plugins/memory-palace/data/*                                 # captured external pages, not prose authored here
+  - plugins/conserve/skills/response-compression/SKILL.md        # quotes the filler it teaches a session to strip

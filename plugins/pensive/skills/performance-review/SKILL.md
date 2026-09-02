@@ -30,18 +30,6 @@ modules:
 - modules/memory-allocation-lenses.md
 ---
 
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [When NOT to Use](#when-not-to-use)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Workflow](#workflow)
-- [Tiered Analysis](#tiered-analysis)
-- [Output Format](#output-format)
-- [Cross-Plugin Dependencies](#cross-plugin-dependencies)
-- [Supporting Modules](#supporting-modules)
-
 # Performance Review
 
 Static-analysis review of time and space complexity hotspots.

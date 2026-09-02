@@ -22,18 +22,6 @@ model_hint: standard
 estimated_tokens: 900
 ---
 
-## Table of Contents
-
-- [What It Is](#what-it-is)
-- [The Unit Schema](#the-unit-schema)
-- [Two-Phase Extraction](#two-phase-extraction)
-- [Splitting and Superseding](#splitting-and-superseding)
-- [Capture Workflow](#capture-workflow)
-- [Recall Workflow](#recall-workflow)
-- [When NOT To Use](#when-not-to-use)
-- [Detailed Resources](#detailed-resources)
-- [Exit Criteria](#exit-criteria)
-
 # Session Handoff
 
 Record where the thinking landed, not that a session happened.

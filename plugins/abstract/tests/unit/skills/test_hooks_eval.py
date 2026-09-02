@@ -31,18 +31,17 @@ class TestHooksEvalQualityFramework:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_hooks_eval_has_toc(self, hooks_eval_content: str) -> None:
-        """Scenario: Hooks-eval includes Table of Contents.
+    def test_hooks_eval_has_no_table_of_contents(self, hooks_eval_content: str) -> None:
+        """Scenario: Hooks-eval carries no Table of Contents.
 
         Given the hooks-eval skill
         When reading the skill content
-        Then it should have a TOC for navigation
+        Then no anchor list precedes the sections:
+        an anchor list restates the headings below it and costs
+        tokens on every load, and grep finds the headings directly
+        (bloat-detector, "ToC Bloat in Skills")
         """
-        # Assert - TOC exists
-        assert (
-            "## Table of Contents" in hooks_eval_content
-            or "table of contents" in hooks_eval_content.lower()
-        )
+        assert "## Table of Contents" not in hooks_eval_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
