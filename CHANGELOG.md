@@ -116,6 +116,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `plugins/scribe/tests/test_audience_targeting.py`, 38 contract tests
   anchored on the clauses above.
 
+### Removed
+
+- **Unbloat, September 2026.** The Tier 3 scan of every tracked file
+  (`conserve:bloat-scan`) proposed eleven removals and one doctrine
+  change. Applied on the scan's own evidence, one commit each:
+  - Dependencies nothing imports: `networkx` in gauntlet, the
+    `tokens` extra in memory-palace, the `github` extra in minister,
+    and five spec-kit dev tools (black, pytest-mock, pytest-asyncio,
+    factory-boy, safety). `pyyaml` stayed in spec-kit; the scan had
+    it wrong and `test_frontmatter.py` imports it.
+  - Two skills with no consumer: `conserve:context-map` (zero
+    references since July) and `abstract:shared-patterns`, the case
+    `.claude/rules/shared-utility-consumer-rule.md` was written for.
+    The skill count is 209.
+  - The citation-verifier protocol now lives once, in
+    `imbue:review-core` Step 5. Sixteen review skills kept their
+    `findings-verified` step and a three-line pointer instead of a
+    copy of the block.
+  - Nine planning artifacts for shipped work and abstract's
+    3,502-line worked-example skill tree, none of which anything
+    linked to. The voice-craft research notes were the one durable
+    piece and moved into `scribe:voice-extract` as
+    `modules/research-basis.md`.
+  - Two of abstract's three compatibility timeline files. The index,
+    the two period files and a quick reference that repeated them are
+    one timeline now, newest first, every version number kept.
+  - `alwaysApply: true` on five skills. No hook or script reads the
+    field on a SKILL.md, so the flag claimed a session floor nothing
+    paid.
+  - Every `## Table of Contents` in a SKILL.md, 92 files. All were
+    anchor lists restating the headings that followed, about 15k
+    tokens whenever those skills loaded. `modular-skills`, the
+    `skills-eval` rubric, the authoring checklist and
+    `skill-authoring` examples said the opposite and now agree with
+    `bloat-detector`: a long skill is split into modules, not indexed.
+    Nine contract tests that asserted a ToC now assert its absence.
+  - Not applied: the three God files (`delegation_executor.py`,
+    `memory_palace_cli.py`, `update_plugin_registrations.py`) stay
+    until a named need justifies the refactor, and the
+    `content_parser_` finding was a `TYPE_CHECKING` stub whose real
+    signature in `skills/base.py` uses the parameter.
+
 ## [1.9.19] - 2026-08-26
 
 ### Added
