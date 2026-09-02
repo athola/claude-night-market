@@ -16,12 +16,6 @@ dev = [
     "pytest-cov>=4.1",
 ]
 
-[project.optional-dependencies]
-github = [
-    "pygithub>=2.4.0",
-    "requests>=2.32.0",
-]
-
 [tool.nightmarket]
 coverage_threshold = 90
 
