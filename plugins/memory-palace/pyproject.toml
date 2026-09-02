@@ -25,9 +25,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-tokens = [
-    "tiktoken>=0.7.0",  # Accurate token estimation (fallback: ~4 chars/token)
-]
 fast = [
     "xxhash>=3.0",  # 10x faster hashing
 ]
