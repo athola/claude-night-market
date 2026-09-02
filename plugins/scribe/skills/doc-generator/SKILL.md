@@ -99,6 +99,7 @@ For new documentation:
 ## Generation Request
 
 **Type**: [README/Guide/API docs/Tutorial]
+**Audience tier**: [newcomer | practitioner | expert | persona: <one line>]
 **Audience**: [developers/users/admins]
 **Audience size**: [1 / small team / org / public]
 **Read frequency**: [once / weekly / per-invocation]
@@ -113,6 +114,21 @@ size and read frequency feed the reader-time budget (see
 `scribe:slop-detector` module `document-economy.md`): a
 skill loaded daily by 50 users has a wildly different
 budget than a 1:1 design note.
+
+**Audience tier** is required too, and when the request
+omits it, **ask, do not guess**. A guessed reader produces
+a document that reads as competent and serves nobody. The
+tier table, the Socratic set for eliciting one, and the
+creative-writing carve-out are in `scribe:slop-detector`
+module `audience-targeting.md`.
+
+The tier decides what survives the draft:
+
+| Tier | Keep | Move to a deep dive |
+|------|------|---------------------|
+| `newcomer` | The one path that works, end to end | Internals, history, alternatives considered |
+| `practitioner` | Repo-specific facts they cannot derive | General-domain teaching |
+| `expert` | The novel claim and its numbers | Nothing. Deep dives land here |
 
 ### Step 2: Load Style (if available)
 
@@ -142,13 +158,31 @@ Follow the 10 core principles above. For each section:
 5. End when information is complete (no summary padding,
    no "in conclusion" restatements)
 
+**Run the cut test on every section** against the declared
+tier: keep what the reader needs before they can act, link
+what they need later, extract what only a higher tier wants,
+delete what no tier wants. Extraction is the verdict that
+gets skipped. Content a `newcomer` cannot use is usually not
+weak, it is answering a question they have not asked yet.
+Move it to `modules/<topic>.md` for a skill or
+`docs/deep-dive/<topic>.md` for a repo doc, and link it from
+the parent's lead. Never delete to hit a tier.
+
 ### Step 4: Run Slop Detector
+
+```bash
+uv run --with pyyaml python scripts/slop_score.py --audit <files>
+```
 
 ```
 Skill(scribe:slop-detector)
 ```
 
-Fix any findings before proceeding.
+The script locates every finding with a file and a line,
+including the low-confidence and opt-in categories the merge
+gate does not score. The skill says how to rewrite each one.
+Fix the findings before proceeding, and leave `(low)` and
+`(medium)` hits for a person to judge.
 
 ### Step 5: Quality Gate
 
@@ -171,6 +205,13 @@ Document-level (document-economy module):
       cut (2/2)
 - [ ] Writing time roughly proportional to (audience size ×
       read frequency × per-read time)
+
+Audience (audience-targeting module):
+- [ ] A tier is declared, and was asked for rather than
+      guessed when the request omitted it (2/2)
+- [ ] Every section serves the declared tier
+- [ ] Off-tier content was extracted and linked, not deleted
+- [ ] Each new deep dive declares its own tier
 
 ## Mode: Remediation
 
@@ -243,6 +284,10 @@ When editing code comments:
 
 - Content created or remediated
 - Slop score < 1.5 (clean rating)
+- Audience tier declared in the request and honored in the draft
+- Document economy score >= 7/8, audience fit scoring 2/2
+- Every extraction landed in `modules/` or `docs/deep-dive/`
+  and is linked from the parent's lead
 - Quality gate checklist passed
 - User approval received
 - No emojis present (unless specified)

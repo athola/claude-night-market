@@ -29,8 +29,8 @@ a single match must be resolved before merge.
 
 ## Layer 1: Document-level economy
 
-Score the document on three checks (0-2 each). Below
-5/6 is not ready to ship regardless of how clean the
+Score the document on four checks (0-2 each). Below
+7/8 is not ready to ship regardless of how clean the
 sentences are.
 
 1. **Thesis-first**: the lead states the single takeaway.
@@ -39,6 +39,26 @@ sentences are.
    restated headings, and "as mentioned above" are bloat.
 3. **Repetition rule**: the thesis is echoed (intro,
    middle, close). Everything else that repeats is cut.
+4. **Audience fit**: one reader tier is declared
+   (`newcomer`, `practitioner`, `expert`, or a one-line
+   `persona`), and every section serves it. When a
+   document names no reader, ask for one. Do not infer
+   it from the prose.
+
+Check 4 has one move that gets skipped: **extract, do not
+delete**. Content that only serves a higher tier goes to
+`modules/<topic>.md` for a skill or
+`docs/deep-dive/<topic>.md` for a repo doc, linked from
+the parent's lead with one line naming who it is for.
+Rationale a newcomer cannot use is rarely weak writing.
+It is answering a question that reader has not asked yet.
+
+Tier table, the Socratic set for eliciting a tier, and
+the creative-writing carve-out (`voice-*`,
+`session-to-post`, `fiction-patterns`, where the cut test
+does not apply):
+`Skill(scribe:slop-detector)` module
+`audience-targeting.md`.
 
 Estimate the **reader-time budget** before drafting:
 audience size × read frequency × per-read time. Writing
@@ -48,34 +68,59 @@ the failure mode worth catching.
 Full rubric, table, and worked example:
 `Skill(scribe:slop-detector)` module `document-economy.md`.
 
+Audience fit is judgment, not a string in the text, so no
+regex can decide it and nothing is added to `en.yaml` for
+it. The guard is the contract test
+`plugins/scribe/tests/test_audience_targeting.py`.
+
 ## Layer 2: Sentence-level checks
 
 After Layers 0 and 1 pass, you MUST run
 `Skill(scribe:slop-detector)` on each modified file.
 
-**Automatic checks after writing .md files:**
+**One command locates every finding below:**
+
+```bash
+uv run --with pyyaml python scripts/slop_score.py --audit <files>
+```
+
+It takes files or directories, reports every category with a
+file and a line, and exits 0. It carries what the merge gate
+declines to score: the low-confidence categories
+(`semicolon_splice`, the softer anthropomorphism verbs) and the
+opt-in ones (`negative_definition`, `contrastive_scaffold`,
+`over_explanation`), plus the per-document negation-density
+reading. Those are surfaced for a person to judge and are
+labeled `(low)` or `(medium)` in the output. Never auto-rewrite
+one.
+
+`scripts/slop_score.py --threshold 3.0 docs book/src` is the
+same script in gate mode, which is what CI runs on those two
+directories. `--ratchet REF` is the third mode: it fails a file only
+when it scores over the threshold and higher than its version at
+`REF`. The pre-commit hook runs it against `HEAD` on staged markdown,
+and CI runs it against the merge base on the markdown a PR changed.
+Documents that define patterns are skipped through `exclude_patterns`
+in `.slop-config.yaml`. Auditing reports. Scoring and ratcheting
+gate. Do not conflate them.
+
+The list below says what each finding means and how to rewrite
+it. Reach for a hand-written grep only when the script is
+unavailable.
 
 1. Verify prose lines wrap at 80 chars (see
    `.claude/rules/markdown-formatting.md`)
-2. Count em dashes: `grep -o '—' file.md | wc -l`
-   (target: 0-2 per 1000 words)
-2a. Scan for double-dash em-dash substitution:
-   `grep -n ' -- ' file.md` — any prose match (outside
-   code blocks and `| -- |` table cells) is slop.
-   Replace with a real em-dash `—`, a colon, or rewrite
-   the sentence. `--` is a shell end-of-options separator;
-   it is not punctuation.
-2b. Scan for prose semicolon splices (outside fenced AND inline
-   code): `awk '/^```/{c=!c}!c' file.md | sed -E 's/`[^`]*`//g'
-   | grep -oP '\w;\s+\w'`. The `sed` pass matters here more than
-   for arrows or plus signs because semicolons are common inside
-   backticked code (`arr.push();`). A semicolon joining two
+2. Em dashes: target 0-2 per 1000 words, zero in new prose.
+2a. Double-dash em-dash substitution: any prose ` -- ` (outside
+   code blocks and `| -- |` table cells) is slop. Replace with
+   a colon or rewrite the sentence. `--` is a shell
+   end-of-options separator and is not punctuation.
+2b. Prose semicolon splices. A semicolon joining two
    independent clauses reads more naturally as two sentences or
-   one coordinating conjunction.
-   Rephrase unless the semicolon is absolutely necessary: a
-   list whose items carry internal commas is the one durable
-   keep. Confidence is low, so surface each hit for a human to
-   judge rather than auto-rewriting.
+   one coordinating conjunction. Rephrase rather than swapping
+   in an em dash, which is usually what the semicolon replaced.
+   A list whose items carry internal commas is the one durable
+   keep. Confidence is low, so a person judges each hit.
 3. Scan for tier 1 slop: "structured", "comprehensive",
    "actionable", "seamless", "robust", "myriad",
    "empower", "navigate" (as metaphor)
@@ -87,12 +132,10 @@ After Layers 0 and 1 pass, you MUST run
 7. Check for participial tail-loading: sentences ending
    with ", [verb]-ing ..."
 8. Normalize British spellings to American (default).
-   Use `scribe.spelling.to_american` (preserves case; skips
-   code, inline code, and URLs) or scan manually:
-   `rg -ni '\b(colou?r|behaviou?r|organis|optimis|centre|\
-   licence|defence|catalogue|grey|artefact)\w*' file.md`.
-   Use an explicit word list, never a `-ise`/`-our` suffix
-   rule (surprise, exercise, analysis are correct as-is).
+   Use `scribe.spelling.to_american`, which preserves case and
+   skips code, inline code, and URLs. Use an explicit word
+   list, never a `-ise`/`-our` suffix rule (surprise,
+   exercise, analysis are correct as-is).
    Opt out per project via `.slop-config.yaml`
    (`spelling: british`) or per word via the allowlist;
    leave proper nouns ("Labour Party") and quoted text
@@ -286,6 +329,19 @@ ever apply to this repo.
   marker. Split into two sentences or join with "and"/"but"/
   "so". Keep the semicolon only when a list's items carry
   internal commas. Low confidence: surface, do not auto-rewrite.
+- **Over-explained fixes**: narration wrapped around a change,
+  in place of the change. "In order to", "this ensures that",
+  "this means that", "the reason for this is", "which allows
+  us to", "it is important to note that". State the defect and
+  what changed, then stop. A changelog entry or commit body
+  that explains its own reasoning at length costs the reader
+  more than the change it describes. Off by default and low
+  confidence: "in order to" is correct in a sentence that
+  genuinely states a purpose, and the line between rationale
+  and narration is a judgment. Enable it when auditing
+  changelogs, commit bodies, and PR descriptions. The judgment
+  half belongs to document economy's sentence-weight check.
+  This is the lexical half.
 - **Loop/cascade vocabulary**: replace "unpack" (verb,
   metaphor) with "explain"; "surface" (verb, metaphor) with
   "raise" or "report"; "a quiet shift" with the named shift;

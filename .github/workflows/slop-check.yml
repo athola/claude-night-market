@@ -14,6 +14,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # the ratchet needs the merge base with the target branch
 
       - name: Set up Python
         uses: actions/setup-python@v7.0.0
@@ -37,6 +39,29 @@ jobs:
           uv run --with pyyaml python scripts/slop_score.py \
             --threshold 3.0 docs book/src | tee scan.txt
 
+      # The gate above scores two directories whole. Markdown anywhere
+      # else was ungated, and gating it whole would fail an unrelated
+      # one-line edit to any file already over the threshold. The
+      # ratchet fails a changed file only when it scores worse than at
+      # the merge base, so a PR cannot add slop and is never blocked by
+      # slop it did not write. Definition documents are skipped via
+      # exclude_patterns in .slop-config.yaml.
+      - name: Ratchet changed markdown against the merge base
+        id: ratchet
+        if: always() && steps.scan.outcome != 'skipped'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -o pipefail
+          merge_base="$(git merge-base "origin/${BASE_REF}" HEAD)"
+          changed="$(git diff --name-only --diff-filter=AM "${merge_base}" HEAD -- '*.md')"
+          if [ -z "${changed}" ]; then
+            printf 'no markdown changed\n' | tee -a scan.txt
+            exit 0
+          fi
+          uv run --with pyyaml python scripts/slop_score.py \
+            --threshold 3.0 --ratchet "${merge_base}" ${changed} | tee -a scan.txt
+
       - name: Publish scan summary
         if: always()
         run: |
@@ -47,7 +72,7 @@ jobs:
           } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Comment on PR if threshold exceeded
-        if: failure() && steps.scan.outcome == 'failure'
+        if: failure() && (steps.scan.outcome == 'failure' || steps.ratchet.outcome == 'failure')
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}

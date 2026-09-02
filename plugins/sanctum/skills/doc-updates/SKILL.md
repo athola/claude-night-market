@@ -166,6 +166,47 @@ This detects:
 - **Phrase patterns**: "In today's fast-paced world", "cannot be overstated"
 - **Structural markers**: Excessive em dashes, bullet overuse, sentence uniformity
 - **Sycophantic phrases**: "I'd be happy to", "Great question!"
+- **Punctuation stand-ins**: spaced `--`, `+` for "and", semicolon splices
+- **Contrastive negation**: "It's not X, it's Y", "X, not Y", ", not just Y"
+- **Over-explained fixes and negative framing**: "in order to", "this
+  ensures that", "not uncommon", and a negation-density reading per file
+
+One command locates every finding with a file and a line, the opt-in
+and low-confidence categories included:
+
+```bash
+uv run --with pyyaml python scripts/slop_score.py --audit <edited-files>
+```
+
+### Audience Fit
+
+Before rewriting a document, name its reader. Every doc under
+maintenance already has one, stated or assumed, and an edit that
+ignores it drifts the doc toward serving nobody.
+
+```
+Skill(scribe:slop-detector)   # module: audience-targeting.md
+```
+
+- Read the tier off the document if it declares one. If it does
+  not, infer the tier from where the doc sits (README and
+  getting-started are `newcomer`; plugin guides are
+  `practitioner`; ADRs and deep dives are `expert`), then state
+  the inference in the change summary so a reviewer can correct
+  it. When the placement gives no answer, **ask, do not guess**.
+- Apply the cut test per section: keep what the reader needs
+  before they can act, link what they need later, extract what
+  only a higher tier wants, delete what no tier wants.
+- Extract rather than delete. Off-tier material moves to
+  `modules/<topic>.md` for a skill or `docs/deep-dive/<topic>.md`
+  for a repo doc, linked from the parent's lead with one line
+  naming who it is for.
+- An update that adds `expert` detail to a `newcomer` document is
+  the common drift. It is how a getting-started page becomes a
+  reference manual one honest paragraph at a time.
+
+Skip this for creative output. `audience-targeting.md` scopes the
+`scribe:voice-*` and `session-to-post` surfaces out by name.
 
 ### Writing Style Guidelines
 
@@ -341,6 +382,10 @@ When `ENABLE_LSP_TOOL=1` is set, enhance accuracy verification with semantic ana
 - All `TodoWrite` items are completed and documentation is updated.
 - New ADRs, if any, are in `wiki/architecture/` (or the established ADR directory) with the correct status and links to related work.
 - Directory-specific style rules are satisfied.
+- Each edited document has a declared or stated-inferred audience
+  tier, and no section serves a different one.
+- Off-tier content was extracted to `modules/` or
+  `docs/deep-dive/` and linked, never deleted to hit a tier.
 - Accuracy warnings addressed or acknowledged.
 - Content does not sound AI-generated.
 - Files are staged or ready for review.

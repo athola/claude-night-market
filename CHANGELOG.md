@@ -7,6 +7,115 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Audience targeting for generated documentation (scribe, sanctum,
+  abstract, attune).** Document economy scored whether a sentence
+  earned its cost. It could not score whether it earned it for
+  anyone, so a document that served no reader in particular passed
+  every check and wasted every reader afterward.
+
+  `scribe:slop-detector` module `audience-targeting.md` is the new
+  pattern source. It names three reader tiers, `newcomer` (has never
+  seen this project), `practitioner` (knows the domain, not this
+  repository) and `expert` (already familiar with the material), with
+  a one-line `persona` for readers none of the three describe. A tier
+  is a claim about prior knowledge rather than seniority: a principal
+  engineer opening this repository for the first time is a
+  `newcomer`.
+
+  The cut test carries four verdicts. Keep what the reader
+  needs before they can act, link what they need later, extract what
+  only a higher tier wants, delete what no tier wants. Extraction is
+  the verdict that gets skipped, and skipping it is how rationale a
+  newcomer cannot use gets deleted instead of moved. Off-tier content
+  goes to `modules/<topic>.md` for a skill, reusing the existing
+  `progressive_loading` contract, or to `docs/deep-dive/<topic>.md`
+  for a repo document, linked from the parent's lead. Each deep dive
+  declares its own tier, so extraction cannot become a place to hide
+  material from the rule.
+
+  An unstated tier is asked for, never guessed. The module carries the
+  Socratic set that elicits one, and `attune:project-brainstorming`
+  asks it in Phase 1 so the answer exists before anything is drafted.
+  `attune:project-specification` carries it forward as a requirement.
+
+  Wired into `scribe:doc-generator` (request template, draft step,
+  quality gate), `scribe:tech-tutorial`, `sanctum:doc-updates`,
+  `sanctum:update-readme`, `sanctum:doc-consolidation` (which now
+  refuses to weave findings into a document written for another
+  reader), `abstract:skill-authoring`, and the `doc-sweep` workflow,
+  which gained a fifth blind reviewer for audience fit.
+
+  Creative cycles are scoped out by name: `scribe:voice-*`,
+  `style-learner`, `session-to-post` narrative output and
+  `fiction-patterns`. Creative work still names a reader. Its
+  digressions are the point, so the cut test would delete the work.
+
+- **`--audit` mode on `scripts/slop_score.py`.** Every pattern in the
+  house slop prompt already had a detector. The gate printed
+  `surfaced but not scored: semicolon_splice` with no file and no
+  line, so locating each hit meant rereading the repository by hand.
+  `--audit <files>` prints a file, a line and a category for every
+  finding, including the low-confidence and opt-in categories the
+  merge gate declines to score, plus the per-document
+  `check_negation_density` reading, which nothing outside its own
+  tests had called. It exits 0: auditing reports, scoring gates.
+
+- **`over_explanation` category and a write-time warning.** The one
+  named pattern with no detector was narration around a fix. Off by
+  default and low confidence, because "in order to" is often correct.
+  New hookify catalog rule `warn-slop-in-markdown` reads `new_text`
+  on a markdown write and warns on the cheap half: em dash, ` -- `,
+  `+` as a conjunction, spliced clauses, "X, not Y", ", not just Y",
+  smart quotes, and the high-confidence negation forms ("cannot be
+  overstated", "not uncommon"). The existing catalog rule fires on
+  prompt intent, so slop arriving through an edit made for another
+  reason went unseen until CI. A test in `tests/unit/test_slop_score.py`
+  holds the inlined regex inside what `--audit` reports, so the hook
+  cannot send an author to a command that finds nothing.
+
+- **Slop ratchet at commit time and PR time.** The CI gate scored
+  `docs` and `book/src` whole and nothing else. Markdown elsewhere was
+  ungated, and gating it whole would have failed an unrelated one-line
+  edit to any of the twenty-odd files already over the threshold.
+  `scripts/slop_score.py --ratchet REF` fails a file only when it
+  scores over the threshold and higher than its version at `REF`. A
+  pre-commit hook runs it against `HEAD` on staged markdown, and
+  `slop-check.yml` runs it against the merge base on the markdown a PR
+  changed. `exclude_patterns` in `.slop-config.yaml`, documented in
+  `config-file.md` and ignored by the scorer until now, skips the
+  documents that define the patterns. `--audit` ignores the exclusions,
+  because it gates nothing.
+
+- **`require-slop-scan-for-docs` carries the whole checklist.** The
+  prompt-time rule listed vocabulary and a few 2026 tells. It now names
+  the audit command and every pattern the operator used to type by
+  hand: `--`, semicolon splices, the trailing ", not just Y" form,
+  over-explained fixes, negative framing and negation density.
+
+### Fixed
+
+- **A missing path no longer reads as a clean bill of health.**
+  `slop_score.py` returned "no markdown files scanned" and exit 0 for
+  a path that does not exist. Found by running the new audit under
+  zsh, which does not word-split an unquoted parameter: the whole
+  file list arrived as one argument, matched nothing, and reported no
+  findings. Missing paths now exit 2, and a whitespace-joined
+  argument is split.
+
+### Changed
+
+- **Document economy scores out of 8, ships at 7.** Audience fit is
+  the fourth check, so the rubric denominator moved from 6 and the
+  ship threshold from 5. `.claude/rules/slop-scan-for-docs.md`,
+  `document-economy.md` and the docs-of-record skill move together.
+  Nothing is added to `en.yaml`: audience fit turns on a declared tier
+  that does not appear in the text being scanned, so no regex can
+  decide it. The guard is
+  `plugins/scribe/tests/test_audience_targeting.py`, 38 contract tests
+  anchored on the clauses above.
+
 ## [1.9.19] - 2026-08-26
 
 ### Added

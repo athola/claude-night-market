@@ -84,10 +84,12 @@ file passes three layers before it is done:
    large language model"), hallucinated identifiers, paths, packages,
    or URLs, and bare TODO/FIXME stubs without a tracked issue.
    Constitution rule 4 makes an identity leak an automatic revert.
-2. **Document economy (scored 0-6, ship at 5+)**: thesis stated
+2. **Document economy (scored 0-8, ship at 7+)**: thesis stated
    first, every sentence carries weight, thesis echoed rather than
-   filler repeated. Rubric: `scribe:slop-detector` module
-   `document-economy.md`.
+   filler repeated, and one audience tier declared and served.
+   Rubric: `scribe:slop-detector` module `document-economy.md`;
+   tier table and extraction protocol: module
+   `audience-targeting.md`.
 3. **Sentence-level tiers**: banned vocabulary, negative parallelism,
    throat-clearing openers, participial tails, and the 2026 pattern
    set. Catalog: `scribe:slop-detector` module
@@ -104,15 +106,30 @@ score = (tier1_hits * 3 + tier2_hits * 2 + em_dashes) / words * 100
 ```
 
 Any file scoring above 3.0 fails the job and gets a PR comment.
-The tier-1 and tier-2 word lists live in the workflow file itself
-(variables `TIER1` and `TIER2` in `slop-check.yml`); read them there
-rather than memorizing. Quick local pre-check on a doc you touched:
+The workflow no longer holds its own word lists. It calls
+`scripts/slop_score.py`, which reads
+`plugins/scribe/data/languages/en.yaml`, so a category added there
+reaches CI with no workflow edit.
+
+Three modes, one script. Gate mode answers whether this merges.
+Ratchet mode answers whether a changed file got worse than its
+committed version, which is what the pre-commit hook asks of staged
+markdown and what CI asks of a PR's markdown against the merge base.
+Audit mode answers where the slop is, which is the question you have
+while fixing it:
 
 ```bash
-grep -o '—' docs/your-file.md | wc -l
-grep -oiE 'delve|tapestry|pivotal|meticulous|leveraging|comprehensive' \
-  docs/your-file.md
+uv run --with pyyaml python scripts/slop_score.py --audit <files>
+uv run --with pyyaml python scripts/slop_score.py --threshold 3.0 docs book/src
+uv run --with pyyaml python scripts/slop_score.py --ratchet HEAD <changed files>
 ```
+
+Audit takes files or directories, prints a file and a line per
+finding, and exits 0. It also runs the categories the gate declines
+to score: semicolon splices, negative definition, over-explained
+fixes, contrastive scaffolds, and the per-document negation-density
+reading. Those are labeled `(low)` or `(medium)`. A person judges
+them. Nothing auto-rewrites them.
 
 Files outside `docs/` and `book/src/` (plugin skills, READMEs) skip
 this CI job but still fall under the rule file and review.
