@@ -207,14 +207,13 @@ class TestCrossReferences:
                 # Should reference next step
                 next_step = i + 1
                 if next_step <= 6:
-                    # Flexible check - either links to next step or mentions it
-                    (
+                    # Every step forward-links today; a step that stops doing
+                    # so strands the reader mid-workflow.
+                    assert (
                         f"Step {next_step}" in content
                         or f"{next_step}-" in content
                         or f"step-{next_step}" in content.lower()
-                    )
-                    # This is a soft check - not all steps must link forward
-                    # but it's good practice
+                    ), f"{step_path.name} does not reference step {next_step}"
 
     def test_steps_have_see_also_sections(self):
         """Each step should have a See Also section for navigation."""
