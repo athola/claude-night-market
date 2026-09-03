@@ -16,8 +16,6 @@ from typing import Any
 from memory_palace.corpus.decay_model import DecayModel
 from memory_palace.corpus.marginal_value import IntegrationDecision, MarginalValueFilter
 from memory_palace.corpus.source_lineage import (
-    FullLineage,
-    SimpleLineage,
     SourceLineageManager,
     SourceReference,
 )
@@ -363,21 +361,6 @@ class KnowledgeOrchestrator:
 
         return entry_id, decision
 
-    def get_source_lineage(
-        self,
-        entry_id: str,
-    ) -> FullLineage | SimpleLineage | None:
-        """Get source lineage for an entry.
-
-        Args:
-            entry_id: ID of the knowledge entry
-
-        Returns:
-            Lineage or None
-
-        """
-        return self.lineage_manager.get_lineage(entry_id)
-
     def get_statistics(
         self,
         entries: list[dict[str, Any]],
@@ -416,21 +399,6 @@ class KnowledgeOrchestrator:
             "average_usage_score": usage_score_sum / n if n else 0.0,
             "average_decay_score": decay_score_sum / n if n else 0.0,
         }
-
-    def batch_assess(
-        self,
-        entries: list[dict[str, Any]],
-    ) -> list[QualityAssessment]:
-        """Batch assess multiple entries.
-
-        Args:
-            entries: List of entry dicts
-
-        Returns:
-            List of QualityAssessments
-
-        """
-        return [self.assess_entry(e) for e in entries]
 
     def get_entry_history(self, entry_id: str) -> dict[str, Any]:
         """Get full history for an entry.

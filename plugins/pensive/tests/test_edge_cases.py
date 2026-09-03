@@ -17,7 +17,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from pensive.config.configuration import Configuration
-from pensive.exceptions import ConfigurationError
+from pensive.exceptions import AnalysisError, ConfigurationError
 from pensive.plugin import PluginLoader
 
 # Import pensive components for testing
@@ -424,7 +424,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
                 patch("pensive.skills.api_review.ApiReviewSkill.analyze")
             )
             # Make one skill fail, another succeed
-            mock_rust.side_effect = Exception("Rust analysis failed")
+            mock_rust.side_effect = AnalysisError("Rust analysis failed")
             mock_api.return_value = "API review completed successfully"
 
             context = Mock()

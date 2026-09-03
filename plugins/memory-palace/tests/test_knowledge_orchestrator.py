@@ -268,7 +268,7 @@ class TestKnowledgeOrchestrator:
         )
 
         if decision != IntegrationDecision.SKIP:
-            lineage = orchestrator.get_source_lineage(entry_id)
+            lineage = orchestrator.lineage_manager.get_lineage(entry_id)
             assert isinstance(lineage, (FullLineage, SimpleLineage))
 
     def test_validate_entry(self, orchestrator: KnowledgeOrchestrator) -> None:
@@ -378,8 +378,10 @@ class TestKnowledgeOrchestrator:
         assert "average_usage_score" in stats
         assert "average_decay_score" in stats
 
-    def test_batch_assess(self, orchestrator: KnowledgeOrchestrator) -> None:
-        """Should batch assess multiple entries efficiently."""
+    def test_assess_entry_over_many_entries(
+        self, orchestrator: KnowledgeOrchestrator
+    ) -> None:
+        """assess_entry composes over a list without a batch wrapper (MP-010)."""
         entries = [
             {
                 "id": f"entry-{i}",
@@ -389,9 +391,14 @@ class TestKnowledgeOrchestrator:
             for i in range(10)
         ]
 
-        assessments = orchestrator.batch_assess(entries)
+        assessments = [orchestrator.assess_entry(e) for e in entries]
         assert len(assessments) == 10
         assert all(isinstance(a, QualityAssessment) for a in assessments)
+
+    def test_orchestrator_has_no_delegation_wrappers(self) -> None:
+        """MP-009/MP-010: callers use lineage_manager and assess_entry directly."""
+        assert not hasattr(KnowledgeOrchestrator, "get_source_lineage")
+        assert not hasattr(KnowledgeOrchestrator, "batch_assess")
 
     def test_export_state(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should export full orchestrator state."""

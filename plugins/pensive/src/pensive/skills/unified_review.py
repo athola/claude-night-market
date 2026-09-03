@@ -11,8 +11,17 @@ from pensive.utils.severity_mapper import count_by_severity
 from .base import AnalysisResult, BaseReviewSkill
 
 
-def dispatch_agent(skill_name: str, _context: Any) -> str:
-    return f"{skill_name} execution result"
+def dispatch_agent(skill_name: str, context: Any) -> Any:
+    """Run one review skill through the workflow registry.
+
+    Returns the skill's AnalysisResult, or None when the skill is unknown
+    or fails with a recorded runtime error.
+    """
+    from pensive.workflows.code_review import (  # noqa: PLC0415 - lazy import: code_review imports this module at load time
+        CodeReviewWorkflow,
+    )
+
+    return CodeReviewWorkflow().execute_skills([skill_name], context)[0]
 
 
 class UnifiedReviewSkill(BaseReviewSkill):
@@ -136,6 +145,9 @@ class UnifiedReviewSkill(BaseReviewSkill):
 
         if has_math:
             skills.append("math-review")
+
+        if any("api" in f.lower() for f in files):
+            skills.append("api-review")
 
         return skills
 
@@ -329,7 +341,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
 
         return api_surface
 
-    def execute_skills(self, skills: list[str], context: Any) -> list[str]:
+    def execute_skills(self, skills: list[str], context: Any) -> list[Any]:
         """Execute multiple skills sequentially.
 
         Args:

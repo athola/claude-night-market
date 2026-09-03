@@ -7,7 +7,6 @@ tags:
 - quota
 - rate-limiting
 - resource-management
-- cost-tracking
 - thresholds
 dependencies: []
 tools: []
@@ -23,7 +22,6 @@ provides:
 usage_patterns:
 - service-integration
 - rate-limit-management
-- cost-tracking
 - resource-monitoring
 complexity: intermediate
 model_hint: standard
