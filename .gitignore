@@ -187,3 +187,6 @@ plugins/memory-palace/data/palaces/*.db-wal
 # scripts/check_upstream_drift.py: ignoring a path does not stop the
 # walker from reading it off disk.
 docs/migrations/
+
+# Atomic lock directory scripts/clawhub-cron.sh holds while a sync runs.
+.clawhub-sync.lock/

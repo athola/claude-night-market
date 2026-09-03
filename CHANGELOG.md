@@ -128,7 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and minister declare the plugins they import; ADR-0002's false
   justification is corrected in place and ADR-0014 to 0016 read as
   Proposed; seven compliance_checker examples use its real flags.
-- **Twenty-two Makefile findings and nine June 2026 findings.** Dead
+- **Twenty-three Makefile findings and eight June 2026 findings.** Dead
   targets, orphan test Makefiles, `$(PWD)` under `make -C`, `$$@`
   catch-alls, `.PHONY` drift, an undeclared `safety` in three security
   targets, a Makefile for cartograph; and from June, a duplicated
