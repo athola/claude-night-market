@@ -96,6 +96,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Fourteen quality gates could not fail (full review, September
+  2026).** conserve's `make test` ran no pytest; root `validate-all`
+  and `plugin-check` echoed every failure and exited 0; python.mk's
+  `test-coverage` re-ran without coverage when the threshold tripped;
+  scribe's `lint` warned and exited 0; spec-kit's `validate-plugin`,
+  abstract's five audit one-liners, its import checks and its
+  self-validation ended in `|| echo`; the house shellcheck gate aborted
+  on macOS `sh` before linting; six tests computed a verdict and never
+  asserted it. Each now exits by its checker's verdict, and
+  `tests/test_gate_exit_codes.py` scans the root Makefile too, rejects a
+  fallback pytest rerun, and requires every python.mk plugin's `test`
+  target to reach pytest. Root `lint` checks instead of rewriting; the
+  mutating pair is `make fix`.
+- **herald's webhook guard pinned to the address it approved.** curl
+  re-resolved the hostname after validation, so a rebinding DNS answer
+  could reach a private address; `--resolve` now carries the checked
+  address. leyline's quota tracker counts under a file lock; abstract's
+  palace bridge no longer hides parser bugs as "no insights"; conjure
+  refuses the one dash-prompt shape it cannot escape; gauntlet names a
+  malformed `.gauntlet/config.json` instead of ignoring it.
+- **macOS toolchain assumptions.** The shared make includes warn on
+  GNU make 3.81, which ignores `.SHELLFLAGS`; bash 3.2 traps (`declare
+  -A`, `read -t 0.1`, `main "${@}"` under `set -u`) and BSD tool gaps
+  (`uniq -w`, `sha256sum`) are gone from the scripts that hit them.
+  `tests/test_shell_portability.py` holds each with the failure it
+  produced.
+- **Docs and manifests say what the code does.** bounded-discovery and
+  four skills carried the rationalization table bounded-autonomy
+  retires, and `rules_validator.py` now docks it; cartograph, egregore
+  and minister declare the plugins they import; ADR-0002's false
+  justification is corrected in place and ADR-0014 to 0016 read as
+  Proposed; seven compliance_checker examples use its real flags.
+- **Twenty-two Makefile findings and nine June 2026 findings.** Dead
+  targets, orphan test Makefiles, `$(PWD)` under `make -C`, `$$@`
+  catch-alls, `.PHONY` drift, an undeclared `safety` in three security
+  targets, a Makefile for cartograph; and from June, a duplicated
+  parser, two stubs presented as results, two bare excepts, a copied
+  heuristic and three pass-through methods.
+
 - **A missing path no longer reads as a clean bill of health.**
   `slop_score.py` returned "no markdown files scanned" and exit 0 for
   a path that does not exist. Found by running the new audit under
