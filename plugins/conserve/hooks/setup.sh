@@ -102,7 +102,7 @@ TEMPLATE
 
     # 4. Set environment variables via CLAUDE_ENV_FILE
     if [ -n "${CLAUDE_ENV_FILE:-}" ] && { [ -w "${CLAUDE_ENV_FILE}" ] || [ ! -e "${CLAUDE_ENV_FILE}" ]; }; then
-        echo "export CONSERVE_SESSION_STATE_PATH=\"${SESSION_STATE_FILE}\"" >> "$CLAUDE_ENV_FILE"
+        printf 'export CONSERVE_SESSION_STATE_PATH=%q\n' "$SESSION_STATE_FILE" >> "$CLAUDE_ENV_FILE"
         setup_tasks+=("Persisted CONSERVE_SESSION_STATE_PATH to environment")
     fi
 

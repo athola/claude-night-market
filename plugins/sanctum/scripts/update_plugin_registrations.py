@@ -109,39 +109,6 @@ class _ScanningMixin:
 
         return skill_module_issues
 
-    def _scan_plugin_for_module_refs(self, plugin_path: Path) -> set[str]:
-        """Scan entire plugin for module references.
-
-        Searches in:
-        - skills/**/*.md (skill definitions)
-        - commands/**/*.md (command files and their modules)
-        - agents/*.md (agent definitions)
-        """
-        all_refs: set[str] = set()
-
-        # Scan skills
-        skills_dir = plugin_path / "skills"
-        if skills_dir.exists():
-            for md_file in skills_dir.rglob("*.md"):
-                if not self._should_exclude(md_file):
-                    all_refs.update(self._extract_module_refs_from_file(md_file))
-
-        # Scan commands
-        commands_dir = plugin_path / "commands"
-        if commands_dir.exists():
-            for md_file in commands_dir.rglob("*.md"):
-                if not self._should_exclude(md_file):
-                    all_refs.update(self._extract_module_refs_from_file(md_file))
-
-        # Scan agents
-        agents_dir = plugin_path / "agents"
-        if agents_dir.exists():
-            for md_file in agents_dir.rglob("*.md"):
-                if not self._should_exclude(md_file):
-                    all_refs.update(self._extract_module_refs_from_file(md_file))
-
-        return all_refs
-
     def _scan_cross_skill_refs(self, plugin_path: Path) -> dict[str, set[str]]:
         """Map ``skill-name`` to cross-skill full-path module references.
 
@@ -428,7 +395,7 @@ class _ScanningMixin:
         Also handles "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/file.py" format.
         """
         # Pattern to match ${CLAUDE_PLUGIN_ROOT}/path or similar
-        match = re.search(r"\$\{CLAUDE_PLUGIN_ROOT\}/(.+?)(?:\s|$)", command)
+        match = re.search(r"\$\{CLAUDE_PLUGIN_ROOT\}/([^\s\"']+)", command)
         if match:
             rel_path = match.group(1).strip()
             return f"./{rel_path}"

@@ -103,8 +103,8 @@ INDEX
 
     # 6. Set environment variables via CLAUDE_ENV_FILE
     if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-        echo "export MEMORY_PALACE_GARDEN_ROOT=\"${GARDEN_ROOT}\"" >> "$CLAUDE_ENV_FILE"
-        echo "export MEMORY_PALACE_SKILL_LOGS=\"${SKILL_LOGS_ROOT}\"" >> "$CLAUDE_ENV_FILE"
+        printf 'export MEMORY_PALACE_GARDEN_ROOT=%q\n' "$GARDEN_ROOT" >> "$CLAUDE_ENV_FILE"
+        printf 'export MEMORY_PALACE_SKILL_LOGS=%q\n' "$SKILL_LOGS_ROOT" >> "$CLAUDE_ENV_FILE"
         init_tasks+=("Persisted environment variables")
     fi
 
