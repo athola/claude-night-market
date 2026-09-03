@@ -2,7 +2,8 @@
 
 Written green before ``delegation_executor.py`` was split, so the split
 had a contract to keep. They pin behavior, not location: the import line
-is the only thing that moved with the code.
+is the only thing that moved with the code, and it now names
+``delegation_services`` so deleting that module turns these red.
 """
 
 import json
@@ -16,7 +17,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-from delegation_executor import (  # noqa: E402 - sys.path set above
+from delegation_services import (  # noqa: E402 - sys.path set above
     ServiceConfig,
     _apply_overrides,
     _expired_credentials,

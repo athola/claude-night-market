@@ -2,7 +2,8 @@
 
 Written green before ``delegation_executor.py`` was split, so the split
 had a contract to keep. They pin behavior, not location: the import line
-is the only thing that moved with the code.
+is the only thing that moved with the code, and it now names
+``delegation_prompt`` so deleting that module turns these red.
 """
 
 import sys
@@ -14,14 +15,14 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-import delegation_executor as prompt_module  # noqa: E402 - sys.path set above
-from delegation_executor import (  # noqa: E402 - sys.path set above
-    ServiceConfig,
+import delegation_prompt as prompt_module  # noqa: E402 - sys.path set above
+from delegation_prompt import (  # noqa: E402 - sys.path set above
     _compose_prompt_with_files,
     _inline_context,
     _iter_context_files,
     _prompt_argv,
 )
+from delegation_services import ServiceConfig  # noqa: E402 - sys.path set above
 
 _BASE = ServiceConfig(name="probe", command="probe", auth_method="none")
 
