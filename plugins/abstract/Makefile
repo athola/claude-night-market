@@ -37,7 +37,6 @@ TEST_QUICK_ARGS := -v --no-cov --tb=short
 -include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Prevent parallel execution for targets that share resources
-.NOTPARALLEL: docs docs-clean docs-serve docs-check
 
 # Default target - auto-generated from ## comments
 help: ## Show this help message

@@ -17,6 +17,8 @@ PLUGIN_MAKEFILES := $(wildcard $(PLUGINS_DIR)/*/Makefile)
 ALL_PLUGINS := $(patsubst %/Makefile,%,$(PLUGIN_MAKEFILES))
 # GNU coreutils timeout is not on stock macOS; run unbounded where it is absent.
 TIMEOUT_180 := $(if $(shell command -v timeout 2>/dev/null),timeout 180,)
+# GNU coreutils sha256sum is not on stock macOS; shasum -a 256 is everywhere.
+SHA256 := $(if $(shell command -v sha256sum 2>/dev/null),sha256sum,shasum -a 256)
 ALL_PLUGIN_NAMES := $(notdir $(ALL_PLUGINS))
 
 # Generate delegation targets dynamically for all plugins with Makefiles.
@@ -206,7 +208,7 @@ skrills-build: ## Build skrills from source (requires Rust toolchain)
 	@cp "$(SKRILLS_REPO)/target/release/skrills" "$(SKRILLS_BIN)"
 	@chmod +x "$(SKRILLS_BIN)"
 	@$(SKRILLS_BIN) --version 2>/dev/null | head -1 > "$(SKRILLS_VERSION_FILE)" || true
-	@sha256sum "$(SKRILLS_BIN)" | cut -d' ' -f1 >> "$(SKRILLS_VERSION_FILE)"
+	@$(SHA256) "$(SKRILLS_BIN)" | cut -d' ' -f1 >> "$(SKRILLS_VERSION_FILE)"
 	@echo "Installed: $(SKRILLS_BIN) ($$(cat $(SKRILLS_VERSION_FILE) | head -1))"
 
 skrills-install: ## Copy pre-built skrills binary to plugin bin/
@@ -228,7 +230,7 @@ skrills-verify: ## Verify skrills binary hash against pinned version
 		echo "No version file. Run 'make skrills-build' first."; exit 1; \
 	fi
 	@expected=$$(tail -1 "$(SKRILLS_VERSION_FILE)"); \
-	actual=$$(sha256sum "$(SKRILLS_BIN)" | cut -d' ' -f1); \
+	actual=$$($(SHA256) "$(SKRILLS_BIN)" | cut -d' ' -f1); \
 	if [ "$$expected" = "$$actual" ]; then \
 		echo "OK: hash matches ($$(head -1 $(SKRILLS_VERSION_FILE)))"; \
 	else \

@@ -14,7 +14,7 @@ set -euo pipefail
 # Read hook input to determine trigger type
 HOOK_INPUT=""
 TRIGGER_TYPE="init"
-if read -t 0.1 -r HOOK_INPUT 2>/dev/null; then
+if read -t 1 -r HOOK_INPUT 2>/dev/null; then
     if command -v jq >/dev/null 2>&1; then
         TRIGGER_TYPE=$(echo "$HOOK_INPUT" | jq -r '.trigger // "init"' 2>/dev/null || echo "init")
     fi

@@ -31,7 +31,6 @@ ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Prevent parallel execution for targets that share resources
-.NOTPARALLEL: docs docs-serve
 
 # ---------- Help ----------
 help: ## Show this help message

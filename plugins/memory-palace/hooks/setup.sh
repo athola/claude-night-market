@@ -173,7 +173,7 @@ if [ "$TRIGGER_TYPE" = "maintenance" ]; then
     # 4. Check for duplicate web captures
     if [ -d "$WEB_CAPTURES_DIR" ] && command -v md5sum >/dev/null 2>&1; then
         dupes=$(find "$WEB_CAPTURES_DIR" -name "*.md" -type f -exec md5sum {} \; 2>/dev/null | \
-                sort | uniq -d -w32 | wc -l | tr -d ' ')
+                awk '{print $1}' | sort | uniq -d | wc -l | tr -d ' ')
         if [ "$dupes" -gt 0 ]; then
             maint_tasks+=("Found ${dupes} potential duplicate captures (manual review recommended)")
         else
