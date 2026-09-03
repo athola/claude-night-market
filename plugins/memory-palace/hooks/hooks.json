@@ -89,7 +89,8 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/research_queue.py",
-            "timeout": 5
+            "timeout": 5,
+            "async": true
           }
         ]
       }

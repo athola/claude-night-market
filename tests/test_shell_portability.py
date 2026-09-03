@@ -118,3 +118,21 @@ def test_no_notparallel_with_prerequisites() -> None:
             assert not re.match(r"\.NOTPARALLEL:\s*\S", line), (
                 f"{makefile.parent.name}: {line}"
             )
+
+
+def test_scope_guard_cache_is_not_in_shared_tmp() -> None:
+    """A predictable name in world-writable /tmp let anyone plant the file
+    that is read straight into additionalContext.
+    """
+    body = (PLUGINS / "imbue" / "hooks" / "user-prompt-submit.sh").read_text()
+    assert "/tmp}/scope-guard" not in body
+    assert '[ -O "$CACHE_FILE" ]' in body
+
+
+def test_cron_lock_is_atomic_and_under_the_repo() -> None:
+    """Check-then-touch in /tmp raced with itself and could be pre-created
+    by another user to disable the job at exit 0.
+    """
+    body = (REPO_ROOT / "scripts" / "clawhub-cron.sh").read_text()
+    assert 'mkdir "$LOCK"' in body
+    assert "/tmp/clawhub-sync.lock" not in body

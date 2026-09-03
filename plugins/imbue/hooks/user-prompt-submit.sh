@@ -54,10 +54,15 @@ _hash_str() {
         echo "$1" | cksum | cut -d' ' -f1
     fi
 }
-CACHE_FILE="${TMPDIR:-/tmp}/scope-guard-cache-$(_hash_str "$(git rev-parse --show-toplevel)").txt"
+# A cache in shared /tmp at a predictable name is readable and writable by
+# every user on the host, and its contents land in additionalContext. Keep
+# it under the caller's own cache directory and refuse a file we do not own.
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/imbue"
+mkdir -p "$CACHE_DIR" 2>/dev/null || true
+CACHE_FILE="$CACHE_DIR/scope-guard-cache-$(_hash_str "$(git rev-parse --show-toplevel)").txt"
 CACHE_TTL="${SCOPE_GUARD_CACHE_TTL:-60}"  # seconds
 
-if [ -f "$CACHE_FILE" ]; then
+if [ -f "$CACHE_FILE" ] && [ -O "$CACHE_FILE" ]; then
     cache_age=$(($(date +%s) - $(stat -c %Y "$CACHE_FILE" 2>/dev/null || stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0)))
     if [ "$cache_age" -lt "$CACHE_TTL" ]; then
         # Cache is fresh, use it
@@ -179,7 +184,9 @@ EOF
 )
 
 # Cache the output for future invocations (reduces git overhead)
-echo "$output" > "$CACHE_FILE" 2>/dev/null || true
+cache_tmp=$(mktemp "$CACHE_DIR/scope-guard-cache.XXXXXX" 2>/dev/null) && {
+    printf '%s\n' "$output" > "$cache_tmp" && mv -f "$cache_tmp" "$CACHE_FILE"
+} 2>/dev/null || true
 
 # Output JSON
 echo "$output"
