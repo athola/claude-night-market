@@ -1,7 +1,8 @@
-# Voice Craft Research Findings
+# Research Basis for Voice Extraction
 
 Research conducted 2026-04-10 across code, discourse, and
-academic channels.
+academic channels, before the voice skills were built. Each
+finding names the design choice it justifies.
 
 ## Key Academic Findings
 

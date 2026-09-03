@@ -58,21 +58,6 @@ references:
 - references/progress-report.md
 role: entrypoint
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Mission Lifecycle](#mission-lifecycle)
-- [Interactive Plan Review](#interactive-plan-review)
-- [Mission Types](#mission-types)
-- [Phase-to-Skill Mapping](#phase-to-skill-mapping)
-- [Delegation During a Mission](#delegation-during-a-mission)
-- [Session Recovery](#session-recovery)
-- [Module Reference](#module-reference)
-- [Related Skills](#related-skills)
-- [Related Commands](#related-commands)
-- [Exit Criteria](#exit-criteria)
-
 
 # Mission Orchestrator
 

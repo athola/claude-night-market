@@ -32,5 +32,8 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": [
+    "gauntlet"
+  ]
 }

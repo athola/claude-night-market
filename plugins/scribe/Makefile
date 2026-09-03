@@ -40,9 +40,9 @@ test-coverage: ## Run tests with coverage measurement
 		--cov=plugins/scribe/src/scribe --cov-report=term-missing --cov-branch
 
 # ---------- Linting ----------
-lint: ## Check for slop in plugin documentation
-	@echo "Checking for slop in plugin documentation..."
-	@grep -rn -E "delve|embark|tapestry|comprehensive|leverage" skills/ commands/ README.md 2>/dev/null && echo "WARNING: Slop words found in plugin docs" || echo "No tier-1 slop words found"
+lint: ## Ratchet plugin docs against the repo slop scorer (fails on regression)
+	@echo "Scoring plugin documentation for slop..."
+	@cd ../.. && uv run --with pyyaml python scripts/slop_score.py --threshold 3.0 --ratchet HEAD plugins/scribe/skills plugins/scribe/commands plugins/scribe/README.md
 
 # ---------- Quality (no-ops for markdown-only) ----------
 typecheck type-check: ## No-op: no Python code to check

@@ -39,22 +39,6 @@ role: entrypoint
 - Evaluating skills (use `abstract:skills-eval`)
 - Evaluating rules in `.claude/rules/` (use `abstract:rules-eval`)
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Key Capabilities](#key-capabilities)
-- [Core Components](#core-components)
-- [Quick Reference](#quick-reference)
-- [Hook Event Types](#hook-event-types)
-- [Hook Callback Signature](#hook-callback-signature)
-- [Return Values](#return-values)
-- [Quality Scoring (100 points)](#quality-scoring-(100-points))
-- [Detailed Resources](#detailed-resources)
-- [Basic Evaluation Workflow](#basic-evaluation-workflow)
-- [Integration with Other Tools](#integration-with-other-tools)
-- [Related Skills](#related-skills)
-
-
 # Hooks Evaluation Framework
 
 ## Overview

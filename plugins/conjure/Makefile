@@ -3,14 +3,13 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
 .PHONY: benchmark check clean debug-variables delegate-auto delegate-codex delegate-doctor \
 	delegate-gemini delegate-glimmer delegate-glm delegate-install delegate-minimax delegate-muse \
 	delegate-opencode delegate-qwen delegate-setup \
 	delegate-status delegate-test delegate-usage delegate-verify demo-delegation demo-plugin \
-	demo-skills demo-status demo-token-estimate deps fix format help install-hooks lint memory-profile \
-	mutation-test plugin-check precommit quota-status security spellcheck status test test-plugin \
-	test-status test-suite type-check typecheck usage-report validate-all validate-delegation
+	demo-skills demo-status demo-token-estimate deps fix help install-hooks memory-profile \
+	mutation-test plugin-check precommit quota-status spellcheck status test test-plugin \
+	test-status test-suite usage-report validate-all validate-delegation demo-conjure-commands
 
 # Override source directories for this plugin
 SRC_DIRS := scripts hooks

@@ -136,11 +136,11 @@ class TestStructuralRules:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_shellcheck_sh_ends_with_main_call(self) -> None:
-        """Last executable line of an invoked script must be main \"${@}\"."""
+        """Last executable line of an invoked script must be main \"$@\"."""
         assert SHELLCHECK_SH.exists()
         lines = [ln for ln in SHELLCHECK_SH.read_text().splitlines() if ln.strip()]
-        assert lines[-1] == 'main "${@}"', (
-            f"last line must be 'main \"${{@}}\"', got: {lines[-1]!r}"
+        assert lines[-1] == 'main "$@"', (
+            f"last line must be 'main \"$@\"', got: {lines[-1]!r}"
         )
 
     @pytest.mark.bdd
@@ -149,7 +149,7 @@ class TestStructuralRules:
         """logging.sh is a library; it must not invoke main."""
         assert LOGGING_SH.exists()
         content = LOGGING_SH.read_text()
-        assert 'main "${@}"' not in content
+        assert 'main "$@"' not in content
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -272,7 +272,7 @@ class TestPatternDetection:
             """,
         )
         lines = [ln for ln in script.read_text().splitlines() if ln.strip()]
-        assert lines[-1] != 'main "${@}"'
+        assert lines[-1] != 'main "$@"'
 
     @pytest.mark.bdd
     @pytest.mark.unit

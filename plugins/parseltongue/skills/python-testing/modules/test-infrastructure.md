@@ -11,14 +11,6 @@ estimated_tokens: 300
 
 Configuration and structure for Python test suites.
 
-## Table of Contents
-
-- [pyproject.toml Configuration](#pyprojecttoml-configuration)
-- [Test Directory Structure](#test-directory-structure)
-- [conftest.py](#conftestpy)
-- [Dependencies](#dependencies)
-- [Coverage Configuration](#coverage-configuration)
-
 ## pyproject.toml Configuration
 
 Complete pytest configuration in `pyproject.toml`:

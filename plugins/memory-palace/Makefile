@@ -3,14 +3,13 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
 .PHONY: benchmark check clean clean-queue create debug-variables delete demo-export demo-garden \
-	demo-import demo-index demo-memory demo-memory-palace-commands demo-navigate demo-palace demo-pensive \
-	demo-reset demo-review-room demo-skill-logs demo-status deps disable enable export fix format \
-	garden-metrics garden-tend help import install skills install-hooks lint list manager \
-	memory-profile mutation-test plugin-check precommit search security skills spellcheck status \
-	test test-garden test-memory test-navigate test-palace test-pensive test-review-room \
-	test-skill-logs test-unit type-check typecheck
+	demo-import demo-index demo-memory demo-memory-palace-commands demo-navigate demo-palace \
+	demo-reset demo-review-room demo-skill-logs demo-status deps disable enable export fix \
+	garden-metrics garden-tend help import install skills install-hooks list manager \
+	memory-profile mutation-test plugin-check precommit search skills spellcheck status \
+	test test-garden test-memory test-navigate test-palace test-review-room \
+	test-skill-logs demo-keyword-index
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts src

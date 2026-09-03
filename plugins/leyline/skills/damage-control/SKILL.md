@@ -38,16 +38,6 @@ modules:
 - modules/risk-assessment-checklist.md
 role: library
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When To Use](#when-to-use)
-- [When NOT To Use](#when-not-to-use)
-- [Damage Triage](#damage-triage)
-- [Module Reference](#module-reference)
-- [Integration Pattern](#integration-pattern)
-- [Exit Criteria](#exit-criteria)
-
 
 # Damage Control
 

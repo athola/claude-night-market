@@ -98,6 +98,11 @@ The allowlist check is case-insensitive and applied per-match, not per-word-list
 
 Before scanning a file, check its path against each pattern in `exclude_patterns` using `fnmatch`. If any pattern matches, skip the file and report it as excluded.
 
+`scripts/slop_score.py` applies this in gate and ratchet mode only.
+Its `--audit` mode reads an excluded file anyway: an audit exits 0
+whatever it finds, so it has nothing to protect, and a document that
+defines a pattern still needs its own findings located.
+
 ```python
 import fnmatch
 

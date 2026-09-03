@@ -21,6 +21,7 @@ modules:
 - modules/structural-patterns.md
 - modules/fiction-patterns.md
 - modules/document-economy.md
+- modules/audience-targeting.md
 - modules/identity-and-voice-leaks.md
 - modules/hallucination-detection.md
 - modules/stub-and-deferral.md
@@ -54,7 +55,26 @@ ban words. It flags concentrations.
 
 ## Execution Workflow
 
-Identify target files and classify them as technical docs,
+**Start by locating the findings, then read them.**
+
+```bash
+uv run --with pyyaml python scripts/slop_score.py --audit <files>
+```
+
+One command over files or directories, one line per finding
+with a file and a line number, exit 0. It loads every category
+in `data/languages/en.yaml`, including the ones the merge gate
+declines to score: `semicolon_splice`, `negative_definition`,
+`contrastive_scaffold`, `over_explanation`, the softer
+anthropomorphism verbs, and the per-document negation-density
+reading. Those print as `(low)` or `(medium)`. Step 9's
+anti-goals apply to them: surface, never auto-apply.
+
+The steps below say what each category means and how to rewrite
+it. Run the script first so the steps have locations to work
+from, rather than rereading the document once per pattern.
+
+Then identify target files and classify them as technical docs,
 narrative prose, or code comments. Classification feeds
 context-aware scoring: tier-1 markers in marketing copy
 score lower than the same markers in API reference.
@@ -290,20 +310,29 @@ slop_score = (tier1_count * 3 + tier2_count * 2 + phrase_count * avg_phrase_scor
 
 ## Step 6: Document Economy Check
 
-Load: `@modules/document-economy.md`
+Load: `@modules/document-economy.md` and
+`@modules/audience-targeting.md`
 
 **Sentence cleanliness is necessary, not sufficient.** A document
 can score 0 on slop density and still waste reader time by being
 too long, lacking a thesis, or repeating everything except the
 one message that matters.
 
-Score the document on three checks (0-2 each):
+Score the document on four checks (0-2 each):
 
 1. **Thesis-first**: does the lead state the single takeaway?
 2. **Sentence weight**: does every sentence carry, instance,
    bound, or repeat the thesis?
 3. **Repetition rule**: is the thesis echoed (good) while
    ambient repetition is cut (good)?
+4. **Audience fit**: is a tier declared, and does every section
+   serve it? Content that only serves a higher tier is extracted
+   to a deep dive, never deleted.
+
+Check 4 needs a declared reader. If the document does not name
+one, ask for it rather than guessing: `modules/audience-targeting.md`
+carries the tier table and the Socratic set. Skip check 4 for
+creative output, which that module scopes out by name.
 
 Combine sentence-level slop score with document-economy score.
 Both must pass. See `modules/document-economy.md` for the full

@@ -33,18 +33,19 @@ class TestEvaluationFrameworkQuality:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_eval_framework_has_toc(self, eval_framework_content: str) -> None:
-        """Scenario: Evaluation-framework includes Table of Contents.
+    def test_eval_framework_has_no_table_of_contents(
+        self, eval_framework_content: str
+    ) -> None:
+        """Scenario: Evaluation-framework carries no Table of Contents.
 
         Given the evaluation-framework skill
         When reading the skill content
-        Then it should have a TOC for navigation
+        Then no anchor list precedes the sections:
+        an anchor list restates the headings below it and costs
+        tokens on every load, and grep finds the headings directly
+        (bloat-detector, "ToC Bloat in Skills")
         """
-        # Assert - TOC exists
-        assert (
-            "## Table of Contents" in eval_framework_content
-            or "table of contents" in eval_framework_content.lower()
-        )
+        assert "## Table of Contents" not in eval_framework_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -299,7 +300,7 @@ class TestDocumentationQuality:
         When reviewing content organization
         Then essentials should come before deep details
         """
-        # Assert - has TOC and modular structure
-        assert "## Table of Contents" in eval_framework_content
+        # Assert - no anchor list, and a modular structure
+        assert "## Table of Contents" not in eval_framework_content
         # References modules for details
         assert "modules/" in eval_framework_content or "See " in eval_framework_content

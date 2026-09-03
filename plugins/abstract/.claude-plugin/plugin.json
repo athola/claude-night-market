@@ -32,7 +32,6 @@
     "./skills/modular-skills",
     "./skills/plugin-review",
     "./skills/rules-eval",
-    "./skills/shared-patterns",
     "./skills/skill-authoring",
     "./skills/skill-graph-audit",
     "./skills/skills-eval",

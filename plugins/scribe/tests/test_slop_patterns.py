@@ -1877,3 +1877,74 @@ class TestContrastiveScaffold:
         Rewriting one loses the alternative the reader needed.
         """
         assert _category_hits_including_optional(self.CATEGORY, text) == 0
+
+
+class TestTier5OverExplanation:
+    """Feature: narration wrapped around a fix, in place of the fix.
+
+    A changelog entry, a commit body or a PR description that explains
+    its own reasoning at length costs the reader more than the change
+    it describes. The tells are connectives that promise a consequence
+    and then restate the sentence before them: "in order to", "this
+    ensures that", "the reason for this is".
+
+    Low confidence and opt-in on purpose. "In order to" is correct in a
+    sentence that genuinely states a purpose, and the boundary between
+    useful rationale and narration is a judgment a person makes. This
+    category surfaces candidates; it never rewrites and never gates.
+
+    Sourced from data/languages/en.yaml section tier5.over_explanation.
+    """
+
+    CATEGORY = "over_explanation"
+
+    @pytest.mark.unit
+    def test_category_is_opt_in(self) -> None:
+        """Scenario: a routine sweep does not carry it."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["default_enabled"] is False
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: hits are surfaced for judgment, never auto-rewritten."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_default_sweep_excludes_the_category(self) -> None:
+        """Guard: the merge bar does not move."""
+        patterns = load_language_patterns("en")
+        default_categories = {
+            entry["category"] for entry in get_tier5_patterns(patterns)
+        }
+        assert self.CATEGORY not in default_categories
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "In order to fix the race, the lock now wraps the write.",
+            "This ensures that the cache stays consistent across restarts.",
+            "This means that the exporter now emits one row per session.",
+            "The reason for this is that the probe ran before the daemon.",
+            "The hook was rewritten, which allows us to drop the retry loop.",
+            "It is important to note that the flag defaults to off.",
+        ],
+    )
+    def test_detects_narration(self, text: str) -> None:
+        """Scenario: the connective promises a consequence and restates."""
+        assert _category_hits_including_optional(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The lock now wraps the write, closing the race.",
+            "Run the migration in order.",
+            "The cache stays consistent across restarts.",
+            "Order matters here: the probe must run after the daemon.",
+        ],
+    )
+    def test_a_stated_fix_passes(self, text: str) -> None:
+        """Guard: stating what changed is the target shape, not the tell."""
+        assert _category_hits_including_optional(self.CATEGORY, text) == 0

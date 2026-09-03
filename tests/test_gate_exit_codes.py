@@ -58,6 +58,15 @@ CHECKER_PATTERNS = (
     r"\bsafety\s+check\b",
     r"\bsemgrep\b",
     r"\$\((?:PYTEST|MYPY|RUFF|BANDIT|TY|SAFETY|SEMGREP)\)",
+    # Structure validators and the audit one-liners are gates too. The root
+    # ``validate-all`` loop ran validate_plugin.py over every plugin and
+    # echoed "(validation failed)" in place of failing, and five abstract
+    # audit targets ended in ``|| echo "... completed"``.
+    r"validate_plugin\.py",
+    r"\$\(UV_RUN_PYTHON\) -c",
+    r"slop_score\.py",
+    # Root ``plugin-check`` delegates to each plugin and swallowed the result.
+    r"\$\(MAKE\) -C \S+ (?:plugin-check|test|lint|check)\b",
 )
 CHECKER_RE = re.compile("|".join(CHECKER_PATTERNS))
 
@@ -89,12 +98,66 @@ CONDITION_RE = re.compile(r"^\s*[-@]*\s*(?:if|elif)\b")
 # ``rm -rf .mypy_cache 2>/dev/null || true`` and friends.
 CLEANUP_RE = re.compile(r"^\s*[-@]*\s*rm\b")
 
+# A coverage run whose failure triggers a second, coverage-free pytest run
+# reports the second run's verdict. ``--cov-fail-under`` could never fail
+# ``test-coverage`` in python.mk: the tests passed again without the
+# threshold and the target exited 0.
+FALLBACK_RERUN_RE = re.compile(r"\|\|\s*\{[^}]*\$\(PYTEST\)")
+
+# Targets in python.mk whose recipe runs pytest. A plugin ``test`` target
+# that names one of these, or runs ``$(PYTEST)`` itself, runs its tests.
+PYTEST_TARGETS = frozenset({"test-unit", "unit-tests", "test-coverage", "test-quick"})
+
 
 def _makefiles() -> list[Path]:
-    """Every plugin Makefile plus the shared includes they pull in."""
+    """Every plugin Makefile, the shared includes, and the root Makefile."""
     found = sorted(PLUGINS_DIR.glob("*/Makefile"))
     found += sorted((PLUGINS_DIR / "abstract" / "config" / "make").glob("*.mk"))
+    found.append(REPO_ROOT / "Makefile")
     return found
+
+
+def _targets(makefile: Path) -> dict[str, tuple[list[str], list[str]]]:
+    """Map each target to (prerequisites, recipe lines)."""
+    targets: dict[str, tuple[list[str], list[str]]] = {}
+    current: str | None = None
+    for raw in makefile.read_text().splitlines():
+        if raw.startswith("\t"):
+            if current is not None:
+                targets[current][1].append(raw.strip())
+            continue
+        current = None
+        head = raw.split("#", 1)[0]
+        if (
+            ":" not in head
+            or head.startswith((" ", "."))
+            or "=" in head.split(":", 1)[0]
+        ):
+            continue
+        names, _, prereqs = head.partition(":")
+        if prereqs.startswith(":"):
+            prereqs = prereqs[1:]
+        for name in names.split():
+            targets[name] = (prereqs.split(), [])
+            current = name
+    return targets
+
+
+def _test_target_runs_pytest(makefile: Path) -> bool:
+    """Whether ``make test`` in this plugin reaches a pytest invocation."""
+    targets = _targets(makefile)
+    if "test" not in targets:
+        return True
+    prereqs, recipe = targets["test"]
+    if any("$(PYTEST)" in line or "pytest" in line for line in recipe):
+        return True
+    for name in prereqs:
+        if name in PYTEST_TARGETS:
+            return True
+        _, sub_recipe = targets.get(name, ([], []))
+        if any("$(PYTEST)" in line or "pytest" in line for line in sub_recipe):
+            return True
+    return False
 
 
 def _suppressed_checks(makefile: Path) -> list[tuple[int, str]]:
@@ -105,6 +168,8 @@ def _suppressed_checks(makefile: Path) -> list[tuple[int, str]]:
         if not line or CLEANUP_RE.match(line) or CONDITION_RE.match(line):
             continue
         if CHECKER_RE.search(line) and SUPPRESSION_RE.search(line):
+            offenders.append((number, line.strip()))
+        elif FALLBACK_RERUN_RE.search(line):
             offenders.append((number, line.strip()))
     return offenders
 
@@ -125,6 +190,29 @@ def test_checker_exit_codes_are_not_suppressed(makefile: Path) -> None:
         f"The checker's findings still print, so the recipe looks like it ran, "
         f"but the target exits 0 and the plugin is reported as passing. Either "
         f"let the checker fail the build, or stop running it."
+    )
+
+
+def _python_plugin_makefiles() -> list[Path]:
+    """Plugin Makefiles that pull in python.mk, so they own a test suite."""
+    return [m for m in PLUGINS_DIR.glob("*/Makefile") if "python.mk" in m.read_text()]
+
+
+@pytest.mark.parametrize(
+    "makefile", _python_plugin_makefiles(), ids=lambda p: p.parent.name
+)
+def test_plugin_test_target_runs_its_tests(makefile: Path) -> None:
+    """``make test`` must reach pytest, not only lint and typecheck.
+
+    conserve's ``test: check lint type-check security`` ran no pytest, so
+    38 test files were skipped by root ``make test``, ``make conserve-test``,
+    the pre-commit test hook and the trust attestation, and the plugin
+    printed "All checks passed!" on every run.
+    """
+    assert _test_target_runs_pytest(makefile), (
+        f"{makefile.parent.name}/Makefile: the `test` target neither runs "
+        f"$(PYTEST) nor names a prerequisite that does ({sorted(PYTEST_TARGETS)}), "
+        f"so the plugin's tests never run under `make test`."
     )
 
 

@@ -3,12 +3,11 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
 .PHONY: benchmark check clean debug-variables demo-ai-hygiene-audit \
 	coverage demo-bloat demo-bloat-scan demo-ccr demo-context demo-skills demo-tokens demo-unbloat deps deps-report fix \
-	fix-apply format help install-hooks lint memory-profile mutation-test perf-check plugin-check \
-	security spellcheck status test test-ai-hygiene-audit test-bloat-scan test-context test-skills \
-	test-unbloat token-estimate type-check typecheck validate-all validate-skills
+	fix-apply help install-hooks memory-profile mutation-test perf-check plugin-check \
+	spellcheck status test test-ai-hygiene-audit test-bloat-scan test-context test-skills \
+	test-unbloat token-estimate validate-all validate-skills demo-conserve-commands
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts
@@ -54,7 +53,7 @@ spellcheck: ## Run spell check
 	@echo "Running spell check..."
 	$(UV_RUN) typos $(SRC_DIRS)
 
-test: check lint type-check security ## Run all quality checks
+test: check lint type-check security test-unit ## Run all quality checks
 	@echo "All checks passed!"
 
 # ---------- Hooks ----------
@@ -302,8 +301,7 @@ test-ai-hygiene-audit: ## Test ai-hygiene-audit command (runs hygiene unit tests
 
 test-context: ## Test context optimization (runs context-related unit tests)
 	@echo "Running context optimization tests..."
-	$(PYTEST) tests/unit/skills/test_context_optimization.py tests/unit/agents/test_context_optimizer.py tests/unit/test_context_warning.py -v || \
-		$(PYTEST) tests/ -v -k "context"
+	$(PYTEST) tests/unit/skills/test_context_optimization.py tests/unit/test_context_warning.py -v
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

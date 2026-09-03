@@ -38,12 +38,6 @@ Shared quality standards and metrics for testing across all plugins in the Claud
 - Exploratory testing or spike work
 - Projects with established quality gates that meet requirements
 
-## Table of Contents
-
-1. [Coverage Thresholds](#coverage-thresholds)
-2. [Quality Metrics](#quality-metrics)
-3. [Detailed Topics](#detailed-topics)
-
 ## Coverage Thresholds
 
 | Level | Coverage | Use Case |

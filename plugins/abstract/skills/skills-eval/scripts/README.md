@@ -192,9 +192,8 @@ jobs:
           # Parse and fail if over budget
       - name: Compliance Check
         run: |
-          python skills/skills-eval/scripts/compliance_checker.py \
-            --skill-path path/to/SKILL.md \
-            --standard claude-skills-v2
+          python plugins/abstract/scripts/compliance_checker.py \
+            plugins/<plugin>/skills
 ```
 
 ### In Pre-commit Hooks
@@ -212,9 +211,8 @@ for skill in $(git diff --cached --name-only | grep SKILL.md); do
         --format table
 
     # Run compliance check
-    python skills/skills-eval/scripts/compliance_checker.py \
-        --skill-path "$skill" \
-        --standard claude-skills-v2 || exit 1
+    python plugins/abstract/scripts/compliance_checker.py \
+        "$(dirname "$skill")" || exit 1
 done
 ```
 

@@ -134,6 +134,21 @@ For detailed implementation guidance:
 
 Before deploying, verify that the RED, GREEN, and REFACTOR phases are complete and documented. Frontmatter must be valid, descriptions optimized, and line counts kept under 500 lines. Ensure all module references are valid and at least one concrete example is included.
 
+### Audience Fit
+
+A SKILL.md hub is a `practitioner` document: its reader knows the
+domain and is meeting this repository's take on it. Write the hub
+for that reader, and put anything only a maintainer of the skill
+would want into `modules/`, listed in the `modules:` frontmatter
+so `progressive_loading` keeps it off the hub's token budget.
+That is the same split the 500-line cap already forces, decided
+by reader rather than by line count.
+
+When the skill's reader is not a practitioner, say so in the
+skill's opening line, and when the author has not decided, **ask,
+do not guess**. Tier table, Socratic set, and extraction protocol:
+`scribe:slop-detector` module `audience-targeting.md`.
+
 ### Scribe Validation
 All markdown files must pass scribe validation. This includes a slop scan to ensure a score under 2.5 and doc verification to confirm all file paths and command examples work. Bullet-to-prose ratios must remain under 60% to maintain readability. Use `Skill(scribe:slop-detector)` and `Agent(scribe:doc-verifier)` for these checks.
 
@@ -201,3 +216,5 @@ Verify module paths in SKILL.md are correct
 - [ ] REFACTOR phase documents at least one discovered rationalization pattern and adds an
   explicit counter to the skill (exception table, red-flag list, or banned excuse list).
 - [ ] `python scripts/abstract_validator.py --check` exits 0 and SKILL.md is under 500 lines.
+- [ ] The hub serves one declared reader tier, and material for a
+  different one lives in `modules/` and is listed in the frontmatter.

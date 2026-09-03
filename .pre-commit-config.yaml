@@ -110,6 +110,17 @@ repos:
         verbose: true
 
       # =================================================================
+      # Slop Ratchet - staged markdown may not score worse than HEAD
+      # =================================================================
+
+      - id: slop-ratchet
+        name: Slop Ratchet on Staged Markdown
+        entry: uv run --with pyyaml python scripts/slop_score.py --ratchet HEAD
+        language: system
+        types: [markdown]
+        stages: [pre-commit]
+
+      # =================================================================
       # Plugin Validation Hooks
       # =================================================================
 

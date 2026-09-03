@@ -493,12 +493,11 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.14.13" },
     { name = "scipy", specifier = ">=1.11" },
-    { name = "tiktoken", marker = "extra == 'tokens'", specifier = ">=0.7.0" },
     { name = "ty", marker = "extra == 'dev'", specifier = ">=0.0.1a23" },
     { name = "typos", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "xxhash", marker = "extra == 'fast'", specifier = ">=3.0" },
 ]
-provides-extras = ["tokens", "fast", "semantic", "dev"]
+provides-extras = ["fast", "semantic", "dev"]
 
 [package.metadata.requires-dev]
 dev = [

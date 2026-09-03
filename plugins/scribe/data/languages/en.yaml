@@ -294,6 +294,32 @@ tier5:
       - '\bneedless\s+to\s+say\b'
       - '\bno\s+small\s+(?:feat|task|thing|matter)\b'
       - '\bit(?:\s+is|''s)\s+not\s+hard\s+to\s+see\b'
+  over_explanation:
+    # Narration wrapped around a fix, in place of the fix. A changelog
+    # entry or commit body that explains its own reasoning at length
+    # costs the reader more than the change it describes. The tells are
+    # connectives that promise a consequence and then restate the
+    # sentence before them.
+    #
+    # Gated off by default and low confidence when enabled. "In order
+    # to" is correct in a sentence that genuinely states a purpose, and
+    # the line between useful rationale and narration is a judgment a
+    # person makes. Enable it when auditing changelogs, commit bodies
+    # and PR descriptions, where the tell is real.
+    #
+    # The judgment half belongs to document economy's sentence-weight
+    # check. This is the lexical half only.
+    default_enabled: false
+    score: 1
+    confidence: low
+    ignore_case: true
+    patterns:
+      - '\bin order to\s+\w'
+      - '\bthis ensures that\b'
+      - '\bthis means that\b'
+      - '\bthe reason for this is\b'
+      - '\bwhich allows (?:us|you|it|them) to\b'
+      - '\bit is important to note that\b'
   negative_definition:
     # Behavior described only by what it will not do: "the parser
     # doesn't handle nested blocks", "the exporter does not support

@@ -18,17 +18,6 @@ role: library
 
 Lightweight inline assessment for determining whether a decision point within a command warrants War Room escalation.
 
-## Table of Contents
-
-1. [Purpose](#purpose)
-2. [When Commands Should Invoke This](#when-commands-should-invoke-this)
-3. [Invocation Pattern](#invocation-pattern)
-4. [Checkpoint Flow](#checkpoint-flow)
-5. [Confidence Calculation](#confidence-calculation)
-6. [Profile Thresholds](#profile-thresholds)
-7. [Output Format](#output-format)
-8. [Examples](#examples)
-
 ## Verification
 
 Run `make attune-test` from the repository root to verify checkpoint

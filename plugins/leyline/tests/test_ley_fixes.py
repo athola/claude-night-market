@@ -1,11 +1,13 @@
-"""Tests for LEY-001 and LEY-002 -- exception narrowing fixes."""
+"""Tests for LEY-001, LEY-002 (exception narrowing) and LEY-004."""
 
 from __future__ import annotations
 
 import sqlite3
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+import yaml
 
 from leyline import tokens
 from leyline.sqlite_graph_base import SqliteGraphBase
@@ -110,3 +112,25 @@ class TestLey002TokenEncoderExceptionNarrowing:
         with patch.object(tokens, "tiktoken", mock_tk):
             with pytest.raises(RuntimeError, match="internal tiktoken error"):
                 tokens._get_encoder()
+
+
+class TestLey004CostTrackingOwner:
+    """LEY-004: usage-logging records costs; quota-management does not
+    also claim cost-tracking.
+    """
+
+    _SKILLS = Path(__file__).resolve().parents[1] / "skills"
+
+    def _frontmatter(self, skill: str) -> dict:
+        text = (self._SKILLS / skill / "SKILL.md").read_text(encoding="utf-8")
+        return yaml.safe_load(text.split("---")[1])
+
+    def test_quota_management_does_not_claim_cost_tracking(self) -> None:
+        meta = self._frontmatter("quota-management")
+        assert "cost-tracking" not in meta["tags"]
+        assert "cost-tracking" not in meta["usage_patterns"]
+
+    def test_usage_logging_owns_cost_tracking(self) -> None:
+        meta = self._frontmatter("usage-logging")
+        assert "cost-tracking" in meta["usage_patterns"]
+        assert "cost-tracking" in meta["provides"]["patterns"]

@@ -11,8 +11,9 @@ estimated_tokens: 600
 cost or cut.**
 
 This module adds **document-level** checks to the slop
-detector. The other modules score sentences and words; this
-one scores whether the document earns its existence at all.
+detector. The other modules score sentences and words. This
+one scores whether the document earns its existence at all,
+and for whom.
 
 ## When to apply
 
@@ -26,7 +27,7 @@ so optimize for your throughput. A skill file loaded 50×
 per day absorbs hours of reader-time per week, so optimize
 for theirs.
 
-## The three checks
+## The four checks
 
 ### Check 1: Thesis-first
 
@@ -95,9 +96,43 @@ Everything else that repeats is bloat:
 - "TL;DR" boxes that duplicate the conclusion.
 - Section summaries that just re-list the section.
 
+### Check 4: Audience fit
+
+Score this check against a **declared** tier: `newcomer`,
+`practitioner`, `expert`, or a one-line `persona`. When the
+document names no reader, ask for one. Do not infer a tier
+from the prose, because a document written for nobody in
+particular reads plausibly for every tier and serves none.
+
+Read each section against the tier and assign one of four
+verdicts: keep what the reader needs before they can act,
+link what they need later, extract what only a higher tier
+wants, delete what no tier wants.
+
+Extraction is the verdict that gets skipped. Rationale a
+`newcomer` cannot use is not weak content, it is content
+answering a question that reader has not asked yet. It moves
+to `modules/` for a skill or `docs/deep-dive/<topic>.md` for
+a repo document, linked from the parent's lead.
+
+Full tier table, the Socratic set for eliciting a tier, the
+extraction protocol, and the creative-writing carve-out:
+module `audience-targeting.md`. That module is the pattern
+source. Do not restate it here.
+
+**Failure modes:**
+
+- One document serving `newcomer` and `expert` at once. It
+  reads as thorough and teaches neither.
+- Cutting expert material to hit a tier instead of moving it.
+- Declaring a tier after drafting, to ratify what was written.
+
 ## The reader-time budget
 
 Estimate before you write. Then check after.
+
+Tier and budget are separate inputs. The tier says what to
+keep. The budget says how much polish the keeping is worth.
 
 | Audience | Reads | Time per read | Total budget |
 |---|---|---|---|
@@ -119,27 +154,27 @@ to read is the failure mode worth catching.
 
 For each check, score 0-2:
 
-| Score | Thesis-first | Sentence weight | Repetition |
-|---|---|---|---|
-| 0 | No identifiable thesis | <50% sentences earn weight | No thesis repetition; ambient repetition |
-| 1 | Thesis present but buried or diluted | 50-80% earn weight | Some thesis repetition; some ambient |
-| 2 | Thesis stated in lead, single and clear | >80% earn weight | Thesis repeated 3+ times; ambient cut |
+| Score | Thesis-first | Sentence weight | Repetition | Audience fit |
+|---|---|---|---|---|
+| 0 | No identifiable thesis | <50% sentences earn weight | No thesis repetition, ambient repetition | No tier declared |
+| 1 | Thesis present but buried or diluted | 50-80% earn weight | Some thesis repetition, some ambient | Tier declared, some sections serve another |
+| 2 | Thesis stated in lead, single and clear | >80% earn weight | Thesis repeated 3+ times, ambient cut | Tier declared, off-tier content extracted and linked |
 
-**Document economy score: sum / 6.**
+**Document economy score: sum / 8.**
 
 | Score | Action |
 |---|---|
-| 5-6 | Ship |
-| 3-4 | Revise: identify the cuts |
-| 0-2 | Restart from the thesis |
+| 7-8 | Ship |
+| 4-6 | Revise: identify the cuts |
+| 0-3 | Restart from the thesis and the reader |
 
 A document can have a clean sentence-level slop score
-(0-1.0) and still score 0/6 here. Sentence cleanliness
+(0-1.0) and still score 0/8 here. Sentence cleanliness
 is necessary, not sufficient.
 
 ## Worked example
 
-**Before** (score: 1/6):
+**Before** (score: 1/8):
 
 > # Logging Configuration Guide
 >
@@ -164,10 +199,15 @@ Problems:
 - The "we will look at" sentence is a TOC.
 - "By the end of this guide" is filler.
 - The Log Levels section restates the heading.
+- No reader is named, so "there are many ways" cannot be
+  narrowed to the one way this reader should use.
 
-**After** (score: 5/6):
+**After** (score: 7/8):
 
 > # Logging Configuration
+>
+> *For a service owner wiring up logging here for the first
+> time (`newcomer`).*
 >
 > **Log what you would page someone for. Drop the rest.**
 >
@@ -184,7 +224,15 @@ Problems:
 > a user could see. DEBUG and FATAL are mostly traps:
 > DEBUG ships verbose noise to production, FATAL implies
 > the process should die but rarely does.
+>
+> Why the level names do not map to syslog severities:
+> `docs/deep-dive/log-level-mapping.md` (for readers
+> already operating the aggregator).
 > [...]
+
+The declared tier is what makes the cuts decidable. The
+syslog mapping was not wrong, it was `expert` material in a
+`newcomer` document, so it moved rather than died.
 
 The thesis ("log what you would page someone for") shows
 up in the lead, frames the level explanations, and would
