@@ -671,3 +671,29 @@ class TestValidateFrontmatterUnreadable:
 
         # Restore permissions for cleanup
         rule_file.chmod(0o644)
+
+
+class TestRetiredPatterns:
+    """bounded-autonomy.md retires the thought-versus-reality table.
+
+    Nothing enforced the retirement, so bounded-discovery.md kept one and
+    four skills copied the shape. A rule that pairs a thought with why it
+    is wrong forecloses the case where the thought was right, which is the
+    only case that matters.
+    """
+
+    def test_rationalization_table_is_flagged(self) -> None:
+        """A `| Thought | Reality |` header costs points and names the retirement."""
+        content = (
+            "Do the thing.\n\n| Thought | Reality |\n|---|---|\n"
+            '| "I need more context" | You have enough. |\n' + "word " * 20
+        )
+        verdict = validate_content_quality(content)
+        assert any("rationalization table" in w.lower() for w in verdict["warnings"])
+        assert verdict["score"] < 25
+
+    def test_plain_constraints_are_not_flagged(self) -> None:
+        """Stating the constraint without the table shape passes."""
+        content = "Read at most eight files before writing. " * 5
+        verdict = validate_content_quality(content)
+        assert not any("rationalization" in w.lower() for w in verdict["warnings"])
