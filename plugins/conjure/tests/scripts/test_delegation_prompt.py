@@ -46,9 +46,14 @@ class TestPromptArgv:
         assert _prompt_argv(service, "-x") == ["--prompt=-x"]
         assert _prompt_argv(service, "hi") == ["-p", "hi"]
 
-    def test_flag_provider_without_a_long_flag_cannot_escape(self) -> None:
-        """There is no third escape form. A provider that declares no long flag hands the dash prompt through unprotected, and that is recorded rather than invented around."""
-        assert _prompt_argv(_service(prompt_flag="-p"), "-x") == ["-p", "-x"]
+    def test_flag_provider_without_a_long_flag_refuses_a_dash_prompt(self) -> None:
+        """A refusal that names the missing config, never a bare prompt.
+
+        No third escape form exists, and a bare dash prompt is read by the
+        CLI as its own flag and answered with a help page at exit 0.
+        """
+        with pytest.raises(ValueError, match="prompt_long_flag"):
+            _prompt_argv(_service(prompt_flag="-p"), "-x")
 
 
 class TestContextFiles:

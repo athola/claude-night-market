@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 import subprocess
 from pathlib import Path
@@ -45,10 +46,14 @@ def load_weights(gauntlet_dir: str | Path | None = None) -> dict[str, float]:
         for key in _DEFAULT_WEIGHTS:
             if key in user_weights:
                 weights[key] = float(user_weights[key])
-    except (json.JSONDecodeError, OSError, TypeError, ValueError):
-        pass
+    except (json.JSONDecodeError, OSError, TypeError, ValueError) as exc:
+        # Defaults still apply, but a typo in the operator's config must not
+        # look identical to having no config at all.
+        logger.warning("Ignoring malformed risk_weights in %s: %s", config_path, exc)
     return weights
 
+
+logger = logging.getLogger(__name__)
 
 _HUNK_PATTERN = re.compile(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 _FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+)$")

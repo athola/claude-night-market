@@ -171,6 +171,14 @@ def _prompt_argv(service: ServiceConfig, prompt: str) -> list[str]:
     if needs_escape and service.prompt_long_flag:
         return [f"{service.prompt_long_flag}={prompt}"]
 
+    if needs_escape:
+        # A flag provider with no long form has no third escape. Sending the
+        # prompt bare reproduces the failure this function exists to stop:
+        # the CLI reads it as its own flag and prints help at exit 0.
+        raise ValueError(
+            f"{service.name}: a dash-leading prompt cannot be escaped without "
+            "prompt_long_flag; set it in the service config"
+        )
     return [service.prompt_flag, prompt]
 
 
