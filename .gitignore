@@ -130,7 +130,6 @@ plugins/memory-palace/data/intake_queue.jsonl
 plugins/memory-palace/data/state/
 plugins/memory-palace/data/sessions/
 plugins/memory-palace/data/telemetry/
-plugins/memory-palace/.demo-palaces/
 plugins/memory-palace/reports/
 
 # Wiki-backed knowledge corpus (local clone, not committed to main repo)

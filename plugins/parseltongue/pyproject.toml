@@ -40,7 +40,6 @@ dev = [
     "mypy>=1.11.0,<2",
     "pre-commit>=4.0.0",
     "bandit>=1.7.0",
-    "safety>=2.0.0",
 ]
 docs = [
     "mkdocs>=1.5.0",

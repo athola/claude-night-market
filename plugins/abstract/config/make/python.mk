@@ -27,6 +27,8 @@ COV_REPORTS ?= --cov-report=term-missing --cov-report=html
 
 COV_ARGS := $(foreach dir,$(COV_DIRS),--cov=$(dir))
 
+.PHONY: format lint type-check typecheck security test-unit unit-tests test-coverage test-quick
+
 format: ## Format code with ruff
 	@echo "Formatting code..."
 	@$(RUFF) format $(RUFF_TARGETS) || { echo "[WARN] Ruff format failed"; exit 1; }

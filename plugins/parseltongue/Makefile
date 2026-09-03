@@ -3,14 +3,13 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
 .PHONY: all async-patterns-tests benchmark ci clean coverage coverage-check coverage-report \
-	debug-variables demo-analyze-tests demo-async demo-check-async demo-perf demo-run-profiler \
-	demo-skills demo-testing dev dev-install format help install lint memory-profile mutation-test \
-	plugin-check python-tests quality-check security status test test-analyze-tests test-async \
+	debug-variables demo-analyze-tests demo-check-async demo-run-profiler \
+	demo-skills dev dev-install help install mutation-test \
+	plugin-check python-tests quality-check status test test-analyze-tests test-async \
 	test-check-async test-duplicates test-edge-case test-file test-fixtures test-integration \
 	test-parallel test-pattern test-perf test-performance test-run-profiler \
-	test-structure test-testing test-unit testing-guidance-tests type-check typecheck
+	test-structure test-testing testing-guidance-tests demo-parseltongue-commands demo-tests demo-coverage demo-lint
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src/parseltongue tests
@@ -19,7 +18,6 @@ BANDIT_TARGETS := src/parseltongue
 COV_DIRS := src/parseltongue
 PYTEST_TARGETS := tests/
 TEST_UNIT_ARGS := -v -m unit
-SECURITY_EXTRA = $(UV_RUN) safety check
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
@@ -107,13 +105,6 @@ benchmark: ## Run performance benchmarks
 		elif [ $$status -ne 0 ]; then \
 			exit $$status; \
 		fi; \
-	fi
-
-memory-profile: ## Profile memory usage
-	@if $(UV_RUN) python -c "import memory_profiler" 2>/dev/null; then \
-		$(UV_RUN) python -m memory_profiler tests/performance/memory_usage.py; \
-	else \
-		echo "Not applicable: memory_profiler is not installed"; \
 	fi
 
 mutation-test: ## Run mutation testing

@@ -15,8 +15,9 @@ PLUGINS_DIR := plugins
 # All plugin directories for iteration (auto-detected)
 PLUGIN_MAKEFILES := $(wildcard $(PLUGINS_DIR)/*/Makefile)
 ALL_PLUGINS := $(patsubst %/Makefile,%,$(PLUGIN_MAKEFILES))
-# GNU coreutils timeout is not on stock macOS; run unbounded where it is absent.
-TIMEOUT_180 := $(if $(shell command -v timeout 2>/dev/null),timeout 180,)
+# GNU coreutils timeout is not on stock macOS. perl is, and alarm bounds the
+# child the same way, so each per-plugin check stays time-limited everywhere.
+TIMEOUT_180 := $(if $(shell command -v timeout 2>/dev/null),timeout 180,perl -e 'alarm shift; exec @ARGV' 180)
 # GNU coreutils sha256sum is not on stock macOS; shasum -a 256 is everywhere.
 SHA256 := $(if $(shell command -v sha256sum 2>/dev/null),sha256sum,shasum -a 256)
 ALL_PLUGIN_NAMES := $(notdir $(ALL_PLUGINS))
@@ -25,7 +26,7 @@ ALL_PLUGIN_NAMES := $(notdir $(ALL_PLUGINS))
 # This replaces ~70 lines of manual per-plugin delegation with a single
 # template that auto-covers any plugin that has a Makefile.
 define plugin_delegation
-.PHONY: $(1) $(1)-%
+.PHONY: $(1)
 $(1)-%:
 	@$$(MAKE) -C $$(PLUGINS_DIR)/$(1) $$*
 $(1):
@@ -33,7 +34,8 @@ $(1):
 endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
-.PHONY: help all test lint typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan
+.PHONY: help all test lint fix typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan \
+	test-ecosystem check-json-utils check-discussions writeback-discussions validate-skills analyze-skills
 
 # Default target
 all: lint test ## Run lint and test across all plugins
@@ -90,29 +92,32 @@ test-ecosystem: ## Run the root ecosystem suite (tests/): cross-plugin metadata 
 	@echo ">>> Running root ecosystem tests (tests/)..."
 	@./scripts/without-git-env.sh uv run --extra dev python -m pytest tests/ --tb=short --quiet
 
-lint: ## Run linting on all plugins (ALL code, not just changed)
+lint: ## Check linting on all plugins without rewriting anything (see `fix`)
 	@echo "=== Running Lint on ALL Code ==="
 	@echo ""
-	@echo ">>> Running ruff format on plugins/..."
-	@uv run ruff format --config pyproject.toml plugins/ || (echo "Ruff format failed" && exit 1)
-	@echo "Ruff format passed"
+	@echo ">>> Checking ruff format on plugins/..."
+	@uv run ruff format --check --config pyproject.toml plugins/ || (echo "Ruff format check failed; run 'make fix'" && exit 1)
+	@echo "Ruff format check passed"
 	@echo ""
-	@echo ">>> Running ruff check with auto-fix on plugins/..."
+	@echo ">>> Running ruff check on plugins/..."
 	@# No --config: ruff resolves each file against its own plugin's
 	@# pyproject.toml, which extends the root floor. That yields the union
 	@# of repo-wide and plugin-specific rules rather than the root subset.
-	@uv run ruff check --fix plugins/ || (echo "Ruff check failed" && exit 1)
+	@# No --fix: a check that rewrites the tree cannot report the diff it
+	@# was asked to find, so the mutating pair lives under `fix`.
+	@uv run ruff check plugins/ || (echo "Ruff check failed; run 'make fix'" && exit 1)
 	@echo "Ruff check passed"
-	@echo ""
-	@echo ">>> Running ruff format again (to fix any formatting from check)..."
-	@uv run ruff format --config pyproject.toml plugins/ || (echo "Ruff format failed" && exit 1)
-	@echo "Ruff format passed"
 	@echo ""
 	@echo ">>> Running bandit security checks on plugins/..."
 	@uv run bandit --quiet -c pyproject.toml -r plugins/ || (echo "Bandit failed" && exit 1)
 	@echo "Bandit passed"
 	@echo ""
 	@echo "=== Lint Complete (All Code Checked) ==="
+
+fix: ## Rewrite plugins/ with ruff format and ruff check --fix (the mutating pair)
+	@uv run ruff format --config pyproject.toml plugins/
+	@uv run ruff check --fix plugins/
+	@uv run ruff format --config pyproject.toml plugins/
 
 typecheck: ## Run type checking on all plugins (ALL code, not just changed)
 	@./scripts/run-plugin-typecheck.sh --all

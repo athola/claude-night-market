@@ -3,11 +3,10 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
 .PHONY: benchmark ci clean debug-variables demo-close-issue demo-create-issue demo-initiatives \
-	demo-skills demo-tracking demo-update-labels deps format help install-hooks lint mutation-test \
-	plugin-check security status test test-bdd test-close-issue test-coverage test-create-issue \
-	test-integration test-unit test-update-labels type-check typecheck
+	demo-skills demo-tracking demo-update-labels deps help install-hooks mutation-test \
+	plugin-check status test test-bdd test-close-issue test-create-issue \
+	test-integration test-update-labels demo-minister-commands
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests scripts
@@ -92,10 +91,19 @@ mutation-test: ## Run mutation testing
 	fi
 
 benchmark: ## Run performance benchmarks
-	@if $(PYTEST) --benchmark-only --benchmark-sort=mean 2>/dev/null; then \
-		echo "Benchmarks complete"; \
+	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
+	@# real benchmark failure fails the target instead of being reported as a
+	@# missing plugin. pytest exit 5 means nothing was collected, not failure.
+	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
+		echo "Not applicable: pytest-benchmark is not installed"; \
 	else \
-		echo "pytest-benchmark not installed (pip install pytest-benchmark)"; \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
+		status=$$?; \
+		if [ $$status -eq 5 ]; then \
+			echo "Not applicable: no benchmark tests are defined"; \
+		elif [ $$status -ne 0 ]; then \
+			exit $$status; \
+		fi; \
 	fi
 
 # ---------- Demo/Dogfood Targets ----------

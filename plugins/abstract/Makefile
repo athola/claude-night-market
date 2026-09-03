@@ -5,20 +5,18 @@
 #   This Makefile is self-contained, but reusable components are in config/make/:
 #   - config/make/common.mk  : Variables, tool detection, helper macros
 #   - config/make/python.mk  : Python quality targets (format, lint, test)
-#   - config/make/docs.mk    : Documentation targets (docs, docs-serve, docs-check)
 #
 #   To use modular includes in your own projects:
 #     include config/make/common.mk
 #     include config/make/python.mk
 
-.PHONY:
 .PHONY: analyze-skill audit-all audit-skill check check-changelog check-compliance ci-check clean \
 	debug-variables demo-analyzer demo-skills demo-tokens demo-validate-plugin demo-validation \
-	demo-verify dev-setup docs docs-check docs-clean docs-serve \
-	estimate-tokens eval-report format generate-wrappers help improve-skill install-hooks lint \
-	mutation-test plugin-check security status test test-coverage test-quick test-unit \
-	test-validate-plugin test-wrappers type-check typecheck unit-tests update-changelog \
-	validate-migration validate-plugin validate-self validate-skill-descriptions verify-install
+	demo-verify dev-setup \
+	estimate-tokens eval-report help improve-skill install-hooks \
+	mutation-test plugin-check status test \
+	test-validate-plugin update-changelog \
+	validate-plugin validate-self validate-skill-descriptions verify-install demo-abstract-commands
 
 # Plugin-specific variables (must be before include)
 ABSTRACT_DIR := .
@@ -35,6 +33,9 @@ TEST_QUICK_ARGS := -v --no-cov --tb=short
 # Include shared configuration from abstract plugin (self)
 -include $(ABSTRACT_DIR)/config/make/common.mk
 -include $(ABSTRACT_DIR)/config/make/python.mk
+
+# Optional tool detection, used only by install-hooks
+HAS_PRE_COMMIT := $(shell command -v pre-commit 2>/dev/null)
 
 # Prevent parallel execution for targets that share resources
 
@@ -134,30 +135,6 @@ eval-report: ## Generate detailed evaluation report
 	@echo "Generating detailed evaluation report..."
 	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('.')); result = auditor.audit_skills(); lines = ['# Skills Evaluation Report', f'Total Skills: {result.get(\"total_skills\", 0)}', f'Average Score: {result.get(\"average_score\", 0):.1f}/100']; Path('evaluation-report.md').write_text('\n'.join(lines)); print('Report saved to evaluation-report.md')"
 
-# DOCUMENTATION
-docs: ## Build HTML documentation
-ifndef HAS_SPHINX
-	$(error sphinx is required for documentation. Install via: uv pip install sphinx sphinx-rtd-theme)
-endif
-	@echo "Building documentation..."
-	@cd docs && $(SPHINXBUILD) -b html source $(@F)
-
-docs-clean: ## Clean documentation build
-	@echo "Cleaning documentation..."
-	@rm -rf $(DOCS_BUILD_DIR)
-
-docs-serve: ## Serve documentation locally (http://localhost:8000)
-	@test -d $(DOCS_BUILD_DIR)/html || { echo "[WARNING] Documentation not built. Run 'make docs' first."; exit 1; }
-	@echo "Serving documentation at http://localhost:8000"
-	@cd $(DOCS_BUILD_DIR)/html && $(PYTHON) -m http.server 8000
-
-docs-check: ## Check documentation links
-ifndef HAS_SPHINX
-	$(error sphinx is required for documentation. Install via: uv pip install sphinx sphinx-rtd-theme)
-endif
-	@echo "Checking documentation links..."
-	@cd docs && $(SPHINXBUILD) -b linkcheck source build/linkcheck || true
-
 # GOVERNANCE
 update-changelog: ## Update CHANGELOG from git commits
 	@echo "Changelog updates managed via sanctum:update-version skill"
@@ -169,7 +146,7 @@ check-changelog: ## Validate CHANGELOG format
 dev-setup: ## Complete development environment setup
 	@echo "Setting up development environment..."
 	@$(UV) sync --dev || true
-	@make install-hooks
+	@$(MAKE) install-hooks
 	@echo "[OK] Development environment ready!"
 	@echo ""
 	@echo "Next steps:"
@@ -179,11 +156,11 @@ dev-setup: ## Complete development environment setup
 
 ci-check: ## Run all CI checks locally
 	@echo "Running CI checks locally..."
-	@make format
-	@make lint
-	@make typecheck
-	@make security
-	@make unit-tests
+	@$(MAKE) format
+	@$(MAKE) lint
+	@$(MAKE) typecheck
+	@$(MAKE) security
+	@$(MAKE) unit-tests
 	@echo "[OK] All CI checks passed!"
 
 verify-install: ## Verify installation works correctly
@@ -213,31 +190,6 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
 	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
-# WRAPPER TESTING AND VALIDATION
-test-wrappers: ## Run all wrapper-related tests
-	@echo "Running wrapper tests..."
-	@$(PYTEST) tests/test_*_wrapper.py -v --tb=short || { echo "[WARNING] Wrapper tests failed"; exit 1; }
-
-validate-migration: ## Validate migration compatibility and analyze overlaps
-	@echo "Running migration validation..."
-	@if [ -f "$(SCRIPTS_DIR)/compatibility_validator.py" ]; then \
-		$(UV_RUN_PYTHON) "$(SCRIPTS_DIR)/compatibility_validator.py" --all; \
-	fi
-	@if [ -f "$(SCRIPTS_DIR)/migration_analyzer.py" ]; then \
-		$(UV_RUN_PYTHON) "$(SCRIPTS_DIR)/migration_analyzer.py" --all; \
-	fi
-	@echo "[OK] Migration validation completed"
-
-generate-wrappers: ## Generate wrapper boilerplate for detected functionality
-	@echo "Generating wrappers..."
-	@if [ -f "$(SCRIPTS_DIR)/wrapper_generator.py" ]; then \
-		$(UV_RUN_PYTHON) "$(SCRIPTS_DIR)/wrapper_generator.py" --auto-detect; \
-	else \
-		echo "[WARNING] wrapper_generator.py not found in $(SCRIPTS_DIR)/"; \
-	fi
-	@echo "[OK] Wrapper generation completed"
-
-# ADVANCED TESTING
 mutation-test: ## Run mutation testing
 	@if command -v mutmut >/dev/null 2>&1; then \
 		mutmut run --paths-to-mutate src/abstract --tests-dir tests/; \

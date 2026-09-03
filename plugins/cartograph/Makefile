@@ -1,16 +1,14 @@
-# Herald Plugin Makefile
-# Standalone notification system
+# Cartograph Plugin Makefile
+# Codebase visualization and diagram generation
 
-.PHONY: help deps fix check clean \
-	status debug-variables \
-	test
+.PHONY: help deps fix check clean status debug-variables test
 
 # Plugin-specific variables (must be before include)
-SRC_DIRS := scripts tests
-RUFF_TARGETS := scripts/ tests/
-MYPY_TARGETS := scripts/
-BANDIT_TARGETS := scripts/
-COV_DIRS := scripts
+SRC_DIRS := hooks tests
+RUFF_TARGETS := hooks/ tests/
+MYPY_TARGETS := hooks/
+BANDIT_TARGETS := hooks/
+COV_DIRS := hooks
 PYTEST_TARGETS := tests/
 
 ABSTRACT_DIR := ../abstract
@@ -21,7 +19,7 @@ ABSTRACT_DIR := ../abstract
 # test-coverage, test-quick are provided by python.mk
 
 help: ## Show this help message
-	@echo "Herald Plugin - Make Targets"
+	@echo "Cartograph Plugin - Make Targets"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 deps: ## Install dependencies
@@ -40,8 +38,8 @@ clean: ## Clean artifacts
 	rm -rf .venv .uv-cache __pycache__ .mypy_cache .pytest_cache
 
 status: ## Show project overview
-	@echo "Herald Plugin Status:"
-	@echo "Scripts:  $$(find scripts/ -name '*.py' 2>/dev/null | wc -l)"
+	@echo "Cartograph Plugin Status:"
+	@echo "Hooks:    $$(find hooks/ -name '*.py' 2>/dev/null | wc -l)"
 	@echo "Tests:    $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 
 debug-variables: ## Show Makefile variable values (for debugging)
@@ -57,6 +55,6 @@ Makefile.local:;
 -include Makefile.local
 
 %::
-	@echo "Error: Unknown target '$$@'"
+	@echo "Error: Unknown target '$@'"
 	@echo "Run 'make help' to see available commands"
 	@exit 1

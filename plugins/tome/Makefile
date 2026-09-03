@@ -3,11 +3,11 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: help deps test test-unit test-coverage lint format type-check typecheck \
-	security clean ci status debug-variables fix \
+.PHONY: help deps test \
+	clean ci status debug-variables fix \
 	demo-classify demo-plan demo-skills demo-channels plugin-check \
 	test-channels test-synthesis test-output \
-	mutation-test benchmark memory-profile metrics
+	mutation-test benchmark memory-profile metrics frontier-matrix verify-canaries
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests

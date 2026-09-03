@@ -20,7 +20,9 @@ endif
 PYTHON ?= python3
 UV ?= uv
 
-# Verify required tools are available (fail fast with actionable errors)
+# Verify required tools are available (fail fast with actionable errors).
+# help, clean and status need neither tool, so skip the probes for them.
+ifneq ($(filter-out help clean status,$(MAKECMDGOALS)),)
 ifeq ($(shell command -v $(UV) 2>/dev/null),)
 $(error uv is required but not installed. Install via: curl -LsSf https://astral.sh/uv/install.sh | sh)
 endif
@@ -28,10 +30,7 @@ endif
 ifeq ($(shell command -v $(PYTHON) 2>/dev/null),)
 $(error $(PYTHON) is required but not installed. Install Python 3.10+ from python.org or your package manager)
 endif
-
-# Optional tool detection (warn but don't fail)
-HAS_PRE_COMMIT := $(shell command -v pre-commit 2>/dev/null)
-HAS_SPHINX := $(shell $(PYTHON) -c "import sphinx" 2>/dev/null && echo yes)
+endif
 
 # Tool commands - abstracted for single-point-of-change
 UV_RUN := $(UV) run
@@ -40,7 +39,6 @@ PYTEST := $(UV_RUN) pytest
 MYPY := $(UV_RUN) mypy
 RUFF := $(UV_RUN) ruff
 BANDIT := $(UV_RUN) bandit
-SPHINXBUILD := $(UV_RUN) sphinx-build
 
 # Directories (configurable for portability)
 BUILD_DIR ?= build
