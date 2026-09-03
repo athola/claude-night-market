@@ -15,6 +15,8 @@ PLUGINS_DIR := plugins
 # All plugin directories for iteration (auto-detected)
 PLUGIN_MAKEFILES := $(wildcard $(PLUGINS_DIR)/*/Makefile)
 ALL_PLUGINS := $(patsubst %/Makefile,%,$(PLUGIN_MAKEFILES))
+# GNU coreutils timeout is not on stock macOS; run unbounded where it is absent.
+TIMEOUT_180 := $(if $(shell command -v timeout 2>/dev/null),timeout 180,)
 ALL_PLUGIN_NAMES := $(notdir $(ALL_PLUGINS))
 
 # Generate delegation targets dynamically for all plugins with Makefiles.
@@ -143,21 +145,21 @@ supply-chain-scan: ## Scan lockfiles for known compromised package versions and 
 
 validate-all: ## Validate all plugin structures
 	@echo "=== Validating Plugin Structures ==="
-	@for plugin in $(ALL_PLUGINS); do \
+	@fail=0; for plugin in $(ALL_PLUGINS); do \
 		echo ""; \
 		echo ">>> Validating $$plugin:"; \
-		python3 plugins/abstract/scripts/validate_plugin.py $$plugin || echo "  (validation failed)"; \
-	done
+		python3 plugins/abstract/scripts/validate_plugin.py $$plugin || fail=1; \
+	done; exit $$fail
 
 plugin-check: ## Run demo/dogfood checks across all plugins
 	@echo "=== Running Plugin Checks (Dogfooding) ==="
-	@for plugin in $(ALL_PLUGINS); do \
+	@fail=0; for plugin in $(ALL_PLUGINS); do \
 		if [ -f "$$plugin/Makefile" ] && grep -q "^plugin-check:" "$$plugin/Makefile"; then \
 			echo ""; \
 			echo ">>> $$plugin:"; \
-			timeout 180 $(MAKE) -C $$plugin plugin-check 2>/dev/null || echo "  (plugin-check failed or timed out)"; \
+			$(TIMEOUT_180) $(MAKE) -C $$plugin plugin-check || { echo "  (plugin-check failed or timed out)"; fail=1; }; \
 		fi; \
-	done
+	done; exit $$fail
 	@echo ""
 	@echo "=== All Plugin Checks Complete ==="
 

@@ -113,27 +113,27 @@ estimate-tokens: ## Estimate token usage (TARGET=<path>)
 audit-skill: ## detailed skill audit (TARGET=<path>)
 	$(call require_path,$@)
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = auditor.audit_skills(); print(f'Score: {result.get(\"average_score\", 0):.1f}/100')" || echo "Audit completed with result in audit_results.json"
+	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = auditor.audit_skills(); print(f'Score: {result.get(\"average_score\", 0):.1f}/100')"
 
 improve-skill: ## Generate improvement plan (TARGET=<path>)
 	$(call require_path,$@)
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import ImprovementSuggester; from pathlib import Path; suggester = ImprovementSuggester(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = suggester.analyze_skill(Path('$(TARGET)').stem); print(f'Issues: {len(result.get(\"issues\", []))}'); print(f'Suggestions: {len(result.get(\"suggestions\", []))}')" || echo "Improvement suggestions completed"
+	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import ImprovementSuggester; from pathlib import Path; suggester = ImprovementSuggester(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = suggester.analyze_skill(Path('$(TARGET)').stem); print(f'Issues: {len(result.get(\"issues\", []))}'); print(f'Suggestions: {len(result.get(\"suggestions\", []))}')"
 
 check-compliance: ## Check standards compliance (TARGET=<path>)
 	$(call require_path,$@)
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import ComplianceChecker; from pathlib import Path; checker = ComplianceChecker(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = checker.check_compliance(); print(f'Compliant: {result.get(\"compliant\", False)}'); print(f'Total Skills: {result.get(\"total_skills\", 0)}')" || echo "Compliance check completed"
+	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import ComplianceChecker; from pathlib import Path; checker = ComplianceChecker(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = checker.check_compliance(); print(f'Compliant: {result.get(\"compliant\", False)}'); print(f'Total Skills: {result.get(\"total_skills\", 0)}')"
 
 # EVALUATION
 audit-all: ## Audit all skills in ~/.claude/
 	@echo "Auditing all skills in ~/.claude/..."
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('~/.claude').expanduser()); result = auditor.audit_skills(); print(f'Total: {result.get(\"total_skills\", 0)}'); print(f'Average Score: {result.get(\"average_score\", 0):.1f}/100'); print(f'Well-structured: {result.get(\"well_structured\", 0)}')" || echo "Audit completed"
+	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('~/.claude').expanduser()); result = auditor.audit_skills(); print(f'Total: {result.get(\"total_skills\", 0)}'); print(f'Average Score: {result.get(\"average_score\", 0):.1f}/100'); print(f'Well-structured: {result.get(\"well_structured\", 0)}')"
 
 eval-report: ## Generate detailed evaluation report
 	@echo "Generating detailed evaluation report..."
-	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('.')); result = auditor.audit_skills(); lines = ['# Skills Evaluation Report', f'Total Skills: {result.get(\"total_skills\", 0)}', f'Average Score: {result.get(\"average_score\", 0):.1f}/100']; Path('evaluation-report.md').write_text('\n'.join(lines)); print('Report saved to evaluation-report.md')" || echo "Report generated with fallback"
+	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('.')); result = auditor.audit_skills(); lines = ['# Skills Evaluation Report', f'Total Skills: {result.get(\"total_skills\", 0)}', f'Average Score: {result.get(\"average_score\", 0):.1f}/100']; Path('evaluation-report.md').write_text('\n'.join(lines)); print('Report saved to evaluation-report.md')"
 
 # DOCUMENTATION
 docs: ## Build HTML documentation
@@ -189,8 +189,8 @@ ci-check: ## Run all CI checks locally
 
 verify-install: ## Verify installation works correctly
 	@echo "Verifying installation..."
-	@$(UV_RUN_PYTHON) -c "import abstract; print('[OK] Abstract module imports successfully')" || echo "[WARNING] Abstract module import failed"
-	@$(UV_RUN_PYTHON) -c "from abstract.cli_framework import AbstractCLI; print('[OK] CLI framework imports successfully')" || echo "[WARNING] CLI framework import failed"
+	@$(UV_RUN_PYTHON) -c "import abstract; print('[OK] Abstract module imports successfully')"
+	@$(UV_RUN_PYTHON) -c "from abstract.cli_framework import AbstractCLI; print('[OK] CLI framework imports successfully')"
 	@$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --version 2>/dev/null && echo "[OK] CLI tools work correctly" || echo "[WARNING] CLI tools may need adjustment"
 	@echo "[OK] Installation verification complete"
 
@@ -293,7 +293,7 @@ demo-validate-plugin: ## Demo validate-plugin command (LIVE)
 	@echo ""
 	@echo "Running validate-plugin on abstract plugin..."
 	@echo ""
-	$(UV_RUN) python scripts/validate_plugin.py --target . || echo 'Plugin validator: Checks plugin structure compliance' || echo "  [INFO] Tool execution completed"
+	$(UV_RUN) python scripts/validate_plugin.py .
 	@echo ""
 	@echo "Use /validate-plugin for full workflow."
 

@@ -54,7 +54,7 @@ spellcheck: ## Run spell check
 	@echo "Running spell check..."
 	$(UV_RUN) typos $(SRC_DIRS)
 
-test: check lint type-check security ## Run all quality checks
+test: check lint type-check security test-unit ## Run all quality checks
 	@echo "All checks passed!"
 
 # ---------- Hooks ----------

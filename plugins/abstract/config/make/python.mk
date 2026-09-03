@@ -24,8 +24,6 @@ TEST_QUICK_ARGS ?= --no-cov --tb=short
 
 COV_DIRS ?= $(SRC_DIRS)
 COV_REPORTS ?= --cov-report=term-missing --cov-report=html
-TEST_FALLBACK_TARGETS ?= $(PYTEST_TARGETS)
-TEST_FALLBACK_ARGS ?= -v --tb=short
 
 COV_ARGS := $(foreach dir,$(COV_DIRS),--cov=$(dir))
 
@@ -68,7 +66,7 @@ unit-tests: test-unit
 
 test-coverage: ## Run tests with coverage report
 	@echo "Running tests with coverage..."
-	@$(PYTEST) $(TEST_COVERAGE_TARGETS) $(TEST_COVERAGE_ARGS) $(COV_ARGS) $(COV_REPORTS) || { echo "[WARN] Coverage tests failed"; $(PYTEST) $(TEST_FALLBACK_TARGETS) $(TEST_FALLBACK_ARGS); }
+	@$(PYTEST) $(TEST_COVERAGE_TARGETS) $(TEST_COVERAGE_ARGS) $(COV_ARGS) $(COV_REPORTS)
 
 test-quick: ## Run tests without coverage
 	@echo "Running quick tests (no coverage)..."
