@@ -19,6 +19,13 @@ AUTH_SESSION_TTL="${AUTH_SESSION_TTL:-86400}"  # 24 hours
 AUTH_INTERACTIVE="${AUTH_INTERACTIVE:-auto}"
 AUTH_MAX_ATTEMPTS="${AUTH_MAX_ATTEMPTS:-3}"
 
+# Associative arrays need bash 4. On bash 3.2 (stock macOS) `declare -A`
+# is a parse error mid-source with no message naming the cause.
+if [ "${BASH_VERSINFO[0]:-0}" -lt 4 ]; then
+  printf 'interactive_auth.sh needs bash 4 or newer (found %s)\n' "${BASH_VERSION:-unknown}" >&2
+  return 1 2>/dev/null || exit 1
+fi
+
 # Service-specific auth commands
 declare -A AUTH_CHECK_COMMANDS=(
   [github]="gh auth status"
@@ -60,8 +67,8 @@ is_interactive() {
 
 # Check if running in CI/CD
 is_ci() {
-  [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]] || \
-  [[ -n "$GITLAB_CI" ]] || [[ -n "$AWS_EXECUTION_ENV" ]]
+  [[ -n "${CI:-}" ]] || [[ -n "${GITHUB_ACTIONS:-}" ]] || \
+  [[ -n "${GITLAB_CI:-}" ]] || [[ -n "${AWS_EXECUTION_ENV:-}" ]]
 }
 
 # Initialize cache directory
@@ -81,7 +88,7 @@ read_json_value() {
   local key="$2"
 
   if command -v jq &>/dev/null; then
-    jq -r ".$key // empty" "$file" 2>/dev/null
+    jq -r --arg k "$key" '.[$k] // empty' "$file" 2>/dev/null
   else
     # Fallback: simple grep for JSON
     grep -o "\"$key\"\s*:\s*\"[^\"]*\"" "$file" 2>/dev/null | \
@@ -98,7 +105,7 @@ write_json_value() {
   if command -v jq &>/dev/null; then
     if [[ -f "$file" ]]; then
       tmpfile=$(mktemp)
-      jq ".$key = \"$value\"" "$file" > "$tmpfile" && mv "$tmpfile" "$file"
+      jq --arg k "$key" --arg v "$value" '.[$k] = $v' "$file" > "$tmpfile" && mv "$tmpfile" "$file"
     else
       echo "{\"$key\": \"$value\"}" > "$file"
     fi
@@ -296,7 +303,8 @@ EOF
       read -rs token
       echo ""
 
-      if echo "$token" | gh auth login --with-token; then
+      # Keep the token out of xtrace: the pipeline runs with tracing off.
+      if { set +x; } 2>/dev/null; printf '%s' "$token" | gh auth login --with-token; then
         echo "✓ Token authentication successful"
         return 0
       else
@@ -358,7 +366,7 @@ ensure_auth() {
   # Check if service is supported
   if [[ -z "${AUTH_CHECK_COMMANDS[$service]}" ]]; then
     echo "❌ Unsupported service: $service" >&2
-    echo "Supported services: ${!AUTH_CHECK_COMMANDS[@]}" >&2
+    echo "Supported services: ${!AUTH_CHECK_COMMANDS[*]}" >&2
     return 1
   fi
 
@@ -396,11 +404,11 @@ ensure_auth() {
     # Check if we should prompt
     if is_ci; then
       # CI/CD: Use environment variables
-      if [[ "$service" == "github" ]] && [[ -n "$GITHUB_TOKEN" ]]; then
+      if [[ "$service" == "github" ]] && [[ -n "${GITHUB_TOKEN:-}" ]]; then
         echo "🔐 Using GITHUB_TOKEN from environment"
-        echo "$GITHUB_TOKEN" | gh auth login --with-token &>/dev/null
+        { set +x; } 2>/dev/null; printf '%s' "$GITHUB_TOKEN" | gh auth login --with-token &>/dev/null
         continue
-      elif [[ "$service" == "gitlab" ]] && [[ -n "$GITLAB_TOKEN" ]]; then
+      elif [[ "$service" == "gitlab" ]] && [[ -n "${GITLAB_TOKEN:-}" ]]; then
         echo "🔐 Using GITLAB_TOKEN from environment"
         # GitLab token handling depends on version
         continue
