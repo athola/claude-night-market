@@ -106,6 +106,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **conjure's delegation executor is three modules.**
+  `delegation_executor.py` was 1,785 lines carrying five concerns, with
+  23 fix commits and 31 since March. The provider registry, the
+  `ServiceConfig` contract and the credential checks now live in
+  `delegation_services.py`; prompt and file-context composition in
+  `delegation_prompt.py`; the executor keeps `Delegator`, the result
+  types and the CLI at 1,006 lines. Imports flow one way, services to
+  prompt to executor. Every name callers imported from the executor is
+  still importable from it, and 21 characterization tests written green
+  before the split pin the moved behavior.
+
 - **Document economy scores out of 8, ships at 7.** Audience fit is
   the fourth check, so the rubric denominator moved from 6 and the
   ship threshold from 5. `.claude/rules/slop-scan-for-docs.md`,
