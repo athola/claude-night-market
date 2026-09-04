@@ -182,6 +182,10 @@ answers, the work stays on your machine.
   virtual environments. Working on this repo itself needs
   **Python 3.12+**, which the root `pyproject.toml` pins. See the
   [Plugin Development Guide][dev-guide] for the rules.
+- **GNU make 3.82+** to build this repo. The Xcode command line
+  tools ship 3.81, which runs the recipes without the flags they
+  rely on. `make` warns once per invocation when it detects this.
+  On macOS: `brew install make`, then run `gmake`.
 
 ## What's New
 
@@ -204,7 +208,8 @@ workflow only runs when you ask for one. Full history is in the
 
 ```bash
 make validate-all
-make lint && make test
+make lint && make test   # checks only; rewrites nothing
+make fix                 # ruff format + ruff check --fix
 ```
 
 A plugin directory holds `.claude-plugin/plugin.json` (metadata)
