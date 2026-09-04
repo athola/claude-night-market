@@ -17,33 +17,33 @@ with public APIs. We also maintain 58 executable hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 1.9.19 | 17 | 15 | 6 | Yes | abstract-skills |
-| archetypes | 1.9.19 | 0 | 15 | 0 | No | - |
-| attune | 1.9.19 | 11 | 14 | 2 | No | - |
-| cartograph | 1.9.19 | 1 | 7 | 1 | No | - |
-| conjure | 1.9.19 | 0 | 11 | 0 | No | quota-tracker, usage-logger, delegator |
-| conserve | 1.9.19 | 6 | 15 | 5 | No | - |
-| egregore | 1.9.19 | 5 | 4 | 2 | No | - |
-| gauntlet | 1.9.19 | 6 | 7 | 1 | Yes | - |
-| herald | 1.9.19 | 0 | 0 | 0 | No | - |
-| hookify | 1.9.19 | 6 | 2 | 0 | No | - |
-| imbue | 1.9.19 | 5 | 16 | 1 | No | - |
-| leyline | 1.9.19 | 3 | 24 | 0 | Yes | - |
-| memory-palace | 1.9.19 | 5 | 10 | 4 | Yes | - |
-| minister | 1.9.19 | 3 | 3 | 0 | Yes | - |
-| oracle | 1.9.19 | 1 | 1 | 0 | Yes | - |
-| parseltongue | 1.9.19 | 3 | 4 | 4 | Yes | parseltongue |
-| pensive | 1.9.19 | 14 | 15 | 6 | Yes | - |
-| phantom | 1.9.19 | 1 | 1 | 1 | Yes | - |
-| sanctum | 1.9.19 | 21 | 19 | 9 | Yes | - |
-| scribe | 1.9.19 | 9 | 12 | 5 | Yes | - |
-| scry | 1.9.19 | 2 | 4 | 1 | No | - |
-| spec-kit | 1.9.19 | 11 | 3 | 3 | Yes | - |
-| tome | 1.9.19 | 4 | 9 | 5 | Yes | - |
+| abstract | 1.9.20 | 17 | 14 | 6 | Yes | abstract-skills |
+| archetypes | 1.9.20 | 0 | 15 | 0 | No | - |
+| attune | 1.9.20 | 11 | 14 | 2 | No | - |
+| cartograph | 1.9.20 | 1 | 7 | 1 | No | - |
+| conjure | 1.9.20 | 0 | 11 | 0 | No | quota-tracker, usage-logger, delegator |
+| conserve | 1.9.20 | 6 | 14 | 5 | No | - |
+| egregore | 1.9.20 | 5 | 4 | 2 | No | - |
+| gauntlet | 1.9.20 | 6 | 7 | 1 | Yes | - |
+| herald | 1.9.20 | 0 | 0 | 0 | No | - |
+| hookify | 1.9.20 | 6 | 2 | 0 | No | - |
+| imbue | 1.9.20 | 5 | 16 | 1 | No | - |
+| leyline | 1.9.20 | 3 | 24 | 0 | Yes | - |
+| memory-palace | 1.9.20 | 5 | 10 | 4 | Yes | - |
+| minister | 1.9.20 | 3 | 3 | 0 | Yes | - |
+| oracle | 1.9.20 | 1 | 1 | 0 | Yes | - |
+| parseltongue | 1.9.20 | 3 | 4 | 4 | Yes | parseltongue |
+| pensive | 1.9.20 | 14 | 15 | 6 | Yes | - |
+| phantom | 1.9.20 | 1 | 1 | 1 | Yes | - |
+| sanctum | 1.9.20 | 21 | 19 | 9 | Yes | - |
+| scribe | 1.9.20 | 9 | 12 | 5 | Yes | - |
+| scry | 1.9.20 | 2 | 4 | 1 | No | - |
+| spec-kit | 1.9.20 | 11 | 3 | 3 | Yes | - |
+| tome | 1.9.20 | 4 | 9 | 5 | Yes | - |
 
 ## Plugin Details
 
-### Abstract (v1.9.19)
+### Abstract (v1.9.20)
 Validation and analysis framework for the ecosystem.
 Includes commands for creating and validating skills, hooks,
 and plugins (`validate-plugin`, `create-skill`).
@@ -52,12 +52,12 @@ Skills focus on governance, authoring, and evaluation, including `skills-eval`,
 A daily learning aggregation hook generates LEARNINGS.md
 and promotes findings to GitHub Issues or Discussions based on severity.
 
-### Archetypes (v1.9.19)
+### Archetypes (v1.9.20)
 Reference library for architecture paradigms.
 Contains 14 skills covering patterns like hexagonal architecture,
 microservices, and event-driven design.
 
-### Attune (v1.9.19)
+### Attune (v1.9.20)
 Project initialization, architecture templates, and strategic decision-making.
 Commands include `arch-init`, `init`,
 `war-room` (multi-expert deliberation with optional agent teams execution for
@@ -65,28 +65,28 @@ Full Council and Delphi modes),
 and `mission` (unified lifecycle orchestrator with state detection
 and session recovery).
 
-### Cartograph (v1.9.19)
+### Cartograph (v1.9.20)
 Codebase visualization through Mermaid Chart MCP.
 Seven diagram skills (architecture, data-flow,
 dependency-graph, workflow, class-diagram, call-chain,
 code-communities), one `/visualize` command, and a
 codebase-explorer agent.
 
-### Conjure (v1.9.19)
+### Conjure (v1.9.20)
 Cross-model delegation and multi-agent coordination.
 Skills like `gemini-delegation`
 and `qwen-delegation` route tasks to specific models,
 while `agent-teams` coordinates parallel Claude Code agents through a
 filesystem-based protocol.
 
-### Conserve (v1.9.19)
+### Conserve (v1.9.20)
 Context window usage and resource management.
 Commands like `bloat-scan`
 and `optimize-context` help developers understand token consumption.
 Skills include `context-optimization`, `clear-context`,
 and `cpu-gpu-performance`.
 
-### Gauntlet (v1.9.19)
+### Gauntlet (v1.9.20)
 Developer reintegration through active recall and spaced
 repetition. Extracts knowledge from codebases, generates
 six challenge types (multiple choice, explain why, trace,
@@ -97,25 +97,25 @@ ML-enhanced answer scoring via a config-as-model pattern
 (YAML coefficients, pure-Python dot product) with optional
 ONNX Runtime inference through the oracle sidecar.
 
-### Herald (v1.9.19)
+### Herald (v1.9.20)
 Standalone notification system for Claude Code plugins.
 Provides GitHub issue alerts and webhook support for
 Slack, Discord, and generic endpoints.
 
-### Hookify (v1.9.19)
+### Hookify (v1.9.20)
 Behavioral rules engine with markdown-based configuration.
 Commands convert Python hooks to declarative rules (`from-hook`),
 manage rule catalogs (`install`, `list`),
 and configure rule activation (`configure`).
 
-### Imbue (v1.9.19)
+### Imbue (v1.9.20)
 Review workflows. Offers commands for catchups,
 reviews, and stewardship health checks
 (`catchup`, `structured-review`, `stewardship-health`).
 Skills include `proof-of-work`, `scope-guard`,
 `rigorous-reasoning`, and `latent-space-engineering`.
 
-### Leyline (v1.9.19)
+### Leyline (v1.9.20)
 Shared patterns and utilities library.
 Allows for bulk plugin updates via `reinstall-all-plugins`.
 Skills cover authentication,
@@ -129,7 +129,7 @@ helper centralizes cross-plugin `sys.path` setup so plugin
 scripts can import shared modules without ad-hoc path
 manipulation.
 
-### Memory-Palace (v1.9.19)
+### Memory-Palace (v1.9.20)
 Knowledge management organization. Commands include
 `garden` (digital garden curation), `palace` (spatial
 palace construction), `navigate` (cross-palace
@@ -137,12 +137,12 @@ lookup), `review-room` (PR-review capture), and
 `skill-logs` (per-skill execution history). Skills
 focus on knowledge intake and retrieval.
 
-### Minister (v1.9.19)
+### Minister (v1.9.20)
 GitHub issue management and initiative tracking.
 Commands include `create-issue`, `close-issue`, and `update-labels`.
 Skills provide release health gates and initiative pulse dashboards.
 
-### Oracle (v1.9.19)
+### Oracle (v1.9.20)
 ONNX Runtime inference sidecar for the plugin ecosystem.
 Runs an HTTP daemon in an isolated Python 3.11+ venv
 provisioned by uv, serving model inference on localhost.
@@ -152,12 +152,12 @@ installing the plugin does nothing until the user runs
 `/oracle:setup`. Provides the `setup` command and a
 `sidecar-status` skill.
 
-### Parseltongue (v1.9.19)
+### Parseltongue (v1.9.20)
 Python development utilities. Includes tools for analyzing tests
 and profiling performance (`analyze-tests`, `run-profiler`).
 Skills support async programming and packaging.
 
-### Pensive (v1.9.19)
+### Pensive (v1.9.20)
 Code review and analysis framework.
 Provides specific review commands for various languages
 and domains, such as `api-review`, `rust-review`, and
@@ -165,20 +165,20 @@ and domains, such as `api-review`, `rust-review`, and
 NASA Power of 10 rules and `tiered-audit` for
 three-tier escalation analysis.
 
-### Phantom (v1.9.19)
+### Phantom (v1.9.20)
 Computer use toolkit for driving desktop environments
 through Claude's vision and action API. Provides
 screenshot capture, mouse/keyboard control, and an
 autonomous agent loop via the `desktop-pilot` agent.
 
-### Sanctum (v1.9.19)
+### Sanctum (v1.9.20)
 Git workflow automation.
 Handles tasks from commit message generation to PR reviews with mandatory code
 quality analysis. Commands include `fix-pr`, `merge-docs`,
 and `update-dependencies`. Hooks include a PostToolUse deferred-item watcher
 and a Stop hook that sweeps the session ledger to file GitHub issues.
 
-### Scribe (v1.9.19)
+### Scribe (v1.9.20)
 Documentation quality enforcement.
 Commands include `doc-polish` (interactive editing),
 `doc-generate` (documentation generation), `style-learn` (style profiling),
@@ -201,17 +201,17 @@ empirical baseline calibration, and a
 cleanup-workflow walkthrough; the `anti-goals`
 module guards against over-correction.
 
-### Scry (v1.9.19)
+### Scry (v1.9.20)
 Terminal and browser session recording.
 Supports creating media assets with commands like `record-browser`
 and `record-terminal`.
 
-### Spec-Kit (v1.9.19)
+### Spec-Kit (v1.9.20)
 Specification-driven development.
 Offers a suite of commands for planning, specifying,
 and implementing features based on strict requirements.
 
-### Egregore (v1.9.19)
+### Egregore (v1.9.20)
 Autonomous agent orchestrator for development lifecycles.
 Commands include `summon` (spawn sessions), `dismiss`
 (terminate), `status` (check progress),
@@ -220,7 +220,7 @@ recovery). Skills cover session spawning with budget
 management (`summon`), pre-merge validation
 (`quality-gate`), and watchdog lifecycle management.
 
-### Tome (v1.9.19)
+### Tome (v1.9.20)
 Multi-source research plugin for code archaeology,
 community discourse, academic literature, and TRIZ
 cross-domain analysis.

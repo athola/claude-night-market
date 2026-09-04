@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.19-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.20-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
 [![Skills](https://img.shields.io/badge/skills-209-teal)](book/src/reference/capabilities-reference.md)
@@ -189,20 +189,17 @@ answers, the work stays on your machine.
 
 ## What's New
 
-**1.9.19** takes `conjure` from three delegation targets to eight and
-turns delegation on by default. GLM-5.3, Meta Muse Code, the OpenAI
-Codex CLI, OpenCode and a locally served Muse Glimmer join Gemini,
-Qwen and MiniMax. `/conjure:provider-setup` reports which of them
-this machine can actually call, installs the missing ones on request,
-and stores the answer instead of re-probing every call. Setting
-`CONJURE_DELEGATION=off` declines for a single run. Every plugin ships
-a `workflows/` script now, so
-every plugin can fan work across subagents when you ask for it.
-Each script encodes that plugin's own fan-out: `scribe` runs its
-four document reviewers blind to each other, `egregore` audits each
-pipeline gate for whether it can return a failing verdict. A
-workflow only runs when you ask for one. Full history is in the
-[CHANGELOG](CHANGELOG.md).
+**1.9.20** teaches `scribe` who a document is for. Every generated
+document now declares a reader tier, `newcomer`, `practitioner` or
+`expert`, and content written for a different tier moves to a linked
+page instead of being deleted. `scripts/slop_score.py --audit` prints
+a file and a line for every finding, including the low-confidence
+categories the merge gate declines to score, and a ratchet at commit
+time fails a document only when it scores worse than its own last
+version. The rest is a fix pass: twenty-three Makefile findings, the
+macOS toolchain assumptions that let a failing pipeline stage pass,
+and eight June review findings that still stood in September. Full
+history is in the [CHANGELOG](CHANGELOG.md).
 
 ## Plugin Development
 

@@ -1555,7 +1555,7 @@ wheels = [
 
 [[package]]
 name = "parseltongue"
-version = "1.9.19"
+version = "1.9.20"
 source = { editable = "." }
 
 [package.dev-dependencies]

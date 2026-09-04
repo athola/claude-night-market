@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.9.19",
+  "version": "1.9.20",
   "description": "Intelligent workflow methodologies: analysis, evidence gathering, structured output, and research-enriched feature review with RICE/WSJF/Kano scoring",
   "skills": [
     "./skills/assisted-mastery",
