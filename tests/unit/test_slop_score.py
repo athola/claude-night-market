@@ -29,6 +29,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(REPO_ROOT / "plugins" / "scribe" / "src"))
 
 from slop_score import (  # noqa: E402 - scripts/ must join sys.path above before this resolves
+    _legible,
     audit_text,
     load_allowlist,
     load_exclude_patterns,
@@ -354,6 +355,176 @@ class TestAuditMode:
             cwd=REPO_ROOT,
         )
         assert "one.md:1" in result.stdout, result.stdout
+
+
+class TestInvisibleMatchesAreNamed:
+    """Feature: a finding you cannot see is a finding you cannot fix.
+
+    Every other category matches text a reader can read back, so the
+    report echoes the match and the reader knows what to delete.
+    ``invisible_unicode`` matches characters that render as nothing, so
+    echoing them prints a blank where the evidence should be, and the
+    line number alone does not say which of the 200 columns is wrong or
+    which codepoint it is.
+
+    The escape covers any category: a non-printing character reaching
+    the report through some other pattern gets named the same way.
+    """
+
+    @pytest.mark.unit
+    def test_a_zero_width_match_is_reported_as_its_codepoint(self) -> None:
+        """Scenario: the match is unreadable, so the report names it."""
+        hits = audit_text("The gate\u200b holds.")
+        invisible = [h for h in hits if h.category == "invisible_unicode"]
+        assert len(invisible) == 1, hits
+        assert invisible[0].match == "<U+200B>", invisible[0].match
+
+    @pytest.mark.unit
+    def test_a_bidi_override_is_named_in_the_report(self) -> None:
+        """Scenario: Trojan Source is legible in the output that finds it."""
+        hits = audit_text("total = 1\u202e // benign")
+        assert any(h.match == "<U+202E>" for h in hits), hits
+
+    @pytest.mark.unit
+    def test_an_astral_tag_character_is_named(self) -> None:
+        """Guard: a codepoint above the BMP formats to five hex digits."""
+        hits = audit_text("Prompt\U000e0041 carrier.")
+        assert any(h.match == "<U+E0041>" for h in hits), hits
+
+    @pytest.mark.unit
+    def test_visible_matches_are_left_alone(self) -> None:
+        """Guard: escaping applies to non-printing characters only."""
+        hits = audit_text("The system is fast; it scales.")
+        spliced = [h for h in hits if h.category == "semicolon_splice"]
+        assert spliced, hits
+        assert "<U+" not in spliced[0].match, spliced[0].match
+
+    @pytest.mark.integration
+    def test_the_command_line_prints_the_codepoint(self, tmp_path: Path) -> None:
+        """Scenario: the reader of the report sees the name, not a blank."""
+        doc = tmp_path / "invisible.md"
+        doc.write_text("A line.\nA zero\u200bwidth space hides here.\n")
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--audit", str(tmp_path)],
+            capture_output=True,
+            text=True,
+            check=False,
+            cwd=REPO_ROOT,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "invisible.md:2" in result.stdout, result.stdout
+        assert "invisible_unicode" in result.stdout, result.stdout
+        assert "<U+200B>" in result.stdout, result.stdout
+
+
+class TestInvisibleUnicodeIsFoundInsideCode:
+    """Feature: code spans are where the bidi attack actually lives.
+
+    Every other category is scored on prose only, and correctly: a slop
+    word inside a fence is a symbol, not writing. That reasoning does
+    not carry to a character with no glyph. A right-to-left override in
+    a fenced block is Trojan Source, source that renders in one order
+    and compiles in another, and blanking the fence before scanning
+    hides the one place it matters most.
+
+    So this category reads the raw document while the rest read prose.
+    The line number still has to be right, which is why the raw text is
+    scanned rather than the blanked copy the other rules use.
+    """
+
+    @pytest.mark.unit
+    def test_a_bidi_override_in_a_fence_is_reported(self) -> None:
+        """Scenario: Trojan Source hides in the block the scanner skips."""
+        doc = "Prose.\n\n```python\ntotal = 1  # \u202e benign\n```\n"
+        hits = [h for h in audit_text(doc) if h.category == "invisible_unicode"]
+        assert len(hits) == 1, hits
+        assert hits[0].match == "<U+202E>"
+        assert hits[0].line == 4, hits[0].line
+
+    @pytest.mark.unit
+    def test_a_zero_width_space_in_inline_code_is_reported(self) -> None:
+        """Scenario: an identifier that greps as one thing and is another."""
+        hits = [
+            h
+            for h in audit_text("Call `foo\u200bbar` to start.")
+            if h.category == "invisible_unicode"
+        ]
+        assert len(hits) == 1, hits
+
+    @pytest.mark.unit
+    def test_other_categories_still_ignore_code(self) -> None:
+        """Guard: widening the scan for one category widens only that one."""
+        doc = "Prose is fine.\n\n```\nThe system is fast; it scales.\n```\n"
+        assert not [h for h in audit_text(doc) if h.category == "semicolon_splice"]
+
+
+class TestTheGateAlsoReadsInsideCode:
+    """Feature: the gate and the audit agree on where the hazard is.
+
+    Audit mode answers "where is it" and the gate answers "does this
+    merge". If only the audit reads inside a fence, a bidi override in
+    a code block is reported to a person who runs `--audit` by hand and
+    passes the check that runs on every commit, which is the wrong way
+    round for the one category that carries a security defect.
+    """
+
+    @pytest.mark.unit
+    def test_a_fenced_bidi_override_is_scored(self) -> None:
+        """Scenario: the merge gate counts what the audit found."""
+        doc = "Prose here to give the document some words.\n\n"
+        doc += "```python\ntotal = 1  # \u202e benign\n```\n"
+        found = score_text(doc).findings
+        assert [f for f in found if f.category == "invisible_unicode"], found
+
+    @pytest.mark.unit
+    def test_a_clean_fence_scores_zero(self) -> None:
+        """Guard: ordinary code does not become a finding."""
+        doc = "Prose here to give the document some words.\n\n"
+        doc += "```python\ntotal = 1  # benign\n```\n"
+        found = score_text(doc).findings
+        assert not [f for f in found if f.category == "invisible_unicode"], found
+
+
+class TestNamingSurvivesWhitespaceCollapse:
+    """Feature: a character is named before anything can swallow it.
+
+    The match display collapses runs of whitespace so a multi-line hit
+    prints on one line. `str.split()` counts U+00A0 and the U+2000
+    block as whitespace, so collapsing first turns an exotic space into
+    an ASCII one and the name never gets a chance to be printed. The
+    current category matches no such character, which is exactly why
+    this needs a test: the next category that does would inherit a
+    silent hole.
+    """
+
+    @pytest.mark.unit
+    def test_a_non_breaking_space_is_named_not_collapsed(self) -> None:
+        """Guard: naming runs before the collapse, not after."""
+        assert _legible("\u00a0") == "<U+00A0>"
+
+    @pytest.mark.unit
+    def test_ordinary_text_passes_through(self) -> None:
+        """Guard: printable characters are untouched."""
+        assert _legible("The system is fast; it scales.") == (
+            "The system is fast; it scales."
+        )
+
+    @pytest.mark.unit
+    def test_a_multi_line_match_still_collapses_to_one_line(self) -> None:
+        """Guard: the display stays single-line, which is why it collapses.
+
+        `three_fragment_burst` separates its fragments with `\\s+`, so a
+        burst written across three lines is one match carrying two
+        newlines. Naming first must not cost the collapse.
+        """
+        hits = [
+            h
+            for h in audit_text("Focused.\nAligned.\nMeasurable.\n")
+            if h.category == "three_fragment_burst"
+        ]
+        assert hits, "expected a three-fragment burst"
+        assert "\n" not in hits[0].match, repr(hits[0].match)
+        assert hits[0].match == "Focused. Aligned. Measurable.", hits[0].match
 
 
 class TestAMissingPathIsLoud:

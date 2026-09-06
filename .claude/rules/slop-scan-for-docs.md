@@ -322,6 +322,22 @@ ever apply to this repo.
   "setting the stage for", "shaping the future of",
   "underscores the importance", "plays a pivotal role". The
   surrounding facts carry significance better.
+- **Invisible Unicode**: delete zero-width spaces, soft hyphens,
+  directional marks, bidi overrides and isolates, word joiners,
+  invisible math operators, noncharacters, and tag characters. A
+  defect rather than a tell, and the three defects differ. A bidi
+  override renders one order and compiles in another, which is the
+  Trojan Source attack. A tag character has no glyph, which makes it
+  a carrier for text aimed at a model rather than a person. A
+  zero-width space breaks an exact-match assertion, a YAML key or a
+  grep pattern, and shows nothing in the diff that added it. High
+  confidence, and the only category scanned inside code blocks:
+  blanking a fence suits a vocabulary rule and defeats this one,
+  because the fence is where the attack hides. The emoji joiners are
+  deliberately unmatched, since U+200D and U+FE0F build ordinary
+  emoji sequences and U+200C is required in Persian and several
+  Indic scripts. `--audit` prints each hit as `<U+XXXX>`. Echoing
+  the match would print a blank where the evidence goes.
 - **Smart quotes outside code blocks**: replace `"`/`"`
   with `"` and `'`/`'` with `'` in technical prose.
 - **Semicolon splice**: a semicolon joining two independent

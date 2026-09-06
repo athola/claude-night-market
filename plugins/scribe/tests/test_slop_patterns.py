@@ -1948,3 +1948,94 @@ class TestTier5OverExplanation:
     def test_a_stated_fix_passes(self, text: str) -> None:
         """Guard: stating what changed is the target shape, not the tell."""
         assert _category_hits_including_optional(self.CATEGORY, text) == 0
+
+
+class TestInvisibleUnicode:
+    """Characters that occupy a document without appearing in it.
+
+    Three distinct hazards share one shape. A bidi override reorders
+    what a reader sees without changing what a compiler reads, which is
+    the Trojan Source attack. A tag character is a deprecated codepoint
+    with no rendering, which makes it a carrier for instructions aimed
+    at a model rather than a person. A zero-width space silently breaks
+    an exact-match assertion, a YAML key, or a grep pattern.
+
+    None of them announce themselves in a diff, a terminal, or a code
+    review, which is why a detector is the only thing that finds them.
+
+    Scoped to codepoints with no legitimate use in this content. The
+    emoji joiners are deliberately absent: U+200D and U+FE0F build
+    ordinary emoji sequences, U+200C is required in Persian and several
+    Indic scripts, and a category that fires on a warning sign in a
+    README is one nobody keeps running.
+
+    Every fixture below is an escape rather than a literal character,
+    and has to stay one. bandit's B613 fails any Python source file
+    carrying a bidirectional control, which is correct: a test file
+    full of literal overrides is the hazard it describes. The escape
+    produces the same codepoint at runtime and leaves the file ASCII.
+
+    Sourced from data/languages/en.yaml section tier5.invisible_unicode.
+    """
+
+    CATEGORY = "invisible_unicode"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: a hit is a defect, not a judgment call."""
+        entry = _tier5_category(self.CATEGORY)
+        assert entry["confidence"] == "high"
+
+    @pytest.mark.unit
+    def test_default_sweep_carries_the_category(self) -> None:
+        """Guard: an opt-in security check is one nobody opts into."""
+        patterns = load_language_patterns("en")
+        assert self.CATEGORY in {
+            entry["category"] for entry in get_tier5_patterns(patterns)
+        }
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("codepoint", "why"),
+        [
+            ("\u200b", "zero width space breaks an exact-match assertion"),
+            ("\u00ad", "soft hyphen splits a word only when it wraps"),
+            ("\u200e", "left-to-right mark"),
+            ("\u200f", "right-to-left mark"),
+            ("\u202e", "right-to-left override is Trojan Source"),
+            ("\u202d", "left-to-right override"),
+            ("\u2066", "left-to-right isolate"),
+            ("\u2069", "pop directional isolate"),
+            ("\u2060", "word joiner"),
+            ("\u2062", "invisible times"),
+            ("\ufff9", "interlinear annotation anchor"),
+            ("\U000e0041", "tag character, a model-directed carrier"),
+            ("\U000e007f", "cancel tag"),
+            ("\ufdd0", "noncharacter, never valid in interchange"),
+            ("\ufffe", "noncharacter"),
+        ],
+    )
+    def test_detects_the_codepoint(self, codepoint: str, why: str) -> None:
+        """Scenario: the character sits in prose and renders as nothing."""
+        assert _category_hits(self.CATEGORY, f"The gate{codepoint} holds.") >= 1, why
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("text", "why"),
+        [
+            ("A warning sign: ⚠\ufe0f see below.", "VS16 renders an emoji"),
+            ("Family: \U0001f468\u200d\U0001f469\u200d\U0001f467", "ZWJ sequence"),
+            ("Persian needs \u200c between letters.", "ZWNJ is a real letter join"),
+            ("Plain ASCII prose with no tricks.", "the ordinary case"),
+            ("An em dash lives here: — and that is a different rule.", "em dash"),
+        ],
+    )
+    def test_legitimate_text_is_not_flagged(self, text: str, why: str) -> None:
+        """Guard: a check that fires on a README emoji gets turned off."""
+        assert _category_hits(self.CATEGORY, text) == 0, why
+
+    @pytest.mark.unit
+    def test_a_leading_byte_order_mark_is_not_a_finding(self) -> None:
+        """Guard: U+FEFF opens a file legitimately; mid-file it does not."""
+        assert _category_hits(self.CATEGORY, "\ufeffThe file starts here.") == 0
+        assert _category_hits(self.CATEGORY, "Mid\ufefffile is a defect.") >= 1

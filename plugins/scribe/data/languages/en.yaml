@@ -366,6 +366,32 @@ tier5:
     ignore_case: false
     patterns:
       - '[“”‘’]'
+  invisible_unicode:
+    # Characters that occupy the document without appearing in it.
+    # Three hazards share the shape. A bidi override reorders what a
+    # reader sees while leaving what a compiler reads untouched, which
+    # is the Trojan Source attack. A tag character has no rendering at
+    # all, which makes it a carrier for text aimed at a model rather
+    # than a person. A zero-width space breaks an exact-match
+    # assertion, a YAML key or a grep pattern, and shows nothing in the
+    # diff that introduced it.
+    #
+    # High confidence because none of these has a use in English
+    # technical prose. The emoji joiners are deliberately absent:
+    # U+200D and U+FE0F build ordinary emoji sequences, and U+200C is
+    # required to render Persian and several Indic scripts. A category
+    # that fires on the warning sign in a README is one nobody keeps
+    # running.
+    #
+    # U+FEFF is split out because a byte order mark opens a file
+    # legitimately. The lookbehind requires a preceding character, so
+    # position zero passes and anywhere else does not.
+    score: 2
+    confidence: high
+    ignore_case: false
+    patterns:
+      - '[\u00AD\u200B\u200E\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFDD0-\uFDEF\uFFF9-\uFFFB\uFFFE\uFFFF\U000E0000-\U000E007F]'
+      - '(?<=[\s\S])\uFEFF'
   plus_sign_conjunction:
     score: 1
     confidence: high

@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Invisible-Unicode detection (scribe).** A document can carry
+  characters that never render: a zero-width space, a bidi override, a
+  tag character. The slop detector had one Unicode check, smart
+  quotes, so none of them were findable by any gate in the repository.
+
+  A bidi override renders in one order and compiles in another, which
+  is the Trojan Source attack. A tag character has no glyph, which
+  makes it a carrier for text aimed at a model rather than a person. A
+  zero-width space breaks an exact-match assertion, a YAML key or a
+  grep pattern, and shows nothing in the diff that introduced it. The
+  suite is built on exact-match assertions and the rule files on `rg`
+  patterns, so the third one costs correctness here as much as
+  security.
+
+  `tier5.invisible_unicode` in `en.yaml` is the pattern source, so the
+  finding travels to any repository the detector scans. High
+  confidence and in the default sweep: an opt-in security check is one
+  nobody opts into. The emoji joiners stay unmatched, since U+200D and
+  U+FE0F build ordinary emoji sequences and U+200C is required in
+  Persian and several Indic scripts. U+FEFF is matched only when
+  something precedes it, so a byte order mark still opens a file.
+
+  `scripts/slop_score.py` reports a non-printing match as `<U+202E>`
+  rather than echoing it, and scans this one category against the raw
+  document. Blanking a fence suits a vocabulary rule and defeats this
+  one, because the fence is where a bidi override hides. The audit and
+  the gate both read it.
+
+  Detection only. Removing statistical text watermarks, C2PA
+  manifests and pixel-domain marks was declined: those defeat content
+  provenance rather than sanitize text.
+
 ## [1.9.20] - 2026-09-03
 
 ### Added

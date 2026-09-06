@@ -210,6 +210,48 @@ def _audit_rules(language: str = "en") -> list:
     return rules
 
 
+#: Categories scanned against the raw document rather than the prose
+#: copy. Blanking a fence is right for a vocabulary rule, where a slop
+#: word in code is a symbol. It is wrong for a character with no glyph:
+#: a bidi override in a fenced block is Trojan Source, and the fence is
+#: the place it hides.
+_RAW_TEXT_CATEGORIES = frozenset({"invisible_unicode"})
+
+
+#: Structure, not a defect. A newline inside a match is how the source
+#: was wrapped, and `_collapse` folds it away; naming it would print
+#: `<U+000A>` in place of the space the reader expects.
+_ASCII_WHITESPACE = frozenset(" \t\n\r\f\v")
+
+
+def _collapse(text: str) -> str:
+    """Flatten a multi-line match onto one display line.
+
+    Only ASCII whitespace, and only after `_legible` has run. Python's
+    `str.split()` counts U+00A0 and the U+2000 block as whitespace, so
+    collapsing first would turn an exotic space into an ordinary one
+    and leave nothing for the name to describe.
+    """
+    return re.sub(r"[ \t\n\r\f\v]+", " ", text).strip()
+
+
+def _legible(text: str) -> str:
+    """Name any character in *text* that would print as nothing.
+
+    Every other category matches text the reader can read back, so the
+    report echoes the match and the reader knows what to delete. A
+    zero-width or bidi character echoes as a blank where the evidence
+    should be, which tells the reader that a line is wrong and nothing
+    further: not which column, and not which codepoint.
+    """
+    return "".join(
+        char
+        if char.isprintable() or char in _ASCII_WHITESPACE
+        else f"<U+{ord(char):04X}>"
+        for char in text
+    )
+
+
 @dataclass(frozen=True)
 class AuditHit:
     """One located finding: where it is, what matched, how sure we are."""
@@ -232,14 +274,15 @@ def audit_text(
     prose = _prose_keeping_offsets(text)
     hits = []
     for category, regex, confidence in _AUDIT_RULES_CACHE:
-        for match in regex.finditer(prose):
+        body = text if category in _RAW_TEXT_CATEGORIES else prose
+        for match in regex.finditer(body):
             if match.group(0).lower() in allow:
                 continue
             hits.append(
                 AuditHit(
-                    line=prose.count("\n", 0, match.start()) + 1,
+                    line=body.count("\n", 0, match.start()) + 1,
                     category=category,
-                    match=" ".join(match.group(0).split())[:60],
+                    match=_collapse(_legible(match.group(0)))[:60],
                     confidence=confidence,
                 )
             )
@@ -264,7 +307,8 @@ def score_text(
     findings = []
     weighted = 0
     for category, regex, weight in _RULES_CACHE:
-        for match in regex.finditer(prose):
+        body = text if category in _RAW_TEXT_CATEGORIES else prose
+        for match in regex.finditer(body):
             if match.group(0).lower() in allow:
                 continue
             findings.append(
