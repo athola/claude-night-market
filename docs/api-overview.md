@@ -54,7 +54,7 @@ and promotes findings to GitHub Issues or Discussions based on severity.
 
 ### Archetypes (v1.9.20)
 Reference library for architecture paradigms.
-Contains 14 skills covering patterns like hexagonal architecture,
+Contains 15 skills covering patterns like hexagonal architecture,
 microservices, and event-driven design.
 
 ### Attune (v1.9.20)
