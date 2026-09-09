@@ -104,17 +104,38 @@ def extract_from_directory(
 
     Skips files whose names match the pattern ``__*.py`` (dunder modules
     such as ``__init__.py`` and ``__main__.py``).
+
+    Vendored and cache directories are skipped whole. The only caller,
+    ``scripts/extractor.py``, points this at a project root, and a
+    recursive walk that descends into ``.venv`` builds a knowledge base
+    of the dependencies rather than the codebase.
     """
     entries: list[KnowledgeEntry] = []
 
-    for py_file in sorted(directory.glob("*.py")):
+    for py_file in sorted(directory.rglob("*.py")):
         if py_file.name.startswith("__"):
+            continue
+        if any(_is_vendor_dir(part) for part in py_file.parent.parts):
             continue
         if exclude_patterns and any(py_file.match(pat) for pat in exclude_patterns):
             continue
         entries.extend(extract_from_file(py_file))
 
     return entries
+
+
+_VENDOR_DIRS = frozenset(
+    {"__pycache__", "node_modules", "site-packages", "venv", "build", "dist"}
+)
+
+
+def _is_vendor_dir(part: str) -> bool:
+    """Report whether a directory holds code this project did not write.
+
+    Any dot-prefixed directory counts, which covers ``.venv``, ``.git``,
+    ``.tox`` and ``.mypy_cache`` without naming each one.
+    """
+    return part.startswith(".") or part in _VENDOR_DIRS
 
 
 # ---------------------------------------------------------------------------

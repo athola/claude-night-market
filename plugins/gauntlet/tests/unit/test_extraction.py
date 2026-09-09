@@ -355,6 +355,87 @@ class TestExtractFromDirectory:
         assert "func_b" in concepts
 
     @pytest.mark.unit
+    def test_extracts_from_a_subdirectory(self, tmp_path: Path):
+        """
+        Scenario: A package with nested modules
+        Given a directory whose Python files sit in a subdirectory
+        When extract_from_directory() is called
+        Then entries from the nested file are returned
+
+        The docstring promises a recursive walk and the only caller,
+        scripts/extractor.py, points it at a codebase root. A flat glob
+        there yields the top level and reports no error, so a knowledge
+        base built from a real project silently omits almost all of it.
+        """
+        (tmp_path / "top.py").write_text(
+            textwrap.dedent("""\
+            def func_top():
+                \"\"\"Top level.\"\"\"
+                pass
+        """)
+        )
+        nested = tmp_path / "sub" / "deeper"
+        nested.mkdir(parents=True)
+        (nested / "nested.py").write_text(
+            textwrap.dedent("""\
+            def func_nested():
+                \"\"\"Nested module.\"\"\"
+                pass
+        """)
+        )
+
+        entries = extract_from_directory(tmp_path)
+
+        concepts = [e.concept for e in entries]
+        assert "func_top" in concepts
+        assert "func_nested" in concepts
+
+    @pytest.mark.unit
+    def test_skips_vendored_directories(self, tmp_path: Path):
+        """
+        Scenario: A project root containing an installed virtualenv
+        Given a .venv and a __pycache__ beside the project's own code
+        When extract_from_directory() is called
+        Then only the project's own entries are returned
+
+        Recursion without this reads the dependencies. A knowledge base
+        built from site-packages describes libraries the contributor did
+        not write and buries the code they did.
+        """
+        (tmp_path / "mine.py").write_text(
+            textwrap.dedent("""\
+            def func_mine():
+                \"\"\"Project code.\"\"\"
+                pass
+        """)
+        )
+        vendored = tmp_path / ".venv" / "lib" / "site-packages" / "dep"
+        vendored.mkdir(parents=True)
+        (vendored / "theirs.py").write_text(
+            textwrap.dedent("""\
+            def func_theirs():
+                \"\"\"Dependency code.\"\"\"
+                pass
+        """)
+        )
+        cached = tmp_path / "__pycache__"
+        cached.mkdir()
+        (cached / "stale.py").write_text(
+            textwrap.dedent("""\
+            def func_stale():
+                \"\"\"Cached artifact.\"\"\"
+                pass
+        """)
+        )
+
+        entries = extract_from_directory(tmp_path)
+
+        concepts = [e.concept for e in entries]
+        assert "func_mine" in concepts
+        assert "func_theirs" not in concepts
+        assert "func_stale" not in concepts
+
+    @pytest.mark.unit
     def test_skips_non_python_files(self, tmp_path: Path):
         """
         Scenario: Non-Python files are ignored
