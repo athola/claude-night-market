@@ -16,9 +16,9 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "pre-commit>=3.0.0",
+    "pre-commit>=4.0.0",
     "ruff>=0.14.13",
-    "mypy>=1.11.0,<2",
+    "mypy>=1.18.2,<2",
     "ty>=0.0.1a23",
     "pytype>=2024.10.11 ; python_version >= '3.10'",
     "typos>=1.0.0",
@@ -35,7 +35,7 @@ dev = [
     "ruff>=0.14.13",
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
-    "pytest-cov>=4.1",
+    "pytest-cov>=6.0.0",
     "pytest-mock>=3.15.1",
     "pytest-asyncio>=0.25.0",
     "pytest-bdd>=7.0.0",

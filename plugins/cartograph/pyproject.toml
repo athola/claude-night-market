@@ -20,7 +20,7 @@ dev = [
     # Python there, so mypy has to exist in this plugin's own environment.
     # It resolved anyway on a machine with a global mypy on PATH and failed
     # on a clean runner with "Failed to spawn: mypy".
-    "mypy>=1.11.0,<2",
+    "mypy>=1.18.2,<2",
 ]
 
 # python_version 3.9, matching abstract and requires-python. These hooks run

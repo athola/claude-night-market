@@ -9,10 +9,10 @@ description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
   "pytest>=8.0.0",
-  "pytest-asyncio>=0.23.0",
+  "pytest-asyncio>=0.25.0",
   "pytest-cov>=6.0.0",
-  "pytest-mock>=3.14.0",
-  "pytest-xdist>=3.6.0",
+  "pytest-mock>=3.15.1",
+  "pytest-xdist>=3.6.1",
   "pytest-json-report>=1.5.0",
   "coverage[toml]>=7.6.0",
   "jsonschema>=4.22.0",
@@ -32,9 +32,9 @@ include = [
 dev = [
   "black>=24.10.0",
   "ruff>=0.14.13",
-  "mypy>=1.13.0,<2",
+  "mypy>=1.18.2,<2",
   "pre-commit>=4.0.0",
-  "bandit>=1.7.9"
+  "bandit>=1.7.9,<2.0"
 ]
 
 [tool.pytest.ini_options]

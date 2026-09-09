@@ -30,26 +30,26 @@ classifiers = [
 ]
 
 dependencies = [
-    "pyyaml>=6.0.0,<7.0.0",
+    "pyyaml>=6.0.2,<7.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     # Development tools
     "ruff>=0.14.13",                    # Linting and formatting
-    "mypy>=1.11.0,<2",                     # Type checking
+    "mypy>=1.18.2,<2",                     # Type checking
     "pre-commit>=4.0.0",                # Git hooks
 
     # Testing
     "pytest>=8.0",
-    "pytest-cov>=4.0",
+    "pytest-cov>=6.0.0",
 
     # Advanced testing
-    "pytest-xdist>=3.0",                # Parallel testing
+    "pytest-xdist>=3.6.1",                # Parallel testing
     "pytest-benchmark>=4.0.0,<6.0.0",   # Performance testing
 
     # Security scanning
-    "bandit>=1.7.5,<2.0.0",             # Security vulnerability scanner
+    "bandit>=1.7.9,<2.0.0",             # Security vulnerability scanner
 ]
 
 [project.urls]
@@ -179,8 +179,8 @@ skips = ["B101", "B601"]
 
 [dependency-groups]
 dev = [
-    "mypy>=1.11.0,<2",
+    "mypy>=1.18.2,<2",
     "ruff>=0.14.13",
     "pytest>=8.0",
-    "pytest-cov>=4.0",
+    "pytest-cov>=6.0.0",
 ]

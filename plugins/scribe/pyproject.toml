@@ -22,8 +22,8 @@ extend-select = ["PLR0913"]
 [dependency-groups]
 dev = [
     "pytest>=8.0",
-    "pytest-cov>=4.0",
-    "mypy>=1.11.0,<2",
+    "pytest-cov>=6.0.0",
+    "mypy>=1.18.2,<2",
     "ruff>=0.14.13",
 ]
 
