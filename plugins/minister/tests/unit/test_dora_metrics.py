@@ -12,6 +12,7 @@ import json as _json
 import subprocess as _sub
 import typing
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 
@@ -623,10 +624,45 @@ class TestCliArgumentValidation:
         argv = captured[0]
         # Find the position of "--" and the branch, and ensure "--" precedes it
         # so git treats it as a positional rather than a flag.
-        assert "--" in argv, "git log argv must include '--' separator"
-        sep_idx = argv.index("--")
+        assert "--end-of-options" in argv, (
+            "git log argv must include the '--end-of-options' separator"
+        )
+        sep_idx = argv.index("--end-of-options")
         assert "--malicious" in argv[sep_idx:], (
-            "branch must follow the '--' separator, not precede it"
+            "branch must follow the separator, not precede it"
+        )
+        assert "--" not in argv, (
+            "'--' separates revisions from PATHS in git log, so a branch "
+            "placed after it is read as a pathspec and matches nothing"
+        )
+
+    def test_collects_real_commits_from_a_git_repository(self, tmp_path: Path) -> None:
+        """Every DORA tier is computed from this call, so it must return rows.
+
+        The sibling test above mocks `_run_git` and checks argv shape, so
+        it stayed green while the separator made git match zero commits.
+        This one runs git.
+        """
+        repo = tmp_path / "repo"
+        repo.mkdir()
+
+        def run(*argv: str) -> None:
+            _sub.run(argv, cwd=repo, check=True, capture_output=True)
+
+        run("git", "init", "-q", "-b", "main")
+        run("git", "config", "user.email", "t@example.com")
+        run("git", "config", "user.name", "T")
+        (repo / "f.txt").write_text("one")
+        run("git", "add", "f.txt")
+        run("git", "commit", "-q", "-m", "first")
+
+        result = dora_metrics.collect_deployments_from_git(
+            branch="main", window_days=3650, cwd=repo
+        )
+        events = result.events if hasattr(result, "events") else result
+        assert len(events) >= 1, (
+            "collect_deployments_from_git returned no deployments for a "
+            "repository that has commits"
         )
 
 
