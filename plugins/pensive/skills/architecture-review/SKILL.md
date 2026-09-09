@@ -36,11 +36,6 @@ modules:
 ## Testing
 
 Run `pytest plugins/pensive/tests/skills/test_architecture_review.py` to verify review logic.
-- [Architecture Principles Checklist](#architecture-principles-checklist)
-- [Coupling](#coupling)
-- [Cohesion](#cohesion)
-- [Layering](#layering)
-- [Evolution](#evolution)
 
 
 # Architecture Review Workflow

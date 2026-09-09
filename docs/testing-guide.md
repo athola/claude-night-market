@@ -358,8 +358,9 @@ Never skip tests with `--no-verify` unless it is a dire emergency.
 ## CI/CD Integration
 
 Testing integrates with our continuous integration pipelines.
-See [Quality Gates - CI/CD Integration](./quality-gates.md#cicd-integration)
-for details.
+See [Quality Gates - Use Cases](./quality-gates.md#use-cases), which names
+the three workflows CI runs: `lint.yml`, `typecheck.yml` and
+`ecosystem-tests.yml`.
 
 ## Skipping Tests (Emergency Only)
 

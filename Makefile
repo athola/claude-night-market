@@ -37,7 +37,14 @@ $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 .PHONY: help all test lint fix typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan \
 	test-ecosystem check-json-utils check-discussions writeback-discussions validate-skills analyze-skills
 
-# Default target
+# The plugin delegation rules above are generated with $(eval), so the first
+# rule Make sees here is `abstract:`, not `all:`. Without this assignment a
+# bare `make` ran `make -C plugins/abstract`, which under that plugin's own
+# default goal is whatever python.mk declares first. Pin the goal explicitly;
+# rule order cannot then decide it. Same fix as common.mk applies per plugin.
+.DEFAULT_GOAL := help
+
+# Aggregate target. Not the default: `.DEFAULT_GOAL` above selects `help`.
 all: lint test ## Run lint and test across all plugins
 
 help: ## Show this help message

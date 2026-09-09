@@ -34,26 +34,6 @@ modules:
 ## Verification
 
 Run `make test-feature-review` to verify scoring logic after changes.
-- [4. Upload to GitHub](#4-upload-to-github)
-- [Workflow](#workflow)
-- [Phase 1: Feature Discovery (`feature-review:inventory-complete`)](#phase-1:-feature-discovery-(feature-review:inventory-complete))
-- [Phase 2: Classification (`feature-review:classified`)](#phase-2:-classification-(feature-review:classified))
-- [Phase 3: Scoring (`feature-review:scored`)](#phase-3:-scoring-(feature-review:scored))
-- [Phase 4: Tradeoff Analysis (`feature-review:tradeoffs-analyzed`)](#phase-4:-tradeoff-analysis-(feature-review:tradeoffs-analyzed))
-- [Phase 5: Gap Analysis & Suggestions (`feature-review:suggestions-generated`)](#phase-5:-gap-analysis-&-suggestions-(feature-review:suggestions-generated))
-- [Phase 6: GitHub Integration (`feature-review:issues-created`)](#phase-6:-github-integration-(feature-review:issues-created))
-- [Configuration](#configuration)
-- [Configuration File](#configuration-file)
-- [Guardrails](#guardrails)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Integration Points](#integration-points)
-- [Output Format](#output-format)
-- [Feature Inventory Table](#feature-inventory-table)
-- [Suggestion Report](#suggestion-report)
-- [Feature Suggestions](#feature-suggestions)
-- [High Priority (Score > 2.5)](#high-priority-(score->-25))
-- [Related Skills](#related-skills)
-- [Reference](#reference)
 
 
 # Feature Review
