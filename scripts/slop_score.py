@@ -53,6 +53,27 @@ from scribe.pattern_loader import (  # noqa: E402 - path must be set before impo
     load_language_patterns,
 )
 
+# Below this many words of prose, a Python file's score measures its
+# denominator rather than its writing. The score is hits per 100 words
+# and a tier 1 hit is worth 3, so under ~100 words one hit alone can
+# put a file over a 3.0 threshold. Measured over six plugins: a module
+# with 14 words of docstring and a single finding scored 21.43, against
+# 1.55 for a 1029-word ADR carrying twelve.
+#
+# 150 is where that stops. Sweeping 50, 100 and 150 against the same
+# six plugins, it is the lowest value at which every surviving file
+# carries at least three findings: 50 leaves fourteen files gating on
+# one or two, 100 leaves six, 150 leaves none.
+#
+# Python only, and deliberately. A one-line module docstring is
+# ordinary; a 14-word README is a finding in itself. The markdown gate
+# keeps the behavior it had.
+#
+# The same reasoning already governs `scribe.negation`, whose density
+# check floors at 8 sentences because a ratio over a handful of them
+# describes the sample rather than the writing.
+PYTHON_WORD_FLOOR = 150
+
 TIER1_WEIGHT = 3
 TIER2_WEIGHT = 2
 EM_DASH_WEIGHT = 1
@@ -430,6 +451,16 @@ def _python_prose(source: str) -> str:
     return "\n".join(kept)
 
 
+def _below_word_floor(path: Path, words: int) -> bool:
+    """True when *path* is Python prose too short to score meaningfully.
+
+    Gating only. `--audit` reports every finding whatever the length,
+    because a finding is true regardless of how much surrounds it. It
+    is the ratio that needs a denominator worth dividing by.
+    """
+    return path.suffix == ".py" and words < PYTHON_WORD_FLOOR
+
+
 def _read_prose(path: Path) -> str:
     """The scorable prose of *path*: all of a .md, the comments of a .py."""
     text = path.read_text(errors="replace")
@@ -488,10 +519,17 @@ def _ratchet(paths: list, allow: frozenset, ref: str, threshold: float) -> int:
     failed = []
     for path in paths:
         current = score_text(_read_prose(path), allowlist=allow)
+        if _below_word_floor(path, current.words):
+            continue
         if current.score <= threshold:
             continue
         base_text = _base_text(path, ref)
         base = None if base_text is None else score_text(base_text, allowlist=allow)
+        # A base under the floor is not a baseline. Comparing against a
+        # 14-word docstring that scored 21 would let two hundred words
+        # of new prose through as "not worse".
+        if base is not None and _below_word_floor(path, base.words):
+            base = None
         if base is not None and current.score <= base.score:
             continue
         failed.append((path, current, base))
@@ -563,10 +601,21 @@ def main(argv: list | None = None) -> int:
         return _ratchet(paths, allow, args.ratchet, args.threshold)
 
     scored = []
+    floored = []
     for path in paths:
         result = score_text(_read_prose(path), allowlist=allow)
-        if result.words:
-            scored.append((result.score, path, result))
+        if not result.words:
+            continue
+        if _below_word_floor(path, result.words):
+            floored.append(path)
+            continue
+        scored.append((result.score, path, result))
+
+    if floored:
+        print(
+            f"{len(floored)} python files under the "
+            f"{PYTHON_WORD_FLOOR}-word floor, not scored"
+        )
 
     if not scored:
         print("no prose files scanned")

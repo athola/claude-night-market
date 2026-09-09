@@ -898,3 +898,108 @@ class TestPythonCommentsAreScanned:
             check=False,
         )
         assert "negative_parallelism" in completed.stdout
+
+
+class TestPythonWordFloor:
+    """A short docstring's score measures its denominator.
+
+    The score is weighted hits per 100 words. A tier 1 hit is worth 3,
+    so under roughly 100 words a single finding can put a file over a
+    3.0 threshold on its own. Measured over six plugins, a module with
+    14 words of docstring and one finding scored 21.43 while a
+    1029-word ADR carrying twelve scored 1.55.
+
+    The floor gates only. `--audit` still reports every finding,
+    because a finding is true however much prose surrounds it.
+    """
+
+    @pytest.mark.unit
+    def test_a_short_python_file_is_floored_out_of_the_gate(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: One hit in a one-line docstring does not gate."""
+        module = tmp_path / "short.py"
+        module.write_text('"""A comprehensive helper."""\n', encoding="utf-8")
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--threshold",
+                "3.0",
+                "--python",
+                str(tmp_path),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert "under the 150-word floor, not scored" in completed.stdout
+        assert "short.py" not in completed.stdout
+        assert completed.returncode == 0
+
+    @pytest.mark.unit
+    def test_a_long_python_file_still_gates(self, tmp_path: Path) -> None:
+        """Scenario: Past the floor, the score means what it always did."""
+        module = tmp_path / "long.py"
+        filler = " ".join(["the parser reads a record and returns it"] * 30)
+        module.write_text(
+            '"""' + filler + " This is a comprehensive and robust seamless"
+            " comprehensive robust comprehensive solution." + '"""\n',
+            encoding="utf-8",
+        )
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--threshold",
+                "3.0",
+                "--python",
+                str(tmp_path),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert "long.py" in completed.stdout
+        assert completed.returncode == 1
+
+    @pytest.mark.unit
+    def test_a_short_markdown_file_is_not_floored(self, tmp_path: Path) -> None:
+        """Guard: the floor is Python only.
+
+        A one-line module docstring is ordinary. A 14-word README is a
+        finding in itself, so markdown keeps the behavior it had and
+        the `docs book/src` gate is untouched.
+        """
+        doc = tmp_path / "short.md"
+        doc.write_text(
+            "A comprehensive robust seamless actionable solution.\n",
+            encoding="utf-8",
+        )
+        completed = subprocess.run(
+            [sys.executable, str(SCRIPT), "--threshold", "3.0", str(tmp_path)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert "short.md" in completed.stdout
+        assert "word floor" not in completed.stdout
+        assert completed.returncode == 1
+
+    @pytest.mark.unit
+    def test_audit_reports_a_finding_below_the_floor(self, tmp_path: Path) -> None:
+        """Guard: the floor gates, it does not hide.
+
+        A finding is true however little prose surrounds it. Only the
+        ratio needs a denominator worth dividing by.
+        """
+        module = tmp_path / "tiny.py"
+        module.write_text('"""A comprehensive helper."""\n', encoding="utf-8")
+        completed = subprocess.run(
+            [sys.executable, str(SCRIPT), "--audit", "--python", str(tmp_path)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert "comprehensive" in completed.stdout
+        assert "1 findings" in completed.stdout
