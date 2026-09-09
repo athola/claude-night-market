@@ -97,9 +97,13 @@ one.
 `--python` adds `.py` files to a directory sweep and scores their
 comments and docstrings, which is where half of this behavior lives. A
 `.py` path named directly is always read that way. It is off for a
-directory by default because the gate CI runs is markdown, and turning
-a whole tree of docstrings on at once would fail it on text nobody was
-asked to review.
+directory by default, and the reason is measured: a gate-mode sweep of
+six plugins scanned 1397 files and put 37 over the 3.0 threshold, most
+of them genuine house-style findings in text nobody has triaged yet.
+Use `--audit` and read them. Two shapes there need a person rather
+than a rewrite, both cases where markdown would have carried backticks
+and a comment does not: a character quoted because the code matches it
+(`scribe/negation.py:34`) and a formula (`scribe/tape_generator.py:220`).
 
 `scripts/slop_score.py --threshold 3.0 docs book/src` is the
 same script in gate mode, which is what CI runs on those two
