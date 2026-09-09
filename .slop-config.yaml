@@ -14,6 +14,10 @@ allowlist:
   - paradigms   # same, the plural names the router skill archetypes:architecture-paradigms
   - scalability # a named requirement axis in the paradigm selector, not a booster word
   - forge       # git forge is the term of art for GitHub, GitLab and Bitbucket in leyline:git-platform
+  - ecosystem   # this repo's own word for the plugin set (16 uses in CHANGELOG) and conserve's context_scanner detects package ecosystems: npm, pip, cargo
+  - ecosystems  # same, and the plural names plugins/conserve/scripts/context_scanner/ecosystems.py
+  - harness     # the Claude Code runtime, named that by three rule files; the alternative is a circumlocution
+  - disruptive  # the CD index pole in tome's impact metrics, from Funk and Owen-Smith 2017, opposite "consolidating"
 
 # A document that defines a pattern matches it. These quote every tell
 # they describe, so the gate and the ratchet skip them. `--audit` still

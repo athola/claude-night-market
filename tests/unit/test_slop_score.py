@@ -1003,3 +1003,37 @@ class TestPythonWordFloor:
         )
         assert "comprehensive" in completed.stdout
         assert "1 findings" in completed.stdout
+
+
+class TestDoubleBacktickCodeIsStripped:
+    """RST marks code with two backticks and the scorer must see that.
+
+    The single-backtick alternative consumes an opening pair as an
+    empty span, leaving the code between them bare. Docstrings across
+    this repository use the RST convention, so a formula reached the
+    scorer as prose and its plus sign scored as a conjunction.
+    """
+
+    @pytest.mark.unit
+    def test_a_formula_in_double_backticks_does_not_score(self) -> None:
+        """Scenario: Arithmetic marked as code is code."""
+        text = "The ratio ``(n_i - n_j) / (n_i + n_j + n_k)`` bounds it."
+        result = score_text(text, allowlist=load_allowlist())
+        categories = {finding.category for finding in result.findings}
+        assert "plus_sign_conjunction" not in categories
+
+    @pytest.mark.unit
+    def test_a_plus_conjunction_outside_code_still_scores(self) -> None:
+        """Guard: the fix strips code, it does not disable the category."""
+        text = "ADR + architecture documentation analysis for the review."
+        result = score_text(text, allowlist=load_allowlist())
+        categories = {finding.category for finding in result.findings}
+        assert "plus_sign_conjunction" in categories
+
+    @pytest.mark.unit
+    def test_single_backtick_code_is_still_stripped(self) -> None:
+        """Guard: the added alternative did not displace the old one."""
+        text = "Call `a + b` when the counter advances past the mark."
+        result = score_text(text, allowlist=load_allowlist())
+        categories = {finding.category for finding in result.findings}
+        assert "plus_sign_conjunction" not in categories

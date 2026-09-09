@@ -81,7 +81,13 @@ EM_DASH_WEIGHT = 1
 CONFIG_NAME = ".slop-config.yaml"
 
 _FENCED_CODE = re.compile(r"^```.*?^```", re.DOTALL | re.MULTILINE)
-_INLINE_CODE = re.compile(r"`[^`\n]*`")
+# Double-backtick spans come first, because the single-backtick
+# alternative would consume the opening pair as an empty span and leave
+# the code between them bare. RST and Sphinx docstrings mark code that
+# way by convention, so before this the formula in ``(n_i - n_j) / (n_i
+# + n_j)`` reached the scorer as prose and scored a plus sign as a
+# conjunction.
+_INLINE_CODE = re.compile(r"``[^`]*``|`[^`\n]*`")
 
 
 @dataclass(frozen=True)
