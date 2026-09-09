@@ -7,6 +7,121 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Dependency refresh, and the mypy ceiling that survived it.** A
+  scan read `mypy>=X,<2` as the one blocking upper bound in the tree:
+  28 specs across 23 files, against a current mypy of 2.3.1, with the
+  rationale recorded nowhere. Widening it was the obvious move and it
+  was wrong.
+
+  mypy 2.x refuses `python_version = "3.9"`, which 22 of the 23 plugin
+  configs set, and it treats that as a note rather than an error.
+  Given `def f(x: int | None)`
+  under a 3.9 config, mypy 1.20.2 reports `X | Y syntax for unions
+  requires Python 3.10` and mypy 2.3.1 reports `Success: no issues
+  found`, both exiting 0. The hooks run on the system interpreter,
+  which is 3.9.6 on macOS, so adopting mypy 2 would have retired the
+  check that keeps them runnable while the gate still read green.
+
+  The ceiling stays and now has a record.
+  `tests/test_mypy_ceiling_holds_for_3_9_targets.py` requires `<2` on
+  every mypy spec in a pyproject that targets 3.9, and a second
+  assertion fails if no pyproject targets 3.9 any more, so the first
+  one cannot quietly start skipping. TR-003 in `docs/tradeoffs.md`
+  carries the decision and its revisit trigger, which is the 3.9
+  target going away, not a newer mypy.
+
+  Floor drift is gone. Fourteen packages carried different minimums in
+  different plugins: `pytest` at three, `mypy` at four,
+  `pytest-asyncio` at five, `ruff` at `>=0.4.0` in phantom against
+  `>=0.14.13` in twenty-five others. Each is now the highest floor
+  that was already in use, raised by version comparison so no floor
+  moved down, and `PyYAML` and `types-PyYAML` are spelled the PEP 503
+  way the rest of the tree already used. This changes no resolution:
+  every one of the 21 lock files already sat above every floor
+  involved. It changes what a resolve on a clean machine is allowed to
+  pick.
+
+  The 21 lock files were then upgraded, moving 207 pinned versions.
+  Nothing crossed a major. `anthropic` stops at 0.125.0 rather than
+  PyPI's 1.4.0, and the reason is the same `requires-python = ">=3.9"`
+  that pins mypy: anthropic 1.x needs 3.10 or later. Verified after
+  the upgrade: lint passes in 21 plugins, type checks pass in 23,
+  tests pass in 23, and the root suite runs 7130 tests green.
+
+- **The two designs ADR-0019 missed.** That ADR retires
+  `docs/superpowers/` and records what shipped from it, and it was
+  written against eight of the ten specs. The two earliest, dated
+  2026-03-18 and 2026-03-19, were still on disk and went unrecorded,
+  which is why a bloat scan kept finding 2,900 lines of implementation
+  plan in a directory the ADR had already declared retired.
+
+  Both are recorded now in the same format as the rest: what shipped,
+  the seam that mattered, and a table of what was rejected and why. The
+  deferred-capture entry carries the constraint that still governs the
+  hooks, which is that a PostToolUse hook has under two seconds, so it
+  detects and writes a ledger entry while the Stop hook makes every
+  `gh` call. Their implementation plans go, as scaffolding, which is
+  what the ADR's own Decision section says to do with a task checklist
+  for shipped work.
+
+  `docs/superpowers/` was listed twice in `.gitignore`. The copy
+  carrying the ADR-0019 rationale is the one that stayed.
+
+### Fixed
+
+- **Six defects the documentation pass surfaced and left standing.**
+  Each was reported without a fix at the time. Each now has a guard.
+
+  The root `Makefile` had the same defect its plugins were fixed for,
+  from a different cause. Its per-plugin delegation rules are generated
+  with `$(eval)` before `all:` is declared, so the first rule Make saw
+  was `abstract:`, and a bare `make` at the repository root ran
+  `make -C plugins/abstract`. The comment above `all:` called it the
+  default target, which Make never read.
+  `tests/test_makefile_default_goal.py` covered all 23 plugins and not
+  the root. It does both now, and the integration case asks Make itself
+  rather than reading the file.
+
+  `docs/lessons-learned.md` had LL-006 in the body and not in the
+  active index, and LL-005 and LL-006 sat below the entry template
+  while `journal_append.py` inserts above it, which is how LL-007
+  landed ahead of both. The entries are in one place and in order, and
+  the tool still resolves the next id against them.
+
+  Three anchor links pointed at headings that do not exist:
+  `docs/testing-guide.md` cited a CI/CD section of `quality-gates.md`
+  that was never written, `docs/guides/data-extraction-pattern.md`
+  cited `#progressive-disclosure` where the heading is numbered, and
+  `plugins/imbue/skills/feature-review/SKILL.md` cited a step that had
+  been renumbered. A path check passes on all three, because the file
+  resolves and only the fragment is wrong, so the link renders and
+  lands at the top of the page.
+  `tests/test_intra_repo_anchors_resolve.py` checks every fragment
+  link in every tracked markdown file, 1508 cases, and a second
+  assertion fails if the skip list ever makes that vacuous.
+
+  Two SKILL.md files kept a table-of-contents list after the heading
+  above it was deleted in 4a35d692, stranded between a Verification
+  section and the document title. `feature-review` carried 20 such
+  lines and `architecture-review` five. Zero remain.
+
+  `- Action: X -- Owner: Y -- Due: Z` came from the entry template in
+  `decision_journal.py`, so every recorded action item in both journals
+  used the spaced double dash that `slop-scan-for-docs.md` rule 2a
+  calls always-fix, and a fix to the documents alone would have
+  re-drifted on the next append. The template and its 32 rendered
+  instances now use periods.
+
+  The Python 3.9 floor is now asserted rather than assumed. Every
+  plugin declares `requires-python = ">=3.9"` and a case in the mypy
+  ceiling test fails if one raises it, because the hooks run on the
+  system interpreter and the mypy target means nothing once the
+  package stops installing there.
+
+## [1.9.20] - 2026-09-09
+
 ### Added
 
 - **Temporal-residue detection and an edit-narration guard
@@ -117,10 +232,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   manifests and pixel-domain marks was declined: those defeat content
   provenance rather than sanitize text.
 
-## [1.9.20] - 2026-09-03
-
-### Added
-
 - **Audience targeting for generated documentation (scribe, sanctum,
   abstract, attune).** Document economy scored whether a sentence
   earned its cost. It could not score whether it earned it for
@@ -207,6 +318,133 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   over-explained fixes, negative framing and negation density.
 
 ### Fixed
+
+- **The pre-commit gate fails closed (gauntlet).** A crash in any of
+  the other 76 hooks in the ecosystem costs a log line. A crash in
+  this one releases a block. `__main__` guarded `json.loads` and then
+  called `main()` bare, so any exception below that line exited 1 and
+  the commit proceeded ungated. Silence is harmless for a logging
+  hook. For a gate, silence is permission.
+
+  Three routes reached it, one needing no malformed input at all.
+  `_get_staged_hash` caught `CalledProcessError` alone, so a PATH
+  without git raised `FileNotFoundError`. The three git calls set no
+  timeout while `hooks.json` caps the hook at 2s, so a slow git killed
+  the hook before it could deny. Any unhandled error anywhere else did
+  the same.
+
+  `run_gate` now emits the deny where a real denial is emitted, so a
+  broken gate and a refused commit look alike to the caller.
+  `GAUNTLET_PRECOMMIT_MODE=off` remains the deliberate bypass. The
+  exit-0 wrapper the other hooks use would have been the wrong fix
+  here, because it turns the crash into a silent pass.
+
+- **A bare `make` no longer rewrites the source tree (abstract).**
+  `python.mk` declares `format:` as its first rule and every plugin
+  includes it above its own `help:`, so with no explicit
+  `.DEFAULT_GOAL` Make took that first rule. In 19 of 23 plugins
+  `make` ran `ruff format` and `ruff check --fix` over the source, and
+  the root Makefile's `make <plugin>` delegation invoked exactly that.
+  Inspecting an unfamiliar plugin rewrote it.
+
+  `Skill(pensive:makefile-review)` module `best-practices.md` has
+  prescribed `.DEFAULT_GOAL := help` since it was written, and no
+  Makefile here set it. Explicit assignment beats first-rule order
+  whatever the include position, so one line in `common.mk` covers
+  every plugin. Verified with `make --dry-run` across all 23: none
+  prints "Formatting code" now. The second test pins the consequence
+  of setting a goal in a shared include, which is that a plugin
+  without `help:` would fail hard instead of falling through. All 23
+  have the target today.
+
+- **Every DORA metric read zero (minister).** Issue #526 put a bare
+  `--` in front of the branch so that a value like `--upload-pack=...`
+  could not be read as a git flag. In `git log` that separator divides
+  revisions from paths, so the branch became a pathspec, matched no
+  file, and the collector returned nothing. Measured here: the bare
+  separator with `HEAD` returns 0 commits, `--end-of-options HEAD`
+  returns 1440.
+
+  Every tier, and the whole report, was computed from an empty deploy
+  list. `partial` stayed `False`, so `--strict` saw nothing wrong.
+  `--end-of-options` is the separator for this job, and git still
+  rejects `--upload-pack=...` placed after it, so the protection issue
+  #526 asked for holds. The test that pinned the wrong shape mocked
+  `_run_git` and asserted on argv, which is how it stayed green
+  through the defect. It now requires the right separator and the
+  absence of the bare one, and a second test runs git against a real
+  repository and requires a row back.
+
+- **Knowledge extraction walks subdirectories (gauntlet).**
+  `extract_from_directory` promised a recursive walk and used a flat
+  `glob("*.py")`. Its only caller, `scripts/extractor.py`, points it
+  at a project root, so every knowledge base built from a real
+  codebase held the top-level modules and nothing else, with no error
+  and no partial-scan indicator.
+
+  Recursion alone would descend into `.venv` and `site-packages` and
+  build a knowledge base of the dependencies, so vendored and cache
+  directories are skipped whole. Any dot-prefixed directory counts,
+  which covers `.venv`, `.git`, `.tox` and `.mypy_cache` without
+  naming each. Two tests were red before the change: a nested module
+  is found, and a planted `.venv` and `__pycache__` are not.
+
+- **Nested definitions stay in the code graph (gauntlet).**
+  `_extract_from_tree` returned as soon as it recorded a function and
+  never descended into the body, so closures, local helpers and nested
+  classes were absent from the graph. They had no node and no
+  CONTAINS edge, and their calls were attributed to whatever enclosed
+  them. Blast-radius analysis reasons from that graph.
+
+  Recursing alone would double-count, because `_extract_calls` walks
+  the whole subtree. It now stops at a nested definition, so a call
+  belongs to the innermost function containing it and the nested
+  definition is visited in its own right. Three tests were red before
+  the change, and the third is the one that matters: a call written
+  only inside a helper produces exactly one CALLS edge.
+
+  The first draft of those tests matched a symbol against the whole
+  `qualified_name`, which embeds the file path. pytest builds
+  `tmp_path` out of the test name, so
+  `test_extracts_a_helper_nested_in_a_method` found "helper" in its
+  own temp directory and passed against unfixed code. They compare the
+  symbol after `::` now.
+
+- **Destructive Makefile targets name their own paths (memory-palace,
+  scry).** `PALACES_DIR` was assigned with `?=`, which yields to an
+  exported value, and `demo-reset` ran `rm -rf` on it. `PALACES_DIR`
+  is the variable the plugin's own CLI reads to find a real palace
+  store, so a contributor with it exported who ran `make plugin-check`
+  reached `demo-import`, whose prerequisite is `demo-reset`, and lost
+  the store. `demo-reset` carried no `##` comment, so it never
+  appeared in `make help` either.
+
+  The demo now has its own hard-assigned directory. The management
+  targets keep honoring `PALACES_DIR`, which is what that override is
+  for, and only the destructive path is pinned. Verified with
+  `--dry-run` under an exported `PALACES_DIR`: the `rm` still names
+  the plugin's `.demo-palaces`. The guard is a contract test over
+  every Makefile rather than a fix to this one, and it found a second
+  instance nobody had reported, where `plugins/scry` runs `rm -rf` on
+  `TMP_DIR`, also assigned with `?=` and also a name a contributor may
+  have exported.
+
+- **The spaced double dash can fail a gate (scribe).**
+  `slop-scan-for-docs.md` rule 2a calls that tell high-confidence and
+  always-fix. It was registered in `_audit_rules` only, and
+  `slop-check.yml` runs gate and ratchet mode and never `--audit`, so
+  the category could not fail anything anywhere in the pipeline. It
+  was also a hand-written literal in a script whose header says every
+  pattern is sourced from the YAML.
+
+  Promoting it to the gate exposed that the exemption rule 2a states
+  was documented and never implemented: the bare pattern matched
+  `| -- |`, which is markdown table syntax and appears in nearly every
+  table here. The pipe guards implement it, and a test pins each half.
+  Both rule lists now share one compiled pattern, so the gate and the
+  audit cannot drift again. The gate reads 134 files and max 2.19 as
+  before. Its average moved from 0.38 to 0.39 as the category entered
+  scoring.
 
 - **The attestation workflow signed a report of a sweep it could not
   run.** `trust-attestation.yml` runs `make test`, which runs every
@@ -328,6 +566,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Three documents over their directory limit, folded into the
+  documents where the content belongs.** `docs/quality-gates.md` ran to 600
+  lines against a 500-line limit for `docs/`. Its Dogfooding Harness
+  Lessons section was a retrospective sitting in a reference document,
+  so it moved to `docs/lessons-learned.md` as LL-007 through
+  `plugins/leyline/scripts/journal_append.py`, which is what assigns
+  the id and the stable key. A Running Validation section repeated
+  commands the Usage Guide already gave, and the one form it had to
+  itself, `pre-commit run`, moved there. The file reads 498.
+
+  `plugins/egregore/README.md` ran to 372 against the 300-line limit
+  for a plugin README, and five of its sections existed twice: once in
+  full in the README and once as a summary on
+  `book/src/plugins/egregore.md`. The book page now carries the detail,
+  including the Stop Hook Stall Bound table, and the README points at
+  it. The README reads 281 and the book page 217.
+
+  `docs/examples/hook-development/security-patterns.md` reads 499. Its
+  Related Modules list cited `hook-types.md`, `sdk-callbacks.md` and
+  `testing-hooks.md`, none of which exist. Two of the three have real
+  targets and are now linked. The glob section's heading dropped the
+  version marker it carried, which also repairs the inbound anchor from
+  `hook-types-comprehensive.md`, written against the heading without
+  it.
+
 - **conjure's delegation executor is three modules.**
   `delegation_executor.py` was 1,785 lines carrying five concerns, with
   23 fix commits and 31 since March. The provider registry, the
@@ -390,6 +653,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     until a named need justifies the refactor, and the
     `content_parser_` finding was a `TYPE_CHECKING` stub whose real
     signature in `skills/base.py` uses the parameter.
+
+### Tests
+
+- **Coverage over the entities these fixes changed.** Branch coverage
+  over the changed code found paths the fixes reached and their own
+  tests did not. `extract_from_directory` has always taken
+  `exclude_patterns` and nothing exercised it, and recursion raises
+  the stakes, since a pattern now has to hold at any depth.
+  `_extract_calls` stops at both function and class boundaries and
+  only the function half was covered. Nesting was tested one level
+  deep, which is the depth at which a partial fix still looks correct.
+
+  Three git helpers in `precommit_gate` were widened to `_GIT_FAILURES`
+  together and one had a test, so the other two could narrow back
+  unnoticed and reopen the gate. `run_gate` was tested for the crash
+  path only, and the pass-through carries every ordinary allow. The
+  DORA separator change claims it preserves issue #526's protection,
+  and the existing test inspects argv, which cannot tell whether git
+  agrees, so a new one asks git and requires a nonzero exit.
+
+  Two of the additions pin invariants instead of behaviors. The gate
+  and the audit must hold the same compiled `double_dash` object,
+  since separate lists are what let the category go unenforced, and
+  every scored category must be locatable by the audit, or a
+  contributor gets a failing build with no line number.
+
+  The default-goal test asserted file content. Only make can say what
+  a bare invocation runs, so it now runs `make --dry-run` across all
+  23 plugins. Verified as a real guard: with `.DEFAULT_GOAL` removed
+  it fails and names the `ruff format` recipe.
 
 ## [1.9.19] - 2026-08-26
 
