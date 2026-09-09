@@ -161,6 +161,22 @@ def generate_challenge_for_files(
 # ---------------------------------------------------------------------------
 
 
+# hooks.json caps this hook at 2s. A git call with no timeout can
+# outlive that, and a killed hook returns no deny, which releases the
+# gate as surely as a traceback does.
+_GIT_TIMEOUT_SECONDS = 1
+
+# CalledProcessError alone was not enough. FileNotFoundError fires
+# whenever git is absent from the hook's PATH, and needs no malformed
+# input at all.
+_GIT_FAILURES = (
+    subprocess.CalledProcessError,
+    subprocess.TimeoutExpired,
+    FileNotFoundError,
+    OSError,
+)
+
+
 def _get_gauntlet_dir() -> Path | None:
     """Return the .gauntlet directory for the current working directory."""
     cwd = Path(os.getcwd())
@@ -178,9 +194,10 @@ def _get_staged_hash() -> str:
             capture_output=True,
             text=True,
             check=True,
+            timeout=_GIT_TIMEOUT_SECONDS,
         )
         return hashlib.sha256(result.stdout.strip().encode()).hexdigest()[:12]
-    except subprocess.CalledProcessError:
+    except _GIT_FAILURES:
         return ""
 
 
@@ -192,9 +209,10 @@ def _get_developer_id() -> str:
             capture_output=True,
             text=True,
             check=True,
+            timeout=_GIT_TIMEOUT_SECONDS,
         )
         return result.stdout.strip() or "unknown"
-    except subprocess.CalledProcessError:
+    except _GIT_FAILURES:
         return "unknown"
 
 
@@ -238,9 +256,10 @@ def _get_staged_files() -> list[str] | None:
             capture_output=True,
             text=True,
             check=True,
+            timeout=_GIT_TIMEOUT_SECONDS,
         )
         return [f for f in result.stdout.strip().splitlines() if f]
-    except subprocess.CalledProcessError:
+    except _GIT_FAILURES:
         return None
 
 
@@ -439,12 +458,43 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 # Script entry point
 # ---------------------------------------------------------------------------
 
+
+def run_gate(hook_input: dict[str, Any]) -> dict[str, Any] | None:
+    """Run the gate, denying rather than raising on an internal error.
+
+    Every other hook in this repository wraps `main()` to exit 0, so a
+    crash costs a log line. This one decides whether a `git commit`
+    proceeds, and for a gate silence is permission: an unhandled
+    exception here exited 1 and let the commit through ungated.
+
+    The deny is emitted at the same place a normal denial is, so the
+    caller cannot tell a refused commit from a broken gate. That is the
+    intended failure direction.
+    """
+    try:
+        return main(hook_input)
+    except Exception as exc:  # a gate must not fall open on a defect
+        print(f"[gauntlet-precommit-gate] internal error: {exc}", file=sys.stderr)
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "deny",
+                "permissionDecisionReason": (
+                    "The gauntlet pre-commit gate failed to evaluate this "
+                    f"commit ({type(exc).__name__}: {exc}). It denies rather "
+                    "than opening. Set GAUNTLET_PRECOMMIT_MODE=off to bypass "
+                    "deliberately, or report the error above."
+                ),
+            }
+        }
+
+
 if __name__ == "__main__":
     try:
         hook_input = json.loads(sys.stdin.read())
     except (json.JSONDecodeError, OSError):
         hook_input = {}
 
-    output = main(hook_input)
+    output = run_gate(hook_input)
     if output is not None:
         print(json.dumps(output))

@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 from unittest.mock import patch
 
+import precommit_gate
 import pytest
 from precommit_gate import (
     check_pass_token,
@@ -412,3 +413,75 @@ class TestMain:
         assert result is not None
         assert "hookSpecificOutput" not in result
         assert "additionalContext" in result
+
+
+class TestGateFailsClosed:
+    """
+    Feature: an unexpected failure denies the commit
+
+    As a pre-commit gate,
+    I want any error I did not anticipate to deny,
+    So that a crash cannot be the way past me.
+
+    This gate is the one hook among the 77 whose crash releases a
+    block rather than losing a log line. `__main__` guarded
+    `json.loads` and called `main()` bare, so any exception below it
+    became a traceback, exit 1, and a commit that proceeded ungated.
+    """
+
+    @pytest.mark.unit
+    def test_git_missing_from_path_does_not_release_the_gate(
+        self, sample_knowledge_base: Path
+    ) -> None:
+        """Scenario: git is absent, so the staged hash cannot be read.
+
+        `_get_staged_hash` caught `CalledProcessError` only. A missing
+        git raises `FileNotFoundError`, which needs no malformed input
+        to trigger: any environment whose PATH lacks git opened the
+        gate.
+        """
+        with patch(
+            "precommit_gate.subprocess.run", side_effect=FileNotFoundError("git")
+        ):
+            digest = precommit_gate._get_staged_hash()
+
+        assert digest == "", (
+            "a missing git must yield no staged hash rather than raising, "
+            "or the exception escapes main() and exits the gate nonzero"
+        )
+
+    @pytest.mark.unit
+    def test_an_unexpected_error_inside_main_denies(
+        self, sample_knowledge_base: Path
+    ) -> None:
+        """Scenario: something below main() raises.
+
+        The gate must emit a deny, not a traceback. An exit-0 wrapper
+        would be wrong here: for a gate, silence is permission.
+        """
+        with patch("precommit_gate.main", side_effect=RuntimeError("boom")):
+            output = precommit_gate.run_gate(
+                {"tool_name": "Bash", "tool_input": {"command": "git commit -m x"}}
+            )
+
+        assert output is not None, "an internal error must still produce output"
+        decision = output.get("hookSpecificOutput", {}).get("permissionDecision")
+        assert decision == "deny", f"a gate must fail closed; got {output!r}"
+
+    @pytest.mark.unit
+    def test_the_git_calls_carry_a_timeout(self) -> None:
+        """Guard: hooks.json caps this hook at 2s.
+
+        A git call with no timeout can outlive that cap, and the hook
+        is killed rather than returning its deny, which releases the
+        gate by a second route.
+        """
+        source = (
+            Path(__file__).resolve().parents[2] / "hooks" / "precommit_gate.py"
+        ).read_text(encoding="utf-8")
+        run_calls = source.count("subprocess.run(")
+        timeouts = source.count("timeout=")
+        assert timeouts >= run_calls, (
+            f"{run_calls} subprocess.run calls but only {timeouts} timeout= "
+            "arguments; a git call that hangs outlives the hook's 2s cap"
+        )
