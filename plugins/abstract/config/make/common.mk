@@ -2,6 +2,17 @@
 # Include this at the top of your Makefile: include config/make/common.mk
 
 # Default shell with error handling
+# A bare `make` must not mutate the tree. python.mk's first rule is
+# `format:`, which runs `ruff format` and `ruff check --fix`, and every
+# plugin includes it above its own `help:`. Without this assignment
+# `.DEFAULT_GOAL` fell to that first rule, so `make` in 19 of 23
+# plugins, and the root `make <plugin>` delegation that invokes exactly
+# that, rewrote the source before printing anything.
+#
+# Explicit assignment beats first-rule order regardless of include
+# position. Every plugin Makefile defines `help:`.
+.DEFAULT_GOAL := help
+
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
