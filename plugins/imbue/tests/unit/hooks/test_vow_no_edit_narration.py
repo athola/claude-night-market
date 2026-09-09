@@ -191,14 +191,19 @@ class TestZeroBaselineOverTheRepository:
         )
 
 
-# A file that defines a pattern matches it. These two quote the
-# narration they exist to catch, the same exemption
-# `.slop-config.yaml` grants the rule files and the slop-detector
-# modules. Nothing else may join this list without the count moving.
+# A file that defines a pattern matches it. Each of these quotes the
+# narration it exists to catch, the same exemption `.slop-config.yaml`
+# grants the rule files and the slop-detector modules.
+#
+# The criterion is narrow on purpose: a file earns a place here only by
+# documenting or implementing these two patterns, never by containing
+# prose that happens to trip them. A file added for the second reason
+# is the finding, and the fix belongs in the file.
 _PATTERN_DEFINING_FILES = frozenset(
     {
         "plugins/imbue/hooks/vow_no_edit_narration.py",
         "plugins/imbue/tests/unit/hooks/test_vow_no_edit_narration.py",
+        "plugins/scribe/skills/slop-detector/modules/structural-patterns.md",
     }
 )
 
