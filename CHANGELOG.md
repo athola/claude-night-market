@@ -64,12 +64,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   21.43 where a 1029-word ADR with twelve scored 1.55. 150 is the
   lowest floor at which every survivor of a six-plugin sweep carries at
   least three findings. It gates only, so `--audit` still reports
-  everything, and it is Python only, so the markdown gate is unchanged.
+  everything, and it is Python only, so it moves no markdown score.
 
   `_INLINE_CODE` matched single-backtick spans alone, which meant an
   opening RST pair was consumed as an empty span and the code between
   reached the scorer as prose. That is how the formula in
   ``(n_i - n_j) / (n_i + n_j + n_k)`` scored a plus as a conjunction.
+
+  Triage also allowlisted three domain nouns: `ecosystem` for the
+  plugin set and conserve's package scanner, `harness` for the Claude
+  Code runtime, `disruptive` for the CD index pole. The allowlist is
+  global, as `paradigm` and `forge` already are, so markdown scores
+  fall with them: the `docs book/src` gate reads avg 0.38 and max 2.19
+  where it read 0.56 and 2.82. It still passes, and a gate number
+  moving on a commit that touched no markdown is the allowlist doing
+  what it is for.
 
   `scribe:doc-sweep` and `sanctum:doc-updates` now say a `.py` file is
   a valid review target and tell the reviewer to leave notation alone.
