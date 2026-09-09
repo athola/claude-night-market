@@ -98,15 +98,6 @@ class MetaEvaluator:
                 print(f"[ERROR] Failed to read {skill_file}: {e}")
             return None
 
-    def check_toc_exists(self, _content: str, _skill_name: str) -> bool:
-        """Check if skill has Table of Contents.
-
-        Disabled: ToC sections were removed ecosystem-wide per the
-        2026-04-08 plugin audit. Skills loaded into model context
-        don't benefit from HTML anchor links.
-        """
-        return True
-
     def check_verification_steps(self, content: str, skill_name: str) -> bool:
         """Check if code examples include verification steps."""
         # Look for code blocks
@@ -510,7 +501,6 @@ class MetaEvaluator:
         frontmatter = self._parse_frontmatter(content)
 
         # Run checks
-        results["checks"]["toc"] = self.check_toc_exists(content, f"{plugin}:{skill}")
         results["checks"]["verification"] = self.check_verification_steps(
             content, f"{plugin}:{skill}"
         )

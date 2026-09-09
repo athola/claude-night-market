@@ -85,12 +85,6 @@ def test_read_skill_content_returns_none_on_error(plugins_root, capsys):
     assert "Failed to read" in err_out
 
 
-def test_check_toc_exists_returns_true():
-    """ToC check is a no-op (skills don't benefit from anchor links)."""
-    e = MetaEvaluator(Path("/tmp"))  # noqa: S108 - test fixture path, not user input
-    assert e.check_toc_exists("anything", "skill") is True
-
-
 # ----------------------------------------------------------------------
 # verification, quick start, quality, anti-cargo
 # ----------------------------------------------------------------------
