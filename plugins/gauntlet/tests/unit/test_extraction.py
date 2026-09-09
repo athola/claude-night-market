@@ -436,6 +436,39 @@ class TestExtractFromDirectory:
         assert "func_stale" not in concepts
 
     @pytest.mark.unit
+    def test_a_dot_prefixed_ancestor_does_not_exclude_the_scanned_tree(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The project is scanned from inside a dot-prefixed directory
+        Given a scan root beneath an ancestor such as .claude
+        When extract_from_directory() is called on that root
+        Then the project's own entries are still returned
+
+        The installed layout is exactly this shape. extract is documented
+        as `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/extractor.py <dir>`, and
+        CLAUDE_PLUGIN_ROOT resolves under ~/.claude/plugins, so judging the
+        ancestor rather than the scanned tree returned nothing at all, with
+        no error and no partial-scan indicator.
+
+        tmp_path never contains a dot component, which is why the vendor
+        tests above pass against the defect.
+        """
+        root = tmp_path / ".claude" / "plugins" / "project"
+        root.mkdir(parents=True)
+        (root / "mine.py").write_text(
+            textwrap.dedent("""\
+            def func_under_dot_ancestor():
+                \"\"\"Project code.\"\"\"
+                pass
+        """)
+        )
+
+        entries = extract_from_directory(root)
+
+        assert [e.concept for e in entries] == ["func_under_dot_ancestor"]
+
+    @pytest.mark.unit
     def test_exclude_patterns_are_applied_under_recursion(self, tmp_path: Path) -> None:
         """
         Scenario: A caller excludes generated modules

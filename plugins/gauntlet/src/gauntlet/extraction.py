@@ -115,7 +115,8 @@ def extract_from_directory(
     for py_file in sorted(directory.rglob("*.py")):
         if py_file.name.startswith("__"):
             continue
-        if any(_is_vendor_dir(part) for part in py_file.parent.parts):
+        relative_parent = py_file.parent.relative_to(directory)
+        if any(_is_vendor_dir(part) for part in relative_parent.parts):
             continue
         if exclude_patterns and any(py_file.match(pat) for pat in exclude_patterns):
             continue
