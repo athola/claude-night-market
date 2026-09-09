@@ -96,14 +96,30 @@ one.
 
 `--python` adds `.py` files to a directory sweep and scores their
 comments and docstrings, which is where half of this behavior lives. A
-`.py` path named directly is always read that way. It is off for a
-directory by default, and the reason is measured: a gate-mode sweep of
-six plugins scanned 1397 files and put 37 over the 3.0 threshold, most
-of them genuine house-style findings in text nobody has triaged yet.
-Use `--audit` and read them. Two shapes there need a person rather
-than a rewrite, both cases where markdown would have carried backticks
-and a comment does not: a character quoted because the code matches it
-(`scribe/negation.py:34`) and a formula (`scribe/tape_generator.py:220`).
+`.py` path named directly is always read that way, so a caller passing
+a file list needs no flag.
+
+A Python score is floored at 150 words, because under that the number
+measures its denominator. The score is weighted hits per 100 words and
+a tier 1 hit is worth 3, so a module with 14 words of docstring and one
+finding scored 21.43 against 1.55 for a 1029-word ADR carrying twelve.
+150 is the lowest floor at which every surviving file in a six-plugin
+sweep carries at least three findings. The floor gates only: `--audit`
+reports every finding, because a finding is true however little prose
+surrounds it.
+
+That sweep now puts 12 files over 3.0 rather than the 37 the raw
+number gave, and 8 of the 12 are markdown that a `plugins/` sweep
+always saw and CI never gated. Of the 4 Python files left, 2 are tests
+whose scenario docstrings use "X, not Y" as precision about what is
+under test, which is the rationale register and correct.
+
+Notation is the shape to leave alone, and it is code that happens to
+sit in prose: an arrow in a mapping table
+(`memory_palace/corpus/integration_policy.py:28`), a plus in a formula
+(`scribe/tape_generator.py:220`), and a character quoted because the
+code matches it (`scribe/negation.py:34`). Code marked the RST way,
+with two backticks, is stripped before scoring.
 
 `scripts/slop_score.py --threshold 3.0 docs book/src` is the
 same script in gate mode, which is what CI runs on those two

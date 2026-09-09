@@ -58,6 +58,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a PreToolUse hook on `Write` sees only file writes, so the split
   holds structurally.
 
+  A Python score is floored at 150 words. Below that the score measures
+  its denominator: weighted hits per 100 words, a tier 1 hit worth 3,
+  and a module carrying 14 words of docstring and one finding scored
+  21.43 where a 1029-word ADR with twelve scored 1.55. 150 is the
+  lowest floor at which every survivor of a six-plugin sweep carries at
+  least three findings. It gates only, so `--audit` still reports
+  everything, and it is Python only, so the markdown gate is unchanged.
+
+  `_INLINE_CODE` matched single-backtick spans alone, which meant an
+  opening RST pair was consumed as an empty span and the code between
+  reached the scorer as prose. That is how the formula in
+  ``(n_i - n_j) / (n_i + n_j + n_k)`` scored a plus as a conjunction.
+
+  `scribe:doc-sweep` and `sanctum:doc-updates` now say a `.py` file is
+  a valid review target and tell the reviewer to leave notation alone.
+  Neither needed `--python`: both pass file lists, and the flag is for
+  directory roots.
+
 - **Invisible-Unicode detection (scribe).** A document can carry
   characters that never render: a zero-width space, a bidi override, a
   tag character. The slop detector had one Unicode check, smart
