@@ -162,6 +162,12 @@ and low-confidence categories included:
 uv run --with pyyaml python scripts/slop_score.py --audit <edited-files>
 ```
 
+Edited `.py` files belong in that list. The scorer reads a Python path
+as its comments and docstrings, keeping the line numbers, so a finding
+names the line to open. Notation is not prose: an arrow in a mapping
+table, a plus in a formula, and a character quoted because the code
+matches it are all code that happens to sit in a docstring.
+
 ### Audience Fit
 
 Before rewriting a document, name its reader. Every doc under

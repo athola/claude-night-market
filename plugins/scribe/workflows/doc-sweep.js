@@ -19,7 +19,7 @@ export const meta = {
   description:
     'Review documents through five independent layers, from identity leaks and hallucinated paths down to sentence-level slop',
   whenToUse:
-    'Run on a batch of documents before publishing, or on a large document whose problems span layers. args.docs lists the files, args.tier the declared audience tier when there is one. Returns findings by layer, critical first; it edits nothing.',
+    'Run on a batch of documents before publishing, or on a large document whose problems span layers. args.docs lists the files, args.tier the declared audience tier when there is one. A .py file is accepted and is reviewed as its comments and docstrings. Returns findings by layer, critical first; it edits nothing.',
   phases: [
     { title: 'Layers', detail: 'five reviewers, five questions' },
     { title: 'Rank', detail: 'critical first, then structural, then local' },
@@ -34,7 +34,7 @@ if (!docs.length) {
   return {
     started: false,
     reason: 'no-docs',
-    next: 'Pass args.docs as the markdown files to review.',
+    next: 'Pass args.docs as the files to review. Markdown, or .py to review its comments and docstrings.',
   }
 }
 
@@ -88,7 +88,7 @@ const LAYERS = [
     key: 'sentence',
     agentType: 'scribe:prose-reviewer',
     brief:
-      'Find sentence-level slop: contrastive negation, participial tail-loading, hedging seesaws, significance clusters, em-dash density, and British spellings. Offer the rewrite, not just the flag.',
+      'Find sentence-level slop: contrastive negation, participial tail-loading, hedging seesaws, significance clusters, em-dash density, and British spellings. Offer the rewrite, not just the flag. A .py document is its comments and docstrings; `scripts/slop_score.py --audit <file>` reads it that way and reports the real line numbers. Leave notation alone: an arrow in a mapping table, a plus in a formula, and a character quoted because the code matches it are code, not prose.',
   },
   {
     key: 'evidence',

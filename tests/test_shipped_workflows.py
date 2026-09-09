@@ -226,3 +226,32 @@ def test_every_workflow_has_a_row_in_the_capabilities_reference(
     assert f"| `{name}` | [{plugin}]" in reference, (
         f"{plugin}:{name} ships but has no row in capabilities-reference.md"
     )
+
+
+@pytest.mark.unit
+def test_doc_sweep_accepts_python_as_a_review_target() -> None:
+    """Scenario: the sweep says what a .py target means.
+
+    `scripts/slop_score.py` reads a Python path as its comments and
+    docstrings, so the workflow can review one. A reviewer told only
+    "documents" will either skip the file or review its code, and the
+    second is worse: notation in a docstring is code that happens to
+    sit in prose, and flagging it wastes the reader's time.
+    """
+    script = (
+        Path(__file__).resolve().parents[1]
+        / "plugins"
+        / "scribe"
+        / ("workflows/doc-sweep.js")
+    )
+    content = script.read_text(encoding="utf-8")
+
+    assert ".py" in content, (
+        "doc-sweep must say that a .py file is a valid review target"
+    )
+    assert "docstrings" in content, (
+        "doc-sweep must say a .py document is its comments and docstrings"
+    )
+    assert "notation" in content.lower(), (
+        "doc-sweep must tell the sentence reviewer to leave notation alone"
+    )
