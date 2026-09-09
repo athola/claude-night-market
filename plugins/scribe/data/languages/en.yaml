@@ -347,6 +347,63 @@ tier5:
       - '\b(?:is|are|was|were)\s+unable\s+to\b'
       - '\bfails?\s+to\s+(?:detect|handle|support|provide|recogni[sz]e|resolve|parse|account)\b'
       - '\bcannot\s+(?:handle|support|parse|resolve|represent|express|accommodate)\b'
+  temporal_residue:
+    # Session state leaking into an artifact that documents current
+    # state. The model narrates the change it just made ("this used to
+    # be an int field", "replaces the old handler", "no longer a
+    # tuple") in a place whose reader needs to know what the thing is
+    # now. Anthropic issue #65961 describes the mechanism exactly:
+    # comments "making references to the chat with Claude itself,
+    # leaking its chain of thoughts".
+    #
+    # Distinct from every other negation category here.
+    # `negative_definition` is negation of capability, and
+    # `negative_parallelism` is negation by contrast. This one is
+    # negation of a prior state, and none of the existing regexes
+    # reach it.
+    #
+    # Gated off by default and low confidence, for a reason measured
+    # rather than assumed. Residue is temporal narration in interface
+    # documentation. The same words in rationale documentation are
+    # correct, and this repository's own rules require them:
+    # bounded-autonomy.md asks a constraint to cite its incident, and
+    # prefer-invariants-over-fallbacks.md asks a guard to name the
+    # failure it defends. No regex separates the two. Of 458 hits
+    # measured over git-tracked files with the bare word forms, 28.8%
+    # sit in a CHANGELOG, an ADR, or a test docstring, where narrating
+    # history is the whole job. The tightened patterns below cut that
+    # to 37, which is a list a person can read.
+    #
+    # Enable it when auditing a README, a public docstring, or a
+    # field comment, where the reader wants current state and nothing
+    # else. Surface every hit; never auto-rewrite. The commit message
+    # and the changelog are where a change event belongs.
+    #
+    # The deterministic half of this category is the zero-baseline
+    # subset in plugins/scribe/hooks/guard_temporal_residue.py, which
+    # sees inserted text only.
+    score: 1
+    confidence: low
+    ignore_case: true
+    default_enabled: false
+    patterns:
+      # "this used to be a tuple", "the field no longer accepts null"
+      - '\b(?:this|it|the\s+\w+)\s+(?:used\s+to\s+(?:be|have|return|accept|live|call)|no\s+longer\s+(?:is|has|returns|accepts|takes))\b'
+      # "no longer an int field": the identity, stated as a former one
+      - '\bno\s+longer\s+(?:a|an|the)\s+\w+'
+      # "formerly a string", "previously the default"
+      - '\b(?:formerly|previously)\s+(?:a|an|the)\s+\w+'
+      - '\b(?:is|was|were|are)\s+(?:previously|formerly)\s+(?:a|an|the)\b'
+      # "the old handler method", scoped to a named code noun so that
+      # "the old one" and "the old behavior of the market" pass
+      - '\bthe\s+old\s+\w+\s+(?:field|method|function|api|name|version|approach|behaviou?r|value|flag|format|path|module|class)\b'
+      # Edit narration. The first two are the zero-baseline subset the
+      # hook also carries.
+      - '\breplaces?\s+the\s+(?:old|previous|former|earlier)\b'
+      - '\binstead\s+of\s+the\s+(?:old|previous|former|earlier)\b'
+      - '\brather\s+than\s+the\s+(?:old|previous|former|earlier)\b'
+      # "This was called handle_v1." Renaming history in a docheader.
+      - '\bthis\s+(?:was|used\s+to\s+be)\s+(?:called|named)\b'
   contrastive_parallelism:
     score: 2
     confidence: low

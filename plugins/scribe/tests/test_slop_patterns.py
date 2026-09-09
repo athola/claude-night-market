@@ -2039,3 +2039,98 @@ class TestInvisibleUnicode:
         """Guard: U+FEFF opens a file legitimately; mid-file it does not."""
         assert _category_hits(self.CATEGORY, "\ufeffThe file starts here.") == 0
         assert _category_hits(self.CATEGORY, "Mid\ufefffile is a defect.") >= 1
+
+
+class TestTemporalResidue:
+    """Session state leaking into an artifact that documents state.
+
+    The model narrates the change it just made in a place whose reader
+    needs to know what the thing is now. Anthropic issue #65961 names
+    the mechanism: comments "making references to the chat with Claude
+    itself, leaking its chain of thoughts".
+
+    This is the third kind of negation in the catalog and the other two
+    do not reach it. ``negative_definition`` negates capability,
+    ``negative_parallelism`` negates by contrast, and this negates a
+    prior state.
+
+    The negative cases carry the whole design. Temporal narration in
+    rationale documentation is correct and this repository's rules
+    require it, so a pattern set that flagged an incident-citing
+    comment would be unusable even as an opt-in.
+
+    Sourced from data/languages/en.yaml section tier5.temporal_residue.
+    """
+
+    CATEGORY = "temporal_residue"
+
+    @pytest.mark.unit
+    def test_category_is_opt_in(self) -> None:
+        """Scenario: The category stays out of a default sweep."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["default_enabled"] is False
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: Hits are surfaced for judgment, never auto-rewritten."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_default_sweep_excludes_the_category(self) -> None:
+        """Scenario: A routine run does not load it."""
+        patterns = load_language_patterns("en")
+        default_categories = {
+            entry["category"] for entry in get_tier5_patterns(patterns)
+        }
+        assert self.CATEGORY not in default_categories
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "This used to be an int field.",
+            "The payload no longer accepts a bare string.",
+            "The result is no longer a tuple.",
+            "The flag was formerly a comma-separated list.",
+            "This handler replaces the old dispatch path.",
+            "Reads the manifest instead of the previous inline config.",
+            "The old timeout value was doubled here.",
+            "This was called handle_v1 before the rename.",
+        ],
+    )
+    def test_detects_temporal_residue(self, text: str) -> None:
+        """Scenario: A change event narrated where state belongs."""
+        assert _category_hits_including_optional(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            # Rationale citing the incident a guard exists for. Required
+            # by bounded-autonomy.md and prefer-invariants-over-
+            # fallbacks.md, and measured in this repository at
+            # plugins/minister/src/minister/dora_metrics.py:169.
+            "Issue #527: None input maps to N/A, which stopped the"
+            " silent misclassification.",
+            "The request was dropped in silence because argparse"
+            " consumed it positionally.",
+            # Current-state description that happens to use a temporal
+            # word without narrating an edit.
+            "A frontmatter that no longer parses fails here.",
+            "The lock is released once the writer has finished.",
+            # Prohibitions and invariants, the shape negative_definition
+            # is gated off to protect.
+            "The write must not follow a symlink.",
+            "The hook never gates anything when the key is misplaced.",
+        ],
+    )
+    def test_rationale_and_current_state_pass(self, text: str) -> None:
+        """Guard: rationale is not residue.
+
+        Residue is temporal narration in interface documentation. The
+        same words in rationale documentation record why a guard
+        exists, which this repository's rules require. A pattern that
+        caught these would make the category unusable.
+        """
+        assert _category_hits_including_optional(self.CATEGORY, text) == 0
