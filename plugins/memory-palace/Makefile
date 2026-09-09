@@ -32,6 +32,13 @@ PY              ?= $(UV_RUN_PYTHON)
 CLI             ?= $(UV) run python scripts/memory_palace_cli.py
 INDEX_BUILDER   ?= $(UV) run python scripts/build_indexes.py
 PALACES_DIR     ?= $(PWD)/.demo-palaces
+# Hard-assigned, so an exported PALACES_DIR cannot redirect it. The
+# demo targets below delete this directory, and PALACES_DIR is the
+# variable the plugin's own CLI reads to find a real palace store
+# (scripts/memory_palace_cli.py, src/memory_palace/palace_manager.py).
+# With `?=` on both, `make plugin-check` reached demo-reset and removed
+# whatever store the contributor had exported.
+DEMO_PALACES_DIR := $(PWD)/.demo-palaces
 GARDEN_FILE     ?= examples/garden-sample.json
 IMPORT_SRC      ?= examples/palaces-sample.json
 EXPORT_DEST     ?= reports/palaces-export.json
@@ -209,22 +216,22 @@ memory-profile: ## Profile memory usage
 	fi
 
 # ---------- Demo & validation flows ----------
-demo-reset:
-	rm -rf $(PALACES_DIR)
-	mkdir -p $(PALACES_DIR)
+demo-reset: ## Recreate the demo palace store (never the user's own)
+	rm -rf $(DEMO_PALACES_DIR)
+	mkdir -p $(DEMO_PALACES_DIR)
 
 demo-import: demo-reset
-	PALACES_DIR=$(PALACES_DIR) $(CLI) import --source "$(IMPORT_SRC)" --overwrite || true
+	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) import --source "$(IMPORT_SRC)" --overwrite || true
 
 demo-export:
 	@mkdir -p $(dir $(EXPORT_DEST))
-	PALACES_DIR=$(PALACES_DIR) $(CLI) export --destination "$(EXPORT_DEST)" || true
+	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) export --destination "$(EXPORT_DEST)" || true
 
 demo-status:
-	PALACES_DIR=$(PALACES_DIR) $(CLI) status
+	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) status
 
 plugin-check: demo-import garden-metrics list search demo-export
-	@echo "Plugin demo completed against $(PALACES_DIR)"
+	@echo "Plugin demo completed against $(DEMO_PALACES_DIR)"
 
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
