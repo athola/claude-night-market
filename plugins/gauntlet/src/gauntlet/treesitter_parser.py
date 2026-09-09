@@ -270,8 +270,23 @@ def _extract_from_tree(
                     )
                 )
 
-            # Extract calls from function body
+            # Extract calls from function body, stopping at any nested
+            # definition; those are visited below in their own right.
             _extract_calls(node, file_path, language, qn, edges)
+
+            # Recurse with this function as parent, mirroring the class
+            # branch above. Closures and local helpers are ordinary
+            # Python, and a graph without them attributes their calls to
+            # whatever encloses them.
+            nested_parent = f"{parent_name}.{func_name}" if parent_name else func_name
+            for child in node.children:
+                _extract_from_tree(
+                    child,
+                    fctx,
+                    nodes,
+                    edges,
+                    parent_name=nested_parent,
+                )
             return
 
     if node_type in import_types:
@@ -342,8 +357,18 @@ def _extract_calls(
     caller_qn: str,
     edges: list[GraphEdge],
 ) -> None:
-    """Extract CALLS edges from function call expressions."""
+    """Extract CALLS edges from function call expressions.
+
+    Stops at a nested function or class definition. A call written
+    inside a local helper belongs to the helper, and `_extract_from_tree`
+    visits that helper separately. Walking through the boundary would
+    record the call once per enclosing scope and inflate the caller's
+    blast radius.
+    """
     call_types = {"call", "call_expression"}
+    nested_types = _FUNCTION_TYPES.get(language, set()) | _CLASS_TYPES.get(
+        language, set()
+    )
 
     if node.type in call_types:
         callee_name = _extract_callee_name(node)
@@ -359,6 +384,8 @@ def _extract_calls(
             )
 
     for child in node.children:
+        if child.type in nested_types:
+            continue
         _extract_calls(child, file_path, language, caller_qn, edges)
 
 
