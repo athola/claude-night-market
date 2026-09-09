@@ -371,8 +371,8 @@ tier5:
     # failure it defends. No regex separates the two. Of 458 hits
     # measured over git-tracked files with the bare word forms, 28.8%
     # sit in a CHANGELOG, an ADR, or a test docstring, where narrating
-    # history is the whole job. The tightened patterns below cut that
-    # to 37, which is a list a person can read.
+    # history is the whole job. The nine patterns below cut that to
+    # 34, which is a list a person can read.
     #
     # Enable it when auditing a README, a public docstring, or a
     # field comment, where the reader wants current state and nothing
@@ -380,7 +380,7 @@ tier5:
     # and the changelog are where a change event belongs.
     #
     # The deterministic half of this category is the zero-baseline
-    # subset in plugins/scribe/hooks/guard_temporal_residue.py, which
+    # subset in plugins/imbue/hooks/vow_no_edit_narration.py, which
     # sees inserted text only.
     score: 1
     confidence: low

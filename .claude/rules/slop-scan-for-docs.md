@@ -336,7 +336,8 @@ ever apply to this repo.
 
   The deterministic half is `vow_no_edit_narration.py`, a PreToolUse
   hook over inserted text only, carrying the two patterns that match
-  nothing committed here today. It warns by default;
+  nothing committed here today outside the two files that define them.
+  It warns by default;
   `VOW_SHADOW_MODE=0` makes it block. The instruction above is the
   probabilistic half, and the evidence says a rule alone does not hold.
 
