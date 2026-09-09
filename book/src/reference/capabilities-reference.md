@@ -508,5 +508,6 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `verify_workflow_complete.py` | sanctum | Stop | End-of-session workflow verification |
 | `vow_bounded_reads.py` | imbue | PreToolUse | Warns when discovery read budget (15 reads) is exceeded per session |
 | `vow_no_ai_attribution.py` | imbue | PreToolUse | Blocks AI attribution strings (Co-authored-by: Claude, etc.) in commits |
+| `vow_no_edit_narration.py` | imbue | PreToolUse | Flags text that narrates the edit being made, in inserted content only |
 | `vow_no_emoji_commits.py` | imbue | PreToolUse | Blocks emoji characters in git commit messages |
 | `web_research_handler.py` | memory-palace | PostToolUse | Web research processing and storage prompting; skips non-2xx error pages (#547) |

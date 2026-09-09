@@ -531,10 +531,8 @@ def main(argv: list | None = None) -> int:
         help=(
             "also sweep .py files under a directory root, scoring their "
             "comments and docstrings. A .py path named directly is always "
-            "read this way. Off for a directory by default: the gate CI "
-            "runs is markdown, and a gate-mode sweep of six plugins put "
-            "37 of 1397 files over the threshold, on findings nobody has "
-            "triaged. Pair it with --audit and read them"
+            "read this way. Off for a directory by default, because the "
+            "gate CI runs is markdown. Pair it with --audit"
         ),
     )
     parser.add_argument(
