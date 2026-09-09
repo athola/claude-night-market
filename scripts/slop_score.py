@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Score markdown for AI slop, sourcing every pattern from the YAML.
+"""Score prose for AI slop, sourcing every pattern from the YAML.
 
 `slop-check.yml` used to carry its own `TIER1=`/`TIER2=` grep
 alternations. `plugins/scribe/data/languages/en.yaml` is documented as
@@ -337,11 +337,15 @@ def _split_roots(roots: list) -> list:
 
 
 def _iter_markdown(roots: list, python: bool = False) -> list:
-    """Yield the markdown under each root, or the root itself if a file.
+    """Yield the prose files under each root, or the root itself if a file.
 
     The gate passes two directories. An audit usually passes the files a
     branch changed, so a directory-only argument would send the caller
     back to copying files into a scratch tree.
+
+    A directory yields markdown, and yields `.py` as well when *python*
+    is set. A file named directly is taken whatever its suffix, which is
+    how a single module reaches `_read_prose`.
 
     Raises FileNotFoundError for a root that does not exist. Returning
     nothing instead would report "no findings" for a list nothing read,
@@ -508,7 +512,7 @@ def _ratchet(paths: list, allow: frozenset, ref: str, threshold: float) -> int:
 
 
 def main(argv: list | None = None) -> int:
-    """Score every markdown file under the given roots."""
+    """Score every prose file under the given roots."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("roots", nargs="+", help="directories or files to scan")
     parser.add_argument("--threshold", type=float, default=3.0)
@@ -566,7 +570,7 @@ def main(argv: list | None = None) -> int:
             scored.append((result.score, path, result))
 
     if not scored:
-        print("no markdown files scanned")
+        print("no prose files scanned")
         return 0
 
     scored.sort(reverse=True, key=lambda row: row[0])
