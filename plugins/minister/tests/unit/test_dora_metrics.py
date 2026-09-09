@@ -636,6 +636,42 @@ class TestCliArgumentValidation:
             "placed after it is read as a pathspec and matches nothing"
         )
 
+    def test_git_rejects_an_option_after_the_separator(self, tmp_path: Path) -> None:
+        """Issue #526's protection must still hold under the new separator.
+
+        GIVEN "--" was chosen to stop "--upload-pack=..." reaching git
+        as a flag
+        WHEN it was replaced with "--end-of-options" to fix the
+        pathspec defect
+        THEN the replacement has to keep that property, and the
+        sibling test only inspects argv, which cannot tell whether git
+        agrees. This one asks git.
+        """
+        repo = tmp_path / "repo"
+        repo.mkdir()
+
+        def run(*argv: str) -> None:
+            _sub.run(argv, cwd=repo, check=True, capture_output=True)
+
+        run("git", "init", "-q", "-b", "main")
+        run("git", "config", "user.email", "t@example.com")
+        run("git", "config", "user.name", "T")
+        (repo / "f.txt").write_text("one")
+        run("git", "add", "f.txt")
+        run("git", "commit", "-q", "-m", "first")
+
+        hostile = _sub.run(
+            ["git", "log", "--end-of-options", "--upload-pack=/bin/echo"],
+            cwd=repo,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert hostile.returncode != 0, (
+            "git accepted a flag placed after --end-of-options; the "
+            "protection issue #526 asked for is gone"
+        )
+
     def test_collects_real_commits_from_a_git_repository(self, tmp_path: Path) -> None:
         """Every DORA tier is computed from this call, so it must return rows.
 

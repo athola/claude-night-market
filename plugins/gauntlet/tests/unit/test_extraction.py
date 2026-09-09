@@ -436,6 +436,42 @@ class TestExtractFromDirectory:
         assert "func_stale" not in concepts
 
     @pytest.mark.unit
+    def test_exclude_patterns_are_applied_under_recursion(self, tmp_path: Path) -> None:
+        """
+        Scenario: A caller excludes generated modules
+        Given a tree containing a file matching an exclude pattern
+        When extract_from_directory() is called with that pattern
+        Then the matching file contributes no entries
+
+        GIVEN the exclude_patterns parameter has existed unexercised
+        WHEN the walk became recursive
+        THEN the branch matters more, because a pattern now has to
+        hold against paths at any depth rather than one level.
+        """
+        (tmp_path / "keep.py").write_text(
+            textwrap.dedent("""\
+            def func_keep():
+                \"\"\"Kept.\"\"\"
+                pass
+        """)
+        )
+        generated = tmp_path / "build_artifacts"
+        generated.mkdir()
+        (generated / "thing_pb2.py").write_text(
+            textwrap.dedent("""\
+            def func_generated():
+                \"\"\"Generated.\"\"\"
+                pass
+        """)
+        )
+
+        entries = extract_from_directory(tmp_path, exclude_patterns=["*_pb2.py"])
+
+        concepts = [e.concept for e in entries]
+        assert "func_keep" in concepts
+        assert "func_generated" not in concepts
+
+    @pytest.mark.unit
     def test_skips_non_python_files(self, tmp_path: Path):
         """
         Scenario: Non-Python files are ignored

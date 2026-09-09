@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -467,6 +468,85 @@ class TestGateFailsClosed:
         assert output is not None, "an internal error must still produce output"
         decision = output.get("hookSpecificOutput", {}).get("permissionDecision")
         assert decision == "deny", f"a gate must fail closed; got {output!r}"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "helper",
+        ["_get_staged_hash", "_get_developer_id", "_get_staged_files"],
+    )
+    def test_every_git_helper_survives_a_missing_git(self, helper: str) -> None:
+        """
+        Scenario: git is absent from PATH
+        Given each helper that shells out to git
+        When subprocess raises FileNotFoundError
+        Then the helper returns rather than propagating
+
+        GIVEN all three helpers were widened to _GIT_FAILURES together
+        WHEN only _get_staged_hash had a test
+        THEN the other two could narrow back to CalledProcessError
+        and nothing would notice until a gate opened in the field.
+        """
+        with patch(
+            "precommit_gate.subprocess.run", side_effect=FileNotFoundError("git")
+        ):
+            getattr(precommit_gate, helper)()
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "helper",
+        ["_get_staged_hash", "_get_developer_id", "_get_staged_files"],
+    )
+    def test_every_git_helper_survives_a_hanging_git(self, helper: str) -> None:
+        """
+        Scenario: git exceeds the hook's time budget
+        Given each helper that shells out to git
+        When subprocess raises TimeoutExpired
+        Then the helper returns rather than propagating
+
+        GIVEN hooks.json caps this hook at 2s
+        WHEN a git call hangs
+        THEN an unhandled TimeoutExpired would exit the gate nonzero,
+        which releases the commit exactly as a crash does.
+        """
+        with patch(
+            "precommit_gate.subprocess.run",
+            side_effect=subprocess.TimeoutExpired(cmd="git", timeout=1),
+        ):
+            getattr(precommit_gate, helper)()
+
+    @pytest.mark.unit
+    def test_run_gate_passes_a_normal_result_through_unchanged(self) -> None:
+        """
+        Scenario: main() returns normally
+        Given a main that yields a decision
+        When run_gate wraps it
+        Then the decision is returned untouched
+
+        GIVEN the wrapper exists to convert crashes into denials
+        WHEN it also sits on the success path
+        THEN a wrapper that rewrote or swallowed a normal result would
+        break every ordinary allow, so the pass-through is the half
+        worth pinning.
+        """
+        sentinel = {"hookSpecificOutput": {"permissionDecision": "allow"}}
+        with patch("precommit_gate.main", return_value=sentinel):
+            assert precommit_gate.run_gate({}) is sentinel
+
+    @pytest.mark.unit
+    def test_run_gate_passes_none_through(self) -> None:
+        """
+        Scenario: main() declines to speak
+        Given a main that returns None, the no-opinion result
+        When run_gate wraps it
+        Then None is returned, and the caller prints nothing
+
+        GIVEN returning a deny here would block every unrelated Bash
+        command
+        WHEN main returns None for anything that is not a git commit
+        THEN silence has to stay silence on that path.
+        """
+        with patch("precommit_gate.main", return_value=None):
+            assert precommit_gate.run_gate({}) is None
 
     @pytest.mark.unit
     def test_the_git_calls_carry_a_timeout(self) -> None:

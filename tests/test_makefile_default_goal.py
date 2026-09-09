@@ -15,6 +15,7 @@ true.
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -51,4 +52,36 @@ def test_every_plugin_defines_the_default_goal_target(makefile: Path) -> None:
     assert re.search(r"^help:", text, re.MULTILINE), (
         f"{makefile.parent.name} inherits .DEFAULT_GOAL := help from "
         "common.mk but defines no help target"
+    )
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("makefile", _plugin_makefiles(), ids=lambda p: p.parent.name)
+def test_a_bare_make_runs_no_mutating_recipe(makefile: Path) -> None:
+    """Scenario: `make` with no target rewrites nothing.
+
+    GIVEN the file-content test above proves the assignment is present
+    WHEN Make resolves includes, overrides and `.DEFAULT_GOAL` itself
+    THEN only Make can say what a bare invocation actually runs, so
+    this asks it. `--dry-run` prints the recipe without running it.
+
+    A plugin that reintroduces a mutating first rule, or overrides
+    `.DEFAULT_GOAL` locally, fails here and not in the reader's
+    working tree.
+    """
+    completed = subprocess.run(
+        ["make", "--dry-run"],
+        cwd=makefile.parent,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    mutating = ("Formatting code", "ruff format", "check --fix")
+    offending = [
+        line
+        for line in completed.stdout.splitlines()
+        if any(marker in line for marker in mutating)
+    ]
+    assert not offending, (
+        f"a bare `make` in {makefile.parent.name} would run: {offending[:3]}"
     )

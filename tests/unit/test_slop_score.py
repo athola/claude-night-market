@@ -28,6 +28,7 @@ SCRIPT = REPO_ROOT / "scripts" / "slop_score.py"
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(REPO_ROOT / "plugins" / "scribe" / "src"))
 
+import slop_score  # noqa: E402 - scripts/ must join sys.path above before this resolves
 from slop_score import (  # noqa: E402 - scripts/ must join sys.path above before this resolves
     _legible,
     audit_text,
@@ -1074,3 +1075,42 @@ class TestDoubleDashReachesTheGate:
         result = score_text(text, allowlist=load_allowlist())
         categories = {finding.category for finding in result.findings}
         assert "double_dash" not in categories
+
+
+class TestGateAndAuditSharePatterns:
+    """The two rule lists cannot drift apart again.
+
+    GIVEN `double_dash` existed in `_audit_rules` and not in `_rules`
+    WHEN CI runs gate and ratchet mode and never `--audit`
+    THEN the category had no enforcement path, and the two lists
+    being written out separately is what allowed that.
+    """
+
+    @pytest.mark.unit
+    def test_both_rule_lists_use_the_same_compiled_double_dash(self) -> None:
+        """Scenario: one pattern object, referenced twice.
+
+        Identity, not equality. Two regexes with the same source can
+        be edited apart; one object cannot.
+        """
+        gate = {name: rx for name, rx, _ in slop_score._rules()}
+        audit = {name: rx for name, rx, _ in slop_score._audit_rules()}
+        assert "double_dash" in gate, "the gate must carry the category at all"
+        assert gate["double_dash"] is audit["double_dash"], (
+            "gate and audit hold different double_dash objects, so an "
+            "edit to one leaves the other behind"
+        )
+
+    @pytest.mark.unit
+    def test_every_gate_category_is_also_audited(self) -> None:
+        """Guard: the audit is a superset of the gate.
+
+        The audit exists to locate what the gate scored. A category
+        the gate can fail on but the audit cannot show would leave a
+        contributor with a failing build and no line number.
+        """
+        gate = {name for name, _, _ in slop_score._rules()}
+        audit = {name for name, _, _ in slop_score._audit_rules()}
+        assert gate <= audit, (
+            f"categories scored but not locatable: {sorted(gate - audit)}"
+        )

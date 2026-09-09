@@ -193,6 +193,70 @@ class TestParsePythonFile:
         assert "helper" in calls[0].source_qn
 
     @pytest.mark.unit
+    def test_a_class_nested_in_a_function_is_extracted(
+        self, fixtures_dir: Path
+    ) -> None:
+        """
+        Scenario: A class defined inside a function
+        Given a factory function that defines a class in its body
+        When I parse it
+        Then the class is a node
+
+        GIVEN _extract_calls stops at both function and class
+        boundaries
+        WHEN only the function half was covered by a test
+        THEN the class half of that condition was unguarded, and a
+        regex or set change could drop it silently.
+        """
+        code = (
+            "def make():\n"
+            "    class Inner:\n"
+            "        def method(self):\n"
+            "            pass\n"
+            "    return Inner\n"
+        )
+        fp = _write_fixture(fixtures_dir, "nested_class.py", code)
+        nodes, edges = parse_file(str(fp))
+        class_symbols = [
+            n.qualified_name.split("::", 1)[1]
+            for n in nodes
+            if n.kind == NodeKind.CLASS and "::" in n.qualified_name
+        ]
+        assert any(sym.endswith("Inner") for sym in class_symbols), class_symbols
+
+    @pytest.mark.unit
+    def test_a_call_two_levels_deep_belongs_to_the_innermost_scope(
+        self, fixtures_dir: Path
+    ) -> None:
+        """
+        Scenario: Three nested function scopes, one call at the bottom
+        Given outer contains middle contains inner, and inner calls
+        When I parse it
+        Then exactly one CALLS edge exists and it names inner
+
+        GIVEN recursion and the call-walk boundary interact
+        WHEN nesting goes deeper than one level
+        THEN a boundary that stopped only at the first descent would
+        record the call twice, so depth is the case that separates a
+        correct fix from a partial one.
+        """
+        code = (
+            "def outer():\n"
+            "    def middle():\n"
+            "        def inner():\n"
+            "            target()\n"
+            "        return inner\n"
+            "    return middle\n"
+        )
+        fp = _write_fixture(fixtures_dir, "deep_nest.py", code)
+        nodes, edges = parse_file(str(fp))
+        calls = [
+            e for e in edges if e.kind == EdgeKind.CALLS and e.target_qn == "target"
+        ]
+        assert len(calls) == 1, f"expected exactly one CALLS edge, got {calls}"
+        assert calls[0].source_qn.endswith("inner"), calls[0].source_qn
+
+    @pytest.mark.unit
     def test_extracts_import_edges(self, fixtures_dir: Path) -> None:
         """
         Scenario: Extract import relationships
