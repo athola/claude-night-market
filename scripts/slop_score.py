@@ -30,9 +30,12 @@ not count.
 from __future__ import annotations
 
 import argparse
+import ast
+import io
 import re
 import subprocess
 import sys
+import tokenize
 from dataclasses import dataclass, field
 from fnmatch import fnmatch
 from pathlib import Path
@@ -333,7 +336,7 @@ def _split_roots(roots: list) -> list:
     return [part for root in roots for part in str(root).split() if part]
 
 
-def _iter_markdown(roots: list) -> list:
+def _iter_markdown(roots: list, python: bool = False) -> list:
     """Yield the markdown under each root, or the root itself if a file.
 
     The gate passes two directories. An audit usually passes the files a
@@ -349,7 +352,12 @@ def _iter_markdown(roots: list) -> list:
         path = Path(root)
         if not path.exists():
             raise FileNotFoundError(root)
-        candidates = [path] if path.is_file() else sorted(path.rglob("*.md"))
+        if path.is_file():
+            candidates = [path]
+        else:
+            candidates = sorted(path.rglob("*.md"))
+            if python:
+                candidates += sorted(path.rglob("*.py"))
         for candidate in candidates:
             if any(part in _SKIP_PARTS for part in candidate.parts):
                 continue
@@ -357,11 +365,78 @@ def _iter_markdown(roots: list) -> list:
     return found
 
 
+def _python_prose(source: str) -> str:
+    """The comments and docstrings of *source*, on their original lines.
+
+    Every other line comes back blank. The line count is preserved, so
+    a finding still points at the line that carries it and the text
+    scorer needs no change to report a Python file.
+
+    Half of what issue #65961 reports lives in a comment, and every
+    Tier 5 category this repository has written reached markdown only.
+    Projecting a module onto its prose is what brings the existing
+    nine negation categories to a docstring.
+
+    Doctest lines are dropped. ``>>> assert not stale`` is executable
+    example code, and scoring it would flag the code a docstring is
+    demonstrating.
+    """
+    lines = source.splitlines()
+    kept = [""] * len(lines)
+
+    def keep(start: int, end: int) -> None:
+        for index in range(start - 1, min(end, len(lines))):
+            stripped = lines[index].lstrip()
+            if stripped.startswith((">>>", "...")):
+                continue
+            kept[index] = lines[index]
+
+    try:
+        for token in tokenize.generate_tokens(io.StringIO(source).readline):
+            if token.type == tokenize.COMMENT:
+                kept[token.start[0] - 1] = token.string
+    except (tokenize.TokenError, IndentationError, SyntaxError):
+        pass
+
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return "\n".join(kept)
+
+    docstring_owners = (
+        ast.Module,
+        ast.ClassDef,
+        ast.FunctionDef,
+        ast.AsyncFunctionDef,
+    )
+    for node in ast.walk(tree):
+        if not isinstance(node, docstring_owners):
+            continue
+        body = getattr(node, "body", None)
+        if not body:
+            continue
+        first = body[0]
+        if not isinstance(first, ast.Expr):
+            continue
+        value = first.value
+        if not isinstance(value, ast.Constant) or not isinstance(value.value, str):
+            continue
+        keep(value.lineno, value.end_lineno or value.lineno)
+
+    return "\n".join(kept)
+
+
+def _read_prose(path: Path) -> str:
+    """The scorable prose of *path*: all of a .md, the comments of a .py."""
+    text = path.read_text(errors="replace")
+    return _python_prose(text) if path.suffix == ".py" else text
+
+
 def _audit(paths: list, allow: frozenset) -> int:
     """Print every finding with its location. Always exits 0."""
     total = 0
     for path in paths:
-        text = path.read_text(errors="replace")
+        text = _read_prose(path)
         hits = audit_text(text, allowlist=allow)
         density = check_negation_density(text)
         if not hits and not density:
@@ -394,7 +469,9 @@ def _base_text(path: Path, ref: str) -> str | None:
         text=True,
         check=False,
     )
-    return shown.stdout if shown.returncode == 0 else None
+    if shown.returncode != 0:
+        return None
+    return _python_prose(shown.stdout) if path.suffix == ".py" else shown.stdout
 
 
 def _ratchet(paths: list, allow: frozenset, ref: str, threshold: float) -> int:
@@ -406,7 +483,7 @@ def _ratchet(paths: list, allow: frozenset, ref: str, threshold: float) -> int:
     """
     failed = []
     for path in paths:
-        current = score_text(path.read_text(errors="replace"), allowlist=allow)
+        current = score_text(_read_prose(path), allowlist=allow)
         if current.score <= threshold:
             continue
         base_text = _base_text(path, ref)
@@ -445,6 +522,17 @@ def main(argv: list | None = None) -> int:
         ),
     )
     parser.add_argument(
+        "--python",
+        action="store_true",
+        help=(
+            "also sweep .py files under a directory root, scoring their "
+            "comments and docstrings. A .py path named directly is always "
+            "read this way. Off for a directory by default: the gate CI "
+            "runs is markdown, and turning a whole tree of docstrings on "
+            "at once would fail it on text nobody was asked to review"
+        ),
+    )
+    parser.add_argument(
         "--ratchet",
         metavar="REF",
         help=(
@@ -456,7 +544,7 @@ def main(argv: list | None = None) -> int:
 
     allow = load_allowlist()
     try:
-        paths = _iter_markdown(args.roots)
+        paths = _iter_markdown(args.roots, python=args.python)
     except FileNotFoundError as missing:
         print(f"no such path: {missing.args[0]}")
         return 2
@@ -473,7 +561,7 @@ def main(argv: list | None = None) -> int:
 
     scored = []
     for path in paths:
-        result = score_text(path.read_text(errors="replace"), allowlist=allow)
+        result = score_text(_read_prose(path), allowlist=allow)
         if result.words:
             scored.append((result.score, path, result))
 

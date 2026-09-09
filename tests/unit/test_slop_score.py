@@ -771,3 +771,130 @@ class TestWriteTimeHookStaysInsideTheYaml:
         for sample in self.SAMPLES:
             assert re.search(pattern, sample, re.MULTILINE), f"hook misses: {sample!r}"
             assert audit_text(sample), f"audit misses what the hook flags: {sample!r}"
+
+
+class TestPythonCommentsAreScanned:
+    """The scorer reaches a comment and a docstring, and only those.
+
+    Every Tier 5 category this repository wrote reached markdown only,
+    because the collector globbed ``*.md``. Half of what Anthropic
+    issue #65961 reports lives in a comment, so the categories were
+    written and then never pointed at the text that carries the
+    behavior.
+
+    The projection blanks every non-prose line rather than extracting
+    the prose into a new string. That keeps the line count, so a
+    finding still names the line a reader must open.
+    """
+
+    @pytest.mark.unit
+    def test_a_docstring_finding_reports_its_real_line(self, tmp_path: Path) -> None:
+        """Scenario: A residue docstring is located, not merely counted."""
+        module = tmp_path / "sample.py"
+        module.write_text(
+            '"""Parse a record.\n\nThis used to be an int field.\n"""\n',
+            encoding="utf-8",
+        )
+        completed = subprocess.run(
+            [sys.executable, str(SCRIPT), "--audit", str(module)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert "temporal_residue" in completed.stdout
+        assert f"{module}:3" in completed.stdout
+
+    @pytest.mark.unit
+    def test_code_outside_a_comment_is_not_scored(self, tmp_path: Path) -> None:
+        """Guard: an identifier is not prose.
+
+        A variable named ``robust_seamless_handler`` is a name the
+        author chose. Scoring it would report a slop finding against
+        code the scanner was never asked to review.
+        """
+        module = tmp_path / "code.py"
+        module.write_text(
+            "robust_seamless_handler = None\ncomprehensive = ['actionable']\n",
+            encoding="utf-8",
+        )
+        completed = subprocess.run(
+            [sys.executable, str(SCRIPT), "--audit", str(module)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert "0 findings" in completed.stdout
+
+    @pytest.mark.unit
+    def test_a_doctest_line_is_not_scored(self, tmp_path: Path) -> None:
+        """Guard: ``>>>`` is executable example code, not prose."""
+        module = tmp_path / "doctest_sample.py"
+        module.write_text(
+            '"""Check a record.\n'
+            "\n"
+            '>>> parse("x") is not just a stub, but a record\n'
+            "True\n"
+            '"""\n',
+            encoding="utf-8",
+        )
+        completed = subprocess.run(
+            [sys.executable, str(SCRIPT), "--audit", str(module)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert "0 findings" in completed.stdout
+
+    @pytest.mark.unit
+    def test_a_directory_sweep_skips_python_without_the_flag(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: The markdown gate CI runs does not change shape.
+
+        A tree of docstrings turned on at once would fail the existing
+        threshold on text nobody was asked to review, so a directory
+        root stays markdown until ``--python`` says otherwise.
+        """
+        (tmp_path / "mod.py").write_text(
+            "# This used to be an int field.\n", encoding="utf-8"
+        )
+        without = subprocess.run(
+            [sys.executable, str(SCRIPT), "--audit", str(tmp_path)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert "temporal_residue" not in without.stdout
+
+        with_flag = subprocess.run(
+            [sys.executable, str(SCRIPT), "--audit", "--python", str(tmp_path)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert "temporal_residue" in with_flag.stdout
+
+    @pytest.mark.unit
+    def test_the_contrastive_comment_from_issue_65961_is_caught(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: The complaint that prompted this work is detected.
+
+        "if commenting on a proto string field that is replacing an int
+        field, do not comment that 'this is not an int field'". The
+        category that catches it, ``negative_parallelism``, already
+        existed at high confidence and default-on. It had simply never
+        been pointed at a comment.
+        """
+        module = tmp_path / "proto.py"
+        module.write_text(
+            '# This is a string field, not an int field.\ncontribution_id = ""\n',
+            encoding="utf-8",
+        )
+        completed = subprocess.run(
+            [sys.executable, str(SCRIPT), "--audit", str(module)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert "negative_parallelism" in completed.stdout
