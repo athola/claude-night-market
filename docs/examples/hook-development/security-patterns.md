@@ -293,18 +293,11 @@ class LogSanitizationHooks(AgentHooks):
         return sanitized
 ```
 
-## Bash Glob Pattern Validation (2.0.71+)
+## Bash Glob Pattern Validation
 
-### Permission System Improvements
-
-Claude Code 2.0.71 fixed permission rules to correctly handle valid bash glob
-patterns (`*.txt`, `*.png`, etc.).
-
-**What Changed**:
-- Shell glob patterns like `ls *.txt` now work without permission prompts
-- Permission system distinguishes between safe glob patterns
-  and dangerous wildcards
-- Standard file operations with pattern matching no longer require workarounds
+Shell glob patterns (`*.txt`, `*.png`) match natively in the permission
+system, which separates safe patterns from dangerous wildcards. Ordinary file
+operations that match a pattern need no workaround (Claude Code 2.0.71+).
 
 ### Glob Pattern Security
 
@@ -480,8 +473,7 @@ if __name__ == "__main__":
 
 ## Shell Environment Troubleshooting
 
-Use `CLAUDE_CODE_SHELL` environment variable if hooks fail due to shell
-detection (added in 2.0.65):
+Set `CLAUDE_CODE_SHELL` when a hook fails on shell detection:
 
 ```bash
 export CLAUDE_CODE_SHELL=/bin/bash  # or /bin/zsh
@@ -493,8 +485,7 @@ export CLAUDE_CODE_SHELL=/bin/bash  # or /bin/zsh
 | Hooks fail on Windows/WSL | Use Unix-style paths |
 | Shebang not found | Explicitly set shell path |
 
-For cross-platform compatibility: use `#!/usr/bin/env bash`,
-stick to POSIX syntax, handle missing commands gracefully.
+For portability: `#!/usr/bin/env bash`, POSIX syntax, no assumed commands.
 
 ## Security Checklist
 
@@ -504,6 +495,5 @@ respect sandbox, use least privilege, log security events.
 
 ## Related Modules
 
-- **hook-types.md**: Event types and signatures
-- **sdk-callbacks.md**: SDK implementation patterns
-- **testing-hooks.md**: Security testing strategies
+- [Hook types](./hook-types-comprehensive.md): event types and signatures
+- [Testing guide](../../testing-guide.md): security testing strategies
