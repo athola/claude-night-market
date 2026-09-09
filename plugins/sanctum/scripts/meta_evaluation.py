@@ -500,28 +500,25 @@ class MetaEvaluator:
         # Parse frontmatter for module-reference check
         frontmatter = self._parse_frontmatter(content)
 
-        # Run checks
-        results["checks"]["verification"] = self.check_verification_steps(
-            content, f"{plugin}:{skill}"
-        )
-        results["checks"]["concrete_quick_start"] = self.check_concrete_quick_start(
-            content, f"{plugin}:{skill}"
-        )
-        results["checks"]["quality_criteria"] = self.check_quality_criteria_defined(
-            content, f"{plugin}:{skill}"
-        )
-        results["checks"]["anti_cargo_cult"] = self.check_anti_cargo_cult(
-            content, f"{plugin}:{skill}"
-        )
+        # Run checks. Most take (content, skill_name); the three that need a
+        # path or the parsed frontmatter are called separately below.
+        skill_name = f"{plugin}:{skill}"
+        content_checks = [
+            ("verification", self.check_verification_steps),
+            ("concrete_quick_start", self.check_concrete_quick_start),
+            ("quality_criteria", self.check_quality_criteria_defined),
+            ("anti_cargo_cult", self.check_anti_cargo_cult),
+            ("code_examples", self.check_code_examples),
+        ]
+        for key, check in content_checks:
+            results["checks"][key] = check(content, skill_name)
+
         results["checks"]["tests_exist"] = self.check_tests_exist(plugin, skill)
         results["checks"]["module_references"] = self.check_module_references(
-            skill_path, frontmatter, f"{plugin}:{skill}"
-        )
-        results["checks"]["code_examples"] = self.check_code_examples(
-            content, f"{plugin}:{skill}"
+            skill_path, frontmatter, skill_name
         )
         results["checks"]["cross_references"] = self.check_cross_references(
-            skill_path, content, f"{plugin}:{skill}"
+            skill_path, content, skill_name
         )
 
         return results

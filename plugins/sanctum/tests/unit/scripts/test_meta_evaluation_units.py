@@ -384,6 +384,52 @@ def test_evaluate_skill_runs_full_set(plugins_root):
     assert result["checks"]["quality_criteria"] is True
 
 
+def test_evaluate_skill_records_every_check_key(plugins_root):
+    """Scenario: the check set is the report's contract.
+
+    evaluate_skill builds results["checks"] from a loop over
+    content_checks plus three calls that need a path or the parsed
+    frontmatter. A key dropped from either half changes what the report
+    covers while every other assertion here still passes, so the set is
+    pinned rather than sampled.
+    """
+    skill_content = (
+        "---\n"
+        "name: skills-eval\n"
+        "modules:\n"
+        "  - modules/intro.md\n"
+        "---\n"
+        "## Quick Start\n"
+        "```bash\nrun pytest\n```\n"
+        "## Quality\n"
+        "Defines quality criteria and threshold metrics.\n"
+        "## Verification\n"
+        "Verify by running pytest. Anti-pattern: testing theater.\n"
+    )
+    _make_skill(
+        plugins_root,
+        "abstract",
+        "skills-eval",
+        skill_content,
+        extra_modules={"intro.md": "x"},
+    )
+    e = MetaEvaluator(plugins_root)
+    result = e.evaluate_skill("abstract", "skills-eval")
+
+    assert set(result["checks"]) == {
+        "exists",
+        "verification",
+        "concrete_quick_start",
+        "quality_criteria",
+        "anti_cargo_cult",
+        "code_examples",
+        "tests_exist",
+        "module_references",
+        "cross_references",
+    }
+    assert all(isinstance(v, bool) for v in result["checks"].values())
+
+
 def test_evaluate_all_filters_by_inventory(plugins_root, monkeypatch):
     e = MetaEvaluator(plugins_root)
     # Restrict inventory to one missing skill so we get deterministic counts
