@@ -105,7 +105,6 @@ docs/marketing/
 # in an ADR and its contract in a test, so nothing here is load-bearing
 # once the work lands.
 docs/research/
-docs/superpowers/
 docs/implementation-plan.md
 docs/project-brief.md
 docs/specification.md
