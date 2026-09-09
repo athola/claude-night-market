@@ -94,6 +94,13 @@ reading. Those are surfaced for a person to judge and are
 labeled `(low)` or `(medium)` in the output. Never auto-rewrite
 one.
 
+`--python` adds `.py` files to a directory sweep and scores their
+comments and docstrings, which is where half of this behavior lives. A
+`.py` path named directly is always read that way. It is off for a
+directory by default because the gate CI runs is markdown, and turning
+a whole tree of docstrings on at once would fail it on text nobody was
+asked to review.
+
 `scripts/slop_score.py --threshold 3.0 docs book/src` is the
 same script in gate mode, which is what CI runs on those two
 directories. `--ratchet REF` is the third mode: it fails a file only
@@ -297,6 +304,42 @@ ever apply to this repo.
   `check_negation_density` reports the share of sentences carrying a
   negation marker against an advisory 35% bar, with an 8-sentence
   floor. It is a prompt to reread, never a merge gate.
+- **Temporal residue**: session state leaking into a file that
+  documents current state. "This used to be an int field", "replaces
+  the old handler", "no longer a tuple": the change event, written
+  where the reader came for the thing as it is. Anthropic issue #65961
+  names the mechanism, describing comments that make "references to
+  the chat with Claude itself, leaking its chain of thoughts". Rewrite
+  to the current state and let the commit message carry the change.
+
+  The scope matters more than the patterns here, and it is the reason
+  this ships opt-in and low confidence. Residue is temporal narration
+  in **interface** documentation. The same words in **rationale**
+  documentation are correct, and two of these rule files require them:
+  `bounded-autonomy.md` asks a constraint to cite its incident, and
+  `prefer-invariants-over-fallbacks.md` asks a guard to name the
+  failure it defends. No regex separates the two. Of 458 hits measured
+  over git-tracked files, 28.8% are in a CHANGELOG, an ADR, or a test
+  docstring, where narrating history is the whole job. Enable the
+  category when auditing a README, a public docstring, or a field
+  comment. Surface every hit and never auto-rewrite.
+
+  **The register split is not a style preference.** Naming what was
+  skipped is required of an operator reply and a completion report, by
+  the harness and by `Skill(imbue:proof-of-work)`, which asks for
+  BLOCKED work to be stated. A blanket rule against saying what was
+  not done contradicts the harness and loses to it, which is what the
+  practitioner reports behind this category describe. A file has no
+  session to report on, so the rule applies to written artifacts and
+  stops there. Same resolution `ste-for-operator-and-procedures.md`
+  performs for sentence length: by scope, not by precedence.
+
+  The deterministic half is `vow_no_edit_narration.py`, a PreToolUse
+  hook over inserted text only, carrying the two patterns that match
+  nothing committed here today. It warns by default;
+  `VOW_SHADOW_MODE=0` makes it block. The instruction above is the
+  probabilistic half, and the evidence says a rule alone does not hold.
+
 - **Contrastive parallelism (affirmative antithesis)**: the
   same scaffold without a "not" anchor. Rewrite "Less X,
   more Y", "Where others X, we Y", subject-swap clauses
