@@ -1037,3 +1037,40 @@ class TestDoubleBacktickCodeIsStripped:
         result = score_text(text, allowlist=load_allowlist())
         categories = {finding.category for finding in result.findings}
         assert "plus_sign_conjunction" not in categories
+
+
+class TestDoubleDashReachesTheGate:
+    """The spaced double dash is scored, not merely audited.
+
+    `.claude/rules/slop-scan-for-docs.md` rule 2a calls it a
+    high-confidence tell and an always-fix. It was registered in
+    `_audit_rules()` only, and `.github/workflows/slop-check.yml`
+    invokes gate and ratchet mode and never `--audit`, so the category
+    had no enforcement path anywhere in the pipeline.
+    """
+
+    @pytest.mark.unit
+    def test_the_gate_rules_carry_double_dash(self) -> None:
+        """Scenario: a scored run can see the category at all."""
+        text = "The gate runs -- and the audit runs too."
+        result = score_text(text, allowlist=load_allowlist())
+        categories = {finding.category for finding in result.findings}
+        assert "double_dash" in categories
+
+    @pytest.mark.unit
+    def test_a_table_cell_separator_is_not_flagged(self) -> None:
+        """Guard: `| -- |` is markdown table syntax, not punctuation."""
+        text = "| col | col |\n| -- | -- |\n| a | b |\n"
+        result = score_text(text, allowlist=load_allowlist())
+        categories = {finding.category for finding in result.findings}
+        assert "double_dash" not in categories
+
+    @pytest.mark.unit
+    def test_a_shell_end_of_options_marker_inside_code_is_not_flagged(
+        self,
+    ) -> None:
+        """Guard: `--` is a real shell separator and belongs in code."""
+        text = "Run `git log -- path` to scope it.\n"
+        result = score_text(text, allowlist=load_allowlist())
+        categories = {finding.category for finding in result.findings}
+        assert "double_dash" not in categories

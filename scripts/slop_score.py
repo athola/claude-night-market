@@ -87,6 +87,14 @@ _FENCED_CODE = re.compile(r"^```.*?^```", re.DOTALL | re.MULTILINE)
 # way by convention, so before this the formula in ``(n_i - n_j) / (n_i
 # + n_j)`` reached the scorer as prose and scored a plus sign as a
 # conjunction.
+# Shared by the gate and the audit, so the two cannot drift.
+#
+# The pipe guards keep markdown table separators out. `slop-scan-for-docs.md`
+# rule 2a exempts `| -- |` explicitly, and the bare form matched every
+# table in the repository, which is why promoting this to the gate
+# needed the exemption implemented rather than only documented.
+_DOUBLE_DASH = re.compile(r"(?<!\|\s)(?<=\s)--(?=\s)(?!\s*\|)")
+
 _INLINE_CODE = re.compile(r"``[^`]*``|`[^`\n]*`")
 
 
@@ -207,6 +215,11 @@ def _rules(language: str = "en") -> list:
         for pattern in entry["patterns"]:
             rules.append((entry["category"], re.compile(pattern, flags), weight))
     rules.append(("em_dash", re.compile("—"), EM_DASH_WEIGHT))
+    # `slop-scan-for-docs.md` rule 2a calls the spaced double dash a
+    # high-confidence tell and always-fix. It reached `_audit_rules`
+    # only, and CI runs gate and ratchet mode, never `--audit`, so the
+    # category had no enforcement path anywhere in the pipeline.
+    rules.append(("double_dash", _DOUBLE_DASH, EM_DASH_WEIGHT))
     return rules
 
 
@@ -236,7 +249,7 @@ def _audit_rules(language: str = "en") -> list:
                 (entry["category"], re.compile(pattern, flags), entry["confidence"])
             )
     rules.append(("em_dash", re.compile("—"), "high"))
-    rules.append(("double_dash", re.compile(r"(?<=\s)--(?=\s)"), "high"))
+    rules.append(("double_dash", _DOUBLE_DASH, "high"))
     return rules
 
 
