@@ -65,10 +65,16 @@ One command over files or directories, one line per finding
 with a file and a line number, exit 0. It loads every category
 in `data/languages/en.yaml`, including the ones the merge gate
 declines to score: `semicolon_splice`, `negative_definition`,
-`contrastive_scaffold`, `over_explanation`, the softer
-anthropomorphism verbs, and the per-document negation-density
-reading. Those print as `(low)` or `(medium)`. Step 9's
-anti-goals apply to them: surface, never auto-apply.
+`temporal_residue`, `contrastive_scaffold`, `over_explanation`,
+the softer anthropomorphism verbs, and the per-document
+negation-density reading. Those print as `(low)` or `(medium)`.
+Step 9's anti-goals apply to them: surface, never auto-apply.
+
+A `.py` path is read as its comments and docstrings, with the
+code blanked and the line numbers kept. `--python` extends that
+to a directory sweep. The classification below already names
+code comments as a target; until the collector reached them,
+every category here was checked against markdown alone.
 
 The steps below say what each category means and how to rewrite
 it. Run the script first so the steps have locations to work

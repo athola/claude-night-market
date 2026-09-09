@@ -9,6 +9,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Temporal-residue detection and an edit-narration guard
+  (scribe, imbue).** The catalog carried six negation categories and
+  every one negates a capability or a contrast. None reached the shape
+  practitioners keep reporting: a docstring or field comment saying
+  what the thing used to be, written where the reader came to learn
+  what it is. Anthropic issue #65961 names the mechanism, describing
+  comments that make "references to the chat with Claude itself,
+  leaking its chain of thoughts".
+
+  `tier5.temporal_residue` ships opt-in and low confidence, and the
+  reason is measured rather than assumed. Residue is temporal
+  narration in interface documentation. The same words in rationale
+  documentation are correct, and two rule files require them:
+  `bounded-autonomy.md` asks a constraint to cite its incident, and
+  `prefer-invariants-over-fallbacks.md` asks a guard to name the
+  failure it defends. No regex separates the two. Of 458 hits measured
+  over tracked files with bare word forms, 28.8% sit in a CHANGELOG,
+  an ADR, or a test docstring, where narrating history is the job. The
+  nine shipped patterns cut that to 34.
+
+  `scripts/slop_score.py` globbed `*.md`, so every Tier 5 category
+  written here had only ever been checked against markdown while half
+  the reported behavior lives in a comment. It now projects a module
+  onto its comments and docstrings by blanking every other line, which
+  keeps the line count so a finding still names the line to open.
+  Doctest lines are dropped, since `>>>` is example code. A directory
+  root stays markdown unless `--python` asks otherwise: the gate CI
+  runs is markdown, and switching a whole tree of docstrings on at
+  once would fail it on text nobody was asked to review.
+
+  The proto-field complaint that prompted this needed no new pattern.
+  `negative_parallelism` has matched "this is a string field, not an
+  int" at high confidence and default-on since it was written. It had
+  never been pointed at a comment.
+
+  `plugins/imbue/hooks/vow_no_edit_narration.py` is the deterministic
+  half, because the practitioner reports say a CLAUDE.md rule does not
+  reliably suppress the behavior and memory reinforcement does not
+  either. Two patterns, both measuring zero over `git ls-files` outside
+  the files that define them, pinned by a test. It reads inserted text
+  alone, so a session is never charged for prose it inherited. Warns by
+  default; `VOW_SHADOW_MODE=0` blocks.
+
+  One register is deliberately unguarded. Naming what was skipped is
+  required of a completion report, by the harness and by
+  `Skill(imbue:proof-of-work)`. A file has no session to report on, and
+  a PreToolUse hook on `Write` sees only file writes, so the split
+  holds structurally.
+
 - **Invisible-Unicode detection (scribe).** A document can carry
   characters that never render: a zero-width space, a bidi override, a
   tag character. The slop detector had one Unicode check, smart
