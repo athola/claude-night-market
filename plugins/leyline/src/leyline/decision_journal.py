@@ -2,8 +2,8 @@
 
 Owns the single source of truth for two append-only, in-repo logs:
 
-- ``docs/tradeoffs.md``      -- decisions and the alternatives sacrificed.
-- ``docs/lessons-learned.md`` -- insights, failed approaches, rework.
+- ``docs/tradeoffs.md``: decisions and the alternatives sacrificed.
+- ``docs/lessons-learned.md``: insights, failed approaches, rework.
 
 Discipline (grounded in ADR/MADR + PMI/SRE practice):
 
@@ -73,7 +73,7 @@ def _today() -> str:
 _ARCHIVE_HEADING = "## Archive"
 
 _TRADEOFF_TEMPLATE = """\
-<!-- ENTRY TEMPLATE -- copy a block into the Decisions section above the
+<!-- ENTRY TEMPLATE: copy a block into the Decisions section above the
 Archive heading, assign the next TR-NNN id, and fill it in. The journal_append
 helper does this automatically; this block is the fallback for hand-editing.
 
@@ -117,7 +117,7 @@ to achieve <quality>, accepting <the sacrifice / road not taken>.
 """
 
 _LESSON_TEMPLATE = """\
-<!-- ENTRY TEMPLATE -- copy a block into the Lessons section above the Archive
+<!-- ENTRY TEMPLATE: copy a block into the Lessons section above the Archive
 heading, assign the next LL-NNN id, and fill it in. The journal_append helper
 does this automatically; this block is the fallback for hand-editing.
 
@@ -148,7 +148,7 @@ does this automatically; this block is the fallback for hand-editing.
 
 ### Recommendation / action item
 
-- Action: <specific change> -- Owner: <name> -- Due: <date> -- Status: <...>
+- Action: <specific change>. Owner: <name>. Due: <date>. Status: <...>
 -->
 """
 
@@ -203,7 +203,7 @@ def _entry_key(fields: dict[str, Any]) -> str:
     volatile = {"status", "date", "phase", "deciders", "owner", "links"}
     core = {k: v for k, v in fields.items() if k not in volatile}
     blob = json.dumps(core, sort_keys=True, ensure_ascii=False)
-    # Not a security hash -- just a stable dedup fingerprint for idempotency.
+    # Not a security hash: just a stable dedup fingerprint for idempotency.
     digest = hashlib.sha1(blob.encode("utf-8"), usedforsecurity=False)
     return digest.hexdigest()[:12]
 
