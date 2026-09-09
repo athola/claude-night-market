@@ -37,11 +37,6 @@ role: library
 - Writing the commit message (use `sanctum:commit-messages`)
 - Running the full pre-PR gate (use `sanctum:pr-prep`)
 
-## Table of Contents
-
-1. [Usage](#usage)
-2. [Required Progress Tracking](#required-progress-tracking)
-
 ## Verification
 
 Run `git status` after review to verify workspace state matches expectations.
@@ -75,10 +70,13 @@ Analyze the `git status -sb` output for staged and unstaged changes. Stage or un
 ## Step 3: Check Code Quality (`code-quality-check`)
 
 Run `make lint` from the repository root to validate code quality
-before committing. It formats with ruff, applies the per-plugin check
-with autofix, and runs bandit, so no separate format step is needed.
-The root Makefile defines no `format` target, and the plugin Makefiles
-that define one only apply inside their own directory.
+before committing. It checks ruff format, runs the per-plugin ruff
+check, and runs bandit. It rewrites nothing: a check that edits the
+tree cannot report the diff it was asked to find. When it fails it
+names `make fix`, which is the mutating pair (`ruff format` plus
+`ruff check --fix`). The root Makefile defines no `format` target, and
+the plugin Makefiles that define one only apply inside their own
+directory.
 
 Fix any errors immediately. Do not bypass pre-commit hooks with
 `--no-verify`. This check identifies issues early and avoids

@@ -132,16 +132,16 @@ in parallel, then one fixer applying blocking and important findings.
 Finish with the report: skill inventory with one-line descriptions,
 what was spot-checked, and what remains uncertain.
 
-## Red Flags
+## Constraints
 
-Stop if you catch yourself thinking any of these:
-
-| Thought | Reality |
-|---------|---------|
-| "The repo is small, skip discovery" | Discovery is where the five questions come from. Run it. |
-| "I know this codebase, skip verification" | Ground truth only. Wrong runbooks are worse than none. |
-| "The library looks complete, skip review" | Authoring agents cannot see each other's contradictions. |
-| "This claim is probably still true" | Date-stamp it and add a re-verification command. |
+- Run discovery even on a small repository. The five questions come
+  from it, and there is no other source for them.
+- Verify against ground truth even in a codebase you know. A wrong
+  runbook is worse than none.
+- Review the library even when it looks complete. Authoring agents
+  cannot see each other's contradictions.
+- Date-stamp every claim and give it a re-verification command. A
+  claim that is probably still true is a claim nobody checked.
 
 ## Exit Criteria
 

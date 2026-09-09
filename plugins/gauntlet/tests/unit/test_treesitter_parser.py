@@ -20,6 +20,21 @@ def fixtures_dir(tmp_path: Path) -> Path:
     return tmp_path / "fixtures"
 
 
+def _function_symbols(nodes: list) -> list[str]:
+    """Return each Function node name with its file path stripped off.
+
+    `qualified_name` embeds the absolute file path, and pytest builds
+    `tmp_path` out of the test's own name. Matching a symbol against the
+    whole string therefore passes whenever the test is named after the
+    symbol it is looking for, which is a test that cannot fail.
+    """
+    return [
+        node.qualified_name.split("::", 1)[1]
+        for node in nodes
+        if node.kind == NodeKind.FUNCTION and "::" in node.qualified_name
+    ]
+
+
 def _write_fixture(fixtures_dir: Path, name: str, content: str) -> Path:
     fixtures_dir.mkdir(exist_ok=True)
     fp = fixtures_dir / name
@@ -112,6 +127,134 @@ class TestParsePythonFile:
         methods = [n for n in nodes if n.kind == NodeKind.FUNCTION and n.parent_name]
         assert len(methods) >= 1
         assert any("Foo" in m.parent_name for m in methods)
+
+    @pytest.mark.unit
+    def test_extracts_a_nested_function(self, fixtures_dir: Path) -> None:
+        """
+        Scenario: A local helper defined inside a function
+        Given a Python file with a function defined in another function
+        When I parse it
+        Then the inner function is a node too
+
+        Closures and local helpers are ordinary Python. A graph that
+        omits them reports a call site inside the helper as belonging
+        to the enclosing function, which is what blast-radius analysis
+        then reasons from.
+        """
+        code = "def outer():\n    def inner():\n        pass\n    return inner\n"
+        fp = _write_fixture(fixtures_dir, "nested_fn.py", code)
+        nodes, edges = parse_file(str(fp))
+        symbols = _function_symbols(nodes)
+        assert "outer" in symbols
+        assert any(sym.endswith("inner") for sym in symbols), symbols
+
+    @pytest.mark.unit
+    def test_extracts_a_helper_nested_in_a_method(self, fixtures_dir: Path) -> None:
+        """
+        Scenario: A helper defined inside a class method
+        Given a class whose method defines a local function
+        When I parse it
+        Then the helper is a node under that method
+        """
+        code = (
+            "class Foo:\n"
+            "    def method(self):\n"
+            "        def helper():\n"
+            "            pass\n"
+            "        return helper\n"
+        )
+        fp = _write_fixture(fixtures_dir, "nested_method.py", code)
+        nodes, edges = parse_file(str(fp))
+        symbols = _function_symbols(nodes)
+        assert "Foo.method" in symbols
+        assert any(sym.endswith("helper") for sym in symbols), symbols
+
+    @pytest.mark.unit
+    def test_a_nested_call_is_not_attributed_to_the_parent(
+        self, fixtures_dir: Path
+    ) -> None:
+        """
+        Scenario: A call made only inside a nested function
+        Given a helper that calls target() and an outer that does not
+        When I parse it
+        Then the CALLS edge belongs to the helper alone
+
+        Recursing into a function body without stopping the call walk
+        at the nested boundary records the call twice, once against
+        each enclosing scope, and inflates the caller's blast radius.
+        """
+        code = "def outer():\n    def helper():\n        target()\n    return helper\n"
+        fp = _write_fixture(fixtures_dir, "nested_call.py", code)
+        nodes, edges = parse_file(str(fp))
+        calls = [
+            e for e in edges if e.kind == EdgeKind.CALLS and e.target_qn == "target"
+        ]
+        assert len(calls) == 1, f"expected one CALLS edge, got {calls}"
+        assert "helper" in calls[0].source_qn
+
+    @pytest.mark.unit
+    def test_a_class_nested_in_a_function_is_extracted(
+        self, fixtures_dir: Path
+    ) -> None:
+        """
+        Scenario: A class defined inside a function
+        Given a factory function that defines a class in its body
+        When I parse it
+        Then the class is a node
+
+        GIVEN _extract_calls stops at both function and class
+        boundaries
+        WHEN only the function half was covered by a test
+        THEN the class half of that condition was unguarded, and a
+        regex or set change could drop it silently.
+        """
+        code = (
+            "def make():\n"
+            "    class Inner:\n"
+            "        def method(self):\n"
+            "            pass\n"
+            "    return Inner\n"
+        )
+        fp = _write_fixture(fixtures_dir, "nested_class.py", code)
+        nodes, edges = parse_file(str(fp))
+        class_symbols = [
+            n.qualified_name.split("::", 1)[1]
+            for n in nodes
+            if n.kind == NodeKind.CLASS and "::" in n.qualified_name
+        ]
+        assert any(sym.endswith("Inner") for sym in class_symbols), class_symbols
+
+    @pytest.mark.unit
+    def test_a_call_two_levels_deep_belongs_to_the_innermost_scope(
+        self, fixtures_dir: Path
+    ) -> None:
+        """
+        Scenario: Three nested function scopes, one call at the bottom
+        Given outer contains middle contains inner, and inner calls
+        When I parse it
+        Then exactly one CALLS edge exists and it names inner
+
+        GIVEN recursion and the call-walk boundary interact
+        WHEN nesting goes deeper than one level
+        THEN a boundary that stopped only at the first descent would
+        record the call twice, so depth is the case that separates a
+        correct fix from a partial one.
+        """
+        code = (
+            "def outer():\n"
+            "    def middle():\n"
+            "        def inner():\n"
+            "            target()\n"
+            "        return inner\n"
+            "    return middle\n"
+        )
+        fp = _write_fixture(fixtures_dir, "deep_nest.py", code)
+        nodes, edges = parse_file(str(fp))
+        calls = [
+            e for e in edges if e.kind == EdgeKind.CALLS and e.target_qn == "target"
+        ]
+        assert len(calls) == 1, f"expected exactly one CALLS edge, got {calls}"
+        assert calls[0].source_qn.endswith("inner"), calls[0].source_qn
 
     @pytest.mark.unit
     def test_extracts_import_edges(self, fixtures_dir: Path) -> None:

@@ -28,15 +28,6 @@ dependencies:
 ---
 # Tiered Audit
 
-## Table of Contents
-
-- [When to Use](#when-to-use)
-- [When NOT to Use](#when-not-to-use)
-- [Tier 1: Git History Audit](#tier-1-git-history-audit)
-- [Tier 2: Targeted Area Audit](#tier-2-targeted-area-audit)
-- [Tier 3: Full Codebase Audit](#tier-3-full-codebase-audit)
-- [Output Contract](#output-contract)
-
 ## When To Use
 
 - Auditing codebase quality, patterns, or problems
@@ -200,17 +191,9 @@ to the next tier or reporting results.
 
 ### Verify Findings Are Grounded (`tiered-audit:findings-verified`)
 
-Every finding must cite a real location and a verbatim anchor. Write
-findings to `.review/findings.json` and confirm each citation resolves:
-
-```bash
-python plugins/imbue/scripts/citation_verifier.py \
-  --findings .review/findings.json --repo-root .
-```
-
-Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
-verified findings enter the report. See `Skill(imbue:review-core)` Step 5
-and `Skill(imbue:structured-output)` for the schema.
+Write findings to `.review/findings.json` and run the citation verifier
+as `Skill(imbue:review-core)` Step 5 describes. Only findings the
+verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
 
 ## Exit Criteria
 

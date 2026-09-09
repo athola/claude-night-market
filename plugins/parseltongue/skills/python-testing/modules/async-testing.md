@@ -11,20 +11,6 @@ estimated_tokens: 275
 
 Patterns for testing asynchronous Python code with pytest-asyncio.
 
-## Table of Contents
-
-- [Basic Async Tests](#basic-async-tests)
-- [Async Fixtures](#async-fixtures)
-- [Testing Concurrent Operations](#testing-concurrent-operations)
-- [Mocking Async Functions](#mocking-async-functions)
-- [Testing Timeouts](#testing-timeouts)
-- [Testing Exception Handling](#testing-exception-handling)
-- [Async Context Managers](#async-context-managers)
-- [Async Generators](#async-generators)
-- [Configuration](#configuration)
-- [Best Practices](#best-practices)
-- [Common Pitfalls](#common-pitfalls)
-
 ## Basic Async Tests
 
 Test async functions using `pytest.mark.asyncio`:

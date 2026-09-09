@@ -24,15 +24,6 @@ Test skills with fresh subagent instances to prevent priming bias and validate e
 - Writing the skill under test (use `abstract:skill-authoring`)
 - A static quality audit with no execution (use `abstract:skills-eval`)
 
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Why Fresh Instances Matter](#why-fresh-instances-matter)
-3. [Testing Methodology](#testing-methodology)
-4. [Quick Start](#quick-start)
-5. [Detailed Testing Guide](#detailed-testing-guide)
-6. [Success Criteria](#success-criteria)
-
 ## Overview
 
 **Fresh instances prevent priming:** Each test uses a new Claude conversation to verify

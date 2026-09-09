@@ -38,15 +38,6 @@ modules:
   `abstract:skill-authoring`)
 - The lazy-loading contract itself (use `leyline:progressive-loading`)
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Quick Start](#quick-start)
-- [Workflow and Tasks](#workflow-and-tasks)
-- [Quality Checks](#quality-checks)
-- [Resources](#resources)
-
-
 # Modular Skills Design
 
 ## Overview
@@ -95,11 +86,11 @@ python scripts/abstract_validator.py --scan
 
 ## Workflow and Tasks
 
-Start by assessing complexity with `skill_analyzer.py`. If a skill exceeds 150 lines, break it into focused modules following the patterns in `../../docs/examples/modular-skills/`. Use `token_estimator.py` to check efficiency and `abstract_validator.py` to verify the final structure. This iterative process maintains module maintainability and token efficiency.
+Start by assessing complexity with `skill_analyzer.py`. If a skill exceeds 150 lines, break it into focused modules following the patterns in `modules/implementation-patterns.md`. Use `token_estimator.py` to check efficiency and `abstract_validator.py` to verify the final structure. This iterative process maintains module maintainability and token efficiency.
 
 ## Quality Checks
 
-Identify modules needing attention by checking line counts and missing Table of Contents. Any module over 100 lines requires a TOC after the frontmatter to aid navigation.
+Identify modules needing attention by checking line counts. A module over 100 lines is a candidate for a split. Do not add a Table of Contents: an anchor list restates the headings below it and costs tokens on every load, and grep finds the headings directly.
 ```bash
 # Find modules exceeding 100 lines
 find modules -name "*.md" -exec wc -l {} + | awk '$1 > 100'
@@ -108,15 +99,6 @@ find modules -name "*.md" -exec wc -l {} + | awk '$1 > 100'
 ### Standards Compliance
 
 Our standards prioritize concrete examples and a consistent voice. Always provide actual commands in Quick Start sections instead of abstract descriptions. Use third-person perspective (e.g., "the project", "developers") rather than "you" or "your". Each code example should be followed by a validation command. For discoverability, descriptions must include at least five specific trigger phrases.
-
-### TOC Template
-```markdown
-## Table of Contents
-
-- [Section Name](#section-name)
-- [Examples](#examples)
-- [Troubleshooting](#troubleshooting)
-```
 
 ## Resources
 
@@ -135,14 +117,13 @@ Detailed guides for implementation and maintenance:
 - **Troubleshooting**: See `modules/troubleshooting.md`
 - **Optimization Techniques**: See `modules/optimization-techniques.md` - reducing large skill file sizes through externalization, consolidation, and progressive loading
 
-### Tools and Examples
+### Tools
 - **Tools**: `skill_analyzer.py`, `token_estimator.py`, and `abstract_validator.py` in `../../scripts/`.
-- **Examples**: See `../../docs/examples/modular-skills/` for reference implementations.
 
 ## Exit Criteria
 
-- [ ] Every module file produced is at or under 150 lines; any module exceeding 100 lines has a
-  Table of Contents immediately after its frontmatter.
+- [ ] Every module file produced is at or under 150 lines, and no SKILL.md
+  or module carries a Table of Contents.
 - [ ] No `skills/shared/modules/` directory exists; all modules live under
   `skills/<skill-name>/modules/`.
 - [ ] `python scripts/abstract_validator.py --scan` exits 0 with no structural warnings on the

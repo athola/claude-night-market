@@ -24,23 +24,6 @@ complexity: intermediate
 model_hint: standard
 estimated_tokens: 500
 ---
-## Table of Contents
-
-- [What It Is](#what-it-is)
-- [Quick Start](#quick-start)
-- [Search Palaces](#search-palaces)
-- [List All Palaces](#list-all-palaces)
-- [When to Use](#when-to-use)
-- [Search Modalities](#search-modalities)
-- [Core Workflow](#core-workflow)
-- [Target Metrics](#target-metrics)
-- [Detailed Resources](#detailed-resources)
-- [PR Review Search](#pr-review-search)
-- [Quick Commands](#quick-commands)
-- [Review Chamber Rooms](#review-chamber-rooms)
-- [Context-Aware Surfacing](#context-aware-surfacing)
-- [Integration](#integration)
-
 
 # Knowledge Locator
 

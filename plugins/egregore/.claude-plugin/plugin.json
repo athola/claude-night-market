@@ -1,6 +1,6 @@
 {
   "name": "egregore",
-  "version": "1.9.19",
+  "version": "1.9.20",
   "description": "Autonomous agent orchestrator for full development lifecycles with zero human input, session budget management, and crash recovery",
   "skills": [
     "./skills/summon",
@@ -38,6 +38,7 @@
   },
   "license": "MIT",
   "dependencies": [
-    "leyline"
+    "leyline",
+    "herald"
   ]
 }

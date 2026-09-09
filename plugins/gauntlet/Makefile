@@ -3,7 +3,7 @@
 
 .PHONY: help deps fix check clean \
 	status debug-variables \
-	lint format type-check typecheck security test-unit test \
+	test \
 	demo-gauntlet demo-gauntlet-extract demo-gauntlet-curate \
 	demo-gauntlet-graph demo-gauntlet-progress demo-gauntlet-onboard \
 	demo-all \

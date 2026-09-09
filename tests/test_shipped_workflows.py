@@ -117,6 +117,37 @@ def test_meta_name_matches_the_filename(script: Path) -> None:
     )
 
 
+#: How a script establishes that an input field may be absent: a default
+#: (`||`, `??`), a ternary on the field itself, or a type test. A field
+#: reached through any of these is safe to read when `args` is empty.
+_GUARDED = (
+    r"input\.{field}\s*(?:\|\||\?\?)",
+    r"input\.{field}\s*\?[^?]",
+    r"Array\.isArray\(\s*input\.{field}\s*\)",
+    r"typeof\s+input\.{field}",
+)
+
+_INPUT_FIELD = re.compile(r"\binput\.(\w+)")
+
+
+def _unguarded_input_fields(content: str) -> list[str]:
+    """Input fields the script reads with no default and no type test.
+
+    Whitespace is collapsed first because a ternary guard routinely sits
+    on the line after the field it guards, and a line-by-line read calls
+    that unguarded.
+    """
+    flat = " ".join(content.split())
+    unguarded = []
+    for field in sorted(set(_INPUT_FIELD.findall(flat))):
+        if not any(
+            re.search(pattern.format(field=re.escape(field)), flat)
+            for pattern in _GUARDED
+        ):
+            unguarded.append(field)
+    return unguarded
+
+
 @pytest.mark.parametrize(
     "script", _workflow_scripts(), ids=lambda p: f"{p.parents[1].name}/{p.name}"
 )
@@ -140,14 +171,24 @@ def test_a_script_that_cannot_start_refuses_instead_of_dispatching(
     where they were, and the caller here is a model that will otherwise
     improvise the missing input.
 
-    A script with no required input has nothing to refuse and is
-    exempt, which the `args` check below establishes.
+    A script with no required input has nothing to refuse. Which
+    scripts those are is decided by `_unguarded_input_fields` below,
+    from how the script reads its input. Deciding it from the presence
+    of the `started` flag, which is what this gate did first, was
+    circular: a script that needed input and forgot to refuse was
+    exempted for having forgotten, and six scripts were skipped by a
+    rule that could only ever agree with them.
     """
     content = script.read_text()
 
-    reads_required_input = "started: false" in content or "started: true" in content
-    if not reads_required_input:
-        pytest.skip(f"{script.name} requires no input, so it has nothing to refuse")
+    if "started: false" not in content and "started: true" not in content:
+        unguarded = _unguarded_input_fields(content)
+        assert not unguarded, (
+            f"{script.name} has no refusal branch, so it must run on no "
+            "input at all, but it reads these fields without a default or "
+            f"a type test: {', '.join(unguarded)}"
+        )
+        return
 
     assert "started: false" in content, (
         f"{script} tracks a started flag but has no refusal branch"
@@ -184,4 +225,33 @@ def test_every_workflow_has_a_row_in_the_capabilities_reference(
 
     assert f"| `{name}` | [{plugin}]" in reference, (
         f"{plugin}:{name} ships but has no row in capabilities-reference.md"
+    )
+
+
+@pytest.mark.unit
+def test_doc_sweep_accepts_python_as_a_review_target() -> None:
+    """Scenario: the sweep says what a .py target means.
+
+    `scripts/slop_score.py` reads a Python path as its comments and
+    docstrings, so the workflow can review one. A reviewer told only
+    "documents" will either skip the file or review its code, and the
+    second is worse: notation in a docstring is code that happens to
+    sit in prose, and flagging it wastes the reader's time.
+    """
+    script = (
+        Path(__file__).resolve().parents[1]
+        / "plugins"
+        / "scribe"
+        / ("workflows/doc-sweep.js")
+    )
+    content = script.read_text(encoding="utf-8")
+
+    assert ".py" in content, (
+        "doc-sweep must say that a .py file is a valid review target"
+    )
+    assert "docstrings" in content, (
+        "doc-sweep must say a .py document is its comments and docstrings"
+    )
+    assert "notation" in content.lower(), (
+        "doc-sweep must tell the sentence reviewer to leave notation alone"
     )

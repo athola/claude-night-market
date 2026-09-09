@@ -31,28 +31,6 @@ orchestrates:
 - pensive:math-review
 - imbue:justify
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Review Skill Selection Matrix](#review-skill-selection-matrix)
-- [Workflow](#workflow)
-- [1. Analyze Repository Context](#1-analyze-repository-context)
-- [2. Select Review Skills](#2-select-review-skills)
-- [3. Execute Reviews](#3-execute-reviews)
-- [4. Integrate Findings](#4-integrate-findings)
-- [Review Modes](#review-modes)
-- [Auto-Detect (default)](#auto-detect-(default))
-- [Focused Mode](#focused-mode)
-- [Full Review Mode](#full-review-mode)
-- [Quality Gates](#quality-gates)
-- [Deliverables](#deliverables)
-- [Executive Summary](#executive-summary)
-- [Domain-Specific Reports](#domain-specific-reports)
-- [Integrated Action Plan](#integrated-action-plan)
-- [Modular Architecture](#modular-architecture)
-- [Exit Criteria](#exit-criteria)
-
 
 # Unified Review Orchestration
 

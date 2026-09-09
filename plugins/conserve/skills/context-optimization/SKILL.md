@@ -39,15 +39,6 @@ hooks:
 model_hint: standard
 role: hook-target
 ---
-## Table of Contents
-
-- [When to Use](#when-to-use)
-- [Core Hub Responsibilities](#core-hub-responsibilities)
-- [Module Selection Strategy](#module-selection-strategy)
-- [Context Classification](#context-classification)
-- [Integration Points](#integration-points)
-- [Resources](#resources)
-
 
 # Context Optimization Hub
 

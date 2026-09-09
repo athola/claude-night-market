@@ -1877,3 +1877,260 @@ class TestContrastiveScaffold:
         Rewriting one loses the alternative the reader needed.
         """
         assert _category_hits_including_optional(self.CATEGORY, text) == 0
+
+
+class TestTier5OverExplanation:
+    """Feature: narration wrapped around a fix, in place of the fix.
+
+    A changelog entry, a commit body or a PR description that explains
+    its own reasoning at length costs the reader more than the change
+    it describes. The tells are connectives that promise a consequence
+    and then restate the sentence before them: "in order to", "this
+    ensures that", "the reason for this is".
+
+    Low confidence and opt-in on purpose. "In order to" is correct in a
+    sentence that genuinely states a purpose, and the boundary between
+    useful rationale and narration is a judgment a person makes. This
+    category surfaces candidates; it never rewrites and never gates.
+
+    Sourced from data/languages/en.yaml section tier5.over_explanation.
+    """
+
+    CATEGORY = "over_explanation"
+
+    @pytest.mark.unit
+    def test_category_is_opt_in(self) -> None:
+        """Scenario: a routine sweep does not carry it."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["default_enabled"] is False
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: hits are surfaced for judgment, never auto-rewritten."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_default_sweep_excludes_the_category(self) -> None:
+        """Guard: the merge bar does not move."""
+        patterns = load_language_patterns("en")
+        default_categories = {
+            entry["category"] for entry in get_tier5_patterns(patterns)
+        }
+        assert self.CATEGORY not in default_categories
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "In order to fix the race, the lock now wraps the write.",
+            "This ensures that the cache stays consistent across restarts.",
+            "This means that the exporter now emits one row per session.",
+            "The reason for this is that the probe ran before the daemon.",
+            "The hook was rewritten, which allows us to drop the retry loop.",
+            "It is important to note that the flag defaults to off.",
+        ],
+    )
+    def test_detects_narration(self, text: str) -> None:
+        """Scenario: the connective promises a consequence and restates."""
+        assert _category_hits_including_optional(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "The lock now wraps the write, closing the race.",
+            "Run the migration in order.",
+            "The cache stays consistent across restarts.",
+            "Order matters here: the probe must run after the daemon.",
+        ],
+    )
+    def test_a_stated_fix_passes(self, text: str) -> None:
+        """Guard: stating what changed is the target shape, not the tell."""
+        assert _category_hits_including_optional(self.CATEGORY, text) == 0
+
+
+class TestInvisibleUnicode:
+    """Characters that occupy a document without appearing in it.
+
+    Three distinct hazards share one shape. A bidi override reorders
+    what a reader sees without changing what a compiler reads, which is
+    the Trojan Source attack. A tag character is a deprecated codepoint
+    with no rendering, which makes it a carrier for instructions aimed
+    at a model rather than a person. A zero-width space silently breaks
+    an exact-match assertion, a YAML key, or a grep pattern.
+
+    None of them announce themselves in a diff, a terminal, or a code
+    review, which is why a detector is the only thing that finds them.
+
+    Scoped to codepoints with no legitimate use in this content. The
+    emoji joiners are deliberately absent: U+200D and U+FE0F build
+    ordinary emoji sequences, U+200C is required in Persian and several
+    Indic scripts, and a category that fires on a warning sign in a
+    README is one nobody keeps running.
+
+    Every fixture below is an escape rather than a literal character,
+    and has to stay one. bandit's B613 fails any Python source file
+    carrying a bidirectional control, which is correct: a test file
+    full of literal overrides is the hazard it describes. The escape
+    produces the same codepoint at runtime and leaves the file ASCII.
+
+    Sourced from data/languages/en.yaml section tier5.invisible_unicode.
+    """
+
+    CATEGORY = "invisible_unicode"
+
+    @pytest.mark.unit
+    def test_category_is_high_confidence(self) -> None:
+        """Scenario: a hit is a defect, not a judgment call."""
+        entry = _tier5_category(self.CATEGORY)
+        assert entry["confidence"] == "high"
+
+    @pytest.mark.unit
+    def test_default_sweep_carries_the_category(self) -> None:
+        """Guard: an opt-in security check is one nobody opts into."""
+        patterns = load_language_patterns("en")
+        assert self.CATEGORY in {
+            entry["category"] for entry in get_tier5_patterns(patterns)
+        }
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("codepoint", "why"),
+        [
+            ("\u200b", "zero width space breaks an exact-match assertion"),
+            ("\u00ad", "soft hyphen splits a word only when it wraps"),
+            ("\u200e", "left-to-right mark"),
+            ("\u200f", "right-to-left mark"),
+            ("\u202e", "right-to-left override is Trojan Source"),
+            ("\u202d", "left-to-right override"),
+            ("\u2066", "left-to-right isolate"),
+            ("\u2069", "pop directional isolate"),
+            ("\u2060", "word joiner"),
+            ("\u2062", "invisible times"),
+            ("\ufff9", "interlinear annotation anchor"),
+            ("\U000e0041", "tag character, a model-directed carrier"),
+            ("\U000e007f", "cancel tag"),
+            ("\ufdd0", "noncharacter, never valid in interchange"),
+            ("\ufffe", "noncharacter"),
+        ],
+    )
+    def test_detects_the_codepoint(self, codepoint: str, why: str) -> None:
+        """Scenario: the character sits in prose and renders as nothing."""
+        assert _category_hits(self.CATEGORY, f"The gate{codepoint} holds.") >= 1, why
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("text", "why"),
+        [
+            ("A warning sign: ⚠\ufe0f see below.", "VS16 renders an emoji"),
+            ("Family: \U0001f468\u200d\U0001f469\u200d\U0001f467", "ZWJ sequence"),
+            ("Persian needs \u200c between letters.", "ZWNJ is a real letter join"),
+            ("Plain ASCII prose with no tricks.", "the ordinary case"),
+            ("An em dash lives here: — and that is a different rule.", "em dash"),
+        ],
+    )
+    def test_legitimate_text_is_not_flagged(self, text: str, why: str) -> None:
+        """Guard: a check that fires on a README emoji gets turned off."""
+        assert _category_hits(self.CATEGORY, text) == 0, why
+
+    @pytest.mark.unit
+    def test_a_leading_byte_order_mark_is_not_a_finding(self) -> None:
+        """Guard: U+FEFF opens a file legitimately; mid-file it does not."""
+        assert _category_hits(self.CATEGORY, "\ufeffThe file starts here.") == 0
+        assert _category_hits(self.CATEGORY, "Mid\ufefffile is a defect.") >= 1
+
+
+class TestTemporalResidue:
+    """Session state leaking into an artifact that documents state.
+
+    The model narrates the change it just made in a place whose reader
+    needs to know what the thing is now. Anthropic issue #65961 names
+    the mechanism: comments "making references to the chat with Claude
+    itself, leaking its chain of thoughts".
+
+    This is the third kind of negation in the catalog and the other two
+    do not reach it. ``negative_definition`` negates capability,
+    ``negative_parallelism`` negates by contrast, and this negates a
+    prior state.
+
+    The negative cases carry the whole design. Temporal narration in
+    rationale documentation is correct and this repository's rules
+    require it, so a pattern set that flagged an incident-citing
+    comment would be unusable even as an opt-in.
+
+    Sourced from data/languages/en.yaml section tier5.temporal_residue.
+    """
+
+    CATEGORY = "temporal_residue"
+
+    @pytest.mark.unit
+    def test_category_is_opt_in(self) -> None:
+        """Scenario: The category stays out of a default sweep."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["default_enabled"] is False
+
+    @pytest.mark.unit
+    def test_category_is_low_confidence(self) -> None:
+        """Scenario: Hits are surfaced for judgment, never auto-rewritten."""
+        entry = _tier5_category_including_optional(self.CATEGORY)
+        assert entry["confidence"] == "low"
+
+    @pytest.mark.unit
+    def test_default_sweep_excludes_the_category(self) -> None:
+        """Scenario: A routine run does not load it."""
+        patterns = load_language_patterns("en")
+        default_categories = {
+            entry["category"] for entry in get_tier5_patterns(patterns)
+        }
+        assert self.CATEGORY not in default_categories
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "This used to be an int field.",
+            "The payload no longer accepts a bare string.",
+            "The result is no longer a tuple.",
+            "The flag was formerly a comma-separated list.",
+            "This handler replaces the old dispatch path.",
+            "Reads the manifest instead of the previous inline config.",
+            "The old timeout value was doubled here.",
+            "This was called handle_v1 before the rename.",
+        ],
+    )
+    def test_detects_temporal_residue(self, text: str) -> None:
+        """Scenario: A change event narrated where state belongs."""
+        assert _category_hits_including_optional(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        [
+            # Rationale citing the incident a guard exists for. Required
+            # by bounded-autonomy.md and prefer-invariants-over-
+            # fallbacks.md, and measured in this repository at
+            # plugins/minister/src/minister/dora_metrics.py:169.
+            "Issue #527: None input maps to N/A, which stopped the"
+            " silent misclassification.",
+            "The request was dropped in silence because argparse"
+            " consumed it positionally.",
+            # Current-state description that happens to use a temporal
+            # word without narrating an edit.
+            "A frontmatter that no longer parses fails here.",
+            "The lock is released once the writer has finished.",
+            # Prohibitions and invariants, the shape negative_definition
+            # is gated off to protect.
+            "The write must not follow a symlink.",
+            "The hook never gates anything when the key is misplaced.",
+        ],
+    )
+    def test_rationale_and_current_state_pass(self, text: str) -> None:
+        """Guard: rationale is not residue.
+
+        Residue is temporal narration in interface documentation. The
+        same words in rationale documentation record why a guard
+        exists, which this repository's rules require. A pattern that
+        caught these would make the category unusable.
+        """
+        assert _category_hits_including_optional(self.CATEGORY, text) == 0

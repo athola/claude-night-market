@@ -294,6 +294,32 @@ tier5:
       - '\bneedless\s+to\s+say\b'
       - '\bno\s+small\s+(?:feat|task|thing|matter)\b'
       - '\bit(?:\s+is|''s)\s+not\s+hard\s+to\s+see\b'
+  over_explanation:
+    # Narration wrapped around a fix, in place of the fix. A changelog
+    # entry or commit body that explains its own reasoning at length
+    # costs the reader more than the change it describes. The tells are
+    # connectives that promise a consequence and then restate the
+    # sentence before them.
+    #
+    # Gated off by default and low confidence when enabled. "In order
+    # to" is correct in a sentence that genuinely states a purpose, and
+    # the line between useful rationale and narration is a judgment a
+    # person makes. Enable it when auditing changelogs, commit bodies
+    # and PR descriptions, where the tell is real.
+    #
+    # The judgment half belongs to document economy's sentence-weight
+    # check. This is the lexical half only.
+    default_enabled: false
+    score: 1
+    confidence: low
+    ignore_case: true
+    patterns:
+      - '\bin order to\s+\w'
+      - '\bthis ensures that\b'
+      - '\bthis means that\b'
+      - '\bthe reason for this is\b'
+      - '\bwhich allows (?:us|you|it|them) to\b'
+      - '\bit is important to note that\b'
   negative_definition:
     # Behavior described only by what it will not do: "the parser
     # doesn't handle nested blocks", "the exporter does not support
@@ -321,6 +347,63 @@ tier5:
       - '\b(?:is|are|was|were)\s+unable\s+to\b'
       - '\bfails?\s+to\s+(?:detect|handle|support|provide|recogni[sz]e|resolve|parse|account)\b'
       - '\bcannot\s+(?:handle|support|parse|resolve|represent|express|accommodate)\b'
+  temporal_residue:
+    # Session state leaking into an artifact that documents current
+    # state. The model narrates the change it just made ("this used to
+    # be an int field", "replaces the old handler", "no longer a
+    # tuple") in a place whose reader needs to know what the thing is
+    # now. Anthropic issue #65961 describes the mechanism exactly:
+    # comments "making references to the chat with Claude itself,
+    # leaking its chain of thoughts".
+    #
+    # Distinct from every other negation category here.
+    # `negative_definition` is negation of capability, and
+    # `negative_parallelism` is negation by contrast. This one is
+    # negation of a prior state, and none of the existing regexes
+    # reach it.
+    #
+    # Gated off by default and low confidence, for a reason measured
+    # rather than assumed. Residue is temporal narration in interface
+    # documentation. The same words in rationale documentation are
+    # correct, and this repository's own rules require them:
+    # bounded-autonomy.md asks a constraint to cite its incident, and
+    # prefer-invariants-over-fallbacks.md asks a guard to name the
+    # failure it defends. No regex separates the two. Of 458 hits
+    # measured over git-tracked files with the bare word forms, 28.8%
+    # sit in a CHANGELOG, an ADR, or a test docstring, where narrating
+    # history is the whole job. The nine patterns below cut that to
+    # 34, which is a list a person can read.
+    #
+    # Enable it when auditing a README, a public docstring, or a
+    # field comment, where the reader wants current state and nothing
+    # else. Surface every hit; never auto-rewrite. The commit message
+    # and the changelog are where a change event belongs.
+    #
+    # The deterministic half of this category is the zero-baseline
+    # subset in plugins/imbue/hooks/vow_no_edit_narration.py, which
+    # sees inserted text only.
+    score: 1
+    confidence: low
+    ignore_case: true
+    default_enabled: false
+    patterns:
+      # "this used to be a tuple", "the field no longer accepts null"
+      - '\b(?:this|it|the\s+\w+)\s+(?:used\s+to\s+(?:be|have|return|accept|live|call)|no\s+longer\s+(?:is|has|returns|accepts|takes))\b'
+      # "no longer an int field": the identity, stated as a former one
+      - '\bno\s+longer\s+(?:a|an|the)\s+\w+'
+      # "formerly a string", "previously the default"
+      - '\b(?:formerly|previously)\s+(?:a|an|the)\s+\w+'
+      - '\b(?:is|was|were|are)\s+(?:previously|formerly)\s+(?:a|an|the)\b'
+      # "the old handler method", scoped to a named code noun so that
+      # "the old one" and "the old behavior of the market" pass
+      - '\bthe\s+old\s+\w+\s+(?:field|method|function|api|name|version|approach|behaviou?r|value|flag|format|path|module|class)\b'
+      # Edit narration. The first two are the zero-baseline subset the
+      # hook also carries.
+      - '\breplaces?\s+the\s+(?:old|previous|former|earlier)\b'
+      - '\binstead\s+of\s+the\s+(?:old|previous|former|earlier)\b'
+      - '\brather\s+than\s+the\s+(?:old|previous|former|earlier)\b'
+      # "This was called handle_v1." Renaming history in a docheader.
+      - '\bthis\s+(?:was|used\s+to\s+be)\s+(?:called|named)\b'
   contrastive_parallelism:
     score: 2
     confidence: low
@@ -340,6 +423,32 @@ tier5:
     ignore_case: false
     patterns:
       - '[“”‘’]'
+  invisible_unicode:
+    # Characters that occupy the document without appearing in it.
+    # Three hazards share the shape. A bidi override reorders what a
+    # reader sees while leaving what a compiler reads untouched, which
+    # is the Trojan Source attack. A tag character has no rendering at
+    # all, which makes it a carrier for text aimed at a model rather
+    # than a person. A zero-width space breaks an exact-match
+    # assertion, a YAML key or a grep pattern, and shows nothing in the
+    # diff that introduced it.
+    #
+    # High confidence because none of these has a use in English
+    # technical prose. The emoji joiners are deliberately absent:
+    # U+200D and U+FE0F build ordinary emoji sequences, and U+200C is
+    # required to render Persian and several Indic scripts. A category
+    # that fires on the warning sign in a README is one nobody keeps
+    # running.
+    #
+    # U+FEFF is split out because a byte order mark opens a file
+    # legitimately. The lookbehind requires a preceding character, so
+    # position zero passes and anywhere else does not.
+    score: 2
+    confidence: high
+    ignore_case: false
+    patterns:
+      - '[\u00AD\u200B\u200E\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFDD0-\uFDEF\uFFF9-\uFFFB\uFFFE\uFFFF\U000E0000-\U000E007F]'
+      - '(?<=[\s\S])\uFEFF'
   plus_sign_conjunction:
     score: 1
     confidence: high

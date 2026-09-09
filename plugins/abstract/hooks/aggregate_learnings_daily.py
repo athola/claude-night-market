@@ -193,7 +193,7 @@ def run_daily_pipeline() -> None:
     Called on every UserPromptSubmit. Skips quickly if not due.
     Network-heavy operations (auto_promote, post_learnings) are
     handled by the Stop hook (post_learnings_stop.py) to avoid
-    exceeding the 2-second UserPromptSubmit timeout.
+    exceeding the UserPromptSubmit timeout.
     """
     if not should_aggregate():
         return

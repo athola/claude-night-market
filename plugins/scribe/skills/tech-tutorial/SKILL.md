@@ -51,7 +51,9 @@ tutorial that meets that standard.
 
 Before writing a single line, answer these questions:
 
-- Who is this for? (experience level, assumed prior knowledge)
+- Who is this for? Declare a tier: `newcomer`, `practitioner`,
+  `expert`, or a one-line `persona`. A tutorial defaults to
+  `newcomer`; if it does not, say what it assumes instead
 - How many readers? How often will each one read it?
 - What will they build or accomplish by the end?
 - **What is the one sentence they must walk away with?**
@@ -68,6 +70,19 @@ The audience size and read frequency feed the reader-time
 budget (see `scribe:slop-detector` module `document-economy.md`).
 A tutorial that 500 developers will read once is a 40-hour
 reader-budget asset. Spend the writing time accordingly.
+
+The tier decides what the draft may contain. When the request
+names no reader, **ask, do not guess**: `scribe:slop-detector`
+module `audience-targeting.md` carries the tier table and the
+Socratic set.
+
+A `newcomer` tutorial keeps the one path that works, end to
+end. Alternatives, internals, and the reasons the obvious
+approach fails are `expert` material. They go to
+`docs/deep-dive/<topic>.md`, linked from the lead in one line
+that names who the deep dive is for. Never delete them to hit
+the tier. A tutorial that pauses to compare three approaches
+has stopped moving the reader from cannot to can.
 
 ### Step 2: Outline
 
@@ -145,6 +160,11 @@ Document-level (document-economy module):
 - [ ] No "in summary" section that re-lists what just happened
 - [ ] No section opens by restating its heading
 
+Audience (audience-targeting module):
+- [ ] Tier declared in Step 1, asked for when it was unstated
+- [ ] Every section serves that tier
+- [ ] Off-tier detail extracted to a linked deep dive, not deleted
+
 ## Required TodoWrite Items
 
 1. `tech-tutorial:scope-defined` - Audience, goal, and out-of-scope noted
@@ -172,7 +192,10 @@ Document-level (document-economy module):
 ## Exit Criteria
 
 - Tutorial outline confirmed before drafting begins
+- Audience tier declared before drafting, not after
 - All code snippets tested in a real environment
 - Slop score below 1.5 (clean)
+- Off-tier content was moved to a linked deep dive rather than
+  left in the reader's path or deleted
 - Quality gate checklist passed
 - User approval received

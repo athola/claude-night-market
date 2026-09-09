@@ -294,7 +294,7 @@ python plugins/abstract/scripts/skills_auditor.py \
 
 # Check compliance
 python plugins/abstract/scripts/compliance_checker.py \
-  --skill plugins/<plugin>/skills/<skill>/SKILL.md
+  plugins/<plugin>/skills/<skill>
 
 # Estimate tokens
 python plugins/abstract/scripts/skill_analyzer.py \

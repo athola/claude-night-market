@@ -40,9 +40,14 @@ Unlike the plugin isolation pattern (ADR-0001),
 tracking. This is acceptable because:
 
 - `leyline` is infrastructure, not a feature plugin
-- The dependency is declared in `pyproject.toml`
-- The import is at the module level, not runtime detection
 - Plugin loading is not affected (no hooks depend on quota tracking)
+
+Correction, 2026-09-03: two bullets that stood here were false. The
+dependency was never declared in conjure's `pyproject.toml`, and the
+import is not at module level: `scripts/quota_tracker.py` resolves
+leyline by runtime path detection with an ImportError fallback, which
+is the ADR-0001 pattern. The exception this ADR granted itself was
+therefore never exercised; conjure follows ADR-0001 as written.
 
 ## Architecture
 

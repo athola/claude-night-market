@@ -42,15 +42,6 @@ modules:
 - A single-file fix obvious enough to make directly
 - Preparing the PR once the work is done (use `sanctum:pr-prep`)
 
-## Table of Contents
-
-- [Key Features](#key-features)
-- [Workflow Overview](#workflow-overview)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Configuration](#configuration)
-- [Detailed Resources](#detailed-resources)
-
-
 # Fix Issue(s)
 
 Retrieves issue content from the detected git platform (GitHub, GitLab, or Bitbucket) and uses subagent-driven-development to systematically address requirements, executing tasks in parallel where dependencies allow.

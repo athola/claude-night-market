@@ -30,21 +30,6 @@ estimated_tokens: 600
 > designing a new palace by hand. Tracked for follow-up in
 > the April 2026 skill audit.
 
-## Table of Contents
-
-- [What It Is](#what-it-is)
-- [Quick Start](#quick-start)
-- [Create a New Palace](#create-a-new-palace)
-- [List Existing Palaces](#list-existing-palaces)
-- [View Palace Status](#view-palace-status)
-- [When to Use](#when-to-use)
-- [Architectural Templates](#architectural-templates)
-- [Core Workflow](#core-workflow)
-- [Detailed Resources](#detailed-resources)
-- [Integration](#integration)
-- [Expected Outputs](#expected-outputs)
-
-
 # Memory Palace Architect
 
 Design and construct virtual memory palaces for spatial knowledge organization. This skill guides you through creating memorable spatial structures that enhance recall and organize complex information.

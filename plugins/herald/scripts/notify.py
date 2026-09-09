@@ -25,7 +25,7 @@ class WebhookURLError(ValueError):
     """Raised when a webhook URL fails validation."""
 
 
-def validate_webhook_url(url: str) -> None:
+def validate_webhook_url(url: str) -> str:
     """Validate that a webhook URL is safe to request.
 
     Only ``https://`` URLs pointing to public IP addresses are
@@ -34,6 +34,12 @@ def validate_webhook_url(url: str) -> None:
 
     Args:
         url: The webhook URL to validate.
+
+    Returns:
+        The address that passed, so the caller can connect to that
+        address and not to whatever a second lookup returns. A DNS
+        answer can change between the check and the request; pinning
+        the checked address is what makes the check hold.
 
     Raises:
         WebhookURLError: If the URL uses a forbidden scheme, points
@@ -77,12 +83,13 @@ def validate_webhook_url(url: str) -> None:
                     f"Webhook URL hostname {hostname!r} resolves to "
                     f"private/reserved IP ({sockaddr[0]})"
                 ) from None
-        return
+        return str(results[0][4][0])
 
     if addr.is_private or addr.is_reserved or addr.is_loopback:
         raise WebhookURLError(
             f"Webhook URL must not target private/reserved IP ({hostname})"
         )
+    return str(addr)
 
 
 class AlertEvent(enum.Enum):
@@ -225,10 +232,18 @@ def send_webhook(
 
     """
     try:
-        validate_webhook_url(url)
+        pinned = validate_webhook_url(url)
     except WebhookURLError as exc:
         logger.error("Webhook URL rejected: %s", exc)
         return False
+    parsed = urlparse(url)
+    # curl resolves the hostname itself, so without this a rebinding DNS
+    # server can answer the check with a public address and the request
+    # with a private one. --resolve keeps the hostname for TLS and Host
+    # and connects to the address that passed.
+    if ":" in pinned:
+        pinned = f"[{pinned}]"
+    resolve_pin = f"{parsed.hostname}:{parsed.port or 443}:{pinned}"
 
     prefix = f"[{source}] {event.value}"
     if webhook_format == "slack":
@@ -256,6 +271,8 @@ def send_webhook(
         "Content-Type: application/json",
         "-d",
         payload_json,
+        "--resolve",
+        resolve_pin,
         url,
     ]
 

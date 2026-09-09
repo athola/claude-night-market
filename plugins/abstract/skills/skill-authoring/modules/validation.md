@@ -159,7 +159,7 @@ Output is a numeric score and a list of fixes.
 
 ```bash
 python plugins/abstract/scripts/compliance_checker.py \
-  --skill plugins/<plugin>/skills/<skill>/SKILL.md
+  plugins/<plugin>/skills/<skill>
 ```
 
 The compliance checker validates against the project standards

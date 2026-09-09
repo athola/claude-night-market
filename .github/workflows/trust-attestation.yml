@@ -20,6 +20,25 @@ jobs:
           python-version: "3.12"
       - name: Install uv
         uses: astral-sh/setup-uv@v10.0.1
+
+      # `make test` runs every plugin suite, and pensive's shell-review
+      # suite shells out to all three of these. Without them the sweep
+      # failed on `FileNotFoundError: 'rg'` while the shellcheck and
+      # shfmt tests skipped, and this is the job whose report gets
+      # signed: an attestation naming a suite as passed is a claim about
+      # tests that ran. Same block as plugin-tests.yml, shfmt pin
+      # included.
+      - name: Install shell tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck ripgrep
+          curl -fsSL -o /tmp/shfmt \
+            https://github.com/mvdan/sh/releases/download/v3.10.0/shfmt_v3.10.0_linux_amd64
+          sudo install -m 0755 /tmp/shfmt /usr/local/bin/shfmt
+          shellcheck --version
+          shfmt --version
+          rg --version
+
       - name: Run tests and capture results
         run: |
           # Without this the step's exit code is tee's, which is always 0,

@@ -31,18 +31,6 @@ role: hook-target
 
 # Vow Enforcement
 
-## Table of Contents
-
-- [The Problem](#the-problem)
-- [Three Enforcement Layers](#three-enforcement-layers)
-- [Vow Classification Protocol](#vow-classification-protocol)
-- [Night Market Vow Inventory](#night-market-vow-inventory)
-- [Vow Graduation Criteria](#vow-graduation-criteria)
-- [Nen Court Protocol](#nen-court-protocol)
-- [Integration Points](#integration-points)
-- [When to Use](#when-to-use)
-- [When NOT to Use](#when-not-to-use)
-
 ## The Problem
 
 ODCV-Bench found that agents break self-imposed

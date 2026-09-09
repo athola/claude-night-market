@@ -3,10 +3,10 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: help install install-dev test test-unit test-integration test-performance test-all test-coverage \
-        test-slow test-parallel lint format format-check type-check typecheck security clean docs check-all ci \
+.PHONY: help install install-dev test test-integration test-performance test-all \
+        test-slow test-parallel format-check clean docs check-all ci \
         dev-setup dev-test dev-check validate-plugin deps deps-report status profile-tests mutation-test benchmark \
-        demo-catchup demo-feature-review demo-review demo-skills plugin-check debug-variables test-feature-review
+        demo-catchup demo-feature-review demo-skills plugin-check debug-variables test-feature-review demo-validator demo-citation-verifier
 
 # Override source directories for this plugin
 SRC_DIRS := scripts
@@ -19,7 +19,6 @@ TEST_UNIT_TARGETS := tests/unit/
 TEST_UNIT_ARGS := -v
 TEST_COVERAGE_TARGETS := tests/
 TEST_COVERAGE_ARGS :=
-SECURITY_EXTRA = $(UV_RUN) safety check
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
@@ -27,7 +26,6 @@ ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Prevent parallel execution for targets that share resources
-.NOTPARALLEL: docs
 
 # Default target - auto-generated help from ## comments
 help: ## Show this help message
@@ -157,10 +155,19 @@ mutation-test: ## Run mutation testing
 	fi
 
 benchmark: ## Run performance benchmarks
-	@if $(PYTEST) --benchmark-only --benchmark-sort=mean 2>/dev/null; then \
-		echo "Benchmarks complete"; \
+	@# pytest-benchmark is an optional dev extra. Detect it explicitly so a
+	@# real benchmark failure fails the target instead of being reported as a
+	@# missing plugin. pytest exit 5 means nothing was collected, not failure.
+	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
+		echo "Not applicable: pytest-benchmark is not installed"; \
 	else \
-		echo "pytest-benchmark not installed (pip install pytest-benchmark)"; \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
+		status=$$?; \
+		if [ $$status -eq 5 ]; then \
+			echo "Not applicable: no benchmark tests are defined"; \
+		elif [ $$status -ne 0 ]; then \
+			exit $$status; \
+		fi; \
 	fi
 
 # ---------- Demo/Dogfood Targets (LIVE) ----------

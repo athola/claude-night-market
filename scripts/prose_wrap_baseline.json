@@ -1,4 +1,4 @@
 {
-  "max_overlong_prose_lines": 3558,
+  "max_overlong_prose_lines": 3398,
   "_comment": "Ratchet baseline for check_prose_wrap_drift.py: the number of prose lines in tracked markdown that run past the 80-column wrap set by .claude/rules/markdown-formatting.md. Issue #681 recorded that nothing enforced the rule. The backlog is real, so this is a ratchet rather than a hard gate: the number may fall and may hold, and it may not rise. Lower it whenever a wrap pass lands; the test in tests/scripts/test_check_prose_wrap_drift.py fails if this sits more than SLACK above the true count, so a win cannot be quietly un-locked. Tables, code blocks, headings, frontmatter, HTML, link definitions, image references and lines carrying a URL are excused by the rule and are excluded by the guard, not absorbed by this number. Inline links are not excused: the rule prescribes reference-style links as the repair."
 }

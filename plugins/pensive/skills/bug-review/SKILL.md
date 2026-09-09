@@ -31,30 +31,6 @@ modules:
 - modules/fix-preparation.md
 - modules/language-detection.md
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Progressive Loading](#progressive-loading)
-- [Workflow](#workflow)
-- [Step 1: Detect Languages (`bug-review:language-detected`)](#step-1:-detect-languages-(bug-review:language-detected))
-- [Step 2: Plan Reproduction (`bug-review:repro-plan`)](#step-2:-plan-reproduction-(bug-review:repro-plan))
-- [Step 3: Document Defects (`bug-review:defects-documented`)](#step-3:-document-defects-(bug-review:defects-documented))
-- [Step 4: Prepare Fixes (`bug-review:fixes-prepared`)](#step-4:-prepare-fixes-(bug-review:fixes-prepared))
-- [Step 5: Verification Plan (`bug-review:verification-plan`)](#step-5:-verification-plan-(bug-review:verification-plan))
-- [Defect Classification (Condensed)](#defect-classification-(condensed))
-- [Output Format](#output-format)
-- [Summary](#summary)
-- [Defects Found](#defects-found)
-- [[D1] file.rs:142 - Title](#[d1]-filers:142---title)
-- [Proposed Fixes](#proposed-fixes)
-- [Fix for D1](#fix-for-d1)
-- [Test Updates](#test-updates)
-- [Evidence](#evidence)
-- [Best Practices](#best-practices)
-- [Exit Criteria](#exit-criteria)
-
 
 # Bug Review Workflow
 
@@ -167,17 +143,9 @@ Assign owners and deadlines for follow-up items.
 
 ### Step 6: Verify Findings Are Grounded (`bug-review:findings-verified`)
 
-Every defect must cite a real `file:line` and a verbatim `Anchor`. Write
-findings to `.review/findings.json` and confirm each citation resolves:
-
-```bash
-python plugins/imbue/scripts/citation_verifier.py \
-  --findings .review/findings.json --repo-root .
-```
-
-Drop or label `UNVERIFIED` any defect the verifier fails (exit `1`); only
-verified defects enter the report. See `Skill(imbue:review-core)` Step 5
-for the protocol and `Skill(imbue:structured-output)` for the schema.
+Write defects to `.review/findings.json` and run the citation verifier
+as `Skill(imbue:review-core)` Step 5 describes. Only defects the
+verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
 
 ## Defect Classification (Condensed)
 

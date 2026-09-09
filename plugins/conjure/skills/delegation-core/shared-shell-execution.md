@@ -12,7 +12,9 @@ estimated_tokens: 2300
 ## Overview
 
 Every provider skill in this plugin delegates through one module,
-`scripts/delegation_executor.py`.
+`scripts/delegation_executor.py`. It reads the provider registry from
+`scripts/delegation_services.py` and composes prompts through
+`scripts/delegation_prompt.py`; neither of those spawns anything.
 The CLIs it spawns disagree about almost everything: whether the prompt
 is positional or flagged, what the output-format flag is called, whether
 a temperature flag exists, whether `@path` references resolve.

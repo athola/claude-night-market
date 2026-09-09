@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 HOOK_DIR = Path(__file__).resolve().parents[3] / "hooks"
 sys.path.insert(0, str(HOOK_DIR))
 
@@ -234,7 +236,7 @@ class TestMainFunction:
     """Test the main() entry point orchestration."""
 
     def test_main_prints_summary_when_items_filed(
-        self, tmp_path: Path, capsys: object
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
     ) -> None:
         """main() writes a summary to stderr when items are filed."""
         from deferred_item_sweep import main
@@ -249,14 +251,21 @@ class TestMainFunction:
             patch("deferred_item_sweep.call_capture_script", return_value=mock_result),
         ):
             main()
+        captured = capsys.readouterr()
+        assert "Deferred items: 1 filed, 0 duplicate, 0 failed" in captured.err
 
-    def test_main_silent_when_no_items(self, tmp_path: Path) -> None:
+    def test_main_silent_when_no_items(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
         """main() produces no output when the ledger is empty or missing."""
         from deferred_item_sweep import main
 
         ledger = tmp_path / "nonexistent.json"
         with patch("deferred_item_sweep.get_ledger_path", return_value=ledger):
             main()
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        assert captured.err == ""
 
 
 class TestCallCaptureScriptDirect:

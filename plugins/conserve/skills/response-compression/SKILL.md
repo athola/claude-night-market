@@ -1,7 +1,7 @@
 ---
 name: response-compression
 description: Compresses verbose responses by removing filler and framing to save 200-400 tokens. Use when responses feel bloated or context is filling fast.
-alwaysApply: true
+alwaysApply: false
 category: optimization
 tags:
 - tokens
@@ -13,15 +13,6 @@ complexity: low
 model_hint: fast
 estimated_tokens: 500
 ---
-## Table of Contents
-
-- [Elimination Rules](#elimination-rules)
-- [Before/After Transformations](#beforeafter-transformations)
-- [Termination Guidelines](#termination-guidelines)
-- [Directness Guidelines](#directness-guidelines)
-- [Quick Reference Checklist](#quick-reference-checklist)
-- [Token Impact](#token-impact)
-- [Integration](#integration)
 
 # Response Compression
 

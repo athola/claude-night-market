@@ -55,25 +55,6 @@ modules:
 - modules/troubleshooting.md
 - modules/windows-patterns.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Quick Start](#quick-start)
-- [Basic Hub Pattern](#basic-hub-pattern)
-- [Progressive Loading](#progressive-loading)
-- [Context-Based Selection](#context-based-selection)
-- [Hub-and-Spoke Architecture](#hub-and-spoke-architecture)
-- [Hub Responsibilities](#hub-responsibilities)
-- [Spoke Characteristics](#spoke-characteristics)
-- [Selection Strategies](#selection-strategies)
-- [Loading Patterns](#loading-patterns)
-- [Common Use Cases](#common-use-cases)
-- [Best Practices](#best-practices)
-- [Module References](#module-references)
-- [Integration with Other Skills](#integration-with-other-skills)
-- [Exit Criteria](#exit-criteria)
-
 
 # Progressive Loading Patterns
 

@@ -29,8 +29,8 @@ a single match must be resolved before merge.
 
 ## Layer 1: Document-level economy
 
-Score the document on three checks (0-2 each). Below
-5/6 is not ready to ship regardless of how clean the
+Score the document on four checks (0-2 each). Below
+7/8 is not ready to ship regardless of how clean the
 sentences are.
 
 1. **Thesis-first**: the lead states the single takeaway.
@@ -39,6 +39,26 @@ sentences are.
    restated headings, and "as mentioned above" are bloat.
 3. **Repetition rule**: the thesis is echoed (intro,
    middle, close). Everything else that repeats is cut.
+4. **Audience fit**: one reader tier is declared
+   (`newcomer`, `practitioner`, `expert`, or a one-line
+   `persona`), and every section serves it. When a
+   document names no reader, ask for one. Do not infer
+   it from the prose.
+
+Check 4 has one move that gets skipped: **extract, do not
+delete**. Content that only serves a higher tier goes to
+`modules/<topic>.md` for a skill or
+`docs/deep-dive/<topic>.md` for a repo doc, linked from
+the parent's lead with one line naming who it is for.
+Rationale a newcomer cannot use is rarely weak writing.
+It is answering a question that reader has not asked yet.
+
+Tier table, the Socratic set for eliciting a tier, and
+the creative-writing carve-out (`voice-*`,
+`session-to-post`, `fiction-patterns`, where the cut test
+does not apply):
+`Skill(scribe:slop-detector)` module
+`audience-targeting.md`.
 
 Estimate the **reader-time budget** before drafting:
 audience size × read frequency × per-read time. Writing
@@ -48,34 +68,86 @@ the failure mode worth catching.
 Full rubric, table, and worked example:
 `Skill(scribe:slop-detector)` module `document-economy.md`.
 
+Audience fit is judgment, not a string in the text, so no
+regex can decide it and nothing is added to `en.yaml` for
+it. The guard is the contract test
+`plugins/scribe/tests/test_audience_targeting.py`.
+
 ## Layer 2: Sentence-level checks
 
 After Layers 0 and 1 pass, you MUST run
 `Skill(scribe:slop-detector)` on each modified file.
 
-**Automatic checks after writing .md files:**
+**One command locates every finding below:**
+
+```bash
+uv run --with pyyaml python scripts/slop_score.py --audit <files>
+```
+
+It takes files or directories, reports every category with a
+file and a line, and exits 0. It carries what the merge gate
+declines to score: the low-confidence categories
+(`semicolon_splice`, the softer anthropomorphism verbs) and the
+opt-in ones (`negative_definition`, `contrastive_scaffold`,
+`over_explanation`), plus the per-document negation-density
+reading. Those are surfaced for a person to judge and are
+labeled `(low)` or `(medium)` in the output. Never auto-rewrite
+one.
+
+`--python` adds `.py` files to a directory sweep and scores their
+comments and docstrings, which is where half of this behavior lives. A
+`.py` path named directly is always read that way, so a caller passing
+a file list needs no flag.
+
+A Python score is floored at 150 words, because under that the number
+measures its denominator. The score is weighted hits per 100 words and
+a tier 1 hit is worth 3, so a module with 14 words of docstring and one
+finding scored 21.43 against 1.55 for a 1029-word ADR carrying twelve.
+150 is the lowest floor at which every surviving file in a six-plugin
+sweep carries at least three findings. The floor gates only: `--audit`
+reports every finding, because a finding is true however little prose
+surrounds it.
+
+That sweep now puts 12 files over 3.0 rather than the 37 the raw
+number gave, and 8 of the 12 are markdown that a `plugins/` sweep
+always saw and CI never gated. Of the 4 Python files left, 2 are tests
+whose scenario docstrings use "X, not Y" as precision about what is
+under test, which is the rationale register and correct.
+
+Notation is the shape to leave alone, and it is code that happens to
+sit in prose: an arrow in a mapping table
+(`memory_palace/corpus/integration_policy.py:28`), a plus in a formula
+(`scribe/tape_generator.py:220`), and a character quoted because the
+code matches it (`scribe/negation.py:34`). Code marked the RST way,
+with two backticks, is stripped before scoring.
+
+`scripts/slop_score.py --threshold 3.0 docs book/src` is the
+same script in gate mode, which is what CI runs on those two
+directories. `--ratchet REF` is the third mode: it fails a file only
+when it scores over the threshold and higher than its version at
+`REF`. The pre-commit hook runs it against `HEAD` on staged markdown,
+and CI runs it against the merge base on the markdown a PR changed.
+Documents that define patterns are skipped through `exclude_patterns`
+in `.slop-config.yaml`. Auditing reports. Scoring and ratcheting
+gate. Do not conflate them.
+
+The list below says what each finding means and how to rewrite
+it. Reach for a hand-written grep only when the script is
+unavailable.
 
 1. Verify prose lines wrap at 80 chars (see
    `.claude/rules/markdown-formatting.md`)
-2. Count em dashes: `grep -o '—' file.md | wc -l`
-   (target: 0-2 per 1000 words)
-2a. Scan for double-dash em-dash substitution:
-   `grep -n ' -- ' file.md` — any prose match (outside
-   code blocks and `| -- |` table cells) is slop.
-   Replace with a real em-dash `—`, a colon, or rewrite
-   the sentence. `--` is a shell end-of-options separator;
-   it is not punctuation.
-2b. Scan for prose semicolon splices (outside fenced AND inline
-   code): `awk '/^```/{c=!c}!c' file.md | sed -E 's/`[^`]*`//g'
-   | grep -oP '\w;\s+\w'`. The `sed` pass matters here more than
-   for arrows or plus signs because semicolons are common inside
-   backticked code (`arr.push();`). A semicolon joining two
+2. Em dashes: target 0-2 per 1000 words, zero in new prose.
+2a. Double-dash em-dash substitution: any prose ` -- ` (outside
+   code blocks and `| -- |` table cells) is slop. Replace with
+   a colon or rewrite the sentence. `--` is a shell
+   end-of-options separator and is not punctuation.
+2b. Prose semicolon splices. A semicolon joining two
    independent clauses reads more naturally as two sentences or
-   one coordinating conjunction.
-   Rephrase unless the semicolon is absolutely necessary: a
-   list whose items carry internal commas is the one durable
-   keep. Confidence is low, so surface each hit for a human to
-   judge rather than auto-rewriting.
+   one coordinating conjunction. Rephrase rather than swapping
+   in an em dash, which is usually what the semicolon replaced.
+   A list whose items carry internal commas is the one durable
+   keep. Confidence is low, so a person judges each hit.
 3. Scan for tier 1 slop: "structured", "comprehensive",
    "actionable", "seamless", "robust", "myriad",
    "empower", "navigate" (as metaphor)
@@ -87,12 +159,10 @@ After Layers 0 and 1 pass, you MUST run
 7. Check for participial tail-loading: sentences ending
    with ", [verb]-ing ..."
 8. Normalize British spellings to American (default).
-   Use `scribe.spelling.to_american` (preserves case; skips
-   code, inline code, and URLs) or scan manually:
-   `rg -ni '\b(colou?r|behaviou?r|organis|optimis|centre|\
-   licence|defence|catalogue|grey|artefact)\w*' file.md`.
-   Use an explicit word list, never a `-ise`/`-our` suffix
-   rule (surprise, exercise, analysis are correct as-is).
+   Use `scribe.spelling.to_american`, which preserves case and
+   skips code, inline code, and URLs. Use an explicit word
+   list, never a `-ise`/`-our` suffix rule (surprise,
+   exercise, analysis are correct as-is).
    Opt out per project via `.slop-config.yaml`
    (`spelling: british`) or per word via the allowlist;
    leave proper nouns ("Labour Party") and quoted text
@@ -254,6 +324,43 @@ ever apply to this repo.
   `check_negation_density` reports the share of sentences carrying a
   negation marker against an advisory 35% bar, with an 8-sentence
   floor. It is a prompt to reread, never a merge gate.
+- **Temporal residue**: session state leaking into a file that
+  documents current state. "This used to be an int field", "replaces
+  the old handler", "no longer a tuple": the change event, written
+  where the reader came for the thing as it is. Anthropic issue #65961
+  names the mechanism, describing comments that make "references to
+  the chat with Claude itself, leaking its chain of thoughts". Rewrite
+  to the current state and let the commit message carry the change.
+
+  The scope matters more than the patterns here, and it is the reason
+  this ships opt-in and low confidence. Residue is temporal narration
+  in **interface** documentation. The same words in **rationale**
+  documentation are correct, and two of these rule files require them:
+  `bounded-autonomy.md` asks a constraint to cite its incident, and
+  `prefer-invariants-over-fallbacks.md` asks a guard to name the
+  failure it defends. No regex separates the two. Of 458 hits measured
+  over git-tracked files, 28.8% are in a CHANGELOG, an ADR, or a test
+  docstring, where narrating history is the whole job. Enable the
+  category when auditing a README, a public docstring, or a field
+  comment. Surface every hit and never auto-rewrite.
+
+  **The register split is not a style preference.** Naming what was
+  skipped is required of an operator reply and a completion report, by
+  the harness and by `Skill(imbue:proof-of-work)`, which asks for
+  BLOCKED work to be stated. A blanket rule against saying what was
+  not done contradicts the harness and loses to it, which is what the
+  practitioner reports behind this category describe. A file has no
+  session to report on, so the rule applies to written artifacts and
+  stops there. Same resolution `ste-for-operator-and-procedures.md`
+  performs for sentence length: by scope, not by precedence.
+
+  The deterministic half is `vow_no_edit_narration.py`, a PreToolUse
+  hook over inserted text only, carrying the two patterns that match
+  nothing committed here today outside the two files that define them.
+  It warns by default;
+  `VOW_SHADOW_MODE=0` makes it block. The instruction above is the
+  probabilistic half, and the evidence says a rule alone does not hold.
+
 - **Contrastive parallelism (affirmative antithesis)**: the
   same scaffold without a "not" anchor. Rewrite "Less X,
   more Y", "Where others X, we Y", subject-swap clauses
@@ -279,6 +386,22 @@ ever apply to this repo.
   "setting the stage for", "shaping the future of",
   "underscores the importance", "plays a pivotal role". The
   surrounding facts carry significance better.
+- **Invisible Unicode**: delete zero-width spaces, soft hyphens,
+  directional marks, bidi overrides and isolates, word joiners,
+  invisible math operators, noncharacters, and tag characters. A
+  defect rather than a tell, and the three defects differ. A bidi
+  override renders one order and compiles in another, which is the
+  Trojan Source attack. A tag character has no glyph, which makes it
+  a carrier for text aimed at a model rather than a person. A
+  zero-width space breaks an exact-match assertion, a YAML key or a
+  grep pattern, and shows nothing in the diff that added it. High
+  confidence, and the only category scanned inside code blocks:
+  blanking a fence suits a vocabulary rule and defeats this one,
+  because the fence is where the attack hides. The emoji joiners are
+  deliberately unmatched, since U+200D and U+FE0F build ordinary
+  emoji sequences and U+200C is required in Persian and several
+  Indic scripts. `--audit` prints each hit as `<U+XXXX>`. Echoing
+  the match would print a blank where the evidence goes.
 - **Smart quotes outside code blocks**: replace `"`/`"`
   with `"` and `'`/`'` with `'` in technical prose.
 - **Semicolon splice**: a semicolon joining two independent
@@ -286,6 +409,19 @@ ever apply to this repo.
   marker. Split into two sentences or join with "and"/"but"/
   "so". Keep the semicolon only when a list's items carry
   internal commas. Low confidence: surface, do not auto-rewrite.
+- **Over-explained fixes**: narration wrapped around a change,
+  in place of the change. "In order to", "this ensures that",
+  "this means that", "the reason for this is", "which allows
+  us to", "it is important to note that". State the defect and
+  what changed, then stop. A changelog entry or commit body
+  that explains its own reasoning at length costs the reader
+  more than the change it describes. Off by default and low
+  confidence: "in order to" is correct in a sentence that
+  genuinely states a purpose, and the line between rationale
+  and narration is a judgment. Enable it when auditing
+  changelogs, commit bodies, and PR descriptions. The judgment
+  half belongs to document economy's sentence-weight check.
+  This is the lexical half.
 - **Loop/cascade vocabulary**: replace "unpack" (verb,
   metaphor) with "explain"; "surface" (verb, metaphor) with
   "raise" or "report"; "a quiet shift" with the named shift;

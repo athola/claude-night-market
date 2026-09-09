@@ -3,7 +3,7 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: help deps test test-unit test-coverage lint format type-check typecheck security clean \
+.PHONY: help deps test clean \
         install-hooks status ci mutation-test benchmark memory-profile demo-tokens demo-quota \
         demo-skills demo-formatting demo-reinstall-all-plugins demo-update-all-plugins \
         demo-verify-plugin test-reinstall-all-plugins test-update-all-plugins test-verify-plugin \
@@ -172,7 +172,7 @@ demo-reinstall-all-plugins: ## Demo reinstall-all-plugins command (LIVE)
 	@echo "Scanning installed plugins..."
 	@find ../../plugins/ -maxdepth 1 -mindepth 1 -type d | sort | while read dir; do \
 		name=$$(basename "$$dir"); \
-		has_manifest=$$(test -f "$$dir/plugin.json" -o -f "$$dir/openpackage.yml" && echo "OK" || echo "MISSING"); \
+		has_manifest=$$(test -f "$$dir/.claude-plugin/plugin.json" -o -f "$$dir/openpackage.yml" && echo "OK" || echo "MISSING"); \
 		echo "  $$name: manifest=$$has_manifest"; \
 	done
 	@echo ""

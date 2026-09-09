@@ -794,3 +794,46 @@ class TestAlert:
             ctx=AlertContext(source="egregore"),
         )
         assert mock_wh.call_args[1]["source"] == "egregore"
+
+
+class TestWebhookAddressPinning:
+    """The address the validator approved is the address curl connects to.
+
+    validate_webhook_url() resolved the hostname and rejected private
+    ranges, then send_webhook() handed the hostname to curl, which
+    resolved it again. A rebinding DNS server answers the first lookup
+    with a public address and the second with 127.0.0.1, and the guard
+    passes a request it was written to stop.
+    """
+
+    _PUBLIC = [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 0))]
+
+    def test_validate_returns_the_address_it_approved(self) -> None:
+        """The validator's verdict includes which address passed."""
+        with patch("socket.getaddrinfo", return_value=self._PUBLIC):
+            assert validate_webhook_url("https://example.com/hook") == "93.184.216.34"
+
+    def test_validate_returns_a_literal_address_unchanged(self) -> None:
+        """A literal public IP needs no lookup and pins to itself."""
+        assert validate_webhook_url("https://93.184.216.34/hook") == "93.184.216.34"
+
+    @patch("subprocess.run")
+    def test_send_webhook_pins_curl_to_the_validated_address(
+        self, mock_run: MagicMock
+    ) -> None:
+        """Curl gets --resolve host:port:addr so it cannot re-resolve."""
+        mock_run.return_value = MagicMock(returncode=0)
+        with patch("socket.getaddrinfo", return_value=self._PUBLIC):
+            assert send_webhook(url="https://example.com/hook", event=AlertEvent.CRASH)
+        cmd = mock_run.call_args[0][0]
+        assert "--resolve" in cmd
+        assert cmd[cmd.index("--resolve") + 1] == "example.com:443:93.184.216.34"
+
+    @patch("subprocess.run")
+    def test_pin_uses_the_url_port_when_one_is_given(self, mock_run: MagicMock) -> None:
+        """A non-default port is part of the pin, or curl ignores it."""
+        mock_run.return_value = MagicMock(returncode=0)
+        with patch("socket.getaddrinfo", return_value=self._PUBLIC):
+            send_webhook(url="https://example.com:8443/hook", event=AlertEvent.CRASH)
+        cmd = mock_run.call_args[0][0]
+        assert cmd[cmd.index("--resolve") + 1] == "example.com:8443:93.184.216.34"

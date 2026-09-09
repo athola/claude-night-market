@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tome"
-version = "1.9.19"
+version = "1.9.20"
 description = "Multi-source research plugin for Claude Code"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -16,17 +16,17 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.2",
 ]
 
 [dependency-groups]
 dev = [
     "ruff>=0.14.13",
-    "mypy>=1.11.0,<2",
-    "types-PyYAML>=6.0",
+    "mypy>=1.18.2,<2",
+    "types-pyyaml>=6.0.12",
     "pytest>=8.0",
-    "pytest-cov>=4.0",
-    "pytest-asyncio>=0.23",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.25.0",
     # The graph and retrieval seams are Protocols that memory-palace
     # satisfies structurally. Without the real backend installed, every
     # contract test guarded by importorskip skips, and the Protocols are

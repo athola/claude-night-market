@@ -401,3 +401,22 @@ class TestQuotaTrackerCLI:
 
         # Should not raise
         quota_tracker.main()
+
+
+class TestConcurrentRecording:
+    """Two trackers on one usage file must not lose each other's requests.
+
+    record_request() read the file at construction, incremented in memory
+    and wrote the whole file back, so two callers in flight lost one
+    increment each time. Hooks and CLIs share the same file.
+    """
+
+    def test_two_trackers_on_one_file_both_count(self, tmp_path: Path) -> None:
+        """Each record_request lands in the file the other tracker reads."""
+        first = QuotaTracker("svc", storage_dir=tmp_path)
+        second = QuotaTracker("svc", storage_dir=tmp_path)
+        first.record_request(tokens=10)
+        second.record_request(tokens=5)
+        fresh = QuotaTracker("svc", storage_dir=tmp_path)
+        assert fresh.usage.requests_today == 2
+        assert fresh.usage.tokens_today == 15

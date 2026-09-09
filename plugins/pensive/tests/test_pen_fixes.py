@@ -1,4 +1,4 @@
-"""Regression tests for PEN-005, PEN-007..PEN-010, PEN-012, PEN-015.
+"""Regression tests for PEN-003..PEN-010, PEN-012, PEN-015.
 
 Each class is named after the finding it covers so failures are easy
 to triage.
@@ -12,8 +12,12 @@ import psutil
 import pytest
 
 from pensive.analysis.repository_analyzer import RepositoryAnalyzer
+from pensive.exceptions import AnalysisError
+from pensive.skills.base import AnalysisResult
+from pensive.skills.makefile_review import MakefileReviewSkill
+from pensive.skills.math_review import MathReviewSkill
 from pensive.skills.rust_review.cargo import CargoBuildMixin
-from pensive.skills.unified_review import UnifiedReviewSkill
+from pensive.skills.unified_review import UnifiedReviewSkill, dispatch_agent
 from pensive.workflows.code_review import CodeReviewWorkflow
 from pensive.workflows.memory_manager import get_optimal_strategy
 
@@ -74,12 +78,76 @@ class TestPen005DetectBuildSystems:
 
 
 # ---------------------------------------------------------------------------
-# PEN-007: CodeReviewWorkflow.execute_skills MemoryError propagation
+# PEN-003: CodeReviewWorkflow.run stub removed
+# ---------------------------------------------------------------------------
+
+
+class TestPen003RunStubRemoved:
+    """execute_full_review is the only entry point (PEN-003)."""
+
+    def test_workflow_has_no_run_stub(self):
+        assert not hasattr(CodeReviewWorkflow, "run")
+
+
+# ---------------------------------------------------------------------------
+# PEN-004: dispatch_agent runs the real skill
+# ---------------------------------------------------------------------------
+
+
+class TestPen004DispatchAgentRunsRealSkill:
+    """dispatch_agent resolves and runs a skill instead of returning a string."""
+
+    def test_unknown_skill_returns_none(self):
+        assert dispatch_agent("no-such-skill", Mock()) is None
+
+    def test_unified_review_returns_analysis_result(self):
+        ctx = Mock()
+        ctx.get_files.return_value = []
+        result = dispatch_agent("unified-review", ctx)
+        assert isinstance(result, AnalysisResult)
+        assert result.warnings == ["No code files found in the repository"]
+
+
+# ---------------------------------------------------------------------------
+# PEN-006: skill selection owned by UnifiedReviewSkill.select_review_skills
+# ---------------------------------------------------------------------------
+
+
+class TestPen006SkillSelectionOwnedByUnifiedReview:
+    """_determine_skills delegates to select_review_skills (PEN-006)."""
+
+    def test_determine_skills_delegates_to_select_review_skills(self, tmp_path):
+        wf = CodeReviewWorkflow()
+        with patch.object(
+            UnifiedReviewSkill,
+            "select_review_skills",
+            return_value=["code-reviewer", "makefile-review"],
+        ):
+            selected = wf._determine_skills(tmp_path, ["Makefile"])
+        assert selected == ["unified-review", "makefile-review"]
+
+    def test_select_review_skills_adds_api_review_for_api_files(self):
+        ctx = Mock()
+        ctx.get_files.return_value = ["src/api/routes.py"]
+        ctx.get_file_content.return_value = ""
+        assert "api-review" in UnifiedReviewSkill().select_review_skills(ctx)
+
+    def test_workflow_resolves_makefile_and_math_review(self):
+        wf = CodeReviewWorkflow()
+        assert isinstance(wf._get_skill("makefile-review"), MakefileReviewSkill)
+        assert isinstance(wf._get_skill("math-review"), MathReviewSkill)
+
+
+# ---------------------------------------------------------------------------
+# PEN-007: CodeReviewWorkflow catches (AnalysisError, OSError) only
 # ---------------------------------------------------------------------------
 
 
 class TestPen007ExceptionNarrowing:
-    """execute_skills catches non-fatal exceptions and propagates MemoryError (PEN-007)."""
+    """Runtime failures are recorded; programming errors propagate (PEN-007).
+
+    Supersedes the earlier fix that only let MemoryError through.
+    """
 
     def _workflow(self, exc):
         wf = CodeReviewWorkflow()
@@ -88,13 +156,8 @@ class TestPen007ExceptionNarrowing:
         wf.register_skill("probe", mock_skill)
         return wf
 
-    def test_value_error_caught_returns_none(self):
-        wf = self._workflow(ValueError("bad"))
-        result = wf.execute_skills(["probe"], Mock())
-        assert result == [None]
-
-    def test_attribute_error_caught_returns_none(self):
-        wf = self._workflow(AttributeError("attr"))
+    def test_analysis_error_caught_returns_none(self):
+        wf = self._workflow(AnalysisError("cargo missing"))
         result = wf.execute_skills(["probe"], Mock())
         assert result == [None]
 
@@ -103,10 +166,20 @@ class TestPen007ExceptionNarrowing:
         result = wf.execute_skills(["probe"], Mock())
         assert result == [None]
 
-    def test_runtime_error_caught_returns_none(self):
+    def test_value_error_propagates(self):
+        wf = self._workflow(ValueError("bad"))
+        with pytest.raises(ValueError, match="bad"):
+            wf.execute_skills(["probe"], Mock())
+
+    def test_attribute_error_propagates(self):
+        wf = self._workflow(AttributeError("attr"))
+        with pytest.raises(AttributeError):
+            wf.execute_skills(["probe"], Mock())
+
+    def test_runtime_error_propagates(self):
         wf = self._workflow(RuntimeError("rt"))
-        result = wf.execute_skills(["probe"], Mock())
-        assert result == [None]
+        with pytest.raises(RuntimeError):
+            wf.execute_skills(["probe"], Mock())
 
     def test_memory_error_propagates(self):
         wf = self._workflow(MemoryError("oom"))
@@ -116,13 +189,32 @@ class TestPen007ExceptionNarrowing:
     def test_continues_after_error(self):
         wf = CodeReviewWorkflow()
         fail_skill = Mock()
-        fail_skill.analyze.side_effect = ValueError("fail")
+        fail_skill.analyze.side_effect = AnalysisError("fail")
         ok_skill = Mock()
         ok_skill.analyze.return_value = "ok"
         wf.register_skill("fail", fail_skill)
         wf.register_skill("ok", ok_skill)
         result = wf.execute_skills(["fail", "ok"], Mock())
         assert result == [None, "ok"]
+
+    def test_full_review_records_analysis_error_and_continues(self, tmp_path):
+        (tmp_path / "app.py").write_text("x = 1\n")
+        wf = CodeReviewWorkflow()
+        broken = Mock()
+        broken.analyze.side_effect = AnalysisError("toolchain missing")
+        wf.register_skill("unified-review", broken)
+        result = wf.execute_full_review(tmp_path)
+        assert "unified-review" in result["skipped_skills"]
+        assert any("toolchain missing" in err for err in result["errors"])
+
+    def test_full_review_propagates_type_error(self, tmp_path):
+        (tmp_path / "app.py").write_text("x = 1\n")
+        wf = CodeReviewWorkflow()
+        broken = Mock()
+        broken.analyze.side_effect = TypeError("bad skill")
+        wf.register_skill("unified-review", broken)
+        with pytest.raises(TypeError, match="bad skill"):
+            wf.execute_full_review(tmp_path)
 
 
 # ---------------------------------------------------------------------------

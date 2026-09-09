@@ -13,6 +13,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import fcntl
 import json
 import time
 from dataclasses import dataclass, field
@@ -137,16 +138,26 @@ class QuotaTracker:
         success: bool = True,
         duration: float = 0.0,
     ) -> None:
-        """Record a request to the service."""
-        self._cleanup_old_data()
+        """Record a request to the service.
 
-        self.usage.requests_this_minute += 1
-        self.usage.requests_today += 1
-        self.usage.tokens_this_minute += tokens
-        self.usage.tokens_today += tokens
-        self.usage.last_request_time = time.time()
-
-        self._save_usage()
+        Hooks and CLIs share one usage file, so the read, the increment and
+        the write happen under an exclusive lock; an in-memory count from
+        construction time would overwrite whatever another process wrote
+        since.
+        """
+        lock_path = self.usage_file.with_suffix(".lock")
+        with lock_path.open("w") as lock_handle:
+            fcntl.flock(lock_handle, fcntl.LOCK_EX)
+            try:
+                self._load_usage()
+                self.usage.requests_this_minute += 1
+                self.usage.requests_today += 1
+                self.usage.tokens_this_minute += tokens
+                self.usage.tokens_today += tokens
+                self.usage.last_request_time = time.time()
+                self._save_usage()
+            finally:
+                fcntl.flock(lock_handle, fcntl.LOCK_UN)
 
     def get_current_usage(self) -> UsageStats:
         """Get current usage statistics."""

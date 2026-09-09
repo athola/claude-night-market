@@ -3,23 +3,27 @@
 **Date**: 2026-07-28
 **Status**: Accepted
 **Deciders**: Claude Night Market maintainers
-**Supersedes**: the ten design and plan files formerly under
+**Supersedes**: the twelve design and plan files formerly under
 `docs/superpowers/`
 **Related**: ADR-0018 already carries the tome research engine decision
 
 ## Context
 
 The `superpowers` brainstorm-design-plan pipeline writes its working
-artifacts to `docs/superpowers/`. Eight design specs and two
-implementation plans accumulated there between 2026-03-23 and
+artifacts to `docs/superpowers/`. Ten design specs and two
+implementation plans accumulated there between 2026-03-18 and
 2026-07-17, roughly 19,700 words.
+
+This ADR was written against eight of the ten. The two earliest specs,
+dated 2026-03-18 and 2026-03-19, were still on disk when it landed and
+were missed, so their sections below were added on 2026-09-09.
 
 Only one of those ten files was ever tracked in git. The other nine were
 untracked local scratch, so every checkout held a different set. That
 split is the problem: the directory read as a doc of record while
 behaving like a build artifact.
 
-Seven of the eight designs shipped. Their skills, rules, and tests are
+Nine of the ten designs shipped. Their skills, rules, and tests are
 the source of truth now, and the specs restate them at lower fidelity.
 The specs do hold one thing the shipped artifacts do not: the
 alternatives that were weighed and rejected. Grepping
@@ -43,6 +47,50 @@ inventories, line-count estimates) is scaffolding that the shipped code
 documents better than the spec did. It goes.
 
 ## Decisions recorded
+
+### fsck blog improvements, 2026-03-18
+
+Eight improvements drawn from five fsck blog posts, delivered in two
+phases: edit existing skills first because that risks least, then add
+new skills, which need their own tests. Shipped as the spec-review-loop
+module in `attune:project-brainstorming`, the cheapest-capable-model
+heuristic in `conjure:delegation-core`, invisible-text-injection
+detection in `leyline`, and `imbue:latent-space-engineering`.
+
+| Rejected | Reason |
+|----------|--------|
+| Visual brainstorming through an HTML server | Platform-dependent and complex, with no consumer here |
+| ASCII-art diagrams in AskUserQuestion | A harness limitation, not something a plugin can change |
+| Reflective processing / feelings-journal MCP | Needs MCP server infrastructure outside plugin scope |
+| Agent swarm coordination | `egregore` already does this |
+
+### deferred-item capture, 2026-03-19
+
+A standalone Python script per plugin against a shared written
+specification, with `sanctum` owning the reference implementation, two
+safety-net hooks, and a `leyline` skill as the contract. Convention
+over shared code: the specification is what is shared, not a library.
+
+The constraint that shaped it is the one that still holds. Hooks get
+under two seconds and the system interpreter is Python 3.9, so the
+PostToolUse hook detects and writes a ledger entry while the Stop hook
+does every `gh` call. Splitting detect from file is what keeps the
+fast hook inside its budget.
+
+Two trade-offs were accepted rather than solved. Six near-identical
+wrappers exist across plugins, held together by a spec-compliance test
+and `make verify-deferred-capture` rather than by a shared module. The
+safety-net hook matches conservatively and misses implicit deferrals,
+because explicit skill-level capture is the primary path and the hook
+is the fallback.
+
+| Rejected or deferred | Reason |
+|----------------------|--------|
+| Central registry or dashboard | GitHub Projects v2 could serve it later; no consumer now |
+| Cross-source deduplication | Each source files independently. Within-source dedup is in the script |
+| Scoring normalization across plugins | Worthiness, RICE and gap analysis stay source-specific |
+| Automatic prioritization | No consumer |
+| GitHub Discussions integration | `egregore` already publishes there. This path is Issues |
 
 ### scribe:session-replay, 2026-03-23
 
@@ -240,6 +288,9 @@ lessons came from the DDD paradigm build and PR #612.
 ## Status of implementation
 
 - [x] `docs/superpowers/` added to `.gitignore`
+- [x] The two 2026-03-18 and 2026-03-19 specs this ADR first missed
+      recorded above (2026-09-09), and their implementation plans
+      dropped as the scaffolding the Decision section already called it
 - [x] Tracked tome spec removed from the index (ADR-0018 supersedes it)
 - [x] Rejected alternatives and deferred scope recorded above
 - [x] The unshipped `slop-clean-before-post` design recorded above, with
@@ -250,6 +301,6 @@ lessons came from the DDD paradigm build and PR #612.
 
 ## Source
 
-The eight design specs and two implementation plans formerly under
+The ten design specs and two implementation plans formerly under
 `docs/superpowers/specs/` and `docs/superpowers/plans/`, dated
-2026-03-23 through 2026-07-17.
+2026-03-18 through 2026-07-17.

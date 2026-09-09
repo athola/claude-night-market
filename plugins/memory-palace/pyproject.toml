@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "memory-palace"
-version = "1.9.19"
+version = "1.9.20"
 description = "Spatial knowledge organization plugin for Claude Code using memory palace techniques"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -19,15 +19,12 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.2",
     "networkx>=3.0",
     "scipy>=1.11",
 ]
 
 [project.optional-dependencies]
-tokens = [
-    "tiktoken>=0.7.0",  # Accurate token estimation (fallback: ~4 chars/token)
-]
 fast = [
     "xxhash>=3.0",  # 10x faster hashing
 ]
@@ -40,9 +37,9 @@ semantic = [
     "faiss-cpu>=1.8.0 ; python_version >= '3.10'",
 ]
 dev = [
-    "pre-commit>=3.0.0",
+    "pre-commit>=4.0.0",
     "ruff>=0.14.13",
-    "mypy>=1.11.0,<2",
+    "mypy>=1.18.2,<2",
     "ty>=0.0.1a23",
     "pytype>=2024.10.11 ; python_version >= '3.10'",
     "typos>=1.0.0",
@@ -59,9 +56,9 @@ dev = [
     "typos>=1.0.0",
     "ruff>=0.14.13",
     "mypy>=1.18.2,<2",
-    "types-PyYAML>=6.0.12",
+    "types-pyyaml>=6.0.12",
     "pytest>=8.0",
-    "pytest-cov>=4.0",
+    "pytest-cov>=6.0.0",
     # Belongs in the group, not the extra: run-plugin-tests.sh invokes a bare
     # `uv run python -m pytest`, and uv syncs dependency-groups but not extras.
     # In the extra, the semantic-dedup tests re-skipped under `make test`.

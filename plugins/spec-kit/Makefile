@@ -3,14 +3,13 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
 .PHONY: ci clean debug-variables demo-skills demo-spec demo-speckit-analyze demo-speckit-checklist \
 	demo-speckit-clarify demo-speckit-constitution demo-speckit-implement demo-speckit-plan \
-	demo-speckit-specify demo-speckit-startup demo-speckit-tasks demo-tasks deps format help \
-	install-hooks lint plugin-check security status test test-coverage test-integration test-quick \
+	demo-speckit-specify demo-speckit-startup demo-speckit-tasks demo-tasks deps help \
+	install-hooks plugin-check status test test-integration \
 	test-speckit-analyze test-speckit-checklist test-speckit-clarify test-speckit-constitution \
 	test-speckit-implement test-speckit-plan test-speckit-specify test-speckit-startup \
-	test-speckit-tasks test-unit type-check typecheck validate-plugin
+	test-speckit-tasks validate-plugin demo-spec-kit-commands
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests
@@ -32,7 +31,6 @@ help: ## Show this help message
 	@echo "==============================="
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
-	@echo "Run 'make -C tests help' for test-specific targets"
 
 # ---------- Dependencies ----------
 deps: ## Install and sync dependencies
@@ -48,7 +46,7 @@ test-integration: ## Run integration tests only
 # ---------- Validation ----------
 validate-plugin: ## Validate plugin structure
 	@echo "Validating spec-kit plugin structure..."
-	python3 $(ABSTRACT_DIR)/scripts/validate_plugin.py . || echo "Validation completed with warnings"
+	$(UV_RUN_PYTHON) $(ABSTRACT_DIR)/scripts/validate_plugin.py .
 
 # ---------- CI ----------
 ci: lint test ## Run CI pipeline
@@ -59,7 +57,6 @@ clean: ## Clean up generated files
 	rm -rf .pytest_cache htmlcov .coverage 2>/dev/null || true
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
-	@if [ -d $(TEST_DIR) ]; then $(MAKE) -C $(TEST_DIR) clean; fi
 
 status: ## Show project overview
 	@echo "Spec-Kit Plugin Status:"
@@ -261,21 +258,10 @@ demo-speckit-constitution: ## Demo speckit-constitution command
 	@echo "Use /speckit-constitution for full workflow."
 
 
-	@echo "=== speckit-startup Demo ==="
-	@echo ""
-	@echo "Command: /speckit-startup"
-	@echo "Plugin: spec-kit"
-	@echo ""
-	@echo "This demonstrates speckit-startup usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /speckit-startup for full workflow."
-
-
-demo-spec-kit-commands: demo-speckit-startup demo-speckit-specify demo-speckit-clarify demo-speckit-plan demo-speckit-tasks demo-speckit-implement demo-speckit-analyze demo-speckit-checklist demo-speckit-constitution demo-speckit-startup ## Run all spec-kit documented command demos
+demo-spec-kit-commands: demo-speckit-startup demo-speckit-specify demo-speckit-clarify demo-speckit-plan demo-speckit-tasks demo-speckit-implement demo-speckit-analyze demo-speckit-checklist demo-speckit-constitution ## Run all spec-kit documented command demos
 	@echo ""
 	@echo "=== Spec-kit All Commands Demo Complete ==="
-	@echo "Ran 10 documented commands"
+	@echo "Ran 9 documented commands"
 	@echo ""
 
 
@@ -354,14 +340,6 @@ test-speckit-checklist: ## Test speckit-checklist command workflow
 test-speckit-constitution: ## Test speckit-constitution command workflow
 	@echo "=== Testing speckit-constitution workflow ==="
 	@echo "Validating: /speckit-constitution"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-	@echo "=== Testing speckit-startup workflow ==="
-	@echo "Validating: /speckit-startup"
 	@echo "Check: Command executes without errors"
 	@echo "Check: Output matches expected format"
 	@echo "Status: [ ] Manual test required"

@@ -43,17 +43,6 @@ role: library
 - Planning before implementation (use `imbue:karpathy-principles`)
 - Deciding whether the work is in scope (use `imbue:scope-guard`)
 
-## Table of Contents
-
-- [Overview](#overview)
-- [The Iron Law](#the-iron-law)
-- [Usage Standards](#usage-standards)
-- [Validation Protocol](#validation-protocol)
-- [Integration](#integration)
-- [Validation Checklist](#validation-checklist-before-claiming-done)
-- [Red Flag Self-Check](#red-flag-self-check)
-- [Exit Criteria](#exit-criteria)
-
 ## Overview
 
 The "Proof of Work" methodology prevents premature completion claims by

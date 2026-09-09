@@ -81,7 +81,11 @@ if [ "$AUTO_FIX" = true ]; then
 fi
 
 # Use process substitution to avoid masking exit code through tee
-if ./scripts/run-plugin-lint.sh --all 2>&1 | tee "$LINT_OUTPUT"; LINT_EXIT=${PIPESTATUS[0]}; [ "$LINT_EXIT" -eq 0 ]; then
+lint_args=(--all)
+if [ "$AUTO_FIX" = true ]; then
+    lint_args+=(--fix)
+fi
+if ./scripts/run-plugin-lint.sh "${lint_args[@]}" 2>&1 | tee "$LINT_OUTPUT"; LINT_EXIT=${PIPESTATUS[0]}; [ "$LINT_EXIT" -eq 0 ]; then
     echo -e "${GREEN}✓ All plugins passed linting${NC}"
     LINT_STATUS="PASS"
 else

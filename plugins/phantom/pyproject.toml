@@ -1,6 +1,6 @@
 [project]
 name = "phantom"
-version = "1.9.19"
+version = "1.9.20"
 description = "Computer use toolkit for Claude - screenshot capture, mouse/keyboard control, and agent loop"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -11,11 +11,11 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "mypy>=1.0,<2",
-    "pytest>=7.0",
-    "pytest-asyncio>=0.21",
-    "pytest-cov>=4.0",
-    "ruff>=0.4.0",
+    "mypy>=1.18.2,<2",
+    "pytest>=8.0",
+    "pytest-asyncio>=0.25.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.14.13",
 ]
 
 [tool.nightmarket]

@@ -181,56 +181,19 @@ Stored in `.egregore/config.json`:
 
 ## Stop Hook Stall Bound
 
-The Stop hook blocks the session from stopping while the manifest
-holds active work, which is how the loop continues without a human
-turn. That condition is static, so blocking on it alone re-injects
-the prompt forever. Dogfooding measured ten turns and roughly $0.70
-of Opus for a one-word prompt in a project whose manifest had active
-items and no way to advance them.
+The Stop hook blocks a session from stopping while the
+manifest holds active work, which is how the loop continues
+without a human turn. Blocking on that alone re-injects the
+prompt forever, so the block is bounded: the hook hashes
+`manifest.json`, counts consecutive blocks with the hash
+unchanged, and approves the stop at
+`EGREGORE_STOP_MAX_STALLS` (default 3). A manifest change or
+a watchdog relaunch resets the count.
 
-The block is now bounded by stall detection. The hook hashes
-`manifest.json` and keeps a count in `.egregore/stop-hook-state.json`:
-
-| Event | Effect |
-|---|---|
-| Manifest hash changed since the last block | Count resets to zero |
-| New `session_id` (a watchdog relaunch) | Count resets to zero |
-| Block with the hash unchanged | Count increments |
-| Count reaches `EGREGORE_STOP_MAX_STALLS` (default 3) | Hook approves the stop and stays released until the hash changes |
-| State file cannot be written | Hook approves the stop |
-
-The last row is deliberate. An unbounded block is the failure being
-bounded here, and a released stop is recoverable because the watchdog
-relaunches the session.
-
-A step that legitimately runs longer than three turns without writing
-the manifest is paused rather than lost: the watchdog relaunches it on
-the next tick with a fresh count. Raise `EGREGORE_STOP_MAX_STALLS` to
-give such steps more room.
-
-**What the bound does not settle.** Stop-hook re-injection is not an
-upstream-documented continuation mechanism. The sanctioned primitives,
-`/loop` and `CronCreate`, are session-scoped, so neither replaces it.
-This bound prices the ride, and does not sanction it. The full record,
-including the alternatives that were considered and what would retire
-the reliance, is
+The table of reset and increment events, what the bound does
+not settle, and the residual cost of repeated relaunches are
+in the [book page][book]. The decision itself is
 [ADR-0022](../../docs/adr/0022-stop-hook-reinjection-as-continuation.md).
-The bound also
-takes manifest bytes as its definition of progress, so a session that
-writes the manifest every turn without advancing the pipeline still
-loops. That is not the measured failure, where a stuck session wrote
-nothing at all.
-
-**Residual cost, unbounded by this change.** A watchdog tick that
-finds a dead session relaunches into a fresh stall budget. An item
-stuck without manifest writes therefore costs about three turns per
-relaunch, every tick, for as long as the timer runs. Bounding one
-relaunch does not bound their product. That product is the systemd
-timer decision, and the escape hatch stays the same:
-
-```bash
-systemctl --user disable --now egregore-watchdog.timer
-```
 
 ## Watchdog Setup
 
@@ -301,72 +264,18 @@ pass, pass-with-warnings, or fix-required.
 **Modes**: self-review (pre-PR, runs all 5 quality steps)
 and PR-review (invoked by other agents for cross-review).
 
-## Parallel Execution
+## Further Reading
 
-Egregore processes independent work items concurrently
-using git worktrees. Each item gets its own worktree
-and branch, isolated from other in-flight work.
+These behaviors are documented on the [book page][book]:
 
-- `detect_independent_items()` groups items by
-  `source_ref`; different refs run in parallel,
-  shared refs run sequentially
-- `max_concurrent_worktrees` (default 3) caps
-  simultaneous worktrees
-- After completion, `merge_worktree_result()` merges
-  each feature branch with `--no-ff`
+- **Parallel execution**: worktree isolation,
+  `max_concurrent_worktrees`, and the two quality-stage waves
+- **Agent specialization**: the reviewer, documenter and
+  tester roles and the state each keeps
+- **Cross-item learning**: pattern categories and how a
+  briefing is generated
+- **Multi-repository support**: `RepoRegistry` routing
+- **GitHub Discussions publishing**: content types, rate
+  limiting and deduplication
 
-Within the quality stage, independent steps also run
-in parallel waves. Wave 1 dispatches `code-review`,
-`unbloat`, and `update-docs` simultaneously; wave 2
-runs `code-refinement` and `update-tests` after
-`code-review` finishes.
-
-## Agent Specialization
-
-Specialist agents handle specific pipeline steps and
-accumulate expertise across sessions:
-
-| Role | Steps | Persisted State |
-|------|-------|-----------------|
-| reviewer | code-review, pr-review | Review context, metrics |
-| documenter | update-docs | Style patterns |
-| tester | update-tests | Coverage history |
-
-Specialists are selected via `select_specialist(step)`
-and their context files persist in `.egregore/specialists/`.
-
-## Cross-Item Learning
-
-The `learning` module analyzes decision logs from
-completed work items to extract reusable patterns:
-
-- **Categories**: tech_stack, failure_mode,
-  architecture, approach
-- **Success tracking**: each pattern records its
-  frequency and success rate across items
-- `generate_briefing()` produces a context briefing
-  from high-frequency patterns for new work items
-
-Patterns persist in `.egregore/learning/patterns.json`.
-
-## Multi-Repository Support
-
-Egregore can orchestrate work across multiple
-repositories via `RepoRegistry`:
-
-- Register repos with `register_repo(name, path)`
-- Route work items to repos with `route_item()`
-- Each repo tracks its own default branch and labels
-- Registry persists in `.egregore/repos.json`
-
-## GitHub Discussions Publishing
-
-Discoveries, insights, and retrospectives from
-autonomous sessions are published to GitHub Discussions:
-
-- **Content types**: discovery, insight, contention,
-  retrospective
-- **Rate limiting**: `max_per_work_item` (default 10)
-  prevents flooding
-- **Tracking**: published entries are logged to avoid
-  duplicate posts
+[book]: ../../book/src/plugins/egregore.md

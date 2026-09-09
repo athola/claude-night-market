@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.9.19"
+version = "1.9.20"
 description = "Spec Driven Development toolkit with enhanced superpowers integration (synced with upstream spec-kit v0.5.0)"
 readme = "README.md"
 license = "MIT"
@@ -30,31 +30,26 @@ classifiers = [
 ]
 
 dependencies = [
-    "pyyaml>=6.0.0,<7.0.0",
+    "pyyaml>=6.0.2,<7.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     # Development tools
-    "black>=24.0",                    # Code formatting
     "ruff>=0.14.13",                    # Linting and formatting
-    "mypy>=1.11.0,<2",                     # Type checking
+    "mypy>=1.18.2,<2",                     # Type checking
     "pre-commit>=4.0.0",                # Git hooks
 
     # Testing
     "pytest>=8.0",
-    "pytest-cov>=4.0",
-    "pytest-mock>=3.0",
-    "pytest-asyncio>=0.23",
+    "pytest-cov>=6.0.0",
 
     # Advanced testing
-    "pytest-xdist>=3.0",                # Parallel testing
+    "pytest-xdist>=3.6.1",                # Parallel testing
     "pytest-benchmark>=4.0.0,<6.0.0",   # Performance testing
-    "factory-boy>=3.3.0,<4.0.0",        # Test data generation
 
     # Security scanning
-    "bandit>=1.7.5,<2.0.0",             # Security vulnerability scanner
-    "safety>=3.7.0,<4.0",             # Dependency vulnerability checker
+    "bandit>=1.7.9,<2.0.0",             # Security vulnerability scanner
 ]
 
 [project.urls]
@@ -99,7 +94,7 @@ extend-select = [
     "PLR0913", # too-many-arguments (enforced ecosystem-wide, not ignored)
 ]
 ignore = [
-    "E501",  # line too long, handled by black
+    "E501",  # line too long, handled by ruff format
     "B008",  # do not perform function calls in argument defaults
     "C901",  # too complex
 ]
@@ -184,11 +179,8 @@ skips = ["B101", "B601"]
 
 [dependency-groups]
 dev = [
-    "black",
-    "mypy>=1.11.0,<2",
+    "mypy>=1.18.2,<2",
     "ruff>=0.14.13",
     "pytest>=8.0",
-    "pytest-cov>=4.0",
-    "pytest-mock>=3.0",
-    "pytest-asyncio>=0.23",
+    "pytest-cov>=6.0.0",
 ]

@@ -562,6 +562,45 @@ where negative definition is a genuine tell. Surface every hit for a
 human to judge; never auto-rewrite. Prohibitions, invariants, and a
 bare "cannot" carrying a fact are deliberately unmatched.
 
+### Temporal residue (opt-in)
+
+`tier5.temporal_residue`. Score 1, low confidence,
+`default_enabled: false`. Session state written into a file that
+documents current state: the change event, recorded where the reader
+came for the thing as it is.
+
+| Slop | Rewrite |
+|------|---------|
+| "This used to be an int field" | "This field takes a string" |
+| "The payload no longer accepts a bare string" | "The payload takes a list of records" |
+| "This handler replaces the old dispatch path" | "This handler dispatches on the record kind" |
+| "Reads the manifest instead of the previous inline config" | "Reads the manifest" |
+
+The third kind of negation in this catalog, and the other two do not
+reach it. `negative_definition` negates a capability and
+`negative_parallelism` negates by contrast. This negates a prior
+state, which no existing regex matched.
+
+The scope is what makes it opt-in, and the distinction is worth
+holding. Residue is temporal narration in **interface**
+documentation, where a reader wants the thing as it is. The same
+words in **rationale** documentation are correct, and two rules in
+this repository require them: `bounded-autonomy.md` asks a constraint
+to cite its incident, and `prefer-invariants-over-fallbacks.md` asks
+a guard to name the failure it defends. No regex separates the two.
+Measured over git-tracked files, 28.8% of bare-word hits sit in a
+CHANGELOG, an ADR, or a test docstring, where narrating history is
+the job. Enable it when auditing a README, a public docstring, or a
+field comment. Surface every hit; never auto-rewrite.
+
+One register is deliberately out of scope. Naming what was skipped is
+required of an operator reply and a completion report, by the harness
+and by `Skill(imbue:proof-of-work)`, which asks for BLOCKED work to be
+stated. A file has no session to report on. The deterministic half,
+`plugins/imbue/hooks/vow_no_edit_narration.py`, sees a file write and
+never a reply, so the split holds structurally rather than by asking
+a model to remember which register it is in.
+
 ### Density (the "overly relies" measure)
 
 `scribe.negation.check_negation_density`. A regex counts instances and

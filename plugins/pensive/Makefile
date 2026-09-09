@@ -3,18 +3,17 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
-.PHONY: all benchmark ci clean complexity-check coverage coverage-badge coverage-check \
+.PHONY: all benchmark ci clean coverage coverage-check \
 	debug-variables demo-api-review demo-architecture-review demo-bug-review demo-fpf-review \
 	demo-full-review demo-makefile-review demo-math-review demo-pensive-commands demo-refine-code \
 	demo-rust-review demo-shell-review demo-skill-history demo-skill-review demo-skills \
-	demo-test-review deps-outdated deps-update dev dev-install docs docs-serve duplication-check \
-	format help install lint memory-profile mutation-test perf-test plugin-check quality-check \
-	security status test test-api-review test-architecture-review test-bug-review test-edge-case \
+	demo-test-review deps-outdated deps-update dev dev-install \
+	help install mutation-test perf-test plugin-check quality-check \
+	status test test-api-review test-architecture-review test-bug-review test-edge-case \
 	test-file test-fpf-review test-full-review test-integration test-makefile-review test-math-review \
 	test-parallel test-pattern test-refine-code test-rust-review test-shell-review test-skill-history \
-	test-skill-review test-structure test-test-review test-unit type-check typecheck \
-	demo-performance-review test-performance-review
+	test-skill-review test-structure test-test-review \
+	demo-performance-review test-performance-review demo-cli---fork-session demo-cli-plugins
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests
@@ -23,7 +22,6 @@ BANDIT_TARGETS := src/
 COV_DIRS := src
 PYTEST_TARGETS := tests/
 TEST_UNIT_ARGS := -v -m unit
-SECURITY_EXTRA = $(UV_RUN) safety check
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
@@ -31,7 +29,6 @@ ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Prevent parallel execution for targets that share resources
-.NOTPARALLEL: docs docs-serve
 
 # ---------- Help ----------
 help: ## Show this help message
@@ -80,30 +77,13 @@ dev-install: ## Install in development mode
 install: ## Install for production
 	pip install .
 
-# ---------- Documentation ----------
-docs: ## Generate documentation
-	mkdocs build
-
-docs-serve: ## Serve documentation locally
-	mkdocs serve
-
 # ---------- Analysis ----------
-duplication-check: ## Check for duplicate code
-	radon cc src/ --min B
-	radon mi src/
-
-complexity-check: ## Analyze code complexity
-	radon cc src/ --min B
-	xenon --max-absolute B --max-modules A --max-average A src/ || true
 
 perf-test: ## Run performance tests
 	$(PYTEST) -v -m performance --benchmark-only
 
 benchmark: ## Run performance benchmarks
 	$(PYTEST) --benchmark-only --benchmark-sort=mean
-
-memory-profile: ## Profile memory usage
-	python -m memory_profiler tests/performance/memory_usage.py || echo "memory_profiler not installed"
 
 mutation-test: ## Run mutation testing
 	mutmut run --paths-to-mutate src/ || echo "mutmut not installed"
@@ -156,9 +136,6 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
 	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
-coverage-badge: ## Generate coverage badge
-	coverage-badge -o docs/coverage.svg || echo "coverage-badge not installed"
-
 # ---------- Demo/Dogfood Targets ----------
 demo-makefile-review: ## Demo Makefile review on this plugin's Makefile
 	@echo "=== Pensive Makefile Review Demo ==="
@@ -174,7 +151,7 @@ demo-makefile-review: ## Demo Makefile review on this plugin's Makefile
 	@echo ""
 	@echo "Step 3: Quality Checks"
 	@echo "Uses SHELL directive: $$(grep -q '^SHELL' Makefile && echo 'yes' || echo 'no')"
-	@echo "Tab indentation: $$(grep -cP '^\t' Makefile) recipe lines"
+	@echo "Tab indentation: $$(awk '/^\t/{n++} END{print n+0}' Makefile) recipe lines"
 	@echo ""
 	@echo "Makefile review demo complete. Use /pensive:makefile-review for full analysis."
 
@@ -406,8 +383,7 @@ test-bug-review: ## Test bug-review command (runs bug review tests)
 		$(PYTEST) $(PYTEST_TARGETS) -v -k "bug_review or bug-review"
 
 test-rust-review: ## Test rust-review command (runs Rust review tests)
-	$(PYTEST) tests/skills/test_rust_review.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "rust_review or rust-review"
+	$(PYTEST) tests/skills/test_rust_review_*.py -v
 
 test-test-review: ## Test test-review command (runs test review tests)
 	$(PYTEST) tests/skills/test_test_review.py tests/skills/test_test_review_content.py -v || \

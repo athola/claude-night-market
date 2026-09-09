@@ -13,25 +13,6 @@ dependencies: []
 estimated_tokens: 800
 model_hint: standard
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [The Iron Law](#the-iron-law)
-- [When to Escalate](#when-to-escalate)
-- [When NOT to Escalate](#when-not-to-escalate)
-- [Decision Framework](#decision-framework)
-- [1. Have I understood the problem?](#1-have-i-understood-the-problem)
-- [2. Have I investigated systematically?](#2-have-i-investigated-systematically)
-- [3. Is escalation the right solution?](#3-is-escalation-the-right-solution)
-- [4. Can I justify the trade-off?](#4-can-i-justify-the-trade-off)
-- [Escalation Protocol](#escalation-protocol)
-- [Common Rationalizations](#common-rationalizations)
-- [Agent Schema](#agent-schema)
-- [Orchestrator Authority](#orchestrator-authority)
-- [Red Flags - STOP and Investigate](#red-flags-stop-and-investigate)
-- [Integration with Agent Workflow](#integration-with-agent-workflow)
-- [Quick Reference](#quick-reference)
-
 
 # Escalation Governance
 
