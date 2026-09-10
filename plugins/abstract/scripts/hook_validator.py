@@ -31,27 +31,47 @@ class ValidationResult(TypedDict):
     info: list[str]
 
 
-# Known hook event types (Claude Code 2.1.50 complete set)
+# Known hook event types, from the Claude Code hooks reference.
+#
+# This set was pinned at the 2.1.50 roster of 19 and went stale, which is the
+# failure mode a whitelist has: it drifts closed and starts rejecting valid
+# platform features. conserve registers a PermissionDenied hook that this
+# validator called unknown; PermissionDenied is real, fires when auto mode
+# denies a tool call, and is distinct from PermissionRequest.
 KNOWN_EVENTS = {
     "Setup",
     "SessionStart",
     "SessionEnd",
     "UserPromptSubmit",
+    "UserPromptExpansion",
     "PreToolUse",
+    "PermissionRequest",
+    "PermissionDenied",
     "PostToolUse",
     "PostToolUseFailure",
-    "PermissionRequest",
+    "PostToolBatch",
     "Notification",
+    "MessageDisplay",
     "SubagentStart",
     "SubagentStop",
-    "Stop",
-    "TeammateIdle",
+    "TaskCreated",
     "TaskCompleted",
-    "ConfigChange",
+    "Stop",
+    "StopFailure",
+    "TeammateIdle",
     "InstructionsLoaded",
-    "PreCompact",
+    "ConfigChange",
+    "CwdChanged",
+    "DirectoryAdded",
+    "FileChanged",
     "WorktreeCreate",
     "WorktreeRemove",
+    "PreCompact",
+    "PostCompact",
+    "PreModelSwitch",
+    "PostModelSwitch",
+    "Elicitation",
+    "ElicitationResult",
 }
 
 # Required fields for JSON hooks

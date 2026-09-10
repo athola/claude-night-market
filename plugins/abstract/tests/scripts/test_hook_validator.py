@@ -508,29 +508,62 @@ class TestKnownEvents:
 
     @pytest.mark.unit
     def test_all_known_events_accepted(self) -> None:
-        """Scenario: All 19 official events are present in KNOWN_EVENTS."""
+        """Scenario: KNOWN_EVENTS matches the current hooks reference.
+
+        The set is pinned exactly, so widening it is a deliberate edit
+        rather than a drift. The cost is that this test has to be updated
+        with the roster, and for a while it was not: the pin sat at the
+        2.1.50 set of 19 while conserve registered a PermissionDenied hook
+        that the validator called unknown. A whitelist drifts closed, and
+        the pin is what makes that visible instead of silent.
+        """
         expected = {
             "Setup",
             "SessionStart",
             "SessionEnd",
             "UserPromptSubmit",
+            "UserPromptExpansion",
             "PreToolUse",
+            "PermissionRequest",
+            "PermissionDenied",
             "PostToolUse",
             "PostToolUseFailure",
-            "PermissionRequest",
+            "PostToolBatch",
             "Notification",
+            "MessageDisplay",
             "SubagentStart",
             "SubagentStop",
-            "Stop",
-            "TeammateIdle",
+            "TaskCreated",
             "TaskCompleted",
-            "ConfigChange",
+            "Stop",
+            "StopFailure",
+            "TeammateIdle",
             "InstructionsLoaded",
-            "PreCompact",
+            "ConfigChange",
+            "CwdChanged",
+            "DirectoryAdded",
+            "FileChanged",
             "WorktreeCreate",
             "WorktreeRemove",
+            "PreCompact",
+            "PostCompact",
+            "PreModelSwitch",
+            "PostModelSwitch",
+            "Elicitation",
+            "ElicitationResult",
         }
         assert KNOWN_EVENTS == expected
+
+    @pytest.mark.unit
+    def test_permission_denied_is_a_known_event(self) -> None:
+        """Scenario: A registered hook event is not reported as unknown.
+
+        conserve/hooks/hooks.json registers PermissionDenied, which fires
+        when auto mode denies a tool call and is distinct from
+        PermissionRequest. The validator rejected it, which made the
+        validator the stale artifact rather than the registration.
+        """
+        assert "PermissionDenied" in KNOWN_EVENTS
 
     @pytest.mark.unit
     def test_previously_rejected_events_no_warning(self, tmp_path: Path) -> None:

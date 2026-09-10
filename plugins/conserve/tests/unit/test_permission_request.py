@@ -283,6 +283,47 @@ class TestChainInjectionProtection:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_newline_prevents_safe_match(self) -> None:
+        r"""Scenario: A newline separates commands as surely as a semicolon.
+
+        Given a command 'ls\nrm -rf ./important_dir'
+        When checking safe patterns
+        Then it returns None.
+
+        ``_CHAIN_CHARS`` listed ``;|&`(`` and ``$(`` but not ``\n``, and
+        ``^ls(\s|$)`` matches a newline through ``\s``, so a safe first
+        token auto-approved everything after it.
+        """
+        decision = check_safe("ls\nrm -rf ./important_dir")
+        assert decision is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_carriage_return_prevents_safe_match(self) -> None:
+        r"""Scenario: A CRLF payload separates commands too.
+
+        Given a command 'ls\r\nrm -rf ./important_dir'
+        When checking safe patterns
+        Then it returns None.
+        """
+        decision = check_safe("ls\r\nrm -rf ./important_dir")
+        assert decision is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_trailing_newline_alone_still_approved(self) -> None:
+        r"""Scenario: A bare trailing newline is not a chain.
+
+        Given a command 'ls -la\n'
+        When checking safe patterns
+        Then it is still auto-approved.
+        """
+        decision = check_safe("ls -la\n")
+        assert decision is not None
+        assert decision.behavior == PermissionDecision.ALLOW
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_backtick_prevents_safe_match(self) -> None:
         """Scenario: Backtick substitution bypasses safe prefix.
 
