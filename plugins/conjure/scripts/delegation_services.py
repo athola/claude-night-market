@@ -93,6 +93,13 @@ VERIFIED_BINARIES: dict[str, dict[str, str]] = {
 _EPOCH_MILLISECOND_FLOOR = 100_000_000_000
 
 
+#: The values ``delegation_executor`` and the verifier actually branch on.
+#: Kept as a frozenset beside the type rather than an Enum, because these
+#: configs are built from YAML and an Enum would push the same string
+#: validation up to every construction site.
+AUTH_METHODS = frozenset({"api_key", "cli", "none"})
+
+
 @dataclass(frozen=True)
 class ServiceConfig:
     """Configuration for a delegation service.
@@ -120,6 +127,11 @@ class ServiceConfig:
 
     name: str
     command: str
+    #: One of :data:`AUTH_METHODS`. Validated in ``__post_init__`` because
+    #: ``_apply_overrides`` checks field *names* and not their values, so
+    #: "apikey" constructed cleanly and then silently skipped both the auth
+    #: probe and the API-key check: a service that looked configured and
+    #: authenticated against nothing.
     auth_method: str
     auth_env_var: str | None = None
     quota_limits: dict[str, int] | None = None
@@ -213,6 +225,22 @@ class ServiceConfig:
     # This is how "qwen is the one for code execution" survives the move off
     # the hardcoded if/elif chain without becoming a branch per provider.
     strengths: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        """Reject an auth_method outside the set the code branches on.
+
+        ``_apply_overrides`` validates field names, not their values, so
+        a config saying ``auth_method: apikey`` constructed cleanly and
+        then matched neither the ``api_key`` branch nor the ``cli`` one:
+        the service skipped both the auth probe and the API-key check and
+        reported itself configured while authenticating against nothing.
+        """
+        if self.auth_method not in AUTH_METHODS:
+            msg = (
+                f"{self.name!r}: auth_method {self.auth_method!r} is not one "
+                f"of {sorted(AUTH_METHODS)}"
+            )
+            raise ValueError(msg)
 
 
 def _apply_overrides(

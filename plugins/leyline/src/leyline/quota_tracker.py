@@ -46,13 +46,45 @@ class QuotaConfig:
 
 @dataclass
 class UsageStats:
-    """Current usage statistics."""
+    """Current usage statistics.
+
+    ``__post_init__`` is the validation this type went without. It is
+    constructed straight from parsed JSON as ``UsageStats(**data)``, which
+    is a deserialization boundary and checked nothing: a counter arriving
+    as a string constructed cleanly, the ``except TypeError`` around the
+    call never fired, and the failure surfaced later at the ``+=`` inside
+    the flock block, far from the file that caused it.
+    """
 
     requests_this_minute: int = 0
     requests_today: int = 0
     tokens_this_minute: int = 0
     tokens_today: int = 0
     last_request_time: float = 0.0
+
+    def __post_init__(self) -> None:
+        """Coerce the counters to numbers, or reject the record."""
+        for field_name in (
+            "requests_this_minute",
+            "requests_today",
+            "tokens_this_minute",
+            "tokens_today",
+        ):
+            value = getattr(self, field_name)
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise TypeError(
+                    f"{field_name} must be an int, got {type(value).__name__}"
+                )
+            if value < 0:
+                raise ValueError(f"{field_name} must not be negative, got {value}")
+        if isinstance(self.last_request_time, bool) or not isinstance(
+            self.last_request_time, (int, float)
+        ):
+            raise TypeError(
+                "last_request_time must be a number, got "
+                f"{type(self.last_request_time).__name__}"
+            )
+        self.last_request_time = float(self.last_request_time)
 
 
 @dataclass
@@ -93,7 +125,7 @@ class QuotaTracker:
             try:
                 data = json.loads(self.usage_file.read_text())
                 self.usage = UsageStats(**data)
-            except (json.JSONDecodeError, TypeError):
+            except (json.JSONDecodeError, TypeError, ValueError):
                 self.usage = UsageStats()
         else:
             self.usage = UsageStats()
