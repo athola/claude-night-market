@@ -19,6 +19,10 @@ from precommit_gate import (
     write_pass_token,
 )
 
+import gauntlet.graph as graph_module
+from gauntlet import blast_radius
+from gauntlet.blast_radius import DEFAULT_GIT_TIMEOUT_SECONDS
+
 
 class TestPassToken:
     """
@@ -565,3 +569,51 @@ class TestGateFailsClosed:
             f"{run_calls} subprocess.run calls but only {timeouts} timeout= "
             "arguments; a git call that hangs outlives the hook's 2s cap"
         )
+
+
+class TestGraphRiskContextBudget:
+    """The gate's blast-radius call must carry the gate's own git budget.
+
+    precommit_gate declares a 2s cap in hooks.json and sets
+    _GIT_TIMEOUT_SECONDS = 1 for its own git calls, because a killed
+    PreToolUse hook returns no deny and the commit proceeds ungated. It then
+    called blast_radius.analyze_changes, whose git diff defaulted to 10s:
+    the fail-closed design undone through a library call it did not audit.
+    """
+
+    def test_analyze_changes_is_called_with_the_gate_git_budget(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The timeout kwarg must be the gate's, not the library default."""
+        gauntlet_dir = tmp_path / ".gauntlet"
+        gauntlet_dir.mkdir()
+        (gauntlet_dir / "graph.db").write_text("")
+
+        recorded: dict[str, object] = {}
+
+        class _FakeGraph:
+            def __init__(self, path: str) -> None:
+                self.path = path
+
+            def close(self) -> None:
+                return None
+
+        def fake_analyze(graph: object, base_ref: str = "HEAD", **kwargs: object):
+            recorded.update(kwargs)
+            return {"overall_risk": "none"}
+
+        monkeypatch.setattr(blast_radius, "analyze_changes", fake_analyze)
+        monkeypatch.setattr(graph_module, "GraphStore", _FakeGraph)
+        monkeypatch.setattr(precommit_gate, "_GRAPH_AVAILABLE", True)
+
+        precommit_gate._graph_risk_context(gauntlet_dir)
+
+        assert "timeout" in recorded, (
+            "analyze_changes was called without a timeout, so it used the "
+            "10s library default against this hook's 2s cap"
+        )
+        assert recorded["timeout"] == precommit_gate._GIT_TIMEOUT_SECONDS
+
+    def test_the_library_default_is_documented_as_too_slow_for_a_hook(self) -> None:
+        """The default exists for non-hook callers and must exceed the cap."""
+        assert DEFAULT_GIT_TIMEOUT_SECONDS > precommit_gate._GIT_TIMEOUT_SECONDS

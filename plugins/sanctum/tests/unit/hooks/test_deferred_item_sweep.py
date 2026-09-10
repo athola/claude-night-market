@@ -397,3 +397,61 @@ class TestCallCaptureScriptDirect:
 
         assert result["status"] == "error"
         assert "No such file" in result["message"]
+
+
+class TestSweepBudget:
+    """The sweep must finish inside the 5s Stop cap hooks.json declares.
+
+    A per-entry timeout of 15s in a loop meant one unfiled item already
+    exceeded the cap. A killed Stop hook drops the sweep with no signal,
+    so entries it never reached would look identical to entries it filed.
+    """
+
+    def test_entries_past_the_budget_stay_unfiled_for_the_next_sweep(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Out of budget must leave the ledger entry, not consume it."""
+        import deferred_item_sweep as sweep
+
+        ledger = tmp_path / "deferred-items-session.json"
+        entries = [
+            {"title": "Item A", "source": "war-room", "filed": False},
+            {"title": "Item B", "source": "war-room", "filed": False},
+        ]
+        ledger.write_text(json.dumps(entries))
+
+        calls: list[str] = []
+        clock = {"now": 0.0}
+
+        def fake_capture(title: str, source: str, timeout: float = 0.0) -> dict:
+            calls.append(title)
+            clock["now"] += 100.0  # the first item exhausts the whole budget
+            return {"status": "created", "number": 1}
+
+        monkeypatch.setattr(sweep.time, "monotonic", lambda: clock["now"])
+        monkeypatch.setattr(sweep, "call_capture_script", fake_capture)
+        stats = sweep.process_ledger(ledger)
+
+        assert calls == ["Item A"], (
+            f"the deadline did not stop the loop; it attempted {calls}"
+        )
+        assert stats["deferred_to_next_sweep"] == 1
+        remaining = json.loads(ledger.read_text())
+        assert remaining[1]["filed"] is False
+
+    def test_the_sweep_budget_fits_inside_the_stop_cap(self) -> None:
+        """Budget and per-item timeout must both sit under the declared cap."""
+        import deferred_item_sweep as sweep
+
+        hooks_root = Path(sweep.__file__).resolve().parent
+        manifest = json.loads((hooks_root / "hooks.json").read_text(encoding="utf-8"))
+        caps = [
+            entry["timeout"]
+            for groups in manifest["hooks"].values()
+            for group in groups
+            for entry in group.get("hooks", [])
+            if "deferred_item_sweep" in entry.get("command", "")
+        ]
+        assert caps, "the sweep is not registered in hooks.json"
+        assert sweep._SWEEP_BUDGET_SECONDS < min(caps)
+        assert sweep._ITEM_TIMEOUT_SECONDS < sweep._SWEEP_BUDGET_SECONDS

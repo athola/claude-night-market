@@ -57,7 +57,7 @@ _index_mtime: float = 0
 #: hooks.json, leaving zero margin for the fetch, the safety checks and the
 #: yaml write that already ran in the same invocation. A hook killed at the
 #: cap has done its work and recorded none of it.
-_STAGE_TIMEOUT_SECONDS = 2
+_STAGE_TIMEOUT_SECONDS = 1.5
 
 
 def _get_index_path() -> Path:
