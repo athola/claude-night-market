@@ -8,7 +8,6 @@ Checks:
 - Evaluation skills have tests validating their quality criteria
 - Documentation follows the standards it defines
 - Verification steps exist after code examples
-- TOCs exist for long modules (>100 lines)
 - Anti-cargo cult patterns are enforced
 """
 
@@ -72,7 +71,6 @@ class MetaEvaluator:
     }
 
     # Thresholds for quality checks
-    TOC_LINE_THRESHOLD = 100
     CODE_BLOCK_VERIFICATION_THRESHOLD = 2
     PASS_RATE_WARNING_THRESHOLD = 50
     PASS_RATE_CAUTION_THRESHOLD = 80
@@ -500,8 +498,9 @@ class MetaEvaluator:
         # Parse frontmatter for module-reference check
         frontmatter = self._parse_frontmatter(content)
 
-        # Run checks. Most take (content, skill_name); the three that need a
-        # path or the parsed frontmatter are called separately below.
+        # Run checks. Most take (content, skill_name). The three below take
+        # something else: two need a path or the parsed frontmatter, and
+        # check_tests_exist works from the plugin and skill names alone.
         skill_name = f"{plugin}:{skill}"
         content_checks = [
             ("verification", self.check_verification_steps),
@@ -626,7 +625,7 @@ class MetaEvaluator:
             medium_count = results["by_severity"]["medium"]
             print(f"\n🟡 MEDIUM: {medium_count} medium-priority issues")
             print("   These affect navigation and documentation quality.")
-            print("   Action: Add TOCs for long modules, include verification steps.")
+            print("   Action: include verification steps after code examples.")
 
         # Low issues
         if results["by_severity"]["low"] > 0:
