@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 # Common severity mappings across review types
@@ -36,6 +37,12 @@ SEVERITY_MAP: dict[str, str] = {
 }
 
 
+# Matched on word boundaries. A plain substring test escalated
+# "this highlights a minor slowdown", "the highest-traffic path" and
+# "higher memory use" to high severity, because each contains "high".
+_HIGH_SEVERITY_WORDS = re.compile(r"\b(?:high|dangerous)\b")
+
+
 def categorize(
     issues: list[dict[str, Any]],
     custom_map: dict[str, str] | None = None,
@@ -66,7 +73,7 @@ def categorize(
             for keyword in ["sql injection", "security", "critical"]
         ):
             issue_copy["severity"] = "critical"
-        elif any(keyword in issue_desc for keyword in ["high", "dangerous"]):
+        elif _HIGH_SEVERITY_WORDS.search(issue_desc):
             issue_copy["severity"] = "high"
 
         categorized.append(issue_copy)

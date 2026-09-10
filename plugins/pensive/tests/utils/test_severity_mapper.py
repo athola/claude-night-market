@@ -372,3 +372,40 @@ class TestSeverityMapContent:
                 "low",
                 "medium",
             ], f"{issue_type} should be low or medium"
+
+
+class TestHighSeverityWordBoundaries:
+    """ "high" as a substring must not escalate an unrelated word.
+
+    The keyword test was ``"high" in issue_desc``, so any description
+    containing "highlights", "highest" or "higher" was reported as high
+    severity. Reproduced on all three before the fix.
+    """
+
+    @pytest.mark.parametrize(
+        "description",
+        [
+            "this highlights a minor slowdown",
+            "the highest-traffic path allocates twice",
+            "higher memory use than the previous release",
+        ],
+    )
+    def test_a_word_merely_containing_high_does_not_escalate(
+        self, description: str
+    ) -> None:
+        """Substring matches must not reach the high branch."""
+        categorized = categorize([{"type": "style", "issue": description}])
+        assert categorized[0]["severity"] != "high"
+
+    @pytest.mark.parametrize(
+        "description",
+        [
+            "high memory pressure under load",
+            "a dangerous cast that truncates",
+            "risk is HIGH for this path",
+        ],
+    )
+    def test_the_word_high_still_escalates(self, description: str) -> None:
+        """The real keyword must keep working."""
+        categorized = categorize([{"type": "style", "issue": description}])
+        assert categorized[0]["severity"] == "high"
