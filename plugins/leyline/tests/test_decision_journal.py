@@ -8,6 +8,7 @@ entry append, supersession, idempotency) and the file-level apply helper
 from __future__ import annotations
 
 import re
+import subprocess
 import threading
 from pathlib import Path
 
@@ -468,3 +469,40 @@ class TestConcurrentAppends:
         ids = re.findall(r"^## (TR-\d+):", journal.read_text(encoding="utf-8"), re.M)
         assert len(ids) == writers
         assert len(set(ids)) == len(ids), f"duplicate ids: {sorted(ids)}"
+
+
+class TestLockfileIsNotAWorkingTreeArtifact:
+    """The lock outlives the append, so git must be told to ignore it.
+
+    ``_journal_lock`` deliberately keeps the lockfile beside the journal
+    rather than unlinking it, because deleting it races the next writer
+    that already holds a descriptor on it. The cost is a file that shows
+    up in ``git status`` after every append and that ``git add -A`` will
+    happily commit. The root ``.gitignore`` carried a bare ``.lock``,
+    which matches a file *named* ``.lock`` and not this suffix.
+    """
+
+    def test_lock_path_sits_next_to_the_journal(self, tmp_path: Path) -> None:
+        """Pin the name the .gitignore rule has to match."""
+        journal = tmp_path / "lessons-learned.md"
+        apply_append(journal, "lessons", {"title": "A", "what_happened": "x"})
+        assert (tmp_path / "lessons-learned.md.lock").exists()
+
+    def test_repository_ignores_journal_lockfiles(self) -> None:
+        """``git check-ignore`` must claim both journals' lockfiles."""
+        repo_root = Path(__file__).resolve().parents[3]
+        if not (repo_root / ".git").exists():
+            pytest.skip("not a git checkout")
+        for journal in ("docs/lessons-learned.md", "docs/tradeoffs.md"):
+            result = subprocess.run(
+                ["git", "check-ignore", "-q", f"{journal}.lock"],
+                cwd=repo_root,
+                capture_output=True,
+                check=False,  # the return code is the assertion
+            )
+            assert result.returncode == 0, (
+                f"{journal}.lock is not gitignored, so every journal append "
+                f"leaves an untracked file that 'git add -A' can commit. A "
+                f"bare '.lock' pattern does not match this suffix; '*.md.lock' "
+                f"does."
+            )

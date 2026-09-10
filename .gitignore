@@ -38,6 +38,12 @@ wheels/
 *.egg
 .lock
 
+# Journal lockfiles: decision_journal holds a flock beside the file it
+# appends to, so docs/tradeoffs.md.lock and docs/lessons-learned.md.lock
+# outlive every append. The bare .lock above matches a file named .lock,
+# not this suffix.
+*.md.lock
+
 # Virtual environments
 .venv/
 .*-venv/
