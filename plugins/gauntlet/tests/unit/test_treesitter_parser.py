@@ -355,3 +355,94 @@ class TestParseGoFile:
         nodes, edges = parse_file(str(fp))
         fn_nodes = [n for n in nodes if n.kind == NodeKind.FUNCTION]
         assert any("hello" in n.qualified_name for n in fn_nodes)
+
+
+GO_SAMPLE = """package main
+
+import "fmt"
+
+type Greeter struct {
+	Name string
+}
+
+func (g *Greeter) Greet() string {
+	return fmt.Sprintf("hello %s", g.Name)
+}
+
+func Run() {
+	g := &Greeter{Name: "world"}
+	fmt.Println(g.Greet())
+	helper()
+}
+
+func helper() {}
+"""
+
+
+class TestGoExtraction:
+    """Go declarations and calls must reach the graph.
+
+    Measured on this exact sample before the fix: 1 of 2 named functions,
+    0 of 1 struct, 1 of 4 calls. Blast-radius analysis reasons from that
+    graph, so the gaps propagate into every risk score for a Go file.
+
+    Two separate defects. ``_extract_name`` scanned direct children for
+    the first identifier-ish node, which for
+    ``func (g *Greeter) Greet() string`` is the *return type*, so the
+    method was recorded as a function named ``string``; and Go's
+    ``type_declaration`` nests its name inside a ``type_spec``, so structs
+    were dropped entirely. ``_extract_callee_name`` had no case for
+    ``selector_expression``, which is how Go spells ``fmt.Println``.
+    """
+
+    def test_a_struct_is_recorded_as_a_class(self, fixtures_dir: Path) -> None:
+        """type_declaration nests its name one level down."""
+        fp = _write_fixture(fixtures_dir, "greeter.go", GO_SAMPLE)
+        nodes, _ = parse_file(str(fp))
+        classes = [
+            node.qualified_name.split("::", 1)[1]
+            for node in nodes
+            if node.kind == NodeKind.CLASS and "::" in node.qualified_name
+        ]
+        assert "Greeter" in classes
+
+    def test_a_method_is_named_for_itself_not_its_return_type(
+        self, fixtures_dir: Path
+    ) -> None:
+        """The receiver and return type are siblings of the name."""
+        fp = _write_fixture(fixtures_dir, "greeter.go", GO_SAMPLE)
+        nodes, _ = parse_file(str(fp))
+        functions = _function_symbols(nodes)
+        assert "Greet" in functions
+        assert "string" not in functions, (
+            f"the return type was recorded as a function name: {functions}"
+        )
+
+    def test_every_plain_function_is_recorded(self, fixtures_dir: Path) -> None:
+        """Run and helper must both appear alongside the method."""
+        fp = _write_fixture(fixtures_dir, "greeter.go", GO_SAMPLE)
+        nodes, _ = parse_file(str(fp))
+        functions = set(_function_symbols(nodes))
+        assert {"Greet", "Run", "helper"} <= functions
+
+    def test_qualified_and_bare_calls_both_produce_edges(
+        self, fixtures_dir: Path
+    ) -> None:
+        """selector_expression is how Go spells a qualified call."""
+        fp = _write_fixture(fixtures_dir, "greeter.go", GO_SAMPLE)
+        _, edges = parse_file(str(fp))
+        callees = {edge.target_qn for edge in edges if edge.kind == EdgeKind.CALLS}
+        assert {"fmt.Sprintf", "fmt.Println", "g.Greet", "helper"} <= callees, (
+            f"missing call edges; found {sorted(callees)}"
+        )
+
+    def test_a_method_body_is_not_skipped(self, fixtures_dir: Path) -> None:
+        """Calls inside a method reach the graph attributed to that method."""
+        fp = _write_fixture(fixtures_dir, "greeter.go", GO_SAMPLE)
+        _, edges = parse_file(str(fp))
+        from_greet = {
+            edge.target_qn
+            for edge in edges
+            if edge.kind == EdgeKind.CALLS and edge.source_qn.endswith("::Greet")
+        }
+        assert "fmt.Sprintf" in from_greet
