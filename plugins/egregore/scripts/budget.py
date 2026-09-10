@@ -6,7 +6,10 @@ periods after rate limits.
 
 from __future__ import annotations
 
+import contextlib
 import json
+import os
+import tempfile
 from dataclasses import asdict, dataclass, fields
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -66,7 +69,20 @@ def save_budget(budget: Budget, path: Path) -> None:
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     data = asdict(budget)
-    path.write_text(json.dumps(data, indent=2) + "\n")
+    # Written through a temporary file and renamed, so a reader never sees
+    # a half-written budget. The watchdog reads this file to decide whether
+    # to relaunch, and a truncated read there costs a whole night's run.
+    fd, tmp_name = tempfile.mkstemp(
+        suffix=".tmp", prefix=path.name + ".", dir=str(path.parent)
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(json.dumps(data, indent=2) + "\n")
+        os.replace(tmp_name, path)
+    except Exception:
+        with contextlib.suppress(OSError):
+            os.unlink(tmp_name)
+        raise
 
 
 def load_budget(path: Path) -> Budget:

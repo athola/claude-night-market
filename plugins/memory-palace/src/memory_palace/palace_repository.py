@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import os
 import sys
+import tempfile
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -57,6 +59,32 @@ def _build_on_disk_palace(palace: dict[str, Any]) -> dict[str, Any]:
     on_disk = {k: v for k, v in palace.items() if k != "sensory_encoding"}
     on_disk["computational_encoding"] = _build_computational_encoding(palace)
     return on_disk
+
+
+def _atomic_write_json(path: str, payload: Any) -> None:
+    """Write JSON through a temporary file and rename it into place.
+
+    A plain ``open(path, "w")`` truncates first, so an interrupted write
+    leaves a valid path holding invalid JSON, and a concurrent reader can
+    see the file mid-write. Palace files, the master index and the budget
+    are all read back by later sessions, which is when the damage shows up.
+
+    ``corpus/index_promoter.py`` already writes this way; these paths did
+    not, which is the gap this closes.
+    """
+    directory = os.path.dirname(path) or "."
+    os.makedirs(directory, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(
+        suffix=".tmp", prefix=os.path.basename(path) + ".", dir=directory
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2)
+        os.replace(tmp_name, path)
+    except Exception:
+        with contextlib.suppress(OSError):
+            os.unlink(tmp_name)
+        raise
 
 
 class PalaceRepository:
@@ -117,8 +145,7 @@ class PalaceRepository:
         }
 
         palace_file = os.path.join(self.palaces_dir, f"{palace_id}.json")
-        with open(palace_file, "w", encoding="utf-8") as f:
-            json.dump(palace, f, indent=2)
+        _atomic_write_json(palace_file, palace)
 
         self.update_master_index()
         return palace
@@ -171,8 +198,7 @@ class PalaceRepository:
         on_disk = _build_on_disk_palace(palace)
 
         try:
-            with open(palace_file, "w", encoding="utf-8") as f:
-                json.dump(on_disk, f, indent=2)
+            _atomic_write_json(palace_file, on_disk)
         except OSError as exc:
             sys.stderr.write(
                 f"palace_repository: failed to write {palace_file}: {exc}\n"
@@ -270,8 +296,7 @@ class PalaceRepository:
             except KeyError as e:
                 print(f"[WARN] Skipped malformed palace file: {e}")
 
-        with open(self.index_file, "w", encoding="utf-8") as f:
-            json.dump(index, f, indent=2)
+        _atomic_write_json(self.index_file, index)
 
     def get_master_index(self) -> dict[str, Any]:
         """Load and return the master index, or a default empty index.
