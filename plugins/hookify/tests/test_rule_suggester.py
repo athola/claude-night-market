@@ -1,8 +1,11 @@
 """Tests for context-aware rule suggester."""
 
 import json
+import sys
 import tempfile
 from pathlib import Path
+
+import pytest
 
 try:
     from scripts.rule_suggester import (
@@ -376,3 +379,38 @@ class TestFormatSuggestions:
         assert "context" in parsed
         assert "suggestions" in parsed
         assert parsed["context"]["has_git"] is True
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from core.config_loader import ConfigLoader  # noqa: E402 - path injected above
+
+
+def _all_templates():
+    """Every shipped template, flattened, with its language."""
+    return [
+        pytest.param(language, template, id=f"{language}-{template.name}")
+        for language, templates in RULE_TEMPLATES.items()
+        for template in templates
+    ]
+
+
+def test_template_discovery_is_not_empty():
+    """An empty parametrize list would make the guard below vacuous."""
+    assert len(_all_templates()) > 5
+
+
+@pytest.mark.parametrize("language,template", _all_templates())
+def test_every_shipped_template_actually_loads(language, template):
+    """A template hookify cannot load must not ship as a suggestion.
+
+    ``assert template.rule_template`` is string truthiness: it passes for
+    any non-empty text. Measured against ConfigLoader, all 15 shipped
+    templates failed to load. Fourteen omitted the required ``enabled``
+    field, and warn-commit-no-message carried invalid YAML, because a
+    single-quoted scalar escapes a quote by doubling it rather than with a
+    backslash. Every one of them was offered to users as a ready rule.
+    """
+    frontmatter, _ = ConfigLoader()._parse_markdown(template.rule_template)
+    assert frontmatter["name"] == template.name
+    assert frontmatter["enabled"] is True
+    assert frontmatter["event"]
