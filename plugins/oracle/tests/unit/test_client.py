@@ -243,6 +243,15 @@ class TestInfer:
 
         with patch("oracle.client.urlopen", side_effect=side_effect):
             first = client.infer("m", {"x": 1.0})
+            # The reset is what this test is named for, and the two calls
+            # below cannot see it: with the cache left intact the second
+            # call still succeeds through the same mock, so deleting
+            # ``self._base_url = None`` left this test green.
+            assert client._base_url is None, (
+                "the failing call did not clear the cached base URL, so the "
+                "next call reuses a URL that has already failed instead of "
+                "re-reading the port file"
+            )
             second = client.infer("m", {"x": 1.0})
 
         assert first is None

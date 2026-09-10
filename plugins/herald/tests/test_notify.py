@@ -225,16 +225,20 @@ class TestValidateWebhookUrl:
         assert result is False
         mock_run.assert_not_called()
 
-    @patch("notify.send_webhook", return_value=False)
-    @patch("notify.create_github_alert", return_value=False)
+    @patch("subprocess.run")
     def test_alert_with_invalid_webhook_returns_false(
-        self, mock_gh: MagicMock, mock_wh: MagicMock
+        self, mock_run: MagicMock
     ) -> None:
         """Scenario: alert() returns False when all channels fail.
 
         Given an invalid webhook URL and disabled GitHub method
         When calling alert()
-        Then returns False.
+        Then returns False, and no request was attempted.
+
+        Both paths that could return True used to be patched to False, so
+        the assertion held whatever alert() did with the URL. The real
+        send_webhook now runs and rejects the URL itself: http is not
+        https, and localhost is not a public address.
         """
         result = alert(
             event=AlertEvent.CRASH,
@@ -242,6 +246,7 @@ class TestValidateWebhookUrl:
             overseer_method="none",
         )
         assert result is False
+        mock_run.assert_not_called()
 
 
 class TestBuildIssueBody:
@@ -528,17 +533,29 @@ class TestSendWebhook:
         assert "pipeline_failure" in payload[key]
         assert "Build broken" in payload[key]
 
+    @patch("notify.validate_webhook_url", return_value="203.0.113.10")
     @patch("subprocess.run")
-    def test_returns_false_on_nonzero_exit(self, mock_run: MagicMock) -> None:
+    def test_returns_false_on_nonzero_exit(
+        self, mock_run: MagicMock, mock_validate: MagicMock
+    ) -> None:
         """Scenario: curl error returns False.
 
         Given curl returns a nonzero exit code
         When sending a webhook
-        Then returns False.
+        Then returns False, and curl was actually invoked.
+
+        The URL used to be "https://bad.url", which validate_webhook_url
+        rejects before curl is ever reached, so the returncode branch this
+        test names was never executed and could be deleted green. The
+        validator is stubbed to a documentation-range address so the test
+        exercises the branch it claims to.
         """
         mock_run.return_value = MagicMock(returncode=1, stderr="connection refused")
-        result = send_webhook(url="https://bad.url", event=AlertEvent.CRASH)
+        result = send_webhook(
+            url="https://hooks.example.com/endpoint", event=AlertEvent.CRASH
+        )
         assert result is False
+        mock_run.assert_called_once()
 
     @patch("subprocess.run", side_effect=FileNotFoundError)
     def test_returns_false_when_curl_not_found(self, mock_run: MagicMock) -> None:
