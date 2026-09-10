@@ -292,7 +292,13 @@ def main() -> None:
         print(json.dumps(output))
         sys.exit(0)
 
-    except (json.JSONDecodeError, OSError, KeyError) as e:
+    except (json.JSONDecodeError, OSError, KeyError, TypeError, ValueError) as e:
+        # TypeError and ValueError were missing while sibling hooks catch
+        # them: a payload whose fields have the wrong type reaches this
+        # code as a TypeError, and an unparseable field as a ValueError.
+        # Either one escaped as a traceback on stderr with a nonzero exit,
+        # which for a hook is the same outcome, minus the label that says
+        # which hook it was.
         sys.stderr.write(f"homeostatic_monitor error: {e}\n")
         sys.exit(1)
 

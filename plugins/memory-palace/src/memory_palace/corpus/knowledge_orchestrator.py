@@ -174,7 +174,12 @@ class KnowledgeOrchestrator:
             entry_id: Identifier used to query the decay model.
 
         Returns:
-            A timezone-aware datetime representing the validation date.
+            A datetime representing the validation date. Two of the three
+            paths return whatever ``datetime.fromisoformat`` produced,
+            which is naive when the stored string carries no offset, so
+            this is not guaranteed timezone-aware despite an earlier
+            docstring here saying so. ``decay_model.py:148`` compensates
+            downstream, which is why the mismatch has not surfaced.
 
         """
         # 1. Explicit last_validated on the entry

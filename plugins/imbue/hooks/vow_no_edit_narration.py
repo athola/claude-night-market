@@ -42,8 +42,14 @@ from shared.vow_utils import (  # noqa: E402 - hook script must inject sys.path 
 
 _GUARDED_SUFFIXES = (".py", ".md", ".rs", ".ts", ".tsx", ".js", ".go", ".proto")
 
-# Both patterns measure zero over `git ls-files` today. Anything that
-# fires here is text this session introduced.
+# Measured over `git ls-files` on 2026-09-10: the first pattern matches 0
+# files, the second matches 4. Three of those four are the files that
+# define or test these patterns, and the fourth is
+# plugins/scribe/skills/slop-detector/modules/structural-patterns.md,
+# which documents the same tell. The test excluded all of them by name
+# and this hook excluded none, so editing that module tripped its own
+# rule. _PATTERN_DEFINING_FILES below is that exclusion, kept in step
+# with the test's copy.
 _NARRATION_PATTERNS = (
     # First-person edit narration, anchored so a quoted question
     # ("What would break if I removed this line?") is left alone. Four
@@ -105,6 +111,28 @@ def find_narration(text: str) -> tuple[str, str] | None:
     return None
 
 
+# Files that document or implement these patterns, and so necessarily
+# contain them. The criterion is narrow on purpose: a file earns a place
+# here only by defining the rule, never by containing prose that happens
+# to trip it. A file added for the second reason is the finding, and the
+# fix belongs in the file. Mirrors the set in the test of the same name.
+_PATTERN_DEFINING_FILES = (
+    "plugins/imbue/hooks/vow_no_edit_narration.py",
+    "plugins/imbue/tests/unit/hooks/test_vow_no_edit_narration.py",
+    "plugins/scribe/skills/slop-detector/modules/structural-patterns.md",
+)
+
+
+def _defines_the_patterns(file_path: str) -> bool:
+    """Whether this path is one of the files that define the rule.
+
+    Compared as a path suffix, because the hook receives an absolute path
+    and the list is repo-relative.
+    """
+    normalized = file_path.replace("\\", "/")
+    return any(normalized.endswith(known) for known in _PATTERN_DEFINING_FILES)
+
+
 def main() -> None:
     """Entry point for the PreToolUse hook."""
     try:
@@ -121,6 +149,8 @@ def main() -> None:
         tool_input = data.get("tool_input", {}) or {}
         file_path = tool_input.get("file_path", "") or ""
         if not file_path.endswith(_GUARDED_SUFFIXES):
+            sys.exit(0)
+        if _defines_the_patterns(file_path):
             sys.exit(0)
 
         found = find_narration(inserted_text(tool_name, tool_input))

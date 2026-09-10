@@ -11,6 +11,13 @@ plugins you need to run git workflows, code review,
 spec-driven development, and autonomous agents from inside
 your Claude Code session.
 
+*Written for a practitioner: someone who already uses Claude Code and
+wants to know what these plugins do and whether to install them. If you
+are new to Claude Code, start with the
+[official docs](https://code.claude.com/docs/en/overview). For the
+design rationale behind a plugin, see
+[the book](book/src/plugins/).*
+
 <p align="center">
   <img src="assets/gifs/skills-showcase.gif" alt="Night Market skills in action" width="720">
 </p>
@@ -46,7 +53,7 @@ A typical feature runs end to end on a handful of commands:
 1. **Start a feature.** `/attune:mission` routes you through
    brainstorm, specify, plan, and execute phases.
 2. **Write the code.** `imbue` enforces a failing test first,
-   so implementation follows the test, not the other way around.
+   so the test is written before the implementation.
 3. **Review before you push.** `/full-review` runs a
    multi-discipline pass; `/refine-code` cleans up duplication
    and dead code.
@@ -189,10 +196,10 @@ answers, the work stays on your machine.
 
 ## What's New
 
-**1.9.20** teaches `scribe` who a document is for. Every generated
-document now declares a reader tier, `newcomer`, `practitioner` or
-`expert`, and content written for a different tier moves to a linked
-page instead of being deleted. `scripts/slop_score.py --audit` prints
+**1.9.20** adds a reader tier to `scribe`. Every generated document
+now declares one of `newcomer`, `practitioner` or `expert`, and content
+written for a different tier moves to a linked page instead of being
+deleted. `scripts/slop_score.py --audit` prints
 a file and a line for every finding, including the low-confidence
 categories the merge gate declines to score, and a ratchet at commit
 time fails a document only when it scores worse than its own last

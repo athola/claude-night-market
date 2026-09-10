@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-"""CLI wrapper for tool-performance-analyzer script.
+"""CLI for tool-performance analysis.
 
-Uses core functionality from src/abstract/skills_eval.
+Reimplements its analysis rather than importing from
+``src/abstract/skills_eval``, despite an earlier docstring here claiming
+otherwise. The two have already drifted: this copy probes a tool with
+``subprocess.run([tool, "--help"])`` while ``performance.py:83`` runs
+``subprocess.run([tool])``, so they measure different things. Treat them
+as separate implementations until one is deleted.
 """
 
 from __future__ import annotations

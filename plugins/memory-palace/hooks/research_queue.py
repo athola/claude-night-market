@@ -78,6 +78,20 @@ def _slug(text: str, limit: int = 40) -> str:
     return (cleaned[:limit].rstrip("-")) or "session"
 
 
+def _session_token(session_id: str) -> str:
+    """Reduce a session id to the filename-safe prefix used for dedupe.
+
+    The value arrives from the SessionEnd payload, so it is the harness's
+    to shape and not an attacker's today. It was nonetheless the only
+    component of the filename that went through unsanitized while the
+    sibling topic was reduced to ``[a-z0-9-]``, and eight characters is
+    enough to spell ``../../..``. Restricting it costs nothing and removes
+    the question. Also used for the dedupe glob, so both stay in step.
+    """
+    cleaned = re.sub(r"[^A-Za-z0-9]+", "", session_id)[:8]
+    return cleaned or "nosession"
+
+
 def _message_text(content: object) -> str:
     """Read prompt text from either message shape.
 
@@ -160,7 +174,7 @@ def _already_queued(queue_dir: Path, session_id: str) -> bool:
     """Avoid a second entry when the event fires again."""
     if not session_id or not queue_dir.is_dir():
         return False
-    return any(queue_dir.glob(f"*{session_id[:8]}*.yaml"))
+    return any(queue_dir.glob(f"*{_session_token(session_id)}*.yaml"))
 
 
 def _render(
@@ -229,7 +243,7 @@ def main() -> None:
 
     try:
         queue_dir.mkdir(parents=True, exist_ok=True)
-        name = f"{now:%Y-%m-%d}_{session_id[:8] or 'nosession'}_{_slug(topic)}.yaml"
+        name = f"{now:%Y-%m-%d}_{_session_token(session_id)}_{_slug(topic)}.yaml"
         (queue_dir / name).write_text(entry, encoding="utf-8")
     except OSError:
         sys.exit(0)

@@ -13,6 +13,7 @@ session in production.
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import subprocess
 import sys
@@ -21,6 +22,19 @@ from pathlib import Path
 import yaml
 
 HOOK = Path(__file__).resolve().parent.parent.parent / "hooks" / "research_queue.py"
+
+
+def _load_hook():
+    """Import the hook module for the unit-level checks below."""
+    spec = importlib.util.spec_from_file_location("research_queue", HOOK)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["research_queue"] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+research_queue = _load_hook()
 HOOKS_JSON = HOOK.parent / "hooks.json"
 
 
@@ -355,3 +369,37 @@ def test_credential_in_prompt_is_redacted_everywhere_it_is_written(
     # The topic also becomes the filename. Redaction that runs after
     # slugification would leave the credential in the directory listing.
     assert "abcdefghijklmnop1234" not in _entry_path(tmp_path).name.lower()
+
+
+class TestSessionTokenIsFilenameSafe:
+    """The session id reaches a filename and a glob.
+
+    It arrives from the SessionEnd payload, so it is the harness's to
+    shape rather than an attacker's, but it was the only filename
+    component that went through unsanitized while the sibling topic was
+    reduced to [a-z0-9-]. Eight characters is enough to spell "../../..".
+    """
+
+    def test_a_traversal_sequence_cannot_reach_the_filename(self):
+        """Separators and dots are stripped, not passed through."""
+        token = research_queue._session_token("../../../etc/passwd")
+        assert "/" not in token
+        assert ".." not in token
+
+    def test_an_empty_id_falls_back_to_a_literal(self):
+        """The fallback keeps the filename well-formed."""
+        assert research_queue._session_token("") == "nosession"
+        assert research_queue._session_token("///") == "nosession"
+
+    def test_an_ordinary_id_keeps_its_first_eight_characters(self):
+        """The dedupe prefix must not change shape for normal input."""
+        assert research_queue._session_token("abc123def456") == "abc123de"
+
+    def test_the_written_filename_stays_inside_the_queue_directory(
+        self, tmp_path, monkeypatch
+    ):
+        """An end-to-end check that nothing escapes the queue dir."""
+        token = research_queue._session_token("../../evil")
+        name = f"2026-01-01_{token}_topic.yaml"
+        target = (tmp_path / name).resolve()
+        assert target.parent == tmp_path.resolve()

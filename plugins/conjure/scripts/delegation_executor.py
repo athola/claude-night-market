@@ -46,8 +46,11 @@ from scripts.delegation_services import (
 )
 from scripts.delegation_verify import verify_service
 
-# Names that moved to delegation_services and delegation_prompt but are
-# still imported from here by delegation_setup, egregore and the tests.
+# Names that moved to delegation_services and delegation_prompt. Only the
+# tests still import them from here: delegation_setup imports them from
+# delegation_services directly, and egregore's single reference is a
+# subprocess path string rather than an import. Re-exported so the test
+# suite keeps one import site, not because three consumers depend on it.
 __all__ = [
     "MAX_INLINE_CONTEXT_BYTES",
     "VERIFIED_BINARIES",

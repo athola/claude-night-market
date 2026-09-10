@@ -230,3 +230,25 @@ def _prose_of(path: Path):
             doc = ast.get_docstring(node, clean=False)
             if doc:
                 yield getattr(node, "lineno", 1), doc
+
+
+class TestPatternDefiningFilesAreExempt:
+    """The files that define these patterns must not trip them.
+
+    The hook had no exclusion while this test file carried one, so
+    editing plugins/scribe/skills/slop-detector/modules/structural-patterns.md,
+    which documents the same tell, tripped the rule the module describes.
+    """
+
+    def test_the_hook_and_the_test_agree_on_the_exempt_set(self) -> None:
+        """Two copies of a list drift; this is what notices."""
+        assert set(_module()._PATTERN_DEFINING_FILES) == set(_PATTERN_DEFINING_FILES)
+
+    @pytest.mark.parametrize("relative", sorted(_PATTERN_DEFINING_FILES))
+    def test_an_absolute_path_to_a_defining_file_is_exempt(self, relative: str) -> None:
+        """The hook receives an absolute path; the list is repo-relative."""
+        assert _module()._defines_the_patterns(f"/Users/someone/repo/{relative}")
+
+    def test_an_ordinary_file_is_not_exempt(self) -> None:
+        """The exemption must stay narrow."""
+        assert not _module()._defines_the_patterns("/repo/plugins/imbue/README.md")

@@ -100,6 +100,11 @@ def strip_comments(content: str, comment_char: str = "#") -> str:
 
     Returns:
         Content with comments removed
+
+    No in-repo caller today. Kept rather than deleted because it is
+    part of the public ``ContentParser`` surface and is covered by
+    tests; deleting it would be an API removal with no gain. Recorded
+    here so a later audit does not re-raise it as an oversight.
     """
     lines = content.split("\n")
     stripped_lines = []

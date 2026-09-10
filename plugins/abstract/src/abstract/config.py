@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
@@ -296,6 +297,17 @@ class AbstractConfig:
         try:
             config.environment = Environment(env_str)
         except ValueError:
+            # Falling back to PRODUCTION is the safe direction, but doing
+            # it in silence meant a typo in ABSTRACT_ENV ("prodution",
+            # "dev" where "development" was meant) looked identical to not
+            # setting the variable at all. The fallback stands; the
+            # silence does not.
+            print(
+                f"[WARN] ABSTRACT_ENV={env_str!r} is not one of "
+                f"{[member.value for member in Environment]}; "
+                f"falling back to {Environment.PRODUCTION.value}",
+                file=sys.stderr,
+            )
             config.environment = Environment.PRODUCTION
 
         return config

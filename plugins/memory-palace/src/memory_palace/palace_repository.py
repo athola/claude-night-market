@@ -350,6 +350,17 @@ class PalaceRepository:
                 with open(file_path, encoding="utf-8") as f:
                     data = json.load(f)
                 results.append((file_path, data))
-            except (json.JSONDecodeError, KeyError):
-                pass
+            except (json.JSONDecodeError, OSError) as exc:
+                # KeyError was in this list and cannot be raised here:
+                # nothing between the open and the append subscripts
+                # anything. OSError can be, and was not caught.
+                #
+                # The sweep continues past one bad file on purpose, but it
+                # no longer does so in silence: a palace dropped from every
+                # listing with no diagnostic is indistinguishable from a
+                # palace that was never created.
+                print(
+                    f"[WARN] Skipping unreadable palace {file_path}: {exc}",
+                    file=sys.stderr,
+                )
         return results

@@ -118,12 +118,21 @@ class Score:
 
 
 def _read_config(config_path: Path | None = None) -> dict:
-    """Parse .slop-config.yaml, or return an empty mapping if it is absent."""
+    """Parse .slop-config.yaml, or return an empty mapping if it is absent.
+
+    A missing pyyaml raises rather than degrading: ``ModuleNotFoundError``
+    is not a subclass of ``OSError`` or ``ValueError``, so the except
+    below does not catch it and the gate stops with a traceback. That
+    direction is the safe one, since a silently empty config would drop
+    every exclusion and score files the config exempts. An earlier comment
+    here claimed the opposite, which was wrong about the code rather than
+    about the intent.
+    """
     path = config_path or (_REPO_ROOT / CONFIG_NAME)
     if not path.is_file():
         return {}
     try:
-        import yaml  # noqa: PLC0415 - deferred so a missing pyyaml degrades to an empty config rather than breaking the gate
+        import yaml  # noqa: PLC0415 - deferred so importing this module does not require pyyaml when no config file exists
 
         return yaml.safe_load(path.read_text()) or {}
     except (OSError, ValueError):
