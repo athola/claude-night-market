@@ -16,6 +16,9 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
+# plugins/abstract/tests/scripts/ -> repository root
+REPO_ROOT = Path(__file__).resolve().parents[4]
+
 from hook_validator import (
     KNOWN_EVENTS,
     ValidationResult,
@@ -581,3 +584,146 @@ class TestKnownEvents:
         result = validate_json_hook(hook_file)
         assert result["valid"] is True
         assert not any("Unknown event type" in w for w in result["warnings"])
+
+
+class TestMatcherGroupUnknownKeys:
+    """An unknown key on a matcher group is dropped in silence.
+
+    The harness reads only ``matcher`` and ``hooks`` off a group object.
+    Anything else it names once at load ("unknown keys ... ignored") and
+    then discards, so the manifest keeps saying something the runtime
+    never does.
+
+    The expensive instance is ``if``. It is a real hook field, but it
+    belongs in the entry beside ``command``; placed on the group it is
+    accepted by JSON, ignored by the harness, and reads exactly like a
+    working conditional. A ``_comment`` key merely rots. A misplaced
+    ``if`` silently disarms the condition it was written to enforce.
+    """
+
+    @pytest.mark.unit
+    def test_comment_key_on_a_group_is_reported(self) -> None:
+        """Scenario: the 16 `_comment` keys this check was written for."""
+        result = _make_result()
+        _validate_hook_entry(
+            "SessionStart",
+            0,
+            {
+                "_comment": "Order 1: load policy rules",
+                "hooks": [{"type": "command", "command": "echo hi"}],
+            },
+            result,
+        )
+        assert any("_comment" in w for w in result["warnings"])
+
+    @pytest.mark.unit
+    def test_misplaced_if_on_a_group_is_reported(self) -> None:
+        """Scenario: `if` on the group, where the harness ignores it."""
+        result = _make_result()
+        _validate_hook_entry(
+            "PreToolUse",
+            0,
+            {
+                "matcher": "Bash",
+                "if": "Bash(git push:*)",
+                "hooks": [{"type": "command", "command": "echo hi"}],
+            },
+            result,
+        )
+        assert any("'if'" in w for w in result["warnings"])
+
+    @pytest.mark.unit
+    def test_a_clean_group_is_not_reported(self) -> None:
+        """Scenario: `matcher` and `hooks` are the whole vocabulary."""
+        result = _make_result()
+        _validate_hook_entry(
+            "PreToolUse",
+            0,
+            {"matcher": "Bash", "hooks": [{"type": "command", "command": "echo hi"}]},
+            result,
+        )
+        assert not result["warnings"]
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "manifest",
+        sorted((REPO_ROOT / "plugins").glob("*/hooks/hooks.json")),
+        ids=lambda p: p.parents[1].name,
+    )
+    def test_shipped_manifests_carry_no_unknown_group_keys(self, manifest) -> None:
+        """Every manifest this repo ships must survive the check."""
+        result = validate_json_hook(manifest)
+        offenders = [w for w in result["warnings"] if "unknown key" in w]
+        assert not offenders, (
+            f"{manifest.relative_to(REPO_ROOT)} has group-level keys the "
+            f"harness drops:\n  " + "\n  ".join(offenders)
+        )
+
+
+class TestWrappedManifestShape:
+    """A plugin manifest nests its events under a top-level ``hooks`` key.
+
+    ``validate_json_hook`` iterated the root object as if its keys were
+    event names. Every manifest this repo ships is the wrapped form, so
+    the validator reported ``hooks: must be a list``, marked the file
+    invalid, and returned without reading a single event. Its own tests
+    passed because they all supplied the unwrapped shape, which exists
+    in no plugin directory.
+
+    That is the reason 16 unknown ``_comment`` keys reached five shipped
+    manifests: the check written to catch them had never parsed one.
+    """
+
+    @pytest.mark.unit
+    def test_wrapped_manifest_reaches_its_events(self, tmp_path: Path) -> None:
+        """Scenario: the on-disk shape validates its events."""
+        manifest = tmp_path / "hooks.json"
+        manifest.write_text(
+            json.dumps(
+                {
+                    "hooks": {
+                        "SessionStart": [
+                            {"hooks": [{"type": "command", "command": "echo hi"}]}
+                        ]
+                    }
+                }
+            )
+        )
+        result = validate_json_hook(manifest)
+        assert result["valid"] is True, result["errors"]
+        assert not any("must be a list" in e for e in result["errors"])
+        assert not any("Unknown event type: hooks" in w for w in result["warnings"])
+
+    @pytest.mark.unit
+    def test_wrapped_manifest_still_reports_a_bad_event(self, tmp_path: Path) -> None:
+        """Unwrapping must not cost the check its actual job."""
+        manifest = tmp_path / "hooks.json"
+        manifest.write_text(json.dumps({"hooks": {"NotAnEvent": [{"hooks": []}]}}))
+        result = validate_json_hook(manifest)
+        assert any("Unknown event type: NotAnEvent" in w for w in result["warnings"])
+
+    @pytest.mark.unit
+    def test_bare_event_map_still_validates(self, tmp_path: Path) -> None:
+        """The unwrapped shape the older tests use keeps working."""
+        manifest = tmp_path / "hooks.json"
+        manifest.write_text(
+            json.dumps(
+                {"SessionStart": [{"hooks": [{"type": "command", "command": "hi"}]}]}
+            )
+        )
+        result = validate_json_hook(manifest)
+        assert result["valid"] is True, result["errors"]
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "manifest",
+        sorted((REPO_ROOT / "plugins").glob("*/hooks/hooks.json")),
+        ids=lambda p: p.parents[1].name,
+    )
+    def test_every_shipped_manifest_validates(self, manifest) -> None:
+        """No plugin ships a manifest the validator calls invalid."""
+        result = validate_json_hook(manifest)
+        assert result["valid"], (
+            f"{manifest.relative_to(REPO_ROOT)} does not validate:\n  "
+            + "\n  ".join(result["errors"])
+        )

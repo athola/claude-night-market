@@ -5,6 +5,12 @@ When a session starts or resumes after crash/relaunch,
 checks for an active egregore manifest and injects context
 to resume the pipeline.
 
+The registration matches ``startup|resume`` only. ``fork`` and
+``compact`` continue a conversation that already carries this banner,
+so re-injecting it there is noise. ``clear`` is excluded as well; that
+choice predates the ``fork`` source and is left as found rather than
+revisited without a reason to.
+
 IMPORTANT: Must use Python 3.9 compatible syntax.
 """
 
