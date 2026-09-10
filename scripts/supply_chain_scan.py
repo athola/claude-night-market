@@ -13,12 +13,20 @@ import sys
 from pathlib import Path
 
 
+class BlocklistMissingError(RuntimeError):
+    """The blocklist is absent, so the scan has nothing to scan with.
+
+    This scanner's entire content is that data file. Returning ``{}`` and
+    exiting 0 meant the gate reported success in exactly the state where
+    it was checking nothing.
+    """
+
+
 def load_blocklist(root: Path) -> dict:
     """Load the known-bad-versions blocklist."""
     path = root / "plugins/leyline/skills/supply-chain-advisory/known-bad-versions.json"
     if not path.exists():
-        print("  Blocklist not found, skipping")
-        return {}
+        raise BlocklistMissingError(path)
     data = json.loads(path.read_text())
     data.pop("_meta", None)
     return data
@@ -71,9 +79,22 @@ def scan_artifacts(root: Path, blocklist: dict) -> list[str]:
 
 def main() -> int:
     root = Path(__file__).resolve().parent.parent
-    blocklist = load_blocklist(root)
+    try:
+        blocklist = load_blocklist(root)
+    except BlocklistMissingError as exc:
+        print(f"  BLOCKED: blocklist not found at {exc.args[0]}", file=sys.stderr)
+        print(
+            "  The blocklist is this scanner's only content. Without it no "
+            "lockfile was checked, so success cannot be reported.",
+            file=sys.stderr,
+        )
+        return 1
     if not blocklist:
-        return 0
+        print(
+            "  BLOCKED: blocklist parsed to zero entries, so nothing was checked",
+            file=sys.stderr,
+        )
+        return 1
 
     exit_code = 0
 

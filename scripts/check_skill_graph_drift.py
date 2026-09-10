@@ -15,6 +15,7 @@ lower the baseline so the ratchet tightens.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -111,14 +112,40 @@ def _run_skill_graph() -> dict:
     return data if isinstance(data, dict) else {}
 
 
+# The escape hatch that used to be unconditional. A contributor blocked by a
+# broken analyzer can still get a commit through, but has to name the fact,
+# which leaves a trace where the old silent ``return 0`` left none.
+SKIP_ENV_VAR = "SKILL_GRAPH_DRIFT_SKIP"
+
+
 def main() -> int:
     """Run the ratchet guard; exit non-zero on new breakage."""
     try:
         report = _run_skill_graph()
     except (subprocess.CalledProcessError, json.JSONDecodeError) as exc:
-        # Never block a commit because the analyzer itself failed.
-        print(f"[skill-graph-drift] skipped (analyzer error): {exc}")
-        return 0
+        # This used to return 0 so a broken analyzer could never block a
+        # commit. The cost was that a dead analyzer and a clean ratchet
+        # produced the same exit code, and pre-commit prints hook output
+        # only on failure, so the skip line was never read. A gate with no
+        # count cannot report that a count is within budget.
+        detail = getattr(exc, "stderr", "") or ""
+        print(
+            f"[skill-graph-drift] BLOCKED: the analyzer failed: {exc}",
+            file=sys.stderr,
+        )
+        if detail:
+            print(f"[skill-graph-drift] analyzer stderr:\n{detail}", file=sys.stderr)
+        if os.environ.get(SKIP_ENV_VAR) == "1":
+            print(
+                f"[skill-graph-drift] skipped: {SKIP_ENV_VAR}=1 is set",
+                file=sys.stderr,
+            )
+            return 0
+        print(
+            f"[skill-graph-drift] To commit anyway: {SKIP_ENV_VAR}=1 git commit ...",
+            file=sys.stderr,
+        )
+        return 1
 
     ok_bugs, bug_message = evaluate_drift(
         count_dangling_bugs(report), _load_baseline("max_dangling_bugs")

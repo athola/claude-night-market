@@ -9,20 +9,49 @@ Override with: ALLOW_NEW_IGNORES=1 git commit
 
 Exit codes:
     0 - no new ignores found (or override active)
-    1 - new ignores detected (commit blocked)
+    1 - new ignores detected, or the config could not be read (blocked)
 """
 
 from __future__ import annotations
 
+import importlib
 import os
 import subprocess
 import sys
 from pathlib import Path
+from types import ModuleType
 
-try:
-    import tomllib  # Python 3.11+
-except ImportError:
-    tomllib = None
+
+def _import_toml_parser() -> ModuleType | None:
+    """Return the first importable TOML parser, or None if there is none.
+
+    ``tomllib`` is 3.11+, and ``.pre-commit-config.yaml`` invokes this hook
+    as bare ``python3``, which is 3.9.6 on the interpreter this repository
+    declares. ``tomli`` is the 3.9 spelling of the same parser and is
+    importable there.
+    """
+    for name in ("tomllib", "tomli"):
+        try:
+            return importlib.import_module(name)
+        except ImportError:
+            continue
+    return None
+
+
+TOML_PARSER = _import_toml_parser()
+
+
+class TomlUnavailableError(RuntimeError):
+    """No TOML parser is importable, so no verdict can be rendered.
+
+    Raised rather than returning ``{}`` because the two are not the same
+    answer: one says the file adds no suppressions, the other says the
+    gate could not look.
+    """
+
+
+class TomlUnreadableError(RuntimeError):
+    """The staged TOML did not parse, so its suppressions are unknown."""
 
 
 # A config that inherits the repo floor via ``extend`` must state its
@@ -34,10 +63,15 @@ _IGNORE_KEYS = ("per-file-ignores", "extend-per-file-ignores")
 
 def _get_per_file_ignores(toml_text: str) -> dict[str, list[str]]:
     """Extract per-file-ignores from a TOML string, in either spelling."""
+    if TOML_PARSER is None:
+        raise TomlUnavailableError(
+            "no TOML parser is importable (tomllib is 3.11+, tomli is the "
+            "3.9 fallback), so per-file-ignores cannot be read"
+        )
     try:
-        data = tomllib.loads(toml_text)
-    except Exception:
-        return {}
+        data = TOML_PARSER.loads(toml_text)
+    except TOML_PARSER.TOMLDecodeError as exc:
+        raise TomlUnreadableError(str(exc)) from exc
     lint = data.get("tool", {}).get("ruff", {}).get("lint", {})
     merged: dict[str, list[str]] = {}
     for key in _IGNORE_KEYS:
@@ -107,7 +141,16 @@ def main(argv: list[str] | None = None, *, repo_root: Path | None = None) -> int
             continue
 
         old_text = _get_committed_content(path, repo_root)
-        added = diff_per_file_ignores(old_text, new_text)
+        try:
+            added = diff_per_file_ignores(old_text, new_text)
+        except (TomlUnavailableError, TomlUnreadableError) as exc:
+            print(
+                f"BLOCKED: cannot audit per-file-ignores in {path}: {exc}\n"
+                "The gate blocks rather than passing, because an unreadable "
+                "config is not the same as a config with no suppressions.",
+                file=sys.stderr,
+            )
+            return 1
         if added:
             all_added[str(path)] = added
 
