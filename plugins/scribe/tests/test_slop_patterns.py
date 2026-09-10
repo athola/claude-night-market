@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from scribe.pattern_loader import (
     get_ste_patterns,
+    get_sycophantic_patterns,
     get_tier5_patterns,
     load_language_patterns,
 )
@@ -2134,3 +2135,44 @@ class TestTemporalResidue:
         caught these would make the category unusable.
         """
         assert _category_hits_including_optional(self.CATEGORY, text) == 0
+
+
+class TestSycophanticSectionIsReachable:
+    """A YAML section with no getter is dead data.
+
+    ``sycophantic`` shipped with six patterns at score 3 and no getter, so
+    nothing in the pipeline could reach it, while
+    ``skills/slop-detector/modules/language-handling.md`` advertised
+    English as "Full (Tier 1-4, phrases, fiction, sycophantic)". The code
+    was honest and the documentation was not: "I'd be happy to" passed
+    every gate this repository runs.
+    """
+
+    def test_the_getter_returns_every_shipped_pattern(self) -> None:
+        """Each phrase in the YAML reaches a caller."""
+        patterns = load_language_patterns("en")
+        found = get_sycophantic_patterns(patterns)
+        phrases = {entry["pattern"] for entry in found}
+        assert "I'd be happy to" in phrases
+        assert len(found) == len(patterns["sycophantic"]["patterns"])
+        assert all(entry["category"] == "sycophantic" for entry in found)
+        assert all(entry["score"] == 3 for entry in found)
+
+    def test_every_yaml_section_with_patterns_has_a_reader(self) -> None:
+        """The general guard: a scored section nothing reads is dead data.
+
+        Listing the readers explicitly is what makes adding a section
+        without wiring it fail here rather than ship silently.
+        """
+        patterns = load_language_patterns("en")
+        scored_sections = {
+            name
+            for name, body in patterns.items()
+            if isinstance(body, dict) and "score" in body and "patterns" in body
+        }
+        readable = {"sycophantic"}
+        unreachable = scored_sections - readable
+        assert not unreachable, (
+            f"these YAML sections carry a score and patterns but no getter "
+            f"reaches them, so they are dead data: {sorted(unreachable)}"
+        )

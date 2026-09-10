@@ -47,6 +47,7 @@ from scribe.negation import (  # noqa: E402 - path must be set before import
     check_negation_density,
 )
 from scribe.pattern_loader import (  # noqa: E402 - path must be set before import
+    get_sycophantic_patterns,
     get_tier1_words,
     get_tier2_words,
     get_tier5_patterns,
@@ -214,6 +215,17 @@ def _rules(language: str = "en") -> list:
         weight = entry["score"] if entry["confidence"] == "high" else 0
         for pattern in entry["patterns"]:
             rules.append((entry["category"], re.compile(pattern, flags), weight))
+    # The sycophantic section had no getter and so reached no gate, while
+    # the language table advertised it as covered. High confidence: these
+    # are fixed openers, not judgment calls.
+    for entry in get_sycophantic_patterns(patterns):
+        rules.append(
+            (
+                "sycophantic",
+                re.compile(re.escape(entry["pattern"]), re.I),
+                entry["score"],
+            )
+        )
     rules.append(("em_dash", re.compile("—"), EM_DASH_WEIGHT))
     # `slop-scan-for-docs.md` rule 2a calls the spaced double dash a
     # high-confidence tell and always-fix. It reached `_audit_rules`
@@ -241,6 +253,10 @@ def _audit_rules(language: str = "en") -> list:
     rules += [
         ("tier2", re.compile(rf"\b{re.escape(word)}\b", re.I), "high")
         for word in get_tier2_words(patterns)
+    ]
+    rules += [
+        ("sycophantic", re.compile(re.escape(entry["pattern"]), re.I), "high")
+        for entry in get_sycophantic_patterns(patterns)
     ]
     for entry in get_tier5_patterns(patterns, include_optional=True):
         flags = re.IGNORECASE if entry["ignore_case"] else 0
