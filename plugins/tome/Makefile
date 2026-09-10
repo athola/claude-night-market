@@ -105,8 +105,8 @@ benchmark: ## Run performance benchmarks
 	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
 		echo "Not applicable: pytest-benchmark is not installed"; \
 	else \
-		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
-		status=$$?; \
+		status=0; \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean || status=$$?; \
 		if [ $$status -eq 5 ]; then \
 			echo "Not applicable: no benchmark tests are defined"; \
 		elif [ $$status -ne 0 ]; then \

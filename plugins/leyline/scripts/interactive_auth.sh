@@ -303,8 +303,11 @@ EOF
       read -rs token
       echo ""
 
-      # Keep the token out of xtrace: the pipeline runs with tracing off.
-      if { set +x; } 2>/dev/null; printf '%s' "$token" | gh auth login --with-token; then
+      # Keep the token out of xtrace. The subshell is what bounds the
+      # change: `{ set +x; }` at this level disabled tracing for the rest
+      # of the process, so a caller running with -x silently lost tracing
+      # from here on rather than only across the credential.
+      if ( { set +x; } 2>/dev/null; printf '%s' "$token" | gh auth login --with-token ); then
         echo "✓ Token authentication successful"
         return 0
       else
@@ -406,7 +409,9 @@ ensure_auth() {
       # CI/CD: Use environment variables
       if [[ "$service" == "github" ]] && [[ -n "${GITHUB_TOKEN:-}" ]]; then
         echo "🔐 Using GITHUB_TOKEN from environment"
-        { set +x; } 2>/dev/null; printf '%s' "$GITHUB_TOKEN" | gh auth login --with-token &>/dev/null
+        # Subshell-scoped, so tracing is restored for the caller after the
+        # credential has passed through.
+        ( { set +x; } 2>/dev/null; printf '%s' "$GITHUB_TOKEN" | gh auth login --with-token &>/dev/null )
         continue
       elif [[ "$service" == "gitlab" ]] && [[ -n "${GITLAB_TOKEN:-}" ]]; then
         echo "🔐 Using GITLAB_TOKEN from environment"

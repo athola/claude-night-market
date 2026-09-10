@@ -199,8 +199,8 @@ benchmark: ## Run performance benchmarks (memory operations)
 	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
 		echo "Not applicable: pytest-benchmark is not installed"; \
 	else \
-		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
-		status=$$?; \
+		status=0; \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean || status=$$?; \
 		if [ $$status -eq 5 ]; then \
 			echo "Not applicable: no benchmark tests are defined"; \
 		elif [ $$status -ne 0 ]; then \
@@ -220,12 +220,15 @@ demo-reset: ## Recreate the demo palace store (never the user's own)
 	rm -rf $(DEMO_PALACES_DIR)
 	mkdir -p $(DEMO_PALACES_DIR)
 
+# `|| true` here undercut the fail=1 propagation that root `plugin-check`
+# gained this branch: a failing import or export still reported the whole
+# plugin as passing. Guarded by tests/test_gate_exit_codes.py.
 demo-import: demo-reset
-	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) import --source "$(IMPORT_SRC)" --overwrite || true
+	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) import --source "$(IMPORT_SRC)" --overwrite
 
 demo-export:
 	@mkdir -p $(dir $(EXPORT_DEST))
-	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) export --destination "$(EXPORT_DEST)" || true
+	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) export --destination "$(EXPORT_DEST)"
 
 demo-status:
 	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) status

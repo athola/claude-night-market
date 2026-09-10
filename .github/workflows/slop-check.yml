@@ -5,6 +5,13 @@ on:
     paths:
       - '**.md'
       - '.github/workflows/slop-check.yml'
+      # The scorer, its config and its pattern source are the gate. A
+      # commit touching only these used to skip the workflow entirely, so
+      # a scorer regression could land without the corpus being re-scored.
+      - 'scripts/slop_score.py'
+      - '.slop-config.yaml'
+      - 'plugins/scribe/data/languages/*.yaml'
+      - 'plugins/scribe/src/scribe/**'
 
 jobs:
   slop-check:

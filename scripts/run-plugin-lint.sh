@@ -13,11 +13,18 @@ cd "$PROJECT_ROOT"
 
 # A check that rewrites the tree hides the diff it exists to report, so
 # --fix is opt-in. check-all-quality.sh forwards it when asked.
-LINT_FIX=""
+# An array rather than a string, so the optional flag is passed as one
+# argument without relying on word-splitting an unquoted expansion.
+#
+# Expanded as ${LINT_FIX[@]+"${LINT_FIX[@]}"} rather than "${LINT_FIX[@]}":
+# under `set -u`, bash 3.2 (stock macOS /bin/bash) reports
+# "LINT_FIX[@]: unbound variable" for an empty array, which is the common
+# case here since --fix is off by default.
+LINT_FIX=()
 _positional=()
 for _arg in "$@"; do
     case "$_arg" in
-        --fix) LINT_FIX="--fix" ;;
+        --fix) LINT_FIX=(--fix) ;;
         *) _positional+=("$_arg") ;;
     esac
 done
@@ -68,7 +75,7 @@ run_plugin_lint() {
 
     # Fallback: Run ruff directly
     if [ -f "$plugin_dir/pyproject.toml" ] && grep -q "ruff" "$plugin_dir/pyproject.toml" 2>/dev/null; then
-        if (cd "$plugin_dir" && uv run ruff check . $LINT_FIX 2>&1); then
+        if (cd "$plugin_dir" && uv run ruff check . ${LINT_FIX[@]+"${LINT_FIX[@]}"} 2>&1); then
             echo -e "  ${GREEN}✓ Linting passed${NC}"
             PASSED_PLUGINS+=("$plugin_name")
             return 0
@@ -81,7 +88,7 @@ run_plugin_lint() {
 
     # No lint configuration found - use global ruff
     if command -v ruff &> /dev/null; then
-        if ruff check "$plugin_dir" $LINT_FIX --config pyproject.toml 2>&1; then
+        if ruff check "${plugin_dir}" ${LINT_FIX[@]+"${LINT_FIX[@]}"} --config pyproject.toml 2>&1; then
             echo -e "  ${GREEN}✓ Linting passed${NC}"
             PASSED_PLUGINS+=("$plugin_name")
             return 0

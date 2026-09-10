@@ -110,14 +110,11 @@ docs/project-brief.md
 docs/specification.md
 **/*/docs/plans/
 
-# Attune ephemeral state
+# Attune ephemeral state and calibration data
 .attune/
 
 # Git worktrees
 .worktrees/
-
-# Attune calibration data
-.attune/
 
 # Runtime state for egregore (manifest, clawhub progress) and
 # superpowers (brainstorm session artifacts). Peers of .attune/.
