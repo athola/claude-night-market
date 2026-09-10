@@ -328,7 +328,11 @@ def _graph_risk_context(gauntlet_dir: Path) -> str | None:
         )
 
         graph = _GS(str(db_path))
-        report = _analyze(graph, base_ref="HEAD")
+        # The same budget the gate's own git calls use. analyze_changes runs
+        # git diff, whose default budget is 10s against this hook's 2s cap in
+        # hooks.json; a killed PreToolUse hook emits no deny, so a slow git
+        # would let the commit through the gate that exists to stop it.
+        report = _analyze(graph, base_ref="HEAD", timeout=_GIT_TIMEOUT_SECONDS)
         graph.close()
     except Exception:
         return None

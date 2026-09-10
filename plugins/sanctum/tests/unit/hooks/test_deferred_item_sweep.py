@@ -190,7 +190,7 @@ class TestLedgerProcessing:
         ]
         ledger.write_text(json.dumps(entries))
 
-        def side_effect(title: str, source: str) -> dict:
+        def side_effect(title: str, source: str, timeout: float = 0.0) -> dict:
             if title == "Item A":
                 return {"status": "created", "number": 10}
             return {"status": "error", "message": "fail"}
@@ -273,7 +273,12 @@ class TestCallCaptureScriptDirect:
 
     def test_argument_construction(self) -> None:
         """Verify correct args are passed to subprocess.run."""
-        from deferred_item_sweep import SCRIPT_DIR, call_capture_script
+        from deferred_item_sweep import (
+            _ITEM_TIMEOUT_SECONDS,
+            _SWEEP_BUDGET_SECONDS,
+            SCRIPT_DIR,
+            call_capture_script,
+        )
 
         mock_proc = MagicMock()
         mock_proc.returncode = 0
@@ -297,7 +302,11 @@ class TestCallCaptureScriptDirect:
         assert cmd[8:10] == ["--captured-by", "safety-net"]
         assert kwargs["capture_output"] is True
         assert kwargs["text"] is True
-        assert kwargs["timeout"] == 15
+        # 15s sat under a 5s Stop cap in hooks.json, in a loop, so one
+        # unfiled item already exceeded the budget and a killed Stop hook
+        # drops the whole sweep without a signal.
+        assert kwargs["timeout"] == _ITEM_TIMEOUT_SECONDS
+        assert kwargs["timeout"] < _SWEEP_BUDGET_SECONDS
 
     def test_successful_json_output_is_parsed(self) -> None:
         """When subprocess exits 0 with valid JSON, the parsed dict is returned."""

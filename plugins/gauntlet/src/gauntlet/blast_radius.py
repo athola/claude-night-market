@@ -59,8 +59,18 @@ _HUNK_PATTERN = re.compile(r"@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 _FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+)$")
 
 
+#: Default budget for the one git call this module makes.
+#:
+#: Callers running inside a hook must pass their own budget instead. A hook
+#: that is killed by the harness returns no decision at all, which for
+#: precommit_gate means the commit proceeds ungated: the fail-closed design
+#: is undone by a subprocess that outlives the process holding it.
+DEFAULT_GIT_TIMEOUT_SECONDS = 10.0
+
+
 def parse_git_diff_ranges(
     base_ref: str = "HEAD",
+    timeout: float = DEFAULT_GIT_TIMEOUT_SECONDS,
 ) -> dict[str, list[tuple[int, int]]]:
     """Parse git diff --unified=0 for changed line ranges per file."""
     ref = _validate_ref(base_ref)
@@ -69,7 +79,7 @@ def parse_git_diff_ranges(
             ["git", "diff", "--unified=0", ref],
             capture_output=True,
             text=True,
-            timeout=10,
+            timeout=timeout,
             check=False,
         )
         if result.returncode != 0:
@@ -174,9 +184,10 @@ def compute_risk_score(
 def analyze_changes(
     graph: GraphStore,
     base_ref: str = "HEAD",
+    timeout: float = DEFAULT_GIT_TIMEOUT_SECONDS,
 ) -> dict[str, Any]:
     """Full blast radius analysis pipeline."""
-    ranges = parse_git_diff_ranges(base_ref)
+    ranges = parse_git_diff_ranges(base_ref, timeout=timeout)
     if not ranges:
         return {
             "overall_risk": "none",

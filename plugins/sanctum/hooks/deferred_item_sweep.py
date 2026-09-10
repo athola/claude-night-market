@@ -11,6 +11,7 @@ import json
 import logging
 import subprocess
 import sys
+import time
 import traceback
 from pathlib import Path
 
@@ -20,13 +21,27 @@ logger = logging.getLogger(__name__)
 
 SCRIPT_DIR = Path(__file__).resolve().parent.parent / "scripts"
 
+#: Total wall-clock budget for the sweep, under the 5s Stop cap in
+#: hooks.json. A Stop hook killed by the harness drops the sweep with no
+#: signal at all, so the loop has to finish inside the cap rather than
+#: trusting that it will.
+_SWEEP_BUDGET_SECONDS = 4.0
+
+#: Per-item budget. This was 15, in a loop, against that 5s cap: a single
+#: unfiled item already exceeded it. Items that do not fit the remaining
+#: budget are left in the ledger for the next sweep rather than being
+#: attempted and lost when the process is killed mid-call.
+_ITEM_TIMEOUT_SECONDS = 2.0
+
 
 def get_ledger_path() -> Path:
     """Return the session-scoped ledger path."""
     return _get_ledger_path()
 
 
-def call_capture_script(title: str, source: str) -> dict:
+def call_capture_script(
+    title: str, source: str, timeout: float = _ITEM_TIMEOUT_SECONDS
+) -> dict:
     """Call deferred_capture.py for a single unfiled item.
 
     Returns parsed JSON output or an error dict.
@@ -48,7 +63,7 @@ def call_capture_script(title: str, source: str) -> dict:
             ],
             capture_output=True,
             text=True,
-            timeout=15,
+            timeout=timeout,
             check=False,
         )
         if result.returncode == 0:
@@ -96,14 +111,25 @@ def process_ledger(ledger_path: Path) -> dict:
         return stats
 
     all_filed = True
+    deadline = time.monotonic() + _SWEEP_BUDGET_SECONDS
     for entry in entries:
         if entry.get("filed"):
             stats["already_filed"] += 1
             continue
 
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            # Out of budget. The entry stays unfiled in the ledger, which is
+            # the state the next sweep reads, rather than being attempted in
+            # a call the harness would kill halfway through.
+            all_filed = False
+            stats["deferred_to_next_sweep"] = stats.get("deferred_to_next_sweep", 0) + 1
+            continue
+
         result = call_capture_script(
             entry.get("title", "Untitled deferred item"),
             entry.get("source", "unknown"),
+            timeout=min(_ITEM_TIMEOUT_SECONDS, remaining),
         )
         status = result.get("status", "error")
         if status == "created":
