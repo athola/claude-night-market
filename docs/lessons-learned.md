@@ -20,6 +20,7 @@ so the team replicates what worked and avoids what did not.
 | LL-005 | open | A guard I wrote to catch a defect reproduced it, and only the revert-test noticed | 2026-08-24 |
 | LL-006 | open | A mechanism and the thing it claims to beat were indistinguishable to its own tests | 2026-08-25 |
 | LL-007 | open | A dogfooding harness reported zero failures while masking two real ones | 2026-06-28 |
+| LL-008 | open | Fixes that regress the tool that runs them | 2026-09-10 |
 
 ## Lessons
 
@@ -330,6 +331,75 @@ dependency probe that resolved over the network could hold the whole run.
 - Action: add an evidence-driven `review` mission type to attune, whose four
   existing types all assume building from artifacts. Owner: attune
   maintainers. Due: unscheduled. Status: open.
+
+## LL-008: Fixes that regress the tool that runs them
+
+- Status: open
+- Date: 2026-09-10
+- Phase: review
+- Category: testing
+- Owner: night-market maintainers
+- Links: PR #784, commits e672375c..b0793bdc, c0d571d1
+<!-- key: 39076f17582b -->
+
+### What happened
+
+A 60-item fix pass on PR #784 landed in 15 commits. Four of those
+items needed rework because the first version was wrong in a way the run
+that produced it could not show.
+
+### What went well / where we got lucky
+
+Every behavioral fix was revert-tested: undo the fix, confirm the test
+goes red, restore. That is what caught both bad tests below, and it is a
+per-fix step rather than a per-cycle summary because of LL-005.
+
+Three new guard tests also found two defects no review pass had named.
+`tests/test_hook_subprocess_budgets.py` AST-scans each registered hook's
+timeout values against its hooks.json cap, and turned up a 5s git timeout
+under a 1s SessionStart cap and a 3s notifier budget under a 1s Stop cap.
+
+### What did not work
+
+Two of the four broke the tooling itself.
+
+Replacing a bare `$LINT_FIX` with `"${LINT_FIX[@]}"` in
+run-plugin-lint.sh broke lint for all 18 plugins. bash 3.2, which is stock
+/bin/bash on macOS, reports an empty array as an unbound variable under
+`set -u`.
+
+Inserting `status=0;` before `@$(PYTEST)` in conjure/Makefile moved the
+`@` off the start of the recipe line, where it stops being a Make prefix
+and becomes a syntax error. A comment three lines above documented that
+exact trap.
+
+The other two were tests that could not fail. An oracle sentinel test
+passed with the sentinel check deleted, because `is_provisioned`
+independently blocked the launch. A budget atomic-write test injected its
+failure at `json.dumps`, which raises before `write_text` truncates, so
+the file it was checking was never at risk.
+
+### Root cause
+
+Each fix was verified against the thing it changed rather than the thing
+that runs it. The array quoting was checked against shellcheck instead of
+the interpreter the script actually gets. The Makefile edit was read as
+text instead of as a recipe.
+
+The two bad tests share a different cause: the assertion was written
+before finding out which guard the code path really depends on, so it
+pinned a condition that was true for an unrelated reason.
+
+### Recommendation / action item
+
+Revert-test the test as well as the fix. A test that stays green with the
+fix undone is not a test, whatever it asserts.
+
+For shell, name the interpreter before choosing an idiom. On macOS that is
+bash 3.2, and the portable empty-array expansion is ${arr[@]+"${arr[@]}"}.
+
+For Makefiles, remember that an inserted line moves the `@` prefix, which
+is only a prefix at the start of a recipe line.
 
 ## Archive
 
