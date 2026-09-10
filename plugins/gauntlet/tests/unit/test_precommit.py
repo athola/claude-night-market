@@ -475,25 +475,35 @@ class TestGateFailsClosed:
 
     @pytest.mark.unit
     @pytest.mark.parametrize(
-        "helper",
-        ["_get_staged_hash", "_get_developer_id", "_get_staged_files"],
+        ("helper", "fallback"),
+        [
+            ("_get_staged_hash", ""),
+            ("_get_developer_id", "unknown"),
+            ("_get_staged_files", None),
+        ],
     )
-    def test_every_git_helper_survives_a_missing_git(self, helper: str) -> None:
+    def test_every_git_helper_survives_a_missing_git(
+        self, helper: str, fallback: object
+    ) -> None:
         """
         Scenario: git is absent from PATH
         Given each helper that shells out to git
         When subprocess raises FileNotFoundError
-        Then the helper returns rather than propagating
+        Then the helper returns its documented fallback
 
         GIVEN all three helpers were widened to _GIT_FAILURES together
         WHEN only _get_staged_hash had a test
         THEN the other two could narrow back to CalledProcessError
         and nothing would notice until a gate opened in the field.
+
+        The assertion is on the value, not merely on the absence of an
+        exception. "Nothing escaped" is also true of a helper that returns
+        a half-built result, and the callers branch on these values.
         """
         with patch(
             "precommit_gate.subprocess.run", side_effect=FileNotFoundError("git")
         ):
-            getattr(precommit_gate, helper)()
+            assert getattr(precommit_gate, helper)() == fallback
 
     @pytest.mark.unit
     @pytest.mark.parametrize(
