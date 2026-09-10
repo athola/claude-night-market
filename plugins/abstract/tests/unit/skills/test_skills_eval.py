@@ -121,21 +121,19 @@ class TestSkillsEvalQualityFramework:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_skills_eval_enforces_toc_requirements(
+    def test_skills_eval_penalizes_a_table_of_contents(
         self, evaluation_criteria_content: str
     ) -> None:
-        """Scenario: Evaluation framework enforces TOC for long modules.
+        """Scenario: Evaluation framework docks a Table of Contents.
 
         Given the skills-eval framework
-        When reviewing token efficiency criteria
-        Then it should require TOCs in modules >100 lines
+        When reviewing the navigation rules
+        Then a Table of Contents in a skill or module is a penalty, since
+        an anchor list restates the headings below it and costs tokens on
+        every load
         """
-        # Assert - TOC requirements exist
-        assert (
-            "toc" in evaluation_criteria_content.lower()
-            or "table of contents" in evaluation_criteria_content.lower()
-        )
-        assert "100" in evaluation_criteria_content  # Threshold for TOC requirement
+        assert 'requirement: "No Table of Contents"' in evaluation_criteria_content
+        assert "Table of Contents after frontmatter" not in evaluation_criteria_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -264,18 +262,19 @@ class TestModularSkillsQualityChecks:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_modular_skills_has_toc(self, modular_skills_content: str) -> None:
-        """Scenario: Modular-skills includes Table of Contents.
+    def test_modular_skills_has_no_table_of_contents(
+        self, modular_skills_content: str
+    ) -> None:
+        """Scenario: Modular-skills carries no Table of Contents.
 
         Given the modular-skills skill
         When reading the skill content
-        Then it should have a TOC for navigation
+        Then no anchor list precedes the sections:
+        an anchor list restates the headings below it and costs
+        tokens on every load, and grep finds the headings directly
+        (bloat-detector, "ToC Bloat in Skills")
         """
-        # Assert - TOC exists
-        assert (
-            "## Table of Contents" in modular_skills_content
-            or "table of contents" in modular_skills_content.lower()
-        )
+        assert "## Table of Contents" not in modular_skills_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -358,18 +357,19 @@ class TestWorkflowMonitorQualityChecks:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_workflow_monitor_has_toc(self, workflow_monitor_content: str) -> None:
-        """Scenario: Workflow-monitor includes Table of Contents.
+    def test_workflow_monitor_has_no_table_of_contents(
+        self, workflow_monitor_content: str
+    ) -> None:
+        """Scenario: Workflow-monitor carries no Table of Contents.
 
         Given the workflow-monitor skill
         When reading the skill content
-        Then it should have a TOC for navigation
+        Then no anchor list precedes the sections:
+        an anchor list restates the headings below it and costs
+        tokens on every load, and grep finds the headings directly
+        (bloat-detector, "ToC Bloat in Skills")
         """
-        # Assert - TOC exists
-        assert (
-            "## Table of Contents" in workflow_monitor_content
-            or "table of contents" in workflow_monitor_content.lower()
-        )
+        assert "## Table of Contents" not in workflow_monitor_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -483,14 +483,14 @@ class TestProgressiveDisclosureEnforcement:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_toc_required_for_long_modules(self, skills_eval_content: str) -> None:
-        """Scenario: Long modules require TOC for navigation.
+    def test_long_skill_navigates_by_module_links_not_a_toc(
+        self, skills_eval_content: str
+    ) -> None:
+        """Scenario: A long skill points at modules instead of indexing itself.
 
-        Given a module exceeding 100 lines
+        Given a skill exceeding 100 lines
         When evaluating structure
-        Then a TOC should be required
+        Then it carries no Table of Contents, and it links to modules
         """
-        # Assert - TOC exists in the skill (which exceeds 100 lines)
-        assert "## Table of Contents" in skills_eval_content
-        # Has section links
-        assert "[" in skills_eval_content and "](" in skills_eval_content
+        assert "## Table of Contents" not in skills_eval_content
+        assert "modules/" in skills_eval_content

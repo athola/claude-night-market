@@ -3,18 +3,17 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
 .PHONY: ci-build ci-test clean debug-variables demo-commit demo-commit-msg demo-create-tag \
 	demo-do-issue demo-fix-pr demo-fix-workflow demo-git-catchup demo-git-workspace demo-merge-docs \
 	demo-pr demo-pr-prep demo-pr-review demo-prepare-pr demo-rename demo-resolve-threads demo-resume \
 	demo-skills demo-update-dependencies demo-update-docs demo-update-plugins demo-update-readme \
-	demo-update-tests demo-update-tutorial demo-update-version deps docs format help install \
-	install-hooks lint plugin-check profile-test qa quick-check security status test test-all test-bdd \
+	demo-update-tests demo-update-tutorial demo-update-version deps docs help install \
+	install-hooks plugin-check profile-test qa quick-check status test test-all test-bdd \
 	test-commit-msg test-cov test-create-tag test-do-issue test-fix-pr test-fix-workflow test-git \
 	test-git-catchup test-integration test-merge-docs test-pr test-pr-review test-prepare-pr \
-	test-rename test-resolve-threads test-resume test-unit test-update-dependencies test-update-docs \
+	test-rename test-resolve-threads test-resume test-update-dependencies test-update-docs \
 	test-update-plugins test-update-readme test-update-tests test-update-tutorial test-update-version \
-	type-check typecheck watch-test
+	watch-test demo-sanctum-commands
 
 # Plugin-specific variables
 SRC_DIRS ?= src tests
@@ -31,7 +30,6 @@ ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Prevent parallel execution for targets that share resources
-.NOTPARALLEL: docs
 
 # Default target
 help: ## Show this help message
@@ -388,8 +386,7 @@ test-create-tag: ## Test create-tag command (not applicable: skill-only, runs ag
 	@echo "Not applicable: create-tag operates on live git tags and has no unit tests"
 
 test-update-plugins: ## Test update-plugins command (runs plugin registration tests)
-	$(PYTEST) tests/test_update_plugin_registrations.py \
-		tests/test_update_plugin_registrations_simple.py -v
+	$(PYTEST) tests/test_update_plugin_registrations_*.py -v
 
 test-update-tests: ## Test update-tests command (not applicable: skill-only)
 	@echo "Not applicable: update-tests is a skill-only command with no unit tests"

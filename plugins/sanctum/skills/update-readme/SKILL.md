@@ -62,7 +62,21 @@ See `modules/exemplar-research.md` for search query patterns and evaluation crit
 **The README is an index, not a manual.** Lead with what the
 project is, how to install it, and a scannable table of its
 units (plugins, commands, packages); link out for everything
-else. When this repo's root README was simplified in 2026, it
+else.
+
+**A README is a `newcomer` document.** Its reader has never seen
+this project, so the test for every candidate section is whether
+that reader needs it before they can install and run one thing.
+Rationale, alternatives considered, and internals are `expert`
+material: extract them to `docs/deep-dive/<topic>.md` or the
+`book/`, linked from the README in one line naming who the page
+is for. Never delete them to shorten the README. Tier table and
+cut test: `scribe:slop-detector` module `audience-targeting.md`.
+
+A README that declares a different tier (an internal tool whose
+only readers already run it) says so in its lead.
+
+When this repo's root README was simplified in 2026, it
 dropped from 435 to 200 lines (65% fewer words) by deleting
 inlined depth and linking to `book/` instead. Aim for that
 shape, not a section-by-section coverage sweep.
@@ -162,6 +176,10 @@ Agent(scribe:doc-editor) --target README.md
 - [ ] No README section duplicates a `book/` or `docs/` page;
   depth is linked, not inlined (`rg -n '^#' README.md` headings
   each map to a section that earns a place in an index).
+- [ ] The README serves a `newcomer`, or declares the tier it
+  serves instead in its lead.
+- [ ] Content cut for tier fit landed in a linked page, not the
+  bin (`docs/deep-dive/` or `book/`).
 - [ ] The README references internal docs and external
   exemplars with citations.
 - [ ] Research notes and command references are captured so

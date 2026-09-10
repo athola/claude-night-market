@@ -6,7 +6,10 @@
 # fully auditable.
 set -euo pipefail
 
-EGREGORE_DIR="${EGREGORE_DIR:-.egregore}"
+# Resolved once, absolute: the relaunch below cds into the manifest's
+# project_dir, and a relative pid file would then be written under the
+# timer's working directory and checked under another.
+EGREGORE_DIR="$(cd "${EGREGORE_DIR:-.egregore}" 2>/dev/null && pwd || printf '%s' "${EGREGORE_DIR:-.egregore}")"
 MANIFEST="$EGREGORE_DIR/manifest.json"
 BUDGET="$EGREGORE_DIR/budget.json"
 PIDFILE="$EGREGORE_DIR/pid"

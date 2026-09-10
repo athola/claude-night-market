@@ -24,19 +24,6 @@ model_hint: standard
 estimated_tokens: 600
 ---
 
-## Table of Contents
-
-- [What It Is](#what-it-is)
-- [The Dual-Probe Pattern](#the-dual-probe-pattern)
-- [What This Is NOT](#what-this-is-not)
-- [When to Use](#when-to-use)
-- [Core Workflow](#core-workflow)
-- [Best-of-N Mode](#best-of-n-mode)
-- [Output Format](#output-format)
-- [Integration Points](#integration-points)
-- [Exit Criteria](#exit-criteria)
-
-
 # Memory Clarity Probe
 
 Assess whether a memory, summary, or session state retains enough

@@ -33,26 +33,6 @@ modules:
 - modules/lifecycle-stages.md
 - modules/storage-patterns.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Core Concepts](#core-concepts)
-- [Template Types](#template-types)
-- [Maturity Lifecycle](#maturity-lifecycle)
-- [Quick Start](#quick-start)
-- [Basic Template Structure](#basic-template-structure)
-- [Core Content](#core-content)
-- [Metadata](#metadata)
-- [File Naming Conventions](#file-naming-conventions)
-- [Domain Applications](#domain-applications)
-- [Common Patterns](#common-patterns)
-- [Promotion Workflow](#promotion-workflow)
-- [Template Selection Guide](#template-selection-guide)
-- [Integration Pattern](#integration-pattern)
-- [Detailed Resources](#detailed-resources)
-- [Exit Criteria](#exit-criteria)
-
 
 # Storage Templates
 

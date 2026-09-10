@@ -116,12 +116,14 @@ if [ "$has_discussions" != "True" ]; then
 fi
 
 # Find "decisions" and "insights"/"learnings" category IDs
-read -r category_id insights_category_id <<< "$(echo "$category_response" | python3 -c "
+# A missing Decisions category must not shift the Insights id into its
+# slot, so the ids travel with a delimiter and a placeholder for absence.
+IFS='|' read -r category_id insights_category_id <<< "$(echo "$category_response" | python3 -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
     if data.get('errors'):
-        print(' ')
+        print('-|-')
         sys.exit(0)
     cats = data.get('data', {}).get('repository', {}).get('discussionCategories', {}).get('nodes', [])
     decisions_id = ''
@@ -132,11 +134,13 @@ try:
             decisions_id = c['id']
         elif slug in ('insights', 'learnings'):
             insights_id = c['id']
-    print(f'{decisions_id} {insights_id}')
+    print(f\"{decisions_id or '-'}|{insights_id or '-'}\")
 except Exception as exc:
     print(f'JSON parse error: {exc}', file=sys.stderr)
-    print(' ')
-" || echo " ")"
+    print('-|-')
+" || echo "-|-")"
+[ "$category_id" = "-" ] && category_id=""
+[ "$insights_category_id" = "-" ] && insights_category_id=""
 
 if [ -z "$category_id" ] && [ -z "$insights_category_id" ]; then
     _emit_empty
@@ -177,7 +181,7 @@ query($owner: String!, $repo: String!, $categoryId: ID!, $count: Int!) {
         return
     fi
 
-    HEADING="$heading" echo "$resp" | python3 -c "
+    echo "$resp" | HEADING="$heading" python3 -c "
 import os, sys, json
 try:
     data = json.load(sys.stdin)

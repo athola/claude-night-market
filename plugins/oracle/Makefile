@@ -2,7 +2,7 @@
 # ONNX Runtime inference daemon for Claude Code plugins
 
 .PHONY: help deps fix check clean \
-	lint format type-check typecheck security test-unit test
+	test
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src/oracle hooks tests

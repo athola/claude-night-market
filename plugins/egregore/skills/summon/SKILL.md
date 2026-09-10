@@ -30,17 +30,6 @@ modules:
 model_hint: standard
 role: entrypoint
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When To Use](#when-to-use)
-- [When NOT To Use](#when-not-to-use)
-- [Orchestration Loop](#orchestration-loop)
-- [Pipeline-to-Skill Mapping](#pipeline-to-skill-mapping)
-- [Context Overflow Protocol](#context-overflow-protocol)
-- [Token Budget Protocol](#token-budget-protocol)
-- [Failure Handling](#failure-handling)
-- [Module Reference](#module-reference)
 
 # Summon
 

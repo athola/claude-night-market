@@ -2,7 +2,6 @@
   "hooks": {
     "Stop": [
       {
-        "_comment": "Block exit when egregore has active work items. Bounded: after EGREGORE_STOP_MAX_STALLS blocks with no manifest change the hook approves the stop, so a session that cannot advance the pipeline does not re-inject forever.",
         "hooks": [
           {
             "type": "command",
@@ -14,7 +13,6 @@
     ],
     "SessionStart": [
       {
-        "_comment": "Resume egregore orchestration on session start. Excludes fork and compact, which continue a conversation that already carries this banner. Excludes clear as well, a choice that predates the fork source and is left as found.",
         "matcher": "startup|resume",
         "hooks": [
           {
@@ -27,12 +25,11 @@
     ],
     "UserPromptSubmit": [
       {
-        "_comment": "Inject orchestration-resume context when user interrupts an active egregore session",
         "hooks": [
           {
             "type": "command",
             "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/user_prompt_hook.py",
-            "timeout": 2
+            "timeout": 5
           }
         ]
       }

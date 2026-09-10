@@ -26,6 +26,7 @@ except ImportError:
 # Import pensive components for testing
 from pensive.analysis.repository_analyzer import RepositoryAnalyzer
 from pensive.config.configuration import Configuration
+from pensive.exceptions import AnalysisError
 from pensive.plugin import PensivePlugin
 from pensive.reporting.formatters import (
     MarkdownFormatter,
@@ -244,7 +245,7 @@ clean:
         with patch(
             "pensive.skills.rust_review.RustReviewSkill",
         ) as mock_rust_skill:
-            mock_rust_skill.return_value.analyze.side_effect = Exception(
+            mock_rust_skill.return_value.analyze.side_effect = AnalysisError(
                 "Rust toolchain not found"
             )
 

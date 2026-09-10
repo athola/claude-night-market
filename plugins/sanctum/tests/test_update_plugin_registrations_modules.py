@@ -273,113 +273,11 @@ class TestAuditSkillModules:
         assert len(issues) == 0
 
 
-class TestScanPluginForModuleRefs:
-    """Test _scan_plugin_for_module_refs for cross-directory reference scanning.
-
-    GIVEN a plugin directory with skills, commands, and agents
-    WHEN _scan_plugin_for_module_refs is called
-    THEN it should collect module references from all markdown files.
+def test_scan_plugin_for_module_refs_removed() -> None:
+    """SAN-002: the audit path uses _scan_cross_skill_refs and
+    _scan_skill_local_refs; the unused whole-plugin scanner is gone.
     """
-
-    def test_scans_skills_directory(self, tmp_path: Path) -> None:
-        """
-        GIVEN a plugin with a skill that references a module
-        WHEN scanning the plugin for module refs
-        THEN the reference is found.
-        """
-        skill_dir = tmp_path / "skills" / "my-skill"
-        skill_dir.mkdir(parents=True)
-        (skill_dir / "SKILL.md").write_text("See @modules/core-logic.md for details.\n")
-
-        auditor = PluginAuditor(tmp_path.parent, dry_run=True)
-        refs = auditor._scan_plugin_for_module_refs(tmp_path)
-
-        assert "core-logic.md" in refs
-
-    def test_scans_commands_directory(self, tmp_path: Path) -> None:
-        """
-        GIVEN a plugin with a command that references a module
-        WHEN scanning the plugin for module refs
-        THEN the reference is found.
-        """
-        commands_dir = tmp_path / "commands"
-        commands_dir.mkdir()
-        (commands_dir / "my-command.md").write_text(
-            "See `modules/command-helpers.md` for helpers.\n"
-        )
-
-        auditor = PluginAuditor(tmp_path.parent, dry_run=True)
-        refs = auditor._scan_plugin_for_module_refs(tmp_path)
-
-        assert "command-helpers.md" in refs
-
-    def test_scans_agents_directory(self, tmp_path: Path) -> None:
-        """
-        GIVEN a plugin with an agent that references a module
-        WHEN scanning the plugin for module refs
-        THEN the reference is found.
-        """
-        agents_dir = tmp_path / "agents"
-        agents_dir.mkdir()
-        (agents_dir / "my-agent.md").write_text(
-            "See @modules/agent-config.md for configuration.\n"
-        )
-
-        auditor = PluginAuditor(tmp_path.parent, dry_run=True)
-        refs = auditor._scan_plugin_for_module_refs(tmp_path)
-
-        assert "agent-config.md" in refs
-
-    def test_combines_refs_from_all_directories(self, tmp_path: Path) -> None:
-        """
-        GIVEN a plugin with refs in skills, commands, and agents
-        WHEN scanning the plugin for module refs
-        THEN all references are combined into a single set.
-        """
-        skill_dir = tmp_path / "skills" / "my-skill"
-        skill_dir.mkdir(parents=True)
-        (skill_dir / "SKILL.md").write_text("See @modules/from-skill.md\n")
-
-        commands_dir = tmp_path / "commands"
-        commands_dir.mkdir()
-        (commands_dir / "cmd.md").write_text("See @modules/from-command.md\n")
-
-        agents_dir = tmp_path / "agents"
-        agents_dir.mkdir()
-        (agents_dir / "agent.md").write_text("See @modules/from-agent.md\n")
-
-        auditor = PluginAuditor(tmp_path.parent, dry_run=True)
-        refs = auditor._scan_plugin_for_module_refs(tmp_path)
-
-        assert "from-skill.md" in refs
-        assert "from-command.md" in refs
-        assert "from-agent.md" in refs
-
-    def test_returns_empty_for_plugin_with_no_directories(self, tmp_path: Path) -> None:
-        """
-        GIVEN an empty plugin directory
-        WHEN scanning for module refs
-        THEN an empty set is returned.
-        """
-        auditor = PluginAuditor(tmp_path.parent, dry_run=True)
-        refs = auditor._scan_plugin_for_module_refs(tmp_path)
-
-        assert len(refs) == 0
-
-    def test_excludes_cache_directories(self, tmp_path: Path) -> None:
-        """
-        GIVEN a plugin with markdown in a __pycache__ directory
-        WHEN scanning for module refs
-        THEN files in cache directories are skipped.
-        """
-        cache_dir = tmp_path / "skills" / "__pycache__"
-        cache_dir.mkdir(parents=True)
-        (cache_dir / "cached.md").write_text("See @modules/should-not-find.md\n")
-
-        auditor = PluginAuditor(tmp_path.parent, dry_run=True)
-        refs = auditor._scan_plugin_for_module_refs(tmp_path)
-
-        assert "should-not-find.md" not in refs
+    assert not hasattr(PluginAuditor, "_scan_plugin_for_module_refs")
 
 
 class TestExtractModuleRefsEdgeCases:

@@ -15,6 +15,7 @@ we deliberately gave up. Records the *why*, not just the *what*.
 |----|--------|-------|------|
 | TR-001 | accepted | Test-quality vagueness is about the expectation, not the variable name | 2026-08-23 |
 | TR-002 | accepted | Retiring the coercion apparatus in favour of a strength budget | 2026-08-25 |
+| TR-003 | accepted | Pinning mypy below 2 for as long as a plugin targets Python 3.9 | 2026-09-09 |
 
 ## Decisions
 
@@ -143,11 +144,68 @@ a discrete step.
   recorded in
   `plugins/abstract/skills/skill-graph-audit/modules/interpretation.md`
 
+## TR-003: Pinning mypy below 2 for as long as a plugin targets Python 3.9
+
+- Status: accepted
+- Date: 2026-09-09
+- Phase: review
+- Deciders: night-market maintainers
+- Links: tests/test_mypy_ceiling_holds_for_3_9_targets.py
+<!-- key: 0d9dba3de2d8 -->
+
+### Context & problem
+
+Twenty-three pyproject files pin `mypy>=X,<2` on 28 lines, and no comment,
+changelog entry or document said why. A dependency scan read the ceiling as
+the one blocking upper bound in the repository, since mypy 2.3.1 is
+current, and proposed widening it.
+
+### Decision drivers
+
+- The hooks run on the system interpreter, which is 3.9.6 on macOS, and 22
+  of 23 plugin configs set `python_version = "3.9"`.
+- mypy 2.x refuses that setting. It does not fail: it prints a note and
+  checks the file against 3.10+ semantics instead.
+- A gate that reports success while checking the wrong target is worse than
+  no gate, because nothing downstream can tell.
+
+### Options considered
+
+| Option | Pros | Cons / what it sacrifices |
+|--------|------|---------------------------|
+| Keep `<2` and write down why (chosen) | The 3.9 target keeps being enforced. The rationale becomes a test rather than 28 comments that drift. | The repository stays on mypy 1.x and does not get 2.x checks or speed. The next scan will flag the ceiling again unless it reads the test. |
+| Widen to allow mypy 2.x | Current major, new checks, faster. | Silently stops catching 3.10-only syntax in code the 3.9 hooks run. Measured: mypy 2.3.1 reports `Success` on `def f(x: int \| None)` under a 3.9 config that mypy 1.20.2 rejects. |
+| Drop the 3.9 target, then widen | Removes the constraint at its source and unblocks mypy 2.x. | Requires every hook to run on 3.10+, which the system interpreter is not. That is a much larger change than a dependency bump. |
+
+### Decision
+
+Keep `mypy>=X,<2` wherever `python_version = "3.9"` is set, and enforce the
+pairing with a contract test over every pyproject. The ceiling is retired by
+dropping the 3.9 target, not before.
+
+### Y-statement
+
+In the context of type-checking hooks that run on the system Python 3.9.6,
+facing a dependency scan that reads `mypy<2` as stale, we chose to keep the
+ceiling and pin it to the 3.9 target with a test, over adopting mypy 2.x, to
+keep the checker enforcing the interpreter the code actually runs on,
+accepting that this repository stays on mypy 1.x until the 3.9 target goes.
+
+### Consequences
+
+- Positive: the pairing is now falsifiable. Removing `<2` from any
+  pyproject that targets 3.9 turns that case red, and the assertion
+  message says what breaks.
+- Negative / debt accepted: mypy 1.x reaches end of life eventually,
+  and this repository needs the 3.9 target gone before then. Revisit
+  when the hooks stop running on the system interpreter, or when mypy
+  1.x stops receiving fixes, whichever comes first.
+
 ## Archive
 
 Superseded or deprecated entries sink here; nothing is deleted (git keeps history).
 
-<!-- ENTRY TEMPLATE -- copy a block into the Decisions section above the
+<!-- ENTRY TEMPLATE: copy a block into the Decisions section above the
 Archive heading, assign the next TR-NNN id, and fill it in. The journal_append
 helper does this automatically; this block is the fallback for hand-editing.
 

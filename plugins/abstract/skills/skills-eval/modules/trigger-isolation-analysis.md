@@ -140,10 +140,10 @@ The `compliance_checker.py` script checks:
 
 ```bash
 # Run compliance check on all skills
-python scripts/compliance_checker.py --plugin abstract --check trigger-isolation
+python plugins/abstract/scripts/compliance_checker.py plugins/abstract/skills
 
 # Generate report
-python scripts/compliance_checker.py --plugin abstract --report markdown
+python plugins/abstract/scripts/compliance_checker.py plugins/abstract/skills --format json
 ```
 
 ## Integration with Other Modules

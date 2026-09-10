@@ -402,3 +402,17 @@ class TestImpactRadiusBatchQuery:
             )
         result = store.impact_radius(["big.py"], depth=1)
         assert len(result) == 500
+
+
+class TestLoadWeightsReportsMalformedConfig:
+    """A typo in .gauntlet/config.json must be distinguishable from no config."""
+
+    def test_malformed_weights_warn_and_fall_back(
+        self, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """The operator's typo is named in a warning; defaults still apply."""
+        (tmp_path / "config.json").write_text('{"risk_weights": {"security": "lots"}}')
+        with caplog.at_level("WARNING"):
+            weights = load_weights(tmp_path)
+        assert weights == load_weights(None)
+        assert any("config.json" in rec.message for rec in caplog.records)

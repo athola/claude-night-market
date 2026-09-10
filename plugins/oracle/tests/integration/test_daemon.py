@@ -308,6 +308,76 @@ class TestInferEndpoint:
         assert "error" in body
 
 
+class TestFeatureValidation:
+    """
+    Feature: /infer rejects a features payload it cannot honour
+
+    As a caller on the far side of a network boundary
+    I want a misspelled feature name to be an error
+    So that I do not read a confident score computed on zeros
+    """
+
+    def _post(self, port: int, payload: dict) -> tuple[int, dict]:
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/infer",
+            data=json.dumps(payload).encode(),
+            method="POST",
+            headers={"Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=5) as resp:  # nosec B310 - localhost-only test server
+                return resp.status, json.loads(resp.read())
+        except urllib.error.HTTPError as exc:
+            return exc.code, json.loads(exc.read())
+
+    def test_a_misspelled_feature_name_is_rejected(self, daemon_instance):
+        """
+        Scenario: A feature name is misspelled
+        Given a model weighting feat_a and feat_b
+        When POST /infer sends feat_a and feat_bb
+        Then the response is 400 naming the missing feature
+
+        features.get(feat, 0.0) cannot tell a feature that is genuinely
+        zero from one whose name was wrong, so this used to return 200
+        with a well-formed score over a zero-filled vector. A missing
+        'model' field got a 400 the whole time.
+        """
+        status, body = self._post(
+            daemon_instance.port,
+            {"model": "test", "features": {"feat_a": 1.0, "feat_bb": 2.0}},
+        )
+        assert status == 400
+        assert "feat_b" in body["error"]
+
+    def test_a_non_numeric_feature_value_is_rejected(self, daemon_instance):
+        """
+        Scenario: A feature carries a string
+        Given a model weighting feat_a and feat_b
+        When POST /infer sends feat_b as "high"
+        Then the response is 400 naming the feature
+        """
+        status, body = self._post(
+            daemon_instance.port,
+            {"model": "test", "features": {"feat_a": 1.0, "feat_b": "high"}},
+        )
+        assert status == 400
+        assert "feat_b" in body["error"]
+
+    def test_a_complete_feature_set_still_scores(self, daemon_instance):
+        """
+        Scenario: Every weighted feature is supplied
+        Given a model weighting feat_a and feat_b
+        When POST /infer supplies both
+        Then the response is 200 with a score
+        """
+        status, body = self._post(
+            daemon_instance.port,
+            {"model": "test", "features": {"feat_a": 1.0, "feat_b": 0.0}},
+        )
+        assert status == 200
+        assert 0.0 <= body["score"] <= 1.0
+
+
 class TestPortFile:
     """
     Feature: Port file written on startup

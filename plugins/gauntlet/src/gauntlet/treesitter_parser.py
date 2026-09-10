@@ -270,8 +270,23 @@ def _extract_from_tree(
                     )
                 )
 
-            # Extract calls from function body
+            # Extract calls from function body, stopping at any nested
+            # definition; those are visited below in their own right.
             _extract_calls(node, file_path, language, qn, edges)
+
+            # Recurse with this function as parent, mirroring the class
+            # branch above. Closures and local helpers are ordinary
+            # Python, and a graph without them attributes their calls to
+            # whatever encloses them.
+            nested_parent = f"{parent_name}.{func_name}" if parent_name else func_name
+            for child in node.children:
+                _extract_from_tree(
+                    child,
+                    fctx,
+                    nodes,
+                    edges,
+                    parent_name=nested_parent,
+                )
             return
 
     if node_type in import_types:
@@ -293,13 +308,44 @@ def _extract_from_tree(
 # ---------------------------------------------------------------------------
 
 
+def _node_text(node: Any) -> str:
+    """Decode a tree-sitter node's source text."""
+    text = node.text
+    return text.decode("utf-8") if isinstance(text, bytes) else text
+
+
 def _extract_name(node: Any, language: str) -> str:
-    """Extract the identifier name from a class/function definition node."""
-    # Most languages use an 'identifier' or 'name' child
+    """Extract the identifier name from a class/function definition node.
+
+    The grammar's own ``name`` field is consulted first, because scanning
+    direct children for an identifier type picks up whatever identifier
+    comes first, which is not always the name. In Go a
+    ``method_declaration`` holds its receiver, its ``field_identifier``
+    name and its return type as siblings, so the old scan returned the
+    return type: ``func (g *Greeter) Greet() string`` was recorded as a
+    function named ``string``.
+
+    ``type_declaration`` has no name of its own. It wraps one or more
+    ``type_spec`` children that carry the ``type_identifier``, so a scan
+    of direct children found nothing and every Go struct was dropped.
+    """
+    named = node.child_by_field_name("name")
+    if named is not None:
+        return _node_text(named)
+
+    # Go wraps its type names one level down.
     for child in node.children:
-        if child.type in ("identifier", "name", "type_identifier"):
-            text = child.text
-            return text.decode("utf-8") if isinstance(text, bytes) else text
+        if child.type in ("type_spec", "type_alias"):
+            spec_name = child.child_by_field_name("name")
+            if spec_name is not None:
+                return _node_text(spec_name)
+            for grandchild in child.children:
+                if grandchild.type in ("type_identifier", "identifier"):
+                    return _node_text(grandchild)
+
+    for child in node.children:
+        if child.type in ("identifier", "name", "type_identifier", "field_identifier"):
+            return _node_text(child)
     return ""
 
 
@@ -342,8 +388,18 @@ def _extract_calls(
     caller_qn: str,
     edges: list[GraphEdge],
 ) -> None:
-    """Extract CALLS edges from function call expressions."""
+    """Extract CALLS edges from function call expressions.
+
+    Stops at a nested function or class definition. A call written
+    inside a local helper belongs to the helper, and `_extract_from_tree`
+    visits that helper separately. Walking through the boundary would
+    record the call once per enclosing scope and inflate the caller's
+    blast radius.
+    """
     call_types = {"call", "call_expression"}
+    nested_types = _FUNCTION_TYPES.get(language, set()) | _CLASS_TYPES.get(
+        language, set()
+    )
 
     if node.type in call_types:
         callee_name = _extract_callee_name(node)
@@ -359,20 +415,44 @@ def _extract_calls(
             )
 
     for child in node.children:
+        if child.type in nested_types:
+            continue
         _extract_calls(child, file_path, language, caller_qn, edges)
 
 
+# Node types that spell a qualified callee: ``fmt.Println`` in Go, ``a.b``
+# in Python, ``obj.method()`` in JS. Each is recorded whole, matching the
+# existing behavior for Python attributes.
+_QUALIFIED_CALLEE_TYPES = (
+    "attribute",
+    "member_expression",
+    "selector_expression",
+    "field_expression",
+)
+
+
 def _extract_callee_name(node: Any) -> str:
-    """Extract the function name from a call expression."""
+    """Extract the function name from a call expression.
+
+    Go spells a qualified call as a ``selector_expression``, which this
+    did not handle, so ``fmt.Println(...)`` and ``g.Greet()`` produced no
+    edge at all. Combined with the naming defect above, a four-declaration
+    Go file yielded one call edge out of four.
+    """
+    function = node.child_by_field_name("function")
+    if function is not None:
+        if function.type in ("identifier", "field_identifier"):
+            return _node_text(function)
+        if function.type in _QUALIFIED_CALLEE_TYPES:
+            return _node_text(function)
+
     if not node.children:
         return ""
     first = node.children[0]
-    if first.type == "identifier":
-        text = first.text
-        return text.decode("utf-8") if isinstance(text, bytes) else text
-    if first.type in ("attribute", "member_expression"):
-        text = first.text
-        return text.decode("utf-8") if isinstance(text, bytes) else text
+    if first.type in ("identifier", "field_identifier"):
+        return _node_text(first)
+    if first.type in _QUALIFIED_CALLEE_TYPES:
+        return _node_text(first)
     return ""
 
 

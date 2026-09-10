@@ -308,7 +308,7 @@ python plugins/abstract/scripts/skills_auditor.py \
 
 # Check compliance with project standards
 python plugins/abstract/scripts/compliance_checker.py \
-  --skill plugins/<plugin>/skills/<skill>/SKILL.md
+  plugins/<plugin>/skills/<skill>
 ```
 
 A score above 85 indicates the practices are mostly applied.

@@ -25,13 +25,20 @@ Automatically captures research session outputs into the knowledge corpus queue 
 
 This hook activates when ALL conditions are met:
 
-1. **Session contains WebSearch**: At least 3 WebSearch tool calls
-2. **Research-focused context**: Session includes keywords like:
+1. **Session contains web research**: At least 3 WebSearch or
+   WebFetch tool calls, counted from the session transcript
+2. **Research-focused prompt**: A prompt the user typed includes
+   keywords like:
    - "research", "investigate", "deep dive"
    - "brainstorm", "explore", "analyze"
    - "find tools", "best practices", "patterns"
-3. **Substantial output**: Session produced significant findings
-4. **NOT already queued**: No queue entry exists for this session
+3. **NOT already queued**: No queue entry exists for this session
+
+The SessionEnd payload carries a `transcript_path` and nothing else
+about the session: no prompt, no tool list, no counts. The transcript
+is where both conditions are read from. Records marked `isMeta` are
+skipped, because an expanded slash command or skill body is long
+enough to contain a research cue the user never typed.
 
 ## Behavior
 
@@ -39,10 +46,9 @@ This hook activates when ALL conditions are met:
 
 ```python
 # Shape of the detection, implemented in research_queue.py
-if session.tool_calls.count("WebSearch") >= 3:
-    if any(keyword in session.messages for keyword in RESEARCH_KEYWORDS):
-        if session.output_length > 5000:  # Substantial output
-            trigger_queue_creation()
+searches, topic = _transcript_signal(payload["transcript_path"])
+if searches >= MIN_WEB_SEARCHES and topic:
+    trigger_queue_creation()
 ```
 
 ### Queue Entry Creation
@@ -60,19 +66,19 @@ When triggered, the hook:
    - Filename: `YYYY-MM-DD_HH-MM-SS_topic-slug.yaml`
    - Includes metadata, findings summary, sources
 
-3. **Emits Reminder**:
-   ```
-   📚 Research Session Queued for Knowledge Corpus
+3. **Leaves the queue file as the only record**:
 
-   Your research on "[topic]" has been saved to the corpus queue:
-   - Queue entry: queue/2025-12-31_topic.yaml
-   - Sources: [N] references found
-   - Priority: high (recent research)
+   The hook is registered `async`, so it outlives the session it
+   describes and nothing it prints reaches a transcript. Claude Code
+   bounds the SessionEnd batch by `max(1500ms, max timeout declared in
+   settings-level hooks)`, a ceiling a plugin's own `timeout` does not
+   raise, and interpreter startup alone can exceed it. A synchronous
+   registration is cancelled before the hook does any work.
 
-   Next steps:
-   - Review queue: ls -1t docs/knowledge-corpus/queue/*.yaml
-   - Process entry: Review and decide on storage
-   - Or defer: Queue will persist for later review
+   Review the queue directly:
+
+   ```bash
+   ls -1t docs/knowledge-corpus/queue/*.yaml
    ```
 
 ### Queue Entry Template

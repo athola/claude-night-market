@@ -22,14 +22,6 @@ progressive_loading: true
 module_strategy: context-based
 role: entrypoint
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Activation](#activation)
-- [Progressive Loading](#progressive-loading)
-- [4-Step Methodology](#4-step-methodology)
-- [Output Format](#output-format)
 
 # Catchup Analysis Methodology
 

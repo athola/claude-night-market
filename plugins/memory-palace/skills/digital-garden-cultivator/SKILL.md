@@ -21,21 +21,6 @@ complexity: intermediate
 model_hint: standard
 estimated_tokens: 500
 ---
-## Table of Contents
-
-- [What It Is](#what-it-is)
-- [Quick Start](#quick-start)
-- [Calculate Garden Metrics](#calculate-garden-metrics)
-- [Output Formats](#output-formats)
-- [When to Use](#when-to-use)
-- [Content Maturity Levels](#content-maturity-levels)
-- [Core Workflow](#core-workflow)
-- [Garden Layout Template](#garden-layout-template)
-- [Maintenance Cadence](#maintenance-cadence)
-- [Success Metrics](#success-metrics)
-- [Detailed Resources](#detailed-resources)
-- [Integration](#integration)
-
 
 # Digital Garden Cultivator
 

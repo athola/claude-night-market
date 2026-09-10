@@ -1,6 +1,6 @@
 [project]
 name = "leyline"
-version = "1.9.19"
+version = "1.9.20"
 description = "Infrastructure and pipeline building blocks for Claude Code plugins"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
@@ -10,17 +10,17 @@ dependencies = []
 
 [project.optional-dependencies]
 tokens = [
-    "tiktoken>=0.5.0",  # Accurate token estimation (fallback: ~4 chars/token)
+    "tiktoken>=0.7.0",  # Accurate token estimation (fallback: ~4 chars/token)
 ]
 dev = [
     "ruff>=0.14.13",
-    "mypy>=1.11.0,<2",
+    "mypy>=1.18.2,<2",
     "pytest>=8.0",
-    "pytest-cov>=4.1",
+    "pytest-cov>=6.0.0",
     "pytest-mock>=3.15.1",
     # Tests import yaml directly; src/leyline/frontmatter.py keeps
     # its optional sentinel import (issue #609 fresh-env failure)
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.2",
 ]
 
 [tool.nightmarket]

@@ -14,6 +14,7 @@ from parseltongue.analysis import testing_guide
 from parseltongue.analysis.async_analysis._base import parse_code
 from parseltongue.analysis.testing_guide import (
     TestingGuideSkill,
+    _constants,
     _quality,
     _recommendations,
 )
@@ -637,3 +638,11 @@ class TestMixinDemotion:
             "class Adder:\n    def __init__(self, x):\n        self.x = x\n"
         )
         assert "fixtures" in result
+
+    @pytest.mark.unit
+    def test_constants_module_carries_no_parse_code_copy(self) -> None:
+        """SML-002: testing_guide/_constants.py holds constants only.
+
+        The one parse_code lives in async_analysis._base.
+        """
+        assert not hasattr(_constants, "parse_code")

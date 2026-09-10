@@ -80,8 +80,11 @@ check_gh() {
     gh auth status >/dev/null 2>&1 || return 1
 
     local status
-    status=$(gh api "/user/starred/${OWNER}/${REPO}" \
-        --silent -i 2>/dev/null | head -1 | grep -oE '[0-9]{3}' || echo "000")
+    # gh exits 1 on a 404, which under pipefail poisons the whole pipeline and
+    # turns "not starred" into "404\n000". Capture the headers first.
+    local headers
+    headers=$(gh api "/user/starred/${OWNER}/${REPO}" --silent -i 2>/dev/null || true)
+    status=$(printf '%s\n' "$headers" | head -1 | grep -oE '[0-9]{3}' || echo "000")
 
     if [ "$status" = "204" ]; then
         echo "starred"

@@ -18,6 +18,9 @@ so the team replicates what worked and avoids what did not.
 | LL-003 | open | A completeness score measured a different gap than the one I was closing | 2026-08-22 |
 | LL-004 | open | Dogfooding priced a loop the test suite could not reach | 2026-08-23 |
 | LL-005 | open | A guard I wrote to catch a defect reproduced it, and only the revert-test noticed | 2026-08-24 |
+| LL-006 | open | A mechanism and the thing it claims to beat were indistinguishable to its own tests | 2026-08-25 |
+| LL-007 | open | A dogfooding harness reported zero failures while masking two real ones | 2026-06-28 |
+| LL-008 | open | Fixes that regress the tool that runs them | 2026-09-10 |
 
 ## Lessons
 
@@ -115,7 +118,7 @@ The dogfooder measures documented commands against Makefile targets. Under that 
 
 ### Recommendation / action item
 
-Action: before adding a target because a coverage tool reports a gap, or declines to, run the plugin's own `help` and read what already exists -- Owner: alext -- Due: standing -- Status: applied in 80e22e0f.
+Action: before adding a target because a coverage tool reports a gap, or declines to, run the plugin's own `help` and read what already exists. Owner: alext. Due: standing. Status: applied in 80e22e0f.
 
 A score answers the question its metric asks, not necessarily the one you have, so treat a perfect score as a prompt to check what was measured. Guarded forward by tests/test_provider_status_demo_is_live.py, which fails any target advertising LIVE with an echo-only recipe.
 
@@ -147,46 +150,8 @@ The hook blocked on a static condition. A manifest with active work stays true u
 
 ### Recommendation / action item
 
-- Action: bound the hook by stall detection and test the sequence, not the single decision (done, 9f31a878) -- Owner: egregore maintainers -- Due: 2026-08-23 -- Status: done
-- Action: when a hook's decision feeds back into the next turn, write at least one test that calls it repeatedly and asserts the loop ends -- Owner: egregore maintainers -- Due: ongoing -- Status: open
-
-## Archive
-
-Superseded or deprecated entries sink here; nothing is deleted (git keeps history).
-
-<!-- ENTRY TEMPLATE -- copy a block into the Lessons section above the Archive
-heading, assign the next LL-NNN id, and fill it in. The journal_append helper
-does this automatically; this block is the fallback for hand-editing.
-
-## LL-NNN: <short lesson title>
-
-- Status: open
-- Date: YYYY-MM-DD
-- Phase: execute | review
-- Category: process | technology | requirements | testing | communication
-- Owner: <who carries the follow-up>
-- Links: <PR/commit/issue>, <related TR-NNN>
-
-### What happened
-
-<blameless, factual: the situation/activity>
-
-### What went well / where we got lucky
-
-<successes worth replicating>
-
-### What did not work
-
-<the gap or failure>
-
-### Root cause
-
-<5 Whys / contributing factors>
-
-### Recommendation / action item
-
-- Action: <specific change> -- Owner: <name> -- Due: <date> -- Status: <...>
--->
+- Action: bound the hook by stall detection and test the sequence, not the single decision (done, 9f31a878). Owner: egregore maintainers. Due: 2026-08-23. Status: done
+- Action: when a hook's decision feeds back into the next turn, write at least one test that calls it repeatedly and asserts the loop ends. Owner: egregore maintainers. Due: ongoing. Status: open
 
 ## LL-005: A guard I wrote to catch a defect reproduced it, and only the revert-test noticed
 
@@ -221,9 +186,9 @@ A test written immediately after a fix is written against the author's model of 
 
 ### Recommendation / action item
 
-- Action: revert-test every new guard individually before reporting it, not as a batch at the end of the cycle (done this cycle) -- Owner: night-market maintainers -- Due: 2026-08-24 -- Status: done
-- Action: when a revert leaves a new test green, read the function's control flow before rewriting the test. Both misses here were an unread branch rather than a bad assertion -- Owner: night-market maintainers -- Due: ongoing -- Status: open
-- Action: prefer probing an installed binary over inferring a CLI contract, and record the probe output in the comment that states the default -- Owner: conjure maintainers -- Due: ongoing -- Status: open
+- Action: revert-test every new guard individually before reporting it, not as a batch at the end of the cycle (done this cycle). Owner: night-market maintainers. Due: 2026-08-24. Status: done
+- Action: when a revert leaves a new test green, read the function's control flow before rewriting the test. Both misses here were an unread branch rather than a bad assertion. Owner: night-market maintainers. Due: ongoing. Status: open
+- Action: prefer probing an installed binary over inferring a CLI contract, and record the probe output in the comment that states the default. Owner: conjure maintainers. Due: ongoing. Status: open
 
 ## LL-006: A mechanism and the thing it claims to beat were indistinguishable to its own tests
 
@@ -286,11 +251,190 @@ implement the simpler thing and watch what fails.
 
 - Action: when a mechanism is justified by being better than a simpler
   alternative, revert-test by substituting the simpler alternative, not only by
-  deleting the code -- Owner: night-market maintainers -- Due: ongoing --
+  deleting the code. Owner: night-market maintainers. Due: ongoing --
   Status: open
 - Action: check that a dataclass's fields are independent in test fixtures
-  before trusting assertions that depend on their difference -- Owner:
-  night-market maintainers -- Due: ongoing -- Status: open
+  before trusting assertions that depend on their difference. Owner:
+  night-market maintainers. Due: ongoing. Status: open
 - Action: wire the watchdog to consume the baton, with the dogfooding that
-  ADR-0022's defect table came from -- Owner: egregore maintainers -- Due:
-  unscheduled -- Status: open
+  ADR-0022's defect table came from. Owner: egregore maintainers. Due:
+  unscheduled. Status: open
+
+## LL-007: A dogfooding harness reported zero failures while masking two real ones
+
+- Status: open
+- Date: 2026-06-28
+- Phase: review
+- Category: tooling
+- Owner: night-market maintainers
+- Links: tests/unit/test_plugin_check_harness.py
+<!-- key: 90e17bd1a287 -->
+
+### What happened
+
+A dogfooding pass over `make plugin-check` and the plugin Makefiles found
+two recipes written as `cmd 2>/dev/null || echo "benign fallback"`. A real
+failure, a missing file or an `E902` io-error, printed a harmless message
+and the target still exited 0, so the harness reported zero failures while
+masking defects as skips. conserve pointed at a stale `../conservation/`
+path and parseltongue ran `ruff check parseltongue/` against a path that
+does not exist, because the source lives under `src/`.
+
+The same run hung for over eight minutes on `npx playwright --version` in
+`plugins/scry`, with stdout and stderr redirected, so the stall was silent
+and the run never reached the later plugins.
+
+### What went well / where we got lucky
+
+Driving the check from a detached tmux session kept the harness running
+while other evidence gathering proceeded, and the session log captured
+output that the redirected stdout would otherwise have hidden. That is how
+the eight-minute stall became visible at all.
+
+### What did not work
+
+Reading a zero-failure report as evidence of health. The `|| echo` form
+makes a defect and a skip indistinguishable to the caller, which is
+sanitized optimism at the harness layer and defeats the point of a
+dogfooding check.
+
+### Root cause
+
+The recipes conflated two different states. A tool that is genuinely absent
+should skip with a stated reason. A tool that ran and failed should
+propagate its exit code, and `2>/dev/null` swallowed the difference. The
+repository already ships a `silent-failure-hunter` agent for this class of
+bug in code, and the same lens applies to Makefile recipes. Presence probes
+and intentional empty-result handlers are legitimate uses of `|| echo` and
+stay.
+
+The stall had a second cause: no step in the loop was bounded, so one
+dependency probe that resolved over the network could hold the whole run.
+
+### Recommendation / action item
+
+- Action: distinguish absent from failed in Makefile recipes, skipping with
+  a reason in the first case and propagating the exit code in the second.
+  Owner: night-market maintainers. Due: ongoing. Status: closed, guarded by
+  `tests/unit/test_plugin_check_harness.py`.
+- Action: bound every harness step. Dependency probes use the non-fetching
+  `npx --no-install playwright --version`, and the `plugin-check` loop wraps
+  each plugin in `timeout 180`, so a hang surfaces as `(plugin-check failed
+  or timed out)`. Owner: night-market maintainers. Due: ongoing. Status:
+  closed.
+- Action: wire the forced-eval skill-activation gate prototyped under
+  `prototypes/forced-eval/`, which targets near-keyword-matching activation.
+  Owner: night-market maintainers. Due: unscheduled. Status: open.
+- Action: add a layer-count guard for the finite skill Discovery budget of
+  about 16K characters, past which skills are dropped silently. Owner:
+  night-market maintainers. Due: unscheduled. Status: open.
+- Action: add an evidence-driven `review` mission type to attune, whose four
+  existing types all assume building from artifacts. Owner: attune
+  maintainers. Due: unscheduled. Status: open.
+
+## LL-008: Fixes that regress the tool that runs them
+
+- Status: open
+- Date: 2026-09-10
+- Phase: review
+- Category: testing
+- Owner: night-market maintainers
+- Links: PR #784, commits e672375c..b0793bdc, c0d571d1
+<!-- key: 39076f17582b -->
+
+### What happened
+
+A 60-item fix pass on PR #784 landed in 15 commits. Four of those
+items needed rework because the first version was wrong in a way the run
+that produced it could not show.
+
+### What went well / where we got lucky
+
+Every behavioral fix was revert-tested: undo the fix, confirm the test
+goes red, restore. That is what caught both bad tests below, and it is a
+per-fix step rather than a per-cycle summary because of LL-005.
+
+Three new guard tests also found two defects no review pass had named.
+`tests/test_hook_subprocess_budgets.py` AST-scans each registered hook's
+timeout values against its hooks.json cap, and turned up a 5s git timeout
+under a 1s SessionStart cap and a 3s notifier budget under a 1s Stop cap.
+
+### What did not work
+
+Two of the four broke the tooling itself.
+
+Replacing a bare `$LINT_FIX` with `"${LINT_FIX[@]}"` in
+run-plugin-lint.sh broke lint for all 18 plugins. bash 3.2, which is stock
+/bin/bash on macOS, reports an empty array as an unbound variable under
+`set -u`.
+
+Inserting `status=0;` before `@$(PYTEST)` in conjure/Makefile moved the
+`@` off the start of the recipe line, where it stops being a Make prefix
+and becomes a syntax error. A comment three lines above documented that
+exact trap.
+
+The other two were tests that could not fail. An oracle sentinel test
+passed with the sentinel check deleted, because `is_provisioned`
+independently blocked the launch. A budget atomic-write test injected its
+failure at `json.dumps`, which raises before `write_text` truncates, so
+the file it was checking was never at risk.
+
+### Root cause
+
+Each fix was verified against the thing it changed rather than the thing
+that runs it. The array quoting was checked against shellcheck instead of
+the interpreter the script actually gets. The Makefile edit was read as
+text instead of as a recipe.
+
+The two bad tests share a different cause: the assertion was written
+before finding out which guard the code path really depends on, so it
+pinned a condition that was true for an unrelated reason.
+
+### Recommendation / action item
+
+Revert-test the test as well as the fix. A test that stays green with the
+fix undone is not a test, whatever it asserts.
+
+For shell, name the interpreter before choosing an idiom. On macOS that is
+bash 3.2, and the portable empty-array expansion is ${arr[@]+"${arr[@]}"}.
+
+For Makefiles, remember that an inserted line moves the `@` prefix, which
+is only a prefix at the start of a recipe line.
+
+## Archive
+
+Superseded or deprecated entries sink here; nothing is deleted (git keeps history).
+
+<!-- ENTRY TEMPLATE: copy a block into the Lessons section above the Archive
+heading, assign the next LL-NNN id, and fill it in. The journal_append helper
+does this automatically; this block is the fallback for hand-editing.
+
+## LL-NNN: <short lesson title>
+
+- Status: open
+- Date: YYYY-MM-DD
+- Phase: execute | review
+- Category: process | technology | requirements | testing | communication
+- Owner: <who carries the follow-up>
+- Links: <PR/commit/issue>, <related TR-NNN>
+
+### What happened
+
+<blameless, factual: the situation/activity>
+
+### What went well / where we got lucky
+
+<successes worth replicating>
+
+### What did not work
+
+<the gap or failure>
+
+### Root cause
+
+<5 Whys / contributing factors>
+
+### Recommendation / action item
+
+- Action: <specific change>. Owner: <name>. Due: <date>. Status: <...>
+-->

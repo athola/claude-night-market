@@ -8,7 +8,6 @@ Checks:
 - Evaluation skills have tests validating their quality criteria
 - Documentation follows the standards it defines
 - Verification steps exist after code examples
-- TOCs exist for long modules (>100 lines)
 - Anti-cargo cult patterns are enforced
 """
 
@@ -72,7 +71,6 @@ class MetaEvaluator:
     }
 
     # Thresholds for quality checks
-    TOC_LINE_THRESHOLD = 100
     CODE_BLOCK_VERIFICATION_THRESHOLD = 2
     PASS_RATE_WARNING_THRESHOLD = 50
     PASS_RATE_CAUTION_THRESHOLD = 80
@@ -97,15 +95,6 @@ class MetaEvaluator:
             if self.verbose:
                 print(f"[ERROR] Failed to read {skill_file}: {e}")
             return None
-
-    def check_toc_exists(self, _content: str, _skill_name: str) -> bool:
-        """Check if skill has Table of Contents.
-
-        Disabled: ToC sections were removed ecosystem-wide per the
-        2026-04-08 plugin audit. Skills loaded into model context
-        don't benefit from HTML anchor links.
-        """
-        return True
 
     def check_verification_steps(self, content: str, skill_name: str) -> bool:
         """Check if code examples include verification steps."""
@@ -509,29 +498,26 @@ class MetaEvaluator:
         # Parse frontmatter for module-reference check
         frontmatter = self._parse_frontmatter(content)
 
-        # Run checks
-        results["checks"]["toc"] = self.check_toc_exists(content, f"{plugin}:{skill}")
-        results["checks"]["verification"] = self.check_verification_steps(
-            content, f"{plugin}:{skill}"
-        )
-        results["checks"]["concrete_quick_start"] = self.check_concrete_quick_start(
-            content, f"{plugin}:{skill}"
-        )
-        results["checks"]["quality_criteria"] = self.check_quality_criteria_defined(
-            content, f"{plugin}:{skill}"
-        )
-        results["checks"]["anti_cargo_cult"] = self.check_anti_cargo_cult(
-            content, f"{plugin}:{skill}"
-        )
+        # Run checks. Most take (content, skill_name). The three below take
+        # something else: two need a path or the parsed frontmatter, and
+        # check_tests_exist works from the plugin and skill names alone.
+        skill_name = f"{plugin}:{skill}"
+        content_checks = [
+            ("verification", self.check_verification_steps),
+            ("concrete_quick_start", self.check_concrete_quick_start),
+            ("quality_criteria", self.check_quality_criteria_defined),
+            ("anti_cargo_cult", self.check_anti_cargo_cult),
+            ("code_examples", self.check_code_examples),
+        ]
+        for key, check in content_checks:
+            results["checks"][key] = check(content, skill_name)
+
         results["checks"]["tests_exist"] = self.check_tests_exist(plugin, skill)
         results["checks"]["module_references"] = self.check_module_references(
-            skill_path, frontmatter, f"{plugin}:{skill}"
-        )
-        results["checks"]["code_examples"] = self.check_code_examples(
-            content, f"{plugin}:{skill}"
+            skill_path, frontmatter, skill_name
         )
         results["checks"]["cross_references"] = self.check_cross_references(
-            skill_path, content, f"{plugin}:{skill}"
+            skill_path, content, skill_name
         )
 
         return results
@@ -639,7 +625,7 @@ class MetaEvaluator:
             medium_count = results["by_severity"]["medium"]
             print(f"\n🟡 MEDIUM: {medium_count} medium-priority issues")
             print("   These affect navigation and documentation quality.")
-            print("   Action: Add TOCs for long modules, include verification steps.")
+            print("   Action: include verification steps after code examples.")
 
         # Low issues
         if results["by_severity"]["low"] > 0:

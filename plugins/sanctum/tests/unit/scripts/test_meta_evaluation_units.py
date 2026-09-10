@@ -85,12 +85,6 @@ def test_read_skill_content_returns_none_on_error(plugins_root, capsys):
     assert "Failed to read" in err_out
 
 
-def test_check_toc_exists_returns_true():
-    """ToC check is a no-op (skills don't benefit from anchor links)."""
-    e = MetaEvaluator(Path("/tmp"))  # noqa: S108 - test fixture path, not user input
-    assert e.check_toc_exists("anything", "skill") is True
-
-
 # ----------------------------------------------------------------------
 # verification, quick start, quality, anti-cargo
 # ----------------------------------------------------------------------
@@ -388,6 +382,52 @@ def test_evaluate_skill_runs_full_set(plugins_root):
     assert result["checks"]["exists"] is True
     # Most checks should pass on a well-formed synthetic skill
     assert result["checks"]["quality_criteria"] is True
+
+
+def test_evaluate_skill_records_every_check_key(plugins_root):
+    """Scenario: the check set is the report's contract.
+
+    evaluate_skill builds results["checks"] from a loop over
+    content_checks plus three calls that need a path or the parsed
+    frontmatter. A key dropped from either half changes what the report
+    covers while every other assertion here still passes, so the set is
+    pinned rather than sampled.
+    """
+    skill_content = (
+        "---\n"
+        "name: skills-eval\n"
+        "modules:\n"
+        "  - modules/intro.md\n"
+        "---\n"
+        "## Quick Start\n"
+        "```bash\nrun pytest\n```\n"
+        "## Quality\n"
+        "Defines quality criteria and threshold metrics.\n"
+        "## Verification\n"
+        "Verify by running pytest. Anti-pattern: testing theater.\n"
+    )
+    _make_skill(
+        plugins_root,
+        "abstract",
+        "skills-eval",
+        skill_content,
+        extra_modules={"intro.md": "x"},
+    )
+    e = MetaEvaluator(plugins_root)
+    result = e.evaluate_skill("abstract", "skills-eval")
+
+    assert set(result["checks"]) == {
+        "exists",
+        "verification",
+        "concrete_quick_start",
+        "quality_criteria",
+        "anti_cargo_cult",
+        "code_examples",
+        "tests_exist",
+        "module_references",
+        "cross_references",
+    }
+    assert all(isinstance(v, bool) for v in result["checks"].values())
 
 
 def test_evaluate_all_filters_by_inventory(plugins_root, monkeypatch):

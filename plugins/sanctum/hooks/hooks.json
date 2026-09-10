@@ -41,7 +41,6 @@
     ],
     "SessionStart": [
       {
-        "_comment": "Order 1: Load post-implementation policy rules into session context",
         "hooks": [
           {
             "type": "command",
@@ -62,7 +61,7 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session_complete_notify.py --clear-state",
-            "timeout": 1
+            "timeout": 5
           }
         ]
       }
@@ -78,7 +77,7 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session_complete_notify.py",
-            "timeout": 1
+            "timeout": 5
           },
           {
             "type": "command",

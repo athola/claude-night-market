@@ -30,18 +30,6 @@ modules:
 - modules/memory-allocation-lenses.md
 ---
 
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [When NOT to Use](#when-not-to-use)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Workflow](#workflow)
-- [Tiered Analysis](#tiered-analysis)
-- [Output Format](#output-format)
-- [Cross-Plugin Dependencies](#cross-plugin-dependencies)
-- [Supporting Modules](#supporting-modules)
-
 # Performance Review
 
 Static-analysis review of time and space complexity hotspots.
@@ -291,17 +279,9 @@ exactly the place where TDD pays off most.
 
 ## Verify Findings Are Grounded (`perf-review:findings-verified`)
 
-Every finding must cite a real location and a verbatim anchor. Write
-findings to `.review/findings.json` and confirm each citation resolves:
-
-```bash
-python plugins/imbue/scripts/citation_verifier.py \
-  --findings .review/findings.json --repo-root .
-```
-
-Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
-verified findings enter the report. See `Skill(imbue:review-core)` Step 5
-and `Skill(imbue:structured-output)` for the schema.
+Write findings to `.review/findings.json` and run the citation verifier
+as `Skill(imbue:review-core)` Step 5 describes. Only findings the
+verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
 
 ## Exit Criteria
 

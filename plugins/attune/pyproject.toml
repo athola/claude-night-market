@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "attune-dev"
-version = "1.9.19"
+version = "1.9.20"
 description = "Development tools for the attune Claude Code plugin - project initialization and workflow automation"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -20,7 +20,7 @@ readme = "README.md"
 repository = "https://github.com/athola/claude-night-market"
 requires-python = ">=3.9"
 dependencies = [
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.2",
 ]
 
 [dependency-groups]
@@ -34,7 +34,7 @@ dev = [
     "ruff>=0.14.13",
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
-    "pytest-cov>=4.1",
+    "pytest-cov>=6.0.0",
     "pytest-mock>=3.15.1",
     "pytest-asyncio>=0.25.0",
     "pytest-bdd>=8.1.0",

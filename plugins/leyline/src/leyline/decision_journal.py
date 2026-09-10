@@ -2,8 +2,8 @@
 
 Owns the single source of truth for two append-only, in-repo logs:
 
-- ``docs/tradeoffs.md``      -- decisions and the alternatives sacrificed.
-- ``docs/lessons-learned.md`` -- insights, failed approaches, rework.
+- ``docs/tradeoffs.md``: decisions and the alternatives sacrificed.
+- ``docs/lessons-learned.md``: insights, failed approaches, rework.
 
 Discipline (grounded in ADR/MADR + PMI/SRE practice):
 
@@ -19,9 +19,14 @@ Plugin wrappers and ``scripts/journal_append.py`` import this module.
 
 from __future__ import annotations
 
+import contextlib
+import fcntl
 import hashlib
 import json
+import os
 import re
+import tempfile
+from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -73,7 +78,7 @@ def _today() -> str:
 _ARCHIVE_HEADING = "## Archive"
 
 _TRADEOFF_TEMPLATE = """\
-<!-- ENTRY TEMPLATE -- copy a block into the Decisions section above the
+<!-- ENTRY TEMPLATE: copy a block into the Decisions section above the
 Archive heading, assign the next TR-NNN id, and fill it in. The journal_append
 helper does this automatically; this block is the fallback for hand-editing.
 
@@ -117,7 +122,7 @@ to achieve <quality>, accepting <the sacrifice / road not taken>.
 """
 
 _LESSON_TEMPLATE = """\
-<!-- ENTRY TEMPLATE -- copy a block into the Lessons section above the Archive
+<!-- ENTRY TEMPLATE: copy a block into the Lessons section above the Archive
 heading, assign the next LL-NNN id, and fill it in. The journal_append helper
 does this automatically; this block is the fallback for hand-editing.
 
@@ -148,7 +153,7 @@ does this automatically; this block is the fallback for hand-editing.
 
 ### Recommendation / action item
 
-- Action: <specific change> -- Owner: <name> -- Due: <date> -- Status: <...>
+- Action: <specific change>. Owner: <name>. Due: <date>. Status: <...>
 -->
 """
 
@@ -203,7 +208,7 @@ def _entry_key(fields: dict[str, Any]) -> str:
     volatile = {"status", "date", "phase", "deciders", "owner", "links"}
     core = {k: v for k, v in fields.items() if k not in volatile}
     blob = json.dumps(core, sort_keys=True, ensure_ascii=False)
-    # Not a security hash -- just a stable dedup fingerprint for idempotency.
+    # Not a security hash: just a stable dedup fingerprint for idempotency.
     digest = hashlib.sha1(blob.encode("utf-8"), usedforsecurity=False)
     return digest.hexdigest()[:12]
 
@@ -434,6 +439,45 @@ def _supersede(content: str, old_id: str, new_id: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+@contextlib.contextmanager
+def _journal_lock(path: Path) -> Iterator[None]:
+    """Hold an exclusive lock covering one read-modify-write of ``path``.
+
+    The read, the id derivation and the whole-file rewrite have to be one
+    critical section. ``next_id`` is computed from the content just read
+    and ``write_text`` replaces the file entire, so two concurrent appends
+    lose an entry outright rather than merely colliding on an id. This
+    repository runs autonomous sessions that each record lessons, so
+    concurrent appends are the expected case, not a rare one.
+
+    The lock lives beside the journal rather than on it, so it survives
+    the atomic replace below.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = path.with_name(path.name + ".lock")
+    with open(lock_path, "w", encoding="utf-8") as handle:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+def _atomic_write(path: Path, content: str) -> None:
+    """Replace ``path`` in one step, so no reader sees a partial file."""
+    fd, tmp_name = tempfile.mkstemp(
+        suffix=".tmp", prefix=path.name + ".", dir=str(path.parent)
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(content)
+        os.replace(tmp_name, path)
+    except Exception:
+        with contextlib.suppress(OSError):
+            os.unlink(tmp_name)
+        raise
+
+
 def apply_append(
     path: Path,
     kind: str,
@@ -446,11 +490,20 @@ def apply_append(
     Returns the resulting file content. With ``dry_run`` nothing is written.
     """
     path = Path(path)
-    content = (
-        path.read_text(encoding="utf-8") if path.exists() else new_file_content(kind)
-    )
-    new_content = append_entry(content, kind, fields, supersedes)
-    if not dry_run:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(new_content, encoding="utf-8")
+    if dry_run:
+        content = (
+            path.read_text(encoding="utf-8")
+            if path.exists()
+            else new_file_content(kind)
+        )
+        return append_entry(content, kind, fields, supersedes)
+
+    with _journal_lock(path):
+        content = (
+            path.read_text(encoding="utf-8")
+            if path.exists()
+            else new_file_content(kind)
+        )
+        new_content = append_entry(content, kind, fields, supersedes)
+        _atomic_write(path, new_content)
     return new_content

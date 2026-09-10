@@ -185,7 +185,7 @@ Before shipping a skill, verify with skills-eval:
 
 ```bash
 # Check trigger isolation compliance
-python scripts/compliance_checker.py --skill-path path/to/skill/SKILL.md
+python plugins/abstract/scripts/compliance_checker.py path/to/skill
 ```
 
 Expected output:

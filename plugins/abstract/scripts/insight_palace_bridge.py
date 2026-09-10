@@ -213,5 +213,7 @@ def query_palace_insights() -> list[dict[str, Any]]:
             )
 
         return results
-    except Exception:
+    except (OSError, ValueError):
+        # An unreadable or corrupt index is "no insights"; anything else is
+        # a bug in the entries or the loop above and must not read as empty.
         return []

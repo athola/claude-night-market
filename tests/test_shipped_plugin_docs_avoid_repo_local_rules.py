@@ -63,10 +63,13 @@ def _shipped_markdown() -> list[Path]:
     return found
 
 
-def _is_exempt(relative: str) -> bool:
-    if relative in OPERAND_ALLOWLIST:
-        return True
-    return relative.startswith(ALLOWED_PREFIXES)
+def _citations(markdown: Path) -> list[str]:
+    """Every line in ``markdown`` naming the repo-local rules directory."""
+    return [
+        f"  line {number}: {line.strip()}"
+        for number, line in enumerate(markdown.read_text().splitlines(), start=1)
+        if RULES_PATH.search(line)
+    ]
 
 
 @pytest.mark.parametrize(
@@ -75,20 +78,68 @@ def _is_exempt(relative: str) -> bool:
     ids=lambda path: str(path.relative_to(REPO_ROOT)),
 )
 def test_shipped_markdown_cites_no_repo_local_rule_path(markdown: Path) -> None:
-    """A shipped document may not send its reader to `.claude/rules/`."""
-    relative = str(markdown.relative_to(REPO_ROOT))
-    if _is_exempt(relative):
-        pytest.skip(f"{relative} operates on the rules directory")
+    """A shipped document may not send its reader to `.claude/rules/`.
 
-    offending = [
-        f"  line {number}: {line.strip()}"
-        for number, line in enumerate(markdown.read_text().splitlines(), start=1)
-        if RULES_PATH.search(line)
-    ]
+    An exemption applies only to a file that actually carries the path.
+    Skipping every exempt file, which is what this gate did first,
+    reported nothing for 21 of them, and 14 of those carried no citation
+    at all: they were clean, and the gate said so by staying silent.
+
+    The branch order below runs the ordinary assertion on those 14
+    instead. Be precise about what that buys: under the prefix the
+    assertion cannot go red, because a file that does cite the path
+    takes the exempt branch. The pass is by policy, not by evidence.
+    What guards the subtree is
+    ``test_the_catalog_prefix_exemption_still_has_something_to_exempt``,
+    and what guards the five named files is the staleness assertion
+    here.
+    """
+    relative = str(markdown.relative_to(REPO_ROOT))
+    offending = _citations(markdown)
+
+    if relative in OPERAND_ALLOWLIST:
+        # The rules directory is this file's operand, not a pointer the
+        # reader follows. An entry that no longer cites it is stale.
+        assert offending, (
+            f"{relative} is listed in OPERAND_ALLOWLIST but no longer cites "
+            "`.claude/rules/`. Drop the entry so the list keeps meaning "
+            "what it says."
+        )
+        return
+
+    if relative.startswith(ALLOWED_PREFIXES) and offending:
+        # hookify ships the rule bodies themselves, so a copy carrying
+        # the path is the content rather than a reference to absent
+        # content.
+        return
 
     assert not offending, (
         f"{relative} points a marketplace reader at `.claude/rules/`, which "
         "no install of this plugin contains. Move the substance into the "
         "plugin (inline it, or cite a module under the same plugin):\n"
         + "\n".join(offending)
+    )
+
+
+def test_the_catalog_prefix_exemption_still_has_something_to_exempt() -> None:
+    """``ALLOWED_PREFIXES`` covers a subtree, so staleness is subtree-wide.
+
+    The per-file branch above cannot notice that the whole prefix has
+    stopped earning its keep, because every file under a dead prefix
+    passes the ordinary assertion. This is the guard for that: if no
+    file under the prefix cites the path any more, the prefix is
+    carrying nothing and should go.
+    """
+    covered = [
+        path
+        for path in _shipped_markdown()
+        if str(path.relative_to(REPO_ROOT)).startswith(ALLOWED_PREFIXES)
+        and _citations(path)
+    ]
+
+    assert covered, (
+        "no file under "
+        + ", ".join(ALLOWED_PREFIXES)
+        + " cites `.claude/rules/` any more, so the prefix exemption "
+        "exempts nothing. Remove it."
     )

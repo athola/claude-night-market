@@ -1,15 +1,22 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.19-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.20-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
-[![Skills](https://img.shields.io/badge/skills-211-teal)](book/src/reference/capabilities-reference.md)
+[![Skills](https://img.shields.io/badge/skills-209-teal)](book/src/reference/capabilities-reference.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-2.1.16%2B-purple)](https://code.claude.com/docs/en/overview)
 
 **A plugin marketplace for Claude Code.** Install only the
 plugins you need to run git workflows, code review,
 spec-driven development, and autonomous agents from inside
 your Claude Code session.
+
+*Written for a practitioner: someone who already uses Claude Code and
+wants to know what these plugins do and whether to install them. If you
+are new to Claude Code, start with the
+[official docs](https://code.claude.com/docs/en/overview). For the
+design rationale behind a plugin, see
+[the book](book/src/plugins/).*
 
 <p align="center">
   <img src="assets/gifs/skills-showcase.gif" alt="Night Market skills in action" width="720">
@@ -46,7 +53,7 @@ A typical feature runs end to end on a handful of commands:
 1. **Start a feature.** `/attune:mission` routes you through
    brainstorm, specify, plan, and execute phases.
 2. **Write the code.** `imbue` enforces a failing test first,
-   so implementation follows the test, not the other way around.
+   so the test is written before the implementation.
 3. **Review before you push.** `/full-review` runs a
    multi-discipline pass; `/refine-code` cleans up duplication
    and dead code.
@@ -182,29 +189,31 @@ answers, the work stays on your machine.
   virtual environments. Working on this repo itself needs
   **Python 3.12+**, which the root `pyproject.toml` pins. See the
   [Plugin Development Guide][dev-guide] for the rules.
+- **GNU make 3.82+** to build this repo. The Xcode command line
+  tools ship 3.81, which runs the recipes without the flags they
+  rely on. `make` warns once per invocation when it detects this.
+  On macOS: `brew install make`, then run `gmake`.
 
 ## What's New
 
-**1.9.19** takes `conjure` from three delegation targets to eight and
-turns delegation on by default. GLM-5.3, Meta Muse Code, the OpenAI
-Codex CLI, OpenCode and a locally served Muse Glimmer join Gemini,
-Qwen and MiniMax. `/conjure:provider-setup` reports which of them
-this machine can actually call, installs the missing ones on request,
-and stores the answer instead of re-probing every call. Setting
-`CONJURE_DELEGATION=off` declines for a single run. Every plugin ships
-a `workflows/` script now, so
-every plugin can fan work across subagents when you ask for it.
-Each script encodes that plugin's own fan-out: `scribe` runs its
-four document reviewers blind to each other, `egregore` audits each
-pipeline gate for whether it can return a failing verdict. A
-workflow only runs when you ask for one. Full history is in the
-[CHANGELOG](CHANGELOG.md).
+**1.9.20** adds a reader tier to `scribe`. Every generated document
+now declares one of `newcomer`, `practitioner` or `expert`, and content
+written for a different tier moves to a linked page instead of being
+deleted. `scripts/slop_score.py --audit` prints
+a file and a line for every finding, including the low-confidence
+categories the merge gate declines to score, and a ratchet at commit
+time fails a document only when it scores worse than its own last
+version. The rest is a fix pass: twenty-three Makefile findings, the
+macOS toolchain assumptions that let a failing pipeline stage pass,
+and eight June review findings that still stood in September. Full
+history is in the [CHANGELOG](CHANGELOG.md).
 
 ## Plugin Development
 
 ```bash
 make validate-all
-make lint && make test
+make lint && make test   # checks only; rewrites nothing
+make fix                 # ruff format + ruff check --fix
 ```
 
 A plugin directory holds `.claude-plugin/plugin.json` (metadata)

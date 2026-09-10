@@ -18,7 +18,11 @@ ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/markdown-only.mk
 
 GIF_DEMO_DIR ?= /tmp/scry-gif-test
-TMP_DIR ?= $(GIF_DEMO_DIR)
+# Hard-assigned: the clean target below runs `rm -rf` on this, and
+# TMP_DIR is a name a contributor may well have exported. scripts/
+# gif_demo.sh documents its own TMP_DIR default and still receives an
+# explicit value from the recipe, so pinning this changes no behavior.
+TMP_DIR := $(GIF_DEMO_DIR)
 GIF_DEMO_SCRIPT := $(SCRIPTS_DIR)/gif_demo.sh
 
 # Default target - auto-generated help from ## comments

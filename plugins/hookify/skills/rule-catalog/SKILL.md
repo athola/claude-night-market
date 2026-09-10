@@ -35,25 +35,6 @@ usage_patterns:
 - Debugging or modifying existing installed rules
 - Converting Python SDK hooks: use `hookify:from-hook` instead
 
-## Table of Contents
-
-- [Quick Install](#quick-install)
-- [Available Rules](#available-rules)
-- [git/ - Git Safety](#git----git-safety)
-- [python/ - Python Quality](#python----python-quality)
-- [security/ - Security Gates](#security----security-gates)
-- [workflow/ - Workflow Enforcement](#workflow----workflow-enforcement)
-- [performance/ - Resource Management](#performance----resource-management)
-- [Installation Instructions](#installation-instructions)
-- [Method 1: Claude-Assisted (Recommended)](#method-1:-claude-assisted-(recommended))
-- [Method 2: Python Script](#method-2:-python-script)
-- [Method 3: Manual Copy](#method-3:-manual-copy)
-- [Rule File Locations](#rule-file-locations)
-- [Customizing Rules](#customizing-rules)
-- [Creating Pull Requests for New Rules](#creating-pull-requests-for-new-rules)
-- [Related](#related)
-
-
 # Hookify Rule Catalog
 
 Pre-built rules for common scenarios. Install directly or use as templates.

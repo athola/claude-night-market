@@ -55,6 +55,24 @@ def graph_with_data(gauntlet_dir: Path) -> GraphStore:
     gs.close()
 
 
+def _bash_response(stdout: str) -> dict[str, object]:
+    """Build a realistic PostToolUse tool_response for the Bash tool.
+
+    The payload key is ``tool_response``, not ``tool_result``, and the Bash
+    entry carries ``stdout``, ``stderr``, ``interrupted`` and ``isImage``.
+    There is no ``exitCode``: PostToolUse fires only after a tool completes
+    successfully, and failures route to PostToolUseFailure instead. Tests
+    that invented an ``exitCode`` passed against a payload shape the harness
+    has never sent.
+    """
+    return {
+        "stdout": stdout,
+        "stderr": "",
+        "interrupted": False,
+        "isImage": False,
+    }
+
+
 class TestCommunityRefreshHook:
     """
     Feature: Auto-refresh communities after graph build
@@ -71,22 +89,36 @@ class TestCommunityRefreshHook:
             {
                 "tool_name": "Bash",
                 "tool_input": {"command": "git status"},
-                "tool_result": {"exitCode": 0},
+                "tool_response": _bash_response(""),
             }
         )
         assert result is None
 
     @pytest.mark.unit
-    def test_ignores_failed_builds(self) -> None:
-        """Failed graph_build.py runs are ignored."""
-        result = main(
-            {
-                "tool_name": "Bash",
-                "tool_input": {"command": "python3 scripts/graph_build.py ."},
-                "tool_result": {"exitCode": 1},
-            }
-        )
-        assert result is None
+    def test_a_realistic_success_payload_is_not_discarded(
+        self, gauntlet_dir: Path, graph_with_data: GraphStore
+    ) -> None:
+        """A payload in the harness's real shape must reach the refresh.
+
+        This replaces a test that fed ``{"exitCode": 1}`` and asserted None.
+        It passed for the wrong reason: the hook read ``tool_result``, a key
+        the payload never carries, so ``exitCode`` always defaulted to 1 and
+        the hook returned None on every invocation. Asserting the positive
+        case is what discriminates, because the negative case held whether
+        the hook worked or not.
+        """
+        with patch(
+            "graph_community_refresh._find_graph_db",
+            return_value=gauntlet_dir / "graph.db",
+        ):
+            result = main(
+                {
+                    "tool_name": "Bash",
+                    "tool_input": {"command": "python3 scripts/graph_build.py ."},
+                    "tool_response": _bash_response(""),
+                }
+            )
+        assert result is not None
 
     @pytest.mark.unit
     def test_returns_context_on_success(
@@ -106,7 +138,7 @@ class TestCommunityRefreshHook:
                 {
                     "tool_name": "Bash",
                     "tool_input": {"command": "python3 scripts/graph_build.py ."},
-                    "tool_result": {"exitCode": 0, "stdout": "{}"},
+                    "tool_response": _bash_response("{}"),
                 }
             )
         assert result is not None
@@ -142,7 +174,7 @@ class TestCommunityRefreshHook:
                 {
                     "tool_name": "Bash",
                     "tool_input": {"command": "python3 scripts/graph_build.py ."},
-                    "tool_result": {"exitCode": 0, "stdout": "{}"},
+                    "tool_response": _bash_response("{}"),
                 }
             )
         assert result is None

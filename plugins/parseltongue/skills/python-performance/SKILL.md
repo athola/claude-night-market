@@ -32,10 +32,6 @@ modules:
 
 Profiling and optimization patterns for Python code.
 
-## Table of Contents
-
-1. [Quick Start](#quick-start)
-
 ## Quick Start
 
 ```python

@@ -20,21 +20,6 @@ complexity: intermediate
 model_hint: standard
 estimated_tokens: 500
 ---
-## Table of Contents
-
-- [What It Is](#what-it-is)
-- [Quick Start](#quick-start)
-- [Mental Model](#mental-model)
-- [When to Use](#when-to-use)
-- [Session Palace Templates](#session-palace-templates)
-- [Information Categories](#information-categories)
-- [Core Workflow](#core-workflow)
-- [Session Lifecycle](#session-lifecycle)
-- [Clarity Checkpoints](#clarity-checkpoints)
-- [Detailed Resources](#detailed-resources)
-- [Integration](#integration)
-- [Exit Criteria](#exit-criteria)
-
 
 # Session Palace Builder
 

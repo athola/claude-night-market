@@ -19,20 +19,6 @@ dependencies:
 - scry:gif-generation
 ---
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Manifest Format](#manifest-format)
-- [Manifest Schema](#manifest-schema)
-- [Step-by-Step Process](#step-by-step-process)
-- [FFmpeg Composition Commands](#ffmpeg-composition-commands)
-- [Layout Options](#layout-options)
-- [Example Compositions](#example-compositions)
-- [Exit Criteria](#exit-criteria)
-
-
 # Media Composition Skill
 
 Combine multiple media assets (GIFs, videos, images) into composite

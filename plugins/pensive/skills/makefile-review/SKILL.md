@@ -31,21 +31,6 @@ modules:
 - modules/best-practices.md
 - modules/plugin-dogfood-checks.md
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Workflow](#workflow)
-- [Step 1: Map Context (`makefile-review:context-mapped`)](#step-1:-map-context-(makefile-review:context-mapped))
-- [Step 2: Dependency Graph (`makefile-review:dependency-graph`)](#step-2:-dependency-graph-(makefile-review:dependency-graph))
-- [Step 3: Deduplication Audit (`makefile-review:dedup-candidates`)](#step-3:-deduplication-audit-(makefile-review:dedup-candidates))
-- [Step 4: Portability Check (`makefile-review:tooling-alignment`)](#step-4:-portability-check-(makefile-review:tooling-alignment))
-- [Step 5: Evidence Log (`makefile-review:evidence-logged`)](#step-5:-evidence-log-(makefile-review:evidence-logged))
-- [Progressive Loading](#progressive-loading)
-- [Output Format](#output-format)
-- [Summary](#summary)
-- [Testing](#testing)
 
 ## Testing
 
@@ -164,17 +149,9 @@ Approve / Approve with actions / Block
 
 ## Verify Findings Are Grounded (`makefile-review:findings-verified`)
 
-Every finding must cite a real location and a verbatim anchor. Write
-findings to `.review/findings.json` and confirm each citation resolves:
-
-```bash
-python plugins/imbue/scripts/citation_verifier.py \
-  --findings .review/findings.json --repo-root .
-```
-
-Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
-verified findings enter the report. See `Skill(imbue:review-core)` Step 5
-and `Skill(imbue:structured-output)` for the schema.
+Write findings to `.review/findings.json` and run the citation verifier
+as `Skill(imbue:review-core)` Step 5 describes. Only findings the
+verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
 
 ## Exit Criteria
 

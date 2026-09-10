@@ -34,22 +34,6 @@ modules:
 - modules/session-patterns.md
 - modules/log-formats.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Core Concepts](#core-concepts)
-- [Session Management](#session-management)
-- [Log Entry Structure](#log-entry-structure)
-- [Quick Start](#quick-start)
-- [Initialize Logger](#initialize-logger)
-- [Log Operations](#log-operations)
-- [Query Usage](#query-usage)
-- [Integration Pattern](#integration-pattern)
-- [Log Storage](#log-storage)
-- [Detailed Resources](#detailed-resources)
-- [Exit Criteria](#exit-criteria)
-
 
 # Usage Logging
 

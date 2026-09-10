@@ -31,29 +31,6 @@ modules:
 - modules/remediation-planning.md
 - modules/content-assertion-quality.md
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Progressive Loading](#progressive-loading)
-- [Workflow](#workflow)
-- [Step 1: Detect Languages (`test-review:languages-detected`)](#step-1:-detect-languages-(test-review:languages-detected))
-- [Step 2: Inventory Coverage (`test-review:coverage-inventoried`)](#step-2:-inventory-coverage-(test-review:coverage-inventoried))
-- [Step 3: Assess Scenario Quality (`test-review:scenario-quality`)](#step-3:-assess-scenario-quality-(test-review:scenario-quality))
-- [Step 4: Plan Remediation (`test-review:gap-remediation`)](#step-4:-plan-remediation-(test-review:gap-remediation))
-- [Step 5: Log Evidence (`test-review:evidence-logged`)](#step-5:-log-evidence-(test-review:evidence-logged))
-- [Test Quality Checklist (Condensed)](#test-quality-checklist-(condensed))
-- [Output Format](#output-format)
-- [Summary](#summary)
-- [Framework Detection](#framework-detection)
-- [Coverage Analysis](#coverage-analysis)
-- [Quality Issues](#quality-issues)
-- [Remediation Plan](#remediation-plan)
-- [Recommendation](#recommendation)
-- [Integration Notes](#integration-notes)
-- [Exit Criteria](#exit-criteria)
-
 
 # Test Review Workflow
 
@@ -238,17 +215,9 @@ Approve / Approve with actions / Block
 
 ## Verify Findings Are Grounded (`test-review:findings-verified`)
 
-Every finding must cite a real location and a verbatim anchor. Write
-findings to `.review/findings.json` and confirm each citation resolves:
-
-```bash
-python plugins/imbue/scripts/citation_verifier.py \
-  --findings .review/findings.json --repo-root .
-```
-
-Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
-verified findings enter the report. See `Skill(imbue:review-core)` Step 5
-and `Skill(imbue:structured-output)` for the schema.
+Write findings to `.review/findings.json` and run the citation verifier
+as `Skill(imbue:review-core)` Step 5 describes. Only findings the
+verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
 
 ## Exit Criteria
 

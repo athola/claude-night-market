@@ -20,8 +20,8 @@ What it checks:
 
 - Recursive Quality: Evaluation skills meet their own
   quality standards
-- TOC Requirements: Long modules (>100 lines) have Table
-  of Contents
+- No Table of Contents: a long module is split, not
+  indexed
 - Verification Steps: Code examples include verification
   commands
 - Concrete Quick Starts: Commands instead of abstract
@@ -69,7 +69,8 @@ For critical and high priority issues:
    ```
 
 2. Recommend fixes based on issue type:
-   - Missing TOC: Add Table of Contents after frontmatter
+   - Table of Contents present: remove it, split the module if
+     it needs navigation
    - Missing verification: Add "Run `command`" after examples
    - Abstract Quick Start: Replace with concrete commands
    - Missing tests: Create BDD test file

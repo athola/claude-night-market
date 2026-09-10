@@ -139,8 +139,15 @@ def _strip_frontmatter(text: str) -> str:
 
 
 def _count_evidence_tags(text: str) -> int:
-    """Count unique [EN] evidence tags in the text."""
-    return len(EVIDENCE_TAG_PATTERN.findall(text))
+    """Count distinct [EN] evidence tags in the text.
+
+    The docstring said "unique" and the body counted occurrences, so
+    citing [E1] three times scored 3 and cleared a min_evidence_count of 3
+    on a single piece of evidence. This is the validator that holds review
+    agents to their contract, which makes the gap worth closing rather
+    than documenting.
+    """
+    return len({tag.upper() for tag in EVIDENCE_TAG_PATTERN.findall(text)})
 
 
 def _check_sections(

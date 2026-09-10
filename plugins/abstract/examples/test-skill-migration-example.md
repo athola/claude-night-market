@@ -44,7 +44,7 @@ Analysis of original content revealed:
 | TDD methodology | `skill-authoring/modules/tdd-methodology.md` | Exists |
 | Baseline testing | `skills-eval/modules/pressure-testing.md` | Exists |
 | Comparison logic | `skills-eval/modules/evaluation-workflows.md` | Exists |
-| Error patterns | `shared-patterns/modules/error-handling.md` | Exists |
+| Error patterns | `skill-authoring/modules/error-handling.md` | Exists |
 | Command orchestration | Keep in wrapper | New |
 
 ## After Migration
@@ -60,12 +60,11 @@ commands/
 
 skills/
 ├── skill-authoring/
-│   └── modules/tdd-methodology.md (referenced)
-├── skills-eval/
-│   ├── modules/pressure-testing.md (referenced)
-│   └── modules/evaluation-workflows.md (referenced)
-└── shared-patterns/
-    └── modules/error-handling.md (referenced)
+│   ├── modules/tdd-methodology.md (referenced)
+│   └── modules/error-handling.md (referenced)
+└── skills-eval/
+    ├── modules/pressure-testing.md (referenced)
+    └── modules/evaluation-workflows.md (referenced)
 ```
 
 ### Migrated Wrapper Implementation
@@ -76,7 +75,7 @@ name: test-skill
 description: TDD testing workflow for skills using RED-GREEN-REFACTOR methodology. Run baseline tests without skill, document failures, run with skill, compare results. Uses proven testing patterns from skill-authoring and skills-eval modules.
 category: testing
 tags: [tdd, testing, validation, workflow, wrapper]
-dependencies: [skill-authoring, skills-eval, shared-patterns]
+dependencies: [skill-authoring, skills-eval]
 estimated_tokens: 800
 ---
 
@@ -97,7 +96,7 @@ This skill delegates to specialized modules for proven testing patterns:
 - **TDD Framework**: `skill-authoring/modules/tdd-methodology.md`
 - **Pressure Testing**: `skills-eval/modules/pressure-testing.md`
 - **Result Analysis**: `skills-eval/modules/evaluation-workflows.md`
-- **Error Handling**: `shared-patterns/modules/error-handling.md`
+- **Error Handling**: `skill-authoring/modules/error-handling.md`
 
 ## Usage Workflow
 
@@ -196,11 +195,6 @@ REFACTOR Analysis:
 - uses pressure testing scenarios
 - Uses established evaluation workflows
 - Applies quality metrics and benchmarks
-
-### shared-patterns Integration
-- Uses standardized error handling
-- Follows common workflow patterns
-- Applies validation best practices
 
 ## Best Practices
 

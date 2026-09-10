@@ -1,12 +1,13 @@
 """Tests for quota tracking utilities."""
 
+import json
 import time
 from pathlib import Path
 
 import pytest
 
 from leyline import quota_tracker
-from leyline.quota_tracker import QuotaConfig, QuotaTracker
+from leyline.quota_tracker import QuotaConfig, QuotaTracker, UsageStats
 
 
 @pytest.mark.unit
@@ -401,3 +402,69 @@ class TestQuotaTrackerCLI:
 
         # Should not raise
         quota_tracker.main()
+
+
+class TestConcurrentRecording:
+    """Two trackers on one usage file must not lose each other's requests.
+
+    record_request() read the file at construction, incremented in memory
+    and wrote the whole file back, so two callers in flight lost one
+    increment each time. Hooks and CLIs share the same file.
+    """
+
+    def test_two_trackers_on_one_file_both_count(self, tmp_path: Path) -> None:
+        """Each record_request lands in the file the other tracker reads."""
+        first = QuotaTracker("svc", storage_dir=tmp_path)
+        second = QuotaTracker("svc", storage_dir=tmp_path)
+        first.record_request(tokens=10)
+        second.record_request(tokens=5)
+        fresh = QuotaTracker("svc", storage_dir=tmp_path)
+        assert fresh.usage.requests_today == 2
+        assert fresh.usage.tokens_today == 15
+
+
+class TestUsageStatsValidatesItsInput:
+    """``UsageStats(**data)`` is a deserialization boundary.
+
+    It validated nothing, so a counter arriving from JSON as a string
+    constructed cleanly, the ``except TypeError`` around the call never
+    fired, and the failure landed later at the ``+=`` inside the flock
+    block, far from the file that caused it.
+    """
+
+    def test_a_string_counter_is_rejected(self) -> None:
+        """A counter that is not an int must not construct."""
+        with pytest.raises(TypeError):
+            UsageStats(requests_today="12")
+
+    def test_a_negative_counter_is_rejected(self) -> None:
+        """A negative usage count is not a state this type can hold."""
+        with pytest.raises(ValueError):
+            UsageStats(tokens_today=-1)
+
+    def test_a_corrupt_usage_file_falls_back_to_a_fresh_record(
+        self, tmp_path: Path
+    ) -> None:
+        """The loader recovers instead of failing later at the increment."""
+        tracker = QuotaTracker(service="test", storage_dir=tmp_path)
+        tracker.usage_file.write_text(
+            json.dumps({"requests_today": "many", "tokens_today": 0}),
+            encoding="utf-8",
+        )
+        tracker._load_usage()
+        assert tracker.usage.requests_today == 0
+
+    def test_a_valid_record_still_loads(self, tmp_path: Path) -> None:
+        """Validation must not cost the loader its normal path.
+
+        The timestamp is current because ``_load_usage`` runs
+        ``_cleanup_old_data`` straight after, which correctly zeroes
+        counters carried over from an earlier day.
+        """
+        tracker = QuotaTracker(service="test", storage_dir=tmp_path)
+        tracker.usage_file.write_text(
+            json.dumps({"requests_today": 5, "last_request_time": time.time()}),
+            encoding="utf-8",
+        )
+        tracker._load_usage()
+        assert tracker.usage.requests_today == 5

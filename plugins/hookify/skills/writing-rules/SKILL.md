@@ -25,29 +25,6 @@ usage_patterns:
 - pattern-matching
 - behavioral-enforcement
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [Quick Start](#quick-start)
-- [Rule File Format](#rule-file-format)
-- [Frontmatter Fields](#frontmatter-fields)
-- [Event Types](#event-types)
-- [Advanced Conditions](#advanced-conditions)
-- [Operators](#operators)
-- [Field Reference](#field-reference)
-- [Pattern Writing](#pattern-writing)
-- [Regex Basics](#regex-basics)
-- [Examples](#examples)
-- [Test Patterns](#test-patterns)
-- [Example Rules](#example-rules)
-- [Block Destructive Commands](#block-destructive-commands)
-- [Warn About Debug Code](#warn-about-debug-code)
-- [Require Tests](#require-tests)
-- [Protect Production Files](#protect-production-files)
-- [Management](#management)
-- [Related Skills](#related-skills)
-- [Best Practices](#best-practices)
-
 
 # Hookify Rule Writing Guide
 

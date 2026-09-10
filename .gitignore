@@ -38,6 +38,12 @@ wheels/
 *.egg
 .lock
 
+# Journal lockfiles: decision_journal holds a flock beside the file it
+# appends to, so docs/tradeoffs.md.lock and docs/lessons-learned.md.lock
+# outlive every append. The bare .lock above matches a file named .lock,
+# not this suffix.
+*.md.lock
+
 # Virtual environments
 .venv/
 .*-venv/
@@ -105,20 +111,16 @@ docs/marketing/
 # in an ADR and its contract in a test, so nothing here is load-bearing
 # once the work lands.
 docs/research/
-docs/superpowers/
 docs/implementation-plan.md
 docs/project-brief.md
 docs/specification.md
 **/*/docs/plans/
 
-# Attune ephemeral state
+# Attune ephemeral state and calibration data
 .attune/
 
 # Git worktrees
 .worktrees/
-
-# Attune calibration data
-.attune/
 
 # Runtime state for egregore (manifest, clawhub progress) and
 # superpowers (brainstorm session artifacts). Peers of .attune/.
@@ -130,7 +132,6 @@ plugins/memory-palace/data/intake_queue.jsonl
 plugins/memory-palace/data/state/
 plugins/memory-palace/data/sessions/
 plugins/memory-palace/data/telemetry/
-plugins/memory-palace/.demo-palaces/
 plugins/memory-palace/reports/
 
 # Wiki-backed knowledge corpus (local clone, not committed to main repo)
@@ -188,3 +189,6 @@ plugins/memory-palace/data/palaces/*.db-wal
 # scripts/check_upstream_drift.py: ignoring a path does not stop the
 # walker from reading it off disk.
 docs/migrations/
+
+# Atomic lock directory scripts/clawhub-cron.sh holds while a sync runs.
+.clawhub-sync.lock/

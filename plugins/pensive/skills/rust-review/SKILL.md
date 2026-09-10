@@ -54,29 +54,6 @@ modules:
 - test-slop.md
 - async-slop.md
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Progressive Loading](#progressive-loading)
-- [Core Workflow](#core-workflow)
-- [Rust Quality Checklist](#rust-quality-checklist)
-- [Safety](#safety)
-- [Correctness](#correctness)
-- [Performance](#performance)
-- [Idioms](#idioms)
-- [Output Format](#output-format)
-- [Summary](#summary)
-- [Ownership Analysis](#ownership-analysis)
-- [Error Handling](#error-handling)
-- [Concurrency](#concurrency)
-- [Unsafe Audit](#unsafe-audit)
-- [[U1] file:line](#[u1]-file:line)
-- [Dependencies](#dependencies)
-- [Recommendation](#recommendation)
-- [Exit Criteria](#exit-criteria)
-
 
 # Rust Review Workflow
 
@@ -291,17 +268,9 @@ Approve / Approve with actions / Block
 
 ## Verify Findings Are Grounded (`rust-review:findings-verified`)
 
-Every finding must cite a real location and a verbatim anchor. Write
-findings to `.review/findings.json` and confirm each citation resolves:
-
-```bash
-python plugins/imbue/scripts/citation_verifier.py \
-  --findings .review/findings.json --repo-root .
-```
-
-Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
-verified findings enter the report. See `Skill(imbue:review-core)` Step 5
-and `Skill(imbue:structured-output)` for the schema.
+Write findings to `.review/findings.json` and run the citation verifier
+as `Skill(imbue:review-core)` Step 5 describes. Only findings the
+verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
 
 ## Exit Criteria
 

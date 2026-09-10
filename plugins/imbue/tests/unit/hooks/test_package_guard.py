@@ -195,3 +195,81 @@ class TestAssessPackages:
         )
         # Unverified is reported but is not a hard nonexistent finding.
         assert all(f["kind"] != "nonexistent" for f in findings)
+
+
+class TestRegistryLookupBudget:
+    """A long install list must not outlive the hook's PreToolUse cap.
+
+    guard_package_hallucination declares an 8s cap in hooks.json and spends
+    up to _REGISTRY_TIMEOUT (1.5s) per unresolved name. With no cap on the
+    count, six unknown packages exceeded the budget, and a killed PreToolUse
+    hook emits no decision at all: the same as having no gate, arriving
+    exactly when a long list makes a hallucinated name most likely.
+    """
+
+    @pytest.mark.unit
+    def test_names_past_the_budget_are_reported_without_a_lookup(
+        self, pg, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Once the budget is spent, remaining names skip the registry."""
+        calls: list[str] = []
+        clock = {"now": 0.0}
+
+        def registry_fn(name: str, ecosystem: str) -> bool | None:
+            calls.append(name)
+            clock["now"] += 10.0  # one lookup exhausts the budget
+            return True
+
+        monkeypatch.setattr(pg.time, "monotonic", lambda: clock["now"])
+        findings = pg.assess_packages(
+            "pip install zzzfirstpkg zzzsecondpkg zzzthirdpkg",
+            registry_fn=registry_fn,
+            budget_seconds=1.0,
+        )
+
+        assert len(calls) == 1, (
+            "the budget did not stop the loop; every unresolved name was "
+            f"probed: {calls}"
+        )
+        unverified = [f for f in findings if f["kind"] == "unverified"]
+        assert len(unverified) == 2
+        assert all("budget" in f["detail"] for f in unverified)
+
+    @pytest.mark.unit
+    def test_no_budget_means_every_name_is_still_checked(self, pg) -> None:
+        """The library default must stay unbounded for non-hook callers."""
+        calls: list[str] = []
+
+        def registry_fn(name: str, ecosystem: str) -> bool | None:
+            calls.append(name)
+            return True
+
+        pg.assess_packages(
+            "pip install zzzfirstpkg zzzsecondpkg zzzthirdpkg",
+            registry_fn=registry_fn,
+        )
+        assert len(calls) == 3
+
+    @pytest.mark.unit
+    def test_hook_budget_fits_inside_its_declared_cap(self, pg) -> None:
+        """Budget plus one in-flight lookup must stay under the 8s cap."""
+        import json
+
+        hooks_root = Path(pg.__file__).resolve().parent.parent
+        sys.path.insert(0, str(hooks_root))
+        import guard_package_hallucination as guard
+
+        manifest = json.loads((hooks_root / "hooks.json").read_text(encoding="utf-8"))
+        caps = [
+            entry["timeout"]
+            for groups in manifest["hooks"].values()
+            for group in groups
+            for entry in group.get("hooks", [])
+            if "guard_package_hallucination" in entry.get("command", "")
+        ]
+        assert caps, "the guard is not registered in hooks.json"
+        worst_case = guard._REGISTRY_BUDGET_SECONDS + guard._REGISTRY_TIMEOUT
+        assert worst_case < min(caps), (
+            f"worst case {worst_case}s meets or exceeds the {min(caps)}s cap; "
+            f"a killed PreToolUse hook is the same as no gate"
+        )

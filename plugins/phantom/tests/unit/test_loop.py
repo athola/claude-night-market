@@ -224,6 +224,60 @@ class TestExecuteTool:
         assert result["type"] == "tool_result"
         assert result["tool_use_id"] == "tool-id-1"
 
+    def test_bash_failure_is_flagged_as_an_error(self):
+        """
+        Scenario: A bash command exits nonzero and prints nothing
+        Given `bash -c 'false'`
+        When _execute_tool is called
+        Then the result carries is_error and names the exit code
+
+        proc.returncode was never read, so this returned "(no output)"
+        with no flag: indistinguishable from a command that succeeded
+        quietly. The autonomous loop then proceeds on a failed step. The
+        TimeoutExpired branch four lines below always set is_error.
+        """
+        mock_display = MagicMock(spec=DisplayToolkit)
+
+        result = _execute_tool("bash", {"command": "false"}, "tool-id-2", mock_display)
+
+        assert result["is_error"] is True
+        assert "1" in result["content"]
+
+    def test_bash_success_is_not_flagged(self):
+        """
+        Scenario: A bash command succeeds
+        Given `bash -c 'echo ok'`
+        When _execute_tool is called
+        Then no error flag is set and stdout is returned
+        """
+        mock_display = MagicMock(spec=DisplayToolkit)
+
+        result = _execute_tool(
+            "bash", {"command": "echo ok"}, "tool-id-3", mock_display
+        )
+
+        assert "is_error" not in result
+        assert "ok" in result["content"]
+
+    def test_bash_failure_with_stderr_keeps_the_output(self):
+        """
+        Scenario: A failing command writes to stderr
+        Given a command that prints to stderr and exits nonzero
+        When _execute_tool is called
+        Then stderr is preserved and is_error is set
+        """
+        mock_display = MagicMock(spec=DisplayToolkit)
+
+        result = _execute_tool(
+            "bash",
+            {"command": "echo boom >&2; exit 3"},
+            "tool-id-4",
+            mock_display,
+        )
+
+        assert result["is_error"] is True
+        assert "boom" in result["content"]
+
     def test_computer_screenshot_action_no_double_capture(self):
         """
         Scenario: Screenshot action

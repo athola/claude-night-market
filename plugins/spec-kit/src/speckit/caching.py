@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import time
 from collections.abc import Callable
 from functools import wraps
@@ -11,6 +12,9 @@ from pathlib import Path
 from typing import Any, TypeVar
 
 F = TypeVar("F", bound=Callable[..., Any])
+
+
+logger = logging.getLogger(__name__)
 
 
 class SpecKitCache:
@@ -111,8 +115,17 @@ class SpecKitCache:
             with open(cache_path, "w", encoding="utf-8") as f:
                 json.dump(value, f, ensure_ascii=False, indent=2)
         except OSError:
-            # Log error but don't fail
-            pass
+            # The comment promised a log and the body dropped the error, so
+            # a read-only cache directory meant the file cache silently
+            # never populated and set() returned None either way. The
+            # in-memory cache above did succeed, so this stays non-fatal;
+            # what changes is that the failure is now visible.
+            logger.warning(
+                "Could not write cache file %s; this run keeps the value in "
+                "memory only.",
+                cache_path,
+                exc_info=True,
+            )
 
     def invalidate(self, key: str | None = None, data: Any = None) -> None:
         """Invalidate cache entries."""

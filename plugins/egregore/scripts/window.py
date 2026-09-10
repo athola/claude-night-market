@@ -167,7 +167,14 @@ def record_reset(
     reset_at: Optional[datetime],
     now: Optional[datetime] = None,
 ) -> datetime:
-    """Write the reset instant into the cooldown the watchdog reads.
+    """Set the cooldown fields on ``budget`` and return the resume instant.
+
+    This mutates the object and does not write it anywhere. The docstring
+    used to say it wrote the cooldown the watchdog reads, which it never
+    did, and no caller persisted it either, so the watchdog relaunched
+    straight into the same rate limit. Persisting is the caller's job
+    because this module deliberately knows only the two-field
+    :class:`CooldownState` shape, not ``budget.Budget`` or its path.
 
     Returns the instant recorded. When ``reset_at`` is None the fallback
     is ``UNKNOWN_RESET_WAIT_MINUTES`` from now: an unattended run that

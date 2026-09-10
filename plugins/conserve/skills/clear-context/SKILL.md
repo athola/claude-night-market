@@ -14,15 +14,6 @@ hooks:
 model_hint: standard
 role: library
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [The Auto-Clear Pattern](#the-auto-clear-pattern)
-- [Thresholds](#thresholds)
-- [Auto-Clear Workflow](#auto-clear-workflow)
-- [Integration with Existing Hooks](#integration-with-existing-hooks)
-- [Self-Monitoring Pattern](#self-monitoring-pattern)
 
 # Clear Context Skill
 

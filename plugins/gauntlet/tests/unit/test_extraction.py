@@ -355,6 +355,156 @@ class TestExtractFromDirectory:
         assert "func_b" in concepts
 
     @pytest.mark.unit
+    def test_extracts_from_a_subdirectory(self, tmp_path: Path):
+        """
+        Scenario: A package with nested modules
+        Given a directory whose Python files sit in a subdirectory
+        When extract_from_directory() is called
+        Then entries from the nested file are returned
+
+        The docstring promises a recursive walk and the only caller,
+        scripts/extractor.py, points it at a codebase root. A flat glob
+        there yields the top level and reports no error, so a knowledge
+        base built from a real project silently omits almost all of it.
+        """
+        (tmp_path / "top.py").write_text(
+            textwrap.dedent("""\
+            def func_top():
+                \"\"\"Top level.\"\"\"
+                pass
+        """)
+        )
+        nested = tmp_path / "sub" / "deeper"
+        nested.mkdir(parents=True)
+        (nested / "nested.py").write_text(
+            textwrap.dedent("""\
+            def func_nested():
+                \"\"\"Nested module.\"\"\"
+                pass
+        """)
+        )
+
+        entries = extract_from_directory(tmp_path)
+
+        concepts = [e.concept for e in entries]
+        assert "func_top" in concepts
+        assert "func_nested" in concepts
+
+    @pytest.mark.unit
+    def test_skips_vendored_directories(self, tmp_path: Path):
+        """
+        Scenario: A project root containing an installed virtualenv
+        Given a .venv and a __pycache__ beside the project's own code
+        When extract_from_directory() is called
+        Then only the project's own entries are returned
+
+        Recursion without this reads the dependencies. A knowledge base
+        built from site-packages describes libraries the contributor did
+        not write and buries the code they did.
+        """
+        (tmp_path / "mine.py").write_text(
+            textwrap.dedent("""\
+            def func_mine():
+                \"\"\"Project code.\"\"\"
+                pass
+        """)
+        )
+        vendored = tmp_path / ".venv" / "lib" / "site-packages" / "dep"
+        vendored.mkdir(parents=True)
+        (vendored / "theirs.py").write_text(
+            textwrap.dedent("""\
+            def func_theirs():
+                \"\"\"Dependency code.\"\"\"
+                pass
+        """)
+        )
+        cached = tmp_path / "__pycache__"
+        cached.mkdir()
+        (cached / "stale.py").write_text(
+            textwrap.dedent("""\
+            def func_stale():
+                \"\"\"Cached artifact.\"\"\"
+                pass
+        """)
+        )
+
+        entries = extract_from_directory(tmp_path)
+
+        concepts = [e.concept for e in entries]
+        assert "func_mine" in concepts
+        assert "func_theirs" not in concepts
+        assert "func_stale" not in concepts
+
+    @pytest.mark.unit
+    def test_a_dot_prefixed_ancestor_does_not_exclude_the_scanned_tree(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: The project is scanned from inside a dot-prefixed directory
+        Given a scan root beneath an ancestor such as .claude
+        When extract_from_directory() is called on that root
+        Then the project's own entries are still returned
+
+        The installed layout is exactly this shape. extract is documented
+        as `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/extractor.py <dir>`, and
+        CLAUDE_PLUGIN_ROOT resolves under ~/.claude/plugins, so judging the
+        ancestor rather than the scanned tree returned nothing at all, with
+        no error and no partial-scan indicator.
+
+        tmp_path never contains a dot component, which is why the vendor
+        tests above pass against the defect.
+        """
+        root = tmp_path / ".claude" / "plugins" / "project"
+        root.mkdir(parents=True)
+        (root / "mine.py").write_text(
+            textwrap.dedent("""\
+            def func_under_dot_ancestor():
+                \"\"\"Project code.\"\"\"
+                pass
+        """)
+        )
+
+        entries = extract_from_directory(root)
+
+        assert [e.concept for e in entries] == ["func_under_dot_ancestor"]
+
+    @pytest.mark.unit
+    def test_exclude_patterns_are_applied_under_recursion(self, tmp_path: Path) -> None:
+        """
+        Scenario: A caller excludes generated modules
+        Given a tree containing a file matching an exclude pattern
+        When extract_from_directory() is called with that pattern
+        Then the matching file contributes no entries
+
+        GIVEN the exclude_patterns parameter has existed unexercised
+        WHEN the walk became recursive
+        THEN the branch matters more, because a pattern now has to
+        hold against paths at any depth rather than one level.
+        """
+        (tmp_path / "keep.py").write_text(
+            textwrap.dedent("""\
+            def func_keep():
+                \"\"\"Kept.\"\"\"
+                pass
+        """)
+        )
+        generated = tmp_path / "build_artifacts"
+        generated.mkdir()
+        (generated / "thing_pb2.py").write_text(
+            textwrap.dedent("""\
+            def func_generated():
+                \"\"\"Generated.\"\"\"
+                pass
+        """)
+        )
+
+        entries = extract_from_directory(tmp_path, exclude_patterns=["*_pb2.py"])
+
+        concepts = [e.concept for e in entries]
+        assert "func_keep" in concepts
+        assert "func_generated" not in concepts
+
+    @pytest.mark.unit
     def test_skips_non_python_files(self, tmp_path: Path):
         """
         Scenario: Non-Python files are ignored

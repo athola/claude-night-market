@@ -466,15 +466,20 @@ def collect_deployments_from_git(
     if window_end is None:
         window_end = datetime.now(timezone.utc)
     since = (window_end - timedelta(days=window_days)).isoformat()
-    # Place "--" before the branch so a value like "--upload-pack=..."
-    # is treated as a positional rather than a git log flag (issue #526).
+    # "--end-of-options" before the branch, so a value like
+    # "--upload-pack=..." is read as a revision rather than a git flag
+    # (issue #526). "--" was the first attempt and is the wrong
+    # separator: in git log it divides revisions from PATHS, so the
+    # branch became a pathspec, matched no file, and every window
+    # collected zero deployments. Measured on this repository, "-- HEAD"
+    # returned 0 commits where "--end-of-options HEAD" returned 1440.
     output = _run_git(
         [
             "log",
             f"--since={since}",
             "--pretty=format:%H|%aI|%cI",
             "--no-merges",
-            "--",
+            "--end-of-options",
             branch,
         ],
         cwd=cwd,

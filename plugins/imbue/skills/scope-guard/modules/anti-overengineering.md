@@ -64,18 +64,17 @@ Proposed: [New feature]
 Decision: [Fits/Requires split/Requires drop]
 ```
 
-## Anti-Rationalization Checklist
+## Scoring Constraints
 
-**If you find yourself thinking:**
-
-| Thought | Reality Check |
-|---------|---------------|
-| "This is a small addition" | Did you score it? Small additions compound. |
-| "We'll need this eventually" | Score Time Criticality honestly. "Eventually" = 1. |
-| "It's already half done" | Sunk cost fallacy. Re-score from current state. |
-| "Users might want this" | "Might" = Business Value of 1-2 max. |
-| "This is the right way to do it" | Is it the simplest way that works? |
-| "It's just refactoring" | Refactoring still has Complexity cost. Score it. |
+- Score small additions. They compound, and the score is what shows it.
+- "Eventually" scores Time Criticality at 1. A need with no date is not
+  time-critical.
+- Half-done work is re-scored from its current state. What was already
+  spent is not a reason to spend more.
+- "Users might want this" is a Business Value of 1 or 2. Evidence of
+  demand raises it; a guess does not.
+- The right way to do it is the simplest way that works.
+- Refactoring carries Complexity cost like any other change. Score it.
 
 ## Red Flags
 

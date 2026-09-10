@@ -31,27 +31,47 @@ class ValidationResult(TypedDict):
     info: list[str]
 
 
-# Known hook event types (Claude Code 2.1.50 complete set)
+# Known hook event types, from the Claude Code hooks reference.
+#
+# This set was pinned at the 2.1.50 roster of 19 and went stale, which is the
+# failure mode a whitelist has: it drifts closed and starts rejecting valid
+# platform features. conserve registers a PermissionDenied hook that this
+# validator called unknown; PermissionDenied is real, fires when auto mode
+# denies a tool call, and is distinct from PermissionRequest.
 KNOWN_EVENTS = {
     "Setup",
     "SessionStart",
     "SessionEnd",
     "UserPromptSubmit",
+    "UserPromptExpansion",
     "PreToolUse",
+    "PermissionRequest",
+    "PermissionDenied",
     "PostToolUse",
     "PostToolUseFailure",
-    "PermissionRequest",
+    "PostToolBatch",
     "Notification",
+    "MessageDisplay",
     "SubagentStart",
     "SubagentStop",
-    "Stop",
-    "TeammateIdle",
+    "TaskCreated",
     "TaskCompleted",
-    "ConfigChange",
+    "Stop",
+    "StopFailure",
+    "TeammateIdle",
     "InstructionsLoaded",
-    "PreCompact",
+    "ConfigChange",
+    "CwdChanged",
+    "DirectoryAdded",
+    "FileChanged",
     "WorktreeCreate",
     "WorktreeRemove",
+    "PreCompact",
+    "PostCompact",
+    "PreModelSwitch",
+    "PostModelSwitch",
+    "Elicitation",
+    "ElicitationResult",
 }
 
 # Required fields for JSON hooks
@@ -202,6 +222,40 @@ def _validate_matcher(
     result["valid"] = False
 
 
+# A matcher group carries these two keys and nothing else. The harness reads
+# them and drops the rest, naming them once at load and then ignoring them.
+GROUP_KEYS = frozenset({"matcher", "hooks"})
+
+# ``if`` is a real hook field in the wrong place. It belongs in the entry
+# beside ``command``; on the group it is silently ignored, so the condition
+# reads as enforced and is not. That is why an unknown group key is worth a
+# warning rather than a note.
+MISPLACED_ENTRY_KEYS = frozenset({"if", "timeout", "type", "command", "async"})
+
+
+def _validate_group_keys(
+    event_type: str,
+    idx: int,
+    hook_entry: dict,
+    result: ValidationResult,
+) -> None:
+    """Flag group-level keys the harness drops without acting on."""
+    for key in sorted(set(hook_entry) - GROUP_KEYS):
+        if key in MISPLACED_ENTRY_KEYS:
+            result["warnings"].append(
+                f"{event_type}[{idx}]: unknown key {key!r} on the matcher "
+                f"group. It is a hook-entry field: move it into an entry "
+                f"beside 'command', where the harness reads it. Here it is "
+                f"ignored.",
+            )
+        else:
+            result["warnings"].append(
+                f"{event_type}[{idx}]: unknown key {key!r} on the matcher "
+                f"group is ignored by the harness. JSON has no comment "
+                f"syntax; put the rationale in the hook script's docstring.",
+            )
+
+
 def _validate_hook_entry(
     event_type: str,
     idx: int,
@@ -230,6 +284,8 @@ def _validate_hook_entry(
     # Validate matcher if present
     if "matcher" in hook_entry:
         _validate_matcher(event_type, idx, hook_entry["matcher"], result)
+
+    _validate_group_keys(event_type, idx, hook_entry, result)
 
 
 def _validate_event_hooks(
@@ -288,17 +344,26 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
         result["valid"] = False
         return result
 
+    # A plugin manifest nests its events under a top-level "hooks" key; a
+    # settings-style fragment is the bare event map. Both reach here, and
+    # iterating the wrapper as if its one key were an event name is how this
+    # validator spent its life reporting "hooks: must be a list" against
+    # every manifest in this repository without reading any of them.
+    events = hooks_data.get("hooks") if isinstance(hooks_data, dict) else None
+    if not isinstance(events, dict):
+        events = hooks_data
+
     # Check for known event types
-    for event_type in hooks_data:
+    for event_type in events:
         if event_type not in KNOWN_EVENTS:
             result["warnings"].append(f"Unknown event type: {event_type}")
 
     # Validate each event type
-    for event_type, event_hooks in hooks_data.items():
+    for event_type, event_hooks in events.items():
         _validate_event_hooks(event_type, event_hooks, result)
 
     # Summary
-    result["info"].append(f"Validated {len(hooks_data)} event type(s)")
+    result["info"].append(f"Validated {len(events)} event type(s)")
 
     return result
 

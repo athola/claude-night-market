@@ -47,9 +47,7 @@ and `meta-architect` assist during review.
         Hard gate for TDD compliance in creation workflows.
     *   `skill-selection-judgment.md`: Bypass prevention patterns.
     *   `trigger-patterns.md`: Skill trigger design patterns.
-*   `docs/`: Technical documentation, ADRs, and examples.
-    *   `docs/examples/modular-skills/`:
-        Implementation examples for modular skill patterns.
+*   `docs/`: Technical documentation and ADRs.
 
 ## Documentation
 

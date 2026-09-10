@@ -35,24 +35,6 @@ modules:
 - modules/multi-metric-evaluation-methodology.md
 - modules/quality-metrics.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Core Pattern](#core-pattern)
-- [1. Define Criteria](#1-define-criteria)
-- [2. Score Each Criterion](#2-score-each-criterion)
-- [3. Calculate Weighted Total](#3-calculate-weighted-total)
-- [4. Apply Decision Thresholds](#4-apply-decision-thresholds)
-- [Quick Start](#quick-start)
-- [Define Your Evaluation](#define-your-evaluation)
-- [Example: Code Review Evaluation](#example:-code-review-evaluation)
-- [Evaluation Workflow](#evaluation-workflow)
-- [Common Use Cases](#common-use-cases)
-- [Integration Pattern](#integration-pattern)
-- [Detailed Resources](#detailed-resources)
-- [Exit Criteria](#exit-criteria)
-
 
 # Evaluation Framework
 

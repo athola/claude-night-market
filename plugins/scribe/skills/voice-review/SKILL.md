@@ -145,17 +145,9 @@ Can also be run on any existing text:
 
 ## Verify Findings Are Grounded (`voice-review:findings-verified`)
 
-Every advisory row must cite a real line and a verbatim anchor. Write
-findings to `.review/findings.json` and confirm each citation resolves:
-
-```bash
-python plugins/imbue/scripts/citation_verifier.py \
-  --findings .review/findings.json --repo-root .
-```
-
-Drop or label `UNVERIFIED` any finding the verifier fails (exit `1`); only
-verified findings enter the advisory tables. See `Skill(imbue:review-core)`
-Step 5 and `Skill(imbue:structured-output)` for the schema.
+Write advisory rows to `.review/findings.json` and run the citation verifier
+as `Skill(imbue:review-core)` Step 5 describes. Only advisory rows the
+verifier passes enter the advisory tables. Drop or label `UNVERIFIED` the rest.
 
 ## Verification
 

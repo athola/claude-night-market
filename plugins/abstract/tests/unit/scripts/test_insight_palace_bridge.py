@@ -336,12 +336,15 @@ class TestQueryPalaceInsights:
         assert results[0]["title"] == "[Trend] test finding"
         assert results[0]["severity"] == "high"
 
-    def test_returns_empty_on_exception(self) -> None:
+    def test_returns_empty_when_the_index_cannot_be_read(self) -> None:
+        """Only an unreadable index is "no insights"; see the except-scope
+        tests below for why a programming error must not be swallowed.
+        """
         with (
             patch("insight_palace_bridge._HAS_PALACE", True),
             patch(
                 "insight_palace_bridge._load_index",
-                side_effect=RuntimeError("broken"),
+                side_effect=OSError("broken"),
             ),
         ):
             assert query_palace_insights() == []
@@ -478,3 +481,31 @@ class TestIntegrationRoundTrip:
             count = ingest_findings([high_finding])
 
         assert count == 0
+
+
+class TestQueryPalaceInsightsExceptScope:
+    """The fallback covers an unavailable index, not a broken parser.
+
+    `except Exception` returned [] for every failure, so a malformed entry
+    read as "no insights found" and the bug in the loop stayed hidden.
+    """
+
+    def test_unreadable_index_yields_no_insights(self) -> None:
+        """A missing or corrupt index is the case the fallback is for."""
+        with (
+            patch("insight_palace_bridge._HAS_PALACE", True),
+            patch("insight_palace_bridge._load_index", side_effect=OSError("gone")),
+        ):
+            assert query_palace_insights() == []
+
+    def test_malformed_entry_is_not_hidden(self) -> None:
+        """A non-dict entry is a bug in the data or the loop; it propagates."""
+        with (
+            patch("insight_palace_bridge._HAS_PALACE", True),
+            patch(
+                "insight_palace_bridge._load_index",
+                return_value={"entries": {"insight://x": "not-a-dict"}},
+            ),
+        ):
+            with pytest.raises(AttributeError):
+                query_palace_insights()

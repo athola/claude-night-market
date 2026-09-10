@@ -12,15 +12,17 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 LOG="/tmp/clawhub-sync.log"
-LOCK="/tmp/clawhub-sync.lock"
+# Under the repo, not /tmp: another user cannot pre-create it and disable
+# the job. mkdir is atomic, so check-then-create cannot race, and the trap
+# clears it on any exit; a SIGKILL leaves a directory whose age says so.
+LOCK="$REPO_ROOT/.clawhub-sync.lock"
 
 # Prevent overlapping runs
-if [ -f "$LOCK" ]; then
-  echo "$(date): Lock file exists, skipping" >> "$LOG"
+if ! mkdir "$LOCK" 2>/dev/null; then
+  echo "$(date): Lock $LOCK exists, skipping" >> "$LOG"
   exit 0
 fi
-trap 'rm -f "$LOCK"' EXIT
-touch "$LOCK"
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT
 
 echo "" >> "$LOG"
 echo "=== $(date): clawhub-cron run ===" >> "$LOG"

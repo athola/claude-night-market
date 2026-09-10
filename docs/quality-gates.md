@@ -3,18 +3,6 @@
 We use a three-layer system to maintain code standards within the Claude Night
 Market ecosystem.
 
-## Table of Contents
-
-- [Overview](#overview)
-- [The Three Layers](#the-three-layers)
-- [Skill-Level Quality Gate Composition](#skill-level-quality-gate-composition)
-- [Pre-Commit Hooks](#pre-commit-hooks)
-- [Manual Quality Scripts](#manual-quality-scripts)
-- [Configuration Files](#configuration-files)
-- [Usage Guide](#usage-guide)
-- [Troubleshooting](#troubleshooting)
-- [Best Practices](#best-practices)
-
 ## Overview
 
 Our quality system relies on three layers:
@@ -369,9 +357,14 @@ git commit -m "feat: improve tracker logic"
 To see what will run in pre-commit without committing:
 
 ```bash
+# One plugin, script by script
 ./scripts/run-plugin-lint.sh minister
 ./scripts/run-plugin-typecheck.sh minister
 ./scripts/run-plugin-tests.sh minister
+
+# Or the hooks themselves, all of them or one
+pre-commit run --all-files
+pre-commit run run-plugin-lint
 ```
 
 ### For Full Codebase Audit
@@ -419,24 +412,6 @@ write type hints for new functions, and keep tests green.
 
 **For Plugin Maintainers:** Configure strict type checking,
 add Makefile targets for quality checks, and document requirements.
-
-## Running Validation
-
-```bash
-# Run all pre-commit hooks
-pre-commit run --all-files
-
-# Run specific hooks
-pre-commit run run-plugin-lint
-pre-commit run run-plugin-typecheck
-pre-commit run run-plugin-tests
-
-# Run manual quality scripts
-./scripts/run-plugin-lint.sh --all
-./scripts/run-plugin-typecheck.sh --all
-./scripts/run-plugin-tests.sh --all
-./scripts/check-all-quality.sh --report
-```
 
 ## Gate Orchestration Map
 
@@ -499,100 +474,23 @@ been clarified and scoped.
 
 ### Proposed canonical orchestrator
 
-`egregore:quality-gate` is the right home for this
-sequence because:
+`egregore:quality-gate` is the proposed home for the
+sequence above. It already runs the QUALITY pipeline stage,
+declares routing tables per step, works in both self-review
+and PR-review modes, and is invoked from `egregore:summon`,
+so every autonomous mission would inherit the same gate
+discipline. The step it would add is
+`imbue:vow-enforcement`, which today is a hook target with
+no `Skill()` entry path.
 
-- It already orchestrates the QUALITY pipeline stage in
-  egregore.
-- It already declares routing tables for review skills
-  per step.
-- It runs in both self-review and PR-review modes, so the
-  same orchestration applies whether you're gating your
-  own work or someone else's.
-- It is invoked from `egregore:summon` as part of the
-  development lifecycle, so adding the federation gives
-  every autonomous mission the same gate discipline.
-
-Integration path for `imbue:vow-enforcement`: the skill is
-currently a hook target (read by `imbue/hooks/vow_*.py`)
-but has no Skill() entry path. The orchestration should
-add it as the final step of the QUALITY stage, giving the
-skill a real entry path without removing the hook layer.
-The hook continues to enforce hard vows mechanically while
-the skill runs its classification logic under the
-orchestrator. Tracked as deferred work in
-`docs/backlog/queue.md`; the federation is documented and
-the orchestration is proposed, but the implementation is
-deferred to keep change blast-radius bounded.
-
-## Dogfooding Harness Lessons
-
-These lessons came out of a 2026-06-28 dogfooding pass over
-`make plugin-check` and the plugin Makefiles. The per-finding fixes
-landed in the Makefiles and are guarded by
-`tests/unit/test_plugin_check_harness.py`; what follows is the durable
-part worth keeping.
-
-### Separate "tool absent" from "tool failed"
-
-The recurring defect was the pattern:
-
-```bash
-cmd 2>/dev/null || echo "benign fallback"
-```
-
-A real failure (a missing file, an `E902` io-error) prints a harmless
-message and the target still exits 0, so the harness reports zero
-failures while masking real defects as skips. This is "sanitized
-optimism" at the harness layer, and it defeats the point of a dogfooding
-check. Two plugin Makefiles drifted this way: a stale `../conservation/`
-path in conserve, and a `ruff check parseltongue/` that pointed at a
-path that did not exist (source lives under `src/`).
-
-The fix is to distinguish the two cases. When a tool is genuinely
-absent, skip with an explicit reason. When a tool ran and failed,
-propagate its exit code instead of swallowing it under `2>/dev/null`.
-The repo already ships a `silent-failure-hunter` agent for this class of
-bug in code; the same lens applies to Makefile recipes. Presence probes
-and intentional empty-result handlers are legitimate uses of
-`|| echo` and should stay; a blind sweep would break them.
-
-### Bound every step in the harness
-
-`make plugin-check` once hung for 8+ minutes on `npx playwright
---version` in `plugins/scry`, with stdout and stderr redirected, so the
-stall was silent and the run never reached the later plugins. A
-dogfooding harness that hangs on its own dependency probe is not safe to
-run in CI or unattended.
-
-Two guards prevent a recurrence: dependency probes use a non-fetching
-form (`npx --no-install playwright --version`) that fast-fails instead
-of resolving over the network, and the `plugin-check` loop wraps each
-plugin in `timeout 180`, so any future hang surfaces as
-`(plugin-check failed or timed out)` rather than stalling the whole run.
-
-### Drive long-running checks from tmux
-
-Long-lived, terminal-bound checks like `make plugin-check` are best
-driven from a detached tmux session: it lets the harness run while other
-evidence-gathering proceeds in parallel, and the session log captures
-output that redirected stdout would otherwise hide.
-
-### Follow-on work
-
-- A forced-eval skill-activation gate is prototyped under
-  `prototypes/forced-eval/` (not wired); it targets the
-  near-keyword-matching activation problem.
-- The skill Discovery budget is finite (about 16K characters) and skills
-  past it are dropped silently, so a layer-count guard is worth adding
-  as the ecosystem's skill count grows.
-- attune mission types (full, standard, tactical, quickfix) all assume
-  building from artifacts; an evidence-driven `review` mission type would
-  fit dogfooding work better than directive overrides.
+The implementation is deferred to bound blast radius and is
+tracked in `docs/backlog/queue.md`.
 
 ## See Also
 
 - [Testing Guide](./testing-guide.md) - Testing documentation
+- [Lessons Learned](./lessons-learned.md) - LL-007 records the
+  dogfooding pass over `make plugin-check` that hardened this harness
 - [Plugin Development Guide](./plugin-development-guide.md) - Plugin
   development standards
 - [Pre-commit configuration](../.pre-commit-config.yaml) - Hook definitions

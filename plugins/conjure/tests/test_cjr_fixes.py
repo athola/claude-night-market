@@ -31,6 +31,8 @@ from scripts.war_room.config import (
 )
 from scripts.war_room.phases import compute_borda_scores
 
+from scripts import delegation_services
+
 # ---------------------------------------------------------------------------
 # CJR-001: Named model ID constants + startup validation
 # ---------------------------------------------------------------------------
@@ -415,3 +417,38 @@ class TestBordaScoresCharacterization:
 
         expected = self._original_borda(votes, labels)
         assert compute_borda_scores(votes, labels) == expected
+
+
+class TestAuthMethodIsValidated:
+    """``auth_method`` is a de-facto enum over api_key, cli and none.
+
+    ``_apply_overrides`` validates field names, not values, so a config
+    saying ``auth_method: apikey`` constructed cleanly and then matched
+    neither the api_key branch nor the cli one: the service skipped both
+    the auth probe and the API-key check while reporting itself
+    configured.
+    """
+
+    def test_an_unknown_auth_method_is_rejected(self) -> None:
+        """A near-miss spelling must not construct."""
+        with pytest.raises(ValueError, match="auth_method"):
+            delegation_services.ServiceConfig(
+                name="typo",
+                command="typo-cli",
+                auth_method="apikey",
+            )
+
+    def test_each_known_auth_method_constructs(self) -> None:
+        """The three real values still work."""
+        for method in sorted(delegation_services.AUTH_METHODS):
+            config = delegation_services.ServiceConfig(
+                name="ok", command="ok-cli", auth_method=method
+            )
+            assert config.auth_method == method
+
+    def test_every_registered_service_declares_a_known_method(self) -> None:
+        """The shipped registry must satisfy its own invariant."""
+        for name, config in delegation_services.SERVICES.items():
+            assert config.auth_method in delegation_services.AUTH_METHODS, (
+                f"{name} declares auth_method {config.auth_method!r}"
+            )

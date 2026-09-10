@@ -26,7 +26,6 @@ and maintaining Claude Code plugins. It's the toolkit for plugin developers.
 | `hooks-eval` | Hook security scanning | Verifying hook safety |
 | `escalation-governance` | Model escalation decisions | Deciding when to escalate models |
 | `methodology-curator` | Expert framework curation | Grounding skills in proven methodologies |
-| `shared-patterns` | Plugin development patterns | Reusable templates |
 | `subagent-testing` | Subagent test patterns | Testing subagent interactions |
 
 ## Commands

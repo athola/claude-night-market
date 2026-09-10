@@ -26,6 +26,7 @@ never blocks on a network failure.
 from __future__ import annotations
 
 import re
+import time
 from collections.abc import Callable
 
 __all__ = [
@@ -268,6 +269,7 @@ def nearest_known(name: str, ecosystem: str) -> str | None:
 def assess_packages(
     command: str,
     registry_fn: Callable[[str, str], bool | None] | None = None,
+    budget_seconds: float | None = None,
 ) -> list[dict[str, str]]:
     """Classify each package an install command would fetch.
 
@@ -276,11 +278,20 @@ def assess_packages(
     is only called for names not in the known-popular set. When omitted,
     no registry check is performed and unknown names are left implicit.
 
+    ``budget_seconds`` bounds the total time spent in ``registry_fn``
+    across the whole command. Without it a long install list multiplies
+    the per-lookup timeout without limit, and a PreToolUse hook killed by
+    the harness emits no decision at all, which is the same as no gate:
+    the failure lands exactly when a long list makes a hallucinated name
+    most likely. Names reached after the budget is spent are reported as
+    ``unverified``, which warns and never blocks.
+
     Returns a list of findings, each a dict with ``name``, ``ecosystem``,
     ``kind`` (``typosquat`` | ``nonexistent`` | ``unverified``), and a
     human-readable ``detail``.
     """
     findings: list[dict[str, str]] = []
+    deadline = None if budget_seconds is None else time.monotonic() + budget_seconds
     for ecosystem, name in parse_packages(command):
         known = KNOWN_POPULAR.get(ecosystem, frozenset())
         if name in known:
@@ -303,6 +314,21 @@ def assess_packages(
             continue
 
         if registry_fn is None:
+            continue
+
+        if deadline is not None and time.monotonic() >= deadline:
+            findings.append(
+                {
+                    "name": name,
+                    "ecosystem": ecosystem,
+                    "kind": "unverified",
+                    "detail": (
+                        f"Ran out of the registry-lookup budget before "
+                        f"reaching '{name}'. Confirm it exists before "
+                        f"relying on it."
+                    ),
+                }
+            )
             continue
 
         exists = registry_fn(name, ecosystem)

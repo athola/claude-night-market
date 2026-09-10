@@ -475,7 +475,7 @@ def resolve_references(items: list[Item]) -> list[Item]:
 ## See Also
 
 - [Progressive Disclosure
-  Pattern](./documentation-standards.md#progressive-disclosure)
+  Pattern](./documentation-standards.md#1-progressive-disclosure)
 - [Optimization Patterns](../optimization-patterns.md)
 - [Plugin Overview](../../book/src/plugins/README.md)
 

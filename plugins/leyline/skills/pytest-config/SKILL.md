@@ -25,13 +25,6 @@ modules:
 - modules/README.md
 model_hint: standard
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [Detailed Patterns](#detailed-patterns)
-- [Integration with Other Skills](#integration-with-other-skills)
-- [Exit Criteria](#exit-criteria)
-- [Troubleshooting](#troubleshooting)
 
 # Pytest Configuration Patterns
 

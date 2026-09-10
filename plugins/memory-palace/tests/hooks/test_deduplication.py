@@ -823,3 +823,62 @@ class TestUpdateIndexStaging:
 
         on_disk = real_yaml.safe_load(index_path.read_text())
         assert "https://example.com/nogit" in on_disk["entries"]
+
+
+class TestStagingBudget:
+    """The git add must leave margin under the hooks.json cap.
+
+    Every hook that reaches _stage_index declares a 5s cap, and by the time
+    staging runs the invocation has already spent time on the fetch, the
+    safety checks and the yaml write. A timeout equal to the cap leaves zero
+    margin for all of that, so the process is killed having done the work
+    and recorded none of it.
+    """
+
+    def test_stage_index_timeout_is_below_the_registered_cap(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The timeout kwarg passed to git add must be under every cap."""
+        import json
+
+        recorded: dict[str, object] = {}
+
+        def fake_run(*args: object, **kwargs: object):
+            recorded.update(kwargs)
+
+            class _Completed:
+                returncode = 0
+
+            return _Completed()
+
+        monkeypatch.setattr(dedup_module.subprocess, "run", fake_run)
+        index_path = tmp_path / "index.yaml"
+        index_path.write_text("{}")
+        dedup_module._stage_index(index_path)
+
+        assert "timeout" in recorded
+
+        hooks_root = Path(dedup_module.__file__).resolve().parent.parent
+        manifest = json.loads((hooks_root / "hooks.json").read_text(encoding="utf-8"))
+        # Scoped to the hooks that actually reach _stage_index. The
+        # manifest's smallest cap belongs to a hook that never stages.
+        consumers = {
+            "url_detector.py",
+            "local_doc_processor.py",
+            "index_surfacer.py",
+            "web_research_handler.py",
+        }
+        caps = [
+            entry["timeout"]
+            for groups in manifest["hooks"].values()
+            for group in groups
+            for entry in group.get("hooks", [])
+            if isinstance(entry.get("timeout"), (int, float))
+            and entry.get("command", "").rsplit("/", 1)[-1].split()[0] in consumers
+        ]
+        assert caps
+        assert float(recorded["timeout"]) < min(caps), (
+            f"git add budgets {recorded['timeout']}s against a {min(caps)}s "
+            f"hook cap, leaving no margin for the fetch, checks and write "
+            f"that already ran in the same invocation"
+        )

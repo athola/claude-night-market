@@ -28,17 +28,6 @@ modules:
 - entry-points.md
 - ci-cd-integration.md
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Core Decisions](#core-decisions)
-- [1. Layout Choice](#1-layout-choice)
-- [2. Project Structure](#2-project-structure)
-- [Detailed Topics](#detailed-topics)
-- [Best Practices](#best-practices)
-- [Exit Criteria](#exit-criteria)
-
 
 # Python Packaging
 

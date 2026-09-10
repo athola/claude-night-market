@@ -33,25 +33,6 @@ modules:
 - modules/recovery-strategies.md
 - modules/agent-damage-control.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Error Classification](#error-classification)
-- [By Severity](#by-severity)
-- [By Recoverability](#by-recoverability)
-- [Quick Start](#quick-start)
-- [Standard Error Handler](#standard-error-handler)
-- [Error Result](#error-result)
-- [Common Patterns](#common-patterns)
-- [Authentication Errors (401/403)](#authentication-errors-(401-403))
-- [Rate Limit Errors (429)](#rate-limit-errors-(429))
-- [Timeout Errors](#timeout-errors)
-- [Context Too Large (400)](#context-too-large-(400))
-- [Integration Pattern](#integration-pattern)
-- [Detailed Resources](#detailed-resources)
-- [Exit Criteria](#exit-criteria)
-
 
 # Error Patterns
 

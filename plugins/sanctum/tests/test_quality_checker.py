@@ -995,8 +995,8 @@ def test_run_check_or_validate_exists():
     assert callable(getattr(qc, "_run_check_or_validate", None))
 
 
-def test_run_check_or_validate_returns_report_str(monkeypatch, tmp_path):
-    """Behavior guard: check command still produces a human report via helper."""
+def test_run_check_or_validate_prints_report(monkeypatch, tmp_path, capsys):
+    """Behavior guard: the check command prints the human report through the helper."""
     qc = _load_script()
     f = _good_test_file(tmp_path)
 
@@ -1015,8 +1015,9 @@ def test_run_check_or_validate_returns_report_str(monkeypatch, tmp_path):
         check=str(f), validate=None, output=None, output_json=False, coverage=None
     )
     checker = qc.TestQualityChecker(f)
-    # Must not raise
     qc._run_check_or_validate(checker, args)
+    printed = capsys.readouterr().out
+    assert "Test Quality Report" in printed, printed
 
 
 # ---------------------------------------------------------------------------

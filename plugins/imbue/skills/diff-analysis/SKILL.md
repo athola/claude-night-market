@@ -22,13 +22,6 @@ progressive_loading: true
 module_strategy: workflow-based
 estimated_tokens: 800
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Activation Patterns](#activation-patterns)
-- [4-Step Methodology](#4-step-methodology)
-- [Exit Criteria](#exit-criteria)
 
 # Diff Analysis Methodology
 

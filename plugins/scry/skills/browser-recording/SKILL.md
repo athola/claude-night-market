@@ -21,22 +21,6 @@ modules:
 dependencies:
 - scry:gif-generation
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Process](#process)
-- [Step 1: Validate Playwright Installation](#step-1:-validate-playwright-installation)
-- [Step 2: Check Spec File](#step-2:-check-spec-file)
-- [Step 3: Execute Recording](#step-3:-execute-recording)
-- [Step 4: Convert to GIF](#step-4:-convert-to-gif)
-- [Example Playwright Spec](#example-playwright-spec)
-- [Playwright Configuration](#playwright-configuration)
-- [Exit Criteria](#exit-criteria)
-- [Error Handling](#error-handling)
-- [Output Locations](#output-locations)
-- [See Also](#see-also)
-
 
 # Browser Recording Skill
 

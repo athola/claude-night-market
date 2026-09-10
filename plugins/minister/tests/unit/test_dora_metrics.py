@@ -12,6 +12,7 @@ import json as _json
 import subprocess as _sub
 import typing
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 
@@ -623,10 +624,81 @@ class TestCliArgumentValidation:
         argv = captured[0]
         # Find the position of "--" and the branch, and ensure "--" precedes it
         # so git treats it as a positional rather than a flag.
-        assert "--" in argv, "git log argv must include '--' separator"
-        sep_idx = argv.index("--")
+        assert "--end-of-options" in argv, (
+            "git log argv must include the '--end-of-options' separator"
+        )
+        sep_idx = argv.index("--end-of-options")
         assert "--malicious" in argv[sep_idx:], (
-            "branch must follow the '--' separator, not precede it"
+            "branch must follow the separator, not precede it"
+        )
+        assert "--" not in argv, (
+            "'--' separates revisions from PATHS in git log, so a branch "
+            "placed after it is read as a pathspec and matches nothing"
+        )
+
+    def test_git_rejects_an_option_after_the_separator(self, tmp_path: Path) -> None:
+        """Issue #526's protection must still hold under the new separator.
+
+        GIVEN "--" was chosen to stop "--upload-pack=..." reaching git
+        as a flag
+        WHEN it was replaced with "--end-of-options" to fix the
+        pathspec defect
+        THEN the replacement has to keep that property, and the
+        sibling test only inspects argv, which cannot tell whether git
+        agrees. This one asks git.
+        """
+        repo = tmp_path / "repo"
+        repo.mkdir()
+
+        def run(*argv: str) -> None:
+            _sub.run(argv, cwd=repo, check=True, capture_output=True)
+
+        run("git", "init", "-q", "-b", "main")
+        run("git", "config", "user.email", "t@example.com")
+        run("git", "config", "user.name", "T")
+        (repo / "f.txt").write_text("one")
+        run("git", "add", "f.txt")
+        run("git", "commit", "-q", "-m", "first")
+
+        hostile = _sub.run(
+            ["git", "log", "--end-of-options", "--upload-pack=/bin/echo"],
+            cwd=repo,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert hostile.returncode != 0, (
+            "git accepted a flag placed after --end-of-options; the "
+            "protection issue #526 asked for is gone"
+        )
+
+    def test_collects_real_commits_from_a_git_repository(self, tmp_path: Path) -> None:
+        """Every DORA tier is computed from this call, so it must return rows.
+
+        The sibling test above mocks `_run_git` and checks argv shape, so
+        it stayed green while the separator made git match zero commits.
+        This one runs git.
+        """
+        repo = tmp_path / "repo"
+        repo.mkdir()
+
+        def run(*argv: str) -> None:
+            _sub.run(argv, cwd=repo, check=True, capture_output=True)
+
+        run("git", "init", "-q", "-b", "main")
+        run("git", "config", "user.email", "t@example.com")
+        run("git", "config", "user.name", "T")
+        (repo / "f.txt").write_text("one")
+        run("git", "add", "f.txt")
+        run("git", "commit", "-q", "-m", "first")
+
+        result = dora_metrics.collect_deployments_from_git(
+            branch="main", window_days=3650, cwd=repo
+        )
+        events = result.events if hasattr(result, "events") else result
+        assert len(events) >= 1, (
+            "collect_deployments_from_git returned no deployments for a "
+            "repository that has commits"
         )
 
 

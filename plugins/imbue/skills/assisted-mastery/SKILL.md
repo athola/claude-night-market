@@ -129,15 +129,17 @@ ceremony, and ceremony trains people to ignore the gate.
   `imbue:proof-of-work`)
 - Deciding whether to build it at all (use `imbue:scope-guard`)
 
-## Red Flags
+## Constraints
 
-| Thought | Reality |
-|---------|---------|
-| "The diff is obviously correct" | Correct to whom? State why, or you are guessing. |
-| "Explaining slows me down" | On work you must own, the explanation is the deliverable. |
-| "There was only one way to do it" | There is rarely one way. Name the alternatives you dismissed. |
-| "I'll understand it later if it breaks" | Automation bias: you will trust it precisely when it is wrong. |
-| "More agent help is always better" | Help that never fades builds dependence, not skill. |
+- A diff is correct to someone. State why it is correct, or it is a
+  guess that happened to pass.
+- On work the human must own, the explanation is the deliverable, so
+  the time it takes is the work, not overhead.
+- Name the alternatives dismissed. There is rarely one way to do it,
+  and a reader who sees only the winner cannot judge it.
+- Do not defer understanding to the moment it breaks. Automation bias
+  means the output is trusted most exactly when it is wrong.
+- Help that never fades builds dependence. The fade is the point.
 
 ## Related Skills
 

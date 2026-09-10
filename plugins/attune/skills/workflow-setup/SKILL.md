@@ -12,25 +12,6 @@ complexity: intermediate
 model_hint: standard
 estimated_tokens: 1500
 ---
-## Table of Contents
-
-- [When To Use](#when-to-use)
-- [Standard Workflows](#standard-workflows)
-- [Python Workflows](#python-workflows)
-- [Rust Workflows](#rust-workflows)
-- [TypeScript Workflows](#typescript-workflows)
-- [Workflow](#workflow)
-- [1. Check Existing Workflows](#1-check-existing-workflows)
-- [2. Identify Missing Workflows](#2-identify-missing-workflows)
-- [3. Render Workflow Templates](#3-render-workflow-templates)
-- [4. Validate Workflows](#4-validate-workflows)
-- [Workflow Best Practices](#workflow-best-practices)
-- [Use Latest Action Versions](#use-latest-action-versions)
-- [Matrix Testing (Python)](#matrix-testing-python)
-- [Caching Dependencies](#caching-dependencies)
-- [Updating Workflows](#updating-workflows)
-- [Related Skills](#related-skills)
-
 
 # Workflow Setup Skill
 

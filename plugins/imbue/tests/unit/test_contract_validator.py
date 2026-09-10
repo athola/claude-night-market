@@ -259,6 +259,42 @@ class TestContractValidationFail:
         assert result.passed is False
         assert "evidence" in [s.lower() for s in result.missing_sections]
 
+    def test_one_tag_cited_repeatedly_counts_once(
+        self,
+        sample_contract: OutputContract,
+    ) -> None:
+        """Repeating [E1] must not clear a three-evidence bar.
+
+        _count_evidence_tags was documented as counting unique tags and
+        implemented as len(findall(...)), so citing the same tag three
+        times scored 3 against min_evidence_count 3. An agent could clear
+        the contract on one piece of evidence, in the validator whose job
+        is to stop exactly that.
+        """
+        findings = (
+            "## Summary\nOne finding.\n\n"
+            "## Findings\nThe parser drops the last row [E1].\n"
+            "It also drops it on retry [E1].\n"
+            "And again on the third pass [E1].\n\n"
+            "## Evidence\n[E1] pytest output\n"
+        )
+        result = validate_findings(findings, sample_contract)
+        assert result.evidence_count == 1
+        assert result.passed is False
+
+    def test_distinct_tags_count_separately(
+        self,
+        sample_contract: OutputContract,
+    ) -> None:
+        """Three different tags still clear a three-evidence bar."""
+        findings = (
+            "## Summary\nThree findings.\n\n"
+            "## Findings\nA [E1].\nB [E2].\nC [E3].\n\n"
+            "## Evidence\n[E1] a\n[E2] b\n[E3] c\n"
+        )
+        result = validate_findings(findings, sample_contract)
+        assert result.evidence_count == 3
+
     def test_zero_evidence_always_rejected(
         self,
         sample_contract: OutputContract,

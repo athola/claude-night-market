@@ -6,7 +6,7 @@
 .PHONY: help dev-setup clean status debug-variables \
 	test test-integration test-verbose \
 	demo-init demo-brainstorm demo-skills demo-attune demo-attune-commands \
-	test-attune plugin-check typecheck
+	test-attune plugin-check
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts tests

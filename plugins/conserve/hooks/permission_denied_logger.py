@@ -19,17 +19,18 @@ from pathlib import Path
 # Tools that are safe to retry after denial (read-only operations)
 RETRY_SAFE_TOOLS = frozenset({"Read", "Glob", "Grep", "WebFetch", "WebSearch"})
 
-# Log location
-LOG_DIR = (
-    Path(
-        os.environ.get(
-            "CLAUDE_PROJECT_DIR",
-            os.environ.get("PWD", "."),
-        )
-    )
-    / ".claude"
-    / "logs"
-)
+
+def log_dir() -> Path:
+    """Where the log lives, resolved per call rather than at import.
+
+    A module-level constant freezes the project root at import time,
+    which makes the destination untestable and silently wrong for any
+    caller that sets ``CLAUDE_PROJECT_DIR`` afterwards. The sibling
+    ``background_agent_notice.py`` documents the same reason; this hook
+    kept the constant.
+    """
+    root = os.environ.get("CLAUDE_PROJECT_DIR") or os.environ.get("PWD") or "."
+    return Path(root) / ".claude" / "logs"
 
 
 def main() -> None:
@@ -55,8 +56,9 @@ def main() -> None:
 
     # Append to denial log file for post-session analysis
     try:
-        LOG_DIR.mkdir(parents=True, exist_ok=True)
-        log_file = LOG_DIR / "permission_denials.jsonl"
+        destination = log_dir()
+        destination.mkdir(parents=True, exist_ok=True)
+        log_file = destination / "permission_denials.jsonl"
         entry = {
             "timestamp": timestamp,
             "tool": tool_name,

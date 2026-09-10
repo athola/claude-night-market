@@ -35,24 +35,6 @@ modules:
 - modules/service-config.md
 - modules/execution-patterns.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Core Concepts](#core-concepts)
-- [Service Configuration](#service-configuration)
-- [Execution Result](#execution-result)
-- [Quick Start](#quick-start)
-- [Register Services](#register-services)
-- [Execute via Service](#execute-via-service)
-- [Health Checks](#health-checks)
-- [Service Selection](#service-selection)
-- [Auto-Selection](#auto-selection)
-- [Failover Pattern](#failover-pattern)
-- [Integration Pattern](#integration-pattern)
-- [Detailed Resources](#detailed-resources)
-- [Exit Criteria](#exit-criteria)
-
 
 # Service Registry
 

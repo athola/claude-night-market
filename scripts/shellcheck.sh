@@ -93,4 +93,4 @@ main() {
   run_shellcheck "${SHELL_DIALECT}"
 }
 
-main "${@}"
+main "$@"

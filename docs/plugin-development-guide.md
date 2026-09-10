@@ -96,6 +96,22 @@ Avoid these patterns in hook code:
 | `type X = ...` aliases | 3.12+ | `TypeAlias` from `typing` |
 | `import yaml` (pyyaml) | not stdlib | `try/except ImportError` with `yaml = None` fallback |
 
+### Make Version Requirement
+
+The shared includes under `plugins/abstract/config/make/` set
+`.SHELLFLAGS` to `-euo pipefail` and turn on `.ONESHELL`. GNU make
+introduced both in 3.82. The Xcode command line tools ship 3.81, which
+ignores them silently, so every recipe runs without `pipefail` and a
+failing stage in a pipeline reports success.
+
+| Requirement | Check | Fix on macOS |
+|-------------|-------|--------------|
+| GNU make 3.82+ | `make --version` | `brew install make`, then run `gmake` |
+
+The includes print a warning once per invocation when they detect 3.81.
+Treat it as a real finding: on that host a green `make lint` is not
+evidence the gate passed.
+
 ## Release Checklist
 
 Before release, verify that tests pass with over 80% coverage and that `ruff`,

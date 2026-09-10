@@ -27,15 +27,6 @@ modules:
 references:
 - delegation-core/shared-shell-execution.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Smart Delegation](#smart-delegation)
-- [Qwen-Specific Details](#qwen-specific-details)
-
 
 # Qwen CLI Delegation
 

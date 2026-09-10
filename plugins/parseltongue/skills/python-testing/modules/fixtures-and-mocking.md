@@ -11,17 +11,6 @@ estimated_tokens: 500
 
 Advanced patterns for test setup, teardown, parameterization, and mocking external dependencies.
 
-## Table of Contents
-
-- [Fixtures for Setup/Teardown](#fixtures-for-setupteardown)
-  - [Fixture Scopes](#fixture-scopes)
-- [Parameterized Tests](#parameterized-tests)
-  - [Multiple Parameters](#multiple-parameters)
-- [Mocking External Dependencies](#mocking-external-dependencies)
-  - [Mock Patterns](#mock-patterns)
-  - [Mocking Best Practices](#mocking-best-practices)
-- [Fixture Composition](#fixture-composition)
-
 ## Fixtures for Setup/Teardown
 
 Fixtures provide reusable setup and teardown logic:
