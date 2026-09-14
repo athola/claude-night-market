@@ -194,20 +194,6 @@ answers, the work stays on your machine.
   rely on. `make` warns once per invocation when it detects this.
   On macOS: `brew install make`, then run `gmake`.
 
-## What's New
-
-**1.9.20** adds a reader tier to `scribe`. Every generated document
-now declares one of `newcomer`, `practitioner` or `expert`, and content
-written for a different tier moves to a linked page instead of being
-deleted. `scripts/slop_score.py --audit` prints
-a file and a line for every finding, including the low-confidence
-categories the merge gate declines to score, and a ratchet at commit
-time fails a document only when it scores worse than its own last
-version. The rest is a fix pass: twenty-three Makefile findings, the
-macOS toolchain assumptions that let a failing pipeline stage pass,
-and eight June review findings that still stood in September. Full
-history is in the [CHANGELOG](CHANGELOG.md).
-
 ## Plugin Development
 
 ```bash
@@ -250,11 +236,11 @@ health. Contribution guidelines are in the
 ## Acknowledgements
 
 Night Market builds on [Anthropic Claude Code][claude-code] and
-integrates with [github/spec-kit][spec-kit-upstream] (v0.5.0),
+integrates with [github/spec-kit][spec-kit-upstream] (v0.5.0) and
 [obra/superpowers][superpowers-upstream] (v5.0.7, see the
-[integration guide][superpowers-doc]), and three patterns adapted
-from [QAInsights/Quillx][quillx]. Per-plugin attributions are in
-each plugin's `pyproject.toml`.
+[integration guide][superpowers-doc]). Its AI involvement is declared
+under the [Quillx][quillx] disclosure standard as 3/5 (Adapted):
+human-directed, AI-generated, and meaningfully edited.
 
 ## License
 
