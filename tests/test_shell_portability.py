@@ -136,3 +136,51 @@ def test_cron_lock_is_atomic_and_under_the_repo() -> None:
     body = (REPO_ROOT / "scripts" / "clawhub-cron.sh").read_text()
     assert 'mkdir "$LOCK"' in body
     assert "/tmp/clawhub-sync.lock" not in body
+
+
+def test_plugin_makefiles_capture_pytest_status_in_the_form_errexit_allows() -> None:
+    """Under `.SHELLFLAGS := -euo pipefail -c` a recipe written as
+    `$(PYTEST) ...; status=$$?` aborts the moment pytest exits nonzero, so
+    the exit-5 "Not applicable" branch after it can never run. Only
+    `$(PYTEST) ... || status=$$?` reaches the assignment. Make 3.81 ignores
+    .SHELLFLAGS, which hides this locally and nowhere else.
+    """
+    makefiles = [REPO_ROOT / "Makefile", *PLUGINS.glob("*/Makefile")]
+    offenders = []
+    for makefile in makefiles:
+        for number, line in enumerate(makefile.read_text().splitlines(), start=1):
+            if line.lstrip().startswith("#"):
+                continue
+            if re.search(r"(?<!\|\| )status=\$\$\?", line):
+                offenders.append(f"{makefile.relative_to(REPO_ROOT)}:{number}")
+    assert not offenders, offenders
+
+
+def test_auth_module_scopes_xtrace_suppression_to_a_subshell() -> None:
+    """`{ set +x; }` at function level turned tracing off for the rest of
+    the process, so a caller running with -x lost it everywhere after the
+    credential. Inside `( ... )` it ends with the subshell, and the token
+    still never reaches the trace.
+    """
+    sites = [
+        line.strip()
+        for line in AUTH_MODULE.read_text().splitlines()
+        if "{ set +x; }" in line and not line.lstrip().startswith("#")
+    ]
+    assert sites, "no xtrace suppression left around the token handoff"
+    for site in sites:
+        assert re.search(r"\(\s*\{ set \+x; \}", site), site
+
+
+def test_lint_runner_expands_its_optional_flag_in_the_form_bash_32_accepts() -> None:
+    """`"${LINT_FIX[@]}"` on an empty array is an unbound-variable error
+    under `set -u` on bash 3.2, and --fix is off by default, so every plugin
+    failed to lint on stock macOS. CI's bash 5 accepts both forms, which is
+    why the dynamic lint gate tests catch this only on a Mac.
+    """
+    body = (REPO_ROOT / "scripts" / "run-plugin-lint.sh").read_text()
+    code = "\n".join(
+        line for line in body.splitlines() if not line.lstrip().startswith("#")
+    )
+    assert '${LINT_FIX[@]+"${LINT_FIX[@]}"}' in code
+    assert not re.search(r'(?<!\+)"\$\{LINT_FIX\[@\]\}"', code)

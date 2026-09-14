@@ -312,3 +312,21 @@ def test_validators_can_actually_fail(script: Path) -> None:
         f"exit code are reading a constant. Either exit nonzero when the "
         f"verdict is negative, or stop presenting it as a check."
     )
+
+
+def test_memory_palace_demo_round_trip_can_fail() -> None:
+    """A failing demo import or export fails the make target.
+
+    GIVEN the memory-palace demo-import and demo-export recipes
+    WHEN the CLI call in either one exits nonzero
+    THEN make sees that exit code, because no trailing suppression drops it
+
+    Both recipes ended in ``|| true``, so a broken import or export exited 0.
+    The palace CLI is not a checker ``CHECKER_RE`` names, which is why the
+    sweep above never looked at these lines.
+    """
+    targets = _targets(PLUGINS_DIR / "memory-palace" / "Makefile")
+    for name in ("demo-import", "demo-export"):
+        assert name in targets, f"{name} target moved"
+        for line in targets[name][1]:
+            assert not SUPPRESSION_RE.search(line), f"{name}: {line}"

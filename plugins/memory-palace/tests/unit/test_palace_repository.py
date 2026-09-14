@@ -292,3 +292,56 @@ class TestPalaceRepositoryIndex:
 
         assert domains.get("programming") == 2
         assert domains.get("mathematics") == 1
+
+
+class TestUnreadablePalaceFiles:
+    """Feature: a palace file that cannot be loaded is skipped, and says so.
+
+    As a palace manager
+    I want one bad file to cost one palace, with a diagnostic
+    So that a dropped palace is not mistaken for one never created
+    """
+
+    @pytest.mark.unit
+    def test_corrupt_palace_is_skipped_with_a_warning(
+        self, repo: PalaceRepository, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Scenario: a palace file holds invalid JSON
+        Given one valid palace and one file that does not parse
+        When the master index is rebuilt
+        Then the valid palace is still indexed
+        And stderr names the file that was skipped.
+        """
+        repo.create_palace("Palace A", "domain-a")
+        (Path(repo.palaces_dir) / "broken.json").write_text(
+            "{not json", encoding="utf-8"
+        )
+        capsys.readouterr()
+
+        repo.update_master_index()
+        palaces = repo.list_palaces()
+
+        assert len(palaces) == 1
+        err = capsys.readouterr().err
+        assert "Skipping unreadable palace" in err
+        assert "broken.json" in err
+
+    @pytest.mark.unit
+    def test_unopenable_palace_entry_is_skipped_rather_than_raised(
+        self, repo: PalaceRepository, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Scenario: an entry matching *.json cannot be opened
+        Given one valid palace and a directory named ghost.json
+        When the master index is rebuilt
+        Then the OSError from opening it does not escape the rebuild
+        And stderr names the entry that was skipped.
+        """
+        repo.create_palace("Palace A", "domain-a")
+        (Path(repo.palaces_dir) / "ghost.json").mkdir()
+        capsys.readouterr()
+
+        repo.update_master_index()
+        palaces = repo.list_palaces()
+
+        assert len(palaces) == 1
+        assert "ghost.json" in capsys.readouterr().err

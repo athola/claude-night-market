@@ -85,3 +85,27 @@ def test_threads_session_id_into_improvement_queue(tmp_path):
     entry = queue["skills"][skill_ref]
     assert "real-session-42" in entry["execution_ids"], entry
     assert "unknown" not in entry["execution_ids"], entry
+
+
+def test_malformed_history_fails_with_the_hook_label_not_a_traceback(tmp_path):
+    """A history entry of the wrong type is reported under the hook's name.
+
+    GIVEN a .history.json whose accuracies mix a number and a string
+    WHEN a Skill payload for that skill arrives on stdin
+    THEN the hook exits 1
+    AND stderr carries the ``homeostatic_monitor error:`` label
+    AND no bare traceback escapes, which is what an uncaught TypeError gave
+    """
+    skill_ref = "superpowers:writing-plans"
+    logs = tmp_path / "skills" / "logs"
+    logs.mkdir(parents=True)
+    (logs / ".history.json").write_text(
+        json.dumps({skill_ref: {"accuracies": [1.0, "x"], "durations": [100, 100]}})
+    )
+    payload = {"tool_name": "Skill", "tool_input": {"skill": skill_ref}}
+
+    result = _run(payload, tmp_path)
+
+    assert result.returncode == 1, result.stderr
+    assert "homeostatic_monitor error:" in result.stderr
+    assert "Traceback" not in result.stderr

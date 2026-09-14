@@ -335,6 +335,34 @@ class TestAbstractConfigFromEnv:
         assert config.environment == Environment.PRODUCTION
 
     @pytest.mark.unit
+    def test_invalid_env_warns_naming_the_value_and_the_fallback(
+        self, monkeypatch, capsys
+    ):
+        """A typo in ABSTRACT_ENV is reported rather than silently absorbed.
+
+        GIVEN ABSTRACT_ENV set to a value no Environment member carries
+        WHEN the config is built from the environment
+        THEN stderr names the rejected value and the PRODUCTION fallback
+        """
+        monkeypatch.setenv("ABSTRACT_ENV", "prodution")
+        AbstractConfig.from_env()
+        err = capsys.readouterr().err
+        assert "ABSTRACT_ENV='prodution'" in err
+        assert f"falling back to {Environment.PRODUCTION.value}" in err
+
+    @pytest.mark.unit
+    def test_valid_env_emits_no_warning(self, monkeypatch, capsys):
+        """A recognized ABSTRACT_ENV value produces no stderr noise.
+
+        GIVEN ABSTRACT_ENV set to a real Environment value
+        WHEN the config is built from the environment
+        THEN nothing about ABSTRACT_ENV is written to stderr
+        """
+        monkeypatch.setenv("ABSTRACT_ENV", "development")
+        AbstractConfig.from_env()
+        assert "ABSTRACT_ENV" not in capsys.readouterr().err
+
+    @pytest.mark.unit
     def test_log_file_from_env(self, monkeypatch):
         """ABSTRACT_LOG_FILE is read from environment."""
         monkeypatch.setenv("ABSTRACT_LOG_FILE", "/tmp/abstract.log")
