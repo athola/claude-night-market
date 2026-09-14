@@ -14,9 +14,9 @@ Exit codes:
 from __future__ import annotations
 
 import json
+import posixpath
 import sys
 from pathlib import Path
-import posixpath
 
 # The default hooks file that Claude Code auto-loads.
 _AUTO_LOADED = "./hooks/hooks.json"
