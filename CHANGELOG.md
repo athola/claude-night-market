@@ -7,120 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- **Dependency refresh, and the mypy ceiling that survived it.** A
-  scan read `mypy>=X,<2` as the one blocking upper bound in the tree:
-  28 specs across 23 files, against a current mypy of 2.3.1, with the
-  rationale recorded nowhere. Widening it was the obvious move and it
-  was wrong.
-
-  mypy 2.x refuses `python_version = "3.9"`, which 22 of the 23 plugin
-  configs set, and it treats that as a note rather than an error.
-  Given `def f(x: int | None)`
-  under a 3.9 config, mypy 1.20.2 reports `X | Y syntax for unions
-  requires Python 3.10` and mypy 2.3.1 reports `Success: no issues
-  found`, both exiting 0. The hooks run on the system interpreter,
-  which is 3.9.6 on macOS, so adopting mypy 2 would have retired the
-  check that keeps them runnable while the gate still read green.
-
-  The ceiling stays and now has a record.
-  `tests/test_mypy_ceiling_holds_for_3_9_targets.py` requires `<2` on
-  every mypy spec in a pyproject that targets 3.9, and a second
-  assertion fails if no pyproject targets 3.9 any more, so the first
-  one cannot quietly start skipping. TR-003 in `docs/tradeoffs.md`
-  carries the decision and its revisit trigger, which is the 3.9
-  target going away, not a newer mypy.
-
-  Floor drift is gone. Fourteen packages carried different minimums in
-  different plugins: `pytest` at three, `mypy` at four,
-  `pytest-asyncio` at five, `ruff` at `>=0.4.0` in phantom against
-  `>=0.14.13` in twenty-five others. Each is now the highest floor
-  that was already in use, raised by version comparison so no floor
-  moved down, and `PyYAML` and `types-PyYAML` are spelled the PEP 503
-  way the rest of the tree already used. This changes no resolution:
-  every one of the 21 lock files already sat above every floor
-  involved. It changes what a resolve on a clean machine is allowed to
-  pick.
-
-  The 21 lock files were then upgraded, moving 207 pinned versions.
-  Nothing crossed a major. `anthropic` stops at 0.125.0 rather than
-  PyPI's 1.4.0, and the reason is the same `requires-python = ">=3.9"`
-  that pins mypy: anthropic 1.x needs 3.10 or later. Verified after
-  the upgrade: lint passes in 21 plugins, type checks pass in 23,
-  tests pass in 23, and the root suite runs 7130 tests green.
-
-- **The two designs ADR-0019 missed.** That ADR retires
-  `docs/superpowers/` and records what shipped from it, and it was
-  written against eight of the ten specs. The two earliest, dated
-  2026-03-18 and 2026-03-19, were still on disk and went unrecorded,
-  which is why a bloat scan kept finding 2,900 lines of implementation
-  plan in a directory the ADR had already declared retired.
-
-  Both are recorded now in the same format as the rest: what shipped,
-  the seam that mattered, and a table of what was rejected and why. The
-  deferred-capture entry carries the constraint that still governs the
-  hooks, which is that a PostToolUse hook has under two seconds, so it
-  detects and writes a ledger entry while the Stop hook makes every
-  `gh` call. Their implementation plans go, as scaffolding, which is
-  what the ADR's own Decision section says to do with a task checklist
-  for shipped work.
-
-  `docs/superpowers/` was listed twice in `.gitignore`. The copy
-  carrying the ADR-0019 rationale is the one that stayed.
-
-### Fixed
-
-- **Six defects the documentation pass surfaced and left standing.**
-  Each was reported without a fix at the time. Each now has a guard.
-
-  The root `Makefile` had the same defect its plugins were fixed for,
-  from a different cause. Its per-plugin delegation rules are generated
-  with `$(eval)` before `all:` is declared, so the first rule Make saw
-  was `abstract:`, and a bare `make` at the repository root ran
-  `make -C plugins/abstract`. The comment above `all:` called it the
-  default target, which Make never read.
-  `tests/test_makefile_default_goal.py` covered all 23 plugins and not
-  the root. It does both now, and the integration case asks Make itself
-  rather than reading the file.
-
-  `docs/lessons-learned.md` had LL-006 in the body and not in the
-  active index, and LL-005 and LL-006 sat below the entry template
-  while `journal_append.py` inserts above it, which is how LL-007
-  landed ahead of both. The entries are in one place and in order, and
-  the tool still resolves the next id against them.
-
-  Three anchor links pointed at headings that do not exist:
-  `docs/testing-guide.md` cited a CI/CD section of `quality-gates.md`
-  that was never written, `docs/guides/data-extraction-pattern.md`
-  cited `#progressive-disclosure` where the heading is numbered, and
-  `plugins/imbue/skills/feature-review/SKILL.md` cited a step that had
-  been renumbered. A path check passes on all three, because the file
-  resolves and only the fragment is wrong, so the link renders and
-  lands at the top of the page.
-  `tests/test_intra_repo_anchors_resolve.py` checks every fragment
-  link in every tracked markdown file, 1508 cases, and a second
-  assertion fails if the skip list ever makes that vacuous.
-
-  Two SKILL.md files kept a table-of-contents list after the heading
-  above it was deleted in 4a35d692, stranded between a Verification
-  section and the document title. `feature-review` carried 20 such
-  lines and `architecture-review` five. Zero remain.
-
-  `- Action: X -- Owner: Y -- Due: Z` came from the entry template in
-  `decision_journal.py`, so every recorded action item in both journals
-  used the spaced double dash that `slop-scan-for-docs.md` rule 2a
-  calls always-fix, and a fix to the documents alone would have
-  re-drifted on the next append. The template and its 32 rendered
-  instances now use periods.
-
-  The Python 3.9 floor is now asserted rather than assumed. Every
-  plugin declares `requires-python = ">=3.9"` and a case in the mypy
-  ceiling test fails if one raises it, because the hooks run on the
-  system interpreter and the mypy target means nothing once the
-  package stops installing there.
-
-## [1.9.20] - 2026-09-09
+## [1.9.20] - 2026-09-13
 
 ### Added
 
@@ -318,6 +205,121 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   over-explained fixes, negative framing and negation density.
 
 ### Fixed
+
+- **Six defects the documentation pass surfaced and left standing.**
+  Each was reported without a fix at the time. Each now has a guard.
+
+  The root `Makefile` had the same defect its plugins were fixed for,
+  from a different cause. Its per-plugin delegation rules are generated
+  with `$(eval)` before `all:` is declared, so the first rule Make saw
+  was `abstract:`, and a bare `make` at the repository root ran
+  `make -C plugins/abstract`. The comment above `all:` called it the
+  default target, which Make never read.
+  `tests/test_makefile_default_goal.py` covered all 23 plugins and not
+  the root. It does both now, and the integration case asks Make itself
+  rather than reading the file.
+
+  `docs/lessons-learned.md` had LL-006 in the body and not in the
+  active index, and LL-005 and LL-006 sat below the entry template
+  while `journal_append.py` inserts above it, which is how LL-007
+  landed ahead of both. The entries are in one place and in order, and
+  the tool still resolves the next id against them.
+
+  Three anchor links pointed at headings that do not exist:
+  `docs/testing-guide.md` cited a CI/CD section of `quality-gates.md`
+  that was never written, `docs/guides/data-extraction-pattern.md`
+  cited `#progressive-disclosure` where the heading is numbered, and
+  `plugins/imbue/skills/feature-review/SKILL.md` cited a step that had
+  been renumbered. A path check passes on all three, because the file
+  resolves and only the fragment is wrong, so the link renders and
+  lands at the top of the page.
+  `tests/test_intra_repo_anchors_resolve.py` checks every fragment
+  link in every tracked markdown file, 1508 cases, and a second
+  assertion fails if the skip list ever makes that vacuous.
+
+  Two SKILL.md files kept a table-of-contents list after the heading
+  above it was deleted in 4a35d692, stranded between a Verification
+  section and the document title. `feature-review` carried 20 such
+  lines and `architecture-review` five. Zero remain.
+
+  `- Action: X -- Owner: Y -- Due: Z` came from the entry template in
+  `decision_journal.py`, so every recorded action item in both journals
+  used the spaced double dash that `slop-scan-for-docs.md` rule 2a
+  calls always-fix, and a fix to the documents alone would have
+  re-drifted on the next append. The template and its 32 rendered
+  instances now use periods.
+
+  The Python 3.9 floor is now asserted rather than assumed. Every
+  plugin declares `requires-python = ">=3.9"` and a case in the mypy
+  ceiling test fails if one raises it, because the hooks run on the
+  system interpreter and the mypy target means nothing once the
+  package stops installing there.
+
+- **The PR #784 fix pass: twenty commits of defects that reported
+  success.** Each one is a gate, hook or test that returned a passing
+  result on the input it existed to catch. Every behavioral fix below
+  has a test that fails when the fix is reverted. The closing
+  paragraph covers configuration and comments, which a fresh install
+  and review catch instead.
+
+  The one security fix is in conserve's `permission_request.py`, which
+  treated a newline as whitespace. `ls\nrm -rf ./important_dir`
+  auto-approved on its first token. A newline now counts as chaining.
+
+  Five scripts exited 0 when the thing they check was absent or
+  unreadable: `check_per_file_ignores.py` on Python 3.9, which is the
+  interpreter its pre-commit hook runs, `supply_chain_scan.py` with no
+  blocklist, `check_upstream_drift.py`, `check_skill_graph_drift.py`
+  and `clawhub_export.py`. `tests/test_gates_fail_closed.py` holds all
+  five. Eight plugin Makefiles could never reach their exit-5 "Not
+  applicable" branch under `-euo pipefail`. `slop-check.yml` skipped
+  commits that touched only the scorer, and scribe's sycophantic
+  patterns had no getter, so a stock assistant pleasantry passed
+  every gate.
+
+  gauntlet's `graph_auto_update.py` and cartograph's
+  `graph_community_refresh.py` read `tool_result`, a key the PostToolUse
+  payload does not carry, and returned early on every call since they
+  were written. `tests/test_hook_payload_keys.py` checks the key across
+  every plugin hook. Six hooks could spend longer in subprocesses than
+  the timeout `hooks.json` declares, and a killed hook returns no
+  decision. `tests/test_hook_subprocess_budgets.py` holds that class.
+  The manifest validator read the root object as event names and so
+  never parsed a real manifest, which is how 16 keys the harness ignores
+  accumulated across five manifests. hookify's converter and 14 of its
+  15 rule templates produced rules `ConfigLoader` refused to load.
+
+  leyline's decision journal dropped an entry when two appends ran at
+  once. Appends now hold an `flock` and write through a temporary file,
+  and `.gitignore` covers the lockfile they leave. memory-palace palace
+  files, the master index and egregore's budget are written atomically,
+  and egregore saves the rate-limit cooldown its watchdog reads.
+  leyline `UsageStats`, conjure's `auth_method` and memory-palace
+  keyword ids now validate what they accept, the last of which mapped
+  `foo/bar.md` and `foo-bar.md` to one id. phantom flags a failed bash
+  step as an error, oracle answers a missing or misspelled feature with
+  a 400, and gauntlet extracts Go methods, structs and qualified calls.
+  sanctum's test analyzer reads the new path from a rename line,
+  pensive matches severity keywords on word boundaries so "highlights"
+  stays low, and imbue's contract validator counts `[E1]` cited three
+  times as one piece of evidence.
+
+  Several tests passed against broken code. spec-kit's
+  `test_wrapped_commands.py`, 402 lines importing no spec-kit code, is
+  replaced by `test_command_skill_references.py`. Four herald and oracle
+  assertions and parseltongue's coverage-gap cases now fail when their
+  subject is removed. A later revert pass found eight fixes in this same
+  set with no guard, one of them behind a Makefile comment naming
+  `tests/test_gate_exit_codes.py`, which passed with the defect
+  restored. Their guards are in `tests/test_shell_portability.py`,
+  `tests/test_gate_exit_codes.py`, `tests/test_ci_covers_ecosystem_gates.py`
+  and the abstract and memory-palace unit suites.
+
+  spec-kit's `pyproject.toml` drops an asyncio option whose plugin was
+  removed, which made the suite exit 4 in any fresh environment. Six
+  comments that described code that is not there are corrected, and
+  `docs/lessons-learned.md` records LL-008 on the four reworks this
+  pass needed.
 
 - **The pre-commit gate fails closed (gauntlet).** A crash in any of
   the other 76 hooks in the ecosystem costs a log line. A crash in
@@ -565,6 +567,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   argument is split.
 
 ### Changed
+
+- **Dependency refresh, and the mypy ceiling that survived it.** A
+  scan read `mypy>=X,<2` as the one blocking upper bound in the tree:
+  28 specs across 23 files, against a current mypy of 2.3.1, with the
+  rationale recorded nowhere. Widening it was the obvious move and it
+  was wrong.
+
+  mypy 2.x refuses `python_version = "3.9"`, which 22 of the 23 plugin
+  configs set, and it treats that as a note rather than an error.
+  Given `def f(x: int | None)`
+  under a 3.9 config, mypy 1.20.2 reports `X | Y syntax for unions
+  requires Python 3.10` and mypy 2.3.1 reports `Success: no issues
+  found`, both exiting 0. The hooks run on the system interpreter,
+  which is 3.9.6 on macOS, so adopting mypy 2 would have retired the
+  check that keeps them runnable while the gate still read green.
+
+  The ceiling stays and now has a record.
+  `tests/test_mypy_ceiling_holds_for_3_9_targets.py` requires `<2` on
+  every mypy spec in a pyproject that targets 3.9, and a second
+  assertion fails if no pyproject targets 3.9 any more, so the first
+  one cannot quietly start skipping. TR-003 in `docs/tradeoffs.md`
+  carries the decision and its revisit trigger, which is the 3.9
+  target going away, not a newer mypy.
+
+  Floor drift is gone. Fourteen packages carried different minimums in
+  different plugins: `pytest` at three, `mypy` at four,
+  `pytest-asyncio` at five, `ruff` at `>=0.4.0` in phantom against
+  `>=0.14.13` in twenty-five others. Each is now the highest floor
+  that was already in use, raised by version comparison so no floor
+  moved down, and `PyYAML` and `types-PyYAML` are spelled the PEP 503
+  way the rest of the tree already used. This changes no resolution:
+  every one of the 21 lock files already sat above every floor
+  involved. It changes what a resolve on a clean machine is allowed to
+  pick.
+
+  The 21 lock files were then upgraded, moving 207 pinned versions.
+  Nothing crossed a major. `anthropic` stops at 0.125.0 rather than
+  PyPI's 1.4.0, and the reason is the same `requires-python = ">=3.9"`
+  that pins mypy: anthropic 1.x needs 3.10 or later. Verified after
+  the upgrade: lint passes in 21 plugins, type checks pass in 23,
+  tests pass in 23, and the root suite runs 7130 tests green.
+
+- **The two designs ADR-0019 missed.** That ADR retires
+  `docs/superpowers/` and records what shipped from it, and it was
+  written against eight of the ten specs. The two earliest, dated
+  2026-03-18 and 2026-03-19, were still on disk and went unrecorded,
+  which is why a bloat scan kept finding 2,900 lines of implementation
+  plan in a directory the ADR had already declared retired.
+
+  Both are recorded now in the same format as the rest: what shipped,
+  the seam that mattered, and a table of what was rejected and why. The
+  deferred-capture entry carries the constraint that still governs the
+  hooks, which is that a PostToolUse hook has under two seconds, so it
+  detects and writes a ledger entry while the Stop hook makes every
+  `gh` call. Their implementation plans go, as scaffolding, which is
+  what the ADR's own Decision section says to do with a task checklist
+  for shipped work.
+
+  `docs/superpowers/` was listed twice in `.gitignore`. The copy
+  carrying the ADR-0019 rationale is the one that stayed.
 
 - **Three documents over their directory limit, folded into the
   documents where the content belongs.** `docs/quality-gates.md` ran to 600
