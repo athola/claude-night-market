@@ -339,7 +339,8 @@ class PalaceRepository:
         """Load all non-index JSON files from *directory*.
 
         Skip ``master_index.json`` and ``project_index.json``.
-        Files that fail to parse are silently skipped.
+        A file that cannot be opened or parsed is skipped with a warning
+        on stderr, so one bad file costs one palace rather than the sweep.
         """
         results: list[tuple[Path, dict[str, Any]]] = []
         skip = {"master_index.json", "project_index.json"}
