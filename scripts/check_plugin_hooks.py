@@ -16,9 +16,33 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+import posixpath
 
 # The default hooks file that Claude Code auto-loads.
 _AUTO_LOADED = "./hooks/hooks.json"
+
+#: The same path, normalised, for COMPARISON only. `_AUTO_LOADED` stays
+#: exactly as it was so the error message a user sees is unchanged.
+_AUTO_LOADED_NORM = "hooks/hooks.json"
+
+
+def _norm(entry) -> str:
+    """Normalise a hooks-array entry so every spelling of one path compares equal.
+
+    The check below used to be an exact match against "./hooks/hooks.json", so
+    three other spellings of the SAME file passed the hook and then produced the
+    very "Duplicate hooks file" error it exists to prevent:
+
+        ./hooks/hooks.json     caught
+        hooks/hooks.json       missed
+        hooks//hooks.json      missed
+        ./hooks/./hooks.json   missed
+
+    posixpath.normpath collapses "//" and "/./"; the lstrip removes a leading
+    "./". Plugin manifests use forward slashes on every platform, so posixpath
+    is correct here rather than os.path.
+    """
+    return posixpath.normpath(str(entry).strip()).lstrip("./")
 
 
 def check_file(path: Path) -> list[str]:
@@ -31,7 +55,7 @@ def check_file(path: Path) -> list[str]:
         return errors
 
     hooks = data.get("hooks", [])
-    if _AUTO_LOADED in hooks:
+    if any(_norm(h) == _AUTO_LOADED_NORM for h in hooks):
         errors.append(
             f"  {path}: hooks array contains '{_AUTO_LOADED}' which is "
             f"auto-loaded by Claude Code. Remove it to avoid duplicate "
