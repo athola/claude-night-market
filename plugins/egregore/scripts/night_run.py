@@ -769,7 +769,7 @@ def _item_worktree(root: Path, item: str, declared: object) -> Path:
     return resolved
 
 
-def run_item(
+def run_item(  # noqa: PLR0913 - budget and budget_path travel together; bundling them into a holder would be ceremony for one call site
     handoff: Mapping[str, Any],
     tasks: Sequence[Mapping[str, Any]],
     root: Path,
@@ -777,8 +777,14 @@ def run_item(
     *,
     babysitter: Babysitter,
     budget: Budget | None = None,
+    budget_path: Path | None = None,
 ) -> ItemResult:
     """Walk one item's tasks to a stopping point, committing as it goes.
+
+    ``budget_path``, when given, is where the cooldown is written after a
+    usage limit. Without it the cooldown lives only in memory and the
+    watchdog relaunches into the same rate limit, which is what happened
+    before: nothing in production called ``save_budget`` at all.
 
     Stops at the first task that does not pass, at the on-plan token
     ceiling, or at the end of the list. In every case the tasks that
@@ -822,10 +828,13 @@ def run_item(
             break
         except UsageLimited as limited:
             result.status = f"parked_{limited.kind}"
+            cooldown = budget if budget is not None else budget_mod.Budget()
             resume_at = window_mod.record_reset(
-                budget if budget is not None else budget_mod.Budget(),
+                cooldown,
                 window_mod.parse_reset(_headers_in(limited.text), limited.text),
             )
+            if budget_path is not None:
+                budget_mod.save_budget(cooldown, budget_path)
             result.reason = (
                 f"stopped at {tid}: {limited.kind}. Capacity is expected back "
                 f"at {resume_at.isoformat()}; the watchdog resumes then."

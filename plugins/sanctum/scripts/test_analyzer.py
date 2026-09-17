@@ -206,10 +206,17 @@ class TestAnalyzer:
             for line in result.stdout.strip().split("\n"):
                 if not line.strip():
                     continue
-                parts = line.split("\t", 1)
+                # A rename or copy line carries two tabs and two paths:
+                # "R100\told.py\tnew.py". Splitting once left file_name as
+                # "old.py\tnew.py", which still ends in ".py", so the filter
+                # below passed it through and every downstream consumer saw
+                # one path containing a tab. The new path is the one that
+                # exists after the change, so it is the one to report.
+                parts = [part.strip() for part in line.split("\t")]
                 if len(parts) < _MIN_SPLIT_PARTS:
                     continue
-                status, file_name = parts[0].strip(), parts[1].strip()
+                status = parts[0]
+                file_name = parts[-1] if status[:1] in ("R", "C") else parts[1]
                 if not file_name.endswith(".py"):
                     continue
 

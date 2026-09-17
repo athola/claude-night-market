@@ -297,3 +297,37 @@ def test_main_error_path_prints_failure(monkeypatch, capsys):
         raised = True
     assert raised
     assert "boom" in (capsys.readouterr().out + capsys.readouterr().err)
+
+
+def test_analyze_git_changes_reports_the_new_path_for_a_rename(tmp_path):
+    """A rename line carries two tabs, and only the new path exists after it.
+
+    ``git diff --name-status`` writes a rename as ``R100\told.py\tnew.py``.
+    ``line.split("\t", 1)`` left ``file_name`` as ``"old.py\tnew.py"``,
+    which still ends in ``.py``, so the extension filter passed it through
+    and every consumer downstream received one path containing a tab.
+    Reproduced against real git before this test was written.
+    """
+    module = _load_script()
+
+    def fake_run(cmd, **kwargs):
+        class _Result:
+            returncode = 0
+            stdout = "R100\told_module.py\tnew_module.py\nM\tkept.py\n"
+            stderr = ""
+
+        return _Result()
+
+    analyzer = module.TestAnalyzer(tmp_path)
+    original = module.subprocess.run
+    module.subprocess.run = fake_run
+    try:
+        out = analyzer.analyze_git_changes()
+    finally:
+        module.subprocess.run = original
+
+    reported = {str(p) for p in out["changed_files"]}
+    assert "new_module.py" in reported
+    assert not any("\t" in name for name in reported), (
+        f"a path still carries an embedded tab: {sorted(reported)}"
+    )

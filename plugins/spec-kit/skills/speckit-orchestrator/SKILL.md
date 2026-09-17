@@ -30,18 +30,6 @@ complexity: intermediate
 model_hint: standard
 estimated_tokens: 1500
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [Persistent Presence Lens](#persistent-presence-lens)
-- [When to Use](#when-to-use)
-- [Core Workflow](#core-workflow)
-- [Session Initialization](#session-initialization)
-- [Command-Skill Matrix](#command-skill-matrix)
-- [Progress Tracking Items](#progress-tracking-items)
-- [Exit Criteria](#exit-criteria)
-- [Related Skills](#related-skills)
-
 
 # Speckit Orchestrator
 

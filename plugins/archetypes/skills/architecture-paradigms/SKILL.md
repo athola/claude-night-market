@@ -41,14 +41,6 @@ estimated_tokens: 280
 - Reviewing an existing design against its ADRs (use
   `pensive:architecture-review`)
 
-## Table of Contents
-
-- [Quick Scenario Router](#quick-scenario-router)
-- [3-Step Selection Workflow](#3-step-selection-workflow)
-- [Available Paradigm Skills](#available-paradigm-skills)
-- [Integration with Other Skills](#integration-with-other-skills)
-- [Exit Criteria](#exit-criteria)
-
 # Architecture Paradigm Router
 
 This skill helps you **select** the right architecture paradigm(s) for your system, then **routes** you to the specific paradigm skill for implementation details.

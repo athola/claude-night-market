@@ -51,7 +51,13 @@ _index_mtime: float = 0
 # Ceiling on the staging call. `git add` on one file is milliseconds;
 # anything near this bound is a lock being held, and a capture waits for
 # no one.
-_STAGE_TIMEOUT_SECONDS = 5
+#: Budget for the ``git add`` this module runs.
+#:
+#: This was 5, equal to the 5s cap the registering hooks declare in
+#: hooks.json, leaving zero margin for the fetch, the safety checks and the
+#: yaml write that already ran in the same invocation. A hook killed at the
+#: cap has done its work and recorded none of it.
+_STAGE_TIMEOUT_SECONDS = 1.5
 
 
 def _get_index_path() -> Path:

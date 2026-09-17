@@ -1,14 +1,32 @@
 # Slop-detector configuration for this repository.
 #
 # Schema: Skill(scribe:slop-detector) module config-file.md.
-# scripts/slop_score.py, which backs the CI gate, reads `allowlist`
-# only. Setting another documented field here has no effect and raises
-# no error, so check the scorer before relying on one.
+# scripts/slop_score.py, which backs the CI gate, the PR ratchet and the
+# pre-commit ratchet, reads `allowlist` and `exclude_patterns`. Setting
+# another documented field here has no effect and raises no error, so
+# check the scorer before relying on one.
 #
-# Every entry states why the word is correct here. An allowlist without
-# reasons becomes a place to silence findings, and
-# tests/unit/test_slop_score.py fails an entry that carries none.
+# Every entry states why it is here. A list without reasons becomes a
+# place to silence findings, and tests/unit/test_slop_score.py fails an
+# entry that carries none.
 allowlist:
   - paradigm    # the archetypes plugin is built on it: 15 architecture-paradigm-* skills
   - paradigms   # same, the plural names the router skill archetypes:architecture-paradigms
   - scalability # a named requirement axis in the paradigm selector, not a booster word
+  - forge       # git forge is the term of art for GitHub, GitLab and Bitbucket in leyline:git-platform
+  - ecosystem   # this repo's own word for the plugin set (16 uses in CHANGELOG) and conserve's context_scanner detects package ecosystems: npm, pip, cargo
+  - ecosystems  # same, and the plural names plugins/conserve/scripts/context_scanner/ecosystems.py
+  - harness     # the Claude Code runtime, named that by three rule files; the alternative is a circumlocution
+  - disruptive  # the CD index pole in tome's impact metrics, from Funk and Owen-Smith 2017, opposite "consolidating"
+
+# A document that defines a pattern matches it. These quote every tell
+# they describe, so the gate and the ratchet skip them. `--audit` still
+# reads them, because an audit answers "where is it" and gates nothing.
+exclude_patterns:
+  - plugins/scribe/skills/slop-detector/*                        # the detector's own modules list each tell with examples
+  - plugins/scribe/data/*                                        # en.yaml and its siblings are the pattern source itself
+  - plugins/scribe/agents/*                                      # slop-hunter, prose-reviewer and doc-editor name what they hunt
+  - .claude/rules/slop-scan-for-docs.md                          # the house checklist quotes every category it bans
+  - plugins/hookify/skills/rule-catalog/rules/documentation/*    # the two slop hookify rules carry the regexes and rewrite tables
+  - plugins/memory-palace/data/*                                 # captured external pages, not prose authored here
+  - plugins/conserve/skills/response-compression/SKILL.md        # quotes the filler it teaches a session to strip

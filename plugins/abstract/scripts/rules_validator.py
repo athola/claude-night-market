@@ -41,6 +41,11 @@ BROAD_PATTERNS = frozenset({"**/*", "**", "*"})
 
 # Content quality thresholds
 MIN_WORD_COUNT = 10
+# A table pairing a thought with why it is wrong. `.claude/rules/bounded-
+# autonomy.md` retires the shape: it forecloses the case where the thought
+# was right, which is the only case that matters. Nothing scored it, so
+# bounded-discovery.md kept one for months and four skills copied it.
+RATIONALIZATION_TABLE_RE = re.compile(r"^\|\s*Thought\b[^|]*\|", re.MULTILINE)
 MAX_TOKEN_COUNT = 500
 HIGH_TOKEN_COUNT = 1000
 
@@ -266,6 +271,14 @@ def validate_content_quality(content: str) -> dict[str, Any]:
     # Very short content
     if len(words) < MIN_WORD_COUNT:
         warnings.append("Rule content is very short. Consider adding more detail.")
+        score -= 5
+
+    if RATIONALIZATION_TABLE_RE.search(content):
+        warnings.append(
+            "Rationalization table (a thought paired with why it is wrong) is a "
+            "retired pattern per .claude/rules/bounded-autonomy.md. State the "
+            "constraint and what is behind it instead."
+        )
         score -= 5
 
     # Verbose content

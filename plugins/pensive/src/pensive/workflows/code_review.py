@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from pensive.exceptions import AnalysisError
+from pensive.skills.unified_review import UnifiedReviewSkill
 from pensive.utils.severity_mapper import count_by_severity
 
 logger = logging.getLogger(__name__)
@@ -22,10 +23,6 @@ class CodeReviewWorkflow:
         self._skill_registry: dict[str, Any] = {}
         self._errors: list[str] = []
         self._skipped_skills: list[str] = []
-
-    async def run(self, _context: Any) -> dict[str, Any]:
-        """Run code review."""
-        return {"findings": [], "summary": ""}
 
     def configure(self, settings: dict[str, Any]) -> None:
         """Configure workflow."""
@@ -64,7 +61,7 @@ class CodeReviewWorkflow:
                         all_findings.extend(findings)
                 else:
                     self._skipped_skills.append(skill_name)
-            except Exception as e:
+            except (AnalysisError, OSError) as e:
                 err = AnalysisError(f"{skill_name}: {e}")
                 logger.warning("Skill execution failed: %s", err)
                 self._errors.append(str(err))
@@ -111,9 +108,7 @@ class CodeReviewWorkflow:
                     results.append(result)
                 else:
                     results.append(None)
-            except Exception as e:
-                if isinstance(e, MemoryError):
-                    raise
+            except (AnalysisError, OSError) as e:
                 # Partial failure - record error and continue
                 logger.warning(
                     "Skill %r failed during execute_skills: %s",
@@ -138,22 +133,14 @@ class CodeReviewWorkflow:
         ]
 
     def _determine_skills(self, repo_path: Path, files: list[str]) -> list[str]:
-        """Determine skills to run based on content."""
-        skills = ["unified-review"]  # Always run unified review
+        """Determine skills to run based on content.
 
-        # Check for Rust
-        if (repo_path / "Cargo.toml").exists() or any(f.endswith(".rs") for f in files):
-            skills.append("rust-review")
-
-        # Check for tests
-        if any("test" in f.lower() for f in files):
-            skills.append("test-review")
-
-        # Check for API files
-        if any("api" in f.lower() for f in files):
-            skills.append("api-review")
-
-        return skills
+        UnifiedReviewSkill.select_review_skills owns the heuristic; its
+        general "code-reviewer" entry maps to this workflow's unified-review.
+        """
+        context = _ReviewContext(repo_path, files)
+        selected = UnifiedReviewSkill().select_review_skills(context)
+        return ["unified-review" if s == "code-reviewer" else s for s in selected]
 
     def _generate_summary(self, findings: list[dict[str, Any]]) -> str:
         """Generate findings summary."""
@@ -209,6 +196,8 @@ class CodeReviewWorkflow:
             ),
             "test-review": "pensive.skills.test_review.TestReviewSkill",
             "unified-review": "pensive.skills.unified_review.UnifiedReviewSkill",
+            "makefile-review": "pensive.skills.makefile_review.MakefileReviewSkill",
+            "math-review": "pensive.skills.math_review.MathReviewSkill",
         }
 
         if skill_name in skill_map:

@@ -3,14 +3,13 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
 .PHONY: benchmark check clean clean-queue create debug-variables delete demo-export demo-garden \
-	demo-import demo-index demo-memory demo-memory-palace-commands demo-navigate demo-palace demo-pensive \
-	demo-reset demo-review-room demo-skill-logs demo-status deps disable enable export fix format \
-	garden-metrics garden-tend help import install skills install-hooks lint list manager \
-	memory-profile mutation-test plugin-check precommit search security skills spellcheck status \
-	test test-garden test-memory test-navigate test-palace test-pensive test-review-room \
-	test-skill-logs test-unit type-check typecheck
+	demo-import demo-index demo-memory demo-memory-palace-commands demo-navigate demo-palace \
+	demo-reset demo-review-room demo-skill-logs demo-status deps disable enable export fix \
+	garden-metrics garden-tend help import install skills install-hooks list manager \
+	memory-profile mutation-test plugin-check precommit search skills spellcheck status \
+	test test-garden test-memory test-navigate test-palace test-review-room \
+	test-skill-logs demo-keyword-index
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts src
@@ -33,6 +32,13 @@ PY              ?= $(UV_RUN_PYTHON)
 CLI             ?= $(UV) run python scripts/memory_palace_cli.py
 INDEX_BUILDER   ?= $(UV) run python scripts/build_indexes.py
 PALACES_DIR     ?= $(PWD)/.demo-palaces
+# Hard-assigned, so an exported PALACES_DIR cannot redirect it. The
+# demo targets below delete this directory, and PALACES_DIR is the
+# variable the plugin's own CLI reads to find a real palace store
+# (scripts/memory_palace_cli.py, src/memory_palace/palace_manager.py).
+# With `?=` on both, `make plugin-check` reached demo-reset and removed
+# whatever store the contributor had exported.
+DEMO_PALACES_DIR := $(PWD)/.demo-palaces
 GARDEN_FILE     ?= examples/garden-sample.json
 IMPORT_SRC      ?= examples/palaces-sample.json
 EXPORT_DEST     ?= reports/palaces-export.json
@@ -193,8 +199,8 @@ benchmark: ## Run performance benchmarks (memory operations)
 	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
 		echo "Not applicable: pytest-benchmark is not installed"; \
 	else \
-		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
-		status=$$?; \
+		status=0; \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean || status=$$?; \
 		if [ $$status -eq 5 ]; then \
 			echo "Not applicable: no benchmark tests are defined"; \
 		elif [ $$status -ne 0 ]; then \
@@ -210,22 +216,25 @@ memory-profile: ## Profile memory usage
 	fi
 
 # ---------- Demo & validation flows ----------
-demo-reset:
-	rm -rf $(PALACES_DIR)
-	mkdir -p $(PALACES_DIR)
+demo-reset: ## Recreate the demo palace store (never the user's own)
+	rm -rf $(DEMO_PALACES_DIR)
+	mkdir -p $(DEMO_PALACES_DIR)
 
+# `|| true` here undercut the fail=1 propagation that root `plugin-check`
+# gained this branch: a failing import or export still reported the whole
+# plugin as passing. Guarded by tests/test_gate_exit_codes.py.
 demo-import: demo-reset
-	PALACES_DIR=$(PALACES_DIR) $(CLI) import --source "$(IMPORT_SRC)" --overwrite || true
+	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) import --source "$(IMPORT_SRC)" --overwrite
 
 demo-export:
 	@mkdir -p $(dir $(EXPORT_DEST))
-	PALACES_DIR=$(PALACES_DIR) $(CLI) export --destination "$(EXPORT_DEST)" || true
+	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) export --destination "$(EXPORT_DEST)"
 
 demo-status:
-	PALACES_DIR=$(PALACES_DIR) $(CLI) status
+	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) status
 
 plugin-check: demo-import garden-metrics list search demo-export
-	@echo "Plugin demo completed against $(PALACES_DIR)"
+	@echo "Plugin demo completed against $(DEMO_PALACES_DIR)"
 
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;

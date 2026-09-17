@@ -218,6 +218,34 @@ def get_phrase_patterns(patterns: dict[str, Any]) -> list[dict[str, Any]]:
     return result
 
 
+def get_sycophantic_patterns(patterns: dict[str, Any]) -> list[dict[str, Any]]:
+    """Extract the sycophantic phrases, with their score.
+
+    This section shipped with no getter and was therefore dead data, while
+    ``skills/slop-detector/modules/language-handling.md`` advertised
+    English as "Full (Tier 1-4, phrases, fiction, sycophantic)". The code
+    was honest and the documentation was not: "I'd be happy to" passed
+    every gate the repository runs.
+
+    Matched as literal phrases rather than regexes, because that is what
+    the YAML holds, and case-insensitively, because an opener is as
+    sycophantic in the middle of a line as at the start of one.
+
+    Returns:
+        A list of dicts with ``pattern``, ``score`` and ``category``,
+        matching the shape :func:`get_phrase_patterns` returns.
+    """
+    section = patterns.get("sycophantic", {})
+    if not isinstance(section, dict):
+        return []
+    score = section.get("score", 3)
+    return [
+        {"pattern": phrase, "score": score, "category": "sycophantic"}
+        for phrase in section.get("patterns", [])
+        if isinstance(phrase, str)
+    ]
+
+
 def get_tier5_patterns(
     patterns: dict[str, Any], include_optional: bool = False
 ) -> list[dict[str, Any]]:

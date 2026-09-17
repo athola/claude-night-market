@@ -1,23 +1,23 @@
 [project]
 name = "sanctum"
-version = "1.9.19"
+version = "1.9.20"
 description = "Sanctum Claude Code plugin - Git and workspace operations for active development workflows"
 authors = [{name = "Claude Skills", url = "https://github.com/superpowers-marketplace"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.2",
 ]
 
 [dependency-groups]
 dev = [
     "ruff>=0.14.13",
-    "mypy>=1.11.0,<2",
+    "mypy>=1.18.2,<2",
     "pytest>=8.0",
-    "pytest-cov>=4.1",
+    "pytest-cov>=6.0.0",
     "pytest-mock>=3.15.1",
-    "types-PyYAML>=6.0.0",
+    "types-pyyaml>=6.0.12",
 ]
 
 [tool.nightmarket]

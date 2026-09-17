@@ -113,16 +113,6 @@ Setup hook (`claude --init`,
 `claude --maintenance`) handles one-time initialization
 and periodic garden maintenance. See `hooks/hooks.json` for configuration.
 
-## Optional Dependencies
-
-| Package | Purpose | Fallback |
-|---------|---------|----------|
-| tiktoken | Accurate token estimation | Heuristic (~4 chars/token) |
-
-```bash
-pip install tiktoken
-```
-
 ## Architecture
 
 ```

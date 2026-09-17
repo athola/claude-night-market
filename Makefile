@@ -15,13 +15,18 @@ PLUGINS_DIR := plugins
 # All plugin directories for iteration (auto-detected)
 PLUGIN_MAKEFILES := $(wildcard $(PLUGINS_DIR)/*/Makefile)
 ALL_PLUGINS := $(patsubst %/Makefile,%,$(PLUGIN_MAKEFILES))
+# GNU coreutils timeout is not on stock macOS. perl is, and alarm bounds the
+# child the same way, so each per-plugin check stays time-limited everywhere.
+TIMEOUT_180 := $(if $(shell command -v timeout 2>/dev/null),timeout 180,perl -e 'alarm shift; exec @ARGV' 180)
+# GNU coreutils sha256sum is not on stock macOS; shasum -a 256 is everywhere.
+SHA256 := $(if $(shell command -v sha256sum 2>/dev/null),sha256sum,shasum -a 256)
 ALL_PLUGIN_NAMES := $(notdir $(ALL_PLUGINS))
 
 # Generate delegation targets dynamically for all plugins with Makefiles.
 # This replaces ~70 lines of manual per-plugin delegation with a single
 # template that auto-covers any plugin that has a Makefile.
 define plugin_delegation
-.PHONY: $(1) $(1)-%
+.PHONY: $(1)
 $(1)-%:
 	@$$(MAKE) -C $$(PLUGINS_DIR)/$(1) $$*
 $(1):
@@ -29,9 +34,17 @@ $(1):
 endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
-.PHONY: help all test lint typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan
+.PHONY: help all test lint fix typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan \
+	test-ecosystem check-json-utils check-discussions writeback-discussions validate-skills analyze-skills
 
-# Default target
+# The plugin delegation rules above are generated with $(eval), so the first
+# rule Make sees here is `abstract:`, not `all:`. Without this assignment a
+# bare `make` ran `make -C plugins/abstract`, which under that plugin's own
+# default goal is whatever python.mk declares first. Pin the goal explicitly;
+# rule order cannot then decide it. Same fix as common.mk applies per plugin.
+.DEFAULT_GOAL := help
+
+# Aggregate target. Not the default: `.DEFAULT_GOAL` above selects `help`.
 all: lint test ## Run lint and test across all plugins
 
 help: ## Show this help message
@@ -86,29 +99,32 @@ test-ecosystem: ## Run the root ecosystem suite (tests/): cross-plugin metadata 
 	@echo ">>> Running root ecosystem tests (tests/)..."
 	@./scripts/without-git-env.sh uv run --extra dev python -m pytest tests/ --tb=short --quiet
 
-lint: ## Run linting on all plugins (ALL code, not just changed)
+lint: ## Check linting on all plugins without rewriting anything (see `fix`)
 	@echo "=== Running Lint on ALL Code ==="
 	@echo ""
-	@echo ">>> Running ruff format on plugins/..."
-	@uv run ruff format --config pyproject.toml plugins/ || (echo "Ruff format failed" && exit 1)
-	@echo "Ruff format passed"
+	@echo ">>> Checking ruff format on plugins/..."
+	@uv run ruff format --check --config pyproject.toml plugins/ || (echo "Ruff format check failed; run 'make fix'" && exit 1)
+	@echo "Ruff format check passed"
 	@echo ""
-	@echo ">>> Running ruff check with auto-fix on plugins/..."
+	@echo ">>> Running ruff check on plugins/..."
 	@# No --config: ruff resolves each file against its own plugin's
 	@# pyproject.toml, which extends the root floor. That yields the union
 	@# of repo-wide and plugin-specific rules rather than the root subset.
-	@uv run ruff check --fix plugins/ || (echo "Ruff check failed" && exit 1)
+	@# No --fix: a check that rewrites the tree cannot report the diff it
+	@# was asked to find, so the mutating pair lives under `fix`.
+	@uv run ruff check plugins/ || (echo "Ruff check failed; run 'make fix'" && exit 1)
 	@echo "Ruff check passed"
-	@echo ""
-	@echo ">>> Running ruff format again (to fix any formatting from check)..."
-	@uv run ruff format --config pyproject.toml plugins/ || (echo "Ruff format failed" && exit 1)
-	@echo "Ruff format passed"
 	@echo ""
 	@echo ">>> Running bandit security checks on plugins/..."
 	@uv run bandit --quiet -c pyproject.toml -r plugins/ || (echo "Bandit failed" && exit 1)
 	@echo "Bandit passed"
 	@echo ""
 	@echo "=== Lint Complete (All Code Checked) ==="
+
+fix: ## Rewrite plugins/ with ruff format and ruff check --fix (the mutating pair)
+	@uv run ruff format --config pyproject.toml plugins/
+	@uv run ruff check --fix plugins/
+	@uv run ruff format --config pyproject.toml plugins/
 
 typecheck: ## Run type checking on all plugins (ALL code, not just changed)
 	@./scripts/run-plugin-typecheck.sh --all
@@ -143,21 +159,21 @@ supply-chain-scan: ## Scan lockfiles for known compromised package versions and 
 
 validate-all: ## Validate all plugin structures
 	@echo "=== Validating Plugin Structures ==="
-	@for plugin in $(ALL_PLUGINS); do \
+	@fail=0; for plugin in $(ALL_PLUGINS); do \
 		echo ""; \
 		echo ">>> Validating $$plugin:"; \
-		python3 plugins/abstract/scripts/validate_plugin.py $$plugin || echo "  (validation failed)"; \
-	done
+		python3 plugins/abstract/scripts/validate_plugin.py $$plugin || fail=1; \
+	done; exit $$fail
 
 plugin-check: ## Run demo/dogfood checks across all plugins
 	@echo "=== Running Plugin Checks (Dogfooding) ==="
-	@for plugin in $(ALL_PLUGINS); do \
+	@fail=0; for plugin in $(ALL_PLUGINS); do \
 		if [ -f "$$plugin/Makefile" ] && grep -q "^plugin-check:" "$$plugin/Makefile"; then \
 			echo ""; \
 			echo ">>> $$plugin:"; \
-			timeout 180 $(MAKE) -C $$plugin plugin-check 2>/dev/null || echo "  (plugin-check failed or timed out)"; \
+			$(TIMEOUT_180) $(MAKE) -C $$plugin plugin-check || { echo "  (plugin-check failed or timed out)"; fail=1; }; \
 		fi; \
-	done
+	done; exit $$fail
 	@echo ""
 	@echo "=== All Plugin Checks Complete ==="
 
@@ -204,7 +220,7 @@ skrills-build: ## Build skrills from source (requires Rust toolchain)
 	@cp "$(SKRILLS_REPO)/target/release/skrills" "$(SKRILLS_BIN)"
 	@chmod +x "$(SKRILLS_BIN)"
 	@$(SKRILLS_BIN) --version 2>/dev/null | head -1 > "$(SKRILLS_VERSION_FILE)" || true
-	@sha256sum "$(SKRILLS_BIN)" | cut -d' ' -f1 >> "$(SKRILLS_VERSION_FILE)"
+	@$(SHA256) "$(SKRILLS_BIN)" | cut -d' ' -f1 >> "$(SKRILLS_VERSION_FILE)"
 	@echo "Installed: $(SKRILLS_BIN) ($$(cat $(SKRILLS_VERSION_FILE) | head -1))"
 
 skrills-install: ## Copy pre-built skrills binary to plugin bin/
@@ -226,7 +242,7 @@ skrills-verify: ## Verify skrills binary hash against pinned version
 		echo "No version file. Run 'make skrills-build' first."; exit 1; \
 	fi
 	@expected=$$(tail -1 "$(SKRILLS_VERSION_FILE)"); \
-	actual=$$(sha256sum "$(SKRILLS_BIN)" | cut -d' ' -f1); \
+	actual=$$($(SHA256) "$(SKRILLS_BIN)" | cut -d' ' -f1); \
 	if [ "$$expected" = "$$actual" ]; then \
 		echo "OK: hash matches ($$(head -1 $(SKRILLS_VERSION_FILE)))"; \
 	else \

@@ -4,7 +4,7 @@
 .PHONY: help deps fix check clean \
 	status debug-variables plugin-check demo-skills demo-egregore demo-loop \
 	test-egregore test-loop \
-	lint format type-check typecheck security test-unit test
+	test
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts tests

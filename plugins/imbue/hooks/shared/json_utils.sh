@@ -49,7 +49,7 @@ get_json_field() {
 
     if command -v jq >/dev/null 2>&1; then
         # Tier 1: jq (most reliable)
-        value=$(echo "$json" | jq -r ".${field} // empty" 2>/dev/null || echo "")
+        value=$(echo "$json" | jq -r --arg f "$field" '.[$f] // empty' 2>/dev/null || echo "")
     elif echo "test" | grep -oP '\d+' >/dev/null 2>&1; then
         # Tier 2: GNU grep with Perl regex
         value=$(echo "$json" | grep -oP "\"${field}\"\\s*:\\s*\"\\K[^\"]+" 2>/dev/null || echo "")

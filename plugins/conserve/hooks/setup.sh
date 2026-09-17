@@ -14,7 +14,7 @@ set -euo pipefail
 # Read hook input to determine trigger type
 HOOK_INPUT=""
 TRIGGER_TYPE="init"
-if read -t 0.1 -r HOOK_INPUT 2>/dev/null; then
+if read -t 1 -r HOOK_INPUT 2>/dev/null; then
     if command -v jq >/dev/null 2>&1; then
         TRIGGER_TYPE=$(echo "$HOOK_INPUT" | jq -r '.trigger // "init"' 2>/dev/null || echo "init")
     fi
@@ -102,7 +102,7 @@ TEMPLATE
 
     # 4. Set environment variables via CLAUDE_ENV_FILE
     if [ -n "${CLAUDE_ENV_FILE:-}" ] && { [ -w "${CLAUDE_ENV_FILE}" ] || [ ! -e "${CLAUDE_ENV_FILE}" ]; }; then
-        echo "export CONSERVE_SESSION_STATE_PATH=\"${SESSION_STATE_FILE}\"" >> "$CLAUDE_ENV_FILE"
+        printf 'export CONSERVE_SESSION_STATE_PATH=%q\n' "$SESSION_STATE_FILE" >> "$CLAUDE_ENV_FILE"
         setup_tasks+=("Persisted CONSERVE_SESSION_STATE_PATH to environment")
     fi
 

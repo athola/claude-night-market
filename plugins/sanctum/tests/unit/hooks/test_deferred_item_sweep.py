@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 HOOK_DIR = Path(__file__).resolve().parents[3] / "hooks"
 sys.path.insert(0, str(HOOK_DIR))
 
@@ -188,7 +190,7 @@ class TestLedgerProcessing:
         ]
         ledger.write_text(json.dumps(entries))
 
-        def side_effect(title: str, source: str) -> dict:
+        def side_effect(title: str, source: str, timeout: float = 0.0) -> dict:
             if title == "Item A":
                 return {"status": "created", "number": 10}
             return {"status": "error", "message": "fail"}
@@ -234,7 +236,7 @@ class TestMainFunction:
     """Test the main() entry point orchestration."""
 
     def test_main_prints_summary_when_items_filed(
-        self, tmp_path: Path, capsys: object
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
     ) -> None:
         """main() writes a summary to stderr when items are filed."""
         from deferred_item_sweep import main
@@ -249,14 +251,21 @@ class TestMainFunction:
             patch("deferred_item_sweep.call_capture_script", return_value=mock_result),
         ):
             main()
+        captured = capsys.readouterr()
+        assert "Deferred items: 1 filed, 0 duplicate, 0 failed" in captured.err
 
-    def test_main_silent_when_no_items(self, tmp_path: Path) -> None:
+    def test_main_silent_when_no_items(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
         """main() produces no output when the ledger is empty or missing."""
         from deferred_item_sweep import main
 
         ledger = tmp_path / "nonexistent.json"
         with patch("deferred_item_sweep.get_ledger_path", return_value=ledger):
             main()
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        assert captured.err == ""
 
 
 class TestCallCaptureScriptDirect:
@@ -264,7 +273,12 @@ class TestCallCaptureScriptDirect:
 
     def test_argument_construction(self) -> None:
         """Verify correct args are passed to subprocess.run."""
-        from deferred_item_sweep import SCRIPT_DIR, call_capture_script
+        from deferred_item_sweep import (
+            _ITEM_TIMEOUT_SECONDS,
+            _SWEEP_BUDGET_SECONDS,
+            SCRIPT_DIR,
+            call_capture_script,
+        )
 
         mock_proc = MagicMock()
         mock_proc.returncode = 0
@@ -288,7 +302,11 @@ class TestCallCaptureScriptDirect:
         assert cmd[8:10] == ["--captured-by", "safety-net"]
         assert kwargs["capture_output"] is True
         assert kwargs["text"] is True
-        assert kwargs["timeout"] == 15
+        # 15s sat under a 5s Stop cap in hooks.json, in a loop, so one
+        # unfiled item already exceeded the budget and a killed Stop hook
+        # drops the whole sweep without a signal.
+        assert kwargs["timeout"] == _ITEM_TIMEOUT_SECONDS
+        assert kwargs["timeout"] < _SWEEP_BUDGET_SECONDS
 
     def test_successful_json_output_is_parsed(self) -> None:
         """When subprocess exits 0 with valid JSON, the parsed dict is returned."""
@@ -379,3 +397,61 @@ class TestCallCaptureScriptDirect:
 
         assert result["status"] == "error"
         assert "No such file" in result["message"]
+
+
+class TestSweepBudget:
+    """The sweep must finish inside the 5s Stop cap hooks.json declares.
+
+    A per-entry timeout of 15s in a loop meant one unfiled item already
+    exceeded the cap. A killed Stop hook drops the sweep with no signal,
+    so entries it never reached would look identical to entries it filed.
+    """
+
+    def test_entries_past_the_budget_stay_unfiled_for_the_next_sweep(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Out of budget must leave the ledger entry, not consume it."""
+        import deferred_item_sweep as sweep
+
+        ledger = tmp_path / "deferred-items-session.json"
+        entries = [
+            {"title": "Item A", "source": "war-room", "filed": False},
+            {"title": "Item B", "source": "war-room", "filed": False},
+        ]
+        ledger.write_text(json.dumps(entries))
+
+        calls: list[str] = []
+        clock = {"now": 0.0}
+
+        def fake_capture(title: str, source: str, timeout: float = 0.0) -> dict:
+            calls.append(title)
+            clock["now"] += 100.0  # the first item exhausts the whole budget
+            return {"status": "created", "number": 1}
+
+        monkeypatch.setattr(sweep.time, "monotonic", lambda: clock["now"])
+        monkeypatch.setattr(sweep, "call_capture_script", fake_capture)
+        stats = sweep.process_ledger(ledger)
+
+        assert calls == ["Item A"], (
+            f"the deadline did not stop the loop; it attempted {calls}"
+        )
+        assert stats["deferred_to_next_sweep"] == 1
+        remaining = json.loads(ledger.read_text())
+        assert remaining[1]["filed"] is False
+
+    def test_the_sweep_budget_fits_inside_the_stop_cap(self) -> None:
+        """Budget and per-item timeout must both sit under the declared cap."""
+        import deferred_item_sweep as sweep
+
+        hooks_root = Path(sweep.__file__).resolve().parent
+        manifest = json.loads((hooks_root / "hooks.json").read_text(encoding="utf-8"))
+        caps = [
+            entry["timeout"]
+            for groups in manifest["hooks"].values()
+            for group in groups
+            for entry in group.get("hooks", [])
+            if "deferred_item_sweep" in entry.get("command", "")
+        ]
+        assert caps, "the sweep is not registered in hooks.json"
+        assert sweep._SWEEP_BUDGET_SECONDS < min(caps)
+        assert sweep._ITEM_TIMEOUT_SECONDS < sweep._SWEEP_BUDGET_SECONDS

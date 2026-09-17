@@ -56,6 +56,7 @@ RULE_TEMPLATES = {
             category="security",
             rule_template="""---
 name: block-pip-install-untrusted
+enabled: true
 event: bash
 pattern: 'pip install.*--trusted-host|pip install.*http://'
 action: block
@@ -70,6 +71,7 @@ Blocked: Installing from untrusted sources. Use HTTPS or verified packages.""",
             category="quality",
             rule_template="""---
 name: warn-no-venv
+enabled: true
 event: bash
 conditions:
   - field: command
@@ -92,6 +94,7 @@ Consider using a virtual environment or uv for package management.""",
             category="security",
             rule_template="""---
 name: block-npm-audit-bypass
+enabled: true
 event: bash
 pattern: 'npm install.*--no-audit|npm i.*--ignore-scripts'
 action: block
@@ -108,6 +111,7 @@ Blocked: Security audits should not be bypassed.""",
             category="security",
             rule_template="""---
 name: block-npm-audit-bypass
+enabled: true
 event: bash
 pattern: 'npm.*--no-audit|npm install.*--legacy-peer-deps.*--no-audit'
 action: block
@@ -122,6 +126,7 @@ Blocked: npm audit checks must not be skipped. Remove --no-audit and address rep
             category="quality",
             rule_template="""---
 name: warn-no-lockfile
+enabled: true
 event: bash
 conditions:
   - field: command
@@ -142,6 +147,7 @@ Verify that package-lock.json exists and that .npmrc does not set package-lock=f
             category="quality",
             rule_template="""---
 name: block-any-type
+enabled: true
 event: file_write
 conditions:
   - field: path
@@ -164,6 +170,7 @@ Blocked: Avoid using `any` type. Prefer explicit types, `unknown`, or a type ass
             category="quality",
             rule_template="""---
 name: block-go-vet-bypass
+enabled: true
 event: bash
 pattern: 'go build.*-gcflags.*-e|//go:build ignore'
 action: block
@@ -178,6 +185,7 @@ Blocked: go vet checks must not be bypassed. Fix reported issues before building
             category="quality",
             rule_template="""---
 name: warn-no-mod-tidy
+enabled: true
 event: bash
 conditions:
   - field: command
@@ -198,6 +206,7 @@ Consider running `go mod tidy` before building to keep go.mod and go.sum consist
             category="security",
             rule_template="""---
 name: block-unsafe-import
+enabled: true
 event: file_write
 conditions:
   - field: path
@@ -220,6 +229,7 @@ Blocked: Importing the `unsafe` package bypasses Go type safety. Justify usage w
             category="quality",
             rule_template="""---
 name: block-clippy-bypass
+enabled: true
 event: file_write
 conditions:
   - field: path
@@ -240,6 +250,7 @@ Blocked: Suppressing clippy lints requires a `// SAFETY:` or `// ALLOW:` comment
             category="security",
             rule_template="""---
 name: warn-no-audit
+enabled: true
 event: bash
 conditions:
   - field: command
@@ -260,6 +271,7 @@ Consider running `cargo audit` to check for known vulnerabilities in your depend
             category="security",
             rule_template="""---
 name: block-unsafe-without-comment
+enabled: true
 event: file_write
 conditions:
   - field: path
@@ -282,6 +294,7 @@ Blocked: Every `unsafe` block must be preceded by a `// SAFETY:` comment explain
             category="security",
             rule_template="""---
 name: block-force-push-main
+enabled: true
 event: bash
 pattern: 'git push.*(--force|-f).*(main|master)'
 action: block
@@ -296,8 +309,9 @@ Blocked: Force pushing to main/master can cause data loss. Use --force-with-leas
             category="quality",
             rule_template="""---
 name: warn-commit-no-message
+enabled: true
 event: bash
-pattern: 'git commit.*-m\\s*["\\'](fix|wip|tmp|test)["\\'\\s]*$'
+pattern: 'git commit.*-m\\s*["''](fix|wip|tmp|test)["''\\s]*$'
 action: warn
 ---
 Consider using a more descriptive commit message.""",
@@ -312,6 +326,7 @@ Consider using a more descriptive commit message.""",
             category="quality",
             rule_template="""---
 name: warn-docker-latest
+enabled: true
 event: bash
 pattern: 'docker (pull|run).*:latest'
 action: warn

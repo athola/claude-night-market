@@ -231,15 +231,19 @@ class TestMetaEvaluationFunctionality:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_reports_missing_tocs(
+    def test_runs_against_a_real_plugin_without_crashing(
         self, meta_eval_script: Path, plugins_root: Path
     ) -> None:
         """
-        Scenario: Meta-evaluation detects missing Table of Contents
+        Scenario: The script survives a real plugin tree
 
         Given the meta-evaluation script
-        When evaluating skills without TOCs
-        Then it should report missing TOCs for skills >100 lines
+        When it evaluates a plugin that exists on disk
+        Then it exits 0 or 1 and prints an evaluation report
+
+        Named for a TOC check until 2026-09-09. It never asserted on
+        TOCs, and the check it was named for is gone; this is what it
+        has always tested.
         """
         # Arrange
         cmd = [

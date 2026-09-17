@@ -60,6 +60,16 @@ role: library
 3. What makes this problem worth solving now?
 4. What happens if this problem isn't solved?
 5. What existing solutions have been tried?
+6. Who reads what this project produces, and what do they
+   already know? Name a role specific enough to point at
+   someone who holds it.
+
+Question 6 sets the audience tier that every document this
+project generates inherits: `newcomer`, `practitioner`, `expert`,
+or a one-line `persona`. Ask it here rather than at drafting
+time, where the answer gets guessed to keep the draft moving.
+Tier table and follow-up questions: `scribe:slop-detector` module
+`audience-targeting.md`.
 
 **Output**: Problem statement in docs/project-brief.md
 
@@ -73,6 +83,7 @@ role: library
 **When**: [Frequency/timing of problem]
 **Why**: [Impact of the problem]
 **Current State**: [Existing solutions and limitations]
+**Doc audience**: [newcomer | practitioner | expert | persona: <one line>]
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 

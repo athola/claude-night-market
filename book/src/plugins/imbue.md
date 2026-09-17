@@ -82,6 +82,7 @@ Iron Law enforced through proof-of-work validation.
 | `vow_bounded_reads.py` | PreToolUse (Read/Grep/Glob) | Warns or blocks when discovery read budget (15 reads) is exceeded; set `VOW_SHADOW_MODE=0` to block |
 | `vow_bounded_reads_reset.py` | PreToolUse (Write/Edit/MultiEdit) | Resets the per-session read counter when implementation begins |
 | `vow_no_ai_attribution.py` | PreToolUse | Blocks AI attribution strings in git commit messages |
+| `vow_no_edit_narration.py` | PreToolUse (Write/Edit/MultiEdit) | Flags text that narrates the edit being made ("We renamed the handler"); reads inserted content only; warns by default, blocks with `VOW_SHADOW_MODE=0` |
 | `vow_no_emoji_commits.py` | PreToolUse | Blocks emoji characters in git commit messages |
 | `pre-pr-scope-check.sh` | Manual | Checks scope before PR creation |
 | `proof-enforcement.md` | Design | Iron Law TDD compliance enforcement |

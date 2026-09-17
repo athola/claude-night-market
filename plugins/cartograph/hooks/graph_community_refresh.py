@@ -36,10 +36,11 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if "graph_build.py" not in command:
         return None
 
-    # Check success
-    tool_result = hook_input.get("tool_result", {})
-    if tool_result.get("exitCode", 1) != 0:
-        return None
+    # PostToolUse fires only after a tool completes successfully, so reaching
+    # here means graph_build.py ran. The previous check read "tool_result",
+    # a key the payload has never carried, so "exitCode" always defaulted to
+    # 1 and this hook returned None on every invocation since it was written.
+    # The Bash tool_response has no exit code to consult in any case.
 
     db_path = _find_graph_db()
     if db_path is None:

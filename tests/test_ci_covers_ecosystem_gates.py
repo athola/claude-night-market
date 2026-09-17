@@ -89,18 +89,18 @@ def _github_glob_to_regex(pattern: str) -> re.Pattern[str]:
     return re.compile(rf"^{body}$")
 
 
-def _workflow_path_filters() -> list[re.Pattern[str]]:
-    config = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+def _workflow_path_filters(workflow: Path = WORKFLOW) -> list[re.Pattern[str]]:
+    config = yaml.safe_load(workflow.read_text(encoding="utf-8"))
     # PyYAML parses the unquoted key `on:` as the boolean True.
     triggers = config.get("on", config.get(True))
-    assert triggers, f"{WORKFLOW.name} declares no triggers"
+    assert triggers, f"{workflow.name} declares no triggers"
 
     patterns: list[str] = []
     for event in ("push", "pull_request"):
         spec = triggers.get(event)
         if isinstance(spec, dict):
             patterns.extend(spec.get("paths", []))
-    assert patterns, f"{WORKFLOW.name} declares no path filters"
+    assert patterns, f"{workflow.name} declares no path filters"
     return [_github_glob_to_regex(p) for p in patterns]
 
 
@@ -143,4 +143,33 @@ def test_ci_trigger_covers_every_file_the_gate_reads(gate: str) -> None:
         f"{WORKFLOW.name} matches, so changing them runs no gate:\n  "
         + "\n  ".join(uncovered[:20])
         + (f"\n  ... and {len(uncovered) - 20} more" if len(uncovered) > 20 else "")
+    )
+
+
+SLOP_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "slop-check.yml"
+
+
+@pytest.mark.parametrize(
+    "scorer_input",
+    (
+        "scripts/slop_score.py",
+        ".slop-config.yaml",
+        "plugins/scribe/data/languages/en.yaml",
+        "plugins/scribe/src/scribe/negation.py",
+    ),
+)
+def test_slop_trigger_covers_the_scorer_and_what_it_loads(scorer_input: str) -> None:
+    """A change to the slop gate itself must re-run the slop gate.
+
+    GIVEN a file the slop scorer executes or loads its rules from
+    WHEN a pull request touches only that file
+    THEN slop-check.yml's path filters still select the workflow
+
+    The filter once listed only ``**.md``, so a scorer regression could
+    land without the corpus being re-scored.
+    """
+    assert (REPO_ROOT / scorer_input).is_file(), f"{scorer_input} moved"
+    filters = _workflow_path_filters(SLOP_WORKFLOW)
+    assert any(f.match(scorer_input) for f in filters), (
+        f"{scorer_input} does not trigger {SLOP_WORKFLOW.name}"
     )

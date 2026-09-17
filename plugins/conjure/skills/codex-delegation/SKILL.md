@@ -23,17 +23,6 @@ references:
 - delegation-core/shared-shell-execution.md
 ---
 
-## Table of Contents
-
-- [Overview](#overview)
-- [When To Use](#when-to-use)
-- [When NOT To Use](#when-not-to-use)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Smart Delegation](#smart-delegation)
-- [Codex-Specific Details](#codex-specific-details)
-- [Exit Criteria](#exit-criteria)
-
 # Codex CLI Delegation
 
 ## Overview

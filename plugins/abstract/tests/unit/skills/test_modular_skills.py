@@ -30,18 +30,19 @@ class TestModularSkillsFramework:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_modular_skills_has_toc(self, modular_skills_content: str) -> None:
-        """Scenario: Modular-skills includes Table of Contents.
+    def test_modular_skills_has_no_table_of_contents(
+        self, modular_skills_content: str
+    ) -> None:
+        """Scenario: Modular-skills carries no Table of Contents.
 
         Given the modular-skills skill
         When reading the skill content
-        Then it should have a TOC for navigation
+        Then no anchor list precedes the sections:
+        an anchor list restates the headings below it and costs
+        tokens on every load, and grep finds the headings directly
+        (bloat-detector, "ToC Bloat in Skills")
         """
-        # Assert - TOC exists
-        assert (
-            "## Table of Contents" in modular_skills_content
-            or "table of contents" in modular_skills_content.lower()
-        )
+        assert "## Table of Contents" not in modular_skills_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -110,20 +111,16 @@ class TestModularSkillsFramework:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_modular_skills_defines_toc_requirements(
+    def test_modular_skills_forbids_a_table_of_contents(
         self, modular_skills_content: str
     ) -> None:
-        """Scenario: Modular-skills defines TOC requirements for long modules.
+        """Scenario: Modular-skills tells authors not to add a Table of Contents.
 
         Given the modular-skills framework
         When reviewing quality standards
-        Then it should require TOCs for modules >100 lines
+        Then a module over 100 lines is split rather than indexed
         """
-        # Assert - TOC requirements exist
-        assert (
-            "toc" in modular_skills_content.lower()
-            or "table of contents" in modular_skills_content.lower()
-        )
+        assert "Do not add a Table of Contents" in modular_skills_content
         assert "100" in modular_skills_content  # Threshold
 
     @pytest.mark.bdd

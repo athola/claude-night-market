@@ -43,6 +43,19 @@ For detailed specification writing workflows, this skill delegates to `spec-kit:
 - Requirement templates
 - Acceptance criteria patterns
 
+## Documentation Audience
+
+Carry the brief's **Doc audience** field into the specification,
+and treat it as a requirement rather than a note: it decides what
+the project's README, guides, and tutorials may contain. When the
+brief did not set one, **ask, do not guess**.
+
+Specify the deep-dive destination alongside it, so extraction has
+somewhere to go before the first document is written: `modules/`
+for skills, `docs/deep-dive/<topic>.md` for repo docs. Tier table
+and cut test: `scribe:slop-detector` module
+`audience-targeting.md`.
+
 ## Record the Tradeoff (decision journal)
 
 If the specification settled a design decision with real alternatives (a chosen
@@ -83,6 +96,8 @@ data model, an interface boundary, a constraint accepted), record it to
 
 - [ ] `docs/specification.md` exists, is non-empty, and passes Quality Checks.
 - [ ] Every functional requirement has testable acceptance criteria.
+- [ ] The documentation audience tier is stated, carried from the
+  brief or asked for when the brief omitted it.
 - [ ] Any design decision with real alternatives is recorded to
   `docs/tradeoffs.md` (or there was no meaningful design fork).
 - [ ] The next phase is auto-invoked unless a bypass condition holds.

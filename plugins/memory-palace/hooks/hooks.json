@@ -28,12 +28,12 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/url_detector.py",
-            "timeout": 2
+            "timeout": 5
           },
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/recall.py",
-            "timeout": 3
+            "timeout": 5
           }
         ]
       }
@@ -89,7 +89,8 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/research_queue.py",
-            "timeout": 5
+            "timeout": 5,
+            "async": true
           }
         ]
       }

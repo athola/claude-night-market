@@ -1,7 +1,8 @@
 # ADR-0016: Wire-or-Archive Decisions for Three Orphan Skills
 
 **Date**: 2026-05-06
-**Status**: Accepted (decisions recorded; wire-up tracked)
+**Status**: Proposed. Decisions recorded 2026-05-06; wire-up still
+unticked as of 2026-09-03.
 **Deciders**: Claude Night Market maintainers
 **Source**: Issue #456, Discussion #449 Wave-3 backlog item 4
 

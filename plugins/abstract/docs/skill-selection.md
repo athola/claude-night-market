@@ -143,7 +143,7 @@ skills-eval/
    python skills/skills-eval/scripts/improvement_suggester.py --skill new-skill/SKILL.md
 
    # Check compliance
-   python skills/skills-eval/scripts/compliance_checker.py --skill new-skill/SKILL.md
+   python plugins/abstract/scripts/compliance_checker.py new-skill
    ```
 
 3. **Content Refinement** (`writing-clearly-and-concisely`)

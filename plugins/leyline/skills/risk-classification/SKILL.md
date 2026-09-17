@@ -35,17 +35,6 @@ modules:
 - modules/automation-tiers.md
 role: library
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [4-Tier Risk Model](#4-tier-risk-model)
-- [Hybrid Routing](#hybrid-routing)
-- [Task Metadata Extension](#task-metadata-extension)
-- [Module Reference](#module-reference)
-- [Integration Pattern](#integration-pattern)
-- [Exit Criteria](#exit-criteria)
-
 
 # Risk Classification
 

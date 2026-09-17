@@ -140,6 +140,12 @@ ALLOWLIST = {
     "tests/conftest.py",
     "tests/integration/test_full_flow.py",
     "tests/unit/x.py",
+    # The audience-targeting extract-do-not-delete move, shown as a
+    # before/after pair, and the log-level worked example in
+    # document-economy. Both name where higher-tier rationale *would*
+    # go in the reader's own repo; neither is a reference to this one.
+    "docs/deep-dive/hook-timing.md",
+    "docs/deep-dive/log-level-mapping.md",
 }
 
 

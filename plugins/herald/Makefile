@@ -3,7 +3,7 @@
 
 .PHONY: help deps fix check clean \
 	status debug-variables \
-	lint format type-check typecheck security test-unit test
+	test
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts tests

@@ -29,14 +29,6 @@ references:
 - delegation-core/../../leyline/skills/usage-logging/SKILL.md
 - delegation-core/../../leyline/skills/error-patterns/SKILL.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Gemini-Specific Details](#gemini-specific-details)
-
 
 # Gemini CLI Delegation
 

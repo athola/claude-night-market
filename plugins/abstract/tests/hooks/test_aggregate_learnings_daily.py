@@ -294,7 +294,7 @@ class TestAutoPromoteChaining:
     """Test that network-heavy operations are NOT in the daily pipeline.
 
     Auto-promote and post-learnings moved to the Stop hook
-    (post_learnings_stop.py) to avoid exceeding the 2-second
+    (post_learnings_stop.py) to avoid exceeding the
     UserPromptSubmit timeout.
     """
 

@@ -1,7 +1,8 @@
 # ADR-0015: Over-Built Orchestrator Skill Simplification
 
 **Date**: 2026-05-06
-**Status**: Accepted (data-collection phase; implementation tracked)
+**Status**: Proposed. Accepted 2026-05-06; every implementation item
+still unticked as of 2026-09-03.
 **Deciders**: Claude Night Market maintainers
 **Source**: Issue #455, Discussion #449 Wave-3 backlog item 3
 

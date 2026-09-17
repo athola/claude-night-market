@@ -12,10 +12,10 @@ a live cross-link::
     ```
 
 That block is *documentation of the hub-spoke pattern itself*. The four
-skills that explain modular authoring (skill-authoring, shared-patterns,
-hooks-eval, skills-eval) were the heaviest offenders precisely because
-they demonstrate the layout they teach: 69 of the validator's 80 findings
-were this false positive.
+skills that explain modular authoring (skill-authoring, hooks-eval,
+skills-eval, and the since-deleted shared-patterns) were the heaviest
+offenders precisely because they demonstrate the layout they teach: 69
+of the validator's 80 findings were this false positive.
 
 The finding count stayed invisible because the validator printed its
 issues and exited 0 until ``fix(gates): make quality gates able to fail``.

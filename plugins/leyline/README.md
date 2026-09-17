@@ -52,7 +52,7 @@ communication and system stability.
 |---------|---------|
 | `/reinstall-all-plugins` | Refresh all plugins (fixes cache issues). |
 | `/update-all-plugins` | Update all installed plugins. |
-| `/verify-plugin` | Query ERC-8004 Reputation Registry for trust scores. |
+| `/verify-plugin` | Verify a plugin's behavioral contract history via GitHub SLSA attestations. |
 
 ## Workflow and Integration
 

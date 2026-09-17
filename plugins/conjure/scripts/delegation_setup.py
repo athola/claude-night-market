@@ -4,7 +4,7 @@
 Reports which provider CLIs are present and authenticated, and installs the
 missing ones after an explicit confirmation.
 
-The provenance map in ``delegation_executor`` is the only source of install
+The provenance map in ``delegation_services`` is the only source of install
 commands. That is the load-bearing constraint here: this module runs shell
 pipelines with ``-g`` scope, and #655 shipped a service naming a binary that
 an unaffiliated package publishes. Resolving a command for an unrecorded
@@ -24,9 +24,9 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from scripts.delegation_executor import (
+from scripts.delegation_executor import Delegator
+from scripts.delegation_services import (
     VERIFIED_BINARIES,
-    Delegator,
     credential_file_issues,
     resolve_env_overlay,
 )

@@ -41,15 +41,37 @@ class _ModelRegistry:
         Returns a dict with ``score`` (float) and ``blend``
         (word_overlap/ml weight pair parsed from the model YAML).
 
-        Raises KeyError if model_name is unknown.
+        Raises KeyError if model_name is unknown, and ValueError if
+        ``features`` is not a mapping of the model's feature names to
+        numbers.
+
+        The missing-feature check exists because ``features.get(feat, 0.0)``
+        cannot tell a feature whose value is genuinely zero from one whose
+        name was misspelled. Without it a typo returned HTTP 200 and a
+        well-formed score computed on a zero-filled vector, while a missing
+        ``model`` field got a 400. This is a network boundary; a caller
+        cannot see the difference from the outside.
         """
         model = self._models[model_name]
         weights: dict[str, float] = model.get("weights", {})
         intercept: float = float(model.get("intercept", 0.0))
 
+        if not isinstance(features, dict):
+            raise ValueError("'features' must be a JSON object")
+
+        missing = sorted(name for name in weights if name not in features)
+        if missing:
+            raise ValueError(f"Missing feature(s): {', '.join(missing)}")
+
         linear = intercept
         for feat, w in weights.items():
-            linear += w * float(features.get(feat, 0.0))
+            try:
+                value = float(features[feat])
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"Feature {feat!r} is not a number: {features[feat]!r}"
+                ) from exc
+            linear += w * value
 
         if model.get("sigmoid", False):
             clamped = max(-500.0, min(500.0, linear))
@@ -142,6 +164,9 @@ class _InferenceHandler(BaseHTTPRequestHandler):
             result = self.server.registry.infer(model_name, features)
         except KeyError:
             self._send_json(404, {"error": f"Unknown model: {model_name!r}"})
+            return
+        except ValueError as exc:
+            self._send_json(400, {"error": str(exc)})
             return
 
         self._send_json(200, result)

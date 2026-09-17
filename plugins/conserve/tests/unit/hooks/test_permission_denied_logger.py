@@ -8,6 +8,7 @@ All tests call hook functions directly for branch coverage.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import sys
 from io import StringIO
@@ -20,6 +21,7 @@ import pytest
 HOOKS_DIR = Path(__file__).resolve().parents[3] / "hooks"
 sys.path.insert(0, str(HOOKS_DIR))
 
+import permission_denied_logger
 from permission_denied_logger import RETRY_SAFE_TOOLS, main
 
 
@@ -81,8 +83,8 @@ class TestMainRetrySignaling:
             patch("sys.stdout", captured_stdout),
             patch("sys.stderr", captured_stderr),
             patch(
-                "permission_denied_logger.LOG_DIR",
-                tmp_path / "logs",
+                "permission_denied_logger.log_dir",
+                return_value=tmp_path / "logs",
             ),
         ):
             try:
@@ -116,8 +118,8 @@ class TestMainRetrySignaling:
             patch("sys.stdout", captured_stdout),
             patch("sys.stderr", captured_stderr),
             patch(
-                "permission_denied_logger.LOG_DIR",
-                tmp_path / "logs",
+                "permission_denied_logger.log_dir",
+                return_value=tmp_path / "logs",
             ),
         ):
             try:
@@ -150,8 +152,8 @@ class TestMainRetrySignaling:
             patch("sys.stdout", captured_stdout),
             patch("sys.stderr", StringIO()),
             patch(
-                "permission_denied_logger.LOG_DIR",
-                tmp_path / "logs",
+                "permission_denied_logger.log_dir",
+                return_value=tmp_path / "logs",
             ),
         ):
             try:
@@ -191,8 +193,8 @@ class TestMainLogging:
             patch("sys.stdout", StringIO()),
             patch("sys.stderr", captured_stderr),
             patch(
-                "permission_denied_logger.LOG_DIR",
-                tmp_path / "logs",
+                "permission_denied_logger.log_dir",
+                return_value=tmp_path / "logs",
             ),
         ):
             try:
@@ -224,7 +226,7 @@ class TestMainLogging:
             patch("sys.stdin", StringIO(input_data)),
             patch("sys.stdout", StringIO()),
             patch("sys.stderr", StringIO()),
-            patch("permission_denied_logger.LOG_DIR", log_dir),
+            patch("permission_denied_logger.log_dir", return_value=log_dir),
         ):
             try:
                 main()
@@ -259,7 +261,7 @@ class TestMainLogging:
                 patch("sys.stdin", StringIO(input_data)),
                 patch("sys.stdout", StringIO()),
                 patch("sys.stderr", StringIO()),
-                patch("permission_denied_logger.LOG_DIR", log_dir),
+                patch("permission_denied_logger.log_dir", return_value=log_dir),
             ):
                 try:
                     main()
@@ -330,8 +332,8 @@ class TestMainErrorHandling:
             patch("sys.stdout", StringIO()),
             patch("sys.stderr", captured_stderr),
             patch(
-                "permission_denied_logger.LOG_DIR",
-                tmp_path / "logs",
+                "permission_denied_logger.log_dir",
+                return_value=tmp_path / "logs",
             ),
         ):
             try:
@@ -360,8 +362,8 @@ class TestMainErrorHandling:
             patch("sys.stdout", StringIO()),
             patch("sys.stderr", StringIO()),
             patch(
-                "permission_denied_logger.LOG_DIR",
-                Path("/nonexistent/impossible/path"),
+                "permission_denied_logger.log_dir",
+                return_value=Path("/nonexistent/impossible/path"),
             ),
         ):
             try:
@@ -371,3 +373,42 @@ class TestMainErrorHandling:
                 code = e.code if e.code is not None else 0
 
         assert code == 0
+
+
+class TestLogDirIsResolvedPerCall:
+    """The destination must follow CLAUDE_PROJECT_DIR set after import.
+
+    LOG_DIR was a module-level constant, so the project root froze at
+    import time. Every test had to patch the constant, and any caller that
+    set CLAUDE_PROJECT_DIR afterwards silently wrote somewhere else. The
+    sibling background_agent_notice.py documents this reason and resolves
+    per call; this hook kept the constant.
+    """
+
+    def test_the_environment_is_read_at_call_time(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Setting the variable after import must change the answer."""
+        monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path))
+        assert permission_denied_logger.log_dir() == tmp_path / ".claude" / "logs"
+
+        other = tmp_path / "elsewhere"
+        monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(other))
+        assert permission_denied_logger.log_dir() == other / ".claude" / "logs"
+
+    def test_a_denial_is_written_under_the_current_project_dir(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """End to end: the log lands where the environment now points."""
+        monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path))
+        payload = json.dumps({"tool_name": "Read", "reason": "denied"})
+        with (
+            patch("sys.stdin", StringIO(payload)),
+            patch("sys.stdout", StringIO()),
+            patch("sys.stderr", StringIO()),
+        ):
+            with contextlib.suppress(SystemExit):
+                main()
+
+        written = tmp_path / ".claude" / "logs" / "permission_denials.jsonl"
+        assert written.is_file()

@@ -2,8 +2,12 @@
 """Daily learning aggregation hook for UserPromptSubmit.
 
 Runs aggregate_skill_logs.py on a daily cadence (once per 24h) to generate
-LEARNINGS.md, then chains to auto_promote_learnings.py for severity-based
-issue creation.
+LEARNINGS.md.
+
+It does not chain to auto_promote_learnings.py. ``run_daily_pipeline``
+stops after aggregation, and line 194 of this file records that the Stop
+hook owns promotion. The docstring said otherwise, which left a reader
+looking for a call that is not here.
 
 Must complete in <2s with no user-visible output.
 
@@ -193,7 +197,7 @@ def run_daily_pipeline() -> None:
     Called on every UserPromptSubmit. Skips quickly if not due.
     Network-heavy operations (auto_promote, post_learnings) are
     handled by the Stop hook (post_learnings_stop.py) to avoid
-    exceeding the 2-second UserPromptSubmit timeout.
+    exceeding the UserPromptSubmit timeout.
     """
     if not should_aggregate():
         return

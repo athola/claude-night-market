@@ -63,10 +63,15 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if not command.startswith("git commit"):
         return None
 
-    # Check if the commit succeeded
-    tool_result = hook_input.get("tool_result", {})
-    stdout = tool_result.get("stdout", "")
-    if "nothing to commit" in stdout or tool_result.get("exitCode", 1) != 0:
+    # PostToolUse fires only after a tool completes successfully, so there is
+    # no success test to make here and no exit code to read: the Bash entry
+    # of tool_response carries stdout, stderr, interrupted and isImage only.
+    # This read used the key "tool_result", which the payload has never
+    # contained, so the dict was always empty, "exitCode" always defaulted to
+    # 1, and the hook returned None on every invocation since it was written.
+    tool_response = hook_input.get("tool_response", {})
+    stdout = tool_response.get("stdout", "")
+    if "nothing to commit" in stdout:
         return None
 
     gauntlet_dir = _get_gauntlet_dir()

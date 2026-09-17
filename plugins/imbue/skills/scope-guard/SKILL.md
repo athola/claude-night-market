@@ -31,35 +31,6 @@ role: library
 > Scope-guard weighs each proposed feature against its value,
 > its cost, and the branch budget, so only what is earned ships.
 
-## Table of Contents
-
-- [Philosophy](#philosophy)
-- [When to Use](#when-to-use)
-- [When NOT to Use](#when-not-to-use)
-- [Quick Start](#quick-start)
-- [1. Score the Feature](#1-score-the-feature)
-- [2. Check Against Backlog](#2-check-against-backlog)
-- [3. Verify Branch Budget](#3-verify-branch-budget)
-- [4. Monitor Thresholds](#4-monitor-thresholds)
-- [Core Workflow](#core-workflow)
-- [Step 1: Calculate Worthiness (`scope-guard:worthiness-scored`)](#step-1:-calculate-worthiness-(scope-guard:worthiness-scored))
-- [Step 2: Compare Against Backlog (`scope-guard:backlog-compared`)](#step-2:-compare-against-backlog-(scope-guard:backlog-compared))
-- [Step 3: Check Branch Budget (`scope-guard:budget-checked`)](#step-3:-check-branch-budget-(scope-guard:budget-checked))
-- [Step 4: Document Decision (`scope-guard:decision-documented`)](#step-4:-document-decision-(scope-guard:decision-documented))
-- [Anti-Overengineering Rules](#anti-overengineering-rules)
-- [Backlog Management](#backlog-management)
-- [Directory Structure](#directory-structure)
-- [Queue Rules](#queue-rules)
-- [Adding to Queue](#adding-to-queue)
-- [Integration Points](#integration-points)
-- [With superpowers:brainstorming](#with-superpowers:brainstorming)
-- [With superpowers:writing-plans](#with-superpowers:writing-plans)
-- [During superpowers:executing-plans](#during-superpowers-executing-plans)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Related Skills](#related-skills)
-- [Module Reference](#module-reference)
-
-
 # Scope Guard
 
 Prevents overengineering by both Claude and human during the

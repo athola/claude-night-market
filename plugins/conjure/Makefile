@@ -3,14 +3,13 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY:
 .PHONY: benchmark check clean debug-variables delegate-auto delegate-codex delegate-doctor \
 	delegate-gemini delegate-glimmer delegate-glm delegate-install delegate-minimax delegate-muse \
 	delegate-opencode delegate-qwen delegate-setup \
 	delegate-status delegate-test delegate-usage delegate-verify demo-delegation demo-plugin \
-	demo-skills demo-status demo-token-estimate deps fix format help install-hooks lint memory-profile \
-	mutation-test plugin-check precommit quota-status security spellcheck status test test-plugin \
-	test-status test-suite type-check typecheck usage-report validate-all validate-delegation
+	demo-skills demo-status demo-token-estimate deps fix help install-hooks memory-profile \
+	mutation-test plugin-check precommit quota-status spellcheck status test test-plugin \
+	test-status test-suite usage-report validate-all validate-delegation demo-conjure-commands
 
 # Override source directories for this plugin
 SRC_DIRS := scripts hooks
@@ -231,8 +230,8 @@ benchmark: ## Run performance benchmarks (API delegation latency)
 	@if ! $(UV_RUN) python -c "import pytest_benchmark" 2>/dev/null; then \
 		echo "Not applicable: pytest-benchmark is not installed"; \
 	else \
-		$(PYTEST) --benchmark-only --benchmark-sort=mean; \
-		status=$$?; \
+		status=0; \
+		$(PYTEST) --benchmark-only --benchmark-sort=mean || status=$$?; \
 		if [ $$status -eq 5 ]; then \
 			echo "Not applicable: no benchmark tests are defined"; \
 		elif [ $$status -ne 0 ]; then \
@@ -322,8 +321,8 @@ test-status: ## Test delegation status command
 	@# the target. The previous fallback arm ran a command literally named
 	@# '@echo' ('@' is only a Make prefix at the start of a recipe line, not
 	@# after a line continuation), so it always died with 127 instead.
-	@$(PYTEST) tests/ -v -k "quota or status"; \
-	status=$$?; \
+	@status=0; \
+	$(PYTEST) tests/ -v -k "quota or status" || status=$$?; \
 	if [ $$status -eq 5 ]; then \
 		echo "Not applicable: no quota or status tests are defined"; \
 	elif [ $$status -ne 0 ]; then \

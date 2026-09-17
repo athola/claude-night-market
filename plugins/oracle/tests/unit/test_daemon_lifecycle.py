@@ -111,8 +111,20 @@ class TestSessionStartBehavior:
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         payload = json.dumps({"hook_event_name": "SessionStart"})
-        with patch("sys.stdin", StringIO(payload)):
+        # The body used to be main() and nothing else: zero assertions, so
+        # the test passed whether or not the sentinel was honoured.
+        #
+        # is_provisioned is forced True so the sentinel is the only thing
+        # that can stop the launch. Without that, the missing venv stops it
+        # anyway and removing the sentinel check leaves this test green,
+        # which is the same blind spot in a new place.
+        with (
+            patch("sys.stdin", StringIO(payload)),
+            patch("daemon_lifecycle.is_provisioned", return_value=True),
+            patch("daemon_lifecycle._start_daemon") as mock_start,
+        ):
             main()
+        mock_start.assert_not_called()
 
     @pytest.mark.unit
     def test_no_op_when_not_provisioned(

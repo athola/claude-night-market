@@ -106,23 +106,14 @@ Skills must avoid cargo cult patterns - rituals that "look right" but lack verif
 
 ```yaml
 navigation_rules:
-  - condition: "module_length > 100 lines"
-    requirement: "Table of Contents after frontmatter"
+  - condition: "a Table of Contents in SKILL.md or any module"
+    requirement: "No Table of Contents"
     penalty: "-2 points"
-    rationale: "Agentic search requires TOC for efficient grep-based navigation"
+    rationale: "An anchor list restates the headings below it and costs tokens on every load; grep finds the headings directly"
 
   - condition: "module_length > 200 lines"
     requirement: "Section anchors and backlinks"
     penalty: "-3 points"
-```
-
-**Table of Contents Format:**
-
-```markdown
-## Table of Contents
-
-- [Section Name](#section-name)
-- [Another Section](#another-section)
 ```
 
 ### Activation Reliability (20 points)
@@ -278,7 +269,7 @@ sensitivity_analysis:
 
 ### High Issues (Address Before Next Release)
 
-- Missing TOC in modules >100 lines (-2 points)
+- Table of Contents in SKILL.md or a module (-2 points)
 - Abstract Quick Start without commands (-2 points)
 - Second-person voice slips ("your"/"you") (-1 point)
 - Missing verification steps after examples (-1 point)
@@ -337,7 +328,7 @@ Path: {skill_path}
 Lines: {line_count} (SKILL.md: {skill_lines})
 
 Structure Issues:
-  [HIGH] Module async-testing.md (192 lines) missing TOC (-2 points)
+  [HIGH] Module async-testing.md (192 lines) carries a Table of Contents (-2 points)
   [MEDIUM] SKILL.md exceeds 500 lines (-1 point)
 
 Content Issues:
@@ -349,7 +340,7 @@ Activation Issues:
   [HIGH] Only 2 trigger phrases in description (-1 point)
 
 Recommendations:
-  1. Add TOC to async-testing.md after frontmatter
+  1. Remove the Table of Contents from async-testing.md; split the module if it needs navigation
   2. Update Quick Start with actual pytest commands
   3. Replace "your needs" with "project requirements"
   4. Add "Run pytest -v tests/test_async.py" after async example
