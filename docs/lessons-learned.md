@@ -1,7 +1,7 @@
 ---
 maturity: growing
 type: lessons
-updated: 2026-07-04
+updated: 2026-09-17
 ---
 
 # Lessons Learned
@@ -21,6 +21,8 @@ so the team replicates what worked and avoids what did not.
 | LL-006 | open | A mechanism and the thing it claims to beat were indistinguishable to its own tests | 2026-08-25 |
 | LL-007 | open | A dogfooding harness reported zero failures while masking two real ones | 2026-06-28 |
 | LL-008 | open | Fixes that regress the tool that runs them | 2026-09-10 |
+| LL-009 | open | Fifteen findings named one defect: gates that convert failure into output | 2026-09-02 |
+| LL-010 | open | Review agents reported four criticals that one command refuted | 2026-09-02 |
 
 ## Lessons
 
@@ -400,6 +402,129 @@ bash 3.2, and the portable empty-array expansion is ${arr[@]+"${arr[@]}"}.
 
 For Makefiles, remember that an inserted line moves the `@` prefix, which
 is only a prefix at the start of a recipe line.
+
+## LL-009: Fifteen findings named one defect: gates that convert failure into output
+
+- Status: open
+- Date: 2026-09-02
+- Phase: review
+- Category: testing
+- Owner: night-market maintainers
+- Links: review a39c6168, commits 8555e33a, 64a4e439, 4835ab30
+<!-- key: 8444b511c598 -->
+
+### What happened
+
+The Tier 3 review of 2026-09-02 (report at commit `a39c6168`) opened with
+a finding that was not a bug. Fifteen findings across three review
+dimensions named fourteen distinct defects of one shape: a quality check
+that converted its own failure into output and exited 0.
+
+conserve's `make test` ran no pytest at all. Root `validate-all` and
+`plugin-check` echoed every validator failure and discarded stderr.
+`test-coverage` re-ran pytest without coverage when `--cov-fail-under`
+tripped. scribe's `lint` printed WARNING on a slop hit. Five abstract
+audit targets ended in `|| echo`. The house shellcheck gate aborted on
+macOS `/bin/sh` before it linted anything. Six test functions computed a
+verdict and never asserted on it.
+
+### What went well / where we got lucky
+
+Nothing was hiding behind the gates. Run directly, conserve's suite was
+787 passed. The targets were covering no defects. Each one had lost the
+ability to report, so the repair was mechanical rather than a bug hunt.
+
+### What did not work
+
+A June commit, `fix(gates): make quality gates able to fail`, had already
+fixed one instance of this class. Nobody searched for the rest, so
+fourteen more survived three months.
+
+The same session that produced the review had, earlier that day,
+reported "conserve passed" on the strength of `make conserve-test`,
+which runs lint, mypy and bandit and no pytest. A gate that cannot fail
+does not only miss defects. It gets quoted as evidence that there are
+none.
+
+### Root cause
+
+`|| echo`, `|| true`, a fallback re-run and a warning-level exit are each
+locally reasonable: they keep a noisy target from blocking work. Nothing
+checked whether a gate could still return nonzero, so each instance was
+added without anyone seeing the class it joined.
+
+### Recommendation / action item
+
+- Action: a gate proves it can fail before it is trusted. Break what it
+  checks, run it, confirm nonzero. Owner: night-market maintainers.
+  Status: done. `8555e33a` repaired fourteen make targets, `64a4e439`
+  the six tests, and `4835ab30` the shellcheck gate.
+- Action: when one instance of a defect class is fixed, search for the
+  rest before closing. Owner: night-market maintainers. Status: open.
+
+## LL-010: Review agents reported four criticals that one command refuted
+
+- Status: open
+- Date: 2026-09-02
+- Phase: review
+- Category: process
+- Owner: night-market maintainers
+- Links: review a39c6168
+<!-- key: 1de6ca43ca41 -->
+
+### What happened
+
+Nine agents ran the 2026-09-02 Tier 3 review, one per dimension, each
+under the same output contract: a JSON findings file with verbatim
+anchors, a citation verifier, a 40-line report. Three returned
+conclusions that did not survive a check.
+
+One reported six Python 3.9 incompatibilities in hooks, four of them
+critical. Every file named carries `from __future__ import annotations`,
+and one command refuted all six: each module imports cleanly under
+`/usr/bin/python3` 3.9.6.
+
+One measured conjure's Delegator at 910 lines. It had run in a worktree
+that was auto-removed with its output, and the measurement was of a
+pre-split commit. The class was 691 lines when the report was written.
+
+One triaged 53 June findings as still standing. A one-line `rg` over all
+209 SKILL.md files closed 13 of them at once, and reading a `.gitignore`
+closed a fourteenth.
+
+### What went well / where we got lucky
+
+The output contract made each claim checkable. Verbatim anchors made a
+wrong line number mechanical to catch, and the confirmations cost
+seconds. Every finding ranked above medium was reproduced or re-read by
+hand, which is why the refutations landed in the report instead of in
+the fix pass.
+
+### What did not work
+
+The citation verifier catches a wrong anchor. It cannot catch a wrong
+conclusion about a correct anchor, and that is the shape all three took.
+The file was real, the line was right, the reasoning about it was not.
+
+### Root cause
+
+An agent reading a file in isolation reads an annotation without the
+`__future__` import above it, reads a file without the commit it came
+from, and reads a finding's anchor without the one-line query that
+closes a whole category. Each missing check costs seconds, and nothing
+in the contract asked for any of them.
+
+### Recommendation / action item
+
+- Action: a claim that a module fails to load, or that a version breaks,
+  needs an execution result rather than a read. Owner: night-market
+  maintainers. Status: open.
+- Action: an agent that may run in a worktree writes findings outside it
+  and states the commit it measured. Owner: night-market maintainers.
+  Status: open.
+- Action: before triaging an old findings list entry by entry, run the
+  mechanical checks that could close a category at once. Owner:
+  night-market maintainers. Status: open.
 
 ## Archive
 
