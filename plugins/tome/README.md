@@ -77,6 +77,7 @@ depth, channel weights, and visualization style:
 | `discourse` | Community scanning |
 | `papers` | Academic literature |
 | `triz` | Cross-domain analysis |
+| `web-search` | Open-web search (You.com MCP or WebSearch) |
 | `synthesize` | Merge and format |
 | `dig` | Interactive refinement |
 

@@ -13,7 +13,7 @@ def _now() -> datetime:
     return datetime.now(tz=timezone.utc)
 
 
-_VALID_CHANNELS = frozenset({"code", "discourse", "academic", "triz"})
+_VALID_CHANNELS = frozenset({"code", "discourse", "academic", "triz", "web"})
 
 # Channels that answer by probing an external index. Their silence is a
 # fact about the world once a positive control shows they were not
