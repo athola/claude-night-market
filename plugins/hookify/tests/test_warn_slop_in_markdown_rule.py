@@ -188,3 +188,47 @@ class TestNegationMatching:
         loader = ConfigLoader(include_bundled=True)
         rule = loader.load_rule(RULE_FILE, source="bundled")
         assert "overstated" in rule.message
+
+
+class TestAntithesisMatching:
+    """Feature: the antithesis forms added on 2026-09-18.
+
+    The bare ", not Y." alternative ended one word after "not", so a
+    possessive or two-word tail passed. The negated alternative ("never
+    does Y instead of X") had no alternative at all. Both mirror the
+    ``en.yaml`` changes made the same day, inlined here for the reason
+    the module docstring gives.
+    """
+
+    @pytest.fixture()
+    def engine(self) -> RuleEngine:
+        loader = ConfigLoader(include_bundled=True)
+        rule = loader.load_rule(RULE_FILE, source="bundled")
+        return RuleEngine([rule])
+
+    def _matched(self, engine: RuleEngine, text: str) -> bool:
+        results = engine.evaluate_event(
+            "file", {"file_path": "README.md", "new_text": text}
+        )
+        return any(result.matched for result in results)
+
+    def test_possessive_tail(self, engine: RuleEngine) -> None:
+        assert self._matched(
+            engine, "The verifier reads records, not the model's judgment."
+        )
+
+    def test_negated_alternative_instead_of(self, engine: RuleEngine) -> None:
+        assert self._matched(engine, "The gate never guesses instead of measuring.")
+
+    def test_negated_alternative_rather_than(self, engine: RuleEngine) -> None:
+        assert self._matched(
+            engine, "It does not retry rather than report the failure."
+        )
+
+    def test_a_reason_clause_after_not_stays_quiet(self, engine: RuleEngine) -> None:
+        assert not self._matched(
+            engine, "The probe stopped early, not because it failed."
+        )
+
+    def test_a_plain_recommendation_stays_quiet(self, engine: RuleEngine) -> None:
+        assert not self._matched(engine, "Use rg rather than grep for file search.")

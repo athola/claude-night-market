@@ -87,7 +87,7 @@ uv run --with pyyaml python scripts/slop_score.py --audit <files>
 It takes files or directories, reports every category with a
 file and a line, and exits 0. It carries what the merge gate
 declines to score: the low-confidence categories
-(`semicolon_splice`, the softer anthropomorphism verbs) and the
+(the softer anthropomorphism verbs) and the
 opt-in ones (`negative_definition`, `contrastive_scaffold`,
 `over_explanation`), plus the per-document negation-density
 reading. Those are surfaced for a person to judge and are
@@ -146,8 +146,10 @@ unavailable.
    independent clauses reads more naturally as two sentences or
    one coordinating conjunction. Rephrase rather than swapping
    in an em dash, which is usually what the semicolon replaced.
+   Since 2026-09-18 the unambiguous splice (no comma on either
+   side, lowercase continuation) is scored at high confidence.
    A list whose items carry internal commas is the one durable
-   keep. Confidence is low, so a person judges each hit.
+   keep, and the pattern does not match it.
 3. Scan for tier 1 slop: "structured", "comprehensive",
    "actionable", "seamless", "robust", "myriad",
    "empower", "navigate" (as metaphor)
@@ -302,7 +304,11 @@ ever apply to this repo.
   almost all correctly, these rule files included. Scoped to the
   verb-phrase form, so a noun comparison ("use rg rather than grep")
   stays untouched. Enable it for a documentation audit, surface every
-  hit, never auto-rewrite.
+  hit, never auto-rewrite. The negated form is different and is
+  scored: `negated_alternative` matches a negation followed in the
+  same clause by either connective ("never guesses instead of
+  measuring", "does not retry rather than report"). A recommendation
+  ("use rg rather than grep") has no negation and does not match.
 - **Negative framing**: three shapes and a measure, all in
   `tier5`. **Litotes** (`not uncommon`, `not unlike`, `never fails
   to`, `not without merit`) says a positive thing through two
@@ -408,7 +414,8 @@ ever apply to this repo.
   clauses ("The system is fast; it scales") is a sophistication
   marker. Split into two sentences or join with "and"/"but"/
   "so". Keep the semicolon only when a list's items carry
-  internal commas. Low confidence: surface, do not auto-rewrite.
+  internal commas. The splice with no comma on either side is
+  scored. A comma-bearing list is not matched at all.
 - **Over-explained fixes**: narration wrapped around a change,
   in place of the change. "In order to", "this ensures that",
   "this means that", "the reason for this is", "which allows

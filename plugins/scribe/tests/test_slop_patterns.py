@@ -820,9 +820,14 @@ class TestTier5SemicolonSplice:
     CATEGORY = "semicolon_splice"
 
     @pytest.mark.unit
-    def test_category_is_low_confidence(self) -> None:
-        """Scenario: Semicolon findings surface, never auto-apply."""
-        assert _tier5_category(self.CATEGORY)["confidence"] == "low"
+    def test_category_is_scored(self) -> None:
+        """Scenario: an unambiguous splice counts toward the gate.
+
+        The category was low confidence while it matched every prose
+        semicolon. Since 2026-09-18 the regex names the splice and
+        leaves comma-bearing lists alone, so what it matches is scored.
+        """
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
 
     @pytest.mark.unit
     def test_detects_clause_splice(self) -> None:
@@ -2175,4 +2180,138 @@ class TestSycophanticSectionIsReachable:
         assert not unreachable, (
             f"these YAML sections carry a score and patterns but no getter "
             f"reaches them, so they are dead data: {sorted(unreachable)}"
+        )
+
+
+class TestTier5NegatedAlternative:
+    """A negation followed by "instead of" or "rather than" in one clause.
+
+    The bare connectives stay in the opt-in, low-confidence
+    ``contrastive_scaffold`` because this repository uses them correctly
+    hundreds of times. The negated form ("never guesses instead of
+    measuring") is the antithesis shape asked for on 2026-09-18: the
+    sentence defines the thing by what it refuses to do.
+    """
+
+    CATEGORY = "negated_alternative"
+
+    @pytest.mark.unit
+    def test_never_verb_instead_of(self) -> None:
+        assert (
+            _category_hits(
+                self.CATEGORY, "The gate never guesses instead of measuring."
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_does_not_rather_than(self) -> None:
+        assert (
+            _category_hits(
+                self.CATEGORY, "It does not retry rather than report the failure."
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_contracted_negation(self) -> None:
+        assert (
+            _category_hits(
+                self.CATEGORY, "It doesn't fail silently instead of raising."
+            )
+            >= 1
+        )
+
+    @pytest.mark.unit
+    def test_a_plain_recommendation_is_not_matched(self) -> None:
+        """ "Use rg rather than grep" recommends; nothing is negated."""
+        assert (
+            _category_hits(self.CATEGORY, "Use rg rather than grep for file search.")
+            == 0
+        )
+
+    @pytest.mark.unit
+    def test_a_negative_definition_without_an_alternative_is_not_matched(self) -> None:
+        assert (
+            _category_hits(self.CATEGORY, "The parser does not support nested blocks.")
+            == 0
+        )
+
+    @pytest.mark.unit
+    def test_the_negation_must_be_in_the_same_clause(self) -> None:
+        """A sentence boundary between the negation and the connective breaks the scaffold."""
+        text = "It does not retry. Use the cache instead of the network."
+        assert _category_hits(self.CATEGORY, text) == 0
+
+    @pytest.mark.unit
+    def test_it_is_scored_by_the_gate(self) -> None:
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+        assert _tier5_category(self.CATEGORY)["score"] >= 1
+
+
+class TestTier5NegativeParallelismLongTail:
+    """ "X, not Y" where Y is a possessive or a short phrase (2026-09-18).
+
+    The bare-trailing regex ended one word after "not", so "reads
+    records, not the model's judgment." was unmatched while "a control,
+    not a finding." was. The tail may now run a few words, but never
+    into a reason clause: "not because X" states a cause and stays.
+    """
+
+    @pytest.mark.unit
+    def test_possessive_tail_is_matched(self) -> None:
+        text = "The verifier reads records, not the model's judgment."
+        assert _category_hits("negative_parallelism", text) >= 1
+
+    @pytest.mark.unit
+    def test_short_phrase_tail_is_matched(self) -> None:
+        text = "It ships a record, not a summary of the run."
+        assert _category_hits("negative_parallelism", text) >= 1
+
+    @pytest.mark.unit
+    def test_a_reason_clause_after_not_is_left_alone(self) -> None:
+        text = "The probe stopped early, not because it failed."
+        assert _category_hits("negative_parallelism", text) == 0
+
+
+class TestTier5SemicolonSpliceScored:
+    """The unambiguous splice scores; the comma-bearing list does not.
+
+    Until 2026-09-18 every prose semicolon was surfaced at low
+    confidence and none counted toward the gate. The two clauses of a
+    splice carry no commas of their own, which is what separates them
+    from the one case the house rule keeps: a list whose items carry
+    internal commas.
+    """
+
+    CATEGORY = "semicolon_splice"
+
+    @pytest.mark.unit
+    def test_a_splice_of_two_clauses_scores(self) -> None:
+        text = "The cache warms on the first read; later reads come from memory."
+        assert _category_hits(self.CATEGORY, text) >= 1
+        assert _tier5_category(self.CATEGORY)["confidence"] == "high"
+
+    @pytest.mark.unit
+    def test_a_splice_across_a_wrapped_line_scores(self) -> None:
+        text = (
+            "The cache warms on the first read; later reads\ncome from memory instead."
+        )
+        assert _category_hits(self.CATEGORY, text) >= 1
+
+    @pytest.mark.unit
+    def test_a_list_with_internal_commas_does_not_score(self) -> None:
+        text = (
+            "Use red, which is hot; blue, which is cold; and green, which is neither."
+        )
+        assert _category_hits(self.CATEGORY, text) == 0
+
+    @pytest.mark.unit
+    def test_a_capitalized_continuation_does_not_score(self) -> None:
+        """ "; See also" and "; Figure 2" are references, not spliced clauses."""
+        assert (
+            _category_hits(
+                self.CATEGORY, "Results improved; See Table 2 for the breakdown."
+            )
+            == 0
         )

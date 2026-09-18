@@ -59,6 +59,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   "research" in the rationale. memory-palace's unreferenced
   `fixtures/semantic_queries.json` was deleted.
 
+- **Semicolon splices, ", not Y" tails, and negated alternatives are
+  scored (scribe).** A semicolon joining two clauses was surfaced at
+  low confidence and never counted, because the old regex matched
+  every prose semicolon including the list case the house rule keeps.
+  The pattern now names the splice (no comma on either side, lowercase
+  continuation) and scores it, and the comma-bearing list is not
+  reported at all. The bare ", not Y." pattern ended one word after
+  "not", so "reads records, not the model's judgment." passed; the
+  tail may now run a few words, with reason clauses ("not because it
+  failed") excluded. New `negated_alternative` scores a negation
+  followed in the same clause by "instead of" or "rather than"
+  ("never guesses instead of measuring"); the bare connectives stay
+  opt-in, since this repository uses them correctly hundreds of times.
+
 - **Channel cards and a record-based stop decision (tome).** Tome
   kept what it knew about each channel in four places: the channel
   set in `models`, an if-ladder in the planner, the research skill's
