@@ -11,7 +11,8 @@
     "./skills/papers",
     "./skills/research",
     "./skills/synthesize",
-    "./skills/triz"
+    "./skills/triz",
+    "./skills/web-search"
   ],
   "commands": [
     "./commands/research.md",
@@ -24,6 +25,7 @@
     "./agents/discourse-scanner.md",
     "./agents/literature-reviewer.md",
     "./agents/research.md",
+    "./agents/web-searcher.md",
     "./agents/triz-analyst.md"
   ],
   "hooks": [],

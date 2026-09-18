@@ -147,6 +147,32 @@ CHANNEL_CARDS: tuple[ChannelCard, ...] = (
         ),
     ),
     ChannelCard(
+        name="web",
+        kind="retrieval",
+        agent_type="tome:web-searcher",
+        min_depth="medium",
+        controlled=True,
+        prompt_includes=("topic", "domain"),
+        when="Vendor documentation, standards, comparisons, and news. Weak for "
+        "code and for opinion, which have their own channels.",
+        limitations=(
+            "The control fetches a known page, so it proves the open web is "
+            "reachable, not that a search engine ranked the topic's pages.",
+            "You.com is optional. Without it the channel runs on WebSearch "
+            "alone; findings record which path retrieved them in "
+            "metadata.retrieved_via.",
+            "Search results are ordered by an engine's relevance, not by "
+            "correctness, and vendor pages argue for their vendor.",
+            _VOCABULARY,
+        ),
+        best_practices=(
+            "Run build_canary_query for this channel before any topic query.",
+            "Build queries with expand_web_queries instead of free text.",
+            "Report items the parser skipped beside the count each query "
+            "returned, so a drifted response shape cannot read as empty.",
+        ),
+    ),
+    ChannelCard(
         name="triz",
         kind="generative",
         agent_type="tome:triz-analyst",

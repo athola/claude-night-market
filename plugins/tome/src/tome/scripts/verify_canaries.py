@@ -79,6 +79,7 @@ def _expected_marker(channel: str) -> str:
         "academic": "Attention Is All You Need",
         "code": "torvalds/linux",
         "discourse": "Y Combinator",
+        "web": "Key words for use in RFCs to Indicate Requirement Levels",
     }[channel]
 
 
@@ -91,6 +92,10 @@ def _answered_cleanly(channel: str, body: str) -> bool:
     """
     if channel == "academic":
         return "<feed" in body or "<entry>" in body
+    if channel == "web":
+        # A plain-text RFC carries the IETF header; garbage or an HTML
+        # error page does not, and neither says the document moved.
+        return "Network Working Group" in body or "Request for Comments" in body
     try:
         data = json.loads(body)
     except (json.JSONDecodeError, TypeError):

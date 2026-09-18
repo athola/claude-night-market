@@ -122,6 +122,7 @@ work that misses a subtle finding costs more than the tokens it saved.
 | `scry:media-recorder` | Executes VHS and Playwright scripts, no judgment |
 | `tome:code-searcher` | GitHub search returning repo metadata and ranking |
 | `tome:discourse-scanner` | Scrapes discussion threads into a fixed schema |
+| `tome:web-searcher` | Runs web queries and parses results into a fixed schema |
 
 ### Standard (`sonnet` / `medium`)
 
@@ -197,9 +198,9 @@ on skill-graph structure and dependency design, which is architecture
 work whose mistakes propagate across every plugin that consumes the
 advice.
 
-**`tome:code-searcher` and `discourse-scanner` are Lightweight, but
-`literature-reviewer` is Standard.** The first two return metadata in a
-fixed shape from search results. The third parses PDFs and extracts
+**`tome:code-searcher`, `discourse-scanner` and `web-searcher` are
+Lightweight, but `literature-reviewer` is Standard.** The first three
+return metadata in a fixed shape from search results. The third parses PDFs and extracts
 findings, which requires reading for meaning rather than filling a schema.
 
 ## Enforcement

@@ -80,7 +80,7 @@ class TestACleanCoveredRunStops:
         When the session is verified after one pass
         Then the conclusion is STOP with nothing to rerun or add
         """
-        channels = ["code", "discourse", "academic"]
+        channels = ["code", "discourse", "academic", "web"]
         session = _session(
             channels,
             [log for c in channels for log in _clean(c)],
@@ -217,7 +217,7 @@ class TestAThinFieldUsesEveryRetrievalChannel:
         )
         result = verify_context(session, passes_run=1)
         assert result.conclusion == CONTINUE
-        assert result.add == ("academic",)
+        assert result.add == ("academic", "web")
         assert not _check(result, "unused_channels").passed
 
     @pytest.mark.unit
@@ -226,7 +226,7 @@ class TestAThinFieldUsesEveryRetrievalChannel:
         Given every retrieval channel ran and came back controlled-empty
         Then nothing is added: triz output cannot testify about absence
         """
-        channels = ["code", "discourse", "academic"]
+        channels = ["code", "discourse", "academic", "web"]
         session = _session(channels, [log for c in channels for log in _clean(c, 0)])
         result = verify_context(session, passes_run=1)
         assert result.add == ()

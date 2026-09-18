@@ -101,7 +101,7 @@ class TestResearchPlannerChannelInclusion:
         classification = _make_classification("data-structure", "deep")
         result = plan(classification)
 
-        assert set(result.channels) == {"code", "discourse", "academic", "triz"}
+        assert set(result.channels) == {"code", "discourse", "academic", "web", "triz"}
 
     @pytest.mark.unit
     def test_maximum_depth_includes_all_four_channels(self) -> None:
@@ -124,7 +124,7 @@ class TestResearchPlannerChannelInclusion:
         )
         result = plan(classification)
 
-        assert set(result.channels) == {"code", "discourse", "academic", "triz"}
+        assert set(result.channels) == {"code", "discourse", "academic", "web", "triz"}
 
 
 class TestResearchPlannerBudget:

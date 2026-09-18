@@ -37,6 +37,7 @@ CHANNEL_AGENTS = {
     "discourse-scanner.md": "discourse",
     "literature-reviewer.md": "academic",
     "triz-analyst.md": "triz",
+    "web-searcher.md": "web",
 }
 
 _JSON_BLOCK = re.compile(r"```json\n(.*?)\n```", re.DOTALL)

@@ -45,11 +45,13 @@ _HITS = {
     "academic": "<entry><title>Attention Is All You Need</title></entry>",
     "code": '{"total_count": 1, "items": [{"full_name": "torvalds/linux"}]}',
     "discourse": '{"hits": [{"title": "Y Combinator", "author": "pg"}]}',
+    "web": "Network Working Group\nRFC 2119\n\nKey words for use in RFCs to Indicate Requirement Levels\n",
 }
 _ANSWERED_BUT_EMPTY = {
     "academic": "<feed></feed>",
     "code": '{"total_count": 0, "items": []}',
     "discourse": '{"hits": []}',
+    "web": "Network Working Group\nRFC 9999\n\nSome other document entirely\n",
 }
 
 
