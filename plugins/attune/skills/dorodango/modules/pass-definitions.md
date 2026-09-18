@@ -44,7 +44,8 @@ remove dead code. Do not change behavior."
 
 **Tools**: Read, Edit, pensive:code-refinement
 
-**Convergence**: 0 clarity issues found by reviewer
+**Convergence**: linter and formatter exit 0, recorded in the
+state file, and 0 clarity issues found by reviewer
 
 ## Pass 3: Consistency
 
@@ -93,5 +94,6 @@ polish. This ordering is intentional:
 3. Check conventions before polishing edges
 
 If a pass in a later dimension discovers a bug
-(correctness regression), surface to human rather
-than re-running the converged correctness pass.
+(correctness regression), un-converge correctness in
+the state file and re-run it. A converged dimension is
+a claim about the code as it was, and the code changed.

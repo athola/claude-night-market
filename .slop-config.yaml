@@ -28,5 +28,6 @@ exclude_patterns:
   - plugins/scribe/agents/*                                      # slop-hunter, prose-reviewer and doc-editor name what they hunt
   - .claude/rules/slop-scan-for-docs.md                          # the house checklist quotes every category it bans
   - plugins/hookify/skills/rule-catalog/rules/documentation/*    # the two slop hookify rules carry the regexes and rewrite tables
+  - tests/fixtures/slop/*                                       # the planted control the gate must flag; tests/test_gates_fail_closed.py scores it on purpose
   - plugins/memory-palace/data/*                                 # captured external pages, not prose authored here
   - plugins/conserve/skills/response-compression/SKILL.md        # quotes the filler it teaches a session to strip

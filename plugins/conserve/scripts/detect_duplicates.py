@@ -467,6 +467,15 @@ Examples:
     else:
         print(format_text(report, similar_funcs))
 
+    # A scan of nothing is not a clean scan. The filters above can zero
+    # out the file list silently, and tier 1 of the bloat stack gates on
+    # this report, so an empty scan must fail rather than pass.
+    if report.files_scanned == 0:
+        print(
+            "detect_duplicates: nothing was scanned (files scanned: 0)", file=sys.stderr
+        )
+        return 2
+
     # Exit code based on threshold
     if args.threshold is not None:
         if report.duplication_percentage > args.threshold:

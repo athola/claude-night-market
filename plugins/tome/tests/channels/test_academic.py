@@ -503,19 +503,44 @@ class TestOpenAccess:
         When build_unpaywall_url is called
         Then the URL contains the DOI and the email parameter
         """
-        url = build_unpaywall_url("10.1234/test")
+        url = build_unpaywall_url("10.1234/test", email="me@lab.example")
 
         assert "10.1234%2Ftest" in url
-        assert "email=" in url
+        assert "email=me@lab.example" in url
 
     @pytest.mark.unit
     def test_build_unpaywall_url_uses_correct_base(self) -> None:
         """
         Scenario: URL uses the Unpaywall v2 API base
         """
-        url = build_unpaywall_url("10.1234/test")
+        url = build_unpaywall_url("10.1234/test", email="me@lab.example")
 
         assert url.startswith("https://api.unpaywall.org/v2/")
+
+    @pytest.mark.unit
+    def test_build_unpaywall_url_refuses_to_run_without_a_real_email(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Scenario: No contact email is available
+        Given TOME_CONTACT_EMAIL is unset and no email argument
+        When build_unpaywall_url is called
+        Then it raises instead of sending a placeholder
+
+            Unpaywall answers 422 to research@example.com (checked
+            2026-09-18), so the old default produced a source_error on
+            every call and the agent could not tell why.
+        """
+        monkeypatch.delenv("TOME_CONTACT_EMAIL", raising=False)
+        with pytest.raises(ValueError, match="TOME_CONTACT_EMAIL"):
+            build_unpaywall_url("10.1234/test")
+
+    @pytest.mark.unit
+    def test_build_unpaywall_url_reads_the_env_var(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("TOME_CONTACT_EMAIL", "env@lab.example")
+        assert "email=env@lab.example" in build_unpaywall_url("10.1234/test")
 
     @pytest.mark.unit
     def test_parse_unpaywall_response_extracts_pdf_url(self) -> None:

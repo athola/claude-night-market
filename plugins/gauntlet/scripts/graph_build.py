@@ -57,6 +57,17 @@ def main() -> None:
             report = incremental_update(str(root), graph, args.base_ref)
         else:
             report = full_build(str(root), graph)
+            if not report.get("nodes_created"):
+                # An empty graph is not a built graph. Without this a
+                # missing parser or a tree with no sources reported a
+                # green build, and every later search read its zero
+                # results as "not in the codebase".
+                report["error"] = (
+                    f"no nodes created under {root}: no parseable sources, "
+                    "or the tree-sitter parser is unavailable"
+                )
+                print(json.dumps(report, indent=2))
+                sys.exit(2)
         print(json.dumps(report, indent=2))
     finally:
         graph.close()

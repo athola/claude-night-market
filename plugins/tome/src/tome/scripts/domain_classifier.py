@@ -129,6 +129,32 @@ _DOMAIN_KEYWORDS: dict[str, list[str]] = {
         "semantic search",
         "hallucination",
         "session memory",
+        "agentic",
+        "multi-agent",
+        "toolset",
+        "tool card",
+        "tool use",
+        "verifier",
+        "tool-using",
+        "orchestrat",
+    ],
+    # Method and framework topics. ADR-0024's own topic abstained to
+    # general with one candidate, and the plan dropped triz while
+    # researching TRIZ.
+    "methodology": [
+        "triz",
+        "inventive",
+        "ideation",
+        "brainstorm",
+        "methodology",
+        "heuristic",
+        "problem-solving",
+        "problem solving",
+        "design thinking",
+        "research method",
+        "inventive framework",
+        "morphological",
+        "scamper",
     ],
     "security": [
         "encryption",
@@ -165,6 +191,7 @@ _TRIZ_DEPTH: dict[str, str] = {
     "devops": "light",
     "security": "medium",
     "ai-agents": "deep",
+    "methodology": "deep",
     "general": "light",
 }
 
@@ -187,6 +214,7 @@ _CHANNEL_WEIGHTS: dict[str, dict[str, float]] = {
         "academic": 0.30,
         "triz": 0.15,
     },
+    "methodology": {"code": 0.10, "discourse": 0.25, "academic": 0.40, "triz": 0.25},
     "general": {"code": 0.30, "discourse": 0.35, "academic": 0.20, "triz": 0.15},
 }
 

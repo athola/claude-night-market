@@ -222,7 +222,14 @@ For each active work item, execute this loop:
    The default mode is "self-review" for egregore's own
    work items.
 
-5. **On success**: advance the pipeline. Update
+5. **On success**: advance the pipeline. Success is a
+   verdict from `scripts/verdict.py` (`objective_check`, or
+   `reconcile` when a reviewer's reading is also present)
+   over the step's recorded evidence: exit codes, test
+   counts, files that exist. A `Skill()` call returning is
+   not a verdict, and the implementer's summary of its own
+   work is not evidence (`objective_check` discards it on
+   purpose). Update
    `pipeline_stage` and `pipeline_step` to the next step.
    Save the manifest to disk. Output ONE line:
    `"Completed [ITEM-ID] step [step]. Starting next."`
@@ -235,7 +242,11 @@ For each active work item, execute this loop:
    success. Route it to failure handling (step 6) instead, so
    the item cannot advance to ship with unresolved blocking
    findings. When the flag is `false` (the default), behave as
-   today and keep running indefinitely.
+   today and keep running indefinitely. The default stays off
+   until the completion-integrity campaign
+   (`.claude/skills/night-market-completion-integrity-campaign`)
+   has measured the gate's false-fail rate; an unmeasured gate
+   turned on by default would stall the loop on its own errors.
 
 6. **On failure**: increment `attempts` on the work item.
    If `attempts < max_attempts`, retry the step.

@@ -128,6 +128,28 @@ _CONTRADICTION_CATALOGUE: list[tuple[str, str, list[str]]] = [
         "performance",
         ["readability", "clean code", "refactor", "maintainab"],
     ),
+    # Research-workflow trade-offs. ADR-0024 found the workflow's own
+    # four contradictions all fell through to the fallback below.
+    (
+        "coverage",
+        "cost",
+        ["coverage", "recall", "token budget", "search budget", "retrieval", "toolset"],
+    ),
+    (
+        "declarative metadata",
+        "drift",
+        ["metadata", "schema drift", "manifest", "declarative", "tool card", "drift"],
+    ),
+    (
+        "early stopping",
+        "completeness",
+        ["stopping", "when to stop", "termination", "verifier", "multi-pass"],
+    ),
+    (
+        "idea generation",
+        "evidence",
+        ["generative", "analogy", "analogies", "ideation", "hallucinat"],
+    ),
     (
         "flexibility",
         "complexity",
@@ -155,40 +177,28 @@ _IDEAL_RESULT_TEMPLATES: dict[tuple[str, str], str] = {
     ("flexibility", "complexity"): (
         "The system achieves full flexibility without increasing complexity"
     ),
+    ("coverage", "cost"): (
+        "The search finds everything the evidence requires without a query beyond that"
+    ),
+    ("declarative metadata", "drift"): (
+        "The description stays true to the code without anyone maintaining it"
+    ),
+    ("early stopping", "completeness"): (
+        "The search stops the moment it is complete and never before"
+    ),
+    ("idea generation", "evidence"): (
+        "Every generated idea arrives with its prior art already checked"
+    ),
 }
 
 
-def formulate_contradiction(topic: str, domain: str) -> dict[str, str]:
-    """Formulate a TRIZ technical contradiction from the topic.
-
-    Uses keyword analysis to select the most likely contradiction from a
-    catalogue of common software trade-offs.  Falls back to the
-    flexibility/complexity contradiction when no keywords match.
-
-    Args:
-        topic: Free-text research topic.
-        domain: Domain classification string (used for system description).
-
-    Returns:
-        Dict with keys: system, improving, worsening, ideal_result,
-        contradiction.
-    """
-    topic_lower = topic.lower()
-
-    improving = "flexibility"
-    worsening = "complexity"
-
-    for imp, wors, keywords in _CONTRADICTION_CATALOGUE:
-        if any(kw in topic_lower for kw in keywords):
-            improving = imp
-            worsening = wors
-            break
-
+def _contradiction(
+    topic: str, domain: str, improving: str, worsening: str
+) -> dict[str, str]:
     ideal_result = _IDEAL_RESULT_TEMPLATES.get(
         (improving, worsening),
         f"The system achieves {improving} without increasing {worsening}",
     )
-
     return {
         "system": f"{topic} in the {domain} domain",
         "improving": improving,
@@ -196,6 +206,55 @@ def formulate_contradiction(topic: str, domain: str) -> dict[str, str]:
         "ideal_result": ideal_result,
         "contradiction": f"Improving {improving} worsens {worsening}",
     }
+
+
+def formulate_contradictions(
+    topic: str, domain: str, limit: int = 3
+) -> list[dict[str, str]]:
+    """Rank candidate contradictions for the topic, best supported first.
+
+    Every catalogue pair with a keyword hit is a candidate, ordered by
+    how many of its keywords the topic contains, then by catalogue
+    order. TRIZ-GPT (arXiv 2408.05897) measured GPT-4 mapping free text
+    onto contradiction parameters at recall 0.69 and precision 0.31,
+    about three candidates per correct one, so the agent is handed the
+    ranked few rather than the first hit. With no hit at all the list
+    holds only the flexibility/complexity fallback.
+
+    Args:
+        topic: Free-text research topic.
+        domain: Domain classification string (used for system description).
+        limit: Maximum number of candidates to return.
+
+    Returns:
+        Non-empty list of dicts, each with keys: system, improving,
+        worsening, ideal_result, contradiction.
+    """
+    topic_lower = topic.lower()
+    scored = [
+        (sum(1 for kw in keywords if kw in topic_lower), position, imp, wors)
+        for position, (imp, wors, keywords) in enumerate(_CONTRADICTION_CATALOGUE)
+    ]
+    hits = sorted((s for s in scored if s[0] > 0), key=lambda s: (-s[0], s[1]))
+    if not hits:
+        return [_contradiction(topic, domain, "flexibility", "complexity")]
+    return [
+        _contradiction(topic, domain, imp, wors)
+        for _, _, imp, wors in hits[: max(1, limit)]
+    ]
+
+
+def formulate_contradiction(topic: str, domain: str) -> dict[str, str]:
+    """The best-supported contradiction for the topic.
+
+    Equivalent to ``formulate_contradictions(topic, domain)[0]``. Kept
+    for callers that need one pair; the agent prompt uses the list.
+
+    Returns:
+        Dict with keys: system, improving, worsening, ideal_result,
+        contradiction.
+    """
+    return formulate_contradictions(topic, domain, limit=1)[0]
 
 
 def formulate_ideality(topic: str, contradiction: dict[str, str]) -> dict[str, str]:
@@ -400,6 +459,11 @@ _PRINCIPLE_MAPPINGS: list[tuple[tuple[str, str], list[int]]] = [
     (("consistency", "avail"), [15, 16, 24]),
     (("readab", "performance"), [1, 7, 26]),
     (("flexibility", "complexity"), [1, 5, 6]),
+    # Principles the ADR-0024 triz pass assigned to each workflow bridge.
+    (("coverage", "cost"), [16, 3, 1]),
+    (("declarative metadata", "drift"), [25, 23, 19]),
+    (("early stopping", "completeness"), [23, 10, 2]),
+    (("idea generation", "evidence"), [2, 1, 24]),
 ]
 
 _DEFAULT_PRINCIPLES: list[int] = [1, 13, 22, 25]

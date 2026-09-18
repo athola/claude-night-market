@@ -200,3 +200,52 @@ def test_novelty_not_capped_with_evidence() -> None:
     uncapped = score_idea(scores, novelty_evidence=True)
     assert uncapped["adjusted_scores"]["novelty"] == 9.0
     assert uncapped["capped"] is False
+
+
+# ---------------------------------------------------------------------------
+# Evidence-backed additions from the TRIZ-adjacent framework survey
+# ---------------------------------------------------------------------------
+
+_IDEATE_SKILL = (
+    __import__("pathlib").Path(__file__).parents[2] / "skills" / "ideate" / "SKILL.md"
+)
+
+
+@_pytest.mark.parametrize(
+    ("method_id", "category"),
+    [("devils-advocacy", "adversarial"), ("competing-hypotheses", "hypothesis")],
+)
+def test_survey_additions_are_catalogued(method_id: str, category: str) -> None:
+    """
+    Given the 2026-09 survey admitted two methods (ADR-0024)
+    Then each is present in its category, graded mixed
+
+        Both are graded mixed rather than strong on purpose. Schwenk's
+        1990 meta-analysis measured people arguing, and a single model
+        playing both sides is a weaker manipulation. Dhami et al. 2019
+        found the heavyweight hypothesis matrix (ACH) did not improve
+        analyst accuracy, so only the light form is catalogued.
+    """
+    method = get_method(method_id)
+    assert method is not None
+    assert method["category"] == category
+    assert method["evidence"] == "mixed"
+
+
+def test_competing_hypotheses_prompt_stays_light() -> None:
+    """
+    Given ACH's matrix did not improve accuracy in a randomized trial
+    Then the catalogued prompt does not ask for a hypothesis matrix
+    """
+    prompt = get_method("competing-hypotheses")["prompt"].lower()
+    assert "matrix" not in prompt
+
+
+def test_ideate_skill_lists_every_catalogued_method() -> None:
+    """
+    Given the ideate skill shows the catalogue as a table
+    Then every method name in methods.yaml appears in that table
+    """
+    text = _IDEATE_SKILL.read_text(encoding="utf-8")
+    for method in load_methods():
+        assert f"| {method['name']} |" in text, method["name"]

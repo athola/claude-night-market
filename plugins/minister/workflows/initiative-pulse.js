@@ -56,11 +56,16 @@ const pulsed = await parallel(
   ),
 )
 
+// A milestone whose agent returned nothing has no pulse, and a roll-up
+// that omits it reads healthier than the programme is.
+const missing = milestones.filter((milestone, index) => !pulsed[index])
 const pulses = pulsed.filter(Boolean)
+
+if (missing.length) log(`no pulse from ${missing.join(', ')}; the roll-up does not cover them`)
 
 if (!pulses.length) {
   log('no milestone returned a pulse')
-  return { repo, pulses: [], rollUp: null }
+  return { repo, pulses: [], rollUp: null, missing }
 }
 
 const digest = pulses
@@ -74,4 +79,4 @@ const rollUp = await agent(
 
 log(`${pulses.length} milestones measured, ${pulses.filter((p) => p.risk !== 'on-track').length} not on track`)
 
-return { repo, pulses, rollUp }
+return { repo, pulses, rollUp, missing }

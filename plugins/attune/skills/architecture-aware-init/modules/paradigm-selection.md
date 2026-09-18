@@ -65,7 +65,16 @@ recommendation.
 +---------------------+---------+---------+----------+-------------+
 ```
 
-## Special cases (override the matrix)
+## Special cases (scored with the matrix, not over it)
+
+`ArchitectureResearcher.rank()` in `scripts/architecture_researcher.py`
+scores every paradigm the matrix cell and the modifiers name, and
+`recommend()` reports the top one with the runners-up and a
+confidence read from the margin. Present the top two with their
+scores; a margin under 1 point is a tie, and the requirement that
+would break it is the finding to report. The rows below are the
+workload modifiers the scorer applies; none of them overwrites the
+matrix outright.
 
 | Workload                  | Paradigm                     |
 |---------------------------|------------------------------|

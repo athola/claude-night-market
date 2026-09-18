@@ -929,3 +929,30 @@ class TestRoleAwareClassification:
         assert bins["library"] == ["p:lib"]
         assert bins["hook-target"] == ["p:ht"]
         assert bins["unset"] == ["p:legacy"]
+
+
+class TestThePlantedFixtureIsStillDetected:
+    """Feature: the audit proves it can see before its clean report counts.
+
+    Edges come from a regex over ``Skill(plugin:name)`` and frontmatter.
+    A regex that stops matching turns every skill into an isolate and
+    empties the dangling list, which reads as "no broken references".
+    The fixture tree has a known answer: one bug-class dangling ref, one
+    isolate, two edges. ``skill-graph-audit`` runs this first.
+    """
+
+    _ROOT = Path(__file__).resolve().parents[1] / "fixtures" / "skill_graph"
+
+    def test_known_answer_holds(self) -> None:
+        graph = build_graph(self._ROOT)
+        assert set(graph.nodes) == {
+            "fixtureplugin:alpha",
+            "fixtureplugin:beta",
+            "fixtureplugin:gamma",
+        }
+        assert len(graph.edges) == 2
+        assert detect_dangling_refs(graph) == [
+            ("fixtureplugin:alpha", "fixtureplugin:absent")
+        ]
+        assert "fixtureplugin:gamma" in detect_isolates(graph)
+        assert "fixtureplugin:beta" not in detect_isolates(graph)

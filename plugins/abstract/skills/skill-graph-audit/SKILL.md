@@ -40,6 +40,11 @@ hand-curated.
 ## Quick Start
 
 ```bash
+# Positive control first. The fixture tree has a known answer (1
+# bug-class dangling ref, 1 isolate, 2 edges); a regex that stopped
+# matching would report plugins/ as clean, and this catches it.
+uv run pytest -o addopts= -q plugins/abstract/tests/scripts/test_skill_graph.py -k Planted
+
 python3 plugins/abstract/scripts/skill_graph.py \
   --plugins-root plugins --top-n 10
 ```
@@ -99,6 +104,8 @@ Two ways to validate the audit output is trustworthy:
 
 ## Exit Criteria
 
+- [ ] The planted fixture test passed before the audit ran; a clean
+  report on `plugins/` is not reportable without it
 - [ ] The graph builds: `skill_graph.py` runs against `plugins/`
       without error and emits a node/edge count.
 - [ ] Dangling references are classified into bugs, external, and

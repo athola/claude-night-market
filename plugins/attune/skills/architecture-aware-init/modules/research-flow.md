@@ -81,6 +81,26 @@ Produce a short brief with:
 - Red flags or anti-patterns to avoid
 - Technology-specific considerations
 
+Then write the brief's verdicts in the recommender's own vocabulary
+and hand the file to the script:
+
+```json
+{"preferred": ["hexagonal", "functional-core"], "avoid": ["layered"]}
+```
+
+```bash
+uv run python plugins/attune/scripts/attune_arch_init.py \
+  --research-file research.json
+```
+
+`ArchitectureResearcher.rank()` scores the file as a fourth modifier
+beside project type, scalability and security, and every point it
+adds carries a rule that says "research", so the recommendation shows
+what came from reading and what came from the matrix. A key outside
+`preferred` and `avoid` is an error, not an ignored field. Without the
+file the script says so and recommends from the matrix alone; it
+cannot search by itself.
+
 Hand the brief into Step 3 (paradigm selection). The decision
 matrix in `modules/paradigm-selection.md` consumes this brief
 directly.

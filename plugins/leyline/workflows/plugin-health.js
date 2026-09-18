@@ -62,14 +62,39 @@ const checked = await parallel(
   ),
 )
 
+// A plugin whose checker returned nothing is unchecked, not healthy,
+// and it must not shrink the denominator behind "no plugin satisfies".
+const missing = plugins.filter((plugin, index) => !checked[index])
 const reports = checked.filter(Boolean)
 const violations = reports.flatMap((report) =>
   (report.violations || []).map((entry) => ({ ...entry, plugin: report.plugin })),
 )
+const runCoverage = { checked: reports.map((report) => report.plugin), missing }
+
+if (missing.length) log(`no report from ${missing.join(', ')}; those plugins are unchecked`)
 
 if (reports.length < 2) {
   log(`${violations.length} violations from ${reports.length} plugin`)
-  return { plugins, violations, staleContracts: null }
+  return { plugins, violations, staleContracts: null, coverage: runCoverage }
+}
+
+const STALE = {
+  type: 'object',
+  required: ['contracts'],
+  properties: {
+    contracts: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['contract', 'verdict', 'why'],
+        properties: {
+          contract: { type: 'string' },
+          verdict: { type: 'string', enum: ['stale', 'broken', 'unclear'] },
+          why: { type: 'string' },
+        },
+      },
+    },
+  },
 }
 
 const coverage = reports
@@ -78,9 +103,9 @@ const coverage = reports
 
 const staleContracts = await agent(
   `These per-plugin checks ran independently. Report any contract that no plugin satisfies.\n\n${coverage}\n\nA contract every plugin violates is more likely a contract that moved than 24 independent mistakes, and it should be reported as a question about the contract rather than as 24 findings. Say which of these is which.`,
-  { label: 'contracts', phase: 'Contracts' },
+  { label: 'contracts', phase: 'Contracts', schema: STALE },
 )
 
 log(`${violations.length} violations across ${reports.length} plugins`)
 
-return { plugins, violations, staleContracts }
+return { plugins, violations, staleContracts, coverage: runCoverage }

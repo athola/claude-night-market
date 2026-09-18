@@ -187,7 +187,11 @@ Gate logic:
 - Both answers specific and bounded: save and proceed to Step 3.
 - Gap probe open-ended or progress probe hedging: append the failing
   probe's answer to `session-state.md` as explicit `Current state:`
-  and `Still needed:` bullets, then re-score.
+  and `Still needed:` bullets, then re-score. Re-score at most twice.
+  A draft that fails a third time is handed to the user with both
+  probe answers, not handed off: the writer of the state file is
+  also its grader here, and a loop of self-grading converges on
+  confidence, not on clarity.
 - Progress probe vague or empty: do not hand off. Confirm current
   state with the user (or `imbue:proof-of-work` in unattended mode)
   before writing state and retrying.
@@ -220,6 +224,10 @@ Instructions:
 6. Continue from where the previous agent left off
 7. If you also approach 80% context, repeat this handoff process
    - PRESERVE the execution mode when creating your own checkpoint
+   - Increment `handoff_depth` in `session-state.md`. At depth 3,
+     stop and report to the user instead of spawning again: three
+     continuations without finishing is a task that needs splitting,
+     and each handoff loses state the probes cannot see
 
 The session state file contains all necessary context to continue without interruption.
 
@@ -345,7 +353,8 @@ For hooks where speed matters, use heuristics:
 1. **Checkpoint Frequently**: During long tasks, save state at natural breakpoints
 2. **Clear Instructions**: Continuation agent needs specific, concrete guidance
 3. **Verify Handoff**: Ensure state file is written before spawning subagent
-4. **Monitor Recursion**: Continuation agents can also hit limits - design for chaining
+4. **Bound Recursion**: Continuation agents can also hit limits. `handoff_depth`
+   in the state file caps the chain at 3; past it, report to the user
 
 ## Troubleshooting
 

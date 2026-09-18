@@ -20,7 +20,7 @@ from collections import Counter
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from .scanner import scan_directory
+from .scanner import list_sources, scan_directory
 
 if TYPE_CHECKING:
     from .types import Finding
@@ -107,14 +107,33 @@ def _render_text(findings: list[Finding], path: Path) -> str:
 def run_cli(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
+    sources = list_sources(args.path)
     findings = scan_directory(args.path)
     findings = _filter_severity(findings, args.severity)
+
+    # Zero files is not zero findings. A typo'd path or a tree with no
+    # Python produced the clean line and exit 0, including under
+    # --strict, so the gate passed exactly when it had nothing to check.
+    if not sources:
+        message = (
+            f"harden: nothing was scanned under {args.path}: no Python sources found"
+        )
+        if args.json:
+            print(
+                json.dumps(
+                    {"success": False, "error": message, "data": {"files_scanned": 0}}
+                )
+            )
+        else:
+            sys.stdout.write(message + "\n")
+        return 3
 
     if args.json:
         payload = {
             "success": True,
             "data": {
                 "path": str(args.path),
+                "files_scanned": len(sources),
                 "finding_count": len(findings),
                 "by_severity": dict(Counter(str(f.severity) for f in findings)),
                 "findings": [f.to_dict() for f in findings],

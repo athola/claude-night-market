@@ -67,12 +67,17 @@ const extracted = await parallel(
   ),
 )
 
+// A subsystem whose extractor returned nothing is unextracted; the
+// merged corpus must say which parts of the codebase it never saw.
+const missing = subsystems.filter((subsystem, index) => !extracted[index])
 const corpora = extracted.filter(Boolean)
 const entries = corpora.flatMap((corpus) => corpus.entries || [])
 
+if (missing.length) log(`no corpus from ${missing.join(', ')}; the knowledge base does not cover them`)
+
 if (corpora.length < 2) {
-  log(`${entries.length} entries from ${corpora.length} subsystem`)
-  return { subsystems, entries, merged: null }
+  log(`${entries.length} entries from ${corpora.length} of ${subsystems.length} subsystems`)
+  return { subsystems, entries, merged: null, missing }
 }
 
 const concepts = entries.map((entry) => `${entry.concept}: ${entry.whatItDoes}`).join('\n')
@@ -84,4 +89,4 @@ const merged = await agent(
 
 log(`${entries.length} entries across ${corpora.length} subsystems`)
 
-return { subsystems, entries, merged }
+return { subsystems, entries, merged, missing }

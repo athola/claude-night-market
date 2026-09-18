@@ -885,7 +885,14 @@ class _PalaceMixin(_CLIBase):
         self.print_status(f"Searching for '{query}'...")
 
         try:
-            results = self._manager().search_palaces(query, search_type)
+            manager = self._manager()
+            if not manager.list_palaces():
+                # Nothing indexed is not "no matches". A search over zero
+                # palaces says nothing about the corpus, and reporting it
+                # as a miss taught callers that the concept was absent.
+                self.print_error("No palaces indexed; nothing was searched")
+                return False
+            results = manager.search_palaces(query, search_type)
             if results:
                 for result in results:
                     print(f"\nPalace: {result['palace_name']} ({result['palace_id']})")

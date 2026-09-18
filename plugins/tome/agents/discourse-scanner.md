@@ -72,6 +72,9 @@ opinions about the given topic.
    `build_reddit_search_url(topic, subreddit)` per suggested
    subreddit, parse with `parse_reddit_response`, filter
    posts with score > 10, and wait 2 seconds between calls.
+   WebFetch refuses `old.reddit.com` in Claude Code (checked
+   2026-09-18). When it does, record one `source_error` for
+   reddit and move on; do not report the subreddits as empty.
 
 7. **Search tech blogs**: run `build_blog_search_queries(topic)`
    through WebSearch and parse hits with `parse_blog_result`.

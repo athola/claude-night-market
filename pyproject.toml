@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.9.20"
+version = "1.9.21"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -278,6 +278,7 @@ conserve = { workspace = true }
 
 [tool.bandit]
 exclude_dirs = [
+    "*/tests/fixtures/*",  # planted positive controls (ADR-0025): pickle.loads etc. are the point
     ".venv",
     ".uv-cache",
     "__pycache__",

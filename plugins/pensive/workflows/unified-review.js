@@ -127,7 +127,12 @@ const perDimension = await pipeline(
       schema: FINDINGS,
     }),
   (review, dimension) => {
-    if (!review || !review.findings || review.findings.length === 0) return []
+    if (!review) {
+      // A reviewer that died is not a dimension that passed.
+      dimension.missing = true
+      return []
+    }
+    if (!review.findings || review.findings.length === 0) return []
     let toVerify = review.findings
     if (maxFindings > 0 && toVerify.length > maxFindings) {
       log(
@@ -177,11 +182,13 @@ const confirmed = [...byLocation.values()].sort(
   (a, b) => RANK[a.severity] - RANK[b.severity] || b.dimensions.length - a.dimensions.length,
 )
 
+const missing = selected.filter((d) => d.missing).map((d) => d.key)
 log(`${confirmed.length} findings survived adversarial verification`)
+if (missing.length) log(`no review from ${missing.join(', ')}; those dimensions are unreviewed, not clean`)
 
 return {
   target,
-  dimensions: selected.map((d) => d.key),
+  dimensions: { selected: selected.map((d) => d.key), reviewed: selected.filter((d) => !d.missing).map((d) => d.key), missing },
   bounded: { maxFindings, lenses: lenses.length },
   confirmed,
   note:

@@ -207,3 +207,55 @@ class TestLegacyEnvelopes:
         """
         with pytest.raises(ValueError, match="channel"):
             parse_envelope({"findings": []})
+
+
+class TestTopLevelQueriesAreNotDropped:
+    """Scenario: an orchestrator prompt put the query list at top level.
+
+    Found dogfooding the OctoTools research session: a dispatch prompt
+    asked for ``{"findings": [...], "queries": [...]}``, the agent obeyed
+    it over its own documented envelope, and 27 query records, a canary
+    and two rate limits among them, collapsed into one synthesized log.
+    The canary's loss alone turns a controlled channel into an
+    uncontrolled one.
+    """
+
+    @pytest.mark.unit
+    def test_top_level_queries_become_one_log_each(self) -> None:
+        """
+        Given an envelope with queries at the top level and no metadata
+        When parsed
+        Then each query is its own log, the canary and rate limit intact
+        """
+        logs = parse_envelope(
+            {
+                "channel": "academic",
+                "findings": [],
+                "queries": [
+                    {"query": "canary", "source": "canary", "result_count": 1},
+                    {
+                        "query": "q",
+                        "source": "arxiv",
+                        "result_count": 0,
+                        "error": "rate_limit",
+                    },
+                ],
+            }
+        )
+        assert [log.source for log in logs] == ["canary", "arxiv"]
+        assert logs[1].error == "rate_limit"
+
+    @pytest.mark.unit
+    def test_metadata_queries_win_over_top_level(self) -> None:
+        """
+        Given both shapes are present
+        Then the documented metadata.queries is what is read
+        """
+        logs = parse_envelope(
+            {
+                "channel": "code",
+                "queries": [{"query": "top", "result_count": 1}],
+                "metadata": {"queries": [{"query": "meta", "result_count": 2}]},
+            }
+        )
+        assert [log.query for log in logs] == ["meta"]

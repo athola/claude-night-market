@@ -710,7 +710,7 @@ wheels = [
 
 [[package]]
 name = "pensive"
-version = "1.9.20"
+version = "1.9.21"
 source = { editable = "." }
 dependencies = [
     { name = "psutil" },

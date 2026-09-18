@@ -40,13 +40,21 @@ def _should_skip(path: Path) -> bool:
     return any(part in _SKIP_COMPONENTS for part in path.parts)
 
 
+def list_sources(root: Path) -> list[Path]:
+    """The Python files a scan of ``root`` will read, in scan order.
+
+    Exposed so the CLI can report how many files stood behind a verdict.
+    A typo'd path or a tree with no Python gives an empty list, and an
+    empty list must not be reported as "no findings".
+    """
+    root = Path(root)
+    return [p for p in sorted(root.rglob("*.py")) if not _should_skip(p)]
+
+
 def scan_directory(root: Path) -> list[Finding]:
     """Recursively scan ``root`` for Python sources; return all findings."""
-    root = Path(root)
     findings: list[Finding] = []
-    for py_file in sorted(root.rglob("*.py")):
-        if _should_skip(py_file):
-            continue
+    for py_file in list_sources(root):
         try:
             findings.extend(scan_path(py_file))
         except OSError as exc:

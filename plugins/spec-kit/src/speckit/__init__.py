@@ -1,6 +1,6 @@
 """Provide Spec Driven Development toolkit with enhanced superpowers integration."""
 
-__version__ = "1.9.20"
+__version__ = "1.9.21"
 
 # Import key components
 from .caching import CacheManager, SpecKitCache, cached, get_cache

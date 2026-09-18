@@ -71,22 +71,27 @@ const audited = await pipeline(
       `Read ${gate}. For each check it performs, decide whether a realistic input exists that the check should reject and does not.\n\nLook for: a condition that reads a field the caller controls, a comparison that normalizes away the difference it is testing, a branch that returns the passing verdict on an exception, and a check whose subject is not the thing the gate names. Report suspects with the input you think walks past. An empty list is a valid answer.`,
       { label: `read:${gate.split('/').pop()}`, phase: 'Read', schema: READING },
     ),
-  (reading, gate) =>
-    parallel(
-      (reading?.suspects || []).map((suspect) => () =>
+  (reading, gate) => {
+    // A gate whose reader returned nothing looks exactly like a gate
+    // with no bypass, in the one audit whose thesis is that a check
+    // that always passes is worse than no check. Name it.
+    if (!reading) return [{ gate, unread: true }]
+    return parallel(
+      (reading.suspects || []).map((suspect) => () =>
         agent(
           `Decide whether this gate bypass is real. Read ${gate}, then trace the candidate input through the check by hand.\n\nCheck: ${suspect.check}\nClaimed weakness: ${suspect.why}\nCandidate input: ${suspect.candidateInput || '(none offered)'}\n\nReport reachable=true only if you can state the exact input and the exact line that lets it through. Default to reachable=false.`,
           { label: `prove:${suspect.check}`, phase: 'Prove', schema: PROOF },
         ).then((proof) => ({ gate, ...suspect, proof })),
       ),
-    ),
+    )
+  },
 )
 
-const real = audited
-  .flat()
-  .filter(Boolean)
-  .filter((entry) => entry.proof && entry.proof.reachable)
+const entries = audited.flat().filter(Boolean)
+const unread = entries.filter((entry) => entry.unread).map((entry) => entry.gate)
+const real = entries.filter((entry) => entry.proof && entry.proof.reachable)
 
-log(`${real.length} reachable gate bypasses across ${gates.length} gates`)
+log(`${real.length} reachable gate bypasses across ${gates.length - unread.length} of ${gates.length} gates`)
+if (unread.length) log(`no reading for ${unread.join(', ')}; those gates are unaudited, not clean`)
 
-return { gates, bypasses: real }
+return { gates, bypasses: real, unread }

@@ -57,7 +57,12 @@ Options:
 
 Option C resets the iteration counter to 0 and starts
 fresh. The previous plan history is preserved for
-reference but not fed as context.
+reference but not fed as context. A mission may take
+Option C at most twice (`restart_count` in
+`.attune/mission-state.json`); on the third cap the
+only options are A and B. The per-cycle cap bounds one
+review loop, and without a lifetime cap the outer loop
+had none.
 
 ## Round 2 Warning
 

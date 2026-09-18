@@ -80,14 +80,20 @@ const swept = await parallel(
   ),
 )
 
+// A specialist that returned nothing left its lens unreviewed. A
+// dropped tests lens would otherwise read as full coverage.
+const missing = specialists.filter((specialist, index) => !swept[index]).map((s) => s.key || s.lens || String(s))
 const reports = swept.filter(Boolean)
 const findings = reports.flatMap((report) =>
   (report.findings || []).map((finding) => ({ ...finding, lens: report.lens })),
 )
+const coverage = { reviewed: reports.map((report) => report.lens), missing }
+
+if (missing.length) log(`no report from ${missing.join(', ')}; those lenses are unreviewed, not clean`)
 
 if (findings.length < 2) {
   log(`${findings.length} findings; nothing to merge`)
-  return { paths, findings, merged: null }
+  return { paths, findings, merged: null, coverage }
 }
 
 const digest = findings
@@ -101,4 +107,4 @@ const merged = await agent(
 
 log(`${findings.length} findings from ${reports.length} specialists over ${paths.length} paths`)
 
-return { paths, findings, merged }
+return { paths, findings, merged, coverage }

@@ -95,7 +95,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.0.1
+        uses: astral-sh/setup-uv@v10.1.0
 
       # pensive's shell-review suite is the only automated shellcheck and
       # shfmt gate in the repository, and its pattern-detection tests

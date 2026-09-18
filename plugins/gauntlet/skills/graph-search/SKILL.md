@@ -61,3 +61,7 @@ does not exist, suggest running the `graph-build` skill.
   path boosts qualified name matches
 - [ ] User is offered to read the top result's source file after
   results are shown
+- [ ] A `count: 0` result is reported as "not in the graph" only after
+  `graph_query.py --action status` shows `node_count` above zero. An
+  unbuilt graph, or one built without tree-sitter, answers every
+  query with zero, and that zero says nothing about the codebase

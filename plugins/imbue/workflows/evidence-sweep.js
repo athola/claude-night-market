@@ -51,9 +51,13 @@ const checked = await parallel(
   ),
 )
 
+// A claim whose checker returned nothing is unchecked. Counting only
+// returned checks would let a dropped claim read as supported.
+const missing = claims.filter((claim, index) => !checked[index])
 const results = checked.filter(Boolean)
 const unsupported = results.filter((result) => !result.supported)
 
 log(`${unsupported.length} of ${results.length} claims run on assertion alone`)
+if (missing.length) log(`${missing.length} claim(s) not checked: ${missing.join(' | ')}`)
 
-return { scope, checked: results, unsupported }
+return { scope, checked: results, unsupported, unchecked: missing }
