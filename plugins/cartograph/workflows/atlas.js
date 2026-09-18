@@ -59,11 +59,37 @@ const drawn = await parallel(
   ),
 )
 
+// A lens whose mapper returned nothing drew no diagram. Reconciling
+// fewer lenses than were asked for is a partial atlas, and it says so.
+const missing = lenses.filter((lens, index) => !drawn[index])
 const produced = drawn.filter(Boolean)
+
+if (missing.length) log(`no diagram from ${missing.join(', ')}`)
 
 if (produced.length < 2) {
   log(`only ${produced.length} lens produced a diagram; nothing to reconcile`)
-  return { root, diagrams: produced, disagreements: null }
+  return { root, diagrams: produced, disagreements: null, missing }
+}
+
+const DISAGREEMENTS = {
+  type: 'object',
+  required: ['disagreements'],
+  properties: {
+    disagreements: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['module', 'included_by', 'omitted_by', 'meaning'],
+        properties: {
+          module: { type: 'string' },
+          included_by: { type: 'array', items: { type: 'string' } },
+          omitted_by: { type: 'array', items: { type: 'string' } },
+          meaning: { type: 'string' },
+        },
+      },
+    },
+    absent_everywhere: { type: 'array', items: { type: 'string' } },
+  },
 }
 
 const inventory = produced
@@ -72,9 +98,9 @@ const inventory = produced
 
 const disagreements = await agent(
   `These lenses mapped the same codebase and included different things. Report where they disagree and what each disagreement means.\n\n${inventory}\n\nA module one lens treats as central and another omits is the finding worth reporting. A module absent from every lens is probably dead. Do not smooth the differences into a summary; name them.`,
-  { label: 'reconcile', phase: 'Reconcile' },
+  { label: 'reconcile', phase: 'Reconcile', schema: DISAGREEMENTS },
 )
 
 log(`${produced.length} lenses drawn over ${root}`)
 
-return { root, diagrams: produced, disagreements }
+return { root, diagrams: produced, disagreements, missing }

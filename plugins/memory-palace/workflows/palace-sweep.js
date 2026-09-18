@@ -78,14 +78,21 @@ const searched = await parallel(
   ),
 )
 
+// A palace whose searcher returned nothing is unsearched, not empty.
+// An empty palace and a dead palace must not both vanish into hits: [].
+const missing = palaces.filter((palace, index) => !searched[index])
 const results = searched.filter(Boolean)
 const hits = results.flatMap((result) =>
   (result.hits || []).map((hit) => ({ ...hit, palace: result.palace })),
 )
+const empty = results.filter((result) => !(result.hits || []).length).map((result) => result.palace)
+const coverage = { searched: results.map((result) => result.palace), empty, missing }
+
+if (missing.length) log(`no result from ${missing.join(', ')}; those palaces were not searched`)
 
 if (!hits.length) {
-  log(`no palace held anything on: ${question}`)
-  return { question, hits: [], answer: null }
+  log(`no palace held anything on: ${question} (${results.length} of ${palaces.length} searched)`)
+  return { question, hits: [], answer: null, coverage }
 }
 
 const digest = hits
@@ -99,4 +106,4 @@ const answer = await agent(
 
 log(`${hits.length} hits across ${results.length} palaces`)
 
-return { question, hits, answer }
+return { question, hits, answer, coverage }

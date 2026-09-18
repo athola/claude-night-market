@@ -71,12 +71,38 @@ const scanned = await parallel(
   ),
 )
 
+// An area whose scanner returned nothing is unscanned, not clean.
+const missing = areas.filter((area, index) => !scanned[index])
 const reports = scanned.filter(Boolean)
 const all = reports.flatMap((report) => report.findings || [])
+const coverage = { scanned: areas.filter((area, index) => scanned[index]), missing }
+
+if (missing.length) log(`no scan from ${missing.join(', ')}; those areas are unscanned, not clean`)
 
 if (all.length < 2) {
   log(`${all.length} findings; nothing to consolidate across areas`)
-  return { areas, findings: all, crossArea: null }
+  return { areas, findings: all, crossArea: null, coverage }
+}
+
+const CROSS_AREA = {
+  type: 'object',
+  required: ['duplications'],
+  properties: {
+    duplications: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['areas', 'what', 'lines_saved', 'move'],
+        properties: {
+          areas: { type: 'array', items: { type: 'string' } },
+          what: { type: 'string' },
+          lines_saved: { type: 'integer' },
+          move: { type: 'string', enum: ['integrate', 'delete'] },
+          why: { type: 'string' },
+        },
+      },
+    },
+  },
 }
 
 const digest = all
@@ -85,9 +111,9 @@ const digest = all
 
 const crossArea = await agent(
   `These findings came from separate area scans that could not see each other. Report the duplication that spans more than one area, which no single scan could have found.\n\n${digest}\n\nRank what remains by the lines deleting it would save, and say for each whether deletion or integration is the better move. The repository prefers integration over deletion where integration is possible.`,
-  { label: 'consolidate', phase: 'Consolidate' },
+  { label: 'consolidate', phase: 'Consolidate', schema: CROSS_AREA },
 )
 
 log(`${all.length} findings across ${reports.length} areas`)
 
-return { areas, findings: all, crossArea }
+return { areas, findings: all, crossArea, coverage }

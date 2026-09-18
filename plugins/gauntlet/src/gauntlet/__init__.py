@@ -26,7 +26,7 @@ from gauntlet.query import (
     validate_understanding,
 )
 
-__version__ = "1.9.20"
+__version__ = "1.9.21"
 
 __all__ = [
     "AnswerRecord",

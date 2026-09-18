@@ -84,7 +84,10 @@ the given topic.
 
 7. **For paywalled papers**, include fallback guidance:
    - Check Unpaywall via `build_unpaywall_url(doi)`, parsed
-     with `parse_unpaywall_response`
+     with `parse_unpaywall_response`. The builder raises when
+     `TOME_CONTACT_EMAIL` is unset, because Unpaywall answers
+     422 to a placeholder address. Then skip Unpaywall and
+     record one `source_error` naming the missing variable.
    - If still locked: note that the paper exists and
      provide access suggestions (library, author request)
 

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -239,7 +240,7 @@ def present_recommendation(recommendation: ArchitectureRecommendation) -> bool:
 
 def perform_online_research(
     queries: list[str], context: dict[str, str]
-) -> dict[str, str]:
+) -> dict[str, list[str]]:
     """Perform online research using WebSearch (would be called via Claude).
 
     Args:
@@ -271,11 +272,43 @@ def perform_online_research(
         print(f"    {description}")
 
     print("\n" + "-" * 60)
-    print("\nNote: In Claude Code, these queries will be executed automatically")
-    print("via WebSearch to gather current best practices and recommendations.")
-    print("\nProceeding with algorithmic recommendation based on decision matrix...")
+    print("\nThis script cannot search. Run the queries in the session")
+    print("(Skill(tome:research) or WebSearch), write what they argue for as")
+    print('{"preferred": [...], "avoid": [...]} and pass it with --research-file.')
+    print("Without one, the recommendation is the decision matrix alone.")
 
     return {}
+
+
+RESEARCH_KEYS = frozenset({"preferred", "avoid"})
+
+
+def load_research_file(path: Path) -> dict[str, list[str]]:
+    """Read the session's research findings for the recommender.
+
+    The file holds the modifier vocabulary the decision matrix uses, so
+    the ranker applies it like any other modifier and names it in the
+    rationale. Anything else in the file is an error rather than a
+    silently ignored key: that is how the project-type modifiers went
+    unused for a year (ADR-0025).
+
+    Raises:
+        ValueError: On an unknown key, or a value that is not a list of
+            paradigm names.
+
+    """
+    findings = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(findings, dict):
+        raise ValueError(f"{path}: research file must hold an object")
+    unknown = set(findings) - RESEARCH_KEYS
+    if unknown:
+        raise ValueError(
+            f"{path}: unknown research keys {sorted(unknown)}; use {sorted(RESEARCH_KEYS)}"
+        )
+    for key, value in findings.items():
+        if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
+            raise ValueError(f"{path}: {key} must be a list of paradigm names")
+    return findings
 
 
 def _generate_research_focus(context: dict[str, str]) -> dict[str, str]:
@@ -391,6 +424,11 @@ def _build_arch_parser() -> argparse.ArgumentParser:
     parser.add_argument("--arch", "--architecture", help="Force specific architecture")
     parser.add_argument(
         "--no-research", action="store_true", help="Skip online research phase"
+    )
+    parser.add_argument(
+        "--research-file",
+        type=Path,
+        help='JSON {"preferred": [...], "avoid": [...]} written after the research queries were run',
     )
     parser.add_argument(
         "--accept-recommendation",
@@ -529,7 +567,9 @@ def main() -> None:
     context = parse_project_context(context_data)
     researcher = ArchitectureResearcher(context)
 
-    if not args.no_research:
+    if args.research_file:
+        research_findings = load_research_file(args.research_file)
+    elif not args.no_research:
         queries = researcher.generate_search_queries()
         research_findings = perform_online_research(queries, context_data)
     else:

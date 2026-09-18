@@ -1123,7 +1123,7 @@ wheels = [
 
 [[package]]
 name = "spec-kit"
-version = "1.9.20"
+version = "1.9.21"
 source = { editable = "." }
 dependencies = [
     { name = "pyyaml" },

@@ -55,11 +55,15 @@ const swept = await parallel(
   ),
 )
 
+// A category whose sweeper returned nothing is unswept; "no stale rules
+// there" would be the wrong reading.
+const missing = categories.filter((category, index) => !swept[index])
 const reports = swept.filter(Boolean)
 const stale = reports.flatMap((report) =>
   (report.stale || []).map((entry) => ({ ...entry, category: report.category })),
 )
 
-log(`${stale.length} stale rules across ${reports.length} categories`)
+log(`${stale.length} stale rules across ${reports.length} of ${categories.length} categories`)
+if (missing.length) log(`no sweep from ${missing.join(', ')}; those categories are unswept, not clean`)
 
-return { root, categories, stale }
+return { root, categories, stale, coverage: { swept: reports.map((r) => r.category), missing } }

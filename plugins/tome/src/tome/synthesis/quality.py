@@ -121,6 +121,9 @@ def parse_envelope(envelope: dict[str, Any]) -> list[QueryLog]:
     Shapes accepted, in order of preference:
 
     1. ``metadata.queries``: a list of per-query records. One log each.
+       A top-level ``queries`` list is read the same way when
+       ``metadata.queries`` is absent: an orchestrator prompt that
+       dictated that shape once cost a session its canary record.
     2. Any count key (``results_found``, ``papers_found``) or, failing
        that, ``len(findings)``. One synthesized log, its query text set
        to ``UNRECORDED_QUERY``.
@@ -144,7 +147,7 @@ def parse_envelope(envelope: dict[str, Any]) -> list[QueryLog]:
     metadata = envelope.get("metadata") or {}
     envelope_error = _envelope_error_kind(envelope.get("errors"))
 
-    queries = metadata.get("queries")
+    queries = metadata.get("queries") or envelope.get("queries")
     if queries:
         logs: list[QueryLog] = []
         for entry in queries:

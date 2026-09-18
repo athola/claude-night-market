@@ -64,12 +64,17 @@ const scored = await parallel(
   ),
 )
 
+// A paradigm whose scorer returned nothing was not scored; leaving it
+// out of the ranking silently would read as "it lost".
+const unscored = candidates.filter((paradigm, index) => !scored[index])
 const ranked = scored
   .filter(Boolean)
   .sort((left, right) => right.score - left.score)
 
+if (unscored.length) log(`no score for ${unscored.join(', ')}; they are unscored, not last`)
+
 if (!ranked.length) {
-  return { started: true, ranked: [], comparison: null }
+  return { started: true, ranked: [], comparison: null, unscored }
 }
 
 const summary = ranked
@@ -83,4 +88,4 @@ const comparison = await agent(
 
 log(`${ranked.length} paradigms scored, leader ${ranked[0].paradigm} at ${ranked[0].score}`)
 
-return { ranked, comparison }
+return { ranked, comparison, unscored }

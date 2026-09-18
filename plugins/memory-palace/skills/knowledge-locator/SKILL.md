@@ -14,7 +14,7 @@ dependencies:
 - memory-palace-architect
 - review-chamber
 scripts:
-- palace_manager.py
+- memory_palace_cli.py
 usage_patterns:
 - search
 - cross-reference
@@ -41,13 +41,13 @@ The Knowledge Locator provides efficient information retrieval across your memor
 
 ### Search Palaces
 ```bash
-python scripts/palace_manager.py search "authentication" --type semantic
+python scripts/memory_palace_cli.py search "authentication" --type semantic
 ```
 **Verification:** Run `python --version` to verify Python environment.
 
 ### List All Palaces
 ```bash
-python scripts/palace_manager.py list
+python scripts/memory_palace_cli.py list
 ```
 **Verification:** Run `python --version` to verify Python environment.
 
@@ -106,23 +106,15 @@ Search the review chamber within project palaces for past decisions and patterns
 
 ### Quick Commands
 
+The CLI has no room-scoped search: `search` runs across every
+palace, and `--palace`, `--room`, `list-reviews` and `search-reviews`
+do not exist (this file cited them until 2026-09-18). Filter by the
+palace name in the output, or use `Skill(memory-palace:review-chamber)`,
+which owns the chamber's own retrieval.
+
 ```bash
-# Search review chamber by query
-python scripts/palace_manager.py search "authentication" \
-  --palace <project_id> \
-  --room review-chamber
-
-# List entries in specific room
-python scripts/palace_manager.py list-reviews \
-  --palace <project_id> \
-  --room decisions
-
-# Find by tags
-python scripts/palace_manager.py search-reviews \
-  --tags security,api \
-  --since 2025-01-01
+python scripts/memory_palace_cli.py search "authentication"
 ```
-**Verification:** Run `python --version` to verify Python environment.
 
 ### Review Chamber Rooms
 
@@ -137,16 +129,12 @@ python scripts/palace_manager.py search-reviews \
 
 When starting work in a code area, surface relevant review knowledge:
 
-```bash
-# When in auth/ directory
-python scripts/palace_manager.py context-search auth/
+There is no `context-search` command. Search for the area's own
+words instead:
 
-# Returns:
-# - Past decisions about authentication
-# - Known patterns in this area
-# - Relevant standards to follow
+```bash
+python scripts/memory_palace_cli.py search "auth"
 ```
-**Verification:** Run `python --version` to verify Python environment.
 
 ## Integration
 
@@ -158,7 +146,9 @@ Works with:
 
 ## Exit Criteria
 
-- [ ] `scripts/palace_manager.py search "<query>"` returns results
+- [ ] `scripts/memory_palace_cli.py search "<query>"` returns results,
+      and says "No palaces indexed" rather than "No matches" when there
+      is nothing to search
       within 500ms for a cold query against an indexed palace
 - [ ] At least one of the five search modalities (spatial, semantic,
       sensory, associative, temporal) returns ranked results for a

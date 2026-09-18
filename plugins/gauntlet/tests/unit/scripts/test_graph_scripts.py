@@ -161,3 +161,47 @@ class TestGraphQueryScript:
             timeout=10,
         )
         assert result.returncode == 1
+
+
+class TestABuildOfNothingIsNotAGreenBuild:
+    """Feature: an empty graph is an error, not a report.
+
+    A missing tree-sitter parser or a tree with no parseable sources
+    produced a full report with ``nodes_created: 0`` and exit 0, and
+    every downstream search then read ``count: 0`` as "not in the
+    codebase". The Exit Criterion in graph-build's SKILL.md ("values are
+    non-zero for non-empty codebases") had nothing enforcing it.
+    """
+
+    @pytest.mark.unit
+    def test_full_build_with_no_sources_exits_nonzero(self, tmp_path: Path) -> None:
+        (tmp_path / "notes.txt").write_text("nothing parseable here\n")
+        result = subprocess.run(
+            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        assert result.returncode != 0
+        report = json.loads(result.stdout)
+        assert "error" in report
+        assert report["nodes_created"] == 0
+
+    @pytest.mark.unit
+    def test_a_known_symbol_is_indexed_and_found(self, tmp_path: Path) -> None:
+        """
+        Given one file with a distinctively named class and function
+        When the graph is built
+        Then nodes were created, which is the control a search may cite
+        """
+        (tmp_path / "known_symbol.py").write_text(
+            "class PlantedCanaryRecord:\n    pass\n\n\ndef planted_canary_probe():\n    return PlantedCanaryRecord()\n"
+        )
+        result = subprocess.run(
+            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        assert result.returncode == 0, result.stderr
+        assert json.loads(result.stdout)["nodes_created"] >= 2

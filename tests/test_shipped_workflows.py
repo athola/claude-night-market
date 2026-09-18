@@ -255,3 +255,70 @@ def test_doc_sweep_accepts_python_as_a_review_target() -> None:
     assert "notation" in content.lower(), (
         "doc-sweep must tell the sentence reviewer to leave notation alone"
     )
+
+
+_AGENT_TYPE_LITERAL = re.compile(
+    r"""agentType:\s*(['"])([A-Za-z0-9_-]+):([a-z0-9-]+)\1"""
+)
+
+
+@pytest.mark.parametrize(
+    "script", _workflow_scripts(), ids=lambda p: p.parent.parent.name
+)
+def test_every_literal_agent_type_names_a_shipped_agent(script: Path) -> None:
+    """Every ``agentType: 'plugin:name'`` literal resolves to an agent file.
+
+    tome pinned its own workflow table to its agent files after finding
+    the table was a fifth copy of the channel-to-agent mapping (ADR-0024).
+    Eleven scripts name plugin agents and nothing checked any of them: a
+    renamed agent degrades the dispatch to the default agent and the
+    workflow still reports success. Variable references such as
+    ``agentType: d.agentType`` are not literals and are not checked, and
+    neither are the harness's own types (``general-purpose``, ``Explore``),
+    which carry no ``plugin:`` prefix and so never match the pattern.
+    """
+    content = script.read_text(encoding="utf-8")
+    for _, plugin, agent in _AGENT_TYPE_LITERAL.findall(content):
+        agent_file = PLUGINS / plugin / "agents" / f"{agent}.md"
+        assert agent_file.is_file(), (
+            f"{script.relative_to(REPO_ROOT)} dispatches {plugin}:{agent} but "
+            f"{agent_file.relative_to(REPO_ROOT)} does not exist"
+        )
+
+
+def test_the_agent_type_guard_sees_the_scripts_that_name_agents() -> None:
+    """The guard is only worth having if it matches the roster it protects."""
+    naming = [
+        s
+        for s in _workflow_scripts()
+        if _AGENT_TYPE_LITERAL.search(s.read_text(encoding="utf-8"))
+    ]
+    assert len(naming) >= 10, [s.parent.parent.name for s in naming]
+
+
+_DROPS_AGENTS = re.compile(r"\.filter\(Boolean\)")
+_REPORTS_DROPPED = re.compile(
+    r"\b(failed|missing|unread|unreported|dropped|unscored)\b"
+)
+
+
+@pytest.mark.parametrize(
+    "script", _workflow_scripts(), ids=lambda p: p.parent.parent.name
+)
+def test_a_script_that_drops_null_agents_reports_which_ones(script: Path) -> None:
+    """``.filter(Boolean)`` must come with a named list of what it dropped.
+
+    A subagent that dies returns null, and ``filter(Boolean)`` makes it
+    indistinguishable from one that ran and found nothing. In a review
+    workflow that turns a document that fails outright into a clean
+    pass; in herald's panel it moved the verdict (ADR-0025). tome's
+    research workflow returns ``failed`` beside ``empty``; every other
+    fan-out must name its own dropped items the same way.
+    """
+    content = script.read_text(encoding="utf-8")
+    if not _DROPS_AGENTS.search(content):
+        pytest.skip("script never filters null agent results")
+    assert _REPORTS_DROPPED.search(content), (
+        f"{script.relative_to(REPO_ROOT)} drops null agent results without "
+        "naming them (failed / missing / unread / unreported / dropped)"
+    )

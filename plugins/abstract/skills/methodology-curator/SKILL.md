@@ -23,7 +23,12 @@ Identifying the best way to approach a domain is often more difficult than the t
 
 ## Workflow Integration
 
-When starting new work, identify the domain (e.g., Instruction Design, Code Review, or Knowledge Management) and consult the corresponding module in `modules/` to discover experts and their frameworks. Select principles that fit your context and document them in a methodology brief before proceeding to creation.
+When starting new work, score every domain below by how many of its terms the
+task uses and load the top two modules, not the first that fits. Mapping free
+text onto a category runs about three candidates per correct one (TRIZ-GPT,
+arXiv 2408.05897, measured on contradiction parameters), so a single pick is
+wrong often enough that the second module is worth its tokens. Say which two
+were loaded and why the others were not. Select principles that fit your context and document them in a methodology brief before proceeding to creation.
 
 For existing work, determine what the skill or hook is trying to teach and compare it against established frameworks. This gap analysis identifies opportunities to add missing principles or align terminology with recognized standards. Surgically add methodology rather than rewriting from scratch to maintain authority and effectiveness.
 

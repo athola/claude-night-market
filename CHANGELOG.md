@@ -7,6 +7,126 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.21] - 2026-09-17
+
+### Added
+
+- **Fan-outs report what they dropped; scanners prove they can see
+  (all plugins).** Seventeen of twenty-three workflows filtered null
+  agent results away, so a crashed reviewer and one that found
+  nothing were the same thing; herald's judge panel counted its
+  majority over survivors, so two dropped judges let the third
+  decide alone. Every fan-out now returns the items it dropped
+  (`missing`, `unread`, `unscored`, `unchecked`) and logs them, the
+  panel divides by its roster and returns `inconclusive` with a judge
+  missing, and a repo test fails any script that filters nulls
+  without naming them. A second test resolves every `agentType`
+  literal in a workflow to an agent file; nothing had. Five
+  list-shaped synthesis stages that returned prose now carry schemas.
+
+  Six scanners could report "clean" without proving they could find
+  anything. Each now has a committed positive control with a known
+  answer (planted slop, a pickle load and an untimed subprocess, a
+  duplicated block, a skill tree with one broken reference), and CI
+  runs the slop control before the docs scan. Where the defect was an
+  exit code, a scan of nothing now fails: pensive `harden` exits 3
+  with zero files read and reports `files_scanned`,
+  `detect_duplicates` exits 2, gauntlet `graph_build.py` exits 2 on a
+  full build with no nodes, and the memory-palace CLI says "No
+  palaces indexed" instead of "No matches found".
+
+  attune's paradigm recommender read modifier keys its data file does
+  not use, so no project-type, scalability or security modifier had
+  ever changed a recommendation, and it reported `confidence="high"`
+  regardless of margin. `rank()` scores every candidate with the
+  data's own keys and names the rule behind each point; `recommend()`
+  attaches the runners-up and reads confidence from the margin.
+
+  Six prose-only loops stopped on the model's own judgment. pensive
+  code-refinement told the agent to resume past a harness stop; it
+  now reads its gate from `.review/findings.json` under `max_waves`
+  and stops when told. sanctum fix-workflow bounds Do/Check/Act at two
+  retries and takes its outcome from validator exit codes. attune
+  dorodango converges on linter and formatter exit codes and
+  un-converges on regression. conserve clear-context caps re-scoring
+  at two and handoffs at depth 3. The mission iteration governor caps
+  restarts at two. Survey and decisions: ADR-0025.
+
+  attune's `arch-init` research phase printed its queries and returned
+  nothing, so the "selects via research" claim had no code behind it.
+  `--research-file` now takes the session's `preferred` and `avoid`
+  lists and the ranker scores them beside the other modifiers, naming
+  "research" in the rationale. memory-palace's unreferenced
+  `fixtures/semantic_queries.json` was deleted.
+
+- **Channel cards and a record-based stop decision (tome).** Tome
+  kept what it knew about each channel in four places: the channel
+  set in `models`, an if-ladder in the planner, the research skill's
+  dispatch table, and ADR prose. No limitation ever reached an
+  agent's prompt. The pieces of a stop decision existed and nothing
+  combined them, so a session ran one pass and `replan` had no
+  caller. OctoTools (arXiv 2502.11271) solves the same shape with
+  tool cards and a context verifier, and this adapts both.
+
+  `tome.channels.cards` holds one frozen dataclass per channel. The
+  planner gates on each card's `min_depth`, and `render_card`
+  produces the block each dispatch prompt embeds: limitations, best
+  practices, and a pointer to the envelope the agent's own file
+  documents. The fields are typed because OctoTools' free dict
+  drifted across its tools (`limitation`, `limitations`,
+  `best_practice`, `best_practices`). Tests pin the cards to
+  `RETRIEVAL_CHANNELS`, `CANARY_TARGETS`, the agent files, the query
+  builders they name, the skill's table and `workflows/research.js`.
+
+  `tome.synthesis.verifier.verify_context` maps OctoTools' five
+  verifier questions onto the query log, the positive controls and
+  the frontier verdict instead of asking a model. VRR-Stop
+  (arXiv 2607.17641) measured verifier acceptance rising while true
+  validity fell, which is the case against letting a research agent
+  grade its own sufficiency. It names channels to `rerun`,
+  `reformulate` or `add`, and a budget stop (two passes by default)
+  still lists them so the report can name the gap.
+
+  The ideation catalog gains devil's advocacy and multiple working
+  hypotheses, the two surveyed methods with a controlled study
+  behind them and a category the catalog lacked. The survey that
+  graded them, and the frameworks it turned away, are in ADR-0024.
+
+  A second pass, run through tome with the cards embedded, measured
+  them: one agent in three ignored a card that only pointed at its
+  envelope file, so the card now states the output contract inline.
+  The pass also filled the two vocabulary gaps the first pass found.
+  A `methodology` domain classifies inventive-method topics at
+  deep depth, `ai-agents` recognizes planner, verifier and toolset
+  vocabulary, and the triz contradiction catalogue covers coverage
+  against cost, metadata drift, stopping, and generation against
+  evidence. `formulate_contradictions` returns ranked candidates
+  instead of the first keyword hit, because TRIZ-GPT
+  (arXiv 2408.05897) measured that mapping at about three candidates
+  per correct pair.
+  `formulate_contradiction` now returns the candidate with the most
+  keyword support rather than the first catalogue entry that matched,
+  so a topic hitting two pairs can change its top pair.
+
+### Fixed
+
+- **`parse_envelope` no longer drops a top-level `queries` list
+  (tome).** Found running this change's own research through the
+  pipeline: a dispatch prompt asked for `{"findings", "queries"}`,
+  the agent followed the prompt over its own file, and 27 query
+  records, a canary among them, collapsed into one synthesized log.
+  A lost canary turns a controlled channel into an uncontrolled one.
+  `metadata.queries` still wins when both are present.
+- **`build_unpaywall_url` no longer sends a placeholder address
+  (tome).** Unpaywall answers 422 to `research@example.com`, which was
+  the default, so every lookup failed and the agent could not say
+  why. The address now comes from `email=` or `TOME_CONTACT_EMAIL`,
+  and the builder raises without one.
+- **The discourse card names Reddit as unreachable (tome).** WebFetch
+  refuses `old.reddit.com` in Claude Code, so the subreddit source
+  returned nothing on every run and read as an empty result. The
+  card tells the agent to record it as a `source_error`.
+
 ## [1.9.20] - 2026-09-13
 
 ### Added

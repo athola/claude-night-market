@@ -1,9 +1,8 @@
 """Create a ResearchPlan from a DomainClassification.
 
-Channel inclusion rules:
-- code and discourse are always included
-- academic is included when triz_depth is medium, deep, or maximum
-- triz is included when triz_depth is deep or maximum
+Channel inclusion comes from each channel card's ``min_depth``
+(``tome.channels.cards``): code and discourse at every depth, academic
+from medium, triz from deep.
 
 Weights for the active channels are taken from the classification and
 renormalised so they sum to exactly 1.0.
@@ -17,6 +16,7 @@ Budget (estimated token usage):
 
 from __future__ import annotations
 
+from tome.channels.cards import CHANNEL_CARDS, DEPTH_ORDER
 from tome.models import DomainClassification, Finding, ResearchPlan
 
 _BUDGET: dict[str, int] = {
@@ -24,14 +24,6 @@ _BUDGET: dict[str, int] = {
     "medium": 4000,
     "deep": 6000,
     "maximum": 8000,
-}
-
-# Depth ordinal used for threshold comparisons.
-_DEPTH_ORDER: dict[str, int] = {
-    "light": 0,
-    "medium": 1,
-    "deep": 2,
-    "maximum": 3,
 }
 
 
@@ -42,13 +34,11 @@ def plan(classification: DomainClassification) -> ResearchPlan:
     inactive channels are dropped and the remaining weights are
     renormalised to sum to 1.0.
     """
-    depth_ord = _DEPTH_ORDER.get(classification.triz_depth, 0)
+    depth_ord = DEPTH_ORDER.get(classification.triz_depth, 0)
 
-    channels: list[str] = ["code", "discourse"]
-    if depth_ord >= _DEPTH_ORDER["medium"]:
-        channels.append("academic")
-    if depth_ord >= _DEPTH_ORDER["deep"]:
-        channels.append("triz")
+    channels: list[str] = [
+        card.name for card in CHANNEL_CARDS if depth_ord >= DEPTH_ORDER[card.min_depth]
+    ]
 
     # Slice and renormalise weights for the active channels only.
     raw: dict[str, float] = {

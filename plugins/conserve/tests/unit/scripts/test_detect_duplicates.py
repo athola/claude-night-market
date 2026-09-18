@@ -477,3 +477,34 @@ class TestDuplicateReportProperties:
         )
 
         assert dup.occurrence_count == 3
+
+
+class TestTheDetectorProvesItScannedSomething:
+    """Feature: a scan of nothing is not a clean scan.
+
+    ``main`` returned 0 whatever ``files_scanned`` said, and the only
+    Python under the three-tier bloat stack could be zeroed out by its
+    own filters. The planted pair is the positive control: the detector
+    must find it before a clean tier-1 is reportable.
+    """
+
+    _FIXTURE = Path(__file__).resolve().parents[2] / "fixtures" / "duplication"
+
+    def test_the_planted_pair_is_detected_at_defaults(self) -> None:
+        """The committed pair is found with the default minimum block size."""
+        assert (self._FIXTURE / "a.py").is_file() and (self._FIXTURE / "b.py").is_file()
+        report = detect_duplicates_module.find_duplicates([self._FIXTURE])
+        assert report.files_scanned == 2
+        assert report.duplicates, "the planted duplicate was not found"
+
+    def test_scanning_nothing_exits_nonzero(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """An empty directory is reported as nothing scanned, exit nonzero."""
+        monkeypatch.setattr(sys, "argv", ["detect_duplicates.py", str(tmp_path)])
+        code = detect_duplicates_module.main()
+        assert code != 0
+        assert "files scanned: 0" in capsys.readouterr().out.lower()

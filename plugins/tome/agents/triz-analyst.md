@@ -47,6 +47,12 @@ different fields. You systematically find these bridges.
 
 3. **Formulate the contradiction**:
    - Identify the system being improved
+   - Start from `formulate_contradictions(topic, domain)` in
+     `tome.channels.triz`. It returns up to three ranked
+     candidates, because mapping free text onto contradiction
+     parameters runs near three candidates per correct one
+     (TRIZ-GPT, arXiv 2408.05897). Search from each candidate
+     that fits; drop the ones that do not and say why.
    - Technical contradiction: "Improving X worsens Y"
    - If one parameter must hold two opposite values, that
      is a physical contradiction. Resolve it by separation

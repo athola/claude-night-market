@@ -600,6 +600,15 @@ def main(argv: list | None = None) -> int:
     parser.add_argument("--threshold", type=float, default=3.0)
     parser.add_argument("--top", type=int, default=20)
     parser.add_argument(
+        "--no-exclude",
+        action="store_true",
+        help=(
+            "score paths the config's exclude_patterns would skip. For the "
+            "planted positive control, which the ratchet must ignore and the "
+            "gate must be able to see."
+        ),
+    )
+    parser.add_argument(
         "--audit",
         action="store_true",
         help=(
@@ -637,7 +646,10 @@ def main(argv: list | None = None) -> int:
     if args.audit:
         return _audit(paths, allow)
 
-    paths, excluded = _apply_excludes(paths, load_exclude_patterns())
+    if args.no_exclude:
+        excluded: list = []
+    else:
+        paths, excluded = _apply_excludes(paths, load_exclude_patterns())
     if excluded:
         print(f"excluded {len(excluded)} files ({CONFIG_NAME} exclude_patterns)")
 

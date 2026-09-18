@@ -1114,3 +1114,29 @@ class TestGateAndAuditSharePatterns:
         assert gate <= audit, (
             f"categories scored but not locatable: {sorted(gate - audit)}"
         )
+
+
+def test_no_exclude_scores_a_path_the_config_excludes() -> None:
+    """The planted control is excluded from the ratchet and must still be scorable."""
+    fixture = REPO_ROOT / "tests" / "fixtures" / "slop" / "planted.md"
+    hidden = subprocess.run(
+        [sys.executable, str(SCRIPT), "--threshold", "3.0", str(fixture)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    seen = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--threshold",
+            "3.0",
+            "--no-exclude",
+            str(fixture),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert hidden.returncode == 0, hidden.stdout
+    assert seen.returncode != 0, seen.stdout

@@ -342,7 +342,13 @@ def find_skill_files(directory: Path) -> list[Path]:
     """
     if not directory.exists():
         return []
-    return sorted(directory.rglob("SKILL.md"))
+    # A SKILL.md under a tests/ directory is a fixture: data some test
+    # plants on purpose (a broken reference, a missing section), not a
+    # skill the plugin ships. Validating it as one fails the suite on
+    # the defect the test exists to detect.
+    return sorted(
+        path for path in directory.rglob("SKILL.md") if "tests" not in path.parts
+    )
 
 
 def parse_yaml_frontmatter(content: str) -> dict:

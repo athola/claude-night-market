@@ -17,6 +17,7 @@ from tome.channels.triz import (
     build_cross_domain_search_queries,
     format_bridge_statement,
     formulate_contradiction,
+    formulate_contradictions,
     formulate_ideality,
     get_adjacent_fields,
     lookup_canonical_principles,
@@ -1017,3 +1018,158 @@ class TestCanonicalMatrixLookup:
         monkeypatch.setattr(triz.resources, "files", lambda *_a, **_k: _FakeResource())
 
         assert triz._load_canonical_matrix() == {(1, 2): [1, 8, 15]}
+
+
+class TestWorkflowContradictionsAreCatalogued:
+    """
+    Feature: Research-workflow trade-offs resolve to a real contradiction
+
+    As the triz channel
+    I want coverage, metadata drift, stopping and generation trade-offs
+    to formulate as named contradictions
+    So that a topic about search workflows does not fall back to the
+    generic flexibility/complexity pair
+
+    Found dogfooding ADR-0024: all four contradictions of the research
+    workflow itself fell through the catalogue to the fallback, so the
+    triz agent's generated queries carried no signal about the topic.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("topic", "improving", "worsening"),
+        [
+            ("search coverage versus token budget per query", "coverage", "cost"),
+            (
+                "declarative tool metadata drifts from the code",
+                "declarative metadata",
+                "drift",
+            ),
+            (
+                "when to stop a multi-pass search: verifier reliability",
+                "early stopping",
+                "completeness",
+            ),
+            (
+                "generative analogy channels are not evidence of prior art",
+                "idea generation",
+                "evidence",
+            ),
+        ],
+    )
+    def test_workflow_topic_formulates_a_named_pair(
+        self, topic: str, improving: str, worsening: str
+    ) -> None:
+        """
+        Given a topic in the research-workflow vocabulary
+        When formulate_contradiction runs
+        Then the pair is the catalogued one, and principles are not the default
+        """
+        result = formulate_contradiction(topic, "architecture")
+        assert (result["improving"], result["worsening"]) == (improving, worsening)
+        numbers = [
+            p["number"] for p in suggest_inventive_principles(improving, worsening)
+        ]
+        assert numbers != [1, 13, 22, 25], "fell through to the default principles"
+
+    @pytest.mark.unit
+    def test_cache_topics_keep_their_earlier_pair(self) -> None:
+        """
+        Given the new entries sit after the original ones
+        Then a cache topic still resolves to speed versus memory
+        """
+        result = formulate_contradiction(
+            "cache performance under a token budget", "algorithm"
+        )
+        assert (result["improving"], result["worsening"]) == ("speed", "memory usage")
+
+
+class TestContradictionCandidatesAreRanked:
+    """
+    Feature: More than one contradiction candidate per topic
+
+    TRIZ-GPT (arXiv 2408.05897) measured free-text-to-parameter mapping
+    at recall 0.69 and precision 0.31 with GPT-4: about three candidate
+    pairs per correct one. Committing to the first keyword hit throws
+    the other two away before the agent sees them.
+    """
+
+    @pytest.mark.unit
+    def test_a_topic_spanning_two_pairs_yields_both(self) -> None:
+        topic = "search coverage against the token budget, and when the verifier should stop"
+        pairs = [
+            (c["improving"], c["worsening"])
+            for c in formulate_contradictions(topic, "architecture")
+        ]
+        assert ("coverage", "cost") in pairs
+        assert ("early stopping", "completeness") in pairs
+        assert ("flexibility", "complexity") not in pairs
+
+    @pytest.mark.unit
+    def test_candidates_are_ordered_by_keyword_support(self) -> None:
+        """
+        Given cache and performance both hit speed/memory, token budget hits coverage/cost once
+        Then speed/memory ranks first
+        """
+        pairs = [
+            (c["improving"], c["worsening"])
+            for c in formulate_contradictions(
+                "cache performance under a token budget", "algorithm"
+            )
+        ]
+        assert pairs[0] == ("speed", "memory usage")
+        assert ("coverage", "cost") in pairs
+
+    @pytest.mark.unit
+    def test_limit_is_respected(self) -> None:
+        topic = "cache latency, auth security, consensus replication, verifier stop"
+        assert len(formulate_contradictions(topic, "architecture", limit=2)) == 2
+
+    @pytest.mark.unit
+    def test_no_hits_yields_only_the_fallback(self) -> None:
+        pairs = [
+            (c["improving"], c["worsening"])
+            for c in formulate_contradictions("gardening", "general")
+        ]
+        assert pairs == [("flexibility", "complexity")]
+
+    @pytest.mark.unit
+    def test_top_candidate_is_what_formulate_contradiction_returns(self) -> None:
+        topic = "cache performance under a token budget"
+        assert formulate_contradictions(topic, "algorithm")[
+            0
+        ] == formulate_contradiction(topic, "algorithm")
+
+
+class TestBroadKeywordsDoNotCaptureOrdinaryTopics:
+    """
+    Feature: A workflow pair needs workflow vocabulary, not a substring
+
+    One broad hit wins the top-1 slot when nothing else matches, so a
+    keyword like "token" would send every JWT topic to coverage/cost.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("topic", "not_pair"),
+        [
+            ("JWT token refresh rotation", ("coverage", "cost")),
+            ("CRDT convergence under partition", ("early stopping", "completeness")),
+            (
+                "database schema design for multi-tenant apps",
+                ("declarative metadata", "drift"),
+            ),
+            (
+                "stopgap fix for the backstop handler",
+                ("early stopping", "completeness"),
+            ),
+        ],
+    )
+    def test_ordinary_topic_avoids_the_workflow_pair(
+        self, topic: str, not_pair: tuple[str, str]
+    ) -> None:
+        pairs = [
+            (c["improving"], c["worsening"])
+            for c in formulate_contradictions(topic, "architecture")
+        ]
+        assert not_pair not in pairs

@@ -72,17 +72,24 @@ const judged = await parallel(
   ),
 )
 
+// The denominator is the roster, never the survivors. A judge that
+// returned nothing is a lens nobody judged, and a lens nobody judged
+// is not a lens that passed: two dropped judges must not let the third
+// declare the claim complete on its own.
 const verdicts = judged.filter(Boolean)
+const missing = LENSES.filter((lens, index) => !judged[index]).map((lens) => lens.key)
 
 if (!verdicts.length) {
   log('no judge returned a verdict')
-  return { claim, verdict: 'unknown', verdicts: [], dissent: [] }
+  return { claim, verdict: 'unknown', verdicts: [], dissent: [], missing }
 }
 
 const satisfied = verdicts.filter((verdict) => verdict.complete)
 const dissent = verdicts.filter((verdict) => !verdict.complete)
-const verdict = satisfied.length > verdicts.length / 2 ? 'complete' : 'incomplete'
+const majority = satisfied.length > LENSES.length / 2
+const verdict = missing.length ? 'inconclusive' : majority ? 'complete' : 'incomplete'
 
-log(`${verdict}: ${satisfied.length} of ${verdicts.length} judges satisfied`)
+log(`${verdict}: ${satisfied.length} of ${LENSES.length} judges satisfied` +
+  (missing.length ? `, no verdict from ${missing.join(', ')}` : ''))
 
-return { claim, verdict, verdicts, dissent }
+return { claim, verdict, verdicts, dissent, missing }

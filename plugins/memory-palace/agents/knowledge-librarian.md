@@ -90,6 +90,20 @@ Claude can **suggest** but never act without approval:
 
 **All tidying requires curator approval before execution.**
 
+## Limitations
+
+- WebFetch refuses some hosts outright. `old.reddit.com` and
+  `www.reddit.com` are refused in Claude Code (checked 2026-09-18),
+  and Springer article pages redirect to a login. A refusal is not an
+  empty page: record it as a fetch failure with the host, and never
+  score a resource you could not read.
+- A URL that returns 200 with a consent or paywall shell reads as a
+  short, empty resource. Check the fetched length and title before
+  scoring; a score built on a shell is a score of the shell.
+- WebSearch results are ranked by attention, not correctness. A
+  resource is stored on its own content, never on how often it was
+  linked.
+
 ## Usage
 
 When dispatched with a URL:

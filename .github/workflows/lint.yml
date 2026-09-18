@@ -54,7 +54,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.0.1
+        uses: astral-sh/setup-uv@v10.1.0
 
       # --extra dev on both steps: ruff is an optional extra, and plain
       # `uv run` installs only the default dependency set. Without the flag
