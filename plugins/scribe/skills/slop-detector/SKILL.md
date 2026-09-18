@@ -64,7 +64,7 @@ uv run --with pyyaml python scripts/slop_score.py --audit <files>
 One command over files or directories, one line per finding
 with a file and a line number, exit 0. It loads every category
 in `data/languages/en.yaml`, including the ones the merge gate
-declines to score: `semicolon_splice`, `negative_definition`,
+declines to score: `negative_definition`,
 `temporal_residue`, `contrastive_scaffold`, `over_explanation`,
 the softer anthropomorphism verbs, and the per-document
 negation-density reading. Those print as `(low)` or `(medium)`.
@@ -287,7 +287,8 @@ post-GPT-5 / post-Claude-4.5 prose. Each is detailed in
 | Three-fragment burst | "Focused. Aligned. Measurable." | Rhythm without information |
 | Significance cluster | "stands as a testament to", "marks a turning point" | Asserts importance without showing it |
 | Smart quotes in technical prose | `"text"` / `"text"` instead of `"text"` | Word-processor paste signature |
-| Semicolon splice | "The system is fast; it scales" | Prose semicolon joining two independent clauses. Rephrase into two sentences unless absolutely necessary |
+| Semicolon splice | "The system is fast; it scales" | Prose semicolon joining two independent clauses. Rephrase into two sentences unless absolutely necessary. A list whose items carry commas is not matched |
+| Negated alternative | "never guesses instead of measuring", "does not retry rather than report" | Defines the thing by what it refuses to do; state what it does |
 | Loop/cascade vocab | "unpack", "surface" (verb), "a quiet shift" | 2026 systems-theory affectation |
 | Performative honesty | "to be honest", "Honestly,", "An Honest Review" | Manufactured authenticity |
 | Sophistication marker | "survey the prior art", "state of the art", "body of work" | Rigor signaling in non-academic prose |

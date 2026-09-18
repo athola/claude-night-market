@@ -679,9 +679,8 @@ get_tier5_patterns(patterns, include_optional=True)
 `default_enabled` is a separate axis from `confidence`. A low
 confidence category is one whose hits need human judgment before a
 rewrite, which is not the same as one too noisy to report at all.
-The other low-confidence categories (`contrastive_parallelism`,
-`semicolon_splice`) are meant to be surfaced, and keep firing by
-default.
+The other low-confidence category, `contrastive_parallelism`, is
+meant to be surfaced and keeps firing by default.
 
 ### Anti-goals
 

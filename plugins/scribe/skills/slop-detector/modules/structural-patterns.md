@@ -495,6 +495,14 @@ needed.
 Runtime source: `data/languages/en.yaml` § `tier5.contrastive_scaffold`,
 `default_enabled: false`, `confidence: low`.
 
+The negated form is scored. `tier5.negated_alternative` (high
+confidence) matches a negation followed in the same clause by
+"instead of" or "rather than": "never guesses instead of measuring",
+"does not retry rather than report the failure". Rewrite by stating
+what the thing does. A recommendation with no negation ("use rg
+rather than grep") does not match, and a sentence boundary between
+the negation and the connective breaks the match.
+
 ## Negative Framing (Litotes, Vacuous Negation, Negative Definition)
 
 Negative parallelism above is a scaffold: *not X, but Y*. This is a
@@ -752,7 +760,12 @@ coordinating conjunction reads more naturally. The clause after
 the semicolon could stand alone as its own sentence, and almost
 always reads better that way. Use a semicolon in prose only
 when it is absolutely necessary: a list whose items already
-carry internal commas is the one durable case.
+carry internal commas is the one durable case. The runtime
+pattern (`tier5.semicolon_splice`, high confidence since
+2026-09-18) matches only the splice: no comma on either side of
+the semicolon and a lowercase continuation to a sentence end, so
+the list case is not reported at all, and a reference such as
+"; See Table 2" is left alone.
 
 Examples:
 

@@ -142,17 +142,32 @@ class TestLowConfidenceDoesNotGate:
 
     @pytest.mark.unit
     def test_a_low_confidence_category_adds_no_score(self) -> None:
-        """Scenario: a semicolon splice is reported and costs nothing."""
+        """Scenario: a medium-confidence anthropomorphism is reported and costs nothing.
+
+        The semicolon splice was the example here until 2026-09-18,
+        when its regex narrowed to the unambiguous form and the
+        category became high confidence and scored.
+        """
         clean = "The exporter emits JSON. " * 10
-        spliced = clean + "The system is fast; it scales."
-        assert score_text(spliced).score == score_text(clean).score
+        soft = clean + "This module is the seam between the two layers."
+        assert score_text(soft).score == score_text(clean).score
 
     @pytest.mark.unit
     def test_a_low_confidence_category_is_still_reported(self) -> None:
         """Scenario: not scoring it is not the same as hiding it."""
-        spliced = "The exporter emits JSON. " * 10 + "The system is fast; it scales."
-        categories = {finding.category for finding in score_text(spliced).findings}
-        assert "semicolon_splice" in categories
+        soft = (
+            "The exporter emits JSON. " * 10
+            + "This module is the seam between the two layers."
+        )
+        categories = {finding.category for finding in score_text(soft).findings}
+        assert "anthropomorphism_medium" in categories
+
+    @pytest.mark.unit
+    def test_a_semicolon_splice_now_costs_its_weight(self) -> None:
+        """Scenario: the unambiguous splice is scored (2026-09-18)."""
+        clean = "The exporter emits JSON. " * 10
+        spliced = clean + "The system is fast; it scales."
+        assert score_text(spliced).score > score_text(clean).score
 
     @pytest.mark.unit
     def test_a_high_confidence_category_still_gates(self) -> None:
