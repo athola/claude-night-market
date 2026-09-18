@@ -41,6 +41,11 @@ Central, OpenAlex). Routes PDFs through markitdown for the
 agent to read, and provides fallback guidance for paywalled
 content.
 
+**Open web**: vendor documentation, standards, comparisons and news
+through the You.com MCP server when configured and the built-in
+WebSearch tool otherwise. Dispatched from medium depth, with a
+positive control (RFC 2119) before its topic queries.
+
 **TRIZ cross-domain**: Identifies adjacent fields where
 analogous problems have been solved. Depth scales
 dynamically from light (1 field) to maximum (5 fields
@@ -92,6 +97,7 @@ depth, channel weights, and visualization style:
 | `discourse` | Community scanning |
 | `papers` | Academic literature |
 | `triz` | Cross-domain analysis |
+| `web-search` | Open-web search (You.com MCP or WebSearch) |
 | `synthesize` | Merge and format |
 | `dig` | Interactive refinement |
 
@@ -102,6 +108,7 @@ depth, channel weights, and visualization style:
 | `code-searcher` | GitHub code search |
 | `discourse-scanner` | HN, Lobsters, Reddit, blogs |
 | `literature-reviewer` | arXiv, Semantic Scholar, PDFs |
+| `web-searcher` | Open web via You.com MCP or WebSearch |
 | `triz-analyst` | Cross-domain analogical reasoning |
 
 ## Integration

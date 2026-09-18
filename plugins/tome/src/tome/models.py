@@ -13,7 +13,7 @@ def _now() -> datetime:
     return datetime.now(tz=timezone.utc)
 
 
-_VALID_CHANNELS = frozenset({"code", "discourse", "academic", "triz"})
+_VALID_CHANNELS = frozenset({"code", "discourse", "academic", "triz", "web"})
 
 # Channels that answer by probing an external index. Their silence is a
 # fact about the world once a positive control shows they were not
@@ -25,7 +25,7 @@ _VALID_CHANNELS = frozenset({"code", "discourse", "academic", "triz"})
 # evidence would let the tool manufacture the finding that a field is
 # well covered, and demanding an index probe of a channel with no index
 # would pin every session to INCONCLUSIVE for an unrelated reason.
-RETRIEVAL_CHANNELS = frozenset({"academic", "code", "discourse"})
+RETRIEVAL_CHANNELS = frozenset({"academic", "code", "discourse", "web"})
 
 
 @dataclass

@@ -40,6 +40,7 @@ const CHANNELS = [
   { key: 'code', agentType: 'tome:code-searcher', brief: 'Search GitHub for real implementations, libraries and prior art. Report repositories with what each one actually does.' },
   { key: 'discourse', agentType: 'tome:discourse-scanner', brief: 'Scan Hacker News, Lobsters, Reddit and practitioner blogs for experience reports. Keep contrarian views rather than smoothing them.' },
   { key: 'academic', agentType: 'tome:literature-reviewer', brief: 'Search arXiv and Semantic Scholar. Prefer papers whose abstract states a measured result over ones that survey.' },
+  { key: 'web', agentType: 'tome:web-searcher', brief: 'Search the open web for vendor documentation, standards, comparisons and news. Prefer primary sources over summaries of them, and say which tool retrieved each page.' },
   { key: 'triz', agentType: 'tome:triz-analyst', brief: 'Find the technical contradiction, then look for how an adjacent field resolved the same shape. State the bridge mapping explicitly.' },
 ]
 
@@ -47,7 +48,7 @@ const wanted = Array.isArray(input.channels) ? input.channels : ['code', 'discou
 const selected = CHANNELS.filter((c) => wanted.includes(c.key))
 
 if (!selected.length) {
-  return { started: false, reason: 'no-channels', next: 'No known channel was requested. Known channels: code, discourse, academic, triz.' }
+  return { started: false, reason: 'no-channels', next: 'No known channel was requested. Known channels: code, discourse, academic, web, triz.' }
 }
 
 const skipped = CHANNELS.filter((c) => !selected.includes(c)).map((c) => c.key)

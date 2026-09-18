@@ -237,7 +237,7 @@ class TestRenderedCardsCarryTheLimitations:
         """
         modules = [
             importlib.import_module(f"tome.channels.{name}")
-            for name in ("canary", "github", "discourse", "academic", "triz")
+            for name in ("canary", "github", "discourse", "academic", "web", "triz")
         ]
         named = re.findall(r"\b(?:build|expand|suggest)_\w+", render_card(card))
         for function in named:
@@ -280,5 +280,6 @@ class TestThePlannerGatesOnCards:
             "code",
             "discourse",
             "academic",
+            "web",
             "triz",
         ]

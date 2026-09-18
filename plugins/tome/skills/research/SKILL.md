@@ -91,14 +91,13 @@ Use this mapping:
 | code | `tome:code-searcher` | topic |
 | discourse | `tome:discourse-scanner` | topic, domain, subreddits |
 | academic | `tome:literature-reviewer` | topic, domain |
+| web | `tome:web-searcher` | topic, domain |
 | triz | `tome:triz-analyst` | topic, domain, triz_depth |
 
 **Rules:**
-- Always dispatch code and discourse agents
-- Dispatch academic agent only if "academic" is in
-  research_plan.channels
-- Dispatch triz agent only if "triz" is in
-  research_plan.channels AND triz_depth != "light"
+- Dispatch every channel in `research_plan.channels`, which the
+  planner derives from each card's `min_depth`: code and discourse
+  at every depth, academic and web from medium, triz from deep
 - Dispatch all eligible agents in a SINGLE message
   (parallel, not sequential)
 
@@ -251,9 +250,8 @@ Then offer interactive refinement:
 
 - [ ] Domain classified before agents are dispatched; if confidence
       < 0.6, user confirmation is requested before proceeding
-- [ ] Code and discourse agents always dispatched; academic and triz
-      agents dispatched only when their channels are in the plan;
-      all eligible agents sent in a single parallel message
+- [ ] Every channel in `research_plan.channels` was dispatched, none
+      outside it, all in a single parallel message
 - [ ] Every dispatch prompt embeds `render_card` output for its
       channel and dictates no return shape of its own
 - [ ] `verify_context` ran after every pass; the report was written

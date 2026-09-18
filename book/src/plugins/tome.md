@@ -73,6 +73,7 @@ see
 - `ideate`: diverse ideation methods with rotation
 - `synthesize`: merge and rank findings
 - `dig`: interactive refinement
+- `web-search`: search the open web (You.com MCP or WebSearch)
 
 ## Agents
 

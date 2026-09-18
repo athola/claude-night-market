@@ -207,7 +207,7 @@ class TestDomainClassifierOutputShape:
         Scenario: channel_weights always contains all four keys
         Given any topic
         When classify is called
-        Then channel_weights has keys code, discourse, academic, triz
+        Then channel_weights has keys code, discourse, academic, web, triz
         """
         result = classify("kubernetes deployment pipeline")
 
@@ -216,6 +216,7 @@ class TestDomainClassifierOutputShape:
             "discourse",
             "academic",
             "triz",
+            "web",
         }
 
     @pytest.mark.unit

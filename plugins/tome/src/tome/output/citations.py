@@ -14,6 +14,8 @@ _PLATFORM_NAMES = {
     "academic": "Academic",
     "blog": "Blog",
     "triz": "TRIZ Journal",
+    "web": "Web",
+    "you-web": "You.com",
 }
 
 

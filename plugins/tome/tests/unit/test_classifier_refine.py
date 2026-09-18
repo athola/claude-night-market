@@ -37,11 +37,11 @@ class TestVocabularyCoverage:
 
     @pytest.mark.unit
     def test_agent_topic_gets_full_channel_coverage(self) -> None:
-        """Scenario: the topic that motivated this work gets four channels."""
+        """Scenario: the topic that motivated this work gets every channel."""
         result = classify(
             "persistent session memory and on-demand recall for AI coding agents"
         )
-        assert len(plan(result).channels) == 4
+        assert len(plan(result).channels) == 5
 
     @pytest.mark.unit
     def test_existing_domains_still_classify(self) -> None:

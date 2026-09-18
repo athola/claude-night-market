@@ -108,6 +108,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   keyword support rather than the first catalogue entry that matched,
   so a topic hitting two pairs can change its top pair.
 
+- **Open-web search channel (tome).** The research channels covered
+  GitHub, community forums, academia, and TRIZ, but vendor
+  documentation, comparisons, standards, and news had no channel:
+  a session either missed those pages or an agent improvised
+  freehand queries. `tome:web-search` is that channel. It runs through the You.com MCP server (`you-search`) when
+  configured, and falls back to the built-in WebSearch tool when it
+  is not, so the channel works with zero setup and no new dependency.
+  Query expansion, result parsers, and ranking live in
+  `tome.channels.web`, following the same no-HTTP-call pattern as
+  the other channels. It joins the research fan-out in this release:
+  a `web` channel card dispatches `tome:web-searcher` from medium
+  depth, the agent runs a positive control (RFC 2119, verified
+  2026-09-18) before its topic queries, and `web` is in
+  `RETRIEVAL_CHANNELS`, so its silence counts in the coverage verdict
+  the way the other three channels' does. The You.com parser reports
+  how many returned items it dropped, so a drifted response shape
+  cannot read as an empty web.
+
 ### Fixed
 
 - **`parse_envelope` no longer drops a top-level `queries` list

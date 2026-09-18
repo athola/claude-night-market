@@ -98,6 +98,7 @@ class TestTargetsAreIdentifierAnchored:
         "academic": "1706.03762",
         "code": "torvalds/linux",
         "discourse": "story_1",
+        "web": "rfc2119",
     }
 
     @pytest.mark.parametrize("channel", sorted(RETRIEVAL_CHANNELS))
@@ -154,6 +155,11 @@ class TestCanaryEndpointsMatchTheChannelsTheyAudit:
         "academic": "export.arxiv.org",
         "code": "api.github.com",
         "discourse": "hn.algolia.com",
+        # The web channel has no single host: it searches the open web
+        # through WebSearch or You.com. Its control fetches one known
+        # page over the same WebFetch path the agent reads results with,
+        # which is the most the "same path" rule can mean here.
+        "web": "www.rfc-editor.org",
     }
 
     @pytest.mark.parametrize("channel", sorted(RETRIEVAL_CHANNELS))

@@ -23,6 +23,7 @@ _SECTIONS = [
     ("code", "Code Implementations", "stars"),
     ("discourse", "Community Perspectives", "score"),
     ("academic", "Academic Literature", "citations"),
+    ("web", "Web Sources", None),
     ("triz", "Cross-Domain Insights", None),
 ]
 
