@@ -18,7 +18,8 @@ model_hint: standard
 - Finding vendor documentation, standards, or official guides
 - Comparisons and benchmarks across products or approaches
 - News, release notes, and recent status for a technology
-- Part of a `/tome:research` session or standalone search
+- Standalone searches; the `/tome:research` fan-out does not dispatch
+  this channel yet, so invoke `tome:web-search` directly
 
 ## When NOT To Use
 
@@ -32,7 +33,7 @@ targets.
 
 ## Sources (Priority Order)
 
-1. You.com MCP server (`you_search` tool) when configured
+1. You.com MCP server (`you-search` tool) when configured
 2. WebSearch tool as fallback (no configuration needed)
 
 The You.com MCP server is optional. Without it the channel runs
@@ -60,10 +61,12 @@ profile needs no key and no account.
 
 1. Build search queries using
    `tome.channels.web.expand_web_queries()`
-2. Run each query through the You.com MCP `you_search` tool if the
+2. Run each query through the You.com MCP `you-search` tool if the
    server is configured, otherwise through WebSearch
-3. Parse results via `parse_you_mcp_result()` or
-   `parse_websearch_result()`
+3. Parse results via `parse_you_mcp_result()` (raises `ValueError` on
+   a response shape that is not a you-search envelope) or
+   `parse_websearch_result()` (raises `ValueError` on a result with
+   no URL)
 4. Rank via `rank_web_findings()`
 5. Return Finding objects
 

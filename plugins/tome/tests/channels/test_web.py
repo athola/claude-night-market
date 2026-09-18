@@ -10,6 +10,8 @@ without coupling to HTTP and without requiring any MCP setup
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from tome.channels.web import (
@@ -168,14 +170,75 @@ class TestParseYouMcpResult:
         assert parse_you_mcp_result(result, "topic") == []
 
     @pytest.mark.unit
-    def test_non_list_input_returns_empty(self) -> None:
+    def test_non_list_input_raises(self) -> None:
         """
         Scenario: Malformed tool response
-        Given a dict instead of a list
+        Given an unrecognized envelope
         When parse_you_mcp_result is called
-        Then the result is empty rather than an error
+        Then ValueError names the shape received
         """
-        assert parse_you_mcp_result({"error": "oops"}, "topic") == []
+        with pytest.raises(ValueError, match="unrecognized you-search response"):
+            parse_you_mcp_result({"error": "oops"}, "topic")
+
+    @pytest.mark.unit
+    def test_parses_captured_live_envelope(self) -> None:
+        """
+        Scenario: Real you-search response shape
+        Given a captured payload from the live endpoint
+        When parse_you_mcp_result is called
+        Then the nested web items are parsed into Findings
+        """
+        web_items = [
+            {
+                "title": "PostgreSQL Documentation",
+                "url": "https://www.postgresql.org/docs/",
+                "description": "The official PostgreSQL documentation",
+                "page_age": "2026-01-15",
+            },
+            {
+                "title": "Row Security Policies",
+                "url": "https://www.postgresql.org/docs/current/ddl-rowsecurity.html",
+                "description": "Policies and roles",
+                "page_age": None,
+            },
+        ]
+        payload = {
+            "_meta": {},
+            "content": [
+                {
+                    "type": "text",
+                    "text": json.dumps({"metadata": {}, "results": {"web": web_items}}),
+                }
+            ],
+            "structuredContent": {"results": {"web": web_items}},
+        }
+        findings = parse_you_mcp_result(payload, "postgres row security")
+
+        assert len(findings) == 2
+        assert findings[0].summary == "The official PostgreSQL documentation"
+        assert findings[0].metadata["year"] == 2026
+        assert "year" not in findings[1].metadata
+
+    @pytest.mark.unit
+    def test_parses_bare_list_of_items(self) -> None:
+        """
+        Scenario: Client already unwrapped the envelope
+        Given a bare list of result dicts
+        When parse_you_mcp_result is called
+        Then the items parse as before
+        """
+        findings = parse_you_mcp_result(
+            [
+                {
+                    "title": "T",
+                    "url": "https://example.com",
+                    "description": "d",
+                }
+            ],
+            "topic",
+        )
+        assert len(findings) == 1
+        assert findings[0].summary == "d"
 
     @pytest.mark.unit
     def test_snippet_falls_back_to_description(self) -> None:
@@ -194,6 +257,25 @@ class TestParseYouMcpResult:
         ]
         findings = parse_you_mcp_result(result, "topic")
         assert findings[0].summary == "from description"
+
+    @pytest.mark.unit
+    def test_empty_snippet_falls_back_to_description(self) -> None:
+        """
+        Scenario: Empty snippet with a real description
+        Given a result with snippet="" and description="REAL DESC"
+        When parse_you_mcp_result is called
+        Then the description is used, not the empty snippet
+        """
+        result = [
+            {
+                "title": "T",
+                "url": "https://example.com",
+                "snippet": "",
+                "description": "REAL DESC",
+            }
+        ]
+        findings = parse_you_mcp_result(result, "topic")
+        assert findings[0].summary == "REAL DESC"
 
 
 class TestParseWebsearchResult:
@@ -242,18 +324,65 @@ class TestParseWebsearchResult:
         assert finding.summary == "https://example.com"
 
     @pytest.mark.unit
+    def test_null_snippet_does_not_raise(self) -> None:
+        """
+        Scenario: WebSearch returns a null snippet
+        Given snippet=None with a description present
+        When parse_websearch_result is called
+        Then the description is used without a TypeError
+        """
+        finding = parse_websearch_result(
+            {
+                "title": "T",
+                "url": "https://x",
+                "snippet": None,
+                "description": "real description",
+            },
+            "topic",
+        )
+        assert finding.summary == "real description"
+
+    @pytest.mark.unit
+    def test_result_without_url_raises(self) -> None:
+        """
+        Scenario: WebSearch result missing its URL
+        Given a dict with no url
+        When parse_websearch_result is called
+        Then ValueError refuses the result rather than emitting a blank Finding
+        """
+        with pytest.raises(ValueError, match="no URL"):
+            parse_websearch_result({"snippet": "s"}, "topic")
+
+    @pytest.mark.unit
     def test_relevance_bounded(self) -> None:
         """
         Scenario: Relevance stays in range
         Given any result
         When parse_websearch_result is called
-        Then relevance lies within [0, 1]
+        Then relevance lies within [0.1, 0.95] and the basis is recorded
         """
         finding = parse_websearch_result(
             {"title": "x", "url": "https://example.com", "snippet": ""},
             "completely unrelated topic words",
         )
-        assert 0.0 <= finding.relevance <= 1.0
+        assert 0.1 <= finding.relevance <= 0.95
+        assert finding.metadata["relevance_basis"] == "measured"
+
+    @pytest.mark.unit
+    def test_abstention_is_distinguishable(self) -> None:
+        """
+        Scenario: Topic yields no scoreable words
+        Given the topic "AI vs ML" whose words are all filtered
+        When parse_websearch_result is called
+        Then relevance is 0.5 with relevance_basis="abstained",
+        distinguishable from a genuine 0.5 measurement
+        """
+        finding = parse_websearch_result(
+            {"title": "x", "url": "https://example.com", "snippet": "y"},
+            "AI vs ML",
+        )
+        assert finding.relevance == 0.5
+        assert finding.metadata["relevance_basis"] == "abstained"
 
 
 class TestRankWebFindings:
