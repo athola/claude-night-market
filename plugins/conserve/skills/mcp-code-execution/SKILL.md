@@ -13,28 +13,6 @@ dependencies:
   - mcp-validation
 model_hint: standard
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Core Hub Responsibilities](#core-hub-responsibilities)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Step 1 – Assess Workflow](#step-1-assess-workflow-mcp-code-executionassess-workflow)
-- [Workflow Classification](#workflow-classification)
-- [MECW Risk Assessment](#mecw-risk-assessment)
-- [Step 2 – Route to Modules](#step-2-route-to-modules-mcp-code-executionroute-to-modules)
-- [Module Orchestration](#module-orchestration)
-- [Step 3 – Coordinate MECW](#step-3-coordinate-mecw-mcp-code-executioncoordinate-mecw)
-- [Cross-Module MECW Management](#cross-module-mecw-management)
-- [Step 4 – Synthesize Results](#step-4-synthesize-results-mcp-code-executionsynthesize-results)
-- [Result Integration](#result-integration)
-- [Module Integration](#module-integration)
-- [With Context Optimization Hub](#with-context-optimization-hub)
-- [Performance Skills Integration](#performance-skills-integration)
-- [Emergency Protocols](#emergency-protocols)
-- [Hub-Level Emergency Response](#hub-level-emergency-response)
-- [Success Metrics](#success-metrics)
-
 
 # MCP Code Execution Hub
 

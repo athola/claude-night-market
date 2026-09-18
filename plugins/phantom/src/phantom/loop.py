@@ -445,11 +445,22 @@ def _execute_tool(
             output = proc.stdout
             if proc.stderr:
                 output += f"\nSTDERR:\n{proc.stderr}"
-            return {
+            # proc.returncode was never read, so a command that failed
+            # quietly returned "(no output)" with no is_error flag, which
+            # is indistinguishable from one that succeeded quietly. The
+            # autonomous loop then proceeds on a failed step. The
+            # TimeoutExpired branch below has always set is_error.
+            failed = proc.returncode != 0
+            if failed and not output.strip():
+                output = f"Command exited {proc.returncode} with no output"
+            result: dict[str, Any] = {
                 "type": "tool_result",
                 "tool_use_id": tool_use_id,
                 "content": output or "(no output)",
             }
+            if failed:
+                result["is_error"] = True
+            return result
         except subprocess.TimeoutExpired:
             return {
                 "type": "tool_result",

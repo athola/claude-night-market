@@ -36,19 +36,6 @@ references:
 - ../../../leyline/skills/service-registry/SKILL.md
 - references/team-formation.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Prerequisites](#prerequisites)
-- [Protocol Architecture](#protocol-architecture)
-- [Quick Start](#quick-start)
-- [Coordination Workflow](#coordination-workflow)
-- [Module Reference](#module-reference)
-- [Integration with Conjure](#integration-with-conjure)
-- [Troubleshooting](#troubleshooting)
-- [Exit Criteria](#exit-criteria)
-
 
 # Agent Teams Coordination
 

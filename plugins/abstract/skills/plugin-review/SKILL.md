@@ -32,17 +32,6 @@ Tiered quality review of plugins with dependency-aware scoping.
 - Tracing `Skill()` references across plugins (use
   `abstract:skill-graph-audit`)
 
-## Table of Contents
-
-- [Tiers](#tiers)
-- [Orchestration](#orchestration)
-- [Scope Detection](#scope-detection)
-- [Module Loading](#module-loading)
-- [Verdict](#verdict)
-- [Output Format](#output-format)
-- [Quality Gate Mode](#quality-gate-mode)
-- [Configuration](#configuration)
-
 ## Tiers
 
 | Tier | Trigger | Scope | Depth | Duration |

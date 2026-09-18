@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import pytest
 from budget import Budget, is_in_cooldown, load_budget, save_budget
 
 
@@ -174,3 +176,56 @@ class TestSaveLoadBudget:
         assert loaded.window_type == "5h"
         assert loaded.session_count == 2
         assert loaded.estimated_tokens_used == 100
+
+
+class TestAtomicBudgetWrite:
+    """The watchdog reads this file to decide whether to relaunch.
+
+    ``path.write_text`` truncates first, so an interrupted save leaves a
+    file that exists and holds invalid JSON. A truncated read there costs
+    a whole night's run.
+
+    The failure is injected at ``os.replace``, which is the last step of
+    the atomic path and does not exist on the truncating one. Injecting it
+    earlier, at ``json.dumps``, does not discriminate: that raises before
+    ``write_text`` opens the file, so the old content survives either way.
+    """
+
+    def test_a_failed_save_leaves_the_previous_budget_readable(
+        self, tmp_path, monkeypatch
+    ):
+        """A save that fails at the last step must not damage the old one."""
+        path = tmp_path / "budget.json"
+        save_budget(Budget(estimated_tokens_used=42), path)
+
+        def explode(*args, **kwargs):
+            raise OSError("cross-device link")
+
+        monkeypatch.setattr(os, "replace", explode)
+        with pytest.raises(OSError):
+            save_budget(Budget(estimated_tokens_used=99), path)
+
+        assert load_budget(path).estimated_tokens_used == 42, (
+            "the previous budget was destroyed by a failed save; the "
+            "watchdog reads this file to decide whether to relaunch"
+        )
+
+    def test_a_failed_save_leaves_no_temporary_file(self, tmp_path, monkeypatch):
+        """The directory does not accumulate partial writes."""
+        path = tmp_path / "budget.json"
+        save_budget(Budget(estimated_tokens_used=42), path)
+
+        def explode(*args, **kwargs):
+            raise OSError("cross-device link")
+
+        monkeypatch.setattr(os, "replace", explode)
+        with pytest.raises(OSError):
+            save_budget(Budget(), path)
+
+        assert [entry.name for entry in tmp_path.iterdir()] == ["budget.json"]
+
+    def test_a_successful_save_round_trips(self, tmp_path):
+        """The happy path still writes what was asked for."""
+        path = tmp_path / "budget.json"
+        save_budget(Budget(estimated_tokens_used=7), path)
+        assert load_budget(path).estimated_tokens_used == 7

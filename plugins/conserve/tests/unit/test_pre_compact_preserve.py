@@ -448,7 +448,9 @@ class TestResolveSessionFileBranches:
     """Branch coverage for resolve_session_file edge cases."""
 
     @pytest.mark.unit
-    def test_fallback_to_most_recent_project_dir(self, tmp_path: Path):
+    def test_fallback_to_most_recent_project_dir(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
         """Falls back to most recent project dir if cwd doesn't match."""
         projects = tmp_path / "projects"
         projects.mkdir()
@@ -458,17 +460,9 @@ class TestResolveSessionFileBranches:
         session = other_project / "session.jsonl"
         session.write_text(json.dumps({"role": "user", "content": "hi"}) + "\n")
 
-        original_env = os.environ.get("CLAUDE_HOME")
-        os.environ["CLAUDE_HOME"] = str(tmp_path)
-        try:
-            preserve_module.resolve_session_file()
-            # May or may not find it depending on cwd, but shouldn't crash
-            # The important thing is the fallback branch is exercised
-        finally:
-            if original_env:
-                os.environ["CLAUDE_HOME"] = original_env
-            else:
-                os.environ.pop("CLAUDE_HOME", None)
+        monkeypatch.setenv("CLAUDE_HOME", str(tmp_path))
+        monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+        assert preserve_module.resolve_session_file() == session
 
     @pytest.mark.unit
     def test_no_jsonl_files_returns_none(self, tmp_path: Path):

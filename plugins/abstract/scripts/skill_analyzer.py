@@ -230,7 +230,14 @@ class SkillAnalyzer:
                 result = self.analyze_file(skill_file, verbose)
                 results.append(result)
             except Exception as e:
-                logger.debug(f"Failed to analyze {skill_file}: {e}")
+                # Warning rather than debug, and stderr rather than nowhere:
+                # the root logger defaults to WARNING, so a debug call meant
+                # a malformed skill vanished from the report with no
+                # user-visible signal and a shortened list that looked
+                # complete. The sweep still continues, because one bad file
+                # should not cost the whole report.
+                logger.warning("Failed to analyze %s: %s", skill_file, e)
+                print(f"[WARN] Failed to analyze {skill_file}: {e}", file=sys.stderr)
 
         return results
 

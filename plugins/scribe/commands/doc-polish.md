@@ -48,9 +48,13 @@ Clean up AI-generated content and improve documentation quality.
 ## Workflow
 
 1. **Scan** for slop markers (audit mode by default; pass
-   `--prevention` for strict mode on freshly generated docs)
+   `--prevention` for strict mode on freshly generated docs). One
+   command locates every finding with a file and a line:
+   `uv run --with pyyaml python scripts/slop_score.py --audit <files>`
 2. **Categorize** by severity (includes Tier 5 / 2026 patterns:
-   em-dash, plus-sign, spatial copula, negative parallelism,
+   em-dash and spaced `--`, plus-sign, semicolon splice, spatial
+   copula, negative parallelism and the trailing ", not just Y" form,
+   over-explained fixes, negative framing and negation density,
    throat-clearing openers, three-fragment burst, smart quotes,
    significance cluster, loop/cascade vocabulary)
 3. **Present** section-by-section changes

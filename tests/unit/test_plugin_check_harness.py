@@ -201,6 +201,15 @@ class TestHarnessCannotStall:
         # Assert the invariant (each per-plugin check is time-bounded), not
         # the specific number: ``timeout 240`` would still satisfy it. The
         # pattern binds the timeout to the per-plugin make invocation.
+        makefile = _read("Makefile")
         assert re.search(
-            r"timeout \d+ \$\(MAKE\) -C \$\$plugin plugin-check", _read("Makefile")
+            r"(?:timeout \d+|\$\(TIMEOUT_\d+\)) \$\(MAKE\) -C \$\$plugin plugin-check",
+            makefile,
         ), "per-plugin timeout removed from root plugin-check loop (finding F-G)"
+        # The variable form is portable to hosts without coreutils timeout,
+        # so it must bound the child on both branches, not only where
+        # `timeout` exists.
+        definition = re.search(r"^TIMEOUT_\d+ := (.*)$", makefile, re.M)
+        assert definition, "TIMEOUT variable is referenced but never defined"
+        assert "timeout 180" in definition.group(1)
+        assert "alarm" in definition.group(1), "fallback branch runs unbounded"

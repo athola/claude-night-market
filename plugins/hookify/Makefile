@@ -4,8 +4,7 @@
 # Uses shared Make includes from abstract plugin
 
 .PHONY: help dev-setup clean status debug-variables \
-        demo-matchers demo-rules plugin-check test \
-        lint format type-check typecheck security test-unit test-coverage test-quick
+        demo-matchers demo-rules plugin-check test
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := core matchers utils scripts tests

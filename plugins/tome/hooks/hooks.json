@@ -2,7 +2,6 @@
   "hooks": {
     "SessionStart": [
       {
-        "_comment": "Check for active research sessions on startup",
         "hooks": [
           {
             "type": "command",
@@ -14,7 +13,6 @@
     ],
     "PreCompact": [
       {
-        "_comment": "Checkpoint active research session before compaction",
         "hooks": [
           {
             "type": "command",

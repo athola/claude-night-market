@@ -19,6 +19,7 @@ modules:
 - modules/sico-extraction.md
 - modules/sample-intake.md
 - modules/register-creation.md
+- modules/research-basis.md
 dependencies:
 - scribe:style-learner
 - scribe:slop-detector
@@ -41,6 +42,10 @@ Phase 1: feed the model user writing samples alongside its own
 default output on the same topics. The model describes what the
 user does differently. This produces voice descriptions that
 encode implicit structural patterns no metrics can capture.
+
+The papers and reports behind these choices, and what each one
+changed in the extraction passes, are in `modules/research-basis.md`.
+Read it before changing what the passes ask for.
 
 ## Key Principles (from research)
 

@@ -355,9 +355,16 @@ def generate_hookify_rule(analysis: HookAnalysis) -> str:
     event = _detect_tool_event(analysis)
 
     # Build rule
+    # ConfigLoader.load_rule requires name, enabled and event. Omitting
+    # "enabled" meant every generated rule raised
+    # ValueError: Missing required fields: enabled the moment anything tried
+    # to load it, so the converter's whole output was unusable. The tests
+    # did not catch it because they asserted substrings of the generated
+    # text rather than loading the result.
     lines = [
         "---",
         f"name: {analysis.file_path.stem.replace('_', '-')}",
+        "enabled: true",
         f"event: {event}",
     ]
 

@@ -31,7 +31,7 @@ Quick-reference validation checklist for skill authors.
 ## Structure
 
 - [ ] File references one level deep
-- [ ] Long files (>100 lines) have TOC
+- [ ] No Table of Contents; a long file is split, not indexed
 - [ ] Progressive disclosure pattern used
 - [ ] Appropriate freedom level for task type
 

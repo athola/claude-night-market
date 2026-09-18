@@ -45,6 +45,14 @@ _REGISTRY_URLS = {
     "crates": "https://crates.io/api/v1/crates/{name}",
 }
 _REGISTRY_TIMEOUT = 1.5
+
+#: Total registry-lookup budget across one command, under the 8s PreToolUse
+#: cap in hooks.json. At 1.5s per unresolved name and no cap on the count,
+#: six unknown packages already exceeded the cap, and a killed PreToolUse
+#: hook is indistinguishable from no gate. The budget is checked before a
+#: lookup starts, so the worst case is this plus one in-flight
+#: _REGISTRY_TIMEOUT: 6.5s, inside the 8s cap with room for parsing.
+_REGISTRY_BUDGET_SECONDS = 5.0
 _HTTP_OK_MIN = 200
 _HTTP_OK_MAX = 300
 _HTTP_NOT_FOUND = 404
@@ -116,7 +124,11 @@ def main() -> None:
         if not command:
             sys.exit(0)
 
-        findings = assess_packages(command, registry_fn=_registry_exists)
+        findings = assess_packages(
+            command,
+            registry_fn=_registry_exists,
+            budget_seconds=_REGISTRY_BUDGET_SECONDS,
+        )
         if not findings:
             sys.exit(0)
 

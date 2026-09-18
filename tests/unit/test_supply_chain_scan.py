@@ -164,15 +164,19 @@ class TestLoadBlocklist:
         assert "badpkg" in result
 
     @pytest.mark.unit
-    def test_returns_empty_when_missing(self, tmp_path: Path) -> None:
+    def test_raises_when_missing(self, tmp_path: Path) -> None:
         """
         Scenario: No blocklist file exists
         Given an empty directory tree
         When load_blocklist is called
-        Then an empty dict is returned.
+        Then BlocklistMissingError is raised.
+
+        This asserted an empty dict until the blocklist was renamed away in
+        review and the scanner exited 0. The blocklist is the scanner's only
+        content, so "absent" and "nothing to report" must not share a value.
         """
-        result = load_blocklist(tmp_path)
-        assert result == {}
+        with pytest.raises(_mod.BlocklistMissingError):
+            load_blocklist(tmp_path)
 
 
 class TestScanLockfilesEdgeCases:
@@ -287,21 +291,21 @@ class TestMain:
     """
 
     @pytest.mark.unit
-    def test_returns_zero_when_blocklist_missing(
+    def test_returns_nonzero_when_blocklist_missing(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """
         Scenario: No blocklist file exists
         Given an empty repository
         When main() runs
-        Then it returns 0.
+        Then it returns non-zero, because nothing was scanned.
         """
         monkeypatch.setattr(
             _mod, "__file__", str(tmp_path / "scripts" / "supply_chain_scan.py")
         )
         (tmp_path / "scripts").mkdir(parents=True)
         result = _mod.main()
-        assert result == 0
+        assert result != 0
 
     @pytest.mark.unit
     def test_returns_one_on_compromised_lockfile(

@@ -4,9 +4,7 @@ Minimum version requirements and version-specific feature notes for
 each plugin in the claude-night-market ecosystem.
 
 > **See Also**:
-> [Features Index](compatibility-features.md) |
-> [March 2026 Early](compatibility-features-march2026-early.md) |
-> [March 2026 Recent](compatibility-features-march2026-recent.md) |
+> [Features Timeline](compatibility-features.md) |
 > [Patterns](compatibility-patterns.md)
 
 ## Plugin-Specific Compatibility

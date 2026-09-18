@@ -5,6 +5,14 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
+# .SHELLFLAGS and .ONESHELL arrived in GNU make 3.82. Stock macOS ships
+# 3.81 from the Xcode command line tools, which ignores both, so every
+# recipe below runs without -euo pipefail and a failing pipeline stage
+# passes. Say so once per invocation rather than pretend the gate holds.
+ifeq ($(filter 3.82 4.%,$(firstword $(MAKE_VERSION))),)
+$(warning GNU make $(MAKE_VERSION) ignores .SHELLFLAGS and .ONESHELL; recipes run without -euo pipefail. Install GNU make 3.82+ (brew install make) and run gmake.)
+endif
+
 # Run all recipe lines in single shell (performance + variable persistence)
 .ONESHELL:
 

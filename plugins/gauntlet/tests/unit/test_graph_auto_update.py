@@ -22,6 +22,24 @@ def gauntlet_dir(tmp_path: Path) -> Path:
     return d
 
 
+def _bash_response(stdout: str) -> dict[str, object]:
+    """Build a realistic PostToolUse tool_response for the Bash tool.
+
+    The payload key is ``tool_response``, not ``tool_result``, and the Bash
+    entry carries ``stdout``, ``stderr``, ``interrupted`` and ``isImage``.
+    There is no ``exitCode``: PostToolUse fires only after a tool completes
+    successfully, and failures route to PostToolUseFailure instead. Tests
+    that invented an ``exitCode`` passed against a payload shape the harness
+    has never sent.
+    """
+    return {
+        "stdout": stdout,
+        "stderr": "",
+        "interrupted": False,
+        "isImage": False,
+    }
+
+
 class TestIsAutoUpdateEnabled:
     """
     Feature: Auto-update config toggle
@@ -82,13 +100,22 @@ class TestMainHook:
         assert result is None
 
     @pytest.mark.unit
-    def test_ignores_failed_commits(self) -> None:
-        """Failed commits (exit code != 0) are ignored."""
+    def test_ignores_a_commit_that_recorded_nothing(self) -> None:
+        """A commit reporting "nothing to commit" leaves the graph alone.
+
+        This replaces a test that fed ``{"exitCode": 1}`` and asserted None.
+        It passed for the wrong reason: the hook read ``tool_result``, which
+        the payload never carries, so every input produced None. A failed
+        commit never reaches PostToolUse at all, so "nothing to commit" in
+        stdout is the only no-op this hook can actually observe.
+        """
         result = main(
             {
                 "tool_name": "Bash",
                 "tool_input": {"command": "git commit -m 'test'"},
-                "tool_result": {"exitCode": 1, "stdout": "error"},
+                "tool_response": _bash_response(
+                    "nothing to commit, working tree clean"
+                ),
             }
         )
         assert result is None
@@ -101,7 +128,9 @@ class TestMainHook:
                 {
                     "tool_name": "Bash",
                     "tool_input": {"command": "git commit -m 'test'"},
-                    "tool_result": {"exitCode": 0, "stdout": "[main abc123]"},
+                    "tool_response": _bash_response(
+                        "[main abc123] test\n 1 file changed"
+                    ),
                 }
             )
         assert result is None
@@ -117,7 +146,9 @@ class TestMainHook:
                 {
                     "tool_name": "Bash",
                     "tool_input": {"command": "git commit -m 'test'"},
-                    "tool_result": {"exitCode": 0, "stdout": "[main abc123]"},
+                    "tool_response": _bash_response(
+                        "[main abc123] test\n 1 file changed"
+                    ),
                 }
             )
         assert result is None
@@ -150,7 +181,9 @@ class TestMainHook:
                 {
                     "tool_name": "Bash",
                     "tool_input": {"command": "git commit -m 'test'"},
-                    "tool_result": {"exitCode": 0, "stdout": "[main abc123]"},
+                    "tool_response": _bash_response(
+                        "[main abc123] test\n 1 file changed"
+                    ),
                 }
             )
         assert result is not None

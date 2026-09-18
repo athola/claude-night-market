@@ -8,6 +8,8 @@ entry append, supersession, idempotency) and the file-level apply helper
 from __future__ import annotations
 
 import re
+import subprocess
+import threading
 from pathlib import Path
 
 import pytest
@@ -399,3 +401,108 @@ def test_apply_append_dry_run_writes_nothing(tmp_path: Path) -> None:
     )
     assert not target.exists()
     assert "## TR-001: A" in result  # returns what it *would* write
+
+
+class TestConcurrentAppends:
+    """Two sessions appending at once must not lose an entry.
+
+    ``apply_append`` read the file, derived ``next_id`` from the content it
+    had just read, and replaced the whole file with ``write_text``. With no
+    lock, the second writer's read happened before the first writer's
+    write, so its rewrite dropped the first entry outright rather than
+    merely colliding on an id. This repository runs autonomous sessions
+    that each record lessons, so the race is the expected case.
+    """
+
+    def test_parallel_appends_all_survive(self, tmp_path: Path) -> None:
+        """Every appended entry is present after concurrent writers finish."""
+        journal = tmp_path / "lessons-learned.md"
+        writers = 8
+        barrier = threading.Barrier(writers)
+        errors: list[BaseException] = []
+
+        def append(index: int) -> None:
+            try:
+                barrier.wait(timeout=10)
+                apply_append(
+                    journal,
+                    "lessons",
+                    {"title": f"Lesson {index}", "what_happened": f"event {index}"},
+                )
+            except BaseException as exc:  # noqa: BLE001 - re-raised below
+                errors.append(exc)
+
+        threads = [threading.Thread(target=append, args=(i,)) for i in range(writers)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=30)
+
+        assert not errors, f"a writer raised: {errors}"
+        content = journal.read_text(encoding="utf-8")
+        missing = [i for i in range(writers) if f"Lesson {i}" not in content]
+        assert not missing, (
+            f"{len(missing)} of {writers} entries were lost to a concurrent "
+            f"append: {missing}"
+        )
+
+    def test_ids_are_unique_after_parallel_appends(self, tmp_path: Path) -> None:
+        """No two surviving entries share an id."""
+        journal = tmp_path / "tradeoffs.md"
+        writers = 6
+        barrier = threading.Barrier(writers)
+
+        def append(index: int) -> None:
+            barrier.wait(timeout=10)
+            apply_append(
+                journal,
+                "tradeoffs",
+                {"title": f"Tradeoff {index}", "context": f"chose {index}"},
+            )
+
+        threads = [threading.Thread(target=append, args=(i,)) for i in range(writers)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=30)
+
+        ids = re.findall(r"^## (TR-\d+):", journal.read_text(encoding="utf-8"), re.M)
+        assert len(ids) == writers
+        assert len(set(ids)) == len(ids), f"duplicate ids: {sorted(ids)}"
+
+
+class TestLockfileIsNotAWorkingTreeArtifact:
+    """The lock outlives the append, so git must be told to ignore it.
+
+    ``_journal_lock`` deliberately keeps the lockfile beside the journal
+    rather than unlinking it, because deleting it races the next writer
+    that already holds a descriptor on it. The cost is a file that shows
+    up in ``git status`` after every append and that ``git add -A`` will
+    happily commit. The root ``.gitignore`` carried a bare ``.lock``,
+    which matches a file *named* ``.lock`` and not this suffix.
+    """
+
+    def test_lock_path_sits_next_to_the_journal(self, tmp_path: Path) -> None:
+        """Pin the name the .gitignore rule has to match."""
+        journal = tmp_path / "lessons-learned.md"
+        apply_append(journal, "lessons", {"title": "A", "what_happened": "x"})
+        assert (tmp_path / "lessons-learned.md.lock").exists()
+
+    def test_repository_ignores_journal_lockfiles(self) -> None:
+        """``git check-ignore`` must claim both journals' lockfiles."""
+        repo_root = Path(__file__).resolve().parents[3]
+        if not (repo_root / ".git").exists():
+            pytest.skip("not a git checkout")
+        for journal in ("docs/lessons-learned.md", "docs/tradeoffs.md"):
+            result = subprocess.run(
+                ["git", "check-ignore", "-q", f"{journal}.lock"],
+                cwd=repo_root,
+                capture_output=True,
+                check=False,  # the return code is the assertion
+            )
+            assert result.returncode == 0, (
+                f"{journal}.lock is not gitignored, so every journal append "
+                f"leaves an untracked file that 'git add -A' can commit. A "
+                f"bare '.lock' pattern does not match this suffix; '*.md.lock' "
+                f"does."
+            )

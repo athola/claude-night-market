@@ -12,22 +12,6 @@ complexity: low
 model_hint: fast
 estimated_tokens: 1200
 ---
-## Table of Contents
-
-- [When To Use](#when-to-use)
-- [Standard Targets](#standard-targets)
-- [Python Makefile](#python-makefile)
-- [Rust Makefile](#rust-makefile)
-- [TypeScript Makefile](#typescript-makefile)
-- [Workflow](#workflow)
-- [1. Detect Language](#1-detect-language)
-- [2. Load Template](#2-load-template)
-- [3. Collect Project Info](#3-collect-project-info)
-- [4. Render Template](#4-render-template)
-- [5. Verify](#5-verify)
-- [Customization](#customization)
-- [Related Skills](#related-skills)
-
 
 # Makefile Generation Skill
 

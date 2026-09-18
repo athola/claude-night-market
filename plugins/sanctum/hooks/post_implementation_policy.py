@@ -122,6 +122,12 @@ _BASE_CANDIDATES = (
 )
 
 
+#: Budget for one git call, under the 1s SessionStart cap in hooks.json.
+#: The hook is killed at that cap regardless, so a 5s budget only meant the
+#: process died holding an answer it could never report.
+_GIT_TIMEOUT_SECONDS = 0.8
+
+
 def _git(args: list[str]) -> str | None:
     """Run a git command, returning its stdout or None if it cannot answer."""
     try:
@@ -129,7 +135,7 @@ def _git(args: list[str]) -> str | None:
             ["git", *args],
             capture_output=True,
             text=True,
-            timeout=5,
+            timeout=_GIT_TIMEOUT_SECONDS,
             check=False,
         )
     except (OSError, subprocess.SubprocessError):

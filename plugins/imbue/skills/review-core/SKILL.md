@@ -21,18 +21,6 @@ estimated_tokens: 1500
 ---
 # Core Review Workflow
 
-## Table of Contents
-
-1. [When to Use](#when-to-use)
-2. [Activation Patterns](#activation-patterns)
-3. [Required TodoWrite Items](#required-todowrite-items)
-4. [Step 1 – Establish Context](#step-1--establish-context-review-corecontext-established)
-5. [Step 2 – Inventory Scope](#step-2--inventory-scope-review-corescope-inventoried)
-6. [Step 3 – Capture Evidence](#step-3--capture-evidence-review-coreevidence-captured)
-7. [Step 4 – Structure Deliverables](#step-4--structure-deliverables-review-coredeliverables-structured)
-8. [Step 5 – Verify Findings Are Grounded](#step-5--verify-findings-are-grounded-review-corefindings-verified)
-9. [Step 6 – Contingency Plan](#step-6--contingency-plan-review-corecontingencies-documented)
-
 ## When To Use
 - Use this skill at the beginning of any detailed review workflow (e.g., for architecture, math, or an API).
 - It provides a consistent structure for capturing context, logging evidence, and formatting the final report, which makes the findings of different reviews comparable.

@@ -15,7 +15,8 @@ roles produce zero edges:
 
 Skills consumed via `dependencies:` frontmatter from other skills
 or via Python imports rather than `Skill()` calls. Example:
-`abstract:shared-patterns`. **Action**: confirm `dependencies:` field
+`abstract:skills-eval`, which `rules-eval` and `plugin-review` list
+under `dependencies:`. **Action**: confirm `dependencies:` field
 in callers.
 
 ### 2. Entrypoint skills

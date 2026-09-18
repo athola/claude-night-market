@@ -26,14 +26,6 @@ modules:
 references:
 - delegation-core/shared-shell-execution.md
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Smart Delegation](#smart-delegation)
-- [MiniMax-Specific Details](#minimax-specific-details)
 
 # MiniMax CLI Delegation
 

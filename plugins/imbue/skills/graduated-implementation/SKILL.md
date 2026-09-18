@@ -127,15 +127,18 @@ ceremony, and ceremony trains people to ignore the gate.
 - You already understand the change and need evidence it works (use
   `imbue:proof-of-work`)
 
-## Red Flags
+## Constraints
 
-| Thought | Reality |
-|---------|---------|
-| "I'll just build the whole thing, then review" | You cannot review what you did not watch get built. Start with one slice. |
-| "Tests pass, so it is understood" | Completion is not understanding. Duolingo streaks prove a cheap signal decouples from skill. |
-| "I can self-certify I get it" | The producer may not grade its own readiness. Demonstrate it, record it. |
-| "Bigger increments are faster" | Faster to write, slower to verify, and the verification is the point. |
-| "The rung is slowing me down" | On work you must own, staying in the 85% band is the fast path to durable skill. |
+- Start with one slice. A whole thing built at once cannot be reviewed
+  by someone who did not watch it get built.
+- Passing tests are completion, not understanding. A cheap signal
+  decouples from skill, as a Duolingo streak does from fluency.
+- The producer does not grade its own readiness. Understanding is
+  demonstrated and recorded, not self-certified.
+- A bigger increment is faster to write and slower to verify, and the
+  verification is the point.
+- On work the human must own, the 85% band is the fast path to durable
+  skill, even when the rung feels slow.
 
 ## Related Skills
 

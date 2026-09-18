@@ -16,8 +16,6 @@ from typing import Any
 from memory_palace.corpus.decay_model import DecayModel
 from memory_palace.corpus.marginal_value import IntegrationDecision, MarginalValueFilter
 from memory_palace.corpus.source_lineage import (
-    FullLineage,
-    SimpleLineage,
     SourceLineageManager,
     SourceReference,
 )
@@ -176,7 +174,12 @@ class KnowledgeOrchestrator:
             entry_id: Identifier used to query the decay model.
 
         Returns:
-            A timezone-aware datetime representing the validation date.
+            A datetime representing the validation date. Two of the three
+            paths return whatever ``datetime.fromisoformat`` produced,
+            which is naive when the stored string carries no offset, so
+            this is not guaranteed timezone-aware despite an earlier
+            docstring here saying so. ``decay_model.py:148`` compensates
+            downstream, which is why the mismatch has not surfaced.
 
         """
         # 1. Explicit last_validated on the entry
@@ -363,21 +366,6 @@ class KnowledgeOrchestrator:
 
         return entry_id, decision
 
-    def get_source_lineage(
-        self,
-        entry_id: str,
-    ) -> FullLineage | SimpleLineage | None:
-        """Get source lineage for an entry.
-
-        Args:
-            entry_id: ID of the knowledge entry
-
-        Returns:
-            Lineage or None
-
-        """
-        return self.lineage_manager.get_lineage(entry_id)
-
     def get_statistics(
         self,
         entries: list[dict[str, Any]],
@@ -416,21 +404,6 @@ class KnowledgeOrchestrator:
             "average_usage_score": usage_score_sum / n if n else 0.0,
             "average_decay_score": decay_score_sum / n if n else 0.0,
         }
-
-    def batch_assess(
-        self,
-        entries: list[dict[str, Any]],
-    ) -> list[QualityAssessment]:
-        """Batch assess multiple entries.
-
-        Args:
-            entries: List of entry dicts
-
-        Returns:
-            List of QualityAssessments
-
-        """
-        return [self.assess_entry(e) for e in entries]
 
     def get_entry_history(self, entry_id: str) -> dict[str, Any]:
         """Get full history for an entry.

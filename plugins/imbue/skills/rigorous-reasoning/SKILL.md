@@ -22,16 +22,6 @@ role: library
   `pensive:bug-review`)
 - Scoring a feature's worthiness (use `imbue:scope-guard`)
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Priority Signals](#priority-signals)
-- [Red Flag Self-Monitoring](#red-flag-self-monitoring)
-- [Analysis Workflows](#analysis-workflows)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Integration with Other Skills](#integration-with-other-skills)
-- [Exit Criteria](#exit-criteria)
-
 # Rigorous Reasoning
 
 ## Overview

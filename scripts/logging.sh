@@ -1,4 +1,5 @@
 # scripts/logging.sh: POSIX logging library
+# shellcheck shell=sh
 # Source this file before calling log() or banner().
 # No shebang, no execute bit, no set -e or set -u.
 

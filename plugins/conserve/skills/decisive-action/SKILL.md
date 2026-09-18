@@ -1,7 +1,7 @@
 ---
 name: decisive-action
 description: Guides when to ask clarifying questions versus proceed autonomously. Use to reduce unnecessary clarifying questions when intent is clear.
-alwaysApply: true
+alwaysApply: false
 category: workflow
 tags:
 - efficiency

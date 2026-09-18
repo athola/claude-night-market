@@ -1,7 +1,9 @@
 # ADR-0014: Pensive Review-Skill Consolidation
 
 **Date**: 2026-05-06
-**Status**: Accepted (sequencing only; implementation tracked)
+**Status**: Proposed. Accepted 2026-05-06 as sequencing only; no
+implementation as of 2026-09-03, and the premise has moved: pensive has
+10 review-named skills, not 9.
 **Deciders**: Claude Night Market maintainers
 **Source**: Issue #453, Discussion #449 Wave-3 backlog item 1
 

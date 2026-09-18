@@ -11,22 +11,6 @@ modules:
 model_hint: standard
 role: entrypoint
 ---
-## Table of Contents
-
-- [Use When](#use-when)
-- [Workflow](#workflow)
-- [1. Detect or Select Language](#1-detect-or-select-language)
-- [2. Collect Project Metadata](#2-collect-project-metadata)
-- [3. Review Existing Files](#3-review-existing-files)
-- [4. Render and Apply Templates](#4-render-and-apply-templates)
-- [5. Initialize Git (if needed)](#5-initialize-git-(if-needed))
-- [6. Verify Setup](#6-verify-setup)
-- [7. Next Steps](#7-next-steps)
-- [Error Handling](#error-handling)
-- [Success Criteria](#success-criteria)
-- [Examples](#examples)
-- [Example 1: New Python Project](#example-1:-new-python-project)
-
 
 # Project Initialization Skill
 

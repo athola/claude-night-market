@@ -26,7 +26,7 @@ name: your-wrapper-skill
 description: Brief description focused on user benefit (≤1024 chars)
 category: appropriate-category
 tags: [wrapper, delegation, modular]
-dependencies: [modular-skills, shared-patterns]
+dependencies: [modular-skills, skill-authoring]
 estimated_tokens: 800
 ---
 ```
@@ -57,7 +57,6 @@ Determine which existing modular skills provide the needed functionality:
 - `skill-authoring` - For creating new skills
 - `skills-eval` - For evaluation and analysis
 - `modular-skills` - For migration and refactoring
-- `shared-patterns` - For common workflows
 
 ### Step 2: Create Wrapper Directory
 
@@ -116,7 +115,7 @@ This skill orchestrates multiple modules to provide detailed analysis:
 Key modules involved:
 - skills-eval/modules/evaluation-workflows.md
 - skill-authoring/modules/tdd-methodology.md
-- shared-patterns/modules/validation-patterns.md
+- skill-authoring/modules/validation.md
 ```
 
 ### 3. Domain-Specific Wrapper
@@ -134,7 +133,7 @@ API-Specific Considerations:
 
 Uses these modules:
 - modular-skills/modules/implementation-patterns.md
-- shared-patterns/modules/workflow-patterns.md
+- modular-skills/modules/design-patterns.md
 - Custom API guidelines in modules/api-specific.md
 ```
 
@@ -177,12 +176,11 @@ dependencies: []
 ---
 name: complex-analysis-skill
 description: Performs detailed analysis using proven modular patterns
-dependencies: [skills-eval, skill-authoring, shared-patterns]
+dependencies: [skills-eval, skill-authoring]
 estimated_tokens: 300
 ---
 # Delegates to skills-eval for analysis
 # Uses skill-authoring for creation workflow
-# uses shared-patterns for validation
 # Domain-specific guidance only
 ```
 
@@ -233,7 +231,9 @@ estimated_tokens: 300
 
 ### 2. Dependency Hell
 **Problem**: Too many or conflicting dependencies
-**Solution**: Use shared-patterns for common functionality
+**Solution**: Depend on the one skill that owns each pattern. A
+utility skill with no consumers is what
+`.claude/rules/shared-utility-consumer-rule.md` exists to prevent
 
 ### 3. Unclear Delegation
 **Problem**: Users don't understand what the wrapper does
@@ -261,7 +261,8 @@ Warning: Wrapper exceeds 500 line limit
 ```bash
 Error: Circular dependency detected
 ```
-**Solution**: Review dependency tree, extract to shared-patterns
+**Solution**: Review dependency tree, extract the shared content to
+`shared-modules/` at the plugin root
 
 ## Maintenance
 
@@ -293,7 +294,6 @@ Error: Circular dependency detected
 
 ### Related Documentation
 - [Skill Authoring Guide](../skills/skill-authoring/SKILL.md)
-- [Shared Patterns Reference](../skills/shared-patterns/SKILL.md)
 - [Skills Evaluation Framework](../skills/skills-eval/SKILL.md)
 
 ### Tools and Commands

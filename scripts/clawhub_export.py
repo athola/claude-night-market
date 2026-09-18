@@ -561,7 +561,15 @@ def main() -> None:
     manifest = export_all(args.output, args.top, args.plugins_dir)
     print(f"Exported {manifest['total_exported']} skills to {args.output}/")
     if manifest["total_errors"] > 0:
-        print(f"  {manifest['total_errors']} skills had errors (see manifest.json)")
+        # cross-framework-publish.yml reads only ``total_exported``, so an
+        # export that dropped skills looked identical to a complete one and
+        # shipped into a tagged release. The count is printed either way;
+        # the exit code is what the workflow can act on.
+        print(
+            f"  {manifest['total_errors']} skills had errors (see manifest.json)",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":

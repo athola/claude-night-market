@@ -27,23 +27,82 @@ for i in items:
     @pytest.mark.unit
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "label,args,expected_key",
+        "label,code,expected_pattern",
         [
-            ("pytest patterns", ("",), "patterns"),
-            ("ddd patterns", ("",), "patterns"),
-            ("gof patterns", ("",), "patterns"),
-            ("async patterns", ("",), "patterns"),
-            ("performance patterns", ("",), "patterns"),
-            ("anti patterns", ("",), "patterns"),
-            ("dsl patterns", ("", "sql"), "patterns"),
+            (
+                "singleton",
+                """
+class Config:
+    _instance = None
+
+    def __new__(cls):
+        return cls._instance
+""",
+                "singleton",
+            ),
+            (
+                "factory",
+                """
+def make_writer(kind):
+    if kind == "json":
+        return JsonWriter()
+    return YamlWriter()
+""",
+                "factory",
+            ),
+            (
+                "decorator",
+                """
+import functools
+
+
+def trace(fn):
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        return fn(*args, **kwargs)
+
+    return wrapper
+""",
+                "decorator",
+            ),
         ],
     )
-    async def test_find_patterns_empty_returns_patterns_key(
-        self, pattern_matching_skill, label, args, expected_key
+    async def test_find_patterns_detects_each_supported_pattern(
+        self, pattern_matching_skill, label, code, expected_pattern
     ) -> None:
-        """Given empty code, find_patterns returns a dict with patterns key."""
-        result = await pattern_matching_skill.find_patterns(*args)
-        assert expected_key in result
+        """Given code containing a pattern, find_patterns names it.
+
+        This replaces seven parametrize cases that all passed ``("",)``.
+        Empty code returns at the guard before any detector runs, so every
+        case exercised the same two lines, and the ``label`` strings
+        ("ddd patterns", "gof patterns", "dsl patterns") named analysis
+        paths that find_patterns does not contain at all. The three below
+        are the detectors it actually calls.
+        """
+        result = await pattern_matching_skill.find_patterns(code)
+        found = {p.get("pattern") for p in result["patterns"]}
+        assert expected_pattern in found, (
+            f"{label}: expected '{expected_pattern}' among {sorted(found)}"
+        )
+
+    @pytest.mark.unit
+    @pytest.mark.asyncio
+    async def test_find_patterns_on_empty_code_returns_the_empty_shape(
+        self, pattern_matching_skill
+    ) -> None:
+        """Empty code short-circuits before parsing, with both keys present."""
+        result = await pattern_matching_skill.find_patterns("")
+        assert result == {"patterns": [], "optimization_suggestions": []}
+
+    @pytest.mark.unit
+    @pytest.mark.asyncio
+    async def test_find_patterns_rejects_a_non_python_language(
+        self, pattern_matching_skill
+    ) -> None:
+        """A non-Python language is declined by name, not silently empty."""
+        result = await pattern_matching_skill.find_patterns("SELECT 1", "sql")
+        assert result["patterns"] == []
+        assert "sql" in result["note"]
 
     @pytest.mark.unit
     @pytest.mark.asyncio

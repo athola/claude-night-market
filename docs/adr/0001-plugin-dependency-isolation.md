@@ -59,6 +59,17 @@ degrade gracefully when herald is absent.
 Herald declares no skills, commands, agents, or hooks in its plugin.json;
 it functions purely as a Python library plugin.
 
+### Exception: gauntlet (recorded 2026-09-03)
+
+`gauntlet` owns the code knowledge graph (`gauntlet.graph`,
+`gauntlet.communities`). Consumer: cartograph, whose
+`graph_community_refresh.py` PostToolUse hook imports both at runtime
+through sys.path injection inside a try/except and is inert when gauntlet
+is absent. The same rules as leyline, abstract and herald apply. The edge
+was implemented before it was recorded; cartograph's plugin.json now
+declares it, as egregore's declares herald and minister's declares
+leyline, so the manifest says what the code does.
+
 ## Architecture
 
 ### Before (Shared Registry)

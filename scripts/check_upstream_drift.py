@@ -448,7 +448,7 @@ def _scannable_text(path: Path) -> str:
     ``model:`` field in the frontmatter, and counting it here would
     double-report one violation. Everything else is scanned whole.
     """
-    text = _read(path)
+    text = _read_or_empty(path)
     if path.name == "SKILL.md":
         return FRONTMATTER_RE.sub("", text)
     return text
@@ -471,8 +471,26 @@ def _iter_files(roots: list[Path] | tuple[Path, ...]):
 
 
 def _read(path: Path) -> str:
+    """Read a scanned file, or raise.
+
+    This used to swallow ``OSError`` into ``""``. For the corpus scan that
+    is harmless, but ``main`` reads the *gate* through it too, and an empty
+    gate source makes ``extract_frozenset`` return ``None``, which the
+    vocabulary loop skips. An unreadable gate therefore dropped the whole
+    vocabulary class from the report and still exited 0. Callers that can
+    tolerate an unreadable file now say so with ``_read_or_empty``.
+    """
+    return path.read_text(encoding="utf-8")
+
+
+def _read_or_empty(path: Path) -> str:
+    """Read a corpus file, treating an unreadable one as empty.
+
+    Correct for the scan: one unreadable file among hundreds should not
+    abort the sweep. Never correct for the gate source.
+    """
     try:
-        return path.read_text(encoding="utf-8")
+        return _read(path)
     except (OSError, UnicodeDecodeError):
         return ""
 
@@ -512,7 +530,7 @@ def detect_unknown_tiers(
     for path in _iter_files(roots):
         if path.suffix != ".md":
             continue
-        block = FRONTMATTER_RE.match(_read(path))
+        block = FRONTMATTER_RE.match(_read_or_empty(path))
         if block is None:
             continue
         for value in MODEL_LINE_RE.findall(block.group(1)):
@@ -623,7 +641,21 @@ def main(argv: list[str] | None = None) -> int:
             print(f"error: {error}", file=sys.stderr)
         return 2
 
-    gate_source = _read(args.gate)
+    try:
+        gate_source = _read(args.gate)
+    except (OSError, UnicodeDecodeError) as exc:
+        print(
+            f"error: cannot read the gate at {args.gate}: {exc}",
+            file=sys.stderr,
+        )
+        print(
+            "error: vocabulary drift cannot be checked without the gate "
+            "source, and reporting the remaining classes as clean would "
+            "hide that. This guard exists so the check against model rot "
+            "cannot itself rot.",
+            file=sys.stderr,
+        )
+        return 2
     roots = args.scan if args.scan else list(DEFAULT_SCAN)
     current = args.harness_version or detect_harness_version()
     known_ids = set(ledger.get("models", {}).get("ids", {}).values())

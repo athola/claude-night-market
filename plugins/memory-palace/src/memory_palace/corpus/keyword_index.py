@@ -64,7 +64,7 @@ class KeywordIndexer:
 
         try:
             if content is None:
-                content = entry_path.read_text()
+                content = entry_path.read_text(encoding="utf-8")
 
             # Split frontmatter and content
             metadata, body = split_entry(content)
@@ -200,11 +200,16 @@ class KeywordIndexer:
             # Create entry ID from filename
             relative = md_file.relative_to(self.corpus_dir)
             relative_str = relative.as_posix()
-            entry_id = relative_str.removesuffix(".md").replace("/", "-")
+            # "/" becomes "--" rather than "-", because this corpus names
+            # files with dashes: mapping the separator onto a character the
+            # names already use collides "foo/bar.md" with "foo-bar.md" onto
+            # one id. Latent while the corpus is flat, and the rglob above
+            # walks recursively, so the first nested file makes it reachable.
+            entry_id = relative_str.removesuffix(".md").replace("/", "--")
 
             # Read file once; pass content to both keyword extraction and
             # frontmatter parsing to avoid a second disk read.
-            file_content = md_file.read_text()
+            file_content = md_file.read_text(encoding="utf-8")
             keywords = self.extract_keywords(md_file, content=file_content)
 
             title = entry_id

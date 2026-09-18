@@ -24,7 +24,7 @@ automatically. There is no manual install step for those rows.
 |---|------|-----------|--------------|----------------|
 | 1 | uv | REQUIRED | official installer at astral.sh/uv | `uv --version` |
 | 2 | Python 3.12 | REQUIRED | `uv python install 3.12` | `python3 --version` |
-| 3 | make + bash | REQUIRED | distro package (build-essential, Xcode CLT) | `make --version` |
+| 3 | make + bash | REQUIRED | GNU make 3.82+ (Xcode CLT ships 3.81, which ignores `.SHELLFLAGS`; `brew install make`, run `gmake`) | `make --version` |
 | 4 | ruff >=0.14.13 | via uv | none (dev dependency in `uv.lock`) | `uv run ruff --version` |
 | 5 | bandit | via uv | none (pre-commit env is pinned separately, see traps) | `uv run bandit --version` |
 | 6 | mypy >=1.13 | via uv | none | `uv run mypy --version` |

@@ -34,6 +34,20 @@ except ImportError:
     )
 
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from core.config_loader import ConfigLoader  # noqa: E402 - path injected above
+
+
+def _parse_generated_rule(rule: str) -> tuple[dict, str]:
+    """Load a generated rule the way hookify itself loads one.
+
+    Uses ConfigLoader's own parser, so a rule that this returns is a rule
+    hookify can run. Asserting on the generated string instead is what let
+    a converter ship output that never loaded.
+    """
+    return ConfigLoader()._parse_markdown(rule)
+
+
 class TestHookAnalyzer:
     """Test AST-based pattern extraction."""
 
@@ -163,6 +177,15 @@ class TestGenerateHookifyRule:
         assert "name: test-hook" in rule
         assert "event: bash" in rule
         assert "pattern: 'rm -rf /'" in rule
+
+        # Substring assertions cannot tell a usable rule from an unusable
+        # one. Every rule this generator produced was missing the required
+        # "enabled" field, so ConfigLoader rejected all of them, and these
+        # three assertions passed the whole time.
+        frontmatter, _ = _parse_generated_rule(rule)
+        assert frontmatter["name"] == "test-hook"
+        assert frontmatter["event"] == "bash"
+        assert frontmatter["enabled"] is True
 
     def test_generates_conditions_for_multiple_patterns(self):
         """Given analysis with multiple patterns, generates conditions."""

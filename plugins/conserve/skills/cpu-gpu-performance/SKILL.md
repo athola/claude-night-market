@@ -9,17 +9,6 @@ dependencies:
   modules: []
 model_hint: standard
 ---
-## Table of Contents
-
-- [When to Use](#when-to-use)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Step 1: Establish Current Baseline](#step-1-establish-current-baseline)
-- [Step 2: Narrow the Scope](#step-2-narrow-the-scope)
-- [Step 3: Instrument Before You Optimize](#step-3-instrument-before-you-optimize)
-- [Step 4: Throttle and Sequence Work](#step-4-throttle-and-sequence-work)
-- [Step 5: Log Decisions and Next Steps](#step-5-log-decisions-and-next-steps)
-- [Output Expectations](#output-expectations)
-
 
 # CPU/GPU Performance Discipline
 

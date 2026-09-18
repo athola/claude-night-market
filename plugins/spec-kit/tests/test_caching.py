@@ -8,6 +8,7 @@ edge cases, and error paths.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import time
 from pathlib import Path
@@ -710,3 +711,40 @@ class TestPackageExports:
         assert speckit.CacheManager is CacheManager
         assert speckit.cached is cached
         assert speckit.get_cache is get_cache
+
+
+class TestCacheWriteFailureIsVisible:
+    """A cache directory that cannot be written must not fail silently.
+
+    ``except OSError: pass`` sat under a comment promising a log, so
+    ``set()`` returned None whether the file was written or not. On a
+    read-only cache directory the file cache silently never populated,
+    and nothing in the process could tell.
+    """
+
+    def test_a_failed_cache_write_is_logged(self, tmp_path, caplog, monkeypatch):
+        """The failure reaches the log rather than being dropped."""
+        cache = SpecKitCache(cache_dir=tmp_path)
+
+        def refuse(*args, **kwargs):
+            raise OSError("read-only file system")
+
+        monkeypatch.setattr("builtins.open", refuse)
+        with caplog.at_level(logging.WARNING):
+            cache.set("key", {"value": 1})
+
+        assert any(
+            "cache file" in record.message.lower() for record in caplog.records
+        ), f"nothing was logged; records: {[r.message for r in caplog.records]}"
+
+    def test_a_failed_cache_write_keeps_the_memory_cache(self, tmp_path, monkeypatch):
+        """The in-memory value still succeeded, so it stays usable."""
+        cache = SpecKitCache(cache_dir=tmp_path)
+
+        def refuse(*args, **kwargs):
+            raise OSError("read-only file system")
+
+        monkeypatch.setattr("builtins.open", refuse)
+        cache.set("key", {"value": 1})
+
+        assert cache.get("key") == {"value": 1}

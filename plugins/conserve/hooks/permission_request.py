@@ -166,15 +166,21 @@ def check_dangerous(command: str) -> Decision | None:
     return None
 
 
-# Shell metacharacters that indicate command chaining: never auto-approve
-_CHAIN_CHARS = re.compile(r"[;|&`\(]|\$\(")
+# Shell metacharacters that indicate command chaining: never auto-approve.
+#
+# A newline separates commands exactly as a semicolon does, and omitting it
+# here was a bypass rather than a gap: ``check_safe`` matches with
+# ``re.match``, which anchors only at the start, and ``^ls(\s|$)`` accepts a
+# newline through ``\s``. ``ls\nrm -rf ./important_dir`` therefore
+# auto-approved on the strength of its first token.
+_CHAIN_CHARS = re.compile(r"[;|&`(\n\r]|\$\(")
 
 
 def check_safe(command: str) -> Decision | None:
     """Check if command matches safe patterns.
 
     Rejects commands containing shell chaining metacharacters
-    (;, |, &&, ``, $()) even if the prefix looks safe, to
+    (;, |, &&, ``, $(), newline) even if the prefix looks safe, to
     prevent auto-approving ``ls; dangerous_command``.
 
     Args:
@@ -184,12 +190,16 @@ def check_safe(command: str) -> Decision | None:
         Decision to allow if safe, None otherwise.
 
     """
+    # Trailing whitespace is not a chain, so it is removed before the test;
+    # a newline anywhere else is treated as the separator it is.
+    candidate = command.strip()
+
     # Commands with chaining/substitution never get auto-approved
-    if _CHAIN_CHARS.search(command):
+    if _CHAIN_CHARS.search(candidate):
         return None
 
     for pattern in SAFE_PATTERNS:
-        if re.match(pattern, command, re.IGNORECASE):
+        if re.match(pattern, candidate, re.IGNORECASE):
             logger.debug("Safe pattern matched: %s", pattern)
             return Decision(PermissionDecision.ALLOW)
     return None

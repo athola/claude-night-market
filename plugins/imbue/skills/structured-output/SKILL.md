@@ -20,18 +20,6 @@ complexity: beginner
 model_hint: fast
 estimated_tokens: 1000
 ---
-## Table of Contents
-
-- [When to Use](#when-to-use)
-- [Activation Patterns](#activation-patterns)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Step 1: Select Template (`structured-output:template-selected`)](#step-1:-select-template-(structured-output:template-selected))
-- [Step 2: Format Findings (`structured-output:findings-formatted`)](#step-2:-format-findings-(structured-output:findings-formatted))
-- [Step 3: Assign Actions (`structured-output:actions-assigned`)](#step-3:-assign-actions-(structured-output:actions-assigned))
-- [Step 4: Attach Appendix (`structured-output:appendix-attached`)](#step-4:-attach-appendix-(structured-output:appendix-attached))
-- [Output Quality Checklist](#output-quality-checklist)
-- [Exit Criteria](#exit-criteria)
-
 
 # Structured Output
 
@@ -89,7 +77,7 @@ Mark each item complete as you finish the corresponding step.
   source text at `Location` (not a paraphrase). It is what a second
   pass re-reads to confirm the finding is real. A finding whose anchor
   does not appear at its cited line is treated as a hallucination and
-  dropped. The check is mechanical: `imbue:review-core` Step 6 runs
+  dropped. The check is mechanical: `imbue:review-core` Step 5 runs
   `plugins/imbue/scripts/citation_verifier.py` over the findings.
 
 ## Step 3: Assign Actions (`structured-output:actions-assigned`)

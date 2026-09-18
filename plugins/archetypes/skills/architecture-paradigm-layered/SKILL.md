@@ -20,14 +20,6 @@ complexity: low
 model_hint: fast
 estimated_tokens: 700
 ---
-## Table of Contents
-
-- [When to Employ This Paradigm](#when-to-employ-this-paradigm)
-- [When NOT to Use This Paradigm](#when-not-to-use-this-paradigm)
-- [Adoption Steps](#adoption-steps)
-- [Key Deliverables](#key-deliverables)
-- [Technology Guidance](#technology-guidance)
-- [Risks & Mitigations](#risks-mitigations)
 
 # The Layered (N-Tier) Architecture Paradigm
 
