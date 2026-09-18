@@ -35,8 +35,11 @@ extract_stat_number() {
     fi
 }
 
-# Only run in git repositories
-if ! git rev-parse --git-dir > /dev/null 2>&1; then
+# Only run in git repositories. One rev-parse answers both "is this a
+# repo" and "where is its root": every git call costs 0.5-0.8s on a
+# machine whose git is the Xcode shim, and this hook runs on every
+# prompt against a 30s budget.
+if ! repo_root=$(git rev-parse --show-toplevel 2>/dev/null); then
     # Not in a git repo, output empty JSON
     echo '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": ""}}'
     exit 0
@@ -59,7 +62,7 @@ _hash_str() {
 # it under the caller's own cache directory and refuse a file we do not own.
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/imbue"
 mkdir -p "$CACHE_DIR" 2>/dev/null || true
-CACHE_FILE="$CACHE_DIR/scope-guard-cache-$(_hash_str "$(git rev-parse --show-toplevel)").txt"
+CACHE_FILE="$CACHE_DIR/scope-guard-cache-$(_hash_str "$repo_root").txt"
 CACHE_TTL="${SCOPE_GUARD_CACHE_TTL:-60}"  # seconds
 
 if [ -f "$CACHE_FILE" ] && [ -O "$CACHE_FILE" ]; then
@@ -74,9 +77,11 @@ fi
 # Get base branch (configurable via environment)
 base_branch="${SCOPE_GUARD_BASE_BRANCH:-main}"
 
-# Check if base branch exists, try alternatives
-if ! git rev-parse --verify "$base_branch" > /dev/null 2>&1; then
-    if git rev-parse --verify "master" > /dev/null 2>&1; then
+# Resolve the base branch with the merge-base call the metrics need
+# anyway; a ref that does not exist fails it, so no separate --verify
+# round trip is spent on the question.
+if ! merge_base=$(git merge-base "$base_branch" HEAD 2>/dev/null); then
+    if merge_base=$(git merge-base "master" HEAD 2>/dev/null); then
         base_branch="master"
     else
         # No valid base branch, skip check
@@ -85,20 +90,21 @@ if ! git rev-parse --verify "$base_branch" > /dev/null 2>&1; then
     fi
 fi
 
-# Get metrics (optimized for performance)
-# Use --shortstat instead of --stat | tail (faster)
+# Get metrics. One diff answers both questions: --numstat lines carry
+# added and deleted counts per file (a dash for binary files), and
+# --raw lines carry the status letter that says which files are new.
+# Two diffs cost two git start-ups, which is the whole budget here.
 lines_changed=0
-stat_line=$(git diff "$base_branch" --shortstat 2>/dev/null)
-if [ -n "$stat_line" ]; then
-    insertions=$(echo "$stat_line" | grep -oE "[0-9]+ insertion" | grep -oE "[0-9]+" || echo "0")
-    deletions=$(echo "$stat_line" | grep -oE "[0-9]+ deletion" | grep -oE "[0-9]+" || echo "0")
+diff_out=$(git diff "$base_branch" --raw --numstat 2>/dev/null) || diff_out=""
+if [ -n "$diff_out" ]; then
+    insertions=$(printf '%s\n' "$diff_out" | awk -F'\t' '$0 !~ /^:/ && $1 ~ /^[0-9]+$/ { a += $1 } END { print a + 0 }')
+    deletions=$(printf '%s\n' "$diff_out" | awk -F'\t' '$0 !~ /^:/ && $2 ~ /^[0-9]+$/ { d += $2 } END { print d + 0 }')
     lines_changed=$((insertions + deletions))
 fi
 
 commits=$(git rev-list --count "$base_branch"..HEAD 2>/dev/null || echo "0")
 
 # Optimize: combine merge-base and log into single operation
-merge_base=$(git merge-base "$base_branch" HEAD 2>/dev/null)
 if [ -n "$merge_base" ]; then
     merge_base_date=$(git log -1 --format=%ct "$merge_base" 2>/dev/null || echo "$(date +%s)")
 else
@@ -107,8 +113,7 @@ fi
 current_date=$(date +%s)
 days_on_branch=$(( (current_date - merge_base_date) / 86400 ))
 
-# Optimize: use wc -l directly without intermediate pipe
-new_files=$(git diff "$base_branch" --name-only --diff-filter=A 2>/dev/null | wc -l | tr -d ' ') || new_files=0
+new_files=$(printf '%s\n' "$diff_out" | grep -c '^:[0-7]* [0-7]* [0-9a-f]* [0-9a-f]* A') || new_files=0
 
 # Thresholds (configurable via environment)
 RED_LINES="${SCOPE_GUARD_RED_LINES:-2000}"
