@@ -11,7 +11,8 @@
     "./skills/papers",
     "./skills/research",
     "./skills/synthesize",
-    "./skills/triz"
+    "./skills/triz",
+    "./skills/web-search"
   ],
   "commands": [
     "./commands/research.md",

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Open-web search channel (tome).** The research channels covered
+  GitHub, community forums, academia, and TRIZ, but vendor
+  documentation, comparisons, standards, and news had no channel:
+  a session either missed those pages or an agent improvised
+  freehand queries. `tome:web-search` is that channel, invoked
+  standalone (the `/tome:research` fan-out does not dispatch it
+  yet). It runs through the You.com MCP server (`you-search`) when
+  configured, and falls back to the built-in WebSearch tool when it
+  is not, so the channel works with zero setup and no new dependency.
+  Query expansion, result parsers, and ranking live in
+  `tome.channels.web`, following the same no-HTTP-call pattern as
+  the other channels. The channel is deliberately not part of
+  `RETRIEVAL_CHANNELS`: it has no canary target yet, so a coverage
+  verdict must not rest on it.
+
+
 ## [1.9.20] - 2026-09-13
 
 ### Added
