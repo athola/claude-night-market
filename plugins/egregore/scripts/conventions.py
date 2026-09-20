@@ -311,15 +311,6 @@ STEP_CONVENTIONS: dict[str, list[str]] = {
 }
 
 
-def conventions_for_step(
-    step: str,
-    all_conventions: Sequence[Convention],
-) -> list[Convention]:
-    """Filter conventions to those mapped to a quality step."""
-    allowed_ids = set(STEP_CONVENTIONS.get(step, []))
-    return [c for c in all_conventions if c.id in allowed_ids]
-
-
 @dataclass
 class Verdict:
     """Result of a quality step evaluation."""
@@ -328,64 +319,3 @@ class Verdict:
     blocking_count: int
     warning_count: int
     summary: str
-
-    def to_decision(self, step: str) -> dict[str, str]:
-        """Convert to a manifest decision entry."""
-        return {
-            "step": step,
-            "chose": self.status,
-            "why": self.summary,
-        }
-
-
-def calculate_verdict(findings: Sequence[Finding]) -> Verdict:
-    """Calculate a verdict from a list of findings."""
-    blocking = sum(1 for f in findings if f.severity == "blocking")
-    warnings = sum(1 for f in findings if f.severity == "warning")
-
-    if blocking > 0:
-        status = "fix-required"
-    elif warnings > 0:
-        status = "pass-with-warnings"
-    else:
-        status = "pass"
-
-    parts = []
-    if blocking:
-        parts.append(f"{blocking} blocking")
-    if warnings:
-        parts.append(f"{warnings} warning{'s' if warnings != 1 else ''}")
-    if not parts:
-        parts.append("no findings")
-    summary = ", ".join(parts)
-
-    return Verdict(
-        status=status,
-        blocking_count=blocking,
-        warning_count=warnings,
-        summary=summary,
-    )
-
-
-def filter_steps(
-    all_steps: Sequence[str],
-    quality_config: dict[str, Any],
-) -> list[str]:
-    """Filter quality steps based on work item config.
-
-    If quality_config has "only", keep only those steps.
-    If quality_config has "skip", remove those steps.
-    "only" takes precedence over "skip".
-    Preserves pipeline order from all_steps.
-    """
-    only = quality_config.get("only")
-    if only is not None:
-        only_set = set(only)
-        return [s for s in all_steps if s in only_set]
-
-    skip = quality_config.get("skip")
-    if skip is not None:
-        skip_set = set(skip)
-        return [s for s in all_steps if s not in skip_set]
-
-    return list(all_steps)

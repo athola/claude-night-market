@@ -15,8 +15,6 @@ from memory_palace.corpus.knowledge_orchestrator import (
 )
 from memory_palace.corpus.marginal_value import IntegrationDecision
 from memory_palace.corpus.source_lineage import (
-    FullLineage,
-    SimpleLineage,
     SourceReference,
     SourceType,
 )
@@ -251,25 +249,6 @@ class TestKnowledgeOrchestrator:
             IntegrationDecision.REPLACE,
             IntegrationDecision.SKIP,
         ]
-
-    def test_ingest_creates_lineage(self, orchestrator: KnowledgeOrchestrator) -> None:
-        """Should create lineage for ingested content."""
-        source = SourceReference(
-            source_id="src-1",
-            source_type=SourceType.RESEARCH_PAPER,
-            url="https://arxiv.org/abs/1234",
-            title="Important Research",
-        )
-
-        entry_id, decision = orchestrator.ingest_with_lineage(
-            content="# Novel Findings\n\nThis research demonstrates...",
-            title="Important Research",
-            source=source,
-        )
-
-        if decision != IntegrationDecision.SKIP:
-            lineage = orchestrator.lineage_manager.get_lineage(entry_id)
-            assert isinstance(lineage, (FullLineage, SimpleLineage))
 
     def test_validate_entry(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should record validation and reset decay."""

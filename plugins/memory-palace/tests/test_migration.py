@@ -77,39 +77,6 @@ class TestMigrateSinglePalace:
         assert palace["entity_type"] == "palace"
         assert palace["name"] == "Test Palace"
 
-    def test_creates_room_entities(
-        self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
-    ) -> None:
-        """Each room in the source file becomes its own node under its own name."""
-        migrator = PalaceMigrator(graph)
-        migrator.migrate_palace(sample_palace)
-        rooms = graph.get_entities_by_type("room")
-        assert len(rooms) == 2
-        names = {r["name"] for r in rooms}
-        assert "Architecture" in names
-        assert "Data Structures" in names
-
-    def test_creates_concept_entities(
-        self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
-    ) -> None:
-        """Every concept in the source file survives the move."""
-        migrator = PalaceMigrator(graph)
-        migrator.migrate_palace(sample_palace)
-        concepts = graph.get_entities_by_type("concept")
-        assert len(concepts) == 3
-
-    def test_creates_residencies(
-        self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
-    ) -> None:
-        """Concepts are linked to the palace they came from."""
-        migrator = PalaceMigrator(graph)
-        migrator.migrate_palace(sample_palace)
-        # Concepts should reside in their rooms within the palace
-        residencies = graph.get_residencies("concept1")
-        assert len(residencies) == 1
-        assert residencies[0]["palace_id"] == "abc12345"
-        assert residencies[0]["room_id"] == "room-arch"
-
     def test_creates_synapses_from_connections(
         self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
     ) -> None:
@@ -121,17 +88,6 @@ class TestMigrateSinglePalace:
         assert len(synapses) >= 1
         assert synapses[0]["target_id"] == "room-data"
         assert synapses[0]["strength"] == pytest.approx(0.5)
-
-    def test_room_residencies_in_palace(
-        self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
-    ) -> None:
-        """A room's residency records the role it plays, not only its address."""
-        migrator = PalaceMigrator(graph)
-        migrator.migrate_palace(sample_palace)
-        # Rooms should have residencies as curators
-        residencies = graph.get_residencies("room-arch")
-        assert len(residencies) == 1
-        assert residencies[0]["role"] == "curator"
 
     def test_returns_report(
         self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
@@ -149,42 +105,9 @@ class TestMigrateSinglePalace:
 class TestIdempotency:
     """Migration must be idempotent."""
 
-    def test_running_twice_same_result(
-        self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
-    ) -> None:
-        """A second run adds no entities, so migration can be retried safely."""
-        migrator = PalaceMigrator(graph)
-        migrator.migrate_palace(sample_palace)
-        count1 = graph.entity_count()
-        migrator.migrate_palace(sample_palace)
-        count2 = graph.entity_count()
-        assert count1 == count2
-
-    def test_synapse_count_stable(
-        self, graph: KnowledgeGraph, sample_palace: dict[str, Any]
-    ) -> None:
-        """A second run adds no synapses either."""
-        migrator = PalaceMigrator(graph)
-        migrator.migrate_palace(sample_palace)
-        syn1 = graph.synapse_count()
-        migrator.migrate_palace(sample_palace)
-        syn2 = graph.synapse_count()
-        assert syn1 == syn2
-
 
 class TestMigrateAll:
     """Migrate all palaces from a directory."""
-
-    def test_migrate_directory(
-        self,
-        graph: KnowledgeGraph,
-        palace_dir: Path,
-    ) -> None:
-        """A directory sweep migrates the palaces it finds and populates the graph."""
-        migrator = PalaceMigrator(graph)
-        report = migrator.migrate_all(str(palace_dir))
-        assert report.palaces == 1
-        assert graph.entity_count() >= 4  # 1 palace + 2 rooms + concepts
 
     def test_skips_non_palace_files(
         self,

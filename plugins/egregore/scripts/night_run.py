@@ -373,20 +373,6 @@ def run_task(
     return result
 
 
-def render_proof(result: TaskResult) -> str:
-    """Render the proof ledger as the table a morning review reads."""
-    header = (
-        "| Task | Attempt | Evidence command | Exit | Expect | Verdict |\n"
-        "|------|---------|------------------|------|--------|---------|\n"
-    )
-    rows = "".join(
-        f"| {row['task']} | {row['attempt']} | `{row['command']}` | "
-        f"{row['exit']} | {row['expect']} | {row['verdict']} |\n"
-        for row in result.ledger
-    )
-    return header + rows
-
-
 #: Rough characters-per-token divisor used to estimate on-plan spend.
 #: This is an estimate, not a measurement. It exists so the ceiling trips
 #: on the right order of magnitude. When the real babysitter reports usage

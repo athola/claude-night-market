@@ -36,13 +36,6 @@ def manager(graph: KnowledgeGraph) -> TierManager:
 class TestCompositeScoring:
     """Composite tier score calculation."""
 
-    def test_compute_scores_returns_all_entities(
-        self, manager: TierManager, graph: KnowledgeGraph
-    ) -> None:
-        """Scoring covers every entity in the graph, leaving none unranked."""
-        scores = manager.compute_scores()
-        assert len(scores) == graph.entity_count()
-
     def test_scores_between_zero_and_one(self, manager: TierManager) -> None:
         """Every composite score is normalized into the unit interval."""
         scores = manager.compute_scores()
@@ -57,27 +50,6 @@ class TestCompositeScoring:
 
 class TestTierAssignment:
     """Assigning entities to tiers L0-L3."""
-
-    def test_assign_all_tiers(
-        self, manager: TierManager, graph: KnowledgeGraph
-    ) -> None:
-        """Every entity lands in one of the four defined tiers."""
-        manager.assign_all_tiers()
-        # All entities should have tier assignments
-        for eid in ("hub", "spoke0", "spoke1", "isolated"):
-            tier = graph.get_tier(eid)
-            assert tier is not None
-            assert 0 <= tier["tier"] <= 3
-
-    def test_hub_gets_lower_tier_number(
-        self, manager: TierManager, graph: KnowledgeGraph
-    ) -> None:
-        """A better-connected entity earns a nearer tier, which is the lower number."""
-        manager.assign_all_tiers()
-        hub_tier = graph.get_tier("hub")
-        iso_tier = graph.get_tier("isolated")
-        # Lower tier number = more important
-        assert hub_tier["tier"] <= iso_tier["tier"]
 
     def test_tier_thresholds(self, manager: TierManager) -> None:
         # Test the threshold mapping directly

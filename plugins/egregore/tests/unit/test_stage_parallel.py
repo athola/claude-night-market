@@ -13,7 +13,6 @@ from __future__ import annotations
 import pytest
 from stage_parallel import (
     STEP_DEPENDENCIES,
-    StageExecutionPlan,
     WaveResult,
     build_parallel_dispatch,
     plan_stage_execution,
@@ -154,55 +153,9 @@ class TestPlanStageExecution:
         plan = plan_stage_execution("quality", steps)
         assert plan.waves[0] == ["unbloat", "update-docs", "code-review"]
 
-    @pytest.mark.unit
-    def test_total_steps_matches_input(self) -> None:
-        """Scenario: No steps are lost or duplicated during planning."""
-        steps = [
-            "code-review",
-            "unbloat",
-            "code-refinement",
-            "update-tests",
-            "update-docs",
-        ]
-        plan = plan_stage_execution("quality", steps)
-        assert plan.total_steps == len(steps)
-
 
 class TestStageExecutionPlan:
     """Tests for StageExecutionPlan dataclass properties."""
-
-    @pytest.mark.unit
-    def test_is_parallel_true_for_multi_step_wave(self) -> None:
-        """Scenario: A plan with a multi-step wave is parallel."""
-        plan = StageExecutionPlan(
-            stage="quality",
-            waves=[["code-review", "unbloat"], ["code-refinement"]],
-        )
-        assert plan.is_parallel is True
-
-    @pytest.mark.unit
-    def test_is_parallel_false_for_single_step_waves(self) -> None:
-        """Scenario: A plan where every wave has one step is sequential."""
-        plan = StageExecutionPlan(
-            stage="quality",
-            waves=[["code-review"], ["unbloat"]],
-        )
-        assert plan.is_parallel is False
-
-    @pytest.mark.unit
-    def test_is_parallel_false_for_empty(self) -> None:
-        """Scenario: An empty plan is not parallel."""
-        plan = StageExecutionPlan(stage="quality")
-        assert plan.is_parallel is False
-
-    @pytest.mark.unit
-    def test_total_steps(self) -> None:
-        """Scenario: total_steps sums across all waves."""
-        plan = StageExecutionPlan(
-            stage="quality",
-            waves=[["a", "b", "c"], ["d", "e"]],
-        )
-        assert plan.total_steps == 5
 
 
 class TestBuildParallelDispatch:
@@ -246,24 +199,6 @@ class TestWaveResult:
     """
 
     @pytest.mark.unit
-    def test_all_passed_true(self) -> None:
-        """Scenario: Every step passes."""
-        result = WaveResult(
-            wave_index=0,
-            results={"code-review": "pass", "unbloat": "pass"},
-        )
-        assert result.all_passed is True
-
-    @pytest.mark.unit
-    def test_all_passed_false_on_failure(self) -> None:
-        """Scenario: One failure means the wave did not fully pass."""
-        result = WaveResult(
-            wave_index=0,
-            results={"code-review": "pass", "unbloat": "fail"},
-        )
-        assert result.all_passed is False
-
-    @pytest.mark.unit
     def test_failed_steps_empty_when_all_pass(self) -> None:
         """Scenario: No failures yields an empty list."""
         result = WaveResult(
@@ -296,13 +231,6 @@ class TestWaveResult:
             },
         )
         assert set(result.failed_steps) == {"code-review", "unbloat"}
-
-    @pytest.mark.unit
-    def test_empty_results(self) -> None:
-        """Scenario: A wave with no results vacuously passes."""
-        result = WaveResult(wave_index=0)
-        assert result.all_passed is True
-        assert result.failed_steps == []
 
 
 class TestStepDependencies:

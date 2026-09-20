@@ -248,58 +248,6 @@ class KnowledgeGraph(SqliteGraphBase):
         rows = self._conn.execute(query, entity_ids).fetchall()
         return {row["entity_id"]: dict(row) for row in rows}
 
-    def get_entities_by_type(self, entity_type: str) -> list[dict[str, Any]]:
-        """Fetch all entities of a given type."""
-        rows = self._conn.execute(
-            "SELECT * FROM entities WHERE entity_type = ?", (entity_type,)
-        ).fetchall()
-        return [dict(r) for r in rows]
-
-    def delete_entity(self, entity_id: str) -> None:
-        """Delete an entity and its FTS entry."""
-        self._conn.execute("DELETE FROM entities WHERE entity_id = ?", (entity_id,))
-        if self._has_fts:
-            self._conn.execute(_FTS_DELETE_SQL, (entity_id,))
-        self._conn.commit()
-
-    def entity_count(self) -> int:
-        """Return total entity count."""
-        row = self._conn.execute("SELECT COUNT(*) FROM entities").fetchone()
-        return row[0] if row else 0
-
-    def bulk_upsert_entities(self, entities: list[dict[str, Any]]) -> None:
-        """Batch-insert entities for performance."""
-        now = self._now()
-        for i in range(0, len(entities), self._batch_size):
-            batch = entities[i : i + self._batch_size]
-            for e in batch:
-                meta_json = json.dumps(e.get("metadata", {}))
-                self._conn.execute(
-                    """INSERT INTO entities
-                       (entity_id, entity_type, name, metadata,
-                        created_at, updated_at)
-                       VALUES (?, ?, ?, ?, ?, ?)
-                       ON CONFLICT(entity_id) DO UPDATE SET
-                         entity_type=excluded.entity_type,
-                         name=excluded.name,
-                         metadata=excluded.metadata,
-                         updated_at=excluded.updated_at""",
-                    (
-                        e["entity_id"],
-                        e["entity_type"],
-                        e["name"],
-                        meta_json,
-                        now,
-                        now,
-                    ),
-                )
-                if self._has_fts:
-                    self._conn.execute(
-                        _FTS_SYNC_SQL,
-                        (e["entity_id"], e["name"], e["entity_type"]),
-                    )
-            self._conn.commit()
-
     # ------------------------------------------------------------------
     # Residencies
     # ------------------------------------------------------------------
@@ -327,28 +275,10 @@ class KnowledgeGraph(SqliteGraphBase):
         )
         self._conn.commit()
 
-    def get_residencies(self, entity_id: str) -> list[dict[str, Any]]:
-        """Get all residencies for an entity."""
-        rows = self._conn.execute(
-            "SELECT * FROM residencies WHERE entity_id = ?", (entity_id,)
-        ).fetchall()
-        return [dict(r) for r in rows]
-
     def get_residents_in_palace(self, palace_id: str) -> list[dict[str, Any]]:
         """Get all entities residing in a palace."""
         rows = self._conn.execute(
             "SELECT * FROM residencies WHERE palace_id = ?", (palace_id,)
-        ).fetchall()
-        return [dict(r) for r in rows]
-
-    def get_messengers(self) -> list[dict[str, Any]]:
-        """Get entities with messenger role in multiple palaces."""
-        rows = self._conn.execute(
-            """SELECT entity_id, COUNT(DISTINCT palace_id) as palace_count
-               FROM residencies
-               WHERE role = 'messenger'
-               GROUP BY entity_id
-               HAVING palace_count >= 2"""
         ).fetchall()
         return [dict(r) for r in rows]
 
@@ -388,13 +318,6 @@ class KnowledgeGraph(SqliteGraphBase):
         self._conn.commit()
         return cur.lastrowid or 0
 
-    def get_triples_from(self, subject_id: str) -> list[dict[str, Any]]:
-        """Get all triples where entity is the subject."""
-        rows = self._conn.execute(
-            "SELECT * FROM triples WHERE subject_id = ?", (subject_id,)
-        ).fetchall()
-        return [dict(r) for r in rows]
-
     def get_active_triples_from(self, subject_id: str) -> list[dict[str, Any]]:
         """Get currently active triples (no valid_to set)."""
         rows = self._conn.execute(
@@ -403,16 +326,6 @@ class KnowledgeGraph(SqliteGraphBase):
             (subject_id,),
         ).fetchall()
         return [dict(r) for r in rows]
-
-    def invalidate_triple(self, triple_id: int, valid_to: str = "") -> None:
-        """Mark a triple as no longer valid."""
-        if not valid_to:
-            valid_to = self._now()
-        self._conn.execute(
-            "UPDATE triples SET valid_to = ? WHERE id = ?",
-            (valid_to, triple_id),
-        )
-        self._conn.commit()
 
     # ------------------------------------------------------------------
     # Synapses (weighted links)
@@ -435,13 +348,6 @@ class KnowledgeGraph(SqliteGraphBase):
         )
         self._conn.commit()
         return cur.lastrowid or 0
-
-    def get_synapse(self, synapse_id: int) -> dict[str, Any] | None:
-        """Fetch a synapse by ID."""
-        row = self._conn.execute(
-            "SELECT * FROM synapses WHERE id = ?", (synapse_id,)
-        ).fetchone()
-        return dict(row) if row else None
 
     def get_synapses_from(self, source_id: str) -> list[dict[str, Any]]:
         """Get all outgoing synapses from an entity."""
@@ -470,11 +376,6 @@ class KnowledgeGraph(SqliteGraphBase):
         )
         self._conn.commit()
 
-    def synapse_count(self) -> int:
-        """Return total synapse count."""
-        row = self._conn.execute("SELECT COUNT(*) FROM synapses").fetchone()
-        return row[0] if row else 0
-
     # ------------------------------------------------------------------
     # Journeys and Waypoints
     # ------------------------------------------------------------------
@@ -493,13 +394,6 @@ class KnowledgeGraph(SqliteGraphBase):
         )
         self._conn.commit()
         return cur.lastrowid or 0
-
-    def get_journey(self, journey_id: int) -> dict[str, Any] | None:
-        """Fetch a journey by ID."""
-        row = self._conn.execute(
-            "SELECT * FROM journeys WHERE id = ?", (journey_id,)
-        ).fetchone()
-        return dict(row) if row else None
 
     def complete_journey(self, journey_id: int, outcome: str) -> None:
         """Mark a journey as completed with an outcome."""
@@ -577,21 +471,6 @@ class KnowledgeGraph(SqliteGraphBase):
             (entity_id, tier, score, now, reason),
         )
         self._conn.commit()
-
-    def get_tier(self, entity_id: str) -> dict[str, Any] | None:
-        """Get the tier assignment for an entity."""
-        row = self._conn.execute(
-            "SELECT * FROM tier_assignments WHERE entity_id = ?",
-            (entity_id,),
-        ).fetchone()
-        return dict(row) if row else None
-
-    def get_entities_by_tier(self, tier: int) -> list[dict[str, Any]]:
-        """Get all entities assigned to a given tier."""
-        rows = self._conn.execute(
-            "SELECT * FROM tier_assignments WHERE tier = ?", (tier,)
-        ).fetchall()
-        return [dict(r) for r in rows]
 
     # ------------------------------------------------------------------
     # FTS5 Search

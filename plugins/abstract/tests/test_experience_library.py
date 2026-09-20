@@ -43,50 +43,6 @@ class TestExperienceLibraryStorage:
 class TestExperienceLibraryRetrieval:
     """Test retrieving similar past experiences."""
 
-    def test_should_find_similar_by_keyword_overlap(self, tmp_path: Path) -> None:
-        """Given stored experiences, when queried with similar words, then matched."""
-        lib = ExperienceLibrary(tmp_path / "experience-library")
-        lib.store(
-            skill_ref="abstract:test-skill",
-            task_description="Generate API documentation from OpenAPI spec",
-            approach_taken="Used jinja2 templates",
-            outcome="success",
-            duration_ms=4200,
-            tools_used=["Read", "Write"],
-            key_decisions=["Template-based"],
-        )
-        lib.store(
-            skill_ref="abstract:test-skill",
-            task_description="Write unit tests for auth module",
-            approach_taken="pytest with fixtures",
-            outcome="success",
-            duration_ms=3000,
-            tools_used=["Read", "Write", "Bash"],
-            key_decisions=["Fixture-based"],
-        )
-        results = lib.find_similar("abstract:test-skill", "Generate docs from OpenAPI")
-        assert len(results) >= 1
-        assert (
-            "API" in results[0]["task_description"]
-            or "OpenAPI" in results[0]["task_description"]
-        )
-
-    def test_should_limit_to_max_exemplars(self, tmp_path: Path) -> None:
-        """Given many experiences, when queried, then max 3 returned."""
-        lib = ExperienceLibrary(tmp_path / "experience-library")
-        for i in range(10):
-            lib.store(
-                skill_ref="abstract:test-skill",
-                task_description=f"Task {i} about testing",
-                approach_taken=f"Approach {i}",
-                outcome="success",
-                duration_ms=1000,
-                tools_used=["Read"],
-                key_decisions=[],
-            )
-        results = lib.find_similar("abstract:test-skill", "testing task")
-        assert len(results) <= 3
-
 
 class TestExperienceLibraryPruning:
     """Test pruning to max 20 entries per skill."""
@@ -132,24 +88,3 @@ class TestExperienceLibraryEdgeCases:
         # Should have the valid entry but skip the corrupt one
         assert len(entries) == 1
         assert entries[0]["task_description"] == "Valid entry"
-
-    def test_should_return_empty_for_no_similar_entries(self, tmp_path: Path) -> None:
-        """Given empty library, when finding similar, then return empty list."""
-        lib = ExperienceLibrary(tmp_path / "experience-library")
-        results = lib.find_similar("abstract:nonexistent-skill", "some query")
-        assert results == []
-
-    def test_should_return_empty_when_no_keyword_overlap(self, tmp_path: Path) -> None:
-        """Given entries with no keyword match, when queried, then return empty."""
-        lib = ExperienceLibrary(tmp_path / "experience-library")
-        lib.store(
-            skill_ref="abstract:test-skill",
-            task_description="alpha beta gamma",
-            approach_taken="Some approach",
-            outcome="success",
-            duration_ms=1000,
-            tools_used=["Read"],
-            key_decisions=[],
-        )
-        results = lib.find_similar("abstract:test-skill", "xyz completely different")
-        assert results == []

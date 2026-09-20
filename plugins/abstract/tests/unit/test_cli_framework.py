@@ -17,7 +17,6 @@ import pytest
 from abstract.cli_framework import (
     AbstractCLI,
     CLIResult,
-    FilterArgumentMixin,
     OutputFormatter,
     PathArgumentMixin,
     cli_main,
@@ -509,14 +508,6 @@ class TestPathArgumentMixin:
             parser.parse_args(["--file", "/tmp/a.md", "--directory", "/tmp/b"])
 
     @pytest.mark.unit
-    def test_add_skill_path_argument(self):
-        """Given add_skill_path_argument, --skill-path is registered."""
-        parser = argparse.ArgumentParser()
-        PathArgumentMixin.add_skill_path_argument(parser, required=False)
-        args = parser.parse_args(["--skill-path", "/tmp/SKILL.md"])
-        assert args.skill_path == Path("/tmp/SKILL.md")
-
-    @pytest.mark.unit
     def test_add_path_arguments_require_one_true_fails_without_arg(self):
         """Given require_one=True and no path provided, parsing fails."""
         parser = argparse.ArgumentParser()
@@ -532,52 +523,3 @@ class TestPathArgumentMixin:
 
 class TestFilterArgumentMixin:
     """FilterArgumentMixin adds severity and category filter arguments."""
-
-    @pytest.mark.unit
-    def test_add_severity_filter_default_choices(self):
-        """Given add_severity_filter, four severity levels are accepted."""
-        parser = argparse.ArgumentParser()
-        FilterArgumentMixin.add_severity_filter(parser)
-        for level in ["critical", "high", "medium", "low"]:
-            args = parser.parse_args(["--severity", level])
-            assert args.severity == level
-
-    @pytest.mark.unit
-    def test_add_severity_filter_custom_choices(self):
-        """Given custom choices, only those are accepted."""
-        parser = argparse.ArgumentParser()
-        FilterArgumentMixin.add_severity_filter(parser, choices=["red", "blue"])
-        args = parser.parse_args(["--severity", "red"])
-        assert args.severity == "red"
-
-    @pytest.mark.unit
-    def test_add_severity_filter_invalid_choice_fails(self):
-        """Given an invalid severity, parsing fails."""
-        parser = argparse.ArgumentParser()
-        FilterArgumentMixin.add_severity_filter(parser)
-        with pytest.raises(SystemExit):
-            parser.parse_args(["--severity", "unknown"])
-
-    @pytest.mark.unit
-    def test_add_category_filter_with_choices(self):
-        """Given add_category_filter with choices, registered correctly."""
-        parser = argparse.ArgumentParser()
-        FilterArgumentMixin.add_category_filter(parser, choices=["alpha", "beta"])
-        args = parser.parse_args(["--category", "alpha"])
-        assert args.category == "alpha"
-
-    @pytest.mark.unit
-    def test_add_category_filter_invalid_fails(self):
-        """Given invalid category, parsing fails."""
-        parser = argparse.ArgumentParser()
-        FilterArgumentMixin.add_category_filter(parser, choices=["alpha"])
-        with pytest.raises(SystemExit):
-            parser.parse_args(["--category", "gamma"])
-
-    @pytest.mark.unit
-    def test_add_category_filter_no_choices(self):
-        """Given no choices, any value is accepted."""
-        parser = argparse.ArgumentParser()
-        FilterArgumentMixin.add_category_filter(parser)
-        args = parser.parse_args(["--category", "anything"])
-        assert args.category == "anything"

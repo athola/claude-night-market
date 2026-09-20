@@ -166,26 +166,6 @@ class ExperienceLibrary:
                 continue
         return entries
 
-    def find_similar(
-        self, skill_ref: str, query: str, max_results: int = MAX_EXEMPLARS
-    ) -> list[dict[str, Any]]:
-        """Find similar past experiences by keyword overlap."""
-        entries = self.list_entries(skill_ref)
-        if not entries:
-            return []
-
-        query_words = set(query.lower().split()) - STOP_WORDS
-
-        scored: list[tuple[int, dict[str, Any]]] = []
-        for entry in entries:
-            desc_words = set(entry["task_description"].lower().split()) - STOP_WORDS
-            overlap = len(query_words & desc_words)
-            if overlap > 0:
-                scored.append((overlap, entry))
-
-        scored.sort(key=lambda x: x[0], reverse=True)
-        return [entry for _, entry in scored[:max_results]]
-
     def _prune(self, skill_ref: str) -> None:
         """Keep only the most recent MAX_ENTRIES_PER_SKILL entries."""
         skill_dir = self._skill_dir(skill_ref)
