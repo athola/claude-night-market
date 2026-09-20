@@ -270,8 +270,6 @@ These behaviors are documented on the [book page][book]:
 
 - **Parallel execution**: worktree isolation,
   `max_concurrent_worktrees`, and the two quality-stage waves
-- **Agent specialization**: the reviewer, documenter and
-  tester roles and the state each keeps
 - **Cross-item learning**: pattern categories and how a
   briefing is generated
 - **Multi-repository support**: `RepoRegistry` routing
