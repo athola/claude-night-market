@@ -272,7 +272,6 @@ These behaviors are documented on the [book page][book]:
   `max_concurrent_worktrees`, and the two quality-stage waves
 - **Cross-item learning**: pattern categories and how a
   briefing is generated
-- **Multi-repository support**: `RepoRegistry` routing
 - **GitHub Discussions publishing**: content types, rate
   limiting and deduplication
 
