@@ -79,7 +79,7 @@ Skill(plugin:skill-name)
 # Examples
 Skill(sanctum:git-workspace-review)
 Skill(imbue:diff-analysis)
-Skill(conservation:context-optimization)
+Skill(conserve:context-optimization)
 ```
 
 ### Skill Chaining
