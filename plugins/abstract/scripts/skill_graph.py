@@ -228,28 +228,6 @@ def _resolve_dep_to_skill_ref(
     return None
 
 
-def extract_frontmatter_skill_refs(
-    skill_md: Path, default_plugin: str
-) -> set[tuple[str, str]]:
-    """Extract skill references declared in frontmatter dep arrays.
-
-    Two fields contribute, with different bare-name semantics:
-
-    - `dependencies:` -- bare names resolve to same-plugin sibling skills
-      (the canonical hub-loads-sibling pattern).
-    - `modules:` -- bare names refer to local module file basenames in
-      the skill's own ``modules/`` directory and are NOT skill refs.
-      Only fully-qualified ``plugin:name`` entries in this field
-      contribute edges.
-
-    File-path entries (e.g. ``modules/usage.md``) are filtered out
-    everywhere.
-    """
-    return _fm_refs_from_text(
-        skill_md.read_text(encoding="utf-8", errors="replace"), default_plugin
-    )
-
-
 def _fm_refs_from_text(text: str, default_plugin: str) -> set[tuple[str, str]]:
     """Extract frontmatter dep refs from already-read SKILL.md text."""
     fm = _parse_frontmatter(text)

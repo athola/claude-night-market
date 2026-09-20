@@ -365,56 +365,6 @@ def _generate_research_focus(context: dict[str, str]) -> dict[str, str]:
     return focus_areas
 
 
-def generate_research_summary(
-    context: dict[str, str], recommendation: ArchitectureRecommendation
-) -> str:
-    """Generate a research summary for documentation.
-
-    Args:
-        context: Project context
-        recommendation: Architecture recommendation
-
-    Returns:
-        Research summary markdown string
-
-    """
-    summary = f"""## Research Summary
-
-### Project Context Analysis
-
-| Attribute | Value |
-|-----------|-------|
-| Project Type | {context.get("project_type", "N/A")} |
-| Domain Complexity | {context.get("domain_complexity", "N/A")} |
-| Team Size | {context.get("team_size", "N/A")} |
-| Language | {context.get("language", "N/A")} |
-| Scalability | {context.get("scalability_needs", "N/A")} |
-| Security | {context.get("security_requirements", "N/A")} |
-
-### Recommendation Basis
-
-The **{recommendation.primary.replace("-", " ").title()}** architecture was \
-selected based on:
-
-1. **Team-Domain Fit**: {context.get("team_size", "N/A")} engineers working \
-on {context.get("domain_complexity", "N/A")} domain
-2. **Project Requirements**: {context.get("project_type", "N/A")} with \
-{context.get("scalability_needs", "N/A")} scalability needs
-3. **Decision Matrix**: Algorithmic matching of context to proven \
-architectural patterns
-
-### Key Considerations
-
-"""
-    # Add trade-off information
-    if recommendation.trade_offs:
-        summary += "#### Trade-offs\n\n"
-        for key, value in recommendation.trade_offs.items():
-            summary += f"- **{key.replace('-', ' ').title()}**: {value}\n"
-
-    return summary
-
-
 def _build_arch_parser() -> argparse.ArgumentParser:
     """Build the ``attune arch-init`` argparse parser."""
     parser = argparse.ArgumentParser(

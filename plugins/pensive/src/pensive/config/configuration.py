@@ -69,19 +69,6 @@ class Configuration:
         return thresholds if isinstance(thresholds, dict) else {}
 
     @property
-    def output_settings(self) -> dict[str, Any]:
-        """Get output configuration.
-
-        Returns:
-            Dictionary of output settings
-        """
-        pensive_config = self._config.get("pensive", {})
-        if not isinstance(pensive_config, dict):
-            return {}
-        output = pensive_config.get("output", {})
-        return output if isinstance(output, dict) else {}
-
-    @property
     def custom_rules(self) -> list[dict[str, Any]]:
         """Get custom rules.
 

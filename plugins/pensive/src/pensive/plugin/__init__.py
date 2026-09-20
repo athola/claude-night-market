@@ -14,17 +14,12 @@ class PensivePlugin:
 
     def __init__(self, config: dict[str, Any] | None = None) -> None:
         self.config = config or {}
-        self._initialized = False
 
     def initialize(self) -> None:
-        self._initialized = True
+        """No-op kept so the deprecated interface still accepts the call."""
 
     def cleanup(self) -> None:
-        self._initialized = False
-
-    @property
-    def is_initialized(self) -> bool:
-        return self._initialized
+        """No-op kept so the deprecated interface still accepts the call."""
 
     def execute_review(self, repo_path: str) -> dict[str, Any]:
         return run_code_review(repo_path, self.config)
@@ -41,9 +36,6 @@ class PluginLoader:
 
     def register(self, name: str, plugin: Any) -> None:
         self._plugins[name] = plugin
-
-    def get_all(self) -> dict[str, Any]:
-        return self._plugins
 
     def discover_plugins(self, path: str) -> list[Any]:
         return discover_plugins(path)

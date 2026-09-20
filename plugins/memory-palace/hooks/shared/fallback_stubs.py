@@ -78,9 +78,6 @@ class AutonomyStateStore:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize no-op autonomy state store stub."""
 
-    def load_profile(self, *args: Any, **kwargs: Any) -> AutonomyProfile:
-        return AutonomyProfile()
-
     def build_profile(self, *args: Any, **kwargs: Any) -> AutonomyProfile:
         return AutonomyProfile()
 

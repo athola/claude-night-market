@@ -10,7 +10,6 @@ from __future__ import annotations
 import logging
 import math
 from collections import deque
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
@@ -88,7 +87,6 @@ class UsageTracker:
 
         """
         self._events: deque[UsageEvent] = deque(maxlen=max_events)
-        self._event_handlers: list[Callable[[UsageEvent], None]] = []
         # Per-entry running totals; avoids scanning the deque for scoring.
         # Each value: access_count, citation_count, positive_count,
         # negative_count, raw_score, last_access
@@ -141,10 +139,6 @@ class UsageTracker:
             agg["positive_count"] += 1
         elif signal == UsageSignal.NEGATIVE_FEEDBACK:
             agg["negative_count"] += 1
-
-        # Notify handlers
-        for handler in self._event_handlers:
-            handler(event)
 
         return event
 
@@ -270,15 +264,6 @@ class UsageTracker:
             maxlen=max_events,
         )
         self._aggregates.pop(entry_id, None)
-
-    def add_event_handler(self, handler: Callable[[UsageEvent], None]) -> None:
-        """Add a handler to be called on new events.
-
-        Args:
-            handler: Callback function for events
-
-        """
-        self._event_handlers.append(handler)
 
     def export_events(self) -> list[dict[str, Any]]:
         """Export all events as serializable data.
