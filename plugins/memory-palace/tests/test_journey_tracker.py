@@ -39,6 +39,16 @@ def tracker(graph: KnowledgeGraph) -> JourneyTracker:
 class TestJourneyLifecycle:
     """Creating, tracking, and completing journeys."""
 
+    def test_start_journey(
+        self, tracker: JourneyTracker, graph: KnowledgeGraph
+    ) -> None:
+        """Starting a journey binds it to the entity that travels it."""
+        journey_id = tracker.start_journey("traveler", trigger="search")
+        journey = graph.get_journey(journey_id)
+        assert journey is not None
+        assert journey["entity_id"] == "traveler"
+        assert journey["outcome"] == ""
+
     def test_record_waypoint(
         self, tracker: JourneyTracker, graph: KnowledgeGraph
     ) -> None:
@@ -66,9 +76,53 @@ class TestJourneyLifecycle:
         assert waypoints[0]["sequence"] == 1
         assert waypoints[1]["sequence"] == 2
 
+    def test_complete_journey_enriched(
+        self, tracker: JourneyTracker, graph: KnowledgeGraph
+    ) -> None:
+        """Completing stamps both the outcome and the finish time."""
+        journey_id = tracker.start_journey("traveler", trigger="search")
+        tracker.record_waypoint(journey_id, palace_id="p1")
+        tracker.complete_journey(journey_id, outcome="enriched")
+        journey = graph.get_journey(journey_id)
+        assert journey["outcome"] == "enriched"
+        assert journey["completed_at"] != ""
+
 
 class TestSynapseStrengthening:
     """Outcome-weighted synapse strength updates."""
+
+    def test_enriched_strengthens_synapse(
+        self, tracker: JourneyTracker, graph: KnowledgeGraph
+    ) -> None:
+        """An enriching journey rewards the synapse it traveled."""
+        syn_id = graph.create_synapse("anchor_a", "anchor_b", strength=0.3)
+        journey_id = tracker.start_journey("traveler", trigger="search")
+        tracker.record_waypoint(journey_id, palace_id="p1", synapse_id=syn_id)
+        tracker.complete_journey(journey_id, outcome="enriched")
+        synapse = graph.get_synapse(syn_id)
+        assert synapse["strength"] == pytest.approx(0.4)  # +0.1
+
+    def test_unchanged_weakly_strengthens(
+        self, tracker: JourneyTracker, graph: KnowledgeGraph
+    ) -> None:
+        """A journey that changed nothing still nudges the synapse, but less."""
+        syn_id = graph.create_synapse("anchor_a", "anchor_b", strength=0.3)
+        journey_id = tracker.start_journey("traveler", trigger="search")
+        tracker.record_waypoint(journey_id, palace_id="p1", synapse_id=syn_id)
+        tracker.complete_journey(journey_id, outcome="unchanged")
+        synapse = graph.get_synapse(syn_id)
+        assert synapse["strength"] == pytest.approx(0.32)  # +0.02
+
+    def test_contradicted_no_strengthening(
+        self, tracker: JourneyTracker, graph: KnowledgeGraph
+    ) -> None:
+        """A contradicted journey leaves the synapse strength untouched."""
+        syn_id = graph.create_synapse("anchor_a", "anchor_b", strength=0.3)
+        journey_id = tracker.start_journey("traveler", trigger="search")
+        tracker.record_waypoint(journey_id, palace_id="p1", synapse_id=syn_id)
+        tracker.complete_journey(journey_id, outcome="contradicted")
+        synapse = graph.get_synapse(syn_id)
+        assert synapse["strength"] == pytest.approx(0.3)  # unchanged
 
 
 class TestJourneyQueries:

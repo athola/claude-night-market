@@ -145,6 +145,18 @@ class SourceLineageManager:
         """
         self._lineages[lineage.entry_id] = lineage
 
+    def get_lineage(self, entry_id: str) -> FullLineage | SimpleLineage | None:
+        """Get lineage for an entry.
+
+        Args:
+            entry_id: ID of the knowledge entry
+
+        Returns:
+            Lineage or None if not found
+
+        """
+        return self._lineages.get(entry_id)
+
     def upgrade_to_full_lineage(self, entry_id: str) -> bool:
         """Upgrade simple lineage to full lineage.
 

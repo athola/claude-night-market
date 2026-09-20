@@ -221,6 +221,42 @@ class TestSourceLineageManager:
         assert lineage.entry_id == "entry-1"
         assert lineage.source_url == "https://blog.example.com/post"
 
+    def test_register_lineage(self, manager: SourceLineageManager) -> None:
+        """Should register and retrieve lineage."""
+        source = SourceReference(
+            source_id="src-1",
+            source_type=SourceType.DOCUMENTATION,
+        )
+        lineage = manager.create_lineage("entry-1", source, 0.8)
+        manager.register_lineage(lineage)
+
+        retrieved = manager.get_lineage("entry-1")
+        assert isinstance(retrieved, (FullLineage, SimpleLineage))
+        assert retrieved.entry_id == "entry-1"
+
+    def test_get_lineage_unknown_entry(self, manager: SourceLineageManager) -> None:
+        """Should return None for unknown entries."""
+        lineage = manager.get_lineage("nonexistent")
+        assert lineage is None
+
+    def test_upgrade_to_full_lineage(self, manager: SourceLineageManager) -> None:
+        """Should upgrade simple to full lineage when needed."""
+        source = SourceReference(
+            source_id="src-1",
+            source_type=SourceType.WEB_ARTICLE,
+            url="https://blog.example.com/post",
+        )
+        # Create simple lineage
+        simple = manager.create_lineage("entry-1", source, 0.3)
+        assert isinstance(simple, SimpleLineage)
+        manager.register_lineage(simple)
+
+        # Upgrade to full
+        manager.upgrade_to_full_lineage("entry-1")
+
+        retrieved = manager.get_lineage("entry-1")
+        assert isinstance(retrieved, FullLineage)
+
     def test_export_lineage(self, manager: SourceLineageManager) -> None:
         """Should export lineage as serializable data."""
         source = SourceReference(
@@ -234,6 +270,35 @@ class TestSourceLineageManager:
         exported = manager.export_lineage()
         assert isinstance(exported, dict)
         assert "entry-1" in exported
+
+    def test_import_lineage(self, manager: SourceLineageManager) -> None:
+        """Should import lineage from serializable data."""
+        lineage_data = {
+            "entry-1": {
+                "type": "full",
+                "entry_id": "entry-1",
+                "primary_source": {
+                    "source_id": "src-1",
+                    "source_type": "documentation",
+                    "url": "https://docs.example.com",
+                    "retrieved_at": datetime.now(timezone.utc).isoformat(),
+                },
+                "derived_from": [],
+                "transformations": [],
+                "validation_chain": [],
+            },
+            "entry-2": {
+                "type": "simple",
+                "entry_id": "entry-2",
+                "source_type": "web_article",
+                "source_url": "https://blog.example.com",
+                "retrieved_at": datetime.now(timezone.utc).isoformat(),
+            },
+        }
+
+        manager.import_lineage(lineage_data)
+        assert isinstance(manager.get_lineage("entry-1"), FullLineage)
+        assert isinstance(manager.get_lineage("entry-2"), SimpleLineage)
 
     def test_confidence_propagation(self, manager: SourceLineageManager) -> None:
         """Should calculate propagated confidence through derivation."""

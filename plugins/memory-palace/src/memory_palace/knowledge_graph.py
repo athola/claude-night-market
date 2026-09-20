@@ -248,6 +248,18 @@ class KnowledgeGraph(SqliteGraphBase):
         rows = self._conn.execute(query, entity_ids).fetchall()
         return {row["entity_id"]: dict(row) for row in rows}
 
+    def get_entities_by_type(self, entity_type: str) -> list[dict[str, Any]]:
+        """Fetch all entities of a given type."""
+        rows = self._conn.execute(
+            "SELECT * FROM entities WHERE entity_type = ?", (entity_type,)
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def entity_count(self) -> int:
+        """Return total entity count."""
+        row = self._conn.execute("SELECT COUNT(*) FROM entities").fetchone()
+        return row[0] if row else 0
+
     # ------------------------------------------------------------------
     # Residencies
     # ------------------------------------------------------------------
@@ -274,6 +286,13 @@ class KnowledgeGraph(SqliteGraphBase):
             (entity_id, palace_id, room_id, role, status, now, now),
         )
         self._conn.commit()
+
+    def get_residencies(self, entity_id: str) -> list[dict[str, Any]]:
+        """Get all residencies for an entity."""
+        rows = self._conn.execute(
+            "SELECT * FROM residencies WHERE entity_id = ?", (entity_id,)
+        ).fetchall()
+        return [dict(r) for r in rows]
 
     def get_residents_in_palace(self, palace_id: str) -> list[dict[str, Any]]:
         """Get all entities residing in a palace."""
@@ -349,6 +368,13 @@ class KnowledgeGraph(SqliteGraphBase):
         self._conn.commit()
         return cur.lastrowid or 0
 
+    def get_synapse(self, synapse_id: int) -> dict[str, Any] | None:
+        """Fetch a synapse by ID."""
+        row = self._conn.execute(
+            "SELECT * FROM synapses WHERE id = ?", (synapse_id,)
+        ).fetchone()
+        return dict(row) if row else None
+
     def get_synapses_from(self, source_id: str) -> list[dict[str, Any]]:
         """Get all outgoing synapses from an entity."""
         rows = self._conn.execute(
@@ -376,6 +402,11 @@ class KnowledgeGraph(SqliteGraphBase):
         )
         self._conn.commit()
 
+    def synapse_count(self) -> int:
+        """Return total synapse count."""
+        row = self._conn.execute("SELECT COUNT(*) FROM synapses").fetchone()
+        return row[0] if row else 0
+
     # ------------------------------------------------------------------
     # Journeys and Waypoints
     # ------------------------------------------------------------------
@@ -394,6 +425,13 @@ class KnowledgeGraph(SqliteGraphBase):
         )
         self._conn.commit()
         return cur.lastrowid or 0
+
+    def get_journey(self, journey_id: int) -> dict[str, Any] | None:
+        """Fetch a journey by ID."""
+        row = self._conn.execute(
+            "SELECT * FROM journeys WHERE id = ?", (journey_id,)
+        ).fetchone()
+        return dict(row) if row else None
 
     def complete_journey(self, journey_id: int, outcome: str) -> None:
         """Mark a journey as completed with an outcome."""
@@ -471,6 +509,14 @@ class KnowledgeGraph(SqliteGraphBase):
             (entity_id, tier, score, now, reason),
         )
         self._conn.commit()
+
+    def get_tier(self, entity_id: str) -> dict[str, Any] | None:
+        """Get the tier assignment for an entity."""
+        row = self._conn.execute(
+            "SELECT * FROM tier_assignments WHERE entity_id = ?",
+            (entity_id,),
+        ).fetchone()
+        return dict(row) if row else None
 
     # ------------------------------------------------------------------
     # FTS5 Search
