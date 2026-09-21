@@ -160,6 +160,20 @@ Understand the current state before doing anything else:
 - What pipeline stage and step is each active item on?
 - Is there a cooldown in effect from a prior rate limit?
 
+Before executing any item, ask what earlier items learned:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/learning.py" \
+  --manifest .egregore/manifest.json \
+  --patterns .egregore/learning/patterns.json
+```
+
+It prints a "Learned Patterns" briefing built from the
+decision logs of completed items, or nothing when no item
+has recorded a decision yet. Prepend whatever it prints to
+the item's context. Run it again before each new item, since
+every completed item adds to the log.
+
 Then schedule a progress pulse:
 
 ```

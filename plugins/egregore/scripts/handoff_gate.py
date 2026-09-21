@@ -5,13 +5,9 @@ agree with each other. This module is the only place that judgment is
 made, and it makes it without a model, because a rule a model can be
 talked out of at 3am is not a rule.
 
-**The gate is not yet wired into the runner.** ``check_item`` is
-reachable through this module's CLI (``python handoff_gate.py <item>``)
-and from its tests, and nothing in ``night_run`` consults it. The whole
-night-shift cluster is latent until a commit activates it, and this
-sentence stays until the runner calls the gate. Read the paragraph
-above as the rule the gate implements, not as a description of what
-currently guards a run.
+``night_run.main`` calls ``check_item`` before it walks anything and
+reads the admitted documents back through ``load_item``, so the rule
+above is the rule that guards a run.
 
 The gate refuses more often than a person would. That is deliberate. A
 refusal costs a one-line edit the evening before; a bad pass costs the
@@ -470,6 +466,18 @@ def check_item(item_dir: Path) -> GateResult:
         return GateResult(code=INCOHERENT, problems=tuple(incoherent))
 
     return GateResult(code=READY)
+
+
+def load_item(item_dir: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Return the handoff and task list of an item the gate admits.
+
+    Callers run ``check_item`` first. A directory the structural checks
+    refuse raises, so a runner cannot walk half a handoff by accident.
+    """
+    docs, problems, code = _load_documents(Path(item_dir))
+    if code != READY:
+        raise ValueError("; ".join(problems))
+    return docs["handoff.md"], list(docs["tasks.md"].get("tasks") or [])
 
 
 def main(argv: Sequence[str] | None = None) -> int:

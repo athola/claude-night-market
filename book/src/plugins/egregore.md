@@ -171,36 +171,17 @@ waves under the dependency-graph scheduling in
 `code-refinement` and `update-tests` once `code-review`
 finishes.
 
-## Agent Specialization
-
-Specialist agents handle specific pipeline steps and
-accumulate expertise across sessions. `select_specialist(step)`
-picks one, and its context file persists in
-`.egregore/specialists/`.
-
-| Role | Steps | Persisted state |
-|------|-------|-----------------|
-| reviewer | code-review, pr-review | Review context, metrics |
-| documenter | update-docs | Style patterns |
-| tester | update-tests | Coverage history |
-
 ## Cross-Item Learning
 
 The `learning` module reads decision logs from completed
 work items and extracts reusable patterns in four
 categories: tech stack, failure mode, architecture and
 approach. Each pattern records its frequency and its success
-rate across items, and `generate_briefing()` builds a
-context briefing for a new work item from the
-high-frequency ones. Patterns persist in
+rate across items, and `build_learning_context()` turns the
+high-frequency ones into a briefing. The orchestrator runs
+`scripts/learning.py` before each item and prepends the
+briefing to the item's context. Patterns persist in
 `.egregore/learning/patterns.json`.
-
-## Multi-Repository Support
-
-`RepoRegistry` orchestrates work across repositories.
-`register_repo(name, path)` adds one, `route_item()` sends a
-work item to it, and each repo tracks its own default branch
-and labels. The registry persists in `.egregore/repos.json`.
 
 ## GitHub Discussions Publishing
 

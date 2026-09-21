@@ -45,9 +45,12 @@ one it is already a plain word list.
 
 from __future__ import annotations
 
+import argparse
+import importlib
 import re
 import shlex
 import subprocess
+import sys
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
@@ -918,3 +921,71 @@ def write_proof(item_dir: Path, result: ItemResult) -> Path:
     path = item_dir / "proof.md"
     path.write_text("\n".join(lines))
     return path
+
+
+def main(
+    argv: Sequence[str] | None = None,
+    *,
+    runner: Runner | None = None,
+    babysitter: Babysitter | None = None,
+) -> int:
+    """Walk one handed-off item unattended: gate, walk, proof.
+
+    Exit codes: the gate's own (1 to 4) when the item is refused, and
+    then nothing has run; 0 when the walk stopped somewhere the proof
+    describes (every task passed, or parked on budget, usage, or a task
+    that would not pass); 2 when the walk itself broke, on worktree
+    setup, a commit, or the final full suite.
+
+    ``runner`` and ``babysitter`` are injection points for tests. In
+    production the babysitter is the real claude CLI, imported here and
+    not at module level because it imports this module.
+    """
+    parser = argparse.ArgumentParser(description="Night-shift item runner")
+    parser.add_argument("--item-dir", required=True, type=Path)
+    parser.add_argument("--root", type=Path, default=Path.cwd())
+    parser.add_argument(
+        "--budget-path",
+        type=Path,
+        default=None,
+        help="Cooldown ledger (default: <root>/.egregore/budget.json)",
+    )
+    parser.add_argument("--model", default="sonnet", help="Babysitter model")
+    parser.add_argument("--timeout", type=int, default=120, help="Babysitter seconds")
+    args = parser.parse_args(argv)
+
+    gate = importlib.import_module("handoff_gate")
+    verdict = gate.check_item(args.item_dir)
+    if verdict.code != gate.READY:
+        print(f"{verdict.state}: {args.item_dir}", file=sys.stderr)
+        for problem in verdict.problems:
+            print(f"  - {problem}", file=sys.stderr)
+        return int(verdict.code)
+    handoff, tasks = gate.load_item(args.item_dir)
+
+    runner = runner or SubprocessRunner()
+    if babysitter is None:
+        babysitter_module = importlib.import_module("claude_babysitter")
+        babysitter = babysitter_module.ClaudeBabysitter(
+            runner=runner, model=args.model, timeout=args.timeout
+        )
+    budget_path = args.budget_path or args.root / ".egregore" / "budget.json"
+
+    result = run_item(
+        handoff,
+        tasks,
+        args.root,
+        runner,
+        babysitter=babysitter,
+        budget=budget_mod.load_budget(budget_path),
+        budget_path=budget_path,
+    )
+    proof = write_proof(args.item_dir, result)
+    print(f"{result.status}: {proof}")
+    if result.status == "ready" or result.status.startswith("parked_"):
+        return 0
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

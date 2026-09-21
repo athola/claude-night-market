@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -11,6 +12,7 @@ from learning import (
     build_learning_context,
     extract_patterns,
     load_patterns,
+    main,
     save_patterns,
     weight_by_recency,
 )
@@ -543,3 +545,63 @@ class TestLearnedPatternSerialization:
         bad_file.write_text("not json at all {{{")
         result = load_patterns(bad_file)
         assert result == []
+
+
+class TestLearningCli:
+    """Feature: the orchestrator asks for a briefing before each item.
+
+    The module had no entry point, so the orchestrator agent, which runs
+    scripts rather than importing them, could never reach it.
+    """
+
+    def _manifest(self, tmp_path: Path, work_items: list[dict]) -> Path:
+        path = tmp_path / ".egregore" / "manifest.json"
+        path.parent.mkdir(parents=True)
+        path.write_text(json.dumps({"work_items": work_items}))
+        return path
+
+    def test_main_prints_a_briefing_and_persists_patterns(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Given a manifest with one completed item carrying a decision,
+        the CLI prints the learned-patterns briefing and writes patterns.json.
+        """
+        manifest = self._manifest(
+            tmp_path,
+            [
+                {
+                    "id": "WI-1",
+                    "status": "completed",
+                    "started_at": "2026-09-01T00:00:00+00:00",
+                    "decisions": [
+                        {
+                            "step": "plan",
+                            "chose": "use pytest",
+                            "why": "already installed",
+                        }
+                    ],
+                }
+            ],
+        )
+        patterns_path = tmp_path / ".egregore" / "learning" / "patterns.json"
+        rc = main(["--manifest", str(manifest), "--patterns", str(patterns_path)])
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "Learned Patterns" in out
+        assert "plan: use pytest" in out
+        assert len(json.loads(patterns_path.read_text())) == 1
+
+    def test_main_is_silent_when_no_item_recorded_a_decision(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        manifest = self._manifest(tmp_path, [{"id": "WI-1", "status": "active"}])
+        rc = main(["--manifest", str(manifest), "--patterns", str(tmp_path / "p.json")])
+        assert rc == 0
+        assert capsys.readouterr().out == ""
+
+    def test_main_fails_loudly_without_a_manifest(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        rc = main(["--manifest", str(tmp_path / "missing.json")])
+        assert rc == 1
+        assert "manifest" in capsys.readouterr().err
