@@ -103,13 +103,13 @@ class TestGetCacheKey:
         k2 = cache._get_cache_key("k", "beta")
         assert k1 != k2
 
-    def test_key_with_falsy_but_non_none_data(self, tmp_path: Path) -> None:
-        """Should return plain key when data is falsy (empty string, 0, etc.)."""
+    def test_falsy_data_is_still_data(self, tmp_path: Path) -> None:
+        """ "", 0 and [] are inputs; only None means "no data"."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
-        # Empty string is falsy, so the `if data:` check returns False
-        assert cache._get_cache_key("k", "") == "k"
-        assert cache._get_cache_key("k", 0) == "k"
-        assert cache._get_cache_key("k", []) == "k"
+        keys = {cache._get_cache_key("k", d) for d in ("", 0, [])}
+        assert "k" not in keys
+        assert len(keys) == 3
+        assert cache._get_cache_key("k", None) == "k"
 
 
 # ============================================================================
@@ -121,22 +121,28 @@ class TestGetCachePath:
     """Tests for file path generation from cache keys."""
 
     def test_simple_key(self, tmp_path: Path) -> None:
-        """Should produce a .json file in cache_dir for a simple key."""
+        """Should produce a .json file in cache_dir carrying the key's category."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
         path = cache._get_cache_path("hello")
-        assert path == cache.cache_dir / "hello.json"
+        assert path.parent == cache.cache_dir
+        assert path.name.startswith("hello_") and path.suffix == ".json"
 
-    def test_special_chars_replaced(self, tmp_path: Path) -> None:
-        """Should replace non-alphanumeric characters with underscores."""
+    def test_keys_differing_only_in_punctuation_get_distinct_paths(
+        self, tmp_path: Path
+    ) -> None:
+        """spec_parsing:plan and spec.parsing_plan used to share one file."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
-        path = cache._get_cache_path("my.module:func/v2")
-        assert path.name == "my_module_func_v2.json"
+        assert cache._get_cache_path("spec_parsing:plan") != cache._get_cache_path(
+            "spec.parsing_plan"
+        )
+        cache.set("spec_parsing:plan", "VALUE_A")
+        assert cache.get("spec.parsing_plan") is None
 
     def test_empty_key(self, tmp_path: Path) -> None:
         """Should handle an empty key without error."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
         path = cache._get_cache_path("")
-        assert path == cache.cache_dir / ".json"
+        assert path.parent == cache.cache_dir and path.suffix == ".json"
 
 
 # ============================================================================
@@ -663,6 +669,30 @@ class TestCacheManager:
             CacheManager.invalidate_category("spec_parsing")
             assert cache.get("spec_parsing:key_a") is None
             assert cache.get("task_analysis:key_b") == "task_value"
+        finally:
+            speckit.caching._cache_instance = original
+
+    def test_invalidate_category_reaches_entries_keyed_by_function_name(
+        self, tmp_path: Path
+    ) -> None:
+        """cache_result without a key still puts the entry under its category."""
+        original = speckit.caching._cache_instance
+        try:
+            cache = SpecKitCache(cache_dir=tmp_path / "cache")
+            speckit.caching._cache_instance = cache
+            calls: list[int] = []
+
+            @CacheManager.cache_result("spec_parsing")
+            def parse() -> str:
+                calls.append(1)
+                return "parsed"
+
+            parse()
+            parse()
+            assert len(calls) == 1
+            CacheManager.invalidate_category("spec_parsing")
+            parse()
+            assert len(calls) == 2
         finally:
             speckit.caching._cache_instance = original
 
