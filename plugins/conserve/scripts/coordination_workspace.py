@@ -7,11 +7,12 @@ task tracking, findings file parsing, archive, and cleanup.
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import shutil
 import sys
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -206,3 +207,68 @@ class WorkspaceManager:
         reason_file.write_text(
             f"# Workflow Failure\n\n**Date**: {now}\n\n**Reason**: {reason}\n"
         )
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Manage a .coordination/ workspace")
+    parser.add_argument(
+        "--path",
+        default=".coordination",
+        help="Workspace directory (default: .coordination)",
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("init", help="Create agents/, handoffs/ and tasks.json")
+    add_task = sub.add_parser("add-task", help="Register a task for an agent")
+    add_task.add_argument("task_id")
+    add_task.add_argument("--agent", required=True)
+    add_task.add_argument("--contract", default="", help="Output contract reference")
+    set_status = sub.add_parser(
+        "set-status", help="Move a task to pending/active/done/failed"
+    )
+    set_status.add_argument("task_id")
+    set_status.add_argument("status", choices=["pending", "active", "done", "failed"])
+    sub.add_parser("pending", help="Print pending tasks as JSON")
+    sub.add_parser(
+        "archive", help="Move the workspace to .coordination-archive/<timestamp>"
+    )
+    fail = sub.add_parser(
+        "fail", help="Keep the workspace and record why the run failed"
+    )
+    fail.add_argument("--reason", required=True)
+    parse = sub.add_parser(
+        "parse", help="Print a findings file's header and summary as JSON"
+    )
+    parse.add_argument("findings_file")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Drive the workspace from a shell, which is what a skill can do."""
+    args = _build_parser().parse_args(argv)
+    if args.command == "parse":
+        parsed = parse_findings_file(Path(args.findings_file).read_text())
+        print(
+            json.dumps(
+                {k: v for k, v in asdict(parsed).items() if k != "raw_text"}, indent=2
+            )
+        )
+        return 0
+
+    workspace = WorkspaceManager(Path(args.path))
+    if args.command == "init":
+        workspace.init()
+    elif args.command == "add-task":
+        workspace.add_task(args.task_id, args.agent, args.contract)
+    elif args.command == "set-status":
+        workspace.update_task_status(args.task_id, args.status)
+    elif args.command == "pending":
+        print(json.dumps(workspace.pending_tasks(), indent=2))
+    elif args.command == "archive":
+        print(workspace.archive())
+    elif args.command == "fail":
+        workspace.preserve_on_failure(args.reason)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

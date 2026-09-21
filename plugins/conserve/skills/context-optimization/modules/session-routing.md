@@ -73,6 +73,10 @@ decision = decide_session_routing(
 
 - `decide_session_routing()` in `scripts/agent_memory.py`
   implements the decision logic
+- `scripts/coordination_workspace.py` manages the
+  `.coordination/` directory from the shell: `init`,
+  `add-task <id> --agent <name>`, `set-status`, `pending`,
+  `parse <findings.md>`, `archive`, and `fail --reason`
 - Integrates with `plan-before-large-dispatch` rule
   (4+ areas trigger plan mode)
 - Area-specific context comes from plugin CLAUDE.md
