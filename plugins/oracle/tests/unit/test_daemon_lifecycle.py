@@ -5,6 +5,10 @@ from __future__ import annotations
 import json
 import os
 import signal
+import subprocess
+import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -21,6 +25,20 @@ from daemon_lifecycle import (
     _stop_daemon,
     main,
 )
+
+
+@contextmanager
+def _fake_daemon(tmp_path: Path) -> Iterator[subprocess.Popen]:
+    """Spawn a live process whose command line names daemon.py, like the real one."""
+    script = tmp_path / "daemon.py"
+    script.write_text("import time; time.sleep(30)\n")
+    proc = subprocess.Popen([sys.executable, str(script)])
+    try:
+        yield proc
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        proc.wait()
 
 
 class TestSentinelPath:
@@ -153,6 +171,33 @@ class TestStopBehavior:
     """
 
     @pytest.mark.unit
+    def test_stop_does_not_signal_a_process_that_reused_the_pid(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """
+        Scenario: Stale pid file after a crash or reboot
+        Given daemon.pid names a live process the hook did not spawn
+        When main is called with a Stop event
+        Then that process is still alive afterward
+        And the stale pid file is removed
+        """
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        bystander = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"]
+        )
+        try:
+            (tmp_path / "daemon.pid").write_text(str(bystander.pid))
+            with patch("sys.stdin", StringIO(json.dumps({"hook_event_name": "Stop"}))):
+                main()
+            assert bystander.poll() is None, (
+                "Stop killed a process that is not the daemon"
+            )
+            assert not (tmp_path / "daemon.pid").exists()
+        finally:
+            bystander.kill()
+            bystander.wait()
+
+    @pytest.mark.unit
     def test_stop_exits_cleanly(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         """
         Scenario: Stop event fires
@@ -222,16 +267,29 @@ class TestIsDaemonRunning:
     """
 
     @pytest.mark.unit
-    def test_returns_true_when_process_exists(self, tmp_path: Path):
+    def test_returns_true_when_pid_runs_the_daemon_script(self, tmp_path: Path):
         """
-        Scenario: PID file contains a live process ID
-        Given a pid file with the current process PID
+        Scenario: PID file names a live process running daemon.py
+        Given a pid file naming a process whose command line is daemon.py
         When _is_daemon_running is called
         Then it returns True
         """
         pid_file = tmp_path / "daemon.pid"
+        with _fake_daemon(tmp_path) as daemon:
+            pid_file.write_text(str(daemon.pid))
+            assert _is_daemon_running(pid_file) is True
+
+    @pytest.mark.unit
+    def test_returns_false_when_pid_belongs_to_another_process(self, tmp_path: Path):
+        """
+        Scenario: PID file names a live process that is not the daemon
+        Given a pid file with this test's own PID
+        When _is_daemon_running is called
+        Then it returns False, because PIDs are reused after a crash
+        """
+        pid_file = tmp_path / "daemon.pid"
         pid_file.write_text(str(os.getpid()))
-        assert _is_daemon_running(pid_file) is True
+        assert _is_daemon_running(pid_file) is False
 
     @pytest.mark.unit
     def test_returns_false_when_pid_file_missing(self, tmp_path: Path):
@@ -289,12 +347,17 @@ class TestStartDaemon:
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         pid_file = tmp_path / "daemon.pid"
-        pid_file.write_text(str(os.getpid()))
+        with _fake_daemon(tmp_path) as daemon:
+            pid_file.write_text(str(daemon.pid))
+            # wraps= keeps the ps probe inside _pid_is_daemon working; the
+            # assertion is that no launch happened, not that nothing ran.
+            with patch(
+                "daemon_lifecycle.subprocess.Popen", wraps=subprocess.Popen
+            ) as spy:
+                _start_daemon()
 
-        with patch("daemon_lifecycle.subprocess.Popen") as mock_popen:
-            _start_daemon()
-
-        mock_popen.assert_not_called()
+        launches = [c for c in spy.call_args_list if "--port-file" in str(c)]
+        assert launches == []
 
     @pytest.mark.unit
     def test_launches_daemon_subprocess(
@@ -378,13 +441,12 @@ class TestStopDaemon:
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         pid_file = tmp_path / "daemon.pid"
         port_file = tmp_path / "daemon.port"
-        pid_file.write_text("12345")
-        port_file.write_text("9000")
-
-        with patch("daemon_lifecycle.os.kill") as mock_kill:
+        with _fake_daemon(tmp_path) as daemon:
+            pid_file.write_text(str(daemon.pid))
+            port_file.write_text("9000")
             _stop_daemon()
+            assert daemon.wait(timeout=5) == -signal.SIGTERM
 
-        mock_kill.assert_called_once_with(12345, signal.SIGTERM)
         assert not pid_file.exists()
         assert not port_file.exists()
 
