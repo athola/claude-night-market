@@ -49,33 +49,27 @@ source files.
 
 ### What Tier 1 Analyzes
 
-Run these git commands for the target commit range
-(default: current branch vs main):
+Run the Tier 1 script for the target commit range (default:
+current branch against the trunk):
 
 ```bash
-# 1. Churn hotspots: files changed most often
-git log --format="" --name-only {base}..HEAD \
-  | sort | uniq -c | sort -rn | head -20
-
-# 2. Diff stats: size of changes per file
-git diff --stat {base}..HEAD
-
-# 3. Fix-on-fix patterns: commits fixing previous commits
-git log --oneline {base}..HEAD \
-  | grep -iE "(fix|revert|patch|hotfix)"
-
-# 4. New file clusters: modules with many new files
-git diff --name-status {base}..HEAD \
-  | grep "^A" | cut -f2 \
-  | sed 's|/[^/]*$||' | sort | uniq -c | sort -rn
-
-# 5. Large commits: single commits with big diffs
-git log --format="%h %s" --shortstat {base}..HEAD
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/tiered_audit.py" --base {base}
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/tiered_audit.py" --base {base} --json
 ```
 
-**Verification:** Confirm each command produces output.
-If a command returns empty, the commit range may be wrong;
-verify `{base}` resolves correctly with `git merge-base`.
+It runs four git queries (file churn, fix-on-fix commit
+subjects, per-commit diff size, newly added files), applies
+the thresholds in `pensive.skills.tiered_audit` (3+ files in
+a module with one changed more than twice, 200+ changed lines
+in one commit, 5+ new files in a module), and prints each
+flag beside the `[E{n}] Command:` that produced it, so the
+findings file can cite the evidence verbatim. `--json` adds
+`escalation_targets` and an `escalate` verdict for Tier 2.
+
+**Verification:** an empty report on a branch you know is
+busy means the range is wrong. Check that `{base}` resolves
+with `git merge-base {base} HEAD` before trusting a quiet
+result.
 
 ### Tier 1 Output Format
 
@@ -191,9 +185,9 @@ to the next tier or reporting results.
 
 ### Verify Findings Are Grounded (`tiered-audit:findings-verified`)
 
-Write findings to `.review/findings.json` and run the citation verifier
-as `Skill(imbue:review-core)` Step 5 describes. Only findings the
-verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
+Write findings to `.review/findings.json`, run the citation verifier
+(`Skill(imbue:review-core)` Step 5), and drop or label `UNVERIFIED` any
+the verifier rejects.
 
 ## Exit Criteria
 
