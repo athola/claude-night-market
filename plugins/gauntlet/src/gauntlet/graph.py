@@ -167,11 +167,6 @@ CREATE VIRTUAL TABLE IF NOT EXISTS nodes_fts USING fts5(
 """
 
 
-def _escape_like(value: str) -> str:
-    """Escape LIKE wildcards so an identifier matches only itself."""
-    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
-
-
 class GraphStore(SqliteGraphBase):
     """Persistent code knowledge graph backed by SQLite."""
 
@@ -288,8 +283,20 @@ class GraphStore(SqliteGraphBase):
         is rewritten to that definition. Calls into the standard library
         or a dependency stay bare and count as external.
 
+        One pass over the nodes builds the name index; the edges are then
+        resolved in memory, because a plugin-wide graph has tens of
+        thousands of stdlib calls and a table scan per edge does not end.
+
         Returns the number of edges rewritten.
         """
+        by_bare: dict[str, list[tuple[str, str]]] = {}
+        for qualified_name, file_path in self._conn.execute(
+            "SELECT qualified_name, file_path FROM nodes WHERE kind != ?",
+            (str(NodeKind.FILE),),
+        ):
+            bare = qualified_name.rsplit("::", 1)[-1].rsplit(".", 1)[-1]
+            by_bare.setdefault(bare, []).append((qualified_name, file_path))
+
         unresolved = self._conn.execute(
             """SELECT e.id, e.source_qn, e.target_qn, e.file_path FROM edges e
                WHERE e.kind = ?
@@ -298,29 +305,16 @@ class GraphStore(SqliteGraphBase):
                  )""",
             (str(EdgeKind.CALLS),),
         ).fetchall()
+
         resolved = 0
         with self._conn:
             for edge_id, source_qn, target, edge_file in unresolved:
-                bare = target.rsplit(".", 1)[-1]
-                rows = self._conn.execute(
-                    """SELECT qualified_name, file_path FROM nodes
-                       WHERE kind != ? AND (
-                         qualified_name LIKE ? ESCAPE '\\'
-                         OR qualified_name LIKE ? ESCAPE '\\')""",
-                    (
-                        str(NodeKind.FILE),
-                        "%::" + _escape_like(bare),
-                        "%." + _escape_like(bare),
-                    ),
-                ).fetchall()
-                candidates = [
-                    qn for qn, _ in rows if qn.endswith(("::" + bare, "." + bare))
-                ]
-                local = [qn for qn, fp in rows if fp == edge_file and qn in candidates]
+                candidates = by_bare.get(target.rsplit(".", 1)[-1], [])
+                local = [qn for qn, fp in candidates if fp == edge_file]
                 if len(local) == 1:
                     chosen = local[0]
                 elif len(candidates) == 1:
-                    chosen = candidates[0]
+                    chosen = candidates[0][0]
                 else:
                     continue
                 duplicate = self._conn.execute(
