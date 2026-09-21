@@ -173,7 +173,7 @@ Scry integrates with sanctum for PR and documentation workflows:
 /record-terminal
 
 # Include in PR body
-/sanctum:pr
+/sanctum:prepare-pr
 ```
 
 ## Related Plugins

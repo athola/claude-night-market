@@ -181,24 +181,6 @@ Unified code review.
 /full-review . --output review.md --categories bugs,security
 ```
 
-### `/pensive:code-review`
-Expert code review.
-
-```bash
-# Usage
-/code-review [FILES...] [--focus FOCUS]
-
-# Options
---focus FOCUS    Focus area: bugs|api|tests|security|style
---evidence       Include evidence logging
---lsp            Enable LSP-enhanced review (requires ENABLE_LSP_TOOL=1)
-
-# Examples
-/code-review src/api.py --focus bugs
-/code-review --focus security --evidence
-ENABLE_LSP_TOOL=1 /code-review src/ --lsp
-```
-
 ### `/pensive:architecture-review`
 Architecture assessment.
 

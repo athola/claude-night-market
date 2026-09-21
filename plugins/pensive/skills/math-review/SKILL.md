@@ -89,9 +89,9 @@ Log deviations, recommend: Approve / Approve with actions / Block. **Load**: `mo
 
 ### 6. Verify Findings Are Grounded (`math-review:findings-verified`)
 
-Write issues to `.review/findings.json` and run the citation verifier
-as `Skill(imbue:review-core)` Step 5 describes. Only issues the
-verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
+Write issues to `.review/findings.json`, run the citation verifier
+(`Skill(imbue:review-core)` Step 5), and drop or label `UNVERIFIED` any
+the verifier rejects.
 
 ## Progressive Loading
 

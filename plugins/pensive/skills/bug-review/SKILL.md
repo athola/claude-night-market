@@ -143,9 +143,9 @@ Assign owners and deadlines for follow-up items.
 
 ### Step 6: Verify Findings Are Grounded (`bug-review:findings-verified`)
 
-Write defects to `.review/findings.json` and run the citation verifier
-as `Skill(imbue:review-core)` Step 5 describes. Only defects the
-verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
+Write defects to `.review/findings.json`, run the citation verifier
+(`Skill(imbue:review-core)` Step 5), and drop or label `UNVERIFIED` any
+the verifier rejects.
 
 ## Defect Classification (Condensed)
 

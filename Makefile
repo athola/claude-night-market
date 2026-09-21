@@ -278,7 +278,7 @@ analyze-skills: ## Analyze skill token usage and dependencies (skrills or Python
 
 CLAWHUB_DIR := clawhub
 
-.PHONY: clawhub-export clawhub-export-top clawhub-validate clawhub-stats clawhub-clean
+.PHONY: clawhub-export clawhub-export-top clawhub-validate clawhub-stats clawhub-clean clawhub-publish tapes-subtitles
 .PHONY: bridge-build bridge-clean a2a-cards a2a-list detect-framework cross-framework
 
 clawhub-export: ## Export all skills to ClawHub/OpenClaw format
@@ -302,6 +302,12 @@ clawhub-stats: ## Show skill export statistics
 clawhub-clean: ## Remove ClawHub export directory
 	@rm -rf $(CLAWHUB_DIR)
 	@echo "Cleaned $(CLAWHUB_DIR)/"
+
+clawhub-publish: ## Publish the next batch of exported skills to ClawHub (ARGS=--status, --retry-failed, --batch-size N)
+	@./scripts/clawhub-batch-publish.sh $(ARGS)
+
+tapes-subtitles: ## Burn the narration band onto assets/gifs/skills-showcase.gif after a VHS re-record
+	@bash assets/tapes/add-subtitles.sh
 
 bridge-build: clawhub-export ## Build OpenClaw bridge plugin from export
 	@echo "=== Building OpenClaw bridge plugin ==="

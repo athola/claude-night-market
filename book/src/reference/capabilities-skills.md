@@ -368,11 +368,6 @@ create PR linking issue.
 
 ## Pensive Plugin
 
-### `pensive:code-review` (shared)
-Shared review patterns.
-
-**Invocation**: `Skill(pensive:shared)`
-
 ### `pensive:bug-review`
 Systematic bug hunting.
 

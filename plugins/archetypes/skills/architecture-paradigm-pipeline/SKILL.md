@@ -55,12 +55,8 @@ estimated_tokens: 700
 
 ## Concrete Components
 
-These vocabulary items name the concrete tools and abstractions
-that show up when the paradigm is implemented. They are not
-required dependencies and they are not part of the skill's
-``tools:`` frontmatter (which is reserved for Claude Code tool
-restrictions). Use this list to disambiguate during architecture
-discussions.
+Vocabulary for the tools and abstractions an implementation of this
+paradigm tends to carry. Not dependencies, and not ``tools:`` frontmatter.
 
 - ``stream-processor``: the runtime that executes a filter (e.g. Flink, Apache Beam, Faust)
 - ``message-queue``: the durable pipe between filters (e.g. Kafka, RabbitMQ, in-memory channel)

@@ -145,9 +145,9 @@ Can also be run on any existing text:
 
 ## Verify Findings Are Grounded (`voice-review:findings-verified`)
 
-Write advisory rows to `.review/findings.json` and run the citation verifier
-as `Skill(imbue:review-core)` Step 5 describes. Only advisory rows the
-verifier passes enter the advisory tables. Drop or label `UNVERIFIED` the rest.
+Write advisory rows to `.review/findings.json`, run the citation verifier
+(`Skill(imbue:review-core)` Step 5), and drop or label `UNVERIFIED` any
+the verifier rejects.
 
 ## Verification
 
