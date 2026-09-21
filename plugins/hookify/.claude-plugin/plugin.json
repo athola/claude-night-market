@@ -15,6 +15,7 @@
     "./skills/rule-catalog"
   ],
   "agents": [],
+  "hooks": [],
   "keywords": [
     "hooks",
     "rules",

@@ -91,15 +91,14 @@ class RuleEngine:
         Returns:
             True if rule matches
         """
-        # Simple pattern matching
-        if rule.pattern:
-            return self._evaluate_pattern(rule.pattern, context)
-
-        # Complex condition matching
-        if rule.conditions:
-            return self._evaluate_conditions(rule.conditions, context)
-
-        return False
+        # A rule may carry both: the pattern selects, the conditions
+        # narrow. Both must hold, or the conditions the author wrote
+        # would be ignored.
+        if rule.pattern and not self._evaluate_pattern(rule.pattern, context):
+            return False
+        if rule.conditions and not self._evaluate_conditions(rule.conditions, context):
+            return False
+        return bool(rule.pattern or rule.conditions)
 
     def _evaluate_pattern(self, pattern: str, context: dict[str, Any]) -> bool:
         """Evaluate a simple pattern against context.
@@ -117,11 +116,9 @@ class RuleEngine:
         if text is None:
             return False
 
-        try:
-            return bool(re.search(pattern, text, re.MULTILINE))
-        except re.error:
-            # Invalid regex - don't match
-            return False
+        # RuleConfig compiles every pattern at construction, so re.error
+        # cannot arise here.
+        return bool(re.search(pattern, text, re.MULTILINE))
 
     def _evaluate_conditions(
         self, conditions: list[Condition], context: dict[str, Any]
@@ -163,10 +160,7 @@ class RuleEngine:
         pattern = condition.pattern
 
         if operator == "regex_match":
-            try:
-                return bool(re.search(pattern, field_value, re.MULTILINE))
-            except re.error:
-                return False
+            return bool(re.search(pattern, field_value, re.MULTILINE))
 
         matcher = _OPERATORS.get(operator)
         if matcher is None:

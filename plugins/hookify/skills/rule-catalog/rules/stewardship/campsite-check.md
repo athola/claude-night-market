@@ -2,7 +2,7 @@
 name: campsite-check
 enabled: true
 event: prompt
-action: info
+action: warn
 conditions:
   - field: user_prompt
     operator: regex_match

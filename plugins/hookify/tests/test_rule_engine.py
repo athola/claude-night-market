@@ -213,9 +213,13 @@ class TestRuleEngine:
 class TestEvaluatePattern:
     """Test RuleEngine._evaluate_pattern (via evaluate_event)."""
 
-    def test_invalid_regex_does_not_match(self) -> None:
-        """Invalid regex pattern returns no match instead of raising."""
-        rules = [
+    def test_invalid_regex_cannot_reach_the_engine(self) -> None:
+        """A rule with an uncompilable pattern is rejected before it exists.
+
+        The engine used to swallow re.error and return no match, so a
+        typo in a block rule disabled it with no signal anywhere.
+        """
+        with pytest.raises(ValueError, match="Invalid regex"):
             RuleConfig(
                 name="bad-regex",
                 enabled=True,
@@ -223,10 +227,22 @@ class TestEvaluatePattern:
                 pattern=r"[unclosed",
                 action="block",
             )
-        ]
-        engine = RuleEngine(rules)
-        results = engine.evaluate_event("bash", {"command": "anything"})
-        assert len(results) == 0
+
+    def test_pattern_and_conditions_must_both_hold(self) -> None:
+        """A rule that sets both is the pattern narrowed by the conditions."""
+        rule = RuleConfig(
+            name="narrowed",
+            enabled=True,
+            event="bash",
+            pattern="ls",
+            conditions=[
+                Condition(field="command", operator="contains", pattern="ZZNEVER")
+            ],
+            action="block",
+        )
+        engine = RuleEngine([rule])
+        assert engine.evaluate_event("bash", {"command": "ls"}) == []
+        assert len(engine.evaluate_event("bash", {"command": "ls ZZNEVER"})) == 1
 
     def test_none_command_field_does_not_match(self) -> None:
         """Context with None command value produces no match."""
@@ -451,11 +467,10 @@ class TestEvaluateConditionOperators:
         results = engine.evaluate_event("bash", {"command": "echo ab"})
         assert len(results) == 0
 
-    def test_regex_match_invalid_regex(self) -> None:
-        """regex_match with invalid regex returns no match."""
-        engine = self._make_engine_with_condition("command", "regex_match", r"[bad")
-        results = engine.evaluate_event("bash", {"command": "anything"})
-        assert len(results) == 0
+    def test_regex_match_invalid_regex_is_rejected_at_construction(self) -> None:
+        """An uncompilable condition regex is a ValueError, not a silent miss."""
+        with pytest.raises(ValueError, match="Invalid regex"):
+            self._make_engine_with_condition("command", "regex_match", r"[bad")
 
     def test_non_string_field_value_converted(self) -> None:
         """Non-string context values are coerced to strings."""

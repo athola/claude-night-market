@@ -45,6 +45,21 @@ class Condition:
                 f"Invalid operator '{self.operator}'. "
                 f"Must be one of: {', '.join(sorted(valid_operators))}"
             )
+        if self.operator == "regex_match":
+            _compile_or_raise(self.pattern, f"condition on '{self.field}'")
+
+
+def _compile_or_raise(pattern: str, where: str) -> None:
+    """Reject a rule whose regex cannot compile.
+
+    A rule that fails to compile at evaluation time is a rule that
+    never fires, and for a ``block`` rule that is a silent hole in the
+    guard. Failing here surfaces the typo in the loader's warning.
+    """
+    try:
+        re.compile(pattern)
+    except re.error as exc:
+        raise ValueError(f"Invalid regex pattern in {where}: {exc}") from exc
 
 
 @dataclass
@@ -77,6 +92,8 @@ class RuleConfig:
 
         if not self.pattern and not self.conditions:
             raise ValueError("Rule must have either 'pattern' or 'conditions'")
+        if self.pattern:
+            _compile_or_raise(self.pattern, f"rule '{self.name}'")
 
 
 def get_bundled_rules_dir() -> Path:
@@ -317,10 +334,10 @@ class ConfigLoader:
         if self.user_rules_dir.exists():
             pattern = f"{self.RULE_PREFIX}*{self.RULE_SUFFIX}"
             for rule_file in self.user_rules_dir.glob(pattern):
-                # Extract rule name from filename
-                name = rule_file.stem
-                if name.startswith(self.RULE_PREFIX):
-                    name = name[len(self.RULE_PREFIX) :]
+                # hookify.<name>.local.md: strip both ends, not just the
+                # prefix, or the ".local" tail keeps the name from ever
+                # matching its bundled entry.
+                name = rule_file.name[len(self.RULE_PREFIX) : -len(self.RULE_SUFFIX)]
 
                 if name in status:
                     status[name]["overridden"] = True

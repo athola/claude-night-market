@@ -24,3 +24,4 @@ commands:
 - commands/hookify.md
 - commands/install.md
 - commands/list.md
+hooks: hooks/hooks.json

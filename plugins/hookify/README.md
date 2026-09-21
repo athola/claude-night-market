@@ -30,6 +30,8 @@ It automatically searches for user-defined rules in the `.claude/` directory,
 which can override any of the default bundled rules.
 These configurations are processed by the `RuleEngine` to evaluate tool usage
 against the active rule set during execution.
+The `hooks/rule_guard.py` hook runs that evaluation on every Bash, Write,
+Edit, prompt, and stop event and denies or warns as the rule says.
 Bundled rules resolve their locations relative to the plugin's installation
 path to ensure portability across different environments.
 

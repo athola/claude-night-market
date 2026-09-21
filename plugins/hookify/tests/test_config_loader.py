@@ -79,6 +79,17 @@ class TestRuleConfig:
                 action="invalid",
             )
 
+    def test_invalid_regex_pattern_is_rejected_at_construction(self) -> None:
+        """A block rule whose pattern cannot compile must not exist silently."""
+        with pytest.raises(ValueError, match="pattern"):
+            RuleConfig(
+                name="test", enabled=True, event="bash", pattern="rm\\s+-rf\\s+(/"
+            )
+
+    def test_invalid_regex_condition_is_rejected_at_construction(self) -> None:
+        with pytest.raises(ValueError, match="pattern"):
+            Condition(field="command", operator="regex_match", pattern="(")
+
     def test_missing_pattern_and_conditions(self) -> None:
         """Rule without pattern or conditions should raise ValueError."""
         with pytest.raises(ValueError, match="either 'pattern' or 'conditions'"):
@@ -203,6 +214,22 @@ User override - disabled
         assert rule.source == "user"
         assert rule.enabled is False
         assert rule.action == "warn"
+
+    def test_get_rule_status_marks_a_user_override(self, tmp_path: Path) -> None:
+        """An override file is reported on the bundled entry, not as a new rule."""
+        user_rules_dir = tmp_path / ".claude"
+        user_rules_dir.mkdir()
+        (user_rules_dir / "hookify.block-force-push.local.md").write_text(
+            "---\nname: block-force-push\nenabled: false\nevent: bash\n"
+            "pattern: git push --force\naction: warn\n---\n\noverride\n"
+        )
+
+        status = ConfigLoader(
+            user_rules_dir=user_rules_dir, include_bundled=True
+        ).get_rule_status()
+
+        assert status["block-force-push"]["overridden"] is True
+        assert "block-force-push.local" not in status
 
     def test_get_bundled_rule_names(self) -> None:
         """Should return names of all bundled rules."""
