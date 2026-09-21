@@ -17,6 +17,7 @@
   "agents": [
     "./agents/codebase-explorer.md"
   ],
+  "hooks": [],
   "keywords": [
     "visualization",
     "diagram",

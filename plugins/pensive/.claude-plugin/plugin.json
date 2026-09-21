@@ -43,6 +43,7 @@
     "./agents/harden-orchestrator.md",
     "./agents/rust-auditor.md"
   ],
+  "hooks": [],
   "keywords": [
     "review",
     "code-quality",
