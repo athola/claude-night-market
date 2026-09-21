@@ -30,8 +30,10 @@ SKIPPED_PLUGINS=()
 
 # Accumulate temp files for cleanup on exit
 _TEMP_FILES=()
+# The `[@]+` guard expands to nothing when the array is empty. Under
+# `set -u`, bash 3.2 treats an empty array as unset and aborts the trap.
 # shellcheck disable=SC2317  # invoked indirectly by the EXIT trap below
-_cleanup_temp() { rm -f "${_TEMP_FILES[@]}" 2>/dev/null || true; }
+_cleanup_temp() { rm -f "${_TEMP_FILES[@]+"${_TEMP_FILES[@]}"}" 2>/dev/null || true; }
 trap _cleanup_temp EXIT
 
 run_plugin_tests() {
