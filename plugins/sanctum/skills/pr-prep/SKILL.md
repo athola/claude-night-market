@@ -126,7 +126,23 @@ If issues are found, fix them before proceeding.
 
 ## Step 3: Summarize Changes (`changes-summarized`)
 
-Use the notes from the workspace review and the output of `git diff --stat origin/main...HEAD` to understand the scope. Identify key points in the diffs and group them into 2-4 paragraphs highlighting the technical changes and their rationale. Note breaking changes, migrations, or documentation updates.
+Start from the analyzer rather than from a fresh reading of the diff:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pr_prep_analyze.py" --base origin/main
+```
+
+It reads the branch's changed files and commits, sorts the files into
+feature, test, docs and other, flags any `!` breaking-change marker in
+a commit subject, reports which quality gates the change already
+satisfies (tests touched, docs touched), recommends a merge strategy,
+and prints a description scaffold. Pass `--reviewer-map <json>` to map
+path prefixes to reviewers, or `--json` to consume it as data.
+
+Then use the notes from the workspace review and the analyzer's
+categories to identify the key points in the diffs, and group them
+into 2-4 paragraphs highlighting the technical changes and their
+rationale. Note breaking changes, migrations, or documentation updates.
 
 ## Step 4: Document Testing (`testing-documented`)
 
