@@ -230,13 +230,17 @@ def _run_tool_block(
     if block.type != "tool_use":
         return None, False
 
-    if block.name == "computer" and not ctx.action_filter.is_allowed(block.input):
+    # Every tool passes both gates. Only ``computer`` carries coordinates,
+    # so the region filter is a no-op for bash and the editor; the
+    # confirmation gate is not, and a caller who supplied a callback has
+    # asked to approve shell commands and file writes as much as clicks.
+    if not ctx.action_filter.is_allowed(block.input):
         result.actions_blocked += 1
         return (
             _error_tool_result(block.id, "Action blocked: restricted region"),
             False,
         )
-    if block.name == "computer" and not ctx.gate.check(block.input):
+    if not ctx.gate.check(block.input):
         result.actions_blocked += 1
         return (
             _error_tool_result(block.id, "Action rejected by confirmation gate"),
@@ -562,9 +566,16 @@ def _run_editor_command(
         old_str = tool_input.get("old_str", "")
         new_str = tool_input.get("new_str", "")
         text = Path(path).read_text()
-        if old_str not in text:
+        occurrences = text.count(old_str)
+        if occurrences == 0:
             return _editor_result(
                 tool_use_id, "old_str not found in file", is_error=True
+            )
+        if occurrences > 1:
+            return _editor_result(
+                tool_use_id,
+                f"old_str occurs {occurrences} times in file; it must be unique",
+                is_error=True,
             )
         Path(path).write_text(text.replace(old_str, new_str, 1))
         return _editor_result(tool_use_id, f"Replaced in {path}")

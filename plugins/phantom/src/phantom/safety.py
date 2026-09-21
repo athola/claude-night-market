@@ -15,7 +15,6 @@ and region-based blocking to prevent clicking sensitive UI areas.
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass, field
 from typing import Any
 
 # Region = (x1, y1, x2, y2) top-left to bottom-right inclusive
@@ -82,14 +81,6 @@ def approve_clicks_only(action: dict[str, Any]) -> bool:
 confirm_clicks_only = approve_clicks_only
 
 
-@dataclass
-class SafetyConfig:
-    """Configuration for safety controls."""
-
-    require_confirmation: bool = False
-    blocked_regions: list[Region] = field(default_factory=list)
-
-
 class ActionFilter:
     """Block actions targeting forbidden screen regions.
 
@@ -103,18 +94,20 @@ class ActionFilter:
     def is_allowed(self, action: dict[str, Any]) -> bool:
         """Check if an action is allowed given blocked regions.
 
-        Only coordinate-based actions (clicks, drags) are checked.
-        Non-coordinate actions (type, key, screenshot) always pass.
+        Every coordinate the action carries is checked: ``coordinate``
+        (click, release point of a drag, scroll) and ``start_coordinate``
+        (press point of a drag). A drag that presses inside a blocked
+        region is blocked wherever it releases. Non-coordinate actions
+        (type, key, screenshot) always pass.
         """
-        coord = action.get("coordinate")
-        if coord is None or len(coord) != 2:
-            return True
-
-        x, y = int(coord[0]), int(coord[1])
-
-        for x1, y1, x2, y2 in self.blocked_regions:
-            if x1 <= x <= x2 and y1 <= y <= y2:
-                return False
+        for key in ("coordinate", "start_coordinate"):
+            coord = action.get(key)
+            if coord is None or len(coord) != 2:
+                continue
+            x, y = int(coord[0]), int(coord[1])
+            for x1, y1, x2, y2 in self.blocked_regions:
+                if x1 <= x <= x2 and y1 <= y <= y2:
+                    return False
 
         return True
 

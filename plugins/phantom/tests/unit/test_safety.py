@@ -11,28 +11,10 @@ from __future__ import annotations
 from phantom.safety import (
     ActionFilter,
     ConfirmationGate,
-    SafetyConfig,
     always_confirm,
     confirm_clicks_only,
     no_confirm,
 )
-
-
-class TestSafetyConfig:
-    """Feature: Safety configuration."""
-
-    def test_defaults(self):
-        config = SafetyConfig()
-        assert config.require_confirmation is False
-        assert config.blocked_regions == []
-
-    def test_custom_config(self):
-        config = SafetyConfig(
-            require_confirmation=True,
-            blocked_regions=[(0, 0, 100, 50)],
-        )
-        assert config.require_confirmation is True
-        assert len(config.blocked_regions) == 1
 
 
 class TestActionFilter:
@@ -73,6 +55,21 @@ class TestActionFilter:
     def test_no_blocked_regions_allows_all(self):
         f = ActionFilter(blocked_regions=[])
         assert f.is_allowed({"action": "left_click", "coordinate": [0, 0]}) is True
+
+    def test_drag_starting_inside_blocked_region_is_blocked(self):
+        """
+        Scenario: Drag whose press point is blocked
+        Given a blocked region (0,0)-(100,100)
+        When a left_click_drag starts at (50,50) and releases at (500,500)
+        Then the action is blocked, because the mouse-down lands in the region
+        """
+        f = ActionFilter(blocked_regions=[(0, 0, 100, 100)])
+        drag = {
+            "action": "left_click_drag",
+            "start_coordinate": [50, 50],
+            "coordinate": [500, 500],
+        }
+        assert f.is_allowed(drag) is False
 
     def test_edge_of_blocked_region(self):
         """Coordinates on the boundary are blocked (inclusive)."""
