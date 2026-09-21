@@ -16,21 +16,44 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import importlib
+import importlib.util
 import json
 import subprocess
 import sys
 from dataclasses import asdict
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-_SRC = Path(__file__).resolve().parents[1] / "src"
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
+_CHECKS_FILE = (
+    Path(__file__).resolve().parents[1]
+    / "src"
+    / "pensive"
+    / "skills"
+    / "tiered_audit.py"
+)
 
-# The package sits beside this script; the path insert above is what lets
-# a plain `python3 scripts/tiered_audit.py` find it from any cwd.
-_checks = importlib.import_module("pensive.skills.tiered_audit")
+
+def _load_checks() -> Any:
+    """Load the threshold module by file, not through the package.
+
+    ``pensive/__init__`` imports the review skills, and those need psutil
+    and the rest of the plugin's environment. The thresholds are pure
+    stdlib, and this script runs under whatever python3 the skill has,
+    so it takes the one file it needs.
+    """
+    spec = importlib.util.spec_from_file_location("tiered_audit_checks", _CHECKS_FILE)
+    if spec is None or spec.loader is None:
+        msg = f"cannot load {_CHECKS_FILE}"
+        raise SystemExit(msg)
+    module = importlib.util.module_from_spec(spec)
+    # Registered before exec: on 3.9 a dataclass whose annotations are
+    # strings looks its own module up in sys.modules while it is defined.
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+_checks = _load_checks()
 
 if TYPE_CHECKING:
     from pensive.skills.tiered_audit import Tier1Results
