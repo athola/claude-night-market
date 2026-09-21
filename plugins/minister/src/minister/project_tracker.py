@@ -143,8 +143,23 @@ class ProjectTracker:
                 with open(self.data_file, encoding="utf-8") as file:
                     data = json.load(file)
             except (json.JSONDecodeError, OSError) as exc:
+                # The next _save_data truncates data_file. Move the bytes
+                # aside first so a half-written file is recoverable rather
+                # than replaced by whatever the next add_task holds.
+                stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+                aside = self.data_file.with_name(
+                    f"{self.data_file.stem}.corrupt-{stamp}{self.data_file.suffix}"
+                )
+                moved: Path | None = aside
+                try:
+                    os.replace(self.data_file, aside)
+                except OSError:
+                    moved = None
                 logging.getLogger(__name__).warning(
-                    "minister: corrupt data file %s: %s", self.data_file, exc
+                    "minister: corrupt data file %s (%s); moved aside to %s",
+                    self.data_file,
+                    exc,
+                    moved,
                 )
                 return InitiativeTracker([], datetime.now(timezone.utc).isoformat())
             tasks = [Task(**task) for task in data.get("tasks", [])]
@@ -161,8 +176,12 @@ class ProjectTracker:
             "tasks": [asdict(task) for task in self.data.tasks],
             "last_updated": datetime.now(timezone.utc).isoformat(),
         }
-        with open(self.data_file, "w", encoding="utf-8") as file:
+        # Write beside, then rename: a crash mid-dump leaves the old
+        # tracker intact instead of a truncated one.
+        temporary = self.data_file.with_suffix(self.data_file.suffix + ".tmp")
+        with open(temporary, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=2)
+        os.replace(temporary, self.data_file)
 
     def add_task(self, task: Task) -> None:
         """Add a new task to the tracker."""
