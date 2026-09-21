@@ -13,6 +13,7 @@ dependencies = []
 # skip, and exited 0. Same silence archetypes was pulled out of in 58ee533f.
 [dependency-groups]
 dev = [
+    "ruff>=0.16.8",
     # pytest>=8.0, not >=9: pytest 9 requires Python >=3.10 and this plugin
     # supports >=3.9. Matches archetypes, tome, gauntlet, herald, egregore.
     "pytest>=8.0",

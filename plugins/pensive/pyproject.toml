@@ -23,8 +23,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "pyyaml>=6.0.2",
-    "psutil>=5.9.8",
+    "pyyaml>=6.0.3",
+    "psutil>=7.2.2",
 ]
 
 [project.urls]
@@ -36,15 +36,15 @@ Repository = "https://github.com/anthropics/pensive.git"
 [dependency-groups]
 dev = [
     "pytest>=8.0",
-    "pytest-cov>=6.0.0",
+    "pytest-cov>=7.1.0",
     "pytest-mock>=3.15.1",
-    "pytest-asyncio>=0.25.0",
-    "pytest-xdist>=3.6.1",
-    "coverage>=7.0.0",
-    "ruff>=0.14.13",
+    "pytest-asyncio>=1.2.0",
+    "pytest-xdist>=3.8.0",
+    "coverage>=7.10.7",
+    "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
-    "pre-commit>=4.0.0",
-    "types-pyyaml>=6.0.12",
+    "pre-commit>=4.3.0",
+    "types-pyyaml>=6.0.12.20250915",
 ]
 
 [tool.setuptools_scm]

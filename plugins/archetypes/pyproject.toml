@@ -15,6 +15,7 @@ dependencies = []
 # where the bdd/unit markers are registered.
 [dependency-groups]
 dev = [
+    "ruff>=0.16.8",
     # pytest>=8.0, not >=9: pytest 9 requires Python >=3.10 and this
     # plugin supports >=3.9. Matches tome, gauntlet, herald, egregore.
     "pytest>=8.0",
