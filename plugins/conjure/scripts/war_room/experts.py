@@ -218,13 +218,24 @@ async def check_expert_availability(expert: ExpertConfig) -> bool:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-        await asyncio.wait_for(proc.communicate(), timeout=10.0)
+        try:
+            await asyncio.wait_for(proc.communicate(), timeout=10.0)
+        except asyncio.TimeoutError:
+            # wait_for cancels communicate(), not the process. Without
+            # this the provider CLI outlives the probe, holding its pipes
+            # for the rest of the session.
+            proc.kill()
+            await proc.wait()
+            raise
 
         available = proc.returncode == 0
         _expert_availability[cache_key] = available
         return available
 
-    except (TimeoutError, FileNotFoundError, RuntimeError):
+    # asyncio.TimeoutError became an alias of the builtin only in 3.11;
+    # this plugin runs on 3.9, where catching TimeoutError alone lets the
+    # probe timeout escape and take the whole panel down.
+    except (asyncio.TimeoutError, TimeoutError, FileNotFoundError, RuntimeError):
         _expert_availability[cache_key] = False
         return False
 

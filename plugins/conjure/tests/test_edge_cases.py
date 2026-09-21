@@ -342,3 +342,25 @@ class TestConcurrentDelegation:
             assert isinstance(result, ExecutionResult)
         # Each worker triggered a subprocess call
         assert mock_run.call_count == worker_count
+
+
+class TestSessionStatsAtomicity:
+    """Session stats are renamed into place, never truncated in place."""
+
+    def test_session_stats_write_leaves_no_temp_file(self, tmp_path: Path) -> None:
+        """The stats file is renamed into place, never truncated in place."""
+        logger = GeminiUsageLogger()
+        logger.session_file = tmp_path / "current_session.json"
+        logger.usage_log = tmp_path / "usage.jsonl"
+
+        logger.log_usage(UsageEntry("cmd", 10, success=True))
+        logger.log_usage(UsageEntry("cmd", 5, success=False))
+
+        with open(logger.session_file) as f:
+            stats = json.load(f)
+        assert stats["total_requests"] == 2
+        assert stats["successful_requests"] == 1
+        assert sorted(p.name for p in tmp_path.iterdir()) == [
+            "current_session.json",
+            "usage.jsonl",
+        ]

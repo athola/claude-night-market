@@ -9,6 +9,7 @@ Tests expert panel configuration:
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 from unittest.mock import patch
 
@@ -22,6 +23,7 @@ from scripts.war_room import (
     get_expert_command,
     get_glm_command,
 )
+from scripts.war_room import experts as experts_module
 from scripts.war_room.experts import _COMMAND_RESOLVERS
 
 
@@ -305,3 +307,49 @@ class TestMuseExpert:
         model actually cast.
         """
         assert EXPERT_CONFIGS["systems_engineer"].optional is True
+
+
+class TestAvailabilityProbeTimeout:
+    """The probe timeout is caught on every supported Python and kills the CLI."""
+
+    @pytest.mark.asyncio
+    async def test_timed_out_probe_marks_expert_unavailable_and_kills_process(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A probe that times out reports unavailable and leaves no orphan."""
+        expert = ExpertConfig(
+            role="Probe",
+            service="probe-svc",
+            model="probe-model",
+            description="Test",
+            phases=["test"],
+            command=["probe-cli", "-p"],
+        )
+        monkeypatch.setitem(experts_module._expert_availability, "sentinel", True)
+        experts_module._expert_availability.pop("probe-svc:probe-model", None)
+
+        class FakeProc:
+            returncode = None
+            killed = False
+
+            async def communicate(self) -> tuple[bytes, bytes]:
+                # What asyncio.wait_for raises when the 10s budget expires,
+                # which on 3.9 and 3.10 is not the builtin TimeoutError.
+                raise asyncio.TimeoutError()
+
+            def kill(self) -> None:
+                self.killed = True
+
+            async def wait(self) -> int:
+                return -9
+
+        proc = FakeProc()
+
+        async def fake_exec(*_args: object, **_kwargs: object) -> FakeProc:
+            return proc
+
+        monkeypatch.setattr(asyncio, "create_subprocess_exec", fake_exec)
+
+        assert await experts_module.check_expert_availability(expert) is False
+        assert proc.killed is True
+        assert experts_module._expert_availability["probe-svc:probe-model"] is False
