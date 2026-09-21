@@ -8,6 +8,7 @@ So that agents can find non-obvious analogies from other fields
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterator
 
 import pytest
@@ -21,10 +22,14 @@ from tome.channels.triz import (
     formulate_ideality,
     get_adjacent_fields,
     lookup_canonical_principles,
+    near_resolutions,
+    physical_contradiction,
+    reformulation_probes,
     separation_strategies,
     suggest_inventive_principles,
 )
 from tome.models import Finding
+from tome.scripts.domain_classifier import _DOMAIN_KEYWORDS
 
 
 class TestContradictionFormulation:
@@ -263,16 +268,27 @@ class TestAdjacentFields:
         """
         Scenario: Domain absent from the distant-pairs table falls back
                   to picking any other known domain for distant fields
-        Given domain "architecture" which has no explicit distant-pair entry
+        Given domain "ai-agents", which no distant pair names
+          (architecture, the old subject here, is paired with financial,
+          so the fallback went untested while the test passed)
         And depth "maximum"
         When get_adjacent_fields is called
-        Then more than 3 fields are returned and all are strings
+        Then its 3 primary fields come first
+        And 2 distant fields follow, drawn from another domain's row
         """
-        fields = get_adjacent_fields("architecture", "maximum")
+        assert not any("ai-agents" in pair for pair in triz._DISTANT_DOMAIN_PAIRS)
+        fields = get_adjacent_fields("ai-agents", "maximum")
 
-        assert len(fields) > 3
-        assert all(isinstance(f, str) for f in fields)
+        assert fields[:3] == triz.FIELD_ADJACENCY["ai-agents"]
+        assert len(fields) == 5
         assert len(fields) == len(set(fields))
+        other_rows = {
+            f
+            for d, row in triz.FIELD_ADJACENCY.items()
+            if d != "ai-agents"
+            for f in row
+        }
+        assert set(fields[3:]) <= other_rows
 
 
 class TestCrossDomainQueries:
@@ -1146,7 +1162,7 @@ class TestBroadKeywordsDoNotCaptureOrdinaryTopics:
     Feature: A workflow pair needs workflow vocabulary, not a substring
 
     One broad hit wins the top-1 slot when nothing else matches, so a
-    keyword like "token" would send every JWT topic to coverage/cost.
+    keyword like "term" would send every JWT topic to coverage/cost.
     """
 
     @pytest.mark.unit
@@ -1173,3 +1189,306 @@ class TestBroadKeywordsDoNotCaptureOrdinaryTopics:
             for c in formulate_contradictions(topic, "architecture")
         ]
         assert not_pair not in pairs
+
+
+class TestReformulationProbes:
+    """
+    Feature: A contradiction is probed, not only satisfied
+
+    As the triz agent
+    I want five fixed probes that reshape a contradiction before I
+    search for analogies
+    So that a near-resolution, a rearrangement, a promoted constant, or
+    an infeasible statement is noticed instead of searched past
+
+    From "The Shadows Lurking in the Equations" (Madrigal, 2025) and
+    the literature behind it: plotting |left - right| instead of exact
+    equality shows near-solutions a parameter shift surfaces, structure
+    only visible in a rearranged form, and regions with no solution at
+    all. Each probe names the TRIZ principle it is and the source that
+    formalizes it, so the agent's output cites a mechanism rather than
+    a metaphor. ADR-0026.
+    """
+
+    _KINDS = ("swap", "relax", "shift", "dynamize", "infeasible")
+
+    @pytest.mark.unit
+    def test_five_probes_in_a_fixed_order(self) -> None:
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        probes = reformulation_probes(contradiction)
+        assert [p["kind"] for p in probes] == list(self._KINDS)
+
+    @pytest.mark.unit
+    def test_every_probe_carries_its_fields(self) -> None:
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        for probe in reformulation_probes(contradiction):
+            for key in ("kind", "principle", "question", "rationale", "source"):
+                assert probe.get(key), f"{probe['kind']} lacks {key}"
+
+    @pytest.mark.unit
+    def test_questions_name_both_parameters(self) -> None:
+        """Each probe asks about this contradiction, not a template one."""
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        for probe in reformulation_probes(contradiction):
+            text = probe["question"].lower()
+            assert "speed" in text and "memory usage" in text, probe["kind"]
+
+    @pytest.mark.unit
+    def test_principles_are_real_inventive_principles(self) -> None:
+        """A probe's principle is one of the 40, by number and name."""
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        for probe in reformulation_probes(contradiction):
+            if probe["kind"] == "infeasible":
+                continue  # separation, not a principle: checked below
+            match = re.search(r"\(#(\d+)\)$", probe["principle"])
+            assert match, probe["principle"]
+            number = int(match.group(1))
+            assert triz.INVENTIVE_PRINCIPLES[number][0] in probe["principle"]
+
+    @pytest.mark.unit
+    def test_expected_principles_by_kind(self) -> None:
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        by_kind = {
+            p["kind"]: p["principle"] for p in reformulation_probes(contradiction)
+        }
+        assert "(#13)" in by_kind["swap"]
+        assert "(#16)" in by_kind["relax"]
+        assert "(#35)" in by_kind["shift"]
+        assert "(#15)" in by_kind["dynamize"]
+
+    @pytest.mark.unit
+    def test_the_infeasible_probe_routes_to_separation_and_the_ifr(self) -> None:
+        """
+        Given a contradiction with no solution inside the current system
+        Then the probe names all four separation axes and the ideal
+        final result instead of asking for a harder search
+        """
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        probe = next(
+            p for p in reformulation_probes(contradiction) if p["kind"] == "infeasible"
+        )
+        for axis in triz.SEPARATION_PRINCIPLES:
+            assert axis in probe["question"], axis
+        assert "ideal final result" in probe["question"].lower()
+        assert "separation" in probe["principle"].lower()
+
+    @pytest.mark.unit
+    def test_sources_are_citations_with_a_year(self) -> None:
+        """A probe without a dated source is a metaphor, which is what this replaces."""
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        for probe in reformulation_probes(contradiction):
+            assert re.search(r"\b(19|20)\d{2}\b", probe["source"]), probe["kind"]
+
+    @pytest.mark.unit
+    def test_the_shift_probe_asks_for_a_named_parameter_and_direction(self) -> None:
+        contradiction = formulate_contradiction("cache performance", "algorithm")
+        probe = next(
+            p for p in reformulation_probes(contradiction) if p["kind"] == "shift"
+        )
+        text = probe["question"].lower()
+        assert "which" in text and "direction" in text
+
+
+class TestTheFallbackIsMarked:
+    """
+    Feature: A contradiction that came from the fallback says so
+
+    The flexibility/complexity fallback fired with no signal that it
+    fired, so a topic no catalogue row matched read exactly like a
+    matched one. The TRIZ pass on ADR-0026's own topic hit it.
+    """
+
+    @pytest.mark.unit
+    def test_a_keyword_match_is_marked_keyword(self) -> None:
+        assert (
+            formulate_contradiction("cache performance", "algorithm")["matched"]
+            == "keyword"
+        )
+
+    @pytest.mark.unit
+    def test_the_fallback_is_marked_fallback(self) -> None:
+        result = formulate_contradiction("gardening tips", "general")
+        assert (result["improving"], result["worsening"]) == (
+            "flexibility",
+            "complexity",
+        )
+        assert result["matched"] == "fallback"
+
+
+class TestNearResolutions:
+    """
+    Feature: Catalogue rows a small change would have matched
+
+    The level-set reading of the article: keep the residual, not only
+    the zero set. A topic that misses every row exactly may sit one
+    edit away from one. Satisficing governs the widening: exact first,
+    then radius 1, then 2, stopping at the first radius that returns
+    something and never past three candidates (Simon; ADR-0026).
+    """
+
+    @pytest.mark.unit
+    def test_a_near_miss_is_named_with_its_distance(self) -> None:
+        """A dropped letter is one edit from the speed/memory row's "cache"."""
+        islands = near_resolutions("cahe performence under load")
+        assert islands, "expected a near-miss"
+        top = islands[0]
+        assert (top["improving"], top["worsening"]) == ("speed", "memory usage")
+        assert (
+            top["keyword"] == "cache" and top["term"] == "cahe" and top["distance"] == 1
+        )
+
+    @pytest.mark.unit
+    def test_an_exact_match_returns_nothing(self) -> None:
+        """Exact when exact works: the contract of formulate_contradictions holds."""
+        assert near_resolutions("cache performance") == []
+
+    @pytest.mark.unit
+    def test_no_neighbour_within_two_edits_returns_nothing(self) -> None:
+        assert near_resolutions("gardening tips for spring") == []
+
+    @pytest.mark.unit
+    def test_at_most_three_candidates(self) -> None:
+        """Four rows sit at radius 1; the limit keeps three."""
+        islands = near_resolutions("latencie securty consistancy readabilty")
+        assert len(islands) == 3
+        assert all(island["distance"] == 1 for island in islands)
+
+    @pytest.mark.unit
+    def test_radius_two_is_searched_only_when_radius_one_is_empty(self) -> None:
+        """Satisficing: widen to two edits after one edit finds nothing."""
+        islands = near_resolutions("cachng")
+        assert islands and islands[0]["keyword"] == "cache"
+        assert islands[0]["distance"] == 2
+
+    @pytest.mark.unit
+    def test_near_miss_agrees_with_the_exact_matcher(self) -> None:
+        """Every catalogue keyword is an exact hit, so none is a near miss."""
+        for _, _, keywords in triz._CONTRADICTION_CATALOGUE:
+            for keyword in keywords:
+                assert near_resolutions(keyword) == []
+                record = formulate_contradictions(keyword, "general")[0]
+                assert record["matched"] == "keyword"
+
+    @pytest.mark.unit
+    def test_short_tokens_do_not_count(self) -> None:
+        """Two edits from a three-letter token match everything; ignore them."""
+        assert near_resolutions("a fee for the app") == []
+
+
+class TestPhysicalContradictionRouting:
+    """
+    Feature: Two demands on one quantity route to separation, not search
+
+    ARIZ-85C step 3.3 triages a physical contradiction before any
+    principle lookup. The trigger here is syntactic and advisory: the
+    pair shares a stem, or sits in the small table of opposed demands
+    on one quantity. An empty matrix cell is never the signal.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "topic",
+        ["when to stop a multi-pass search", "search coverage against a token budget"],
+    )
+    def test_opposed_demands_on_one_quantity_are_physical(self, topic: str) -> None:
+        assert physical_contradiction(formulate_contradiction(topic, "architecture"))
+
+    @pytest.mark.unit
+    def test_two_different_parameters_are_technical(self) -> None:
+        assert not physical_contradiction(
+            formulate_contradiction("cache performance", "algorithm")
+        )
+
+    @pytest.mark.unit
+    def test_a_shared_stem_is_physical(self) -> None:
+        record = {
+            "improving": "read consistency",
+            "worsening": "write consistency",
+            "system": "a store",
+        }
+        assert physical_contradiction(record)
+
+
+class TestSeparationAxesAreRankedBySystem:
+    """
+    Feature: The separation axis the system string points at comes first
+
+    Four undifferentiated axes are a menu; the saddle-node reading says
+    the no-solution region still points somewhere. Words in the system
+    description (schedule, boundary, mode, module) pick the axis.
+    """
+
+    @pytest.mark.unit
+    def test_a_schedule_ranks_time_first(self) -> None:
+        record = formulate_contradiction("cache performance", "algorithm")
+        record["system"] = "a nightly batch schedule in the algorithm domain"
+        strategies = separation_strategies(record)
+        assert strategies[0]["axis"] == "time"
+        assert strategies[0]["why"]
+
+    @pytest.mark.unit
+    def test_a_boundary_ranks_space_first(self) -> None:
+        record = formulate_contradiction("cache performance", "algorithm")
+        record["system"] = "a cache at the service boundary"
+        assert separation_strategies(record)[0]["axis"] == "space"
+
+    @pytest.mark.unit
+    def test_a_hint_word_inside_a_longer_word_does_not_count(self) -> None:
+        """ "model" is not "mode": whole words only, so ai-agents topics stay canonical."""
+        record = formulate_contradiction("cache performance", "ai-agents")
+        record["system"] = "a language model in the ai-agents domain"
+        strategies = separation_strategies(record)
+        assert [s["axis"] for s in strategies] == list(triz.SEPARATION_PRINCIPLES)
+        assert all(s["why"] == "" for s in strategies)
+
+    @pytest.mark.unit
+    def test_no_hint_keeps_the_canonical_order(self) -> None:
+        record = formulate_contradiction("cache performance", "algorithm")
+        record["system"] = "something plain"
+        axes = [s["axis"] for s in separation_strategies(record)]
+        assert axes == list(triz.SEPARATION_PRINCIPLES)
+        assert all(s["why"] == "" for s in separation_strategies(record))
+
+
+class TestSwapProbeReportsThePrincipleDelta:
+    """
+    Feature: The swapped formulation says whether it changes the answer
+
+    ARIZ-85C step 1.1 writes both contradictions; the display rule that
+    makes that cheap for a reader is to show the inverted one only when
+    its principle set differs. The probe carries both sets.
+    """
+
+    @pytest.mark.unit
+    def test_swap_probe_carries_both_principle_sets(self) -> None:
+        record = formulate_contradiction("cache performance", "algorithm")
+        swap = next(p for p in reformulation_probes(record) if p["kind"] == "swap")
+        assert swap["principles"] == [1, 15, 27]
+        assert isinstance(swap["swapped_principles"], list)
+        assert swap["principle_set_differs"] is True
+
+    @pytest.mark.unit
+    def test_a_pair_with_no_mapping_either_way_does_not_differ(self) -> None:
+        """Both directions fall to the defaults, so the inverted form adds nothing."""
+        record = formulate_contradiction("cache performance", "algorithm")
+        record["improving"], record["worsening"] = "alpha", "beta"
+        swap = reformulation_probes(record)[0]
+        assert swap["principle_set_differs"] is False
+        assert swap["principle_set_differs"] == (
+            set(swap["principles"]) != set(swap["swapped_principles"])
+        )
+
+
+class TestFieldAdjacencyCoversEveryDomain:
+    """
+    Feature: every classifier domain has adjacent fields of its own
+
+    "methodology" and "ai-agents" fell through to the general list, so
+    a TRIZ pass on a methodology topic searched systems theory, design
+    thinking and biomimicry, none of which is where its analogies live.
+    """
+
+    @pytest.mark.unit
+    def test_every_classifier_domain_has_a_row(self) -> None:
+        for domain in _DOMAIN_KEYWORDS:
+            assert domain in triz.FIELD_ADJACENCY, domain

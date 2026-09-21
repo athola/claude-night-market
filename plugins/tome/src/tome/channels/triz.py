@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import csv
 import functools
+import re
 from importlib import resources
 from typing import Any
 
@@ -90,6 +91,8 @@ FIELD_ADJACENCY: dict[str, list[str]] = {
     "financial": ["game theory", "ecology", "thermodynamics"],
     "devops": ["manufacturing", "supply chain management", "aerospace"],
     "security": ["military strategy", "immunology", "cryptography"],
+    "ai-agents": ["cognitive science", "control theory", "organizational design"],
+    "methodology": ["operations research", "cognitive psychology", "design theory"],
     "general": ["systems theory", "design thinking", "biomimicry"],
 }
 
@@ -192,8 +195,13 @@ _IDEAL_RESULT_TEMPLATES: dict[tuple[str, str], str] = {
 }
 
 
+def _keyword_hits(topic_lower: str, keywords: tuple[str, ...] | list[str]) -> int:
+    """The one exact-match predicate. The near-miss search must agree with it."""
+    return sum(1 for kw in keywords if kw in topic_lower)
+
+
 def _contradiction(
-    topic: str, domain: str, improving: str, worsening: str
+    topic: str, domain: str, improving: str, worsening: str, matched: str = "keyword"
 ) -> dict[str, str]:
     ideal_result = _IDEAL_RESULT_TEMPLATES.get(
         (improving, worsening),
@@ -205,6 +213,10 @@ def _contradiction(
         "worsening": worsening,
         "ideal_result": ideal_result,
         "contradiction": f"Improving {improving} worsens {worsening}",
+        # "keyword" when a catalogue row matched, "fallback" when none did,
+        # so a reader can tell a described topic from an undescribed one
+        # (ADR-0026).
+        "matched": matched,
     }
 
 
@@ -228,16 +240,20 @@ def formulate_contradictions(
 
     Returns:
         Non-empty list of dicts, each with keys: system, improving,
-        worsening, ideal_result, contradiction.
+        worsening, ideal_result, contradiction, matched.
     """
     topic_lower = topic.lower()
     scored = [
-        (sum(1 for kw in keywords if kw in topic_lower), position, imp, wors)
+        (_keyword_hits(topic_lower, keywords), position, imp, wors)
         for position, (imp, wors, keywords) in enumerate(_CONTRADICTION_CATALOGUE)
     ]
     hits = sorted((s for s in scored if s[0] > 0), key=lambda s: (-s[0], s[1]))
     if not hits:
-        return [_contradiction(topic, domain, "flexibility", "complexity")]
+        return [
+            _contradiction(
+                topic, domain, "flexibility", "complexity", matched="fallback"
+            )
+        ]
     return [
         _contradiction(topic, domain, imp, wors)
         for _, _, imp, wors in hits[: max(1, limit)]
@@ -255,6 +271,121 @@ def formulate_contradiction(topic: str, domain: str) -> dict[str, str]:
         contradiction.
     """
     return formulate_contradictions(topic, domain, limit=1)[0]
+
+
+def _edit_distance(a: str, b: str) -> int:
+    """Levenshtein distance, small strings only."""
+    previous = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        current = [i]
+        for j, cb in enumerate(b, 1):
+            current.append(
+                min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (ca != cb))
+            )
+        previous = current
+    return previous[-1]
+
+
+_NEAR_MIN_TOKEN = 4
+
+
+def near_resolutions(
+    topic: str, max_distance: int = 2, limit: int = 3
+) -> list[dict[str, Any]]:
+    """Catalogue rows a small change to the topic would have matched.
+
+    The exact matcher keeps only the zero set: a topic either contains a
+    row's keyword or it does not, and when nothing matches the fallback
+    fires. This keeps the residual instead (the level-set reading of
+    Madrigal's article): for each row with no exact hit, the smallest
+    edit distance between one of its keywords and one of the topic's
+    tokens. A row at distance 1 or 2 is the article's underwater
+    island, a formulation that would have matched under a nameable
+    change.
+
+    Satisficing governs the widening (Simon): when any row matches
+    exactly this returns nothing, so the existing contract holds; then
+    radius 1 is tried, then 2, stopping at the first radius that yields
+    a candidate and never past ``limit``. Tokens shorter than four
+    characters are ignored, since two edits from three letters reach
+    everything.
+
+    Returns:
+        Up to ``limit`` dicts with ``improving``, ``worsening``,
+        ``keyword``, ``term``, ``distance``, best first, catalogue
+        order on ties.
+    """
+    topic_lower = topic.lower()
+    if any(
+        _keyword_hits(topic_lower, keywords)
+        for _, _, keywords in _CONTRADICTION_CATALOGUE
+    ):
+        return []
+    tokens = [
+        t for t in re.findall(r"[a-z][a-z-]+", topic_lower) if len(t) >= _NEAR_MIN_TOKEN
+    ]
+    candidates: list[tuple[int, int, dict[str, Any]]] = []
+    for position, (imp, wors, keywords) in enumerate(_CONTRADICTION_CATALOGUE):
+        best: tuple[int, str, str] | None = None
+        for keyword in keywords:
+            for word in keyword.split():
+                if len(word) < _NEAR_MIN_TOKEN:
+                    continue
+                for token in tokens:
+                    distance = _edit_distance(word, token)
+                    if best is None or distance < best[0]:
+                        best = (distance, keyword, token)
+        if best is not None and best[0] <= max_distance:
+            candidates.append(
+                (
+                    best[0],
+                    position,
+                    {
+                        "improving": imp,
+                        "worsening": wors,
+                        "keyword": best[1],
+                        "term": best[2],
+                        "distance": best[0],
+                    },
+                )
+            )
+    for radius in range(1, max_distance + 1):
+        within = sorted(
+            (c for c in candidates if c[0] <= radius), key=lambda c: (c[0], c[1])
+        )
+        if within:
+            return [c[2] for c in within[:limit]]
+    return []
+
+
+# Opposed demands on one quantity: two names for how much of one thing,
+# which is a physical contradiction however the row is labeled. ARIZ-85C
+# step 3.3 triages these before any principle lookup. Advisory, and
+# syntactic: a contradiction that is vacuous for semantic reasons passes
+# through, and an empty matrix cell is never the signal.
+_OPPOSED_ON_ONE_QUANTITY: frozenset[frozenset[str]] = frozenset(
+    {
+        frozenset({"early stopping", "completeness"}),
+        frozenset({"coverage", "cost"}),
+        frozenset({"consistency", "availability"}),
+    }
+)
+
+
+def physical_contradiction(contradiction: dict[str, str]) -> bool:
+    """Is this two demands on one quantity rather than two parameters?
+
+    True when the pair is in the opposed-demands table or the two
+    labels share a word. Route a true result to
+    ``separation_strategies`` or ``formulate_ideality`` instead of the
+    principle search. The ``infeasible`` reformulation probe says how.
+    """
+    improving = contradiction.get("improving", "").lower()
+    worsening = contradiction.get("worsening", "").lower()
+    if frozenset({improving, worsening}) in _OPPOSED_ON_ONE_QUANTITY:
+        return True
+    shared = set(improving.split()) & set(worsening.split())
+    return any(len(word) >= _NEAR_MIN_TOKEN for word in shared)
 
 
 def formulate_ideality(topic: str, contradiction: dict[str, str]) -> dict[str, str]:
@@ -316,6 +447,32 @@ _SEPARATION_HINTS: dict[str, str] = {
 }
 
 
+_AXIS_HINT_WORDS: dict[str, tuple[str, ...]] = {
+    "time": (
+        "schedule",
+        "batch",
+        "nightly",
+        "phase",
+        "lifecycle",
+        "period",
+        "startup",
+        "shutdown",
+    ),
+    "space": (
+        "boundary",
+        "layer",
+        "module",
+        "region",
+        "edge",
+        "partition",
+        "tier",
+        "zone",
+    ),
+    "condition": ("flag", "mode", "input", "request", "tenant", "profile", "role"),
+    "system/scale": ("cluster", "subsystem", "supersystem", "fleet", "single", "whole"),
+}
+
+
 def separation_strategies(contradiction: dict[str, str]) -> list[dict[str, str]]:
     """Return the four TRIZ separation principles for a contradiction.
 
@@ -332,15 +489,195 @@ def separation_strategies(contradiction: dict[str, str]) -> list[dict[str, str]]
     """
     improving = contradiction.get("improving", "the requirement")
     worsening = contradiction.get("worsening", "its opposite")
+    system = contradiction.get("system", "").lower()
 
+    # The axis the system description points at comes first. A region
+    # with no solution still has a shape (the saddle-node reading in
+    # ADR-0026), and words like "schedule" or "boundary" say which way it
+    # points. Ties keep the canonical order.
     strategies: list[dict[str, str]] = []
     for axis in SEPARATION_PRINCIPLES:
+        hits = [w for w in _AXIS_HINT_WORDS[axis] if re.search(rf"\b{w}s?\b", system)]
         prompt = (
             f"Can you separate {improving} and {worsening} {_SEPARATION_HINTS[axis]}?"
         )
-        strategies.append({"axis": axis, "prompt": prompt})
-
+        strategies.append({"axis": axis, "prompt": prompt, "why": ", ".join(hits)})
+    strategies.sort(key=lambda s: -len(s["why"].split(", ")) if s["why"] else 0)
     return strategies
+
+
+# ---------------------------------------------------------------------------
+# Reformulation probes
+# ---------------------------------------------------------------------------
+# A contradiction record is a binary statement: improving X worsens Y.
+# "The Shadows Lurking in the Equations" (Madrigal, 2025) makes the case
+# for equations that the exact statement hides three things a relaxed
+# one shows: near-solutions that a small parameter shift surfaces,
+# structure visible only in a rearranged form, and regions where no
+# solution exists at all. Each of those is an operation TRIZ already
+# names, and the literature behind the article formalizes each one, so
+# the probes below carry a principle number and a dated source rather
+# than the article's metaphors. ADR-0026 records the mapping.
+
+_PROBE_SOURCES: dict[str, str] = {
+    "swap": (
+        "Duncker, On Problem-Solving (1945), restructuring; Liberti, "
+        "Reformulations in Mathematical Programming (LIX survey, 2009)"
+    ),
+    "relax": (
+        "Chinneck, Feasibility and Infeasibility in Optimization (2008); "
+        "Madrigal, The Shadows Lurking in the Equations (2025)"
+    ),
+    "shift": (
+        "Allgower and Georg, Numerical Continuation Methods (1990); "
+        "Chinneck (2008), sensitivity filter"
+    ),
+    "dynamize": (
+        "Leibniz integral rule as Feynman's parameter trick (Woods, "
+        "Advanced Calculus, 1926); Sotiriou and Faraoni, f(R) Theories of "
+        "Gravity (2010)"
+    ),
+    "infeasible": (
+        "Chinneck (2008), irreducible infeasible subsystems; Hipple, TRIZ "
+        "Separation Principles (2012)"
+    ),
+}
+
+
+def _principle_label(number: int) -> str:
+    name, _ = INVENTIVE_PRINCIPLES[number]
+    return f"{name} (#{number})"
+
+
+def reformulation_probes(contradiction: dict[str, str]) -> list[dict[str, Any]]:
+    """Five probes that reshape a contradiction before analogies are sought.
+
+    Returned in a fixed order so an agent answers or dismisses each one:
+
+    ``swap``
+        Write the contradiction the other way round. Which parameter is
+        called "improving" is a choice, and the principles a formulation
+        suggests follow from it (the other way round, #13).
+    ``relax``
+        Replace the exact statement with a range: how much of the
+        worsening is tolerable before the improvement stops paying
+        (partial or excessive action, #16).
+    ``shift``
+        Name the fixed parameter whose small move would dissolve the
+        trade-off, and the direction (parameter changes, #35). This is
+        the near-solution the article calls an underwater island, and
+        continuation methods follow it formally.
+    ``dynamize``
+        Promote a constant in the statement to a variable or a function
+        of the situation (dynamization, #15): the constant-as-variable
+        move behind Feynman's parameter trick and f(R) gravity.
+    ``infeasible``
+        Ask whether any value satisfies both demands inside the current
+        system. When none does, searching harder is the wrong move: the
+        statement is a physical contradiction, resolved by separation
+        along one of the four axes, or the system is at the end of its
+        curve and the ideal final result names its successor.
+
+    Args:
+        contradiction: A dict as produced by ``formulate_contradiction``;
+            the ``improving`` and ``worsening`` keys are reused.
+
+    Returns:
+        Five dicts with keys ``kind``, ``principle``, ``question``,
+        ``rationale``, ``source``.
+    """
+    improving = contradiction.get("improving", "the improving parameter")
+    worsening = contradiction.get("worsening", "the worsening parameter")
+    axes = ", ".join(SEPARATION_PRINCIPLES)
+    probes: list[dict[str, Any]] = [
+        {
+            "kind": "swap",
+            "principle": _principle_label(13),
+            "question": (
+                f"Restate it the other way round: improving {worsening} "
+                f"worsens {improving}. Which principles does that formulation "
+                "suggest that the first did not?"
+            ),
+            "rationale": (
+                "The picture depends on how the statement is arranged. A "
+                "rearrangement can expose structure the first form hid, and "
+                "the same trade-off written two ways yields different "
+                "principle suggestions."
+            ),
+        },
+        {
+            "kind": "relax",
+            "principle": _principle_label(16),
+            "question": (
+                f"Relax the exact statement: how much {worsening} is "
+                f"tolerable before {improving} stops paying, and where along "
+                "that range does the trade-off stop being one?"
+            ),
+            "rationale": (
+                "An exact contradiction hides near-resolutions. Plotting the "
+                "error instead of the equality shows where a partial or "
+                "excessive action already satisfies the need."
+            ),
+        },
+        {
+            "kind": "shift",
+            "principle": _principle_label(35),
+            "question": (
+                f"Which fixed parameter of the system, moved slightly and in "
+                f"which direction, would let {improving} rise without "
+                f"{worsening} rising? Name the parameter and the direction."
+            ),
+            "rationale": (
+                "A near-solution surfaces when a parameter shifts a little "
+                "(the article's 2.7 becoming 2.8). Continuation methods "
+                "follow a solution as a parameter moves; a sensitivity "
+                "ranking says which parameter to move first."
+            ),
+        },
+        {
+            "kind": "dynamize",
+            "principle": _principle_label(15),
+            "question": (
+                f"Which constant in the statement of {improving} versus "
+                f"{worsening} could become a variable, or a function of the "
+                "situation, instead of a fixed value?"
+            ),
+            "rationale": (
+                "Promoting a constant to a variable is the general move behind "
+                "the parameter trick for integrals and f(R) gravity: the "
+                "problem gains a dimension in which a solution may exist."
+            ),
+        },
+        {
+            "kind": "infeasible",
+            "principle": "Physical contradiction: separation, or the ideal final result",
+            "question": (
+                f"Is there any value at which {improving} and {worsening} are "
+                "both acceptable inside the current system? If none, stop "
+                "searching harder: separate the two demands in "
+                f"{axes}, or state the ideal final result and ask what "
+                "system delivers it without this one."
+            ),
+            "rationale": (
+                "A region with no solution still has a shape. In optimization "
+                "an irreducible infeasible subsystem names the demand whose "
+                "removal restores feasibility; in TRIZ that removal is a "
+                "separation, and a system at the end of its curve is replaced "
+                "rather than tuned."
+            ),
+        },
+    ]
+    for probe in probes:
+        probe["source"] = _PROBE_SOURCES[probe["kind"]]
+    # ARIZ-85C step 1.1 writes both contradictions and step 1.4 picks
+    # one. The display rule that makes that cheap for a reader: show the
+    # inverted form only when its principle set differs.
+    original = [p["number"] for p in suggest_inventive_principles(improving, worsening)]
+    swapped = [p["number"] for p in suggest_inventive_principles(worsening, improving)]
+    probes[0]["principles"] = original
+    probes[0]["swapped_principles"] = swapped
+    probes[0]["principle_set_differs"] = set(original) != set(swapped)
+    return probes
 
 
 def get_adjacent_fields(domain: str, depth: str) -> list[str]:

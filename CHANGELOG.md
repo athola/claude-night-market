@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Dependency floors raised to what the lock files already resolve.**
+  159 floors across the 24 `pyproject.toml` files now name the newest
+  release that still installs on each file's own `requires-python`,
+  so a 3.9 plugin floors at coverage 7.10.7 and bandit 1.8.6 while
+  the 3.12 root takes 7.16.1 and 1.9.4. Every cap and marker is kept,
+  pytest stays below 9 and mypy below 2 (both need Python 3.10), and
+  ruff 0.16.8 is declared in the three plugins that configured it
+  without depending on it (archetypes, cartograph, scry).
+
+### Fixed
+
+- **`run-plugin-tests.sh` no longer fails its EXIT trap when nothing
+  is staged.** bash 3.2 treats an empty array as unset under `set -u`,
+  so the temp-file cleanup aborted with `_TEMP_FILES[@]: unbound
+  variable` and the pre-commit hook showed red on every empty-index
+  run. The expansion is now guarded like `cov_flag` already was.
+
+### Added
+
+- **TRIZ records carry their residual** (tome, ADR-0026). Every
+  contradiction record says whether a catalogue row matched it
+  (`matched`), `near_resolutions` names the rows within two edits of a
+  topic no row described, `physical_contradiction` routes two demands
+  on one quantity to separation before any principle search,
+  `separation_strategies` ranks the axes by the system description and
+  says why, and the swap probe reports whether inverting the
+  contradiction changes its principle set. `FIELD_ADJACENCY` covers
+  every classifier domain. Read from Madrigal's "The Shadows Lurking
+  in the Equations" and the two Hacker News threads on it; each
+  mechanism cites the TRIZ step or the 1990s numerical method it
+  already existed as.
+
 ## [1.9.21] - 2026-09-17
 
 ### Added
