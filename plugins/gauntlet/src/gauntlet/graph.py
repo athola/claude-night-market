@@ -167,6 +167,11 @@ CREATE VIRTUAL TABLE IF NOT EXISTS nodes_fts USING fts5(
 """
 
 
+def _escape_like(value: str) -> str:
+    """Escape LIKE wildcards so an identifier matches only itself."""
+    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
 class GraphStore(SqliteGraphBase):
     """Persistent code knowledge graph backed by SQLite."""
 
@@ -271,6 +276,65 @@ class GraphStore(SqliteGraphBase):
             ),
         )
         self._conn.commit()
+
+    def resolve_call_targets(self) -> int:
+        """Point CALLS edges at the node that defines their callee.
+
+        The parser records a callee by the name written at the call site.
+        Everything that walks CALLS edges (flows, communities, blast
+        radius) looks the target up by qualified name, so an unresolved
+        edge is invisible to all of them. A bare name that exactly one
+        definition matches, preferring a definition in the calling file,
+        is rewritten to that definition. Calls into the standard library
+        or a dependency stay bare and count as external.
+
+        Returns the number of edges rewritten.
+        """
+        unresolved = self._conn.execute(
+            """SELECT e.id, e.source_qn, e.target_qn, e.file_path FROM edges e
+               WHERE e.kind = ?
+                 AND NOT EXISTS (
+                   SELECT 1 FROM nodes n WHERE n.qualified_name = e.target_qn
+                 )""",
+            (str(EdgeKind.CALLS),),
+        ).fetchall()
+        resolved = 0
+        with self._conn:
+            for edge_id, source_qn, target, edge_file in unresolved:
+                bare = target.rsplit(".", 1)[-1]
+                rows = self._conn.execute(
+                    """SELECT qualified_name, file_path FROM nodes
+                       WHERE kind != ? AND (
+                         qualified_name LIKE ? ESCAPE '\\'
+                         OR qualified_name LIKE ? ESCAPE '\\')""",
+                    (
+                        str(NodeKind.FILE),
+                        "%::" + _escape_like(bare),
+                        "%." + _escape_like(bare),
+                    ),
+                ).fetchall()
+                candidates = [
+                    qn for qn, _ in rows if qn.endswith(("::" + bare, "." + bare))
+                ]
+                local = [qn for qn, fp in rows if fp == edge_file and qn in candidates]
+                if len(local) == 1:
+                    chosen = local[0]
+                elif len(candidates) == 1:
+                    chosen = candidates[0]
+                else:
+                    continue
+                duplicate = self._conn.execute(
+                    "SELECT 1 FROM edges WHERE kind = ? AND source_qn = ? AND target_qn = ?",
+                    (str(EdgeKind.CALLS), source_qn, chosen),
+                ).fetchone()
+                if duplicate:
+                    self._conn.execute("DELETE FROM edges WHERE id = ?", (edge_id,))
+                else:
+                    self._conn.execute(
+                        "UPDATE edges SET target_qn = ? WHERE id = ?", (chosen, edge_id)
+                    )
+                resolved += 1
+        return resolved
 
     def get_edges_by_source(self, qualified_name: str) -> list[GraphEdge]:
         """Fetch all outgoing edges from a node."""

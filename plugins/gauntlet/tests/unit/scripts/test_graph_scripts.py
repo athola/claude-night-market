@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 import subprocess
 from pathlib import Path
 
@@ -205,3 +206,76 @@ class TestABuildOfNothingIsNotAGreenBuild:
         )
         assert result.returncode == 0, result.stderr
         assert json.loads(result.stdout)["nodes_created"] >= 2
+
+
+class TestGraphBuildStoresFlows:
+    """
+    Feature: A build persists the execution flows it traces
+
+    blast_radius scores a node partly by the stored flows it appears in.
+    A build that never stored any left that term at zero for every node.
+    """
+
+    @pytest.mark.unit
+    def test_full_build_reports_and_stores_flows(self, tmp_path: Path) -> None:
+        """
+        Given a module whose entry point calls two levels deep
+        When I run graph_build.py
+        Then the report counts at least one stored flow
+        And the flows table holds that many rows
+        """
+        (tmp_path / "chain.py").write_text(
+            "def leaf():\n    return 1\n\n\n"
+            "def middle():\n    return leaf()\n\n\n"
+            "def entry():\n    return middle()\n"
+        )
+        result = subprocess.run(
+            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        assert result.returncode == 0, result.stderr
+        report = json.loads(result.stdout)
+        assert report["flows_stored"] >= 1
+
+        conn = sqlite3.connect(tmp_path / ".gauntlet" / "graph.db")
+        try:
+            stored = conn.execute("SELECT COUNT(*) FROM flows").fetchone()[0]
+        finally:
+            conn.close()
+        assert stored == report["flows_stored"]
+
+    @pytest.mark.unit
+    def test_incremental_build_refreshes_flows(self, tmp_path: Path) -> None:
+        """
+        Given a built graph
+        When I run an incremental update
+        Then the report still carries a flows_stored count
+        """
+        (tmp_path / "chain.py").write_text(
+            "def leaf():\n    return 1\n\n\ndef entry():\n    return leaf()\n"
+        )
+        subprocess.run(
+            ["git", "init", "-q", str(tmp_path)], capture_output=True, check=True
+        )
+        subprocess.run(
+            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True,
+        )
+        result = subprocess.run(
+            [
+                "python3",
+                str(_SCRIPTS_DIR / "graph_build.py"),
+                str(tmp_path),
+                "--incremental",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        assert result.returncode == 0, result.stderr
+        assert "flows_stored" in json.loads(result.stdout)

@@ -13,6 +13,7 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _SRC_DIR = _SCRIPT_DIR.parent / "src"
 sys.path.insert(0, str(_SRC_DIR))
 
+from gauntlet.flows import trace_flows  # noqa: E402 - sys.path modified above
 from gauntlet.graph import GraphStore  # noqa: E402 - sys.path modified above
 from gauntlet.incremental import (  # noqa: E402 - sys.path modified above
     full_build,
@@ -68,6 +69,11 @@ def main() -> None:
                 )
                 print(json.dumps(report, indent=2))
                 sys.exit(2)
+        # blast_radius scores a node by the stored flows it sits in. Tracing
+        # without storing left that term at zero for every node.
+        flows = trace_flows(graph)
+        graph.store_flows(flows)
+        report["flows_stored"] = len(flows)
         print(json.dumps(report, indent=2))
     finally:
         graph.close()

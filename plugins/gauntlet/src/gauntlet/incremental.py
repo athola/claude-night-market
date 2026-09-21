@@ -188,6 +188,7 @@ def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
             total_nodes += len(nodes)
             total_edges += len(edges)
 
+    edges_resolved = graph.resolve_call_targets()
     graph.rebuild_fts()
 
     # Store build metadata
@@ -201,6 +202,7 @@ def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
         "files_parsed": len(files),
         "nodes_created": total_nodes,
         "edges_created": total_edges,
+        "edges_resolved": edges_resolved,
         "duration_sec": duration,
     }
 
@@ -265,6 +267,7 @@ def incremental_update(
             total_nodes += len(nodes)
             total_edges += len(edges)
 
+    edges_resolved = graph.resolve_call_targets()
     graph.rebuild_fts()
 
     duration = round(time.monotonic() - start, 2)
@@ -276,5 +279,6 @@ def incremental_update(
         "files_parsed": len(files_to_parse),
         "nodes_created": total_nodes,
         "edges_created": total_edges,
+        "edges_resolved": edges_resolved,
         "duration_sec": duration,
     }
