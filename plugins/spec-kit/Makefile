@@ -22,8 +22,8 @@ TEST_DIR ?= tests
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Default target
 help: ## Show this help message
@@ -135,9 +135,13 @@ demo-skills: ## Validate spec-kit skill structure
 	done
 	@echo ""
 	@echo "Skill coverage:"
-	@echo "  spec-writing:        $$(test -f skills/spec-writing/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  task-planning:       $$(test -f skills/task-planning/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  speckit-orchestrator: $$(test -f skills/speckit-orchestrator/SKILL.md && echo '[OK]' || echo '[X]')"
+	@fail=0; for skill in spec-writing task-planning speckit-orchestrator; do \
+		if [ -f "skills/$$skill/SKILL.md" ]; then \
+			printf '  %-21s [OK]\n' "$$skill:"; \
+		else \
+			printf '  %-21s [X]\n' "$$skill:"; fail=1; \
+		fi; \
+	done; exit $$fail
 	@echo ""
 	@echo "Commands:"
 	@find commands/ -maxdepth 1 -name "*.md" 2>/dev/null | wc -l | xargs -I{} echo "  {} commands defined"

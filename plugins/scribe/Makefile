@@ -11,7 +11,7 @@
 
 # Include shared configuration for markdown-only plugins
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/markdown-only.mk
+include $(ABSTRACT_DIR)/config/make/markdown-only.mk
 
 # ---------- Help ----------
 help: ## Show this help message

@@ -26,8 +26,8 @@ TEST_UNIT_ARGS := -m "unit or not integration"
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Prevent parallel execution for targets that share resources
 
@@ -35,7 +35,7 @@ ABSTRACT_DIR := ../abstract
 help: ## Show this help message
 	@echo "Sanctum Plugin - Make Targets"
 	@echo "=============================="
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' Makefile
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # ---------- Installation ----------
 install: ## Install development dependencies
@@ -139,10 +139,14 @@ demo-commit: ## Demo commit message generation workflow
 	@echo "Demonstrating commit-messages skill workflow..."
 	@echo ""
 	@echo "Step 1: Gather context"
-	@git status --short | head -10 || echo "(no changes)"
+	@out=$$(git status --short) || out=""; \
+	if [ -n "$$out" ]; then printf '%s\n' "$$out" | head -10; \
+	else echo "(no changes)"; fi
 	@echo ""
 	@echo "Step 2: Analyze changes"
-	@git diff --stat HEAD 2>/dev/null | head -10 || echo "(no staged changes)"
+	@out=$$(git diff --stat HEAD 2>/dev/null) || out=""; \
+	if [ -n "$$out" ]; then printf '%s\n' "$$out" | head -10; \
+	else echo "(no staged changes)"; fi
 	@echo ""
 	@echo "Step 3: Generate commit message format"
 	@echo "  Type: feat|fix|docs|style|refactor|test|chore"
@@ -162,7 +166,10 @@ demo-pr-prep: ## Demo PR preparation workflow
 	@git log --oneline -5
 	@echo ""
 	@echo "Step 2: Change summary"
-	@git diff --stat HEAD~3..HEAD 2>/dev/null | head -10 || git diff --stat HEAD~1..HEAD
+	@out=$$(git diff --stat HEAD~3..HEAD 2>/dev/null) \
+		|| out=$$(git diff --stat HEAD~1..HEAD 2>/dev/null) \
+		|| out="(no commit history to summarize)"; \
+	printf '%s\n' "$$out" | head -10
 	@echo ""
 	@echo "Step 3: PR template structure"
 	@echo "  ## Summary"
@@ -183,7 +190,8 @@ demo-git-workspace: ## Demo git workspace review
 	@git log --oneline -n 10 --since="1 week ago" || git log --oneline -n 5
 	@echo ""
 	@echo "Branches:"
-	@git branch -a | head -10 || true
+	@out=$$(git branch -a 2>/dev/null) || out="(branch listing unavailable)"; \
+	printf '%s\n' "$$out" | head -10
 	@echo ""
 	@echo "Git workspace demo complete. Use sanctum:git-workspace-review for full analysis."
 
@@ -196,11 +204,13 @@ demo-skills: ## Validate sanctum skill structure
 	done
 	@echo ""
 	@echo "Skill coverage:"
-	@echo "  commit-messages:     $$(test -f skills/commit-messages/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  pr-prep:             $$(test -f skills/pr-prep/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  git-workspace-review: $$(test -f skills/git-workspace-review/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  doc-updates:         $$(test -f skills/doc-updates/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  version-updates:     $$(test -f skills/version-updates/SKILL.md && echo '[OK]' || echo '[X]')"
+	@fail=0; for skill in commit-messages pr-prep git-workspace-review doc-updates version-updates; do \
+		if [ -f "skills/$$skill/SKILL.md" ]; then \
+			printf '  %-21s [OK]\n' "$$skill:"; \
+		else \
+			printf '  %-21s [X]\n' "$$skill:"; fail=1; \
+		fi; \
+	done; exit $$fail
 
 plugin-check: demo-commit demo-pr-prep demo-git-workspace demo-skills ## Run all demo workflows
 	@echo ""
@@ -251,7 +261,9 @@ demo-commit-msg: ## Demo commit-msg command (LIVE)
 	@echo ""
 	@echo "Running commit-msg on sanctum plugin..."
 	@echo ""
-	git log --oneline -1 | head -1 || echo 'Commit-msg: Generates conventional commit messages' || echo "  [INFO] Tool execution completed"
+	@out=$$(git log --oneline -1 2>/dev/null) \
+		|| out='Commit-msg: Generates conventional commit messages'; \
+	printf '%s\n' "$$out" | head -1
 	@echo ""
 	@echo "Use /commit-msg for full workflow."
 

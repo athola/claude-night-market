@@ -31,8 +31,8 @@ BANDIT_TARGETS := $(SRC_DIRS)
 TEST_QUICK_ARGS := -v --no-cov --tb=short
 
 # Include shared configuration from abstract plugin (self)
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Optional tool detection, used only by install-hooks
 HAS_PRE_COMMIT := $(shell command -v pre-commit 2>/dev/null)

@@ -1,6 +1,6 @@
 #!/bin/sh
-# Run shellcheck across all .sh files in the repository.
-# Usage: scripts/shellcheck.sh [-h] [-x|-t] [-s SHELL]
+# Run shellcheck across every tracked .sh file in the repository.
+# Usage: scripts/shellcheck.sh [-h] [-x|-t] [-s SHELL] [-S SEVERITY]
 set -eu
 
 MYDIR="${0%/*}"
@@ -9,15 +9,23 @@ readonly MYDIR
 # shellcheck source=scripts/logging.sh
 . "${MYDIR%/}/logging.sh"
 
-REQUIRED_DEPENDENCIES="shellcheck"
+REQUIRED_DEPENDENCIES="shellcheck git"
 XTRACE=0
-SHELL_DIALECT="sh"
+# Empty means "let each file's shebang decide". 37 of the 39 scripts here
+# declare bash, so pinning a dialect reports every bash construct as an
+# SC3xxx portability violation against a target no script claimed.
+SHELL_DIALECT=""
+# The floor separates defects from notes. Below `warning` the gate's
+# verdict is dominated by style opinions and stops being read.
+SEVERITY="warning"
 
 usage() {
-  log "Usage: scripts/shellcheck.sh [-h] [-x|-t] [-s SHELL]"
-  printf '  -h       Show this help and exit (exit 0)\n'
-  printf '  -x, -t   Enable xtrace (set -x) for debugging\n'
-  printf '  -s SHELL Shell dialect passed to shellcheck -s (default: sh)\n'
+  log "Usage: scripts/shellcheck.sh [-h] [-x|-t] [-s SHELL] [-S SEVERITY]"
+  printf '  -h          Show this help and exit (exit 0)\n'
+  printf '  -x, -t      Enable xtrace (set -x) for debugging\n'
+  printf '  -s SHELL    Force a shell dialect (default: each shebang decides)\n'
+  printf '  -S SEVERITY shellcheck severity floor: error, warning, info, style\n'
+  printf '              (default: warning)\n'
 }
 
 depcheck() {
@@ -34,23 +42,36 @@ depcheck() {
   return 1
 }
 
-run_shellcheck() {
-  _sc_dialect="${1:?run_shellcheck: dialect required}"
-  _sc_root="${MYDIR%/*}"
-  _sc_fail=0
+# The repository root, absolute. `${MYDIR%/*}` returned its input unchanged
+# when the invocation had no leading path (`scripts/shellcheck.sh`), so the
+# scan root became `scripts` and 24 of the 39 scripts, every hook among
+# them, were never looked at.
+repo_root() {
+  (cd "${MYDIR%/}/.." && pwd)
+}
 
-  log "Running shellcheck -s ${_sc_dialect} on all .sh files…"
+run_shellcheck() {
+  _sc_root="$(repo_root)"
+  _sc_fail=0
+  # -x follows `.`/`source` directives. Without it every library-sourcing
+  # script raises SC1091 and the gate fails on itself.
+  set -- -x -S "${SEVERITY}"
+  case "${SHELL_DIALECT}" in
+    "") ;;
+    *) set -- "$@" -s "${SHELL_DIALECT}" ;;
+  esac
+
+  log "Running shellcheck -S ${SEVERITY} on every tracked .sh file…"
   while IFS= read -r _sc_file; do
-    shellcheck -s "${_sc_dialect}" "${_sc_file}" || {
+    case "${_sc_file}" in
+      "") continue ;;
+    esac
+    shellcheck "$@" "${_sc_root}/${_sc_file}" || {
       log 4 "Failed: ${_sc_file}"
       _sc_fail=1
     }
   done <<EOF
-$(find "${_sc_root}" \
-    -not -path "${_sc_root}/.venv/*" \
-    -not -path "${_sc_root}/.git/*" \
-    -not -path "*/node_modules/*" \
-    -name "*.sh" -type f | sort)
+$(cd "${_sc_root}" && git ls-files '*.sh' | sort)
 EOF
 
   case "${_sc_fail}" in
@@ -76,6 +97,10 @@ main() {
         SHELL_DIALECT="${2:?-s requires a shell dialect argument}"
         shift
         ;;
+      -S)
+        SEVERITY="${2:?-S requires a severity argument}"
+        shift
+        ;;
       *)
         log 4 "Unknown option: ${1}"
         usage
@@ -90,7 +115,7 @@ main() {
   esac
 
   depcheck || exit 1
-  run_shellcheck "${SHELL_DIALECT}"
+  run_shellcheck
 }
 
 main "$@"

@@ -13,7 +13,7 @@
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts src
-UV ?= UV_CACHE_DIR=$(PWD)/.uv-cache uv
+UV ?= UV_CACHE_DIR=$(CURDIR)/.uv-cache uv
 COV_DIRS := $(SRC_DIRS)
 
 # Extend the shared python.mk test-unit recipe with queue cleanup instead of
@@ -24,21 +24,21 @@ TEST_UNIT_EXTRA ?= rm -f $(QUEUE_DIR)/websearch-*.md $(QUEUE_DIR)/webfetch-*.md 
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # ---------- Plugin-specific Variables ----------
 PY              ?= $(UV_RUN_PYTHON)
 CLI             ?= $(UV) run python scripts/memory_palace_cli.py
 INDEX_BUILDER   ?= $(UV) run python scripts/build_indexes.py
-PALACES_DIR     ?= $(PWD)/.demo-palaces
+PALACES_DIR     ?= $(CURDIR)/.demo-palaces
 # Hard-assigned, so an exported PALACES_DIR cannot redirect it. The
 # demo targets below delete this directory, and PALACES_DIR is the
 # variable the plugin's own CLI reads to find a real palace store
 # (scripts/memory_palace_cli.py, src/memory_palace/palace_manager.py).
 # With `?=` on both, `make plugin-check` reached demo-reset and removed
 # whatever store the contributor had exported.
-DEMO_PALACES_DIR := $(PWD)/.demo-palaces
+DEMO_PALACES_DIR := $(CURDIR)/.demo-palaces
 GARDEN_FILE     ?= examples/garden-sample.json
 IMPORT_SRC      ?= examples/palaces-sample.json
 EXPORT_DEST     ?= reports/palaces-export.json
@@ -54,13 +54,7 @@ help: ## Show this help message
 	@echo ""
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
-	@echo "Palace Management (use variables NAME, DOMAIN, METAPHOR, QUERY, ID):"
-	@echo "  create            Create palace (NAME, DOMAIN, METAPHOR)"
-	@echo "  list              List palaces"
-	@echo "  search            Search with QUERY"
-	@echo "  delete            Delete by ID"
-	@echo "  export/import     Bundle palaces"
-	@echo ""
+	@echo "Palace targets take NAME, DOMAIN, METAPHOR, QUERY, ID and SOURCE."
 	@echo "Variables: PALACES_DIR=$(PALACES_DIR)"
 
 # ---------- Dependency management ----------
@@ -145,31 +139,37 @@ install:
 	$(PY) scripts/memory_palace_cli.py install || echo "Skip install (permission denied)"
 
 # ---------- Palace management (PALACES_DIR scoped) ----------
-create:
+create: ## Create a palace (NAME, DOMAIN, METAPHOR)
 	PALACES_DIR=$(PALACES_DIR) $(CLI) create "$(NAME)" "$(DOMAIN)" --metaphor "$(METAPHOR)"
 
-list:
-	PALACES_DIR=$(PALACES_DIR) $(CLI) list || true
+list: ## List palaces in PALACES_DIR
+	PALACES_DIR=$(PALACES_DIR) $(CLI) list
 
-search:
+search: ## Search palaces for QUERY
+# The `|| true` here is the one that survives, and it is masking a real
+# defect rather than a flaky one: `examples/palaces-sample.json` is
+# `{"palaces": []}`, so `demo-import` imports nothing, `list` prints "No
+# palaces found" and `search` exits 1 with "No palaces indexed". Removing
+# it turns `plugin-check` red on an empty demo fixture, which is a
+# content fix outside this change. `list` no longer carries one.
 	PALACES_DIR=$(PALACES_DIR) $(CLI) search "$(QUERY)" || true
 
-delete:
+delete: ## Delete a palace by ID
 	@if [ -z "$(ID)" ]; then echo "Set ID=<palace_id>" && exit 1; fi
-	PALACES_DIR=$(PALACES_DIR) $(CLI) manager delete $(ID)
+	PALACES_DIR=$(PALACES_DIR) $(CLI) manager delete "$(ID)"
 
-manager:
+manager: ## Run the palace manager with ARGS
 	PALACES_DIR=$(PALACES_DIR) $(CLI) manager $(ARGS)
 
-export:
+export: ## Bundle palaces to EXPORT_DEST
 	@mkdir -p $(dir $(EXPORT_DEST))
 	PALACES_DIR=$(PALACES_DIR) $(CLI) export --destination "$(EXPORT_DEST)"
 
-import:
+import: ## Import a palace bundle from SOURCE
 	PALACES_DIR=$(PALACES_DIR) $(CLI) import --source "$(IMPORT_SRC)" $(if $(OVERWRITE),--overwrite,)
 
 # ---------- Garden utilities ----------
-garden-metrics:
+garden-metrics: ## Report knowledge-garden metrics for GARDEN_FILE
 	GARDEN_FILE=$(GARDEN_FILE) $(CLI) garden metrics --path "$(GARDEN_FILE)" --format brief || true
 
 garden-tend:
@@ -223,17 +223,17 @@ demo-reset: ## Recreate the demo palace store (never the user's own)
 # `|| true` here undercut the fail=1 propagation that root `plugin-check`
 # gained this branch: a failing import or export still reported the whole
 # plugin as passing. Guarded by tests/test_gate_exit_codes.py.
-demo-import: demo-reset
+demo-import: demo-reset ## Import the sample bundle into the demo store
 	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) import --source "$(IMPORT_SRC)" --overwrite
 
-demo-export:
+demo-export: ## Export the demo store to EXPORT_DEST
 	@mkdir -p $(dir $(EXPORT_DEST))
 	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) export --destination "$(EXPORT_DEST)"
 
-demo-status:
+demo-status: ## Show status of the demo store
 	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) status
 
-plugin-check: demo-import garden-metrics list search demo-export
+plugin-check: demo-import garden-metrics list search demo-export ## Run the demo/dogfood chain
 	@echo "Plugin demo completed against $(DEMO_PALACES_DIR)"
 
 # Include local overrides if they exist (before catch-all rule)

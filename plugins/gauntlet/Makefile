@@ -19,8 +19,8 @@ COV_DIRS := src/gauntlet
 PYTEST_TARGETS := tests/
 
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Note: lint, format, type-check, typecheck, security, test-unit,
 # test-coverage, test-quick are provided by python.mk
@@ -71,7 +71,10 @@ demo-gauntlet-extract: ## Demo: extract knowledge entries from gauntlet's own so
 
 demo-gauntlet-curate: ## Demo: read-only survey of the bundled problem bank (LIVE)
 	@echo "=== gauntlet-curate Demo: read-only problem-bank survey (LIVE) ==="
-	@$(UV_RUN) python scripts/curate_problems.py --verbose 2>&1 | head -30 || true
+	@out=$$($(UV_RUN) python scripts/curate_problems.py --verbose 2>&1) \
+		|| { printf '%s\n' "$$out" | head -30; \
+		     echo "  [FAIL] curate_problems.py exited non-zero"; exit 1; }; \
+	printf '%s\n' "$$out" | head -30
 
 demo-gauntlet-graph: ## Demo: show graph_query CLI surface and supported actions (LIVE)
 	@echo "=== gauntlet-graph Demo: graph_query CLI surface (LIVE) ==="

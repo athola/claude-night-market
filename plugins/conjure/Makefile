@@ -19,8 +19,8 @@ TYPECHECK_EXTRA = $(UV_RUN) ty check scripts/
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Default target
 help: ## Show this help message
@@ -45,12 +45,12 @@ help: ## Show this help message
 
 # Dependency management
 deps: ## Install and sync dependencies
-	UV_CACHE_DIR=$(PWD)/.uv-cache uv sync
-	UV_CACHE_DIR=$(PWD)/.uv-cache uv run python -c "import tiktoken; print('tiktoken available')"
+	UV_CACHE_DIR=$(CURDIR)/.uv-cache uv sync
+	UV_CACHE_DIR=$(CURDIR)/.uv-cache uv run python -c "import tiktoken; print('tiktoken available')"
 
 demo-token-estimate: ## Demo token estimation with tiktoken
 	@echo "Demonstrating token estimation with tiktoken"
-	UV_CACHE_DIR=$(PWD)/.uv-cache uv run python -c "from scripts.delegation_executor import estimate_tokens; files=['scripts/delegation_executor.py', 'scripts/quota_tracker.py']; prompt='Summarize the delegation executor and quota tracker.'; print(f'Estimated tokens: {estimate_tokens(files, prompt)}')"
+	UV_CACHE_DIR=$(CURDIR)/.uv-cache uv run python -c "from scripts.delegation_executor import estimate_tokens; files=['scripts/delegation_executor.py', 'scripts/quota_tracker.py']; prompt='Summarize the delegation executor and quota tracker.'; print(f'Estimated tokens: {estimate_tokens(files, prompt)}')"
 
 check: ## Run dependency validation
 	@echo "Running dependency validation..."

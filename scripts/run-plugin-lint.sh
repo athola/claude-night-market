@@ -42,7 +42,8 @@ SKIPPED_PLUGINS=()
 
 run_plugin_lint() {
     local plugin_dir="$1"
-    local plugin_name=$(basename "$plugin_dir")
+    local plugin_name
+    plugin_name=$(basename "$plugin_dir")
 
     echo -e "${YELLOW}Linting $plugin_name...${NC}"
 

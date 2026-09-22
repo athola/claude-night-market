@@ -20,7 +20,9 @@ SHELL := /bin/bash
 # 3.81 from the Xcode command line tools, which ignores both, so every
 # recipe below runs without -euo pipefail and a failing pipeline stage
 # passes. Say so once per invocation rather than pretend the gate holds.
-ifeq ($(filter 3.82 4.%,$(firstword $(MAKE_VERSION))),)
+# The filter names the releases that ignore the assignment, so a make
+# newer than 4.x does not fall through into advice it has outgrown.
+ifneq ($(filter 3.7% 3.80 3.81,$(firstword $(MAKE_VERSION))),)
 $(warning GNU make $(MAKE_VERSION) ignores .SHELLFLAGS and .ONESHELL; recipes run without -euo pipefail. Install GNU make 3.82+ (brew install make) and run gmake.)
 endif
 
@@ -33,7 +35,7 @@ UV ?= uv
 
 # Verify required tools are available (fail fast with actionable errors).
 # help, clean and status need neither tool, so skip the probes for them.
-ifneq ($(filter-out help clean status,$(MAKECMDGOALS)),)
+ifneq ($(filter-out help clean status,$(or $(MAKECMDGOALS),$(.DEFAULT_GOAL))),)
 ifeq ($(shell command -v $(UV) 2>/dev/null),)
 $(error uv is required but not installed. Install via: curl -LsSf https://astral.sh/uv/install.sh | sh)
 endif
@@ -56,7 +58,11 @@ BUILD_DIR ?= build
 DIST_DIR ?= dist
 COV_DIR ?= htmlcov
 DOCS_BUILD_DIR ?= docs/build
-PYTHONPATH ?= src
+# No PYTHONPATH here. Make exports a variable to recipes only when it
+# came from the environment or is marked `export`, so `PYTHONPATH ?= src`
+# reached no recipe and only made `debug-variables` report a value the
+# recipes did not have. The one consumer sets it inline:
+# `plugins/abstract/Makefile:99` writes `@PYTHONPATH=src $(PYTEST) ...`.
 
 # Source directories (override via environment or Makefile.local)
 SCRIPTS_DIR ?= scripts

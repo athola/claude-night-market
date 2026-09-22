@@ -18,8 +18,8 @@ PYTEST_TARGETS := tests/
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # ---------- Help ----------
 help: ## Show this help message
@@ -130,15 +130,13 @@ demo-skills: ## Validate attune skill structure
 	done 2>/dev/null || echo "  (no skills found)"
 	@echo ""
 	@echo "Skill coverage:"
-	@echo "  project-init:         $$(test -f skills/project-init/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  project-brainstorming: $$(test -f skills/project-brainstorming/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  project-specification: $$(test -f skills/project-specification/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  project-planning:     $$(test -f skills/project-planning/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  project-execution:    $$(test -f skills/project-execution/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  architecture-aware-init: $$(test -f skills/architecture-aware-init/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  makefile-generation:  $$(test -f skills/makefile-generation/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  precommit-setup:      $$(test -f skills/precommit-setup/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  workflow-setup:       $$(test -f skills/workflow-setup/SKILL.md && echo '[OK]' || echo '[X]')"
+	@fail=0; for skill in project-init project-brainstorming project-specification project-planning project-execution architecture-aware-init makefile-generation precommit-setup workflow-setup; do \
+		if [ -f "skills/$$skill/SKILL.md" ]; then \
+			printf '  %-24s [OK]\n' "$$skill:"; \
+		else \
+			printf '  %-24s [X]\n' "$$skill:"; fail=1; \
+		fi; \
+	done; exit $$fail
 
 demo-attune: ## Demo attune command
 	@echo "=== attune Demo ==="

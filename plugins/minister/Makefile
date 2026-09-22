@@ -18,8 +18,8 @@ TEST_UNIT_ARGS := -v
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Default target
 help: ## Show this help message
@@ -131,7 +131,9 @@ demo-initiatives: ## Demo initiative management
 	@echo "BDD scenarios: $$(find tests/bdd -name 'test_*.py' 2>/dev/null | wc -l)"
 	@echo ""
 	@echo "Step 2: Data directory"
-	@ls data/ 2>/dev/null | head -5 || echo "  (no data files)"
+	@out=$$(ls data/ 2>/dev/null) || out=""; \
+	if [ -n "$$out" ]; then printf '%s\n' "$$out" | head -5; \
+	else echo "  (no data files)"; fi
 	@echo ""
 	@echo "Initiatives demo complete."
 

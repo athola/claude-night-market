@@ -21,8 +21,8 @@ TEST_UNIT_ARGS := -v -m unit
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # ---------- Help ----------
 help: ## Show this help message
@@ -63,7 +63,7 @@ test-parallel: ## Run tests in parallel
 
 test-file: ## Run specific test file (FILE=path)
 	@if [ -z "$(FILE)" ]; then echo "Usage: make test-file FILE=path/to/test.py"; exit 1; fi
-	$(PYTEST) -v $(FILE)
+	$(PYTEST) -v "$(FILE)"
 
 test-pattern: ## Run tests matching pattern (PATTERN=name)
 	@if [ -z "$(PATTERN)" ]; then echo "Usage: make test-pattern PATTERN=test_name"; exit 1; fi

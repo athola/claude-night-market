@@ -19,7 +19,7 @@ RESET := \033[0m
 
 # Phony targets
 .PHONY: help fmt lint check test test-unit test-integration build build-release \
-	clean install run status
+	clean install run status ci dev-setup
 
 help: ## Show this help message
 	@echo "$(BOLD)$(BIN) - Development Makefile$(RESET)"
@@ -80,8 +80,8 @@ status: ## Show project status
 	@echo "$(BOLD)=== $(BIN) Status ===$(RESET)"
 	@version=$$(grep '^version' Cargo.toml | head -1 | cut -d'=' -f2 | tr -d ' "'); \
 	echo "Version: $$version"
-	@echo "Rust: $$(rustc --version)"
-	@echo "Cargo: $$(cargo --version)"
+	@echo "Rust: $$(rustc --version 2>/dev/null || echo 'not installed (see https://rustup.rs)')"
+	@echo "Cargo: $$(cargo --version 2>/dev/null || echo 'not installed (see https://rustup.rs)')"
 	@echo "Branch: $$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'N/A')"
 	@echo "Binary: $(BIN_PATH) $$(test -f $(BIN_PATH) && echo '(exists)' || echo '(not built)')"
 

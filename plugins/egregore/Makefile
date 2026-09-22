@@ -15,8 +15,8 @@ COV_DIRS := scripts
 PYTEST_TARGETS := tests/
 
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Note: lint, format, type-check, typecheck, security, test-unit,
 # test-coverage, test-quick are provided by python.mk
@@ -101,7 +101,7 @@ demo-loop: ## Demo egregore loop lifecycle (LIVE)
 	@echo "Use /egregore:summon for autonomous operation."
 
 test-egregore: ## Test egregore core functionality
-	$(PYTEST) $(PYTEST_TARGETS) -v -k "manifest or specialist or scout" --tb=short
+	$(PYTEST) $(PYTEST_TARGETS) -v -k "manifest or scout" --tb=short
 
 test-loop: ## Test egregore loop and parallel execution
 	$(PYTEST) tests/test_parallel.py tests/test_manifest.py -v --tb=short

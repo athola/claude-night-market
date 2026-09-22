@@ -13,8 +13,8 @@ COV_DIRS := src/oracle
 PYTEST_TARGETS := tests/
 
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Note: lint, format, type-check, typecheck, security, test-unit,
 # test-coverage, test-quick are provided by python.mk

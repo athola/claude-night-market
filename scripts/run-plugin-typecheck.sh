@@ -60,7 +60,8 @@ run_hooks_typecheck() {
 
 run_plugin_typecheck() {
     local plugin_dir="$1"
-    local plugin_name=$(basename "$plugin_dir")
+    local plugin_name
+    plugin_name=$(basename "$plugin_dir")
     local main_rc=0
     local checked=0
 
@@ -72,7 +73,8 @@ run_plugin_typecheck() {
        ( grep -qE "^(typecheck|type-check):" "$plugin_dir/Makefile" 2>/dev/null || \
          (cd "$plugin_dir" && make -n typecheck >/dev/null 2>&1) ); then
         # Prefer explicit target in Makefile, fall back to typecheck
-        local target=$(grep -oE "^(typecheck|type-check):" "$plugin_dir/Makefile" 2>/dev/null | head -1 | tr -d ':')
+        local target
+        target=$(grep -oE "^(typecheck|type-check):" "$plugin_dir/Makefile" 2>/dev/null | head -1 | tr -d ':')
         if [ -z "$target" ]; then
             target="typecheck"
         fi
