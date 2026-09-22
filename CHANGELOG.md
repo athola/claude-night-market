@@ -20,6 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Every session start printed a traceback instead of running the
+  memory-palace capture surfacer.** The `index_surfacer` SessionStart
+  hook needs one name, `persistent_root` from `memory_palace.paths`,
+  but importing any submodule executes the package `__init__` first,
+  and that file eagerly imported `EmbeddingIndex`, which pulls in the
+  corpus package and PyYAML. Hooks run under whatever `python3` the
+  operator's PATH resolves, an interpreter with no project
+  dependencies installed, so the import raised `ModuleNotFoundError`
+  before the hook read its payload. The package root now resolves
+  every export on first attribute access, extending the pattern it
+  already applied to the networkx-backed `PalaceGraphAnalyzer`.
 - **`run-plugin-tests.sh` no longer fails its EXIT trap when nothing
   is staged.** bash 3.2 treats an empty array as unset under `set -u`,
   so the temp-file cleanup aborted with `_TEMP_FILES[@]: unbound
