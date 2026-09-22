@@ -188,7 +188,13 @@ output=$(cat <<EOF
 EOF
 )
 
-# Cache the output for future invocations (reduces git overhead)
+# Cache the output for future invocations (reduces git overhead).
+# The trap covers every path that does not reach the rename. This hook
+# runs on every prompt submission, so a stranded temp file per failure
+# accumulates at the rate the failure path is taken. `rm -f` on an empty
+# variable is a no-op, so the trap is safe before the assignment lands.
+cache_tmp=""
+trap 'rm -f "$cache_tmp"' EXIT
 cache_tmp=$(mktemp "$CACHE_DIR/scope-guard-cache.XXXXXX" 2>/dev/null) && {
     printf '%s\n' "$output" > "$cache_tmp" && mv -f "$cache_tmp" "$CACHE_FILE"
 } 2>/dev/null || true

@@ -61,8 +61,6 @@ EOF
         ;;
 esac
 
-# Determine plugin root directory
-PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Check bypass mode from environment
 CONSERVATION_MODE="${CONSERVATION_MODE:-normal}"

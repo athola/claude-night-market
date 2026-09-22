@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+# shellcheck shell=bash
 # Shared JSON utilities for Claude Code hooks
 # Provides portable JSON handling across BSD/macOS/Linux with jq/grep/sed fallbacks
 #

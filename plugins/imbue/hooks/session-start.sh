@@ -56,8 +56,6 @@ EOF
         ;;
 esac
 
-# Determine plugin root directory
-PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Portable number extraction (works without grep -P)
 # Usage: extract_number "string" "pattern_word" -> outputs the number before pattern_word

@@ -1,11 +1,11 @@
-#!/usr/bin/env bash
+# shellcheck shell=bash
 #
 # Interactive Authentication Module
 # Provides token caching, session management, and multi-service support
 # Requires: bash 4+ (associative arrays)
 #
 # Usage:
-#   source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
+#   source plugins/leyline/scripts/interactive_auth.sh
 #   ensure_auth github || exit 1
 #
 
@@ -96,25 +96,6 @@ read_json_value() {
   fi
 }
 
-# Write JSON key-value to file
-write_json_value() {
-  local file="$1"
-  local key="$2"
-  local value="$3"
-
-  if command -v jq &>/dev/null; then
-    if [[ -f "$file" ]]; then
-      tmpfile=$(mktemp)
-      jq --arg k "$key" --arg v "$value" '.[$k] = $v' "$file" > "$tmpfile" && mv "$tmpfile" "$file"
-    else
-      echo "{\"$key\": \"$value\"}" > "$file"
-    fi
-  else
-    # Fallback: simple JSON write
-    echo "{\"$key\": \"$value\"}" > "$file"
-  fi
-}
-
 # ============================================================================
 # CACHE FUNCTIONS
 # ============================================================================
@@ -128,8 +109,10 @@ check_cache() {
     return 1
   fi
 
-  local last_verified=$(read_json_value "$cache_file" "last_verified")
-  local current_time=$(get_timestamp)
+  local last_verified
+  last_verified=$(read_json_value "$cache_file" "last_verified")
+  local current_time
+  current_time=$(get_timestamp)
 
   if [[ -z "$last_verified" ]]; then
     return 1
@@ -152,7 +135,8 @@ write_cache() {
 
   init_cache_dir "$service"
 
-  local current_time=$(get_timestamp)
+  local current_time
+  current_time=$(get_timestamp)
 
   cat > "$cache_file" << EOF
 {
@@ -196,8 +180,10 @@ load_session() {
     return 1
   fi
 
-  local session_created=$(read_json_value "$session_file" "created_at")
-  local current_time=$(get_timestamp)
+  local session_created
+  session_created=$(read_json_value "$session_file" "created_at")
+  local current_time
+  current_time=$(get_timestamp)
 
   if [[ -z "$session_created" ]]; then
     return 1
@@ -219,7 +205,8 @@ create_session() {
 
   init_cache_dir "$service"
 
-  local current_time=$(get_timestamp)
+  local current_time
+  current_time=$(get_timestamp)
 
   cat > "$session_file" << EOF
 {

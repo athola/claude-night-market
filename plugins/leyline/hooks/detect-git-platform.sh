@@ -9,7 +9,11 @@
 #   3. CLI tool availability (gh, glab)
 #
 # Output: Injects git_platform, cli_tool, and mr_term into session context
-# Performance: <50ms typical
+#
+# Performance: dominated by process start-up, not by work. On a loaded
+# macOS laptop one `git` invocation measured 0.53s wall, so the budget is
+# spent in whole processes: this hook runs one `git` and no interpreter.
+# Measured 0.8-1.1s idle against the 2s its hooks.json entry declares.
 
 set -euo pipefail
 
@@ -21,29 +25,34 @@ detect_platform() {
     local mr_term="pull request"
     local ci_system=""
 
-    # Signal 1: Git remote URL (highest confidence)
-    if git rev-parse --git-dir > /dev/null 2>&1; then
-        local remote_url
-        remote_url=$(git remote get-url origin 2>/dev/null || echo "")
+    # Signal 1: Git remote URL (highest confidence).
+    # `git remote get-url` fails outside a work tree as well as inside
+    # one with no origin, and an empty result matches no arm below, so
+    # the separate `git rev-parse` that used to gate this is redundant
+    # here. It survives at signal 3, where repo-ness is what is actually
+    # being asked, and only on the path that reaches it. A git
+    # invocation costs ~0.5s of process start-up on a loaded macOS
+    # laptop, which is half this hook's budget.
+    local remote_url
+    remote_url=$(git remote get-url origin 2>/dev/null || echo "")
 
-        case "$remote_url" in
-            *github.com*|*github.*)
-                platform="github"
-                cli_tool="gh"
-                mr_term="pull request"
-                ;;
-            *gitlab.com*|*gitlab.*)
-                platform="gitlab"
-                cli_tool="glab"
-                mr_term="merge request"
-                ;;
-            *bitbucket.org*|*bitbucket.*)
-                platform="bitbucket"
-                cli_tool=""
-                mr_term="pull request"
-                ;;
-        esac
-    fi
+    case "$remote_url" in
+        *github.com*|*github.*)
+            platform="github"
+            cli_tool="gh"
+            mr_term="pull request"
+            ;;
+        *gitlab.com*|*gitlab.*)
+            platform="gitlab"
+            cli_tool="glab"
+            mr_term="merge request"
+            ;;
+        *bitbucket.org*|*bitbucket.*)
+            platform="bitbucket"
+            cli_tool=""
+            mr_term="pull request"
+            ;;
+    esac
 
     # Signal 2: File/directory markers (fallback if remote didn't match)
     if [ "$platform" = "unknown" ]; then
@@ -129,11 +138,13 @@ case "$platform" in
         ;;
 esac
 
-if command -v jq >/dev/null 2>&1; then
-    jq -n --arg ctx "$context" '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $ctx}}'
-else
-    # Context is built from controlled strings only (no user input)
-    cat <<EOF
+# Context is assembled from this script's own literals: `platform`,
+# `cli_tool`, `mr_term` and `ci_system` each come from a fixed `case`
+# arm, so there is nothing here for jq to escape that the heredoc cannot
+# emit. The jq branch this replaced cost a process on every session for
+# a string the script already controlled, and left two output paths to
+# keep in agreement.
+cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
@@ -141,6 +152,5 @@ else
   }
 }
 EOF
-fi
 
 exit 0

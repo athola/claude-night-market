@@ -111,7 +111,7 @@ INDEX
     # Build context message
     setup_context="[memory-palace:init] Initialization complete
 Tasks:
-$(printf '  - %s\n' "${init_tasks[@]}")"
+$(printf '  - %s\n' "${init_tasks[@]+"${init_tasks[@]}"}")"
 
 fi
 
@@ -184,7 +184,7 @@ if [ "$TRIGGER_TYPE" = "maintenance" ]; then
     # Build context message
     setup_context="[memory-palace:maintenance] Maintenance complete
 Tasks:
-$(printf '  - %s\n' "${maint_tasks[@]}")"
+$(printf '  - %s\n' "${maint_tasks[@]+"${maint_tasks[@]}"}")"
 
 fi
 

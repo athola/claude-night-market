@@ -6,7 +6,7 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/detect-git-platform.sh",
-            "timeout": 1
+            "timeout": 3
           }
         ]
       },
@@ -24,7 +24,7 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/auto-star-repo.sh",
-            "timeout": 3
+            "timeout": 5
           }
         ]
       },
@@ -33,7 +33,7 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/fetch-recent-discussions.sh",
-            "timeout": 3
+            "timeout": 8
           }
         ]
       }

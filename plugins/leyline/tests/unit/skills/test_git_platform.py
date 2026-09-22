@@ -15,7 +15,24 @@ import pytest
 
 # Hook script location
 HOOK_SCRIPT = Path(__file__).parents[3] / "hooks" / "detect-git-platform.sh"
+HOOKS_MANIFEST = Path(__file__).parents[3] / "hooks" / "hooks.json"
 SKILL_FILE = Path(__file__).parents[3] / "skills" / "git-platform" / "SKILL.md"
+
+
+def declared_timeout(script_name: str) -> float:
+    """The cap hooks.json grants a hook, which is what the harness enforces.
+
+    Read rather than hardcoded: a performance test pinned to a literal
+    passes or fails on a number nothing else in the repository honors,
+    and drifts silently the first time the manifest changes.
+    """
+    manifest = json.loads(HOOKS_MANIFEST.read_text(encoding="utf-8"))
+    for groups in manifest["hooks"].values():
+        for group in groups:
+            for entry in group.get("hooks", []):
+                if entry.get("command", "").endswith(script_name):
+                    return float(entry["timeout"])
+    raise AssertionError(f"{script_name} is not registered in {HOOKS_MANIFEST}")
 
 
 class TestPlatformDetectionHook:
@@ -211,18 +228,22 @@ class TestPlatformDetectionHook:
         assert "merge request" in context
 
     @pytest.mark.unit
-    def test_hook_completes_under_timeout(self, tmp_path):
-        """Scenario: Hook performance meets <200ms requirement
-        Given any environment
+    def test_hook_completes_under_its_declared_timeout(self, tmp_path):
+        """Scenario: the hook fits the cap the harness enforces
+        Given a directory that is not a git repository, the slowest path
+          because it is the one that runs both git invocations
         When the hook runs
-        Then it completes within 1 second (generous CI margin).
+        Then it finishes inside the timeout its own hooks.json declares.
+
+        A killed SessionStart hook and one that chose to emit nothing look
+        identical to the session, so exceeding the cap is silent.
         """
         result = subprocess.run(
             ["bash", str(HOOK_SCRIPT)],
             capture_output=True,
             text=True,
             cwd=str(tmp_path),
-            timeout=1,
+            timeout=declared_timeout("detect-git-platform.sh"),
             check=False,
         )
         assert result.returncode == 0

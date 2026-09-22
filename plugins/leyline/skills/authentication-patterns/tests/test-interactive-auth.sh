@@ -44,6 +44,7 @@ fi
 # Test 2: Source module
 echo ""
 echo "Test 2: Source module"
+# shellcheck source=plugins/leyline/scripts/interactive_auth.sh
 if source "$MODULE_PATH"; then
   echo -e "${GREEN}✓ Module sourced successfully${NC}"
 else
