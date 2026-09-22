@@ -134,10 +134,17 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pr_prep_analyze.py" --base origin/main
 
 It reads the branch's changed files and commits, sorts the files into
 feature, test, docs and other, flags any `!` breaking-change marker in
-a commit subject, reports which quality gates the change already
-satisfies (tests touched, docs touched), recommends a merge strategy,
-and prints a description scaffold. Pass `--reviewer-map <json>` to map
-path prefixes to reviewers, or `--json` to consume it as data.
+a commit subject, reports the quality gates it can decide from the
+changed-file list (tests touched, docs touched, changes described),
+recommends a merge strategy, and prints a description scaffold. Pass
+`--reviewer-map <json>` to map path prefixes to reviewers, or `--json`
+to consume it as data.
+
+A gate printed `unknown` (`null` in JSON) means the script evaluated
+nothing: it runs no test, lint or type check and makes no release
+decision, so `passes_checks` and `includes_breaking_changes` always
+read `unknown`. Treat `unknown` as "you must check this yourself",
+never as a pass. Step 2 is where `passes_checks` gets its answer.
 
 Then use the notes from the workspace review and the analyzer's
 categories to identify the key points in the diffs, and group them
@@ -217,6 +224,10 @@ If project-specific commands like `make` or `npm` are unavailable, verify the en
       skill declares done
 - [ ] Quality gates (formatting, linting, tests) run and pass; any
       failure is fixed before proceeding, not skipped
+- [ ] Every gate the analyzer printed as `unknown` has been decided by
+      hand, because `unknown` means nothing evaluated it: the script
+      runs no test, lint or type check, so `passes_checks` and
+      `includes_breaking_changes` always arrive that way
 - [ ] PR description file written to the specified path and its
       contents displayed for confirmation
 - [ ] Facts table present with all three rows (Who, Where, When)

@@ -63,6 +63,26 @@ class TestClassify:
         """Test paths, doc suffixes, and everything else."""
         assert classify(path) == bucket
 
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "src/api.py",
+            "tests/test_x.py",
+            "docs/guide.md",
+            "Makefile",
+            "plugins/a/x.json",
+        ],
+    )
+    def test_the_bucket_vocabulary_is_closed(self, path: str) -> None:
+        """classify never says "breaking", which is why no report line can.
+
+        ``PRPrepAnalyzer.detect_breaking_changes`` populates
+        ``affected_apis`` from files typed ``breaking``. This script is
+        the only caller that builds those dicts, and it cannot emit that
+        type, so the markdown carries no line for it.
+        """
+        assert classify(path) in {"test", "docs", "feature"}
+
 
 class TestCollectAndAnalyze:
     """Feature: git history becomes the analyzer's context."""
@@ -88,6 +108,23 @@ class TestCollectAndAnalyze:
         assert report["quality_gates"]["has_tests"] is True
         assert report["quality_gates"]["has_documentation"] is True
         assert report["merge_strategy"]["strategy"] == "squash"
+
+    def test_gates_the_script_cannot_check_stay_unevaluated(
+        self, branch_repo: tuple[Path, str]
+    ) -> None:
+        """No test, lint or type run happened, so those gates are None."""
+        repo, base = branch_repo
+        report = analyze(collect(base, repo))
+        assert report["quality_gates"]["passes_checks"] is None
+        assert report["quality_gates"]["includes_breaking_changes"] is None
+
+    def test_collected_files_never_populate_affected_apis(
+        self, branch_repo: tuple[Path, str]
+    ) -> None:
+        """classify() emits no "breaking" type, so the list stays empty."""
+        repo, base = branch_repo
+        report = analyze(collect(base, repo))
+        assert report["breaking"]["affected_apis"] == []
 
     def test_reviewers_come_from_the_map(self, branch_repo: tuple[Path, str]) -> None:
         """A prefix map turns changed paths into reviewer names."""
@@ -140,6 +177,17 @@ class TestCommandLine:
             assert heading in out
         assert "carries a `!` marker" in out
         assert "- alex" in out
+
+    def test_render_marks_unevaluated_gates_unknown(
+        self, branch_repo: tuple[Path, str], capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A gate nothing evaluated renders as unknown, never as pass."""
+        repo, base = branch_repo
+        assert main(["--base", base, "--cwd", str(repo)]) == 0
+        out = capsys.readouterr().out
+        assert "- passes_checks: unknown" in out
+        assert "- includes_breaking_changes: unknown" in out
+        assert "- has_tests: pass" in out
 
     def test_a_bad_base_is_reported(
         self, branch_repo: tuple[Path, str], capsys: pytest.CaptureFixture[str]

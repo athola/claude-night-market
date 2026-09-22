@@ -100,6 +100,17 @@ def analyze(
     return report
 
 
+def _gate_verdict(passed: bool | None) -> str:
+    """Render one gate, keeping "nothing checked this" out of "pass".
+
+    ``None`` means the analyzer never evaluated the gate, which is the
+    case for every gate needing a test, lint or type run.
+    """
+    if passed is None:
+        return "unknown"
+    return "pass" if passed else "FAIL"
+
+
 def render_markdown(report: dict[str, Any], base: str) -> str:
     """Lay the analysis out as sections the skill can paste from."""
     categories = report["categories"]
@@ -116,14 +127,13 @@ def render_markdown(report: dict[str, Any], base: str) -> str:
             f"- commit {sha[:7]} carries a `!` marker"
             for sha in breaking["breaking_commits"]
         ]
-        lines += [f"- {path} is marked breaking" for path in breaking["affected_apis"]]
     else:
         lines.append("- none detected (no `!` in commit subjects)")
     lines.append("")
 
     lines += ["## Quality gates", ""]
     lines += [
-        f"- {gate}: {'pass' if passed else 'FAIL'}"
+        f"- {gate}: {_gate_verdict(passed)}"
         for gate, passed in report["quality_gates"].items()
     ]
     lines.append("")

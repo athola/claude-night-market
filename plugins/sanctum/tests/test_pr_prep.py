@@ -150,13 +150,61 @@ class TestPRPrepAnalyzer:
         """
         GIVEN no arguments
         WHEN initialize_quality_gates is called
-        THEN all gates are True by default
+        THEN every gate is None, meaning not evaluated
         """
         gates = PRPrepAnalyzer.initialize_quality_gates()
         assert len(gates) == 5
-        assert all(v is True for v in gates.values())
+        assert all(v is None for v in gates.values())
         assert "has_tests" in gates
         assert "has_documentation" in gates
+
+    def test_quality_gates_do_not_pass_by_default(self) -> None:
+        """
+        GIVEN a gate no analyzer has evaluated
+        WHEN initialize_quality_gates is called
+        THEN that gate is not True
+        """
+        gates = PRPrepAnalyzer.initialize_quality_gates()
+        assert gates["passes_checks"] is None
+        assert gates["includes_breaking_changes"] is None
+
+    def test_unevaluated_gates_stay_unevaluated_after_validation(self) -> None:
+        """
+        GIVEN a context with changed files
+        WHEN validate_quality_gates is called
+        THEN the two gates it never computes are still None
+        """
+        context = {"changed_files": [{"path": "src/feature.py"}]}
+        result = PRPrepAnalyzer.validate_quality_gates(
+            context, PRPrepAnalyzer.initialize_quality_gates()
+        )
+        assert result["passes_checks"] is None
+        assert result["includes_breaking_changes"] is None
+
+    def test_has_tests_ignores_latest_directory(self) -> None:
+        """
+        GIVEN a path whose name merely contains the substring "test"
+        WHEN validate_quality_gates is called
+        THEN has_tests is False
+        """
+        context = {"changed_files": [{"path": "plugins/latest/x.py"}]}
+        result = PRPrepAnalyzer.validate_quality_gates(
+            context, PRPrepAnalyzer.initialize_quality_gates()
+        )
+        assert result["has_tests"] is False
+
+    def test_has_tests_matches_a_test_path_segment(self) -> None:
+        """
+        GIVEN a tests/ directory and a test_ prefixed module
+        WHEN validate_quality_gates is called
+        THEN has_tests is True for each
+        """
+        for path in ("plugins/a/tests/unit/test_y.py", "src/test_helpers.py"):
+            result = PRPrepAnalyzer.validate_quality_gates(
+                {"changed_files": [{"path": path}]},
+                PRPrepAnalyzer.initialize_quality_gates(),
+            )
+            assert result["has_tests"] is True, path
 
     def test_validate_quality_gates(self) -> None:
         """
