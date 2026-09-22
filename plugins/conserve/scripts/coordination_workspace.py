@@ -119,6 +119,10 @@ class WorkspaceManager:
         if not self.tasks_file.exists():
             self.tasks_file.write_text("[]")
 
+    def is_initialized(self) -> bool:
+        """Whether ``init`` has run against this path."""
+        return self.tasks_file.exists()
+
     def load_tasks(self) -> list[dict[str, str]]:
         """Load the task manifest from tasks.json."""
         if not self.tasks_file.exists():
@@ -159,12 +163,16 @@ class WorkspaceManager:
         )
         self._save_tasks(tasks)
 
-    def update_task_status(self, task_id: str, status: str) -> None:
+    def update_task_status(self, task_id: str, status: str) -> bool:
         """Update a task's status.
 
         Args:
             task_id: The task to update.
             status: New status (pending, active, done, failed).
+
+        Returns:
+            True when *task_id* was in the manifest. False means nothing
+            moved, which the caller must not report as a transition.
 
         """
         tasks = self.load_tasks()
@@ -173,8 +181,9 @@ class WorkspaceManager:
                 task["status"] = status
                 if status == "done":
                     task["completed_at"] = datetime.now(tz=timezone.utc).isoformat()
-                break
-        self._save_tasks(tasks)
+                self._save_tasks(tasks)
+                return True
+        return False
 
     def pending_tasks(self) -> list[dict[str, str]]:
         """Return tasks with status 'pending'."""
@@ -255,12 +264,25 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     workspace = WorkspaceManager(Path(args.path))
+    if args.command != "init" and not workspace.is_initialized():
+        print(
+            f"error: no workspace at {args.path}; run "
+            f"`coordination_workspace.py --path {args.path} init` first",
+            file=sys.stderr,
+        )
+        return 1
+
     if args.command == "init":
         workspace.init()
     elif args.command == "add-task":
         workspace.add_task(args.task_id, args.agent, args.contract)
     elif args.command == "set-status":
-        workspace.update_task_status(args.task_id, args.status)
+        if not workspace.update_task_status(args.task_id, args.status):
+            print(
+                f"error: no task {args.task_id!r} in {workspace.tasks_file}",
+                file=sys.stderr,
+            )
+            return 1
     elif args.command == "pending":
         print(json.dumps(workspace.pending_tasks(), indent=2))
     elif args.command == "archive":

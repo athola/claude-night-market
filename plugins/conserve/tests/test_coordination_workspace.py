@@ -204,6 +204,18 @@ class TestTaskManifest:
         assert tasks[0]["status"] == "done"
 
     @pytest.mark.unit
+    def test_update_task_status_reports_whether_it_matched(
+        self, tmp_path: Path
+    ) -> None:
+        """The caller needs to know the id existed before it can report."""
+        ws = WorkspaceManager(tmp_path / ".coordination")
+        ws.init()
+        ws.add_task(task_id="t1", agent="reviewer")
+
+        assert ws.update_task_status("t1", "done") is True
+        assert ws.update_task_status("absent", "done") is False
+
+    @pytest.mark.unit
     def test_list_pending_tasks(self, tmp_path: Path) -> None:
         """Given mixed task statuses, list only pending."""
         ws = WorkspaceManager(tmp_path / ".coordination")
@@ -260,6 +272,79 @@ class TestCommandLine:
         assert main(["--path", ws, "set-status", "t1", "done"]) == 0
         main(["--path", ws, "pending"])
         assert json.loads(capsys.readouterr().out) == []
+
+    @pytest.mark.unit
+    def test_add_task_without_init_fails_and_names_the_workspace(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A skill that forgot `init` hears about it, in its own words.
+
+        Writing into a directory that does not exist raises
+        FileNotFoundError from the json dump, which reads as a crash in
+        the tool rather than a missing step in the caller.
+        """
+        ws = tmp_path / "never-initialized"
+
+        exit_code = main(["--path", str(ws), "add-task", "t1", "--agent", "reviewer"])
+
+        assert exit_code == 1
+        message = capsys.readouterr().err
+        assert str(ws) in message
+        assert "init" in message
+        assert not ws.exists()
+
+    @pytest.mark.unit
+    def test_set_status_without_init_fails(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """The same check guards the other command that writes tasks.json."""
+        ws = tmp_path / "never-initialized"
+
+        assert main(["--path", str(ws), "set-status", "t1", "done"]) == 1
+        assert "init" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_pending_without_init_fails(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """An uninitialized workspace is not an empty one."""
+        ws = tmp_path / "never-initialized"
+
+        assert main(["--path", str(ws), "pending"]) == 1
+        assert "init" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_set_status_on_unknown_task_fails(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A typo'd task id is reported, not silently accepted.
+
+        The manifest is how a coordinator learns an agent finished.
+        Accepting `set-status done` for an id that is not there tells
+        the caller the transition happened when nothing moved.
+        """
+        ws = str(tmp_path / ".coordination")
+        main(["--path", ws, "init"])
+        main(["--path", ws, "add-task", "t1", "--agent", "reviewer"])
+
+        exit_code = main(["--path", ws, "set-status", "typo", "done"])
+
+        assert exit_code == 1
+        assert "typo" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_set_status_on_unknown_task_leaves_the_manifest_alone(
+        self, tmp_path: Path
+    ) -> None:
+        """The failed call writes nothing."""
+        ws = tmp_path / ".coordination"
+        main(["--path", str(ws), "init"])
+        main(["--path", str(ws), "add-task", "t1", "--agent", "reviewer"])
+        before = (ws / "tasks.json").read_bytes()
+
+        main(["--path", str(ws), "set-status", "typo", "done"])
+
+        assert (ws / "tasks.json").read_bytes() == before
 
     @pytest.mark.unit
     def test_parse_prints_the_findings_header_as_json(
