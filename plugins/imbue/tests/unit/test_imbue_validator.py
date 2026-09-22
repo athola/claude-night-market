@@ -691,9 +691,7 @@ Also includes EVIDENCE logging.
             "argv",
             ["prog", "--root", str(mock_plugin_structure), "--scan"],
         ):
-            with pytest.raises(SystemExit) as exc:
-                imbue_main()
-            assert exc.value.code == 1
+            assert imbue_main() == 1
 
         out = capsys.readouterr().out
         assert "skills_found:" in out
@@ -716,7 +714,7 @@ Also includes EVIDENCE logging.
             "argv",
             ["prog", "--root", str(mock_plugin_structure), "--scan"],
         ):
-            imbue_main()
+            assert imbue_main() == 0
 
         out = capsys.readouterr().out
         assert "skills_found:" in out
@@ -737,6 +735,102 @@ Also includes EVIDENCE logging.
 
         out = capsys.readouterr().out
         assert "Imbue Plugin Review Workflow Report" in out
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_cli_report_returns_nonzero_when_issues(
+        self, mock_plugin_structure, capsys
+    ) -> None:
+        """Scenario: the report branch carries the status the gate reads.
+
+        Given a plugin root whose skills fail validation
+        When the CLI runs with --report
+        Then main returns 1, so `make validate-plugin` can fail.
+        """
+        with patch.object(
+            sys,
+            "argv",
+            ["prog", "--root", str(mock_plugin_structure), "--report"],
+        ):
+            assert imbue_main() == 1
+
+        assert "Imbue Plugin Review Workflow Report" in capsys.readouterr().out
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_cli_report_returns_zero_when_clean(
+        self, mock_plugin_structure, capsys
+    ) -> None:
+        """Scenario: a clean root still returns success from --report."""
+        for skill_file in mock_plugin_structure.glob("skills/*/SKILL.md"):
+            content = skill_file.read_text(errors="ignore")
+            if "evidence" not in content.lower():
+                skill_file.write_text(content + "\n\n## Evidence\nWe capture evidence.")
+
+        with patch.object(
+            sys,
+            "argv",
+            ["prog", "--root", str(mock_plugin_structure), "--report"],
+        ):
+            assert imbue_main() == 0
+
+        assert "successfully" in capsys.readouterr().out
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_cli_fails_on_missing_root_in_both_modes(self, tmp_path, capsys) -> None:
+        """Scenario: a root that does not exist is a failure, not a clean pass.
+
+        Given --root points at a directory that was never created
+        When the CLI runs with --scan and again with --report
+        Then both return 1 and name the missing directory.
+        """
+        missing = tmp_path / "missing-plugin"
+
+        for mode in ("--scan", "--report"):
+            with patch.object(sys, "argv", ["prog", "--root", str(missing), mode]):
+                assert imbue_main() == 1, f"{mode} passed on a missing root"
+            assert str(missing) in capsys.readouterr().out
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_cli_fails_on_a_root_that_is_not_a_plugin(self, tmp_path, capsys) -> None:
+        """Scenario: --root lands on an existing directory that is no plugin.
+
+        Given a directory with files but no skills/ and no plugin.json
+        When the CLI runs with --scan and again with --report
+        Then both return 1 and say what structure is missing.
+        """
+        stray = tmp_path / "not-a-plugin"
+        stray.mkdir()
+        (stray / "notes.txt").write_text("nothing to validate here")
+
+        for mode in ("--scan", "--report"):
+            with patch.object(sys, "argv", ["prog", "--root", str(stray), mode]):
+                assert imbue_main() == 1, f"{mode} passed on a non-plugin root"
+            assert "lacks expected structure" in capsys.readouterr().out
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_cli_fails_on_empty_root_in_both_modes(self, tmp_path, capsys) -> None:
+        """Scenario: an empty root is a failure in both modes."""
+        empty = tmp_path / "empty-plugin"
+        empty.mkdir()
+
+        for mode in ("--scan", "--report"):
+            with patch.object(sys, "argv", ["prog", "--root", str(empty), mode]):
+                assert imbue_main() == 1, f"{mode} passed on an empty root"
+            assert str(empty) in capsys.readouterr().out
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_missing_root_produces_a_validation_issue(self, tmp_path) -> None:
+        """Scenario: the missing root surfaces as an issue, not as silence."""
+        missing = tmp_path / "gone"
+
+        issues = ImbueValidator(missing).validate_review_workflows()
+
+        assert any(str(missing) in issue for issue in issues), issues
 
 
 class TestImbueValidatorIntegration:

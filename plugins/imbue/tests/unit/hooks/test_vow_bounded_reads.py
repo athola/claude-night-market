@@ -47,6 +47,62 @@ def _make_input(tool_name="Read", session_id="test-session-abc"):
     return json.dumps(payload)
 
 
+def _seed_counter(path: Path, count: int) -> None:
+    """Put *count* in the counter file at *path* with the hook's own perms.
+
+    Test-only state setup. The hook itself reaches the counter through
+    ``_atomic_increment``; seeding does not go through production code so
+    that a broken increment cannot hide behind a broken setup.
+    """
+    path.write_text(json.dumps({"count": count}), encoding="utf-8")
+    path.chmod(0o600)
+
+
+def _counter_value(path: Path) -> int:
+    """Return the counter at *path*, or 0 when it is missing or corrupt.
+
+    Mirrors the fail-safe the hook applies when it reads the file.
+    """
+    try:
+        return int(json.loads(path.read_text(encoding="utf-8"))["count"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return 0
+
+
+class TestTheHookExportsOnlyTheLockedCounterPath:
+    """Feature: one counter write path, and it is the locked one.
+
+    As a maintainer reading the hook
+    I want no unlocked read-modify-write helper beside the locked one
+    So that nobody wires the racy pair back into the hook by mistake.
+    """
+
+    @pytest.mark.unit
+    def test_unlocked_counter_helpers_are_gone(self, hook_module):
+        """
+        Scenario: the hook module carries no unlocked counter helpers
+        Given the hook increments under an exclusive flock
+        Then _read_counter and _write_counter are absent from the module
+        """
+        leftovers = [
+            name
+            for name in ("_read_counter", "_write_counter")
+            if hasattr(hook_module, name)
+        ]
+        assert not leftovers, (
+            f"{leftovers} are reachable only from tests. Seed counter state with "
+            "_seed_counter and read it with _counter_value instead."
+        )
+
+    @pytest.mark.unit
+    def test_atomic_increment_is_the_live_write_path(self, hook_module):
+        """
+        Scenario: the locked helper is what the module still offers
+        Then _atomic_increment is present and callable
+        """
+        assert callable(hook_module._atomic_increment)
+
+
 class TestCounterFilePath:
     """Feature: Counter file path uses session ID.
 
@@ -100,70 +156,67 @@ class TestReadWriteCounter:
     """
 
     @pytest.mark.unit
-    def test_read_counter_returns_zero_when_missing(self, hook_module, tmp_path):
+    def test_counter_starts_at_zero_when_file_missing(self, hook_module, tmp_path):
         """
         Scenario: Counter starts at zero when file missing
         Given no counter file exists
-        When _read_counter is called
-        Then it returns 0
+        When _atomic_increment is called
+        Then the first read of the session counts as 1
         """
         path = tmp_path / "vow_read_counter_none.json"
-        count = hook_module._read_counter(path)
-        assert count == 0
+        assert hook_module._atomic_increment(path) == 1
 
     @pytest.mark.unit
-    def test_write_then_read_counter(self, hook_module, tmp_path):
+    def test_increment_reads_back_the_persisted_value(self, hook_module, tmp_path):
         """
-        Scenario: Written counter value is read back correctly
-        Given a counter file is written with value 7
-        When _read_counter is called
-        Then it returns 7
+        Scenario: Persisted counter value is read back correctly
+        Given a counter file holding 7
+        When _atomic_increment is called
+        Then it returns 8 and the file holds 8
         """
         path = tmp_path / "vow_read_counter_test.json"
-        hook_module._write_counter(path, 7)
-        assert hook_module._read_counter(path) == 7
+        _seed_counter(path, 7)
+        assert hook_module._atomic_increment(path) == 8
+        assert _counter_value(path) == 8
 
     @pytest.mark.unit
-    def test_read_counter_ignores_corrupt_file(self, hook_module, tmp_path):
+    def test_corrupt_counter_file_is_treated_as_zero(self, hook_module, tmp_path):
         """
         Scenario: Corrupt counter file treated as zero (fail-safe)
         Given a counter file with invalid JSON
-        When _read_counter is called
-        Then it returns 0 without raising
+        When _atomic_increment is called
+        Then it restarts at 1 without raising
         """
         path = tmp_path / "vow_read_counter_bad.json"
         path.write_text("not valid json")
-        count = hook_module._read_counter(path)
-        assert count == 0
+        assert hook_module._atomic_increment(path) == 1
 
     @pytest.mark.unit
-    def test_write_counter_uses_restrictive_permissions(self, hook_module, tmp_path):
+    def test_increment_uses_restrictive_permissions(self, hook_module, tmp_path):
         """
         Scenario: Counter file is not world-readable on shared systems
-        Given a fresh write of the counter
+        Given a fresh increment of the counter
         When the file is inspected
         Then its mode is 0o600 (owner read/write only)
         """
         path = tmp_path / "vow_read_counter_perms.json"
-        hook_module._write_counter(path, 3)
+        hook_module._atomic_increment(path)
         assert path.exists()
         mode = stat.S_IMODE(path.stat().st_mode)
         assert mode == 0o600, f"expected 0o600, got {oct(mode)}"
 
     @pytest.mark.unit
-    def test_write_counter_restricts_perms_on_existing_file(
-        self, hook_module, tmp_path
-    ):
+    def test_increment_restricts_perms_on_existing_file(self, hook_module, tmp_path):
         """
-        Scenario: Overwriting an existing counter retains 0o600 perms
+        Scenario: Incrementing an existing counter retains 0o600 perms
         Given a pre-existing counter file with permissive perms
-        When _write_counter is called again
+        When _atomic_increment is called
         Then the resulting file is still 0o600
         """
         path = tmp_path / "vow_read_counter_rewrite.json"
         path.write_text('{"count": 1}')
         path.chmod(0o644)
-        hook_module._write_counter(path, 2)
+        hook_module._atomic_increment(path)
         mode = stat.S_IMODE(path.stat().st_mode)
         assert mode == 0o600, f"expected 0o600 after rewrite, got {oct(mode)}"
 
@@ -217,7 +270,7 @@ class TestMainHook:
         Then no warning JSON is emitted
         """
         counter_path = tmp_path / "vow_read_counter_test-session.json"
-        hook_module._write_counter(counter_path, 5)
+        _seed_counter(counter_path, 5)
 
         stdin_data = _make_input(tool_name="Read", session_id="test-session")
         with patch.object(hook_module, "_counter_path", return_value=counter_path):
@@ -241,7 +294,7 @@ class TestMainHook:
         hookEventName, matching the sibling tdd_bdd_gate hook)
         """
         counter_path = tmp_path / "vow_read_counter_test-session2.json"
-        hook_module._write_counter(counter_path, 15)
+        _seed_counter(counter_path, 15)
 
         stdin_data = _make_input(tool_name="Read", session_id="test-session2")
         with patch.object(hook_module, "_counter_path", return_value=counter_path):
@@ -268,7 +321,7 @@ class TestMainHook:
         Then no output and counter unchanged
         """
         counter_path = tmp_path / "vow_read_counter_test-session4.json"
-        hook_module._write_counter(counter_path, 3)
+        _seed_counter(counter_path, 3)
 
         stdin_data = json.dumps(
             {
@@ -285,7 +338,7 @@ class TestMainHook:
         captured = capsys.readouterr()
         assert captured.out.strip() == ""
         # Counter should NOT be incremented for Bash
-        assert hook_module._read_counter(counter_path) == 3
+        assert _counter_value(counter_path) == 3
 
     @pytest.mark.unit
     def test_malformed_stdin_exits_cleanly(self, hook_module, capsys):
@@ -464,7 +517,7 @@ class TestShadowMode:
         additionalContext key)
         """
         counter_path = tmp_path / "vow_read_counter_shadow-warn.json"
-        hook_module._write_counter(counter_path, 15)
+        _seed_counter(counter_path, 15)
         stdin_data = _make_input(tool_name="Read", session_id="shadow-warn")
         with patch.object(hook_module, "_counter_path", return_value=counter_path):
             with patch.dict("os.environ", {"VOW_SHADOW_MODE": "1"}):
@@ -495,7 +548,7 @@ class TestShadowMode:
         Code 2.1.178 rejects top-level decision/reason keys)
         """
         counter_path = tmp_path / "vow_read_counter_shadow-block.json"
-        hook_module._write_counter(counter_path, 15)
+        _seed_counter(counter_path, 15)
         stdin_data = _make_input(tool_name="Read", session_id="shadow-block")
         with patch.object(hook_module, "_counter_path", return_value=counter_path):
             with patch.dict("os.environ", {"VOW_SHADOW_MODE": "0"}):
@@ -530,7 +583,7 @@ class TestBudgetBoundary:
         Then no warning is emitted (budget is 15, check is > not >=)
         """
         counter_path = tmp_path / "vow_read_counter_boundary.json"
-        hook_module._write_counter(counter_path, 14)
+        _seed_counter(counter_path, 14)
         stdin_data = _make_input(tool_name="Read", session_id="boundary")
         with patch.object(hook_module, "_counter_path", return_value=counter_path):
             with patch.dict("os.environ", {"VOW_SHADOW_MODE": "0"}):
@@ -540,7 +593,7 @@ class TestBudgetBoundary:
         assert exc.value.code == 0
         captured = capsys.readouterr()
         assert captured.out.strip() == ""
-        assert hook_module._read_counter(counter_path) == 15
+        assert _counter_value(counter_path) == 15
 
     @pytest.mark.unit
     def test_write_failure_exits_cleanly(self, hook_module, capsys):
@@ -601,8 +654,8 @@ class TestIntegration:
         counter_path = tmp_path / hook_module._counter_path(session_id).name
 
         # Phase 1: pre-load counter to budget
-        hook_module._write_counter(counter_path, 15)
-        assert hook_module._read_counter(counter_path) == 15
+        _seed_counter(counter_path, 15)
+        assert _counter_value(counter_path) == 15
 
         # Phase 2: reset fires on a Write call
         stdin_reset = json.dumps({"tool_name": "Write", "session_id": session_id})
@@ -610,7 +663,7 @@ class TestIntegration:
             with patch("sys.stdin", StringIO(stdin_reset)):
                 with pytest.raises(SystemExit):
                     reset_module.main()
-        assert hook_module._read_counter(counter_path) == 0
+        assert _counter_value(counter_path) == 0
 
         # Phase 3: next Read starts fresh at 1 — no warning even with blocking on
         stdin_read = _make_input(tool_name="Read", session_id=session_id)
@@ -622,7 +675,7 @@ class TestIntegration:
         assert exc.value.code == 0
         captured = capsys.readouterr()
         assert captured.out.strip() == ""
-        assert hook_module._read_counter(counter_path) == 1
+        assert _counter_value(counter_path) == 1
 
 
 class TestCounterLifetime:
@@ -643,13 +696,13 @@ class TestCounterLifetime:
         Then it returns 1 (the stale value is discarded), not 21
         """
         path = tmp_path / "vow_read_counter_stale.json"
-        hook_module._write_counter(path, 20)
+        _seed_counter(path, 20)
         # Age the file well past the TTL.
         old = _time.time() - hook_module._COUNTER_TTL_SECONDS - 60
         _os.utime(path, (old, old))
 
         assert hook_module._atomic_increment(path) == 1
-        assert hook_module._read_counter(path) == 1
+        assert _counter_value(path) == 1
 
     @pytest.mark.unit
     def test_fresh_counter_is_not_reset(self, hook_module, tmp_path):
@@ -660,7 +713,7 @@ class TestCounterLifetime:
         Then it returns 6 (no spurious reset within the TTL)
         """
         path = tmp_path / "vow_read_counter_fresh.json"
-        hook_module._write_counter(path, 5)
+        _seed_counter(path, 5)
         assert hook_module._atomic_increment(path) == 6
 
     @pytest.mark.unit
@@ -676,7 +729,7 @@ class TestCounterLifetime:
         Then the stale value is discarded and no advisory is emitted
         """
         counter_path = tmp_path / "vow_read_counter_pid-stale.json"
-        hook_module._write_counter(counter_path, 99)
+        _seed_counter(counter_path, 99)
         old = _time.time() - hook_module._COUNTER_TTL_SECONDS - 60
         _os.utime(counter_path, (old, old))
 
@@ -691,7 +744,7 @@ class TestCounterLifetime:
                         hook_module.main()
         assert exc.value.code == 0
         assert capsys.readouterr().out.strip() == ""
-        assert hook_module._read_counter(counter_path) == 1
+        assert _counter_value(counter_path) == 1
 
 
 class TestAtomicIncrement:
@@ -715,7 +768,7 @@ class TestAtomicIncrement:
         assert hook_module._atomic_increment(path) == 1
         assert hook_module._atomic_increment(path) == 2
         assert hook_module._atomic_increment(path) == 3
-        assert hook_module._read_counter(path) == 3
+        assert _counter_value(path) == 3
 
     @pytest.mark.unit
     def test_atomic_increment_initial_call_creates_file(self, hook_module, tmp_path):
@@ -769,9 +822,8 @@ class TestAtomicIncrement:
             t.join()
 
         # Final persisted count must equal the number of increments.
-        assert hook_module._read_counter(path) == n_threads, (
-            f"lost updates: expected {n_threads} increments, "
-            f"got {hook_module._read_counter(path)}"
+        assert _counter_value(path) == n_threads, (
+            f"lost updates: expected {n_threads} increments, got {_counter_value(path)}"
         )
         # Returned values must form the set 1..n_threads (no duplicates,
         # no skipped values).
@@ -827,9 +879,9 @@ class TestAtomicIncrement:
         for t in threads:
             t.join()
 
-        assert hook_module._read_counter(path) == n_threads, (
+        assert _counter_value(path) == n_threads, (
             f"flock failed to prevent lost updates under injected race: "
-            f"final={hook_module._read_counter(path)} expected={n_threads}"
+            f"final={_counter_value(path)} expected={n_threads}"
         )
         assert sorted(results) == list(range(1, n_threads + 1)), (
             f"duplicate or skipped return values: {sorted(results)}"
@@ -879,7 +931,7 @@ class TestAtomicIncrement:
         for t in threads:
             t.join()
 
-        final = hook_module._read_counter(path)
+        final = _counter_value(path)
         assert final < n_threads, (
             f"negative control failed: final={final} equals n_threads={n_threads} "
             "-- injected race is not effective, so the paired positive test "
@@ -981,7 +1033,7 @@ class TestAtomicIncrement:
         monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
         assert hook_module._atomic_increment(path) == 1
         assert hook_module._atomic_increment(path) == 2
-        assert hook_module._read_counter(path) == 2
+        assert _counter_value(path) == 2
 
     @pytest.mark.unit
     def test_flock_failure_emits_stderr_warning(
@@ -1090,7 +1142,7 @@ class TestAtomicIncrement:
         path = tmp_path / "vow_read_counter_corrupt.json"
         path.write_text("not valid json at all")
         assert hook_module._atomic_increment(path) == 1
-        assert hook_module._read_counter(path) == 1
+        assert _counter_value(path) == 1
 
     @pytest.mark.unit
     def test_main_uses_atomic_increment(self, hook_module, capsys, tmp_path):
@@ -1102,7 +1154,7 @@ class TestAtomicIncrement:
         read/write call sequence on the file)
 
         This guards against regression where main() reverts to the
-        non-atomic _read_counter + _write_counter pair.
+        non-atomic read-then-write pair the hook no longer carries.
         """
         counter_path = tmp_path / "vow_read_counter_main-atomic.json"
         call_count = {"n": 0}
@@ -1119,7 +1171,7 @@ class TestAtomicIncrement:
                         hook_module.main()
         assert exc.value.code == 0
         assert call_count["n"] == 1, "main() must call _atomic_increment exactly once"
-        assert hook_module._read_counter(counter_path) == 1
+        assert _counter_value(counter_path) == 1
 
 
 class TestAtomicReset:
@@ -1152,9 +1204,9 @@ class TestAtomicReset:
         Then the persisted count is 0 and perms are 0o600
         """
         path = tmp_path / "vow_read_counter_reset.json"
-        hook_module._write_counter(path, 42)
+        _seed_counter(path, 42)
         reset_module._atomic_reset(path)
-        assert hook_module._read_counter(path) == 0
+        assert _counter_value(path) == 0
         mode = stat.S_IMODE(path.stat().st_mode)
         assert mode == 0o600, f"expected 0o600, got {oct(mode)}"
 
@@ -1191,7 +1243,7 @@ class TestAtomicReset:
 
         # Strict integrity check (review B3): the raw bytes on disk
         # must parse as a single valid JSON object with a non-negative
-        # integer `count` field. Going through `_read_counter` alone
+        # integer `count` field. Going through the lenient `_counter_value` helper alone
         # is not sufficient because that helper returns 0 on parse
         # errors, which would make any corruption silently satisfy a
         # range assertion.
