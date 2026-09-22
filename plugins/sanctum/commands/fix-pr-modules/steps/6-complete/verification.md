@@ -11,7 +11,7 @@
 This phase runs automatically at the end of /fix-pr.
 
 ```bash
-Skill(sanctum:resolve-threads)
+/sanctum:resolve-threads
 ```
 
 This validates any threads missed during Step 6.3 are resolved via batch operation.

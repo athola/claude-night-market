@@ -1,19 +1,23 @@
 {
   "version": "1.0.0",
-  "generated": "2026-03-28",
+  "generated": "2026-09-21",
   "dependencies": {
     "abstract": {
       "dependents": [
         "archetypes",
         "attune",
+        "cartograph",
         "conjure",
         "conserve",
         "egregore",
+        "gauntlet",
+        "herald",
         "hookify",
         "imbue",
         "leyline",
         "memory-palace",
         "minister",
+        "oracle",
         "parseltongue",
         "pensive",
         "sanctum",
@@ -25,17 +29,47 @@
       "type": "build+runtime",
       "reason": "Shared infrastructure"
     },
+    "gauntlet": {
+      "dependents": [
+        "pensive"
+      ],
+      "type": "runtime",
+      "reason": "Shared infrastructure"
+    },
+    "herald": {
+      "dependents": [
+        "egregore"
+      ],
+      "type": "runtime",
+      "reason": "Shared infrastructure"
+    },
     "leyline": {
       "dependents": [
         "abstract",
         "attune",
         "conjure",
+        "conserve",
         "egregore",
+        "gauntlet",
         "imbue",
         "memory-palace",
         "pensive",
         "sanctum",
         "tome"
+      ],
+      "type": "runtime",
+      "reason": "Shared infrastructure"
+    },
+    "memory-palace": {
+      "dependents": [
+        "tome"
+      ],
+      "type": "runtime",
+      "reason": "Shared infrastructure"
+    },
+    "oracle": {
+      "dependents": [
+        "gauntlet"
       ],
       "type": "runtime",
       "reason": "Shared infrastructure"
@@ -52,16 +86,29 @@
       "abstract",
       "leyline"
     ],
+    "cartograph": [
+      "abstract"
+    ],
     "conjure": [
       "abstract",
       "leyline"
     ],
     "conserve": [
-      "abstract"
+      "abstract",
+      "leyline"
     ],
     "egregore": [
       "abstract",
+      "herald",
       "leyline"
+    ],
+    "gauntlet": [
+      "abstract",
+      "leyline",
+      "oracle"
+    ],
+    "herald": [
+      "abstract"
     ],
     "hookify": [
       "abstract"
@@ -80,11 +127,15 @@
     "minister": [
       "abstract"
     ],
+    "oracle": [
+      "abstract"
+    ],
     "parseltongue": [
       "abstract"
     ],
     "pensive": [
       "abstract",
+      "gauntlet",
       "leyline"
     ],
     "sanctum": [
@@ -102,7 +153,8 @@
     ],
     "tome": [
       "abstract",
-      "leyline"
+      "leyline",
+      "memory-palace"
     ]
   }
 }

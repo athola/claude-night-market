@@ -218,7 +218,7 @@ For each active work item, execute this loop:
 | quality | update-docs      | `Skill(egregore:quality-gate)` step=update-docs |
 | ship    | prepare-pr       | `Skill(sanctum:pr-prep)`                |
 | ship    | pr-review        | `Skill(sanctum:pr-review)`              |
-| ship    | fix-pr           | `Skill(sanctum:fix-pr)`                 |
+| ship    | fix-pr           | `/sanctum:fix-pr` (a command, not a skill) |
 | ship    | merge            | Handle directly (gh pr merge)           |
 
 3. **For intake steps** (parse, validate, prioritize):

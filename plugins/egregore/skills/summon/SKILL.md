@@ -86,6 +86,23 @@ session will have nothing to do and will stop. This defeats
 the entire purpose of the egregore. The stop hook cannot
 prevent this because background agents are detached.
 
+### The unattended night run
+
+The orchestrator above is an agent inside a session. The night
+run is the other entry point: a plain process a watchdog can
+restart, for hours no session is guaranteed to last. It walks
+one handed-off item (gate, walk, proof) and exits with the
+gate's own code when the item is refused:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/night_run.py" \
+  --item-dir .egregore/handoff/<item> --root .
+```
+
+Nothing inside a session starts it. The headless `claude -p`
+run, or the watchdog installed by `/egregore:install-watchdog`,
+does. See `modules/budget.md` for why the cooldown path differs.
+
 ## Manifest Mode
 
 Before launching the orchestrator, ensure the manifest has
