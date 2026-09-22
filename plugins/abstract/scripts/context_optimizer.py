@@ -117,20 +117,38 @@ class ContextOptimizer:
         return sorted(results, key=lambda x: x["bytes"], reverse=True)
 
     def report_statistics(self, results: list[dict[str, Any]]) -> None:
-        """Print statistics about skill files."""
+        """Print statistics about skill files.
+
+        The body once computed the totals and printed nothing: a lint
+        autofix (a6e77007) removed the print calls and left the
+        arithmetic behind as bare expressions.
+        """
         if not results:
+            print("No skill files found.")
             return
 
-        len(results)
-        sum(r["bytes"] for r in results)
-        sum(r["estimated_tokens"] for r in results)
+        total_files = len(results)
+        total_size = sum(r["bytes"] for r in results)
+        total_tokens = sum(r["estimated_tokens"] for r in results)
 
         categories = {"small": 0, "medium": 0, "large": 0, "xlarge": 0}
         for r in results:
             categories[r["category"]] += 1
 
+        print("\nContext Optimization Analysis")
+        print("=" * 50)
+        print(f"Total Skills: {total_files}")
+        print(f"Total Size: {total_size:,} bytes")
+        print(f"Estimated Tokens: {total_tokens:,}")
+        print("\nSize Distribution:")
+        print(f"  Small (<2KB):   {categories['small']:3d} files")
+        print(f"  Medium (2-5KB): {categories['medium']:3d} files")
+        print(f"  Large (5-15KB): {categories['large']:3d} files")
+        print(f"  XLarge (>15KB): {categories['xlarge']:3d} files")
+
         if categories["xlarge"] > 0:
-            pass
+            print(f"\nRecommendation: {categories['xlarge']} file(s) exceed 15KB")
+            print("Consider using progressive disclosure or modularization")
 
 
 class ContextOptimizerCLI(AbstractCLI):

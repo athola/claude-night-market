@@ -644,12 +644,23 @@ class TestValidateSkills:
         assert any("missing 'description'" in i for i in v.issues["recommendations"])
 
     @pytest.mark.unit
-    def test_skills_not_a_list_no_crash(self, tmp_path: Path) -> None:
-        """Skills field that is not a list is handled gracefully."""
+    def test_skills_not_a_list_adds_warning(self, tmp_path: Path) -> None:
+        """Given: a plugin whose "skills" key holds a string
+        When: _validate_skills runs
+        Then: a warning names the field as needing a list
+
+        A malformed "skills" value means no skill is checked at all.
+        Returning silently reported that plugin as clean, which is the
+        opposite of what a validator owes the caller. The sibling
+        _validate_claude_config warns on the same shape of error.
+        """
         pd = _make_plugin(tmp_path, {"name": "my-plugin", "skills": "not-a-list"})
         v = PluginValidator(pd)
         v._validate_plugin_json_exists()
+
         v._validate_skills()
+
+        assert any("skills" in i and "list" in i for i in v.issues["warnings"])
 
 
 class TestValidateClaudeConfig:

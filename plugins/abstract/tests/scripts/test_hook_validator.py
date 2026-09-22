@@ -460,31 +460,50 @@ class TestValidateHookFile:
 
 
 class TestPrintResult:
-    """Feature: print_result does not crash."""
+    """Feature: print_result renders each message class it is given."""
 
     @pytest.mark.unit
     @pytest.mark.parametrize(
-        ("result_data", "verbose"),
+        ("result_data", "verbose", "expected_lines"),
         [
             (
                 {"valid": True, "errors": [], "warnings": [], "info": ["some info"]},
                 False,
+                ["✓ Valid"],
             ),
             (
                 {"valid": True, "errors": [], "warnings": ["a warning"], "info": []},
                 True,
+                ["  WARNING: a warning", "✓ Valid with warnings"],
             ),
             (
                 {"valid": False, "errors": ["an error"], "warnings": [], "info": []},
                 False,
+                ["  ERROR: an error", "✗ Invalid"],
             ),
         ],
-        ids=["valid-with-info", "valid-with-warnings", "invalid-with-errors"],
+        ids=["info-suppressed-without-verbose", "warnings-shown", "errors-shown"],
     )
-    def test_print_result_no_crash(self, result_data, verbose) -> None:
-        """Scenario: print_result handles various result shapes."""
+    def test_print_result_writes_the_expected_lines(
+        self,
+        result_data,
+        verbose: bool,
+        expected_lines: list[str],
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        """Given: a validation result and a verbosity setting
+        When: print_result renders it
+        Then: stdout is exactly the lines that setting calls for
+
+        The first case carries the behavior a bare "does not raise"
+        could not see: info is withheld unless verbose is set, so the
+        expected output is no output at all.
+        """
         result: ValidationResult = result_data
-        print_result(result, verbose=verbose)  # Should not raise
+
+        print_result(result, verbose=verbose)
+
+        assert capsys.readouterr().out.splitlines() == expected_lines
 
 
 # ---------------------------------------------------------------------------

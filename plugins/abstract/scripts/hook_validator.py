@@ -587,6 +587,14 @@ def print_result(result: ValidationResult, verbose: bool = False) -> None:
         for _msg in result["errors"]:
             print(f"  ERROR: {_msg}")
 
+    # Verdict: the line a caller reads when it does not count messages
+    if not result["valid"]:
+        print("✗ Invalid")
+    elif result["warnings"]:
+        print("✓ Valid with warnings")
+    else:
+        print("✓ Valid")
+
     # Print summary
     if result["valid"]:
         if result["warnings"]:
