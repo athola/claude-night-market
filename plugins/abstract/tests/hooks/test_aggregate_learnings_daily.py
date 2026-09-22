@@ -436,41 +436,59 @@ class TestAutoPromoteChaining:
 class TestAutoPromoteErrorIsolation:
     """Test that auto-promote errors don't affect the hook."""
 
-    def test_auto_promote_exception_is_swallowed(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch
+    def test_auto_promote_exception_is_reported_and_not_raised(
+        self, hook_module, monkeypatch: pytest.MonkeyPatch, capsys
     ) -> None:
         """Given: _promote raises an exception
         When: run_auto_promote() is called
-        Then: Exception is silently caught (hook must not crash)
+        Then: _promote was reached, the failure is named on stderr, and
+        the hook returns instead of raising
+
+        A bare "should not raise" passed for any early return too, which
+        is the failure mode this guards: the call has to happen and the
+        swallow has to leave a trace.
         """
         # Ensure the scripts-available flag is set so run_auto_promote
         # actually calls _promote rather than returning early.
         monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", True)
+        calls = []
 
         def boom():
+            calls.append("promote")
             raise RuntimeError("boom")
 
         monkeypatch.setattr(hook_module, "_promote", boom)
 
-        # Should not raise
-        hook_module.run_auto_promote()
+        assert hook_module.run_auto_promote() is None
 
-    def test_post_learnings_exception_is_swallowed(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch
+        assert calls == ["promote"], "_promote was never reached"
+        stderr = capsys.readouterr().err
+        assert "auto-promote" in stderr
+        assert "RuntimeError: boom" in stderr
+
+    def test_post_learnings_exception_is_reported_and_not_raised(
+        self, hook_module, monkeypatch: pytest.MonkeyPatch, capsys
     ) -> None:
         """Given: _post_learnings raises an exception
         When: run_post_learnings() is called
-        Then: Exception is silently caught (hook must not crash)
+        Then: _post_learnings was reached and the failure is named on
+        stderr rather than propagating
         """
         monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", True)
+        calls = []
 
         def boom():
+            calls.append("post")
             raise RuntimeError("post boom")
 
         monkeypatch.setattr(hook_module, "_post_learnings", boom)
 
-        # Should not raise
-        hook_module.run_post_learnings()
+        assert hook_module.run_post_learnings() is None
+
+        assert calls == ["post"], "_post_learnings was never reached"
+        stderr = capsys.readouterr().err
+        assert "post-learnings" in stderr
+        assert "RuntimeError: post boom" in stderr
 
 
 # ---------------------------------------------------------------------------

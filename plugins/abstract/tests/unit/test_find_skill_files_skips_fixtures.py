@@ -21,7 +21,26 @@ def test_fixture_skills_under_tests_are_not_discovered(tmp_path: Path) -> None:
     assert find_skill_files(tmp_path) == [shipped]
 
 
-def test_a_skill_named_tests_is_still_found(tmp_path: Path) -> None:
-    """Only a directory component named tests is skipped, not a skill mentioning it."""
+def test_a_skill_whose_name_contains_test_is_still_found(tmp_path: Path) -> None:
+    """A path component only has to contain `test` for the guard to skip it.
+
+    The guard matches a whole path component, so `testing-quality` is
+    found. The old name for this test promised a skill directory named
+    `tests`, which the body never planted and which the implementation
+    skips; that case is covered below.
+    """
     shipped = _skill(tmp_path, "skills", "testing-quality")
+    assert find_skill_files(tmp_path) == [shipped]
+
+
+def test_a_skill_directory_named_tests_is_skipped(tmp_path: Path) -> None:
+    """The guard is on the component, so a skill called `tests` is collateral.
+
+    Discovery cannot tell a skill directory named `tests` from a fixture
+    tree, and the fixture case is the one that matters. This pins the
+    trade-off so a future rename of the guard has to face it.
+    """
+    shipped = _skill(tmp_path, "skills", "real")
+    _skill(tmp_path, "skills", "tests")
+
     assert find_skill_files(tmp_path) == [shipped]
