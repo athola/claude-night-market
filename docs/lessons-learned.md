@@ -23,6 +23,8 @@ so the team replicates what worked and avoids what did not.
 | LL-008 | open | Fixes that regress the tool that runs them | 2026-09-10 |
 | LL-009 | open | Fifteen findings named one defect: gates that convert failure into output | 2026-09-02 |
 | LL-010 | open | Review agents reported four criticals that one command refuted | 2026-09-02 |
+| LL-011 | open | A package root put PyYAML in front of every stdlib-only hook | 2026-09-22 |
+| LL-012 | open | uv run pre-commit vouched for hooks that git commit could not run | 2026-09-22 |
 
 ## Lessons
 
@@ -525,6 +527,103 @@ in the contract asked for any of them.
 - Action: before triaging an old findings list entry by entry, run the
   mechanical checks that could close a category at once. Owner:
   night-market maintainers. Status: open.
+
+## LL-011: A package root put PyYAML in front of every stdlib-only hook
+
+- Status: open
+- Date: 2026-09-22
+- Phase: execute
+- Category: technology
+- Owner: night-market maintainers
+- Links: 5757958b, ba2a190b, tests/test_hooks_import_without_project_deps.py
+<!-- key: d76f1b296e51 -->
+
+### What happened
+
+Every session start and stop printed a ModuleNotFoundError for PyYAML from a
+memory-palace hook that wanted one stdlib-only name. Hooks run under the
+operator's PATH python3, which carries no project dependencies. import
+memory_palace.paths executed memory_palace/__init__.py first, and that file
+eagerly re-exported a class whose module imports yaml. A sweep of all 52
+registered hooks found the same shape in three more, across abstract and
+hookify, one of them a regression on the branch.
+
+### What went well / where we got lucky
+
+Blocking yaml through sitecustomize in a subprocess reproduced the operator's
+interpreter from inside a venv that has PyYAML. Running the sweep against the
+installed 1.9.20 copies separated the branch regression from the pre-existing
+bugs before any fix was chosen.
+
+### What did not work
+
+The first test covered one hook file and its name read as if it covered the
+class. Guarding the leaf's import yaml was the tempting fix and the wrong one:
+the leaf cannot parse an entry without yaml, so a guard degrades the module
+silently instead of failing the hook loudly. In abstract, lazifying the root was
+not enough either, because the hook imported through a yaml-bearing module
+rather than past it.
+
+### Root cause
+
+import pkg.leaf executes pkg/__init__.py first. A package root that re-exports
+for convenience turns every one of its dependencies into a dependency of every
+leaf, and a hook only ever wants a leaf.
+
+### Recommendation / action item
+
+Action: package roots resolve exports on first attribute access, and helpers a
+hook needs live in a stdlib-only module such as abstract/paths.py;
+tests/test_hooks_import_without_project_deps.py fails on any registered hook
+that cannot import with PyYAML blocked. Owner: night-market maintainers. Due:
+2026-09-22. Status: done.
+
+## LL-012: uv run pre-commit vouched for hooks that git commit could not run
+
+- Status: open
+- Date: 2026-09-22
+- Phase: review
+- Category: process
+- Owner: night-market maintainers
+- Links: 2800e058, c596dc66, tests/test_precommit_entries_import_without_project_deps.py
+<!-- key: f4af0d2bc4dd -->
+
+### What happened
+
+Committing a SKILL.md change failed in two pre-commit hooks with
+ModuleNotFoundError for PyYAML. Both entries invoked python3 from PATH. Minutes
+earlier, uv run pre-commit run --files had passed the same hooks on the same
+files. A sweep of every bare-python3 entry found two more that would fail the
+same way on their own trigger files.
+
+### What went well / where we got lucky
+
+The failing hook could be run the way git commit runs it, through the
+interpreter named in .git/hooks/pre-commit with PATH reduced to
+/opt/homebrew/bin:/usr/bin:/bin, and that reproduced the failure on demand. The
+fix was the form slop-ratchet already used.
+
+### What did not work
+
+uv run puts the venv first on PATH, so a language: system entry that says
+python3 resolves an interpreter with every dependency under uv and one with none
+under git commit. A dry run through uv is not evidence for a hook. The
+pin-freshness gate then held the config edit hostage to an unrelated action
+bump, and pre-commit refuses to run while its own config is modified but
+unstaged, so the two changes could not be committed apart.
+
+### Root cause
+
+Two interpreters share the name python3, and the check ran under the one that
+never runs the hook.
+
+### Recommendation / action item
+
+Action: verify a language: system hook the way git commit runs it, not through
+uv; run any entry that needs PyYAML as uv run --with pyyaml python;
+tests/test_precommit_entries_import_without_project_deps.py fails on any
+bare-python3 entry that cannot import with PyYAML blocked. Owner: night-market
+maintainers. Due: 2026-09-22. Status: done.
 
 ## Archive
 
