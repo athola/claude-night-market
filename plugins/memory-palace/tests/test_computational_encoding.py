@@ -171,11 +171,98 @@ class TestMigrateSensoryToComputational:
             json.dumps(sample_palace_with_sensory)
         )
 
-        migrate_sensory_to_computational(palaces_dir)
+        migrate_sensory_to_computational(palaces_dir, apply=True)
 
         converted = json.loads((palaces_dir / "enc_test.json").read_text())
         assert "sensory_encoding" not in converted
         assert "computational_encoding" in converted
+
+    def test_a_dry_run_changes_nothing_on_disk(
+        self,
+        tmp_path: Path,
+        sample_palace_with_sensory: dict[str, Any],
+    ) -> None:
+        """Without apply=True the files are left byte-identical."""
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        target = palaces_dir / "enc_test.json"
+        target.write_text(json.dumps(sample_palace_with_sensory))
+        before = target.read_bytes()
+
+        report = migrate_sensory_to_computational(palaces_dir)
+
+        assert target.read_bytes() == before
+        assert report.rewritten == [target]
+
+    def test_an_unparsable_file_is_recorded_with_a_reason(self, tmp_path: Path) -> None:
+        """A corrupt palace file is named in the report, not swallowed."""
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        broken = palaces_dir / "broken.json"
+        broken.write_text("{not json")
+
+        report = migrate_sensory_to_computational(palaces_dir, apply=True)
+
+        assert [path for path, _ in report.skipped] == [broken]
+        assert "JSON" in report.skipped[0][1]
+
+    def test_a_file_without_an_id_is_recorded_as_skipped(self, tmp_path: Path) -> None:
+        """A JSON file that is not a palace is reported rather than ignored."""
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        stray = palaces_dir / "stray.json"
+        stray.write_text('{"name": "not a palace"}')
+
+        report = migrate_sensory_to_computational(palaces_dir, apply=True)
+
+        assert [path for path, _ in report.skipped] == [stray]
+        assert "id" in report.skipped[0][1]
+
+    def test_migrate_encoding_preserves_existing_access_count(
+        self,
+        tmp_path: Path,
+        sample_palace_with_sensory: dict[str, Any],
+    ) -> None:
+        """An enriched encoding entry survives the migration.
+
+        `PalaceGraphAnalyzer` is invited to fill centrality and
+        access_count. Rebuilding from defaults would silently revert it.
+        """
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        enriched = dict(sample_palace_with_sensory)
+        entity_id = next(iter(enriched["associations"]))
+        enriched["computational_encoding"] = {
+            entity_id: {"access_count": 7, "centrality": 0.5}
+        }
+        (palaces_dir / "enc_test.json").write_text(json.dumps(enriched))
+
+        migrate_sensory_to_computational(palaces_dir, apply=True)
+
+        entry = json.loads((palaces_dir / "enc_test.json").read_text())[
+            "computational_encoding"
+        ][entity_id]
+        assert entry["access_count"] == 7
+        assert entry["centrality"] == 0.5
+        assert entry["cluster_id"] == -1
+
+    def test_a_converted_file_is_reported_unchanged_on_the_second_run(
+        self,
+        tmp_path: Path,
+        sample_palace_with_sensory: dict[str, Any],
+    ) -> None:
+        """The dry run only lists files a rewrite would actually change."""
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        target = palaces_dir / "enc_test.json"
+        target.write_text(json.dumps(sample_palace_with_sensory))
+
+        migrate_sensory_to_computational(palaces_dir, apply=True)
+        second = migrate_sensory_to_computational(palaces_dir)
+
+        assert second.rewritten == []
+        assert second.unchanged == [target]
+        assert second.scanned == 1
 
     def test_skips_master_index(
         self,
@@ -190,7 +277,7 @@ class TestMigrateSensoryToComputational:
             json.dumps(sample_palace_with_sensory)
         )
 
-        migrate_sensory_to_computational(palaces_dir)
+        migrate_sensory_to_computational(palaces_dir, apply=True)
 
         # master_index.json should remain unchanged
         index_content = json.loads((palaces_dir / "master_index.json").read_text())
@@ -208,8 +295,8 @@ class TestMigrateSensoryToComputational:
             json.dumps(sample_palace_with_sensory)
         )
 
-        migrate_sensory_to_computational(palaces_dir)
-        migrate_sensory_to_computational(palaces_dir)
+        migrate_sensory_to_computational(palaces_dir, apply=True)
+        migrate_sensory_to_computational(palaces_dir, apply=True)
 
         converted = json.loads((palaces_dir / "enc_test.json").read_text())
         assert "computational_encoding" in converted

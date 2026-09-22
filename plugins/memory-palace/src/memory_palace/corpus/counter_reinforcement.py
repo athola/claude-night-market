@@ -246,6 +246,14 @@ class CounterReinforcementTracker:
         """
         return self._counters.get(entry_id)
 
-    def clear(self) -> None:
-        """Clear all counters (for testing)."""
-        self._counters.clear()
+    def get_review_candidates(self) -> list[ReinforcementCounter]:
+        """Return the counters flagged for human review.
+
+        The filter is ``ReinforcementCounter.needs_review`` rather than
+        a second copy of its thresholds, so the rule has one home.
+
+        Returns:
+            Counters needing review, in insertion order
+
+        """
+        return [counter for counter in self._counters.values() if counter.needs_review]

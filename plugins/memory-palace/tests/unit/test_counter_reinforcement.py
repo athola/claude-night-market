@@ -158,6 +158,53 @@ class TestCounterReinforcementTracker:
         return CounterReinforcementTracker()
 
     @pytest.mark.unit
+    def test_get_review_candidates_returns_entries_needing_review(
+        self, tracker: CounterReinforcementTracker
+    ) -> None:
+        """The loop in the class docstring must have something to iterate.
+
+        `needs_review` is the entry point for the curator half of the
+        ACE triad, and per-counter it answers one entry at a time.
+        """
+        for _ in range(4):
+            tracker.reinforce("harmful-entry", FeedbackType.HARMFUL)
+        for _ in range(4):
+            tracker.reinforce("healthy-entry", FeedbackType.HELPFUL)
+
+        candidates = tracker.get_review_candidates()
+
+        assert [counter.entry_id for counter in candidates] == ["harmful-entry"]
+
+    @pytest.mark.unit
+    def test_get_review_candidates_is_empty_for_a_healthy_corpus(
+        self, tracker: CounterReinforcementTracker
+    ) -> None:
+        """No entry past a threshold means nothing to review."""
+        for _ in range(6):
+            tracker.reinforce("healthy-entry", FeedbackType.HELPFUL)
+
+        assert tracker.get_review_candidates() == []
+
+    @pytest.mark.unit
+    def test_get_review_candidates_defers_to_needs_review(
+        self, tracker: CounterReinforcementTracker
+    ) -> None:
+        """The tracker filters on the counter's rule, never its own copy.
+
+        A single harmful signal is a candidate, because
+        `ReinforcementCounter.needs_review` fires on a harm ratio past
+        HARM_RATIO_THRESHOLD whatever the signal count. Restating that
+        rule in the tracker would let the two drift.
+        """
+        tracker.reinforce("barely-seen", FeedbackType.HARMFUL)
+        tracker.reinforce("healthy-entry", FeedbackType.HELPFUL)
+
+        candidates = tracker.get_review_candidates()
+
+        assert [counter.entry_id for counter in candidates] == ["barely-seen"]
+        assert all(counter.needs_review for counter in candidates)
+
+    @pytest.mark.unit
     def test_reinforce_creates_counter(
         self, tracker: CounterReinforcementTracker
     ) -> None:

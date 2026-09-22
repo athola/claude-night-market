@@ -172,47 +172,97 @@ def _default_comp_entry() -> dict[str, Any]:
     }
 
 
-def migrate_sensory_to_computational(palaces_dir: Path) -> None:
+@dataclass
+class EncodingMigrationReport:
+    """What one ``migrate_sensory_to_computational`` run saw and did.
+
+    ``rewritten`` holds the files whose content differs after the
+    conversion, whether or not the run was allowed to write them, so a
+    dry run lists exactly what an ``apply`` run would change.
+    """
+
+    scanned: int = 0
+    rewritten: list[Path] = field(default_factory=list)
+    unchanged: list[Path] = field(default_factory=list)
+    skipped: list[tuple[Path, str]] = field(default_factory=list)
+
+
+def migrate_sensory_to_computational(
+    palaces_dir: Path, *, apply: bool = False
+) -> EncodingMigrationReport:
     """Bulk-convert palace JSON files from sensory to computational encoding.
 
     For each palace JSON in *palaces_dir*:
     - Remove ``sensory_encoding`` key.
-    - Add ``computational_encoding`` keyed by entity ID (from associations).
-    - Write the updated file back.
+    - Merge ``computational_encoding`` onto whatever is already there,
+      keyed by entity ID (from associations), so an entry enriched by
+      ``PalaceGraphAnalyzer`` keeps its centrality and access counts.
+    - Write the updated file back when *apply* is true.
     - Idempotent: already-converted files are re-converted safely.
 
     Args:
         palaces_dir: Path to the directory containing palace JSON files.
+        apply: Write the conversion. False reports what would change and
+            leaves every file byte-identical.
+
+    Returns:
+        An ``EncodingMigrationReport``. A file this function cannot read,
+        cannot parse, or that carries no ``id``, lands in ``skipped``
+        with the reason, because a corrupted palace must not be
+        indistinguishable from a migrated one.
 
     """
+    report = EncodingMigrationReport()
     for palace_file in sorted(palaces_dir.iterdir()):
         if palace_file.suffix != ".json":
             continue
         if palace_file.name in _SKIP_FILES:
             continue
 
+        report.scanned += 1
         try:
-            data: dict[str, Any] = json.loads(palace_file.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
+            original = palace_file.read_text(encoding="utf-8")
+            data: dict[str, Any] = json.loads(original)
+        except json.JSONDecodeError as exc:
+            report.skipped.append((palace_file, f"invalid JSON: {exc}"))
+            continue
+        except OSError as exc:
+            report.skipped.append((palace_file, f"unreadable: {exc}"))
             continue
 
         if "id" not in data:
+            report.skipped.append((palace_file, "no id field; not a palace"))
             continue
 
-        # Remove sensory encoding (if present)
-        data.pop("sensory_encoding", None)
-        # Remove stale computational encoding (will rebuild fresh)
-        data.pop("computational_encoding", None)
+        converted = _converted_palace(data)
+        if converted == data:
+            report.unchanged.append(palace_file)
+            continue
 
-        # Build fresh computational encoding from associations
-        associations: dict[str, Any] = data.get("associations") or {}
-        comp_enc: dict[str, Any] = {}
-        for entity_id in associations:
-            comp_enc[entity_id] = _default_comp_entry()
+        report.rewritten.append(palace_file)
+        if apply:
+            _atomic_write_json(palace_file, converted)
 
-        data["computational_encoding"] = comp_enc
+    return report
 
-        _atomic_write_json(palace_file, data)
+
+def _converted_palace(data: dict[str, Any]) -> dict[str, Any]:
+    """Return *data* with the computational encoding rebuilt, merged."""
+    converted = dict(data)
+    converted.pop("sensory_encoding", None)
+
+    existing: dict[str, Any] = converted.get("computational_encoding") or {}
+    associations: dict[str, Any] = converted.get("associations") or {}
+    comp_enc: dict[str, Any] = {}
+    for entity_id in associations:
+        entry = _default_comp_entry()
+        prior = existing.get(entity_id)
+        if isinstance(prior, dict):
+            entry.update(prior)
+        comp_enc[entity_id] = entry
+
+    converted["computational_encoding"] = comp_enc
+    return converted
 
 
 def _atomic_write_json(target: Path, data: dict[str, Any]) -> None:

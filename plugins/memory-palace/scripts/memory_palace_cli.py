@@ -1054,12 +1054,30 @@ class MemoryPalaceCLI(_LifecycleMixin, _GardenMixin, _IndexMixin, _PalaceMixin):
             f"{report.concepts} concepts, {report.synapses} synapses"
         )
 
-    def migrate_encoding(self, palaces_dir: str | None) -> None:
-        """Rewrite palace files from sensory to computational encoding, in place."""
+    def migrate_encoding(self, palaces_dir: str | None, *, apply: bool = False) -> None:
+        """Convert palace files from sensory to computational encoding.
+
+        Reports by default and writes only under ``apply``, matching
+        every other write-capable subcommand here.
+        """
         manager = self._manager(palaces_dir)
         target = Path(manager.palaces_dir)
-        migrate_sensory_to_computational(target)
-        self.print_status(f"Rewrote palace encodings under {target}")
+        report = migrate_sensory_to_computational(target, apply=apply)
+
+        for path, reason in report.skipped:
+            self.print_error(f"skipped {path.name}: {reason}")
+
+        verb = "Rewrote" if apply else "Would rewrite"
+        self.print_status(
+            f"Scanned {report.scanned} palace file(s) under {target}: "
+            f"{verb} {len(report.rewritten)}, "
+            f"{len(report.unchanged)} already converted, "
+            f"{len(report.skipped)} skipped"
+        )
+        for path in report.rewritten:
+            self.print_status(f"  {verb.lower()}: {path.name}")
+        if not apply and report.rewritten:
+            self.print_status("Re-run with --apply to write these changes")
 
 
 def _add_zero_arg_commands(subparsers: Any) -> None:
@@ -1309,10 +1327,18 @@ def _add_migrate_command(subparsers: Any) -> None:
     )
     encoding = migrate_sub.add_parser(
         "encoding",
-        help="Rewrite palace files from sensory_encoding to computational_encoding IN PLACE",
+        help=(
+            "Convert palace files from sensory_encoding to "
+            "computational_encoding (default: dry run)"
+        ),
     )
     encoding.add_argument(
         "--palaces-dir", default=None, help="Override the palaces directory"
+    )
+    encoding.add_argument(
+        "--apply",
+        action="store_true",
+        help="Rewrite the palace files in place (default: report only)",
     )
 
 
@@ -1407,7 +1433,7 @@ def main() -> None:
         if args.migrate_cmd == "graph":
             cli.migrate_graph(args.palaces_dir)
         elif args.migrate_cmd == "encoding":
-            cli.migrate_encoding(args.palaces_dir)
+            cli.migrate_encoding(args.palaces_dir, apply=args.apply)
         else:
             parser.print_help()
 

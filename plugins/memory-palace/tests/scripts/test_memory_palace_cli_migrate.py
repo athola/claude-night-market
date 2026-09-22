@@ -60,24 +60,58 @@ class TestParser:
         assert args.migrate_cmd == target
         assert args.palaces_dir == "/p"
 
+    def test_encoding_defaults_to_a_dry_run(self) -> None:
+        """`migrate encoding` writes nothing until --apply is passed."""
+        assert build_parser().parse_args(["migrate", "encoding"]).apply is False
+        assert build_parser().parse_args(["migrate", "encoding", "--apply"]).apply
+
 
 class TestDispatch:
-    """Feature: main() routes each migrate target to its CLI method."""
+    """Feature: main() routes each migrate target to its CLI method.
 
-    @pytest.mark.parametrize(
-        "target,method", [("graph", "migrate_graph"), ("encoding", "migrate_encoding")]
-    )
-    def test_migrate_dispatch(self, target: str, method: str) -> None:
-        """Each target reaches its CLI method with the (absent) override."""
+    The collaborator lives in the module under test, so patching the
+    class itself would prove only that argparse reached a name. These
+    patch the method on the real class, keeping the constructor and the
+    argument plumbing in the test's path.
+    """
+
+    def test_graph_dispatch(self) -> None:
+        """`migrate graph` reaches migrate_graph with the absent override."""
         with (
-            patch("sys.argv", ["prog", "migrate", target]),
-            patch("scripts.memory_palace_cli.MemoryPalaceCLI") as mock_cls,
+            patch("sys.argv", ["prog", "migrate", "graph"]),
+            patch.object(MemoryPalaceCLI, "migrate_graph") as method,
         ):
-            mock_cli = Mock()
-            mock_cli.had_error = False
-            mock_cls.return_value = mock_cli
             main()
-            getattr(mock_cli, method).assert_called_once_with(None)
+        method.assert_called_once_with(None)
+
+    def test_encoding_dispatch_carries_the_apply_flag(self, palace_dir: Path) -> None:
+        """`migrate encoding` passes the directory override and --apply."""
+        with (
+            patch(
+                "sys.argv",
+                ["prog", "migrate", "encoding", "--palaces-dir", str(palace_dir)],
+            ),
+            patch.object(MemoryPalaceCLI, "migrate_encoding") as method,
+        ):
+            main()
+        method.assert_called_once_with(str(palace_dir), apply=False)
+
+        with (
+            patch(
+                "sys.argv",
+                [
+                    "prog",
+                    "migrate",
+                    "encoding",
+                    "--palaces-dir",
+                    str(palace_dir),
+                    "--apply",
+                ],
+            ),
+            patch.object(MemoryPalaceCLI, "migrate_encoding") as method,
+        ):
+            main()
+        method.assert_called_once_with(str(palace_dir), apply=True)
 
 
 class TestMigrateGraph:
@@ -107,8 +141,52 @@ class TestMigrateEncoding:
         cli = MemoryPalaceCLI()
         manager = Mock(palaces_dir=str(palace_dir))
         with patch.object(cli, "_manager", return_value=manager):
-            cli.migrate_encoding(None)
+            cli.migrate_encoding(None, apply=True)
         rewritten = json.loads((palace_dir / "abc12345.json").read_text())
         assert "sensory_encoding" not in rewritten
         assert "computational_encoding" in rewritten
+        assert cli.had_error is False
+
+    def test_a_dry_run_lists_the_file_and_writes_nothing(
+        self, palace_dir: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Without --apply the command reports what it would change."""
+        target = palace_dir / "abc12345.json"
+        before = target.read_bytes()
+        cli = MemoryPalaceCLI()
+        manager = Mock(palaces_dir=str(palace_dir))
+        with patch.object(cli, "_manager", return_value=manager):
+            cli.migrate_encoding(None)
+
+        out = capsys.readouterr().out
+        assert target.read_bytes() == before
+        assert "abc12345.json" in out
+        assert "--apply" in out
+        assert cli.had_error is False
+
+    def test_migrate_encoding_reports_unparsable_file(
+        self, palace_dir: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A corrupt palace file is named and makes the run fail."""
+        (palace_dir / "broken.json").write_text("{not json")
+        cli = MemoryPalaceCLI()
+        manager = Mock(palaces_dir=str(palace_dir))
+        with patch.object(cli, "_manager", return_value=manager):
+            cli.migrate_encoding(None, apply=True)
+
+        assert "broken.json" in capsys.readouterr().out
+        assert cli.had_error is True
+
+    def test_a_directory_with_no_palace_files_says_so(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """An empty directory is distinguishable from a rewritten one."""
+        empty = tmp_path / "empty"
+        empty.mkdir()
+        cli = MemoryPalaceCLI()
+        manager = Mock(palaces_dir=str(empty))
+        with patch.object(cli, "_manager", return_value=manager):
+            cli.migrate_encoding(None, apply=True)
+
+        assert "0 palace file(s)" in capsys.readouterr().out
         assert cli.had_error is False
