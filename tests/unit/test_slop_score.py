@@ -17,6 +17,7 @@ from __future__ import annotations
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -1155,3 +1156,59 @@ def test_no_exclude_scores_a_path_the_config_excludes() -> None:
     )
     assert hidden.returncode == 0, hidden.stdout
     assert seen.returncode != 0, seen.stdout
+
+
+class TestScoringIsLinearOnPunctuationFreeText:
+    """Feature: the commit path cannot be stalled by a wide table.
+
+    As a contributor running the pre-commit hook
+    I want scoring to finish in about the time reading the file takes
+    So that a glossary or a wide markdown table does not hang the commit.
+
+    The ``semicolon_splice`` runs excluded sentence punctuation but not
+    newlines, so on a document with no ``.`` or ``,`` a single run
+    spanned the whole file and the engine retried it from every start
+    position. A 94KB table of unpunctuated rows took 9.9 seconds.
+    """
+
+    @staticmethod
+    def _punctuation_free_markdown(target_chars: int) -> str:
+        row = "| alpha beta gamma delta | epsilon zeta eta theta | iota kappa |\n"
+        return "# Glossary\n\n" + row * (target_chars // len(row))
+
+    @pytest.mark.unit
+    def test_a_100kb_punctuation_free_file_scores_quickly(self) -> None:
+        """
+        Scenario: a wide table with no sentence punctuation
+        Given roughly 100KB of markdown carrying no period or comma
+        When score_text runs
+        Then it finishes well inside the pre-commit budget
+        """
+        body = self._punctuation_free_markdown(100_000)
+        assert len(body) > 100_000 - len(body) // 10
+
+        start = time.perf_counter()
+        score_text(body)
+        elapsed = time.perf_counter() - start
+
+        # The defect measured 9.9s here and the bounded pattern measures
+        # well under 0.2s, so the bound discriminates with wide margin
+        # while leaving room for a loaded machine.
+        assert elapsed < 2.0, f"scoring took {elapsed:.2f}s"
+
+    @pytest.mark.unit
+    def test_a_semicolon_with_no_terminator_scores_quickly(self) -> None:
+        """
+        Scenario: the worst case, a semicolon and nothing to anchor the end
+        Given the same text with one semicolon and no sentence terminator
+        Then scoring still finishes inside the budget
+        """
+        body = self._punctuation_free_markdown(100_000).replace(
+            "| iota kappa |", "| iota; kappa |", 1
+        )
+
+        start = time.perf_counter()
+        score_text(body)
+        elapsed = time.perf_counter() - start
+
+        assert elapsed < 2.0, f"scoring took {elapsed:.2f}s"

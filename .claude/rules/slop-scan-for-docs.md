@@ -118,7 +118,7 @@ Notation is the shape to leave alone, and it is code that happens to
 sit in prose: an arrow in a mapping table
 (`memory_palace/corpus/integration_policy.py:28`), a plus in a formula
 (`scribe/tape_generator.py:220`), and a character quoted because the
-code matches it (`scribe/negation.py:34`). Code marked the RST way,
+code matches it (`scribe/negation.py:37`). Code marked the RST way,
 with two backticks, is stripped before scoring.
 
 `scripts/slop_score.py --threshold 3.0 docs book/src` is the

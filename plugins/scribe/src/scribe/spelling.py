@@ -28,6 +28,8 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
+from .markdown_spans import INLINE_CODE
+
 try:
     import yaml
 except ImportError:  # pragma: no cover - exercised via ImportError branch
@@ -42,7 +44,7 @@ DATA_FILE = (
 # and URLs. A CSS ``color``, a variable named ``behaviour_flag``, or a link
 # path are not prose and must survive normalization untouched.
 _FENCED_CODE = re.compile(r"```.*?```", re.DOTALL)
-_INLINE_CODE = re.compile(r"`[^`]*`")
+_INLINE_CODE = INLINE_CODE
 _URL = re.compile(r"https?://\S+")
 
 _MAP_CACHE: dict[str, str] | None = None

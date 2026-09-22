@@ -99,6 +99,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .markdown_spans import INLINE_CODE
+
 try:
     import yaml
 except ImportError:  # pragma: no cover - exercised via ImportError branch
@@ -128,7 +130,7 @@ _MASK = "¤"
 _DOT = "\x01"
 
 _FENCED_CODE = re.compile(r"```.*?```", re.DOTALL)
-_INLINE_CODE = re.compile(r"`[^`]*`")
+_INLINE_CODE = INLINE_CODE
 _URL = re.compile(r"\b(?:https?://|www\.)\S+")
 # A bare domain carries no scheme, so the rule above misses it and the
 # host tokenizes into "news ycombinator com". The TLD list is short on

@@ -509,12 +509,16 @@ tier5:
     # "; See Table 2" is a reference and does not match. What matches
     # is scored. Code and inline code are stripped before this runs
     # (see the markdown application layer). Policy: semicolons in prose
-    # only when absolutely necessary.
+    # only when absolutely necessary. Both runs are bounded at 120
+    # characters: neither excludes the newline, so on a document
+    # with no sentence punctuation an unbounded run spanned the
+    # whole file and the engine retried it from every start
+    # position, which cost 9.9s on a 94KB table.
     score: 1
     confidence: high
     ignore_case: false
     patterns:
-      - '[A-Za-z][^,;:.!?]{5,}; [a-z][^,;.!?]{5,}[.!?]'
+      - '[A-Za-z][^,;:.!?]{5,120}; [a-z][^,;.!?]{5,120}[.!?]'
   performative_honesty:
     # "Honest X" headline framings and adverbial honesty throat-
     # clearing ("to be honest", "Honestly,", "full disclosure"):
