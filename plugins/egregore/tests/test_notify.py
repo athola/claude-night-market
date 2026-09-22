@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import socket
 import subprocess
 from unittest.mock import MagicMock, patch
 
@@ -29,12 +30,49 @@ class TestValidateWebhookUrl:
     """Tests for validate_webhook_url."""
 
     def test_accepts_valid_https_url(self) -> None:
-        """Given a valid https URL, when validating, then no error is raised."""
-        validate_webhook_url("https://hooks.slack.com/services/T00/B00/xxx")
+        """GIVEN an https URL whose hostname resolves to a public address.
+
+        WHEN validating the URL through egregore's re-exported binding
+        THEN the resolved address is returned
+
+        The resolver is stubbed because it is a network boundary: the
+        old form called the real DNS for hooks.slack.com and asserted
+        nothing, so it passed on an unplugged machine only by raising.
+        """
+        with patch(
+            "socket.getaddrinfo",
+            return_value=[
+                (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("8.8.8.8", 443))
+            ],
+        ):
+            assert (
+                validate_webhook_url("https://hooks.slack.com/services/T00/B00/xxx")
+                == "8.8.8.8"
+            )
+
+    def test_accepts_a_literal_public_ip_without_resolving_it(self) -> None:
+        """GIVEN an https URL whose host is a literal public IP.
+
+        WHEN validating the URL
+        THEN that address is returned and the resolver is never called
+        """
+        with patch("socket.getaddrinfo", side_effect=AssertionError("resolved")):
+            assert validate_webhook_url("https://1.1.1.1/hook") == "1.1.1.1"
 
     def test_accepts_https_with_port(self) -> None:
-        """Given an https URL with a port, when validating, then no error is raised."""
-        validate_webhook_url("https://example.com:8443/webhook")
+        """GIVEN an https URL with a non-standard port.
+
+        WHEN validating the URL
+        THEN the resolved address is returned without the port, which
+            travels separately into curl's --resolve pin
+        """
+        with patch(
+            "socket.getaddrinfo",
+            return_value=[
+                (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("9.9.9.9", 8443))
+            ],
+        ):
+            assert validate_webhook_url("https://example.com:8443/webhook") == "9.9.9.9"
 
     def test_rejects_http_scheme(self) -> None:
         """Given an http:// URL, when validating, then raises WebhookURLError."""
@@ -513,33 +551,52 @@ class TestIsEventEnabled:
 class TestConfigAlert:
     """Tests for config_alert dispatch with AlertsConfig gating."""
 
-    @patch("notify.alert", return_value=True)
-    def test_enabled_event_dispatches(self, mock_alert: MagicMock) -> None:
-        """Given on_crash=True, then config_alert dispatches the alert."""
-        alerts = AlertsConfig(on_crash=True)
-        overseer = OverseerConfig()
-        result = config_alert(
-            event=AlertEvent.CRASH,
-            alerts_cfg=alerts,
-            overseer_cfg=overseer,
-            detail="Process died",
-        )
-        assert result is True
-        mock_alert.assert_called_once()
+    @patch("subprocess.run")
+    def test_enabled_event_dispatches(self, mock_run: MagicMock) -> None:
+        """GIVEN on_crash is on and the overseer wants a GitHub issue.
 
-    @patch("notify.alert", return_value=True)
-    def test_disabled_event_suppressed(self, mock_alert: MagicMock) -> None:
-        """Given on_crash=False, then config_alert suppresses the alert."""
-        alerts = AlertsConfig(on_crash=False)
-        overseer = OverseerConfig()
+        WHEN config_alert fires a crash
+        THEN it reports success and the gh CLI is invoked with a title
+            naming the event
+
+        Driven through the real alert() with only the subprocess
+        boundary stubbed: patching alert() here would have been
+        patching the module under test, and the two assertions below
+        are exactly what such a patch could not see.
+        """
+        mock_run.return_value = MagicMock(returncode=0, stdout="url", stderr="")
+
         result = config_alert(
             event=AlertEvent.CRASH,
-            alerts_cfg=alerts,
-            overseer_cfg=overseer,
+            alerts_cfg=AlertsConfig(on_crash=True),
+            overseer_cfg=OverseerConfig(),
             detail="Process died",
         )
+
+        assert result is True
+        argv = mock_run.call_args[0][0]
+        assert argv[:3] == ["gh", "issue", "create"]
+        assert "[egregore] crash" in argv[argv.index("--title") + 1]
+
+    @patch("subprocess.run")
+    def test_disabled_event_suppressed(self, mock_run: MagicMock) -> None:
+        """GIVEN on_crash is off.
+
+        WHEN config_alert fires a crash
+        THEN it reports failure and no process is launched
+
+        Suppression means nothing reaches the outside world, so the
+        boundary is where it has to be observed.
+        """
+        result = config_alert(
+            event=AlertEvent.CRASH,
+            alerts_cfg=AlertsConfig(on_crash=False),
+            overseer_cfg=OverseerConfig(),
+            detail="Process died",
+        )
+
         assert result is False
-        mock_alert.assert_not_called()
+        mock_run.assert_not_called()
 
     @patch("notify.alert", return_value=True)
     def test_overseer_config_passed_through(self, mock_alert: MagicMock) -> None:

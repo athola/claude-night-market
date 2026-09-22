@@ -682,11 +682,46 @@ class TestThrottleSweep:
 
     @pytest.mark.unit
     def test_sweep_tolerates_missing_tempdir(self, tmp_path, monkeypatch):
-        """Given a non-existent temp dir, when sweeping, then no error is raised."""
-        monkeypatch.setattr(
-            dsl.tempfile, "gettempdir", lambda: str(tmp_path / "does-not-exist")
-        )
-        dsl._sweep_stale_throttles(1000.0)  # must not raise
+        """
+        Scenario: housekeeping over a temp dir that is not there
+        GIVEN a temp dir path that does not exist
+        WHEN sweeping stale throttles
+        THEN nothing is raised and the directory is not created
+
+        Creating it would be the tempting fix and the wrong one: the
+        sweep is best-effort housekeeping and must leave no trace on a
+        machine whose temp dir it cannot see.
+        """
+        absent = tmp_path / "does-not-exist"
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(absent))
+
+        assert dsl._sweep_stale_throttles(1000.0) is None
+
+        assert not absent.exists()
+
+    @pytest.mark.unit
+    def test_sweep_leaves_a_throttle_that_is_still_within_its_ttl(
+        self, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: a live session's throttle file survives the sweep
+        GIVEN a throttle file whose mtime is inside the TTL
+        WHEN sweeping
+        THEN the file is still there
+
+        The counterpart to the stale case: a sweep that unlinked every
+        throttle it found would reset the continuation count of every
+        concurrent session on the machine.
+        """
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        now = 1_000_000.0
+        fresh = tmp_path / f"{dsl._THROTTLE_PREFIX}live.json"
+        fresh.write_text("{}", encoding="utf-8")
+        os.utime(fresh, (now - 1, now - 1))
+
+        dsl._sweep_stale_throttles(now)
+
+        assert fresh.exists()
 
     @pytest.mark.unit
     def test_sweep_only_targets_throttle_files(self, tmp_path, monkeypatch):

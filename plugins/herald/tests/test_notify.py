@@ -38,20 +38,51 @@ class TestValidateWebhookUrl:
     def test_accepts_valid_https_url(self) -> None:
         """Scenario: Valid public HTTPS URL passes validation.
 
-        Given a valid https URL pointing to a public host
-        When validating the URL
-        Then no error is raised.
+        GIVEN an https URL whose hostname resolves to a public address
+        WHEN validating the URL
+        THEN the resolved address is returned, so the caller connects to
+            the address that passed rather than to a second lookup
+
+        The resolver is stubbed because it is a network boundary: the
+        old form called the real DNS for hooks.slack.com and asserted
+        nothing, so it passed on an unplugged machine only by raising.
         """
-        validate_webhook_url("https://hooks.slack.com/services/T00/B00/xxx")
+        with patch(
+            "socket.getaddrinfo",
+            return_value=[
+                (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("8.8.8.8", 443))
+            ],
+        ):
+            assert (
+                validate_webhook_url("https://hooks.slack.com/services/T00/B00/xxx")
+                == "8.8.8.8"
+            )
+
+    def test_accepts_a_literal_public_ip_without_resolving_it(self) -> None:
+        """Scenario: A URL that is already an address needs no lookup.
+
+        GIVEN an https URL whose host is a literal public IP
+        WHEN validating the URL
+        THEN that address is returned and the resolver is never called
+        """
+        with patch("socket.getaddrinfo", side_effect=AssertionError("resolved")):
+            assert validate_webhook_url("https://1.1.1.1/hook") == "1.1.1.1"
 
     def test_accepts_https_with_port(self) -> None:
         """Scenario: HTTPS URL with explicit port passes validation.
 
-        Given an https URL with a non-standard port
-        When validating the URL
-        Then no error is raised.
+        GIVEN an https URL with a non-standard port
+        WHEN validating the URL
+        THEN the resolved address is returned and the port is not part
+            of it, because the port is carried separately into --resolve
         """
-        validate_webhook_url("https://example.com:8443/webhook")
+        with patch(
+            "socket.getaddrinfo",
+            return_value=[
+                (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("9.9.9.9", 8443))
+            ],
+        ):
+            assert validate_webhook_url("https://example.com:8443/webhook") == "9.9.9.9"
 
     def test_rejects_http_scheme(self) -> None:
         """Scenario: HTTP scheme is rejected.

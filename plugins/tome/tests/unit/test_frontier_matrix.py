@@ -37,8 +37,12 @@ numbers live in the report.
 
 from __future__ import annotations
 
+import json
+from typing import TYPE_CHECKING
+
 import pytest
 
+from tome.metrics import frontier_matrix
 from tome.metrics.frontier_matrix import (
     MatrixReport,
     RecordedTopic,
@@ -51,6 +55,9 @@ from tome.synthesis.frontier import (
     MISMATCH_SUSPECTED,
     THIN_CANDIDATE,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _envelope(channel: str, *, results: int, findings: int = 0) -> dict:
@@ -261,3 +268,186 @@ class TestTheReportRefusesToOverclaim:
     def test_the_report_is_a_matrix_report(self) -> None:
         """Scenario: score_corpus returns the documented type."""
         assert isinstance(score_corpus([], n_labeled=0), MatrixReport)
+
+
+class TestRenderingAMeasuredAdversarialRate:
+    """Scenario: The headline number is printed with its route back.
+
+    The render branch that runs when the adversarial class *is*
+    recorded was never taken. Every existing render test scores a
+    corpus with no ``covered-obscure`` topic, so the report always took
+    the "unmeasured (not zero)" arm, and the arm that prints the actual
+    headline was unexercised.
+    """
+
+    def test_a_measured_rate_is_printed_as_a_percentage(self) -> None:
+        """
+        Given a corpus with one covered-obscure topic reading THIN
+        Then the rendered report prints the rate, not the unmeasured note
+
+            100.0% and "unmeasured" are opposite claims, and only one
+            of them had ever been rendered.
+        """
+        report = score_corpus([_topic("a", "covered-obscure", third=0)], n_labeled=1)
+
+        rendered = report.render()
+
+        assert report.false_thin_rate == pytest.approx(1.0)
+        assert "100.0%" in rendered
+        assert "unmeasured" not in rendered
+
+    def test_the_offending_topics_are_named_under_the_rate(self) -> None:
+        """
+        Given two covered-obscure topics that both read THIN
+        Then both slugs appear in the report, sorted
+
+            A rate with no route back to the runs behind it cannot be
+            disagreed with, which is the property MatrixReport.topics_in
+            exists to keep. Printing the rate without the slugs would
+            drop that route at the last step.
+        """
+        report = score_corpus(
+            [
+                _topic("zeta", "covered-obscure", third=0),
+                _topic("alpha", "covered-obscure", third=0),
+            ],
+            n_labeled=2,
+        )
+
+        rendered = report.render()
+
+        assert "topics: alpha, zeta" in rendered
+
+    def test_the_rate_is_explained_as_a_bound_rather_than_a_bug(self) -> None:
+        """
+        Given a measured rate
+        Then the report says no mechanism detects vocabulary mismatch
+
+            Without this line a reader takes the rate for a defect
+            someone could fix by trying harder. labels.yaml calls it
+            the bound on the signal's value instead.
+        """
+        report = score_corpus([_topic("a", "covered-obscure", third=0)], n_labeled=1)
+
+        rendered = report.render()
+
+        assert "vocabulary mismatch" in rendered
+        assert "not a bug to fix" in rendered
+
+    def test_a_recorded_class_that_never_reads_thin_prints_zero(self) -> None:
+        """
+        Given a covered-obscure topic whose verdict is not THIN
+        Then the rate renders as 0.0% and no topics line follows
+
+            0.0% measured and "unmeasured (not zero)" are the two
+            claims the None sentinel exists to keep apart, so the
+            measured zero has to be reachable and distinguishable.
+        """
+        report = score_corpus([_topic("a", "covered-obscure", third=9)], n_labeled=1)
+
+        rendered = report.render()
+
+        assert report.false_thin_rate == pytest.approx(0.0)
+        assert "0.0%" in rendered
+        assert "topics:" not in rendered
+
+
+class TestLoadingTheCorpusFromDisk:
+    """Scenario: labels.yaml is the roster; the fixtures are what exists.
+
+    load_corpus returns the recorded topics and the labeled count
+    separately so the report can say 4/23. The branch that skips a
+    labeled topic with no recorded fixture is the one that makes those
+    two numbers differ, and it is the normal case on this repo today.
+    """
+
+    @staticmethod
+    def _write_corpus(root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Point the module's fixture constants at a temporary corpus."""
+        monkeypatch.setattr(frontier_matrix, "_FIXTURES", root)
+        monkeypatch.setattr(frontier_matrix, "_LABELS", root / "labels.yaml")
+
+    def test_a_labeled_topic_with_no_fixture_is_counted_but_not_recorded(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Given two labeled topics and a fixture for only one
+        Then one topic is recorded and the labeled count is two
+
+            This is what makes the report's "1/2 topics" honest. A
+            loader that raised on the absent file could not ship before
+            the corpus was recorded, and one that counted only the
+            recorded topics would print 1/1 and imply completeness.
+        """
+        self._write_corpus(tmp_path, monkeypatch)
+        (tmp_path / "labels.yaml").write_text(
+            "topics:\n"
+            "  - slug: recorded\n"
+            "    topic: a recorded topic\n"
+            "    label: thin\n"
+            "  - slug: absent\n"
+            "    topic: a topic with no fixture\n"
+            "    label: covered\n",
+            encoding="utf-8",
+        )
+        (tmp_path / "recorded.json").write_text(
+            json.dumps({"envelopes": [_envelope("academic", results=0)]}),
+            encoding="utf-8",
+        )
+
+        topics, n_labeled = frontier_matrix.load_corpus()
+
+        assert [t.slug for t in topics] == ["recorded"]
+        assert n_labeled == 2
+
+    def test_a_recorded_topic_carries_its_label_and_envelopes(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Given a labeled topic with a recorded fixture
+        Then the RecordedTopic carries the label from labels.yaml and
+            the envelopes from the fixture file
+
+            The label and the evidence come from different files on
+            purpose: the human judgement is not rewritten by a replay.
+        """
+        self._write_corpus(tmp_path, monkeypatch)
+        (tmp_path / "labels.yaml").write_text(
+            "topics:\n"
+            "  - slug: only\n"
+            "    topic: the only topic\n"
+            "    label: covered-obscure\n",
+            encoding="utf-8",
+        )
+        envelopes = [_envelope("academic", results=2, findings=2)]
+        (tmp_path / "only.json").write_text(
+            json.dumps({"envelopes": envelopes}), encoding="utf-8"
+        )
+
+        topics, n_labeled = frontier_matrix.load_corpus()
+
+        assert n_labeled == 1
+        assert topics[0].label == "covered-obscure"
+        assert topics[0].topic == "the only topic"
+        assert topics[0].envelopes == envelopes
+
+    def test_no_recorded_fixtures_loads_an_empty_corpus(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Given labels with no fixtures recorded at all
+        Then no topics load and the labeled count survives
+
+            This is the state the repository is in today, and the
+            state score_corpus renders as "nothing is scored".
+        """
+        self._write_corpus(tmp_path, monkeypatch)
+        (tmp_path / "labels.yaml").write_text(
+            "topics:\n  - slug: absent\n    topic: t\n    label: thin\n",
+            encoding="utf-8",
+        )
+
+        topics, n_labeled = frontier_matrix.load_corpus()
+
+        assert topics == []
+        assert n_labeled == 1

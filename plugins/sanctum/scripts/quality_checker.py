@@ -197,7 +197,7 @@ class TestQualityChecker:
         self._check_naming_conventions(tree, analysis)
         self._check_assertion_quality(tree, analysis)
         self._check_bdd_compliance(tree, analysis)
-        self._check_documentation(test_content, analysis)
+        self._check_documentation(test_content, tree, analysis)
 
         return analysis
 
@@ -366,10 +366,18 @@ class TestQualityChecker:
                     ),
                 )
 
-    def _check_documentation(self, test_content: str, analysis: dict) -> None:
+    def _check_documentation(
+        self, test_content: str, tree: ast.AST, analysis: dict
+    ) -> None:
         """Check test documentation quality."""
-        # Check for module docstring
-        if not test_content.startswith('"""'):
+        # Read the docstring off the parsed module rather than the raw
+        # text: a shebang, a coding declaration or a file-level ruff
+        # suppression directive above the docstring made a prefix check
+        # report documentation the file already had as missing.
+        module_docstring = (
+            ast.get_docstring(tree) if isinstance(tree, ast.Module) else None
+        )
+        if not module_docstring:
             analysis["documentation"].append(
                 QualityIssue(
                     "warning",

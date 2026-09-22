@@ -514,12 +514,30 @@ class TestRunNotification:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_fails_silently_on_os_error(self, tmp_path: Path) -> None:
-        """Given OSError from terminal detection, does not raise exception."""
-        with patch("session_complete_notify.get_terminal_info") as mock_info:
-            mock_info.side_effect = OSError("failed to get info")
-            # Should not raise
+    def test_fails_silently_on_os_error(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """GIVEN terminal detection that fails with OSError.
+
+        WHEN the background notification runs
+        THEN nothing is raised, no notification is sent, and the cause
+            is reported on stderr
+
+        Without the send assertion this passes for a handler that
+        notified with a half-built message, which is worse than the
+        dropped notification it is meant to allow.
+        """
+        with (
+            patch(
+                "session_complete_notify.get_terminal_info",
+                side_effect=OSError("failed to get info"),
+            ),
+            patch("session_complete_notify.send_notification") as mock_send,
+        ):
             run_notification("test_session", str(tmp_path))
+
+        mock_send.assert_not_called()
+        assert "failed to get info" in capsys.readouterr().err
 
     @pytest.mark.bdd
     @pytest.mark.unit

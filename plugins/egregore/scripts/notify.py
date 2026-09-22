@@ -62,8 +62,15 @@ try:
         raise ImportError("spec_from_file_location returned None")
 
     _herald_mod = importlib.util.module_from_spec(_spec)
+    # Registered before exec so herald's own dataclasses resolve their
+    # module; unregistered again if exec fails, or the next importer
+    # finds an empty module under this name.
     sys.modules["_herald_notify"] = _herald_mod
-    _spec.loader.exec_module(_herald_mod)
+    try:
+        _spec.loader.exec_module(_herald_mod)
+    except BaseException:
+        sys.modules.pop("_herald_notify", None)
+        raise
     _HERALD_AVAILABLE = True
 except (ImportError, OSError) as _exc:
     logger.warning(
@@ -106,6 +113,9 @@ else:
         stage: str = ""
         step: str = ""
         detail: str = ""
+        # herald's AlertContext carries this field, so a caller that sets
+        # it must not raise only on the machines where herald is absent.
+        source: str = "egregore"
 
     class WebhookURLError(ValueError):  # type: ignore[no-redef]  # conditional stub when herald absent
         """Stub error when herald is absent."""

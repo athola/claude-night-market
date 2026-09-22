@@ -150,15 +150,23 @@ class TestSessionStartBehavior:
     ):
         """
         Scenario: Sentinel exists but venv is not provisioned
-        Given .oracle-enabled sentinel present but no venv python
-        When main is called with a SessionStart event
-        Then it returns without error and starts nothing
+        GIVEN a .oracle-enabled sentinel present but no venv python
+        WHEN main is called with a SessionStart event
+        THEN it returns without error and leaves no daemon state behind
+
+        The sentinel is the only file the data dir should hold after
+        this: a pid or port file here would mean a daemon was launched
+        against an interpreter that does not exist.
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         (tmp_path / ".oracle-enabled").touch()
         payload = json.dumps({"hook_event_name": "SessionStart"})
+
         with patch("sys.stdin", StringIO(payload)):
             main()
+
+        assert not (tmp_path / "daemon.pid").exists()
+        assert not (tmp_path / "daemon.port").exists()
 
 
 class TestStopBehavior:
@@ -200,15 +208,30 @@ class TestStopBehavior:
     @pytest.mark.unit
     def test_stop_exits_cleanly(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         """
-        Scenario: Stop event fires
-        Given any daemon state
-        When main is called with a Stop event
-        Then it returns without error
+        Scenario: Stop event fires over state left by a dead daemon
+        GIVEN a pid file naming a process that is not the oracle daemon
+            and a port file beside it
+        WHEN main is called with a Stop event
+        THEN both files are gone
+
+        Stop's whole job is reaching _stop_daemon; routing the event
+        anywhere else leaves the stale pair on disk, and the next
+        SessionStart reads a port nothing is listening on.
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        pid_file = tmp_path / "daemon.pid"
+        port_file = tmp_path / "daemon.port"
+        # PID 1 exists on every POSIX host and is never the oracle
+        # daemon, so _pid_is_daemon declines to signal it.
+        pid_file.write_text("1")
+        port_file.write_text("9000")
         payload = json.dumps({"hook_event_name": "Stop"})
+
         with patch("sys.stdin", StringIO(payload)):
             main()
+
+        assert not pid_file.exists()
+        assert not port_file.exists()
 
 
 class TestPathHelpers:
@@ -456,12 +479,19 @@ class TestStopDaemon:
     ):
         """
         Scenario: No PID file exists (daemon was never started)
-        Given no pid file
-        When _stop_daemon is called
-        Then it completes without error
+        GIVEN an empty data dir with no pid file
+        WHEN _stop_daemon is called
+        THEN it completes without error and creates nothing
+
+        The unlink loop runs unconditionally, so a version that opened
+        the files for writing before removing them would leave two
+        empty files behind on a host that never ran the daemon.
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
-        _stop_daemon()
+
+        assert _stop_daemon() is None
+
+        assert list(tmp_path.iterdir()) == []
 
     @pytest.mark.unit
     def test_handles_dead_process_gracefully(
