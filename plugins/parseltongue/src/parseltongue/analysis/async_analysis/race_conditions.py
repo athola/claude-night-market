@@ -3,11 +3,47 @@
 from __future__ import annotations
 
 import ast
+import re
 from typing import Any
 
 from ._base import is_call_to, parse_code
 
 __all__ = ["detect_race_conditions"]
+
+#: Words that name a lock. A substring test read `blocklist`, `clock`
+#: and `unlock` as locks, and a false positive here suppresses the
+#: unsynchronized access the detector exists to report.
+_LOCK_TOKENS = frozenset({"lock", "locks"})
+
+_CAMEL_BOUNDARY = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
+
+
+def _identifier_tokens(name: str) -> list[str]:
+    """Split an identifier into lowercase words on underscores and camel case."""
+    return [part for part in _CAMEL_BOUNDARY.sub("_", name).lower().split("_") if part]
+
+
+def _names_a_lock(name: str) -> bool:
+    """Return True when `lock` is a whole word of *name*."""
+    return bool(_LOCK_TOKENS.intersection(_identifier_tokens(name)))
+
+
+def _context_names_a_lock(ctx: ast.expr) -> bool:
+    """Return True when the context expression is named as a lock."""
+    if isinstance(ctx, ast.Subscript):
+        key = ctx.slice
+        if (
+            isinstance(key, ast.Constant)
+            and isinstance(key.value, str)
+            and _names_a_lock(key.value)
+        ):
+            return True
+        return _context_names_a_lock(ctx.value)
+    if isinstance(ctx, ast.Attribute):
+        return _names_a_lock(ctx.attr)
+    if isinstance(ctx, ast.Name):
+        return _names_a_lock(ctx.id)
+    return False
 
 
 def _detect_lock_usage(func_node: ast.AsyncFunctionDef) -> bool:
@@ -15,16 +51,7 @@ def _detect_lock_usage(func_node: ast.AsyncFunctionDef) -> bool:
     for child in ast.walk(func_node):
         if isinstance(child, ast.AsyncWith):
             for with_item in child.items:
-                ctx = with_item.context_expr
-                if (
-                    isinstance(ctx, ast.Subscript)
-                    and isinstance(ctx.slice, ast.Constant)
-                    and ctx.slice.value == "lock"
-                ):
-                    return True
-                if isinstance(ctx, ast.Attribute) and "lock" in ctx.attr.lower():
-                    return True
-                if isinstance(ctx, ast.Name) and "lock" in ctx.id.lower():
+                if _context_names_a_lock(with_item.context_expr):
                     return True
     return False
 

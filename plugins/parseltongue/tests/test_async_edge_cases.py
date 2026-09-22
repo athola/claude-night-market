@@ -6,7 +6,11 @@ to improve coverage.
 
 from __future__ import annotations
 
+import ast
+
 import pytest
+
+from parseltongue.analysis.async_analysis.race_conditions import _detect_lock_usage
 
 
 class TestAsyncAnalysisEdgeCases:
@@ -103,3 +107,65 @@ class SafeCounter:
         """Given empty code, return empty race conditions."""
         result = await async_analysis_skill.detect_race_conditions("")
         assert "race_conditions" in result
+
+
+class TestLockDetectionMatchesTokensNotSubstrings:
+    """Feature: a context manager is a lock only when it is named one.
+
+    As a developer relying on the race detector
+    I want `blocklist`, `clock` and `unlock` to stay unrecognized
+    So that an unsynchronized function is not filed under safe_patterns
+    and its real race silently suppressed.
+
+    The substring test cost a missed race rather than a spurious one:
+    a function matched as locked is recorded in `safe_patterns` and its
+    shared-state access is no longer reported.
+    """
+
+    @staticmethod
+    def _detect(context_expression: str) -> bool:
+        tree = ast.parse(
+            f"async def handler():\n    async with {context_expression}:\n        pass\n"
+        )
+        return _detect_lock_usage(tree.body[0])
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "context_expression",
+        [
+            "self.lock",
+            "self.write_lock",
+            "self._lock",
+            "self.writeLock",
+            "lock",
+            "state_lock",
+            "self.locks['row']",
+        ],
+    )
+    def test_a_lock_token_is_recognized(self, context_expression: str) -> None:
+        """
+        Scenario: the identifier carries `lock` as one of its words
+        Then the function counts as synchronized
+        """
+        assert self._detect(context_expression) is True
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "context_expression",
+        [
+            "self.blocklist_ctx",
+            "self.blocklist",
+            "clock",
+            "self.clock",
+            "unlock",
+            "self.unlock",
+            "self.block_size",
+            "self.blocked",
+        ],
+    )
+    def test_a_substring_match_is_not_a_lock(self, context_expression: str) -> None:
+        """
+        Scenario: `lock` appears inside another word
+        Then the function is not treated as synchronized
+        """
+        assert self._detect(context_expression) is False
