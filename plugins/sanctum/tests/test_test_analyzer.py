@@ -331,3 +331,59 @@ def test_analyze_git_changes_reports_the_new_path_for_a_rename(tmp_path):
     assert not any("\t" in name for name in reported), (
         f"a path still carries an embedded tab: {sorted(reported)}"
     )
+
+
+def test_scan_skips_virtualenv_and_cache_directories(tmp_path):
+    """A plugin root holds its .venv; vendored packages are not our source.
+
+    GIVEN a codebase with src/, tests/, a .venv/ full of third-party
+        modules, a .uv-cache/ and a node_modules/
+    WHEN the analyzer scans for test gaps
+    THEN only the files under src/ are reported as source
+    AND nothing vendored appears as an uncovered file
+    """
+    module = _load_script()
+    _build_codebase(tmp_path)
+    for vendored in (
+        tmp_path / ".venv" / "lib" / "site-packages" / "requests" / "api.py",
+        tmp_path / ".uv-cache" / "archive" / "numpy" / "core.py",
+        tmp_path / "node_modules" / "pkg" / "index.py",
+        tmp_path / "src" / "__pycache__" / "stale.py",
+    ):
+        vendored.parent.mkdir(parents=True, exist_ok=True)
+        vendored.write_text("def vendored():\n    return 1\n")
+
+    results = module.TestAnalyzer(tmp_path).scan_for_test_gaps()
+
+    reported = {f.name for f in results["source_files"]}
+    assert "api.py" not in reported
+    assert "core.py" not in reported
+    assert "index.py" not in reported
+    assert "stale.py" not in reported
+    assert "test_api" not in results["uncovered_files"]
+    assert "test_core" not in results["uncovered_files"]
+
+
+def test_scan_ignores_conftest_and_fixture_modules(tmp_path):
+    """Fixtures under tests/ and conftest.py are scaffolding, not source.
+
+    GIVEN a codebase whose tests/fixtures/ holds sample modules and whose
+        src/ carries a conftest.py
+    WHEN the analyzer scans for test gaps
+    THEN neither the fixture modules nor conftest.py are reported as
+        uncovered source
+    """
+    module = _load_script()
+    _build_codebase(tmp_path)
+    fixture = tmp_path / "tests" / "fixtures" / "duplication" / "a.py"
+    fixture.parent.mkdir(parents=True, exist_ok=True)
+    fixture.write_text("X = 1\n")
+    (tmp_path / "src" / "conftest.py").write_text("import pytest\n")
+
+    results = module.TestAnalyzer(tmp_path).scan_for_test_gaps()
+
+    reported = {f.name for f in results["source_files"]}
+    assert "a.py" not in reported
+    assert "conftest.py" not in reported
+    assert "test_a" not in results["uncovered_files"]
+    assert "test_conftest" not in results["uncovered_files"]
