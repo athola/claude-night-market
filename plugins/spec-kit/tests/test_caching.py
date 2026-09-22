@@ -341,10 +341,27 @@ class TestInvalidate:
         assert cache._cache_timestamps == {}
         assert list(cache.cache_dir.glob("*.json")) == []
 
-    def test_invalidate_nonexistent_key_no_error(self, tmp_path: Path) -> None:
-        """Should not raise when invalidating a key that does not exist."""
+    def test_invalidate_nonexistent_key_leaves_other_entries_intact(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        GIVEN a cache holding two live entries
+        WHEN invalidate() is called with a key that was never set
+        THEN both entries survive in memory and on disk
+
+        "Did not raise" is also true of an invalidate that fell through
+        to the clear-all branch, which is the failure worth pinning: the
+        key argument is what separates a targeted drop from a flush.
+        """
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
-        cache.invalidate("does_not_exist")  # should not raise
+        cache.set("kept_a", 1)
+        cache.set("kept_b", 2)
+
+        cache.invalidate("does_not_exist")
+
+        assert cache.get("kept_a") == 1
+        assert cache.get("kept_b") == 2
+        assert len(list(cache.cache_dir.glob("*.json"))) == 2
 
 
 # ============================================================================

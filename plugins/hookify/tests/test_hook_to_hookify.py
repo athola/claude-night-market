@@ -905,3 +905,99 @@ class TestGenerateHookifyRuleToolEvent:
         rule = generate_hookify_rule(analysis)
 
         assert "event: file" in rule
+
+
+class TestFieldInferenceFromVariableNames:
+    """Feature: guessing the hookify context field a pattern reads."""
+
+    def test_guesses_user_prompt_field(self):
+        """
+        GIVEN a pattern read from a variable named for the prompt
+        WHEN the analyzer infers the field
+        THEN it picks user_prompt
+
+        The prompt branch sits last in the name ladder, so an earlier
+        branch widening its substring silently steals every prompt rule
+        and points it at the wrong context field.
+        """
+        code = """
+def hook(context):
+    user_prompt = context["prompt"]
+    if "ignore previous" in user_prompt:
+        return {"action": "block"}
+"""
+        analyzer = HookAnalyzer()
+        analyzer.visit(ast.parse(code))
+
+        assert analyzer.patterns[0].field == "user_prompt"
+
+    def test_unrecognized_variable_name_falls_back_to_command(self):
+        """
+        GIVEN a pattern read from a variable no rule names
+        WHEN the analyzer infers the field
+        THEN it falls back to command
+
+        bash is the event most hooks convert to, so command is the
+        fallback that makes a converted rule run rather than match an
+        empty field.
+        """
+        code = """
+def hook(context):
+    thing = context["whatever"]
+    if "danger" in thing:
+        return {"action": "block"}
+"""
+        analyzer = HookAnalyzer()
+        analyzer.visit(ast.parse(code))
+
+        assert analyzer.patterns[0].field == "command"
+
+
+class TestHookTypeDetection:
+    """Feature: deciding which Claude Code event a hook file serves."""
+
+    def test_a_file_naming_no_event_and_mentioning_none_is_unconvertible(
+        self, tmp_path
+    ):
+        """
+        GIVEN a hook whose filename and body name no event
+        WHEN analyze_hook runs
+        THEN it is marked unconvertible with the detection reason
+
+        Guessing an event here would emit a rule wired to the wrong
+        hook, which never fires and reports no error when it does not.
+        """
+        hook_file = tmp_path / "zz_unrelated_helper.py"
+        hook_file.write_text(
+            'def helper(ctx):\n    if "danger" in ctx["command"]:\n'
+            '        return {"action": "block"}\n'
+        )
+
+        analysis = analyze_hook(hook_file)
+
+        assert not analysis.convertible
+        assert analysis.reason == "Could not detect hook type"
+
+    def test_content_marker_detects_the_event_when_the_filename_does_not(
+        self, tmp_path
+    ):
+        """
+        GIVEN a hook whose filename names no event but whose body
+              mentions PostToolUse
+        WHEN analyze_hook runs
+        THEN the content hint supplies the hook type
+
+        Hook files are named freely; the registration marker in the
+        body is the only other place the event is written down.
+        """
+        hook_file = tmp_path / "zz_unrelated_helper.py"
+        hook_file.write_text(
+            '"""Registered for PostToolUse."""\n\n'
+            "def helper(ctx):\n"
+            '    if "danger" in ctx["command"]:\n'
+            '        return {"action": "block"}\n'
+        )
+
+        analysis = analyze_hook(hook_file)
+
+        assert analysis.hook_type == "PostToolUse"

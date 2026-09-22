@@ -11,6 +11,7 @@ import pytest
 from gauntlet.blast_radius import (
     _DEFAULT_WEIGHTS,
     SECURITY_KEYWORDS,
+    analyze_changes,
     compute_risk_score,
     load_weights,
     map_changes_to_nodes,
@@ -416,3 +417,166 @@ class TestLoadWeightsReportsMalformedConfig:
             weights = load_weights(tmp_path)
         assert weights == load_weights(None)
         assert any("config.json" in rec.message for rec in caplog.records)
+
+
+class TestAnalyzeChangesPipeline:
+    """
+    Feature: End-to-end blast radius analysis
+
+    As the precommit gate
+    I want one call that turns a diff into a risk verdict
+    So that a commit can be held on what it actually touched.
+    """
+
+    @staticmethod
+    def _diff(path: str, start: int, count: int) -> str:
+        """Build a unified diff naming one changed hunk."""
+        return (
+            f"diff --git a/{path} b/{path}\n"
+            f"--- a/{path}\n"
+            f"+++ b/{path}\n"
+            f"@@ -{start},{count} +{start},{count} @@\n"
+            "+changed\n"
+        )
+
+    @pytest.mark.unit
+    def test_an_empty_diff_reports_no_risk_without_touching_the_graph(
+        self, store: GraphStore
+    ) -> None:
+        """
+        Scenario: nothing changed
+        Given a diff that names no file
+        When changes are analyzed
+        Then the verdict is 'none' with empty collections
+
+        The gate branches on this verdict, so a commit touching nothing
+        must not be scored against whatever the graph last held.
+        """
+        with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
+            mock_run.return_value = type("R", (), {"returncode": 0, "stdout": ""})()
+            result = analyze_changes(store)
+
+        assert result["overall_risk"] == "none"
+        assert result["affected_nodes"] == []
+        assert result["risk_scores"] == {}
+        assert result["review_priorities"] == []
+
+    @pytest.mark.unit
+    def test_an_untested_changed_function_is_reported_and_scored(
+        self, store: GraphStore
+    ) -> None:
+        """
+        Scenario: a changed function that no test covers
+        Given a function at lines 10-20 with no TESTED_BY edge
+        When changes overlapping it are analyzed
+        Then it appears in untested_functions and carries a risk score
+
+        untested_functions is the list the gate shows a developer, and
+        an entry missing from it is a change nobody is asked about.
+        """
+        store.upsert_node(
+            GraphNode(
+                kind=NodeKind.FUNCTION,
+                qualified_name="app.py::process",
+                file_path="app.py",
+                line_start=10,
+                line_end=20,
+            )
+        )
+
+        with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
+            mock_run.return_value = type(
+                "R", (), {"returncode": 0, "stdout": self._diff("app.py", 10, 5)}
+            )()
+            result = analyze_changes(store)
+
+        assert result["untested_functions"] == ["app.py::process"]
+        assert result["risk_scores"]["app.py::process"] > 0
+        assert result["direct_changes"] == 1
+        assert result["total_affected"] >= 1
+
+    @pytest.mark.unit
+    def test_a_tested_function_is_left_out_of_the_untested_list(
+        self, store: GraphStore
+    ) -> None:
+        """
+        Scenario: a changed function a test covers
+        Given the same function with a TESTED_BY edge
+        When changes overlapping it are analyzed
+        Then it is absent from untested_functions
+
+        Reporting a covered function as untested trains the reader to
+        ignore the list, which costs more than the list gains. The BFS
+        still pulls the test function itself into the affected set, and
+        that node has no TESTED_BY edge of its own, so the list is not
+        empty: the assertion names the changed function rather than the
+        length.
+        """
+        store.upsert_node(
+            GraphNode(
+                kind=NodeKind.FUNCTION,
+                qualified_name="app.py::process",
+                file_path="app.py",
+                line_start=10,
+                line_end=20,
+            )
+        )
+        store.upsert_node(
+            GraphNode(
+                kind=NodeKind.FUNCTION,
+                qualified_name="test_app.py::test_process",
+                file_path="test_app.py",
+                line_start=1,
+                line_end=5,
+            )
+        )
+        store.upsert_edge(
+            GraphEdge(
+                kind=EdgeKind.TESTED_BY,
+                source_qn="app.py::process",
+                target_qn="test_app.py::test_process",
+            )
+        )
+
+        with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
+            mock_run.return_value = type(
+                "R", (), {"returncode": 0, "stdout": self._diff("app.py", 10, 5)}
+            )()
+            result = analyze_changes(store)
+
+        assert "app.py::process" not in result["untested_functions"]
+
+    @pytest.mark.unit
+    def test_review_priorities_are_ordered_by_risk_and_capped_at_ten(
+        self, store: GraphStore
+    ) -> None:
+        """
+        Scenario: a change touching more nodes than the report shows
+        Given twelve changed functions in one file
+        When changes are analyzed
+        Then ten entries come back, highest risk first
+
+        The cap keeps the gate's output readable; the ordering is what
+        makes the truncation safe to do at all.
+        """
+        for i in range(12):
+            store.upsert_node(
+                GraphNode(
+                    kind=NodeKind.FUNCTION,
+                    qualified_name=f"app.py::fn_{i}",
+                    file_path="app.py",
+                    line_start=10 * (i + 1),
+                    line_end=10 * (i + 1) + 5,
+                )
+            )
+
+        with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
+            mock_run.return_value = type(
+                "R", (), {"returncode": 0, "stdout": self._diff("app.py", 1, 200)}
+            )()
+            result = analyze_changes(store)
+
+        priorities = result["review_priorities"]
+        scores = [result["risk_scores"][n["qualified_name"]] for n in priorities]
+        assert len(priorities) == 10
+        assert scores == sorted(scores, reverse=True)

@@ -17,6 +17,8 @@ try:
         install_rule,
         parse_rule_spec,
     )
+
+    from scripts import install_rule as install_rule_module
 except ImportError:
     import sys
 
@@ -30,6 +32,8 @@ except ImportError:
         install_rule,
         parse_rule_spec,
     )
+
+    from scripts import install_rule as install_rule_module
 
 
 class TestParseRuleSpec:
@@ -255,3 +259,101 @@ class TestBundles:
             count = install_bundle("nonexistent-bundle", target)
 
             assert count == 0
+
+
+class TestCatalogListing:
+    """Feature: reading and printing the rule catalog."""
+
+    def test_missing_catalog_dir_yields_no_rules(self, monkeypatch, tmp_path):
+        """
+        GIVEN a RULES_DIR that does not exist
+        WHEN get_available_rules runs
+        THEN it returns an empty mapping instead of raising
+
+        The catalog lives inside the plugin, so an absent directory
+        means a broken install; every caller below branches on the
+        empty mapping to say so, and an OSError here would instead
+        surface as a traceback.
+        """
+        monkeypatch.setattr(install_rule_module, "RULES_DIR", tmp_path / "gone")
+
+        assert install_rule_module.get_available_rules() == {}
+
+    def test_list_rules_reports_a_missing_catalog_with_its_location(
+        self, monkeypatch, tmp_path, capsys
+    ):
+        """
+        GIVEN an empty catalog
+        WHEN list_rules runs
+        THEN stdout names the location it expected to find rules in
+
+        Printing "No rules found" alone leaves the user with nothing to
+        check, which is the whole content of this branch.
+        """
+        missing = tmp_path / "gone"
+        monkeypatch.setattr(install_rule_module, "RULES_DIR", missing)
+
+        install_rule_module.list_rules()
+
+        printed = capsys.readouterr().out
+        assert "No rules found" in printed
+        assert str(missing) in printed
+
+    def test_list_rules_counts_every_rule_and_category(self, capsys):
+        """
+        GIVEN the real catalog
+        WHEN list_rules runs
+        THEN every rule is listed and the totals match the catalog
+        """
+        rules = get_available_rules()
+
+        install_rule_module.list_rules()
+
+        printed = capsys.readouterr().out
+        expected_total = sum(len(names) for names in rules.values())
+        assert f"Total: {expected_total} rules in {len(rules)} categories" in printed
+        for category, names in rules.items():
+            assert f"{category}/" in printed
+            for name in names:
+                assert f"  - {name}" in printed
+
+
+class TestInstallAll:
+    """Feature: installing the whole catalog at once."""
+
+    def test_install_all_installs_every_catalog_rule(self):
+        """
+        GIVEN an empty target directory
+        WHEN install_all runs
+        THEN the returned count equals the catalog size and each rule
+             has a file on disk
+
+        install_all is the only installer that reports a count it did
+        not receive as an argument, so a loop that skipped a category
+        would return a smaller number with nothing to compare it to.
+        """
+        rules = get_available_rules()
+        expected_total = sum(len(names) for names in rules.values())
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir)
+
+            count = install_rule_module.install_all(target)
+
+            assert count == expected_total
+            assert len(list(target.glob("hookify.*.local.md"))) == expected_total
+
+    def test_install_all_skips_rules_already_present_without_force(self):
+        """
+        GIVEN a target that already holds the whole catalog
+        WHEN install_all runs again without force
+        THEN it reports zero newly installed rules
+
+        main() turns a zero count into exit 1, so a second run that
+        reported the full count would claim work it did not do.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir)
+            install_rule_module.install_all(target)
+
+            assert install_rule_module.install_all(target) == 0

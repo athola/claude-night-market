@@ -170,17 +170,26 @@ class TestBuildParser:
 class TestMainDispatch:
     """Feature: main() dispatches to correct handler."""
 
-    def test_no_command_prints_help(self) -> None:
-        """Given no arguments, main prints help."""
+    def test_no_command_prints_help(self, capsys: pytest.CaptureFixture) -> None:
+        """GIVEN an argv with no subcommand
+        WHEN main() runs
+        THEN the real parser's help text reaches stdout
+
+        build_parser is pure in-module logic, so the previous stub
+        parser could not tell a real help dump from a call to a method
+        that happened to be named print_help. Only MemoryPalaceCLI is
+        stubbed here, because constructing it touches the palace on
+        disk.
+        """
         with (
             patch("sys.argv", ["prog"]),
-            patch("scripts.memory_palace_cli.build_parser") as mock_bp,
+            patch("scripts.memory_palace_cli.MemoryPalaceCLI"),
         ):
-            mock_parser = Mock()
-            mock_parser.parse_args.return_value = Mock(command=None)
-            mock_bp.return_value = mock_parser
             main()
-            mock_parser.print_help.assert_called_once()
+
+        printed = capsys.readouterr().out
+        assert printed.startswith("usage: ")
+        assert "{" in printed  # the subcommand choice list
 
     @pytest.mark.parametrize(
         "command,method",

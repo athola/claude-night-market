@@ -263,3 +263,215 @@ class TestStateFileSecurity:
         path = hook._state_path("normal")
         hook._save_state(path, {"rung": 60, "increments": 2})
         assert hook._load_state(path) == {"rung": 60, "increments": 2}
+
+
+class TestExplicitStakes:
+    """Where the authoritative risk tier comes from."""
+
+    @pytest.mark.unit
+    def test_environment_outranks_the_marker_file(self, hook, tmp_path, monkeypatch):
+        """
+        GIVEN both IMBUE_STAKES and a .imbue/stakes file
+        WHEN the stakes are read
+        THEN the environment value wins
+
+        The env var is how `leyline:risk-classification` hands the tier
+        over for one turn; a stale marker file outranking it would pin
+        the rung to whatever the repo was last classified as.
+        """
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / ".imbue").mkdir()
+        (tmp_path / ".imbue" / "stakes").write_text("low\n")
+        monkeypatch.setenv("IMBUE_STAKES", "high")
+
+        assert hook._explicit_stakes() == "high"
+
+    @pytest.mark.unit
+    def test_the_marker_file_is_read_when_the_environment_is_silent(
+        self, hook, tmp_path, monkeypatch
+    ):
+        """
+        GIVEN no IMBUE_STAKES and a .imbue/stakes file
+        WHEN the stakes are read
+        THEN the file's single line is returned, stripped
+        """
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / ".imbue").mkdir()
+        (tmp_path / ".imbue" / "stakes").write_text("  high  \n")
+        monkeypatch.delenv("IMBUE_STAKES", raising=False)
+
+        assert hook._explicit_stakes() == "high"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("contents", ["", "   \n"], ids=["empty", "whitespace"])
+    def test_an_empty_marker_reads_as_no_signal(
+        self, hook, tmp_path, monkeypatch, contents
+    ):
+        """
+        GIVEN a .imbue/stakes file holding nothing
+        WHEN the stakes are read
+        THEN None comes back rather than an empty string
+
+        Callers branch on None to fall back to path-regex. An empty
+        string is a tier name no rung table has.
+        """
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / ".imbue").mkdir()
+        (tmp_path / ".imbue" / "stakes").write_text(contents)
+        monkeypatch.delenv("IMBUE_STAKES", raising=False)
+
+        assert hook._explicit_stakes() is None
+
+    @pytest.mark.unit
+    def test_a_missing_marker_reads_as_no_signal(self, hook, tmp_path, monkeypatch):
+        """
+        GIVEN neither the env var nor the marker file
+        WHEN the stakes are read
+        THEN None comes back and nothing raises
+
+        Most repositories have no .imbue directory at all, so this is
+        the common path, not the error path.
+        """
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.delenv("IMBUE_STAKES", raising=False)
+
+        assert hook._explicit_stakes() is None
+
+
+class TestRampToken:
+    """The recorded-demonstration token that permits one rung jump."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("value", ["0", "false", "no", " no "])
+    def test_an_off_value_is_not_a_token(self, hook, tmp_path, monkeypatch, value):
+        """
+        GIVEN IMBUE_RAMP_OK set to a disabling value and no token file
+        WHEN the token is checked
+        THEN no token is present
+
+        Every off spelling must read as off: one that did not would
+        hand out a free rung jump to anyone who wrote "no".
+        """
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setenv("IMBUE_RAMP_OK", value)
+
+        assert hook._ramp_token_present() is False
+
+    @pytest.mark.unit
+    def test_any_other_environment_value_is_a_token(self, hook, tmp_path, monkeypatch):
+        """
+        GIVEN IMBUE_RAMP_OK set to 1
+        WHEN the token is checked
+        THEN a token is present
+        """
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setenv("IMBUE_RAMP_OK", "1")
+
+        assert hook._ramp_token_present() is True
+
+    @pytest.mark.unit
+    def test_the_on_disk_token_is_found_without_the_environment(
+        self, hook, tmp_path, monkeypatch
+    ):
+        """
+        GIVEN no IMBUE_RAMP_OK and a .imbue/ramp-ok file
+        WHEN the token is checked
+        THEN a token is present
+        """
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.delenv("IMBUE_RAMP_OK", raising=False)
+        (tmp_path / ".imbue").mkdir()
+        (tmp_path / ".imbue" / "ramp-ok").write_text("")
+
+        assert hook._ramp_token_present() is True
+
+    @pytest.mark.unit
+    def test_consuming_removes_the_on_disk_token(self, hook, tmp_path, monkeypatch):
+        """
+        GIVEN a .imbue/ramp-ok file
+        WHEN the token is consumed
+        THEN the file is gone and the token no longer reads as present
+
+        The docstring calls this a once-per-demonstration ramp. A token
+        that survived consumption would ramp every increment after it.
+        """
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.delenv("IMBUE_RAMP_OK", raising=False)
+        (tmp_path / ".imbue").mkdir()
+        token = tmp_path / ".imbue" / "ramp-ok"
+        token.write_text("")
+
+        hook._consume_ramp_token()
+
+        assert not token.exists()
+        assert hook._ramp_token_present() is False
+
+    @pytest.mark.unit
+    def test_consuming_an_absent_token_is_silent(self, hook, tmp_path, monkeypatch):
+        """
+        GIVEN no token file
+        WHEN the token is consumed
+        THEN nothing raises
+
+        The env-based token has no file behind it, so this path runs on
+        every env-granted ramp.
+        """
+        monkeypatch.chdir(tmp_path)
+
+        hook._consume_ramp_token()
+
+
+class TestRampLedger:
+    """The append-only record of every ramp decision."""
+
+    @pytest.mark.unit
+    def test_each_entry_is_one_json_line(self, hook, tmp_path, monkeypatch):
+        """
+        GIVEN two ramp decisions
+        WHEN each is appended
+        THEN the ledger holds two lines, each parsing on its own
+
+        The file is read line by line downstream, so an entry spanning
+        lines takes the rest of the ledger with it.
+        """
+        monkeypatch.chdir(tmp_path)
+
+        hook._append_ledger({"rung": 40, "decision": "allow"})
+        hook._append_ledger({"rung": 60, "decision": "deny"})
+
+        lines = (tmp_path / ".imbue" / "ramp-ledger.jsonl").read_text().splitlines()
+        assert [json.loads(line)["rung"] for line in lines] == [40, 60]
+
+    @pytest.mark.unit
+    def test_the_parent_directory_is_created(self, hook, tmp_path, monkeypatch):
+        """
+        GIVEN a repository with no .imbue directory
+        WHEN a ledger entry is appended
+        THEN the directory is created rather than the write failing
+
+        The first ramp in any repository takes this path.
+        """
+        monkeypatch.chdir(tmp_path)
+
+        hook._append_ledger({"rung": 40})
+
+        assert (tmp_path / ".imbue" / "ramp-ledger.jsonl").exists()
+
+    @pytest.mark.unit
+    def test_a_failed_write_warns_and_does_not_raise(
+        self, hook, tmp_path, monkeypatch, capsys
+    ):
+        """
+        GIVEN a .imbue path that is a file rather than a directory
+        WHEN a ledger entry is appended
+        THEN the failure is reported on stderr and nothing propagates
+
+        The ledger is best-effort: an unwritable one must not turn a
+        PreToolUse hook into a blocked tool call.
+        """
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / ".imbue").write_text("not a directory")
+
+        hook._append_ledger({"rung": 40})
+
+        assert "ledger write failed" in capsys.readouterr().err
