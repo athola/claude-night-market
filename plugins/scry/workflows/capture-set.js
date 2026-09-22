@@ -50,11 +50,20 @@ const captured = await parallel(
 )
 
 const results = captured.filter(Boolean)
+// failed: the agent came back and said the capture did not work.
+// dropped: the agent never came back. Both are absent from assets, and
+// only the first used to be reported.
 const failed = results.filter((result) => !result.captured)
+const dropped = flows
+  .map((flow, index) => ({ flow, index }))
+  .filter(({ index }) => !captured[index])
+  .map(({ flow, index }) => flow.name || `flow-${index + 1}`)
 
 log(`${results.length - failed.length} of ${flows.length} flows captured`)
+if (dropped.length) log(`no result for ${dropped.join(', ')}; those flows were not captured`)
 
 return {
   assets: results.filter((result) => result.captured).map((result) => result.asset),
   failed,
+  dropped,
 }

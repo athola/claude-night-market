@@ -20,7 +20,11 @@ because a violation fails at dispatch time rather than at author time:
 
 from __future__ import annotations
 
+import json
 import re
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -296,29 +300,218 @@ def test_the_agent_type_guard_sees_the_scripts_that_name_agents() -> None:
     assert len(naming) >= 10, [s.parent.parent.name for s in naming]
 
 
-_DROPS_AGENTS = re.compile(r"\.filter\(Boolean\)")
-_REPORTS_DROPPED = re.compile(
-    r"\b(failed|missing|unread|unreported|dropped|unscored)\b"
+#: A fan-out result whose nulls are removed. ``filter(Boolean)`` is the
+#: common spelling; tome writes ``filter((r) => r && r.result)``, and the
+#: guard used to see only the first, so the exemplar it cited was skipped.
+_NULL_DROP = re.compile(
+    r"\.filter\(\s*Boolean\s*\)"
+    r"|\.filter\(\s*\(?(\w+)\)?\s*=>\s*(?:!!)?\1\s*(?:\)|&&|!==?\s*null)"
+    r"|\?\?\s*\[\]"
 )
+#: ADR-0025 Decision 1 vocabulary: the names a workflow gives to what it
+#: dropped. ``unchecked`` is in the ADR and was missing here.
+_DROP_NAMES = (
+    "failed",
+    "missing",
+    "unread",
+    "unreported",
+    "dropped",
+    "unscored",
+    "unchecked",
+    "unreviewed",
+    "unheard",
+    "unverified",
+)
+#: The name must be assigned or returned as a key, not merely present:
+#: "failed" inside a prompt string is how three scripts passed the old guard.
+_NAMED_DROP = re.compile(
+    r"\b(?:const|let)\s+(" + "|".join(_DROP_NAMES) + r")\b"
+    r"|(?<![\w.'\"])(" + "|".join(_DROP_NAMES) + r")\s*:(?!:)"
+)
+
+
+def _null_drop_sites(content: str) -> int:
+    return len(_NULL_DROP.findall(content))
+
+
+def _named_drops(content: str) -> set[str]:
+    return {a or b for a, b in _NAMED_DROP.findall(content)}
 
 
 @pytest.mark.parametrize(
     "script", _workflow_scripts(), ids=lambda p: p.parent.parent.name
 )
 def test_a_script_that_drops_null_agents_reports_which_ones(script: Path) -> None:
-    """``.filter(Boolean)`` must come with a named list of what it dropped.
+    """Every null-drop site must have a named list of what it dropped.
 
-    A subagent that dies returns null, and ``filter(Boolean)`` makes it
+    A subagent that dies returns null, and dropping nulls makes it
     indistinguishable from one that ran and found nothing. In a review
     workflow that turns a document that fails outright into a clean
-    pass; in herald's panel it moved the verdict (ADR-0025). tome's
-    research workflow returns ``failed`` beside ``empty``; every other
-    fan-out must name its own dropped items the same way.
+    pass; in herald's panel it moved the verdict (ADR-0025). One name
+    per drop site: attune's inner lens fan-out passed the old guard on
+    the outer fan-out's ``failed`` while dropping reviews unnamed.
     """
     content = script.read_text(encoding="utf-8")
-    if not _DROPS_AGENTS.search(content):
-        pytest.skip("script never filters null agent results")
-    assert _REPORTS_DROPPED.search(content), (
-        f"{script.relative_to(REPO_ROOT)} drops null agent results without "
-        "naming them (failed / missing / unread / unreported / dropped)"
+    sites = _null_drop_sites(content)
+    if sites == 0:
+        assert "agent(" not in content or "parallel(" not in content, (
+            f"{script.relative_to(REPO_ROOT)} fans out agents but the guard "
+            "found no null-drop site; add its idiom to _NULL_DROP"
+        )
+        pytest.skip("script has no fan-out and never filters null agent results")
+    names = _named_drops(content)
+    assert len(names) >= sites, (
+        f"{script.relative_to(REPO_ROOT)} drops null agent results at {sites} "
+        f"site(s) but names only {sorted(names) or 'nothing'} "
+        f"(one of {', '.join(_DROP_NAMES)} assigned or returned per site)"
     )
+
+
+class TestDropGuardSelfCheck:
+    """The guard is only worth having if it rejects the idioms it claims to."""
+
+    def test_tome_idiom_without_a_name_is_rejected(self) -> None:
+        synthetic = (
+            "const kept = returned.filter((r) => r && r.result)\nreturn { kept }\n"
+        )
+        assert _null_drop_sites(synthetic) == 1
+        assert _named_drops(synthetic) == set()
+
+    def test_a_drop_word_inside_a_prompt_does_not_count(self) -> None:
+        synthetic = "agent('report what failed')\nconst v = checked.filter(Boolean)\n"
+        assert _null_drop_sites(synthetic) == 1
+        assert _named_drops(synthetic) == set()
+
+    def test_assigned_and_returned_names_count(self) -> None:
+        synthetic = (
+            "const v = checked.filter(Boolean)\nconst missing = a.filter((x, i) => !checked[i])\n"
+            "return { v, unheard: 2 }\n"
+        )
+        assert _named_drops(synthetic) == {"missing", "unheard"}
+
+    def test_every_shipped_fan_out_is_seen(self) -> None:
+        seen = [
+            s
+            for s in _workflow_scripts()
+            if _null_drop_sites(s.read_text(encoding="utf-8"))
+        ]
+        assert len(seen) >= 20, [s.parent.parent.name for s in seen]
+
+
+# ---------------------------------------------------------------------------
+# Running a script for real, under node, with the runtime stubbed.
+# ---------------------------------------------------------------------------
+
+_RUNTIME_SHIM = """
+const __log = [];
+const log = (m) => __log.push(String(m));
+const phase = () => {};
+const parallel = async (thunks) => Promise.all(thunks.map((t) => t()));
+const pipeline = async (items, first, second) => {
+  const out = [];
+  for (const item of items) {
+    const r = await first(item);
+    out.push(await second(r, item));
+  }
+  return out;
+};
+"""
+
+
+def _run_workflow(script: Path, agent_js: str, args: dict) -> dict:
+    """Execute a workflow script under node with ``agent`` supplied by the test.
+
+    ``agent_js`` is the body of ``async (prompt, opts) => { ... }``. The
+    script's ``export`` is stripped and its body wrapped in an async
+    function, which is the shape the Workflow runtime gives it.
+    """
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    body = script.read_text(encoding="utf-8").replace(
+        "export const meta", "const meta", 1
+    )
+    program = (
+        _RUNTIME_SHIM
+        + f"const args = {json.dumps(args)};\n"
+        + f"const agent = async (prompt, opts) => {{ {agent_js} }};\n"
+        + "(async () => {\n"
+        + body
+        + "\n})().then((result) => console.log(JSON.stringify({ result, log: __log })))"
+        + ".catch((e) => { console.error(e && e.stack || e); process.exit(3); });\n"
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "workflow.mjs"
+        path.write_text(program, encoding="utf-8")
+        run = subprocess.run(
+            [node, str(path)], capture_output=True, text=True, timeout=60, check=False
+        )
+    assert run.returncode == 0, run.stderr
+    return json.loads(run.stdout)
+
+
+class TestUnifiedReviewVerification:
+    """Two dead lenses must not let the third confirm a finding alone."""
+
+    SCRIPT = PLUGINS / "pensive" / "workflows" / "unified-review.js"
+    FINDING = {"title": "t", "file": "a.py", "line": 1, "severity": "minor", "why": "w"}
+
+    def _agent(self, verify_returns: list) -> str:
+        return (
+            f"const finding = {json.dumps(self.FINDING)};"
+            f"const verdicts = {json.dumps(verify_returns)};"
+            "globalThis.__n = globalThis.__n || 0;"
+            "if (opts.label.startsWith('review:')) return { findings: [finding] };"
+            "return verdicts[globalThis.__n++ % verdicts.length];"
+        )
+
+    def test_a_finding_heard_by_one_of_three_lenses_is_unverified(self) -> None:
+        out = _run_workflow(
+            self.SCRIPT,
+            self._agent([None, None, {"refuted": False, "reason": "r"}]),
+            {"dimensions": ["bugs"]},
+        )
+        assert out["result"]["confirmed"] == []
+        unverified = out["result"]["unverified"]
+        assert len(unverified) == 1
+        assert unverified[0]["unheard"] == 2
+
+    def test_a_majority_of_the_roster_confirms(self) -> None:
+        out = _run_workflow(
+            self.SCRIPT,
+            self._agent(
+                [
+                    {"refuted": False, "reason": "r"},
+                    {"refuted": False, "reason": "r"},
+                    {"refuted": True, "reason": "r"},
+                ]
+            ),
+            {"dimensions": ["bugs"]},
+        )
+        assert len(out["result"]["confirmed"]) == 1
+        assert out["result"]["unverified"] == []
+
+
+class TestNullAgentsAreNamed:
+    """A capture or surface agent that returns null is listed, not lost."""
+
+    def test_scry_names_the_flow_whose_agent_returned_null(self) -> None:
+        out = _run_workflow(
+            PLUGINS / "scry" / "workflows" / "capture-set.js",
+            "if (opts.label === 'capture:dead') return null;"
+            "return { captured: true, asset: opts.label + '.gif', reason: '' };",
+            {"flows": [{"name": "live"}, {"name": "dead"}]},
+        )
+        assert out["result"]["dropped"] == ["dead"]
+        assert out["result"]["failed"] == []
+        assert out["result"]["assets"] == ["capture:live.gif"]
+
+    def test_phantom_names_the_surface_whose_agent_returned_null(self) -> None:
+        out = _run_workflow(
+            PLUGINS / "phantom" / "workflows" / "surface-check.js",
+            "if (opts.label === 'check:screenshot') return null;"
+            "return { working: true, detail: '' };",
+            {},
+        )
+        assert "screenshot" in out["result"]["missing"]
+        assert out["result"]["broken"] == []

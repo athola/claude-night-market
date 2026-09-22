@@ -52,11 +52,15 @@ const checked = await parallel(
 
 const verdicts = checked.filter(Boolean)
 const broken = verdicts.filter((verdict) => !verdict.working)
+// A checker that died left no verdict. Name it: a machine whose checker
+// crashed must not read the same as a machine whose surfaces all work.
+const missing = surfaces.filter((surface, index) => !checked[index]).map((surface) => surface.key)
 
 log(
   broken.length
     ? `${broken.length} of ${verdicts.length} surfaces not working`
     : `all ${verdicts.length} surfaces working`,
 )
+if (missing.length) log(`no verdict for ${missing.join(', ')}; those surfaces are unchecked, not working`)
 
-return { verdicts, broken }
+return { verdicts, broken, missing }
