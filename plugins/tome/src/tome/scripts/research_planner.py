@@ -2,7 +2,7 @@
 
 Channel inclusion comes from each channel card's ``min_depth``
 (``tome.channels.cards``): code and discourse at every depth, academic
-from medium, triz from deep.
+and web from medium, triz from deep.
 
 Weights for the active channels are taken from the classification and
 renormalised so they sum to exactly 1.0.

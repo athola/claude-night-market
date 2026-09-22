@@ -123,6 +123,26 @@ def _extract_year(page_age: Any) -> int | None:
     return int(match.group(0)) if match else None
 
 
+def _web_items(payload: dict[str, Any]) -> list[Any] | None:
+    """Return ``payload["results"]["web"]`` when both hops are the right type.
+
+    ``(payload.get("results") or {}).get("web")`` guards only a falsy
+    ``results``. A truthy non-mapping, which is what a drifted envelope
+    sends, called ``.get`` on the wrong type and raised AttributeError.
+    Callers catch ValueError to mark the channel failed, so that escaped
+    and took the run down instead.
+
+    Returns:
+        The web item list, or None when this payload does not carry one.
+
+    """
+    results = payload.get("results")
+    if not isinstance(results, dict):
+        return None
+    web = results.get("web")
+    return web if isinstance(web, list) else None
+
+
 def _unwrap_you_mcp_items(result: Any) -> list[Any]:
     """Extract the web result items from a you-search tool response.
 
@@ -165,13 +185,13 @@ def _unwrap_you_mcp_items(result: Any) -> list[Any]:
                         f"starts with {text[:80]!r}"
                     ) from exc
                 if isinstance(inner, dict):
-                    web = (inner.get("results") or {}).get("web")
-                    if isinstance(web, list):
+                    web = _web_items(inner)
+                    if web is not None:
                         return web
         structured = result.get("structuredContent")
         if isinstance(structured, dict):
-            web = (structured.get("results") or {}).get("web")
-            if isinstance(web, list):
+            web = _web_items(structured)
+            if web is not None:
                 return web
     received = (
         f"dict with keys {sorted(result)}"

@@ -1,9 +1,10 @@
 # Tome Research-Quality Metrics Framework
 
 **Date**: 2026-07-17
-**Companion to**: [design spec](../superpowers/specs/2026-07-17-tome-research-engine-design.md),
-whose "Evidence base" section carries the retrieval-evaluation and
-bibliometrics citations behind the dimensions below.
+**Companion to**: [ADR-0018](../adr/0018-tome-graph-reuse-over-build.md),
+which superseded the retired design spec (ADR-0019 records the
+retirement). The retrieval-evaluation and bibliometrics citations that
+spec carried are in ADR-0018's references.
 
 ## Thesis
 
@@ -67,7 +68,7 @@ is useless. Every creativity metric is therefore paired with relevance.
 |--------|------------------|--------|
 | Source/domain diversity | `1 - Herfindahl` over channels | exists (`quality.py:96`) |
 | TRIZ bridge count | cross-domain analogies found | exists (triz channel) |
-| Corpus novelty | mean embedding distance of new findings from the prior-session corpus | wire-up (`EmbeddingIndex` + `memory.py`) |
+| Corpus novelty | mean embedding distance of new findings from the prior-session corpus | new (needs cross-session storage) |
 | Reference atypicality | z-scored reference co-occurrence (Uzzi 2013) | new (needs references) |
 | Link-prediction surprise | `predict_links` (Adamic-Adar) edges bridging distant communities | wire-up (`graph_analyzer.py:153`) |
 
@@ -104,8 +105,16 @@ mandatory, not optional.
 | Citation count | from `metadata` (Semantic Scholar / OpenAlex) | exists |
 | Disruption (CD) index | Funk and Owen-Smith 2017, **field- and cohort-normalized, fixed window** | new (guarded) |
 | Bridge / keystone finding | `find_bridges` / `find_keystones` | wire-up (`graph_analyzer.py:96`) |
-| Cross-session reuse rate | times a finding is re-imported across sessions | exists (`memory.py:61`) |
+| Cross-session reuse rate | times a finding is re-imported across sessions | new (needs cross-session storage) |
 | Decay-adjusted importance | `decay_model` half-life weighting | wire-up (`decay_model.py`) |
+
+**Cross-session status.** Both cross-session rows read `new`, not
+`wire-up`, because the module they were written against is gone:
+commit 35d6c952 deleted `tome/src/tome/memory.py` after finding that
+nothing outside its own test imported it, and reserved wiring it back
+for its own PR. There is no cross-session store to wire up today.
+`plugins/tome/tests/test_metrics_doc_citations.py` checks that every
+module this page cites still exists.
 
 **Guardrail (evidence-backed, non-negotiable).** The disruption index is
 biased by citation inflation, depends on the chosen citation-window

@@ -34,17 +34,44 @@ class TestExpandWebQueries:
     """
 
     @pytest.mark.unit
-    def test_returns_list_of_strings(self) -> None:
+    def test_returns_the_four_documented_framings(self) -> None:
         """
-        Scenario: Query builder produces string list
+        Scenario: Query builder produces the variants it promises
         Given a topic string
         When expand_web_queries is called
-        Then the result is a list of strings
+        Then the documentation, comparison, tutorial and recency
+        framings are each present alongside the bare topic
+
+        The docstring names these four as the framings that surface
+        vendor docs, benchmarks, how-tos and news pages. Asserting only
+        that the result is a list of strings passes for a function that
+        returns the bare topic five times, which is the failure this
+        expansion exists to prevent.
+        """
+        topic = "vector databases"
+        result = expand_web_queries(topic)
+
+        assert result[0] == topic
+        assert f"{topic} documentation" in result
+        assert f"{topic} vs alternatives comparison" in result
+        assert f"{topic} tutorial guide" in result
+        assert any(
+            query.startswith(topic) and query != topic and query[-4:].isdigit()
+            for query in result
+        ), f"no recency variant carrying a year in {result}"
+
+    @pytest.mark.unit
+    def test_every_query_is_a_distinct_nonempty_string(self) -> None:
+        """
+        Scenario: The queries are usable as search input
+        Given a topic string
+        When expand_web_queries is called
+        Then every query is a non-empty string and no two are equal
         """
         result = expand_web_queries("vector databases")
 
-        assert isinstance(result, list)
-        assert all(isinstance(q, str) for q in result)
+        assert all(isinstance(query, str) and query.strip() for query in result)
+        assert len(set(result)) == len(result)
 
     @pytest.mark.unit
     def test_original_topic_included(self) -> None:
@@ -179,6 +206,44 @@ class TestParseYouMcpResult:
         """
         with pytest.raises(ValueError, match="unrecognized you-search response"):
             parse_you_mcp_result({"error": "oops"}, "topic")
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("results", [[], "web", 7, None])
+    def test_non_dict_results_raises_value_error(self, results: object) -> None:
+        """
+        Scenario: The envelope's "results" is not an object
+        Given a structuredContent whose results is a list, string,
+        number or null
+        When parse_you_mcp_result is called
+        Then ValueError names the shape, rather than AttributeError
+
+        ``(x or {}).get(...)`` only guards a falsy ``results``. A
+        truthy non-mapping reached ``.get`` on the wrong type, and the
+        caller catches ValueError to mark the channel failed; an
+        AttributeError escapes that and takes the run down.
+        """
+        payload = {"structuredContent": {"results": results}}
+
+        with pytest.raises(ValueError, match="unrecognized you-search response"):
+            parse_you_mcp_result(payload, "topic")
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("results", [["a"], "web", 7])
+    def test_non_dict_results_in_content_text_raises_value_error(
+        self, results: object
+    ) -> None:
+        """
+        Scenario: The same shape arrives through content[0].text
+        Given a text payload whose results is not an object
+        When parse_you_mcp_result is called
+        Then ValueError names the shape received
+        """
+        payload = {
+            "content": [{"type": "text", "text": json.dumps({"results": results})}]
+        }
+
+        with pytest.raises(ValueError, match="unrecognized you-search response"):
+            parse_you_mcp_result(payload, "topic")
 
     @pytest.mark.unit
     def test_parses_captured_live_envelope(self) -> None:
