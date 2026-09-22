@@ -30,6 +30,7 @@ modules:
 - modules/interactive-review.md
 - modules/knowledge-capture.md
 - modules/pr-hygiene.md
+- modules/suggestion-comments.md
 - modules/version-validation.md
 dependencies:
 - leyline:git-platform
@@ -334,6 +335,17 @@ BLOCKING, not because the code is wrong, but because
 the judgment call requires human input. Only the human
 reviewer can decide which of the three options is right.
 
+**With `--hold-insights`:** the same holding pattern covers
+every finding about the direction of the change, its
+architecture, or a question the diff leaves open, not only
+the ones that conflict with a recorded invariant. Present them
+in chat, then ask with the prompt Phase 5 uses for backlog
+issues: "I have N observations on direction and design. Post
+which? [y/n/select]". Post only what is selected. The rest
+stays in the conversation. This is the reviewer's judgment
+being exercised before the author sees it, which is where a
+question about direction belongs.
+
 **Why this matters:** Bad invariant decisions compound.
 A few wrong calls and the codebase becomes unsalvageable.
 This is not a context problem solvable with better
@@ -373,6 +385,14 @@ IN-SCOPE finding MUST include educational insights per
 **Proof** (link to best practice), and a **Teachable Moment**
 (generalized lesson). SUGGESTION findings include Why and
 optionally Proof. BACKLOG items need only a brief rationale.
+
+With `--concise`, none of those paragraphs is posted. Each finding
+on a diff line becomes a suggestion block the author can apply,
+with a short explanation beside it only for clarification purposes.
+Findings with no line to anchor to appear in the summary as one
+line each. The full report with its educational content is still
+written locally, to the `--local` path, so nothing is lost. It is
+only kept off the MR. Posting patterns: `modules/suggestion-comments.md`.
 
 ```markdown
 ## PR #X: Title
@@ -621,9 +641,16 @@ Apply `scribe:slop-detector` to PR body:
 - [ ] With `--interactive`: each graded exchange appears in
       `.gauntlet/progress/<developer>.json`, and the report carries a
       Comprehension section whose row count matches the probes recorded
+- [ ] With `--concise`: every finding on a diff line was posted as a
+      suggestion block, the summary review exists, and no test plan
+      comment or description update was posted
+- [ ] With `--hold-insights`: every direction or architecture finding was
+      shown in chat before posting, and only the selected ones appear
+      on the PR
 
 ## Supporting Modules
 
 - [Interactive comprehension loop](modules/interactive-review.md) -
   socratic probes graded and recorded to gauntlet's adaptive selector
 - [GitHub PR comment patterns](modules/github-comments.md) - `gh api` patterns for inline and summary PR comments
+- [Suggestion comments](modules/suggestion-comments.md) - one-click suggestion blocks on GitHub and GitLab, and the `--concise` posting rule

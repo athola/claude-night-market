@@ -65,6 +65,16 @@ echo "✅ All mandatory outputs verified for PR #$PR_NUMBER"
   Skips API calls, issue creation, and PR description updates.
   Unlike `--dry-run`, produces a permanent file.
 - `--no-line-comments`: Skip individual line comments, only submit summary review
+- `--concise`: Post each diff-line finding as a suggestion block with at
+  most one clarifying sentence, plus one short summary review. This is
+  the one flag that narrows the MANDATORY outputs: the test plan comment
+  and the description update are not posted, and the verification
+  checklist in `pr-review.md` checks only for the summary review. Findings with no
+  diff line to anchor to go in the summary, one line each.
+- `--hold-insights`: Present direction, architecture, and open-question
+  findings in chat with a `[y/n/select]` prompt before any of them is
+  posted. Extends Phase 4.6, which already does this for INVARIANT
+  findings. Does not touch `--no-insights`, which governs Discussions.
 - `--skip-version-check`: **BYPASS version validation** (maintainer override)
   - Use when: intentional version skew, non-release PR touching version files
   - Alternative: Add `skip-version-check` label to PR or `[skip-version-check]` in PR description

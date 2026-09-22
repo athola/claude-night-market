@@ -61,6 +61,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`/pr-review --concise` and `--hold-insights`** (sanctum, leyline).
+  Two review styles that were being dictated by hand each time. With
+  `--concise`, each finding on a diff line is posted as a suggestion
+  block the author applies with one click, with a sentence beside it
+  only for clarification; one short summary review closes it, and the
+  test plan, the description update, and the educational paragraphs
+  stay off the MR. With `--hold-insights`, direction, architecture and
+  open-question findings are shown in chat first and posted only when
+  selected, which widens the Phase 4.6 escalation that INVARIANT
+  findings already used. `--no-insights` is unchanged and Discussions
+  posting stays on by default. The new
+  `modules/suggestion-comments.md` gives the suggestion fence for both
+  platforms and the GitLab positioned-discussion call the repository
+  had never documented; `leyline:git-platform` maps the inline-comment
+  row so `/fix-pr` and `/resolve-threads` inherit it.
 - **TRIZ records carry their residual** (tome, ADR-0026). Every
   contradiction record says whether a catalogue row matched it
   (`matched`), `near_resolutions` names the rows within two edits of a
