@@ -13,7 +13,6 @@ import pytest
 from tasks_manager import (
     ATTUNE_CONFIG,
     CROSS_CUTTING_KEYWORDS,
-    AmbiguityResult,
     AmbiguityType,
     TasksManager,
     detect_ambiguity,
@@ -250,56 +249,54 @@ class TestUserPromptOnAmbiguity:
 
     @pytest.mark.bdd
     def test_user_prompted_when_ambiguity_detected(self, tasks_manager_with_prompt):
-        """Given ambiguous task, when creating task, then prompt user for decision."""
-        # Arrange - use context with multiple components to trigger ambiguity
-        task_description = "Implement authentication feature"
-        # Provide context that triggers MULTIPLE_COMPONENTS ambiguity
+        """Given ambiguous task, when creating task, then prompt user for decision.
+
+        The description carries a real cross-cutting keyword from
+        ATTUNE_CONFIG, so the detector runs for real. Substituting a
+        canned AmbiguityResult proved only that the prompt follows an
+        ambiguous verdict, never that a genuinely ambiguous description
+        produces one, which is the half that breaks when the keyword
+        list and the config drift apart.
+        """
+        # Arrange
+        task_description = "Add logging throughout the codebase"
         tasks_manager_with_prompt._task_list.return_value = []
+        tasks_manager_with_prompt._ask_user.return_value = "1"  # Keep as single
 
-        # Override detect_ambiguity to return ambiguous for this test
-        with patch("abstract.tasks_manager_base.detect_ambiguity") as mock_detect:
-            mock_detect.return_value = AmbiguityResult(
-                is_ambiguous=True,
-                ambiguity_type=AmbiguityType.MULTIPLE_COMPONENTS,
-                components=["src/auth/", "src/models/", "src/middleware/"],
-                message="Task touches 3 components",
-            )
-            tasks_manager_with_prompt._ask_user.return_value = (
-                "1"  # Keep as single task
-            )
-
-            # Act
-            tasks_manager_with_prompt.ensure_task_exists(task_description)
+        # Act
+        tasks_manager_with_prompt.ensure_task_exists(task_description)
 
         # Assert
         tasks_manager_with_prompt._ask_user.assert_called_once()
         call_args = tasks_manager_with_prompt._ask_user.call_args[0][0]
-        assert "Options:" in call_args or "options" in call_args.lower()
+        assert "Options:" in call_args
+        assert "Cross-cutting concern detected" in call_args
 
     @pytest.mark.bdd
     def test_user_choice_split_creates_multiple_tasks(self, tasks_manager_with_prompt):
-        """Given user chooses to split, when creating task, then create subtasks."""
+        """Given user chooses to split, when creating task, then create subtasks.
+
+        A cross-cutting verdict names no components, so _create_subtasks
+        takes its Part 1 / Part 2 branch. Asserting the descriptions
+        rather than the count alone keeps that branch identified.
+        """
         # Arrange
-        task_description = "Implement authentication feature"
+        task_description = "Add logging throughout the codebase"
+        tasks_manager_with_prompt._ask_user.return_value = "2"  # Split
 
-        # Override detect_ambiguity to return ambiguous with components
-        with patch("abstract.tasks_manager_base.detect_ambiguity") as mock_detect:
-            mock_detect.return_value = AmbiguityResult(
-                is_ambiguous=True,
-                ambiguity_type=AmbiguityType.MULTIPLE_COMPONENTS,
-                components=["src/auth/", "src/models/", "src/middleware/"],
-                message="Task touches 3 components",
-            )
-            tasks_manager_with_prompt._ask_user.return_value = (
-                "2"  # Split into subtasks
-            )
-
-            # Act
-            task_ids = tasks_manager_with_prompt.ensure_task_exists(task_description)
+        # Act
+        task_ids = tasks_manager_with_prompt.ensure_task_exists(task_description)
 
         # Assert
         assert isinstance(task_ids, list)
-        assert len(task_ids) >= 2  # At least 2 subtasks created
+        assert len(task_ids) == 2
+        created = [
+            c.args[0] for c in tasks_manager_with_prompt._task_create.call_args_list
+        ]
+        assert created == [
+            f"{task_description} - Part 1",
+            f"{task_description} - Part 2",
+        ]
 
     @pytest.mark.bdd
     def test_user_choice_single_creates_one_task(self, tasks_manager_with_prompt):

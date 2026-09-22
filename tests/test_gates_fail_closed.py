@@ -275,9 +275,15 @@ def test_clawhub_export_exits_nonzero_when_skills_failed_to_export(
 
 
 def test_clawhub_export_succeeds_on_a_clean_export(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture
 ) -> None:
-    """Zero errors must still be a zero exit."""
+    """Zero errors must still be a zero exit.
+
+    The sibling tests prove the gate fails on errors. This one proves it
+    does not fail on their absence, which is the half a fail-closed
+    change breaks silently: ``main`` must return rather than call
+    ``sys.exit``, and the error line must stay off stderr.
+    """
     module = _load("clawhub_export")
     monkeypatch.setattr(
         module,
@@ -285,7 +291,12 @@ def test_clawhub_export_succeeds_on_a_clean_export(
         lambda output, top, plugins_dir: {"total_exported": 3, "total_errors": 0},
     )
     monkeypatch.setattr(sys, "argv", ["clawhub_export.py", "--output", str(tmp_path)])
-    module.main()
+
+    assert module.main() is None
+
+    captured = capsys.readouterr()
+    assert "Exported 3 skills" in captured.out
+    assert captured.err == ""
 
 
 _PLANTED_SLOP = REPO_ROOT / "tests" / "fixtures" / "slop" / "planted.md"

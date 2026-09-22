@@ -233,14 +233,27 @@ class TestErrorHandler:
 
     @pytest.mark.unit
     def test_exit_if_errors_no_qualifying_errors_does_not_exit(
-        self, handler: ErrorHandler
+        self, handler: ErrorHandler, capsys: pytest.CaptureFixture
     ) -> None:
-        """Scenario: Low severity errors don't trigger exit when min is MEDIUM."""
+        """Given: a logged LOW error and a MEDIUM exit threshold
+        When: exit_if_errors runs
+        Then: it returns, prints no summary, and keeps the error logged
+
+        The summary is printed on the same branch that exits, so its
+        absence is the evidence the branch was not taken. Asserting the
+        error survives rules out passing by having dropped it.
+        """
         handler.log_error(
             ToolError(severity=ErrorSeverity.LOW, error_code="L", message="low")
         )
-        # Should NOT raise SystemExit
-        handler.exit_if_errors(min_severity=ErrorSeverity.MEDIUM)
+        capsys.readouterr()
+
+        assert handler.exit_if_errors(min_severity=ErrorSeverity.MEDIUM) is None
+
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        assert captured.err == ""
+        assert [e.error_code for e in handler.errors] == ["L"]
 
     @pytest.mark.unit
     def test_exit_if_errors_qualifying_error_exits(self, handler: ErrorHandler) -> None:
