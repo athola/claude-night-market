@@ -20,6 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Two pre-commit hooks ran under PATH `python3` and could not import
+  PyYAML.** `validate-skill-descriptions` and
+  `check-context-optimization` invoked `python3` directly, which on a
+  machine whose PATH resolves to a Homebrew or system interpreter has
+  no project dependencies. Both raised `ModuleNotFoundError` on any
+  commit that touched a `SKILL.md`, and `uv run pre-commit` masked it
+  because it runs inside the venv. Both now run through
+  `uv run --with pyyaml python`, the form `slop-ratchet` already used.
 - **Four hooks could not import under the interpreter that runs
   them.** Hooks execute under whatever `python3` the operator's PATH
   resolves, which carries the standard library and nothing else, so a

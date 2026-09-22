@@ -126,7 +126,7 @@ repos:
 
       - id: validate-skill-descriptions
         name: Validate Skill Descriptions
-        entry: python3 scripts/fix_descriptions.py --check
+        entry: uv run --with pyyaml python scripts/fix_descriptions.py --check
         language: system
         files: SKILL\.md$
         pass_filenames: false
@@ -297,7 +297,7 @@ repos:
 
       - id: check-context-optimization
         name: Check Context Optimization
-        entry: python3 plugins/abstract/scripts/context_optimizer.py stats plugins/
+        entry: uv run --with pyyaml python plugins/abstract/scripts/context_optimizer.py stats plugins/
         language: system
         files: ^.*SKILL\.md$
         pass_filenames: false
