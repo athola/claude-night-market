@@ -16,44 +16,20 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import subprocess
 import sys
 from dataclasses import asdict
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-_CHECKS_FILE = (
-    Path(__file__).resolve().parents[1]
-    / "src"
-    / "pensive"
-    / "skills"
-    / "tiered_audit.py"
-)
+_SRC_DIR = Path(__file__).resolve().parents[1] / "src"
+if str(_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(_SRC_DIR))
 
-
-def _load_checks() -> Any:
-    """Load the threshold module by file, not through the package.
-
-    ``pensive/__init__`` imports the review skills, and those need psutil
-    and the rest of the plugin's environment. The thresholds are pure
-    stdlib, and this script runs under whatever python3 the skill has,
-    so it takes the one file it needs.
-    """
-    spec = importlib.util.spec_from_file_location("tiered_audit_checks", _CHECKS_FILE)
-    if spec is None or spec.loader is None:
-        msg = f"cannot load {_CHECKS_FILE}"
-        raise SystemExit(msg)
-    module = importlib.util.module_from_spec(spec)
-    # Registered before exec: on 3.9 a dataclass whose annotations are
-    # strings looks its own module up in sys.modules while it is defined.
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-_checks = _load_checks()
+# One module identity: pensive/__init__ resolves its exports lazily, so
+# this import pulls in the stdlib-only threshold module and nothing else.
+import pensive.skills.tiered_audit as _checks  # noqa: E402 - src goes on sys.path first
 
 if TYPE_CHECKING:
     from pensive.skills.tiered_audit import Tier1Results
@@ -113,11 +89,16 @@ def collect(base: str, cwd: Path | None = None) -> tuple[Tier1Results, dict[str,
     Returns the flags and, keyed by signal, the command that produced them.
     """
     span = f"{base}..HEAD"
+    # For git log the two-dot span is "reachable from HEAD, not from base",
+    # which is the branch. For git diff it is an endpoint comparison, so a
+    # file added on base after the branch point would show as added here;
+    # the three-dot form diffs against the merge base instead.
+    diff_span = f"{base}...HEAD"
     commands = {
         "churn": ["log", "--format=", "--name-only", span],
         "fix-on-fix": ["log", "--format=%H%x00%s", span],
         "large-diff": ["log", "--format=%H%x00%s", "--numstat", span],
-        "new-file-cluster": ["diff", "--name-status", span],
+        "new-file-cluster": ["diff", "--name-status", diff_span],
     }
     evidence = {name: "git " + " ".join(args) for name, args in commands.items()}
 

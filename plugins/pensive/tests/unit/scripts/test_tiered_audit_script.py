@@ -8,14 +8,15 @@ The script is the seam that feeds real git history into them.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
-from typing import TYPE_CHECKING
+import sys
+from pathlib import Path
 
 import pytest
 from scripts.tiered_audit import _parse_numstat, collect, main
 
-if TYPE_CHECKING:
-    from pathlib import Path
+from pensive.skills.tiered_audit import Tier1Results
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -138,3 +139,96 @@ class TestCommandLine:
         repo, _ = noisy_repo
         assert main(["--base", "no-such-ref", "--cwd", str(repo)]) == 1
         assert "git failed" in capsys.readouterr().err
+
+
+class TestOneModuleIdentity:
+    """The checks used to be loaded by file path, registering the module
+    twice: a Tier1Results built by the script was not an instance of the
+    class a typed caller imported from the package.
+    """
+
+    def test_results_are_instances_of_the_package_class(self, noisy_repo) -> None:
+        repo, base = noisy_repo
+        results, _ = collect(base, cwd=repo)
+        assert isinstance(results, Tier1Results)
+        assert type(results).__module__ == "pensive.skills.tiered_audit"
+
+    def test_the_checks_import_without_psutil_under_system_python(self) -> None:
+        """The script runs under whatever python3 the skill has, which on
+        macOS is 3.9 with no psutil. Importing the thresholds through the
+        package must not pull in pensive.workflows.
+        """
+        interpreter = Path("/usr/bin/python3")
+        if not interpreter.exists():
+            pytest.skip("no system python")
+        src = Path(__file__).resolve().parents[3] / "src"
+        probe = (
+            f"import sys; sys.path.insert(0, {str(src)!r}); "
+            "import pensive.skills.tiered_audit; "
+            "assert 'psutil' not in sys.modules, 'psutil imported'; "
+            "assert 'pensive.workflows' not in sys.modules, 'workflows imported'"
+        )
+        run = subprocess.run(
+            [str(interpreter), "-c", probe], capture_output=True, text=True, check=False
+        )
+        assert run.returncode == 0, run.stderr
+        assert sys.version_info >= (3, 9)
+
+
+class TestNewFileClusterSpan:
+    """git diff with two dots compares endpoints, so a file added on the
+    base branch after the fork point looked like a file this branch added.
+    """
+
+    def test_files_added_on_base_after_the_fork_are_not_counted(
+        self, tmp_path: Path
+    ) -> None:
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        _git(repo, "init", "-q", "-b", "main")
+        _git(repo, "config", "user.email", "audit@example.invalid")
+        _git(repo, "config", "user.name", "Audit")
+        (repo / "README.md").write_text("# demo\n")
+        _commit(repo, "chore: seed")
+        _git(repo, "checkout", "-q", "-b", "feature")
+        (repo / "feature.py").write_text("X = 1\n")
+        _commit(repo, "feat: one file on the branch")
+        _git(repo, "checkout", "-q", "main")
+        cluster = repo / "pkg" / "mod"
+        cluster.mkdir(parents=True)
+        for index in range(6):
+            (cluster / f"f{index}.py").write_text(f"VALUE = {index}\n")
+        _commit(repo, "feat: six files on main after the fork")
+        _git(repo, "checkout", "-q", "feature")
+
+        results, _ = collect("main", cwd=repo)
+
+        assert results.new_cluster_flags == []
+
+
+class TestEscalationModuleMatchesTheScript:
+    """The skill points readers at modules/escalation-criteria.md while the
+    script prints its own verdict. Every criterion heading in the module
+    is either a signal the script computes or is marked as a manual check.
+    """
+
+    def test_every_tier1_criterion_is_computed_or_marked_manual(self) -> None:
+
+        module = (
+            Path(__file__).resolve().parents[3]
+            / "skills"
+            / "tiered-audit"
+            / "modules"
+            / "escalation-criteria.md"
+        )
+        text = module.read_text(encoding="utf-8")
+        tier1 = text.split("## Tier 2")[0]
+        headings = re.findall(r"^### (.+)$", tier1, re.MULTILINE)
+        computed = {
+            "Churn Hotspots",
+            "Fix-on-Fix Patterns",
+            "Large Diffs",
+            "New File Clusters",
+        }
+        for heading in headings:
+            assert heading in computed or "(manual check)" in heading, heading
