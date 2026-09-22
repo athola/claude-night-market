@@ -7,62 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- **Dependency floors raised to what the lock files already resolve.**
-  159 floors across the 24 `pyproject.toml` files now name the newest
-  release that still installs on each file's own `requires-python`,
-  so a 3.9 plugin floors at coverage 7.10.7 and bandit 1.8.6 while
-  the 3.12 root takes 7.16.1 and 1.9.4. Every cap and marker is kept,
-  pytest stays below 9 and mypy below 2 (both need Python 3.10), and
-  ruff 0.16.8 is declared in the three plugins that configured it
-  without depending on it (archetypes, cartograph, scry).
-
-### Fixed
-
-- **Four pre-commit hooks ran under PATH `python3` and could not import
-  PyYAML.** `validate-skill-descriptions` and
-  `check-context-optimization` invoked `python3` directly, which on a
-  machine whose PATH resolves to a Homebrew or system interpreter has
-  no project dependencies. Both raised `ModuleNotFoundError` on any
-  commit that touched a `SKILL.md`, and `uv run pre-commit` masked it
-  because it runs inside the venv. A sweep of every bare-`python3`
-  entry found two more that would fail the same way on their own
-  trigger files, `validate-abstract-skills` and
-  `validate-knowledge-corpus`. All four now run through
-  `uv run --with pyyaml python`, the form `slop-ratchet` already used,
-  and `tests/test_precommit_entries_import_without_project_deps.py`
-  imports every remaining bare-`python3` entry with PyYAML blocked.
-- **Four hooks could not import under the interpreter that runs
-  them.** Hooks execute under whatever `python3` the operator's PATH
-  resolves, which carries the standard library and nothing else, so a
-  module-scope dependency raises before the payload is read.
-  `hookify/rule_guard.py` now imports its rule loader inside `main`
-  and, when PyYAML is absent, writes one line naming the interpreter
-  and stating that no rule was evaluated, instead of a traceback on
-  every Bash call, prompt and stop. That registration is new on this
-  branch and never shipped. The `abstract` path helpers moved to a
-  stdlib-only `abstract/paths.py`, which `utils` re-exports so callers
-  are unchanged, and both `abstract` and `memory_palace.corpus` now
-  resolve their package-root exports on first access.
-  `tests/test_hooks_import_without_project_deps.py` imports all 53
-  registered hooks with PyYAML blocked, so the class cannot return.
-- **Every session start printed a traceback instead of running the
-  memory-palace capture surfacer.** The `index_surfacer` SessionStart
-  hook needs one name, `persistent_root` from `memory_palace.paths`,
-  but importing any submodule executes the package `__init__` first,
-  and that file eagerly imported `EmbeddingIndex`, which pulls in the
-  corpus package and PyYAML. Hooks run under whatever `python3` the
-  operator's PATH resolves, an interpreter with no project
-  dependencies installed, so the import raised `ModuleNotFoundError`
-  before the hook read its payload. The package root now resolves
-  every export on first attribute access, extending the pattern it
-  already applied to the networkx-backed `PalaceGraphAnalyzer`.
-- **`run-plugin-tests.sh` no longer fails its EXIT trap when nothing
-  is staged.** bash 3.2 treats an empty array as unset under `set -u`,
-  so the temp-file cleanup aborted with `_TEMP_FILES[@]: unbound
-  variable` and the pre-commit hook showed red on every empty-index
-  run. The expansion is now guarded like `cov_flag` already was.
+## [1.9.21] - 2026-09-22
 
 ### Added
 
@@ -93,10 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in the Equations" and the two Hacker News threads on it; each
   mechanism cites the TRIZ step or the 1990s numerical method it
   already existed as.
-
-## [1.9.21] - 2026-09-17
-
-### Added
 
 - **Fan-outs report what they dropped; scanners prove they can see
   (all plugins).** Seventeen of twenty-three workflows filtered null
@@ -227,7 +168,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   how many returned items it dropped, so a drifted response shape
   cannot read as an empty web.
 
+### Changed
+
+- **Dependency floors raised to what the lock files already resolve.**
+  159 floors across the 24 `pyproject.toml` files now name the newest
+  release that still installs on each file's own `requires-python`,
+  so a 3.9 plugin floors at coverage 7.10.7 and bandit 1.8.6 while
+  the 3.12 root takes 7.16.1 and 1.9.4. Every cap and marker is kept,
+  pytest stays below 9 and mypy below 2 (both need Python 3.10), and
+  ruff 0.16.8 is declared in the three plugins that configured it
+  without depending on it (archetypes, cartograph, scry).
+
 ### Fixed
+
+- **Four pre-commit hooks ran under PATH `python3` and could not import
+  PyYAML.** `validate-skill-descriptions` and
+  `check-context-optimization` invoked `python3` directly, which on a
+  machine whose PATH resolves to a Homebrew or system interpreter has
+  no project dependencies. Both raised `ModuleNotFoundError` on any
+  commit that touched a `SKILL.md`, and `uv run pre-commit` masked it
+  because it runs inside the venv. A sweep of every bare-`python3`
+  entry found two more that would fail the same way on their own
+  trigger files, `validate-abstract-skills` and
+  `validate-knowledge-corpus`. All four now run through
+  `uv run --with pyyaml python`, the form `slop-ratchet` already used,
+  and `tests/test_precommit_entries_import_without_project_deps.py`
+  imports every remaining bare-`python3` entry with PyYAML blocked.
+- **Four hooks could not import under the interpreter that runs
+  them.** Hooks execute under whatever `python3` the operator's PATH
+  resolves, which carries the standard library and nothing else, so a
+  module-scope dependency raises before the payload is read.
+  `hookify/rule_guard.py` now imports its rule loader inside `main`
+  and, when PyYAML is absent, writes one line naming the interpreter
+  and stating that no rule was evaluated, instead of a traceback on
+  every Bash call, prompt and stop. That registration is new on this
+  branch and never shipped. The `abstract` path helpers moved to a
+  stdlib-only `abstract/paths.py`, which `utils` re-exports so callers
+  are unchanged, and both `abstract` and `memory_palace.corpus` now
+  resolve their package-root exports on first access.
+  `tests/test_hooks_import_without_project_deps.py` imports all 53
+  registered hooks with PyYAML blocked, so the class cannot return.
+- **Every session start printed a traceback instead of running the
+  memory-palace capture surfacer.** The `index_surfacer` SessionStart
+  hook needs one name, `persistent_root` from `memory_palace.paths`,
+  but importing any submodule executes the package `__init__` first,
+  and that file eagerly imported `EmbeddingIndex`, which pulls in the
+  corpus package and PyYAML. Hooks run under whatever `python3` the
+  operator's PATH resolves, an interpreter with no project
+  dependencies installed, so the import raised `ModuleNotFoundError`
+  before the hook read its payload. The package root now resolves
+  every export on first attribute access, extending the pattern it
+  already applied to the networkx-backed `PalaceGraphAnalyzer`.
+- **`run-plugin-tests.sh` no longer fails its EXIT trap when nothing
+  is staged.** bash 3.2 treats an empty array as unset under `set -u`,
+  so the temp-file cleanup aborted with `_TEMP_FILES[@]: unbound
+  variable` and the pre-commit hook showed red on every empty-index
+  run. The expansion is now guarded like `cov_flag` already was.
 
 - **`parse_envelope` no longer drops a top-level `queries` list
   (tome).** Found running this change's own research through the
