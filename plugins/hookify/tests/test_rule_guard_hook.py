@@ -272,3 +272,85 @@ class TestResilience:
         if "No module named 'yaml'" in result.stderr:
             pytest.skip("system python lacks pyyaml; the hook reported it")
         assert "deny" in result.stdout
+
+
+class TestRuleLoaderUnavailable:
+    """The catalog is YAML, and hooks run under the operator's python3.
+
+    That interpreter carries the standard library and nothing else, so
+    the import belongs inside ``main`` where the existing crash contract
+    can report it. At module scope it raised before the payload was
+    read, and every Bash call, prompt and stop printed a traceback.
+    """
+
+    @staticmethod
+    def _run_without_pyyaml(
+        payload: dict, project_dir: Path
+    ) -> subprocess.CompletedProcess[str]:
+        block = project_dir / "blocker"
+        block.mkdir()
+        (block / "sitecustomize.py").write_text(
+            'import sys\n\nsys.modules["yaml"] = None\n'
+        )
+        env = dict(os.environ)
+        env["CLAUDE_PROJECT_DIR"] = str(project_dir)
+        env["PYTHONPATH"] = str(block)
+        return subprocess.run(
+            [sys.executable, str(HOOK)],
+            input=json.dumps(payload),
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=30,
+            check=False,
+        )
+
+    def test_missing_pyyaml_passes_the_event_instead_of_raising(
+        self, tmp_path: Path
+    ) -> None:
+        """GIVEN an interpreter that cannot import PyYAML.
+
+        WHEN a prompt event reaches the guard
+        THEN the event passes and no traceback reaches stderr
+        """
+        result = self._run_without_pyyaml(
+            {"hook_event_name": "UserPromptSubmit", "prompt": "hello there"},
+            tmp_path,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert "Traceback" not in result.stderr
+        assert json.loads(result.stdout) == {}
+
+    def test_missing_pyyaml_says_no_rule_was_evaluated(self, tmp_path: Path) -> None:
+        """GIVEN the guard cannot load the catalog.
+
+        WHEN it lets the event through
+        THEN stderr names the interpreter and says nothing was checked
+
+        A rule that cannot run and does not say so is the fail-open this
+        repository already gates against elsewhere.
+        """
+        result = self._run_without_pyyaml(
+            {"hook_event_name": "UserPromptSubmit", "prompt": "hello there"},
+            tmp_path,
+        )
+
+        assert "no rule was evaluated" in result.stderr
+        assert sys.executable in result.stderr
+
+    def test_rules_still_run_when_pyyaml_is_available(self, tmp_path: Path) -> None:
+        """GIVEN the ordinary interpreter with the dependency present.
+
+        WHEN a blocking rule matches the prompt
+        THEN the guard still denies, so the fallback changed nothing
+        """
+        _install(tmp_path, "test-prompt-xyzzy", PROMPT_RULE)
+
+        result = _run(
+            {"hook_event_name": "UserPromptSubmit", "prompt": "say xyzzy-magic-word"},
+            tmp_path,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert json.loads(result.stdout)["decision"] == "block"

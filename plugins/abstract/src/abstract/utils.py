@@ -26,6 +26,11 @@ import yaml
 from .config import AbstractConfig, SkillValidationConfig
 from .frontmatter import FrontmatterProcessor
 
+# Re-exported: these are pure path lookups and live in a module that
+# imports nothing outside the standard library, so a hook can reach
+# them without PyYAML. Callers here are unchanged.
+from .paths import get_config_dir, get_log_directory, get_observability_dir
+
 logger = logging.getLogger(__name__)
 
 __all__ = [
@@ -91,61 +96,6 @@ def get_learnings_path() -> Path:
     """
     claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
     return claude_home / "skills" / "LEARNINGS.md"
-
-
-def get_log_directory(*, create: bool = False) -> Path:
-    """Get the skill execution log directory.
-
-    Respects CLAUDE_HOME env var for non-standard installations.
-
-    Args:
-        create: If True, create the directory if it doesn't exist.
-
-    Returns:
-        Path to ~/.claude/skills/logs/ (or $CLAUDE_HOME/skills/logs/).
-
-    """
-    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    log_base = claude_home / "skills" / "logs"
-    if create:
-        log_base.mkdir(parents=True, exist_ok=True)
-    return log_base
-
-
-def get_config_dir(*, create: bool = False) -> Path:
-    """Get the discussions config directory.
-
-    Args:
-        create: If True, create the directory if it doesn't exist.
-
-    Returns:
-        Path to ~/.claude/skills/discussions/.
-
-    """
-    config_dir = Path.home() / ".claude" / "skills" / "discussions"
-    if create:
-        config_dir.mkdir(parents=True, exist_ok=True)
-    return config_dir
-
-
-def get_observability_dir(*, create: bool = False) -> Path:
-    """Get the skill observability state directory.
-
-    Respects CLAUDE_HOME like the other dir helpers (D-04).
-
-    Args:
-        create: If True, create the directory if it doesn't exist.
-
-    Returns:
-        Path to ~/.claude/skills/observability/ (or
-        ``$CLAUDE_HOME/skills/observability/``).
-
-    """
-    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    state_dir = claude_home / "skills" / "observability"
-    if create:
-        state_dir.mkdir(parents=True, exist_ok=True)
-    return state_dir
 
 
 def load_config_with_defaults(project_root: Path | None = None) -> AbstractConfig:

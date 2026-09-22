@@ -16,6 +16,7 @@ installed and the interpreter running the hook does not.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -26,8 +27,22 @@ _PLUGIN_ROOT = Path(__file__).resolve().parents[2]
 _HOOKS = _PLUGIN_ROOT / "hooks"
 _SRC = _PLUGIN_ROOT / "src"
 
-#: Every SessionStart hook this plugin registers in ``hooks.json``.
-_SESSION_START_HOOKS = ["index_surfacer.py"]
+
+def _session_start_hooks() -> list[str]:
+    """Return the SessionStart hook files this plugin registers.
+
+    Read from ``hooks.json`` rather than listed here, so registering a
+    second one does not quietly leave it unchecked.
+    """
+    config = json.loads((_HOOKS / "hooks.json").read_text(encoding="utf-8"))
+    names = set()
+    for group in config.get("hooks", {}).get("SessionStart", []):
+        for hook in group.get("hooks", []):
+            names.update(re.findall(r"hooks/(\S+\.py)", hook.get("command", "")))
+    return sorted(names)
+
+
+_SESSION_START_HOOKS = _session_start_hooks()
 
 
 def _yaml_blocked_env(tmp_path: Path) -> dict[str, str]:

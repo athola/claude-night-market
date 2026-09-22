@@ -20,6 +20,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Four hooks could not import under the interpreter that runs
+  them.** Hooks execute under whatever `python3` the operator's PATH
+  resolves, which carries the standard library and nothing else, so a
+  module-scope dependency raises before the payload is read.
+  `hookify/rule_guard.py` now imports its rule loader inside `main`
+  and, when PyYAML is absent, writes one line naming the interpreter
+  and stating that no rule was evaluated, instead of a traceback on
+  every Bash call, prompt and stop. That registration is new on this
+  branch and never shipped. The `abstract` path helpers moved to a
+  stdlib-only `abstract/paths.py`, which `utils` re-exports so callers
+  are unchanged, and both `abstract` and `memory_palace.corpus` now
+  resolve their package-root exports on first access.
+  `tests/test_hooks_import_without_project_deps.py` imports all 53
+  registered hooks with PyYAML blocked, so the class cannot return.
 - **Every session start printed a traceback instead of running the
   memory-palace capture surfacer.** The `index_surfacer` SessionStart
   hook needs one name, `persistent_root` from `memory_palace.paths`,

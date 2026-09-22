@@ -28,18 +28,13 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PLUGIN_ROOT))
 
-from core.config_loader import (
-    ConfigLoader,  # noqa: E402 - plugin root goes on sys.path first
-)
-from core.rule_engine import (  # noqa: E402 - plugin root goes on sys.path first
-    RuleEngine,
-    RuleResult,
-)
+if TYPE_CHECKING:
+    from core.rule_engine import RuleEngine, RuleResult
 
 # How much of the transcript a stop rule sees. The whole file can run to
 # megabytes; the rules in the catalog look for what the session just did.
@@ -142,6 +137,27 @@ def main() -> None:
         print(json.dumps({}))
         return
     event, context = classified
+
+    # Imported here rather than at module scope because the catalog is
+    # YAML and PyYAML reaches this file through ``core``. Hooks run under
+    # the operator's ``python3``, which carries the standard library and
+    # nothing else, so at module scope the dependency turned every Bash
+    # call, prompt and stop into a traceback before the payload was read.
+    try:
+        from core.config_loader import ConfigLoader
+        from core.rule_engine import RuleEngine
+    except ImportError as exc:
+        # Same contract as the crash path below: say so on stderr and let
+        # the event through. Naming the interpreter matters because the
+        # fix is to install the dependency for that one, and it is rarely
+        # the one the operator has in mind.
+        sys.stderr.write(
+            f"rule_guard: no rule was evaluated for this {event} event, "
+            f"because {sys.executable} cannot import hookify's rule "
+            f"loader: {exc}\n"
+        )
+        print(json.dumps({}))
+        return
 
     project_dir = os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
     loader = ConfigLoader(user_rules_dir=Path(project_dir) / ".claude")
