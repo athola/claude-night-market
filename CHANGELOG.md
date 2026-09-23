@@ -7,19 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- **Parallel Skill hooks no longer erase skill history** (abstract,
-  ADR-0027). `skill_execution_logger` truncated `.history.json` and
-  then rewrote it while `homeostatic_monitor` read it on the same
-  event. A torn read by a writer was saved back as an empty history.
-  The file is now renamed into place, and each read-modify-write holds
-  an `flock`. Under synthetic stress, 49 of 49 seeded skills and 800 of
-  800 updates survive, against 0 and 6 before. The ADR also records why
-  the concurrent splay tree of arXiv 2606.28889 does not fit 49 skills
-  at this skew, and what a future recency consumer should use instead.
-
-## [1.9.21] - 2026-09-22
+## [1.9.21] - 2026-09-23
 
 ### Added
 
@@ -193,6 +181,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Parallel Skill hooks no longer erase skill history** (abstract,
+  ADR-0027). `skill_execution_logger` truncated `.history.json` and
+  then rewrote it while `homeostatic_monitor` read it on the same
+  event. A torn read by a writer was saved back as an empty history.
+  The file is now renamed into place, and each read-modify-write holds
+  an `flock`. Under synthetic stress, 49 of 49 seeded skills and 800 of
+  800 updates survive, against 0 and 6 before. The ADR also records why
+  the concurrent splay tree of arXiv 2606.28889 does not fit 49 skills
+  at this skew, and what a future recency consumer should use instead.
 - **Four pre-commit hooks ran under PATH `python3` and could not import
   PyYAML.** `validate-skill-descriptions` and
   `check-context-optimization` invoked `python3` directly, which on a
