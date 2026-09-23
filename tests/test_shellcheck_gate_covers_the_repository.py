@@ -100,10 +100,22 @@ def test_gate_passes_on_a_clean_tree() -> None:
     )
 
 
-def test_gate_fails_loudly_when_shellcheck_is_absent() -> None:
-    """A missing checker must not read as a pass."""
+def test_gate_fails_loudly_when_shellcheck_is_absent(tmp_path: Path) -> None:
+    """A missing checker must not read as a pass.
+
+    Trimming PATH to the system directories is not enough: Ubuntu installs
+    shellcheck in ``/usr/bin``. The PATH here links every system tool
+    except shellcheck.
+    """
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    for system_dir in ("/usr/bin", "/bin"):
+        for tool in Path(system_dir).iterdir():
+            link = bin_dir / tool.name
+            if tool.name != "shellcheck" and not link.exists():
+                link.symlink_to(tool)
     env = os.environ.copy()
-    env["PATH"] = "/usr/bin:/bin"
+    env["PATH"] = str(bin_dir)
     result = _run_gate(env=env)
     assert result.returncode != 0
     assert "shellcheck" in result.stderr
