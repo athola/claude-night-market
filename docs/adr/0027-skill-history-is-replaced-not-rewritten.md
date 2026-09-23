@@ -74,9 +74,11 @@ Windows, and `leyline/quota_tracker.py` already imports it unguarded.
 
 ## Recorded, not built
 
-Nothing reads recency or frequency for skills today, so none of the
-following is code yet. The first consumer that needs it should start
-here.
+The one frequency reader today is the `skill-improver` agent, which
+prints an execution count for the last 30 days in each proposal. It
+needs a count, and the count already exists. No code ranks skills by
+recency or keeps a hot set, so none of the following is code yet. The
+first consumer that needs it should start here.
 
 - Keep an exact count and a last-seen timestamp per key, scored in the
   zoxide style with decay. Do not use a tree, a sketch or an
