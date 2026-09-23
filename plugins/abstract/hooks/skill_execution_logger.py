@@ -12,10 +12,12 @@ Issue: https://github.com/athola/claude-night-market/issues/69
 
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import re
 import sys
+import tempfile
 import time
 import traceback
 from collections import defaultdict
@@ -59,10 +61,26 @@ class ContinualEvaluator:
                 )
 
     def _save_history(self) -> None:
-        """Save historical execution data."""
+        """Save historical execution data.
+
+        Replaced whole rather than truncated and rewritten:
+        homeostatic_monitor reads this file on the same PostToolUse event,
+        in parallel, and a truncated file read by a writer used to be
+        loaded as empty and saved back, erasing every skill.
+        """
         self.history_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.history_file, "w") as f:
-            json.dump(dict(self.skill_history), f, indent=None, separators=(",", ":"))
+        fd, tmp_name = tempfile.mkstemp(
+            dir=self.history_file.parent, prefix=".history.", suffix=".tmp"
+        )
+        try:
+            with os.fdopen(fd, "w") as f:
+                json.dump(
+                    dict(self.skill_history), f, indent=None, separators=(",", ":")
+                )
+            os.replace(tmp_name, self.history_file)
+        except OSError:
+            Path(tmp_name).unlink(missing_ok=True)
+            raise
 
     def evaluate_iteration(
         self, skill_ref: str, success: bool, duration_ms: int | None
@@ -79,16 +97,24 @@ class ContinualEvaluator:
             Dictionary with continual evaluation metrics
 
         """
-        history = self.skill_history[skill_ref]
-        history["accuracies"].append(1 if success else 0)
-        # An untimed execution still counts as an execution, so it lands in
-        # accuracies but not in durations. Appending a placeholder would put a
-        # number that was never measured into the average (#671).
-        if duration_ms is not None:
-            history["durations"].append(duration_ms)
-
-        # Save history after each iteration
-        self._save_history()
+        # Parallel subagents run this hook concurrently. Without the lock two
+        # writers load the same snapshot and the later save drops the
+        # earlier one's execution, so reload under it.
+        self.history_file.parent.mkdir(parents=True, exist_ok=True)
+        lock_file = self.history_file.with_name(self.history_file.name + ".lock")
+        with open(lock_file, "a") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            self.skill_history.clear()
+            self._load_history()
+            history = self.skill_history[skill_ref]
+            history["accuracies"].append(1 if success else 0)
+            # An untimed execution still counts as an execution, so it lands
+            # in accuracies but not in durations. Appending a placeholder
+            # would put a number that was never measured into the average
+            # (#671).
+            if duration_ms is not None:
+                history["durations"].append(duration_ms)
+            self._save_history()
 
         accuracies = history["accuracies"]
         durations = history["durations"]
