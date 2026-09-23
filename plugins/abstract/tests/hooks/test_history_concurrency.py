@@ -13,6 +13,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 
@@ -28,6 +29,12 @@ path, skill, count = Path(sys.argv[1]), sys.argv[2], int(sys.argv[3])
 for _ in range(count):
     ContinualEvaluator(path).evaluate_iteration(skill, True, 10)
 """
+
+
+@pytest.fixture
+def hook(monkeypatch: pytest.MonkeyPatch) -> ModuleType:
+    monkeypatch.syspath_prepend(str(HOOKS_DIR))
+    return importlib.import_module("skill_execution_logger")
 
 
 def _seed(history_file: Path) -> None:
@@ -66,6 +73,12 @@ def _wait(processes: list[subprocess.Popen[bytes]]) -> None:
 def test_reader_never_sees_partial_history_while_writers_save(
     tmp_path: Path,
 ) -> None:
+    """A parallel reader always parses a complete history.
+
+    GIVEN a 49-skill history and two writer processes saving to it
+    WHEN a reader parses the file for as long as the writers run
+    THEN no parse fails, because the file is renamed into place
+    """
     history_file = tmp_path / ".history.json"
     _seed(history_file)
     processes = _start_writers(history_file, writers=2, iterations=100)
@@ -87,6 +100,12 @@ def test_reader_never_sees_partial_history_while_writers_save(
 def test_concurrent_writers_keep_seeded_skills_and_every_update(
     tmp_path: Path,
 ) -> None:
+    """Concurrent writers neither erase nor drop history.
+
+    GIVEN a 49-skill history
+    WHEN four writer processes each record 25 executions at once
+    THEN every seeded skill survives and all 100 executions are kept
+    """
     history_file = tmp_path / ".history.json"
     _seed(history_file)
 
@@ -100,11 +119,14 @@ def test_concurrent_writers_keep_seeded_skills_and_every_update(
 
 
 def test_failed_replace_removes_temp_file_and_keeps_old_history(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, hook: ModuleType, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.syspath_prepend(str(HOOKS_DIR))
-    hook = importlib.import_module("skill_execution_logger")
+    """A failed save leaves the old history and no temp file.
 
+    GIVEN a seeded history and a filesystem that refuses the rename
+    WHEN an execution is recorded
+    THEN the OSError propagates, the file is unchanged, no temp remains
+    """
     history_file = tmp_path / ".history.json"
     _seed(history_file)
     before = history_file.read_text()
@@ -119,3 +141,45 @@ def test_failed_replace_removes_temp_file_and_keeps_old_history(
 
     assert history_file.read_text() == before
     assert list(tmp_path.glob("*.tmp")) == []
+
+
+def test_stale_evaluator_keeps_update_saved_after_it_loaded(
+    tmp_path: Path, hook: ModuleType
+) -> None:
+    """Each record reloads the file, so a stale snapshot drops nothing.
+
+    GIVEN two evaluators that loaded the same empty history
+    WHEN the first records an execution and then the second does
+    THEN the saved history holds both executions and no temp file
+    """
+    history_file = tmp_path / ".history.json"
+    first = hook.ContinualEvaluator(history_file)
+    second = hook.ContinualEvaluator(history_file)
+
+    first.evaluate_iteration("skill:first", True, 10)
+    second.evaluate_iteration("skill:second", False, 20)
+
+    history = json.loads(history_file.read_text())
+    assert history["skill:first"] == {"accuracies": [1], "durations": [10]}
+    assert history["skill:second"] == {"accuracies": [0], "durations": [20]}
+    assert list(tmp_path.glob("*.tmp")) == []
+
+
+def test_first_record_creates_missing_log_directory(
+    tmp_path: Path, hook: ModuleType
+) -> None:
+    """The lock file needs its directory, so the first record makes it.
+
+    GIVEN a history path whose parent directories do not exist
+    WHEN the first execution is recorded
+    THEN the directory, the history and the lock file are created
+    """
+    history_file = tmp_path / "skills" / "logs" / ".history.json"
+
+    metrics = hook.ContinualEvaluator(history_file).evaluate_iteration(
+        "skill:new", True, 5
+    )
+
+    assert metrics["execution_count"] == 1
+    assert json.loads(history_file.read_text())["skill:new"]["accuracies"] == [1]
+    assert history_file.with_name(".history.json.lock").exists()
