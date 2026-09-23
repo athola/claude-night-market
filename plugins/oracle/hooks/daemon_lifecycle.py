@@ -72,6 +72,10 @@ def _pid_is_daemon(pid: int) -> bool:
     something is there. The signal-0 probe is kept as the cheap first
     step; the command line is what keeps the Stop hook from killing that
     something.
+
+    ``-ww`` is required on Linux: procps cuts the command column to 80
+    characters when stdout is not a terminal, and the venv interpreter
+    path alone can push ``daemon.py`` past the cut.
     """
     try:
         os.kill(pid, 0)
@@ -79,7 +83,7 @@ def _pid_is_daemon(pid: int) -> bool:
         return False
     try:
         listing = subprocess.run(
-            ["ps", "-o", "command=", "-p", str(pid)],
+            ["ps", "-ww", "-o", "command=", "-p", str(pid)],
             capture_output=True,
             text=True,
             timeout=_PS_TIMEOUT_SECONDS,
