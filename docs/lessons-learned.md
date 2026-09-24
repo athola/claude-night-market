@@ -535,7 +535,7 @@ in the contract asked for any of them.
 - Phase: execute
 - Category: technology
 - Owner: night-market maintainers
-- Links: 5757958b, ba2a190b, tests/test_hooks_import_without_project_deps.py
+- Links: 496a8f68, 0a5c1dbb, tests/test_hooks_import_without_project_deps.py
 <!-- key: d76f1b296e51 -->
 
 ### What happened
@@ -585,7 +585,7 @@ that cannot import with PyYAML blocked. Owner: night-market maintainers. Due:
 - Phase: review
 - Category: process
 - Owner: night-market maintainers
-- Links: 2800e058, c596dc66, tests/test_precommit_entries_import_without_project_deps.py
+- Links: 01295e0e, f1ed63b1, tests/test_precommit_entries_import_without_project_deps.py
 <!-- key: f4af0d2bc4dd -->
 
 ### What happened

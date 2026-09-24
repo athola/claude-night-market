@@ -4,7 +4,7 @@
 `wire-up` or `new`, and backs the first two with a module name and often
 a line number. Those citations are the doc's whole claim to be a status
 table rather than a wish list, and nothing checked them: commit
-35d6c952 deleted `tome/src/tome/memory.py` and two rows kept pointing at
+2b15ab1e deleted `tome/src/tome/memory.py` and two rows kept pointing at
 it, one of them still reading `exists`.
 
 The check resolves a bare module name against the plugins tree, which is

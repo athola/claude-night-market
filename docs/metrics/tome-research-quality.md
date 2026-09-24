@@ -110,7 +110,7 @@ mandatory, not optional.
 
 **Cross-session status.** Both cross-session rows read `new`, not
 `wire-up`, because the module they were written against is gone:
-commit 35d6c952 deleted `tome/src/tome/memory.py` after finding that
+commit 2b15ab1e deleted `tome/src/tome/memory.py` after finding that
 nothing outside its own test imported it, and reserved wiring it back
 for its own PR. There is no cross-session store to wire up today.
 `plugins/tome/tests/test_metrics_doc_citations.py` checks that every
