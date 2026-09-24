@@ -37,3 +37,33 @@ def test_a_non_list_value_is_refused(tmp_path: Path) -> None:
     path.write_text(json.dumps({"avoid": "layered"}))
     with pytest.raises(ValueError, match="list of paradigm names"):
         load_research_file(path)
+
+
+def test_an_unknown_paradigm_name_is_refused(tmp_path: Path) -> None:
+    """A misspelled paradigm fails instead of becoming a phantom candidate.
+
+    The ranker adds any name it is given, so "microservice" would be
+    scored and could be recommended with no template or skill behind it.
+    """
+    path = tmp_path / "research.json"
+    path.write_text(json.dumps({"avoid": ["microservice"]}))
+    with pytest.raises(ValueError, match=r"unknown paradigms \['microservice'\]"):
+        load_research_file(path)
+
+
+def test_every_paradigm_the_matrix_names_is_accepted(tmp_path: Path) -> None:
+    """The accepted vocabulary is the decision matrix's own."""
+    names = [
+        "layered",
+        "functional-core",
+        "hexagonal",
+        "clean-architecture",
+        "modular-monolith",
+        "microservices",
+        "event-driven",
+        "cqrs-es",
+        "pipes-filters",
+    ]
+    path = tmp_path / "research.json"
+    path.write_text(json.dumps({"preferred": names}))
+    assert load_research_file(path) == {"preferred": names}

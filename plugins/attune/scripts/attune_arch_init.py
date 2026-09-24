@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 
 from architecture_researcher import (
     ArchitectureResearcher,
+    load_decision_matrix,
     parse_project_context,
 )
 from attune_init import (
@@ -281,6 +282,33 @@ def perform_online_research(
 
 
 RESEARCH_KEYS = frozenset({"preferred", "avoid"})
+_MODIFIER_SECTIONS = (
+    "project_type_modifiers",
+    "scalability_modifiers",
+    "security_modifiers",
+)
+
+
+def known_paradigms() -> frozenset[str]:
+    """Every paradigm name the decision matrix can score.
+
+    Read from the data file rather than listed here, so a paradigm added
+    to the matrix is accepted in a research file without a code change.
+    """
+    matrix = load_decision_matrix()
+    names = {
+        cell.get(slot, "")
+        for team in matrix["matrix"].values()
+        for cell in team.values()
+        for slot in ("primary", "secondary")
+    }
+    for section in _MODIFIER_SECTIONS:
+        for modifier in matrix.get(section, {}).values():
+            for entry in modifier.values():
+                if isinstance(entry, list):
+                    names.update(entry)
+    names.discard("")
+    return frozenset(names)
 
 
 def load_research_file(path: Path) -> dict[str, list[str]]:
@@ -293,8 +321,8 @@ def load_research_file(path: Path) -> dict[str, list[str]]:
     unused for a year (ADR-0025).
 
     Raises:
-        ValueError: On an unknown key, or a value that is not a list of
-            paradigm names.
+        ValueError: On an unknown key, a value that is not a list of
+            strings, or a name the decision matrix does not know.
 
     """
     findings = json.loads(path.read_text(encoding="utf-8"))
@@ -305,9 +333,16 @@ def load_research_file(path: Path) -> dict[str, list[str]]:
         raise ValueError(
             f"{path}: unknown research keys {sorted(unknown)}; use {sorted(RESEARCH_KEYS)}"
         )
+    known = known_paradigms()
     for key, value in findings.items():
         if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
             raise ValueError(f"{path}: {key} must be a list of paradigm names")
+        unknown_names = sorted(set(value) - known)
+        if unknown_names:
+            raise ValueError(
+                f"{path}: {key} names unknown paradigms {unknown_names}; "
+                f"use {sorted(known)}"
+            )
     return findings
 
 
