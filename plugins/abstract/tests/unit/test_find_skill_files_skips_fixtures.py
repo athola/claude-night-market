@@ -44,3 +44,16 @@ def test_a_skill_directory_named_tests_is_skipped(tmp_path: Path) -> None:
     _skill(tmp_path, "skills", "tests")
 
     assert find_skill_files(tmp_path) == [shipped]
+
+
+def test_a_checkout_under_a_tests_directory_still_finds_skills(
+    tmp_path: Path,
+) -> None:
+    """Only components below the search root mark a fixture.
+
+    A repository cloned into ~/tests/ must not lose every skill because
+    an ancestor of the root happens to be named `tests`.
+    """
+    root = tmp_path / "tests" / "plugin"
+    shipped = _skill(root, "skills", "real")
+    assert find_skill_files(root) == [shipped]

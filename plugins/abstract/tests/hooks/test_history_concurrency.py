@@ -183,3 +183,37 @@ def test_first_record_creates_missing_log_directory(
     assert metrics["execution_count"] == 1
     assert json.loads(history_file.read_text())["skill:new"]["accuracies"] == [1]
     assert history_file.with_name(".history.json.lock").exists()
+
+
+def test_corrupt_history_is_not_overwritten(tmp_path: Path, hook: ModuleType) -> None:
+    """An unreadable history is set aside, never saved over.
+
+    GIVEN a history file that does not parse as JSON
+    WHEN an execution is recorded
+    THEN the unreadable bytes survive in .history.json.corrupt
+    """
+    history_file = tmp_path / ".history.json"
+    corrupt = '{"seed:0": {"accuracies": [1, 1'
+    history_file.write_text(corrupt)
+
+    hook.ContinualEvaluator(history_file).evaluate_iteration("skill:new", True, 5)
+
+    assert (tmp_path / ".history.json.corrupt").read_text() == corrupt
+
+
+def test_loading_without_the_lock_leaves_a_corrupt_history_in_place(
+    tmp_path: Path, hook: ModuleType
+) -> None:
+    """Only the locked reload moves a corrupt file, so it cannot race a save.
+
+    GIVEN a history file that does not parse as JSON
+    WHEN an evaluator is constructed and records nothing
+    THEN the file is untouched and no .corrupt copy exists
+    """
+    history_file = tmp_path / ".history.json"
+    history_file.write_text("{")
+
+    hook.ContinualEvaluator(history_file)
+
+    assert history_file.read_text() == "{"
+    assert not (tmp_path / ".history.json.corrupt").exists()

@@ -90,8 +90,10 @@ if __name__ == "__main__":
         assert "cpu_usage" in fast_metrics
         # No absolute bound: interpreter start-up alone measured 1.0-1.6s on
         # a loaded laptop, so "fast" is only meaningful relative to a slow
-        # tool, which the next test checks.
-        assert fast_metrics["execution_time"] >= 0.0
+        # tool, which the next test checks. A timeout also reports a time,
+        # so what this pins is that the run finished.
+        assert fast_metrics["success"] is True
+        assert "timeout" not in fast_metrics
 
     def test_compare_tool_performance(self, sample_tools_dir, monkeypatch) -> None:
         """execution_time is the wall-clock span the analyzer measured.

@@ -297,7 +297,9 @@ def find_skill_files(directory: Path) -> list[Path]:
     # skill the plugin ships. Validating it as one fails the suite on
     # the defect the test exists to detect.
     return sorted(
-        path for path in directory.rglob("SKILL.md") if "tests" not in path.parts
+        path
+        for path in directory.rglob("SKILL.md")
+        if "tests" not in path.relative_to(directory).parts
     )
 
 

@@ -22,60 +22,6 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 MAX_ENTRIES_PER_SKILL = 20
-MAX_EXEMPLARS = 3
-
-STOP_WORDS: frozenset = frozenset(
-    {
-        "the",
-        "a",
-        "an",
-        "is",
-        "are",
-        "was",
-        "were",
-        "be",
-        "been",
-        "being",
-        "have",
-        "has",
-        "had",
-        "do",
-        "does",
-        "did",
-        "will",
-        "would",
-        "could",
-        "should",
-        "may",
-        "might",
-        "shall",
-        "can",
-        "to",
-        "of",
-        "in",
-        "for",
-        "on",
-        "with",
-        "at",
-        "by",
-        "from",
-        "as",
-        "into",
-        "about",
-        "it",
-        "its",
-        "this",
-        "that",
-        "and",
-        "or",
-        "but",
-        "not",
-        "no",
-        "if",
-        "then",
-        "so",
-    }
-)
 
 
 @dataclass

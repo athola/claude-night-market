@@ -1,7 +1,7 @@
 """Tests for CLI framework classes.
 
-Covers OutputFormatter, CLIResult, PathArgumentMixin, FilterArgumentMixin,
-and AbstractCLI base class behavior.
+Covers OutputFormatter, CLIResult, PathArgumentMixin, and AbstractCLI base
+class behavior.
 """
 
 from __future__ import annotations
@@ -514,12 +514,3 @@ class TestPathArgumentMixin:
         PathArgumentMixin.add_path_arguments(parser, require_one=True)
         with pytest.raises(SystemExit):
             parser.parse_args([])
-
-
-# ===========================================================================
-# FilterArgumentMixin
-# ===========================================================================
-
-
-class TestFilterArgumentMixin:
-    """FilterArgumentMixin adds severity and category filter arguments."""
