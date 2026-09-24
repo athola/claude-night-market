@@ -6,6 +6,7 @@ and _invoke_parallel to raise orchestrator.py coverage above 60%.
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -225,6 +226,43 @@ class TestInvokeExternal:
             )
 
         assert "timed out" in result
+
+    @pytest.mark.asyncio
+    async def test_invoke_external_wait_for_timeout_kills_process(
+        self,
+        orchestrator: WarRoomOrchestrator,
+        gemini_expert: ExpertConfig,
+    ) -> None:
+        """asyncio.wait_for's own timeout is caught and the CLI is killed.
+
+        On 3.9 and 3.10 asyncio.TimeoutError is not the builtin, so a
+        handler naming only TimeoutError let it escape, and nothing
+        killed the child it left running.
+        """
+
+        class FakeProc:
+            returncode = None
+            killed = False
+
+            def communicate(self) -> None:
+                return None
+
+            def kill(self) -> None:
+                self.killed = True
+
+            async def wait(self) -> int:
+                return -9
+
+        proc = FakeProc()
+
+        with (
+            patch("asyncio.create_subprocess_exec", return_value=proc),
+            patch("asyncio.wait_for", side_effect=asyncio.TimeoutError()),
+        ):
+            result = await orchestrator._invoke_external(gemini_expert, "Analyze")
+
+        assert "timed out" in result
+        assert proc.killed is True
 
     @pytest.mark.asyncio
     async def test_invoke_external_command_not_found(

@@ -12,6 +12,7 @@ import sys
 import threading
 from datetime import datetime
 from pathlib import Path
+from typing import IO
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -364,3 +365,22 @@ class TestSessionStatsAtomicity:
             "current_session.json",
             "usage.jsonl",
         ]
+
+    def test_interrupted_session_stats_write_keeps_previous_file(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A dump that dies partway leaves the last good stats readable."""
+        logger = GeminiUsageLogger()
+        logger.session_file = tmp_path / "current_session.json"
+        logger.usage_log = tmp_path / "usage.jsonl"
+        logger.log_usage(UsageEntry("cmd", 10, success=True))
+        before = logger.session_file.read_bytes()
+
+        def dump_then_fail(obj: object, fp: IO[str], **_kwargs: object) -> None:
+            fp.write('{"total_requests": ')
+            raise OSError("disk full")
+
+        monkeypatch.setattr(json, "dump", dump_then_fail)
+        logger.log_usage(UsageEntry("cmd", 5, success=True))
+
+        assert logger.session_file.read_bytes() == before
