@@ -363,6 +363,25 @@ class TestInvalidate:
         assert cache.get("kept_b") == 2
         assert len(list(cache.cache_dir.glob("*.json"))) == 2
 
+    @pytest.mark.parametrize(
+        ("key", "prefix"),
+        [("spec_parsing:plan", "spec_pars"), ("specs:x", "spec")],
+    )
+    def test_invalidate_prefix_shorter_than_category_drops_disk_entry(
+        self, tmp_path: Path, key: str, prefix: str
+    ) -> None:
+        """
+        GIVEN an entry whose category extends past the prefix
+        WHEN invalidate_prefix() is called with that shorter prefix
+        THEN get() misses instead of reloading the stale file from disk
+        """
+        cache = SpecKitCache(cache_dir=tmp_path / "cache")
+        cache.set(key, "OLD")
+
+        cache.invalidate_prefix(prefix)
+
+        assert cache.get(key) is None
+
 
 # ============================================================================
 # SpecKitCache.get_cache_stats

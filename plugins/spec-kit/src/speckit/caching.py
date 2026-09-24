@@ -167,10 +167,17 @@ class SpecKitCache:
 
         # On disk only the category component of a key is readable, so a
         # prefix is matched by its category; a finer prefix clears the
-        # whole category's files and leaves the memory cache exact.
-        category = prefix.split(":", 1)[0]
-        safe_category = "".join(c if c.isalnum() else "_" for c in category)
-        for cache_file in self.cache_dir.glob(f"{safe_category}_*.json"):
+        # whole category's files and leaves the memory cache exact. A
+        # prefix with no ":" may end mid-category ("spec" for "specs:x"),
+        # so it globs open-ended rather than requiring the "_" separator.
+        if ":" in prefix:
+            category = prefix.split(":", 1)[0]
+            safe_category = "".join(c if c.isalnum() else "_" for c in category)
+            pattern = f"{safe_category}_*.json"
+        else:
+            safe_prefix = "".join(c if c.isalnum() else "_" for c in prefix)
+            pattern = f"{safe_prefix}*.json"
+        for cache_file in self.cache_dir.glob(pattern):
             cache_file.unlink(missing_ok=True)
 
     def get_cache_stats(self) -> dict[str, Any]:
