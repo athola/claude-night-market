@@ -61,6 +61,19 @@ run_shellcheck() {
     *) set -- "$@" -s "${SHELL_DIALECT}" ;;
   esac
 
+  # Captured before the loop: inside the heredoc below a failing
+  # `git ls-files` does not trip `set -e`, and an empty list read as a pass.
+  _sc_files="$(cd "${_sc_root}" && git ls-files '*.sh')" || {
+    log 5 "git ls-files failed; is ${_sc_root} a git worktree?"
+    return 1
+  }
+  case "${_sc_files}" in
+    "")
+      log 5 "No tracked .sh files found under ${_sc_root}."
+      return 1
+      ;;
+  esac
+
   log "Running shellcheck -S ${SEVERITY} on every tracked .sh file…"
   while IFS= read -r _sc_file; do
     case "${_sc_file}" in
@@ -71,7 +84,7 @@ run_shellcheck() {
       _sc_fail=1
     }
   done <<EOF
-$(cd "${_sc_root}" && git ls-files '*.sh' | sort)
+$(printf '%s\n' "${_sc_files}" | sort)
 EOF
 
   case "${_sc_fail}" in

@@ -121,6 +121,34 @@ def test_gate_fails_loudly_when_shellcheck_is_absent(tmp_path: Path) -> None:
     assert "shellcheck" in result.stderr
 
 
+def test_gate_fails_when_not_run_inside_a_git_worktree(tmp_path: Path) -> None:
+    """An empty file list from a failed ``git ls-files`` is not a pass.
+
+    The list came from a command substitution inside a heredoc, where a
+    non-zero exit does not trip ``set -e``, so outside a worktree the gate
+    scanned nothing and printed "All scripts passed."
+    """
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir()
+    for name in ("shellcheck.sh", "logging.sh"):
+        shutil.copy(REPO_ROOT / "scripts" / name, scripts_dir / name)
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env["GIT_CEILING_DIRECTORIES"] = str(tmp_path.parent)
+    result = subprocess.run(
+        ["sh", "scripts/shellcheck.sh"],
+        cwd=str(tmp_path),
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode != 0, (
+        f"gate passed with no files to scan:\n{result.stdout}\n{result.stderr}"
+    )
+    assert "All scripts passed" not in result.stdout + result.stderr
+
+
 def test_gate_is_reachable_from_the_root_lint_target() -> None:
     """The rule's sentence has to name something a contributor can run."""
     makefile = (REPO_ROOT / "Makefile").read_text(encoding="utf-8")
