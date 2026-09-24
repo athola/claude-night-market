@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import re
 import sys
 import warnings
@@ -26,10 +25,17 @@ import yaml
 from .config import AbstractConfig, SkillValidationConfig
 from .frontmatter import FrontmatterProcessor
 
-# Re-exported: these are pure path lookups and live in a module that
-# imports nothing outside the standard library, so a hook can reach
-# them without PyYAML. Callers here are unchanged.
-from .paths import get_config_dir, get_log_directory, get_observability_dir
+# Re-exported: these are pure path and markdown lookups and live in
+# modules that import nothing outside the standard library, so a hook
+# or a bare-python3 script can reach them without PyYAML. Callers here
+# are unchanged.
+from .markdown_fields import extract_bold_field, extract_section
+from .paths import (
+    get_config_dir,
+    get_learnings_path,
+    get_log_directory,
+    get_observability_dir,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -81,21 +87,6 @@ def find_project_root(start_path: Path) -> Path:
             return current
         current = current.parent
     return Path.cwd()
-
-
-def get_learnings_path() -> Path:
-    """Get the path to the LEARNINGS.md file.
-
-    Respects CLAUDE_HOME the same way :func:`get_log_directory` does, so
-    a non-standard installation keeps its logs and its learnings under
-    one root.
-
-    Returns:
-        Path to ~/.claude/skills/LEARNINGS.md (or under $CLAUDE_HOME).
-
-    """
-    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    return claude_home / "skills" / "LEARNINGS.md"
 
 
 def load_config_with_defaults(project_root: Path | None = None) -> AbstractConfig:
@@ -435,38 +426,6 @@ def find_dependency_file(skill_path: Path, dependency_name: str) -> Path | None:
             return path
 
     return None
-
-
-def extract_bold_field(text: str, field: str) -> str:
-    """Extract a ``**Field**: value`` pair from a markdown body.
-
-    Companion to :func:`extract_section`: that returns a section body,
-    this reads one labelled field out of it.
-
-    Returns:
-        The trimmed value, or an empty string when the field is absent.
-
-    """
-    match = re.search(rf"\*\*{re.escape(field)}\*\*:\s*(.+)", text)
-    return match.group(1).strip() if match else ""
-
-
-def extract_section(content: str, heading: str) -> str | None:
-    """Extract the body of a markdown ``## Section`` heading (D-03).
-
-    Returns the text between ``heading`` and the next ``## ``
-    heading, ``---`` rule, or end-of-document. ``heading`` should
-    include the leading ``## `` so the caller can target deeper
-    levels. Result is ``None`` when the heading is not found and
-    the matched body is ``strip()``-ed.
-    """
-    # F1 fix: the lookahead must terminate when the next ``## `` /
-    # ``---`` is at the start of the very next line (no preceding
-    # blank line). The original ``\n## ``/``\n---`` lookahead missed
-    # that case and captured the next section's body too.
-    pattern = re.escape(heading) + r"(?:\n|$)(.*?)(?=(?:\n|^)## |(?:\n|^)---|\Z)"
-    match = re.search(pattern, content, re.DOTALL | re.MULTILINE)
-    return match.group(1).strip() if match else None
 
 
 def emit_warn(module: str, message: str) -> None:

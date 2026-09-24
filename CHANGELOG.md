@@ -194,6 +194,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`/pr-review` insights post from a `--local` report, under plain
+  `python3`** (abstract). `post_review_insights.py` read only the
+  `## Blocking findings` and NB-table layout, so a report written from
+  the pr-review template posted nothing. It now also reads the
+  template's `### Blocking`, `### In-Scope` and `### Suggestions`
+  items. The script also died with `ModuleNotFoundError: yaml` because
+  its imports reached `abstract.utils`. The helpers it needs moved to
+  the stdlib-only `abstract.paths` and `abstract.markdown_fields`,
+  which `utils` re-exports.
 - **Parallel Skill hooks no longer erase skill history** (abstract,
   ADR-0027). `skill_execution_logger` truncated `.history.json` and
   then rewrote it while `homeostatic_monitor` read it on the same
