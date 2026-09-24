@@ -176,7 +176,10 @@ const perDimension = await pipeline(
 const verified = perDimension.flat(2).filter(Boolean)
 const survived = verified.filter((f) => f.standing * 2 > lenses.length)
 const unverified = verified.filter(
-  (f) => f.unheard > 0 && !(f.standing * 2 > lenses.length) && f.standing === f.heard,
+  (f) =>
+    f.unheard > 0 &&
+    !(f.standing * 2 > lenses.length) &&
+    (f.standing + f.unheard) * 2 > lenses.length,
 )
 
 const byLocation = new Map()

@@ -321,6 +321,7 @@ _DROP_NAMES = (
     "unreviewed",
     "unheard",
     "unverified",
+    "unproven",
 )
 #: The name must be assigned or returned as a key, not merely present:
 #: "failed" inside a prompt string is how three scripts passed the old guard.
@@ -490,6 +491,49 @@ class TestUnifiedReviewVerification:
         )
         assert len(out["result"]["confirmed"]) == 1
         assert out["result"]["unverified"] == []
+
+    def test_a_split_vote_with_an_unheard_lens_is_unverified(self) -> None:
+        # The unheard lens could have made it two of three.
+        out = _run_workflow(
+            self.SCRIPT,
+            self._agent(
+                [
+                    {"refuted": False, "reason": "r"},
+                    {"refuted": True, "reason": "r"},
+                    None,
+                ]
+            ),
+            {"dimensions": ["bugs"]},
+        )
+        assert out["result"]["confirmed"] == []
+        assert len(out["result"]["unverified"]) == 1
+
+
+class TestUnprovenFindingsAreNamed:
+    """A verifier that returned null leaves its finding open, not refuted."""
+
+    def test_gate_audit_names_a_suspect_whose_proof_returned_null(self) -> None:
+        out = _run_workflow(
+            PLUGINS / "egregore" / "workflows" / "gate-audit.js",
+            "if (opts.label.startsWith('read:'))"
+            " return { gate: 'g', suspects: [{ check: 'c', why: 'w' }] };"
+            "return null;",
+            {"gates": ["plugins/egregore/scripts/scope.py"]},
+        )
+        assert out["result"]["bypasses"] == []
+        assert len(out["result"]["unproven"]) == 1
+
+    def test_skill_audit_names_a_finding_whose_verdict_returned_null(self) -> None:
+        out = _run_workflow(
+            PLUGINS / "abstract" / "workflows" / "skill-audit.js",
+            "if (opts.label === 'audit:discovery')"
+            " return { findings: [{ skill: 's', claim: 'c', evidence: 'e' }] };"
+            "if (opts.label.startsWith('audit:')) return { findings: [] };"
+            "return null;",
+            {"skills": ["abstract:skill-authoring"]},
+        )
+        assert out["result"]["findings"] == []
+        assert len(out["result"]["unverified"]) == 1
 
 
 class TestNullAgentsAreNamed:

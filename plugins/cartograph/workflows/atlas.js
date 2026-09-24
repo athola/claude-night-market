@@ -61,7 +61,7 @@ const drawn = await parallel(
 
 // A lens whose mapper returned nothing drew no diagram. Reconciling
 // fewer lenses than were asked for is a partial atlas, and it says so.
-const missing = lenses.filter((lens, index) => !drawn[index])
+const missing = lenses.filter((lens, index) => !drawn[index]).map((lens) => lens.key)
 const produced = drawn.filter(Boolean)
 
 if (missing.length) log(`no diagram from ${missing.join(', ')}`)

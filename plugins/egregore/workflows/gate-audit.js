@@ -90,8 +90,11 @@ const audited = await pipeline(
 const entries = audited.flat().filter(Boolean)
 const unread = entries.filter((entry) => entry.unread).map((entry) => entry.gate)
 const real = entries.filter((entry) => entry.proof && entry.proof.reachable)
+// A prover that returned nothing did not show the bypass unreachable.
+const unproven = entries.filter((entry) => !entry.unread && !entry.proof)
 
 log(`${real.length} reachable gate bypasses across ${gates.length - unread.length} of ${gates.length} gates`)
 if (unread.length) log(`no reading for ${unread.join(', ')}; those gates are unaudited, not clean`)
+if (unproven.length) log(`${unproven.length} suspects got no proof; they are unproven, not refuted`)
 
-return { gates, bypasses: real, unread }
+return { gates, bypasses: real, unread, unproven }
