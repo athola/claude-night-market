@@ -146,13 +146,9 @@ list: ## List palaces in PALACES_DIR
 	PALACES_DIR=$(PALACES_DIR) $(CLI) list
 
 search: ## Search palaces for QUERY
-# The `|| true` here is the one that survives, and it is masking a real
-# defect rather than a flaky one: `examples/palaces-sample.json` is
-# `{"palaces": []}`, so `demo-import` imports nothing, `list` prints "No
-# palaces found" and `search` exits 1 with "No palaces indexed". Removing
-# it turns `plugin-check` red on an empty demo fixture, which is a
-# content fix outside this change. `list` no longer carries one.
-	PALACES_DIR=$(PALACES_DIR) $(CLI) search "$(QUERY)" || true
+# No `|| true`: `plugin-check` runs this, and the suffix hid a crash.
+# examples/palaces-sample.json holds a palace so the demo store is indexed.
+	PALACES_DIR=$(PALACES_DIR) $(CLI) search "$(QUERY)"
 
 delete: ## Delete a palace by ID
 	@if [ -z "$(ID)" ]; then echo "Set ID=<palace_id>" && exit 1; fi
@@ -170,7 +166,7 @@ import: ## Import a palace bundle from SOURCE
 
 # ---------- Garden utilities ----------
 garden-metrics: ## Report knowledge-garden metrics for GARDEN_FILE
-	GARDEN_FILE=$(GARDEN_FILE) $(CLI) garden metrics --path "$(GARDEN_FILE)" --format brief || true
+	GARDEN_FILE=$(GARDEN_FILE) $(CLI) garden metrics --path "$(GARDEN_FILE)" --format brief
 
 garden-tend:
 	GARDEN_FILE=$(GARDEN_FILE) $(CLI) garden tend --path "$(GARDEN_FILE)" --prometheus
