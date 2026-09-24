@@ -140,6 +140,9 @@ class TestLockDetectionMatchesTokensNotSubstrings:
             "lock",
             "state_lock",
             "self.locks['row']",
+            "self.RWLock",
+            "self._rwlock",
+            "self.dblock",
         ],
     )
     def test_a_lock_token_is_recognized(self, context_expression: str) -> None:

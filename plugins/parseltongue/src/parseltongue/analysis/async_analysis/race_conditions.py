@@ -10,12 +10,15 @@ from ._base import is_call_to, parse_code
 
 __all__ = ["detect_race_conditions"]
 
-#: Words that name a lock. A substring test read `blocklist`, `clock`
-#: and `unlock` as locks, and a false positive here suppresses the
-#: unsynchronized access the detector exists to report.
-_LOCK_TOKENS = frozenset({"lock", "locks"})
+#: Words ending in "lock" that do not name one. A substring test read
+#: `blocklist`, `clock` and `unlock` as locks, and a false positive here
+#: suppresses the unsynchronized access the detector exists to report.
+#: A suffix test is still needed for run-together names like `rwlock`
+#: and `dblock`, so the exceptions are listed as whole words.
+_NOT_LOCKS = frozenset({"block", "clock", "unlock"})
 
-_CAMEL_BOUNDARY = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
+#: Splits `writeLock` and also the acronym run in `RWLock`.
+_CAMEL_BOUNDARY = re.compile(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
 
 
 def _identifier_tokens(name: str) -> list[str]:
@@ -24,8 +27,12 @@ def _identifier_tokens(name: str) -> list[str]:
 
 
 def _names_a_lock(name: str) -> bool:
-    """Return True when `lock` is a whole word of *name*."""
-    return bool(_LOCK_TOKENS.intersection(_identifier_tokens(name)))
+    """Return True when a word of *name* ends in `lock` and is not an exception."""
+    for token in _identifier_tokens(name):
+        stem = token[:-1] if token.endswith("locks") else token
+        if stem.endswith("lock") and stem not in _NOT_LOCKS:
+            return True
+    return False
 
 
 def _context_names_a_lock(ctx: ast.expr) -> bool:
