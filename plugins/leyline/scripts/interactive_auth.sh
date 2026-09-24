@@ -13,9 +13,9 @@
 # CONFIGURATION
 # ============================================================================
 
-AUTH_CACHE_DIR="${AUTH_CACHE_DIR:-$HOME/.cache/claude-auth}"
-AUTH_CACHE_TTL="${AUTH_CACHE_TTL:-300}"  # 5 minutes
-AUTH_SESSION_TTL="${AUTH_SESSION_TTL:-86400}"  # 24 hours
+AUTH_CACHE_DIR="${AUTH_CACHE_DIR:-${HOME}/.cache/claude-auth}"
+AUTH_CACHE_TTL="${AUTH_CACHE_TTL:-300}"       # 5 minutes
+AUTH_SESSION_TTL="${AUTH_SESSION_TTL:-86400}" # 24 hours
 AUTH_INTERACTIVE="${AUTH_INTERACTIVE:-auto}"
 AUTH_MAX_ATTEMPTS="${AUTH_MAX_ATTEMPTS:-3}"
 
@@ -55,9 +55,9 @@ get_timestamp() {
 
 # Check if running in interactive mode
 is_interactive() {
-  case "$AUTH_INTERACTIVE" in
-    true|1|yes) return 0 ;;
-    false|0|no) return 1 ;;
+  case "${AUTH_INTERACTIVE}" in
+    true | 1 | yes) return 0 ;;
+    false | 0 | no) return 1 ;;
     auto)
       [[ -t 0 ]] && return 0 || return 1
       ;;
@@ -67,31 +67,31 @@ is_interactive() {
 
 # Check if running in CI/CD
 is_ci() {
-  [[ -n "${CI:-}" ]] || [[ -n "${GITHUB_ACTIONS:-}" ]] || \
-  [[ -n "${GITLAB_CI:-}" ]] || [[ -n "${AWS_EXECUTION_ENV:-}" ]]
+  [[ -n "${CI:-}" ]] || [[ -n "${GITHUB_ACTIONS:-}" ]] ||
+    [[ -n "${GITLAB_CI:-}" ]] || [[ -n "${AWS_EXECUTION_ENV:-}" ]]
 }
 
 # Initialize cache directory
 init_cache_dir() {
-  local service="$1"
-  local cache_path="$AUTH_CACHE_DIR/$service"
+  local service="${1}"
+  local cache_path="${AUTH_CACHE_DIR}/${service}"
 
-  if [[ ! -d "$cache_path" ]]; then
-    mkdir -p "$cache_path"
-    chmod 0700 "$cache_path"
+  if [[ ! -d "${cache_path}" ]]; then
+    mkdir -p "${cache_path}"
+    chmod 0700 "${cache_path}"
   fi
 }
 
 # Read JSON value from file
 read_json_value() {
-  local file="$1"
-  local key="$2"
+  local file="${1}"
+  local key="${2}"
 
   if command -v jq &>/dev/null; then
-    jq -r --arg k "$key" '.[$k] // empty' "$file" 2>/dev/null
+    jq -r --arg k "${key}" '.[$k] // empty' "${file}" 2>/dev/null
   else
     # Fallback: simple grep for JSON
-    grep -o "\"$key\"\s*:\s*\"[^\"]*\"" "$file" 2>/dev/null | \
+    grep -o "\"${key}\"\s*:\s*\"[^\"]*\"" "${file}" 2>/dev/null |
       sed 's/.*: *"\([^"]*\)".*/\1/'
   fi
 }
@@ -102,68 +102,68 @@ read_json_value() {
 
 # Check if cache entry is valid
 check_cache() {
-  local service="$1"
-  local cache_file="$AUTH_CACHE_DIR/$service/auth_status.json"
+  local service="${1}"
+  local cache_file="${AUTH_CACHE_DIR}/${service}/auth_status.json"
 
-  if [[ ! -f "$cache_file" ]]; then
+  if [[ ! -f "${cache_file}" ]]; then
     return 1
   fi
 
   local last_verified
-  last_verified=$(read_json_value "$cache_file" "last_verified")
+  last_verified=$(read_json_value "${cache_file}" "last_verified")
   local current_time
   current_time=$(get_timestamp)
 
-  if [[ -z "$last_verified" ]]; then
+  if [[ -z "${last_verified}" ]]; then
     return 1
   fi
 
   local cache_age=$((current_time - last_verified))
 
-  if [[ $cache_age -lt $AUTH_CACHE_TTL ]]; then
-    return 0  # Cache is valid
+  if [[ ${cache_age} -lt ${AUTH_CACHE_TTL} ]]; then
+    return 0 # Cache is valid
   else
-    return 1  # Cache expired
+    return 1 # Cache expired
   fi
 }
 
 # Write cache entry
 write_cache() {
-  local service="$1"
-  local authenticated="$2"
-  local cache_file="$AUTH_CACHE_DIR/$service/auth_status.json"
+  local service="${1}"
+  local authenticated="${2}"
+  local cache_file="${AUTH_CACHE_DIR}/${service}/auth_status.json"
 
-  init_cache_dir "$service"
+  init_cache_dir "${service}"
 
   local current_time
   current_time=$(get_timestamp)
 
-  cat > "$cache_file" << EOF
+  cat >"${cache_file}" <<EOF
 {
-  "authenticated": $authenticated,
-  "last_verified": $current_time,
-  "cache_ttl": $AUTH_CACHE_TTL,
-  "service": "$service"
+  "authenticated": ${authenticated},
+  "last_verified": ${current_time},
+  "cache_ttl": ${AUTH_CACHE_TTL},
+  "service": "${service}"
 }
 EOF
 }
 
 # Invalidate cache for a service
 invalidate_auth_cache() {
-  local service="$1"
-  local cache_file="$AUTH_CACHE_DIR/$service/auth_status.json"
+  local service="${1}"
+  local cache_file="${AUTH_CACHE_DIR}/${service}/auth_status.json"
 
-  if [[ -f "$cache_file" ]]; then
-    rm -f "$cache_file"
-    echo "✓ Cache invalidated for $service"
+  if [[ -f "${cache_file}" ]]; then
+    rm -f "${cache_file}"
+    printf '%s\n' "✓ Cache invalidated for ${service}"
   fi
 }
 
 # Clear all auth caches
 clear_all_auth_cache() {
-  if [[ -d "$AUTH_CACHE_DIR" ]]; then
-    rm -rf "$AUTH_CACHE_DIR"
-    echo "✓ All authentication caches cleared"
+  if [[ -d "${AUTH_CACHE_DIR}" ]]; then
+    rm -rf "${AUTH_CACHE_DIR}"
+    printf '%s\n' "✓ All authentication caches cleared"
   fi
 }
 
@@ -173,52 +173,52 @@ clear_all_auth_cache() {
 
 # Load session for a service
 load_session() {
-  local service="$1"
-  local session_file="$AUTH_CACHE_DIR/$service/session.json"
+  local service="${1}"
+  local session_file="${AUTH_CACHE_DIR}/${service}/session.json"
 
-  if [[ ! -f "$session_file" ]]; then
+  if [[ ! -f "${session_file}" ]]; then
     return 1
   fi
 
   local session_created
-  session_created=$(read_json_value "$session_file" "created_at")
+  session_created=$(read_json_value "${session_file}" "created_at")
   local current_time
   current_time=$(get_timestamp)
 
-  if [[ -z "$session_created" ]]; then
+  if [[ -z "${session_created}" ]]; then
     return 1
   fi
 
   local session_age=$((current_time - session_created))
 
-  if [[ $session_age -lt $AUTH_SESSION_TTL ]]; then
-    return 0  # Session is valid
+  if [[ ${session_age} -lt ${AUTH_SESSION_TTL} ]]; then
+    return 0 # Session is valid
   else
-    return 1  # Session expired
+    return 1 # Session expired
   fi
 }
 
 # Create session for a service
 create_session() {
-  local service="$1"
-  local session_file="$AUTH_CACHE_DIR/$service/session.json"
+  local service="${1}"
+  local session_file="${AUTH_CACHE_DIR}/${service}/session.json"
 
-  init_cache_dir "$service"
+  init_cache_dir "${service}"
 
   local current_time
   current_time=$(get_timestamp)
 
-  cat > "$session_file" << EOF
+  cat >"${session_file}" <<EOF
 {
-  "service": "$service",
-  "created_at": $current_time,
-  "session_ttl": $AUTH_SESSION_TTL,
+  "service": "${service}",
+  "created_at": ${current_time},
+  "session_ttl": ${AUTH_SESSION_TTL},
   "hostname": "$(hostname)",
   "user": "$(whoami)"
 }
 EOF
 
-  chmod 0600 "$session_file"
+  chmod 0600 "${session_file}"
 }
 
 # ============================================================================
@@ -227,25 +227,25 @@ EOF
 
 # Check if service is authenticated (non-interactive)
 check_auth_status() {
-  local service="$1"
-  local check_cmd="${AUTH_CHECK_COMMANDS[$service]}"
+  local service="${1}"
+  local check_cmd="${AUTH_CHECK_COMMANDS[${service}]:-}"
 
-  if [[ -z "$check_cmd" ]]; then
-    echo "❌ Unknown service: $service" >&2
+  if [[ -z "${check_cmd}" ]]; then
+    printf '%s\n' "❌ Unknown service: ${service}" >&2
     return 1
   fi
 
   # Check command availability
   local cmd_name="${check_cmd%% *}"
-  if ! command -v "$cmd_name" &>/dev/null; then
-    echo "❌ $cmd_name not found" >&2
+  if ! command -v "${cmd_name}" &>/dev/null; then
+    printf '%s\n' "❌ ${cmd_name} not found" >&2
     return 1
   fi
 
   # Run check command using word splitting (safe: commands are from internal array)
   # shellcheck disable=SC2086
-  $check_cmd &>/dev/null
-  return $?
+  ${check_cmd} &>/dev/null
+  return ${?}
 }
 
 # ============================================================================
@@ -254,7 +254,7 @@ check_auth_status() {
 
 # Prompt for GitHub authentication
 prompt_github_auth() {
-  cat << 'EOF'
+  cat <<'EOF'
 
 🔐 GitHub Authentication Required
 
@@ -270,44 +270,47 @@ EOF
 
   read -r choice
 
-  case "$choice" in
+  case "${choice}" in
     1)
-      echo "Opening browser for OAuth authentication..."
-      echo "Follow the prompts in your browser."
+      printf '%s\n' "Opening browser for OAuth authentication..."
+      printf '%s\n' "Follow the prompts in your browser."
 
       if gh auth login; then
-        echo "✓ OAuth authentication successful"
+        printf '%s\n' "✓ OAuth authentication successful"
         return 0
       else
-        echo "❌ OAuth authentication failed"
+        printf '%s\n' "❌ OAuth authentication failed"
         return 1
       fi
       ;;
     2)
-      echo ""
-      echo "Enter your GitHub personal access token:"
-      echo "(Token will not be echoed)"
+      printf '\n'
+      printf '%s\n' "Enter your GitHub personal access token:"
+      printf '%s\n' "(Token will not be echoed)"
       read -rs token
-      echo ""
+      printf '\n'
 
       # Keep the token out of xtrace. The subshell is what bounds the
       # change: `{ set +x; }` at this level disabled tracing for the rest
       # of the process, so a caller running with -x silently lost tracing
       # from here on rather than only across the credential.
-      if ( { set +x; } 2>/dev/null; printf '%s' "$token" | gh auth login --with-token ); then
-        echo "✓ Token authentication successful"
+      if (
+        { set +x; } 2>/dev/null
+        printf '%s' "${token}" | gh auth login --with-token
+      ); then
+        printf '%s\n' "✓ Token authentication successful"
         return 0
       else
-        echo "❌ Token authentication failed"
+        printf '%s\n' "❌ Token authentication failed"
         return 1
       fi
       ;;
     3)
-      echo "Workflow cancelled."
+      printf '%s\n' "Workflow cancelled."
       return 1
       ;;
     *)
-      echo "❌ Invalid choice"
+      printf '%s\n' "❌ Invalid choice"
       return 1
       ;;
   esac
@@ -315,26 +318,26 @@ EOF
 
 # Prompt for generic service authentication
 prompt_service_auth() {
-  local service="$1"
-  local login_cmd="${AUTH_LOGIN_COMMANDS[$service]}"
+  local service="${1}"
+  local login_cmd="${AUTH_LOGIN_COMMANDS[${service}]:-}"
 
-  cat << EOF
+  cat <<EOF
 
-🔐 $service Authentication Required
+🔐 ${service} Authentication Required
 
-This workflow needs $service API access to continue.
+This workflow needs ${service} API access to continue.
 
-Running: $login_cmd
+Running: ${login_cmd}
 
 EOF
 
   # Run login command using word splitting (safe: commands are from internal array)
   # shellcheck disable=SC2086
-  if $login_cmd; then
-    echo "✓ $service authentication successful"
+  if ${login_cmd}; then
+    printf '%s\n' "✓ ${service} authentication successful"
     return 0
   else
-    echo "❌ $service authentication failed"
+    printf '%s\n' "❌ ${service} authentication failed"
     return 1
   fi
 }
@@ -345,84 +348,87 @@ EOF
 
 # Ensure authentication for a service
 ensure_auth() {
-  local service="$1"
+  local service="${1:-}"
   local attempt=0
 
-  if [[ -z "$service" ]]; then
-    echo "❌ Usage: ensure_auth <service>" >&2
+  if [[ -z "${service}" ]]; then
+    printf '%s\n' "❌ Usage: ensure_auth <service>" >&2
     return 1
   fi
 
   # Check if service is supported
-  if [[ -z "${AUTH_CHECK_COMMANDS[$service]}" ]]; then
-    echo "❌ Unsupported service: $service" >&2
-    echo "Supported services: ${!AUTH_CHECK_COMMANDS[*]}" >&2
+  if [[ -z "${AUTH_CHECK_COMMANDS[${service}]:-}" ]]; then
+    printf '%s\n' "❌ Unsupported service: ${service}" >&2
+    printf '%s\n' "Supported services: ${!AUTH_CHECK_COMMANDS[*]}" >&2
     return 1
   fi
 
   # Retry loop with exponential backoff
-  while [[ $attempt -lt $AUTH_MAX_ATTEMPTS ]]; do
+  while [[ ${attempt} -lt ${AUTH_MAX_ATTEMPTS} ]]; do
     # Check cache first (fast path)
-    if check_cache "$service"; then
+    if check_cache "${service}"; then
       return 0
     fi
 
     # Check session (medium path)
-    if load_session "$service"; then
+    if load_session "${service}"; then
       # Session valid, verify auth status
-      if check_auth_status "$service"; then
-        write_cache "$service" "true"
+      if check_auth_status "${service}"; then
+        write_cache "${service}" "true"
         return 0
       fi
     fi
 
     # Full authentication check (slow path)
-    if check_auth_status "$service"; then
-      create_session "$service"
-      write_cache "$service" "true"
+    if check_auth_status "${service}"; then
+      create_session "${service}"
+      write_cache "${service}" "true"
       return 0
     fi
 
     # Authentication failed - attempt to authenticate
     attempt=$((attempt + 1))
 
-    if [[ $attempt -ge $AUTH_MAX_ATTEMPTS ]]; then
-      echo "❌ Maximum authentication attempts ($AUTH_MAX_ATTEMPTS) reached for $service" >&2
+    if [[ ${attempt} -ge ${AUTH_MAX_ATTEMPTS} ]]; then
+      printf '%s\n' "❌ Maximum authentication attempts (${AUTH_MAX_ATTEMPTS}) reached for ${service}" >&2
       return 1
     fi
 
     # Check if we should prompt
     if is_ci; then
       # CI/CD: Use environment variables
-      if [[ "$service" == "github" ]] && [[ -n "${GITHUB_TOKEN:-}" ]]; then
-        echo "🔐 Using GITHUB_TOKEN from environment"
+      if [[ "${service}" == "github" ]] && [[ -n "${GITHUB_TOKEN:-}" ]]; then
+        printf '%s\n' "🔐 Using GITHUB_TOKEN from environment"
         # Subshell-scoped, so tracing is restored for the caller after the
         # credential has passed through.
-        ( { set +x; } 2>/dev/null; printf '%s' "$GITHUB_TOKEN" | gh auth login --with-token &>/dev/null )
+        (
+          { set +x; } 2>/dev/null
+          printf '%s' "${GITHUB_TOKEN}" | gh auth login --with-token &>/dev/null
+        )
         continue
-      elif [[ "$service" == "gitlab" ]] && [[ -n "${GITLAB_TOKEN:-}" ]]; then
-        echo "🔐 Using GITLAB_TOKEN from environment"
+      elif [[ "${service}" == "gitlab" ]] && [[ -n "${GITLAB_TOKEN:-}" ]]; then
+        printf '%s\n' "🔐 Using GITLAB_TOKEN from environment"
         # GitLab token handling depends on version
         continue
       else
-        echo "❌ $service authentication required in CI/CD" >&2
-        echo "Set the appropriate environment variable (e.g., GITHUB_TOKEN)" >&2
+        printf '%s\n' "❌ ${service} authentication required in CI/CD" >&2
+        printf '%s\n' "Set the appropriate environment variable (e.g., GITHUB_TOKEN)" >&2
         return 1
       fi
     fi
 
     if ! is_interactive; then
-      echo "❌ $service authentication required but non-interactive mode" >&2
+      printf '%s\n' "❌ ${service} authentication required but non-interactive mode" >&2
       return 1
     fi
 
     # Prompt user for authentication
-    echo "🔐 $service authentication required (attempt $attempt/$AUTH_MAX_ATTEMPTS)"
+    printf '%s\n' "🔐 ${service} authentication required (attempt ${attempt}/${AUTH_MAX_ATTEMPTS})"
 
-    if [[ "$service" == "github" ]]; then
+    if [[ "${service}" == "github" ]]; then
       prompt_github_auth || continue
     else
-      prompt_service_auth "$service" || continue
+      prompt_service_auth "${service}" || continue
     fi
 
     # If we get here, auth succeeded, loop will verify and return
