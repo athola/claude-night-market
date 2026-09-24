@@ -38,6 +38,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in the Equations" and the two Hacker News threads on it; each
   mechanism cites the TRIZ step or the 1990s numerical method it
   already existed as.
+- **Night run entry point and coordination workspace CLI** (egregore,
+  conserve). `night_run.py` walks one admitted work item and writes
+  `proof.md` beside it. It exits with the handoff gate's own code (1
+  to 4) when the gate refuses the item and nothing ran, 0 when the
+  proof records where the walk stopped, and 5 when the walk broke
+  after side effects such as a worktree or a commit. Run it by hand or
+  from a scheduler you configure. The watchdog relaunches a
+  `claude -p` session and does not call it. `coordination_workspace.py` drives
+  `.coordination/` from the shell (`init`, `add-task`, `set-status`,
+  `pending`, `archive`, `fail`, `parse`). `add-task` refuses an id
+  that already exists, and `.coordination/` and
+  `.coordination-archive/` are gitignored so agent findings stay out
+  of commits.
 
 - **Fan-outs report what they dropped; scanners prove they can see
   (all plugins).** Seventeen of twenty-three workflows filtered null
@@ -207,11 +220,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   them.** Hooks execute under whatever `python3` the operator's PATH
   resolves, which carries the standard library and nothing else, so a
   module-scope dependency raises before the payload is read.
-  `hookify/rule_guard.py` now imports its rule loader inside `main`
-  and, when PyYAML is absent, writes one line naming the interpreter
-  and stating that no rule was evaluated, instead of a traceback on
-  every Bash call, prompt and stop. That registration is new on this
-  branch and never shipped. The `abstract` path helpers moved to a
+  `hookify/rule_guard.py` imported PyYAML at module scope and raised
+  a traceback on every Bash call, prompt and stop. When PyYAML is
+  absent its loader now reads rule frontmatter with a stdlib parser
+  (plain and quoted scalars plus the `conditions:` list), so block
+  rules still block, and a rule that parser cannot read is named in
+  the hook's `systemMessage`. That registration is new on this branch
+  and never shipped. The `abstract` path helpers moved to a
   stdlib-only `abstract/paths.py`, which `utils` re-exports so callers
   are unchanged, and both `abstract` and `memory_palace.corpus` now
   resolve their package-root exports on first access.
