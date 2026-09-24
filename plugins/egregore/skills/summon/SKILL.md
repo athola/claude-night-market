@@ -91,17 +91,20 @@ prevent this because background agents are detached.
 The orchestrator above is an agent inside a session. The night
 run is the other entry point: a plain process a watchdog can
 restart, for hours no session is guaranteed to last. It walks
-one handed-off item (gate, walk, proof) and exits with the
-gate's own code when the item is refused:
+one handed-off item (gate, walk, proof). It exits with the
+gate's own code (1 to 4) when the item is refused and nothing
+ran, and with 5 when the walk broke after it started:
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/night_run.py" \
   --item-dir .egregore/handoff/<item> --root .
 ```
 
-Nothing inside a session starts it. The headless `claude -p`
-run, or the watchdog installed by `/egregore:install-watchdog`,
-does. See `modules/budget.md` for why the cooldown path differs.
+Nothing inside a session starts it. Run it by hand or from a
+scheduler you configure. The watchdog from
+`/egregore:install-watchdog` does not start it: that watchdog
+relaunches a `claude -p` session that invokes this skill. See
+`modules/budget.md` for why the cooldown path differs.
 
 ## Manifest Mode
 

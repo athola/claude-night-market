@@ -74,6 +74,10 @@ CONJURE_EXECUTOR = "plugins/conjure/scripts/delegation_executor.py"
 #: convention `timeout(1)` uses so logs read consistently.
 TIMEOUT_EXIT = 124
 
+#: Exit code when the walk broke after it had side effects. The gate's
+#: refusals own 1 to 4 and mean nothing ran, so this sits outside them.
+WALK_BROKEN_EXIT = 5
+
 #: `git diff --numstat` emits added and removed counts before the path.
 _NUMSTAT_COUNT_FIELDS = 2
 
@@ -934,8 +938,8 @@ def main(
     Exit codes: the gate's own (1 to 4) when the item is refused, and
     then nothing has run; 0 when the walk stopped somewhere the proof
     describes (every task passed, or parked on budget, usage, or a task
-    that would not pass); 2 when the walk itself broke, on worktree
-    setup, a commit, or the final full suite.
+    that would not pass); 5 (``WALK_BROKEN_EXIT``) when the walk itself
+    broke, on worktree setup, a commit, or the final full suite.
 
     ``runner`` and ``babysitter`` are injection points for tests. In
     production the babysitter is the real claude CLI, imported here and
@@ -984,7 +988,7 @@ def main(
     print(f"{result.status}: {proof}")
     if result.status == "ready" or result.status.startswith("parked_"):
         return 0
-    return 2
+    return WALK_BROKEN_EXIT
 
 
 if __name__ == "__main__":

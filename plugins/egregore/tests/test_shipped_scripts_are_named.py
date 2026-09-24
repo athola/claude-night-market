@@ -8,6 +8,7 @@ nothing runs.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
@@ -62,3 +63,20 @@ def test_a_script_with_a_main_is_named_by_an_agent_skill_command_or_readme(
 def test_the_check_sees_the_scripts_it_guards() -> None:
     names = {p.name for p in _cli_scripts()}
     assert {"night_run.py", "learning.py"} <= names, names
+
+
+def test_the_night_run_section_names_only_launchers_that_start_it() -> None:
+    """The watchdog relaunches a ``claude -p`` session, not night_run.py.
+
+    The summon skill once said the installed watchdog starts the night
+    run, which sent an operator looking for a process that never ran.
+    """
+    watchdog = (PLUGIN_ROOT / "scripts" / "watchdog.sh").read_text(encoding="utf-8")
+    skill = (PLUGIN_ROOT / "skills" / "summon" / "SKILL.md").read_text(encoding="utf-8")
+    section = skill.split("### The unattended night run", 1)[1].split("\n## ", 1)[0]
+    sentences = re.split(r"(?<=[.!?])\s+", " ".join(section.split()))
+    claims = [s for s in sentences if "install-watchdog" in s]
+    assert claims, "the section no longer mentions the watchdog"
+    if "night_run" not in watchdog:
+        for claim in claims:
+            assert re.search(r"\b(not|neither|nor)\b", claim), claim

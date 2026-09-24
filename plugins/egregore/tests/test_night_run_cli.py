@@ -66,3 +66,26 @@ class TestAnAdmittedItemIsWalked:
         assert runner.calls, "the walk never ran a command"
         assert str(proof) in capsys.readouterr().out
         assert "# Proof: NS-001" in proof.read_text()
+
+
+class TestABrokenWalkIsNotARefusal:
+    """Feature: a walk that broke after side effects is told apart from a refusal."""
+
+    def test_a_broken_walk_exits_distinct_code(self, tmp_path: Path) -> None:
+        """A failed worktree setup exits with a code no gate refusal uses."""
+        item = write_item(tmp_path)
+        runner = FakeRunner({"worktree add": (128, "fatal: branch exists")})
+        code = night_run.main(
+            ["--item-dir", str(item), "--root", str(tmp_path)],
+            runner=runner,
+            babysitter=_scripted,
+        )
+        gate_codes = {
+            handoff_gate.MISSING,
+            handoff_gate.MALFORMED,
+            handoff_gate.UNSAFE,
+            handoff_gate.INCOHERENT,
+        }
+        assert code == night_run.WALK_BROKEN_EXIT
+        assert code not in gate_codes | {0}
+        assert "setup_failed" in (item / "proof.md").read_text()
