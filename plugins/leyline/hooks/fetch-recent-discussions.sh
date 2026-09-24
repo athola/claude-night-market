@@ -81,7 +81,9 @@ fi
 # disposable without touching the developer's own.
 
 cache_dir="${LEYLINE_CACHE_DIR:-${XDG_CACHE_HOME:-${HOME}/.cache}/leyline}"
-cache_key="${owner}-${repo}"
+# A single hyphen made foo/bar-baz and foo-bar/baz share one file. GitHub
+# logins cannot contain an underscore, so "__" splits the key one way only.
+cache_key="${owner}__${repo}"
 cache_key="${cache_key//[!a-zA-Z0-9._-]/_}"
 summary_cache="${cache_dir}/discussions-${cache_key}.json"
 categories_cache="${cache_dir}/categories-${cache_key}.txt"

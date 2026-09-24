@@ -343,7 +343,7 @@ class TestFetchRecentDiscussionsBudget:
                 "additionalContext": "Recent Decisions (from GitHub Discussions):\n  #1 x",
             }
         }
-        (cache_dir / "discussions-owner-repo.json").write_text(
+        (cache_dir / "discussions-owner__repo.json").write_text(
             json.dumps(cached, indent=2) + "\n", encoding="utf-8"
         )
 
@@ -372,6 +372,74 @@ class TestFetchRecentDiscussionsBudget:
         assert result.returncode == 0, result.stderr
         assert json.loads(result.stdout) == cached
         assert not marker.exists(), "the cache hit still paid for a gh round trip"
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "owner,repo,other",
+        [("foo", "bar-baz", "foo-bar__baz"), ("foo-bar", "baz", "foo__bar-baz")],
+    )
+    def test_repos_differing_only_in_where_the_hyphen_falls_do_not_share_a_cache(
+        self, tmp_path: Path, owner: str, repo: str, other: str
+    ) -> None:
+        """Scenario: foo/bar-baz and foo-bar/baz are different repositories
+        Given a fresh cache for each of them
+        When the hook runs in one
+        Then it serves that repository's summary, not the other's.
+
+        GitHub logins cannot contain an underscore, so a double underscore
+        between owner and repo cannot be produced by either half.
+        """
+        subprocess.run(
+            ["git", "init"], cwd=str(tmp_path), capture_output=True, check=False
+        )
+        subprocess.run(
+            [
+                "git",
+                "remote",
+                "add",
+                "origin",
+                f"https://github.com/{owner}/{repo}.git",
+            ],
+            cwd=str(tmp_path),
+            capture_output=True,
+            check=False,
+        )
+        cache_dir = tmp_path / "leyline-cache"
+        cache_dir.mkdir()
+
+        def payload(name: str) -> dict[str, dict[str, str]]:
+            return {
+                "hookSpecificOutput": {
+                    "hookEventName": "SessionStart",
+                    "additionalContext": f"summary for {name}",
+                }
+            }
+
+        for key in (f"{owner}__{repo}", other):
+            (cache_dir / f"discussions-{key}.json").write_text(
+                json.dumps(payload(key)) + "\n", encoding="utf-8"
+            )
+
+        shim_dir = tmp_path / "shim"
+        shim_dir.mkdir()
+        gh = shim_dir / "gh"
+        gh.write_text("#!/bin/sh\nexit 1\n")
+        gh.chmod(0o755)
+        env = os.environ.copy()
+        env["LEYLINE_CACHE_DIR"] = str(cache_dir)
+        env["PATH"] = f"{shim_dir}{os.pathsep}{env['PATH']}"
+
+        result = subprocess.run(
+            ["bash", str(HOOK_SCRIPT)],
+            capture_output=True,
+            text=True,
+            cwd=str(tmp_path),
+            timeout=HOOK_TIMEOUT,
+            env=env,
+            check=False,
+        )
+        assert result.returncode == 0, result.stderr
+        assert json.loads(result.stdout) == payload(f"{owner}__{repo}")
 
     @pytest.mark.unit
     def test_hook_fits_its_cap_in_this_repository(
