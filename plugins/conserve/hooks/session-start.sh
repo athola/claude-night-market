@@ -26,30 +26,46 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+# Absolute directory of this script. A bare filename (no slash)
+# resolves against the working directory.
+script_dir() {
+  local src="${BASH_SOURCE[0]:-${0}}"
+  case "${src}" in
+    */*) src="${src%/*}" ;;
+    *) src="." ;;
+  esac
+  (cd "${src:-/}" && pwd)
+}
 
-# Source vendored JSON utilities (D-01).
-PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
-# shellcheck source=plugins/conserve/hooks/shared/json_utils.sh
-source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
+main() {
+  case "${1:-}" in
+    -x) set -x ;;
+  esac
 
-# Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
-HOOK_INPUT=""
-AGENT_TYPE=""
-if read -t 1 -r HOOK_INPUT 2>/dev/null; then
-    AGENT_TYPE=$(get_json_field "$HOOK_INPUT" "agent_type")
+  SCRIPT_DIR="$(script_dir)"
+
+  # Source vendored JSON utilities (D-01).
+  PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
+  # shellcheck source=plugins/conserve/hooks/shared/json_utils.sh
+  source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
+
+  # Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
+  HOOK_INPUT=""
+  AGENT_TYPE=""
+  if read -t 1 -r HOOK_INPUT 2>/dev/null; then
+    AGENT_TYPE=$(get_json_field "${HOOK_INPUT}" "agent_type")
     # Validate: only allow alphanumeric, hyphens, and underscores
-    if [[ -n "$AGENT_TYPE" && ! "$AGENT_TYPE" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-        echo "[conserve] WARNING: Invalid agent_type value, ignoring" >&2
-        AGENT_TYPE=""
+    if [[ -n "${AGENT_TYPE}" && ! "${AGENT_TYPE}" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+      printf '%s\n' "[conserve] WARNING: Invalid agent_type value, ignoring" >&2
+      AGENT_TYPE=""
     fi
-fi
+  fi
 
-# Lightweight agents that get abbreviated guidance
-case "$AGENT_TYPE" in
-    code-reviewer|architecture-reviewer|rust-auditor|bloat-auditor)
-        # Review agents: minimal conservation context
-        cat <<EOF
+  # Lightweight agents that get abbreviated guidance
+  case "${AGENT_TYPE}" in
+    code-reviewer | architecture-reviewer | rust-auditor | bloat-auditor)
+      # Review agents: minimal conservation context
+      cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
@@ -57,28 +73,27 @@ case "$AGENT_TYPE" in
   }
 }
 EOF
-        exit 0
-        ;;
-esac
+      exit 0
+      ;;
+  esac
 
+  # Check bypass mode from environment
+  CONSERVATION_MODE="${CONSERVATION_MODE:-normal}"
 
-# Check bypass mode from environment
-CONSERVATION_MODE="${CONSERVATION_MODE:-normal}"
-
-# Validate CONSERVATION_MODE to prevent injection of unexpected values
-case "$CONSERVATION_MODE" in
-    normal|quick|deep|standard|aggressive|minimal|off) ;;
+  # Validate CONSERVATION_MODE to prevent injection of unexpected values
+  case "${CONSERVATION_MODE}" in
+    normal | quick | deep | standard | aggressive | minimal | off) ;;
     *)
-        echo "[conserve] WARNING: Unknown CONSERVATION_MODE='${CONSERVATION_MODE}', defaulting to 'normal'" >&2
-        CONSERVATION_MODE="normal"
-        ;;
-esac
+      printf '%s\n' "[conserve] WARNING: Unknown CONSERVATION_MODE='${CONSERVATION_MODE}', defaulting to 'normal'" >&2
+      CONSERVATION_MODE="normal"
+      ;;
+  esac
 
-# Handle bypass modes
-case "$CONSERVATION_MODE" in
+  # Handle bypass modes
+  case "${CONSERVATION_MODE}" in
     quick)
-        # Quick mode: minimal overhead, skip conservation guidance
-        cat <<EOF
+      # Quick mode: minimal overhead, skip conservation guidance
+      cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
@@ -86,20 +101,20 @@ case "$CONSERVATION_MODE" in
   }
 }
 EOF
-        exit 0
-        ;;
+      exit 0
+      ;;
     deep)
-        # Deep mode: allow more resources, provide abbreviated guidance
-        deep_mode_msg="Conservation mode: DEEP ANALYSIS - Extended resource usage permitted for thorough analysis. Monitor context usage but prioritize completeness over conservation."
-        ;;
+      # Deep mode: allow more resources, provide abbreviated guidance
+      deep_mode_msg="Conservation mode: DEEP ANALYSIS - Extended resource usage permitted for thorough analysis. Monitor context usage but prioritize completeness over conservation."
+      ;;
     *)
-        # Normal mode: full conservation guidance
-        deep_mode_msg=""
-        ;;
-esac
+      # Normal mode: full conservation guidance
+      deep_mode_msg=""
+      ;;
+  esac
 
-# Build conservation skills summary for session context injection
-conservation_summary='## conserve: session optimization
+  # Build conservation skills summary for session context injection
+  conservation_summary='## conserve: session optimization
 
 Context bands, and what each asks for: under 40% carry on; 40-50% plan the
 optimization; 50-80% act on it, summarizing or delegating; at 80% invoke
@@ -118,17 +133,19 @@ for the whole window against quota. Plan, `/clear`, then implement.
 `CONSERVATION_MODE` selects the register: `quick` skips this guidance,
 `deep` allows extended resources, `normal` is the default.'
 
-# Add deep mode notice if applicable
-if [ -n "$deep_mode_msg" ]; then
-    conservation_summary="$deep_mode_msg
+  # Add deep mode notice if applicable
+  case "${deep_mode_msg}" in
+    ?*)
+      conservation_summary="${deep_mode_msg}
 
-$conservation_summary"
-fi
+${conservation_summary}"
+      ;;
+  esac
 
-summary_escaped=$(escape_for_json "$conservation_summary")
+  summary_escaped=$(escape_for_json "${conservation_summary}")
 
-# Output context injection as JSON
-cat <<EOF
+  # Output context injection as JSON
+  cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
@@ -137,4 +154,7 @@ cat <<EOF
 }
 EOF
 
-exit 0
+  exit 0
+}
+
+main "$@"

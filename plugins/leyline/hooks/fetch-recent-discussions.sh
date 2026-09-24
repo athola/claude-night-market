@@ -26,11 +26,12 @@ set -euo pipefail
 # --- Helper: emit empty SessionStart JSON and exit ---
 
 _emit_empty() {
-    local reason="${1:-}"
-    if [ -n "$reason" ]; then
-        echo "[fetch-recent-discussions] $reason" >&2
-    fi
-    cat <<'EOF'
+  local reason="${1:-}"
+  case "${reason}" in
+    "") ;;
+    *) printf '%s\n' "[fetch-recent-discussions] ${reason}" >&2 ;;
+  esac
+  cat <<'EOF'
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
@@ -38,70 +39,82 @@ _emit_empty() {
   }
 }
 EOF
-    exit 0
+  exit 0
 }
 
-# --- Guards ---
+main() {
+  # Claude Code passes no argv; -x/-t exists for debugging by hand.
+  case "${1:-}" in
+    -x | -t) set -x ;;
+  esac
 
-if ! command -v gh >/dev/null 2>&1; then
+  # --- Guards ---
+
+  if ! command -v gh >/dev/null 2>&1; then
     _emit_empty
-fi
+  fi
 
-if ! command -v python3 >/dev/null 2>&1; then
+  if ! command -v python3 >/dev/null 2>&1; then
     _emit_empty
-fi
+  fi
 
-# `git remote get-url` fails outside a work tree as well as inside one
-# with no origin, so it does the job the separate `git rev-parse` used to.
-remote_url=$(git remote get-url origin 2>/dev/null || echo "")
-case "$remote_url" in
-    *github.com*) ;;  # GitHub.com — continue
+  # `git remote get-url` fails outside a work tree as well as inside one
+  # with no origin, so it does the job the separate `git rev-parse` used to.
+  local remote_url
+  remote_url=$(git remote get-url origin 2>/dev/null || :)
+  case "${remote_url}" in
+    *github.com*) ;; # GitHub.com — continue
     *) _emit_empty ;;
-esac
+  esac
 
-# --- Resolve owner/repo from the remote URL ---
-# Parameter expansion rather than sed: correct for both the SSH form
-# (git@github.com:owner/repo.git) and the HTTPS form, and it spends no
-# process to do it.
+  # --- Resolve owner/repo from the remote URL ---
+  # Parameter expansion rather than sed: correct for both the SSH form
+  # (git@github.com:owner/repo.git) and the HTTPS form, and it spends no
+  # process to do it.
 
-_tail="${remote_url#*github.com}"
-_tail="${_tail#:}"
-_tail="${_tail#/}"
-_tail="${_tail%.git}"
-owner="${_tail%%/*}"
-repo="${_tail#*/}"
-repo="${repo%%/*}"
+  local _tail owner repo
+  _tail="${remote_url#*github.com}"
+  _tail="${_tail#:}"
+  _tail="${_tail#/}"
+  _tail="${_tail%.git}"
+  owner="${_tail%%/*}"
+  repo="${_tail#*/}"
+  repo="${repo%%/*}"
 
-if [ -z "$owner" ] || [ -z "$repo" ] || [ "$owner" = "$_tail" ]; then
-    _emit_empty "could not parse owner/repo from remote URL"
-fi
+  case "${owner}" in
+    "" | "${_tail}") _emit_empty "could not parse owner/repo from remote URL" ;;
+  esac
+  case "${repo}" in
+    "") _emit_empty "could not parse owner/repo from remote URL" ;;
+  esac
 
-# --- Cache ---
-# LEYLINE_CACHE_DIR exists so tests can point the cache somewhere
-# disposable without touching the developer's own.
+  # --- Cache ---
+  # LEYLINE_CACHE_DIR exists so tests can point the cache somewhere
+  # disposable without touching the developer's own.
 
-cache_dir="${LEYLINE_CACHE_DIR:-${XDG_CACHE_HOME:-${HOME}/.cache}/leyline}"
-# A single hyphen made foo/bar-baz and foo-bar/baz share one file. GitHub
-# logins cannot contain an underscore, so "__" splits the key one way only.
-cache_key="${owner}__${repo}"
-cache_key="${cache_key//[!a-zA-Z0-9._-]/_}"
-summary_cache="${cache_dir}/discussions-${cache_key}.json"
-categories_cache="${cache_dir}/categories-${cache_key}.txt"
+  local cache_dir cache_key summary_cache categories_cache
+  cache_dir="${LEYLINE_CACHE_DIR:-${XDG_CACHE_HOME:-${HOME}/.cache}/leyline}"
+  # A single hyphen made foo/bar-baz and foo-bar/baz share one file. GitHub
+  # logins cannot contain an underscore, so "__" splits the key one way only.
+  cache_key="${owner}__${repo}"
+  cache_key="${cache_key//[!a-zA-Z0-9._-]/_}"
+  summary_cache="${cache_dir}/discussions-${cache_key}.json"
+  categories_cache="${cache_dir}/categories-${cache_key}.txt"
 
-# `find -mmin` is the freshness test that both BSD and GNU find support,
-# and it is one process against `date`'s one plus the arithmetic.
-if [ -f "$summary_cache" ] &&
-    [ -n "$(find "$summary_cache" -mmin -60 2>/dev/null)" ]; then
-    printf '%s\n' "$(<"$summary_cache")"
+  # `find -mmin` is the freshness test that both BSD and GNU find support,
+  # and it is one process against `date`'s one plus the arithmetic.
+  if [ -f "${summary_cache}" ] &&
+    [ -n "$(find "${summary_cache}" -mmin -60 2>/dev/null)" ]; then
+    printf '%s\n' "$(<"${summary_cache}")"
     exit 0
-fi
+  fi
 
-# --- Fetch, format, and cache ---
-# One python3 process owns the network from here. It gives each `gh` call
-# its own deadline through subprocess timeout, which is portable in a way
-# `timeout(1)` is not: stock macOS does not ship it.
+  # --- Fetch, format, and cache ---
+  # One python3 process owns the network from here. It gives each `gh` call
+  # its own deadline through subprocess timeout, which is portable in a way
+  # `timeout(1)` is not: stock macOS does not ship it.
 
-python3 - "$owner" "$repo" "$summary_cache" "$categories_cache" <<'PY' || _emit_empty "discussion fetch failed"
+  python3 - "${owner}" "${repo}" "${summary_cache}" "${categories_cache}" <<'PY' || _emit_empty "discussion fetch failed"
 import json
 import os
 import re
@@ -360,3 +373,6 @@ def main():
 
 main()
 PY
+}
+
+main "$@"

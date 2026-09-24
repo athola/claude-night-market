@@ -11,63 +11,80 @@
 
 set -euo pipefail
 
-# Read hook input to determine trigger type
-HOOK_INPUT=""
-TRIGGER_TYPE="init"
-if read -t 1 -r HOOK_INPUT 2>/dev/null; then
+# Absolute directory of this script. A bare filename (no slash)
+# resolves against the working directory.
+script_dir() {
+  local src="${BASH_SOURCE[0]:-${0}}"
+  case "${src}" in
+    */*) src="${src%/*}" ;;
+    *) src="." ;;
+  esac
+  (cd "${src:-/}" && pwd)
+}
+
+main() {
+  case "${1:-}" in
+    -x) set -x ;;
+  esac
+
+  # Read hook input to determine trigger type
+  HOOK_INPUT=""
+  TRIGGER_TYPE="init"
+  if read -t 1 -r HOOK_INPUT 2>/dev/null; then
     if command -v jq >/dev/null 2>&1; then
-        TRIGGER_TYPE=$(echo "$HOOK_INPUT" | jq -r '.trigger // "init"' 2>/dev/null || echo "init")
+      TRIGGER_TYPE=$(printf '%s\n' "${HOOK_INPUT}" | jq -r '.trigger // "init"' 2>/dev/null || printf '%s\n' "init")
     fi
-fi
+  fi
 
-# Determine plugin root directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
-PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+  # Determine plugin root directory
+  SCRIPT_DIR="$(script_dir)"
+  PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-# Project directory from environment or current working directory
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+  # Project directory from environment or current working directory
+  PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 
-# Setup context message
-setup_context=""
+  # Setup context message
+  setup_context=""
 
-# =============================================================================
-# INIT TASKS (--init, --init-only)
-# =============================================================================
-if [ "$TRIGGER_TYPE" = "init" ]; then
-    setup_tasks=()
+  # =============================================================================
+  # INIT TASKS (--init, --init-only)
+  # =============================================================================
+  case "${TRIGGER_TYPE}" in
+    init)
+      setup_tasks=()
 
-    # 1. Validate jq dependency (recommended for JSON processing)
-    if ! command -v jq >/dev/null 2>&1; then
+      # 1. Validate jq dependency (recommended for JSON processing)
+      if ! command -v jq >/dev/null 2>&1; then
         setup_tasks+=("WARNING: jq not installed. Install with: brew install jq (macOS) or apt install jq (Linux). Some hooks will use fallback processing.")
-    else
+      else
         setup_tasks+=("jq: OK (v$(jq --version 2>&1 | head -1 | sed 's/jq-//'))")
-    fi
+      fi
 
-    # 2. Create session state directory if needed
-    SESSION_STATE_DIR="${PROJECT_DIR}/.claude"
-    if [ ! -d "$SESSION_STATE_DIR" ]; then
-        mkdir -p "$SESSION_STATE_DIR"
+      # 2. Create session state directory if needed
+      SESSION_STATE_DIR="${PROJECT_DIR}/.claude"
+      if [ ! -d "${SESSION_STATE_DIR}" ]; then
+        mkdir -p "${SESSION_STATE_DIR}"
         setup_tasks+=("Created session state directory: ${SESSION_STATE_DIR}")
-    else
+      else
         setup_tasks+=("Session state directory: exists")
-    fi
+      fi
 
-    # 3. Create session-state.md template if it doesn't exist
-    SESSION_STATE_FILE="${CONSERVE_SESSION_STATE_PATH:-${SESSION_STATE_DIR}/session-state.md}"
-    # Validate SESSION_STATE_FILE stays within allowed directories
-    if [ -n "${CONSERVE_SESSION_STATE_PATH:-}" ]; then
-        _resolved_state="$(readlink -f "$SESSION_STATE_FILE" 2>/dev/null || echo "$SESSION_STATE_FILE")"
-        _home_prefix="$(readlink -f "$HOME" 2>/dev/null || echo "$HOME")"
-        case "$_resolved_state" in
-            "${_home_prefix}"*|"${PROJECT_DIR}"*) ;;
-            *)
-                echo "[conserve] WARNING: CONSERVE_SESSION_STATE_PATH escapes allowed dirs, using default" >&2
-                SESSION_STATE_FILE="${SESSION_STATE_DIR}/session-state.md"
-                ;;
+      # 3. Create session-state.md template if it doesn't exist
+      SESSION_STATE_FILE="${CONSERVE_SESSION_STATE_PATH:-${SESSION_STATE_DIR}/session-state.md}"
+      # Validate SESSION_STATE_FILE stays within allowed directories
+      if [ -n "${CONSERVE_SESSION_STATE_PATH:-}" ]; then
+        _resolved_state="$(readlink -f "${SESSION_STATE_FILE}" 2>/dev/null || printf '%s\n' "${SESSION_STATE_FILE}")"
+        _home_prefix="$(readlink -f "${HOME}" 2>/dev/null || printf '%s\n' "${HOME}")"
+        case "${_resolved_state}" in
+          "${_home_prefix}"* | "${PROJECT_DIR}"*) ;;
+          *)
+            printf '%s\n' "[conserve] WARNING: CONSERVE_SESSION_STATE_PATH escapes allowed dirs, using default" >&2
+            SESSION_STATE_FILE="${SESSION_STATE_DIR}/session-state.md"
+            ;;
         esac
-    fi
-    if [ ! -f "$SESSION_STATE_FILE" ]; then
-        cat > "$SESSION_STATE_FILE" << 'TEMPLATE'
+      fi
+      if [ ! -f "${SESSION_STATE_FILE}" ]; then
+        cat >"${SESSION_STATE_FILE}" <<'TEMPLATE'
 # Session State
 
 ## Metadata
@@ -92,87 +109,88 @@ if [ "$TRIGGER_TYPE" = "init" ]; then
 - [ ] Criteria 2
 TEMPLATE
         # Replace timestamp placeholder
-        if sed -i.bak "s/{{timestamp}}/$(date -Iseconds)/" "$SESSION_STATE_FILE" 2>/dev/null; then
-            rm -f "${SESSION_STATE_FILE}.bak" 2>/dev/null || true
+        if sed -i.bak "s/{{timestamp}}/$(date -Iseconds)/" "${SESSION_STATE_FILE}" 2>/dev/null; then
+          rm -f "${SESSION_STATE_FILE}.bak" 2>/dev/null || true
         else
-            sed -i '' "s/{{timestamp}}/$(date -Iseconds)/" "$SESSION_STATE_FILE" 2>/dev/null || true
+          sed -i '' "s/{{timestamp}}/$(date -Iseconds)/" "${SESSION_STATE_FILE}" 2>/dev/null || true
         fi
         setup_tasks+=("Created session state template: ${SESSION_STATE_FILE}")
-    fi
+      fi
 
-    # 4. Set environment variables via CLAUDE_ENV_FILE
-    if [ -n "${CLAUDE_ENV_FILE:-}" ] && { [ -w "${CLAUDE_ENV_FILE}" ] || [ ! -e "${CLAUDE_ENV_FILE}" ]; }; then
-        printf 'export CONSERVE_SESSION_STATE_PATH=%q\n' "$SESSION_STATE_FILE" >> "$CLAUDE_ENV_FILE"
+      # 4. Set environment variables via CLAUDE_ENV_FILE
+      if [ -n "${CLAUDE_ENV_FILE:-}" ] && { [ -w "${CLAUDE_ENV_FILE}" ] || [ ! -e "${CLAUDE_ENV_FILE}" ]; }; then
+        printf 'export CONSERVE_SESSION_STATE_PATH=%q\n' "${SESSION_STATE_FILE}" >>"${CLAUDE_ENV_FILE}"
         setup_tasks+=("Persisted CONSERVE_SESSION_STATE_PATH to environment")
-    fi
+      fi
 
-    # Build context message
-    setup_context="[conserve:setup] Initialization complete (trigger: ${TRIGGER_TYPE})
+      # Build context message
+      setup_context="[conserve:setup] Initialization complete (trigger: ${TRIGGER_TYPE})
 Tasks completed:
 $(printf '  - %s\n' "${setup_tasks[@]}")"
+      ;;
+  esac
 
-fi
+  # =============================================================================
+  # MAINTENANCE TASKS (--maintenance)
+  # =============================================================================
+  case "${TRIGGER_TYPE}" in
+    maintenance)
+      maintenance_tasks=()
 
-# =============================================================================
-# MAINTENANCE TASKS (--maintenance)
-# =============================================================================
-if [ "$TRIGGER_TYPE" = "maintenance" ]; then
-    maintenance_tasks=()
-
-    # 1. Clean up old session state backups
-    SESSION_STATE_DIR="${PROJECT_DIR}/.claude"
-    if [ -d "$SESSION_STATE_DIR" ]; then
-        backup_count=$(find "$SESSION_STATE_DIR" -name "session-state*.bak" -type f 2>/dev/null | wc -l | tr -d ' ')
-        if [ "$backup_count" -gt 0 ]; then
-            find "$SESSION_STATE_DIR" -name "session-state*.bak" -type f -mtime +7 -delete 2>/dev/null || true
-            maintenance_tasks+=("Cleaned session state backups older than 7 days")
+      # 1. Clean up old session state backups
+      SESSION_STATE_DIR="${PROJECT_DIR}/.claude"
+      if [ -d "${SESSION_STATE_DIR}" ]; then
+        backup_count=$(find "${SESSION_STATE_DIR}" -name "session-state*.bak" -type f 2>/dev/null | wc -l | tr -d ' ')
+        if [ "${backup_count}" -gt 0 ]; then
+          find "${SESSION_STATE_DIR}" -name "session-state*.bak" -type f -mtime +7 -delete 2>/dev/null || true
+          maintenance_tasks+=("Cleaned session state backups older than 7 days")
         fi
-    fi
+      fi
 
-    # 2. Check for stale continuation audit logs
-    AUDIT_LOG="${CLAUDE_CODE_TMPDIR:-/tmp}/continuation-audit.log"
-    if [ -f "$AUDIT_LOG" ]; then
-        line_count=$(wc -l < "$AUDIT_LOG" 2>/dev/null | tr -d ' ')
-        if [ "$line_count" -gt 1000 ]; then
-            # Rotate: keep last 500 lines
-            tail -500 "$AUDIT_LOG" > "${AUDIT_LOG}.tmp" && mv "${AUDIT_LOG}.tmp" "$AUDIT_LOG"
-            maintenance_tasks+=("Rotated continuation audit log (was ${line_count} lines, kept 500)")
+      # 2. Check for stale continuation audit logs
+      AUDIT_LOG="${CLAUDE_CODE_TMPDIR:-/tmp}/continuation-audit.log"
+      if [ -f "${AUDIT_LOG}" ]; then
+        line_count=$(wc -l <"${AUDIT_LOG}" 2>/dev/null | tr -d ' ')
+        if [ "${line_count}" -gt 1000 ]; then
+          # Rotate: keep last 500 lines
+          tail -500 "${AUDIT_LOG}" >"${AUDIT_LOG}.tmp" && mv "${AUDIT_LOG}.tmp" "${AUDIT_LOG}"
+          maintenance_tasks+=("Rotated continuation audit log (was ${line_count} lines, kept 500)")
         else
-            maintenance_tasks+=("Continuation audit log: OK (${line_count} lines)")
+          maintenance_tasks+=("Continuation audit log: OK (${line_count} lines)")
         fi
-    fi
+      fi
 
-    # 3. Validate hook dependencies
-    deps_ok=true
-    for dep in jq python3; do
-        if ! command -v "$dep" >/dev/null 2>&1; then
-            maintenance_tasks+=("Missing optional dependency: $dep")
-            deps_ok=false
+      # 3. Validate hook dependencies
+      deps_ok=true
+      for dep in jq python3; do
+        if ! command -v "${dep}" >/dev/null 2>&1; then
+          maintenance_tasks+=("Missing optional dependency: ${dep}")
+          deps_ok=false
         fi
-    done
-    if [ "$deps_ok" = true ]; then
-        maintenance_tasks+=("All dependencies: OK")
-    fi
+      done
+      case "${deps_ok}" in
+        true) maintenance_tasks+=("All dependencies: OK") ;;
+      esac
 
-    # Build context message
-    setup_context="[conserve:maintenance] Maintenance complete (trigger: ${TRIGGER_TYPE})
+      # Build context message
+      setup_context="[conserve:maintenance] Maintenance complete (trigger: ${TRIGGER_TYPE})
 Tasks completed:
 $(printf '  - %s\n' "${maintenance_tasks[@]}")"
+      ;;
+  esac
 
-fi
+  # =============================================================================
+  # OUTPUT
+  # =============================================================================
 
-# =============================================================================
-# OUTPUT
-# =============================================================================
+  # Source vendored JSON utilities (D-01).
+  PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}"
+  # shellcheck source=plugins/conserve/hooks/shared/json_utils.sh
+  source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
 
-# Source vendored JSON utilities (D-01).
-PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}"
-# shellcheck source=plugins/conserve/hooks/shared/json_utils.sh
-source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
+  context_escaped=$(escape_for_json "${setup_context}")
 
-context_escaped=$(escape_for_json "$setup_context")
-
-cat <<EOF
+  cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "Setup",
@@ -181,4 +199,7 @@ cat <<EOF
 }
 EOF
 
-exit 0
+  exit 0
+}
+
+main "$@"

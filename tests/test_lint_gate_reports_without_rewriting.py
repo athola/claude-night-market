@@ -65,6 +65,8 @@ def _fake_root(tmp_path: Path, script: Path) -> tuple[Path, Path, Path]:
     root = tmp_path / "root"
     (root / "scripts").mkdir(parents=True)
     shutil.copy2(script, root / "scripts" / script.name)
+    # The runners source their logging library from their own directory.
+    shutil.copy2(script.parent / "logging.sh", root / "scripts" / "logging.sh")
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     return root, bin_dir, tmp_path / "invocations.log"

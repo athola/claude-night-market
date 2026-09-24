@@ -41,7 +41,7 @@ SCRUB_WRAPPER = "scripts/without-git-env.sh"
 # invocation goes through it.  The guard below asserts both halves: that the
 # variable really points at the wrapper, and that nothing bypasses it.  Checking
 # only the second half would pass a script whose constant pointed at `true`.
-SCRUB_VAR = "$WITHOUT_GIT_ENV"
+SCRUB_VAR = "${WITHOUT_GIT_ENV}"
 
 # Every GIT_* variable `git commit` exports to a hook from a linked worktree,
 # as observed on git 2.43.  The point of the list is not that these eight are
@@ -166,8 +166,8 @@ class TestGitEnvScrub:
 
         silent = []
         for start in starts:
-            end = text.index('rm -f "$temp_output"', start)
-            if 'cat "$temp_output"' not in text[start:end]:
+            end = text.index('rm -f "${temp_output}"', start)
+            if 'cat "${temp_output}"' not in text[start:end]:
                 silent.append(text[:start].count("\n") + 1)
 
         assert not silent, (
@@ -391,7 +391,7 @@ def _fake_repo(tmp_path: Path) -> Path:
     """
     scripts = tmp_path / "scripts"
     scripts.mkdir()
-    for name in ("run-plugin-tests.sh", "without-git-env.sh"):
+    for name in ("run-plugin-tests.sh", "without-git-env.sh", "logging.sh"):
         target = scripts / name
         target.write_bytes((REPO_ROOT / "scripts" / name).read_bytes())
         target.chmod(0o755)
