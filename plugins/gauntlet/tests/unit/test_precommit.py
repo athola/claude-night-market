@@ -507,26 +507,37 @@ class TestGateFailsClosed:
 
     @pytest.mark.unit
     @pytest.mark.parametrize(
-        "helper",
-        ["_get_staged_hash", "_get_developer_id", "_get_staged_files"],
+        ("helper", "fallback"),
+        [
+            ("_get_staged_hash", ""),
+            ("_get_developer_id", "unknown"),
+            ("_get_staged_files", None),
+        ],
     )
-    def test_every_git_helper_survives_a_hanging_git(self, helper: str) -> None:
+    def test_every_git_helper_survives_a_hanging_git(
+        self, helper: str, fallback: object
+    ) -> None:
         """
         Scenario: git exceeds the hook's time budget
         Given each helper that shells out to git
         When subprocess raises TimeoutExpired
-        Then the helper returns rather than propagating
+        Then the helper returns its documented fallback
 
         GIVEN hooks.json caps this hook at 2s
         WHEN a git call hangs
         THEN an unhandled TimeoutExpired would exit the gate nonzero,
         which releases the commit exactly as a crash does.
+
+        The assertion is on the value for the same reason the missing-git
+        case asserts on it: the callers branch on "" / "unknown" / None,
+        so a timeout path returning some other empty-ish value changes
+        what the gate does without raising anything.
         """
         with patch(
             "precommit_gate.subprocess.run",
             side_effect=subprocess.TimeoutExpired(cmd="git", timeout=1),
         ):
-            getattr(precommit_gate, helper)()
+            assert getattr(precommit_gate, helper)() == fallback
 
     @pytest.mark.unit
     def test_run_gate_passes_a_normal_result_through_unchanged(self) -> None:
@@ -627,3 +638,112 @@ class TestGraphRiskContextBudget:
     def test_the_library_default_is_documented_as_too_slow_for_a_hook(self) -> None:
         """The default exists for non-hook callers and must exceed the cap."""
         assert DEFAULT_GIT_TIMEOUT_SECONDS > precommit_gate._GIT_TIMEOUT_SECONDS
+
+
+class TestLoadConfig:
+    """
+    Feature: reading the gate's configuration
+
+    As the pre-commit gate
+    I want config.yaml preferred over config.json and a corrupt file
+    reported rather than swallowed
+    So that a typo in the config is visible instead of silently
+    restoring defaults.
+    """
+
+    @pytest.mark.unit
+    def test_yaml_is_preferred_over_json(self, tmp_path: Path) -> None:
+        """
+        Scenario: both config files are present
+        Given a config.yaml and a config.json with different values
+        When the config is loaded
+        Then the yaml values are the ones returned
+
+        Both formats are supported, so an operator editing the yaml and
+        seeing the json's values would conclude the setting does not
+        work.
+        """
+        (tmp_path / "config.yaml").write_text("threshold: 5\n")
+        (tmp_path / "config.json").write_text('{"threshold": 99}')
+
+        assert precommit_gate._load_config(tmp_path) == {"threshold": 5}
+
+    @pytest.mark.unit
+    def test_json_is_read_when_no_yaml_exists(self, tmp_path: Path) -> None:
+        """
+        Scenario: only config.json is present
+        Given a config.json
+        When the config is loaded
+        Then its values are returned
+        """
+        (tmp_path / "config.json").write_text('{"threshold": 99}')
+
+        assert precommit_gate._load_config(tmp_path) == {"threshold": 99}
+
+    @pytest.mark.unit
+    def test_a_corrupt_yaml_warns_and_falls_through_to_json(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """
+        Scenario: config.yaml does not parse
+        Given an unparseable config.yaml beside a valid config.json
+        When the config is loaded
+        Then the json is used and the yaml failure reaches stderr
+
+        The source comment says a corrupt config falling back silently
+        masks a user typo, which is exactly the case this pins.
+        """
+        (tmp_path / "config.yaml").write_text("threshold: [unclosed\n")
+        (tmp_path / "config.json").write_text('{"threshold": 99}')
+
+        result = precommit_gate._load_config(tmp_path)
+
+        assert result == {"threshold": 99}
+        assert "could not read" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_a_corrupt_json_warns_and_yields_defaults(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """
+        Scenario: config.json does not parse
+        Given an unparseable config.json and no yaml
+        When the config is loaded
+        Then an empty config comes back and the failure reaches stderr
+        """
+        (tmp_path / "config.json").write_text("{not json")
+
+        assert precommit_gate._load_config(tmp_path) == {}
+        assert "could not read" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "body", ["- a\n- b\n", "just a string\n"], ids=["list", "scalar"]
+    )
+    def test_a_yaml_that_is_not_a_mapping_is_ignored(
+        self, tmp_path: Path, body: str
+    ) -> None:
+        """
+        Scenario: config.yaml parses but is not a mapping
+        Given a yaml document holding a list or a scalar
+        When the config is loaded
+        Then an empty config comes back
+
+        Every caller does ``config.get(...)``, so returning a list here
+        is an AttributeError inside the gate rather than a bad setting.
+        """
+        (tmp_path / "config.yaml").write_text(body)
+
+        assert precommit_gate._load_config(tmp_path) == {}
+
+    @pytest.mark.unit
+    def test_no_config_at_all_yields_an_empty_mapping(self, tmp_path: Path) -> None:
+        """
+        Scenario: the gauntlet directory holds no config
+        Given neither file
+        When the config is loaded
+        Then an empty mapping comes back
+
+        This is the default installation, so it is the common path.
+        """
+        assert precommit_gate._load_config(tmp_path) == {}

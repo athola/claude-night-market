@@ -35,6 +35,12 @@ from aggregate_skill_logs import (  # noqa: E402 - import after sys.path setup
     SkillLogSummary,
 )
 
+# A fixed epoch reading (2026-03-01T00:00:00Z) for the tests that assert
+# on what update_timestamp wrote. The value itself carries no meaning; it
+# only has to be stable, so the assertion can be an equality rather than
+# a tolerance around whatever the machine's clock said mid-test.
+_FROZEN_NOW = 1772323200.0
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -137,17 +143,22 @@ class TestTimestampManagement:
     """Test timestamp file creation and updates."""
 
     def test_update_timestamp_creates_file(
-        self, hook_module, timestamp_path: Path
+        self, hook_module, timestamp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Given: No timestamp file
+        """Given: No timestamp file and a frozen clock
         When: update_timestamp() is called
-        Then: File is created with current time
+        Then: The file holds exactly the frozen reading
+
+        Comparing against the live clock with a 5-second tolerance let
+        the test pass on a wrong-but-close value and fail on a loaded
+        machine. Freezing the clock makes it exact in both directions.
         """
+        monkeypatch.setattr(hook_module.time, "time", lambda: _FROZEN_NOW)
+
         hook_module.update_timestamp()
 
         assert timestamp_path.exists()
-        ts = float(timestamp_path.read_text().strip())
-        assert abs(ts - time.time()) < 5  # Within 5 seconds
+        assert float(timestamp_path.read_text().strip()) == _FROZEN_NOW
 
     def test_update_timestamp_creates_parent_dirs(
         self, hook_module, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -436,41 +447,59 @@ class TestAutoPromoteChaining:
 class TestAutoPromoteErrorIsolation:
     """Test that auto-promote errors don't affect the hook."""
 
-    def test_auto_promote_exception_is_swallowed(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch
+    def test_auto_promote_exception_is_reported_and_not_raised(
+        self, hook_module, monkeypatch: pytest.MonkeyPatch, capsys
     ) -> None:
         """Given: _promote raises an exception
         When: run_auto_promote() is called
-        Then: Exception is silently caught (hook must not crash)
+        Then: _promote was reached, the failure is named on stderr, and
+        the hook returns instead of raising
+
+        A bare "should not raise" passed for any early return too, which
+        is the failure mode this guards: the call has to happen and the
+        swallow has to leave a trace.
         """
         # Ensure the scripts-available flag is set so run_auto_promote
         # actually calls _promote rather than returning early.
         monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", True)
+        calls = []
 
         def boom():
+            calls.append("promote")
             raise RuntimeError("boom")
 
         monkeypatch.setattr(hook_module, "_promote", boom)
 
-        # Should not raise
-        hook_module.run_auto_promote()
+        assert hook_module.run_auto_promote() is None
 
-    def test_post_learnings_exception_is_swallowed(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch
+        assert calls == ["promote"], "_promote was never reached"
+        stderr = capsys.readouterr().err
+        assert "auto-promote" in stderr
+        assert "RuntimeError: boom" in stderr
+
+    def test_post_learnings_exception_is_reported_and_not_raised(
+        self, hook_module, monkeypatch: pytest.MonkeyPatch, capsys
     ) -> None:
         """Given: _post_learnings raises an exception
         When: run_post_learnings() is called
-        Then: Exception is silently caught (hook must not crash)
+        Then: _post_learnings was reached and the failure is named on
+        stderr rather than propagating
         """
         monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", True)
+        calls = []
 
         def boom():
+            calls.append("post")
             raise RuntimeError("post boom")
 
         monkeypatch.setattr(hook_module, "_post_learnings", boom)
 
-        # Should not raise
-        hook_module.run_post_learnings()
+        assert hook_module.run_post_learnings() is None
+
+        assert calls == ["post"], "_post_learnings was never reached"
+        stderr = capsys.readouterr().err
+        assert "post-learnings" in stderr
+        assert "RuntimeError: post boom" in stderr
 
 
 # ---------------------------------------------------------------------------
@@ -545,21 +574,20 @@ class TestTimestampOverwrite:
     """Test that update_timestamp overwrites old values correctly."""
 
     def test_overwrites_existing_timestamp(
-        self, hook_module, timestamp_path: Path
+        self, hook_module, timestamp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Given: A stale timestamp exists
+        """Given: A stale timestamp exists and the clock is frozen
         When: update_timestamp() is called
-        Then: Old value is replaced with current time
+        Then: The stale value is replaced by exactly the frozen reading
         """
-        old_time = time.time() - (48 * 3600)
+        monkeypatch.setattr(hook_module.time, "time", lambda: _FROZEN_NOW)
+        old_time = _FROZEN_NOW - (48 * 3600)
         timestamp_path.parent.mkdir(parents=True, exist_ok=True)
         timestamp_path.write_text(str(old_time))
 
         hook_module.update_timestamp()
 
-        new_ts = float(timestamp_path.read_text().strip())
-        assert new_ts > old_time
-        assert abs(new_ts - time.time()) < 5
+        assert float(timestamp_path.read_text().strip()) == _FROZEN_NOW
 
 
 # ---------------------------------------------------------------------------

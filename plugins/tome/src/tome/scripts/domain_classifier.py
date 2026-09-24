@@ -129,6 +129,32 @@ _DOMAIN_KEYWORDS: dict[str, list[str]] = {
         "semantic search",
         "hallucination",
         "session memory",
+        "agentic",
+        "multi-agent",
+        "toolset",
+        "tool card",
+        "tool use",
+        "verifier",
+        "tool-using",
+        "orchestrat",
+    ],
+    # Method and framework topics. ADR-0024's own topic abstained to
+    # general with one candidate, and the plan dropped triz while
+    # researching TRIZ.
+    "methodology": [
+        "triz",
+        "inventive",
+        "ideation",
+        "brainstorm",
+        "methodology",
+        "heuristic",
+        "problem-solving",
+        "problem solving",
+        "design thinking",
+        "research method",
+        "inventive framework",
+        "morphological",
+        "scamper",
     ],
     "security": [
         "encryption",
@@ -165,6 +191,7 @@ _TRIZ_DEPTH: dict[str, str] = {
     "devops": "light",
     "security": "medium",
     "ai-agents": "deep",
+    "methodology": "deep",
     "general": "light",
 }
 
@@ -173,21 +200,83 @@ _TRIZ_DEPTH: dict[str, str] = {
 # ---------------------------------------------------------------------------
 
 _CHANNEL_WEIGHTS: dict[str, dict[str, float]] = {
-    "ui-ux": {"code": 0.35, "discourse": 0.40, "academic": 0.15, "triz": 0.10},
-    "algorithm": {"code": 0.25, "discourse": 0.20, "academic": 0.40, "triz": 0.15},
-    "architecture": {"code": 0.30, "discourse": 0.30, "academic": 0.20, "triz": 0.20},
-    "data-structure": {"code": 0.25, "discourse": 0.15, "academic": 0.35, "triz": 0.25},
-    "scientific": {"code": 0.15, "discourse": 0.10, "academic": 0.50, "triz": 0.25},
-    "financial": {"code": 0.20, "discourse": 0.30, "academic": 0.35, "triz": 0.15},
-    "devops": {"code": 0.35, "discourse": 0.40, "academic": 0.10, "triz": 0.15},
-    "security": {"code": 0.30, "discourse": 0.25, "academic": 0.30, "triz": 0.15},
-    "ai-agents": {
-        "code": 0.25,
-        "discourse": 0.30,
-        "academic": 0.30,
-        "triz": 0.15,
+    "ui-ux": {
+        "code": 0.315,
+        "discourse": 0.360,
+        "academic": 0.135,
+        "web": 0.100,
+        "triz": 0.090,
     },
-    "general": {"code": 0.30, "discourse": 0.35, "academic": 0.20, "triz": 0.15},
+    "algorithm": {
+        "code": 0.225,
+        "discourse": 0.180,
+        "academic": 0.360,
+        "web": 0.100,
+        "triz": 0.135,
+    },
+    "architecture": {
+        "code": 0.270,
+        "discourse": 0.270,
+        "academic": 0.180,
+        "web": 0.100,
+        "triz": 0.180,
+    },
+    "data-structure": {
+        "code": 0.225,
+        "discourse": 0.135,
+        "academic": 0.315,
+        "web": 0.100,
+        "triz": 0.225,
+    },
+    "scientific": {
+        "code": 0.135,
+        "discourse": 0.090,
+        "academic": 0.450,
+        "web": 0.100,
+        "triz": 0.225,
+    },
+    "financial": {
+        "code": 0.180,
+        "discourse": 0.270,
+        "academic": 0.315,
+        "web": 0.100,
+        "triz": 0.135,
+    },
+    "devops": {
+        "code": 0.315,
+        "discourse": 0.360,
+        "academic": 0.090,
+        "web": 0.100,
+        "triz": 0.135,
+    },
+    "security": {
+        "code": 0.270,
+        "discourse": 0.225,
+        "academic": 0.270,
+        "web": 0.100,
+        "triz": 0.135,
+    },
+    "ai-agents": {
+        "code": 0.225,
+        "discourse": 0.270,
+        "academic": 0.270,
+        "web": 0.100,
+        "triz": 0.135,
+    },
+    "methodology": {
+        "code": 0.090,
+        "discourse": 0.225,
+        "academic": 0.360,
+        "web": 0.100,
+        "triz": 0.225,
+    },
+    "general": {
+        "code": 0.270,
+        "discourse": 0.315,
+        "academic": 0.180,
+        "web": 0.100,
+        "triz": 0.135,
+    },
 }
 
 _MIN_MATCHES = 2

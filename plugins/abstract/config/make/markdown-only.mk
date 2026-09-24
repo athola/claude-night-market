@@ -9,7 +9,9 @@ SHELL := /bin/bash
 # 3.81 from the Xcode command line tools, which ignores both, so every
 # recipe below runs without -euo pipefail and a failing pipeline stage
 # passes. Say so once per invocation rather than pretend the gate holds.
-ifeq ($(filter 3.82 4.%,$(firstword $(MAKE_VERSION))),)
+# The filter names the releases that ignore the assignment, so a make
+# newer than 4.x does not fall through into advice it has outgrown.
+ifneq ($(filter 3.7% 3.80 3.81,$(firstword $(MAKE_VERSION))),)
 $(warning GNU make $(MAKE_VERSION) ignores .SHELLFLAGS and .ONESHELL; recipes run without -euo pipefail. Install GNU make 3.82+ (brew install make) and run gmake.)
 endif
 

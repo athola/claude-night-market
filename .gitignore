@@ -192,3 +192,8 @@ docs/migrations/
 
 # Atomic lock directory scripts/clawhub-cron.sh holds while a sync runs.
 .clawhub-sync.lock/
+
+# Multi-agent coordination workspace and its archives, written in the
+# working directory by plugins/conserve/scripts/coordination_workspace.py.
+.coordination/
+.coordination-archive/

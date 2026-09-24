@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import pathlib
 import textwrap
 from typing import TYPE_CHECKING
 
@@ -93,6 +94,16 @@ class TestScannerSkipsVendored:
         scanned_segments = [p[len(str(tmp_path)) :] for p in files]
         assert not any(".cargo" in seg for seg in scanned_segments)
 
+    def test_project_under_a_target_directory_is_scanned(self, tmp_path: Path) -> None:
+        # Only components below the scan root name a vendored tree. A
+        # project checked out under /target/ is the project, not output.
+        root = tmp_path / "target" / "proj"
+        root.mkdir(parents=True)
+        (root / "own.py").write_text("import requests\nrequests.get('http://x')\n")
+
+        files = {getattr(f, "file", "?") for f in scan_directory(root)}
+        assert any(p.endswith("own.py") for p in files)
+
 
 class TestScannerSurfacesUnreadable:
     def test_unreadable_file_yields_advisory(self, tmp_path: Path) -> None:
@@ -146,3 +157,59 @@ class TestCliEntryPoint:
         rc = run_cli(["--path", str(tmp_path), "--strict", "--json"])
         # Clean + strict -> zero.
         assert rc == 0
+
+
+class TestTheScannerProvesItScannedSomething:
+    """Feature: zero files scanned is not "no findings".
+
+    A typo'd path, a tree with no Python, or a permission wall all gave
+    an empty rglob, and the CLI printed the clean line and exited 0,
+    including under --strict, the CI mode. tome's answer to the same
+    shape is a positive control (ADR-0020): prove the scanner can see
+    before its silence counts. The planted fixture is that control.
+    """
+
+    _PLANTED = (
+        pathlib.Path(__file__).resolve().parents[2]
+        / "fixtures"
+        / "harden"
+        / "planted.py"
+    )
+
+    def test_an_empty_tree_is_not_reported_clean(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """
+        Given a directory with no Python sources
+        When the CLI runs
+        Then it exits nonzero and says nothing was scanned
+        """
+        code = run_cli(["--path", str(tmp_path)])
+        assert code != 0
+        assert "nothing was scanned" in capsys.readouterr().out
+
+    def test_json_carries_files_scanned(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        (tmp_path / "clean.py").write_text("x = 1\n")
+        code = run_cli(["--path", str(tmp_path), "--json"])
+        payload = json.loads(capsys.readouterr().out)
+        assert code == 0
+        assert payload["data"]["files_scanned"] == 1
+        assert payload["data"]["finding_count"] == 0
+
+    def test_the_planted_fixture_fails_strict_mode(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """
+        Given the committed fixture with a pickle.loads and an untimed subprocess
+        When the CLI runs in --strict mode over its directory
+        Then it exits 2
+
+            If this passes clean, the scanner is blind and every
+            "no findings" elsewhere is unearned.
+        """
+        assert self._PLANTED.is_file()
+        code = run_cli(["--path", str(self._PLANTED.parent), "--strict"])
+        out = capsys.readouterr().out
+        assert code == 2, out

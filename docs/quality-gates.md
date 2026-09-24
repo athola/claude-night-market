@@ -180,6 +180,14 @@ The `plugins/abstract/scripts/` directory contains our validators:
 `abstract_validator.py` for skills, `validate_plugin.py` for structure,
 and `context_optimizer.py`.
 
+A `language: system` hook runs under the operator's PATH `python3`
+when `git commit` fires it, which has no project dependencies.
+`uv run pre-commit run` hides that, because uv puts the venv first on
+PATH. Any entry whose script imports PyYAML, directly or through
+`abstract`, runs as `uv run --with pyyaml python <script>`;
+`tests/test_precommit_entries_import_without_project_deps.py` imports
+every remaining bare-`python3` entry with PyYAML blocked.
+
 ### Standard Quality Checks
 
 We use standard hooks for formatting (`trailing-whitespace`,

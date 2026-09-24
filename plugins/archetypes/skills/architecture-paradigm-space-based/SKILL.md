@@ -60,12 +60,8 @@ estimated_tokens: 800
 
 ## Concrete Components
 
-These vocabulary items name the concrete tools and abstractions
-that show up when the paradigm is implemented. They are not
-required dependencies and they are not part of the skill's
-``tools:`` frontmatter (which is reserved for Claude Code tool
-restrictions). Use this list to disambiguate during architecture
-discussions.
+Vocabulary for the tools and abstractions an implementation of this
+paradigm tends to carry. Not dependencies, and not ``tools:`` frontmatter.
 
 - ``data-grid-platform``: Hazelcast, Apache Ignite, or similar; in-memory partitioned data store
 - ``replication-manager``: moves writes asynchronously to durable storage and across regions

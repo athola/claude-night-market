@@ -191,11 +191,12 @@ tier5:
       # not Y". The opener marks a definitional statement, so this is
       # high-precision even mid-sentence and with articles before Y.
       - '\b(?:It''s|It is|This is|That''s|That is|These are|Those are)\s+[\w\s]+?,\s+not\b'
-      # Bare trailing corrective: "Y, not X." Optional article before
-      # the negated term catches "clear, not a gimmick." as well as
-      # "clear, not clever." Genuine either/or choices are slop too;
-      # rewrite as "Y instead of X".
-      - '\b\w+,\s+not\s+(?:just\s+|a\s+|an\s+|the\s+)?\w+[.!?]'
+      # Bare trailing corrective: "Y, not X." The negated term may carry
+      # an article or possessive and run a few words ("clear, not a
+      # gimmick.", "records, not the model's judgment."). A reason
+      # clause after "not" states a cause and is excluded: "stopped
+      # early, not because it failed." is a fact about the run.
+      - '\b\w+,\s+not\s+(?!(?:because|when|if|until|unless|since|while|only|even|yet|as)\b)(?:just\s+)?(?:a|an|the|its|their|our|your|his|her|my)?\s*\w+(?:''s)?(?:\s+\w+){0,3}[.!?]'
   contrastive_negation_trailing:
     # The trailing corrective that survives casual proofreading, because
     # the opener reads as an ordinary statement and only the tail is the
@@ -449,6 +450,23 @@ tier5:
     patterns:
       - '[\u00AD\u200B\u200E\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFDD0-\uFDEF\uFFF9-\uFFFB\uFFFE\uFFFF\U000E0000-\U000E007F]'
       - '(?<=[\s\S])\uFEFF'
+  negated_alternative:
+    # A negation followed, inside the same clause, by "instead of" or
+    # "rather than": "never guesses instead of measuring", "does not
+    # retry rather than report". The sentence defines the thing by what
+    # it refuses to do, which is the antithesis shape contrastive
+    # negation covers, wearing a different connective. Asked for on
+    # 2026-09-18 alongside the ", not Y" tails.
+    #
+    # The bare connectives stay in contrastive_scaffold, opt-in and low,
+    # because this repository uses them correctly hundreds of times. The
+    # negation is what makes this form high precision: "use rg rather
+    # than grep" recommends, "never uses grep rather than rg" postures.
+    score: 2
+    confidence: high
+    ignore_case: true
+    patterns:
+      - '\b(?:never|not|no\s+longer|doesn''t|does\s+not|isn''t|is\s+not|aren''t|are\s+not|won''t|will\s+not|cannot|can''t|didn''t|did\s+not|wasn''t|was\s+not)\b[^.;:!?\n]{0,60}?\b(?:instead\s+of|rather\s+than)\b'
   plus_sign_conjunction:
     score: 1
     confidence: high
@@ -482,17 +500,25 @@ tier5:
   semicolon_splice:
     # Prose semicolons read as a sophistication marker: a clause
     # spliced with a semicolon usually reads more naturally as two
-    # sentences or one coordinating conjunction. Low confidence
-    # because lists with internal commas need the semicolon, so this
-    # surfaces every prose semicolon for human judgment instead of
-    # auto-rewriting. Code and inline code are stripped before this
-    # runs (see the markdown application layer). Policy: semicolons in
-    # prose only when absolutely necessary.
+    # sentences or one coordinating conjunction. Until 2026-09-18 this
+    # matched every prose semicolon at low confidence and scored none,
+    # because a list whose items carry internal commas needs the
+    # semicolon. The pattern now names the splice itself: text with no
+    # comma on either side of the semicolon, continuing in lowercase to
+    # a sentence end. A list item carries a comma and does not match;
+    # "; See Table 2" is a reference and does not match. What matches
+    # is scored. Code and inline code are stripped before this runs
+    # (see the markdown application layer). Policy: semicolons in prose
+    # only when absolutely necessary. Both runs are bounded at 120
+    # characters: neither excludes the newline, so on a document
+    # with no sentence punctuation an unbounded run spanned the
+    # whole file and the engine retried it from every start
+    # position, which cost 9.9s on a 94KB table.
     score: 1
-    confidence: low
+    confidence: high
     ignore_case: false
     patterns:
-      - '\w;\s+\w'
+      - '[A-Za-z][^,;:.!?]{5,120}; [a-z][^,;.!?]{5,120}[.!?]'
   performative_honesty:
     # "Honest X" headline framings and adverbial honesty throat-
     # clearing ("to be honest", "Honestly,", "full disclosure"):

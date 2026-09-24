@@ -477,14 +477,19 @@ def print_report(validator: SkillValidator, result: ValidationResult) -> None:
         for _info in result.info:
             print(f"  INFO: {_info}")
 
-    # Summary
-
-    # Result
+    # Summary and verdict. These were printed until a lint autofix
+    # (a6e77007) removed the calls and left the branches empty.
+    print("SUMMARY")
+    print("-" * 60)
+    print(f"Errors: {len(result.errors)}")
+    print(f"Warnings: {len(result.warnings)}")
     exit_code = result.exit_code()
-    if exit_code in {0, 1}:
-        pass
+    if exit_code == 0:
+        print("PASS - Ready to deploy")
+    elif exit_code == 1:
+        print("PASS WITH WARNINGS - Fix warnings before deployment")
     else:
-        pass
+        print("FAIL - Fix errors before deployment")
 
 
 def main() -> None:

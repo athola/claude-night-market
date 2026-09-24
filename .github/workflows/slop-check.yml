@@ -30,7 +30,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.0.1
+        uses: astral-sh/setup-uv@v10.2.0
 
       # The scan used to be an inline TIER1=/TIER2= grep alternation.
       # plugins/scribe/data/languages/en.yaml is the single pattern
@@ -39,6 +39,18 @@ jobs:
       # invisible here, and a regex category cannot be written as a word
       # alternation at all. scripts/slop_score.py reads the YAML, so a
       # category added there reaches CI with no edit to this file.
+      # Positive control. A pattern table that loads but parses to
+      # nothing scores every document 0.0, and the scan below would then
+      # pass with nothing to check with. The gate proves it can still see
+      # slop on a file written to fail it before the clean scan counts.
+      - name: Prove the scorer still flags planted slop
+        run: |
+          if uv run --with pyyaml python scripts/slop_score.py \
+              --threshold 3.0 --no-exclude tests/fixtures/slop/planted.md; then
+            echo "planted slop scored clean: the scorer is blind" >&2
+            exit 1
+          fi
+
       - name: Scan docs for slop markers
         id: scan
         run: |

@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "memory-palace"
-version = "1.9.20"
+version = "1.9.21"
 description = "Spatial knowledge organization plugin for Claude Code using memory palace techniques"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -19,14 +19,14 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "pyyaml>=6.0.2",
+    "pyyaml>=6.0.3",
     "networkx>=3.0",
     "scipy>=1.11",
 ]
 
 [project.optional-dependencies]
 fast = [
-    "xxhash>=3.0",  # 10x faster hashing
+    "xxhash>=4.0.1",  # 10x faster hashing
 ]
 semantic = [
     # corpus/semantic_deduplicator.py imports faiss at module top level.
@@ -34,35 +34,35 @@ semantic = [
     # set SemanticDeduplicator = None on every install, and the test suite
     # skipped its coverage. faiss-cpu has no Python 3.9 wheel, hence the
     # marker; on 3.9 the None fallback stays and the tests skip.
-    "faiss-cpu>=1.8.0 ; python_version >= '3.10'",
+    "faiss-cpu>=1.15.1 ; python_version >= '3.10'",
 ]
 dev = [
-    "pre-commit>=4.0.0",
-    "ruff>=0.14.13",
+    "pre-commit>=4.3.0",
+    "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
-    "ty>=0.0.1a23",
+    "ty>=0.0.82",
     "pytype>=2024.10.11 ; python_version >= '3.10'",
-    "typos>=1.0.0",
+    "typos>=1.50.2",
 ]
 
 [dependency-groups]
 dev = [
-    "bandit>=1.7.9,<2.0",
-    "blacken-docs>=1.16.0,<2.0",
+    "bandit>=1.8.6,<2.0",
+    "blacken-docs>=1.20.0,<2.0",
     "interrogate>=1.7.0,<2.0",
-    "pre-commit>=4.0.0",
-    "ty>=0.0.1a23",
-    "safety>=3.7.0,<4.0",
-    "typos>=1.0.0",
-    "ruff>=0.14.13",
+    "pre-commit>=4.3.0",
+    "ty>=0.0.82",
+    "safety>=3.8.1,<4.0",
+    "typos>=1.50.2",
+    "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
-    "types-pyyaml>=6.0.12",
+    "types-pyyaml>=6.0.12.20250915",
     "pytest>=8.0",
-    "pytest-cov>=6.0.0",
+    "pytest-cov>=7.1.0",
     # Belongs in the group, not the extra: run-plugin-tests.sh invokes a bare
     # `uv run python -m pytest`, and uv syncs dependency-groups but not extras.
     # In the extra, the semantic-dedup tests re-skipped under `make test`.
-    "faiss-cpu>=1.8.0 ; python_version >= '3.10'",
+    "faiss-cpu>=1.15.1 ; python_version >= '3.10'",
 ]
 
 [tool.pytest.ini_options]

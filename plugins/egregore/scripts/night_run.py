@@ -45,9 +45,12 @@ one it is already a plain word list.
 
 from __future__ import annotations
 
+import argparse
+import importlib
 import re
 import shlex
 import subprocess
+import sys
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
@@ -70,6 +73,10 @@ CONJURE_EXECUTOR = "plugins/conjure/scripts/delegation_executor.py"
 #: Exit code used when a command exceeds its timeout, matching the
 #: convention `timeout(1)` uses so logs read consistently.
 TIMEOUT_EXIT = 124
+
+#: Exit code when the walk broke after it had side effects. The gate's
+#: refusals own 1 to 4 and mean nothing ran, so this sits outside them.
+WALK_BROKEN_EXIT = 5
 
 #: `git diff --numstat` emits added and removed counts before the path.
 _NUMSTAT_COUNT_FIELDS = 2
@@ -371,20 +378,6 @@ def run_task(
             return result
 
     return result
-
-
-def render_proof(result: TaskResult) -> str:
-    """Render the proof ledger as the table a morning review reads."""
-    header = (
-        "| Task | Attempt | Evidence command | Exit | Expect | Verdict |\n"
-        "|------|---------|------------------|------|--------|---------|\n"
-    )
-    rows = "".join(
-        f"| {row['task']} | {row['attempt']} | `{row['command']}` | "
-        f"{row['exit']} | {row['expect']} | {row['verdict']} |\n"
-        for row in result.ledger
-    )
-    return header + rows
 
 
 #: Rough characters-per-token divisor used to estimate on-plan spend.
@@ -932,3 +925,71 @@ def write_proof(item_dir: Path, result: ItemResult) -> Path:
     path = item_dir / "proof.md"
     path.write_text("\n".join(lines))
     return path
+
+
+def main(
+    argv: Sequence[str] | None = None,
+    *,
+    runner: Runner | None = None,
+    babysitter: Babysitter | None = None,
+) -> int:
+    """Walk one handed-off item unattended: gate, walk, proof.
+
+    Exit codes: the gate's own (1 to 4) when the item is refused, and
+    then nothing has run; 0 when the walk stopped somewhere the proof
+    describes (every task passed, or parked on budget, usage, or a task
+    that would not pass); 5 (``WALK_BROKEN_EXIT``) when the walk itself
+    broke, on worktree setup, a commit, or the final full suite.
+
+    ``runner`` and ``babysitter`` are injection points for tests. In
+    production the babysitter is the real claude CLI, imported here and
+    not at module level because it imports this module.
+    """
+    parser = argparse.ArgumentParser(description="Night-shift item runner")
+    parser.add_argument("--item-dir", required=True, type=Path)
+    parser.add_argument("--root", type=Path, default=Path.cwd())
+    parser.add_argument(
+        "--budget-path",
+        type=Path,
+        default=None,
+        help="Cooldown ledger (default: <root>/.egregore/budget.json)",
+    )
+    parser.add_argument("--model", default="sonnet", help="Babysitter model")
+    parser.add_argument("--timeout", type=int, default=120, help="Babysitter seconds")
+    args = parser.parse_args(argv)
+
+    gate = importlib.import_module("handoff_gate")
+    verdict = gate.check_item(args.item_dir)
+    if verdict.code != gate.READY:
+        print(f"{verdict.state}: {args.item_dir}", file=sys.stderr)
+        for problem in verdict.problems:
+            print(f"  - {problem}", file=sys.stderr)
+        return int(verdict.code)
+    handoff, tasks = gate.load_item(args.item_dir)
+
+    runner = runner or SubprocessRunner()
+    if babysitter is None:
+        babysitter_module = importlib.import_module("claude_babysitter")
+        babysitter = babysitter_module.ClaudeBabysitter(
+            runner=runner, model=args.model, timeout=args.timeout
+        )
+    budget_path = args.budget_path or args.root / ".egregore" / "budget.json"
+
+    result = run_item(
+        handoff,
+        tasks,
+        args.root,
+        runner,
+        babysitter=babysitter,
+        budget=budget_mod.load_budget(budget_path),
+        budget_path=budget_path,
+    )
+    proof = write_proof(args.item_dir, result)
+    print(f"{result.status}: {proof}")
+    if result.status == "ready" or result.status.startswith("parked_"):
+        return 0
+    return WALK_BROKEN_EXIT
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -8,6 +8,14 @@ VHS tape files for generating tutorial GIFs.
 |------|--------|-------------|----------|----------|
 | [skills-showcase.tape](skills-showcase.tape) | [skills-showcase.gif](../gifs/skills-showcase.gif) | Skill discovery and workflow demonstration | ~23s | Demo script |
 
+## Post-Processing
+
+The showcase GIF carries a timed narration band. After re-recording
+with VHS, run `make tapes-subtitles` (or `bash
+assets/tapes/add-subtitles.sh`) to burn it back on. The timestamps in
+that script follow the tape's typing and Sleep beats, so re-time them
+when the tape changes.
+
 ## Recording Instructions
 
 ### Prerequisites

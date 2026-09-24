@@ -435,6 +435,12 @@ def format_report(m: DORAMetrics, window_days: int) -> str:
 # =============================================================================
 
 
+# gh blocks on a credential prompt or a dead connection with stdout
+# captured, which is a hang the CalledProcessError handler can never see.
+_GH_TIMEOUT_SECONDS = 30
+_GIT_TIMEOUT_SECONDS = 15
+
+
 def _run_git(args: list[str], cwd: Path | None = None) -> str:
     result = subprocess.run(
         ["git", *args],
@@ -442,6 +448,7 @@ def _run_git(args: list[str], cwd: Path | None = None) -> str:
         capture_output=True,
         text=True,
         check=True,
+        timeout=_GIT_TIMEOUT_SECONDS,
     )
     return result.stdout
 
@@ -556,8 +563,13 @@ def collect_failures_from_gh(
             capture_output=True,
             text=True,
             check=True,
+            timeout=_GH_TIMEOUT_SECONDS,
         )
-    except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+    except (
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        FileNotFoundError,
+    ) as exc:
         msg = f"gh CLI failed: {type(exc).__name__}: {exc}"
         print(f"[dora] WARNING: {msg}", file=sys.stderr)
         return CollectionResult(events=[], partial=True, warnings=(msg,))

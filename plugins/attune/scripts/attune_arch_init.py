@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
 
 from architecture_researcher import (
     ArchitectureResearcher,
+    load_decision_matrix,
     parse_project_context,
 )
 from attune_init import (
@@ -239,7 +241,7 @@ def present_recommendation(recommendation: ArchitectureRecommendation) -> bool:
 
 def perform_online_research(
     queries: list[str], context: dict[str, str]
-) -> dict[str, str]:
+) -> dict[str, list[str]]:
     """Perform online research using WebSearch (would be called via Claude).
 
     Args:
@@ -271,11 +273,77 @@ def perform_online_research(
         print(f"    {description}")
 
     print("\n" + "-" * 60)
-    print("\nNote: In Claude Code, these queries will be executed automatically")
-    print("via WebSearch to gather current best practices and recommendations.")
-    print("\nProceeding with algorithmic recommendation based on decision matrix...")
+    print("\nThis script cannot search. Run the queries in the session")
+    print("(Skill(tome:research) or WebSearch), write what they argue for as")
+    print('{"preferred": [...], "avoid": [...]} and pass it with --research-file.')
+    print("Without one, the recommendation is the decision matrix alone.")
 
     return {}
+
+
+RESEARCH_KEYS = frozenset({"preferred", "avoid"})
+_MODIFIER_SECTIONS = (
+    "project_type_modifiers",
+    "scalability_modifiers",
+    "security_modifiers",
+)
+
+
+def known_paradigms() -> frozenset[str]:
+    """Every paradigm name the decision matrix can score.
+
+    Read from the data file rather than listed here, so a paradigm added
+    to the matrix is accepted in a research file without a code change.
+    """
+    matrix = load_decision_matrix()
+    names = {
+        cell.get(slot, "")
+        for team in matrix["matrix"].values()
+        for cell in team.values()
+        for slot in ("primary", "secondary")
+    }
+    for section in _MODIFIER_SECTIONS:
+        for modifier in matrix.get(section, {}).values():
+            for entry in modifier.values():
+                if isinstance(entry, list):
+                    names.update(entry)
+    names.discard("")
+    return frozenset(names)
+
+
+def load_research_file(path: Path) -> dict[str, list[str]]:
+    """Read the session's research findings for the recommender.
+
+    The file holds the modifier vocabulary the decision matrix uses, so
+    the ranker applies it like any other modifier and names it in the
+    rationale. Anything else in the file is an error rather than a
+    silently ignored key: that is how the project-type modifiers went
+    unused for a year (ADR-0025).
+
+    Raises:
+        ValueError: On an unknown key, a value that is not a list of
+            strings, or a name the decision matrix does not know.
+
+    """
+    findings = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(findings, dict):
+        raise ValueError(f"{path}: research file must hold an object")
+    unknown = set(findings) - RESEARCH_KEYS
+    if unknown:
+        raise ValueError(
+            f"{path}: unknown research keys {sorted(unknown)}; use {sorted(RESEARCH_KEYS)}"
+        )
+    known = known_paradigms()
+    for key, value in findings.items():
+        if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
+            raise ValueError(f"{path}: {key} must be a list of paradigm names")
+        unknown_names = sorted(set(value) - known)
+        if unknown_names:
+            raise ValueError(
+                f"{path}: {key} names unknown paradigms {unknown_names}; "
+                f"use {sorted(known)}"
+            )
+    return findings
 
 
 def _generate_research_focus(context: dict[str, str]) -> dict[str, str]:
@@ -332,56 +400,6 @@ def _generate_research_focus(context: dict[str, str]) -> dict[str, str]:
     return focus_areas
 
 
-def generate_research_summary(
-    context: dict[str, str], recommendation: ArchitectureRecommendation
-) -> str:
-    """Generate a research summary for documentation.
-
-    Args:
-        context: Project context
-        recommendation: Architecture recommendation
-
-    Returns:
-        Research summary markdown string
-
-    """
-    summary = f"""## Research Summary
-
-### Project Context Analysis
-
-| Attribute | Value |
-|-----------|-------|
-| Project Type | {context.get("project_type", "N/A")} |
-| Domain Complexity | {context.get("domain_complexity", "N/A")} |
-| Team Size | {context.get("team_size", "N/A")} |
-| Language | {context.get("language", "N/A")} |
-| Scalability | {context.get("scalability_needs", "N/A")} |
-| Security | {context.get("security_requirements", "N/A")} |
-
-### Recommendation Basis
-
-The **{recommendation.primary.replace("-", " ").title()}** architecture was \
-selected based on:
-
-1. **Team-Domain Fit**: {context.get("team_size", "N/A")} engineers working \
-on {context.get("domain_complexity", "N/A")} domain
-2. **Project Requirements**: {context.get("project_type", "N/A")} with \
-{context.get("scalability_needs", "N/A")} scalability needs
-3. **Decision Matrix**: Algorithmic matching of context to proven \
-architectural patterns
-
-### Key Considerations
-
-"""
-    # Add trade-off information
-    if recommendation.trade_offs:
-        summary += "#### Trade-offs\n\n"
-        for key, value in recommendation.trade_offs.items():
-            summary += f"- **{key.replace('-', ' ').title()}**: {value}\n"
-
-    return summary
-
-
 def _build_arch_parser() -> argparse.ArgumentParser:
     """Build the ``attune arch-init`` argparse parser."""
     parser = argparse.ArgumentParser(
@@ -391,6 +409,11 @@ def _build_arch_parser() -> argparse.ArgumentParser:
     parser.add_argument("--arch", "--architecture", help="Force specific architecture")
     parser.add_argument(
         "--no-research", action="store_true", help="Skip online research phase"
+    )
+    parser.add_argument(
+        "--research-file",
+        type=Path,
+        help='JSON {"preferred": [...], "avoid": [...]} written after the research queries were run',
     )
     parser.add_argument(
         "--accept-recommendation",
@@ -529,7 +552,9 @@ def main() -> None:
     context = parse_project_context(context_data)
     researcher = ArchitectureResearcher(context)
 
-    if not args.no_research:
+    if args.research_file:
+        research_findings = load_research_file(args.research_file)
+    elif not args.no_research:
         queries = researcher.generate_search_queries()
         research_findings = perform_online_research(queries, context_data)
     else:

@@ -37,11 +37,11 @@ class TestVocabularyCoverage:
 
     @pytest.mark.unit
     def test_agent_topic_gets_full_channel_coverage(self) -> None:
-        """Scenario: the topic that motivated this work gets four channels."""
+        """Scenario: the topic that motivated this work gets every channel."""
         result = classify(
             "persistent session memory and on-demand recall for AI coding agents"
         )
-        assert len(plan(result).channels) == 4
+        assert len(plan(result).channels) == 5
 
     @pytest.mark.unit
     def test_existing_domains_still_classify(self) -> None:
@@ -125,3 +125,75 @@ class TestConfidenceReflectsEvidence:
         """Scenario: the score remains a valid [0, 1] quantity."""
         for topic in ("", "sort", "cache eviction b-tree index", "react css"):
             assert 0.0 <= classify(topic).confidence <= 1.0
+
+
+class TestMethodologyTopicsAreRecognized:
+    """
+    Feature: Method and framework topics have a domain
+
+    As the research planner
+    I want a topic about inventive or research methodology to classify
+    So that its plan includes the academic and triz channels
+
+    Found dogfooding ADR-0024: the mission's own topic scored general at
+    0.33 with one candidate, so the plan dropped the triz channel while
+    researching TRIZ.
+    """
+
+    @pytest.mark.unit
+    def test_a_pure_methodology_topic_classifies_confidently(self) -> None:
+        result = classify("TRIZ inventive principles and ideation heuristics")
+        assert result.domain == "methodology"
+        assert result.triz_depth == "deep"
+        assert "triz" in plan(result).channels
+
+    @pytest.mark.unit
+    def test_the_adr_0024_topic_no_longer_drops_triz(self) -> None:
+        """
+        Given the topic that abstained during the ADR-0024 dogfood
+        Then it refines toward methodology and ai-agents at deep depth
+        """
+        result = classify(
+            "OctoTools tool cards, context verification, and TRIZ-like "
+            "inventive frameworks for a multi-channel research toolset"
+        )
+        assert result.triz_depth == "deep"
+        assert {"methodology", "ai-agents"} <= set(
+            result.candidates
+        ) or result.domain in (
+            "methodology",
+            "ai-agents",
+        )
+        assert "triz" in plan(result).channels
+
+    @pytest.mark.unit
+    def test_agent_framework_vocabulary_reaches_ai_agents(self) -> None:
+        result = classify("planner executor verifier loop in an agentic toolset")
+        assert result.domain == "ai-agents"
+
+
+class TestBroadTermsDoNotEscalateOrdinaryTopics:
+    """
+    Feature: One generic word does not buy a deep four-agent plan
+
+    A lone candidate from a substring hit abstains at that candidate's
+    depth, so "framework" or "planner" alone would send a Postgres or
+    Django topic to deep depth.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("topic", "not_domain"),
+        [
+            ("postgres query planner statistics", "ai-agents"),
+            ("thread pool executor sizing", "ai-agents"),
+            ("python web framework benchmark", "methodology"),
+            ("testing framework migration to pytest", "methodology"),
+        ],
+    )
+    def test_ordinary_topic_does_not_reach_the_new_domain(
+        self, topic: str, not_domain: str
+    ) -> None:
+        result = classify(topic)
+        assert result.domain != not_domain
+        assert not_domain not in result.candidates

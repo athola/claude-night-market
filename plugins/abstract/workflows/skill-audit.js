@@ -101,22 +101,29 @@ const reviewed = await pipeline(
         schema: FINDINGS,
       },
     ),
-  (review) =>
-    parallel(
-      (review?.findings || []).map((finding) => () =>
+  (review, dimension) => {
+    // A dimension whose auditor returned nothing is unaudited, and it
+    // must not read as a dimension with no findings.
+    if (!review) return [{ unread: dimension.key }]
+    return parallel(
+      (review.findings || []).map((finding) => () =>
         agent(
           `Try to refute this audit finding. Read the skill and look for the reading that makes the finding wrong. Default to refuted=true when the evidence does not hold up.\n\nSkill: ${finding.skill}\nClaim: ${finding.claim}\nEvidence offered: ${finding.evidence}`,
           { label: `verify:${finding.skill}`, phase: 'Verify', schema: VERDICT },
         ).then((verdict) => ({ ...finding, verdict })),
       ),
-    ),
+    )
+  },
 )
 
-const surviving = reviewed
-  .flat()
-  .filter(Boolean)
-  .filter((finding) => finding.verdict && !finding.verdict.refuted)
+const entries = reviewed.flat().filter(Boolean)
+const unread = entries.filter((entry) => entry.unread).map((entry) => entry.unread)
+const surviving = entries.filter((finding) => finding.verdict && !finding.verdict.refuted)
+// A verifier that returned nothing did not refute the finding.
+const unverified = entries.filter((finding) => !finding.unread && !finding.verdict)
 
 log(`${surviving.length} findings survived refutation across ${targets.length} skills`)
+if (unread.length) log(`no audit from ${unread.join(', ')}; those dimensions are unaudited, not clean`)
+if (unverified.length) log(`${unverified.length} findings got no verdict; they are unverified, not refuted`)
 
-return { audited: targets, findings: surviving }
+return { audited: targets, findings: surviving, unread, unverified }

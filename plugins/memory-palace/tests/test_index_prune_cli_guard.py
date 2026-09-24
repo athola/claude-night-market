@@ -76,8 +76,15 @@ class TestPruneRefusesWithoutTheCorpus:
     """A corpus-less tree neither empties the index nor breaks the commit."""
 
     @pytest.fixture
-    def cli(self, tmp_path: Path):
-        """Build a CLI instance rooted at a throwaway plugin directory."""
+    def cli(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        """Build a CLI instance rooted at a throwaway plugin directory.
+
+        Both data-dir overrides are cleared because ``persistent_root``
+        lets either outrank ``plugin_dir``: with one set, the prune below
+        would run against the operator's real capture index.
+        """
+        monkeypatch.delenv("MEMORY_PALACE_DATA_DIR", raising=False)
+        monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
         module = _load_cli_module()
         instance = module.MemoryPalaceCLI()
         instance.plugin_dir = tmp_path

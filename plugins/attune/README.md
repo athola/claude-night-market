@@ -259,6 +259,13 @@ With spec-kit, Attune aligns with specification patterns:
 - **Specifications**: `Skill(spec-kit:spec-writing)`
 - **Task Planning**: `Skill(spec-kit:task-planning)`
 
+## Design Origin
+
+The problem statement, requirements and approach options this plugin
+grew from are kept in `docs/brainstorm-attune-plugin.md`. Read it when a
+change touches the initialization flow, so the constraint being relaxed
+is a known one.
+
 ## Philosophy
 
 Attune enforces structured workflows from ideation to implementation,

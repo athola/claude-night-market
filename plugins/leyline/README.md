@@ -61,7 +61,8 @@ and standardized error recovery.
 The `quota_tracker` and `service_registry` utilities provide real-time
 monitoring of service health and rate limit compliance.
 These patterns use loose coupling to allow for progressive adoption throughout
-the codebase.
+the codebase. The reference, fallback and vendoring patterns a consuming
+plugin chooses between are in `docs/cross-plugin-integration.md`.
 
 ## Optional Dependencies
 

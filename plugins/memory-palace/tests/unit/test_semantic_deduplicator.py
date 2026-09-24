@@ -10,7 +10,6 @@ So that the knowledge base stays dense and non-redundant
 from __future__ import annotations
 
 import math
-from unittest.mock import patch
 
 import pytest
 
@@ -19,6 +18,7 @@ faiss = pytest.importorskip("faiss", reason="faiss-cpu not installed")
 from memory_palace.corpus.semantic_deduplicator import (  # noqa: E402 - import after pytest.importorskip guard
     DEFAULT_THRESHOLD,
     SemanticDeduplicator,
+    _best_match_from_dict,
     _content_id,
     _hash_to_vector,
     _jaccard_similarity,
@@ -27,6 +27,36 @@ from memory_palace.corpus.semantic_deduplicator import (  # noqa: E402 - import 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+#: Content strings whose real hash embeddings straddle the 0.8 threshold
+#: at the fixture's vector_dim=4. Chosen by measurement, and pinned by
+#: ``test_content_pairs_straddle_the_default_threshold`` so a change to
+#: ``_hash_to_vector`` cannot quietly turn the duplicate cases into
+#: distinct ones.
+DISTINCT_A = "epsilon"
+DISTINCT_B = "nu"
+NEAR_DUPLICATE_A = "xi"
+NEAR_DUPLICATE_B = "upsilon"
+#: A pair below 0.8 but above 0.5, for the custom-threshold case.
+MIDDLING_A = "alpha"
+MIDDLING_B = "epsilon"
+
+
+def _embeddings(entry_id: str, content: str, dim: int = 4) -> dict[str, list[float]]:
+    """Build an existing-embeddings dict from a real hash embedding."""
+    return {entry_id: _hash_to_vector(content, dim)}
+
+
+def _measured_similarity(content: str, existing: dict[str, list[float]]) -> float:
+    """Score *content* through the same helper ``should_store`` uses.
+
+    Recomputing the cosine in the test would be float64 against the
+    deduplicator's float32, and the last bits decide a ``>=`` at the
+    boundary.
+    """
+    _, score = _best_match_from_dict(content, existing)
+    return score
 
 
 def _unit_vectors(n: int, dim: int = 4) -> list[list[float]]:
@@ -145,22 +175,9 @@ class TestSemanticDeduplicatorFaiss:
         When new content with low similarity is checked
         Then should_store returns True.
         """
-        vecs = _unit_vectors(2, dim=4)
-        deduplicator.add_vector("entry-a", vecs[0])
+        existing = _embeddings("entry-a", DISTINCT_A)
 
-        # Use existing_embeddings with the same vector for "entry-a"
-        # but build a second embedding that is orthogonal
-        orthogonal = [0.0, 1.0, 0.0, 0.0]
-        existing: dict[str, list[float]] = {"entry-a": vecs[0]}
-
-        # Patch _hash_to_vector to return our orthogonal vector
-        with patch(
-            "memory_palace.corpus.semantic_deduplicator._hash_to_vector",
-            return_value=orthogonal,
-        ):
-            result = deduplicator.should_store("new content", existing)
-
-        assert result is True
+        assert deduplicator.should_store(DISTINCT_B, existing) is True
 
     @pytest.mark.unit
     def test_near_duplicate_suppressed(
@@ -171,17 +188,9 @@ class TestSemanticDeduplicatorFaiss:
         When should_store is called with nearly identical content
         Then it returns False.
         """
-        vec = [1.0, 0.0, 0.0, 0.0]
-        existing: dict[str, list[float]] = {"entry-a": vec}
+        existing = _embeddings("entry-a", NEAR_DUPLICATE_A)
 
-        # Patch so that the query vector matches entry-a exactly (score = 1.0)
-        with patch(
-            "memory_palace.corpus.semantic_deduplicator._hash_to_vector",
-            return_value=vec,
-        ):
-            result = deduplicator.should_store("almost same content", existing)
-
-        assert result is False
+        assert deduplicator.should_store(NEAR_DUPLICATE_B, existing) is False
 
     @pytest.mark.unit
     def test_counter_increments_on_near_duplicate(
@@ -192,18 +201,12 @@ class TestSemanticDeduplicatorFaiss:
         When the same near-duplicate content is submitted twice
         Then the counter for the matched entry increments each time.
         """
-        vec = [1.0, 0.0, 0.0, 0.0]
-        existing: dict[str, list[float]] = {"entry-a": vec}
+        existing = _embeddings("entry-a", NEAR_DUPLICATE_A)
 
-        with patch(
-            "memory_palace.corpus.semantic_deduplicator._hash_to_vector",
-            return_value=vec,
-        ):
-            deduplicator.should_store("dup 1", existing)
-            deduplicator.should_store("dup 2", existing)
+        deduplicator.should_store(NEAR_DUPLICATE_B, existing)
+        deduplicator.should_store(NEAR_DUPLICATE_B, existing)
 
-        count = deduplicator.get_near_duplicate_count("entry-a")
-        assert count == 2
+        assert deduplicator.get_near_duplicate_count("entry-a") == 2
 
     @pytest.mark.unit
     def test_threshold_boundary_at_exactly_threshold(
@@ -213,16 +216,18 @@ class TestSemanticDeduplicatorFaiss:
         Given existing content and new content with similarity == threshold
         When should_store is called
         Then it returns False (threshold is inclusive).
+
+        The threshold is set to the pair's measured score rather than the
+        content being chosen to hit 0.8, which no real embedding does.
         """
-        vec = [1.0, 0.0, 0.0, 0.0]
-        existing: dict[str, list[float]] = {"entry-a": vec}
-        # Similarity will be 1.0 >= 0.8 → suppressed
-        with patch(
-            "memory_palace.corpus.semantic_deduplicator._hash_to_vector",
-            return_value=vec,
-        ):
-            result = deduplicator.should_store("content", existing, entry_id="new")
+        existing = _embeddings("entry-a", DISTINCT_A)
+        exact = _measured_similarity(DISTINCT_B, existing)
+        at_threshold = SemanticDeduplicator(threshold=exact, vector_dim=4)
+
+        result = at_threshold.should_store(DISTINCT_B, existing, entry_id="new")
+
         assert result is False
+        assert at_threshold.get_near_duplicate_count("entry-a") == 1
 
     @pytest.mark.unit
     def test_below_threshold_allows_storage(
@@ -233,20 +238,12 @@ class TestSemanticDeduplicatorFaiss:
         When should_store is called
         Then it returns True.
         """
-        vec_a = [1.0, 0.0, 0.0, 0.0]
-        # low similarity vector: mostly orthogonal
-        vec_b = [0.1, 0.99, 0.0, 0.0]
+        existing = _embeddings("entry-a", DISTINCT_A)
+        measured = _measured_similarity(DISTINCT_B, existing)
+        just_above = SemanticDeduplicator(threshold=measured + 1e-6, vector_dim=4)
 
-        norm = math.sqrt(sum(v * v for v in vec_b))
-        vec_b = [v / norm for v in vec_b]
-
-        existing: dict[str, list[float]] = {"entry-a": vec_a}
-        with patch(
-            "memory_palace.corpus.semantic_deduplicator._hash_to_vector",
-            return_value=vec_b,
-        ):
-            result = deduplicator.should_store("different content", existing)
-        assert result is True
+        assert just_above.should_store(DISTINCT_B, existing) is True
+        assert deduplicator.should_store(DISTINCT_B, existing) is True
 
     @pytest.mark.unit
     def test_add_vector_increases_index_size(
@@ -265,18 +262,44 @@ class TestSemanticDeduplicatorFaiss:
     def test_custom_threshold_respected(self) -> None:
         """Scenario: Custom threshold
         Given a deduplicator with threshold=0.5
-        When content with similarity 0.6 is submitted
-        Then it is suppressed (>= 0.5).
+        When a pair scoring between 0.5 and 0.8 is submitted
+        Then it is suppressed here and stored at the default threshold.
         """
-        dedup = SemanticDeduplicator(threshold=0.5, vector_dim=4)
-        vec = [1.0, 0.0, 0.0, 0.0]
-        existing: dict[str, list[float]] = {"e": vec}
-        with patch(
-            "memory_palace.corpus.semantic_deduplicator._hash_to_vector",
-            return_value=vec,
-        ):
-            result = dedup.should_store("content", existing)
-        assert result is False
+        existing = _embeddings("e", MIDDLING_A)
+
+        assert (
+            SemanticDeduplicator(threshold=0.5, vector_dim=4).should_store(
+                MIDDLING_B, existing
+            )
+            is False
+        )
+        assert (
+            SemanticDeduplicator(threshold=0.8, vector_dim=4).should_store(
+                MIDDLING_B, existing
+            )
+            is True
+        )
+
+    @pytest.mark.unit
+    def test_content_pairs_straddle_the_default_threshold(self) -> None:
+        """The premise the cases above rest on, checked rather than assumed.
+
+        These strings are only a duplicate pair and a distinct pair
+        because their real embeddings say so. If ``_hash_to_vector``
+        changes, this fails first and names the reason, instead of the
+        suppression cases quietly passing for the wrong reason.
+        """
+        distinct = _measured_similarity(DISTINCT_B, _embeddings("a", DISTINCT_A))
+        near = _measured_similarity(
+            NEAR_DUPLICATE_B, _embeddings("a", NEAR_DUPLICATE_A)
+        )
+        middling = _measured_similarity(MIDDLING_B, _embeddings("a", MIDDLING_A))
+
+        assert distinct == pytest.approx(0.397, abs=0.01)
+        assert near == pytest.approx(0.995, abs=0.01)
+        assert middling == pytest.approx(0.515, abs=0.01)
+        assert distinct < DEFAULT_THRESHOLD <= near
+        assert 0.5 <= middling < DEFAULT_THRESHOLD
 
     @pytest.mark.unit
     def test_default_threshold_value(self) -> None:

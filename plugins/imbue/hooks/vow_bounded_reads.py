@@ -87,48 +87,6 @@ def _counter_path(session_id: str) -> Path:
     )
 
 
-def _read_counter(path: Path) -> int:
-    """Read the current counter value from *path*, returning 0 on any error."""
-    try:
-        fd = secure_open(path, os.O_RDONLY)
-    except OSError:  # missing, or ELOOP on a planted symlink
-        return 0
-    try:
-        if not fd_owned_by_us(fd):
-            return 0
-        data = json.loads(os.read(fd, 4096).decode("utf-8") or "{}")
-        return int(data.get("count", 0))
-    except Exception as exc:  # hook must not crash on corrupt counter file
-        print(f"[vow-bounded-reads] WARN: counter read failed: {exc}", file=sys.stderr)
-        return 0
-    finally:
-        os.close(fd)
-
-
-def _write_counter(path: Path, count: int) -> None:
-    """Write *count* to the counter file at *path* with 0o600 perms.
-
-    Uses ``os.open`` + ``O_CREAT | O_WRONLY | O_TRUNC`` with mode 0o600 so
-    the counter is never world-readable on shared systems (the filename
-    embeds the session id). ``os.chmod`` is called after open to tighten
-    permissions even when the file pre-existed with looser modes.
-    """
-    try:
-        fd = secure_open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-        try:
-            os.fchmod(fd, 0o600)
-        except OSError:
-            pass
-        try:
-            if not fd_owned_by_us(fd):
-                return
-            os.write(fd, json.dumps({"count": count}).encode("utf-8"))
-        finally:
-            os.close(fd)
-    except Exception as exc:  # noqa: S110 - write failures are non-fatal; hook must not crash the agent
-        print(f"[vow-bounded-reads] WARN: counter write failed: {exc}", file=sys.stderr)
-
-
 def _read_with_lock(fd: int) -> int:
     """Read and parse the counter from an open, locked file descriptor.
 
@@ -174,7 +132,8 @@ def _atomic_increment(path: Path) -> int:  # noqa: PLR0912 - POSIX flock require
     try:
         # O_RDWR|O_CREAT (no O_TRUNC) so we can read the current value
         # before overwriting it.  O_NOFOLLOW (via secure_open) refuses a
-        # symlinked counter path.  Mode 0o600 mirrors _write_counter.
+        # symlinked counter path.  Mode 0o600 keeps the counter
+        # private on shared systems.
         fd = secure_open(path, os.O_RDWR | os.O_CREAT, 0o600)
         try:
             os.fchmod(fd, 0o600)

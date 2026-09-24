@@ -581,3 +581,82 @@ class TestCollectFilesEdgeCases:
         result = collect_files(str(tmp_path))
         assert any("ok.py" in f for f in result)
         assert not any("broken.py" in f for f in result)
+
+
+class TestCallTargetResolution:
+    """Feature: a build points call edges at the definitions they name.
+
+    The parser writes the callee as spelled at the call site. Flows,
+    communities and blast radius look targets up by qualified name, so
+    until a build resolves them every call edge is a dead end.
+    """
+
+    def _chain(self, tmp_path: Path) -> Path:
+        source = tmp_path / "chain.py"
+        source.write_text(
+            "def leaf():\n    return len('x')\n\n\n"
+            "def middle():\n    return leaf()\n\n\n"
+            "def entry():\n    return middle()\n"
+        )
+        return source
+
+    def test_full_build_resolves_a_same_file_call(self, tmp_path: Path) -> None:
+        """The edge from entry to middle is rewritten to middle's qualified name."""
+        source = self._chain(tmp_path)
+        graph = GraphStore(tmp_path / "g.db")
+        try:
+            report = full_build(str(tmp_path), graph)
+            targets = {
+                e.target_qn
+                for e in graph.get_edges_by_source(f"{source}::entry")
+                if e.kind == EdgeKind.CALLS
+            }
+            assert targets == {f"{source}::middle"}
+            assert report["edges_resolved"] >= 2
+        finally:
+            graph.close()
+
+    def test_a_call_into_the_standard_library_stays_bare(self, tmp_path: Path) -> None:
+        """len() defines nothing in the graph, so its edge is left external."""
+        source = self._chain(tmp_path)
+        graph = GraphStore(tmp_path / "g.db")
+        try:
+            full_build(str(tmp_path), graph)
+            targets = {
+                e.target_qn for e in graph.get_edges_by_source(f"{source}::leaf")
+            }
+            assert "len" in targets
+        finally:
+            graph.close()
+
+    def test_an_ambiguous_name_is_left_alone(self, tmp_path: Path) -> None:
+        """Two files define helper(); a third file's call to it cannot pick one."""
+        (tmp_path / "a.py").write_text("def helper():\n    return 1\n")
+        (tmp_path / "b.py").write_text("def helper():\n    return 2\n")
+        caller = tmp_path / "c.py"
+        caller.write_text("def use():\n    return helper()\n")
+        graph = GraphStore(tmp_path / "g.db")
+        try:
+            full_build(str(tmp_path), graph)
+            targets = {e.target_qn for e in graph.get_edges_by_source(f"{caller}::use")}
+            assert targets == {"helper"}
+        finally:
+            graph.close()
+
+    def test_incremental_update_resolves_reparsed_files(self, tmp_path: Path) -> None:
+        """A reparsed file's calls are resolved like a full build's."""
+        source = self._chain(tmp_path)
+        graph = GraphStore(tmp_path / "g.db")
+        try:
+            full_build(str(tmp_path), graph)
+            # The hash skip only reparses a file whose bytes changed.
+            source.write_text(
+                source.read_text() + "\n\ndef extra():\n    return entry()\n"
+            )
+            with patch(
+                "gauntlet.incremental.get_changed_files", return_value=[str(source)]
+            ):
+                report = incremental_update(str(tmp_path), graph, "HEAD")
+            assert report["edges_resolved"] >= 2
+        finally:
+            graph.close()

@@ -359,16 +359,27 @@ class TestNotificationStateLoadSaveRoundtrip:
         assert len(sanitized) <= 64
 
     @pytest.mark.integration
-    def test_save_silently_handles_write_error(self) -> None:
-        """Save does not raise when the file cannot be written."""
+    def test_save_silently_handles_write_error(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """GIVEN a state file path inside a directory that does not exist.
+
+        WHEN the state is saved
+        THEN nothing is raised, the failure is named on stderr, and no
+            file or directory is created
+
+        Silence on stderr would make the hook lose notifications with
+        no trace; creating the directory would make a hook that is
+        meant to be best-effort start writing to arbitrary paths.
+        """
+        target = tmp_path / "absent-dir" / "state.json"
         state = NotificationState(session_id="write_fail")
-        with patch.object(
-            NotificationState,
-            "state_file_path",
-            return_value=Path("/nonexistent/dir/state.json"),
-        ):
-            # Should not raise
+
+        with patch.object(NotificationState, "state_file_path", return_value=target):
             state.save()
+
+        assert "save failed" in capsys.readouterr().err
+        assert not target.parent.exists()
 
     @pytest.mark.integration
     def test_record_notification_persists_state(self, tmp_path: Path) -> None:
@@ -481,14 +492,28 @@ class TestMainBlockArgumentParsing:
         mock_main.assert_called_once()
 
     @pytest.mark.integration
-    def test_clear_notification_state_silences_os_errors(self) -> None:
-        """OSError during state load is caught silently (hook must not crash)."""
+    def test_clear_notification_state_silences_os_errors(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """GIVEN a state load that fails with OSError.
+
+        WHEN the UserPromptSubmit path clears the flag
+        THEN nothing is raised and the cause is reported on stderr
+
+        The companion test below pins that a RuntimeError still
+        propagates, so this one has to pin more than "did not raise":
+        a bare ``except OSError: pass`` would satisfy that and leave an
+        operator with a hook that has quietly stopped working.
+        """
         with patch(
             "session_complete_notify.NotificationState.load",
             side_effect=OSError("disk full"),
         ):
-            # Must not raise
-            clear_notification_state("any_session")
+            assert clear_notification_state("any_session") is None
+
+        captured = capsys.readouterr().err
+        assert "clear_notification_state" in captured
+        assert "disk full" in captured
 
     @pytest.mark.integration
     def test_clear_notification_state_propagates_runtime_errors(self) -> None:
@@ -951,14 +976,30 @@ class TestRunNotificationIntegration:
         assert state.notified_since_input is False
 
     @pytest.mark.integration
-    def test_exception_in_run_notification_is_silent(self) -> None:
-        """Exceptions in run_notification() are caught silently."""
-        with patch(
-            "session_complete_notify.os.chdir",
-            side_effect=OSError("bad dir"),
+    def test_exception_in_run_notification_is_silent(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """GIVEN a chdir to the caller's cwd that fails with OSError.
+
+        WHEN the background notification runs
+        THEN nothing is raised, no notification is sent, and the cause
+            is reported on stderr
+
+        chdir is the first statement in the try, so a notification
+        reaching the user here would mean it was built from the wrong
+        directory's terminal info.
+        """
+        with (
+            patch(
+                "session_complete_notify.os.chdir",
+                side_effect=OSError("bad dir"),
+            ),
+            patch("session_complete_notify.send_notification") as mock_send,
         ):
-            # Should not raise
             run_notification("err_session", "/nonexistent/path")
+
+        mock_send.assert_not_called()
+        assert "bad dir" in capsys.readouterr().err
 
     @pytest.mark.integration
     def test_run_notification_propagates_unexpected_errors(self) -> None:

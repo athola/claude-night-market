@@ -16,6 +16,8 @@ orchestrates:
   - tome:papers
   - tome:triz
   - tome:synthesize
+modules:
+  - modules/stop-verifier.md
 model_hint: standard
 ---
 # Research Session Orchestrator
@@ -89,14 +91,13 @@ Use this mapping:
 | code | `tome:code-searcher` | topic |
 | discourse | `tome:discourse-scanner` | topic, domain, subreddits |
 | academic | `tome:literature-reviewer` | topic, domain |
+| web | `tome:web-searcher` | topic, domain |
 | triz | `tome:triz-analyst` | topic, domain, triz_depth |
 
 **Rules:**
-- Always dispatch code and discourse agents
-- Dispatch academic agent only if "academic" is in
-  research_plan.channels
-- Dispatch triz agent only if "triz" is in
-  research_plan.channels AND triz_depth != "light"
+- Dispatch every channel in `research_plan.channels`, which the
+  planner derives from each card's `min_depth`: code and discourse
+  at every depth, academic and web from medium, triz from deep
 - Dispatch all eligible agents in a SINGLE message
   (parallel, not sequential)
 
@@ -105,7 +106,16 @@ Each agent prompt must include:
 2. The domain classification
 3. Any channel-specific context (subreddits for discourse,
    triz_depth for triz)
-4. Instruction to return findings as JSON
+4. The channel's card, from
+   `render_card(get_card(channel))` in `tome.channels.cards`.
+   It carries the channel's limitations and points the agent at
+   the envelope its own file documents. Do not dictate a return
+   shape in the prompt: an agent obeys the prompt over its file,
+   and a prompt-invented shape once cost a session its canary
+   record.
+
+The rows above restate the cards. The cards are what the
+planner gates on, and a drift test holds the two together.
 
 ### Step 5: Collect and Synthesize
 
@@ -131,6 +141,31 @@ After all agents return:
 
 3. Merge using `tome.synthesis.merger.merge_findings()`
 4. Rank using `tome.synthesis.ranker.rank_findings()`
+
+### Step 5b: Verify, Then Loop or Stop
+
+```python
+from tome.synthesis.verifier import verify_context
+
+check = verify_context(session, passes_run=n)  # max_passes default 2
+```
+
+`CONTINUE` names the work and why:
+
+- `rerun`: the channel failed, degraded, left no record, or
+  cannot show it was able to search. Dispatch it again as is.
+- `reformulate`: a venue mismatch. Dispatch it again with the
+  vocabulary the productive channel's findings use.
+- `add`: a thin-field candidate that a retrieval channel never
+  looked at. Dispatch that channel.
+
+Dispatch only those agents, append their envelopes to the same
+session, merge and rank again, then verify with `passes_run`
+raised by one. `STOP` goes to Step 6. A `STOP` on the pass
+budget (`max_passes`, default 2) still lists the undone work:
+report it as a gap, never as a finished search. Each check's
+`detail` says what it read. See `modules/stop-verifier.md` for
+why the decision comes from records and not from a judgment.
 
 ### Step 6: Generate Output
 
@@ -215,9 +250,15 @@ Then offer interactive refinement:
 
 - [ ] Domain classified before agents are dispatched; if confidence
       < 0.6, user confirmation is requested before proceeding
-- [ ] Code and discourse agents always dispatched; academic and triz
-      agents dispatched only when their channels are in the plan;
-      all eligible agents sent in a single parallel message
+- [ ] Every channel in `research_plan.channels` was dispatched, none
+      outside it, all in a single parallel message
+- [ ] Every dispatch prompt embeds `render_card` output for its
+      channel and dictates no return shape of its own
+- [ ] `verify_context` ran after every pass; the report was written
+      only after it returned `STOP`, and no more than `max_passes`
+      passes ran
+- [ ] A budget `STOP` with `rerun`, `reformulate`, or `add` left
+      non-empty names those channels as gaps in the summary
 - [ ] Session saved to `docs/research/{session.id}-{slug}.md` after
       synthesis regardless of whether all agents succeeded
 - [ ] Top 3 findings by relevance score displayed to the user with

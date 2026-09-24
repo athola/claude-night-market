@@ -102,6 +102,9 @@ const reviewed = await pipeline(
       skill: topic.name,
       path: written.path,
       reviews: reviews.filter(Boolean),
+      // A lens that died where it would have said fix-required leaves
+      // the skill reading as clean. Name it per skill.
+      unreviewed: LENSES.filter((lens, index) => !reviews[index]).map((lens) => lens.key),
     }))
   },
 )

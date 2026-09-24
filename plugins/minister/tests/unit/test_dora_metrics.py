@@ -513,6 +513,24 @@ class TestCollectFailuresFromGh:
         assert result.events[1].resolved_at is None
         assert result.partial is False
 
+    def test_gh_hang_is_bounded_and_reported_as_partial(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A stalled gh (credential prompt, dead network) times out instead of hanging."""
+        seen: dict[str, object] = {}
+
+        def stalled_run(*args: object, **kwargs: object) -> object:
+            seen.update(kwargs)
+            raise _sub.TimeoutExpired(cmd="gh", timeout=kwargs.get("timeout", 0))
+
+        monkeypatch.setattr(_sub, "run", stalled_run)
+        result = dora_metrics.collect_failures_from_gh(
+            failure_label="bug", window_days=30
+        )
+        assert seen.get("timeout"), "gh must run under a timeout"
+        assert result.events == []
+        assert result.partial is True
+
     def test_invalid_json_returns_empty(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Unparseable gh stdout produces an empty, partial result, not a crash."""
 

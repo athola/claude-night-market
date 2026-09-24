@@ -64,7 +64,7 @@ and provides tools for monitoring and reducing context usage.
 ### Manual Skill Invocation
 
 ```bash
-Skill(conservation:context-optimization)
+Skill(conserve:context-optimization)
 
 # Provides:
 # - MECW principles
@@ -148,7 +148,7 @@ git log --oneline -10
 The `cpu-gpu-performance` skill monitors resource usage:
 
 ```bash
-Skill(conservation:cpu-gpu-performance)
+Skill(conserve:cpu-gpu-performance)
 
 # Provides:
 # - Baseline establishment
@@ -162,7 +162,7 @@ Skill(conservation:cpu-gpu-performance)
 For processing data too large for context:
 
 ```bash
-Skill(conservation:mcp-code-execution)
+Skill(conserve:mcp-code-execution)
 
 # Patterns for:
 # - External data processing

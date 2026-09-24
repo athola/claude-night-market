@@ -215,3 +215,26 @@ class TestCrossPluginFallbacks:
         text = (MODULES_DIR / "clean-code-checks.md").read_text()
         assert "conserve" in text.lower()
         assert "Fallback" in text or "fallback" in text
+
+
+class TestTheRefinementLoopIsBoundedAndRecordBased:
+    """The execution gate reads records and never overrides a harness stop.
+
+    The skill once told the agent to "immediately resume with the next
+    finding" when the harness fired a stop signal, which made the run the
+    judge of its own completeness (ADR-0025).
+    """
+
+    _SKILL = (
+        Path(__file__).resolve().parents[1] / "skills" / "code-refinement" / "SKILL.md"
+    )
+
+    def test_it_never_resumes_past_a_stop_signal(self) -> None:
+        text = self._SKILL.read_text(encoding="utf-8")
+        assert "immediately resume with the next finding" not in text
+        assert "Do not resume past a stop signal" in text
+
+    def test_it_names_a_wave_budget_and_the_record_it_reads(self) -> None:
+        text = self._SKILL.read_text(encoding="utf-8")
+        assert "max_waves" in text
+        assert ".review/findings.json" in text

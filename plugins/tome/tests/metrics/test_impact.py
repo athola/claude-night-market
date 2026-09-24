@@ -50,9 +50,20 @@ class TestDisruptionIndex:
 class TestCohortGuardrail:
     @pytest.mark.unit
     def test_same_cohort_is_comparable(self) -> None:
+        """
+        GIVEN two disruption scores from one field-and-year cohort
+        WHEN they are checked for comparability
+        THEN the guard passes and returns nothing
+
+        The two raising counterparts below pin the rejecting half. This
+        pins that the guard does not reject a pair it should accept,
+        which is how a guard written to fail closed on everything would
+        otherwise ship green.
+        """
         a = DisruptionScore("P1", 0.3, Cohort("cs.LG", 2024))
         b = DisruptionScore("P2", -0.1, Cohort("cs.LG", 2024))
-        assert_comparable(a, b)  # must not raise
+
+        assert assert_comparable(a, b) is None
 
     @pytest.mark.unit
     def test_cross_field_raises(self) -> None:

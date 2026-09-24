@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import re
 import sys
 import warnings
@@ -25,6 +24,18 @@ import yaml
 
 from .config import AbstractConfig, SkillValidationConfig
 from .frontmatter import FrontmatterProcessor
+
+# Re-exported: these are pure path and markdown lookups and live in
+# modules that import nothing outside the standard library, so a hook
+# or a bare-python3 script can reach them without PyYAML. Callers here
+# are unchanged.
+from .markdown_fields import extract_bold_field, extract_section
+from .paths import (
+    get_config_dir,
+    get_learnings_path,
+    get_log_directory,
+    get_observability_dir,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -76,76 +87,6 @@ def find_project_root(start_path: Path) -> Path:
             return current
         current = current.parent
     return Path.cwd()
-
-
-def get_learnings_path() -> Path:
-    """Get the path to the LEARNINGS.md file.
-
-    Respects CLAUDE_HOME the same way :func:`get_log_directory` does, so
-    a non-standard installation keeps its logs and its learnings under
-    one root.
-
-    Returns:
-        Path to ~/.claude/skills/LEARNINGS.md (or under $CLAUDE_HOME).
-
-    """
-    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    return claude_home / "skills" / "LEARNINGS.md"
-
-
-def get_log_directory(*, create: bool = False) -> Path:
-    """Get the skill execution log directory.
-
-    Respects CLAUDE_HOME env var for non-standard installations.
-
-    Args:
-        create: If True, create the directory if it doesn't exist.
-
-    Returns:
-        Path to ~/.claude/skills/logs/ (or $CLAUDE_HOME/skills/logs/).
-
-    """
-    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    log_base = claude_home / "skills" / "logs"
-    if create:
-        log_base.mkdir(parents=True, exist_ok=True)
-    return log_base
-
-
-def get_config_dir(*, create: bool = False) -> Path:
-    """Get the discussions config directory.
-
-    Args:
-        create: If True, create the directory if it doesn't exist.
-
-    Returns:
-        Path to ~/.claude/skills/discussions/.
-
-    """
-    config_dir = Path.home() / ".claude" / "skills" / "discussions"
-    if create:
-        config_dir.mkdir(parents=True, exist_ok=True)
-    return config_dir
-
-
-def get_observability_dir(*, create: bool = False) -> Path:
-    """Get the skill observability state directory.
-
-    Respects CLAUDE_HOME like the other dir helpers (D-04).
-
-    Args:
-        create: If True, create the directory if it doesn't exist.
-
-    Returns:
-        Path to ~/.claude/skills/observability/ (or
-        ``$CLAUDE_HOME/skills/observability/``).
-
-    """
-    claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
-    state_dir = claude_home / "skills" / "observability"
-    if create:
-        state_dir.mkdir(parents=True, exist_ok=True)
-    return state_dir
 
 
 def load_config_with_defaults(project_root: Path | None = None) -> AbstractConfig:
@@ -342,7 +283,15 @@ def find_skill_files(directory: Path) -> list[Path]:
     """
     if not directory.exists():
         return []
-    return sorted(directory.rglob("SKILL.md"))
+    # A SKILL.md under a tests/ directory is a fixture: data some test
+    # plants on purpose (a broken reference, a missing section), not a
+    # skill the plugin ships. Validating it as one fails the suite on
+    # the defect the test exists to detect.
+    return sorted(
+        path
+        for path in directory.rglob("SKILL.md")
+        if "tests" not in path.relative_to(directory).parts
+    )
 
 
 def parse_yaml_frontmatter(content: str) -> dict:
@@ -477,38 +426,6 @@ def find_dependency_file(skill_path: Path, dependency_name: str) -> Path | None:
             return path
 
     return None
-
-
-def extract_bold_field(text: str, field: str) -> str:
-    """Extract a ``**Field**: value`` pair from a markdown body.
-
-    Companion to :func:`extract_section`: that returns a section body,
-    this reads one labelled field out of it.
-
-    Returns:
-        The trimmed value, or an empty string when the field is absent.
-
-    """
-    match = re.search(rf"\*\*{re.escape(field)}\*\*:\s*(.+)", text)
-    return match.group(1).strip() if match else ""
-
-
-def extract_section(content: str, heading: str) -> str | None:
-    """Extract the body of a markdown ``## Section`` heading (D-03).
-
-    Returns the text between ``heading`` and the next ``## ``
-    heading, ``---`` rule, or end-of-document. ``heading`` should
-    include the leading ``## `` so the caller can target deeper
-    levels. Result is ``None`` when the heading is not found and
-    the matched body is ``strip()``-ed.
-    """
-    # F1 fix: the lookahead must terminate when the next ``## `` /
-    # ``---`` is at the start of the very next line (no preceding
-    # blank line). The original ``\n## ``/``\n---`` lookahead missed
-    # that case and captured the next section's body too.
-    pattern = re.escape(heading) + r"(?:\n|$)(.*?)(?=(?:\n|^)## |(?:\n|^)---|\Z)"
-    match = re.search(pattern, content, re.DOTALL | re.MULTILINE)
-    return match.group(1).strip() if match else None
 
 
 def emit_warn(module: str, message: str) -> None:

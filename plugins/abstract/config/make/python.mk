@@ -31,16 +31,16 @@ COV_ARGS := $(foreach dir,$(COV_DIRS),--cov=$(dir))
 
 format: ## Format code with ruff
 	@echo "Formatting code..."
-	@$(RUFF) format $(RUFF_TARGETS) || { echo "[WARN] Ruff format failed"; exit 1; }
-	@$(RUFF) check --fix $(RUFF_TARGETS) || { echo "[WARN] Ruff check failed"; exit 1; }
+	@$(RUFF) format $(RUFF_TARGETS) || { echo "[FAIL] Ruff format failed"; exit 1; }
+	@$(RUFF) check --fix $(RUFF_TARGETS) || { echo "[FAIL] Ruff check failed"; exit 1; }
 
 lint: ## Run linting checks
 	@echo "Running linting..."
-	@$(RUFF) check $(RUFF_TARGETS) || { echo "[WARN] Linting failed"; exit 1; }
+	@$(RUFF) check $(RUFF_TARGETS) || { echo "[FAIL] Linting failed"; exit 1; }
 
 type-check: ## Run type checking
 	@echo "Running type checking..."
-	@$(MYPY) $(MYPY_TARGETS) || { echo "[WARN] Type checking failed"; exit 1; }
+	@$(MYPY) $(MYPY_TARGETS) || { echo "[FAIL] Type checking failed"; exit 1; }
 ifneq ($(strip $(TYPECHECK_EXTRA)),)
 	@$(TYPECHECK_EXTRA)
 endif
@@ -50,7 +50,7 @@ typecheck: type-check
 
 security: ## Run security checks
 	@echo "Running security checks..."
-	@$(BANDIT) -c pyproject.toml -r $(BANDIT_TARGETS) || { echo "[WARN] Security check failed"; exit 1; }
+	@$(BANDIT) -c pyproject.toml -r $(BANDIT_TARGETS) || { echo "[FAIL] Security check failed"; exit 1; }
 ifneq ($(strip $(SECURITY_EXTRA)),)
 	@$(SECURITY_EXTRA)
 endif
@@ -58,7 +58,7 @@ endif
 # TESTING
 test-unit: ## Run unit tests only
 	@echo "Running unit tests..."
-	@$(PYTEST) $(TEST_UNIT_TARGETS) $(TEST_UNIT_ARGS) || { echo "[WARN] Tests failed"; exit 1; }
+	@$(PYTEST) $(TEST_UNIT_TARGETS) $(TEST_UNIT_ARGS) || { echo "[FAIL] Tests failed"; exit 1; }
 ifneq ($(strip $(TEST_UNIT_EXTRA)),)
 	@$(TEST_UNIT_EXTRA)
 endif
@@ -72,4 +72,4 @@ test-coverage: ## Run tests with coverage report
 
 test-quick: ## Run tests without coverage
 	@echo "Running quick tests (no coverage)..."
-	@$(PYTEST) $(TEST_QUICK_TARGETS) $(TEST_QUICK_ARGS) || { echo "[WARN] Tests failed"; exit 1; }
+	@$(PYTEST) $(TEST_QUICK_TARGETS) $(TEST_QUICK_ARGS) || { echo "[FAIL] Tests failed"; exit 1; }

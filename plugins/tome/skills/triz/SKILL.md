@@ -43,13 +43,35 @@ to find solutions from adjacent fields.
    without the system existing. Ask what would make the
    system unnecessary while the function still happens.
 2. Formulate the technical contradiction: improving X
-   worsens Y. For a physical contradiction (one parameter
-   pulled toward two opposite values), apply separation in
-   time, space, condition, or system/scale instead of
-   compromise.
-3. Map to adjacent fields using the field taxonomy.
-4. Search for solved analogues in those fields.
-5. Build bridge mappings with rationale and a confidence
+   worsens Y. Every record carries `matched`: `keyword` when
+   a catalogue row named the topic, `fallback` when none did.
+   Treat a fallback as unformulated: call
+   `near_resolutions(topic)` for the rows within one or two
+   edits of the topic's words, and restate the topic in a
+   row's terms or keep the fallback with a reason. For a
+   physical contradiction (one parameter pulled toward two
+   opposite values; `physical_contradiction(record)` names
+   the known ones), apply separation in time, space,
+   condition, or system/scale instead of compromise.
+   `separation_strategies` lists the axis the system
+   description points at first, with the words that put it
+   there in `why`.
+3. Probe the statement before searching:
+   `reformulation_probes(contradiction)` returns five fixed
+   probes, each with its principle and a dated source. Swap
+   the sides (#13), relax the equality into a range (#16),
+   name the parameter and direction that would surface a
+   near-solution (#35), promote a constant to a variable
+   (#15), and ask whether any value satisfies both demands.
+   The swap probe carries both principle sets and
+   `principle_set_differs`. Show the inverted form only when
+   it is true. Answer each in a line or dismiss it with a
+   reason. When
+   nothing satisfies both, stop searching harder: separate
+   the demands or state the ideal final result.
+4. Map to adjacent fields using the field taxonomy.
+5. Search for solved analogues in those fields.
+6. Build bridge mappings with rationale and a confidence
    score.
 
 ## Field Mapping Strategy
@@ -92,6 +114,13 @@ For diverse, category-spanning ideation with rotation, see
 - AutoTRIZ (arXiv 2403.13002, 2024): LLM-driven TRIZ ideation.
 - TRIZ Agents (arXiv 2506.18783, 2025): multi-agent LLM orchestration
   across TRIZ steps; companion to AutoTRIZ.
+- Madrigal, "The Shadows Lurking in the Equations" (gods.art, 2025)
+  and the literature the reformulation probes cite: Chinneck,
+  Feasibility and Infeasibility in Optimization (2008); Allgower and
+  Georg, Numerical Continuation Methods (1990); Liberti,
+  Reformulations in Mathematical Programming (2009); Duncker, On
+  Problem-Solving (1945); Hipple, TRIZ Separation Principles (2012).
+  ADR-0026.
 - The vendored canonical 39x39 matrix subset comes from
   NickScherbakov/Heinrich-The-Inventing-Machine (Apache-2.0);
   see `src/tome/channels/triz_data/NOTICE` for attribution and
@@ -104,6 +133,13 @@ For diverse, category-spanning ideation with rotation, see
 - [ ] A technical contradiction is stated as "improving X
       worsens Y" (or a physical contradiction is named with a
       separation axis).
+- [ ] A `fallback` record is either restated in a catalogue
+      row's terms via `near_resolutions` or kept with a stated
+      reason. It is never reported as a keyword match.
+- [ ] Each of the five reformulation probes is answered in a
+      line or dismissed with a reason. An infeasible verdict
+      routes to separation or the ideal final result and no
+      analogy search follows it.
 - [ ] At least one cross-domain bridge with a confidence
       score is returned per active adjacent field, or the
       field is explicitly reported as yielding nothing.

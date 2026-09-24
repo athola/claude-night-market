@@ -18,6 +18,7 @@ judgment to satisfy gets edited to pass rather than obeyed.
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -44,6 +45,38 @@ def _badge_value(label: str) -> int:
     match = re.search(rf"badge/{label}-(\d+)-", _readme())
     assert match is not None, f"README has no {label} badge to check"
     return int(match.group(1))
+
+
+def _actual_version() -> str:
+    """Return the version every shipped plugin agrees on.
+
+    The ecosystem releases in lockstep, so a split here means a bump
+    stopped halfway and the README cannot be checked against it.
+    """
+    manifests = sorted((REPO_ROOT / "plugins").glob("*/.claude-plugin/plugin.json"))
+    versions = {
+        json.loads(manifest.read_text(encoding="utf-8"))["version"]
+        for manifest in manifests
+    }
+
+    assert len(versions) == 1, f"plugins disagree on the version: {sorted(versions)}"
+    return versions.pop()
+
+
+def test_version_badge_matches_the_shipped_plugin_manifests() -> None:
+    """GIVEN the version every plugin manifest declares.
+
+    WHEN a reader trusts the README badge
+    THEN the badge names the version that ships
+
+    This is the second one that drifted: the badge read 1.9.20 through
+    the whole 1.9.21 bump, because the bump script rewrites manifests
+    and the badge is prose.
+    """
+    match = re.search(r"badge/version-([0-9][^-]*)-", _readme())
+
+    assert match is not None, "README has no version badge to check"
+    assert match.group(1) == _actual_version()
 
 
 def test_plugin_badge_matches_the_plugin_directories() -> None:

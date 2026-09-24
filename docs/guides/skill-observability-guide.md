@@ -57,6 +57,12 @@ Logs are stored in `~/.claude/skills/logs/` to persist across project sessions.
 The directory contains an aggregated `.history.json` file
 and plugin-specific subdirectories for daily `.jsonl` files.
 
+The logger rewrites `.history.json` into a temp file and renames it into
+place, so `homeostatic_monitor.py` never reads a partial file while both
+hooks run on the same event. Each update holds a lock on the sibling
+`.history.json.lock`, which parallel subagents contend for. Leave the
+lock file in place. See ADR-0027 for the race this prevents.
+
 ## Performance Analysis
 
 ### Log Inspection

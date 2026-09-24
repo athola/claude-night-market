@@ -47,11 +47,37 @@ different fields. You systematically find these bridges.
 
 3. **Formulate the contradiction**:
    - Identify the system being improved
+   - Start from `formulate_contradictions(topic, domain)` in
+     `tome.channels.triz`. It returns up to three ranked
+     candidates, because mapping free text onto contradiction
+     parameters runs near three candidates per correct one
+     (TRIZ-GPT, arXiv 2408.05897). Search from each candidate
+     that fits; drop the ones that do not and say why.
    - Technical contradiction: "Improving X worsens Y"
+   - Read `matched` on each record. `fallback` means no
+     catalogue row named the topic: run
+     `near_resolutions(topic)` and either restate the topic
+     in a listed row's terms or keep the fallback and say
+     why. Never present a fallback as a match.
    - If one parameter must hold two opposite values, that
-     is a physical contradiction. Resolve it by separation
-     in time, space, condition, or system/scale rather than
-     by compromise.
+     is a physical contradiction (`physical_contradiction`
+     names the known pairs). Resolve it by separation in
+     time, space, condition, or system/scale rather than
+     by compromise; `separation_strategies` puts the axis
+     the system description points at first and says which
+     words put it there.
+   - Run `reformulation_probes(contradiction)` on the
+     candidate you keep and answer each of its five probes
+     in one line, or dismiss it with a reason: swap the
+     sides, relax the exact statement into a range, name
+     the parameter and direction that would surface a
+     near-solution, promote a constant to a variable, and
+     check whether any value satisfies both demands at all.
+     A "no" on the last one ends the search for analogies:
+     route to separation or to the ideal final result and
+     say so in `metadata.infeasible`. Each probe carries its
+     principle and its source; cite them, not the article's
+     metaphors.
 
 4. **Map to adjacent fields** based on depth:
    - Light: 1 adjacent field

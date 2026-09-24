@@ -24,7 +24,9 @@ from pathlib import Path
 import pytest
 
 from tome.channels.canary import CANARY_TARGETS
+from tome.channels.cards import CHANNEL_CARDS
 from tome.models import RETRIEVAL_CHANNELS
+from tome.synthesis.verifier import DEFAULT_MAX_PASSES
 
 SKILL = Path(__file__).parents[3] / "skills" / "research" / "SKILL.md"
 
@@ -135,3 +137,60 @@ class TestTheSkillRoutesStoriesToAHuman:
         assert "not marked `act`" not in text, (
             "filing is gated on defer, so act must not also gate it"
         )
+
+
+class TestTheSkillDispatchesFromTheCards:
+    """Scenario: Step 4's routing table and the channel cards agree.
+
+    The table is what an operator reads and the cards are what the
+    planner reads. Two copies of one fact drift, so each row is checked
+    against its card.
+    """
+
+    @pytest.mark.parametrize("card", CHANNEL_CARDS, ids=lambda c: c.name)
+    def test_each_row_routes_to_the_cards_agent(self, skill_text: str, card) -> None:
+        """
+        Given a card names its channel's agent and required prompt context
+        Then Step 4's table has that exact row
+
+            prompt_includes is read by the orchestrator, not the agent,
+            so this row is where the card field is consumed.
+        """
+        row = (
+            f"| {card.name} | `{card.agent_type}` | {', '.join(card.prompt_includes)} |"
+        )
+        assert row in skill_text, f"no dispatch row {row!r}"
+
+    def test_it_embeds_the_rendered_card_in_each_prompt(self, skill_text: str) -> None:
+        """
+        Given render_card carries limitations and the envelope contract
+        Then Step 4 tells the orchestrator to embed it
+
+            A dispatch prompt that dictated its own return shape is how
+            a session lost its canary record while dogfooding this.
+        """
+        assert "render_card" in skill_text
+        assert "return findings as json" not in skill_text.lower()
+
+
+class TestTheSkillLoopsOnTheVerifier:
+    """Scenario: the second pass is decided by verify_context."""
+
+    def test_it_calls_the_verifier(self, skill_text: str) -> None:
+        assert "verify_context" in skill_text
+
+    def test_it_bounds_the_loop(self, skill_text: str) -> None:
+        """
+        Given the verifier stops at the pass budget
+        Then SKILL.md names the budget so the operator knows the bound
+        """
+        assert "max_passes" in skill_text
+        assert f"default {DEFAULT_MAX_PASSES}" in skill_text.lower()
+
+    @pytest.mark.parametrize("action", ["rerun", "reformulate", "add"])
+    def test_it_names_every_action(self, skill_text: str, action: str) -> None:
+        """
+        Given the verifier returns three kinds of follow-up work
+        Then SKILL.md says what to do with each
+        """
+        assert f"`{action}`" in skill_text

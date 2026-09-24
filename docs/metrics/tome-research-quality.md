@@ -1,9 +1,10 @@
 # Tome Research-Quality Metrics Framework
 
 **Date**: 2026-07-17
-**Companion to**: [design spec](../superpowers/specs/2026-07-17-tome-research-engine-design.md),
-whose "Evidence base" section carries the retrieval-evaluation and
-bibliometrics citations behind the dimensions below.
+**Companion to**: [ADR-0018](../adr/0018-tome-graph-reuse-over-build.md),
+which superseded the retired design spec (ADR-0019 records the
+retirement). The retrieval-evaluation and bibliometrics citations that
+spec carried are in ADR-0018's references.
 
 ## Thesis
 
@@ -32,8 +33,8 @@ external metrics.
 | Metric | Formula / source | Status |
 |--------|------------------|--------|
 | nDCG@k, MRR, recall@k | standard IR, vs. a labeled gold set | new (harness) |
-| Adjusted relevance | `compute_relevance_score` (relevance + authority + recency) | exists (`ranker.py:68`) |
-| Triangulation-weighted relevance | fold dormant `compute_triangulation_bonus` into the rank | wire-up (`ranker.py:27`) |
+| Adjusted relevance | `compute_relevance_score` (relevance + authority + recency) | exists (`ranker.py:134`) |
+| Triangulation-weighted relevance | fold dormant `compute_triangulation_bonus` into the rank | wire-up (`ranker.py:30`) |
 | Query-embedding cosine | `EmbeddingIndex` cosine(finding, query) | wire-up (memory-palace) |
 | Faithfulness (optional) | RAGAS-style claim grounding | new, optional, labeled |
 
@@ -65,11 +66,11 @@ is useless. Every creativity metric is therefore paired with relevance.
 
 | Metric | Formula / source | Status |
 |--------|------------------|--------|
-| Source/domain diversity | `1 - Herfindahl` over channels | exists (`quality.py:96`) |
+| Source/domain diversity | `1 - Herfindahl` over channels | exists (`quality.py:327`) |
 | TRIZ bridge count | cross-domain analogies found | exists (triz channel) |
-| Corpus novelty | mean embedding distance of new findings from the prior-session corpus | wire-up (`EmbeddingIndex` + `memory.py`) |
+| Corpus novelty | mean embedding distance of new findings from the prior-session corpus | new (needs cross-session storage) |
 | Reference atypicality | z-scored reference co-occurrence (Uzzi 2013) | new (needs references) |
-| Link-prediction surprise | `predict_links` (Adamic-Adar) edges bridging distant communities | wire-up (`graph_analyzer.py:153`) |
+| Link-prediction surprise | `predict_links` (Adamic-Adar) edges bridging distant communities | wire-up (`graph_analyzer.py:160`) |
 
 **Guardrail.** Score novelty only jointly with relevance (a bandit
 exploit/explore split), and apply an exploration-saturation stop so
@@ -83,7 +84,7 @@ the dimension the tiered/on-condition design most directly moves.
 | Metric | Formula / source | Status |
 |--------|------------------|--------|
 | Wall-clock per session | timer around the research run | new (timers) |
-| Token budget adherence | tokens spent vs. `research_planner` tier (2000/4000/6000/8000) | exists (`research_planner.py:22`) |
+| Token budget adherence | tokens spent vs. the `research_planner` `_BUDGET` tier (2000/4000/6000/8000) | exists (`research_planner.py:22`) |
 | Findings per 1k tokens | unique findings / tokens | new |
 | Dedup ratio | removed / total pre-dedup | exists (`merger.py`) |
 | Graph-escalation rate | fraction of queries that hit the expensive graph path | new |
@@ -100,12 +101,20 @@ mandatory, not optional.
 
 | Metric | Formula / source | Status |
 |--------|------------------|--------|
-| Graph centrality | PageRank / betweenness | wire-up (`graph_analyzer.py:51`) |
+| Graph centrality | `pagerank` / `betweenness_centrality` | wire-up (`graph_analyzer.py:51`) |
 | Citation count | from `metadata` (Semantic Scholar / OpenAlex) | exists |
 | Disruption (CD) index | Funk and Owen-Smith 2017, **field- and cohort-normalized, fixed window** | new (guarded) |
-| Bridge / keystone finding | `find_bridges` / `find_keystones` | wire-up (`graph_analyzer.py:96`) |
-| Cross-session reuse rate | times a finding is re-imported across sessions | exists (`memory.py:61`) |
+| Bridge / keystone finding | `find_bridges` / `find_keystones` | wire-up (`graph_analyzer.py:103`) |
+| Cross-session reuse rate | times a finding is re-imported across sessions | new (needs cross-session storage) |
 | Decay-adjusted importance | `decay_model` half-life weighting | wire-up (`decay_model.py`) |
+
+**Cross-session status.** Both cross-session rows read `new`, not
+`wire-up`, because the module they were written against is gone:
+commit 2b15ab1e deleted `tome/src/tome/memory.py` after finding that
+nothing outside its own test imported it, and reserved wiring it back
+for its own PR. There is no cross-session store to wire up today.
+`plugins/tome/tests/test_metrics_doc_citations.py` checks that every
+module this page cites still exists.
 
 **Guardrail (evidence-backed, non-negotiable).** The disruption index is
 biased by citation inflation, depends on the chosen citation-window

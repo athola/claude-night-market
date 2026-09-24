@@ -18,8 +18,10 @@ model_hint: standard
 - Finding vendor documentation, standards, or official guides
 - Comparisons and benchmarks across products or approaches
 - News, release notes, and recent status for a technology
-- Standalone searches; the `/tome:research` fan-out does not dispatch
-  this channel yet, so invoke `tome:web-search` directly
+- Standalone searches, or as one channel of a `/tome:research`
+  session: the planner dispatches `tome:web-searcher` from medium
+  depth, and the channel runs a positive control (RFC 2119) before
+  its topic queries so its silence can count in the coverage verdict
 
 ## When NOT To Use
 

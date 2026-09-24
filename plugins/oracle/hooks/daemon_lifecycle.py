@@ -58,21 +58,58 @@ def _get_event() -> str:
         return ""
 
 
+# What the daemon's command line must contain for a PID to count as ours.
+# The full launched path, because a bare "daemon.py" also matches pytest
+# running test_daemon.py or an editor with some other daemon.py open.
+_DAEMON_SCRIPT = str(PLUGIN_ROOT / "src" / "oracle" / "daemon.py")
+_PS_TIMEOUT_SECONDS = 2
+
+
+def _pid_is_daemon(pid: int) -> bool:
+    """Return True only if ``pid`` is alive and running the daemon script.
+
+    PIDs are reused. After a crash, a reboot, or any exit that skipped the
+    pid-file cleanup, the number in daemon.pid can belong to an unrelated
+    process of the same user, and ``os.kill(pid, 0)`` says only that
+    something is there. The signal-0 probe is kept as the cheap first
+    step; the command line is what keeps the Stop hook from killing that
+    something.
+
+    ``-ww`` is required on Linux: procps cuts the command column to 80
+    characters when stdout is not a terminal, and the venv interpreter
+    path alone can push the script path past the cut.
+    """
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    try:
+        listing = subprocess.run(
+            ["ps", "-ww", "-o", "command=", "-p", str(pid)],
+            capture_output=True,
+            text=True,
+            timeout=_PS_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return listing.returncode == 0 and _DAEMON_SCRIPT in listing.stdout
+
+
 def _is_daemon_running(pid_file: Path) -> bool:
     """Check if the daemon process is still alive."""
     try:
         pid = int(pid_file.read_text().strip())
-        os.kill(pid, 0)
-        return True
     except (OSError, ValueError):
         return False
+    return _pid_is_daemon(pid)
 
 
 def _start_daemon() -> None:
     """Launch the daemon as a detached subprocess."""
     venv = get_venv_path()
     python = str(get_python_path(venv))
-    daemon_script = str(PLUGIN_ROOT / "src" / "oracle" / "daemon.py")
+    daemon_script = _DAEMON_SCRIPT
     data_dir = get_oracle_data_dir()
     port_file = _get_port_file()
     pid_file = _get_pid_file()
@@ -123,13 +160,23 @@ def _stop_daemon() -> None:
 
     try:
         pid = int(pid_file.read_text().strip())
-        os.kill(pid, signal.SIGTERM)
     except ValueError:
         logging.getLogger(__name__).debug(
             "PID file corrupt, skipping SIGTERM: %s", pid_file
         )
+        pid = None
     except OSError:
-        pass
+        pid = None
+
+    if pid is not None and _pid_is_daemon(pid):
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except OSError:
+            pass
+    elif pid is not None:
+        logging.getLogger(__name__).debug(
+            "PID %s is not the oracle daemon; leaving it alone", pid
+        )
 
     for f in (pid_file, port_file):
         try:

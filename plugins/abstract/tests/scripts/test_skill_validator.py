@@ -584,27 +584,67 @@ class TestPrintReport:
     """Tests for print_report output."""
 
     @pytest.mark.unit
-    def test_print_report_no_crash(
+    def test_print_report_renders_warnings_and_info(
         self, tmp_path: Path, capsys: pytest.CaptureFixture
     ) -> None:
-        """print_report does not crash with mixed results."""
+        """Given: a result carrying one warning and one info message
+        When: print_report renders it
+        Then: both messages appear on stdout under their own labels
+        """
         skill_file = _make_skill(tmp_path, VALID_FRONTMATTER)
         v = SkillValidator(skill_file)
         result = v.validate()
         result.add_warning("test warning")
         result.add_info("test info")
+
         print_report(v, result)
 
+        out = capsys.readouterr().out
+        assert "  WARNING: test warning" in out
+        assert "  INFO: test info" in out
+
     @pytest.mark.unit
-    def test_print_report_with_errors(
+    def test_print_report_renders_errors(
         self, tmp_path: Path, capsys: pytest.CaptureFixture
     ) -> None:
-        """print_report with errors does not crash."""
+        """Given: a result carrying one error
+        When: print_report renders it
+        Then: the error appears on stdout under the ERROR label
+        """
         skill_file = _make_skill(tmp_path, VALID_FRONTMATTER)
         v = SkillValidator(skill_file)
         result = ValidationResult()
         result.add_error("Critical error")
+
         print_report(v, result)
+
+        out = capsys.readouterr().out
+        assert "  ERROR: Critical error" in out
+        assert "Errors: 1" in out
+        assert "FAIL - Fix errors before deployment" in out
+
+    @pytest.mark.unit
+    def test_print_report_verdict_follows_the_exit_code(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture
+    ) -> None:
+        """GIVEN a clean result, then one with only a warning
+        WHEN print_report renders each
+        THEN the summary counts match and the verdict line tracks exit_code
+        """
+        skill_file = _make_skill(tmp_path, VALID_FRONTMATTER)
+        v = SkillValidator(skill_file)
+
+        print_report(v, ValidationResult())
+        clean = capsys.readouterr().out
+        assert "Errors: 0" in clean and "Warnings: 0" in clean
+        assert "PASS - Ready to deploy" in clean
+
+        warned = ValidationResult()
+        warned.add_warning("w")
+        print_report(v, warned)
+        out = capsys.readouterr().out
+        assert "Warnings: 1" in out
+        assert "PASS WITH WARNINGS" in out
 
 
 # ---------------------------------------------------------------------------

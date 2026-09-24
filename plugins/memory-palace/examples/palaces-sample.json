@@ -1,1 +1,25 @@
-{"palaces": []}
+{
+  "palaces": [
+    {
+      "id": "demo0001",
+      "name": "Demo Palace",
+      "domain": "demo",
+      "metaphor": "building",
+      "created": "2026-01-01T00:00:00+00:00",
+      "last_modified": "2026-01-01T00:00:00+00:00",
+      "layout": {
+        "districts": [],
+        "buildings": [],
+        "rooms": [],
+        "connections": []
+      },
+      "associations": {},
+      "sensory_encoding": {},
+      "metadata": {
+        "concept_count": 0,
+        "complexity_level": "basic",
+        "access_patterns": []
+      }
+    }
+  ]
+}

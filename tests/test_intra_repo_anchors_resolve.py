@@ -14,6 +14,7 @@ wrong, so the link renders and silently lands at the top of the page.
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -48,10 +49,20 @@ def _anchors(text: str) -> set[str]:
 
 
 def _markdown_files() -> list[Path]:
+    # Tracked files only: gitignored captures (memory-palace staging) exist
+    # on a working machine and not in CI, so scanning them let the link
+    # floor below pass locally and fail on the runner.
+    listing = subprocess.run(
+        ["git", "ls-files", "-z", "--", "*.md"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
     return sorted(
-        p
-        for p in REPO_ROOT.rglob("*.md")
-        if not SKIP_PARTS & set(p.relative_to(REPO_ROOT).parts)
+        REPO_ROOT / rel
+        for rel in listing.stdout.split("\0")
+        if rel and not SKIP_PARTS & set(Path(rel).parts)
     )
 
 
@@ -81,7 +92,9 @@ def test_the_scan_actually_reaches_some_links() -> None:
     total = sum(
         len(_LINK.findall(p.read_text(encoding="utf-8"))) for p in _markdown_files()
     )
-    assert total > 50, (
+    # 49 tracked links at the time of writing. A broken regex or skip list
+    # drops the count to near zero, so half the real count is the floor.
+    assert total > 25, (
         f"only {total} fragment links found; the skip list or the link regex "
         "has stopped matching real content"
     )

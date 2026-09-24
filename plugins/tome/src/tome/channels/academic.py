@@ -9,6 +9,7 @@ tools return into Finding objects.
 from __future__ import annotations
 
 import html
+import os
 import re
 from typing import Any
 from urllib.parse import quote, quote_plus
@@ -328,17 +329,31 @@ _CORE_BASE = "https://api.core.ac.uk/v3/search/works"
 _OPENALEX_BASE = "https://api.openalex.org/works"
 
 
-def build_unpaywall_url(doi: str, email: str = "research@example.com") -> str:
+def build_unpaywall_url(doi: str, email: str | None = None) -> str:
     """Build Unpaywall API URL for a DOI.
+
+    Unpaywall's polite pool wants a real contact address and answers
+    422 to a placeholder (``research@example.com`` was the default here
+    until 2026-09-18, and every call failed with it). The address comes
+    from ``email`` or the ``TOME_CONTACT_EMAIL`` environment variable.
 
     Args:
         doi: Digital Object Identifier string.
-        email: Contact email required by Unpaywall's polite pool policy.
+        email: Contact email; overrides the environment variable.
 
     Returns:
         URL string for the Unpaywall v2 API.
+
+    Raises:
+        ValueError: When no address is available. Skip Unpaywall and
+            record a ``source_error`` rather than send a placeholder.
     """
-    return f"{_UNPAYWALL_BASE}/{quote(doi, safe='')}?email={quote(email, safe='@.')}"
+    contact = email or os.environ.get("TOME_CONTACT_EMAIL")
+    if not contact:
+        raise ValueError(
+            "Unpaywall needs a contact email: pass email= or set TOME_CONTACT_EMAIL"
+        )
+    return f"{_UNPAYWALL_BASE}/{quote(doi, safe='')}?email={quote(contact, safe='@.')}"
 
 
 def parse_unpaywall_response(data: dict[str, Any]) -> str | None:

@@ -60,11 +60,6 @@ class PluginValidator:
         )
 
     @staticmethod
-    def validate_plugin_json(content: dict[str, Any]) -> PluginValidationResult:
-        """Alias for validate_structure for backward compatibility."""
-        return PluginValidator.validate_structure(content)
-
-    @staticmethod
     def validate_plugin_dir(path: Path) -> PluginValidationResult:
         """Validate plugin directory with file existence checks."""
         path = Path(path)

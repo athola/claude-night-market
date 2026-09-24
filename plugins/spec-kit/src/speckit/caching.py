@@ -34,17 +34,27 @@ class SpecKitCache:
 
     def _get_cache_key(self, key: str, data: Any | None = None) -> str:
         """Generate a unique cache key."""
-        if data:
-            # Include data hash in key for data-specific caching
-            # Using SHA256 for better collision resistance (not for cryptographic security)
+        if data is not None:
+            # Include data hash in key for data-specific caching. An empty
+            # string, 0 or [] is still data and must not share an entry
+            # with "no data".
+            # SHA256 for collision resistance (not for cryptographic security).
             data_hash = hashlib.sha256(str(data).encode()).hexdigest()[:8]
             return f"{key}_{data_hash}"
         return key
 
     def _get_cache_path(self, key: str) -> Path:
-        """Get file path for cached data."""
-        safe_key = "".join(c if c.isalnum() else "_" for c in key)
-        return self.cache_dir / f"{safe_key}.json"
+        """Get file path for cached data.
+
+        The category (the part before the first ``:``) survives into the
+        filename so ``invalidate_prefix`` can glob it; the rest is hashed,
+        because mapping every non-alphanumeric character to ``_`` made
+        ``spec_parsing:plan`` and ``spec.parsing_plan`` the same file.
+        """
+        category = key.split(":", 1)[0]
+        safe_category = "".join(c if c.isalnum() else "_" for c in category)
+        digest = hashlib.sha256(key.encode()).hexdigest()[:16]
+        return self.cache_dir / f"{safe_category}_{digest}.json"
 
     def is_expired(self, key: str, ttl: int | None = None) -> bool:
         """Check if cached data is expired."""
@@ -155,8 +165,19 @@ class SpecKitCache:
             del self._memory_cache[k]
             self._cache_timestamps.pop(k, None)
 
-        safe_prefix = "".join(c if c.isalnum() else "_" for c in prefix)
-        for cache_file in self.cache_dir.glob(f"{safe_prefix}*.json"):
+        # On disk only the category component of a key is readable, so a
+        # prefix is matched by its category; a finer prefix clears the
+        # whole category's files and leaves the memory cache exact. A
+        # prefix with no ":" may end mid-category ("spec" for "specs:x"),
+        # so it globs open-ended rather than requiring the "_" separator.
+        if ":" in prefix:
+            category = prefix.split(":", 1)[0]
+            safe_category = "".join(c if c.isalnum() else "_" for c in category)
+            pattern = f"{safe_category}_*.json"
+        else:
+            safe_prefix = "".join(c if c.isalnum() else "_" for c in prefix)
+            pattern = f"{safe_prefix}*.json"
+        for cache_file in self.cache_dir.glob(pattern):
             cache_file.unlink(missing_ok=True)
 
     def get_cache_stats(self) -> dict[str, Any]:
@@ -189,6 +210,7 @@ def cached(
     ttl: int | None = None,
     key: str | None = None,
     data_arg: str | None = None,
+    key_prefix: str | None = None,
 ) -> Callable[[F], F]:
     """Cache function results with TTL.
 
@@ -196,6 +218,8 @@ def cached(
         ttl: Time to live in seconds
         key: Custom cache key (defaults to function name)
         data_arg: Argument name to include in cache key
+        key_prefix: Prefix applied to the key after the default is
+            resolved, so a category reaches entries keyed by function name
 
     """
 
@@ -206,6 +230,8 @@ def cached(
 
             # Generate cache key
             cache_key = key or f"{func.__module__}.{func.__name__}"
+            if key_prefix:
+                cache_key = f"{key_prefix}:{cache_key}"
 
             # Include specific argument in key if specified
             cache_data = None
@@ -252,8 +278,7 @@ class CacheManager:
     def cache_result(cls, category: str, key: str | None = None) -> Callable[[F], F]:
         """Create a decorator with category-based TTL and category-prefixed key."""
         ttl = cls.CACHE_CATEGORIES.get(category, cls.CACHE_CATEGORIES["spec_parsing"])
-        prefixed_key = f"{category}:{key}" if key else None
-        return cached(ttl=ttl, key=prefixed_key)
+        return cached(ttl=ttl, key=key, key_prefix=category)
 
     @classmethod
     def invalidate_category(cls, category: str) -> None:

@@ -259,7 +259,7 @@ Skill(sanctum:git-workspace-review)
 Skill(sanctum:commit-messages)
 
 # Check PR readiness
-Skill(sanctum:pr-preparation)
+Skill(sanctum:pr-prep)
 ```
 
 ---
@@ -286,9 +286,6 @@ Skill(sanctum:git-workspace-review)
 
 # 2. Analyze recent diffs
 Skill(imbue:diff-analysis)
-
-# 3. Understand branch context
-Skill(sanctum:branch-comparison)
 ```
 
 ### Session Recovery
@@ -456,10 +453,7 @@ Skill(superpowers:systematic-debugging)
 
 ```bash
 # Capture insight during work
-Skill(memory-palace:knowledge-capture)
-
-# Link related concepts
-Skill(memory-palace:concept-linking)
+Skill(memory-palace:knowledge-intake)
 ```
 
 ---
@@ -640,7 +634,7 @@ make lint && make test
 /pr
 
 # Skill: Detailed methodology
-Skill(sanctum:pr-preparation)
+Skill(sanctum:pr-prep)
 
 # Agent: Delegated specialized work
 Agent(pensive:code-reviewer) Review authentication module

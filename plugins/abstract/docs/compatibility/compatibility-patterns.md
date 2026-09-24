@@ -100,7 +100,7 @@ claude --fork-session --session-id "maintainability-analysis" --resume
 
 ```bash
 # Original session: Code review request
-claude "/pensive:code-review src/"
+claude "/pensive:full-review src/"
 
 # Fork for security audit
 claude --fork-session --session-id "security-audit" --resume
@@ -127,7 +127,7 @@ claude --fork-session --session-id "test-review" --resume
 
 ```bash
 # Original session: Knowledge intake
-claude "/memory-palace:knowledge-intake article.md"
+claude "Use Skill(memory-palace:knowledge-intake) on article.md"
 
 # Fork to try hierarchical categorization
 claude --fork-session --session-id "hierarchical-tags" --resume
@@ -553,7 +553,7 @@ Claude should respond with precise, semantic results instead of text-based grep 
 ENABLE_LSP_TOOL=1 claude
 
 # Request review with semantic analysis
-> "/pensive:code-review src/ --check-impact --find-unused"
+> "/pensive:full-review src/"
 
 # Agent uses LSP to:
 # 1. Find all call sites of modified functions (impact)

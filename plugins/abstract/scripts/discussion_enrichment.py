@@ -39,7 +39,7 @@ from lenses import (
     run_lenses as _package_run_lenses,  # noqa: E402 - sys.path adjusted above
 )
 
-from abstract.utils import (  # noqa: E402 - import after sys.path setup
+from abstract.markdown_fields import (  # noqa: E402 - import after sys.path setup
     extract_section as _extract_section,
 )
 

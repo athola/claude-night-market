@@ -33,6 +33,7 @@ from memory_palace.corpus.index_promoter import (
     propose_title_repairs,
 )
 from memory_palace.garden_metrics import SECONDS_PER_DAY, compute_garden_metrics
+from memory_palace.migration import PalaceMigrator, migrate_sensory_to_computational
 from memory_palace.palace_manager import MemoryPalaceManager
 from memory_palace.paths import persistent_root
 
@@ -885,7 +886,14 @@ class _PalaceMixin(_CLIBase):
         self.print_status(f"Searching for '{query}'...")
 
         try:
-            results = self._manager().search_palaces(query, search_type)
+            manager = self._manager()
+            if not manager.list_palaces():
+                # Nothing indexed is not "no matches". A search over zero
+                # palaces says nothing about the corpus, and reporting it
+                # as a miss taught callers that the concept was absent.
+                self.print_error("No palaces indexed; nothing was searched")
+                return False
+            results = manager.search_palaces(query, search_type)
             if results:
                 for result in results:
                     print(f"\nPalace: {result['palace_name']} ({result['palace_id']})")
@@ -1034,6 +1042,42 @@ class MemoryPalaceCLI(_LifecycleMixin, _GardenMixin, _IndexMixin, _PalaceMixin):
         """Print an error message and record that this run failed."""
         self.had_error = True
         print(f"[ERROR] {message}")
+
+    def migrate_graph(self, palaces_dir: str | None) -> None:
+        """Load every palace JSON into the knowledge graph (idempotent)."""
+        manager = self._manager(palaces_dir)
+        report = PalaceMigrator(manager.graph).migrate_all(str(manager.palaces_dir))
+        for problem in report.errors:
+            self.print_error(problem)
+        self.print_status(
+            f"Migrated {report.palaces} palace(s): {report.rooms} rooms, "
+            f"{report.concepts} concepts, {report.synapses} synapses"
+        )
+
+    def migrate_encoding(self, palaces_dir: str | None, *, apply: bool = False) -> None:
+        """Convert palace files from sensory to computational encoding.
+
+        Reports by default and writes only under ``apply``, matching
+        every other write-capable subcommand here.
+        """
+        manager = self._manager(palaces_dir)
+        target = Path(manager.palaces_dir)
+        report = migrate_sensory_to_computational(target, apply=apply)
+
+        for path, reason in report.skipped:
+            self.print_error(f"skipped {path.name}: {reason}")
+
+        verb = "Rewrote" if apply else "Would rewrite"
+        self.print_status(
+            f"Scanned {report.scanned} palace file(s) under {target}: "
+            f"{verb} {len(report.rewritten)}, "
+            f"{len(report.unchanged)} already converted, "
+            f"{len(report.skipped)} skipped"
+        )
+        for path in report.rewritten:
+            self.print_status(f"  {verb.lower()}: {path.name}")
+        if not apply and report.rewritten:
+            self.print_status("Re-run with --apply to write these changes")
 
 
 def _add_zero_arg_commands(subparsers: Any) -> None:
@@ -1267,6 +1311,37 @@ def _add_search_command(subparsers: Any) -> None:
     )
 
 
+def _add_migrate_command(subparsers: Any) -> None:
+    """Register the ``migrate`` subcommand and its two targets."""
+    migrate_parser = subparsers.add_parser(
+        "migrate", help="One-shot migrations of stored palace data"
+    )
+    migrate_sub = migrate_parser.add_subparsers(
+        dest="migrate_cmd", help="What to migrate"
+    )
+    graph = migrate_sub.add_parser(
+        "graph", help="Load palace JSON files into knowledge_graph.db (safe to rerun)"
+    )
+    graph.add_argument(
+        "--palaces-dir", default=None, help="Override the palaces directory"
+    )
+    encoding = migrate_sub.add_parser(
+        "encoding",
+        help=(
+            "Convert palace files from sensory_encoding to "
+            "computational_encoding (default: dry run)"
+        ),
+    )
+    encoding.add_argument(
+        "--palaces-dir", default=None, help="Override the palaces directory"
+    )
+    encoding.add_argument(
+        "--apply",
+        action="store_true",
+        help="Rewrite the palace files in place (default: report only)",
+    )
+
+
 def _add_manager_command(subparsers: Any) -> None:
     """Register the ``manager`` passthrough subcommand."""
     manager_parser = subparsers.add_parser(
@@ -1306,6 +1381,7 @@ Examples:
     _add_sync_command(subparsers)
     _add_prune_command(subparsers)
     _add_search_command(subparsers)
+    _add_migrate_command(subparsers)
     _add_manager_command(subparsers)
     return parser
 
@@ -1353,6 +1429,14 @@ def main() -> None:
         else:
             parser.print_help()
 
+    def handle_migrate() -> None:
+        if args.migrate_cmd == "graph":
+            cli.migrate_graph(args.palaces_dir)
+        elif args.migrate_cmd == "encoding":
+            cli.migrate_encoding(args.palaces_dir, apply=args.apply)
+        else:
+            parser.print_help()
+
     handlers = {
         "enable": cli.enable_plugin,
         "disable": cli.disable_plugin,
@@ -1373,6 +1457,7 @@ def main() -> None:
         "search": lambda: cli.search_palaces(args.query, args.type),
         "garden": handle_garden,
         "index": handle_index,
+        "migrate": handle_migrate,
         "export": lambda: cli.export_palaces(args.destination, args.palaces_dir),
         "import": lambda: cli.import_palaces(
             args.source,

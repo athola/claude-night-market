@@ -112,16 +112,52 @@ const swept = await parallel(
   ),
 )
 
+// A layer whose agent returned nothing is not a layer that found
+// nothing. Dropping it silently turns a document that fails outright
+// into a clean pass when the critical layer is the one that died.
+const missing = LAYERS.filter((layer, index) => !swept[index]).map((layer) => layer.key)
 const reports = swept.filter(Boolean)
 const findings = reports.flatMap((report) =>
   (report.findings || []).map((finding) => ({ ...finding, layer: report.layer })),
 )
+const empty = reports.filter((report) => !(report.findings || []).length).map((report) => report.layer)
+
+if (missing.length) log(`no report from ${missing.join(', ')}; those layers are unreviewed, not clean`)
 
 const critical = findings.filter((finding) => finding.layer === 'critical')
 
 if (!findings.length) {
-  log(`${docs.length} documents, no findings`)
-  return { docs, findings: [], ranked: null }
+  log(`${docs.length} documents, no findings from ${reports.length} of ${LAYERS.length} layers`)
+  return { docs, findings: [], ranked: null, coverage: { reviewed: reports.map((r) => r.layer), empty, missing } }
+}
+
+const RANKING = {
+  type: 'object',
+  required: ['order'],
+  properties: {
+    order: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['layer', 'doc', 'problem'],
+        properties: {
+          layer: { type: 'string' },
+          doc: { type: 'string' },
+          line: { type: 'integer' },
+          problem: { type: 'string' },
+          why_here: { type: 'string' },
+        },
+      },
+    },
+    moot: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['problem', 'made_moot_by'],
+        properties: { problem: { type: 'string' }, made_moot_by: { type: 'string' } },
+      },
+    },
+  },
 }
 
 const digest = findings
@@ -130,9 +166,9 @@ const digest = findings
 
 const ranked = await agent(
   `These findings came from five blind reviewers. Order them for someone about to fix them.\n\n${digest}\n\nCritical findings come first and are not negotiable against style. Then structural findings, because cutting a section deletes the sentence-level findings inside it, and fixing those first wastes the work. Say explicitly where a structural fix makes a local finding moot, and where an audience finding moves a section that other findings sit inside.`,
-  { label: 'rank', phase: 'Rank' },
+  { label: 'rank', phase: 'Rank', schema: RANKING },
 )
 
 log(`${findings.length} findings across ${docs.length} documents, ${critical.length} critical`)
 
-return { docs, findings, critical, ranked }
+return { docs, findings, critical, ranked, coverage: { reviewed: reports.map((r) => r.layer), empty, missing } }

@@ -126,7 +126,7 @@ def test_scope_guard_cache_is_not_in_shared_tmp() -> None:
     """
     body = (PLUGINS / "imbue" / "hooks" / "user-prompt-submit.sh").read_text()
     assert "/tmp}/scope-guard" not in body
-    assert '[ -O "$CACHE_FILE" ]' in body
+    assert '[ -O "${CACHE_FILE}" ]' in body
 
 
 def test_cron_lock_is_atomic_and_under_the_repo() -> None:
@@ -160,11 +160,13 @@ def test_auth_module_scopes_xtrace_suppression_to_a_subshell() -> None:
     """`{ set +x; }` at function level turned tracing off for the rest of
     the process, so a caller running with -x lost it everywhere after the
     credential. Inside `( ... )` it ends with the subshell, and the token
-    still never reaches the trace.
+    still never reaches the trace. shfmt puts the subshell's `(` on the
+    line before, so the opener is read from the preceding line too.
     """
+    lines = AUTH_MODULE.read_text().splitlines()
     sites = [
-        line.strip()
-        for line in AUTH_MODULE.read_text().splitlines()
+        f"{lines[number - 1].strip()} {line.strip()}"
+        for number, line in enumerate(lines)
         if "{ set +x; }" in line and not line.lstrip().startswith("#")
     ]
     assert sites, "no xtrace suppression left around the token handoff"

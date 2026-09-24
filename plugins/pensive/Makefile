@@ -25,8 +25,8 @@ TEST_UNIT_ARGS := -v -m unit
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Prevent parallel execution for targets that share resources
 
@@ -60,7 +60,7 @@ test-parallel: ## Run tests in parallel
 
 test-file: ## Run specific test file (FILE=path)
 	@if [ -z "$(FILE)" ]; then echo "Usage: make test-file FILE=path/to/test.py"; exit 1; fi
-	$(PYTEST) -v $(FILE)
+	$(PYTEST) -v "$(FILE)"
 
 test-pattern: ## Run tests matching pattern (PATTERN=name)
 	@if [ -z "$(PATTERN)" ]; then echo "Usage: make test-pattern PATTERN=test_name"; exit 1; fi
@@ -147,7 +147,9 @@ demo-makefile-review: ## Demo Makefile review on this plugin's Makefile
 	@echo "Has help target: $$(grep -q '^help:' Makefile && echo 'yes' || echo 'no')"
 	@echo ""
 	@echo "Step 2: Pattern Analysis"
-	@grep -E '^\s*\$$(MAKE)' Makefile | head -5 || echo "  (no recursive make calls)"
+	@out=$$(grep -E '^\s*\$$(MAKE)' Makefile) || out=""; \
+	if [ -n "$$out" ]; then printf '%s\n' "$$out" | head -5; \
+	else echo "  (no recursive make calls)"; fi
 	@echo ""
 	@echo "Step 3: Quality Checks"
 	@echo "Uses SHELL directive: $$(grep -q '^SHELL' Makefile && echo 'yes' || echo 'no')"
@@ -183,11 +185,13 @@ demo-skills: ## Validate pensive skill structure
 	done
 	@echo ""
 	@echo "Skill coverage:"
-	@echo "  api-review:       $$(test -f skills/api-review/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  bug-review:       $$(test -f skills/bug-review/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  makefile-review:  $$(test -f skills/makefile-review/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  test-review:      $$(test -f skills/test-review/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  rust-review:      $$(test -f skills/rust-review/SKILL.md && echo '[OK]' || echo '[X]')"
+	@fail=0; for skill in api-review bug-review makefile-review test-review rust-review; do \
+		if [ -f "skills/$$skill/SKILL.md" ]; then \
+			printf '  %-16s [OK]\n' "$$skill:"; \
+		else \
+			printf '  %-16s [X]\n' "$$skill:"; fail=1; \
+		fi; \
+	done; exit $$fail
 
 plugin-check: demo-makefile-review demo-bug-review demo-skills ## Run all demo workflows
 	@echo ""
@@ -324,7 +328,9 @@ demo-refine-code: ## Demo code refinement analysis (LIVE)
 		awk '{if($$1>200) printf "  [REVIEW] %s (%d lines)\n", $$2, $$1; else printf "  [OK] %s (%d lines)\n", $$2, $$1}'
 	@echo ""
 	@echo "Duplicate patterns:"
-	@grep -rn 'def ' src/ 2>/dev/null | awk -F: '{print $$3}' | sort | uniq -d | head -5 || echo "  (none found)"
+	@out=$$(grep -rn 'def ' src/ 2>/dev/null | awk -F: '{print $$3}' | sort | uniq -d); \
+	if [ -n "$$out" ]; then printf '%s\n' "$$out" | head -5; \
+	else echo "  (none found)"; fi
 	@echo ""
 	@echo "Use /pensive:refine-code for full analysis."
 

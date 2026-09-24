@@ -41,10 +41,28 @@ Central, OpenAlex). Routes PDFs through markitdown for the
 agent to read, and provides fallback guidance for paywalled
 content.
 
+**Open web**: vendor documentation, standards, comparisons and news
+through the You.com MCP server when configured and the built-in
+WebSearch tool otherwise. Dispatched from medium depth, with a
+positive control (RFC 2119) before its topic queries.
+
 **TRIZ cross-domain**: Identifies adjacent fields where
 analogous problems have been solved. Depth scales
 dynamically from light (1 field) to maximum (5 fields
 with full contradiction analysis).
+
+Each channel has a card in `tome.channels.cards`: its kind
+(retrieval or generative), the depth that enables it, whether it
+runs a positive control, and its limitations. The planner gates on
+the cards, and the research skill embeds one in every dispatch
+prompt. `workflows/research.js` carries its own briefs and does not.
+After each pass,
+`tome.synthesis.verifier.verify_context` returns STOP or CONTINUE
+from the query log, the controls and the frontier verdict, naming
+which channels to rerun, reformulate or add. It allows two passes
+by default. The design adapts OctoTools' tool cards and context
+verifier (arXiv 2502.11271). ADR-0024 records what was taken and
+what was left.
 
 ## Domain Classification
 
@@ -61,6 +79,8 @@ depth, channel weights, and visualization style:
 | financial | medium | "portfolio risk modeling" |
 | devops | light | "kubernetes deployment" |
 | security | medium | "TLS certificate rotation" |
+| ai-agents | deep | "agent session memory" |
+| methodology | deep | "TRIZ inventive principles" |
 
 ## Output Formats
 
@@ -88,6 +108,7 @@ depth, channel weights, and visualization style:
 | `code-searcher` | GitHub code search |
 | `discourse-scanner` | HN, Lobsters, Reddit, blogs |
 | `literature-reviewer` | arXiv, Semantic Scholar, PDFs |
+| `web-searcher` | Open web via You.com MCP or WebSearch |
 | `triz-analyst` | Cross-domain analogical reasoning |
 
 ## Integration

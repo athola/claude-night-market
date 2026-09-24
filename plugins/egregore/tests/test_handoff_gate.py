@@ -653,3 +653,18 @@ class TestTraceabilityRejectsATaskThatDoesNotExist:
 
     def test_a_criterion_traced_to_a_real_task_passes(self) -> None:
         assert gate._check_traceability(self.CRITERIA, {"AC1": ["T1"]}, {"T1"}) == []
+
+
+class TestLoadItem:
+    """The runner reads the documents through the same loader the gate uses."""
+
+    def test_an_admitted_item_yields_its_handoff_and_tasks(
+        self, tmp_path: Path
+    ) -> None:
+        handoff, tasks = gate.load_item(write_item(tmp_path))
+        assert handoff["item"] == "NS-001"
+        assert [task["id"] for task in tasks] == ["T1", "T2"]
+
+    def test_a_refused_item_raises(self, tmp_path: Path) -> None:
+        with pytest.raises(ValueError, match="absent"):
+            gate.load_item(write_item(tmp_path, **{"design.md": None}))

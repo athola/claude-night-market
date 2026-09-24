@@ -85,14 +85,6 @@ class TestEntityCRUD:
         assert len(concepts) == 2
         assert {e["entity_id"] for e in concepts} == {"e1", "e3"}
 
-    def test_delete_entity(self, graph: KnowledgeGraph) -> None:
-        """Deleting removes one row and leaves the rest untouched."""
-        graph.upsert_entity(entity_id="e1", entity_type="concept", name="A")
-        assert graph.entity_count() == 1
-        graph.delete_entity("e1")
-        assert graph.entity_count() == 0
-        assert graph.get_entity("e1") is None
-
 
 class TestResidencies:
     """Entity-palace residency management."""
@@ -136,33 +128,9 @@ class TestResidencies:
         graph.add_residency(entity_id="e1", palace_id="p1", role="curator")
         assert len(graph.get_residencies(entity_id="e1")) == 1
 
-    def test_messenger_bridges_palaces(self, graph: KnowledgeGraph) -> None:
-        """An entity resident in two palaces is reported as a messenger between them."""
-        graph.upsert_entity(entity_id="e1", entity_type="concept", name="Bridge")
-        graph.add_residency(entity_id="e1", palace_id="p1", role="messenger")
-        graph.add_residency(entity_id="e1", palace_id="p2", role="messenger")
-        messengers = graph.get_messengers()
-        assert len(messengers) >= 1
-        assert messengers[0]["entity_id"] == "e1"
-
 
 class TestTriples:
     """Temporal triples with validity windows."""
-
-    def test_add_and_query_triple(self, graph: KnowledgeGraph) -> None:
-        """A stored triple reads back with its predicate intact."""
-        graph.upsert_entity(entity_id="e1", entity_type="concept", name="A")
-        graph.upsert_entity(entity_id="e2", entity_type="concept", name="B")
-        graph.add_triple(
-            subject_id="e1",
-            predicate="depends-on",
-            object_id="e2",
-            confidence=0.9,
-        )
-        triples = graph.get_triples_from("e1")
-        assert len(triples) == 1
-        assert triples[0]["predicate"] == "depends-on"
-        assert triples[0]["confidence"] == 0.9
 
     def test_temporal_validity(self, graph: KnowledgeGraph) -> None:
         """A triple with no end date counts as still active."""
@@ -185,19 +153,6 @@ class TestTriples:
         active = graph.get_active_triples_from("e1")
         assert len(active) == 1
         assert active[0]["valid_to"] is None or active[0]["valid_to"] == ""
-
-    def test_invalidate_triple(self, graph: KnowledgeGraph) -> None:
-        """Invalidating closes the interval without deleting the historical row."""
-        graph.upsert_entity(entity_id="e1", entity_type="concept", name="A")
-        graph.upsert_entity(entity_id="e2", entity_type="concept", name="B")
-        graph.add_triple(subject_id="e1", predicate="uses", object_id="e2")
-        triples = graph.get_active_triples_from("e1")
-        assert len(triples) == 1
-        graph.invalidate_triple(
-            triples[0]["id"],
-            valid_to="2025-12-01T00:00:00",
-        )
-        assert len(graph.get_active_triples_from("e1")) == 0
 
 
 class TestSynapses:
@@ -363,18 +318,6 @@ class TestTierAssignments:
         assert tier["tier"] == 0
         assert tier["score"] == pytest.approx(0.85)
 
-    def test_get_entities_by_tier(self, graph: KnowledgeGraph) -> None:
-        """Filtering by tier returns exactly that tier's members."""
-        for i, t in enumerate([0, 1, 1, 2, 3]):
-            graph.upsert_entity(
-                entity_id=f"e{i}",
-                entity_type="concept",
-                name=f"Entity {i}",
-            )
-            graph.assign_tier(entity_id=f"e{i}", tier=t, score=0.5)
-        l1 = graph.get_entities_by_tier(1)
-        assert len(l1) == 2
-
 
 class TestEdgeCases:
     """Edge cases and fallback paths."""
@@ -407,15 +350,6 @@ class TestEdgeCases:
 
 class TestBulkOperations:
     """Batch inserts and counts."""
-
-    def test_bulk_upsert_entities(self, graph: KnowledgeGraph) -> None:
-        """A hundred entities insert in one pass and all survive."""
-        entities = [
-            {"entity_id": f"e{i}", "entity_type": "concept", "name": f"E{i}"}
-            for i in range(100)
-        ]
-        graph.bulk_upsert_entities(entities)
-        assert graph.entity_count() == 100
 
     def test_counts(self, graph: KnowledgeGraph) -> None:
         """Entity and synapse counts are tracked independently."""

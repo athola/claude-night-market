@@ -452,6 +452,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `task-generator` | spec-kit | Task creation |
 | `triz-analyst` | tome | TRIZ cross-domain analysis |
 | `unbloat-remediator` | conserve | Executes safe bloat remediation |
+| `web-searcher` | tome | Open-web search via You.com MCP or WebSearch |
 | `workflow-improvement-analysis-agent` | sanctum | Workflow improvement analysis |
 | `workflow-improvement-implementer-agent` | sanctum | Workflow improvement implementation |
 | `workflow-improvement-planner-agent` | sanctum | Workflow improvement planning |

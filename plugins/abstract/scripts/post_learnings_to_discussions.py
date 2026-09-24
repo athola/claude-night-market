@@ -51,16 +51,14 @@ from discussion_enrichment import (
     track_issue_persistence,
 )
 
-from abstract.utils import (
-    extract_bold_field,
-    get_learnings_path,
-)
-from abstract.utils import (  # noqa: E402 - import after sys.path setup
+from abstract.markdown_fields import extract_bold_field
+from abstract.markdown_fields import (  # noqa: E402 - import after sys.path setup
     extract_section as _extract_section,
 )
-from abstract.utils import (
+from abstract.paths import (
     get_config_dir as _shared_get_config_dir,
 )
+from abstract.paths import get_learnings_path
 
 # AR-30: route gh invocations through leyline.git_platform.
 _LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"

@@ -242,6 +242,79 @@ class TestThrottleCrossPlatform:
         assert dsl._read_throttle(p) == (2, 1234.5)
 
 
+class TestThrottleWritesAreAtomic:
+    """Feature: a failed throttle write leaves the previous count standing.
+
+    As the runaway-loop guard
+    I want the count to survive an interrupted write
+    So that a truncated file cannot reset the count to zero, which is
+    the direction that disables the guard.
+
+    `_read_throttle` returns (0, 0.0) for every failure including a
+    truncated file, so an in-place truncating write had a window where
+    a crash silently re-armed an exhausted throttle.
+    """
+
+    @pytest.mark.unit
+    def test_a_failed_write_leaves_the_previous_count_intact(
+        self, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: the rename fails part way through a write
+        Given a throttle file holding a count of 3
+        When the replace step raises
+        Then the original bytes are unchanged
+        """
+        path = tmp_path / "state.json"
+        dsl._write_throttle(path, 3, 1000.0)
+        before = path.read_bytes()
+
+        monkeypatch.setattr(
+            dsl.os, "replace", lambda *a, **k: (_ for _ in ()).throw(OSError("boom"))
+        )
+        dsl._write_throttle(path, 4, 2000.0)
+
+        assert path.read_bytes() == before
+        assert dsl._read_throttle(path) == (3, 1000.0)
+
+    @pytest.mark.unit
+    def test_a_failed_write_leaves_no_partial_file_behind(self, tmp_path, monkeypatch):
+        """
+        Scenario: the temp file is cleaned up when the rename fails
+        Then the directory holds only the throttle file itself
+        """
+        path = tmp_path / "state.json"
+        dsl._write_throttle(path, 3, 1000.0)
+
+        monkeypatch.setattr(
+            dsl.os, "replace", lambda *a, **k: (_ for _ in ()).throw(OSError("boom"))
+        )
+        dsl._write_throttle(path, 4, 2000.0)
+
+        assert sorted(p.name for p in tmp_path.iterdir()) == ["state.json"]
+
+    @pytest.mark.unit
+    def test_the_write_goes_through_replace(self, tmp_path, monkeypatch):
+        """
+        Scenario: the write is a rename, not a truncate in place
+        Then os.replace is called once with the throttle file as target
+        """
+        path = tmp_path / "state.json"
+        calls = []
+        real_replace = dsl.os.replace
+
+        def recording(src, dst):
+            calls.append((str(src), str(dst)))
+            return real_replace(src, dst)
+
+        monkeypatch.setattr(dsl.os, "replace", recording)
+        dsl._write_throttle(path, 1, 5.0)
+
+        assert len(calls) == 1
+        assert calls[0][1] == str(path)
+        assert dsl._read_throttle(path) == (1, 5.0)
+
+
 class TestDecide:
     """Feature: end-to-end Stop decision with recursion guard and throttling."""
 
@@ -609,11 +682,46 @@ class TestThrottleSweep:
 
     @pytest.mark.unit
     def test_sweep_tolerates_missing_tempdir(self, tmp_path, monkeypatch):
-        """Given a non-existent temp dir, when sweeping, then no error is raised."""
-        monkeypatch.setattr(
-            dsl.tempfile, "gettempdir", lambda: str(tmp_path / "does-not-exist")
-        )
-        dsl._sweep_stale_throttles(1000.0)  # must not raise
+        """
+        Scenario: housekeeping over a temp dir that is not there
+        GIVEN a temp dir path that does not exist
+        WHEN sweeping stale throttles
+        THEN nothing is raised and the directory is not created
+
+        Creating it would be the tempting fix and the wrong one: the
+        sweep is best-effort housekeeping and must leave no trace on a
+        machine whose temp dir it cannot see.
+        """
+        absent = tmp_path / "does-not-exist"
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(absent))
+
+        assert dsl._sweep_stale_throttles(1000.0) is None
+
+        assert not absent.exists()
+
+    @pytest.mark.unit
+    def test_sweep_leaves_a_throttle_that_is_still_within_its_ttl(
+        self, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: a live session's throttle file survives the sweep
+        GIVEN a throttle file whose mtime is inside the TTL
+        WHEN sweeping
+        THEN the file is still there
+
+        The counterpart to the stale case: a sweep that unlinked every
+        throttle it found would reset the continuation count of every
+        concurrent session on the machine.
+        """
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        now = 1_000_000.0
+        fresh = tmp_path / f"{dsl._THROTTLE_PREFIX}live.json"
+        fresh.write_text("{}", encoding="utf-8")
+        os.utime(fresh, (now - 1, now - 1))
+
+        dsl._sweep_stale_throttles(now)
+
+        assert fresh.exists()
 
     @pytest.mark.unit
     def test_sweep_only_targets_throttle_files(self, tmp_path, monkeypatch):

@@ -29,16 +29,6 @@ class StageExecutionPlan:
     stage: str
     waves: list[list[str]] = field(default_factory=list)
 
-    @property
-    def is_parallel(self) -> bool:
-        """True if the plan has any wave with more than one step."""
-        return any(len(w) > 1 for w in self.waves)
-
-    @property
-    def total_steps(self) -> int:
-        """Total number of steps across all waves."""
-        return sum(len(w) for w in self.waves)
-
 
 def plan_stage_execution(
     stage: str,
@@ -104,11 +94,6 @@ class WaveResult:
 
     wave_index: int
     results: dict[str, str] = field(default_factory=dict)
-
-    @property
-    def all_passed(self) -> bool:
-        """True if every step in the wave passed."""
-        return all(r == "pass" for r in self.results.values())
 
     @property
     def failed_steps(self) -> list[str]:

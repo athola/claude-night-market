@@ -216,6 +216,68 @@ def test_static_analysis_documentation_lacks_module_docstring(tmp_path):
     assert any("module docstring" in i.message for i in out["documentation"])
 
 
+@pytest.mark.parametrize(
+    ("preamble", "label"),
+    [
+        ("# ruff: noqa: D101,D102\n", "ruff file-level noqa"),
+        ("#!/usr/bin/env python3\n", "shebang"),
+        ("# -*- coding: utf-8 -*-\n", "coding declaration"),
+        ("\n\n", "leading blank lines"),
+    ],
+    ids=["ruff_noqa", "shebang", "coding_declaration", "blank_lines"],
+)
+def test_a_module_docstring_behind_a_preamble_line_still_counts(
+    tmp_path, preamble, label
+):
+    """GIVEN a module whose docstring is preceded by a preamble line.
+
+    WHEN the file is analyzed
+    THEN no missing-module-docstring finding is raised
+
+    The check was `content.startswith('\"\"\"')`, so a `# ruff: noqa`
+    directive or a shebang above the docstring cost the file five
+    points for documentation it actually had. Two of sanctum's own
+    notify test files were scored that way.
+    """
+    qc = _load_script()
+    f = tmp_path / "test_preamble.py"
+    f.write_text(
+        preamble + '"""This module is documented despite the preamble."""\n'
+        "\n"
+        "def test_some_thing_behavior():\n"
+        "    assert True\n"
+    )
+
+    out = qc.TestQualityChecker(f).run_static_analysis()
+
+    assert not [i for i in out["documentation"] if "module docstring" in i.message], (
+        label
+    )
+
+
+def test_a_module_whose_first_string_is_not_a_docstring_is_still_flagged(tmp_path):
+    """GIVEN a module with no docstring but a string literal in the body.
+
+    WHEN the file is analyzed
+    THEN the missing-module-docstring finding is still raised
+
+    The counterpart, so the fix above is a docstring check and not a
+    check for the word `\"\"\"` appearing anywhere near the top.
+    """
+    qc = _load_script()
+    f = tmp_path / "test_no_doc.py"
+    f.write_text(
+        "import pytest\n"
+        '\nNOT_A_DOCSTRING = """just a constant"""\n'
+        "\ndef test_some_thing_behavior():\n"
+        "    assert True\n"
+    )
+
+    out = qc.TestQualityChecker(f).run_static_analysis()
+
+    assert any("module docstring" in i.message for i in out["documentation"])
+
+
 # ---------------------- metrics ----------------------
 
 

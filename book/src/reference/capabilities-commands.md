@@ -610,22 +610,29 @@ failing-behavior descriptions using research, TDD, and proof-of-work.
 ```
 
 ### `/sanctum:pr-review`
-Enhanced PR review.
+Scope-focused PR/MR review with line comments on GitHub and GitLab.
 
 ```bash
 # Usage
-/pr-review [PR_NUMBER] [--thorough]
+/pr-review [PR_NUMBER | PR_URL | MR_URL] [--scope-mode strict|standard|flexible] [OPTIONS]
 
 # Options
-PR_NUMBER    PR to review (default: current)
---thorough   Deep review with all checks
---quick      Fast review of critical issues only
---security   Security-focused review
+--scope-mode MODE    Requirement strictness (default: standard)
+--dry-run            Report in conversation, post nothing
+--local [PATH]       Write the report to a file instead of the PR
+--concise            Suggestion blocks plus one short summary; no test plan or description update
+--hold-insights      Show direction and architecture feedback in chat, post only what you select
+--no-insights        Skip posting findings to Discussions (posted by default)
+--no-line-comments   Summary review only
+--interactive        Socratic comprehension loop, graded into gauntlet
+--stack / --no-stack Review the whole PR stack, or force single-PR mode
+--skip-version-check Waive version consistency (maintainer override)
 
 # Examples
 /pr-review 42
-/pr-review --thorough
-/pr-review --quick --security
+/pr-review https://gitlab.com/org/repo/-/merge_requests/123 --concise
+/pr-review 42 --concise --hold-insights
+/pr-review 42 --local reviews/pr-42.md
 ```
 
 ### `/sanctum:update-docs`

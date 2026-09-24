@@ -93,15 +93,42 @@ const read = await parallel(
   ),
 )
 
+// A lens whose reader returned nothing is unread, not clear. When the
+// constitution lens is the one missing, an empty blocking list is the
+// exact answer that unblocks planning, and it would be unearned.
+const missing = LENSES.filter((lens, index) => !read[index]).map((lens) => lens.key)
 const reports = read.filter(Boolean)
 const findings = reports.flatMap((report) =>
   (report.findings || []).map((finding) => ({ ...finding, lens: report.lens })),
 )
 const blocking = findings.filter((finding) => finding.blocking)
+const coverage = { read: reports.map((r) => r.lens), missing }
+
+if (missing.length) log(`no reading from ${missing.join(', ')}; treat the review as partial`)
 
 if (!findings.length) {
-  log(`${spec}: no findings from ${reports.length} lenses`)
-  return { spec, findings: [], blocking: [], gaps: null }
+  log(`${spec}: no findings from ${reports.length} of ${LENSES.length} lenses`)
+  return { spec, findings: [], blocking: [], gaps: null, coverage }
+}
+
+const GAPS = {
+  type: 'object',
+  required: ['gaps', 'nothing_blocks'],
+  properties: {
+    gaps: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['gap', 'blocks', 'lenses'],
+        properties: {
+          gap: { type: 'string' },
+          blocks: { type: 'string' },
+          lenses: { type: 'array', items: { type: 'string' } },
+        },
+      },
+    },
+    nothing_blocks: { type: 'boolean' },
+  },
 }
 
 const digest = findings
@@ -110,9 +137,9 @@ const digest = findings
 
 const gaps = await agent(
   `These findings came from four blind readings of ${spec}. Write what must be settled before planning starts.\n\n${digest}\n\nWhere two lenses found the same underlying gap, say it once. A requirement that is both untestable and uncovered is one gap about a requirement nobody has thought through. Order by what blocks the most downstream work, and state plainly if nothing blocks.`,
-  { label: 'gaps', phase: 'Gaps' },
+  { label: 'gaps', phase: 'Gaps', schema: GAPS },
 )
 
 log(`${findings.length} findings on ${spec}, ${blocking.length} blocking`)
 
-return { spec, findings, blocking, gaps }
+return { spec, findings, blocking, gaps, coverage }

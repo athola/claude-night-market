@@ -1,6 +1,6 @@
 [project]
 name = "minister"
-version = "1.9.20"
+version = "1.9.21"
 description = "GitHub-centric project management plugin for Claude Code"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
@@ -10,10 +10,10 @@ dependencies = []
 
 [dependency-groups]
 dev = [
-    "ruff>=0.14.13",
+    "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
-    "pytest-cov>=6.0.0",
+    "pytest-cov>=7.1.0",
 ]
 
 [tool.nightmarket]

@@ -275,9 +275,15 @@ def test_clawhub_export_exits_nonzero_when_skills_failed_to_export(
 
 
 def test_clawhub_export_succeeds_on_a_clean_export(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture
 ) -> None:
-    """Zero errors must still be a zero exit."""
+    """Zero errors must still be a zero exit.
+
+    The sibling tests prove the gate fails on errors. This one proves it
+    does not fail on their absence, which is the half a fail-closed
+    change breaks silently: ``main`` must return rather than call
+    ``sys.exit``, and the error line must stay off stderr.
+    """
     module = _load("clawhub_export")
     monkeypatch.setattr(
         module,
@@ -285,4 +291,42 @@ def test_clawhub_export_succeeds_on_a_clean_export(
         lambda output, top, plugins_dir: {"total_exported": 3, "total_errors": 0},
     )
     monkeypatch.setattr(sys, "argv", ["clawhub_export.py", "--output", str(tmp_path)])
-    module.main()
+
+    assert module.main() is None
+
+    captured = capsys.readouterr()
+    assert "Exported 3 skills" in captured.out
+    assert captured.err == ""
+
+
+_PLANTED_SLOP = REPO_ROOT / "tests" / "fixtures" / "slop" / "planted.md"
+
+
+def test_slop_gate_still_flags_a_planted_document() -> None:
+    """The slop scorer must fail on a file written to fail it.
+
+    A present but malformed pattern table scores every document 0.0 and
+    reports "clean"; ``scripts/slop_score.py`` records that the
+    sycophantic section once reached no gate at all. tome answers the
+    same shape with a positive control (ADR-0020): a retrieval channel
+    proves it can find a known target before its empty result counts.
+    This is that control for the gate that runs on every docs PR.
+    """
+    assert _PLANTED_SLOP.is_file()
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS / "slop_score.py"),
+            "--threshold",
+            "3.0",
+            "--no-exclude",
+            str(_PLANTED_SLOP),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode != 0, (
+        "the planted fixture scored clean; the gate can no longer see slop\n"
+        + result.stdout
+    )

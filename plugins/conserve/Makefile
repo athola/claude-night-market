@@ -15,8 +15,8 @@ COV_DIRS := $(SRC_DIRS)
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Default target
 help: ## Show this help message
@@ -188,16 +188,17 @@ demo-tokens: ## Demo token estimation (LIVE)
 demo-ccr: ## Demo reversible compression: archive a large output, retrieve a slice (LIVE)
 	@echo "=== Conservation Reversible Compression (CCR) Demo (LIVE) ==="
 	@echo ""
-	@D=$$(mktemp -d); \
-	python3 -c "import json; body='\n'.join(f'INFO line {i}' for i in range(1500))+'\nFATAL: connection refused\n'; print(json.dumps({'tool_name':'Bash','tool_response':{'stdout':body}}))" > $$D/in.json; \
+	@D=$$(mktemp -d) || exit 1; \
+	test -n "$$D" || exit 1; \
+	python3 -c "import json; body='\n'.join(f'INFO line {i}' for i in range(1500))+'\nFATAL: connection refused\n'; print(json.dumps({'tool_name':'Bash','tool_response':{'stdout':body}}))" > "$$D/in.json"; \
 	echo "Input: $$(python3 -c "import json;print(len(json.load(open('$$D/in.json'))['tool_response']['stdout']))") chars"; \
-	cd $$D && CONSERVE_CCR_THRESHOLD=2000 python3 $(CURDIR)/hooks/tool_output_summarizer.py < in.json \
+	cd "$$D" && CONSERVE_CCR_THRESHOLD=2000 python3 $(CURDIR)/hooks/tool_output_summarizer.py < in.json \
 		| python3 -c "import sys,json;print('Digest head:', json.load(sys.stdin)['hookSpecificOutput']['additionalContext'].splitlines()[0])"; \
-	H=$$(basename $$D/.claude/context-archive/ccr-*.txt .txt); \
+	H=$$(basename "$$D"/.claude/context-archive/ccr-*.txt .txt); \
 	echo "Archived handle: $$H"; \
 	echo "Retrieve --grep FATAL:"; \
-	python3 $(CURDIR)/scripts/context_retrieve.py $$H --grep FATAL --archive-dir $$D/.claude/context-archive | sed 's/^/  /'; \
-	rm -rf $$D
+	python3 $(CURDIR)/scripts/context_retrieve.py $$H --grep FATAL --archive-dir "$$D/.claude/context-archive" | sed 's/^/  /'; \
+	rm -rf "$$D"
 	@echo ""
 	@echo "Hook auto-archives outputs >=CONSERVE_CCR_THRESHOLD chars (default 25000)."
 
@@ -210,10 +211,13 @@ demo-skills: ## Validate conservation skill structure
 	done
 	@echo ""
 	@echo "Skill coverage:"
-	@echo "  context-optimization: $$(test -f skills/context-optimization/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  mcp-code-execution:   $$(test -f skills/mcp-code-execution/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  token-conservation:     $$(test -f skills/token-conservation/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  bloat-detector:       $$(test -f skills/bloat-detector/SKILL.md && echo '[OK]' || echo '[X]')"
+	@fail=0; for skill in context-optimization mcp-code-execution token-conservation bloat-detector; do \
+		if [ -f "skills/$$skill/SKILL.md" ]; then \
+			printf '  %-21s [OK]\n' "$$skill:"; \
+		else \
+			printf '  %-21s [X]\n' "$$skill:"; fail=1; \
+		fi; \
+	done; exit $$fail
 	@echo ""
 	@echo "Scripts:"
 	@find scripts/ -name "*.py" 2>/dev/null | wc -l | xargs -I{} echo "  {} Python scripts"

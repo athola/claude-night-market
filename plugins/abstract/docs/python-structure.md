@@ -20,8 +20,6 @@ abstract/
 │   ├── abstract_validator.py # Validates meta-skill patterns
 │   ├── context_optimizer.py  # Analyzes context window usage
 │   └── README.md             # Scripts documentation
-├── .pre-commit/              # Pre-commit hooks
-│   └── validate_abstract.py
 ├── skills/                   # Claude Code skills
 │   ├── modular-skills/
 │   │   └── scripts/          # Module validation tools

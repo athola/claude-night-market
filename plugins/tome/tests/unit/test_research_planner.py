@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import pytest
 
+from tome.channels.cards import CHANNEL_CARDS
 from tome.models import DomainClassification, ResearchPlan
+from tome.scripts import research_planner
 from tome.scripts.research_planner import plan
 
 
@@ -101,7 +103,7 @@ class TestResearchPlannerChannelInclusion:
         classification = _make_classification("data-structure", "deep")
         result = plan(classification)
 
-        assert set(result.channels) == {"code", "discourse", "academic", "triz"}
+        assert set(result.channels) == {"code", "discourse", "academic", "web", "triz"}
 
     @pytest.mark.unit
     def test_maximum_depth_includes_all_four_channels(self) -> None:
@@ -124,7 +126,7 @@ class TestResearchPlannerChannelInclusion:
         )
         result = plan(classification)
 
-        assert set(result.channels) == {"code", "discourse", "academic", "triz"}
+        assert set(result.channels) == {"code", "discourse", "academic", "web", "triz"}
 
 
 class TestResearchPlannerBudget:
@@ -271,3 +273,42 @@ class TestResearchPlannerWeights:
         result = plan(_make_classification("devops", "light"))
 
         assert isinstance(result, ResearchPlan)
+
+
+class TestModuleDocstringMatchesTheCards:
+    """Feature: the module's inclusion summary is accurate.
+
+    The docstring is where a reader learns which channel runs at which
+    depth without reading `cards.py`. It listed code, discourse,
+    academic and triz, and omitted web, so a reader planning a medium
+    run expected three channels and got four.
+    """
+
+    @pytest.mark.unit
+    def test_every_channel_is_named_in_the_module_docstring(self) -> None:
+        """
+        Scenario: A channel card exists for every documented name
+        Given CHANNEL_CARDS
+        When the module docstring is read
+        Then each card's name appears in it
+        """
+        doc = research_planner.__doc__ or ""
+
+        missing = [card.name for card in CHANNEL_CARDS if card.name not in doc]
+        assert missing == [], f"channels missing from the docstring: {missing}"
+
+    @pytest.mark.unit
+    def test_each_channel_is_documented_at_its_own_min_depth(self) -> None:
+        """
+        Scenario: The summary names the depth each channel starts at
+        Given CHANNEL_CARDS
+        When the module docstring is read
+        Then every distinct min_depth value appears in it
+        """
+        doc = research_planner.__doc__ or ""
+
+        for card in CHANNEL_CARDS:
+            assert card.min_depth in doc, (
+                f"{card.name} starts at {card.min_depth}, "
+                "which the docstring never mentions"
+            )

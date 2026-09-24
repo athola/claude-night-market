@@ -164,3 +164,6 @@ and clear decision rationale.
   `archetypes:architecture-paradigm-*` skill (verified by listing the created directories).
 - [ ] If the paradigm is undecided after research, the skill surfaces the top two candidates
   with trade-offs and waits for explicit user selection rather than defaulting silently.
+- [ ] When research ran, `research.json` holds `preferred` and `avoid`
+      lists and was passed with `--research-file`; the recommendation's
+      rationale contains a rule naming "research"

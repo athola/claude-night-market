@@ -1,6 +1,7 @@
 """Tests for gif_demo.sh script functionality."""
 
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -146,3 +147,77 @@ class TestGifDemoExecution:
         assert "Input:" in output
         assert "Output:" in output
         assert "size:" in output.lower()
+
+
+class TestGifDemoShellRules:
+    """Feature: the script follows the house shell rules.
+
+    As a maintainer reading any script in this repository
+    I want one structure across all of them
+    So that behavior lives in functions and output goes through log().
+
+    The rules are in `.claude/rules/shell-scripts.md`: no bare `echo`,
+    no top-down logic, and `main "$@"` as the last line.
+    """
+
+    @staticmethod
+    def _code_lines(script: Path) -> list[str]:
+        """Source lines with comments and blank lines dropped."""
+        return [
+            line
+            for line in script.read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.strip().startswith("#")
+        ]
+
+    def test_last_line_is_main(self, gif_demo_script: Path) -> None:
+        """Scenario: the entry point is the last statement in the file."""
+        lines = gif_demo_script.read_text(encoding="utf-8").splitlines()
+
+        assert lines[-1].strip() == 'main "$@"', (
+            f'last line is {lines[-1]!r}; the house rule requires main "$@"'
+        )
+
+    def test_no_bare_echo(self, gif_demo_script: Path) -> None:
+        """Scenario: every output goes through the logging helper."""
+        offenders = [
+            line
+            for line in self._code_lines(gif_demo_script)
+            if re.search(r"\becho\b", line)
+        ]
+
+        assert not offenders, f"bare echo at: {offenders}"
+
+    def test_defines_usage_and_main(self, gif_demo_script: Path) -> None:
+        """Scenario: usage and main are functions, not inline branches."""
+        source = gif_demo_script.read_text(encoding="utf-8")
+
+        assert re.search(r"^usage\(\)", source, re.MULTILINE)
+        assert re.search(r"^main\(\)", source, re.MULTILINE)
+
+    def test_no_fixed_temp_path(self, gif_demo_script: Path) -> None:
+        """Scenario: the work directory is not a predictable shared path."""
+        source = gif_demo_script.read_text(encoding="utf-8")
+
+        assert "/tmp/scry-gif-test" not in source
+        assert "mktemp -d" in source
+
+    def test_parses_under_bash(self, gif_demo_script: Path) -> None:
+        """Scenario: the restructured script is still syntactically valid."""
+        result = subprocess.run(
+            ["bash", "-n", str(gif_demo_script)], capture_output=True, text=True
+        )
+
+        assert result.returncode == 0, result.stderr
+
+    def test_is_executable(self, gif_demo_script: Path) -> None:
+        """Scenario: a script with a shebang carries the exec bit."""
+        assert os.access(gif_demo_script, os.X_OK)
+
+    def test_documents_the_xtrace_flag(self, gif_demo_script: Path) -> None:
+        """Scenario: every script supports and documents an xtrace flag."""
+        result = subprocess.run(
+            [str(gif_demo_script), "-h"], capture_output=True, text=True
+        )
+
+        assert result.returncode == 0
+        assert "-x" in result.stdout

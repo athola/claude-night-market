@@ -133,18 +133,26 @@ class TestCommandUsageSection:
     def test_command_has_usage_section(self, commands_dir: Path) -> None:
         """Scenario: Command has Usage section.
 
-        Given a command file
-        When checking sections
-        Then it should have a Usage section.
+        GIVEN scry's command files
+        WHEN each is checked for a Usage heading
+        THEN every one has it, and there is at least one to check
+
+        Previously this printed a note and asserted nothing, so a
+        command shipped without a Usage section silently. Every scry
+        command has one today, which makes the note a contract: adding
+        a command without Usage now fails here rather than reaching a
+        reader who has no idea how to invoke it.
         """
-        for cmd_file in commands_dir.glob("*.md"):
-            content = cmd_file.read_text()
-            # Usage is recommended but not strictly required
-            # We just verify the check works
-            has_usage = self.has_usage_section(content)
-            # Log for visibility
-            if not has_usage:
-                print(f"Note: {cmd_file.name} has no Usage section")
+        command_files = sorted(commands_dir.glob("*.md"))
+        assert command_files, f"no command files under {commands_dir}"
+
+        missing = [
+            cmd_file.name
+            for cmd_file in command_files
+            if not self.has_usage_section(cmd_file.read_text())
+        ]
+
+        assert missing == []
 
     @pytest.mark.bdd
     @pytest.mark.unit

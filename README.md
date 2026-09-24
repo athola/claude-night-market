@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.20-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.9.21-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
 [![Skills](https://img.shields.io/badge/skills-210-teal)](book/src/reference/capabilities-reference.md)
@@ -24,7 +24,9 @@ design rationale behind a plugin, see
 
 ## Install
 
-Requires **Claude Code 2.1.16+** and **Python 3.9+** for hooks.
+Requires **Claude Code 2.1.16+** (2.1.32+ for agent teams, 2.1.38+
+for security features) and **Python 3.9+** for hooks, which is what
+macOS ships.
 
 ```bash
 # Add the marketplace, then install the plugins you want
@@ -143,56 +145,17 @@ override any conflicting skill or hook;
 
 ## Network and data
 
-Three parts of the marketplace reach off your machine. Each can be
-turned off.
-
-Two hooks use your existing GitHub credentials, and both fail
-silently when `gh` is unauthenticated or the network is
-unavailable.
-
-- **Star prompt** (`leyline`,
-  `plugins/leyline/hooks/auto-star-repo.sh`). On session start it
-  checks whether you have starred `athola/claude-night-market`,
-  using your `gh` CLI auth or a `GITHUB_TOKEN` / `GH_TOKEN` env
-  var. It only reads star status and asks once per session; it
-  never stars or unstars without your consent. Opt out by setting
-  `CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1`.
-- **Learnings and insights posting** (`abstract`,
-  `plugins/abstract/hooks/post_learnings_stop.py`). On session
-  stop, if `~/.claude/skills/LEARNINGS.md` has content, it posts a
-  skill-usage summary (and may promote high-severity items to
-  issues) via your authenticated `gh` CLI. The target is detected
-  at runtime: a `target_repo` override in
-  `~/.claude/skills/discussions/config.json`, otherwise the
-  current repo from `gh repo view`. Posting defaults to on; opt
-  out by setting `auto_post_learnings` to `false` in that config
-  file.
-
-The third sends the contents of your files. **Delegation**
-(`conjure`, also reached by `attune` missions and `egregore`
-pipeline steps) hands execution work to whichever external model
-CLI answers first, in the order Gemini, Qwen, MiniMax, GLM, Muse,
-Codex, OpenCode. The prompt and the file contents it carries go to
-that provider, under the credentials you configured for it. This
-runs by default. Decline it for one run with
-`CONJURE_DELEGATION=off`, or for one machine by setting
-`"enabled": false` in
-`~/.claude/hooks/delegation/config.json`. When no provider
-answers, the work stays on your machine.
-
-## Requirements
-
-- **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for
-  security features).
-- **Python 3.9+** for hooks (macOS ships 3.9.6). Hook code must
-  stay 3.9-compatible; plugin packages may target 3.10+ via
-  virtual environments. Working on this repo itself needs
-  **Python 3.12+**, which the root `pyproject.toml` pins. See the
-  [Plugin Development Guide][dev-guide] for the rules.
-- **GNU make 3.82+** to build this repo. The Xcode command line
-  tools ship 3.81, which runs the recipes without the flags they
-  rely on. `make` warns once per invocation when it detects this.
-  On macOS: `brew install make`, then run `gmake`.
+Three parts of the marketplace reach off your machine, and each can be
+turned off. Two hooks use your own `gh` credentials: a once-per-session
+star prompt that only reads your star status
+(`CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT=1` disables it), and a session-stop
+hook that posts a learnings discussion and may open issues
+(`auto_post_learnings: false` in
+`~/.claude/skills/discussions/config.json` disables it). The third,
+delegation through `conjure`, sends prompts and file contents to an
+external model CLI under the credentials you configured for it
+(`CONJURE_DELEGATION=off` for one run). What each sends, and every
+switch, is in [Network and Data](docs/deep-dive/network-and-data.md).
 
 ## Plugin Development
 
@@ -209,7 +172,9 @@ plus any of `commands/`, `skills/`, `hooks/`, `agents/`,
 subagents at once and runs only when you ask for one. Copy the
 layout from an existing plugin such as `plugins/abstract`, then
 see the [Plugin Development Guide][dev-guide] for structure and
-naming conventions.
+naming conventions. Working on this repo needs **Python 3.12+**
+and **GNU make 3.82+**. The guide covers both, including why
+Xcode's make 3.81 reports a green build it did not run.
 
 ## Documentation
 
@@ -219,6 +184,7 @@ naming conventions.
 - [Plugin Development Guide][dev-guide]
 - [Capabilities Reference](book/src/reference/capabilities-reference.md)
 - [Tutorials](book/src/tutorials/README.md)
+- [Network and Data](docs/deep-dive/network-and-data.md)
 - [Architecture Decision Records](docs/adr/)
 - [CHANGELOG](CHANGELOG.md)
 

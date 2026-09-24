@@ -131,12 +131,18 @@ class GeminiUsageLogger:
             if log_entry["success"]:
                 session_data["successful_requests"] = successful_requests + 1
 
-            with open(self.session_file, "w") as f:
+            # Same pattern as provider_ledger.save: write beside, then
+            # rename, so an interrupted dump cannot leave a truncated file
+            # for the next read to discard.
+            temporary = self.session_file.with_suffix(".json.tmp")
+            with open(temporary, "w") as f:
                 json.dump(session_data, f, indent=2)
+            temporary.replace(self.session_file)
 
         except (json.JSONDecodeError, OSError, KeyError, TypeError) as e:
-            # Don't let logging errors break the main flow
-            logger.debug("Failed to update session stats: %s", e)
+            # Don't let logging errors break the main flow, but say so at a
+            # level the default root logger prints.
+            logger.warning("Failed to update session stats: %s", e)
 
     def get_usage_summary(self, hours: int = 24) -> dict:
         """Get usage summary for the last N hours."""

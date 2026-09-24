@@ -127,7 +127,12 @@ const perDimension = await pipeline(
       schema: FINDINGS,
     }),
   (review, dimension) => {
-    if (!review || !review.findings || review.findings.length === 0) return []
+    if (!review) {
+      // A reviewer that died is not a dimension that passed.
+      dimension.missing = true
+      return []
+    }
+    if (!review.findings || review.findings.length === 0) return []
     let toVerify = review.findings
     if (maxFindings > 0 && toVerify.length > maxFindings) {
       log(
@@ -147,7 +152,15 @@ const perDimension = await pipeline(
         ).then((votes) => {
           const heard = votes.filter(Boolean)
           const standing = heard.filter((v) => !v.refuted).length
-          return { ...f, dimension: dimension.key, standing, heard: heard.length }
+          // unheard is carried so a finding verified by one lens of
+          // three is distinguishable from one verified by all three.
+          return {
+            ...f,
+            dimension: dimension.key,
+            standing,
+            heard: heard.length,
+            unheard: lenses.length - heard.length,
+          }
         }),
       ),
     )
@@ -156,10 +169,18 @@ const perDimension = await pipeline(
 
 // The one barrier that earns its place: deduplication needs every finding at
 // once, and it is arithmetic, so no agent is spawned for it.
-const survived = perDimension
-  .flat(2)
-  .filter(Boolean)
-  .filter((f) => f.heard > 0 && f.standing * 2 > f.heard)
+// The majority is over the roster, not the survivors: two dead lenses
+// must not let the third confirm a finding on its own vote (ADR-0025,
+// the herald defect one layer down). A finding that fell short only
+// because lenses went unheard is returned as unverified, not dropped.
+const verified = perDimension.flat(2).filter(Boolean)
+const survived = verified.filter((f) => f.standing * 2 > lenses.length)
+const unverified = verified.filter(
+  (f) =>
+    f.unheard > 0 &&
+    !(f.standing * 2 > lenses.length) &&
+    (f.standing + f.unheard) * 2 > lenses.length,
+)
 
 const byLocation = new Map()
 for (const f of survived) {
@@ -177,13 +198,17 @@ const confirmed = [...byLocation.values()].sort(
   (a, b) => RANK[a.severity] - RANK[b.severity] || b.dimensions.length - a.dimensions.length,
 )
 
+const missing = selected.filter((d) => d.missing).map((d) => d.key)
 log(`${confirmed.length} findings survived adversarial verification`)
+if (missing.length) log(`no review from ${missing.join(', ')}; those dimensions are unreviewed, not clean`)
+if (unverified.length) log(`${unverified.length} findings heard by too few lenses to confirm; they are unverified, not refuted`)
 
 return {
   target,
-  dimensions: selected.map((d) => d.key),
+  dimensions: { selected: selected.map((d) => d.key), reviewed: selected.filter((d) => !d.missing).map((d) => d.key), missing },
   bounded: { maxFindings, lenses: lenses.length },
   confirmed,
+  unverified,
   note:
     'Findings are agent claims that survived refutation. No command was run inside this workflow, so nothing here is proof-of-work evidence. Reproduce before acting.',
 }

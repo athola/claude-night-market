@@ -8,7 +8,7 @@
 
 # Include shared configuration for markdown-only plugins
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/markdown-only.mk
+include $(ABSTRACT_DIR)/config/make/markdown-only.mk
 
 # Default target
 help: ## Show this help message
@@ -65,16 +65,16 @@ demo-skills: ## Validate archetypes skill structure
 	@echo "=== Archetypes Skills Demo ==="
 	@echo "Checking skill frontmatter..."
 	@echo ""
-	@for skill in skills/*/SKILL.md; do \
+	@fail=0; for skill in skills/*/SKILL.md; do \
 		name=$$(basename $$(dirname $$skill)); \
 		has_name=$$(grep -c '^name:' "$$skill" 2>/dev/null || echo 0); \
 		has_desc=$$(grep -c '^description:' "$$skill" 2>/dev/null || echo 0); \
 		if [ "$$has_name" -gt 0 ] && [ "$$has_desc" -gt 0 ]; then \
 			echo "  [OK] $$name"; \
 		else \
-			echo "  [X] $$name (missing frontmatter)"; \
+			echo "  [X] $$name (missing frontmatter)"; fail=1; \
 		fi; \
-	done
+	done; exit $$fail
 	@echo ""
 	@echo "Skills validation complete."
 

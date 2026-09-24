@@ -17,6 +17,7 @@ from __future__ import annotations
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -142,17 +143,32 @@ class TestLowConfidenceDoesNotGate:
 
     @pytest.mark.unit
     def test_a_low_confidence_category_adds_no_score(self) -> None:
-        """Scenario: a semicolon splice is reported and costs nothing."""
+        """Scenario: a medium-confidence anthropomorphism is reported and costs nothing.
+
+        The semicolon splice was the example here until 2026-09-18,
+        when its regex narrowed to the unambiguous form and the
+        category became high confidence and scored.
+        """
         clean = "The exporter emits JSON. " * 10
-        spliced = clean + "The system is fast; it scales."
-        assert score_text(spliced).score == score_text(clean).score
+        soft = clean + "This module is the seam between the two layers."
+        assert score_text(soft).score == score_text(clean).score
 
     @pytest.mark.unit
     def test_a_low_confidence_category_is_still_reported(self) -> None:
         """Scenario: not scoring it is not the same as hiding it."""
-        spliced = "The exporter emits JSON. " * 10 + "The system is fast; it scales."
-        categories = {finding.category for finding in score_text(spliced).findings}
-        assert "semicolon_splice" in categories
+        soft = (
+            "The exporter emits JSON. " * 10
+            + "This module is the seam between the two layers."
+        )
+        categories = {finding.category for finding in score_text(soft).findings}
+        assert "anthropomorphism_medium" in categories
+
+    @pytest.mark.unit
+    def test_a_semicolon_splice_now_costs_its_weight(self) -> None:
+        """Scenario: the unambiguous splice is scored (2026-09-18)."""
+        clean = "The exporter emits JSON. " * 10
+        spliced = clean + "The system is fast; it scales."
+        assert score_text(spliced).score > score_text(clean).score
 
     @pytest.mark.unit
     def test_a_high_confidence_category_still_gates(self) -> None:
@@ -1114,3 +1130,85 @@ class TestGateAndAuditSharePatterns:
         assert gate <= audit, (
             f"categories scored but not locatable: {sorted(gate - audit)}"
         )
+
+
+def test_no_exclude_scores_a_path_the_config_excludes() -> None:
+    """The planted control is excluded from the ratchet and must still be scorable."""
+    fixture = REPO_ROOT / "tests" / "fixtures" / "slop" / "planted.md"
+    hidden = subprocess.run(
+        [sys.executable, str(SCRIPT), "--threshold", "3.0", str(fixture)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    seen = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--threshold",
+            "3.0",
+            "--no-exclude",
+            str(fixture),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert hidden.returncode == 0, hidden.stdout
+    assert seen.returncode != 0, seen.stdout
+
+
+class TestScoringIsLinearOnPunctuationFreeText:
+    """Feature: the commit path cannot be stalled by a wide table.
+
+    As a contributor running the pre-commit hook
+    I want scoring to finish in about the time reading the file takes
+    So that a glossary or a wide markdown table does not hang the commit.
+
+    The ``semicolon_splice`` runs excluded sentence punctuation but not
+    newlines, so on a document with no ``.`` or ``,`` a single run
+    spanned the whole file and the engine retried it from every start
+    position. A 94KB table of unpunctuated rows took 9.9 seconds.
+    """
+
+    @staticmethod
+    def _punctuation_free_markdown(target_chars: int) -> str:
+        row = "| alpha beta gamma delta | epsilon zeta eta theta | iota kappa |\n"
+        return "# Glossary\n\n" + row * (target_chars // len(row))
+
+    @pytest.mark.unit
+    def test_a_100kb_punctuation_free_file_scores_quickly(self) -> None:
+        """
+        Scenario: a wide table with no sentence punctuation
+        Given roughly 100KB of markdown carrying no period or comma
+        When score_text runs
+        Then it finishes well inside the pre-commit budget
+        """
+        body = self._punctuation_free_markdown(100_000)
+        assert len(body) > 100_000 - len(body) // 10
+
+        start = time.perf_counter()
+        score_text(body)
+        elapsed = time.perf_counter() - start
+
+        # The defect measured 9.9s here and the bounded pattern measures
+        # well under 0.2s, so the bound discriminates with wide margin
+        # while leaving room for a loaded machine.
+        assert elapsed < 2.0, f"scoring took {elapsed:.2f}s"
+
+    @pytest.mark.unit
+    def test_a_semicolon_with_no_terminator_scores_quickly(self) -> None:
+        """
+        Scenario: the worst case, a semicolon and nothing to anchor the end
+        Given the same text with one semicolon and no sentence terminator
+        Then scoring still finishes inside the budget
+        """
+        body = self._punctuation_free_markdown(100_000).replace(
+            "| iota kappa |", "| iota; kappa |", 1
+        )
+
+        start = time.perf_counter()
+        score_text(body)
+        elapsed = time.perf_counter() - start
+
+        assert elapsed < 2.0, f"scoring took {elapsed:.2f}s"

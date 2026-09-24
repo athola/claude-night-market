@@ -330,12 +330,14 @@ class TestQuotaTrackerCLI:
     """Feature: Quota tracker CLI interface."""
 
     @pytest.mark.bdd
-    def test_main_check_mode(self, tmp_path: Path, monkeypatch) -> None:
-        """Scenario: CLI check mode queries quota status.
+    def test_main_check_mode(
+        self, tmp_path: Path, monkeypatch, capsys: pytest.CaptureFixture
+    ) -> None:
+        """Scenario: CLI check mode prints the quota status level.
 
         Given CLI invoked with --check flag
         When running main
-        Then it should check quota status without error.
+        Then stdout names the status level it read.
         """
         monkeypatch.setattr("sys.argv", ["quota_tracker", "test-cli", "--check"])
         # Override storage to use tmp_path
@@ -346,16 +348,19 @@ class TestQuotaTrackerCLI:
 
         monkeypatch.setattr(QuotaTracker, "__init__", patched_init)
 
-        # Should not raise
         quota_tracker.main()
 
-    @pytest.mark.bdd
-    def test_main_estimate_mode(self, tmp_path: Path, monkeypatch) -> None:
-        """Scenario: CLI estimate mode calculates tokens for files.
+        assert "Status:" in capsys.readouterr().out
 
-        Given CLI invoked with --estimate and file paths
+    @pytest.mark.bdd
+    def test_main_estimate_mode(
+        self, tmp_path: Path, monkeypatch, capsys: pytest.CaptureFixture
+    ) -> None:
+        """Scenario: CLI estimate mode reports a token count and clears.
+
+        Given CLI invoked with --estimate and a file inside the budget
         When running main
-        Then it should estimate tokens without error.
+        Then stdout carries a non-zero estimate and the all-clear line.
         """
         test_file = tmp_path / "sample.py"
         test_file.write_text("print('hello')")
@@ -372,16 +377,24 @@ class TestQuotaTrackerCLI:
 
         monkeypatch.setattr(QuotaTracker, "__init__", patched_init)
 
-        # Should not raise
         quota_tracker.main()
 
-    @pytest.mark.bdd
-    def test_main_estimate_with_issues(self, tmp_path: Path, monkeypatch) -> None:
-        """Scenario: CLI estimate shows issues when quota exceeded.
+        out = capsys.readouterr().out
+        estimate_line = next(
+            line for line in out.splitlines() if line.startswith("Estimated tokens:")
+        )
+        assert int(estimate_line.split(":")[1]) > 0
+        assert "OK: quota available" in out
 
-        Given CLI invoked with --estimate when quota would be exceeded
+    @pytest.mark.bdd
+    def test_main_estimate_with_issues(
+        self, tmp_path: Path, monkeypatch, capsys: pytest.CaptureFixture
+    ) -> None:
+        """Scenario: CLI estimate names the issues when quota is exceeded.
+
+        Given CLI invoked with --estimate against a 10-token budget
         When running main
-        Then it should show issues without error.
+        Then stdout lists at least one issue and withholds the all-clear.
         """
         test_file = tmp_path / "large.py"
         test_file.write_text("x" * 10000)
@@ -400,8 +413,11 @@ class TestQuotaTrackerCLI:
 
         monkeypatch.setattr(QuotaTracker, "__init__", patched_init)
 
-        # Should not raise
         quota_tracker.main()
+
+        out = capsys.readouterr().out
+        assert "  Issue:" in out
+        assert "OK: quota available" not in out
 
 
 class TestConcurrentRecording:

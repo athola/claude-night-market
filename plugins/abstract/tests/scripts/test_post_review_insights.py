@@ -8,6 +8,8 @@ Feature: Convert review markdown into Findings and post to Discussions
 
 from __future__ import annotations
 
+import os
+import subprocess
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -311,3 +313,100 @@ class TestReviewWithOnlyOneKind:
         findings = review_to_findings(summary, pr_number=1)
         assert len(findings) == 1
         assert findings[0].severity == "medium"
+
+
+# The report template in plugins/sanctum/skills/pr-review/SKILL.md
+# (Phase 6), which is what `/pr-review --local` writes.
+TEMPLATE_REVIEW = """\
+## PR #417: Harden the query layer
+
+### Blocking (1)
+1. [B1] SQL injection via string concatenation
+   - **Location**: `db/queries.py:89`
+   - **Issue**: User input interpolated directly into SQL
+   - **Fix**: Use a parameterized query
+
+### In-Scope (1)
+1. [S1] Missing validation for edge case
+   - **Location**: `api.py:45`
+   - **Issue**: Empty input not handled per requirement
+
+### Suggestions (1)
+1. [G1] Consider extracting helper function
+   - Author's discretion
+
+### Backlog → GitHub Issues (1)
+1. #142 - Refactor authentication module
+
+### Recommendation
+**APPROVE WITH CHANGES**
+Address B1 and S1 before merge.
+"""
+
+
+class TestLocalReportTemplate:
+    """Feature: a `/pr-review --local` report posts its findings.
+
+    The parser read only the `## Blocking findings` / NB-table shape,
+    so a report written from the skill's own template posted nothing.
+    """
+
+    @pytest.mark.unit
+    def test_template_blockers_become_high_findings(self) -> None:
+        findings = review_to_findings(parse_review_markdown(TEMPLATE_REVIEW))
+        high = [f for f in findings if f.severity == "high"]
+        assert [f.summary for f in high] == [
+            "B1: SQL injection via string concatenation"
+        ]
+        assert "db/queries.py:89" in high[0].evidence
+
+    @pytest.mark.unit
+    def test_template_in_scope_and_suggestions_become_medium(self) -> None:
+        findings = review_to_findings(parse_review_markdown(TEMPLATE_REVIEW))
+        medium = sorted(f.summary for f in findings if f.severity == "medium")
+        assert medium == [
+            "G1: Consider extracting helper function",
+            "S1: Missing validation for edge case",
+        ]
+
+    @pytest.mark.unit
+    def test_template_backlog_items_are_not_findings(self) -> None:
+        findings = review_to_findings(parse_review_markdown(TEMPLATE_REVIEW))
+        assert all("#142" not in f.summary for f in findings)
+
+    @pytest.mark.unit
+    def test_template_pr_number_and_verdict_are_read(self) -> None:
+        summary = parse_review_markdown(TEMPLATE_REVIEW)
+        assert summary.pr_number == 417
+        assert summary.verdict == "APPROVE WITH CHANGES"
+
+
+class TestRunsWithoutPyYAML:
+    """The documented `python3 .../post_review_insights.py` must start.
+
+    The operator's python3 carries the standard library only. The
+    script reached `abstract.utils`, which imports PyYAML at module
+    scope, and died before parsing its arguments.
+    """
+
+    @pytest.mark.unit
+    def test_help_runs_with_pyyaml_blocked(self, tmp_path: Path) -> None:
+        (tmp_path / "sitecustomize.py").write_text(
+            'import sys\n\nsys.modules["yaml"] = None\n'
+        )
+        script = (
+            Path(__file__).parent.parent.parent
+            / "scripts"
+            / ("post_review_insights.py")
+        )
+        env = dict(os.environ, PYTHONPATH=str(tmp_path))
+        result = subprocess.run(
+            [sys.executable, str(script), "--help"],
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=60,
+            check=False,
+        )
+        assert result.returncode == 0, result.stderr[-1500:]
+        assert "review_file" in result.stdout

@@ -447,6 +447,24 @@ class TestHandleTextEditor:
         )
         assert result.get("is_error") is True
 
+    def test_str_replace_refuses_ambiguous_old_str(self, tmp_path):
+        """old_str occurring twice is an error and leaves the file unchanged."""
+        f = tmp_path / "edit.txt"
+        f.write_text("x = 1\ny = 1\n")
+
+        result = _handle_text_editor(
+            "id",
+            {
+                "command": "str_replace",
+                "path": str(f),
+                "old_str": "1",
+                "new_str": "999",
+            },
+        )
+        assert result.get("is_error") is True
+        assert "2" in result["content"]
+        assert f.read_text() == "x = 1\ny = 1\n"
+
     def test_unknown_command_errors(self):
         result = _handle_text_editor("id", {"command": "delete_all"})
         assert result.get("is_error") is True
@@ -553,6 +571,63 @@ class TestRunToolBlockGateRejection:
         _run_tool_block(block, ctx, result)
 
         mock_display.execute.assert_not_called()
+        assert result.actions_taken == 0
+
+    def test_gate_rejection_blocks_bash_block_before_it_runs(self, tmp_path):
+        """
+        Given a bash tool_use block whose command would create a file
+        And the confirmation gate rejects every action
+        When _run_tool_block is called
+        Then the command does not run and actions_blocked is incremented
+        """
+        marker = tmp_path / "ran"
+        block = MagicMock()
+        block.type = "tool_use"
+        block.name = "bash"
+        block.id = "gate-reject-bash"
+        block.input = {"command": f"touch {marker}"}
+
+        mock_gate = MagicMock()
+        mock_gate.check.return_value = False
+        ctx = _make_iteration_context(gate=mock_gate)
+        result = LoopResult()
+
+        tool_result, _ = _run_tool_block(block, ctx, result)
+
+        assert not marker.exists()
+        assert result.actions_blocked == 1
+        assert result.actions_taken == 0
+        assert tool_result is not None and tool_result.get("is_error") is True
+        mock_gate.check.assert_called_once_with(block.input)
+
+    def test_gate_rejection_blocks_text_editor_block_before_it_writes(self, tmp_path):
+        """
+        Given a str_replace_based_edit_tool block that would overwrite a file
+        And the confirmation gate rejects every action
+        When _run_tool_block is called
+        Then the file is untouched and actions_blocked is incremented
+        """
+        target = tmp_path / "keep.txt"
+        target.write_text("original")
+        block = MagicMock()
+        block.type = "tool_use"
+        block.name = "str_replace_based_edit_tool"
+        block.id = "gate-reject-editor"
+        block.input = {
+            "command": "create",
+            "path": str(target),
+            "file_text": "clobbered",
+        }
+
+        mock_gate = MagicMock()
+        mock_gate.check.return_value = False
+        ctx = _make_iteration_context(gate=mock_gate)
+        result = LoopResult()
+
+        _run_tool_block(block, ctx, result)
+
+        assert target.read_text() == "original"
+        assert result.actions_blocked == 1
         assert result.actions_taken == 0
 
 

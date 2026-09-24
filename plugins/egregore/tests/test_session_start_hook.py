@@ -113,7 +113,15 @@ def test_consume_stdin_swallows_a_malformed_payload(monkeypatch):
 
     GIVEN stdin holding something that is not JSON
     WHEN the hook consumes and discards it
-    THEN nothing is raised, so the hook reaches its own logic
+    THEN stdin is drained, so nothing downstream reads the payload back
+        and the hook reaches its own logic
+
+    Draining is the observable half. A version that swallowed the error
+    without reading would leave the bytes for whatever reads next.
     """
-    monkeypatch.setattr("sys.stdin", StringIO("{{not json"))
+    stdin = StringIO("{{not json")
+    monkeypatch.setattr("sys.stdin", stdin)
+
     consume_stdin()
+
+    assert stdin.read() == ""

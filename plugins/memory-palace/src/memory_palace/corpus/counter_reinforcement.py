@@ -246,144 +246,14 @@ class CounterReinforcementTracker:
         """
         return self._counters.get(entry_id)
 
-    def get_or_create_counter(self, entry_id: str) -> ReinforcementCounter:
-        """Get or create a reinforcement counter for an entry.
-
-        Args:
-            entry_id: The knowledge entry ID
-
-        Returns:
-            ReinforcementCounter (existing or newly created)
-
-        """
-        if entry_id not in self._counters:
-            self._counters[entry_id] = ReinforcementCounter(entry_id=entry_id)
-        return self._counters[entry_id]
-
-    def get_all_counters(self) -> list[ReinforcementCounter]:
-        """Get all reinforcement counters.
-
-        Returns:
-            List of all ReinforcementCounters
-
-        """
-        return list(self._counters.values())
-
     def get_review_candidates(self) -> list[ReinforcementCounter]:
-        """Get entries that need human review.
+        """Return the counters flagged for human review.
 
-        Returns entries where:
-        - Harm ratio is high
-        - Helpfulness is consistently low
-        - Patterns suggest outdated/problematic content
+        The filter is ``ReinforcementCounter.needs_review`` rather than
+        a second copy of its thresholds, so the rule has one home.
 
         Returns:
-            List of counters needing review, sorted by harm ratio
+            Counters needing review, in insertion order
 
         """
-        candidates = [c for c in self._counters.values() if c.needs_review]
-        return sorted(candidates, key=lambda c: c.harm_ratio, reverse=True)
-
-    def get_top_performers(self, limit: int = 10) -> list[ReinforcementCounter]:
-        """Get the most reliably helpful entries.
-
-        Args:
-            limit: Maximum number of entries to return
-
-        Returns:
-            List of top-performing counters, sorted by confidence score
-
-        """
-        # Filter to entries with sufficient signals
-        qualified = [
-            c
-            for c in self._counters.values()
-            if c.total_signals >= MIN_SIGNALS_FOR_RANKING
-        ]
-        sorted_counters = sorted(
-            qualified, key=lambda c: c.confidence_score, reverse=True
-        )
-        return sorted_counters[:limit]
-
-    def get_frequently_accessed(self, limit: int = 10) -> list[ReinforcementCounter]:
-        """Get the most frequently accessed entries.
-
-        Args:
-            limit: Maximum number of entries to return
-
-        Returns:
-            List of frequently accessed counters
-
-        """
-        sorted_counters = sorted(
-            self._counters.values(), key=lambda c: c.total_signals, reverse=True
-        )
-        return sorted_counters[:limit]
-
-    def should_deduplicate(
-        self,
-        new_entry_id: str,
-        existing_entry_id: str,
-        similarity_score: float,
-    ) -> bool:
-        """Determine if a new entry should be deduplicated with existing.
-
-        Following ACE's pattern: if similarity > threshold, increment
-        counters on existing entry rather than create duplicate.
-
-        Args:
-            new_entry_id: ID of the new (potential) entry
-            existing_entry_id: ID of the existing similar entry
-            similarity_score: Semantic similarity (0.0 to 1.0)
-
-        Returns:
-            True if should deduplicate (increment counter instead)
-
-        """
-        if similarity_score < SIMILARITY_THRESHOLD:
-            return False
-
-        # If existing entry is problematic, don't reinforce it
-        existing = self.get_counter(existing_entry_id)
-        if existing and existing.needs_review:
-            logger.info(
-                "Not deduplicating %s -> %s: existing needs review",
-                new_entry_id,
-                existing_entry_id,
-            )
-            return False
-
-        logger.info(
-            "Recommending deduplication: %s -> %s (similarity: %.2f)",
-            new_entry_id,
-            existing_entry_id,
-            similarity_score,
-        )
-        return True
-
-    def export_counters(self) -> list[dict[str, Any]]:
-        """Export all counters for persistence.
-
-        Returns:
-            List of serialized counter dictionaries
-
-        """
-        return [c.to_dict() for c in self._counters.values()]
-
-    def import_counters(self, counters_data: list[dict[str, Any]]) -> None:
-        """Import counters from persistence.
-
-        Args:
-            counters_data: List of serialized counter dictionaries
-
-        """
-        for data in counters_data:
-            try:
-                counter = ReinforcementCounter.from_dict(data)
-                self._counters[counter.entry_id] = counter
-            except (KeyError, ValueError) as e:
-                logger.warning("Skipping invalid counter data: %r (error: %s)", data, e)
-
-    def clear(self) -> None:
-        """Clear all counters (for testing)."""
-        self._counters.clear()
+        return [counter for counter in self._counters.values() if counter.needs_review]

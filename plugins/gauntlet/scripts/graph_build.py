@@ -13,6 +13,7 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _SRC_DIR = _SCRIPT_DIR.parent / "src"
 sys.path.insert(0, str(_SRC_DIR))
 
+from gauntlet.flows import trace_flows  # noqa: E402 - sys.path modified above
 from gauntlet.graph import GraphStore  # noqa: E402 - sys.path modified above
 from gauntlet.incremental import (  # noqa: E402 - sys.path modified above
     full_build,
@@ -57,6 +58,22 @@ def main() -> None:
             report = incremental_update(str(root), graph, args.base_ref)
         else:
             report = full_build(str(root), graph)
+            if not report.get("nodes_created"):
+                # An empty graph is not a built graph. Without this a
+                # missing parser or a tree with no sources reported a
+                # green build, and every later search read its zero
+                # results as "not in the codebase".
+                report["error"] = (
+                    f"no nodes created under {root}: no parseable sources, "
+                    "or the tree-sitter parser is unavailable"
+                )
+                print(json.dumps(report, indent=2))
+                sys.exit(2)
+        # blast_radius scores a node by the stored flows it sits in. Tracing
+        # without storing left that term at zero for every node.
+        flows = trace_flows(graph)
+        graph.store_flows(flows)
+        report["flows_stored"] = len(flows)
         print(json.dumps(report, indent=2))
     finally:
         graph.close()

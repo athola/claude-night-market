@@ -9,13 +9,19 @@ User rules override bundled rules with the same name.
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-import yaml
+try:
+    import yaml
+except ImportError:
+    # Hooks run under the operator's python3, which rarely has PyYAML.
+    # Rule frontmatter is then read by _parse_frontmatter_subset below.
+    yaml = None  # type: ignore[assignment]  # None sentinel; the loader branches on `yaml is None`
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +51,21 @@ class Condition:
                 f"Invalid operator '{self.operator}'. "
                 f"Must be one of: {', '.join(sorted(valid_operators))}"
             )
+        if self.operator == "regex_match":
+            _compile_or_raise(self.pattern, f"condition on '{self.field}'")
+
+
+def _compile_or_raise(pattern: str, where: str) -> None:
+    """Reject a rule whose regex cannot compile.
+
+    A rule that fails to compile at evaluation time is a rule that
+    never fires, and for a ``block`` rule that is a silent hole in the
+    guard. Failing here surfaces the typo in the loader's warning.
+    """
+    try:
+        re.compile(pattern)
+    except re.error as exc:
+        raise ValueError(f"Invalid regex pattern in {where}: {exc}") from exc
 
 
 @dataclass
@@ -77,6 +98,88 @@ class RuleConfig:
 
         if not self.pattern and not self.conditions:
             raise ValueError("Rule must have either 'pattern' or 'conditions'")
+        if self.pattern:
+            _compile_or_raise(self.pattern, f"rule '{self.name}'")
+
+
+# PyYAML 1.1 booleans, so the stdlib parser reads ``enabled`` as it does.
+_YAML_BOOLS = {
+    form: value
+    for word, value in (
+        ("true", True),
+        ("yes", True),
+        ("on", True),
+        ("false", False),
+        ("no", False),
+        ("off", False),
+    )
+    for form in (word, word.title(), word.upper())
+}
+_UNSUPPORTED_VALUE_STARTS = ("|", ">", "[", "{", "&", "*", "!")
+
+
+def _parse_scalar(raw: str) -> Any:
+    raw = raw.strip()
+    if raw.startswith("'"):
+        if len(raw) < 2 or not raw.endswith("'"):  # noqa: PLR2004 - two quotes
+            raise ValueError(f"Unterminated quote in frontmatter value: {raw}")
+        return raw[1:-1].replace("''", "'")
+    if raw.startswith('"'):
+        # A JSON string is a YAML double-quoted scalar for every escape a
+        # rule pattern uses.
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"Invalid double-quoted frontmatter value: {raw}") from exc
+    if raw.startswith(_UNSUPPORTED_VALUE_STARTS):
+        raise ValueError(
+            f"Unsupported frontmatter value without PyYAML: {raw}. "
+            "Use a plain or quoted scalar."
+        )
+    raw = "" if raw.startswith("#") else re.split(r"\s#", raw, maxsplit=1)[0].rstrip()
+    if not raw:
+        return None
+    if ": " in raw:
+        raise ValueError(f"Unquoted ': ' in frontmatter value: {raw}. Quote it.")
+    return _YAML_BOOLS.get(raw, raw)
+
+
+def _parse_frontmatter_subset(text: str) -> dict[str, Any]:
+    """Read rule frontmatter with the standard library alone.
+
+    Covers the shape every rule uses: top-level scalars plus one list of
+    flat maps (``conditions``). Anything else raises, because a block
+    rule parsed wrong is a guard that silently stops guarding.
+    """
+    frontmatter: dict[str, Any] = {}
+    current_key = ""
+    for number, line in enumerate(text.splitlines(), 1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        is_item = stripped.startswith("- ")
+        if not line[0].isspace() and not is_item:
+            key, sep, rest = line.partition(":")
+            if not sep:
+                raise ValueError(f"Invalid frontmatter line {number}: {line}")
+            current_key = key.strip()
+            frontmatter[current_key] = _parse_scalar(rest)
+            continue
+        items = frontmatter.get(current_key)
+        if items is None and current_key:
+            items = frontmatter[current_key] = []
+        if not isinstance(items, list):
+            raise ValueError(f"Invalid frontmatter line {number}: {line}")
+        if is_item:
+            items.append({})
+            stripped = stripped[2:]
+        elif not items:
+            raise ValueError(f"Invalid frontmatter line {number}: {line}")
+        key, sep, rest = stripped.partition(":")
+        if not sep:
+            raise ValueError(f"Invalid frontmatter line {number}: {line}")
+        items[-1][key.strip()] = _parse_scalar(rest)
+    return frontmatter
 
 
 def get_bundled_rules_dir() -> Path:
@@ -125,6 +228,9 @@ class ConfigLoader:
             user_rules_dir = Path.cwd() / ".claude"
         self.user_rules_dir = Path(user_rules_dir)
         self.include_bundled = include_bundled
+        # Rules skipped as unreadable, so a caller can say which guards
+        # are not running instead of leaving that in a log.
+        self.load_errors: list[str] = []
         self.bundled_rules_dir = _get_bundled_rules_dir()
 
     def _iter_bundled_rule_files(self) -> list[Path]:
@@ -172,6 +278,7 @@ class ConfigLoader:
                 rules.append(rule)
             except (OSError, ValueError) as e:
                 logger.warning("Error loading bundled rule %s: %s", rule_file, e)
+                self.load_errors.append(f"{rule_file.name}: {e}")
 
         return rules
 
@@ -194,6 +301,7 @@ class ConfigLoader:
                 rules.append(rule)
             except (OSError, ValueError) as e:
                 logger.warning("Error loading user rule %s: %s", rule_file, e)
+                self.load_errors.append(f"{rule_file.name}: {e}")
 
         return rules
 
@@ -258,10 +366,13 @@ class ConfigLoader:
         frontmatter_text = match.group(1)
         message = match.group(2)
 
-        try:
-            frontmatter = yaml.safe_load(frontmatter_text)
-        except yaml.YAMLError as e:
-            raise ValueError(f"Invalid YAML frontmatter: {e}") from e
+        if yaml is None:
+            frontmatter = _parse_frontmatter_subset(frontmatter_text)
+        else:
+            try:
+                frontmatter = yaml.safe_load(frontmatter_text)
+            except yaml.YAMLError as e:
+                raise ValueError(f"Invalid YAML frontmatter: {e}") from e
 
         if not isinstance(frontmatter, dict):
             raise ValueError("Frontmatter must be a YAML mapping")
@@ -317,10 +428,10 @@ class ConfigLoader:
         if self.user_rules_dir.exists():
             pattern = f"{self.RULE_PREFIX}*{self.RULE_SUFFIX}"
             for rule_file in self.user_rules_dir.glob(pattern):
-                # Extract rule name from filename
-                name = rule_file.stem
-                if name.startswith(self.RULE_PREFIX):
-                    name = name[len(self.RULE_PREFIX) :]
+                # hookify.<name>.local.md: strip both ends, not just the
+                # prefix, or the ".local" tail keeps the name from ever
+                # matching its bundled entry.
+                name = rule_file.name[len(self.RULE_PREFIX) : -len(self.RULE_SUFFIX)]
 
                 if name in status:
                     status[name]["overridden"] = True

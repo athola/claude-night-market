@@ -158,6 +158,53 @@ class TestCounterReinforcementTracker:
         return CounterReinforcementTracker()
 
     @pytest.mark.unit
+    def test_get_review_candidates_returns_entries_needing_review(
+        self, tracker: CounterReinforcementTracker
+    ) -> None:
+        """The loop in the class docstring must have something to iterate.
+
+        `needs_review` is the entry point for the curator half of the
+        ACE triad, and per-counter it answers one entry at a time.
+        """
+        for _ in range(4):
+            tracker.reinforce("harmful-entry", FeedbackType.HARMFUL)
+        for _ in range(4):
+            tracker.reinforce("healthy-entry", FeedbackType.HELPFUL)
+
+        candidates = tracker.get_review_candidates()
+
+        assert [counter.entry_id for counter in candidates] == ["harmful-entry"]
+
+    @pytest.mark.unit
+    def test_get_review_candidates_is_empty_for_a_healthy_corpus(
+        self, tracker: CounterReinforcementTracker
+    ) -> None:
+        """No entry past a threshold means nothing to review."""
+        for _ in range(6):
+            tracker.reinforce("healthy-entry", FeedbackType.HELPFUL)
+
+        assert tracker.get_review_candidates() == []
+
+    @pytest.mark.unit
+    def test_get_review_candidates_defers_to_needs_review(
+        self, tracker: CounterReinforcementTracker
+    ) -> None:
+        """The tracker filters on the counter's rule, never its own copy.
+
+        A single harmful signal is a candidate, because
+        `ReinforcementCounter.needs_review` fires on a harm ratio past
+        HARM_RATIO_THRESHOLD whatever the signal count. Restating that
+        rule in the tracker would let the two drift.
+        """
+        tracker.reinforce("barely-seen", FeedbackType.HARMFUL)
+        tracker.reinforce("healthy-entry", FeedbackType.HELPFUL)
+
+        candidates = tracker.get_review_candidates()
+
+        assert [counter.entry_id for counter in candidates] == ["barely-seen"]
+        assert all(counter.needs_review for counter in candidates)
+
+    @pytest.mark.unit
     def test_reinforce_creates_counter(
         self, tracker: CounterReinforcementTracker
     ) -> None:
@@ -203,188 +250,10 @@ class TestCounterReinforcementTracker:
         assert tracker.get_counter("nonexistent") is None
 
     @pytest.mark.unit
-    def test_get_or_create_counter(self, tracker: CounterReinforcementTracker) -> None:
-        """Test get_or_create_counter creates if missing."""
-        counter = tracker.get_or_create_counter("new-entry")
-
-        assert counter.entry_id == "new-entry"
-        assert counter.total_signals == 0
-
-        # Second call returns same counter
-        same = tracker.get_or_create_counter("new-entry")
-        assert same is counter
-
-    @pytest.mark.unit
-    def test_get_review_candidates(self, tracker: CounterReinforcementTracker) -> None:
-        """Test get_review_candidates returns problematic entries."""
-        # Create healthy entry
-        for _ in range(10):
-            tracker.reinforce("healthy", FeedbackType.HELPFUL)
-
-        # Create problematic entry
-        for _ in range(5):
-            tracker.reinforce("problematic", FeedbackType.HARMFUL)
-        for _ in range(5):
-            tracker.reinforce("problematic", FeedbackType.HELPFUL)
-
-        candidates = tracker.get_review_candidates()
-
-        assert len(candidates) == 1
-        assert candidates[0].entry_id == "problematic"
-
-    @pytest.mark.unit
-    def test_get_top_performers(self, tracker: CounterReinforcementTracker) -> None:
-        """Test get_top_performers returns high-confidence entries."""
-        # Create entries with varying helpfulness
-        for _ in range(10):
-            tracker.reinforce("excellent", FeedbackType.HELPFUL)
-
-        for _ in range(5):
-            tracker.reinforce("good", FeedbackType.HELPFUL)
-        for _ in range(5):
-            tracker.reinforce("good", FeedbackType.NEUTRAL)
-
-        for _ in range(3):
-            tracker.reinforce("mediocre", FeedbackType.HELPFUL)
-        for _ in range(3):
-            tracker.reinforce("mediocre", FeedbackType.HARMFUL)
-
-        top = tracker.get_top_performers(limit=2)
-
-        assert len(top) == 2
-        assert top[0].entry_id == "excellent"
-        assert top[1].entry_id == "good"
-
-    @pytest.mark.unit
-    def test_get_frequently_accessed(
-        self, tracker: CounterReinforcementTracker
-    ) -> None:
-        """Test get_frequently_accessed returns most active entries."""
-        for _ in range(20):
-            tracker.reinforce("popular", FeedbackType.NEUTRAL)
-
-        for _ in range(5):
-            tracker.reinforce("moderate", FeedbackType.NEUTRAL)
-
-        tracker.reinforce("rare", FeedbackType.NEUTRAL)
-
-        frequent = tracker.get_frequently_accessed(limit=2)
-
-        assert len(frequent) == 2
-        assert frequent[0].entry_id == "popular"
-        assert frequent[1].entry_id == "moderate"
-
-    @pytest.mark.unit
-    def test_should_deduplicate_above_threshold(
-        self, tracker: CounterReinforcementTracker
-    ) -> None:
-        """Test should_deduplicate returns True above threshold."""
-        # Create a healthy existing entry
-        for _ in range(5):
-            tracker.reinforce("existing", FeedbackType.HELPFUL)
-
-        result = tracker.should_deduplicate(
-            new_entry_id="new",
-            existing_entry_id="existing",
-            similarity_score=0.85,  # Above 0.8 threshold
-        )
-
-        assert result is True
-
-    @pytest.mark.unit
-    def test_should_deduplicate_below_threshold(
-        self, tracker: CounterReinforcementTracker
-    ) -> None:
-        """Test should_deduplicate returns False below threshold."""
-        result = tracker.should_deduplicate(
-            new_entry_id="new",
-            existing_entry_id="existing",
-            similarity_score=0.75,  # Below 0.8 threshold
-        )
-
-        assert result is False
-
-    @pytest.mark.unit
-    def test_should_deduplicate_skips_problematic(
-        self, tracker: CounterReinforcementTracker
-    ) -> None:
-        """Test should_deduplicate skips problematic existing entries."""
-        # Create a problematic existing entry
-        for _ in range(5):
-            tracker.reinforce("problematic", FeedbackType.HARMFUL)
-
-        result = tracker.should_deduplicate(
-            new_entry_id="new",
-            existing_entry_id="problematic",
-            similarity_score=0.95,  # High similarity but problematic target
-        )
-
-        assert result is False
-
-    @pytest.mark.unit
-    def test_export_import_roundtrip(
-        self, tracker: CounterReinforcementTracker
-    ) -> None:
-        """Test export and import preserves all counters."""
-        # Create some counters
-        for _ in range(5):
-            tracker.reinforce("entry-1", FeedbackType.HELPFUL)
-        for _ in range(3):
-            tracker.reinforce("entry-2", FeedbackType.HARMFUL)
-
-        # Export
-        exported = tracker.export_counters()
-        assert len(exported) == 2
-
-        # Import into new tracker
-        new_tracker = CounterReinforcementTracker()
-        new_tracker.import_counters(exported)
-
-        # Verify
-        counter1 = new_tracker.get_counter("entry-1")
-        assert isinstance(counter1, ReinforcementCounter)
-        assert counter1.helpful == 5
-
-        counter2 = new_tracker.get_counter("entry-2")
-        assert isinstance(counter2, ReinforcementCounter)
-        assert counter2.harmful == 3
-
-    @pytest.mark.unit
     def test_similarity_threshold_value(self) -> None:
         """Test SIMILARITY_THRESHOLD matches ACE research."""
         # ACE Playbook uses 0.8 cosine similarity threshold
         assert SIMILARITY_THRESHOLD == 0.8
-
-    @pytest.mark.unit
-    def test_get_all_counters(self, tracker: CounterReinforcementTracker) -> None:
-        """Test get_all_counters returns list of all counters."""
-        # Create several entries
-        tracker.reinforce("entry-1", FeedbackType.HELPFUL)
-        tracker.reinforce("entry-2", FeedbackType.HARMFUL)
-        tracker.reinforce("entry-3", FeedbackType.NEUTRAL)
-
-        all_counters = tracker.get_all_counters()
-
-        assert len(all_counters) == 3
-        entry_ids = {c.entry_id for c in all_counters}
-        assert entry_ids == {"entry-1", "entry-2", "entry-3"}
-
-    @pytest.mark.unit
-    def test_clear_removes_all_counters(
-        self, tracker: CounterReinforcementTracker
-    ) -> None:
-        """Test clear() removes all counters from tracker."""
-        # Add some counters
-        tracker.reinforce("entry-1", FeedbackType.HELPFUL)
-        tracker.reinforce("entry-2", FeedbackType.HARMFUL)
-
-        assert len(tracker.get_all_counters()) == 2
-
-        # Clear
-        tracker.clear()
-
-        assert len(tracker.get_all_counters()) == 0
-        assert tracker.get_counter("entry-1") is None
 
     @pytest.mark.unit
     def test_reinforce_with_metadata(
@@ -409,20 +278,3 @@ class TestCounterReinforcementTracker:
 
         assert isinstance(counter, ReinforcementCounter)
         assert counter.metadata == {"source": "test", "version": 2, "extra": "data"}
-
-    @pytest.mark.unit
-    def test_import_counters_skips_invalid_data(
-        self, tracker: CounterReinforcementTracker
-    ) -> None:
-        """Test import_counters gracefully skips invalid data."""
-        valid_data = {
-            "entry_id": "valid-entry",
-            "counters": {"helpful": 5, "harmful": 0, "neutral": 0},
-        }
-        invalid_data = {"missing_entry_id": True}
-
-        tracker.import_counters([valid_data, invalid_data])
-
-        # Should have imported only the valid entry
-        assert len(tracker.get_all_counters()) == 1
-        assert isinstance(tracker.get_counter("valid-entry"), ReinforcementCounter)

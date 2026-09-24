@@ -228,9 +228,9 @@ tests:
 
 ```bash
 $ ./scripts/run-plugin-tests.sh broken-plugin
-Testing broken-plugin...
-  ✗ Tests failed
-Re-running with verbose output:
+[INFO]  Testing broken-plugin...
+[INFO]    ✗ Tests failed
+[INFO]  Re-running with verbose output:
 [Full pytest output with error details]
 ```
 

@@ -23,6 +23,23 @@ from typing import Any
 _MIN_SPLIT_PARTS = 2
 
 
+#: Directories whose Python is not this codebase's. A plugin root carries
+#: its own .venv, and scanning it reported every vendored package as an
+#: uncovered source file (23,697 of them across the repo).
+_VENDORED_DIRS = frozenset(
+    {".venv", ".uv-cache", ".uv-tools", "node_modules", "__pycache__", ".git"}
+)
+
+
+def _is_vendored(path: Path, root: Path) -> bool:
+    """Return True when a segment below *root* is a vendored or cache directory.
+
+    Segments above the root are where the codebase happens to live, not
+    what it contains.
+    """
+    return any(part in _VENDORED_DIRS for part in path.relative_to(root).parts)
+
+
 class TestAnalyzer:
     """Analyzes codebases for test coverage and gaps."""
 
@@ -43,20 +60,32 @@ class TestAnalyzer:
 
         # Find all source files
         for pattern in self.source_patterns:
-            results["source_files"].extend(self.codebase_path.rglob(pattern))
+            results["source_files"].extend(
+                f
+                for f in self.codebase_path.rglob(pattern)
+                if not _is_vendored(f, self.codebase_path)
+            )
 
         # Filter out test files and __init__.py
         results["source_files"] = [
             f
             for f in results["source_files"]
-            if not any(p in f.name for p in ["test_", "_test.py"])
-            and f.name != "__init__.py"
-            and "test" not in f.parts
+            if not f.name.startswith("test_")
+            and not f.name.endswith("_test.py")
+            and f.name not in {"__init__.py", "conftest.py"}
+            and not any(
+                part in {"test", "tests"}
+                for part in f.relative_to(self.codebase_path).parts
+            )
         ]
 
         # Find all test files
         for pattern in self.test_patterns:
-            results["test_files"].extend(self.codebase_path.rglob(pattern))
+            results["test_files"].extend(
+                f
+                for f in self.codebase_path.rglob(pattern)
+                if not _is_vendored(f, self.codebase_path)
+            )
 
         # Find uncovered files
         source_names = {self._get_test_name(f) for f in results["source_files"]}

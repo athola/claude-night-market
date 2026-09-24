@@ -16,8 +16,8 @@ PYTEST_TARGETS := tests/
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # ---------- Help ----------
 help: ## Show this help message

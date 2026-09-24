@@ -179,8 +179,12 @@ Based on complexity score from Phase 0:
 5. **Implement the improvements (Plan-Do-Check-Act):**
    - **Plan**: Review reflexion output, confirm approach
    - **Do**: Use `workflow-improvement-implementer-agent` to apply changes
-   - **Check**: Run immediate validation (syntax, lint, unit tests)
-   - **Act**: If check fails, iterate on implementation
+   - **Check**: Run immediate validation (syntax, lint, unit tests).
+     The check's exit codes are the record; the implementer's own
+     account of what it changed is not
+   - **Act**: If check fails, iterate on implementation, at most
+     twice. A third failure ends the cycle: report the failing
+     check's output as the outcome and stop
 
 6. **Validate the improvement is substantive:**
    - Use `workflow-improvement-validator-agent` to run targeted tests/validators and re-run a minimal reproduction of the workflow
@@ -192,10 +196,17 @@ After validation, capture outcomes for self-evolution:
 
 #### 2.1: Record Improvement Outcome
 
+The outcome is read from the validator's exit codes in step 6, never
+typed in from the run's own impression of itself: `success` when every
+targeted check exited 0, `failed` when the reproduction still fails,
+`partial` otherwise. The run being graded writes the record the next
+run reads, so a self-declared outcome would teach the stability score
+whatever the run believed (arXiv 2607.24300).
+
 ```bash
 # Store outcome in skill execution history
 /skill-logs add --skill sanctum:fix-workflow \
-  --outcome "success|partial|failed" \
+  --outcome "<from validator exit codes: success|partial|failed>" \
   --metrics '{"files_changed": N, "complexity": M, "validation_passed": true}'
 ```
 

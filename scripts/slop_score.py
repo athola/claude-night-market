@@ -43,6 +43,9 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_REPO_ROOT / "plugins" / "scribe" / "src"))
 
+from scribe.markdown_spans import (  # noqa: E402 - path must be set before import
+    INLINE_CODE,
+)
 from scribe.negation import (  # noqa: E402 - path must be set before import
     check_negation_density,
 )
@@ -82,21 +85,15 @@ EM_DASH_WEIGHT = 1
 CONFIG_NAME = ".slop-config.yaml"
 
 _FENCED_CODE = re.compile(r"^```.*?^```", re.DOTALL | re.MULTILINE)
-# Double-backtick spans come first, because the single-backtick
-# alternative would consume the opening pair as an empty span and leave
-# the code between them bare. RST and Sphinx docstrings mark code that
-# way by convention, so before this the formula in ``(n_i - n_j) / (n_i
-# + n_j)`` reached the scorer as prose and scored a plus sign as a
-# conjunction.
-# Shared by the gate and the audit, so the two cannot drift.
-#
 # The pipe guards keep markdown table separators out. `slop-scan-for-docs.md`
 # rule 2a exempts `| -- |` explicitly, and the bare form matched every
 # table in the repository, which is why promoting this to the gate
 # needed the exemption implemented rather than only documented.
 _DOUBLE_DASH = re.compile(r"(?<!\|\s)(?<=\s)--(?=\s)(?!\s*\|)")
 
-_INLINE_CODE = re.compile(r"``[^`]*``|`[^`\n]*`")
+# One pattern for the scorer and the scribe checks alike; the reason
+# it has to be RST-aware lives with it in scribe/markdown_spans.py.
+_INLINE_CODE = INLINE_CODE
 
 
 @dataclass(frozen=True)
@@ -600,6 +597,15 @@ def main(argv: list | None = None) -> int:
     parser.add_argument("--threshold", type=float, default=3.0)
     parser.add_argument("--top", type=int, default=20)
     parser.add_argument(
+        "--no-exclude",
+        action="store_true",
+        help=(
+            "score paths the config's exclude_patterns would skip. For the "
+            "planted positive control, which the ratchet must ignore and the "
+            "gate must be able to see."
+        ),
+    )
+    parser.add_argument(
         "--audit",
         action="store_true",
         help=(
@@ -637,7 +643,10 @@ def main(argv: list | None = None) -> int:
     if args.audit:
         return _audit(paths, allow)
 
-    paths, excluded = _apply_excludes(paths, load_exclude_patterns())
+    if args.no_exclude:
+        excluded: list = []
+    else:
+        paths, excluded = _apply_excludes(paths, load_exclude_patterns())
     if excluded:
         print(f"excluded {len(excluded)} files ({CONFIG_NAME} exclude_patterns)")
 

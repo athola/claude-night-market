@@ -5,6 +5,10 @@ from __future__ import annotations
 import json
 import os
 import signal
+import subprocess
+import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -21,6 +25,21 @@ from daemon_lifecycle import (
     _stop_daemon,
     main,
 )
+
+
+@contextmanager
+def _fake_daemon(tmp_path: Path) -> Iterator[subprocess.Popen]:
+    """Spawn a live process running a daemon.py the hook treats as its own."""
+    script = tmp_path / "daemon.py"
+    script.write_text("import time; time.sleep(30)\n")
+    proc = subprocess.Popen([sys.executable, str(script)])
+    try:
+        with patch("daemon_lifecycle._DAEMON_SCRIPT", str(script)):
+            yield proc
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        proc.wait()
 
 
 class TestSentinelPath:
@@ -132,15 +151,23 @@ class TestSessionStartBehavior:
     ):
         """
         Scenario: Sentinel exists but venv is not provisioned
-        Given .oracle-enabled sentinel present but no venv python
-        When main is called with a SessionStart event
-        Then it returns without error and starts nothing
+        GIVEN a .oracle-enabled sentinel present but no venv python
+        WHEN main is called with a SessionStart event
+        THEN it returns without error and leaves no daemon state behind
+
+        The sentinel is the only file the data dir should hold after
+        this: a pid or port file here would mean a daemon was launched
+        against an interpreter that does not exist.
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         (tmp_path / ".oracle-enabled").touch()
         payload = json.dumps({"hook_event_name": "SessionStart"})
+
         with patch("sys.stdin", StringIO(payload)):
             main()
+
+        assert not (tmp_path / "daemon.pid").exists()
+        assert not (tmp_path / "daemon.port").exists()
 
 
 class TestStopBehavior:
@@ -153,17 +180,59 @@ class TestStopBehavior:
     """
 
     @pytest.mark.unit
-    def test_stop_exits_cleanly(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    def test_stop_does_not_signal_a_process_that_reused_the_pid(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ):
         """
-        Scenario: Stop event fires
-        Given any daemon state
+        Scenario: Stale pid file after a crash or reboot
+        Given daemon.pid names a live process the hook did not spawn
         When main is called with a Stop event
-        Then it returns without error
+        Then that process is still alive afterward
+        And the stale pid file is removed
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        bystander = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)"]
+        )
+        try:
+            (tmp_path / "daemon.pid").write_text(str(bystander.pid))
+            with patch("sys.stdin", StringIO(json.dumps({"hook_event_name": "Stop"}))):
+                main()
+            assert bystander.poll() is None, (
+                "Stop killed a process that is not the daemon"
+            )
+            assert not (tmp_path / "daemon.pid").exists()
+        finally:
+            bystander.kill()
+            bystander.wait()
+
+    @pytest.mark.unit
+    def test_stop_exits_cleanly(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        """
+        Scenario: Stop event fires over state left by a dead daemon
+        GIVEN a pid file naming a process that is not the oracle daemon
+            and a port file beside it
+        WHEN main is called with a Stop event
+        THEN both files are gone
+
+        Stop's whole job is reaching _stop_daemon; routing the event
+        anywhere else leaves the stale pair on disk, and the next
+        SessionStart reads a port nothing is listening on.
+        """
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        pid_file = tmp_path / "daemon.pid"
+        port_file = tmp_path / "daemon.port"
+        # PID 1 exists on every POSIX host and is never the oracle
+        # daemon, so _pid_is_daemon declines to signal it.
+        pid_file.write_text("1")
+        port_file.write_text("9000")
         payload = json.dumps({"hook_event_name": "Stop"})
+
         with patch("sys.stdin", StringIO(payload)):
             main()
+
+        assert not pid_file.exists()
+        assert not port_file.exists()
 
 
 class TestPathHelpers:
@@ -222,16 +291,50 @@ class TestIsDaemonRunning:
     """
 
     @pytest.mark.unit
-    def test_returns_true_when_process_exists(self, tmp_path: Path):
+    def test_returns_true_when_pid_runs_the_daemon_script(self, tmp_path: Path):
         """
-        Scenario: PID file contains a live process ID
-        Given a pid file with the current process PID
+        Scenario: PID file names a live process running daemon.py
+        Given a pid file naming a process whose command line is daemon.py
         When _is_daemon_running is called
         Then it returns True
         """
         pid_file = tmp_path / "daemon.pid"
+        with _fake_daemon(tmp_path) as daemon:
+            pid_file.write_text(str(daemon.pid))
+            assert _is_daemon_running(pid_file) is True
+
+    @pytest.mark.unit
+    def test_returns_false_when_pid_belongs_to_another_process(self, tmp_path: Path):
+        """
+        Scenario: PID file names a live process that is not the daemon
+        Given a pid file with this test's own PID
+        When _is_daemon_running is called
+        Then it returns False, because PIDs are reused after a crash
+        """
+        pid_file = tmp_path / "daemon.pid"
         pid_file.write_text(str(os.getpid()))
-        assert _is_daemon_running(pid_file) is True
+        assert _is_daemon_running(pid_file) is False
+
+    @pytest.mark.unit
+    def test_returns_false_when_another_process_merely_names_daemon_py(
+        self, tmp_path: Path
+    ):
+        """
+        Scenario: A live process mentions some other daemon.py
+        Given a pid file naming a process whose argv ends in x/daemon.py
+        When _is_daemon_running is called
+        Then it returns False, because only the plugin's own script counts
+        """
+        pid_file = tmp_path / "daemon.pid"
+        bystander = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)", "x/daemon.py"]
+        )
+        try:
+            pid_file.write_text(str(bystander.pid))
+            assert _is_daemon_running(pid_file) is False
+        finally:
+            bystander.kill()
+            bystander.wait()
 
     @pytest.mark.unit
     def test_returns_false_when_pid_file_missing(self, tmp_path: Path):
@@ -289,12 +392,17 @@ class TestStartDaemon:
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         pid_file = tmp_path / "daemon.pid"
-        pid_file.write_text(str(os.getpid()))
+        with _fake_daemon(tmp_path) as daemon:
+            pid_file.write_text(str(daemon.pid))
+            # wraps= keeps the ps probe inside _pid_is_daemon working; the
+            # assertion is that no launch happened, not that nothing ran.
+            with patch(
+                "daemon_lifecycle.subprocess.Popen", wraps=subprocess.Popen
+            ) as spy:
+                _start_daemon()
 
-        with patch("daemon_lifecycle.subprocess.Popen") as mock_popen:
-            _start_daemon()
-
-        mock_popen.assert_not_called()
+        launches = [c for c in spy.call_args_list if "--port-file" in str(c)]
+        assert launches == []
 
     @pytest.mark.unit
     def test_launches_daemon_subprocess(
@@ -378,13 +486,12 @@ class TestStopDaemon:
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         pid_file = tmp_path / "daemon.pid"
         port_file = tmp_path / "daemon.port"
-        pid_file.write_text("12345")
-        port_file.write_text("9000")
-
-        with patch("daemon_lifecycle.os.kill") as mock_kill:
+        with _fake_daemon(tmp_path) as daemon:
+            pid_file.write_text(str(daemon.pid))
+            port_file.write_text("9000")
             _stop_daemon()
+            assert daemon.wait(timeout=5) == -signal.SIGTERM
 
-        mock_kill.assert_called_once_with(12345, signal.SIGTERM)
         assert not pid_file.exists()
         assert not port_file.exists()
 
@@ -394,12 +501,19 @@ class TestStopDaemon:
     ):
         """
         Scenario: No PID file exists (daemon was never started)
-        Given no pid file
-        When _stop_daemon is called
-        Then it completes without error
+        GIVEN an empty data dir with no pid file
+        WHEN _stop_daemon is called
+        THEN it completes without error and creates nothing
+
+        The unlink loop runs unconditionally, so a version that opened
+        the files for writing before removing them would leave two
+        empty files behind on a host that never ran the daemon.
         """
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
-        _stop_daemon()
+
+        assert _stop_daemon() is None
+
+        assert list(tmp_path.iterdir()) == []
 
     @pytest.mark.unit
     def test_handles_dead_process_gracefully(

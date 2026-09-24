@@ -269,6 +269,24 @@ class ImbueValidator:
         scan_issues: list[str] = []
         validation_issues: list[str] = []
 
+        # A root that is absent or empty scans to zero skills, which used to
+        # read as "nothing wrong". A mistyped --root then passed the gate.
+        if not self.root_exists:
+            validation_issues.append(
+                f"Plugin root directory does not exist: {self.plugin_root}"
+            )
+        elif self.root_empty:
+            validation_issues.append(
+                f"Plugin root directory is empty: {self.plugin_root}"
+            )
+        elif not self.has_valid_structure:
+            # A --root typo that lands on some other existing directory
+            # scans to zero skills just like an empty one.
+            validation_issues.append(
+                "Plugin root lacks expected structure (no skills/ directory "
+                f"or plugin.json): {self.plugin_root}"
+            )
+
         if self.plugin_config.exists():
             try:
                 plugin_config_content = self.plugin_config.read_text()
@@ -318,10 +336,15 @@ class ImbueValidator:
         _, validation_issues = self.scan_and_validate()
         return validation_issues
 
+    def report_issues(self) -> list[str]:
+        """Return every issue the report renders, scan and validation alike."""
+        result, validation_issues = self.scan_and_validate()
+        return list(dict.fromkeys(result["issues"] + validation_issues))
+
     def generate_report(self) -> str:
         """Generate detailed validation report."""
-        result, validation_issues = self.scan_and_validate()
-        issues = list(dict.fromkeys(result["issues"] + validation_issues))
+        result, _ = self.scan_and_validate()
+        issues = self.report_issues()
 
         return format_validator_report(  # type: ignore[no-any-return]  # cross-plugin import typed as Any
             ValidatorReport(
@@ -344,8 +367,8 @@ class ImbueValidator:
         )
 
 
-def main() -> None:
-    """Run CLI entry point."""
+def main() -> int:
+    """Run CLI entry point and return the process exit status."""
     parser = argparse.ArgumentParser(
         description="Validate imbue plugin review workflow skills",
     )
@@ -367,7 +390,8 @@ def main() -> None:
 
     if args.report:
         print(validator.generate_report())
-        return
+        # `make validate-plugin` runs this branch, so it has to carry status.
+        return 1 if validator.report_issues() else 0
     elif args.scan:
         scan_result = validator.scan_review_workflows()
         issues = validator.validate_review_workflows()
@@ -382,13 +406,14 @@ def main() -> None:
             print("\nIssues:")
             for issue in issues:
                 print(f"- {issue}")
-            sys.exit(1)
+            return 1
         print("\nNo issues found.")
-        return
+        return 0
 
     # Default action: print help
     parser.print_help()
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -103,13 +103,13 @@ class TestGetCacheKey:
         k2 = cache._get_cache_key("k", "beta")
         assert k1 != k2
 
-    def test_key_with_falsy_but_non_none_data(self, tmp_path: Path) -> None:
-        """Should return plain key when data is falsy (empty string, 0, etc.)."""
+    def test_falsy_data_is_still_data(self, tmp_path: Path) -> None:
+        """ "", 0 and [] are inputs; only None means "no data"."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
-        # Empty string is falsy, so the `if data:` check returns False
-        assert cache._get_cache_key("k", "") == "k"
-        assert cache._get_cache_key("k", 0) == "k"
-        assert cache._get_cache_key("k", []) == "k"
+        keys = {cache._get_cache_key("k", d) for d in ("", 0, [])}
+        assert "k" not in keys
+        assert len(keys) == 3
+        assert cache._get_cache_key("k", None) == "k"
 
 
 # ============================================================================
@@ -121,22 +121,28 @@ class TestGetCachePath:
     """Tests for file path generation from cache keys."""
 
     def test_simple_key(self, tmp_path: Path) -> None:
-        """Should produce a .json file in cache_dir for a simple key."""
+        """Should produce a .json file in cache_dir carrying the key's category."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
         path = cache._get_cache_path("hello")
-        assert path == cache.cache_dir / "hello.json"
+        assert path.parent == cache.cache_dir
+        assert path.name.startswith("hello_") and path.suffix == ".json"
 
-    def test_special_chars_replaced(self, tmp_path: Path) -> None:
-        """Should replace non-alphanumeric characters with underscores."""
+    def test_keys_differing_only_in_punctuation_get_distinct_paths(
+        self, tmp_path: Path
+    ) -> None:
+        """spec_parsing:plan and spec.parsing_plan used to share one file."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
-        path = cache._get_cache_path("my.module:func/v2")
-        assert path.name == "my_module_func_v2.json"
+        assert cache._get_cache_path("spec_parsing:plan") != cache._get_cache_path(
+            "spec.parsing_plan"
+        )
+        cache.set("spec_parsing:plan", "VALUE_A")
+        assert cache.get("spec.parsing_plan") is None
 
     def test_empty_key(self, tmp_path: Path) -> None:
         """Should handle an empty key without error."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
         path = cache._get_cache_path("")
-        assert path == cache.cache_dir / ".json"
+        assert path.parent == cache.cache_dir and path.suffix == ".json"
 
 
 # ============================================================================
@@ -335,10 +341,46 @@ class TestInvalidate:
         assert cache._cache_timestamps == {}
         assert list(cache.cache_dir.glob("*.json")) == []
 
-    def test_invalidate_nonexistent_key_no_error(self, tmp_path: Path) -> None:
-        """Should not raise when invalidating a key that does not exist."""
+    def test_invalidate_nonexistent_key_leaves_other_entries_intact(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        GIVEN a cache holding two live entries
+        WHEN invalidate() is called with a key that was never set
+        THEN both entries survive in memory and on disk
+
+        "Did not raise" is also true of an invalidate that fell through
+        to the clear-all branch, which is the failure worth pinning: the
+        key argument is what separates a targeted drop from a flush.
+        """
         cache = SpecKitCache(cache_dir=tmp_path / "cache")
-        cache.invalidate("does_not_exist")  # should not raise
+        cache.set("kept_a", 1)
+        cache.set("kept_b", 2)
+
+        cache.invalidate("does_not_exist")
+
+        assert cache.get("kept_a") == 1
+        assert cache.get("kept_b") == 2
+        assert len(list(cache.cache_dir.glob("*.json"))) == 2
+
+    @pytest.mark.parametrize(
+        ("key", "prefix"),
+        [("spec_parsing:plan", "spec_pars"), ("specs:x", "spec")],
+    )
+    def test_invalidate_prefix_shorter_than_category_drops_disk_entry(
+        self, tmp_path: Path, key: str, prefix: str
+    ) -> None:
+        """
+        GIVEN an entry whose category extends past the prefix
+        WHEN invalidate_prefix() is called with that shorter prefix
+        THEN get() misses instead of reloading the stale file from disk
+        """
+        cache = SpecKitCache(cache_dir=tmp_path / "cache")
+        cache.set(key, "OLD")
+
+        cache.invalidate_prefix(prefix)
+
+        assert cache.get(key) is None
 
 
 # ============================================================================
@@ -663,6 +705,30 @@ class TestCacheManager:
             CacheManager.invalidate_category("spec_parsing")
             assert cache.get("spec_parsing:key_a") is None
             assert cache.get("task_analysis:key_b") == "task_value"
+        finally:
+            speckit.caching._cache_instance = original
+
+    def test_invalidate_category_reaches_entries_keyed_by_function_name(
+        self, tmp_path: Path
+    ) -> None:
+        """cache_result without a key still puts the entry under its category."""
+        original = speckit.caching._cache_instance
+        try:
+            cache = SpecKitCache(cache_dir=tmp_path / "cache")
+            speckit.caching._cache_instance = cache
+            calls: list[int] = []
+
+            @CacheManager.cache_result("spec_parsing")
+            def parse() -> str:
+                calls.append(1)
+                return "parsed"
+
+            parse()
+            parse()
+            assert len(calls) == 1
+            CacheManager.invalidate_category("spec_parsing")
+            parse()
+            assert len(calls) == 2
         finally:
             speckit.caching._cache_instance = original
 

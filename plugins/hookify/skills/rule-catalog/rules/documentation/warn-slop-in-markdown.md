@@ -9,7 +9,7 @@ conditions:
     pattern: \.(md|markdown|mdx)$
   - field: new_text
     operator: regex_match
-    pattern: '—|\s--\s|\w\s\+\s\w|;\s+(?:it|they|this|that|these|those|we|you|there)\s|(?:It''s|It is|This is|That''s|That is|These are|Those are)\s+[\w\s]+?,\s+not\b|\w,\s+not\s+(?:just\s+|a\s+|an\s+|the\s+)?\w+[.!?]|[“”‘’]|,\s+not\s+just\s+\w|(?i:cannot\s+be\s+over(?:stated|emphasi[sz]ed|estimated)|not\s+to\s+be\s+(?:underestimated|overlooked|understated)|it\s+goes\s+without\s+saying|needless\s+to\s+say|no\s+small\s+(?:feat|task|thing|matter))|(?i:not\s+un(?:common|like|usual|important|reasonable|clear)|never\s+fails?\s+to\b)'
+    pattern: '—|\s--\s|\w\s\+\s\w|;\s+(?:it|they|this|that|these|those|we|you|there)\s|(?:It''s|It is|This is|That''s|That is|These are|Those are)\s+[\w\s]+?,\s+not\b|\w,\s+not\s+(?!(?:because|when|if|until|unless|since|while|only|even|yet|as)\b)(?:just\s+)?(?:a|an|the|its|their|our|your|his|her|my)?\s*\w+(?:''s)?(?:\s+\w+){0,3}[.!?]|[“”‘’]|,\s+not\s+just\s+\w|(?i:cannot\s+be\s+over(?:stated|emphasi[sz]ed|estimated)|not\s+to\s+be\s+(?:underestimated|overlooked|understated)|it\s+goes\s+without\s+saying|needless\s+to\s+say|no\s+small\s+(?:feat|task|thing|matter))|(?i:not\s+un(?:common|like|usual|important|reasonable|clear)|never\s+fails?\s+to\b)|(?i:\b(?:never|not|no\s+longer|doesn''t|does\s+not|isn''t|is\s+not|aren''t|are\s+not|won''t|will\s+not|cannot|can''t|didn''t|did\s+not|wasn''t|was\s+not)\b[^.;:!?\n]{0,60}?\b(?:instead\s+of|rather\s+than)\b)'
 ---
 
 **AI slop pattern in markdown you are writing.**
@@ -23,11 +23,12 @@ One of these matched the text being written:
 | `+` joining words in prose | "and", or rewrite the sentence |
 | `;` splicing two clauses | Two sentences, or "and" / "but" / "so" |
 | "X, not Y" and ", not just Y" | State X. Delete the negated half |
+| "never does Y instead of X", "does not Y rather than X" | State what it does. Delete the refused alternative |
 | Smart quotes `“ ” ‘ ’` | Straight quotes `"` `'` |
 | "cannot be overstated", "needless to say", "no small feat" | Delete. State the consequence if there is one |
 | "not uncommon", "never fails to" | The positive word: "common", "always" |
 
-The last two rows are the negative-tense tells the scorer calls
+The last three rows are the negative-tense tells the scorer calls
 high confidence. A negation that carries a fact ("the hook cannot reach
 the registry") is deliberately unmatched.
 

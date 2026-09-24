@@ -45,14 +45,21 @@ class ReviewSummary:
 
 
 def extract_verdict(content: str) -> str:
-    """Extract the **Verdict:** line from review markdown."""
-    m = re.search(r"\*\*Verdict:\*\*\s*(.+)", content)
+    """Extract the verdict from either review layout.
+
+    The template's verdict is the bold line under ``### Recommendation``.
+    """
+    m = re.search(r"\*\*Verdict:\*\*\s*(.+)", content) or re.search(
+        r"###\s*Recommendation\s*\n\*\*(.+?)\*\*", content
+    )
     return m.group(1).strip() if m else "unknown"
 
 
 def extract_pr_number(content: str) -> int | None:
     """Extract the PR number from a heading like '# PR Review: #417 - ...'."""
-    m = re.search(r"#\s*PR Review:\s*#(\d+)", content)
+    m = re.search(r"#\s*PR Review:\s*#(\d+)", content) or re.search(
+        r"^##\s*PR\s*#(\d+)", content, re.MULTILINE
+    )
     return int(m.group(1)) if m else None
 
 
@@ -63,10 +70,13 @@ def extract_blockers(content: str) -> list[dict[str, str]]:
     a body that ends at the next `###` heading or the next `##`
     section.
     """
+    items: list[dict[str, str]] = [
+        {"id": fid, "title": title, "body": body}
+        for fid, title, body in _template_items(content, "Blocking")
+    ]
     section = _section(content, "## Blocking findings")
     if not section:
-        return []
-    items: list[dict[str, str]] = []
+        return items
     for m in re.finditer(
         r"###\s*(?P<id>B\d+)\s*-\s*(?P<title>.+?)\n(?P<body>.*?)(?=\n###\s+B\d+\s*-|\n##\s+|\Z)",
         section,
@@ -83,11 +93,26 @@ def extract_blockers(content: str) -> list[dict[str, str]]:
 
 
 def extract_non_blocking(content: str) -> list[dict[str, str]]:
-    """Parse the Non-blocking findings table rows."""
+    """Parse the Non-blocking findings table rows.
+
+    A report written from the /pr-review template has no table: its
+    In-Scope and Suggestions items are the non-blocking findings.
+    """
+    rows: list[dict[str, str]] = []
+    for kind in ("In-Scope", "Suggestions"):
+        for fid, title, body in _template_items(content, kind):
+            location = re.search(r"\*\*Location\*\*:\s*(.+)", body)
+            rows.append(
+                {
+                    "id": fid,
+                    "source": kind,
+                    "where": location.group(1).strip() if location else "",
+                    "concern": title,
+                }
+            )
     section = _section(content, "## Non-blocking findings")
     if not section:
-        return []
-    rows: list[dict[str, str]] = []
+        return rows
     table_re = re.compile(
         r"\|\s*(?P<id>NB\d+)\s*\|\s*(?P<source>[^\|]+?)\s*\|"
         r"\s*(?P<where>[^\|]+?)\s*\|\s*(?P<concern>[^\|]+?)\s*\|"
@@ -158,6 +183,30 @@ def review_to_findings(
         )
 
     return findings
+
+
+def _template_items(content: str, kind: str) -> list[tuple[str, str, str]]:
+    """Read ``1. [B1] title`` items under ``### <kind> (N)``.
+
+    This is the Phase 6 layout in the pr-review skill, which is what a
+    ``--local`` report contains. Each item's body is its indented lines.
+    """
+    heading = re.search(
+        rf"^###\s*{re.escape(kind)}\s*\(\d+\)\s*\n(.*?)(?=^##|\Z)",
+        content,
+        re.MULTILINE | re.DOTALL,
+    )
+    if not heading:
+        return []
+    return [
+        (m.group("id"), m.group("title").strip(), m.group("body").strip())
+        for m in re.finditer(
+            r"^\d+\.\s*\[(?P<id>[A-Z]+\d+)\]\s*(?P<title>.+)\n"
+            r"(?P<body>(?:[ \t]+.*\n?)*)",
+            heading.group(1),
+            re.MULTILINE,
+        )
+    ]
 
 
 def _section(content: str, heading: str) -> str | None:

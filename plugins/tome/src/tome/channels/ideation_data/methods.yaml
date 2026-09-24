@@ -97,3 +97,39 @@ methods:
       than adding a new component. Ask which part is already present and
       could absorb the new responsibility.
     when: Avoiding new dependencies or moving parts; consolidation.
+
+  # Schwenk 1990, OBHDP 47(1) 161-176, doi:10.1016/0749-5978(90)90051-A:
+  # meta-analysis of the DA and DI experiments. DA beat the expert-plan
+  # approach in general, and all conflict methods won when the world
+  # differed from the plan's assumptions. Graded mixed, not strong,
+  # because one model voicing both sides is weaker than two people.
+  - id: devils-advocacy
+    name: Devil's advocacy
+    category: adversarial
+    evidence: mixed
+    ports: yes
+    prompt: >-
+      Take the leading plan and list the assumptions it rests on. Argue
+      against the most load-bearing one as a critic who wants the plan
+      rejected, citing the concrete situation where it breaks. Then
+      describe the plan you would choose if that assumption were false,
+      and keep it as a candidate beside the original.
+    when: A plan is converging fast and nobody has attacked its premises.
+
+  # Lord, Lepper and Preston 1984, JPSP 47(6): considering the opposite
+  # corrected biased judgment in two experiments. Dhami, Belton and
+  # Mandel 2019, Applied Cognitive Psychology 33(6), randomized 50
+  # analysts and found the ACH matrix did not improve accuracy and may
+  # add inconsistency. Only the light form is catalogued.
+  - id: competing-hypotheses
+    name: Multiple working hypotheses
+    category: hypothesis
+    evidence: mixed
+    ports: yes
+    prompt: >-
+      Before fixing on why the problem exists, write three explanations
+      that would each fit what you have observed. For each, name the one
+      cheap observation that would rule it out, and the different design
+      it would call for. Keep the explanations alive until an observation
+      eliminates one.
+    when: Debugging, diagnosis, or a redesign whose cause is assumed, not shown.

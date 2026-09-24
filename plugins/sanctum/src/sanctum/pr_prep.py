@@ -9,6 +9,33 @@ from dataclasses import dataclass, field
 from typing import Any
 
 
+def _is_test_path(path: str) -> bool:
+    """Say whether *path* is a test, by path segment rather than substring.
+
+    A substring match calls ``plugins/latest/x.py`` a test.
+    """
+    segments = path.split("/")
+    name = segments[-1]
+    return (
+        "tests" in segments
+        or "test" in segments
+        or "__tests__" in segments
+        or name.startswith("test_")
+        or name.endswith(
+            (
+                "_test.py",
+                "_test.rs",
+                "_test.go",
+                ".test.ts",
+                ".test.js",
+                ".spec.ts",
+                ".spec.js",
+                "_spec.rb",
+            )
+        )
+    )
+
+
 @dataclass
 class FileCategories:
     """Categorized file changes."""
@@ -111,21 +138,30 @@ class PRPrepAnalyzer:
         )
 
     @staticmethod
-    def initialize_quality_gates() -> dict[str, bool]:
-        """Initialize quality gates with default True values.
+    def initialize_quality_gates() -> dict[str, bool | None]:
+        """Initialize every quality gate as not yet evaluated.
+
+        ``None`` means no check has run. A gate seeded ``True`` is a gate
+        that cannot fail, and the only consumer of these values renders
+        them for a human, so an unevaluated gate must be distinguishable
+        from a passing one.
 
         Returns:
-            Dictionary of quality gate names to boolean status
+            Dictionary of quality gate names to None
 
         """
-        return dict.fromkeys(PRPrepAnalyzer.QUALITY_GATES, True)
+        return dict.fromkeys(PRPrepAnalyzer.QUALITY_GATES, None)
 
     @staticmethod
     def validate_quality_gates(
         context: dict[str, Any],
-        gates: dict[str, bool],
-    ) -> dict[str, bool]:
-        """Validate quality gates against context.
+        gates: dict[str, bool | None],
+    ) -> dict[str, bool | None]:
+        """Validate the gates that the changed-file list can decide.
+
+        ``passes_checks`` and ``includes_breaking_changes`` need a test,
+        lint or type run and a release decision respectively, neither of
+        which this context carries, so they are left untouched.
 
         Args:
             context: PR context with changes and metadata
@@ -141,7 +177,7 @@ class PRPrepAnalyzer:
             f.get("path", "") if isinstance(f, dict) else str(f) for f in changed_files
         ]
 
-        updated_gates["has_tests"] = any("test" in p.lower() for p in paths)
+        updated_gates["has_tests"] = any(_is_test_path(p) for p in paths)
         updated_gates["has_documentation"] = any(p.endswith(".md") for p in paths)
         updated_gates["describes_changes"] = bool(changed_files)
         return updated_gates

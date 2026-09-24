@@ -59,14 +59,6 @@ class TemplateCustomizer:
         paths = paradigm_config[structure_key]
         return [path.format(module=self.module) for path in paths]
 
-    def get_description(self) -> str:
-        """Get paradigm description."""
-        if self.paradigm in self.STRUCTURE_TEMPLATES:
-            return str(self.STRUCTURE_TEMPLATES[self.paradigm]["description"])
-        return ""
-
-    # ... rest of the class implementation ...
-
 
 def main() -> None:
     """Main entry point."""

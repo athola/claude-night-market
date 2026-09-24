@@ -1,7 +1,7 @@
 ---
 name: pr-review
 description: Review pull requests with scope validation, code analysis, and line comments. Supports GitHub PRs and GitLab MRs.
-usage: /pr-review [<pr-number> | <pr-url> | <mr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--no-insights] [--dry-run] [--local [path]] [--no-line-comments] [--skip-version-check] [--skip-doc-review] [--stack] [--no-stack] [--base <branch>]
+usage: /pr-review [<pr-number> | <pr-url> | <mr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--no-insights] [--dry-run] [--local [path]] [--no-line-comments] [--concise] [--hold-insights] [--skip-version-check] [--skip-doc-review] [--stack] [--no-stack] [--base <branch>]
 extends: "superpowers:receiving-code-review"
 ---
 
@@ -99,7 +99,38 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 
 # Socratic comprehension loop: you explain the diff, the agent probes gaps
 /pr-review --interactive
+
+# Minimal review: inline suggestion blocks plus one short summary, nothing else
+/pr-review https://gitlab.com/org/repo/-/merge_requests/123 --concise
+
+# Hold direction and architecture feedback in chat; post only what you select
+/pr-review 123 --hold-insights
+
+# The two compose: terse on the MR, judgment calls settled here first
+/pr-review 123 --concise --hold-insights
 ```
+
+### Concise Mode
+
+`--concise` is for a reviewer who wants the MR to carry the fix and
+nothing more. Each finding on a diff line is posted as a suggestion
+block the author can apply with one click, and a sentence beside it
+only where the change would otherwise puzzle them. One short summary
+review closes it. The test-plan comment, the description update, and
+the Why / Proof / Teachable Moment paragraphs are not posted. Findings
+that do not fit a suggestion (a missing test, a design question) go in
+the summary as one line each.
+
+Posting patterns for both platforms: `Skill(sanctum:pr-review)` module
+`modules/suggestion-comments.md`.
+
+### Held Insights
+
+`--hold-insights` widens Phase 4.6. Every finding about the direction of
+the MR, its architecture, or an open question is presented in chat with
+the `[y/n/select]` prompt Phase 5 already uses for backlog issues, and
+only the selected items are posted. Nothing about `--no-insights`
+changes: that flag governs Discussions posting and stays on by default.
 
 ### Interactive Mode
 
@@ -178,7 +209,9 @@ format used by both `/pr-review --stack` and
 11. **Comprehension Loop** - Socratic probe of the changed code, recorded to gauntlet (OPT-IN with `--interactive`)
 
 **MANDATORY OUTPUTS:** Review comment, Test plan comment, PR description update.
-If any are missing, the review is INCOMPLETE.
+If any are missing, the review is INCOMPLETE. With `--concise`, only the
+review comment applies: the test plan and description update are not
+posted by design.
 
 ### Discussion Insights (Step 10)
 
@@ -252,7 +285,9 @@ gh pr view $PR_NUM --json body --jq '.body | length > 0'
 # Expected: true
 ```
 
-**If any check returns `false`, the review is INCOMPLETE.**
+**If any check returns `false`, the review is INCOMPLETE.** With
+`--concise`, only check 1 applies; checks 2 and 3 return `false` by
+design.
 
 **Full workflow details**: See [Workflow Details](pr-review/modules/review-workflow.md)
 

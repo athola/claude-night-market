@@ -123,6 +123,26 @@ def _extract_year(page_age: Any) -> int | None:
     return int(match.group(0)) if match else None
 
 
+def _web_items(payload: dict[str, Any]) -> list[Any] | None:
+    """Return ``payload["results"]["web"]`` when both hops are the right type.
+
+    ``(payload.get("results") or {}).get("web")`` guards only a falsy
+    ``results``. A truthy non-mapping, which is what a drifted envelope
+    sends, called ``.get`` on the wrong type and raised AttributeError.
+    Callers catch ValueError to mark the channel failed, so that escaped
+    and took the run down instead.
+
+    Returns:
+        The web item list, or None when this payload does not carry one.
+
+    """
+    results = payload.get("results")
+    if not isinstance(results, dict):
+        return None
+    web = results.get("web")
+    return web if isinstance(web, list) else None
+
+
 def _unwrap_you_mcp_items(result: Any) -> list[Any]:
     """Extract the web result items from a you-search tool response.
 
@@ -165,13 +185,13 @@ def _unwrap_you_mcp_items(result: Any) -> list[Any]:
                         f"starts with {text[:80]!r}"
                     ) from exc
                 if isinstance(inner, dict):
-                    web = (inner.get("results") or {}).get("web")
-                    if isinstance(web, list):
+                    web = _web_items(inner)
+                    if web is not None:
                         return web
         structured = result.get("structuredContent")
         if isinstance(structured, dict):
-            web = (structured.get("results") or {}).get("web")
-            if isinstance(web, list):
+            web = _web_items(structured)
+            if web is not None:
                 return web
     received = (
         f"dict with keys {sorted(result)}"
@@ -181,7 +201,9 @@ def _unwrap_you_mcp_items(result: Any) -> list[Any]:
     raise ValueError(f"unrecognized you-search response shape; received {received}")
 
 
-def parse_you_mcp_result(result: Any, topic: str) -> list[Finding]:
+def parse_you_mcp_result(
+    result: Any, topic: str, dropped: list[str] | None = None
+) -> list[Finding]:
     """Parse a You.com MCP you-search tool result into Findings.
 
     Expected shape, as sent by the live server::
@@ -208,6 +230,11 @@ def parse_you_mcp_result(result: Any, topic: str) -> list[Finding]:
         skipped. A ``page_age`` carrying a year is recorded in
         ``metadata["year"]`` so the shared recency scoring can see it.
 
+    ``dropped``, when given, receives one line per skipped item saying
+    why. Ten items yielding zero findings is a response shape that
+    drifted, and without the count the channel reads ``empty``: the
+    one status that claims the topic, not the search, is thin.
+
     Raises:
         ValueError: if the response is not a recognized you-search
             envelope (see ``_unwrap_you_mcp_items``), so a malformed
@@ -219,9 +246,13 @@ def parse_you_mcp_result(result: Any, topic: str) -> list[Finding]:
 
     for item in items:
         if not isinstance(item, dict):
+            if dropped is not None:
+                dropped.append(f"item is {type(item).__name__}, not an object")
             continue
         url: str = item.get("url") or ""
         if not url:
+            if dropped is not None:
+                dropped.append(f"item has no url (keys: {sorted(item)})")
             continue
 
         title: str = item.get("title") or url

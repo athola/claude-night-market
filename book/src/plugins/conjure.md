@@ -163,7 +163,7 @@ qwen:
 ```bash
 # Conservation detects high context usage
 # Suggests delegation via conjure
-Skill(conservation:context-optimization)
+Skill(conserve:context-optimization)
 # -> Recommends: Skill(conjure:delegation-core)
 ```
 

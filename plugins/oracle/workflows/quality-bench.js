@@ -52,11 +52,16 @@ const scored = await parallel(
   ),
 )
 
+// A skill whose scorer returned nothing is unscored. Leaving it out of
+// the distribution shifts the calibration it was meant to be read against.
+const unscored = skills.filter((skill, index) => !scored[index])
 const scores = scored.filter(Boolean)
+
+if (unscored.length) log(`no score for ${unscored.join(', ')}`)
 
 if (!scores.length) {
   log('no skill scored; check whether the oracle daemon is provisioned')
-  return { skills, scores: [], calibration: null }
+  return { skills, scores: [], calibration: null, unscored }
 }
 
 const ordered = [...scores].sort((left, right) => left.score - right.score)
@@ -69,4 +74,4 @@ const calibration = await agent(
 
 log(`${scores.length} skills scored, range ${ordered[0].score} to ${ordered[ordered.length - 1].score}`)
 
-return { skills, scores: ordered, calibration }
+return { skills, scores: ordered, calibration, unscored }

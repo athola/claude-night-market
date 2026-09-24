@@ -105,6 +105,21 @@ CANARY_TARGETS: dict[str, CanaryTarget] = {
         ),
         verified_on="2026-08-07",
     ),
+    "web": CanaryTarget(
+        channel="web",
+        # A plain-text RFC served by the IETF since 1997. The control
+        # proves the channel's fetch path can reach the open web and
+        # read a known page; it does not test a search engine's ranking,
+        # which no single URL can.
+        url="https://www.rfc-editor.org/rfc/rfc2119.txt",
+        expected=(
+            "Plain text whose header reads 'RFC 2119' and 'Key words for use "
+            "in RFCs to Indicate Requirement Levels' by S. Bradner, March "
+            "1997. An empty body or an HTML error page means the open web "
+            "was not reachable from this run."
+        ),
+        verified_on="2026-09-18",
+    ),
 }
 
 

@@ -22,8 +22,8 @@ TEST_COVERAGE_ARGS :=
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Prevent parallel execution for targets that share resources
 
@@ -189,16 +189,19 @@ demo-validator: ## Demo imbue validator (LIVE)
 demo-citation-verifier: ## Demo grounded-finding citation verifier (LIVE)
 	@echo "=== Imbue Citation Verifier Demo (LIVE) ==="
 	@echo ""
-	@printf '%s\n' \
+	@findings=$$(mktemp) || exit 1; \
+	trap 'rm -f "$$findings"' EXIT; \
+	printf '%s\n' \
 	  '[' \
 	  '  {"id":"REAL","file":"scripts/citation_verifier.py","line":1,"anchor":"#!/usr/bin/env python3"},' \
 	  '  {"id":"HALLUCINATED","file":"scripts/citation_verifier.py","line":1,"anchor":"fabricated banner never written here"}' \
-	  ']' > /tmp/imbue_citation_demo.json
-	@echo "Two findings cite the same file: one real anchor, one fabricated:"
-	@cat /tmp/imbue_citation_demo.json
+	  ']' > "$$findings"; \
+	echo "Two findings cite the same file: one real anchor, one fabricated:"; \
+	cat "$$findings"; \
+	echo ""; \
+	$(UV_RUN) python scripts/citation_verifier.py \
+	  --findings "$$findings" --repo-root . || true
 	@echo ""
-	@$(UV_RUN) python scripts/citation_verifier.py \
-	  --findings /tmp/imbue_citation_demo.json --repo-root . || true
 	@echo ""
 	@echo "The fabricated citation was rejected (exit 1). This gate runs in"
 	@echo "imbue:review-core Step 5 for every review."

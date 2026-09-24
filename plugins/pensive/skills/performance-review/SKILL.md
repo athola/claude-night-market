@@ -279,9 +279,9 @@ exactly the place where TDD pays off most.
 
 ## Verify Findings Are Grounded (`perf-review:findings-verified`)
 
-Write findings to `.review/findings.json` and run the citation verifier
-as `Skill(imbue:review-core)` Step 5 describes. Only findings the
-verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
+Write findings to `.review/findings.json`, run the citation verifier
+(`Skill(imbue:review-core)` Step 5), and drop or label `UNVERIFIED` any
+the verifier rejects.
 
 ## Exit Criteria
 

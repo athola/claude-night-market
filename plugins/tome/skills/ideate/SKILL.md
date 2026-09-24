@@ -39,18 +39,20 @@ reporting the final set.
 
 ## Catalog
 
-Seven methods that port to technical problem-solving, each tagged with
+Nine methods that port to technical problem-solving, each tagged with
 an honest evidence grade (see Sources below):
 
 | Method | Category | Evidence |
 |--------|----------|----------|
 | SCAMPER | transformation | weak |
 | SIT task unification | transformation | mixed |
-| Morphological analysis | decomposition | mixed |
+| Morphological analysis (Zwicky) | decomposition | mixed |
 | SIT subtraction | decomposition | mixed |
-| Cross-domain analogy (TRIZ) | analogical | mixed |
-| Inversion (pre-mortem) | inversion | anecdotal |
+| Cross-domain analogy (TRIZ, Synectics) | analogical | mixed |
+| Inversion (reverse brainstorming, pre-mortem) | inversion | anecdotal |
 | Constraint provocation | perturbation | anecdotal |
+| Devil's advocacy | adversarial | mixed |
+| Multiple working hypotheses | hypothesis | mixed |
 
 The grades are deliberately conservative. Individual-method evidence
 is thin; the value is the diverse-selection-plus-rotation pattern, not
@@ -111,6 +113,16 @@ The diversity rationale and method evidence grades draw on:
   analysis of 4M+ concepts found originality declined 31% from
   1981-2016 as concept space expanded. Cognitive burden drives
   clustering near familiar terrain rather than the edge.
+- Devil's advocacy: Schwenk, OBHDP 47(1), 1990, a meta-analysis in
+  which devil's advocacy beat the expert-plan approach. Graded mixed
+  because one model arguing both sides is weaker than two people.
+- Multiple working hypotheses: Lord, Lepper and Preston, JPSP 47(6),
+  1984, where considering the opposite corrected biased judgment. The
+  prompt stays light on purpose: in Dhami, Belton and Mandel, Applied
+  Cognitive Psychology 33(6), 2019, the full hypothesis matrix (ACH)
+  did not improve analyst accuracy.
+
+Methods surveyed and not catalogued, with grades, are in ADR-0024.
 
 ## Exit Criteria
 

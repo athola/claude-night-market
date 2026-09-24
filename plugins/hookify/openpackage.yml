@@ -1,5 +1,5 @@
 name: hookify
-version: 1.9.20
+version: 1.9.21
 description: Create custom behavioral rules through markdown configuration files - prevent unwanted behaviors with pattern
   matching
 keywords:
@@ -24,3 +24,4 @@ commands:
 - commands/hookify.md
 - commands/install.md
 - commands/list.md
+hooks: hooks/hooks.json

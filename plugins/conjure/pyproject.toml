@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conjure-dev"
-version = "1.9.20"
+version = "1.9.21"
 description = "Development tools for the conjure Claude Code plugin - intelligent delegation framework for external LLM services"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -23,7 +23,7 @@ dependencies = []
 
 [project.optional-dependencies]
 full = [
-    "tiktoken>=0.7.0",  # Accurate token estimation (fallback: ~4 chars/token)
+    "tiktoken>=0.14.0",  # Accurate token estimation (fallback: ~4 chars/token)
     "leyline>=1.0.0",   # Quota tracking (fallback: stub tracker)
 ]
 
@@ -34,19 +34,19 @@ delegator = "scripts.delegation_executor:main"
 
 [dependency-groups]
 dev = [
-    "bandit>=1.7.9,<2.0",
-    "blacken-docs>=1.16.0,<2.0",
+    "bandit>=1.8.6,<2.0",
+    "blacken-docs>=1.20.0,<2.0",
     "interrogate>=1.7.0,<2.0",
-    "pre-commit>=4.0.0",
-    "ty>=0.0.1a23",
-    "safety>=3.7.0,<4.0",
-    "typos>=1.0.0",
-    "ruff>=0.14.13",
+    "pre-commit>=4.3.0",
+    "ty>=0.0.82",
+    "safety>=3.8.1,<4.0",
+    "typos>=1.50.2",
+    "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
-    "pytest-cov>=6.0.0",
+    "pytest-cov>=7.1.0",
     "pytest-mock>=3.15.1",
-    "pytest-asyncio>=0.25.0",
+    "pytest-asyncio>=1.2.0",
 ]
 
 [tool.hatch.build.targets.wheel]

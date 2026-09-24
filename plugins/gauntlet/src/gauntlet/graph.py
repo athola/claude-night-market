@@ -43,7 +43,7 @@ except ImportError:  # pragma: no cover -- standalone fallback
             self._has_fts: bool = False
             try:
                 self._init_schema()
-            except Exception:
+            except (OSError, _sqlite3.Error):
                 self._conn.close()
                 raise
 
@@ -271,6 +271,64 @@ class GraphStore(SqliteGraphBase):
             ),
         )
         self._conn.commit()
+
+    def resolve_call_targets(self) -> int:
+        """Point CALLS edges at the node that defines their callee.
+
+        The parser records a callee by the name written at the call site.
+        Everything that walks CALLS edges (flows, communities, blast
+        radius) looks the target up by qualified name, so an unresolved
+        edge is invisible to all of them. A bare name that exactly one
+        definition matches, preferring a definition in the calling file,
+        is rewritten to that definition. Calls into the standard library
+        or a dependency stay bare and count as external.
+
+        One pass over the nodes builds the name index; the edges are then
+        resolved in memory, because a plugin-wide graph has tens of
+        thousands of stdlib calls and a table scan per edge does not end.
+
+        Returns the number of edges rewritten.
+        """
+        by_bare: dict[str, list[tuple[str, str]]] = {}
+        for qualified_name, file_path in self._conn.execute(
+            "SELECT qualified_name, file_path FROM nodes WHERE kind != ?",
+            (str(NodeKind.FILE),),
+        ):
+            bare = qualified_name.rsplit("::", 1)[-1].rsplit(".", 1)[-1]
+            by_bare.setdefault(bare, []).append((qualified_name, file_path))
+
+        unresolved = self._conn.execute(
+            """SELECT e.id, e.source_qn, e.target_qn, e.file_path FROM edges e
+               WHERE e.kind = ?
+                 AND NOT EXISTS (
+                   SELECT 1 FROM nodes n WHERE n.qualified_name = e.target_qn
+                 )""",
+            (str(EdgeKind.CALLS),),
+        ).fetchall()
+
+        resolved = 0
+        with self._conn:
+            for edge_id, source_qn, target, edge_file in unresolved:
+                candidates = by_bare.get(target.rsplit(".", 1)[-1], [])
+                local = [qn for qn, fp in candidates if fp == edge_file]
+                if len(local) == 1:
+                    chosen = local[0]
+                elif len(candidates) == 1:
+                    chosen = candidates[0][0]
+                else:
+                    continue
+                duplicate = self._conn.execute(
+                    "SELECT 1 FROM edges WHERE kind = ? AND source_qn = ? AND target_qn = ?",
+                    (str(EdgeKind.CALLS), source_qn, chosen),
+                ).fetchone()
+                if duplicate:
+                    self._conn.execute("DELETE FROM edges WHERE id = ?", (edge_id,))
+                else:
+                    self._conn.execute(
+                        "UPDATE edges SET target_qn = ? WHERE id = ?", (chosen, edge_id)
+                    )
+                resolved += 1
+        return resolved
 
     def get_edges_by_source(self, qualified_name: str) -> list[GraphEdge]:
         """Fetch all outgoing edges from a node."""

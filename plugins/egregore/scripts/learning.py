@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import argparse
 import json
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -190,3 +192,45 @@ def load_patterns(path: Path) -> list[LearnedPattern]:
         return [LearnedPattern.from_dict(d) for d in data]
     except (json.JSONDecodeError, OSError):
         return []
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Print the briefing for the next work item and persist the patterns.
+
+    The orchestrator runs this before executing an item and prepends the
+    output to the item's context. Silence means no completed item has
+    recorded a decision yet.
+    """
+    parser = argparse.ArgumentParser(description="Cross-item learning briefing")
+    parser.add_argument(
+        "--manifest",
+        default=".egregore/manifest.json",
+        help="Manifest whose work_items carry decision logs",
+    )
+    parser.add_argument(
+        "--patterns",
+        default=".egregore/learning/patterns.json",
+        help="Where the extracted patterns are written",
+    )
+    parser.add_argument("--top", type=int, default=20, help="Patterns to keep")
+    args = parser.parse_args(argv)
+
+    manifest_path = Path(args.manifest)
+    try:
+        manifest = json.loads(manifest_path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"cannot read manifest {manifest_path}: {exc}", file=sys.stderr)
+        return 1
+
+    patterns = weight_by_recency(
+        extract_patterns(manifest.get("work_items", []), max_patterns=args.top)
+    )
+    save_patterns(patterns, Path(args.patterns))
+    briefing = build_learning_context(patterns)
+    if briefing:
+        print(briefing)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

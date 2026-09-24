@@ -219,13 +219,25 @@ If the model finds itself doing any of the following during execution, this is a
 | Writing a completion summary while >0 listed candidates lack closure-or-rationale | Violation of completion gate |
 | Re-asking user "should I continue?" when invocation included "do not stop" | Ignoring the explicit no-mid-task-summary contract |
 
-If the harness fires a stop signal mid-execution and the completion gate is not met, immediately resume with the next finding.
+#### What decides the gate
+
+The gate reads records, not the agent's account of its own work:
+`.review/findings.json` and the citation verifier's exit code (see
+the next section) say which candidates are closed, and the synthesis
+lists the rest. Execution is bounded by `max_waves` (default 3, one
+wave per pass over the open candidates). When the budget runs out, or
+when the harness fires a stop signal, the run stops: record every
+remaining candidate in the synthesis as a gap with what would close
+it, and end the turn. Do not resume past a stop signal. A harness
+stop is a signal from outside the run, and a run that overrides it
+has made itself the judge of its own completeness, which is the
+arrangement measured to drift (arXiv 2607.17641).
 
 ### Verify Findings Are Grounded (`refine:findings-verified`)
 
-Write findings to `.review/findings.json` and run the citation verifier
-as `Skill(imbue:review-core)` Step 5 describes. Only findings the
-verifier passes enter the report. Drop or label `UNVERIFIED` the rest.
+Write findings to `.review/findings.json`, run the citation verifier
+(`Skill(imbue:review-core)` Step 5), and drop or label `UNVERIFIED` any
+the verifier rejects.
 
 ## Exit Criteria
 

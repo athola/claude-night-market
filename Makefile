@@ -5,6 +5,14 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
+# .SHELLFLAGS arrived in GNU make 3.82. Stock macOS ships 3.81 from the
+# Xcode command line tools, which parses the assignment above and ignores
+# it, so every recipe here runs without -euo pipefail. Say so once per
+# invocation rather than pretend the gate holds.
+ifneq ($(filter 3.7% 3.80 3.81,$(firstword $(MAKE_VERSION))),)
+$(warning GNU make $(MAKE_VERSION) ignores .SHELLFLAGS; recipes run without -euo pipefail. Install GNU make 3.82+ (brew install make) and run gmake.)
+endif
+
 # Local tool cache (avoids permission issues with default locations)
 UV_TOOL_DIR ?= $(abspath .)/.uv-tools
 PATH := $(UV_TOOL_DIR)/ruff/bin:$(PATH)
@@ -35,7 +43,7 @@ endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
 .PHONY: help all test lint fix typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan \
-	test-ecosystem check-json-utils check-discussions writeback-discussions validate-skills analyze-skills
+	test-ecosystem check-json-utils check-discussions writeback-discussions validate-skills analyze-skills shellcheck
 
 # The plugin delegation rules above are generated with $(eval), so the first
 # rule Make sees here is `abstract:`, not `all:`. Without this assignment a
@@ -119,7 +127,16 @@ lint: ## Check linting on all plugins without rewriting anything (see `fix`)
 	@uv run bandit --quiet -c pyproject.toml -r plugins/ || (echo "Bandit failed" && exit 1)
 	@echo "Bandit passed"
 	@echo ""
+	@$(MAKE) --no-print-directory shellcheck
+	@echo ""
 	@echo "=== Lint Complete (All Code Checked) ==="
+
+# The house rule says "All shell scripts must pass scripts/shellcheck.sh".
+# Until this target existed the gate appeared in no Makefile, no pre-commit
+# hook and no CI workflow, so the sentence described nothing that ran.
+shellcheck: ## Run shellcheck over every tracked .sh file
+	@echo ">>> Running shellcheck on tracked shell scripts..."
+	@sh scripts/shellcheck.sh
 
 fix: ## Rewrite plugins/ with ruff format and ruff check --fix (the mutating pair)
 	@uv run ruff format --config pyproject.toml plugins/
@@ -173,9 +190,10 @@ plugin-check: ## Run demo/dogfood checks across all plugins
 			echo ">>> $$plugin:"; \
 			$(TIMEOUT_180) $(MAKE) -C $$plugin plugin-check || { echo "  (plugin-check failed or timed out)"; fail=1; }; \
 		fi; \
-	done; exit $$fail
-	@echo ""
-	@echo "=== All Plugin Checks Complete ==="
+	done; \
+	echo ""; \
+	echo "=== All Plugin Checks Complete ==="; \
+	exit $$fail
 
 check-examples: ## Verify all plugins have proper examples
 	@echo "=== Checking Plugin Examples ==="
@@ -215,8 +233,10 @@ skrills-build: ## Build skrills from source (requires Rust toolchain)
 		echo "Set SKRILLS_REPO=/path/to/skrills or clone it first"; \
 		exit 1; \
 	fi
+	@command -v cargo >/dev/null 2>&1 || \
+		{ echo "Error: cargo not found. Install the Rust toolchain: https://rustup.rs"; exit 1; }
 	@echo "Building skrills..."
-	@cargo build --manifest-path "$(SKRILLS_REPO)/Cargo.toml" --release -p skrills 2>&1 | tail -1
+	@cargo build --manifest-path "$(SKRILLS_REPO)/Cargo.toml" --release -p skrills
 	@cp "$(SKRILLS_REPO)/target/release/skrills" "$(SKRILLS_BIN)"
 	@chmod +x "$(SKRILLS_BIN)"
 	@$(SKRILLS_BIN) --version 2>/dev/null | head -1 > "$(SKRILLS_VERSION_FILE)" || true
@@ -278,7 +298,7 @@ analyze-skills: ## Analyze skill token usage and dependencies (skrills or Python
 
 CLAWHUB_DIR := clawhub
 
-.PHONY: clawhub-export clawhub-export-top clawhub-validate clawhub-stats clawhub-clean
+.PHONY: clawhub-export clawhub-export-top clawhub-validate clawhub-stats clawhub-clean clawhub-publish tapes-subtitles
 .PHONY: bridge-build bridge-clean a2a-cards a2a-list detect-framework cross-framework
 
 clawhub-export: ## Export all skills to ClawHub/OpenClaw format
@@ -302,6 +322,12 @@ clawhub-stats: ## Show skill export statistics
 clawhub-clean: ## Remove ClawHub export directory
 	@rm -rf $(CLAWHUB_DIR)
 	@echo "Cleaned $(CLAWHUB_DIR)/"
+
+clawhub-publish: ## Publish the next batch of exported skills to ClawHub (ARGS=--status, --retry-failed, --batch-size N)
+	@./scripts/clawhub-batch-publish.sh $(ARGS)
+
+tapes-subtitles: ## Burn the narration band onto assets/gifs/skills-showcase.gif after a VHS re-record
+	@bash assets/tapes/add-subtitles.sh
 
 bridge-build: clawhub-export ## Build OpenClaw bridge plugin from export
 	@echo "=== Building OpenClaw bridge plugin ==="

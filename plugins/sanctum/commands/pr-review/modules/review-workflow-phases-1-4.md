@@ -598,6 +598,17 @@ capture (Phase 7) still runs.
 When `--local` is NOT set, proceed with the default posting
 workflow below.
 
+#### Concise Mode (`--concise`)
+
+Post each finding that sits on a diff line as a suggestion block, on
+GitHub through the reviews API below and on GitLab through a
+positioned discussion. Add a sentence beside the block only where the
+change would otherwise puzzle the author. Findings that fit no
+suggestion go in the summary review, one line each. Skip Phase 5 and
+Phase 6. The fence syntax, the GitLab `position` fields, and the cases
+where a plain comment is the honest shape are in
+`Skill(sanctum:pr-review)` module `modules/suggestion-comments.md`.
+
 #### Default: Post to PR
 
 8. **Determine PR Number and Check Authorship**

@@ -126,14 +126,14 @@ repos:
 
       - id: validate-skill-descriptions
         name: Validate Skill Descriptions
-        entry: python3 scripts/fix_descriptions.py --check
+        entry: uv run --with pyyaml python scripts/fix_descriptions.py --check
         language: system
         files: SKILL\.md$
         pass_filenames: false
 
       - id: validate-abstract-skills
         name: Validate Abstract Skills
-        entry: python3 plugins/abstract/scripts/abstract_validator.py
+        entry: uv run --with pyyaml python plugins/abstract/scripts/abstract_validator.py
         language: system
         files: ^plugins/abstract/.*SKILL\.md$
         pass_filenames: false
@@ -282,7 +282,7 @@ repos:
 
       - id: validate-knowledge-corpus
         name: Validate Knowledge Corpus Frontmatter
-        entry: python3 plugins/memory-palace/scripts/validate_knowledge_corpus.py
+        entry: uv run --with pyyaml python plugins/memory-palace/scripts/validate_knowledge_corpus.py
         language: system
         files: ^plugins/memory-palace/docs/knowledge-corpus/.*\.md$
         pass_filenames: false
@@ -297,7 +297,7 @@ repos:
 
       - id: check-context-optimization
         name: Check Context Optimization
-        entry: python3 plugins/abstract/scripts/context_optimizer.py stats plugins/
+        entry: uv run --with pyyaml python plugins/abstract/scripts/context_optimizer.py stats plugins/
         language: system
         files: ^.*SKILL\.md$
         pass_filenames: false

@@ -4,7 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from hookify.core.config_loader import Condition, ConfigLoader, RuleConfig
+from hookify.core.config_loader import (
+    Condition,
+    ConfigLoader,
+    RuleConfig,
+    _parse_frontmatter_subset,
+)
 
 
 class TestCondition:
@@ -78,6 +83,17 @@ class TestRuleConfig:
                 pattern="test",
                 action="invalid",
             )
+
+    def test_invalid_regex_pattern_is_rejected_at_construction(self) -> None:
+        """A block rule whose pattern cannot compile must not exist silently."""
+        with pytest.raises(ValueError, match="pattern"):
+            RuleConfig(
+                name="test", enabled=True, event="bash", pattern="rm\\s+-rf\\s+(/"
+            )
+
+    def test_invalid_regex_condition_is_rejected_at_construction(self) -> None:
+        with pytest.raises(ValueError, match="pattern"):
+            Condition(field="command", operator="regex_match", pattern="(")
 
     def test_missing_pattern_and_conditions(self) -> None:
         """Rule without pattern or conditions should raise ValueError."""
@@ -204,6 +220,22 @@ User override - disabled
         assert rule.enabled is False
         assert rule.action == "warn"
 
+    def test_get_rule_status_marks_a_user_override(self, tmp_path: Path) -> None:
+        """An override file is reported on the bundled entry, not as a new rule."""
+        user_rules_dir = tmp_path / ".claude"
+        user_rules_dir.mkdir()
+        (user_rules_dir / "hookify.block-force-push.local.md").write_text(
+            "---\nname: block-force-push\nenabled: false\nevent: bash\n"
+            "pattern: git push --force\naction: warn\n---\n\noverride\n"
+        )
+
+        status = ConfigLoader(
+            user_rules_dir=user_rules_dir, include_bundled=True
+        ).get_rule_status()
+
+        assert status["block-force-push"]["overridden"] is True
+        assert "block-force-push.local" not in status
+
     def test_get_bundled_rule_names(self) -> None:
         """Should return names of all bundled rules."""
         loader = ConfigLoader()
@@ -221,3 +253,49 @@ User override - disabled
         assert "block-force-push" in status
         assert status["block-force-push"]["source"] == "bundled"
         assert status["block-force-push"]["category"] == "git"
+
+
+class TestFrontmatterWithoutPyYAML:
+    """Hooks run under the operator's python3, which may lack PyYAML.
+
+    The stdlib parser must read every rule the catalog ships exactly as
+    PyYAML does, and refuse any shape outside that subset rather than
+    guess at it.
+    """
+
+    @staticmethod
+    def _frontmatter(rule_file: Path) -> str:
+        return rule_file.read_text().split("---\n", 2)[1]
+
+    def test_stdlib_parser_matches_pyyaml_on_every_bundled_rule(self) -> None:
+        yaml = pytest.importorskip("yaml")
+        rule_files = ConfigLoader()._iter_bundled_rule_files()
+        assert rule_files
+        for rule_file in rule_files:
+            text = self._frontmatter(rule_file)
+            assert _parse_frontmatter_subset(text) == yaml.safe_load(text), rule_file
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "name: x\nenabled: yes\nevent: bash\npattern: rm # trailing\n",
+            "name: x\nenabled: true\nevent: bash\npattern: #not-a-pattern\n",
+            "name: x\nenabled: false\nevent: file\naction:\nconditions:\n"
+            "- field: file_path\n  operator: ends_with\n  pattern: '.py'\n",
+            'name: x\npattern: "git\\\\s+push\\\\s+--force"\n',
+            'name: x\npattern: "say \\"hi\\" # not a comment"\n',
+        ],
+    )
+    def test_stdlib_parser_matches_pyyaml_on_scalar_edge_cases(self, text: str) -> None:
+        yaml = pytest.importorskip("yaml")
+        assert _parse_frontmatter_subset(text) == yaml.safe_load(text)
+
+    @pytest.mark.parametrize(
+        "value",
+        ['"unterminated', "|", ">", "[a, b]", "{a: b}", "'unterminated", "TODO: x"],
+    )
+    def test_stdlib_parser_refuses_shapes_outside_the_rule_subset(
+        self, value: str
+    ) -> None:
+        with pytest.raises(ValueError, match="frontmatter"):
+            _parse_frontmatter_subset(f"name: x\npattern: {value}\n")

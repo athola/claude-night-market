@@ -361,9 +361,11 @@ def get_ste_patterns(
     all prose, and a default-on sweep would report on nearly every file.
     Callers that want the rules ask for them explicitly.
 
-    A getter is what makes a YAML section reachable. The ``sycophantic``
-    section has no getter and is dead data, which is the failure this
-    function exists to avoid.
+    A getter is what makes a YAML section reachable. Every section in
+    ``en.yaml`` has one, ``sycophantic`` included
+    (:func:`get_sycophantic_patterns`, which ``scripts/slop_score.py``
+    calls), so a category added to the YAML without a getter beside it
+    is the failure to watch for.
 
     Languages without an ``ste`` section return an empty list, which
     lets callers degrade gracefully until a language pack is translated.

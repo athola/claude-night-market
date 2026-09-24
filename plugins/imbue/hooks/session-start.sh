@@ -21,30 +21,60 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+# Absolute directory of this script. A bare filename (no slash)
+# resolves against the working directory.
+script_dir() {
+  local src="${BASH_SOURCE[0]:-${0}}"
+  case "${src}" in
+    */*) src="${src%/*}" ;;
+    *) src="." ;;
+  esac
+  (cd "${src:-/}" && pwd)
+}
 
-# Source vendored JSON utilities (canonical: scripts/shared/json_utils.sh).
-# Vendored under hooks/shared/ so the hook works from the Claude Code
-# plugin cache. CLAUDE_PLUGIN_ROOT is set by Claude Code; SCRIPT_DIR
-# fallback supports direct invocation in tests/CI.
-# F5: use a dedicated variable so the later PLUGIN_ROOT assignment
-# (line ~58) does not silently clobber it. Mirrors conserve's pattern.
-PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
-# shellcheck source=plugins/imbue/hooks/shared/json_utils.sh
-source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
+# Portable number extraction (works without grep -P)
+# Usage: extract_number "string" "pattern_word" -> outputs the number before pattern_word
+extract_stat_number() {
+  local stats="${1}"
+  local pattern="${2}"
+  # Try grep -oP first (GNU grep with PCRE), fall back to grep -oE + sed
+  if printf '%s\n' "test" | grep -oP '\d+' >/dev/null 2>&1; then
+    printf '%s\n' "${stats}" | grep -oP "\d+(?= ${pattern})" || printf '%s\n' "0"
+  else
+    # Portable fallback: use grep -oE and sed
+    printf '%s\n' "${stats}" | grep -oE "[0-9]+ ${pattern}" | sed 's/ .*//' || printf '%s\n' "0"
+  fi
+}
 
-# Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
-HOOK_INPUT=""
-AGENT_TYPE=""
-if read -t 1 -r HOOK_INPUT 2>/dev/null; then
-    AGENT_TYPE=$(get_json_field "$HOOK_INPUT" "agent_type")
-fi
+main() {
+  case "${1:-}" in
+    -x) set -x ;;
+  esac
 
-# Lightweight agents that skip full scope-guard methodology
-case "$AGENT_TYPE" in
-    code-reviewer|architecture-reviewer|rust-auditor|bloat-auditor|context-optimizer)
-        # Review/optimization agents: minimal scope-guard context
-        cat <<EOF
+  SCRIPT_DIR="$(script_dir)"
+
+  # Source vendored JSON utilities (canonical: scripts/shared/json_utils.sh).
+  # Vendored under hooks/shared/ so the hook works from the Claude Code
+  # plugin cache. CLAUDE_PLUGIN_ROOT is set by Claude Code; SCRIPT_DIR
+  # fallback supports direct invocation in tests/CI.
+  # F5: use a dedicated variable so the later PLUGIN_ROOT assignment
+  # (line ~58) does not silently clobber it. Mirrors conserve's pattern.
+  PLUGIN_ROOT_FOR_UTILS="${CLAUDE_PLUGIN_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
+  # shellcheck source=plugins/imbue/hooks/shared/json_utils.sh
+  source "${PLUGIN_ROOT_FOR_UTILS}/hooks/shared/json_utils.sh"
+
+  # Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
+  HOOK_INPUT=""
+  AGENT_TYPE=""
+  if read -t 1 -r HOOK_INPUT 2>/dev/null; then
+    AGENT_TYPE=$(get_json_field "${HOOK_INPUT}" "agent_type")
+  fi
+
+  # Lightweight agents that skip full scope-guard methodology
+  case "${AGENT_TYPE}" in
+    code-reviewer | architecture-reviewer | rust-auditor | bloat-auditor | context-optimizer)
+      # Review/optimization agents: minimal scope-guard context
+      cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
@@ -52,75 +82,63 @@ case "$AGENT_TYPE" in
   }
 }
 EOF
-        exit 0
-        ;;
-esac
+      exit 0
+      ;;
+  esac
 
-# Determine plugin root directory
-PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-
-# Portable number extraction (works without grep -P)
-# Usage: extract_number "string" "pattern_word" -> outputs the number before pattern_word
-extract_stat_number() {
-    local stats="$1"
-    local pattern="$2"
-    # Try grep -oP first (GNU grep with PCRE), fall back to grep -oE + sed
-    if echo "test" | grep -oP '\d+' >/dev/null 2>&1; then
-        echo "$stats" | grep -oP "\d+(?= $pattern)" || echo "0"
-    else
-        # Portable fallback: use grep -oE and sed
-        echo "$stats" | grep -oE "[0-9]+ $pattern" | sed 's/ .*//' || echo "0"
-    fi
-}
-
-# Check if we're in a git repository
-in_git_repo=false
-if git rev-parse --git-dir > /dev/null 2>&1; then
+  # Check if we're in a git repository
+  in_git_repo=false
+  if git rev-parse --git-dir >/dev/null 2>&1; then
     in_git_repo=true
-fi
+  fi
 
-# Build scope-guard reminder based on context
-scope_guard_reminder=""
+  # Build scope-guard reminder based on context
+  scope_guard_reminder=""
 
-if [ "$in_git_repo" = true ]; then
-    # Get branch metrics for context
-    base_branch="${SCOPE_GUARD_BASE_BRANCH:-main}"
+  case "${in_git_repo}" in
+    true)
+      # Get branch metrics for context
+      base_branch="${SCOPE_GUARD_BASE_BRANCH:-main}"
 
-    # Try to get metrics, fall back gracefully
-    lines_changed=0
-    commits=0
-    days_on_branch=0
+      # Try to get metrics, fall back gracefully
+      lines_changed=0
+      commits=0
+      days_on_branch=0
 
-    if git rev-parse --verify "$base_branch" > /dev/null 2>&1; then
-        stat_line=$(git diff "$base_branch" --stat 2>/dev/null | tail -1)
-        insertions=$(extract_stat_number "$stat_line" "insertion")
-        deletions=$(extract_stat_number "$stat_line" "deletion")
+      if git rev-parse --verify "${base_branch}" >/dev/null 2>&1; then
+        stat_line=$(git diff "${base_branch}" --stat 2>/dev/null | tail -1)
+        insertions=$(extract_stat_number "${stat_line}" "insertion")
+        deletions=$(extract_stat_number "${stat_line}" "deletion")
         lines_changed=$((insertions + deletions))
-        commits=$(git rev-list --count "$base_branch"..HEAD 2>/dev/null || echo "0")
+        commits=$(git rev-list --count "${base_branch}"..HEAD 2>/dev/null || printf '%s\n' "0")
 
-        merge_base_date=$(git log -1 --format=%ct "$(git merge-base "$base_branch" HEAD 2>/dev/null)" 2>/dev/null || echo "$(date +%s)")
+        merge_base_date=$(git log -1 --format=%ct "$(git merge-base "${base_branch}" HEAD 2>/dev/null)" 2>/dev/null || date +%s)
         current_date=$(date +%s)
-        days_on_branch=$(( (current_date - merge_base_date) / 86400 ))
-    fi
+        days_on_branch=$(((current_date - merge_base_date) / 86400))
+      fi
 
-    # Determine zone
-    zone="green"
-    if [ "$lines_changed" -gt 2000 ] || [ "$commits" -gt 30 ] || [ "$days_on_branch" -gt 7 ]; then
+      # Determine zone
+      zone="green"
+      if [ "${lines_changed}" -gt 2000 ] || [ "${commits}" -gt 30 ] || [ "${days_on_branch}" -gt 7 ]; then
         zone="red"
-    elif [ "$lines_changed" -gt 1000 ] || [ "$commits" -gt 15 ] || [ "$days_on_branch" -gt 3 ]; then
+      elif [ "${lines_changed}" -gt 1000 ] || [ "${commits}" -gt 15 ] || [ "${days_on_branch}" -gt 3 ]; then
         zone="yellow"
-    fi
+      fi
 
-    # Build zone-specific message
-    if [ "$zone" = "red" ]; then
-        scope_guard_reminder="\\n\\n**SCOPE-GUARD RED ZONE**: Branch has ${lines_changed} lines, ${commits} commits, ${days_on_branch} days. Before adding features, run \`Skill(imbue:scope-guard)\` to evaluate scope."
-    elif [ "$zone" = "yellow" ]; then
-        scope_guard_reminder="\\n\\n**SCOPE-GUARD YELLOW ZONE**: Branch approaching thresholds (${lines_changed} lines, ${commits} commits, ${days_on_branch} days). Consider scope when adding features."
-    fi
-fi
+      # Build zone-specific message
+      case "${zone}" in
+        red)
+          scope_guard_reminder="\\n\\n**SCOPE-GUARD RED ZONE**: Branch has ${lines_changed} lines, ${commits} commits, ${days_on_branch} days. Before adding features, run \`Skill(imbue:scope-guard)\` to evaluate scope."
+          ;;
+        yellow)
+          scope_guard_reminder="\\n\\n**SCOPE-GUARD YELLOW ZONE**: Branch approaching thresholds (${lines_changed} lines, ${commits} commits, ${days_on_branch} days). Consider scope when adding features."
+          ;;
+      esac
+      ;;
+  esac
 
-# Read scope-guard skill summary (lightweight version for session context)
-scope_guard_summary="## imbue quick reference
+  # Read scope-guard skill summary (lightweight version for session context)
+  scope_guard_summary="## imbue quick reference
 
 Routing only. Each skill body carries its own checklists and thresholds.
 
@@ -141,11 +159,11 @@ without a failing test first.
 claim, or competing positions, where the comfortable answer and the correct
 one may differ."
 
-summary_escaped=$(escape_for_json "$scope_guard_summary")
-reminder_escaped=$(escape_for_json "$scope_guard_reminder")
+  summary_escaped=$(escape_for_json "${scope_guard_summary}")
+  reminder_escaped=$(escape_for_json "${scope_guard_reminder}")
 
-# Output context injection as JSON
-cat <<EOF
+  # Output context injection as JSON
+  cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
@@ -154,4 +172,7 @@ cat <<EOF
 }
 EOF
 
-exit 0
+  exit 0
+}
+
+main "$@"

@@ -604,3 +604,41 @@ class TestPruneCheckDuplicates:
         out = capsys.readouterr().out
         assert "Duplicates found" in out
         assert "shared topic" in out
+
+
+class TestSearchDistinguishesNothingIndexedFromNoMatch:
+    """Feature: "no matches" is a claim about the corpus, not about the run.
+
+    With zero palaces indexed the search printed the same "No matches
+    found" as a real miss, so an unindexed install read as a corpus that
+    lacked the concept. tome's frontier verdict keeps the two apart
+    (ADR-0020); the CLI now does too.
+    """
+
+    def test_no_palaces_is_reported_and_fails(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Zero palaces indexed is reported as such and fails, without searching."""
+        cli = MemoryPalaceCLI()
+        mock_manager = Mock(spec=MemoryPalaceManager)
+        mock_manager.list_palaces.return_value = []
+        mock_manager.search_palaces.return_value = []
+        with patch.object(cli, "_manager", return_value=mock_manager):
+            ok = cli.search_palaces("anything")
+        out = capsys.readouterr()
+        assert ok is False
+        assert "no palaces indexed" in (out.out + out.err).lower()
+        mock_manager.search_palaces.assert_not_called()
+
+    def test_a_real_miss_still_says_no_matches(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """With palaces indexed, an empty search still reads as no matches."""
+        cli = MemoryPalaceCLI()
+        mock_manager = Mock(spec=MemoryPalaceManager)
+        mock_manager.list_palaces.return_value = [{"id": "p1", "name": "one"}]
+        mock_manager.search_palaces.return_value = []
+        with patch.object(cli, "_manager", return_value=mock_manager):
+            ok = cli.search_palaces("anything")
+        assert ok is True
+        assert "no matches found" in capsys.readouterr().out.lower()

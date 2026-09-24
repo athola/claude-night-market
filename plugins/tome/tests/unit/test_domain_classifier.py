@@ -8,10 +8,12 @@ So that downstream planners select appropriate channels and TRIZ depth
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from tome.models import DomainClassification
-from tome.scripts.domain_classifier import classify
+from tome.scripts.domain_classifier import _DOMAIN_KEYWORDS, _TRIZ_DEPTH, classify
 
 
 class TestDomainClassifierBasicRouting:
@@ -205,7 +207,7 @@ class TestDomainClassifierOutputShape:
         Scenario: channel_weights always contains all four keys
         Given any topic
         When classify is called
-        Then channel_weights has keys code, discourse, academic, triz
+        Then channel_weights has keys code, discourse, academic, web, triz
         """
         result = classify("kubernetes deployment pipeline")
 
@@ -214,6 +216,7 @@ class TestDomainClassifierOutputShape:
             "discourse",
             "academic",
             "triz",
+            "web",
         }
 
     @pytest.mark.unit
@@ -233,3 +236,17 @@ class TestDomainClassifierOutputShape:
             assert 0.0 <= result.confidence <= 1.0, (
                 f"confidence {result.confidence} out of range for topic {topic!r}"
             )
+
+
+class TestTheReadmeListsEveryDomain:
+    """
+    Feature: The README's domain table and the classifier agree
+
+    The table lacked ai-agents for a release and methodology at birth.
+    """
+
+    @pytest.mark.unit
+    def test_each_classifier_domain_has_a_readme_row(self) -> None:
+        readme = (Path(__file__).parents[2] / "README.md").read_text(encoding="utf-8")
+        for domain in _DOMAIN_KEYWORDS:
+            assert f"| {domain} | {_TRIZ_DEPTH[domain]} |" in readme, domain

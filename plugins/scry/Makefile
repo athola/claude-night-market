@@ -15,10 +15,13 @@ SRC_DIRS := scripts
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/markdown-only.mk
+include $(ABSTRACT_DIR)/config/make/markdown-only.mk
 
-GIF_DEMO_DIR ?= /tmp/scry-gif-test
-# Hard-assigned: the clean target below runs `rm -rf` on this, and
+# Hard-assigned, not `?=`: the clean target below runs `rm -rf` on this,
+# and an exported GIF_DEMO_DIR would redirect it. A command-line
+# assignment still overrides, which is the deliberate escape hatch.
+GIF_DEMO_DIR := /tmp/scry-gif-test
+# TMP_DIR is hard-assigned for the same reason, and
 # TMP_DIR is a name a contributor may well have exported. scripts/
 # gif_demo.sh documents its own TMP_DIR default and still receives an
 # explicit value from the recipe, so pinning this changes no behavior.

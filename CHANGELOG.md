@@ -7,23 +7,273 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.21] - 2026-09-23
+
 ### Added
+
+- **`/pr-review --concise` and `--hold-insights`** (sanctum, leyline).
+  Two review styles that were being dictated by hand each time. With
+  `--concise`, each finding on a diff line is posted as a suggestion
+  block the author applies with one click, with a sentence beside it
+  only for clarification; one short summary review closes it, and the
+  test plan, the description update, and the educational paragraphs
+  stay off the MR. With `--hold-insights`, direction, architecture and
+  open-question findings are shown in chat first and posted only when
+  selected, which widens the Phase 4.6 escalation that INVARIANT
+  findings already used. `--no-insights` is unchanged and Discussions
+  posting stays on by default. The new
+  `modules/suggestion-comments.md` gives the suggestion fence for both
+  platforms and the GitLab positioned-discussion call the repository
+  had never documented; `leyline:git-platform` maps the inline-comment
+  row so `/fix-pr` and `/resolve-threads` inherit it.
+- **TRIZ records carry their residual** (tome, ADR-0026). Every
+  contradiction record says whether a catalogue row matched it
+  (`matched`), `near_resolutions` names the rows within two edits of a
+  topic no row described, `physical_contradiction` routes two demands
+  on one quantity to separation before any principle search,
+  `separation_strategies` ranks the axes by the system description and
+  says why, and the swap probe reports whether inverting the
+  contradiction changes its principle set. `FIELD_ADJACENCY` covers
+  every classifier domain. Read from Madrigal's "The Shadows Lurking
+  in the Equations" and the two Hacker News threads on it; each
+  mechanism cites the TRIZ step or the 1990s numerical method it
+  already existed as.
+- **Night run entry point and coordination workspace CLI** (egregore,
+  conserve). `night_run.py` walks one admitted work item and writes
+  `proof.md` beside it. It exits with the handoff gate's own code (1
+  to 4) when the gate refuses the item and nothing ran, 0 when the
+  proof records where the walk stopped, and 5 when the walk broke
+  after side effects such as a worktree or a commit. Run it by hand or
+  from a scheduler you configure. The watchdog relaunches a
+  `claude -p` session and does not call it. `coordination_workspace.py` drives
+  `.coordination/` from the shell (`init`, `add-task`, `set-status`,
+  `pending`, `archive`, `fail`, `parse`). `add-task` refuses an id
+  that already exists, and `.coordination/` and
+  `.coordination-archive/` are gitignored so agent findings stay out
+  of commits.
+
+- **Fan-outs report what they dropped; scanners prove they can see
+  (all plugins).** Seventeen of twenty-three workflows filtered null
+  agent results away, so a crashed reviewer and one that found
+  nothing were the same thing; herald's judge panel counted its
+  majority over survivors, so two dropped judges let the third
+  decide alone. Every fan-out now returns the items it dropped
+  (`missing`, `unread`, `unscored`, `unchecked`) and logs them, the
+  panel divides by its roster and returns `inconclusive` with a judge
+  missing, and a repo test fails any script that filters nulls
+  without naming them. A second test resolves every `agentType`
+  literal in a workflow to an agent file; nothing had. Five
+  list-shaped synthesis stages that returned prose now carry schemas.
+
+  Six scanners could report "clean" without proving they could find
+  anything. Each now has a committed positive control with a known
+  answer (planted slop, a pickle load and an untimed subprocess, a
+  duplicated block, a skill tree with one broken reference), and CI
+  runs the slop control before the docs scan. Where the defect was an
+  exit code, a scan of nothing now fails: pensive `harden` exits 3
+  with zero files read and reports `files_scanned`,
+  `detect_duplicates` exits 2, gauntlet `graph_build.py` exits 2 on a
+  full build with no nodes, and the memory-palace CLI says "No
+  palaces indexed" instead of "No matches found".
+
+  attune's paradigm recommender read modifier keys its data file does
+  not use, so no project-type, scalability or security modifier had
+  ever changed a recommendation, and it reported `confidence="high"`
+  regardless of margin. `rank()` scores every candidate with the
+  data's own keys and names the rule behind each point; `recommend()`
+  attaches the runners-up and reads confidence from the margin.
+
+  Six prose-only loops stopped on the model's own judgment. pensive
+  code-refinement told the agent to resume past a harness stop; it
+  now reads its gate from `.review/findings.json` under `max_waves`
+  and stops when told. sanctum fix-workflow bounds Do/Check/Act at two
+  retries and takes its outcome from validator exit codes. attune
+  dorodango converges on linter and formatter exit codes and
+  un-converges on regression. conserve clear-context caps re-scoring
+  at two and handoffs at depth 3. The mission iteration governor caps
+  restarts at two. Survey and decisions: ADR-0025.
+
+  attune's `arch-init` research phase printed its queries and returned
+  nothing, so the "selects via research" claim had no code behind it.
+  `--research-file` now takes the session's `preferred` and `avoid`
+  lists and the ranker scores them beside the other modifiers, naming
+  "research" in the rationale. memory-palace's unreferenced
+  `fixtures/semantic_queries.json` was deleted.
+
+- **Semicolon splices, ", not Y" tails, and negated alternatives are
+  scored (scribe).** A semicolon joining two clauses was surfaced at
+  low confidence and never counted, because the old regex matched
+  every prose semicolon including the list case the house rule keeps.
+  The pattern now names the splice (no comma on either side, lowercase
+  continuation) and scores it, and the comma-bearing list is not
+  reported at all. The bare ", not Y." pattern ended one word after
+  "not", so "reads records, not the model's judgment." passed; the
+  tail may now run a few words, with reason clauses ("not because it
+  failed") excluded. New `negated_alternative` scores a negation
+  followed in the same clause by "instead of" or "rather than"
+  ("never guesses instead of measuring"); the bare connectives stay
+  opt-in, since this repository uses them correctly hundreds of times.
+
+- **Channel cards and a record-based stop decision (tome).** Tome
+  kept what it knew about each channel in four places: the channel
+  set in `models`, an if-ladder in the planner, the research skill's
+  dispatch table, and ADR prose. No limitation ever reached an
+  agent's prompt. The pieces of a stop decision existed and nothing
+  combined them, so a session ran one pass and `replan` had no
+  caller. OctoTools (arXiv 2502.11271) solves the same shape with
+  tool cards and a context verifier, and this adapts both.
+
+  `tome.channels.cards` holds one frozen dataclass per channel. The
+  planner gates on each card's `min_depth`, and `render_card`
+  produces the block each dispatch prompt embeds: limitations, best
+  practices, and a pointer to the envelope the agent's own file
+  documents. The fields are typed because OctoTools' free dict
+  drifted across its tools (`limitation`, `limitations`,
+  `best_practice`, `best_practices`). Tests pin the cards to
+  `RETRIEVAL_CHANNELS`, `CANARY_TARGETS`, the agent files, the query
+  builders they name, the skill's table and `workflows/research.js`.
+
+  `tome.synthesis.verifier.verify_context` maps OctoTools' five
+  verifier questions onto the query log, the positive controls and
+  the frontier verdict instead of asking a model. VRR-Stop
+  (arXiv 2607.17641) measured verifier acceptance rising while true
+  validity fell, which is the case against letting a research agent
+  grade its own sufficiency. It names channels to `rerun`,
+  `reformulate` or `add`, and a budget stop (two passes by default)
+  still lists them so the report can name the gap.
+
+  The ideation catalog gains devil's advocacy and multiple working
+  hypotheses, the two surveyed methods with a controlled study
+  behind them and a category the catalog lacked. The survey that
+  graded them, and the frameworks it turned away, are in ADR-0024.
+
+  A second pass, run through tome with the cards embedded, measured
+  them: one agent in three ignored a card that only pointed at its
+  envelope file, so the card now states the output contract inline.
+  The pass also filled the two vocabulary gaps the first pass found.
+  A `methodology` domain classifies inventive-method topics at
+  deep depth, `ai-agents` recognizes planner, verifier and toolset
+  vocabulary, and the triz contradiction catalogue covers coverage
+  against cost, metadata drift, stopping, and generation against
+  evidence. `formulate_contradictions` returns ranked candidates
+  instead of the first keyword hit, because TRIZ-GPT
+  (arXiv 2408.05897) measured that mapping at about three candidates
+  per correct pair.
+  `formulate_contradiction` now returns the candidate with the most
+  keyword support rather than the first catalogue entry that matched,
+  so a topic hitting two pairs can change its top pair.
 
 - **Open-web search channel (tome).** The research channels covered
   GitHub, community forums, academia, and TRIZ, but vendor
   documentation, comparisons, standards, and news had no channel:
   a session either missed those pages or an agent improvised
-  freehand queries. `tome:web-search` is that channel, invoked
-  standalone (the `/tome:research` fan-out does not dispatch it
-  yet). It runs through the You.com MCP server (`you-search`) when
+  freehand queries. `tome:web-search` is that channel. It runs through the You.com MCP server (`you-search`) when
   configured, and falls back to the built-in WebSearch tool when it
   is not, so the channel works with zero setup and no new dependency.
   Query expansion, result parsers, and ranking live in
   `tome.channels.web`, following the same no-HTTP-call pattern as
-  the other channels. The channel is deliberately not part of
-  `RETRIEVAL_CHANNELS`: it has no canary target yet, so a coverage
-  verdict must not rest on it.
+  the other channels. It joins the research fan-out in this release:
+  a `web` channel card dispatches `tome:web-searcher` from medium
+  depth, the agent runs a positive control (RFC 2119, verified
+  2026-09-18) before its topic queries, and `web` is in
+  `RETRIEVAL_CHANNELS`, so its silence counts in the coverage verdict
+  the way the other three channels' does. The You.com parser reports
+  how many returned items it dropped, so a drifted response shape
+  cannot read as an empty web.
 
+### Changed
+
+- **Dependency floors raised to what the lock files already resolve.**
+  159 floors across the 24 `pyproject.toml` files now name the newest
+  release that still installs on each file's own `requires-python`,
+  so a 3.9 plugin floors at coverage 7.10.7 and bandit 1.8.6 while
+  the 3.12 root takes 7.16.1 and 1.9.4. Every cap and marker is kept,
+  pytest stays below 9 and mypy below 2 (both need Python 3.10), and
+  ruff 0.16.8 is declared in the three plugins that configured it
+  without depending on it (archetypes, cartograph, scry).
+
+### Fixed
+
+- **`/pr-review` insights post from a `--local` report, under plain
+  `python3`** (abstract). `post_review_insights.py` read only the
+  `## Blocking findings` and NB-table layout, so a report written from
+  the pr-review template posted nothing. It now also reads the
+  template's `### Blocking`, `### In-Scope` and `### Suggestions`
+  items. The script also died with `ModuleNotFoundError: yaml` because
+  its imports reached `abstract.utils`. The helpers it needs moved to
+  the stdlib-only `abstract.paths` and `abstract.markdown_fields`,
+  which `utils` re-exports.
+- **Parallel Skill hooks no longer erase skill history** (abstract,
+  ADR-0027). `skill_execution_logger` truncated `.history.json` and
+  then rewrote it while `homeostatic_monitor` read it on the same
+  event. A torn read by a writer was saved back as an empty history.
+  The file is now renamed into place, and each read-modify-write holds
+  an `flock`. Under synthetic stress, 49 of 49 seeded skills and 800 of
+  800 updates survive, against 0 and 6 before. The ADR also records why
+  the concurrent splay tree of arXiv 2606.28889 does not fit 49 skills
+  at this skew, and what a future recency consumer should use instead.
+- **Four pre-commit hooks ran under PATH `python3` and could not import
+  PyYAML.** `validate-skill-descriptions` and
+  `check-context-optimization` invoked `python3` directly, which on a
+  machine whose PATH resolves to a Homebrew or system interpreter has
+  no project dependencies. Both raised `ModuleNotFoundError` on any
+  commit that touched a `SKILL.md`, and `uv run pre-commit` masked it
+  because it runs inside the venv. A sweep of every bare-`python3`
+  entry found two more that would fail the same way on their own
+  trigger files, `validate-abstract-skills` and
+  `validate-knowledge-corpus`. All four now run through
+  `uv run --with pyyaml python`, the form `slop-ratchet` already used,
+  and `tests/test_precommit_entries_import_without_project_deps.py`
+  imports every remaining bare-`python3` entry with PyYAML blocked.
+- **Four hooks could not import under the interpreter that runs
+  them.** Hooks execute under whatever `python3` the operator's PATH
+  resolves, which carries the standard library and nothing else, so a
+  module-scope dependency raises before the payload is read.
+  `hookify/rule_guard.py` imported PyYAML at module scope and raised
+  a traceback on every Bash call, prompt and stop. When PyYAML is
+  absent its loader now reads rule frontmatter with a stdlib parser
+  (plain and quoted scalars plus the `conditions:` list), so block
+  rules still block, and a rule that parser cannot read is named in
+  the hook's `systemMessage`. That registration is new on this branch
+  and never shipped. The `abstract` path helpers moved to a
+  stdlib-only `abstract/paths.py`, which `utils` re-exports so callers
+  are unchanged, and both `abstract` and `memory_palace.corpus` now
+  resolve their package-root exports on first access.
+  `tests/test_hooks_import_without_project_deps.py` imports all 53
+  registered hooks with PyYAML blocked, so the class cannot return.
+- **Every session start printed a traceback instead of running the
+  memory-palace capture surfacer.** The `index_surfacer` SessionStart
+  hook needs one name, `persistent_root` from `memory_palace.paths`,
+  but importing any submodule executes the package `__init__` first,
+  and that file eagerly imported `EmbeddingIndex`, which pulls in the
+  corpus package and PyYAML. Hooks run under whatever `python3` the
+  operator's PATH resolves, an interpreter with no project
+  dependencies installed, so the import raised `ModuleNotFoundError`
+  before the hook read its payload. The package root now resolves
+  every export on first attribute access, extending the pattern it
+  already applied to the networkx-backed `PalaceGraphAnalyzer`.
+- **`run-plugin-tests.sh` no longer fails its EXIT trap when nothing
+  is staged.** bash 3.2 treats an empty array as unset under `set -u`,
+  so the temp-file cleanup aborted with `_TEMP_FILES[@]: unbound
+  variable` and the pre-commit hook showed red on every empty-index
+  run. The expansion is now guarded like `cov_flag` already was.
+
+- **`parse_envelope` no longer drops a top-level `queries` list
+  (tome).** Found running this change's own research through the
+  pipeline: a dispatch prompt asked for `{"findings", "queries"}`,
+  the agent followed the prompt over its own file, and 27 query
+  records, a canary among them, collapsed into one synthesized log.
+  A lost canary turns a controlled channel into an uncontrolled one.
+  `metadata.queries` still wins when both are present.
+- **`build_unpaywall_url` no longer sends a placeholder address
+  (tome).** Unpaywall answers 422 to `research@example.com`, which was
+  the default, so every lookup failed and the agent could not say
+  why. The address now comes from `email=` or `TOME_CONTACT_EMAIL`,
+  and the builder raises without one.
+- **The discourse card names Reddit as unreachable (tome).** WebFetch
+  refuses `old.reddit.com` in Claude Code, so the subreddit source
+  returned nothing on every run and read as an empty result. The
+  card tells the agent to record it as a `source_error`.
 
 ## [1.9.20] - 2026-09-13
 

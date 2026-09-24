@@ -227,14 +227,20 @@ class WarRoomOrchestrator:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=_SUBPROCESS_TIMEOUT_SECONDS,
-            )
+            try:
+                stdout, stderr = await asyncio.wait_for(
+                    proc.communicate(),
+                    timeout=_SUBPROCESS_TIMEOUT_SECONDS,
+                )
+            except asyncio.TimeoutError:
+                proc.kill()
+                await proc.wait()
+                raise
             if proc.returncode != 0:
                 return f"[{label} failed: {stderr.decode()[:500]}]"
             return stdout.decode()
-        except TimeoutError:
+        # Both names: they are distinct classes before Python 3.11.
+        except (asyncio.TimeoutError, TimeoutError):
             return f"[{label} timed out after {_SUBPROCESS_TIMEOUT_SECONDS:.0f}s]"
         except FileNotFoundError:
             return not_found

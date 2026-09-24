@@ -25,6 +25,7 @@ Full cross-platform command equivalents for forge operations.
 | Close | `gh pr close N` | `glab mr close N` |
 | Review | `gh pr review N --approve` | `glab mr approve N` |
 | Comments | `gh api repos/O/R/pulls/N/comments` | `glab api projects/ID/merge_requests/N/notes` |
+| Inline comment on a diff line | `gh api repos/O/R/pulls/N/reviews` with `comments[][path]`, `comments[][line]`, `comments[][side]` | `glab api projects/ID/merge_requests/N/discussions -X POST` with `position[position_type]=text`, `position[new_path]`, `position[new_line]` and the three SHAs from `merge_requests/N/versions` |
 | Current | `gh pr view --json number,url -q '.number'` | `glab mr view --json iid -q '.iid'` |
 
 ## GraphQL Operations

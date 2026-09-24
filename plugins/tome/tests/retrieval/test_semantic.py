@@ -140,11 +140,22 @@ class TestRetrieverProviderAwareness:
 
     @pytest.mark.unit
     def test_semantic_ranking_stays_quiet(self) -> None:
+        """
+        GIVEN a retriever backed by a genuinely semantic embedder
+        WHEN findings are ranked
+        THEN no degradation warning fires and the ranking is returned
+
+        The filter turns the warning into an error, so the returned
+        list is what proves ranking happened rather than being skipped.
+        """
         retriever = SemanticRetriever(FakeEmbedder())
+        finding = make_finding(0.5, title="match topic")
 
         with warnings.catch_warnings():
             warnings.simplefilter("error", NonSemanticRetrievalWarning)
-            retriever.rank("match", [make_finding(0.5, title="match topic")])
+            ranked = retriever.rank("match", [finding])
+
+        assert ranked == [finding]
 
     @pytest.mark.unit
     def test_empty_findings_does_not_warn(self) -> None:
@@ -249,8 +260,20 @@ class TestDegradationObservability:
 
     @pytest.mark.integration
     def test_real_provider_does_not_warn(self, tmp_path: Any) -> None:
-        """The semantic provider path stays quiet."""
+        """
+        GIVEN the semantic provider
+        WHEN an embedder is opened
+        THEN no degradation warning fires and the embedder it returns
+            is one a retriever reads as semantic
+
+        Without the second assertion this passes for an embedder that
+        silently fell back to hashing and forgot to publish it, which
+        is the shape of the defect #642 was filed about.
+        """
         pytest.importorskip("memory_palace")
+
         with warnings.catch_warnings():
             warnings.simplefilter("error", NonSemanticRetrievalWarning)
-            open_embedder(str(tmp_path / "q.yaml"), provider="local")
+            embedder = open_embedder(str(tmp_path / "q.yaml"), provider="local")
+
+        assert SemanticRetriever(embedder).is_semantic is True

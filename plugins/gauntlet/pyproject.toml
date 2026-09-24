@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gauntlet-dev"
-version = "1.9.20"
+version = "1.9.21"
 description = "Codebase learning through knowledge extraction, challenges, and spaced repetition"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -16,22 +16,22 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "anthropic>=0.49.0",
-    "pyyaml>=6.0.2",
+    "anthropic>=0.125.0",
+    "pyyaml>=6.0.3",
     "tree-sitter>=0.23,<1",
     "tree-sitter-language-pack>=0.3,<2",
 ]
 
 [project.optional-dependencies]
 graph = [
-    "igraph>=0.11,<2",
+    "igraph>=1.0.0,<2",
 ]
 dev = [
-    "ruff>=0.14.13",
+    "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
-    "pytest-cov>=6.0.0",
-    "types-pyyaml>=6.0.12",
+    "pytest-cov>=7.1.0",
+    "types-pyyaml>=6.0.12.20250915",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -117,7 +117,7 @@ exclude_lines = [
 dev = [
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
-    "pytest-cov>=6.0.0",
-    "ruff>=0.14.13",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.8",
     "types-pyyaml>=6.0.12.20250915",
 ]

@@ -15,7 +15,7 @@ reset.  See issue #418.
 
 from __future__ import annotations
 
-import json  # noqa: F401 - kept for forward compatibility with payload parsing
+import json
 import os
 import sys
 from pathlib import Path

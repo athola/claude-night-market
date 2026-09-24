@@ -493,3 +493,50 @@ class TestSTEPatterns:
     def test_missing_section_returns_empty(self) -> None:
         """A language pack without an ste section degrades quietly."""
         assert get_ste_patterns({}, include_optional=True) == []
+
+
+class TestDocstringsMatchTheGetterRoster:
+    """Feature: a docstring cannot call a live section dead data.
+
+    As a reader deciding whether a category reaches the gate
+    I want the docstrings to agree with the functions beside them
+    So that I do not conclude a scored pattern is unreachable.
+
+    ``get_ste_patterns`` cited ``sycophantic`` as the example of a
+    section with no getter. ``get_sycophantic_patterns`` has existed at
+    line 221 since, with two call sites in ``scripts/slop_score.py``.
+    """
+
+    MODULE = Path(__file__).parent.parent / "src" / "scribe" / "pattern_loader.py"
+
+    @pytest.mark.unit
+    def test_no_docstring_calls_a_section_with_a_getter_dead(self) -> None:
+        """
+        Scenario: every section named as having no getter really has none
+        Given the module defines get_<section>_patterns for some sections
+        When the module source is read
+        Then no docstring claims one of those sections has no getter
+        """
+        source = self.MODULE.read_text(encoding="utf-8")
+        sections = re.findall(r"^def get_(\w+)_patterns\b", source, re.MULTILINE)
+
+        assert "sycophantic" in sections, "the getter this test guards is gone"
+
+        contradictions = [
+            section
+            for section in sections
+            if re.search(rf"``{section}``\s+section has no getter", source)
+        ]
+        assert not contradictions, (
+            f"docstring calls {contradictions} dead data while a getter exists"
+        )
+
+    @pytest.mark.unit
+    def test_the_ste_docstring_names_the_reachability_rule_positively(self) -> None:
+        """
+        Scenario: the paragraph still teaches what it was there to teach
+        Then it states that a getter is what makes a section reachable
+        """
+        source = self.MODULE.read_text(encoding="utf-8")
+
+        assert "A getter is what makes a YAML section reachable" in source

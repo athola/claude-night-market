@@ -126,7 +126,30 @@ If issues are found, fix them before proceeding.
 
 ## Step 3: Summarize Changes (`changes-summarized`)
 
-Use the notes from the workspace review and the output of `git diff --stat origin/main...HEAD` to understand the scope. Identify key points in the diffs and group them into 2-4 paragraphs highlighting the technical changes and their rationale. Note breaking changes, migrations, or documentation updates.
+Start from the analyzer rather than from a fresh reading of the diff:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pr_prep_analyze.py" --base origin/main
+```
+
+It reads the branch's changed files and commits, sorts the files into
+feature, test, docs and other, flags any `!` breaking-change marker in
+a commit subject, reports the quality gates it can decide from the
+changed-file list (tests touched, docs touched, changes described),
+recommends a merge strategy, and prints a description scaffold. Pass
+`--reviewer-map <json>` to map path prefixes to reviewers, or `--json`
+to consume it as data.
+
+A gate printed `unknown` (`null` in JSON) means the script evaluated
+nothing: it runs no test, lint or type check and makes no release
+decision, so `passes_checks` and `includes_breaking_changes` always
+read `unknown`. Treat `unknown` as "you must check this yourself",
+never as a pass. Step 2 is where `passes_checks` gets its answer.
+
+Then use the notes from the workspace review and the analyzer's
+categories to identify the key points in the diffs, and group them
+into 2-4 paragraphs highlighting the technical changes and their
+rationale. Note breaking changes, migrations, or documentation updates.
 
 ## Step 4: Document Testing (`testing-documented`)
 
@@ -201,6 +224,10 @@ If project-specific commands like `make` or `npm` are unavailable, verify the en
       skill declares done
 - [ ] Quality gates (formatting, linting, tests) run and pass; any
       failure is fixed before proceeding, not skipped
+- [ ] Every gate the analyzer printed as `unknown` has been decided by
+      hand, because `unknown` means nothing evaluated it: the script
+      runs no test, lint or type check, so `passes_checks` and
+      `includes_breaking_changes` always arrive that way
 - [ ] PR description file written to the specified path and its
       contents displayed for confirmation
 - [ ] Facts table present with all three rows (Who, Where, When)

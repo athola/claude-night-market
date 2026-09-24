@@ -150,11 +150,17 @@ class TestProcessAllPlugins:
     """
 
     @pytest.mark.unit
-    def test_analyze_all_runs_without_error(self, tmp_path: Path) -> None:
-        """Scenario: Analyze mode over all plugins completes.
+    def test_analyze_all_reports_every_plugin_and_generates_nothing(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture
+    ) -> None:
+        """Scenario: Analyze mode over all plugins reports and stops.
         Given multiple plugins in the tree
         When config.mode is 'analyze'
-        Then no exception is raised
+        Then every plugin appears in the report and no target is generated
+
+        Analyze mode differs from generate mode only by the early
+        return, so asserting the report was filled *and* that the
+        generate banner is absent is what separates the two.
         """
         root = _make_plugin_tree(tmp_path, "alpha")
         beta = root / "plugins" / "beta"
@@ -169,8 +175,11 @@ class TestProcessAllPlugins:
             dry_run=False,
             verbose=False,
         )
-        # Should not raise
         _process_all_plugins(dogfooder, config)
+
+        analyzed = {f["plugin"] for f in dogfooder.report["findings"]}
+        assert analyzed == {"alpha", "beta"}
+        assert "Generating targets" not in capsys.readouterr().out
 
     @pytest.mark.unit
     def test_generate_all_produces_output(

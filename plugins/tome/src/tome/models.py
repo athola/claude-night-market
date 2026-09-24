@@ -25,7 +25,7 @@ _VALID_CHANNELS = frozenset({"code", "discourse", "academic", "triz", "web"})
 # evidence would let the tool manufacture the finding that a field is
 # well covered, and demanding an index probe of a channel with no index
 # would pin every session to INCONCLUSIVE for an unrelated reason.
-RETRIEVAL_CHANNELS = frozenset({"academic", "code", "discourse"})
+RETRIEVAL_CHANNELS = frozenset({"academic", "code", "discourse", "web"})
 
 
 @dataclass

@@ -366,6 +366,9 @@ class PluginValidator:
 
         skills_list = config["skills"]
         if not isinstance(skills_list, list):
+            self.issues["warnings"].append(
+                "skills should be a JSON list; no skill was validated",
+            )
             return
 
         for skill_path in skills_list:

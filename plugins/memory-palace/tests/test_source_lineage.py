@@ -239,48 +239,6 @@ class TestSourceLineageManager:
         lineage = manager.get_lineage("nonexistent")
         assert lineage is None
 
-    def test_add_derivation(self, manager: SourceLineageManager) -> None:
-        """Should add derivation to full lineage."""
-        source = SourceReference(
-            source_id="src-1",
-            source_type=SourceType.RESEARCH_PAPER,
-        )
-        lineage = manager.create_lineage("entry-1", source, 0.9)
-        assert isinstance(lineage, FullLineage)
-
-        manager.register_lineage(lineage)
-        manager.add_derivation(
-            entry_id="entry-1",
-            derived_from="entry-0",
-            transformation="summarization",
-        )
-
-        retrieved = manager.get_lineage("entry-1")
-        assert isinstance(retrieved, FullLineage)
-        assert "entry-0" in retrieved.derived_from
-        assert "summarization" in retrieved.transformations
-
-    def test_add_validation(self, manager: SourceLineageManager) -> None:
-        """Should add validation to full lineage."""
-        source = SourceReference(
-            source_id="src-1",
-            source_type=SourceType.DOCUMENTATION,
-        )
-        lineage = manager.create_lineage("entry-1", source, 0.8)
-        manager.register_lineage(lineage)
-
-        manager.add_validation(
-            entry_id="entry-1",
-            validator="user-1",
-            status="approved",
-        )
-
-        retrieved = manager.get_lineage("entry-1")
-        assert isinstance(retrieved, FullLineage)
-        assert len(retrieved.validation_chain) == 1
-        assert retrieved.validation_chain[0]["validator"] == "user-1"
-        assert retrieved.validation_chain[0]["status"] == "approved"
-
     def test_upgrade_to_full_lineage(self, manager: SourceLineageManager) -> None:
         """Should upgrade simple to full lineage when needed."""
         source = SourceReference(
@@ -298,51 +256,6 @@ class TestSourceLineageManager:
 
         retrieved = manager.get_lineage("entry-1")
         assert isinstance(retrieved, FullLineage)
-
-    def test_get_lineage_type(self, manager: SourceLineageManager) -> None:
-        """Should return lineage type."""
-        source = SourceReference(
-            source_id="src-1",
-            source_type=SourceType.RESEARCH_PAPER,
-        )
-        lineage = manager.create_lineage("entry-1", source, 0.9)
-        manager.register_lineage(lineage)
-
-        lineage_type = manager.get_lineage_type("entry-1")
-        assert lineage_type == "full"
-
-        # Simple lineage
-        source2 = SourceReference(
-            source_id="src-2",
-            source_type=SourceType.WEB_ARTICLE,
-        )
-        simple = manager.create_lineage("entry-2", source2, 0.3)
-        manager.register_lineage(simple)
-
-        lineage_type2 = manager.get_lineage_type("entry-2")
-        assert lineage_type2 == "simple"
-
-    def test_get_entries_by_source(self, manager: SourceLineageManager) -> None:
-        """Should find entries from same source."""
-        source = SourceReference(
-            source_id="src-1",
-            source_type=SourceType.RESEARCH_PAPER,
-            url="https://arxiv.org/paper",
-        )
-        lineage1 = manager.create_lineage("entry-1", source, 0.9)
-        manager.register_lineage(lineage1)
-
-        source2 = SourceReference(
-            source_id="src-1",
-            source_type=SourceType.RESEARCH_PAPER,
-            url="https://arxiv.org/paper",
-        )
-        lineage2 = manager.create_lineage("entry-2", source2, 0.85)
-        manager.register_lineage(lineage2)
-
-        entries = manager.get_entries_by_source_url("https://arxiv.org/paper")
-        assert "entry-1" in entries
-        assert "entry-2" in entries
 
     def test_export_lineage(self, manager: SourceLineageManager) -> None:
         """Should export lineage as serializable data."""
@@ -386,25 +299,6 @@ class TestSourceLineageManager:
         manager.import_lineage(lineage_data)
         assert isinstance(manager.get_lineage("entry-1"), FullLineage)
         assert isinstance(manager.get_lineage("entry-2"), SimpleLineage)
-
-    def test_get_derivation_tree(self, manager: SourceLineageManager) -> None:
-        """Should build derivation tree for an entry."""
-        # Create chain: entry-0 -> entry-1 -> entry-2
-        source0 = SourceReference("src-0", SourceType.RESEARCH_PAPER)
-        source1 = SourceReference("src-1", SourceType.DERIVED)
-        source2 = SourceReference("src-2", SourceType.DERIVED)
-
-        lin0 = FullLineage("entry-0", source0)
-        lin1 = FullLineage("entry-1", source1, derived_from=["entry-0"])
-        lin2 = FullLineage("entry-2", source2, derived_from=["entry-1"])
-
-        manager.register_lineage(lin0)
-        manager.register_lineage(lin1)
-        manager.register_lineage(lin2)
-
-        tree = manager.get_derivation_tree("entry-2")
-        assert "entry-1" in tree
-        assert "entry-0" in tree
 
     def test_confidence_propagation(self, manager: SourceLineageManager) -> None:
         """Should calculate propagated confidence through derivation."""

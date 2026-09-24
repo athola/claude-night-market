@@ -18,8 +18,8 @@ TEST_UNIT_ARGS := -v -m "not integration"
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
--include $(ABSTRACT_DIR)/config/make/common.mk
--include $(ABSTRACT_DIR)/config/make/python.mk
+include $(ABSTRACT_DIR)/config/make/common.mk
+include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Default target
 help: ## Show this help message

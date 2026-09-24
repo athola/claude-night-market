@@ -2468,21 +2468,29 @@ class TestVerifyReportsFailureThroughTheExitCode:
         assert exit_info.value.code == 1
 
     @pytest.mark.bdd
-    def test_a_passing_verification_exits_zero(self) -> None:
+    def test_a_passing_verification_exits_zero(self, capsys) -> None:
         """GIVEN a service that verifies cleanly.
 
         WHEN --verify runs for it
-        THEN the process does not raise SystemExit
+        THEN the process does not raise SystemExit, it reports OK on
+            stdout, and it asks the delegator about the named service
 
         The counterpart, so the guard above pins the exit code rather than
-        merely pinning that --verify raises.
+        merely pinning that --verify raises. Falling through to the
+        delegation path would also avoid SystemExit here, so the printed
+        verdict and the call record are what separate the two.
         """
         delegator = Delegator.__new__(Delegator)
         delegator.services = {"gemini": Delegator.SERVICES["gemini"]}
 
         with (
-            patch.object(Delegator, "verify_service", return_value=(True, [])),
+            patch.object(
+                Delegator, "verify_service", return_value=(True, [])
+            ) as mock_verify,
             patch("sys.argv", ["delegation_executor.py", "--verify", "gemini"]),
             patch("delegation_executor.Delegator", return_value=delegator),
         ):
             main()
+
+        mock_verify.assert_called_once_with("gemini")
+        assert "gemini: OK" in capsys.readouterr().out

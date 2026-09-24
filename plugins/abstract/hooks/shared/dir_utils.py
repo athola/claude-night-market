@@ -18,13 +18,15 @@ _src = Path(__file__).resolve().parent.parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
 
-from abstract.utils import (  # noqa: E402 - import after sys.path setup
+# From ``paths`` rather than ``utils``: same functions, but ``utils``
+# imports PyYAML and hooks run under an interpreter that lacks it.
+from abstract.paths import (  # noqa: E402 - import after sys.path setup
     get_config_dir as _get_config_dir,
 )
-from abstract.utils import (
+from abstract.paths import (
     get_log_directory as _get_log_directory,
 )
-from abstract.utils import (
+from abstract.paths import (
     get_observability_dir as _get_observability_dir,
 )
 

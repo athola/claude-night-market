@@ -330,14 +330,6 @@ class ScanResult:
     exclusions: list[str] = field(default_factory=list)
 
     @property
-    def all_dependencies(self) -> list[Dependency]:
-        """Flatten dependencies from all ecosystems."""
-        deps = []
-        for eco in self.ecosystems:
-            deps.extend(eco.dependencies)
-        return deps
-
-    @property
     def all_frameworks(self) -> list[FrameworkMatch]:
         """Flatten framework matches from all ecosystems."""
         fws = []

@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "oracle"
-version = "1.9.20"
+version = "1.9.21"
 description = "ONNX Runtime inference daemon for Claude Code plugins"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -19,20 +19,20 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.14.13",
+    "ruff>=0.16.8",
     "pytest>=8.0",
-    "pytest-cov>=6.0.0",
-    "pyyaml>=6.0.2",
+    "pytest-cov>=7.1.0",
+    "pyyaml>=6.0.3",
 ]
 
 [dependency-groups]
 dev = [
     "mypy>=1.18.2,<2",
-    "pyyaml>=6.0.2",
+    "pyyaml>=6.0.3",
     "pytest>=8.0",
-    "pytest-cov>=6.0.0",
-    "ruff>=0.14.13",
-    "types-pyyaml>=6.0.12",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.8",
+    "types-pyyaml>=6.0.12.20250915",
 ]
 
 [tool.hatch.build.targets.wheel]

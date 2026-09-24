@@ -41,7 +41,7 @@ SCRUB_WRAPPER = "scripts/without-git-env.sh"
 # invocation goes through it.  The guard below asserts both halves: that the
 # variable really points at the wrapper, and that nothing bypasses it.  Checking
 # only the second half would pass a script whose constant pointed at `true`.
-SCRUB_VAR = "$WITHOUT_GIT_ENV"
+SCRUB_VAR = "${WITHOUT_GIT_ENV}"
 
 # Every GIT_* variable `git commit` exports to a hook from a linked worktree,
 # as observed on git 2.43.  The point of the list is not that these eight are
@@ -166,8 +166,8 @@ class TestGitEnvScrub:
 
         silent = []
         for start in starts:
-            end = text.index('rm -f "$temp_output"', start)
-            if 'cat "$temp_output"' not in text[start:end]:
+            end = text.index('rm -f "${temp_output}"', start)
+            if 'cat "${temp_output}"' not in text[start:end]:
                 silent.append(text[:start].count("\n") + 1)
 
         assert not silent, (
@@ -391,7 +391,7 @@ def _fake_repo(tmp_path: Path) -> Path:
     """
     scripts = tmp_path / "scripts"
     scripts.mkdir()
-    for name in ("run-plugin-tests.sh", "without-git-env.sh"):
+    for name in ("run-plugin-tests.sh", "without-git-env.sh", "logging.sh"):
         target = scripts / name
         target.write_bytes((REPO_ROOT / "scripts" / name).read_bytes())
         target.chmod(0o755)
@@ -542,3 +542,42 @@ class TestEmptyCoverageFlagUnderSetU:
             ["bash", "-c", script], capture_output=True, text=True, check=False
         )
         assert result.stdout.strip() == "1 --cov-fail-under=85"
+
+
+class TestEmptyTempFileListUnderSetU:
+    """Feature: the changed-plugins hook exits cleanly with nothing staged.
+
+    The same bash 3.2 empty-array defect as above, in the EXIT trap that
+    removes temp files. Exiting before any plugin ran left `_TEMP_FILES`
+    empty, so the trap aborted with `_TEMP_FILES[@]: unbound variable`
+    and the pre-commit hook showed red on every run with an empty index.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_temp_file_expansion_is_guarded(self):
+        expansions = re.findall(r"\$\{?_TEMP_FILES\[@\][^\n]{0,30}", SCRIPT.read_text())
+        assert expansions, "_TEMP_FILES expansion disappeared; update this test"
+        for expansion in expansions:
+            assert expansion.startswith("${_TEMP_FILES[@]+"), (
+                f"{expansion!r} aborts under `set -u` on bash 3.2; use the "
+                '${_TEMP_FILES[@]+"${_TEMP_FILES[@]}"} guarded form'
+            )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_changed_mode_exits_zero_when_nothing_is_staged(self, tmp_path):
+        # An empty index makes `git diff --cached --diff-filter=ACMR` report
+        # nothing, whatever the working tree holds.
+        empty_index = tmp_path / "index"
+        empty_index.touch()
+        result = subprocess.run(
+            ["/bin/bash", str(SCRIPT), "--changed"],
+            capture_output=True,
+            text=True,
+            env={**os.environ, "GIT_INDEX_FILE": str(empty_index)},
+            cwd=REPO_ROOT,
+            check=False,
+        )
+        assert "unbound variable" not in result.stderr
+        assert result.returncode == 0, result.stderr

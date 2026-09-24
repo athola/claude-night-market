@@ -18,11 +18,21 @@ try:
 except ImportError:
 
     def parse_frontmatter(content: str) -> dict[str, Any] | None:
-        """Inline fallback used when leyline is not available."""
-        if not content.strip().startswith("---"):
+        """Inline fallback used when leyline is not available.
+
+        Sync note: this mirrors ``leyline.frontmatter.parse_frontmatter``
+        line for line, including the leading ``strip()`` that lets a
+        document with blank lines above the opening ``---`` parse. Plugin
+        isolation forbids importing it (see
+        ``abstract/hooks/shared/hook_io.py``), so the copies must change
+        together; ``tests/test_frontmatter_fallback_drift.py`` compares
+        the two over a fixture set and fails when they diverge.
+        """
+        stripped = content.strip()
+        if not stripped.startswith("---"):
             return None
 
-        lines = content.split("\n")
+        lines = stripped.split("\n")
         end_index = None
         for i, line in enumerate(lines[1:], start=1):
             if line.strip() == "---":

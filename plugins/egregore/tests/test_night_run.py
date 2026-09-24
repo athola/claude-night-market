@@ -215,17 +215,6 @@ class TestProofLedger:
         assert result.ledger[0]["output"] == "1 passed"
 
 
-def test_render_proof_table_is_readable(tmp_path: Path) -> None:
-    runner = FakeRunner({"pytest -q": (0, "1 passed")})
-    result = night_run.run_task(
-        task(), HANDOFF, tmp_path, runner, babysitter=lambda **_: ("PASS", "", "")
-    )
-    table = night_run.render_proof(result)
-    assert "| T1 |" in table
-    assert "pytest -q" in table
-    assert "PASS" in table
-
-
 @pytest.mark.parametrize("provider", ["auto", "minimax", "qwen"])
 def test_provider_is_passed_through(tmp_path: Path, provider: str) -> None:
     handoff = {**HANDOFF, "implementer": {"provider": provider}}
