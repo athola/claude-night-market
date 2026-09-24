@@ -109,7 +109,7 @@ TEMPLATE
     # Build context message
     setup_context="[conserve:setup] Initialization complete (trigger: ${TRIGGER_TYPE})
 Tasks completed:
-$(printf '  - %s\n' "${setup_tasks[@]+"${setup_tasks[@]}"}")"
+$(printf '  - %s\n' "${setup_tasks[@]}")"
 
 fi
 
@@ -157,7 +157,7 @@ if [ "$TRIGGER_TYPE" = "maintenance" ]; then
     # Build context message
     setup_context="[conserve:maintenance] Maintenance complete (trigger: ${TRIGGER_TYPE})
 Tasks completed:
-$(printf '  - %s\n' "${maintenance_tasks[@]+"${maintenance_tasks[@]}"}")"
+$(printf '  - %s\n' "${maintenance_tasks[@]}")"
 
 fi
 

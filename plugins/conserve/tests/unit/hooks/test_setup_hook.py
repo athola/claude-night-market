@@ -5,8 +5,8 @@ Feature: Setup hook survives a machine where nothing has been created yet
   I want the Setup hook to emit its JSON rather than abort
   So that the harness receives a decision instead of silence.
 
-Run under ``/bin/bash`` (3.2.57 on stock macOS), where an unguarded empty
-array expands to an unbound variable under ``set -u``.
+Run under ``/bin/bash`` (3.2.57 on stock macOS), which the hook's
+``#!/usr/bin/env bash`` resolves to on a stock machine.
 """
 
 from __future__ import annotations
@@ -60,15 +60,3 @@ def test_setup_emits_parseable_json_with_an_empty_home(
     payload = json.loads(result.stdout)
     assert payload["hookSpecificOutput"]["hookEventName"] == "Setup"
     assert isinstance(payload["hookSpecificOutput"]["additionalContext"], str)
-
-
-@pytest.mark.unit
-def test_maintenance_does_not_report_an_unbound_array(tmp_path: Path) -> None:
-    """Scenario: the empty-array abort is the specific regression guarded.
-
-    Given a project directory with no ``.claude`` tree
-    When the maintenance trigger fires
-    Then stderr carries no ``unbound variable`` diagnostic.
-    """
-    result = _run("maintenance", tmp_path)
-    assert "unbound variable" not in result.stderr

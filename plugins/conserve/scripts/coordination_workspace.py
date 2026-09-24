@@ -139,7 +139,7 @@ class WorkspaceManager:
         task_id: str,
         agent: str,
         contract_ref: str = "",
-    ) -> None:
+    ) -> bool:
         """Add a task to the manifest.
 
         Args:
@@ -147,8 +147,15 @@ class WorkspaceManager:
             agent: Agent name assigned to this task.
             contract_ref: Reference to the output contract template.
 
+        Returns:
+            False when *task_id* is already in the manifest, which is
+            left unchanged: ``update_task_status`` moves only the first
+            match, so a duplicate would never leave pending.
+
         """
         tasks = self.load_tasks()
+        if any(task["id"] == task_id for task in tasks):
+            return False
         now = datetime.now(tz=timezone.utc).isoformat()
         tasks.append(
             {
@@ -162,6 +169,7 @@ class WorkspaceManager:
             }
         )
         self._save_tasks(tasks)
+        return True
 
     def update_task_status(self, task_id: str, status: str) -> bool:
         """Update a task's status.
@@ -275,7 +283,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "init":
         workspace.init()
     elif args.command == "add-task":
-        workspace.add_task(args.task_id, args.agent, args.contract)
+        if not workspace.add_task(args.task_id, args.agent, args.contract):
+            print(
+                f"error: task {args.task_id!r} already in {workspace.tasks_file}",
+                file=sys.stderr,
+            )
+            return 1
     elif args.command == "set-status":
         if not workspace.update_task_status(args.task_id, args.status):
             print(

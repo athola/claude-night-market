@@ -7,6 +7,7 @@ selective synthesis, archive, and cleanup.
 from __future__ import annotations
 
 import json
+import re
 import textwrap
 from pathlib import Path
 
@@ -347,6 +348,26 @@ class TestCommandLine:
         assert (ws / "tasks.json").read_bytes() == before
 
     @pytest.mark.unit
+    def test_add_task_with_an_existing_id_fails_and_keeps_one_entry(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A second `add-task t1` is refused.
+
+        `set-status` updates the first match only, so a duplicate id
+        would sit at pending forever while the coordinator waits on it.
+        """
+        ws = tmp_path / ".coordination"
+        main(["--path", str(ws), "init"])
+        main(["--path", str(ws), "add-task", "t1", "--agent", "reviewer"])
+
+        exit_code = main(["--path", str(ws), "add-task", "t1", "--agent", "other"])
+
+        assert exit_code == 1
+        assert "t1" in capsys.readouterr().err
+        tasks = json.loads((ws / "tasks.json").read_text())
+        assert [t["agent"] for t in tasks] == ["reviewer"]
+
+    @pytest.mark.unit
     def test_parse_prints_the_findings_header_as_json(
         self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
     ) -> None:
@@ -394,3 +415,27 @@ class TestCommandLine:
         archived = Path(capsys.readouterr().out.strip())
         assert archived.parent == tmp_path / ".coordination-archive"
         assert not ws.exists()
+
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.mark.unit
+def test_every_documented_invocation_is_rooted_at_the_plugin() -> None:
+    """A skill runs from the user's project, not from this plugin.
+
+    `python3 scripts/coordination_workspace.py` only resolves when the
+    working directory is plugins/conserve, so every reference in the
+    docs a session reads names the script through ${CLAUDE_PLUGIN_ROOT}.
+    """
+    unrooted = [
+        f"{doc.relative_to(PLUGIN_ROOT)}: {match.group(0)}"
+        for directory in ("skills", "commands", "agents")
+        for doc in sorted((PLUGIN_ROOT / directory).rglob("*.md"))
+        for match in re.finditer(
+            r"\S*coordination_workspace\.py", doc.read_text(encoding="utf-8")
+        )
+        if "${CLAUDE_PLUGIN_ROOT}/scripts/coordination_workspace.py"
+        not in match.group(0)
+    ]
+    assert unrooted == []

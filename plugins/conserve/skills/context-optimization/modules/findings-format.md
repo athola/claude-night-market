@@ -61,10 +61,14 @@ When the parent synthesizes multiple findings files:
 This keeps parent context overhead below 20% while
 preserving 100% access to raw findings.
 
-To read one header without opening the file, run
-`python3 scripts/coordination_workspace.py parse
-.coordination/agents/{name}.findings.md`, which prints the
-frontmatter fields and the Summary section as JSON.
+To read one header without opening the file, run the
+command below. It prints the frontmatter fields and the
+Summary section as JSON.
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/coordination_workspace.py" \
+  parse .coordination/agents/{name}.findings.md
+```
 
 ## Frontmatter Fields
 
