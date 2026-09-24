@@ -138,19 +138,15 @@ def main() -> None:
         return
     event, context = classified
 
-    # Imported here rather than at module scope because the catalog is
-    # YAML and PyYAML reaches this file through ``core``. Hooks run under
-    # the operator's ``python3``, which carries the standard library and
-    # nothing else, so at module scope the dependency turned every Bash
-    # call, prompt and stop into a traceback before the payload was read.
+    # Imported here so a broken loader is reported through the contract
+    # below instead of a traceback before the payload is read. PyYAML is
+    # optional: the loader parses rule frontmatter without it.
     try:
         from core.config_loader import ConfigLoader
         from core.rule_engine import RuleEngine
     except ImportError as exc:
         # Same contract as the crash path below: say so on stderr and let
-        # the event through. Naming the interpreter matters because the
-        # fix is to install the dependency for that one, and it is rarely
-        # the one the operator has in mind.
+        # the event through, naming the interpreter that failed.
         sys.stderr.write(
             f"rule_guard: no rule was evaluated for this {event} event, "
             f"because {sys.executable} cannot import hookify's rule "
@@ -163,7 +159,12 @@ def main() -> None:
     loader = ConfigLoader(user_rules_dir=Path(project_dir) / ".claude")
     engine = RuleEngine(loader.load_all_rules())
     results = engine.evaluate_event(event, context)
-    print(json.dumps(decide(event, results, engine)))
+    output = decide(event, results, engine)
+    if loader.load_errors:
+        skipped = "hookify skipped unreadable rules: " + "; ".join(loader.load_errors)
+        existing = output.get("systemMessage")
+        output["systemMessage"] = f"{existing}\n{skipped}" if existing else skipped
+    print(json.dumps(output))
 
 
 if __name__ == "__main__":

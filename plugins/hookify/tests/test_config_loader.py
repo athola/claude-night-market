@@ -4,7 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from hookify.core.config_loader import Condition, ConfigLoader, RuleConfig
+from hookify.core.config_loader import (
+    Condition,
+    ConfigLoader,
+    RuleConfig,
+    _parse_frontmatter_subset,
+)
 
 
 class TestCondition:
@@ -248,3 +253,49 @@ User override - disabled
         assert "block-force-push" in status
         assert status["block-force-push"]["source"] == "bundled"
         assert status["block-force-push"]["category"] == "git"
+
+
+class TestFrontmatterWithoutPyYAML:
+    """Hooks run under the operator's python3, which may lack PyYAML.
+
+    The stdlib parser must read every rule the catalog ships exactly as
+    PyYAML does, and refuse any shape outside that subset rather than
+    guess at it.
+    """
+
+    @staticmethod
+    def _frontmatter(rule_file: Path) -> str:
+        return rule_file.read_text().split("---\n", 2)[1]
+
+    def test_stdlib_parser_matches_pyyaml_on_every_bundled_rule(self) -> None:
+        yaml = pytest.importorskip("yaml")
+        rule_files = ConfigLoader()._iter_bundled_rule_files()
+        assert rule_files
+        for rule_file in rule_files:
+            text = self._frontmatter(rule_file)
+            assert _parse_frontmatter_subset(text) == yaml.safe_load(text), rule_file
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "name: x\nenabled: yes\nevent: bash\npattern: rm # trailing\n",
+            "name: x\nenabled: true\nevent: bash\npattern: #not-a-pattern\n",
+            "name: x\nenabled: false\nevent: file\naction:\nconditions:\n"
+            "- field: file_path\n  operator: ends_with\n  pattern: '.py'\n",
+            'name: x\npattern: "git\\\\s+push\\\\s+--force"\n',
+            'name: x\npattern: "say \\"hi\\" # not a comment"\n',
+        ],
+    )
+    def test_stdlib_parser_matches_pyyaml_on_scalar_edge_cases(self, text: str) -> None:
+        yaml = pytest.importorskip("yaml")
+        assert _parse_frontmatter_subset(text) == yaml.safe_load(text)
+
+    @pytest.mark.parametrize(
+        "value",
+        ['"unterminated', "|", ">", "[a, b]", "{a: b}", "'unterminated", "TODO: x"],
+    )
+    def test_stdlib_parser_refuses_shapes_outside_the_rule_subset(
+        self, value: str
+    ) -> None:
+        with pytest.raises(ValueError, match="frontmatter"):
+            _parse_frontmatter_subset(f"name: x\npattern: {value}\n")

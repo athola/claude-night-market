@@ -32,10 +32,11 @@ These configurations are processed by the `RuleEngine` to evaluate tool usage
 against the active rule set during execution.
 The `hooks/rule_guard.py` hook runs that evaluation on every Bash, Write,
 Edit, prompt, and stop event and denies or warns as the rule says.
-Rules are YAML, and the hook runs under the operator's `python3`; when
-that interpreter cannot import PyYAML, the guard writes one line to
-stderr saying no rule was evaluated and lets the event through, rather
-than a traceback per event.
+The hook runs under the operator's `python3`. When that interpreter
+cannot import PyYAML, the loader reads rule frontmatter with a stdlib
+parser that accepts plain and quoted scalars plus the
+`conditions:` list, so block rules still block. A rule outside that
+subset fails to load and is named in the hook's `systemMessage`.
 Bundled rules resolve their locations relative to the plugin's installation
 path to ensure portability across different environments.
 

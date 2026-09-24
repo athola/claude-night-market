@@ -274,13 +274,12 @@ class TestResilience:
         assert "deny" in result.stdout
 
 
-class TestRuleLoaderUnavailable:
-    """The catalog is YAML, and hooks run under the operator's python3.
+class TestWithoutPyYAML:
+    """Hooks run under the operator's python3, which may lack PyYAML.
 
-    That interpreter carries the standard library and nothing else, so
-    the import belongs inside ``main`` where the existing crash contract
-    can report it. At module scope it raised before the payload was
-    read, and every Bash call, prompt and stop printed a traceback.
+    The loader reads rule frontmatter with a stdlib parser there, so a
+    block rule still blocks. Before that, a missing PyYAML let every
+    event through with one stderr line.
     """
 
     @staticmethod
@@ -305,12 +304,12 @@ class TestRuleLoaderUnavailable:
             check=False,
         )
 
-    def test_missing_pyyaml_passes_the_event_instead_of_raising(
+    def test_non_matching_prompt_passes_without_pyyaml_or_a_traceback(
         self, tmp_path: Path
     ) -> None:
         """GIVEN an interpreter that cannot import PyYAML.
 
-        WHEN a prompt event reaches the guard
+        WHEN a prompt no rule matches reaches the guard
         THEN the event passes and no traceback reaches stderr
         """
         result = self._run_without_pyyaml(
@@ -322,22 +321,99 @@ class TestRuleLoaderUnavailable:
         assert "Traceback" not in result.stderr
         assert json.loads(result.stdout) == {}
 
-    def test_missing_pyyaml_says_no_rule_was_evaluated(self, tmp_path: Path) -> None:
-        """GIVEN the guard cannot load the catalog.
+    def test_block_rule_denies_force_push_without_pyyaml(self, tmp_path: Path) -> None:
+        """GIVEN block-force-push installed and an interpreter without PyYAML.
 
-        WHEN it lets the event through
-        THEN stderr names the interpreter and says nothing was checked
+        WHEN the session runs ``git push --force origin master``
+        THEN the guard denies it
 
-        A rule that cannot run and does not say so is the fail-open this
-        repository already gates against elsewhere.
+        Letting the event through with only a stderr line is a fail-open
+        guard: the push ran and nothing in the session said why.
         """
+        catalog_rule = (
+            PLUGIN_ROOT
+            / "skills"
+            / "rule-catalog"
+            / "rules"
+            / "git"
+            / "block-force-push.md"
+        )
+        _install(tmp_path, "block-force-push", catalog_rule.read_text())
+
         result = self._run_without_pyyaml(
-            {"hook_event_name": "UserPromptSubmit", "prompt": "hello there"},
+            {
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Bash",
+                "tool_input": {"command": "git push --force origin master"},
+            },
             tmp_path,
         )
 
-        assert "no rule was evaluated" in result.stderr
-        assert sys.executable in result.stderr
+        assert result.returncode == 0, result.stderr
+        decision = json.loads(result.stdout)["hookSpecificOutput"]
+        assert decision["permissionDecision"] == "deny"
+
+    def test_double_quoted_user_rule_still_denies_without_pyyaml(
+        self, tmp_path: Path
+    ) -> None:
+        """GIVEN a hand-written block rule that double-quotes its pattern.
+
+        WHEN the guard runs without PyYAML and the pattern matches
+        THEN it denies, as it would with PyYAML
+        """
+        _install(
+            tmp_path,
+            "quoted-detonate",
+            "---\n"
+            "name: quoted-detonate\n"
+            "enabled: true\n"
+            "event: bash\n"
+            "action: block\n"
+            'pattern: "xyzzy\\\\s+detonate"\n'
+            "---\n\nNo.\n",
+        )
+
+        result = self._run_without_pyyaml(
+            {
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Bash",
+                "tool_input": {"command": "echo xyzzy detonate"},
+            },
+            tmp_path,
+        )
+
+        assert result.returncode == 0, result.stderr
+        decision = json.loads(result.stdout)["hookSpecificOutput"]
+        assert decision["permissionDecision"] == "deny"
+
+    def test_unreadable_user_rule_is_reported_not_dropped(self, tmp_path: Path) -> None:
+        """GIVEN a user rule the loader cannot read (a block scalar).
+
+        WHEN any event reaches the guard
+        THEN the output names the skipped rule in a systemMessage
+
+        A skipped block rule is a guard that stopped guarding. A log line
+        on an exit-0 hook reaches nobody.
+        """
+        _install(
+            tmp_path,
+            "folded",
+            "---\nname: folded\nenabled: true\nevent: bash\n"
+            "action: block\npattern: |\n  rm -rf\n---\n\nNo.\n",
+        )
+
+        result = self._run_without_pyyaml(
+            {
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Bash",
+                "tool_input": {"command": "ls"},
+            },
+            tmp_path,
+        )
+
+        assert result.returncode == 0, result.stderr
+        message = json.loads(result.stdout).get("systemMessage", "")
+        assert "hookify.folded.local.md" in message
 
     def test_rules_still_run_when_pyyaml_is_available(self, tmp_path: Path) -> None:
         """GIVEN the ordinary interpreter with the dependency present.
