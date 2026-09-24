@@ -48,7 +48,9 @@ def list_sources(root: Path) -> list[Path]:
     empty list must not be reported as "no findings".
     """
     root = Path(root)
-    return [p for p in sorted(root.rglob("*.py")) if not _should_skip(p)]
+    return [
+        p for p in sorted(root.rglob("*.py")) if not _should_skip(p.relative_to(root))
+    ]
 
 
 def scan_directory(root: Path) -> list[Finding]:

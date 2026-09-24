@@ -94,6 +94,16 @@ class TestScannerSkipsVendored:
         scanned_segments = [p[len(str(tmp_path)) :] for p in files]
         assert not any(".cargo" in seg for seg in scanned_segments)
 
+    def test_project_under_a_target_directory_is_scanned(self, tmp_path: Path) -> None:
+        # Only components below the scan root name a vendored tree. A
+        # project checked out under /target/ is the project, not output.
+        root = tmp_path / "target" / "proj"
+        root.mkdir(parents=True)
+        (root / "own.py").write_text("import requests\nrequests.get('http://x')\n")
+
+        files = {getattr(f, "file", "?") for f in scan_directory(root)}
+        assert any(p.endswith("own.py") for p in files)
+
 
 class TestScannerSurfacesUnreadable:
     def test_unreadable_file_yields_advisory(self, tmp_path: Path) -> None:
