@@ -9,6 +9,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import IO
+
+import pytest
 
 from minister.project_tracker import ProjectTracker, Task
 
@@ -52,3 +55,24 @@ def test_save_leaves_no_temp_file_and_a_parseable_tracker(tmp_path: Path) -> Non
 
     assert json.loads(data_file.read_text(encoding="utf-8"))["tasks"][0]["id"] == "a"
     assert list(tmp_path.iterdir()) == [data_file]
+
+
+def test_interrupted_save_keeps_the_previous_tracker(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A dump that dies partway leaves the last good tracker parseable."""
+    data_file = tmp_path / "tracker.json"
+    tracker = ProjectTracker(data_file=data_file)
+    tracker.add_task(_task("a"))
+
+    def dump_then_fail(obj: object, fp: IO[str], **_kwargs: object) -> None:
+        fp.write('{"tasks": [')
+        raise OSError("disk full")
+
+    monkeypatch.setattr(json, "dump", dump_then_fail)
+    with pytest.raises(OSError, match="disk full"):
+        tracker.add_task(_task("b"))
+    monkeypatch.undo()
+
+    saved = json.loads(data_file.read_text(encoding="utf-8"))
+    assert [t["id"] for t in saved["tasks"]] == ["a"]
