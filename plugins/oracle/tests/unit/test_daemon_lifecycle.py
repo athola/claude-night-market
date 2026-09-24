@@ -29,12 +29,13 @@ from daemon_lifecycle import (
 
 @contextmanager
 def _fake_daemon(tmp_path: Path) -> Iterator[subprocess.Popen]:
-    """Spawn a live process whose command line names daemon.py, like the real one."""
+    """Spawn a live process running a daemon.py the hook treats as its own."""
     script = tmp_path / "daemon.py"
     script.write_text("import time; time.sleep(30)\n")
     proc = subprocess.Popen([sys.executable, str(script)])
     try:
-        yield proc
+        with patch("daemon_lifecycle._DAEMON_SCRIPT", str(script)):
+            yield proc
     finally:
         if proc.poll() is None:
             proc.kill()
@@ -313,6 +314,27 @@ class TestIsDaemonRunning:
         pid_file = tmp_path / "daemon.pid"
         pid_file.write_text(str(os.getpid()))
         assert _is_daemon_running(pid_file) is False
+
+    @pytest.mark.unit
+    def test_returns_false_when_another_process_merely_names_daemon_py(
+        self, tmp_path: Path
+    ):
+        """
+        Scenario: A live process mentions some other daemon.py
+        Given a pid file naming a process whose argv ends in x/daemon.py
+        When _is_daemon_running is called
+        Then it returns False, because only the plugin's own script counts
+        """
+        pid_file = tmp_path / "daemon.pid"
+        bystander = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(30)", "x/daemon.py"]
+        )
+        try:
+            pid_file.write_text(str(bystander.pid))
+            assert _is_daemon_running(pid_file) is False
+        finally:
+            bystander.kill()
+            bystander.wait()
 
     @pytest.mark.unit
     def test_returns_false_when_pid_file_missing(self, tmp_path: Path):

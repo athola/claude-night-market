@@ -59,7 +59,9 @@ def _get_event() -> str:
 
 
 # What the daemon's command line must contain for a PID to count as ours.
-_DAEMON_SCRIPT_NAME = "daemon.py"
+# The full launched path, because a bare "daemon.py" also matches pytest
+# running test_daemon.py or an editor with some other daemon.py open.
+_DAEMON_SCRIPT = str(PLUGIN_ROOT / "src" / "oracle" / "daemon.py")
 _PS_TIMEOUT_SECONDS = 2
 
 
@@ -75,7 +77,7 @@ def _pid_is_daemon(pid: int) -> bool:
 
     ``-ww`` is required on Linux: procps cuts the command column to 80
     characters when stdout is not a terminal, and the venv interpreter
-    path alone can push ``daemon.py`` past the cut.
+    path alone can push the script path past the cut.
     """
     try:
         os.kill(pid, 0)
@@ -91,7 +93,7 @@ def _pid_is_daemon(pid: int) -> bool:
         )
     except (OSError, subprocess.SubprocessError):
         return False
-    return listing.returncode == 0 and _DAEMON_SCRIPT_NAME in listing.stdout
+    return listing.returncode == 0 and _DAEMON_SCRIPT in listing.stdout
 
 
 def _is_daemon_running(pid_file: Path) -> bool:
@@ -107,7 +109,7 @@ def _start_daemon() -> None:
     """Launch the daemon as a detached subprocess."""
     venv = get_venv_path()
     python = str(get_python_path(venv))
-    daemon_script = str(PLUGIN_ROOT / "src" / "oracle" / "daemon.py")
+    daemon_script = _DAEMON_SCRIPT
     data_dir = get_oracle_data_dir()
     port_file = _get_port_file()
     pid_file = _get_pid_file()
