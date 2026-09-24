@@ -16,7 +16,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import importlib
+import importlib.util
 import json
 import subprocess
 import sys
@@ -24,13 +24,18 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
-_SRC = Path(__file__).resolve().parents[1] / "src"
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
-
-# The package sits beside this script; the path insert above is what lets
-# a plain `python3 scripts/pr_prep_analyze.py` find it from any cwd.
-PRPrepAnalyzer = importlib.import_module("sanctum.pr_prep").PRPrepAnalyzer
+# Loaded by file path, not as ``sanctum.pr_prep``: importing through the
+# package runs sanctum/__init__.py, whose validators need PyYAML, and the
+# skill runs this script under the operator's python3, which lacks it.
+_PR_PREP = Path(__file__).resolve().parents[1] / "src" / "sanctum" / "pr_prep.py"
+_spec = importlib.util.spec_from_file_location("sanctum_pr_prep", _PR_PREP)
+if _spec is None or _spec.loader is None:
+    raise ImportError(f"cannot load {_PR_PREP}")
+pr_prep = importlib.util.module_from_spec(_spec)
+# dataclasses resolves annotations through sys.modules at class creation.
+sys.modules[_spec.name] = pr_prep
+_spec.loader.exec_module(pr_prep)
+PRPrepAnalyzer = pr_prep.PRPrepAnalyzer
 
 _DOC_SUFFIXES = (".md", ".rst", ".txt", ".adoc")
 #: insertions, deletions, path
@@ -46,8 +51,7 @@ def _git(args: list[str], cwd: Path | None) -> str:
 
 def classify(path: str) -> str:
     """Name the bucket PRPrepAnalyzer sorts a path into."""
-    name = path.rsplit("/", 1)[-1]
-    if path.startswith("tests/") or "/tests/" in path or name.startswith("test_"):
+    if pr_prep._is_test_path(path):
         return "test"
     if path.endswith(_DOC_SUFFIXES):
         return "docs"

@@ -6,11 +6,14 @@ Tests the PRPrepAnalyzer class from src/sanctum/pr_prep.py.
 
 from __future__ import annotations
 
+import pytest
+
 from sanctum.pr_prep import (
     BreakingChanges,
     FileCategories,
     MergeStrategy,
     PRPrepAnalyzer,
+    _is_test_path,
 )
 
 
@@ -295,3 +298,23 @@ class TestPRPrepAnalyzer:
         context = {"changed_files": []}
         result = PRPrepAnalyzer.generate_pr_description(context)
         assert "No changes" in result
+
+
+class TestIsTestPath:
+    """Test files from the ecosystems a PR commonly touches count as tests."""
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "pkg/handler_test.go",
+            "web/src/__tests__/App.jsx",
+            "src/app.spec.ts",
+            "src/app.spec.js",
+            "spec/models/user_spec.rb",
+        ],
+    )
+    def test_non_python_test_files_are_tests(self, path: str) -> None:
+        assert _is_test_path(path)
+
+    def test_a_name_merely_containing_test_is_not_a_test(self) -> None:
+        assert not _is_test_path("plugins/latest/config.py")

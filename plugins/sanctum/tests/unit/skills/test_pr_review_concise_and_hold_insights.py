@@ -182,6 +182,24 @@ class TestSuggestionModule:
         assert "base_commit_sha" in gitlab
 
 
+class TestGlabApiInvocations:
+    def test_no_glab_api_command_in_sanctum_docs_uses_jq_flag(self) -> None:
+        """`glab api` has no --jq flag, unlike `gh api`; pipe to jq instead.
+
+        Continuation lines are joined first so a flag on the line after
+        the endpoint is still seen as part of the command.
+        """
+        offenders = []
+        for doc in sorted(PLUGIN_ROOT.rglob("*.md")):
+            joined = re.sub(r"\\\n\s*", " ", doc.read_text(encoding="utf-8"))
+            offenders.extend(
+                f"{doc.relative_to(PLUGIN_ROOT)}: {line.strip()}"
+                for line in joined.splitlines()
+                if "glab api" in line and "--jq" in line
+            )
+        assert offenders == []
+
+
 class TestLeylineInheritsThePositionedDiscussion:
     def test_command_mapping_has_a_positioned_mr_discussion_row(self) -> None:
         """`/fix-pr` and `/resolve-threads` map through leyline, not sanctum."""

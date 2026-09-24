@@ -19,8 +19,20 @@ def _is_test_path(path: str) -> bool:
     return (
         "tests" in segments
         or "test" in segments
+        or "__tests__" in segments
         or name.startswith("test_")
-        or name.endswith(("_test.py", "_test.rs", ".test.ts", ".test.js"))
+        or name.endswith(
+            (
+                "_test.py",
+                "_test.rs",
+                "_test.go",
+                ".test.ts",
+                ".test.js",
+                ".spec.ts",
+                ".spec.js",
+                "_spec.rb",
+            )
+        )
     )
 
 

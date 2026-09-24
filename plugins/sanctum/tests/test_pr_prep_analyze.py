@@ -9,11 +9,17 @@ the shell.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 from pr_prep_analyze import analyze, classify, collect, main
+
+from sanctum.pr_prep import _is_test_path
+
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "pr_prep_analyze.py"
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -196,3 +202,55 @@ class TestCommandLine:
         repo, _ = branch_repo
         assert main(["--base", "no-such-ref", "--cwd", str(repo)]) == 1
         assert "git failed" in capsys.readouterr().err
+
+
+class TestClassifyAgreesWithTheAnalyzer:
+    """classify and PRPrepAnalyzer must not disagree about what a test is."""
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "pkg/foo_test.py",
+            "pkg/handler_test.go",
+            "web/src/__tests__/App.jsx",
+            "src/app.spec.ts",
+            "tests/test_x.py",
+            "src/test_helpers.py",
+            "src/latest_config.py",
+            "docs/guide.md",
+        ],
+    )
+    def test_classify_says_test_exactly_when_is_test_path_does(self, path: str) -> None:
+        assert (classify(path) == "test") == _is_test_path(path)
+
+
+class TestRunsWithoutPyYAML:
+    """The skill runs this script with the operator's python3."""
+
+    def test_script_runs_when_pyyaml_is_not_importable(
+        self, branch_repo: tuple[Path, str], tmp_path: Path
+    ) -> None:
+        """GIVEN an interpreter that cannot import yaml.
+
+        WHEN the documented command runs against a repository
+        THEN it exits 0, because pr_prep needs nothing outside stdlib
+        """
+        repo, base = branch_repo
+        blocker = tmp_path / "blocker"
+        blocker.mkdir()
+        (blocker / "sitecustomize.py").write_text(
+            'import sys\n\nsys.modules["yaml"] = None\n'
+        )
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env["PYTHONPATH"] = str(blocker)
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--base", base],
+            cwd=repo,
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=60,
+            check=False,
+        )
+        assert result.returncode == 0, result.stderr
+        assert "PR prep analysis" in result.stdout

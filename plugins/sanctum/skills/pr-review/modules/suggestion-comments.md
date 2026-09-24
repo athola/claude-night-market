@@ -78,8 +78,9 @@ from the merge request's current version
 
 ```bash
 # The three SHAs come from the latest MR version.
+# The filter runs in jq: unlike gh, glab takes no filter flag.
 read -r BASE HEAD START < <(glab api "projects/:id/merge_requests/${MR}/versions" \
-  --jq '.[0] | "\(.base_commit_sha) \(.head_commit_sha) \(.start_commit_sha)"')
+  | jq -r '.[0] | "\(.base_commit_sha) \(.head_commit_sha) \(.start_commit_sha)"')
 
 glab api "projects/:id/merge_requests/${MR}/discussions" -X POST \
   -f 'position[position_type]=text' \

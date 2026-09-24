@@ -387,3 +387,30 @@ def test_scan_ignores_conftest_and_fixture_modules(tmp_path):
     assert "conftest.py" not in reported
     assert "test_a" not in results["uncovered_files"]
     assert "test_conftest" not in results["uncovered_files"]
+
+
+def test_codebase_under_a_directory_named_tests_still_has_source_files(
+    tmp_path: Path,
+) -> None:
+    """Only segments below the codebase root decide what is a test."""
+    module = _load_script()
+    root = tmp_path / "tests" / "proj"
+    (root / "src").mkdir(parents=True)
+    (root / "src" / "app.py").write_text("def run():\n    return 1\n")
+
+    results = module.TestAnalyzer(root).scan_for_test_gaps()
+
+    assert [f.name for f in results["source_files"]] == ["app.py"]
+
+
+def test_source_file_whose_name_contains_test_is_counted_as_source(
+    tmp_path: Path,
+) -> None:
+    """latest_config.py is source; only test_*.py and *_test.py are tests."""
+    module = _load_script()
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "latest_config.py").write_text("VALUE = 1\n")
+
+    results = module.TestAnalyzer(tmp_path).scan_for_test_gaps()
+
+    assert [f.name for f in results["source_files"]] == ["latest_config.py"]
