@@ -58,6 +58,8 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
+  "homepage": "https://github.com/athola/claude-night-market/tree/master/plugins/imbue",
+  "repository": "https://github.com/athola/claude-night-market",
   "dependencies": [
     "leyline"
   ],

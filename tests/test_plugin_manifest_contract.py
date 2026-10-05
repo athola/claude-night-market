@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from urllib.parse import urlparse
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MARKETPLACE = REPO_ROOT / ".claude-plugin" / "marketplace.json"
@@ -65,3 +66,27 @@ def test_optional_dependencies_live_under_metadata() -> None:
         if "optional_dependencies" in json.loads(manifest.read_text(encoding="utf-8"))
     ]
     assert not misplaced, f"top-level optional_dependencies in {misplaced}"
+
+
+REPOSITORY_URL = "https://github.com/athola/claude-night-market"
+# Their manifests are being edited on another branch; they gain the same
+# links when that work lands, and this set must then be emptied.
+LINKS_PENDING = frozenset({"conserve", "egregore"})
+
+
+def test_every_plugin_links_its_homepage_and_repository() -> None:
+    """A homepage that does not parse as a URL stops the plugin loading."""
+    manifests = sorted(REPO_ROOT.glob("plugins/*/.claude-plugin/plugin.json"))
+    checked = 0
+    for manifest in manifests:
+        plugin = manifest.parents[1].name
+        if plugin in LINKS_PENDING:
+            continue
+        fields = json.loads(manifest.read_text(encoding="utf-8"))
+        for key in ("homepage", "repository"):
+            url = urlparse(fields.get(key, ""))
+            assert url.scheme == "https" and url.netloc, f"{plugin}: bad {key}"
+        assert fields["homepage"] == f"{REPOSITORY_URL}/tree/master/plugins/{plugin}"
+        assert fields["repository"] == REPOSITORY_URL
+        checked += 1
+    assert checked == len(manifests) - len(LINKS_PENDING)

@@ -15,6 +15,8 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
+  "homepage": "https://github.com/athola/claude-night-market/tree/master/plugins/archetypes",
+  "repository": "https://github.com/athola/claude-night-market",
   "skills": [
     "./skills/architecture-paradigm-client-server",
     "./skills/architecture-paradigm-cqrs-es",
