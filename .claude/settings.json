@@ -1,4 +1,7 @@
 {
   "description": "claude-night-market project settings",
-  "workflowSizeGuideline": "medium"
+  "workflowSizeGuideline": "medium",
+  "worktree": {
+    "baseRef": "head"
+  }
 }

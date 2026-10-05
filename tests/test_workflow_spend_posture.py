@@ -154,3 +154,15 @@ def test_the_rule_states_the_current_agent_count_for_the_pinned_value() -> None:
         f"the rule must say `{value}` asks for fewer than {expected} agents"
     )
     assert f"fires here at {expected} " in text
+
+
+def test_isolated_agents_branch_from_the_current_head() -> None:
+    """Worktree agents must see the branch they were dispatched from.
+
+    `worktree.baseRef` defaults to `fresh`, the remote default branch
+    (code.claude.com/docs/en/worktrees "Choose the base branch"). Seven
+    agents here run with `isolation: worktree` to implement or improve work
+    on a feature branch; from `fresh` they edit a checkout of master that
+    lacks the commits they were asked to build on.
+    """
+    assert _settings().get("worktree", {}).get("baseRef") == "head"
