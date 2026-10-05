@@ -550,12 +550,14 @@ def _apply_turn_range(all_turns: list[Turn], turns_spec: str) -> list[Turn]:
     groups: list[list[Turn]] = []
     current_group: list[Turn] = []
 
+    # Turns before the first UserTurn (a reply to a skipped injection)
+    # belong to no numbered group, so they are dropped from any range.
     for turn in all_turns:
         if isinstance(turn, UserTurn):
             if current_group:
                 groups.append(current_group)
             current_group = [turn]
-        else:
+        elif current_group:
             current_group.append(turn)
 
     if current_group:
