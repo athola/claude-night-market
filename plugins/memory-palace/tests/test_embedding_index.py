@@ -179,3 +179,35 @@ def test_omitting_weights_leaves_scores_untouched(tmp_path) -> None:
     assert index.search("query", top_k=5) == index.search(
         "query", top_k=5, weights=None
     )
+
+
+# --- Hash fallback ------------------------------------------------------------
+# With no sentence-transformer model, vectorize() falls back to _hash_vector.
+# Similarity there has to follow which words a text contains.
+
+
+def test_hash_fallback_scores_different_single_words_as_dissimilar(
+    tmp_path,
+) -> None:
+    """'apple' and 'zebra' share no token, so they must not score 1.0."""
+    index = EmbeddingIndex(str(tmp_path / "missing.yaml"))
+    index.add_to_room("r", "apple-doc", "apple")
+    index.add_to_room("r", "zebra-doc", "zebra")
+
+    scores = dict(index.search_room("r", "apple"))
+
+    assert scores["apple-doc"] == 1.0
+    assert scores["zebra-doc"] < 0.5
+
+
+def test_hash_fallback_ranks_shared_words_above_shared_positions(
+    tmp_path,
+) -> None:
+    """A document sharing the query's words outranks one that only shares length."""
+    index = EmbeddingIndex(str(tmp_path / "missing.yaml"))
+    index.add_to_room("r", "same-words", "networking guide for kubernetes")
+    index.add_to_room("r", "same-length", "baking bread at home")
+
+    ranked = index.search_room("r", "kubernetes networking guide tips")
+
+    assert ranked[0][0] == "same-words"

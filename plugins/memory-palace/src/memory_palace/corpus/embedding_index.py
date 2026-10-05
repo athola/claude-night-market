@@ -33,13 +33,18 @@ except ImportError:  # pragma: no cover - optional dependency
 
 
 def _hash_vector(text: str, dim: int = 16) -> list[float]:
-    """Provide a secondary vectorization using hashing (no external deps)."""
+    """Provide a secondary vectorization using hashing (no external deps).
+
+    Each token picks its bucket and sign from its own digest, so the
+    vector depends on which words a text contains. Bucketing by word
+    position gave every one-word text the same vector.
+    """
     text = text.lower().strip()
     vec = [0.0] * dim
-    for idx, chunk in enumerate(text.split()):
+    for chunk in text.split():
         digest = hashlib.sha256(chunk.encode("utf-8")).digest()
-        value = digest[0] / 255.0
-        vec[idx % dim] += value
+        bucket = int.from_bytes(digest[:4], "big") % dim
+        vec[bucket] += 1.0 if digest[4] & 1 else -1.0
     norm = math.sqrt(sum(v * v for v in vec)) or 1.0
     return [v / norm for v in vec]
 
