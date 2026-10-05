@@ -300,23 +300,10 @@ The hook POSTs the standard hook input as JSON and expects a standard hook respo
 
 ### Python SDK Hooks
 
-**Programmatic callbacks** using `AgentHooks` base class:
-
-```python
-from claude_agent_sdk import AgentHooks
-
-
-class MyHooks(AgentHooks):
-    async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
-        # Complex validation logic
-        if self._is_dangerous(tool_input):
-            raise ValueError("Operation blocked")
-        return None  # or return modified input
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-
-**Pros:** Full Python capabilities, complex logic, state management
-**Cons:** Requires Python, more complex setup
+**Programmatic callbacks** using the `AgentHooks` base class, for logic
+that needs full Python, complex validation or state. The base class,
+callback signatures and implementation patterns are in
+`modules/sdk-callbacks.md`.
 
 ## Bash Permission Matching Notes
 
@@ -339,319 +326,37 @@ Claude Code now validates heredoc delimiters to prevent command smuggling. The r
 
 ## Security Essentials
 
-### Critical Security Rules
-
-1. **Input Validation**: Always validate tool inputs before processing
-2. **No Secret Logging**: Never log API keys, tokens, passwords, or credentials
-3. **Sandbox Awareness**: Respect sandbox boundaries, don't escape. Note: `.claude/skills/` is read-only in sandbox mode (2.1.38+)
-4. **Fail-Safe Defaults**: Return None on error instead of blocking the agent
-5. **Rate Limiting**: Prevent hook abuse from malicious or buggy code
-6. **Injection Prevention**: Sanitize all logged content to prevent log injection
-
-### Example: Secure Logging Hook
-
-```python
-import re
-from claude_agent_sdk import AgentHooks
-
-
-class SecureLoggingHooks(AgentHooks):
-    # Patterns that might contain secrets
-    SECRET_PATTERNS = [
-        r"api[_-]?key",
-        r"password",
-        r"token",
-        r"secret",
-        r"credential",
-        r"auth",
-    ]
-
-    def _sanitize_output(self, text: str) -> str:
-        """Remove potential secrets from log output."""
-        for pattern in self.SECRET_PATTERNS:
-            text = re.sub(
-                rf'({pattern}["\s:=]+)([^\s,}}]+)',
-                r"\1***REDACTED***",
-                text,
-                flags=re.IGNORECASE,
-            )
-        return text
-
-    async def on_post_tool_use(
-        self, tool_name: str, tool_input: dict, tool_output: str
-    ) -> str | None:
-        """Log tool use with sanitization."""
-        safe_output = self._sanitize_output(tool_output)
-        # Log safe_output...
-        return None  # Don't modify output
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-
-See `modules/testing-hooks.md` for detailed security guidance.
+Validate tool input, never log secrets, respect sandbox boundaries,
+fail safe, rate-limit and sanitize logged content. The six rules and a
+secret-redacting logging hook are in `modules/security-essentials.md`.
 
 ## Performance Guidelines
 
-### Performance Best Practices
-
-1. **Non-Blocking**: Use `async`/`await` properly, don't block the event loop
-2. **Timeout Handling**: Hook timeout is 10 minutes (increased from 60s in 2.1.3). For most hooks, aim for < 30s; use extended time only for CI/CD integration, complex validation, or external API calls
-3. **Efficient Logging**: Batch writes, use async I/O
-4. **Memory Management**: Don't accumulate unbounded state
-5. **Fail Fast**: Quick validation, early returns, avoid expensive operations
-
-### Example: Efficient Hook
-
-```python
-import asyncio
-from claude_agent_sdk import AgentHooks
-
-
-class EfficientHooks(AgentHooks):
-    def __init__(self):
-        self._log_queue = asyncio.Queue()
-        self._log_task = None
-
-    async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
-        # Quick validation only
-        if not self._is_valid_input(tool_input):
-            raise ValueError("Invalid input")
-        return None
-
-    async def on_post_tool_use(
-        self, tool_name: str, tool_input: dict, tool_output: str
-    ) -> str | None:
-        # Queue log entry without blocking
-        await self._log_queue.put({"tool": tool_name, "timestamp": time.time()})
-        return None
-
-    def _is_valid_input(self, tool_input: dict) -> bool:
-        """Fast validation check."""
-        # Simple checks only, < 10ms
-        return len(str(tool_input)) < 1_000_000
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-
-See `modules/performance-guidelines.md` for detailed optimization techniques.
+Keep hooks non-blocking and fail fast. The hook timeout is 10 minutes
+(increased from 60s in 2.1.3), and most hooks should finish in under
+30s. Budgets, async I/O, batching, bounded state and profiling are in
+`modules/performance-guidelines.md`.
 
 ## Scope Selection
 
-Choose the right location for your hooks based on audience and purpose.
-
-### Important: Auto-Loading Behavior
-
-> **`hooks/hooks.json` is automatically loaded** when a plugin is enabled.
-> Do NOT add `"hooks": "./hooks/hooks.json"` to `plugin.json` - this causes duplicate load errors.
-> Only use the `hooks` field for additional hook files beyond the standard location.
-
-### Decision Framework
-
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-Is this hook part of a plugin's core functionality?
-├─ YES → Plugin hooks (hooks/hooks.json in plugin)
-└─ NO ↓
-
-Should all team members on this project have this hook?
-├─ YES → Project hooks (.claude/settings.json)
-└─ NO ↓
-
-Should this hook apply to all my Claude sessions?
-├─ YES → Global hooks (~/.claude/settings.json)
-└─ NO → Reconsider if you need a hook at all
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-
-### Scope Comparison
-
-| Scope | Location | Audience | Committed? | Example Use Case |
-|-------|----------|----------|------------|------------------|
-| **Plugin** | `hooks/hooks.json` | Plugin users | Yes (with plugin) | YAML validation in YAML plugin |
-| **Project** | `.claude/settings.json` | Team members | Yes (in repo) | Block production config edits |
-| **Global** | `~/.claude/settings.json` | Only you | Never | Personal audit logging |
-
-See `modules/scope-selection.md` for detailed scope decision guidance.
+Plugin hooks live in `hooks/hooks.json`, which auto-loads when the
+plugin is enabled. Listing it again in `plugin.json` causes duplicate
+load errors. Project hooks live in `.claude/settings.json` and
+global hooks in `~/.claude/settings.json`. The decision framework is
+`modules/scope-selection.md`, also served as `abstract:hook-scope-guide`.
 
 ## Common Patterns
 
-### Validation Hook
-
-Block dangerous operations before execution:
-
-```python
-async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
-    if tool_name == "Bash":
-        command = tool_input.get("command", "")
-
-        # Block dangerous patterns
-        if any(pattern in command for pattern in ["rm -rf /", ":(){ :|:& };:"]):
-            raise ValueError(f"Dangerous command blocked: {command}")
-
-        # Block production access
-        if "production" in command and not self._has_approval():
-            raise ValueError("Production access requires approval")
-
-    return None
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-
-### Logging Hook
-
-Audit all tool operations:
-
-```python
-async def on_post_tool_use(
-    self, tool_name: str, tool_input: dict, tool_output: str
-) -> str | None:
-    await self._log_entry(
-        {
-            "timestamp": datetime.now().isoformat(),
-            "tool": tool_name,
-            "input_size": len(str(tool_input)),
-            "output_size": len(tool_output),
-            "success": True,
-        }
-    )
-    return None
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-
-### Context Injection Hook
-
-Add relevant context before user prompts:
-
-```python
-async def on_user_prompt_submit(self, message: str) -> str | None:
-    # Inject project-specific context
-    context = await self._load_project_context()
-    enhanced_message = f"{context}\n\n{message}"
-    return enhanced_message
-```
-
-### PreToolUse Context Injection (Claude Code 2.1.9+)
-
-Inject context before a tool executes using `additionalContext`:
-
-```python
-#!/usr/bin/env python3
-"""PreToolUse hook that injects context before WebFetch."""
-
-import json
-import sys
-
-
-def main():
-    payload = json.load(sys.stdin)
-    tool_name = payload.get("tool_name", "")
-
-    if tool_name == "WebFetch":
-        url = payload.get("tool_input", {}).get("url", "")
-        # Check cache or knowledge base
-        cached = lookup_knowledge_base(url)
-        if cached:
-            print(
-                json.dumps(
-                    {
-                        "hookSpecificOutput": {
-                            "hookEventName": "PreToolUse",
-                            "additionalContext": f"Relevant cached info: {cached}",
-                        }
-                    }
-                )
-            )
-    sys.exit(0)
-
-
-if __name__ == "__main__":
-    main()
-```
-
-This pattern is useful for: cache hints before web requests, security warnings before risky operations, and injecting relevant project context before file operations.
+Validation, logging, context injection and PreToolUse
+`additionalContext` injection (2.1.9+) are written out in
+`modules/common-patterns.md`.
 
 ## Testing Hooks
 
-### Unit Testing
+Unit-test each callback directly: assert a dangerous input raises and a
+safe input returns `None`. Test categories, fixtures and the security
+test checklist are in `modules/testing-hooks.md`.
 
-```python
-import pytest
-from my_hooks import ValidationHooks
-
-
-@pytest.mark.asyncio
-async def test_dangerous_command_blocked():
-    hooks = ValidationHooks()
-
-    with pytest.raises(ValueError, match="Dangerous command"):
-        await hooks.on_pre_tool_use("Bash", {"command": "rm -rf /"})
-
-
-@pytest.mark.asyncio
-async def test_safe_command_allowed():
-    hooks = ValidationHooks()
-    result = await hooks.on_pre_tool_use("Bash", {"command": "ls -la"})
-    assert result is None  # Allows execution
-```
-**Verification:** Run `pytest -v from` to verify.
-
-See `modules/testing-hooks.md` for detailed testing strategies.
-
-## Module References
-
-For detailed guidance on specific topics:
-
-- **Hook Types**: `modules/hook-types.md` - Detailed event signatures and parameters
-- **SDK Callbacks**: `modules/sdk-callbacks.md` - Python SDK implementation patterns
-- **Security Patterns**: `modules/testing-hooks.md` - detailed security guidance
-- **Performance Guidelines**: `modules/performance-guidelines.md` - Optimization techniques
-- **Scope Selection**: `modules/scope-selection.md` - Choosing plugin/project/global
-- **Testing Hooks**: `modules/testing-hooks.md` - Testing strategies and fixtures
-- **Observability Warnings**: `modules/observability-warnings.md` - Copy-pasteable resolution pattern for binary-actionable drift hooks
-
-## Tools
-
-- **hook_validator.py**: Validate hook structure and syntax (at
-  `plugins/abstract/scripts/hook_validator.py`)
-
-## Related Skills
-
-- **hook-scope-guide**: Decision framework for hook placement (existing)
-- **modular-skills**: Design patterns for skill architecture
-- **skills-eval**: Quality assessment and improvement framework
-
-## Next Steps
-
-1. Choose your hook type (JSON vs SDK) based on complexity needs
-2. Select the appropriate scope (plugin/project/global)
-3. Implement following security and performance best practices
-4. Test thoroughly with unit and integration tests
-5. Validate using `hook_validator.py` before deployment
-
-## Environment Variables (Claude Code 2.1.2+)
-
-### `FORCE_AUTOUPDATE_PLUGINS`
-
-Forces plugin auto-update even when the main Claude Code auto-updater is disabled.
-
-**Use cases**:
-- CI/CD pipelines that need latest plugin versions
-- Development environments testing plugin updates
-- Controlled update rollouts in enterprise settings
-
-```bash
-# Enable forced plugin updates
-export FORCE_AUTOUPDATE_PLUGINS=1
-claude
-
-# Or inline
-FORCE_AUTOUPDATE_PLUGINS=1 claude --agent my-agent
-```
-
-**Note**: This only affects plugin updates, not Claude Code core updates.
-
-## References
-
-- [Claude Code Hooks Documentation](https://docs.anthropic.com/en/docs/claude-code/hooks)
-- [Claude Agent SDK Documentation](https://docs.anthropic.com/en/docs/claude-agent-sdk)
-- [Settings Configuration](https://docs.anthropic.com/en/docs/claude-code/settings)
 ## Hook Exit Codes
 
 Hooks communicate decisions to Claude Code via exit codes:
@@ -681,6 +386,28 @@ exit 0
 
 **Plugin hooks**: Before 2.1.39, plugin-installed hooks had a separate code path that also failed to show stderr for exit code 2 ([#10412](https://github.com/anthropics/claude-code/issues/10412)). Both plugin and project hooks now work correctly.
 
+## Environment Variables (Claude Code 2.1.2+)
+
+### `FORCE_AUTOUPDATE_PLUGINS`
+
+Forces plugin auto-update even when the main Claude Code auto-updater is disabled.
+
+**Use cases**:
+- CI/CD pipelines that need latest plugin versions
+- Development environments testing plugin updates
+- Controlled update rollouts in enterprise settings
+
+```bash
+# Enable forced plugin updates
+export FORCE_AUTOUPDATE_PLUGINS=1
+claude
+
+# Or inline
+FORCE_AUTOUPDATE_PLUGINS=1 claude --agent my-agent
+```
+
+**Note**: This only affects plugin updates, not Claude Code core updates.
+
 ## Troubleshooting
 
 ### Common Issues
@@ -696,6 +423,44 @@ Check hook file permissions and ownership
 
 **Hook blocking message not shown (pre-2.1.39)**
 If using exit code 2 to block with a user-facing message and the message isn't appearing, upgrade to Claude Code 2.1.39+. In older versions, use exit 0 with stdout as a workaround.
+
+## Module References
+
+For detailed guidance on specific topics:
+
+- **Hook Types**: `modules/hook-types.md` - Detailed event signatures and parameters
+- **SDK Callbacks**: `modules/sdk-callbacks.md` - Python SDK implementation patterns
+- **Security Essentials**: `modules/security-essentials.md` - security rules and a secret-redacting hook
+- **Common Patterns**: `modules/common-patterns.md` - validation, logging and context injection hooks
+- **Performance Guidelines**: `modules/performance-guidelines.md` - Optimization techniques
+- **Scope Selection**: `modules/scope-selection.md` - Choosing plugin/project/global
+- **Testing Hooks**: `modules/testing-hooks.md` - Testing strategies and fixtures
+- **Observability Warnings**: `modules/observability-warnings.md` - Copy-pasteable resolution pattern for binary-actionable drift hooks
+
+## Tools
+
+- **hook_validator.py**: Validate hook structure and syntax (at
+  `plugins/abstract/scripts/hook_validator.py`)
+
+## Related Skills
+
+- **hook-scope-guide**: Decision framework for hook placement (existing)
+- **modular-skills**: Design patterns for skill architecture
+- **skills-eval**: Quality assessment and improvement framework
+
+## Next Steps
+
+1. Choose your hook type (JSON vs SDK) based on complexity needs
+2. Select the appropriate scope (plugin/project/global)
+3. Implement following security and performance best practices
+4. Test thoroughly with unit and integration tests
+5. Validate using `hook_validator.py` before deployment
+
+## References
+
+- [Claude Code Hooks Documentation](https://docs.anthropic.com/en/docs/claude-code/hooks)
+- [Claude Agent SDK Documentation](https://docs.anthropic.com/en/docs/claude-agent-sdk)
+- [Settings Configuration](https://docs.anthropic.com/en/docs/claude-code/settings)
 
 ## Exit Criteria
 
