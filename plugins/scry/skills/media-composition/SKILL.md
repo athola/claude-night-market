@@ -51,7 +51,7 @@ The following tools must be available on PATH before using this skill:
 
 Run `ffmpeg -version` and `yq --version` to verify availability.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 ```
 - Parse composition manifest file

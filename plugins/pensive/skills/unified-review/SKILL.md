@@ -152,7 +152,7 @@ not proof-of-work evidence. Reproduce before acting on a finding.
 - When `pensive:code-reviewer` covers multiple domains, dispatch once with combined scope
 - For skills without dedicated agents, use `general-purpose` and instruct it to invoke the Skill tool
 - Maintain consistent evidence logging across all agents
-- Track progress via TodoWrite
+- Track progress items
 
 ### 4. Integrate Findings
 
@@ -250,4 +250,4 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 
 ### Common Issues
 
-If the auto-detection fails to identify the correct review skills, explicitly specify the mode (e.g., `/full-review rust` instead of just `/full-review`). If integration fails, check that `TodoWrite` logs are accessible and that evidence files were correctly written by the individual skills.
+If the auto-detection fails to identify the correct review skills, explicitly specify the mode (e.g., `/full-review rust` instead of just `/full-review`). If integration fails, check that the progress items were recorded and that evidence files were correctly written by the individual skills.

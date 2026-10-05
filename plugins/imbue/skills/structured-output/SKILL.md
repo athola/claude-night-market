@@ -43,7 +43,7 @@ estimated_tokens: 1000
 
 **Auto-Load When**: Finalizing any analysis deliverable or when consistent formatting is requested.
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `structured-output:template-selected`
 2. `structured-output:findings-formatted`
 3. `structured-output:actions-assigned`

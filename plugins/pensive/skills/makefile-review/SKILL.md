@@ -59,7 +59,7 @@ Audit Makefiles for best practices, deduplication, and portability.
 - Creating new Makefiles - use abstract:make-dogfood
 - Architecture review - use architecture-review
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `makefile-review:context-mapped`
 2. `makefile-review:dependency-graph`

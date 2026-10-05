@@ -219,7 +219,7 @@ Periodically during execution:
 
 **Self-invoke prompt:** "This branch has grown significantly. Let me check scope-guard thresholds."
 
-## Required TodoWrite Items
+## Required Progress Items
 
 When evaluating a feature, create these todos:
 

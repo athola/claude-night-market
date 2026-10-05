@@ -70,7 +70,7 @@ Read it before changing what the passes ask for.
    descriptions, especially for registers where subtle tonal
    shifts matter.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `voice-extract:samples-collected` - Writing samples gathered
 2. `voice-extract:samples-anonymized` - Labels stripped, numbered

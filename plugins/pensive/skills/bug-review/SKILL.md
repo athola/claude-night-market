@@ -55,7 +55,7 @@ Systematic bug identification and fixing with language-specific expertise.
 
 - Test coverage audit - use test-review instead
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `bug-review:language-detected`
 2. `bug-review:repro-plan`

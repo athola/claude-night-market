@@ -61,7 +61,7 @@ These patterns inform register and rule updates.
 6. **Rule count check**: Suggest consolidation if any section
    has 8+ rules.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `voice-learn:snapshots-loaded` - All three stages read
 2. `voice-learn:diff-analyzed` - Changes categorized

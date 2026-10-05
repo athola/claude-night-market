@@ -66,7 +66,7 @@ This skill coordinates the complete tutorial generation pipeline:
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 Create todos with these prefixes for progress tracking:
 
@@ -541,7 +541,7 @@ README demo section updated
 - [ ] Dual-tone markdown generated for each tutorial
 - [ ] README demo section updated with GIF embeds
 - [ ] Book SUMMARY.md updated (if applicable)
-- [ ] All TodoWrite items completed
+- [ ] All progress items completed
 
 ## Error Handling
 

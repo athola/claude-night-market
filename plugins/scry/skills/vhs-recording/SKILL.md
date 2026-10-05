@@ -38,7 +38,7 @@ Generate professional terminal recordings from VHS tape files.
 
 VHS converts declarative tape files into animated GIFs of terminal sessions. Tape files define commands, timing, and terminal appearance.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 ```
 - Locate and validate tape file

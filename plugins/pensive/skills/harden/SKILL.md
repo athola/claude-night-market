@@ -78,7 +78,7 @@ checks rather than line-level review of in-flight code.
   but does not propose protocol fixes (specialist work).
 - One-off bug hunting. Use `pensive:bug-review`.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `harden:discovery`: inventory languages, build files, hooks,
    CI workflows

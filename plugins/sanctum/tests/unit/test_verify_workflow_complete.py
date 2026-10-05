@@ -51,7 +51,7 @@ class TestWorkflowReminder:
         Given a session stop event occurs
         When the verify_workflow_complete hook runs
         Then the reminder includes PROOF-OF-WORK section
-        And it mentions creating TodoWrite items
+        And it mentions recording progress items
         And it mentions capturing evidence with references
         """
         # Arrange & Act
@@ -65,7 +65,7 @@ class TestWorkflowReminder:
         reason = output["reason"]
 
         assert "PROOF-OF-WORK" in reason
-        assert "TodoWrite" in reason
+        assert "progress items" in reason
         assert "proof:solution-tested" in reason
         assert "proof:evidence-captured" in reason
         assert "[E1]" in reason or "[E2]" in reason

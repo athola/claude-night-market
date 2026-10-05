@@ -53,7 +53,7 @@ Together they form a profile precise enough to score new
 text and rich enough to guide rewrites. Metrics catch what
 exemplars miss. Exemplars carry what metrics flatten.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `style-learner:exemplar-collected` - Source texts gathered
 2. `style-learner:features-extracted` - Quantitative metrics computed

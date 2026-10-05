@@ -43,7 +43,7 @@ like thinking. Material framed as summaries produces reporting.
 Always frame user-provided source material as raw notes unless
 the user explicitly requests otherwise.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `voice-generate:profile-loaded` - Voice profile read
 2. `voice-generate:register-selected` - Register chosen

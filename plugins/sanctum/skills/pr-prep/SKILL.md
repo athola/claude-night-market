@@ -50,7 +50,7 @@ Use this skill to stage changes and generate a PR summary. Run `Skill(sanctum:gi
 
 ## Required Progress Tracking
 
-Create `TodoWrite` items for these steps before starting:
+Create progress items for these steps before starting:
 1. `pr-prep:workspace-reviewed`
 2. `pr-prep:quality-gates`
 3. `pr-prep:self-reviewed`
@@ -211,7 +211,7 @@ Do not include tool or AI attribution in the PR text. If changes are required mi
 
 ## Supporting Modules
 
-- [TodoWrite patterns](modules/todowrite-patterns.md) - naming conventions for sanctum TodoWrite items
+- [Progress item patterns](modules/todowrite-patterns.md) - naming conventions for sanctum progress items
 
 ## Troubleshooting
 
@@ -219,7 +219,7 @@ If project-specific commands like `make` or `npm` are unavailable, verify the en
 
 ## Exit Criteria
 
-- [ ] All 7 TodoWrite items (`pr-prep:workspace-reviewed` through
+- [ ] All 7 progress items (`pr-prep:workspace-reviewed` through
       `pr-prep:content-verified`) are marked complete before the
       skill declares done
 - [ ] Quality gates (formatting, linting, tests) run and pass; any

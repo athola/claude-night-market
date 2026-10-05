@@ -167,7 +167,7 @@ class TestShellReviewSkillContract:
         for heading in (
             "## When To Use",
             "## When NOT To Use",
-            "## Required TodoWrite Items",
+            "## Required Progress Items",
             "## Workflow",
             "## Output Format",
             "## Exit Criteria",

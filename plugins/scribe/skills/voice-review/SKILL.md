@@ -42,7 +42,7 @@ Two agents run in parallel on the generated text:
 Hard failures (banned phrases, em dashes) are auto-fixed.
 Everything else returns as advisory tables for user decision.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `voice-review:text-loaded` - Generated text read
 2. `voice-review:register-loaded` - Voice register loaded

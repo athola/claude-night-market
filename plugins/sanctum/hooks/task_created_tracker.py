@@ -13,9 +13,13 @@ Two payload shapes are accepted:
   and a ``tool_response`` of the form
   ``"Task #N created successfully: <subject>"``.
 
-* **Legacy TaskCreated** (kept for forward/backward compatibility if
-  the dedicated event is reintroduced). The payload contains
+* **TaskCreated** (a documented hook event). The payload contains
   ``task_id`` and ``description`` at the top level.
+
+Neither fires in a session without the Task tools, which since CLI
+2.1.233 is the default on current models unless
+``CLAUDE_CODE_ENABLE_TODO_TOOLS=1`` is set. An empty ledger there means
+nothing was tracked, not that every task finished.
 
 The hook is non-critical: any failure path exits 0 silently so it
 never blocks tool execution. Empty/unparseable payloads are skipped

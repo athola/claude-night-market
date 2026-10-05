@@ -18,7 +18,7 @@ verify these were done:
 
 ### PROOF-OF-WORK (Verify First!)
 - [ ] Invoked `Skill(imbue:proof-of-work)`
-- [ ] Created TodoWrite items: `proof:solution-tested`, `proof:evidence-captured`
+- [ ] Recorded progress items: `proof:solution-tested`, `proof:evidence-captured`
 - [ ] Captured evidence with `[E1]`, `[E2]` references
 - [ ] Ran functional tests (not just syntax validation)
 - [ ] Reported status: ✅ PASS / ❌ FAIL

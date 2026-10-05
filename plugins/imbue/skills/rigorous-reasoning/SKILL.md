@@ -165,7 +165,7 @@ For discussions involving truth claims, operate from standard definitions and cl
 ### Engagement Principles
 Prioritize truth-seeking over social comfort by following evidence to unpopular conclusions. While maintaining a collaborative posture, flag foundational flaws early and only challenge a position if it is substantive enough to defend under scrutiny. Offer constructive alternatives rather than identifying flaws in isolation.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 When applying this skill, create these todos:
 
@@ -219,7 +219,7 @@ Use `proof-of-work` to document:
 
 ## Exit Criteria
 
-- All TodoWrite items completed
+- All progress items completed
 - Conclusions stated without sycophantic hedging
 - Any updates/retractions have documented substantive reasons
 - Distinct categories kept separate in analysis
