@@ -96,9 +96,7 @@ def added_lines(tool_name: str, tool_input: dict) -> int:
 
 def _count_lines(text: str) -> int:
     """Count non-empty logical lines in *text*."""
-    if not text:
-        return 0
-    return len(text.splitlines())
+    return sum(1 for line in text.splitlines() if line.strip())
 
 
 def is_high_stakes(file_path: str) -> bool:
