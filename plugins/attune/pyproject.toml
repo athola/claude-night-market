@@ -26,19 +26,11 @@ dependencies = [
 [dependency-groups]
 dev = [
     "bandit>=1.8.6,<2.0",
-    "blacken-docs>=1.20.0,<2.0",
-    "interrogate>=1.7.0,<2.0",
     "pre-commit>=4.3.0",
-    "safety>=3.8.1,<4.0",
-    "typos>=1.50.2",
     "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
     "pytest-cov>=7.1.0",
-    "pytest-mock>=3.15.1",
-    "pytest-asyncio>=1.2.0",
-    "pytest-bdd>=8.1.0",
-    "pytest-xdist>=3.8.0",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -131,7 +123,7 @@ namespace_packages = true
 exclude = ['^\.venv', '^\.uv-cache', '^__pycache__']
 
 [[tool.mypy.overrides]]
-module = ["yaml", "abstract", "abstract.*"]
+module = ["yaml", "abstract.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
@@ -147,10 +139,6 @@ module = [
     "template_engine",
 ]
 ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["attune_upgrade"]
-disable_error_code = ["no-any-return"]
 
 [[tool.mypy.overrides]]
 module = ["scripts.tasks_manager"]
@@ -185,9 +173,6 @@ markers = [
     "slow: Tests that take longer to execute",
     "bdd: Behavior-driven development style tests"
 ]
-# pytest-asyncio ships in the test environment; pin the default loop scope
-# to silence its _DEFAULT_FIXTURE_LOOP_SCOPE_UNSET deprecation.
-asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
 omit = [
