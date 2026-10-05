@@ -54,10 +54,10 @@ def _infer_source(file_path: str) -> str:
     if name == "settings.local.json":
         return "local_settings"
 
+    # User settings are the one file ~/.claude/settings.json. A prefix test
+    # on $HOME called every project checked out under it user settings.
     home = os.environ.get("HOME") or os.environ.get("USERPROFILE") or ""
-    if home and (
-        file_path.startswith(home + os.sep) or file_path.startswith(home + "/")
-    ):
+    if home and PurePath(file_path) == PurePath(home, ".claude", "settings.json"):
         return "user_settings"
 
     return "project_settings"
