@@ -424,9 +424,11 @@ def compute_relevance(chunk: ContentChunk, doc_path: str) -> float:
         overlap = len(chunk_words & doc_words) / len(chunk_words)
         score += overlap * 0.3
 
-    # File name relevance
+    # File name relevance: whole header words, with the keyword filter's
+    # 4-character floor, so "on" does not match inside "configuration".
     doc_name = Path(doc_path).stem.lower().replace("-", " ").replace("_", " ")
-    if any(word in doc_name for word in chunk_lower.split()):
+    header_words = set(re.findall(r"\b\w{4,}\b", chunk_lower))
+    if header_words & set(doc_name.split()):
         score += 0.2
 
     return score

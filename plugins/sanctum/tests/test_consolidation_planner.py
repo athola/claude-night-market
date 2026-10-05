@@ -164,6 +164,49 @@ def test_compute_relevance_scores_header_match(tmp_path):
     assert score >= 0.4
 
 
+def test_file_name_credit_needs_a_whole_header_word(tmp_path):
+    """A header word must be a word of the file name, not a substring.
+
+    Math review finding C2-19: "on" inside "configuration" earned +0.2
+    and lifted identical content from 0.4 (CREATE_NEW) to 0.6
+    (INTELLIGENT_WEAVE).
+    """
+    cp = _load_script()
+    body = "Release checklist. Notes on the audit cadence live with the team.\n"
+    chunk = cp.ContentChunk(
+        header="Notes on the audit",
+        content="Latency regressions measured in the checkout worker.",
+        category="findings",
+        value="high",
+    )
+    scores = {}
+    for name in ("configuration.md", "release.md"):
+        doc = tmp_path / name
+        doc.write_text(body)
+        scores[name] = cp.compute_relevance(chunk, str(doc))
+
+    assert scores["configuration.md"] == scores["release.md"]
+    route = cp.route_chunk(chunk, [str(tmp_path / "configuration.md")], "A.md")
+    assert route.strategy == "CREATE_NEW"
+
+
+def test_file_name_credit_for_a_matching_word(tmp_path):
+    """A header word that names the file still earns the credit."""
+    cp = _load_script()
+    chunk = cp.ContentChunk(
+        header="Audit notes", content="zzzz", category="findings", value="low"
+    )
+    named = tmp_path / "audit-log.md"
+    other = tmp_path / "release.md"
+    for doc in (named, other):
+        doc.write_text("unrelated text")
+
+    gap = cp.compute_relevance(chunk, str(named)) - cp.compute_relevance(
+        chunk, str(other)
+    )
+    assert abs(gap - 0.2) < 1e-9
+
+
 def test_route_chunk_uses_intelligent_weave_when_match(tmp_path):
     cp = _load_script()
     doc = tmp_path / "findings.md"
