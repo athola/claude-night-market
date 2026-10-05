@@ -269,7 +269,7 @@ class SkillsAuditor:
             return 100
         if token_count <= acceptable:
             return 80
-        return max(20, 100 - (token_count - acceptable) * 0.02)
+        return max(20, 80 - (token_count - acceptable) * 0.02)
 
     def _generate_issues(
         self,
