@@ -30,19 +30,42 @@ VERSION=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --batch-size=*) BATCH_SIZE="${1#*=}"; shift ;;
+    --batch-size=*)
+      BATCH_SIZE="${1#*=}"
+      shift
+      ;;
     --batch-size)
       if [ $# -lt 2 ]; then
-        echo "Error: --batch-size requires a value"; exit 1
+        echo "Error: --batch-size requires a value"
+        exit 1
       fi
-      BATCH_SIZE="$2"; shift 2
+      BATCH_SIZE="$2"
+      shift 2
       ;;
-    --retry-failed) RETRY_FAILED=true; shift ;;
-    --status) STATUS_ONLY=true; shift ;;
-    --dry-run) DRY_RUN=true; shift ;;
-    v*) VERSION="$1"; shift ;;
-    [0-9]*) VERSION="v$1"; shift ;;
-    *) echo "Unknown argument: $1"; exit 1 ;;
+    --retry-failed)
+      RETRY_FAILED=true
+      shift
+      ;;
+    --status)
+      STATUS_ONLY=true
+      shift
+      ;;
+    --dry-run)
+      DRY_RUN=true
+      shift
+      ;;
+    v*)
+      VERSION="$1"
+      shift
+      ;;
+    [0-9]*)
+      VERSION="v$1"
+      shift
+      ;;
+    *)
+      echo "Unknown argument: $1"
+      exit 1
+      ;;
   esac
 done
 

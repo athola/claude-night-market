@@ -40,7 +40,10 @@ if [[ -n "${SUBTITLE_FONT:-}" ]]; then
   FONT="${SUBTITLE_FONT}"
 else
   for f in "${FONT_CANDIDATES[@]}"; do
-    if [[ -f "$f" ]]; then FONT="$f"; break; fi
+    if [[ -f "$f" ]]; then
+      FONT="$f"
+      break
+    fi
   done
 fi
 if [[ -z "$FONT" ]]; then
@@ -85,7 +88,9 @@ for sub in "${SUBS[@]}"; do
   filters+=("drawtext=fontfile='${font_esc}':text='${text_esc}':fontcolor=#ffffff:fontsize=14:x=(w-text_w)/2:y=h-26:box=1:boxcolor=0x000000@0.78:boxborderw=8:enable='between(t,${start},${end})'")
 done
 
-IFS=','; drawtext_chain="${filters[*]}"; unset IFS
+IFS=','
+drawtext_chain="${filters[*]}"
+unset IFS
 
 # Palette regen so the band doesn't quantize ugly against the
 # Catppuccin Mocha background.

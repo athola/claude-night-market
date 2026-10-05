@@ -54,9 +54,9 @@ echo
 # Check authentication
 echo "**Authentication**:"
 if gemini auth status &>/dev/null; then
-    echo "  Authenticated"
+  echo "  Authenticated"
 else
-    echo "  Not authenticated or quota exhausted"
+  echo "  Not authenticated or quota exhausted"
 fi
 echo
 

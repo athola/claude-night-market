@@ -29,7 +29,10 @@ for arg in "$@"; do
     --dry-run) DRY_RUN=true ;;
     v*) VERSION="$arg" ;;
     [0-9]*) VERSION="v$arg" ;;
-    *) echo "Unknown argument: $arg"; exit 1 ;;
+    *)
+      echo "Unknown argument: $arg"
+      exit 1
+      ;;
   esac
 done
 
@@ -72,8 +75,8 @@ echo "Authenticated as: $CLAWHUB_USER"
 
 # ---------- build artifacts if needed ----------
 
-if [ ! -d "$REPO_ROOT/$SKILLS_DIR" ] || \
-   [ ! -f "$REPO_ROOT/$SKILLS_DIR/manifest.json" ]; then
+if [ ! -d "$REPO_ROOT/$SKILLS_DIR" ] ||
+  [ ! -f "$REPO_ROOT/$SKILLS_DIR/manifest.json" ]; then
   echo "Building clawhub export..."
   cd "$REPO_ROOT"
   make clawhub-export
@@ -118,8 +121,8 @@ echo ""
 
 SUMMARY=$(
   SKILLS_DIR="$REPO_ROOT/$SKILLS_DIR" \
-  SEMVER="$SEMVER" VERSION="$VERSION" \
-  DRY_RUN="$DRY_RUN" CLAWHUB="$CLAWHUB" python3 -c '
+    SEMVER="$SEMVER" VERSION="$VERSION" \
+    DRY_RUN="$DRY_RUN" CLAWHUB="$CLAWHUB" python3 -c '
 import json, os, shlex, subprocess, sys
 from pathlib import Path
 

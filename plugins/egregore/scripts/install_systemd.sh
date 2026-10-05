@@ -13,7 +13,7 @@ SERVICE_NAME="egregore-watchdog"
 
 mkdir -p "$UNIT_DIR"
 
-cat > "$UNIT_DIR/${SERVICE_NAME}.service" << EOF
+cat >"$UNIT_DIR/${SERVICE_NAME}.service" <<EOF
 [Unit]
 Description=Egregore Watchdog Service
 
@@ -23,7 +23,7 @@ WorkingDirectory=${WORKING_DIR}
 ExecStart="${EXEC_SCRIPT}"
 EOF
 
-cat > "$UNIT_DIR/${SERVICE_NAME}.timer" << EOF
+cat >"$UNIT_DIR/${SERVICE_NAME}.timer" <<EOF
 [Unit]
 Description=Egregore Watchdog Timer
 
