@@ -131,6 +131,23 @@ class TestHookAutoTrigger:
         assert result["suggest"] is False
         assert result["confidence"] < 0.7
 
+    def test_keyword_inside_another_word_does_not_count(self) -> None:
+        """'vs' inside 'devs' is not a strategic keyword.
+
+        Math review finding C2-18: the substring added 0.3 and flipped the
+        verdict, 0.85 for "...for the devs" against 0.55 for "...for the team".
+        """
+        devs = WarRoomOrchestrator.should_suggest_war_room(
+            "Refactor the complex parser for the devs"
+        )
+        team = WarRoomOrchestrator.should_suggest_war_room(
+            "Refactor the complex parser for the team"
+        )
+
+        assert "vs" not in devs["keywords_matched"]
+        assert devs["suggest"] is team["suggest"] is False
+        assert devs["confidence"] == team["confidence"]
+
     def test_suggest_war_room_trade_off(self) -> None:
         """Trade-off with complexity triggers suggestion."""
         result = WarRoomOrchestrator.should_suggest_war_room(

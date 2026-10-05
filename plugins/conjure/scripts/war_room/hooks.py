@@ -5,7 +5,17 @@ Contains should_suggest_war_room for analyzing user messages.
 
 from __future__ import annotations
 
+import re
 from typing import Any
+
+
+def _matched(keywords: list[str], text: str) -> list[str]:
+    """Keywords that start a word in text.
+
+    Anchoring the start keeps "vs" from matching inside "devs" while
+    "refactor" still matches "refactoring".
+    """
+    return [kw for kw in keywords if re.search(rf"\b{re.escape(kw)}", text)]
 
 
 def should_suggest_war_room(
@@ -67,9 +77,9 @@ def should_suggest_war_room(
         "choice between",
     ]
 
-    matched_strategic = [kw for kw in strategic_keywords if kw in message_lower]
-    matched_stakes = [kw for kw in stakes_keywords if kw in message_lower]
-    matched_multi = [kw for kw in multi_option_keywords if kw in message_lower]
+    matched_strategic = _matched(strategic_keywords, message_lower)
+    matched_stakes = _matched(stakes_keywords, message_lower)
+    matched_multi = _matched(multi_option_keywords, message_lower)
 
     all_matched = matched_strategic + matched_stakes + matched_multi
 
