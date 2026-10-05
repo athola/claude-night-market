@@ -36,7 +36,6 @@ ALLOWLIST = frozenset(
         "scripts/clawhub-batch-publish.sh",
         "scripts/clawhub-cron.sh",
         "scripts/clawhub-submit.sh",
-        "scripts/reinstall-all-plugins.sh",
         "scripts/shared/check-json-utils-drift.sh",
         "scripts/without-git-env.sh",
     }
