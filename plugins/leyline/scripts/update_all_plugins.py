@@ -67,11 +67,13 @@ def update_plugin(plugin_full_name: str) -> tuple[bool, str, str]:
             # Check for successful update
             if "updated from" in output:
                 # Extract old and new versions
-                old_match = re.search(r"updated from ([^ ]+) to", output)
-                new_match = re.search(r"to ([^.]+)", output)
-                old_version = old_match.group(1) if old_match else "unknown"
-                new_version = new_match.group(1) if new_match else "unknown"
-                return True, old_version, new_version
+                # One anchored pattern for both; a trailing "." ends the
+                # sentence and is not part of the version.
+                versions = re.search(
+                    r"updated from (\S+?)\.? to (\S+?)\.?(?:\s|$)", output
+                )
+                if versions:
+                    return True, versions.group(1), versions.group(2)
 
             # Assume success but couldn't parse versions
             return True, "unknown", "unknown"
