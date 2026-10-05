@@ -12,6 +12,7 @@ tools:
   - Bash
 model: sonnet
 effort: medium
+omitClaudeMd: true
 ---
 
 You are an academic literature research agent. Your job

@@ -12,6 +12,7 @@ tools:
   - Read
 model: opus
 effort: high
+omitClaudeMd: true
 ---
 
 You are a TRIZ cross-domain analysis agent. Your job is

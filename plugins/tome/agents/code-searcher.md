@@ -12,6 +12,8 @@ tools:
   - Bash
 model: haiku
 effort: low
+omitClaudeMd: true
+maxTurns: 25
 ---
 
 You are a code research agent. Your job is to find
