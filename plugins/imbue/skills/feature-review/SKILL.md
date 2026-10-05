@@ -132,13 +132,16 @@ Apply hybrid RICE+WSJF scoring:
 ```
 Feature Score = Value Score / Cost Score
 
-Value Score = (Reach + Impact + Business Value + Time Criticality) / 4
-Cost Score = (Effort + Risk + Complexity) / 3
+Value Score = weighted_avg(Reach, Impact, Business Value, Time Criticality)
+Cost Score = weighted_avg(Effort, Risk, Complexity)
 
 Adjusted Score = Feature Score * Confidence
 ```
 
 **Scoring Scale:** Fibonacci (1, 2, 3, 5, 8, 13).
+Default weights (value: reach 0.25, impact 0.30, business value 0.25,
+time criticality 0.20; cost: effort 0.40, risk 0.30, complexity 0.30)
+and how to override them are in the scoring framework module.
 
 **Thresholds:**
 - **> 2.5**: High priority.
