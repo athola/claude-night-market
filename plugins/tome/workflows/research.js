@@ -85,6 +85,8 @@ const trizAnalysis = (c) =>
     ? `\n\nTRIZ analysis (tome.channels.triz analyze):\n${typeof input.trizAnalysis === 'string' ? input.trizAnalysis : JSON.stringify(input.trizAnalysis)}`
     : ''
 
+// This prompt carries no channel card (render_card needs Python), so each
+// retrieval agent file must carry its own positive-control procedure.
 const returned = await parallel(
   selected.map((c) => () =>
     agent(`${c.brief}\n\nTopic: ${input.topic}.${domain}${depth}${trizAnalysis(c)}\n\nRecord what you searched for, even when you find nothing. An empty channel and a broken channel must not look alike.`, {
