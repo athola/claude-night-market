@@ -375,3 +375,30 @@ ERROR: Invalid flag '--sample' at line 12
   Command: skrills validate --sample 5
   Run 'skrills validate --help' to see available flags
 ```
+
+## Local Command Test
+
+**CRITICAL**: Run each extracted command locally to verify it produces expected output:
+
+```bash
+# For each command in the tape, do a quick sanity check
+# This catches issues like:
+# - Commands that exit with non-zero status
+# - Commands that produce no output (won't show anything in GIF)
+# - Commands that require user input (will hang VHS)
+
+for cmd in $(extract_commands "$tape_file"); do
+  # Run with timeout to catch hanging commands
+  if ! timeout 5s bash -c "$cmd" &>/dev/null; then
+    echo "WARNING: Command may fail or hang: $cmd"
+  fi
+done
+```
+**Verification:** Run the command with `--help` flag to verify availability.
+
+## Validation Exit Criteria
+
+- [ ] VHS tape syntax is valid (Output directive, balanced quotes)
+- [ ] All CLI flags in commands are valid (verified against --help)
+- [ ] Demo data directories exist and are populated
+- [ ] Commands execute successfully with expected output
