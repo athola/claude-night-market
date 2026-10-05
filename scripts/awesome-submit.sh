@@ -31,10 +31,10 @@ for arg in "$@"; do
 done
 
 if [ -z "$VERSION" ]; then
-  VERSION="v$(python3 -c "
-import json
-print(json.load(open('$REPO_ROOT/plugins/abstract/.claude-plugin/plugin.json'))['version'])
-")"
+  VERSION="v$(REPO_ROOT="$REPO_ROOT" python3 -c '
+import json, os
+print(json.load(open(os.path.join(os.environ["REPO_ROOT"], "plugins/abstract/.claude-plugin/plugin.json")))["version"])
+')"
   echo "Auto-detected version: $VERSION"
 fi
 
@@ -55,10 +55,10 @@ echo "Authenticated as: $FORK_OWNER"
 
 # Count skills from export manifest or plugin.json
 if [ -f "$REPO_ROOT/clawhub/manifest.json" ]; then
-  SKILLS=$(python3 -c "
-import json
-print(json.load(open('$REPO_ROOT/clawhub/manifest.json'))['total_exported'])
-")
+  SKILLS=$(REPO_ROOT="$REPO_ROOT" python3 -c '
+import json, os
+print(json.load(open(os.path.join(os.environ["REPO_ROOT"], "clawhub/manifest.json")))["total_exported"])
+')
 else
   SKILLS="100+"
 fi
@@ -100,21 +100,27 @@ for TARGET in "${TARGETS[@]}"; do
     continue
   fi
 
-  # Ensure a dedicated fork exists for THIS upstream.
-  gh repo fork "$TARGET" --fork-name "$FORK_NAME" --clone=false 2>&1 || true
+  # A dry run previews against the upstream itself. Forking and syncing
+  # are changes on GitHub, and they ran before the dry-run check below.
+  CLONE_SOURCE="$TARGET"
+  if [ "$DRY_RUN" != true ]; then
+    # Ensure a dedicated fork exists for THIS upstream.
+    gh repo fork "$TARGET" --fork-name "$FORK_NAME" --clone=false 2>&1 || true
 
-  if ! gh repo view "${FORK_OWNER}/${FORK_NAME}" --json name -q .name > /dev/null 2>&1; then
-    echo "Warning: Cannot access fork ${FORK_OWNER}/${FORK_NAME}, skipping"
-    continue
+    if ! gh repo view "${FORK_OWNER}/${FORK_NAME}" --json name -q .name > /dev/null 2>&1; then
+      echo "Warning: Cannot access fork ${FORK_OWNER}/${FORK_NAME}, skipping"
+      continue
+    fi
+
+    # Sync fork
+    gh repo sync "${FORK_OWNER}/${FORK_NAME}" --branch main 2>&1 || true
+    CLONE_SOURCE="${FORK_OWNER}/${FORK_NAME}"
   fi
-
-  # Sync fork
-  gh repo sync "${FORK_OWNER}/${FORK_NAME}" --branch main 2>&1 || true
 
   WORKDIR=$(mktemp -d)
   trap 'rm -rf "$WORKDIR"' EXIT INT TERM
 
-  gh repo clone "${FORK_OWNER}/${FORK_NAME}" "$WORKDIR/repo" -- --depth=10
+  gh repo clone "$CLONE_SOURCE" "$WORKDIR/repo" -- --depth=10
   cd "$WORKDIR/repo"
 
   git config user.name "$FORK_OWNER"
@@ -170,7 +176,13 @@ PYEOF
     continue
   fi
 
-  git push --force-with-lease origin "$BRANCH"
+  # The shallow clone is single-branch, so a branch left by an earlier run
+  # is neither fetched nor treated as tracked, and a bare --force-with-lease
+  # rejected the push as stale. Fetch it and name the expected value; an
+  # empty value means the branch must not exist yet.
+  git fetch -q --depth=1 origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" 2>/dev/null || true
+  LEASE=$(git rev-parse -q --verify "refs/remotes/origin/$BRANCH" || true)
+  git push --force-with-lease="$BRANCH:$LEASE" origin "$BRANCH"
 
   # Check if a PR already exists for this branch (e.g. from a prior failed run)
   EXISTING_PR=$(gh pr list \
