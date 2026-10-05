@@ -384,6 +384,39 @@ class TestPreToolUseSettingsAudit:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_project_under_home_is_project_settings(self) -> None:
+        """Given ~/code/app/.claude/settings.json, source=project_settings.
+
+        Every checkout under $HOME was labelled user_settings because the
+        check was a home-directory prefix; user settings are the single
+        file ~/.claude/settings.json.
+        """
+        input_data = json.dumps(
+            {
+                "session_id": "sess-pre-4",
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Edit",
+                "tool_input": {
+                    "file_path": "/home/alice/code/app/.claude/settings.json",
+                    "old_string": "x",
+                    "new_string": "y",
+                },
+            }
+        )
+        mock_stdin = _make_stdin_mock(input_data)
+        with (
+            patch("sys.stdin", mock_stdin),
+            patch.dict("os.environ", {"HOME": "/home/alice"}),
+        ):
+            captured_stderr = StringIO()
+            with patch("sys.stderr", captured_stderr):
+                with pytest.raises(SystemExit):
+                    main()
+
+        assert "source=project_settings" in captured_stderr.getvalue()
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_skips_non_settings_edit(self) -> None:
         """Given a PreToolUse Edit on a non-settings file, no audit line."""
         input_data = json.dumps(
