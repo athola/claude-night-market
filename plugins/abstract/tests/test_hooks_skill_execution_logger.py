@@ -478,12 +478,12 @@ class TestContinualMetrics:
         entry = json.loads(log_file.read_text().strip().split("\n")[-1])
         metrics = entry.get("continual_metrics")
 
-        # With 3 failures in 6 executions: accuracies [0, 1, 0, 1, 0, 1]
-        # worst_case: 0.0, average: 0.5, stability_gap: 0.5
+        # Runs [0, 1, 0, 1, 0, 1]; windows of five score 0.4 and 0.6.
+        # worst_case: 0.4, average: 0.5, stability_gap: 1 - 0.4 = 0.6
         assert metrics["execution_count"] == 6
-        assert metrics["worst_case_accuracy"] == 0.0
+        assert metrics["worst_case_accuracy"] == pytest.approx(0.4)
         assert metrics["average_accuracy"] == 0.5
-        assert metrics["stability_gap"] == 0.5
+        assert metrics["stability_gap"] == pytest.approx(0.6)
 
     def test_should_warn_when_stability_gap_exceeds_threshold(
         self, post_skill_env: dict[str, str], tmp_path: Path
