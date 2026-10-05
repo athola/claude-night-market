@@ -6,11 +6,19 @@ control signal used to discount Gain estimates.
 
 ## Formula
 
+`StepCost(a | s_t) -> [0, 1]`
+
 ```
-StepCost(a | s_t) = w1 * step_ratio
-                  + w2 * token_ratio
-                  + w3 * model_cost_ratio
+StepCost(a | s_t) = min(1.0, w1 * step_ratio
+                           + w2 * token_ratio
+                           + w3 * model_cost_ratio
+                           + coordination_overhead)
 ```
+
+The cap keeps StepCost on the same [0, 1] scale as Gain, Uncertainty
+and Redundancy, which is what the stated utility range in `SKILL.md`
+assumes. Without it, dispatch overhead (up to +0.3) and a token_ratio
+above 1 push StepCost past 1.
 
 ## Component Definitions
 
@@ -49,7 +57,7 @@ Weights renormalize to w1 = 0.71, w3 = 0.29.
 ## Dispatch-Scope Overhead
 
 For actions in dispatch scope, add a `coordination_overhead` term
-derived from Brooks's Law:
+(inside the cap above) derived from Brooks's Law:
 
 | Agent count | Overhead |
 |-------------|----------|
