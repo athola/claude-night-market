@@ -25,8 +25,9 @@ design rationale behind a plugin, see
 ## Install
 
 Requires **Claude Code 2.1.16+** (2.1.32+ for agent teams, 2.1.38+
-for security features) and **Python 3.9+** for hooks, which is what
-macOS ships.
+for security features, 2.1.287+ for the context and loop bands that
+conserve and egregore draw above the prompt) and **Python 3.9+** for
+hooks, which is what macOS ships.
 
 ```bash
 # Add the marketplace, then install the plugins you want
