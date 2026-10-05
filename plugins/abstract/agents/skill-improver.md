@@ -1,7 +1,6 @@
 ---
 name: skill-improver
-agent: true
-allowed-tools:
+tools:
   - Read
   - Write
   - Edit
@@ -9,7 +8,6 @@ allowed-tools:
   - Grep
   - Glob
 escalation: none
-context: fork
 isolation: worktree
 description: |
   Implements skill improvements based on observability data from LEARNINGS.md.

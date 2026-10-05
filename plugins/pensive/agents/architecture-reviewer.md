@@ -5,24 +5,6 @@ tools: [Read, Write, Edit, Bash, Glob, Grep]
 skills: pensive:architecture-review, imbue:proof-of-work, imbue:review-core
 
 # Claude Code 2.1.0+ lifecycle hooks
-hooks:
-  PreToolUse:
-    - matcher: "Read|Grep|Glob"
-      command: |
-        echo "[architecture-reviewer] 🔍 Analyzing codebase structure at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/architecture-audit.log
-      once: true  # Log once per session to reduce noise
-  PostToolUse:
-    - matcher: "Bash"
-      command: |
-        # Track architecture analysis commands (LSP, grep patterns)
-        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(cloc|scc|tokei|dependency-graph)"; then
-          echo "[architecture-reviewer] 📊 Metrics gathered: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/architecture-audit.log
-        fi
-  Stop:
-    - command: |
-        echo "[architecture-reviewer] === Review completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/architecture-audit.log
-        # Optional: Could export findings to ADR (Architecture Decision Record)
-
 examples:
   - context: User planning a major refactor
     user: "I'm planning to restructure this module, can you review the approach?"

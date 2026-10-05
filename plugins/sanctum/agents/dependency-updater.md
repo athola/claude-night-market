@@ -17,45 +17,12 @@ tools:
 - TodoWrite
 isolation: worktree
 memory: project
-permissionMode: acceptEdits
 escalation:
   to: opus
   hints:
   - complex_conflict_resolution
   - breaking_api_changes
   - security_vulnerabilities
-hooks:
-  PreToolUse:
-  - matcher: Bash
-    command: "# Log and validate package manager operations\nif echo \"$CLAUDE_TOOL_INPUT\"\
-      \ | grep -qE \"(npm|pip|uv|cargo|go) (install|add|update|upgrade|remove)\";\
-      \ then\n  cmd=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r '.command // empty' 2>/dev/null\
-      \ || echo 'N/A')\n  echo \"[dependency-updater] ⚠️  Package operation: $cmd\"\
-      \ >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log\n\n  # Security: Warn\
-      \ on install operations\n  if echo \"$cmd\" | grep -qE \"install|add\"; then\n\
-      \    echo \"[dependency-updater] WARNING: Installing new package - ensure security\
-      \ review completed\" >&2\n  fi\nfi\n"
-    once: false
-  - matcher: Write|Edit
-    command: "# Track dependency file modifications\nfile=$(echo \"$CLAUDE_TOOL_INPUT\"\
-      \ | jq -r '.file_path // empty' 2>/dev/null)\nif echo \"$file\" | grep -qE \"\
-      (package\\.json|package-lock\\.json|Cargo\\.toml|Cargo\\.lock|pyproject\\.toml|uv\\\
-      .lock|go\\.mod|go\\.sum)\"; then\n  echo \"[dependency-updater] \U0001F4DD Modifying\
-      \ dependency file: $file at $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log\n\
-      fi\n"
-    once: false
-  PostToolUse:
-  - matcher: Bash
-    command: "# Capture version check results\nif echo \"$CLAUDE_TOOL_INPUT\" | grep\
-      \ -qE \"(outdated|list --outdated|npm outdated|cargo outdated)\"; then\n  echo\
-      \ \"[dependency-updater] ✓ Version check completed: $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log\n\
-      fi\n"
-  Stop:
-  - command: "echo \"[dependency-updater] === Update session completed at $(date)\
-      \ ===\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log\n# Optional: Export\
-      \ summary to security dashboard\nif [ -f ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log\
-      \ ]; then\n  echo \"[dependency-updater] Audit log: $(wc -l < ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log)\
-      \ entries\" >&2\nfi\n"
 examples:
 - context: User wants to check for outdated dependencies
   user: Check if any dependencies need updating

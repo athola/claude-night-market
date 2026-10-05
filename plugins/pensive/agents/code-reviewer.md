@@ -17,14 +17,6 @@ tools: [Read, Write, Edit, Bash, Glob, Grep]
 skills: imbue:proof-of-work, pensive:bug-review, imbue:review-core
 
 # Claude Code 2.1.0+ lifecycle hooks
-hooks:
-  PreToolUse:
-    - matcher: "Bash"
-      command: "echo '[code-reviewer] Executing: $CLAUDE_TOOL_INPUT' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/review-audit.log"
-      once: false
-  Stop:
-    - command: "echo '[code-reviewer] Review completed at $(date)' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/review-audit.log"
-
 escalation:
   to: opus
   hints:

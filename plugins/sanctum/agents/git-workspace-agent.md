@@ -16,18 +16,7 @@ tools:
 - Bash
 - Glob
 - Grep
-permissionMode: default
 skills: sanctum:git-workspace-review
-hooks:
-  PreToolUse:
-  - matcher: Bash
-    command: "# Ensure only read-only git commands (no push, commit, reset --hard)\n\
-      if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE \"git (push|commit|reset --hard|rebase)\"\
-      ; then\n  echo \"[git-workspace-agent] WARNING: Write operation attempted\"\
-      \ >&2\nfi\n"
-    once: false
-  Stop:
-  - command: echo '[git-workspace-agent] Analysis completed' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/git-audit.log
 escalation:
   to: sonnet
   hints:

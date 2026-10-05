@@ -35,13 +35,6 @@ examples:
     assistant: "I'll scan for duplication, unnecessary abstractions, and algorithmic inefficiencies."
 
 # Lifecycle hooks
-hooks:
-  PreToolUse:
-    - matcher: "Bash"
-      command: "echo '[code-refiner] Executing: $CLAUDE_TOOL_INPUT' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/refine-audit.log"
-      once: false
-  Stop:
-    - command: "echo '[code-refiner] Refinement completed at $(date)' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/refine-audit.log"
 model: sonnet
 effort: medium
 ---
