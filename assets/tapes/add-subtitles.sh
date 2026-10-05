@@ -22,18 +22,29 @@ TMPDIR="$(mktemp -d)"
 trap 'rm -rf "$TMPDIR"' EXIT
 TMP_GIF="$TMPDIR/captioned.gif"
 
-# Pick a font that ships on most Linux boxes; fall back gracefully.
+# SUBTITLE_FONT names a font file directly. Otherwise take the first
+# candidate present: common Linux fonts, then fonts every macOS ships.
 FONT_CANDIDATES=(
   "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
   "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
   "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf"
+  "/System/Library/Fonts/Supplemental/Arial Bold.ttf"
+  "/System/Library/Fonts/Helvetica.ttc"
 )
 FONT=""
-for f in "${FONT_CANDIDATES[@]}"; do
-  if [[ -f "$f" ]]; then FONT="$f"; break; fi
-done
+if [[ -n "${SUBTITLE_FONT:-}" ]]; then
+  if [[ ! -f "${SUBTITLE_FONT}" ]]; then
+    echo "ERROR: SUBTITLE_FONT=${SUBTITLE_FONT} is not a file" >&2
+    exit 1
+  fi
+  FONT="${SUBTITLE_FONT}"
+else
+  for f in "${FONT_CANDIDATES[@]}"; do
+    if [[ -f "$f" ]]; then FONT="$f"; break; fi
+  done
+fi
 if [[ -z "$FONT" ]]; then
-  echo "ERROR: no candidate font found; install fonts-dejavu" >&2
+  echo "ERROR: no candidate font found; install fonts-dejavu or set SUBTITLE_FONT" >&2
   exit 1
 fi
 
@@ -64,11 +75,14 @@ escape() {
   printf '%s' "$s"
 }
 
+# Quoted and escaped like the text: "Arial Bold.ttf" has a space, and a
+# colon in a path would end the option.
+font_esc="$(escape "$FONT")"
 filters=()
 for sub in "${SUBS[@]}"; do
   IFS=':' read -r start end text <<<"$sub"
   text_esc="$(escape "$text")"
-  filters+=("drawtext=fontfile=${FONT}:text='${text_esc}':fontcolor=#ffffff:fontsize=14:x=(w-text_w)/2:y=h-26:box=1:boxcolor=0x000000@0.78:boxborderw=8:enable='between(t,${start},${end})'")
+  filters+=("drawtext=fontfile='${font_esc}':text='${text_esc}':fontcolor=#ffffff:fontsize=14:x=(w-text_w)/2:y=h-26:box=1:boxcolor=0x000000@0.78:boxborderw=8:enable='between(t,${start},${end})'")
 done
 
 IFS=','; drawtext_chain="${filters[*]}"; unset IFS
@@ -77,7 +91,7 @@ IFS=','; drawtext_chain="${filters[*]}"; unset IFS
 # Catppuccin Mocha background.
 vf="${drawtext_chain},split[a][b];[a]palettegen=stats_mode=full[p];[b][p]paletteuse=dither=sierra2_4a"
 
-echo "Burning subtitles into $INPUT…"
+echo "Burning subtitles into ${INPUT}…"
 ffmpeg -y -hide_banner -loglevel error -i "$INPUT" -vf "$vf" -loop 0 "$TMP_GIF"
 
 mv "$TMP_GIF" "$OUTPUT"
