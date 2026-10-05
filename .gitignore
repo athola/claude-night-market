@@ -44,6 +44,12 @@ wheels/
 # not this suffix.
 *.md.lock
 
+# Mod type declarations: Claude Code writes these beside a mod it loads
+# from --plugin-dir, stamped with its own version, and rewrites them on
+# every load. Committing them churns each release.
+plugins/*/.claude-plugin/types/
+plugins/*/tsconfig.json
+
 # Virtual environments
 .venv/
 .*-venv/
