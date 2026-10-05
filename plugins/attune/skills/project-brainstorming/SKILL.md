@@ -3,7 +3,6 @@ name: project-brainstorming
 description: Guides project ideation via Socratic questioning to produce a validated brief. Use before specification when requirements are unclear.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model: sonnet
 category: workflow
 tags: [brainstorming, ideation, planning, requirements, socratic-method]
 complexity: intermediate

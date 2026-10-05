@@ -4,7 +4,6 @@ description: Configures pre-commit hooks for linting, type checking, formatting,
 globs: "**/.pre-commit-config.yaml"
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model: sonnet
 tools:
 - Read
 - Write
