@@ -34,13 +34,13 @@ from memory_palace.corpus.semantic_deduplicator import (  # noqa: E402 - import 
 #: ``test_content_pairs_straddle_the_default_threshold`` so a change to
 #: ``_hash_to_vector`` cannot quietly turn the duplicate cases into
 #: distinct ones.
-DISTINCT_A = "epsilon"
-DISTINCT_B = "nu"
-NEAR_DUPLICATE_A = "xi"
-NEAR_DUPLICATE_B = "upsilon"
+DISTINCT_A = "nu"
+DISTINCT_B = "phi"
+NEAR_DUPLICATE_A = "kappa"
+NEAR_DUPLICATE_B = "psi"
 #: A pair below 0.8 but above 0.5, for the custom-threshold case.
 MIDDLING_A = "alpha"
-MIDDLING_B = "epsilon"
+MIDDLING_B = "eta"
 
 
 def _embeddings(entry_id: str, content: str, dim: int = 4) -> dict[str, list[float]]:
@@ -295,9 +295,9 @@ class TestSemanticDeduplicatorFaiss:
         )
         middling = _measured_similarity(MIDDLING_B, _embeddings("a", MIDDLING_A))
 
-        assert distinct == pytest.approx(0.397, abs=0.01)
-        assert near == pytest.approx(0.995, abs=0.01)
-        assert middling == pytest.approx(0.515, abs=0.01)
+        assert distinct == pytest.approx(0.312, abs=0.01)
+        assert near == pytest.approx(0.979, abs=0.01)
+        assert middling == pytest.approx(0.632, abs=0.01)
         assert distinct < DEFAULT_THRESHOLD <= near
         assert 0.5 <= middling < DEFAULT_THRESHOLD
 
@@ -405,6 +405,30 @@ class TestSemanticDeduplicatorInternalIndex:
         deduplicator.should_store(content)
         assert deduplicator.get_near_duplicate_count("fox-entry") == 1
 
+    @pytest.mark.unit
+    def test_unrelated_texts_are_stored_against_a_populated_index(
+        self, deduplicator: SemanticDeduplicator
+    ) -> None:
+        """Scenario: Hash fallback against many unrelated entries
+        Given 200 unrelated notes indexed through the hash fallback
+        When 200 further unrelated texts are offered
+        Then every one is stored, because unrelated hash vectors are
+        near-orthogonal rather than sharing a positive mean component.
+        """
+        for i in range(200):
+            deduplicator.add_vector(
+                f"e{i}",
+                _hash_to_vector(f"unrelated note number {i} about topic {i * 7}", 128),
+            )
+
+        rejected = [
+            j
+            for j in range(200)
+            if not deduplicator.should_store(f"fresh distinct text {j} zz")
+        ]
+
+        assert rejected == []
+
 
 # ---------------------------------------------------------------------------
 # Module-level helpers
@@ -461,6 +485,23 @@ class TestModuleLevelHelpers:
         v1 = _hash_to_vector("Hello World", 32)
         v2 = _hash_to_vector("hello world", 32)
         assert v1 == v2
+
+    @pytest.mark.unit
+    def test_unrelated_texts_hash_to_near_orthogonal_vectors(self) -> None:
+        """Scenario: Expected cosine of unrelated hash vectors
+        Given 50 unrelated texts hashed at dim=128
+        When the cosine of every pair is averaged
+        Then the mean is near 0, not the 0.75 that non-negative
+        components force (E[xy]/E[x^2] = (1/4)/(1/3)).
+        """
+        vecs = [_hash_to_vector(f"unrelated text {i}", 128) for i in range(50)]
+        cosines = [
+            sum(a * b for a, b in zip(vecs[i], vecs[j]))
+            for i in range(len(vecs))
+            for j in range(i + 1, len(vecs))
+        ]
+
+        assert abs(sum(cosines) / len(cosines)) < 0.05
 
     @pytest.mark.unit
     def test_content_id_custom_length(self) -> None:
