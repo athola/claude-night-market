@@ -22,7 +22,7 @@ export const meta = {
   description:
     'Review changed code across dimensions, adversarially verify each finding, and return one ranked list',
   whenToUse:
-    'Run when a change needs more than one review lens and the findings must survive a skeptic. Requires an explicit request: this repository never starts a workflow on its own. Subagents take the session's permission mode, so in an accept-edits or auto session their edits land unreviewed: the prompts are scoped to reading.',
+    'Run when a change needs more than one review lens and the findings must survive a skeptic. Requires an explicit request: this repository never starts a workflow on its own. Subagents take the permission mode of the session, so in an accept-edits or auto session their edits land unreviewed: the prompts are scoped to reading.',
   phases: [
     { title: 'Review', detail: 'one agent per review dimension' },
     { title: 'Verify', detail: 'three adversarial lenses per finding' },
