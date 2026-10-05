@@ -33,7 +33,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y shellcheck ripgrep
           curl -fsSL -o /tmp/shfmt \
-            https://github.com/mvdan/sh/releases/download/v3.10.0/shfmt_v3.10.0_linux_amd64
+            https://github.com/mvdan/sh/releases/download/v3.13.1/shfmt_v3.13.1_linux_amd64
           sudo install -m 0755 /tmp/shfmt /usr/local/bin/shfmt
           shellcheck --version
           shfmt --version
