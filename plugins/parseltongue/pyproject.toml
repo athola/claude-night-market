@@ -30,21 +30,14 @@ dependencies = []
 dev = [
     "pytest>=8.0",
     "pytest-cov>=7.1.0",
-    "pytest-mock>=3.15.1",
     "pytest-asyncio>=1.2.0",
     "pytest-xdist>=3.8.0",
     "pytest-benchmark>=4.0.0",
     "coverage>=7.10.7",
-    "black>=25.11.0",
     "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
     "pre-commit>=4.3.0",
     "bandit>=1.8.6,<2.0",
-]
-docs = [
-    "mkdocs>=1.6.1",
-    "mkdocs-material>=9.7.7",
-    "mkdocstrings[python]>=0.22.0",
 ]
 
 [project.urls]
