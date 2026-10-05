@@ -211,6 +211,34 @@ class TestComputeMetrics:
         assert metrics.lead_time_hours is None
         assert metrics.time_to_restore_hours is None
 
+    def test_change_failure_rate_never_exceeds_one(self) -> None:
+        """More failure issues than deploys still reads as 100%, not 150%.
+
+        Failures are not linked to deploys, so three bug issues against
+        two deploys says at most that every deploy failed.
+        """
+        end = datetime(2026, 10, 1, tzinfo=timezone.utc)
+        deploys = [
+            DeploymentEvent(
+                sha=str(i),
+                deployed_at=end - timedelta(days=i + 1),
+                commit_at=end - timedelta(days=i + 1),
+            )
+            for i in range(2)
+        ]
+        failures = [
+            FailureEvent(
+                opened_at=end - timedelta(days=i + 1),
+                resolved_at=end - timedelta(days=i),
+            )
+            for i in range(3)
+        ]
+
+        metrics = compute_metrics(deploys, failures, window_days=30, window_end=end)
+
+        assert metrics.change_failure_rate == 1.0
+        assert "150" not in format_report(metrics, window_days=30)
+
     def test_basic_window(self) -> None:
         """Deployment frequency and lead time are computed from a run of deploys."""
         now = datetime(2026, 5, 1, tzinfo=timezone.utc)

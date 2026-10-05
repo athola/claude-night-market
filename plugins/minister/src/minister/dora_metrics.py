@@ -343,8 +343,11 @@ def compute_metrics(
     ]
     lt: float | None = _median_or_none(lead_times)
 
+    # Failures are counted, not linked to the deploy that caused them, so
+    # more failure issues than deploys means at most "every deploy failed".
+    # Capping keeps the rate inside the documented 0.0 - 1.0.
     cfr: float | None = (
-        len(in_window_failures) / len(in_window_deploys)
+        min(len(in_window_failures), len(in_window_deploys)) / len(in_window_deploys)
         if in_window_deploys
         else None  # No deploys -> CFR is undefined, not "0% / Elite"
     )
