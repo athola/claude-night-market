@@ -134,6 +134,35 @@ class TestNearestKnown:
         assert pg.nearest_known("my-internal-tool-xyz", "pypi") is None
 
 
+class TestPypiNamesCompareAfterNormalization:
+    """Math review finding C29: PEP 503 spellings of one project are one name.
+
+    PyPI compares names after lowercasing and collapsing runs of
+    ``-``, ``_`` and ``.`` to ``-``, so ``scikit_learn`` and ``Requests``
+    install the same projects as ``scikit-learn`` and ``requests``.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("name", ["scikit_learn", "Requests", "Scikit.Learn"])
+    def test_an_equivalent_spelling_is_not_a_typosquat(self, pg, name):
+        assert pg.nearest_known(name, "pypi") is None
+        assert pg.assess_packages(f"pip install {name}") == []
+
+    @pytest.mark.unit
+    def test_a_real_typo_is_still_flagged_after_normalizing(self, pg):
+        assert pg.nearest_known("Reqeusts", "pypi") == "requests"
+
+    @pytest.mark.unit
+    def test_npm_names_are_compared_as_written(self, pg):
+        """Normalization is PyPI's rule, not npm's."""
+        assert pg.nearest_known("React", "npm") == "react"
+
+    @pytest.mark.unit
+    def test_every_known_pypi_name_is_already_normalized(self, pg):
+        known = pg.KNOWN_POPULAR["pypi"]
+        assert all(pg.normalize_name(n, "pypi") == n for n in known)
+
+
 class TestAssessPackages:
     """Feature: classify each package as ok, typosquat, or nonexistent."""
 
