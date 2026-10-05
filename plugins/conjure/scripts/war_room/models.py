@@ -59,11 +59,16 @@ class MerkleDAG:
         content_hash = sha256(content.encode()).hexdigest()
         metadata_hash = sha256(f"{expert.role}:{expert.model}".encode()).hexdigest()
         combined_hash = sha256(f"{content_hash}:{metadata_hash}".encode()).hexdigest()
+        # Content and expert alone do not identify a contribution: a native
+        # expert returns the same placeholder in every phase, and keying on
+        # them overwrote the earlier node. The DAG position makes each
+        # contribution its own node.
+        node_id = sha256(f"{combined_hash}:{len(self.nodes)}".encode()).hexdigest()[:16]
 
         label = self._generate_label(phase)
 
         node = DeliberationNode(
-            node_id=combined_hash[:16],
+            node_id=node_id,
             parent_id=parent_id,
             round_number=round_number,
             phase=phase,

@@ -178,3 +178,31 @@ class TestMerkleDAGEdgeCases:
         )
 
         assert node1.content_hash == node2.content_hash
+
+    def test_same_response_in_two_phases_keeps_both_nodes(self) -> None:
+        """An expert repeating itself across phases records two contributions.
+
+        Math review finding C2-3: node_id came from content and expert
+        alone, so a native expert's constant placeholder in assessment
+        and coa collapsed to one node and verify_merkle_dag still passed.
+        """
+        dag = MerkleDAG(session_id="repeat")
+        expert = ExpertInfo(role="Chief Strategist", model="native")
+        dag.add_contribution("placeholder", "assessment", 1, expert)
+        dag.add_contribution("placeholder", "coa", 1, expert)
+
+        assert sorted(n.phase for n in dag.nodes.values()) == ["assessment", "coa"]
+
+    def test_identical_contribution_twice_records_two_nodes(self) -> None:
+        """A repeated call is a second contribution, not a replacement.
+
+        Delphi revisions and Haiku fallbacks can return identical text in
+        the same phase and round; both calls happened and both are kept.
+        """
+        dag = MerkleDAG(session_id="dup")
+        expert = ExpertInfo(role="Role", model="Model")
+        first = dag.add_contribution("same", "coa", 1, expert)
+        second = dag.add_contribution("same", "coa", 1, expert)
+
+        assert first.node_id != second.node_id
+        assert len(dag.nodes) == 2
