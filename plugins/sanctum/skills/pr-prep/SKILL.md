@@ -23,20 +23,7 @@ dependencies:
 - imbue:justify
 - imbue:structured-output
 - scribe:slop-detector
-- scribe:doc-generator
-hooks:
-  PreToolUse:
-  - matcher: Bash
-    command: "# Log quality gate execution\ncmd=$(jq -r '.tool_input.command // empty' 2>/dev/null || echo 'N/A')\nif echo \"$cmd\" | grep -qE \"(make|npm|cargo|pytest|ruff|eslint|clippy) (test|lint|fmt|build|check)\"; then\n  echo \"[skill:pr-prep] Quality gate: $cmd at $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\nfi\n"
-    once: false
-  PostToolUse:
-  - matcher: Write
-    command: "# Track PR template generation\nfile=$(jq -r '.tool_input.file_path // empty' 2>/dev/null)\nif echo \"$file\" | grep -qE \"(pr[-_]description|PR[-_]TEMPLATE|pull[-_]request)\"; then\n  echo \"[skill:pr-prep] PR template written: $file at $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\nfi\n"
-  Stop:
-  - command: 'echo "[skill:pr-prep] === Workflow completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-
-      '
----
+- scribe:doc-generator---
 # Pull Request Preparation Workflow
 
 ## When NOT To Use
@@ -148,8 +135,7 @@ never as a pass. Step 2 is where `passes_checks` gets its answer.
 
 Then use the notes from the workspace review and the analyzer's
 categories to identify the key points in the diffs, and group them
-into 2-4 paragraphs highlighting the technical changes and their
-rationale. Note breaking changes, migrations, or documentation updates.
+into 2-4 paragraphs on the technical changes and their rationale. Note breaking changes, migrations, or documentation updates.
 
 ## Step 4: Document Testing (`testing-documented`)
 

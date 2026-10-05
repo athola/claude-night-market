@@ -5,12 +5,6 @@ alwaysApply: false
 category: conservation
 token_budget: 200
 progressive_loading: true
-hooks:
-  PreToolUse:
-  - matcher: Task
-    command: 'echo "[skill:clear-context] Subagent delegation at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/clear-context-audit.log
-
-      '
 model_hint: standard
 role: library
 ---
