@@ -35,6 +35,33 @@ def _persist_queue(queue: dict[str, Any], queue_path: Path) -> None:
     queue_path.write_text(json.dumps(queue, indent=2) + "\n", encoding="utf-8")
 
 
+def _parse_mark(last_recomputed: str | None) -> dt.datetime | None:
+    if not last_recomputed:
+        return None
+    try:
+        last = dt.datetime.fromisoformat(str(last_recomputed).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if last.tzinfo is None:
+        last = last.replace(tzinfo=dt.timezone.utc)
+    return last
+
+
+def next_recompute_mark(last_recomputed: str | None, now: dt.datetime) -> str:
+    """Advance the mark by the whole days ``effective_decay`` charged.
+
+    Storing ``now`` would discard the part of a day past the last
+    boundary on every run: runs 47 hours apart would decay one day each.
+    Without a usable prior mark there is nothing to carry, so ``now``
+    becomes the baseline.
+    """
+    last = _parse_mark(last_recomputed)
+    if last is None:
+        return now.isoformat()
+    elapsed_days = max((now - last).days, 0)
+    return (last + dt.timedelta(days=elapsed_days)).isoformat()
+
+
 def effective_decay(
     rate_per_day: int, last_recomputed: str | None, now: dt.datetime
 ) -> int:
@@ -46,22 +73,23 @@ def effective_decay(
     same-day runs do not over-decay. Otherwise returns
     ``rate_per_day * elapsed_days``.
     """
-    if not last_recomputed:
+    last = _parse_mark(last_recomputed)
+    if last is None:
         return 0
-    try:
-        last = dt.datetime.fromisoformat(str(last_recomputed).replace("Z", "+00:00"))
-    except ValueError:
-        return 0
-    if last.tzinfo is None:
-        last = last.replace(tzinfo=dt.timezone.utc)
     elapsed_days = (now - last).days
     if elapsed_days <= 0:
         return 0
     return rate_per_day * elapsed_days
 
 
-def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
-    """Apply decay to vitality entries and build tending queue."""
+def decay_entries(
+    data: dict[str, Any], decay: int, recomputed_at: str | None = None
+) -> dict[str, Any]:
+    """Apply decay to vitality entries and build tending queue.
+
+    ``recomputed_at`` is the mark stored as ``last_recomputed``; it
+    defaults to the run time.
+    """
     entries = data.get("entries", {})
     stale_threshold = data.get("metadata", {}).get("stale_threshold", 10)
     now = dt.datetime.now(dt.timezone.utc).isoformat()
@@ -87,7 +115,7 @@ def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
                 queue["probation_overdue"].append(entry_id)
 
     metadata = data.setdefault("metadata", {})
-    metadata["last_recomputed"] = now
+    metadata["last_recomputed"] = recomputed_at or now
     return queue
 
 
@@ -138,7 +166,7 @@ def main() -> None:
     )
     changed = bootstrap or (decay > 0 and decayable)
 
-    queue = decay_entries(data, decay)
+    queue = decay_entries(data, decay, next_recompute_mark(last_recomputed, now))
 
     if not args.dry_run and changed:
         args.file.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
