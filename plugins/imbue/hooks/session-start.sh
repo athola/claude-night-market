@@ -109,14 +109,18 @@ EOF
       commits=0
       days_on_branch=0
 
-      if git rev-parse --verify "${base_branch}" >/dev/null 2>&1; then
-        stat_line=$(git diff "${base_branch}" --stat 2>/dev/null | tail -1)
+      # Same base resolution as user-prompt-submit.sh: fall back to master,
+      # and measure from the merge-base so upstream commits do not count.
+      merge_base=$(git merge-base "${base_branch}" HEAD 2>/dev/null) ||
+        merge_base=$(git merge-base master HEAD 2>/dev/null) || merge_base=""
+      if [ -n "${merge_base}" ]; then
+        stat_line=$(git diff "${merge_base}" --stat 2>/dev/null | tail -1)
         insertions=$(extract_stat_number "${stat_line}" "insertion")
         deletions=$(extract_stat_number "${stat_line}" "deletion")
         lines_changed=$((insertions + deletions))
-        commits=$(git rev-list --count "${base_branch}"..HEAD 2>/dev/null || printf '%s\n' "0")
+        commits=$(git rev-list --count "${merge_base}"..HEAD 2>/dev/null || printf '%s\n' "0")
 
-        merge_base_date=$(git log -1 --format=%ct "$(git merge-base "${base_branch}" HEAD 2>/dev/null)" 2>/dev/null || date +%s)
+        merge_base_date=$(git log -1 --format=%ct "${merge_base}" 2>/dev/null || date +%s)
         current_date=$(date +%s)
         days_on_branch=$(((current_date - merge_base_date) / 86400))
       fi
@@ -132,10 +136,10 @@ EOF
       # Build zone-specific message
       case "${zone}" in
         red)
-          scope_guard_reminder="\\n\\n**SCOPE-GUARD RED ZONE**: Branch has ${lines_changed} lines, ${commits} commits, ${days_on_branch} days. Before adding features, run \`Skill(imbue:scope-guard)\` to evaluate scope."
+          scope_guard_reminder=$'\n\n'"**SCOPE-GUARD RED ZONE**: Branch has ${lines_changed} lines, ${commits} commits, ${days_on_branch} days. Before adding features, run \`Skill(imbue:scope-guard)\` to evaluate scope."
           ;;
         yellow)
-          scope_guard_reminder="\\n\\n**SCOPE-GUARD YELLOW ZONE**: Branch approaching thresholds (${lines_changed} lines, ${commits} commits, ${days_on_branch} days). Consider scope when adding features."
+          scope_guard_reminder=$'\n\n'"**SCOPE-GUARD YELLOW ZONE**: Branch approaching thresholds (${lines_changed} lines, ${commits} commits, ${days_on_branch} days). Consider scope when adding features."
           ;;
       esac
       ;;
