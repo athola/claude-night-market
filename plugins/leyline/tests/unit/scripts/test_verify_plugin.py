@@ -352,6 +352,30 @@ class TestVerifyPluginOffline:
         assert l3_score["rate"] == pytest.approx(0.95)
 
     @pytest.mark.unit
+    def test_level_is_a_floor_so_higher_levels_count(self) -> None:
+        """Scenario: Only an L3 run exists and L2 is requested.
+
+        Given one passing L3 record
+        When verifying at L2
+        Then the L3 pass satisfies the L2 minimum.
+
+        Math review finding C2-9: --level is documented as a minimum,
+        and the check read only the L2 bucket, which was empty.
+        """
+        records = _make_records(l3_pass=1)
+        result = verify_plugin_offline("deep-plugin", records, level="L2")
+
+        assert result["recommendation"] == "trusted"
+
+    @pytest.mark.unit
+    def test_lower_levels_do_not_count_toward_a_higher_floor(self) -> None:
+        """L1 passes say nothing about an L3 minimum."""
+        records = _make_records(l1_pass=10, l3_fail=1)
+        result = verify_plugin_offline("deep-plugin", records, level="L3")
+
+        assert result["recommendation"] == "untrusted"
+
+    @pytest.mark.unit
     def test_history_truncated_to_20(self) -> None:
         """Scenario: Large history is truncated in output.
 
@@ -428,6 +452,31 @@ class TestVerifyPluginOnline:
 
         assert result["recommendation"] == "caution"
         assert result["meets_threshold"] is False
+
+    @pytest.mark.unit
+    def test_plugin_runs_outweigh_unrelated_repo_runs(self) -> None:
+        """Scenario: The plugin's own runs all failed, other workflows passed.
+
+        Given 4 failed "sanctum tests" runs and 16 passing "docs build" runs
+        When calling verify_plugin("sanctum")
+        Then the plugin is untrusted on its own record.
+
+        Math review finding C2-8: plugin_match was computed and never
+        read, so the repo-wide 0.8 pass rate reported sanctum trusted.
+        """
+        runs = [
+            _make_gh_run(name="sanctum tests", conclusion="failure", run_id=i)
+            for i in range(4)
+        ] + [
+            _make_gh_run(name="docs build", conclusion="success", run_id=i + 4)
+            for i in range(16)
+        ]
+        mock_result = _make_subprocess_result(runs)
+        with patch("leyline.git_platform.subprocess.run", return_value=mock_result):
+            result = verify_plugin("sanctum", level="L1", min_score=0.8)
+
+        assert result["recommendation"] == "untrusted"
+        assert all(r["plugin_match"] for r in result["assertion_history"])
 
     @pytest.mark.unit
     def test_no_runs_returns_untrusted(self) -> None:

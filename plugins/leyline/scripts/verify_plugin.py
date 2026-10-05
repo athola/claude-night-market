@@ -100,8 +100,8 @@ def _runs_to_records(
     - anything else -> passed=False
 
     Each run is treated as an L1 assertion (structural test pass).
-    Runs whose name contains the plugin name are weighted as more
-    relevant.
+    Runs whose name contains the plugin name are marked ``plugin_match``;
+    verify_plugin scores those alone when any exist.
 
     Args:
         runs: Workflow run dicts from the GitHub API.
@@ -186,18 +186,24 @@ def _choose_recommendation(
 
     Args:
         level_scores: Per-level pass-rate data.
-        target_level: The level the caller cares about.
+        target_level: The minimum level; records at it or above count.
         min_score: Minimum acceptable pass rate (0.0-1.0).
 
     Returns:
         One of "trusted", "caution", or "untrusted".
     """
-    score = level_scores.get(target_level)
-    if score is None or score.total == 0:
+    # target_level is a minimum, so a pass at a stricter level counts too.
+    floor = VALID_LEVELS.index(target_level)
+    at_or_above = [
+        level_scores[lvl] for lvl in VALID_LEVELS[floor:] if lvl in level_scores
+    ]
+    total = sum(score.total for score in at_or_above)
+    if total == 0:
         return "untrusted"
-    if score.rate >= min_score:
+    rate = sum(score.passed for score in at_or_above) / total
+    if rate >= min_score:
         return "trusted"
-    if score.rate >= min_score * 0.7:
+    if rate >= min_score * 0.7:
         return "caution"
     return "untrusted"
 
@@ -247,6 +253,14 @@ def verify_plugin(
         )
 
     records = _runs_to_records(runs, plugin_name)
+    # A plugin's own runs are the relevant evidence, so they are scored
+    # alone when present: four failed "sanctum tests" runs must not be
+    # averaged away by sixteen passing docs builds. A plugin with no
+    # workflow of its own is still exercised by the repo-wide suites,
+    # which are then the only evidence there is.
+    own_records = [rec for rec in records if rec["plugin_match"]]
+    if own_records:
+        records = own_records
 
     if not records:
         return asdict(
