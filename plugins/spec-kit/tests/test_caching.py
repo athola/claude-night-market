@@ -191,6 +191,31 @@ class TestIsExpired:
         os.utime(cache_path, (old_time, old_time))
         assert cache.is_expired("k") is True
 
+    def test_zero_ttl_means_always_expired(self, tmp_path: Path) -> None:
+        """ttl=0 expires a fresh entry instead of falling back to 3600s.
+
+        Math review finding C2-13: ``ttl or default`` read 0 as unset.
+        """
+        cache = SpecKitCache(cache_dir=tmp_path / "cache")
+        cache._cache_timestamps["k"] = time.time() - 0.001
+        assert cache.is_expired("k", ttl=0) is True
+
+    def test_file_hit_keeps_the_age_it_was_written_with(self, tmp_path: Path) -> None:
+        """A file entry promoted to memory expires on the file's clock.
+
+        Math review finding C2-4: promotion stamped time.time(), so an
+        entry 3500s into a 3600s TTL was served again 3000s later.
+        """
+        writer = SpecKitCache(cache_dir=tmp_path / "cache")
+        writer.set("k", {"v": 1})
+        written = time.time() - 3500
+        os.utime(writer._get_cache_path("k"), (written, written))
+
+        reader = SpecKitCache(cache_dir=tmp_path / "cache")
+        assert reader.get("k") == {"v": 1}
+        with patch.object(speckit.caching.time, "time", return_value=written + 3700):
+            assert reader.get("k") is None
+
     def test_nonexistent_key_is_expired(self, tmp_path: Path) -> None:
         """Should return True when key is not cached anywhere."""
         cache = SpecKitCache(cache_dir=tmp_path / "cache")

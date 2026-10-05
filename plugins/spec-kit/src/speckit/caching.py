@@ -58,7 +58,8 @@ class SpecKitCache:
 
     def is_expired(self, key: str, ttl: int | None = None) -> bool:
         """Check if cached data is expired."""
-        ttl = ttl or self.default_ttl
+        if ttl is None:
+            ttl = self.default_ttl
 
         if key in self._cache_timestamps:
             return time.time() - self._cache_timestamps[key] > ttl
@@ -95,9 +96,11 @@ class SpecKitCache:
             try:
                 with open(cache_path, encoding="utf-8") as f:
                     cached_data = json.load(f)
-                    # Load into memory cache for faster access
+                    # Load into memory cache for faster access. The entry
+                    # keeps the age it was written with, or every file hit
+                    # would restart its TTL.
                     self._memory_cache[cache_key] = cached_data
-                    self._cache_timestamps[cache_key] = time.time()
+                    self._cache_timestamps[cache_key] = cache_path.stat().st_mtime
                     return cached_data
             except (OSError, json.JSONDecodeError):
                 # Invalid cache file, remove it
