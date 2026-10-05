@@ -84,9 +84,11 @@ EOF
   # Check bypass mode from environment
   CONSERVATION_MODE="${CONSERVATION_MODE:-normal}"
 
-  # Validate CONSERVATION_MODE to prevent injection of unexpected values
+  # Validate CONSERVATION_MODE to prevent injection of unexpected values.
+  # Only the documented modes pass: off, minimal and the rest were once
+  # accepted here and then ran as normal without a word.
   case "${CONSERVATION_MODE}" in
-    normal | quick | deep | standard | aggressive | minimal | off) ;;
+    normal | quick | deep) ;;
     *)
       printf '%s\n' "[conserve] WARNING: Unknown CONSERVATION_MODE='${CONSERVATION_MODE}', defaulting to 'normal'" >&2
       CONSERVATION_MODE="normal"

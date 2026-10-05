@@ -67,3 +67,27 @@ def test_agent_type_is_read_without_a_trailing_newline(tmp_path: Path) -> None:
     """
     payload = {"source": "startup", "agent_type": "pensive:code-reviewer"}
     assert "abbreviated" in _context(tmp_path, payload, terminator="")
+
+
+@pytest.mark.parametrize("mode", ["off", "minimal", "aggressive", "standard"])
+def test_an_undocumented_mode_warns_instead_of_acting_as_normal(
+    tmp_path: Path, mode: str
+) -> None:
+    """These passed validation, then ran as normal with no word (S0-7)."""
+    completed = subprocess.run(
+        ["bash", str(SCRIPT)],
+        input='{"source": "startup"}\n',
+        cwd=tmp_path,
+        env={
+            "CLAUDE_PLUGIN_ROOT": str(PLUGIN_ROOT),
+            "PATH": "/usr/bin:/bin",
+            "HOME": str(tmp_path),
+            "CONSERVATION_MODE": mode,
+        },
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert f"Unknown CONSERVATION_MODE='{mode}'" in completed.stderr
