@@ -23,6 +23,7 @@ model_hint: standard
 estimated_tokens: 500
 progressive_loading: true
 modules:
+- modules/anti-patterns.md
 - modules/comment-guidelines.md
 - modules/educational-insights.md
 - modules/github-comments.md
@@ -221,25 +222,9 @@ See `modules/version-validation.md` for detailed validation procedures.
 
 ### Phase 3.5: PR Hygiene Checks
 
-Before diving into code, run the PR hygiene checks from
-`modules/pr-hygiene.md`:
-
-1. **Atomicity check**: Does this PR contain one logical
-   change? Flag mixed commit types (feat, refactor, and fix),
-   formatting commits bundled with logic, or changes spanning
-   unrelated subsystems. Large PRs get 30% defect detection
-   vs 75% for focused ones.
-
-2. **Agent curation check**: Does the code show signs of
-   iterative AI generation without a cleanup pass? Look for
-   redundant implementations, premature abstractions, incomplete
-   refactors, and scope drift.
-
-3. **Self-review signals**: Are there unsquashed fixup commits,
-   debug statements, or commented-out code that suggest the
-   author did not read their own diff before sending?
-
-Classify findings per `modules/pr-hygiene.md` severity tables.
+Before diving into code, run the atomicity, agent-curation and
+self-review checks from `modules/pr-hygiene.md`, and classify findings
+per its severity tables.
 
 ### Phase 4: Code Review with Scope Context
 
@@ -458,61 +443,17 @@ Knowledge capture (Phase 7) still runs.
 
 ### Phase 7: Knowledge Capture
 
-After generating the report, evaluate findings for knowledge capture into the project's review chamber.
-
-**Trigger:** Automatically for findings scoring ≥60 on evaluation criteria.
-
-```bash
-# Capture significant findings to review-chamber
-# Uses memory-palace:review-chamber evaluation framework
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-
-**Candidates for capture:**
-- BLOCKING findings with architectural context → `decisions/`
-- Recurring patterns seen in multiple PRs → `patterns/`
-- Quality standards and conventions → `standards/`
-- Post-mortem insights and learnings → `lessons/`
-
-**Output:** Add to report:
-```markdown
-### Knowledge Captured 📚
-
-| Entry ID | Title | Room |
-|----------|-------|------|
-| abc123 | JWT over sessions | decisions/ |
-| def456 | Token refresh pattern | patterns/ |
-
-View: `/review-room list --palace <project>`
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-
+After generating the report, findings scoring ≥60 are captured to the
+project's review chamber (`decisions/`, `patterns/`, `standards/`,
+`lessons/`) and listed in a Knowledge Captured section of the report.
 See `modules/knowledge-capture.md` for full workflow.
 
 ### Phase 8: Comprehension Loop (`--interactive`)
 
 Opt-in. Skip this phase unless the reviewer passed `--interactive`.
 
-Runs the socratic loop that makes the "Don't: Merge Code You Cannot
-Explain" anti-pattern below executable. The reviewer opens each round
-by stating their understanding, asking their own question, or
-admitting a gap. The agent answers from the diff, then probes what
-the opening revealed.
-
-Each exchange is graded `pass`, `partial`, or `fail` and written to
-gauntlet's shared progress store, tagged with one of gauntlet's seven
-knowledge categories. The same history steers `/gauntlet` challenges,
-so review sessions and challenge sessions compound. The selector
-favors untested categories first and weak ones second, so a failed
-probe raises that category's weight only against categories you have
-already answered well. Grade honestly: the weak-category bonus needs
-accuracy strictly below `0.5`, so a lone `partial` earns no steer.
-
-```bash
-python3 plugins/gauntlet/scripts/progress_tracker.py .gauntlet \
-  --developer "$(git config user.email)" --record '<answer-record-json>'
-```
-
+A socratic loop over the diff: each exchange is graded `pass`,
+`partial`, or `fail` and recorded to gauntlet's shared progress store.
 Probe results never change the merge recommendation. They add a
 Comprehension section to the report from Phase 6.
 
@@ -532,71 +473,18 @@ A PR should be approved when:
 - [ ] Author can explain how each changed section works and how
       it could fail (understanding check, not just "tests pass")
 
-## Anti-Patterns to Avoid
-
-### Don't: Scope Creep Review
-> "While you're here, you should also refactor X, add feature Y, and fix Z in adjacent files."
-
-**Do:** Create backlog issues, keep PR focused.
-
-### Don't: Perfect is Enemy of Good
-> "This works but could be 5% more efficient with different approach."
-
-**Do:** If it meets requirements and has no bugs, it's ready.
-
-### Don't: Blocking on Style
-> "I prefer tabs over spaces."
-
-**Do:** Use linters for style, reserve review for logic.
-
-### Don't: Reviewing Unchanged Code
-> "The file you imported from has some issues..."
-
-**Do:** That's a separate PR. Create an issue if important.
-
-### Don't: Tests That Prove Old Code Was Bad
-> "Here's a test showing the old behavior was wrong."
-
-**Do:** Write tests that break if your fix is reverted.
-Tests should protect against regressions in *your* code,
-not document why the change was needed. See
-`modules/pr-hygiene.md` Principle 4.
-
-### Don't: Bundling Unrelated Changes
-> "I also reformatted the file and fixed a typo in another module."
-
-**Do:** One PR = one logical change. Formatting, refactors,
-and unrelated fixes belong in separate PRs. See
-`modules/pr-hygiene.md` Principle 2.
-
-### Don't: Merge Code You Cannot Explain
-
-> "It works and the tests pass."
-
-A PR where the author cannot explain how each changed section
-works and how it might fail is not ready to merge. This is
-especially true for AI-assisted code: generation speed creates
-the illusion of understanding.
-
-**Do:** Before marking a PR ready, ask the reviewing agent to
-question you about the changed code: how each part works, what
-assumptions it makes, and what inputs would break it. Continue
-until you can answer without hesitation. Only merge code you
-own front-to-back.
-
-This applies to self-reviews: run the same probe before
-requesting external review. Do not submit a PR for review that
-you yourself do not fully understand.
-
-`/pr-review --interactive` runs this probe as a graded loop and
-records what you could not explain. See Phase 8 and
-`modules/interactive-review.md`.
-
 ### Verify Findings Are Grounded (`pr-review:findings-verified`)
 
 Write findings to `.review/findings.json`, run the citation verifier
 (`Skill(imbue:review-core)` Step 5), and drop or label `UNVERIFIED` any
 the verifier rejects.
+
+## Anti-Patterns to Avoid
+
+Scope creep, perfectionism, blocking on style, reviewing unchanged
+code, tests that only prove the old code was bad, bundled unrelated
+changes, and merging code you cannot explain. Each one, with what to do
+instead: `modules/anti-patterns.md`.
 
 ## Integration with Other Tools
 
@@ -650,6 +538,8 @@ Apply `scribe:slop-detector` to PR body:
 
 ## Supporting Modules
 
+- [Review anti-patterns](modules/anti-patterns.md) - what to avoid in a
+  review, with what to do instead
 - [Interactive comprehension loop](modules/interactive-review.md) -
   socratic probes graded and recorded to gauntlet's adaptive selector
 - [GitHub PR comment patterns](modules/github-comments.md) - `gh api` patterns for inline and summary PR comments
