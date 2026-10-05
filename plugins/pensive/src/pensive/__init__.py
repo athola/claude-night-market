@@ -50,7 +50,7 @@ __all__ = [
     "should_escalate_to_tier2",
 ]
 
-__version__ = "1.9.21"
+__version__ = "1.10.0"
 
 
 def __getattr__(name: str) -> Any:

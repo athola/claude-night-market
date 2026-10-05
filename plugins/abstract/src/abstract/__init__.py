@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from .tasks_manager_base import TasksManager, TasksManagerConfig
     from .tokens import TokenAnalyzer, estimate_text_tokens, estimate_tokens
 
-__version__ = "1.9.21"
+__version__ = "1.10.0"
 
 __all__ = [
     "AbstractCLI",
