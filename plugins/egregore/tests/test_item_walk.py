@@ -278,10 +278,11 @@ class TestTokenCeiling:
 
     def test_work_done_before_the_ceiling_stays_committed(self, tmp_path: Path) -> None:
         """A ceiling stops the run. It does not roll back proven work."""
-        # 40 chars of diff plus a short tail costs roughly 12 tokens per
-        # check, so 20 admits T1's check and refuses T2's.
+        # The judge prompt (template, 40 chars of diff and a short tail)
+        # costs roughly 207 tokens per check, so 300 admits T1's check and
+        # refuses T2's.
         handoff = replace(
-            HANDOFF, budget={**HANDOFF.budget, "claude_token_ceiling": 20}
+            HANDOFF, budget={**HANDOFF.budget, "claude_token_ceiling": 300}
         )
         runner = FakeRunner(
             {

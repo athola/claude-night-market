@@ -67,6 +67,27 @@ command errors for an environmental reason.
 """
 
 
+def render_prompt(
+    task: Mapping[str, Any],
+    diff: str,
+    test_output: str,
+    test_exit: int,
+    tail_chars: int = DEFAULT_TAIL_CHARS,
+) -> str:
+    """Build the judge prompt, showing only the tails of diff and output.
+
+    Public because night_run's meter charges this string: the ceiling has
+    to count what is sent, not what the judge was handed.
+    """
+    return PROMPT.format(
+        task_id=task.get("id"),
+        change=task.get("change", ""),
+        test_exit=test_exit,
+        test_output=test_output[-tail_chars:],
+        diff=diff[-tail_chars:],
+    )
+
+
 class ClaudeBabysitter:
     """Callable that judges one task attempt via the claude CLI."""
 
@@ -101,13 +122,7 @@ class ClaudeBabysitter:
         test_output: str,
         test_exit: int,
     ) -> str:
-        return PROMPT.format(
-            task_id=task.get("id"),
-            change=task.get("change", ""),
-            test_exit=test_exit,
-            test_output=test_output[-self.tail_chars :],
-            diff=diff[-self.tail_chars :],
-        )
+        return render_prompt(task, diff, test_output, test_exit, self.tail_chars)
 
     def __call__(
         self,

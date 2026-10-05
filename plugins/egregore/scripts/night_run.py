@@ -646,10 +646,28 @@ def _metered_babysitter(
     by a whole task's cost, and a ceiling that can be exceeded is not a
     ceiling. ``spend`` is a one-element list so the count survives across
     calls without a class.
+
+    The charge is the judge prompt as rendered, which shows only the tail
+    of the diff and of the test output. Charging the whole of both parked
+    items on budget the judge never saw.
     """
+    # Imported at call time, as main() does, because claude_babysitter
+    # imports this module.
+    sitter_module = importlib.import_module("claude_babysitter")
+    tail_chars: int = (
+        babysitter.tail_chars
+        if isinstance(babysitter, sitter_module.ClaudeBabysitter)
+        else sitter_module.DEFAULT_TAIL_CHARS
+    )
 
     def metered(**kwargs: Any) -> tuple[str, str, str]:
-        shown = str(kwargs.get("diff", "")) + str(kwargs.get("test_output", ""))
+        shown: str = sitter_module.render_prompt(
+            kwargs.get("task", {}),
+            str(kwargs.get("diff", "")),
+            str(kwargs.get("test_output", "")),
+            kwargs.get("test_exit", 0),
+            tail_chars,
+        )
         cost = estimate_tokens(shown)
         if ceiling is not None and spend[0] + cost > ceiling:
             raise BudgetExhausted(
