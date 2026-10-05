@@ -212,7 +212,7 @@ run_selected() {
       esac
 
       # Extract unique plugin directories
-      changed_plugins=$(printf '%s\n' "${changed_files}" | grep "^plugins/" | cut -d/ -f1-2 | sort -u)
+      changed_plugins=$(printf '%s\n' "${changed_files}" | { grep "^plugins/" || :; } | cut -d/ -f1-2 | sort -u)
 
       case "${changed_plugins}" in
         "")
@@ -238,6 +238,7 @@ run_selected() {
           run_plugin_tests "${plugin_dir}" || true
         else
           log "✗ Plugin not found: ${plugin_name}"
+          FAILED_PLUGINS+=("${plugin_name}")
         fi
       done
       ;;

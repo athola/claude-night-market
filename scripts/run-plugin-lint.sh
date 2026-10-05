@@ -78,8 +78,9 @@ run_plugin_lint() {
     return 0
   fi
 
-  # Check if plugin has Makefile with lint target
-  if [ -f "${plugin_dir}/Makefile" ]; then
+  # Check if plugin has Makefile with lint target. `make lint` takes no
+  # fix flag, so --fix goes to the ruff path below instead.
+  if [ -f "${plugin_dir}/Makefile" ] && [ ${#LINT_FIX[@]} -eq 0 ]; then
     if grep -q "^lint:" "${plugin_dir}/Makefile" 2>/dev/null; then
       # Run using Makefile - capture exit code separately to avoid pipeline masking
       local lint_output lint_exit=0
@@ -162,7 +163,7 @@ run_selected() {
       esac
 
       # Extract unique plugin directories
-      changed_plugins=$(printf '%s\n' "${changed_files}" | grep "^plugins/" | cut -d/ -f1-2 | sort -u)
+      changed_plugins=$(printf '%s\n' "${changed_files}" | { grep "^plugins/" || :; } | cut -d/ -f1-2 | sort -u)
 
       case "${changed_plugins}" in
         "")
@@ -188,6 +189,7 @@ run_selected() {
           run_plugin_lint "${plugin_dir}" || true
         else
           log "✗ Plugin not found: ${plugin_name}"
+          FAILED_PLUGINS+=("${plugin_name}")
         fi
       done
       ;;
