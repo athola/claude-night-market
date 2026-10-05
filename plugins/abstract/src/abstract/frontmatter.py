@@ -13,6 +13,8 @@ from pathlib import Path
 
 import yaml
 
+from abstract.hook_events import HOOK_EVENTS
+
 
 @dataclass
 class FrontmatterResult:
@@ -73,28 +75,40 @@ class FrontmatterProcessor:
         "isolation",  # Git worktree isolation (2.1.33+)
     )
 
-    # Valid hook event types (tuple for immutability, Claude Code 2.1.50)
-    VALID_HOOK_EVENTS = (
-        "Setup",
-        "SessionStart",
-        "SessionEnd",
-        "UserPromptSubmit",
-        "PreToolUse",
-        "PostToolUse",
-        "PostToolUseFailure",
-        "PermissionRequest",
-        "Notification",
-        "SubagentStart",
-        "SubagentStop",
-        "Stop",
-        "TeammateIdle",
-        "TaskCompleted",
-        "ConfigChange",
-        "InstructionsLoaded",
-        "PreCompact",
-        "WorktreeCreate",
-        "WorktreeRemove",
+    # Valid hook event types, shared with scripts/hook_validator.py
+    VALID_HOOK_EVENTS = tuple(sorted(HOOK_EVENTS))
+
+    # Plugin agent frontmatter (docs: plugins/components, "Frontmatter fields
+    # in plugin agents"). Ignored fields load without error, which is why
+    # they are reported rather than passed.
+    PLUGIN_AGENT_FIELDS = (
+        "name",
+        "description",
+        "model",
+        "effort",
+        "maxTurns",
+        "tools",
+        "disallowedTools",
+        "skills",
+        "memory",
+        "background",
+        "omitClaudeMd",
+        "isolation",
+        "color",
+        "experimental",
     )
+    PLUGIN_AGENT_IGNORED_FIELDS = (
+        "permissionMode",
+        "hooks",
+        "mcpServers",
+        "initialPrompt",
+    )
+    # Names authors reached for that the harness never read.
+    PLUGIN_AGENT_MISNAMED_FIELDS = {
+        "allowed-tools": "tools",
+        "tools_allowed": "tools",
+        "max_iterations": "maxTurns",
+    }
 
     # Valid permission modes (tuple for immutability)
     VALID_PERMISSION_MODES = (
@@ -393,7 +407,11 @@ class FrontmatterProcessor:
 
     @staticmethod
     def _validate_hook_entries(event_type: str, hook_entries: list) -> list[str]:
-        """Validate hook entries for a specific event type."""
+        """Validate the matcher groups registered for one event.
+
+        Each group is ``{"matcher"?, "hooks": [{"type", ...}]}``, the shape
+        settings.json and hooks/hooks.json share.
+        """
         errors: list[str] = []
 
         if not isinstance(hook_entries, list):
@@ -403,15 +421,20 @@ class FrontmatterProcessor:
         for i, entry in enumerate(hook_entries):
             if not isinstance(entry, dict):
                 errors.append(f"Hook entry {i} for '{event_type}' must be a dict")
-            elif "command" not in entry:
-                errors.append(f"Hook entry {i} for '{event_type}' missing 'command'")
-
-            # Validate 'once' field if present
-            if isinstance(entry, dict) and "once" in entry:
-                if not isinstance(entry["once"], bool):
-                    errors.append(
-                        f"Hook entry {i} for '{event_type}': 'once' must be boolean"
-                    )
+                continue
+            handlers = entry.get("hooks")
+            if not isinstance(handlers, list):
+                errors.append(
+                    f"Hook entry {i} for '{event_type}' needs a 'hooks' list of "
+                    "handlers, e.g. [{'type': 'command', 'command': ...}]"
+                )
+                continue
+            for j, handler in enumerate(handlers):
+                where = f"Hook entry {i} handler {j} for '{event_type}'"
+                if not isinstance(handler, dict) or "type" not in handler:
+                    errors.append(f"{where} missing 'type'")
+                elif "once" in handler and not isinstance(handler["once"], bool):
+                    errors.append(f"{where}: 'once' must be boolean")
 
         return errors
 
@@ -440,6 +463,25 @@ class FrontmatterProcessor:
                 errors.append(
                     f"'allowed-tools' must be a list or string, got: {type_name}"
                 )
+        return errors
+
+    @staticmethod
+    def validate_plugin_agent(frontmatter: dict) -> list[str]:
+        """Report plugin agent fields the harness ignores or never reads."""
+        errors: list[str] = []
+        cls = FrontmatterProcessor
+        for key in frontmatter:
+            if key in cls.PLUGIN_AGENT_IGNORED_FIELDS:
+                errors.append(
+                    f"'{key}' is ignored in plugin agents; move it to the "
+                    "plugin's hooks/hooks.json, .mcp.json or settings"
+                )
+            elif key in cls.PLUGIN_AGENT_MISNAMED_FIELDS:
+                replacement = cls.PLUGIN_AGENT_MISNAMED_FIELDS[key]
+                errors.append(f"'{key}' is never read; use '{replacement}'")
+        isolation = frontmatter.get("isolation")
+        if isolation is not None and isolation != "worktree":
+            errors.append(f"'isolation' must be 'worktree', got: {isolation}")
         return errors
 
     @staticmethod
