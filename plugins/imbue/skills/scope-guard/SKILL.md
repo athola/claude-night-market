@@ -76,7 +76,7 @@ See [decision-framework.md](modules/decision-framework.md) for details.
 
 **Thresholds:**
 - **> 2.0** → Implement now
-- **1.0 - 2.0** → Discuss first
+- **1.0 - 2.0 (inclusive)** → Discuss first
 - **< 1.0** → Defer to backlog
 
 ### 2. Check Against Backlog
@@ -203,7 +203,8 @@ At end of brainstorming, before documenting design:
 ### With superpowers:writing-plans
 
 Before finalizing implementation plan:
-1. Verify all planned items have Worthiness > 1.0
+1. Verify all planned items have Worthiness >= 1.0, and that each in the
+   Discuss band carries its justification
 2. Compare against backlog queue
 3. Confirm within branch budget
 4. Document any deferrals

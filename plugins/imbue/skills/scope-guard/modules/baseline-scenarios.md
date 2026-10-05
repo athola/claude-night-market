@@ -17,7 +17,7 @@ Document Claude's behavior WITHOUT this skill to identify failure modes, then va
 | 2: While We're Here | [FAIL] 8+ additions suggested | [PASS] Tight scope, deferrals noted | PASS |
 | 3: Premature Abstraction | [FAIL] ConfigLoader class | [PASS] Two simple functions | PASS |
 | 4: Branch Thresholds | [FAIL] Zero awareness | [PASS] Full threshold analysis | PASS |
-| 5: Low-Value Feature | [FAIL] Eager acceptance | [PASS] Worthiness = 0.2, defer | PASS |
+| 5: Low-Value Feature | [FAIL] Eager acceptance | [PASS] Worthiness = 0.3-0.5, defer | PASS |
 
 ---
 
@@ -251,13 +251,13 @@ No questions about business value or priority.
 ```
 Worthiness Score Calculation:
 - Business Value: 1-2 (nice-to-have)
-- Time Criticality: 0 (no deadline)
-- Risk Reduction: 0
+- Time Criticality: 1 (no deadline)
+- Risk Reduction: 1
 
 Complexity: 3-5, Token Cost: 2, Scope Drift: 3
 Total: 8-10
 
-Worthiness = 0.1-0.25
+Worthiness = 0.3-0.5
 
 Recommendation: Score < 1.0 → Defer to backlog
 
