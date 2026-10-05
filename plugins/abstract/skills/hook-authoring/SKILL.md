@@ -104,24 +104,29 @@ class ValidationHooks(AgentHooks):
 
 ## Hook Event Types
 
-Quick reference for all supported hook events:
+Quick reference for the events most plugins use. Every event also
+receives the common fields (`session_id`, `transcript_path`, `cwd`,
+`hook_event_name`, and `permission_mode` where it applies). The full
+roster of 33 events is `plugins/abstract/src/abstract/hook_events.py`,
+and each event's input is in code.claude.com/docs/en/hooks.
 
 | Event | Trigger Point | Parameters | Common Use Cases |
 |-------|--------------|------------|------------------|
-| **PreToolUse** | Before tool execution | `tool_name`, `tool_input` | Validation, filtering, input transformation |
-| **PostToolUse** | After tool execution | `tool_name`, `tool_input`, `tool_output` | Logging, metrics, output transformation |
-| **UserPromptSubmit** | User sends message | `message` | Context injection, content filtering |
-| **PermissionRequest** | Permission dialog shown | `tool_name`, `tool_input` | Auto-approve/deny with custom logic |
-| **Notification** | Claude Code sends notification | `message` | Custom notification handling |
-| **Stop** | Agent completes | `reason`, `result` | Final cleanup, summary reports |
-| **SubagentStop** | Subagent completes | `subagent_id`, `result` | Result processing, aggregation |
-| **TeammateIdle** | Teammate agent becomes idle | `agent_id`, `session_id` | Work assignment, load balancing (2.1.33+) |
-| **TaskCompleted** | Task finishes execution | `task_id`, `result` | Coordination, chaining, reporting (2.1.33+) |
-| **PreCompact** | Before context compact | `context_size` | State preservation, checkpointing |
-| **SessionStart** | Session starts/resumes | `session_id`, `source`, `agent_type` | Initialization, context loading |
-| **SessionEnd** | Session terminates | `session_id` | Cleanup, final logging |
-| **WorktreeCreate** | Agent worktree created | `worktree_path`, `session_id` | Custom VCS setup, symlink .venv, pre-populate caches (2.1.50+) |
-| **WorktreeRemove** | Agent worktree removed | `worktree_path`, `session_id` | Cleanup temp files, teardown worktree-scoped resources (2.1.50+) |
+| **PreToolUse** | Before tool execution | `tool_name`, `tool_input`, `tool_use_id` | Validation, filtering, input transformation |
+| **PostToolUse** | After a tool succeeds | `tool_name`, `tool_input`, `tool_response` | Logging, metrics, `updatedToolOutput` to replace the result |
+| **PostToolUseFailure** | After a tool fails | `tool_name`, `tool_input`, `error` | Failure logging; the exit code is the first line of `error` |
+| **UserPromptSubmit** | User sends message | `prompt` | Context injection, content filtering |
+| **PermissionRequest** | Permission dialog shown | `tool_name`, `tool_input`, `permission_suggestions` | Auto-approve/deny with custom logic |
+| **Notification** | Claude Code sends notification | `message`, `title`, `notification_type` | Custom notification handling |
+| **Stop** | Main turn ends | `stop_hook_active`, `last_assistant_message`, `background_tasks`, `session_crons` | Final checks; read `background_tasks` before blocking |
+| **SubagentStop** | Subagent completes | `agent_id`, `agent_type`, `agent_transcript_path`, `last_assistant_message` | Result processing, aggregation |
+| **TeammateIdle** | Teammate agent becomes idle | `teammate_name`, `team_name` | Work assignment, load balancing |
+| **TaskCompleted** | Task marked complete | `task_id`, `task_subject`, `task_description` | Coordination, chaining, reporting |
+| **PreCompact** | Before context compact | `trigger`, `custom_instructions` | State preservation, checkpointing |
+| **SessionStart** | Session starts/resumes | `source`, `model`, `agent_type` | Initialization, context loading |
+| **SessionEnd** | Session terminates | `reason` | Cleanup, final logging |
+| **WorktreeCreate** | Agent worktree created | `name` | Custom VCS setup, symlink .venv, pre-populate caches |
+| **WorktreeRemove** | Agent worktree removed | `worktree_path` | Cleanup temp files, teardown worktree-scoped resources |
 
 ### SessionStart Input Schema (Claude Code 2.1.2+)
 
