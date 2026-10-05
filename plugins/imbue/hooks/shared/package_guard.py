@@ -34,6 +34,7 @@ __all__ = [
     "assess_packages",
     "levenshtein",
     "nearest_known",
+    "normalize_name",
     "parse_packages",
 ]
 
@@ -242,6 +243,22 @@ def levenshtein(a: str, b: str) -> int:
     return previous[-1]
 
 
+_PEP503_SEPARATORS = re.compile(r"[-_.]+")
+
+
+def normalize_name(name: str, ecosystem: str) -> str:
+    """Return the name a registry compares, so equivalent spellings match.
+
+    PyPI compares names after lowercasing and collapsing runs of ``-``,
+    ``_`` and ``.`` to ``-`` (PEP 503): ``scikit_learn`` and
+    ``Requests`` are ``scikit-learn`` and ``requests``. Other ecosystems
+    are compared as written.
+    """
+    if ecosystem == "pypi":
+        return _PEP503_SEPARATORS.sub("-", name).lower()
+    return name
+
+
 def nearest_known(name: str, ecosystem: str) -> str | None:
     """Return a popular package this name likely typosquats, else None.
 
@@ -249,6 +266,7 @@ def nearest_known(name: str, ecosystem: str) -> str | None:
     distant from every known one to be a plausible typo.
     """
     known = KNOWN_POPULAR.get(ecosystem, frozenset())
+    name = normalize_name(name, ecosystem)
     if name in known:
         return None
     best: str | None = None
@@ -294,7 +312,7 @@ def assess_packages(
     deadline = None if budget_seconds is None else time.monotonic() + budget_seconds
     for ecosystem, name in parse_packages(command):
         known = KNOWN_POPULAR.get(ecosystem, frozenset())
-        if name in known:
+        if normalize_name(name, ecosystem) in known:
             continue
 
         suspect = nearest_known(name, ecosystem)
