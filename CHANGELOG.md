@@ -135,6 +135,45 @@ Tests that pinned a defect were updated, and each commit body names
 them. Hash embeddings saved before the memory-palace change need
 regenerating.
 
+### Fixed (shell review)
+
+A review of all 39 shell scripts found 54 defects. Each was reproduced,
+mostly under stock macOS bash 3.2, and fixed behind a failing test.
+
+- Hooks:
+  - escape_for_json's jq-less fallback emitted invalid JSON, in all four
+    copies.
+  - Four hooks dropped stdin that had no trailing newline.
+  - The scope guard measured from the base branch tip instead of the
+    merge-base, and SessionStart never warned in master-based repos.
+  - leyline read the platform from anywhere in the remote URL, and its
+    star prompt needed jq.
+  - memory-palace's Setup hook died on a partial garden and skipped
+    linked worktrees.
+- Gates:
+  - The run-plugin-* runners passed on an unknown plugin name.
+  - Their `--changed` mode died silently when nothing staged was under
+    plugins/.
+  - `--fix` skipped Makefile-linted plugins.
+  - The shellcheck gate now covers extensionless scripts.
+  - A new test requires shfmt formatting, and CI pins shfmt 3.13.1.
+- Release scripts:
+  - clawhub-batch-publish exited 0 when every publish failed, and it
+    reused an earlier release's progress.
+  - clawhub-submit broke on paths containing an apostrophe and on macOS
+    grep.
+  - awesome-submit's dry run created forks, and its reruns could not
+    push.
+- leyline's interactive_auth printed prompts into the caller's capture.
+  It also kept a typed token in a global and evaluated cache text as
+  arithmetic, which could run a command.
+- egregore's watchdog logged a corrupt manifest as "No active work
+  items", and its launchd and systemd installers broke on unusual paths.
+
+`CONSERVATION_MODE` now warns on values other than quick, normal and
+deep. They used to be accepted and then ignored. interactive_auth.sh no
+longer exports functions; source the file instead.
+
 ## [1.9.21] - 2026-09-28
 
 ### Added
