@@ -8,6 +8,7 @@ FAIL (zero evidence), and retry feedback generation.
 from __future__ import annotations
 
 import textwrap
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -314,15 +315,32 @@ class TestContractValidationFail:
         result = validate_findings(zero_evidence_findings, lenient_contract)
         assert result.passed is False
 
-    def test_low_evidence_rejected_normal(
+    def test_low_evidence_rejected_strict(
         self,
         sample_contract: OutputContract,
         low_evidence_findings: str,
     ) -> None:
-        """Evidence count below minimum is rejected in normal mode."""
-        result = validate_findings(low_evidence_findings, sample_contract)
+        """Evidence count below minimum is rejected in strict mode."""
+        contract = replace(sample_contract, strictness="strict")
+        result = validate_findings(low_evidence_findings, contract)
         assert result.passed is False
-        assert result.evidence_count < sample_contract.min_evidence_count
+        assert result.evidence_count < contract.min_evidence_count
+
+    def test_low_but_nonzero_evidence_warns_normal(
+        self,
+        sample_contract: OutputContract,
+        low_evidence_findings: str,
+    ) -> None:
+        """Normal rejects zero evidence only; a shortfall is a warning.
+
+        Math review finding C2-5: output-contracts.md defines normal as
+        "reject missing sections + zero evidence", and the code rejected
+        a nonzero shortfall exactly as strict does.
+        """
+        result = validate_findings(low_evidence_findings, sample_contract)
+        assert 0 < result.evidence_count < sample_contract.min_evidence_count
+        assert result.passed is True
+        assert any("Evidence count" in w for w in result.warnings)
 
     def test_low_evidence_warns_lenient(
         self,
@@ -335,13 +353,13 @@ class TestContractValidationFail:
         assert result.passed is True
 
     def test_missing_artifact(self, tmp_path: Path) -> None:
-        """Missing expected artifact causes failure."""
+        """Missing expected artifact causes failure in strict mode."""
         contract = OutputContract(
             required_sections=["summary"],
             min_evidence_count=1,
             expected_artifacts=[str(tmp_path / "nonexistent.md")],
             retry_budget=1,
-            strictness="normal",
+            strictness="strict",
         )
         findings = textwrap.dedent("""\
             ## Summary
@@ -351,6 +369,20 @@ class TestContractValidationFail:
         result = validate_findings(findings, contract)
         assert result.passed is False
         assert len(result.missing_artifacts) > 0
+
+    def test_missing_artifact_warns_normal(self, tmp_path: Path) -> None:
+        """Normal mode lists a missing artifact as a warning and passes."""
+        contract = OutputContract(
+            required_sections=["summary"],
+            min_evidence_count=1,
+            expected_artifacts=[str(tmp_path / "nonexistent.md")],
+            retry_budget=1,
+            strictness="normal",
+        )
+        result = validate_findings("## Summary\nDone.\n[E1] cmd: test\n", contract)
+        assert result.passed is True
+        assert result.missing_artifacts == [str(tmp_path / "nonexistent.md")]
+        assert any("Missing artifact" in w for w in result.warnings)
 
     def test_present_artifact_passes(self, tmp_path: Path) -> None:
         """Present expected artifact does not cause failure."""
@@ -446,7 +478,8 @@ class TestRetryFeedback:
         sample_contract: OutputContract,
         low_evidence_findings: str,
     ) -> None:
-        result = validate_findings(low_evidence_findings, sample_contract)
+        strict = replace(sample_contract, strictness="strict")
+        result = validate_findings(low_evidence_findings, strict)
         assert result.passed is False
         feedback = result.retry_feedback()
         assert "evidence" in feedback.lower()
