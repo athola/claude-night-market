@@ -471,3 +471,22 @@ class TestRankGithubFindings:
         rank_github_findings(findings)
 
         assert findings[0].title == original_first
+
+
+class TestADateWithoutAZoneIsUtc:
+    """Math review finding C21: a naive updated_at must still rank."""
+
+    @pytest.mark.unit
+    def test_a_date_only_updated_at_ranks_without_error(self) -> None:
+        """'2024-05-01' parses naive; subtracting it from an aware now raised."""
+        dated = Finding(
+            source="github",
+            channel="code",
+            title="owner/dated",
+            url="https://github.com/owner/dated",
+            relevance=0.7,
+            summary="Dated",
+            metadata={"updated_at": "2024-05-01"},
+        )
+
+        assert rank_github_findings([dated]) == [dated]
