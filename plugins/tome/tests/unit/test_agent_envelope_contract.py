@@ -153,6 +153,7 @@ RETRIEVAL_AGENTS = {
     "code-searcher.md": "code",
     "discourse-scanner.md": "discourse",
     "literature-reviewer.md": "academic",
+    "web-searcher.md": "web",
 }
 
 
