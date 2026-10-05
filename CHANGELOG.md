@@ -92,6 +92,49 @@ read what the plugins meant.
 - imbue and conserve SessionStart hooks match review agents by their
   scoped name, and phantom prices Sonnet 5 at its standard $2/$10.
 
+### Fixed (math review)
+
+A whole-codebase math review made two passes over 284 files. Each
+finding was reproduced by a failing test before it was fixed. One commit
+per finding or same-file group names the finding id.
+
+- Security: conserve's PermissionRequest hook auto-approved commands
+  that write or execute, such as `find -delete`, `git branch -D`,
+  `--output` and `--pre` options, and `>` redirection. Those now fall
+  through to the normal prompt.
+- Scores that broke their own scale or ordering:
+  - abstract's token score jumped back up past the acceptable limit.
+  - pensive's Makefile modernization score topped out at 0.9.
+  - leyline's StepCost left its stated range.
+  - conjure's Delphi convergence and Borda ballots awarded the wrong
+    points.
+  - imbue's scope-guard bands overlapped.
+- Reports that printed counts they never computed:
+  - `abstract tokens` and `abstract audit` read keys their producers
+    never emit.
+  - The context map's "...N more" tails never printed.
+  - pensive's markdown summary counted findings its body never listed.
+- Time handling: naive and aware timestamps are compared as UTC in
+  abstract, sanctum, tome, egregore and memory-palace. Cooldowns and
+  cache expiry use the clock they were written with.
+- Decay and ranking in memory-palace:
+  - Hash embeddings are centered and bucketed by token.
+  - The four-half-life cliff is removed.
+  - Untouched entries score neutral.
+  - Betweenness ranks on a strong-is-cheap edge cost.
+- Session reading: conserve reads transcript content under `message`.
+  The scribe turn numbers start at the first real prompt.
+- Pattern bounds:
+  - Rust offsets of 11-19 and 100-199 are flagged.
+  - Only `=` Cargo requirements count as exact pins.
+  - Multi-line async signatures are scanned.
+  - Keyword matching starts at word boundaries in tome, conjure and
+    severity_mapper.
+
+Tests that pinned a defect were updated, and each commit body names
+them. Hash embeddings saved before the memory-palace change need
+regenerating.
+
 ## [1.9.21] - 2026-09-28
 
 ### Added
