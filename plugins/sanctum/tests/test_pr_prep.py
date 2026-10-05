@@ -120,6 +120,34 @@ class TestPRPrepAnalyzer:
         assert "abc123" in result.breaking_commits
         assert "def456" not in result.breaking_commits
 
+    def test_detect_breaking_changes_reads_only_conventional_markers(self) -> None:
+        """
+        GIVEN an exclamation in a subject's prose and a BREAKING CHANGE footer
+        WHEN detect_breaking_changes is called
+        THEN only the footer commit and the scoped type! commit are breaking
+
+        Math review finding C2-23: any "!" in the message counted, so
+        "fix: stop crashing on empty input!" was flagged and the
+        BREAKING CHANGE footer was missed.
+        """
+        context = {
+            "commits": [
+                {"hash": "a1", "message": "fix: stop crashing on empty input!"},
+                {
+                    "hash": "b2",
+                    "message": "feat(api): drop v1 routes\n\nBREAKING CHANGE: /v1 removed",
+                },
+                {"hash": "c3", "message": "refactor(core)!: rename the entry point"},
+                {
+                    "hash": "d4",
+                    "message": "chore: tidy\n\nBREAKING-CHANGE: env var renamed",
+                },
+            ],
+            "changed_files": [],
+        }
+        result = PRPrepAnalyzer.detect_breaking_changes(context)
+        assert result.breaking_commits == ["b2", "c3", "d4"]
+
     def test_detect_breaking_changes_with_breaking_file_type(self) -> None:
         """
         GIVEN files marked as breaking type

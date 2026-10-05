@@ -5,8 +5,12 @@ Analyze changes, validate quality gates, and prepare pull request descriptions.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Any
+
+_BREAKING_SUBJECT = re.compile(r"^\w+(\([^)]*\))?!:")
+_BREAKING_FOOTER = re.compile(r"^BREAKING[ -]CHANGE:", re.MULTILINE)
 
 
 def _is_test_path(path: str) -> bool:
@@ -117,11 +121,14 @@ class PRPrepAnalyzer:
             BreakingChanges analysis results.
 
         """
-        # Look for conventional commit breaking change marker (!)
+        # Conventional Commits marks a breaking change two ways: "!" before
+        # the subject's colon, or a BREAKING CHANGE footer. An exclamation
+        # anywhere else in the message is prose.
         breaking_commits = [
             commit["hash"]
             for commit in context.get("commits", [])
-            if "!" in commit.get("message", "")
+            if _BREAKING_SUBJECT.match(commit.get("message", ""))
+            or _BREAKING_FOOTER.search(commit.get("message", ""))
         ]
 
         # Look for files marked as breaking
