@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/setup.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/setup.sh\"",
             "timeout": 10
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/permission_request.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/permission_request.py\"",
             "timeout": 2
           }
         ]
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/context_warning.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/context_warning.py\"",
             "timeout": 1
           }
         ]
@@ -40,7 +40,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/tool_output_summarizer.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/tool_output_summarizer.py\"",
             "timeout": 1
           }
         ]
@@ -51,7 +51,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre_compact_preserve.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/pre_compact_preserve.py\"",
             "timeout": 2
           }
         ]
@@ -62,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/permission_denied_logger.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/permission_denied_logger.py\"",
             "timeout": 2
           }
         ]
@@ -74,7 +74,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"",
             "timeout": 2
           }
         ]
@@ -85,7 +85,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/background_agent_notice.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/background_agent_notice.py\"",
             "timeout": 2
           }
         ]

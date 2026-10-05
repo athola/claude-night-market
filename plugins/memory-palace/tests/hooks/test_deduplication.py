@@ -981,7 +981,8 @@ class TestStagingBudget:
             for group in groups
             for entry in group.get("hooks", [])
             if isinstance(entry.get("timeout"), (int, float))
-            and entry.get("command", "").rsplit("/", 1)[-1].split()[0] in consumers
+            and entry.get("command", "").rsplit("/", 1)[-1].split()[0].strip('"')
+            in consumers
         ]
         assert caps
         assert float(recorded["timeout"]) < min(caps), (

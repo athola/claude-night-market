@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pr_blast_radius.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/pr_blast_radius.py\"",
             "timeout": 5,
             "if": "Bash(gh pr create*)"
           }

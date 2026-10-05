@@ -111,7 +111,7 @@ def _registered_hooks() -> list[tuple[Path, float]]:
                         # does not bound it.
                         continue
                     command = entry.get("command", "")
-                    name = command.rsplit("/", 1)[-1].strip()
+                    name = command.rsplit("/", 1)[-1].strip().strip('"')
                     if not name.endswith((".py", ".sh")):
                         continue
                     script = plugin_hooks / name

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/rule_guard.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/rule_guard.py\"",
             "timeout": 5
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/rule_guard.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/rule_guard.py\"",
             "timeout": 5
           }
         ]
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/rule_guard.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/rule_guard.py\"",
             "timeout": 5
           }
         ]
