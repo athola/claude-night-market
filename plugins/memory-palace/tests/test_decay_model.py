@@ -265,6 +265,45 @@ class TestDecayModel:
         # Logarithmic has different curve but should be in reasonable range
         assert 0.3 <= log_hl <= 0.7
 
+    def test_logarithmic_curve_has_no_step_at_four_half_lives(
+        self, model: DecayModel
+    ) -> None:
+        """One more day of age moves the logarithmic curve by a sliver.
+
+        The curve at four half-lives is 1/(1+ln 5) = 0.383. Snapping it to
+        0.1 the next day dropped a finding from critical to archived.
+        """
+        half_life = 365
+        before = model._apply_decay_curve(
+            half_life * 4 - 1, half_life, DecayCurve.LOGARITHMIC
+        )
+        after = model._apply_decay_curve(
+            half_life * 4, half_life, DecayCurve.LOGARITHMIC
+        )
+
+        assert 0.0 <= before - after < 0.001
+
+    def test_finding_status_does_not_change_on_its_fourth_anniversary(
+        self, model: DecayModel
+    ) -> None:
+        """A finding one day either side of 1460 days keeps one status."""
+        now = datetime.now(timezone.utc)
+        states = [
+            model.calculate_decay(
+                "f",
+                "growing",
+                now - timedelta(days=days, hours=1),
+                importance_score=0,
+                unit_type="finding",
+            )
+            for days in (1459, 1460)
+        ]
+
+        assert states[0].status == states[1].status
+        assert states[1].decay_factor == pytest.approx(
+            states[0].decay_factor, abs=0.001
+        )
+
     def test_archive_threshold(self, model: DecayModel) -> None:
         """Entries below archive threshold should be marked archived."""
         ancient = datetime.now(timezone.utc) - timedelta(days=500)
