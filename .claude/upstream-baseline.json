@@ -30,7 +30,7 @@
     ]
   },
   "ratchets": {
-    "dated_ids_backlog": 66
+    "dated_ids_backlog": 70
   },
   "last_migration": {
     "id": "2026-10-05-harness-2-1-289",
