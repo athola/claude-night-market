@@ -253,9 +253,12 @@ def _parse_updated_at(value: str | None) -> datetime:
     try:
         # GitHub uses Z suffix; fromisoformat requires +00:00 in Python 3.9
         normalised = value.replace("Z", "+00:00")
-        return datetime.fromisoformat(normalised)
+        parsed = datetime.fromisoformat(normalised)
     except ValueError:
         return datetime(1970, 1, 1, tzinfo=timezone.utc)
+    # A value with no offset (e.g. "2024-05-01") is read as UTC, the zone
+    # GitHub reports in, so it can be compared with an aware "now".
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
 
 
 def rank_github_findings(findings: list[Finding]) -> list[Finding]:
