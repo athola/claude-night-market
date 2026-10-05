@@ -68,9 +68,15 @@ if [ ! -f "$SKILLS_DIR/manifest.json" ]; then
   python3 scripts/clawhub_export.py --output "$SKILLS_DIR"
 fi
 
-# ---------- init progress file if missing ----------
+# ---------- init progress file if missing or from another release ----------
 
-if [ ! -f "$PROGRESS_FILE" ]; then
+# A finished run for an earlier release leaves pending=[] behind, and
+# reusing it published nothing for the new one.
+if ! PROGRESS_FILE="$PROGRESS_FILE" SEMVER="$SEMVER" python3 -c "
+import json, os, sys
+p = json.load(open(os.environ['PROGRESS_FILE']))
+sys.exit(0 if p.get('version') == os.environ['SEMVER'] else 1)
+" 2>/dev/null; then
   SKILLS_DIR="$SKILLS_DIR" SEMVER="$SEMVER" PROGRESS_FILE="$PROGRESS_FILE" python3 -c "
 import json, os
 from pathlib import Path
@@ -86,6 +92,7 @@ progress = {
     'batches_completed': 0,
     'started_at': __import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat(),
 }
+Path(os.environ['PROGRESS_FILE']).parent.mkdir(parents=True, exist_ok=True)
 Path(os.environ['PROGRESS_FILE']).write_text(json.dumps(progress, indent=2))
 print(f'Initialized progress: {len(skills)} skills to publish')
 "
@@ -236,7 +243,9 @@ print(f'Remaining: {len(progress[\"pending\"])} pending, {len(progress[\"failed\
 
 echo "$RESULT"
 
-# Exit with failure if no skills published this batch
-if echo "$RESULT" | grep -q "0 ok"; then
-  echo "Warning: No skills published in this batch."
+# Exit with failure if no skills published this batch. Anchored on the
+# batch line: a bare "0 ok" also matched "10 ok".
+if printf '%s\n' "$RESULT" | grep -qE '^Batch [0-9]+ \([a-z]+\): 0 ok,'; then
+  echo "Error: No skills published in this batch."
+  exit 1
 fi

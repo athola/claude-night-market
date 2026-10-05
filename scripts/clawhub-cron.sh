@@ -11,11 +11,15 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-LOG="/tmp/clawhub-sync.log"
+LOG="${CLAWHUB_SYNC_LOG:-/tmp/clawhub-sync.log}"
 # Under the repo, not /tmp: another user cannot pre-create it and disable
 # the job. mkdir is atomic, so check-then-create cannot race, and the trap
 # clears it on any exit; a SIGKILL leaves a directory whose age says so.
 LOCK="$REPO_ROOT/.clawhub-sync.lock"
+
+# A run takes minutes. A lock older than two hours was left by a killed
+# run, and without reclaiming it every later run skipped forever.
+find "$LOCK" -maxdepth 0 -type d -mmin +120 -exec rmdir {} \; 2>/dev/null || true
 
 # Prevent overlapping runs
 if ! mkdir "$LOCK" 2>/dev/null; then
