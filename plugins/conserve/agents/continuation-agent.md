@@ -17,7 +17,6 @@ tools:
   - Glob
   - Grep
   - Task
-  - TodoRead
   - TodoWrite
 
 model: opus

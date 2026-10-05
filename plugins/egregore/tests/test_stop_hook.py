@@ -436,3 +436,40 @@ def test_release_records_why_it_released(tmp_path, monkeypatch, capsys):
     assert state["released"] is True
     assert state["consecutive_blocks"] == DEFAULT_MAX_STALLS
     assert "EGREGORE_STOP_MAX_STALLS" in state["reason"]
+
+
+def _stop_with_background(tmp_path, monkeypatch, capsys, background_tasks):
+    manifest = {"work_items": [{"id": "wrk_001", "status": "active"}]}
+    egregore_dir = tmp_path / ".egregore"
+    egregore_dir.mkdir()
+    (egregore_dir / "manifest.json").write_text(json.dumps(manifest))
+    monkeypatch.chdir(tmp_path)
+    payload = {"session_id": "s1", "background_tasks": background_tasks}
+    monkeypatch.setattr("sys.stdin", StringIO(json.dumps(payload)))
+    with pytest.raises(SystemExit):
+        main()
+    return json.loads(capsys.readouterr().out)["decision"]
+
+
+@pytest.mark.parametrize("agent_type", ["egregore:orchestrator", "orchestrator"])
+def test_main_lets_the_session_wait_on_a_running_orchestrator(
+    tmp_path, monkeypatch, capsys, agent_type
+):
+    """A background orchestrator is the loop advancing, not a stalled session.
+
+    Interactive subagent spawns run in the background by default (CLI
+    2.1.232), so the main session stops while the orchestrator works.
+    Blocking that stop re-injects the relaunch prompt on top of a run in
+    progress. Stop input lists in-flight work in ``background_tasks``.
+    """
+    running = [{"id": "a1", "type": "subagent", "agent_type": agent_type}]
+    assert _stop_with_background(tmp_path, monkeypatch, capsys, running) == "approve"
+
+
+def test_main_still_blocks_when_only_unrelated_work_runs(tmp_path, monkeypatch, capsys):
+    """A shell task or another agent is not the loop; the block stands."""
+    other = [
+        {"id": "b1", "type": "shell", "command": "make test"},
+        {"id": "a2", "type": "subagent", "agent_type": "pensive:code-reviewer"},
+    ]
+    assert _stop_with_background(tmp_path, monkeypatch, capsys, other) == "block"
