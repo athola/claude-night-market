@@ -50,6 +50,22 @@ repo_root() {
   (cd "${MYDIR%/}/.." && pwd)
 }
 
+# Tracked executables with no extension whose shebang names sh or bash,
+# such as plugins/abstract/bin/skrills-or-fallback. `*.sh` alone missed
+# them. The first line is read with the `read` builtin, so no process is
+# started per file.
+extensionless_shell_scripts() {
+  (cd "${1:?extensionless_shell_scripts needs a root}" &&
+    git ls-files -s | awk '$1 == "100755" && $4 !~ /\.[A-Za-z0-9]+$/ { print $4 }') |
+    while IFS= read -r _es_file; do
+      _es_line=""
+      IFS= read -r _es_line <"${1}/${_es_file}" || :
+      case "${_es_line}" in
+        '#!'*[/\ ]sh | '#!'*[/\ ]sh' '* | '#!'*bash*) printf '%s\n' "${_es_file}" ;;
+      esac
+    done
+}
+
 run_shellcheck() {
   _sc_root="$(repo_root)"
   _sc_fail=0
@@ -73,8 +89,10 @@ run_shellcheck() {
       return 1
       ;;
   esac
+  _sc_files="${_sc_files}
+$(extensionless_shell_scripts "${_sc_root}")"
 
-  log "Running shellcheck -S ${SEVERITY} on every tracked .sh file…"
+  log "Running shellcheck -S ${SEVERITY} on every tracked shell script…"
   while IFS= read -r _sc_file; do
     case "${_sc_file}" in
       "") continue ;;

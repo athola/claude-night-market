@@ -28,6 +28,7 @@ as a check.
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -56,6 +57,30 @@ def _run_gate(
     )
 
 
+def _extensionless_shell_executables() -> list[str]:
+    staged = subprocess.run(
+        ["git", "ls-files", "-s"],
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    found = []
+    for row in staged:
+        mode, _sha, _stage, path = row.split(maxsplit=3)
+        if mode != "100755" or "." in Path(path).name:
+            continue
+        first = (REPO_ROOT / path).read_text(errors="replace").split("\n", 1)[0]
+        if re.match(r"#!.*([/ ]sh( |$)|bash)", first):
+            found.append(path)
+    return found
+
+
+def test_gate_scans_extensionless_shell_executables() -> None:
+    trace = _run_gate("-t")
+    assert "plugins/abstract/bin/skrills-or-fallback" in trace.stderr
+
+
 def test_gate_scans_hook_scripts_under_plugins() -> None:
     """Invoked the way its own usage() prints it, the gate reaches plugins/."""
     trace = _run_gate("-t")
@@ -73,7 +98,11 @@ def test_gate_scans_hook_scripts_under_plugins() -> None:
 
 
 def test_gate_scans_every_tracked_shell_script() -> None:
-    """Coverage is the tracked set, not one directory."""
+    """Coverage is the tracked set, not one directory.
+
+    The set includes executables with a shell shebang and no extension,
+    such as plugins/abstract/bin/skrills-or-fallback (shell review S1-15).
+    """
     tracked = subprocess.run(
         ["git", "ls-files", "*.sh"],
         cwd=str(REPO_ROOT),
@@ -81,6 +110,7 @@ def test_gate_scans_every_tracked_shell_script() -> None:
         text=True,
         check=True,
     ).stdout.split()
+    tracked += _extensionless_shell_executables()
     trace = _run_gate("-t")
     invoked = [
         line
