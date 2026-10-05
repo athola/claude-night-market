@@ -39,7 +39,6 @@ _ROUND_THRESHOLD = 100
 def summarize(
     result: ScanResult,
     max_dirs: int = 8,
-    max_deps: int = 8,
     max_frameworks: int = 6,
     max_entry_points: int = 5,
 ) -> ScanResult:
@@ -48,9 +47,9 @@ def summarize(
         result.truncated_dirs = len(result.directories) - max_dirs
         result.directories = result.directories[:max_dirs]
 
+    # Dependencies are cut at render time by summarize_dependencies, which
+    # needs the full list to say how many it left out.
     for eco in result.ecosystems:
-        if len(eco.dependencies) > max_deps:
-            eco.dependencies = eco.dependencies[:max_deps]
         if len(eco.frameworks) > max_frameworks:
             eco.frameworks = eco.frameworks[:max_frameworks]
         if len(eco.entry_points) > max_entry_points:
@@ -424,7 +423,7 @@ def render_markdown(
     frameworks, entry points, routes, hot files, env vars, middleware,
     schemas, config files, token savings. Empty sections are skipped.
     """
-    result = summarize(result, max_dirs=max_dirs, max_deps=max_deps)
+    result = summarize(result, max_dirs=max_dirs)
 
     lines: list[str] = []
     lines.extend(_render_header(result, include_timestamp))
@@ -575,8 +574,8 @@ def _section_structure(result: ScanResult) -> list[str]:
     for d in result.directories[:_MAX_DISPLAY_SECTION_ITEMS]:
         lang = f" ({d.primary_language})" if d.primary_language else ""
         lines.append(f"  {d.path:<20} {d.file_count} files{lang}")
-    if result.truncated_dirs:
-        lines.append(f"  ...{result.truncated_dirs} more directories")
+    total = len(result.directories) + result.truncated_dirs
+    _more(lines, total, min(len(result.directories), _MAX_DISPLAY_SECTION_ITEMS))
     return lines
 
 
