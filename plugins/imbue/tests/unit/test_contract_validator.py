@@ -543,3 +543,22 @@ class TestContractSerialization:
         assert restored.required_sections == original.required_sections
         assert restored.min_evidence_count == original.min_evidence_count
         assert restored.strictness == original.strictness
+
+
+def test_contract_doc_counts_distinct_evidence_tags_like_the_validator() -> None:
+    """The documented evidence rule matches _count_evidence_tags.
+
+    Math review finding C2-14: the module said "count occurrences" while
+    the validator counts distinct tags, so authors sized
+    min_evidence_count against the wrong rule.
+    """
+    doc = (
+        Path(__file__).parents[2]
+        / "skills"
+        / "proof-of-work"
+        / "modules"
+        / "output-contracts.md"
+    ).read_text()
+    rule = doc[doc.index("2. **Evidence count**") : doc.index("3. **Artifact check**")]
+    assert "distinct" in rule
+    assert "occurrences" not in rule
