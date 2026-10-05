@@ -158,11 +158,11 @@ When dispatched, provide:
 **Example**:
 ```bash
 # RECOMMENDED: LSP-enhanced review (semantic analysis)
-ENABLE_LSP_TOOL=1 claude "/pensive:code-review src/ --check-impact --find-unused"
+ENABLE_LSP_TOOL=1 claude "/pensive:full-review src/"
 
 # Or enable globally (best practice):
 export ENABLE_LSP_TOOL=1
-claude "/pensive:code-review src/"
+claude "/pensive:full-review src/"
 
 # Fallback: Standard review without LSP (when language server unavailable)
 claude "/pensive:code-review src/"

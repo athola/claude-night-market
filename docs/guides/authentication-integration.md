@@ -54,7 +54,7 @@ aws_with_auth [args...]          # Wrapper for aws commands
 ### 3. Test Suite
 
 **File:**
-`plugins/leyline/skills/authentication-patterns/tests/test-interactive_auth.sh`
+`plugins/leyline/skills/authentication-patterns/tests/test-interactive-auth.sh`
 
 **Tests:**
 - Syntax validation

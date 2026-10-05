@@ -190,7 +190,7 @@ NEEDS ATTENTION (stability_gap > 0.3):
     - Check for environmental dependencies
 
 MONITORING (stability_gap 0.2 - 0.3):
-  conjure:template-engine
+  conjure:delegation-core
     - Performance variance detected
     - Consider caching or optimization
 
