@@ -129,3 +129,46 @@ class TestOutcomeAwareReplan:
         """
         revised = replan(_plan(), {"code": [_finding("code")], "academic": []})
         assert revised.weights["academic"] < 0.5
+
+
+class TestReplanWithNoFindingsAnywhere:
+    """Math review finding C10: an empty round still follows the outcome rule."""
+
+    @staticmethod
+    def _learned_plan() -> ResearchPlan:
+        return ResearchPlan(
+            channels=["code", "discourse", "academic", "web", "triz"],
+            weights={
+                "code": 0.225,
+                "discourse": 0.27,
+                "academic": 0.27,
+                "web": 0.1,
+                "triz": 0.135,
+            },
+            triz_depth="deep",
+            estimated_budget=6000,
+        )
+
+    @pytest.mark.unit
+    def test_an_outage_everywhere_keeps_the_learned_weights(self) -> None:
+        """Every channel rate-limited teaches nothing, so nothing moves."""
+        original = self._learned_plan()
+        outcomes = dict.fromkeys(original.channels, "rate_limited")
+
+        revised = replan(original, {}, outcomes=outcomes)
+
+        assert revised.weights == pytest.approx(original.weights)
+
+    @pytest.mark.unit
+    def test_a_clean_empty_channel_loses_weight_beside_broken_ones(self) -> None:
+        """triz searched and found nothing; the errored rest learned nothing."""
+        original = self._learned_plan()
+        outcomes = dict.fromkeys(original.channels, "error")
+        outcomes["triz"] = "empty"
+
+        revised = replan(original, {}, outcomes=outcomes)
+
+        assert revised.weights["triz"] < original.weights["triz"]
+        assert abs(sum(revised.weights.values()) - 1.0) < 1e-9
+        ratio = revised.weights["code"] / revised.weights["academic"]
+        assert ratio == pytest.approx(0.225 / 0.27)
