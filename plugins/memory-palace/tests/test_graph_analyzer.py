@@ -84,6 +84,29 @@ class TestBetweenness:
         # b and c are on many shortest paths
         assert scores["c"] > scores["e"] or scores["b"] > scores["e"]
 
+    def test_broker_on_the_strong_path_outscores_the_weak_one(self) -> None:
+        """Betweenness follows the same strong-is-cheap cost as shortest_path.
+
+        Two routes join a to c: through strong_hub (0.9, 0.9) and through
+        weak_hub (0.1, 0.1). shortest_path takes the strong route, so the
+        strong hub is the one brokering a -> c.
+        """
+        g = KnowledgeGraph(":memory:")
+        for eid in ("a", "strong_hub", "weak_hub", "c"):
+            g.upsert_entity(eid, "concept", eid)
+        g.create_synapse("a", "strong_hub", strength=0.9)
+        g.create_synapse("strong_hub", "c", strength=0.9)
+        g.create_synapse("a", "weak_hub", strength=0.1)
+        g.create_synapse("weak_hub", "c", strength=0.1)
+        analyzer = PalaceGraphAnalyzer(g)
+
+        scores = analyzer.betweenness_centrality()
+
+        assert analyzer.shortest_path("a", "c") == ["a", "strong_hub", "c"]
+        assert scores["strong_hub"] > 0.0
+        assert scores["weak_hub"] == 0.0
+        g.close()
+
 
 class TestCommunityDetection:
     """Community detection via Louvain or greedy modularity."""

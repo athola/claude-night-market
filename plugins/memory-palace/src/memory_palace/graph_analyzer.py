@@ -44,6 +44,18 @@ class PalaceGraphAnalyzer:
             return self.build_graph()
         return self._nx
 
+    def _cost_graph(self) -> nx.DiGraph:
+        """Copy the graph with ``inv_weight`` = 1/strength on every edge.
+
+        NetworkX path algorithms read weight as distance. Synapse strength
+        is the opposite, so stronger synapses must become cheaper edges.
+        """
+        weighted = self._ensure_graph().copy()
+        for _u, _v, data in weighted.edges(data=True):
+            w = data.get("weight", 0.1)
+            data["inv_weight"] = 1.0 / max(w, 0.01)
+        return weighted
+
     # ------------------------------------------------------------------
     # PageRank
     # ------------------------------------------------------------------
@@ -65,7 +77,9 @@ class PalaceGraphAnalyzer:
         dg = self._ensure_graph()
         if len(dg.nodes) == 0:
             return {}
-        result: dict[str, float] = nx.betweenness_centrality(dg, weight="weight")
+        result: dict[str, float] = nx.betweenness_centrality(
+            self._cost_graph(), weight="inv_weight"
+        )
         return result
 
     # ------------------------------------------------------------------
@@ -139,15 +153,9 @@ class PalaceGraphAnalyzer:
         if source not in dg or target not in dg:
             return None
 
-        # Invert weights so stronger synapses = lower cost = preferred
-        weighted = dg.copy()
-        for _u, _v, data in weighted.edges(data=True):
-            w = data.get("weight", 0.1)
-            data["inv_weight"] = 1.0 / max(w, 0.01)
-
         try:
             path: list[str] = nx.shortest_path(
-                weighted, source, target, weight="inv_weight"
+                self._cost_graph(), source, target, weight="inv_weight"
             )
             return path
         except nx.NetworkXNoPath:
