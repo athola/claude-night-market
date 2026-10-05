@@ -9,7 +9,7 @@ Tests for Phase 2-4 functionality:
 import json
 import tempfile
 import time
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -352,3 +352,50 @@ class TestKnowledgeQueueChecker:
         assert len(result) == 2
         assert result[0]["priority"] == "high"
         assert result[1]["priority"] == "low"
+
+
+class TestLogTimestampsWithAnOffset:
+    """Math review finding C13: logger output carries a UTC offset."""
+
+    @pytest.mark.unit
+    def test_offset_timestamps_are_compared_with_the_cutoff(
+        self, tmp_path: Path
+    ) -> None:
+        """'...+00:00' entries are analyzed, and old ones are excluded."""
+        now = datetime.now(timezone.utc)
+        entries = [
+            {
+                "skill": "sanctum:stack-create",
+                "timestamp": now.isoformat(),
+                "outcome": "failure",
+            },
+            {
+                "skill": "sanctum:stack-create",
+                "timestamp": (now - timedelta(days=30)).isoformat(),
+                "outcome": "success",
+            },
+        ]
+        (tmp_path / "2026-09-08.jsonl").write_text(
+            "\n".join(json.dumps(entry) for entry in entries) + "\n"
+        )
+
+        result = PerformanceAnalyzer(log_dir=tmp_path).analyze_plugin("sanctum")
+
+        (low,) = result["low_success_rate"]
+        assert low["skill"] == "sanctum:stack-create"
+        assert low["success_rate"] == 0.0
+
+    @pytest.mark.unit
+    def test_naive_timestamps_are_read_as_utc(self, tmp_path: Path) -> None:
+        """An entry without an offset still compares against the cutoff."""
+        stamp = (datetime.now(timezone.utc) - timedelta(days=30)).replace(tzinfo=None)
+        entry = {
+            "skill": "sanctum:stack-create",
+            "timestamp": stamp.isoformat(),
+            "outcome": "failure",
+        }
+        (tmp_path / "old.jsonl").write_text(json.dumps(entry) + "\n")
+
+        result = PerformanceAnalyzer(log_dir=tmp_path).analyze_plugin("sanctum")
+
+        assert result["low_success_rate"] == []
