@@ -60,6 +60,8 @@ extend-ignore = ["S101", "E203", "D203", "D213", "UP017", "E501"]
 
 [tool.mypy]
 python_version = "3.9"
+# Hooks put scripts/ on sys.path at run time, as pytest does via pythonpath.
+mypy_path = "scripts"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

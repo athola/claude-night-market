@@ -33,6 +33,18 @@
           }
         ]
       }
+    ],
+    "StopFailure": [
+      {
+        "matcher": "rate_limit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/rate_limit_hook.py\"",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   },
   "modules": ["./loop-band.tsx"]
