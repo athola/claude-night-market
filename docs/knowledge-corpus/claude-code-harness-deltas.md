@@ -17,18 +17,17 @@ related_artifacts:
   - .claude/skills/claude-code-plugin-reference/SKILL.md
   - .claude/upstream-baseline.json
   - .claude/skills/night-market-model-and-harness-updates/SKILL.md
-last_updated: 2026-08-02
+last_updated: 2026-10-04
 ---
 
 ## Synopsis
 
 Most harness releases add capability nobody has to act on. A few change
 the meaning of syntax already written down, and those are the ones that
-break plugins quietly. This entry keeps the second kind, drawn from the
-2.1.80 to 2.1.220 range.
+break plugins quietly. This entry keeps the second kind.
 
-Covers 2.1.80 through 2.1.220. Later ranges append here rather than
-starting a new entry, so the accumulated list stays in one place.
+Covers 2.1.80 through 2.1.289. Later ranges append here rather than
+starting a new entry, which keeps the accumulated list in one place.
 
 ## Changes that alter existing syntax
 
@@ -77,12 +76,80 @@ The 2.1.216 entry is a shell-injection fix, so a plugin relying on that
 substitution in a shell-form command stops working rather than
 degrading.
 
+## 2.1.221 to 2.1.289
+
+Recorded 2026-10-04. The 2.1.101 to 2.1.219 rows the first pass left out
+are folded in where they still bind.
+
+### Fields the harness reads, ignores, or reads differently
+
+| Version | Change | Consequence here |
+|---------|--------|------------------|
+| 2.1.259 | Skill and command `model:` honored interactively, for the rest of the turn | A `model: sonnet` hint downgrades an Opus or Fable session mid-mission |
+| 2.1.267 | `effort:` on skills, commands and agents honored on pinned-effort models | Effort pins now take effect everywhere |
+| docs | Plugin agents ignore `permissionMode`, `hooks`, `mcpServers`, `initialPrompt`. The tool field is `tools` | `allowed-tools` left agents with every tool, and agent `hooks:` never ran |
+| 2.1.271 | Agent `omitClaudeMd` | Prompt-complete agents can skip the CLAUDE.md files |
+| 2.1.248 | Agent `experimental.cacheTtl` (`5m`, `1h`) | Per-agent prompt cache TTL |
+| 2.1.218 | `context: fork` skills run in the background. `background: false` opts out | Result timing changes for every fork skill |
+| 2.1.252 | An agent's `model:` beats `CLAUDE_CODE_SUBAGENT_MODEL`. `_FORCE=1` restores the old order | The env var is a default, not an override |
+| 2.1.286 | A project or user skill named `verify` runs before commits | Name collision is behavior |
+
+### Tools and defaults that moved
+
+| Version | Change | Consequence here |
+|---------|--------|------------------|
+| 2.1.233, 2.1.268 | TodoWrite and Task tools off on Opus 4.8+, Sonnet 5+, Fable 5+ unless `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` | Exit criteria cannot require a TodoWrite call |
+| 2.1.278 | TaskOutput removed. Read the task's output file instead | `taskOutputMaxChars` is inert |
+| 2.1.271 | Monitor watches always time out (30 min, 10 in `-p`). `persistent` is gone | Long watches re-arm |
+| 2.1.232 | Interactive subagent spawns run in the background, with fork mode on | The session reaches Stop while a subagent works. Stop input lists it in `background_tasks` |
+| 2.1.271 | Workflow guideline `medium` lowered from 15 agents to 10, `small` the default on Pro | Pinned guideline counts move with it |
+| 2.1.284 | Sessions start in auto mode when no mode is configured | Pin `permissions.defaultMode` where it matters |
+| 2.1.257 | Project-level `defaultMode: bypassPermissions` ignored | Bypass belongs in user or managed settings |
+
+### Hooks
+
+| Version | Change | Consequence here |
+|---------|--------|------------------|
+| 2.1.121 | PostToolUse `updatedToolOutput` replaces a tool result | A hook can shrink output instead of appending to it |
+| 2.1.248 | Stdout that starts with `{` and is not JSON is a hook error | Hooks print `json.dumps` only |
+| 2.1.251 | `PreModelSwitch`, `PostModelSwitch`. SessionStart resume carries staleness and re-cache cost | 33 events at 2.1.289 |
+| 2.1.280 | Agent-type hooks no longer run on PermissionRequest | Use command or http hooks there |
+| 2.1.281 | `claude plugin validate` warns on unquoted `${CLAUDE_PLUGIN_ROOT}` | Quote it or use exec form `args` |
+| 2.1.288 | PreToolUse and PermissionRequest fail closed when matching fails | A broken matcher now blocks |
+
+### Plugin tooling
+
+| Version | Addition |
+|---------|----------|
+| 2.1.259 | `claude plugin validate --json` |
+| 2.1.261 | `/skill-doctor`: unused skills and their context cost |
+| 2.1.269 | `claude plugin eval`: scored eval suites against a no-plugin baseline (billed runs) |
+| 2.1.283 | `/doctor prompt-audit` for prompting written for older models |
+| 2.1.285 | `claude plugin configure` for `userConfig` values |
+| 2.1.258 | Symlinked component paths, and paths leaving the plugin, refused |
+
+### Mods (2.1.287)
+
+A plugin's `hooks/hooks.json` may name one TypeScript module under
+`modules`, beside or instead of `hooks`. The module exports
+`register(on, options)` and hooks events such as `tool.call`,
+`prompt.compose`, `session.append`, `turn.step` and `ui.render`. It can
+draw panes and a band above the prompt, register commands and tools,
+and keep state. Command hooks run alongside it and are not deprecated.
+Mods are unsandboxed, can be switched off remotely, and are blocked for
+marketplace plugins where an organization sets `allowManagedModsOnly`.
+`claude plugin test` runs a mod's `*.test.ts` files.
+
+A mod that answers `tool.call` itself keeps plugin PreToolUse hooks from
+running. This repo's mods observe and draw only, for that reason.
+
 ## Open questions this does not answer
 
 - Which of this repo's hook files use a single-segment `if:` pattern.
   The changelog states the rule, not the call sites.
 - Whether any behavior here is reversible by configuration.
-- Anything after 2.1.220.
+- Whether the mods API keeps its shape. Its declaration file calls it
+  early access and says it may change between releases.
 
 ## How to refresh
 

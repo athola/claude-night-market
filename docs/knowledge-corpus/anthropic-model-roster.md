@@ -18,7 +18,7 @@ related_artifacts:
   - docs/agent-model-matrix.md
   - plugins/phantom/src/phantom/cost.py
   - .claude/skills/night-market-model-and-harness-updates/SKILL.md
-last_updated: 2026-08-02
+last_updated: 2026-10-04
 ---
 
 ## Synopsis
@@ -28,7 +28,7 @@ names do not tell you where a model sits. This entry is the lookup
 table that settles both questions: which model to reach for, and what
 it costs when you do.
 
-Verified against the model card on 2026-08-02. Refresh through
+Verified against the model card on 2026-10-04. Refresh through
 `Skill(night-market-model-and-harness-updates)`, which reads the card
 as a mandatory source.
 
@@ -36,16 +36,23 @@ as a mandatory source.
 
 | Tier | API ID | In / Out per MTok | Context | Max out | Latency |
 |------|--------|-------------------|---------|---------|---------|
-| Frontier | `claude-fable-5` | $10 / $50 | 1M | 128k | Slower |
-| Deep | `claude-opus-5` | $5 / $25 | 1M | 128k | Moderate |
-| Standard | `claude-sonnet-5` | $3 / $15 | 1M | 128k | Fast |
+| Frontier | `claude-fable-5-1` | $10 / $50 | 1M | 128k | Slower |
+| Deep | `claude-opus-5-5` | $4 / $20 | 1M | 128k | Moderate |
+| Standard | `claude-sonnet-5-5` | $2 / $10 | 1M | 128k | Fast |
 | Lightweight | `claude-haiku-4-5-20251001` | $1 / $5 | 200k | 64k | Fastest |
 
-Sonnet 5 carries introductory pricing of $2 / $10 through 2026-08-31.
+Cache reads cost 10% of the input rate, except Fable 5.1 at 2.5% and
+Opus 5.5 at 5%. Default API effort is `high` on Fable 5.1 and Sonnet
+5.5 and `medium` on Opus 5.5. Haiku 4.5 takes no effort parameter.
+
+Claude Code made each the default in its tier as it shipped: Fable 5.1
+in 2.1.257, Opus 5.5 in 2.1.280, Sonnet 5.5 in 2.1.284. Agent
+frontmatter pins the tier alias (`opus`, `sonnet`, `fable`, `haiku`),
+which moved with them.
 
 ## What the card settles that the name does not
 
-**Fable is the top tier, not a creative tier.** Claude Fable 5 is
+**Fable is the top tier, not a creative tier.** Claude Fable 5 was
 described as Anthropic's most capable widely released model, built for
 long-running agents. It costs twice Opus 5 and runs slower. Reading the
 name alone leads to the opposite conclusion, and this repo made exactly
@@ -60,15 +67,22 @@ Claude Code tier and belongs in no local vocabulary.
 64k max output, so a task sized for the other three does not
 necessarily fit it.
 
-**Effort defaults to `high`** on Opus 5 and Sonnet 5 in Claude Code.
-Pinning `high` matches the default rather than raising it.
+**Opus 5.5 defaults to `medium` effort**, one step below Opus 5. An
+agent that pins `effort: high` on `opus` now raises it above the
+default.
 
 ## Deprecation watch
 
 | Model | Status |
 |-------|--------|
+| `claude-haiku-4-5-20251001` | Retirement not sooner than 2026-10-15; still the only Haiku |
 | `claude-opus-4-1-20250805` | Retired 2026-08-05, calls return 404 |
-| Opus 4.8, 4.7, 4.6; Sonnet 4.6, 4.5; Opus 4.5 | Legacy, still callable |
+| Fable 5, Opus 5, Sonnet 5 | Legacy, still callable |
+| Opus 4.8, 4.7, 4.6, 4.5; Sonnet 4.6 | Legacy, still callable |
+
+The Haiku date is the earliest retirement Anthropic commits to. Every
+agent pinned to `haiku` depends on that model, and the card lists no
+successor. Recheck this entry first.
 
 Legacy Opus generations are $5 / $25, not the $15 / $75 that Opus 4.1
 charged. Copying Opus 4.1's rate onto a newer Opus overstates cost
