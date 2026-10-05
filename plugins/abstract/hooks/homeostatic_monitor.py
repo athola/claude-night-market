@@ -108,7 +108,9 @@ def _needs_metacognition(claude_home: Path) -> bool:  # noqa: PLR0911 - multi-cr
         mem = ImprovementMemory(mem_file)
         effective = mem.get_effective_strategies()
         failed = mem.get_failed_strategies()
-        total = len(effective) + len(failed)
+        # Every recorded outcome is an attempt; small gains and neutral
+        # results are neither effective nor failed but still count.
+        total = sum(len(v) for v in mem.outcomes.values())
         if total == 0:
             return False
         # Trigger 1: low effectiveness

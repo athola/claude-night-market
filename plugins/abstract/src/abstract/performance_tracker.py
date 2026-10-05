@@ -136,7 +136,8 @@ class PerformanceTracker:
             return None
 
         scores: list[float] = [float(e["score"]) for e in entries]
-        older_avg = sum(scores[:window]) / window
+        # Moving-average trend: the last window against the one before it.
+        older_avg = sum(scores[-2 * window : -window]) / window
         recent_avg = sum(scores[-window:]) / window
 
         return recent_avg - older_avg
@@ -252,9 +253,13 @@ class PerformanceTracker:
             if e["skill_ref"] == skill_ref and e["version"] == v2
         ]
 
-        v1_avg = sum(v1_scores) / len(v1_scores) if v1_scores else 0.0
-        v2_avg = sum(v2_scores) / len(v2_scores) if v2_scores else 0.0
-        improvement = v2_avg - v1_avg
+        # A version with no scores has no average; 0.0 would make any score
+        # on the other side read as an improvement.
+        v1_avg = sum(v1_scores) / len(v1_scores) if v1_scores else None
+        v2_avg = sum(v2_scores) / len(v2_scores) if v2_scores else None
+        improvement = (
+            v2_avg - v1_avg if v1_avg is not None and v2_avg is not None else None
+        )
 
         return {
             "v1_scores": v1_scores,
@@ -262,5 +267,5 @@ class PerformanceTracker:
             "v1_avg": v1_avg,
             "v2_avg": v2_avg,
             "improvement": improvement,
-            "improved": improvement > 0,
+            "improved": None if improvement is None else improvement > 0,
         }

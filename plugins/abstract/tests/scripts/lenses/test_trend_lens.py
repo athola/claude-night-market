@@ -6,6 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
 
 from insight_types import AnalysisContext
+from abstract.improvement_memory import ImprovementMemory, ImprovementOutcome
 from lenses.trend_lens import LENS_META, analyze
 
 
@@ -119,6 +120,12 @@ def test_low_success_rate_produces_high_finding():
     """
 
     class LowSuccessMemory:
+        @property
+        def outcomes(self):
+            # Every effective or failed strategy is one recorded outcome.
+            attempts = self.get_effective_strategies() + self.get_failed_strategies()
+            return {"p:s": attempts}
+
         def get_effective_strategies(self):
             return [{"change_summary": "good change", "improvement": 0.1}]
 
@@ -142,6 +149,12 @@ def test_below_min_attempts_skips_rate_finding():
     """
 
     class FewAttemptsMemory:
+        @property
+        def outcomes(self):
+            # Every effective or failed strategy is one recorded outcome.
+            attempts = self.get_effective_strategies() + self.get_failed_strategies()
+            return {"p:s": attempts}
+
         def get_effective_strategies(self):
             return [{"change_summary": "ok", "improvement": 0.1}]
 
@@ -163,6 +176,12 @@ def test_failed_strategies_summary_produced():
     """
 
     class FailedMemory:
+        @property
+        def outcomes(self):
+            # Every effective or failed strategy is one recorded outcome.
+            attempts = self.get_effective_strategies() + self.get_failed_strategies()
+            return {"p:s": attempts}
+
         def get_effective_strategies(self):
             return [
                 {"change_summary": f"good {i}", "improvement": 0.1} for i in range(10)
@@ -189,6 +208,12 @@ def test_fewer_than_min_failed_skips_summary():
     """
 
     class FewFailsMemory:
+        @property
+        def outcomes(self):
+            # Every effective or failed strategy is one recorded outcome.
+            attempts = self.get_effective_strategies() + self.get_failed_strategies()
+            return {"p:s": attempts}
+
         def get_effective_strategies(self):
             return [
                 {"change_summary": f"good {i}", "improvement": 0.1} for i in range(10)
@@ -305,3 +330,22 @@ def test_duplicate_skill_refs_deduplicated():
     ctx = _ctx(performance_history=DupTracker())
     findings = analyze(ctx)
     assert len(findings) == 1
+
+
+def test_success_rate_counts_every_recorded_outcome(tmp_path):
+    """Neutral and small-gain outcomes are attempts too (finding B10)."""
+    mem = ImprovementMemory(tmp_path / "mem.json")
+    outcomes = [(0.2, 0.6)] + [(0.5, 0.55)] * 5
+    for before, after in outcomes:
+        mem.record_improvement_outcome(
+            "p:s",
+            ImprovementOutcome(
+                version="1",
+                change_summary="c",
+                before_score=before,
+                after_score=after,
+                hypothesis="h",
+            ),
+        )
+    findings = analyze(_ctx(improvement_memory=mem))
+    assert any(f.severity == "high" for f in findings)
