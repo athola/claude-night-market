@@ -20,15 +20,12 @@ dev = [
     "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
     "ty>=0.0.82",
-    "pytype>=2024.10.11 ; python_version >= '3.10'",
     "typos>=1.50.2",
 ]
 
 [dependency-groups]
 dev = [
     "bandit>=1.8.6,<2.0",
-    "blacken-docs>=1.20.0,<2.0",
-    "interrogate>=1.7.0,<2.0",
     "pre-commit>=4.3.0",
     "ty>=0.0.82",
     "typos>=1.50.2",
@@ -36,11 +33,8 @@ dev = [
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
     "pytest-cov>=7.1.0",
-    "pytest-mock>=3.15.1",
     "pytest-asyncio>=1.2.0",
-    "pytest-bdd>=8.1.0",
     "pytest-xdist>=3.8.0",
-    "psutil>=7.2.2",
 ]
 
 [tool.nightmarket]
@@ -130,10 +124,6 @@ exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
 [[tool.mypy.overrides]]
 module = ["leyline.*"]
 ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["imbue_validator"]
-disable_error_code = ["return-value"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
