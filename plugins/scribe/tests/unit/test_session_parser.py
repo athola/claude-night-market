@@ -1301,3 +1301,35 @@ class TestTurnRangeValidation:
         """
         with pytest.raises(ValueError, match="must not exceed end"):
             _parse_turn_range("5-2")
+
+
+def test_turn_numbers_start_at_the_first_user_prompt(tmp_path: Path) -> None:
+    """A reply to a skipped injection formed group 1 and shifted every
+    later turn number by one (math review B2-19).
+    """
+    records = [
+        {
+            "type": "user",
+            "message": {
+                "content": [
+                    {"type": "text", "text": "<command-message>init</command-message>"}
+                ]
+            },
+        },
+        {
+            "type": "assistant",
+            "message": {"content": [{"type": "text", "text": "Preamble"}]},
+        },
+        {"type": "user", "message": {"content": "first real prompt"}},
+        {
+            "type": "assistant",
+            "message": {"content": [{"type": "text", "text": "one"}]},
+        },
+        {"type": "user", "message": {"content": "second prompt"}},
+    ]
+    session = tmp_path / "s.jsonl"
+    session.write_text("\n".join(json.dumps(r) for r in records))
+
+    first = parse_session(session, turns="1")
+    assert [t.text for t in first] == ["first real prompt", "one"]
+    assert [t.text for t in parse_session(session, turns="2")] == ["second prompt"]
