@@ -195,9 +195,9 @@ class TestPricingTracksTheModelCard:
         Then each has an explicit entry rather than falling to default
         """
         for model in (
-            "claude-opus-5",
-            "claude-sonnet-5",
-            "claude-fable-5",
+            "claude-opus-5-5",
+            "claude-sonnet-5-5",
+            "claude-fable-5-1",
             "claude-haiku-4-5-20251001",
         ):
             assert model in PRICING, f"{model} falls through to default pricing"
@@ -209,9 +209,10 @@ class TestPricingTracksTheModelCard:
         When the pricing table is read
         Then the entries match the model card
         """
-        assert PRICING["claude-fable-5"] == {"input": 10.0, "output": 50.0}
-        assert PRICING["claude-opus-5"] == {"input": 5.0, "output": 25.0}
-        assert PRICING["claude-sonnet-5"] == {"input": 3.0, "output": 15.0}
+        # platform.claude.com/docs/en/about-claude/models/overview, 2026-10-04
+        assert PRICING["claude-fable-5-1"] == {"input": 10.0, "output": 50.0}
+        assert PRICING["claude-opus-5-5"] == {"input": 4.0, "output": 20.0}
+        assert PRICING["claude-sonnet-5-5"] == {"input": 2.0, "output": 10.0}
         assert PRICING["claude-haiku-4-5-20251001"] == {"input": 1.0, "output": 5.0}
 
     def test_legacy_opus_46_rate_is_not_opus_41_rate(self):

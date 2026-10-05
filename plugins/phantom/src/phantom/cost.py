@@ -20,12 +20,15 @@ from dataclasses import dataclass
 # List price is used deliberately: a budget guard that assumes the
 # promotional rate under-charges the moment it lapses.
 PRICING = {
-    # Current
+    # Current (model card, 2026-10-04)
+    "claude-fable-5-1": {"input": 10.0, "output": 50.0},
+    "claude-opus-5-5": {"input": 4.0, "output": 20.0},
+    "claude-sonnet-5-5": {"input": 2.0, "output": 10.0},
+    "claude-haiku-4-5-20251001": {"input": 1.0, "output": 5.0},
+    # Legacy, still callable
     "claude-fable-5": {"input": 10.0, "output": 50.0},
     "claude-opus-5": {"input": 5.0, "output": 25.0},
     "claude-sonnet-5": {"input": 3.0, "output": 15.0},
-    "claude-haiku-4-5-20251001": {"input": 1.0, "output": 5.0},
-    # Legacy, still callable
     "claude-opus-4-8": {"input": 5.0, "output": 25.0},
     "claude-opus-4-7": {"input": 5.0, "output": 25.0},
     "claude-opus-4-6": {"input": 5.0, "output": 25.0},
