@@ -548,7 +548,7 @@ class TestLoadLogEntries:
         log_file.write_text("{not valid json}\n")
 
         result = load_log_entries(tmp_path, days_back=7)
-        assert result == {}
+        assert result == {"myplugin:my-skill": []}
 
     @pytest.mark.unit
     def test_malformed_entry_does_not_discard_valid_entries(

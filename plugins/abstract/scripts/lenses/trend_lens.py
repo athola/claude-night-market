@@ -133,7 +133,7 @@ def _analyze_improvement_memory(memory: Any) -> list[Finding]:
 
     if failed and len(failed) >= MIN_FAILED_FOR_SUMMARY:
         # Summarize worst failures
-        worst = failed[:3]
+        worst = sorted(failed, key=lambda f: f.get("improvement", 0))[:3]
         lines = []
         for f in worst:
             summary = f.get("change_summary", "unknown")

@@ -156,12 +156,12 @@ class SkillAnalyzer:
 
         if tokens > HIGH_TOKEN_LIMIT:
             recommendations.append(
-                f"MODULARIZE: High token usage ({tokens} tokens >2KB)",
+                f"MODULARIZE: High token usage ({tokens} tokens > {HIGH_TOKEN_LIMIT})",
             )
         elif tokens > MODERATE_TOKEN_LIMIT:
             recommendations.append(
                 f"CONSIDER: Moderate token usage ({tokens} tokens, "
-                "approaching 2KB limit)",
+                f"approaching the {HIGH_TOKEN_LIMIT}-token limit)",
             )
 
         return recommendations

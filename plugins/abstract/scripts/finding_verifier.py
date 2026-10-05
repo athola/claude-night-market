@@ -205,7 +205,8 @@ def verify_refs(refs: list[FileRef], repo_root: Path) -> VerificationResult:
             continue
         if ref.line_start is not None and target.is_file():
             count = _count_lines(target)
-            if count is not None and ref.line_start > count:
+            last = ref.line_end or ref.line_start
+            if count is not None and max(ref.line_start, last) > count:
                 stale.append(ref.path)
                 continue
         present.append(ref.path)

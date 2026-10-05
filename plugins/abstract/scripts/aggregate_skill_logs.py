@@ -155,6 +155,9 @@ def load_log_entries(
                 continue
 
             skill_key = f"{plugin_dir.name}:{skill_dir.name}"
+            # Registered before any entry: a skill with logs but none in
+            # the window is the 0-execution case the health lens reports.
+            entries_by_skill.setdefault(skill_key, [])
 
             # Load all JSONL files in skill directory
             for log_file in skill_dir.glob("*.jsonl"):
@@ -168,6 +171,8 @@ def load_log_entries(
                                 entry = json.loads(line)
                                 # Filter by date
                                 entry_time = datetime.fromisoformat(entry["timestamp"])
+                                if entry_time.tzinfo is None:
+                                    entry_time = entry_time.replace(tzinfo=timezone.utc)
                                 if entry_time < cutoff:
                                     continue
                                 if not include_synthetic and _is_synthetic_session(
