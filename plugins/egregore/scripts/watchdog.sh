@@ -40,7 +40,10 @@ if [[ -f "$BUDGET" ]]; then
     if [[ -n "$cooldown" ]]; then
         now=$(date +%s)
         if [[ "$(uname)" == "Darwin" ]]; then
-            until_ts=$(date -jf "%Y-%m-%dT%H:%M:%S" "${cooldown%%.*}" +%s 2>/dev/null || echo "0")
+            # cooldown_until is always written in UTC. BSD date -j reads the
+            # wall-clock fields in the local zone and cannot parse the
+            # "+00:00" offset, so parse the first 19 characters as UTC.
+            until_ts=$(TZ=UTC date -jf "%Y-%m-%dT%H:%M:%S" "${cooldown:0:19}" +%s 2>/dev/null || echo "0")
         else
             until_ts=$(date -d "$cooldown" +%s 2>/dev/null || echo "0")
         fi
