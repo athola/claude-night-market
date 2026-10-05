@@ -66,7 +66,8 @@ main() {
   # Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
   HOOK_INPUT=""
   AGENT_TYPE=""
-  if read -t 1 -r HOOK_INPUT 2>/dev/null; then
+  # read fails on a line with no final newline but still stores it.
+  if read -t 1 -r HOOK_INPUT 2>/dev/null || [[ -n "${HOOK_INPUT}" ]]; then
     AGENT_TYPE=$(get_json_field "${HOOK_INPUT}" "agent_type")
   fi
 

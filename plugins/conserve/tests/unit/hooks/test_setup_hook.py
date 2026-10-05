@@ -21,7 +21,9 @@ import pytest
 HOOK_SCRIPT = Path(__file__).parents[3] / "hooks" / "setup.sh"
 
 
-def _run(trigger: str, home: Path) -> subprocess.CompletedProcess:
+def _run(
+    trigger: str, home: Path, *, terminator: str = "\n"
+) -> subprocess.CompletedProcess:
     env = os.environ.copy()
     env["HOME"] = str(home)
     env["CLAUDE_PROJECT_DIR"] = str(home / "project")
@@ -30,9 +32,7 @@ def _run(trigger: str, home: Path) -> subprocess.CompletedProcess:
     (home / "project").mkdir(parents=True, exist_ok=True)
     return subprocess.run(
         ["/bin/bash", str(HOOK_SCRIPT)],
-        # The hook reads one line with ``read``, which reports failure on
-        # an unterminated line and would silently fall back to the init path.
-        input=json.dumps({"trigger": trigger}) + "\n",
+        input=json.dumps({"trigger": trigger}) + terminator,
         capture_output=True,
         text=True,
         cwd=str(home / "project"),
@@ -60,3 +60,19 @@ def test_setup_emits_parseable_json_with_an_empty_home(
     payload = json.loads(result.stdout)
     assert payload["hookSpecificOutput"]["hookEventName"] == "Setup"
     assert isinstance(payload["hookSpecificOutput"]["additionalContext"], str)
+
+
+@pytest.mark.unit
+def test_maintenance_runs_when_the_input_has_no_trailing_newline(
+    tmp_path: Path,
+) -> None:
+    """Scenario: hook input arrives without a final newline.
+
+    Given a maintenance trigger written with no terminator
+    When the Setup hook reads it
+    Then it runs maintenance, not the init path (shell review S0-5, S2-10).
+    """
+    result = _run("maintenance", tmp_path, terminator="")
+    assert result.returncode == 0, result.stderr
+    context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
+    assert "maintenance" in context.splitlines()[0]

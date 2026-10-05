@@ -20,10 +20,10 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = PLUGIN_ROOT / "hooks" / "session-start.sh"
 
 
-def _context(tmp_path: Path, payload: dict[str, str]) -> str:
+def _context(tmp_path: Path, payload: dict[str, str], terminator: str = "\n") -> str:
     completed = subprocess.run(
         ["bash", str(SCRIPT)],
-        input=json.dumps(payload) + "\n",
+        input=json.dumps(payload) + terminator,
         cwd=tmp_path,
         env={
             "CLAUDE_PLUGIN_ROOT": str(PLUGIN_ROOT),
@@ -57,3 +57,13 @@ def test_other_agents_get_the_full_context(tmp_path: Path) -> None:
 def test_a_session_without_an_agent_gets_the_full_context(tmp_path: Path) -> None:
     context = _context(tmp_path, {"source": "startup"})
     assert "abbreviated" not in context
+
+
+def test_agent_type_is_read_without_a_trailing_newline(tmp_path: Path) -> None:
+    """An unterminated line still carries agent_type.
+
+    `read` returns nonzero on it, and the branch was skipped with the
+    value already read (shell review S0-6, S2-9).
+    """
+    payload = {"source": "startup", "agent_type": "pensive:code-reviewer"}
+    assert "abbreviated" in _context(tmp_path, payload, terminator="")
