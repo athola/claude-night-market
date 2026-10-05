@@ -28,7 +28,12 @@ if ! command -v jq &>/dev/null; then
     exit 1
 fi
 
-remaining=$(jq '[.work_items[] | select(.status == "active" or .status == "paused")] | length' "$MANIFEST" 2>/dev/null || echo "0")
+# A manifest that does not parse is an error. Reading it as zero items
+# logged a truncated write as "No active work items".
+if ! remaining=$(jq '[.work_items[] | select(.status == "active" or .status == "paused")] | length' "$MANIFEST" 2>/dev/null); then
+    log "ERROR: $MANIFEST does not parse; not relaunching"
+    exit 1
+fi
 if [[ "$remaining" -eq 0 ]]; then
     log "No active work items, exiting"
     exit 0
@@ -36,7 +41,10 @@ fi
 
 # Check cooldown
 if [[ -f "$BUDGET" ]]; then
-    cooldown=$(jq -r '.cooldown_until // empty' "$BUDGET" 2>/dev/null)
+    if ! cooldown=$(jq -r '.cooldown_until // empty' "$BUDGET" 2>/dev/null); then
+        log "ERROR: $BUDGET does not parse; cooldown unknown, not relaunching"
+        exit 1
+    fi
     if [[ -n "$cooldown" ]]; then
         now=$(date +%s)
         if [[ "$(uname)" == "Darwin" ]]; then

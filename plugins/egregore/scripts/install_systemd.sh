@@ -6,6 +6,9 @@ INTERVAL="${1:-5}"
 WATCHDOG_SCRIPT="$(cd "$(dirname "$0")" && pwd)/watchdog.sh"
 WORKING_DIR="${2:-$(pwd)}"
 UNIT_DIR="$HOME/.config/systemd/user"
+# Quoted so a space does not split the path, and % doubled so systemd does
+# not read it as a unit specifier.
+EXEC_SCRIPT="${WATCHDOG_SCRIPT//%/%%}"
 SERVICE_NAME="egregore-watchdog"
 
 mkdir -p "$UNIT_DIR"
@@ -17,7 +20,7 @@ Description=Egregore Watchdog Service
 [Service]
 Type=oneshot
 WorkingDirectory=${WORKING_DIR}
-ExecStart=${WATCHDOG_SCRIPT}
+ExecStart="${EXEC_SCRIPT}"
 EOF
 
 cat > "$UNIT_DIR/${SERVICE_NAME}.timer" << EOF
