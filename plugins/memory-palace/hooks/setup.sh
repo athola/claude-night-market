@@ -28,6 +28,16 @@ script_dir() {
   (cd "${src:-/}" && pwd)
 }
 
+# Count markdown files under a directory, 0 when it does not exist. A
+# missing category made find fail, and pipefail ended the hook.
+count_markdown() {
+  if [ -d "${1}" ]; then
+    find "${1}" -type f -name "*.md" | wc -l | tr -d ' '
+  else
+    printf '0'
+  fi
+}
+
 main() {
   case "${1:-}" in
     -x) set -x ;;
@@ -61,15 +71,18 @@ main() {
       init_tasks=()
 
       # 1. Create knowledge garden structure
+      # The subdirectories are created even when the root exists: a root
+      # without meta/ made the index write below fail.
       if [ ! -d "${GARDEN_ROOT}" ]; then
-        mkdir -p "${GARDEN_ROOT}"/{seeds,seedlings,evergreen,compost,meta}
         init_tasks+=("Created knowledge garden: ${GARDEN_ROOT}")
       else
         init_tasks+=("Knowledge garden: exists")
       fi
+      mkdir -p "${GARDEN_ROOT}"/{seeds,seedlings,evergreen,compost,meta}
 
       # 2. Create project palace structure if in a git repo
-      if [ -d "${PROJECT_DIR}/.git" ]; then
+      # -e, not -d: in a linked worktree .git is a file.
+      if [ -e "${PROJECT_DIR}/.git" ]; then
         PALACE_DIR="${PROJECT_DIR}/.claude/palace"
         if [ ! -d "${PALACE_DIR}" ]; then
           mkdir -p "${PALACE_DIR}"/{entrance,library,workshop,review-chamber/{decisions,patterns,standards,lessons},garden}
@@ -167,23 +180,28 @@ $(printf '  - %s\n' "${init_tasks[@]+"${init_tasks[@]}"}")"
 
       # 3. Rebuild index counts
       if [ -d "${GARDEN_ROOT}" ]; then
-        seeds_count=$(find "${GARDEN_ROOT}/seeds" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
-        seedlings_count=$(find "${GARDEN_ROOT}/seedlings" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
-        evergreen_count=$(find "${GARDEN_ROOT}/evergreen" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
-        compost_count=$(find "${GARDEN_ROOT}/compost" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+        seeds_count=$(count_markdown "${GARDEN_ROOT}/seeds")
+        seedlings_count=$(count_markdown "${GARDEN_ROOT}/seedlings")
+        evergreen_count=$(count_markdown "${GARDEN_ROOT}/evergreen")
+        compost_count=$(count_markdown "${GARDEN_ROOT}/compost")
         total=$((seeds_count + seedlings_count + evergreen_count))
 
         INDEX_FILE="${GARDEN_ROOT}/meta/index.json"
         if [ -f "${INDEX_FILE}" ] && command -v jq >/dev/null 2>&1; then
-          jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+          if jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             --argjson seeds "${seeds_count}" \
             --argjson seedlings "${seedlings_count}" \
             --argjson evergreen "${evergreen_count}" \
             --argjson compost "${compost_count}" \
             --argjson total "${total}" \
             '.last_maintenance = $ts | .entry_count = $total | .categories = {seeds: $seeds, seedlings: $seedlings, evergreen: $evergreen, compost: $compost}' \
-            "${INDEX_FILE}" >"${INDEX_FILE}.tmp" && mv "${INDEX_FILE}.tmp" "${INDEX_FILE}"
-          maint_tasks+=("Rebuilt index: ${total} active entries (${compost_count} composted)")
+            "${INDEX_FILE}" >"${INDEX_FILE}.tmp" 2>/dev/null; then
+            mv "${INDEX_FILE}.tmp" "${INDEX_FILE}"
+            maint_tasks+=("Rebuilt index: ${total} active entries (${compost_count} composted)")
+          else
+            rm -f "${INDEX_FILE}.tmp"
+            maint_tasks+=("Index rebuild failed: ${INDEX_FILE} does not parse (${total} active entries)")
+          fi
         else
           maint_tasks+=("Garden stats: ${total} active entries (${compost_count} composted)")
         fi
