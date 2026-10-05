@@ -151,21 +151,23 @@ async def delphi_revision_round(
 def _max_borda_cv(coa_count: int) -> float:
     """Return the largest coefficient of variation ``coa_count`` COAs admit.
 
-    A unanimous panel gives Borda scores proportional to
-    ``n-1, n-2, ... 0``. That set has mean ``(n-1)/2`` and variance
-    ``(n^2-1)/12``, so its coefficient of variation is
-    ``2*sqrt((n+1)/(12*(n-1)))``: 1.0 at two COAs, 0.816 at three, 0.707
-    at five, falling toward 0.577.
+    A unanimous panel gives Borda scores proportional to the points
+    ``compute_borda_scores`` awards, ``n, n-1, ... 1``. That set has mean
+    ``(n+1)/2`` and variance ``(n^2-1)/12``, so its coefficient of
+    variation is ``2*sqrt((n-1)/(12*(n+1)))``: 0.333 at two COAs, 0.408
+    at three, 0.471 at five, rising toward 0.577.
 
     This is why the raw CV could not be read as agreement. The default
-    ``convergence_threshold`` is 0.85, which three or more COAs cannot
-    reach however unanimous the panel, so every Delphi run paid for
+    ``convergence_threshold`` is 0.85, which no COA count can reach
+    however unanimous the panel, so every Delphi run paid for
     ``max_rounds`` and stopped on the round limit rather than on
-    agreement.
+    agreement. The ceiling must follow the point scheme the tally uses:
+    one derived for ``n-1, ... 0`` read a unanimous three-COA panel as
+    0.5.
     """
     if coa_count < 2:
         return 0.0
-    spread: float = ((coa_count + 1) / (12 * (coa_count - 1))) ** 0.5
+    spread: float = ((coa_count - 1) / (12 * (coa_count + 1))) ** 0.5
     return 2 * spread
 
 
