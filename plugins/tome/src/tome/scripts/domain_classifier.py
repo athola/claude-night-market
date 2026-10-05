@@ -8,6 +8,8 @@ the topic falls back to the "general" domain.
 
 from __future__ import annotations
 
+import re
+
 from tome.models import DomainClassification
 
 # ---------------------------------------------------------------------------
@@ -286,10 +288,13 @@ _MIN_CONFIDENCE = 0.6
 def _count_matches(topic_lower: str, keywords: list[str]) -> int:
     """Count how many keywords from the list appear in the topic string.
 
-    Multi-word keywords (e.g. "dynamic programming") are matched as
-    substrings so the topic does not need exact word boundaries.
+    A keyword must start at a word boundary and may run on into a longer
+    word, so stems ("orchestrat") and plurals ("graphs") hit while a
+    keyword buried inside another word does not: "trie" in "retrieval",
+    "ux" in "linux" and "search" in "research" are not evidence.
+    Multi-word keywords (e.g. "dynamic programming") match the same way.
     """
-    return sum(1 for kw in keywords if kw in topic_lower)
+    return sum(1 for kw in keywords if re.search(rf"\b{re.escape(kw)}", topic_lower))
 
 
 def classify(topic: str) -> DomainClassification:
