@@ -26,7 +26,6 @@ dev = [
     "types-pyyaml>=6.0.12.20250915",
     "pytest>=8.0",
     "pytest-cov>=7.1.0",
-    "pytest-asyncio>=1.2.0",
     # The graph and retrieval seams are Protocols that memory-palace
     # satisfies structurally. Without the real backend installed, every
     # contract test guarded by importorskip skips, and the Protocols are
@@ -60,7 +59,6 @@ ignore = ["UP017", "S101", "E501"]  # E501 line length handled by formatter (mat
 "tests/conftest.py" = ["F401"]  # Re-exported fixtures
 
 [tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 pythonpath = ["src", "."]
