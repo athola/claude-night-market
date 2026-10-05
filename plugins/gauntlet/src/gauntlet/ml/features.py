@@ -12,6 +12,9 @@ _WORD_RE = re.compile(r"[a-z0-9]+")
 _NUM_RE = re.compile(r"\d+(?:\.\d+)?")
 _CODE_BLOCK_RE = re.compile(r"```")
 _BULLET_RE = re.compile(r"^\s*[-*]\s", re.MULTILINE)
+# quality_v1.yaml calibrates the structural_depth weight for 0-5. Past that
+# the logit grows without bound and formatting outscores content.
+_STRUCTURAL_DEPTH_CAP = 5
 _NEGATION_WORDS = frozenset(
     {
         "not",
@@ -33,14 +36,19 @@ _NEGATION_WORDS = frozenset(
 )
 
 
+def _normalise(text: str) -> str:
+    """Lowercase and drop apostrophes, so "doesn't" tokenizes as "doesnt"."""
+    return text.lower().replace("'", "").replace("\u2019", "")
+
+
 def _word_set(text: str) -> set[str]:
     """Normalise text to a set of lowercase word tokens."""
-    return set(_WORD_RE.findall(text.lower()))
+    return set(_WORD_RE.findall(_normalise(text)))
 
 
 def _word_list(text: str) -> list[str]:
     """Normalise text to a list of lowercase word tokens."""
-    return _WORD_RE.findall(text.lower())
+    return _WORD_RE.findall(_normalise(text))
 
 
 def extract_answer_features(  # noqa: PLR0912 - seven feature branches require sequential if/elif logic
@@ -82,7 +90,7 @@ def extract_answer_features(  # noqa: PLR0912 - seven feature branches require s
 
     code_blocks = len(_CODE_BLOCK_RE.findall(answer)) // 2
     bullets = len(_BULLET_RE.findall(answer))
-    structural_depth = float(code_blocks + bullets)
+    structural_depth = float(min(code_blocks + bullets, _STRUCTURAL_DEPTH_CAP))
 
     if ans_word_list:
         unique_word_ratio = len(set(ans_word_list)) / len(ans_word_list)
