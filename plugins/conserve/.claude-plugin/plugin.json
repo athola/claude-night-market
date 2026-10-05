@@ -32,6 +32,7 @@
     "./agents/unbloat-remediator.md"
   ],
   "hooks": [],
+  "types": "./types/index.d.ts",
   "keywords": [
     "conserve",
     "performance",
