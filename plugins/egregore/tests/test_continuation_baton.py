@@ -29,6 +29,7 @@ signal; a missed handoff is.
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import asdict
 from pathlib import Path
 
@@ -186,6 +187,21 @@ class TestStrandedMeansStalledNotOld:
         write_baton(_baton(sequence=1, deadline=2000.0), baton_path)
 
         assert is_stranded(baton_path, now=2000.1)
+
+    def test_checking_without_a_clock_is_refused(self, baton_path: Path) -> None:
+        """GIVEN a baton whose deadline has passed.
+
+        WHEN the watcher checks it without passing now
+        THEN the call is rejected rather than comparing against epoch 0
+
+        Math review finding C2-21: the 0.0 default made every baton read
+        as not stranded, so a watcher that omitted now never relaunched.
+        """
+        write_baton(_baton(sequence=1, deadline=2000.0), baton_path)
+
+        check: Callable[..., bool] = is_stranded
+        with pytest.raises(TypeError):
+            check(baton_path)
 
     def test_a_baton_inside_its_deadline_is_not_stranded(
         self, baton_path: Path
