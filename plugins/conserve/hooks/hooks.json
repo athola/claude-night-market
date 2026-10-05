@@ -91,5 +91,6 @@
         ]
       }
     ]
-  }
+  },
+  "modules": ["./context-band.tsx"]
 }
