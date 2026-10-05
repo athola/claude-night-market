@@ -56,7 +56,7 @@ Evaluate and improve test suites with TDD/BDD rigor.
 - Writing new tests - use parseltongue:python-testing
 - Updating existing tests - use sanctum:test-updates
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `test-review:languages-detected`
 2. `test-review:coverage-inventoried`

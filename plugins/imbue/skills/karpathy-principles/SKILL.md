@@ -237,7 +237,7 @@ iterate.
   for the full gate-skill federation graph (this skill
   is the synthesis hub)
 
-## Required TodoWrite Items
+## Required Progress Items
 
 When invoked as a pre-flight gate, create:
 

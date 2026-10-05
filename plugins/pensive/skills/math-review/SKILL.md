@@ -52,7 +52,7 @@ Intensive analysis ensuring numerical stability and alignment with standards.
   use architecture-review
 - Performance optimization - use parseltongue:python-performance
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `math-review:context-synced`
 2. `math-review:requirements-mapped`

@@ -76,7 +76,7 @@ This mirrors patterns from open-ended embodied agents (e.g., Voyager/MineDojo) t
    - Load complementary superpowers skills.
 
 4. **Initialize Progress Tracking**
-   - Create TodoWrite items for workflow phases.
+   - Create progress items for workflow phases.
    - Track completion status.
 
 ### Command-Skill Matrix
@@ -107,7 +107,7 @@ For each workflow session, track:
 - [ ] Artifacts created/updated.
 - [ ] Verification completed.
 
-**For detailed patterns**: See `modules/progress-tracking.md` for TodoWrite patterns and metrics.
+**For detailed patterns**: See `modules/progress-tracking.md` for progress-item patterns and metrics.
 
 ## Exit Criteria
 

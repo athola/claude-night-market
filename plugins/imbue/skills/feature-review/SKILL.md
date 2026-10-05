@@ -280,7 +280,7 @@ These rules apply to all configurations:
 3. **Breaking change warning**: Require acknowledgment for API surface changes.
 4. **Backlog limit**: Limit suggestion queue to 25 items.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `feature-review:inventory-complete`
 2. `feature-review:classified`
@@ -358,7 +358,7 @@ These rules apply to all configurations:
 
 ## Exit Criteria
 
-- [ ] All 7 TodoWrite phases completed in order through
+- [ ] All 7 progress phases completed in order through
   `feature-review:issues-created`; each phase marked complete
   before the next begins
 - [ ] Every scored feature has a numeric Adjusted Score on the

@@ -81,7 +81,7 @@ for living things.
 
 "Validate" not "Validates" (per PEP 257, pydocstyle, ruff).
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `doc-generator:scope-defined` - Target files and type identified
 2. `doc-generator:style-loaded` - Style profile applied (if available)

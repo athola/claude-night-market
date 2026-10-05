@@ -61,7 +61,7 @@ Run `pytest plugins/pensive/tests/skills/test_shell_review.py -v` to validate re
 - Non-shell scripts (Python, JS, etc.)
 - One-liner commands that don't need review
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `shell-review:context-mapped`
 2. `shell-review:exit-codes-checked`

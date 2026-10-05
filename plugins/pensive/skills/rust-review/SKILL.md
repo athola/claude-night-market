@@ -79,7 +79,7 @@ Expert-level Rust code audits with focus on safety, correctness, and idiomatic p
 - General code review without Rust - use unified-review
 - Performance profiling - use parseltongue:python-performance pattern
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `rust-review:ownership-analysis`
 2. `rust-review:error-handling`

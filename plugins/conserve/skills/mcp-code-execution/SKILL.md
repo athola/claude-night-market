@@ -83,7 +83,7 @@ step or CLI entry point.
 - Coordinates MECW compliance across submodules
 - Manages token budget allocation for submodules
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `mcp-code-execution:assess-workflow`
 2. `mcp-code-execution:route-to-modules`
 3. `mcp-code-execution:coordinate-mecw`

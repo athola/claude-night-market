@@ -34,7 +34,7 @@ Run `Skill(sanctum:git-workspace-review)` first to capture repo context and diff
 - Updating inline docs: use doc-updates
 - Consolidating ephemeral reports: use doc-consolidation
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `update-readme:language-audit`
 2. `update-readme:exemplar-research`
 3. `update-readme:outline-aligned`
@@ -169,7 +169,7 @@ Agent(scribe:doc-editor) --target README.md
 
 ## Exit Criteria
 
-- [ ] All `TodoWrite` items are complete.
+- [ ] All progress items are complete.
 - [ ] The README is index-shaped: prose intro within the soft
   budget (roughly 150-400 lines plus any unit table), one
   install path, and a scannable unit/command table.

@@ -86,7 +86,7 @@ for f in result.issues:
 - Architecture-level performance (sharding, caching layers,
   queue placement): use `Skill(pensive:architecture-review)`.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `perf-review:context-established`
 2. `perf-review:scan-complete`

@@ -27,7 +27,7 @@ This skill focuses on improving the *workflow assets* (skills, agents, commands,
 
 - Implementing features - focus on feature work first
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `fix-workflow:context-gathered`
 2. `fix-workflow:slice-captured`
 3. `fix-workflow:workflow-recreated`

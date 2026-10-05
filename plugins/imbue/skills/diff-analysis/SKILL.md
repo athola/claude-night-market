@@ -61,7 +61,7 @@ Load modules based on workflow stage:
 - Use `imbue:proof-of-work` for capturing analysis evidence
 - Use `imbue:structured-output` for formatting final deliverables
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `diff-analysis:baseline-established`
 2. `diff-analysis:changes-categorized`
 3. `diff-analysis:risks-assessed`
@@ -86,6 +86,6 @@ Evaluate impact. Load `modules/risk-assessment-framework.md` for risk indicators
 Synthesize findings: theme, scope with counts, risk level, review focus, dependencies. Format for downstream consumption (PR descriptions, release notes, reviews).
 
 ## Exit Criteria
-- All TodoWrite items completed with categorized changes and risk assessment
+- All progress items completed with categorized changes and risk assessment
 - Downstream workflows have semantic understanding of the changeset
 - Summary ready for appropriate consumption (review, release notes, planning)

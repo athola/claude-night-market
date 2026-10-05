@@ -35,7 +35,7 @@ Post-process video files (webm/mp4) and generate optimized GIF output with confi
 
 This skill handles the conversion of video recordings (typically from browser automation) to GIF format. It provides multiple quality presets and optimization options to balance file size with visual quality.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 ```
 - Validate input video file exists

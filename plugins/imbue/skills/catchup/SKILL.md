@@ -55,9 +55,9 @@ Load modules based on context:
 
 **Logs/Events**: Load `modules/log-analysis-patterns.md` for time-series and metric analysis.
 
-**Always Available**: `imbue:proof-of-work`, TodoWrite workflow, structured output.
+**Always Available**: `imbue:proof-of-work`, progress-item workflow, structured output.
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `catchup:context-confirmed` - Boundaries established
 2. `catchup:delta-captured` - Changes enumerated
 3. `catchup:insights-extracted` - Themes identified
@@ -100,6 +100,6 @@ Use `imbue:diff-analysis` for risk assessment, `imbue:proof-of-work` for reprodu
 Reference paths and lines (don't reproduce). Summarize outputs. Defer deep analysis. Use progressive loading.
 
 ## Exit Criteria
-- Four TodoWrite items completed
+- Four progress items completed
 - Context/delta/insights/follow-ups captured
 - Stakeholders understand state without re-reading sources

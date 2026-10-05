@@ -23,7 +23,7 @@ model_hint: standard
 - Simple operations with no resource impact
 - Quick single-file operations
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `cpu-gpu-performance:baseline`
 2. `cpu-gpu-performance:scope`
 3. `cpu-gpu-performance:instrument`

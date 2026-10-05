@@ -21,7 +21,7 @@ model_hint: standard
 - Context-optimization already handles the scenario
 - Simple queries with minimal context
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `token-conservation:quota-check`
 2. `token-conservation:context-plan`
 3. `token-conservation:delegation-check`
@@ -99,7 +99,7 @@ or justify why neither was necessary, to inform future context-handling decision
 
 ## Exit Criteria
 
-- [ ] All 5 TodoWrite items created and checked off in order:
+- [ ] All 5 progress items created and checked off in order:
   `quota-check`, `context-plan`, `delegation-check`,
   `compression-review`, `logging`
 - [ ] Discovery read budget set before the first `Read` call, with

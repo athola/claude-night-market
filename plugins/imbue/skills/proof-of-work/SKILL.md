@@ -183,8 +183,8 @@ by the user. Ensure you are proving rather than assuming.
 
 ## Supporting Modules
 
-- [TodoWrite naming patterns](modules/todowrite-patterns.md): naming
-  conventions and safe deletion rules for imbue TodoWrite items
+- [Progress item naming patterns](modules/todowrite-patterns.md): naming
+  conventions and safe deletion rules for imbue progress items
 - [Evidence logging](modules/evidence-logging.md): structured
   evidence capture, audit trails, and reproducibility patterns
 - [Independent verification](modules/independent-verification.md): for
@@ -194,6 +194,15 @@ by the user. Ensure you are proving rather than assuming.
   check is real at all: validate the spec separately, prove the check
   fails when behavior breaks (mutation/revert), prefer executable and
   property-based checks over an LLM judge
+
+## Progress Items
+
+Skills across the marketplace name the progress items they require, such
+as `proof:iron-law-red`. Record each with TaskCreate or TodoWrite when the
+session offers them. Since Claude Code 2.1.233 current models get neither
+unless `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` is set, so otherwise list the
+items with their status in the progress update. An item counts as complete
+when its evidence exists, whichever way it was recorded.
 
 ## Related Skills
 
@@ -205,7 +214,7 @@ by the user. Ensure you are proving rather than assuming.
 
 ## Exit Criteria
 
-- [ ] Every implementation change has a corresponding TodoWrite item
+- [ ] Every implementation change has a corresponding progress item
       (`proof:iron-law-red`, `proof:iron-law-green`) confirming
       test-first execution.
 - [ ] At least one `[E1]`/`[E2]` evidence reference exists in the

@@ -77,7 +77,7 @@ Load modules based on review scope:
 
 Load all modules for full reviews. For focused reviews, load only relevant modules.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `arch-review:context-established`: Repository, branch, motivation.
 2. `arch-review:adr-audit`: ADR verification and new ADR needs.

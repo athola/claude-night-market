@@ -189,7 +189,7 @@ class TestHardenSkillContract:
         for heading in (
             "## When To Use",
             "## When NOT To Use",
-            "## Required TodoWrite Items",
+            "## Required Progress Items",
             "## Progressive Loading",
             "## Core Workflow",
             "## Severity Classification",

@@ -71,7 +71,7 @@ A calling command MAY:
 
 ## Required Progress Tracking
 
-The caller creates `TodoWrite` items:
+The caller creates progress items:
 
 1. `stack-mode:membership-resolved`
 2. `stack-mode:iteration-complete`
@@ -328,7 +328,7 @@ Post via `gh pr comment "$ROOT_PR" --body-file <file>`.
 - [ ] Stack membership resolved using at least one of the three
       strategies (A: branch names, B: stack comment, C: base-chain
       walk) and PRs ordered base-to-tip before iteration starts
-- [ ] The 3 required TodoWrite items (`stack-mode:membership-resolved`,
+- [ ] The 3 required progress items (`stack-mode:membership-resolved`,
       `stack-mode:iteration-complete`, `stack-mode:root-summary-posted`)
       are created and marked complete in sequence
 - [ ] Root PR receives exactly one consolidated `## Stack <Command>

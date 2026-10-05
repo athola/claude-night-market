@@ -46,7 +46,7 @@ The documentation update workflow includes several specialized functions. It ide
 - README-specific updates - use update-readme instead
 - Complex multi-file consolidation - use doc-consolidation
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `doc-updates:context-collected` - Git context + CHANGELOG review
 2. `doc-updates:targets-identified`
@@ -371,7 +371,7 @@ When `ENABLE_LSP_TOOL=1` is set, enhance accuracy verification with semantic ana
 
 ## Exit Criteria
 
-- All `TodoWrite` items are completed and documentation is updated.
+- All progress items are completed and documentation is updated.
 - New ADRs, if any, are in `wiki/architecture/` (or the established ADR directory) with the correct status and links to related work.
 - Directory-specific style rules are satisfied.
 - Each edited document has a declared or stated-inferred audience
