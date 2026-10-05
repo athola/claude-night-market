@@ -15,7 +15,7 @@ from typing import Any
 
 import anthropic
 
-from phantom.cost import CostTracker, estimate_screenshot_tokens
+from phantom.cost import CostTracker
 from phantom.display import ActionResult, DisplayConfig, DisplayToolkit
 from phantom.safety import ActionFilter, ConfirmationGate, no_confirm
 from phantom.stuck import ScreenshotTracker, StuckPolicy
@@ -305,14 +305,12 @@ def _process_iteration(
 
     response = client_setup.client.beta.messages.create(**kwargs)
 
+    # input_tokens already counts the screenshots sent in this request,
+    # so no screenshot estimate is added on top of reported usage.
     usage = getattr(response, "usage", None)
     ctx.cost_tracker.record(
         input_tokens=getattr(usage, "input_tokens", 0) if usage else 0,
         output_tokens=getattr(usage, "output_tokens", 0) if usage else 0,
-        screenshot_tokens_est=estimate_screenshot_tokens(
-            cfg.display_config.width,
-            cfg.display_config.height,
-        ),
     )
 
     response_content = response.content
