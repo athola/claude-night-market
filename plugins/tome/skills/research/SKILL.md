@@ -105,7 +105,11 @@ Each agent prompt must include:
 1. The topic string
 2. The domain classification
 3. Any channel-specific context (subreddits for discourse,
-   triz_depth for triz)
+   triz_depth for triz). For triz, also run
+   `PYTHONPATH="${CLAUDE_PLUGIN_ROOT}/src" python3 -m tome.channels.triz analyze --topic "<topic>" --domain <domain>`
+   and include its JSON: the agent has no shell. When the
+   workflow runs the channels, pass that JSON as the
+   `trizAnalysis` arg
 4. The channel's card, from
    `render_card(get_card(channel))` in `tome.channels.cards`.
    It carries the channel's limitations and points the agent at

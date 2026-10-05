@@ -48,27 +48,28 @@ different fields. You systematically find these bridges.
 
 3. **Formulate the contradiction**:
    - Identify the system being improved
-   - Start from `formulate_contradictions(topic, domain)` in
-     `tome.channels.triz`. It returns up to three ranked
+   - Start from the JSON of `tome.channels.triz analyze`,
+     which the caller runs and puts in your prompt (you have
+     no shell). Its `candidates` hold up to three ranked
      candidates, because mapping free text onto contradiction
      parameters runs near three candidates per correct one
      (TRIZ-GPT, arXiv 2408.05897). Search from each candidate
      that fits; drop the ones that do not and say why.
    - Technical contradiction: "Improving X worsens Y"
    - Read `matched` on each record. `fallback` means no
-     catalogue row named the topic: run
-     `near_resolutions(topic)` and either restate the topic
+     catalogue row named the topic: use its
+     `near_resolutions` and either restate the topic
      in a listed row's terms or keep the fallback and say
      why. Never present a fallback as a match.
    - If one parameter must hold two opposite values, that
-     is a physical contradiction (`physical_contradiction`
-     names the known pairs). Resolve it by separation in
+     is a physical contradiction (`physical` is true for
+     the known pairs). Resolve it by separation in
      time, space, condition, or system/scale rather than
-     by compromise; `separation_strategies` puts the axis
+     by compromise. `separation` puts the axis
      the system description points at first and says which
      words put it there.
-   - Run `reformulation_probes(contradiction)` on the
-     candidate you keep and answer each of its five probes
+   - Take the candidate's `probes` for the one you keep
+     and answer each of its five probes
      in one line, or dismiss it with a reason: swap the
      sides, relax the exact statement into a range, name
      the parameter and direction that would surface a

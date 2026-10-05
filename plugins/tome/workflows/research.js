@@ -18,7 +18,7 @@ export const meta = {
   description:
     'Fan out one research question across tome channels and merge the findings into a ranked, per-channel report',
   whenToUse:
-    'Run from /tome:research once the topic is classified and the channel plan exists. Requires an explicit request: a workflow never starts unasked. args carry topic, channels (code|discourse|academic|triz), domain and trizDepth. Returns findings for the skill to rank, cite and store; it writes nothing.',
+    'Run from /tome:research once the topic is classified and the channel plan exists. Requires an explicit request: a workflow never starts unasked. args carry topic, channels (code|discourse|academic|triz), domain, trizDepth and trizAnalysis (the JSON of tome.channels.triz analyze). Returns findings for the skill to rank, cite and store; it writes nothing.',
   phases: [
     { title: 'Channels', detail: 'one agent per selected channel' },
     { title: 'Synthesis', detail: 'merge, dedupe, and say which channels were empty' },
@@ -78,10 +78,16 @@ phase('Channels')
 
 const domain = input.domain ? ` Domain: ${input.domain}.` : ''
 const depth = input.trizDepth ? ` TRIZ depth: ${input.trizDepth}.` : ''
+// The script has no shell, so the skill runs `tome.channels.triz analyze`
+// and passes its JSON; only the triz channel reads it.
+const trizAnalysis = (c) =>
+  c.key === 'triz' && input.trizAnalysis
+    ? `\n\nTRIZ analysis (tome.channels.triz analyze):\n${typeof input.trizAnalysis === 'string' ? input.trizAnalysis : JSON.stringify(input.trizAnalysis)}`
+    : ''
 
 const returned = await parallel(
   selected.map((c) => () =>
-    agent(`${c.brief}\n\nTopic: ${input.topic}.${domain}${depth}\n\nRecord what you searched for, even when you find nothing. An empty channel and a broken channel must not look alike.`, {
+    agent(`${c.brief}\n\nTopic: ${input.topic}.${domain}${depth}${trizAnalysis(c)}\n\nRecord what you searched for, even when you find nothing. An empty channel and a broken channel must not look alike.`, {
       label: `channel:${c.key}`,
       phase: 'Channels',
       agentType: c.agentType,
