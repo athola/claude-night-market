@@ -13,7 +13,6 @@ dependencies = [
 dev = [
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
-    "pytest-asyncio>=1.2.0",
     "pytest-cov>=7.1.0",
     "ruff>=0.16.8",
 ]
@@ -57,7 +56,6 @@ follow_imports = "skip"
 follow_imports_for_stubs = true
 
 [tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-v --tb=short --cov=phantom --cov-report=term-missing"
