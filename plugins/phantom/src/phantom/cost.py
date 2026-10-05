@@ -6,6 +6,7 @@ tracks cumulative costs, and enforces budget limits.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 # Anthropic list pricing (per million tokens, USD), verified 2026-08-02
@@ -57,22 +58,22 @@ DEPRECATED_MODELS = frozenset({"claude-opus-4-1-20250805"})
 def estimate_screenshot_tokens(width: int, height: int) -> int:
     """Estimate tokens consumed by a screenshot at given resolution.
 
-    Anthropic's vision model processes images in tiles. A rough
-    estimate: ~0.85 tokens per 32x32 pixel tile, plus overhead.
-    This is an approximation for budget planning.
+    Anthropic's vision docs give tokens = (width px * height px) / 750,
+    applied after the API scales the long edge down to 1568 px. Models
+    with high-resolution vision (Opus 4.7 onward, Sonnet 5 onward) scale
+    to 2576 px instead, so this undercounts frames larger than 1568 px
+    for them. Rounded up: the estimate feeds a budget guard.
+
+    Reported usage already counts images sent, so this is for budgeting
+    before a call, not for adding to ``usage.input_tokens``.
     """
     if width == 0 or height == 0:
         return 0
 
-    # Approximate: image is resized so longest edge <= 1568px,
-    # then tiled into 32x32 blocks. Each tile ~ 0.85 tokens.
     scale = min(1.0, 1568 / max(width, height))
     scaled_w = int(width * scale)
     scaled_h = int(height * scale)
-
-    tiles = (scaled_w // 32 + 1) * (scaled_h // 32 + 1)
-    # Base token count per tile plus fixed overhead
-    return int(tiles * 0.85) + 85
+    return math.ceil(scaled_w * scaled_h / 750)
 
 
 @dataclass

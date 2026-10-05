@@ -41,6 +41,26 @@ class TestEstimateScreenshotTokens:
         large = estimate_screenshot_tokens(1920, 1080)
         assert large > small
 
+    def test_follows_anthropics_pixels_over_750_rule(self):
+        """
+        Scenario: Documented vision cost
+        Given Anthropic's estimate tokens = (width * height) / 750
+        When estimating screenshots inside the resize limit
+        Then the estimate matches it, rounded up for a budget guard
+        """
+        assert estimate_screenshot_tokens(1024, 768) == 1049
+        assert estimate_screenshot_tokens(1280, 800) == 1366
+        assert estimate_screenshot_tokens(1092, 1092) == 1590
+
+    def test_applies_the_rule_after_resizing_the_long_edge(self):
+        """
+        Scenario: Oversized screenshot
+        Given a 3136x1568 screenshot, resized to 1568x784 first
+        When estimating tokens
+        Then the estimate is 1568 * 784 / 750, rounded up
+        """
+        assert estimate_screenshot_tokens(3136, 1568) == 1640
+
     def test_zero_resolution(self):
         tokens = estimate_screenshot_tokens(0, 0)
         assert tokens == 0
