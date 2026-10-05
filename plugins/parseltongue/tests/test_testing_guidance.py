@@ -221,6 +221,26 @@ User Authentication System:
             assert "test_name" in step
             assert "implementation_hint" in step
 
+    @pytest.mark.unit
+    def test_bare_dash_lines_are_not_requirements(self) -> None:
+        """A bare "-" or "---" line yields no step instead of an IndexError.
+
+        Math review finding C2-22: the empty requirement reached
+        requirement.split()[0].
+        """
+        description = (
+            "Feature: user login\n- validate password length\n-\n---\n"
+            "- lock account after 5 failures\n"
+        )
+
+        steps = self.skill.recommend_tdd_workflow(description)["tdd_workflow"]["steps"]
+
+        assert [step["description"] for step in steps[:2]] == [
+            "Implement: validate password length",
+            "Implement: lock account after 5 failures",
+        ]
+        assert all(step["description"] != "Implement: " for step in steps)
+
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_suggests_improvements(self, testing_issues) -> None:
