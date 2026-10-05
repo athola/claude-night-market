@@ -21,32 +21,32 @@ RESULTS=()
 overall=0
 
 run_check() {
-    local name="$1"
-    shift
-    local out rc
-    out="$("$@" 2>&1)"
-    rc=$?
-    NAMES+=("$name")
-    if [ "$rc" -eq 0 ]; then
-        RESULTS+=("PASS")
-    else
-        RESULTS+=("FAIL")
-        overall=1
-        printf -- '--- %s failed (exit %d) ---\n%s\n\n' "$name" "$rc" "$out" >&2
-    fi
+  local name="$1"
+  shift
+  local out rc
+  out="$("$@" 2>&1)"
+  rc=$?
+  NAMES+=("$name")
+  if [ "$rc" -eq 0 ]; then
+    RESULTS+=("PASS")
+  else
+    RESULTS+=("FAIL")
+    overall=1
+    printf -- '--- %s failed (exit %d) ---\n%s\n\n' "$name" "$rc" "$out" >&2
+  fi
 }
 
 validate_all_plugins() {
-    local rc=0 p
-    for p in plugins/*/; do
-        [ -f "${p}.claude-plugin/plugin.json" ] || continue
-        if ! python3 plugins/abstract/scripts/validate_plugin.py "${p%/}" \
-            >/dev/null 2>&1; then
-            echo "validate_plugin.py FAILED for ${p%/}"
-            rc=1
-        fi
-    done
-    return "$rc"
+  local rc=0 p
+  for p in plugins/*/; do
+    [ -f "${p}.claude-plugin/plugin.json" ] || continue
+    if ! python3 plugins/abstract/scripts/validate_plugin.py "${p%/}" \
+      >/dev/null 2>&1; then
+      echo "validate_plugin.py FAILED for ${p%/}"
+      rc=1
+    fi
+  done
+  return "$rc"
 }
 
 run_check "plugin-structure (validate_plugin.py, all plugins)" validate_all_plugins
@@ -59,12 +59,12 @@ run_check "description-budget (160-char / 90K ceiling)" python3 plugins/abstract
 printf '\n%-50s %s\n' "CHECK" "RESULT"
 printf '%-50s %s\n' "-----" "------"
 for i in "${!NAMES[@]}"; do
-    printf '%-50s %s\n' "${NAMES[$i]}" "${RESULTS[$i]}"
+  printf '%-50s %s\n' "${NAMES[$i]}" "${RESULTS[$i]}"
 done
 
 if [ "$overall" -eq 0 ]; then
-    printf '\nHealth snapshot: ALL CHECKS PASSED\n'
+  printf '\nHealth snapshot: ALL CHECKS PASSED\n'
 else
-    printf '\nHealth snapshot: FAILURES DETECTED (details on stderr above)\n'
+  printf '\nHealth snapshot: FAILURES DETECTED (details on stderr above)\n'
 fi
 exit "$overall"

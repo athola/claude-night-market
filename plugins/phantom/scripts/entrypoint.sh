@@ -10,16 +10,16 @@ Xvfb :1 -screen 0 1920x1080x24 -displayfd 3 3>"${ready_file}" &
 xvfb_pid=$!
 tries=0
 until [ -s "${ready_file}" ]; do
-    if ! kill -0 "${xvfb_pid}" 2>/dev/null; then
-        echo "Xvfb exited before display :1 was ready" >&2
-        exit 1
-    fi
-    tries=$((tries + 1))
-    if [ "${tries}" -gt 100 ]; then
-        echo "Xvfb was not ready on :1 after 10s" >&2
-        exit 1
-    fi
-    sleep 0.1
+  if ! kill -0 "${xvfb_pid}" 2>/dev/null; then
+    echo "Xvfb exited before display :1 was ready" >&2
+    exit 1
+  fi
+  tries=$((tries + 1))
+  if [ "${tries}" -gt 100 ]; then
+    echo "Xvfb was not ready on :1 after 10s" >&2
+    exit 1
+  fi
+  sleep 0.1
 done
 rm -f "${ready_file}"
 
@@ -35,7 +35,7 @@ echo "Run tasks with: python -m phantom.cli <task>"
 
 # If arguments provided, run them; otherwise keep alive
 if [ "$#" -gt 0 ]; then
-    exec "$@"
+  exec "$@"
 else
-    exec bash
+  exec bash
 fi

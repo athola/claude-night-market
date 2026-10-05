@@ -33,15 +33,15 @@ trap 'rm -f "$LINT_OUTPUT" "$TYPECHECK_OUTPUT" "$TEST_OUTPUT"' EXIT
 
 # Parse arguments
 for arg in "$@"; do
-    case $arg in
-        --fix)
-            AUTO_FIX=true
-            ;;
-        --report)
-            GENERATE_REPORT=true
-            mkdir -p audit
-            ;;
-    esac
+  case $arg in
+    --fix)
+      AUTO_FIX=true
+      ;;
+    --report)
+      GENERATE_REPORT=true
+      mkdir -p audit
+      ;;
+  esac
 done
 
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
@@ -52,7 +52,7 @@ echo
 
 # Initialize report
 if [ "$GENERATE_REPORT" = true ]; then
-    cat > "$REPORT_FILE" <<EOF
+  cat >"$REPORT_FILE" <<EOF
 # Code Quality Report
 
 **Date**: $(date)
@@ -77,29 +77,33 @@ echo
 
 LINT_OUTPUT=$(mktemp)
 if [ "$AUTO_FIX" = true ]; then
-    echo -e "${YELLOW}Running with auto-fix enabled...${NC}"
+  echo -e "${YELLOW}Running with auto-fix enabled...${NC}"
 fi
 
 # Use process substitution to avoid masking exit code through tee
 lint_args=(--all)
 if [ "$AUTO_FIX" = true ]; then
-    lint_args+=(--fix)
+  lint_args+=(--fix)
 fi
-if ./scripts/run-plugin-lint.sh "${lint_args[@]}" 2>&1 | tee "$LINT_OUTPUT"; LINT_EXIT=${PIPESTATUS[0]}; [ "$LINT_EXIT" -eq 0 ]; then
-    echo -e "${GREEN}✓ All plugins passed linting${NC}"
-    LINT_STATUS="PASS"
+if
+  ./scripts/run-plugin-lint.sh "${lint_args[@]}" 2>&1 | tee "$LINT_OUTPUT"
+  LINT_EXIT=${PIPESTATUS[0]}
+  [ "$LINT_EXIT" -eq 0 ]
+then
+  echo -e "${GREEN}✓ All plugins passed linting${NC}"
+  LINT_STATUS="PASS"
 else
-    echo -e "${RED}✗ Some plugins failed linting${NC}"
-    LINT_STATUS="FAIL"
-    LINT_FAILED=true
+  echo -e "${RED}✗ Some plugins failed linting${NC}"
+  LINT_STATUS="FAIL"
+  LINT_FAILED=true
 fi
 
 if [ "$GENERATE_REPORT" = true ]; then
-    echo "### Linting: $LINT_STATUS" >> "$REPORT_FILE"
-    echo '```' >> "$REPORT_FILE"
-    tail -20 "$LINT_OUTPUT" >> "$REPORT_FILE"
-    echo '```' >> "$REPORT_FILE"
-    echo >> "$REPORT_FILE"
+  echo "### Linting: $LINT_STATUS" >>"$REPORT_FILE"
+  echo '```' >>"$REPORT_FILE"
+  tail -20 "$LINT_OUTPUT" >>"$REPORT_FILE"
+  echo '```' >>"$REPORT_FILE"
+  echo >>"$REPORT_FILE"
 fi
 
 echo
@@ -114,21 +118,25 @@ echo -e "${BLUE}════ Phase 2: Type Checking All Plugins ════${NC
 echo
 
 TYPECHECK_OUTPUT=$(mktemp)
-if ./scripts/run-plugin-typecheck.sh --all 2>&1 | tee "$TYPECHECK_OUTPUT"; TC_EXIT=${PIPESTATUS[0]}; [ "$TC_EXIT" -eq 0 ]; then
-    echo -e "${GREEN}✓ All plugins passed type checking${NC}"
-    TYPECHECK_STATUS="PASS"
+if
+  ./scripts/run-plugin-typecheck.sh --all 2>&1 | tee "$TYPECHECK_OUTPUT"
+  TC_EXIT=${PIPESTATUS[0]}
+  [ "$TC_EXIT" -eq 0 ]
+then
+  echo -e "${GREEN}✓ All plugins passed type checking${NC}"
+  TYPECHECK_STATUS="PASS"
 else
-    echo -e "${RED}✗ Some plugins failed type checking${NC}"
-    TYPECHECK_STATUS="FAIL"
-    TYPECHECK_FAILED=true
+  echo -e "${RED}✗ Some plugins failed type checking${NC}"
+  TYPECHECK_STATUS="FAIL"
+  TYPECHECK_FAILED=true
 fi
 
 if [ "$GENERATE_REPORT" = true ]; then
-    echo "### Type Checking: $TYPECHECK_STATUS" >> "$REPORT_FILE"
-    echo '```' >> "$REPORT_FILE"
-    tail -20 "$TYPECHECK_OUTPUT" >> "$REPORT_FILE"
-    echo '```' >> "$REPORT_FILE"
-    echo >> "$REPORT_FILE"
+  echo "### Type Checking: $TYPECHECK_STATUS" >>"$REPORT_FILE"
+  echo '```' >>"$REPORT_FILE"
+  tail -20 "$TYPECHECK_OUTPUT" >>"$REPORT_FILE"
+  echo '```' >>"$REPORT_FILE"
+  echo >>"$REPORT_FILE"
 fi
 
 echo
@@ -143,21 +151,25 @@ echo -e "${BLUE}════ Phase 3: Testing All Plugins ════${NC}"
 echo
 
 TEST_OUTPUT=$(mktemp)
-if ./scripts/run-plugin-tests.sh --all 2>&1 | tee "$TEST_OUTPUT"; TEST_EXIT=${PIPESTATUS[0]}; [ "$TEST_EXIT" -eq 0 ]; then
-    echo -e "${GREEN}✓ All plugins passed tests${NC}"
-    TEST_STATUS="PASS"
+if
+  ./scripts/run-plugin-tests.sh --all 2>&1 | tee "$TEST_OUTPUT"
+  TEST_EXIT=${PIPESTATUS[0]}
+  [ "$TEST_EXIT" -eq 0 ]
+then
+  echo -e "${GREEN}✓ All plugins passed tests${NC}"
+  TEST_STATUS="PASS"
 else
-    echo -e "${RED}✗ Some plugins failed tests${NC}"
-    TEST_STATUS="FAIL"
-    TEST_FAILED=true
+  echo -e "${RED}✗ Some plugins failed tests${NC}"
+  TEST_STATUS="FAIL"
+  TEST_FAILED=true
 fi
 
 if [ "$GENERATE_REPORT" = true ]; then
-    echo "### Testing: $TEST_STATUS" >> "$REPORT_FILE"
-    echo '```' >> "$REPORT_FILE"
-    tail -20 "$TEST_OUTPUT" >> "$REPORT_FILE"
-    echo '```' >> "$REPORT_FILE"
-    echo >> "$REPORT_FILE"
+  echo "### Testing: $TEST_STATUS" >>"$REPORT_FILE"
+  echo '```' >>"$REPORT_FILE"
+  tail -20 "$TEST_OUTPUT" >>"$REPORT_FILE"
+  echo '```' >>"$REPORT_FILE"
+  echo >>"$REPORT_FILE"
 fi
 
 echo
@@ -173,75 +185,75 @@ echo
 
 TOTAL_FAILED=0
 if [ "$LINT_FAILED" = true ]; then
-    echo -e "${RED}✗ Linting: FAILED${NC}"
-    TOTAL_FAILED=$((TOTAL_FAILED + 1))
+  echo -e "${RED}✗ Linting: FAILED${NC}"
+  TOTAL_FAILED=$((TOTAL_FAILED + 1))
 else
-    echo -e "${GREEN}✓ Linting: PASSED${NC}"
+  echo -e "${GREEN}✓ Linting: PASSED${NC}"
 fi
 
 if [ "$TYPECHECK_FAILED" = true ]; then
-    echo -e "${RED}✗ Type Checking: FAILED${NC}"
-    TOTAL_FAILED=$((TOTAL_FAILED + 1))
+  echo -e "${RED}✗ Type Checking: FAILED${NC}"
+  TOTAL_FAILED=$((TOTAL_FAILED + 1))
 else
-    echo -e "${GREEN}✓ Type Checking: PASSED${NC}"
+  echo -e "${GREEN}✓ Type Checking: PASSED${NC}"
 fi
 
 if [ "$TEST_FAILED" = true ]; then
-    echo -e "${RED}✗ Testing: FAILED${NC}"
-    TOTAL_FAILED=$((TOTAL_FAILED + 1))
+  echo -e "${RED}✗ Testing: FAILED${NC}"
+  TOTAL_FAILED=$((TOTAL_FAILED + 1))
 else
-    echo -e "${GREEN}✓ Testing: PASSED${NC}"
+  echo -e "${GREEN}✓ Testing: PASSED${NC}"
 fi
 
 echo
 
 if [ $TOTAL_FAILED -eq 0 ]; then
-    echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║                  🎉 ALL CHECKS PASSED 🎉                      ║${NC}"
-    echo -e "${GREEN}║          Codebase meets all quality standards!               ║${NC}"
-    echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
-    FINAL_STATUS="PASS"
+  echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
+  echo -e "${GREEN}║                  🎉 ALL CHECKS PASSED 🎉                      ║${NC}"
+  echo -e "${GREEN}║          Codebase meets all quality standards!               ║${NC}"
+  echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
+  FINAL_STATUS="PASS"
 else
-    echo -e "${RED}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${RED}║                   ⚠️  CHECKS FAILED ⚠️                        ║${NC}"
-    echo -e "${RED}║          $TOTAL_FAILED check(s) failed - see details above              ║${NC}"
-    echo -e "${RED}╚══════════════════════════════════════════════════════════════╝${NC}"
-    FINAL_STATUS="FAIL"
+  echo -e "${RED}╔══════════════════════════════════════════════════════════════╗${NC}"
+  echo -e "${RED}║                   ⚠️  CHECKS FAILED ⚠️                        ║${NC}"
+  echo -e "${RED}║          $TOTAL_FAILED check(s) failed - see details above              ║${NC}"
+  echo -e "${RED}╚══════════════════════════════════════════════════════════════╝${NC}"
+  FINAL_STATUS="FAIL"
 fi
 
 if [ "$GENERATE_REPORT" = true ]; then
-    echo >> "$REPORT_FILE"
-    echo "## Final Status: $FINAL_STATUS" >> "$REPORT_FILE"
-    echo >> "$REPORT_FILE"
-    echo "- Linting: $LINT_STATUS" >> "$REPORT_FILE"
-    echo "- Type Checking: $TYPECHECK_STATUS" >> "$REPORT_FILE"
-    echo "- Testing: $TEST_STATUS" >> "$REPORT_FILE"
-    echo >> "$REPORT_FILE"
-    echo "**Total Failed**: $TOTAL_FAILED / 3" >> "$REPORT_FILE"
+  echo >>"$REPORT_FILE"
+  echo "## Final Status: $FINAL_STATUS" >>"$REPORT_FILE"
+  echo >>"$REPORT_FILE"
+  echo "- Linting: $LINT_STATUS" >>"$REPORT_FILE"
+  echo "- Type Checking: $TYPECHECK_STATUS" >>"$REPORT_FILE"
+  echo "- Testing: $TEST_STATUS" >>"$REPORT_FILE"
+  echo >>"$REPORT_FILE"
+  echo "**Total Failed**: $TOTAL_FAILED / 3" >>"$REPORT_FILE"
 
-    echo
-    echo -e "${BLUE}Report saved to: $REPORT_FILE${NC}"
+  echo
+  echo -e "${BLUE}Report saved to: $REPORT_FILE${NC}"
 fi
 
 echo
 echo "Next steps:"
 if [ $TOTAL_FAILED -gt 0 ]; then
-    echo "1. Review failures above"
-    echo "2. Fix issues in failing plugins"
-    echo "3. Run individual checks: ./scripts/run-plugin-{lint|typecheck|test}.sh <plugin>"
-    echo "4. Re-run this script to verify fixes"
-    if [ "$AUTO_FIX" = false ]; then
-        echo "5. Try with --fix flag for automatic linting fixes"
-    fi
+  echo "1. Review failures above"
+  echo "2. Fix issues in failing plugins"
+  echo "3. Run individual checks: ./scripts/run-plugin-{lint|typecheck|test}.sh <plugin>"
+  echo "4. Re-run this script to verify fixes"
+  if [ "$AUTO_FIX" = false ]; then
+    echo "5. Try with --fix flag for automatic linting fixes"
+  fi
 else
-    echo "1. Commit your changes"
-    echo "2. Pre-commit hooks will enforce quality on future commits"
-    echo "3. Re-run monthly: ./scripts/check-all-quality.sh --report"
+  echo "1. Commit your changes"
+  echo "2. Pre-commit hooks will enforce quality on future commits"
+  echo "3. Re-run monthly: ./scripts/check-all-quality.sh --report"
 fi
 
 # Exit with appropriate code (temp files cleaned up via EXIT trap)
 if [ $TOTAL_FAILED -gt 0 ]; then
-    exit 1
+  exit 1
 fi
 
 exit 0

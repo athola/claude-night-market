@@ -23,13 +23,13 @@ find "$LOCK" -maxdepth 0 -type d -mmin +120 -exec rmdir {} \; 2>/dev/null || tru
 
 # Prevent overlapping runs
 if ! mkdir "$LOCK" 2>/dev/null; then
-  echo "$(date): Lock $LOCK exists, skipping" >> "$LOG"
+  echo "$(date): Lock $LOCK exists, skipping" >>"$LOG"
   exit 0
 fi
 trap 'rmdir "$LOCK" 2>/dev/null' EXIT
 
-echo "" >> "$LOG"
-echo "=== $(date): clawhub-cron run ===" >> "$LOG"
+echo "" >>"$LOG"
+echo "=== $(date): clawhub-cron run ===" >>"$LOG"
 
 # Ensure PATH includes node/clawhub
 export PATH="$HOME/.local/bin:$HOME/.nvm/versions/node/v25.2.1/bin:$PATH"
@@ -39,12 +39,12 @@ cd "$REPO_ROOT"
 # plugins/abstract/.claude-plugin/plugin.json so the cron stays
 # correct across releases.
 EXIT_CODE=0
-bash scripts/clawhub-submit.sh >> "$LOG" 2>&1 || EXIT_CODE=$?
+bash scripts/clawhub-submit.sh >>"$LOG" 2>&1 || EXIT_CODE=$?
 
 if [ "$EXIT_CODE" -eq 0 ]; then
-  echo "$(date): All skills synced. Removing cron job." >> "$LOG"
+  echo "$(date): All skills synced. Removing cron job." >>"$LOG"
   crontab -l 2>/dev/null | grep -v "clawhub-cron" | crontab - 2>/dev/null || true
-  echo "$(date): Cron job removed." >> "$LOG"
+  echo "$(date): Cron job removed." >>"$LOG"
 else
-  echo "$(date): Partial sync (exit $EXIT_CODE). Will retry next hour." >> "$LOG"
+  echo "$(date): Partial sync (exit $EXIT_CODE). Will retry next hour." >>"$LOG"
 fi

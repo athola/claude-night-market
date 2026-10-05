@@ -8,6 +8,7 @@ observable are worth pinning.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 WATCHDOG = Path(__file__).resolve().parent.parent / "scripts" / "watchdog.sh"
@@ -43,7 +44,7 @@ class TestTheRelaunchIsObservable:
         make the JSON unparseable. Redirecting from /dev/null is the
         fix the CLI's own warning recommends.
         """
-        assert "< /dev/null" in _relaunch_line()
+        assert re.search(r"<\s*/dev/null", _relaunch_line())
 
     def test_it_still_runs_in_the_background(self) -> None:
         """The watchdog must not block its own timer slot."""
@@ -53,4 +54,4 @@ class TestTheRelaunchIsObservable:
 
     def test_it_still_records_the_pid(self) -> None:
         """The pidfile is how the next tick knows a session is alive."""
-        assert 'echo $! > "$PIDFILE"' in WATCHDOG.read_text()
+        assert re.search(r'echo \$! >\s*"\$PIDFILE"', WATCHDOG.read_text())

@@ -26,7 +26,10 @@ for arg in "$@"; do
     --dry-run) DRY_RUN=true ;;
     v*) VERSION="$arg" ;;
     [0-9]*) VERSION="v$arg" ;;
-    *) echo "Unknown argument: $arg"; exit 1 ;;
+    *)
+      echo "Unknown argument: $arg"
+      exit 1
+      ;;
   esac
 done
 
@@ -40,12 +43,12 @@ fi
 
 # ---------- preflight ----------
 
-if ! command -v gh &> /dev/null; then
+if ! command -v gh &>/dev/null; then
   echo "Error: gh CLI is required. Install from https://cli.github.com"
   exit 1
 fi
 
-if ! gh auth status &> /dev/null; then
+if ! gh auth status &>/dev/null; then
   echo "Error: Not authenticated. Run: gh auth login"
   exit 1
 fi
@@ -107,7 +110,7 @@ for TARGET in "${TARGETS[@]}"; do
     # Ensure a dedicated fork exists for THIS upstream.
     gh repo fork "$TARGET" --fork-name "$FORK_NAME" --clone=false 2>&1 || true
 
-    if ! gh repo view "${FORK_OWNER}/${FORK_NAME}" --json name -q .name > /dev/null 2>&1; then
+    if ! gh repo view "${FORK_OWNER}/${FORK_NAME}" --json name -q .name >/dev/null 2>&1; then
       echo "Warning: Cannot access fork ${FORK_OWNER}/${FORK_NAME}, skipping"
       continue
     fi
@@ -152,8 +155,8 @@ else:
 open("README.md", "w").write(content)
 PYEOF
   else
-    echo "" >> README.md
-    echo "$ENTRY" >> README.md
+    echo "" >>README.md
+    echo "$ENTRY" >>README.md
   fi
 
   if git diff --quiet; then
@@ -202,7 +205,8 @@ PYEOF
     --repo "$TARGET" \
     --head "${FORK_OWNER}:${BRANCH}" \
     --title "Add night-market skills" \
-    --body "$(cat <<'PRBODYEOF'
+    --body "$(
+      cat <<'PRBODYEOF'
 Adds [Claude Night Market](https://github.com/athola/claude-night-market)
 -- curated skills for code review, testing, documentation, architecture,
 and git workflows. MIT licensed, published on ClawHub.

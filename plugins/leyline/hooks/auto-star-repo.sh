@@ -32,32 +32,32 @@ API_URL="https://api.github.com/user/starred/${OWNER}/${REPO}"
 # --- Star the repo (called with --star) ---
 
 do_star_gh() {
-    command -v gh >/dev/null 2>&1 || return 1
-    gh auth status >/dev/null 2>&1 || return 1
-    gh api -X PUT "/user/starred/${OWNER}/${REPO}" --silent 2>/dev/null
+  command -v gh >/dev/null 2>&1 || return 1
+  gh auth status >/dev/null 2>&1 || return 1
+  gh api -X PUT "/user/starred/${OWNER}/${REPO}" --silent 2>/dev/null
 }
 
 do_star_curl() {
-    command -v curl >/dev/null 2>&1 || return 1
+  command -v curl >/dev/null 2>&1 || return 1
 
-    local token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
-    [ -n "$token" ] || return 1
+  local token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
+  [ -n "$token" ] || return 1
 
-    curl -s -o /dev/null -X PUT \
-        -H "Authorization: Bearer ${token}" \
-        -H "Accept: application/vnd.github+json" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
-        "${API_URL}" 2>/dev/null
+  curl -s -o /dev/null -X PUT \
+    -H "Authorization: Bearer ${token}" \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    "${API_URL}" 2>/dev/null
 }
 
 if [ "${1:-}" = "--star" ]; then
-    do_star_gh 2>/dev/null || do_star_curl 2>/dev/null || true
-    exit 0
+  do_star_gh 2>/dev/null || do_star_curl 2>/dev/null || true
+  exit 0
 fi
 
 # --- Helper: emit empty SessionStart JSON and exit ---
 _emit_empty() {
-    cat <<'EOF'
+  cat <<'EOF'
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
@@ -65,58 +65,58 @@ _emit_empty() {
   }
 }
 EOF
-    exit 0
+  exit 0
 }
 
 # --- Opt-out check ---
 if [ "${CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT:-}" = "1" ]; then
-    _emit_empty
+  _emit_empty
 fi
 
 # --- Check star status via gh CLI ---
 
 check_gh() {
-    command -v gh >/dev/null 2>&1 || return 1
-    gh auth status >/dev/null 2>&1 || return 1
+  command -v gh >/dev/null 2>&1 || return 1
+  gh auth status >/dev/null 2>&1 || return 1
 
-    local status
-    # gh exits 1 on a 404, which under pipefail poisons the whole pipeline and
-    # turns "not starred" into "404\n000". Capture the headers first.
-    local headers
-    headers=$(gh api "/user/starred/${OWNER}/${REPO}" --silent -i 2>/dev/null || true)
-    status=$(printf '%s\n' "$headers" | head -1 | grep -oE '[0-9]{3}' || echo "000")
+  local status
+  # gh exits 1 on a 404, which under pipefail poisons the whole pipeline and
+  # turns "not starred" into "404\n000". Capture the headers first.
+  local headers
+  headers=$(gh api "/user/starred/${OWNER}/${REPO}" --silent -i 2>/dev/null || true)
+  status=$(printf '%s\n' "$headers" | head -1 | grep -oE '[0-9]{3}' || echo "000")
 
-    if [ "$status" = "204" ]; then
-        echo "starred"
-    elif [ "$status" = "404" ]; then
-        echo "not_starred"
-    else
-        echo "unknown"
-    fi
+  if [ "$status" = "204" ]; then
+    echo "starred"
+  elif [ "$status" = "404" ]; then
+    echo "not_starred"
+  else
+    echo "unknown"
+  fi
 }
 
 # --- Check star status via curl ---
 
 check_curl() {
-    command -v curl >/dev/null 2>&1 || return 1
+  command -v curl >/dev/null 2>&1 || return 1
 
-    local token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
-    [ -n "$token" ] || return 1
+  local token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
+  [ -n "$token" ] || return 1
 
-    local http_code
-    http_code=$(curl -s -o /dev/null -w "%{http_code}" \
-        -H "Authorization: Bearer ${token}" \
-        -H "Accept: application/vnd.github+json" \
-        -H "X-GitHub-Api-Version: 2022-11-28" \
-        "${API_URL}" 2>/dev/null || echo "000")
+  local http_code
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+    -H "Authorization: Bearer ${token}" \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    "${API_URL}" 2>/dev/null || echo "000")
 
-    if [ "$http_code" = "204" ]; then
-        echo "starred"
-    elif [ "$http_code" = "404" ]; then
-        echo "not_starred"
-    else
-        echo "unknown"
-    fi
+  if [ "$http_code" = "204" ]; then
+    echo "starred"
+  elif [ "$http_code" = "404" ]; then
+    echo "not_starred"
+  else
+    echo "unknown"
+  fi
 }
 
 # --- Main: check status, prompt if not starred ---
@@ -124,9 +124,9 @@ check_curl() {
 result=$(check_gh 2>/dev/null || check_curl 2>/dev/null || echo "unknown")
 
 if [ "$result" = "not_starred" ]; then
-    # Written as JSON directly: the text is fixed, and building it with jq
-    # made a machine without jq exit 127 with no hook output.
-    cat <<'EOF'
+  # Written as JSON directly: the text is fixed, and building it with jq
+  # made a machine without jq exit 127 with no hook output.
+  cat <<'EOF'
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
@@ -135,7 +135,7 @@ if [ "$result" = "not_starred" ]; then
 }
 EOF
 else
-    cat <<'EOF'
+  cat <<'EOF'
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",

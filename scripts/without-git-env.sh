@@ -25,15 +25,15 @@
 set -euo pipefail
 
 if [ $# -eq 0 ]; then
-    echo "usage: $(basename "$0") <command> [args...]" >&2
-    exit 64 # EX_USAGE
+  echo "usage: $(basename "$0") <command> [args...]" >&2
+  exit 64 # EX_USAGE
 fi
 
 # "${!GIT_@}" expands to the names of the set variables starting with GIT_.
 # With none set it expands to zero words, which is why the loop body is safe
 # under `set -u` outside a git hook.
 for _git_var in "${!GIT_@}"; do
-    unset "$_git_var"
+  unset "$_git_var"
 done
 
 # exec, so the child's exit status is this script's exit status and a failing

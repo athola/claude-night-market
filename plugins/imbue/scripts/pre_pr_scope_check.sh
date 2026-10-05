@@ -40,183 +40,207 @@ NC='\033[0m' # No Color
 
 # Portable number extraction (works without grep -P)
 extract_stat_number() {
-    local stats="$1"
-    local pattern="$2"
-    if echo "test" | grep -oP '\d+' >/dev/null 2>&1; then
-        echo "$stats" | grep -oP "\d+(?= $pattern)" || echo "0"
-    else
-        echo "$stats" | grep -oE "[0-9]+ $pattern" | sed 's/ .*//' || echo "0"
-    fi
+  local stats="$1"
+  local pattern="$2"
+  if echo "test" | grep -oP '\d+' >/dev/null 2>&1; then
+    echo "$stats" | grep -oP "\d+(?= $pattern)" || echo "0"
+  else
+    echo "$stats" | grep -oE "[0-9]+ $pattern" | sed 's/ .*//' || echo "0"
+  fi
 }
 
 # Metrics are measured from the merge-base: commits that landed on the
 # base after the fork are not this branch's work.
 resolve_base() {
-    local candidates=("$BASE_BRANCH")
-    if [[ -z "$BASE_BRANCH" ]]; then
-        candidates=(main master)
+  local candidates=("$BASE_BRANCH")
+  if [[ -z "$BASE_BRANCH" ]]; then
+    candidates=(main master)
+  fi
+  local candidate
+  for candidate in "${candidates[@]}"; do
+    if MERGE_BASE=$(git merge-base "$candidate" HEAD 2>/dev/null); then
+      BASE_BRANCH="$candidate"
+      return 0
     fi
-    local candidate
-    for candidate in "${candidates[@]}"; do
-        if MERGE_BASE=$(git merge-base "$candidate" HEAD 2>/dev/null); then
-            BASE_BRANCH="$candidate"
-            return 0
-        fi
-    done
-    echo "pre_pr_scope_check: no merge-base with ${candidates[*]}" >&2
-    exit 3
+  done
+  echo "pre_pr_scope_check: no merge-base with ${candidates[*]}" >&2
+  exit 3
 }
 
 # Get metrics
 get_lines_changed() {
-    local stats
-    stats=$(git diff "$MERGE_BASE" --stat 2>/dev/null | tail -1)
-    if [[ -z "$stats" ]]; then
-        echo "0"
-        return
-    fi
-    # Extract insertions and deletions using portable helper
-    local insertions deletions
-    insertions=$(extract_stat_number "$stats" "insertion")
-    deletions=$(extract_stat_number "$stats" "deletion")
-    echo $((insertions + deletions))
+  local stats
+  stats=$(git diff "$MERGE_BASE" --stat 2>/dev/null | tail -1)
+  if [[ -z "$stats" ]]; then
+    echo "0"
+    return
+  fi
+  # Extract insertions and deletions using portable helper
+  local insertions deletions
+  insertions=$(extract_stat_number "$stats" "insertion")
+  deletions=$(extract_stat_number "$stats" "deletion")
+  echo $((insertions + deletions))
 }
 
 get_new_files() {
-    git diff "$MERGE_BASE" --name-only --diff-filter=A 2>/dev/null | wc -l
+  git diff "$MERGE_BASE" --name-only --diff-filter=A 2>/dev/null | wc -l
 }
 
 get_commits() {
-    git rev-list --count "$MERGE_BASE"..HEAD 2>/dev/null || echo "0"
+  git rev-list --count "$MERGE_BASE"..HEAD 2>/dev/null || echo "0"
 }
 
 get_days_on_branch() {
-    local merge_base_date current_date
-    merge_base_date=$(git log -1 --format=%ct "$MERGE_BASE" 2>/dev/null || date +%s)
-    current_date=$(date +%s)
-    echo $(( (current_date - merge_base_date) / 86400 ))
+  local merge_base_date current_date
+  merge_base_date=$(git log -1 --format=%ct "$MERGE_BASE" 2>/dev/null || date +%s)
+  current_date=$(date +%s)
+  echo $(((current_date - merge_base_date) / 86400))
 }
 
 # Determine zone for a metric
 get_zone() {
-    local value=$1
-    local green=$2
-    local yellow=$3
-    local red=$4
+  local value=$1
+  local green=$2
+  local yellow=$3
+  local red=$4
 
-    if [[ $value -gt $red ]]; then
-        echo "red"
-    elif [[ $value -gt $yellow ]]; then
-        echo "yellow"
-    elif [[ $value -gt $green ]]; then
-        echo "yellow"
-    else
-        echo "green"
-    fi
+  if [[ $value -gt $red ]]; then
+    echo "red"
+  elif [[ $value -gt $yellow ]]; then
+    echo "yellow"
+  elif [[ $value -gt $green ]]; then
+    echo "yellow"
+  else
+    echo "green"
+  fi
 }
 
 # Main
 main() {
-    resolve_base
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  scope-guard: Pre-PR Threshold Check"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  resolve_base
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "  scope-guard: Pre-PR Threshold Check"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+  echo "Base branch: $BASE_BRANCH"
+  echo ""
+
+  # Collect metrics
+  local lines files commits days
+  lines=$(get_lines_changed)
+  files=$(get_new_files)
+  commits=$(get_commits)
+  days=$(get_days_on_branch)
+
+  # Determine zones
+  local lines_zone files_zone commits_zone days_zone
+  lines_zone=$(get_zone "$lines" "$GREEN_LINES" "$YELLOW_LINES" "$RED_LINES")
+  files_zone=$(get_zone "$files" "$GREEN_FILES" "$YELLOW_FILES" "$RED_FILES")
+  commits_zone=$(get_zone "$commits" "$GREEN_COMMITS" "$YELLOW_COMMITS" "$RED_COMMITS")
+  days_zone=$(get_zone "$days" "$GREEN_DAYS" "$YELLOW_DAYS" "$RED_DAYS")
+
+  # Track worst zone
+  local has_yellow=false
+  local has_red=false
+
+  # Display results
+  echo "Metrics:"
+  echo "────────────────────────────────────────────────"
+
+  # Lines
+  case $lines_zone in
+    green) printf "  Lines changed:    ${GREEN}%5d${NC} (< %d)\n" "$lines" "$GREEN_LINES" ;;
+    yellow)
+      printf "  Lines changed:    ${YELLOW}%5d${NC} (> %d, threshold: %d)\n" "$lines" "$GREEN_LINES" "$RED_LINES"
+      has_yellow=true
+      ;;
+    red)
+      printf "  Lines changed:    ${RED}%5d${NC} (> %d RED ZONE)\n" "$lines" "$RED_LINES"
+      has_red=true
+      ;;
+  esac
+
+  # Files
+  case $files_zone in
+    green) printf "  New files:        ${GREEN}%5d${NC} (< %d)\n" "$files" "$GREEN_FILES" ;;
+    yellow)
+      printf "  New files:        ${YELLOW}%5d${NC} (> %d, threshold: %d)\n" "$files" "$GREEN_FILES" "$RED_FILES"
+      has_yellow=true
+      ;;
+    red)
+      printf "  New files:        ${RED}%5d${NC} (> %d RED ZONE)\n" "$files" "$RED_FILES"
+      has_red=true
+      ;;
+  esac
+
+  # Commits
+  case $commits_zone in
+    green) printf "  Commits:          ${GREEN}%5d${NC} (< %d)\n" "$commits" "$GREEN_COMMITS" ;;
+    yellow)
+      printf "  Commits:          ${YELLOW}%5d${NC} (> %d, threshold: %d)\n" "$commits" "$GREEN_COMMITS" "$RED_COMMITS"
+      has_yellow=true
+      ;;
+    red)
+      printf "  Commits:          ${RED}%5d${NC} (> %d RED ZONE)\n" "$commits" "$RED_COMMITS"
+      has_red=true
+      ;;
+  esac
+
+  # Days
+  case $days_zone in
+    green) printf "  Days on branch:   ${GREEN}%5d${NC} (< %d)\n" "$days" "$GREEN_DAYS" ;;
+    yellow)
+      printf "  Days on branch:   ${YELLOW}%5d${NC} (> %d, threshold: %d)\n" "$days" "$GREEN_DAYS" "$RED_DAYS"
+      has_yellow=true
+      ;;
+    red)
+      printf "  Days on branch:   ${RED}%5d${NC} (> %d RED ZONE)\n" "$days" "$RED_DAYS"
+      has_red=true
+      ;;
+  esac
+
+  echo ""
+  echo "────────────────────────────────────────────────"
+
+  # Final verdict
+  if [[ $has_red == true ]]; then
     echo ""
-    echo "Base branch: $BASE_BRANCH"
+    printf "${RED}SCOPE GUARD: RED ZONE${NC}\n"
+    echo ""
+    echo "Branch exceeds thresholds. Required before PR:"
+    echo "  1. Document why scope expanded"
+    echo "  2. Identify items to split to backlog"
+    echo "  3. Re-score Worthiness with current scope"
+    echo "  4. Get explicit approval to continue"
+    echo ""
+    echo "To override: SCOPE_GUARD_OVERRIDE=1 $0"
     echo ""
 
-    # Collect metrics
-    local lines files commits days
-    lines=$(get_lines_changed)
-    files=$(get_new_files)
-    commits=$(get_commits)
-    days=$(get_days_on_branch)
-
-    # Determine zones
-    local lines_zone files_zone commits_zone days_zone
-    lines_zone=$(get_zone "$lines" "$GREEN_LINES" "$YELLOW_LINES" "$RED_LINES")
-    files_zone=$(get_zone "$files" "$GREEN_FILES" "$YELLOW_FILES" "$RED_FILES")
-    commits_zone=$(get_zone "$commits" "$GREEN_COMMITS" "$YELLOW_COMMITS" "$RED_COMMITS")
-    days_zone=$(get_zone "$days" "$GREEN_DAYS" "$YELLOW_DAYS" "$RED_DAYS")
-
-    # Track worst zone
-    local has_yellow=false
-    local has_red=false
-
-    # Display results
-    echo "Metrics:"
-    echo "────────────────────────────────────────────────"
-
-    # Lines
-    case $lines_zone in
-        green)  printf "  Lines changed:    ${GREEN}%5d${NC} (< %d)\n" "$lines" "$GREEN_LINES" ;;
-        yellow) printf "  Lines changed:    ${YELLOW}%5d${NC} (> %d, threshold: %d)\n" "$lines" "$GREEN_LINES" "$RED_LINES"; has_yellow=true ;;
-        red)    printf "  Lines changed:    ${RED}%5d${NC} (> %d RED ZONE)\n" "$lines" "$RED_LINES"; has_red=true ;;
-    esac
-
-    # Files
-    case $files_zone in
-        green)  printf "  New files:        ${GREEN}%5d${NC} (< %d)\n" "$files" "$GREEN_FILES" ;;
-        yellow) printf "  New files:        ${YELLOW}%5d${NC} (> %d, threshold: %d)\n" "$files" "$GREEN_FILES" "$RED_FILES"; has_yellow=true ;;
-        red)    printf "  New files:        ${RED}%5d${NC} (> %d RED ZONE)\n" "$files" "$RED_FILES"; has_red=true ;;
-    esac
-
-    # Commits
-    case $commits_zone in
-        green)  printf "  Commits:          ${GREEN}%5d${NC} (< %d)\n" "$commits" "$GREEN_COMMITS" ;;
-        yellow) printf "  Commits:          ${YELLOW}%5d${NC} (> %d, threshold: %d)\n" "$commits" "$GREEN_COMMITS" "$RED_COMMITS"; has_yellow=true ;;
-        red)    printf "  Commits:          ${RED}%5d${NC} (> %d RED ZONE)\n" "$commits" "$RED_COMMITS"; has_red=true ;;
-    esac
-
-    # Days
-    case $days_zone in
-        green)  printf "  Days on branch:   ${GREEN}%5d${NC} (< %d)\n" "$days" "$GREEN_DAYS" ;;
-        yellow) printf "  Days on branch:   ${YELLOW}%5d${NC} (> %d, threshold: %d)\n" "$days" "$GREEN_DAYS" "$RED_DAYS"; has_yellow=true ;;
-        red)    printf "  Days on branch:   ${RED}%5d${NC} (> %d RED ZONE)\n" "$days" "$RED_DAYS"; has_red=true ;;
-    esac
-
-    echo ""
-    echo "────────────────────────────────────────────────"
-
-    # Final verdict
-    if [[ $has_red == true ]]; then
-        echo ""
-        printf "${RED}SCOPE GUARD: RED ZONE${NC}\n"
-        echo ""
-        echo "Branch exceeds thresholds. Required before PR:"
-        echo "  1. Document why scope expanded"
-        echo "  2. Identify items to split to backlog"
-        echo "  3. Re-score Worthiness with current scope"
-        echo "  4. Get explicit approval to continue"
-        echo ""
-        echo "To override: SCOPE_GUARD_OVERRIDE=1 $0"
-        echo ""
-
-        if [[ "${SCOPE_GUARD_OVERRIDE:-0}" == "1" ]]; then
-            echo "Override enabled. Proceeding with warning."
-            exit 0
-        fi
-        exit 1
-
-    elif [[ $has_yellow == true ]]; then
-        echo ""
-        printf "${YELLOW}SCOPE GUARD: YELLOW ZONE${NC}\n"
-        echo ""
-        echo "Branch approaching thresholds. Before continuing:"
-        echo "  1. Does this still match the original scope?"
-        echo "  2. What's the current Worthiness Score?"
-        echo "  3. Can anything be split to backlog?"
-        echo ""
-        exit 0
-
-    else
-        echo ""
-        printf "${GREEN}SCOPE GUARD: GREEN ZONE${NC}\n"
-        echo ""
-        echo "All metrics within acceptable limits. Proceed with PR."
-        echo ""
-        exit 0
+    if [[ "${SCOPE_GUARD_OVERRIDE:-0}" == "1" ]]; then
+      echo "Override enabled. Proceeding with warning."
+      exit 0
     fi
+    exit 1
+
+  elif [[ $has_yellow == true ]]; then
+    echo ""
+    printf "${YELLOW}SCOPE GUARD: YELLOW ZONE${NC}\n"
+    echo ""
+    echo "Branch approaching thresholds. Before continuing:"
+    echo "  1. Does this still match the original scope?"
+    echo "  2. What's the current Worthiness Score?"
+    echo "  3. Can anything be split to backlog?"
+    echo ""
+    exit 0
+
+  else
+    echo ""
+    printf "${GREEN}SCOPE GUARD: GREEN ZONE${NC}\n"
+    echo ""
+    echo "All metrics within acceptable limits. Proceed with PR."
+    echo ""
+    exit 0
+  fi
 }
 
 main "$@"
