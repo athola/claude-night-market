@@ -61,6 +61,10 @@ class UsageStats:
     tokens_this_minute: int = 0
     tokens_today: int = 0
     last_request_time: float = 0.0
+    # Start of the current minute window. ``last_request_time`` cannot
+    # define it: it moves on every request, so a steady stream with gaps
+    # under 60 s would never close the window.
+    minute_window_start: float = 0.0
 
     def __post_init__(self) -> None:
         """Coerce the counters to numbers, or reject the record."""
@@ -77,14 +81,13 @@ class UsageStats:
                 )
             if value < 0:
                 raise ValueError(f"{field_name} must not be negative, got {value}")
-        if isinstance(self.last_request_time, bool) or not isinstance(
-            self.last_request_time, (int, float)
-        ):
-            raise TypeError(
-                "last_request_time must be a number, got "
-                f"{type(self.last_request_time).__name__}"
-            )
-        self.last_request_time = float(self.last_request_time)
+        for field_name in ("last_request_time", "minute_window_start"):
+            value = getattr(self, field_name)
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise TypeError(
+                    f"{field_name} must be a number, got {type(value).__name__}"
+                )
+            setattr(self, field_name, float(value))
 
 
 @dataclass
@@ -124,6 +127,12 @@ class QuotaTracker:
         if self.usage_file.exists():
             try:
                 data = json.loads(self.usage_file.read_text())
+                # Files written before minute_window_start existed: the last
+                # request is the closest record of when their window opened.
+                if isinstance(data, dict):
+                    data.setdefault(
+                        "minute_window_start", data.get("last_request_time", 0.0)
+                    )
                 self.usage = UsageStats(**data)
             except (json.JSONDecodeError, TypeError, ValueError):
                 self.usage = UsageStats()
@@ -140,6 +149,7 @@ class QuotaTracker:
             "tokens_this_minute": self.usage.tokens_this_minute,
             "tokens_today": self.usage.tokens_today,
             "last_request_time": self.usage.last_request_time,
+            "minute_window_start": self.usage.minute_window_start,
         }
         self.usage_file.write_text(json.dumps(data, indent=2))
 
@@ -147,10 +157,11 @@ class QuotaTracker:
         """Reset counters if time periods have passed."""
         now = time.time()
 
-        # Reset minute counters if more than 60 seconds
-        if now - self.usage.last_request_time > SECONDS_PER_MINUTE:
+        # Reset minute counters once the current minute window has closed
+        if now - self.usage.minute_window_start >= SECONDS_PER_MINUTE:
             self.usage.requests_this_minute = 0
             self.usage.tokens_this_minute = 0
+            self.usage.minute_window_start = now
 
         # Reset daily counters if new day
         last_date = datetime.fromtimestamp(
@@ -221,9 +232,14 @@ class QuotaTracker:
             if self.config.tokens_per_minute > 0
             else 100.0
         )
+        daily_tokens_percent = (
+            (self.usage.tokens_today / self.config.tokens_per_day) * 100
+            if self.config.tokens_per_day > 0
+            else 100.0
+        )
 
         # Determine status level
-        max_usage = max(rpm_percent, daily_percent, tpm_percent)
+        max_usage = max(rpm_percent, daily_percent, tpm_percent, daily_tokens_percent)
 
         if max_usage >= CRITICAL_THRESHOLD:
             level = "critical"
@@ -247,6 +263,11 @@ class QuotaTracker:
             warnings.append(
                 f"TPM at {tpm_percent:.1f}% "
                 f"({self.usage.tokens_this_minute}/{self.config.tokens_per_minute})",
+            )
+        if daily_tokens_percent >= WARNING_THRESHOLD:
+            warnings.append(
+                f"Daily tokens at {daily_tokens_percent:.1f}% "
+                f"({self.usage.tokens_today}/{self.config.tokens_per_day})",
             )
 
         return level, warnings
