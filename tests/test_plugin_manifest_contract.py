@@ -73,7 +73,7 @@ def test_optional_dependencies_live_under_metadata() -> None:
 REPOSITORY_URL = "https://github.com/athola/claude-night-market"
 # Their manifests are being edited on another branch; they gain the same
 # links when that work lands, and this set must then be emptied.
-LINKS_PENDING = frozenset({"conserve", "egregore"})
+LINKS_PENDING: frozenset[str] = frozenset()
 
 
 def test_every_plugin_links_its_homepage_and_repository() -> None:
