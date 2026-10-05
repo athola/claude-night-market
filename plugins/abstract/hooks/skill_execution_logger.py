@@ -28,7 +28,7 @@ from uuid import uuid4
 
 from shared.dir_utils import get_log_directory, get_observability_dir
 from shared.hook_io import read_hook_payload, tool_response_text
-from shared.skill_utils import parse_skill_name as _parse_skill_name
+from shared.skill_utils import parse_skill_name
 
 # Threshold for triggering stability gap warnings
 # Based on Avalanche paper: gap > 0.3 indicates significant instability
@@ -155,21 +155,6 @@ class ContinualEvaluator:
             "avg_duration_ms": avg_duration,
             "execution_count": execution_count,
         }
-
-
-def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
-    """Parse plugin and skill name from Skill tool input.
-
-    Delegates to shared.skill_utils for consistent sanitization.
-
-    Args:
-        tool_input: Skill tool input dictionary
-
-    Returns:
-        Tuple of (plugin_name, skill_name)
-
-    """
-    return _parse_skill_name(tool_input)
 
 
 def sanitize_output(output: str, max_length: int = 5000) -> str:

@@ -153,7 +153,7 @@ def _check_grep(
 
         try:
             content = file_path.read_text(errors="replace")
-        except (OSError, UnicodeDecodeError):
+        except OSError:
             continue
 
         for line_num, line in enumerate(content.splitlines(), start=1):

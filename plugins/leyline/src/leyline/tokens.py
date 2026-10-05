@@ -130,7 +130,7 @@ def _encode_file_with_tiktoken(encoder: Any, path: Path) -> int:
     """
     try:
         text = path.read_text(encoding="utf-8", errors="replace")
-    except (OSError, UnicodeDecodeError):
+    except OSError:
         return 0
     return len(encoder.encode(text)) + FILE_OVERHEAD_TOKENS
 
