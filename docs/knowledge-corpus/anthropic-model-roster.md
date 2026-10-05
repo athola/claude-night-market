@@ -13,6 +13,7 @@ tags:
   - budget
 sources:
   - https://platform.claude.com/docs/en/about-claude/models/overview
+  - https://platform.claude.com/docs/en/about-claude/pricing
 related_artifacts:
   - .claude/upstream-baseline.json
   - docs/agent-model-matrix.md
@@ -77,12 +78,16 @@ default.
 |-------|--------|
 | `claude-haiku-4-5-20251001` | Retirement not sooner than 2026-10-15; still the only Haiku |
 | `claude-opus-4-1-20250805` | Retired 2026-08-05, calls return 404 |
-| Fable 5, Opus 5, Sonnet 5 | Legacy, still callable |
+| Fable 5 ($10 / $50), Opus 5 ($5 / $25), Sonnet 5 ($2 / $10) | Legacy, still callable |
 | Opus 4.8, 4.7, 4.6, 4.5; Sonnet 4.6 | Legacy, still callable |
 
 The Haiku date is the earliest retirement Anthropic commits to. Every
 agent pinned to `haiku` depends on that model, and the card lists no
 successor. Recheck this entry first.
+
+Sonnet 5's launch price of $2 / $10 became its standard price. The rise
+to $3 / $15 scheduled for 2026-09-01 was cancelled (pricing page,
+footnote 3), and the overview page lists no legacy prices.
 
 Legacy Opus generations are $5 / $25, not the $15 / $75 that Opus 4.1
 charged. Copying Opus 4.1's rate onto a newer Opus overstates cost

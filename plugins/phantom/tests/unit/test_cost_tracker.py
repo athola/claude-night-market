@@ -275,3 +275,23 @@ class TestPricingTracksTheModelCard:
         for model in DEPRECATED_MODELS:
             assert model in PRICING
         assert PRICING["claude-opus-4-1-20250805"] == {"input": 15.0, "output": 75.0}
+
+
+class TestLegacyRates:
+    """Legacy rows match the pricing page, not a scheduled change.
+
+    platform.claude.com/docs/en/about-claude/pricing, 2026-10-05, footnote
+    3: Sonnet 5's $2/$10 "is now the standard price" and the increase to
+    $3/$15 scheduled for 2026-09-01 "will not occur". The table carried the
+    $3/$15 that never took effect, over-costing Sonnet 5 runs 1.5x.
+    """
+
+    def test_sonnet_5_is_priced_at_its_standard_rate(self):
+        assert PRICING["claude-sonnet-5"] == {"input": 2.0, "output": 10.0}
+
+    def test_other_legacy_rows_match_the_pricing_page(self):
+        assert PRICING["claude-fable-5"] == {"input": 10.0, "output": 50.0}
+        assert PRICING["claude-opus-5"] == {"input": 5.0, "output": 25.0}
+        for model in ("claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6"):
+            assert PRICING[model] == {"input": 5.0, "output": 25.0}
+        assert PRICING["claude-sonnet-4-6"] == {"input": 3.0, "output": 15.0}
