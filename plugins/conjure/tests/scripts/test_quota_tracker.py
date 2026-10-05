@@ -430,3 +430,37 @@ class TestQuotaTrackerCli:
         mock_print.assert_any_call("[WARNING] High usage")
         mock_print.assert_any_call("  WARNING: warn1")
         mock_print.assert_any_call("  WARNING: warn2")
+
+
+class _RunLengthEncoder:
+    """Stand-in for cl100k_base, which packs a run of "x" 8 chars a token."""
+
+    @staticmethod
+    def encode(text: str) -> list[int]:
+        return [0] * (len(text) // 8)
+
+
+@pytest.mark.parametrize("prompt_length", [100, 1000, 4000])
+def test_prompt_estimate_is_the_same_with_or_without_an_encoder(
+    prompt_length: int,
+) -> None:
+    """Both estimators charge an unknown prompt at prompt_length / 4.
+
+    Math review finding C22. Encoding a run of "x" measured how tiktoken
+    packs repeated characters, which halved the estimate.
+    """
+    GeminiQuotaTracker._get_encoder.cache_clear()
+    tracker = GeminiQuotaTracker()
+    try:
+        with patch.object(
+            GeminiQuotaTracker, "_get_encoder", staticmethod(_RunLengthEncoder)
+        ):
+            with_encoder = tracker.estimate_task_tokens([], prompt_length)
+        with patch.object(
+            GeminiQuotaTracker, "_get_encoder", staticmethod(lambda: None)
+        ):
+            without_encoder = tracker.estimate_task_tokens([], prompt_length)
+    finally:
+        GeminiQuotaTracker._get_encoder.cache_clear()
+
+    assert with_encoder == without_encoder == prompt_length // 4

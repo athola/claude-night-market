@@ -294,7 +294,10 @@ class GeminiQuotaTracker(QuotaTracker):  # ty: ignore[unsupported-base]
         prompt_length: int,
     ) -> int:
         """Estimate tokens using tiktoken encoder."""
-        tokens = len(encoder.encode("x" * prompt_length))
+        # Only the prompt's length is known, so it is estimated as the
+        # heuristic path does. Encoding a run of "x" would measure how the
+        # tokenizer packs repeated characters (8 per token in cl100k).
+        tokens = int(prompt_length / 4.0)
 
         for path in self._iter_source_paths(file_paths):
             try:
