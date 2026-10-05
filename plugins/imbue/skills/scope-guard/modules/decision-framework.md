@@ -49,7 +49,7 @@ Decision: > 2.0 → Implement now
 | Score | Decision | Required Actions |
 |-------|----------|------------------|
 | > 2.0 | **Implement now** | 1. Proceed with work<br>2. Add to branch budget |
-| 1.0 - 2.0 | **Discuss** | 1. Justify before proceeding<br>2. Document justification |
+| 1.0 - 2.0 (inclusive) | **Discuss** | 1. Justify before proceeding<br>2. Document justification |
 | < 1.0 | **Defer to backlog** | 1. Create GitHub issue<br>2. Add to queue.md with issue link<br>3. Mark `scope-guard:github-issue-created` complete |
 
 ## GitHub Issue Creation for Deferrals
