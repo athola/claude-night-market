@@ -25,15 +25,15 @@ def recommend_tdd_workflow(code: str) -> dict[str, Any]:
     if not code:
         return {"tdd_workflow": {"steps": steps}}
 
-    # Extract feature requirements from the description
-    lines = [
-        line.strip()
+    # Extract feature requirements from the description. A bare "-" or a
+    # "---" rule carries no requirement, so it never becomes one.
+    requirements = [
+        line.strip().lstrip("- ").strip()
         for line in code.split("\n")
-        if line.strip() and line.strip().startswith("-")
+        if line.strip().startswith("-")
     ]
 
-    for line in lines:
-        requirement = line.lstrip("- ").strip()
+    for requirement in filter(None, requirements):
         test_name = (
             "test_" + re.sub(r"[^a-z0-9_]", "_", requirement.lower()).strip("_")[:50]
         )
