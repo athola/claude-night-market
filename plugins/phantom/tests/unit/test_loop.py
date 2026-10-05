@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from phantom.cost import PRICING
+from phantom.cost import PRICING, CostTracker
 from phantom.display import ActionResult, DisplayConfig, DisplayToolkit
 from phantom.loop import (
     TOOL_VERSIONS,
@@ -780,6 +780,39 @@ class TestProcessIterationBudgetExceeded:
 
         mock_client.beta.messages.create.assert_called_once()
         assert stop_reason == "completed"
+
+
+class TestIterationCostUsesReportedUsage:
+    """Feature: Each iteration is charged what the API reported.
+
+    usage.input_tokens already counts every image block in the request,
+    screenshots included. Adding a screenshot estimate on top charged
+    each frame twice, and charged the first iteration for a screenshot
+    not yet sent.
+    """
+
+    def test_records_reported_input_tokens_without_a_screenshot_estimate(self):
+        tracker = CostTracker(model="claude-sonnet-5")
+        mock_response = MagicMock()
+        mock_response.content = []
+        mock_response.usage = MagicMock(input_tokens=2000, output_tokens=100)
+        mock_client = MagicMock()
+        mock_client.beta.messages.create.return_value = mock_response
+        client_setup = ClientSetup(
+            client=mock_client, tools=[], beta_flag="computer-use-2025-11-24"
+        )
+
+        _process_iteration(
+            _make_iteration_config(),
+            _make_iteration_context(cost_tracker=tracker),
+            client_setup,
+            [{"role": "user", "content": "do a thing"}],
+            LoopResult(),
+        )
+
+        assert tracker.total_input_tokens == 2000
+        assert tracker.total_screenshot_tokens == 0
+        assert tracker.total_cost_usd == (2000 * 2.0 + 100 * 10.0) / 1_000_000
 
 
 class TestToolVersionsUseRealModelIds:
