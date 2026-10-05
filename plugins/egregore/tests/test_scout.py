@@ -11,6 +11,7 @@ import pytest
 from scout import (
     ExemplarProject,
     ReviewTechnique,
+    _extract_items_from_section,
     classify_technique,
     default_exemplars,
     extract_techniques_from_guidelines,
@@ -79,6 +80,15 @@ class TestParseContributing:
         """Empty content returns empty sections."""
         sections = parse_contributing_guide("")
         assert sections == {}
+
+    def test_numbered_item_at_minimum_length_is_kept_like_a_bullet(self) -> None:
+        """A 10-character numbered item is kept, as the bullet branch keeps it.
+
+        Math review finding C2-16: the numbered branch used > where the
+        bullet branch used >=.
+        """
+        assert _extract_items_from_section("1. Add tests!") == ["Add tests!"]
+        assert _extract_items_from_section("- Add tests!") == ["Add tests!"]
 
     def test_handles_no_review_section(self) -> None:
         """Content without review section returns no review key."""
@@ -158,6 +168,17 @@ class TestClassifyTechnique:
         """Given a description with no matching keywords, returns None."""
         assert classify_technique("Be nice to reviewers") is None
 
+    def test_keyword_inside_another_word_does_not_match(self) -> None:
+        """'ci' inside 'special' must not count as a testing keyword.
+
+        Math review finding C2-15: the substring match scored testing 1,
+        tying documentation, and dict order picked testing.
+        """
+        assert (
+            classify_technique("Add a changelog entry for the special case")
+            == "documentation"
+        )
+
 
 class TestFormatDiscussion:
     """Format techniques as a GitHub Discussion post."""
@@ -212,6 +233,39 @@ class TestFormatDiscussion:
         """No techniques produces a minimal note."""
         body = format_discussion_body([])
         assert "no" in body.lower() or "none" in body.lower()
+
+    def test_uncategorized_technique_renders_under_its_own_heading(self) -> None:
+        """A technique classify_technique left as None is listed, not a crash.
+
+        Math review finding C2-1: sorting a None key beside str keys raised
+        TypeError, and None.title() raised AttributeError.
+        """
+        techniques = [
+            ReviewTechnique(
+                description="Run the full test suite before pushing",
+                category="testing",
+                source="psf/requests",
+            ),
+            ReviewTechnique(
+                description="Be respectful to maintainers",
+                category=None,
+                source="psf/requests",
+            ),
+        ]
+        body = format_discussion_body(techniques)
+        assert body.index("## Testing") < body.index("## Uncategorized")
+        assert "- Be respectful to maintainers" in body
+
+    def test_only_uncategorized_techniques_render(self) -> None:
+        """A scan that yields only unclassified items still formats."""
+        techniques = [
+            ReviewTechnique(
+                description="Be respectful to maintainers",
+                category=None,
+                source="psf/requests",
+            )
+        ]
+        assert "## Uncategorized" in format_discussion_body(techniques)
 
     def test_includes_sources_section(self) -> None:
         """Given techniques, when formatting, then includes Sources heading."""
