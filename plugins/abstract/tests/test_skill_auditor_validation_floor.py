@@ -145,7 +145,9 @@ description: Provides a skill that declares a hook. Use when verifying
   valid hook structures are accepted.
 hooks:
   PostToolUse:
-  - command: echo done
+  - hooks:
+    - type: command
+      command: echo done
 ---
 
 # Body

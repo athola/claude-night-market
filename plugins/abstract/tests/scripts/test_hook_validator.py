@@ -746,3 +746,16 @@ class TestWrappedManifestShape:
             f"{manifest.relative_to(REPO_ROOT)} does not validate:\n  "
             + "\n  ".join(result["errors"])
         )
+
+
+def test_mods_only_hooks_file_is_not_an_unknown_event(tmp_path: Path) -> None:
+    """A hooks.json that names only a mod's module has no events to check.
+
+    Since 2.1.287 hooks/hooks.json may hold ``modules`` (function hooks)
+    beside or instead of ``hooks``; without the wrapper the validator reads
+    the file as a bare event map and would call ``modules`` an event.
+    """
+    hooks_file = tmp_path / "hooks.json"
+    hooks_file.write_text(json.dumps({"modules": ["./band.tsx"]}))
+    result = validate_json_hook(hooks_file)
+    assert not any("modules" in w for w in result["warnings"])
