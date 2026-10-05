@@ -326,7 +326,10 @@ class TestCompareVersionsMissing:
         """Scenario: v2 has no recorded entries
         Given only v1 entries exist for a skill
         When compare_versions is called with a non-existent v2
-        Then v2_scores is empty, v2_avg is 0.0, improved is False
+        Then v2_scores is empty and v2_avg, improvement, improved are None
+
+        An empty side has no average. 0.0 made any score on the other
+        side read as an improvement (math review finding B13).
         """
         tracker = _make_tracker(tmp_path)
 
@@ -336,8 +339,8 @@ class TestCompareVersionsMissing:
         result = tracker.compare_versions("abstract:my-skill", "1.0.0", "9.9.9")
 
         assert result["v2_scores"] == []
-        assert result["v2_avg"] == pytest.approx(0.0)
-        assert result["improved"] is False
+        assert result["v2_avg"] is None
+        assert result["improved"] is None
 
 
 # ---------------------------------------------------------------------------
@@ -378,7 +381,7 @@ class TestEmptyTracker:
         result = tracker.compare_versions("abstract:nonexistent", "1.0.0", "2.0.0")
         assert result["v1_scores"] == []
         assert result["v2_scores"] == []
-        assert result["improved"] is False
+        assert result["improved"] is None
 
 
 # ---------------------------------------------------------------------------

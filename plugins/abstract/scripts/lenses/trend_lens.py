@@ -104,7 +104,9 @@ def _analyze_improvement_memory(memory: Any) -> list[Finding]:
     if not effective and not failed:
         return findings
 
-    total = len(effective) + len(failed)
+    # Every recorded outcome is an attempt, not only the ones that cleared
+    # the effective bar or regressed.
+    total = sum(len(v) for v in memory.outcomes.values())
     rate = len(effective) / total if total else 0
 
     if rate < LOW_SUCCESS_RATE and total >= MIN_ATTEMPTS_FOR_RATE:

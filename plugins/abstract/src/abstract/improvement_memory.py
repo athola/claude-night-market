@@ -193,7 +193,10 @@ class ImprovementMemory:
         sorted by improvement magnitude descending.
         """
         candidates = self._collect_outcomes(skill_ref)
-        effective = [o for o in candidates if o["improvement"] >= min_improvement]
+        # Tolerance: 0.3 - 0.2 is 0.09999999999999998, which must count as 0.1.
+        effective = [
+            o for o in candidates if o["improvement"] >= min_improvement - 1e-9
+        ]
         effective.sort(key=lambda o: o["improvement"], reverse=True)
         return effective
 
