@@ -25,7 +25,7 @@ Each term is defined once here and used without redefinition below.
 | Command | A markdown file under `commands/`. Surfaces as a slash command the user types. Repo docs refer to the namespaced form, e.g. `/sanctum:sync-capabilities`. |
 | Agent | A markdown file under `agents/` defining a dispatchable subagent: frontmatter plus a system-prompt body. |
 | Hook | An executable script Claude Code runs on a lifecycle event, registered in the plugin's `hooks/hooks.json`. |
-| Hook event | The lifecycle point a hook fires on: `PreToolUse`, `PostToolUse`, `Stop`, `SessionStart`, `UserPromptSubmit`, and others (full table below). |
+| Hook event | The lifecycle point a hook fires on: `PreToolUse`, `PostToolUse`, `Stop`, `SessionStart`, `UserPromptSubmit`, and others (full table in `modules/hooks.md`). |
 | Manifest | `.claude-plugin/plugin.json`: the file Claude Code reads to register a plugin's components. |
 | Marketplace | The root `.claude-plugin/marketplace.json` registry listing all plugins, installed via `/plugin marketplace add`. |
 | Plugin cache | The directory Claude Code copies installed plugins into and executes them from. It is NOT the repo checkout. |
@@ -228,284 +228,19 @@ here. Agents that must apply repo rules keep loading them.
 
 ## Hooks
 
-The hardest-won knowledge in the repo. Read this whole section before
-writing or editing any hook.
-
-### Events registered in this repo
-
-Survey of every `plugins/*/hooks/hooks.json` (2026-07-02):
-
-| Event | Registered by |
-|-------|---------------|
-| `PreToolUse` | abstract, conserve, gauntlet, imbue, leyline, memory-palace, pensive, sanctum |
-| `PostToolUse` | abstract, cartograph, conserve, gauntlet, leyline, memory-palace, sanctum |
-| `UserPromptSubmit` | abstract, egregore, imbue, memory-palace, sanctum |
-| `SessionStart` | conserve, egregore, imbue, leyline, memory-palace, oracle, sanctum, tome |
-| `Stop` | abstract, egregore, herald, memory-palace, oracle, sanctum |
-| `PreCompact` | conserve, tome |
-| `Setup`, `PermissionRequest`, `PermissionDenied` | conserve |
-| `ConfigChange` | sanctum |
-| `Notification` | conserve |
-
-### Events available but unregistered here
-
-The full roster is `plugins/abstract/src/abstract/hook_events.py`: 33
-events at 2.1.289, read by both frontmatter and hooks.json validation.
-Ones a plugin here could use and does not yet:
-
-| Event | Shipped | Fires when |
-|-------|---------|------------|
-| `PreModelSwitch` / `PostModelSwitch` | 2.1.251 | `/model` changes the session model. The pre event can block or confirm |
-| `StopFailure` | 2.1.78 | A turn ends on an API error; matcher on type such as `rate_limit` |
-| `SubagentStart` | | A subagent starts; the place for subagent-only context, since SessionStart does not fire for subagents |
-| `InstructionsLoaded` | | A CLAUDE.md or rule file loads, with `agent_id`, `agent_type`, `effort` since 2.1.288 |
-| `DirectoryAdded` | 2.1.220 | `/add-dir` or an SDK `register_repo_root` registers a working directory mid-session |
-
-`Notification` fires when Claude needs approval, has idled, or a
-background agent needs input. Its matcher values (`permission_prompt`,
-`idle_prompt`, `auth_success`, the elicitation dialogs) are documented in
-hooks.md "Notification". `conserve` records each event to `.claude/logs/`.
-
-Stop input carries `background_tasks` and `session_crons`. Since 2.1.232
-interactive subagent spawns run in the background, so a Stop hook that
-blocks on unfinished work must check them: `egregore`'s Stop hook lets the
-session stop while an `egregore:orchestrator` subagent is in flight.
-
-`SessionStart` gained a fifth source value in 2.1.212: a session opened
-as a fork reports `"fork"`. A matcher that enumerates the other four
-silently stops firing for forks, which is what
-`tests/unit/test_session_start_sources.py` now guards. `conserve` covers
-every source. `egregore` matches only `startup` and `resume`: `fork` and
-`compact` continue a conversation that already carries its banner, and
-`clear` was excluded before `fork` shipped, so this change leaves that
-choice as it found it.
-
-Hook `if:` conditions changed in 2.1.214. A single-segment `dir/**`
-pattern now matches only `<cwd>/dir`, so a hook meant to fire at any
-depth needs `**/dir/**`. Note that `deny` and `ask` permission rules
-kept their any-depth behavior, so the two syntaxes no longer agree and
-copying a pattern from one to the other silently changes its scope.
-
-### Registration: hooks/hooks.json, never the plugin.json array
-
-Claude Code auto-loads `hooks/hooks.json` from each installed plugin.
-Listing `./hooks/hooks.json` in the `plugin.json` `hooks` array causes a
-"Duplicate hooks file" error at session start. The pre-commit guard
-`scripts/check_plugin_hooks.py` rejects any manifest that does it. The
-`hooks` array exists only for additional hook files beyond the auto-loaded
-default, and every plugin here keeps it `[]`.
-
-Shape (verified, herald):
-
-```json
-{
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/double_shot_latte.py\"",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-`PreToolUse`/`PostToolUse` entries add a `matcher` regex over tool names
-(imbue uses `"Write|Edit|MultiEdit"` and `"Bash"`). `timeout` is the
-per-hook budget in seconds. Always reference the script through
-`${CLAUDE_PLUGIN_ROOT}`, inside double quotes: the install path can hold
-a space, and an unquoted placeholder then splits into several words.
-`claude plugin validate` warns on it since 2.1.281, and
-`tests/test_hook_commands_quote_plugin_root.py` fails on it. Exec form
-(`"args": [...]`) needs no quoting.
-
-The same file may name a mod's module under `"modules"` beside `"hooks"`;
-see Mods below.
-
-### Payload contract: stdin JSON, never env vars
-
-Claude Code delivers the payload as one JSON object on stdin with fields
-such as `tool_name`, `tool_input`, `tool_response`, `session_id`, and
-`hook_event_name`. It does NOT set `CLAUDE_TOOL_NAME`,
-`CLAUDE_TOOL_INPUT`, or `CLAUDE_TOOL_OUTPUT` environment variables. Hooks
-that read those env vars silently no-op on every real invocation. That
-exact bug left the skill-execution logger dead for months with no error
-anywhere (fixed in 1.9.14). Canonical read pattern:
-
-```python
-import json
-import sys
-
-
-def main() -> None:
-    try:
-        payload = json.loads(sys.stdin.read())
-    except (json.JSONDecodeError, OSError):
-        sys.exit(0)  # fail open: a broken hook must not wedge the session
-    tool_name = payload.get("tool_name", "")
-    tool_input = payload.get("tool_input", {})
-    command = tool_input.get("command", "")
-```
-
-The shared reader `plugins/abstract/hooks/shared/hook_io.py`
-(`read_hook_payload()`) implements stdin-first with a legacy env fallback
-for the synthetic test harness, and warns on stderr when stdin JSON is
-malformed. Because ADR-0001 forbids cross-plugin imports, leyline
-(`hooks/noqa_guard.py`) and sanctum (`hooks/deferred_item_watcher.py`)
-carry parallel copies that must change together (noted in the hook_io
-docstring). Hooks import their own plugin's `shared/` sibling by inserting
-the script directory on `sys.path` first:
-
-```python
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
-from shared.vow_utils import is_git_commit, shadow_mode_active
-```
-
-### Output contract and exit codes
-
-Repo convention is exit 0 always, with the verdict carried as JSON on
-stdout. Comments in `plugins/imbue/hooks/tdd_bdd_gate.py` record that
-exit code 2 has blocked the tool call since Claude Code v2.1.90, so a
-stray nonzero exit is itself a decision. Fail open on parse errors.
-
-| Event | Verdict shape (verified in repo hooks) |
-|-------|-----------------------------------------|
-| `PreToolUse` | `{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "allow" \| "deny" \| "ask", "permissionDecisionReason": "..."}}`. Those three are the only values the harness recognizes (see plugin-dev:hook-development and the upstream hook docs). Correct exemplar: `plugins/leyline/hooks/noqa_guard.py` emits `"deny"`. Print nothing (exit 0) to allow |
-| `Stop` | `{"decision": "block", "reason": "..."}` forces the session to keep working. `{"decision": "approve", ...}` allows the stop (herald `double_shot_latte.py`) |
-| `UserPromptSubmit` | `{"hookSpecificOutput": {..., "additionalContext": "..."}}` injects context (abstract `pre_skill_execution.py`, `aggregate_learnings_daily.py`) |
-
-Human-facing diagnostics go to stderr, never stdout (stdout must stay
-parseable JSON).
-
-Repo-local anomaly, do not copy: imbue's shadow-mode vow hooks
-(`vow_no_ai_attribution.py`) emit `"warn"` in shadow mode and
-`"block"` when `VOW_SHADOW_MODE=0`. Neither value is in the harness
-contract (`allow`/`deny`/`ask`), so the hook most likely fails open
-silently even with shadow mode off: the SB9 failure class from
-night-market-failure-archaeology. `vow_bounded_reads.py` in the same
-plugin correctly emits `"deny"`. File an issue rather than imitating
-the `"warn"`/`"block"` output. (Anomaly flagged 2026-07-03.)
-
-### Timeout budgets
-
-Any subprocess a hook spawns must finish inside the `timeout` registered
-in `hooks.json`, with headroom. herald once shipped an LLM call whose
-timeout exceeded its registered Stop-hook budget, so the harness
-killed the hook before any verdict was emitted (full record:
-night-market-failure-archaeology SB7). Copy the fix's pattern: assert
-`subprocess_timeout < registered_budget` in a guard test, not a
-comment.
-
-### Host Python 3.9 constraint
-
-Plugin package code targets Python 3.12, but hook scripts run under the
-system interpreter, assumed 3.9. `python39-compat.yml` enforces two
-gates with uneven coverage: ruff `UP007` under `--target-version py39`
-(bare unions) runs on 12 plugins' `hooks/**`, while the hook test
-subtree in a real 3.9 venv runs on only 7 plugins (abstract, conserve,
-egregore, imbue, leyline, memory-palace, sanctum). herald ships a Stop
-hook yet is covered by neither gate.
-
-| Banned in hook import chains | Use instead |
-|------------------------------|-------------|
-| `datetime.UTC` (a 3.11+ alias that broke hooks 3+ times, and ruff UP017 kept auto-reverting the fix, so root ruff config carries `extend-ignore UP017`) | `from datetime import timezone` then `datetime.now(timezone.utc)` |
-| Bare `X \| Y` annotations without `from __future__ import annotations` | Put the future import first in every hook file |
-| Unguarded third-party imports (`yaml`, `anthropic`) anywhere a hook's import chain reaches | Guard with try/except ImportError or import lazily inside the function. An eager import in `gauntlet/__init__.py` once broke every `git commit` with a PreToolUse ModuleNotFoundError |
-
-The durable defense against `datetime.UTC` regressions is an AST-scanning
-test, not a lint rule: see
-`plugins/leyline/tests/test_python39_compat.py`, which walks the source
-tree and fails on any reintroduction. When a linter fights your fix, add
-an AST invariant test.
-
-### Cache-dir execution
-
-Installed plugins run from the Claude Code plugin cache, not the repo.
-Consequences:
-
-- No relative paths in hook scripts or `hooks.json`. Use
-  `${CLAUDE_PLUGIN_ROOT}` (config) or `Path(__file__)` (Python).
-- No reaching into sibling plugins or repo-root scripts at runtime.
-  Shared helpers are vendored per plugin: each hook-bearing plugin keeps a
-  byte-identical copy of `scripts/shared/json_utils.sh` under its own
-  `hooks/shared/`, and `make check-json-utils` fails on drift.
-
-### Testing hooks
-
-Hook behavior is tested by piping a synthetic payload:
-
-```bash
-echo '{"tool_name": "Bash", "tool_input": {"command": "git commit -m x"}}' \
-  | python3 plugins/imbue/hooks/vow_no_ai_attribution.py
-```
-
-Exit code and stdout JSON are the assertions. Hook test subtrees (for
-example `plugins/imbue/tests/unit/hooks/`) run under 3.9 in CI, so keep
-them stdlib-plus-pytest only.
+The hardest-won knowledge in the repo. Read `modules/hooks.md` whole
+before writing or editing any hook. It carries the events registered
+here, registration through `hooks/hooks.json` with empty `plugin.json`
+`hooks` arrays, the stdin payload contract, exit-code and verdict
+semantics, timeout budgets, the Python 3.9 floor, cache-dir execution
+and hook testing.
 
 ## Workflows: one per plugin, discovered by convention
 
-A plugin can ship dynamic-workflow scripts alongside its skills,
-commands, agents and hooks. Verified on disk 2026-08-23 against the
-installed official marketplace, not from documentation alone.
-
-- **Location**: `workflows/` at the plugin root. Two official plugins
-  use it today (`claude-security/workflows/scan.js`,
-  `code-modernization/workflows/*.js`), and neither declares a
-  `workflows` key in `plugin.json`, so discovery is by convention. The
-  manifest field exists only to point somewhere else.
-- **Invocation**: namespaced, `/plugin-name:workflow-name`, where the
-  name comes from the script's `meta.name`.
-- **Format**: JavaScript opening with a literal
-  `export const meta = { name, description, whenToUse?, phases? }`.
-  The body uses `agent()`, `pipeline()`, `parallel()`, `phase()` and
-  `log()`, and may `await` and `return` at top level.
-- **Not an ES module.** The `export` and the top-level `return` cannot
-  coexist in real ESM, so `node --check` on a valid script reports
-  "Illegal return statement". The runtime extracts `meta` and runs the
-  body inside an async function. Any validator must wrap before it
-  checks, or check `meta` structurally and leave syntax to the runtime.
-- **Permissions**: subagents spawned by a workflow run in `acceptEdits`
-  and inherit the tool allowlist, whatever the session's permission
-  mode.
-
-Every plugin in `plugins/` ships one. Each encodes the fan-out that
-plugin's flagship work already describes: `scribe/doc-sweep.js` runs
-its four reviewers over one document, `parseltongue/python-sweep.js`
-runs its four specialists over the same Python, `conjure/provider-sweep.js`
-asks every provider whether this machine can call it.
-
-Two conventions hold across all of them, both because a violation
-fails at dispatch time rather than at author time:
-
-- A script that cannot start returns `{started: false, reason, next}`
-  instead of dispatching agents against missing input. `next` names
-  the command that produces what was missing.
-- No script calls `Date.now()`, `Math.random()`, argless `new Date()`
-  or `import()`. The first three throw, because a run has to replay
-  identically from its journal on resume; `import()` fails the script
-  before the run starts.
-
-`tests/test_shipped_workflows.py` is the gate: it fails when a plugin
-ships none, when `meta` is not the first statement, when `meta.name`
-disagrees with the filename, or when a forbidden call appears.
-
-The capabilities reference carries a workflow table now, and
-`tests/test_shipped_workflows.py` fails if a shipped script has no
-row, so the table cannot drift behind the directory.
-
-One gap stays: `validate_plugin.py` iterates skills, commands, agents
-and hooks only, so a fifth asset type is invisible to per-plugin
-validation. The root gate covers what that would have caught, which
-is why this is a gap rather than a defect. Analysis and the proposed
-sequence: `reports/dynamic-workflows-integration-2026-08-23.md`
-(machine-local).
+Every plugin ships dynamic-workflow scripts under `workflows/`,
+invoked as `/plugin-name:workflow-name`. Location, the `meta` format,
+the forbidden calls and the refuse-with-`next` convention are in
+`modules/workflows.md`.
 
 ## Marketplace mechanics
 
@@ -534,46 +269,9 @@ uv run python plugins/sanctum/scripts/update_versions.py 1.9.16
 
 ## Mods: TypeScript function hooks (2.1.287)
 
-A mod is an ordinary plugin whose `hooks/hooks.json` names one module:
-`{"hooks": {...}, "modules": ["./band.tsx"]}`. The module exports
-`register(on, options)` and adds hooks shaped `($, e, next)` on events
-such as `tool.call`, `prompt.submit`, `prompt.compose`, `session.append`,
-`turn.step`, `ui.render` and `command.run`. `$` reaches the engine: UI
-(panes, a band above the prompt, status line, toasts), `$.state` and
-`$.store`, `$.tool.register`, `$.agent.register`, `$.model.complete`,
-timers, files and processes. The module runs in its own environment with
-no Node and no DOM, as an ES module that may not use `import()`.
-
-Authoritative sources, in order: the types the engine writes
-(`claude-code.d.ts`, beside the bundled `plugin-authoring` skill or in a
-loaded mod's `.claude-plugin/types/`), code.claude.com/docs/en/plugins/
-mods/, then `Skill(plugin-authoring)`. The API is early access and moves
-between releases.
-
-What binds this repo:
-
-- Command hooks keep running alongside mods and are not deprecated.
-  Python guards stay in Python.
-- A mod that answers `tool.call` itself, without `next`, keeps every
-  plugin PreToolUse hook from running. Mods here observe and draw only:
-  never answer `tool.call` with a result, hook `tool.check`, or rewrite
-  tool input.
-- Mods are unsandboxed, can be switched off remotely, and are blocked for
-  marketplace plugins where an organization sets `allowManagedModsOnly`.
-  Nothing may depend on a mod being loaded.
-- An installed plugin runs from its versioned cache, so a mod change
-  reaches users only with a version bump.
-- `claude plugin validate <dir>` checks the module; `claude plugin test
-  <dir>` runs its `*.test.ts` files against the engine. `make test-mods`
-  runs both for every plugin that ships a module.
-
-Two ship here. conserve's `hooks/context-band.tsx` draws context fill and
-prompt-cache reuse above the prompt beside `context_warning.py`, which
-stays the part Claude reads. egregore's `hooks/loop-band.tsx` draws the
-active work item and answers `/egregore-loop` without a model turn. Their
-kit tests live in each plugin's `mod-tests/`, out of pytest's reach, and
-`tests/test_make_test_mods.py` fails if a module ever hooks `tool.call` or
-`tool.check`.
+A mod is a plugin whose `hooks/hooks.json` names a TypeScript module
+under `"modules"`. Its `register(on, options)` API, the events it can
+hook and how mods are tested are in `modules/mods.md`.
 
 ## Release tooling (2.1.259 to 2.1.285)
 
