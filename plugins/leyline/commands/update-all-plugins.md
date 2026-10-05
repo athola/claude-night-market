@@ -2,6 +2,7 @@
 name: update-all-plugins
 description: Update all installed Claude Code plugins from all marketplaces.
 usage: /update-all-plugins
+disable-model-invocation: true
 ---
 
 # Update All Plugins

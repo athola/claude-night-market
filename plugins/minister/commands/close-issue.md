@@ -2,6 +2,7 @@
 name: close-issue
 description: Analyze if issues (GitHub/GitLab) can be closed based on commits
 usage: /close-issue <issue-ref>... [--dry-run]
+disable-model-invocation: true
 ---
 
 # Close Issue Analysis

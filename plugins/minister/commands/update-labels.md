@@ -2,6 +2,7 @@
 name: update-labels
 description: Reorganize GitHub issue labels into type, priority, and effort groups.
 usage: /update-labels [--repo <owner/repo>] [--dry-run] [--preserve <label>...]
+disable-model-invocation: true
 ---
 
 # Update Labels

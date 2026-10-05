@@ -2,6 +2,7 @@
 name: reinstall-all-plugins
 description: Uninstall and reinstall all Claude Code plugins to refresh cache and resolve version mismatches.
 usage: /reinstall-all-plugins [--list-only] [--generate-script] [--dry-run]
+disable-model-invocation: true
 ---
 
 # Reinstall All Plugins
