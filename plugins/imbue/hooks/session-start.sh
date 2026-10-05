@@ -7,7 +7,7 @@
 #
 # Hook Input Schema (Claude Code 2.1.2+):
 # {
-#   "agent_type": "string",      // e.g., "code-reviewer", "implementation-agent"
+#   "agent_type": "string",      // only with `claude --agent`, e.g. "pensive:code-reviewer"
 #   "source": "string",          // e.g., "cli", "editor"
 #   "session_id": "string"       // Unique session identifier
 # }
@@ -71,7 +71,10 @@ main() {
   fi
 
   # Lightweight agents that skip full scope-guard methodology
-  case "${AGENT_TYPE}" in
+  # A plugin agent arrives scoped (`pensive:code-reviewer`); match on the
+  # name after the plugin prefix. Only `claude --agent <name>` sets this:
+  # subagents never fire SessionStart.
+  case "${AGENT_TYPE##*:}" in
     code-reviewer | architecture-reviewer | rust-auditor | bloat-auditor | context-optimizer)
       # Review/optimization agents: minimal scope-guard context
       cat <<EOF
