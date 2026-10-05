@@ -164,3 +164,88 @@ class TestEffectiveDecay:
         now = dt.datetime(2026, 5, 28, tzinfo=dt.timezone.utc)
         assert module.effective_decay(1, "2026-05-26T00:00:00Z", now) == 2
         assert module.effective_decay(1, "not-a-date", now) == 0
+
+
+class TestDecayKeepsPartialDays:
+    """Runs that land between day boundaries must not lose the remainder.
+
+    ``effective_decay`` counts whole days since ``last_recomputed``. If a
+    run stores the run time as the new mark, the fraction of a day past
+    the last boundary is thrown away on every run.
+    """
+
+    def test_runs_every_47_hours_decay_by_wall_clock_days(
+        self, tmp_path: Path, monkeypatch
+    ) -> None:
+        """Ten runs 47 hours apart span 19.58 days, so decay totals 19."""
+        module = _load_script()
+        start = dt.datetime(2026, 1, 1, tzinfo=dt.timezone.utc)
+        path = tmp_path / "vitality-scores.yaml"
+        path.write_text(
+            yaml.safe_dump(
+                {
+                    "entries": {"note": {"vitality": 100, "maturity": "growing"}},
+                    "metadata": {
+                        "decay_per_day": 1,
+                        "stale_threshold": 0,
+                        "last_recomputed": start.isoformat(),
+                    },
+                },
+                sort_keys=False,
+            ),
+            encoding="utf-8",
+        )
+        clock = {"now": start}
+
+        class _Clock:
+            fromisoformat = staticmethod(dt.datetime.fromisoformat)
+
+            @staticmethod
+            def now(tz: dt.tzinfo | None = None) -> dt.datetime:
+                return clock["now"]
+
+        monkeypatch.setattr(
+            module,
+            "dt",
+            type(
+                "_dt",
+                (),
+                {
+                    "datetime": _Clock,
+                    "timezone": dt.timezone,
+                    "timedelta": dt.timedelta,
+                },
+            ),
+        )
+        monkeypatch.setattr(
+            sys,
+            "argv",
+            [
+                "update_vitality_scores.py",
+                "--file",
+                str(path),
+                "--queue-file",
+                str(tmp_path / "queue.json"),
+            ],
+        )
+
+        for run in range(1, 11):
+            clock["now"] = start + dt.timedelta(hours=47 * run)
+            module.main()
+
+        vitality = yaml.safe_load(path.read_text(encoding="utf-8"))
+        assert vitality["entries"]["note"]["vitality"] == 100 - 19
+
+    def test_mark_advances_by_whole_days_only(self) -> None:
+        """47 hours after the mark, the mark moves one day, not 47 hours."""
+        module = _load_script()
+        now = dt.datetime(2026, 1, 2, 23, tzinfo=dt.timezone.utc)
+        mark = module.next_recompute_mark("2026-01-01T00:00:00+00:00", now)
+        assert mark == "2026-01-02T00:00:00+00:00"
+
+    def test_mark_without_a_usable_prior_is_the_run_time(self) -> None:
+        """A first run or an unparsable mark sets the baseline to now."""
+        module = _load_script()
+        now = dt.datetime(2026, 1, 2, 23, tzinfo=dt.timezone.utc)
+        assert module.next_recompute_mark(None, now) == now.isoformat()
+        assert module.next_recompute_mark("not-a-date", now) == now.isoformat()
