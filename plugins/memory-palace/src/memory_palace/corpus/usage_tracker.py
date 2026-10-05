@@ -47,6 +47,16 @@ SIGNAL_WEIGHTS: dict[UsageSignal, float] = {
 }
 
 
+_EMPTY_AGGREGATE: dict[str, Any] = {
+    "access_count": 0,
+    "citation_count": 0,
+    "positive_count": 0,
+    "negative_count": 0,
+    "raw_score": 0.0,
+    "last_access": None,
+}
+
+
 @dataclass
 class UsageEvent:
     """A single usage event for a knowledge entry."""
@@ -118,17 +128,7 @@ class UsageTracker:
         self._events.append(event)
 
         # Maintain incremental aggregates so get_score() never scans the deque.
-        agg = self._aggregates.setdefault(
-            entry_id,
-            {
-                "access_count": 0,
-                "citation_count": 0,
-                "positive_count": 0,
-                "negative_count": 0,
-                "raw_score": 0.0,
-                "last_access": None,
-            },
-        )
+        agg = self._aggregates.setdefault(entry_id, dict(_EMPTY_AGGREGATE))
         agg["raw_score"] += SIGNAL_WEIGHTS.get(signal, 0.0)
         if signal == UsageSignal.ACCESS:
             agg["access_count"] += 1
@@ -157,19 +157,9 @@ class UsageTracker:
             UsageScore with aggregated metrics
 
         """
-        agg = self._aggregates.get(entry_id)
-
-        if agg is None:
-            return UsageScore(
-                entry_id=entry_id,
-                raw_score=0.0,
-                normalized_score=0.0,
-                access_count=0,
-                citation_count=0,
-                feedback_balance=0,
-                last_accessed=None,
-                decay_factor=decay_factor,
-            )
+        # An entry with no events is scored like any other, at raw 0. A
+        # separate 0.0 for it ranked it below entries with negative signals.
+        agg = self._aggregates.get(entry_id, _EMPTY_AGGREGATE)
 
         raw_score: float = agg["raw_score"]
         access_count: int = agg["access_count"]

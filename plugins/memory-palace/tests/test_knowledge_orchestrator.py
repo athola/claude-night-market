@@ -233,6 +233,25 @@ class TestKnowledgeOrchestrator:
 
         assert assessment.decay_score == pytest.approx(1.0)
 
+    def test_maintenance_queue_puts_flagged_entry_before_untouched(
+        self, orchestrator: KnowledgeOrchestrator
+    ) -> None:
+        """Worst first: an entry flagged stale ranks ahead of one never used."""
+        fresh = datetime.now(timezone.utc).isoformat()
+        orchestrator.record_usage("flagged", UsageSignal.STALE_FLAG)
+        orchestrator.record_usage("flagged", UsageSignal.NEGATIVE_FEEDBACK)
+
+        queue = orchestrator.get_maintenance_queue(
+            [
+                {"id": "untouched", "last_validated": fresh},
+                {"id": "flagged", "last_validated": fresh},
+            ]
+        )
+
+        # A fresh, never-used entry sits at the healthy boundary and may
+        # leave the queue; the flagged one must lead it either way.
+        assert queue[0].entry_id == "flagged"
+
     def test_get_maintenance_queue(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should return entries needing maintenance."""
         now = datetime.now(timezone.utc)
@@ -345,18 +364,20 @@ class TestKnowledgeOrchestrator:
     def test_recommendations_for_low_usage(
         self, orchestrator: KnowledgeOrchestrator
     ) -> None:
-        """Should recommend usage for low-access entries."""
+        """Should recommend promoting or archiving content scored low on usage."""
         entry = {
             "id": "entry-1",
             "maturity": "growing",
             "created_at": datetime.now(timezone.utc).isoformat(),
             "last_validated": datetime.now(timezone.utc).isoformat(),
         }
+        # Usage is a sigmoid of raw/10 around a neutral 0.5, so reaching
+        # the 0.3 threshold takes raw < -8.5: 25 stale flags give -10.
+        for _ in range(25):
+            orchestrator.record_usage("entry-1", UsageSignal.STALE_FLAG)
 
         assessment = orchestrator.assess_entry(entry)
 
-        # A fresh entry with no recorded usage scores low on usage,
-        # so the orchestrator recommends promoting or archiving it.
         assert assessment.usage_score < 0.3, assessment.usage_score
         assert any("low-usage" in rec.lower() for rec in assessment.recommendations), (
             assessment.recommendations
