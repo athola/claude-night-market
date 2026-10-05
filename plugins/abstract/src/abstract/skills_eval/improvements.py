@@ -29,6 +29,10 @@ SUGGESTIONS_LOW = 3  # Timeline: 1-2 days
 SUGGESTIONS_MEDIUM = 6  # Timeline: 1 week
 
 
+# Same rule validate_plugin.py applies to plugin names.
+_KEBAB_CASE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+
+
 @dataclass
 class Improvement:
     """An improvement suggestion for a skill."""
@@ -136,7 +140,7 @@ class ImprovementSuggester:
             )
 
         # Check naming convention
-        if "-" not in skill_name or skill_name.islower():
+        if not _KEBAB_CASE.fullmatch(skill_name):
             suggestions.append(
                 "Use kebab-case naming (lowercase with hyphens) for better readability",
             )
