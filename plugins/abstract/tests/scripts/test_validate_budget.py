@@ -17,6 +17,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+import validate_budget as vb
 from validate_budget import (
     OVERHEAD_PER_COMPONENT,
     BudgetReport,
@@ -183,3 +184,46 @@ class TestPrintBudgetReport:
         out = capsys.readouterr().out
         assert "Components: 3" in out
         assert f"{expected_overhead:,} chars overhead" in out
+
+
+def _report(**overrides):
+    base = {
+        "total_chars": 0,
+        "total_with_overhead": 1000,
+        "visible_estimate": 1,
+        "verbose_count": 1,
+        "failed": True,
+        "warn_only": False,
+        "verbose": [Component("p", "s", "skill", 161, "x" * 161)],
+        "component_count": 1,
+    }
+    base.update(overrides)
+    fields = BudgetReport.__dataclass_fields__
+    return BudgetReport(**{k: v for k, v in base.items() if k in fields}), vb
+
+
+def test_a_long_description_failure_does_not_report_a_negative_overrun(capsys):
+    """A description-cap failure names the cap, not a negative overrun.
+
+    Finding B11: a single 161-char description printed 'BUDGET EXCEEDED
+    by -89,730 chars'.
+    """
+    report, _ = _report()
+    print_budget_report(report)
+    out = capsys.readouterr().out
+    assert "by -" not in out
+    assert "exceed" in out.lower()
+
+
+def test_a_total_over_the_budget_says_over_not_approaching(capsys):
+    report, _ = _report(
+        failed=False,
+        warn_only=True,
+        verbose=[],
+        verbose_count=0,
+        total_with_overhead=vb.BUDGET_LIMIT + 5000,
+    )
+    print_budget_report(report)
+    out = capsys.readouterr().out
+    assert "over budget" in out.lower()
+    assert "Approaching" not in out

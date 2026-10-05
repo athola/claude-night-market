@@ -239,10 +239,15 @@ def print_budget_report(report: BudgetReport) -> None:
     )
 
     if report.failed:
+        # The hard failure is the per-description cap; an overrun of the
+        # total is reported only when there is one.
         print(
-            f"\n❌ BUDGET EXCEEDED by "
-            f"{report.total_with_overhead - BUDGET_LIMIT:,} chars!"
+            f"\n❌ {report.verbose_count} descriptions exceed the "
+            f"{DESCRIPTION_MAX}-char cap"
         )
+        overrun = report.total_with_overhead - BUDGET_LIMIT
+        if overrun > 0:
+            print(f"❌ BUDGET EXCEEDED by {overrun:,} chars!")
         print("\nTop offenders:")
         print(format_offenders_list(report.verbose))
         print(
@@ -260,7 +265,11 @@ def print_budget_report(report: BudgetReport) -> None:
         print("   - Move details to SKILL.md body -- descriptions are for discovery")
 
     if report.warn_only:
-        print("\n⚠️  WARNING: Approaching budget limit")
+        over = report.total_with_overhead - BUDGET_LIMIT
+        if over > 0:
+            print(f"\n⚠️  WARNING: over budget by {over:,} chars")
+        else:
+            print("\n⚠️  WARNING: Approaching budget limit")
         print(
             f"   Usage: {report.total_with_overhead:,} / "
             f"{BUDGET_LIMIT:,} ({report.usage_pct:.1f}%)"
