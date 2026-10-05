@@ -200,31 +200,30 @@ class TestAnalyzeSkillNamingConvention:
     """Feature: analyze_skill checks kebab-case naming conventions."""
 
     @pytest.mark.unit
-    def test_no_hyphen_skill_name_gets_naming_suggestion(self, tmp_path: Path) -> None:
-        """Scenario: Single-word skill name without hyphens gets naming suggestion."""
+    def test_snake_case_skill_name_gets_naming_suggestion(self, tmp_path: Path) -> None:
+        """Scenario: An underscore name is not kebab-case and gets the suggestion."""
         _make_skill(
             tmp_path,
-            "myskill",
-            "---\nname: myskill\ndescription: desc\n---\n\n"
+            "my_skill",
+            "---\nname: my_skill\ndescription: desc\n---\n\n"
             "## Overview\nContent.\n\n## Quick Start\nGo.\n\n"
             "```python\ncode\n```\n```python\nmore\n```\n\n"
             "1. Step one\n2. Step two\n",
         )
         suggester = ImprovementSuggester(tmp_path)
-        result = suggester.analyze_skill("myskill")
+        result = suggester.analyze_skill("my_skill")
         assert any(
             "kebab" in s.lower() or "naming" in s.lower() for s in result["suggestions"]
         )
 
     @pytest.mark.unit
-    def test_lowercase_name_always_gets_naming_suggestion(
+    def test_kebab_case_name_gets_no_naming_suggestion(
         self, full_skill_dir: Path
     ) -> None:
-        """Scenario: The naming check fires when islower() is True (all lowercase).
+        """Scenario: A name already in kebab-case is not told to rename.
 
-        The condition is: if "-" not in skill_name OR skill_name.islower()
-        Since "good-skill" is all lowercase, islower() is True and the suggestion
-        is always included. This test documents that behaviour.
+        The old condition (no hyphen OR islower()) fired for every
+        lowercase name, so every valid name got the suggestion.
         """
         suggester = ImprovementSuggester(full_skill_dir)
         result = suggester.analyze_skill("good-skill")
@@ -233,8 +232,7 @@ class TestAnalyzeSkillNamingConvention:
             for s in result["suggestions"]
             if "kebab" in s.lower() or "naming" in s.lower()
         ]
-        # lowercase kebab names still trigger the suggestion (islower() is True)
-        assert len(naming_suggestions) == 1
+        assert naming_suggestions == []
 
 
 # ---------------------------------------------------------------------------
