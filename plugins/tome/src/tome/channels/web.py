@@ -333,10 +333,12 @@ def _estimate_relevance(text: str, topic: str) -> tuple[float, str]:
     distinguishable from an honest 0.5 via
     ``metadata["relevance_basis"]``.
     """
-    topic_words = {w for w in topic.lower().split() if len(w) > 2}
+    # Tokenize on letters and digits so "Kafka:" and "(Streams," still
+    # match the topic words they contain.
+    topic_words = {w for w in re.findall(r"[a-z0-9]+", topic.lower()) if len(w) > 2}
     if not topic_words:
         return 0.5, "abstained"
-    text_words = {w for w in text.lower().split() if len(w) > 2}
+    text_words = {w for w in re.findall(r"[a-z0-9]+", text.lower()) if len(w) > 2}
     overlap = len(topic_words & text_words) / len(topic_words)
     # Map to [0.1, 0.95] so heuristic scoring never emits 0.0 or 1.0
     return round(0.1 + overlap * 0.85, 4), "measured"
