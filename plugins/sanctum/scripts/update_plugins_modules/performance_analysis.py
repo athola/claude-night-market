@@ -9,9 +9,24 @@ Analyzes skill execution metrics from memory-palace logs to identify:
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+
+
+def _parse_timestamp(text: str) -> datetime | None:
+    """Parse a log timestamp as an aware datetime, or None if unreadable.
+
+    A timestamp without an offset is read as UTC so it compares with the
+    aware cutoff. The skill logger itself writes "+00:00".
+    """
+    if not text:
+        return None
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
 
 
 class PerformanceAnalyzer:
@@ -44,7 +59,9 @@ class PerformanceAnalyzer:
         if not self.log_dir.exists():
             return performance_data
 
-        cutoff_date = datetime.now() - timedelta(days=days)
+        # Aware, because the skill logger writes "+00:00" timestamps and a
+        # naive cutoff cannot be compared with them.
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
         log_files = list(self.log_dir.glob("*.jsonl"))
 
         if not log_files:
@@ -72,16 +89,9 @@ class PerformanceAnalyzer:
                         continue
 
                     # Check timestamp
-                    timestamp_str = entry.get("timestamp", "")
-                    if timestamp_str:
-                        try:
-                            timestamp = datetime.fromisoformat(
-                                timestamp_str.replace("Z", "+00:00")
-                            )
-                            if timestamp < cutoff_date:
-                                continue
-                        except ValueError:
-                            pass
+                    timestamp = _parse_timestamp(entry.get("timestamp", ""))
+                    if timestamp is not None and timestamp < cutoff_date:
+                        continue
 
                     # Initialize stats if needed
                     if skill not in skill_stats:
