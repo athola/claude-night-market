@@ -70,7 +70,7 @@ is useless. Every creativity metric is therefore paired with relevance.
 | TRIZ bridge count | cross-domain analogies found | exists (triz channel) |
 | Corpus novelty | mean embedding distance of new findings from the prior-session corpus | new (needs cross-session storage) |
 | Reference atypicality | z-scored reference co-occurrence (Uzzi 2013) | new (needs references) |
-| Link-prediction surprise | `predict_links` (Adamic-Adar) edges bridging distant communities | wire-up (`graph_analyzer.py:160`) |
+| Link-prediction surprise | `predict_links` (Adamic-Adar) edges bridging distant communities | wire-up (`graph_analyzer.py:168`) |
 
 **Guardrail.** Score novelty only jointly with relevance (a bandit
 exploit/explore split), and apply an exploration-saturation stop so
@@ -101,10 +101,10 @@ mandatory, not optional.
 
 | Metric | Formula / source | Status |
 |--------|------------------|--------|
-| Graph centrality | `pagerank` / `betweenness_centrality` | wire-up (`graph_analyzer.py:51`) |
+| Graph centrality | `pagerank` / `betweenness_centrality` | wire-up (`graph_analyzer.py:63`) |
 | Citation count | from `metadata` (Semantic Scholar / OpenAlex) | exists |
 | Disruption (CD) index | Funk and Owen-Smith 2017, **field- and cohort-normalized, fixed window** | new (guarded) |
-| Bridge / keystone finding | `find_bridges` / `find_keystones` | wire-up (`graph_analyzer.py:103`) |
+| Bridge / keystone finding | `find_bridges` / `find_keystones` | wire-up (`graph_analyzer.py:117`) |
 | Cross-session reuse rate | times a finding is re-imported across sessions | new (needs cross-session storage) |
 | Decay-adjusted importance | `decay_model` half-life weighting | wire-up (`decay_model.py`) |
 
