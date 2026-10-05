@@ -66,6 +66,32 @@ read what the plugins meant.
 - leyline's auto-star hook runs async. Four side-effect commands require
   a person to start them (`disable-model-invocation`).
 
+### Removed
+
+- **Configuration that loaded and did nothing.** Seven skills and
+  commands declared frontmatter hooks in a shape Claude Code never reads.
+  `bloat-scan` had frontmatter that was not valid YAML. Two
+  `.claude/*.json` policy files had no reader while docs called them
+  enforced. Two plugin-level pre-commit configs replaced the repository
+  hook when `make install-hooks` ran in those plugins.
+- **Unused dependencies** across the root and 13 plugins (pytest-mock,
+  pytest-bdd, pytype, sphinx and mkdocs groups, scipy, and others), with
+  numpy declared where it was imported, and mypy overrides the locked
+  mypy reports as unused.
+- **Dead code and docs**: three make targets that could not run, a
+  duplicated reinstall script, references to ten agents and six commands
+  that never existed, and copies of text that now lives once. Seven
+  oversized skills moved detail into modules (knowledge-intake 692 to 411
+  lines, plugin-reference 694 to 391).
+
+### Fixed (unbloat)
+
+- tome's TRIZ steps from ADR-0026 are runnable through
+  `python -m tome.channels.triz analyze`. The skill and agent named
+  functions nothing could call.
+- imbue and conserve SessionStart hooks match review agents by their
+  scoped name, and phantom prices Sonnet 5 at its standard $2/$10.
+
 ## [1.9.21] - 2026-09-28
 
 ### Added
