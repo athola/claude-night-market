@@ -12,6 +12,11 @@ from typing import Any
 #: Minimum success rate to label a pattern as SUCCESS vs CAUTION.
 SUCCESS_THRESHOLD: float = 0.5
 
+#: Statuses whose decisions have an outcome. An active or paused item's
+#: decisions are still in flight, so counting them would score them as
+#: failures before they had a chance to succeed.
+TERMINAL_STATUSES = ("completed", "failed")
+
 
 @dataclass
 class LearnedPattern:
@@ -91,6 +96,8 @@ def extract_patterns(
     for item in work_items:
         item_id = item.get("id", "")
         status = item.get("status", "")
+        if status not in TERMINAL_STATUSES:
+            continue
         decisions = item.get("decisions", [])
 
         for decision in decisions:
@@ -108,6 +115,7 @@ def extract_patterns(
                 pattern = patterns[key]
                 pattern.frequency += 1
                 pattern.source_items.append(item_id)
+                pattern.last_seen = max(pattern.last_seen, item.get("started_at", ""))
                 if status == "completed":
                     pattern.success_count += 1
             else:
@@ -161,6 +169,11 @@ def weight_by_recency(
 
     Sorts patterns by last_seen date and applies exponential decay
     to frequency scores for older patterns.
+
+    Decay lowers a pattern's weight and leaves its verdict alone:
+    success_count is rescaled to the decayed frequency and rounded toward
+    the side of SUCCESS_THRESHOLD the undecayed rate was on, so the
+    SUCCESS or CAUTION verdict survives integer rounding.
     """
     sorted_patterns = sorted(
         patterns,
@@ -169,9 +182,15 @@ def weight_by_recency(
     )
 
     for i, pattern in enumerate(sorted_patterns):
-        weight = decay_factor**i
-        pattern.frequency = max(1, round(pattern.frequency * weight))
-        pattern.success_count = max(0, round(pattern.success_count * weight))
+        decayed = max(1, round(pattern.frequency * decay_factor**i))
+        successful = pattern.success_rate >= SUCCESS_THRESHOLD
+        # success_count * decayed / frequency in integers, so the rescale
+        # adds no float error before the directed rounding.
+        scaled, remainder = divmod(
+            pattern.success_count * decayed, max(1, pattern.frequency)
+        )
+        pattern.success_count = scaled + (1 if successful and remainder else 0)
+        pattern.frequency = decayed
 
     return sorted_patterns
 

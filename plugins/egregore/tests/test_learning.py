@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from learning import (
+    SUCCESS_THRESHOLD,
     LearnedPattern,
     _categorize_decision,
     build_learning_context,
@@ -605,3 +606,102 @@ class TestLearningCli:
         rc = main(["--manifest", str(tmp_path / "missing.json")])
         assert rc == 1
         assert "manifest" in capsys.readouterr().err
+
+
+class TestMathReviewLearningFindings:
+    """Math review findings C7, C8 and C9: the briefing reports true rates."""
+
+    def test_recency_decay_keeps_a_fully_successful_pattern_successful(
+        self,
+    ) -> None:
+        """C7: decay must not turn 100% success into a 0% CAUTION.
+
+        Nine completed items each record a distinct decision. Frequency is
+        floored at 1 while success_count used to round 0.478 down to 0.
+        """
+        items = [
+            {
+                "id": f"wrk_{n}",
+                "status": "completed",
+                "started_at": f"2026-09-{n + 10:02d}T00:00:00+00:00",
+                "decisions": [{"step": "s", "chose": f"c{n}"}],
+            }
+            for n in range(9)
+        ]
+
+        patterns = weight_by_recency(extract_patterns(items))
+
+        assert all(p.success_rate == 1.0 for p in patterns)
+        assert "CAUTION" not in build_learning_context(patterns)
+
+    @pytest.mark.parametrize(
+        ("successes", "frequency"), [(1, 2), (2, 5), (3, 5), (7, 10), (0, 3)]
+    )
+    def test_recency_decay_keeps_each_pattern_on_its_side_of_the_threshold(
+        self, successes: int, frequency: int
+    ) -> None:
+        """C7: decayed counts give the same SUCCESS or CAUTION verdict."""
+        patterns = [
+            LearnedPattern(
+                category="approach",
+                description=f"p{rank}",
+                frequency=frequency,
+                success_count=successes,
+                last_seen=f"2026-09-{rank + 10:02d}T00:00:00+00:00",
+            )
+            for rank in range(8)
+        ]
+        before = successes / frequency >= SUCCESS_THRESHOLD
+
+        for pattern in weight_by_recency(patterns, decay_factor=0.7):
+            assert 0 <= pattern.success_count <= pattern.frequency
+            assert (pattern.success_rate >= SUCCESS_THRESHOLD) == before
+
+    def test_an_unfinished_item_does_not_count_as_a_failure(self) -> None:
+        """C8: an active item's in-flight decisions are not yet outcomes."""
+        items = [
+            {
+                "id": "wrk_1",
+                "status": "active",
+                "decisions": [{"step": "plan", "chose": "use framework X"}],
+            }
+        ]
+
+        assert extract_patterns(items) == []
+
+    def test_a_failed_item_still_counts_against_its_decisions(self) -> None:
+        """C8: failed items remain in the denominator."""
+        items = [
+            {
+                "id": "a",
+                "status": "completed",
+                "decisions": [{"step": "s", "chose": "x"}],
+            },
+            {"id": "b", "status": "failed", "decisions": [{"step": "s", "chose": "x"}]},
+            {"id": "c", "status": "paused", "decisions": [{"step": "s", "chose": "x"}]},
+        ]
+
+        (pattern,) = extract_patterns(items)
+
+        assert (pattern.frequency, pattern.success_count) == (2, 1)
+
+    def test_last_seen_is_the_latest_item_that_made_the_decision(self) -> None:
+        """C9: a decision repeated yesterday is not dated to January."""
+        items = [
+            {
+                "id": "old",
+                "status": "completed",
+                "started_at": "2026-01-01T00:00:00+00:00",
+                "decisions": [{"step": "s", "chose": "x"}],
+            },
+            {
+                "id": "new",
+                "status": "completed",
+                "started_at": "2026-09-30T00:00:00+00:00",
+                "decisions": [{"step": "s", "chose": "x"}],
+            },
+        ]
+
+        (pattern,) = extract_patterns(items)
+
+        assert pattern.last_seen == "2026-09-30T00:00:00+00:00"
