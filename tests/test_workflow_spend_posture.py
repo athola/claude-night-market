@@ -136,3 +136,21 @@ def test_the_harness_accepts_this_repos_settings_file() -> None:
     assert not offending, (
         "the harness rejected this repo's settings file:\n" + "\n".join(offending)
     )
+
+
+# Agent counts per guideline, from code.claude.com/docs/en/workflows "Set a
+# size guideline". CLI 2.1.271 moved `medium` from 15 to 10; the rule kept
+# saying 15 for a month, so the number is pinned beside the value.
+GUIDELINE_AGENT_COUNTS = {"small": 5, "medium": 10, "large": 50}
+
+
+def test_the_rule_states_the_current_agent_count_for_the_pinned_value() -> None:
+    value = _settings()["workflowSizeGuideline"]
+    if value not in GUIDELINE_AGENT_COUNTS:
+        return
+    text = re.sub(r"\s+", " ", RULE.read_text())
+    expected = GUIDELINE_AGENT_COUNTS[value]
+    assert f"fewer than {expected} agents" in text, (
+        f"the rule must say `{value}` asks for fewer than {expected} agents"
+    )
+    assert f"fires here at {expected} " in text

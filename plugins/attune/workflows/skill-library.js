@@ -6,9 +6,10 @@
 // is disjoint by construction, so `.claude/rules/plan-before-large-dispatch.md`
 // says to skip it. The write fence in each prompt is what keeps that true.
 //
-// Authoring writes; reviewing and fixing do not. Subagents in a workflow run
-// in acceptEdits whatever the session's permission mode, so the only writes
-// this script permits are new files at paths that did not exist. Applying
+// Authoring writes; reviewing and fixing do not. Subagents in a workflow take
+// the session's permission mode, which in an accept-edits or auto session
+// approves every edit, so the only writes this script permits are new files
+// at paths that did not exist. Applying
 // review findings edits files that already exist, and that stays in the
 // session where the diff is visible.
 

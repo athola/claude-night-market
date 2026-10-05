@@ -53,12 +53,12 @@ overflow this rule was written to prevent.
 
 - Never start a workflow unasked. A quoted tip is not
   a request.
-- A workflow's subagents inherit the tool allowlist.
-  The docs add that they always run in `acceptEdits`
-  with file edits auto-approved, whatever the
-  session's mode. Measured on CLI 2.1.241, the
-  session's mode decides it instead. One workflow,
-  one agent, one edited line in a scratch directory:
+- A workflow's subagents inherit the tool allowlist
+  and take their permission mode by the ordinary
+  subagent rules, so the session's mode decides it.
+  Measured on CLI 2.1.241, before the docs said so.
+  One workflow, one agent, one edited line in a
+  scratch directory:
   run from a manual-mode session it raised an
   ordinary permission prompt both times and left the
   file unchanged until approved, and run from an
@@ -86,13 +86,15 @@ Full analysis, with the source for each claim:
 **The spend posture is pinned, not inherited:**
 
 `.claude/settings.json` sets `workflowSizeGuideline`
-to `medium`, which asks for fewer than 15 agents when
-Claude writes a workflow. That is also the built-in
-default, which leaves the agent count Claude aims for
-where it was. Pinning it does change one thing: a
+to `medium`, which asks for fewer than 10 agents when
+Claude writes a workflow. CLI 2.1.271 lowered
+`medium` from 15 to 10 and made `small` the default on
+Pro plans, so the pin also keeps a Pro contributor's
+workflows the size everyone else's are. It does
+change one thing: a
 guideline you choose replaces the default 25-agent
 threshold on the advisory `Large workflow` warning.
-That warning fires here at 15 rather than 25, unless an environment
+That warning fires here at 10 rather than 25, unless an environment
 override or a server-side gate moves it again. The pin is written
 down so a change to the default cannot silently resize
 the workflows this repo ships, whose agent counts were
