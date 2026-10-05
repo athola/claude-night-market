@@ -877,3 +877,60 @@ class TestDecisionSerialization:
         assert PermissionDecision.ALLOW.value == "allow"
         assert PermissionDecision.DENY.value == "deny"
         assert PermissionDecision.ASK.value == "ask"
+
+
+class TestDestructiveCommandsAreNeverAutoApproved:
+    """A safe-looking prefix or suffix must not approve a write.
+
+    Each command here was auto-approved: a trailing help flag, a find
+    action, a branch deletion, and an output redirect all slipped through
+    patterns written for read-only use.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "rm -rf build -h",
+            "shutdown -h",
+            "rm build --help",
+            "rm -rf build --help",
+            "find . -name '*.pyc' -delete",
+            "find . -type f -exec rm {} +",
+            "find . -name x -execdir rm {} ;",
+            "git branch -D main",
+            "git branch -d feature",
+            "git branch -m old new",
+            "git branch newbranch",
+            "cat notes.txt > ~/.bashrc",
+            "echo $PATH > out.txt",
+            "ls >> listing.txt",
+            "rg --pre ./run.sh pattern",
+            "git diff --output=/tmp/x.diff",
+        ],
+    )
+    def test_command_is_not_auto_approved(self, command: str) -> None:
+        """The command falls through to the user's prompt."""
+        decision = check_safe(command)
+        assert decision is None, command
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "ls -la",
+            "git branch",
+            "git branch -a",
+            "git branch --show-current",
+            "find . -name '*.py'",
+            "find . -type f -name '*.md'",
+            "rg pattern src",
+            "git diff HEAD~1",
+            "pytest --help",
+            "git commit --help",
+            "cat README.md",
+        ],
+    )
+    def test_read_only_command_is_still_auto_approved(self, command: str) -> None:
+        """Tightening the patterns keeps the read-only forms approved."""
+        assert check_safe(command) is not None, command

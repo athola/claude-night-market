@@ -112,8 +112,10 @@ SAFE_PATTERNS: list[str] = [
     r"^grep\s+",
     r"^rg\s+",
     r"^ag\s+",
-    r"^find\s+.*-name\s+",
-    r"^find\s+.*-type\s+",
+    # find is read-only only without an action: -delete, -exec and friends
+    # run or remove things, and -fprint/-fls write files.
+    r"^find\s+(?!.*\s-(delete|exec|execdir|ok|okdir|fprint|fprint0|fprintf|fls)\b)"
+    r".*-(name|type)\s+",
     r"^which\s+",
     r"^whereis\s+",
     r"^type\s+",
@@ -121,15 +123,23 @@ SAFE_PATTERNS: list[str] = [
     r"^git\s+status(\s|$)",
     r"^git\s+log(\s|$)",
     r"^git\s+diff(\s|$)",
-    r"^git\s+branch(\s|$)",
+    # Listing flags only: -d/-D/-m/-c delete, rename or copy, and a bare
+    # name creates a branch.
+    r"^git\s+branch(\s+(-a|-r|-v|-vv|--all|--remotes|--list|--verbose"
+    r"|--show-current|--merged|--no-merged))*$",
     r"^git\s+show(\s|$)",
     r"^git\s+remote\s+-v$",
     r"^git\s+rev-parse(\s|$)",
     r"^git\s+describe(\s|$)",
     # Help commands
     r"^man\s+",
-    r".*--help$",
-    r".*-h$",
+    # Help for a bare command or a known tool's subcommand. A help flag
+    # after an operand is not help everywhere: BSD rm takes `--help` in
+    # `rm build --help` as a file name and removes `build`.
+    r"^[\w.-]+\s+--help$",
+    r"^(git|uv|npm|pip|cargo|gh|docker|kubectl|claude|make)\s+[a-z][\w-]*\s+--help$",
+    # -h is help only for tools where it means help; `shutdown -h` halts.
+    r"^(git|uv|npm|pip|cargo|gh|docker|kubectl|claude|make|pytest|ruff|rg)\s+-h$",
     r"^help\s+",
     # Environment inspection
     r"^env$",
@@ -173,7 +183,11 @@ def check_dangerous(command: str) -> Decision | None:
 # ``re.match``, which anchors only at the start, and ``^ls(\s|$)`` accepts a
 # newline through ``\s``. ``ls\nrm -rf ./important_dir`` therefore
 # auto-approved on the strength of its first token.
-_CHAIN_CHARS = re.compile(r"[;|&`(\n\r]|\$\(")
+_CHAIN_CHARS = re.compile(r"[;|&`(\n\r>]|\$\(")
+
+# Options that make a read-only command write a file or run a program:
+# `git diff --output=FILE` writes, `rg --pre CMD` executes CMD per file.
+_WRITE_OR_EXEC_OPTIONS = re.compile(r"(^|\s)--(output|pre)(=|\s|$)")
 
 
 def check_safe(command: str) -> Decision | None:
@@ -194,8 +208,9 @@ def check_safe(command: str) -> Decision | None:
     # a newline anywhere else is treated as the separator it is.
     candidate = command.strip()
 
-    # Commands with chaining/substitution never get auto-approved
-    if _CHAIN_CHARS.search(candidate):
+    # Commands with chaining, substitution or an output redirect (`>`
+    # writes a file) never get auto-approved.
+    if _CHAIN_CHARS.search(candidate) or _WRITE_OR_EXEC_OPTIONS.search(candidate):
         return None
 
     for pattern in SAFE_PATTERNS:
