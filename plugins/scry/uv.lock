@@ -774,7 +774,7 @@ wheels = [
 
 [[package]]
 name = "scry"
-version = "1.9.21"
+version = "1.10.0"
 source = { virtual = "." }
 
 [package.dev-dependencies]

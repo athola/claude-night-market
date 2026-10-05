@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-10-05
+
+Sweep for Claude Code 2.1.220 to 2.1.289. Several fields this repo wrote
+had become inert or newly live. Most of the release makes the harness
+read what the plugins meant.
+
+### Added
+
+- **Mods** (conserve, egregore; Claude Code 2.1.287+). conserve's
+  `context-band` draws context fill and prompt-cache reuse above the
+  prompt. egregore's `loop-band` draws the active work item and answers
+  `/egregore-loop` without a model turn. Both observe and draw only,
+  which keeps the Python guards running. `make test-mods` validates and
+  kit-tests every plugin that ships a module.
+- **`make validate-plugins`** runs `claude plugin validate` over the
+  marketplace and every plugin.
+- **egregore StopFailure hook** records a rate limit in `budget.json`
+  when a turn ends on one, instead of relying on the turn that cannot
+  act.
+- **Marketplace `renames`** migrate installs of `conservation` and
+  `pensieve` to `conserve` and `pensive`. Plugin manifests link their
+  source and docs.
+
+### Fixed
+
+- **Plugin agents now use fields the harness reads.** Seven agents wrote
+  `allowed-tools` or `tools_allowed` and ran with every tool; eleven
+  declared `hooks:` that plugin agents ignore; three set
+  `permissionMode`, also ignored. `abstract`'s frontmatter validator
+  reports each case and a sweep test covers every agent.
+- **Skills no longer downgrade the session model.** Since 2.1.259 a
+  skill's `model:` applies for the rest of the turn, and ten attune
+  skills pinned `sonnet` or `opus` as a hint.
+- **Exit criteria no longer require TodoWrite**, which current models do
+  not have by default (2.1.233). Skills name progress items, recorded
+  with the task tools when present.
+- **conserve's output summarizer** echoed large Read results back whole;
+  the digest is now bounded by characters and its retrieve command runs.
+- **Every hook command quotes `${CLAUDE_PLUGIN_ROOT}`**, which broke on
+  install paths with spaces.
+- **egregore's Stop hook** lets the session stop while a background
+  orchestrator runs (subagents run in the background by default since
+  2.1.232).
+- **phantom prices** Opus 5.5, Sonnet 5.5 and Fable 5.1 from the model
+  card instead of the $10/$50 fallback.
+- **Stale claims corrected**: the `medium` workflow guideline is 10
+  agents (2.1.271), workflow subagents take the session's permission
+  mode, an agent's `model:` beats `CLAUDE_CODE_SUBAGENT_MODEL`, and the
+  hook-authoring skill names the payload keys hooks receive.
+
+### Changed
+
+- Isolated agents branch from the current branch: project settings set
+  `worktree.baseRef: head`, where the default was master.
+- tome's channel agents and egregore's sentinel set `omitClaudeMd`, and
+  the haiku search agents get `maxTurns`.
+- leyline's auto-star hook runs async. Four side-effect commands require
+  a person to start them (`disable-model-invocation`).
+
 ## [1.9.21] - 2026-09-28
 
 ### Added
