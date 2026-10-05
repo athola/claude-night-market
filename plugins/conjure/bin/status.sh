@@ -3,13 +3,17 @@
 
 set -euo pipefail
 
+# The Python helpers live in ../scripts, not in the caller's directory.
+SCRIPTS="$(cd "$(dirname "$0")/../scripts" && pwd)"
+export PYTHONPATH="${SCRIPTS}${PYTHONPATH:+:${PYTHONPATH}}"
+
 echo "**Gemini CLI Status Report**"
 echo "=================================="
 echo
 
 # Check quota status
 echo "**Quota Status**:"
-python3 ~/.claude/hooks/gemini/quota_tracker.py 2>/dev/null || echo "  Quota tracker unavailable"
+python3 "${SCRIPTS}/quota_tracker.py" --status 2>/dev/null || echo "  Quota tracker unavailable"
 echo
 
 # Check usage summary
@@ -57,6 +61,6 @@ fi
 echo
 
 echo "**Quick Commands**:"
-echo "  • Monitor quota: python3 ~/.claude/hooks/gemini/quota_tracker.py"
-echo "  • View usage: python3 -c 'from usage_logger import GeminiUsageLogger; print(GeminiUsageLogger().get_usage_summary())'"
+echo "  • Monitor quota: python3 ${SCRIPTS}/quota_tracker.py --status"
+echo "  • View usage: PYTHONPATH=${SCRIPTS} python3 -c 'from usage_logger import GeminiUsageLogger; print(GeminiUsageLogger().get_usage_summary())'"
 echo "  • Check auth: gemini auth status"
