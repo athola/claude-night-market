@@ -36,16 +36,16 @@ pipeline steps by the same tiers.
 | Tier | Alias | Effort | Task shape | Relative cost |
 |------|-------|--------|------------|---------------|
 | Lightweight | `haiku` | `low` | Mechanical, single-turn, deterministic output | 1x |
-| Standard | `sonnet` | `medium` | Judgment inside established patterns | 3x |
-| Deep | `opus` | `high` | Architecture, adversarial reasoning, orchestration | 5x |
+| Standard | `sonnet` | `medium` | Judgment inside established patterns | 2x |
+| Deep | `opus` | `high` | Architecture, adversarial reasoning, orchestration | 4x |
 | Frontier | `fable` | `high` | Long-running agents where a miss is expensive | 10x |
 
-Relative cost is input price per MTok from the model card, normalized to
-Haiku: `haiku` $1, `sonnet` $3, `opus` $5, `fable` $10. Output prices
-scale the same way ($5 / $15 / $25 / $50). The multipliers above are
-list prices and need no change on the day a promotion ends.
-Sonnet 5 has an introductory price of $2 / $10 running to 2026-08-31,
-which puts its real multiplier nearer 2x until that date.
+Relative cost is input price per MTok from the model card (2026-10-04),
+normalized to Haiku: `haiku` $1, `sonnet` $2, `opus` $4, `fable` $10.
+Output prices scale the same way ($5 / $10 / $20 / $50). The aliases
+resolve to Haiku 4.5, Sonnet 5.5, Opus 5.5 and Fable 5.1. Opus 5.5
+defaults to `medium` effort on the API, so the `high` pinned here raises
+it.
 
 `inherit` is not an accepted value. It is the default this matrix exists
 to eliminate.
