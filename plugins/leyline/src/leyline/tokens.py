@@ -103,17 +103,9 @@ def estimate_file_tokens(path: Path) -> int:
     except OSError:
         return 0
 
-    suffix = path.suffix.lower()
-
-    if suffix in {".py", ".js", ".ts", ".rs"}:
-        ratio = FILE_TOKEN_RATIOS["code"]
-    elif suffix in {".json", ".yaml", ".yml", ".toml"}:
-        ratio = FILE_TOKEN_RATIOS["json"]
-    elif suffix in {".md", ".txt"}:
-        ratio = FILE_TOKEN_RATIOS["text"]
-    else:
-        ratio = FILE_TOKEN_RATIOS["default"]
-
+    ratio = EXTENSION_TOKEN_RATIOS.get(
+        path.suffix.lower(), DEFAULT_EXTENSION_TOKEN_RATIO
+    )
     return int(size / ratio) + FILE_OVERHEAD_TOKENS
 
 
