@@ -808,18 +808,49 @@ class TestAuditTrailManager:
     # -----------------------------------------------------------------------
 
     @pytest.mark.unit
-    def test_calculate_unanimity_clear_winner(self, tmp_path: Path) -> None:
-        """Scenario: Clear winner in voting.
+    @pytest.mark.parametrize(
+        ("n_options", "n_voters"),
+        [(2, 3), (3, 3), (4, 5)],
+    )
+    def test_calculate_unanimity_identical_ballots_score_one(
+        self, tmp_path: Path, n_options: int, n_voters: int
+    ) -> None:
+        """Scenario: Every voter casts the same N..1 Borda ballot.
 
-        Given borda_scores {"A": 10, "B": 2}
+        Given borda totals from identical ballots and that many raw votes
         When _calculate_unanimity() is called
-        Then the score reflects the wide gap.
+        Then the panel is fully unanimous (1.0).
+
+        Math review finding C2-2: dividing the gap by the score total gave
+        0.3333, 0.1667 and 0.1000 for these unanimous panels.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
-        score = manager._calculate_unanimity({"borda_scores": {"A": 10, "B": 2}})
-        assert 0.0 < score <= 1.0
-        # gap=8, total=12 → 8/12 ≈ 0.667
-        assert abs(score - 8 / 12) < 1e-9
+        labels = [chr(65 + i) for i in range(n_options)]
+        borda = {lab: n_voters * (n_options - i) for i, lab in enumerate(labels)}
+        raw_votes = {f"expert_{i}": "ballot" for i in range(n_voters)}
+        score = manager._calculate_unanimity(
+            {"borda_scores": borda, "raw_votes": raw_votes}
+        )
+        assert score == 1.0
+
+    @pytest.mark.unit
+    def test_calculate_unanimity_split_panel_scores_gap_per_voter(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: Two of three voters prefer A over B.
+
+        Given borda_scores {"A": 5, "B": 4} from three two-option ballots
+        When _calculate_unanimity() is called
+        Then the score is the top-two gap per voter, 1/3.
+        """
+        manager = AuditTrailManager(strategeion_dir=tmp_path)
+        score = manager._calculate_unanimity(
+            {
+                "borda_scores": {"A": 5, "B": 4},
+                "raw_votes": {"x": "", "y": "", "z": ""},
+            }
+        )
+        assert abs(score - 1 / 3) < 1e-9
 
     @pytest.mark.unit
     def test_calculate_unanimity_equal_scores(self, tmp_path: Path) -> None:
@@ -830,19 +861,23 @@ class TestAuditTrailManager:
         Then score is 0.0 (no gap).
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
-        score = manager._calculate_unanimity({"borda_scores": {"A": 5, "B": 5}})
+        score = manager._calculate_unanimity(
+            {"borda_scores": {"A": 5, "B": 5}, "raw_votes": {"x": "", "y": ""}}
+        )
         assert score == 0.0
 
     @pytest.mark.unit
     def test_calculate_unanimity_single_option(self, tmp_path: Path) -> None:
-        """Scenario: Only one COA option.
+        """Scenario: Only one COA option, and votes were cast.
 
         Given borda_scores {"A": 7}
         When _calculate_unanimity() is called
         Then score is 1.0 (trivially unanimous).
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
-        score = manager._calculate_unanimity({"borda_scores": {"A": 7}})
+        score = manager._calculate_unanimity(
+            {"borda_scores": {"A": 7}, "raw_votes": {"x": ""}}
+        )
         assert score == 1.0
 
     @pytest.mark.unit
@@ -851,23 +886,25 @@ class TestAuditTrailManager:
 
         Given an empty borda_scores dict
         When _calculate_unanimity() is called
-        Then score is 1.0 (vacuously unanimous).
+        Then score is 0.0: nobody agreed on anything.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
         score = manager._calculate_unanimity({"borda_scores": {}})
-        assert score == 1.0
+        assert score == 0.0
 
     @pytest.mark.unit
     def test_calculate_unanimity_all_zero_scores(self, tmp_path: Path) -> None:
-        """Scenario: All scores are zero (no votes cast).
+        """Scenario: All scores are zero (no ballot was parsed).
 
         Given borda_scores {"A": 0, "B": 0}
         When _calculate_unanimity() is called
-        Then score is 1.0 (no meaningful distinction).
+        Then score is 0.0, not the maximum.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)
-        score = manager._calculate_unanimity({"borda_scores": {"A": 0, "B": 0}})
-        assert score == 1.0
+        score = manager._calculate_unanimity(
+            {"borda_scores": {"A": 0, "B": 0}, "raw_votes": {"x": ""}}
+        )
+        assert score == 0.0
 
     @pytest.mark.unit
     def test_calculate_unanimity_capped_at_one(self, tmp_path: Path) -> None:
@@ -883,7 +920,9 @@ class TestAuditTrailManager:
             {"A": 1, "B": 0},
             {"A": 5, "B": 3, "C": 1},
         ]:
-            s = manager._calculate_unanimity({"borda_scores": scores})
+            s = manager._calculate_unanimity(
+                {"borda_scores": scores, "raw_votes": {"x": ""}}
+            )
             assert 0.0 <= s <= 1.0, f"score {s} out of range for {scores}"
 
     @pytest.mark.unit
