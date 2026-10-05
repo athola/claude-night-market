@@ -10,15 +10,17 @@ from dataclasses import dataclass
 
 # Anthropic list pricing (per million tokens, USD), verified 2026-08-02
 # against https://platform.claude.com/docs/en/about-claude/models/overview
+# and, for legacy rows the overview omits,
+# https://platform.claude.com/docs/en/about-claude/pricing
 #
 # Refresh via Skill(night-market-model-and-harness-updates), which reads
 # the model card as a mandatory source. Two entries here were wrong
 # before that sweep: Opus 4.6 carried Opus 4.1's $15/$75 rate, and
 # Haiku 4.5 was priced at $0.80/$4.00 rather than $1/$5.
 #
-# Sonnet 5 carries introductory pricing of $2/$10 through 2026-08-31.
-# List price is used deliberately: a budget guard that assumes the
-# promotional rate under-charges the moment it lapses.
+# Sonnet 5 launched at an introductory $2/$10 with a rise to $3/$15
+# scheduled for 2026-09-01. The pricing page now says $2/$10 is the
+# standard price and the rise will not occur.
 PRICING = {
     # Current (model card, 2026-10-04)
     "claude-fable-5-1": {"input": 10.0, "output": 50.0},
@@ -28,7 +30,7 @@ PRICING = {
     # Legacy, still callable
     "claude-fable-5": {"input": 10.0, "output": 50.0},
     "claude-opus-5": {"input": 5.0, "output": 25.0},
-    "claude-sonnet-5": {"input": 3.0, "output": 15.0},
+    "claude-sonnet-5": {"input": 2.0, "output": 10.0},
     "claude-opus-4-8": {"input": 5.0, "output": 25.0},
     "claude-opus-4-7": {"input": 5.0, "output": 25.0},
     "claude-opus-4-6": {"input": 5.0, "output": 25.0},
