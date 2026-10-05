@@ -180,7 +180,8 @@ def record_reset(
     moment = _now(now)
     resume_at = reset_at or moment + timedelta(minutes=UNKNOWN_RESET_WAIT_MINUTES)
     budget.last_rate_limit_at = moment.isoformat()
-    budget.cooldown_until = resume_at.isoformat()
+    # UTC because scripts/watchdog.sh parses the stored string as UTC.
+    budget.cooldown_until = resume_at.astimezone(timezone.utc).isoformat()
     return resume_at
 
 
