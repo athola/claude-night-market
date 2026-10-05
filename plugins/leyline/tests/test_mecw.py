@@ -154,3 +154,34 @@ class TestMECWMonitor:
         assert monitor.current_tokens == 0
         status = monitor.get_status()
         assert status.pressure_level == "LOW"
+
+
+@pytest.mark.unit
+class TestThresholdsAgree:
+    """Math review findings C18 and C19: one boundary, one meaning."""
+
+    def test_exactly_half_the_window_is_compliant_and_not_high_pressure(
+        self,
+    ) -> None:
+        """At exactly 50% the verdict and the action must agree.
+
+        The module rule is "never use more than 50%", so 50% is inside it.
+        """
+        result = mecw.check_mecw_compliance(500_000, 1_000_000)
+
+        assert result["compliant"] is True
+        assert result["pressure_level"] == "MODERATE"
+        assert result["action"] != "immediate_optimization_required"
+
+    def test_every_threshold_constant_is_a_boundary_the_classifier_uses(
+        self,
+    ) -> None:
+        """A listed threshold must change the level when crossed.
+
+        CRITICAL starts where HIGH ends (70%), so a separate 0.95 entry
+        describes a boundary that classification never applies.
+        """
+        for level, ratio in mecw.MECW_THRESHOLDS.items():
+            below = mecw.calculate_context_pressure(int(ratio * 1000) - 1, 1000)
+            above = mecw.calculate_context_pressure(int(ratio * 1000) + 1, 1000)
+            assert below != above, level
