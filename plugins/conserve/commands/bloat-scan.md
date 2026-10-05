@@ -1,30 +1,7 @@
 ---
 name: bloat-scan
-description: Scan for codebase bloat using 3-tier progressive analysis: dead code, duplication, God classes, and documentation waste.
-usage: /bloat-scan [--level 1|2|3] [--focus code|docs|deps] [--report FILE] [--dry-run]
-# Claude Code 2.1.0+ lifecycle hooks
-hooks:
-  PreToolUse:
-    - matcher: "Task"
-      command: |
-        # Log scan initiation with parameters
-        echo "[cmd:bloat-scan] 🔍 Bloat scan started at $(date) | User: ${USER:-unknown}" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
-        # Track scan level (indicates concern depth)
-        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "level"; then
-          level=$(echo "$CLAUDE_TOOL_INPUT" | grep -oP 'level["\s:=]+\K[123]' || echo '1')
-          echo "[cmd:bloat-scan] Scan level: $level (1=quick, 2=targeted, 3=deep audit)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
-        fi
-        # Track focus area
-        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "focus"; then
-          focus=$(echo "$CLAUDE_TOOL_INPUT" | grep -oP 'focus["\s:=]+\K\w+' || echo 'all')
-          echo "[cmd:bloat-scan] Focus: $focus" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
-        fi
-      once: true
-  Stop:
-    - command: |
-        echo "[cmd:bloat-scan] === Scan completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
-        # Track: bloat scan frequency = technical debt awareness metric
----
+description: "Scan for codebase bloat using 3-tier progressive analysis: dead code, duplication, God classes, and documentation waste."
+usage: /bloat-scan [--level 1|2|3] [--focus code|docs|deps] [--report FILE] [--dry-run]---
 
 # Bloat Scan Command
 

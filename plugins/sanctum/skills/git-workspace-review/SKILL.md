@@ -15,19 +15,6 @@ model_hint: fast
 estimated_tokens: 500
 modules:
 - modules/git-commands.md
-hooks:
-  PreToolUse:
-  - matcher: Bash
-    command: "# Log git analysis commands\nif jq -r '.tool_input.command // empty' | grep -qE\
-      \ \"git (status|diff|log|show|branch)\"; then\n  echo \"[skill:git-workspace-review]\
-      \ Git analysis initiated: $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\n\
-      fi\n"
-    once: true
-  Stop:
-  - command: 'echo "[skill:git-workspace-review] === Analysis completed at $(date)
-      ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-
-      '
 role: library
 ---
 # Git Workspace Review

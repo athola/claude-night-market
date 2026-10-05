@@ -2,28 +2,6 @@
 name: update-dependencies
 description: Scan and update dependencies across all ecosystems with conflict detection
 usage: /update-dependencies [--dry-run] [--ecosystem python|rust|javascript|go]
-
-# Claude Code 2.1.0+ lifecycle hooks
-hooks:
-  PreToolUse:
-    - matcher: "Task"
-      command: |
-        # Log command invocation with user context
-        echo "[cmd:update-dependencies] ⚠️  SECURITY-CRITICAL: Dependency update initiated at $(date) | User: ${USER:-unknown}" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
-        if echo "$CLAUDE_TOOL_INPUT" | grep -q "dependency-updater"; then
-          echo "[cmd:update-dependencies] Spawning dependency-updater agent" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
-        fi
-        # Track dry-run vs actual execution
-        if echo "$CLAUDE_TOOL_INPUT" | grep -q "dry-run"; then
-          echo "[cmd:update-dependencies] Mode: DRY-RUN (safe)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
-        else
-          echo "[cmd:update-dependencies] Mode: LIVE EXECUTION (modifying dependencies)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
-        fi
-      once: true
-  Stop:
-    - command: |
-        echo "[cmd:update-dependencies] === Command completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
-        # Export to security audit dashboard
 ---
 
 # Update Dependencies
