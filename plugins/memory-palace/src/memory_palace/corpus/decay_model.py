@@ -216,10 +216,11 @@ class DecayModel:
             # Logarithmic: fast initial decay that decelerates over time.
             # Note: the half_life parameter is a scaling factor here, not
             # a true half-life (decay factor at t=half_life is ~0.59, not 0.5).
-            if days >= half_life * 4:
-                return 0.1  # Floor for very old entries
+            # The 0.1 floor is a clamp on the curve, not a cutoff by age:
+            # a cutoff at 4 half-lives dropped the factor from 0.383 to 0.1
+            # in one day.
             ratio = days / half_life
-            return 1.0 / (1.0 + math.log1p(ratio))
+            return max(0.1, 1.0 / (1.0 + math.log1p(ratio)))
 
         # Default to exponential
         return math.pow(0.5, days / half_life)
