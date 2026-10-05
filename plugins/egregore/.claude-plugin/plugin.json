@@ -20,6 +20,7 @@
     "./agents/sentinel.md"
   ],
   "hooks": [],
+  "types": "./types/index.d.ts",
   "keywords": [
     "egregore",
     "autonomous",
