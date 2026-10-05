@@ -32,3 +32,36 @@ def test_renamed_plugins_migrate_to_current_entries() -> None:
     for old, new in renames.items():
         assert old not in current, f"{old} is still listed, so it is not renamed"
         assert new in current, f"rename target {new} is not a listed plugin"
+
+
+# Every top-level key marketplace-reference.md lists. Claude Code strips
+# anything else at load time, so data kept outside this set is never read.
+MARKETPLACE_TOP_LEVEL_FIELDS = frozenset(
+    {
+        "$schema",
+        "name",
+        "owner",
+        "plugins",
+        "description",
+        "version",
+        "metadata",
+        "forceRemoveDeletedPlugins",
+        "allowCrossMarketplaceDependenciesOn",
+        "renames",
+    }
+)
+
+
+def test_marketplace_top_level_holds_only_fields_claude_code_reads() -> None:
+    unknown = set(_marketplace()) - MARKETPLACE_TOP_LEVEL_FIELDS
+    assert not unknown, f"Claude Code strips these marketplace fields: {unknown}"
+
+
+def test_optional_dependencies_live_under_metadata() -> None:
+    """`optional_dependencies` is not a manifest field; `metadata` is free-form."""
+    misplaced = [
+        manifest.relative_to(REPO_ROOT)
+        for manifest in sorted(REPO_ROOT.glob("plugins/*/.claude-plugin/plugin.json"))
+        if "optional_dependencies" in json.loads(manifest.read_text(encoding="utf-8"))
+    ]
+    assert not misplaced, f"top-level optional_dependencies in {misplaced}"

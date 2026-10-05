@@ -3,26 +3,6 @@
   "name": "claude-night-market",
   "version": "1.9.21",
   "description": "23 production-ready Claude Code plugins: git workflows, code review, spec-driven development, architecture patterns, codebase visualization, resource optimization, memory systems, multi-LLM delegation, ML inference, knowledge challenges, and multi-source research",
-  "license": "MIT",
-  "repository": "https://github.com/athola/claude-night-market",
-  "homepage": "https://github.com/athola/claude-night-market",
-  "keywords": [
-    "claude-code",
-    "claude-code-plugin",
-    "plugin-marketplace",
-    "code-review",
-    "git-workflows",
-    "spec-driven-development",
-    "architecture",
-    "autonomous-agents",
-    "tdd",
-    "documentation",
-    "research",
-    "llm-delegation",
-    "devtools",
-    "developer-experience",
-    "ai-coding"
-  ],
   "owner": {
     "name": "athola",
     "email": "athola@users.noreply.github.com"
