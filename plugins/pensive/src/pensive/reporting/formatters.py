@@ -185,7 +185,3 @@ class SarifFormatter:
             "low": "note",
         }
         return mapping.get(severity.lower(), "warning")
-
-    def to_json(self, results: dict[str, Any]) -> str:
-        """Format results as SARIF JSON string (legacy method)."""
-        return json.dumps(results)
