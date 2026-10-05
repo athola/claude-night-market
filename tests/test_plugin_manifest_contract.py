@@ -116,3 +116,23 @@ def test_side_effect_commands_run_only_when_a_person_types_them() -> None:
     for command in USER_ONLY_COMMANDS:
         frontmatter = _frontmatter(REPO_ROOT / command)
         assert frontmatter.get("disable-model-invocation") is True, command
+
+
+def _frontmatter_lines(path: Path) -> list[str]:
+    return path.read_text(encoding="utf-8").split("---\n")[1].splitlines()
+
+
+def test_no_command_uses_the_underscore_spelling_of_user_invocable() -> None:
+    """The field is `user-invocable`; `user_invocable` is ignored silently.
+
+    Lines are matched rather than parsed, because some command frontmatter
+    in this repository does not parse as YAML.
+    """
+    offenders = [
+        command.relative_to(REPO_ROOT)
+        for command in sorted(REPO_ROOT.glob("plugins/*/commands/*.md"))
+        if any(
+            line.startswith("user_invocable:") for line in _frontmatter_lines(command)
+        )
+    ]
+    assert not offenders, f"inert user_invocable key in {offenders}"
