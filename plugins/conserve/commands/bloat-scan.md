@@ -1,7 +1,8 @@
 ---
 name: bloat-scan
 description: "Scan for codebase bloat using 3-tier progressive analysis: dead code, duplication, God classes, and documentation waste."
-usage: /bloat-scan [--level 1|2|3] [--focus code|docs|deps] [--report FILE] [--dry-run]---
+usage: /bloat-scan [--level 1|2|3] [--focus code|docs|deps] [--report FILE] [--dry-run]
+---
 
 # Bloat Scan Command
 
