@@ -37,5 +37,7 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "homepage": "https://github.com/athola/claude-night-market/tree/master/plugins/gauntlet",
+  "repository": "https://github.com/athola/claude-night-market"
 }
