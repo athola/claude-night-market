@@ -633,3 +633,32 @@ class TestCommittedWorkStillCountsAsBranchSize:
         changed, _ = measure_branch()
 
         assert changed == 0
+
+
+def test_a_slow_git_cannot_outlast_the_hook_timeout() -> None:
+    """Every git call shares one budget under the 1s SessionStart cap.
+
+    Math review finding C2-11: each of up to five sequential git calls got
+    its own 0.8s timeout, so a slow git could spend 4.0s and the harness
+    killed the hook before it injected anything.
+    """
+    clock = [0.0]
+    timeouts: list[float] = []
+
+    def slow_git(cmd, **kwargs):
+        timeouts.append(kwargs["timeout"])
+        clock[0] += kwargs["timeout"]
+        raise subprocess.TimeoutExpired(cmd, kwargs["timeout"])
+
+    with (
+        patch("post_implementation_policy.subprocess.run", side_effect=slow_git),
+        patch(
+            "post_implementation_policy.time.monotonic",
+            side_effect=lambda: clock[0],
+            create=True,
+        ),
+    ):
+        assert measure_branch() == (0, False)
+
+    assert timeouts, "measure_branch never asked git"
+    assert sum(timeouts) < 1.0
