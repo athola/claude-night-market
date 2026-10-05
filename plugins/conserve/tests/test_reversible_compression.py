@@ -262,6 +262,27 @@ def test_build_digest_short_text_is_not_elided(summarizer):
     assert "elided" not in digest
 
 
+def test_build_digest_caps_a_single_long_line(summarizer):
+    # Given one 50K-character line (a JSON-shaped tool result has no newlines)
+    text = "x" * 50_000
+    # When digested, Then the body is bounded by characters, not only lines,
+    # so the digest cannot echo the whole output back into context.
+    digest = summarizer.build_digest(text, "ccr-aaaaaaaaaaaa")
+    assert len(digest) < summarizer.DIGEST_MAX_CHARS + 1_000
+    assert "chars elided" in digest
+
+
+def test_build_digest_retrieve_command_names_a_real_script(summarizer):
+    # The model's Bash has no CLAUDE_PLUGIN_ROOT, so a literal placeholder in
+    # the hint is a command that cannot run. The path must be resolved.
+    digest = summarizer.build_digest("a\nb", "ccr-aaaaaaaaaaaa")
+    assert "${CLAUDE_PLUGIN_ROOT}" not in digest
+    script = next(
+        token for token in digest.split() if token.endswith("context_retrieve.py")
+    )
+    assert Path(script).is_file()
+
+
 # ---------------------------------------------------------------------------
 # tool_response extraction (handles str and dict shapes)
 # ---------------------------------------------------------------------------
@@ -276,6 +297,18 @@ def test_extract_tool_response_text_from_dict_stdout(summarizer):
     text = summarizer.extract_tool_response_text(payload)
     assert "out" in text
     assert "err" in text
+
+
+def test_extract_tool_response_text_from_read_file_content(summarizer):
+    # Read nests its text under file.content; a JSON dump of the envelope
+    # would hide line structure and defeat the line-based digest.
+    payload = {
+        "tool_response": {
+            "type": "text",
+            "file": {"filePath": "/x.md", "content": "first\nsecond"},
+        }
+    }
+    assert summarizer.extract_tool_response_text(payload) == "first\nsecond"
 
 
 def test_extract_tool_response_text_missing_is_empty(summarizer):
@@ -326,6 +359,26 @@ def test_main_archives_large_single_output(summarizer, monkeypatch, tmp_path, ca
     ctx = payload["hookSpecificOutput"]["additionalContext"]
     assert archived[0].stem in ctx
     assert "context_retrieve.py" in ctx
+
+
+def test_main_large_read_does_not_echo_the_file_back(
+    summarizer, monkeypatch, tmp_path, capsys
+):
+    # Regression: a 27K-char Read came back whole as additionalContext.
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CONSERVE_CCR_THRESHOLD", str(SMALL_THRESHOLD))
+    body = "\n".join(f"row {i} " + "y" * 200 for i in range(200))
+    hook_input = {
+        "tool_name": "Read",
+        "tool_response": {"type": "text", "file": {"filePath": "/f", "content": body}},
+    }
+
+    rc, out = _run_main(summarizer, hook_input, monkeypatch, capsys)
+
+    assert rc == 0
+    ctx = json.loads(out)["hookSpecificOutput"]["additionalContext"]
+    assert len(ctx) < summarizer.DIGEST_MAX_CHARS + 1_000
+    assert "row 100 " not in ctx
 
 
 def test_main_small_output_not_archived(summarizer, monkeypatch, tmp_path, capsys):
