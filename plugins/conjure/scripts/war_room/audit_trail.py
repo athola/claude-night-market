@@ -337,23 +337,22 @@ class AuditTrailManager:
     def _calculate_unanimity(self, voting_data: dict[str, Any]) -> float:
         """Calculate voting unanimity score in the range 0.0-1.0.
 
-        Returns the normalised gap between the top Borda score and the
-        runner-up.  Returns 1.0 when there is only one option or all
-        scores sum to zero (no votes cast).
+        Returns the gap between the top Borda score and the runner-up per
+        ballot cast. Under N..1 Borda scoring, identical ballots open a gap
+        of exactly one point per voter, so a unanimous panel scores 1.0
+        whatever the number of options. Dividing by the score total instead
+        made unanimity 2 / (N * (N + 1)). Returns 0.0 when no votes were
+        cast, and 1.0 for a single option that received votes.
         """
+        n_voters = len(voting_data.get("raw_votes", {}))
         scores = voting_data.get("borda_scores", {})
-        if not scores or len(scores) < 2:
+        if n_voters == 0 or not any(scores.values()):
+            return 0.0
+        if len(scores) < 2:
             return 1.0
 
         values = sorted(scores.values(), reverse=True)
-        top = values[0]
-        second = values[1]
-        total = sum(values)
-
-        if total == 0:
-            return 1.0
-
-        return float(min(1.0, (top - second) / total))
+        return float(min(1.0, (values[0] - values[1]) / n_voters))
 
     def list_audited_sessions(self) -> list[dict[str, Any]]:
         """Return summary dicts for all sessions that have saved audit reports."""
