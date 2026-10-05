@@ -129,7 +129,11 @@ class KnowledgeOrchestrator:
         last_validated = self._resolve_validation_date(entry, entry_id)
 
         decay_state = self.decay_model.calculate_decay(
-            entry_id, maturity, last_validated
+            entry_id,
+            maturity,
+            last_validated,
+            importance_score=entry.get("importance_score"),
+            unit_type=entry.get("unit_type"),
         )
         decay_score = decay_state.decay_factor
 

@@ -197,6 +197,42 @@ class TestKnowledgeOrchestrator:
         )
         assert event.context["cited_by"] == "article-123"
 
+    def test_assess_entry_applies_the_importance_floor(
+        self, orchestrator: KnowledgeOrchestrator
+    ) -> None:
+        """A constitutional entry (importance 95) decays no lower than 0.5.
+
+        Without its importance score the 200-day-old growing entry decays
+        to 0.1, which is what DecayModel gives an unimportant one.
+        """
+        old = datetime.now(timezone.utc) - timedelta(days=200)
+        entry = {
+            "id": "const",
+            "maturity": "growing",
+            "last_validated": old.isoformat(),
+            "importance_score": 95,
+        }
+
+        assessment = orchestrator.assess_entry(entry)
+
+        assert assessment.decay_score == pytest.approx(0.5)
+
+    def test_assess_entry_uses_the_entry_unit_type(
+        self, orchestrator: KnowledgeOrchestrator
+    ) -> None:
+        """An open-thread unit carries a 1.0 floor whatever its maturity."""
+        old = datetime.now(timezone.utc) - timedelta(days=200)
+        entry = {
+            "id": "thread",
+            "maturity": "seedling",
+            "last_validated": old.isoformat(),
+            "unit_type": "open-thread",
+        }
+
+        assessment = orchestrator.assess_entry(entry)
+
+        assert assessment.decay_score == pytest.approx(1.0)
+
     def test_get_maintenance_queue(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should return entries needing maintenance."""
         now = datetime.now(timezone.utc)
