@@ -178,7 +178,6 @@ imbue/
 │   ├── hooks.json                # Hook configuration
 │   ├── session-start.sh          # Session initialization
 │   ├── user-prompt-submit.sh     # Per-prompt threshold checks
-│   ├── pre_pr_scope_check.sh     # Branch threshold monitoring
 │   ├── tdd_bdd_gate.py           # PreToolUse: Iron Law enforcement
 │   ├── guard_package_hallucination.py # PreToolUse (Bash): block hallucinated/typosquat installs
 │   ├── guard_scope_ramp.py       # PreToolUse (Write/Edit/MultiEdit): hold increment to the current rung
