@@ -185,8 +185,13 @@ def analyze_changes(
     graph: GraphStore,
     base_ref: str = "HEAD",
     timeout: float = DEFAULT_GIT_TIMEOUT_SECONDS,
+    weights: dict[str, float] | None = None,
 ) -> dict[str, Any]:
-    """Full blast radius analysis pipeline."""
+    """Full blast radius analysis pipeline.
+
+    ``weights`` is what ``load_weights`` returns for the graph's
+    ``.gauntlet`` directory; None scores with the defaults.
+    """
     ranges = parse_git_diff_ranges(base_ref, timeout=timeout)
     if not ranges:
         return {
@@ -206,7 +211,7 @@ def analyze_changes(
     # Risk scores
     risk_scores: dict[str, float] = {}
     for node in all_affected:
-        risk_scores[node.qualified_name] = compute_risk_score(node, graph)
+        risk_scores[node.qualified_name] = compute_risk_score(node, graph, weights)
 
     # Untested functions
     untested = [
