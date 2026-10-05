@@ -43,7 +43,7 @@ endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
 .PHONY: help all test lint fix typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan \
-	test-ecosystem test-mods check-json-utils check-discussions writeback-discussions validate-skills analyze-skills shellcheck
+	test-ecosystem test-mods validate-plugins check-json-utils check-discussions writeback-discussions validate-skills analyze-skills shellcheck
 
 # The plugin delegation rules above are generated with $(eval), so the first
 # rule Make sees here is `abstract:`, not `all:`. Without this assignment a
@@ -65,6 +65,7 @@ help: ## Show this help message
 	@echo "  all               Run lint and test across all plugins"
 	@echo "  test              Run tests in all plugins (ALL code)"
 	@echo "  test-mods         Validate and kit-test every plugin that ships a mod"
+	@echo "  validate-plugins  Run claude plugin validate on the marketplace and each plugin"
 	@echo "  lint              Run linting in all plugins (ALL code)"
 	@echo "  typecheck         Run type checking in all plugins (ALL code)"
 	@echo "  status            Show status of all plugins"
@@ -137,6 +138,22 @@ test-mods: ## Validate and kit-test every plugin whose hooks.json declares "modu
 				*) fail=1 ;; \
 			esac; \
 		fi; \
+	done; \
+	exit $$fail
+
+# `claude plugin validate` is the harness's own reading of a manifest,
+# hooks.json and component frontmatter. Errors fail; warnings print.
+validate-plugins: ## Run claude plugin validate on the marketplace and each plugin
+	@echo "=== Validating Plugins ==="
+	@if ! command -v claude >/dev/null 2>&1; then \
+		echo "SKIP: claude CLI not on PATH; plugins were not validated"; \
+		exit 0; \
+	fi; \
+	fail=0; claude plugin validate . || fail=1; \
+	for manifest in $(sort $(wildcard $(PLUGINS_DIR)/*/.claude-plugin/plugin.json)); do \
+		plugin=$${manifest%/.claude-plugin/plugin.json}; \
+		echo ""; echo ">>> $$plugin"; \
+		claude plugin validate "$$plugin" || fail=1; \
 	done; \
 	exit $$fail
 
