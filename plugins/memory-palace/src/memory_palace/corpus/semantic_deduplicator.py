@@ -233,13 +233,17 @@ def _hash_to_vector(text: str, dim: int) -> list[float]:
     Generates *dim* independent bytes by hashing with incrementing
     salt values, avoiding the repetition that occurs when cycling a
     single 32-byte digest across higher dimensions.
+
+    Components are centered on zero. Bytes mapped to [0, 1] give every
+    pair of unrelated texts an expected cosine of 0.75, which is close
+    enough to the 0.8 threshold to reject most distinct content.
     """
     data = text.lower().strip().encode("utf-8")
     chunks_needed = (dim + 31) // 32
     raw_bytes = b""
     for i in range(chunks_needed):
         raw_bytes += hashlib.sha256(data + i.to_bytes(2, "big")).digest()
-    vec = [float(b) / 255.0 for b in raw_bytes[:dim]]
+    vec = [float(b) / 127.5 - 1.0 for b in raw_bytes[:dim]]
     norm = math.sqrt(sum(v * v for v in vec)) or 1.0
     return [v / norm for v in vec]
 
