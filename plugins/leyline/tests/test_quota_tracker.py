@@ -484,3 +484,59 @@ class TestUsageStatsValidatesItsInput:
         )
         tracker._load_usage()
         assert tracker.usage.requests_today == 5
+
+
+@pytest.mark.unit
+class TestMinuteWindowAndDailyTokens:
+    """Math review finding C2 and C14: the counters measure what they name."""
+
+    def test_steady_requests_below_rpm_never_reach_the_rpm_limit(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """One request every 50 s is 1.2 per minute and must not hit 60 RPM.
+
+        ``last_request_time`` is refreshed on every request, so a window
+        measured from it never closes while gaps stay under 60 s.
+        """
+        start = 1_760_000_000.0
+        clock = [start]
+        monkeypatch.setattr(quota_tracker.time, "time", lambda: clock[0])
+        tracker = QuotaTracker("svc", QuotaConfig(), storage_dir=tmp_path)
+
+        for index in range(60):
+            clock[0] = start + index * 50
+            tracker.record_request(tokens=10)
+        tracker._load_usage()
+
+        assert tracker.usage.requests_this_minute <= 2
+        assert tracker.usage.tokens_this_minute <= 20
+        assert tracker.can_handle_task(0) == (True, [])
+
+    def test_requests_inside_one_minute_still_accumulate(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Ten requests 5 s apart all land in the same minute window."""
+        start = 1_760_000_000.0
+        clock = [start]
+        monkeypatch.setattr(quota_tracker.time, "time", lambda: clock[0])
+        tracker = QuotaTracker("svc", QuotaConfig(), storage_dir=tmp_path)
+
+        for index in range(10):
+            clock[0] = start + index * 5
+            tracker.record_request(tokens=1)
+        tracker._load_usage()
+
+        assert tracker.usage.requests_this_minute == 10
+        assert tracker.usage.tokens_this_minute == 10
+
+    def test_exhausted_daily_tokens_report_critical(self, tmp_path: Path) -> None:
+        """At 100% of tokens_per_day the status agrees with can_handle_task."""
+        tracker = QuotaTracker("svc", QuotaConfig(), storage_dir=tmp_path)
+        tracker.usage.tokens_today = tracker.config.tokens_per_day
+        tracker.usage.last_request_time = time.time()
+
+        level, warnings = tracker.get_quota_status()
+
+        assert level == "critical"
+        assert any("Daily tokens" in warning for warning in warnings)
+        assert tracker.can_handle_task(1)[0] is False
