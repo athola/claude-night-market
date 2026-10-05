@@ -27,6 +27,10 @@
     "name": "athola",
     "email": "athola@users.noreply.github.com"
   },
+  "renames": {
+    "conservation": "conserve",
+    "pensieve": "pensive"
+  },
   "plugins": [
     {
       "name": "abstract",
