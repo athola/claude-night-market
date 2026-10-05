@@ -412,11 +412,14 @@ def _estimate_from_recent_turns(session_file: Path) -> float | None:
         except json.JSONDecodeError:
             continue
 
-        role = entry.get("role", "")
-        if role in ("user", "assistant"):
+        # Claude Code nests a row's role and blocks under ``message``.
+        message = entry.get("message")
+        if not isinstance(message, dict):
+            continue
+        if message.get("role") in ("user", "assistant"):
             turn_count += 1
 
-        message_content = entry.get("content", [])
+        message_content = message.get("content", [])
         chars, tool_results = _count_content(message_content)
         content_chars += chars
         tool_result_count += tool_results
