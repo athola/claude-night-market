@@ -16,7 +16,6 @@ dev = [
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
     "pytest-cov>=7.1.0",
-    "pytest-mock>=3.15.1",
     "types-pyyaml>=6.0.12.20250915",
 ]
 
@@ -73,11 +72,7 @@ module = ["leyline.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = ["update_plugin_registrations"]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["meta_evaluation", "update_plugin_registrations", "sanctum.validators"]
+module = ["sanctum.validators"]
 disable_error_code = ["assignment"]
 
 [tool.pytest.ini_options]
