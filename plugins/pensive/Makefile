@@ -3,12 +3,12 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: all benchmark ci clean coverage coverage-check \
+.PHONY: all ci clean coverage coverage-check \
 	debug-variables demo-api-review demo-architecture-review demo-bug-review demo-fpf-review \
 	demo-full-review demo-makefile-review demo-math-review demo-pensive-commands demo-refine-code \
 	demo-rust-review demo-shell-review demo-skill-history demo-skill-review demo-skills \
 	demo-test-review deps-outdated deps-update dev dev-install \
-	help install mutation-test perf-test plugin-check quality-check \
+	help install mutation-test plugin-check quality-check \
 	status test test-api-review test-architecture-review test-bug-review test-edge-case \
 	test-file test-fpf-review test-full-review test-integration test-makefile-review test-math-review \
 	test-parallel test-pattern test-refine-code test-rust-review test-shell-review test-skill-history \
@@ -79,11 +79,7 @@ install: ## Install for production
 
 # ---------- Analysis ----------
 
-perf-test: ## Run performance tests
-	$(PYTEST) -v -m performance --benchmark-only
 
-benchmark: ## Run performance benchmarks
-	$(PYTEST) --benchmark-only --benchmark-sort=mean
 
 mutation-test: ## Run mutation testing
 	mutmut run --paths-to-mutate src/ || echo "mutmut not installed"

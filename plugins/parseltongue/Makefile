@@ -6,7 +6,7 @@
 .PHONY: all async-patterns-tests benchmark ci clean coverage coverage-check coverage-report \
 	debug-variables demo-analyze-tests demo-check-async demo-run-profiler \
 	demo-skills dev dev-install help install mutation-test \
-	plugin-check python-tests quality-check status test test-analyze-tests test-async \
+	plugin-check quality-check status test test-analyze-tests test-async \
 	test-check-async test-duplicates test-edge-case test-file test-fixtures test-integration \
 	test-parallel test-pattern test-perf test-performance test-run-profiler \
 	test-structure test-testing testing-guidance-tests demo-parseltongue-commands demo-tests demo-coverage demo-lint
@@ -81,8 +81,6 @@ install: ## Install for production
 	pip install .
 
 # ---------- Category Tests ----------
-python-tests: ## Run Python-specific tests
-	$(PYTEST) tests/skills/test_python_*.py -v
 
 async-patterns-tests: ## Run async pattern tests
 	$(PYTEST) tests/test_async_patterns.py tests/test_*.py -k "async" -v
