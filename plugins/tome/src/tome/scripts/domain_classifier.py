@@ -303,7 +303,8 @@ def classify(topic: str) -> DomainClassification:
     Algorithm:
     1. Lowercase the topic and count keyword hits per domain.
     2. Pick the domain with the most hits.
-    3. Compute confidence as best_count / total_hits (across all domains).
+    3. Compute confidence as purity times saturation:
+       (best_count / total_hits) * min(1, best_count / _CONFIDENT_MATCHES).
     4. If best_count < _MIN_MATCHES or confidence < _MIN_CONFIDENCE,
        fall back to "general".
 

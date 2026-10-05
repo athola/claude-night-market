@@ -284,3 +284,21 @@ class TestKeywordsMatchAtWordStarts:
         """Keywords are word starts: 'orchestrat' and plurals still hit."""
         topic = "orchestrating llms with graphs"
         assert _count_matches(topic, ["orchestrat", "llm", "graph"]) == 3
+
+
+class TestTheDocumentedConfidenceIsTheComputedOne:
+    """Math review finding C12: the docstring states the formula in use."""
+
+    @pytest.mark.unit
+    def test_two_pure_hits_score_two_thirds(self) -> None:
+        """Purity 1.0 times saturation 2/3, not purity alone."""
+        result = classify("docker kubernetes")
+
+        assert result.confidence == pytest.approx(2 / 3)
+
+    @pytest.mark.unit
+    def test_the_docstring_names_the_saturation_term(self) -> None:
+        """Step 3 describes purity scaled by match saturation."""
+        doc = classify.__doc__ or ""
+
+        assert "min(1, best_count / _CONFIDENT_MATCHES)" in doc
