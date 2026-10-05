@@ -624,7 +624,7 @@ def run_auto_promote() -> list[str]:
             continue
 
         url: str | None = None
-        if score >= HIGH_PRIORITY_THRESHOLD:
+        if score > HIGH_PRIORITY_THRESHOLD:
             # Promotion gate: do not create an issue for a finding whose
             # every referenced location has already been removed. The
             # gate fails open (promotes) on any error or untrusted root,
