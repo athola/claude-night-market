@@ -63,7 +63,10 @@ MAX_CONTINUATIONS = 10
 #: a typo can never silently disable the runaway-loop guard.
 MAX_CONTINUATIONS_ENV = "DOUBLE_SHOT_LATTE_MAX_CONTINUATIONS"
 
-#: Sliding window, in seconds, over which MAX_CONTINUATIONS is counted.
+#: Inactivity window, in seconds: the CONTINUE count resets once this long
+#: passes with no CONTINUE. It is not a sliding window. A loop continuing every
+#: 120 s would never hold MAX_CONTINUATIONS inside a sliding 300 s window, so
+#: it would never be stopped; counting until a quiet gap does stop it.
 THROTTLE_WINDOW_SECONDS = 300
 
 #: Filename prefix for per-session throttle state in the temp dir. Shared by
