@@ -434,6 +434,35 @@ class TestParseWebsearchResult:
         assert finding.metadata["relevance_basis"] == "measured"
 
     @pytest.mark.unit
+    def test_title_punctuation_does_not_hide_topic_words(self) -> None:
+        """
+        Scenario: An on-topic title carries ordinary punctuation
+        Given the topic "kafka streams"
+        When the title is "Kafka: The Definitive Guide (Streams, Connect)"
+        Then it scores as high as the same words without punctuation
+
+        Math review finding C2-17: whitespace splitting kept "kafka:" and
+        "(streams," as tokens, and the result fell to the 0.1 floor.
+        """
+        punctuated = parse_websearch_result(
+            {
+                "title": "Kafka: The Definitive Guide (Streams, Connect)",
+                "url": "https://example.com/a",
+                "snippet": "",
+            },
+            "kafka streams",
+        )
+        plain = parse_websearch_result(
+            {
+                "title": "Kafka The Definitive Guide Streams Connect",
+                "url": "https://example.com/b",
+                "snippet": "",
+            },
+            "kafka streams",
+        )
+        assert punctuated.relevance == plain.relevance == 0.95
+
+    @pytest.mark.unit
     def test_abstention_is_distinguishable(self) -> None:
         """
         Scenario: Topic yields no scoreable words
