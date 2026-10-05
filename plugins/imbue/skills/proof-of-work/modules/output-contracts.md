@@ -144,9 +144,9 @@ The contract validator checks these rules in order:
    findings file.
    Case-insensitive, underscores treated as spaces.
 
-2. **Evidence count**: Count occurrences of the pattern
-   `\[E\d+\]` in the findings file.
-   Must be >= `min_evidence_count`.
+2. **Evidence count**: Count the distinct tags matching
+   `\[E\d+\]` in the findings file. Citing `[E1]` three
+   times counts once. Must be >= `min_evidence_count`.
 
 3. **Artifact check**: Each path in `expected_artifacts`
    must exist on disk.
