@@ -88,13 +88,15 @@ def call_capture_script(
 def process_ledger(ledger_path: Path) -> dict:
     """Read ledger, retry unfiled entries, clean up.
 
-    Returns stats dict with keys: filed, already_filed, failed, duplicates.
+    Returns stats dict with keys: filed, already_filed, failed, duplicates,
+    deferred_to_next_sweep.
     """
     stats: dict[str, int] = {
         "filed": 0,
         "already_filed": 0,
         "failed": 0,
         "duplicates": 0,
+        "deferred_to_next_sweep": 0,
     }
 
     if not ledger_path.exists():
@@ -123,7 +125,7 @@ def process_ledger(ledger_path: Path) -> dict:
             # the state the next sweep reads, rather than being attempted in
             # a call the harness would kill halfway through.
             all_filed = False
-            stats["deferred_to_next_sweep"] = stats.get("deferred_to_next_sweep", 0) + 1
+            stats["deferred_to_next_sweep"] += 1
             continue
 
         result = call_capture_script(
@@ -149,8 +151,9 @@ def process_ledger(ledger_path: Path) -> dict:
     else:
         with open(ledger_path, "w") as f:
             json.dump(entries, f, indent=2)
+        unfiled = stats["failed"] + stats["deferred_to_next_sweep"]
         sys.stderr.write(
-            f"deferred_item_sweep: {stats['failed']} items remain unfiled. "
+            f"deferred_item_sweep: {unfiled} items remain unfiled. "
             f"Ledger preserved at {ledger_path}\n"
         )
 
@@ -163,11 +166,13 @@ def main() -> None:
     stats = process_ledger(ledger_path)
 
     total = stats["filed"] + stats["duplicates"]
-    if total > 0 or stats["failed"] > 0:
+    deferred = stats["deferred_to_next_sweep"]
+    if total > 0 or stats["failed"] > 0 or deferred > 0:
         sys.stderr.write(
             f"Deferred items: {total} filed, "
             f"{stats['duplicates']} duplicate, "
-            f"{stats['failed']} failed\n"
+            f"{stats['failed']} failed, "
+            f"{deferred} deferred to next sweep\n"
         )
 
 
