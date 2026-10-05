@@ -69,6 +69,12 @@ class TestAddedLines:
     def test_unknown_tool_is_zero(self, sr):
         assert sr.added_lines("Bash", {"command": "ls"}) == 0
 
+    @pytest.mark.unit
+    def test_blank_lines_do_not_consume_the_ramp(self, sr):
+        """Math review finding C26: only non-empty lines are counted."""
+        assert sr.added_lines("Write", {"content": "a\n\n\nb"}) == 2
+        assert sr.added_lines("Edit", {"new_string": "x\n   \n\ty\n"}) == 2
+
 
 class TestHighStakes:
     """Feature: high-blast-radius paths get a tighter rung (hybrid by stakes)."""
