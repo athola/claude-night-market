@@ -37,7 +37,6 @@ Repository = "https://github.com/anthropics/pensive.git"
 dev = [
     "pytest>=8.0",
     "pytest-cov>=7.1.0",
-    "pytest-mock>=3.15.1",
     "pytest-asyncio>=1.2.0",
     "pytest-xdist>=3.8.0",
     "coverage>=7.10.7",
@@ -194,10 +193,6 @@ strict_equality = true
 module = [
     "psutil.*",
 ]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["leyline.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
