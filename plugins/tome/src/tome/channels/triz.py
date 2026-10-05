@@ -8,8 +8,10 @@ an agent passes to WebSearch/WebFetch tool calls.
 
 from __future__ import annotations
 
+import argparse
 import csv
 import functools
+import json
 import re
 from importlib import resources
 from typing import Any
@@ -1076,3 +1078,42 @@ def format_bridge_statement(
             "bridge_confidence": confidence,
         },
     )
+
+
+def analyze(topic: str, domain: str) -> dict[str, Any]:
+    """Run the skill's per-candidate steps over the ranked contradictions.
+
+    The triz skill and agent apply these steps to each candidate; one call
+    returns all of them, so a session with a shell needs no Python of its
+    own to follow the workflow.
+    """
+    candidates = []
+    for contradiction in formulate_contradictions(topic, domain):
+        candidate: dict[str, Any] = {
+            "contradiction": contradiction,
+            "ideality": formulate_ideality(topic, contradiction),
+            "physical": physical_contradiction(contradiction),
+            "probes": reformulation_probes(contradiction),
+        }
+        if contradiction.get("matched") == "fallback":
+            candidate["near_resolutions"] = near_resolutions(topic)
+        if candidate["physical"]:
+            candidate["separation"] = separation_strategies(contradiction)
+        candidates.append(candidate)
+    return {"topic": topic, "domain": domain, "candidates": candidates}
+
+
+def main(argv: list[str] | None = None) -> int:
+    """``python -m tome.channels.triz analyze --topic T [--domain D]``."""
+    parser = argparse.ArgumentParser(prog="python -m tome.channels.triz")
+    sub = parser.add_subparsers(dest="command", required=True)
+    run = sub.add_parser("analyze", help="contradictions with every TRIZ step")
+    run.add_argument("--topic", required=True)
+    run.add_argument("--domain", default="general")
+    args = parser.parse_args(argv)
+    print(json.dumps(analyze(args.topic, args.domain), indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
