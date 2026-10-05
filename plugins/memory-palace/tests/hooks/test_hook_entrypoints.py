@@ -24,6 +24,8 @@ def test_hook_entrypoints_are_executable() -> None:
         for rule in hook_event_rules:
             for hook in rule.get("hooks") or []:
                 cmd = hook.get("command")
+                if isinstance(cmd, str):
+                    cmd = cmd.replace('"', "")  # the plugin root is quoted
                 if isinstance(cmd, str) and cmd.startswith(
                     "${CLAUDE_PLUGIN_ROOT}/hooks/"
                 ):

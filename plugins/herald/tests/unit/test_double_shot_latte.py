@@ -631,7 +631,7 @@ class TestHookRegistrationPortable:
         cmd = hooks_json["hooks"]["Stop"][0]["hooks"][0]["command"]
         assert not cmd.startswith("python3 ")
         assert not cmd.startswith("python ")
-        assert cmd.endswith("double_shot_latte.py")
+        assert cmd.replace('"', "").endswith("double_shot_latte.py")
 
     @pytest.mark.unit
     def test_script_has_python_shebang(self):

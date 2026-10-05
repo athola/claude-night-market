@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/graph_community_refresh.py",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/graph_community_refresh.py\"",
             "timeout": 10,
             "if": "Bash(*graph_build*)"
           }

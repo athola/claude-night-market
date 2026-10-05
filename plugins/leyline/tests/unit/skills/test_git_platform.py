@@ -30,7 +30,7 @@ def declared_timeout(script_name: str) -> float:
     for groups in manifest["hooks"].values():
         for group in groups:
             for entry in group.get("hooks", []):
-                if entry.get("command", "").endswith(script_name):
+                if entry.get("command", "").strip('"').endswith(script_name):
                     return float(entry["timeout"])
     raise AssertionError(f"{script_name} is not registered in {HOOKS_MANIFEST}")
 

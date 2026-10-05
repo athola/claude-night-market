@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"",
             "timeout": 5
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/tdd_bdd_gate.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/tdd_bdd_gate.py\"",
             "timeout": 2
           }
         ]
@@ -27,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_ai_attribution.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_ai_attribution.py\"",
             "timeout": 2,
             "if": "Bash(git commit*)"
           }
@@ -38,7 +38,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_emoji_commits.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_emoji_commits.py\"",
             "timeout": 2,
             "if": "Bash(git commit*)"
           }
@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
             "if": "Bash(*pip*)"
           }
@@ -60,7 +60,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
             "if": "Bash(uv add*)"
           }
@@ -71,7 +71,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
             "if": "Bash(poetry add*)"
           }
@@ -82,7 +82,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
             "if": "Bash(pdm add*)"
           }
@@ -93,7 +93,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
             "if": "Bash(*npm *)"
           }
@@ -104,7 +104,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
             "if": "Bash(yarn add*)"
           }
@@ -115,7 +115,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
             "if": "Bash(cargo add*)"
           }
@@ -126,7 +126,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard_scope_ramp.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_scope_ramp.py\"",
             "timeout": 3
           }
         ]
@@ -136,7 +136,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_bounded_reads.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/vow_bounded_reads.py\"",
             "timeout": 5
           }
         ]
@@ -146,7 +146,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_bounded_reads_reset.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/vow_bounded_reads_reset.py\"",
             "timeout": 3
           }
         ]
@@ -156,7 +156,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_edit_narration.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/vow_no_edit_narration.py\"",
             "timeout": 3
           }
         ]
@@ -167,7 +167,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/user-prompt-submit.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/user-prompt-submit.sh\"",
             "timeout": 30
           }
         ]

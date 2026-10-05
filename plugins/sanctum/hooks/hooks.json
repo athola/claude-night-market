@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/deferred_item_watcher.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/deferred_item_watcher.py\"",
             "timeout": 2
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/task_created_tracker.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/task_created_tracker.py\"",
             "timeout": 1
           }
         ]
@@ -28,12 +28,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/security_pattern_check.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/security_pattern_check.py\"",
             "timeout": 2
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/config_change_audit.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/config_change_audit.py\"",
             "timeout": 2
           }
         ]
@@ -44,12 +44,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/post_implementation_policy.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/post_implementation_policy.py\"",
             "timeout": 1
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/brainstorm_session_warn.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/brainstorm_session_warn.py\"",
             "timeout": 1
           }
         ]
@@ -60,7 +60,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session_complete_notify.py --clear-state",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/session_complete_notify.py\" --clear-state",
             "timeout": 5
           }
         ]
@@ -71,17 +71,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/verify_workflow_complete.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/verify_workflow_complete.py\"",
             "timeout": 1
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session_complete_notify.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/session_complete_notify.py\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/deferred_item_sweep.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/deferred_item_sweep.py\"",
             "timeout": 5
           }
         ]
@@ -92,7 +92,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/config_change_audit.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/config_change_audit.py\"",
             "timeout": 2
           }
         ]
