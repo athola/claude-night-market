@@ -20,14 +20,6 @@ tools:
   - TodoRead
   - TodoWrite
 
-hooks:
-  # Inline agent hooks for audit logging (lightweight, agent-specific)
-  # Note: For heavier initialization, use the plugin-level Setup hook via `claude --init`
-  SessionStart:
-    - command: |
-        echo "[continuation-agent] Started at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/continuation-audit.log
-  # NOTE: No Stop hook - continuation agents must NOT be interrupted by stop hooks
-  # The agent controls its own termination via the completion loop
 model: opus
 effort: high
 ---

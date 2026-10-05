@@ -3,7 +3,7 @@ name: context-optimizer
 description: 'Autonomous agent for context window optimization and MECW compliance.
   Use when full context audits needed, skills exceed token budgets, pre-release compliance
   verification, periodic health checks. Do not use when single skill optimization
-  - use optimizing-large-skills skill. quick token counts - use skills-eval instead.
+  - use abstract:modular-skills. quick token counts - use skills-eval instead.
   PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent): - Single skill token count? Parent runs `wc -w skill.md` or estimates - Quick size check? Parent reads file header - One-off query? Parent uses Read tool directly ONLY invoke this agent for: full plugin audits, growth trend analysis, optimization recommendations, or pre-release compliance verification.'
 tools:
 - Read
@@ -12,29 +12,7 @@ tools:
 - Bash
 - Write
 memory: project
-skills: conserve:context-optimization, conserve:optimizing-large-skills
-hooks:
-  PreToolUse:
-  - matcher: Read
-    command: '# Track files being analyzed for context optimization
-
-      echo "[context-optimizer] Analyzing: $CLAUDE_TOOL_INPUT" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/context-audit.log
-
-      '
-    once: false
-  PostToolUse:
-  - matcher: Write
-    command: '# Log optimization outputs
-
-      echo "[context-optimizer] Optimization written" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/context-audit.log
-
-      '
-  Stop:
-  - command: '# Summary logging at completion
-
-      echo "[context-optimizer] Audit completed at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/context-audit.log
-
-      '
+skills: conserve:context-optimization, abstract:modular-skills
 escalation:
   to: sonnet
   hints:
@@ -67,9 +45,9 @@ Dispatch this agent for:
 ## When NOT To Use
 
 - Single skill optimization
-  - use optimizing-large-skills skill
+  - use abstract:modular-skills
 - Single skill optimization
-  - use optimizing-large-skills skill
+  - use abstract:modular-skills
 
 ## Agent Workflow
 
