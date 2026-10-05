@@ -370,6 +370,10 @@ def format_score(score: float, max_score: float = 100) -> str:
     return f"{score:.1f}/{max_score}"
 
 
+# A "# comment" inside a fenced shell block is code, not a heading.
+_FENCE_RE = re.compile(r"^\s*(?:```|~~~)")
+
+
 def count_sections(content: str, level: int = 1) -> int:
     """Count markdown sections at a specific heading level.
 
@@ -381,8 +385,15 @@ def count_sections(content: str, level: int = 1) -> int:
         Number of sections found.
 
     """
-    pattern = rf"^{'#' * level}\s+"
-    return len(re.findall(pattern, content, re.MULTILINE))
+    heading = re.compile(rf"^{'#' * level}\s+")
+    count = 0
+    in_fence = False
+    for line in content.splitlines():
+        if _FENCE_RE.match(line):
+            in_fence = not in_fence
+        elif not in_fence and heading.match(line):
+            count += 1
+    return count
 
 
 def extract_dependencies(frontmatter: dict) -> list[str]:
