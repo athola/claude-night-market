@@ -220,7 +220,13 @@ class TestLoadConfigurationsNarrowException:
 
 
 class TestBordaScoresCharacterization:
-    """compute_borda_scores output must be identical after O(n²) refactor."""
+    """compute_borda_scores output must be identical after O(n²) refactor.
+
+    The reference reproduces the original algorithm, which credited any
+    label within 200 chars after "1." with first place. Ballots where that
+    mattered now pin the true Borda count (math review finding C6); the
+    reference still governs the cases it got right.
+    """
 
     def _original_borda(
         self, votes: dict[str, str], coa_labels: list[str]
@@ -252,7 +258,9 @@ class TestBordaScoresCharacterization:
             "expert1": "1. Alpha is best\n2. Beta is second\n3. Gamma is third",
             "expert2": "1. Beta is top\n2. Gamma follows\n3. Alpha is last",
         }
-        expected = self._original_borda(votes, labels)
+        # The reference gave Beta and Gamma first place on ballot 1 too:
+        # any label within 200 chars after "1." took 3 points (C6).
+        expected = {"Alpha": 3 + 1, "Beta": 2 + 3, "Gamma": 1 + 2}
         assert compute_borda_scores(votes, labels) == expected
 
     def test_label_absent_from_ballot(self) -> None:
@@ -265,7 +273,7 @@ class TestBordaScoresCharacterization:
         """
         labels = ["Alpha", "Beta", "Zeta"]
         votes = {"expert1": "1. Alpha wins\n2. Beta second\n3. Delta not in list"}
-        expected = self._original_borda(votes, labels)
+        expected = {"Alpha": 3, "Beta": 2, "Zeta": 0}
         assert compute_borda_scores(votes, labels) == expected
 
     def test_rank_marker_far_from_label(self) -> None:
@@ -312,5 +320,5 @@ class TestBordaScoresCharacterization:
                 lines.append(f"{rank_idx + 1}. {label} is rank {rank_idx + 1}")
             votes[f"expert{ballot_idx}"] = "\n".join(lines)
 
-        expected = self._original_borda(votes, labels)
+        expected = {label: 5 * (20 - i) for i, label in enumerate(labels)}
         assert compute_borda_scores(votes, labels) == expected
