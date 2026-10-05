@@ -11,6 +11,40 @@ import networkx as nx  # type: ignore[import-untyped]  # networkx lacks py.typed
 
 from memory_palace.knowledge_graph import KnowledgeGraph
 
+_PAGERANK_ALPHA = 0.85
+_PAGERANK_MAX_ITER = 100
+_PAGERANK_TOL = 1e-6
+
+
+def _weighted_pagerank(dg: nx.DiGraph) -> dict[str, float]:
+    """Weighted PageRank by power iteration, in pure Python.
+
+    ``nx.pagerank`` needs scipy, a ~35 MB dependency that this plugin
+    does not declare. These palaces hold hundreds of nodes, not millions,
+    so the sparse solver buys nothing. The algorithm and defaults follow
+    networkx's reference implementation: out-weights are normalized per
+    node, and a node with no out-edges spreads its rank evenly.
+    """
+    n = dg.number_of_nodes()
+    out_weight = {
+        u: sum(d.get("weight", 1.0) for _, _, d in dg.out_edges(u, data=True))
+        for u in dg
+    }
+    rank = dict.fromkeys(dg, 1.0 / n)
+    for _ in range(_PAGERANK_MAX_ITER):
+        previous = rank
+        dangling = _PAGERANK_ALPHA * sum(previous[u] for u in dg if out_weight[u] == 0)
+        base = (1.0 - _PAGERANK_ALPHA) / n + dangling / n
+        rank = dict.fromkeys(dg, base)
+        for u, v, d in dg.edges(data=True):
+            rank[v] += (
+                _PAGERANK_ALPHA * previous[u] * d.get("weight", 1.0) / out_weight[u]
+            )
+        if sum(abs(rank[u] - previous[u]) for u in dg) < n * _PAGERANK_TOL:
+            return rank
+    msg = f"pagerank did not converge in {_PAGERANK_MAX_ITER} iterations"
+    raise nx.PowerIterationFailedConvergence(_PAGERANK_MAX_ITER, msg)
+
 
 class PalaceGraphAnalyzer:
     """Analyze palace knowledge graphs using NetworkX algorithms."""
@@ -65,8 +99,7 @@ class PalaceGraphAnalyzer:
         dg = self._ensure_graph()
         if len(dg.nodes) == 0:
             return {}
-        result: dict[str, float] = nx.pagerank(dg, weight="weight")
-        return result
+        return _weighted_pagerank(dg)
 
     # ------------------------------------------------------------------
     # Betweenness Centrality
