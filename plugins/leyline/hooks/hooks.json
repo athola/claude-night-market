@@ -24,7 +24,8 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/auto-star-repo.sh\"",
-            "timeout": 5
+            "timeout": 5,
+            "async": true
           }
         ]
       },
