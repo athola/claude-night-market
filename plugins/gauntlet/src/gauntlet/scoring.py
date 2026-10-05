@@ -81,8 +81,12 @@ def _score_open_ended(challenge: Challenge, stripped: str) -> ChallengeResult:
 
     ratio = _word_overlap_ratio(challenge.answer, stripped)
 
+    # The model judges quality, not content: its content features are word
+    # overlap and keyword coverage, so it cannot recognise a paraphrase.
+    # Below the partial bar there is no content for it to judge, and any
+    # lift would come from formatting and length.
     ml_score = score_answer_quality(challenge, stripped)
-    if ml_score is not None:
+    if ml_score is not None and ratio >= _OPEN_ENDED_PARTIAL_THRESHOLD:
         wo_weight, ml_weight = get_blend_weights()
         combined = wo_weight * ratio + ml_weight * ml_score
     else:
