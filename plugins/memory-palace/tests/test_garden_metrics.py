@@ -7,7 +7,9 @@ BDD-style tests organized by behavior:
 """
 
 import json
-from datetime import timezone
+import sys
+import time
+from datetime import datetime, timezone
 
 import pytest
 
@@ -15,6 +17,7 @@ from memory_palace.garden_metrics import (
     compute_garden_metrics,
     compute_metrics,
     iso_to_datetime,
+    main,
 )
 
 YEAR_2025 = 2025
@@ -50,9 +53,27 @@ class TestIsoToDatetime:
 
     def test_handles_naive_timestamps(self) -> None:
         """Handle naive timestamps (no timezone info)."""
-        # Should still parse, converting to local then timezone.utc
+        # Should still parse; the naive stamp is read as UTC
         result = iso_to_datetime("2025-12-01T12:00:00")
         assert result.year == YEAR_2025
+
+    def test_naive_timestamp_is_read_as_utc_whatever_the_host_zone(
+        self, monkeypatch
+    ) -> None:
+        """A naive stamp means UTC, as in decay_model and index_analytics.
+
+        Reading it as host local time made days-since-tend depend on TZ:
+        under America/Los_Angeles one day read as 0.71.
+        """
+        monkeypatch.setenv("TZ", "America/Los_Angeles")
+        time.tzset()
+        try:
+            result = iso_to_datetime("2025-12-01T12:00:00")
+        finally:
+            monkeypatch.undo()
+            time.tzset()
+
+        assert result == datetime(2025, 12, 1, 12, tzinfo=timezone.utc)
 
 
 class TestComputeMetrics:
@@ -290,3 +311,23 @@ class TestRecencyEdgeCases:
 
         metrics = compute_metrics(data, fixed_timestamp)
         assert metrics["avg_days_since_tend"] == AVG_DAYS_HALF
+
+
+class TestNowOverride:
+    """--now pins the clock for reproducible runs."""
+
+    def test_naive_now_is_accepted_and_read_as_utc(
+        self, sample_garden_file, monkeypatch, capsys
+    ) -> None:
+        """A naive --now matches an explicit +00:00 one instead of raising."""
+        outputs = []
+        for stamp in ("2025-12-05T12:00:00", "2025-12-05T12:00:00+00:00"):
+            monkeypatch.setattr(
+                sys,
+                "argv",
+                ["garden_metrics", str(sample_garden_file), "--now", stamp],
+            )
+            main()
+            outputs.append(capsys.readouterr().out)
+
+        assert outputs[0] == outputs[1]
