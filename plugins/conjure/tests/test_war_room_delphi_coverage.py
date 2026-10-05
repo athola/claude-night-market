@@ -272,11 +272,12 @@ class TestDelphiRevisionRound:
 class TestAUnanimousPanelCanActuallyConverge:
     """The scale has to reach the threshold the loop stops on.
 
-    The raw coefficient of variation of Borda counts is bounded by
-    `2*sqrt((n+1)/(12*(n-1)))`: 0.816 at three COAs, 0.707 at five,
-    falling toward 0.577. The default `convergence_threshold` is 0.85,
-    so a unanimous panel could not clear it for any COA count above two
-    and every Delphi run paid for `max_rounds`.
+    compute_borda_scores awards n..1 points, so a unanimous ranking's
+    raw coefficient of variation is `2*sqrt((n-1)/(12*(n+1)))`: 0.408 at
+    three COAs, 0.471 at five, rising toward 0.577. The default
+    `convergence_threshold` is 0.85, so a unanimous panel could not clear
+    it and every Delphi run paid for `max_rounds`. The fixtures below use
+    the n..1 scheme the tally produces (math review finding C3).
     """
 
     DEFAULT_THRESHOLD = 0.85
@@ -290,14 +291,14 @@ class TestAUnanimousPanelCanActuallyConverge:
     @pytest.mark.parametrize("count", [2, 3, 4, 5, 8])
     def test_a_unanimous_panel_scores_one(self, count: int) -> None:
         """Unanimous ranking is 1.0 whatever the number of COAs."""
-        scores = {chr(97 + i): float(count - 1 - i) for i in range(count)}
+        scores = {chr(97 + i): float(count - i) for i in range(count)}
 
         assert self._convergence(scores) == pytest.approx(1.0)
 
     @pytest.mark.parametrize("count", [3, 4, 5, 8])
     def test_a_unanimous_panel_clears_the_default_threshold(self, count: int) -> None:
         """The case that burned every paid round."""
-        scores = {chr(97 + i): float(count - 1 - i) for i in range(count)}
+        scores = {chr(97 + i): float(count - i) for i in range(count)}
 
         assert self._convergence(scores) >= self.DEFAULT_THRESHOLD
 
@@ -307,8 +308,8 @@ class TestAUnanimousPanelCanActuallyConverge:
 
     def test_partial_agreement_lands_between(self) -> None:
         """A narrower spread scores below a unanimous one."""
-        partial = self._convergence({"A": 3.0, "B": 2.0, "C": 1.0})
-        unanimous = self._convergence({"A": 2.0, "B": 1.0, "C": 0.0})
+        partial = self._convergence({"A": 4.0, "B": 3.0, "C": 2.0})
+        unanimous = self._convergence({"A": 3.0, "B": 2.0, "C": 1.0})
 
         assert 0.0 < partial < unanimous
 
