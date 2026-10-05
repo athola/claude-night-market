@@ -439,6 +439,38 @@ class TestSweepBudget:
         remaining = json.loads(ledger.read_text())
         assert remaining[1]["filed"] is False
 
+    def test_deferred_entries_are_counted_as_unfiled_in_the_report(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """Entries left for the next sweep are named in both stderr lines.
+
+        Math review finding C2-20: with no budget and two unfiled entries
+        the sweep printed "0 items remain unfiled" and main() printed
+        nothing, while stats held deferred_to_next_sweep=2.
+        """
+        import deferred_item_sweep as sweep
+
+        ledger = tmp_path / "deferred-items-session.json"
+        ledger.write_text(
+            json.dumps(
+                [
+                    {"title": "Item A", "source": "war-room", "filed": False},
+                    {"title": "Item B", "source": "war-room", "filed": False},
+                ]
+            )
+        )
+        monkeypatch.setattr(sweep, "_SWEEP_BUDGET_SECONDS", 0)
+        monkeypatch.setattr(sweep, "get_ledger_path", lambda: ledger)
+
+        sweep.main()
+
+        err = capsys.readouterr().err
+        assert "2 items remain unfiled" in err
+        assert "2 deferred to next sweep" in err
+
     def test_the_sweep_budget_fits_inside_the_stop_cap(self) -> None:
         """Budget and per-item timeout must both sit under the declared cap."""
         import deferred_item_sweep as sweep
