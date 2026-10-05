@@ -224,7 +224,7 @@ def present_recommendation(recommendation: ArchitectureRecommendation) -> bool:
         print("\n🔄 Alternatives Considered:")
         for alt in recommendation.alternatives[:3]:
             print(
-                f"  - **{alt['paradigm'].replace('-', ' ').title()}**: {alt['reason']}"
+                f"  - **{alt['paradigm'].replace('-', ' ').title()}**: {alt['rationale']}"
             )
 
     print("\n" + "=" * 60)
