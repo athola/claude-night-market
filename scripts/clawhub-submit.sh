@@ -34,10 +34,12 @@ for arg in "$@"; do
 done
 
 if [ -z "$VERSION" ]; then
-  VERSION="v$(python3 -c "
-import json
-print(json.load(open('$REPO_ROOT/plugins/abstract/.claude-plugin/plugin.json'))['version'])
-")"
+  # The path reaches Python through the environment, not the source text,
+  # so a checkout path with an apostrophe cannot break the program.
+  VERSION="v$(REPO_ROOT="$REPO_ROOT" python3 -c '
+import json, os
+print(json.load(open(os.path.join(os.environ["REPO_ROOT"], "plugins/abstract/.claude-plugin/plugin.json")))["version"])
+')"
   echo "Auto-detected version: $VERSION"
 fi
 
@@ -63,7 +65,9 @@ if ! $CLAWHUB whoami &>/dev/null 2>&1; then
   exit 1
 fi
 
-CLAWHUB_USER=$($CLAWHUB whoami 2>/dev/null | grep -oP '(?<=✔ )\S+' || $CLAWHUB whoami 2>/dev/null)
+# sed, not grep -P: macOS grep has no -P.
+CLAWHUB_USER=$($CLAWHUB whoami 2>/dev/null | sed -n 's/^✔ //p')
+CLAWHUB_USER="${CLAWHUB_USER:-$($CLAWHUB whoami 2>/dev/null)}"
 echo "Authenticated as: $CLAWHUB_USER"
 
 # ---------- build artifacts if needed ----------
@@ -75,10 +79,10 @@ if [ ! -d "$REPO_ROOT/$SKILLS_DIR" ] || \
   make clawhub-export
 fi
 
-EXPORTED=$(python3 -c "
-import json
-print(json.load(open('$REPO_ROOT/$SKILLS_DIR/manifest.json'))['total_exported'])
-")
+EXPORTED=$(MANIFEST="$REPO_ROOT/$SKILLS_DIR/manifest.json" python3 -c '
+import json, os
+print(json.load(open(os.environ["MANIFEST"]))["total_exported"])
+')
 echo "Skills to publish: $EXPORTED"
 
 if [ "$EXPORTED" -eq 0 ]; then
