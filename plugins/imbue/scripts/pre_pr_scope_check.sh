@@ -3,16 +3,17 @@
 # Checks branch metrics against scope-guard thresholds before PR creation
 #
 # Usage: ./pre_pr_scope_check.sh [base-branch]
-# Default base branch: main
+# Default base branch: main, else master
 #
 # Exit codes:
-#   0 - Green zone, proceed
+#   0 - Green or yellow zone, proceed
 #   1 - Red zone, requires justification
-#   2 - Yellow zone (warning only, still exits 0)
+#   3 - Base branch not found
 
 set -euo pipefail
 
-BASE_BRANCH="${1:-main}"
+BASE_BRANCH="${1:-}"
+MERGE_BASE=""
 
 # Thresholds (configurable via environment)
 GREEN_LINES="${SCOPE_GUARD_GREEN_LINES:-1000}"
@@ -48,10 +49,28 @@ extract_stat_number() {
     fi
 }
 
+# Metrics are measured from the merge-base: commits that landed on the
+# base after the fork are not this branch's work.
+resolve_base() {
+    local candidates=("$BASE_BRANCH")
+    if [[ -z "$BASE_BRANCH" ]]; then
+        candidates=(main master)
+    fi
+    local candidate
+    for candidate in "${candidates[@]}"; do
+        if MERGE_BASE=$(git merge-base "$candidate" HEAD 2>/dev/null); then
+            BASE_BRANCH="$candidate"
+            return 0
+        fi
+    done
+    echo "pre_pr_scope_check: no merge-base with ${candidates[*]}" >&2
+    exit 3
+}
+
 # Get metrics
 get_lines_changed() {
     local stats
-    stats=$(git diff "$BASE_BRANCH" --stat 2>/dev/null | tail -1)
+    stats=$(git diff "$MERGE_BASE" --stat 2>/dev/null | tail -1)
     if [[ -z "$stats" ]]; then
         echo "0"
         return
@@ -64,16 +83,16 @@ get_lines_changed() {
 }
 
 get_new_files() {
-    git diff "$BASE_BRANCH" --name-only --diff-filter=A 2>/dev/null | wc -l
+    git diff "$MERGE_BASE" --name-only --diff-filter=A 2>/dev/null | wc -l
 }
 
 get_commits() {
-    git rev-list --count "$BASE_BRANCH"..HEAD 2>/dev/null || echo "0"
+    git rev-list --count "$MERGE_BASE"..HEAD 2>/dev/null || echo "0"
 }
 
 get_days_on_branch() {
     local merge_base_date current_date
-    merge_base_date=$(git log -1 --format=%ct "$(git merge-base "$BASE_BRANCH" HEAD 2>/dev/null)" 2>/dev/null || echo "$(date +%s)")
+    merge_base_date=$(git log -1 --format=%ct "$MERGE_BASE" 2>/dev/null || date +%s)
     current_date=$(date +%s)
     echo $(( (current_date - merge_base_date) / 86400 ))
 }
@@ -98,6 +117,7 @@ get_zone() {
 
 # Main
 main() {
+    resolve_base
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "  scope-guard: Pre-PR Threshold Check"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
