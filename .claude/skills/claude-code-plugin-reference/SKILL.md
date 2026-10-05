@@ -70,7 +70,7 @@ plugins/imbue/
 | `agents` | Array of `"./agents/<file>.md"` paths, each a dispatchable subagent | Same sync rule |
 | `hooks` | Paths to ADDITIONAL hook files only. `./hooks/hooks.json` is auto-loaded and must never appear here | Every plugin in this repo keeps `"hooks": []` (verified across all 23 manifests). See the hooks section for why |
 | `keywords` | Marketplace search and discovery terms | Free-form |
-| `dependencies` / `optional_dependencies` | Names of other night-market plugins | Informational plus runtime detection only. ADR-0001 forbids import coupling: plugins detect each other via the filesystem and degrade gracefully |
+| `dependencies` / `metadata.optional_dependencies` | Names of other night-market plugins | Informational plus runtime detection only. ADR-0001 forbids import coupling: plugins detect each other via the filesystem and degrade gracefully. A top-level `optional_dependencies` is not a manifest field and is stripped at load |
 | `author`, `license` | Attribution | MIT throughout |
 
 ### metadata.json

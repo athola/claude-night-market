@@ -61,7 +61,9 @@
   "dependencies": [
     "leyline"
   ],
-  "optional_dependencies": [
-    "tome"
-  ]
+  "metadata": {
+    "optional_dependencies": [
+      "tome"
+    ]
+  }
 }
