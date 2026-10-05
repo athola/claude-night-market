@@ -320,24 +320,6 @@ stale cross-link. It is a command that does nothing when invoked.
 
 ## Configuration Files
 
-### Quality Gates (`.claude/quality_gates.json`)
-
-This file defines thresholds across four dimensions:
-
-- **Performance**: Files must be under 20KB and 5000 tokens,
-  with a complexity score below 12.
-- **Security**: We block hardcoded secrets and insecure functions.
-- **Maintainability**: Technical debt ratio must be below 0.3,
-  with nesting depth no more than 5.
-- **Compliance**: Plugins must follow the required structure
-  and include proper metadata.
-
-### Context Governance (`.claude/context_governance.json`)
-
-Enforces context optimization patterns,
-requiring progressive disclosure (overview, basic, advanced,
-reference) and modular structure.
-
 ### Pre-Commit Configuration
 
 The `.pre-commit-config.yaml` file defines our hooks,

@@ -135,14 +135,6 @@ Which failures stop a merge and which are signals:
 | supply_chain_scan.py | manual / `make supply-chain-scan` (not wired to CI) | Advisory day-to-day, treat as blocking before any release |
 | context_optimizer, skrills analyze, clawhub stats, framework_detect | manual | Advisory: measurement only |
 
-The dimension-level policy lives in `.claude/quality_gates.json`:
-`enforce_blocking` is true with `max_critical_issues: 3`, and only
-the `security` dimension sets `block_on_violation: true`. The
-`performance` (20KB / 5,000-token file limits, 60-line functions,
-complexity under 12), `maintainability` (debt ratio under 0.3,
-nesting under 5), and `compliance` dimensions are advisory
-(`block_on_violation: false`). So: security findings block,
-size/complexity findings warn.
 
 ## When NOT to use
 
@@ -166,8 +158,7 @@ size/complexity findings warn.
       contract: baseline freezes existing debt, new violations
       fail, shrinking the baseline locks in wins.
 - [ ] The blocking/advisory table matches `.pre-commit-config.yaml`
-      entries and the `block_on_violation` flags in
-      `.claude/quality_gates.json`.
+      entries.
 - [ ] Mutation exit-code semantics (0 clean, 2 survivors tolerated,
       anything else is a crash) match
       `.github/workflows/mutation-testing.yml`.
@@ -197,6 +188,4 @@ rg -n "check_skill_graph_drift|check_noqa|validate_budget|check_pinned_versions"
 # Mutation exit-code contract
 rg -n "exit_code" .github/workflows/mutation-testing.yml
 
-# Gate dimension block flags
-python3 -c "import json;print(json.load(open('.claude/quality_gates.json')))"
 ```

@@ -24,8 +24,6 @@ Terms used once, defined once:
 
 | Surface | File | Key options and defaults | Status | Guarded by |
 |---------|------|--------------------------|--------|------------|
-| Quality gate thresholds | `.claude/quality_gates.json` | `enforce_blocking` true, `max_critical_issues` 3, `max_warnings_per_dimension` 5; per-dimension keys below | Production policy | Documented in `docs/quality-gates.md`; consumed as policy prose by sanctum PR workflows (see caveat below) |
-| Context governance | `.claude/context_governance.json` | `enforce_strict_limits` false, `require_progressive_disclosure` true, `require_modular_structure` true, `require_optimization_level` "standard", `block_on_critical_violations` false, `max_violations_per_file` 5 | Production, advisory | `docs/quality-gates.md` |
 | Repo Claude settings | `.claude/settings.json` | Contains only a `description` key. NO hooks registered at repo level; all active hooks ship from plugins | Production invariant | Convention; see night-market-architecture-contract |
 | Behavioral rules | `.claude/rules/*.md` (8 files) | bounded-discovery, markdown-formatting, plan-before-large-dispatch, prefer-invariants-over-fallbacks, prefer-rg-over-grep, shared-utility-consumer-rule, skill-exit-criteria, slop-scan-for-docs | Production | slop CI, pre-commit, review practice |
 | Python toolchain | root `pyproject.toml` | See "Root pyproject tool tables" below | Production | Pre-commit hooks, `typecheck.yml`, `security.yml` |
@@ -39,28 +37,6 @@ Terms used once, defined once:
 | Egregore runtime config | `.egregore/config.json` (runtime file, created in the target repo, not committed here) | Nested dataclasses in `plugins/egregore/scripts/config.py`: overseer, alerts, pipeline, budget, discussions. `pipeline.completion_integrity = False` | Experimental opt-in flag inside production config | Unit tests in `plugins/egregore/tests/test_config.py` (default, roundtrip, and raw-JSON opt-in paths) |
 | Conjure delegation | `~/.claude/hooks/delegation/config.json` (runtime file, per machine, not committed here) | Top-level `enabled` defaults to on when absent; only an explicit `false` opts out. `services` overrides per-provider `ServiceConfig` fields | Production, default-on | `plugins/conjure/tests/scripts/test_delegation_executor.py::TestDelegationIsOnUnlessRefused` |
 | Herald Stop-hook judge | `plugins/herald/hooks/hooks.json` + env vars | Stop hook `double_shot_latte.py` registered with `timeout: 10`; internal `LLM_TIMEOUT_SECONDS = 8` | Hook production, LLM path experimental | Guard test asserts LLM timeout stays under the registered hook budget |
-
-Caveat on the two `.claude/*.json` policy files: no Python
-script in the repo reads them directly. They are policy inputs
-referenced by `docs/quality-gates.md` and by sanctum command
-prose (prepare-pr, pr-review configuration). Treat them as
-contract documents for review workflows, not as runtime config
-a daemon loads. Direct programmatic consumers: none found at
-compile time (candidate: wire one before tightening values).
-
-## Quality gate dimensions (.claude/quality_gates.json)
-
-Per-dimension keys and defaults:
-
-| Dimension | Keys | Blocks? |
-|-----------|------|---------|
-| performance | `max_file_size_kb` 20, `max_tokens_per_file` 5000, `max_function_lines` 60, `max_complexity_score` 12 | No (`block_on_violation` false) |
-| security | `block_hardcoded_secrets` true, `block_insecure_functions` true, `require_input_validation` true | Yes (`block_on_violation` true) |
-| maintainability | `max_technical_debt_ratio` 0.3, `max_nesting_depth` 5 | No |
-| compliance | `require_plugin_structure` true, `require_proper_metadata` true | No |
-
-Security is the only blocking dimension. Everything else is
-advisory, capped globally by `max_critical_issues: 3`.
 
 ## Root pyproject tool tables
 
@@ -224,10 +200,6 @@ re-verify before quoting.
 Re-verification one-liners per axis:
 
 ```bash
-# Quality gates and context governance
-jq . .claude/quality_gates.json
-jq . .claude/context_governance.json
-
 # Repo settings must stay hook-free
 jq 'keys' .claude/settings.json   # expect ["description"]
 
