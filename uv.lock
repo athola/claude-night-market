@@ -961,7 +961,6 @@ dev = [
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-cov" },
-    { name = "pytest-mock" },
     { name = "pyyaml" },
     { name = "ruff" },
 ]
@@ -974,7 +973,6 @@ requires-dist = [
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.18.2,<2" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=7.1.0" },
-    { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.15.1" },
     { name = "pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.3" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.16.8" },
     { name = "tiktoken", marker = "extra == 'tokens'", specifier = ">=0.14.0" },
