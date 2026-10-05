@@ -496,6 +496,35 @@ class TestAnalyzeChangesPipeline:
         assert result["total_affected"] >= 1
 
     @pytest.mark.unit
+    def test_configured_risk_weights_reach_the_scores(self, store: GraphStore) -> None:
+        """
+        Scenario: a user overrides risk weights in .gauntlet/config.json
+        Given an untested function, scored once with defaults and once with
+          test_gap raised to 0.9
+        Then the configured weight changes its score
+
+        load_weights promised per-key overrides, but analyze_changes never
+        called it, so every run scored with the defaults.
+        """
+        store.upsert_node(
+            GraphNode(
+                kind=NodeKind.FUNCTION,
+                qualified_name="app.py::process",
+                file_path="app.py",
+                line_start=10,
+                line_end=20,
+            )
+        )
+        diff = self._diff("app.py", 10, 5)
+        with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
+            mock_run.return_value = type("R", (), {"returncode": 0, "stdout": diff})()
+            default = analyze_changes(store)["risk_scores"]["app.py::process"]
+            heavy = analyze_changes(
+                store, weights={**load_weights(None), "test_gap": 0.9}
+            )
+        assert heavy["risk_scores"]["app.py::process"] > default
+
+    @pytest.mark.unit
     def test_a_tested_function_is_left_out_of_the_untested_list(
         self, store: GraphStore
     ) -> None:

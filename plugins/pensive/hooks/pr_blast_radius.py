@@ -53,7 +53,9 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         import gauntlet.graph as _gg
 
         with _gg.GraphStore(str(db_path)) as graph:
-            report = _br.analyze_changes(graph, base_ref="HEAD")
+            report = _br.analyze_changes(
+                graph, base_ref="HEAD", weights=_br.load_weights(db_path.parent)
+            )
     except (ImportError, ModuleNotFoundError):
         return None
     except (OSError, ValueError) as exc:

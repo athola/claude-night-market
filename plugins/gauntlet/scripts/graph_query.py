@@ -14,6 +14,7 @@ sys.path.insert(0, str(_SRC_DIR))
 
 from gauntlet.blast_radius import (  # noqa: E402 - sys.path modified above
     analyze_changes,
+    load_weights,
 )
 from gauntlet.communities import (  # noqa: E402 - sys.path modified above
     get_architecture_overview,
@@ -61,14 +62,21 @@ def main() -> None:
     graph = GraphStore(db_path)
 
     try:
-        result = _dispatch(args, graph)
+        result = _dispatch(args, graph, weights=load_weights(db_path.parent))
         print(json.dumps(result, indent=2, default=str))
     finally:
         graph.close()
 
 
-def _dispatch(args: argparse.Namespace, graph: GraphStore) -> dict:
-    """Route to the appropriate query handler."""
+def _dispatch(
+    args: argparse.Namespace,
+    graph: GraphStore,
+    weights: dict[str, float] | None = None,
+) -> dict:
+    """Route to the appropriate query handler.
+
+    ``weights`` are the risk weights from the graph's ``.gauntlet`` config.
+    """
     if args.action == "search":
         if not args.query:
             return {"error": "--query required for search action"}
@@ -76,7 +84,7 @@ def _dispatch(args: argparse.Namespace, graph: GraphStore) -> dict:
         return {"results": results, "count": len(results)}
 
     if args.action == "impact":
-        return analyze_changes(graph, base_ref=args.base_ref)
+        return analyze_changes(graph, base_ref=args.base_ref, weights=weights)
 
     if args.action == "flows":
         flows = trace_flows(graph, max_depth=args.depth)
