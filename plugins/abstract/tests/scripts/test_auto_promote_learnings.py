@@ -973,3 +973,27 @@ class TestPromotionGate:
             tmp_path / "promoted_issues.json"
         )
         assert record.promoted["leyline:gone:high_failure_rate"] == "stale-skipped"
+
+
+def test_a_score_of_exactly_the_threshold_goes_to_discussion(
+    promote_module, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A score of exactly 5.0 is posted to Discussions, not an issue.
+
+    The module documents "Score > 5.0 -> issue, <= 5.0 -> Discussions" and
+    the issue body says the score "exceeded" 5.0; the gate used >=, so a
+    5.0 item opened an issue claiming it exceeded 5.0 (finding B14).
+    """
+    (tmp_path / "LEARNINGS.md").write_text("x")
+    item = {"skill": "p:s", "type": "t", "metric": "m", "detail": "d"}
+    monkeypatch.setattr(promote_module, "parse_improvement_items", lambda _c: [item])
+    monkeypatch.setattr(promote_module, "detect_target_repo", lambda: ("o", "n"))
+    monkeypatch.setattr(promote_module, "calculate_priority", lambda _i: 5.0)
+    monkeypatch.setattr(promote_module, "has_existing_issue", lambda *_a: False)
+    issue = MagicMock(return_value="https://example.invalid/issues/1")
+    discussion = MagicMock(return_value="https://example.invalid/discussions/1")
+    monkeypatch.setattr(promote_module, "promote_to_issue", issue)
+    monkeypatch.setattr(promote_module, "post_to_discussion", discussion)
+    promote_module.run_auto_promote()
+    issue.assert_not_called()
+    discussion.assert_called_once()
