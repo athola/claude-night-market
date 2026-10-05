@@ -1,0 +1,29 @@
+{
+  "name": "cohesivity",
+  "version": "1.0.0",
+  "description": "On-the-fly backend for AI agents including Postgres, Redis, object storage, vector database, hosting, auth, realtime, inbox, and AI APIs through one API/MCP. No account or API keys required to start. Agentic signup.",
+  "skills": [
+    "./skills/cohesivity"
+  ],
+  "commands": [],
+  "agents": [],
+  "hooks": [],
+  "keywords": [
+    "backend",
+    "infrastructure",
+    "database",
+    "hosting",
+    "auth",
+    "storage",
+    "postgres",
+    "redis",
+    "deploy",
+    "ai-apis"
+  ],
+  "author": {
+    "name": "Cohesivity",
+    "url": "https://cohesivity.ai"
+  },
+  "license": "MIT",
+  "dependencies": []
+}
