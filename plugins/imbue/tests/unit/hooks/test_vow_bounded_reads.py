@@ -1160,9 +1160,9 @@ class TestAtomicIncrement:
         call_count = {"n": 0}
         original = hook_module._atomic_increment
 
-        def tracking(path):
+        def tracking(path, weight=1.0):
             call_count["n"] += 1
-            return original(path)
+            return original(path, weight)
 
         with patch.object(hook_module, "_counter_path", return_value=counter_path):
             with patch.object(hook_module, "_atomic_increment", side_effect=tracking):
@@ -1261,9 +1261,11 @@ class TestAtomicReset:
         )
         assert "count" in parsed, f"counter file missing 'count' key: {parsed!r}"
         count_value = parsed["count"]
-        assert isinstance(count_value, int), (
-            f"'count' is {type(count_value).__name__}, not int: {count_value!r}"
-        )
+        # A short Read costs 0.5 (bounded-discovery.md), so the count is a
+        # JSON number; a bool or string would still mean a corrupt write.
+        assert isinstance(count_value, (int, float)) and not isinstance(
+            count_value, bool
+        ), f"'count' is {type(count_value).__name__}, not a number: {count_value!r}"
         assert 0 <= count_value <= n_increments, (
             f"count {count_value} outside [0, {n_increments}] -- "
             "indicates lost write or interleaved update"
@@ -1348,3 +1350,85 @@ class TestWriteWithFd:
             os.close(fd)
         parsed = json.loads(raw)
         assert parsed == {"count": 1}
+
+
+class TestReadsAreWeightedPerTheBoundedDiscoveryRule:
+    """Feature: count reads the way .claude/rules/bounded-discovery.md does.
+
+    The rule: a Read is 1, a content Grep is 1, a files_with_matches Grep
+    and a Glob are free, and a Read limited to under 50 lines is 0.5.
+    Math review finding C2-6: every Read/Grep/Glob added exactly 1, so
+    10 Globs, 10 path Greps and 1 Read cost 21 instead of 1.
+    """
+
+    def _run(self, hook_module, counter_path, tool_name, tool_input):
+        stdin_data = json.dumps(
+            {
+                "tool_name": tool_name,
+                "session_id": "weights",
+                "tool_input": tool_input,
+            }
+        )
+        with patch.object(hook_module, "_counter_path", return_value=counter_path):
+            with patch("sys.stdin", StringIO(stdin_data)):
+                with pytest.raises(SystemExit):
+                    hook_module.main()
+        return json.loads(counter_path.read_text(encoding="utf-8"))["count"]
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("tool_name", "tool_input", "cost"),
+        [
+            ("Glob", {"pattern": "**/*.py"}, 0),
+            ("Grep", {"pattern": "x"}, 0),
+            ("Grep", {"pattern": "x", "output_mode": "files_with_matches"}, 0),
+            ("Grep", {"pattern": "x", "output_mode": "count"}, 0),
+            ("Grep", {"pattern": "x", "output_mode": "content"}, 1),
+            ("Read", {"file_path": "/f.py"}, 1),
+            ("Read", {"file_path": "/f.py", "offset": 100}, 1),
+            ("Read", {"file_path": "/f.py", "offset": 10, "limit": 40}, 0.5),
+            ("Read", {"file_path": "/f.py", "limit": 50}, 1),
+        ],
+        ids=[
+            "glob-free",
+            "grep-default-paths-free",
+            "grep-paths-free",
+            "grep-count-free",
+            "grep-content-one",
+            "read-one",
+            "read-offset-only-one",
+            "read-short-limit-half",
+            "read-50-lines-one",
+        ],
+    )
+    def test_each_call_costs_what_the_rule_says(
+        self, hook_module, tmp_path, tool_name, tool_input, cost
+    ):
+        """A call adds its rule weight to a counter seeded at 3."""
+        counter_path = tmp_path / "vow_read_counter_weights.json"
+        _seed_counter(counter_path, 3)
+
+        assert self._run(hook_module, counter_path, tool_name, tool_input) == 3 + cost
+
+    @pytest.mark.unit
+    def test_free_discovery_never_crosses_the_budget(
+        self, hook_module, capsys, tmp_path
+    ):
+        """At the budget, a Glob passes silently instead of warning."""
+        counter_path = tmp_path / "vow_read_counter_weights.json"
+        _seed_counter(counter_path, 15)
+
+        self._run(hook_module, counter_path, "Glob", {"pattern": "*"})
+
+        assert capsys.readouterr().out.strip() == ""
+
+    @pytest.mark.unit
+    def test_half_read_past_the_budget_warns(self, hook_module, capsys, tmp_path):
+        """15 reads plus one short Read is 15.5, which is over 15."""
+        counter_path = tmp_path / "vow_read_counter_weights.json"
+        _seed_counter(counter_path, 15)
+
+        self._run(hook_module, counter_path, "Read", {"file_path": "/f", "limit": 20})
+
+        ctx = json.loads(capsys.readouterr().out)["hookSpecificOutput"]
+        assert "15.5 reads" in ctx["additionalContext"]
