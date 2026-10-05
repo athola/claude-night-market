@@ -128,9 +128,9 @@ def test_full_dual_hook_with_metrics(isolate_claude_home: Path) -> None:
     skill_ref = "abstract:skill-auditor"
     log_dir = isolate_claude_home / "skills" / "logs" / "abstract" / "skill-auditor"
 
-    # Run 5 iterations to build up history
-    for i in range(5):
-        print(f"\n--- Iteration {i + 1}/5 ---")
+    # Seven runs: more than one five-run window, so the gap is measurable.
+    for i in range(7):
+        print(f"\n--- Iteration {i + 1}/7 ---")
 
         pre_output = run_pre_hook(skill_ref)
         assert pre_output, f"PreToolUse hook failed on iteration {i + 1}"

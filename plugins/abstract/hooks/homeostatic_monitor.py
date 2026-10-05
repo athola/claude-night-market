@@ -11,6 +11,7 @@ Part of the self-adapting system. See: docs/adr/0006-self-adapting-skill-health.
 from __future__ import annotations
 
 # pyright: reportPossiblyUnboundVariable=false
+import importlib
 import json
 import os
 import sys
@@ -229,13 +230,9 @@ def read_history(claude_home: Path) -> dict:
 
 
 def calculate_stability_gap(history_entry: dict) -> float:
-    """Calculate stability gap from accuracy history."""
-    accuracies = history_entry.get("accuracies", [])
-    if not accuracies:
-        return 0.0
-    worst_case = min(accuracies)
-    avg_accuracy = sum(accuracies) / len(accuracies)
-    return float(avg_accuracy - worst_case)
+    """Windowed stability gap of a skill's pass/fail history (shared.stability)."""
+    stability = importlib.import_module("shared.stability")
+    return float(stability.stability_gap(history_entry.get("accuracies", [])))
 
 
 def main() -> None:

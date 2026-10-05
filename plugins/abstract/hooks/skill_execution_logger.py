@@ -29,6 +29,8 @@ from uuid import uuid4
 from shared.dir_utils import get_log_directory, get_observability_dir
 from shared.hook_io import read_hook_payload, tool_response_text
 from shared.skill_utils import parse_skill_name
+from shared.stability import stability_gap as windowed_stability_gap
+from shared.stability import worst_window_rate
 
 # Threshold for triggering stability gap warnings
 # Based on Avalanche paper: gap > 0.3 indicates significant instability
@@ -139,10 +141,11 @@ class ContinualEvaluator:
         accuracies = history["accuracies"]
         durations = history["durations"]
 
-        # Avalanche continual metrics (ICLR 2023)
-        worst_case = min(accuracies)
+        # Avalanche continual metrics (ICLR 2023), over windows of runs:
+        # each run is 1 or 0, so the worst single run says nothing.
+        worst_case = worst_window_rate(accuracies)
         avg_accuracy = sum(accuracies) / len(accuracies)
-        stability_gap = avg_accuracy - worst_case  # Key innovation!
+        stability_gap = windowed_stability_gap(accuracies)
 
         # Additional metrics
         avg_duration = sum(durations) / len(durations) if durations else 0.0

@@ -66,7 +66,7 @@ def test_threads_session_id_into_improvement_queue(tmp_path):
     fails this (the env var is popped below).
     """
     skill_ref = "superpowers:writing-plans"
-    _seed_history(tmp_path, skill_ref, [1.0, 1.0, 0.2, 0.1])  # large gap -> degrading
+    _seed_history(tmp_path, skill_ref, [1] * 20 + [0] * 5)  # recent failures: degrading
     payload = {
         "tool_name": "Skill",
         "tool_input": {"skill": skill_ref},
