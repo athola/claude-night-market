@@ -139,14 +139,13 @@ class AuditCLI(AbstractCLI):
         """Format audit results as text."""
         lines = ["Skills Audit Report", "=" * 50]
 
-        if "skills" in data:
-            for skill in data["skills"]:
-                lines.append(f"\n{skill.get('name', 'Unknown')}:")
-                lines.append(f"  Score: {skill.get('score', 0):.1f}")
-                if skill.get("issues"):
-                    lines.append("  Issues:")
-                    for issue in skill["issues"]:
-                        lines.append(f"    - {issue}")
+        for skill in data.get("skill_metrics", []):
+            lines.append(f"\n{skill.name}:")
+            lines.append(f"  Score: {skill.score:.1f}")
+            if skill.issues:
+                lines.append("  Issues:")
+                for issue in skill.issues:
+                    lines.append(f"    - {issue}")
 
         lines.append(f"\nTotal skills: {data.get('total_skills', 0)}")
         lines.append(f"Average score: {data.get('average_score', 0):.1f}")
@@ -252,20 +251,24 @@ class TokenCLI(AbstractCLI):
     def execute(self, args: argparse.Namespace) -> CLIResult:
         """Execute token usage tracking."""
         tracker = TokenUsageTracker(args.path)
-        return _run(self, tracker.analyze_all_skills)
+        return _run(
+            self,
+            lambda: {**tracker.analyze_all_skills(), "threshold": args.threshold},
+        )
 
     def format_text(self, data: dict) -> str:
         """Format token analysis as text."""
         lines = ["Token Usage Analysis", "=" * 50]
 
-        if "files" in data:
-            for file_info in data["files"]:
-                status = "OK" if file_info.get("under_threshold") else "OVER"
-                lines.append(f"\n{file_info.get('path', 'Unknown')}:")
-                lines.append(f"  Tokens: {file_info.get('token_count', 0)} [{status}]")
+        threshold = data["threshold"]
+        for skill in data["skills"]:
+            tokens = skill["total_tokens"]
+            status = "OK" if tokens <= threshold else "OVER"
+            lines.append(f"\n{skill['name']}:")
+            lines.append(f"  Tokens: {tokens} [{status}]")
 
-        lines.append(f"\nTotal tokens: {data.get('total_tokens', 0)}")
-        lines.append(f"Files analyzed: {data.get('file_count', 0)}")
+        lines.append(f"\nTotal tokens: {data['summary']['total_tokens']}")
+        lines.append(f"Files analyzed: {data['total_skills']}")
 
         return "\n".join(lines)
 

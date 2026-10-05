@@ -20,10 +20,16 @@ from abstract.cli import (
     main,
 )
 from abstract.cli_framework import CLIResult
+from abstract.skills_eval.auditor import SkillMetrics
 
 # ---------------------------------------------------------------------------
 # create_main_parser
 # ---------------------------------------------------------------------------
+
+
+def _metrics(name: str, score: float, issues: list[str]) -> SkillMetrics:
+    """SkillMetrics as SkillsAuditor.audit_skills returns it."""
+    return SkillMetrics(name, f"{name}/SKILL.md", score, issues, [], 0, 0, 0, 0)
 
 
 class TestCreateMainParser:
@@ -183,7 +189,8 @@ class TestMainSubcommandDispatch:
     def test_audit_dispatches_to_audit_cli(self, tmp_path, capsys):
         """Given 'audit' subcommand, AuditCLI.execute() is called."""
         mock_result = CLIResult(
-            success=True, data={"skills": [], "total_skills": 0, "average_score": 0}
+            success=True,
+            data={"skill_metrics": [], "total_skills": 0, "average_score": 0},
         )
         with patch.object(AuditCLI, "execute", return_value=mock_result) as mock_exec:
             exit_code = main(["audit", str(tmp_path)])
@@ -207,7 +214,13 @@ class TestMainSubcommandDispatch:
     def test_tokens_dispatches_to_token_cli(self, tmp_path, capsys):
         """Given 'tokens' subcommand, TokenCLI.execute() is called."""
         mock_result = CLIResult(
-            success=True, data={"files": [], "total_tokens": 0, "file_count": 0}
+            success=True,
+            data={
+                "skills": [],
+                "total_skills": 0,
+                "summary": {"total_tokens": 0},
+                "threshold": 4000,
+            },
         )
         with patch.object(TokenCLI, "execute", return_value=mock_result) as mock_exec:
             exit_code = main(["tokens", str(tmp_path)])
@@ -338,7 +351,7 @@ class TestAuditCLI:
         cli = AuditCLI()
         output = cli.format_text(
             {
-                "skills": [{"name": "my-skill", "score": 85.0, "issues": []}],
+                "skill_metrics": [_metrics("my-skill", 85.0, [])],
                 "total_skills": 1,
                 "average_score": 85.0,
             }
@@ -352,9 +365,7 @@ class TestAuditCLI:
         cli = AuditCLI()
         output = cli.format_text(
             {
-                "skills": [
-                    {"name": "bad-skill", "score": 40.0, "issues": ["missing overview"]}
-                ],
+                "skill_metrics": [_metrics("bad-skill", 40.0, ["missing overview"])],
                 "total_skills": 1,
                 "average_score": 40.0,
             }
@@ -367,7 +378,7 @@ class TestAuditCLI:
         cli = AuditCLI()
         mock_auditor = MagicMock()
         mock_auditor.audit_skills.return_value = {
-            "skills": [],
+            "skill_metrics": [],
             "total_skills": 0,
             "average_score": 0.0,
         }
@@ -493,18 +504,13 @@ class TestTokenCLI:
         cli = TokenCLI()
         output = cli.format_text(
             {
-                "files": [
-                    {
-                        "path": "/tmp/SKILL.md",
-                        "token_count": 500,
-                        "under_threshold": True,
-                    }
-                ],
-                "total_tokens": 500,
-                "file_count": 1,
+                "skills": [{"name": "group/small", "total_tokens": 500}],
+                "total_skills": 1,
+                "summary": {"total_tokens": 500},
+                "threshold": 4000,
             }
         )
-        assert "/tmp/SKILL.md" in output
+        assert "group/small" in output
         assert "500" in output
         assert "OK" in output
 
@@ -514,15 +520,10 @@ class TestTokenCLI:
         cli = TokenCLI()
         output = cli.format_text(
             {
-                "files": [
-                    {
-                        "path": "/tmp/BIG.md",
-                        "token_count": 9000,
-                        "under_threshold": False,
-                    }
-                ],
-                "total_tokens": 9000,
-                "file_count": 1,
+                "skills": [{"name": "big", "total_tokens": 9000}],
+                "total_skills": 1,
+                "summary": {"total_tokens": 9000},
+                "threshold": 4000,
             }
         )
         assert "OVER" in output
@@ -533,9 +534,9 @@ class TestTokenCLI:
         cli = TokenCLI()
         mock_tracker = MagicMock()
         mock_tracker.analyze_all_skills.return_value = {
-            "files": [],
-            "total_tokens": 0,
-            "file_count": 0,
+            "skills": [],
+            "total_skills": 0,
+            "summary": {"total_tokens": 0},
         }
         with patch("abstract.cli.TokenUsageTracker", return_value=mock_tracker):
             args = argparse.Namespace(path=tmp_path, output=None, threshold=4000)
