@@ -45,3 +45,24 @@ def test_hook_entrypoints_are_executable() -> None:
         assert os.access(path, os.X_OK), f"Hook entrypoint not executable: {rel}"
         first_line = path.read_text(encoding="utf-8").splitlines()[0]
         assert first_line.startswith("#!"), f"Hook entrypoint missing shebang: {rel}"
+
+
+def test_auto_star_does_not_hold_up_session_start() -> None:
+    """auto-star-repo.sh makes a network call and injects nothing.
+
+    A synchronous SessionStart hook delays the first prompt by its whole
+    run (up to its 5 s timeout here); `async: true` runs it in the
+    background (code.claude.com/docs/en/hooks "Run hooks in the
+    background"), which costs nothing when the hook has no context to add.
+    """
+    manifest = json.loads(
+        (Path(__file__).parents[2] / "hooks" / "hooks.json").read_text()
+    )
+    handlers = [
+        handler
+        for group in manifest["hooks"]["SessionStart"]
+        for handler in group["hooks"]
+        if "auto-star-repo.sh" in handler["command"]
+    ]
+    assert len(handlers) == 1
+    assert handlers[0].get("async") is True
