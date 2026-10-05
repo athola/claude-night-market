@@ -62,6 +62,11 @@ except ImportError:  # pragma: no cover - exercised only on non-POSIX
 _READ_TOOLS = frozenset({"Read", "Grep", "Glob"})
 _BUDGET = 15
 
+# .claude/rules/bounded-discovery.md prices discovery by what it pulls into
+# context: a Glob and a paths-only Grep return paths and are free, a Read
+# of fewer than this many lines is half a read.
+_SHORT_READ_LINES = 50
+
 # Issue #580: a counter not touched within this many seconds is treated as
 # stale and reset to zero on the next increment. Without this, a counter
 # left at count>budget by a prior session (especially the missing-session
@@ -87,7 +92,25 @@ def _counter_path(session_id: str) -> Path:
     )
 
 
-def _read_with_lock(fd: int) -> int:
+def _read_weight(tool_name: str, tool_input: object) -> float:
+    """Return what one call costs against the budget, per bounded-discovery.md.
+
+    Grep defaults to files_with_matches, so only an explicit
+    ``output_mode: "content"`` costs a read. ``offset`` without ``limit``
+    reads to the end of the file and costs a full read.
+    """
+    params = tool_input if isinstance(tool_input, dict) else {}
+    if tool_name == "Glob":
+        return 0.0
+    if tool_name == "Grep":
+        return 1.0 if params.get("output_mode") == "content" else 0.0
+    limit = params.get("limit")
+    if isinstance(limit, int) and limit < _SHORT_READ_LINES:
+        return 0.5
+    return 1.0
+
+
+def _read_with_lock(fd: int) -> float:
     """Read and parse the counter from an open, locked file descriptor.
 
     Returns the current count, or 0 if the file is empty, unparseable,
@@ -99,29 +122,29 @@ def _read_with_lock(fd: int) -> int:
     except OSError:
         raw = b""
     try:
-        current = int(json.loads(raw or b"{}").get("count", 0))
+        current = float(json.loads(raw or b"{}").get("count", 0))
     except (json.JSONDecodeError, ValueError, TypeError, AttributeError):
-        current = 0
+        current = 0.0
     if current:
         try:
             if (time.time() - os.fstat(fd).st_mtime) > _COUNTER_TTL_SECONDS:
-                current = 0
+                current = 0.0
         except OSError:
             pass
     return current
 
 
-def _write_with_fd(fd: int, count: int) -> None:
+def _write_with_fd(fd: int, count: float) -> None:
     """Write *count* as JSON to an open file descriptor, replacing prior content."""
     os.lseek(fd, 0, os.SEEK_SET)
     os.ftruncate(fd, 0)
     os.write(fd, json.dumps({"count": count}).encode("utf-8"))
 
 
-def _atomic_increment(path: Path) -> int:  # noqa: PLR0912 - POSIX flock requires explicit branch per errno value; cannot reduce without losing error granularity
+def _atomic_increment(path: Path, weight: float = 1.0) -> float:  # noqa: PLR0912 - POSIX flock requires explicit branch per errno value; cannot reduce without losing error granularity
     """Atomically read-modify-write the counter at *path*.
 
-    Returns the new (post-increment) count.  Uses an exclusive POSIX
+    Returns the new count, *weight* higher than before.  Uses an exclusive POSIX
     file lock around the RMW so concurrent hook invocations cannot
     lose increments.  On systems without ``fcntl`` (Windows) the lock
     is skipped and the hook degrades to unlocked RMW.
@@ -160,7 +183,7 @@ def _atomic_increment(path: Path) -> int:  # noqa: PLR0912 - POSIX flock require
         # file untouched past the TTL cannot belong to the current
         # discovery phase, so its count must not bleed forward.
         current = _read_with_lock(fd)
-        new_count = current + 1
+        new_count = current + weight
         try:
             _write_with_fd(fd, new_count)
         except OSError as exc:
@@ -241,13 +264,17 @@ def main() -> None:
         if not _is_read_tool(tool_name):
             sys.exit(0)
 
-        new_count = _atomic_increment(counter_file)
+        weight = _read_weight(tool_name, data.get("tool_input"))
+        if not weight:
+            sys.exit(0)
+
+        new_count = _atomic_increment(counter_file, weight)
 
         if new_count > _BUDGET:
             shadow = _shadow_mode()
             decision = "warn" if shadow else "block"
             reason = (
-                f"Bounded discovery vow: {new_count} reads in this discovery phase. "
+                f"Bounded discovery vow: {new_count:g} reads in this discovery phase. "
                 f"Budget is {_BUDGET} for open exploration. "
                 "Consider starting implementation."
                 + (
@@ -281,7 +308,7 @@ def main() -> None:
             print(json.dumps(output))
             print(
                 f"[vow-bounded-reads] {decision.upper()}: "
-                f"{new_count} reads (budget {_BUDGET})",
+                f"{new_count:g} reads (budget {_BUDGET})",
                 file=sys.stderr,
             )
 
