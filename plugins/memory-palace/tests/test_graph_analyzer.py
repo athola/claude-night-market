@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
-import pytest
+import sys
 
+import networkx as nx
+import pytest
+from networkx.algorithms.link_analysis.pagerank_alg import _pagerank_python
+
+from memory_palace import graph_analyzer
 from memory_palace.graph_analyzer import PalaceGraphAnalyzer
 from memory_palace.knowledge_graph import KnowledgeGraph
 
@@ -229,3 +234,36 @@ class TestLinkPrediction:
         existing = {("a", "b"), ("b", "c"), ("c", "d"), ("a", "c"), ("d", "e")}
         for u, v, _ in suggestions:
             assert (u, v) not in existing
+
+
+class TestPagerankWithoutScipy:
+    """networkx's pagerank imports scipy, which memory-palace does not
+    declare. A clean install raised ImportError on every ranking call.
+    """
+
+    def test_pagerank_runs_when_scipy_is_absent(
+        self, analyzer: PalaceGraphAnalyzer, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A None entry in sys.modules makes `import scipy` fail."""
+        monkeypatch.setitem(sys.modules, "scipy", None)
+        ranks = analyzer.pagerank()
+        assert set(ranks) == {"a", "b", "c", "d", "e"}
+
+    def test_pagerank_matches_the_networkx_reference(
+        self, analyzer: PalaceGraphAnalyzer
+    ) -> None:
+        """Same weighted power iteration and dangling-node rule as networkx."""
+        expected = _pagerank_python(analyzer.build_graph(), weight="weight")
+        ranks = analyzer.pagerank()
+        assert ranks.keys() == expected.keys()
+        for node, score in expected.items():
+            assert ranks[node] == pytest.approx(score, abs=1e-6)
+        assert sum(ranks.values()) == pytest.approx(1.0)
+
+    def test_pagerank_raises_when_it_cannot_converge(
+        self, analyzer: PalaceGraphAnalyzer, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Out of iterations is an error, not a half-converged ranking."""
+        monkeypatch.setattr(graph_analyzer, "_PAGERANK_MAX_ITER", 1)
+        with pytest.raises(nx.PowerIterationFailedConvergence):
+            analyzer.pagerank()
