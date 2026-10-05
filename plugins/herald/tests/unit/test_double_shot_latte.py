@@ -562,7 +562,7 @@ class TestDecide:
         When deciding on an explicit next-action turn with stop_hook_active
         Then the cap does NOT fire (out-of-window) and the turn continues
 
-        Invariant: the cap is counted over a sliding window. Dropping the
+        Invariant: the count resets after a window of inactivity. Dropping the
         ``within_window`` check would let an old, abandoned count force a stop
         on a freshly resumed session -- this test forbids that regression.
         """
@@ -586,6 +586,41 @@ class TestDecide:
             now=stale_now,
         )
         assert out["decision"] == "block"
+
+    @pytest.mark.unit
+    def test_cap_fires_for_a_loop_continuing_every_two_minutes(
+        self, tmp_path, monkeypatch
+    ):
+        """
+        Scenario: a runaway loop spaced inside the window
+        Given CONTINUE decisions 120 s apart, each gap under the 300 s window
+        When MAX_CONTINUATIONS of them have been counted
+        Then the next stop_hook_active turn hits the cap and approves the stop
+
+        Invariant: the count resets only after THROTTLE_WINDOW_SECONDS with no
+        CONTINUE. A sliding window would hold at most 3 decisions spaced 120 s
+        apart, never reach the cap, and let this loop spin unbounded.
+        """
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.delenv(dsl.MAX_CONTINUATIONS_ENV, raising=False)
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        transcript = tmp_path / "t.jsonl"
+        transcript.write_text(
+            _assistant_line("Tests pass. Now I'll update the docs."), encoding="utf-8"
+        )
+        event = {
+            "session_id": "s13",
+            "transcript_path": str(transcript),
+            "stop_hook_active": True,
+        }
+
+        decisions = [
+            dsl.decide(event, now=1000.0 + 120.0 * turn)["decision"]
+            for turn in range(dsl.MAX_CONTINUATIONS + 1)
+        ]
+
+        assert decisions[:-1] == ["block"] * dsl.MAX_CONTINUATIONS
+        assert decisions[-1] == "approve"
 
 
 class TestLlmTimeoutBudget:
