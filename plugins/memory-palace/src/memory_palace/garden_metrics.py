@@ -73,8 +73,15 @@ def parse_args() -> argparse.Namespace:
 
 
 def iso_to_datetime(value: str) -> datetime:
-    """Convert an ISO 8601 string to a timezone-aware datetime object."""
-    return datetime.fromisoformat(value).astimezone(timezone.utc)
+    """Convert an ISO 8601 string to a timezone-aware datetime object.
+
+    A naive timestamp is read as UTC, as decay_model and index_analytics
+    read it. ``astimezone`` would read it as host local time.
+    """
+    parsed = datetime.fromisoformat(value)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def compute_metrics(data: dict[str, Any], now: datetime) -> dict[str, Any]:
@@ -163,7 +170,7 @@ def compute_garden_metrics(
 def main() -> int:
     """Parse arguments, compute metrics, and print the output."""
     args = parse_args()
-    now = datetime.fromisoformat(args.now) if args.now else datetime.now(timezone.utc)
+    now = iso_to_datetime(args.now) if args.now else datetime.now(timezone.utc)
 
     metrics = compute_garden_metrics(args.path, now, args.tending_queue)
     if args.format == "brief":
