@@ -3,10 +3,13 @@
 
 Claude Code resolves a subagent's model in this order, first match wins:
 
-1. the ``CLAUDE_CODE_SUBAGENT_MODEL`` environment variable,
-2. the per-invocation ``model`` parameter,
-3. the agent's ``model:`` frontmatter,
+1. the per-invocation ``model`` parameter,
+2. the agent's ``model:`` frontmatter,
+3. the ``CLAUDE_CODE_SUBAGENT_MODEL`` environment variable,
 4. the main conversation's model.
+
+``CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1`` puts the environment variable first
+again. Before CLI 2.1.251 it came first by default.
 
 An Agent call that omits ``subagent_type`` reaches rung 4 and inherits
 the session model. Subagents used to default to Haiku; since v2.1.198

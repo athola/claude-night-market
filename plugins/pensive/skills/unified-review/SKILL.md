@@ -141,8 +141,9 @@ and each finding should face an adversarial check. Prefer the Agent
 tool when the roster has to adapt to what the first lens finds, or when
 no workflow was requested: a workflow never starts unasked.
 
-Its subagents run in `acceptEdits` whatever the session's permission
-mode, so the shipped script scopes its prompts to reading. And it has
+Its subagents take the session's permission mode, so in an accept-edits
+or auto session their edits land unreviewed. The shipped script scopes
+its prompts to reading. And it has
 no filesystem, so what it returns is a claim that survived refutation,
 not proof-of-work evidence. Reproduce before acting on a finding.
 

@@ -7,10 +7,13 @@ its frontmatter. This document records why each one sits where it does.
 
 Claude Code resolves a subagent's model in this order, first match wins:
 
-1. the `CLAUDE_CODE_SUBAGENT_MODEL` environment variable
-2. the per-invocation `model` parameter
-3. the agent's `model:` frontmatter
+1. the per-invocation `model` parameter
+2. the agent's `model:` frontmatter
+3. the `CLAUDE_CODE_SUBAGENT_MODEL` environment variable
 4. the main conversation's model
+
+Before CLI 2.1.251 the environment variable came first.
+`CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` restores that order.
 
 Rung 4 is the trap. The `model` field defaults to `inherit`: an agent
 that omits it runs on whatever the parent session runs on. Explore used
@@ -263,9 +266,11 @@ they are overriding.
 
 Two escape hatches exist outside the matrix:
 
-- `CLAUDE_CODE_SUBAGENT_MODEL=haiku` forces every subagent down for a
+- `CLAUDE_CODE_SUBAGENT_MODEL=haiku` with
+  `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` forces every subagent down for a
   session, overriding all frontmatter. Useful when quota matters more
-  than quality.
+  than quality. Without `_FORCE` the variable only fills in for agents
+  that pin no model.
 - The per-invocation `model` parameter on a single `Agent` call
   overrides that agent's frontmatter for that call only.
 

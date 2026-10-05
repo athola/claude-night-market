@@ -1,8 +1,8 @@
 // The read-only half of /sanctum:fix-workflow: recreate, analyse, plan.
 //
-// It stops before the implementer on purpose. A workflow's subagents run in
-// acceptEdits whatever the session's permission mode, so an implementer stage
-// here would apply edits the operator never saw proposed. Implementation and
+// It stops before the implementer on purpose. A workflow's subagents take the
+// session's permission mode, and in an accept-edits or auto session an
+// implementer stage here would apply edits the operator never saw proposed. Implementation and
 // validation stay in the session, where the diff is visible and where a
 // command can actually be run: this script has no shell, so it could not
 // verify its own work anyway.
