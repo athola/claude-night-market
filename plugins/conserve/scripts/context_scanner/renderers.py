@@ -140,7 +140,7 @@ def classify_topics(  # noqa: PLR0912 - topic classification naturally branches 
             topics["config"].append(mw.file)
 
     # Classify schemas
-    for s in getattr(result, "schemas", []):
+    for s in result.schemas:
         if s.file not in topics["database"]:
             topics["database"].append(s.file)
 
@@ -175,7 +175,7 @@ def _render_wiki_article(
             for r in routes:
                 lines.append(f"  {r.method:<7} {r.path}")
             lines.append("")
-    elif topic == "database" and getattr(result, "schemas", []):
+    elif topic == "database" and result.schemas:
         for s in result.schemas:
             fields = f" ({s.field_count} fields)" if s.field_count else ""
             lines.append(f"  - {s.name}: {s.file}{fields}")
@@ -624,7 +624,7 @@ def render_section(result: ScanResult, section: str) -> str | None:  # noqa: PLR
             lines.append(f"  - {m.name} [{m.kind}] ({m.file})")
 
     elif section == Section.MODELS:
-        schemas = getattr(result, "schemas", [])
+        schemas = result.schemas
         for s in schemas[:_MAX_DISPLAY_SECTION_ITEMS]:
             fields = f" ({s.field_count} fields)" if s.field_count else ""
             lines.append(f"  {s.name:<16} {s.file}{fields}")

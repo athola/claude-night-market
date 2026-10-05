@@ -310,7 +310,7 @@ class SkillAnalyzerCLI(AbstractCLI, PathArgumentMixin):
             for i, result in enumerate(data):
                 analysis = self._analyzer.format_analysis(
                     result,
-                    getattr(self, "_verbose", False),
+                    self._verbose,
                 )
                 lines.append(analysis)
                 if i < len(data) - 1:

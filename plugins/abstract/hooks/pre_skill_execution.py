@@ -14,26 +14,10 @@ import json
 import sys
 import traceback
 from datetime import datetime, timezone
-from typing import Any
 
 from shared.dir_utils import get_observability_dir
 from shared.hook_io import read_hook_payload
-from shared.skill_utils import parse_skill_name as _parse_skill_name
-
-
-def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
-    """Parse plugin and skill name from Skill tool input.
-
-    Delegates to shared.skill_utils for consistent sanitization.
-
-    Args:
-        tool_input: Skill tool input dictionary
-
-    Returns:
-        Tuple of (plugin_name, skill_name)
-
-    """
-    return _parse_skill_name(tool_input)
+from shared.skill_utils import parse_skill_name
 
 
 def main() -> None:

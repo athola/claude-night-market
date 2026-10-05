@@ -299,7 +299,7 @@ class GeminiQuotaTracker(QuotaTracker):  # ty: ignore[unsupported-base]
         for path in self._iter_source_paths(file_paths):
             try:
                 text = Path(path).read_text(encoding="utf-8", errors="replace")
-            except (OSError, UnicodeDecodeError):
+            except OSError:
                 continue
             tokens += len(encoder.encode(text)) + FILE_OVERHEAD_TOKENS
 
