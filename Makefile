@@ -43,7 +43,7 @@ endef
 $(foreach p,$(ALL_PLUGIN_NAMES),$(eval $(call plugin_delegation,$(p))))
 
 .PHONY: help all test lint fix typecheck clean prune-plugin-cache status validate-all plugin-check check-examples docs-sync-check demo verify-deferred-capture supply-chain-scan \
-	test-ecosystem check-json-utils check-discussions writeback-discussions validate-skills analyze-skills shellcheck
+	test-ecosystem test-mods check-json-utils check-discussions writeback-discussions validate-skills analyze-skills shellcheck
 
 # The plugin delegation rules above are generated with $(eval), so the first
 # rule Make sees here is `abstract:`, not `all:`. Without this assignment a
@@ -64,6 +64,7 @@ help: ## Show this help message
 	@echo "  help              Show this help message"
 	@echo "  all               Run lint and test across all plugins"
 	@echo "  test              Run tests in all plugins (ALL code)"
+	@echo "  test-mods         Validate and kit-test every plugin that ships a mod"
 	@echo "  lint              Run linting in all plugins (ALL code)"
 	@echo "  typecheck         Run type checking in all plugins (ALL code)"
 	@echo "  status            Show status of all plugins"
@@ -106,6 +107,38 @@ test-ecosystem: ## Run the root ecosystem suite (tests/): cross-plugin metadata 
 	@echo ""
 	@echo ">>> Running root ecosystem tests (tests/)..."
 	@./scripts/without-git-env.sh uv run --extra dev python -m pytest tests/ --tb=short --quiet
+
+# A mod is a TypeScript module a plugin's hooks/hooks.json names under
+# "modules". pytest and ruff never read it, so `claude plugin validate` and
+# `claude plugin test` are its only gates. Two outcomes skip rather than
+# fail, because neither is a plugin defect: no claude CLI on PATH, and the
+# remote switch that turns installed mods off (`claude plugin test` then
+# exits 1 saying "hooks modules are turned off").
+test-mods: ## Validate and kit-test every plugin whose hooks.json declares "modules"
+	@echo "=== Testing Plugin Mods ==="
+	@mods=""; for hooks in $(sort $(wildcard $(PLUGINS_DIR)/*/hooks/hooks.json)); do \
+		if grep -q '"modules"' "$$hooks"; then mods="$$mods $${hooks%/hooks/hooks.json}"; fi; \
+	done; \
+	echo "Plugins with mods:$$mods"; \
+	if ! command -v claude >/dev/null 2>&1; then \
+		echo "SKIP: claude CLI not on PATH; mods were not validated or tested"; \
+		exit 0; \
+	fi; \
+	fail=0; for plugin in $$mods; do \
+		echo ""; \
+		echo ">>> $$plugin"; \
+		claude plugin validate "$$plugin" || fail=1; \
+		if out=$$(claude plugin test "$$plugin" 2>&1); then \
+			printf '%s\n' "$$out"; \
+		else \
+			printf '%s\n' "$$out"; \
+			case "$$out" in \
+				*"hooks modules are turned off"*) echo "SKIP: mods are turned off in this process; $$plugin was not tested" ;; \
+				*) fail=1 ;; \
+			esac; \
+		fi; \
+	done; \
+	exit $$fail
 
 lint: ## Check linting on all plugins without rewriting anything (see `fix`)
 	@echo "=== Running Lint on ALL Code ==="
