@@ -8,7 +8,7 @@
 #
 # Hook Input Schema (Claude Code 2.1.2+):
 # {
-#   "agent_type": "string",      // e.g., "code-reviewer", "implementation-agent"
+#   "agent_type": "string",      // only with `claude --agent`, e.g. "pensive:code-reviewer"
 #   "source": "string",          // e.g., "cli", "editor"
 #   "session_id": "string"       // Unique session identifier
 # }
@@ -55,14 +55,17 @@ main() {
   if read -t 1 -r HOOK_INPUT 2>/dev/null; then
     AGENT_TYPE=$(get_json_field "${HOOK_INPUT}" "agent_type")
     # Validate: only allow alphanumeric, hyphens, and underscores
-    if [[ -n "${AGENT_TYPE}" && ! "${AGENT_TYPE}" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+    if [[ -n "${AGENT_TYPE}" && ! "${AGENT_TYPE}" =~ ^[a-zA-Z0-9_:-]+$ ]]; then
       printf '%s\n' "[conserve] WARNING: Invalid agent_type value, ignoring" >&2
       AGENT_TYPE=""
     fi
   fi
 
   # Lightweight agents that get abbreviated guidance
-  case "${AGENT_TYPE}" in
+  # A plugin agent arrives scoped (`pensive:code-reviewer`); match on the
+  # name after the plugin prefix. Only `claude --agent <name>` sets this:
+  # subagents never fire SessionStart.
+  case "${AGENT_TYPE##*:}" in
     code-reviewer | architecture-reviewer | rust-auditor | bloat-auditor)
       # Review agents: minimal conservation context
       cat <<EOF
