@@ -23,6 +23,7 @@ from __future__ import annotations
 import json
 import subprocess  # nosec B404
 import sys
+import time
 from pathlib import Path
 
 # A branch past this many changed lines has enough at stake to be worth
@@ -121,20 +122,28 @@ _BASE_CANDIDATES = (
 )
 
 
-#: Budget for one git call, under the 1s SessionStart cap in hooks.json.
-#: The hook is killed at that cap regardless, so a 5s budget only meant the
-#: process died holding an answer it could never report.
-_GIT_TIMEOUT_SECONDS = 0.8
+#: Budget for every git call in one measurement together, under the 1s
+#: SessionStart cap in hooks.json. measure_branch makes up to five calls in
+#: sequence; a per-call budget let a slow git spend 4.0s, and the hook is
+#: killed at the cap holding an answer it can never report.
+_GIT_BUDGET_SECONDS = 0.8
 
 
-def _git(args: list[str]) -> str | None:
-    """Run a git command, returning its stdout or None if it cannot answer."""
+def _git(args: list[str], deadline: float) -> str | None:
+    """Run a git command, returning its stdout or None if it cannot answer.
+
+    ``deadline`` is a ``time.monotonic()`` instant shared by the whole
+    measurement; once it has passed, git is not asked at all.
+    """
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        return None
     try:
         result = subprocess.run(  # nosec B603 B607
             ["git", *args],
             capture_output=True,
             text=True,
-            timeout=_GIT_TIMEOUT_SECONDS,
+            timeout=remaining,
             check=False,
         )
     except (OSError, subprocess.SubprocessError):
@@ -144,7 +153,7 @@ def _git(args: list[str]) -> str | None:
     return result.stdout
 
 
-def _branch_base() -> str | None:
+def _branch_base(deadline: float) -> str | None:
     """Return the commit this branch left, or None if there is no base.
 
     On the base branch itself the merge base is HEAD, which makes the
@@ -152,7 +161,7 @@ def _branch_base() -> str | None:
     no branch work has happened.
     """
     for candidate in _BASE_CANDIDATES:
-        base = _git(["merge-base", "HEAD", candidate])
+        base = _git(["merge-base", "HEAD", candidate], deadline)
         if base and base.strip():
             return base.strip()
     return None
@@ -175,8 +184,9 @@ def measure_branch() -> tuple[int, bool]:
     carries the practice, so guessing wrong here costs a smaller prompt
     rather than a missing one.
     """
-    base = _branch_base()
-    stdout = _git(["diff", "--numstat", base or "HEAD"])
+    deadline = time.monotonic() + _GIT_BUDGET_SECONDS
+    base = _branch_base(deadline)
+    stdout = _git(["diff", "--numstat", base or "HEAD"], deadline)
     if stdout is None:
         return 0, False
 
