@@ -11,13 +11,26 @@ from __future__ import annotations
 import math
 
 
+def _first_hits(ranked_ids: list[str], relevant: set[str], k: int) -> list[int]:
+    """Return the 0-based positions in the top ``k`` of each relevant id.
+
+    A repeated id is counted once, at its first position. Counting it
+    again would push nDCG above 1 and recall above the true share.
+    """
+    seen: set[str] = set()
+    positions = []
+    for index, item_id in enumerate(ranked_ids[:k]):
+        if item_id in relevant and item_id not in seen:
+            seen.add(item_id)
+            positions.append(index)
+    return positions
+
+
 def _dcg(ranked_ids: list[str], relevant: set[str], k: int) -> float:
     """Discounted cumulative gain over the top ``k`` with binary gains."""
-    total = 0.0
-    for index, item_id in enumerate(ranked_ids[:k]):
-        if item_id in relevant:
-            total += 1.0 / math.log2(index + 2)
-    return total
+    return sum(
+        1.0 / math.log2(index + 2) for index in _first_hits(ranked_ids, relevant, k)
+    )
 
 
 def ndcg_at_k(ranked_ids: list[str], relevant: set[str], k: int) -> float:
@@ -43,5 +56,4 @@ def recall_at_k(ranked_ids: list[str], relevant: set[str], k: int) -> float:
     """Fraction of relevant items appearing in the top ``k``."""
     if not relevant:
         return 0.0
-    hits = sum(1 for item_id in ranked_ids[:k] if item_id in relevant)
-    return hits / len(relevant)
+    return len(_first_hits(ranked_ids, relevant, k)) / len(relevant)
