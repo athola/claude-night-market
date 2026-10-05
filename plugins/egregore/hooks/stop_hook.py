@@ -97,6 +97,28 @@ def block_reason(manifest_path: Path) -> str:
     )
 
 
+ORCHESTRATOR_AGENT_TYPES = ("egregore:orchestrator", "orchestrator")
+
+
+def orchestrator_running(payload: dict[str, object]) -> bool:
+    """Report whether the orchestrator is in flight as a background subagent.
+
+    Interactive spawns run in the background by default since CLI 2.1.232,
+    so the main session stops while the loop advances. Stop input lists
+    in-flight work in ``background_tasks``; blocking on top of a running
+    orchestrator would re-inject the relaunch prompt into a live run.
+    """
+    tasks = payload.get("background_tasks")
+    if not isinstance(tasks, list):
+        return False
+    return any(
+        isinstance(task, dict)
+        and task.get("type") == "subagent"
+        and task.get("agent_type") in ORCHESTRATOR_AGENT_TYPES
+        for task in tasks
+    )
+
+
 def approve() -> None:
     """Let the session stop."""
     print(json.dumps({"decision": "approve"}))
@@ -110,7 +132,7 @@ def main() -> None:
 
     manifest_path = find_manifest()
 
-    if not has_active_work(manifest_path):
+    if not has_active_work(manifest_path) or orchestrator_running(payload):
         approve()
 
     state_path = manifest_path.parent / STATE_FILENAME
