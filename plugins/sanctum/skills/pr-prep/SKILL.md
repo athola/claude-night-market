@@ -23,7 +23,8 @@ dependencies:
 - imbue:justify
 - imbue:structured-output
 - scribe:slop-detector
-- scribe:doc-generator---
+- scribe:doc-generator
+---
 # Pull Request Preparation Workflow
 
 ## When NOT To Use

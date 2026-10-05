@@ -33,6 +33,19 @@ def _frontmatter(path: Path) -> str | None:
     return text[4:end] if end != -1 else None
 
 
+def test_opened_frontmatter_is_closed() -> None:
+    """A fence glued to the last value (`- x---`) leaves the block open,
+    and the loader then reads no frontmatter at all.
+    """
+    unclosed = [
+        str(path.relative_to(REPO_ROOT))
+        for path in _files()
+        if path.read_text(encoding="utf-8").startswith("---\n")
+        and _frontmatter(path) is None
+    ]
+    assert unclosed == [], "\n".join(unclosed)
+
+
 def test_frontmatter_is_valid_yaml() -> None:
     broken = []
     for path in _files():
