@@ -22,7 +22,8 @@ fi
 # Test 2: Verify modules directory exists
 echo -e "\n[Test 2] Modules Directory"
 if [ -d "$MODULES_DIR" ]; then
-    module_count=$(ls -1 "$MODULES_DIR"/*.md 2>/dev/null | wc -l)
+    module_files=("$MODULES_DIR"/*.md)
+    module_count=${#module_files[@]}
     echo "✓ modules/ directory found ($module_count modules)"
 else
     echo "✗ modules/ directory NOT found"
@@ -31,12 +32,14 @@ fi
 
 # Test 3: Verify all modules are referenced in SKILL.md
 echo -e "\n[Test 3] Module References in SKILL.md"
-skill_content=$(cat "$SKILL_DIR/SKILL.md")
+# grep reads the files directly. Piping `echo "$content" | grep -q` under
+# pipefail returned 141 once grep -q quit early on a file larger than the
+# pipe buffer, which read a found module as missing.
 unreferenced=()
 
 for module in "$MODULES_DIR"/*.md; do
     module_name=$(basename "$module" .md)
-    if echo "$skill_content" | grep -q "$module_name"; then
+    if grep -q "$module_name" "$SKILL_DIR/SKILL.md"; then
         echo "✓ $module_name referenced"
     else
         echo "✗ $module_name NOT referenced"
@@ -55,9 +58,9 @@ for module in "$MODULES_DIR"/*.md; do
     module_name=$(basename "$module")
     line_count=$(wc -l < "$module")
 
-    if [ $line_count -gt 50 ]; then
+    if [ "$line_count" -gt 50 ]; then
         echo "✓ $module_name: $line_count lines (substantive)"
-    elif [ $line_count -gt 20 ]; then
+    elif [ "$line_count" -gt 20 ]; then
         echo "⚠ $module_name: $line_count lines (brief but okay)"
     else
         echo "✗ $module_name: $line_count lines (too brief!)"
@@ -69,11 +72,10 @@ done
 echo -e "\n[Test 5] Module Frontmatter"
 for module in "$MODULES_DIR"/*.md; do
     module_name=$(basename "$module")
-    content=$(cat "$module")
 
-    if echo "$content" | grep -q "^---"; then
-        if echo "$content" | grep -q "module:"; then
-            if echo "$content" | grep -q "category:"; then
+    if grep -q "^---" "$module"; then
+        if grep -q "module:" "$module"; then
+            if grep -q "category:" "$module"; then
                 echo "✓ $module_name has valid frontmatter"
             else
                 echo "✗ $module_name missing 'category:'"
@@ -123,14 +125,13 @@ violations=0
 
 for module in "$MODULES_DIR"/*.md; do
     current_module=$(basename "$module" .md)
-    content=$(cat "$module")
 
     for other_module in "$MODULES_DIR"/*.md; do
         other_name=$(basename "$other_module" .md)
 
         if [ "$current_module" != "$other_name" ]; then
             # Check for module reference patterns
-            if echo "$content" | grep -qE "modules/$other_name|$other_name\.md"; then
+            if grep -qE "modules/$other_name|$other_name\.md" "$module"; then
                 echo "✗ $current_module references $other_name (spoke-to-spoke violation)"
                 violations=$((violations + 1))
             fi
