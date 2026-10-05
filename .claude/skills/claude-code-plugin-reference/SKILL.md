@@ -208,6 +208,24 @@ skills: imbue:review-core, imbue:proof-of-work, ...
 - `skills` lists skills the agent should load. The body below the
   frontmatter is the agent's system prompt.
 
+Plugin agents read a fixed field set (code.claude.com/docs/en/plugins/
+components, "Frontmatter fields in plugin agents"): `name`, `description`,
+`model`, `effort`, `maxTurns`, `tools`, `disallowedTools`, `skills`,
+`memory`, `background`, `omitClaudeMd`, `isolation` (`worktree` only),
+`color`, and `experimental.cacheTtl`. They ignore `permissionMode`,
+`hooks`, `mcpServers` and `initialPrompt` without an error, and never read
+`allowed-tools` (a skill field) or `max_iterations`. Seven agents here ran
+with every tool for months because they wrote `allowed-tools`.
+`FrontmatterProcessor.validate_plugin_agent` reports each case, and
+`plugins/abstract/tests/test_every_plugin_agent_uses_read_fields.py` runs
+it over every agent. Hooks an agent needs go in the plugin's
+`hooks/hooks.json`, matched with `SubagentStart`/`SubagentStop` on the
+agent's scoped name.
+
+`omitClaudeMd: true` (2.1.271) suits an agent whose delegation prompt
+carries everything it needs: it skips about 79 KB of CLAUDE.md and rules
+here. Agents that must apply repo rules keep loading them.
+
 ## Hooks
 
 The hardest-won knowledge in the repo. Read this whole section before
@@ -231,15 +249,27 @@ Survey of every `plugins/*/hooks/hooks.json` (2026-07-02):
 
 ### Events available but unregistered here
 
+The full roster is `plugins/abstract/src/abstract/hook_events.py`: 33
+events at 2.1.289, read by both frontmatter and hooks.json validation.
+Ones a plugin here could use and does not yet:
+
 | Event | Shipped | Fires when |
 |-------|---------|------------|
+| `PreModelSwitch` / `PostModelSwitch` | 2.1.251 | `/model` changes the session model. The pre event can block or confirm |
+| `StopFailure` | 2.1.78 | A turn ends on an API error; matcher on type such as `rate_limit` |
+| `SubagentStart` | | A subagent starts; the place for subagent-only context, since SessionStart does not fire for subagents |
+| `InstructionsLoaded` | | A CLAUDE.md or rule file loads, with `agent_id`, `agent_type`, `effort` since 2.1.288 |
 | `DirectoryAdded` | 2.1.220 | `/add-dir` or an SDK `register_repo_root` registers a working directory mid-session |
 
-`Notification` (2.1.218) fires when a background agent needs input or
-completes. `conserve` records each event to `.claude/logs/`. Anthropic
-publishes the registration shape but not the stdin fields, so the hook
-writes the payload through verbatim and records its keys. Read the log
-before writing code against a field name.
+`Notification` fires when Claude needs approval, has idled, or a
+background agent needs input. Its matcher values (`permission_prompt`,
+`idle_prompt`, `auth_success`, the elicitation dialogs) are documented in
+hooks.md "Notification". `conserve` records each event to `.claude/logs/`.
+
+Stop input carries `background_tasks` and `session_crons`. Since 2.1.232
+interactive subagent spawns run in the background, so a Stop hook that
+blocks on unfinished work must check them: `egregore`'s Stop hook lets the
+session stop while an `egregore:orchestrator` subagent is in flight.
 
 `SessionStart` gained a fifth source value in 2.1.212: a session opened
 as a fork reports `"fork"`. A matcher that enumerates the other four
@@ -275,7 +305,7 @@ Shape (verified, herald):
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/double_shot_latte.py",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/double_shot_latte.py\"",
             "timeout": 10
           }
         ]
@@ -288,7 +318,14 @@ Shape (verified, herald):
 `PreToolUse`/`PostToolUse` entries add a `matcher` regex over tool names
 (imbue uses `"Write|Edit|MultiEdit"` and `"Bash"`). `timeout` is the
 per-hook budget in seconds. Always reference the script through
-`${CLAUDE_PLUGIN_ROOT}`.
+`${CLAUDE_PLUGIN_ROOT}`, inside double quotes: the install path can hold
+a space, and an unquoted placeholder then splits into several words.
+`claude plugin validate` warns on it since 2.1.281, and
+`tests/test_hook_commands_quote_plugin_root.py` fails on it. Exec form
+(`"args": [...]`) needs no quoting.
+
+The same file may name a mod's module under `"modules"` beside `"hooks"`;
+see Mods below.
 
 ### Payload contract: stdin JSON, never env vars
 
@@ -495,6 +532,60 @@ uv run python plugins/sanctum/scripts/update_versions.py 1.9.16
   with `/sanctum:sync-capabilities --fix`, never by hand-editing the
   generated capabilities files.
 
+## Mods: TypeScript function hooks (2.1.287)
+
+A mod is an ordinary plugin whose `hooks/hooks.json` names one module:
+`{"hooks": {...}, "modules": ["./band.tsx"]}`. The module exports
+`register(on, options)` and adds hooks shaped `($, e, next)` on events
+such as `tool.call`, `prompt.submit`, `prompt.compose`, `session.append`,
+`turn.step`, `ui.render` and `command.run`. `$` reaches the engine: UI
+(panes, a band above the prompt, status line, toasts), `$.state` and
+`$.store`, `$.tool.register`, `$.agent.register`, `$.model.complete`,
+timers, files and processes. The module runs in its own environment with
+no Node and no DOM, as an ES module that may not use `import()`.
+
+Authoritative sources, in order: the types the engine writes
+(`claude-code.d.ts`, beside the bundled `plugin-authoring` skill or in a
+loaded mod's `.claude-plugin/types/`), code.claude.com/docs/en/plugins/
+mods/, then `Skill(plugin-authoring)`. The API is early access and moves
+between releases.
+
+What binds this repo:
+
+- Command hooks keep running alongside mods and are not deprecated.
+  Python guards stay in Python.
+- A mod that answers `tool.call` itself, without `next`, keeps every
+  plugin PreToolUse hook from running. Mods here observe and draw only:
+  never answer `tool.call` with a result, hook `tool.check`, or rewrite
+  tool input.
+- Mods are unsandboxed, can be switched off remotely, and are blocked for
+  marketplace plugins where an organization sets `allowManagedModsOnly`.
+  Nothing may depend on a mod being loaded.
+- An installed plugin runs from its versioned cache, so a mod change
+  reaches users only with a version bump.
+- `claude plugin validate <dir>` checks the module; `claude plugin test
+  <dir>` runs its `*.test.ts` files against the engine. `make test-mods`
+  runs both for every plugin that ships a module.
+
+Two ship here. conserve's `hooks/context-band.tsx` draws context fill and
+prompt-cache reuse above the prompt beside `context_warning.py`, which
+stays the part Claude reads. egregore's `hooks/loop-band.tsx` draws the
+active work item and answers `/egregore-loop` without a model turn. Their
+kit tests live in each plugin's `mod-tests/`, out of pytest's reach, and
+`tests/test_make_test_mods.py` fails if a module ever hooks `tool.call` or
+`tool.check`.
+
+## Release tooling (2.1.259 to 2.1.285)
+
+- `claude plugin validate [--json] [--strict]`: manifests, hooks, agent
+  and skill frontmatter, MCP entries, unquoted `${CLAUDE_PLUGIN_ROOT}`.
+  `make validate-plugins` runs it over every plugin.
+- `claude plugin eval`: scored eval suites run against a no-plugin
+  baseline. Runs are billed.
+- `/skill-doctor`: loaded skills that go unused, and what they cost in
+  context.
+- `/doctor prompt-audit`: prompting written for older models.
+
 ## Where the authoritative docs live
 
 - Repo book: `book/src/` (mdBook, published by `deploy-book.yml`).
@@ -544,6 +635,11 @@ uv run python plugins/sanctum/scripts/update_versions.py 1.9.16
       pass.
 - [ ] You can state from memory why `plugin.json` `hooks` arrays are empty
       in this repo and what error appears if they are not.
+- [ ] An agent you add or edit passes
+      `plugins/abstract/tests/test_every_plugin_agent_uses_read_fields.py`.
+- [ ] A hook command you add passes
+      `tests/test_hook_commands_quote_plugin_root.py`, and `claude plugin
+      validate` on its plugin reports no warnings for it.
 
 ## Provenance and maintenance
 
