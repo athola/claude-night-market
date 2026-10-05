@@ -50,7 +50,9 @@ class MarkdownFormatter:
 
         # Group by severity
         for severity in ["critical", "high", "medium", "low"]:
-            severity_findings = [f for f in findings if f.get("severity") == severity]
+            severity_findings = [
+                f for f in findings if str(f.get("severity", "low")).lower() == severity
+            ]
             if severity_findings:
                 lines.append(f"## {severity.capitalize()} Priority")
                 lines.append("")

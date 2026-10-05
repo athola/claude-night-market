@@ -47,7 +47,7 @@ ATOMIC_TYPES = ("AtomicI32", "AtomicU32", "AtomicBool")
 
 # Memory safety
 POINTER_OFFSET_PATTERN = r"\*\w+\.offset\("
-LARGE_OFFSET_PATTERN = r"\.offset\((10|[2-9]\d+)\)"
+LARGE_OFFSET_PATTERN = r"\.offset\(([1-9]\d+)\)"
 LIFETIME_ANNOTATION_PATTERN = r"fn\s+\w+<'a>.*->.*&'a"
 
 # Panic / error handling

@@ -19,9 +19,6 @@ from ._constants import (
     MIN_TARGETS_FOR_PARALLEL,
 )
 
-# Sum of every weight in QualityMixin._MODERNIZATION_SCORE_PATTERNS.
-_MAX_MODERNIZATION_SCORE = 10.0
-
 
 class QualityMixin:
     """Analyze makefile performance, portability, security, and modernization."""
@@ -182,6 +179,10 @@ class QualityMixin:
         (r"ifdef\s+(CROSS_COMPILE|OS)", 0, _SCORE_CROSS_COMPILE),
         (r"-include.*\.mk", 0, _SCORE_MK_INCLUDE),
     )
+    # Derived, so a Makefile using every feature scores exactly 1.0.
+    _MAX_MODERNIZATION_SCORE: float = sum(
+        w for _, _, w in _MODERNIZATION_SCORE_PATTERNS
+    )
 
     # (pattern, finding message) pairs for the modernization sub-reports.
     _TOOL_INTEGRATION_PATTERNS = (
@@ -217,7 +218,7 @@ class QualityMixin:
         score = self._modernization_score(content)
 
         return {
-            "modern_features": {"score": score / _MAX_MODERNIZATION_SCORE},
+            "modern_features": {"score": score / self._MAX_MODERNIZATION_SCORE},
             "tool_integration": self._matches(content, self._TOOL_INTEGRATION_PATTERNS),
             "cross_platform_support": self._matches(
                 content, self._CROSS_PLATFORM_PATTERNS

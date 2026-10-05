@@ -41,6 +41,10 @@ SEVERITY_MAP: dict[str, str] = {
 # "this highlights a minor slowdown", "the highest-traffic path" and
 # "higher memory use" to high severity, because each contains "high".
 _HIGH_SEVERITY_WORDS = re.compile(r"\b(?:high|dangerous)\b")
+# The lookbehind keeps "non-critical" and "insecurity" from matching.
+_CRITICAL_SEVERITY_WORDS = re.compile(
+    r"(?<![\w-])(?:sql injection|security|critical)\b"
+)
 
 
 def categorize(
@@ -68,10 +72,7 @@ def categorize(
 
         # Override with issue description keywords
         issue_desc = issue.get("issue", "").lower()
-        if any(
-            keyword in issue_desc
-            for keyword in ["sql injection", "security", "critical"]
-        ):
+        if _CRITICAL_SEVERITY_WORDS.search(issue_desc):
             issue_copy["severity"] = "critical"
         elif _HIGH_SEVERITY_WORDS.search(issue_desc):
             issue_copy["severity"] = "high"

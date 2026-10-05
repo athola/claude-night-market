@@ -343,6 +343,8 @@ class AnalysisMixin:
                 recipe_lines = 0
             elif line.startswith("\t") and in_target:
                 recipe_lines += 1
+        if in_target and recipe_lines > MIN_RECIPE_LINES_FOR_LARGE_TARGET:
+            dependency_chain.append(f"{in_target} has {recipe_lines} recipe lines")
         return dependency_chain
 
     @staticmethod
