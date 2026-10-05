@@ -197,8 +197,6 @@ class TestUpdatePlugin:
         When the update_plugin function is called
         Then it should return success with the old and new versions.
         """
-        # Note: The regex in the script captures until the first dot,
-        # so "1.1.0" would be captured as "1". Testing with a version without dots.
         mock_run.return_value = MagicMock(
             returncode=0,
             stdout="Plugin test@marketplace updated from 1.0.0 to 2",
@@ -307,12 +305,14 @@ class TestUpdatePlugin:
 
         Given a plugin update to a version with dots in the number
         When the update_plugin function is called
-        Then it should parse the version correctly up to the first dot.
+        Then both versions are parsed whole.
+
+        Math review finding C2-12: the new version stopped at its first
+        dot, so 1.9.0 -> 1.10.0 was reported as 1.9.0 -> 1.
         """
-        # This tests the actual behavior of the regex - it captures until the first dot
         mock_run.return_value = MagicMock(
             returncode=0,
-            stdout="Plugin test@marketplace updated from 1.0.0 to 2.1.0",
+            stdout="Plugin test@marketplace updated from 1.9.0 to 1.10.0",
         )
 
         success, old_version, new_version = update_all_plugins.update_plugin(
@@ -320,9 +320,25 @@ class TestUpdatePlugin:
         )
 
         assert success is True
-        assert old_version == "1.0.0"
-        # The regex captures "2" (stops at the first dot)
-        assert new_version == "2"
+        assert old_version == "1.9.0"
+        assert new_version == "1.10.0"
+
+    @pytest.mark.bdd
+    @patch("subprocess.run")
+    def test_sentence_final_period_is_not_part_of_the_version(
+        self, mock_run: MagicMock
+    ) -> None:
+        """A message ending "to 2.1.0." yields 2.1.0."""
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout="Plugin test@marketplace updated from 1.0.0 to 2.1.0.\n",
+        )
+
+        _, old_version, new_version = update_all_plugins.update_plugin(
+            "test@marketplace"
+        )
+
+        assert (old_version, new_version) == ("1.0.0", "2.1.0")
 
 
 @pytest.mark.unit
