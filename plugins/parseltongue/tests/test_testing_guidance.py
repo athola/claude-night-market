@@ -131,6 +131,32 @@ def test_get_user():
         assert coverage["estimated_coverage"] < 100
         assert coverage["estimated_coverage"] > 0
 
+    @pytest.mark.unit
+    def test_many_tests_of_one_function_do_not_cover_the_others(self) -> None:
+        """Coverage counts covered source functions, not test functions.
+
+        Math review finding C2-7: four tests of a() scored 100% while the
+        same result listed b and d as uncovered, and "c" escaped only as
+        a substring of "case".
+        """
+        source_code = (
+            "def a(x):\n    if x:\n        return 1\n    return 0\n\n"
+            "def b():\n    return 2\n\n"
+            "def c():\n    return 3\n\n"
+            "def d():\n    return 4\n"
+        )
+        test_code = "".join(
+            f"def test_a_case{i}():\n    assert a({i}) in (0, 1)\n\n" for i in range(4)
+        )
+
+        coverage = self.skill.analyze_coverage_gaps(source_code, test_code)[
+            "coverage_analysis"
+        ]
+
+        assert coverage["uncovered_methods"] == ["b", "c", "d"]
+        # a() and at most its one branch, of four functions plus one branch.
+        assert coverage["estimated_coverage"] <= 40
+
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evaluates_test_quality(self, sample_test_patterns) -> None:
