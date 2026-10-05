@@ -31,8 +31,10 @@ INDEX="${PLUGIN_DIR}/hooks/memory-palace-index.yaml"
 VITALITY="${PLUGIN_DIR}/data/indexes/vitality-scores.yaml"
 QUEUE="${PLUGIN_DIR}/data/indexes/vitality-tending-queue.json"
 
+# git hash-object, not md5sum: a commit hook always has git, and md5sum
+# is missing on macOS before 14 and on BSD.
 hash_of() {
-  if [ -f "$1" ]; then md5sum "$1" | awk '{print $1}'; else echo "absent"; fi
+  if [ -f "$1" ]; then git hash-object "$1"; else echo "absent"; fi
 }
 
 index_before=$(hash_of "${INDEX}")
