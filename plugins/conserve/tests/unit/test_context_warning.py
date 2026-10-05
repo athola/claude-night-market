@@ -316,8 +316,11 @@ class TestEstimateFromRecentTurns:
             lines.append(
                 json.dumps(
                     {
-                        "role": "user" if i % 2 == 0 else "assistant",
-                        "content": f"Message {i} " * 50,
+                        "type": "user" if i % 2 == 0 else "assistant",
+                        "message": {
+                            "role": "user" if i % 2 == 0 else "assistant",
+                            "content": f"Message {i} " * 50,
+                        },
                     }
                 )
             )
@@ -348,8 +351,11 @@ class TestEstimateFromRecentTurns:
             lines.append(
                 json.dumps(
                     {
-                        "role": "user" if i % 2 == 0 else "assistant",
-                        "content": "x" * 2000,
+                        "type": "user" if i % 2 == 0 else "assistant",
+                        "message": {
+                            "role": "user" if i % 2 == 0 else "assistant",
+                            "content": "x" * 2000,
+                        },
                     }
                 )
             )
@@ -387,7 +393,10 @@ class TestEstimateContextFromSession:
     def test_returns_estimate_when_session_exists(self, tmp_path: Path) -> None:
         """Verify Returns estimate when session exists."""
         session = tmp_path / "session.jsonl"
-        session.write_text(json.dumps({"role": "user", "content": "hi"}) + "\n")
+        session.write_text(
+            json.dumps({"type": "user", "message": {"role": "user", "content": "hi"}})
+            + "\n"
+        )
         with (
             patch.dict(os.environ, {"CONSERVE_CONTEXT_ESTIMATION": "1"}),
             patch("context_warning._resolve_session_file", return_value=session),

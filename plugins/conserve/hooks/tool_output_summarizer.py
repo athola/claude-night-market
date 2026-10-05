@@ -270,30 +270,40 @@ def _count_tool_result_bytes(content: Any) -> int:
 
 
 def get_session_output_size(session_file: Path, max_bytes: int = 512_000) -> int:
-    """Calculate total size of tool outputs in session.
+    """Calculate total size of tool outputs in the recent end of a session.
 
-    Reads at most *max_bytes* of the file to stay within the hook
-    timeout budget. The result is an approximation for large sessions.
+    Reads at most the last *max_bytes* of the file to stay within the hook
+    timeout budget. The tail is what matters: earlier outputs are the ones
+    compaction already dropped. Claude Code writes each row's blocks under
+    ``message.content``.
     """
     total_size = 0
-    bytes_read = 0
 
     try:
-        with open(session_file, encoding="utf-8", errors="replace") as f:
-            for raw_line in f:
-                bytes_read += len(raw_line)
-                if bytes_read > max_bytes:
-                    break
-                stripped = raw_line.strip()
-                if not stripped:
-                    continue
-                try:
-                    entry = json.loads(stripped)
-                except json.JSONDecodeError:
-                    continue
-                total_size += _count_tool_result_bytes(entry.get("content", ""))
+        with open(session_file, "rb") as f:
+            f.seek(0, os.SEEK_END)
+            size = f.tell()
+            start = max(0, size - max_bytes)
+            f.seek(start)
+            data = f.read().decode("utf-8", errors="replace")
     except (OSError, PermissionError) as e:
         logger.warning("Could not read session file: %s", e)
+        return 0
+
+    lines = data.splitlines()
+    if start > 0 and lines:
+        lines = lines[1:]  # the first line was cut by the seek
+    for raw_line in lines:
+        stripped = raw_line.strip()
+        if not stripped:
+            continue
+        try:
+            entry = json.loads(stripped)
+        except json.JSONDecodeError:
+            continue
+        message = entry.get("message")
+        if isinstance(message, dict):
+            total_size += _count_tool_result_bytes(message.get("content", ""))
 
     return total_size
 
