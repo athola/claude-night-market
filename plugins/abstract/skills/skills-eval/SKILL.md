@@ -146,7 +146,6 @@ Improvements are prioritized by impact. Critical issues include security vulnera
 
 ### Tools and Automation
 - **Tools**: Executable analysis utilities in `scripts/` directory.
-- **Automation**: Setup and validation scripts in `scripts/automation/`.
 
 ## Exit Criteria
 

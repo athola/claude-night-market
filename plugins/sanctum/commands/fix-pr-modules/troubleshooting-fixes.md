@@ -290,7 +290,7 @@ Attune Workflow        | /fix-pr Equivalent
 /attune:arch-init      | --
 /attune:specify        | Step 1: Analyze
 /attune:blueprint           | Step 2-3: Triage + Plan
-/attune:init           | --
+/attune:project-init   | --
 /attune:execute        | Step 4-5: Fix + Validate
 /attune:validate       | (included in Step 5)
 /attune:upgrade-project        | (optional: /attune:upgrade-project --component workflows)

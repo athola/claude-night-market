@@ -384,21 +384,6 @@ Optimize context window usage.
 /optimize-context --scope plugins/sanctum/ --suggest
 ```
 
-### `/conserve:analyze-growth`
-
-**Consolidated:** This command has been merged into `/bloat-scan`.
-See [bloat-scan](#conservebloat-scan).
-
-~~Analyze skill growth patterns.~~
-
-```bash
-# Usage (now use /bloat-scan instead)
-/bloat-scan [--level 1|2|3] [--focus TYPE] [--report FILE]
-
-# Previous /analyze-growth options are covered by:
-/bloat-scan --level 2 --focus code    # Growth pattern analysis
-```
-
 ---
 
 ## Imbue Plugin

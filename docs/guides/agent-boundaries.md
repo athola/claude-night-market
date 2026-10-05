@@ -45,8 +45,7 @@ while lower layers operate independently of higher-level context.
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
 | `sanctum:pr-agent` | Prepare pull requests and commit messages | Git workflows; no code quality or logic review. |
-| `imbue:proof-evaluator` | Validate proof-of-work requirements | Verification of requirements; no code implementation. |
-| `leyline:dependency-mapper` | Map plugin dependencies | Dependency analysis; no automated refactoring. |
+| `imbue:review-analyst` | Structured reviews with an evidence trail | Findings with evidence; no code implementation. |
 
 ### Utility Layer (Optimization & Generation)
 
@@ -55,8 +54,6 @@ while lower layers operate independently of higher-level context.
 | `conserve:context-optimizer` | Assess MECW and token usage | Token analysis; no code-level optimization. |
 | `conserve:bloat-auditor` | Detect codebase bloat | Detection of redundant files; no deletion decisions. |
 | `conserve:unbloat-remediator` | Execute bloat removal | Execution of safe deletions; no architectural changes. |
-| `conjure:generator` | Generate boilerplate code | Template-based generation; no business logic. |
-| `hookify:rule-compiler` | Compile hook rules | Hook rule generation; no hook implementation logic. |
 
 ### Domain Layer (Specialized Tasks)
 
@@ -66,23 +63,23 @@ while lower layers operate independently of higher-level context.
 | `pensive:architecture-reviewer` | Architecture design review | Pattern analysis; no implementation work. |
 | `pensive:rust-auditor` | Rust-specific code review | Rust idioms and safety; restricted to Rust. |
 | `parseltongue:python-tester` | Python test generation | Test case generation; restricted to Python. |
-| `parseltongue:pytest-analyst` | Pytest output analysis | Test diagnostics; no code fixes. |
-| `memory-palace:curator` | Knowledge management | Documentation organization; no code changes. |
-| `spec-kit:spec-writing` | Write specifications | Requirements gathering; no implementation. |
+| `parseltongue:python-linter` | Strict ruff enforcement | Lint fixes; no per-file-ignores. |
+| `memory-palace:garden-curator` | Knowledge management | Documentation organization; no code changes. |
+| `spec-kit:spec-analyzer` | Check specification consistency | Requirements gathering; no implementation. |
 
 ## Delegation Patterns
 
 ### Code Review Workflow
 
 A request to review a PR starts with `pensive:code-reviewer`.
-It delegates specialized tasks to `pensive:api-reviewer`,
-`pensive:security-reviewer`, and `pensive:performance-reviewer`.
+It delegates specialized tasks to `pensive:architecture-reviewer`,
+`pensive:blast-radius-reviewer`, and `pensive:harden-orchestrator`.
 It uses `sanctum:pr-agent` for git integration
 and `abstract:plugin-validator` if the changes involve plugin infrastructure.
 
 ### Plugin Development Workflow
 
-Creating a new skill uses `abstract:skill-generator`.
+Creating a new skill starts from `/abstract:create-skill`.
 It validates the draft with `abstract:skill-auditor`,
 checks token efficiency with `conserve:context-optimizer`,
 and stages the commit via `sanctum:pr-agent`.
@@ -117,7 +114,7 @@ and lowering the token cost per operation.
 - **Git or version control**: Use `sanctum:*` (Foundation).
 - **Validation or quality gates**: Use `imbue:*` (Foundation).
 - **Token optimization or bloat detection**: Use `conserve:*` (Utility).
-- **Code generation**: Use `conjure:*` (Utility).
+- **Delegating execution to another CLI**: Use `conjure:*` skills (Utility).
 - **Python-specific tasks**: Use `parseltongue:*` (Domain).
 - **Rust-specific tasks**: Use `pensive:rust-auditor` (Domain).
 - **Architecture or design review**:

@@ -216,7 +216,7 @@ Attune Workflow        | /do-issue Equivalent
 /attune:arch-init      | --
 /attune:specify        | Step 1-2: Analyze + Specify
 /attune:blueprint           | Step 3: Plan
-/attune:init           | Step 4.1: Create branch
+/attune:project-init   | Step 4.1: Create branch
 /attune:execute        | Step 4-5: Implement + Validate
 /attune:validate       | (included in Step 5)
 /attune:upgrade-project        | (optional: /attune:upgrade-project if project needs updates)

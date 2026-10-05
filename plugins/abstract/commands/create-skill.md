@@ -490,4 +490,4 @@ This command is the entry point to the full TDD skill development cycle:
 - `/analyze-skill` - Complexity analysis
 - `/validate-plugin` - Structure validation
 - `Skill(superpowers:writing-skills)` - Upstream superpowers skill-authoring reference
-- `docs/modular-skills/guide.md` - Modularization best practices
+- `plugins/abstract/skills/modular-skills/guide.md` - Modularization best practices

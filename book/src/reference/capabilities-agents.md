@@ -24,8 +24,10 @@ description: |
   Agent description with triggers and use-cases.
 tools: [Read, Write, Edit, Bash, Glob, Grep]  # Available tools
   # Task(agent-name) restricts sub-agent spawning (2.1.33+)
-model: haiku|sonnet|opus                        # Base model
-permissionMode: acceptEdits                     # Permission automation
+model: haiku|sonnet|opus|fable                  # Base model tier
+effort: low|medium|high                         # Effort for this agent
+maxTurns: 25                                    # Turn bound; partial output past it
+omitClaudeMd: true                              # Skip CLAUDE.md (2.1.271+)
 background: true                                # Always run in background (2.1.20+)
 isolation: worktree                             # Git worktree isolation (2.1.33+)
 memory: user|project|local                      # Persistent memory scope (2.1.33+)
@@ -35,12 +37,15 @@ escalation:
   hints:
     - security_audit                            # Trigger conditions
     - complex_architecture
-hooks:
-  PreToolUse:
-    - matcher: "Bash"
-      command: "echo 'logged'"
 ---
 ```
+
+Plugin agents ignore `permissionMode`, `hooks`, `mcpServers` and
+`initialPrompt` without an error, and read tool limits only from
+`tools` (not `allowed-tools`). Hooks an agent needs go in the plugin's
+`hooks/hooks.json` with a `SubagentStart` or `SubagentStop` matcher on
+the agent's scoped name. `escalation` is read by this repository's
+tooling, not by Claude Code.
 
 **Background Mode (2.1.20+)**: When `background: true` is set, the
 agent runs in the background without blocking the parent session.
@@ -50,12 +55,8 @@ Permission prompts are collected before the agent launches.
 the agent runs in a dedicated git worktree, preventing file conflicts
 with the parent session or other agents.
 
-**Permission Modes**:
-| Mode | Description |
-|------|-------------|
-| `default` | Prompt for permissions |
-| `acceptEdits` | Auto-accept file edits |
-| `plan` | Planning only, no execution |
+**Permission Modes**: a plugin agent takes the session's permission
+mode. Its own `permissionMode` field is ignored.
 
 **Background Agent Permissions (2.1.20+)**:
 Background agents now prompt for tool permissions *before* launching into the
@@ -165,11 +166,8 @@ Continue work from session state checkpoint.
 Spawned when parent agent exceeds context thresholds.
 
 ```yaml
-tools: [Read, Write, Edit, Bash, Glob, Grep, Task, TodoRead, TodoWrite]
-model: default
-hooks:
-  SessionStart: Audit log start
-  Stop: Audit log completion
+tools: [Read, Write, Edit, Bash, Glob, Grep, Task, TodoWrite]
+model: opus
 ```
 
 **Dispatch**:
@@ -183,7 +181,6 @@ Safe bloat remediation.
 ```yaml
 tools: [Read, Write, Edit, Bash, Glob]
 model: haiku
-permissionMode: acceptEdits
 ```
 
 ---
@@ -241,7 +238,6 @@ Commit message generation.
 ```yaml
 tools: [Read, Write, Bash]
 model: haiku
-permissionMode: acceptEdits
 escalation:
   to: sonnet
   hints: [ambiguous_input, high_stakes]
@@ -408,7 +404,6 @@ TDD implementation.
 ```yaml
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: sonnet
-permissionMode: acceptEdits
 ```
 
 ---
