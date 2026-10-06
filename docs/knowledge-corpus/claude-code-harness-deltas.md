@@ -17,7 +17,7 @@ related_artifacts:
   - .claude/skills/claude-code-plugin-reference/SKILL.md
   - .claude/upstream-baseline.json
   - .claude/skills/night-market-model-and-harness-updates/SKILL.md
-last_updated: 2026-10-05
+last_updated: 2026-10-06
 ---
 
 ## Synopsis
@@ -26,7 +26,7 @@ Most harness releases add capability nobody has to act on. A few change
 the meaning of syntax already written down, and those are the ones that
 break plugins quietly. This entry keeps the second kind.
 
-Covers 2.1.80 through 2.1.290. Later ranges append here rather than
+Covers 2.1.80 through 2.1.291. Later ranges append here rather than
 starting a new entry, which keeps the accumulated list in one place.
 
 ## Changes that alter existing syntax
@@ -157,6 +157,13 @@ Recorded 2026-10-05 from https://code.claude.com/docs/en/changelog.
 | WebFetch reports text past 100,000 characters and takes `offset`; interactive WebSearch refills at 100 calls/hour | No skill here quotes either limit |
 | `CLAUDE_CODE_DISABLE_ATTACHMENTS` cannot be set from repository settings | Not set here |
 | Async Stop hook with an unquoted script path under a spaced folder looped | All 72 plugin-root hook paths here are quoted |
+
+## 2.1.291
+
+Recorded 2026-10-06. Two regression fixes: cloud sessions dropping
+permission-prompt answers (from 2.1.290), and a session's last messages
+lost on quit (from 2.1.288). Nothing a plugin configures or ships is
+affected.
 
 ## Open questions this does not answer
 
