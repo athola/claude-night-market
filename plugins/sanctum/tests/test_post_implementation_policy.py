@@ -586,7 +586,18 @@ class TestCommittedWorkStillCountsAsBranchSize:
     session that had committed its work measured zero and was handed
     the short reminder the escalation exists to replace. Committing is
     not what lowers the stakes on a branch.
+
+    These tests are about what gets measured, not how fast. The hook's
+    0.8s budget is sized for a 1s SessionStart cap, and on a loaded
+    machine three git start-ups overrun it. measure_branch then reports
+    (0, False) by design, so the committed-branch assertion failed for a
+    reason unrelated to its subject. The budget has its own test,
+    test_a_slow_git_cannot_outlast_the_hook_timeout.
     """
+
+    @pytest.fixture(autouse=True)
+    def _unhurried_git(self, monkeypatch) -> None:
+        monkeypatch.setattr("post_implementation_policy._GIT_BUDGET_SECONDS", 30.0)
 
     @staticmethod
     def _repo(tmp_path):
