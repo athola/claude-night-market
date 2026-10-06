@@ -2,8 +2,8 @@
   "schema_version": 1,
   "harness": {
     "product": "claude-code",
-    "version": "2.1.290",
-    "recorded_at": "2026-10-05"
+    "version": "2.1.291",
+    "recorded_at": "2026-10-06"
   },
   "models": {
     "tiers": [
@@ -33,18 +33,9 @@
     "dated_ids_backlog": 70
   },
   "last_migration": {
-    "id": "2026-10-05-harness-2-1-290",
+    "id": "2026-10-06-harness-2-1-291",
     "trigger": "harness-update",
     "from": {
-      "harness": "2.1.289",
-      "model_tiers": [
-        "haiku",
-        "sonnet",
-        "opus",
-        "fable"
-      ]
-    },
-    "to": {
       "harness": "2.1.290",
       "model_tiers": [
         "haiku",
@@ -53,8 +44,17 @@
         "fable"
       ]
     },
-    "assets_changed": 2,
-    "report": "docs/migrations/2026-10-05-harness-2-1-290.md"
+    "to": {
+      "harness": "2.1.291",
+      "model_tiers": [
+        "haiku",
+        "sonnet",
+        "opus",
+        "fable"
+      ]
+    },
+    "assets_changed": 0,
+    "report": "docs/migrations/2026-10-06-harness-2-1-291.md"
   },
   "history": [
     {
@@ -123,6 +123,30 @@
       },
       "assets_changed": 282,
       "report": "docs/migrations/2026-10-05-harness-2-1-289.md"
+    },
+    {
+      "id": "2026-10-05-harness-2-1-290",
+      "trigger": "harness-update",
+      "from": {
+        "harness": "2.1.289",
+        "model_tiers": [
+          "haiku",
+          "sonnet",
+          "opus",
+          "fable"
+        ]
+      },
+      "to": {
+        "harness": "2.1.290",
+        "model_tiers": [
+          "haiku",
+          "sonnet",
+          "opus",
+          "fable"
+        ]
+      },
+      "assets_changed": 2,
+      "report": "docs/migrations/2026-10-05-harness-2-1-290.md"
     }
   ],
   "deprecations": {
