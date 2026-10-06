@@ -7,9 +7,11 @@ heuristic-based estimation.
 
 from __future__ import annotations
 
+import importlib
 import logging
 from functools import lru_cache
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 from leyline.fs import (
@@ -21,9 +23,11 @@ from leyline.fs import (
 
 logger = logging.getLogger(__name__)
 
-# Import tiktoken if available
+# Import tiktoken if available. Typed as an optional module so the None
+# fallback type-checks whether or not tiktoken is installed.
+tiktoken: ModuleType | None
 try:
-    import tiktoken
+    tiktoken = importlib.import_module("tiktoken")
 except ImportError:  # pragma: no cover - optional dependency
     tiktoken = None
     logger.debug("tiktoken not available, using heuristic estimation")
