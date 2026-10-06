@@ -37,13 +37,16 @@ help: ## Show this help message
 # ---------- Validation ----------
 validate: ## Validate plugin structure and dependencies
 	@echo "Validating scry plugin structure..."
-	@test -f .claude-plugin/plugin.json && echo "  [OK] plugin.json exists" || echo "  [X] plugin.json missing"
-	@test -d skills/vhs-recording && echo "  [OK] vhs-recording skill dir exists" || echo "  [X] vhs-recording missing"
-	@test -d skills/browser-recording && echo "  [OK] browser-recording skill dir exists" || echo "  [X] browser-recording missing"
-	@test -d skills/gif-generation && echo "  [OK] gif-generation skill dir exists" || echo "  [X] gif-generation missing"
-	@test -d skills/media-composition && echo "  [OK] media-composition skill dir exists" || echo "  [X] media-composition missing"
-	@test -d commands && echo "  [OK] commands dir exists" || echo "  [X] commands missing"
-	@echo "Validation complete."
+	@fail=0; \
+	if [ -f .claude-plugin/plugin.json ]; then echo "  [OK] plugin.json exists"; \
+	else echo "  [X] plugin.json missing"; fail=1; fi; \
+	for skill in vhs-recording browser-recording gif-generation media-composition; do \
+		if [ -d "skills/$$skill" ]; then echo "  [OK] $$skill skill dir exists"; \
+		else echo "  [X] $$skill missing"; fail=1; fi; \
+	done; \
+	if [ -d commands ]; then echo "  [OK] commands dir exists"; \
+	else echo "  [X] commands missing"; fail=1; fi; \
+	echo "Validation complete."; exit $$fail
 
 check-deps: ## Check if required dependencies are installed
 	@echo "Checking scry dependencies..."
@@ -76,9 +79,11 @@ debug-variables: ## Show Makefile variable values (for debugging)
 lint: ## Lint scry shell scripts (bash -n)
 	@echo "=== Scry Lint ==="
 	@if ls $(SCRIPTS_DIR)/*.sh >/dev/null 2>&1; then \
+		fail=0; \
 		for file in $(SCRIPTS_DIR)/*.sh; do \
-			bash -n "$$file"; \
+			bash -n "$$file" || fail=1; \
 		done; \
+		[ $$fail -eq 0 ] || exit 1; \
 		echo "  [OK] bash -n"; \
 	else \
 		echo "  [SKIP] no shell scripts"; \
@@ -132,8 +137,9 @@ test-integration: ## Run integration tests (requires ffmpeg/vhs)
 		echo "  [SKIP] pytest not installed"; \
 	fi
 	@if command -v ffmpeg >/dev/null 2>&1; then \
-		$(MAKE) demo-gif; \
+		$(MAKE) demo-gif || status=$$?; \
 		$(MAKE) clean-gif-temp; \
+		exit $${status:-0}; \
 	else \
 		echo "  [SKIP] ffmpeg not installed"; \
 	fi
