@@ -9,6 +9,7 @@ tools:
   - WebSearch
   - WebFetch
   - Read
+  - Bash
 model: haiku
 effort: low
 omitClaudeMd: true
@@ -70,13 +71,20 @@ opinions about the given topic.
    or `build_lobsters_websearch_query(topic)`, parse each
    hit with `parse_lobsters_result`.
 
-6. **Search Reddit**: WebFetch
-   `build_reddit_search_url(topic, subreddit)` per suggested
-   subreddit, parse with `parse_reddit_response`, filter
-   posts with score > 10, and wait 2 seconds between calls.
-   WebFetch refuses `old.reddit.com` in Claude Code (checked
-   2026-09-18). When it does, record one `source_error` for
-   reddit and move on; do not report the subreddits as empty.
+6. **Search Reddit** through Bash, one `-s` per suggested
+   subreddit:
+
+   ```bash
+   PYTHONPATH="${CLAUDE_PLUGIN_ROOT}/src" python3 -m tome.channels.fetch reddit "<topic>" -s amateurradio -s meshtastic
+   ```
+
+   WebFetch refuses reddit.com, and the JSON search API
+   returned a block page (403) on 2026-10-05. The command
+   reads each subreddit's `search.rss` feed instead, two
+   seconds apart and retried on 429. Copy its `findings`,
+   `queries` and `errors` into your envelope. The feed has no
+   scores, so its posts rank as neutral evidence. A subreddit
+   that errors stays an error, never an empty result.
 
 7. **Search tech blogs**: run `build_blog_search_queries(topic)`
    through WebSearch and parse hits with `parse_blog_result`.
@@ -154,4 +162,4 @@ Envelope rules, identical across all four channel agents:
 - Do NOT hallucinate discussions: only return what you find
 - Do NOT hallucinate queries either: the query record is
   held to the same standard as the findings
-- Respect rate limits: 2-second delay between Reddit calls
+- Respect rate limits: the fetch command spaces Reddit calls two seconds apart

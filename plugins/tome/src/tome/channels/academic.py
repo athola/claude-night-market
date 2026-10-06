@@ -408,6 +408,69 @@ def build_openalex_search_url(topic: str, per_page: int = 5) -> str:
     return f"{_OPENALEX_BASE}?search={encoded}&per_page={per_page}"
 
 
+def _openalex_abstract(inverted: dict[str, list[int]] | None) -> str:
+    """Rebuild an abstract from OpenAlex's word-to-positions index."""
+    if not inverted:
+        return ""
+    placed = sorted(
+        (position, word)
+        for word, positions in inverted.items()
+        for position in positions
+    )
+    return " ".join(word for _, word in placed)
+
+
+def parse_openalex_response(data: dict[str, Any]) -> list[Finding]:
+    """Parse an OpenAlex ``/works`` search response into Findings.
+
+    OpenAlex is the academic source that kept answering while arXiv and
+    Semantic Scholar returned 429 (probed 2026-10-05), so it is searched
+    alongside them rather than only for open-access lookups.
+    """
+    findings: list[Finding] = []
+    for work in data.get("results", []):
+        title = work.get("display_name") or work.get("title") or ""
+        if not title:
+            continue
+        open_access = work.get("open_access") or {}
+        citations = int(work.get("cited_by_count") or 0)
+        findings.append(
+            Finding(
+                source="openalex",
+                channel="academic",
+                title=title,
+                url=work.get("doi") or work.get("id") or "",
+                relevance=_citation_relevance(citations),
+                summary=_openalex_abstract(work.get("abstract_inverted_index")),
+                metadata={
+                    "year": work.get("publication_year"),
+                    "citations": citations,
+                    "oa_url": open_access.get("oa_url"),
+                    "openalex_id": work.get("id"),
+                },
+            )
+        )
+    return findings
+
+
+def build_openalex_doi_url(doi: str) -> str:
+    """OpenAlex lookup of one work by DOI, with its locations."""
+    return f"{_OPENALEX_BASE}/doi:{quote(doi, safe='/')}?select=locations,open_access"
+
+
+def build_arxiv_title_url(title: str) -> str:
+    """arXiv search on an exact title, for a preprint of a paywalled paper."""
+    return f"{_ARXIV_API_BASE}?search_query=ti:%22{quote_plus(title)}%22&max_results=3"
+
+
+def build_semantic_scholar_doi_url(doi: str) -> str:
+    """Semantic Scholar lookup of one paper's open-access PDF by DOI."""
+    return (
+        "https://api.semanticscholar.org/graph/v1/paper/"
+        f"DOI:{quote(doi, safe='/')}?fields=openAccessPdf,externalIds"
+    )
+
+
 def generate_access_fallback_guidance(title: str, doi: str | None = None) -> str:
     """Generate human-readable guidance for accessing a paywalled paper.
 

@@ -63,19 +63,27 @@ the given topic.
    indistinguishable from one that never ran a control at
    all. Do not substitute a different URL if it fails.
 
-4. **Search arXiv**: WebFetch `build_arxiv_search_url(topic)`
-   and parse the Atom XML with `parse_arxiv_response`.
+4. **Search arXiv, Semantic Scholar and OpenAlex in one
+   command**, through Bash rather than WebFetch:
 
-5. **Search Semantic Scholar**: WebFetch
-   `build_semantic_scholar_url(topic)` and parse with
-   `parse_semantic_scholar_response`. Rank by citation
-   count and note which papers have open access PDFs.
+   ```bash
+   PYTHONPATH="${CLAUDE_PLUGIN_ROOT}/src" python3 -m tome.channels.fetch academic "<topic>"
+   ```
 
-   Both APIs rate-limit aggressively. When one returns 429,
-   record `{"kind": "rate_limit", "source": "..."}` in
-   `errors` and emit that source's `queries` entry with a
-   zero count. A rate limit is not an empty field, and the
-   report says so only if you say so.
+   It retries a 429 after the server's `Retry-After`, sends
+   `SEMANTIC_SCHOLAR_API_KEY` when set, and prints `findings`,
+   one `queries` row per source and `errors` per failed
+   source. Copy those three into your envelope as printed.
+   WebFetch cannot retry or send a key: on 2026-10-05 arXiv
+   and Semantic Scholar both answered 429 to it and the
+   channel came back empty, while OpenAlex kept answering.
+
+5. **Rank** by citation count and note which papers have
+   open-access PDFs. Run each `expand_academic_queries`
+   variant through the same command when the first query is
+   thin. A source still rate-limited after the retries stays
+   in `errors` as `rate_limit`, with its zero count. It is
+   not an empty field.
 
 6. **For top 3-5 papers with open access**:
    - Download PDF via WebFetch
@@ -83,14 +91,22 @@ the given topic.
      for key content)
    - Extract: key findings, methodology, limitations
 
-7. **For paywalled papers**, include fallback guidance:
-   - Check Unpaywall via `build_unpaywall_url(doi)`, parsed
-     with `parse_unpaywall_response`. The builder raises when
-     `TOME_CONTACT_EMAIL` is unset, because Unpaywall answers
-     422 to a placeholder address. Then skip Unpaywall and
-     record one `source_error` naming the missing variable.
-   - If still locked: note that the paper exists and
-     provide access suggestions (library, author request)
+7. **For a paper whose PDF is blocked** (ACM answered 403 on
+   2026-10-05, even to a browser User-Agent), look for another
+   copy before giving up:
+
+   ```bash
+   PYTHONPATH="${CLAUDE_PLUGIN_ROOT}/src" python3 -m tome.channels.fetch fulltext --doi "<doi>" --title "<exact title>"
+   ```
+
+   It asks OpenAlex for every location (repository copies
+   first), arXiv for a preprint by exact title, Semantic
+   Scholar for its open-access PDF, and Unpaywall when
+   `TOME_CONTACT_EMAIL` is set. Try each `candidates` URL in
+   order. If none opens, WebSearch `"<exact title>" filetype:pdf`
+   for an author or institutional copy. Still locked: say the
+   paper exists, list `tried` in the finding's metadata, and
+   give `generate_access_fallback_guidance`.
 
 8. **Return findings** as JSON:
 
@@ -165,5 +181,6 @@ Envelope rules, identical across all four channel agents:
 - Parse at most 5 PDFs (token budget constraint)
 - Read only pages 1-10 of each PDF unless critical
 - Never use Sci-Hub or other unauthorized access methods
-- If APIs are rate-limited, note in errors and continue
+- If a source is still rate-limited after the CLI's retries,
+  record it in errors and continue with the others
 - Do NOT hallucinate papers: only return what you find
