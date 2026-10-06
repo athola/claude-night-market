@@ -11,7 +11,21 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-WRAPPER = Path(__file__).resolve().parents[1] / "bin" / "skrills-or-fallback"
+SOURCE = Path(__file__).resolve().parents[1] / "bin" / "skrills-or-fallback"
+
+
+def _wrapper(tmp_path: Path) -> Path:
+    """A copy of the wrapper in a directory with no plugin-local binary.
+
+    The wrapper prefers bin/skrills beside itself over PATH. That binary
+    is gitignored and appears once `make skrills-build` has run, which
+    would bypass the PATH shim these tests rely on.
+    """
+    copy = tmp_path / "bin" / "skrills-or-fallback"
+    copy.parent.mkdir()
+    copy.write_text(SOURCE.read_text())
+    copy.chmod(0o755)
+    return copy
 
 
 def _shim_dir(tmp_path: Path) -> Path:
@@ -36,7 +50,7 @@ def _bash(script: str, tmp_path: Path) -> subprocess.CompletedProcess[str]:
 
 def test_sourced_run_skrills_returns_to_the_caller(tmp_path: Path) -> None:
     result = _bash(
-        f'trap "echo exit-trap-ran" EXIT; source "{WRAPPER}"; '
+        f'trap "echo exit-trap-ran" EXIT; source "{_wrapper(tmp_path)}"; '
         'run_skrills validate; echo "after rc=$?"',
         tmp_path,
     )
@@ -47,7 +61,7 @@ def test_sourced_run_skrills_returns_to_the_caller(tmp_path: Path) -> None:
 
 def test_sourcing_leaves_the_callers_shell_alone(tmp_path: Path) -> None:
     result = _bash(
-        f'SCRIPT_DIR=mine; source "{WRAPPER}"; '
+        f'SCRIPT_DIR=mine; source "{_wrapper(tmp_path)}"; '
         'echo "dir=$SCRIPT_DIR opts=$-"; false | true; echo "pipefail=$?"',
         tmp_path,
     )
@@ -58,7 +72,7 @@ def test_sourcing_leaves_the_callers_shell_alone(tmp_path: Path) -> None:
 
 def test_direct_invocation_still_passes_through(tmp_path: Path) -> None:
     result = subprocess.run(
-        ["/bin/bash", str(WRAPPER), "validate", "--x"],
+        ["/bin/bash", str(_wrapper(tmp_path)), "validate", "--x"],
         env={"PATH": f"{_shim_dir(tmp_path)}:/usr/bin:/bin", "HOME": str(tmp_path)},
         capture_output=True,
         text=True,
