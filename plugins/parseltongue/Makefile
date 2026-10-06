@@ -8,7 +8,7 @@
 	demo-skills dev dev-install help install mutation-test \
 	plugin-check quality-check status test test-analyze-tests test-async \
 	test-check-async test-duplicates test-edge-case test-file test-fixtures test-integration \
-	test-parallel test-pattern test-perf test-performance test-run-profiler \
+	test-parallel test-pattern test-perf format-check test-performance test-run-profiler \
 	test-structure test-testing testing-guidance-tests demo-parseltongue-commands demo-tests demo-coverage demo-lint
 
 # Plugin-specific variables (must be before include)
@@ -70,7 +70,12 @@ test-pattern: ## Run tests matching pattern (PATTERN=name)
 	$(PYTEST) -v -k "$(PATTERN)"
 
 # ---------- Code Quality ----------
-quality-check: format lint type-check coverage-check ## Run all quality checks
+# Gates check and never rewrite: `format` would fix the tree before lint
+# saw it, so committed violations passed and the tree came back modified.
+format-check: ## Check formatting without rewriting files
+	$(RUFF) format --check $(RUFF_TARGETS)
+
+quality-check: format-check lint type-check coverage-check ## Run all quality checks
 	@echo "All quality checks passed!"
 
 # ---------- Installation ----------
@@ -107,9 +112,9 @@ benchmark: ## Run performance benchmarks
 
 mutation-test: ## Run mutation testing
 	@if command -v mutmut >/dev/null 2>&1; then \
-		mutmut run --paths-to-mutate parseltongue --tests-dir tests/; \
+		mutmut run --paths-to-mutate src/parseltongue --tests-dir tests/; \
 	else \
-		echo "mutmut not installed (pip install mutmut)"; \
+		echo "mutmut not installed (pip install mutmut)"; exit 1; \
 	fi
 
 test-structure: ## Verify test structure
@@ -140,7 +145,7 @@ coverage-report: ## Generate coverage report
 # ---------- Workflows ----------
 dev: format lint test-unit ## Quick development loop
 
-ci: format lint type-check security coverage-check ## Full CI pipeline
+ci: format-check lint type-check security coverage-check ## Full CI pipeline
 	@echo "CI pipeline completed successfully!"
 
 # ---------- Maintenance ----------
@@ -180,7 +185,10 @@ demo-tests: ## Run tests to demonstrate testing patterns (LIVE)
 demo-coverage: ## Run coverage analysis (LIVE)
 	@echo "=== Parseltongue Coverage Demo (LIVE) ==="
 	@echo ""
-	$(PYTEST) --cov=src/parseltongue --cov-report=term-missing -q | head -30
+	@# Capture, then trim with sed, which reads to EOF: under pipefail
+	@# `| head` fails a passing run once head closes the pipe early.
+	@out=$$($(PYTEST) --cov=src/parseltongue --cov-report=term-missing -q 2>&1) || st=$$?; \
+		printf '%s\n' "$$out" | sed -n '1,30p'; exit $${st:-0}
 
 demo-lint: ## Run linting on parseltongue code (LIVE)
 	@echo "=== Parseltongue Lint Demo (LIVE) ==="
