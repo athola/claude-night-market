@@ -19,7 +19,13 @@
 # Names are prefixed and shell options are set only on direct invocation:
 # this file is also sourced, and must not rewrite the caller's SCRIPT_DIR
 # or turn on set -euo pipefail in the caller's shell.
-_SKRILLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Parameter expansion in place of dirname; a bare name means the cwd.
+case "${BASH_SOURCE[0]}" in
+  */*) _skrills_src_dir="${BASH_SOURCE[0]%/*}" ;;
+  *) _skrills_src_dir="." ;;
+esac
+_SKRILLS_DIR="$(cd "${_skrills_src_dir:-/}" && pwd)"
+unset _skrills_src_dir
 SKRILLS_BIN=""
 
 # Pin expected hash (updated by Makefile target or CI)
@@ -40,9 +46,13 @@ _find_skrills() {
 }
 
 _verify_hash() {
-  if [[ -z "${SKRILLS_EXPECTED_HASH}" || -z "${SKRILLS_VERIFY_HASH:-}" ]]; then
-    return 0 # Verification not requested
-  fi
+  # Verification not requested
+  case "${SKRILLS_EXPECTED_HASH}" in
+    "") return 0 ;;
+  esac
+  case "${SKRILLS_VERIFY_HASH:-}" in
+    "") return 0 ;;
+  esac
   local actual
   # sha256sum is absent before macOS 14; shasum ships with every macOS.
   if command -v sha256sum &>/dev/null; then
@@ -50,11 +60,14 @@ _verify_hash() {
   else
     actual="$(shasum -a 256 "${SKRILLS_BIN}" | cut -d' ' -f1)"
   fi
-  if [[ "${actual}" != "${SKRILLS_EXPECTED_HASH}" ]]; then
-    echo "[skrills] Hash mismatch: expected ${SKRILLS_EXPECTED_HASH}, got ${actual}" >&2
-    echo "[skrills] Refusing to execute unverified binary" >&2
-    return 1
-  fi
+  case "${actual}" in
+    "${SKRILLS_EXPECTED_HASH}") ;;
+    *)
+      printf '%s\n' "[skrills] Hash mismatch: expected ${SKRILLS_EXPECTED_HASH}, got ${actual}" >&2
+      printf '%s\n' "[skrills] Refusing to execute unverified binary" >&2
+      return 1
+      ;;
+  esac
 }
 
 has_skrills() {
@@ -73,12 +86,14 @@ run_skrills() {
 }
 
 # If invoked directly (not sourced), pass through to skrills
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  set -euo pipefail
-  if _find_skrills && _verify_hash; then
-    exec "${SKRILLS_BIN}" "$@"
-  else
-    echo "[skrills-or-fallback] skrills not found. Install: cargo install skrills" >&2
-    exit 127
-  fi
-fi
+case "${0}" in
+  "${BASH_SOURCE[0]}")
+    set -euo pipefail
+    if _find_skrills && _verify_hash; then
+      exec "${SKRILLS_BIN}" "$@"
+    else
+      printf '%s\n' "[skrills-or-fallback] skrills not found. Install: cargo install skrills" >&2
+      exit 127
+    fi
+    ;;
+esac
