@@ -339,23 +339,23 @@ test-memory: ## Test memory command (runs memory management unit tests)
 
 test-palace: ## Test palace command (runs palace management unit tests)
 	@echo "Running palace tests..."
-	$(PYTEST) tests/ -v -k "palace" || $(PYTEST) tests/ -v --tb=short
+	$(PYTEST) tests/ -v -k "palace"
 
 test-garden: ## Test garden command (runs garden management unit tests)
 	@echo "Running garden tests..."
-	$(PYTEST) tests/ -v -k "garden" || $(PYTEST) tests/ -v --tb=short
+	$(PYTEST) tests/ -v -k "garden"
 
 test-navigate: ## Test navigate command (runs navigation unit tests)
 	@echo "Running navigate tests..."
-	$(PYTEST) tests/ -v -k "navigate or search" || $(PYTEST) tests/ -v --tb=short
+	$(PYTEST) tests/ -v -k "navigate or search"
 
 test-review-room: ## Test review-room command (runs review-room unit tests)
 	@echo "Running review-room tests..."
-	$(PYTEST) tests/ -v -k "review_room or review-room" || $(PYTEST) tests/ -v --tb=short
+	$(PYTEST) tests/ -v -k "review"
 
 test-skill-logs: ## Test skill-logs command (runs skill logging unit tests)
 	@echo "Running skill-logs tests..."
-	$(PYTEST) tests/ -v -k "skill_log or skill-log" || $(PYTEST) tests/ -v --tb=short
+	$(PYTEST) tests/ -v -k "skill and log"
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

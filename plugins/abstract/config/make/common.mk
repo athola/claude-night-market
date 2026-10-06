@@ -47,6 +47,14 @@ $(error $(PYTHON) is required but not installed. Install Python 3.10+ from pytho
 endif
 endif
 
+# $(call pytest_selection,ARGS): run pytest on a selection that can match
+# nothing yet (a marker or -k no test carries). pytest's exit 5 ("no tests
+# collected") prints a note; every other failure fails the target. It
+# replaces `$(PYTEST) -k x || $(PYTEST) tests/`, which ran a second suite
+# whenever the first failed, so a failing selected test passed the target.
+pytest_selection = status=0; $(PYTEST) $(1) || status=$$?; \
+	if [ $$status -eq 5 ]; then echo "No tests matched this selection (pytest exit 5)"; else exit $$status; fi
+
 # Tool commands - abstracted for single-point-of-change
 UV_RUN := $(UV) run
 UV_RUN_PYTHON := $(UV_RUN) python

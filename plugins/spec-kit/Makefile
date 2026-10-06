@@ -41,7 +41,7 @@ test: ## Run all tests
 	$(PYTEST) $(TEST_DIR)/ -v
 
 test-integration: ## Run integration tests only
-	$(PYTEST) $(TEST_DIR)/ -v -m integration
+	@$(call pytest_selection,$(TEST_DIR)/ -v -m integration)
 
 # ---------- Validation ----------
 validate-plugin: ## Validate plugin structure

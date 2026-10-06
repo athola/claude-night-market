@@ -373,31 +373,25 @@ test-full-review: ## Test full-review command (runs all review tests)
 	$(PYTEST) $(PYTEST_TARGETS) -v --tb=short
 
 test-api-review: ## Test api-review command (runs API review tests)
-	$(PYTEST) tests/skills/test_api_review.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "api_review or api-review"
+	$(PYTEST) tests/skills/test_api_review.py -v
 
 test-architecture-review: ## Test architecture-review command (runs architecture review tests)
-	$(PYTEST) tests/skills/test_architecture_review.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "architecture"
+	$(PYTEST) tests/skills/test_architecture_review.py -v
 
 test-bug-review: ## Test bug-review command (runs bug review tests)
-	$(PYTEST) tests/skills/test_bug_review.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "bug_review or bug-review"
+	$(PYTEST) tests/skills/test_bug_review.py -v
 
 test-rust-review: ## Test rust-review command (runs Rust review tests)
 	$(PYTEST) tests/skills/test_rust_review_*.py -v
 
 test-test-review: ## Test test-review command (runs test review tests)
-	$(PYTEST) tests/skills/test_test_review.py tests/skills/test_test_review_content.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "test_review"
+	$(PYTEST) tests/skills/test_test_review.py tests/skills/test_test_review_content.py -v
 
 test-math-review: ## Test math-review command (runs math review tests)
-	$(PYTEST) tests/skills/test_math_review.py -v 2>/dev/null || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "math_review or math-review"
+	$(PYTEST) tests/skills/test_math_review.py -v
 
 test-makefile-review: ## Test makefile-review command (runs Makefile review tests)
-	$(PYTEST) tests/skills/test_makefile_review.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "makefile_review or makefile-review"
+	$(PYTEST) tests/skills/test_makefile_review.py -v
 
 test-shell-review: ## Test shell-review command (not applicable: skill-only, no unit tests)
 	@echo "Not applicable: shell-review is a skill-only command with no unit tests"
@@ -406,8 +400,7 @@ test-fpf-review: ## Test fpf-review command (not applicable: skill-only, no unit
 	@echo "Not applicable: fpf-review is a skill-only command with no unit tests"
 
 test-refine-code: ## Test code refinement (runs refinement tests)
-	$(PYTEST) tests/test_code_refinement.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "refine or refinement"
+	$(PYTEST) tests/test_code_refinement.py -v
 
 test-skill-history: ## Test skill history (not applicable: skill-only, no unit tests)
 	@echo "Not applicable: skill-history is a skill-only command with no unit tests"
