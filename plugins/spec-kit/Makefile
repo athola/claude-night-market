@@ -3,13 +3,9 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: ci clean debug-variables demo-skills demo-spec demo-speckit-analyze demo-speckit-checklist \
-	demo-speckit-clarify demo-speckit-constitution demo-speckit-implement demo-speckit-plan \
-	demo-speckit-specify demo-speckit-startup demo-speckit-tasks demo-tasks deps help \
+.PHONY: ci clean debug-variables demo-skills demo-spec demo-tasks deps help \
 	install-hooks plugin-check status test test-integration \
-	test-speckit-analyze test-speckit-checklist test-speckit-clarify test-speckit-constitution \
-	test-speckit-implement test-speckit-plan test-speckit-specify test-speckit-startup \
-	test-speckit-tasks validate-plugin demo-spec-kit-commands
+	validate-plugin demo-spec-kit-commands
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests
@@ -102,7 +98,8 @@ demo-spec: ## Demo spec writing workflow
 	@echo "  ## Non-Functional Requirements"
 	@echo ""
 	@echo "Step 2: Skill validation"
-	@test -f skills/spec-writing/SKILL.md && echo "  [OK] spec-writing skill exists" || echo "  [X] spec-writing skill missing"
+	@if [ -f skills/spec-writing/SKILL.md ]; then echo "  [OK] spec-writing skill exists"; \
+	else echo "  [X] spec-writing skill missing"; exit 1; fi
 	@head -10 skills/spec-writing/SKILL.md 2>/dev/null | grep -E '^(name|description):' || true
 	@echo ""
 	@echo "Spec demo complete. Use /spec-kit:speckit-specify for full workflow."
@@ -118,7 +115,8 @@ demo-tasks: ## Demo task planning workflow
 	@echo "  - [ ] Estimated effort"
 	@echo ""
 	@echo "Step 2: Skill validation"
-	@test -f skills/task-planning/SKILL.md && echo "  [OK] task-planning skill exists" || echo "  [X] task-planning skill missing"
+	@if [ -f skills/task-planning/SKILL.md ]; then echo "  [OK] task-planning skill exists"; \
+	else echo "  [X] task-planning skill missing"; exit 1; fi
 	@head -10 skills/task-planning/SKILL.md 2>/dev/null | grep -E '^(name|description):' || true
 	@echo ""
 	@echo "Step 3: Commands available"
@@ -154,203 +152,37 @@ plugin-check: demo-spec demo-tasks demo-skills ## Run all demo workflows
 Makefile.local:;
 -include Makefile.local
 
-demo-speckit-startup: ## Demo speckit-startup command
-	@echo "=== speckit-startup Demo ==="
+# One demo-* and one test-* per commands/*.md, so the lists cannot drift
+# from what ships.
+SPECKIT_COMMANDS := $(sort $(basename $(notdir $(wildcard commands/*.md))))
+SPECKIT_DEMOS := $(addprefix demo-,$(SPECKIT_COMMANDS))
+SPECKIT_TESTS := $(addprefix test-,$(SPECKIT_COMMANDS))
+.PHONY: $(SPECKIT_DEMOS) $(SPECKIT_TESTS)
+
+$(SPECKIT_DEMOS): demo-%:
+	@echo "=== $* Demo ==="
 	@echo ""
-	@echo "Command: /speckit-startup"
+	@echo "Command: /$*"
 	@echo "Plugin: spec-kit"
 	@echo ""
-	@echo "This demonstrates speckit-startup usage."
+	@echo "This demonstrates $* usage."
 	@echo "Execute manually in Claude Code for full functionality."
 	@echo ""
-	@echo "Use /speckit-startup for full workflow."
+	@echo "Use /$* for full workflow."
 
-
-demo-speckit-specify: ## Demo speckit-specify command
-	@echo "=== speckit-specify Demo ==="
-	@echo ""
-	@echo "Command: /speckit-specify"
-	@echo "Plugin: spec-kit"
-	@echo ""
-	@echo "This demonstrates speckit-specify usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /speckit-specify for full workflow."
-
-
-demo-speckit-clarify: ## Demo speckit-clarify command
-	@echo "=== speckit-clarify Demo ==="
-	@echo ""
-	@echo "Command: /speckit-clarify"
-	@echo "Plugin: spec-kit"
-	@echo ""
-	@echo "This demonstrates speckit-clarify usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /speckit-clarify for full workflow."
-
-
-demo-speckit-plan: ## Demo speckit-plan command
-	@echo "=== speckit-plan Demo ==="
-	@echo ""
-	@echo "Command: /speckit-plan"
-	@echo "Plugin: spec-kit"
-	@echo ""
-	@echo "This demonstrates speckit-plan usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /speckit-plan for full workflow."
-
-
-demo-speckit-tasks: ## Demo speckit-tasks command
-	@echo "=== speckit-tasks Demo ==="
-	@echo ""
-	@echo "Command: /speckit-tasks"
-	@echo "Plugin: spec-kit"
-	@echo ""
-	@echo "This demonstrates speckit-tasks usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /speckit-tasks for full workflow."
-
-
-demo-speckit-implement: ## Demo speckit-implement command
-	@echo "=== speckit-implement Demo ==="
-	@echo ""
-	@echo "Command: /speckit-implement"
-	@echo "Plugin: spec-kit"
-	@echo ""
-	@echo "This demonstrates speckit-implement usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /speckit-implement for full workflow."
-
-
-demo-speckit-analyze: ## Demo speckit-analyze command
-	@echo "=== speckit-analyze Demo ==="
-	@echo ""
-	@echo "Command: /speckit-analyze"
-	@echo "Plugin: spec-kit"
-	@echo ""
-	@echo "This demonstrates speckit-analyze usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /speckit-analyze for full workflow."
-
-
-demo-speckit-checklist: ## Demo speckit-checklist command
-	@echo "=== speckit-checklist Demo ==="
-	@echo ""
-	@echo "Command: /speckit-checklist"
-	@echo "Plugin: spec-kit"
-	@echo ""
-	@echo "This demonstrates speckit-checklist usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /speckit-checklist for full workflow."
-
-
-demo-speckit-constitution: ## Demo speckit-constitution command
-	@echo "=== speckit-constitution Demo ==="
-	@echo ""
-	@echo "Command: /speckit-constitution"
-	@echo "Plugin: spec-kit"
-	@echo ""
-	@echo "This demonstrates speckit-constitution usage."
-	@echo "Execute manually in Claude Code for full functionality."
-	@echo ""
-	@echo "Use /speckit-constitution for full workflow."
-
-
-demo-spec-kit-commands: demo-speckit-startup demo-speckit-specify demo-speckit-clarify demo-speckit-plan demo-speckit-tasks demo-speckit-implement demo-speckit-analyze demo-speckit-checklist demo-speckit-constitution ## Run all spec-kit documented command demos
+demo-spec-kit-commands: $(SPECKIT_DEMOS) ## Run all spec-kit documented command demos
 	@echo ""
 	@echo "=== Spec-kit All Commands Demo Complete ==="
-	@echo "Ran 9 documented commands"
+	@echo "Ran $(words $(SPECKIT_DEMOS)) documented commands"
 	@echo ""
 
-
-test-speckit-startup: ## Test speckit-startup command workflow
-	@echo "=== Testing speckit-startup workflow ==="
-	@echo "Validating: /speckit-startup"
+$(SPECKIT_TESTS): test-%:
+	@echo "=== Testing $* workflow ==="
+	@echo "Validating: /$*"
 	@echo "Check: Command executes without errors"
 	@echo "Check: Output matches expected format"
 	@echo "Status: [ ] Manual test required"
 	@echo ""
-
-
-test-speckit-specify: ## Test speckit-specify command workflow
-	@echo "=== Testing speckit-specify workflow ==="
-	@echo "Validating: /speckit-specify"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-speckit-clarify: ## Test speckit-clarify command workflow
-	@echo "=== Testing speckit-clarify workflow ==="
-	@echo "Validating: /speckit-clarify"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-speckit-plan: ## Test speckit-plan command workflow
-	@echo "=== Testing speckit-plan workflow ==="
-	@echo "Validating: /speckit-plan"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-speckit-tasks: ## Test speckit-tasks command workflow
-	@echo "=== Testing speckit-tasks workflow ==="
-	@echo "Validating: /speckit-tasks"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-speckit-implement: ## Test speckit-implement command workflow
-	@echo "=== Testing speckit-implement workflow ==="
-	@echo "Validating: /speckit-implement"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-speckit-analyze: ## Test speckit-analyze command workflow
-	@echo "=== Testing speckit-analyze workflow ==="
-	@echo "Validating: /speckit-analyze"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-speckit-checklist: ## Test speckit-checklist command workflow
-	@echo "=== Testing speckit-checklist workflow ==="
-	@echo "Validating: /speckit-checklist"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-test-speckit-constitution: ## Test speckit-constitution command workflow
-	@echo "=== Testing speckit-constitution workflow ==="
-	@echo "Validating: /speckit-constitution"
-	@echo "Check: Command executes without errors"
-	@echo "Check: Output matches expected format"
-	@echo "Status: [ ] Manual test required"
-	@echo ""
-
-
-
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::
