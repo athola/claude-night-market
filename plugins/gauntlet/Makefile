@@ -65,7 +65,10 @@ debug-variables: ## Show Makefile variable values (for debugging)
 
 demo-gauntlet-extract: ## Demo: extract knowledge entries from gauntlet's own source (LIVE)
 	@echo "=== gauntlet-extract Demo: dogfood on src/gauntlet/ (LIVE) ==="
-	@$(UV_RUN) python scripts/extractor.py src/gauntlet --format text | head -20
+	@# Capture, then trim with sed, which reads to EOF: `| head` took head's
+	@# status on make 3.81 and, under pipefail, SIGPIPEs a passing run.
+	@out=$$($(UV_RUN) python scripts/extractor.py src/gauntlet --format text 2>&1) || st=$$?; \
+		printf '%s\n' "$$out" | sed -n '1,20p'; exit $${st:-0}
 	@echo "..."
 	@echo "(truncated to 20 entries; remove '| head' for full output)"
 
