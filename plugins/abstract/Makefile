@@ -73,7 +73,7 @@ ifndef HAS_PRE_COMMIT
 	@$(UV) pip install pre-commit
 endif
 	@echo "Installing pre-commit hooks..."
-	$(UV_RUN) pre-commit install || true
+	$(UV_RUN) pre-commit install
 
 clean: ## Clean cache and build files
 	@echo "Cleaning up..."
@@ -92,7 +92,7 @@ status: ## Show project overview
 # SKILL ANALYSIS
 analyze-skill: ## Analyze skill complexity (TARGET=<path>)
 	$(call require_path,$@)
-	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/skill_analyzer.py --path "$(TARGET)"
+	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/skill_analyzer.py $(if $(filter %.md,$(TARGET)),--file,--directory) "$(TARGET)"
 
 validate-skill-descriptions: ## Validate skill descriptions follow best practices
 	@echo "Validating skill descriptions..."
@@ -118,7 +118,7 @@ audit-skill: ## detailed skill audit (TARGET=<path>)
 improve-skill: ## Generate improvement plan (TARGET=<path>)
 	$(call require_path,$@)
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import ImprovementSuggester; from pathlib import Path; suggester = ImprovementSuggester(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = suggester.analyze_skill(Path('$(TARGET)').stem); print(f'Issues: {len(result.get(\"issues\", []))}'); print(f'Suggestions: {len(result.get(\"suggestions\", []))}')"
+	$(UV_RUN_PYTHON) -c "from abstract.skills_eval import ImprovementSuggester; from pathlib import Path; target = Path('$(TARGET)'); skill = target.parent if target.name == 'SKILL.md' else target; result = ImprovementSuggester(skill.parent).analyze_skill(skill.name); issues, suggestions = result.get('issues', []), result.get('suggestions', []); print('\\n'.join([f'Issues: {len(issues)}'] + [f'  - {x}' for x in issues] + [f'Suggestions: {len(suggestions)}'] + [f'  - {x}' for x in suggestions]))"
 
 check-compliance: ## Check standards compliance (TARGET=<path>)
 	$(call require_path,$@)
@@ -145,7 +145,7 @@ check-changelog: ## Validate CHANGELOG format
 # UTILITIES
 dev-setup: ## Complete development environment setup
 	@echo "Setting up development environment..."
-	@$(UV) sync --dev || true
+	@$(UV) sync --dev
 	@$(MAKE) install-hooks
 	@echo "[OK] Development environment ready!"
 	@echo ""
