@@ -63,19 +63,9 @@ help: ## Show this help message
 	@echo "==================================="
 	@echo ""
 	@echo "Root targets (run on ALL code, not just changed files):"
-	@echo "  help              Show this help message"
-	@echo "  all               Run lint and test across all plugins"
-	@echo "  test              Run tests in all plugins (ALL code)"
-	@echo "  test-mods         Validate and kit-test every plugin that ships a mod"
-	@echo "  validate-plugins  Run claude plugin validate on the marketplace and each plugin"
-	@echo "  lint              Run linting in all plugins (ALL code)"
-	@echo "  typecheck         Run type checking in all plugins (ALL code)"
-	@echo "  status            Show status of all plugins"
-	@echo "  clean             Clean all plugin artifacts"
-	@echo "  validate-all      Validate all plugin structures"
-	@echo "  supply-chain-scan Scan lockfiles for compromised packages"
-	@echo "  plugin-check      Run demo/dogfood checks across all plugins"
-	@echo "  check-examples    Verify all plugins have proper examples"
+	@# Generated from the ## comments, so a new target cannot go missing
+	@# from help the way `fix` did while lint failures pointed at it.
+	@awk 'BEGIN {FS = ":[^#]*## "} /^[a-zA-Z][a-zA-Z0-9_-]*:[^=]*## / {printf "  %-24s %s\n", $$1, $$2}' $(firstword $(MAKEFILE_LIST))
 	@echo ""
 	@echo "Plugin delegation (run with 'make <plugin>-<target>'):"
 	@echo "  Detected plugins: $(ALL_PLUGIN_NAMES)"
@@ -211,12 +201,13 @@ prune-plugin-cache: ## Delete plugin cache versions nothing installed points at
 
 clean: ## Clean all plugin artifacts
 	@echo "Cleaning all plugins..."
-	@for plugin in $(ALL_PLUGINS); do \
+	@fail=0; for plugin in $(ALL_PLUGINS); do \
 		if [ -f "$$plugin/Makefile" ]; then \
 			echo "Cleaning $$plugin..."; \
-			$(MAKE) -C $$plugin clean 2>/dev/null || true; \
+			$(MAKE) -C $$plugin clean || fail=1; \
 		fi; \
-	done
+	done; \
+	exit $$fail
 	@echo "Done."
 
 supply-chain-scan: ## Scan lockfiles for known compromised package versions and malicious artifacts
@@ -241,6 +232,8 @@ plugin-check: ## Run demo/dogfood checks across all plugins
 			echo ""; \
 			echo ">>> $$plugin:"; \
 			$(TIMEOUT_180) $(MAKE) -C $$plugin plugin-check || { echo "  (plugin-check failed or timed out)"; fail=1; }; \
+		else \
+			echo "SKIP: $$plugin has no plugin-check target"; \
 		fi; \
 	done; \
 	echo ""; \
@@ -412,13 +405,16 @@ cross-framework: clawhub-export bridge-build a2a-cards ## Build all cross-framew
 
 verify-deferred-capture:  ## Verify all deferred_capture.py wrappers conform to leyline contract
 	@echo "Verifying deferred_capture.py compliance..."
+	@# The wrapper's own exit status is checked before its JSON. Piped,
+	@# a wrapper exiting 1 still printed a status key and passed.
 	@for plugin in sanctum attune imbue pensive abstract egregore; do \
 		echo "  $$plugin..."; \
-		python3 plugins/$$plugin/scripts/deferred_capture.py \
+		out=$$(python3 plugins/$$plugin/scripts/deferred_capture.py \
 			--title "Test: compliance" \
 			--source test \
 			--context "Automated compliance check" \
-			--dry-run | python3 -c "import json,sys; d=json.load(sys.stdin); assert 'status' in d, 'Missing status field'" \
+			--dry-run) || { echo "  FAIL: $$plugin exited nonzero"; exit 1; }; \
+		printf '%s' "$$out" | python3 -c "import json,sys; d=json.load(sys.stdin); assert 'status' in d, 'Missing status field'" \
 		|| { echo "  FAIL: $$plugin"; exit 1; }; \
 	done
 	@echo "All wrappers compliant."
