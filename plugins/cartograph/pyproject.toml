@@ -17,6 +17,9 @@ dev = [
     # pytest>=8.0, not >=9: pytest 9 requires Python >=3.10 and this plugin
     # supports >=3.9. Matches archetypes, tome, gauntlet, herald, egregore.
     "pytest>=8.0",
+    # python.mk passes --no-cov and --cov to every includer's pytest.
+    "pytest-cov>=7.1.0",
+    "bandit>=1.8.6,<2.0",
     # run-plugin-typecheck.sh type-checks hooks/ in every plugin that has
     # Python there, so mypy has to exist in this plugin's own environment.
     # It resolved anyway on a machine with a global mypy on PATH and failed
