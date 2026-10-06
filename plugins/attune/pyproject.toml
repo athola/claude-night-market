@@ -146,7 +146,10 @@ disable_error_code = ["no-redef"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
-skips = ["B101"]
+# B101: assert_used. B404, B603, B607: subprocess for git and tool
+# integration with fixed argv, the same reasons the repository's own
+# [tool.bandit] gives.
+skips = ["B101", "B404", "B603", "B607"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"

@@ -235,3 +235,34 @@ def test_memory_profile_fails_when_the_profiler_is_missing(tmp_path: Path) -> No
     result = _make("tome", "memory-profile", f"UV={uv}")
     assert result.returncode != 0
     assert "memory_profiler" in result.stdout + result.stderr
+
+
+# --- M2-13: `make security` in every python.mk plugin ----------------------
+
+PYTHON_MK_PLUGINS = sorted(
+    p.parent.name
+    for p in (ROOT / "plugins").glob("*/Makefile")
+    if "config/make/python.mk" in p.read_text()
+)
+
+
+@pytest.mark.parametrize("plugin", PYTHON_MK_PLUGINS)
+def test_security_runs_and_passes(plugin: str) -> None:
+    """bandit was missing from 11 plugins, so `make security` (and ci) could
+    never pass there; plugins without a [tool.bandit] table now use the
+    repository's, whose skips each carry a reason.
+    """
+    result = subprocess.run(
+        [
+            "make",
+            "--no-print-directory",
+            "-C",
+            str(ROOT / "plugins" / plugin),
+            "security",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=600,
+        check=False,
+    )
+    assert result.returncode == 0, (result.stdout + result.stderr)[-1500:]
