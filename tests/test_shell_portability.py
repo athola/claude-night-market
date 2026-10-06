@@ -134,7 +134,7 @@ def test_cron_lock_is_atomic_and_under_the_repo() -> None:
     by another user to disable the job at exit 0.
     """
     body = (REPO_ROOT / "scripts" / "clawhub-cron.sh").read_text()
-    assert 'mkdir "$LOCK"' in body
+    assert 'mkdir "${LOCK}"' in body
     assert "/tmp/clawhub-sync.lock" not in body
 
 

@@ -30,7 +30,8 @@ SCRIPTS = ("clawhub-batch-publish.sh", "clawhub-submit.sh", "clawhub-cron.sh")
 def _sandbox(tmp_path: Path, name: str = "repo") -> Path:
     repo = tmp_path / name
     (repo / "scripts").mkdir(parents=True)
-    for script in SCRIPTS:
+    # The scripts source their logging library from their own directory.
+    for script in (*SCRIPTS, "logging.sh"):
         shutil.copy2(ROOT / "scripts" / script, repo / "scripts" / script)
     plugin_json = repo / "plugins" / "abstract" / ".claude-plugin" / "plugin.json"
     plugin_json.parent.mkdir(parents=True)
