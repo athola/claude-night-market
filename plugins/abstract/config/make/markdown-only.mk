@@ -5,18 +5,20 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 
-# .SHELLFLAGS and .ONESHELL arrived in GNU make 3.82. Stock macOS ships
-# 3.81 from the Xcode command line tools, which ignores both, so every
-# recipe below runs without -euo pipefail and a failing pipeline stage
-# passes. Say so once per invocation rather than pretend the gate holds.
-# The filter names the releases that ignore the assignment, so a make
-# newer than 4.x does not fall through into advice it has outgrown.
+# .SHELLFLAGS arrived in GNU make 3.82. Stock macOS ships 3.81 from the
+# Xcode command line tools, which parses the assignment above and ignores
+# it. 3.81 does honor flags written into SHELL itself, so for the releases
+# that ignore .SHELLFLAGS the flags go there, and every make runs recipes
+# under -euo pipefail. The filter names the releases that ignore the
+# assignment, so a make newer than 4.x keeps the plain form.
 ifneq ($(filter 3.7% 3.80 3.81,$(firstword $(MAKE_VERSION))),)
-$(warning GNU make $(MAKE_VERSION) ignores .SHELLFLAGS and .ONESHELL; recipes run without -euo pipefail. Install GNU make 3.82+ (brew install make) and run gmake.)
+SHELL := /bin/bash -euo pipefail
 endif
 
-# Run all recipe lines in single shell (performance + variable persistence)
-.ONESHELL:
+# No .ONESHELL. 3.81 ignores it, so every recipe here was written to run
+# one line per shell, and on 3.82+ it changed that: a mid-recipe exit
+# ended the recipe and a cd leaked into later lines. One semantics on
+# every make.
 
 # Common directories (override via environment or Makefile.local)
 SKILLS_DIR ?= skills
