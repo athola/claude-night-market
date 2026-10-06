@@ -15,85 +15,122 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-SKILLS_DIR="clawhub"
+# A bare name (`bash clawhub-submit.sh` from inside scripts/) has no slash
+# for `${0%/*}` to strip, so it would come back unchanged.
+case "${0}" in
+  */*) MYDIR="${0%/*}" ;;
+  *) MYDIR="." ;;
+esac
+readonly MYDIR
 
-# ---------- parse args ----------
+# shellcheck source=scripts/logging.sh
+. "${MYDIR%/}/logging.sh"
+
+REPO_ROOT="$(cd "${MYDIR%/}/.." && pwd)"
+readonly REPO_ROOT
+readonly SKILLS_DIR="clawhub"
+readonly REQUIRED_DEPENDENCIES="python3"
 
 DRY_RUN=false
 VERSION=""
+XTRACE=0
+# A command line, not a path: "npx clawhub" is two words and is split on
+# purpose wherever it runs.
+CLAWHUB=""
 
-for arg in "$@"; do
-  case "$arg" in
-    --dry-run) DRY_RUN=true ;;
-    v*) VERSION="$arg" ;;
-    [0-9]*) VERSION="v$arg" ;;
-    *)
-      echo "Unknown argument: $arg"
-      exit 1
-      ;;
+usage() {
+  log "Usage: scripts/clawhub-submit.sh [-h] [-x|-t] [--dry-run] [VERSION]"
+  printf '  -h          Show this help and exit (exit 0)\n'
+  printf '  -x, -t      Enable xtrace (set -x) for debugging\n'
+  printf '  --dry-run   List what would be published; publish nothing\n'
+  printf '  VERSION     Release version, v1.8.3 or 1.8.3 (default: abstract plugin.json)\n'
+}
+
+depcheck() {
+  local missing="" utility
+  for utility in ${REQUIRED_DEPENDENCIES}; do
+    command -v "${utility}" >/dev/null 2>&1 ||
+      missing="${missing:+"${missing} "}${utility}"
+  done
+  case "${missing}" in
+    "") return 0 ;;
   esac
-done
+  log 5 "Required utilities not found: ${missing}"
+  return 1
+}
 
-if [ -z "$VERSION" ]; then
+parse_args() {
+  local arg
+  for arg in "$@"; do
+    case "${arg}" in
+      *[uU][sS][aA][gG][eE] | *[hH][eE][lL][pP] | -h)
+        usage
+        exit 0
+        ;;
+      -x | -t) XTRACE=1 ;;
+      --dry-run) DRY_RUN=true ;;
+      v*) VERSION="${arg}" ;;
+      [0-9]*) VERSION="v${arg}" ;;
+      *)
+        log 4 "Unknown argument: ${arg}"
+        exit 1
+        ;;
+    esac
+  done
+}
+
+detect_version() {
+  case "${VERSION}" in
+    "") ;;
+    *) return 0 ;;
+  esac
   # The path reaches Python through the environment, not the source text,
-  # so a checkout path with an apostrophe cannot break the program.
-  VERSION="v$(REPO_ROOT="$REPO_ROOT" python3 -c '
+  # so a checkout path with an apostrophe cannot break the program. `env`
+  # sets it because the shell refuses a prefix assignment to a readonly.
+  VERSION="v$(env REPO_ROOT="${REPO_ROOT}" python3 -c '
 import json, os
 print(json.load(open(os.path.join(os.environ["REPO_ROOT"], "plugins/abstract/.claude-plugin/plugin.json")))["version"])
 ')"
-  echo "Auto-detected version: $VERSION"
-fi
+  log "Auto-detected version: ${VERSION}"
+}
 
-# ---------- preflight ----------
+find_clawhub() {
+  if command -v clawhub >/dev/null 2>&1; then
+    CLAWHUB="clawhub"
+  elif command -v npx >/dev/null 2>&1 && npx clawhub --help >/dev/null 2>&1; then
+    CLAWHUB="npx clawhub"
+  else
+    log 4 "clawhub CLI not found."
+    log 4 "Install: npm install -g clawhub"
+    log 4 "    or: curl -fsSL https://clawhub.dev/install.sh | sh"
+    return 1
+  fi
+}
 
-# Find clawhub binary
-CLAWHUB=""
-if command -v clawhub &>/dev/null; then
-  CLAWHUB="clawhub"
-elif command -v npx &>/dev/null && npx clawhub --help &>/dev/null 2>&1; then
-  CLAWHUB="npx clawhub"
-else
-  echo "Error: clawhub CLI not found."
-  echo "Install: npm install -g clawhub"
-  echo "    or: curl -fsSL https://clawhub.dev/install.sh | sh"
-  exit 1
-fi
+check_auth() {
+  local user
+  # shellcheck disable=SC2086 # CLAWHUB is a command line; split on purpose.
+  if ! ${CLAWHUB} whoami >/dev/null 2>&1; then
+    log 4 "Not authenticated with ClawHub."
+    log 4 "Run: ${CLAWHUB} login"
+    return 1
+  fi
 
-# Verify authentication
-if ! $CLAWHUB whoami &>/dev/null 2>&1; then
-  echo "Error: Not authenticated with ClawHub."
-  echo "Run: $CLAWHUB login"
-  exit 1
-fi
+  # sed, not grep -P: macOS grep has no -P.
+  # shellcheck disable=SC2086 # CLAWHUB is a command line; split on purpose.
+  user=$(${CLAWHUB} whoami 2>/dev/null | sed -n 's/^✔ //p')
+  # shellcheck disable=SC2086 # CLAWHUB is a command line; split on purpose.
+  user="${user:-$(${CLAWHUB} whoami 2>/dev/null)}"
+  log "Authenticated as: ${user}"
+}
 
-# sed, not grep -P: macOS grep has no -P.
-CLAWHUB_USER=$($CLAWHUB whoami 2>/dev/null | sed -n 's/^✔ //p')
-CLAWHUB_USER="${CLAWHUB_USER:-$($CLAWHUB whoami 2>/dev/null)}"
-echo "Authenticated as: $CLAWHUB_USER"
-
-# ---------- build artifacts if needed ----------
-
-if [ ! -d "$REPO_ROOT/$SKILLS_DIR" ] ||
-  [ ! -f "$REPO_ROOT/$SKILLS_DIR/manifest.json" ]; then
-  echo "Building clawhub export..."
-  cd "$REPO_ROOT"
-  make clawhub-export
-fi
-
-EXPORTED=$(MANIFEST="$REPO_ROOT/$SKILLS_DIR/manifest.json" python3 -c '
-import json, os
-print(json.load(open(os.environ["MANIFEST"]))["total_exported"])
-')
-echo "Skills to publish: $EXPORTED"
-
-if [ "$EXPORTED" -eq 0 ]; then
-  echo "Error: No skills exported"
-  exit 1
-fi
-
-# ---------- publish each skill independently ----------
+build_export_if_needed() {
+  if [ ! -d "${REPO_ROOT}/${SKILLS_DIR}" ] ||
+    [ ! -f "${REPO_ROOT}/${SKILLS_DIR}/manifest.json" ]; then
+    log "Building clawhub export..."
+    (cd "${REPO_ROOT}" && make clawhub-export)
+  fi
+}
 
 # Rationale (issue #570): `clawhub sync --all` is a single bulk call
 # that aborts on the first hard error. During the v1.9.11 release a
@@ -112,17 +149,14 @@ fi
 # the release tag nor the manifest version). Fixing that derivation
 # belongs in the clawhub CLI, tracked as a follow-up. This script only
 # makes the publish loop resilient to it.
-
-SEMVER="${VERSION#v}"
-
-echo ""
-echo "Publishing $EXPORTED skill(s) individually for $VERSION..."
-echo ""
-
-SUMMARY=$(
-  SKILLS_DIR="$REPO_ROOT/$SKILLS_DIR" \
-    SEMVER="$SEMVER" VERSION="$VERSION" \
-    DRY_RUN="$DRY_RUN" CLAWHUB="$CLAWHUB" python3 -c '
+#
+# Prints the per-skill lines and the summary, and returns nonzero only
+# when a skill genuinely failed.
+publish_skills() {
+  # `env`, because the shell refuses a prefix assignment to a readonly.
+  env SKILLS_DIR="${REPO_ROOT}/${SKILLS_DIR}" \
+    SEMVER="${1:?publish_skills needs a semver}" VERSION="${VERSION}" \
+    DRY_RUN="${DRY_RUN}" CLAWHUB="${CLAWHUB}" python3 -c '
 import json, os, shlex, subprocess, sys
 from pathlib import Path
 
@@ -203,31 +237,67 @@ if failed:
 # Exit non-zero only on genuine failures. Collisions/skips are fine.
 sys.exit(1 if failed else 0)
 '
-) && PUBLISH_EXIT=0 || PUBLISH_EXIT=$?
+}
 
-echo "$SUMMARY"
-
-# ---------- publish package ----------
-
-echo ""
-if [ "$DRY_RUN" = true ]; then
-  echo "[dry-run] Would publish package: athola/claude-night-market@$VERSION"
-else
-  echo "Publishing package..."
-  if $CLAWHUB package publish "athola/claude-night-market@$VERSION" 2>/dev/null; then
-    echo "Package published: athola/claude-night-market@$VERSION"
+publish_package() {
+  case "${DRY_RUN}" in
+    true)
+      log "[dry-run] Would publish package: athola/claude-night-market@${VERSION}"
+      return 0
+      ;;
+  esac
+  log "Publishing package..."
+  # shellcheck disable=SC2086 # CLAWHUB is a command line; split on purpose.
+  if ${CLAWHUB} package publish "athola/claude-night-market@${VERSION}" 2>/dev/null; then
+    log "Package published: athola/claude-night-market@${VERSION}"
   else
-    echo "Warning: Package publish failed (may require manual setup)"
+    log 2 "Package publish failed (may require manual setup)"
   fi
-fi
+}
 
-# ---------- final status ----------
+main() {
+  local exported summary publish_exit
 
-echo ""
-if [ "$PUBLISH_EXIT" -ne 0 ]; then
-  echo "Status:  completed with failures (see list above)"
-  echo "Re-run this script to retry; already-published skills are skipped."
-  exit 1
-else
-  echo "Status:  complete"
-fi
+  parse_args "$@"
+
+  case "${XTRACE}" in
+    1) set -x ;;
+  esac
+
+  depcheck || exit 1
+  detect_version
+  find_clawhub || exit 1
+  check_auth || exit 1
+  build_export_if_needed
+
+  exported=$(MANIFEST="${REPO_ROOT}/${SKILLS_DIR}/manifest.json" python3 -c '
+import json, os
+print(json.load(open(os.environ["MANIFEST"]))["total_exported"])
+')
+  log "Skills to publish: ${exported}"
+
+  case "${exported}" in
+    0)
+      log 4 "No skills exported"
+      exit 1
+      ;;
+  esac
+
+  log "Publishing ${exported} skill(s) individually for ${VERSION}..."
+
+  summary=$(publish_skills "${VERSION#v}") && publish_exit=0 || publish_exit=$?
+  printf '%s\n' "${summary}"
+
+  publish_package
+
+  case "${publish_exit}" in
+    0) log "Status:  complete" ;;
+    *)
+      log 4 "Status:  completed with failures (see list above)"
+      log 4 "Re-run this script to retry; already-published skills are skipped."
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"
