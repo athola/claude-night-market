@@ -174,6 +174,51 @@ mostly under stock macOS bash 3.2, and fixed behind a failing test.
 deep. They used to be accepted and then ignored. interactive_auth.sh no
 longer exports functions; source the file instead.
 
+### Changed (shell restyle)
+
+The 18 executable scripts the main() ratchet listed now follow the house
+shell rules: logic in functions ending `main "$@"`, `-h` and `-x`, braced
+variables, and no `echo`. The ratchet list is empty. Human-facing lines
+carry `[INFO]`/`[WARN]`/`[ERROR]` prefixes, and errors go to stderr. Hook
+stdout and machine-parsed output are unchanged byte for byte.
+
+### Fixed (Makefile review)
+
+A review of all 27 Makefiles found 58 defects, and each was reproduced.
+Most were targets that reported success when their work had failed.
+
+- Make 3.81, the stock macOS make, ignores `.SHELLFLAGS`, so every recipe
+  ran without `-euo pipefail` there. The includes now put the flags in
+  `SHELL` for 3.81. `.ONESHELL` is gone, so every make runs recipes one
+  line per shell. 370 targets ran before and after this change, with no
+  regression.
+- 25 test targets fell back to a second, passing pytest run when the
+  selected tests failed. The fallbacks are gone. A selection that can
+  match nothing uses common.mk's `pytest_selection`.
+- `make security` now runs and passes in all 22 python.mk plugins:
+  - 11 plugins gained bandit as a dev dependency.
+  - Plugins without their own `[tool.bandit]` use the repository's
+    skips.
+  - cartograph gained pytest-cov.
+- `clean` no longer runs `uv cache clean`, which emptied the global uv
+  cache. The root help is generated from `##` comments.
+
+### Fixed (tome research coverage)
+
+A 2026-10-05 research run lost its academic channel to HTTP 429, could
+not reach Reddit, and never searched an option it ruled out.
+
+- `python -m tome.channels.fetch` runs academic, Reddit and full-text
+  searches through Bash, because WebFetch cannot retry a 429.
+  - It retries 429, 503 and network errors after `Retry-After`.
+  - Academic search adds OpenAlex and sends `SEMANTIC_SCHOLAR_API_KEY`
+    when set.
+  - Reddit is read through `search.rss`.
+  - Full text is looked up through OpenAlex, arXiv, Semantic Scholar and
+    Unpaywall.
+- The research workflow takes `entities`. It searches each one no
+  channel covered and reports the rest in `coverage.unsearched`.
+
 ## [1.9.21] - 2026-09-28
 
 ### Added
