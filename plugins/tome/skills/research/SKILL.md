@@ -121,6 +121,18 @@ Each agent prompt must include:
 The rows above restate the cards. The cards are what the
 planner gates on, and a drift test holds the two together.
 
+**Named entities.** List every product, project, standard or
+method the question names or that a comparison will rank, and
+pass the list as the workflow's `entities` arg. The workflow
+searches each one no channel covered, and returns the rest as
+`coverage.unsearched`. When dispatching agents directly instead,
+run the same check yourself before synthesis: dispatch
+`tome:web-searcher` for each entity no finding mentions. Never
+rule an option in or out without a search behind it. A
+2026-10-05 report ruled Beartooth out on a description alone,
+because no channel happened to cover it. An entity still
+unsearched goes under the report's coverage gaps by name.
+
 ### Step 5: Collect and Synthesize
 
 After all agents return:

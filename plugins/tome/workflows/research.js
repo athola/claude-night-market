@@ -18,9 +18,10 @@ export const meta = {
   description:
     'Fan out one research question across tome channels and merge the findings into a ranked, per-channel report',
   whenToUse:
-    'Run from /tome:research once the topic is classified and the channel plan exists. Requires an explicit request: a workflow never starts unasked. args carry topic, channels (code|discourse|academic|triz), domain, trizDepth and trizAnalysis (the JSON of tome.channels.triz analyze). Returns findings for the skill to rank, cite and store; it writes nothing.',
+    'Run from /tome:research once the topic is classified and the channel plan exists. Requires an explicit request: a workflow never starts unasked. args carry topic, channels (code|discourse|academic|triz), domain, trizDepth, trizAnalysis (the JSON of tome.channels.triz analyze) and entities (the products, projects or methods the question names). Returns findings for the skill to rank, cite and store; it writes nothing.',
   phases: [
     { title: 'Channels', detail: 'one agent per selected channel' },
+    { title: 'Gap fill', detail: 'search each named entity no channel covered' },
     { title: 'Synthesis', detail: 'merge, dedupe, and say which channels were empty' },
   ],
 }
@@ -98,12 +99,41 @@ const returned = await parallel(
   ),
 )
 
-phase('Synthesis')
-
+// A named option no channel touched gets its own search. A 2026-10-05 run
+// ruled Beartooth out with no search behind it, because no channel happened
+// to cover it and nothing checked. Coverage is a case-insensitive mention in
+// a finding or in what a channel says it searched.
+const entities = Array.isArray(input.entities)
+  ? input.entities.filter((e) => typeof e === 'string' && e.trim())
+  : []
+const mentions = (results, name) => {
+  const needle = String(name).toLowerCase()
+  return results.some(({ result }) =>
+    String(result.searched || '').toLowerCase().includes(needle) ||
+    result.findings.some((f) => `${f.title} ${f.url} ${f.why}`.toLowerCase().includes(needle)),
+  )
+}
 const answered = returned.filter((r) => r && r.result)
 const failed = selected
   .map((c) => c.key)
   .filter((key) => !answered.some((r) => r.channel === key))
+const uncovered = entities.filter((e) => !mentions(answered, e))
+
+if (uncovered.length) {
+  phase('Gap fill')
+  const gap = await agent(
+    `Topic: ${input.topic}.${domain}\n\nNo research channel covered these named options: ${uncovered.join(', ')}. Search each one by name: what it is, measured figures, and limits. Report a finding per option, and say plainly for any option you could not find.`,
+    { label: 'gap-fill', phase: 'Gap fill', agentType: 'tome:web-searcher', schema: FINDINGS },
+  )
+  // A gap-fill agent that returned nothing is a failed search, not an
+  // empty one: name it, and its entities stay in `unsearched`.
+  if (gap) answered.push({ channel: 'web', result: gap })
+  else failed.push('gap-fill')
+}
+
+phase('Synthesis')
+
+const unsearched = entities.filter((e) => !mentions(answered, e))
 const empty = answered.filter((r) => r.result.findings.length === 0).map((r) => r.channel)
 
 // Dedupe by URL across channels, in plain code: this is arithmetic, and a
@@ -132,6 +162,7 @@ return {
     empty,
     failed,
     skipped,
+    unsearched,
   },
   next: 'Rank, cite and store these through Skill(tome:research). An empty channel is reported above with what it searched for, so a thin topic and a broken channel stay distinguishable.',
 }
