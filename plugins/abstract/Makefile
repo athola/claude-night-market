@@ -257,8 +257,9 @@ demo-abstract-commands: demo-validate-plugin ## Run all abstract documented comm
 
 
 test-validate-plugin: ## Test validate-plugin command (runs plugin structure tests)
-	$(PYTEST) tests/ -v -k "plugin" --tb=short || \
-		$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py . && echo "[OK] validate-plugin works"
+	$(PYTEST) tests/ -v -k "plugin" --tb=short
+	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py .
+	@echo "[OK] validate-plugin works"
 
 
 # Guard against accidental file creation (catch-all for unknown targets)

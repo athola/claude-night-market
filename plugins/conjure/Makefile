@@ -311,7 +311,7 @@ demo-conjure-commands: demo-plugin demo-status delegate-setup ## Run all conjure
 
 test-plugin: ## Test plugin install and delegation commands
 	@echo "Running delegation and skills tests..."
-	$(PYTEST) tests/ -v -k "delegation or skills" || $(PYTEST) tests/ -v --tb=short
+	$(PYTEST) tests/ -v -k "delegation or skills"
 
 test-status: ## Test delegation status command
 	@echo "Running quota and status tests..."

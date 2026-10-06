@@ -291,15 +291,15 @@ demo-conserve-commands: demo-bloat-scan demo-unbloat demo-ai-hygiene-audit ## Ru
 
 test-bloat-scan: ## Test bloat-scan command (runs bloat detection unit tests)
 	@echo "Running bloat-scan tests..."
-	$(PYTEST) tests/ -v -k "bloat" || $(PYTEST) tests/unit/ -v
+	$(PYTEST) tests/ -v -k "bloat"
 
 test-unbloat: ## Test unbloat command (runs unbloat-related unit tests)
 	@echo "Running unbloat tests..."
-	$(PYTEST) tests/ -v -k "unbloat or safe_replace" || $(PYTEST) tests/unit/ -v
+	$(PYTEST) tests/ -v -k "unbloat or safe_replace"
 
 test-ai-hygiene-audit: ## Test ai-hygiene-audit command (runs hygiene unit tests)
 	@echo "Running ai-hygiene-audit tests..."
-	$(PYTEST) tests/ -v -k "hygiene or audit" || $(PYTEST) tests/unit/ -v
+	$(PYTEST) tests/ -v -k "hygiene or audit"
 
 test-context: ## Test context optimization (runs context-related unit tests)
 	@echo "Running context optimization tests..."

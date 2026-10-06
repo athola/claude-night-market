@@ -38,19 +38,19 @@ test: ## Run all tests
 	$(PYTEST) $(PYTEST_TARGETS) -v
 
 test-integration: ## Run only integration tests
-	$(PYTEST) -v -m integration
+	@$(call pytest_selection,-v -m integration)
 
 test-async: ## Run async-focused tests
 	$(PYTEST) -v -m asyncio
 
 test-performance: ## Run performance tests
-	$(PYTEST) -v -m performance --benchmark-only
+	@$(call pytest_selection,-v -m performance --benchmark-only)
 
 test-testing: ## Run testing-focused tests
-	$(PYTEST) -v -m testing
+	@$(call pytest_selection,-v -m testing)
 
 test-edge-case: ## Run edge case tests
-	$(PYTEST) -v -m edge_case
+	@$(call pytest_selection,-v -m edge_case)
 
 coverage: ## Run tests with coverage report
 	$(PYTEST) --cov=src/parseltongue --cov-report=html --cov-report=term-missing
@@ -246,11 +246,10 @@ demo-parseltongue-commands: demo-analyze-tests demo-run-profiler demo-check-asyn
 
 
 test-analyze-tests: ## Test analyze-tests command (runs test analysis tests)
-	$(PYTEST) tests/ -v -k "analyze" || $(PYTEST) tests/ -v --tb=short
+	$(PYTEST) tests/ -v -k "analyze"
 
 test-run-profiler: ## Test run-profiler command (runs performance tests)
-	$(PYTEST) tests/ -v -m "performance" --tb=short 2>/dev/null || \
-		$(PYTEST) tests/ -v -k "profiler or performance" --tb=short
+	$(PYTEST) tests/ -v -k "perf or profil" --tb=short
 
 test-check-async: ## Test check-async command (runs async pattern tests)
 	$(PYTEST) tests/test_async_patterns.py tests/test_async_edge_cases.py -v

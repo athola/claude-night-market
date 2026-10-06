@@ -226,8 +226,7 @@ demo-feature-review: ## Demo feature review with RICE scoring (LIVE)
 	@echo "Use /imbue:feature-review for full RICE/WSJF analysis."
 
 test-feature-review: ## Test feature review (runs feature review unit tests)
-	$(PYTEST) tests/unit/skills/test_feature_review.py -v || \
-		$(PYTEST) tests/ -v -k "feature_review or feature-review"
+	$(PYTEST) tests/unit/skills/test_feature_review.py -v
 
 plugin-check: demo-catchup demo-validator demo-citation-verifier demo-skills demo-feature-review ## Run all live demos
 	@echo ""

@@ -353,8 +353,7 @@ test-resume: ## Test resume command (not applicable: skill-only, no unit tests)
 	@echo "Not applicable: resume is a skill-only command with no unit tests"
 
 test-git-catchup: ## Test git-catchup command (runs git workspace tests)
-	$(PYTEST) tests/test_git_workspace_review.py -v || \
-		$(PYTEST) . -v -k "git_catchup or git-catchup"
+	$(PYTEST) tests/test_git_workspace_review.py -v
 
 test-commit-msg: ## Test commit-msg command (runs commit message tests)
 	$(PYTEST) tests/test_commit_messages.py -v
@@ -366,19 +365,16 @@ test-fix-workflow: ## Test fix-workflow command (not applicable: skill-only, no 
 	@echo "Not applicable: fix-workflow is a skill-only command with no unit tests"
 
 test-fix-pr: ## Test fix-pr command (runs fix-pr war room tests)
-	$(PYTEST) tests/test_fix_pr_war_room.py -v || \
-		$(PYTEST) . -v -k "fix_pr or fix-pr"
+	$(PYTEST) tests/test_fix_pr_war_room.py -v
 
 test-pr: ## Test pr command (runs PR prep and review tests)
 	$(PYTEST) tests/test_pr_prep.py tests/test_pr_review_workflow.py -v
 
 test-update-docs: ## Test update-docs command (runs doc update workflow tests)
-	$(PYTEST) tests/test_doc_updates_workflow.py -v || \
-		$(PYTEST) . -v -k "update_docs or doc_updates"
+	$(PYTEST) tests/test_doc_updates_workflow.py -v
 
 test-update-readme: ## Test update-readme command (runs doc update workflow tests)
-	$(PYTEST) tests/test_doc_updates_workflow.py -v -k "readme" || \
-		$(PYTEST) . -v -k "update_readme or readme"
+	$(PYTEST) tests/ -v -k "readme"
 
 test-pr-review: ## Test pr-review command (runs PR review tests)
 	$(PYTEST) tests/test_pr_review_workflow.py tests/test_pr_review_war_room.py -v

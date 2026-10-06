@@ -201,16 +201,13 @@ demo-verify-plugin: ## Demo verify-plugin attestation check (LIVE)
 	@echo "Use /leyline:verify-plugin for full attestation verification."
 
 test-reinstall-all-plugins: ## Test reinstall-all-plugins (runs plugin health tests)
-	$(PYTEST) tests/test_plugin_health.py -v || \
-		$(PYTEST) tests/ -v -k "plugin_health or reinstall"
+	$(PYTEST) tests/test_plugin_health.py -v
 
 test-update-all-plugins: ## Test update-all-plugins (runs update workflow tests)
-	$(PYTEST) tests/test_update_all_plugins.py -v || \
-		$(PYTEST) tests/ -v -k "update_all"
+	$(PYTEST) tests/test_update_all_plugins.py -v
 
 test-verify-plugin: ## Test verify-plugin (runs plugin health tests)
-	$(PYTEST) tests/test_plugin_health.py -v || \
-		$(PYTEST) tests/ -v -k "plugin_health or verify"
+	$(PYTEST) tests/test_plugin_health.py -v
 
 plugin-check: demo-tokens demo-quota demo-skills demo-formatting demo-reinstall-all-plugins demo-update-all-plugins demo-verify-plugin status ## Run all demo workflows
 	@echo ""
