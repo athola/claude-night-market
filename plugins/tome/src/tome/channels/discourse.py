@@ -8,6 +8,7 @@ tools return into Finding objects.
 
 from __future__ import annotations
 
+import html
 import re
 from typing import Any
 from urllib.parse import quote_plus
@@ -347,6 +348,60 @@ def parse_reddit_response(
             )
         )
 
+    return findings
+
+
+# The RSS feed carries no score, so a feed hit ranks as neutral evidence.
+_REDDIT_RSS_RELEVANCE = 0.5
+_ENTRY_RE = re.compile(r"<entry\b.*?</entry>", re.DOTALL)
+
+
+def build_reddit_rss_search_url(topic: str, subreddit: str) -> str:
+    """Build a Reddit search URL for the Atom feed.
+
+    The JSON search API returned a 403 block page and WebFetch refuses
+    reddit.com, while ``search.rss`` answered 200 (probed 2026-10-05). It
+    has no score, so findings from it are unranked.
+    """
+    return (
+        f"https://www.reddit.com/r/{subreddit}/search.rss"
+        f"?q={quote_plus(topic)}&restrict_sr=1&sort=relevance&t=all"
+    )
+
+
+def _atom_text(block: str, tag: str) -> str:
+    match = re.search(rf"<{tag}\b[^>]*>(.*?)</{tag}>", block, re.DOTALL)
+    return html.unescape(match.group(1)).strip() if match else ""
+
+
+def parse_reddit_rss(xml_text: str, subreddit: str) -> list[Finding]:
+    """Parse a Reddit search Atom feed into Findings.
+
+    Parsed with regular expressions, as the arXiv feed is, so a hostile
+    feed cannot trigger XML entity expansion.
+    """
+    findings: list[Finding] = []
+    for block in _ENTRY_RE.findall(xml_text):
+        title = _atom_text(block, "title")
+        link = re.search(r'<link\b[^>]*href="([^"]+)"', block)
+        url = html.unescape(link.group(1)) if link else ""
+        text = re.sub(r"<[^>]+>", " ", _atom_text(block, "content"))
+        if not (title and url):
+            continue
+        findings.append(
+            Finding(
+                source="reddit",
+                channel="discourse",
+                title=title,
+                url=url,
+                relevance=_REDDIT_RSS_RELEVANCE,
+                summary=" ".join(text.split())[:200],
+                metadata={
+                    "subreddit": subreddit,
+                    "updated": _atom_text(block, "updated") or None,
+                },
+            )
+        )
     return findings
 
 
