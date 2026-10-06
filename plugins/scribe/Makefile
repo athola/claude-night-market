@@ -82,8 +82,8 @@ debug-variables: ## Show Makefile variable values (for debugging)
 demo: ## Run demonstration
 	@echo "Scribe Plugin Demo"
 	@echo ""
-	@echo "1. Scan for AI slop:"
-	@echo "   /slop-scan README.md"
+	@echo "1. Scan for AI slop (a skill, not a command):"
+	@echo "   Skill(scribe:slop-detector) on README.md"
 	@echo ""
 	@echo "2. Polish documentation:"
 	@echo "   /doc-polish docs/guide.md"
