@@ -5,7 +5,7 @@
 
 .PHONY: benchmark check clean clean-queue create debug-variables delete demo-export demo-garden \
 	demo-import demo-index demo-memory demo-memory-palace-commands demo-navigate demo-palace \
-	demo-reset demo-review-room demo-skill-logs demo-status deps disable enable export fix \
+	demo-list demo-reset demo-review-room demo-search demo-skill-logs demo-status deps disable enable export fix \
 	garden-metrics garden-tend help import install skills install-hooks list manager \
 	memory-profile mutation-test plugin-check precommit search skills spellcheck status \
 	test test-garden test-memory test-navigate test-palace test-review-room \
@@ -127,16 +127,16 @@ debug-variables: ## Show Makefile variable values (for debugging)
 
 # ---------- Plugin control ----------
 enable:
-	$(PY) scripts/memory_palace_cli.py enable || echo "Skip enable (permission denied)"
+	$(PY) scripts/memory_palace_cli.py enable
 
 disable:
-	$(PY) scripts/memory_palace_cli.py disable || echo "Skip disable (permission denied)"
+	$(PY) scripts/memory_palace_cli.py disable
 
 skills:
-	$(PY) scripts/memory_palace_cli.py skills || echo "Skip skills (permission denied)"
+	$(PY) scripts/memory_palace_cli.py skills
 
 install:
-	$(PY) scripts/memory_palace_cli.py install || echo "Skip install (permission denied)"
+	$(PY) scripts/memory_palace_cli.py install
 
 # ---------- Palace management (PALACES_DIR scoped) ----------
 create: ## Create a palace (NAME, DOMAIN, METAPHOR)
@@ -146,8 +146,6 @@ list: ## List palaces in PALACES_DIR
 	PALACES_DIR=$(PALACES_DIR) $(CLI) list
 
 search: ## Search palaces for QUERY
-# No `|| true`: `plugin-check` runs this, and the suffix hid a crash.
-# examples/palaces-sample.json holds a palace so the demo store is indexed.
 	PALACES_DIR=$(PALACES_DIR) $(CLI) search "$(QUERY)"
 
 delete: ## Delete a palace by ID
@@ -205,10 +203,11 @@ benchmark: ## Run performance benchmarks (memory operations)
 	fi
 
 memory-profile: ## Profile memory usage
-	@if python3 -c "import memory_profiler" 2>/dev/null; then \
-		$(UV_RUN) python3 -m memory_profiler scripts/*.py; \
+	@if $(UV_RUN) python -c "import memory_profiler" 2>/dev/null; then \
+		$(UV_RUN) python -m memory_profiler scripts/memory_palace_cli.py; \
 	else \
-		echo "Install memory_profiler: pip install memory_profiler"; \
+		echo "memory_profiler is not installed in this environment: uv pip install memory_profiler"; \
+		exit 1; \
 	fi
 
 # ---------- Demo & validation flows ----------
@@ -226,10 +225,18 @@ demo-export: ## Export the demo store to EXPORT_DEST
 	@mkdir -p $(dir $(EXPORT_DEST))
 	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) export --destination "$(EXPORT_DEST)"
 
+demo-list: ## List palaces in the demo store
+	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) list
+
+demo-search: ## Search the demo store for QUERY
+# No `|| true`: `plugin-check` runs this, and the suffix hid a crash.
+# examples/palaces-sample.json holds a palace so the demo store is indexed.
+	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) search "$(QUERY)"
+
 demo-status: ## Show status of the demo store
 	PALACES_DIR=$(DEMO_PALACES_DIR) $(CLI) status
 
-plugin-check: demo-import garden-metrics list search demo-export ## Run the demo/dogfood chain
+plugin-check: demo-import garden-metrics demo-list demo-search demo-export ## Run the demo/dogfood chain
 	@echo "Plugin demo completed against $(DEMO_PALACES_DIR)"
 
 # Include local overrides if they exist (before catch-all rule)

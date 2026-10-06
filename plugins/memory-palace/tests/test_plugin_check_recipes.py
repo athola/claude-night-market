@@ -43,7 +43,7 @@ def _plugin_check_prerequisites() -> list[str]:
 def test_no_plugin_check_prerequisite_swallows_its_exit_status() -> None:
     recipes = _recipes()
     prerequisites = _plugin_check_prerequisites()
-    assert "search" in prerequisites
+    assert "demo-search" in prerequisites
     offenders = [
         f"{target}: {line}"
         for target in prerequisites
