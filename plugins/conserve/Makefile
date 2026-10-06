@@ -22,7 +22,7 @@ include $(ABSTRACT_DIR)/config/make/python.mk
 help: ## Show this help message
 	@echo "Conservation Plugin - Make Targets"
 	@echo "==================================="
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' Makefile
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 	@echo "Token estimation examples:"
 	@echo "  make token-estimate ARGS='--directory skills/'"
@@ -77,7 +77,7 @@ clean: ## Clean cache and build files
 status: ## Show project overview
 	@echo "Conservation Plugin Status:"
 	@echo "Skills: $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
-	@echo "Tools:  $$(find tools/ -name '*.py' 2>/dev/null | wc -l)"
+	@echo "Scripts: $$(find scripts/ -name '*.py' 2>/dev/null | wc -l)"
 	@echo "Tests:  $$(find tests/ -name '*.py' 2>/dev/null | wc -l)"
 
 debug-variables: ## Show Makefile variable values (for debugging)
@@ -86,8 +86,7 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "UV: $(UV)"
 	@echo "UV_RUN: $(UV_RUN)"
 	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
 	@echo "SRC_DIRS: $(SRC_DIRS)"
 	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
 	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
@@ -170,8 +169,7 @@ demo-context: ## Demo context optimization (LIVE)
 	@echo "=== Conservation Context Demo (LIVE) ==="
 	@echo ""
 	@echo "Running context optimizer on this plugin..."
-	cd ../abstract && $(UV_RUN) python scripts/context_optimizer.py --path ../conserve/skills/ --report 2>/dev/null || \
-		echo "Context optimizer: skills/ = $$(du -sh skills/ | cut -f1), $$(find skills/ -name '*.md' | wc -l) files"
+	cd ../abstract && $(UV_RUN) python scripts/context_optimizer.py report ../conserve/skills/
 	@echo ""
 	@echo "Use /conserve:optimize-context for full workflow."
 
@@ -261,7 +259,7 @@ demo-bloat-scan: ## Demo bloat-scan command (LIVE)
 	@echo ""
 	@echo "Running bloat-scan on conserve plugin..."
 	@echo ""
-	$(UV_RUN) python scripts/detect_duplicates.py . --report || echo "  [INFO] Tool execution completed"
+	$(UV_RUN) python scripts/detect_duplicates.py .
 	@echo ""
 	@echo "Use /bloat-scan for full workflow."
 
