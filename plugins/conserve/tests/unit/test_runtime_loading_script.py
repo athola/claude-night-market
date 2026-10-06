@@ -8,6 +8,7 @@ referenced module was reported as unreferenced.
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -24,11 +25,12 @@ def test_a_large_skill_file_still_finds_its_modules(tmp_path: Path) -> None:
 
     result = subprocess.run(
         ["/bin/bash", str(PLUGIN / "tests" / "test_runtime_loading.sh")],
-        cwd=tmp_path,
+        env={**os.environ, "SKILL_DIR": str(skill)},
         capture_output=True,
         text=True,
         timeout=60,
         check=False,
     )
-    assert result.returncode == 0, result.stdout[-1500:]
-    assert "NOT referenced" not in result.stdout
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, output[-1500:]
+    assert "NOT referenced" not in output
