@@ -115,10 +115,11 @@ benchmark: ## Run performance benchmarks
 	fi
 
 memory-profile: ## Profile memory usage
-	@if python3 -c "import memory_profiler" 2>/dev/null; then \
-		$(UV_RUN) python3 -m memory_profiler src/tome/scripts/*.py; \
+	@if $(UV_RUN) python -c "import memory_profiler" 2>/dev/null; then \
+		$(UV_RUN) python -m memory_profiler src/tome/scripts/verify_canaries.py; \
 	else \
-		echo "Install memory_profiler: pip install memory_profiler"; \
+		echo "memory_profiler is not installed in this environment: uv pip install memory_profiler"; \
+		exit 1; \
 	fi
 
 # ---------- Demo/Dogfood Targets (LIVE) ----------
