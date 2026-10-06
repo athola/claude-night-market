@@ -9,13 +9,16 @@ token estimation and CLI command parsing.
 from __future__ import annotations
 
 import argparse
+import importlib
 import logging
 import os
 import shlex
 import sys
+from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
+from types import ModuleType
 from typing import TYPE_CHECKING, Any
 
 _LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
@@ -60,11 +63,13 @@ except ImportError:  # pragma: no cover
         }
     )
 
+    # Same signature as leyline.fs.iter_source_files: mypy requires the
+    # two conditional definitions to match.
     def iter_source_files(
-        root_dir: Any,
-        extensions: Any = None,
-        skip_dirs: Any = None,
-    ) -> Any:
+        root_dir: Path,
+        extensions: frozenset[str] | None = None,
+        skip_dirs: frozenset[str] | None = None,
+    ) -> Iterable[Path]:
         """Fallback directory walker when leyline.fs is unavailable."""
         effective_ext = extensions if extensions is not None else SOURCE_EXTENSIONS
         effective_skip = skip_dirs if skip_dirs is not None else SKIP_DIRS
@@ -118,13 +123,15 @@ except ImportError:  # pragma: no cover
 
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Sequence
 
+# tiktoken is an extra (optional-dependencies.full), absent from a base
+# install by design, so the except arm is a supported path. Typed as an
+# optional module so the None fallback checks whether or not it is
+# installed.
+tiktoken: ModuleType | None
 try:
-    # tiktoken is an extra (optional-dependencies.full), absent from a base
-    # install by design. The except arm below is the supported path, so an
-    # unresolved import here is expected rather than a finding.
-    import tiktoken  # ty: ignore[unresolved-import]
+    tiktoken = importlib.import_module("tiktoken")
 except ImportError:
     tiktoken = None
 
