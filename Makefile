@@ -207,8 +207,8 @@ clean: ## Clean all plugin artifacts
 			$(MAKE) -C $$plugin clean || fail=1; \
 		fi; \
 	done; \
+	echo "Done."; \
 	exit $$fail
-	@echo "Done."
 
 supply-chain-scan: ## Scan lockfiles for known compromised package versions and malicious artifacts
 	@echo "=== Supply Chain Scan ==="
