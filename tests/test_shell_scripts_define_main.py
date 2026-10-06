@@ -2,10 +2,9 @@
 
 The house shell rules (``~/.claude/rules/shell-scripts.md``) require an
 executable script to keep its logic in functions and end with
-``main "$@"``. The restyle stopped partway, so the scripts that predate
-it are listed below. The list may only shrink: a new executable script
-without ``main()`` fails, and so does an entry whose script has since
-been fixed or removed, which forces the list to follow the fix.
+``main "$@"``. Every tracked executable script does so. A new one
+without ``main()`` fails, and an allowlist entry whose script has been
+fixed or removed fails too, which keeps the list honest.
 """
 
 from __future__ import annotations
@@ -16,30 +15,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
-# Scripts that predate the rule. Remove an entry when its script is
-# restyled; the stale-entry test below fails until you do.
-ALLOWLIST = frozenset(
-    {
-        ".claude/skills/night-market-diagnostics-toolkit/scripts/health-snapshot.sh",
-        "assets/tapes/add-subtitles.sh",
-        "plugins/conjure/bin/status.sh",
-        "plugins/conserve/tests/test_runtime_loading.sh",
-        "plugins/egregore/scripts/install_launchd.sh",
-        "plugins/egregore/scripts/install_systemd.sh",
-        "plugins/egregore/scripts/watchdog.sh",
-        "plugins/leyline/hooks/auto-star-repo.sh",
-        "plugins/memory-palace/scripts/precommit_palace_maintenance.sh",
-        "plugins/phantom/scripts/entrypoint.sh",
-        "scripts/awesome-submit.sh",
-        "scripts/capabilities-sync-check.sh",
-        "scripts/check-all-quality.sh",
-        "scripts/clawhub-batch-publish.sh",
-        "scripts/clawhub-cron.sh",
-        "scripts/clawhub-submit.sh",
-        "scripts/shared/check-json-utils-drift.sh",
-        "scripts/without-git-env.sh",
-    }
-)
+# Empty since the 2026-10-05 restyle brought every script under the rule.
+# A script that cannot follow it gets an entry here with the reason.
+ALLOWLIST: frozenset[str] = frozenset()
 
 MAIN_DEFINITION = re.compile(r"^main\(\)\s*\{", re.MULTILINE)
 
