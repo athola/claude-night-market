@@ -33,17 +33,6 @@ script_dir() {
   (cd "${src:-/}" && pwd)
 }
 
-# Portable number extraction (works without grep -P)
-extract_stat_number() {
-  local stats="${1}"
-  local pattern="${2}"
-  if printf '%s\n' "test" | grep -oP '\d+' >/dev/null 2>&1; then
-    printf '%s\n' "${stats}" | grep -oP "\d+(?= ${pattern})" || printf '%s\n' "0"
-  else
-    printf '%s\n' "${stats}" | grep -oE "[0-9]+ ${pattern}" | sed 's/ .*//' || printf '%s\n' "0"
-  fi
-}
-
 # Portable hash: md5sum (Linux) or md5 (macOS)
 _hash_str() {
   if command -v md5sum >/dev/null 2>&1; then
