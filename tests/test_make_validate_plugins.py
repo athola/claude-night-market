@@ -66,7 +66,14 @@ def test_validate_plugins_is_a_documented_phony_target() -> None:
     joined = text.replace("\\\n", " ")
     phony = " ".join(re.findall(r"^\.PHONY:(.*)$", joined, re.MULTILINE))
     assert "validate-plugins" in phony.split()
-    assert re.search(r'@echo "  validate-plugins\s', text)
+    # help is generated from the ## comments, so check what it prints.
+    shown = subprocess.run(
+        ["make", "--no-print-directory", "-C", str(ROOT_MAKEFILE.parent), "help"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    assert re.search(r"^\s+validate-plugins\s", shown, re.MULTILINE)
 
 
 def test_target_validates_the_marketplace_and_every_plugin(tmp_path: Path) -> None:
