@@ -31,7 +31,7 @@ include $(ABSTRACT_DIR)/config/make/python.mk
 help: ## Show this help message
 	@echo "Imbue Plugin - Make Targets"
 	@echo "============================"
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' Makefile
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # Installation
 install: ## Install the package
@@ -84,7 +84,7 @@ ci: ## Run CI pipeline (all checks and tests)
 	$(MAKE) lint
 	$(MAKE) type-check
 	$(MAKE) security
-	$(MAKE) test-all
+	$(MAKE) test-coverage
 	@echo "CI pipeline completed successfully!"
 
 # Development Workflow
@@ -136,8 +136,7 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "UV: $(UV)"
 	@echo "UV_RUN: $(UV_RUN)"
 	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
 	@echo "SRC_DIRS: $(SRC_DIRS)"
 	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
 	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
@@ -199,8 +198,9 @@ demo-citation-verifier: ## Demo grounded-finding citation verifier (LIVE)
 	echo "Two findings cite the same file: one real anchor, one fabricated:"; \
 	cat "$$findings"; \
 	echo ""; \
-	$(UV_RUN) python scripts/citation_verifier.py \
-	  --findings "$$findings" --repo-root . || true
+	rc=0; $(UV_RUN) python scripts/citation_verifier.py \
+	  --findings "$$findings" --repo-root . || rc=$$?; \
+	[ $$rc -eq 1 ] || { echo "Expected the verifier to reject with exit 1, got $$rc"; exit 1; }
 	@echo ""
 	@echo ""
 	@echo "The fabricated citation was rejected (exit 1). This gate runs in"
