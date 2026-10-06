@@ -50,6 +50,8 @@ def _sandbox(tmp_path: Path) -> tuple[Path, Path, dict[str, str]]:
     repo = tmp_path / "repo"
     (repo / "scripts").mkdir(parents=True)
     shutil.copy2(ROOT / "scripts" / "awesome-submit.sh", repo / "scripts")
+    # The script sources its logging library from its own directory.
+    shutil.copy2(ROOT / "scripts" / "logging.sh", repo / "scripts")
     remotes = tmp_path / "remotes"
     seed = tmp_path / "seed"
     seed.mkdir()
