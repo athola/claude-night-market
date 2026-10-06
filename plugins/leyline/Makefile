@@ -58,8 +58,7 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "UV: $(UV)"
 	@echo "UV_RUN: $(UV_RUN)"
 	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
 	@echo "SRC_DIRS: $(SRC_DIRS)"
 	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
 	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
@@ -101,10 +100,13 @@ benchmark: ## Run performance benchmarks (token estimation)
 	fi
 
 memory-profile: ## Profile memory usage
-	@if python3 -c "import memory_profiler" 2>/dev/null; then \
-		$(UV_RUN) python3 -m memory_profiler scripts/*.py; \
+	@if $(UV_RUN) python -c "import memory_profiler" 2>/dev/null; then \
+		for script in scripts/*.py; do \
+			$(UV_RUN) python -m memory_profiler "$$script" || exit 1; \
+		done; \
 	else \
-		echo "Install memory_profiler: pip install memory_profiler"; \
+		echo "memory_profiler is not installed in this environment: uv pip install memory_profiler"; \
+		exit 1; \
 	fi
 
 # ---------- Demo/Dogfood Targets ----------
@@ -156,13 +158,9 @@ demo-formatting: ## Validate markdown-formatting skill structure
 	@head -10 skills/markdown-formatting/SKILL.md | grep -E '^(name|category|estimated_tokens):' | sed 's/^/  /'
 	@echo ""
 	@echo "Checking prose compliance (lines > 80 chars outside code blocks):"
-	@$(PYTHON) -c "\
-	in_code = False; violations = 0; \
-	[exec('in_code = not in_code') if l.startswith('\`\`\`') \
-	else exec('violations += 1') if not in_code and len(l.rstrip()) > 80 \
-	and not l.startswith('|') and not l.startswith('---') \
-	else None for l in open('skills/markdown-formatting/SKILL.md')]; \
-	print(f'  {violations} violations found')" 2>/dev/null || echo "  (python3 check skipped)"
+	@awk '/^```/ { code = !code; next } \
+		!code && length($$0) > 80 && $$0 !~ /^\|/ && $$0 !~ /^---/ { n++ } \
+		END { printf "  %d violations found\n", n }' skills/markdown-formatting/SKILL.md
 	@echo ""
 	@echo "Formatting skill demo complete."
 
@@ -183,9 +181,10 @@ demo-update-all-plugins: ## Demo update-all-plugins command (LIVE)
 	@echo ""
 	@echo "Plugin versions:"
 	@for dir in ../../plugins/*/; do \
+		[ -f "$$dir/openpackage.yml" ] || continue; \
 		name=$$(basename "$$dir"); \
-		ver=$$(grep -m1 'version' "$$dir/openpackage.yml" 2>/dev/null | awk '{print $$2}' || echo "?"); \
-		echo "  $$name: $$ver"; \
+		ver=$$(awk '/version/ { print $$2; exit }' "$$dir/openpackage.yml"); \
+		echo "  $$name: $${ver:-?}"; \
 	done
 	@echo ""
 	@echo "Use /leyline:update-all-plugins for full update workflow."
