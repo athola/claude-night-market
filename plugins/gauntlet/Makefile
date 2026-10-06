@@ -129,6 +129,6 @@ Makefile.local:;
 -include Makefile.local
 
 %::
-	@echo "Error: Unknown target '$$@'"
+	@echo "Error: Unknown target '$@'"
 	@echo "Run 'make help' to see available commands"
 	@exit 1
