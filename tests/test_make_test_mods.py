@@ -102,7 +102,14 @@ def test_test_mods_is_a_documented_phony_target() -> None:
     joined = text.replace("\\\n", " ")
     phony = " ".join(re.findall(r"^\.PHONY:(.*)$", joined, re.MULTILINE))
     assert "test-mods" in phony.split()
-    assert re.search(r'@echo "  test-mods\s', text)
+    # help is generated from the ## comments, so check what it prints.
+    shown = subprocess.run(
+        ["make", "--no-print-directory", "-C", str(ROOT_MAKEFILE.parent), "help"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    assert re.search(r"^\s+test-mods\s", shown, re.MULTILINE)
 
 
 def test_target_validates_and_tests_every_plugin_with_a_mod(tmp_path: Path) -> None:
