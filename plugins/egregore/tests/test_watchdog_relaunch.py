@@ -54,4 +54,6 @@ class TestTheRelaunchIsObservable:
 
     def test_it_still_records_the_pid(self) -> None:
         """The pidfile is how the next tick knows a session is alive."""
-        assert re.search(r'echo \$! >\s*"\$PIDFILE"', WATCHDOG.read_text())
+        assert re.search(
+            r"printf '%s\\n' \"\$\{!\}\" >\s*\"\$\{PIDFILE\}\"", WATCHDOG.read_text()
+        )
