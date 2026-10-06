@@ -14,6 +14,11 @@ PYTEST_FLAGS ?= -v
 RUFF_TARGETS ?= $(SRC_DIRS)
 MYPY_TARGETS ?= $(SRC_DIRS)
 BANDIT_TARGETS ?= $(SRC_DIRS)
+# A plugin without its own [tool.bandit] table uses the repository's,
+# whose skips each carry a reason. Before this, bandit ran with no skips
+# there and failed on the subprocess use every plugin shares.
+_PYTHON_MK_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+BANDIT_CONFIG ?= $(if $(shell grep -l '^\[tool\.bandit\]' pyproject.toml 2>/dev/null),pyproject.toml,$(_PYTHON_MK_DIR)../../../../pyproject.toml)
 
 TEST_UNIT_TARGETS ?= $(PYTEST_TARGETS)
 TEST_UNIT_ARGS ?= $(PYTEST_FLAGS)
@@ -50,7 +55,7 @@ typecheck: type-check
 
 security: ## Run security checks
 	@echo "Running security checks..."
-	@$(BANDIT) -c pyproject.toml -r $(BANDIT_TARGETS) || { echo "[FAIL] Security check failed"; exit 1; }
+	@$(BANDIT) -c $(BANDIT_CONFIG) -r $(BANDIT_TARGETS) || { echo "[FAIL] Security check failed"; exit 1; }
 ifneq ($(strip $(SECURITY_EXTRA)),)
 	@$(SECURITY_EXTRA)
 endif

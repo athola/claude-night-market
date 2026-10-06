@@ -108,3 +108,10 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "raise NotImplementedError",
 ]
+
+[dependency-groups]
+# `uv run` syncs this group by default; python.mk's security target needs
+# bandit there, while the optional `dev` extra above is not synced.
+dev = [
+    "bandit>=1.8.6,<2.0",
+]

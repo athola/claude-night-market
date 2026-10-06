@@ -556,6 +556,9 @@ requires-dist = [
 ]
 provides-extras = ["tokens", "dev"]
 
+[package.metadata.requires-dev]
+dev = [{ name = "bandit", specifier = ">=1.8.6,<2.0" }]
+
 [[package]]
 name = "librt"
 version = "0.15.0"

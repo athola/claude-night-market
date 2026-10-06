@@ -555,6 +555,11 @@ tokens = [
     { name = "tiktoken" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "bandit" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.18.2,<2" },
@@ -565,6 +570,9 @@ requires-dist = [
     { name = "tiktoken", marker = "extra == 'tokens'", specifier = ">=0.14.0" },
 ]
 provides-extras = ["tokens", "dev"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "bandit", specifier = ">=1.8.6,<2.0" }]
 
 [[package]]
 name = "librt"
