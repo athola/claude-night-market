@@ -2,12 +2,10 @@
 # Documentation quality tools: slop detection, style learning, doc generation
 
 .PHONY: help validate test test-coverage lint format clean demo count-slop status \
-	demo-slop-scan demo-style-learn demo-doc-polish demo-doc-generate \
-	demo-doc-verify demo-pr-review demo-update-docs demo-update-readme \
-	demo-prepare-pr demo-pr demo-cli-plugins demo-scribe-commands \
-	test-slop-scan test-style-learn test-doc-polish test-doc-generate \
-	test-doc-verify test-pr-review test-update-docs test-update-readme \
-	test-prepare-pr test-pr plugin-check debug-variables typecheck type-check
+	demo-cli-plugins demo-scribe-commands \
+	test-doc-generate test-doc-polish test-session-replay test-session-to-post \
+	test-style-learn test-voice-extract test-voice-generate test-voice-learn \
+	test-voice-review plugin-check debug-variables typecheck type-check
 
 # Include shared configuration for markdown-only plugins
 ABSTRACT_DIR := ../abstract
@@ -22,12 +20,16 @@ help: ## Show this help message
 # ---------- Validation ----------
 validate: ## Validate plugin structure
 	@echo "Validating plugin structure..."
-	@test -f .claude-plugin/plugin.json && echo "  plugin.json exists" || echo "  MISSING: plugin.json"
-	@test -d skills && echo "  skills/ exists" || echo "  MISSING: skills/"
-	@test -d commands && echo "  commands/ exists" || echo "  MISSING: commands/"
-	@test -d agents && echo "  agents/ exists" || echo "  MISSING: agents/"
-	@test -f README.md && echo "  README.md exists" || echo "  MISSING: README.md"
-	@echo "Validation complete."
+	@fail=0; \
+	for path in .claude-plugin/plugin.json README.md; do \
+		if [ -f "$$path" ]; then echo "  $${path##*/} exists"; \
+		else echo "  MISSING: $${path##*/}"; fail=1; fi; \
+	done; \
+	for dir in skills commands agents; do \
+		if [ -d "$$dir" ]; then echo "  $$dir/ exists"; \
+		else echo "  MISSING: $$dir/"; fail=1; fi; \
+	done; \
+	echo "Validation complete."; exit $$fail
 
 # ---------- Testing ----------
 test: ## Run scribe tests
@@ -44,9 +46,9 @@ lint: ## Ratchet plugin docs against the repo slop scorer (fails on regression)
 	@echo "Scoring plugin documentation for slop..."
 	@cd ../.. && uv run --with pyyaml python scripts/slop_score.py --threshold 3.0 --ratchet HEAD plugins/scribe/skills plugins/scribe/commands plugins/scribe/README.md
 
-# ---------- Quality (no-ops for markdown-only) ----------
-typecheck type-check: ## No-op: no Python code to check
-	@echo "No type checking needed (markdown-only plugin)"
+# ---------- Quality ----------
+typecheck type-check: ## Type-check src/scribe with mypy
+	@uv run python -m mypy src/scribe
 
 format: ## No formatting required for markdown files
 	@echo "No formatting required for markdown files"
@@ -94,101 +96,25 @@ demo: ## Run demonstration
 
 # Count slop words in a file (usage: make count-slop FILE=path/to/file.md)
 count-slop: ## Count slop words in FILE
+	@test -f "$(FILE)" || { echo "Usage: make count-slop FILE=path/to/file.md (no such file: '$(FILE)')"; exit 1; }
 	@echo "Counting slop words in $(FILE)..."
-	@grep -oE '\b(delve|embark|tapestry|realm|beacon|multifaceted|nuanced|pivotal|meticulous|intricate|showcasing|leveraging|streamline|comprehensive|robust)\b' $(FILE) 2>/dev/null | sort | uniq -c | sort -rn || echo "No tier-1 slop words found"
+	@hits=$$(grep -oE '\b(delve|embark|tapestry|realm|beacon|multifaceted|nuanced|pivotal|meticulous|intricate|showcasing|leveraging|streamline|comprehensive|robust)\b' "$(FILE)") || [ $$? -eq 1 ]; \
+	if [ -z "$$hits" ]; then echo "No tier-1 slop words found"; \
+	else printf '%s\n' "$$hits" | sort | uniq -c | sort -rn; fi
 
 # ---------- Demo/Dogfood Targets ----------
-# Parameterized: each demo-* target shows usage for one command
-SCRIBE_COMMANDS := slop-scan style-learn doc-polish doc-generate doc-verify pr-review update-docs update-readme prepare-pr pr
+# One demo per commands/*.md, so the list cannot drift from what ships.
+SCRIBE_COMMANDS := $(sort $(basename $(notdir $(wildcard commands/*.md))))
+SCRIBE_DEMOS := $(addprefix demo-,$(SCRIBE_COMMANDS))
+.PHONY: $(SCRIBE_DEMOS)
 
-demo-slop-scan: ## Demo slop-scan command
-	@echo "=== slop-scan Demo ==="
+$(SCRIBE_DEMOS): demo-%:
+	@echo "=== $* Demo ==="
 	@echo ""
-	@echo "Command: /slop-scan"
+	@echo "Command: /$*"
 	@echo "Plugin: scribe"
 	@echo ""
-	@echo "This demonstrates slop-scan usage."
-	@echo "Execute manually in Claude Code for full functionality."
-
-demo-style-learn: ## Demo style-learn command
-	@echo "=== style-learn Demo ==="
-	@echo ""
-	@echo "Command: /style-learn"
-	@echo "Plugin: scribe"
-	@echo ""
-	@echo "This demonstrates style-learn usage."
-	@echo "Execute manually in Claude Code for full functionality."
-
-demo-doc-polish: ## Demo doc-polish command
-	@echo "=== doc-polish Demo ==="
-	@echo ""
-	@echo "Command: /doc-polish"
-	@echo "Plugin: scribe"
-	@echo ""
-	@echo "This demonstrates doc-polish usage."
-	@echo "Execute manually in Claude Code for full functionality."
-
-demo-doc-generate: ## Demo doc-generate command
-	@echo "=== doc-generate Demo ==="
-	@echo ""
-	@echo "Command: /doc-generate"
-	@echo "Plugin: scribe"
-	@echo ""
-	@echo "This demonstrates doc-generate usage."
-	@echo "Execute manually in Claude Code for full functionality."
-
-demo-doc-verify: ## Demo doc-verify command
-	@echo "=== doc-verify Demo ==="
-	@echo ""
-	@echo "Command: /doc-verify"
-	@echo "Plugin: scribe"
-	@echo ""
-	@echo "This demonstrates doc-verify usage."
-	@echo "Execute manually in Claude Code for full functionality."
-
-demo-pr-review: ## Demo pr-review command
-	@echo "=== pr-review Demo ==="
-	@echo ""
-	@echo "Command: /pr-review"
-	@echo "Plugin: scribe"
-	@echo ""
-	@echo "This demonstrates pr-review usage."
-	@echo "Execute manually in Claude Code for full functionality."
-
-demo-update-docs: ## Demo update-docs command
-	@echo "=== update-docs Demo ==="
-	@echo ""
-	@echo "Command: /update-docs"
-	@echo "Plugin: scribe"
-	@echo ""
-	@echo "This demonstrates update-docs usage."
-	@echo "Execute manually in Claude Code for full functionality."
-
-demo-update-readme: ## Demo update-readme command
-	@echo "=== update-readme Demo ==="
-	@echo ""
-	@echo "Command: /update-readme"
-	@echo "Plugin: scribe"
-	@echo ""
-	@echo "This demonstrates update-readme usage."
-	@echo "Execute manually in Claude Code for full functionality."
-
-demo-prepare-pr: ## Demo prepare-pr command
-	@echo "=== prepare-pr Demo ==="
-	@echo ""
-	@echo "Command: /prepare-pr"
-	@echo "Plugin: scribe"
-	@echo ""
-	@echo "This demonstrates prepare-pr usage."
-	@echo "Execute manually in Claude Code for full functionality."
-
-demo-pr: ## Demo pr command
-	@echo "=== pr Demo ==="
-	@echo ""
-	@echo "Command: /pr"
-	@echo "Plugin: scribe"
-	@echo ""
-	@echo "This demonstrates pr usage."
+	@echo "This demonstrates $* usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
 demo-cli-plugins: ## Demo CLI invocation: plugins install scribe
@@ -200,7 +126,7 @@ demo-cli-plugins: ## Demo CLI invocation: plugins install scribe
 	@echo "This demonstrates cli-plugins usage."
 	@echo "Execute manually in Claude Code for full functionality."
 
-demo-scribe-commands: demo-slop-scan demo-style-learn demo-doc-polish demo-doc-generate demo-doc-verify demo-pr-review demo-update-docs demo-update-readme demo-prepare-pr demo-pr ## Run all scribe documented command demos
+demo-scribe-commands: $(SCRIBE_DEMOS) ## Run all scribe documented command demos
 	@echo ""
 	@echo "=== Scribe All Commands Demo Complete ==="
 
@@ -238,9 +164,6 @@ define run_test_subset
 	fi
 endef
 
-test-slop-scan: ## Test slop-scan command (runs slop detection tests)
-	$(call run_test_subset,slop)
-
 test-style-learn: ## Test style-learn command (runs style tests)
 	$(call run_test_subset,style)
 
@@ -250,23 +173,23 @@ test-doc-polish: ## Test doc-polish command (runs doc tests)
 test-doc-generate: ## Test doc-generate command (runs doc generation tests)
 	$(call run_test_subset,generate)
 
-test-doc-verify: ## Test doc-verify command (runs doc verification tests)
-	$(call run_test_subset,verify)
+test-session-replay: ## Test session-replay command (runs session parser and tape tests)
+	$(call run_test_subset,session or tape or codex)
 
-test-pr-review: ## Test pr-review command (runs PR review tests)
-	$(call run_test_subset,pr_review or pr-review)
+test-session-to-post: ## Test session-to-post command
+	$(call run_test_subset,session_to_post or session-to-post)
 
-test-update-docs: ## Test update-docs command (runs doc update tests)
-	$(call run_test_subset,update_docs or update-docs)
+test-voice-extract: ## Test voice-extract command
+	$(call run_test_subset,voice_extract or voice-extract)
 
-test-update-readme: ## Test update-readme command (runs readme tests)
-	$(call run_test_subset,update_readme or readme)
+test-voice-generate: ## Test voice-generate command
+	$(call run_test_subset,voice_generate or voice-generate)
 
-test-prepare-pr: ## Test prepare-pr command (runs PR prep tests)
-	$(call run_test_subset,prepare_pr or prepare-pr)
+test-voice-learn: ## Test voice-learn command
+	$(call run_test_subset,voice_learn or voice-learn)
 
-test-pr: ## Test pr command (runs general PR tests)
-	$(call run_test_subset,pr)
+test-voice-review: ## Test voice-review command
+	$(call run_test_subset,voice_review or voice-review)
 
 plugin-check: validate demo status ## Run all checks
 	@echo ""
