@@ -72,7 +72,7 @@ quality-check: format lint type-check coverage-check ## Run all quality checks
 
 # ---------- Installation ----------
 dev-install: ## Install in development mode
-	pip install -e ".[dev]"
+	$(UV) sync --group dev
 
 install: ## Install for production
 	pip install .
@@ -82,7 +82,11 @@ install: ## Install for production
 
 
 mutation-test: ## Run mutation testing
-	mutmut run --paths-to-mutate src/ || echo "mutmut not installed"
+	@if command -v mutmut >/dev/null 2>&1; then \
+		mutmut run --paths-to-mutate src/; \
+	else \
+		echo "mutmut not installed (pip install mutmut)"; \
+	fi
 
 test-structure: ## Verify test structure
 	@echo "Checking test structure..."
@@ -92,8 +96,7 @@ test-structure: ## Verify test structure
 
 # ---------- Dependencies ----------
 deps-update: ## Update dependencies
-	pip install --upgrade pip
-	pip install --upgrade -e ".[dev]"
+	$(UV) sync --group dev --upgrade
 
 deps-outdated: ## Check for outdated dependencies
 	pip list --outdated
@@ -351,8 +354,8 @@ demo-skill-review: ## Demo skill quality review (LIVE)
 	@echo "Skill frontmatter validation:"
 	@for skill in skills/*/SKILL.md; do \
 		name=$$(basename $$(dirname "$$skill")); \
-		has_name=$$(head -20 "$$skill" | grep -c '^name:'); \
-		has_desc=$$(head -20 "$$skill" | grep -c '^description:'); \
+		has_name=$$(head -20 "$$skill" | grep -c '^name:' || true); \
+		has_desc=$$(head -20 "$$skill" | grep -c '^description:' || true); \
 		if [ "$$has_name" -gt 0 ] && [ "$$has_desc" -gt 0 ]; then \
 			echo "  [OK] $$name"; \
 		else \
