@@ -2,7 +2,7 @@
 # Run comprehensive quality checks on entire codebase
 #
 # Usage:
-#   ./scripts/check-all-quality.sh [--fix] [--report]
+#   ./scripts/check-all-quality.sh [-h] [-x|-t] [--fix] [--report]
 #
 # Options:
 #   --fix     Auto-fix linting issues where possible
@@ -10,49 +10,102 @@
 
 set -euo pipefail
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$PROJECT_ROOT"
+# A bare name (`bash check-all-quality.sh` from inside scripts/) has no
+# slash for `${0%/*}` to strip, so it would come back unchanged.
+case "${0}" in
+  */*) MYDIR="${0%/*}" ;;
+  *) MYDIR="." ;;
+esac
+readonly MYDIR
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+# shellcheck source=scripts/logging.sh
+. "${MYDIR%/}/logging.sh"
+
+PROJECT_ROOT="$(cd "${MYDIR%/}/.." && pwd)"
+readonly PROJECT_ROOT
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+readonly TIMESTAMP
+# Relative on purpose: every phase runs from PROJECT_ROOT.
+readonly REPORT_FILE="audit/quality-report-${TIMESTAMP}.md"
 
 AUTO_FIX=false
 GENERATE_REPORT=false
-TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-REPORT_FILE="audit/quality-report-${TIMESTAMP}.md"
+XTRACE=0
+TOTAL_FAILED=0
+# Output captures, one per phase, removed on exit.
+PHASE_OUTPUTS=()
+# Set by run_phase: PASS or FAIL.
+PHASE_STATUS=""
 
-# Cleanup temp files on exit
-LINT_OUTPUT=""
-TYPECHECK_OUTPUT=""
-TEST_OUTPUT=""
-trap 'rm -f "$LINT_OUTPUT" "$TYPECHECK_OUTPUT" "$TEST_OUTPUT"' EXIT
+usage() {
+  log "Usage: scripts/check-all-quality.sh [-h] [-x|-t] [--fix] [--report]"
+  printf '  -h          Show this help and exit (exit 0)\n'
+  printf '  -x, -t      Enable xtrace (set -x) for debugging\n'
+  printf '  --fix       Auto-fix linting issues where possible\n'
+  printf '  --report    Write a report to audit/quality-report-<timestamp>.md\n'
+}
 
-# Parse arguments
-for arg in "$@"; do
-  case $arg in
-    --fix)
-      AUTO_FIX=true
-      ;;
-    --report)
-      GENERATE_REPORT=true
-      mkdir -p audit
+cleanup() {
+  rm -f "${PHASE_OUTPUTS[@]+"${PHASE_OUTPUTS[@]}"}"
+}
+
+# run_phase NAME COMMAND [ARGS...]
+# Runs one sub-runner, shows its output, sets PHASE_STATUS, and appends its
+# tail to the report when one was asked for.
+run_phase() {
+  local name="${1:?run_phase needs a name}" output exit_code
+  shift
+
+  output=$(mktemp)
+  PHASE_OUTPUTS+=("${output}")
+
+  # The exit code is read from PIPESTATUS so tee cannot mask it.
+  if
+    "$@" 2>&1 | tee "${output}"
+    exit_code=${PIPESTATUS[0]}
+    [ "${exit_code}" -eq 0 ]
+  then
+    PHASE_STATUS="PASS"
+  else
+    PHASE_STATUS="FAIL"
+    TOTAL_FAILED=$((TOTAL_FAILED + 1))
+  fi
+
+  case "${GENERATE_REPORT}" in
+    true)
+      {
+        printf '### %s: %s\n' "${name}" "${PHASE_STATUS}"
+        printf '```\n'
+        tail -20 "${output}"
+        printf '```\n'
+        printf '\n'
+      } >>"${REPORT_FILE}"
       ;;
   esac
-done
+}
 
-echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║          Comprehensive Code Quality Check                    ║${NC}"
-echo -e "${BLUE}║          All Plugins - Full Codebase Audit                   ║${NC}"
-echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
-echo
+# log_result STATUS PASS_MESSAGE FAIL_MESSAGE
+log_result() {
+  case "${1}" in
+    PASS) log "${2}" ;;
+    *) log 4 "${3}" ;;
+  esac
+}
 
-# Initialize report
-if [ "$GENERATE_REPORT" = true ]; then
-  cat >"$REPORT_FILE" <<EOF
+run_quality_checks() {
+  local lint_status typecheck_status test_status final_status
+  local lint_args=(--all)
+
+  cd "${PROJECT_ROOT}"
+  trap cleanup EXIT
+
+  banner "Comprehensive Code Quality Check: All Plugins, Full Codebase Audit" 72
+
+  # Initialize report
+  case "${GENERATE_REPORT}" in
+    true)
+      mkdir -p audit
+      cat >"${REPORT_FILE}" <<EOF
 # Code Quality Report
 
 **Date**: $(date)
@@ -62,198 +115,111 @@ if [ "$GENERATE_REPORT" = true ]; then
 ## Summary
 
 EOF
-fi
+      ;;
+  esac
 
-LINT_FAILED=false
-TYPECHECK_FAILED=false
-TEST_FAILED=false
+  # 1. Linting
+  log "==== Phase 1: Linting All Plugins ===="
+  case "${AUTO_FIX}" in
+    true)
+      log "Running with auto-fix enabled..."
+      lint_args+=(--fix)
+      ;;
+  esac
+  run_phase "Linting" ./scripts/run-plugin-lint.sh "${lint_args[@]}"
+  lint_status="${PHASE_STATUS}"
+  log_result "${lint_status}" \
+    "All plugins passed linting" "Some plugins failed linting"
 
-# ============================================================
-# 1. Linting
-# ============================================================
+  # 2. Type Checking
+  log "==== Phase 2: Type Checking All Plugins ===="
+  run_phase "Type Checking" ./scripts/run-plugin-typecheck.sh --all
+  typecheck_status="${PHASE_STATUS}"
+  log_result "${typecheck_status}" \
+    "All plugins passed type checking" "Some plugins failed type checking"
 
-echo -e "${BLUE}════ Phase 1: Linting All Plugins ════${NC}"
-echo
+  # 3. Testing
+  log "==== Phase 3: Testing All Plugins ===="
+  run_phase "Testing" ./scripts/run-plugin-tests.sh --all
+  test_status="${PHASE_STATUS}"
+  log_result "${test_status}" \
+    "All plugins passed tests" "Some plugins failed tests"
 
-LINT_OUTPUT=$(mktemp)
-if [ "$AUTO_FIX" = true ]; then
-  echo -e "${YELLOW}Running with auto-fix enabled...${NC}"
-fi
+  # Final Summary
+  log "==== Final Summary ===="
+  log_result "${lint_status}" "Linting: PASSED" "Linting: FAILED"
+  log_result "${typecheck_status}" \
+    "Type Checking: PASSED" "Type Checking: FAILED"
+  log_result "${test_status}" "Testing: PASSED" "Testing: FAILED"
 
-# Use process substitution to avoid masking exit code through tee
-lint_args=(--all)
-if [ "$AUTO_FIX" = true ]; then
-  lint_args+=(--fix)
-fi
-if
-  ./scripts/run-plugin-lint.sh "${lint_args[@]}" 2>&1 | tee "$LINT_OUTPUT"
-  LINT_EXIT=${PIPESTATUS[0]}
-  [ "$LINT_EXIT" -eq 0 ]
-then
-  echo -e "${GREEN}✓ All plugins passed linting${NC}"
-  LINT_STATUS="PASS"
-else
-  echo -e "${RED}✗ Some plugins failed linting${NC}"
-  LINT_STATUS="FAIL"
-  LINT_FAILED=true
-fi
+  case "${TOTAL_FAILED}" in
+    0)
+      banner "ALL CHECKS PASSED: codebase meets all quality standards" 72
+      final_status="PASS"
+      ;;
+    *)
+      banner "CHECKS FAILED: ${TOTAL_FAILED} check(s) failed, see details above" 72
+      final_status="FAIL"
+      ;;
+  esac
 
-if [ "$GENERATE_REPORT" = true ]; then
-  echo "### Linting: $LINT_STATUS" >>"$REPORT_FILE"
-  echo '```' >>"$REPORT_FILE"
-  tail -20 "$LINT_OUTPUT" >>"$REPORT_FILE"
-  echo '```' >>"$REPORT_FILE"
-  echo >>"$REPORT_FILE"
-fi
+  case "${GENERATE_REPORT}" in
+    true)
+      {
+        printf '\n'
+        printf '## Final Status: %s\n' "${final_status}"
+        printf '\n'
+        printf -- '- Linting: %s\n' "${lint_status}"
+        printf -- '- Type Checking: %s\n' "${typecheck_status}"
+        printf -- '- Testing: %s\n' "${test_status}"
+        printf '\n'
+        printf '**Total Failed**: %s / 3\n' "${TOTAL_FAILED}"
+      } >>"${REPORT_FILE}"
+      log "Report saved to: ${REPORT_FILE}"
+      ;;
+  esac
 
-echo
-echo "─────────────────────────────────────────────────────────────"
-echo
+  log "Next steps:"
+  case "${TOTAL_FAILED}" in
+    0)
+      log "1. Commit your changes"
+      log "2. Pre-commit hooks will enforce quality on future commits"
+      log "3. Re-run monthly: ./scripts/check-all-quality.sh --report"
+      ;;
+    *)
+      log "1. Review failures above"
+      log "2. Fix issues in failing plugins"
+      log "3. Run individual checks: ./scripts/run-plugin-{lint|typecheck|test}.sh <plugin>"
+      log "4. Re-run this script to verify fixes"
+      case "${AUTO_FIX}" in
+        false) log "5. Try with --fix flag for automatic linting fixes" ;;
+      esac
+      return 1
+      ;;
+  esac
+}
 
-# ============================================================
-# 2. Type Checking
-# ============================================================
+main() {
+  local arg
+  for arg in "$@"; do
+    case "${arg}" in
+      *[uU][sS][aA][gG][eE] | *[hH][eE][lL][pP] | -h)
+        usage
+        exit 0
+        ;;
+      -x | -t) XTRACE=1 ;;
+      --fix) AUTO_FIX=true ;;
+      --report) GENERATE_REPORT=true ;;
+    esac
+  done
 
-echo -e "${BLUE}════ Phase 2: Type Checking All Plugins ════${NC}"
-echo
+  case "${XTRACE}" in
+    1) set -x ;;
+  esac
 
-TYPECHECK_OUTPUT=$(mktemp)
-if
-  ./scripts/run-plugin-typecheck.sh --all 2>&1 | tee "$TYPECHECK_OUTPUT"
-  TC_EXIT=${PIPESTATUS[0]}
-  [ "$TC_EXIT" -eq 0 ]
-then
-  echo -e "${GREEN}✓ All plugins passed type checking${NC}"
-  TYPECHECK_STATUS="PASS"
-else
-  echo -e "${RED}✗ Some plugins failed type checking${NC}"
-  TYPECHECK_STATUS="FAIL"
-  TYPECHECK_FAILED=true
-fi
+  # The subshell keeps the cd into PROJECT_ROOT, and the cleanup trap,
+  # to the checks themselves.
+  (run_quality_checks)
+}
 
-if [ "$GENERATE_REPORT" = true ]; then
-  echo "### Type Checking: $TYPECHECK_STATUS" >>"$REPORT_FILE"
-  echo '```' >>"$REPORT_FILE"
-  tail -20 "$TYPECHECK_OUTPUT" >>"$REPORT_FILE"
-  echo '```' >>"$REPORT_FILE"
-  echo >>"$REPORT_FILE"
-fi
-
-echo
-echo "─────────────────────────────────────────────────────────────"
-echo
-
-# ============================================================
-# 3. Testing
-# ============================================================
-
-echo -e "${BLUE}════ Phase 3: Testing All Plugins ════${NC}"
-echo
-
-TEST_OUTPUT=$(mktemp)
-if
-  ./scripts/run-plugin-tests.sh --all 2>&1 | tee "$TEST_OUTPUT"
-  TEST_EXIT=${PIPESTATUS[0]}
-  [ "$TEST_EXIT" -eq 0 ]
-then
-  echo -e "${GREEN}✓ All plugins passed tests${NC}"
-  TEST_STATUS="PASS"
-else
-  echo -e "${RED}✗ Some plugins failed tests${NC}"
-  TEST_STATUS="FAIL"
-  TEST_FAILED=true
-fi
-
-if [ "$GENERATE_REPORT" = true ]; then
-  echo "### Testing: $TEST_STATUS" >>"$REPORT_FILE"
-  echo '```' >>"$REPORT_FILE"
-  tail -20 "$TEST_OUTPUT" >>"$REPORT_FILE"
-  echo '```' >>"$REPORT_FILE"
-  echo >>"$REPORT_FILE"
-fi
-
-echo
-echo "─────────────────────────────────────────────────────────────"
-echo
-
-# ============================================================
-# Final Summary
-# ============================================================
-
-echo -e "${BLUE}════ Final Summary ════${NC}"
-echo
-
-TOTAL_FAILED=0
-if [ "$LINT_FAILED" = true ]; then
-  echo -e "${RED}✗ Linting: FAILED${NC}"
-  TOTAL_FAILED=$((TOTAL_FAILED + 1))
-else
-  echo -e "${GREEN}✓ Linting: PASSED${NC}"
-fi
-
-if [ "$TYPECHECK_FAILED" = true ]; then
-  echo -e "${RED}✗ Type Checking: FAILED${NC}"
-  TOTAL_FAILED=$((TOTAL_FAILED + 1))
-else
-  echo -e "${GREEN}✓ Type Checking: PASSED${NC}"
-fi
-
-if [ "$TEST_FAILED" = true ]; then
-  echo -e "${RED}✗ Testing: FAILED${NC}"
-  TOTAL_FAILED=$((TOTAL_FAILED + 1))
-else
-  echo -e "${GREEN}✓ Testing: PASSED${NC}"
-fi
-
-echo
-
-if [ $TOTAL_FAILED -eq 0 ]; then
-  echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
-  echo -e "${GREEN}║                  🎉 ALL CHECKS PASSED 🎉                      ║${NC}"
-  echo -e "${GREEN}║          Codebase meets all quality standards!               ║${NC}"
-  echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
-  FINAL_STATUS="PASS"
-else
-  echo -e "${RED}╔══════════════════════════════════════════════════════════════╗${NC}"
-  echo -e "${RED}║                   ⚠️  CHECKS FAILED ⚠️                        ║${NC}"
-  echo -e "${RED}║          $TOTAL_FAILED check(s) failed - see details above              ║${NC}"
-  echo -e "${RED}╚══════════════════════════════════════════════════════════════╝${NC}"
-  FINAL_STATUS="FAIL"
-fi
-
-if [ "$GENERATE_REPORT" = true ]; then
-  echo >>"$REPORT_FILE"
-  echo "## Final Status: $FINAL_STATUS" >>"$REPORT_FILE"
-  echo >>"$REPORT_FILE"
-  echo "- Linting: $LINT_STATUS" >>"$REPORT_FILE"
-  echo "- Type Checking: $TYPECHECK_STATUS" >>"$REPORT_FILE"
-  echo "- Testing: $TEST_STATUS" >>"$REPORT_FILE"
-  echo >>"$REPORT_FILE"
-  echo "**Total Failed**: $TOTAL_FAILED / 3" >>"$REPORT_FILE"
-
-  echo
-  echo -e "${BLUE}Report saved to: $REPORT_FILE${NC}"
-fi
-
-echo
-echo "Next steps:"
-if [ $TOTAL_FAILED -gt 0 ]; then
-  echo "1. Review failures above"
-  echo "2. Fix issues in failing plugins"
-  echo "3. Run individual checks: ./scripts/run-plugin-{lint|typecheck|test}.sh <plugin>"
-  echo "4. Re-run this script to verify fixes"
-  if [ "$AUTO_FIX" = false ]; then
-    echo "5. Try with --fix flag for automatic linting fixes"
-  fi
-else
-  echo "1. Commit your changes"
-  echo "2. Pre-commit hooks will enforce quality on future commits"
-  echo "3. Re-run monthly: ./scripts/check-all-quality.sh --report"
-fi
-
-# Exit with appropriate code (temp files cleaned up via EXIT trap)
-if [ $TOTAL_FAILED -gt 0 ]; then
-  exit 1
-fi
-
-exit 0
+main "$@"
