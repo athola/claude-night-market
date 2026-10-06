@@ -61,7 +61,7 @@ test-bdd: ## Run BDD-style tests
 	$(PYTEST) -m "bdd" -v
 
 test-git: ## Run Git-related tests
-	$(PYTEST) -m "git" -v
+	$(PYTEST) -k "git" -v
 
 # ---------- Code Quality ----------
 qa: lint type-check test-cov ## Run all quality assurance checks
@@ -123,8 +123,7 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "UV: $(UV)"
 	@echo "UV_RUN: $(UV_RUN)"
 	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
 	@echo "SRC_DIRS: $(SRC_DIRS)"
 	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
 	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
@@ -387,9 +386,8 @@ test-pr-review: ## Test pr-review command (runs PR review tests)
 test-prepare-pr: ## Test prepare-pr command (runs PR prep tests)
 	$(PYTEST) tests/test_pr_prep.py -v
 
-test-merge-docs: ## Test merge-docs command (runs doc update tests)
-	$(PYTEST) tests/test_doc_updates_workflow.py -v -k "merge" || \
-		$(PYTEST) . -v -k "merge_docs or merge-docs"
+test-merge-docs: ## Test merge-docs command (runs doc-consolidation tests)
+	$(PYTEST) tests/test_consolidation_planner.py -v
 
 test-resolve-threads: ## Test resolve-threads command (not applicable: skill-only)
 	@echo "Not applicable: resolve-threads is a skill-only command with no unit tests"
