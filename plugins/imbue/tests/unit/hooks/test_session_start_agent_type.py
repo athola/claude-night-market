@@ -59,6 +59,16 @@ def test_a_session_without_an_agent_gets_the_full_context(tmp_path: Path) -> Non
     assert "abbreviated" not in context
 
 
+def test_a_quote_in_the_agent_prefix_still_yields_valid_json(tmp_path: Path) -> None:
+    """The branch matches only the name after the last colon, so the
+    prefix reaches the output unchecked. jq (/usr/bin/jq on the test PATH)
+    decodes the escaped quote, and it was spliced into the JSON raw.
+    """
+    agent_type = 'evil"plugin:code-reviewer'
+    context = _context(tmp_path, {"source": "startup", "agent_type": agent_type})
+    assert agent_type in context
+
+
 def test_agent_type_is_read_without_a_trailing_newline(tmp_path: Path) -> None:
     """`read` returns nonzero on an unterminated line, and the branch was
     skipped with the value already read (shell review S0-6, S2-9).
