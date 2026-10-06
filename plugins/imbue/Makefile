@@ -252,5 +252,4 @@ clean: ## Clean up generated files
 	rm -rf build/
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete
-	uv cache clean
 	@echo "Cleanup completed!"

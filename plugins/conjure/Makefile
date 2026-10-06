@@ -99,7 +99,6 @@ clean: ## Clean cache and build files
 	rm -rf .venv 2>/dev/null || true
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
-	uv cache clean 2>/dev/null || true
 
 # Quick commands
 status: ## Show project overview
