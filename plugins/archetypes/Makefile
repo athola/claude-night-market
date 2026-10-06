@@ -27,7 +27,7 @@ status: ## Show project overview
 debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "=== Makefile Variables ==="
 	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
+	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
 	@echo "SKILLS_DIR: $(SKILLS_DIR)"
 	@echo "COMMANDS_DIR: $(COMMANDS_DIR)"
 	@echo "AGENTS_DIR: $(AGENTS_DIR)"
