@@ -77,12 +77,15 @@ main() {
   # subagents never fire SessionStart.
   case "${AGENT_TYPE##*:}" in
     code-reviewer | architecture-reviewer | rust-auditor | bloat-auditor | context-optimizer)
-      # Review/optimization agents: minimal scope-guard context
+      # Review/optimization agents: minimal scope-guard context.
+      # Only the name after the last colon is matched, so the prefix
+      # is arbitrary input and is escaped like the rest of the output.
+      agent_escaped=$(escape_for_json "${AGENT_TYPE}")
       cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "[imbue] Agent '${AGENT_TYPE}' - scope-guard abbreviated: Focus on review quality, not implementation scope."
+    "additionalContext": "[imbue] Agent '${agent_escaped}' - scope-guard abbreviated: Focus on review quality, not implementation scope."
   }
 }
 EOF
