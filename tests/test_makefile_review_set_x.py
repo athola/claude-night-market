@@ -311,3 +311,17 @@ def test_scry_test_integration_fails_and_cleans_up_when_gif_demo_fails(
     assert "gif demo FAILED" in result.stdout, result.stdout + result.stderr
     assert result.returncode != 0, result.stdout
     assert not gif_dir.exists(), "clean-gif-temp did not run after the failure"
+
+
+def test_scribe_demo_names_only_commands_scribe_ships() -> None:
+    """The demo told users to run /slop-scan, which scribe does not ship."""
+    result = subprocess.run(
+        ["make", "--no-print-directory", "-C", str(ROOT / "plugins/scribe"), "demo"],
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
+    named = set(re.findall(r"^\s+/([a-z][\w-]*)", result.stdout, re.M))
+    shipped = {p.stem for p in (ROOT / "plugins/scribe/commands").glob("*.md")}
+    assert named and named <= shipped, named - shipped
