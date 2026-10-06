@@ -17,7 +17,7 @@ related_artifacts:
   - .claude/skills/claude-code-plugin-reference/SKILL.md
   - .claude/upstream-baseline.json
   - .claude/skills/night-market-model-and-harness-updates/SKILL.md
-last_updated: 2026-10-04
+last_updated: 2026-10-05
 ---
 
 ## Synopsis
@@ -26,7 +26,7 @@ Most harness releases add capability nobody has to act on. A few change
 the meaning of syntax already written down, and those are the ones that
 break plugins quietly. This entry keeps the second kind.
 
-Covers 2.1.80 through 2.1.289. Later ranges append here rather than
+Covers 2.1.80 through 2.1.290. Later ranges append here rather than
 starting a new entry, which keeps the accumulated list in one place.
 
 ## Changes that alter existing syntax
@@ -142,6 +142,21 @@ marketplace plugins where an organization sets `allowManagedModsOnly`.
 
 A mod that answers `tool.call` itself keeps plugin PreToolUse hooks from
 running. This repo's mods observe and draw only, for that reason.
+
+## 2.1.290
+
+Recorded 2026-10-05 from https://code.claude.com/docs/en/changelog.
+
+| Change | Consequence here |
+|--------|------------------|
+| Teammate `agent_id` in Agent results is the agent ID; `name@team` moved to `teammate_id`. `TeammateIdle` no longer fires from a teammate's subagents or forks | conjure's health-monitoring module documents the new field and scope |
+| `tool.check` events carry `agentId`; mod `tool.check` reads `ceiling` | No mod here hooks `tool.check` |
+| `claude plugin validate --json` lists gating-site hooks and their `.catch` (`gatingHooks`) | The conserve and egregore mods register no gating hook |
+| Bash asks before `pyright` and more `ps` forms | conserve's PermissionRequest hook auto-approves neither |
+| Skill and command `!` blocks refuse raw control characters | None found in this repo's skills |
+| WebFetch reports text past 100,000 characters and takes `offset`; interactive WebSearch refills at 100 calls/hour | No skill here quotes either limit |
+| `CLAUDE_CODE_DISABLE_ATTACHMENTS` cannot be set from repository settings | Not set here |
+| Async Stop hook with an unquoted script path under a spaced folder looped | All 72 plugin-root hook paths here are quoted |
 
 ## Open questions this does not answer
 
