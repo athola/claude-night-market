@@ -13,10 +13,22 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-SKILLS_DIR="$REPO_ROOT/clawhub"
-PROGRESS_FILE="$REPO_ROOT/.egregore/clawhub-progress.json"
+# A bare name (`bash clawhub-batch-publish.sh` from inside scripts/) has no
+# slash for `${0%/*}` to strip, so it would come back unchanged.
+case "${0}" in
+  */*) MYDIR="${0%/*}" ;;
+  *) MYDIR="." ;;
+esac
+readonly MYDIR
+
+# shellcheck source=scripts/logging.sh
+. "${MYDIR%/}/logging.sh"
+
+REPO_ROOT="$(cd "${MYDIR%/}/.." && pwd)"
+readonly REPO_ROOT
+readonly SKILLS_DIR="${REPO_ROOT}/clawhub"
+readonly PROGRESS_FILE="${REPO_ROOT}/.egregore/clawhub-progress.json"
+readonly REQUIRED_DEPENDENCIES="python3 npx"
 
 # ---------- defaults ----------
 
@@ -25,82 +37,118 @@ RETRY_FAILED=false
 STATUS_ONLY=false
 DRY_RUN=false
 VERSION=""
+XTRACE=0
 
-# ---------- parse args ----------
+usage() {
+  log "Usage: scripts/clawhub-batch-publish.sh [-h] [-x|-t] [--batch-size N] [--retry-failed] [--status] [--dry-run] [VERSION]"
+  printf '  -h               Show this help and exit (exit 0)\n'
+  printf '  -x, -t           Enable xtrace (set -x) for debugging\n'
+  printf '  --batch-size N   Skills per batch, also --batch-size=N (default: 5)\n'
+  printf '  --retry-failed   Publish from the failed list instead of pending\n'
+  printf '  --status         Show progress and exit\n'
+  printf '  --dry-run        Show the next batch; change nothing\n'
+  printf '  VERSION          Release version, v1.8.3 or 1.8.3 (default: abstract plugin.json)\n'
+}
 
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --batch-size=*)
-      BATCH_SIZE="${1#*=}"
-      shift
-      ;;
-    --batch-size)
-      if [ $# -lt 2 ]; then
-        echo "Error: --batch-size requires a value"
-        exit 1
-      fi
-      BATCH_SIZE="$2"
-      shift 2
-      ;;
-    --retry-failed)
-      RETRY_FAILED=true
-      shift
-      ;;
-    --status)
-      STATUS_ONLY=true
-      shift
-      ;;
-    --dry-run)
-      DRY_RUN=true
-      shift
-      ;;
-    v*)
-      VERSION="$1"
-      shift
-      ;;
-    [0-9]*)
-      VERSION="v$1"
-      shift
-      ;;
-    *)
-      echo "Unknown argument: $1"
-      exit 1
-      ;;
+depcheck() {
+  local missing="" utility
+  for utility in ${REQUIRED_DEPENDENCIES}; do
+    command -v "${utility}" >/dev/null 2>&1 ||
+      missing="${missing:+"${missing} "}${utility}"
+  done
+  case "${missing}" in
+    "") return 0 ;;
   esac
-done
+  log 5 "Required utilities not found: ${missing}"
+  return 1
+}
 
-if [ -z "$VERSION" ]; then
-  VERSION="v$(REPO_ROOT="$REPO_ROOT" python3 -c "
+parse_args() {
+  while [ "${#}" -gt 0 ]; do
+    case "${1}" in
+      *[uU][sS][aA][gG][eE] | *[hH][eE][lL][pP] | -h)
+        usage
+        exit 0
+        ;;
+      -x | -t)
+        XTRACE=1
+        shift
+        ;;
+      --batch-size=*)
+        BATCH_SIZE="${1#*=}"
+        shift
+        ;;
+      --batch-size)
+        case "${#}" in
+          1)
+            log 4 "--batch-size requires a value"
+            exit 1
+            ;;
+        esac
+        BATCH_SIZE="${2}"
+        shift 2
+        ;;
+      --retry-failed)
+        RETRY_FAILED=true
+        shift
+        ;;
+      --status)
+        STATUS_ONLY=true
+        shift
+        ;;
+      --dry-run)
+        DRY_RUN=true
+        shift
+        ;;
+      v*)
+        VERSION="${1}"
+        shift
+        ;;
+      [0-9]*)
+        VERSION="v${1}"
+        shift
+        ;;
+      *)
+        log 4 "Unknown argument: ${1}"
+        exit 1
+        ;;
+    esac
+  done
+}
+
+# `env` sets the variables the Python programs read, because the shell
+# refuses a prefix assignment to a readonly variable.
+
+detect_version() {
+  case "${VERSION}" in
+    "") ;;
+    *) return 0 ;;
+  esac
+  VERSION="v$(env REPO_ROOT="${REPO_ROOT}" python3 -c "
 import json, os
 print(json.load(open(os.path.join(os.environ['REPO_ROOT'], 'plugins/abstract/.claude-plugin/plugin.json')))['version'])
 ")"
-fi
+}
 
-SEMVER="${VERSION#v}"
-
-# ---------- preflight ----------
-
-if ! command -v npx &>/dev/null; then
-  echo "Error: npx required"
-  exit 1
-fi
-
-if [ ! -f "$SKILLS_DIR/manifest.json" ]; then
-  echo "Building clawhub export..."
-  cd "$REPO_ROOT"
-  python3 scripts/clawhub_export.py --output "$SKILLS_DIR"
-fi
+build_export_if_needed() {
+  if [ ! -f "${SKILLS_DIR}/manifest.json" ]; then
+    log "Building clawhub export..."
+    (cd "${REPO_ROOT}" && python3 scripts/clawhub_export.py --output "${SKILLS_DIR}")
+  fi
+}
 
 # ---------- init progress file if missing or from another release ----------
 
 # A finished run for an earlier release leaves pending=[] behind, and
 # reusing it published nothing for the new one.
-if ! PROGRESS_FILE="$PROGRESS_FILE" SEMVER="$SEMVER" python3 -c "
+init_progress_if_stale() {
+  local semver="${1:?init_progress_if_stale needs a semver}"
+  if ! env PROGRESS_FILE="${PROGRESS_FILE}" SEMVER="${semver}" python3 -c "
 import json, os, sys
 p = json.load(open(os.environ['PROGRESS_FILE']))
 sys.exit(0 if p.get('version') == os.environ['SEMVER'] else 1)
 " 2>/dev/null; then
-  SKILLS_DIR="$SKILLS_DIR" SEMVER="$SEMVER" PROGRESS_FILE="$PROGRESS_FILE" python3 -c "
+    env SKILLS_DIR="${SKILLS_DIR}" SEMVER="${semver}" PROGRESS_FILE="${PROGRESS_FILE}" python3 -c "
 import json, os
 from pathlib import Path
 
@@ -119,12 +167,11 @@ Path(os.environ['PROGRESS_FILE']).parent.mkdir(parents=True, exist_ok=True)
 Path(os.environ['PROGRESS_FILE']).write_text(json.dumps(progress, indent=2))
 print(f'Initialized progress: {len(skills)} skills to publish')
 "
-fi
+  fi
+}
 
-# ---------- status command ----------
-
-if [ "$STATUS_ONLY" = true ]; then
-  PROGRESS_FILE="$PROGRESS_FILE" BATCH_SIZE="$BATCH_SIZE" python3 -c "
+show_status() {
+  env PROGRESS_FILE="${PROGRESS_FILE}" BATCH_SIZE="${BATCH_SIZE}" python3 -c "
 import json, os
 from pathlib import Path
 
@@ -141,14 +188,11 @@ print(f'Progress:   {pct:.1f}%')
 if p['pending']:
     print(f'Next batch: {p[\"pending\"][:batch_size]}')
 "
-  exit 0
-fi
+}
 
-# ---------- dry-run preview ----------
-
-if [ "$DRY_RUN" = true ]; then
-  PROGRESS_FILE="$PROGRESS_FILE" RETRY_FAILED="$RETRY_FAILED" \
-    BATCH_SIZE="$BATCH_SIZE" VERSION="$VERSION" python3 -c "
+preview_batch() {
+  env PROGRESS_FILE="${PROGRESS_FILE}" RETRY_FAILED="${RETRY_FAILED}" \
+    BATCH_SIZE="${BATCH_SIZE}" VERSION="${VERSION}" python3 -c "
 import json, os
 from pathlib import Path
 
@@ -170,14 +214,13 @@ for slug in batch:
     print(f'  - {slug}')
 print(f'[dry-run] no state changes, no network calls')
 "
-  exit 0
-fi
+}
 
-# ---------- publish batch ----------
-
-RESULT=$(PROGRESS_FILE="$PROGRESS_FILE" RETRY_FAILED="$RETRY_FAILED" \
-  BATCH_SIZE="$BATCH_SIZE" SKILLS_DIR="$SKILLS_DIR" \
-  SEMVER="$SEMVER" VERSION="$VERSION" python3 -c "
+# Prints the per-skill lines and the batch summary.
+publish_batch() {
+  env PROGRESS_FILE="${PROGRESS_FILE}" RETRY_FAILED="${RETRY_FAILED}" \
+    BATCH_SIZE="${BATCH_SIZE}" SKILLS_DIR="${SKILLS_DIR}" \
+    SEMVER="${1:?publish_batch needs a semver}" VERSION="${VERSION}" python3 -c "
 import json, os
 import subprocess
 import sys
@@ -262,13 +305,48 @@ print(f'')
 print(f'Batch {progress[\"batches_completed\"]} ({mode}): {len(published)} ok, {len(failed)} fail')
 print(f'Overall: {len(progress[\"published\"])}/{progress[\"total\"]} ({pct:.1f}%)')
 print(f'Remaining: {len(progress[\"pending\"])} pending, {len(progress[\"failed\"])} failed')
-")
+"
+}
 
-echo "$RESULT"
+main() {
+  local semver batch_report
 
-# Exit with failure if no skills published this batch. Anchored on the
-# batch line: a bare "0 ok" also matched "10 ok".
-if printf '%s\n' "$RESULT" | grep -qE '^Batch [0-9]+ \([a-z]+\): 0 ok,'; then
-  echo "Error: No skills published in this batch."
-  exit 1
-fi
+  parse_args "$@"
+
+  case "${XTRACE}" in
+    1) set -x ;;
+  esac
+
+  depcheck || exit 1
+  detect_version
+  semver="${VERSION#v}"
+
+  build_export_if_needed
+  init_progress_if_stale "${semver}"
+
+  case "${STATUS_ONLY}" in
+    true)
+      show_status
+      exit 0
+      ;;
+  esac
+
+  case "${DRY_RUN}" in
+    true)
+      preview_batch
+      exit 0
+      ;;
+  esac
+
+  batch_report=$(publish_batch "${semver}")
+  printf '%s\n' "${batch_report}"
+
+  # Exit with failure if no skills published this batch. Anchored on the
+  # batch line: a bare "0 ok" also matched "10 ok".
+  if printf '%s\n' "${batch_report}" | grep -qE '^Batch [0-9]+ \([a-z]+\): 0 ok,'; then
+    log 4 "No skills published in this batch."
+    exit 1
+  fi
+}
+
+main "$@"
