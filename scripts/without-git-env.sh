@@ -2,7 +2,7 @@
 # Run a command with every GIT_* variable removed from its environment.
 #
 # Usage:
-#   ./scripts/without-git-env.sh <command> [args...]
+#   ./scripts/without-git-env.sh [-h] [-x|-t] <command> [args...]
 #
 # Why this exists. git exports its context to every hook it runs. Commit from
 # a linked worktree and the hook's children inherit GIT_DIR and GIT_INDEX_FILE
@@ -24,18 +24,62 @@
 
 set -euo pipefail
 
-if [ $# -eq 0 ]; then
-  echo "usage: $(basename "$0") <command> [args...]" >&2
-  exit 64 # EX_USAGE
-fi
+# A bare name (`bash without-git-env.sh` from inside scripts/) has no slash
+# for `${0%/*}` to strip, so it would come back unchanged.
+case "${0}" in
+  */*) MYDIR="${0%/*}" ;;
+  *) MYDIR="." ;;
+esac
+readonly MYDIR
 
-# "${!GIT_@}" expands to the names of the set variables starting with GIT_.
-# With none set it expands to zero words, which is why the loop body is safe
-# under `set -u` outside a git hook.
-for _git_var in "${!GIT_@}"; do
-  unset "$_git_var"
-done
+# shellcheck source=scripts/logging.sh
+. "${MYDIR%/}/logging.sh"
 
-# exec, so the child's exit status is this script's exit status and a failing
-# suite still fails the gate.
-exec "$@"
+readonly EX_USAGE=64
+
+usage() {
+  log "Usage: scripts/without-git-env.sh [-h] [-x|-t] <command> [args...]"
+  printf '  -h          Show this help and exit (exit 0)\n'
+  printf '  -x, -t      Enable xtrace (set -x) for debugging\n'
+  printf '  <command>   Run with every GIT_* variable unset; its exit status is ours\n'
+}
+
+main() {
+  # Only exact flags before the command are ours. Everything from the first
+  # other word on is the command, so a program whose name ends in "help"
+  # still runs instead of printing this script's usage.
+  while [ "${#}" -gt 0 ]; do
+    case "${1}" in
+      -h | --help)
+        usage
+        exit 0
+        ;;
+      -x | -t)
+        set -x
+        shift
+        ;;
+      *) break ;;
+    esac
+  done
+
+  case "${#}" in
+    0)
+      usage >&2
+      exit "${EX_USAGE}"
+      ;;
+  esac
+
+  # "${!GIT_@}" expands to the names of the set variables starting with GIT_.
+  # With none set it expands to zero words, which is why the loop body is safe
+  # under `set -u` outside a git hook.
+  local git_var
+  for git_var in "${!GIT_@}"; do
+    unset "${git_var}"
+  done
+
+  # exec, so the child's exit status is this script's exit status and a
+  # failing suite still fails the gate.
+  exec "$@"
+}
+
+main "$@"
