@@ -63,5 +63,10 @@ Noun-cluster findings are advisory. Without a part-of-speech tagger,
 detection fires on 76% of files. Reread what it points at. Never
 rewrite on it and never gate a merge on it.
 
+One place does gate. `tests/test_workflow_prompts_ste.py` holds the
+string literals in `plugins/*/workflows/*.js` to the sentence limits, no
+semicolons and no contractions. Those strings are agent instructions and
+operator lines, and a script is never scanned by the markdown ratchet.
+
 **Full reference:** `Skill(scribe:simplified-technical-english)` and its
 `scope-boundaries`, `reconciliation`, and `licensing` modules.

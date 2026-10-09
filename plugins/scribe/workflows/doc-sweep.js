@@ -19,7 +19,7 @@ export const meta = {
   description:
     'Review documents through five independent layers, from identity leaks and hallucinated paths down to sentence-level slop',
   whenToUse:
-    'Run on a batch of documents before publishing, or on a large document whose problems span layers. args.docs lists the files, args.tier the declared audience tier when there is one. A .py file is accepted and is reviewed as its comments and docstrings. Returns findings by layer, critical first; it edits nothing.',
+    'Run on a batch of documents before publishing, or on a large document whose problems span layers. args.docs lists the files, args.tier the declared audience tier when there is one. A .py file is accepted and is reviewed as its comments and docstrings. Returns findings by layer, critical first. It edits nothing.',
   phases: [
     { title: 'Layers', detail: 'five reviewers, five questions' },
     { title: 'Rank', detail: 'critical first, then structural, then local' },
@@ -70,7 +70,7 @@ const LAYERS = [
     key: 'critical',
     agentType: 'scribe:slop-hunter',
     brief:
-      'Find identity leaks, hallucinated identifiers and paths, and bare TODO markers with no tracked issue. Check that every backticked path and every named command actually exists. A single match here fails the document; report each one.',
+      'Find identity leaks, hallucinated identifiers and paths, and bare TODO markers with no tracked issue. Check that every backticked path and every named command actually exists. A single match here fails the document. Report each one.',
   },
   {
     key: 'economy',
@@ -82,13 +82,13 @@ const LAYERS = [
     key: 'audience',
     agentType: 'scribe:doc-editor',
     brief:
-      `Judge who each document is for and whether every section serves that reader. ${tierNote} Tiers are newcomer (has never seen this project), practitioner (knows the domain, not this repository), and expert (already familiar with the material). For each off-tier section, say which tier it actually serves and name the deep dive it should move to: modules/<topic>.md for a skill, docs/deep-dive/<topic>.md for a repo doc. Report a move, never a deletion. Content a newcomer cannot use is usually answering a question they have not asked yet, not weak writing. Skip creative output entirely: voice profiles, session-to-post narrative, and fiction.`,
+      `Judge who each document is for and whether every section serves that reader. ${tierNote} Tiers are newcomer (has never seen this project), practitioner (knows the domain, not this repository), and expert (already familiar with the material). For each off-tier section, say which tier it actually serves. Name the deep dive it should move to: modules/<topic>.md for a skill, docs/deep-dive/<topic>.md for a repo doc. Report a move, never a deletion. Content a newcomer cannot use is usually answering a question they have not asked yet, not weak writing. Skip creative output entirely: voice profiles, session-to-post narrative, and fiction.`,
   },
   {
     key: 'sentence',
     agentType: 'scribe:prose-reviewer',
     brief:
-      'Find sentence-level slop: contrastive negation, participial tail-loading, hedging seesaws, significance clusters, em-dash density, and British spellings. Offer the rewrite, not just the flag. A .py document is its comments and docstrings; `scripts/slop_score.py --audit <file>` reads it that way and reports the real line numbers. Leave notation alone: an arrow in a mapping table, a plus in a formula, and a character quoted because the code matches it are code, not prose.',
+      'Find sentence-level slop: contrastive negation, participial tail-loading, hedging seesaws, significance clusters, em-dash density, and British spellings. Offer the rewrite, not just the flag. A .py document is its comments and docstrings. `scripts/slop_score.py --audit <file>` reads it that way and reports the real line numbers. Leave notation alone. An arrow in a mapping table, a plus in a formula, and a character quoted because the code matches it are code, not prose.',
   },
   {
     key: 'evidence',
@@ -122,7 +122,7 @@ const findings = reports.flatMap((report) =>
 )
 const empty = reports.filter((report) => !(report.findings || []).length).map((report) => report.layer)
 
-if (missing.length) log(`no report from ${missing.join(', ')}; those layers are unreviewed, not clean`)
+if (missing.length) log(`no report from ${missing.join(', ')}. Those layers are unreviewed, not clean`)
 
 const critical = findings.filter((finding) => finding.layer === 'critical')
 

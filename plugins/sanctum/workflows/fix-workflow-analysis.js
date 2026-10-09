@@ -14,7 +14,7 @@ export const meta = {
   description:
     'Recreate a workflow slice, generate improvement options with trade-offs, and converge on one plan with acceptance criteria',
   whenToUse:
-    'Run from /sanctum:fix-workflow when a slice needs the full three-stage analysis. Requires an explicit request: a workflow never starts unasked. args carry slice (what happened), scope (sanctum|repo) and focus (skills|agents|commands|hooks|all). Returns a plan for the session to implement; it never edits files.',
+    'Run from /sanctum:fix-workflow when a slice needs the full three-stage analysis. Requires an explicit request: a workflow never starts unasked. args carry slice (what happened), scope (sanctum|repo) and focus (skills|agents|commands|hooks|all). Returns a plan for the session to implement. It never edits files.',
   phases: [
     { title: 'Recreate', detail: 'restate the slice and surface friction' },
     { title: 'Analyse', detail: 'candidate improvements with trade-offs' },
@@ -120,7 +120,7 @@ if (!analysis || !analysis.options.length) {
 phase('Plan')
 
 const plan = await agent(
-  `Converge on one approach and state what it must satisfy to count as done.\n\nOptions:\n${analysis.options.map((o, i) => `${i + 1}. ${o.approach} (confidence ${o.confidence}) -- sacrifices: ${o.sacrifices}`).join('\n')}\n\nComponents in play:\n${recreation.components.map((c) => c.path).join('\n')}\n\nEvery acceptance criterion must be checkable from outside the conversation: a test that fails without the change, a command whose output shows it, or a file that exists. Say which options you rejected and why.`,
+  `Converge on one approach and state what it must satisfy to count as done.\n\nOptions:\n${analysis.options.map((o, i) => `${i + 1}. ${o.approach} (confidence ${o.confidence}) -- sacrifices: ${o.sacrifices}`).join('\n')}\n\nComponents in play:\n${recreation.components.map((c) => c.path).join('\n')}\n\nEvery acceptance criterion must be checkable from outside the conversation. Use a test that fails without the change, a command whose output shows it, or a file that exists. Say which options you rejected and why.`,
   { label: 'plan', phase: 'Plan', agentType: 'sanctum:workflow-improvement-planner-agent', schema: PLAN },
 )
 

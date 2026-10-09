@@ -13,7 +13,7 @@ export const meta = {
   description:
     'Run the lint, type, performance and test specialists over the same Python in parallel and merge their findings',
   whenToUse:
-    'Run before merging a substantial Python change, or when inheriting unfamiliar Python. args.paths lists what to review; args.lenses narrows the specialists. Returns merged findings; it edits nothing.',
+    'Run before merging a substantial Python change, or when inheriting unfamiliar Python. args.paths lists what to review. args.lenses narrows the specialists. Returns merged findings. It edits nothing.',
   phases: [
     { title: 'Specialists', detail: 'four agents, four questions' },
     { title: 'Merge', detail: 'find where two specialists point at one cause' },
@@ -57,7 +57,7 @@ const FINDINGS = {
 
 const SPECIALISTS = [
   { key: 'lint', agentType: 'parseltongue:python-linter', brief: 'Run ruff and report what it finds, plus anything suppressed without a stated reason. A blanket suppression is a finding whatever the rule was.' },
-  { key: 'types', agentType: 'parseltongue:python-pro', brief: 'Run mypy and report unsound typing: Any where a type is knowable, ignores with no error code, and signatures that lie about what they return.' },
+  { key: 'types', agentType: 'parseltongue:python-pro', brief: 'Run mypy and report unsound typing. Look for Any where a type is knowable, ignores with no error code, and signatures that lie about their return.' },
   { key: 'performance', agentType: 'parseltongue:python-optimizer', brief: 'Profile or read for complexity. Report loops whose cost is superlinear in a quantity that grows, and repeated work that could be hoisted. State the measurement, or say it is a read rather than a measurement.' },
   { key: 'tests', agentType: 'parseltongue:python-tester', brief: 'Report branches with no test, and tests that would still pass if the behavior they name were broken. The second is the more valuable finding.' },
 ]
@@ -69,7 +69,7 @@ const specialists = input.lenses
 const swept = await parallel(
   specialists.map((specialist) => () =>
     agent(
-      `Review ${target} on one dimension only. ${specialist.brief}\n\nStay inside your dimension; the other three are covered. Report only what you can point at with a file and a line.`,
+      `Review ${target} on one dimension only. ${specialist.brief}\n\nStay inside your dimension. The other three are covered. Report only what you can point at with a file and a line.`,
       {
         label: `sweep:${specialist.key}`,
         phase: 'Specialists',
@@ -89,10 +89,10 @@ const findings = reports.flatMap((report) =>
 )
 const coverage = { reviewed: reports.map((report) => report.lens), missing }
 
-if (missing.length) log(`no report from ${missing.join(', ')}; those lenses are unreviewed, not clean`)
+if (missing.length) log(`no report from ${missing.join(', ')}. Those lenses are unreviewed, not clean`)
 
 if (findings.length < 2) {
-  log(`${findings.length} findings; nothing to merge`)
+  log(`${findings.length} findings. Nothing to merge`)
   return { paths, findings, merged: null, coverage }
 }
 

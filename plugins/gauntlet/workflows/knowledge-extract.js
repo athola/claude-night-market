@@ -13,7 +13,7 @@ export const meta = {
   description:
     'Extract and enrich the gauntlet knowledge base one subsystem per agent, then merge into a single corpus',
   whenToUse:
-    'Run when initializing the knowledge base or after a large refactor. args.subsystems lists the directories; args.depth selects how much rationale to capture. Returns the merged corpus for the skill to write.',
+    'Run when initializing the knowledge base or after a large refactor. args.subsystems lists the directories. args.depth selects how much rationale to capture. Returns the merged corpus for the skill to write.',
   phases: [
     { title: 'Extract', detail: 'one agent per subsystem' },
     { title: 'Merge', detail: 'reconcile overlapping concepts' },
@@ -73,7 +73,7 @@ const missing = subsystems.filter((subsystem, index) => !extracted[index])
 const corpora = extracted.filter(Boolean)
 const entries = corpora.flatMap((corpus) => corpus.entries || [])
 
-if (missing.length) log(`no corpus from ${missing.join(', ')}; the knowledge base does not cover them`)
+if (missing.length) log(`no corpus from ${missing.join(', ')}. The knowledge base does not cover them`)
 
 if (corpora.length < 2) {
   log(`${entries.length} entries from ${corpora.length} of ${subsystems.length} subsystems`)

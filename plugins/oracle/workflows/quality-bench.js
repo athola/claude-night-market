@@ -13,7 +13,7 @@ export const meta = {
   description:
     'Score a set of skills through the oracle in parallel and report each score against the distribution rather than alone',
   whenToUse:
-    'Run when triaging a plugin\'s skills by quality, or to track drift across releases. args.skills lists what to score; args.threshold sets what counts as low. Returns scores with their calibration; it edits nothing.',
+    'Run when triaging a plugin\'s skills by quality, or to track drift across releases. args.skills lists what to score. args.threshold sets what counts as low. Returns scores with their calibration. It edits nothing.',
   phases: [
     { title: 'Score', detail: 'one inference per skill' },
     { title: 'Calibrate', detail: 'place each score in the distribution' },
@@ -46,7 +46,7 @@ const SCORE = {
 const scored = await parallel(
   skills.map((skill) => () =>
     agent(
-      `Score ${skill} for quality using the oracle inference daemon. Read Skill(oracle:setup) for how to reach it, and report plainly if the daemon is not running rather than falling back to your own judgment and presenting it as an oracle score.\n\nReturn the score, what it was based on, and the single weakest dimension. Do not compare this skill to any other; the calibration stage does that with all of them.`,
+      `Score ${skill} for quality using the oracle inference daemon. Read Skill(oracle:setup) for how to reach it. If the daemon is not running, report that plainly. Do not present your own judgment as an oracle score.\n\nReturn the score, what it was based on, and the single weakest dimension. Do not compare this skill to any other. The calibration stage does that with all of them.`,
       { label: `score:${skill.split('/').slice(-2)[0]}`, phase: 'Score', schema: SCORE },
     ),
   ),
@@ -60,7 +60,7 @@ const scores = scored.filter(Boolean)
 if (unscored.length) log(`no score for ${unscored.join(', ')}`)
 
 if (!scores.length) {
-  log('no skill scored; check whether the oracle daemon is provisioned')
+  log('no skill scored. Check whether the oracle daemon is provisioned')
   return { skills, scores: [], calibration: null, unscored }
 }
 

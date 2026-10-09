@@ -18,7 +18,7 @@ export const meta = {
   description:
     'Fan out one research question across tome channels and merge the findings into a ranked, per-channel report',
   whenToUse:
-    'Run from /tome:research once the topic is classified and the channel plan exists. Requires an explicit request: a workflow never starts unasked. args carry topic, channels (code|discourse|academic|triz), domain, trizDepth, trizAnalysis (the JSON of tome.channels.triz analyze) and entities (the products, projects or methods the question names). Returns findings for the skill to rank, cite and store; it writes nothing.',
+    'Run from /tome:research once the topic is classified and the channel plan exists. Requires an explicit request: a workflow never starts unasked. args carry topic, channels (code|discourse|academic|triz), domain, trizDepth, trizAnalysis (the JSON of tome.channels.triz analyze) and entities (the products, projects or methods the question names). Returns findings for the skill to rank, cite and store. It writes nothing.',
   phases: [
     { title: 'Channels', detail: 'one agent per selected channel' },
     { title: 'Gap fill', detail: 'search each named entity no channel covered' },

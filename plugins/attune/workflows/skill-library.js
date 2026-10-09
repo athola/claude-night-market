@@ -18,7 +18,7 @@ export const meta = {
   description:
     'Discover what a project knows, author one skill per topic in parallel, and review each adversarially',
   whenToUse:
-    'Run from /attune:skill-library once the discovery brief exists. Requires an explicit request: a workflow never starts unasked. args carry topics (array of {name, brief}) and libraryRoot. Authoring agents create new skill directories; the review findings come back for the session to apply.',
+    'Run from /attune:skill-library once the discovery brief exists. Requires an explicit request: a workflow never starts unasked. args carry topics (array of {name, brief}) and libraryRoot. Authoring agents create new skill directories. The review findings come back for the session to apply.',
   phases: [
     { title: 'Author', detail: 'one agent per skill, writing only new files' },
     { title: 'Review', detail: 'two lenses per skill, reading only' },

@@ -13,7 +13,7 @@ export const meta = {
   description:
     'Check every plugin against the shared leyline contracts in parallel, then report contracts that no plugin satisfies',
   whenToUse:
-    'Run before a release, or after changing a shared contract. args.plugins narrows the set. Returns per-plugin violations plus contracts that may have gone stale; it repairs nothing.',
+    'Run before a release, or after changing a shared contract. args.plugins narrows the set. Returns per-plugin violations plus contracts that may have gone stale. It repairs nothing.',
   phases: [
     { title: 'Check', detail: 'one agent per plugin' },
     { title: 'Contracts', detail: 'find the contract nobody satisfies' },
@@ -28,7 +28,7 @@ if (!plugins.length) {
   return {
     started: false,
     reason: 'no-plugins',
-    next: 'Pass args.plugins as a list of plugin names. Enumerating plugins/ is a filesystem read, which a workflow script cannot do; the caller supplies the list.',
+    next: 'Pass args.plugins as a list of plugin names. Enumerating plugins/ is a filesystem read, which a workflow script cannot do. The caller supplies the list.',
   }
 }
 
@@ -56,7 +56,7 @@ const HEALTH = {
 const checked = await parallel(
   plugins.map((plugin) => () =>
     agent(
-      `Check plugins/${plugin} against the shared contracts. Read Skill(leyline:stewardship) and Skill(leyline:pytest-config) for what they are.\n\nCheck: plugin.json registers every skill, command and agent on disk and nothing that is not; declared dependencies exist; hooks named in hooks.json exist and are executable; vendored shared helpers match the canonical copy; every SKILL.md has a description and exit criteria.\n\nList what you checked and found satisfied as well as what you found violated. The satisfied list is what the next stage needs to tell a stale contract from a broken plugin.`,
+      `Check plugins/${plugin} against the shared contracts. Read Skill(leyline:stewardship) and Skill(leyline:pytest-config) for what they are.\n\nCheck these contracts:\n\n- plugin.json registers every skill, command and agent on disk, and nothing that is not on disk\n- declared dependencies exist\n- hooks named in hooks.json exist and are executable\n- vendored shared helpers match the canonical copy\n- every SKILL.md has a description and exit criteria\n\nList what you checked and found satisfied as well as what you found violated. The satisfied list is what the next stage needs to tell a stale contract from a broken plugin.`,
       { label: `check:${plugin}`, phase: 'Check', schema: HEALTH },
     ),
   ),
@@ -71,7 +71,7 @@ const violations = reports.flatMap((report) =>
 )
 const runCoverage = { checked: reports.map((report) => report.plugin), missing }
 
-if (missing.length) log(`no report from ${missing.join(', ')}; those plugins are unchecked`)
+if (missing.length) log(`no report from ${missing.join(', ')}. Those plugins are unchecked`)
 
 if (reports.length < 2) {
   log(`${violations.length} violations from ${reports.length} plugin`)
@@ -102,7 +102,7 @@ const coverage = reports
   .join('\n')
 
 const staleContracts = await agent(
-  `These per-plugin checks ran independently. Report any contract that no plugin satisfies.\n\n${coverage}\n\nA contract every plugin violates is more likely a contract that moved than 24 independent mistakes, and it should be reported as a question about the contract rather than as 24 findings. Say which of these is which.`,
+  `These per-plugin checks ran independently. Report any contract that no plugin satisfies.\n\n${coverage}\n\nA contract every plugin violates is more likely a contract that moved than 24 independent mistakes. Report it as a question about the contract rather than as 24 findings. Say which of these is which.`,
   { label: 'contracts', phase: 'Contracts', schema: STALE },
 )
 

@@ -16,7 +16,7 @@ export const meta = {
   description:
     'Audit a set of skills across four independent quality dimensions, then verify each finding before reporting it',
   whenToUse:
-    'Run when auditing more than a handful of skills at once. args.skills is a list of plugin:name or paths; args.strict raises the reporting bar. Returns findings for a human to act on; it writes nothing.',
+    'Run when auditing more than a handful of skills at once. args.skills is a list of plugin:name or paths. args.strict raises the reporting bar. Returns findings for a human to act on. It writes nothing.',
   phases: [
     { title: 'Dimensions', detail: 'four blind reviewers over the same set' },
     { title: 'Verify', detail: 'try to refute each finding' },
@@ -73,7 +73,7 @@ const DIMENSIONS = [
   {
     key: 'exit-criteria',
     brief:
-      'Find skills with no Exit Criteria section, and skills whose criteria are not checkable from outside the conversation. "The skill feels complete" is not a criterion; "the file exists and parses" is.',
+      'Find skills with no Exit Criteria section, and skills whose criteria are not checkable from outside the conversation. "The skill feels complete" is not a criterion. "The file exists and parses" is.',
   },
   {
     key: 'instruction-strength',
@@ -83,7 +83,7 @@ const DIMENSIONS = [
   {
     key: 'length-and-shape',
     brief:
-      'Find skills that narrate a procedure where they should describe a map, and skills that have bundled several skills into one file. Report the line count with the reason it is high.',
+      'Find skills that narrate a procedure where they should describe a map. Also find skills that bundle several skills into one file. Report the line count with the reason it is high.',
   },
 ]
 
@@ -123,7 +123,7 @@ const surviving = entries.filter((finding) => finding.verdict && !finding.verdic
 const unverified = entries.filter((finding) => !finding.unread && !finding.verdict)
 
 log(`${surviving.length} findings survived refutation across ${targets.length} skills`)
-if (unread.length) log(`no audit from ${unread.join(', ')}; those dimensions are unaudited, not clean`)
-if (unverified.length) log(`${unverified.length} findings got no verdict; they are unverified, not refuted`)
+if (unread.length) log(`no audit from ${unread.join(', ')}. Those dimensions are unaudited, not clean`)
+if (unverified.length) log(`${unverified.length} findings got no verdict. They are unverified, not refuted`)
 
 return { audited: targets, findings: surviving, unread, unverified }

@@ -35,6 +35,7 @@ MODULES = {
     "scope": SKILL_DIR / "modules" / "scope-boundaries.md",
     "reconciliation": SKILL_DIR / "modules" / "reconciliation.md",
     "licensing": SKILL_DIR / "modules" / "licensing.md",
+    "evidence": SKILL_DIR / "modules" / "evidence.md",
 }
 
 
@@ -144,7 +145,9 @@ class TestRuleNumberDiscipline:
     ALLOWED = {"8.1"}
 
     @pytest.mark.unit
-    @pytest.mark.parametrize("key", ["adopted", "scope", "reconciliation", "licensing"])
+    @pytest.mark.parametrize(
+        "key", ["adopted", "scope", "reconciliation", "licensing", "evidence"]
+    )
     def test_module_cites_no_unverifiable_rule_numbers(self, key: str) -> None:
         cited = set(re.findall(r"\brules?\s+(\d+\.\d+)", _read(MODULES[key]), re.I))
         assert cited <= self.ALLOWED, f"unverifiable rule numbers in {key}: {cited}"
@@ -246,3 +249,32 @@ class TestDocumentedNumbersMatchTheCode:
         for path in [SKILL, *MODULES.values()]:
             for line in _read(path).splitlines():
                 assert not re.match(r"\s*python\s+\S", line), f"bare python in {path}"
+
+
+class TestEvidenceModule:
+    """Feature: the popular STE-for-LLMs numbers are cited for what they measured.
+
+    A circulating claim says STE "reduces rule violations by up to
+    72.9%". Traced on 2026-10-08, the figure is an aggregate over six Claude
+    models from the SimpleEnglish project's own regex linter. It counts
+    STE-rule hits in output, not task errors. Citing it as an accuracy
+    or hallucination result is wrong.
+    """
+
+    @pytest.mark.unit
+    def test_evidence_module_says_the_figure_measures_rule_obedience(self) -> None:
+        text = _read(MODULES["evidence"])
+        assert "72.9%" in text
+        assert "rule obedience" in text
+
+    @pytest.mark.unit
+    def test_evidence_module_marks_prompt_side_benefit_unsourced(self) -> None:
+        text = _read(MODULES["evidence"])
+        assert "no study" in text.lower()
+        assert "2603.13351" in text
+
+    @pytest.mark.unit
+    def test_evidence_module_marks_hallucination_claim_unsourced(self) -> None:
+        text = _read(MODULES["evidence"]).lower()
+        assert "hallucination" in text
+        assert "unsourced" in text

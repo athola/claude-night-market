@@ -14,7 +14,7 @@ export const meta = {
   description:
     'Run the deep bloat scan across several code areas at once and consolidate the findings that span more than one',
   whenToUse:
-    'Run after a tier-1 scan flags areas, or before a release. args.areas lists the directories to scan; args.tier selects the depth. Returns findings ranked by what deleting them would save; it deletes nothing.',
+    'Run after a tier-1 scan flags areas, or before a release. args.areas lists the directories to scan. args.tier selects the depth. Returns findings ranked by what deleting them would save. It deletes nothing.',
   phases: [
     { title: 'Scan', detail: 'one agent per flagged area' },
     { title: 'Consolidate', detail: 'find the duplication that spans areas' },
@@ -29,7 +29,7 @@ if (!areas.length) {
   return {
     started: false,
     reason: 'no-areas',
-    next: 'Run /conserve:bloat-scan first. Its tier-1 pass names the areas worth the deep read; scanning everything is the cost this workflow exists to avoid.',
+    next: 'Run /conserve:bloat-scan first. Its tier-1 pass names the areas worth the deep read. Scanning everything is the cost this workflow exists to avoid.',
   }
 }
 
@@ -60,7 +60,7 @@ const FINDINGS = {
 const scanned = await parallel(
   areas.map((area) => () =>
     agent(
-      `Scan ${area} for bloat, following Skill(conserve:bloat-detector).\n\nReport only what you can point at with a location and evidence. A symbol with no reference is dead code; a symbol you did not find a reference for is a symbol you did not search hard enough for, and the difference matters. Say which you have. Delete nothing.`,
+      `Scan ${area} for bloat, following Skill(conserve:bloat-detector).\n\nReport only what you can point at with a location and evidence. A symbol with no reference is dead code. A symbol you found no reference for may only be one you did not search hard enough for. The difference matters. Say which you have. Delete nothing.`,
       {
         label: `scan:${area}`,
         phase: 'Scan',
@@ -77,10 +77,10 @@ const reports = scanned.filter(Boolean)
 const all = reports.flatMap((report) => report.findings || [])
 const coverage = { scanned: areas.filter((area, index) => scanned[index]), missing }
 
-if (missing.length) log(`no scan from ${missing.join(', ')}; those areas are unscanned, not clean`)
+if (missing.length) log(`no scan from ${missing.join(', ')}. Those areas are unscanned, not clean`)
 
 if (all.length < 2) {
-  log(`${all.length} findings; nothing to consolidate across areas`)
+  log(`${all.length} findings. Nothing to consolidate across areas`)
   return { areas, findings: all, crossArea: null, coverage }
 }
 

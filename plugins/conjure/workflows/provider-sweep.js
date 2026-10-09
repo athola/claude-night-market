@@ -14,7 +14,7 @@ export const meta = {
   description:
     'Ask every delegation provider in parallel whether this machine can call it, and separate a missing binary from a rejected credential',
   whenToUse:
-    'Run during setup, or when delegation is failing and the cause is unclear. args.providers narrows the set. Returns a per-provider verdict with its remedy; it installs nothing and changes no credentials.',
+    'Run during setup, or when delegation is failing and the cause is unclear. args.providers narrows the set. Returns a per-provider verdict with its remedy. It installs nothing and changes no credentials.',
   phases: [{ title: 'Probe', detail: 'one agent per provider' }],
 }
 

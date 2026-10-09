@@ -14,9 +14,9 @@
 export const meta = {
   name: 'gate-audit',
   description:
-    'Check each pipeline gate for whether it can return a failing verdict, and prove each finding with an input that walks past it',
+    'Check whether each pipeline gate can return a failing verdict, and prove each finding with an input that bypasses it',
   whenToUse:
-    'Run before trusting an unattended egregore run, or after changing a gate. args.gates names the gates to audit. Returns findings that carry a concrete bypass; it changes no gate.',
+    'Run before trusting an unattended egregore run, or after changing a gate. args.gates names the gates to audit. Returns findings that carry a concrete bypass. It changes no gate.',
   phases: [
     { title: 'Read', detail: 'one agent per gate' },
     { title: 'Prove', detail: 'construct the input that walks past it' },
@@ -68,7 +68,7 @@ const audited = await pipeline(
   gates,
   (gate) =>
     agent(
-      `Read ${gate}. For each check it performs, decide whether a realistic input exists that the check should reject and does not.\n\nLook for: a condition that reads a field the caller controls, a comparison that normalizes away the difference it is testing, a branch that returns the passing verdict on an exception, and a check whose subject is not the thing the gate names. Report suspects with the input you think walks past. An empty list is a valid answer.`,
+      `Read ${gate}. For each check it performs, decide whether a realistic input exists that the check should reject and does not.\n\nLook for these four shapes:\n\n- a condition that reads a field the caller controls\n- a comparison that normalizes away the difference it is testing\n- a branch that returns the passing verdict on an exception\n- a check whose subject is not the thing the gate names\n\nReport suspects with the input you think walks past. An empty list is a valid answer.`,
       { label: `read:${gate.split('/').pop()}`, phase: 'Read', schema: READING },
     ),
   (reading, gate) => {
@@ -94,7 +94,7 @@ const real = entries.filter((entry) => entry.proof && entry.proof.reachable)
 const unproven = entries.filter((entry) => !entry.unread && !entry.proof)
 
 log(`${real.length} reachable gate bypasses across ${gates.length - unread.length} of ${gates.length} gates`)
-if (unread.length) log(`no reading for ${unread.join(', ')}; those gates are unaudited, not clean`)
-if (unproven.length) log(`${unproven.length} suspects got no proof; they are unproven, not refuted`)
+if (unread.length) log(`no reading for ${unread.join(', ')}. Those gates are unaudited, not clean`)
+if (unproven.length) log(`${unproven.length} suspects got no proof. They are unproven, not refuted`)
 
 return { gates, bypasses: real, unread, unproven }
