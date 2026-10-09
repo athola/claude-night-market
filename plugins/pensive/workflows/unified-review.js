@@ -200,8 +200,8 @@ const confirmed = [...byLocation.values()].sort(
 
 const missing = selected.filter((d) => d.missing).map((d) => d.key)
 log(`${confirmed.length} findings survived adversarial verification`)
-if (missing.length) log(`no review from ${missing.join(', ')}; those dimensions are unreviewed, not clean`)
-if (unverified.length) log(`${unverified.length} findings heard by too few lenses to confirm; they are unverified, not refuted`)
+if (missing.length) log(`no review from ${missing.join(', ')}. Those dimensions are unreviewed, not clean`)
+if (unverified.length) log(`${unverified.length} findings heard by too few lenses to confirm. They are unverified, not refuted`)
 
 return {
   target,

@@ -13,7 +13,7 @@ export const meta = {
   description:
     'Verify each desktop control surface independently so one failing surface does not hide the state of the others',
   whenToUse:
-    'Run before relying on desktop control, or when a control action failed and the cause is unclear. args.surfaces narrows the set. Returns a per-surface verdict with its remedy; it changes no system setting.',
+    'Run before relying on desktop control, or when a control action failed and the cause is unclear. args.surfaces narrows the set. Returns a per-surface verdict with its remedy. It changes no system setting.',
   phases: [{ title: 'Surfaces', detail: 'one agent per control surface' }],
 }
 
@@ -61,6 +61,6 @@ log(
     ? `${broken.length} of ${verdicts.length} surfaces not working`
     : `all ${verdicts.length} surfaces working`,
 )
-if (missing.length) log(`no verdict for ${missing.join(', ')}; those surfaces are unchecked, not working`)
+if (missing.length) log(`no verdict for ${missing.join(', ')}. Those surfaces are unchecked, not working`)
 
 return { verdicts, broken, missing }

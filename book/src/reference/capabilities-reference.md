@@ -23,10 +23,10 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `bloat-sweep` | [conserve](../plugins/conserve.md) | Run the deep bloat scan across several code areas at once and consolidate the findings that span more than one |
 | `capture-set` | [scry](../plugins/scry.md) | Capture several terminal or browser recordings in parallel and report which flows failed without stopping the rest |
 | `doc-sweep` | [scribe](../plugins/scribe.md) | Review documents through four independent layers, from identity leaks and hallucinated paths down to sentence-level slop |
-| `evidence-sweep` | [imbue](../plugins/imbue.md) | Check each completion claim in a change against the evidence offered for it, and report the ones running on assertion alone |
+| `evidence-sweep` | [imbue](../plugins/imbue.md) | Check each completion claim in a change against its evidence, and report the ones running on assertion alone |
 | `fix-workflow-analysis` | [sanctum](../plugins/sanctum.md) | Recreate a workflow slice, generate improvement options with trade-offs, and converge on one plan with acceptance criteria |
-| `gate-audit` | [egregore](../plugins/egregore.md) | Check each pipeline gate for whether it can return a failing verdict, and prove each finding with an input that walks past it |
-| `initiative-pulse` | [minister](../plugins/minister.md) | Gather delivery health for several GitHub milestones in parallel and roll them up into one programme view |
+| `gate-audit` | [egregore](../plugins/egregore.md) | Check whether each pipeline gate can return a failing verdict, and prove each finding with an input that bypasses it |
+| `initiative-pulse` | [minister](../plugins/minister.md) | Gather delivery health for several GitHub milestones in parallel and roll them up into one program view |
 | `judge-panel` | [herald](../plugins/herald.md) | Judge one completion claim through three independent lenses and report the verdict with any dissent |
 | `knowledge-extract` | [gauntlet](../plugins/gauntlet.md) | Extract and enrich the gauntlet knowledge base one subsystem per agent, then merge into a single corpus |
 | `palace-sweep` | [memory-palace](../plugins/memory-palace.md) | Ask one question of every memory palace in parallel and rank the answers, including the ones filed under an unexpected domain |

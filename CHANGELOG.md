@@ -15,6 +15,15 @@ read what the plugins meant.
 
 ### Added
 
+- **STE limits for the shipped workflow scripts.** The agent prompts,
+  `meta` strings and log lines in all 23 `plugins/*/workflows/*.js`
+  carried 59 semicolon splices and 19 sentences over the STE length
+  limits. They are rewritten, and `tests/test_workflow_prompts_ste.py`
+  keeps them inside the limits. No "write in ASD-STE100" directive was
+  added to the prompts. The public evidence for one measures rule
+  obedience in output, not accuracy, and the new
+  `simplified-technical-english` module `evidence.md` records where the
+  circulating 72.9% figure comes from.
 - **Mods** (conserve, egregore; Claude Code 2.1.287+). conserve's
   `context-band` draws context fill and prompt-cache reuse above the
   prompt. egregore's `loop-band` draws the active work item and answers
