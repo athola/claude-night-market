@@ -72,9 +72,6 @@ test-pattern: ## Run tests matching pattern (PATTERN=name)
 # ---------- Code Quality ----------
 # Gates check and never rewrite: `format` would fix the tree before lint
 # saw it, so committed violations passed and the tree came back modified.
-format-check: ## Check formatting without rewriting files
-	$(RUFF) format --check $(RUFF_TARGETS)
-
 quality-check: format-check lint type-check coverage-check ## Run all quality checks
 	@echo "All quality checks passed!"
 

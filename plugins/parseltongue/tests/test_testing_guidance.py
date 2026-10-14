@@ -135,7 +135,7 @@ def test_get_user():
     def test_many_tests_of_one_function_do_not_cover_the_others(self) -> None:
         """Coverage counts covered source functions, not test functions.
 
-        Math review finding C2-7: four tests of a() scored 100% while the
+        Four tests of a() scored 100% while the
         same result listed b and d as uncovered, and "c" escaped only as
         a substring of "case".
         """
@@ -225,7 +225,7 @@ User Authentication System:
     def test_bare_dash_lines_are_not_requirements(self) -> None:
         """A bare "-" or "---" line yields no step instead of an IndexError.
 
-        Math review finding C2-22: the empty requirement reached
+        The empty requirement reached
         requirement.split()[0].
         """
         description = (

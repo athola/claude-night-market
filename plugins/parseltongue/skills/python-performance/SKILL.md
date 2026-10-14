@@ -82,8 +82,8 @@ Best practices, common pitfalls, and exit criteria for performance optimization 
 
 ## Exit Criteria
 
-- Profiled code to identify bottlenecks
-- Applied appropriate optimization patterns
-- Verified improvements with benchmarks
-- Memory usage acceptable
-- No performance regressions
+- [ ] Profiled code to identify bottlenecks
+- [ ] Applied appropriate optimization patterns
+- [ ] Verified improvements with benchmarks
+- [ ] Memory usage acceptable
+- [ ] No performance regressions

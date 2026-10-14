@@ -20,10 +20,7 @@ Provides detailed analysis of async Python code including:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    import ast
+from typing import Any
 
 from ._base import is_call_to, parse_code
 from .blocking_detection import detect_blocking_calls, detect_missing_await
