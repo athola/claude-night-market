@@ -56,6 +56,18 @@ class TestGifDemoHelp:
         assert "gif_demo.sh/gif_demo.sh" not in result.stdout
         assert "./gif_demo.sh" in result.stdout
 
+    def test_unknown_argument_exits_1_and_names_it(self, gif_demo_script: Path) -> None:
+        """An unrecognized flag stops before any ffmpeg work starts."""
+        result = subprocess.run(
+            [str(gif_demo_script), "--bogus"],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 1
+        output = result.stderr + result.stdout
+        assert "Unknown argument: --bogus" in output
+        assert "Usage" in output
+
 
 class TestGifDemoDependencies:
     """Tests for gif_demo.sh dependency checking."""

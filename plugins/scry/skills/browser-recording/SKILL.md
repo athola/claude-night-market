@@ -164,10 +164,10 @@ export default defineConfig({
 
 ## Exit Criteria
 
-- Playwright spec executed successfully (exit code 0)
-- Video file exists in output directory
-- Video has non-zero file size
-- GIF conversion completed (if requested)
+- [ ] Playwright spec executed successfully (exit code 0)
+- [ ] Video file exists in output directory
+- [ ] Video has non-zero file size
+- [ ] GIF conversion completed (if requested)
 
 ## Error Handling
 

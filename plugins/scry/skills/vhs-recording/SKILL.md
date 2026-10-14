@@ -100,9 +100,9 @@ VHS will:
 
 ## Exit Criteria
 
-- GIF file created at specified Output path
-- File size indicates successful recording (typically >50KB)
-- No error messages from VHS execution
+- [ ] GIF file created at specified Output path
+- [ ] File size indicates successful recording (typically >50KB)
+- [ ] No error messages from VHS execution
 ## Troubleshooting
 
 ### Common Issues

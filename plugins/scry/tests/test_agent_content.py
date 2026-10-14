@@ -228,24 +228,18 @@ class TestAgentDiscovery:
         return plugin_root / "agents"
 
     @pytest.mark.bdd
-    @pytest.mark.integration
-    def test_agents_directory_structure(self, agents_dir: Path) -> None:
-        """Scenario: Agents directory follows expected structure.
+    @pytest.mark.unit
+    def test_agents_directory_holds_the_media_recorder(self, agents_dir: Path) -> None:
+        """Scenario: Agents directory holds the agent scry ships.
 
         Given the agents/ directory
         When checking structure
-        Then it should contain markdown files.
+        Then it should contain media-recorder.md.
         """
-        if not agents_dir.exists():
-            pytest.skip("No agents directory in scry plugin")
-
-        agent_files = list(agents_dir.glob("*.md"))
-        # May have 0 agents, which is valid
-        for agent_file in agent_files:
-            assert agent_file.suffix == ".md"
+        assert (agents_dir / "media-recorder.md").is_file()
 
     @pytest.mark.bdd
-    @pytest.mark.integration
+    @pytest.mark.unit
     def test_all_agents_have_required_sections(self, agents_dir: Path) -> None:
         """Scenario: All agents have required sections.
 
@@ -253,10 +247,8 @@ class TestAgentDiscovery:
         When validating each
         Then each should have Capabilities section and tools defined.
         """
-        if not agents_dir.exists():
-            pytest.skip("No agents directory in scry plugin")
-
         agent_files = list(agents_dir.glob("*.md"))
+        assert agent_files, "scry ships no agents"
         for agent_file in agent_files:
             content = agent_file.read_text()
             sections = re.findall(r"^##\s+(.+)$", content, re.MULTILINE)
