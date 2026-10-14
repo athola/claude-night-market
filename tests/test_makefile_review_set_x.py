@@ -91,21 +91,21 @@ def _target_names(plugin: str, prefix: str) -> set[str]:
 
 
 def test_scribe_validate_fails_when_the_plugin_tree_is_empty(tmp_path: Path) -> None:
-    """M1-5: every check was `test && echo || echo`, so validate exited 0."""
+    """Every check was `test && echo || echo`, so validate exited 0."""
     result = _make(_sandbox(tmp_path, "scribe"), "validate")
     assert result.returncode != 0, result.stdout
     assert "MISSING: plugin.json" in result.stdout
 
 
 def test_scribe_validate_passes_on_the_real_tree() -> None:
-    """M1-5: the strict validate still accepts the shipped plugin."""
+    """The strict validate still accepts the shipped plugin."""
     result = _make(PLUGINS / "scribe", "validate")
     assert result.returncode == 0, result.stdout + result.stderr
     assert "MISSING" not in result.stdout
 
 
 def test_scribe_typecheck_runs_mypy_on_src_scribe() -> None:
-    """M1-6: typecheck printed a no-op over nine Python modules."""
+    """Typecheck printed a no-op over nine Python modules."""
     dry = _make(PLUGINS / "scribe", "-n", "typecheck").stdout
     assert re.search(r"mypy\b.*\bsrc/scribe\b", dry), dry
     result = _make(PLUGINS / "scribe", "typecheck")
@@ -114,20 +114,20 @@ def test_scribe_typecheck_runs_mypy_on_src_scribe() -> None:
 
 
 def test_scribe_count_slop_fails_on_a_missing_file() -> None:
-    """M1-7: grep's error was discarded and the file reported clean."""
+    """Grep's error was discarded and the file reported clean."""
     result = _make(PLUGINS / "scribe", "count-slop", "FILE=no/such/file.md")
     assert result.returncode != 0, result.stdout
     assert "No tier-1 slop words found" not in result.stdout
 
 
 def test_scribe_count_slop_fails_without_file() -> None:
-    """M1-7: with FILE unset grep read stdin and exited 0."""
+    """With FILE unset grep read stdin and exited 0."""
     result = _make(PLUGINS / "scribe", "count-slop")
     assert result.returncode != 0, result.stdout
 
 
 def test_scribe_count_slop_reports_a_clean_file(tmp_path: Path) -> None:
-    """M1-7: the none-found message was unreachable on make 3.81."""
+    """The none-found message was unreachable on make 3.81."""
     clean = tmp_path / "clean.md"
     clean.write_text("Plain words only.\n")
     result = _make(PLUGINS / "scribe", "count-slop", f"FILE={clean}")
@@ -136,7 +136,7 @@ def test_scribe_count_slop_reports_a_clean_file(tmp_path: Path) -> None:
 
 
 def test_scribe_count_slop_counts_slop_words(tmp_path: Path) -> None:
-    """M1-7: the counting path still works."""
+    """The counting path still works."""
     sloppy = tmp_path / "sloppy.md"
     sloppy.write_text("We delve into a robust and robust design.\n")
     result = _make(PLUGINS / "scribe", "count-slop", f"FILE={sloppy}")
@@ -146,13 +146,13 @@ def test_scribe_count_slop_counts_slop_words(tmp_path: Path) -> None:
 
 
 def test_scribe_command_demos_match_commands_dir() -> None:
-    """M1-8: demos named 7 absent commands and skipped 6 shipped ones."""
+    """Demos named 7 absent commands and skipped 6 shipped ones."""
     demoed = _demoed_commands("scribe", "demo-scribe-commands")
     assert demoed == _commands("scribe")
 
 
 def test_scribe_has_a_test_target_per_command() -> None:
-    """M1-8: test-* targets mirrored the stale demo list."""
+    """The test-* targets mirrored the stale demo list."""
     assert _target_names("scribe", "test-") >= _commands("scribe")
     stale = {"slop-scan", "doc-verify", "pr-review", "update-docs"}
     assert not stale & _target_names("scribe", "test-")
@@ -165,7 +165,7 @@ def test_scribe_has_a_test_target_per_command() -> None:
 def test_spec_kit_demo_fails_when_its_skill_is_missing(
     tmp_path: Path, target: str
 ) -> None:
-    """M1-9: printed `[X] skill missing` and exited 0."""
+    """Printed `[X] skill missing` and exited 0."""
     result = _make(_sandbox(tmp_path, "spec-kit", "commands"), target)
     assert result.returncode != 0, result.stdout
     assert "skill missing" in result.stdout
@@ -173,19 +173,19 @@ def test_spec_kit_demo_fails_when_its_skill_is_missing(
 
 @pytest.mark.parametrize("target", ["demo-spec", "demo-tasks"])
 def test_spec_kit_demo_passes_on_the_real_tree(target: str) -> None:
-    """M1-9: the strict demos still accept the shipped skills."""
+    """The strict demos still accept the shipped skills."""
     result = _make(PLUGINS / "spec-kit", target)
     assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_spec_kit_command_demos_match_commands_dir() -> None:
-    """M1-12: claimed all commands, covered 9 of 11."""
+    """Claimed all commands, covered 9 of 11."""
     demoed = _demoed_commands("spec-kit", "demo-spec-kit-commands")
     assert demoed == _commands("spec-kit")
 
 
 def test_spec_kit_has_a_test_target_per_command() -> None:
-    """M1-12: speckit-converge and speckit-taskstoissues had no test-*."""
+    """Speckit-converge and speckit-taskstoissues had no test-*."""
     assert _target_names("spec-kit", "test-") >= _commands("spec-kit")
 
 
@@ -194,7 +194,7 @@ def test_spec_kit_has_a_test_target_per_command() -> None:
 
 @pytest.mark.parametrize("target", ["ci", "quality-check"])
 def test_parseltongue_gate_checks_format_without_rewriting(target: str) -> None:
-    """M1-13: ci ran `ruff format` and `ruff check --fix` before lint."""
+    """Ci ran `ruff format` and `ruff check --fix` before lint."""
     dry = _make(PLUGINS / "parseltongue", "-n", target).stdout
     assert "--fix" not in dry, dry
     for line in dry.splitlines():
@@ -204,13 +204,13 @@ def test_parseltongue_gate_checks_format_without_rewriting(target: str) -> None:
 
 
 def test_parseltongue_demo_coverage_fails_when_pytest_fails() -> None:
-    """M1-14: `pytest | head -30` took head's status on make 3.81."""
+    """`pytest | head -30` took head's status on make 3.81."""
     result = _make(PLUGINS / "parseltongue", "demo-coverage", "PYTEST=false")
     assert result.returncode != 0, result.stdout
 
 
 def test_parseltongue_demo_coverage_passes_on_long_output(tmp_path: Path) -> None:
-    """M1-14: under pipefail, head closing early killed a passing pytest."""
+    """Under pipefail, head closing early killed a passing pytest."""
     fake = _shim(tmp_path, "fake-pytest", "seq 1 20000")
     result = _make(PLUGINS / "parseltongue", "demo-coverage", f"PYTEST={fake}")
     assert result.returncode == 0, result.stdout + result.stderr
@@ -219,7 +219,7 @@ def test_parseltongue_demo_coverage_passes_on_long_output(tmp_path: Path) -> Non
 
 
 def test_parseltongue_mutation_test_targets_src(tmp_path: Path) -> None:
-    """M1-16: mutmut was pointed at ./parseltongue, not src/parseltongue."""
+    """Mutmut was pointed at ./parseltongue, not src/parseltongue."""
     log = tmp_path / "mutmut.args"
     mutmut = _shim(tmp_path, "mutmut", f'echo "$@" > "{log}"')
     result = _make(
@@ -230,7 +230,7 @@ def test_parseltongue_mutation_test_targets_src(tmp_path: Path) -> None:
 
 
 def test_parseltongue_mutation_test_fails_without_mutmut() -> None:
-    """M1-16: a missing mutmut printed a hint and exited 0."""
+    """A missing mutmut printed a hint and exited 0."""
     result = _make(PLUGINS / "parseltongue", "mutation-test", path="/usr/bin:/bin")
     assert result.returncode != 0, result.stdout
 
@@ -241,7 +241,7 @@ def test_parseltongue_mutation_test_fails_without_mutmut() -> None:
 def test_gauntlet_extract_demo_fails_when_the_extractor_fails(
     tmp_path: Path,
 ) -> None:
-    """M1-20: `extractor.py | head -20` took head's status on make 3.81."""
+    """`extractor.py | head -20` took head's status on make 3.81."""
     fake = _shim(tmp_path, "fake-uv-run", "echo partial; exit 3")
     result = _make(PLUGINS / "gauntlet", "demo-gauntlet-extract", f"UV_RUN={fake}")
     assert result.returncode != 0, result.stdout
@@ -249,7 +249,7 @@ def test_gauntlet_extract_demo_fails_when_the_extractor_fails(
 
 
 def test_gauntlet_extract_demo_passes_on_long_output(tmp_path: Path) -> None:
-    """M1-20: under pipefail, head closing early killed a passing extractor."""
+    """Under pipefail, head closing early killed a passing extractor."""
     fake = _shim(tmp_path, "fake-uv-run", "seq 1 20000")
     result = _make(PLUGINS / "gauntlet", "demo-gauntlet-extract", f"UV_RUN={fake}")
     assert result.returncode == 0, result.stdout + result.stderr
@@ -261,7 +261,7 @@ def test_gauntlet_extract_demo_passes_on_long_output(tmp_path: Path) -> None:
 
 
 def test_scry_lint_fails_on_a_shell_syntax_error(tmp_path: Path) -> None:
-    """M2-1: bash -n failures were dropped and lint printed [OK]."""
+    """Bash -n failures were dropped and lint printed [OK]."""
     plugin = _sandbox(tmp_path, "scry")
     scripts = plugin / "scripts"
     scripts.mkdir()
@@ -273,20 +273,20 @@ def test_scry_lint_fails_on_a_shell_syntax_error(tmp_path: Path) -> None:
 
 
 def test_scry_lint_passes_on_the_real_scripts() -> None:
-    """M2-1: the strict lint still accepts the shipped scripts."""
+    """The strict lint still accepts the shipped scripts."""
     result = _make(PLUGINS / "scry", "lint")
     assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_scry_validate_fails_when_the_plugin_tree_is_empty(tmp_path: Path) -> None:
-    """M2-2: six `[X] ... missing` lines and exit 0."""
+    """Six `[X] ... missing` lines and exit 0."""
     result = _make(_sandbox(tmp_path, "scry"), "validate")
     assert result.returncode != 0, result.stdout
     assert "[X] plugin.json missing" in result.stdout
 
 
 def test_scry_validate_passes_on_the_real_tree() -> None:
-    """M2-2: the strict validate still accepts the shipped plugin."""
+    """The strict validate still accepts the shipped plugin."""
     result = _make(PLUGINS / "scry", "validate")
     assert result.returncode == 0, result.stdout + result.stderr
     assert "[X]" not in result.stdout
@@ -295,7 +295,7 @@ def test_scry_validate_passes_on_the_real_tree() -> None:
 def test_scry_test_integration_fails_and_cleans_up_when_gif_demo_fails(
     tmp_path: Path,
 ) -> None:
-    """M2-3: a failing demo-gif was masked by clean-gif-temp's status."""
+    """A failing demo-gif was masked by clean-gif-temp's status."""
     plugin = _sandbox(tmp_path, "scry")
     scripts = plugin / "scripts"
     scripts.mkdir()

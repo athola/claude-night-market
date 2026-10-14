@@ -1,6 +1,6 @@
 """awesome-submit.sh: a dry run changes nothing, and a rerun can push.
 
-Shell review S0-3 and S0-17. `--dry-run` created and synced forks before
+`--dry-run` created and synced forks before
 it reached its own dry-run check. A rerun after a failed `gh pr create`
 could not push: the shallow single-branch clone has no tracking ref for
 the branch, so `--force-with-lease` was rejected as stale, and set -e
@@ -33,6 +33,7 @@ case "$1 $2" in
   "api user") echo alice ;;
   "pr list") exit 0 ;;
   "repo view") echo name ;;
+  "repo sync") [ -n "{sync_fails}" ] && {{ echo "sync conflict" >&2; exit 1; }} ;;
   "repo clone")
     src=$(printf '%s' "$3" | tr / _); dest="$4"; shift 4
     [ "$1" = "--" ] && shift
@@ -46,7 +47,9 @@ def _git(cwd: Path, *args: str) -> None:
     subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True)
 
 
-def _sandbox(tmp_path: Path) -> tuple[Path, Path, dict[str, str]]:
+def _sandbox(
+    tmp_path: Path, *, sync_fails: bool = False
+) -> tuple[Path, Path, dict[str, str]]:
     repo = tmp_path / "repo"
     (repo / "scripts").mkdir(parents=True)
     shutil.copy2(ROOT / "scripts" / "awesome-submit.sh", repo / "scripts")
@@ -65,7 +68,11 @@ def _sandbox(tmp_path: Path) -> tuple[Path, Path, dict[str, str]]:
     shims = tmp_path / "shims"
     shims.mkdir()
     gh = shims / "gh"
-    gh.write_text(GH_SHIM.format(calls=calls, remotes=remotes))
+    gh.write_text(
+        GH_SHIM.format(
+            calls=calls, remotes=remotes, sync_fails="yes" if sync_fails else ""
+        )
+    )
     gh.chmod(0o755)
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     env.update(
@@ -124,3 +131,13 @@ def test_a_first_run_pushes_a_new_branch(tmp_path: Path) -> None:
     result = _run(repo, env)
     assert result.returncode == 0, result.stdout + result.stderr
     assert (tmp_path / "gh-calls.log").read_text().count("pr create") == 2
+
+
+def test_a_failed_fork_sync_skips_the_target(tmp_path: Path) -> None:
+    """A stale fork would carry the PR against an old main."""
+    repo, _remotes, env = _sandbox(tmp_path, sync_fails=True)
+    result = _run(repo, env)
+    calls = (tmp_path / "gh-calls.log").read_text()
+    assert "repo clone" not in calls
+    assert "pr create" not in calls
+    assert "fork sync failed" in result.stdout + result.stderr

@@ -49,12 +49,16 @@ cleanup() {
   rm -f "${PHASE_OUTPUTS[@]+"${PHASE_OUTPUTS[@]}"}"
 }
 
-# run_phase NAME COMMAND [ARGS...]
-# Runs one sub-runner, shows its output, sets PHASE_STATUS, and appends its
-# tail to the report when one was asked for.
+# run_phase NAME PASS_MESSAGE FAIL_MESSAGE COMMAND [ARGS...]
+# Runs one sub-runner, shows its output, sets PHASE_STATUS, logs the matching
+# message, and appends its tail to the report when one was asked for. It is
+# called directly, never through $(...), so TOTAL_FAILED and PHASE_OUTPUTS
+# survive in the caller's shell.
 run_phase() {
   local name="${1:?run_phase needs a name}" output exit_code
-  shift
+  local pass_message="${2:?run_phase needs a pass message}"
+  local fail_message="${3:?run_phase needs a fail message}"
+  shift 3
 
   output=$(mktemp)
   PHASE_OUTPUTS+=("${output}")
@@ -70,6 +74,7 @@ run_phase() {
     PHASE_STATUS="FAIL"
     TOTAL_FAILED=$((TOTAL_FAILED + 1))
   fi
+  log_result "${PHASE_STATUS}" "${pass_message}" "${fail_message}"
 
   case "${GENERATE_REPORT}" in
     true)
@@ -126,24 +131,21 @@ EOF
       lint_args+=(--fix)
       ;;
   esac
-  run_phase "Linting" ./scripts/run-plugin-lint.sh "${lint_args[@]}"
+  run_phase "Linting" "All plugins passed linting" \
+    "Some plugins failed linting" ./scripts/run-plugin-lint.sh "${lint_args[@]}"
   lint_status="${PHASE_STATUS}"
-  log_result "${lint_status}" \
-    "All plugins passed linting" "Some plugins failed linting"
 
   # 2. Type Checking
   log "==== Phase 2: Type Checking All Plugins ===="
-  run_phase "Type Checking" ./scripts/run-plugin-typecheck.sh --all
+  run_phase "Type Checking" "All plugins passed type checking" \
+    "Some plugins failed type checking" ./scripts/run-plugin-typecheck.sh --all
   typecheck_status="${PHASE_STATUS}"
-  log_result "${typecheck_status}" \
-    "All plugins passed type checking" "Some plugins failed type checking"
 
   # 3. Testing
   log "==== Phase 3: Testing All Plugins ===="
-  run_phase "Testing" ./scripts/run-plugin-tests.sh --all
+  run_phase "Testing" "All plugins passed tests" \
+    "Some plugins failed tests" ./scripts/run-plugin-tests.sh --all
   test_status="${PHASE_STATUS}"
-  log_result "${test_status}" \
-    "All plugins passed tests" "Some plugins failed tests"
 
   # Final Summary
   log "==== Final Summary ===="

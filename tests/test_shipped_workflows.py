@@ -559,3 +559,39 @@ class TestNullAgentsAreNamed:
         )
         assert "screenshot" in out["result"]["missing"]
         assert out["result"]["broken"] == []
+
+
+class TestSurfaceCheckSelection:
+    """A surface selection that checks nothing refuses instead of passing."""
+
+    SCRIPT = PLUGINS / "phantom" / "workflows" / "surface-check.js"
+    # Dispatching any agent fails the run, so a refusal is proven to be
+    # returned before the fan-out rather than after it.
+    NO_DISPATCH = "throw new Error('agent dispatched for ' + opts.label);"
+
+    def test_a_surfaces_value_that_is_not_a_list_is_refused(self) -> None:
+        out = _run_workflow(self.SCRIPT, self.NO_DISPATCH, {"surfaces": "pointer"})
+        assert out["result"]["started"] is False
+        assert out["result"]["reason"] == "surfaces-not-a-list"
+        assert out["result"]["next"]
+
+    def test_an_empty_surface_list_is_refused(self) -> None:
+        out = _run_workflow(self.SCRIPT, self.NO_DISPATCH, {"surfaces": []})
+        assert out["result"]["started"] is False
+        assert out["result"]["reason"] == "no-surfaces-selected"
+        assert out["result"]["next"]
+
+    def test_a_list_of_only_unknown_surfaces_is_refused_and_named(self) -> None:
+        out = _run_workflow(self.SCRIPT, self.NO_DISPATCH, {"surfaces": ["screnshot"]})
+        assert out["result"]["started"] is False
+        assert out["result"]["reason"] == "no-surfaces-selected"
+        assert out["result"]["unknown"] == ["screnshot"]
+
+    def test_a_known_surface_in_the_list_is_the_only_one_checked(self) -> None:
+        out = _run_workflow(
+            self.SCRIPT,
+            "return { surface: opts.label, working: true, evidence: 'seen' };",
+            {"surfaces": ["pointer"]},
+        )
+        assert out["result"]["started"] is True
+        assert [v["surface"] for v in out["result"]["verdicts"]] == ["check:pointer"]

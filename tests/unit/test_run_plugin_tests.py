@@ -1,8 +1,9 @@
 """Tests for scripts/run-plugin-tests.sh threshold extraction.
 
 The script reads coverage_threshold from [tool.nightmarket] in a
-plugin's pyproject.toml using awk and passes it as --cov-fail-under
-to pytest for full-suite runs.  These tests verify the awk command
+plugin's pyproject.toml using awk.  It passes it as --cov-fail-under
+to its own pytest, or for a plugin run through `make test` checks it
+with `coverage report --fail-under`.  These tests verify the awk command
 produces the correct threshold value for representative pyproject.toml
 configurations.
 """
@@ -581,3 +582,147 @@ class TestEmptyTempFileListUnderSetU:
         )
         assert "unbound variable" not in result.stderr
         assert result.returncode == 0, result.stderr
+
+
+class TestMakefilePluginsGetTheCoverageGate:
+    """Feature: the coverage threshold applies to plugins run through make.
+
+    The 1.9.8 migration (``scripts/fix_coverage_threshold.py``) moved every
+    threshold out of pytest config into ``[tool.nightmarket]`` so this
+    runner could enforce it on full-suite runs. Only the pyproject branch
+    read it. Every plugin with a ``test:`` target took the Makefile branch
+    first, so no plugin's threshold was enforced.
+
+    The first fix exported ``--cov-fail-under`` through ``PYTEST_ADDOPTS``.
+    Every pytest the recipe or its tests spawned inherited it: a nested
+    pytest without pytest-cov died on "unrecognized arguments", and a recipe
+    that split its runs had the whole-plugin threshold applied to each
+    subset. The runner now leaves ``make test`` alone and checks the
+    ``.coverage`` data it wrote, once, with ``coverage report --fail-under``.
+    """
+
+    # Five statements, four executed: 80% line coverage.
+    MEASURED_MODULE = (
+        "def used():\n    return 1\n\n\ndef unused():\n    return 2\n\n\nused()\n"
+    )
+
+    @staticmethod
+    def _gated_plugin(
+        repo: Path, threshold: str | None, *, writes_coverage: bool = False
+    ) -> Path:
+        """Build a plugin whose ``make test`` records PYTEST_ADDOPTS.
+
+        With ``writes_coverage`` the recipe also measures MEASURED_MODULE with
+        the real coverage.py, so the runner's check reads genuine data.
+        """
+        plugin = _add_plugin(repo, "gated")
+        (plugin / "tests").mkdir()
+        if threshold is not None:
+            (plugin / "pyproject.toml").write_text(
+                f"[tool.nightmarket]\ncoverage_threshold = {threshold}\n"
+            )
+        recipe = '\tprintf "%s" "$$PYTEST_ADDOPTS" > addopts.txt\n'
+        if writes_coverage:
+            (plugin / "measured.py").write_text(
+                TestMakefilePluginsGetTheCoverageGate.MEASURED_MODULE
+            )
+            recipe += "\tcoverage run measured.py\n"
+        (plugin / "Makefile").write_text("test:\n" + recipe)
+        return plugin
+
+    @staticmethod
+    def _run(repo: Path, env: dict[str, str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [str(repo / "scripts" / "run-plugin-tests.sh"), "--all"],
+            capture_output=True,
+            text=True,
+            cwd=repo,
+            env=env,
+            check=False,
+        )
+
+    @staticmethod
+    def _env_without_addopts() -> dict[str, str]:
+        return {k: v for k, v in os.environ.items() if k != "PYTEST_ADDOPTS"}
+
+    @pytest.mark.unit
+    def test_make_test_runs_without_cov_fail_under_in_pytest_addopts(
+        self, tmp_path: Path
+    ) -> None:
+        repo = _fake_repo(tmp_path)
+        plugin = self._gated_plugin(repo, "80", writes_coverage=True)
+
+        result = self._run(repo, self._env_without_addopts())
+
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert (plugin / "addopts.txt").read_text() == ""
+
+    @pytest.mark.unit
+    def test_caller_pytest_addopts_reach_make_test_unchanged(
+        self, tmp_path: Path
+    ) -> None:
+        repo = _fake_repo(tmp_path)
+        plugin = self._gated_plugin(repo, "80", writes_coverage=True)
+
+        result = self._run(repo, {**os.environ, "PYTEST_ADDOPTS": "-p no:randomly"})
+
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert (plugin / "addopts.txt").read_text() == "-p no:randomly"
+
+    @pytest.mark.unit
+    def test_coverage_below_the_threshold_fails_the_run(self, tmp_path: Path) -> None:
+        repo = _fake_repo(tmp_path)
+        self._gated_plugin(repo, "90", writes_coverage=True)
+
+        result = self._run(repo, self._env_without_addopts())
+
+        assert result.returncode == 1, result.stdout + result.stderr
+        assert "Failed (1): gated" in result.stdout
+        assert "less than fail-under=90" in result.stdout
+
+    @pytest.mark.unit
+    def test_coverage_at_the_threshold_passes(self, tmp_path: Path) -> None:
+        repo = _fake_repo(tmp_path)
+        self._gated_plugin(repo, "80", writes_coverage=True)
+
+        result = self._run(repo, self._env_without_addopts())
+
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "Passed (1): gated" in result.stdout
+
+    @pytest.mark.unit
+    def test_threshold_fails_when_make_test_writes_no_coverage_data(
+        self, tmp_path: Path
+    ) -> None:
+        """A recipe that lost ``--cov`` must not pass a gate it never reached."""
+        repo = _fake_repo(tmp_path)
+        self._gated_plugin(repo, "80", writes_coverage=False)
+
+        result = self._run(repo, self._env_without_addopts())
+
+        assert result.returncode == 1, result.stdout + result.stderr
+        assert "Failed (1): gated" in result.stdout
+
+    @pytest.mark.unit
+    def test_coverage_data_left_by_an_earlier_run_is_not_reused(
+        self, tmp_path: Path
+    ) -> None:
+        repo = _fake_repo(tmp_path)
+        plugin = self._gated_plugin(repo, "80", writes_coverage=True)
+        assert self._run(repo, self._env_without_addopts()).returncode == 0
+        # Same plugin, but this run's recipe measures nothing.
+        (plugin / "Makefile").write_text("test:\n\t@true\n")
+
+        result = self._run(repo, self._env_without_addopts())
+
+        assert result.returncode == 1, result.stdout + result.stderr
+
+    @pytest.mark.unit
+    def test_no_threshold_leaves_pytest_addopts_untouched(self, tmp_path: Path) -> None:
+        repo = _fake_repo(tmp_path)
+        plugin = self._gated_plugin(repo, None)
+
+        result = self._run(repo, self._env_without_addopts())
+
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert (plugin / "addopts.txt").read_text() == ""

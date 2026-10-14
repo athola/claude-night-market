@@ -4,7 +4,7 @@ invisible_unicode is the one category scanned inside code blocks, because
 a fence is where a bidi override hides (Trojan Source). A markdown file
 whose only content is such a block had zero prose words, so score_text
 returned before scanning and the gate printed "no prose files scanned"
-and exited 0. Math review finding B5.
+and exited 0.
 """
 
 from __future__ import annotations

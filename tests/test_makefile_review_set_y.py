@@ -62,7 +62,7 @@ _UV_FAILS_PRE_COMMIT = 'case "$1 $2" in "run pre-commit") exit 1 ;; esac\nexit 0
     "target", ["skills/skill-authoring", "skills/skill-authoring/SKILL.md"]
 )
 def test_abstract_analyze_skill_accepts_its_documented_target(target: str) -> None:
-    """M2-4: the recipe passed --path, which skill_analyzer.py rejects."""
+    """The recipe passed --path, which skill_analyzer.py rejects."""
     result = _make("abstract", "analyze-skill", f"TARGET={target}")
     assert result.returncode == 0, result.stderr[-1500:]
 
@@ -71,7 +71,7 @@ def test_abstract_analyze_skill_accepts_its_documented_target(target: str) -> No
     "target", ["skills/skill-authoring", "skills/skill-authoring/SKILL.md"]
 )
 def test_abstract_improve_skill_finds_the_skill(target: str) -> None:
-    """M2-5: both TARGET spellings looked for skills/X/X/SKILL.md or similar.
+    """Both TARGET spellings looked for skills/X/X/SKILL.md or similar.
 
     The recipe printed only counts, so the "not found" result read as a
     one-issue plan. The issue lines are printed now, and the count must
@@ -101,7 +101,7 @@ def test_abstract_improve_skill_finds_the_skill(target: str) -> None:
 
 
 def test_abstract_dev_setup_fails_when_uv_sync_fails(tmp_path: Path) -> None:
-    """M2-7: `uv sync --dev || true` printed "ready" after the sync failed."""
+    """`uv sync --dev || true` printed "ready" after the sync failed."""
     uv = _shim(tmp_path, "uv", "exit 1") / "uv"
     result = _make("abstract", "dev-setup", f"UV={uv}")
     assert result.returncode != 0
@@ -109,7 +109,7 @@ def test_abstract_dev_setup_fails_when_uv_sync_fails(tmp_path: Path) -> None:
 
 
 def test_abstract_dev_setup_fails_when_hook_install_fails(tmp_path: Path) -> None:
-    """M2-7: install-hooks' `pre-commit install || true` hid the failure."""
+    """Install-hooks' `pre-commit install || true` hid the failure."""
     uv = _shim(tmp_path, "uv", _UV_FAILS_PRE_COMMIT) / "uv"
     result = _make("abstract", "dev-setup", f"UV={uv}")
     assert result.returncode != 0
@@ -117,14 +117,14 @@ def test_abstract_dev_setup_fails_when_hook_install_fails(tmp_path: Path) -> Non
 
 
 def test_attune_dev_setup_fails_when_hook_install_fails(tmp_path: Path) -> None:
-    """M2-8: `pre-commit install || true` exited 0 with no hooks installed."""
+    """`pre-commit install || true` exited 0 with no hooks installed."""
     uv = _shim(tmp_path, "uv", _UV_FAILS_PRE_COMMIT) / "uv"
     result = _make("attune", "dev-setup", f"UV={uv}")
     assert result.returncode != 0
 
 
 def test_pensive_mutation_test_reports_surviving_mutants(tmp_path: Path) -> None:
-    """M2-9: any mutmut failure printed "mutmut not installed" and exited 0."""
+    """Any mutmut failure printed "mutmut not installed" and exited 0."""
     shims = _shim(tmp_path, "mutmut", "echo '3 mutants survived'\nexit 2")
     result = _make("pensive", "mutation-test", path_prefix=str(shims))
     assert result.returncode != 0
@@ -135,7 +135,7 @@ def test_pensive_mutation_test_reports_surviving_mutants(tmp_path: Path) -> None
 def test_memory_palace_control_targets_fail_when_the_cli_fails(
     tmp_path: Path, target: str
 ) -> None:
-    """M2-10: every CLI failure was labeled "permission denied", exit 0."""
+    """Every CLI failure was labeled "permission denied", exit 0."""
     uv = _shim(tmp_path, "uv", "exit 1") / "uv"
     result = _make("memory-palace", target, f"UV={uv}")
     assert result.returncode != 0
@@ -143,7 +143,7 @@ def test_memory_palace_control_targets_fail_when_the_cli_fails(
 
 
 def test_memory_palace_plugin_check_never_reads_the_users_store() -> None:
-    """M2-11: list and search ran on an exported PALACES_DIR, not the demo."""
+    """List and search ran on an exported PALACES_DIR, not the demo."""
     real = "/nonexistent/real-palaces"
     result = _make("memory-palace", "-n", "plugin-check", PALACES_DIR=real)
     assert result.returncode == 0, result.stderr
@@ -157,20 +157,20 @@ def test_memory_palace_plugin_check_never_reads_the_users_store() -> None:
 
 
 def test_cartograph_test_quick_runs() -> None:
-    """M2-12: python.mk passes --no-cov, which needs pytest-cov installed."""
+    """Python.mk passes --no-cov, which needs pytest-cov installed."""
     result = _make("cartograph", "test-quick")
     assert result.returncode == 0, result.stdout[-1500:] + result.stderr[-1500:]
 
 
 @pytest.mark.parametrize("plugin", ["cartograph", "pensive", "sanctum"])
 def test_security_runs_bandit_from_the_plugin_environment(plugin: str) -> None:
-    """M2-13: bandit was not a dependency, so `make security` could not spawn it."""
+    """Bandit was not a dependency, so `make security` could not spawn it."""
     result = _make(plugin, "security")
     assert result.returncode == 0, result.stdout[-1500:] + result.stderr[-1500:]
 
 
 def test_pensive_skill_review_warns_on_missing_frontmatter(tmp_path: Path) -> None:
-    """M2-15: `grep -c` exits 1 on zero matches, and pipefail ended the loop.
+    """`grep -c` exits 1 on zero matches, and pipefail ended the loop.
 
     The recipe lines come from `make -n` and run under the same
     `bash -euo pipefail` every make here uses, against a skill tree where
@@ -197,7 +197,7 @@ def test_pensive_skill_review_warns_on_missing_frontmatter(tmp_path: Path) -> No
 
 
 def test_pensive_install_targets_use_the_dev_dependency_group() -> None:
-    """M2-16: `pip install -e ".[dev]"` asked for an extra pensive lacks."""
+    """`pip install -e ".[dev]"` asked for an extra pensive lacks."""
     result = _make("pensive", "-n", "dev-install", "deps-update")
     assert result.returncode == 0, result.stderr
     assert "pip install" not in result.stdout
@@ -214,7 +214,7 @@ def test_pensive_install_targets_use_the_dev_dependency_group() -> None:
 def test_memory_profile_probes_and_profiles_in_the_uv_environment(
     tmp_path: Path, plugin: str, script: str
 ) -> None:
-    """M2-17: probed system python3, then profiled __init__.py first.
+    """Probed system python3, then profiled __init__.py first.
 
     The uv shim records each call and reports memory_profiler importable,
     so the target has to reach the profile command through uv.
@@ -230,14 +230,14 @@ def test_memory_profile_probes_and_profiles_in_the_uv_environment(
 
 
 def test_memory_profile_fails_when_the_profiler_is_missing(tmp_path: Path) -> None:
-    """M2-17: the same probe, false in uv's environment, must not pass."""
+    """The same probe, false in uv's environment, must not pass."""
     uv = _shim(tmp_path, "uv", "exit 1") / "uv"
     result = _make("tome", "memory-profile", f"UV={uv}")
     assert result.returncode != 0
     assert "memory_profiler" in result.stdout + result.stderr
 
 
-# --- M2-13: `make security` in every python.mk plugin ----------------------
+# --- `make security` in every python.mk plugin ----------------------
 
 PYTHON_MK_PLUGINS = sorted(
     p.parent.name

@@ -101,7 +101,7 @@ def test_gate_scans_every_tracked_shell_script() -> None:
     """Coverage is the tracked set, not one directory.
 
     The set includes executables with a shell shebang and no extension,
-    such as plugins/abstract/bin/skrills-or-fallback (shell review S1-15).
+    such as plugins/abstract/bin/skrills-or-fallback.
     """
     tracked = subprocess.run(
         ["git", "ls-files", "*.sh"],

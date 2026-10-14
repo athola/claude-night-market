@@ -55,37 +55,24 @@ depcheck() {
 # Writes "<name>\t<plugin>" lines for every skill, command and agent that a
 # plugin.json registers, one file per kind under WORK_DIR.
 collect_registrations() {
-  local plugin_json plugin_name entry_path entry_name
-  : >"${WORK_DIR}/skills"
-  : >"${WORK_DIR}/commands"
-  : >"${WORK_DIR}/agents"
+  local plugin_json plugin_name kind entry_path entry_name
+
+  for kind in skills commands agents; do
+    : >"${WORK_DIR}/${kind}"
+  done
 
   for plugin_json in "${PLUGINS_DIR}"/*/.claude-plugin/plugin.json; do
     [ -f "${plugin_json}" ] || continue
     plugin_name=$(jq -r '.name' "${plugin_json}")
 
-    # Skills
-    while IFS= read -r entry_path; do
-      [ -z "${entry_path}" ] && continue
-      entry_name="${entry_path##*/}"
-      printf '%s\t%s\n' "${entry_name}" "${plugin_name}" >>"${WORK_DIR}/skills"
-    done < <(jq -r '.skills[]? // empty' "${plugin_json}")
-
-    # Commands
-    while IFS= read -r entry_path; do
-      [ -z "${entry_path}" ] && continue
-      entry_name="${entry_path##*/}"
-      entry_name="${entry_name%.md}"
-      printf '%s\t%s\n' "${entry_name}" "${plugin_name}" >>"${WORK_DIR}/commands"
-    done < <(jq -r '.commands[]? // empty' "${plugin_json}")
-
-    # Agents
-    while IFS= read -r entry_path; do
-      [ -z "${entry_path}" ] && continue
-      entry_name="${entry_path##*/}"
-      entry_name="${entry_name%.md}"
-      printf '%s\t%s\n' "${entry_name}" "${plugin_name}" >>"${WORK_DIR}/agents"
-    done < <(jq -r '.agents[]? // empty' "${plugin_json}")
+    # Skill entries are directories; commands and agents are .md files.
+    for kind in skills commands agents; do
+      while IFS= read -r entry_path; do
+        [ -z "${entry_path}" ] && continue
+        entry_name="${entry_path##*/}"
+        printf '%s\t%s\n' "${entry_name%.md}" "${plugin_name}" >>"${WORK_DIR}/${kind}"
+      done < <(jq -r --arg kind "${kind}" '.[$kind][]? // empty' "${plugin_json}")
+    done
   done
 }
 
@@ -118,28 +105,26 @@ compare_kind() {
   done <<<"${documented}"
 }
 
+# print_entries HEADER [ENTRY...]: prints nothing when no entry is given.
+print_entries() {
+  local header="${1}" entry
+  shift
+  case "${#}" in
+    0) return 0 ;;
+  esac
+  log 4 "${header}"
+  for entry in "${@}"; do
+    log 4 "  - ${entry}"
+  done
+}
+
 report() {
-  local entry total_skills total_commands total_agents
+  local total_skills total_commands total_agents
 
-  case "${#MISSING_ENTRIES[@]}" in
-    0) ;;
-    *)
-      log 4 "MISSING from docs (registered in plugin.json but not documented):"
-      for entry in "${MISSING_ENTRIES[@]+"${MISSING_ENTRIES[@]}"}"; do
-        log 4 "  - ${entry}"
-      done
-      ;;
-  esac
-
-  case "${#EXTRA_ENTRIES[@]}" in
-    0) ;;
-    *)
-      log 4 "EXTRA in docs (documented but not registered in any plugin.json):"
-      for entry in "${EXTRA_ENTRIES[@]+"${EXTRA_ENTRIES[@]}"}"; do
-        log 4 "  - ${entry}"
-      done
-      ;;
-  esac
+  print_entries "MISSING from docs (registered in plugin.json but not documented):" \
+    "${MISSING_ENTRIES[@]+"${MISSING_ENTRIES[@]}"}"
+  print_entries "EXTRA in docs (documented but not registered in any plugin.json):" \
+    "${EXTRA_ENTRIES[@]+"${EXTRA_ENTRIES[@]}"}"
 
   total_skills=$(wc -l <"${WORK_DIR}/skills" | tr -d ' ')
   total_commands=$(wc -l <"${WORK_DIR}/commands" | tr -d ' ')

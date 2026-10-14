@@ -1,6 +1,5 @@
 """The clawhub publish scripts report what happened, on any checkout path.
 
-Shell review S0-15, S1-2, S1-3, S1-4, S1-10 and S1-11.
 - clawhub-batch-publish exited 0 when every publish in a batch failed.
 - Its "0 ok" check also matched "10 ok".
 - A progress file from a previous release was reused, so a new release
@@ -154,3 +153,24 @@ def test_cron_still_skips_while_a_recent_run_holds_the_lock(tmp_path: Path) -> N
     shims = _shims(tmp_path, crontab="exit 0")
     _run(repo, "clawhub-cron.sh", shims, CLAWHUB_SYNC_LOG=str(log))
     assert "skipping" in log.read_text()
+
+
+def test_submit_reports_a_failed_package_publish_as_a_failure(
+    tmp_path: Path,
+) -> None:
+    repo = _sandbox(tmp_path)
+    _skills(repo, 1)
+    shims = _shims(
+        tmp_path,
+        clawhub=(
+            'case "$1 $2" in\n'
+            '  "whoami "*) echo "✔ alice" ;;\n'
+            '  "package publish") echo "package scope not claimed" >&2; exit 1 ;;\n'
+            "  *) exit 0 ;;\n"
+            "esac"
+        ),
+    )
+    result = _run(repo, "clawhub-submit.sh", shims)
+    assert result.returncode != 0, result.stdout
+    assert "Status:  complete" not in result.stdout
+    assert "package scope not claimed" in result.stdout + result.stderr

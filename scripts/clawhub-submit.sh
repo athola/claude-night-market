@@ -248,10 +248,11 @@ publish_package() {
   esac
   log "Publishing package..."
   # shellcheck disable=SC2086 # CLAWHUB is a command line; split on purpose.
-  if ${CLAWHUB} package publish "athola/claude-night-market@${VERSION}" 2>/dev/null; then
+  if ${CLAWHUB} package publish "athola/claude-night-market@${VERSION}"; then
     log "Package published: athola/claude-night-market@${VERSION}"
   else
-    log 2 "Package publish failed (may require manual setup)"
+    log 4 "Package publish failed (may require manual setup); see the error above"
+    return 1
   fi
 }
 
@@ -288,7 +289,7 @@ print(json.load(open(os.environ["MANIFEST"]))["total_exported"])
   summary=$(publish_skills "${VERSION#v}") && publish_exit=0 || publish_exit=$?
   printf '%s\n' "${summary}"
 
-  publish_package
+  publish_package || publish_exit=1
 
   case "${publish_exit}" in
     0) log "Status:  complete" ;;

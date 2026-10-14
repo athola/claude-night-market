@@ -162,8 +162,11 @@ submit_target() {
         return 0
       fi
 
-      # Sync fork
-      gh repo sync "${FORK_OWNER}/${fork_name}" --branch main 2>&1 || true
+      # A fork that did not sync would carry the PR against an old main.
+      if ! gh repo sync "${FORK_OWNER}/${fork_name}" --branch main 2>&1; then
+        log 2 "fork sync failed for ${FORK_OWNER}/${fork_name}; skipping ${target}"
+        return 0
+      fi
       clone_source="${FORK_OWNER}/${fork_name}"
       ;;
   esac

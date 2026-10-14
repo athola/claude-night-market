@@ -1,6 +1,6 @@
 """add-subtitles.sh finds a font on macOS and accepts one by name.
 
-Shell review S2-19. The candidates were Linux paths only, so on macOS the
+The candidates were Linux paths only, so on macOS the
 script always stopped at "no candidate font found", though its comment
 promised a graceful fallback. A font path with a space also has to
 survive ffmpeg's filtergraph syntax.

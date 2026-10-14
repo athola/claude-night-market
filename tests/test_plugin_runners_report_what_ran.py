@@ -1,6 +1,6 @@
 """The run-plugin-* gates must fail on a typo and stay quiet on no work.
 
-Shell review S0-1, S0-2, S2-1, S2-2 and S2-3. A gate that ran nothing
+A gate that ran nothing
 reported success for an unknown plugin name, and `--changed` died with
 exit 1 and no message when nothing staged was under plugins/.
 `run-plugin-lint.sh --fix` silently skipped the fix for plugins that

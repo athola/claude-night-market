@@ -1,4 +1,4 @@
-"""escape_for_json's jq-less fallback must emit valid JSON (shell review S2-14, S2-15).
+"""escape_for_json's jq-less fallback must emit valid JSON.
 
 The fallback runs when jq is not on PATH. Every replacement was written
 one escape level too deep: a quote came out as \\" (ending the string

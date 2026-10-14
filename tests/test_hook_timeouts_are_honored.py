@@ -9,6 +9,7 @@ lets it outlive the session. Verified on CLI 2.1.251.
 
 from __future__ import annotations
 
+import importlib.util
 import json
 from pathlib import Path
 
@@ -50,3 +51,34 @@ def test_slow_session_end_hooks_are_async(manifest: Path, entry: dict) -> None:
         f"declares timeout {timeout}s but is not async, so it is cancelled at "
         f"{BATCH_DEADLINE_SECONDS}s on every session exit."
     )
+
+
+def test_daily_learnings_aggregation_does_not_block_the_prompt() -> None:
+    """The once-a-day aggregation may run for seconds and returns no context.
+
+    It runs on UserPromptSubmit with a 15s timeout. Run in the foreground,
+    the prompt waits for it on the first submit of each day, for output
+    that is an empty additionalContext. Async lets the prompt go ahead.
+    The second assertion keeps that reason true: an async hook's context
+    arrives a turn late, so a hook that starts emitting context needs
+    this decision revisited.
+    """
+    manifest = PLUGINS / "abstract" / "hooks" / "hooks.json"
+    groups = json.loads(manifest.read_text())["hooks"]["UserPromptSubmit"]
+    entries = [
+        entry
+        for group in groups
+        for entry in group.get("hooks", [])
+        if entry.get("command", "").endswith('aggregate_learnings_daily.py"')
+    ]
+    assert len(entries) == 1
+    assert entries[0].get("async") is True
+
+    spec = importlib.util.spec_from_file_location(
+        "aggregate_learnings_daily", manifest.parent / "aggregate_learnings_daily.py"
+    )
+    assert spec is not None and spec.loader is not None
+    hook = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(hook)
+    output = json.loads(hook.format_hook_output())
+    assert output["hookSpecificOutput"]["additionalContext"] == ""

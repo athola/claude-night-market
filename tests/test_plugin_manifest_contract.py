@@ -71,9 +71,6 @@ def test_optional_dependencies_live_under_metadata() -> None:
 
 
 REPOSITORY_URL = "https://github.com/athola/claude-night-market"
-# Their manifests are being edited on another branch; they gain the same
-# links when that work lands, and this set must then be emptied.
-LINKS_PENDING: frozenset[str] = frozenset()
 
 
 def test_every_plugin_links_its_homepage_and_repository() -> None:
@@ -82,8 +79,6 @@ def test_every_plugin_links_its_homepage_and_repository() -> None:
     checked = 0
     for manifest in manifests:
         plugin = manifest.parents[1].name
-        if plugin in LINKS_PENDING:
-            continue
         fields = json.loads(manifest.read_text(encoding="utf-8"))
         for key in ("homepage", "repository"):
             url = urlparse(fields.get(key, ""))
@@ -91,7 +86,7 @@ def test_every_plugin_links_its_homepage_and_repository() -> None:
         assert fields["homepage"] == f"{REPOSITORY_URL}/tree/master/plugins/{plugin}"
         assert fields["repository"] == REPOSITORY_URL
         checked += 1
-    assert checked == len(manifests) - len(LINKS_PENDING)
+    assert checked == len(manifests)
 
 
 # Commands whose only job is an external side effect (closing issues,

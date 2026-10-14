@@ -28,6 +28,7 @@ import json
 import re
 import sys
 import urllib.request
+from pathlib import Path
 
 PYPI_URL = "https://pypi.org/pypi/ruff/json"
 UV_LOCK = "uv.lock"
@@ -37,7 +38,7 @@ OUTDATED_IS_BLOCKING = False
 def locked_version() -> str | None:
     """Return the ruff version pinned in uv.lock, or None."""
     try:
-        text = open(UV_LOCK, encoding="utf-8").read()
+        text = Path(UV_LOCK).read_text(encoding="utf-8")
     except OSError:
         return None
     for block in text.split("[[package]]"):
