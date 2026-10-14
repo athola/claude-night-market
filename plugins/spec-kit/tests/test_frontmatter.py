@@ -1,20 +1,41 @@
 """Tests for frontmatter validation in spec-kit skill files."""
 
+import json
 import re
+from pathlib import Path
 
 import pytest
 import yaml
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture
+def shipped_skills_dir() -> Path:
+    """The plugin's real skills directory, not a fixture copy.
+
+    These tests used a conftest fixture that wrote three minimal SKILL.md
+    files into tmp_path, so they checked text the fixture had just
+    written and stayed green whatever the shipped skills said.
+    """
+    return PLUGIN_ROOT / "skills"
+
+
+@pytest.fixture
+def shipped_plugin_manifest() -> dict:
+    """The plugin's real ``.claude-plugin/plugin.json``."""
+    return json.loads((PLUGIN_ROOT / ".claude-plugin" / "plugin.json").read_text())
 
 
 class TestFrontmatterValidation:
     """Test frontmatter validation for spec-kit skills."""
 
     def test_should_have_valid_frontmatter_when_loading_spec_writing_skill(
-        self, temp_skill_files
+        self, shipped_skills_dir
     ) -> None:
         """Test spec-writing skill has valid frontmatter."""
         # Given: a spec-writing skill file
-        skill_file = temp_skill_files / "spec-writing" / "SKILL.md"
+        skill_file = shipped_skills_dir / "spec-writing" / "SKILL.md"
         content = skill_file.read_text()
 
         # When: extracting frontmatter
@@ -36,11 +57,11 @@ class TestFrontmatterValidation:
         )
 
     def test_should_have_valid_frontmatter_when_loading_task_planning_skill(
-        self, temp_skill_files
+        self, shipped_skills_dir
     ) -> None:
         """Test task-planning skill has valid frontmatter."""
         # Given: a task-planning skill file
-        skill_file = temp_skill_files / "task-planning" / "SKILL.md"
+        skill_file = shipped_skills_dir / "task-planning" / "SKILL.md"
         content = skill_file.read_text()
 
         # When: extracting frontmatter
@@ -60,11 +81,11 @@ class TestFrontmatterValidation:
         assert "category: planning" in frontmatter, "Category should be planning"
 
     def test_should_have_valid_frontmatter_when_loading_orchestrator_skill(
-        self, temp_skill_files
+        self, shipped_skills_dir
     ) -> None:
         """Test speckit-orchestrator skill has valid frontmatter."""
         # Given: a speckit-orchestrator skill file
-        skill_file = temp_skill_files / "speckit-orchestrator" / "SKILL.md"
+        skill_file = shipped_skills_dir / "speckit-orchestrator" / "SKILL.md"
         content = skill_file.read_text()
 
         # When: extracting frontmatter
@@ -86,7 +107,7 @@ class TestFrontmatterValidation:
         assert "category: workflow" in frontmatter, "Category should be workflow"
 
     def test_should_parse_as_valid_yaml_when_validating_frontmatter(
-        self, temp_skill_files
+        self, shipped_skills_dir
     ) -> None:
         """Test frontmatter is valid YAML."""
         # Given: all skill directories
@@ -94,7 +115,7 @@ class TestFrontmatterValidation:
 
         for skill_name in skill_dirs:
             # When: reading skill file frontmatter
-            skill_file = temp_skill_files / skill_name / "SKILL.md"
+            skill_file = shipped_skills_dir / skill_name / "SKILL.md"
             content = skill_file.read_text()
 
             frontmatter_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
@@ -112,11 +133,11 @@ class TestFrontmatterValidation:
                 pytest.fail(f"Invalid YAML in {skill_name} frontmatter: {e}")
 
     def test_should_format_optional_fields_correctly_when_present(
-        self, temp_skill_files
+        self, shipped_skills_dir
     ) -> None:
         """Test optional frontmatter fields are properly formatted."""
         # Given: a skill file with frontmatter
-        skill_file = temp_skill_files / "spec-writing" / "SKILL.md"
+        skill_file = shipped_skills_dir / "spec-writing" / "SKILL.md"
         content = skill_file.read_text()
 
         # When: extracting and parsing frontmatter
@@ -146,11 +167,11 @@ class TestFrontmatterValidation:
                     )
 
     def test_should_match_content_when_validating_frontmatter_consistency(
-        self, temp_skill_files
+        self, shipped_skills_dir
     ) -> None:
         """Test frontmatter content is consistent with skill content."""
         # Given: a skill file with frontmatter and content
-        skill_file = temp_skill_files / "spec-writing" / "SKILL.md"
+        skill_file = shipped_skills_dir / "spec-writing" / "SKILL.md"
         content = skill_file.read_text()
 
         # When: extracting frontmatter and content
@@ -169,7 +190,7 @@ class TestFrontmatterValidation:
         assert heading_match, "Skill should have main heading"
 
     def test_should_follow_consistent_structure_when_comparing_skills(
-        self, temp_skill_files
+        self, shipped_skills_dir
     ) -> None:
         """Test all skills follow consistent frontmatter structure."""
         # Given: all skill directories
@@ -178,7 +199,7 @@ class TestFrontmatterValidation:
 
         # When: extracting frontmatter from each skill
         for skill_name in skill_dirs:
-            skill_file = temp_skill_files / skill_name / "SKILL.md"
+            skill_file = shipped_skills_dir / skill_name / "SKILL.md"
             content = skill_file.read_text()
 
             frontmatter_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
@@ -196,11 +217,11 @@ class TestFrontmatterValidation:
         )
 
     def test_should_have_required_fields_when_validating_plugin_manifest(
-        self, sample_plugin_manifest
+        self, shipped_plugin_manifest
     ) -> None:
         """Test plugin manifest follows expected structure."""
         # Given: a plugin manifest
-        manifest = sample_plugin_manifest
+        manifest = shipped_plugin_manifest
 
         # When: checking for required fields
         required_fields = [
@@ -229,17 +250,17 @@ class TestFrontmatterValidation:
 
     def test_should_reference_existing_skills_when_validating_manifest(
         self,
-        sample_plugin_manifest,
-        temp_skill_files,
+        shipped_plugin_manifest,
+        shipped_skills_dir,
     ) -> None:
         # Given: manifest skills and skill files
-        manifest_skills = sample_plugin_manifest["skills"]
+        manifest_skills = shipped_plugin_manifest["skills"]
 
         # When: checking each skill reference
         for skill_ref in manifest_skills:
             # Extract skill name from path
             skill_name = skill_ref.split("/")[-1] if "/" in skill_ref else skill_ref
-            skill_dir = temp_skill_files / skill_name
+            skill_dir = shipped_skills_dir / skill_name
 
             # Then: skill directory should exist
             assert skill_dir.exists(), (
@@ -251,11 +272,11 @@ class TestFrontmatterValidation:
             assert skill_file.exists(), f"Skill missing SKILL.md: {skill_ref}"
 
     def test_should_reference_markdown_commands_when_validating_manifest(
-        self, sample_plugin_manifest
+        self, shipped_plugin_manifest
     ) -> None:
         """Test that manifest references existing command files."""
         # Given: manifest commands
-        manifest_commands = sample_plugin_manifest["commands"]
+        manifest_commands = shipped_plugin_manifest["commands"]
 
         # When/Then: each command should follow conventions
         for command_ref in manifest_commands:
@@ -267,4 +288,9 @@ class TestFrontmatterValidation:
             # Should be in commands directory
             assert command_ref.startswith("./commands/"), (
                 f"Command should be in commands directory: {command_ref}"
+            )
+
+            # And should exist on disk
+            assert (PLUGIN_ROOT / command_ref).is_file(), (
+                f"Manifest references a missing command: {command_ref}"
             )

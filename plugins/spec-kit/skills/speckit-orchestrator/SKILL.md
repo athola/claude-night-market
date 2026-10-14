@@ -91,7 +91,7 @@ Quick reference for command-to-skill mappings:
 | `/speckit-tasks` | task-planning | executing-plans |
 | `/speckit-implement` | - | executing-plans, systematic-debugging |
 | `/speckit-converge` | - | executing-plans, verification-before-completion |
-| `/speckit-analyze` | - | systematic-debugging, verification |
+| `/speckit-analyze` | - | systematic-debugging, verification-before-completion |
 | `/speckit-checklist` | - | verification-before-completion |
 
 **For detailed patterns**: See `modules/command-skill-matrix.md` for complete mappings and loading rules.
@@ -111,10 +111,10 @@ For each workflow session, track:
 
 ## Exit Criteria
 
-- Active command completed successfully.
-- All required artifacts exist and are valid.
-- Progress tracking reflects current state.
-- No unresolved blockers.
+- [ ] Active command completed successfully.
+- [ ] All required artifacts exist and are valid.
+- [ ] Progress tracking reflects current state.
+- [ ] No unresolved blockers.
 
 ## Related Skills
 
