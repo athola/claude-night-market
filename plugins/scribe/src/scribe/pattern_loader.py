@@ -113,9 +113,7 @@ _LANGUAGE_MARKERS: dict[str, frozenset[str]] = {
     "pt": frozenset(
         {
             "o",
-            "a",
             "os",
-            "as",
             "é",
             "são",
             "foi",
@@ -153,6 +151,14 @@ _LANGUAGE_MARKERS: dict[str, frozenset[str]] = {
 }
 
 
+def _require_supported(language: str) -> None:
+    """Raise ValueError for a code outside SUPPORTED_LANGUAGES."""
+    if language not in SUPPORTED_LANGUAGES:
+        raise ValueError(
+            f"Unsupported language: {language}. Supported: {', '.join(sorted(SUPPORTED_LANGUAGES))}"
+        )
+
+
 def load_language_patterns(language: str = DEFAULT_LANGUAGE) -> dict[str, Any]:
     """Load slop patterns for a specific language.
 
@@ -165,11 +171,9 @@ def load_language_patterns(language: str = DEFAULT_LANGUAGE) -> dict[str, Any]:
     Raises:
         ValueError: If language is not supported.
         FileNotFoundError: If pattern file is missing.
+        ImportError: If pyyaml is not installed.
     """
-    if language not in SUPPORTED_LANGUAGES:
-        raise ValueError(
-            f"Unsupported language: {language}. Supported: {', '.join(sorted(SUPPORTED_LANGUAGES))}"
-        )
+    _require_supported(language)
 
     pattern_file = DATA_DIR / f"{language}.yaml"
     if not pattern_file.exists():
@@ -181,7 +185,7 @@ def load_language_patterns(language: str = DEFAULT_LANGUAGE) -> dict[str, Any]:
         )
 
     with open(pattern_file, encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        return yaml.safe_load(f) or {}
 
 
 def get_tier1_words(patterns: dict[str, Any]) -> list[str]:
@@ -340,8 +344,12 @@ def get_calibration_factor(language: str) -> float:
 
     Returns:
         Calibration multiplier (1.0 = English baseline).
+
+    Raises:
+        ValueError: If language is not supported.
     """
-    return LANGUAGE_CALIBRATION.get(language, 1.0)
+    _require_supported(language)
+    return LANGUAGE_CALIBRATION[language]
 
 
 def get_ste_patterns(
@@ -411,15 +419,16 @@ def get_all_language_patterns(languages: list[str] | None = None) -> dict[str, d
 
     Returns:
         Mapping of language code to its loaded pattern dictionary.
-        Unsupported or missing languages are silently skipped.
+        Languages whose pattern file is missing are skipped.
+
+    Raises:
+        ValueError: If any requested language is not supported.
     """
     if languages is None:
         languages = sorted(SUPPORTED_LANGUAGES)
 
     result: dict[str, dict] = {}
     for lang in languages:
-        if lang not in SUPPORTED_LANGUAGES:
-            continue
         try:
             result[lang] = load_language_patterns(lang)
         except FileNotFoundError:

@@ -478,9 +478,8 @@ class TestOutputFormats:
         When generating a tape
         Then a ValueError is raised
         """
-        config = TapeConfig(output_path="replay.gif", output_format="svg")
         with pytest.raises(ValueError, match="Unsupported output format"):
-            generate_tape([], config)
+            TapeConfig(output_path="replay.gif", output_format="svg")
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -491,9 +490,8 @@ class TestOutputFormats:
         When generating a tape
         Then a ValueError is raised
         """
-        config = TapeConfig(output_path="replay.avi")
         with pytest.raises(ValueError, match="Unsupported output format"):
-            generate_tape([], config)
+            TapeConfig(output_path="replay.avi")
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -557,19 +555,15 @@ class TestSpeedValidation:
     @pytest.mark.unit
     def test_zero_speed_raises(self) -> None:
         """Scenario: speed=0.0 raises ValueError."""
-        turns = [UserTurn(text="hello")]
-        config = TapeConfig(output_path="out.gif", speed=0.0)
         with pytest.raises(ValueError, match="Speed must be positive"):
-            generate_tape(turns, config)
+            TapeConfig(output_path="out.gif", speed=0.0)
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_negative_speed_raises(self) -> None:
         """Scenario: negative speed raises ValueError."""
-        turns = [UserTurn(text="hello")]
-        config = TapeConfig(output_path="out.gif", speed=-1.0)
         with pytest.raises(ValueError, match="Speed must be positive"):
-            generate_tape(turns, config)
+            TapeConfig(output_path="out.gif", speed=-1.0)
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -579,6 +573,20 @@ class TestSpeedValidation:
         config = TapeConfig(output_path="out.gif", speed=0.01)
         tape = generate_tape(turns, config)
         assert "$ hello" in tape
+
+
+class TestConfigIsValidatedAtConstruction:
+    """A bad TapeConfig fails where it is built, not partway through a render."""
+
+    @pytest.mark.unit
+    def test_nan_speed_is_rejected(self) -> None:
+        with pytest.raises(ValueError, match="Speed must be positive"):
+            TapeConfig(speed=float("nan"))
+
+    @pytest.mark.unit
+    def test_nan_max_duration_is_rejected(self) -> None:
+        with pytest.raises(ValueError, match="max_duration"):
+            TapeConfig(max_duration=float("nan"))
 
 
 class TestToolResultContentRendering:
@@ -663,3 +671,19 @@ class TestThinkingTurnRendering:
         tape = generate_tape(turns, config)
         assert "[thinking] line one" in tape
         assert "           line two" in tape
+
+
+class TestMultilineToolSummary:
+    """A Bash summary is the first 60 characters of a command, newlines included."""
+
+    def test_newline_in_a_tool_summary_stays_inside_one_type_command(self) -> None:
+        tape = generate_tape(
+            [ToolUse(tool_name="Bash", summary="Ran: cat <<EOF\nhello\nEOF")],
+            TapeConfig(),
+        )
+
+        commands = ("Output", "Set", "Type", "Enter", "Sleep")
+        stray = [
+            line for line in tape.splitlines() if line and not line.startswith(commands)
+        ]
+        assert stray == []

@@ -182,9 +182,9 @@ If `.voice/override.md` exists in the current project:
 
 ## Exit Criteria
 
-- Text generated in the specified voice
-- No banned phrases present
-- Craft techniques applied (concrete-first, naming, etc.)
-- Source material framed as raw notes
-- Review dispatched (if requested)
-- Snapshot saved (if learning mode active)
+- [ ] Text generated in the specified voice
+- [ ] No banned phrases present
+- [ ] Craft techniques applied (concrete-first, naming, etc.)
+- [ ] Source material framed as raw notes
+- [ ] Review dispatched (if requested)
+- [ ] Snapshot saved (if learning mode active)

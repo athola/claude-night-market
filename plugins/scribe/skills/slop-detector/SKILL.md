@@ -483,7 +483,7 @@ the report as a guide.
 
 ## Exit Criteria
 
-- All target files scanned
-- Density scores calculated
-- Report generated with specific, line-anchored fixes
-- High-severity items flagged for immediate attention
+- [ ] All target files scanned
+- [ ] Density scores calculated
+- [ ] Report generated with specific, line-anchored fixes
+- [ ] High-severity items flagged for immediate attention

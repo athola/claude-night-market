@@ -32,14 +32,18 @@ validate: ## Validate plugin structure
 	echo "Validation complete."; exit $$fail
 
 # ---------- Testing ----------
+# Runs inside the plugin so pyproject.toml here supplies the coverage
+# config and the .coverage file. From the repo root the root .coverage was
+# shared with every other root-level run, which once merged unrelated
+# scripts/ into this total.
 test: ## Run scribe tests
 	@echo "Running scribe tests..."
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v --tb=short
+	@uv run pytest tests/ -v --tb=short
 
 test-coverage: ## Run tests with coverage measurement
 	@echo "Running scribe tests with coverage..."
-	@cd ../.. && uv run pytest plugins/scribe/tests/ -v --tb=short \
-		--cov=plugins/scribe/src/scribe --cov-report=term-missing --cov-branch
+	@uv run pytest tests/ -v --tb=short \
+		--cov=src/scribe --cov-report=term-missing --cov-branch
 
 # ---------- Linting ----------
 lint: ## Ratchet plugin docs against the repo slop scorer (fails on regression)

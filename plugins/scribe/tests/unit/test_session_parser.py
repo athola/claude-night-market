@@ -1305,7 +1305,7 @@ class TestTurnRangeValidation:
 
 def test_turn_numbers_start_at_the_first_user_prompt(tmp_path: Path) -> None:
     """A reply to a skipped injection formed group 1 and shifted every
-    later turn number by one (math review B2-19).
+    later turn number by one.
     """
     records = [
         {

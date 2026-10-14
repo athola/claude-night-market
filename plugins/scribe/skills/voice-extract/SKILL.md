@@ -248,9 +248,9 @@ extraction output.
 
 ## Exit Criteria
 
-- Profile directory exists with manifest
-- extraction.md contains specific, followable voice description
-- Default register created
-- No generic phrases in extraction output
-- User has reviewed and confirmed the extraction captures
+- [ ] Profile directory exists with manifest
+- [ ] extraction.md contains specific, followable voice description
+- [ ] Default register created
+- [ ] No generic phrases in extraction output
+- [ ] User has reviewed and confirmed the extraction captures
   their voice

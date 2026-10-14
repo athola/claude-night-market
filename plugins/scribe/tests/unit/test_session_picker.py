@@ -271,3 +271,31 @@ class TestSessionDiscovery:
         sessions = list_sessions(base_dir=tmp_path)
         assert sessions[0].first_user_message == ""
         assert sessions[0].turn_count == 0
+
+
+class TestPreviewTolerance:
+    """A single odd line must not stop the listing of every other session."""
+
+    def test_non_utf8_bytes_in_a_session_do_not_abort_the_listing(
+        self, tmp_path: Path
+    ) -> None:
+        """``parse_session`` reads with errors=replace; the preview must too."""
+        good = _make_session_file(tmp_path, "good.jsonl", [_user_record("hello")])
+        bad = tmp_path / "bad.jsonl"
+        bad.write_bytes(
+            b'{"type": "user", "message": {"content": "caf\xe9 au lait"}}\n'
+        )
+
+        sessions = list_sessions(base_dir=tmp_path)
+
+        assert {s.path for s in sessions} == {good, bad}
+
+    def test_json_line_that_is_not_an_object_is_skipped(self, tmp_path: Path) -> None:
+        """``123`` and ``[]`` are valid JSON but carry no ``.get``."""
+        path = tmp_path / "odd.jsonl"
+        path.write_text('123\n[]\n{"type": "user", "message": {"content": "hi"}}\n')
+
+        sessions = list_sessions(base_dir=tmp_path)
+
+        assert sessions[0].first_user_message == "hi"
+        assert sessions[0].turn_count == 1

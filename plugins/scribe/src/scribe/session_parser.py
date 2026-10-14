@@ -15,7 +15,7 @@ import textwrap
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +93,7 @@ def _preview_session(path: Path) -> tuple[str, int]:
     turn_count = 0
 
     try:
-        with open(path, encoding="utf-8") as f:
+        with open(path, encoding="utf-8", errors="replace") as f:
             for i, line in enumerate(f):
                 if i >= _PREVIEW_MAX_LINES:
                     break
@@ -105,10 +105,11 @@ def _preview_session(path: Path) -> tuple[str, int]:
                 except (json.JSONDecodeError, ValueError):
                     continue
 
-                if record.get("type") != "user":
+                if not isinstance(record, dict) or record.get("type") != "user":
                     continue
 
-                content = record.get("message", {}).get("content")
+                message = record.get("message")
+                content = message.get("content") if isinstance(message, dict) else None
                 if not isinstance(content, str):
                     continue
 
@@ -267,7 +268,11 @@ def _read_lines(path: Path) -> list[str]:
     return lines
 
 
-def _detect_format_from_lines(lines: list[str]) -> str:
+# parse_session also checks it at runtime: CLI arguments arrive as str.
+SessionFormat = Literal["claude", "codex"]
+
+
+def _detect_format_from_lines(lines: list[str]) -> SessionFormat:
     """Detect session format from pre-loaded lines.
 
     Codex records carry a "role" field at the top level;
@@ -276,11 +281,11 @@ def _detect_format_from_lines(lines: list[str]) -> str:
     for line in lines:
         try:
             record = json.loads(line)
-            if "role" in record:
-                return "codex"
-            return "claude"
         except json.JSONDecodeError:
             continue
+        if not isinstance(record, dict):
+            continue
+        return "codex" if "role" in record else "claude"
     return "claude"
 
 
@@ -320,12 +325,16 @@ class Viewport:
             )
 
 
+_SESSION_FORMATS = frozenset({"claude", "codex"})
+_SHOW_LAYERS = frozenset({"user", "assistant", "tools", "thinking"})
+
+
 def parse_session(
     path: Path,
     turns: str | None = None,
     show: str = "user,assistant,tools",
     viewport: Viewport | None = None,
-    format: str | None = None,
+    format: SessionFormat | None = None,
 ) -> list[Turn]:
     """Parse a session JSONL file into turns.
 
@@ -338,7 +347,7 @@ def parse_session(
         turns: Optional turn range filter (e.g. "1-5" or "3").
                Counts only UserTurn entries as turn boundaries.
         show: Comma-separated layers to include.
-              Options: user, assistant, tools.
+              Options: user, assistant, tools, thinking.
         viewport: Terminal viewport (cols/rows) for wrapping and
                   truncation. Defaults to 80x24.
         format: Session format: "claude", "codex", or None
@@ -349,7 +358,20 @@ def parse_session(
 
     Raises:
         OSError: If the session file cannot be read.
+        ValueError: If ``format`` is not "claude" or "codex", or ``show``
+            names a layer other than user, assistant, tools or thinking.
     """
+    if format is not None and format not in _SESSION_FORMATS:
+        raise ValueError(
+            f"Unknown session format {format!r}; expected one of {sorted(_SESSION_FORMATS)}"
+        )
+    show_layers = {s.strip() for s in show.split(",")}
+    unknown_layers = show_layers - _SHOW_LAYERS
+    if unknown_layers:
+        raise ValueError(
+            f"Unknown show layer(s) {sorted(unknown_layers)}; "
+            f"expected any of {sorted(_SHOW_LAYERS)}"
+        )
     vp = viewport or Viewport()
     cols = vp.cols
     rows = vp.rows
@@ -361,8 +383,6 @@ def parse_session(
 
     if format is None:
         format = _detect_format_from_lines(lines)
-
-    show_layers = {s.strip() for s in show.split(",")}
 
     # Phase 1: parse all turns from pre-loaded lines
     if format == "codex":
@@ -388,6 +408,8 @@ def _parse_claude_lines(lines: list[str], cols: int, rows: int) -> list[Turn]:
             record = json.loads(line)
         except json.JSONDecodeError:
             logger.warning("Skipping malformed JSONL line: %s", line[:80])
+            continue
+        if not isinstance(record, dict):
             continue
         record_type = record.get("type")
 
@@ -419,6 +441,8 @@ def _parse_codex_lines(lines: list[str], cols: int, rows: int) -> list[Turn]:
             record = json.loads(line)
         except json.JSONDecodeError:
             logger.warning("Skipping malformed JSONL line: %s", line[:80])
+            continue
+        if not isinstance(record, dict):
             continue
 
         if record.get("type") != "message":
@@ -464,7 +488,7 @@ def _parse_codex_assistant(record: dict[str, Any], cols: int, rows: int) -> list
                 text = _wrap_and_truncate(block.get("text", ""), cols, rows)
                 result.append(AssistantTurn(text=text))
 
-    for call in record.get("tool_calls", []):
+    for call in record.get("tool_calls") or []:
         func = call.get("function", {})
         name = func.get("name", "unknown")
         raw_args = func.get("arguments", "{}")

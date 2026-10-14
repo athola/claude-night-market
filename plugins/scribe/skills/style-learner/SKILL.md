@@ -246,8 +246,8 @@ After generating content, run slop-detector to verify:
 
 ## Exit Criteria
 
-- Style profile document created
-- At least 3 exemplar passages included
-- Quantitative metrics extracted
-- Anti-patterns from slop-detector integrated
-- Validation test passed
+- [ ] Style profile document created
+- [ ] At least 3 exemplar passages included
+- [ ] Quantitative metrics extracted
+- [ ] Anti-patterns from slop-detector integrated
+- [ ] Validation test passed

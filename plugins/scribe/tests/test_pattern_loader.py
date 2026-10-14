@@ -23,6 +23,7 @@ from scribe.pattern_loader import (
     get_calibration_factor,
     get_phrase_patterns,
     get_ste_patterns,
+    get_sycophantic_patterns,
     get_tier1_words,
     get_tier2_words,
     get_tier5_patterns,
@@ -93,6 +94,47 @@ class TestPatternLoading:
         with patch("scribe.pattern_loader.yaml", None):
             with pytest.raises(ImportError, match="pyyaml is required"):
                 load_language_patterns("en")
+
+
+class TestPatternFileOnDisk:
+    """Feature: the pattern directory is read as found, gaps reported."""
+
+    @pytest.mark.unit
+    def test_missing_pattern_file_raises(self, tmp_path: Path) -> None:
+        with patch("scribe.pattern_loader.DATA_DIR", tmp_path):
+            with pytest.raises(FileNotFoundError, match="en.yaml"):
+                load_language_patterns("en")
+
+    @pytest.mark.unit
+    def test_empty_pattern_file_loads_as_empty_mapping(self, tmp_path: Path) -> None:
+        """An empty YAML file is ``None`` to pyyaml; callers get ``{}``."""
+        (tmp_path / "en.yaml").write_text("")
+        with patch("scribe.pattern_loader.DATA_DIR", tmp_path):
+            assert load_language_patterns("en") == {}
+
+    @pytest.mark.unit
+    def test_get_all_skips_a_language_whose_file_is_missing(
+        self, tmp_path: Path
+    ) -> None:
+        (tmp_path / "en.yaml").write_text("language: en\n")
+        with patch("scribe.pattern_loader.DATA_DIR", tmp_path):
+            assert get_all_language_patterns(["en", "de"]) == {"en": {"language": "en"}}
+
+
+class TestMalformedSections:
+    """Feature: a section of the wrong shape contributes nothing."""
+
+    @pytest.mark.unit
+    def test_non_mapping_sycophantic_section_yields_no_patterns(self) -> None:
+        assert get_sycophantic_patterns({"sycophantic": ["x"]}) == []
+
+    @pytest.mark.unit
+    def test_non_mapping_tier5_category_is_skipped(self) -> None:
+        assert get_tier5_patterns({"tier5": {"broken": ["x"]}}) == []
+
+    @pytest.mark.unit
+    def test_non_mapping_ste_category_is_skipped(self) -> None:
+        assert get_ste_patterns({"ste": {"broken": "x"}}, include_optional=True) == []
 
 
 class TestWordExtraction:
@@ -190,6 +232,15 @@ class TestLanguageDetection:
         assert detect_language(text) == "pt"
 
     @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "text",
+        ["Build a robust platform", "Use it as a guide", "Write a test"],
+    )
+    def test_short_english_text_with_a_or_as_is_not_portuguese(self, text: str) -> None:
+        """``a`` and ``as`` are English words, so they cannot vote for Portuguese."""
+        assert detect_language(text) == "en"
+
+    @pytest.mark.unit
     def test_detect_italian(self) -> None:
         """Detects Italian text correctly."""
         text = (
@@ -261,9 +312,10 @@ class TestCalibrationFactor:
         assert get_calibration_factor("it") < 1.0
 
     @pytest.mark.unit
-    def test_unknown_language_defaults_to_one(self) -> None:
-        """Unknown language code returns 1.0 (no adjustment)."""
-        assert get_calibration_factor("xx") == 1.0
+    def test_unknown_language_raises_value_error(self) -> None:
+        """Unknown language code raises, as load_language_patterns does."""
+        with pytest.raises(ValueError, match="Unsupported language: xx"):
+            get_calibration_factor("xx")
 
 
 class TestGetAllLanguagePatterns:
@@ -289,11 +341,10 @@ class TestGetAllLanguagePatterns:
         assert "fr" not in result
 
     @pytest.mark.unit
-    def test_unsupported_language_skipped(self) -> None:
-        """Unsupported language codes are silently skipped."""
-        result = get_all_language_patterns(["en", "xx"])
-        assert "en" in result
-        assert "xx" not in result
+    def test_unsupported_language_raises_value_error(self) -> None:
+        """Unsupported language codes raise, as load_language_patterns does."""
+        with pytest.raises(ValueError, match="Unsupported language: xx"):
+            get_all_language_patterns(["en", "xx"])
 
     @pytest.mark.unit
     def test_each_entry_contains_tier1(self) -> None:
