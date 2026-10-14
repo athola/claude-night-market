@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -164,7 +165,7 @@ class TestResolveProjectDir:
         projects = tmp_path / "projects"
         test_dir = tmp_path / "workdir"
         # Build expected dir name: replace os.sep with dash
-        dir_name = str(test_dir).replace(os.sep, "-")
+        dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(test_dir))
         if not dir_name.startswith("-"):
             dir_name = "-" + dir_name
         project_dir = projects / dir_name
@@ -191,9 +192,13 @@ class TestFindCurrentSession:
         """Verify Falls back to newest when no session id."""
         older = tmp_path / "older.jsonl"
         older.write_text("{}\n")
-        time.sleep(0.05)
         newer = tmp_path / "newer.jsonl"
         newer.write_text("{}\n")
+        # Explicit mtimes: a sleep is shorter than some filesystems' mtime
+        # resolution, which would leave the two files tied.
+        now = time.time()
+        os.utime(older, (now - 60, now - 60))
+        os.utime(newer, (now - 1, now - 1))
 
         with patch.dict(os.environ, {}, clear=False):
             env = os.environ.copy()
@@ -230,22 +235,23 @@ class TestResolveSessionFile:
     def test_returns_none_when_no_project_match(self, tmp_path: Path) -> None:
         """Verify Returns none when no project match."""
         projects = tmp_path / "projects"
-        projects.mkdir()
+        (projects / "-some-other-checkout").mkdir(parents=True)
+        (projects / "-some-other-checkout" / "s.jsonl").write_text("{}\n")
+        cwd = tmp_path / "work"
+        cwd.mkdir()
         with (
             patch.dict(os.environ, {"CLAUDE_HOME": str(tmp_path)}),
-            patch("context_warning.Path") as mock_path_cls,
+            patch("pathlib.Path.cwd", return_value=cwd),
         ):
-            mock_path_cls.return_value = mock_path_cls
-            mock_path_cls.home.return_value = tmp_path
-            # Let the real Path work for everything else
             result = _resolve_session_file()
+        # Another checkout's transcript is never borrowed for this one.
         assert result is None
 
     def test_returns_none_when_no_jsonl_files(self, tmp_path: Path) -> None:
         """Verify Returns none when no jsonl files."""
         projects = tmp_path / "projects"
         cwd = Path.cwd()
-        project_name = str(cwd).replace(os.sep, "-")
+        project_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not project_name.startswith("-"):
             project_name = "-" + project_name
         project_dir = projects / project_name
@@ -335,6 +341,19 @@ class TestEstimateFromRecentTurns:
         result = _estimate_from_recent_turns(session)
         assert result is None
 
+    def test_rows_whose_message_is_not_an_object_are_skipped(
+        self, tmp_path: Path
+    ) -> None:
+        """A summary row carrying a bare string or list is not a turn."""
+        session = tmp_path / "session.jsonl"
+        session.write_text(
+            json.dumps({"type": "summary", "message": "x" * 400000})
+            + "\n"
+            + json.dumps({"type": "other", "message": ["y" * 400000]})
+            + "\n"
+        )
+        assert _estimate_from_recent_turns(session) == 0.0
+
     def test_handles_invalid_json_lines(self, tmp_path: Path) -> None:
         """Verify Handles invalid json lines."""
         session = tmp_path / "session.jsonl"
@@ -381,37 +400,56 @@ class TestEstimateContextFromSession:
             result = estimate_context_from_session()
         assert result is None
 
-    def test_returns_none_when_no_session_file(self) -> None:
-        """Verify Returns none when no session file."""
+    @staticmethod
+    def _transcript_env(tmp_path: Path) -> tuple[dict[str, str], Path, Path]:
+        """Lay out CLAUDE_HOME/projects/<cwd>/ the way Claude Code does."""
+        cwd = tmp_path / "work"
+        cwd.mkdir()
+        project_dir = (
+            tmp_path / "claude" / "projects" / re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
+        )
+        project_dir.mkdir(parents=True)
+        env = {
+            "CONSERVE_CONTEXT_ESTIMATION": "1",
+            "CLAUDE_HOME": str(tmp_path / "claude"),
+            "CONSERVE_STATE_DIR": str(tmp_path / "state"),
+            "CLAUDE_SESSION_ID": "sess",
+        }
+        return env, cwd, project_dir
+
+    def test_returns_none_when_no_session_file(self, tmp_path: Path) -> None:
+        """A project directory with no transcript yields no estimate."""
+        env, cwd, _ = self._transcript_env(tmp_path)
         with (
-            patch.dict(os.environ, {"CONSERVE_CONTEXT_ESTIMATION": "1"}),
-            patch("context_warning._resolve_session_file", return_value=None),
+            patch.dict(os.environ, env),
+            patch("pathlib.Path.cwd", return_value=cwd),
         ):
             result = estimate_context_from_session()
         assert result is None
 
     def test_returns_estimate_when_session_exists(self, tmp_path: Path) -> None:
-        """Verify Returns estimate when session exists."""
-        session = tmp_path / "session.jsonl"
-        session.write_text(
+        """The transcript for this cwd and session id is read and estimated."""
+        env, cwd, project_dir = self._transcript_env(tmp_path)
+        (project_dir / "sess.jsonl").write_text(
             json.dumps({"type": "user", "message": {"role": "user", "content": "hi"}})
             + "\n"
         )
         with (
-            patch.dict(os.environ, {"CONSERVE_CONTEXT_ESTIMATION": "1"}),
-            patch("context_warning._resolve_session_file", return_value=session),
+            patch.dict(os.environ, env),
+            patch("pathlib.Path.cwd", return_value=cwd),
         ):
             result = estimate_context_from_session()
         assert result is not None
+        assert 0.0 < result < 0.95
 
-    def test_handles_os_error_gracefully(self) -> None:
-        """Verify Handles os error gracefully."""
+    def test_a_deleted_working_directory_yields_no_estimate(
+        self, tmp_path: Path
+    ) -> None:
+        """Path.cwd() raises when the cwd was removed under the session."""
+        env, _, _ = self._transcript_env(tmp_path)
         with (
-            patch.dict(os.environ, {"CONSERVE_CONTEXT_ESTIMATION": "1"}),
-            patch(
-                "context_warning._resolve_session_file",
-                side_effect=OSError("disk error"),
-            ),
+            patch.dict(os.environ, env),
+            patch("pathlib.Path.cwd", side_effect=FileNotFoundError("cwd gone")),
         ):
             result = estimate_context_from_session()
         assert result is None

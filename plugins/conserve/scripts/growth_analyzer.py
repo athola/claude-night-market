@@ -38,7 +38,7 @@ class GrowthAnalyzer:
             "urgent": (1.0, 0.020),
         }
 
-    def analyze_growth_patterns(self, context_data: dict) -> dict:
+    def analyze_growth_patterns(self, context_data: dict, turns: int = 20) -> dict:
         """Analyze growth patterns and determine severity."""
         growth_trend = context_data.get("growth_trend", {})
         current_usage = growth_trend.get("current_usage", 0)
@@ -54,7 +54,9 @@ class GrowthAnalyzer:
         controllable_percentage = self._calculate_controllable_growth(content_breakdown)
 
         # Project future growth
-        projections = self._project_growth(current_usage, growth_rate, acceleration)
+        projections = self._project_growth(
+            current_usage, growth_rate, acceleration, turns
+        )
 
         return {
             "severity": severity,
@@ -226,7 +228,7 @@ def main() -> None:
 
     # Analyze growth patterns
     analyzer = GrowthAnalyzer()
-    results = analyzer.analyze_growth_patterns(context_data)
+    results = analyzer.analyze_growth_patterns(context_data, turns=args.turns)
 
     if args.output_json:
         print(json.dumps(results, indent=2, default=str))

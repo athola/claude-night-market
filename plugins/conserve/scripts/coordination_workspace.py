@@ -17,13 +17,27 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # D-02: pull canonical frontmatter parser from leyline.
-_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
-if str(_LEYLINE_SRC) not in sys.path:
-    sys.path.insert(0, str(_LEYLINE_SRC))
-
-from leyline.frontmatter import (  # noqa: E402 - import after sys.path setup
-    parse_frontmatter,
+# The repo keeps plugins side by side, the install cache nests them by
+# version: resolve leyline in either, falling back to the repo path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vendored_leyline_sibling_plugins import (  # noqa: E402 - after sys.path setup
+    add_sibling_src_to_path,
 )
+
+add_sibling_src_to_path(__file__, "leyline")
+
+try:
+    from leyline.frontmatter import (  # noqa: E402 - import after sys.path setup
+        parse_frontmatter,
+    )
+except ImportError:
+    # ADR-0001: a direct run says what is missing instead of raising a
+    # traceback. An importer gets the ImportError to handle itself.
+    if __name__ != "__main__":
+        raise
+    sys.exit(
+        f"{Path(__file__).name}: requires the leyline plugin, which is not installed"
+    )
 
 # Pattern to extract a specific ## section
 SECTION_RE = re.compile(

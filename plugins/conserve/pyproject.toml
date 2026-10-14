@@ -101,7 +101,7 @@ namespace_packages = true
 # Hooks inject their own directory onto sys.path at runtime before importing
 # sibling modules (e.g. `from shared.session_file import ...`). Mirror that here
 # so mypy resolves the real modules instead of reporting import-not-found.
-mypy_path = ["hooks"]
+mypy_path = ["hooks", "scripts"]
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
 
 # leyline is an optional peer plugin resolved via sys.path at runtime; in an
@@ -144,7 +144,6 @@ omit = [
     "*/tests/*",
     "*/__pycache__/*",
     "hooks/session-start.sh",  # Shell script, not Python
-    "hooks/permission_request.py",  # Covered by its own test module
 ]
 
 [tool.coverage.report]

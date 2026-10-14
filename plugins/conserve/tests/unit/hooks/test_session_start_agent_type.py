@@ -63,7 +63,7 @@ def test_agent_type_is_read_without_a_trailing_newline(tmp_path: Path) -> None:
     """An unterminated line still carries agent_type.
 
     `read` returns nonzero on it, and the branch was skipped with the
-    value already read (shell review S0-6, S2-9).
+    value already read.
     """
     payload = {"source": "startup", "agent_type": "pensive:code-reviewer"}
     assert "abbreviated" in _context(tmp_path, payload, terminator="")
@@ -73,7 +73,7 @@ def test_agent_type_is_read_without_a_trailing_newline(tmp_path: Path) -> None:
 def test_an_undocumented_mode_warns_instead_of_acting_as_normal(
     tmp_path: Path, mode: str
 ) -> None:
-    """These passed validation, then ran as normal with no word (S0-7)."""
+    """These passed validation, then ran as normal with no word."""
     completed = subprocess.run(
         ["bash", str(SCRIPT)],
         input='{"source": "startup"}\n',

@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -199,7 +200,7 @@ class TestToolOutputSummarizer:
         # Create project dir with cwd-style name
         cwd_path = tmp_path / "myproject"
         cwd_path.mkdir()
-        project_dir_name = "-" + str(cwd_path).replace(os.sep, "-")
+        project_dir_name = "-" + re.sub(r"[^A-Za-z0-9]", "-", str(cwd_path))
         project_dir = projects_dir / project_dir_name
         project_dir.mkdir()
 
@@ -291,7 +292,7 @@ class TestResolveSessionFileBranches:
         """Returns None when project dir has no JSONL files."""
         projects = tmp_path / "projects"
         cwd = Path.cwd()
-        project_name = str(cwd).replace(os.sep, "-")
+        project_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not project_name.startswith("-"):
             project_name = "-" + project_name
         project_dir = projects / project_name
@@ -313,7 +314,7 @@ class TestResolveSessionFileBranches:
         """Falls back to most recently modified JSONL when no session ID."""
         projects = tmp_path / "projects"
         cwd = Path.cwd()
-        project_name = str(cwd).replace(os.sep, "-")
+        project_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not project_name.startswith("-"):
             project_name = "-" + project_name
         project_dir = projects / project_name
@@ -412,6 +413,22 @@ class TestGetSessionOutputSizeBranches:
         session.write_text(json.dumps(_in_message(entry)) + "\n")
         size = get_session_output_size(session)
         assert size == 0
+
+    @pytest.mark.unit
+    def test_only_tool_result_blocks_are_counted(self, tmp_path: Path):
+        """Text and tool_use blocks beside a tool_result add nothing."""
+        session = tmp_path / "session.jsonl"
+        entry = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "t" * 5000},
+                {"type": "tool_use", "input": {"q": "u" * 5000}},
+                "bare string block",
+                {"type": "tool_result", "content": "r" * 42},
+            ],
+        }
+        session.write_text(json.dumps(_in_message(entry)) + "\n")
+        assert get_session_output_size(session) == 42
 
 
 class TestFormatHookOutputBranches:

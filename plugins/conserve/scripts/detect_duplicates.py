@@ -18,6 +18,7 @@ import argparse
 import bisect
 import hashlib
 import json
+import os
 import re
 import sys
 from collections import defaultdict
@@ -103,6 +104,11 @@ def hash_block(lines: list[str], lang: str) -> str:
     return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()
 
 
+def _report_unreadable(filepath: Path, exc: OSError) -> None:
+    """Name a file the scan skipped, so "no duplicates" is not read as clean."""
+    print(f"detect_duplicates: skipped unreadable {filepath}: {exc}", file=sys.stderr)
+
+
 def extract_blocks(
     filepath: Path, min_lines: int = 5, content: str | None = None
 ) -> list[tuple[str, int, int, str]]:
@@ -119,7 +125,8 @@ def extract_blocks(
     if content is None:
         try:
             content = filepath.read_text(encoding="utf-8", errors="ignore")
-        except OSError:
+        except OSError as exc:
+            _report_unreadable(filepath, exc)
             return []
 
     lines = content.splitlines()
@@ -191,11 +198,15 @@ def _collect_files(
             if path.suffix.lower() in extensions:
                 files.append(path)
         elif path.is_dir():
-            files.extend(
-                f
-                for f in path.rglob("*")
-                if f.is_file() and f.suffix.lower() in extensions
-            )
+            # Prune excluded dirs during the walk: rglob descends into
+            # node_modules and .git before the filter below drops them.
+            for dirpath, dirnames, filenames in os.walk(path):
+                dirnames[:] = [d for d in dirnames if d not in EXCLUDED_DIRS]
+                files.extend(
+                    f
+                    for f in (Path(dirpath, name) for name in filenames)
+                    if f.suffix.lower() in extensions and f.is_file()
+                )
     return [f for f in files if not any(excl in f.parts for excl in EXCLUDED_DIRS)]
 
 
@@ -242,7 +253,8 @@ def find_duplicates(
     for filepath in files:
         try:
             file_content = filepath.read_text(encoding="utf-8", errors="ignore")
-        except OSError:
+        except OSError as exc:
+            _report_unreadable(filepath, exc)
             continue
         total_lines += len(file_content.splitlines())
         for block_hash, start, end, content in extract_blocks(
@@ -306,7 +318,8 @@ def find_similar_functions(
             try:
                 content = filepath.read_text(encoding="utf-8", errors="ignore")
                 func_names.extend(func_pattern.findall(content))
-            except OSError:
+            except OSError as exc:
+                _report_unreadable(filepath, exc)
                 continue
 
     # Group by common prefixes/suffixes

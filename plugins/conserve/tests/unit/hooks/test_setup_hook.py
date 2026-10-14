@@ -70,7 +70,7 @@ def test_maintenance_runs_when_the_input_has_no_trailing_newline(
 
     Given a maintenance trigger written with no terminator
     When the Setup hook reads it
-    Then it runs maintenance, not the init path (shell review S0-5, S2-10).
+    Then it runs maintenance, not the init path.
     """
     result = _run("maintenance", tmp_path, terminator="")
     assert result.returncode == 0, result.stderr

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from pathlib import Path
 
@@ -104,7 +105,7 @@ class TestFallbackContextEstimation:
         # Create the cwd directory and matching project dir using dash convention
         fakecwd = tmp_path / "fakecwd"
         fakecwd.mkdir(exist_ok=True)
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         real_project_dir = home / ".claude" / "projects" / project_dir_name
@@ -148,7 +149,7 @@ class TestFallbackContextEstimation:
         monkeypatch.delenv("CONSERVE_CONTEXT_ESTIMATION", raising=False)
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
 
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         real_project_dir = home / ".claude" / "projects" / project_dir_name
@@ -182,7 +183,7 @@ class TestFallbackContextEstimation:
         monkeypatch.delenv("CONSERVE_CONTEXT_ESTIMATION", raising=False)
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
 
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         real_project_dir = home / ".claude" / "projects" / project_dir_name
@@ -233,7 +234,7 @@ class TestFallbackContextEstimationCoverage:
         fakecwd.mkdir(parents=True)
         home.mkdir(parents=True)
 
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         project_dir = home / ".claude" / "projects" / project_dir_name
@@ -259,7 +260,7 @@ class TestFallbackContextEstimationCoverage:
         fakecwd.mkdir(parents=True)
         home.mkdir(parents=True)
 
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         project_dir = home / ".claude" / "projects" / project_dir_name
@@ -288,7 +289,7 @@ class TestFallbackContextEstimationCoverage:
         fakecwd = tmp_path / "fakecwd"
         fakecwd.mkdir(parents=True)
 
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         project_dir = home / ".claude" / "projects" / project_dir_name
@@ -849,7 +850,7 @@ class TestResolveSessionFile:
         """Scenario: Project dir exists but contains no JSONL files."""
         cwd = Path.cwd()
         projects = tmp_path / ".claude" / "projects"
-        dir_name = str(cwd).replace(os.sep, "-")
+        dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not dir_name.startswith("-"):
             dir_name = "-" + dir_name
         project_dir = projects / dir_name
@@ -870,7 +871,7 @@ class TestResolveSessionFile:
         """Scenario: Full directory structure exists with a fresh JSONL file."""
         cwd = Path.cwd()
         projects = tmp_path / ".claude" / "projects"
-        dir_name = str(cwd).replace(os.sep, "-")
+        dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not dir_name.startswith("-"):
             dir_name = "-" + dir_name
         project_dir = projects / dir_name
@@ -903,7 +904,7 @@ class TestResolveProjectDir:
         cwd = tmp_path / "home" / "user" / "project"
         cwd.mkdir(parents=True)
 
-        dir_name = str(cwd).replace(os.sep, "-")
+        dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not dir_name.startswith("-"):
             dir_name = "-" + dir_name
         expected = claude_projects / dir_name
@@ -935,7 +936,7 @@ class TestResolveProjectDir:
         """Scenario: Leading dash is added if path does not start with separator."""
         claude_projects = tmp_path / "projects"
         cwd = Path("relative/path")
-        dir_name = str(cwd).replace(os.sep, "-")
+        dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         # dir_name = "relative-path", no leading dash
         assert not dir_name.startswith("-")
 

@@ -31,6 +31,11 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).parent))
+from shared.session_file import (
+    project_dir_name,  # noqa: E402 - hook script must inject sys.path before importing sibling shared/ module
+)
+
 logger = logging.getLogger(__name__)
 
 # Threshold constants for three-tier MECW warnings
@@ -161,12 +166,7 @@ def _resolve_project_dir(cwd: Path, claude_projects: Path) -> Path | None:
         The resolved project directory Path, or None if not found.
 
     """
-    # Claude Code convention: replace path separators with dashes
-    project_dir_name = str(cwd).replace(os.sep, "-")
-    if not project_dir_name.startswith("-"):
-        project_dir_name = "-" + project_dir_name
-
-    project_dir = claude_projects / project_dir_name
+    project_dir = claude_projects / project_dir_name(cwd)
     if project_dir.exists():
         return project_dir
 
@@ -410,6 +410,8 @@ def _estimate_from_recent_turns(session_file: Path) -> float | None:
         try:
             entry = json.loads(stripped)
         except json.JSONDecodeError:
+            continue
+        if not isinstance(entry, dict):
             continue
 
         # Claude Code nests a row's role and blocks under ``message``.

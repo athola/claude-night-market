@@ -301,6 +301,8 @@ def get_session_output_size(session_file: Path, max_bytes: int = 512_000) -> int
             entry = json.loads(stripped)
         except json.JSONDecodeError:
             continue
+        if not isinstance(entry, dict):
+            continue
         message = entry.get("message")
         if isinstance(message, dict):
             total_size += _count_tool_result_bytes(message.get("content", ""))

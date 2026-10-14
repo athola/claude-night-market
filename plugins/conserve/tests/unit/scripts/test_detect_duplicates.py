@@ -508,3 +508,64 @@ class TestTheDetectorProvesItScannedSomething:
         code = detect_duplicates_module.main()
         assert code != 0
         assert "files scanned: 0" in capsys.readouterr().out.lower()
+
+
+class TestCollectFilesExclusions:
+    """Feature: _collect_files skips excluded directories at any depth."""
+
+    def test_collect_files_skips_excluded_dirs_and_wrong_suffixes(
+        self, tmp_path: Path
+    ) -> None:
+        """Given excluded and nested dirs, only wanted files outside them stay."""
+        (tmp_path / "pkg" / "sub").mkdir(parents=True)
+        (tmp_path / "node_modules" / "dep").mkdir(parents=True)
+        (tmp_path / "pkg" / "__pycache__").mkdir()
+        keep = [tmp_path / "top.py", tmp_path / "pkg" / "sub" / "deep.PY"]
+        skip = [
+            tmp_path / "node_modules" / "dep" / "x.py",
+            tmp_path / "pkg" / "__pycache__" / "y.py",
+            tmp_path / "pkg" / "notes.txt",
+        ]
+        for path in keep + skip:
+            path.write_text("x = 1\n")
+
+        found = detect_duplicates_module._collect_files([tmp_path], {".py"})
+
+        assert sorted(found) == sorted(keep)
+
+
+class TestUnreadableFilesAreNamed:
+    """A file the scan cannot read is reported, not counted as clean."""
+
+    @pytest.fixture
+    def locked(self, tmp_path: Path):
+        """Yield a Python file with no read permission, then restore it."""
+        path = tmp_path / "locked.py"
+        path.write_text("def a():\n    return 1\n")
+        path.chmod(0o000)
+        yield path
+        path.chmod(0o600)
+
+    @pytest.mark.unit
+    def test_find_duplicates_names_an_unreadable_file(
+        self, locked: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """The directory scan names the file it skipped on stderr."""
+        find_duplicates([locked.parent], min_lines=2)
+        assert f"skipped unreadable {locked}" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_extract_blocks_names_an_unreadable_file(
+        self, locked: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """No blocks come back, and stderr says why."""
+        assert extract_blocks(locked, 2) == []
+        assert f"skipped unreadable {locked}" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_find_similar_functions_names_an_unreadable_file(
+        self, locked: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """The similarity scan names the file it skipped on stderr."""
+        find_similar_functions(locked.parent)
+        assert f"skipped unreadable {locked}" in capsys.readouterr().err

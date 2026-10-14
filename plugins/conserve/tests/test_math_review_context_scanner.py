@@ -1,4 +1,4 @@
-"""Counts the context scanner prints (math review B2-16 to B2-18).
+"""Counts the context scanner prints.
 
 Each test pins a count the scan report got wrong. The "...N more" tail
 for dependencies and directories could never print, and relative
@@ -29,7 +29,7 @@ def _result(**overrides):
 
 
 def test_markdown_says_how_many_dependencies_were_cut() -> None:
-    """summarize() cut the list first, so the tail always read 0 (B2-16)."""
+    """summarize() cut the list first, so the tail always read 0."""
     deps = [cs.Dependency(f"dep{i}") for i in range(20)]
     eco = cs.EcosystemResult(name="Python", package_manager="uv", dependencies=deps)
     md = cs.render_markdown(_result(ecosystems=[eco]), max_deps=8)
@@ -38,14 +38,14 @@ def test_markdown_says_how_many_dependencies_were_cut() -> None:
 
 
 def test_structure_section_says_how_many_directories_were_cut() -> None:
-    """The section path never ran summarize(), so its tail was 0 (B2-17)."""
+    """The section path never ran summarize(), so its tail was 0."""
     dirs = [cs.DirectoryInfo(f"d{i}", 1) for i in range(20)]
     section = cs.render_section(_result(directories=dirs), "structure")
     assert "...8 more" in section
 
 
 def test_relative_imports_resolve_inside_their_own_package(tmp_path: Path) -> None:
-    """Both packages' `from .utils import X` went to alpha/utils.py (B2-18)."""
+    """Both packages' `from .utils import X` went to alpha/utils.py."""
     for pkg in ("alpha", "beta"):
         (tmp_path / pkg).mkdir()
         (tmp_path / pkg / "__init__.py").write_text("")

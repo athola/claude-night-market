@@ -1,6 +1,6 @@
 """test_runtime_loading.sh must not lose a match to SIGPIPE.
 
-Shell review S1-13. Each check piped a whole file through `echo | grep -q`
+Each check piped a whole file through `echo | grep -q`
 under pipefail. grep -q exits at the first match, so on a file larger
 than the pipe buffer echo took SIGPIPE, the pipeline returned 141, and a
 referenced module was reported as unreferenced.
