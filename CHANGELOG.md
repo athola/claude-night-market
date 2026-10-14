@@ -7,13 +7,443 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.10.0] - 2026-10-05
+## [1.10.0] - 2026-10-14
 
 Sweep for Claude Code 2.1.220 to 2.1.289. Several fields this repo wrote
 had become inert or newly live. Most of the release makes the harness
 read what the plugins meant.
 
+A full-codebase API review found 98 grounded defects. 86 are fixed,
+5 partly, and 7 wait on a design decision.
+
 ### Added
+
+- **pensive performance review, Tiers 2 and 3.** Both were stubs that
+  returned nothing. Tier 2 parses JS, TS, Go, Rust, Java, C and C++
+  with tree-sitter and reports nested loops over one iterable, list
+  scans in a loop and appends in nested loops. Tier 3 walks forward
+  CALLS edges in `.gauntlet/graph.db` and raises a finding one severity
+  step when a function it reaches holds a hotspot. Install with the
+  `tiers` extra.
+
+### Fixed
+
+- **Plugin coverage thresholds now gate.** `run-plugin-tests.sh` passed
+  each plugin's `coverage_threshold` only to plugins run without a
+  Makefile, and 22 of 23 run through `make test`, so no plugin was
+  gated. The runner now checks it once after `make test`, with
+  `coverage report --fail-under` on the `.coverage` that run wrote.
+  Pytest runs nested inside a plugin's tests no longer inherit the
+  flag. attune's omit list had hidden 11 of 15 scripts
+  (real coverage 78%), and imbue, herald and phantom omitted their
+  hooks. abstract's `make test` ran `ruff format` and rewrote the
+  tree. It now runs a check-only `format-check`.
+- **Test review across every suite.** 410 findings: 135 tests that
+  could not fail, 153 untested error paths, 34 flaky, 22 that mocked
+  the code under test. Each of the 32 tests removed on this branch
+  now has a replacement. The stronger tests found 23 source bugs,
+  among them: an AWS secret under 32 characters logged unredacted
+  (abstract), another user's scope ramp state truncated before the
+  owner check (imbue), the sanitizer leaving `</system>` closing tags,
+  `attune_arch_init` crashing on every accepted run, a gauntlet gate
+  whose crash message named an unread `GAUNTLET_PRECOMMIT_MODE`, and gh
+  failures read as "no duplicate" when promoting learnings. spec-kit
+  task planning now uses the `T001` IDs that `/speckit-tasks` requires.
+- **gauntlet call resolution** linked `os.walk` and `ast.walk` to a
+  `walk` closure in egregore's `handoff_gate.py`, because it dropped
+  the receiver before matching. A dotted call now resolves to another
+  file only when the receiver names that file's module. Blast radius,
+  flows and Tier 3 read these edges.
+- **conserve `detect_duplicates` and conjure delegation context**
+  walked into `node_modules` and `.git` before filtering them out. A
+  4641-file scan went from 3.64s to 0.21s.
+- **abstract `validate_plugin.py`** recommended an object `dependencies`
+  and a `claude` block in plugin.json for 23 plugins. Claude Code 2.1.292
+  rejects the first ("expected array, received object") and ignores the
+  second, so following the advice broke `claude plugin validate`. The
+  validator now flags an object `dependencies` as critical and a
+  `claude` block as ignored.
+- **Bug review: 99 defects fixed, each reproduced by a failing test
+  first.** The high-severity ones:
+  - leyline's injection sanitizer let through phrases split by
+    zero-width characters.
+  - conserve's PreCompact hook read session rows at the wrong depth and
+    archived nothing on real sessions.
+  - conserve built the Claude Code project directory name by replacing
+    only `/`. A working directory with a dot, underscore or space missed
+    its session file: the context warning never fired, and the session
+    lookup could read another project's session.
+  - gauntlet's pre-commit gate denied every commit after one stray
+    annotation file or a non-object `config.json`.
+  - egregore's `night_run` crashed after committing an item that named no
+    full test command, so it wrote no proof and reported no status.
+  - `attune upgrade --force` overwrote existing project files, and
+    `--update` deleted the file it was updating.
+  Medium fixes include hooks that crashed on null or binary payloads
+  (oracle, tome), `CLAUDE_HOME` ignored in three abstract paths, lost
+  updates in the improvement queue, the STE abbreviation guard rewriting
+  words, a phantom drag that left the mouse button held, and two
+  workflows reporting success when nothing was checked (`skill-library`
+  dropped lenses that returned nothing, `surface-check` accepted a
+  misspelled surface).
+- **sanctum session-complete notification** gave `notify-send` one
+  second, which process start alone can exceed on a loaded machine, so
+  the notification was dropped. It gets three, inside the hook's 5s cap.
+- **pensive tiered audit** treated each file directly under a top-level
+  directory (`hooks/pre-commit.py`) as its own module, so churn in such a
+  directory never reached the hotspot threshold. Files now group by
+  directory.
+- **gauntlet call resolution, second pass.** The first fix still sent
+  `os.walk` to a `walk` defined in the calling file, and stopped
+  resolving calls through an object (`graph.upsert`) or a package
+  (`pkg.helper`). An object receiver now reaches only a uniquely named
+  class method, never a module-level or nested function.
+- **abstract token counts** depended on whether leyline was importable
+  (268 against 125 tokens on the same text). abstract now runs leyline's
+  estimator or a vendored copy of it. `QuotaTracker.estimate_file_tokens`
+  delegates to `leyline.tokens` and now counts the file overhead.
+- **memory-palace `KnowledgeGraph`** gains public read methods for the
+  queries five modules made through its private connection. A malformed
+  search such as an unbalanced quote retries full-text search as a
+  quoted phrase before falling back to a substring match.
+- **tome parsers** skip a result that has no URL. One parser raised and
+  three kept a blank-URL result that survived deduplication. Channel and
+  canary statuses are exported constants in `synthesis/quality.py`.
+- **scribe** raises `ValueError` for an unknown language code in every
+  loader. Two of the three skipped it or returned 1.0.
+- **pensive** counts `.h` as C in both language detectors, and documents
+  `AnalysisError` as the way a skill reports a recoverable failure.
+- **abstract-skills `audit --min-score`** fails when no skill was scored,
+  an unwritable `--output` path exits 1 with a message, and the 500-line
+  check counts the SKILL.md body without its frontmatter.
+- **conjure usage log** keeps recording when it cannot rotate.
+- **Plugins found each other only in the repo checkout.** 22 scripts and
+  hooks reached a sibling plugin through `parents[2] / "<plugin>"`, a path
+  that names a directory inside the calling plugin once Claude Code
+  installs plugins as `cache/<marketplace>/<plugin>/<version>/`. Every
+  leyline-backed feature (Discussion posting, deferred capture, CLI
+  envelopes) and both gauntlet lookups turned off in real installs. A
+  stdlib `leyline.sibling_plugins` resolves either layout, vendored into
+  each consumer by `scripts/sync_vendored.py`.
+- **ADR-0001 guards.** `post_learnings_to_discussions` imported leyline
+  unguarded, and both learnings hooks import it beside the aggregator,
+  so a missing leyline turned daily aggregation and the insight engine
+  off. It now falls back to a posting stub that raises the existing
+  `RuntimeError`. Six CLI scripts in abstract, conserve and sanctum exit
+  with "requires the leyline plugin" instead of an ImportError traceback.
+- **conserve permission hook** denied ordinary searches after this
+  release widened its credential rule from `cat` to every reader:
+  `grep -rn os.environ`, `rg get_credentials` and `git log --grep
+  credentials`. The readers now match only a credential file named as a
+  path. The PR #905 fixes below give every reader the same file list.
+- **sanctum `post_implementation_policy`** ran 1.5 to 3.2s against a 1s
+  SessionStart timeout and was killed before its policy text arrived. Its
+  timeout is 5s.
+- **abstract skill auditor and suggester** scored and advised numbered
+  steps, code blocks, Overview/Quick Start/Examples sections, and the
+  `tags`, `category` and `dependencies` fields in every skill. Claude
+  Code reads only `name` and `description` for discovery, and Anthropic's
+  skill guidance matches prescriptiveness to the task's fragility. They
+  now score a description that says when to use the skill, an Exit
+  Criteria section with at least two items, and size (500 lines, the
+  existing token targets). Mean score across 206 skills moved from 77 to
+  98. `.claude/rules/bounded-autonomy.md` gains the matching exception:
+  steps where order or exact form is load-bearing, with stated limits.
+  It also corrects its account of arXiv 2603.13351, which attributes the
+  failure to directives that competed with the reasoning order.
+- **`abstract-skills audit --format json`** wrote each skill's metrics
+  as a Python repr string. Dataclasses nested in the report now encode
+  as JSON objects.
+- **abstract's daily learnings hook never ran.** Its scripts imported
+  path helpers through `abstract.utils`, which imports yaml, so under
+  an interpreter without pyyaml the hook skipped its work silently and
+  LEARNINGS.md was never regenerated. They import the stdlib-only
+  `abstract.paths` and `abstract.markdown_fields` now. Its timeout rose
+  from 5s to 15s: aggregation takes 1 to 2s idle and overran 5s under
+  load, and a killed run never recorded its timestamp, so every prompt
+  retried it.
+- **conjure usage logs** grew without bound, and reading recent errors
+  held every error it had ever recorded. Both the Gemini usage log and
+  the delegation audit log now move to `usage.jsonl.1` at 5 MB,
+  replacing the older backup, and their readers scan both files.
+  Entries older than the backup are dropped.
+- **Full review, fourth pass.** Each fix below has a test that failed
+  first.
+  - phantom with `max_stuck=1` stopped the loop on the first screenshot
+    that was not a repeat.
+  - Six leyline-dependent scripts exited the importing process when
+    imported without leyline. They raise `ImportError` on import and
+    exit only when run directly.
+  - sanctum's deferred sweep left entries that arrived during the sweep
+    out of its "unfiled" count.
+  - leyline `find_duplicate` and `create_issue` name the gh exit code
+    when stderr is empty.
+  - gauntlet keeps the first corrupt-progress backup and tolerates a
+    concurrent load that already moved the file.
+  - pensive Tier 2 warns and skips a file too deep to parse. It raised
+    `RecursionError`.
+  - abstract's posting fallback without leyline read unrelated
+    `RuntimeError`s as gh failures.
+  - `ImprovementQueue.flag_skill` checks a skill's status under the
+    lock, skips skills under evaluation or rollback review, and returns
+    whether it flagged. The queue file is created under the lock with
+    mode 0600.
+  - The homeostatic hook warns and skips the queue update when
+    `~/.claude` is read-only. It exited 1.
+  - Daily learnings aggregation runs async and takes a lock. Two
+    overlapping prompts aggregate once.
+  - A later abstract `ErrorHandler` for the same tool with a different
+    log target replaces the earlier one.
+  - `validate_plugin.py` warns on unknown hook events and flags a
+    missing `${CLAUDE_PLUGIN_ROOT}` hook script as critical.
+  - memory-palace session index writes hold a `.lock` sidecar, and a
+    rebuild skips unreadable session files with a warning. The Stop hook
+    records the session when the claim rename fails and drains at most
+    8 stale claims per run.
+  - memory-palace's research queue skipped `isMeta` records but queued
+    `isCompactSummary` ones, which carry private session text.
+    `memory-palace autonomy`, `garden` and `update_autonomy_state.py`
+    exit with a one-line message on an unreadable state file.
+  - `attune upgrade --update` restores the original file when rendering
+    fails, and its `.bak` name carries a timestamp. An existing backup is
+    never overwritten.
+  - cartograph's hook returned a flat envelope. It now nests output
+    under `hookSpecificOutput`.
+  - imbue and parseltongue Makefiles defined `format-check` twice.
+  - The `surface-check` workflow accepts only a non-empty list.
+  - skills-eval docs named scripts and flags that do not exist. They
+    show the real `skills_auditor.py` and `improvement_suggester.py`
+    commands.
+  - leyline's dev group lacked pytest, pytest-cov and pyyaml. `make
+    test` failed in a fresh environment.
+  - minister logged "moved aside to None" when a corrupt tracker file
+    could not be renamed. It logs that the file was left in place.
+- **Test review of the remaining 209 changed test files.** The tests
+  found two leyline sanitizer gaps, listed under Security. Beyond
+  those: a zero-width test that passed with the strip disabled, a
+  spec-kit assert that restated its own regex, and a `try/except
+  SystemExit: pass` now assert. imbue hook tests run `sys.executable`
+  in place of the PATH `python3`. Tests that patched `time.time` or
+  `time.sleep` process-wide patch the module under test. Chmod-based
+  read-only tests skip under root. About 70 tests in sanctum, spec-kit,
+  abstract and parseltongue are renamed to the behavior they check.
+
+### Security
+
+- **leyline**: the external-content sanitizer read `tool_output`, a key
+  PostToolUse never sends, so it never ran. It reads `tool_response`.
+- **leyline**: `SessionStore.load` and `delete` raise `ValueError` on a
+  session id that escapes the sessions directory, as `save` already did.
+- **tome**: the Semantic Scholar `x-api-key` followed an https redirect
+  to any host, because urllib re-applies an opener's `addheaders` to every
+  request. Headers now travel on the request, and a redirect to another
+  host drops `x-api-key`, `Authorization` and `Cookie`.
+- **conserve**: the permission hook denies `head`, `tail`, `grep`, `rg`
+  and `ag` on credential files. A quoted or `<`-redirected path matches
+  too, and private SSH key files are denied by name.
+- **imbue**: the package guard checked only the first install in a
+  chained command. It now checks every segment joined by `&&`, `;`,
+  `||` or `|`. The hook `if` filters also match installs written with
+  extra whitespace (`uv  add`, `npm<TAB>i`).
+- **tome**: credential headers followed a redirect that kept the host
+  but changed port or scheme. A redirect keeps them only when scheme,
+  host and port all match.
+- **sanctum**: the Windows notification escapes the PowerShell curly
+  double quotes U+201C, U+201D and U+201E.
+- **leyline**: the external-content sanitizer passed a list-shaped
+  `tool_response` through unscanned. Over 100KB it missed spaced or
+  line-broken closing role tags (`</ system>`) that the regex path
+  below 100KB blocks.
+- **pensive**: the `tiers` extra named `gauntlet-dev`, which resolves
+  only through a uv path source and is not on PyPI. A published wheel
+  would have pointed `pip install pensive[tiers]` at a name anyone can
+  register. The extra now installs `tree-sitter-language-pack` (below
+  1.17, which bundles its grammars). Tier 3 needs the gauntlet plugin
+  importable, and pensive's dev group provides it.
+
+### Changed (behavior visible to callers)
+
+- Bad input raises `ValueError` where it was silently accepted:
+  memory-palace `get_session`/`delete_session` ids, `search_type`,
+  `CacheLookup.search` mode, autonomy `lock` without a domain, unknown
+  cache category; tome `get_adjacent_fields` depth and counts below 1;
+  scribe `parse_session` format or layer and `TapeConfig` sizes; oracle
+  daemon startup with a missing models directory or non-mapping YAML.
+- Failures raise where they returned a value: abstract
+  `SkillVersionManager` (`OSError`), leyline `find_duplicate`
+  (`RuntimeError`), minister `update_task` (`KeyError`/`ValueError`),
+  `SemanticDeduplicator` without faiss (`ImportError`).
+- **BREAKING** exit codes: `abstract-skills check` exits 1 on a
+  NON-COMPLIANT report and `audit --min-score` exits 1 when a skill
+  scores below it. The
+  parseltongue CLI exits 1 on an analysis error. `usage-logger --log`
+  exits 1 on a success token other than true or false.
+- `abstract-skills -o/--output` writes the report to the file.
+- gauntlet `analyze_changes` reports git failure as `overall_risk:
+  "unknown"` with an `error` key, not as "none". Both blast-radius hooks
+  skip that report with a stderr note.
+- parseltongue `check-compat` compares versions numerically, so 3.10+
+  minimums are right.
+- phantom `StuckPolicy` aborts on the Nth identical screenshot, as
+  `LoopConfig` documents, two iterations earlier than before.
+- pensive `count_by_severity` and the Markdown report count `ADVISORY`
+  and `INFO` as low and raise `ValueError` on a level nothing defines,
+  including an explicit `None`. Undefined levels were counted as low,
+  and the Markdown report left `ADVISORY` findings out of its list.
+- tome `load_latest` and `list_all` raise on an unreadable session file.
+  They called it corrupt and returned an older session.
+- spec-kit `@cached` caches a `None` result, on purpose: its sentinel
+  separates a cached `None` from a miss. The cache filename separator
+  changed. Entries written under the old name are never read, and
+  `invalidate()` removes them.
+
+### Deprecated
+
+- tome `group_by_theme`: use `group_by_channel`.
+- phantom `ClientSetup`, `IterationConfig`, `IterationContext`: now
+  private, and the old names warn.
+- spec-kit cache `set(ttl=)`: the value was never applied.
+
+### Removed
+
+- `abstract/bin/skrills_fallback.py`, which nothing imported.
+- **BREAKING** `abstract-skills suggest --priority`: suggestions carry
+  no priority.
+- **BREAKING** phantom's four `confirm_*`/`approve_*` helpers, which
+  always returned True and had no callers, and
+  `DisplayConfig.screenshot_format`, which nothing read.
+- Private names from `__all__`: sanctum validators, pensive
+  `architecture_review`, parseltongue `pattern_matching`. leyline drops
+  `QuotaStatus` from `__all__`, but the import still works.
+
+### PR #905 review fixes
+
+Two reviews of this release posted 130 findings, and seven issues
+(#980 to #986) held the ones first left open. Each fix below began with a
+failing test.
+
+Security:
+
+- **leyline**: the sanitizer strips every Unicode format (Cf) character
+  before scanning, which covers the word joiner, soft hyphen, bidi controls
+  and tag characters. Output over 100KB is scanned with whitespace runs
+  collapsed. The sanitized result replaces the raw tool output through
+  `updatedToolOutput` as well as `additionalContext`. Text with no
+  injection keeps its zero-width joiners (U+200C, U+200D), which emoji and
+  Persian need, and loses tag characters at any size.
+- **conserve**: every reader (`cat`, `head`, `tail`, `grep`, `rg`, `ag`,
+  `git show`, `git cat-file`) is denied the same credential files: `*.env`,
+  `.env.*`, `.envrc`, `*credentials*`, `.netrc`, `.npmrc`, `.pypirc`,
+  private SSH keys, and `<rev>:<path>` forms. `man` is auto-approved only
+  without options, since `-P`, `--pager` and `-H` run programs.
+  `--ext-diff` and `file -C` are no longer auto-approved.
+- **imbue**: the package guard no longer reads a redirect (`2>&1`,
+  `> log`) or a `#` comment as a package. It checks installs inside
+  `( )`, `$( )` and backticks, after `sudo`, `env` and `NAME=value`
+  prefixes, and with quoted names.
+- **pensive**: Tier 3 reads graph.db node paths only under the project
+  that holds the database.
+
+Fixed:
+
+- tome refuses a non-https URL or a redirect to one with status `REFUSED`.
+  It raised `AttributeError`. The subreddit name is URL-quoted, and the
+  research workflow labels a gap-fill search `gap-fill`, not `web`.
+- gauntlet `load_weights` and the pre-commit staleness check report a
+  non-object `config.json`. They raised on it.
+- abstract `validate_plugin.py` fails a plugin whose `hooks/hooks.json` is
+  not valid JSON. It reported a pass.
+- memory-palace's Stop hook moves a staged handoff file that does not
+  parse to `*.corrupt` with a warning. It deleted the file. PageRank treats
+  a node whose out-edges all weigh 0 as dangling instead of dividing by
+  zero.
+- The improvement-queue lock has a multi-process test. The old tests
+  passed with the lock disabled.
+- conjure war-room ballots ranked `1)`, bulleted or bold now score, and a
+  ballot with no ranked line logs a warning. Usage-log rotation runs
+  unlocked where `fcntl` is missing.
+- imbue `pre_pr_scope_check.sh` no longer exits 3 when git passes a remote
+  name as `$1` in a pre-push hook. It gains `-h` and `-x`.
+- egregore `watchdog.sh` exits 1 and does not relaunch when
+  `cooldown_until` does not parse. It treated the cooldown as expired.
+  The `loop-band` mod skips non-object work items.
+- egregore `manifest.json` and `budget.json` keep their file mode on save.
+- egregore convention checks, conserve `detect_duplicates` and the leyline
+  and conjure token estimators report files they could not read.
+- conserve hooks skip non-object transcript rows.
+- phantom `entrypoint.sh` removes its ready file on error exits.
+- attune derives an importable package name (`my.app` gives `my_app`).
+- `clawhub-submit.sh` exits 1 when the package publish fails, and
+  `awesome-submit.sh` skips a target whose fork sync fails.
+- CI verifies the shfmt download against a pinned sha256.
+- leyline's auto-star hook prints each JSON reply on one line. Claude Code
+  before 2.1.295 dropped multi-line output from an async hook, so the star
+  prompt never arrived.
+- phantom prices `claude-haiku-5-5`, at its over-100K-token rate. It was
+  billed at the $10/$50 fallback.
+- The egregore `loop-band` mod shows nothing for a work item with no `id`.
+
+Changed:
+
+- sanctum's Stop hook shows the post-implementation checklist only after
+  a turn that used Edit, Write, MultiEdit or NotebookEdit. Before this
+  release its output was never displayed.
+- sanctum `config_change_audit.py` audits
+  `$CLAUDE_CONFIG_DIR/settings.json` as user settings.
+  `quality_checker.py` metrics gain `unparseable_files`.
+- pensive `pr_blast_radius` hook output moved under `hookSpecificOutput`.
+- imbue output contracts: `strictness: normal` rejects missing sections
+  and zero evidence only. An evidence shortfall or a missing artifact
+  fails only under `strict`, as `output-contracts.md` states. The shipped
+  Tier 1 contracts keep `normal`, and Tier 2 keeps `strict`.
+- imbue bounded reads: Glob and paths-only Grep are free, and a Read under
+  50 lines counts half. The scope ramp ignores blank lines.
+- abstract stability gap is `1 - (success rate of the worst five-run
+  window)`. This changes what `skill_execution_logger` records and which
+  skills the homeostatic monitor queues.
+- abstract `PerformanceTracker.compare_versions` returns `None` fields
+  when a side has no data, and `get_improvement_trend` compares the last
+  two windows.
+- leyline `MECW_THRESHOLDS` has no `CRITICAL` key, and exactly 50% is
+  MODERATE. `sibling_plugin_dir` ranks a prerelease (`2.0.0-rc1`) above an
+  older release.
+- egregore `continuation_baton.is_stranded` takes `now` as a keyword
+  argument. `learning.extract_patterns` skips unfinished items.
+- tome `fetch(deadline=)` and a 90s budget on `search_academic`,
+  `search_reddit` and `find_full_text`. Sources not started in time are
+  reported as skipped. `Response.headers` is read-only.
+- spec-kit cache files are named `<key>__<hash>.json`. Files under the old
+  separator are never read, and `invalidate()` removes them.
+- **BREAKING** gauntlet `parse_git_diff_ranges` raises `GitDiffError`
+  instead of returning `{}`, and `get_changed_files(strict=True)` raises on
+  a nonzero `git diff` exit.
+- **BREAKING** scribe `TapeConfig` rejects a non-positive or NaN `speed`,
+  a NaN `max_duration` and an unsupported output format when built.
+- **BREAKING** conjure `quota_tracker.py --validate-config` exits 1 on a
+  non-positive limit.
+- **BREAKING** phantom `StuckPolicy` rejects `max_stuck` below 1.
+- attune task IDs follow spec-kit: `T001`, numbered across phases.
+- imbue's package-guard `if` filter starts the hook for `npm i`/`npm add`
+  forms, not for every command containing `npm`.
+- sanctum `pr_prep` signatures admit the bare path strings they already
+  accepted.
+
+Deprecated:
+
+- phantom `estimate_screenshot_tokens`, `StuckPolicy.recovery_action` and
+  `ScreenshotTracker.hash_history` warn and go in the next minor release.
+  No phantom code reads them.
+
+Removed:
+
+- **BREAKING** pensive `SarifFormatter.to_json`.
+- **BREAKING** abstract `skills_eval` constants `MIN_CODE_BLOCKS_EXCELLENT`,
+  `MIN_HEADINGS`, `MIN_NUMBERED_LISTS_GOOD` and `MIN_NUMBERED_STEPS`.
+- memory-palace private `_jaccard_similarity`, which had no caller.
+- `marketplace.json` drops `license`, `repository`, `homepage` and
+  `keywords`.
+
+### Added (harness sweep)
 
 - **STE limits for the shipped workflow scripts.** The agent prompts,
   `meta` strings and log lines in all 23 `plugins/*/workflows/*.js`
@@ -39,7 +469,7 @@ read what the plugins meant.
   `pensieve` to `conserve` and `pensive`. Plugin manifests link their
   source and docs.
 
-### Fixed
+### Fixed (harness sweep)
 
 - **Plugin agents now use fields the harness reads.** Seven agents wrote
   `allowed-tools` or `tools_allowed` and ran with every tool; eleven
@@ -66,7 +496,7 @@ read what the plugins meant.
   mode, an agent's `model:` beats `CLAUDE_CODE_SUBAGENT_MODEL`, and the
   hook-authoring skill names the payload keys hooks receive.
 
-### Changed
+### Changed (harness sweep)
 
 - Isolated agents branch from the current branch: project settings set
   `worktree.baseRef: head`, where the default was master.
@@ -75,7 +505,7 @@ read what the plugins meant.
 - leyline's auto-star hook runs async. Four side-effect commands require
   a person to start them (`disable-model-invocation`).
 
-### Removed
+### Removed (harness sweep)
 
 - **Configuration that loaded and did nothing.** Seven skills and
   commands declared frontmatter hooks in a shape Claude Code never reads.

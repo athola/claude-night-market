@@ -113,19 +113,20 @@ registered hook with PyYAML blocked and fails on the one that cannot.
 
 ### Make Version Requirement
 
-The shared includes under `plugins/abstract/config/make/` set
-`.SHELLFLAGS` to `-euo pipefail` and turn on `.ONESHELL`. GNU make
-introduced both in 3.82. The Xcode command line tools ship 3.81, which
-ignores them silently. Under 3.81 every recipe runs without `pipefail`
-and a failing stage in a pipeline reports success.
+The shared includes under `plugins/abstract/config/make/` run every
+recipe line under `bash -euo pipefail`, so a failing stage in a pipeline
+fails the target. GNU make 3.82 and later read the flags from
+`.SHELLFLAGS`. The Xcode command line tools ship 3.81, which ignores
+`.SHELLFLAGS` but honors flags written into `SHELL`, so the includes put
+them in `SHELL` on that release. Any GNU make from 3.81 on gets the same
+strict shell, and the includes print no version warning.
 
-| Requirement | Check | Fix on macOS |
-|-------------|-------|--------------|
-| GNU make 3.82+ | `make --version` | `brew install make`, then run `gmake` |
+The includes do not turn on `.ONESHELL`. Each recipe line runs in its own
+shell, so a recipe that needs a variable or a `cd` from the line before
+must join the lines with `&&` or a trailing backslash.
 
-The includes print a warning once per invocation when they detect 3.81.
-Treat it as a real finding: on that host a green `make lint` is not
-evidence the gate passed.
+`tests/test_make_shell_is_strict_on_make_3_81.py` checks the 3.81
+behavior.
 
 ## Release Checklist
 
@@ -248,6 +249,15 @@ Define how the agent handles tool approvals via `permissionMode` (e.g.,
 Note that agents do not inherit skills from their parents.
 Configure `escalation` to move tasks to a more capable model when specific
 `hints` (like `ambiguous_input`) are detected.
+
+### Per-Script Preambles
+
+Each plugin installs on its own, and the repository's `scripts/logging.sh`
+is not on disk when an installed script runs. Every executable shell script
+therefore carries its own `log()` copy, as the house shell rules require.
+Python scripts that import leyline repeat the same guarded import block for
+a related reason. A shared `require()` helper would return `Any`, and mypy
+and ruff would stop checking the imported names (issue #983).
 
 ## Error Handling
 

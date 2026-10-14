@@ -460,7 +460,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | Hook | Plugin | Type | Description |
 |------|--------|------|-------------|
 | `aggregate_learnings_daily.py` | abstract | UserPromptSubmit | Daily learning aggregation (24h cadence) with severity-based issue creation |
-| `auto-star-repo.sh` | leyline | SessionStart | Auto-star the repo if not already starred |
+| `auto-star-repo.sh` | leyline | SessionStart | Ask Claude to offer a repo star when not starred (async) |
 | `config_change_audit.py` | sanctum | ConfigChange | Audit configuration changes |
 | `context_warning.py` | conserve | PreToolUse | Context utilization monitoring |
 | `daemon_lifecycle.py` | oracle | SessionStart, Stop | Oracle daemon lifecycle management |
@@ -503,7 +503,7 @@ A workflow only runs when it is asked for. None starts implicitly.
 | `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
 | `user_prompt_hook.py` | egregore | UserPromptSubmit | Resume orchestration after user interrupts |
-| `verify_workflow_complete.py` | sanctum | Stop | End-of-session workflow verification |
+| `verify_workflow_complete.py` | sanctum | Stop | Post-implementation checklist after a turn that edited files |
 | `vow_bounded_reads.py` | imbue | PreToolUse | Warns when discovery read budget (15 reads) is exceeded per session |
 | `vow_no_ai_attribution.py` | imbue | PreToolUse | Blocks AI attribution strings (Co-authored-by: Claude, etc.) in commits |
 | `vow_no_edit_narration.py` | imbue | PreToolUse | Flags text that narrates the edit being made, in inserted content only |

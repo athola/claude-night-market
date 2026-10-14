@@ -24,8 +24,8 @@ Terms used once, defined once:
 
 | Surface | File | Key options and defaults | Status | Guarded by |
 |---------|------|--------------------------|--------|------------|
-| Repo Claude settings | `.claude/settings.json` | Contains only a `description` key. NO hooks registered at repo level; all active hooks ship from plugins | Production invariant | Convention; see night-market-architecture-contract |
-| Behavioral rules | `.claude/rules/*.md` (8 files) | bounded-discovery, markdown-formatting, plan-before-large-dispatch, prefer-invariants-over-fallbacks, prefer-rg-over-grep, shared-utility-consumer-rule, skill-exit-criteria, slop-scan-for-docs | Production | slop CI, pre-commit, review practice |
+| Repo Claude settings | `.claude/settings.json` | Keys: `description`, `workflowSizeGuideline` (`medium`, see plan-before-large-dispatch), `worktree` (`baseRef: head`). NO hooks registered at repo level; all active hooks ship from plugins | Production invariant | Convention; see night-market-architecture-contract; `tests/test_workflow_spend_posture.py` |
+| Behavioral rules | `.claude/rules/*.md` (11 files) | bounded-autonomy, bounded-discovery, ceremony-requires-need, markdown-formatting, plan-before-large-dispatch, prefer-invariants-over-fallbacks, prefer-rg-over-grep, shared-utility-consumer-rule, skill-exit-criteria, slop-scan-for-docs, ste-for-operator-and-procedures | Production | slop CI, pre-commit, review practice |
 | Python toolchain | root `pyproject.toml` | See "Root pyproject tool tables" below | Production | Pre-commit hooks, `typecheck.yml`, `security.yml` |
 | Per-plugin coverage | `plugins/*/pyproject.toml` `[tool.nightmarket]` | `coverage_threshold = 90` in 19 plugins, 85 in gauntlet (20 files total) | Production | Read by `scripts/run-plugin-tests.sh` |
 | Pre-commit pins | `.pre-commit-config.yaml` | Remote pins: pre-commit-hooks v6.0.0, bandit 1.8.6 (last release supporting the 3.9 system interpreter). Ruff runs from a local repo via the uv-managed binary so hook and `make format` share one version | Production | `scripts/check_pinned_versions.py`, `python39-compat.yml` |
@@ -201,7 +201,8 @@ Re-verification one-liners per axis:
 
 ```bash
 # Repo settings must stay hook-free
-jq 'keys' .claude/settings.json   # expect ["description"]
+jq 'keys' .claude/settings.json   # expect ["description","workflowSizeGuideline","worktree"]
+jq '.hooks' .claude/settings.json  # expect null
 
 # Behavioral rules roster
 ls -1 .claude/rules/

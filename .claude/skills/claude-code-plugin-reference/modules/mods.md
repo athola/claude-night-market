@@ -27,6 +27,14 @@ What binds this repo:
 - Mods are unsandboxed, can be switched off remotely, and are blocked for
   marketplace plugins where an organization sets `allowManagedModsOnly`.
   Nothing may depend on a mod being loaded.
+- Older CLIs keep the classic hooks and skip the mod, checked 2026-10-14
+  with `claude -p --plugin-dir plugins/egregore --debug-file`. On 2.1.280
+  and 2.1.283 the debug log reads "hooks module not loaded" unless
+  `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1` is set, and the command hooks
+  still load. `claude plugin validate` is stricter: 2.1.220 ignores
+  `modules` and warns on the `types` manifest field, 2.1.273 to 2.1.280
+  fail validation of both `loop-band.tsx` and `context-band.tsx`, and
+  2.1.281 onward pass. Run validation on 2.1.281 or later.
 - An installed plugin runs from its versioned cache, so a mod change
   reaches users only with a version bump.
 - `claude plugin validate <dir>` checks the module; `claude plugin test
