@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import base64
 
+import pytest
+
 from phantom.stuck import ScreenshotTracker, StuckPolicy
 
 
@@ -92,7 +94,24 @@ class TestScreenshotTracker:
         tracker = ScreenshotTracker(max_history=3)
         for i in range(5):
             tracker.record(_make_png(bytes([i, i, i])))
-        assert len(tracker.hash_history) == 3
+        with pytest.deprecated_call():
+            assert len(tracker.hash_history) == 3
+
+    def test_identical_run_counts_screenshots_not_repeats(self):
+        """
+        Scenario: Three identical screenshots in a row
+        Given a tracker that records the same frame three times
+        When the run length is read
+        Then it is 3, while stuck_count (repeats) is 2
+        """
+        tracker = ScreenshotTracker()
+        assert tracker.identical_run == 0
+        for _ in range(3):
+            tracker.record(_make_png(b"same"))
+        assert tracker.identical_run == 3
+        assert tracker.stuck_count == 2
+        tracker.record(_make_png(b"other"))
+        assert tracker.identical_run == 1
 
 
 class TestStuckPolicy:
@@ -101,19 +120,43 @@ class TestStuckPolicy:
     def test_default_policy(self):
         policy = StuckPolicy()
         assert policy.max_stuck == 3
-        assert policy.recovery_action == "screenshot"
+
+    def test_recovery_action_is_deprecated_on_read(self):
+        """
+        Scenario: A caller reads the unused recovery_action field
+        Given no source code acts on recovery_action
+        When it is read
+        Then a DeprecationWarning is raised and the old default returned
+        """
+        with pytest.deprecated_call():
+            assert StuckPolicy().recovery_action == "screenshot"
+
+    def test_recovery_action_is_deprecated_when_passed(self):
+        with pytest.deprecated_call():
+            StuckPolicy(recovery_action="click")
+
+    @pytest.mark.parametrize("max_stuck", [0, -1])
+    def test_max_stuck_below_one_is_rejected(self, max_stuck):
+        """
+        Scenario: A policy that could never wait for a screenshot
+        Given max_stuck below 1
+        When the policy is built
+        Then it raises ValueError at construction
+        """
+        with pytest.raises(ValueError, match="max_stuck"):
+            StuckPolicy(max_stuck=max_stuck)
 
     def test_should_abort_when_exceeded(self):
         """
         Scenario: Stuck count exceeds threshold
-        Given max_stuck=2 and stuck_count=3
+        Given max_stuck=2 (two identical screenshots, one repeat)
         When should_abort is checked
-        Then it returns True
+        Then it returns True from stuck_count=1
         """
         policy = StuckPolicy(max_stuck=2)
-        assert policy.should_abort(stuck_count=3) is True
-        assert policy.should_abort(stuck_count=2) is False
-        assert policy.should_abort(stuck_count=1) is False
+        assert policy.should_abort(stuck_count=2) is True
+        assert policy.should_abort(stuck_count=1) is True
+        assert policy.should_abort(stuck_count=0) is False
 
 
 def _make_png(pixel_bytes: bytes) -> str:

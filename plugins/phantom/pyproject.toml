@@ -65,10 +65,6 @@ source = ["src/phantom"]
 omit = [
     "tests/*",
     "*/__pycache__/*",
-    "src/phantom/__main__.py",
-    "src/phantom/cli.py",
-    "src/phantom/loop.py",
-    "src/phantom/display.py",
 ]
 
 [tool.coverage.report]

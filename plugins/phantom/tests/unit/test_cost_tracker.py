@@ -8,6 +8,8 @@ Feature: Cost Tracking
 
 from __future__ import annotations
 
+import pytest
+
 from phantom.cost import (
     DEPRECATED_MODELS,
     PRICING,
@@ -17,6 +19,7 @@ from phantom.cost import (
 )
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestEstimateScreenshotTokens:
     """Feature: Screenshot token estimation."""
 
@@ -64,6 +67,16 @@ class TestEstimateScreenshotTokens:
     def test_zero_resolution(self):
         tokens = estimate_screenshot_tokens(0, 0)
         assert tokens == 0
+
+    def test_is_deprecated(self):
+        """
+        Scenario: A caller budgets a screenshot with this helper
+        Given the loop reads image cost from reported usage instead
+        When the helper is called
+        Then a DeprecationWarning names its removal
+        """
+        with pytest.warns(DeprecationWarning, match="estimate_screenshot_tokens"):
+            estimate_screenshot_tokens(10, 10)
 
 
 class TestIterationCost:
@@ -218,9 +231,22 @@ class TestPricingTracksTheModelCard:
             "claude-opus-5-5",
             "claude-sonnet-5-5",
             "claude-fable-5-1",
+            "claude-haiku-5-5",
             "claude-haiku-4-5-20251001",
         ):
             assert model in PRICING, f"{model} falls through to default pricing"
+
+    def test_haiku_5_5_is_priced_at_its_long_prompt_tier(self):
+        """
+        Scenario: A run uses Haiku 5.5, which has two price tiers
+        Given the pricing page lists $0.10/$0.50 up to 100K prompt tokens
+        and $0.50/$2.50 above
+        When its flat entry is read
+        Then it carries the higher tier, so the budget guard stops early
+        rather than late
+        """
+        # platform.claude.com/docs/en/about-claude/pricing, 2026-10-14
+        assert PRICING["claude-haiku-5-5"] == {"input": 0.5, "output": 2.5}
 
     def test_published_rates_are_correct(self):
         """

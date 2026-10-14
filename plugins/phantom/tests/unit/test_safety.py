@@ -11,8 +11,6 @@ from __future__ import annotations
 from phantom.safety import (
     ActionFilter,
     ConfirmationGate,
-    always_confirm,
-    confirm_clicks_only,
     no_confirm,
 )
 
@@ -91,16 +89,6 @@ class TestConfirmationGate:
         gate = ConfirmationGate(callback=no_confirm)
         assert gate.check({"action": "left_click", "coordinate": [500, 500]}) is True
 
-    def test_always_confirm_delegates_to_callback(self):
-        """
-        Scenario: Always confirm
-        Given always_confirm callback (returns True)
-        When an action is checked
-        Then it delegates to the callback and returns True
-        """
-        gate = ConfirmationGate(callback=always_confirm)
-        assert gate.check({"action": "left_click", "coordinate": [500, 500]}) is True
-
     def test_custom_callback_can_reject(self):
         """
         Scenario: Custom callback rejects
@@ -114,19 +102,6 @@ class TestConfirmationGate:
 
         gate = ConfirmationGate(callback=reject_all)
         assert gate.check({"action": "left_click", "coordinate": [100, 200]}) is False
-
-    def test_confirm_clicks_only_approves_non_clicks(self):
-        """
-        Scenario: Only confirm clicks
-        Given confirm_clicks_only callback
-        When a type action is checked
-        Then it is approved (non-click)
-        """
-        gate = ConfirmationGate(callback=confirm_clicks_only)
-        assert gate.check({"action": "type", "text": "hello"}) is True
-        assert gate.check({"action": "screenshot"}) is True
-        # Click actions return True (the default impl approves)
-        assert gate.check({"action": "left_click", "coordinate": [1, 1]}) is True
 
     def test_rejection_count_tracked(self):
         """

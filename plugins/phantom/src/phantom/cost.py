@@ -7,6 +7,7 @@ tracks cumulative costs, and enforces budget limits.
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import dataclass
 
 # Anthropic list pricing (per million tokens, USD), verified 2026-08-02
@@ -19,14 +20,18 @@ from dataclasses import dataclass
 # before that sweep: Opus 4.6 carried Opus 4.1's $15/$75 rate, and
 # Haiku 4.5 was priced at $0.80/$4.00 rather than $1/$5.
 #
-# Sonnet 5 launched at an introductory $2/$10 with a rise to $3/$15
-# scheduled for 2026-09-01. The pricing page now says $2/$10 is the
-# standard price and the rise will not occur.
+# Sonnet 5 standard price is $2/$10 (pricing page, checked 2026-10-14);
+# the announced rise to $3/$15 was cancelled.
+#
+# Haiku 5.5 is tiered: $0.10/$0.50 up to 100K prompt tokens, $0.50/$2.50
+# above. A flat row cannot carry both, so it holds the higher tier. The
+# budget guard then stops early on short prompts, never late on long ones.
 PRICING = {
-    # Current (model card, 2026-10-04)
+    # Current (pricing page, 2026-10-14)
     "claude-fable-5-1": {"input": 10.0, "output": 50.0},
     "claude-opus-5-5": {"input": 4.0, "output": 20.0},
     "claude-sonnet-5-5": {"input": 2.0, "output": 10.0},
+    "claude-haiku-5-5": {"input": 0.5, "output": 2.5},
     "claude-haiku-4-5-20251001": {"input": 1.0, "output": 5.0},
     # Legacy, still callable
     "claude-fable-5": {"input": 10.0, "output": 50.0},
@@ -65,8 +70,15 @@ def estimate_screenshot_tokens(width: int, height: int) -> int:
     for them. Rounded up: the estimate feeds a budget guard.
 
     Reported usage already counts images sent, so this is for budgeting
-    before a call, not for adding to ``usage.input_tokens``.
+    before a call, not for adding to ``usage.input_tokens``. No phantom
+    code calls it, so it is deprecated.
     """
+    warnings.warn(
+        "estimate_screenshot_tokens has no caller in phantom and will be "
+        "removed in the next minor release",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if width == 0 or height == 0:
         return 0
 

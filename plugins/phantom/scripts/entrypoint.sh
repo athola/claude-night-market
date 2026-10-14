@@ -58,7 +58,10 @@ optional_depcheck() {
 # number once it accepts clients; a dead Xvfb (a stale /tmp/.X1-lock, say)
 # stops the entrypoint instead of running the task against no display.
 start_display() {
-  ready_file="$(mktemp)"
+  ready_file="$(mktemp "${TMPDIR:-/tmp}/phantom-ready.XXXXXX")"
+  # Removed on the error exits too. Cleared below, before main execs the
+  # task, which would otherwise inherit nothing to clean up.
+  trap 'rm -f "${ready_file}"' EXIT
   Xvfb :1 -screen 0 1920x1080x24 -displayfd 3 3>"${ready_file}" &
   xvfb_pid="${!}"
   tries=0
@@ -75,6 +78,7 @@ start_display() {
     sleep 0.1
   done
   rm -f "${ready_file}"
+  trap - EXIT
 }
 
 main() {
