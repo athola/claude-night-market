@@ -75,6 +75,28 @@ class TestContextFiles:
         names = [p.name for p in _iter_context_files([str(tmp_path)])]
         assert names == ["a.py", "b.py"]
 
+    def test_nested_files_sort_by_path_parts_and_skip_nested_vcs_dirs(
+        self, tmp_path: Path
+    ) -> None:
+        """Order is by path parts, so `a/b.txt` precedes `a.txt`, and a skip directory is skipped at any depth."""
+        (tmp_path / "a").mkdir()
+        (tmp_path / "a" / "b.txt").write_text("1")
+        (tmp_path / "a.txt").write_text("2")
+        (tmp_path / "a" / "node_modules").mkdir()
+        (tmp_path / "a" / "node_modules" / "x.js").write_text("3")
+        found = _iter_context_files([str(tmp_path)])
+        assert [p.relative_to(tmp_path).as_posix() for p in found] == [
+            "a/b.txt",
+            "a.txt",
+        ]
+
+    def test_root_inside_a_skip_directory_yields_nothing(self, tmp_path: Path) -> None:
+        """The skip test reads every path part, the requested root included."""
+        root = tmp_path / "venv" / "proj"
+        root.mkdir(parents=True)
+        (root / "f.py").write_text("x")
+        assert _iter_context_files([str(root)]) == []
+
 
 class TestInlineContext:
     """Contract for inline context."""
@@ -416,7 +438,7 @@ class TestInlineContextLeavesRoomForThePrompt:
         THEN its longest element, with the NUL, fits MAX_ARG_STRLEN
         AND the prompt is carried whole
 
-        Math review finding C2-10: context was capped at 96 KiB and the
+        Context was capped at 96 KiB and the
         prompt appended to the same element, giving 139123 bytes.
         """
         big = tmp_path / "big.py"

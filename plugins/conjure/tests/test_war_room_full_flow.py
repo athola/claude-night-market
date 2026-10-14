@@ -134,7 +134,7 @@ class TestHookAutoTrigger:
     def test_keyword_inside_another_word_does_not_count(self) -> None:
         """'vs' inside 'devs' is not a strategic keyword.
 
-        Math review finding C2-18: the substring added 0.3 and flipped the
+        The substring added 0.3 and flipped the
         verdict, 0.85 for "...for the devs" against 0.55 for "...for the team".
         """
         devs = WarRoomOrchestrator.should_suggest_war_room(

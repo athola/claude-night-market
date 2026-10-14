@@ -4,8 +4,8 @@
 
 set -euo pipefail
 
-# ${0%/*} returns its input unchanged when $0 has no slash
-# (`bash status.sh`), where dirname gave ".".
+# A bare name has no slash (`bash status.sh`), and ${0%/*} would return
+# the name itself.
 case "${0}" in
   */*) MYDIR="${0%/*}" ;;
   *) MYDIR="." ;;
@@ -112,7 +112,7 @@ report_commands() {
 }
 
 main() {
-  # Unrecognized arguments are ignored, as they always were.
+  # Unrecognized arguments are ignored.
   while [ "${#}" -gt 0 ]; do
     case "${1}" in
       *[uU][sS][aA][gG][eE] | *[hH][eE][lL][pP] | -h)

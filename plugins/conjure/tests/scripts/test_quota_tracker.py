@@ -446,8 +446,8 @@ def test_prompt_estimate_is_the_same_with_or_without_an_encoder(
 ) -> None:
     """Both estimators charge an unknown prompt at prompt_length / 4.
 
-    Math review finding C22. Encoding a run of "x" measured how tiktoken
-    packs repeated characters, which halved the estimate.
+    Encoding a run of "x" measured how tiktoken packs repeated
+    characters, which halved the estimate.
     """
     GeminiQuotaTracker._get_encoder.cache_clear()
     tracker = GeminiQuotaTracker()

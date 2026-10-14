@@ -821,7 +821,7 @@ class TestAuditTrailManager:
         When _calculate_unanimity() is called
         Then the panel is fully unanimous (1.0).
 
-        Math review finding C2-2: dividing the gap by the score total gave
+        Dividing the gap by the score total gave
         0.3333, 0.1667 and 0.1000 for these unanimous panels.
         """
         manager = AuditTrailManager(strategeion_dir=tmp_path)

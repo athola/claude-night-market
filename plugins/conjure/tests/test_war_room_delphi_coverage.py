@@ -277,7 +277,7 @@ class TestAUnanimousPanelCanActuallyConverge:
     three COAs, 0.471 at five, rising toward 0.577. The default
     `convergence_threshold` is 0.85, so a unanimous panel could not clear
     it and every Delphi run paid for `max_rounds`. The fixtures below use
-    the n..1 scheme the tally produces (math review finding C3).
+    the n..1 scheme the tally produces.
     """
 
     DEFAULT_THRESHOLD = 0.85

@@ -182,7 +182,7 @@ class TestMerkleDAGEdgeCases:
     def test_same_response_in_two_phases_keeps_both_nodes(self) -> None:
         """An expert repeating itself across phases records two contributions.
 
-        Math review finding C2-3: node_id came from content and expert
+        `node_id` came from content and expert
         alone, so a native expert's constant placeholder in assessment
         and coa collapsed to one node and verify_merkle_dag still passed.
         """

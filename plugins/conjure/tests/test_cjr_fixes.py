@@ -224,8 +224,8 @@ class TestBordaScoresCharacterization:
 
     The reference reproduces the original algorithm, which credited any
     label within 200 chars after "1." with first place. Ballots where that
-    mattered now pin the true Borda count (math review finding C6); the
-    reference still governs the cases it got right.
+    mattered now pin the true Borda count; the reference still governs the
+    cases it got right.
     """
 
     def _original_borda(
@@ -259,7 +259,7 @@ class TestBordaScoresCharacterization:
             "expert2": "1. Beta is top\n2. Gamma follows\n3. Alpha is last",
         }
         # The reference gave Beta and Gamma first place on ballot 1 too:
-        # any label within 200 chars after "1." took 3 points (C6).
+        # any label within 200 chars after "1." took 3 points.
         expected = {"Alpha": 3 + 1, "Beta": 2 + 3, "Gamma": 1 + 2}
         assert compute_borda_scores(votes, labels) == expected
 

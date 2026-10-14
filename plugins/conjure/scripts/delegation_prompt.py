@@ -9,6 +9,7 @@ contract and nothing about ``Delegator``.
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 
 from scripts.delegation_services import ServiceConfig
@@ -83,11 +84,15 @@ def _iter_context_files(files: list[str]) -> list[Path]:
         if path.is_file():
             resolved.append(path)
         elif path.is_dir():
-            for child in sorted(path.rglob("*")):
-                if any(part in skip_dirs for part in child.parts):
-                    continue
-                if child.is_file():
-                    resolved.append(child)
+            if any(part in skip_dirs for part in path.parts):
+                continue
+            children: list[Path] = []
+            for root, dirs, names in os.walk(path):
+                # Prune in place: rglob would enter node_modules and .git
+                # before the filter could reject each file.
+                dirs[:] = [d for d in dirs if d not in skip_dirs]
+                children.extend(Path(root, name) for name in names)
+            resolved.extend(child for child in sorted(children) if child.is_file())
     return resolved
 
 

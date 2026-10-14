@@ -21,8 +21,14 @@ from pathlib import Path
 from types import ModuleType
 from typing import TYPE_CHECKING, Any
 
-_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
-sys.path.insert(0, str(_LEYLINE_SRC))
+# The repo keeps plugins side by side, the install cache nests them by
+# version: resolve leyline in either, falling back to the repo path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vendored_leyline_sibling_plugins import (  # type: ignore[import-not-found]  # noqa: E402 - scripts dir on sys.path
+    add_sibling_src_to_path,
+)
+
+add_sibling_src_to_path(__file__, "leyline")
 
 try:
     from leyline.fs import (
@@ -309,7 +315,10 @@ class GeminiQuotaTracker(QuotaTracker):  # ty: ignore[unsupported-base]
         for path in self._iter_source_paths(file_paths):
             try:
                 text = Path(path).read_text(encoding="utf-8", errors="replace")
-            except OSError:
+            except OSError as exc:
+                # The estimate decides whether to delegate, so an undercount
+                # has to be visible to whoever reads the quota.
+                logger.warning("token estimate skips unreadable %s: %s", path, exc)
                 continue
             tokens += len(encoder.encode(text)) + FILE_OVERHEAD_TOKENS
 
@@ -407,8 +416,17 @@ def main() -> None:
         print(f"Estimated tokens: {tokens}")
 
     elif args.validate_config:
+        problems = [
+            f"{key} must be a positive integer, got {value!r}"
+            for key, value in tracker.limits.items()
+            if not isinstance(value, int) or isinstance(value, bool) or value <= 0
+        ]
         for key, value in tracker.limits.items():
             print(f"  {key}: {value}")
+        for problem in problems:
+            print(f"  [ERROR] {problem}", file=sys.stderr)
+        if problems:
+            raise SystemExit(1)
 
     else:
         status, warnings = tracker.get_quota_status()

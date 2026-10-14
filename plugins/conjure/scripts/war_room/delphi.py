@@ -157,13 +157,11 @@ def _max_borda_cv(coa_count: int) -> float:
     variation is ``2*sqrt((n-1)/(12*(n+1)))``: 0.333 at two COAs, 0.408
     at three, 0.471 at five, rising toward 0.577.
 
-    This is why the raw CV could not be read as agreement. The default
-    ``convergence_threshold`` is 0.85, which no COA count can reach
-    however unanimous the panel, so every Delphi run paid for
-    ``max_rounds`` and stopped on the round limit rather than on
-    agreement. The ceiling must follow the point scheme the tally uses:
-    one derived for ``n-1, ... 0`` read a unanimous three-COA panel as
-    0.5.
+    Raw CV peaks below 0.577, under the 0.85 default
+    ``convergence_threshold``, so ``compute_convergence`` divides by this
+    ceiling before the comparison and a unanimous panel scores 1.0. The
+    ceiling must follow the point scheme the tally uses: one derived for
+    ``n-1, ... 0`` reads a unanimous three-COA panel as 0.5.
     """
     if coa_count < 2:
         return 0.0

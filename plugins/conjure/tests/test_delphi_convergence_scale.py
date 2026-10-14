@@ -1,9 +1,9 @@
 """Convergence is normalized against the points compute_borda_scores awards.
 
-Math review finding C3. _max_borda_cv assumed Borda points n-1..0, but
-compute_borda_scores awards N..1. Five unanimous experts on three COAs
-score 15/10/5: CV 0.408 against an assumed ceiling of 0.816, so
-convergence read 0.5 and never reached the 0.85 threshold.
+_max_borda_cv assumed Borda points n-1..0, but compute_borda_scores
+awards N..1. Five unanimous experts on three COAs score 15/10/5: CV
+0.408 against an assumed ceiling of 0.816, so convergence read 0.5 and
+never reached the 0.85 threshold.
 """
 
 from __future__ import annotations

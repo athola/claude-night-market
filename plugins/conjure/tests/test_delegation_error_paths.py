@@ -10,7 +10,6 @@ from __future__ import annotations
 import json
 import logging
 import subprocess
-import time
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -173,17 +172,20 @@ class TestTimeoutHandling:
         mock_run: MagicMock,
     ) -> None:
         """Timeout duration is measured even when command times out."""
+        clock = [1000.0]
 
         def simulate_timeout(*_a, **_k):
-            time.sleep(0.1)
+            clock[0] += 12.5
             raise subprocess.TimeoutExpired(cmd="gemini", timeout=1)
 
         mock_run.side_effect = simulate_timeout
 
         delegator = Delegator()
-        result = delegator.execute("gemini", "test prompt", timeout=1)
+        with patch("scripts.delegation_executor.time") as fake_time:
+            fake_time.time.side_effect = lambda: clock[0]
+            result = delegator.execute("gemini", "test prompt", timeout=1)
 
-        assert result.duration >= 0.1
+        assert result.duration == 12.5
         assert not result.success
 
     @patch("scripts.delegation_executor.subprocess.run")

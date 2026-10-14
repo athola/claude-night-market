@@ -1,6 +1,6 @@
 """bin/status.sh finds the conjure scripts from any working directory.
 
-Shell review S2-20. It imported usage_logger from the current directory
+It imported usage_logger from the current directory
 and ran a quota tracker from ~/.claude/hooks/gemini, a path nothing
 installs. Outside plugins/conjure/scripts every section said
 "unavailable".
