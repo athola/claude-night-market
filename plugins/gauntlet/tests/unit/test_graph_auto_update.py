@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
+import graph_auto_update
 import pytest
 from graph_auto_update import (
     _is_auto_update_enabled,
@@ -40,6 +42,13 @@ def _bash_response(stdout: str) -> dict[str, object]:
     }
 
 
+_COMMIT_EVENT: dict[str, object] = {
+    "tool_name": "Bash",
+    "tool_input": {"command": "git commit -m 'test'"},
+    "tool_response": _bash_response("[main abc123] test\n 1 file changed"),
+}
+
+
 class TestIsAutoUpdateEnabled:
     """
     Feature: Auto-update config toggle
@@ -71,6 +80,19 @@ class TestIsAutoUpdateEnabled:
         """Bad config falls back to disabled."""
         (gauntlet_dir / "config.json").write_text("not json {{{")
         assert _is_auto_update_enabled(gauntlet_dir) is False
+
+    @pytest.mark.unit
+    def test_enabled_via_yaml(self, gauntlet_dir: Path) -> None:
+        """config.yaml with auto_update: true enables it."""
+        (gauntlet_dir / "config.yaml").write_text("auto_update: true\n")
+        assert _is_auto_update_enabled(gauntlet_dir) is True
+
+    @pytest.mark.unit
+    def test_yaml_config_is_skipped_without_pyyaml(self, gauntlet_dir: Path) -> None:
+        """Without pyyaml (system Python 3.9) a YAML config reads as disabled."""
+        (gauntlet_dir / "config.yaml").write_text("auto_update: true\n")
+        with patch.dict(sys.modules, {"yaml": None}):
+            assert _is_auto_update_enabled(gauntlet_dir) is False
 
 
 class TestMainHook:
@@ -121,40 +143,65 @@ class TestMainHook:
         assert result is None
 
     @pytest.mark.unit
-    def test_ignores_when_no_gauntlet_dir(self) -> None:
-        """No .gauntlet directory means no update."""
-        with patch("graph_auto_update._get_gauntlet_dir", return_value=None):
-            result = main(
-                {
-                    "tool_name": "Bash",
-                    "tool_input": {"command": "git commit -m 'test'"},
-                    "tool_response": _bash_response(
-                        "[main abc123] test\n 1 file changed"
-                    ),
-                }
-            )
+    def test_ignores_when_no_gauntlet_dir(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """No .gauntlet directory in the working directory means no update."""
+        monkeypatch.chdir(tmp_path)
+        result = main(_COMMIT_EVENT)
         assert result is None
 
     @pytest.mark.unit
-    def test_ignores_when_auto_update_disabled(self, gauntlet_dir: Path) -> None:
+    def test_a_gauntlet_file_is_not_a_gauntlet_dir(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A regular file named .gauntlet is ignored, not opened as a dir."""
+        (tmp_path / ".gauntlet").write_text("not a directory")
+        monkeypatch.chdir(tmp_path)
+        assert main(_COMMIT_EVENT) is None
+
+    @pytest.mark.unit
+    def test_ignores_when_auto_update_disabled(
+        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Auto-update disabled in config means no update."""
-        with patch(
-            "graph_auto_update._get_gauntlet_dir",
-            return_value=gauntlet_dir,
-        ):
-            result = main(
-                {
-                    "tool_name": "Bash",
-                    "tool_input": {"command": "git commit -m 'test'"},
-                    "tool_response": _bash_response(
-                        "[main abc123] test\n 1 file changed"
-                    ),
-                }
-            )
+        monkeypatch.chdir(gauntlet_dir.parent)
+        result = main(_COMMIT_EVENT)
         assert result is None
 
     @pytest.mark.unit
-    def test_returns_context_on_successful_update(self, gauntlet_dir: Path) -> None:
+    def test_ignores_when_graph_db_missing(
+        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Enabled auto-update without a built graph.db does nothing."""
+        (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
+        monkeypatch.chdir(gauntlet_dir.parent)
+        with patch("gauntlet.incremental.incremental_update") as update:
+            assert main(_COMMIT_EVENT) is None
+        update.assert_not_called()
+
+    @pytest.mark.unit
+    def test_update_failure_logs_and_returns_none(
+        self,
+        gauntlet_dir: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """A failing update is logged and the hook still exits quietly."""
+        (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
+        GraphStore(str(gauntlet_dir / "graph.db")).close()
+        monkeypatch.chdir(gauntlet_dir.parent)
+        with patch(
+            "gauntlet.incremental.incremental_update",
+            side_effect=RuntimeError("git diff failed"),
+        ):
+            assert main(_COMMIT_EVENT) is None
+        assert "RuntimeError: git diff failed" in caplog.text
+
+    @pytest.mark.unit
+    def test_returns_context_on_successful_update(
+        self, gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Enabled auto-update with graph.db returns context."""
         # Enable auto-update
         (gauntlet_dir / "config.json").write_text(json.dumps({"auto_update": True}))
@@ -167,25 +214,35 @@ class TestMainHook:
             "nodes_created": 12,
             "edges_created": 8,
         }
-        with (
-            patch(
-                "graph_auto_update._get_gauntlet_dir",
-                return_value=gauntlet_dir,
-            ),
-            patch(
-                "gauntlet.incremental.incremental_update",
-                return_value=mock_report,
-            ),
+        monkeypatch.chdir(gauntlet_dir.parent)
+        with patch(
+            "gauntlet.incremental.incremental_update",
+            return_value=mock_report,
         ):
-            result = main(
-                {
-                    "tool_name": "Bash",
-                    "tool_input": {"command": "git commit -m 'test'"},
-                    "tool_response": _bash_response(
-                        "[main abc123] test\n 1 file changed"
-                    ),
-                }
-            )
+            result = main(_COMMIT_EVENT)
         assert result is not None
-        assert "Graph updated" in result["additionalContext"]
-        assert "3 files" in result["additionalContext"]
+        context = result["hookSpecificOutput"]["additionalContext"]
+        assert "Graph updated" in context
+        assert "3 files" in context
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("layout", "found"),
+        [("dir", True), ("file", False), ("absent", False)],
+    )
+    def test_gauntlet_dir_lookup_accepts_only_a_directory(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        layout: str,
+        found: bool,
+    ) -> None:
+        """Only a .gauntlet directory in cwd counts; a file or nothing is None."""
+        target = tmp_path / ".gauntlet"
+        if layout == "dir":
+            target.mkdir()
+        elif layout == "file":
+            target.write_text("not a directory")
+        monkeypatch.chdir(tmp_path)
+        expected = target if found else None
+        assert graph_auto_update._get_gauntlet_dir() == expected

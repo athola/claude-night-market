@@ -70,8 +70,18 @@ def _validate_ref(ref: str) -> str:
     return ref
 
 
-def get_changed_files(base_ref: str = "HEAD") -> list[str]:
-    """Get files changed since base_ref using git diff."""
+class ChangedFilesUnavailableError(RuntimeError):
+    """git failed, timed out or is missing, so the changed set is unknown."""
+
+
+def get_changed_files(base_ref: str = "HEAD", strict: bool = False) -> list[str]:
+    """Get files changed since base_ref using git diff.
+
+    On git timeout or a missing binary, returns [] by default, and on a
+    nonzero exit it falls back to the staged files. With ``strict=True``
+    all three raise ChangedFilesUnavailableError instead, so the caller
+    can tell "nothing changed" from "could not tell".
+    """
     ref = _validate_ref(base_ref)
     try:
         result = subprocess.run(
@@ -82,6 +92,9 @@ def get_changed_files(base_ref: str = "HEAD") -> list[str]:
             check=False,
         )
         if result.returncode != 0:
+            if strict:
+                msg = f"git diff {ref} exited with {result.returncode}"
+                raise ChangedFilesUnavailableError(msg)
             _log.warning(
                 "git diff failed (rc=%d); falling back to staged files"
                 " -- incremental scope may differ from expected",
@@ -89,13 +102,19 @@ def get_changed_files(base_ref: str = "HEAD") -> list[str]:
             )
             return _get_staged_files()
         return [f.strip() for f in result.stdout.splitlines() if f.strip()]
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as exc:
+        if strict:
+            msg = "git diff timed out"
+            raise ChangedFilesUnavailableError(msg) from exc
         _log.warning(
             "git diff timed out; returning empty changeset"
             " -- full rebuild may be needed"
         )
         return []
-    except FileNotFoundError:
+    except FileNotFoundError as exc:
+        if strict:
+            msg = "git not found on PATH"
+            raise ChangedFilesUnavailableError(msg) from exc
         _log.warning(
             "git not found on PATH; returning empty changeset"
             " -- full rebuild may be needed"
@@ -207,6 +226,29 @@ def full_build(root_dir: str, graph: GraphStore) -> dict[str, Any]:
     }
 
 
+def _no_work_report(**reason: str) -> dict[str, Any]:
+    return {
+        "build_type": "incremental",
+        "files_parsed": 0,
+        "nodes_created": 0,
+        "edges_created": 0,
+        "edges_resolved": 0,
+        "duration_sec": 0.0,
+        **reason,
+    }
+
+
+def _changed_or_report(base_ref: str) -> tuple[list[str], dict[str, Any] | None]:
+    """Return the changed files, or a finished report when there is no work."""
+    try:
+        changed = get_changed_files(base_ref, strict=True)
+    except ChangedFilesUnavailableError as exc:
+        return [], _no_work_report(error=f"{exc}; run a full build")
+    if not changed:
+        return [], _no_work_report(skipped="no changes detected")
+    return changed, None
+
+
 def incremental_update(
     root_dir: str,
     graph: GraphStore,
@@ -214,17 +256,9 @@ def incremental_update(
 ) -> dict[str, Any]:
     """Update only changed files and their dependents."""
     start = time.monotonic()
-    changed = get_changed_files(base_ref)
-
-    if not changed:
-        return {
-            "build_type": "incremental",
-            "files_parsed": 0,
-            "nodes_created": 0,
-            "edges_created": 0,
-            "duration_sec": 0.0,
-            "skipped": "no changes detected",
-        }
+    changed, early_report = _changed_or_report(base_ref)
+    if early_report is not None:
+        return early_report
 
     # Collect dependents
     to_reparse: set[str] = set()

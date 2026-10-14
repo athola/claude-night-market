@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import datetime
 import json
+import os
 import subprocess
 import sys
-import time
 from pathlib import Path
 from unittest.mock import patch
 
@@ -22,6 +22,7 @@ from precommit_gate import (
 import gauntlet.graph as graph_module
 from gauntlet import blast_radius
 from gauntlet.blast_radius import DEFAULT_GIT_TIMEOUT_SECONDS
+from tests.conftest import fake_git
 
 
 class TestPassToken:
@@ -72,11 +73,10 @@ class TestPassToken:
         """
         Scenario: An expired token is rejected
         Given a token written with ttl_seconds=0
-        When a brief delay passes and check_pass_token is called
-        Then it returns False
+        When check_pass_token is called with no delay
+        Then it returns False, because expiry is inclusive (now >= expires_at)
         """
         write_pass_token(tmp_gauntlet_dir, "abc123", ttl_seconds=0)
-        time.sleep(0.1)
         assert check_pass_token(tmp_gauntlet_dir, "abc123") is False
 
     @pytest.mark.unit
@@ -106,6 +106,26 @@ class TestPassToken:
         When check_pass_token is called
         Then it returns False
         """
+        assert check_pass_token(tmp_gauntlet_dir, "abc123") is False
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "token_text",
+        [
+            "not json {",
+            '{"staged_hash": "abc123", "expires_at": "soon", "issued_at": ""}',
+            '{"staged_hash": "abc123", "issued_at": "yesterday",'
+            ' "expires_at": "2999-01-01T00:00:00+00:00"}',
+        ],
+        ids=["malformed-json", "bad-expires-at", "bad-issued-at"],
+    )
+    def test_unreadable_token_fails(
+        self, tmp_gauntlet_dir: Path, token_text: str
+    ) -> None:
+        """A token file the gate cannot parse never lifts the gate."""
+        state_dir = tmp_gauntlet_dir / "state"
+        state_dir.mkdir(parents=True, exist_ok=True)
+        (state_dir / "pass_token.json").write_text(token_text)
         assert check_pass_token(tmp_gauntlet_dir, "abc123") is False
 
 
@@ -265,7 +285,9 @@ class TestMain:
         assert result is None
 
     @pytest.mark.unit
-    def test_no_gauntlet_dir_passes(self, tmp_path: Path) -> None:
+    def test_no_gauntlet_dir_passes(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """
         Scenario: No .gauntlet directory means hook is inactive
         Given a hook input with "git commit" and no .gauntlet dir
@@ -273,12 +295,14 @@ class TestMain:
         Then it returns None
         """
         hook_input = {"tool_input": {"command": "git commit -m 'test'"}}
-        with patch("precommit_gate._get_gauntlet_dir", return_value=None):
-            result = main(hook_input)
+        monkeypatch.chdir(tmp_path)
+        result = main(hook_input)
         assert result is None
 
     @pytest.mark.unit
-    def test_mode_off_passes(self, tmp_gauntlet_dir: Path) -> None:
+    def test_mode_off_passes(
+        self, tmp_gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """
         Scenario: precommit.mode=off disables the gate entirely
         Given a .gauntlet config with precommit.mode = "off"
@@ -288,12 +312,15 @@ class TestMain:
         config = {"precommit": {"mode": "off"}}
         (tmp_gauntlet_dir / "config.json").write_text(json.dumps(config))
         hook_input = {"tool_input": {"command": "git commit -m 'test'"}}
-        with patch("precommit_gate._get_gauntlet_dir", return_value=tmp_gauntlet_dir):
+        monkeypatch.chdir(tmp_gauntlet_dir.parent)
+        with patch("precommit_gate.subprocess.run", side_effect=fake_git(["billing"])):
             result = main(hook_input)
         assert result is None
 
     @pytest.mark.unit
-    def test_allows_with_valid_token(self, sample_knowledge_base: Path) -> None:
+    def test_allows_with_valid_token(
+        self, sample_knowledge_base: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """
         Scenario: A valid pass token lifts the gate without approving
         Given a .gauntlet dir in gate mode with a valid token for the staged hash
@@ -302,21 +329,22 @@ class TestMain:
         permission settings ("allow" would skip their prompt)
         """
         gauntlet_dir = sample_knowledge_base.parent
-        staged_hash = "deadbeef"
-        write_pass_token(gauntlet_dir, staged_hash)
-
         config = {"precommit": {"mode": "gate"}}
         (gauntlet_dir / "config.json").write_text(json.dumps(config))
+        monkeypatch.chdir(gauntlet_dir.parent)
 
         hook_input = {"tool_input": {"command": "git commit -m 'test'"}}
-        with patch("precommit_gate._get_gauntlet_dir", return_value=gauntlet_dir):
-            with patch("precommit_gate._get_staged_hash", return_value=staged_hash):
-                result = main(hook_input)
+        with patch("precommit_gate.subprocess.run", side_effect=fake_git(["billing"])):
+            write_pass_token(gauntlet_dir, precommit_gate._get_staged_hash())
+            result = main(hook_input)
 
         assert result is None
+        assert not (gauntlet_dir / "state" / "pass_token.json").exists()
 
     @pytest.mark.unit
-    def test_denies_with_no_token_gate_mode(self, sample_knowledge_base: Path) -> None:
+    def test_denies_with_no_token_gate_mode(
+        self, sample_knowledge_base: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """
         Scenario: No pass token in gate mode denies the commit
         Given a .gauntlet dir in gate mode with no valid token and staged files
@@ -328,15 +356,9 @@ class TestMain:
         (gauntlet_dir / "config.json").write_text(json.dumps(config))
 
         hook_input = {"tool_input": {"command": "git commit -m 'test'"}}
-        with patch("precommit_gate._get_gauntlet_dir", return_value=gauntlet_dir):
-            with patch("precommit_gate._get_staged_hash", return_value="somehash"):
-                with patch(
-                    "precommit_gate._get_developer_id", return_value="dev@example.com"
-                ):
-                    with patch(
-                        "precommit_gate._get_staged_files", return_value=["billing"]
-                    ):
-                        result = main(hook_input)
+        monkeypatch.chdir(gauntlet_dir.parent)
+        with patch("precommit_gate.subprocess.run", side_effect=fake_git(["billing"])):
+            result = main(hook_input)
 
         assert result is not None
         hso = result.get("hookSpecificOutput", {})
@@ -344,12 +366,12 @@ class TestMain:
 
     @pytest.mark.unit
     def test_passes_on_git_failure_nudge_mode(
-        self, sample_knowledge_base: Path
+        self, sample_knowledge_base: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """
         Scenario: Git failure in nudge mode passes through
         Given a .gauntlet dir in nudge mode
-        When _get_staged_files returns None (git failure)
+        When git diff --cached fails
         Then it returns None (no opinion).
         """
         gauntlet_dir = sample_knowledge_base.parent
@@ -357,19 +379,20 @@ class TestMain:
         (gauntlet_dir / "config.json").write_text(json.dumps(config))
 
         hook_input = {"tool_input": {"command": "git commit -m 'test'"}}
-        with patch("precommit_gate._get_gauntlet_dir", return_value=gauntlet_dir):
-            with patch("precommit_gate._get_staged_hash", return_value="somehash"):
-                with patch("precommit_gate._get_staged_files", return_value=None):
-                    result = main(hook_input)
+        monkeypatch.chdir(gauntlet_dir.parent)
+        with patch("precommit_gate.subprocess.run", side_effect=fake_git(None)):
+            result = main(hook_input)
 
         assert result is None
 
     @pytest.mark.unit
-    def test_denies_on_git_failure_gate_mode(self, sample_knowledge_base: Path) -> None:
+    def test_denies_on_git_failure_gate_mode(
+        self, sample_knowledge_base: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """
         Scenario: Git failure in gate mode denies the commit
         Given a .gauntlet dir in gate mode
-        When _get_staged_files returns None (git failure)
+        When git diff --cached fails
         Then it returns hookSpecificOutput with permissionDecision "deny"
         And the reason mentions git failure.
         """
@@ -378,10 +401,9 @@ class TestMain:
         (gauntlet_dir / "config.json").write_text(json.dumps(config))
 
         hook_input = {"tool_input": {"command": "git commit -m 'test'"}}
-        with patch("precommit_gate._get_gauntlet_dir", return_value=gauntlet_dir):
-            with patch("precommit_gate._get_staged_hash", return_value="somehash"):
-                with patch("precommit_gate._get_staged_files", return_value=None):
-                    result = main(hook_input)
+        monkeypatch.chdir(gauntlet_dir.parent)
+        with patch("precommit_gate.subprocess.run", side_effect=fake_git(None)):
+            result = main(hook_input)
 
         assert result is not None
         hso = result.get("hookSpecificOutput", {})
@@ -390,7 +412,7 @@ class TestMain:
 
     @pytest.mark.unit
     def test_nudge_mode_adds_context_instead_of_denying(
-        self, sample_knowledge_base: Path
+        self, sample_knowledge_base: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """
         Scenario: nudge mode adds context but does not block the commit
@@ -403,20 +425,15 @@ class TestMain:
         (gauntlet_dir / "config.json").write_text(json.dumps(config))
 
         hook_input = {"tool_input": {"command": "git commit -m 'test'"}}
-        with patch("precommit_gate._get_gauntlet_dir", return_value=gauntlet_dir):
-            with patch("precommit_gate._get_staged_hash", return_value="somehash"):
-                with patch(
-                    "precommit_gate._get_developer_id", return_value="dev@example.com"
-                ):
-                    with patch(
-                        "precommit_gate._get_staged_files", return_value=["billing"]
-                    ):
-                        result = main(hook_input)
+        monkeypatch.chdir(gauntlet_dir.parent)
+        with patch("precommit_gate.subprocess.run", side_effect=fake_git(["billing"])):
+            result = main(hook_input)
 
-        # nudge: returns additionalContext without hookSpecificOutput deny
+        # nudge: returns additionalContext without a permission decision
         assert result is not None
-        assert "hookSpecificOutput" not in result
-        assert "additionalContext" in result
+        hso = result["hookSpecificOutput"]
+        assert "permissionDecision" not in hso
+        assert "additionalContext" in hso
 
 
 class TestGateFailsClosed:
@@ -471,6 +488,31 @@ class TestGateFailsClosed:
         assert output is not None, "an internal error must still produce output"
         decision = output.get("hookSpecificOutput", {}).get("permissionDecision")
         assert decision == "deny", f"a gate must fail closed; got {output!r}"
+
+    @pytest.mark.unit
+    def test_the_bypass_named_in_the_deny_reason_releases_the_gate(
+        self, tmp_gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Scenario: the gate is broken and the user takes the named bypass.
+
+        The internal-error deny tells the user to set
+        GAUNTLET_PRECOMMIT_MODE=off. A config the gate cannot evaluate
+        (``precommit`` as a string) breaks main(); the env var must still
+        release the commit, or the advice in the message is a dead end.
+        """
+        (tmp_gauntlet_dir / "config.json").write_text(
+            json.dumps({"precommit": "nudge"})
+        )
+        monkeypatch.chdir(tmp_gauntlet_dir.parent)
+        event = {"tool_name": "Bash", "tool_input": {"command": "git commit -m x"}}
+
+        denied = precommit_gate.run_gate(event)
+        assert denied is not None
+        reason = denied["hookSpecificOutput"]["permissionDecisionReason"]
+        assert "GAUNTLET_PRECOMMIT_MODE=off" in reason
+
+        monkeypatch.setenv("GAUNTLET_PRECOMMIT_MODE", "off")
+        assert precommit_gate.run_gate(event) is None
 
     @pytest.mark.unit
     @pytest.mark.parametrize(
@@ -746,3 +788,51 @@ class TestLoadConfig:
         This is the default installation, so it is the common path.
         """
         assert precommit_gate._load_config(tmp_path) == {}
+
+    @pytest.mark.unit
+    def test_json_is_read_when_pyyaml_is_missing(self, tmp_path: Path) -> None:
+        """
+        Scenario: the hook runs on system Python without pyyaml
+        Given both config files
+        When yaml cannot be imported
+        Then config.json is read instead of failing
+        """
+        (tmp_path / "config.yaml").write_text("threshold: 5\n")
+        (tmp_path / "config.json").write_text('{"threshold": 99}')
+
+        with patch.dict(sys.modules, {"yaml": None}):
+            assert precommit_gate._load_config(tmp_path) == {"threshold": 99}
+
+    @pytest.mark.unit
+    def test_a_json_that_is_not_a_mapping_yields_defaults(self, tmp_path: Path) -> None:
+        """A config.json holding a list is ignored, not returned."""
+        (tmp_path / "config.json").write_text("[1, 2]")
+
+        assert precommit_gate._load_config(tmp_path) == {}
+
+
+class TestNoChallengeStillWarns:
+    """
+    Feature: risk context survives an empty knowledge base
+
+    With no knowledge entries the gate has no challenge to ask, but a
+    stale graph warning is still worth showing.
+    """
+
+    @pytest.mark.unit
+    def test_stale_graph_warning_is_returned_as_context(
+        self, tmp_gauntlet_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        db = tmp_gauntlet_dir / "graph.db"
+        graph_module.GraphStore(str(db)).close()
+        old = 1_000_000.0
+        os.utime(db, (old, old))
+        monkeypatch.chdir(tmp_gauntlet_dir.parent)
+
+        with patch("precommit_gate.subprocess.run", side_effect=fake_git(["x.py"])):
+            result = main({"tool_input": {"command": "git commit -m x"}})
+
+        assert result is not None
+        output = result["hookSpecificOutput"]
+        assert "permissionDecision" not in output
+        assert "Graph is" in output["additionalContext"]

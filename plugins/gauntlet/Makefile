@@ -70,7 +70,7 @@ demo-gauntlet-extract: ## Demo: extract knowledge entries from gauntlet's own so
 	@out=$$($(UV_RUN) python scripts/extractor.py src/gauntlet --format text 2>&1) || st=$$?; \
 		printf '%s\n' "$$out" | sed -n '1,20p'; exit $${st:-0}
 	@echo "..."
-	@echo "(truncated to 20 entries; remove '| head' for full output)"
+	@echo "(truncated to 20 entries; run scripts/extractor.py directly for full output)"
 
 demo-gauntlet-curate: ## Demo: read-only survey of the bundled problem bank (LIVE)
 	@echo "=== gauntlet-curate Demo: read-only problem-bank survey (LIVE) ==="

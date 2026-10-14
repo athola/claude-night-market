@@ -11,6 +11,7 @@ import pytest
 from gauntlet.blast_radius import (
     _DEFAULT_WEIGHTS,
     SECURITY_KEYWORDS,
+    GitDiffError,
     analyze_changes,
     compute_risk_score,
     load_weights,
@@ -93,19 +94,26 @@ class TestParseGitDiffRanges:
         assert result.get("app.py", []) == []
 
     @pytest.mark.unit
-    def test_returns_empty_on_failure(self) -> None:
+    def test_raises_when_git_is_missing(self) -> None:
         """
         Scenario: git not available
         Given subprocess fails
         When I parse
-        Then empty dict returned
+        Then GitDiffError is raised, so a failure is not read as no changes
         """
         with patch(
             "gauntlet.blast_radius.subprocess.run",
             side_effect=FileNotFoundError,
         ):
-            result = parse_git_diff_ranges()
-            assert result == {}
+            with pytest.raises(GitDiffError):
+                parse_git_diff_ranges()
+
+    @pytest.mark.unit
+    def test_raises_when_git_diff_exits_nonzero(self) -> None:
+        with patch("gauntlet.blast_radius.subprocess.run") as mock_run:
+            mock_run.return_value = type("R", (), {"returncode": 128, "stdout": ""})()
+            with pytest.raises(GitDiffError, match="128"):
+                parse_git_diff_ranges("HEAD")
 
 
 class TestMapChangesToNodes:
@@ -324,6 +332,18 @@ class TestLoadWeights:
         assert weights["test_gap"] == 0.50
         assert weights["security"] == 0.10
         assert weights["flow_participation"] == 0.25  # default kept
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("body", ["[]", '"text"', "7", '{"risk_weights": [1]}'])
+    def test_config_that_is_not_an_object_falls_back_to_defaults(
+        self, tmp_path: Path, body: str, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """A list or scalar config.json is reported and the defaults apply."""
+        (tmp_path / "config.json").write_text(body)
+        with caplog.at_level("WARNING", logger="gauntlet.blast_radius"):
+            weights = load_weights(tmp_path)
+        assert weights == _DEFAULT_WEIGHTS
+        assert "config.json" in caplog.text
 
     @pytest.mark.unit
     def test_survives_malformed_json(self, tmp_path: Path) -> None:

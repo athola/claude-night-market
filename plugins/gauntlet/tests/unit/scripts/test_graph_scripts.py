@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import sqlite3
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 pytest.importorskip("tree_sitter")
+
+import graph_query  # noqa: E402 - after the tree_sitter skip guard
+
+from gauntlet.graph import GraphStore  # noqa: E402 - after the tree_sitter skip guard
 
 _SCRIPTS_DIR = Path(__file__).resolve().parents[3] / "scripts"
 
@@ -33,7 +39,7 @@ class TestGraphBuildScript:
         """
         (tmp_path / "hello.py").write_text("def greet():\n    pass\n")
         result = subprocess.run(
-            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
+            [sys.executable, str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
             capture_output=True,
             text=True,
             timeout=30,
@@ -53,7 +59,7 @@ class TestGraphBuildScript:
         Then exit code is 1 and error JSON is returned
         """
         result = subprocess.run(
-            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), "/nonexistent"],
+            [sys.executable, str(_SCRIPTS_DIR / "graph_build.py"), "/nonexistent"],
             capture_output=True,
             text=True,
             timeout=10,
@@ -83,14 +89,14 @@ class TestGraphQueryScript:
         # Build first
         (tmp_path / "app.py").write_text("def main():\n    pass\n")
         subprocess.run(
-            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
+            [sys.executable, str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
             capture_output=True,
             timeout=30,
         )
         db = str(tmp_path / ".gauntlet" / "graph.db")
         result = subprocess.run(
             [
-                "python3",
+                sys.executable,
                 str(_SCRIPTS_DIR / "graph_query.py"),
                 "--action",
                 "status",
@@ -116,14 +122,14 @@ class TestGraphQueryScript:
         """
         (tmp_path / "app.py").write_text("def main():\n    pass\n")
         subprocess.run(
-            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
+            [sys.executable, str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
             capture_output=True,
             timeout=30,
         )
         db = str(tmp_path / ".gauntlet" / "graph.db")
         result = subprocess.run(
             [
-                "python3",
+                sys.executable,
                 str(_SCRIPTS_DIR / "graph_query.py"),
                 "--action",
                 "search",
@@ -150,7 +156,7 @@ class TestGraphQueryScript:
         """
         result = subprocess.run(
             [
-                "python3",
+                sys.executable,
                 str(_SCRIPTS_DIR / "graph_query.py"),
                 "--action",
                 "status",
@@ -162,6 +168,51 @@ class TestGraphQueryScript:
             timeout=10,
         )
         assert result.returncode == 1
+        assert "graph.db not found" in json.loads(result.stdout)["error"]
+
+
+class TestGraphQueryInProcess:
+    """
+    Feature: graph_query argument routing and database discovery
+
+    The subprocess tests above prove the happy paths end to end but are
+    invisible to coverage. These run the same functions in process.
+    """
+
+    @pytest.mark.unit
+    def test_search_without_query_returns_error(self, tmp_path: Path) -> None:
+        graph = GraphStore(tmp_path / "graph.db")
+        try:
+            args = argparse.Namespace(action="search", query=None)
+            assert graph_query._dispatch(args, graph) == {
+                "error": "--query required for search action"
+            }
+        finally:
+            graph.close()
+
+    @pytest.mark.unit
+    def test_unknown_action_returns_error(self, tmp_path: Path) -> None:
+        graph = GraphStore(tmp_path / "graph.db")
+        try:
+            args = argparse.Namespace(action="bogus")
+            assert graph_query._dispatch(args, graph) == {
+                "error": "unknown action: bogus"
+            }
+        finally:
+            graph.close()
+
+    @pytest.mark.unit
+    def test_find_db_walks_up_to_an_ancestor_gauntlet_dir(self, tmp_path: Path) -> None:
+        db = tmp_path / ".gauntlet" / "graph.db"
+        db.parent.mkdir()
+        db.touch()
+        nested = tmp_path / "a" / "b"
+        nested.mkdir(parents=True)
+        assert graph_query._find_db(str(nested)) == db
+
+    @pytest.mark.unit
+    def test_find_db_returns_none_without_a_gauntlet_dir(self, tmp_path: Path) -> None:
+        assert graph_query._find_db(str(tmp_path)) is None
 
 
 class TestABuildOfNothingIsNotAGreenBuild:
@@ -178,7 +229,7 @@ class TestABuildOfNothingIsNotAGreenBuild:
     def test_full_build_with_no_sources_exits_nonzero(self, tmp_path: Path) -> None:
         (tmp_path / "notes.txt").write_text("nothing parseable here\n")
         result = subprocess.run(
-            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
+            [sys.executable, str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
             capture_output=True,
             text=True,
             timeout=30,
@@ -199,7 +250,7 @@ class TestABuildOfNothingIsNotAGreenBuild:
             "class PlantedCanaryRecord:\n    pass\n\n\ndef planted_canary_probe():\n    return PlantedCanaryRecord()\n"
         )
         result = subprocess.run(
-            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
+            [sys.executable, str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
             capture_output=True,
             text=True,
             timeout=30,
@@ -230,7 +281,7 @@ class TestGraphBuildStoresFlows:
             "def entry():\n    return middle()\n"
         )
         result = subprocess.run(
-            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
+            [sys.executable, str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
             capture_output=True,
             text=True,
             timeout=30,
@@ -260,7 +311,7 @@ class TestGraphBuildStoresFlows:
             ["git", "init", "-q", str(tmp_path)], capture_output=True, check=True
         )
         subprocess.run(
-            ["python3", str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
+            [sys.executable, str(_SCRIPTS_DIR / "graph_build.py"), str(tmp_path)],
             capture_output=True,
             text=True,
             timeout=30,
@@ -268,7 +319,7 @@ class TestGraphBuildStoresFlows:
         )
         result = subprocess.run(
             [
-                "python3",
+                sys.executable,
                 str(_SCRIPTS_DIR / "graph_build.py"),
                 str(tmp_path),
                 "--incremental",

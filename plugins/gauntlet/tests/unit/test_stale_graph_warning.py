@@ -84,3 +84,20 @@ class TestGraphStalenessWarning:
         os.utime(db, (old_time, old_time))
         result = _graph_staleness_warning(gauntlet_dir)
         assert result is not None
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("body", ["not json {", "[]", '{"stale_threshold_hours": "x"}'])
+def test_unusable_config_keeps_the_default_and_says_so_on_stderr(
+    gauntlet_dir: Path, body: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A threshold the user set and the hook ignored is named, not hidden."""
+    (gauntlet_dir / "graph.db").write_bytes(b"")
+    config = gauntlet_dir / "config.json"
+    config.write_text(body)
+
+    assert _graph_staleness_warning(gauntlet_dir) is None
+
+    err = capsys.readouterr().err
+    assert str(config) in err
+    assert "24" in err

@@ -13,6 +13,8 @@ pytest.importorskip("tree_sitter")
 
 from gauntlet.graph import GraphStore  # noqa: E402 - must follow importorskip
 from gauntlet.incremental import (  # noqa: E402 - must follow importorskip
+    ChangedFilesUnavailableError,
+    _changed_or_report,
     _get_staged_files,
     _validate_ref,
     collect_files,
@@ -660,3 +662,22 @@ class TestCallTargetResolution:
             assert report["edges_resolved"] >= 2
         finally:
             graph.close()
+
+
+@pytest.mark.unit
+def test_strict_raises_when_git_diff_exits_nonzero() -> None:
+    """An unknown base ref (rc=128) is "could not tell", not "no changes"."""
+    failed = type("R", (), {"returncode": 128, "stdout": "", "stderr": "bad ref"})()
+    with patch("gauntlet.incremental.subprocess.run", return_value=failed):
+        with pytest.raises(ChangedFilesUnavailableError, match="128"):
+            get_changed_files("deadbeefdeadbeef", strict=True)
+
+
+@pytest.mark.unit
+def test_incremental_update_reports_an_error_for_an_unknown_base_ref() -> None:
+    failed = type("R", (), {"returncode": 128, "stdout": "", "stderr": "bad ref"})()
+    with patch("gauntlet.incremental.subprocess.run", return_value=failed):
+        report = _changed_or_report("deadbeefdeadbeef")[1]
+    assert report is not None
+    assert "skipped" not in report
+    assert "128" in report["error"]

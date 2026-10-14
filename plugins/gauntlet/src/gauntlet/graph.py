@@ -111,6 +111,52 @@ CREATE VIRTUAL TABLE IF NOT EXISTS nodes_fts USING fts5(
 """
 
 
+def _module_stem(file_path: str) -> str:
+    """Return the module name a file is imported as (``pkg/__init__.py`` is ``pkg``)."""
+    parts = file_path.replace("\\", "/").split("/")
+    base = parts[-1].rsplit(".", 1)[0]
+    return parts[-2] if base == "__init__" and len(parts) > 1 else base
+
+
+def _parent(qualified_name: str) -> str | None:
+    """Enclosing class or function of a definition, None at module level."""
+    path, _, name = qualified_name.rpartition("::")
+    owner, dot, _ = name.rpartition(".")
+    return f"{path}::{owner}" if dot else None
+
+
+def _pick_call_target(
+    receiver: str,
+    candidates: list[tuple[str, str]],
+    edge_file: str,
+    classes: set[str],
+) -> str | None:
+    """Choose the definition a call reaches, or None when it is ambiguous.
+
+    A bare call prefers a unique definition in the calling file, then a
+    unique one anywhere. ``self.x`` and ``cls.x`` stay in the calling file.
+    ``mod.x`` reaches a module-level ``x`` in the file imported as ``mod``,
+    so ``os.walk`` never matches a ``walk`` defined in the repository. Any
+    other receiver is an object whose type is unknown: it can reach a class
+    method with a unique name, never a module-level or nested function.
+    """
+    local = [qn for qn, fp in candidates if fp == edge_file]
+    if not receiver:
+        if len(local) == 1:
+            return local[0]
+        return candidates[0][0] if len(candidates) == 1 else None
+    if receiver in ("self", "cls"):
+        return local[0] if len(local) == 1 else None
+    stem = receiver.rsplit(".", 1)[-1]
+    module_level = [
+        qn for qn, fp in candidates if _module_stem(fp) == stem and _parent(qn) is None
+    ]
+    if len(module_level) == 1:
+        return module_level[0]
+    methods = [qn for qn, _ in candidates if _parent(qn) in classes]
+    return methods[0] if len(methods) == 1 else None
+
+
 class GraphStore(SqliteGraphBase):
     """Persistent code knowledge graph backed by SQLite."""
 
@@ -250,16 +296,22 @@ class GraphStore(SqliteGraphBase):
             (str(EdgeKind.CALLS),),
         ).fetchall()
 
+        classes = {
+            qn
+            for (qn,) in self._conn.execute(
+                "SELECT qualified_name FROM nodes WHERE kind = ?",
+                (str(NodeKind.CLASS),),
+            )
+        }
+
         resolved = 0
         with self._conn:
             for edge_id, source_qn, target, edge_file in unresolved:
-                candidates = by_bare.get(target.rsplit(".", 1)[-1], [])
-                local = [qn for qn, fp in candidates if fp == edge_file]
-                if len(local) == 1:
-                    chosen = local[0]
-                elif len(candidates) == 1:
-                    chosen = candidates[0][0]
-                else:
+                receiver, _, name = target.rpartition(".")
+                chosen = _pick_call_target(
+                    receiver, by_bare.get(name, []), edge_file, classes
+                )
+                if chosen is None:
                     continue
                 duplicate = self._conn.execute(
                     "SELECT 1 FROM edges WHERE kind = ? AND source_qn = ? AND target_qn = ?",
