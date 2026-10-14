@@ -243,7 +243,7 @@ Save to `.attune/execution-state.json`:
   "current_sprint": "Sprint 1",
   "current_phase": "Phase 1",
   "tasks": {
-    "TASK-001": {
+    "T001": {
       "status": "complete",
       "started_at": "2026-01-02T10:05:00Z",
       "completed_at": "2026-01-02T10:50:00Z",
@@ -251,7 +251,7 @@ Save to `.attune/execution-state.json`:
       "acceptance_criteria_met": true,
       "tests_passing": true
     },
-    "TASK-002": {
+    "T002": {
       "status": "in_progress",
       "started_at": "2026-01-02T14:00:00Z",
       "progress_percent": 60,
@@ -350,7 +350,7 @@ When blocked, apply debugging framework:
 
 **Escalation format**:
 ```markdown
-## Blocker: [TASK-XXX] - [Issue]
+## Blocker: [TNNN] - [Issue]
 
 **Symptom**: [What's happening]
 

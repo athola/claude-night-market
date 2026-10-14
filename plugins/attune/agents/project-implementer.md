@@ -44,7 +44,7 @@ Agent(attune:project-implementer)
 
 Context:
 - Plan: docs/implementation-plan.md
-- Current task: TASK-XXX (or auto-select next)
+- Current task: TNNN (or auto-select next)
 - Execution state: .attune/execution-state.json
 
 Goal:
@@ -248,7 +248,7 @@ After each task completion:
 ```json
 {
   "tasks": {
-    "TASK-XXX": {
+    "TNNN": {
       "status": "complete",
       "started_at": "2026-01-02T10:05:00Z",
       "completed_at": "2026-01-02T11:30:00Z",
@@ -277,7 +277,7 @@ After each task completion:
 
 **After each task**:
 ```markdown
-✅ TASK-XXX: [Task Name] (85 minutes)
+✅ TNNN: [Task Name] (85 minutes)
 
 Acceptance Criteria:
 ✓ Criterion 1 (test_feature_1)
@@ -288,7 +288,7 @@ Tests Added: 8 (all passing)
 Coverage: 92% (+5%)
 
 Progress: 16/40 tasks complete (40%)
-Next: TASK-YYY
+Next: TMMM
 ```
 
 ## Blocker Detection
@@ -310,14 +310,14 @@ Next: TASK-YYY
 ### Blocker Reporting
 
 ```markdown
-🚨 BLOCKER: TASK-XXX - [Issue Summary]
+🚨 BLOCKER: TNNN - [Issue Summary]
 
-**Task**: TASK-XXX - [Task Name]
+**Task**: TNNN - [Task Name]
 
 **Symptom**: [What's happening]
 
 **Impact**:
-- Blocking: TASK-YYY, TASK-ZZZ
+- Blocking: TMMM, TPPP
 - Timeline: [Delay estimate]
 - Critical path: [Yes/No]
 
@@ -415,17 +415,17 @@ If ANY fail: Execute SEQUENTIALLY
 
 **Example - Parallel execution**:
 ```markdown
-TASK-001 (complete)
-    ├─▶ TASK-002 (models/user.py)     ──┐
-    ├─▶ TASK-003 (api/endpoints.py)   ──┤─▶ PARALLEL
-    └─▶ TASK-004 (utils/validators.py)──┘    (3 Tasks, 1 response)
+T001 (complete)
+    ├─▶ T002 (models/user.py)     ──┐
+    ├─▶ T003 (api/endpoints.py)   ──┤─▶ PARALLEL
+    └─▶ T004 (utils/validators.py)──┘    (3 Tasks, 1 response)
 ```
 
 **Example - Sequential required**:
 ```markdown
-TASK-005 (refactor schema) ──▶ TASK-006 (migrate data)
-                              ▲
-                              └─ TASK-006 needs TASK-005 output
+T005 (refactor schema) ──▶ T006 (migrate data)
+                          ▲
+                          └─ T006 needs T005 output
 ```
 
 ### Timeboxing
@@ -484,5 +484,5 @@ Task execution is successful when:
 ## Related Commands
 
 - `/attune:execute` - Invokes this agent
-- `/attune:execute --task TASK-XXX` - Execute specific task
+- `/attune:execute --task TNNN` - Execute specific task
 - `/attune:execute --resume` - Resume from checkpoint

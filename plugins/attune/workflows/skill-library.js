@@ -117,7 +117,12 @@ const needFixes = authored.filter((a) =>
   a.reviews.some((r) => r.verdict === 'fix-required'),
 )
 
-log(`${authored.length} of ${topics.length} skills authored, ${needFixes.length} need fixes`)
+const partlyReviewed = authored.filter((a) => a.unreviewed.length > 0)
+
+log(
+  `${authored.length} of ${topics.length} skills authored, ${needFixes.length} need fixes, ` +
+    `${partlyReviewed.length} with lenses that returned nothing`,
+)
 
 return {
   libraryRoot,
@@ -126,6 +131,8 @@ return {
     path: a.path,
     blocking: a.reviews.flatMap((r) => r.findings.filter((f) => f.severity === 'blocking')),
     other: a.reviews.flatMap((r) => r.findings.filter((f) => f.severity !== 'blocking')),
+    // Lenses that returned nothing: no findings from them is not a pass.
+    unreviewed: a.unreviewed,
   })),
   failed,
   next: 'Apply the findings in the session, not here. Fixing edits files that already exist, which is the write this script deliberately does not make. Nothing above was verified by running anything.',

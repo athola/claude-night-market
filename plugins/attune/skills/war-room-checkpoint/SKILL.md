@@ -97,16 +97,19 @@ ceiling 0.30 with the do-issue adjustment -0.10 is
 0.19999999999999998, and an all-1s decision (RS = 0.2) would escalate.
 
 ```
+# Inputs: score_sum (Step 2), profile (the profile table below), and
+# command_adjustment (Command-Specific Adjustments, 0 when none applies).
 rs_pct = 4 * score_sum  # RS * 100, exact for Sum / 25
+adjustment = command_adjustment
 
-def ceiling_pct(ceiling):  # table values and adjustments in hundredths
+def ceiling_pct(ceiling, adjustment):  # table values in hundredths
     return round(ceiling * 100) + round(adjustment * 100)
 
-if rs_pct <= ceiling_pct(profile.express):
+if rs_pct <= ceiling_pct(profile.express, adjustment):
     mode = "express"
-elif rs_pct <= ceiling_pct(profile.lightweight):
+elif rs_pct <= ceiling_pct(profile.lightweight, adjustment):
     mode = "lightweight"
-elif rs_pct <= ceiling_pct(profile.full_council):
+elif rs_pct <= ceiling_pct(profile.full_council, adjustment):
     mode = "full_council"
 else:
     mode = "delphi"

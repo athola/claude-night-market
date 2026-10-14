@@ -359,12 +359,12 @@ mission-type baseline.
 
 ## Exit Criteria
 
-- All phases in mission type completed successfully
-- Artifacts exist for each completed phase
-- Mission state saved to `.attune/mission-state.json`
-- Risk summary generated (tier counts across all tasks)
-- Execute-phase work either delegated or held back by a named Keep
+- [ ] All phases in mission type completed successfully
+- [ ] Artifacts exist for each completed phase
+- [ ] Mission state saved to `.attune/mission-state.json`
+- [ ] Risk summary generated (tier counts across all tasks)
+- [ ] Execute-phase work either delegated or held back by a named Keep
   Local clause, never skipped for want of a delegation decision
-- Any `providers_exhausted` result completed locally and reported with
+- [ ] Any `providers_exhausted` result completed locally and reported with
   the providers it tried
-- No unresolved errors or blockers
+- [ ] No unresolved errors or blockers

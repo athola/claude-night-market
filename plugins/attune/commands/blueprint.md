@@ -155,16 +155,18 @@ Skill(attune:project-planning)
 
 ### Section 2: Task Breakdown
 
-**Task Format**:
+**Task Format**: task IDs use the spec-kit `TNNN` form (`T001`),
+zero-padded to three digits and numbered in sequence across phases.
+
 ```markdown
-### TASK-001: [Task Name]
+### T001: [Task Name]
 
 **Description**: Clear description of what needs to be done
 
 **Type**: Implementation | Testing | Documentation | Deployment
 **Priority**: P0 (Critical) | P1 (High) | P2 (Medium) | P3 (Low)
 **Estimate**: [Story points or hours]
-**Dependencies**: TASK-002, TASK-005
+**Dependencies**: T002, T005
 **Assignee**: [Team member or TBD]
 
 **Acceptance Criteria**:
@@ -253,9 +255,9 @@ Three-tier architecture:
 
 ## Task Breakdown
 
-### Phase 1: Foundation (Sprint 1) - TASK-001 through TASK-010
+### Phase 1: Foundation (Sprint 1) - T001 through T010
 
-#### TASK-001: Initialize Project Structure
+#### T001: Initialize Project Structure
 
 **Description**: Set up project with proper tooling and CI/CD
 
@@ -281,14 +283,14 @@ Three-tier architecture:
 - CI pipeline passes
 - `make test` runs successfully
 
-#### TASK-002: Database Schema Design
+#### T002: Database Schema Design
 
 **Description**: Design and implement PostgreSQL schema
 
 **Type**: Implementation
 **Priority**: P0
 **Estimate**: 6 hours
-**Dependencies**: TASK-001
+**Dependencies**: T001
 **Assignee**: TBD
 
 **Acceptance Criteria**:
@@ -310,23 +312,23 @@ Three-tier architecture:
 
 [... more tasks ...]
 
-### Phase 2: Core Features (Sprints 2-4) - TASK-011 through TASK-030
+### Phase 2: Core Features (Sprints 2-4) - T011 through T030
 
 [... task details ...]
 
-### Phase 3: Polish (Sprint 5) - TASK-031 through TASK-040
+### Phase 3: Polish (Sprint 5) - T031 through T040
 
 [... task details ...]
 
 ## Dependency Graph
 
 ```
-TASK-001 (Init)
-    ├─▶ TASK-002 (Database)
-    │       ├─▶ TASK-003 (Models)
-    │       └─▶ TASK-011 (Issue Import)
-    └─▶ TASK-004 (OAuth)
-            └─▶ TASK-005 (Auth Middleware)
+T001 (Init)
+    ├─▶ T002 (Database)
+    │       ├─▶ T003 (Models)
+    │       └─▶ T011 (Issue Import)
+    └─▶ T004 (OAuth)
+            └─▶ T005 (Auth Middleware)
 ```
 
 ## Risk Assessment
@@ -359,7 +361,7 @@ TASK-001 (Init)
 
 1. **Review plan**: Team walkthrough and adjustments
 2. **Initialize project**: Run `/attune:project-init --lang python`
-3. **Start Sprint 1**: Execute TASK-001 through TASK-010
+3. **Start Sprint 1**: Execute T001 through T010
 4. **Track progress**: Use `/attune:execute` for systematic implementation
 ```
 
@@ -380,7 +382,7 @@ Creates `docs/plans/component-authentication.md` with focused architecture and t
 Includes code snippets and implementation examples for each task:
 
 ```markdown
-#### TASK-003: Implement Data Models
+#### T003: Implement Data Models
 
 **Code Example**:
 ```python

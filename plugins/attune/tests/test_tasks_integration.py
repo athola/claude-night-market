@@ -388,11 +388,11 @@ class TestDualModeOperation:
         # Arrange
         existing_state = {
             "tasks": {
-                "TASK-001": {
+                "T001": {
                     "status": "complete",
                     "completed_at": "2026-01-23T10:00:00Z",
                 },
-                "TASK-002": {
+                "T002": {
                     "status": "in_progress",
                     "started_at": "2026-01-23T11:00:00Z",
                 },
@@ -414,7 +414,7 @@ class TestDualModeOperation:
         # Assert
         assert state.completed_count == 1
         assert state.total_count == 2
-        assert "TASK-001" in state.completed_tasks
+        assert "T001" in state.completed_tasks
 
 
 class TestResumeDetection:
