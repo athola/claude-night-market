@@ -75,7 +75,20 @@ class TestLoadCodex:
         """Invalid YAML raises a clear error."""
         codex_path = tmp_path / "codex.yml"
         codex_path.write_text("version: 1\nconventions: [[[invalid")
-        with pytest.raises(ValueError, match="codex"):
+        # "codex" alone matched every error, because the path is codex.yml.
+        with pytest.raises(ValueError, match="Invalid YAML"):
+            load_codex(codex_path)
+
+    def test_rejects_a_codex_without_a_conventions_key(self, tmp_path: Path) -> None:
+        codex_path = tmp_path / "codex.yml"
+        codex_path.write_text("version: 1\nrules: []\n")
+        with pytest.raises(ValueError, match="top-level 'conventions' key"):
+            load_codex(codex_path)
+
+    def test_rejects_conventions_that_are_not_a_list(self, tmp_path: Path) -> None:
+        codex_path = tmp_path / "codex.yml"
+        codex_path.write_text("version: 1\nconventions:\n  C1: {}\n")
+        with pytest.raises(ValueError, match="'conventions' must be a list"):
             load_codex(codex_path)
 
     def test_rejects_missing_required_fields(self, tmp_path: Path) -> None:
@@ -100,8 +113,8 @@ class TestLoadCodex:
     def test_loads_real_codex(self) -> None:
         """Load the actual project codex.yml."""
         codex_path = Path(__file__).parent.parent / "conventions" / "codex.yml"
-        if not codex_path.exists():
-            pytest.skip("codex.yml not found")
+        # The plugin ships this file; its absence is a packaging failure.
+        assert codex_path.is_file(), f"shipped codex missing: {codex_path}"
         conventions = load_codex(codex_path)
         assert len(conventions) >= 5
         ids = [c.id for c in conventions]
@@ -325,6 +338,79 @@ class TestCheckConventions:
         py_file.write_text("")
         findings = check_conventions([py_file], [c1_convention])
         assert len(findings) == 0
+
+
+class TestCheckEngineEdges:
+    """Conventions the engine passes over, and files it cannot read."""
+
+    def test_a_disabled_convention_reports_nothing(self, tmp_path: Path) -> None:
+        target = tmp_path / "a.py"
+        target.write_text("def f():\n    import os\n")
+        conv = Convention(
+            id="C1",
+            name="top-level-imports",
+            description="d",
+            check_type="grep",
+            severity="blocking",
+            enabled=False,
+            grep_pattern=r"^\s+import ",
+            file_globs=["**/*.py"],
+        )
+        assert check_conventions([target], [conv]) == []
+
+    def test_an_unreadable_file_is_reported_as_skipped_not_raised(
+        self, tmp_path: Path
+    ) -> None:
+        # A directory named like a source file: read_text raises OSError.
+        unreadable = tmp_path / "pkg.py"
+        unreadable.mkdir()
+        readable = tmp_path / "b.py"
+        readable.write_text("def f():\n    import os\n")
+        conv = Convention(
+            id="C1",
+            name="top-level-imports",
+            description="d",
+            check_type="grep",
+            severity="blocking",
+            grep_pattern=r"^\s+import ",
+            file_globs=["**/*.py"],
+        )
+        findings = check_conventions([unreadable, readable], [conv])
+        # Reported rather than dropped, so it cannot pass as clean.
+        assert [(f.file, f.severity) for f in findings] == [
+            (unreadable, "skipped"),
+            (readable, "blocking"),
+        ]
+        assert "could not read" in findings[0].message
+
+    def test_an_unknown_custom_checker_is_a_warning(self, tmp_path: Path) -> None:
+        conv = Convention(
+            id="C9",
+            name="mystery",
+            description="d",
+            check_type="custom",
+            severity="blocking",
+            checker="no_such_checker",
+        )
+        findings = check_conventions([tmp_path / "x.md"], [conv])
+        assert len(findings) == 1
+        assert findings[0].severity == "warning"
+        assert "Unknown custom checker: no_such_checker" in findings[0].message
+
+    def test_a_skill_convention_is_deferred_to_orchestration(
+        self, tmp_path: Path
+    ) -> None:
+        conv = Convention(
+            id="C7",
+            name="skill-check",
+            description="d",
+            check_type="skill",
+            severity="warning",
+        )
+        findings = check_conventions([tmp_path / "x.py"], [conv])
+        assert [(f.severity, f.message) for f in findings] == [
+            ("skipped", "Skill checks handled at orchestration level")
+        ]
 
 
 class TestCheckDocConsolidation:

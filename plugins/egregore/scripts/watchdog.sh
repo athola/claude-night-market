@@ -77,15 +77,23 @@ check_cooldown() {
     "") return 0 ;;
   esac
   now=$(date +%s)
+  # A cooldown that does not parse is unknown, not over: relaunching into
+  # an unexpired limit is what the cooldown exists to prevent.
   case "$(uname)" in
     Darwin)
       # cooldown_until is always written in UTC. BSD date -j reads the
       # wall-clock fields in the local zone and cannot parse the
       # "+00:00" offset, so parse the first 19 characters as UTC.
-      until_ts=$(TZ=UTC date -jf "%Y-%m-%dT%H:%M:%S" "${cooldown:0:19}" +%s 2>/dev/null || printf '0')
+      until_ts=$(TZ=UTC date -jf "%Y-%m-%dT%H:%M:%S" "${cooldown:0:19}" +%s 2>/dev/null) || until_ts=""
       ;;
     *)
-      until_ts=$(date -d "${cooldown}" +%s 2>/dev/null || printf '0')
+      until_ts=$(date -d "${cooldown}" +%s 2>/dev/null) || until_ts=""
+      ;;
+  esac
+  case "${until_ts}" in
+    "" | *[!0-9]*)
+      wlog "ERROR: cooldown_until '${cooldown}' does not parse; not relaunching"
+      exit 1
       ;;
   esac
   if [ "${now}" -lt "${until_ts}" ]; then
@@ -145,7 +153,7 @@ relaunch() {
 }
 
 main() {
-  # A timer passes no argv; unrecognized arguments are ignored as before.
+  # A timer passes no argv; unrecognized arguments are ignored.
   while [ "${#}" -gt 0 ]; do
     case "${1}" in
       *[uU][sS][aA][gG][eE] | *[hH][eE][lL][pP] | -h)

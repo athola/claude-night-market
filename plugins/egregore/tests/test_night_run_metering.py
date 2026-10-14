@@ -1,6 +1,6 @@
 """The on-plan meter charges what the babysitter sends, not what it was given.
 
-Math review finding C5. ``ClaudeBabysitter`` shows the model only the last
+``ClaudeBabysitter`` shows the model only the last
 ``DEFAULT_TAIL_CHARS`` of the diff and of the test output, but the meter
 charged the whole of both. A 400000-character test log and a 20000-line
 diff were charged as 115000 tokens for a prompt of about 2200, and a

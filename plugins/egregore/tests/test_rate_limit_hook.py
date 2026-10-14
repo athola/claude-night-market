@@ -23,7 +23,7 @@ HOOKS_JSON = Path(__file__).resolve().parents[1] / "hooks" / "hooks.json"
 
 def _run(tmp_path, monkeypatch, payload, items):
     egregore_dir = tmp_path / ".egregore"
-    egregore_dir.mkdir()
+    egregore_dir.mkdir(exist_ok=True)
     (egregore_dir / "manifest.json").write_text(json.dumps({"work_items": items}))
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr("sys.stdin", StringIO(json.dumps(payload)))
@@ -104,7 +104,7 @@ def _cooldown_after_hook(tmp_path, monkeypatch):
 
 
 class TestTheHookOnlyExtendsACooldown:
-    """Math review finding C4: a known reset must survive the padding floor."""
+    """A known reset must survive the padding floor."""
 
     def test_a_later_header_derived_reset_is_kept(self, tmp_path, monkeypatch):
         """A reset four hours out is not replaced by ten minutes of padding."""
@@ -151,3 +151,25 @@ class TestTheHookOnlyExtendsACooldown:
 
         assert before + timedelta(minutes=10) <= recorded
         assert recorded <= datetime.now(timezone.utc) + timedelta(minutes=10)
+
+
+def test_an_unwritable_budget_is_reported_and_the_hook_still_exits_zero(
+    tmp_path, monkeypatch, capsys
+):
+    """A budget.json that cannot be read or written never fails the hook.
+
+    StopFailure output is ignored by Claude Code, so the only trace of the
+    failure is the stderr line; the exit code must stay 0.
+    """
+    egregore_dir = tmp_path / ".egregore"
+    egregore_dir.mkdir()
+    # A directory where the budget file belongs: open() raises a real OSError.
+    (egregore_dir / "budget.json").mkdir()
+    budget_path = _run(
+        tmp_path,
+        monkeypatch,
+        {"hook_event_name": "StopFailure", "error": "rate_limit"},
+        [{"id": "wrk_001", "status": "active"}],
+    )
+    assert budget_path.is_dir()
+    assert "could not record rate limit" in capsys.readouterr().err

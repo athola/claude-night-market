@@ -39,7 +39,9 @@ def _padding_minutes(config_path: Path) -> int:
     """
     try:
         return load_config(config_path).budget.cooldown_padding_minutes
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, TypeError, AttributeError) as exc:
+        # TypeError and AttributeError: valid JSON of the wrong shape, such
+        # as a null or list where a config section belongs.
         print(f"egregore: using default cooldown padding: {exc}", file=sys.stderr)
         return BudgetConfig().cooldown_padding_minutes
 
@@ -61,7 +63,7 @@ def main() -> None:
         if recorded is not None and padded is not None:
             budget.cooldown_until = max(recorded, padded, key=datetime.fromisoformat)
         save_budget(budget, budget_path)
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, TypeError, AttributeError) as exc:
         print(f"egregore: could not record rate limit: {exc}", file=sys.stderr)
     sys.exit(0)
 

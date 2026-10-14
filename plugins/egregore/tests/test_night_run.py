@@ -10,6 +10,7 @@ improvising when it runs out of attempts, budget, or evidence.
 from __future__ import annotations
 
 import shlex
+import subprocess
 from collections.abc import Sequence
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
@@ -344,12 +345,65 @@ class TestSubprocessRunner:
         assert "empty" in result.output
 
     def test_a_timeout_is_reported_with_the_conventional_code(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The subprocess layer raises the timeout, so nothing waits on a clock."""
+        seen: dict[str, object] = {}
+
+        def _times_out(argv, **kwargs):
+            seen["timeout"] = kwargs.get("timeout")
+            raise subprocess.TimeoutExpired(cmd=argv, timeout=kwargs["timeout"])
+
+        monkeypatch.setattr(night_run.subprocess, "run", _times_out)
+        result = night_run.SubprocessRunner().run(
+            ["python3", "slow.py"], cwd=tmp_path, timeout=7
+        )
+        assert seen["timeout"] == 7
+        assert result.returncode == night_run.TIMEOUT_EXIT
+        assert result.output == "timed out after 7s"
+
+
+class TestTheItemWorktreeStaysInsideTheRepository:
+    """What runs in the worktree is `git checkout -- .` and `git clean -fd`.
+
+    A handoff-declared worktree outside the repository would point those
+    at someone else's files, so every escape is refused before use.
+    """
+
+    def test_no_declared_worktree_uses_the_per_item_default(
         self, tmp_path: Path
     ) -> None:
-        script = tmp_path / "slow.py"
-        script.write_text("import time\ntime.sleep(5)\n")
-        result = night_run.SubprocessRunner().run(
-            ["python3", str(script)], cwd=tmp_path, timeout=1
+        assert night_run._item_worktree(tmp_path, "NS-001", None) == (
+            tmp_path / ".egregore/worktrees/NS-001"
         )
-        assert result.returncode == night_run.TIMEOUT_EXIT
-        assert "timed out" in result.output
+
+    @pytest.mark.parametrize(
+        "declared", ["/", "/tmp/elsewhere", "../sibling", "a/../../b"]
+    )
+    def test_an_absolute_or_parent_path_is_refused(
+        self, tmp_path: Path, declared: str
+    ) -> None:
+        with pytest.raises(ValueError, match="relative path inside"):
+            night_run._item_worktree(tmp_path, "NS-001", declared)
+
+    def test_a_non_string_worktree_is_refused(self, tmp_path: Path) -> None:
+        with pytest.raises(ValueError, match="must be a string"):
+            night_run._item_worktree(tmp_path, "NS-001", ["wt"])
+
+    def test_a_symlink_that_leaves_the_repository_is_refused(
+        self, tmp_path: Path
+    ) -> None:
+        root = tmp_path / "repo"
+        root.mkdir()
+        outside = tmp_path / "outside"
+        outside.mkdir()
+        (root / "wt").symlink_to(outside)
+        with pytest.raises(ValueError, match="resolves outside"):
+            night_run._item_worktree(root, "NS-001", "wt")
+
+    def test_a_relative_path_inside_the_repository_is_resolved(
+        self, tmp_path: Path
+    ) -> None:
+        assert night_run._item_worktree(tmp_path, "NS-001", "trees/one") == (
+            (tmp_path / "trees" / "one").resolve()
+        )

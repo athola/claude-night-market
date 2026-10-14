@@ -401,7 +401,7 @@ def post_discussion(
 
         repo_data = json.loads(result.stdout)
         repo_id = repo_data["data"]["repository"]["id"]
-    except (subprocess.TimeoutExpired, OSError, KeyError) as exc:
+    except (subprocess.TimeoutExpired, OSError, KeyError, TypeError, ValueError) as exc:
         _report("looking up the repository id", exc)
         return None
 
@@ -447,7 +447,7 @@ def post_discussion(
         data = json.loads(result.stdout)
         url: str = data["data"]["createDiscussion"]["discussion"]["url"]
         return url
-    except (subprocess.TimeoutExpired, OSError, KeyError) as exc:
+    except (subprocess.TimeoutExpired, OSError, KeyError, TypeError, ValueError) as exc:
         _report("creating the discussion", exc)
         return None
 

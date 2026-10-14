@@ -22,16 +22,22 @@ type Item = Record<string, unknown>
 
 function viewOf(manifest: Record<string, unknown>): LoopView | null {
   const listed = manifest.work_items || manifest.items
-  const items: Item[] = Array.isArray(listed) ? listed : []
+  // Non-object entries are dropped, as get_items in _manifest_utils.py does.
+  const items: Item[] = Array.isArray(listed)
+    ? listed.filter((i): i is Item => typeof i === 'object' && i !== null && !Array.isArray(i))
+    : []
   const unfinished = items.filter(i => UNFINISHED.has(String(i.status)))
   const current = unfinished.find(i => i.status === 'active') ?? unfinished[0]
-  if (current === undefined) return null
+  // WorkItem.from_dict raises KeyError without an id, so the loop cannot run it.
+  if (current === undefined || current.id === undefined) return null
+  // Defaults match WorkItem.from_dict in scripts/manifest.py, which the
+  // loop itself runs with.
   return {
     id: String(current.id),
-    stage: String(current.pipeline_stage),
-    step: String(current.pipeline_step),
+    stage: String(current.pipeline_stage ?? 'intake'),
+    step: String(current.pipeline_step ?? 'parse'),
     attempts: Number(current.attempts ?? 0),
-    maxAttempts: Number(current.max_attempts ?? 0),
+    maxAttempts: Number(current.max_attempts ?? 3),
     remaining: unfinished.length,
   }
 }

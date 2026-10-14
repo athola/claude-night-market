@@ -19,6 +19,12 @@ from learning import (
 )
 
 
+def test_a_pattern_never_seen_has_a_zero_success_rate() -> None:
+    """A zero frequency (e.g. a hand-edited patterns file) must not divide."""
+    pattern = LearnedPattern(category="approach", description="d", frequency=0)
+    assert pattern.success_rate == 0.0
+
+
 class TestExtractPatterns:
     """Feature: Pattern extraction from decision logs.
 
@@ -609,12 +615,12 @@ class TestLearningCli:
 
 
 class TestMathReviewLearningFindings:
-    """Math review findings C7, C8 and C9: the briefing reports true rates."""
+    """The briefing reports true rates."""
 
     def test_recency_decay_keeps_a_fully_successful_pattern_successful(
         self,
     ) -> None:
-        """C7: decay must not turn 100% success into a 0% CAUTION.
+        """Decay must not turn 100% success into a 0% CAUTION.
 
         Nine completed items each record a distinct decision. Frequency is
         floored at 1 while success_count used to round 0.478 down to 0.
@@ -640,7 +646,7 @@ class TestMathReviewLearningFindings:
     def test_recency_decay_keeps_each_pattern_on_its_side_of_the_threshold(
         self, successes: int, frequency: int
     ) -> None:
-        """C7: decayed counts give the same SUCCESS or CAUTION verdict."""
+        """Decayed counts give the same SUCCESS or CAUTION verdict."""
         patterns = [
             LearnedPattern(
                 category="approach",
@@ -658,7 +664,7 @@ class TestMathReviewLearningFindings:
             assert (pattern.success_rate >= SUCCESS_THRESHOLD) == before
 
     def test_an_unfinished_item_does_not_count_as_a_failure(self) -> None:
-        """C8: an active item's in-flight decisions are not yet outcomes."""
+        """An active item's in-flight decisions are not yet outcomes."""
         items = [
             {
                 "id": "wrk_1",
@@ -670,7 +676,7 @@ class TestMathReviewLearningFindings:
         assert extract_patterns(items) == []
 
     def test_a_failed_item_still_counts_against_its_decisions(self) -> None:
-        """C8: failed items remain in the denominator."""
+        """Failed items remain in the denominator."""
         items = [
             {
                 "id": "a",
@@ -686,7 +692,7 @@ class TestMathReviewLearningFindings:
         assert (pattern.frequency, pattern.success_count) == (2, 1)
 
     def test_last_seen_is_the_latest_item_that_made_the_decision(self) -> None:
-        """C9: a decision repeated yesterday is not dated to January."""
+        """A decision repeated yesterday is not dated to January."""
         items = [
             {
                 "id": "old",

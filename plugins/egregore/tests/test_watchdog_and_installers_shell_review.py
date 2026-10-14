@@ -1,6 +1,6 @@
 """Watchdog and installer behavior on corrupt state and awkward paths.
 
-Shell review S2-17, S2-18, S1-7, S1-8 and S1-9. A truncated budget.json
+A truncated budget.json
 killed every watchdog tick before it logged anything, and a truncated
 manifest was logged as "No active work items". The launchd plist broke
 on a path containing "&", re-installing kept the old job loaded, and the
@@ -128,3 +128,17 @@ def test_systemd_unit_quotes_and_escapes_the_script_path(tmp_path: Path) -> None
     exec_line = next(x for x in unit.splitlines() if x.startswith("ExecStart="))
     script = str(SCRIPTS / "watchdog.sh").replace("%", "%%")
     assert exec_line == f'ExecStart="{script}"'
+
+
+def test_systemd_unit_escapes_percent_in_the_working_directory(
+    tmp_path: Path,
+) -> None:
+    """The unit escapes % in WorkingDirectory, which systemd also expands."""
+    shim_dir, _calls = _shims(tmp_path, "systemctl")
+    workdir = tmp_path / "100% done"
+    workdir.mkdir()
+    result, home = _install(tmp_path, "install_systemd.sh", shim_dir, workdir)
+    assert result.returncode == 0, result.stderr
+    unit = (home / ".config/systemd/user/egregore-watchdog.service").read_text()
+    work_line = next(x for x in unit.splitlines() if x.startswith("WorkingDirectory="))
+    assert work_line == "WorkingDirectory=" + str(workdir).replace("%", "%%")

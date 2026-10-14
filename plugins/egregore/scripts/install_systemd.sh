@@ -4,7 +4,7 @@
 set -euo pipefail
 
 # ${0%/*} returns its input unchanged when $0 has no slash
-# (`bash install_systemd.sh`), where dirname gave ".".
+# (`bash install_systemd.sh`), so that case is the current directory.
 case "${0}" in
   */*) MYDIR="${0%/*}" ;;
   *) MYDIR="." ;;
@@ -69,7 +69,7 @@ Description=Egregore Watchdog Service
 
 [Service]
 Type=oneshot
-WorkingDirectory=${WORKING_DIR}
+WorkingDirectory=${UNIT_WORKING_DIR}
 ExecStart="${EXEC_SCRIPT}"
 EOF
 
@@ -114,7 +114,10 @@ main() {
   # Quoted so a space does not split the path, and % doubled so systemd does
   # not read it as a unit specifier.
   EXEC_SCRIPT="${WATCHDOG_SCRIPT//%/%%}"
-  readonly INTERVAL WORKING_DIR WATCHDOG_SCRIPT UNIT_DIR EXEC_SCRIPT
+  # WorkingDirectory expands specifiers too. It takes one path per line, so
+  # a space needs no quoting there.
+  UNIT_WORKING_DIR="${WORKING_DIR//%/%%}"
+  readonly INTERVAL WORKING_DIR WATCHDOG_SCRIPT UNIT_DIR EXEC_SCRIPT UNIT_WORKING_DIR
 
   depcheck || exit 1
 

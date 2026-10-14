@@ -84,7 +84,7 @@ class TestParseContributing:
     def test_numbered_item_at_minimum_length_is_kept_like_a_bullet(self) -> None:
         """A 10-character numbered item is kept, as the bullet branch keeps it.
 
-        Math review finding C2-16: the numbered branch used > where the
+        The numbered branch used > where the
         bullet branch used >=.
         """
         assert _extract_items_from_section("1. Add tests!") == ["Add tests!"]
@@ -171,7 +171,7 @@ class TestClassifyTechnique:
     def test_keyword_inside_another_word_does_not_match(self) -> None:
         """'ci' inside 'special' must not count as a testing keyword.
 
-        Math review finding C2-15: the substring match scored testing 1,
+        The substring match scored testing 1,
         tying documentation, and dict order picked testing.
         """
         assert (
@@ -237,7 +237,7 @@ class TestFormatDiscussion:
     def test_uncategorized_technique_renders_under_its_own_heading(self) -> None:
         """A technique classify_technique left as None is listed, not a crash.
 
-        Math review finding C2-1: sorting a None key beside str keys raised
+        Sorting a None key beside str keys raised
         TypeError, and None.title() raised AttributeError.
         """
         techniques = [
@@ -385,6 +385,29 @@ class TestPostDiscussion:
             repo_name="repo",
         )
         assert url is None
+
+    @patch("subprocess.run")
+    def test_returns_none_when_the_mutation_response_lacks_a_url(
+        self, mock_run: MagicMock, capsys
+    ) -> None:
+        """A GraphQL error body exits 0 but carries no discussion."""
+        repo_response = json.dumps({"data": {"repository": {"id": "R_abc123"}}})
+        error_response = json.dumps(
+            {"data": {"createDiscussion": None}, "errors": [{"message": "denied"}]}
+        )
+        mock_run.side_effect = [
+            MagicMock(returncode=0, stdout=repo_response),
+            MagicMock(returncode=0, stdout=error_response),
+        ]
+        url = post_discussion(
+            title="Test",
+            body="Body",
+            category_id="CAT_123",
+            repo_owner="org",
+            repo_name="repo",
+        )
+        assert url is None
+        assert "creating the discussion" in capsys.readouterr().err
 
     @patch(
         "subprocess.run",

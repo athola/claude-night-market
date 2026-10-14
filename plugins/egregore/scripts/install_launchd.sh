@@ -4,7 +4,7 @@
 set -euo pipefail
 
 # ${0%/*} returns its input unchanged when $0 has no slash
-# (`bash install_launchd.sh`), where dirname gave ".".
+# (`bash install_launchd.sh`), so that case is the current directory.
 case "${0}" in
   */*) MYDIR="${0%/*}" ;;
   *) MYDIR="." ;;

@@ -175,3 +175,66 @@ test('a second session.start replaces the timer instead of stacking one', async 
   await clock.advance(30_000)
   expect(disk.stats).toBe(statsBefore + 1)
 })
+
+test('an active item is shown ahead of an earlier pending one', async ($, on) => {
+  const queued = JSON.stringify({ work_items: [item('wrk-1', 'pending'), item('wrk-2', 'active', 'execute', 'build')] })
+  stubs(on, { manifest: queued, mtimeMs: 1 })
+  await start($)
+  const answer = await $.command.run({ command: 'egregore-loop', args: '' })
+  expect(answer.text).toMatch(/wrk-2 · build\/execute/)
+  expect(answer.text).toMatch(/2 remaining/)
+})
+
+test('with nothing active the first paused or pending item is shown', async ($, on) => {
+  const waiting = JSON.stringify({ work_items: [item('wrk-1', 'completed'), item('wrk-2', 'paused'), item('wrk-3', 'pending')] })
+  stubs(on, { manifest: waiting, mtimeMs: 1 })
+  await start($)
+  const answer = await $.command.run({ command: 'egregore-loop', args: '' })
+  expect(answer.text).toMatch(/wrk-2/)
+  expect(answer.text).toMatch(/2 remaining/)
+})
+
+test('work_items that is not a list reads as no work', async ($, on) => {
+  stubs(on, { manifest: JSON.stringify({ work_items: { id: 'wrk-1', status: 'active' } }), mtimeMs: 1 })
+  await start($)
+  expect(await bandText($)).toBeUndefined()
+  const answer = await $.command.run({ command: 'egregore-loop', args: '' })
+  expect(answer.text).toMatch(/finished/)
+})
+
+test('a manifest removed while running empties the band on the next tick', async ($, on) => {
+  const disk: Disk = { manifest: RUNNING, mtimeMs: 1 }
+  const clock = stubs(on, disk)
+  await start($)
+  const before = await $.ui.mount({ ...BAND, surface: 'terminal' })
+  expect(await before.find({ type: 'Text', text: /egregore/ })).toBeDefined()
+  await before.unmount()
+  disk.manifest = null
+  await clock.advance(30_000)
+  expect(await bandText($)).toBeUndefined()
+})
+
+test('a null work item is skipped and the rest of the loop is shown', async ($, on) => {
+  const withNull = JSON.stringify({ work_items: [null, 7, item('wrk-2', 'active', 'execute', 'build')] })
+  stubs(on, { manifest: withNull, mtimeMs: 1 })
+  await start($)
+  const answer = await $.command.run({ command: 'egregore-loop', args: '' })
+  expect(answer.text).toMatch(/wrk-2/)
+  expect(answer.text).toMatch(/1 remaining/)
+})
+
+test('an item missing stage, step and limits shows the defaults the loop runs with', async ($, on) => {
+  stubs(on, { manifest: JSON.stringify({ work_items: [{ id: 'wrk-9', status: 'active' }] }), mtimeMs: 1 })
+  await start($)
+  const answer = await $.command.run({ command: 'egregore-loop', args: '' })
+  expect(answer.text).toMatch(/intake\/parse/)
+  expect(answer.text).toMatch(/attempt 0\/3/)
+})
+
+test('an item missing its id draws no band rather than an undefined one', async ($, on) => {
+  stubs(on, { manifest: JSON.stringify({ work_items: [{ status: 'active', pipeline_step: 'execute' }] }), mtimeMs: 1 })
+  await start($)
+  expect(await bandText($)).toBeUndefined()
+  const answer = await $.command.run({ command: 'egregore-loop', args: '' })
+  expect(answer.text).not.toMatch(/undefined/)
+})

@@ -191,7 +191,7 @@ accordingly before running checks.
 
 ## Exit Criteria
 
-- All applicable convention checks executed
-- All mapped skills invoked
-- Verdict calculated and recorded in manifest
-- For PR-review: GitHub review posted
+- [ ] All applicable convention checks executed
+- [ ] All mapped skills invoked
+- [ ] Verdict calculated and recorded in manifest
+- [ ] For PR-review: GitHub review posted

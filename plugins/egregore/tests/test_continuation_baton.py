@@ -194,7 +194,7 @@ class TestStrandedMeansStalledNotOld:
         WHEN the watcher checks it without passing now
         THEN the call is rejected rather than comparing against epoch 0
 
-        Math review finding C2-21: the 0.0 default made every baton read
+        The 0.0 default made every baton read
         as not stranded, so a watcher that omitted now never relaunched.
         """
         write_baton(_baton(sequence=1, deadline=2000.0), baton_path)

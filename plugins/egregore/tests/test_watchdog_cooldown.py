@@ -1,12 +1,11 @@
 """The watchdog reads ``cooldown_until`` as the UTC instant it is.
 
-Math review finding C1. ``budget.py`` and ``window.record_reset`` write
-``cooldown_until`` as a UTC ISO timestamp. On macOS the watchdog parsed it
-with ``date -j``, which reads the wall-clock fields in the local zone and
-ignores the offset: under America/Los_Angeles a reset that had already
-passed still read as seven hours away, and under Asia/Tokyo a reset an
-hour ahead read as eight hours gone, so the watchdog relaunched into the
-same limit.
+``budget.py`` and ``window.record_reset`` write ``cooldown_until`` as a
+UTC ISO timestamp. On macOS the watchdog parsed it with ``date -j``, which
+reads the wall-clock fields in the local zone and ignores the offset:
+under America/Los_Angeles a reset that had already passed still read as
+seven hours away, and under Asia/Tokyo a reset an hour ahead read as eight
+hours gone, so the watchdog relaunched into the same limit.
 """
 
 from __future__ import annotations
@@ -88,3 +87,39 @@ def test_record_reset_writes_the_resume_instant_in_utc() -> None:
     record_reset(state, reset_at, now=reset_at - timedelta(hours=1))
 
     assert state.cooldown_until == "2026-10-05T12:00:00+00:00"
+
+
+@pytest.mark.parametrize("stamp", ["garbage", "2099-13-45T99:00:00+00:00"])
+def test_an_unparseable_cooldown_is_an_error_not_an_expired_cooldown(
+    tmp_path: Path, stamp: str
+) -> None:
+    """A cooldown that does not parse stops the tick, like a bad budget.json."""
+    egregore_dir = tmp_path / ".egregore"
+    egregore_dir.mkdir()
+    (egregore_dir / "manifest.json").write_text(
+        json.dumps({"work_items": [{"status": "active"}]})
+    )
+    (egregore_dir / "budget.json").write_text(json.dumps({"cooldown_until": stamp}))
+    # No pidfile: a tick that got past the cooldown would relaunch.
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    claude = fake_bin / "claude"
+    claude.write_text(f"#!/bin/sh\ntouch '{tmp_path / 'launched'}'\n")
+    claude.chmod(0o755)
+
+    proc = subprocess.run(
+        ["bash", str(WATCHDOG)],
+        env={
+            **os.environ,
+            "EGREGORE_DIR": str(egregore_dir),
+            "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
+        },
+        cwd=tmp_path,
+        check=False,
+    )
+
+    log = (egregore_dir / "watchdog.log").read_text()
+    assert proc.returncode == 1
+    assert f"cooldown_until '{stamp}' does not parse" in log
+    assert "Relaunching" not in log
+    assert not (egregore_dir / "pid").exists()

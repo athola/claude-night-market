@@ -16,7 +16,7 @@ from pathlib import Path
 
 import night_run
 import pytest
-from budget import Budget
+from budget import Budget, load_budget
 from handoff_gate import Handoff
 
 
@@ -447,6 +447,39 @@ class TestRateLimitParksTheRun:
         assert budget.cooldown_until is not None
         assert budget.cooldown_until.startswith("2099-01-01")
 
+    def test_the_cooldown_is_written_to_budget_path_for_the_watchdog(
+        self, tmp_path: Path
+    ) -> None:
+        """An in-memory cooldown is lost when the session exits.
+
+        The watchdog reads budget.json, so without the write it relaunches
+        straight into the same rate limit.
+        """
+        runner = FakeRunner(
+            {
+                "pytest": (
+                    1,
+                    "API Error: Request rejected (429)\n"
+                    "anthropic-ratelimit-tokens-reset: 2099-01-01T00:00:00Z",
+                )
+            }
+        )
+        budget_path = tmp_path / "state" / "budget.json"
+        budget_path.parent.mkdir()
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+            budget=Budget(),
+            budget_path=budget_path,
+        )
+        assert result.status == "parked_rate_limit"
+        saved = load_budget(budget_path)
+        assert saved.cooldown_until is not None
+        assert saved.cooldown_until.startswith("2099-01-01")
+
     def test_an_unparseable_rate_limit_still_parks_with_a_wait(
         self, tmp_path: Path
     ) -> None:
@@ -730,6 +763,35 @@ class TestScopeSeesFilesTheImplementerCreates:
             babysitter=passing_sitter,
         )
 
+        assert result.tasks and result.tasks[-1].verdict == "BLOCKED"
+        assert "could not be reverted" in result.tasks[-1].reason
+
+    def test_a_failed_checkout_of_a_tracked_file_is_not_claimed_reverted(
+        self, tmp_path: Path
+    ) -> None:
+        """A tracked out-of-scope edit takes `git checkout --`, not `clean`.
+
+        Its exit code is read on its own: a refused checkout leaves the
+        edit in the tree, so the task cannot be reported as reverted.
+        """
+        runner = FakeRunner(
+            {
+                "git diff --name-only": (0, "b/outside.py\n"),
+                "git checkout": (1, "error: unable to unlink b/outside.py"),
+                "pytest": (0, "1 passed"),
+            }
+        )
+
+        result = night_run.run_item(
+            HANDOFF,
+            [mktask("T1", [], expect="fail")],
+            tmp_path,
+            runner,
+            babysitter=passing_sitter,
+        )
+
+        assert any("git checkout -- b/outside.py" in c for c in runner.calls)
+        assert not any("git clean" in c and "b/outside.py" in c for c in runner.calls)
         assert result.tasks and result.tasks[-1].verdict == "BLOCKED"
         assert "could not be reverted" in result.tasks[-1].reason
 
