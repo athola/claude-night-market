@@ -7,8 +7,9 @@ awaits input, supporting Linux, macOS, Windows, and WSL platforms.
 
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
-from subprocess import TimeoutExpired
+from subprocess import CompletedProcess, TimeoutExpired
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -690,6 +691,37 @@ class TestLinuxNotifyResolvesBinary:
 
     @pytest.mark.bdd
     @pytest.mark.integration
+    def test_slow_notify_send_still_delivers(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A notify-send that takes over a second still counts as delivered.
+
+        Process start alone took 1.2s on a loaded machine, and the 1s cap
+        killed the call, so the notification was dropped and
+        test_uses_notify_send_from_path failed under load.
+        """
+        # The process is simulated rather than slept: a real 1.2s stub on a
+        # loaded machine overran the cap itself and failed the suite. The
+        # fake behaves like a notifier that needs SLOW_START seconds, so the
+        # outcome depends only on the timeout notify_linux grants it.
+        slow_start = 1.2
+        hook_cap = 5  # hooks.json timeout for the Stop entry
+        granted: list[float] = []
+
+        def slow_notifier(cmd, **kwargs):
+            granted.append(kwargs["timeout"])
+            if kwargs["timeout"] < slow_start:
+                raise TimeoutExpired(cmd, kwargs["timeout"])
+            return CompletedProcess(cmd, 0)
+
+        monkeypatch.setattr("session_complete_notify.subprocess.run", slow_notifier)
+
+        assert notify_linux("Title", "Message") is True
+        assert len(granted) == 1
+        assert slow_start < granted[0] < hook_cap
+
+    @pytest.mark.bdd
+    @pytest.mark.integration
     def test_uses_notify_send_from_path(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -700,6 +732,16 @@ class TestLinuxNotifyResolvesBinary:
         """
         log = self._fake_notify_send(tmp_path)
         monkeypatch.setenv("PATH", str(tmp_path))
+        # The stub really runs, but process start alone passed 1s on a
+        # loaded machine. The cap notify_linux grants is pinned by
+        # test_slow_notify_send_still_delivers, so here the real call gets
+        # room to start and the test asserts delivery, not elapsed time.
+        real_run = subprocess.run
+
+        def roomy_run(cmd, **kwargs):
+            return real_run(cmd, **{**kwargs, "timeout": 60})
+
+        monkeypatch.setattr("session_complete_notify.subprocess.run", roomy_run)
 
         result = notify_linux("Title Here", "Message body")
 

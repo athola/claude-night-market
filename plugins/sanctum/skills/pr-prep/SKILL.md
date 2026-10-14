@@ -136,7 +136,8 @@ never as a pass. Step 2 is where `passes_checks` gets its answer.
 
 Then use the notes from the workspace review and the analyzer's
 categories to identify the key points in the diffs, and group them
-into 2-4 paragraphs on the technical changes and their rationale. Note breaking changes, migrations, or documentation updates.
+into 2-4 paragraphs on the technical changes and their rationale. Note breaking
+changes, migrations, or documentation updates.
 
 ## Step 4: Document Testing (`testing-documented`)
 
@@ -198,7 +199,8 @@ Do not include tool or AI attribution in the PR text. If changes are required mi
 
 ## Supporting Modules
 
-- [Progress item patterns](modules/todowrite-patterns.md) - naming conventions for sanctum progress items
+- [Progress item patterns](modules/todowrite-patterns.md) - naming conventions
+  for sanctum progress items
 
 ## Troubleshooting
 

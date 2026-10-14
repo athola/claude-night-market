@@ -192,7 +192,9 @@ def git_untracked_files(repo_path: str = ".") -> list[str]:
 
         env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
         result = subprocess.run(
-            [git_path, "status", "--porcelain"],
+            # -z: names with spaces or non-ASCII come back verbatim, not
+            # C-quoted ("caf\303\251.md" in quotes).
+            [git_path, "status", "--porcelain", "-z"],
             cwd=repo_path,
             capture_output=True,
             text=True,
@@ -200,10 +202,9 @@ def git_untracked_files(repo_path: str = ".") -> list[str]:
             env=env,
         )
         untracked = []
-        for line in result.stdout.splitlines():
-            if line.startswith("??"):
-                file_path = line[3:].strip()
-                untracked.append(file_path)
+        for entry in result.stdout.split("\0"):
+            if entry.startswith("??"):
+                untracked.append(entry[3:])
         return untracked
     except (subprocess.CalledProcessError, FileNotFoundError):
         return []

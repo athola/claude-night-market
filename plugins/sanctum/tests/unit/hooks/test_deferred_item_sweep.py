@@ -447,7 +447,7 @@ class TestSweepBudget:
     ) -> None:
         """Entries left for the next sweep are named in both stderr lines.
 
-        Math review finding C2-20: with no budget and two unfiled entries
+        With no budget and two unfiled entries
         the sweep printed "0 items remain unfiled" and main() printed
         nothing, while stats held deferred_to_next_sweep=2.
         """

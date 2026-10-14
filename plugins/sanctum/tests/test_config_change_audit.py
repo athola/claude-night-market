@@ -382,6 +382,40 @@ class TestPreToolUseSettingsAudit:
         out = captured_stderr.getvalue()
         assert "source=user_settings" in out
 
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "file_path",
+        [
+            "/srv/claude-config/settings.json",
+            "/home/alice/.claude-work/settings.json",
+        ],
+    )
+    def test_relocated_config_dir_settings_are_user_settings(
+        self, file_path: str
+    ) -> None:
+        """CLAUDE_CONFIG_DIR moves the user settings file out of ~/.claude."""
+        config_dir = file_path.rsplit("/", 1)[0]
+        input_data = json.dumps(
+            {
+                "session_id": "sess-pre-5",
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Edit",
+                "tool_input": {"file_path": file_path},
+            }
+        )
+        with (
+            patch("sys.stdin", _make_stdin_mock(input_data)),
+            patch.dict(
+                "os.environ", {"HOME": "/home/alice", "CLAUDE_CONFIG_DIR": config_dir}
+            ),
+        ):
+            captured_stderr = StringIO()
+            with patch("sys.stderr", captured_stderr):
+                with pytest.raises(SystemExit):
+                    main()
+
+        assert "source=user_settings" in captured_stderr.getvalue()
+
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_project_under_home_is_project_settings(self) -> None:
@@ -463,3 +497,36 @@ class TestPreToolUseSettingsAudit:
 
         assert exc_info.value.code == 0
         assert "[CONFIG_CHANGE_AUDIT]" not in captured_stderr.getvalue()
+
+
+class TestSettingsPathClassification:
+    """PreToolUse edits are audited only for settings files, by source."""
+
+    @staticmethod
+    def _audit(file_path: str) -> str:
+        payload = {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Edit",
+            "session_id": "s1",
+            "tool_input": {"file_path": file_path},
+        }
+        err = StringIO()
+        with (
+            patch("sys.stdin", StringIO(json.dumps(payload))),
+            patch("sys.stderr", err),
+            pytest.raises(SystemExit) as exc,
+        ):
+            main()
+        assert exc.value.code == 0
+        return err.getvalue()
+
+    @pytest.mark.unit
+    def test_edit_without_a_file_path_is_not_audited(self) -> None:
+        assert self._audit("") == ""
+
+    @pytest.mark.unit
+    def test_managed_policy_file_is_audited_as_policy_settings(self) -> None:
+        path = "/Library/Application Support/ClaudeCode/managed-settings.json"
+        line = self._audit(path)
+        assert "source=policy_settings" in line
+        assert f"file={path}" in line

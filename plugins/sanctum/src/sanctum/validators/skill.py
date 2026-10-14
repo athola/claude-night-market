@@ -8,12 +8,10 @@ from pathlib import Path
 from ._frontmatter import parse_frontmatter
 from ._results import SkillValidationResult
 
-# AR-F3: helper lives in _shared.py; re-exported here for the
-# package public surface (validators/__init__.py imports it from
-# this module per the original sanctum.validators contract).
+# AR-F3: helper lives in _shared.py and stays private to the package.
 from ._shared import _extract_skill_refs_from_content
 
-__all__ = ["SkillValidator", "_extract_skill_refs_from_content"]
+__all__ = ["SkillValidator"]
 
 
 class SkillValidator:

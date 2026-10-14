@@ -167,7 +167,7 @@ def test_compute_relevance_scores_header_match(tmp_path):
 def test_file_name_credit_needs_a_whole_header_word(tmp_path):
     """A header word must be a word of the file name, not a substring.
 
-    Math review finding C2-19: "on" inside "configuration" earned +0.2
+    "on" inside "configuration" earned +0.2
     and lifted identical content from 0.4 (CREATE_NEW) to 0.6
     (INTELLIGENT_WEAVE).
     """
@@ -452,3 +452,21 @@ def test_main_plan_json_output(tmp_path, monkeypatch, capsys):
     parsed = json.loads(capsys.readouterr().out)
     assert "routes" in parsed
     assert "summary" in parsed
+
+
+def test_git_untracked_files_returns_names_with_spaces_and_unicode_unquoted(tmp_path):
+    """`git status --porcelain` quotes such names; callers need the real path."""
+    cp = _load_script()
+    _git("init", "-q", "-b", "main", str(tmp_path))
+    _git("-C", str(tmp_path), "config", "user.email", "t@example.com")
+    _git("-C", str(tmp_path), "config", "user.name", "Tester")
+    (tmp_path / "seed.md").write_text("# seed\n")
+    _git("-C", str(tmp_path), "add", "seed.md")
+    _git("-C", str(tmp_path), "commit", "-q", "-m", "init")
+    (tmp_path / "audit report.md").write_text("\n")
+    (tmp_path / "café notes.md").write_text("\n")
+
+    untracked = cp.git_untracked_files(str(tmp_path))
+
+    assert "audit report.md" in untracked
+    assert "café notes.md" in untracked

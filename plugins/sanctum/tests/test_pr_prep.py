@@ -126,7 +126,7 @@ class TestPRPrepAnalyzer:
         WHEN detect_breaking_changes is called
         THEN only the footer commit and the scoped type! commit are breaking
 
-        Math review finding C2-23: any "!" in the message counted, so
+        Any "!" in the message counted, so
         "fix: stop crashing on empty input!" was flagged and the
         BREAKING CHANGE footer was missed.
         """

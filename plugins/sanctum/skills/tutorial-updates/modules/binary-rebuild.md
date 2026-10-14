@@ -1,6 +1,7 @@
 # Binary Rebuild Module
 
-**CRITICAL**: Ensure the binary being tested in tapes matches the latest source code. Stale binaries produce misleading demos.
+**CRITICAL**: Ensure the binary being tested in tapes matches the latest source
+code. Stale binaries produce misleading demos.
 
 ### Step 1.6.1: Detect Build System
 
@@ -22,7 +23,6 @@ else
   BUILD_SYSTEM="unknown"
 fi
 ```
-**Verification:** Run `make --dry-run` to verify build configuration.
 
 ### Step 1.6.2: Check Binary Freshness
 
@@ -72,7 +72,6 @@ check_binary_freshness() {
   fi
 }
 ```
-**Verification:** Run `git status` to confirm working tree state.
 
 ### Step 1.6.3: Rebuild Binary
 
@@ -106,7 +105,6 @@ rebuild_binary() {
   echo "Build complete: $binary_name"
 }
 ```
-**Verification:** Run `make --dry-run` to verify build configuration.
 
 ### Step 1.6.4: Verify Binary Accessibility
 
@@ -131,7 +129,6 @@ verify_binary() {
   fi
 }
 ```
-**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Rebuild Flags
 
@@ -148,4 +145,5 @@ verify_binary() {
 - [ ] Rebuilt binary is accessible in PATH
 - [ ] Binary executes successfully (--version test)
 
-**If rebuild fails**: Stop immediately, report build errors, and do NOT proceed to tape validation or VHS recording.
+**If rebuild fails**: Stop immediately, report build errors, and do NOT proceed
+to tape validation or VHS recording.

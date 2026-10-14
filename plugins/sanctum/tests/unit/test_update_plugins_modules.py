@@ -7,6 +7,7 @@ Tests for Phase 2-4 functionality:
 """
 
 import json
+import os
 import tempfile
 import time
 from datetime import datetime, timedelta, timezone
@@ -336,7 +337,10 @@ class TestKnowledgeQueueChecker:
         low_file = temp_queue_dir / "low.md"
         low_content = "---\nstatus: pending\npriority: low\n---\n\nLow priority"
         low_file.write_text(low_content)
-        time.sleep(0.01)  # Ensure different timestamps
+        # Age the low item by setting its mtime, not by sleeping: the sort
+        # puts priority before age, and the age must be a known value.
+        three_days_ago = time.time() - 3 * 86400
+        os.utime(low_file, (three_days_ago, three_days_ago))
 
         # Create high priority item
         high_file = temp_queue_dir / "high.md"
@@ -352,10 +356,12 @@ class TestKnowledgeQueueChecker:
         assert len(result) == 2
         assert result[0]["priority"] == "high"
         assert result[1]["priority"] == "low"
+        assert result[1]["age_days"] == 3
+        assert result[0]["age_days"] == 0
 
 
 class TestLogTimestampsWithAnOffset:
-    """Math review finding C13: logger output carries a UTC offset."""
+    """Logger output carries a UTC offset."""
 
     @pytest.mark.unit
     def test_offset_timestamps_are_compared_with_the_cutoff(

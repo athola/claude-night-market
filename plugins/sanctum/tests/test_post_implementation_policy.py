@@ -24,6 +24,7 @@ HOOKS_DIR = Path(__file__).parent.parent / "hooks"
 sys.path.insert(0, str(HOOKS_DIR))
 
 from post_implementation_policy import (
+    _GIT_BUDGET_SECONDS,
     LIGHTWEIGHT_AGENTS,
     RISK_POLICY,
     SHORT_REMINDER,
@@ -588,8 +589,8 @@ class TestCommittedWorkStillCountsAsBranchSize:
     not what lowers the stakes on a branch.
 
     These tests are about what gets measured, not how fast. The hook's
-    0.8s budget is sized for a 1s SessionStart cap, and on a loaded
-    machine three git start-ups overrun it. measure_branch then reports
+    git budget is sized to fit inside the SessionStart timeout, and on a
+    loaded machine three git start-ups overrun it. measure_branch then reports
     (0, False) by design, so the committed-branch assertion failed for a
     reason unrelated to its subject. The budget has its own test,
     test_a_slow_git_cannot_outlast_the_hook_timeout.
@@ -647,11 +648,11 @@ class TestCommittedWorkStillCountsAsBranchSize:
 
 
 def test_a_slow_git_cannot_outlast_the_hook_timeout() -> None:
-    """Every git call shares one budget under the 1s SessionStart cap.
+    """Every git call in one measurement shares one budget.
 
-    Math review finding C2-11: each of up to five sequential git calls got
-    its own 0.8s timeout, so a slow git could spend 4.0s and the harness
-    killed the hook before it injected anything.
+    When each of up to five sequential git calls got its own 0.8s timeout,
+    a slow git could spend 4.0s and the harness killed the hook before it
+    injected anything.
     """
     clock = [0.0]
     timeouts: list[float] = []
@@ -673,3 +674,73 @@ def test_a_slow_git_cannot_outlast_the_hook_timeout() -> None:
 
     assert timeouts, "measure_branch never asked git"
     assert sum(timeouts) < 1.0
+
+
+def test_registered_timeout_covers_git_budget_plus_interpreter_start() -> None:
+    """The SessionStart cap must outlast Python start-up plus the git budget.
+
+    Registered at 1s with an 0.8s git budget, the hook ran 1.5-1.9s warm
+    and about 3.2s cold on a loaded machine: the budget starts only after
+    the interpreter has started and imported, so the harness killed the
+    hook and its policy text never reached the session.
+    """
+    manifest = HOOKS_DIR / "hooks.json"
+    caps = [
+        entry["timeout"]
+        for groups in json.loads(manifest.read_text())["hooks"].values()
+        for group in groups
+        for entry in group.get("hooks", [])
+        if "post_implementation_policy.py" in entry.get("command", "")
+    ]
+    start_up_margin = 2.0
+    assert caps
+    assert min(caps) >= _GIT_BUDGET_SECONDS + start_up_margin
+
+
+@pytest.mark.parametrize(
+    ("path", "is_test"),
+    [
+        ("src/latest_version.py", False),
+        ("docs/spec.md", False),
+        ("src/contest_rules.py", False),
+        ("tests/test_a.py", True),
+        ("pkg/test_a.py", True),
+        ("pkg/a_test.go", True),
+        ("web/a.spec.ts", True),
+        ("web/__tests__/a.ts", True),
+    ],
+)
+def test_tests_touched_matches_test_files_not_substrings(path, is_test) -> None:
+    """GIVEN a numstat line for one path.
+
+    WHEN the branch is measured
+    THEN only a test file counts as touching tests
+    """
+    numstat = f"10\t2\t{path}\n"
+    with patch("post_implementation_policy._git") as git:
+        git.side_effect = lambda args, deadline: (
+            "abc123\n" if args[0] == "merge-base" else numstat
+        )
+        _, tests_touched = measure_branch()
+
+    assert tests_touched is is_test
+
+
+def test_numstat_lines_without_three_fields_are_not_counted(monkeypatch) -> None:
+    """GIVEN git output that mixes a numstat row with lines of another shape.
+
+    WHEN the branch is measured
+    THEN only the well-formed row contributes lines and test signal
+    """
+
+    def fake_git(cmd, **_kwargs):
+        if cmd[1] == "merge-base":
+            return subprocess.CompletedProcess(cmd, 0, stdout="abc123\n")
+        stdout = (
+            "warning: CRLF will be replaced\n3\t1\tsrc/app.py\n7\ttests/test_x.py\n"
+        )
+        return subprocess.CompletedProcess(cmd, 0, stdout=stdout)
+
+    monkeypatch.setattr("post_implementation_policy.subprocess.run", fake_git)
+
+    assert measure_branch() == (4, False)

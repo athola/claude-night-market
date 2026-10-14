@@ -21,6 +21,7 @@ Read `agent_type` from hook input (Claude Code 2.1.2+) to customize policy injec
 from __future__ import annotations
 
 import json
+import re
 import subprocess  # nosec B404
 import sys
 import time
@@ -30,7 +31,11 @@ from pathlib import Path
 # the full text. Below it, the reminder carries the same practice.
 LARGE_BRANCH_LINES = 500
 
-_TEST_PATH_MARKERS = ("test_", "_test.", "/tests/", "spec.", ".spec.")
+# Matched on path segments. A substring test counted src/latest_version.py
+# and docs/spec.md as test files.
+_TEST_PATH_RE = re.compile(
+    r"(^|/)(tests?|__tests__|spec)/|(^|/)test_[^/]*$|_test\.[^/]*$|\.(spec|test)\.[^/]*$"
+)
 
 # git diff --numstat emits added, removed, path per line.
 _NUMSTAT_FIELDS = 3
@@ -122,10 +127,11 @@ _BASE_CANDIDATES = (
 )
 
 
-#: Budget for every git call in one measurement together, under the 1s
-#: SessionStart cap in hooks.json. measure_branch makes up to five calls in
-#: sequence; a per-call budget let a slow git spend 4.0s, and the hook is
-#: killed at the cap holding an answer it can never report.
+#: Budget for every git call in one measurement together. The SessionStart
+#: cap in hooks.json must cover this plus interpreter start-up, which the
+#: test suite checks. measure_branch makes up to five calls in sequence; a
+#: per-call budget let a slow git spend 4.0s, and the hook is killed at the
+#: cap holding an answer it can never report.
 _GIT_BUDGET_SECONDS = 0.8
 
 
@@ -199,8 +205,7 @@ def measure_branch() -> tuple[int, bool]:
         added, removed, path = parts
         # Binary files report "-" for both counts.
         changed += sum(int(n) for n in (added, removed) if n.isdigit())
-        candidate = f"/{Path(path).as_posix()}"
-        if any(marker in candidate for marker in _TEST_PATH_MARKERS):
+        if _TEST_PATH_RE.search(Path(path).as_posix()):
             tests_touched = True
 
     return changed, tests_touched

@@ -371,16 +371,17 @@ When `ENABLE_LSP_TOOL=1` is set, enhance accuracy verification with semantic ana
 
 ## Exit Criteria
 
-- All progress items are completed and documentation is updated.
-- New ADRs, if any, are in `wiki/architecture/` (or the established ADR directory) with the correct status and links to related work.
-- Directory-specific style rules are satisfied.
-- Each edited document has a declared or stated-inferred audience
-  tier, and no section serves a different one.
-- Off-tier content was extracted to `modules/` or
-  `docs/deep-dive/` and linked, never deleted to hit a tier.
-- Accuracy warnings addressed or acknowledged.
-- Content does not sound AI-generated.
-- Files are staged or ready for review.
+- [ ] All progress items are completed and documentation is updated.
+- [ ] New ADRs, if any, are in `wiki/architecture/` (or the established ADR
+      directory) with the correct status and links to related work.
+- [ ] Directory-specific style rules are satisfied.
+- [ ] Each edited document has a declared or stated-inferred audience tier, and
+      no section serves a different one.
+- [ ] Off-tier content was extracted to `modules/` or `docs/deep-dive/` and
+      linked, never deleted to hit a tier.
+- [ ] Accuracy warnings addressed or acknowledged.
+- [ ] Content does not sound AI-generated.
+- [ ] Files are staged or ready for review.
 
 ## Flags
 

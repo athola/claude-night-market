@@ -45,7 +45,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/post_implementation_policy.py\"",
-            "timeout": 1
+            "timeout": 5
           },
           {
             "type": "command",

@@ -10,6 +10,7 @@ for abandoned brainstorm sessions (``server-stopped`` marker, or stale
 from __future__ import annotations
 
 import json
+import os
 import sys
 from io import StringIO
 from pathlib import Path
@@ -20,7 +21,7 @@ import pytest
 HOOKS_DIR = Path(__file__).resolve().parent.parent / "hooks"
 sys.path.insert(0, str(HOOKS_DIR))
 
-from brainstorm_session_warn import find_stale_sessions, main
+from brainstorm_session_warn import _format_warning, find_stale_sessions, main
 
 
 class TestFindStaleSessions:
@@ -181,3 +182,88 @@ class TestMainHook:
             with pytest.raises(SystemExit) as exc:
                 main()
         assert exc.value.code == 0
+
+
+class TestErrorPaths:
+    """The hook never blocks session start, and says why when it gives up."""
+
+    @staticmethod
+    def _run_main(stdin, project_dir: Path) -> tuple[int, str, str]:
+        out, err = StringIO(), StringIO()
+        with (
+            patch("sys.stdin", stdin),
+            patch("sys.stdout", out),
+            patch("sys.stderr", err),
+            patch.dict("os.environ", {"CLAUDE_PROJECT_DIR": str(project_dir)}),
+            pytest.raises(SystemExit) as exc,
+        ):
+            main()
+        return exc.value.code, out.getvalue(), err.getvalue()
+
+    @pytest.mark.unit
+    def test_a_stray_file_beside_the_sessions_is_not_a_session(self, tmp_path) -> None:
+        """GIVEN a plain file next to a stale session directory
+        WHEN sessions are scanned
+        THEN only the directory is reported.
+        """
+        root = tmp_path / ".superpowers" / "brainstorm"
+        (root / "s1" / "state").mkdir(parents=True)
+        (root / "s1" / "state" / "server-stopped").write_text("")
+        (root / "notes.txt").write_text("not a session")
+
+        assert find_stale_sessions(tmp_path) == [root / "s1"]
+
+    @pytest.mark.unit
+    def test_unreadable_stdin_exits_zero_with_a_breadcrumb(self, tmp_path) -> None:
+        """GIVEN stdin that raises on read
+        WHEN the hook runs
+        THEN it exits 0, prints nothing to stdout, and names the cause on stderr.
+        """
+
+        class BrokenStdin:
+            def read(self) -> str:
+                raise OSError("bad fd")
+
+        code, out, err = self._run_main(BrokenStdin(), tmp_path)
+
+        assert code == 0
+        assert out == ""
+        assert "stdin read failed (bad fd)" in err
+
+    @pytest.mark.unit
+    @pytest.mark.skipif(
+        hasattr(os, "geteuid") and os.geteuid() == 0,
+        reason="root reads a mode-000 directory, so the scan cannot fail",
+    )
+    def test_unreadable_brainstorm_dir_exits_zero_with_a_breadcrumb(
+        self, tmp_path
+    ) -> None:
+        """GIVEN a brainstorm directory the scan cannot list
+        WHEN the hook runs
+        THEN it exits 0, prints nothing to stdout, and reports the scan failure.
+        """
+        root = tmp_path / ".superpowers" / "brainstorm"
+        root.mkdir(parents=True)
+        root.chmod(0o000)
+        try:
+            code, out, err = self._run_main(StringIO("{}"), tmp_path)
+        finally:
+            root.chmod(0o755)
+
+        assert code == 0
+        assert out == ""
+        assert "brainstorm_session_warn: scan failed" in err
+
+    @pytest.mark.unit
+    def test_session_outside_the_project_is_listed_by_absolute_path(
+        self, tmp_path
+    ) -> None:
+        """GIVEN a stale session that is not under the project directory
+        WHEN the warning is formatted
+        THEN the bullet and the rm line carry its absolute path.
+        """
+        elsewhere = tmp_path / "elsewhere" / "s9"
+        warning = _format_warning([elsewhere], tmp_path / "project")
+
+        assert f"- `{elsewhere}`" in warning
+        assert f"rm -rf {elsewhere}" in warning

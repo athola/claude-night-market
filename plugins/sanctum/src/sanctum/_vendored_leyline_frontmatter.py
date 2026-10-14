@@ -47,9 +47,10 @@ def parse_frontmatter(content: str) -> dict[str, Any] | None:
     raw = "\n".join(lines[1:end_index])
     if _yaml is not None:
         try:
-            return _yaml.safe_load(raw) or {}
+            loaded = _yaml.safe_load(raw) or {}
         except _yaml.YAMLError:
             return None
+        return loaded if isinstance(loaded, dict) else None
     # Minimal fallback: simple key-value pairs only
     return _fallback_parse(raw)
 

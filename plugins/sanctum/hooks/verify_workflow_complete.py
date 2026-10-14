@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""Workflow verification reminder at session stop.
+"""Post-implementation checklist after a turn that edited files.
 
-Provides a reminder to complete post-implementation checklist
-when a Claude session ends.
+Claude Code runs Stop hooks at the end of every assistant turn, not once
+per session. Shown unconditionally, the 22-line checklist would follow
+every answer to a question. It is shown only when the turn that just
+ended used a file-editing tool, read from the tail of the transcript.
 """
 
 from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 
 REMINDER = """
 ## Post-Implementation Checklist Reminder
@@ -37,16 +40,68 @@ If not applicable (simple fix, research, etc.), disregard this reminder.
 """.strip()
 
 
-def main() -> None:
-    """Provide workflow reminder at session end."""
-    # Read stop reason from stdin (optional)
-    try:
-        _ = json.load(sys.stdin)
-    except (json.JSONDecodeError, TypeError, ValueError, AttributeError):
-        pass  # Non-JSON or empty stdin is normal for this hook
+_EDIT_TOOLS = frozenset({"Edit", "Write", "MultiEdit", "NotebookEdit"})
 
-    # Output reminder
-    print(json.dumps({"reason": REMINDER}))
+# The hook's timeout in hooks.json is 1s, so only the end of the
+# transcript is read. One turn's rows fit in this many bytes in practice.
+_TAIL_BYTES = 512 * 1024
+
+
+def _content_items(row: dict) -> list:
+    message = row.get("message")
+    content = message.get("content") if isinstance(message, dict) else None
+    if isinstance(content, str):
+        return [{"type": "text"}]
+    return [item for item in content or [] if isinstance(item, dict)]
+
+
+def _is_prompt(row: dict) -> bool:
+    """Return True for a user row that starts a turn (not a tool result)."""
+    if row.get("type") != "user" or row.get("isMeta"):
+        return False
+    return not any(item.get("type") == "tool_result" for item in _content_items(row))
+
+
+def _turn_edited_files(transcript_path: str) -> bool:
+    """Whether the last turn in the transcript used a file-editing tool."""
+    try:
+        with Path(transcript_path).open("rb") as handle:
+            handle.seek(0, 2)
+            handle.seek(max(0, handle.tell() - _TAIL_BYTES))
+            tail = handle.read().decode("utf-8", errors="replace")
+    except (OSError, TypeError, ValueError):
+        return False
+    for line in reversed(tail.splitlines()):
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue  # the first line of the tail is usually cut
+        if not isinstance(row, dict):
+            continue
+        if _is_prompt(row):
+            return False
+        if row.get("type") == "assistant" and any(
+            item.get("type") == "tool_use" and item.get("name") in _EDIT_TOOLS
+            for item in _content_items(row)
+        ):
+            return True
+    return False
+
+
+def main() -> None:
+    """Show the checklist when the turn that just ended edited files."""
+    try:
+        payload = json.load(sys.stdin)
+    except ValueError:
+        sys.exit(0)  # no payload means no transcript to judge
+    if not isinstance(payload, dict) or payload.get("stop_hook_active"):
+        sys.exit(0)
+    if not _turn_edited_files(payload.get("transcript_path", "")):
+        sys.exit(0)
+
+    # Without decision="block" a Stop hook's "reason" is not shown to anyone,
+    # so the reminder goes out as the user-visible systemMessage.
+    print(json.dumps({"systemMessage": REMINDER}))
     sys.exit(0)
 
 
