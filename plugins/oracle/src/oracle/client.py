@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
@@ -65,6 +65,9 @@ class OracleClient:
                 if "score" in data:
                     return float(data["score"])
                 return None
+        except HTTPError:
+            # The daemon answered; a 400/404 is a bad request, not an outage.
+            return None
         except (URLError, OSError, json.JSONDecodeError, ValueError):
             self._base_url = None
             return None
