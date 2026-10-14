@@ -6,8 +6,6 @@ import json
 import os
 import subprocess
 import sys
-import time
-from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -75,17 +73,18 @@ def print_metrics(metrics: dict) -> None:
 
 def verify_log_file(log_dir: Path) -> bool:
     """Verify log file exists and has valid entries."""
-    log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    log_file = log_dir / f"{log_date}.jsonl"
-
-    if not log_file.exists():
-        print(f"✗ Log file not found: {log_file}")
+    # Each file is named for the UTC date at write time, so a run that
+    # straddles midnight UTC writes two.
+    # Reading every file in name order (ISO dates sort chronologically)
+    # keeps the entries in write order on any day.
+    log_files = sorted(log_dir.glob("*.jsonl"))
+    if not log_files:
+        print(f"✗ No log file under {log_dir}")
         return False
 
-    print(f"✓ Log file exists: {log_file}")
+    print(f"✓ Log files: {log_files}")
 
-    with open(log_file) as f:
-        lines = f.readlines()
+    lines = [line for f in log_files for line in f.read_text().splitlines()]
 
     print(f"✓ Log entries: {len(lines)}")
 
@@ -137,8 +136,6 @@ def test_full_dual_hook_with_metrics(isolate_claude_home: Path) -> None:
 
         invocation_id = pre_output["hookSpecificOutput"]["invocation_id"]
         print(f"PreToolUse: {invocation_id}")
-
-        time.sleep(0.05)  # 50ms simulated execution
 
         post_output = run_post_hook(skill_ref, i)
         assert post_output, f"PostToolUse hook failed on iteration {i + 1}"

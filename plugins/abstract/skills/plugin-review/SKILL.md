@@ -38,7 +38,7 @@ Tiered quality review of plugins with dependency-aware scoping.
 |------|---------|-------|-------|----------|
 | branch | Default | Affected and related | Quick gates | ~2 min |
 | pr | Before merge | Affected and related | Standard | ~5 min |
-| release | Before version bump | All 17 plugins | Full | ~15 min |
+| release | Before version bump | Every plugin | Full | ~15 min |
 
 ## Orchestration
 

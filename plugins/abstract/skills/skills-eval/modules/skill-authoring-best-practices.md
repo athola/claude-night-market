@@ -162,7 +162,7 @@ the tests") score worse than skills with literal commands
 
 \`\`\`bash
 python plugins/abstract/scripts/skills_auditor.py \
-  --skill plugins/<plugin>/skills/<skill>/SKILL.md
+  plugins/<plugin>/skills
 \`\`\`
 
 The output is a list of issues with line numbers.
@@ -281,13 +281,13 @@ These are the patterns that consistently score below 50.
 
 When auditing an existing skill, run through the eight
 practices above and the anti-pattern table. Each violation
-maps to a specific improvement. The improvement-suggester
+maps to a specific improvement. The improvement suggester
 script (`plugins/abstract/scripts/improvement_suggester.py`)
 ranks issues by impact:
 
 ```bash
 python plugins/abstract/scripts/improvement_suggester.py \
-  --skill plugins/<plugin>/skills/<skill>/SKILL.md
+  plugins/<plugin>/skills/<skill>/SKILL.md
 ```
 
 The output is a prioritized list. Fix the highest-impact
@@ -304,7 +304,7 @@ To confirm a skill follows these practices:
 ```bash
 # Score against the full rubric
 python plugins/abstract/scripts/skills_auditor.py \
-  --skill plugins/<plugin>/skills/<skill>/SKILL.md
+  plugins/<plugin>/skills
 
 # Check compliance with project standards
 python plugins/abstract/scripts/compliance_checker.py \

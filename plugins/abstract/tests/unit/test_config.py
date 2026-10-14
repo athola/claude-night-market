@@ -7,6 +7,7 @@ and file-based loading/saving.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 import yaml
@@ -201,13 +202,16 @@ class TestAbstractConfigInit:
 
     @pytest.mark.unit
     def test_sub_configs_initialized(self):
-        """All sub-configs are initialized to non-None instances."""
+        """Each sub-config left unset defaults to a fresh instance of its type."""
         config = AbstractConfig()
-        assert config.skill_validation is not None
-        assert config.skill_analyzer is not None
-        assert config.skills_eval is not None
-        assert config.context_optimizer is not None
-        assert config.error_handling is not None
+        assert config.skill_validation == SkillValidationConfig()
+        assert config.skill_analyzer == SkillAnalyzerConfig()
+        assert config.skills_eval == SkillsEvalConfig()
+        assert config.context_optimizer == ContextOptimizerConfig()
+        assert config.error_handling == ErrorHandlingConfig()
+        # an explicitly passed sub-config is kept, not replaced
+        custom = SkillAnalyzerConfig()
+        assert AbstractConfig(skill_analyzer=custom).skill_analyzer is custom
 
     @pytest.mark.unit
     def test_default_environment_is_production(self):
@@ -215,10 +219,11 @@ class TestAbstractConfigInit:
         assert config.environment == Environment.PRODUCTION
 
     @pytest.mark.unit
-    def test_project_root_set_to_cwd(self):
+    def test_project_root_set_to_cwd(self, tmp_path, monkeypatch):
         """project_root is set to current working directory by default."""
-        config = AbstractConfig()
-        assert config.project_root is not None
+        monkeypatch.chdir(tmp_path)
+        assert AbstractConfig().project_root == str(Path.cwd())
+        assert AbstractConfig(project_root="/elsewhere").project_root == "/elsewhere"
 
     @pytest.mark.unit
     def test_debug_and_verbose_default_false(self):
@@ -536,11 +541,16 @@ class TestConfigFactory:
         ConfigFactory.reset_config("custom")
 
     @pytest.mark.unit
-    def test_get_config_returns_abstract_config(self, tmp_path, monkeypatch):
-        """get_config returns an AbstractConfig instance."""
+    def test_get_config_builds_from_the_environment_when_no_file_exists(
+        self, tmp_path, monkeypatch
+    ):
+        """With no config file in cwd, get_config builds from the environment."""
         monkeypatch.chdir(tmp_path)
+        monkeypatch.setenv("ABSTRACT_DEBUG", "true")
         result = ConfigFactory.get_config("default")
         assert isinstance(result, AbstractConfig)
+        # debug defaults to False, so True proves the from_env path ran
+        assert result.debug is True
 
     @pytest.mark.unit
     def test_get_config_returns_same_instance(self, tmp_path, monkeypatch):
@@ -562,11 +572,11 @@ class TestConfigFactory:
     def test_reset_config_removes_instance(self, tmp_path, monkeypatch):
         """reset_config removes the cached instance."""
         monkeypatch.chdir(tmp_path)
-        ConfigFactory.get_config("default")  # Cache it
+        cached = ConfigFactory.get_config("default")  # Cache it
         ConfigFactory.reset_config("default")
         # After reset, a new instance is created
         result = ConfigFactory.get_config("default")
-        assert isinstance(result, AbstractConfig)
+        assert result is not cached
 
     @pytest.mark.unit
     def test_create_config_with_kwargs(self):

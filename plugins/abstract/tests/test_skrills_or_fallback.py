@@ -1,6 +1,6 @@
 """bin/skrills-or-fallback works when sourced, as its header documents.
 
-Shell review S0-13 and S0-14. Sourced, `run_skrills` exec'd the binary
+Sourced, `run_skrills` exec'd the binary
 and replaced the caller, so nothing after it ran and the caller's EXIT
 trap was skipped. Sourcing also overwrote the caller's SCRIPT_DIR and
 turned on `set -euo pipefail` in the caller's shell.

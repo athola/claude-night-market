@@ -19,7 +19,6 @@ async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None
 
     return None
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Logging Hook
 
@@ -40,7 +39,6 @@ async def on_post_tool_use(
     )
     return None
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Context Injection Hook
 
@@ -92,4 +90,6 @@ if __name__ == "__main__":
     main()
 ```
 
-This pattern is useful for: cache hints before web requests, security warnings before risky operations, and injecting relevant project context before file operations.
+This pattern is useful for: cache hints before web requests, security
+warnings before risky operations, and injecting relevant project context
+before file operations.

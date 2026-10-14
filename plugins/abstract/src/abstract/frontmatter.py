@@ -8,12 +8,34 @@ Provide the single source of truth for all frontmatter operations:
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
 
 from abstract.hook_events import HOOK_EVENTS
+
+_OPENING_RE = re.compile(r"---\r?\n")
+# The closing fence is a whole line, so "----" or "---foo" do not close.
+_CLOSING_RE = re.compile(r"\n---[ \t]*(?:\r?\n|\Z)")
+
+
+def _split_at(content: str, closing: re.Match[str]) -> tuple[str, str]:
+    """Split content at its closing fence into (raw frontmatter, body)."""
+    return content[: closing.start() + 4], content[closing.end() :].lstrip("\r\n")
+
+
+def _find_fences(content: str) -> tuple[int, re.Match[str]] | None:
+    """Return (yaml_start, closing_match), or None without a closing fence.
+
+    Raises ``ValueError`` when content does not open with a fence.
+    """
+    opening = _OPENING_RE.match(content)
+    if opening is None:
+        raise ValueError("no opening fence")
+    closing = _CLOSING_RE.search(content, opening.end())
+    return None if closing is None else (opening.end(), closing)
 
 
 @dataclass
@@ -131,12 +153,10 @@ class FrontmatterProcessor:
             True if valid frontmatter structure exists, False otherwise.
 
         """
-        if not content.startswith("---\n"):
+        try:
+            return _find_fences(content) is not None
+        except ValueError:
             return False
-
-        # Find closing delimiter after the opening
-        closing_pos = content.find("\n---", 4)
-        return closing_pos != -1
 
     @staticmethod
     def parse(
@@ -161,7 +181,9 @@ class FrontmatterProcessor:
             required_fields = FrontmatterProcessor.DEFAULT_REQUIRED_FIELDS
 
         # Check for valid frontmatter structure
-        if not content.startswith("---\n"):
+        try:
+            fences = _find_fences(content)
+        except ValueError:
             return FrontmatterResult(
                 raw="",
                 parsed={},
@@ -171,9 +193,7 @@ class FrontmatterProcessor:
                 parse_error="Missing frontmatter: content does not start with ---",
             )
 
-        # Find closing delimiter
-        closing_pos = content.find("\n---", 4)
-        if closing_pos == -1:
+        if fences is None:
             return FrontmatterResult(
                 raw=content,
                 parsed={},
@@ -184,11 +204,11 @@ class FrontmatterProcessor:
             )
 
         # Extract raw frontmatter (with delimiters) and body
-        raw_frontmatter = content[: closing_pos + 4]
-        body = content[closing_pos + 4 :].lstrip("\n")
+        yaml_start, closing = fences
+        raw_frontmatter, body = _split_at(content, closing)
 
         # Extract YAML content (without delimiters)
-        yaml_content = content[4:closing_pos].strip()
+        yaml_content = content[yaml_start : closing.start()].strip()
 
         # Parse YAML
         try:
@@ -201,6 +221,16 @@ class FrontmatterProcessor:
                 is_valid=False,
                 missing_fields=list(required_fields),
                 parse_error=f"YAML parsing error: {e}",
+            )
+
+        if not isinstance(parsed, dict):
+            return FrontmatterResult(
+                raw=raw_frontmatter,
+                parsed={},
+                body=body,
+                is_valid=False,
+                missing_fields=list(required_fields),
+                parse_error="Frontmatter must be a mapping",
             )
 
         # Validate required fields
@@ -251,14 +281,13 @@ class FrontmatterProcessor:
             Returns ("", content) if no frontmatter found.
 
         """
-        if not FrontmatterProcessor.has_frontmatter(content):
+        try:
+            fences = _find_fences(content)
+        except ValueError:
+            fences = None
+        if fences is None:
             return "", content
-
-        closing_pos = content.find("\n---", 4)
-        raw_frontmatter = content[: closing_pos + 4]
-        body = content[closing_pos + 4 :].lstrip("\n")
-
-        return raw_frontmatter, body
+        return _split_at(content, fences[1])
 
     @staticmethod
     def get_field(

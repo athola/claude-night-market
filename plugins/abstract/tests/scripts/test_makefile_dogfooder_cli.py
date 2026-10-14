@@ -107,7 +107,7 @@ class TestProcessSinglePlugin:
         rc = _process_single_plugin(dogfooder, "testplugin", config)
         assert rc == 0
         captured = capsys.readouterr()
-        assert "Generated targets" in captured.out or "testplugin" in captured.out
+        assert "Generated targets for testplugin:" in captured.out
 
     @pytest.mark.unit
     def test_generate_mode_no_missing_returns_zero(self, tmp_path: Path) -> None:
@@ -134,6 +134,61 @@ class TestProcessSinglePlugin:
         )
         rc = _process_single_plugin(dogfooder, "complete", config)
         assert rc == 0
+
+
+class TestApplyMode:
+    """Feature: apply mode writes the Makefile only after a yes."""
+
+    @staticmethod
+    def _apply(tmp_path: Path, *, dry_run: bool) -> tuple[int, Path]:
+        root = _make_plugin_tree(tmp_path)
+        config = ProcessingConfig(
+            mode="apply", generate_missing=False, dry_run=dry_run, verbose=False
+        )
+        rc = _process_single_plugin(
+            MakefileDogfooder(root_dir=root), "testplugin", config
+        )
+        return rc, root / "plugins" / "testplugin" / "Makefile"
+
+    @pytest.mark.unit
+    def test_declined_confirmation_leaves_makefile_untouched(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys
+    ) -> None:
+        """Anything but y at the prompt aborts before any write."""
+        monkeypatch.setattr("builtins.input", lambda _prompt: "n")
+        before = ".PHONY: help\nhelp:\n\t@echo help\n"
+
+        rc, makefile = self._apply(tmp_path, dry_run=False)
+
+        assert rc == 0
+        assert makefile.read_text() == before
+        assert "Aborted" in capsys.readouterr().out
+
+    @pytest.mark.unit
+    def test_confirmed_apply_writes_the_missing_targets(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys
+    ) -> None:
+        monkeypatch.setattr("builtins.input", lambda _prompt: "y")
+
+        rc, makefile = self._apply(tmp_path, dry_run=False)
+
+        assert rc == 0
+        assert "my-cmd" in makefile.read_text()
+        assert "Successfully applied changes to testplugin" in capsys.readouterr().out
+
+    @pytest.mark.unit
+    def test_dry_run_apply_never_prompts_or_writes(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        def no_prompt(_prompt: str) -> str:
+            raise AssertionError("dry run must not prompt")
+
+        monkeypatch.setattr("builtins.input", no_prompt)
+
+        rc, makefile = self._apply(tmp_path, dry_run=True)
+
+        assert rc == 0
+        assert "my-cmd" not in makefile.read_text()
 
 
 # ---------------------------------------------------------------------------

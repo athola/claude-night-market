@@ -768,11 +768,16 @@ class TestGetUsageReportCoverage:
     """Feature: get_usage_report generates formatted report."""
 
     @pytest.mark.unit
-    def test_report_is_string(self, tmp_path: Path) -> None:
-        """Scenario: Report is always a string."""
+    def test_empty_directory_report_shows_zero_in_every_summary_line(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: An empty directory reports zero in every summary line."""
         tracker = TokenUsageTracker(tmp_path)
         report = tracker.get_usage_report()
-        assert isinstance(report, str)
+        assert f"**Skills Directory:** {tmp_path}" in report
+        assert "- **Total Skills:** 0\n" in report
+        assert "- **Total Tokens:** 0\n" in report
+        assert f"- **Skills Over Limit ({tracker.optimal_limit}):** 0\n" in report
 
     @pytest.mark.unit
     def test_report_contains_header(self, tmp_path: Path) -> None:
@@ -874,7 +879,12 @@ class TestCalculateFrontmatterTokensFallback:
         content = "---\nname: test\n---\n\nBody content.\n"
         result = tracker._calculate_frontmatter_tokens(content, None)
         assert isinstance(result, int)
-        assert result >= 0
+        assert result > 0
+        # Only the frontmatter counts: a much longer body changes nothing,
+        # and content without frontmatter counts zero.
+        long_body = "---\nname: test\n---\n\n" + "Body content. " * 200
+        assert tracker._calculate_frontmatter_tokens(long_body, None) == result
+        assert tracker._calculate_frontmatter_tokens("Body only.\n", None) == 0
 
     @pytest.mark.unit
     def test_parsed_without_frontmatter_tokens_uses_fallback(
@@ -885,7 +895,9 @@ class TestCalculateFrontmatterTokensFallback:
         content = "---\nname: test\n---\n\nBody.\n"
         # Dict exists but no 'frontmatter_tokens' key
         result = tracker._calculate_frontmatter_tokens(content, {"other_key": 5})
-        assert isinstance(result, int)
+        # Same answer as having no parsed dict at all
+        assert result == tracker._calculate_frontmatter_tokens(content, None)
+        assert result > 0
 
     @pytest.mark.unit
     def test_parsed_with_frontmatter_tokens_uses_parsed_value(

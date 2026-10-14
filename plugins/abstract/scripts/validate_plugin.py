@@ -12,8 +12,15 @@ import sys
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from abstract.hook_events import (  # noqa: E402 - sys.path set on the line above
+    HOOK_EVENTS,
+)
+
 # Constants
 FRONTMATTER_PARTS_MIN = 3
+# A plugin-relative script in a hook command: the token after the variable.
+_PLUGIN_ROOT_SCRIPT = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/([^\s\"']+)")
 MIN_ARGS = 2  # Script name + plugin directory
 
 
@@ -79,6 +86,7 @@ class PluginValidator:
             self._validate_plugin_name()
             self._validate_recommended_fields()
             self._validate_paths()
+            self._validate_hooks_json()
             self._validate_dependencies()
             self._validate_directory_structure()
             self._validate_skills()
@@ -284,37 +292,75 @@ class PluginValidator:
                 f"hooks.json is not valid JSON: {e}",
             )
 
+    def _validate_hooks_json(self) -> None:
+        """Check the auto-loaded hooks.json: event names and script paths.
+
+        An unknown event never fires, and a missing script fails on every
+        event it is registered for, so the first is a warning and the
+        second is critical.
+        """
+        hooks_json = self.plugin_path / "hooks" / "hooks.json"
+        if not hooks_json.is_file():
+            return
+        try:
+            data = json.loads(hooks_json.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as e:
+            self.issues["critical"].append(
+                f"hooks/hooks.json is not valid JSON: {e}",
+            )
+            return
+        events = data.get("hooks") if isinstance(data, dict) else None
+        if not isinstance(events, dict):
+            return
+        for event, groups in events.items():
+            if event not in HOOK_EVENTS:
+                self.issues["warnings"].append(
+                    f"hooks.json: unknown event type '{event}'",
+                )
+            for group in groups if isinstance(groups, list) else []:
+                handlers = group.get("hooks") if isinstance(group, dict) else None
+                for handler in handlers if isinstance(handlers, list) else []:
+                    command = (
+                        handler.get("command") if isinstance(handler, dict) else None
+                    )
+                    if isinstance(command, str):
+                        self._check_hook_scripts(event, command)
+        self.issues["info"].append(
+            f"[OK] hooks.json: {len(events)} events and scripts checked",
+        )
+
+    def _check_hook_scripts(self, event: str, command: str) -> None:
+        """Flag each ${CLAUDE_PLUGIN_ROOT} path in a command that is absent."""
+        for rel in _PLUGIN_ROOT_SCRIPT.findall(command):
+            if not (self.plugin_path / rel).exists():
+                self.issues["critical"].append(
+                    f"Hook script not found for {event}: {rel}",
+                )
+
     def _validate_dependencies(self) -> None:
-        """Validate dependencies format and versioning."""
+        """Validate dependencies the way Claude Code loads them.
+
+        Claude Code requires an array of plugin names: ``claude plugin
+        validate`` (2.1.292) rejects an object with "expected array,
+        received object". Versioned ranges belong in metadata.json.
+        """
         config = self._require_config()
         if "dependencies" not in config:
             return
 
         deps = config["dependencies"]
-
-        # Check if it's a list (old format)
-        if isinstance(deps, list):
-            self.issues["recommendations"].append(
-                "Dependencies should be an object with versions, not an array. "
-                'Example: {"abstract": ">=2.0.0"}',
+        if not isinstance(deps, list):
+            self.issues["critical"].append(
+                "dependencies must be an array of plugin names; Claude Code "
+                "rejects any other shape (put version ranges in metadata.json)",
             )
             return
 
-        # Validate each dependency
-        if isinstance(deps, dict):
-            for dep_name, version in deps.items():
-                if not isinstance(version, str):
-                    self.issues["warnings"].append(
-                        f"Dependency '{dep_name}' version should be a string",
-                    )
-                    continue
-
-                # Check for semantic versioning
-                if not re.match(r"^[><=\^~]*\d+\.\d+\.\d+", version):
-                    self.issues["warnings"].append(
-                        f"Dependency '{dep_name}' should use semantic "
-                        f"versioning (found: '{version}')",
-                    )
+        for dep in deps:
+            if not isinstance(dep, str):
+                self.issues["warnings"].append(
+                    f"dependencies entry {dep!r} should be a plugin name string",
+                )
 
     def _validate_directory_structure(self) -> None:
         """Validate plugin directory structure."""
@@ -488,33 +534,17 @@ class PluginValidator:
                 )
 
     def _validate_claude_config(self) -> None:
-        """Validate Claude-specific configuration."""
+        """Flag a ``claude`` block in plugin.json, which Claude Code ignores.
+
+        ``claude plugin validate`` reports it as an unknown field. The block
+        is read from metadata.json instead.
+        """
         config = self._require_config()
-        if "claude" not in config:
-            self.issues["recommendations"].append(
-                "Consider adding 'claude' configuration object for enhanced metadata",
-            )
-            return
-
-        claude_config = config["claude"]
-        if not isinstance(claude_config, dict):
+        if "claude" in config:
             self.issues["warnings"].append(
-                "claude configuration should be a JSON object",
+                "plugin.json 'claude' is not a manifest field and Claude Code "
+                "ignores it; move it to .claude-plugin/metadata.json",
             )
-            return
-
-        # Check for useful Claude config fields
-        recommended_claude_fields = {
-            "skill_prefix": "Prefix for skill names",
-            "auto_load": "Whether to auto-load plugin",
-            "categories": "Plugin categorization",
-        }
-
-        for field, description in recommended_claude_fields.items():
-            if field not in claude_config:
-                self.issues["recommendations"].append(
-                    f"Consider adding claude.{field} - {description}",
-                )
 
     def _print_report(self) -> None:
         """Print validation report."""

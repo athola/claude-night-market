@@ -75,6 +75,12 @@ class ComplianceCLI(AbstractCLI):
         checker = ComplianceChecker(args.directory, args.rules_file)
         return _run(self, checker.check_compliance)
 
+    def exit_code(self, result: CLIResult, args: argparse.Namespace) -> int:
+        """Fail a non-compliant report so the command can gate CI."""
+        if result.success and not (result.data or {}).get("compliant"):
+            return 1
+        return super().exit_code(result, args)
+
     def format_text(self, data: dict) -> str:
         """Format compliance results as text."""
         lines = ["Compliance Report", "=" * 50]
@@ -127,13 +133,25 @@ class AuditCLI(AbstractCLI):
             "--min-score",
             type=float,
             default=0.0,
-            help="Minimum score threshold (0-100)",
+            help="Exit 1 when any skill scores below this (0-100)",
         )
 
     def execute(self, args: argparse.Namespace) -> CLIResult:
         """Execute skills audit."""
         auditor = SkillsAuditor(args.directory)
         return _run(self, auditor.audit_skills)
+
+    def exit_code(self, result: CLIResult, args: argparse.Namespace) -> int:
+        """Fail when any skill scores below --min-score, or none were scored."""
+        data = result.data or {}
+        if result.success and args.min_score > 0 and not data.get("skill_metrics"):
+            return 1
+        if result.success and any(
+            m.score < args.min_score
+            for m in (result.data or {}).get("skill_metrics", [])
+        ):
+            return 1
+        return super().exit_code(result, args)
 
     def format_text(self, data: dict) -> str:
         """Format audit results as text."""
@@ -176,11 +194,6 @@ class SuggestCLI(AbstractCLI):
             "-o",
             type=Path,
             help="Output file path",
-        )
-        parser.add_argument(
-            "--priority",
-            choices=["critical", "high", "medium", "low"],
-            help="Filter by minimum priority",
         )
 
     def execute(self, args: argparse.Namespace) -> CLIResult:
@@ -331,7 +344,12 @@ def _add_audit_subparser(subparsers: argparse._SubParsersAction) -> None:
     audit = subparsers.add_parser("audit", help="Audit skills")
     audit.add_argument("directory", type=Path, help="Directory to audit")
     audit.add_argument("--output", "-o", type=Path, help="Output file")
-    audit.add_argument("--min-score", type=float, default=0.0, help="Minimum score")
+    audit.add_argument(
+        "--min-score",
+        type=float,
+        default=0.0,
+        help="Exit 1 when any skill scores below this",
+    )
     audit.add_argument(
         "--format",
         "-f",
@@ -346,11 +364,6 @@ def _add_suggest_subparser(subparsers: argparse._SubParsersAction) -> None:
     suggest = subparsers.add_parser("suggest", help="Generate improvement suggestions")
     suggest.add_argument("skill_path", type=Path, help="Path to skill")
     suggest.add_argument("--output", "-o", type=Path, help="Output file")
-    suggest.add_argument(
-        "--priority",
-        choices=["critical", "high", "medium", "low"],
-        help="Filter by priority",
-    )
     suggest.add_argument(
         "--format",
         "-f",

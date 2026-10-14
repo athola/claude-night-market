@@ -329,7 +329,7 @@ class TestCompareVersionsMissing:
         Then v2_scores is empty and v2_avg, improvement, improved are None
 
         An empty side has no average. 0.0 made any score on the other
-        side read as an improvement (math review finding B13).
+        side read as an improvement.
         """
         tracker = _make_tracker(tmp_path)
 

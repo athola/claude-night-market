@@ -78,7 +78,11 @@ role: entrypoint
 
 This framework audits Claude skills against quality standards to improve performance and reduce token consumption. Automated tools analyze skill structure, measure context usage, and identify specific technical improvements. Run verification commands after each audit to confirm fixes work correctly.
 
-The `skills-auditor` provides structural analysis, while the `improvement-suggester` ranks fixes by impact. Compliance is verified through the `compliance-checker`. Runtime efficiency is monitored by `tool-performance-analyzer` and `token-usage-tracker`.
+The scripts are in `plugins/abstract/scripts/`. `skills_auditor.py` provides
+structural analysis, while `improvement_suggester.py` builds a plan for one
+skill. `compliance_checker.py` reports standards findings.
+`token_usage_tracker.py` and `tool_performance_analyzer.py` measure tokens and
+tool run time.
 
 ## Quick Start
 
@@ -112,7 +116,12 @@ Start with `make audit-all` to inventory skills and identify high-priority targe
 
 ## Evaluation and Optimization
 
-Quality assessments use the `skills-auditor` and `improvement-suggester` to generate detailed reports. Performance analysis focuses on token efficiency through the `token-usage-tracker` and tool performance via `tool-performance-analyzer`. For standards compliance, the `compliance-checker` automates common fixes for structural issues.
+Quality assessments use `skills_auditor.py` and `improvement_suggester.py` to
+generate reports. Performance analysis covers token use through
+`token_usage_tracker.py` and tool run time through
+`tool_performance_analyzer.py`. For standards compliance,
+`compliance_checker.py` reports findings and changes no files. Apply its fixes
+by hand.
 
 ### Scoring and Prioritization
 
@@ -153,7 +162,8 @@ Improvements are prioritized by impact. Critical issues include security vulnera
   content quality, token efficiency, activation reliability, tool integration) summing to 100.
 - [ ] Any skill with a deprecated `skills/shared/` module reference is listed as a structural
   warning in the audit output.
-- [ ] `make check-compliance TARGET=<skill>` exits 0 for skills reported as passing, confirming
-  the compliance-checker agrees with the audit score.
+- [ ] `uv run abstract-skills check <skills-dir>` exits 0 for skills reported
+  as passing and 1 for any non-compliant report, confirming compliance agrees
+  with the audit score.
 - [ ] An improvement plan is produced for any skill scoring below 75, with findings ordered by
   priority: critical > high > medium > low.

@@ -196,7 +196,7 @@ def sanitize_output(output: str, max_length: int = 5000) -> str:
         ),
         # AWS credentials
         (
-            r"(?i)(aws[_-]?(access[_-]?key|secret)[_-]?[a-z]*)\s*[:=]\s*"
+            r"(?i)(aws[_-]?(access[_-]?key|secret)[a-z_-]*)\s*[:=]\s*"
             r"['\"]?([A-Za-z0-9/+=]+)['\"]?",
             r"\1=<REDACTED>",
         ),

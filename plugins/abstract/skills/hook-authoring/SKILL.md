@@ -77,8 +77,6 @@ Create a simple logging hook in `.claude/settings.json`:
 
 **Note**: Use string matchers (`"Bash"`) not object matchers (`{"toolName": "Bash"}`).
 
-**Verification:** Run the command with `--help` flag to verify availability.
-
 This logs every Bash command execution with a timestamp.
 
 ### Your First Hook (Python - Claude Agent SDK)
@@ -100,7 +98,6 @@ class ValidationHooks(AgentHooks):
         # Return None to proceed unchanged, or modified dict to transform
         return None
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Hook Event Types
 
@@ -264,8 +261,6 @@ PreToolUse hooks can now return `updatedInput` when returning `ask` permission d
 - `"Read|Write|Edit"` - Match multiple tools (regex OR)
 - `".*"` - Match all tools
 
-**Verification:** Run the command with `--help` flag to verify availability.
-
 **Pros:** Simple, no code required, easy to version control
 **Cons:** Limited logic capabilities, shell command only
 
@@ -390,7 +385,8 @@ exit 0
 
 ### `FORCE_AUTOUPDATE_PLUGINS`
 
-Forces plugin auto-update even when the main Claude Code auto-updater is disabled.
+Forces plugin auto-update even when the main Claude Code auto-updater is
+disabled.
 
 **Use cases**:
 - CI/CD pipelines that need latest plugin versions
@@ -422,7 +418,9 @@ Validate JSON/Python syntax before deployment
 Check hook file permissions and ownership
 
 **Hook blocking message not shown (pre-2.1.39)**
-If using exit code 2 to block with a user-facing message and the message isn't appearing, upgrade to Claude Code 2.1.39+. In older versions, use exit 0 with stdout as a workaround.
+If using exit code 2 to block with a user-facing message and the message
+is not appearing, upgrade to Claude Code 2.1.39+. In older versions, use
+exit 0 with stdout as a workaround.
 
 ## Module References
 
@@ -430,8 +428,10 @@ For detailed guidance on specific topics:
 
 - **Hook Types**: `modules/hook-types.md` - Detailed event signatures and parameters
 - **SDK Callbacks**: `modules/sdk-callbacks.md` - Python SDK implementation patterns
-- **Security Essentials**: `modules/security-essentials.md` - security rules and a secret-redacting hook
-- **Common Patterns**: `modules/common-patterns.md` - validation, logging and context injection hooks
+- **Security Essentials**: `modules/security-essentials.md` - security
+  rules and a secret-redacting hook
+- **Common Patterns**: `modules/common-patterns.md` - validation, logging
+  and context injection hooks
 - **Performance Guidelines**: `modules/performance-guidelines.md` - Optimization techniques
 - **Scope Selection**: `modules/scope-selection.md` - Choosing plugin/project/global
 - **Testing Hooks**: `modules/testing-hooks.md` - Testing strategies and fixtures

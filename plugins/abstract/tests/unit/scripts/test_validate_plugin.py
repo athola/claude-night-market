@@ -194,6 +194,30 @@ class TestHooksPathValidation:
         assert not any("hooks path not found" in msg for msg in v.issues["critical"])
 
 
+class TestAutoLoadedHooksJson:
+    """The hooks/hooks.json the harness loads without a plugin.json reference."""
+
+    @pytest.mark.unit
+    def test_unparseable_auto_loaded_hooks_json_fails_validation(
+        self, plugin_dir: Path
+    ) -> None:
+        """A plugin with no hooks key and a broken hooks/hooks.json fails.
+
+        Every hook in that plugin fails to load, so a pass would be wrong.
+        """
+        hooks_dir = plugin_dir / "hooks"
+        hooks_dir.mkdir()
+        (hooks_dir / "hooks.json").write_text('{"hooks": {"PreToolUse": [ ,]}}')
+
+        validator = PluginValidator(plugin_dir)
+
+        assert validator.validate() == 1
+        assert any(
+            "hooks/hooks.json is not valid JSON" in msg
+            for msg in validator.issues["critical"]
+        )
+
+
 class TestDeprecatedSharedDirDetection:
     """Feature: Detect deprecated skills/shared/ directory pattern.
 
@@ -518,18 +542,20 @@ class TestValidateDependencies:
     @pytest.mark.parametrize(
         ("deps", "issue_category", "issue_fragment", "should_have"),
         [
-            (None, "warnings", "", False),
-            (["abstract"], "recommendations", "object", True),
-            ({"abstract": ">=2.0.0"}, "warnings", "", False),
-            ({"abstract": 2}, "warnings", "should be a string", True),
-            ({"abstract": "latest"}, "warnings", "semantic versioning", True),
+            # Claude Code 2.1.292 `claude plugin validate`: "dependencies:
+            # Invalid input: expected array, received object".
+            (None, "critical", "", False),
+            (["abstract"], "critical", "", False),
+            (["abstract"], "recommendations", "", False),
+            ({"abstract": ">=2.0.0"}, "critical", "array", True),
+            (["abstract", 2], "warnings", "plugin name", True),
         ],
         ids=[
             "no-deps-no-issues",
-            "list-deps-recommendation",
-            "valid-semver-no-warning",
-            "non-string-version-warns",
-            "invalid-format-warns",
+            "list-deps-accepted",
+            "list-deps-not-nudged-to-object",
+            "object-deps-rejected-like-claude-code",
+            "non-string-entry-warns",
         ],
     )
     def test_dependency_validation(
@@ -667,33 +693,37 @@ class TestValidateClaudeConfig:
     """Claude-specific config validation."""
 
     @pytest.mark.unit
-    def test_missing_claude_key_adds_recommendation(self, tmp_path: Path) -> None:
-        """No claude config key adds a recommendation."""
+    def test_missing_claude_key_is_not_recommended(self, tmp_path: Path) -> None:
+        """plugin.json has no `claude` field, so its absence is not advice.
+
+        `claude plugin validate` (2.1.292) reports "Unknown field 'claude'.
+        Claude Code ignores it at load time." The block belongs in
+        metadata.json.
+        """
         pd = _make_plugin(tmp_path, {"name": "my-plugin"})
         v = PluginValidator(pd)
         v._validate_plugin_json_exists()
         v._validate_claude_config()
-        assert any("claude" in i for i in v.issues["recommendations"])
+        assert not any("claude" in i for i in v.issues["recommendations"])
 
     @pytest.mark.unit
-    def test_non_dict_claude_adds_warning(self, tmp_path: Path) -> None:
-        """Claude config that is not a dict adds a warning."""
-        pd = _make_plugin(tmp_path, {"name": "my-plugin", "claude": "string"})
-        v = PluginValidator(pd)
-        v._validate_plugin_json_exists()
-        v._validate_claude_config()
-        assert any("JSON object" in i for i in v.issues["warnings"])
-
-    @pytest.mark.unit
-    def test_valid_claude_config_no_critical(self, tmp_path: Path) -> None:
-        """Valid dict claude config adds no critical issues."""
+    @pytest.mark.parametrize(
+        "claude_value",
+        [{"skill_prefix": "my"}, "string"],
+        ids=["object", "non-object"],
+    )
+    def test_claude_key_in_plugin_json_warns_it_is_ignored(
+        self, tmp_path: Path, claude_value: object
+    ) -> None:
+        """A `claude` key in plugin.json is flagged as ignored, whatever its type."""
         pd = _make_plugin(
             tmp_path,
-            {"name": "my-plugin", "claude": {"skill_prefix": "my"}},
+            {"name": "my-plugin", "claude": claude_value},
         )
         v = PluginValidator(pd)
         v._validate_plugin_json_exists()
         v._validate_claude_config()
+        assert any("claude" in i and "metadata.json" in i for i in v.issues["warnings"])
         assert not v.issues["critical"]
 
 

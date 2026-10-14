@@ -205,7 +205,7 @@ def _report(**overrides):
 def test_a_long_description_failure_does_not_report_a_negative_overrun(capsys):
     """A description-cap failure names the cap, not a negative overrun.
 
-    Finding B11: a single 161-char description printed 'BUDGET EXCEEDED
+    A single 161-char description printed 'BUDGET EXCEEDED
     by -89,730 chars'.
     """
     report, _ = _report()

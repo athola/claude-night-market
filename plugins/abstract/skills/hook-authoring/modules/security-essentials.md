@@ -4,10 +4,12 @@
 
 1. **Input Validation**: Always validate tool inputs before processing
 2. **No Secret Logging**: Never log API keys, tokens, passwords, or credentials
-3. **Sandbox Awareness**: Respect sandbox boundaries, don't escape. Note: `.claude/skills/` is read-only in sandbox mode (2.1.38+)
+3. **Sandbox Awareness**: Respect sandbox boundaries, don't escape.
+   Note: `.claude/skills/` is read-only in sandbox mode (2.1.38+)
 4. **Fail-Safe Defaults**: Return None on error instead of blocking the agent
 5. **Rate Limiting**: Prevent hook abuse from malicious or buggy code
-6. **Injection Prevention**: Sanitize all logged content to prevent log injection
+6. **Injection Prevention**: Sanitize all logged content to prevent log
+   injection
 
 ## Example: Secure Logging Hook
 
@@ -46,4 +48,3 @@ class SecureLoggingHooks(AgentHooks):
         # Log safe_output...
         return None  # Don't modify output
 ```
-**Verification:** Run the command with `--help` flag to verify availability.

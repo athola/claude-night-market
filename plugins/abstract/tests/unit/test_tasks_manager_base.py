@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import io
 import json
+import subprocess
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -202,20 +204,67 @@ class TestGetClaudeCodeVersion:
     """Feature: get_claude_code_version handles errors gracefully."""
 
     @pytest.mark.unit
-    def test_returns_string_or_none(self) -> None:
-        """Scenario: Function always returns str or None without crashing."""
-        result = get_claude_code_version()
-        assert result is None or isinstance(result, str)
+    @pytest.mark.parametrize(
+        ("run_effect", "expected"),
+        [
+            (
+                subprocess.CompletedProcess([], 0, stdout="2.1.17 (Claude Code)\n"),
+                "2.1.17",
+            ),
+            (subprocess.CompletedProcess([], 1, stdout="2.1.17\n"), None),
+            (subprocess.CompletedProcess([], 0, stdout="no version here\n"), None),
+            (FileNotFoundError("claude"), None),
+            (subprocess.TimeoutExpired(["claude"], 5), None),
+        ],
+        ids=[
+            "parses-version",
+            "nonzero-exit",
+            "unparseable",
+            "not-installed",
+            "timeout",
+        ],
+    )
+    def test_get_claude_code_version_parses_the_cli_output_and_is_none_on_any_failure(
+        self, run_effect, expected
+    ) -> None:
+        """Scenario: The CLI's version string is parsed, any failure is None."""
+        kwargs = (
+            {"side_effect": run_effect}
+            if isinstance(run_effect, BaseException)
+            else {"return_value": run_effect}
+        )
+        with patch("abstract.tasks_manager_base.subprocess.run", **kwargs):
+            assert get_claude_code_version() == expected
 
 
 class TestIsTasksAvailable:
     """Feature: is_tasks_available checks version requirement."""
 
     @pytest.mark.unit
-    def test_returns_bool(self) -> None:
-        """Scenario: Function always returns a boolean."""
-        result = is_tasks_available()
-        assert isinstance(result, bool)
+    @pytest.mark.parametrize(
+        ("version", "expected"),
+        [
+            (None, False),
+            ("2.1.15", False),
+            ("2.1.16", True),
+            ("2.2.0", True),
+            ("3.0.0", True),
+            ("1.9.99", False),
+        ],
+    )
+    def test_tasks_are_available_from_claude_code_2_1_16(
+        self, version, expected
+    ) -> None:
+        """Scenario: Tasks are available from Claude Code 2.1.16 on."""
+        completed = (
+            subprocess.CompletedProcess([], 1, stdout="")
+            if version is None
+            else subprocess.CompletedProcess([], 0, stdout=f"{version} (Claude Code)\n")
+        )
+        with patch(
+            "abstract.tasks_manager_base.subprocess.run", return_value=completed
+        ):
+            assert is_tasks_available() is expected
 
 
 # ---------------------------------------------------------------------------
@@ -619,8 +668,10 @@ class TestTasksManagerTasksMode:
     ) -> None:
         """Scenario: Task is created via _task_create in Tasks mode."""
         task_id = tasks_manager.ensure_task_exists("Fix the bug")
-        assert task_id is not None
-        assert isinstance(task_id, str)
+        assert task_id == "1"
+        assert [t["description"] for t in tasks_manager._task_list()] == ["Fix the bug"]
+        # Tasks mode does not fall back to the state file
+        assert not tasks_manager.fallback_state_file.exists()
 
     @pytest.mark.unit
     def test_ensure_task_returns_existing_task(

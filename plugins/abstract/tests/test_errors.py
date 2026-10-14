@@ -59,3 +59,37 @@ def test_safe_execute_includes_exception_type_in_logged_error(tmp_path: Path) ->
     # Check error was logged with operation context and error message
     assert "exploding" in error_handler.errors[-1].message
     assert "boom" in error_handler.errors[-1].message
+
+
+def test_later_handler_asking_for_a_log_file_writes_to_that_file(
+    tmp_path: Path,
+) -> None:
+    tool_name = f"test_errors_logfile_{tmp_path.name}"
+    log_file = tmp_path / "tool.log"
+    ErrorHandler(tool_name)
+
+    later = ErrorHandler(tool_name, log_file=log_file)
+    later.logger.info("written to the file")
+
+    try:
+        assert "written to the file" in log_file.read_text(encoding="utf-8")
+        assert len(later.logger.handlers) == 1
+    finally:
+        for handler in list(later.logger.handlers):
+            later.logger.removeHandler(handler)
+            handler.close()
+
+
+def test_repeated_handler_for_the_same_target_keeps_one_log_handler(
+    tmp_path: Path,
+) -> None:
+    tool_name = f"test_errors_repeat_{tmp_path.name}"
+    log_file = tmp_path / "tool.log"
+    ErrorHandler(tool_name, log_file=log_file)
+    later = ErrorHandler(tool_name, log_file=log_file)
+    try:
+        assert len(later.logger.handlers) == 1
+    finally:
+        for handler in list(later.logger.handlers):
+            later.logger.removeHandler(handler)
+            handler.close()

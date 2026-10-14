@@ -1089,3 +1089,221 @@ class TestSubstantiveDigestGate:
             summary, SAMPLE_LEARNINGS_MD, PostedRecord(posted={})
         )
         assert has_substantive_findings(body)
+
+
+# ---------------------------------------------------------------------------
+# Error paths at the gh, subprocess and config-file boundaries
+# ---------------------------------------------------------------------------
+
+
+def _leyline_gh_error(message: str) -> Exception:
+    """The error leyline.git_platform.gh_graphql raises on a failed call."""
+    return mod._GhError(message, cmd=["gh", "api", "graphql"])
+
+
+class TestBoundaryErrorPaths:
+    """Each external failure degrades to a skip instead of a traceback."""
+
+    @pytest.mark.unit
+    def test_corrupt_posted_record_loads_empty(self, tmp_path: Path) -> None:
+        (tmp_path / "posted.json").write_text("{not json")
+        with patch(
+            "post_learnings_to_discussions.get_config_dir", return_value=tmp_path
+        ):
+            record = PostedRecord.load()
+        assert record.posted == {}
+        assert record.repo_node_id == ""
+
+    @pytest.mark.unit
+    def test_gh_error_is_reraised_as_runtime_error(self) -> None:
+        with patch(
+            "post_learnings_to_discussions._gh_graphql",
+            side_effect=_leyline_gh_error("HTTP 401"),
+        ):
+            with pytest.raises(RuntimeError, match="HTTP 401"):
+                mod.run_gh_graphql("query { x }")
+
+    @pytest.mark.unit
+    def test_target_repo_from_config_wins(self, tmp_path: Path) -> None:
+        (tmp_path / "config.json").write_text(json.dumps({"target_repo": "o/r"}))
+        with (
+            patch(
+                "post_learnings_to_discussions.get_config_dir", return_value=tmp_path
+            ),
+            patch("post_learnings_to_discussions.subprocess.run") as run,
+        ):
+            assert mod.detect_target_repo() == ("o", "r")
+        run.assert_not_called()
+
+    @pytest.mark.unit
+    def test_corrupt_config_falls_through_to_gh_detection(self, tmp_path: Path) -> None:
+        (tmp_path / "config.json").write_text("{not json")
+        gh = MagicMock(returncode=0, stdout="owner/name\n")
+        with (
+            patch(
+                "post_learnings_to_discussions.get_config_dir", return_value=tmp_path
+            ),
+            patch("post_learnings_to_discussions.subprocess.run", return_value=gh),
+        ):
+            assert mod.detect_target_repo() == ("owner", "name")
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "gh_outcome",
+        [
+            FileNotFoundError("gh"),
+            mod.subprocess.TimeoutExpired(cmd="gh", timeout=10),
+            MagicMock(returncode=1, stdout=""),
+            MagicMock(returncode=0, stdout="no-slash\n"),
+        ],
+        ids=["gh-missing", "gh-timeout", "gh-nonzero", "gh-unparseable"],
+    )
+    def test_target_repo_is_none_when_gh_cannot_say(
+        self, tmp_path: Path, gh_outcome: object
+    ) -> None:
+        run_kwargs = (
+            {"side_effect": gh_outcome}
+            if isinstance(gh_outcome, Exception)
+            else {"return_value": gh_outcome}
+        )
+        with (
+            patch(
+                "post_learnings_to_discussions.get_config_dir", return_value=tmp_path
+            ),
+            patch("post_learnings_to_discussions.subprocess.run", **run_kwargs),
+        ):
+            assert mod.detect_target_repo() is None
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "gh_behavior",
+        [
+            {"side_effect": _leyline_gh_error("HTTP 502")},
+            {"return_value": {"data": {}}},
+            {
+                "return_value": {
+                    "data": {
+                        "repository": {
+                            "discussionCategories": {
+                                "nodes": [{"id": "DIC_x", "slug": "general"}]
+                            }
+                        }
+                    }
+                }
+            },
+        ],
+        ids=["gh-error", "malformed-response", "slug-absent"],
+    )
+    def test_category_is_none_when_unresolvable(self, gh_behavior: dict) -> None:
+        with patch("post_learnings_to_discussions._gh_graphql", **gh_behavior):
+            assert mod.resolve_category_id("o", "r", "learnings") is None
+
+    @pytest.mark.unit
+    def test_category_id_found_by_slug(self) -> None:
+        response = {
+            "data": {
+                "repository": {
+                    "discussionCategories": {
+                        "nodes": [
+                            {"id": "DIC_a", "slug": "general"},
+                            {"id": "DIC_b", "slug": "learnings"},
+                        ]
+                    }
+                }
+            }
+        }
+        with patch("post_learnings_to_discussions._gh_graphql", return_value=response):
+            assert mod.resolve_category_id("o", "r", "learnings") == "DIC_b"
+
+    @pytest.mark.unit
+    def test_existing_discussion_lookup_failure_reads_as_none(self) -> None:
+        with patch(
+            "post_learnings_to_discussions._gh_graphql",
+            side_effect=_leyline_gh_error("HTTP 502"),
+        ):
+            assert check_existing_discussion("[Learning] x", "o", "r") is None
+
+    @pytest.mark.unit
+    def test_analysis_with_no_skills_is_not_posted(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        path = tmp_path / "LEARNINGS.md"
+        path.write_text(
+            "# Skill Performance Learnings\n\n"
+            "**Skills Analyzed**: 0\n**Total Executions**: 0\n"
+        )
+        assert mod._load_and_validate_learnings(path) is None
+        assert "empty analysis" in capsys.readouterr().err
+
+
+class TestPostIfNewSkips:
+    """_post_if_new skips a duplicate before it reaches createDiscussion."""
+
+    @pytest.mark.unit
+    def test_existing_discussion_is_recorded_not_reposted(self, monkeypatch) -> None:
+        record = PostedRecord(posted={})
+        record.save = MagicMock()
+        monkeypatch.setattr(PostedRecord, "load", classmethod(lambda cls: record))
+        existing = "https://example.invalid/discussions/7"
+        search = {"data": {"search": {"nodes": []}}}
+
+        def fake_gh(query: str, variables: dict | None = None) -> dict:
+            assert "createDiscussion" not in query
+            title = query.split('in:title \\"', 1)[1].split('\\"', 1)[0]
+            search["data"]["search"]["nodes"] = [{"title": title, "url": existing}]
+            return search
+
+        monkeypatch.setattr(mod, "_gh_graphql", fake_gh)
+        summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+
+        result = mod._post_if_new(summary, _ENRICHED_LEARNINGS, "o", "n", "cat")
+
+        assert result == existing
+        assert existing in record.posted.values()
+        record.save.assert_called_once()
+
+    @pytest.mark.unit
+    def test_identical_content_is_not_reposted(self, monkeypatch, capsys) -> None:
+        summary = parse_learnings_md(_ENRICHED_LEARNINGS)
+        body = compose_enriched_body(summary, _ENRICHED_LEARNINGS, PostedRecord())
+        digest = hashlib.sha256(body.encode()).hexdigest()[:12]
+        record = PostedRecord(posted={"_last_content_hash": digest})
+        monkeypatch.setattr(PostedRecord, "load", classmethod(lambda cls: record))
+
+        def fake_gh(query: str, variables: dict | None = None) -> dict:
+            assert "createDiscussion" not in query
+            return {"data": {"search": {"nodes": []}}}
+
+        monkeypatch.setattr(mod, "_gh_graphql", fake_gh)
+
+        assert mod._post_if_new(summary, _ENRICHED_LEARNINGS, "o", "n", "cat") is None
+        assert "Content identical to last post" in capsys.readouterr().err
+
+
+class TestMainExitsZero:
+    """main never fails the Stop hook that calls it."""
+
+    @pytest.mark.unit
+    def test_prints_the_url_when_posted(self, capsys) -> None:
+        with patch(
+            "post_learnings_to_discussions.post_learnings",
+            return_value="https://example.invalid/d/1",
+        ):
+            mod.main()
+        assert "Discussion URL: https://example.invalid/d/1" in capsys.readouterr().out
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("error", "message"),
+        [
+            (RuntimeError("boom"), "Could not post learnings: boom"),
+            (FileNotFoundError("gh"), "gh CLI not found"),
+        ],
+        ids=["gh-failure", "gh-missing"],
+    )
+    def test_errors_exit_zero_with_a_warning(self, error, message, capsys) -> None:
+        with patch("post_learnings_to_discussions.post_learnings", side_effect=error):
+            with pytest.raises(SystemExit) as exc:
+                mod.main()
+        assert exc.value.code == 0
+        assert message in capsys.readouterr().err

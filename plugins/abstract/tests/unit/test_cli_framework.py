@@ -131,6 +131,17 @@ class TestOutputFormatterJson:
         assert parsed == data
 
     @pytest.mark.unit
+    def test_dataclasses_nested_in_a_dict_serialise_as_objects(self):
+        """`abstract-skills audit --format json` nests metrics in a dict.
+
+        They came out as repr strings ("SkillMetrics(name=...)"), which no
+        consumer can read a score from.
+        """
+        data = {"total": 1, "skill_metrics": [_SampleData(name="a", value=1)]}
+        parsed = json.loads(OutputFormatter.format_json(data))
+        assert parsed["skill_metrics"] == [{"name": "a", "value": 1}]
+
+    @pytest.mark.unit
     def test_path_serialised_as_string(self):
         """Given a Path in a dict, output encodes it as string."""
         result = OutputFormatter.format_json({"p": Path("/tmp/test")})
@@ -226,10 +237,14 @@ class TestAbstractCLICreateParser:
 
     @pytest.mark.unit
     def test_returns_argument_parser(self):
-        """Given a concrete CLI, create_parser returns ArgumentParser."""
+        """Given a concrete CLI, the parser carries its name and own arguments."""
         cli = _ConcreteCLI()
         parser = cli.create_parser()
         assert isinstance(parser, argparse.ArgumentParser)
+        assert parser.prog == "test-tool"
+        assert parser.description == "A test CLI"
+        # add_arguments from the subclass is wired in
+        assert parser.parse_args(["--flag"]).flag is True
 
     @pytest.mark.unit
     def test_parser_cached_on_second_call(self):

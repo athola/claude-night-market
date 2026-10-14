@@ -9,6 +9,7 @@ Tests follow Given-When-Then pattern for:
 from __future__ import annotations
 
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -170,3 +171,30 @@ class TestGeneratePreservesPinned:
         md = generate_learnings_md(result)
 
         assert "## Pinned Learnings" not in md
+
+
+def test_extract_pinned_section_strips_trailing_rules_in_linear_time() -> None:
+    """A long whitespace run before a rule must not trigger backtracking.
+
+    The index scan takes microseconds here. The backtracking regex it
+    replaced took 4s on a 2000-character run and grows cubically, so the
+    2s bound catches it with room for a loaded CI machine.
+    """
+    body = "- a" + "\n" * 8000 + "---" + " " * 8000 + "text"
+    started = time.perf_counter()
+    section = extract_pinned_section("## Pinned Learnings\n" + body)
+    assert time.perf_counter() - started < 2.0
+    assert section == body
+
+
+def test_extract_pinned_section_strips_every_trailing_generated_rule() -> None:
+    content = "## Pinned Learnings\n\n- keep me\n\n---\n  ---  \n\n---\n"
+    assert extract_pinned_section(content) == "- keep me"
+
+
+def test_extract_pinned_section_keeps_dashes_that_are_not_a_trailing_rule() -> None:
+    content = "## Pinned Learnings\n\n- keep me\n----\n## Next\n"
+    assert extract_pinned_section(content) == "- keep me\n----"
+    assert extract_pinned_section("## Pinned Learnings\n\n- a --- b ---") == (
+        "- a --- b ---"
+    )

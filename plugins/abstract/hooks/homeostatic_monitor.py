@@ -155,11 +155,8 @@ def _flag_and_build_output(
     queue_file = claude_home / "skills" / "improvement-queue.json"
     queue = ImprovementQueue(queue_file)
 
-    entry = queue.skills.get(skill_ref, {})
-    if entry.get("status") in ("evaluating", "pending_rollback_review"):
-        return None  # caller handles None
-
-    queue.flag_skill(skill_ref, health.gap, session_id)
+    if not queue.flag_skill(skill_ref, health.gap, session_id):
+        return None  # under evaluation or review; caller handles None
 
     entry = queue.skills[skill_ref]
     status = "critical" if health.gap > CRITICAL_GAP_THRESHOLD else "degrading"
@@ -283,9 +280,17 @@ def main() -> None:
 
         # Skill is degrading -- flag it in the queue via ImprovementQueue
         health = SkillHealth(gap, velocity, trend)
-        output = _flag_and_build_output(
-            claude_home, skill_ref, health, payload["session_id"]
-        )
+        try:
+            output = _flag_and_build_output(
+                claude_home, skill_ref, health, payload["session_id"]
+            )
+        except OSError as e:
+            # A read-only or full ~/.claude: the queue cannot be locked or
+            # written, but the health report still holds.
+            sys.stderr.write(
+                f"homeostatic_monitor: queue not updated for {skill_ref}: {e}\n"
+            )
+            output = _build_output(skill_ref, gap, "degrading", velocity, trend)
         if output is None:
             sys.exit(0)
         print(json.dumps(output))

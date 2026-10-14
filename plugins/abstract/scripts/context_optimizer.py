@@ -112,7 +112,10 @@ class ContextOptimizer:
                     },
                 )
             except Exception as e:
-                logger.debug(f"Failed to analyze {skill_file}: {e}")
+                # stderr, not debug: the root logger defaults to WARNING, so a
+                # skill that failed to analyze vanished from the sorted list.
+                logger.warning("Failed to analyze %s: %s", skill_file, e)
+                print(f"[WARN] Failed to analyze {skill_file}: {e}", file=sys.stderr)
 
         return sorted(results, key=lambda x: x["bytes"], reverse=True)
 

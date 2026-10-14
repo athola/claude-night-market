@@ -118,7 +118,7 @@ def test_abs019_load_config_with_defaults_malformed_yaml_falls_back(tmp_path):
     )
 
     result = load_config_with_defaults(project_root=tmp_path)
-    assert isinstance(result, AbstractConfig)
+    assert result == AbstractConfig()
 
 
 def test_abs019_load_config_with_defaults_os_error_falls_back(tmp_path):
@@ -127,12 +127,14 @@ def test_abs019_load_config_with_defaults_os_error_falls_back(tmp_path):
     config_dir.mkdir()
     # Create the file so exists() returns True, then error on open
     config_yaml = config_dir / "abstract_config.yaml"
-    config_yaml.write_text("debug: false", encoding="utf-8")
+    # debug: true would survive a successful read, so equality with the
+    # defaults proves the OSError path fell back.
+    config_yaml.write_text("debug: true", encoding="utf-8")
 
     with patch("builtins.open", side_effect=OSError("disk error")):
         result = load_config_with_defaults(project_root=tmp_path)
 
-    assert isinstance(result, AbstractConfig)
+    assert result == AbstractConfig()
 
 
 # ---------------------------------------------------------------------------

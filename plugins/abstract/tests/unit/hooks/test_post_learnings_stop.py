@@ -44,7 +44,7 @@ def pipeline_calls(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> list[str]
     them runs for real.
     """
     calls: list[str] = []
-    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setenv("CLAUDE_HOME", str(tmp_path / ".claude"))
     skills_dir = tmp_path / ".claude" / "skills"
     skills_dir.mkdir(parents=True)
     (skills_dir / "LEARNINGS.md").write_text("**Skills Analyzed**: 5\n")
@@ -133,7 +133,7 @@ class TestLearningsContentCheck:
         When _learnings_have_content() is called
         Then it returns False.
         """
-        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+        monkeypatch.setenv("CLAUDE_HOME", str(tmp_path / ".claude"))
         assert _mod._learnings_have_content() is False
 
     @pytest.mark.unit
@@ -145,7 +145,7 @@ class TestLearningsContentCheck:
         When _learnings_have_content() is called
         Then it returns False.
         """
-        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+        monkeypatch.setenv("CLAUDE_HOME", str(tmp_path / ".claude"))
         skills_dir = tmp_path / ".claude" / "skills"
         skills_dir.mkdir(parents=True)
         (skills_dir / "LEARNINGS.md").write_text("**Skills Analyzed**: 0\n")
@@ -160,10 +160,165 @@ class TestLearningsContentCheck:
         When _learnings_have_content() is called
         Then it returns True.
         """
-        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+        monkeypatch.setenv("CLAUDE_HOME", str(tmp_path / ".claude"))
         skills_dir = tmp_path / ".claude" / "skills"
         skills_dir.mkdir(parents=True)
         (skills_dir / "LEARNINGS.md").write_text(
             "**Skills Analyzed**: 5\n\n## Findings\n..."
         )
         assert _mod._learnings_have_content() is True
+
+
+class TestLearningsUnreadable:
+    """An unreadable LEARNINGS.md is treated as nothing to post."""
+
+    @pytest.mark.unit
+    def test_unreadable_learnings_reports_no_content(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given: LEARNINGS.md exists but reading it fails (here, a directory)
+        When: _learnings_have_content() is called
+        Then: it returns False instead of raising out of the Stop hook
+        """
+        monkeypatch.setenv("CLAUDE_HOME", str(tmp_path / ".claude"))
+        (tmp_path / ".claude" / "skills" / "LEARNINGS.md").mkdir(parents=True)
+
+        assert _mod._learnings_have_content() is False
+
+
+class TestPipelineIsolation:
+    """One failing stage does not stop the next."""
+
+    @pytest.mark.unit
+    def test_failed_promote_still_posts_learnings(
+        self,
+        pipeline_calls: list[str],
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        """Given: auto-promote raises
+        When: main() runs
+        Then: post-learnings still runs and the failure is labelled on stderr
+        """
+
+        def boom() -> None:
+            pipeline_calls.append("promote")
+            raise RuntimeError("gh down")
+
+        monkeypatch.setattr("sys.stdin", io.StringIO(""))
+        monkeypatch.setattr(_mod, "_promote", boom)
+
+        _mod.main()
+
+        assert pipeline_calls == ["promote", "post"]
+        err = capsys.readouterr().err
+        assert "[post_learnings_stop] auto-promote" in err
+        assert "RuntimeError: gh down" in err
+
+
+class _Summary:
+    success_rate = 80.0
+    avg_duration_ms = 120.0
+
+
+class _AggResult:
+    metrics_by_skill = {"abstract:skill-auditor": _Summary()}
+
+
+class _FakeRegistry:
+    """InsightRegistry stand-in: the real one persists under CLAUDE_HOME."""
+
+    def __init__(self) -> None:
+        self.saved: list[dict] = []
+
+    def load_snapshot(self) -> dict:
+        return {}
+
+    def save_snapshot(self, snapshot: dict) -> None:
+        self.saved.append(snapshot)
+
+
+@pytest.fixture
+def lens_env(
+    pipeline_calls: list[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> dict:
+    """Arm the insight-engine stage with its I/O boundaries recorded."""
+    seen: dict = {"posted": [], "ingested": [], "registry": _FakeRegistry()}
+    monkeypatch.setattr("sys.stdin", io.StringIO(""))
+    monkeypatch.setattr(_mod, "_HAS_INSIGHT_ENGINE", True)
+    monkeypatch.setattr(_mod, "_HAS_PALACE_BRIDGE", True)
+    monkeypatch.setattr(_mod, "aggregate_logs", lambda days_back: _AggResult())
+    monkeypatch.setattr(_mod, "InsightRegistry", lambda: seen["registry"])
+    monkeypatch.setattr(_mod, "run_analysis", lambda ctx, weight_filter: ["f1"])
+
+    def post_findings(findings, registry):
+        seen["posted"].append(findings)
+        return findings
+
+    monkeypatch.setattr(_mod, "post_findings", post_findings)
+    monkeypatch.setattr(
+        _mod,
+        "_ingest_to_palace",
+        lambda findings, budget_remaining: seen["ingested"].append(findings),
+    )
+    return seen
+
+
+class TestInsightLenses:
+    """The insight-engine stage runs only with budget left, and records state."""
+
+    @pytest.mark.unit
+    def test_lenses_post_ingest_and_snapshot_when_budget_remains(
+        self,
+        lens_env: dict,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        """Given: findings exist and the 8.5s budget is untouched
+        When: main() runs
+        Then: findings are posted, ingested, and the metrics snapshot saved
+        """
+        monkeypatch.setattr(_mod, "_START", _mod.time.monotonic())
+
+        _mod.main()
+
+        assert lens_env["posted"] == [["f1"]]
+        assert lens_env["ingested"] == [["f1"]]
+        assert lens_env["registry"].saved == [
+            {"abstract:skill-auditor": {"success_rate": 80.0, "avg_duration_ms": 120.0}}
+        ]
+        assert "posted 1 insight(s)" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_no_findings_posts_nothing_and_keeps_old_snapshot(
+        self, lens_env: dict, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given: the lenses find nothing
+        When: main() runs
+        Then: nothing is posted and the previous snapshot is left in place
+        """
+        monkeypatch.setattr(_mod, "_START", _mod.time.monotonic())
+        monkeypatch.setattr(_mod, "run_analysis", lambda ctx, weight_filter: [])
+
+        _mod.main()
+
+        assert lens_env["posted"] == []
+        assert lens_env["registry"].saved == []
+
+    @pytest.mark.unit
+    def test_lenses_skipped_when_budget_is_spent(
+        self,
+        lens_env: dict,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture,
+    ) -> None:
+        """Given: the hook started longer ago than its budget allows
+        When: main() runs
+        Then: the lenses do not start, and the skip is reported on stderr
+        """
+        monkeypatch.setattr(_mod, "_START", _mod.time.monotonic() - 60)
+
+        _mod.main()
+
+        assert lens_env["posted"] == []
+        assert "skipping insight lenses" in capsys.readouterr().err

@@ -31,7 +31,7 @@ SLASH_COMMAND_TOOL_CHAR_BUDGET=30000 claude
 export SLASH_COMMAND_TOOL_CHAR_BUDGET=30000
 ```
 
-2. **Optimize Skill Descriptions** (Long-term solution):
+2. **Shorten Skill Descriptions** (Long-term solution):
 - Keep `description` field concise (< 200 characters)
 - Focus on essential trigger keywords only
 - Remove verbose explanations from description field
@@ -46,8 +46,8 @@ find ~/.claude/skills -name "SKILL.md" | wc -l
 # Measure description field sizes
 grep -A 5 "^description:" ~/.claude/skills/*/SKILL.md
 
-# Estimate total description budget usage
-# (requires custom script - see skills-eval tools)
+# Estimate tokens per skill (run from plugins/abstract)
+python3 scripts/token_usage_tracker.py ~/.claude/skills
 ```
 
 4. **Consolidate Related Skills**:
@@ -72,34 +72,27 @@ grep -A 5 "^description:" ~/.claude/skills/*/SKILL.md
 
 ### Tool Execution Problems
 
-**Issue**: Tools not found or not executable
+**Issue**: Tool not found. The skills-eval tools are Python scripts in
+`plugins/abstract/scripts/`, not executables in this skill directory.
+Run them with `python3` from `plugins/abstract`:
 ```bash
-# Solution: Make tools executable and verify paths
-chmod +x skills/skills-eval/scripts/*
-which skills-auditor
+ls scripts/*.py
+python3 scripts/skills_auditor.py --help
 ```
 
-**Issue**: Permission denied errors
+**Issue**: Python dependencies missing. `uv run` uses the plugin's own
+environment:
 ```bash
-# Solution: Check file permissions
-ls -la skills/skills-eval/scripts/
-chmod +x skills/skills-eval/scripts/skills-auditor
-```
-
-**Issue**: Python dependencies missing
-```bash
-# Solution: Use setup script or install dependencies
-python3 scripts/automation_setup.py
-pip install -r requirements.txt  # if available
+uv run python scripts/skills_auditor.py skills/
 ```
 
 ### Skill Discovery Issues
 
 **Issue**: No skills found during discovery
 ```bash
-# Solution: Verify Claude configuration and skill locations
+# Solution: point the auditor at the directory that holds the skills
 ls ~/.claude/skills/
-skills/skills-eval/scripts/skills-auditor --discover
+python3 scripts/skills_auditor.py ~/.claude/skills
 ```
 
 **Issue**: Skills not loading properly
@@ -112,9 +105,9 @@ skills/skills-eval/scripts/skills-auditor --discover
 
 **Issue**: Slow evaluation performance
 ```bash
-# Solution: Use targeted analysis and caching
-skills/skills-eval/scripts/skills-auditor --skill-path specific-skill.md
-skills/skills-eval/scripts/token-estimator -f skill.md --cache
+# Solution: analyze one skill file instead of a whole tree
+python3 scripts/token_estimator.py --file skills/skills-eval/SKILL.md
+python3 scripts/skill_analyzer.py --file skills/skills-eval/SKILL.md
 ```
 
 **Issue**: High memory usage during analysis
@@ -127,9 +120,9 @@ skills/skills-eval/scripts/token-estimator -f skill.md --cache
 
 **Issue**: Consistent compliance failures
 ```bash
-# Solution: Use auto-fix and targeted improvements
-skills/skills-eval/scripts/compliance-checker --skill-path skill.md --auto-fix
-skills/skills-eval/scripts/improvement-suggester --skill-path skill.md --priority critical
+# Solution: list the findings, then plan fixes for one skill
+python3 scripts/compliance_checker.py skills/
+python3 scripts/improvement_suggester.py skills/skills-eval
 ```
 
 **Issue**: Quality scores not improving
@@ -140,23 +133,20 @@ skills/skills-eval/scripts/improvement-suggester --skill-path skill.md --priorit
 
 ## Advanced Troubleshooting
 
-### Debug Mode Usage
-```bash
-# Enable detailed diagnostics for any tool
-skills/skills-eval/scripts/skills-auditor --debug --verbose
-skills/skills-eval/scripts/compliance-checker --debug --skill-path skill.md
-```
+### Verbose Output
 
-### Environment Validation
+`skill_analyzer.py` and `token_estimator.py` accept `--verbose` (or
+`-v`, repeatable). The other scripts have no debug flag.
 ```bash
-# Complete environment check
-python3 scripts/automation_validate.py --check-deps --verbose
+python3 scripts/skill_analyzer.py --file skills/skills-eval/SKILL.md -v
 ```
 
 ### Performance Analysis
+
+`tool_performance_analyzer.py` runs each executable it finds with
+`--help`. Point it only at code you trust.
 ```bash
-# Analyze tool performance bottlenecks
-skills/skills-eval/scripts/tool-performance-analyzer --skill-path skill.md --metrics all
+python3 scripts/tool_performance_analyzer.py skills/skills-eval
 ```
 
 ## Error Recovery Strategies
@@ -184,28 +174,15 @@ skills/skills-eval/scripts/tool-performance-analyzer --skill-path skill.md --met
 
 ## Getting Help
 
-### Debug Mode
-Use `--debug` flag with any tool for detailed diagnostics:
-```bash
-skills/skills-eval/scripts/skills-auditor --debug --scan-all
-```
-
 ### Help Output
-All tools support `--help` for usage information:
+Every script prints its flags with `--help`:
 ```bash
-skills/skills-eval/scripts/skills-auditor --help
-skills/skills-eval/scripts/compliance-checker --help
-```
-
-### Verbose Mode
-Use `--verbose` for detailed process information:
-```bash
-skills/skills-eval/scripts/improvement-suggester --verbose --skill-path skill.md
+python3 scripts/skills_auditor.py --help
+python3 scripts/compliance_checker.py --help
 ```
 
 ### Support Channels
 - **Documentation**: Check detailed guides in `modules/` directory
-- **Examples**: Review implementation examples in `examples/` directory
 - **Tools**: Use built-in diagnostic tools for troubleshooting
 - **Community**: Share issues and solutions with the Claude Skills community
 

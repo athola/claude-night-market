@@ -333,7 +333,7 @@ def test_duplicate_skill_refs_deduplicated():
 
 
 def test_success_rate_counts_every_recorded_outcome(tmp_path):
-    """Neutral and small-gain outcomes are attempts too (finding B10)."""
+    """Neutral and small-gain outcomes are attempts too."""
     mem = ImprovementMemory(tmp_path / "mem.json")
     outcomes = [(0.2, 0.6)] + [(0.5, 0.55)] * 5
     for before, after in outcomes:

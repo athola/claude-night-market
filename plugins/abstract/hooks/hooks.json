@@ -46,7 +46,8 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/aggregate_learnings_daily.py\"",
-            "timeout": 5
+            "timeout": 15,
+            "async": true
           }
         ]
       }

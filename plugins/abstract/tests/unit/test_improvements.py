@@ -174,19 +174,18 @@ class TestSuggestImprovedStructureEdgeCases:
         assert result == ["Skill file not found"]
 
     @pytest.mark.unit
-    def test_skill_missing_sections_gets_suggestions(self, tmp_path: Path) -> None:
-        """Scenario: Skill without required sections gets suggestions."""
+    def test_oversized_skill_gets_module_suggestion(self, tmp_path: Path) -> None:
+        """Scenario: A SKILL.md over 500 lines is told to move detail out."""
         skill_dir = tmp_path / "bare-skill"
         skill_dir.mkdir()
         (skill_dir / "SKILL.md").write_text(
             "---\nname: bare-skill\ndescription: minimal\n---\n\n"
-            "# Bare Skill\n\nMinimal content.\n"
+            "# Bare Skill\n\n" + "Line.\n" * 520
         )
 
         suggester = ImprovementSuggester(tmp_path)
         result = suggester.suggest_improved_structure("bare-skill")
-        # Should suggest adding sections
-        assert len(result) > 0
+        assert any("modules" in s for s in result)
 
 
 # ---------------------------------------------------------------------------

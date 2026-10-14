@@ -172,13 +172,11 @@ if __name__ == "__main__":
         benchmark_results = analyzer.benchmark_all_tools()
         suggestions = analyzer.suggest_optimizations(benchmark_results)
 
-        assert isinstance(suggestions, list)
-        # Should provide suggestions for slow tools
-        if any(tool["name"] == "slow-tool.py" for tool in benchmark_results["tools"]):
-            optimization_for_slow = [
-                s for s in suggestions if "slow-tool.py" in s.get("tool", "")
-            ]
-            assert len(optimization_for_slow) > 0
+        # slow-tool is always benchmarked, so its suggestion is unconditional
+        optimization_for_slow = [
+            s for s in suggestions if "slow-tool.py" in s.get("tool", "")
+        ]
+        assert len(optimization_for_slow) > 0
 
     def test_track_performance_over_time(self, sample_tools_dir, scripted_runs) -> None:
         """Test performance tracking across multiple runs."""
@@ -192,9 +190,18 @@ if __name__ == "__main__":
 
         # Should be able to compare results
         comparison = analyzer.compare_benchmarks(initial_results, second_results)
-        assert "changes" in comparison
-        assert "improvements" in comparison
-        assert "regressions" in comparison
+        # The scripted clock makes both runs identical, so nothing moved
+        assert comparison["changes"] == []
+        assert comparison["improvements"] == []
+        assert comparison["regressions"] == []
+
+        # A tool that got slower is a regression, one that got faster is not
+        for tool in second_results["tools"]:
+            if tool["name"] == "slow-tool.py":
+                tool["execution_time"] += 1.0
+        comparison = analyzer.compare_benchmarks(initial_results, second_results)
+        assert [r["tool"] for r in comparison["regressions"]] == ["slow-tool.py"]
+        assert comparison["improvements"] == []
 
     def test_generate_performance_report(self, sample_tools_dir, scripted_runs) -> None:
         """Test performance report generation."""
@@ -213,7 +220,7 @@ if __name__ == "__main__":
         analyzer = ToolPerformanceAnalyzer(tmp_path)
 
         # Should handle missing tool gracefully
-        with pytest.raises((FileNotFoundError, Exception)):
+        with pytest.raises(FileNotFoundError, match="Tool not found"):
             analyzer.measure_tool_performance("non-existent-tool.py")
 
     def test_analyze_resource_usage(self, sample_tools_dir) -> None:

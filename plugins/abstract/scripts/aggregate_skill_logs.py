@@ -26,7 +26,9 @@ _src = Path(__file__).resolve().parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
 
-from abstract.utils import (  # noqa: E402 - import after sys.path setup
+# abstract.paths, not abstract.utils: utils imports yaml, and the daily
+# learnings hook imports this module under interpreters without pyyaml.
+from abstract.paths import (  # noqa: E402 - import after sys.path setup
     get_learnings_path,
     get_log_directory,
 )
@@ -184,6 +186,8 @@ def load_log_entries(
                                 json.JSONDecodeError,
                                 KeyError,
                                 ValueError,
+                                TypeError,
+                                AttributeError,
                             ):
                                 # Skip individual bad entries, not the whole file
                                 continue
@@ -688,7 +692,20 @@ def extract_pinned_section(content: str) -> str:
     else:
         section = after_header[:next_section].strip()
 
-    return section
+    # generate_learnings_md closes the section with a "---" rule. Left in
+    # place it is carried back in as pinned text and a new rule is added
+    # after it, so every regeneration would grow the section by one.
+    # Scanned by index: the regex form backtracked polynomially on a long
+    # whitespace run before an interior "---".
+    end = len(section)
+    while section.endswith("---", 0, end):
+        head = end - 3
+        while head > 0 and section[head - 1].isspace():
+            head -= 1
+        if "\n" not in section[head : end - 3]:
+            break
+        end = head
+    return section[:end]
 
 
 def _format_hyperagents_section() -> list[str]:  # noqa: PLR0912 - report section requires many conditional formatting branches
@@ -702,9 +719,7 @@ def _format_hyperagents_section() -> list[str]:  # noqa: PLR0912 - report sectio
     # Performance trends from PerformanceTracker
     if _HAS_PERFORMANCE_TRACKER:
         try:
-            tracker_file = (
-                Path.home() / ".claude" / "skills" / "performance_history.json"
-            )
+            tracker_file = get_learnings_path().parent / "performance_history.json"
             if tracker_file.exists():
                 tracker = PerformanceTracker(tracker_file)
                 if tracker.history:
@@ -732,7 +747,7 @@ def _format_hyperagents_section() -> list[str]:  # noqa: PLR0912 - report sectio
     # Meta-insights from ImprovementMemory
     if _HAS_IMPROVEMENT_MEMORY:
         try:
-            mem_file = Path.home() / ".claude" / "skills" / "improvement_memory.json"
+            mem_file = get_learnings_path().parent / "improvement_memory.json"
             if mem_file.exists():
                 mem = ImprovementMemory(mem_file)
                 effective = mem.get_effective_strategies()

@@ -6,6 +6,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -21,16 +22,71 @@ SCORE_ACCEPTABLE = 70
 SCORE_WELL_STRUCTURED = 80
 
 # Code block thresholds
-MIN_CODE_BLOCKS = 2
-MIN_CODE_BLOCKS_EXCELLENT = 3
 MIN_NUMBERED_LISTS = 2
-MIN_NUMBERED_LISTS_GOOD = 3
-MIN_NUMBERED_STEPS = 2  # Minimum numbered steps for instructions
 
 # Structure thresholds
-MIN_HEADINGS = 4
 MIN_SECTIONS = 5
 MIN_SECTION_COUNT = 6
+
+# The rubric scores what the evidence ties to skill outcomes. Claude Code
+# reads only `name` and `description` for discovery, so the description
+# must say when to use the skill. Anthropic's skill guidance and the Agent
+# Skills spec cap SKILL.md at 500 lines and 1024 description characters,
+# and SkillsBench (arXiv 2602.12670) finds compact skills outperform
+# exhaustive ones. Numbered steps and code blocks are not scored: the
+# guidance matches prescriptiveness to the task's fragility, which no
+# count of list lines can measure. See .claude/rules/bounded-autonomy.md.
+MAX_BODY_LINES = 500
+MAX_DESCRIPTION_CHARS = 1024
+MIN_EXIT_CRITERIA_ITEMS = 2
+DESCRIPTION_TRIGGER = re.compile(
+    r"\b(use (this skill |it )?"
+    r"(when|whenever|for|to|before|after|on|if|at|during|while)"
+    r"|when (you|a|the))\b",
+    re.I,
+)
+EXIT_CRITERIA_HEADING = re.compile(r"^## Exit Criteria\s*$", re.M)
+# A criterion is any list item: "- [ ] ...", "- ...", "* ..." or "1. ...".
+_CHECK_ITEM = re.compile(r"^\s*(?:[-*](?: \[[ xX]\])?|\d+\.) \S", re.M)
+_FENCE = re.compile(r" {0,3}(```|~~~)")
+
+
+@lru_cache(maxsize=1)
+def _body_line_count(content: str) -> int:
+    """Lines of SKILL.md after the YAML frontmatter, which the line cap excludes.
+
+    Cached for the skill being scored: the structure score and the issue
+    list both read it.
+    """
+    return len(FrontmatterProcessor.extract_raw(content)[1].splitlines())
+
+
+@lru_cache(maxsize=1)
+def _exit_criteria_block(content: str) -> str | None:
+    """Prose of the ``## Exit Criteria`` section, or None when absent.
+
+    Fenced code is dropped: a ``# comment`` inside a fence is not a
+    heading that ends the section, and a list line inside one is not a
+    criterion. Cached for the skill being scored: the structure score, the
+    documentation score and the issue list all read it.
+    """
+    match = EXIT_CRITERIA_HEADING.search(content)
+    if match is None:
+        return None
+    prose: list[str] = []
+    fence: str | None = None
+    for line in content[match.end() :].splitlines(keepends=True):
+        opener = _FENCE.match(line)
+        if fence is None and opener:
+            fence = opener.group(1)[0] * 3
+        elif fence is not None:
+            if line.lstrip().startswith(fence):
+                fence = None
+        elif re.match(r"#{1,2} ", line):
+            break
+        else:
+            prose.append(line)
+    return "".join(prose)
 
 
 @dataclass
@@ -71,18 +127,9 @@ class SkillsAuditor:
                 "token_efficiency": 0.2,
             },
             "required_fields": ["name", "description"],
-            "recommended_fields": ["category", "tags", "dependencies"],
-            # Modern marketplace convention: H1 + free-form intro paragraph
-            # is acceptable. Overview and Quick Start are still recommended
-            # but no longer scored as required. See the Skill Role Taxonomy
-            # section in docs/skill-integration-guide.md.
+            # Optional sections are a layout choice, not a quality signal.
+            # Set this to make the audit report a section as missing.
             "required_sections": [],
-            "recommended_sections": [
-                "Overview",
-                "Quick Start",
-                "When To Use",
-                "Examples",
-            ],
             "token_optimal": 1500,
             "token_acceptable": 2500,
         }
@@ -190,75 +237,36 @@ class SkillsAuditor:
         frontmatter: dict[str, Any],
         content: str,
     ) -> float:
-        """Calculate frontmatter completeness score."""
+        """Score the fields discovery reads: name, and a description with triggers."""
         required = self.audit_metrics["required_fields"]
-        recommended = self.audit_metrics["recommended_fields"]
-
-        score = 0.0
-        total_possible = len(required) + len(recommended) * 0.5
-
-        # Required fields
-        for field in required:
-            # Check if field exists and is not None (empty lists/strings are valid)
-            if field in frontmatter and frontmatter[field] is not None:
-                score += 1.0
-
-        # Recommended fields
-        for field in recommended:
-            # Check if field exists and is not None (empty lists/strings are valid)
-            if field in frontmatter and frontmatter[field] is not None:
-                score += 0.5
-
-        return (score / total_possible) * 100 if total_possible > 0 else 0
+        if not required:
+            return 0
+        present = sum(1 for f in required if frontmatter.get(f) is not None)
+        description = str(frontmatter.get("description") or "")
+        usable = bool(DESCRIPTION_TRIGGER.search(description)) and (
+            len(description) <= MAX_DESCRIPTION_CHARS
+        )
+        return (present + (1 if usable else 0)) / (len(required) + 1) * 100
 
     def _calculate_structure_score(self, content: str) -> float:
-        """Calculate content structure score."""
-        required = self.audit_metrics["required_sections"]
-        recommended = self.audit_metrics["recommended_sections"]
-
+        """Score the repository's required Exit Criteria and the 500-line cap."""
         score = 0.0
-        total_possible = len(required) + len(recommended) * 0.5
-
-        # Required sections
-        for section in required:
-            if f"## {section}" in content:
-                score += 1.0
-
-        # Recommended sections
-        for section in recommended:
-            if f"## {section}" in content:
-                score += 0.5
-
-        # Additional structure factors
-        headings = len(re.findall(r"^#+ ", content, re.MULTILINE))
-        if headings >= MIN_HEADINGS:
-            score += 0.5
-
-        return (score / (total_possible + 0.5)) * 100 if total_possible > 0 else 0
+        if _exit_criteria_block(content) is not None:
+            score += 2.0
+        if content.strip() and _body_line_count(content) <= MAX_BODY_LINES:
+            score += 1.0
+        for section in self.audit_metrics["required_sections"]:
+            if f"## {section}" not in content:
+                score -= 1.0
+        return max(score, 0.0) / 3.0 * 100
 
     def _calculate_documentation_score(self, content: str) -> float:
-        """Calculate documentation quality score."""
-        score = 0.0
-
-        # Code blocks
-        code_block_count = len(re.findall(r"```", content)) // 2
-        if code_block_count >= 1:
-            score += 25
-        if code_block_count >= MIN_CODE_BLOCKS_EXCELLENT:
-            score += 25
-
-        # Step-by-step instructions
-        numbered_lists = len(re.findall(r"^\d+\.", content, re.MULTILINE))
-        if numbered_lists >= 1:
-            score += 25
-        if numbered_lists >= MIN_NUMBERED_LISTS_GOOD:
-            score += 25
-
-        # Examples
-        if "## Examples" in content or "example" in content.lower():
-            score += 25
-
-        return min(score, 100)
+        """Score a finish line someone can check: Exit Criteria checklist items."""
+        block = _exit_criteria_block(content)
+        if block is None:
+            return 0
+        items = len(_CHECK_ITEM.findall(block))
+        return min(items / MIN_EXIT_CRITERIA_ITEMS, 1.0) * 100
 
     def _calculate_token_score(self, token_count: int) -> float:
         """Calculate token efficiency score."""
@@ -288,21 +296,35 @@ class SkillsAuditor:
                 if not frontmatter.get(field):
                     issues.append(f"Missing required field: {field}")
 
-            for field in self.audit_metrics["recommended_fields"]:
-                if not frontmatter.get(field):
-                    issues.append(f"Missing recommended field: {field}")
+            description = str(frontmatter.get("description") or "")
+            if description and not DESCRIPTION_TRIGGER.search(description):
+                issues.append(
+                    "Description has no trigger (say when to use it, e.g. "
+                    "'Use when ...')"
+                )
+            if len(description) > MAX_DESCRIPTION_CHARS:
+                issues.append(
+                    f"Description over {MAX_DESCRIPTION_CHARS} characters "
+                    f"({len(description)})"
+                )
 
         # Structure issues
         for section in self.audit_metrics["required_sections"]:
             if f"## {section}" not in content:
                 issues.append(f"Missing required section: {section}")
 
-        # Documentation issues
-        if len(re.findall(r"```", content)) < MIN_CODE_BLOCKS:
-            issues.append("Missing code examples")
+        block = _exit_criteria_block(content)
+        if block is None:
+            issues.append("Missing ## Exit Criteria section")
+        elif len(_CHECK_ITEM.findall(block)) < MIN_EXIT_CRITERIA_ITEMS:
+            issues.append(
+                f"Exit Criteria has fewer than {MIN_EXIT_CRITERIA_ITEMS} "
+                "checkable items"
+            )
 
-        if len(re.findall(r"^\d+\.", content, re.MULTILINE)) < MIN_NUMBERED_STEPS:
-            issues.append("Missing step-by-step instructions")
+        line_count = _body_line_count(content)
+        if line_count > MAX_BODY_LINES:
+            issues.append(f"SKILL.md body over {MAX_BODY_LINES} lines ({line_count})")
 
         # Token efficiency
         if token_count > self.audit_metrics["token_acceptable"]:
@@ -362,28 +384,19 @@ class SkillsAuditor:
 
         if avg_completeness < SCORE_GOOD:
             recommendations.append(
-                "Add required frontmatter fields (name, description) to all skills",
-            )
-            recommendations.append(
-                "Consider adding recommended fields (category, tags) "
-                "for better organization",
+                "Give every skill a name and a description that says when to use it",
             )
 
         if avg_structure < SCORE_GOOD:
             recommendations.append(
-                "Implement progressive disclosure structure with "
-                "Overview and Quick Start sections",
-            )
-            recommendations.append(
-                "Add more detailed sections to improve content organization",
+                "Add an ## Exit Criteria section and keep SKILL.md under "
+                f"{MAX_BODY_LINES} lines, moving detail into modules",
             )
 
         if avg_documentation < SCORE_GOOD:
             recommendations.append(
-                "Add practical examples and code blocks to demonstrate skill usage",
-            )
-            recommendations.append(
-                "Include step-by-step instructions for common workflows",
+                "Make Exit Criteria checkable: at least "
+                f"{MIN_EXIT_CRITERIA_ITEMS} items a reader can verify",
             )
 
         avg_tokens = sum(m.token_count for m in skill_metrics) / len(skill_metrics)

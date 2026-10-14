@@ -1,4 +1,4 @@
-"""Counts and bounds in abstract's analysis scripts (math review B2-5 to B2-9).
+"""Counts and bounds in abstract's analysis scripts.
 
 Each test pins a number a report printed wrong: headings counted inside
 code fences, a token count labeled in kilobytes, the "worst" regressions
@@ -35,7 +35,7 @@ def _ctx(metrics=None, improvement_memory=None) -> AnalysisContext:
 
 
 def test_headings_inside_a_code_fence_are_not_sections() -> None:
-    """Shell comments in a bash fence counted as h1 themes (B2-5)."""
+    """Shell comments in a bash fence counted as h1 themes."""
     content = (
         "# Title\n\n```bash\n# install deps\n# run tests\n```\n\n~~~\n# lint\n~~~\n"
     )
@@ -43,7 +43,7 @@ def test_headings_inside_a_code_fence_are_not_sections() -> None:
 
 
 def test_token_recommendations_name_tokens_not_kilobytes() -> None:
-    """2048 tokens is about 8 KB at 4 chars a token, not 2 KB (B2-6)."""
+    """2048 tokens is about 8 KB at 4 chars a token, not 2 KB."""
     analyzer = SkillAnalyzer()
     high = analyzer._generate_recommendations(10, 1, 1, HIGH_TOKEN_LIMIT + 1)
     moderate = analyzer._generate_recommendations(10, 1, 1, MODERATE_TOKEN_LIMIT + 1)
@@ -54,7 +54,7 @@ def test_token_recommendations_name_tokens_not_kilobytes() -> None:
 
 
 def test_worst_failures_are_the_largest_regressions() -> None:
-    """The summary listed the first three failures, not the worst (B2-7)."""
+    """The summary listed the first three failures, not the worst."""
     improvements = [-0.01, -0.02, -0.03, -0.9, -0.8]
 
     class Memory:
@@ -80,7 +80,7 @@ def test_worst_failures_are_the_largest_regressions() -> None:
 
 def test_a_skill_with_only_old_logs_is_reported_unused(tmp_path: Path) -> None:
     """A skill dir with no in-window entry produced no key, so the
-    0-execution branch was unreachable (B2-8).
+    0-execution branch was unreachable.
     """
     skill_dir = tmp_path / "plug" / "stale-skill"
     skill_dir.mkdir(parents=True)
@@ -109,7 +109,7 @@ def test_a_naive_timestamp_is_read_as_utc(tmp_path: Path) -> None:
 
 def test_a_range_ending_past_the_file_is_stale(tmp_path: Path) -> None:
     """Only line_start was checked, so 90-500 in a 100-line file passed
-    as present (B2-9).
+    as present.
     """
     (tmp_path / "f.py").write_text("x\n" * 100)
     result = verify_refs([FileRef("f.py", 90, 500)], tmp_path)

@@ -63,7 +63,7 @@ check: ## Run all validation checks
 	@echo "Running dependency validation..."
 	$(UV_RUN_PYTHON) $(SCRIPTS_DIR)/abstract_validator.py --report --scan
 
-test: format lint type-check security test-unit ## Run all quality checks
+test: format-check lint type-check security test-unit ## Run all quality checks
 	@echo "All quality checks passed!"
 
 # SETUP

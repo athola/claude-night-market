@@ -144,14 +144,19 @@ class TestGetLogDirectory:
                 os.environ["CLAUDE_HOME"] = original
 
     @pytest.mark.unit
-    def test_returns_path_object(self) -> None:
-        """Scenario: Return value is always a Path
-        Given no special environment setup
-        When get_log_directory is called
-        Then the result is a Path object
+    def test_defaults_to_home_dot_claude_when_claude_home_unset(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Scenario: Without CLAUDE_HOME the log directory is under ~/.claude
+        Given CLAUDE_HOME is unset and HOME points at a temp directory
+        When get_log_directory is called without create
+        Then the result is HOME/.claude/skills/logs and nothing is created
         """
+        monkeypatch.delenv("CLAUDE_HOME", raising=False)
+        monkeypatch.setenv("HOME", str(tmp_path))
         result = get_log_directory()
-        assert isinstance(result, Path)
+        assert result == tmp_path / ".claude" / "skills" / "logs"
+        assert not result.exists()
 
     @pytest.mark.unit
     def test_get_learnings_path_returns_path_object(self) -> None:

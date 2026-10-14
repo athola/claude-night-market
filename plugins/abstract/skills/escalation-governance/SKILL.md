@@ -27,7 +27,6 @@ Model escalation (haiku→sonnet→opus) trades speed/cost for reasoning capabil
 ```
 NO ESCALATION WITHOUT INVESTIGATION FIRST
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 Escalation is never a shortcut. If you haven't understood why the current model is insufficient, escalation is premature.
 
@@ -133,7 +132,6 @@ escalation:
     - novel_pattern          # No existing patterns apply
     - high_stakes            # Error would be costly
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 **Key points:**
 - Hints are advisory, not mandatory
@@ -166,7 +164,6 @@ If you catch yourself thinking:
 ## Integration with Agent Workflow
 
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 Agent starts task at assigned model
 ├── Task succeeds → Complete
 └── Task struggles →
@@ -176,7 +173,6 @@ Agent starts task at assigned model
     └── Don't investigate → WRONG PATH
         └── "Maybe escalate?" → NO. Investigate first.
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Reference
 
