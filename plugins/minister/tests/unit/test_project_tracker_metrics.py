@@ -308,6 +308,35 @@ class TestCalculateOverallMetrics:
         # Assert - 2 tasks @ 10h = 20h over 2 weeks = 10h/week
         assert metrics["burn_rate"] == 10.0
 
+    def test_burn_rate_uses_one_week_when_created_date_is_blank(
+        self, empty_tracker: ProjectTracker
+    ) -> None:
+        """GIVEN a done task whose created_date is an empty string.
+
+        WHEN overall metrics are calculated
+        THEN the elapsed time defaults to one week instead of failing to parse.
+        """
+        empty_tracker.add_task(
+            Task(
+                id="TSK-blank",
+                title="Imported without a date",
+                initiative="Test",
+                phase="Phase 1",
+                priority="Medium",
+                status="Done",
+                owner="tester",
+                effort_hours=6.0,
+                completion_percent=100.0,
+                due_date="2025-01-15",
+                created_date="",
+                updated_date="",
+            )
+        )
+
+        metrics = empty_tracker._calculate_overall_metrics()
+
+        assert metrics["burn_rate"] == 6.0
+
     def test_calculate_overall_metrics_rounds_to_one_decimal(
         self, empty_tracker: ProjectTracker
     ) -> None:

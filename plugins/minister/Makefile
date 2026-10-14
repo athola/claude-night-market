@@ -206,7 +206,7 @@ test-close-issue: ## Test close-issue command (runs related unit tests)
 	@$(call pytest_selection,tests/ -v -k "close and issue")
 
 test-update-labels: ## Test update-labels command (runs related unit tests)
-	$(PYTEST) tests/ -v -k "update_labels"
+	@$(call pytest_selection,tests/ -v -k "update_labels")
 
 
 

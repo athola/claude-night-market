@@ -630,11 +630,12 @@ def test_cli_update_command_with_multiple_fields_updates_all(
     assert task["github_issue"] == "https://github.com/org/repo/issues/456"
 
 
-def test_cli_update_nonexistent_task_completes_without_error(
+def test_cli_update_nonexistent_task_exits_nonzero_and_leaves_data(
     cli_with_seeded_data: Path,
 ) -> None:
-    """Test that updating a nonexistent task completes successfully without changes."""
+    """Updating a nonexistent task reports failure and changes nothing."""
     seeded_data_file = cli_with_seeded_data
+    before = seeded_data_file.read_bytes()
 
     result = run_cli(
         [
@@ -646,14 +647,10 @@ def test_cli_update_nonexistent_task_completes_without_error(
         ],
     )
 
-    assert result == 0
-
-    # Data should be unchanged (except timestamp)
-    with open(seeded_data_file, encoding="utf-8") as f:
-        data = json.load(f)
-
-    # No task with this ID exists
-    assert not any(t["id"] == "NONEXISTENT-999" for t in data["tasks"])
+    assert result == 1
+    # Byte-equal: the failed update must not rewrite the file, not even
+    # to bump a timestamp or add the unknown id.
+    assert seeded_data_file.read_bytes() == before
 
 
 def test_cli_status_command_executes_successfully(cli_with_seeded_data: Path) -> None:

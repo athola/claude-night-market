@@ -442,6 +442,7 @@ def format_report(m: DORAMetrics, window_days: int) -> str:
 # captured, which is a hang the CalledProcessError handler can never see.
 _GH_TIMEOUT_SECONDS = 30
 _GIT_TIMEOUT_SECONDS = 15
+_GH_ISSUE_LIMIT = 200
 
 
 def _run_git(args: list[str], cwd: Path | None = None) -> str:
@@ -483,17 +484,28 @@ def collect_deployments_from_git(
     # branch became a pathspec, matched no file, and every window
     # collected zero deployments. Measured on this repository, "-- HEAD"
     # returned 0 commits where "--end-of-options HEAD" returned 1440.
-    output = _run_git(
-        [
-            "log",
-            f"--since={since}",
-            "--pretty=format:%H|%aI|%cI",
-            "--no-merges",
-            "--end-of-options",
-            branch,
-        ],
-        cwd=cwd,
-    )
+    try:
+        output = _run_git(
+            [
+                "log",
+                f"--since={since}",
+                "--pretty=format:%H|%aI|%cI",
+                "--no-merges",
+                "--end-of-options",
+                branch,
+            ],
+            cwd=cwd,
+        )
+    except (
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        FileNotFoundError,
+    ) as exc:
+        # Same contract as the gh collector: a broken collector is
+        # partial data, never a traceback and never a silent zero.
+        msg = f"git log failed: {type(exc).__name__}: {exc}"
+        print(f"[dora] WARNING: {msg}", file=sys.stderr)
+        return CollectionResult(events=[], partial=True, warnings=(msg,))
     events: list[DeploymentEvent] = []
     warnings: list[str] = []
     partial = False
@@ -560,7 +572,7 @@ def collect_failures_from_gh(
                 "--json",
                 "createdAt,closedAt,state",
                 "--limit",
-                "200",
+                str(_GH_ISSUE_LIMIT),
             ],
             cwd=cwd,
             capture_output=True,
@@ -588,6 +600,11 @@ def collect_failures_from_gh(
     events: list[FailureEvent] = []
     warnings: list[str] = []
     partial = False
+    if len(rows) >= _GH_ISSUE_LIMIT:
+        # A full page means older issues in the window were cut off.
+        msg = f"gh returned {len(rows)} issues, the --limit; older failures dropped"
+        warnings.append(msg)
+        partial = True
     for row in rows:
         opened_iso = row.get("createdAt")
         closed_iso = row.get("closedAt")

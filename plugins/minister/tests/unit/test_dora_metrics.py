@@ -442,10 +442,14 @@ class TestCollectDeploymentsFromGit:
     """End-to-end via mocked subprocess output."""
 
     def test_parses_git_log_output(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Well-formed `sha|author-date|commit-date` lines become DeploymentEvents."""
+        """Well-formed `sha|author-date|commit-date` lines become DeploymentEvents.
+
+        A blank line between records is skipped and does not mark the
+        result partial.
+        """
         sample = (
             "abc1234567890123456789012345678901234567|"
-            "2026-04-15T10:00:00+00:00|2026-04-15T10:30:00+00:00\n"
+            "2026-04-15T10:00:00+00:00|2026-04-15T10:30:00+00:00\n\n"
             "def1234567890123456789012345678901234567|"
             "2026-04-16T11:00:00+00:00|2026-04-16T11:30:00+00:00\n"
         )
@@ -633,17 +637,28 @@ class TestBuildParser:
 class TestCliArgumentValidation:
     """The CLI must reject negative or zero windows and dash-prefixed branches."""
 
-    def test_negative_window_rejected(self) -> None:
+    def test_negative_window_rejected(self, capsys: pytest.CaptureFixture[str]) -> None:
         """A negative --window would produce a future-dated window; argparse must reject it."""
         parser = build_parser()
         with pytest.raises(SystemExit):
             parser.parse_args(["--window", "-5"])
+        assert "window must be >= 1, got -5" in capsys.readouterr().err
 
-    def test_zero_window_rejected(self) -> None:
+    def test_zero_window_rejected(self, capsys: pytest.CaptureFixture[str]) -> None:
         """A zero --window would divide by zero downstream; argparse must reject it."""
         parser = build_parser()
         with pytest.raises(SystemExit):
             parser.parse_args(["--window", "0"])
+        assert "window must be >= 1, got 0" in capsys.readouterr().err
+
+    def test_non_integer_window_rejected_with_its_value_named(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A non-numeric --window is a usage error that names the bad value."""
+        parser = build_parser()
+        with pytest.raises(SystemExit):
+            parser.parse_args(["--window", "week"])
+        assert "expected a positive integer, got 'week'" in capsys.readouterr().err
 
     def test_positive_window_accepted(self) -> None:
         """A valid positive --window value parses through unchanged."""
