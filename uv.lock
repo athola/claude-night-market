@@ -558,6 +558,9 @@ tokens = [
 [package.dev-dependencies]
 dev = [
     { name = "bandit" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pyyaml" },
 ]
 
 [package.metadata]
@@ -572,7 +575,12 @@ requires-dist = [
 provides-extras = ["tokens", "dev"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "bandit", specifier = ">=1.8.6,<2.0" }]
+dev = [
+    { name = "bandit", specifier = ">=1.8.6,<2.0" },
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "pytest-cov", specifier = ">=7.1.0" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
+]
 
 [[package]]
 name = "librt"
