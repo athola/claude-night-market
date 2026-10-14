@@ -21,7 +21,6 @@ from memory_palace.corpus.semantic_deduplicator import (  # noqa: E402 - import 
     _best_match_from_dict,
     _content_id,
     _hash_to_vector,
-    _jaccard_similarity,
 )
 
 # ---------------------------------------------------------------------------
@@ -68,62 +67,6 @@ def _unit_vectors(n: int, dim: int = 4) -> list[list[float]]:
         norm = math.sqrt(sum(v * v for v in vec))
         vecs.append([v / norm for v in vec])
     return vecs
-
-
-# ---------------------------------------------------------------------------
-# Jaccard helper (no external deps)
-# ---------------------------------------------------------------------------
-
-
-class TestJaccardSimilarity:
-    """Unit tests for the Jaccard fallback helper."""
-
-    @pytest.mark.unit
-    def test_identical_strings_score_one(self) -> None:
-        """Scenario: Identical content
-        Given two identical strings
-        When Jaccard similarity is computed
-        Then the score is 1.0.
-        """
-        assert _jaccard_similarity("hello world", "hello world") == 1.0
-
-    @pytest.mark.unit
-    def test_disjoint_strings_score_zero(self) -> None:
-        """Scenario: Completely different content
-        Given two strings with no common words
-        When Jaccard similarity is computed
-        Then the score is 0.0.
-        """
-        assert _jaccard_similarity("apple banana", "cat dog") == 0.0
-
-    @pytest.mark.unit
-    def test_partial_overlap(self) -> None:
-        """Scenario: Partial word overlap
-        Given two strings sharing half their words
-        When Jaccard similarity is computed
-        Then the score reflects the overlap ratio.
-        """
-        # {"a", "b"} ∩ {"b", "c"} = {"b"} → 1/3
-        score = _jaccard_similarity("a b", "b c")
-        assert abs(score - 1 / 3) < 1e-9
-
-    @pytest.mark.unit
-    def test_empty_strings(self) -> None:
-        """Scenario: Both strings empty
-        Given two empty strings
-        When Jaccard similarity is computed
-        Then the score is 1.0 (vacuously equal).
-        """
-        assert _jaccard_similarity("", "") == 1.0
-
-    @pytest.mark.unit
-    def test_one_empty_string(self) -> None:
-        """Scenario: One empty string
-        Given one empty and one non-empty string
-        When Jaccard similarity is computed
-        Then the score is 0.0.
-        """
-        assert _jaccard_similarity("", "something") == 0.0
 
 
 # ---------------------------------------------------------------------------

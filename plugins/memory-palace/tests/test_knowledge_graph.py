@@ -325,15 +325,16 @@ class TestEdgeCases:
     def test_search_with_special_characters(self, graph: KnowledgeGraph) -> None:
         """FTS punctuation cannot break the query into a syntax error."""
         graph.upsert_entity("e1", "concept", "Test (special)")
-        # FTS match may fail on special chars, should not raise
-        results = graph.search("special")
-        assert isinstance(results, list)
+        # Bare parentheses are FTS5 grouping syntax; the query must still match
+        results = graph.search("(special)")
+        assert [row["entity_id"] for row in results] == ["e1"]
 
     def test_upsert_entity_with_none_metadata(self, graph: KnowledgeGraph) -> None:
         """Absent metadata is stored without raising."""
         graph.upsert_entity("e1", "concept", "Test", metadata=None)
         entity = graph.get_entity("e1")
         assert entity is not None
+        assert entity["metadata"] == "{}"
 
     def test_get_synapse_nonexistent(self, graph: KnowledgeGraph) -> None:
         """A missing synapse id yields None."""

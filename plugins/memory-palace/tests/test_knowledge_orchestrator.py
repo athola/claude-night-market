@@ -16,7 +16,6 @@ from memory_palace.corpus.knowledge_orchestrator import (
 from memory_palace.corpus.marginal_value import IntegrationDecision
 from memory_palace.corpus.source_lineage import (
     FullLineage,
-    SimpleLineage,
     SourceReference,
     SourceType,
 )
@@ -277,10 +276,10 @@ class TestKnowledgeOrchestrator:
             orchestrator.record_usage("healthy-1", UsageSignal.ACCESS)
 
         queue = orchestrator.get_maintenance_queue(entries)
-        assert isinstance(queue, list)
-        # Queue should be sorted by priority (worst first)
-        if len(queue) >= 2:
-            assert queue[0].overall_score <= queue[-1].overall_score
+        # The used, fresh entry is healthy and stays out; the decayed two
+        # are queued worst first
+        assert [a.entry_id for a in queue] == ["critical-1", "stale-1"]
+        assert queue[0].overall_score <= queue[1].overall_score
 
     def test_ingest_with_lineage_standalone(
         self, orchestrator: KnowledgeOrchestrator
@@ -299,13 +298,9 @@ class TestKnowledgeOrchestrator:
             source=source,
         )
 
-        assert isinstance(entry_id, str)
-        assert decision in [
-            IntegrationDecision.STANDALONE,
-            IntegrationDecision.MERGE,
-            IntegrationDecision.REPLACE,
-            IntegrationDecision.SKIP,
-        ]
+        # No marginal-value filter is configured, so new content stands alone
+        assert decision == IntegrationDecision.STANDALONE
+        assert entry_id.startswith("entry-")
 
     def test_ingest_creates_lineage(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should create lineage for ingested content."""
@@ -322,9 +317,10 @@ class TestKnowledgeOrchestrator:
             source=source,
         )
 
-        if decision != IntegrationDecision.SKIP:
-            lineage = orchestrator.lineage_manager.get_lineage(entry_id)
-            assert isinstance(lineage, (FullLineage, SimpleLineage))
+        # Research papers always get full lineage, whatever their importance
+        assert decision == IntegrationDecision.STANDALONE
+        lineage = orchestrator.lineage_manager.get_lineage(entry_id)
+        assert isinstance(lineage, FullLineage)
 
     def test_validate_entry(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should record validation and reset decay."""
@@ -512,10 +508,16 @@ class TestKnowledgeOrchestrator:
             source=source,
         )
 
-        # Should have emitted at least one signal
-        if decision != IntegrationDecision.SKIP:
-            # New entry should trigger access signal
-            assert len(emitted_signals) >= 0  # May or may not emit on ingest
+        # Novel content into an empty corpus is stored, and storing it
+        # emits exactly one ACCESS signal naming the entry and decision
+        assert decision != IntegrationDecision.SKIP
+        assert emitted_signals == [
+            (
+                entry_id,
+                UsageSignal.ACCESS,
+                {"action": "ingested", "decision": decision.value},
+            )
+        ]
 
     def test_get_entry_history(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should return full history for an entry."""

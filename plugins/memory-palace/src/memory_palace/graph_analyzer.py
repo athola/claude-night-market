@@ -23,7 +23,8 @@ def _weighted_pagerank(dg: nx.DiGraph) -> dict[str, float]:
     does not declare. These palaces hold hundreds of nodes, not millions,
     so the sparse solver buys nothing. The algorithm and defaults follow
     networkx's reference implementation: out-weights are normalized per
-    node, and a node with no out-edges spreads its rank evenly.
+    node, and a node whose out-edges weigh 0 in total, including one with
+    no out-edges, spreads its rank evenly.
     """
     n = dg.number_of_nodes()
     out_weight = {
@@ -37,6 +38,8 @@ def _weighted_pagerank(dg: nx.DiGraph) -> dict[str, float]:
         base = (1.0 - _PAGERANK_ALPHA) / n + dangling / n
         rank = dict.fromkeys(dg, base)
         for u, v, d in dg.edges(data=True):
+            if out_weight[u] == 0:
+                continue  # dangling: its rank was spread evenly above
             rank[v] += (
                 _PAGERANK_ALPHA * previous[u] * d.get("weight", 1.0) / out_weight[u]
             )
@@ -58,15 +61,11 @@ class PalaceGraphAnalyzer:
         """Load the knowledge graph into a NetworkX DiGraph."""
         dg = nx.DiGraph()
 
-        entities = self._kg._conn.execute(
-            "SELECT entity_id, entity_type, name FROM entities"
-        ).fetchall()
+        entities = self._kg.get_entity_summaries()
         for e in entities:
             dg.add_node(e["entity_id"], entity_type=e["entity_type"], name=e["name"])
 
-        synapses = self._kg._conn.execute(
-            "SELECT source_id, target_id, strength FROM synapses"
-        ).fetchall()
+        synapses = self._kg.get_synapse_edges()
         for s in synapses:
             dg.add_edge(s["source_id"], s["target_id"], weight=s["strength"])
 

@@ -272,6 +272,20 @@ class DecayModel:
         """
         return self._validation_dates.get(entry_id)
 
+    @staticmethod
+    def _created_at(entry: dict[str, Any]) -> datetime | None:
+        """Parse the entry's ``created_at``, or None when absent or invalid."""
+        raw = entry.get("created_at")
+        if not raw:
+            return None
+        try:
+            return datetime.fromisoformat(raw)
+        except (ValueError, TypeError):
+            logger.warning(
+                "Invalid created_at for entry %s: %r", entry.get("id", ""), raw
+            )
+            return None
+
     def get_stale_entries(
         self,
         entries: list[dict[str, Any]],
@@ -280,7 +294,9 @@ class DecayModel:
         """Get entries with decay below threshold.
 
         Args:
-            entries: List of entry dicts with 'id' and 'maturity' keys
+            entries: List of entry dicts with 'id' and 'maturity' keys. An
+                entry never validated decays from its ISO 'created_at'; with
+                neither it counts as validated now and is never stale.
             threshold: Decay threshold below which entries are returned
 
         Returns:
@@ -301,7 +317,7 @@ class DecayModel:
             # Get validation date
             last_validated = self._validation_dates.get(entry_id)
             if last_validated is None:
-                last_validated = datetime.now(timezone.utc)
+                last_validated = self._created_at(entry) or datetime.now(timezone.utc)
 
             state = self.calculate_decay(
                 entry_id,

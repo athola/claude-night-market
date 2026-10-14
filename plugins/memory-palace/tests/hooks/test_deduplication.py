@@ -71,9 +71,7 @@ class TestGetUrlKey:
     def test_tracking_params_removed(self) -> None:
         """Common tracking parameters should be removed."""
         url = "https://example.com?utm_source=twitter&article=123"
-        result = get_url_key(url)
-        assert "utm_source" not in result
-        assert "article=123" in result or "article" in result
+        assert get_url_key(url) == "https://example.com?article=123"
 
     def test_lowercase(self) -> None:
         """URLs should be lowercased."""
@@ -104,28 +102,56 @@ class TestNeedsUpdate:
 
 
 class TestGetIndexStats:
-    """Tests for index statistics."""
+    """Tests for index statistics, read from a throwaway index file."""
 
-    def test_stats_returns_dict(self) -> None:
-        """Stats should return a dictionary."""
-        stats = get_index_stats()
-        assert isinstance(stats, dict)
+    @pytest.fixture(autouse=True)
+    def _isolated_index(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+        index_path = tmp_path / "memory-palace-index.yaml"
+        monkeypatch.setattr(dedup_module, "_get_index_path", lambda: index_path)
+        monkeypatch.setattr(dedup_module, "yaml", real_yaml)
+        monkeypatch.setattr(dedup_module, "_index_cache", None)
+        monkeypatch.setattr(dedup_module, "_index_mtime", 0)
+        self.index_path = index_path
+        return index_path
+
+    def test_stats_count_url_and_path_entries_separately(self) -> None:
+        """Entries split into URLs and local docs; hashes count on their own."""
+        self.index_path.write_text(
+            real_yaml.safe_dump(
+                {
+                    "entries": {
+                        "u1": {"url": "https://a.example"},
+                        "u2": {"url": "https://b.example"},
+                        "p1": {"path": "docs/notes.md"},
+                    },
+                    "hashes": {"xxh:1": "u1", "xxh:2": "u2"},
+                }
+            )
+        )
+        assert get_index_stats() == {
+            "total_entries": 3,
+            "total_hashes": 2,
+            "urls": 2,
+            "local_docs": 1,
+        }
 
     def test_stats_has_required_keys(self) -> None:
         """Stats should have required keys."""
+        self.index_path.write_text("entries: {}\nhashes: {}\n")
         stats = get_index_stats()
         assert "total_entries" in stats
         assert "total_hashes" in stats
         assert "urls" in stats
         assert "local_docs" in stats
 
-    def test_stats_are_non_negative(self) -> None:
-        """All stats should be non-negative."""
-        stats = get_index_stats()
-        assert stats["total_entries"] >= 0
-        assert stats["total_hashes"] >= 0
-        assert stats["urls"] >= 0
-        assert stats["local_docs"] >= 0
+    def test_stats_of_a_missing_index_are_all_zero(self) -> None:
+        """No index file yet reads as an empty index, not an error."""
+        assert get_index_stats() == {
+            "total_entries": 0,
+            "total_hashes": 0,
+            "urls": 0,
+            "local_docs": 0,
+        }
 
 
 class TestYamlUnavailable:

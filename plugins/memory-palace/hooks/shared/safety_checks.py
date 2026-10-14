@@ -165,6 +165,10 @@ def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult 
                     )
                 combining_count = 0
                 base_count += 1
+        # A run that reaches the end of the sample has no base character
+        # after it to trigger the check above.
+        if combining_count > max_combining:
+            return SafetyCheckResult(False, "Unicode combining character bomb detected")
 
     # 4. BiDi override attack
     if safety.get("block_bidi_override", True):

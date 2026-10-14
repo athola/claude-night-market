@@ -36,7 +36,8 @@ semantic = [
     # It went undeclared, so corpus/__init__.py caught the ImportError and
     # set SemanticDeduplicator = None on every install, and the test suite
     # skipped its coverage. faiss-cpu has no Python 3.9 wheel, hence the
-    # marker; on 3.9 the None fallback stays and the tests skip.
+    # marker; on 3.9 reading SemanticDeduplicator raises ImportError
+    # naming faiss, and the tests skip.
     "faiss-cpu>=1.15.1 ; python_version >= '3.10'",
 ]
 dev = [

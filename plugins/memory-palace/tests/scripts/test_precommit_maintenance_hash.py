@@ -1,6 +1,6 @@
 """The pre-commit maintenance hook runs on a host without md5sum.
 
-Shell review S1-12. hash_of called md5sum, which macOS lacks before 14
+hash_of called md5sum, which macOS lacks before 14
 and BSD does not ship. With the index present, set -e ended the hook
 with 127, and every commit was blocked.
 """

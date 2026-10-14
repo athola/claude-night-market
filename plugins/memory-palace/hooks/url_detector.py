@@ -18,6 +18,9 @@ if TYPE_CHECKING:
 # Simple URL pattern for fast detection (full validation happens later)
 _URL_QUICK_PATTERN = re.compile(r'https?://[^\s<>"\')\]]+', re.IGNORECASE)
 
+# Sentence punctuation that follows a pasted URL without belonging to it.
+_TRAILING_PUNCTUATION = ".,;:!?"
+
 # Domains to skip (not knowledge sources)
 _SKIP_DOMAINS = frozenset(
     [
@@ -52,21 +55,47 @@ _SKIP_EXTENSIONS = frozenset(
 )
 
 
+def _is_skipped_domain(url_lower: str) -> bool:
+    """Return True when the URL's host (or host/path prefix) is a skip entry."""
+    rest = url_lower.split("://", 1)[-1]
+    authority, _, path = rest.partition("/")
+    host = authority.rsplit("@", 1)[-1].split(":", 1)[0]
+    if host.startswith("www."):
+        host = host[len("www.") :]
+    path = re.split(r"[?#]", path, maxsplit=1)[0]
+    if path.endswith(".git"):
+        path = path[: -len(".git")]
+    for domain in _SKIP_DOMAINS:
+        if "/" in domain:
+            skip_host, _, skip_path = domain.partition("/")
+            # Match whole path segments, so claude-code-action is not claude-code.
+            if host == skip_host and (
+                path == skip_path or path.startswith(skip_path + "/")
+            ):
+                return True
+        elif host == domain:
+            return True
+    return False
+
+
 def extract_urls(text: str) -> list[str]:
     """Extract URLs from text quickly."""
     # Fast path: no URL indicators
     if "://" not in text:
         return []
 
-    urls = _URL_QUICK_PATTERN.findall(text)
+    urls = [
+        url.rstrip(_TRAILING_PUNCTUATION) for url in _URL_QUICK_PATTERN.findall(text)
+    ]
 
     # Filter out non-knowledge URLs
     filtered = []
     for url in urls:
         url_lower = url.lower()
 
-        # Skip certain domains
-        if any(domain in url_lower for domain in _SKIP_DOMAINS):
+        # Skip certain domains. Matched against the host, so a path
+        # segment that merely mentions one does not hide an article.
+        if _is_skipped_domain(url_lower):
             continue
 
         # Skip media/binary files

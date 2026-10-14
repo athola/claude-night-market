@@ -197,19 +197,24 @@ class SourceLineageManager:
             Propagated confidence (product of confidence chain)
 
         """
+        return self._propagate_confidence(entry_id, frozenset())
+
+    def _propagate_confidence(self, entry_id: str, path: frozenset[str]) -> float:
+        """Recurse along ``derived_from``, treating an id already on the path as 1.0."""
         lineage = self._lineages.get(entry_id)
-        if lineage is None:
+        if lineage is None or entry_id in path:
             return 1.0
 
         if isinstance(lineage, SimpleLineage):
             return 1.0
+        path = path | {entry_id}
 
         # Start with primary source confidence
         confidence = lineage.primary_source.confidence
 
         # Multiply through derivation chain
         for derived_id in lineage.derived_from:
-            derived_confidence = self.get_propagated_confidence(derived_id)
+            derived_confidence = self._propagate_confidence(derived_id, path)
             confidence *= derived_confidence
 
         return confidence

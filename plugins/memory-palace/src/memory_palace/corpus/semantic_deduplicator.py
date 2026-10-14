@@ -18,24 +18,11 @@ logger = logging.getLogger(__name__)
 DEFAULT_THRESHOLD = 0.8
 
 
-def _jaccard_similarity(a: str, b: str) -> float:
-    """Compute Jaccard similarity between two strings on their word sets."""
-    words_a = set(a.lower().split())
-    words_b = set(b.lower().split())
-    if not words_a and not words_b:
-        return 1.0
-    if not words_a or not words_b:
-        return 0.0
-    intersection = len(words_a & words_b)
-    union = len(words_a | words_b)
-    return intersection / union
-
-
 class SemanticDeduplicator:
     """Detect near-duplicate content before storing new entries.
 
-    Uses FAISS cosine similarity when available; falls back to Jaccard similarity
-    on word sets when FAISS/numpy are not installed.
+    Uses FAISS cosine similarity. FAISS and numpy are required: importing this
+    module without them raises ImportError.
 
     Counter increments track how many times near-duplicate content was seen
     instead of storing each occurrence.
@@ -87,7 +74,7 @@ class SemanticDeduplicator:
             new_content: The text content to evaluate.
             existing_embeddings: Optional dict mapping entry_id to vector.
                 Used by the FAISS path when pre-computed embeddings are supplied
-                instead of the internal index. Ignored by the fallback path.
+                instead of the internal index.
             entry_id: Identifier for new_content, used for counter bookkeeping.
                 Defaults to a truncated hash of the content.
             new_vector: Optional pre-computed embedding for new_content.

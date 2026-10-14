@@ -88,8 +88,4 @@ class JourneyTracker:
 
     def get_entity_journeys(self, entity_id: str) -> list[dict[str, Any]]:
         """Get all journeys for an entity."""
-        rows = self._kg._conn.execute(
-            "SELECT * FROM journeys WHERE entity_id = ? ORDER BY started_at",
-            (entity_id,),
-        ).fetchall()
-        return [dict(r) for r in rows]
+        return self._kg.get_journeys_by_entity(entity_id)

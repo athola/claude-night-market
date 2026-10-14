@@ -12,9 +12,11 @@ estimated_tokens: 2400
 
 ## Marginal Value Filtering (Anti-Pollution)
 
-> "If it can't teach something the existing corpus can't already teach → skip it."
+> "If it can't teach something the existing corpus can't already teach,
+> skip it."
 
-Before storing ANY knowledge, run the **marginal value filter** to prevent corpus pollution.
+Before storing ANY knowledge, run the **marginal value filter** to prevent
+corpus pollution.
 
 ### The Three-Step Filter
 
@@ -70,12 +72,10 @@ elif integration.decision == IntegrationDecision.REPLACE:
     # Replace outdated entry
     replace_entry(integration.target_entries[0], content)
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Filter Output Example
 
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 === Marginal Value Assessment ===
 
 Redundancy: partial
@@ -94,7 +94,6 @@ Decision: STANDALONE
 Confidence: 80%
 Rationale: Novel insights justify standalone: Introduces 8 new concepts
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Progressive Autonomy Integration
 
@@ -108,7 +107,8 @@ Current implementation: Level 0 (all human-in-the-loop).
 
 ## RL-Based Quality Scoring
 
-The knowledge corpus uses reinforcement learning signals to dynamically score entry quality based on actual usage patterns.
+The knowledge corpus uses reinforcement learning signals to score entry
+quality from actual usage patterns.
 
 ### Anchor-Question Clarity Gate
 
@@ -222,7 +222,6 @@ entry_id, decision = orchestrator.ingest_with_lineage(
     content="# API Reference\n...", title="API Documentation", source=source
 )
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### RL Integration with Marginal Value Filter
 
@@ -246,4 +245,3 @@ redundancy, delta, integration, rl_signal = filter.evaluate_with_rl(
 # - confidence: Decision confidence
 print(f"RL Signal: {rl_signal['action']} (weight: {rl_signal['weight']})")
 ```
-**Verification:** Run the command with `--help` flag to verify availability.

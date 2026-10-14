@@ -169,15 +169,17 @@ class TestDecayModel:
         fresh = model.calculate_decay("e1", "growing", now)
         assert fresh.status == "fresh"
 
-        # Stale/Critical: some decay (45 days with 30-day half-life = ~0.35 factor)
-        stale_date = now - timedelta(days=45)
-        stale = model.calculate_decay("e2", "growing", stale_date)
-        assert stale.status in ["fresh", "stale", "critical"]
+        # Stale: 20 days on a 30-day half-life is 0.5 ** (2/3), about 0.63
+        stale = model.calculate_decay("e2", "growing", now - timedelta(days=20))
+        assert stale.status == "stale"
 
-        # Critical: severe decay
-        critical_date = now - timedelta(days=120)
-        critical = model.calculate_decay("e3", "seedling", critical_date)
-        assert critical.status in ["stale", "critical", "archived"]
+        # Critical: 45 days on a 30-day half-life is 0.5 ** 1.5, about 0.35
+        critical = model.calculate_decay("e3", "growing", now - timedelta(days=45))
+        assert critical.status == "critical"
+
+        # Archived: 120 seedling days decays to the 0.1 standard floor, below 0.2
+        archived = model.calculate_decay("e4", "seedling", now - timedelta(days=120))
+        assert archived.status == "archived"
 
     def test_validate_entry(self, model: DecayModel) -> None:
         """Should record validation and reset decay."""
@@ -310,8 +312,8 @@ class TestDecayModel:
         model.validate_entry("ancient-1", ancient)
 
         state = model.calculate_decay("ancient-1", "seedling", ancient)
-        # With such old date, should be archived or critical
-        assert state.status in ["critical", "archived"]
+        # The default importance floor (0.1) sits below the 0.2 archive line
+        assert state.status == "archived"
 
     def test_export_validation_state(self, model: DecayModel) -> None:
         """Should export validation state as serializable data."""

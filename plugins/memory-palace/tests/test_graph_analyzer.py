@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+import math
 import sys
 
 import networkx as nx
 import pytest
-from networkx.algorithms.link_analysis.pagerank_alg import _pagerank_python
 
 from memory_palace import graph_analyzer
 from memory_palace.graph_analyzer import PalaceGraphAnalyzer
@@ -130,16 +130,22 @@ class TestCommunityDetection:
 class TestBridgesAndArticulationPoints:
     """Structural analysis."""
 
-    def test_find_bridges(self, analyzer: PalaceGraphAnalyzer) -> None:
-        """Bridge detection returns a list even when the graph has none."""
+    def test_find_bridges_returns_edges_outside_the_triangle(
+        self, analyzer: PalaceGraphAnalyzer
+    ) -> None:
+        """Only c-d and d-e disconnect the graph; a-b-c is a cycle."""
         bridges = analyzer.find_bridges()
-        # Should find at least some bridges
-        assert isinstance(bridges, list)
+        assert {frozenset(edge) for edge in bridges} == {
+            frozenset(("c", "d")),
+            frozenset(("d", "e")),
+        }
 
-    def test_find_keystones(self, analyzer: PalaceGraphAnalyzer) -> None:
-        """Keystone detection returns a list even when the graph has none."""
+    def test_find_keystones_returns_the_articulation_points(
+        self, analyzer: PalaceGraphAnalyzer
+    ) -> None:
+        """Removing c or d splits the graph; no other node does."""
         keystones = analyzer.find_keystones()
-        assert isinstance(keystones, list)
+        assert set(keystones) == {"c", "d"}
 
     def test_connected_components(self, analyzer: PalaceGraphAnalyzer) -> None:
         """Components partition the graph without losing a node."""
@@ -219,12 +225,17 @@ class TestEmptyGraph:
 class TestLinkPrediction:
     """Adamic-Adar link prediction for synapse suggestions."""
 
-    def test_suggests_links(self, analyzer: PalaceGraphAnalyzer) -> None:
-        """Suggestions come back as pairs carrying a float score."""
+    def test_suggests_links_ranked_by_adamic_adar_score(
+        self, analyzer: PalaceGraphAnalyzer
+    ) -> None:
+        """c-e shares neighbor d (degree 2), so it ranks first at 1/ln 2."""
         suggestions = analyzer.predict_links(top_n=5)
-        assert isinstance(suggestions, list)
-        for _u, _v, score in suggestions:
-            assert isinstance(score, float)
+        scores = [score for _u, _v, score in suggestions]
+        assert scores == sorted(scores, reverse=True)
+        assert all(score > 0 for score in scores)
+        top_u, top_v, top_score = suggestions[0]
+        assert {top_u, top_v} == {"c", "e"}
+        assert top_score == pytest.approx(1 / math.log(2))
 
     def test_does_not_suggest_existing_links(
         self, analyzer: PalaceGraphAnalyzer
@@ -252,13 +263,39 @@ class TestPagerankWithoutScipy:
     def test_pagerank_matches_the_networkx_reference(
         self, analyzer: PalaceGraphAnalyzer
     ) -> None:
-        """Same weighted power iteration and dangling-node rule as networkx."""
-        expected = _pagerank_python(analyzer.build_graph(), weight="weight")
+        """Same weighted power iteration and dangling-node rule as networkx.
+
+        Expected values are networkx 3.x ``_pagerank_python`` on this
+        fixture, written down so the test does not import a private name.
+        """
+        expected = {
+            "a": 0.08213288,
+            "b": 0.13290617,
+            "c": 0.21414336,
+            "d": 0.26415433,
+            "e": 0.30666327,
+        }
         ranks = analyzer.pagerank()
         assert ranks.keys() == expected.keys()
         for node, score in expected.items():
             assert ranks[node] == pytest.approx(score, abs=1e-6)
         assert sum(ranks.values()) == pytest.approx(1.0)
+
+    def test_node_whose_out_edges_all_weigh_zero_is_dangling(self) -> None:
+        """A strength-0 synapse carries no rank, as in networkx.
+
+        create_synapse accepts strength 0.0, and dividing by the node's
+        zero out-weight raised ZeroDivisionError. Expected values are
+        networkx's for the same graph.
+        """
+        dg = nx.DiGraph()
+        dg.add_edge("a", "b", weight=0.0)
+        dg.add_edge("b", "a", weight=0.5)
+
+        ranks = graph_analyzer._weighted_pagerank(dg)
+
+        assert ranks["a"] == pytest.approx(0.64912264, abs=1e-6)
+        assert ranks["b"] == pytest.approx(0.35087736, abs=1e-6)
 
     def test_pagerank_raises_when_it_cannot_converge(
         self, analyzer: PalaceGraphAnalyzer, monkeypatch: pytest.MonkeyPatch

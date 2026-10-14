@@ -133,7 +133,6 @@ Agent(scribe:doc-verifier) "Verify docs/knowledge-corpus/[entry-name].md"
 ```
 
 **DO NOT finalize entries with slop score > 2.5** - rewrite with concrete specifics.
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 7: Discussion Promotion (Score 80+ Only)
 
@@ -204,7 +203,6 @@ Apply when knowledge improves our plugin ecosystem:
 ### Routing Decision Tree
 
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 Is the knowledge...
 ├── About HOW we build things? → Meta-infrastructure
 │   ├── Skill patterns → Update abstract/memory-palace skills
@@ -216,7 +214,6 @@ Is the knowledge...
     ├── Implementation patterns → Update code/architecture
     └── Bug/issue solutions → Apply fix, document
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Storage Locations
 
@@ -319,7 +316,6 @@ pruning:
     - Existing error handling module
     - Async patterns documentation
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Queue Processing
 
@@ -339,7 +335,6 @@ cat docs/knowledge-corpus/queue/2025-12-31_topic.yaml
 # 2. Update queue entry status to 'processed'
 # 3. Archive or delete queue entry
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Queue Integration
 
@@ -353,12 +348,10 @@ The `research-queue-integration` hook automatically queues:
 ### Queue Status Workflow
 
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 pending_review → [Review] → approved/rejected
 approved → [Create Entry] → processed
 processed → [Archive] → queue/archive/
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Automation
 

@@ -10,7 +10,8 @@ estimated_tokens: 550
 
 ## Hook Integration
 
-Memory-palace hooks automatically detect content that may need knowledge intake processing:
+Memory-palace hooks detect content that may need knowledge intake
+processing:
 
 ### Automatic Triggers
 
@@ -26,19 +27,15 @@ Memory-palace hooks automatically detect content that may need knowledge intake 
 When hooks detect potential knowledge content, they add context messages:
 
 ```
-**Verification:** Run `pytest -v` to verify tests pass.
 Memory Palace: New web content fetched from {url}.
 Consider running knowledge-intake to evaluate and store if valuable.
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 Memory Palace: Reading local knowledge doc '{path}'.
 This path is configured for knowledge tracking.
 Consider running knowledge-intake if this contains valuable reference material.
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Deduplication
 
@@ -69,4 +66,3 @@ entries:
     routing_type: "both"           # local, meta, both
     last_updated: "2025-12-06T..."
 ```
-**Verification:** Run the command with `--help` flag to verify availability.

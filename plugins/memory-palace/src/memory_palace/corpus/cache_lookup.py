@@ -20,6 +20,8 @@ MATCH_LEN_MIN = 3
 MATCH_STRONG = 0.8
 MATCH_PARTIAL = 0.4
 
+SEARCH_MODES = ("keywords", "queries", "embeddings", "unified")
+
 
 class CacheLookup:
     """Unified search interface for memory palace knowledge corpus.
@@ -78,14 +80,20 @@ class CacheLookup:
 
         Args:
             query: Search query (string or list of keywords)
-            mode: Search mode - "keywords", "queries", or "unified"
+            mode: Search mode - "keywords", "queries", "embeddings" (needs a
+                configured embedding provider), or "unified"
             min_score: Minimum match score to include (0.0 to 1.0)
 
         Returns:
             List of matching entries with metadata and match scores,
             sorted by score (highest first)
 
+        Raises:
+            ValueError: If ``mode`` is not one of the modes above.
+
         """
+        if mode not in SEARCH_MODES:
+            raise ValueError(f"Unknown mode {mode!r}; expected one of {SEARCH_MODES}")
         if isinstance(query, str) and not query.strip():
             return []
 

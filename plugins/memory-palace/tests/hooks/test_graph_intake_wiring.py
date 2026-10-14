@@ -71,12 +71,19 @@ class TestWebResearchHandlerGraphWiring:
                 "web_research_handler.store_webfetch_content",
                 return_value=str(tmp_path / "stored.md"),
             ),
-            patch("web_research_handler._try_register_graph_entity"),
+            # Block the graph import and let the real registration run, so
+            # the degradation path is what this test exercises.
+            patch.dict("sys.modules", {"memory_palace.knowledge_graph": None}),
+            patch(
+                "web_research_handler._try_register_graph_entity",
+                wraps=web_research_handler._try_register_graph_entity,
+            ) as register_spy,
             pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
         assert exc_info.value.code == 0
+        assert register_spy.call_count == 1
 
     def test_try_register_graph_entity_does_not_raise_on_import_error(
         self,
@@ -199,10 +206,10 @@ class TestSessionLifecycleGraphWiring:
             tools_used=["WebFetch", "Read"],
         )
 
-        # Journey should be recorded (no crash = success for non-crash test)
+        # WebFetch and Read are cross-palace tools, so one completed
+        # journey is recorded for the session
         graph2 = KnowledgeGraph(str(db_path))
         journeys = graph2._conn.execute("SELECT * FROM journeys").fetchall()
         graph2.close()
-        # May or may not create journey depending on navigation detection
-        # The key test is: no exception raised
-        assert isinstance(journeys, list)
+        assert len(journeys) == 1
+        assert "completed" in tuple(journeys[0])

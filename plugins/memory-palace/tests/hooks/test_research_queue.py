@@ -263,6 +263,46 @@ def test_injected_command_body_is_not_the_topic(tmp_path: Path) -> None:
     assert not (tmp_path / "docs" / "knowledge-corpus" / "queue").exists()
 
 
+def test_compaction_summary_is_not_the_topic(tmp_path: Path) -> None:
+    """Scenario: a compaction summary never becomes a queue topic.
+
+    After /compact the harness writes the summary of the private session
+    as a user record carrying ``isCompactSummary: true``. Queued as a
+    topic, that text lands in a file under docs/ that may be committed.
+    """
+    summary = (
+        "This session is being continued from a previous conversation. "
+        "Research the private customer migration and compare approaches."
+    )
+    records = [
+        {
+            "type": "user",
+            "isCompactSummary": True,
+            "isVisibleInTranscriptOnly": True,
+            "message": {"content": summary},
+        },
+        {"type": "user", "message": {"content": "the login button is broken"}},
+    ] + [
+        {
+            "type": "assistant",
+            "message": {
+                "content": [
+                    {"type": "tool_use", "name": "WebSearch", "input": {"query": "q"}}
+                ]
+            },
+        }
+    ] * 6
+    transcript = tmp_path / "transcript.jsonl"
+    transcript.write_text(
+        "\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8"
+    )
+
+    result = _run(_payload(transcript), tmp_path)
+
+    assert result.returncode == 0
+    assert not (tmp_path / "docs" / "knowledge-corpus" / "queue").exists()
+
+
 def test_duplicate_session_is_not_queued_twice(tmp_path: Path) -> None:
     """Scenario: re-firing does not duplicate the entry."""
     transcript = _transcript(tmp_path, "research agent memory", searches=5)
@@ -310,6 +350,55 @@ def test_malformed_stdin_does_not_crash(tmp_path: Path) -> None:
     )
 
     assert result.returncode == 0
+
+
+def test_non_object_stdin_writes_nothing(tmp_path: Path) -> None:
+    """Scenario: valid JSON that is not an object is ignored, not indexed."""
+    result = _run(["not", "a", "payload"], tmp_path)  # type: ignore[arg-type]  # the hook must survive a payload of the wrong shape
+
+    assert result.returncode == 0
+    assert not (tmp_path / "docs" / "knowledge-corpus" / "queue").exists()
+
+
+def test_non_object_transcript_records_are_skipped(tmp_path: Path) -> None:
+    """Scenario: a JSON array line naming "user" does not end the scan."""
+    transcript = _transcript(tmp_path, "research agent memory decay", searches=5)
+    with transcript.open("a", encoding="utf-8") as handle:
+        handle.write('["user", "tool_use"]\n')
+
+    _run(_payload(transcript), tmp_path)
+
+    assert "pending_review" in _entry_text(tmp_path)
+
+
+def test_unwritable_queue_directory_exits_cleanly(tmp_path: Path) -> None:
+    """Scenario: a file squatting on the queue path fails closed, exit 0."""
+    transcript = _transcript(tmp_path, "research agent memory decay", searches=5)
+    blocker = tmp_path / "docs" / "knowledge-corpus"
+    blocker.parent.mkdir(parents=True)
+    blocker.write_text("not a directory", encoding="utf-8")
+
+    result = _run(_payload(transcript), tmp_path)
+
+    assert result.returncode == 0
+    assert result.stderr == ""
+    assert blocker.read_text(encoding="utf-8") == "not a directory"
+
+
+def test_oversized_prompt_is_cut_to_4000_characters_in_the_entry(
+    tmp_path: Path,
+) -> None:
+    """Scenario: a huge pasted prompt cannot write an unbounded file."""
+    cue = "research agent memory decay "
+    prompt = cue + "x" * 150_000
+    transcript = _transcript(tmp_path, prompt, searches=5)
+
+    _run(_payload(transcript), tmp_path)
+
+    text = _entry_text(tmp_path)
+    assert "x" * (4000 - len(cue)) in text
+    assert "x" * (4000 - len(cue) + 1) not in text
+    assert len(text.encode("utf-8")) < research_queue.MAX_ENTRY_BYTES
 
 
 def test_malformed_transcript_lines_are_skipped(tmp_path: Path) -> None:

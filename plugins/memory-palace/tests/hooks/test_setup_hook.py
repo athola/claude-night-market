@@ -82,7 +82,7 @@ def test_maintenance_runs_when_the_input_has_no_trailing_newline(
 
     Given a maintenance trigger written with no terminator
     When the Setup hook reads it
-    Then it runs maintenance, not the init path (shell review S0-5, S2-10).
+    Then it runs maintenance, not the init path.
     """
     result = _run("maintenance", tmp_path, terminator="")
     assert result.returncode == 0, result.stderr
@@ -100,7 +100,7 @@ def test_init_completes_a_garden_missing_its_meta_dir(tmp_path: Path) -> None:
     """Scenario: the garden root exists but meta/ does not.
 
     Writing meta/index.json failed under set -e and the hook printed
-    nothing (shell review S2-11).
+    nothing.
     """
     (tmp_path / ".claude" / "knowledge-garden").mkdir(parents=True)
     _context(_run("init", tmp_path))
@@ -111,7 +111,7 @@ def test_init_completes_a_garden_missing_its_meta_dir(tmp_path: Path) -> None:
 def test_maintenance_counts_a_garden_missing_a_category(tmp_path: Path) -> None:
     """Scenario: seeds/ is absent.
 
-    find's nonzero status killed the hook under pipefail (S2-12).
+    find's nonzero status killed the hook under pipefail.
     """
     garden = tmp_path / ".claude" / "knowledge-garden"
     for name in ("seedlings", "evergreen", "compost", "meta"):
@@ -125,7 +125,7 @@ def test_a_corrupt_index_is_reported_not_called_rebuilt(tmp_path: Path) -> None:
     """Scenario: index.json does not parse.
 
     jq failed inside an && list, the hook still said "Rebuilt index", and
-    a stray .tmp was left behind (S2-13).
+    a stray .tmp was left behind.
     """
     meta = tmp_path / ".claude" / "knowledge-garden" / "meta"
     meta.mkdir(parents=True)
@@ -139,7 +139,7 @@ def test_a_corrupt_index_is_reported_not_called_rebuilt(tmp_path: Path) -> None:
 
 @pytest.mark.unit
 def test_init_creates_the_palace_in_a_git_worktree(tmp_path: Path) -> None:
-    """Scenario: the project is a linked worktree, where .git is a file (S2-22)."""
+    """Scenario: the project is a linked worktree, where .git is a file."""
     project = tmp_path / "project"
     project.mkdir()
     (project / ".git").write_text("gitdir: /elsewhere/.git/worktrees/project\n")

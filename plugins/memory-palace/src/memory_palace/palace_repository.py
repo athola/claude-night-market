@@ -81,7 +81,7 @@ def _atomic_write_json(path: str, payload: Any) -> None:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             json.dump(payload, handle, indent=2)
         os.replace(tmp_name, path)
-    except Exception:
+    except BaseException:  # re-raised; an interrupt must not leave the temp file
         with contextlib.suppress(OSError):
             os.unlink(tmp_name)
         raise
@@ -182,8 +182,9 @@ class PalaceRepository:
         """Persist a palace to disk, creating a backup first.
 
         Replaces ``sensory_encoding`` with ``computational_encoding``
-        in the persisted data. The in-memory dict is not mutated —
-        a shallow copy is written so callers preserve the original.
+        in the persisted data. ``last_modified`` is refreshed on the
+        caller's dict in place; the encoding swap happens on a shallow copy
+        that is the only thing written.
 
         Args:
             palace: The palace to save.
