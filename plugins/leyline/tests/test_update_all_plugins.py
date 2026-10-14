@@ -307,7 +307,7 @@ class TestUpdatePlugin:
         When the update_plugin function is called
         Then both versions are parsed whole.
 
-        Math review finding C2-12: the new version stopped at its first
+        The new version stopped at its first
         dot, so 1.9.0 -> 1.10.0 was reported as 1.9.0 -> 1.
         """
         mock_run.return_value = MagicMock(

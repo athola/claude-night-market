@@ -152,6 +152,6 @@ grep "2025-12-05" ~/.claude/leyline/usage/my-service.jsonl
 
 ## Exit Criteria
 
-- Operation logged with all required fields
-- Session tracked for grouping
-- Logs queryable for analytics
+- [ ] Operation logged with all required fields
+- [ ] Session tracked for grouping
+- [ ] Logs queryable for analytics

@@ -26,7 +26,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-from leyline.tokens import DEFAULT_EXTENSION_TOKEN_RATIO, EXTENSION_TOKEN_RATIOS
+from leyline.tokens import estimate_file_tokens
 
 # Quota threshold constants
 CRITICAL_THRESHOLD = 95
@@ -309,15 +309,8 @@ class QuotaTracker:
         return len(issues) == 0, issues
 
     def estimate_file_tokens(self, path: Path) -> int:
-        """Estimate tokens for a file based on size and type."""
-        if not path.exists() or not path.is_file():
-            return 0
-
-        size = path.stat().st_size
-        ratio = EXTENSION_TOKEN_RATIOS.get(
-            path.suffix.lower(), DEFAULT_EXTENSION_TOKEN_RATIO
-        )
-        return int(size / ratio)
+        """Delegate to ``leyline.tokens`` so both estimators return one count."""
+        return estimate_file_tokens(path)
 
     def estimate_task_tokens(
         self,

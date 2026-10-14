@@ -14,6 +14,8 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 _SRC = Path(__file__).resolve().parents[3] / "src"
 sys.path.insert(0, str(_SRC))
 
@@ -23,6 +25,7 @@ from leyline.deferred_capture import (
     build_labels,
     build_title,
     create_issue,
+    ensure_label,
     find_duplicate,
     get_session_id,
     run_capture,
@@ -304,18 +307,176 @@ class TestFindDuplicate:
         with patch("leyline.deferred_capture.subprocess.run", return_value=mock):
             assert find_duplicate("Add OAuth") is None
 
-    def test_returns_none_on_gh_failure(self) -> None:
+    def test_raises_on_gh_failure(self) -> None:
         mock = subprocess.CompletedProcess(
             args=[], returncode=1, stdout="", stderr="error"
         )
         with patch("leyline.deferred_capture.subprocess.run", return_value=mock):
-            assert find_duplicate("Add OAuth") is None
+            with pytest.raises(RuntimeError, match="error"):
+                find_duplicate("Add OAuth")
+
+    def test_raises_on_non_json_output(self) -> None:
+        mock = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="<html>rate limited</html>", stderr=""
+        )
+        with patch("leyline.deferred_capture.subprocess.run", return_value=mock):
+            with pytest.raises(RuntimeError, match="non-JSON"):
+                find_duplicate("Add OAuth")
+
+
+def _completed(
+    returncode: int = 0, stdout: str = "", stderr: str = ""
+) -> subprocess.CompletedProcess:
+    return subprocess.CompletedProcess(
+        args=[], returncode=returncode, stdout=stdout, stderr=stderr
+    )
+
+
+class _FakeGh:
+    """Stand-in for subprocess.run that answers git and gh by subcommand.
+
+    ``responses`` maps "issue list", "issue create" or "label create" to a
+    CompletedProcess or an exception to raise. Every call is recorded.
+    """
+
+    def __init__(self, responses: dict[str, object]) -> None:
+        self.responses = responses
+        self.calls: list[str] = []
+
+    def __call__(self, cmd: list[str], **_kwargs: object) -> object:
+        if cmd[0] == "git":
+            return _completed(stdout="main\n")
+        key = f"{cmd[1]} {cmd[2]}"
+        self.calls.append(key)
+        response = self.responses.get(key, _completed())
+        if isinstance(response, BaseException):
+            raise response
+        return response
+
+
+_LIVE_ARGV = ["--title", "Add OAuth", "--source", "review", "--context", "C"]
+
+
+def _run_live(fake: _FakeGh, capsys: pytest.CaptureFixture[str]) -> tuple[int, dict]:
+    with patch("leyline.deferred_capture.subprocess.run", side_effect=fake):
+        rc = run_capture(_TEST_CONFIG, _LIVE_ARGV)
+    last_line = capsys.readouterr().out.strip().splitlines()[-1]
+    return rc, json.loads(last_line)
+
+
+class TestPublishIssue:
+    """Feature: a capture files an issue only after a lookup that succeeded."""
+
+    def test_failed_duplicate_lookup_reports_error_and_files_nothing(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        fake = _FakeGh({"issue list": _completed(returncode=1, stderr="HTTP 502")})
+        rc, output = _run_live(fake, capsys)
+        assert rc == 1
+        assert output == {"status": "error", "message": "HTTP 502"}
+        assert "issue create" not in fake.calls
+
+    def test_non_json_duplicate_lookup_files_nothing(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        fake = _FakeGh({"issue list": _completed(stdout="not json")})
+        rc, output = _run_live(fake, capsys)
+        assert rc == 1
+        assert output["status"] == "error"
+        assert "non-JSON" in output["message"]
+        assert "issue create" not in fake.calls
+
+    def test_missing_gh_binary_reports_cli_not_found(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        missing = FileNotFoundError("gh")
+        fake = _FakeGh(
+            {"label create": missing, "issue list": missing, "issue create": missing}
+        )
+        rc, output = _run_live(fake, capsys)
+        assert rc == 1
+        assert output == {"status": "error", "message": "gh CLI not found"}
+        assert "issue create" not in fake.calls
+
+    def test_lookup_timeout_reports_timed_out(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        fake = _FakeGh({"issue list": subprocess.TimeoutExpired("gh", 30)})
+        rc, output = _run_live(fake, capsys)
+        assert rc == 1
+        assert output == {"status": "error", "message": "gh CLI timed out"}
+        assert "issue create" not in fake.calls
+
+    def test_existing_issue_is_reported_as_duplicate_not_created(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        existing = [{"number": 7, "title": "[Deferred] add oauth", "url": "u7"}]
+        fake = _FakeGh({"issue list": _completed(stdout=json.dumps(existing))})
+        rc, output = _run_live(fake, capsys)
+        assert rc == 0
+        assert output == {"status": "duplicate", "existing_url": "u7", "number": 7}
+        assert "issue create" not in fake.calls
+
+    def test_new_issue_is_created_and_reported(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        url = "https://github.com/o/r/issues/12"
+        fake = _FakeGh(
+            {
+                "issue list": _completed(stdout="[]"),
+                "issue create": _completed(stdout=url + "\n"),
+            }
+        )
+        rc, output = _run_live(fake, capsys)
+        assert rc == 0
+        assert output == {"status": "created", "issue_url": url, "number": 12}
+
+    def test_failed_issue_creation_reports_error(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        fake = _FakeGh(
+            {
+                "issue list": _completed(stdout="[]"),
+                "issue create": _completed(returncode=1, stderr="label not found"),
+            }
+        )
+        rc, output = _run_live(fake, capsys)
+        assert rc == 1
+        assert output == {"status": "error", "message": "label not found"}
+
+
+class TestEnsureLabel:
+    """Feature: label creation failures are logged, never raised."""
+
+    def test_existing_label_is_silent(self, capsys: pytest.CaptureFixture[str]) -> None:
+        mock = _completed(returncode=1, stderr="label already exists")
+        with patch("leyline.deferred_capture.subprocess.run", return_value=mock):
+            ensure_label("deferred", "#7B61FF")
+        assert capsys.readouterr().err == ""
+
+    def test_other_gh_failure_is_logged_to_stderr(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        mock = _completed(returncode=1, stderr="HTTP 403")
+        with patch("leyline.deferred_capture.subprocess.run", return_value=mock):
+            ensure_label("deferred", "#7B61FF")
+        assert "ensure_label(deferred): HTTP 403" in capsys.readouterr().err
+
+    def test_gh_timeout_is_logged_to_stderr(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        with patch(
+            "leyline.deferred_capture.subprocess.run",
+            side_effect=subprocess.TimeoutExpired("gh", 15),
+        ):
+            ensure_label("deferred", "#7B61FF")
+        assert "ensure_label(deferred)" in capsys.readouterr().err
 
 
 class TestRunCaptureWithEnrichment:
     """Feature: run_capture applies plugin-specific context enrichment."""
 
-    def test_enrich_context_is_called(self) -> None:
+    def test_enrich_context_is_called(self, capsys: pytest.CaptureFixture[str]) -> None:
         def _enrich(source: str, ctx: str) -> str:
             return f"{ctx}\n\nENRICHED by {source}"
 
@@ -341,6 +502,8 @@ class TestRunCaptureWithEnrichment:
                 ],
             )
         assert rc == 0
+        body = json.loads(capsys.readouterr().out)["body"]
+        assert "Base\n\nENRICHED by brainstorm" in body
 
     def test_no_enrich_context_is_fine(self) -> None:
         config = PluginConfig(
@@ -384,3 +547,9 @@ class TestCreateIssue:
                 assert "label not found" in str(exc)
             else:  # pragma: no cover - sanity guard
                 raise AssertionError("expected RuntimeError on nonzero returncode")
+
+    def test_error_names_the_exit_code_when_stderr_is_empty(self) -> None:
+        mock = subprocess.CompletedProcess(args=[], returncode=4, stdout="", stderr="")
+        with patch("leyline.deferred_capture.subprocess.run", return_value=mock):
+            with pytest.raises(RuntimeError, match="exit 4"):
+                create_issue("T", "B", ["deferred"])

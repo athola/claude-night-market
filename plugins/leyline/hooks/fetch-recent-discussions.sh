@@ -12,9 +12,9 @@
 # Performance. The budget here is spent in whole processes, not in work:
 # on a loaded macOS laptop `git` costs 0.53s of start-up, `python3` 0.80s,
 # `gh auth status` 1.02s, and one `gh api graphql` round trip 1.2-1.6s.
-# This hook therefore runs at most one `git`, one `python3` and, on a cold
-# cache, two `gh` calls; the rendered answer is cached for an hour and the
-# category ids for a week, so the steady state spends no network at all.
+# This hook therefore runs at most one `git`, one `python3` and one `gh`
+# call; the rendered answer is cached for an hour and the category ids for
+# a week, so the steady state spends no network at all.
 # The `gh auth status` probe is gone: an unauthenticated `gh api` fails on
 # its own, and paying a second round trip to predict that is the more
 # expensive way to learn it.
@@ -126,15 +126,17 @@ OWNER, REPO, SUMMARY_CACHE, CATEGORIES_CACHE = sys.argv[1:5]
 
 # The harness cap is what actually bounds this process; these keep a
 # single stalled round trip from consuming the whole of it. 3.5s is the
-# network half of the budget, chosen against the measured cost of a `gh
-# api graphql` round trip (1.2-1.6s) so two of them fit on a cold cache.
+# network half of the budget, against a measured `gh api graphql` round
+# trip of 1.2-1.6s. Every path spends one round trip: two sequential calls
+# plus their start-up did not fit, and the second one timed out.
 # hooks.json grants 8s, and the difference is start-up rather than slack:
 # roughly 1.9s is gone before this line runs on an idle machine (bash
 # 0.25, git 0.53, find 0.25, interpreter start 0.80), and that figure is
 # what stretches under load. Cold-cache wall time measured 3.6-4.1s idle
 # and 4.3-4.9s with another build saturating the CPU.
 TOTAL_BUDGET = 3.5
-PER_CALL_BUDGET = 2.5
+# One call per run, so it may spend the whole network budget.
+PER_CALL_BUDGET = TOTAL_BUDGET
 CATEGORIES_TTL = 7 * 24 * 3600  # ids are stable; re-resolving them is waste
 # Everything interpolated into the GraphQL text is checked against the
 # alphabet GitHub allows for it first. The query is assembled as a string
@@ -219,7 +221,11 @@ def graphql(query):
         messages = "; ".join(e.get("message", "?") for e in body["errors"])
         print("[fetch-recent-discussions] GraphQL error: %s" % messages, file=sys.stderr)
         return None
-    return body.get("data") or {}
+    data = body.get("data")
+    if not data:
+        print("[fetch-recent-discussions] response carried no data", file=sys.stderr)
+        return None
+    return data
 
 
 def cached_category_ids():
@@ -250,34 +256,13 @@ def store_category_ids(ids):
         print("[fetch-recent-discussions] cache write failed: %s" % exc, file=sys.stderr)
 
 
-def resolve_category_ids():
+def category_ids_from(repository):
     """The Decisions id and the Insights/Learnings id, in that order.
 
     A missing Decisions category must not shift the Insights id into its
     slot, so absence is carried as an empty string rather than by
     position.
     """
-    cached = cached_category_ids()
-    if cached is not None:
-        return cached
-
-    data = graphql(
-        """
-query {
-  repository(owner: "%s", name: "%s") {
-    hasDiscussionsEnabled
-    discussionCategories(first: 25) { nodes { id slug } }
-  }
-}
-"""
-        % (OWNER, REPO)
-    )
-    if not data:
-        return None
-    repository = data.get("repository") or {}
-    if not repository.get("hasDiscussionsEnabled"):
-        return ["", ""]
-
     decisions = ""
     insights = ""
     for node in (repository.get("discussionCategories") or {}).get("nodes") or []:
@@ -289,9 +274,56 @@ query {
             decisions = node_id
         elif slug in ("insights", "learnings"):
             insights = node_id
-    ids = [decisions, insights]
-    store_category_ids(ids)
-    return ids
+    return [decisions, insights]
+
+
+# Without cached category ids there is nothing to filter the discussions
+# query by, and resolving the ids first costs a second round trip. The
+# cold query fetches the categories and the newest discussions together
+# and filters by slug here. A repository whose newest COLD_WINDOW
+# discussions hold fewer than 10 decisions shows fewer on this one run.
+# A full window may have cut off older decisions, so that summary is not
+# cached and the next run, which has the ids, asks each category directly.
+# Fewer than COLD_WINDOW nodes is every discussion there is, and is cached.
+COLD_WINDOW = 50
+
+
+def cold_fetch():
+    """One round trip: category ids plus recent discussions by slug.
+
+    Returns (ids, decisions, insights, complete), or None when the lookup
+    failed. complete is False when the window came back full. ids is None when there are no Discussions to cache ids for: a missing
+    repository or one with Discussions off can change, and caching '-|-'
+    would hide the change for the categories TTL.
+    """
+    data = graphql(
+        """
+query {
+  repository(owner: "%s", name: "%s") {
+    hasDiscussionsEnabled
+    discussionCategories(first: 25) { nodes { id slug } }
+    recent: discussions(first: %d, orderBy: {field: CREATED_AT, direction: DESC}) {
+      nodes { number title createdAt body category { slug } }
+    }
+  }
+}
+"""
+        % (OWNER, REPO, COLD_WINDOW)
+    )
+    if data is None:
+        return None
+    repository = data.get("repository") or {}
+    if not repository.get("hasDiscussionsEnabled"):
+        return None, [], [], True
+    nodes = (repository.get("recent") or {}).get("nodes") or []
+
+    def slug_of(node):
+        return ((node.get("category") or {}).get("slug") or "").lower()
+
+    decisions = [n for n in nodes if slug_of(n) == "decisions"][:10]
+    insights = [n for n in nodes if slug_of(n) in ("insights", "learnings")][:5]
+    complete = len(nodes) < COLD_WINDOW
+    return category_ids_from(repository), decisions, insights, complete
 
 
 def discussions_block(alias, category_id, count):
@@ -331,44 +363,49 @@ def main():
         emit("")
         return
 
-    ids = resolve_category_ids()
+    complete = True
+    ids = cached_category_ids()
     if ids is None:
-        # The lookup failed rather than answered. Emit empty without
-        # caching, so the next session retries instead of inheriting it.
-        emit("")
-        return
-    decisions_id, insights_id = ids
+        cold = cold_fetch()
+        if cold is None:
+            # The lookup failed rather than answered. Emit empty without
+            # caching, so the next session retries instead of inheriting it.
+            emit("")
+            return
+        ids, decision_nodes, insight_nodes, complete = cold
+        if ids is not None:
+            store_category_ids(ids)
+    else:
+        decisions_id, insights_id = ids
+        blocks = discussions_block("decisions", decisions_id, 10) + (
+            discussions_block("insights", insights_id, 5)
+        )
+        if not blocks:
+            emit_and_cache("")
+            return
 
-    blocks = discussions_block("decisions", decisions_id, 10) + discussions_block(
-        "insights", insights_id, 5
-    )
-    if not blocks:
-        emit_and_cache("")
-        return
+        # Both categories travel as aliases of one query, so two categories
+        # still cost one round trip.
+        data = graphql(
+            'query {\n  repository(owner: "%s", name: "%s") {\n%s  }\n}\n'
+            % (OWNER, REPO, blocks)
+        )
+        if data is None:
+            emit("")
+            return
+        repository = data.get("repository") or {}
+        decision_nodes = (repository.get("decisions") or {}).get("nodes") or []
+        insight_nodes = (repository.get("insights") or {}).get("nodes") or []
 
-    # Both categories travel as aliases of one query, so two categories
-    # still cost one round trip. The three-query shape this replaced is
-    # what put the hook four times over its cap.
-    data = graphql(
-        'query {\n  repository(owner: "%s", name: "%s") {\n%s  }\n}\n'
-        % (OWNER, REPO, blocks)
-    )
-    if data is None:
-        emit("")
-        return
-
-    repository = data.get("repository") or {}
     sections = [
-        render(
-            (repository.get("decisions") or {}).get("nodes") or [],
-            "Recent Decisions (from GitHub Discussions):",
-        ),
-        render(
-            (repository.get("insights") or {}).get("nodes") or [],
-            "Recent Insights (from GitHub Discussions):",
-        ),
+        render(decision_nodes, "Recent Decisions (from GitHub Discussions):"),
+        render(insight_nodes, "Recent Insights (from GitHub Discussions):"),
     ]
-    emit_and_cache("\n".join(section for section in sections if section))
+    context = "\n".join(section for section in sections if section)
+    if complete:
+        emit_and_cache(context)
+    else:
+        emit(context)
 
 
 main()

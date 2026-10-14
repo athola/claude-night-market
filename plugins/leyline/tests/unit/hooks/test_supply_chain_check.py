@@ -10,11 +10,9 @@ So that I can take immediate action before working with a compromised environmen
 from __future__ import annotations
 
 import importlib.util
-import io
 import json
 import subprocess
 import sys
-import traceback as tb
 from pathlib import Path
 
 import pytest
@@ -423,6 +421,7 @@ class TestMainIntegration:
         _mod.main()
         captured = capsys.readouterr()
         assert captured.out == ""
+        assert "supply_chain_check: failed to parse blocklist" in captured.err
 
     @pytest.mark.unit
     def test_never_crashes(self, tmp_path: Path) -> None:
@@ -447,26 +446,93 @@ class TestMainIntegration:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_crash_handler_logs_to_stderr(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_crash_handler_logs_to_stderr(self, tmp_path: Path) -> None:
         """Scenario: Top-level crash handler writes traceback to stderr.
 
-        Given main() raises an unexpected exception
-        When the __main__ guard catches it
-        Then it logs to stderr and exits 0.
+        Given a blocklist and a uv.lock that is not valid UTF-8
+        When the hook runs as a process and main() raises while reading it
+        Then the __main__ guard names the hook and the error on stderr
+        And the process still exits 0 with nothing on stdout.
         """
-        monkeypatch.setattr(
-            _mod, "main", lambda: (_ for _ in ()).throw(RuntimeError("boom"))
+        (tmp_path / "uv.lock").write_bytes(b"\xff\xfe not utf-8 [[package]")
+        result = subprocess.run(
+            [sys.executable, str(_HOOK_PATH)],
+            capture_output=True,
+            text=True,
+            cwd=tmp_path,
+            env={"CLAUDE_PLUGIN_ROOT": str(_HOOK_PATH.parents[1])},
+            timeout=30,
+            check=False,
         )
-        # Re-run the __main__ guard logic inline since we can't
-        # trigger it via subprocess without complicating the test.
-        try:
-            _mod.main()
-        except RuntimeError:
-            buf = io.StringIO()
-            print("supply_chain_check: unexpected error", file=buf)
-            tb.print_exc(file=buf)
-            stderr_output = buf.getvalue()
-            assert "supply_chain_check: unexpected error" in stderr_output
-            assert "boom" in stderr_output
+        assert result.returncode == 0
+        assert result.stdout == ""
+        assert "supply_chain_check: unexpected error" in result.stderr
+        assert "UnicodeDecodeError" in result.stderr
+
+    @staticmethod
+    def _install_blocklist(root: Path, blocklist: dict) -> None:
+        skill_dir = root / "skills" / "supply-chain-advisory"
+        skill_dir.mkdir(parents=True)
+        (skill_dir / "known-bad-versions.json").write_text(json.dumps(blocklist))
+
+    @pytest.mark.unit
+    def test_meta_only_blocklist_is_silent(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """A blocklist holding only ``_meta`` has no packages to match."""
+        self._install_blocklist(tmp_path, {"_meta": {"updated": "2026-03-24"}})
+        monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(tmp_path))
+        project = tmp_path / "project"
+        project.mkdir()
+        (project / "uv.lock").write_text(COMPROMISED_UV_LOCK)
+        monkeypatch.chdir(project)
+
+        _mod.main()
+
+        assert capsys.readouterr().out == ""
+
+    @pytest.mark.unit
+    def test_lockfile_inside_a_virtualenv_is_not_scanned(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """A uv.lock under .venv belongs to an installed package, not the project."""
+        self._install_blocklist(tmp_path, SAMPLE_BLOCKLIST)
+        monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(tmp_path))
+        project = tmp_path / "project"
+        vendored = project / ".venv" / "lib" / "pkg"
+        vendored.mkdir(parents=True)
+        (vendored / "uv.lock").write_text(COMPROMISED_UV_LOCK)
+        monkeypatch.chdir(project)
+
+        _mod.main()
+
+        assert capsys.readouterr().out == ""
+
+    @pytest.mark.unit
+    def test_compromised_pin_in_requirements_file_is_reported(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """A requirements-dev.txt pin is scanned alongside uv.lock."""
+        self._install_blocklist(tmp_path, SAMPLE_BLOCKLIST)
+        monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(tmp_path))
+        project = tmp_path / "project"
+        project.mkdir()
+        (project / "requirements-dev.txt").write_text("litellm==1.82.8\n")
+        monkeypatch.chdir(project)
+
+        _mod.main()
+
+        context = json.loads(capsys.readouterr().out)["hookSpecificOutput"][
+            "additionalContext"
+        ]
+        assert "SUPPLY CHAIN ALERT: litellm==1.82.8 (CRITICAL)" in context
+        assert "Scan for: litellm_init.pth" in context

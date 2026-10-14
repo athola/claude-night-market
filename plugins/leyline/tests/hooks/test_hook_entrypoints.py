@@ -48,12 +48,16 @@ def test_hook_entrypoints_are_executable() -> None:
 
 
 def test_auto_star_does_not_hold_up_session_start() -> None:
-    """auto-star-repo.sh makes a network call and injects nothing.
+    """auto-star-repo.sh makes a network call before it decides to prompt.
 
-    A synchronous SessionStart hook delays the first prompt by its whole
-    run (up to its 5 s timeout here); `async: true` runs it in the
-    background (code.claude.com/docs/en/hooks "Run hooks in the
-    background"), which costs nothing when the hook has no context to add.
+    Claude's first response waits for every synchronous SessionStart hook,
+    so this one could hold it up to its 5 s timeout. With `async: true`
+    the star prompt, its only `additionalContext`, is delivered "to Claude
+    on the next conversation turn" once the process exits
+    (https://code.claude.com/docs/en/hooks, "How async hooks execute").
+    A prompt one turn late is the accepted cost. The hook prints its JSON
+    on one line because a multi-line async response needs Claude Code
+    v2.1.295 or later; test_hook_host_and_jq_edges.py pins that.
     """
     manifest = json.loads(
         (Path(__file__).parents[2] / "hooks" / "hooks.json").read_text()

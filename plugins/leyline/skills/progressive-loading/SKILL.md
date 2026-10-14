@@ -243,9 +243,9 @@ progressive_loading: true
 
 ## Exit Criteria
 
-- Hub clearly defines all module loading contexts
-- Each module is tagged with activation context
-- Module selection respects MECW constraints
-- Token costs measured for all modules
-- Context detection logic documented
-- Loading paths validated for completeness
+- [ ] Hub clearly defines all module loading contexts
+- [ ] Each module is tagged with activation context
+- [ ] Module selection respects MECW constraints
+- [ ] Token costs measured for all modules
+- [ ] Context detection logic documented
+- [ ] Loading paths validated for completeness

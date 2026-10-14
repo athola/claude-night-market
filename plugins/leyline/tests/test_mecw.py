@@ -158,7 +158,7 @@ class TestMECWMonitor:
 
 @pytest.mark.unit
 class TestThresholdsAgree:
-    """Math review findings C18 and C19: one boundary, one meaning."""
+    """One boundary, one meaning."""
 
     def test_exactly_half_the_window_is_compliant_and_not_high_pressure(
         self,

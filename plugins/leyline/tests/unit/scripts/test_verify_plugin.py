@@ -359,7 +359,7 @@ class TestVerifyPluginOffline:
         When verifying at L2
         Then the L3 pass satisfies the L2 minimum.
 
-        Math review finding C2-9: --level is documented as a minimum,
+        --level is documented as a minimum,
         and the check read only the L2 bucket, which was empty.
         """
         records = _make_records(l3_pass=1)
@@ -461,7 +461,7 @@ class TestVerifyPluginOnline:
         When calling verify_plugin("sanctum")
         Then the plugin is untrusted on its own record.
 
-        Math review finding C2-8: plugin_match was computed and never
+        plugin_match was computed and never
         read, so the repo-wide 0.8 pass rate reported sanctum trusted.
         """
         runs = [

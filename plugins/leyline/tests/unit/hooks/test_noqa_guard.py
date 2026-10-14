@@ -172,7 +172,7 @@ class TestHookIntegration:
             "CLAUDE_TOOL_NAME": "Edit",
             "CLAUDE_TOOL_INPUT": json.dumps(
                 {
-                    "file_path": "/tmp/test.py",  # noqa: S108
+                    "file_path": "/tmp/test.py",  # noqa: S108 - payload text only, never opened
                     "old_string": "x = 1",
                     "new_string": "x = 1  # noqa: E501",
                 }
@@ -197,7 +197,7 @@ class TestHookIntegration:
             "CLAUDE_TOOL_NAME": "Edit",
             "CLAUDE_TOOL_INPUT": json.dumps(
                 {
-                    "file_path": "/tmp/test.py",  # noqa: S108
+                    "file_path": "/tmp/test.py",  # noqa: S108 - payload text only, never opened
                     "old_string": "x = 1",
                     "new_string": 'x: int = "bad"  # type: ignore',
                 }
@@ -222,7 +222,7 @@ class TestHookIntegration:
             "CLAUDE_TOOL_NAME": "Edit",
             "CLAUDE_TOOL_INPUT": json.dumps(
                 {
-                    "file_path": "/tmp/test.py",  # noqa: S108
+                    "file_path": "/tmp/test.py",  # noqa: S108 - payload text only, never opened
                     "old_string": "x = 1",
                     "new_string": "x = 2",
                 }
@@ -247,7 +247,7 @@ class TestHookIntegration:
             "CLAUDE_TOOL_NAME": "Write",
             "CLAUDE_TOOL_INPUT": json.dumps(
                 {
-                    "file_path": "/tmp/test.py",  # noqa: S108
+                    "file_path": "/tmp/test.py",  # noqa: S108 - payload text only, never opened
                     "content": "import os  # noqa: F401\nx = 1\n",
                 }
             ),
@@ -304,3 +304,24 @@ class TestHookIntegration:
         assert result.returncode == 0
         output = json.loads(result.stdout)
         assert output == {}
+
+
+class TestCoerceToolInput:
+    """tool_input arrives parsed on stdin or as a JSON string from env."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        ("raw", "expected"),
+        [
+            pytest.param({"content": "x"}, {"content": "x"}, id="dict"),
+            pytest.param('{"content": "x"}', {"content": "x"}, id="json-object"),
+            pytest.param("[1, 2]", {}, id="json-array"),
+            pytest.param("not json{", {}, id="malformed-json"),
+            pytest.param(None, {}, id="null"),
+            pytest.param(["content"], {}, id="list"),
+        ],
+    )
+    def test_anything_but_an_object_becomes_empty(
+        self, raw: object, expected: dict
+    ) -> None:
+        assert _mod._coerce_tool_input(raw) == expected

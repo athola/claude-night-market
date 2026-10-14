@@ -1,6 +1,6 @@
 """interactive_auth.sh: output, retries, secrets, cache input and CI login.
 
-Shell review S0-8 to S0-12 and S0-16. Prompts went to stdout and into the
+Prompts went to stdout and into the
 caller's `$(gh_api_with_auth ...)`. The retry loop offered one login fewer
 than AUTH_MAX_ATTEMPTS. A typed token stayed in a global. A cache value
 was evaluated as arithmetic, so it could run a command. `export -f`

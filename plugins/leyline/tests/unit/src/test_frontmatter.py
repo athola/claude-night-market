@@ -117,7 +117,7 @@ class TestParseFrontmatter:
 
 
 class TestParseFrontmatterWithBody:
-    """Scenarios for parse_frontmatter_with_body() (D-02).
+    """Scenarios for parse_frontmatter_with_body().
 
     The helper is added to consolidate the four scripts
     (clawhub_export, a2a_cards, area_agent_registry,
@@ -257,3 +257,20 @@ class TestParseWithoutYaml:
         monkeypatch.setattr(fm, "_yaml", None)
         result = fm.parse_frontmatter("---\n---\nBody")
         assert result == {}
+
+
+class TestParseWithBodyEdgeCases:
+    """parse_frontmatter_with_body keeps the whole document when meta is unusable."""
+
+    @pytest.mark.unit
+    def test_uses_fallback_parser_when_yaml_is_none(self, monkeypatch):
+        monkeypatch.setattr(fm, "_yaml", None)
+        meta, body = parse_frontmatter_with_body("---\ntitle: Hi\n---\nBody\n")
+        assert meta == {"title": "Hi"}
+        assert body == "Body\n"
+
+    @pytest.mark.unit
+    def test_non_mapping_yaml_returns_empty_meta_and_full_content(self):
+        pytest.importorskip("yaml")
+        content = "---\n- a\n- b\n---\nBody\n"
+        assert parse_frontmatter_with_body(content) == ({}, content)

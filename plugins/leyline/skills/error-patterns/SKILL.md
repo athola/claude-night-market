@@ -147,7 +147,7 @@ dependencies: [leyline:error-patterns]
 
 ## Exit Criteria
 
-- Error classified correctly
-- Appropriate recovery attempted
-- User-actionable message provided
-- Error logged for debugging
+- [ ] Error classified correctly
+- [ ] Appropriate recovery attempted
+- [ ] User-actionable message provided
+- [ ] Error logged for debugging

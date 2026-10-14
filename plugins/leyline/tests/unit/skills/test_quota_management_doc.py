@@ -1,7 +1,7 @@
 """The quota-management skill's examples compare against real return values.
 
-Math review finding C28: the Quick Start compared ``status == "CRITICAL"``
-while ``QuotaTracker.get_quota_status`` returns lowercase levels, so the
+The Quick Start compared ``status == "CRITICAL"`` while
+``QuotaTracker.get_quota_status`` returns lowercase levels, so the
 "defer or use secondary service" branch could never run.
 """
 

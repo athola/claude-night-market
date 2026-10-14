@@ -1,6 +1,6 @@
 """Leyline SessionStart hooks on inputs their happy path never saw.
 
-Shell review S2-16 and S1-1. detect-git-platform matched "github." anywhere
+detect-git-platform matched "github." anywhere
 in the remote URL, so a GitLab repo named alice.github.io was reported as
 GitHub. auto-star-repo built its prompt with jq and, on a machine without
 jq, exited 127 with empty stdout instead of emitting the hook JSON.
@@ -88,3 +88,50 @@ def test_star_prompt_is_emitted_without_jq(tmp_path: Path) -> None:
     context = _context(result.stdout)
     assert context.startswith("star-prompt:")
     assert '"Would you like to star' in context
+
+
+def test_star_hook_prints_each_response_on_one_line(tmp_path: Path) -> None:
+    """The hook runs async, so its JSON must sit on one stdout line.
+
+    Claude Code reads a multi-line async response only from v2.1.295 on
+    (https://code.claude.com/docs/en/hooks, "How async hooks execute").
+    On an older harness a pretty-printed response is never parsed and the
+    star prompt is dropped.
+    """
+    shims = tmp_path / "bin"
+    shims.mkdir()
+    for tool in ("head", "grep"):
+        (shims / tool).symlink_to(f"/usr/bin/{tool}")
+    gh = shims / "gh"
+    gh.write_text(
+        "#!/bin/sh\n"
+        'case "$1" in\n'
+        "  auth) exit 0 ;;\n"
+        "  api) printf 'HTTP/2.0 404 Not Found\\n'; exit 1 ;;\n"
+        "esac\n"
+    )
+    gh.chmod(0o755)
+    runs = {
+        "not_starred": _clean_env(PATH=f"{shims}:/bin", HOME=str(tmp_path)),
+        "opted_out": _clean_env(
+            PATH=f"{shims}:/bin",
+            HOME=str(tmp_path),
+            CLAUDE_NIGHT_MARKET_NO_STAR_PROMPT="1",
+        ),
+        "status_unknown": _clean_env(PATH="/bin", HOME=str(tmp_path)),
+    }
+    for label, env in runs.items():
+        result = subprocess.run(
+            ["/bin/bash", str(HOOKS / "auto-star-repo.sh")],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+        assert result.returncode == 0, (label, result.stderr)
+        lines = result.stdout.splitlines()
+        assert len(lines) == 1, (label, result.stdout)
+        assert json.loads(lines[0])["hookSpecificOutput"]["hookEventName"] == (
+            "SessionStart"
+        )

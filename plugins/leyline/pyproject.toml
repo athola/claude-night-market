@@ -110,8 +110,13 @@ exclude_lines = [
 ]
 
 [dependency-groups]
-# `uv run` syncs this group by default; python.mk's security target needs
-# bandit there, while the optional `dev` extra above is not synced.
+# `uv run` syncs this group by default, while the optional `dev` extra
+# above is not synced. python.mk's security target needs bandit, and
+# `uv run pytest` in a fresh env needs pytest, pytest-cov (addopts sets
+# --cov) and pyyaml (tests import yaml directly).
 dev = [
     "bandit>=1.8.6,<2.0",
+    "pytest>=8.0",
+    "pytest-cov>=7.1.0",
+    "pyyaml>=6.0.3",
 ]

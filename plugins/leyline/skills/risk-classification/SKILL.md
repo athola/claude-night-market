@@ -163,9 +163,9 @@ if task.risk_tier in ["RED", "CRITICAL"]:
 
 ## Exit Criteria
 
-- Every task has a risk tier assigned (explicit or default GREEN)
-- RED/CRITICAL tasks have war-room-checkpoint RS scores
-- Verification gates passed for the assigned tier
-- No parallel execution of prohibited tier combinations
-- Each task carries an automation tier; downgrades are recorded
+- [ ] Every task has a risk tier assigned (explicit or default GREEN)
+- [ ] RED/CRITICAL tasks have war-room-checkpoint RS scores
+- [ ] Verification gates passed for the assigned tier
+- [ ] No parallel execution of prohibited tier combinations
+- [ ] Each task carries an automation tier; downgrades are recorded
   with a reason when a trigger fires

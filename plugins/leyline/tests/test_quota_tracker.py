@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from leyline import quota_tracker
+from leyline import tokens as leyline_tokens
 from leyline.quota_tracker import QuotaConfig, QuotaTracker, UsageStats
 
 
@@ -268,6 +269,20 @@ class TestQuotaTracker:
 
         assert result == 0
 
+    @pytest.mark.bdd
+    @pytest.mark.parametrize("suffix", [".py", ".md", ".go", ".unknown"])
+    def test_estimate_file_tokens_matches_leyline_tokens(
+        self, tmp_path: Path, suffix: str
+    ) -> None:
+        """Scenario: Both file estimators agree, overhead included."""
+        file_path = tmp_path / f"sample{suffix}"
+        file_path.write_text("a" * 3200)
+        tracker = QuotaTracker(service="test-parity", storage_dir=tmp_path)
+
+        assert tracker.estimate_file_tokens(file_path) == (
+            leyline_tokens.estimate_file_tokens(file_path)
+        )
+
 
 @pytest.mark.unit
 class TestQuotaTrackerStorage:
@@ -488,7 +503,7 @@ class TestUsageStatsValidatesItsInput:
 
 @pytest.mark.unit
 class TestMinuteWindowAndDailyTokens:
-    """Math review finding C2 and C14: the counters measure what they name."""
+    """The counters measure what they name."""
 
     def test_steady_requests_below_rpm_never_reach_the_rpm_limit(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

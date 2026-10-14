@@ -44,7 +44,6 @@ __all__ = [
     "MECWStatus",
     # Quota tracking
     "QuotaConfig",
-    "QuotaStatus",
     "QuotaTracker",
     "UsageStats",
     "calculate_context_pressure",

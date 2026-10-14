@@ -167,6 +167,6 @@ dependencies: [leyline:service-registry]
 
 ## Exit Criteria
 
-- Services registered with configuration.
-- Health checks passing.
-- Execution results properly handled.
+- [ ] Services registered with configuration.
+- [ ] Health checks passing.
+- [ ] Execution results properly handled.

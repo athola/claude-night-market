@@ -50,11 +50,15 @@ def _scan_uv_lock(lockfile: Path, blocklist: Blocklist) -> list[dict[str, Any]]:
     for pkg, entries in blocklist.items():
         for entry in entries:
             for ver in entry["versions"]:
+                # name and version are adjacent lines of one [[package]]
+                # block. A lazy span across blocks also matched a bare
+                # ``{ name = "pkg" }`` dependency reference followed by some
+                # other package's identical version.
                 pattern = (
-                    rf'name\s*=\s*"{re.escape(pkg)}"'
-                    rf'.*?version\s*=\s*"{re.escape(ver)}"'
+                    rf'^name\s*=\s*"{re.escape(pkg)}"[ \t]*\r?\n'
+                    rf'version\s*=\s*"{re.escape(ver)}"'
                 )
-                if re.search(pattern, content, re.DOTALL):
+                if re.search(pattern, content, re.MULTILINE):
                     findings.append(
                         {
                             "package": pkg,

@@ -363,3 +363,42 @@ class TestFailSafety:
     @pytest.mark.unit
     def test_script_uses_strict_mode(self, hook_source: str) -> None:
         assert "set -euo pipefail" in hook_source
+
+
+class TestXtraceKeepsTheTokenOut:
+    """`-x` traces the script, and the curl calls carry a bearer token.
+
+    Both curl paths run with the caller's stderr sent to /dev/null, which
+    is where the trace of their commands goes too.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("args", [["-x"], ["-x", "--star"]])
+    def test_trace_never_prints_the_token(
+        self, tmp_path: Path, args: list[str]
+    ) -> None:
+        import subprocess  # noqa: PLC0415 - only this class runs the script
+
+        bin_dir = tmp_path / "bin"
+        bin_dir.mkdir()
+        fake_curl = bin_dir / "curl"
+        fake_curl.write_text("#!/bin/sh\nprintf 404\n")
+        fake_curl.chmod(0o755)
+        env = {
+            "HOME": str(tmp_path),
+            "PATH": f"{bin_dir}:/usr/bin:/bin",
+            "GH_TOKEN": "sekrit-token-123",
+        }
+
+        run = subprocess.run(
+            ["bash", str(HOOK_PATH), *args],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+
+        assert "+ " in run.stderr, "xtrace did not run"
+        assert "sekrit-token-123" not in run.stderr
+        assert "sekrit-token-123" not in run.stdout
