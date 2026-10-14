@@ -1,4 +1,4 @@
-"""Scores, bounds and counts in pensive's review skills (math review B2-10 to B2-15).
+"""Scores, bounds and counts in pensive's review skills.
 
 Each test pins a number a review printed wrong. The cases: a score that
 could not reach 1.0, the last Makefile target never measured, every bare
@@ -47,7 +47,7 @@ class _Quality(QualityMixin):
 
 
 def test_a_makefile_using_every_modern_feature_scores_one() -> None:
-    """The divisor was 10.0 while the weights sum to 9.0 (B2-10)."""
+    """The divisor was 10.0 while the weights sum to 9.0."""
     weights = sum(w for _, _, w in QualityMixin._MODERNIZATION_SCORE_PATTERNS)
     assert QualityMixin._modernization_score(_EVERY_MODERN_FEATURE) == weights
     result = _Quality().analyze_modernization(_EVERY_MODERN_FEATURE)
@@ -55,7 +55,7 @@ def test_a_makefile_using_every_modern_feature_scores_one() -> None:
 
 
 def test_the_last_target_is_measured_too() -> None:
-    """The size check ran only when the next header appeared (B2-11)."""
+    """The size check ran only when the next header appeared."""
     lines = [
         "build:",
         "\ta",
@@ -75,7 +75,7 @@ def test_the_last_target_is_measured_too() -> None:
 
 
 def test_only_an_equals_requirement_is_an_exact_pin() -> None:
-    """Cargo reads "1.0" as ^1.0, so it is a range (B2-12)."""
+    """Cargo reads "1.0" as ^1.0, so it is a range."""
     for version, pinned in (("1.0", False), ("=1.0.3", True), ("= 1.0", True)):
         deps: list[dict[str, str]] = []
         issues: list[dict[str, str]] = []
@@ -85,7 +85,7 @@ def test_only_an_equals_requirement_is_an_exact_pin() -> None:
 
 def test_a_multi_line_async_signature_still_opens_the_body() -> None:
     """The body depth was taken from the signature line, which has no
-    brace under rustfmt's multi-line layout (B2-13).
+    brace under rustfmt's multi-line layout.
     """
     src = "async fn fetch(\n    a: u32,\n) -> u32 {\n    std::thread::sleep(d);\n    a\n}\n"
     result = OwnershipMixin().analyze_async_patterns(_Ctx(src), "x.rs")
@@ -103,7 +103,7 @@ def test_sync_code_after_an_async_fn_is_not_flagged() -> None:
 
 
 def test_every_offset_from_ten_up_is_large() -> None:
-    """11-19 and 100-199 slipped through the old alternation (B2-14)."""
+    """11-19 and 100-199 slipped through the old alternation."""
     for n in (10, 11, 15, 19, 20, 100, 150, 1000, 5000):
         assert LARGE_OFFSET_RE.search(f"*p.offset({n})"), n
     for n in (0, 1, 9):
@@ -111,7 +111,7 @@ def test_every_offset_from_ten_up_is_large() -> None:
 
 
 def test_every_counted_finding_is_listed() -> None:
-    """The summary lowercased severity and the grouping did not (B2-15)."""
+    """The summary lowercased severity and the grouping did not."""
     out = MarkdownFormatter().format(
         [{"id": "F1", "severity": "HIGH", "title": "t", "issue": "i"}]
     )

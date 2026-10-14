@@ -17,7 +17,9 @@ class RepositoryAnalyzer:
         "typescript": [".ts", ".tsx"],
         "java": [".java"],
         "go": [".go"],
-        "cpp": [".cpp", ".cc", ".cxx", ".hpp", ".h"],
+        # `.h` is C's: each extension belongs to one language, and a C++
+        # header that wants counting as C++ uses `.hpp`.
+        "cpp": [".cpp", ".cc", ".cxx", ".hpp"],
         "c": [".c", ".h"],
     }
 
@@ -72,7 +74,14 @@ class RepositoryAnalyzer:
     def analyze(self) -> dict[str, Any]:
         """Analyze the repository, delegating to analyze_repository()."""
         if not self.repo_path:
-            return {"files": [], "languages": [], "findings": []}
+            return {
+                "files": [],
+                "languages": {},
+                "build_systems": [],
+                "test_frameworks": [],
+                "file_count": 0,
+                "findings": [],
+            }
         return self.analyze_repository(self.repo_path)
 
     def analyze_repository(self, repo_path: Path | str) -> dict[str, Any]:

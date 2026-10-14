@@ -21,11 +21,13 @@ Static-analysis hot-spot review for time and space complexity.
 2. **Tier 1: AST scan**: Detect Python time/space hotspots
    (nested loops, list `in` lookups, string concat, regex
    recompile, list-vs-generator, copy-in-loop).
-3. **Tier 2: gauntlet tree-sitter** (if installed): Extend
-   detection to JS/TS, Go, Rust, Java, C/C++.
-4. **Tier 3: gauntlet graph** (if `.gauntlet/graph.db` exists):
-   Upgrade severity for hotspots whose call chain reaches other
-   hotspots transitively.
+3. **Tier 2: tree-sitter** (if `tree_sitter_language_pack` is
+   installed): nested same-iterable loops, list scans in loops,
+   and appends in nested loops for JS/TS, Go, Rust, Java, C/C++.
+4. **Tier 3: gauntlet graph** (if gauntlet is installed and a
+   `.gauntlet/graph.db` exists above the file): raise a finding
+   one severity step when a function it calls, directly or
+   transitively, holds a hotspot.
 5. **Report**: Group findings by severity. Each finding cites
    `file:line`, severity, category (`time`/`space`), the pattern
    detected, and a concrete suggestion.
@@ -80,16 +82,22 @@ guarantee of optimal performance.
 
 ## Fallback Behavior
 
-When gauntlet is not installed or its graph DB does not exist
-for the working tree:
+Install the optional extra (`uv sync --extra tiers` in
+`plugins/pensive`) to enable Tier 2. Tier 3 also needs the
+gauntlet plugin importable, which `uv sync` in `plugins/pensive`
+provides through the dev group. Without them:
 
 - Tier 1 still runs (Python AST is stdlib).
-- Tier 2 returns empty (sentinel-guarded import).
-- Tier 3 returns empty (sentinel-guarded import).
+- Tier 2 returns empty when `tree_sitter_language_pack` is
+  missing (sentinel-guarded import).
+- Tier 3 returns the findings unchanged when gauntlet is missing
+  or no `.gauntlet/graph.db` exists above the file.
 
-Reviews of non-Python source without gauntlet produce zero
-findings: that is correct behavior, not an error. Install
-gauntlet to enable Tier 2/3 coverage.
+Reviews of non-Python source without the extra produce zero
+findings: that is correct behavior, not an error. A non-Python
+file that tree-sitter cannot parse adds a warning to the result.
+Build the graph with
+`python3 plugins/gauntlet/scripts/graph_build.py <root>`.
 
 ## Related Skills
 

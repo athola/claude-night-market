@@ -165,7 +165,7 @@ export ENABLE_LSP_TOOL=1
 claude "/pensive:full-review src/"
 
 # Fallback: Standard review without LSP (when language server unavailable)
-claude "/pensive:code-review src/"
+claude "/pensive:full-review src/"
 ```
 
 **Recommendation**: Enable `ENABLE_LSP_TOOL=1` by default for all code reviews.

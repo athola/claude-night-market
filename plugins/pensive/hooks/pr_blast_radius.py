@@ -12,6 +12,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from _vendored_leyline_sibling_plugins import sibling_plugin_dir
+
 
 def _find_graph_db() -> Path | None:
     cwd = Path.cwd()
@@ -25,8 +27,9 @@ def _find_graph_db() -> Path | None:
 def _find_gauntlet_src() -> Path | None:
     """Find the gauntlet src directory for imports."""
     # Try via plugin directory structure
-    plugins_dir = Path(__file__).resolve().parents[2]
-    candidate = plugins_dir / "gauntlet" / "src"
+    # Beside this plugin in the repo, or the newest cached install.
+    gauntlet = sibling_plugin_dir(__file__, "gauntlet")
+    candidate = (gauntlet or Path(__file__).resolve().parents[2] / "gauntlet") / "src"
     if (candidate / "gauntlet").is_dir():
         return candidate
     return None
@@ -62,6 +65,10 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         print(f"pr_blast_radius: analysis failed: {exc}", file=sys.stderr)
         return None
 
+    if "error" in report:
+        print(f"pr_blast_radius: analysis skipped: {report['error']}", file=sys.stderr)
+        return None
+
     overall = report.get("overall_risk", "none")
     total = report.get("total_affected", 0)
     untested = report.get("untested_functions", [])
@@ -81,7 +88,12 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if untested:
         lines.append(f"{len(untested)} untested function(s) in blast radius")
 
-    return {"additionalContext": "\n".join(lines)}
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "additionalContext": "\n".join(lines),
+        }
+    }
 
 
 if __name__ == "__main__":

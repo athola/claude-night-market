@@ -236,10 +236,10 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 
 ## Exit Criteria
 
-- All selected review skills executed
-- Findings consolidated and prioritized
-- Action plan created with ownership
-- Evidence logged per structured output format
+- [ ] All selected review skills executed
+- [ ] Findings consolidated and prioritized
+- [ ] Action plan created with ownership
+- [ ] Evidence logged per structured output format
 ## Supporting Modules
 
 - [Review workflow core](modules/review-workflow-core.md) - standard 5-step workflow pattern for all pensive reviews
@@ -250,4 +250,7 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 
 ### Common Issues
 
-If the auto-detection fails to identify the correct review skills, explicitly specify the mode (e.g., `/full-review rust` instead of just `/full-review`). If integration fails, check that the progress items were recorded and that evidence files were correctly written by the individual skills.
+If the auto-detection fails to identify the correct review skills, explicitly
+specify the mode (e.g., `/full-review rust` instead of just `/full-review`). If
+integration fails, check that the progress items were recorded and that evidence
+files were correctly written by the individual skills.

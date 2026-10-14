@@ -296,17 +296,25 @@ class TestSeverityMapper:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_count_by_severity_unknown_level(self) -> None:
-        """Given unknown severity level, does not count it."""
-        # Arrange
-        issues = [{"severity": "unknown_level"}]
+    def test_count_by_severity_rejects_an_undefined_level(self) -> None:
+        """A level no review skill defines is a producer bug, not a low."""
+        with pytest.raises(ValueError, match="unknown_level"):
+            count_by_severity([{"severity": "unknown_level"}])
 
-        # Act
-        counts = count_by_severity(issues)
+    @pytest.mark.unit
+    @pytest.mark.parametrize("level", ["ADVISORY", "advisory", "INFO", "info"])
+    def test_count_by_severity_counts_advisory_and_info_as_low(
+        self, level: str
+    ) -> None:
+        """harden emits ADVISORY and structured-output defines INFO."""
+        counts = count_by_severity([{"severity": level}])
+        assert counts == {"critical": 0, "high": 0, "medium": 0, "low": 1}
 
-        # Assert
-        # Unknown levels are not counted
-        assert counts == {"critical": 0, "high": 0, "medium": 0, "low": 0}
+    @pytest.mark.unit
+    def test_count_by_severity_rejects_a_null_level(self) -> None:
+        """An explicit None is a malformed finding; only a missing key defaults."""
+        with pytest.raises(ValueError, match="None"):
+            count_by_severity([{"severity": None}])
 
     @pytest.mark.bdd
     @pytest.mark.unit

@@ -63,6 +63,21 @@ def noisy_repo(tmp_path: Path) -> tuple[Path, str]:
     return repo, base
 
 
+@pytest.fixture
+def quiet_repo(tmp_path: Path) -> tuple[Path, str]:
+    """A repository on ``main`` with one small commit above its base."""
+    repo = tmp_path / "quiet"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    _git(repo, "config", "user.email", "audit@example.invalid")
+    _git(repo, "config", "user.name", "Audit")
+    (repo / "a.py").write_text("x = 1\n")
+    base = _commit(repo, "chore: seed")
+    (repo / "a.py").write_text("x = 2\n")
+    _commit(repo, "feat: bump")
+    return repo, base
+
+
 class TestCollect:
     """Feature: git history becomes typed flags."""
 
@@ -139,6 +154,35 @@ class TestCommandLine:
         repo, _ = noisy_repo
         assert main(["--base", "no-such-ref", "--cwd", str(repo)]) == 1
         assert "git failed" in capsys.readouterr().err
+
+    def test_quiet_history_renders_no_escalation(
+        self, quiet_repo: tuple[Path, str], capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Empty sections say so and the verdict is no."""
+        repo, base = quiet_repo
+        assert main(["--base", base, "--cwd", str(repo)]) == 0
+        out = capsys.readouterr().out
+        assert out.count("- none above threshold") == 4
+        assert "Escalate to Tier 2: no" in out
+
+
+class TestDefaultBase:
+    """Feature: without --base the runner picks the trunk itself."""
+
+    def test_uses_local_main_when_no_base_is_given(
+        self, quiet_repo: tuple[Path, str], capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        repo, _ = quiet_repo
+        assert main(["--cwd", str(repo), "--json"]) == 0
+        assert json.loads(capsys.readouterr().out)["base"] == "main"
+
+    def test_repository_without_a_trunk_ref_exits_with_guidance(
+        self, quiet_repo: tuple[Path, str]
+    ) -> None:
+        repo, _ = quiet_repo
+        _git(repo, "branch", "-m", "main", "feature")
+        with pytest.raises(SystemExit, match="pass --base"):
+            main(["--cwd", str(repo)])
 
 
 class TestOneModuleIdentity:

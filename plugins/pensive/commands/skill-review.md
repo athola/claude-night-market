@@ -29,23 +29,33 @@ For each skill, calculates:
 | **Execution Count** | Total invocations |
 | **Success Rate** | Percentage of successful executions |
 | **Average Duration** | Mean execution time |
-| **Worst-Case Accuracy** | Lowest accuracy in execution history |
-| **Stability Gap** | `average_accuracy - worst_case_accuracy` |
+| **Worst Window Rate** | Lowest success rate over any 5 consecutive runs |
+| **Stability Gap** | `1 - worst_window_rate` |
 
 ### Stability Gap (Key Metric)
 
-The stability gap detects inconsistent skills - those that work sometimes but fail unpredictably:
+The stability gap measures the worst stretch of a skill's history. Each
+run is a pass (1) or a fail (0). The success rate is taken over every
+window of 5 consecutive runs, and the gap is the worst window's shortfall
+from perfect:
 
 ```
-stability_gap = average_accuracy - worst_case_accuracy
+stability_gap = 1 - min(success rate of each 5-run window)
 ```
+
+One failure in a window costs 0.2, so the gap moves in steps of 0.2 and
+the 0.2 - 0.3 band below holds exactly one failure. The gap is 0.0 until a
+skill has 5 runs. The definition lives in
+`plugins/abstract/hooks/shared/stability.py`.
 
 **Interpretation:**
 - ✓ **< 0.2**: Stable - consistent performance
 - ⚠️ **0.2 - 0.3**: Warning - occasional issues
 - ✗ **> 0.3**: Unstable - needs attention
 
-**Why it matters**: Traditional metrics only measure average performance. Stability gap catches skills that are "usually fine but sometimes catastrophically wrong."
+**Why it matters**: An average hides a bad stretch. A skill that passes
+94% of the time overall but failed 3 runs in a row has a worst window of
+0.4 and a gap of 0.6.
 
 ## Examples
 
@@ -64,22 +74,22 @@ abstract:skill-auditor:
   Executions: 47
   Success rate: 94%
   Average duration: 134ms
-  Worst-case accuracy: 0.85
-  Stability gap: 0.09 ✓ (stable)
+  Worst 5-run window: 1.00
+  Stability gap: 0.00 ✓ (stable)
 
 sanctum:pr-review:
   Executions: 23
   Success rate: 91%
   Average duration: 2.1s
-  Worst-case accuracy: 0.82
-  Stability gap: 0.09 ✓ (stable)
+  Worst 5-run window: 0.80
+  Stability gap: 0.20 (monitoring)
 
 imbue:proof-of-work:
   Executions: 31
   Success rate: 68%
   Average duration: 1.8s
-  Worst-case accuracy: 0.40
-  Stability gap: 0.38 ⚠️ (unstable)
+  Worst 5-run window: 0.60
+  Stability gap: 0.40 ⚠️ (unstable)
 ```
 
 ### Find Unstable Skills
@@ -94,12 +104,12 @@ Skills with Stability Gap > 0.3
 ================================
 
 imbue:proof-of-work
-  Stability gap: 0.38
+  Stability gap: 0.40
   Issue: High failure rate (32%)
   Suggestion: Review recent failures with /memory-palace:skill-logs --skill imbue:proof-of-work --failures-only
 
 your-custom:my-skill
-  Stability gap: 0.45
+  Stability gap: 0.60
   Issue: Inconsistent performance
   Suggestion: Check error patterns in execution logs
 ```
@@ -127,8 +137,8 @@ Performance:
   95th percentile: 245ms
 
 Stability:
-  Worst-case accuracy: 0.85
-  Stability gap: 0.09 ✓
+  Worst 5-run window: 1.00
+  Stability gap: 0.00 ✓
   Trend: Improving (last 10: 100% success)
 
 Recent Failures (3):
@@ -202,9 +212,18 @@ HEALTHY (stability_gap < 0.2):
 
 ### Data Source
 
-Reads from metrics stored by memory-palace:
+Reads from metrics written by abstract's `skill_execution_logger.py` hook:
+
 - **Logs**: `~/.claude/skills/logs/*/*/*.jsonl`
 - **History**: `~/.claude/skills/logs/.history.json`
+
+Skip entries whose `context.session_id` starts with `test-`, `dogfood-`
+or `fixture-`, the same rule as `_is_synthetic_session` in
+`plugins/abstract/scripts/aggregate_skill_logs.py`. Test runs once wrote
+71 `test-session` entries into the real store and made
+`abstract:skill-auditor` read as 41% successful when it had no real runs.
+`.history.json` carries no session ids, so a skill whose history
+disagrees with its filtered logs has synthetic runs in its history.
 
 ### Related Commands
 

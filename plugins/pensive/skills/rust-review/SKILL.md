@@ -274,9 +274,11 @@ the verifier rejects.
 
 ## Exit Criteria
 
-- All unsafe blocks audited
-- Concurrency patterns verified
-- Dependencies scanned
-- Evidence logged
-- Action items assigned
-- Every reported finding carries a `Location` + verbatim `Anchor` confirmed by `citation_verifier.py` (exit `0`), or unverified findings were dropped or labeled `UNVERIFIED`
+- [ ] All unsafe blocks audited
+- [ ] Concurrency patterns verified
+- [ ] Dependencies scanned
+- [ ] Evidence logged
+- [ ] Action items assigned
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor` confirmed
+      by `citation_verifier.py` (exit `0`), or unverified findings were dropped
+      or labeled `UNVERIFIED`

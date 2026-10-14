@@ -221,12 +221,12 @@ the verifier rejects.
 
 ## Exit Criteria
 
-- Frameworks detected and documented
-- Coverage analyzed and gaps identified
-- Scenario quality assessed
-- Remediation plan created with owners and dates
-- Evidence logged with citations
-- Every reported finding carries a `Location` + verbatim `Anchor` confirmed
+- [ ] Frameworks detected and documented
+- [ ] Coverage analyzed and gaps identified
+- [ ] Scenario quality assessed
+- [ ] Remediation plan created with owners and dates
+- [ ] Evidence logged with citations
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor` confirmed
   by `citation_verifier.py` (exit `0`), or unverified findings were dropped
   or labeled `UNVERIFIED`
 ## Troubleshooting

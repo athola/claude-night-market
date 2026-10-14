@@ -155,12 +155,12 @@ the verifier rejects.
 
 ## Exit Criteria
 
-- Context mapped
-- Dependencies analyzed
-- Deduplication reviewed
-- Portability checked
-- Evidence logged
-- Every reported finding carries a `Location` + verbatim `Anchor` confirmed
+- [ ] Context mapped
+- [ ] Dependencies analyzed
+- [ ] Deduplication reviewed
+- [ ] Portability checked
+- [ ] Evidence logged
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor` confirmed
   by `citation_verifier.py` (exit `0`), or unverified findings were dropped
   or labeled `UNVERIFIED`
 ## Troubleshooting

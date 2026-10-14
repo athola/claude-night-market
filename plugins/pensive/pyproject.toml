@@ -33,8 +33,16 @@ Documentation = "https://pensive.readthedocs.io/"
 Repository = "https://github.com/anthropics/pensive.git"
 "Bug Tracker" = "https://github.com/anthropics/pensive/issues"
 
+[project.optional-dependencies]
+# Tier 2 (tree-sitter, non-Python files) of the performance-review skill.
+# Tier 3 reads gauntlet's call graph and needs the gauntlet plugin
+# importable. gauntlet is not on PyPI, so it is a dev dependency only.
+# Below 1.17 the grammars ship in the wheel and Tier 2 works offline.
+tiers = ["tree-sitter-language-pack>=0.3,<1.17"]
+
 [dependency-groups]
 dev = [
+    "gauntlet-dev",
     "bandit>=1.8.6,<2.0",
     "pytest>=8.0",
     "pytest-cov>=7.1.0",
@@ -46,6 +54,14 @@ dev = [
     "pre-commit>=4.3.0",
     "types-pyyaml>=6.0.12.20250915",
 ]
+
+[tool.uv]
+# 1.17+ downloads grammars on first get_parser() call. 1.16.x ships them in
+# the wheel, which keeps Tier 2 and its tests working offline.
+constraint-dependencies = ["tree-sitter-language-pack<1.17"]
+
+[tool.uv.sources]
+gauntlet-dev = { path = "../gauntlet" }
 
 [tool.setuptools_scm]
 write_to = "src/pensive/_version.py"
