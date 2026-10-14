@@ -47,6 +47,31 @@ RATE_LIMIT = "rate_limit"
 # Generic failure: the source was reached and did not answer usefully.
 SOURCE_ERROR = "source_error"
 
+# Channel statuses `channel_outcomes` returns. Values are persisted in
+# reports, and every reader imports them from here.
+OUTCOME_UNKNOWN = "unknown"
+OUTCOME_OK = "ok"
+OUTCOME_EMPTY = "empty"
+OUTCOME_DEGRADED = "degraded"
+OUTCOME_ERROR = "error"
+OUTCOME_RATE_LIMITED = "rate_limited"
+CHANNEL_OUTCOMES = frozenset(
+    {
+        OUTCOME_UNKNOWN,
+        OUTCOME_OK,
+        OUTCOME_EMPTY,
+        OUTCOME_DEGRADED,
+        OUTCOME_ERROR,
+        OUTCOME_RATE_LIMITED,
+    }
+)
+
+# Positive-control statuses `canary_outcomes` returns.
+CANARY_PASSED = "pass"
+CANARY_FAILED = "fail"
+CANARY_ABSENT = "absent"
+CANARY_OUTCOMES = frozenset({CANARY_PASSED, CANARY_FAILED, CANARY_ABSENT})
+
 # A QueryLog with this source is a positive control, not a topic query.
 # Controls share the log list so one record covers everything the run
 # did, and stay distinguishable so a control's hit never inflates the
@@ -228,18 +253,18 @@ def channel_outcomes(session: ResearchSession) -> dict[str, str]:
             if q.channel == channel and q.source != CANARY_SOURCE
         ]
         if not logs:
-            outcomes[channel] = "unknown"
+            outcomes[channel] = OUTCOME_UNKNOWN
             continue
         results = sum(q.result_count for q in logs)
         failed = [q for q in logs if not q.succeeded]
         if not failed:
-            outcomes[channel] = "ok" if results else "empty"
+            outcomes[channel] = OUTCOME_OK if results else OUTCOME_EMPTY
         elif results:
-            outcomes[channel] = "degraded"
+            outcomes[channel] = OUTCOME_DEGRADED
         elif any(q.error == RATE_LIMIT for q in failed):
-            outcomes[channel] = "rate_limited"
+            outcomes[channel] = OUTCOME_RATE_LIMITED
         else:
-            outcomes[channel] = "error"
+            outcomes[channel] = OUTCOME_ERROR
     return outcomes
 
 

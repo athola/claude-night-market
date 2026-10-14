@@ -132,7 +132,7 @@ class TestOutcomeAwareReplan:
 
 
 class TestReplanWithNoFindingsAnywhere:
-    """Math review finding C10: an empty round still follows the outcome rule."""
+    """An empty round still follows the outcome rule."""
 
     @staticmethod
     def _learned_plan() -> ResearchPlan:

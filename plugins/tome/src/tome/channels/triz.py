@@ -682,6 +682,9 @@ def reformulation_probes(contradiction: dict[str, str]) -> list[dict[str, Any]]:
     return probes
 
 
+_VALID_DEPTHS = frozenset({"light", "medium", "deep", "maximum"})
+
+
 def get_adjacent_fields(domain: str, depth: str) -> list[str]:
     """Get adjacent fields based on domain and TRIZ search depth.
 
@@ -704,7 +707,14 @@ def get_adjacent_fields(domain: str, depth: str) -> list[str]:
     Returns:
         List of adjacent field strings, deduplicated, ordered by closeness
         then distance.
+
+    Raises:
+        ValueError: If depth is not one of the four named depths.
     """
+    if depth not in _VALID_DEPTHS:
+        raise ValueError(
+            f"Unknown depth {depth!r}; expected one of {sorted(_VALID_DEPTHS)}"
+        )
     primary = FIELD_ADJACENCY.get(domain, FIELD_ADJACENCY["general"])
 
     depth_to_count: dict[str, int] = {

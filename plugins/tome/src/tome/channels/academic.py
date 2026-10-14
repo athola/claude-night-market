@@ -51,7 +51,7 @@ def expand_academic_queries(topic: str, max_variants: int = 5) -> list[str]:
     # Recent variant
     queries.append(f"recent advances {topic}")
 
-    return deduplicate_queries(queries)[:max_variants]
+    return deduplicate_queries(queries, max_variants)
 
 
 # ---------------------------------------------------------------------------
@@ -91,7 +91,7 @@ def _extract_tag_text(xml: str, tag: str) -> str | None:
 def _extract_arxiv_id(id_url: str) -> str:
     """Extract the bare arXiv ID (without version) from an abs URL."""
     # Matches patterns like arxiv.org/abs/2301.12345v1 or abs/2301.12345
-    match = re.search(r"abs/([^v]+?)(?:v\d+)?$", id_url.strip())
+    match = re.search(r"abs/(.+?)(?:v\d+)?$", id_url.strip())
     if match:
         return match.group(1)
     return id_url

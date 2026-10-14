@@ -258,7 +258,7 @@ class TestTheReadmeListsEveryDomain:
 
 
 class TestKeywordsMatchAtWordStarts:
-    """Math review finding C11: a keyword inside another word is not a hit."""
+    """A keyword inside another word is not a hit."""
 
     @pytest.mark.unit
     @pytest.mark.parametrize(
@@ -287,7 +287,7 @@ class TestKeywordsMatchAtWordStarts:
 
 
 class TestTheDocumentedConfidenceIsTheComputedOne:
-    """Math review finding C12: the docstring states the formula in use."""
+    """The docstring states the formula in use."""
 
     @pytest.mark.unit
     def test_two_pure_hits_score_two_thirds(self) -> None:

@@ -66,7 +66,7 @@ is useless. Every creativity metric is therefore paired with relevance.
 
 | Metric | Formula / source | Status |
 |--------|------------------|--------|
-| Source/domain diversity | `1 - Herfindahl` over channels | exists (`quality.py:327`) |
+| Source/domain diversity | `1 - Herfindahl` over channels | exists (`quality.py:353-354`) |
 | TRIZ bridge count | cross-domain analogies found | exists (triz channel) |
 | Corpus novelty | mean embedding distance of new findings from the prior-session corpus | new (needs cross-session storage) |
 | Reference atypicality | z-scored reference co-occurrence (Uzzi 2013) | new (needs references) |

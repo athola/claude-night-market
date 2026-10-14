@@ -101,8 +101,9 @@ const agent = async (prompt, opts) => {
 const parallel = async (fns) => Promise.all(fns.map((f) => f()))
 const run = new Function('args', 'agent', 'parallel', 'phase', 'log',
   `return (async () => {${src}})()`)
-run(input, agent, parallel, () => {}, () => {}).then((out) => {
-  console.log(JSON.stringify({ out, calls }))
+const logs = []
+run(input, agent, parallel, () => {}, (line) => logs.push(line)).then((out) => {
+  console.log(JSON.stringify({ out, calls, logs }))
 })
 """
 
@@ -170,3 +171,20 @@ def test_a_gap_fill_that_returns_nothing_is_a_failure(tmp_path: Path) -> None:
     )
     assert run["out"]["coverage"]["failed"] == ["gap-fill"]
     assert run["out"]["coverage"]["unsearched"] == ["Beartooth"]
+
+
+def test_a_gap_fill_is_reported_as_gap_fill_not_as_a_web_channel(
+    tmp_path: Path,
+) -> None:
+    """The gap search is not a selected channel and must not pose as one."""
+    run = _run_workflow(
+        tmp_path,
+        {"topic": "mesh radios", "channels": ["discourse"], "entities": ["Beartooth"]},
+    )
+    searched = [row["channel"] for row in run["out"]["coverage"]["searched"]]
+    assert searched == ["discourse", "gap-fill"]
+    beartooth = next(
+        f for f in run["out"]["findings"] if f["title"] == "Beartooth MK2 specs"
+    )
+    assert beartooth["channels"] == ["gap-fill"]
+    assert run["logs"][-1] == "2 findings from 1 of 1 channels, plus a gap fill"

@@ -69,7 +69,8 @@ opinions about the given topic.
 
 5. **Search Lobsters**: `build_lobsters_search_url(topic)`
    or `build_lobsters_websearch_query(topic)`, parse each
-   hit with `parse_lobsters_result`.
+   hit with `parse_lobsters_result`. It returns `None` for a
+   hit with no URL. Skip that hit and record no finding.
 
 6. **Search Reddit** through Bash, one `-s` per suggested
    subreddit:
@@ -88,7 +89,8 @@ opinions about the given topic.
 
 7. **Search tech blogs**: run `build_blog_search_queries(topic)`
    through WebSearch and parse hits with `parse_blog_result`.
-   Fetch and summarize the top 2-3 posts.
+   It returns `None` for a hit with no URL. Skip that hit and
+   record no finding. Fetch and summarize the top 2-3 posts.
 
    This channel covers four sources under one channel name,
    so record each one separately in `metadata.queries`. A

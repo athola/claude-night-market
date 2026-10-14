@@ -126,8 +126,9 @@ if (uncovered.length) {
     { label: 'gap-fill', phase: 'Gap fill', agentType: 'tome:web-searcher', schema: FINDINGS },
   )
   // A gap-fill agent that returned nothing is a failed search, not an
-  // empty one: name it, and its entities stay in `unsearched`.
-  if (gap) answered.push({ channel: 'web', result: gap })
+  // empty one: name it, and its entities stay in `unsearched`. It is filed
+  // as 'gap-fill', not as a channel the caller never selected.
+  if (gap) answered.push({ channel: 'gap-fill', result: gap })
   else failed.push('gap-fill')
 }
 
@@ -152,7 +153,9 @@ for (const { channel, result } of answered) {
 
 const findings = [...byUrl.values()].sort((a, b) => b.channels.length - a.channels.length)
 
-log(`${findings.length} findings from ${answered.length} of ${selected.length} channels`)
+const channelsAnswered = answered.filter((r) => r.channel !== 'gap-fill').length
+const gapNote = channelsAnswered < answered.length ? ', plus a gap fill' : ''
+log(`${findings.length} findings from ${channelsAnswered} of ${selected.length} channels${gapNote}`)
 
 return {
   topic: input.topic,

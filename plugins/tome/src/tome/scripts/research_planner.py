@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from tome.channels.cards import CHANNEL_CARDS, DEPTH_ORDER
 from tome.models import DomainClassification, Finding, ResearchPlan
+from tome.synthesis.quality import OUTCOME_EMPTY, OUTCOME_OK
 
 _BUDGET: dict[str, int] = {
     "light": 2000,
@@ -95,7 +96,8 @@ def replan(
     # A channel is re-weightable only when its zero is informative.
     # Absent outcomes every channel qualifies, which is the old rule.
     informative = {
-        ch: outcomes.get(ch, "empty") in ("ok", "empty") for ch in original.channels
+        ch: outcomes.get(ch, OUTCOME_EMPTY) in (OUTCOME_OK, OUTCOME_EMPTY)
+        for ch in original.channels
     }
 
     counts = {ch: len(partial_results.get(ch, [])) for ch in original.channels}

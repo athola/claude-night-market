@@ -63,7 +63,7 @@ class TestRecall:
 
 
 class TestARepeatedIdCountsOnce:
-    """Math review finding C20: duplicates in a ranking are not extra hits."""
+    """Duplicates in a ranking are not extra hits."""
 
     @pytest.mark.unit
     def test_ndcg_of_a_repeated_relevant_id_stays_within_one(self) -> None:

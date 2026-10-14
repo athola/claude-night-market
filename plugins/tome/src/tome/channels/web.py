@@ -59,7 +59,7 @@ def expand_web_queries(topic: str, max_variants: int = 5) -> list[str]:
         f"{topic} {_CURRENT_YEAR}",
     ]
 
-    return deduplicate_queries(queries)[:max_variants]
+    return deduplicate_queries(queries, max_variants)
 
 
 # ---------------------------------------------------------------------------
@@ -281,7 +281,7 @@ def parse_you_mcp_result(
     return findings
 
 
-def parse_websearch_result(result: dict[str, Any], topic: str) -> Finding:
+def parse_websearch_result(result: dict[str, Any], topic: str) -> Finding | None:
     """Parse a single WebSearch result dict into a web Finding.
 
     The result dict is expected to have the keys WebSearch returns:
@@ -295,19 +295,15 @@ def parse_websearch_result(result: dict[str, Any], topic: str) -> Finding:
         topic: Original research topic used to score relevance.
 
     Returns:
-        A Finding with ``source="web"`` and ``channel="web"``.
-
-    Raises:
-        ValueError: if the result has no URL, which is the same
-            contract ``parse_you_mcp_result`` enforces per item: a
-            result with nothing to cite is refused loudly rather than
-            filed as a blank Finding that survives deduplication.
+        A Finding with ``source="web"`` and ``channel="web"``, or
+        ``None`` when the result has no URL. A result with nothing to
+        cite is skipped here, the same as ``parse_you_mcp_result``
+        skips an item, so callers drop ``None`` instead of filing a
+        blank Finding that survives deduplication.
     """
     url: str = result.get("url") or ""
     if not url:
-        raise ValueError(
-            f"WebSearch result has no URL; keys present = {sorted(result)}"
-        )
+        return None
     title: str = result.get("title") or url
     snippet: str = result.get("snippet") or result.get("description") or ""
     relevance, basis = _estimate_relevance(title + " " + snippet, topic)

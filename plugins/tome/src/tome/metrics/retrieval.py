@@ -11,12 +11,18 @@ from __future__ import annotations
 import math
 
 
+def _check_k(k: int) -> None:
+    if k < 1:
+        raise ValueError(f"k must be at least 1, got {k}")
+
+
 def _first_hits(ranked_ids: list[str], relevant: set[str], k: int) -> list[int]:
     """Return the 0-based positions in the top ``k`` of each relevant id.
 
     A repeated id is counted once, at its first position. Counting it
     again would push nDCG above 1 and recall above the true share.
     """
+    _check_k(k)
     seen: set[str] = set()
     positions = []
     for index, item_id in enumerate(ranked_ids[:k]):
@@ -35,6 +41,7 @@ def _dcg(ranked_ids: list[str], relevant: set[str], k: int) -> float:
 
 def ndcg_at_k(ranked_ids: list[str], relevant: set[str], k: int) -> float:
     """Normalized DCG at ``k``; 0.0 when there are no relevant items."""
+    _check_k(k)
     if not relevant:
         return 0.0
     ideal_hits = min(len(relevant), k)
@@ -54,6 +61,7 @@ def mrr(ranked_ids: list[str], relevant: set[str]) -> float:
 
 def recall_at_k(ranked_ids: list[str], relevant: set[str], k: int) -> float:
     """Fraction of relevant items appearing in the top ``k``."""
+    _check_k(k)
     if not relevant:
         return 0.0
     return len(_first_hits(ranked_ids, relevant, k)) / len(relevant)

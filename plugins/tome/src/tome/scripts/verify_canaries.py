@@ -168,10 +168,15 @@ def _https_only_opener() -> urllib.request.OpenerDirector:
     ``HTTPSHandler``. Verified rather than assumed: this director
     returns ``None`` for a ``file://`` URL, while
     ``build_opener(HTTPSHandler())`` reads the file.
+
+    The redirect handler follows https redirects only, since no other
+    scheme has a handler. Without it a healthy target that answers 301
+    classifies as CHANNEL_ERROR.
     """
     director = urllib.request.OpenerDirector()
     for handler in (
         urllib.request.HTTPSHandler(),
+        urllib.request.HTTPRedirectHandler(),
         urllib.request.HTTPDefaultErrorHandler(),
         urllib.request.HTTPErrorProcessor(),
     ):
@@ -232,6 +237,8 @@ def main() -> int:
     code = exit_code_for([o.result for o in outcomes])
     print(
         "\nAll targets verified."
+        if all(o.result == RETRIEVED for o in outcomes)
+        else "\nNo target moved and no channel is broken, but some were not checked."
         if not code
         else "\nAt least one target moved or one channel is broken. See remedies."
     )

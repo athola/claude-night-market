@@ -36,6 +36,18 @@ Parser = Callable[[str], list]
 # Reddit answered a second rapid feed request with 429 (probed 2026-10-05).
 REDDIT_SPACING_SECONDS = 2.0
 
+# Agents run this through Bash, which stops a command at 120s by default
+# and loses everything it would have printed. One request already in
+# flight can run 30s past the budget, so the budget ends at 90s. A source
+# not started by then is reported as skipped.
+BUDGET_SECONDS = 90.0
+_BUDGET_SPENT = "skipped, time budget spent"
+
+
+# json.JSONDecodeError is a ValueError. KeyError and TypeError cover a
+# well-formed body that is not the shape the service documents.
+_UNPARSEABLE = (ValueError, KeyError, TypeError)
+
 
 def _error(source: str, reply: http.Response) -> dict[str, str]:
     if reply.status == http.TOO_MANY_REQUESTS:
@@ -50,10 +62,35 @@ def _s2_headers() -> dict[str, str]:
     return {"x-api-key": key} if key else {}
 
 
+def _spent(source: str) -> dict[str, str]:
+    return {"kind": "source_error", "source": source, "message": _BUDGET_SPENT}
+
+
+def _channel_report(
+    channel: str,
+    findings: list[dict[str, Any]],
+    queries: list[dict[str, Any]],
+    errors: list[dict[str, str]],
+) -> dict[str, Any]:
+    """The report shape every channel search returns."""
+    return {
+        "channel": channel,
+        "findings": findings,
+        "queries": queries,
+        "errors": errors,
+    }
+
+
 def search_academic(
-    topic: str, *, fetch: Fetch = http.fetch, limit: int = 10
+    topic: str,
+    *,
+    fetch: Fetch = http.fetch,
+    limit: int = 10,
+    budget_seconds: float = BUDGET_SECONDS,
+    clock: Callable[[], float] = time.monotonic,
 ) -> dict[str, Any]:
     """Search arXiv, Semantic Scholar and OpenAlex; report each source."""
+    deadline = clock() + budget_seconds
     sources: list[tuple[str, str, dict[str, str], Parser]] = [
         (
             "arxiv",
@@ -78,20 +115,28 @@ def search_academic(
     queries: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
     for source, url, headers, parse in sources:
-        reply = fetch(url, headers=headers)
-        found = (
-            [f.to_dict() for f in parse(reply.body)] if reply.status == http.OK else []
-        )
+        found: list[dict[str, Any]] = []
+        if clock() >= deadline:
+            errors.append(_spent(source))
+            queries.append({"source": source, "query": topic, "result_count": 0})
+            continue
+        reply = fetch(url, headers=headers, deadline=deadline)
         if reply.status != http.OK:
             errors.append(_error(source, reply))
+        else:
+            try:
+                found = [f.to_dict() for f in parse(reply.body)]
+            except _UNPARSEABLE:
+                errors.append(
+                    {
+                        "kind": "source_error",
+                        "source": source,
+                        "message": "unparseable response",
+                    }
+                )
         findings.extend(found)
         queries.append({"source": source, "query": topic, "result_count": len(found)})
-    return {
-        "channel": "academic",
-        "findings": findings,
-        "queries": queries,
-        "errors": errors,
-    }
+    return _channel_report("academic", findings, queries, errors)
 
 
 def _openalex_candidates(body: str) -> list[dict[str, str]]:
@@ -123,10 +168,16 @@ def _unpaywall_candidates(body: str) -> list[dict[str, str]]:
 
 
 def find_full_text(
-    *, doi: str | None = None, title: str | None = None, fetch: Fetch = http.fetch
+    *,
+    doi: str | None = None,
+    title: str | None = None,
+    fetch: Fetch = http.fetch,
+    budget_seconds: float = BUDGET_SECONDS,
+    clock: Callable[[], float] = time.monotonic,
 ) -> dict[str, Any]:
     """Collect open-access copies of one paper, recording every source tried."""
-    lookups: list[tuple[str, str, dict[str, str], Callable[[str], list]]] = []
+    deadline = clock() + budget_seconds
+    lookups: list[tuple[str, str, dict[str, str], Parser]] = []
     tried: list[dict[str, Any]] = []
     if doi:
         lookups.append(
@@ -161,34 +212,59 @@ def find_full_text(
 
     candidates: list[dict[str, str]] = []
     for source, url, headers, extract in lookups:
-        reply = fetch(url, headers=headers)
+        if clock() >= deadline:
+            tried.append({"source": source, "status": _BUDGET_SPENT})
+            continue
+        reply = fetch(url, headers=headers, deadline=deadline)
         tried.append({"source": source, "status": reply.status})
         if reply.status == http.OK:
-            candidates.extend(extract(reply.body))
+            try:
+                candidates.extend(extract(reply.body))
+            except _UNPARSEABLE:
+                tried[-1]["status"] = "unparseable response"
 
     unique: list[dict[str, str]] = []
+    seen: set[str] = set()
     for candidate in candidates:
-        if candidate["url"] not in {c["url"] for c in unique}:
+        if candidate["url"] not in seen:
+            seen.add(candidate["url"])
             unique.append(candidate)
     return {"doi": doi, "title": title, "candidates": unique, "tried": tried}
 
 
-def search_reddit(
+def search_reddit(  # noqa: PLR0913 - four keyword-only seams (fetch, sleep, budget, clock) the tests inject
     topic: str,
     subreddits: Sequence[str],
     *,
     fetch: Fetch = http.fetch,
     sleep: Callable[[float], None] = time.sleep,
+    budget_seconds: float = BUDGET_SECONDS,
+    clock: Callable[[], float] = time.monotonic,
 ) -> dict[str, Any]:
     """Search each subreddit's Atom feed, spacing the requests."""
+    deadline = clock() + budget_seconds
     findings: list[dict[str, Any]] = []
     queries: list[dict[str, Any]] = []
     errors: list[dict[str, str]] = []
     for index, subreddit in enumerate(subreddits):
         if index:
             sleep(REDDIT_SPACING_SECONDS)
-        reply = fetch(discourse.build_reddit_rss_search_url(topic, subreddit))
         found = []
+        if clock() >= deadline:
+            error = _spent("reddit")
+            error["message"] = f"r/{subreddit}: {_BUDGET_SPENT}"
+            errors.append(error)
+            queries.append(
+                {
+                    "source": "reddit",
+                    "query": f"r/{subreddit} {topic}",
+                    "result_count": 0,
+                }
+            )
+            continue
+        reply = fetch(
+            discourse.build_reddit_rss_search_url(topic, subreddit), deadline=deadline
+        )
         if reply.status == http.OK:
             found = [
                 f.to_dict() for f in discourse.parse_reddit_rss(reply.body, subreddit)
@@ -205,12 +281,7 @@ def search_reddit(
                 "result_count": len(found),
             }
         )
-    return {
-        "channel": "discourse",
-        "findings": findings,
-        "queries": queries,
-        "errors": errors,
-    }
+    return _channel_report("discourse", findings, queries, errors)
 
 
 _SEARCHES: dict[str, Callable[[argparse.Namespace], dict[str, Any]]] = {

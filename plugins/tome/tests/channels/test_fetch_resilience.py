@@ -13,8 +13,12 @@ Every test here runs against a fake transport. None touches the network.
 
 from __future__ import annotations
 
+import io
 import json
+import types
+import urllib.error
 from collections.abc import Callable
+from typing import NoReturn
 
 import pytest
 
@@ -152,6 +156,7 @@ def test_rate_limited_sources_do_not_empty_the_channel() -> None:
             u, transport=transport, sleep=lambda s: None, **kw
         ),
     )
+    assert report["channel"] == "academic"
     assert [f["title"] for f in report["findings"]] == ["Multi-hop HaLow throughput"]
     errors = {(e["source"], e["kind"]) for e in report["errors"]}
     assert errors == {("arxiv", "rate_limit"), ("semantic_scholar", "rate_limit")}
@@ -266,6 +271,7 @@ def test_reddit_calls_are_spaced_and_rate_limits_recorded() -> None:
         sleep=waits.append,
     )
     assert waits == [fetch_cli.REDDIT_SPACING_SECONDS]
+    assert report["channel"] == "discourse"
     assert len(report["findings"]) == 1
     assert report["errors"] == [
         {
@@ -305,3 +311,90 @@ def test_a_network_failure_is_retried() -> None:
     result = http.fetch("https://x", transport=transport, sleep=lambda s: None)
     assert result.status == 200
     assert len(calls) == 2
+
+
+# --- boundary error paths ---------------------------------------------------
+
+
+class _RaisingOpener:
+    def __init__(self, error: Exception) -> None:
+        self._error = error
+
+    def open(self, *_args: object, **_kwargs: object) -> NoReturn:
+        raise self._error
+
+
+def test_an_http_error_status_is_returned_with_its_body(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """urllib raises on a 4xx/5xx; the transport must hand back the status."""
+    error = urllib.error.HTTPError(
+        "https://x", 429, "Too Many", {"Retry-After": "5"}, io.BytesIO(b"slow")
+    )
+    monkeypatch.setattr(http, "_https_only_opener", lambda: _RaisingOpener(error))
+
+    reply = http.urllib_transport("https://x", {})
+
+    assert reply.status == 429
+    assert reply.body == "slow"
+    assert reply.headers == {"Retry-After": "5"}
+
+
+def test_retry_after_as_an_http_date_waits_until_that_moment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # 2026-10-01 00:00:00 UTC, and the header names ten seconds later.
+    monkeypatch.setattr(http, "time", types.SimpleNamespace(time=lambda: 1790812800.0))
+
+    wait = http._retry_after({"Retry-After": "Thu, 01 Oct 2026 00:00:10 GMT"})
+
+    assert wait == 10.0
+
+
+def test_retry_after_date_in_the_past_waits_zero(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(http, "time", types.SimpleNamespace(time=lambda: 1790812800.0))
+
+    wait = http._retry_after({"Retry-After": "Wed, 30 Sep 2026 23:59:00 GMT"})
+
+    assert wait == 0.0
+
+
+def test_full_text_takes_pdfs_from_semantic_scholar_and_unpaywall(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("TOME_CONTACT_EMAIL", "someone@example.org")
+    transport, _ = _routed(
+        {
+            "api.openalex.org/works/doi:": _ok(json.dumps({"locations": []})),
+            "api.semanticscholar.org": _ok(
+                json.dumps({"openAccessPdf": {"url": "https://s2.example/x.pdf"}})
+            ),
+            "api.unpaywall.org": _ok(
+                json.dumps(
+                    {"best_oa_location": {"url_for_pdf": "https://oa.example/x.pdf"}}
+                )
+            ),
+        }
+    )
+    found = fetch_cli.find_full_text(
+        doi="10.1/x",
+        fetch=lambda u, **kw: http.fetch(
+            u, transport=transport, sleep=lambda s: None, **kw
+        ),
+    )
+    assert found["candidates"] == [
+        {"url": "https://s2.example/x.pdf", "source": "semantic_scholar"},
+        {"url": "https://oa.example/x.pdf", "source": "unpaywall"},
+    ]
+
+
+def test_cli_fulltext_without_doi_or_title_exits_with_usage_error(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    with pytest.raises(SystemExit) as exc_info:
+        fetch_cli.main(["fulltext"])
+
+    assert exc_info.value.code == 2
+    assert "fulltext needs --doi or --title" in capsys.readouterr().err
