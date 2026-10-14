@@ -135,7 +135,7 @@ class TestNearestKnown:
 
 
 class TestPypiNamesCompareAfterNormalization:
-    """Math review finding C29: PEP 503 spellings of one project are one name.
+    """PEP 503 spellings of one project are one name.
 
     PyPI compares names after lowercasing and collapsing runs of
     ``-``, ``_`` and ``.`` to ``-``, so ``scikit_learn`` and ``Requests``
@@ -302,3 +302,85 @@ class TestRegistryLookupBudget:
             f"worst case {worst_case}s meets or exceeds the {min(caps)}s cap; "
             f"a killed PreToolUse hook is the same as no gate"
         )
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "pip install requests && python app.py",
+        "pip install requests || echo failed",
+        "pip install requests; pytest -q",
+        "pip install requests | tee install.log",
+        "pip install requests &",
+        "pip install requests\npytest -q",
+    ],
+)
+def test_parse_packages_stops_at_the_end_of_the_install_command(
+    pg, command: str
+) -> None:
+    """Whatever follows a shell separator is another command, not a package."""
+    assert pg.parse_packages(command) == [("pypi", "requests")]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "command",
+    [
+        "pip install requests && pip install evilpkg",
+        "pip install requests; pip install evilpkg",
+        "pip install requests || pip install evilpkg",
+        "pip install requests | pip install evilpkg",
+    ],
+)
+def test_parse_packages_checks_every_chained_install(pg, command: str) -> None:
+    """A second install after a separator is fetched too, so it is checked."""
+    assert pg.parse_packages(command) == [("pypi", "requests"), ("pypi", "evilpkg")]
+
+
+@pytest.mark.unit
+def test_parse_packages_finds_an_install_after_a_leading_command(pg) -> None:
+    """An install need not be the first command in the chain."""
+    assert pg.parse_packages("cd /tmp && npm install left-pad") == [("npm", "left-pad")]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "command",
+    [
+        "pip install requests 2>&1",
+        "pip install requests 2>&1 | tail -5",
+        "pip install requests > install.log",
+        "pip install requests >> install.log 2>&1",
+        "pip install requests >install.log",
+        "pip install requests < /dev/null",
+        "pip install requests &> install.log",
+        "pip install requests  # pin later",
+    ],
+)
+def test_parse_packages_does_not_read_a_redirect_or_comment_as_a_package(
+    pg, command: str
+) -> None:
+    """`2>&1` named a package `2`, and a redirect target named a package."""
+    assert pg.parse_packages(command) == [("pypi", "requests")]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "command",
+    [
+        "(pip install reqeusts)",
+        "echo $(pip install reqeusts)",
+        "echo `pip install reqeusts`",
+        "sudo pip install reqeusts",
+        "sudo -H pip install reqeusts",
+        "sudo -u root pip install reqeusts",
+        "env X=1 pip install reqeusts",
+        "PIP_INDEX_URL=https://x.example/simple pip install reqeusts",
+        'pip install "reqeusts"',
+        "pip install 'reqeusts'",
+    ],
+)
+def test_a_typosquat_is_flagged_wherever_the_install_runs(pg, command: str) -> None:
+    """Subshells, sudo, env prefixes and quoted names all still fetch the name."""
+    findings = pg.assess_packages(command, registry_fn=None)
+    assert [(f["name"], f["kind"]) for f in findings] == [("reqeusts", "typosquat")]

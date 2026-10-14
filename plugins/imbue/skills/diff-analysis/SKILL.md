@@ -86,6 +86,8 @@ Evaluate impact. Load `modules/risk-assessment-framework.md` for risk indicators
 Synthesize findings: theme, scope with counts, risk level, review focus, dependencies. Format for downstream consumption (PR descriptions, release notes, reviews).
 
 ## Exit Criteria
-- All progress items completed with categorized changes and risk assessment
-- Downstream workflows have semantic understanding of the changeset
-- Summary ready for appropriate consumption (review, release notes, planning)
+
+- [ ] All `diff-analysis:` progress items are marked complete
+- [ ] Every change is assigned a category and a risk level
+- [ ] The summary names its baseline and the intended consumer:
+  review, release notes, or planning

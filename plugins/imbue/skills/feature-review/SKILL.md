@@ -209,7 +209,7 @@ a warning and proceeds with initial scores unchanged.
 ### Phase 6: GitHub Integration (`feature-review:issues-created`)
 
 1. Generate issue title and body from suggestions.
-2. Apply labels (feature, enhancement, priority/*).
+2. Apply labels (enhancement, feature-review, priority/*).
 3. Link to related issues.
 4. Confirm with user before creation.
 
@@ -371,5 +371,5 @@ These rules apply to all configurations:
   `scripts/deferred_capture.py --source feature-review` without
   prompting the user
 - [ ] GitHub issues created only after user confirmation; each issue
-  includes the `feature`, `enhancement`, and `priority/*` labels
+  includes the `enhancement`, `feature-review`, and `priority/*` labels
   and a link to related issues where applicable

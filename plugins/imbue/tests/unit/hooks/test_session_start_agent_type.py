@@ -71,7 +71,7 @@ def test_a_quote_in_the_agent_prefix_still_yields_valid_json(tmp_path: Path) -> 
 
 def test_agent_type_is_read_without_a_trailing_newline(tmp_path: Path) -> None:
     """`read` returns nonzero on an unterminated line, and the branch was
-    skipped with the value already read (shell review S0-6, S2-9).
+    skipped with the value already read.
     """
     payload = {"source": "startup", "agent_type": "pensive:code-reviewer"}
     assert "abbreviated" in _context(tmp_path, payload, terminator="")

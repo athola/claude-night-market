@@ -78,10 +78,10 @@ def clamp_to_fibonacci(raw_score: float) -> int:
 
 Example (max_delta = 2 steps):
 - Initial: 5, raw_adjusted: 7 -> clamp: 8 (1 step away) OK
-- Initial: 3, raw_adjusted: 11 -> clamp: 8 (3 steps away)
-  exceeds max_delta -> use 13 (2 steps away from 3)
-  Wait: 13 is 4 steps from 3. So use 8 (2 steps from 3).
-  Correction: count Fibonacci index steps, not arithmetic.
+- Initial: 2, raw_adjusted: 11 -> clamp: 13 (4 steps away)
+  exceeds max_delta -> use 5 (2 steps away from 2)
+
+Steps count Fibonacci index positions, not arithmetic distance.
 
 Fibonacci indices: 1=0, 2=1, 3=2, 5=3, 8=4, 13=5
 
@@ -164,7 +164,7 @@ When research enrichment runs, add to the feature inventory:
 
 ### Code Search (GitHub)
 - Found 12 similar implementations, avg 340 stars
-- **Reach adjustment**: +1 (broad ecosystem adoption)
+- **Reach adjustment**: +2 (broad ecosystem adoption)
 
 ### Discourse (HN/Reddit)
 - 47 mentions in last 90 days, 78% positive sentiment
@@ -174,6 +174,6 @@ When research enrichment runs, add to the feature inventory:
 
 | Feature | Factor | Initial | Delta | Adjusted | Evidence |
 |---------|--------|---------|-------|----------|----------|
-| Auth    | Reach  | 5       | +1    | 8        | 3 sources |
+| Auth    | Reach  | 5       | +2    | 8        | 3 sources |
 | Auth    | Impact | 3       | 0     | 3        | Low      |
 ```

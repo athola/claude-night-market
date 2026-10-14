@@ -318,35 +318,6 @@ def sample_diff_analysis():
 
 
 @pytest.fixture
-def sample_review_findings():
-    """Sample review findings with evidence references."""
-    return [
-        {
-            "id": "F1",
-            "title": "Missing error handling",
-            "description": "The new function lacks proper error handling",
-            "severity": "Medium",
-            "category": "Correctness",
-            "file": "src/utils.py",
-            "line": 15,
-            "evidence_refs": ["E1", "E2"],
-            "recommendation": "Add try-catch block for potential exceptions",
-        },
-        {
-            "id": "F2",
-            "title": "Inconsistent naming",
-            "description": "Variable naming doesn't follow project conventions",
-            "severity": "Low",
-            "category": "Style",
-            "file": "src/main.py",
-            "line": 8,
-            "evidence_refs": ["E3"],
-            "recommendation": "Rename variable to follow snake_case convention",
-        },
-    ]
-
-
-@pytest.fixture
 def mock_imbue_validator(imbue_plugin_root):
     """Create ImbueValidator instance with real plugin root."""
     return ImbueValidator(str(imbue_plugin_root))

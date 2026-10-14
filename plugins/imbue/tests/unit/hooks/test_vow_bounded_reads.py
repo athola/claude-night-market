@@ -843,7 +843,7 @@ class TestAtomicIncrement:
 
         The injected sleep is what makes this test meaningful. Without
         injection, the GIL serializes the RMW in under a millisecond
-        and the unflocked path also passes (review finding B2). With
+        and the unflocked path also passes. With
         the 5ms sleep between `os.read` and `os.write`, the race
         window is large enough that lost updates WOULD occur if flock
         were absent -- which the paired negative-control test below
@@ -903,8 +903,7 @@ class TestAtomicIncrement:
         above: it proves the injected race is real and the positive
         test is actually exercising flock. If this test ever passes
         with `final == n_threads`, the race injection has become
-        ineffective and both tests must be revisited (review finding
-        B2's core concern).
+        ineffective and both tests must be revisited.
         """
         path = tmp_path / "vow_read_counter_unflocked_race.json"
         monkeypatch.setattr(hook_module, "_HAS_FCNTL", False)
@@ -935,7 +934,7 @@ class TestAtomicIncrement:
         assert final < n_threads, (
             f"negative control failed: final={final} equals n_threads={n_threads} "
             "-- injected race is not effective, so the paired positive test "
-            "cannot distinguish flock from no-flock (review B2)"
+            "cannot distinguish flock from no-flock"
         )
 
     @pytest.mark.unit
@@ -1241,7 +1240,7 @@ class TestAtomicReset:
         for t in threads:
             t.join()
 
-        # Strict integrity check (review B3): the raw bytes on disk
+        # Strict integrity check: the raw bytes on disk
         # must parse as a single valid JSON object with a non-negative
         # integer `count` field. Going through the lenient `_counter_value` helper alone
         # is not sufficient because that helper returns 0 on parse
@@ -1357,7 +1356,7 @@ class TestReadsAreWeightedPerTheBoundedDiscoveryRule:
 
     The rule: a Read is 1, a content Grep is 1, a files_with_matches Grep
     and a Glob are free, and a Read limited to under 50 lines is 0.5.
-    Math review finding C2-6: every Read/Grep/Glob added exactly 1, so
+    Every Read/Grep/Glob added exactly 1, so
     10 Globs, 10 path Greps and 1 Read cost 21 instead of 1.
     """
 
@@ -1432,3 +1431,55 @@ class TestReadsAreWeightedPerTheBoundedDiscoveryRule:
 
         ctx = json.loads(capsys.readouterr().out)["hookSpecificOutput"]
         assert "15.5 reads" in ctx["additionalContext"]
+
+
+class TestIncrementErrorPaths:
+    """Feature: counter failures degrade to zero without crashing the agent."""
+
+    @pytest.mark.unit
+    def test_counter_owned_by_another_user_is_not_incremented(
+        self, hook_module, tmp_path, monkeypatch
+    ):
+        path = tmp_path / "vow_read_counter_planted.json"
+        _seed_counter(path, 4)
+        monkeypatch.setattr(hook_module, "fd_owned_by_us", lambda fd: False)
+        assert hook_module._atomic_increment(path) == 0
+        assert _counter_value(path) == 4
+
+    @pytest.mark.unit
+    def test_counter_write_failure_returns_zero_and_warns(
+        self, hook_module, tmp_path, monkeypatch, capsys
+    ):
+        path = tmp_path / "vow_read_counter_full_disk.json"
+
+        def disk_full(fd, length):
+            raise OSError(errno.ENOSPC, "No space left on device")
+
+        monkeypatch.setattr(hook_module.os, "ftruncate", disk_full)
+        assert hook_module._atomic_increment(path) == 0
+        assert "counter write failed" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_unreadable_counter_reads_as_zero(self, hook_module, tmp_path, monkeypatch):
+        path = tmp_path / "vow_read_counter_eio.json"
+        _seed_counter(path, 6)
+
+        def eio(fd, size):
+            raise OSError(errno.EIO, "I/O error")
+
+        monkeypatch.setattr(hook_module.os, "read", eio)
+        fd = _os.open(str(path), _os.O_RDWR)
+        try:
+            assert hook_module._read_with_lock(fd) == 0
+        finally:
+            _os.close(fd)
+
+    @pytest.mark.unit
+    def test_non_object_payload_is_an_internal_error(self, hook_module, capsys):
+        with patch("sys.stdin", StringIO("[1, 2]")):
+            with pytest.raises(SystemExit) as exc:
+                hook_module.main()
+        captured = capsys.readouterr()
+        assert exc.value.code == 0
+        assert captured.out == ""
+        assert "internal error" in captured.err

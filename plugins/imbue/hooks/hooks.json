@@ -62,7 +62,7 @@
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
-            "if": "Bash(uv add*)"
+            "if": "Bash(*uv*add*)"
           }
         ]
       },
@@ -73,7 +73,7 @@
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
-            "if": "Bash(poetry add*)"
+            "if": "Bash(*poetry*add*)"
           }
         ]
       },
@@ -84,7 +84,7 @@
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
-            "if": "Bash(pdm add*)"
+            "if": "Bash(*pdm*add*)"
           }
         ]
       },
@@ -95,7 +95,7 @@
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
-            "if": "Bash(*npm *)"
+            "if": "Bash(*npm*i*)"
           }
         ]
       },
@@ -106,7 +106,7 @@
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
-            "if": "Bash(yarn add*)"
+            "if": "Bash(*npm*add*)"
           }
         ]
       },
@@ -117,7 +117,18 @@
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
             "timeout": 8,
-            "if": "Bash(cargo add*)"
+            "if": "Bash(*yarn*add*)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard_package_hallucination.py\"",
+            "timeout": 8,
+            "if": "Bash(*cargo*add*)"
           }
         ]
       },

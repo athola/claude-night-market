@@ -1,688 +1,222 @@
-"""Tests for diff-analysis skill business logic.
+"""Contract tests for the diff-analysis skill.
 
-This module tests the change categorization and risk assessment functionality,
-following TDD/BDD principles and testing all diff analysis scenarios.
+The skill is markdown the harness loads: SKILL.md sets the four steps and
+loads three modules for categorization, risk and git commands. Each test
+pins a claim from those files, and the agreement between them, so removing
+or contradicting the claim fails the test.
 """
 
 from __future__ import annotations
 
 import re
-import time
+from pathlib import Path
 
 import pytest
+import yaml
+from _markdown_contract import section_to_same_level as _section
+
+SKILL_DIR = Path(__file__).resolve().parents[3] / "skills" / "diff-analysis"
+MODULES = SKILL_DIR / "modules"
+
+
+def _body(path: Path) -> str:
+    return path.read_text().split("---\n", 2)[2]
+
+
+def _bullets(text: str) -> list[str]:
+    """Bold labels of the ``- **Label**:`` bullets in a section."""
+    return re.findall(r"^- \*\*(.+?)\*\*:", text, re.MULTILINE)
+
+
+@pytest.fixture(scope="module")
+def skill() -> str:
+    return _body(SKILL_DIR / "SKILL.md")
+
+
+@pytest.fixture(scope="module")
+def categorization() -> str:
+    return _body(MODULES / "semantic-categorization.md")
+
+
+@pytest.fixture(scope="module")
+def risk() -> str:
+    return _body(MODULES / "risk-assessment-framework.md")
+
+
+@pytest.fixture(scope="module")
+def git_patterns() -> str:
+    return _body(MODULES / "git-diff-patterns.md")
 
 
 class TestDiffAnalysisSkill:
-    """Feature: Diff analysis categorizes changes by type and impact.
+    """Feature: Diff analysis categorizes changes by type and impact."""
 
-    As a reviewer
-    I want changes automatically categorized
-    So that I can focus review effort appropriately
-    """
-
-    @pytest.fixture
-    def mock_diff_analysis_skill_content(self) -> str:
-        return """---
-name: diff-analysis
-description: Methodology for categorizing changes and assessing risks
-category: review-patterns
-usage_patterns:
-  - change-categorization
-  - risk-assessment
-  - impact-analysis
-tools:
-  - Read
-  - Glob
-  - Grep
-  - Bash
-tags:
-  - diff
-  - analysis
-  - categorization
-  - risk-assessment
----
-
-# Diff Analysis
-
-Methodology for categorizing changes and assessing their potential impact and risk.
-
-## TodoWrite Items
-
-- `diff-analysis:baseline-established`
-- `diff-analysis:changes-categorized`
-- `diff-analysis:risks-assessed`
-- `diff-analysis:summary-prepared`
-
-## Change Categories
-
-### By Type
-- **additions**: New files or content
-- **modifications**: Changes to existing files
-- **deletions**: Removed files or content
-- **renames**: File moves or renames
-- **mode_changes**: Permission or executable changes
-
-### By Semantic Category
-- **features**: New functionality
-- **fixes**: Bug fixes and patches
-- **refactors**: Code restructuring without functional change
-- **tests**: Test files and test-related changes
-- **docs**: Documentation updates
-- **config**: Configuration changes
-- **deps**: Dependency updates
-
-## Risk Assessment Levels
-
-- **Low**: Cosmetic changes, test additions, documentation
-- **Medium**: Configuration changes, dependency updates, refactoring
-- **High**: API changes, database schema changes, security fixes
-
-## Analysis Patterns
-
-1. Establish baseline for comparison
-2. Categorize changes by type and semantics
-3. Assess risk levels
-4. Generate summary for different audiences
-"""
-
-    @pytest.fixture
-    def sample_git_diff_output(self) -> str:
-        """Sample git diff output for testing."""
-        return """diff --git a/src/main.py b/src/main.py
-index abc123..def456 100644
---- a/src/main.py
-+++ b/src/main.py
-@@ -1,4 +1,5 @@
- def main():
--    print("Hello")
-+    print("Hello, World!")
-+    name = input("Enter name: ")
-+    print(f"Hello, {name}!")
-
- if __name__ == "__main__":
-     main()
-diff --git a/tests/test_main.py b/tests/test_main.py
-new file mode 100644
-index 0000000..789abc
---- /dev/null
-+++ b/tests/test_main.py
-@@ -0,0 +1,5 @@
-+import pytest
-+
-+def test_main():
-+    assert True
-+
-diff --git a/README.md b/README.md
-index 123456..789abc 100644
---- a/README.md
-+++ b/README.md
-@@ -1,3 +1,4 @@
- # Project
- This is a test project.
-+Updated with new features.
- Check it out!
-diff --git a/old_config.json b/old_config.json
-deleted file mode 100644
-index abcdef..0000000
---- a/old_config.json
-+++ /dev/null
-@@ -1,5 +0,0 @@
--{
--  "debug": true,
--  "port": 3000
--}
-"""
-
-    @pytest.fixture
-    def sample_diff_analysis_result(self):
-        """Sample structured diff analysis result."""
-        return {
-            "baseline": "main",
-            "changes": [
-                {
-                    "file": "src/main.py",
-                    "type": "modified",
-                    "lines_added": 3,
-                    "lines_removed": 1,
-                    "semantic_category": "feature",
-                    "risk_level": "Low",
-                },
-                {
-                    "file": "tests/test_main.py",
-                    "type": "added",
-                    "lines_added": 5,
-                    "lines_removed": 0,
-                    "semantic_category": "tests",
-                    "risk_level": "Low",
-                },
-                {
-                    "file": "README.md",
-                    "type": "modified",
-                    "lines_added": 1,
-                    "lines_removed": 0,
-                    "semantic_category": "docs",
-                    "risk_level": "Low",
-                },
-                {
-                    "file": "old_config.json",
-                    "type": "deleted",
-                    "lines_added": 0,
-                    "lines_removed": 5,
-                    "semantic_category": "config",
-                    "risk_level": "Medium",
-                },
-            ],
-            "summary": {
-                "total_files": 4,
-                "total_lines_added": 9,
-                "total_lines_removed": 6,
-                "categories": {"feature": 1, "tests": 1, "docs": 1, "config": 1},
-                "risk_levels": {"Low": 3, "Medium": 1},
-            },
-        }
-
-    @pytest.mark.bdd
     @pytest.mark.unit
-    def test_change_categorization_by_type(self, sample_git_diff_output) -> None:
+    def test_change_categorization_by_type(
+        self, skill: str, categorization: str
+    ) -> None:
         """Scenario: Changes are categorized by type correctly.
 
-        Given various git diff outputs
-        When analyzing changes
-        Then it should categorize by type (additions, modifications, deletions)
-        And extract line counts accurately.
+        Given the categorization step and its module
+        When they are read
+        Then changes group as additions, modifications, deletions and renames.
         """
-        # Arrange & Act - parse diff output
-        diff_lines = sample_git_diff_output.split("\n")
-        changes = []
-        current_change = {}
+        assert "`diff-analysis:changes-categorized`" in skill
+        assert "Load `modules/semantic-categorization.md`" in _section(
+            skill, "Step 2: Categorize Changes (`diff-analysis:changes-categorized`)"
+        )
+        assert _bullets(_section(categorization, "Change Categories")) == [
+            "Additions",
+            "Modifications",
+            "Deletions",
+            "Renames/Moves",
+        ]
 
-        for line in diff_lines:
-            if line.startswith("diff --git"):
-                # Save previous change if exists
-                if current_change:
-                    changes.append(current_change)
-
-                # Parse file names - parts[2] is "a/path", strip the a/ prefix
-                parts = line.split()
-                file_path = parts[2]
-                if file_path.startswith("a/"):
-                    file_path = file_path[2:]
-                current_change = {
-                    "file": file_path,
-                    "type": "unknown",
-                    "lines_added": 0,
-                    "lines_removed": 0,
-                }
-            elif line.startswith("new file mode"):
-                current_change["type"] = "added"
-            elif line.startswith("deleted file mode"):
-                current_change["type"] = "deleted"
-            elif line.startswith("rename from"):
-                current_change["type"] = "renamed"
-            elif line.startswith("+") and not line.startswith("+++"):
-                current_change["lines_added"] += 1
-            elif line.startswith("-") and not line.startswith("---"):
-                current_change["lines_removed"] += 1
-
-        # Add last change
-        if current_change:
-            changes.append(current_change)
-
-        # Set type for modifications (default)
-        for change in changes:
-            if change["type"] == "unknown" and (
-                change["lines_added"] > 0 or change["lines_removed"] > 0
-            ):
-                change["type"] = "modified"
-
-        # Assert
-        file_changes = {change["file"]: change for change in changes}
-
-        assert "src/main.py" in file_changes
-        assert file_changes["src/main.py"]["type"] == "modified"
-        assert file_changes["src/main.py"]["lines_added"] == 3
-        assert file_changes["src/main.py"]["lines_removed"] == 1
-
-        assert "tests/test_main.py" in file_changes
-        assert file_changes["tests/test_main.py"]["type"] == "added"
-        assert file_changes["tests/test_main.py"]["lines_added"] == 5
-
-        assert "old_config.json" in file_changes
-        assert file_changes["old_config.json"]["type"] == "deleted"
-        assert file_changes["old_config.json"]["lines_removed"] == 4
-
-    @pytest.mark.bdd
     @pytest.mark.unit
-    def test_semantic_categorization_of_changes(self, sample_git_diff_output) -> None:
+    def test_semantic_categorization_of_changes(self, categorization: str) -> None:
         """Scenario: Changes are categorized semantically.
 
-        Given files in different directories
-        When analyzing semantic meaning
-        Then it should categorize as feature, fix, test, docs, config.
+        Given the semantic categories
+        When they are read
+        Then they are feature, fix, refactor, test, docs and config.
         """
-        # Arrange & Act - categorize files semantically
-        file_categories = {
-            "src/main.py": "feature",
-            "tests/test_main.py": "tests",
-            "README.md": "docs",
-            "old_config.json": "config",
-            "requirements.txt": "deps",
-            "setup.py": "config",
-            "Dockerfile": "config",
-        }
-
-        # Extract files from diff (simplified)
-        files_in_diff = [
-            "src/main.py",
-            "tests/test_main.py",
-            "README.md",
-            "old_config.json",
+        assert _bullets(_section(categorization, "Semantic Categories")) == [
+            "Features",
+            "Fixes",
+            "Refactors",
+            "Tests",
+            "Documentation",
+            "Configuration",
         ]
 
-        categorized_changes = []
-        for file_path in files_in_diff:
-            category = "unknown"
-            for pattern, cat in file_categories.items():
-                if file_path.endswith(pattern) or pattern in file_path:
-                    category = cat
-                    break
-
-            categorized_changes.append(
-                {"file": file_path, "semantic_category": category},
-            )
-
-        # Assert
-        file_to_category = {
-            change["file"]: change["semantic_category"]
-            for change in categorized_changes
-        }
-
-        assert file_to_category["src/main.py"] == "feature"
-        assert file_to_category["tests/test_main.py"] == "tests"
-        assert file_to_category["README.md"] == "docs"
-        assert file_to_category["old_config.json"] == "config"
-
-    @pytest.mark.bdd
     @pytest.mark.unit
-    def test_risk_assessment_by_change_type(self) -> None:
+    def test_risk_assessment_by_change_type(self, risk: str) -> None:
         """Scenario: Risk levels are assigned based on change characteristics.
 
-        Given various types of changes
-        When assessing risk
-        Then it should assign appropriate risk levels
-        Based on change type and file importance.
+        Given the risk levels and scoring method
+        When they are read
+        Then docs and tests are Low, schema migrations and security are High,
+        and an uncertain assessment is raised rather than lowered.
         """
-        # Arrange - define risk assessment rules
-        risk_rules = {
-            # Low risk
-            ("tests", "added"): "Low",
-            ("docs", "modified"): "Low",
-            ("docs", "added"): "Low",
-            # Medium risk
-            ("config", "modified"): "Medium",
-            ("deps", "modified"): "Medium",
-            ("feature", "modified"): "Medium",
-            # High risk
-            ("feature", "deleted"): "High",
-            ("config", "deleted"): "High",
-            ("deps", "deleted"): "High",
-        }
+        levels = _section(risk, "Risk Levels")
+        assert "**Low**: Internal refactors, documentation updates" in levels
+        assert "security modifications, schema migrations" in levels
+        assert "(when in doubt, elevate risk)" in _section(
+            risk, "Risk Scoring Methodology"
+        )
 
-        # Test cases
-        test_changes = [
-            {
-                "file": "tests/test_new.py",
-                "semantic_category": "tests",
-                "type": "added",
-            },
-            {"file": "README.md", "semantic_category": "docs", "type": "modified"},
-            {"file": "config.json", "semantic_category": "config", "type": "modified"},
-            {"file": "src/api.py", "semantic_category": "feature", "type": "deleted"},
-            {
-                "file": "requirements.txt",
-                "semantic_category": "deps",
-                "type": "modified",
-            },
-        ]
-
-        # Act - assess risk for each change
-        for change in test_changes:
-            key = (change["semantic_category"], change["type"])
-            change["risk_level"] = risk_rules.get(key, "Medium")  # Default to Medium
-
-        # Assert
-        file_risks = {change["file"]: change["risk_level"] for change in test_changes}
-
-        assert file_risks["tests/test_new.py"] == "Low"
-        assert file_risks["README.md"] == "Low"
-        assert file_risks["config.json"] == "Medium"
-        assert file_risks["src/api.py"] == "High"
-        assert file_risks["requirements.txt"] == "Medium"
-
-    @pytest.mark.bdd
     @pytest.mark.unit
-    def test_diff_summary_generation(self, sample_diff_analysis_result) -> None:
+    def test_diff_summary_generation(self, skill: str, risk: str) -> None:
         """Scenario: Diff summary provides detailed overview.
 
-        Given categorized changes with risk assessments
-        When generating summary
-        Then it should aggregate statistics by category and risk
-        And provide totals for quick understanding.
+        Given the summary step and the risk output format
+        When they are read
+        Then the summary carries theme, counted scope, risk and review focus,
+        and each risky change names indicators and mitigation.
         """
-        # Arrange & Act - generate summary from changes
-        changes = sample_diff_analysis_result["changes"]
+        step = _section(
+            skill, "Step 4: Prepare Summary (`diff-analysis:summary-prepared`)"
+        )
+        assert (
+            "theme, scope with counts, risk level, review focus, dependencies" in step
+        )
+        assert _bullets(_section(risk, "Output Format")) == [
+            "Change",
+            "Risk Level",
+            "Indicators",
+            "Mitigation",
+            "Dependencies",
+        ]
 
-        summary = {
-            "total_files": len(changes),
-            "total_lines_added": sum(c["lines_added"] for c in changes),
-            "total_lines_removed": sum(c["lines_removed"] for c in changes),
-            "categories": {},
-            "risk_levels": {},
-        }
-
-        # Aggregate by category
-        for change in changes:
-            cat = change["semantic_category"]
-            summary["categories"][cat] = summary["categories"].get(cat, 0) + 1
-
-            risk = change["risk_level"]
-            summary["risk_levels"][risk] = summary["risk_levels"].get(risk, 0) + 1
-
-        # Assert
-        assert summary["total_files"] == 4
-        assert summary["total_lines_added"] == 9
-        assert summary["total_lines_removed"] == 6
-        assert summary["categories"]["feature"] == 1
-        assert summary["categories"]["tests"] == 1
-        assert summary["categories"]["docs"] == 1
-        assert summary["categories"]["config"] == 1
-        assert summary["risk_levels"]["Low"] == 3
-        assert summary["risk_levels"]["Medium"] == 1
-
-    @pytest.mark.bdd
     @pytest.mark.unit
-    def test_baseline_establishment(self, mock_claude_tools) -> None:
+    def test_baseline_establishment(self, skill: str, git_patterns: str) -> None:
         """Scenario: Baseline is established for comparison.
 
-        Given a git repository
-        When establishing baseline for diff analysis
-        Then it should determine appropriate comparison point
-        And handle various baseline specification formats.
+        Given the baseline step and the git module
+        When they are read
+        Then the step defines states, boundary and scale, and the module
+        finds the comparison point with merge-base.
         """
-        # Arrange
-        mock_claude_tools["Bash"].return_value = "abc123"
+        step = _section(
+            skill, "Step 1: Establish Baseline (`diff-analysis:baseline-established`)"
+        )
+        assert "what states are being compared, boundary of analysis" in step
+        assert "load `modules/git-diff-patterns.md`" in step
+        assert "git merge-base HEAD main" in git_patterns
 
-        # Test different baseline specifications
-        test_cases = [
-            ("HEAD~1", "git merge-base HEAD HEAD~1"),
-            ("main", "git merge-base HEAD main"),
-            ("abc123", "echo abc123"),
-            (
-                "--since 1 week ago",
-                "git log --since '1 week ago' --format=format:%H | tail -1",
-            ),
-        ]
-
-        # Act & Assert for each case
-        for _baseline_spec, expected_command in test_cases:
-            mock_claude_tools["Bash"].return_value = "baseline-hash"
-            baseline = mock_claude_tools["Bash"](expected_command)
-            assert baseline == "baseline-hash"
-            mock_claude_tools["Bash"].assert_called_with(expected_command)
-
-    @pytest.mark.bdd
     @pytest.mark.unit
-    def test_diff_patterns_recognition(self) -> None:
+    def test_diff_patterns_recognition(
+        self, git_patterns: str, categorization: str
+    ) -> None:
         """Scenario: Common diff patterns are recognized.
 
-        Given typical code change patterns
-        When analyzing diffs
-        Then it should identify imports, new functions, tests, etc.
-        And provide appropriate review focus areas.
+        Given both modules isolate change types with --diff-filter
+        When they are read
+        Then they use the same four filters, A, M, D and R.
         """
-        # Arrange - various diff patterns (ordered from most specific to least)
-        # Order matters: more specific patterns (test_function) must come before
-        # more general patterns (function_addition) to avoid early matching
-        diff_patterns = [
-            ("test_function", r"^\+def\s+test_\w+\s*\("),
-            ("import_addition", r"^\+import\s+"),
-            ("function_addition", r"^\+def\s+\w+\s*\("),
-            ("class_addition", r"^\+class\s+\w+\s*\:"),
-            ("decorator_addition", r"^\+@\w+"),
-            ("comment_addition", r"^\+\s*#.*"),
-            ("debug_statement", r"^\+.*print\(|^\+.*console\.log\(|^\+.*debug\("),
-        ]
+        pattern = r"--diff-filter=([AMDR]) <baseline>"
+        assert re.findall(pattern, git_patterns) == ["A", "M", "D", "R"]
+        assert re.findall(pattern, categorization) == ["A", "M", "D", "R"]
 
-        # Sample diff lines
-        sample_lines = [
-            "+import os",
-            "+import sys",
-            "+def new_function():",
-            "+class NewClass:",
-            "+@pytest.fixture",
-            "+def test_function():",
-            '+print("Debug info")',
-            "+# This is a comment",
-        ]
-
-        # Act - detect patterns
-        detected_patterns = []
-        for line in sample_lines:
-            for pattern_name, pattern_regex in diff_patterns:
-                if re.match(pattern_regex, line):
-                    detected_patterns.append({"pattern": pattern_name, "line": line})
-                    break
-
-        # Assert
-        pattern_names = [p["pattern"] for p in detected_patterns]
-        assert "import_addition" in pattern_names
-        assert "function_addition" in pattern_names
-        assert "class_addition" in pattern_names
-        assert "test_function" in pattern_names
-        assert "decorator_addition" in pattern_names
-        assert "debug_statement" in pattern_names
-        assert "comment_addition" in pattern_names
-
-    @pytest.mark.bdd
     @pytest.mark.unit
-    def test_cross_cutting_change_detection(self) -> None:
+    def test_cross_cutting_change_detection(self, categorization: str) -> None:
         """Scenario: Cross-cutting changes are identified.
 
-        Given changes affecting multiple files or components
-        When analyzing diffs
-        Then it should identify related changes
-        And flag potential coordination requirements.
+        Given the cross-cutting section and the workflow
+        When they are read
+        Then breaking changes needing coordinated updates are flagged,
+        and changes in several categories are cross-referenced.
         """
-        # Arrange - simulate cross-cutting changes
-        changes = [
-            {"file": "src/api.py", "type": "modified", "semantic_category": "feature"},
-            {
-                "file": "tests/test_api.py",
-                "type": "modified",
-                "semantic_category": "tests",
-            },
-            {"file": "docs/api.md", "type": "modified", "semantic_category": "docs"},
-            {
-                "file": "config/api.json",
-                "type": "modified",
-                "semantic_category": "config",
-            },
-        ]
+        cross = _section(categorization, "Cross-Cutting Changes")
+        assert "Breaking changes that require coordinated updates" in cross
+        assert "Refactors that touch multiple modules" in cross
+        assert "**Cross-Reference**: Note changes that appear in multiple" in (
+            _section(categorization, "Categorization Workflow")
+        )
 
-        # Act - detect cross-cutting patterns
-        cross_cutting_groups = []
-
-        # Group by base file name (without extension)
-        base_name_groups = {}
-        for change in changes:
-            base_name = change["file"].split("/")[-1].split(".")[0]
-            if base_name not in base_name_groups:
-                base_name_groups[base_name] = []
-            base_name_groups[base_name].append(change)
-
-        # Identify groups with multiple files
-        for base_name, group_changes in base_name_groups.items():
-            if len(group_changes) > 1:
-                cross_cutting_groups.append(
-                    {
-                        "base_name": base_name,
-                        "files": [c["file"] for c in group_changes],
-                        "categories": [c["semantic_category"] for c in group_changes],
-                    },
-                )
-
-        # Assert - the "api" group contains 3 files (api.py, api.md, api.json)
-        # Note: tests/test_api.py has base name "test_api", not "api"
-        assert len(cross_cutting_groups) == 1
-        assert cross_cutting_groups[0]["base_name"] == "api"
-        assert len(cross_cutting_groups[0]["files"]) == 3
-        assert "feature" in cross_cutting_groups[0]["categories"]
-        assert "docs" in cross_cutting_groups[0]["categories"]
-        assert "config" in cross_cutting_groups[0]["categories"]
-
-    @pytest.mark.bdd
     @pytest.mark.unit
-    def test_diff_statistics_calculation(self) -> None:
+    def test_diff_statistics_calculation(self, git_patterns: str) -> None:
         """Scenario: Diff statistics are calculated accurately.
 
-        Given diff output with various change metrics
-        When calculating statistics
-        Then it should provide accurate totals and percentages.
+        Given the baseline commands
+        When they are read
+        Then totals come from the --stat summary line and a file count.
         """
-        # Arrange
-        changes = [
-            {
-                "file": "file1.py",
-                "lines_added": 10,
-                "lines_removed": 5,
-                "type": "modified",
-            },
-            {
-                "file": "file2.py",
-                "lines_added": 0,
-                "lines_removed": 3,
-                "type": "deleted",
-            },
-            {
-                "file": "file3.py",
-                "lines_added": 15,
-                "lines_removed": 0,
-                "type": "added",
-            },
-            {
-                "file": "file4.py",
-                "lines_added": 7,
-                "lines_removed": 7,
-                "type": "modified",
-            },
-        ]
+        baseline = _section(git_patterns, "Baseline Establishment")
+        assert "git diff --stat <baseline>..HEAD | tail -1" in baseline
+        assert "git diff --name-only <baseline>..HEAD | wc -l" in baseline
 
-        # Act - calculate statistics
-        total_added = sum(c["lines_added"] for c in changes)
-        total_removed = sum(c["lines_removed"] for c in changes)
-        total_changed = total_added + total_removed
-
-        stats = {
-            "total_files": len(changes),
-            "total_lines_added": total_added,
-            "total_lines_removed": total_removed,
-            "total_lines_changed": total_changed,
-            "net_change": total_added - total_removed,
-            "files_by_type": {},
-        }
-
-        # Group by type
-        for change in changes:
-            change_type = change["type"]
-            stats["files_by_type"][change_type] = (
-                stats["files_by_type"].get(change_type, 0) + 1
-            )
-
-        # Assert
-        assert stats["total_files"] == 4
-        assert stats["total_lines_added"] == 32
-        assert stats["total_lines_removed"] == 15
-        assert stats["total_lines_changed"] == 47
-        assert stats["net_change"] == 17
-        assert stats["files_by_type"]["modified"] == 2
-        assert stats["files_by_type"]["deleted"] == 1
-        assert stats["files_by_type"]["added"] == 1
-
-    @pytest.mark.bdd
     @pytest.mark.unit
-    def test_diff_analysis_error_handling(self, mock_claude_tools) -> None:
+    def test_diff_analysis_error_handling(self, categorization: str) -> None:
         """Scenario: Diff analysis handles errors gracefully.
 
-        Given git command failures or malformed diff output
-        When analyzing diffs
-        Then it should handle errors and provide meaningful feedback.
+        Given sem may be missing
+        When the categorization module is read
+        Then it checks for sem before use and names the git fallback.
         """
-        # Arrange - simulate git command failure returning error message
-        mock_claude_tools["Bash"].return_value = "fatal: not a git repository"
+        assert "if command -v sem &>/dev/null; then" in categorization
+        assert "When sem is unavailable, use git's `--diff-filter`" in categorization
 
-        # Act - call git status and check return value for error
-        result = mock_claude_tools["Bash"]("git status")
+    @pytest.mark.unit
+    def test_diff_analysis_always_loads_only_the_categorization_module(
+        self, skill: str
+    ) -> None:
+        """Scenario: Diff analysis loads modules on demand.
 
-        # Assert - error message is returned (graceful handling)
-        error_detected = "fatal:" in result or "Error:" in result
-        assert error_detected
-
-        # Test with malformed diff output
-        malformed_diff = """invalid diff output
-no proper headers
-just some text"""
-
-        # Should handle gracefully without crashing
-        lines = malformed_diff.split("\n")
-        assert len(lines) == 3
-        # No assertion about parsing - just that it doesn't crash
-
-    @pytest.mark.bdd
-    @pytest.mark.performance
-    def test_large_diff_analysis_performance(self) -> None:
-        """Scenario: Large diff analysis performs efficiently.
-
-        Given diff output with many changed files
-        When analyzing large diffs
-        Then it should complete in reasonable time.
+        Given the skill loads modules progressively
+        When it is read
+        Then only categorization always loads, risk and git load on demand,
+        and every module it names exists.
         """
-        # Arrange - simulate large diff with many files
-        large_changes = []
-        for i in range(1000):
-            large_changes.append(
-                {
-                    "file": f"src/file_{i}.py",
-                    "type": "modified" if i % 3 != 0 else "added",
-                    "lines_added": i % 20,
-                    "lines_removed": i % 10,
-                    "semantic_category": ["feature", "fix", "refactor", "tests"][i % 4],
-                    "risk_level": ["Low", "Medium", "High"][i % 3],
-                },
-            )
-
-        # Act - measure analysis performance
-        start_time = time.time()
-
-        # Process all changes
-        summary = {
-            "total_files": len(large_changes),
-            "categories": {},
-            "risk_levels": {},
-            "total_lines_added": sum(c["lines_added"] for c in large_changes),
-            "total_lines_removed": sum(c["lines_removed"] for c in large_changes),
-        }
-
-        for change in large_changes:
-            cat = change["semantic_category"]
-            summary["categories"][cat] = summary["categories"].get(cat, 0) + 1
-            risk = change["risk_level"]
-            summary["risk_levels"][risk] = summary["risk_levels"].get(risk, 0) + 1
-
-        end_time = time.time()
-
-        # Assert
-        processing_time = end_time - start_time
-        assert processing_time < 1.0  # Should process 1000 items in under 1 second
-        assert summary["total_files"] == 1000
-        assert len(summary["categories"]) == 4
-        assert len(summary["risk_levels"]) == 3
+        meta = yaml.safe_load((SKILL_DIR / "SKILL.md").read_text().split("---\n")[1])
+        assert meta["progressive_loading"] is True
+        loading = _section(skill, "Progressive Loading")
+        always = _section(loading, "Always Load")
+        conditional = _section(loading, "Conditional Loading")
+        assert re.findall(r"`modules/(.+?)`", always) == ["semantic-categorization.md"]
+        assert re.findall(r"`modules/(.+?)`", conditional) == [
+            "risk-assessment-framework.md",
+            "git-diff-patterns.md",
+        ]
+        for name in re.findall(r"`modules/(.+?)`", skill):
+            assert (MODULES / name).is_file(), name

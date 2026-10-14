@@ -1,6 +1,6 @@
 """pre_pr_scope_check.sh measures the branch from its merge-base.
 
-Shell review S1-5 and S1-6. With no argument it assumed `main`. In a
+With no argument it assumed `main`. In a
 master-based repo it died after the header with exit 128 and no
 verdict. It also diffed against the base tip, so commits on the base
 after the fork counted as branch work.
@@ -8,51 +8,22 @@ after the fork counted as branch work.
 
 from __future__ import annotations
 
-import os
 import subprocess
 from pathlib import Path
 
 import pytest
+from _git_repo import commit_lines as _commit_lines
+from _git_repo import forked_repo
+from _git_repo import git as _git
+from _git_repo import git_env as _env
 
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "pre_pr_scope_check.sh"
-
-
-def _env(home: Path) -> dict[str, str]:
-    env = {
-        k: v for k, v in os.environ.items() if not k.startswith(("GIT_", "SCOPE_GUARD"))
-    }
-    env.update(
-        HOME=str(home),
-        GIT_AUTHOR_NAME="t",
-        GIT_AUTHOR_EMAIL="t@t",
-        GIT_COMMITTER_NAME="t",
-        GIT_COMMITTER_EMAIL="t@t",
-    )
-    return env
-
-
-def _git(repo: Path, *args: str) -> None:
-    subprocess.run(
-        ["git", *args], cwd=repo, env=_env(repo), check=True, capture_output=True
-    )
-
-
-def _commit_lines(repo: Path, name: str, count: int) -> None:
-    (repo / name).write_text("".join(f"{name} {i}\n" for i in range(count)))
-    _git(repo, "add", name)
-    _git(repo, "commit", "-q", "-m", name)
 
 
 @pytest.fixture
 def repo(tmp_path: Path) -> Path:
     """A master-based repo whose `feature` forked before master grew 3000 lines."""
-    root = tmp_path / "repo"
-    root.mkdir()
-    _git(root, "init", "-q", "-b", "master")
-    _commit_lines(root, "base.txt", 1)
-    _git(root, "branch", "feature")
-    _commit_lines(root, "upstream.txt", 3000)
-    _git(root, "checkout", "-q", "feature")
+    root = forked_repo(tmp_path)
     _commit_lines(root, "mine.txt", 1)
     return root
 
@@ -87,3 +58,40 @@ def test_a_named_base_that_does_not_exist_is_an_error(repo: Path) -> None:
     result = _run(repo, "no-such-branch")
     assert result.returncode == 3
     assert "no-such-branch" in result.stderr
+
+
+@pytest.mark.parametrize("remote", ["origin", "upstream"])
+def test_a_pre_push_remote_argument_is_not_read_as_the_base(
+    repo: Path, tmp_path: Path, remote: str
+) -> None:
+    """A pre-push hook is run as `hook <remote> <url>`.
+
+    A remote added by hand has no refs/remotes/<remote>/HEAD, so reading
+    the remote name as the base branch found no merge-base and blocked
+    every push with exit 3.
+    """
+    bare = tmp_path / f"{remote}.git"
+    _git(tmp_path, "init", "-q", "--bare", str(bare))
+    _git(repo, "remote", "add", remote, str(bare))
+    _git(repo, "push", "-q", remote, "master")
+
+    result = _run(repo, remote, str(bare))
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "Base branch: master" in result.stdout
+
+
+@pytest.mark.parametrize("flag", ["-h", "help", "--usage"])
+def test_help_prints_usage_and_exits_zero(repo: Path, flag: str) -> None:
+    result = _run(repo, flag)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.splitlines()[0].endswith(
+        "Usage: pre_pr_scope_check.sh [-h] [-x|-t] [base-branch]"
+    )
+
+
+def test_xtrace_flag_traces_and_still_takes_the_base(repo: Path) -> None:
+    result = _run(repo, "-x", "master")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "Base branch: master" in result.stdout
+    assert "+ " in result.stderr

@@ -47,11 +47,13 @@ This command orchestrates multiple imbue skills:
 # Branch: feature/auth-overhaul
 # Baseline: main (3 commits behind)
 #
-# TodoWrite items created:
+# Progress items created:
 # - [ ] review-core:context-established
 # - [ ] review-core:scope-inventoried
 # - [ ] review-core:evidence-captured
 # - [ ] review-core:deliverables-structured
+# - [ ] review-core:findings-verified
+# - [ ] review-core:contingencies-documented
 
 /structured-review src/api --focus performance
 # Scoped review with performance focus
@@ -121,6 +123,6 @@ This mode uses:
 
 ## Exit Criteria
 
-- All TodoWrite items from review-core created
+- All progress items from review-core created
 - Evidence log initialized with session context
 - Deliverable template ready for findings

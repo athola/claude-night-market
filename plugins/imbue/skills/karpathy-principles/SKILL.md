@@ -249,12 +249,12 @@ When invoked as a pre-flight gate, create:
 
 ## Exit Criteria
 
-- Each of the four principles has been answered with a
+- [ ] Each of the four principles has been answered with a
   concrete artifact (assumption list, scope rationale,
   diff trace, verification plan).
-- The senior-engineer test was applied at least once.
-- Verifiable success criteria are written down before
+- [ ] The senior-engineer test was applied at least once.
+- [ ] Verifiable success criteria are written down before
   the implementation begins.
-- The chosen approach and its simplicity tradeoff are
+- [ ] The chosen approach and its simplicity tradeoff are
   recorded to `docs/tradeoffs.md` (or the in-file
   template) when real alternatives were weighed.

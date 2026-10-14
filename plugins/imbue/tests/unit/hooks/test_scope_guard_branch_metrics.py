@@ -1,6 +1,6 @@
 """Scope-guard measures the branch's own work, from either default branch.
 
-Shell review S2-4 to S2-8. Both hooks diffed against the base branch
+Both hooks diffed against the base branch
 tip, so commits landing on main after the fork counted as branch work.
 The SessionStart hook knew only `main`, so in a master-based repo it
 never warned. Its reminder carried a literal backslash-n. And the
@@ -11,56 +11,30 @@ inside a file path.
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 from pathlib import Path
 
 import pytest
+from _git_repo import commit_lines as _commit_lines
+from _git_repo import forked_repo, git_env
 
 HOOKS = Path(__file__).resolve().parents[3] / "hooks"
 PLUGIN_ROOT = HOOKS.parent
 
 
-def _git(repo: Path, *args: str) -> None:
-    subprocess.run(
-        ["git", *args], cwd=repo, env=_env(repo), check=True, capture_output=True
-    )
-
-
 def _env(home: Path) -> dict[str, str]:
-    env = {
-        k: v for k, v in os.environ.items() if not k.startswith(("GIT_", "SCOPE_GUARD"))
-    }
-    env.update(
-        HOME=str(home),
+    return git_env(
+        home,
         XDG_CACHE_HOME=str(home / "cache"),
         SCOPE_GUARD_CACHE_TTL="0",
         CLAUDE_PLUGIN_ROOT=str(PLUGIN_ROOT),
-        GIT_AUTHOR_NAME="t",
-        GIT_AUTHOR_EMAIL="t@t",
-        GIT_COMMITTER_NAME="t",
-        GIT_COMMITTER_EMAIL="t@t",
     )
-    return env
-
-
-def _commit_lines(repo: Path, name: str, count: int) -> None:
-    (repo / name).write_text("".join(f"line {i}\n" for i in range(count)))
-    _git(repo, "add", name)
-    _git(repo, "commit", "-q", "-m", name)
 
 
 @pytest.fixture
 def repo(tmp_path: Path) -> Path:
     """A master-based repo on branch `feature`, forked before master grew."""
-    root = tmp_path / "repo"
-    root.mkdir()
-    _git(root, "init", "-q", "-b", "master")
-    _commit_lines(root, "base.txt", 1)
-    _git(root, "branch", "feature")
-    _commit_lines(root, "upstream.txt", 3000)
-    _git(root, "checkout", "-q", "feature")
-    return root
+    return forked_repo(tmp_path)
 
 
 def _context(repo: Path, hook: str, stdin: str) -> str:

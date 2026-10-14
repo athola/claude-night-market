@@ -121,6 +121,7 @@ Before finalizing:
 - [ ] Format renders correctly in target medium (GitHub, Confluence, etc.).
 
 ## Exit Criteria
-- Todos completed with formatted deliverable.
-- Output follows selected template structure.
-- Stakeholders can act on findings without clarification.
+
+- [ ] All `structured-output:` progress items are marked complete
+- [ ] The deliverable has every section of the selected template
+- [ ] Each finding carries a location and a recommended action

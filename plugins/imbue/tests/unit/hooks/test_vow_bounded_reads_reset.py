@@ -318,3 +318,76 @@ class TestResetFlockObservability:
             f"non-OSError flock failures must also be surfaced; got: {captured.err!r}"
         )
         assert json.loads(path.read_bytes()) == {"count": 0}
+
+
+class TestResetRefusesForeignFiles:
+    """Feature: the reset never writes through a file it does not own."""
+
+    @pytest.mark.unit
+    def test_counter_owned_by_another_user_is_left_alone(
+        self, hook_module, tmp_path, monkeypatch
+    ):
+        path = tmp_path / "vow_read_counter_planted.json"
+        path.write_bytes(b'{"count": 9}')
+        monkeypatch.setattr(hook_module, "fd_owned_by_us", lambda fd: False)
+        hook_module._atomic_reset(path)
+        assert path.read_bytes() == b'{"count": 9}'
+
+    @pytest.mark.unit
+    @pytest.mark.skipif(
+        not hasattr(_os, "O_NOFOLLOW"), reason="symlink hardening is POSIX-only"
+    )
+    def test_symlinked_counter_path_is_refused_with_a_warning(
+        self, hook_module, tmp_path, capsys
+    ):
+        victim = tmp_path / "victim.txt"
+        victim.write_text("precious")
+        link = tmp_path / "vow_read_counter_link.json"
+        link.symlink_to(victim)
+        hook_module._atomic_reset(link)
+        assert victim.read_text() == "precious"
+        assert "counter reset failed" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_write_failure_warns_and_does_not_raise(
+        self, hook_module, tmp_path, monkeypatch, capsys
+    ):
+        path = tmp_path / "vow_read_counter_full_disk.json"
+
+        def disk_full(fd, data):
+            raise OSError(28, "No space left on device")
+
+        monkeypatch.setattr(hook_module.os, "write", disk_full)
+        hook_module._atomic_reset(path)
+        assert "counter reset failed" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_unlock_failure_is_reported(
+        self, hook_module, tmp_path, monkeypatch, capsys
+    ):
+        if not hook_module._HAS_FCNTL:
+            pytest.skip("fcntl unavailable on this platform")
+        original_flock = hook_module._fcntl.flock
+
+        def fail_unlock(fd, op):
+            if op == hook_module._fcntl.LOCK_UN:
+                raise OSError(5, "I/O error (simulated)")
+            return original_flock(fd, op)
+
+        monkeypatch.setattr(hook_module._fcntl, "flock", fail_unlock)
+        hook_module._atomic_reset(tmp_path / "vow_read_counter_unlock.json")
+        assert "flock unlock failed" in capsys.readouterr().err
+
+
+class TestResetEntryPointErrors:
+    """Feature: a payload of the wrong shape never crashes the agent."""
+
+    @pytest.mark.unit
+    def test_non_object_payload_is_an_internal_error(self, hook_module, capsys):
+        with patch("sys.stdin", StringIO("[1, 2]")):
+            with pytest.raises(SystemExit) as exc:
+                hook_module.main()
+        captured = capsys.readouterr()
+        assert exc.value.code == 0
+        assert captured.out == ""
+        assert "internal error" in captured.err

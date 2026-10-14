@@ -219,8 +219,8 @@ Use `proof-of-work` to document:
 
 ## Exit Criteria
 
-- All progress items completed
-- Conclusions stated without sycophantic hedging
-- Any updates/retractions have documented substantive reasons
-- Distinct categories kept separate in analysis
-- Conditional logic preserved without compression
+- [ ] All progress items completed
+- [ ] Conclusions stated without sycophantic hedging
+- [ ] Any updates/retractions have documented substantive reasons
+- [ ] Distinct categories kept separate in analysis
+- [ ] Conditional logic preserved without compression

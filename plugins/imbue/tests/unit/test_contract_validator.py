@@ -333,7 +333,7 @@ class TestContractValidationFail:
     ) -> None:
         """Normal rejects zero evidence only; a shortfall is a warning.
 
-        Math review finding C2-5: output-contracts.md defines normal as
+        `output-contracts.md` defines normal as
         "reject missing sections + zero evidence", and the code rejected
         a nonzero shortfall exactly as strict does.
         """
@@ -548,7 +548,7 @@ class TestContractSerialization:
 def test_contract_doc_counts_distinct_evidence_tags_like_the_validator() -> None:
     """The documented evidence rule matches _count_evidence_tags.
 
-    Math review finding C2-14: the module said "count occurrences" while
+    The module said "count occurrences" while
     the validator counts distinct tags, so authors sized
     min_evidence_count against the wrong rule.
     """

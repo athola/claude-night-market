@@ -59,10 +59,6 @@ test-all: ## Run detailed test suite with coverage
 test-parallel: ## Run tests in parallel for speed
 	$(PYTEST) tests/ -n auto
 
-# Code Quality
-format-check: ## Check if code is formatted correctly
-	$(RUFF) format --check .
-
 # Documentation
 docs: ## Generate documentation
 	@echo "Documentation available in tests/README.md"

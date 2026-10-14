@@ -141,6 +141,8 @@ addopts = [
     "--strict-markers",
     "--strict-config",
     "--cov=scripts",
+    "--cov=hooks",
+    "--cov=validators",
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-report=xml",
@@ -164,7 +166,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-source = ["scripts", "hooks"]
+source = ["scripts", "hooks", "validators"]
 branch = true
 omit = [
     "*/tests/*",
@@ -172,7 +174,6 @@ omit = [
     "*/__pycache__/*",
     "*/.*",
     "setup.py",
-    "scripts/deferred_capture.py",
 ]
 
 [tool.coverage.report]

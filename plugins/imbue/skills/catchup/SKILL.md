@@ -100,6 +100,11 @@ Use `imbue:diff-analysis` for risk assessment, `imbue:proof-of-work` for reprodu
 Reference paths and lines (don't reproduce). Summarize outputs. Defer deep analysis. Use progressive loading.
 
 ## Exit Criteria
-- Four progress items completed
-- Context/delta/insights/follow-ups captured
-- Stakeholders understand state without re-reading sources
+
+- [ ] All four `catchup:` progress items are marked complete
+- [ ] The Summary names the baseline it compared against: a git ref,
+  a date, or a document version
+- [ ] Key Changes lists each changed area with a file path or source
+  reference
+- [ ] Follow-ups and Blockers/Questions are present, each filled or
+  marked "none"

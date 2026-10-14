@@ -1,32 +1,25 @@
-"""Performance tests for imbue validator.
+"""Scale tests for imbue validator.
 
-This module tests the validation tool performance with large plugins
-and complex scenarios, ensuring it scales appropriately.
+The validator runs over large plugins, many files and parallel callers.
+These tests check what holds at that scale: every file is found and read
+once, results are deterministic, memory per file is bounded, and threads
+share no state.
 """
 
 from __future__ import annotations
 
 import concurrent.futures
 import gc
-import re
 import sys
 import threading
-import time
 import tracemalloc
+from pathlib import Path
 
 import pytest
-
-try:
-    from scripts.imbue_validator import ImbueValidator
-except ImportError:
-    ImbueValidator = None
+from scripts.imbue_validator import ImbueValidator
 
 # Constants for PLR2004 magic values
-ZERO_POINT_FIVE = 0.5
 TWO = 2
-TWO_POINT_ZERO = 2.0
-THREE_POINT_ZERO = 3.0
-FIVE_POINT_ZERO = 5.0
 TWENTY = 20
 HUNDRED = 100
 THOUSAND = 1000
@@ -37,22 +30,18 @@ MAX_AVG_MEMORY_PER_SKILL_FILE = 50_000  # 50KB
 MAX_MEMORY_PER_SKILL_FILE = 100_000  # 100KB
 MIN_REPORT_LENGTH = THOUSAND
 ITERATIONS_FOR_STRESS_TEST = THOUSAND
-MAX_EXECUTION_TIME_SECONDS = FIVE_POINT_ZERO
 
-
-def _require_validator() -> type:
-    """Validate ImbueValidator is available for performance tests."""
-    if ImbueValidator is None:
-        pytest.skip("ImbueValidator not available for performance testing")
-    return ImbueValidator
+# No wall-clock thresholds: a time limit measures the host, not the
+# validator. These tests assert counts, determinism across fresh
+# instances, and bounded memory per file.
 
 
 class TestValidatorPerformance:
-    """Feature: Imbue validator performance under load.
+    """Feature: Imbue validator behavior at scale.
 
     As a validation tool
-    I want to handle large plugin structures efficiently
-    So that validation completes in reasonable time
+    I want large plugin structures handled completely and deterministically
+    So that a big plugin is validated as correctly as a small one
     """
 
     @pytest.fixture
@@ -145,34 +134,25 @@ Test command for performance testing.
 
     @pytest.mark.bdd
     @pytest.mark.slow
-    def test_validator_performance_large_plugin(self, large_plugin_structure) -> None:
-        """Scenario: Validator performance with large plugin.
+    def test_large_plugin_scan_finds_every_skill_and_reports(
+        self, large_plugin_structure
+    ) -> None:
+        """Scenario: Validator over a large plugin.
 
-        Given a plugin with 100+ skills and 50+ commands
+        Given a plugin with 100 skills and 50 commands
         When running validation
-        Then it should complete within reasonable time.
+        Then every skill is found, about half match the review patterns,
+        and the report is produced.
         """
         # Arrange - import validator
-        validator_cls = _require_validator()
-
-        # Act - measure validation performance
-        start_time = time.time()
+        validator_cls = ImbueValidator
 
         validator = validator_cls(large_plugin_structure)
 
-        # Perform validation operations
         scan_result = validator.scan_review_workflows()
         validation_issues = validator.validate_review_workflows()
         report = validator.generate_report()
 
-        end_time = time.time()
-
-        execution_time = end_time - start_time
-
-        # Assert performance
-        assert (
-            execution_time < MAX_EXECUTION_TIME_SECONDS
-        )  # Should complete in under 5 seconds
         assert len(scan_result["skills_found"]) == HUNDRED
         assert (
             len(scan_result["review_workflow_skills"]) >= MIN_REVIEW_WORKFLOW_SKILLS
@@ -190,47 +170,23 @@ Test command for performance testing.
 
     @pytest.mark.bdd
     @pytest.mark.slow
-    def test_validator_scan_performance_patterns(self, large_plugin_structure) -> None:
-        """Scenario: Pattern matching performance optimization.
+    def test_fresh_validators_scan_a_large_plugin_identically(
+        self, large_plugin_structure
+    ) -> None:
+        """Scenario: Pattern matching is deterministic.
 
         Given many skill files with various patterns
-        When scanning for review patterns
-        Then pattern matching should be optimized.
+        When three fresh validators scan them
+        Then all three find the same skills and the same review matches.
         """
-        validator_cls = _require_validator()
+        validator_cls = ImbueValidator
 
-        # Arrange
-        validator = validator_cls(large_plugin_structure)
-
-        # Act - measure pattern matching performance
-        pattern_matching_times = []
-
-        # Test multiple scans
-        for _i in range(5):
-            start_time = time.time()
-            validator.scan_review_workflows()
-            end_time = time.time()
-
-            scan_time = end_time - start_time
-            pattern_matching_times.append(scan_time)
-
-        # Calculate performance metrics
-        avg_scan_time = sum(pattern_matching_times) / len(pattern_matching_times)
-        max_scan_time = max(pattern_matching_times)
-        min_scan_time = min(pattern_matching_times)
-
-        # Assert consistent performance
-        assert avg_scan_time < 1.0  # Average scan under 1 second
-        assert max_scan_time < TWO_POINT_ZERO  # Maximum scan under 2 seconds
-        assert (
-            max_scan_time - min_scan_time < ZERO_POINT_FIVE
-        )  # Consistent timing (within 500ms)
-
-        # Verify all scans produce same results
-        scan_results = []
-        for _i in range(3):
-            result = validator.scan_review_workflows()
-            scan_results.append(result)
+        # A fresh validator per scan. One instance caches its first scan,
+        # and repeating scans on it would compare a result with itself.
+        scan_results = [
+            validator_cls(large_plugin_structure).scan_review_workflows()
+            for _i in range(3)
+        ]
 
         # All scans should be identical
         for i in range(1, len(scan_results)):
@@ -242,14 +198,14 @@ Test command for performance testing.
 
     @pytest.mark.bdd
     @pytest.mark.slow
-    def test_validator_memory_efficiency(self, tmp_path) -> None:
-        """Scenario: Memory usage remains reasonable.
+    def test_peak_memory_per_skill_file_stays_bounded(self, tmp_path) -> None:
+        """Scenario: Memory per file does not grow with plugin size.
 
-        Given validation processing many files
-        When processing large datasets
-        Then memory usage should scale linearly.
+        Given plugins of 10, 25, 50 and 100 skills
+        When each is scanned
+        Then peak memory per skill file stays under a fixed bound.
         """
-        validator_cls = _require_validator()
+        validator_cls = ImbueValidator
 
         # Memory tracking
         memory_snapshots = []
@@ -281,7 +237,7 @@ Test command for performance testing.
             gc.collect()  # Force garbage collection
 
             # Run validation
-            validator_cls = _require_validator()
+            validator_cls = ImbueValidator
             validator = validator_cls(plugin_root)
             validator.scan_review_workflows()
 
@@ -328,15 +284,13 @@ Test command for performance testing.
 
     @pytest.mark.bdd
     @pytest.mark.slow
-    def test_validator_concurrent_performance(self, tmp_path) -> None:
-        """Scenario: Validator handles concurrent processing.
+    def test_concurrent_scans_match_sequential_results(self, tmp_path) -> None:
+        """Scenario: Validators running in parallel threads share no state.
 
-        Given multiple validation requests
-        When processing in parallel
-        Then performance should scale appropriately.
+        Given five plugins
+        When all five are validated at once on separate threads
+        Then each result equals the one it gives alone.
         """
-        _require_validator()
-
         # Create multiple plugins
         plugin_count = 5
         plugin_roots = []
@@ -359,94 +313,59 @@ Test command for performance testing.
             (plugin_root / "plugin.json").write_text('{"name": "test", "skills": []}')
             plugin_roots.append(plugin_root)
 
-        # Concurrent validation function
-        def validate_plugin(plugin_root):
-            start_time = time.time()
+        # The barrier holds every concurrent call until all five are running,
+        # so the comparison below is made with the threads truly overlapping.
+        barrier = threading.Barrier(plugin_count, timeout=30)
+        thread_ids = set()
+
+        def validate_plugin(plugin_root, *, concurrent=False):
+            if concurrent:
+                thread_ids.add(threading.get_ident())
+                barrier.wait()
             validator = ImbueValidator(plugin_root)
             scan_result = validator.scan_review_workflows()
             issues = validator.validate_review_workflows()
-            end_time = time.time()
             return {
                 "plugin": plugin_root.name,
-                "execution_time": end_time - start_time,
-                "skills_found": len(scan_result["skills_found"]),
-                "issues_count": len(issues),
-                "thread_id": threading.get_ident(),
+                "skills_found": sorted(scan_result["skills_found"]),
+                "issues": sorted(issues),
             }
 
-        # Test sequential performance
-        sequential_start = time.time()
-        sequential_results = []
-        for plugin_root in plugin_roots:
-            result = validate_plugin(plugin_root)
-            sequential_results.append(result)
-        sequential_time = time.time() - sequential_start
-
-        # Test concurrent performance
-        concurrent_start = time.time()
+        sequential_results = [validate_plugin(root) for root in plugin_roots]
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=plugin_count,
         ) as executor:
-            concurrent_results = list(executor.map(validate_plugin, plugin_roots))
-        concurrent_time = time.time() - concurrent_start
+            concurrent_results = list(
+                executor.map(
+                    lambda root: validate_plugin(root, concurrent=True), plugin_roots
+                )
+            )
 
-        # Analyze results
-        sequential_time / plugin_count
-        concurrent_time / plugin_count
-
-        # Assert concurrent efficiency
-        # Concurrent should be faster (though may not be perfectly parallel due to GIL)
-        max_allowed = max(sequential_time * 1.2, 0.5)
-        assert concurrent_time < max_allowed  # Allow overhead when work is tiny
-
-        # Verify all plugins processed correctly
-        assert len(concurrent_results) == plugin_count
+        # Threads share no state: each plugin scans to the same result it
+        # gives alone, and no plugin sees another's skills.
+        assert len(thread_ids) == plugin_count
+        assert concurrent_results == sequential_results
         for result in concurrent_results:
-            assert result["skills_found"] == TWENTY
-            assert isinstance(result["execution_time"], float)
-            assert (
-                result["execution_time"] < FIVE_POINT_ZERO
-            )  # Each plugin under 5 seconds
-
-        # Verify thread safety
-        thread_ids = [result["thread_id"] for result in concurrent_results]
-        assert len(set(thread_ids)) > 1  # Multiple threads were used
+            assert len(result["skills_found"]) == TWENTY
 
     @pytest.mark.slow
-    def test_validator_report_generation_performance(
+    def test_report_is_substantial_and_identical_across_generations(
         self, large_plugin_structure
     ) -> None:
-        """Scenario: Report generation performs efficiently.
+        """Scenario: Report generation over a large plugin.
 
-        Given large validation results
-        When generating reports
-        Then report generation should be fast.
+        Given scan results for a large plugin
+        When the report is generated six times
+        Then it names the skill count and every generation is identical.
         """
-        validator_cls = _require_validator()
+        validator_cls = ImbueValidator
 
         # Arrange
         validator = validator_cls(large_plugin_structure)
         validator.scan_review_workflows()
 
-        # Act - measure report generation performance
-        report_generation_times = []
+        report = validator.generate_report()
 
-        for _i in range(10):  # Generate report multiple times
-            start_time = time.time()
-            report = validator.generate_report()
-            end_time = time.time()
-
-            report_time = end_time - start_time
-            report_generation_times.append(report_time)
-
-        # Assert report generation efficiency
-        avg_report_time = sum(report_generation_times) / len(report_generation_times)
-        max_report_time = max(report_generation_times)
-
-        assert avg_report_time < ZERO_POINT_FIVE  # Average under 500ms
-        assert max_report_time < 1.0  # Maximum under 1 second
-
-        # Verify report quality is maintained
         assert len(report) > THOUSAND  # Substantial report content
         assert "Imbue Plugin Review Workflow Report" in report
         assert f"Skill Files: {len(validator.skill_files)}" in report
@@ -462,101 +381,46 @@ Test command for performance testing.
             assert reports[i] == reports[0]
 
     @pytest.mark.bdd
-    @pytest.mark.slow
-    def test_validator_regex_pattern_optimization(self, large_plugin_structure) -> None:
-        """Scenario: Regex pattern matching is optimized.
+    def test_validator_evidence_patterns_match_regardless_of_case(
+        self, tmp_path
+    ) -> None:
+        """Scenario: Evidence wording in capitals still counts.
 
-        Given many patterns to match against content
-        When scanning skills
-        Then regex compilation should be optimized.
+        Given one skill that says EVIDENCE only in capitals and one that
+            names no evidence practice at all
+        When the plugin is validated
+        Then only the second is reported as missing evidence logging
+
+        The validator matches with re.IGNORECASE. Dropping the flag turns
+        the first skill into a false positive.
         """
-        _require_validator()  # validate validator module available for regex benchmarks
+        plugin_root = tmp_path / "case-plugin"
+        for name, body in (
+            ("shouting", "Keep the EVIDENCE for every claim."),
+            ("silent", "Nothing about practice here."),
+        ):
+            skill_dir = plugin_root / "skills" / name
+            skill_dir.mkdir(parents=True)
+            (skill_dir / "SKILL.md").write_text(f"---\nname: {name}\n---\n{body}\n")
+        (plugin_root / "plugin.json").write_text('{"name": "test", "skills": []}')
 
-        # Test different pattern compilation strategies
-        patterns = [
-            r"review",
-            r"workflow",
-            r"evidence",
-            r"structured",
-            r"output",
-            r"orchestrat",
-            r"checklist",
-            r"deliverable",
-            r"pattern1",
-            r"pattern2",
-            r"pattern3",
-        ]
+        issues = ImbueValidator(plugin_root).validate_review_workflows()
 
-        # Strategy 1: Compile each time
-        def compile_each_time(content, patterns):
-            matches = []
-            for pattern in patterns:
-                if re.search(pattern, content, re.IGNORECASE):
-                    matches.append(pattern)
-            return matches
-
-        # Strategy 2: Pre-compile patterns
-        compiled_patterns = [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
-
-        def pre_compiled(content, compiled_patterns):
-            matches = []
-            for compiled in compiled_patterns:
-                if compiled.search(content):
-                    matches.append(compiled.pattern)
-            return matches
-
-        # Strategy 3: Combined pattern
-        combined_pattern = re.compile("|".join(patterns), re.IGNORECASE)
-
-        def combined_pattern_search(content, pattern):
-            return pattern.search(content) is not None
-
-        # Test performance of each strategy
-        test_content = (
-            "This is a review workflow with evidence logging "
-            "and structured output patterns"
-        )
-        iterations = THOUSAND
-
-        # Strategy 1: Compile each time
-        start_time = time.time()
-        for _ in range(iterations):
-            compile_each_time(test_content, patterns)
-        time1 = time.time() - start_time
-
-        # Strategy 2: Pre-compiled
-        start_time = time.time()
-        for _ in range(iterations):
-            pre_compiled(test_content, compiled_patterns)
-        time2 = time.time() - start_time
-
-        # Strategy 3: Combined pattern
-        start_time = time.time()
-        for _ in range(iterations):
-            combined_pattern_search(test_content, combined_pattern)
-        time3 = time.time() - start_time
-
-        # Assert optimization effectiveness
-        # Pre-compiled should be faster than compiling each time
-        assert time2 < time1
-
-        # Combined pattern should be fastest for simple matching
-        assert time3 < time2
-
-        # Performance improvement should be significant
-        improvement_factor = time1 / time3
-        assert improvement_factor > TWO  # At least 2x improvement
+        assert "silent: Should have evidence logging patterns" in issues
+        assert not any(issue.startswith("shouting:") for issue in issues)
 
     @pytest.mark.bdd
     @pytest.mark.slow
-    def test_validator_io_performance(self, tmp_path) -> None:
-        """Scenario: File I/O operations are optimized.
+    def test_scan_reads_each_of_200_skill_files_exactly_once(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """Scenario: File reads are bounded by the file count.
 
-        Given many files to read
-        When scanning plugin directory
-        Then file I/O should be efficient.
+        Given 200 skill files
+        When the plugin directory is scanned
+        Then every file is found and each is read exactly once.
         """
-        validator_cls = _require_validator()
+        validator_cls = ImbueValidator
 
         # Create plugin with many small files
         plugin_root = tmp_path / "io-performance-plugin"
@@ -577,23 +441,20 @@ Test command for performance testing.
 
         (plugin_root / "plugin.json").write_text('{"name": "test", "skills": []}')
 
-        # Test I/O performance
-        start_time = time.time()
+        reads: list[Path] = []
+        real_read_text = Path.read_text
+
+        def counting_read_text(path, *args, **kwargs):
+            if path.name == "SKILL.md":
+                reads.append(path)
+            return real_read_text(path, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "read_text", counting_read_text)
 
         validator = validator_cls(plugin_root)
         scan_result = validator.scan_review_workflows()
 
-        io_time = time.time() - start_time
-
-        # Assert I/O efficiency
-        assert io_time < THREE_POINT_ZERO  # Should read 200 files in under 3 seconds
-
-        # Calculate I/O throughput
-        total_bytes = file_count * file_size
-        throughput_mb_per_second = (total_bytes / (1024 * 1024)) / io_time
-
-        assert throughput_mb_per_second > 1  # At least 1 MB/second throughput
-
-        # Verify all files were processed
         assert len(validator.skill_files) == file_count
         assert len(scan_result["skills_found"]) == file_count
+        assert len(reads) == file_count
+        assert len(set(reads)) == file_count

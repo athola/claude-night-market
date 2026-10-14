@@ -19,6 +19,7 @@ from __future__ import annotations
 import importlib.util
 import os
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -46,11 +47,25 @@ class TestSecureStateDir:
 
     @pytest.mark.unit
     def test_default_dir_is_private(self, vu, tmp_path, monkeypatch):
+        # tempfile caches gettempdir() on first use, so setting TMPDIR here
+        # was ignored and the test checked the shared real temp dir, where a
+        # leftover directory from any earlier run decided the outcome.
         monkeypatch.delenv("IMBUE_STATE_DIR", raising=False)
-        monkeypatch.setenv("TMPDIR", str(tmp_path))
+        monkeypatch.setattr(tempfile, "tempdir", str(tmp_path))
         d = vu.secure_state_dir("imbue-vow-state")
+        assert d.parent == tmp_path
         assert (d.stat().st_mode & 0o777) == 0o700
         assert "imbue-vow-state" in d.name
+
+    @pytest.mark.unit
+    def test_uncreatable_dir_falls_back_to_the_temp_root(
+        self, vu, tmp_path, monkeypatch
+    ):
+        blocker = tmp_path / "a-file"
+        blocker.write_text("")
+        monkeypatch.setenv("IMBUE_STATE_DIR", str(blocker / "sub"))
+        monkeypatch.setattr(tempfile, "tempdir", str(tmp_path))
+        assert vu.secure_state_dir("whatever") == tmp_path
 
 
 @pytest.mark.skipif(
@@ -87,3 +102,25 @@ class TestFdOwnedByUs:
             assert vu.fd_owned_by_us(fd) is True
         finally:
             os.close(fd)
+
+    @pytest.mark.unit
+    def test_false_for_a_file_owned_by_another_user(self, vu, tmp_path, monkeypatch):
+        target = tmp_path / "planted"
+        fd = os.open(str(target), os.O_WRONLY | os.O_CREAT, 0o600)
+        try:
+            other_uid = os.fstat(fd).st_uid + 1
+            monkeypatch.setattr(vu.os, "geteuid", lambda: other_uid, raising=False)
+            assert vu.fd_owned_by_us(fd) is False
+        finally:
+            os.close(fd)
+
+    @pytest.mark.unit
+    def test_false_when_the_fd_cannot_be_inspected(self, vu, tmp_path):
+        fd = os.open(str(tmp_path / "gone"), os.O_WRONLY | os.O_CREAT, 0o600)
+        os.close(fd)
+        assert vu.fd_owned_by_us(fd) is False
+
+    @pytest.mark.unit
+    def test_true_on_a_platform_with_no_uid_model(self, vu, monkeypatch):
+        monkeypatch.delattr(vu.os, "geteuid", raising=False)
+        assert vu.fd_owned_by_us(-1) is True

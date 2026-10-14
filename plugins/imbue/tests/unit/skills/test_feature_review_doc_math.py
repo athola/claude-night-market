@@ -1,10 +1,10 @@
 """The feature-review scoring docs agree with their own arithmetic.
 
-Math review findings C15, C16 and C17. The worked example printed 1.42
-and labeled it Medium, which the module's own table puts in Low. SKILL.md
-averaged factors equally while the framework module defines a weighted
-average with documented default weights. The module also claimed a
-logarithmic normalization that no formula or example applies.
+The worked example printed 1.42 and labeled it Medium, which the module's
+own table puts in Low. SKILL.md averaged factors equally while the
+framework module defines a weighted average with documented default
+weights. The module also claimed a logarithmic normalization that no
+formula or example applies.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def _band(score: float) -> str:
 
 @pytest.mark.unit
 def test_the_worked_example_uses_the_default_weights() -> None:
-    """C16: the example's value and cost are the weighted averages."""
+    """The example's value and cost are the weighted averages."""
     w = _default_weights()
     value = (
         _factor("Reach") * w["reach"]
@@ -72,7 +72,7 @@ def test_the_worked_example_uses_the_default_weights() -> None:
 
 @pytest.mark.unit
 def test_the_worked_example_priority_matches_the_band_table() -> None:
-    """C15: the label is the band the printed score falls in."""
+    """The label is the band the printed score falls in."""
     score = re.search(r"^Feature Score = .* = ([\d.]+)$", _example(), re.M)
     label = re.search(r"^Priority: (\w+)", _example(), re.M)
     assert score and label
@@ -82,7 +82,7 @@ def test_the_worked_example_priority_matches_the_band_table() -> None:
 
 @pytest.mark.unit
 def test_skill_md_uses_the_weighted_definition() -> None:
-    """C16: one definition of Value and Cost across the skill."""
+    """One definition of Value and Cost across the skill."""
     assert "Value Score = weighted_avg(" in SKILL
     assert "Cost Score = weighted_avg(" in SKILL
     assert "/ 4" not in SKILL
@@ -90,5 +90,5 @@ def test_skill_md_uses_the_weighted_definition() -> None:
 
 @pytest.mark.unit
 def test_no_logarithmic_normalization_is_claimed() -> None:
-    """C17: nothing in the formula or the example applies a log."""
+    """Nothing in the formula or the example applies a log."""
     assert "logarithmic" not in FRAMEWORK.lower()
