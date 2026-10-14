@@ -27,6 +27,7 @@ from __future__ import annotations
 import argparse
 import ast
 import io
+import os
 import re
 import subprocess
 import sys
@@ -541,13 +542,24 @@ def _audit(paths: list, allow: frozenset) -> int:
     return 0
 
 
+_LOCATION_VARS = frozenset({"GIT_DIR", "GIT_WORK_TREE"})
+
+
 def _base_text(path: Path, ref: str) -> str | None:
-    """The file as committed at *ref*, or None if it did not exist there."""
+    """The file as committed at *ref*, or None if it did not exist there.
+
+    `git commit` exports GIT_DIR to its hooks, and with it set git takes
+    the current directory as the work tree root, so ``./name`` under
+    ``-C`` resolves against the wrong directory. Dropping it lets git find
+    the repository from the file's own directory.
+    """
+    env = {k: v for k, v in os.environ.items() if k not in _LOCATION_VARS}
     shown = subprocess.run(
         ["git", "-C", str(path.parent), "show", f"{ref}:./{path.name}"],
         capture_output=True,
         text=True,
         check=False,
+        env=env,
     )
     if shown.returncode != 0:
         return None
