@@ -57,13 +57,13 @@ disallow_untyped_defs = true
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["scripts"]
-addopts = "-v --cov=scripts --cov-report=term-missing"
+addopts = "-v --cov=scripts --cov=hooks --cov-report=term-missing"
 markers = [
     "unit: Unit tests",
 ]
 
 [tool.coverage.run]
-source = ["scripts"]
+source = ["scripts", "hooks"]
 omit = ["tests/*", "*/__pycache__/*"]
 
 [tool.coverage.report]

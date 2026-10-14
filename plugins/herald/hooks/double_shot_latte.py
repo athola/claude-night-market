@@ -413,7 +413,9 @@ def _llm_second_shot(text: str) -> tuple[bool, str] | None:
             payload = json.loads(payload["result"])
         should = bool(payload["should_continue"])
         reason = str(payload.get("reasoning", "LLM second shot"))
-    except (json.JSONDecodeError, KeyError, ValueError, TypeError):
+    except (json.JSONDecodeError, KeyError, ValueError, TypeError, AttributeError):
+        # AttributeError: valid JSON that is not an object (a list, a number)
+        # has no .get, and must fall back like any other malformed reply.
         return None
     return should, f"LLM second shot: {reason}"
 

@@ -12,6 +12,7 @@ These tests encode the three defects the reimplementation fixes:
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import sys
@@ -120,6 +121,35 @@ class TestExtractLastAssistantText:
         Then an empty string is returned
         """
         assert dsl.extract_last_assistant_text("") == ""
+
+    @pytest.mark.unit
+    def test_non_object_lines_and_non_text_blocks_are_skipped(self):
+        """
+        Scenario: transcript rows the judge cannot use
+        Given a JSON array row, an assistant row with no content, and an
+            assistant row whose blocks are tool calls, strings and non-text
+        When extracted
+        Then the earlier usable assistant text is returned
+        """
+        transcript = "\n".join(
+            [
+                _assistant_line("usable"),
+                json.dumps(
+                    {
+                        "role": "assistant",
+                        "content": [
+                            "bare string",
+                            {"type": "tool_use", "name": "Bash"},
+                            {"type": "text", "text": 42},
+                        ],
+                    }
+                ),
+                json.dumps({"type": "assistant"}),
+                json.dumps({"role": "assistant", "content": {"type": "text"}}),
+                json.dumps(["not", "an", "object"]),
+            ]
+        )
+        assert dsl.extract_last_assistant_text(transcript) == "usable"
 
 
 class TestClassify:
@@ -861,3 +891,194 @@ class TestConfigurableContinuationLimit:
             now=1001.0,
         )
         assert out["decision"] == "block"
+
+
+class TestLlmSecondShot:
+    """Feature: the optional ``claude`` CLI second opinion fails closed.
+
+    The CLI's stdout is untrusted subprocess output. Every failure, from a
+    missing binary to malformed JSON, must return None so the deterministic
+    STOP verdict stands.
+    """
+
+    @pytest.fixture
+    def enabled(self, monkeypatch):
+        monkeypatch.setenv("DOUBLE_SHOT_LATTE_LLM", "1")
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.setattr(dsl.shutil, "which", lambda name: "/usr/bin/claude")
+
+    def _reply(self, monkeypatch, stdout="", returncode=0, seen=None):
+        def fake_run(cmd, **kwargs):
+            if seen is not None:
+                seen["cmd"] = cmd
+                seen.update(kwargs)
+            return dsl.subprocess.CompletedProcess(cmd, returncode, stdout, "")
+
+        monkeypatch.setattr(dsl.subprocess, "run", fake_run)
+
+    def _no_subprocess(self, monkeypatch):
+        def refuse(*args, **kwargs):
+            raise AssertionError("claude CLI must not run")
+
+        monkeypatch.setattr(dsl.subprocess, "run", refuse)
+
+    @pytest.mark.unit
+    def test_disabled_by_default(self, monkeypatch):
+        monkeypatch.delenv("DOUBLE_SHOT_LATTE_LLM", raising=False)
+        monkeypatch.setattr(dsl.shutil, "which", lambda name: "/usr/bin/claude")
+        self._no_subprocess(monkeypatch)
+        assert dsl._llm_second_shot("text") is None
+
+    @pytest.mark.unit
+    def test_judge_mode_never_recurses_into_the_cli(self, enabled, monkeypatch):
+        monkeypatch.setenv(dsl.JUDGE_MODE_ENV, "true")
+        self._no_subprocess(monkeypatch)
+        assert dsl._llm_second_shot("text") is None
+
+    @pytest.mark.unit
+    def test_missing_claude_binary_returns_none(self, enabled, monkeypatch):
+        monkeypatch.setattr(dsl.shutil, "which", lambda name: None)
+        self._no_subprocess(monkeypatch)
+        assert dsl._llm_second_shot("text") is None
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "error",
+        [OSError("exec failed"), dsl.subprocess.TimeoutExpired(["claude"], 8)],
+    )
+    def test_launch_failure_or_timeout_returns_none(self, enabled, monkeypatch, error):
+        def raise_error(*args, **kwargs):
+            raise error
+
+        monkeypatch.setattr(dsl.subprocess, "run", raise_error)
+        assert dsl._llm_second_shot("text") is None
+
+    @pytest.mark.unit
+    def test_nonzero_exit_returns_none(self, enabled, monkeypatch):
+        self._reply(
+            monkeypatch,
+            stdout='{"should_continue": true, "reasoning": "x"}',
+            returncode=1,
+        )
+        assert dsl._llm_second_shot("text") is None
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "stdout",
+        ["not json", '{"reasoning": "no verdict"}', '{"result": "{broken"}', "[]"],
+    )
+    def test_malformed_output_returns_none(self, enabled, monkeypatch, stdout):
+        self._reply(monkeypatch, stdout=stdout)
+        assert dsl._llm_second_shot("text") is None
+
+    @pytest.mark.unit
+    def test_verdict_wrapped_in_a_result_string_is_unwrapped(
+        self, enabled, monkeypatch
+    ):
+        inner = json.dumps({"should_continue": True, "reasoning": "next step named"})
+        self._reply(monkeypatch, stdout=json.dumps({"result": inner}))
+        assert dsl._llm_second_shot("text") == (
+            True,
+            "LLM second shot: next step named",
+        )
+
+    @pytest.mark.unit
+    def test_cli_runs_in_judge_mode_with_the_tail_and_the_timeout(
+        self, enabled, monkeypatch
+    ):
+        """
+        Scenario: the CLI is consulted
+        Given the feature is enabled
+        When the second shot runs
+        Then the child carries judge mode (so its own Stop hook does not
+        recurse), receives only the message tail, and is bounded by
+        LLM_TIMEOUT_SECONDS
+        """
+        seen = {}
+        self._reply(
+            monkeypatch,
+            stdout='{"should_continue": false, "reasoning": "done"}',
+            seen=seen,
+        )
+        text = "x" * (dsl.TAIL_CHARS + 50) + "END"
+        assert dsl._llm_second_shot(text) == (False, "LLM second shot: done")
+        assert seen["env"][dsl.JUDGE_MODE_ENV] == "true"
+        assert seen["timeout"] == dsl.LLM_TIMEOUT_SECONDS
+        assert seen["input"].endswith(text[-dsl.TAIL_CHARS :])
+        assert "x" * (dsl.TAIL_CHARS + 1) not in seen["input"]
+
+
+class TestMainEntryPoint:
+    """Feature: the hook never crashes a stop, whatever stdin holds."""
+
+    def _run_main(self, monkeypatch, capsys, stdin_text):
+        monkeypatch.setattr(dsl.sys, "stdin", io.StringIO(stdin_text))
+        with pytest.raises(SystemExit) as exc:
+            dsl.main()
+        return exc.value.code, json.loads(capsys.readouterr().out)
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("stdin_text", ["", "{not json", "[1, 2]"])
+    def test_unreadable_event_approves_the_stop(
+        self, monkeypatch, capsys, tmp_path, stdin_text
+    ):
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        code, decision = self._run_main(monkeypatch, capsys, stdin_text)
+        assert code == 0
+        assert decision == {
+            "decision": "approve",
+            "reason": "Double Shot Latte: No transcript available; allowing stop.",
+        }
+
+    @pytest.mark.unit
+    def test_internal_error_approves_the_stop_and_names_the_error(
+        self, monkeypatch, capsys
+    ):
+        def explode(event, now):
+            raise RuntimeError("disk on fire")
+
+        monkeypatch.setattr(dsl, "decide", explode)
+        code, decision = self._run_main(monkeypatch, capsys, "{}")
+        assert code == 0
+        assert decision["decision"] == "approve"
+        assert "disk on fire" in decision["reason"]
+
+
+class TestReadTail:
+    """Feature: only the end of a large transcript is read."""
+
+    @pytest.mark.unit
+    def test_large_transcript_is_read_from_its_last_bytes(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(dsl, "TRANSCRIPT_READ_BYTES", 10)
+        path = tmp_path / "t.jsonl"
+        path.write_text("HEAD" * 20 + "0123456789")
+        assert dsl._read_tail(path) == "0123456789"
+
+    @pytest.mark.unit
+    def test_unreadable_transcript_reads_as_empty(self, tmp_path):
+        assert dsl._read_tail(tmp_path / "absent.jsonl") == ""
+
+
+class TestThrottleWindowReset:
+    """Feature: an old continuation count does not carry into a new window."""
+
+    @pytest.mark.unit
+    def test_count_restarts_when_last_continuation_is_outside_the_window(
+        self, tmp_path, monkeypatch
+    ):
+        monkeypatch.setattr(dsl.tempfile, "gettempdir", lambda: str(tmp_path))
+        monkeypatch.delenv(dsl.JUDGE_MODE_ENV, raising=False)
+        monkeypatch.delenv("DOUBLE_SHOT_LATTE_LLM", raising=False)
+        transcript = tmp_path / "t.jsonl"
+        transcript.write_text(_assistant_line("Next, I'll run the tests.") + "\n")
+        throttle = dsl._throttle_path("s1")
+        now = 10_000.0
+        dsl._write_throttle(throttle, 7, now - dsl.THROTTLE_WINDOW_SECONDS - 1)
+
+        decision = dsl.decide(
+            {"session_id": "s1", "transcript_path": str(transcript)}, now
+        )
+
+        assert decision["decision"] == "block"
+        assert dsl._read_throttle(throttle) == (1, now)
