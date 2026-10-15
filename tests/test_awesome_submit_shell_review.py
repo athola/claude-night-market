@@ -44,7 +44,14 @@ exit 0
 
 
 def _git(cwd: Path, *args: str) -> None:
-    subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True)
+    # A CI runner has no git identity, and Linux git will not guess one
+    # from the hostname the way macOS git does.
+    subprocess.run(
+        ["git", "-c", "user.name=t", "-c", "user.email=t@t", *args],
+        cwd=cwd,
+        check=True,
+        capture_output=True,
+    )
 
 
 def _sandbox(
