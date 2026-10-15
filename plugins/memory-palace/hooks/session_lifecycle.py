@@ -72,9 +72,6 @@ def _try_record_journey_completion(
     and runs predict_links once.
     """
     try:
-        from memory_palace.graph_analyzer import (
-            PalaceGraphAnalyzer,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
-        )
         from memory_palace.journey_tracker import (
             JourneyTracker,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
         )
@@ -99,6 +96,14 @@ def _try_record_journey_completion(
             )
             tracker.complete_journey(journey_id, outcome="completed")
 
+            # Link prediction needs networkx, which the stdlib-only hook
+            # environment lacks. The journey above is recorded either way.
+            try:
+                from memory_palace.graph_analyzer import (
+                    PalaceGraphAnalyzer,  # noqa: PLC0415 - optional, needs networkx
+                )
+            except ImportError:
+                return
             analyzer = PalaceGraphAnalyzer(graph)
             suggestions = analyzer.predict_links(top_n=5)
             if suggestions:

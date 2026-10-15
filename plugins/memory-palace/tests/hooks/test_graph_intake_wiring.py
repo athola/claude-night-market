@@ -213,3 +213,29 @@ class TestSessionLifecycleGraphWiring:
         graph2.close()
         assert len(journeys) == 1
         assert "completed" in tuple(journeys[0])
+
+    def test_journey_is_recorded_without_networkx(self, tmp_path: Path) -> None:
+        """Link prediction needs networkx; the journey record does not.
+
+        The Python 3.9 hook environment has no networkx, and importing the
+        analyzer first dropped the journey along with the predictions.
+        """
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        db_path = palaces_dir / "knowledge_graph.db"
+        KnowledgeGraph(str(db_path)).close()
+
+        with patch.dict(
+            "sys.modules",
+            {"networkx": None, "memory_palace.graph_analyzer": None},
+        ):
+            session_lifecycle._try_record_journey_completion(
+                palaces_dir=palaces_dir,
+                session_id="no_networkx",
+                tools_used=["WebFetch"],
+            )
+
+        graph = KnowledgeGraph(str(db_path))
+        journeys = graph._conn.execute("SELECT * FROM journeys").fetchall()
+        graph.close()
+        assert len(journeys) == 1
