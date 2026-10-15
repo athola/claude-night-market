@@ -203,3 +203,12 @@ docs/migrations/
 # working directory by plugins/conserve/scripts/coordination_workspace.py.
 .coordination/
 .coordination-archive/
+
+# Code knowledge graph that gauntlet's graph-build writes per checkout.
+# graph.db runs past 100MB and is rebuilt from the code, never shared.
+.gauntlet/
+
+# Research captures that memory-palace's research_queue.py stages for
+# knowledge-intake. They are unreviewed until intake promotes them into
+# docs/knowledge-corpus/ or prunes them.
+docs/knowledge-corpus/queue/
