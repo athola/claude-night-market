@@ -131,3 +131,28 @@ def test_api_key_is_kept_when_redirect_names_the_default_port(
     )
 
     assert seen[1][1]["x-api-key"] == "secret-key"
+
+
+@pytest.mark.unit
+def test_redirect_request_declines_when_urllib_declines(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    GIVEN urllib's base handler returns None, its documented way to say
+          it will not follow a redirect
+    WHEN the credential-safe handler is asked for the redirected request
+    THEN it passes None through instead of touching a missing request
+    """
+    monkeypatch.setattr(
+        urllib.request.HTTPRedirectHandler,
+        "redirect_request",
+        lambda self, req, fp, code, msg, headers, newurl: None,
+    )
+    handler = http._CredentialSafeRedirect()
+    original = urllib.request.Request("https://api.example.com/x")
+
+    declined = handler.redirect_request(
+        original, None, 302, "Found", {}, "https://other.example.com/y"
+    )
+
+    assert declined is None

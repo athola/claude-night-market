@@ -14,6 +14,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
+from tome.channels import triz
+
 SRC = Path(__file__).resolve().parents[2] / "src"
 
 
@@ -91,3 +95,76 @@ def test_research_passes_the_analysis_to_the_triz_channel_only() -> None:
     research = (PLUGIN / "skills" / "research" / "SKILL.md").read_text()
     assert "tome.channels.triz analyze" in research
     assert "trizAnalysis" in research
+
+
+def test_analyze_adds_near_resolutions_only_to_fallback_candidates() -> None:
+    """
+    GIVEN a topic that matches no catalogue keyword and one that does
+    WHEN analyze runs in-process on each
+    THEN only the fallback candidates carry near_resolutions
+    """
+    unmatched = triz.analyze("zzqx wobble frobnication", "general")
+    matched = triz.analyze("faster cache with less memory", "systems")
+
+    for report in (unmatched, matched):
+        for candidate in report["candidates"]:
+            is_fallback = candidate["contradiction"].get("matched") == "fallback"
+            assert ("near_resolutions" in candidate) is is_fallback
+    assert any("near_resolutions" in c for c in unmatched["candidates"])
+
+
+def test_analyze_adds_four_separation_axes_only_to_physical_candidates() -> None:
+    """
+    GIVEN a topic that yields a physical contradiction
+    WHEN analyze runs in-process
+    THEN physical candidates carry four separation strategies and others none
+    """
+    report = triz.analyze("when to stop a multi-pass search", "architecture")
+
+    physical = [c for c in report["candidates"] if c["physical"]]
+    assert physical
+    for candidate in report["candidates"]:
+        if candidate["physical"]:
+            assert len(candidate["separation"]) == 4
+        else:
+            assert "separation" not in candidate
+
+
+def test_main_prints_the_analysis_as_json_and_returns_zero(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """
+    GIVEN the analyze subcommand with a topic and domain
+    WHEN main dispatches it
+    THEN stdout is the analyze report as JSON and the exit code is 0
+    """
+    exit_code = triz.main(["analyze", "--topic", "faster cache", "--domain", "systems"])
+
+    report = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert (report["topic"], report["domain"]) == ("faster cache", "systems")
+
+
+def test_main_defaults_the_domain_to_general(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """
+    GIVEN the analyze subcommand without --domain
+    WHEN main dispatches it
+    THEN the report domain is "general"
+    """
+    triz.main(["analyze", "--topic", "faster cache"])
+
+    assert json.loads(capsys.readouterr().out)["domain"] == "general"
+
+
+def test_main_rejects_a_missing_subcommand() -> None:
+    """
+    GIVEN no subcommand
+    WHEN main parses the arguments
+    THEN argparse exits with status 2
+    """
+    with pytest.raises(SystemExit) as raised:
+        triz.main([])
+
+    assert raised.value.code == 2

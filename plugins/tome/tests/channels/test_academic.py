@@ -14,6 +14,7 @@ from typing import Any
 import pytest
 
 from tome.channels.academic import (
+    _openalex_abstract,
     build_arxiv_search_url,
     build_core_search_url,
     build_openalex_search_url,
@@ -24,6 +25,7 @@ from tome.channels.academic import (
     generate_access_fallback_guidance,
     parse_arxiv_response,
     parse_citation_edges,
+    parse_openalex_response,
     parse_semantic_scholar_response,
     parse_unpaywall_response,
 )
@@ -966,3 +968,47 @@ class TestParseCitationEdgesMalformedInput:
 
         assert [e.cited_id for e in edges] == ["GOOD1", "GOOD2"]
         assert all(e.citing_id == "SRC" for e in edges)
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("inverted", [None, {}])
+def test_openalex_abstract_is_empty_when_the_index_is_missing(
+    inverted: dict[str, list[int]] | None,
+) -> None:
+    """
+    GIVEN an OpenAlex work with a null or empty abstract_inverted_index
+    WHEN the abstract is rebuilt
+    THEN the result is the empty string
+    """
+    assert _openalex_abstract(inverted) == ""
+
+
+@pytest.mark.unit
+def test_openalex_abstract_orders_words_by_position() -> None:
+    """
+    GIVEN an inverted index whose words are listed out of order
+    WHEN the abstract is rebuilt
+    THEN words are joined in ascending position order
+    """
+    inverted = {"graphs": [2], "Deep": [0], "on": [1]}
+
+    assert _openalex_abstract(inverted) == "Deep on graphs"
+
+
+@pytest.mark.unit
+def test_openalex_works_without_a_title_are_skipped() -> None:
+    """
+    GIVEN OpenAlex results where one work has no display_name or title
+    WHEN the response is parsed
+    THEN only the titled work becomes a Finding
+    """
+    payload: dict[str, Any] = {
+        "results": [
+            {"id": "https://openalex.org/W1", "cited_by_count": 3},
+            {"id": "https://openalex.org/W2", "display_name": "Titled work"},
+        ]
+    }
+
+    findings = parse_openalex_response(payload)
+
+    assert [f.title for f in findings] == ["Titled work"]
