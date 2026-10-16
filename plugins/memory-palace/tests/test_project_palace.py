@@ -2,6 +2,7 @@
 
 import dataclasses
 import json
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -50,7 +51,12 @@ class TestReviewEntry:
     """Tests for ReviewEntry class."""
 
     def test_create_entry(self):
-        """Test creating a review entry."""
+        """A new review entry keeps what it was built with.
+
+        GIVEN a decision entry with participants and tags
+        WHEN it is constructed
+        THEN its fields hold the values given and it gets a 12-character id
+        """
         entry = ReviewEntry(
             source_pr="#42 - Add authentication",
             title="JWT over sessions",
@@ -70,7 +76,12 @@ class TestReviewEntry:
         assert "alice" in entry.participants
 
     def test_entry_serialization(self):
-        """Test serializing and deserializing entry."""
+        """An entry survives serialization.
+
+        GIVEN a review entry
+        WHEN it goes through to_dict and from_dict
+        THEN id, title and room type survive the round trip
+        """
         entry = ReviewEntry(
             source_pr="#42 - Test",
             title="Test Entry",
@@ -86,9 +97,13 @@ class TestReviewEntry:
         assert restored.room_type == entry.room_type
 
     def test_entry_is_frozen_after_construction(self):
-        """C7 (#485): ReviewEntry is a frozen dataclass; mutating any
-        field raises ``FrozenInstanceError``. The deserialiser
-        (``from_dict``) goes through the constructor, not post-hoc
+        """A review entry cannot be changed after construction (#485).
+
+        GIVEN a constructed review entry
+        WHEN a field is assigned
+        THEN FrozenInstanceError is raised
+
+        The deserializer goes through the constructor, not post-hoc
         attribute writes.
         """
         entry = ReviewEntry(
@@ -106,9 +121,11 @@ class TestReviewEntry:
             setattr(entry, "access_count", 99)  # noqa: B010 - frozen-mutation contract
 
     def test_entry_from_dict_preserves_all_metadata_via_constructor(self):
-        """C7 (#485): ``from_dict`` is now a regular constructor call.
-        Round-trip preserves ``id``, ``created``, ``last_accessed``,
-        and ``access_count`` even though the entry is frozen.
+        """Rebuilding a frozen entry keeps its tracking metadata (#485).
+
+        GIVEN serialized entry data with access tracking recorded
+        WHEN from_dict rebuilds the entry
+        THEN id, created, last_accessed and access_count are all kept
         """
         original = ReviewEntry(
             source_pr="#7",
@@ -127,10 +144,11 @@ class TestReviewEntry:
         assert restored.last_accessed == "2026-05-03T12:00:00+00:00"
 
     def test_track_access_returns_new_instance(self):
-        """C7 (#485): read-tracking goes through a separate
-        ``with_access()`` API that returns a new instance with an
-        incremented ``access_count`` and refreshed ``last_accessed``.
-        The original entry is unchanged (frozen).
+        """Recording a read returns a new entry (#485).
+
+        GIVEN a review entry
+        WHEN with_access() is called
+        THEN a new entry has access_count one higher and the original is unchanged
         """
         entry = ReviewEntry(
             source_pr="#1",
@@ -153,7 +171,12 @@ class TestReviewEntry:
         assert bumped.title == entry.title
 
     def test_entry_to_markdown(self):
-        """Test generating markdown from entry."""
+        """An entry renders to markdown.
+
+        GIVEN an entry with a decision, context, knowledge and concepts
+        WHEN it is rendered to markdown
+        THEN the title, source PR, decision and connected concept all appear
+        """
         entry = ReviewEntry(
             source_pr="#42 - Add auth",
             title="JWT Decision",
@@ -180,7 +203,12 @@ class TestProjectPalaceManager:
     """Tests for ProjectPalaceManager class."""
 
     def test_create_project_palace(self, manager):
-        """Test creating a project palace."""
+        """A project palace is created with a review chamber.
+
+        GIVEN a manager and a repository name
+        WHEN a project palace is created
+        THEN it is typed project and has a review chamber with a decisions subroom
+        """
         palace = manager.create_project_palace(
             repo_name="owner/test-repo",
             repo_url="https://github.com/owner/test-repo",
@@ -193,7 +221,12 @@ class TestProjectPalaceManager:
         assert "decisions" in palace["rooms"]["review-chamber"]["subrooms"]
 
     def test_load_project_palace(self, manager):
-        """Test loading a project palace by ID."""
+        """A project palace loads by id.
+
+        GIVEN a created project palace
+        WHEN it is loaded by id
+        THEN the loaded palace has the same id and name
+        """
         created = manager.create_project_palace("owner/repo")
         loaded = manager.load_project_palace(created["id"])
 
@@ -202,7 +235,12 @@ class TestProjectPalaceManager:
         assert loaded["name"] == "owner/repo"
 
     def test_find_project_palace(self, manager):
-        """Test finding a project palace by name."""
+        """A project palace is found by name.
+
+        GIVEN two project palaces
+        WHEN one is looked up by repository name
+        THEN the matching palace is returned
+        """
         manager.create_project_palace("owner/repo1")
         manager.create_project_palace("owner/repo2")
 
@@ -212,14 +250,24 @@ class TestProjectPalaceManager:
         assert found["name"] == "owner/repo2"
 
     def test_get_or_create_project_palace(self, manager):
-        """Test get_or_create returns existing palace."""
+        """get_or_create reuses an existing palace.
+
+        GIVEN an existing project palace
+        WHEN get_or_create is called with its name
+        THEN the existing palace is returned, not a new one
+        """
         created = manager.create_project_palace("owner/repo")
         retrieved = manager.get_or_create_project_palace("owner/repo")
 
         assert retrieved["id"] == created["id"]
 
     def test_add_review_entry(self, manager):
-        """Test adding a review entry to palace."""
+        """A review entry is stored in its subroom.
+
+        GIVEN a project palace and a decision entry
+        WHEN the entry is added
+        THEN the call returns True and the entry is stored under decisions
+        """
         palace = manager.create_project_palace("owner/repo")
 
         entry = ReviewEntry(
@@ -258,7 +306,12 @@ class TestProjectPalaceManager:
             )
 
     def test_search_review_chamber(self, manager):
-        """Index two review entries and assert keyword search returns the expected one."""
+        """Search filters by keyword, room and tag.
+
+        GIVEN two entries in different rooms with different tags
+        WHEN the chamber is searched by keyword, by room and by tag
+        THEN each search returns only the matching entry
+        """
         palace = manager.create_project_palace("owner/repo")
 
         # Add entries
@@ -296,7 +349,12 @@ class TestProjectPalaceManager:
         assert len(results) == 1
 
     def test_get_review_chamber_stats(self, manager):
-        """Test getting review chamber statistics."""
+        """Review chamber stats count entries, rooms, contributors and tags.
+
+        GIVEN three decision entries with shared tags and one contributor
+        WHEN stats are requested
+        THEN totals, per-room counts, contributors and tag counts are reported
+        """
         palace = manager.create_project_palace("owner/repo")
 
         # Add entries
@@ -319,7 +377,12 @@ class TestProjectPalaceManager:
         assert stats["top_tags"]["tag1"] == 2
 
     def test_list_project_palaces(self, manager):
-        """Test listing all project palaces."""
+        """All project palaces are listed.
+
+        GIVEN two project palaces
+        WHEN palaces are listed
+        THEN both are returned
+        """
         manager.create_project_palace("owner/repo1")
         manager.create_project_palace("owner/repo2")
 
@@ -335,7 +398,12 @@ class TestCaptureFunction:
     """Tests for the capture_pr_review_knowledge function."""
 
     def test_capture_blocking_finding(self, config_file, temp_palaces_dir):
-        """Test capturing a BLOCKING finding."""
+        """A blocking finding is captured as a decision.
+
+        GIVEN a BLOCKING security finding from a PR review
+        WHEN review knowledge is captured
+        THEN one entry is created and stored under decisions
+        """
         findings = [
             {
                 "title": "Security vulnerability",
@@ -366,7 +434,12 @@ class TestCaptureFunction:
         assert len(decisions["entries"]) == 1
 
     def test_capture_skips_low_value_finding(self, config_file, temp_palaces_dir):
-        """Test that low-value findings are not captured."""
+        """Low-value findings are not captured.
+
+        GIVEN a style SUGGESTION finding
+        WHEN review knowledge is captured
+        THEN nothing is created
+        """
         findings = [
             {
                 "title": "Typo in comment",
@@ -391,12 +464,22 @@ class TestEdgeCases:
     """Tests for edge cases and error handling."""
 
     def test_load_nonexistent_palace(self, manager):
-        """Load palace returns None when palace ID doesn't exist."""
+        """Loading an unknown palace returns None.
+
+        GIVEN no palace with the requested id
+        WHEN it is loaded
+        THEN None is returned
+        """
         result = manager.load_project_palace("nonexistent-id")
         assert result is None
 
     def test_add_review_entry_to_nonexistent_palace(self, manager):
-        """Add review entry returns False when palace ID doesn't exist."""
+        """Adding to an unknown palace returns False.
+
+        GIVEN no palace with the requested id
+        WHEN an entry is added to it
+        THEN False is returned
+        """
         entry = ReviewEntry(
             source_pr="#42",
             title="Test",
@@ -407,12 +490,22 @@ class TestEdgeCases:
         assert result is False
 
     def test_search_review_chamber_nonexistent_palace(self, manager):
-        """Search review chamber returns empty list when palace ID doesn't exist."""
+        """Searching an unknown palace returns nothing.
+
+        GIVEN no palace with the requested id
+        WHEN its chamber is searched
+        THEN an empty list is returned
+        """
         results = manager.search_review_chamber("nonexistent-id", "query")
         assert results == []
 
     def test_get_review_chamber_stats_nonexistent_palace(self, manager):
-        """Get review chamber stats returns empty dict when palace ID doesn't exist."""
+        """Stats for an unknown palace are empty.
+
+        GIVEN no palace with the requested id
+        WHEN its stats are requested
+        THEN an empty dict is returned
+        """
         stats = manager.get_review_chamber_stats("nonexistent-id")
         assert stats == {}
 
@@ -895,3 +988,21 @@ class TestTypedRoomRegistry:
         """
         review_chamber = PROJECT_PALACE_ROOMS[_rooms.RoomType.REVIEW_CHAMBER]
         assert review_chamber.subrooms is REVIEW_CHAMBER_ROOMS
+
+
+def test_load_project_palace_returns_none_when_palace_file_is_unreadable(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A palace path that cannot be read yields None and a stderr reason.
+
+    GIVEN a palace id whose file path is a directory
+    WHEN the palace is loaded
+    THEN None is returned AND stderr says the read failed.
+    """
+    manager = ProjectPalaceManager(palaces_dir_override=str(tmp_path))
+    (Path(manager.project_palaces_dir) / "broken.json").mkdir()
+
+    palace = manager.load_project_palace("broken")
+
+    assert palace is None
+    assert "failed to read" in capsys.readouterr().err

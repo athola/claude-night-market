@@ -359,3 +359,19 @@ class TestBulkOperations:
         graph.create_synapse(source_id="e1", target_id="e2")
         assert graph.entity_count() == 2
         assert graph.synapse_count() == 1
+
+
+def test_search_falls_back_to_like_when_fts_index_is_unusable() -> None:
+    """Search still finds entities when the FTS table has gone missing.
+
+    GIVEN a graph whose FTS table was dropped after an entity was stored
+    WHEN the entity name is searched
+    THEN the entity is found through the LIKE fallback with rank 0.0.
+    """
+    with KnowledgeGraph(":memory:") as graph:
+        graph.upsert_entity("e1", "concept", "alpha beta")
+        graph._conn.execute("DROP TABLE entities_fts")
+
+        rows = graph.search("alpha")
+
+    assert [(r["entity_id"], r["rank"]) for r in rows] == [("e1", 0.0)]

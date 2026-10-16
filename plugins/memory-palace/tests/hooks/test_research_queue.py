@@ -492,3 +492,29 @@ class TestSessionTokenIsFilenameSafe:
         name = f"2026-01-01_{token}_topic.yaml"
         target = (tmp_path / name).resolve()
         assert target.parent == tmp_path.resolve()
+
+
+def test_compaction_summary_is_skipped_when_reading_the_topic(tmp_path: Path) -> None:
+    """The topic comes from the user's prompt, not the /compact summary.
+
+    GIVEN a transcript whose first user record is a compaction summary
+    carrying a research cue, followed by a typed research prompt
+    WHEN the transcript signal is read
+    THEN the topic is the typed prompt.
+    """
+    records = [
+        {
+            "type": "user",
+            "isCompactSummary": True,
+            "message": {"content": "Research the private customer migration"},
+        },
+        {"type": "user", "message": {"content": "research agent memory"}},
+    ]
+    transcript = tmp_path / "transcript.jsonl"
+    transcript.write_text(
+        "\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8"
+    )
+
+    searches, topic = research_queue._transcript_signal(str(transcript))
+
+    assert (searches, topic) == (0, "research agent memory")

@@ -249,3 +249,19 @@ class TestDecayKeepsPartialDays:
         now = dt.datetime(2026, 1, 2, 23, tzinfo=dt.timezone.utc)
         assert module.next_recompute_mark(None, now) == now.isoformat()
         assert module.next_recompute_mark("not-a-date", now) == now.isoformat()
+
+
+def test_naive_recompute_mark_is_read_as_utc() -> None:
+    """A stored mark without an offset advances in whole UTC days.
+
+    GIVEN a last-recomputed mark with no timezone
+    AND a UTC now 2.5 days later
+    WHEN the next mark is computed
+    THEN it advances two whole days and carries the UTC offset.
+    """
+    module = _load_script()
+    now = dt.datetime(2026, 1, 3, 12, 0, tzinfo=dt.timezone.utc)
+
+    mark = module.next_recompute_mark("2026-01-01T00:00:00", now)
+
+    assert mark == "2026-01-03T00:00:00+00:00"

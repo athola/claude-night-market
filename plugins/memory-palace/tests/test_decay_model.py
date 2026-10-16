@@ -4,6 +4,7 @@ Tests the DecayModel which implements time-based quality decay
 with different decay curves based on entry maturity.
 """
 
+import logging
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -582,3 +583,22 @@ def test_omitting_unit_type_preserves_maturity_behavior() -> None:
         model.calculate_decay("u4", "seedling", age).decay_factor
         == model.calculate_decay("u4", "seedling", age, unit_type=None).decay_factor
     )
+
+
+def test_entry_with_invalid_created_at_is_treated_as_validated_now(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """An unparsable created_at warns and does not make the entry stale.
+
+    GIVEN an unvalidated entry whose created_at is not an ISO date
+    WHEN stale entries are listed
+    THEN the entry is not stale AND a warning names the entry.
+    """
+    model = DecayModel()
+    entry = {"id": "bad-date", "maturity": "seedling", "created_at": "last tuesday"}
+
+    with caplog.at_level(logging.WARNING):
+        stale = model.get_stale_entries([entry])
+
+    assert stale == []
+    assert "Invalid created_at for entry bad-date" in caplog.text
