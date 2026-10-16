@@ -158,7 +158,19 @@ The tests are the validation: a delegated implementation that fails the
 RED test is rejected exactly like a local one.
 
 If the result carries a `fallback_reason`, no external model ran.
-Report which providers were tried, then implement the task here.
+Report which providers were tried, then hand the task to a subagent on the
+session's model.
+Use the host harness's own subagent tool.
+In Claude Code, dispatch `Agent(attune:project-implementer)` with `model`
+set to the session's own model (`opus`, `sonnet`, `haiku` or `fable`).
+The agent pins `sonnet`, and the override keeps the task on the model the
+operator chose.
+When the session model has no alias, dispatch `general-purpose` with no
+`model`, which inherits it.
+In Codex, OpenCode or another harness, use its subagent or task tool and
+leave the model unchanged.
+Implement the task here only when the harness has no subagent tool.
+Take the same path when conjure is not installed and its skill cannot load.
 An exhausted chain is not a blocked task and does not belong in
 `docs/lessons-learned.md`.
 

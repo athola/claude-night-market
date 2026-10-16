@@ -134,7 +134,7 @@ def test_each_orchestrator_carries_the_posture(path: Path, anchor: str) -> None:
 @pytest.mark.parametrize(
     ("path", "anchor"),
     [
-        (MISSION, "do the task in the mission itself"),
+        (MISSION, "hand the task to a subagent"),
         (EXECUTION, "fallback_reason"),
         (SUMMON, "not a step failure"),
     ],

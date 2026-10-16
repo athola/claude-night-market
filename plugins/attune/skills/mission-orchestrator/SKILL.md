@@ -164,9 +164,21 @@ consult the delegator at all.
 Two outcomes need handling rather than reporting:
 
 - `fallback_reason` is `providers_exhausted`: no CLI answered. Say which
-  were tried, then do the task in the mission itself. This is the
-  ordinary path on a machine with no CLI installed and it does not fail
-  the phase.
+  were tried, then hand the task to a subagent on the session's model.
+  Use the host harness's own subagent tool.
+  In Claude Code, dispatch `Agent(attune:project-implementer)` with
+  `model` set to the session's own model (`opus`, `sonnet`, `haiku` or
+  `fable`). The agent pins `sonnet`, and without the override an Opus
+  mission runs its tasks on Sonnet. When the session model has no alias,
+  dispatch `general-purpose` with no `model`, which inherits it.
+  In Codex, OpenCode or another harness, use its subagent or task tool
+  and leave the model unchanged.
+  Validate what returns through the same TDD workflow as a delegated
+  result. Work inline only when the harness has no subagent tool.
+  This is the ordinary path on a machine with no CLI installed and it
+  does not fail the phase.
+  Take the same path when conjure is not installed and its skill cannot
+  load.
 - `fallback_reason` is `delegation_disabled`: the operator declined.
   Do the task locally and do not offer to re-enable it.
 
@@ -365,6 +377,6 @@ mission-type baseline.
 - [ ] Risk summary generated (tier counts across all tasks)
 - [ ] Execute-phase work either delegated or held back by a named Keep
   Local clause, never skipped for want of a delegation decision
-- [ ] Any `providers_exhausted` result completed locally and reported with
-  the providers it tried
+- [ ] Any `providers_exhausted` result completed by a session-model
+  subagent and reported with the providers it tried
 - [ ] No unresolved errors or blockers

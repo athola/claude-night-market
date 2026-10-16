@@ -263,6 +263,11 @@ A full-codebase API review found 98 grounded defects. 86 are fixed,
 
 ### Changed (behavior visible to callers)
 
+- attune `/mission` and `project-execution` hand a task to a subagent on
+  the session's model when no conjure CLI answers or conjure is absent,
+  where they did the work inline. Claude Code dispatches
+  `attune:project-implementer` with `model` overridden from its `sonnet`
+  pin. Other harnesses use their own subagent tool.
 - Bad input raises `ValueError` where it was silently accepted:
   memory-palace `get_session`/`delete_session` ids, `search_type`,
   `CacheLookup.search` mode, autonomy `lock` without a domain, unknown
