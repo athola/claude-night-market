@@ -407,3 +407,13 @@ class TestTheItemWorktreeStaysInsideTheRepository:
         assert night_run._item_worktree(tmp_path, "NS-001", "trees/one") == (
             (tmp_path / "trees" / "one").resolve()
         )
+
+
+def test_git_unquote_decodes_simple_escapes_in_a_quoted_path() -> None:
+    """Git writes a tab or newline in a path as a backslash escape.
+
+    GIVEN a path git quoted with tab and newline escapes
+    WHEN the name is unquoted
+    THEN the escapes become the tab and newline characters.
+    """
+    assert night_run._git_unquote('"col\\tumn\\nrow"') == "col\tumn\nrow"
