@@ -56,7 +56,7 @@ Evaluate and improve test suites with TDD/BDD rigor.
 - Writing new tests - use parseltongue:python-testing
 - Updating existing tests - use sanctum:test-updates
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `test-review:languages-detected`
 2. `test-review:coverage-inventoried`
@@ -221,12 +221,12 @@ the verifier rejects.
 
 ## Exit Criteria
 
-- Frameworks detected and documented
-- Coverage analyzed and gaps identified
-- Scenario quality assessed
-- Remediation plan created with owners and dates
-- Evidence logged with citations
-- Every reported finding carries a `Location` + verbatim `Anchor` confirmed
+- [ ] Frameworks detected and documented
+- [ ] Coverage analyzed and gaps identified
+- [ ] Scenario quality assessed
+- [ ] Remediation plan created with owners and dates
+- [ ] Evidence logged with citations
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor` confirmed
   by `citation_verifier.py` (exit `0`), or unverified findings were dropped
   or labeled `UNVERIFIED`
 ## Troubleshooting

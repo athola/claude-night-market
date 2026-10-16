@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import importlib
 import json
+import subprocess
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -23,6 +24,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 import auto_promote_learnings
+import post_learnings_to_discussions
 
 # ---------------------------------------------------------------------------
 # Sample data
@@ -362,15 +364,41 @@ class TestIssueCreation:
 class TestDiscussionPosting:
     """Test Discussion posting for medium-severity items."""
 
+    @staticmethod
+    def _fake_gh(created: list[dict], *, category: str | None = "DIC_learn"):
+        """Answer the three GraphQL calls a discussion post makes."""
+        nodes = [{"id": category, "slug": "learnings"}] if category else []
+
+        def fake(query: str, variables: dict | None = None) -> dict:
+            if "discussionCategories" in query:
+                return {
+                    "data": {"repository": {"discussionCategories": {"nodes": nodes}}}
+                }
+            if "createDiscussion" in query:
+                created.append(variables or {})
+                url = "https://github.com/test/discussions/1"
+                return {"data": {"createDiscussion": {"discussion": {"url": url}}}}
+            return {"data": {"repository": {"id": "R_1"}}}
+
+        return fake
+
+    @pytest.fixture
+    def discussions_module(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        """post_learnings_to_discussions with its config dir in tmp_path."""
+        monkeypatch.setattr(
+            post_learnings_to_discussions, "get_config_dir", lambda: tmp_path
+        )
+        return post_learnings_to_discussions
+
     def test_posts_discussion_for_medium_priority_item(
-        self, promote_module, monkeypatch: pytest.MonkeyPatch
+        self, promote_module, discussions_module, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Given: An item with priority between 2.0 and 5.0
         When: post_to_discussion() is called
-        Then: Delegates to post_learnings_to_discussions infrastructure
+        Then: A discussion titled for the skill is created in "learnings"
         """
-        mock_post = MagicMock(return_value="https://github.com/test/discussions/1")
-        monkeypatch.setattr(promote_module, "_post_single_discussion", mock_post)
+        created: list[dict] = []
+        monkeypatch.setattr(discussions_module, "_gh_graphql", self._fake_gh(created))
 
         item = {
             "skill": "abstract:skill-auditor",
@@ -379,8 +407,152 @@ class TestDiscussionPosting:
             "detail": "User evaluations indicate poor effectiveness",
         }
         url = promote_module.post_to_discussion(item, "athola", "cnm")
-        assert url is not None
-        mock_post.assert_called_once()
+
+        assert url == "https://github.com/test/discussions/1"
+        assert len(created) == 1
+        assert created[0]["categoryId"] == "DIC_learn"
+        assert created[0]["title"] == "[Improvement] abstract:skill-auditor: low_rating"
+        assert "2.8/5.0 rating" in created[0]["body"]
+
+    def test_no_learnings_category_posts_nothing(
+        self, promote_module, discussions_module, monkeypatch, capsys
+    ) -> None:
+        """A repo without a "learnings" category is skipped with a note."""
+        created: list[dict] = []
+        monkeypatch.setattr(
+            discussions_module, "_gh_graphql", self._fake_gh(created, category=None)
+        )
+        item = {"skill": "a:b", "type": "low_rating"}
+
+        assert promote_module.post_to_discussion(item, "o", "r") is None
+        assert created == []
+        assert 'No "learnings" category on o/r' in capsys.readouterr().err
+
+    def test_gh_failure_while_posting_returns_none(
+        self, promote_module, discussions_module, monkeypatch, capsys
+    ) -> None:
+        """A gh failure after the category lookup is warned about, not raised."""
+
+        def failing(query: str, variables: dict | None = None) -> dict:
+            if "discussionCategories" in query:
+                return self._fake_gh([])(query, variables)
+            raise discussions_module._GhError("HTTP 502", cmd=["gh"])
+
+        monkeypatch.setattr(discussions_module, "_gh_graphql", failing)
+        item = {"skill": "a:b", "type": "low_rating"}
+
+        assert promote_module.post_to_discussion(item, "o", "r") is None
+        assert "Discussion posting failed: HTTP 502" in capsys.readouterr().err
+
+
+class TestHasExistingIssue:
+    """The duplicate check reads gh issue list output.
+
+    A check that could not run returns None, never False: False means "no
+    duplicate" and lets the caller file an issue that may already exist.
+    """
+
+    @pytest.mark.parametrize(
+        ("returncode", "stdout", "expected"),
+        [
+            (0, '[{"number": 12}]', True),
+            (0, "[]", False),
+            (0, "", False),
+            (1, "", None),
+            (0, "<html>rate limited</html>", None),
+        ],
+        ids=["match", "no-match", "empty-output", "gh-nonzero", "non-json-output"],
+    )
+    def test_reads_gh_issue_list_result(
+        self, promote_module, monkeypatch, returncode, stdout, expected
+    ) -> None:
+        run = MagicMock(
+            return_value=MagicMock(returncode=returncode, stdout=stdout, stderr="")
+        )
+        monkeypatch.setattr("subprocess.run", run)
+        item = {"skill": "a:b", "type": "high_failure_rate"}
+
+        assert promote_module.has_existing_issue(item, "o/r") is expected
+        cmd = run.call_args[0][0]
+        assert cmd[cmd.index("--search") + 1].startswith(
+            "[Auto-Improvement] a:b: high_failure_rate"
+        )
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            FileNotFoundError("gh"),
+            subprocess.TimeoutExpired(cmd="gh", timeout=15),
+        ],
+        ids=["gh-missing", "gh-timeout"],
+    )
+    def test_unrunnable_gh_reads_as_unknown_with_a_warning(
+        self, promote_module, monkeypatch, capsys, error
+    ) -> None:
+        monkeypatch.setattr("subprocess.run", MagicMock(side_effect=error))
+        item = {"skill": "a:b", "type": "t"}
+
+        assert promote_module.has_existing_issue(item, "o/r") is None
+        assert "duplicate check" in capsys.readouterr().err
+
+    def test_failed_duplicate_check_promotes_nothing_and_retries_later(
+        self, promote_module, tmp_path: Path, monkeypatch, capsys
+    ) -> None:
+        """An unknown duplicate state skips the item without recording it."""
+        (tmp_path / "LEARNINGS.md").write_text("x")
+        item = {"skill": "p:s", "type": "t", "metric": "m", "detail": "d"}
+        monkeypatch.setattr(
+            promote_module, "parse_improvement_items", lambda _c: [item]
+        )
+        monkeypatch.setattr(promote_module, "detect_target_repo", lambda: ("o", "n"))
+        monkeypatch.setattr(promote_module, "calculate_priority", lambda _i: 9.0)
+        monkeypatch.setattr(
+            "subprocess.run", MagicMock(return_value=MagicMock(returncode=1, stdout=""))
+        )
+        issue = MagicMock(return_value="https://example.invalid/issues/1")
+        discussion = MagicMock(return_value="https://example.invalid/discussions/1")
+        monkeypatch.setattr(promote_module, "promote_to_issue", issue)
+        monkeypatch.setattr(promote_module, "post_to_discussion", discussion)
+
+        assert promote_module.run_auto_promote() == []
+
+        issue.assert_not_called()
+        discussion.assert_not_called()
+        record = promote_module.PromotedIssueRecord.load(
+            tmp_path / "promoted_issues.json"
+        )
+        assert not record.is_promoted("p:s:t")
+        assert "duplicate check failed for 'p:s:t'" in capsys.readouterr().err
+
+
+class TestMain:
+    """main reports what it promoted and never fails the hook."""
+
+    def test_prints_promoted_urls(self, promote_module, monkeypatch, capsys) -> None:
+        monkeypatch.setattr(promote_module, "run_auto_promote", lambda: ["u1", "u2"])
+        promote_module.main()
+        out = capsys.readouterr().out
+        assert "Promoted 2 item(s):" in out
+        assert "  u2" in out
+
+    def test_reports_nothing_promoted(
+        self, promote_module, monkeypatch, capsys
+    ) -> None:
+        monkeypatch.setattr(promote_module, "run_auto_promote", lambda: [])
+        promote_module.main()
+        assert "No items promoted." in capsys.readouterr().out
+
+    def test_failure_exits_zero_with_a_warning(
+        self, promote_module, monkeypatch, capsys
+    ) -> None:
+        def boom() -> list[str]:
+            raise RuntimeError("boom")
+
+        monkeypatch.setattr(promote_module, "run_auto_promote", boom)
+        with pytest.raises(SystemExit) as exc:
+            promote_module.main()
+        assert exc.value.code == 0
+        assert "Auto-promotion failed: boom" in capsys.readouterr().err
 
 
 # ---------------------------------------------------------------------------
@@ -973,3 +1145,27 @@ class TestPromotionGate:
             tmp_path / "promoted_issues.json"
         )
         assert record.promoted["leyline:gone:high_failure_rate"] == "stale-skipped"
+
+
+def test_a_score_of_exactly_the_threshold_goes_to_discussion(
+    promote_module, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A score of exactly 5.0 is posted to Discussions, not an issue.
+
+    The module documents "Score > 5.0 -> issue, <= 5.0 -> Discussions" and
+    the issue body says the score "exceeded" 5.0; the gate used >=, so a
+    5.0 item opened an issue claiming it exceeded 5.0.
+    """
+    (tmp_path / "LEARNINGS.md").write_text("x")
+    item = {"skill": "p:s", "type": "t", "metric": "m", "detail": "d"}
+    monkeypatch.setattr(promote_module, "parse_improvement_items", lambda _c: [item])
+    monkeypatch.setattr(promote_module, "detect_target_repo", lambda: ("o", "n"))
+    monkeypatch.setattr(promote_module, "calculate_priority", lambda _i: 5.0)
+    monkeypatch.setattr(promote_module, "has_existing_issue", lambda *_a: False)
+    issue = MagicMock(return_value="https://example.invalid/issues/1")
+    discussion = MagicMock(return_value="https://example.invalid/discussions/1")
+    monkeypatch.setattr(promote_module, "promote_to_issue", issue)
+    monkeypatch.setattr(promote_module, "post_to_discussion", discussion)
+    promote_module.run_auto_promote()
+    issue.assert_not_called()
+    discussion.assert_called_once()

@@ -43,7 +43,7 @@ like thinking. Material framed as summaries produces reporting.
 Always frame user-provided source material as raw notes unless
 the user explicitly requests otherwise.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `voice-generate:profile-loaded` - Voice profile read
 2. `voice-generate:register-selected` - Register chosen
@@ -182,9 +182,9 @@ If `.voice/override.md` exists in the current project:
 
 ## Exit Criteria
 
-- Text generated in the specified voice
-- No banned phrases present
-- Craft techniques applied (concrete-first, naming, etc.)
-- Source material framed as raw notes
-- Review dispatched (if requested)
-- Snapshot saved (if learning mode active)
+- [ ] Text generated in the specified voice
+- [ ] No banned phrases present
+- [ ] Craft techniques applied (concrete-first, naming, etc.)
+- [ ] Source material framed as raw notes
+- [ ] Review dispatched (if requested)
+- [ ] Snapshot saved (if learning mode active)

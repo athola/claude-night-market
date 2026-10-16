@@ -87,7 +87,7 @@ from leyline.quota_tracker import QuotaTracker
 tracker = QuotaTracker(service="my-service")
 status, warnings = tracker.get_quota_status()
 
-if status == "CRITICAL":
+if status == "critical":
     # Defer or use secondary service
     pass
 ```
@@ -126,6 +126,6 @@ Then use the shared patterns:
 
 ## Exit Criteria
 
-- Quota status checked before operation
-- Usage recorded after operation
-- Threshold warnings handled appropriately
+- [ ] Quota status checked before operation
+- [ ] Usage recorded after operation
+- [ ] Threshold warnings handled appropriately

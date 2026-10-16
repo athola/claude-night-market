@@ -136,6 +136,21 @@ class MarginalValueFilter:
         """
         return infer_queries(content, title)
 
+    @staticmethod
+    def _record_match(
+        matching_entries: list[str],
+        overlap_scores: list[float],
+        entry_id: str,
+        score: float,
+    ) -> None:
+        """Track an entry once, at the best score any search gave it."""
+        if entry_id in matching_entries:
+            position = matching_entries.index(entry_id)
+            overlap_scores[position] = max(overlap_scores[position], score)
+        else:
+            matching_entries.append(entry_id)
+            overlap_scores.append(score)
+
     def _check_redundancy(
         self,
         keywords: set[str],
@@ -168,9 +183,7 @@ class MarginalValueFilter:
                 entry_id = result["entry_id"]
                 score = result["match_score"]
 
-                if entry_id not in matching_entries:
-                    matching_entries.append(entry_id)
-                    overlap_scores.append(score)
+                self._record_match(matching_entries, overlap_scores, entry_id, score)
 
         for query in queries:
             query_results = self.cache_lookup.search(
@@ -181,9 +194,7 @@ class MarginalValueFilter:
                 entry_id = result["entry_id"]
                 score = result["match_score"]
 
-                if entry_id not in matching_entries:
-                    matching_entries.append(entry_id)
-                    overlap_scores.append(score)
+                self._record_match(matching_entries, overlap_scores, entry_id, score)
 
         normalized_content = content.strip()
         for entry_id in matching_entries:

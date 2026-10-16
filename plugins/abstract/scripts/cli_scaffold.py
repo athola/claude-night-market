@@ -21,6 +21,13 @@ def setup_src_path() -> None:
         sys.path.insert(0, src_path)
 
 
+setup_src_path()
+
+from abstract.cli_output import write_output
+
+__all__ = ["create_parser", "format_result", "setup_src_path", "write_output"]
+
+
 def create_parser(
     description: str,
     *,
@@ -46,21 +53,6 @@ def create_parser(
             help="Output format",
         )
     return parser
-
-
-def write_output(text: str, output_path: Path | None) -> None:
-    """Write text to file or stdout.
-
-    Args:
-        text: Content to write.
-        output_path: File path, or None for stdout.
-
-    """
-    if output_path:
-        with open(output_path, "w") as f:
-            f.write(text)
-    else:
-        print(text)
 
 
 def format_result(

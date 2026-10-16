@@ -25,7 +25,6 @@ tools:
   - Grep
   - Skill
   - Task
-  - TodoRead
   - TodoWrite
   - CronCreate
   - CronList

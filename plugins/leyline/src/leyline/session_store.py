@@ -34,6 +34,8 @@ class SessionStore:
         self.sessions_dir.mkdir(parents=True, exist_ok=True)
 
     def _session_path(self, session_id: str) -> Path:
+        if not validate_session_id(session_id):
+            raise ValueError(f"Invalid session ID: {session_id!r}")
         return self.sessions_dir / f"{session_id}.json"
 
     def save(self, session_id: str, record: Any) -> Path:

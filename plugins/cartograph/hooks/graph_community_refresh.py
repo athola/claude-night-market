@@ -13,6 +13,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from _vendored_leyline_sibling_plugins import sibling_plugin_dir
+
 
 def _find_graph_db() -> Path | None:
     """Find .gauntlet/graph.db by walking up from cwd."""
@@ -57,8 +59,11 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
 
     if gauntlet_src is None:
         # Try finding via plugin directories
-        plugins_dir = Path(__file__).resolve().parents[2]
-        candidate = plugins_dir / "gauntlet" / "src"
+        # Beside this plugin in the repo, or the newest cached install.
+        gauntlet = sibling_plugin_dir(__file__, "gauntlet")
+        candidate = (
+            gauntlet or Path(__file__).resolve().parents[2] / "gauntlet"
+        ) / "src"
         if (candidate / "gauntlet").is_dir():
             gauntlet_src = candidate
 
@@ -72,15 +77,22 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
         import gauntlet.graph as _gg  # type: ignore[import-not-found]  # runtime sys.path injection, not statically resolvable
 
         graph = _gg.GraphStore(str(db_path))
-        communities = _gc.detect_communities(graph)
-        graph.close()
+        try:
+            communities = _gc.detect_communities(graph)
+        finally:
+            graph.close()
 
         names = [c.get("name", "?") for c in communities[:5]]
         msg = (
             f"Communities refreshed: {len(communities)} clusters detected"
             f" ({', '.join(names)})"
         )
-        return {"additionalContext": msg}
+        return {
+            "hookSpecificOutput": {
+                "hookEventName": "PostToolUse",
+                "additionalContext": msg,
+            }
+        }
     except Exception as exc:
         sys.stderr.write(
             f"graph_community_refresh: community detection failed: "

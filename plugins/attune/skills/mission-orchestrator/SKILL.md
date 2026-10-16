@@ -164,11 +164,16 @@ consult the delegator at all.
 Two outcomes need handling rather than reporting:
 
 - `fallback_reason` is `providers_exhausted`: no CLI answered. Say which
-  were tried, then do the task in the mission itself. This is the
-  ordinary path on a machine with no CLI installed and it does not fail
-  the phase.
+  were tried, then hand the task to a subagent on the session's model.
+  `Skill(attune:project-execution)` module `subagent-fallback.md`
+  carries the rule: which agent each phase uses, how to keep the model
+  and the branch, and when inline work is allowed. This is the ordinary
+  path on a machine with no CLI installed and it does not fail the phase.
+  Take the same path when conjure is not installed and its skill cannot
+  load.
 - `fallback_reason` is `delegation_disabled`: the operator declined.
-  Do the task locally and do not offer to re-enable it.
+  Do the task locally, because a subagent is still a delegation, and do
+  not offer to re-enable it.
 
 To run a whole mission without external models, set
 `CONJURE_DELEGATION=off` before invoking it.
@@ -359,12 +364,13 @@ mission-type baseline.
 
 ## Exit Criteria
 
-- All phases in mission type completed successfully
-- Artifacts exist for each completed phase
-- Mission state saved to `.attune/mission-state.json`
-- Risk summary generated (tier counts across all tasks)
-- Execute-phase work either delegated or held back by a named Keep
+- [ ] All phases in mission type completed successfully
+- [ ] Artifacts exist for each completed phase
+- [ ] Mission state saved to `.attune/mission-state.json`
+- [ ] Risk summary generated (tier counts across all tasks)
+- [ ] Execute-phase work either delegated or held back by a named Keep
   Local clause, never skipped for want of a delegation decision
-- Any `providers_exhausted` result completed locally and reported with
-  the providers it tried
-- No unresolved errors or blockers
+- [ ] Any `providers_exhausted` result completed by a session-model
+  subagent, or inline when the harness has no subagent tool, and
+  reported with the providers it tried
+- [ ] No unresolved errors or blockers

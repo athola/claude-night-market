@@ -7,15 +7,20 @@ subdirectory so they are co-located with palace data but clearly separated.
 
 from __future__ import annotations
 
+import contextlib
+import fcntl
 import fnmatch
 import json
+import logging
 import sys
 from collections import Counter
+from collections.abc import Iterator
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+from memory_palace.palace_repository import _atomic_write_json
 from memory_palace.paths import user_data_dir
 
 try:
@@ -47,6 +52,8 @@ _validate_session_id = validate_session_id
 # Storage location within the plugin data directory
 SESSIONS_DIR = "sessions"
 SESSION_INDEX = "session_index.json"
+
+logger = logging.getLogger(__name__)
 
 
 UNIT_TYPES: frozenset[str] = frozenset({"finding", "decision", "open-thread", "state"})
@@ -163,6 +170,17 @@ class SessionRecord:
             u if isinstance(u, SessionUnit) else SessionUnit.from_dict(u) for u in units
         ]
         return cls(**filtered)
+
+
+def _started_on_or_before(started_at: str, until: str) -> bool:
+    """Compare a start timestamp against an inclusive ISO upper bound.
+
+    A bare date bound ("2026-10-07") covers that whole day, so a session
+    that started at 10:00 that day must not sort after it.
+    """
+    if len(until) == len("YYYY-MM-DD"):
+        return started_at[: len(until)] <= until
+    return started_at <= until
 
 
 @dataclass
@@ -285,14 +303,86 @@ class SessionHistoryManager:
                 )
                 return result
             except (json.JSONDecodeError, OSError):
-                # Corrupted index: return a clean default and let it be rebuilt
-                return {"sessions": [], "stats": {"total": 0, "last_updated": None}}
+                # Corrupted index: the session files are the source of truth.
+                # Saved, or every later load would rescan them all.
+                rebuilt = self._rebuild_index()
+                try:
+                    self._save_index(rebuilt)
+                except OSError as exc:
+                    # The index is a cache; a read must not fail on its write.
+                    logger.warning(
+                        "session index %s rebuilt but not saved: %s",
+                        self.index_path,
+                        exc,
+                    )
+                return rebuilt
         return {"sessions": [], "stats": {"total": 0, "last_updated": None}}
 
+    @staticmethod
+    def _index_entry(record: SessionRecord) -> dict[str, Any]:
+        """Build the summary row the index keeps for a record."""
+        return {
+            "session_id": record.session_id,
+            "started_at": record.started_at,
+            "ended_at": record.ended_at,
+            "summary": record.summary[:200],  # truncated for index
+            "topics": record.topics,
+            "outcome": record.outcome,
+            "tags": record.tags,
+            "parent_session_id": record.parent_session_id,
+        }
+
+    def _rebuild_index(self) -> dict[str, Any]:
+        """Rebuild the index by scanning the stored session files."""
+        index_stem = Path(SESSION_INDEX).stem
+        records = []
+        for sid in self._store.list_sessions():
+            if sid == index_stem:
+                continue
+            # The store catches only JSON and shape errors; one file with
+            # bad bytes or an unparsable field must not fail every load.
+            try:
+                records.append(self._store.load(sid))
+            except (OSError, ValueError) as exc:
+                logger.warning("skipping unreadable session %s: %s", sid, exc)
+        loaded = sorted(
+            (rec for rec in records if rec is not None),
+            key=lambda rec: rec.started_at,
+        )
+        return {
+            "sessions": [self._index_entry(rec) for rec in loaded],
+            "stats": {"total": len(loaded), "last_updated": None},
+        }
+
+    def _load_record(self, session_id: str) -> SessionRecord | None:
+        """Load a record, treating an unsafe stored id as absent."""
+        if not validate_session_id(session_id):
+            return None
+        result: SessionRecord | None = self._store.load(session_id)
+        return result
+
+    @contextlib.contextmanager
+    def _locked_index(self) -> Iterator[dict[str, Any]]:
+        """Load, yield for mutation, and save the index under a file lock.
+
+        Parallel Stop hooks each record a session. An unlocked
+        load-modify-save let one writer's stale copy drop the row another
+        had just added, and the index is only rebuilt when it is corrupt.
+        """
+        self._ensure_dirs()
+        lock_path = self.index_path.with_name(SESSION_INDEX + ".lock")
+        with open(lock_path, "a", encoding="utf-8") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            index = self._load_index()
+            yield index
+            self._save_index(index)
+
     def _save_index(self, index: dict[str, Any]) -> None:
-        """Persist the session index to disk."""
+        """Persist the session index atomically."""
         index["stats"]["last_updated"] = datetime.now(timezone.utc).isoformat()
-        self.index_path.write_text(json.dumps(index, indent=2), encoding="utf-8")
+        # A per-call temp name: with a fixed one, concurrent writers clobber
+        # each other's half-written file before the rename.
+        _atomic_write_json(str(self.index_path), index)
 
     # ------------------------------------------------------------------
     # Public API
@@ -315,44 +405,31 @@ class SessionHistoryManager:
             raise ValueError(f"Invalid session_id: {record.session_id!r}")
         session_file: Path = self._store.save(record.session_id, record)
 
-        index = self._load_index()
-        # Remove any stale entry for this session before appending
-        index["sessions"] = [
-            s for s in index["sessions"] if s.get("session_id") != record.session_id
-        ]
-        index["sessions"].append(
-            {
-                "session_id": record.session_id,
-                "started_at": record.started_at,
-                "ended_at": record.ended_at,
-                "summary": record.summary[:200],  # truncated for index
-                "topics": record.topics,
-                "outcome": record.outcome,
-                "tags": record.tags,
-                "parent_session_id": record.parent_session_id,
-            }
-        )
-        index["stats"]["total"] = len(index["sessions"])
-        self._save_index(index)
+        with self._locked_index() as index:
+            # Remove any stale entry for this session before appending
+            index["sessions"] = [
+                s for s in index["sessions"] if s.get("session_id") != record.session_id
+            ]
+            index["sessions"].append(self._index_entry(record))
+            index["stats"]["total"] = len(index["sessions"])
         return session_file
 
-    def get_session(self, session_id: str) -> Any:
+    def get_session(self, session_id: str) -> SessionRecord | None:
         """Retrieve a specific session record by ID.
 
         Args:
             session_id: The identifier of the session to retrieve.
 
         Returns:
-            The ``SessionRecord``, or ``None`` if not found /
-            if the ID is invalid.
+            The ``SessionRecord``, or ``None`` if no such session exists.
+
+        Raises:
+            ValueError: If the session_id contains unsafe characters.
 
         """
         if not validate_session_id(session_id):
-            return None
-        result = self._store.load(session_id)
-        if result is None:
-            return None
-        return result
+            raise ValueError(f"Invalid session_id: {session_id!r}")
+        return self._load_record(session_id)
 
     def query_sessions(self, query: SessionQuery) -> list[SessionRecord]:
         """Search session history with flexible filters.
@@ -384,11 +461,13 @@ class SessionHistoryManager:
             if query.since and entry.get("started_at", "") < query.since:
                 continue
 
-            if query.until and entry.get("started_at", "") > query.until:
+            if query.until and not _started_on_or_before(
+                entry.get("started_at", ""), query.until
+            ):
                 continue
 
             # Load full record for deeper filters
-            record = self.get_session(entry["session_id"])
+            record = self._load_record(entry["session_id"])
             if record is None:
                 continue
 
@@ -427,7 +506,11 @@ class SessionHistoryManager:
             session_id: Any session in the chain.
 
         Returns:
-            Ordered list of ``SessionRecord`` objects from root to leaf.
+            Ordered list of ``SessionRecord`` objects from root to leaf,
+            or an empty list if no such session exists.
+
+        Raises:
+            ValueError: If the session_id contains unsafe characters.
 
         """
         root = self.get_session(session_id)
@@ -441,7 +524,7 @@ class SessionHistoryManager:
             if current.parent_session_id in visited:
                 # Guard against cycles
                 break
-            parent = self.get_session(current.parent_session_id)
+            parent = self._load_record(current.parent_session_id)
             if parent is None:
                 break
             visited.add(parent.session_id)
@@ -465,7 +548,7 @@ class SessionHistoryManager:
             if child_id in seen:
                 # Guard against cycles in the index
                 break
-            child = self.get_session(child_id)
+            child = self._load_record(child_id)
             if child is None:
                 break
             chain.append(child)
@@ -517,21 +600,23 @@ class SessionHistoryManager:
 
         Returns:
             ``True`` if the session was deleted, ``False`` if it was
-            not found or if the ID is invalid.
+            not found.
+
+        Raises:
+            ValueError: If the session_id contains unsafe characters.
 
         """
         if not validate_session_id(session_id):
-            return False
+            raise ValueError(f"Invalid session_id: {session_id!r}")
         deleted = self._store.delete(session_id)
         if not deleted:
             return False
 
-        index = self._load_index()
-        index["sessions"] = [
-            s for s in index["sessions"] if s.get("session_id") != session_id
-        ]
-        index["stats"]["total"] = len(index["sessions"])
-        self._save_index(index)
+        with self._locked_index() as index:
+            index["sessions"] = [
+                s for s in index["sessions"] if s.get("session_id") != session_id
+            ]
+            index["stats"]["total"] = len(index["sessions"])
         return True
 
     def prune_old_sessions(self, max_age_days: int = 90) -> int:
@@ -548,19 +633,18 @@ class SessionHistoryManager:
         cutoff = datetime.now(timezone.utc) - timedelta(days=max_age_days)
         cutoff_str = cutoff.isoformat()
 
-        index = self._load_index()
-        to_remove = [
-            s["session_id"]
-            for s in index["sessions"]
-            if s.get("started_at", "") < cutoff_str
-        ]
+        with self._locked_index() as index:
+            to_remove = [
+                s["session_id"]
+                for s in index["sessions"]
+                if s.get("started_at", "") < cutoff_str
+            ]
 
-        for sid in to_remove:
-            self._store.delete(sid)
+            for sid in to_remove:
+                self._store.delete(sid)
 
-        index["sessions"] = [
-            s for s in index["sessions"] if s.get("session_id") not in to_remove
-        ]
-        index["stats"]["total"] = len(index["sessions"])
-        self._save_index(index)
+            index["sessions"] = [
+                s for s in index["sessions"] if s.get("session_id") not in to_remove
+            ]
+            index["stats"]["total"] = len(index["sessions"])
         return len(to_remove)

@@ -76,7 +76,7 @@ This mirrors patterns from open-ended embodied agents (e.g., Voyager/MineDojo) t
    - Load complementary superpowers skills.
 
 4. **Initialize Progress Tracking**
-   - Create TodoWrite items for workflow phases.
+   - Create progress items for workflow phases.
    - Track completion status.
 
 ### Command-Skill Matrix
@@ -91,7 +91,7 @@ Quick reference for command-to-skill mappings:
 | `/speckit-tasks` | task-planning | executing-plans |
 | `/speckit-implement` | - | executing-plans, systematic-debugging |
 | `/speckit-converge` | - | executing-plans, verification-before-completion |
-| `/speckit-analyze` | - | systematic-debugging, verification |
+| `/speckit-analyze` | - | systematic-debugging, verification-before-completion |
 | `/speckit-checklist` | - | verification-before-completion |
 
 **For detailed patterns**: See `modules/command-skill-matrix.md` for complete mappings and loading rules.
@@ -107,14 +107,14 @@ For each workflow session, track:
 - [ ] Artifacts created/updated.
 - [ ] Verification completed.
 
-**For detailed patterns**: See `modules/progress-tracking.md` for TodoWrite patterns and metrics.
+**For detailed patterns**: See `modules/progress-tracking.md` for progress-item patterns and metrics.
 
 ## Exit Criteria
 
-- Active command completed successfully.
-- All required artifacts exist and are valid.
-- Progress tracking reflects current state.
-- No unresolved blockers.
+- [ ] Active command completed successfully.
+- [ ] All required artifacts exist and are valid.
+- [ ] Progress tracking reflects current state.
+- [ ] No unresolved blockers.
 
 ## Related Skills
 

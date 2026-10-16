@@ -29,7 +29,7 @@ Merge findings from all channels into a ranked report.
 
 1. Merge: `tome.synthesis.merger.merge_findings()`
 2. Rank: `tome.synthesis.ranker.rank_findings()`
-3. Group: `tome.synthesis.ranker.group_by_theme()`
+3. Group: `tome.synthesis.ranker.group_by_channel()`
 4. Format: `tome.output.report.format_report()`
 
 ## Output Formats
@@ -40,7 +40,7 @@ Merge findings from all channels into a ranked report.
 
 ## Exit Criteria
 
-- [ ] `merge_findings()`, `rank_findings()`, and `group_by_theme()`
+- [ ] `merge_findings()`, `rank_findings()`, and `group_by_channel()`
       all called in sequence before output is formatted
 - [ ] Output formatted via `format_report()` by default, or
       `format_brief()` / `format_transcript()` when the flag is set

@@ -430,3 +430,68 @@ class TestWithoutPyYAML:
 
         assert result.returncode == 0, result.stderr
         assert json.loads(result.stdout)["decision"] == "block"
+
+
+class TestDegradedRuntime:
+    """Failures around the rules are reported, and the event still passes."""
+
+    def test_missing_rule_loader_passes_the_event_and_says_why(
+        self, tmp_path: Path
+    ) -> None:
+        """GIVEN a hook whose plugin root has no ``core`` package.
+
+        WHEN a Bash event arrives
+        THEN the output is an empty decision and stderr names the event
+        and the interpreter that could not import the loader
+        """
+        hooks_dir = tmp_path / "plugin" / "hooks"
+        hooks_dir.mkdir(parents=True)
+        lonely_hook = hooks_dir / "rule_guard.py"
+        lonely_hook.write_text(HOOK.read_text())
+
+        result = subprocess.run(
+            [sys.executable, str(lonely_hook)],
+            input=json.dumps(
+                {
+                    "hook_event_name": "PreToolUse",
+                    "tool_name": "Bash",
+                    "tool_input": {"command": "ls"},
+                }
+            ),
+            capture_output=True,
+            text=True,
+            cwd=tmp_path,
+            env={**os.environ, "CLAUDE_PROJECT_DIR": str(tmp_path)},
+            timeout=30,
+            check=False,
+        )
+
+        assert result.returncode == 0
+        assert json.loads(result.stdout) == {}
+        assert "no rule was evaluated for this bash event" in result.stderr
+        assert "cannot import hookify's rule loader" in result.stderr
+
+    def test_skipped_rules_are_appended_to_a_warning(self, tmp_path: Path) -> None:
+        """GIVEN a matching warn rule and an unreadable rule side by side.
+
+        WHEN the event matches the warn rule
+        THEN one systemMessage carries the warning and the skipped rule
+        """
+        _install(tmp_path, "test-warn-zzquux", WARN_FILE_RULE)
+        _install(tmp_path, "broken", "no frontmatter here\n")
+
+        result = _run(
+            {
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Write",
+                "tool_input": {"file_path": "out.zzquux", "content": "x"},
+            },
+            tmp_path,
+        )
+
+        assert result.returncode == 0, result.stderr
+        message = json.loads(result.stdout)["systemMessage"]
+        skipped = message.splitlines()[-1]
+        assert message.index("zzquux files are generated") < message.index(skipped)
+        assert skipped.startswith("hookify skipped unreadable rules: ")
+        assert "hookify.broken.local.md" in skipped

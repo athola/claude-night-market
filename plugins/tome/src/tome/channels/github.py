@@ -42,7 +42,7 @@ def expand_github_queries(topic: str, max_variants: int = 5) -> list[str]:
         f"site:github.com {topic} framework example",
     ]
 
-    return deduplicate_queries(queries)[:max_variants]
+    return deduplicate_queries(queries, max_variants)
 
 
 # ---------------------------------------------------------------------------
@@ -118,7 +118,7 @@ def _estimate_relevance(title: str, topic: str) -> float:
     return round(0.1 + overlap * 0.85, 4)
 
 
-def parse_github_result(result: dict[str, Any]) -> Finding:
+def parse_github_result(result: dict[str, Any]) -> Finding | None:
     """Parse a single WebSearch result dict into a GitHub Finding.
 
     The result dict is expected to have the keys that WebSearch returns:
@@ -130,23 +130,23 @@ def parse_github_result(result: dict[str, Any]) -> Finding:
             ``snippet``/``description``.
 
     Returns:
-        A Finding with ``source="github"`` and ``channel="code"``.
+        A Finding with ``source="github"`` and ``channel="code"``, or ``None``
+        when the result has no URL. A result with nothing to cite is
+        skipped here, the same as ``parse_you_mcp_result`` skips an
+        item, so callers drop ``None`` instead of filing a blank
+        Finding that survives deduplication.
     """
-    url: str = result.get("url", "")
+    url: str = result.get("url") or ""
+    if not url:
+        return None
     title: str = result.get("title", "")
-    snippet: str = result.get("snippet", result.get("description", ""))
-    repo_name = _extract_repo_name(url) if url else ""
+    snippet: str = result.get("snippet") or result.get("description") or ""
+    repo_name = _extract_repo_name(url)
     display_title = title or repo_name or url
     topic_guess = repo_name.replace("/", " ").replace("-", " ").replace("_", " ")
     relevance = _estimate_relevance(display_title, topic_guess) if topic_guess else 0.5
 
-    summary: str
-    if snippet:
-        summary = snippet
-    elif repo_name:
-        summary = f"GitHub repository: {repo_name}"
-    else:
-        summary = url or "GitHub result"
+    summary = snippet or f"GitHub repository: {repo_name}"
 
     return Finding(
         source="github",
@@ -253,9 +253,12 @@ def _parse_updated_at(value: str | None) -> datetime:
     try:
         # GitHub uses Z suffix; fromisoformat requires +00:00 in Python 3.9
         normalised = value.replace("Z", "+00:00")
-        return datetime.fromisoformat(normalised)
+        parsed = datetime.fromisoformat(normalised)
     except ValueError:
         return datetime(1970, 1, 1, tzinfo=timezone.utc)
+    # A value with no offset (e.g. "2024-05-01") is read as UTC, the zone
+    # GitHub reports in, so it can be compared with an aware "now".
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
 
 
 def rank_github_findings(findings: list[Finding]) -> list[Finding]:

@@ -126,6 +126,40 @@ class TestAsyncAnalysisSkill:
         assert len(blocking_patterns["recommendations"]) >= 1
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("call", "pattern", "recommendation"),
+        [
+            (
+                "time.sleep(1)",
+                "time_sleep",
+                "Replace time.sleep() with asyncio.sleep()",
+            ),
+            ("sleep(1)", "time_sleep", "Replace time.sleep() with asyncio.sleep()"),
+            ("requests.get(url)", "requests", "Replace requests with aiohttp"),
+            ("requests.post(url)", "requests", "Replace requests with aiohttp"),
+            ("open(path)", "file_io", "Consider using aiofiles for async file I/O"),
+        ],
+    )
+    async def test_flags_blocking_call_made_directly_in_async_body(
+        self, call: str, pattern: str, recommendation: str
+    ) -> None:
+        code = f"async def handler(url, path):\n    return {call}\n"
+
+        result = await self.skill.detect_blocking_calls(code)
+
+        blocking = result["blocking_patterns"]
+        assert blocking[pattern] == {"blocks_event_loop": True}
+        assert blocking["recommendations"] == [recommendation]
+
+    @pytest.mark.asyncio
+    async def test_blocking_call_in_sync_function_alone_is_not_flagged(self) -> None:
+        code = "def handler(url):\n    return requests.get(url)\n"
+
+        result = await self.skill.detect_blocking_calls(code)
+
+        assert result["blocking_patterns"] == {"recommendations": []}
+
+    @pytest.mark.asyncio
     async def test_identifies_missing_await(self, async_issues) -> None:
         """
 

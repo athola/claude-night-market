@@ -6,11 +6,12 @@ improvement suggestions, auditing, token tracking, and performance analysis.
 
 # Re-export constants from auditor for backwards compatibility
 from .auditor import (
-    MIN_CODE_BLOCKS_EXCELLENT,
-    MIN_HEADINGS,
+    DESCRIPTION_TRIGGER,
+    EXIT_CRITERIA_HEADING,
+    MAX_BODY_LINES,
+    MAX_DESCRIPTION_CHARS,
+    MIN_EXIT_CRITERIA_ITEMS,
     MIN_NUMBERED_LISTS,
-    MIN_NUMBERED_LISTS_GOOD,
-    MIN_NUMBERED_STEPS,
     MIN_SECTION_COUNT,
     SCORE_ACCEPTABLE,
     SCORE_EXCELLENT,
@@ -35,16 +36,18 @@ from .performance import ToolPerformanceAnalyzer
 from .token_tracker import TokenUsageTracker
 
 __all__ = [
+    # Rubric constants
+    "DESCRIPTION_TRIGGER",
+    "EXIT_CRITERIA_HEADING",
+    "MAX_BODY_LINES",
+    "MAX_DESCRIPTION_CHARS",
+    "MIN_EXIT_CRITERIA_ITEMS",
     # Modularization constants
     "CODE_BLOCKS_MODULARIZE",
     # Code block constants
     "MIN_CODE_BLOCKS",
-    "MIN_CODE_BLOCKS_EXCELLENT",
     # Structure constants
-    "MIN_HEADINGS",
     "MIN_NUMBERED_LISTS",
-    "MIN_NUMBERED_LISTS_GOOD",
-    "MIN_NUMBERED_STEPS",
     "MIN_SECTIONS",
     "MIN_SECTION_COUNT",
     "SCORE_ACCEPTABLE",

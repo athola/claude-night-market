@@ -55,7 +55,9 @@ def find_manifest() -> Path:
 def get_items(data: dict) -> list:
     """Get work items from manifest, supporting both key names."""
     items = data.get("work_items") or data.get("items") or []
-    return items if isinstance(items, list) else []
+    if not isinstance(items, list):
+        return []
+    return [item for item in items if isinstance(item, dict)]
 
 
 # Statuses that indicate remaining work
@@ -64,11 +66,7 @@ ACTIVE_STATUSES = ("active", "paused", "pending")
 
 def has_active_work(manifest_path: Path) -> bool:
     """Check if manifest has unfinished work items."""
-    if not manifest_path.exists():
+    data = load_manifest_data(manifest_path)
+    if data is None:
         return False
-    try:
-        data = json.loads(manifest_path.read_text())
-        items = get_items(data)
-        return any(item.get("status") in ACTIVE_STATUSES for item in items)
-    except (json.JSONDecodeError, OSError):
-        return False
+    return any(item.get("status") in ACTIVE_STATUSES for item in get_items(data))

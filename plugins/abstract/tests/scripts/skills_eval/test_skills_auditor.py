@@ -22,7 +22,7 @@ class TestSkillsAuditor:
         skills_data = {
             "well-structured-skill": """---
 name: well-structured-skill
-description: A properly structured skill
+description: A properly structured skill. Use when testing the auditor.
 category: testing
 dependencies: []
 ---
@@ -35,8 +35,10 @@ This skill follows best practices.
 ## Quick Start
 Use it by running the command.
 
-## Detailed Resources
-More information available.
+## Exit Criteria
+
+- [ ] The command exits 0
+- [ ] The report file exists
 """,
             "needs-improvement-skill": """---
 name: needs-improvement-skill
@@ -269,3 +271,43 @@ More details.
         initial_score = next(s["overall_score"] for s in initial_audit["skills"])
         improved_score = next(s["overall_score"] for s in improved_audit["skills"])
         assert improved_score > initial_score
+
+
+def _issues(tmp_path, content):
+    return SkillsAuditor(tmp_path)._generate_issues({}, content, 0)
+
+
+def _cap_issue(issues):
+    return [i for i in issues if "body over" in i]
+
+
+def test_line_cap_excludes_crlf_frontmatter(tmp_path):
+    frontmatter = "---\r\nname: x\r\ndescription: y\r\n---\r\n"
+    body = "line\r\n" * 500
+
+    assert _cap_issue(_issues(tmp_path, frontmatter + body)) == []
+
+
+def test_line_cap_excludes_frontmatter_closed_at_end_of_file(tmp_path):
+    frontmatter = "---\n" + "".join(f"k{n}: v\n" for n in range(501)) + "---"
+
+    assert _cap_issue(_issues(tmp_path, frontmatter)) == []
+
+
+def test_exit_criteria_section_continues_past_a_fenced_comment(tmp_path):
+    content = (
+        "---\nname: x\ndescription: y\n---\n\n## Exit Criteria\n\n"
+        "```bash\n# run the check\nmake test\n```\n\n"
+        "- [ ] tests pass\n- [ ] report written\n"
+    )
+
+    assert not any("Exit Criteria" in i for i in _issues(tmp_path, content))
+
+
+def test_exit_criteria_does_not_count_list_lines_inside_a_fence(tmp_path):
+    content = (
+        "---\nname: x\ndescription: y\n---\n\n## Exit Criteria\n\n"
+        "```yaml\n- one\n- two\n```\n"
+    )
+
+    assert any("fewer than" in i for i in _issues(tmp_path, content))

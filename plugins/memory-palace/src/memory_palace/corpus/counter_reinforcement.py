@@ -204,6 +204,9 @@ class CounterReinforcementTracker:
             Updated ReinforcementCounter
 
         """
+        # Coerce first: an invalid value must fail before any counter changes.
+        feedback = FeedbackType(feedback)
+
         # Get or create counter
         if entry_id not in self._counters:
             self._counters[entry_id] = ReinforcementCounter(entry_id=entry_id)

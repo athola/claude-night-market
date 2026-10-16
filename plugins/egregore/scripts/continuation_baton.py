@@ -165,7 +165,7 @@ def clear_baton(path: Path | None = None) -> None:
     target.unlink(missing_ok=True)
 
 
-def is_stranded(path: Path | None = None, now: float = 0.0) -> bool:
+def is_stranded(path: Path | None = None, *, now: float) -> bool:
     """Whether a handoff was made and no turn picked it up.
 
     Stalled, not old: a baton that kept advancing set a new deadline

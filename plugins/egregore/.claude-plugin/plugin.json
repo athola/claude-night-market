@@ -1,6 +1,6 @@
 {
   "name": "egregore",
-  "version": "1.9.21",
+  "version": "1.10.0",
   "description": "Autonomous agent orchestrator for full development lifecycles with zero human input, session budget management, and crash recovery",
   "skills": [
     "./skills/summon",
@@ -20,6 +20,7 @@
     "./agents/sentinel.md"
   ],
   "hooks": [],
+  "types": "./types/index.d.ts",
   "keywords": [
     "egregore",
     "autonomous",
@@ -37,6 +38,8 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
+  "homepage": "https://github.com/athola/claude-night-market/tree/master/plugins/egregore",
+  "repository": "https://github.com/athola/claude-night-market",
   "dependencies": [
     "leyline",
     "herald"

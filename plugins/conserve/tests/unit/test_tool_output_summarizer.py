@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -21,6 +22,11 @@ from tool_output_summarizer import (
     get_session_output_size,
     main,
 )
+
+
+def _in_message(entry: dict) -> dict:
+    """Wrap a role/content pair the way Claude Code writes a transcript row."""
+    return {"type": entry["role"], "message": entry}
 
 
 class TestToolOutputSummarizer:
@@ -65,7 +71,7 @@ class TestToolOutputSummarizer:
             "content": [{"type": "tool_result", "content": large_content}],
         }
         with open(session_file, "w") as f:
-            f.write(json.dumps(entry) + "\n")
+            f.write(json.dumps(_in_message(entry)) + "\n")
 
         # Act
         result = assess_output_bloat(session_file, BLOAT_WARNING_THRESHOLD)
@@ -91,7 +97,7 @@ class TestToolOutputSummarizer:
             "content": [{"type": "tool_result", "content": large_content}],
         }
         with open(session_file, "w") as f:
-            f.write(json.dumps(entry) + "\n")
+            f.write(json.dumps(_in_message(entry)) + "\n")
 
         # Act
         result = assess_output_bloat(session_file, BLOAT_WARNING_THRESHOLD)
@@ -148,7 +154,7 @@ class TestToolOutputSummarizer:
         ]
         with open(session_file, "w") as f:
             for entry in entries:
-                f.write(json.dumps(entry) + "\n")
+                f.write(json.dumps(_in_message(entry)) + "\n")
 
         # Act
         size = get_session_output_size(session_file)
@@ -194,7 +200,7 @@ class TestToolOutputSummarizer:
         # Create project dir with cwd-style name
         cwd_path = tmp_path / "myproject"
         cwd_path.mkdir()
-        project_dir_name = "-" + str(cwd_path).replace(os.sep, "-")
+        project_dir_name = "-" + re.sub(r"[^A-Za-z0-9]", "-", str(cwd_path))
         project_dir = projects_dir / project_dir_name
         project_dir.mkdir()
 
@@ -253,7 +259,7 @@ class TestToolOutputSummarizer:
             ],
         }
         with open(session_file, "w") as f:
-            f.write(json.dumps(entry) + "\n")
+            f.write(json.dumps(_in_message(entry)) + "\n")
 
         # Act
         size = get_session_output_size(session_file)
@@ -286,7 +292,7 @@ class TestResolveSessionFileBranches:
         """Returns None when project dir has no JSONL files."""
         projects = tmp_path / "projects"
         cwd = Path.cwd()
-        project_name = str(cwd).replace(os.sep, "-")
+        project_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not project_name.startswith("-"):
             project_name = "-" + project_name
         project_dir = projects / project_name
@@ -308,7 +314,7 @@ class TestResolveSessionFileBranches:
         """Falls back to most recently modified JSONL when no session ID."""
         projects = tmp_path / "projects"
         cwd = Path.cwd()
-        project_name = str(cwd).replace(os.sep, "-")
+        project_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not project_name.startswith("-"):
             project_name = "-" + project_name
         project_dir = projects / project_name
@@ -379,10 +385,12 @@ class TestGetSessionOutputSizeBranches:
         for _ in range(100):
             entries.append(
                 json.dumps(
-                    {
-                        "role": "assistant",
-                        "content": [{"type": "tool_result", "content": "x" * 1000}],
-                    }
+                    _in_message(
+                        {
+                            "role": "assistant",
+                            "content": [{"type": "tool_result", "content": "x" * 1000}],
+                        }
+                    )
                 )
             )
         session.write_text("\n".join(entries))
@@ -402,9 +410,25 @@ class TestGetSessionOutputSizeBranches:
         """String content (non-tool-result) is not counted."""
         session = tmp_path / "session.jsonl"
         entry = {"role": "user", "content": "plain text message"}
-        session.write_text(json.dumps(entry) + "\n")
+        session.write_text(json.dumps(_in_message(entry)) + "\n")
         size = get_session_output_size(session)
         assert size == 0
+
+    @pytest.mark.unit
+    def test_only_tool_result_blocks_are_counted(self, tmp_path: Path):
+        """Text and tool_use blocks beside a tool_result add nothing."""
+        session = tmp_path / "session.jsonl"
+        entry = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "t" * 5000},
+                {"type": "tool_use", "input": {"q": "u" * 5000}},
+                "bare string block",
+                {"type": "tool_result", "content": "r" * 42},
+            ],
+        }
+        session.write_text(json.dumps(_in_message(entry)) + "\n")
+        assert get_session_output_size(session) == 42
 
 
 class TestFormatHookOutputBranches:
@@ -473,7 +497,9 @@ class TestToolOutputSummarizerMain:
     ):
         """Bash tool with OK output size produces no output."""
         session = tmp_path / "session.jsonl"
-        session.write_text(json.dumps({"role": "user", "content": "hi"}) + "\n")
+        session.write_text(
+            json.dumps(_in_message({"role": "user", "content": "hi"})) + "\n"
+        )
         hook_input = json.dumps({"tool_name": "Bash"})
         monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
         monkeypatch.setattr(summarizer, "resolve_session_file", lambda: session)
@@ -495,7 +521,7 @@ class TestToolOutputSummarizerMain:
             "role": "assistant",
             "content": [{"type": "tool_result", "content": large_content}],
         }
-        session.write_text(json.dumps(entry) + "\n")
+        session.write_text(json.dumps(_in_message(entry)) + "\n")
 
         hook_input = json.dumps({"tool_name": "Bash"})
         monkeypatch.setattr("sys.stdin", io.StringIO(hook_input))
@@ -541,3 +567,36 @@ class TestToolOutputSummarizerMain:
 
         rc = main()
         assert rc == 0
+
+
+def _transcript_entry(role: str, content: object) -> str:
+    """One JSONL line in the shape Claude Code writes: fields under message."""
+    return json.dumps({"type": role, "message": {"role": role, "content": content}})
+
+
+def test_session_size_reads_tool_results_under_message(tmp_path: Path) -> None:
+    """Tool results are read from message.content.
+
+    A reader of top-level content measured 0 bytes on a real 7.2 MB session.
+    """
+    session = tmp_path / "s.jsonl"
+    session.write_text(
+        _transcript_entry("user", [{"type": "tool_result", "content": "x" * 1000}])
+        + "\n"
+    )
+    assert get_session_output_size(session) >= 1000
+
+
+def test_session_size_measures_the_recent_end_of_a_long_session(
+    tmp_path: Path,
+) -> None:
+    """The read budget covers the tail of the session.
+
+    Early outputs are the ones compaction already dropped, and the warning
+    is about what is in context now.
+    """
+    session = tmp_path / "s.jsonl"
+    old = _transcript_entry("user", [{"type": "tool_result", "content": "o" * 900}])
+    recent = _transcript_entry("user", [{"type": "tool_result", "content": "r" * 5000}])
+    session.write_text("\n".join([old] * 800 + [recent]) + "\n")
+    assert get_session_output_size(session, max_bytes=20_000) >= 5000

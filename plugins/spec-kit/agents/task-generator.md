@@ -39,27 +39,27 @@ Generates dependency-ordered implementation tasks from specification and plannin
 
 ## Task Phases
 
-### Phase 0: Setup
+### Phase 1: Setup
 - Project initialization
 - Dependency installation
 - Configuration files
 
-### Phase 1: Foundation
+### Phase 2: Foundation
 - Data models and types
 - Core interfaces and contracts
 - Test infrastructure
 
-### Phase 2: Core Implementation
+### Phase 3: Core Implementation
 - Business logic
 - API endpoints
 - Database operations
 
-### Phase 3: Integration
+### Phase 4: Integration
 - External service connections
 - Middleware and hooks
 - Error handling
 
-### Phase 4: Polish
+### Phase 5: Polish
 - Performance optimization
 - Documentation
 - Final testing
@@ -67,7 +67,7 @@ Generates dependency-ordered implementation tasks from specification and plannin
 ## Task Format
 
 Each task includes:
-- Unique ID (TASK-001, TASK-002, etc.)
+- Unique ID (T001, T002, etc.)
 - Description
 - Phase assignment
 - Dependencies (sequential vs parallel [P])

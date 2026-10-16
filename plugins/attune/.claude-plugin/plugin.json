@@ -1,6 +1,6 @@
 {
   "name": "attune",
-  "version": "1.9.21",
+  "version": "1.10.0",
   "description": "Full-cycle project development - brainstorm ideas, create specifications, plan architecture, initialize projects, and execute implementation with integrated workflows from superpowers and spec-kit",
   "commands": [
     "./commands/arch-init.md",
@@ -73,5 +73,7 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
+  "homepage": "https://github.com/athola/claude-night-market/tree/master/plugins/attune",
+  "repository": "https://github.com/athola/claude-night-market",
   "dependencies": ["leyline", "abstract"]
 }

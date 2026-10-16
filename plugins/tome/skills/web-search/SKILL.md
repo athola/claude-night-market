@@ -67,8 +67,8 @@ profile needs no key and no account.
    server is configured, otherwise through WebSearch
 3. Parse results via `parse_you_mcp_result()` (raises `ValueError` on
    a response shape that is not a you-search envelope) or
-   `parse_websearch_result()` (raises `ValueError` on a result with
-   no URL)
+   `parse_websearch_result()` (returns `None` for a result with no
+   URL; drop it)
 4. Rank via `rank_web_findings()`
 5. Return Finding objects
 

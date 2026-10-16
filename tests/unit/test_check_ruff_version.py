@@ -9,7 +9,9 @@ So that the single uv-managed ruff stays current deliberately
 
 from __future__ import annotations
 
+import gc
 import sys
+import warnings
 from pathlib import Path
 
 import pytest
@@ -45,6 +47,21 @@ class TestLockedVersion:
         """Given uv.lock pins ruff 0.14.13, When read, Then returns 0.14.13."""
         monkeypatch.setattr(crv, "UV_LOCK", str(_lock(RUFF_PINNED, tmp_path)))
         assert crv.locked_version() == "0.14.13"
+
+    @pytest.mark.unit
+    def test_closes_the_lock_file_it_reads(self, tmp_path, monkeypatch):
+        """Given a lock file, When read, Then no file handle is left to the GC.
+
+        ``open(...).read()`` relied on refcounting to close the handle, so
+        any other interpreter or a reference cycle leaked it and Python
+        warned with a ResourceWarning.
+        """
+        monkeypatch.setattr(crv, "UV_LOCK", str(_lock(RUFF_PINNED, tmp_path)))
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            crv.locked_version()
+            gc.collect()
+        assert [w for w in caught if issubclass(w.category, ResourceWarning)] == []
 
     @pytest.mark.unit
     def test_ignores_ruff_listed_only_as_a_dependency(self, tmp_path, monkeypatch):

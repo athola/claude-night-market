@@ -418,6 +418,80 @@ class TestPerformanceReviewSkill:
         ]
         assert t5 == [], f"T5 false-positive on @lru_cache function: {t5}"
 
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "decorator",
+        [
+            "@functools.lru_cache",
+            "@functools.cache",
+            "@functools.lru_cache(maxsize=None)",
+            "@lru_cache(maxsize=128)",
+        ],
+    )
+    def test_t5_skipped_for_qualified_and_called_memoization_decorators(
+        self, mock_skill_context, decorator: str
+    ) -> None:
+        """Attribute and call decorator forms count as memoization too."""
+        code = (
+            "import functools\n"
+            "from functools import lru_cache\n"
+            f"{decorator}\n"
+            "def fib(n):\n"
+            "    if n < 2:\n"
+            "        return n\n"
+            "    return fib(n - 1) + fib(n - 2)\n"
+        )
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze(mock_skill_context, "module.py")
+
+        t5 = [
+            f
+            for f in result.issues
+            if f.category == "time" and "memo" in f.suggestion.lower()
+        ]
+        assert t5 == [], f"T5 false-positive on {decorator}: {t5}"
+
+    @pytest.mark.unit
+    def test_t5_flags_recursion_under_a_non_memoizing_decorator(
+        self, mock_skill_context
+    ) -> None:
+        """A decorator outside the memoization set does not suppress T5."""
+        code = (
+            "import contextlib\n"
+            "@contextlib.contextmanager\n"
+            "def fib(n):\n"
+            "    if n < 2:\n"
+            "        return n\n"
+            "    return fib(n - 1) + fib(n - 2)\n"
+        )
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze(mock_skill_context, "module.py")
+
+        assert any(
+            f.category == "time" and "memo" in f.suggestion.lower()
+            for f in result.issues
+        )
+
+    @pytest.mark.unit
+    def test_t4_flags_concat_on_an_annotated_string_accumulator(
+        self, mock_skill_context
+    ) -> None:
+        """``out: str = ''`` is classified as a string like ``out = ''``."""
+        code = (
+            "def to_csv(rows):\n"
+            "    out: str = ''\n"
+            "    for r in rows:\n"
+            "        out += ','.join(r) + '\\n'\n"
+            "    return out\n"
+        )
+        mock_skill_context.get_file_content.return_value = code
+        result = self.skill.analyze(mock_skill_context, "module.py")
+
+        assert any(
+            f.category == "time" and "string" in f.message.lower() and f.line == 4
+            for f in result.issues
+        ), result.issues
+
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_t6_list_comp_inside_reducer(self, mock_skill_context) -> None:
@@ -574,20 +648,18 @@ class TestPerformanceReviewSkill:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_tier2_returns_empty_when_gauntlet_missing(
-        self, mock_skill_context, monkeypatch
-    ) -> None:
+    def test_tier2_returns_empty_when_gauntlet_missing(self, monkeypatch) -> None:
         """
-        Scenario: gauntlet's treesitter_parser is unimportable
-        Given _gt_parse sentinel is None
+        Scenario: tree-sitter is unimportable
+        Given _ts_get_parser sentinel is None
         When _tier2_findings is invoked
         Then it returns [] without raising
         """
-        monkeypatch.setattr(pr_mod, "_gt_parse", None)
+        monkeypatch.setattr(pr_mod, "_ts_get_parser", None)
         skill = pr_mod.PerformanceReviewSkill()
         # Tier 2 helper must not raise even with an unsupported file
-        out = skill._tier2_findings(mock_skill_context, "module.go")
-        assert out == [], f"tier 2 should return [] when gauntlet is missing: {out}"
+        out = skill._tier2_findings("module.go", "package m\n")
+        assert out == [], f"tier 2 should return [] when tree-sitter is missing: {out}"
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -612,12 +684,12 @@ class TestPerformanceReviewSkill:
     ) -> None:
         """
         Scenario: full analyze() when both gauntlet sentinels are None
-        Given _gt_parse and _GraphStore are both None
+        Given _ts_get_parser and _GraphStore are both None
         When analyze() is called on Python source with T1 hotspot
         Then it still returns the T1 finding (Tier 1 always works)
         And does NOT raise ModuleNotFoundError
         """
-        monkeypatch.setattr(pr_mod, "_gt_parse", None)
+        monkeypatch.setattr(pr_mod, "_ts_get_parser", None)
         monkeypatch.setattr(pr_mod, "_GraphStore", None)
 
         code = (

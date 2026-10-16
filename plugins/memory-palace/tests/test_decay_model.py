@@ -4,6 +4,7 @@ Tests the DecayModel which implements time-based quality decay
 with different decay curves based on entry maturity.
 """
 
+import logging
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -169,15 +170,17 @@ class TestDecayModel:
         fresh = model.calculate_decay("e1", "growing", now)
         assert fresh.status == "fresh"
 
-        # Stale/Critical: some decay (45 days with 30-day half-life = ~0.35 factor)
-        stale_date = now - timedelta(days=45)
-        stale = model.calculate_decay("e2", "growing", stale_date)
-        assert stale.status in ["fresh", "stale", "critical"]
+        # Stale: 20 days on a 30-day half-life is 0.5 ** (2/3), about 0.63
+        stale = model.calculate_decay("e2", "growing", now - timedelta(days=20))
+        assert stale.status == "stale"
 
-        # Critical: severe decay
-        critical_date = now - timedelta(days=120)
-        critical = model.calculate_decay("e3", "seedling", critical_date)
-        assert critical.status in ["stale", "critical", "archived"]
+        # Critical: 45 days on a 30-day half-life is 0.5 ** 1.5, about 0.35
+        critical = model.calculate_decay("e3", "growing", now - timedelta(days=45))
+        assert critical.status == "critical"
+
+        # Archived: 120 seedling days decays to the 0.1 standard floor, below 0.2
+        archived = model.calculate_decay("e4", "seedling", now - timedelta(days=120))
+        assert archived.status == "archived"
 
     def test_validate_entry(self, model: DecayModel) -> None:
         """Should record validation and reset decay."""
@@ -265,14 +268,53 @@ class TestDecayModel:
         # Logarithmic has different curve but should be in reasonable range
         assert 0.3 <= log_hl <= 0.7
 
+    def test_logarithmic_curve_has_no_step_at_four_half_lives(
+        self, model: DecayModel
+    ) -> None:
+        """One more day of age moves the logarithmic curve by a sliver.
+
+        The curve at four half-lives is 1/(1+ln 5) = 0.383. Snapping it to
+        0.1 the next day dropped a finding from critical to archived.
+        """
+        half_life = 365
+        before = model._apply_decay_curve(
+            half_life * 4 - 1, half_life, DecayCurve.LOGARITHMIC
+        )
+        after = model._apply_decay_curve(
+            half_life * 4, half_life, DecayCurve.LOGARITHMIC
+        )
+
+        assert 0.0 <= before - after < 0.001
+
+    def test_finding_status_does_not_change_on_its_fourth_anniversary(
+        self, model: DecayModel
+    ) -> None:
+        """A finding one day either side of 1460 days keeps one status."""
+        now = datetime.now(timezone.utc)
+        states = [
+            model.calculate_decay(
+                "f",
+                "growing",
+                now - timedelta(days=days, hours=1),
+                importance_score=0,
+                unit_type="finding",
+            )
+            for days in (1459, 1460)
+        ]
+
+        assert states[0].status == states[1].status
+        assert states[1].decay_factor == pytest.approx(
+            states[0].decay_factor, abs=0.001
+        )
+
     def test_archive_threshold(self, model: DecayModel) -> None:
         """Entries below archive threshold should be marked archived."""
         ancient = datetime.now(timezone.utc) - timedelta(days=500)
         model.validate_entry("ancient-1", ancient)
 
         state = model.calculate_decay("ancient-1", "seedling", ancient)
-        # With such old date, should be archived or critical
-        assert state.status in ["critical", "archived"]
+        # The default importance floor (0.1) sits below the 0.2 archive line
+        assert state.status == "archived"
 
     def test_export_validation_state(self, model: DecayModel) -> None:
         """Should export validation state as serializable data."""
@@ -541,3 +583,22 @@ def test_omitting_unit_type_preserves_maturity_behavior() -> None:
         model.calculate_decay("u4", "seedling", age).decay_factor
         == model.calculate_decay("u4", "seedling", age, unit_type=None).decay_factor
     )
+
+
+def test_entry_with_invalid_created_at_is_treated_as_validated_now(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """An unparsable created_at warns and does not make the entry stale.
+
+    GIVEN an unvalidated entry whose created_at is not an ISO date
+    WHEN stale entries are listed
+    THEN the entry is not stale AND a warning names the entry.
+    """
+    model = DecayModel()
+    entry = {"id": "bad-date", "maturity": "seedling", "created_at": "last tuesday"}
+
+    with caplog.at_level(logging.WARNING):
+        stale = model.get_stale_entries([entry])
+
+    assert stale == []
+    assert "Invalid created_at for entry bad-date" in caplog.text

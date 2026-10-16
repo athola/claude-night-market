@@ -1,7 +1,7 @@
 """Tests for leyline.cli_envelope -- standard CLI JSON envelope.
 
 Feature: Standardize the success/error envelope shape used by
-night-market CLI scripts (D-13).
+night-market CLI scripts.
 
 As a plugin author writing a CLI script with --output-json
 I want one canonical helper that produces the success/error

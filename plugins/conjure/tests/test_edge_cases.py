@@ -361,9 +361,11 @@ class TestSessionStatsAtomicity:
             stats = json.load(f)
         assert stats["total_requests"] == 2
         assert stats["successful_requests"] == 1
+        # usage.jsonl.lock is the persistent rotation lock, not a temp file.
         assert sorted(p.name for p in tmp_path.iterdir()) == [
             "current_session.json",
             "usage.jsonl",
+            "usage.jsonl.lock",
         ]
 
     def test_interrupted_session_stats_write_keeps_previous_file(
@@ -384,3 +386,28 @@ class TestSessionStatsAtomicity:
         logger.log_usage(UsageEntry("cmd", 5, success=True))
 
         assert logger.session_file.read_bytes() == before
+
+
+class _CharEncoder:
+    """Stand-in for a tiktoken encoder: one token per character."""
+
+    def encode(self, text: str) -> list[str]:
+        return list(text)
+
+
+def test_unreadable_file_in_a_token_estimate_is_logged(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """A file that cannot be read counts as 0 tokens, and the log says which."""
+    unreadable = tmp_path / "secret.py"
+    unreadable.write_text("print(1)\n")
+    unreadable.chmod(0)
+    tracker = GeminiQuotaTracker()
+
+    try:
+        with caplog.at_level("WARNING"):
+            tracker._estimate_with_encoder(_CharEncoder(), [unreadable], 0)
+    finally:
+        unreadable.chmod(0o600)
+
+    assert any(str(unreadable) in r.getMessage() for r in caplog.records)

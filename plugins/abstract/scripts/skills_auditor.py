@@ -6,6 +6,7 @@ Uses core functionality from src/abstract/skills_eval.
 
 from __future__ import annotations
 
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -60,4 +61,5 @@ if __name__ == "__main__":
         fmt=args.format,
         text_fn=lambda r: _format_audit_text(r, args.skills_dir),
     )
-    write_output(output, args.output)
+    if not write_output(output, args.output):
+        sys.exit(1)

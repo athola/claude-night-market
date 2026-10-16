@@ -1,13 +1,13 @@
 ---
 name: skill-evaluator
-agent: true
-allowed-tools:
+description: Records human qualitative feedback on recent skill executions. Use
+  when a skill run needs a judgment the execution logs cannot capture.
+tools:
   - Read
   - Write
   - Grep
   - Bash
 escalation: opus-when-stuck
-context: fork
 model: sonnet
 effort: medium
 ---

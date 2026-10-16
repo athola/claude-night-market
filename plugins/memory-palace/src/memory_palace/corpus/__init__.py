@@ -143,9 +143,10 @@ _EXPORT_SOURCES = {
 }
 
 #: Exports whose module needs a dependency this package treats as
-#: optional, and the value each takes when it is absent.
+#: optional, and the value each takes when it is absent. A ``None``
+#: fallback means the export is a class and raises ImportError instead.
 _OPTIONAL_EXPORTS = {
-    "DEFAULT_THRESHOLD": ("memory_palace.corpus.semantic_deduplicator", 0.85),
+    "DEFAULT_THRESHOLD": ("memory_palace.corpus.semantic_deduplicator", 0.8),
     "SemanticDeduplicator": ("memory_palace.corpus.semantic_deduplicator", None),
 }
 
@@ -157,7 +158,11 @@ def __getattr__(name: str) -> Any:
         source, fallback = optional
         try:
             return getattr(import_module(source), name)
-        except ImportError:
+        except ImportError as exc:
+            if fallback is None:
+                raise ImportError(
+                    f"{name} requires the optional dependencies faiss and numpy"
+                ) from exc
             return fallback
 
     source = _EXPORT_SOURCES.get(name)

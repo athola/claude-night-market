@@ -63,7 +63,7 @@ Standardize release approvals by expressing gates as GitHub-aware checklists. En
 
 ## Exit Criteria
 
-- All release gates evaluated and documented.
-- Any blocking gates have waiver approvals recorded.
-- Deployment PR contains embedded Release Gate snippet.
-- Rollout scorecard saved for post-release retrospective.
+- [ ] All release gates evaluated and documented.
+- [ ] Any blocking gates have waiver approvals recorded.
+- [ ] Deployment PR contains embedded Release Gate snippet.
+- [ ] Rollout scorecard saved for post-release retrospective.

@@ -569,7 +569,7 @@ def store_webfetch_content(
     entry_id = f"{now.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid.uuid4().hex[:8]}"
     title = extract_title_from_content(content, url)
     slug = slugify(title)
-    filename = f"webfetch-{slug}-{entry_id[:19]}.md"
+    filename = f"webfetch-{slug}-{entry_id}.md"
 
     content_hash = get_content_hash(content)
     content_preview = content[:500] + "..." if len(content) > 500 else content
@@ -645,7 +645,7 @@ def store_websearch_results(
     now = datetime.now(timezone.utc)
     entry_id = f"{now.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid.uuid4().hex[:8]}"
     slug = slugify(query)
-    filename = f"websearch-{slug}-{entry_id[:19]}.md"
+    filename = f"websearch-{slug}-{entry_id}.md"
 
     results_md = []
     for i, r in enumerate(results[:10], 1):

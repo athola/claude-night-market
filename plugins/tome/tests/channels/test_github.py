@@ -190,16 +190,18 @@ class TestParseGithubResult:
         assert finding.summary != ""
 
     @pytest.mark.unit
-    def test_handles_empty_dict_gracefully(self) -> None:
+    def test_skips_empty_dict(self) -> None:
         """
         Scenario: Completely empty result dict
         Given an empty dict
         When parse_github_result is called
-        Then a Finding is returned without raising an exception
+        Then None is returned: a result with nothing to cite is skipped
         """
-        finding = parse_github_result({})
+        assert parse_github_result({}) is None
 
-        assert isinstance(finding, Finding)
+    @pytest.mark.unit
+    def test_skips_result_when_url_is_blank(self) -> None:
+        assert parse_github_result({"title": "t", "url": ""}) is None
 
     @pytest.mark.unit
     def test_relevance_is_in_valid_range(self) -> None:
@@ -471,3 +473,22 @@ class TestRankGithubFindings:
         rank_github_findings(findings)
 
         assert findings[0].title == original_first
+
+
+class TestADateWithoutAZoneIsUtc:
+    """A naive updated_at must still rank."""
+
+    @pytest.mark.unit
+    def test_a_date_only_updated_at_ranks_without_error(self) -> None:
+        """'2024-05-01' parses naive; subtracting it from an aware now raised."""
+        dated = Finding(
+            source="github",
+            channel="code",
+            title="owner/dated",
+            url="https://github.com/owner/dated",
+            relevance=0.7,
+            summary="Dated",
+            metadata={"updated_at": "2024-05-01"},
+        )
+
+        assert rank_github_findings([dated]) == [dated]

@@ -23,6 +23,7 @@ import pytest
 from session_complete_notify import (
     NotificationState,
     _get_tmux_session,
+    _try_burnt_toast,
     clear_notification_state,
     get_session_id,
     get_zellij_tab_name,
@@ -742,3 +743,21 @@ class TestClearNotificationStateExceptionHandler:
 
         captured = capsys.readouterr()
         assert "clear_notification_state" in captured.err
+
+
+@pytest.mark.unit
+def test_burnttoast_command_neutralizes_powershell_expansion() -> None:
+    """A project directory named like a subexpression must stay literal text."""
+    recorded: list[list[str]] = []
+
+    def capture(cmd, **kwargs):
+        recorded.append(cmd)
+        return MagicMock(returncode=0)
+
+    with patch("session_complete_notify.subprocess.run", side_effect=capture):
+        assert _try_burnt_toast("Ready", "in: $(calc) $env:HOME `x", ["powershell"])
+
+    command = recorded[0][3]
+    assert "`$(calc)" in command
+    assert "`$env:HOME" in command
+    assert "``x" in command

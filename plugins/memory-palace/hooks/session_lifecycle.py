@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -71,9 +72,6 @@ def _try_record_journey_completion(
     and runs predict_links once.
     """
     try:
-        from memory_palace.graph_analyzer import (
-            PalaceGraphAnalyzer,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
-        )
         from memory_palace.journey_tracker import (
             JourneyTracker,  # noqa: PLC0415 - deferred import inside try/except for graceful degradation
         )
@@ -98,6 +96,14 @@ def _try_record_journey_completion(
             )
             tracker.complete_journey(journey_id, outcome="completed")
 
+            # Link prediction needs networkx, which the stdlib-only hook
+            # environment lacks. The journey above is recorded either way.
+            try:
+                from memory_palace.graph_analyzer import (
+                    PalaceGraphAnalyzer,  # noqa: PLC0415 - optional, needs networkx
+                )
+            except ImportError:
+                return
             analyzer = PalaceGraphAnalyzer(graph)
             suggestions = analyzer.predict_links(top_n=5)
             if suggestions:
@@ -153,22 +159,117 @@ def _safe_float(value: object, default: float = 0.0) -> float:
 _STAGING_PATH = DATA_ROOT / "data" / "state" / "handoff_units.json"
 
 
-def _drain_staged_units(path: Path) -> list[dict]:
-    """Read and remove the staging file written by session-handoff.
+def _read_staged_units(path: Path) -> list[dict] | None:
+    """Read the staging file written by session-handoff.
 
     The Stop payload carries no transcript content and the hook has no
     model, so units cannot be extracted here. The skill stages them; this
-    drains them. Reading an external file, so a missing or corrupt one
-    yields nothing rather than blocking the session from ending.
+    reads them. Returns None when the file cannot be used, which tells the
+    caller not to discard it: an unreadable claim stays for a later Stop,
+    and one that does not parse is moved to ``*.corrupt`` with a warning
+    so the hand-written units can be repaired instead of lost.
+
+    The file is left in place: the caller removes it with
+    ``_discard_staged_units`` only after the units are saved, so a failed
+    write does not consume them.
     """
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return []
-    with contextlib.suppress(OSError):
-        path.unlink()
+    except OSError as exc:
+        logger.warning("session_lifecycle: cannot read %s: %s", path, exc)
+        return None
+    except json.JSONDecodeError as exc:
+        corrupt = path.with_name(f"{path.name}.corrupt")
+        try:
+            os.replace(path, corrupt)
+        except OSError as move_exc:
+            logger.warning(
+                "session_lifecycle: %s does not parse (%s) and cannot be moved"
+                " aside: %s",
+                path,
+                exc,
+                move_exc,
+            )
+            return None
+        logger.warning(
+            "session_lifecycle: %s does not parse (%s); kept as %s",
+            path,
+            exc,
+            corrupt,
+        )
+        return None
     units = raw.get("units") if isinstance(raw, dict) else raw
     return [u for u in (units or []) if isinstance(u, dict)]
+
+
+# Far past the 2s Stop timeout in hooks.json: a claim this old belongs to a
+# Stop that was killed, even if its pid has since been reused.
+_STALE_CLAIM_NS = 10 * 60 * 10**9
+
+# Claims pile up while record writes keep failing, and every later Stop
+# re-read all of them inside its 2s budget. Oldest first, a batch per Stop.
+_MAX_CLAIMS_PER_STOP = 8
+
+
+def _pid_is_running(pid: int) -> bool:
+    """Probe with signal 0, which checks existence without delivering."""
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def _claim_is_ours(claim: Path, now_ns: int) -> bool:
+    """Whether this Stop may record a claim file.
+
+    A claim made by this process is ours. So is one whose Stop can no
+    longer record it: its process has exited, or it is older than any Stop
+    runs. A fresh claim from another live pid belongs to a concurrent Stop
+    that has not recorded it yet.
+    """
+    parts = claim.name.split(".")
+    try:
+        made_ns, pid = int(parts[-3]), int(parts[-2])
+    except (IndexError, ValueError):
+        return False
+    if pid == os.getpid():
+        return True
+    if now_ns - made_ns > _STALE_CLAIM_NS:
+        return True
+    return pid > 0 and not _pid_is_running(pid)
+
+
+def _claim_staged_units(path: Path) -> list[Path]:
+    """Move the staging file aside and return the claims this Stop records.
+
+    The skill may stage more units while this Stop runs. Renaming first
+    sends those writes to a fresh staging file instead of one this hook is
+    about to delete. Claims left by an earlier Stop whose record write
+    failed are returned too, so their units are not stranded.
+    """
+    now_ns = time.time_ns()
+    claim = path.with_name(f"{path.name}.{now_ns}.{os.getpid()}.claim")
+    try:
+        os.rename(path, claim)
+    except FileNotFoundError:
+        pass  # nothing staged since the last Stop
+    except OSError as exc:
+        # The session record matters more than this turn's staged units,
+        # which stay in place for a later Stop.
+        logger.warning("session_lifecycle: cannot claim %s: %s", path, exc)
+    ours = sorted(
+        c for c in path.parent.glob(f"{path.name}.*.claim") if _claim_is_ours(c, now_ns)
+    )
+    return ours[:_MAX_CLAIMS_PER_STOP]
+
+
+def _discard_staged_units(path: Path) -> None:
+    """Remove the staging file once its units are recorded."""
+    with contextlib.suppress(OSError):
+        path.unlink()
 
 
 def _coerce_units(raw: list[dict]) -> list[SessionUnit]:
@@ -311,7 +412,19 @@ def main() -> None:
         # Stop fires repeatedly and record_session overwrites by session_id,
         # so units must be merged forward or the next turn erases them.
         previous = mgr.get_session(record.session_id)
-        staged = _coerce_units(_drain_staged_units(_STAGING_PATH))
+        if previous is not None and not payload.get("started_at"):
+            # The Stop payload has no start time, so a later turn would
+            # otherwise restamp the session as starting now.
+            record.started_at = previous.started_at
+        claims = _claim_staged_units(_STAGING_PATH)
+        readable: list[Path] = []
+        raw_units: list[dict] = []
+        for claim in claims:
+            claim_units = _read_staged_units(claim)
+            if claim_units is not None:
+                readable.append(claim)
+                raw_units.extend(claim_units)
+        staged = _coerce_units(raw_units)
         record.handoff_units = merge_handoff_units(
             list(previous.handoff_units) if previous else [], staged
         )
@@ -319,6 +432,8 @@ def main() -> None:
             record.topics = _derive_topics(record.handoff_units)
             record.key_decisions = _derive_key_decisions(record.handoff_units)
         mgr.record_session(record)
+        for claim in readable:
+            _discard_staged_units(claim)
     except Exception as exc:
         # Non-critical: never block the session from ending
         logger.warning("session_lifecycle: Failed to record session: %s", exc)

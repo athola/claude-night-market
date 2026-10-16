@@ -84,15 +84,20 @@ class ProviderLedger:
             raw = json.loads(self.path.read_text(encoding="utf-8"))
         except FileNotFoundError:
             return {}
-        except (OSError, json.JSONDecodeError):
+        except (OSError, ValueError):
             # A cache that cannot be read is a cache miss, not an outage.
+            # ValueError covers a JSON syntax error and bytes that are not UTF-8.
             return {}
 
         if not isinstance(raw, dict) or raw.get("version") != LEDGER_VERSION:
             return {}
 
+        providers = raw.get("providers") or {}
+        if not isinstance(providers, dict):
+            return {}
+
         records: dict[str, ProviderRecord] = {}
-        for name, fields in (raw.get("providers") or {}).items():
+        for name, fields in providers.items():
             try:
                 records[name] = ProviderRecord(**fields)
             except TypeError:

@@ -3,7 +3,6 @@ name: project-planning
 description: Converts a specification into a phased, dependency-ordered implementation plan. Use after specification is complete and before execution begins.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model: sonnet
 category: workflow
 tags: [planning, architecture, task-breakdown, dependencies, estimation]
 complexity: intermediate

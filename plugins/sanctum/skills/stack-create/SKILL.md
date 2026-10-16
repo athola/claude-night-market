@@ -47,7 +47,7 @@ For independent changes, use parallel worktrees instead
 
 ## Required Progress Tracking
 
-Create `TodoWrite` items before starting:
+Create progress items before starting:
 
 1. `stack-create:git-version-checked`
 2. `stack-create:slices-identified`
@@ -159,7 +159,7 @@ jj log --revisions \
 
 ## Exit Criteria
 
-- [ ] All 4 TodoWrite items (`stack-create:git-version-checked`
+- [ ] All 4 progress items (`stack-create:git-version-checked`
       through `stack-create:stack-verified`) are created before branch
       creation starts and marked complete in order
 - [ ] Git version confirmed ≥ 2.38.0; if not, fallback to manual

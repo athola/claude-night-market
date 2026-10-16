@@ -137,7 +137,7 @@ After `plugins-synced` (Step 4.5), run capabilities sync:
 
 ```bash
 # Quick check for capabilities drift
-bash plugins/sanctum/skills/doc-updates/modules/capabilities-sync-check.sh
+bash scripts/capabilities-sync-check.sh
 ```
 
 **If discrepancies found:**

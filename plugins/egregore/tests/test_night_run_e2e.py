@@ -45,10 +45,11 @@ pytestmark = pytest.mark.skipif(
 
 LIVE = os.environ.get("EGREGORE_E2E_LIVE") == "1"
 
-#: On-plan ceiling for the run. The first task's judgment costs about 60
-#: estimated tokens and the second about 115, so this clears the first
+#: On-plan ceiling for the run. The meter charges the rendered judge
+#: prompt, template included: the first task's judgment costs about 255
+#: estimated tokens and the second about 310, so this clears the first
 #: with room for the pytest output to grow and still stops the second.
-CEILING = 120
+CEILING = 400
 
 IMPLEMENTER = '''#!/usr/bin/env python3
 """Stands in for a delegated provider CLI. Writes the task's code."""

@@ -43,7 +43,7 @@ estimated_tokens: 1000
 
 **Auto-Load When**: Finalizing any analysis deliverable or when consistent formatting is requested.
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `structured-output:template-selected`
 2. `structured-output:findings-formatted`
 3. `structured-output:actions-assigned`
@@ -121,6 +121,7 @@ Before finalizing:
 - [ ] Format renders correctly in target medium (GitHub, Confluence, etc.).
 
 ## Exit Criteria
-- Todos completed with formatted deliverable.
-- Output follows selected template structure.
-- Stakeholders can act on findings without clarification.
+
+- [ ] All `structured-output:` progress items are marked complete
+- [ ] The deliverable has every section of the selected template
+- [ ] Each finding carries a location and a recommended action

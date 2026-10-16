@@ -131,3 +131,90 @@ def test_garden_commands_emit_transcripts(
     assert "unlock: yes" in demote_output
     assert "reason: regret spike" in demote_output
     assert str(temp_state_path) in demote_output
+
+
+def test_interrupted_save_keeps_the_previous_state(
+    temp_state_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A crash mid-write must not truncate the file holding the domain locks."""
+    store = AutonomyStateStore(state_path=temp_state_path)
+    store.set_level(1, domain="security", lock=True, reason="audit")
+
+    def dump_then_crash(data: object, handle: object, **_kw: object) -> None:
+        handle.write("current_level: ")  # type: ignore[attr-defined]  # partial write
+        raise OSError("disk full")
+
+    monkeypatch.setattr(
+        "memory_palace.lifecycle.autonomy_state.yaml.safe_dump", dump_then_crash
+    )
+    with pytest.raises(OSError, match="disk full"):
+        store.set_level(3)
+    monkeypatch.undo()
+
+    state = AutonomyStateStore(state_path=temp_state_path).load()
+    assert state.domain_controls["security"].locked is True
+
+
+def test_record_decision_leaves_an_unreadable_state_file_intact(
+    temp_state_path: Path,
+) -> None:
+    """A parse failure must not let the metrics write destroy the bytes."""
+    store = AutonomyStateStore(state_path=temp_state_path)
+    temp_state_path.write_text("current_level: [unclosed\n", encoding="utf-8")
+
+    store.record_decision(auto_approved=True, flagged=False, blocked=False)
+
+    assert temp_state_path.read_text(encoding="utf-8") == "current_level: [unclosed\n"
+
+
+@pytest.mark.parametrize(
+    "corruption",
+    ["\n: [unclosed\n", "- a\n- b\n"],
+    ids=["bad-yaml", "non-mapping"],
+)
+@pytest.mark.parametrize(
+    "change",
+    [
+        lambda store: store.promote(domain="security"),
+        lambda store: store.set_level(2),
+    ],
+    ids=["promote-domain", "set-global-level"],
+)
+def test_change_after_unreadable_load_refuses_instead_of_dropping_locks(
+    temp_state_path: Path, corruption: str, change: object
+) -> None:
+    """Every load of an unreadable file raises, and no save drops the locks."""
+    store = AutonomyStateStore(state_path=temp_state_path)
+    store.set_level(1, domain="security", lock=True, reason="audit")
+    if corruption.startswith("- "):
+        temp_state_path.write_text(corruption, encoding="utf-8")
+    else:
+        with temp_state_path.open("a", encoding="utf-8") as handle:
+            handle.write(corruption)
+    unreadable = temp_state_path.read_bytes()
+
+    for _attempt in range(2):
+        with pytest.raises(ValueError, match="unreadable"):
+            change(store)  # type: ignore[operator]  # parametrized callable
+
+    assert temp_state_path.read_bytes() == unreadable
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["autonomy", "status"],
+        ["garden", "trust", "--domain", "python", "--level", "1"],
+    ],
+)
+def test_cli_exits_with_one_line_message_on_unreadable_state(
+    temp_state_path: Path, argv: list[str]
+) -> None:
+    temp_state_path.write_text("level: [unclosed\n", encoding="utf-8")
+
+    with pytest.raises(SystemExit) as exited:
+        memory_palace_cli.main(argv)
+
+    message = str(exited.value.code)
+    assert "is unreadable" in message
+    assert "\n" not in message

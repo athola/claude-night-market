@@ -24,10 +24,10 @@ class TestAbstractValidator:
         assert validator.plugin_root == temp_skill_dir
         assert isinstance(validator.skill_files, list)
 
-    def test_scan_infrastructure_basic(
+    def test_scan_infrastructure_finds_each_skill_directory(
         self, temp_skill_dir, sample_skill_content
     ) -> None:
-        """Test basic infrastructure scanning."""
+        """scan_infrastructure records each skill by its directory name."""
         skill_dir = temp_skill_dir / "test-skill"
         skill_dir.mkdir()
         (skill_dir / "SKILL.md").write_text(sample_skill_content)
@@ -39,6 +39,7 @@ class TestAbstractValidator:
         assert "skills_with_patterns" in result
         assert "infrastructure_provided" in result
         assert "issues" in result
+        assert result["skills_found"] == {"test-skill"}
 
     def test_validate_patterns_missing_frontmatter(self, temp_skill_dir) -> None:
         """Test validation catches missing frontmatter."""
@@ -311,7 +312,9 @@ class TestValidatePatternsBranches:
 
         validator = AbstractValidator(tmp_path)
         issues = validator.validate_patterns()
-        assert isinstance(issues, list)
+        # Required fields, a meta indicator, and Overview before Quick Start
+        # before Detailed Resources: nothing left to report.
+        assert issues == []
 
 
 # ---------------------------------------------------------------------------
@@ -345,7 +348,11 @@ class TestFixPatternsWithExistingFrontmatter:
 
         validator = AbstractValidator(tmp_path)
         result = validator.fix_patterns(dry_run=True)
-        assert isinstance(result, list)
+        assert result == ["Added missing fields to frontmatter in partial-skill"]
+        # dry_run reports the fix without writing it
+        assert skill_file.read_text() == (
+            "---\nname: partial-skill\n---\n\n# Partial Skill\n\nContent.\n"
+        )
 
 
 # ---------------------------------------------------------------------------

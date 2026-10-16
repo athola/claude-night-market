@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from ..palace_manager import MemoryPalaceManager
+from ..palace_repository import _atomic_write_json
 from .entry import ReviewEntry
 from .rooms import (
     PROJECT_PALACE_ROOMS,
@@ -115,18 +116,28 @@ class ProjectPalaceManager(MemoryPalaceManager):
 
         # Save to project palaces directory
         palace_file = os.path.join(self.project_palaces_dir, f"{palace_id}.json")
-        with open(palace_file, "w", encoding="utf-8") as f:
-            json.dump(project_palace, f, indent=2)
+        _atomic_write_json(palace_file, project_palace)
 
         self._update_project_index()
         return project_palace
 
     def load_project_palace(self, palace_id: str) -> dict[str, Any] | None:
-        """Load a project palace by ID."""
+        """Load a project palace by ID.
+
+        Returns None when the palace is absent, corrupt, or unreadable, as
+        ``load_palace`` does; the reason goes to stderr.
+        """
         palace_file = os.path.join(self.project_palaces_dir, f"{palace_id}.json")
         if os.path.exists(palace_file):
-            with open(palace_file, encoding="utf-8") as f:
-                return json.load(f)
+            try:
+                with open(palace_file, encoding="utf-8") as f:
+                    return json.load(f)
+            except json.JSONDecodeError as e:
+                sys.stderr.write(
+                    f"project_palace: corrupt palace file {palace_file}: {e}\n"
+                )
+            except OSError as e:
+                sys.stderr.write(f"project_palace: failed to read {palace_file}: {e}\n")
         return None
 
     def find_project_palace(self, repo_name: str) -> dict[str, Any] | None:
@@ -164,8 +175,7 @@ class ProjectPalaceManager(MemoryPalaceManager):
         # Create backup
         self.create_backup(palace["id"], self.project_palaces_dir)
 
-        with open(palace_file, "w", encoding="utf-8") as f:
-            json.dump(palace, f, indent=2)
+        _atomic_write_json(palace_file, palace)
 
         self._update_project_index()
 

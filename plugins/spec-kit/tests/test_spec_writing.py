@@ -1,471 +1,227 @@
-"""Tests for spec-writing skill functionality."""
+"""Contract tests for the spec-writing skill and the command that applies it.
+
+Each test pins a rule that ``skills/spec-writing`` or
+``commands/speckit-specify.md`` states, so deleting or contradicting the
+rule fails the test. These replace tests that compared conftest fixture
+strings with themselves and could not fail.
+"""
+
+from __future__ import annotations
 
 import re
 
 import pytest
 
+from tests._contract import headings, read, section
+
+SKILL = "skills/spec-writing/SKILL.md"
+STRUCTURE = "skills/spec-writing/modules/specification-structure.md"
+CRITERIA = "skills/spec-writing/modules/success-criteria-patterns.md"
+CHECKLISTS = "skills/spec-writing/modules/checklist-dimensions.md"
+SPECIFY = "commands/speckit-specify.md"
+CLARIFY = "commands/speckit-clarify.md"
+
+MANDATORY = [
+    "Overview/Context",
+    "User Scenarios",
+    "Functional Requirements",
+    "Success Criteria",
+]
+
+
+@pytest.fixture(scope="module")
+def skill() -> str:
+    return read(SKILL)
+
+
+@pytest.fixture(scope="module")
+def structure() -> str:
+    return read(STRUCTURE)
+
+
+@pytest.fixture(scope="module")
+def specify() -> str:
+    return read(SPECIFY)
+
 
 class TestSpecWriting:
-    """Test cases for the Spec Writing skill."""
+    """The rules a specification is written and validated against."""
 
     def test_should_extract_key_components_when_parsing_natural_language_description(
-        self, detailed_feature_description
+        self, specify: str
     ) -> None:
-        """Test creating specification from natural language description."""
-        # Given: a detailed natural language feature description
-        feature_desc = detailed_feature_description
-
-        # When: parsing the feature description
-        # Then: should extract all key authentication components
-        assert "user authentication" in feature_desc.lower()
-        assert "email" in feature_desc.lower()
-        assert "password" in feature_desc.lower()
-        assert "role-based access control" in feature_desc.lower()
+        """speckit-specify extracts actors, actions, data and constraints."""
+        assert 'If empty: ERROR "No feature description provided"' in specify
+        assert "Identify: actors, actions, data, constraints" in specify
 
     def test_should_require_mandatory_sections_when_validating_spec_structure(
-        self, valid_authentication_spec_content
+        self, skill: str, structure: str
     ) -> None:
-        """Test specification follows required structure."""
-        # Given: a valid authentication specification
-        spec = valid_authentication_spec_content
-
-        # When: validating the specification structure
-        required_sections = [
-            "## Overview",
-            "## User Scenarios",
-            "## Functional Requirements",
-            "## Success Criteria",
+        """The skill and its structure module name the same four sections."""
+        listed = re.findall(
+            r"^\d\. \*\*(.+?)\*\*", section(skill, "Mandatory Sections"), re.MULTILINE
+        )
+        assert listed == MANDATORY
+        numbered = [
+            h.split(". ", 1)[1]
+            for h in headings(structure, 3)
+            if h[:2] in {"1.", "2.", "3.", "4."}
         ]
-
-        # Then: all mandatory sections should be present
-        for section in required_sections:
-            assert section in spec, f"Missing required section: {section}"
+        assert numbered == MANDATORY
 
     def test_should_reject_spec_when_missing_functional_requirements(
-        self, spec_without_requirements
+        self, skill: str, structure: str
     ) -> None:
-        """Test validation rejects specs without functional requirements."""
-        # Given: a spec missing the functional requirements section
-        spec = spec_without_requirements
-
-        # When: checking for the required Functional Requirements section
-        # Then: the section should be missing
-        assert "## Functional Requirements" not in spec
+        """A spec without Functional Requirements is not complete."""
+        assert (
+            "Every specification must include these four sections to be "
+            "considered complete." in structure
+        )
+        exit_criteria = section(skill, "Exit Criteria")
+        assert "Functional Requirements" in exit_criteria
 
     def test_should_format_user_scenarios_correctly_when_present(
-        self, valid_authentication_spec_content
+        self, structure: str
     ) -> None:
-        """Test user scenarios follow proper format."""
-        # Given: a valid authentication specification with user scenarios
-        spec = valid_authentication_spec_content
-
-        # When: extracting user scenario patterns
-        scenario_pattern = r"### As a (\w+)\nI want to (.+)\nSo that (.+)"
-        scenarios = re.findall(scenario_pattern, spec)
-
-        # Then: should have at least one properly formatted scenario
-        assert len(scenarios) > 0, "Should have at least one user scenario"
-
-        # And: each scenario should have all three components populated
-        for role, want, so_that in scenarios:
-            assert role.strip(), "Role should not be empty"
-            assert want.strip(), "Desire should not be empty"
-            assert so_that.strip(), "Purpose should not be empty"
+        """Scenarios are headed by user type and goal, in template and example."""
+        assert "### Scenario 1: [User Type] - [Goal]" in structure
+        assert (
+            "### Scenario 1: First-Time Buyer - Review Order Before Purchase"
+            in structure
+        )
 
     def test_should_structure_functional_requirements_with_sections_when_validating(
-        self, valid_authentication_spec_content
+        self, structure: str
     ) -> None:
-        """Test functional requirements are properly structured."""
-        # Given: a valid authentication specification
-        spec = valid_authentication_spec_content
-
-        # When: extracting the functional requirements section
-        fr_section = re.search(
-            r"## Functional Requirements\n(.+?)(?=\n##|$)",
-            spec,
-            re.DOTALL,
-        )
-
-        # Then: should have a functional requirements section
-        assert fr_section, "Should have Functional Requirements section"
-
-        fr_content = fr_section.group(1)
-
-        # And: should contain subsections with structured content
-        subsections = re.findall(
-            r"### ([^\n]+)\n(.+?)(?=\n###|$)",
-            fr_content,
-            re.DOTALL,
-        )
-
-        assert len(subsections) > 0, "Should have functional requirement subsections"
-
-        # And: each subsection should have a title and structured content
-        for title, content in subsections:
-            assert title.strip(), "FR subsection title should not be empty"
-            assert content.strip(), "FR subsection content should not be empty"
-            # Should contain bullet points or numbered lists
-            assert ("-" in content) or (":" in content), (
-                "FR subsection should have structured items"
-            )
+        """Functional requirements split into capabilities, validation, business rules."""
+        requirements = structure.split("### 3. Functional Requirements", 1)[1]
+        requirements = requirements.split("### 4. Success Criteria", 1)[0]
+        for subsection in (
+            "### Core Capabilities",
+            "### Validation Rules",
+            "### Business Rules",
+        ):
+            assert subsection in requirements, subsection
+        assert "Define what the system must do, without specifying how." in requirements
 
     def test_should_contain_measurable_elements_when_validating_success_criteria(
-        self, valid_authentication_spec_content
+        self,
     ) -> None:
-        """Test success criteria are measurable and verifiable."""
-        # Given: a valid authentication specification with success criteria
-        spec = valid_authentication_spec_content
-
-        # When: extracting the success criteria section
-        success_section = re.search(
-            r"## Success Criteria\n(.+?)(?=\n##|$)",
-            spec,
-            re.DOTALL,
-        )
-
-        # Then: success criteria section should exist
-        assert success_section, "Should have Success Criteria section"
-
-        criteria_text = success_section.group(1)
-
-        # And: should contain measurable indicators
-        measurable_patterns = [
-            r"can\s+\w+",
-            r"are\s+\w+",
-            r"\d+",
-            r"within\s+\w+",
-            r"after\s+\w+",
+        """Good success criteria have four named properties."""
+        criteria = read(CRITERIA)
+        assert headings(criteria, 2)[0] == "What Makes Good Success Criteria"
+        assert headings(criteria, 3)[:4] == [
+            "Measurable",
+            "Technology-Agnostic",
+            "User-Focused",
+            "Verifiable",
         ]
-
-        has_measurable = any(
-            re.search(pattern, criteria_text.lower()) for pattern in measurable_patterns
-        )
-        assert has_measurable, "Success criteria should contain measurable elements"
 
     def test_should_limit_clarification_markers_to_three_when_validating_spec(
-        self, valid_authentication_spec_content
+        self, specify: str
     ) -> None:
-        """Test clarification markers are limited (max 3)."""
-        # Given: a valid authentication specification
-        spec = valid_authentication_spec_content
-
-        # When: counting clarification markers
-        clarification_count = spec.count("[CLARIFY]")
-
-        # Then: should have at most 3 clarification markers
-        assert clarification_count <= 3, (
-            f"Too many clarification markers: {clarification_count} (max 3 allowed)"
+        """The marker cap is stated where the spec is drafted and in the guidelines."""
+        assert "**LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers total**" in specify
+        assert (
+            "**Limit clarifications**: Maximum 3 [NEEDS CLARIFICATION] markers"
+            in specify
         )
+        assert "(Q1, Q2, Q3 - max 3 total)" in specify
 
-    @pytest.mark.parametrize(
-        "clarify_count,expected_valid",
-        [
-            (0, True),  # No clarifications is valid
-            (1, True),  # One clarification is valid
-            (3, True),  # Three clarifications is the limit
-            (4, False),  # Four clarifications exceeds limit
-        ],
-    )
-    def test_should_validate_clarification_count_limits(
-        self, spec_content_factory, clarify_count: int, expected_valid: bool
-    ) -> None:
-        """Test parameterized clarification marker validation."""
-        # Given: a spec with a specific number of clarification markers
-        clarify_markers = "\n".join(
-            [f"[CLARIFY] Question {i}?" for i in range(clarify_count)]
+    def test_should_validate_clarification_count_limits(self) -> None:
+        """speckit-clarify caps queued questions at 5 and a session at 10."""
+        clarify = read(CLARIFY)
+        assert (
+            "prioritized queue of candidate clarification questions (maximum 5)"
+            in clarify
         )
-        spec = (
-            spec_content_factory(
-                "Test Feature",
-                "Testing clarification limits",
-                ["Requirement 1"],
-            )
-            + f"\n## Open Questions\n{clarify_markers}"
-        )
-
-        # When: counting clarification markers
-        actual_count = spec.count("[CLARIFY]")
-
-        # Then: count should match expected and validity should be correct
-        assert actual_count == clarify_count
-        is_valid = actual_count <= 3
-        assert is_valid == expected_valid
+        assert "Maximum of 10 total questions across the whole session." in clarify
 
     def test_should_avoid_implementation_details_when_validating_spec(
-        self, valid_authentication_spec_content
+        self, skill: str, specify: str
     ) -> None:
-        """Test specification avoids implementation details."""
-        # Given: a valid authentication specification
-        spec = valid_authentication_spec_content
-        spec_lower = spec.lower()
-
-        # When: checking for specific implementation detail patterns
-        implementation_detail_patterns = [
-            r"create.*function",
-            r"implement.*class",
-            r"use.*library",
-            r"import.*module",
-        ]
-
-        has_implementation_details = any(
-            re.search(pattern, spec_lower) for pattern in implementation_detail_patterns
+        """Both the skill checklist and the generated checklist forbid implementation detail."""
+        assert "- [ ] No implementation details present" in section(
+            skill, "Quality Checklist"
         )
-
-        # Then: should not contain implementation-specific phrases
-        assert not has_implementation_details, (
-            "Specification should avoid implementation details"
+        assert (
+            "- [ ] No implementation details (languages, frameworks, APIs)" in specify
+        )
+        assert (
+            "Avoid HOW to implement (no tech stack, APIs, code structure)." in specify
         )
 
     def test_should_focus_on_business_value_when_validating_spec(
-        self, valid_authentication_spec_content
+        self, skill: str, specify: str
     ) -> None:
-        """Test specification focuses on business value."""
-        # Given: a valid authentication specification
-        spec = valid_authentication_spec_content
-        spec_lower = spec.lower()
-
-        # When: checking for business value indicators
-        business_value_terms = [
-            "user",
-            "customer",
-            "business",
-            "value",
-            "benefit",
-            "advantage",
-            "improve",
-            "enable",
-            "allow",
-        ]
-
-        business_terms_found = [
-            term for term in business_value_terms if term in spec_lower
-        ]
-
-        # Then: should include at least 3 business value terms
-        assert len(business_terms_found) >= 3, (
-            f"Should include business value terms, found: {business_terms_found}"
+        """User value and business needs lead the skill and the checklist."""
+        assert "Focus on user value and business needs" in section(
+            skill, "Core Principles"
         )
+        assert "- [ ] Focused on user value and business needs" in specify
 
     def test_should_include_acceptance_criteria_when_validating_spec(
-        self, valid_authentication_spec_content
+        self, skill: str, specify: str
     ) -> None:
-        """Test specification includes acceptance criteria."""
-        # Given: a valid authentication specification
-        spec = valid_authentication_spec_content
-
-        # When: checking for acceptance criteria patterns
-        acceptance_patterns = [
-            r"can\s+\w+",
-            r"will\s+\w+",
-            r"should\s+\w+",
-            r"must\s+\w+",
-        ]
-
-        has_acceptance_criteria = any(
-            re.search(pattern, spec.lower()) for pattern in acceptance_patterns
+        """Every functional requirement carries a testable acceptance criterion."""
+        assert "testable acceptance" in section(skill, "Exit Criteria").replace(
+            "\n      ", " "
         )
-
-        # Then: should include at least one acceptance criteria pattern
-        assert has_acceptance_criteria, "Should include acceptance criteria"
+        assert (
+            "- [ ] All functional requirements have clear acceptance criteria"
+            in specify
+        )
 
     def test_should_optionally_consider_edge_cases_when_validating_spec(
-        self, valid_authentication_spec_content
+        self, skill: str, structure: str
     ) -> None:
-        """Test specification optionally considers edge cases."""
-        # Given: a valid authentication specification
-        spec = valid_authentication_spec_content
-        spec_lower = spec.lower()
-
-        # When: checking for edge case indicators
-        edge_case_indicators = [
-            "edge case",
-            "boundary",
-            "limit",
-            "maximum",
-            "minimum",
-            "invalid",
-            "error",
-            "timeout",
-            "concurrent",
-        ]
-
-        edge_cases_found = [
-            indicator for indicator in edge_case_indicators if indicator in spec_lower
-        ]
-
-        # Then: edge cases are optional but good to have
-        # This test documents the edge case check without enforcing it
-        # If edge cases are present, they should be meaningful
-        if edge_cases_found:
-            assert len(edge_cases_found) > 0
-
-    def test_should_maintain_clarity_and_readability_when_validating_spec(
-        self, valid_authentication_spec_content
-    ) -> None:
-        """Test specification is clear and readable."""
-        # Given: a valid authentication specification
-        spec = valid_authentication_spec_content
-
-        # When: analyzing sentence complexity
-        sentences = re.split(r"[.!?]+", spec)
-        sentences = [s.strip() for s in sentences if s.strip()]
-
-        long_sentences = [s for s in sentences if len(s.split()) > 30]
-
-        # Then: should avoid extremely long sentences (less than 10% of total)
-        assert len(long_sentences) < len(sentences) * 0.1, (
-            "Too many very long sentences"
+        """Edge Cases is optional, with a stated condition for including it."""
+        assert "- Edge Cases (when special handling needed)" in section(
+            skill, "Optional Sections"
         )
+        assert "**Include Edge Cases when**:" in structure
 
-        # And: should have clear heading structure
-        headings = re.findall(r"^#{1,6}\s+(.+)$", spec, re.MULTILINE)
-        assert len(headings) >= 4, "Should have clear heading structure"
+    def test_should_write_for_business_stakeholders(self, specify: str) -> None:
+        """Specs are written for business stakeholders, not developers."""
+        assert "- Written for business stakeholders, not developers." in specify
+        assert "- [ ] Written for non-technical stakeholders" in specify
 
     def test_should_structure_assumptions_when_present_in_spec(
-        self, valid_authentication_spec_content
+        self, skill: str, specify: str, structure: str
     ) -> None:
-        """Test assumptions are explicitly documented and structured."""
-        # Given: a valid authentication specification
-        spec = valid_authentication_spec_content
+        """Defaults chosen for gaps are recorded in an Assumptions section."""
+        assert "- Assumptions (when decisions made with incomplete info)" in skill
+        assert "document assumptions in Assumptions section" in specify
+        assert "**Include Assumptions when**:" in structure
 
-        # When: extracting the assumptions section
-        assumptions_section = re.search(
-            r"## Assumptions\n(.+?)(?=\n##|$)",
-            spec,
-            re.DOTALL,
-        )
-
-        # Then: if assumptions are present, they should be structured
-        if assumptions_section:
-            assumptions_text = assumptions_section.group(1)
-            # Should have bullet points or numbered list
-            assert ("-" in assumptions_text) or ("1." in assumptions_text), (
-                "Assumptions should be structured"
-            )
-
-    def test_should_avoid_personal_pronouns_outside_scenarios_when_validating_spec(
-        self, valid_authentication_spec_content
+    def test_should_convert_each_bad_success_criterion_to_a_user_facing_one(
+        self, skill: str
     ) -> None:
-        """Test specification avoids personal pronouns (I, we, our) outside scenarios."""
-        # Given: a valid authentication specification
-        spec = valid_authentication_spec_content
-        spec_lower = " " + spec.lower() + " "
+        """Every implementation-focused example carries a user-facing rewrite."""
+        bad = section(skill, "Bad (Implementation-focused, Internal metrics)")
+        examples = [line for line in bad.splitlines() if line.startswith("- ")]
+        assert len(examples) == 3
+        for line in examples:
+            assert '-> Use: "' in line, line
 
-        # When: checking for personal pronouns
-        personal_pronouns = [" I ", " we ", " our ", " my "]
-        found_pronouns = [
-            pronoun for pronoun in personal_pronouns if pronoun in spec_lower
-        ]
+    def test_should_rerun_validation_up_to_three_times(self, specify: str) -> None:
+        """Validation reruns until every checklist item passes, at most 3 times."""
+        assert "Re-run validation until all items pass (max 3 iterations)" in specify
+        assert "`FEATURE_DIR/checklists/requirements.md`" in specify
 
-        # Then: allow "I want to" in user scenarios but not elsewhere
-        non_scenario_pronouns = []
-        for pronoun in found_pronouns:
-            # Check if pronoun is in a user scenario
-            scenario_context = re.search(
-                r"### As a [^\n]*[^\n]*" + pronoun + "[^\n]*",
-                spec,
-            )
-            if not scenario_context:
-                non_scenario_pronouns.append(pronoun)
-
-        assert len(non_scenario_pronouns) == 0, (
-            f"Found personal pronouns outside scenarios: {non_scenario_pronouns}"
-        )
-
-    def test_should_achieve_high_completeness_score_when_validating_spec(
-        self, valid_authentication_spec_content
+    def test_should_error_when_no_user_flow_can_be_determined(
+        self, specify: str
     ) -> None:
-        """Test specification completeness scoring."""
-        # Given: a valid authentication specification
-        spec = valid_authentication_spec_content
-
-        # When: calculating completeness score across multiple factors
-        completeness_factors = {
-            "overview": "## Overview" in spec,
-            "user_scenarios": "## User Scenarios" in spec,
-            "functional_requirements": "## Functional Requirements" in spec,
-            "success_criteria": "## Success Criteria" in spec,
-            "assumptions": "## Assumptions" in spec,
-            "has_user_roles": "### As a" in spec,
-            "has_acceptance_criteria": any(
-                term in spec.lower() for term in ["can ", "will ", "should "]
-            ),
-            "limited_clarifications": spec.count("[CLARIFY]") <= 3,
-        }
-
-        completeness_score = sum(completeness_factors.values()) / len(
-            completeness_factors,
+        """Missing user scenarios is an error, and mandatory sections are required."""
+        assert (
+            'If no clear user flow: ERROR "Cannot determine user scenarios"' in specify
         )
+        assert "- [ ] All mandatory sections completed" in specify
 
-        # Then: should achieve at least 80% completeness
-        assert completeness_score >= 0.8, (
-            f"Completeness score too low: {completeness_score:.2%}"
-        )
-
-    def test_should_fail_completeness_when_missing_critical_sections(
-        self, minimal_spec_content
+    def test_should_describe_requirement_checklists_as_tests_of_the_writing(
+        self,
     ) -> None:
-        """Test incomplete spec fails completeness scoring."""
-        # Given: a minimal spec with only required sections
-        spec = minimal_spec_content
-
-        # When: calculating completeness score
-        completeness_factors = {
-            "overview": "## Overview" in spec,
-            "user_scenarios": "## User Scenarios" in spec,
-            "functional_requirements": "## Functional Requirements" in spec,
-            "success_criteria": "## Success Criteria" in spec,
-            "assumptions": "## Assumptions" in spec,
-            "has_user_roles": "### As a" in spec,
-            "has_acceptance_criteria": any(
-                term in spec.lower() for term in ["can ", "will ", "should "]
-            ),
-            "limited_clarifications": spec.count("[CLARIFY]") <= 3,
-        }
-
-        completeness_score = sum(completeness_factors.values()) / len(
-            completeness_factors,
-        )
-
-        # Then: minimal spec should have lower completeness score
-        assert completeness_score < 0.8, (
-            f"Minimal spec should not achieve high completeness: {completeness_score:.2%}"
-        )
-
-    @pytest.mark.parametrize(
-        "spec_type,min_score",
-        [
-            ("valid_authentication_spec_content", 0.8),
-            ("minimal_spec_content", 0.0),
-            ("empty_spec_content", 0.0),
-        ],
-    )
-    def test_should_score_specs_appropriately_by_type(
-        self, request, spec_type: str, min_score: float
-    ) -> None:
-        """Test parameterized completeness scoring for different spec types."""
-        # Given: a spec of a specific type
-        spec = request.getfixturevalue(spec_type)
-
-        # When: calculating completeness score
-        completeness_factors = {
-            "overview": "## Overview" in spec,
-            "user_scenarios": "## User Scenarios" in spec,
-            "functional_requirements": "## Functional Requirements" in spec,
-            "success_criteria": "## Success Criteria" in spec,
-            "assumptions": "## Assumptions" in spec,
-            "has_user_roles": "### As a" in spec,
-            "has_acceptance_criteria": any(
-                term in spec.lower() for term in ["can ", "will ", "should "]
-            ),
-            "limited_clarifications": spec.count("[CLARIFY]") <= 3,
-        }
-
-        completeness_score = sum(completeness_factors.values()) / len(
-            completeness_factors,
-        )
-
-        # Then: score should meet the minimum threshold for that type
-        assert completeness_score >= min_score, (
-            f"{spec_type} completeness score {completeness_score:.2%} below minimum {min_score:.2%}"
-        )
+        """Requirement checklists test the writing, not the implementation."""
+        checklists = read(CHECKLISTS)
+        assert "Checklists are **unit tests for requirements writing**" in checklists
+        assert "NOT implementation correctness" in checklists

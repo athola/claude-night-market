@@ -26,7 +26,17 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from tome.models import RETRIEVAL_CHANNELS
-from tome.synthesis.quality import _SKEW_THRESHOLD, CANARY_SOURCE, channel_outcomes
+from tome.synthesis.quality import (
+    _SKEW_THRESHOLD,
+    CANARY_ABSENT,
+    CANARY_FAILED,
+    CANARY_PASSED,
+    CANARY_SOURCE,
+    OUTCOME_EMPTY,
+    OUTCOME_OK,
+    OUTCOME_UNKNOWN,
+    channel_outcomes,
+)
 
 if TYPE_CHECKING:
     from tome.models import Finding, ResearchSession
@@ -82,7 +92,7 @@ _F_THIN = 3
 
 # Outcomes under which a channel's silence says something about the
 # topic rather than about the run.
-_CLEAN = ("ok", "empty")
+_CLEAN = (OUTCOME_OK, OUTCOME_EMPTY)
 
 
 @dataclass
@@ -141,11 +151,11 @@ def canary_outcomes(session: ResearchSession) -> dict[str, str]:
             if q.channel == channel and q.source == CANARY_SOURCE
         ]
         if not controls:
-            outcomes[channel] = "absent"
+            outcomes[channel] = CANARY_ABSENT
         elif any(q.succeeded and q.result_count > 0 for q in controls):
-            outcomes[channel] = "pass"
+            outcomes[channel] = CANARY_PASSED
         else:
-            outcomes[channel] = "fail"
+            outcomes[channel] = CANARY_FAILED
     return outcomes
 
 
@@ -210,9 +220,9 @@ def frontier_verdict(session: ResearchSession, *, f_thin: int = _F_THIN) -> Verd
             {"planned_channels": ", ".join(session.channels) or "none"},
         )
 
-    broken = [c for c in probes if outcomes.get(c, "unknown") not in _CLEAN]
+    broken = [c for c in probes if outcomes.get(c, OUTCOME_UNKNOWN) not in _CLEAN]
     if broken:
-        detail = ", ".join(f"{c} ({outcomes.get(c, 'unknown')})" for c in broken)
+        detail = ", ".join(f"{c} ({outcomes.get(c, OUTCOME_UNKNOWN)})" for c in broken)
         return Verdict(
             INCONCLUSIVE,
             f"{len(broken)} channel(s) did not search cleanly, so absence "
@@ -220,7 +230,7 @@ def frontier_verdict(session: ResearchSession, *, f_thin: int = _F_THIN) -> Verd
             {"channels_not_clean": detail},
         )
 
-    blind = [c for c in probes if controls.get(c) == "fail"]
+    blind = [c for c in probes if controls.get(c) == CANARY_FAILED]
     if blind:
         return Verdict(
             INCONCLUSIVE,
@@ -231,9 +241,11 @@ def frontier_verdict(session: ResearchSession, *, f_thin: int = _F_THIN) -> Verd
         )
 
     proven_empty = [
-        c for c in probes if controls.get(c) == "pass" and outcomes.get(c) == "empty"
+        c
+        for c in probes
+        if controls.get(c) == CANARY_PASSED and outcomes.get(c) == OUTCOME_EMPTY
     ]
-    unproven = [c for c in probes if controls.get(c) == "absent"]
+    unproven = [c for c in probes if controls.get(c) == CANARY_ABSENT]
     total = len(retrieved_findings(session))
 
     if len(proven_empty) >= 2 and total <= f_thin:
@@ -273,7 +285,9 @@ def frontier_verdict(session: ResearchSession, *, f_thin: int = _F_THIN) -> Verd
     # here because a *different* channel found things would let the
     # working channel vouch for the silent one.
     uncontrolled_empty = [
-        c for c in probes if controls.get(c) == "absent" and outcomes.get(c) == "empty"
+        c
+        for c in probes
+        if controls.get(c) == CANARY_ABSENT and outcomes.get(c) == OUTCOME_EMPTY
     ]
     if uncontrolled_empty or (unproven and not total):
         silent = uncontrolled_empty or unproven
@@ -338,7 +352,9 @@ def frontier_stories(session: ResearchSession) -> list[ResearchStory]:
     stories: list[ResearchStory] = []
 
     proven_empty = [
-        c for c in probes if controls.get(c) == "pass" and outcomes.get(c) == "empty"
+        c
+        for c in probes
+        if controls.get(c) == CANARY_PASSED and outcomes.get(c) == OUTCOME_EMPTY
     ]
     if proven_empty:
         stories.append(
@@ -361,7 +377,7 @@ def frontier_stories(session: ResearchSession) -> list[ResearchStory]:
             )
         )
 
-    blind = [c for c in probes if controls.get(c) == "fail"]
+    blind = [c for c in probes if controls.get(c) == CANARY_FAILED]
     if blind:
         stories.append(
             ResearchStory(
@@ -380,7 +396,7 @@ def frontier_stories(session: ResearchSession) -> list[ResearchStory]:
             )
         )
 
-    unproven = [c for c in probes if controls.get(c) == "absent"]
+    unproven = [c for c in probes if controls.get(c) == CANARY_ABSENT]
     if unproven:
         stories.append(
             ResearchStory(

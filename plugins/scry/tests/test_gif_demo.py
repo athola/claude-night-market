@@ -40,6 +40,34 @@ class TestGifDemoHelp:
         assert "TMP_DIR" in result.stdout
         assert "GIF_FPS" in result.stdout
 
+    def test_help_from_its_own_directory_names_the_script_once(
+        self, gif_demo_script: Path
+    ) -> None:
+        """`bash gif_demo.sh -h` has no slash in $0, and `${0%/*}` returned
+        the name itself, so usage printed gif_demo.sh/gif_demo.sh.
+        """
+        result = subprocess.run(
+            ["bash", "gif_demo.sh", "-h"],
+            cwd=gif_demo_script.parent,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0
+        assert "gif_demo.sh/gif_demo.sh" not in result.stdout
+        assert "./gif_demo.sh" in result.stdout
+
+    def test_unknown_argument_exits_1_and_names_it(self, gif_demo_script: Path) -> None:
+        """An unrecognized flag stops before any ffmpeg work starts."""
+        result = subprocess.run(
+            [str(gif_demo_script), "--bogus"],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 1
+        output = result.stderr + result.stdout
+        assert "Unknown argument: --bogus" in output
+        assert "Usage" in output
+
 
 class TestGifDemoDependencies:
     """Tests for gif_demo.sh dependency checking."""

@@ -9,7 +9,6 @@ from __future__ import annotations
 import json
 import logging
 import sys
-import time
 from pathlib import Path
 from unittest.mock import patch
 
@@ -907,7 +906,7 @@ class TestImbueValidatorPerformance:
 
         Given a plugin with many skill files
         When running validation
-        Then it should complete within reasonable time.
+        Then every skill file is found.
         """
         # Arrange - create many skills
         plugin_root = tmp_path / "large-plugin"
@@ -934,13 +933,9 @@ This is test skill number {i} with review workflow patterns.
         # Act
         validator = ImbueValidator(plugin_root)
 
-        start_time = time.time()
         result = validator.scan_review_workflows()
-        end_time = time.time()
 
-        # Assert
-        execution_time = end_time - start_time
-        assert execution_time < 5.0  # Should complete within 5 seconds
+        # Assert (no time limit: it measures the host, not the validator)
         assert len(result["skills_found"]) == 100
 
     @pytest.mark.bdd

@@ -255,7 +255,9 @@ posture with its own Keep Local clauses.
 
 A `providers_exhausted` result is not a step failure.
 The orchestrator must not retry the step or mark the work item failed on
-it. The skill completes the work locally and the pipeline advances.
+it. The skill hands the work to a session-model subagent, per
+`Skill(attune:project-execution)` module `subagent-fallback.md`, and the
+pipeline advances.
 Treating it as a failure would burn the retry budget on a machine where
 nothing is broken.
 

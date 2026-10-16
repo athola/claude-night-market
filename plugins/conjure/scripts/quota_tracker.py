@@ -9,17 +9,26 @@ token estimation and CLI command parsing.
 from __future__ import annotations
 
 import argparse
+import importlib
 import logging
 import os
 import shlex
 import sys
+from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
+from types import ModuleType
 from typing import TYPE_CHECKING, Any
 
-_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
-sys.path.insert(0, str(_LEYLINE_SRC))
+# The repo keeps plugins side by side, the install cache nests them by
+# version: resolve leyline in either, falling back to the repo path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vendored_leyline_sibling_plugins import (  # type: ignore[import-not-found]  # noqa: E402 - scripts dir on sys.path
+    add_sibling_src_to_path,
+)
+
+add_sibling_src_to_path(__file__, "leyline")
 
 try:
     from leyline.fs import (
@@ -60,11 +69,13 @@ except ImportError:  # pragma: no cover
         }
     )
 
+    # Same signature as leyline.fs.iter_source_files: mypy requires the
+    # two conditional definitions to match.
     def iter_source_files(
-        root_dir: Any,
-        extensions: Any = None,
-        skip_dirs: Any = None,
-    ) -> Any:
+        root_dir: Path,
+        extensions: frozenset[str] | None = None,
+        skip_dirs: frozenset[str] | None = None,
+    ) -> Iterable[Path]:
         """Fallback directory walker when leyline.fs is unavailable."""
         effective_ext = extensions if extensions is not None else SOURCE_EXTENSIONS
         effective_skip = skip_dirs if skip_dirs is not None else SKIP_DIRS
@@ -118,13 +129,15 @@ except ImportError:  # pragma: no cover
 
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Sequence
 
+# tiktoken is an extra (optional-dependencies.full), absent from a base
+# install by design, so the except arm is a supported path. Typed as an
+# optional module so the None fallback checks whether or not it is
+# installed.
+tiktoken: ModuleType | None
 try:
-    # tiktoken is an extra (optional-dependencies.full), absent from a base
-    # install by design. The except arm below is the supported path, so an
-    # unresolved import here is expected rather than a finding.
-    import tiktoken  # ty: ignore[unresolved-import]
+    tiktoken = importlib.import_module("tiktoken")
 except ImportError:
     tiktoken = None
 
@@ -294,12 +307,18 @@ class GeminiQuotaTracker(QuotaTracker):  # ty: ignore[unsupported-base]
         prompt_length: int,
     ) -> int:
         """Estimate tokens using tiktoken encoder."""
-        tokens = len(encoder.encode("x" * prompt_length))
+        # Only the prompt's length is known, so it is estimated as the
+        # heuristic path does. Encoding a run of "x" would measure how the
+        # tokenizer packs repeated characters (8 per token in cl100k).
+        tokens = int(prompt_length / 4.0)
 
         for path in self._iter_source_paths(file_paths):
             try:
                 text = Path(path).read_text(encoding="utf-8", errors="replace")
-            except (OSError, UnicodeDecodeError):
+            except OSError as exc:
+                # The estimate decides whether to delegate, so an undercount
+                # has to be visible to whoever reads the quota.
+                logger.warning("token estimate skips unreadable %s: %s", path, exc)
                 continue
             tokens += len(encoder.encode(text)) + FILE_OVERHEAD_TOKENS
 
@@ -397,8 +416,17 @@ def main() -> None:
         print(f"Estimated tokens: {tokens}")
 
     elif args.validate_config:
+        problems = [
+            f"{key} must be a positive integer, got {value!r}"
+            for key, value in tracker.limits.items()
+            if not isinstance(value, int) or isinstance(value, bool) or value <= 0
+        ]
         for key, value in tracker.limits.items():
             print(f"  {key}: {value}")
+        for problem in problems:
+            print(f"  [ERROR] {problem}", file=sys.stderr)
+        if problems:
+            raise SystemExit(1)
 
     else:
         status, warnings = tracker.get_quota_status()

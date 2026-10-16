@@ -155,7 +155,7 @@ dependencies: [leyline:storage-templates]
 
 ## Exit Criteria
 
-- Template selected for use case
-- File naming convention applied
-- Maturity stage assigned
-- Promotion criteria understood
+- [ ] Template selected for use case
+- [ ] File naming convention applied
+- [ ] Maturity stage assigned
+- [ ] Promotion criteria understood

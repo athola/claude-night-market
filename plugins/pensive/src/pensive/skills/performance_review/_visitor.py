@@ -86,6 +86,13 @@ class _PerfVisitor(ast.NodeVisitor):
                         and isinstance(body_node.value.value, str)
                     ):
                         str_locals.add(target.id)
+            elif (
+                isinstance(body_node, ast.AnnAssign)
+                and isinstance(body_node.target, ast.Name)
+                and isinstance(body_node.value, ast.Constant)
+                and isinstance(body_node.value.value, str)
+            ):
+                str_locals.add(body_node.target.id)
         self._str_locals_stack.append(str_locals)
         self._func_stack.append(node)
         # Per-function accumulator frame: any Name initialized to an

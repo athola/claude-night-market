@@ -79,7 +79,7 @@ Expert-level Rust code audits with focus on safety, correctness, and idiomatic p
 - General code review without Rust - use unified-review
 - Performance profiling - use parseltongue:python-performance pattern
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `rust-review:ownership-analysis`
 2. `rust-review:error-handling`
@@ -274,9 +274,11 @@ the verifier rejects.
 
 ## Exit Criteria
 
-- All unsafe blocks audited
-- Concurrency patterns verified
-- Dependencies scanned
-- Evidence logged
-- Action items assigned
-- Every reported finding carries a `Location` + verbatim `Anchor` confirmed by `citation_verifier.py` (exit `0`), or unverified findings were dropped or labeled `UNVERIFIED`
+- [ ] All unsafe blocks audited
+- [ ] Concurrency patterns verified
+- [ ] Dependencies scanned
+- [ ] Evidence logged
+- [ ] Action items assigned
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor` confirmed
+      by `citation_verifier.py` (exit `0`), or unverified findings were dropped
+      or labeled `UNVERIFIED`

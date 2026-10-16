@@ -13,7 +13,7 @@ export const meta = {
   description:
     'Verify each desktop control surface independently so one failing surface does not hide the state of the others',
   whenToUse:
-    'Run before relying on desktop control, or when a control action failed and the cause is unclear. args.surfaces narrows the set. Returns a per-surface verdict with its remedy; it changes no system setting.',
+    'Run before relying on desktop control, or when a control action failed and the cause is unclear. args.surfaces narrows the set. Returns a per-surface verdict with its remedy. It changes no system setting.',
   phases: [{ title: 'Surfaces', detail: 'one agent per control surface' }],
 }
 
@@ -26,9 +26,37 @@ const ALL_SURFACES = [
   { key: 'windows', brief: 'Confirm windows can be enumerated with their titles and bounds. An empty list is a permission failure, not an empty desktop.' },
 ]
 
-const surfaces = input.surfaces
-  ? ALL_SURFACES.filter((surface) => input.surfaces.includes(surface.key))
+const KNOWN = ALL_SURFACES.map((s) => s.key).join(', ')
+const selection = input.surfaces ?? null
+// A string would pass `.includes` as a substring match, so only a list
+// is a selection.
+if (selection !== null && !Array.isArray(selection)) {
+  return {
+    started: false,
+    reason: 'surfaces-not-a-list',
+    next: 'Pass args.surfaces as a list of surface names. Omit it to check every surface.',
+  }
+}
+const surfaces = selection
+  ? ALL_SURFACES.filter((surface) => selection.includes(surface.key))
   : ALL_SURFACES
+// A misspelled surface name must not read as a healthy machine.
+const unknown = (selection || []).filter(
+  (name) => !ALL_SURFACES.some((surface) => surface.key === name),
+)
+if (unknown.length) {
+  log(`unknown surface ${unknown.join(', ')}. Known surfaces: ${KNOWN}`)
+}
+// An empty selection checks nothing, and its all-empty result would read
+// the same as a machine with every surface working.
+if (!surfaces.length) {
+  return {
+    started: false,
+    reason: 'no-surfaces-selected',
+    next: `Name one or more known surfaces in args.surfaces: ${KNOWN}. Omit it to check every surface.`,
+    unknown,
+  }
+}
 
 const VERDICT = {
   type: 'object',
@@ -56,11 +84,8 @@ const broken = verdicts.filter((verdict) => !verdict.working)
 // crashed must not read the same as a machine whose surfaces all work.
 const missing = surfaces.filter((surface, index) => !checked[index]).map((surface) => surface.key)
 
-log(
-  broken.length
-    ? `${broken.length} of ${verdicts.length} surfaces not working`
-    : `all ${verdicts.length} surfaces working`,
-)
-if (missing.length) log(`no verdict for ${missing.join(', ')}; those surfaces are unchecked, not working`)
+if (broken.length) log(`${broken.length} of ${verdicts.length} surfaces not working`)
+else if (verdicts.length) log(`all ${verdicts.length} surfaces working`)
+if (missing.length) log(`no verdict for ${missing.join(', ')}. Those surfaces are unchecked, not working`)
 
-return { verdicts, broken, missing }
+return { started: true, verdicts, broken, missing, unknown }

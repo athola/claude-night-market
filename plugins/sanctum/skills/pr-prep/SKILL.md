@@ -24,18 +24,6 @@ dependencies:
 - imbue:structured-output
 - scribe:slop-detector
 - scribe:doc-generator
-hooks:
-  PreToolUse:
-  - matcher: Bash
-    command: "# Log quality gate execution\ncmd=$(jq -r '.tool_input.command // empty' 2>/dev/null || echo 'N/A')\nif echo \"$cmd\" | grep -qE \"(make|npm|cargo|pytest|ruff|eslint|clippy) (test|lint|fmt|build|check)\"; then\n  echo \"[skill:pr-prep] Quality gate: $cmd at $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\nfi\n"
-    once: false
-  PostToolUse:
-  - matcher: Write
-    command: "# Track PR template generation\nfile=$(jq -r '.tool_input.file_path // empty' 2>/dev/null)\nif echo \"$file\" | grep -qE \"(pr[-_]description|PR[-_]TEMPLATE|pull[-_]request)\"; then\n  echo \"[skill:pr-prep] PR template written: $file at $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\nfi\n"
-  Stop:
-  - command: 'echo "[skill:pr-prep] === Workflow completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-
-      '
 ---
 # Pull Request Preparation Workflow
 
@@ -50,7 +38,7 @@ Use this skill to stage changes and generate a PR summary. Run `Skill(sanctum:gi
 
 ## Required Progress Tracking
 
-Create `TodoWrite` items for these steps before starting:
+Create progress items for these steps before starting:
 1. `pr-prep:workspace-reviewed`
 2. `pr-prep:quality-gates`
 3. `pr-prep:self-reviewed`
@@ -148,8 +136,8 @@ never as a pass. Step 2 is where `passes_checks` gets its answer.
 
 Then use the notes from the workspace review and the analyzer's
 categories to identify the key points in the diffs, and group them
-into 2-4 paragraphs highlighting the technical changes and their
-rationale. Note breaking changes, migrations, or documentation updates.
+into 2-4 paragraphs on the technical changes and their rationale. Note breaking
+changes, migrations, or documentation updates.
 
 ## Step 4: Document Testing (`testing-documented`)
 
@@ -211,7 +199,8 @@ Do not include tool or AI attribution in the PR text. If changes are required mi
 
 ## Supporting Modules
 
-- [TodoWrite patterns](modules/todowrite-patterns.md) - naming conventions for sanctum TodoWrite items
+- [Progress item patterns](modules/todowrite-patterns.md) - naming conventions
+  for sanctum progress items
 
 ## Troubleshooting
 
@@ -219,7 +208,7 @@ If project-specific commands like `make` or `npm` are unavailable, verify the en
 
 ## Exit Criteria
 
-- [ ] All 7 TodoWrite items (`pr-prep:workspace-reviewed` through
+- [ ] All 7 progress items (`pr-prep:workspace-reviewed` through
       `pr-prep:content-verified`) are marked complete before the
       skill declares done
 - [ ] Quality gates (formatting, linting, tests) run and pass; any

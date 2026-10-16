@@ -8,26 +8,30 @@ Feature: Agent Loop
 
 from __future__ import annotations
 
+import subprocess
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
-from phantom.cost import PRICING
+from phantom.cost import PRICING, CostTracker
 from phantom.display import ActionResult, DisplayConfig, DisplayToolkit
 from phantom.loop import (
     TOOL_VERSIONS,
-    ClientSetup,
-    IterationConfig,
-    IterationContext,
     LoopConfig,
     LoopHooks,
     LoopResult,
+    LoopSetup,
+    _ClientSetup,
     _execute_tool,
     _format_tool_result,
     _handle_text_editor,
+    _IterationConfig,
+    _IterationContext,
     _process_iteration,
     _run_tool_block,
     build_tools,
     get_beta_flag,
     resolve_tool_version,
+    run_loop,
 )
 
 
@@ -223,6 +227,8 @@ class TestExecuteTool:
         mock_display.execute.assert_called_once()
         assert result["type"] == "tool_result"
         assert result["tool_use_id"] == "tool-id-1"
+        # The follow-up screenshot is what Claude sees after the click.
+        assert result["content"][0]["source"]["data"] == "fakepng"
 
     def test_bash_failure_is_flagged_as_an_error(self):
         """
@@ -301,6 +307,7 @@ class TestExecuteTool:
         # take_screenshot should NOT be called for screenshot actions
         mock_display.take_screenshot.assert_not_called()
         assert result["tool_use_id"] == "tool-id-2"
+        assert result["content"][0]["source"]["data"] == "screen1"
 
     def test_unknown_tool_returns_error(self):
         mock_display = MagicMock(spec=DisplayToolkit)
@@ -477,8 +484,8 @@ def _make_iteration_context(
     cost_tracker=None,
     screenshot_tracker=None,
     display=None,
-) -> IterationContext:
-    """Build an IterationContext with sensible mock defaults."""
+) -> _IterationContext:
+    """Build an _IterationContext with sensible mock defaults."""
     action_filter = MagicMock()
     action_filter.is_allowed.return_value = True
     if gate is None:
@@ -499,7 +506,7 @@ def _make_iteration_context(
         display = MagicMock(spec=DisplayToolkit)
         display.execute.return_value = ActionResult(success=True)
         display.take_screenshot.return_value = ActionResult(success=True)
-    return IterationContext(
+    return _IterationContext(
         cost_tracker=cost_tracker,
         action_filter=action_filter,
         gate=gate,
@@ -510,9 +517,9 @@ def _make_iteration_context(
     )
 
 
-def _make_iteration_config() -> IterationConfig:
-    """Build an IterationConfig with default loop/display settings."""
-    return IterationConfig(loop_config=LoopConfig(), display_config=DisplayConfig())
+def _make_iteration_config() -> _IterationConfig:
+    """Build an _IterationConfig with default loop/display settings."""
+    return _IterationConfig(loop_config=LoopConfig(), display_config=DisplayConfig())
 
 
 class TestRunToolBlockGateRejection:
@@ -719,7 +726,7 @@ class TestProcessIterationBudgetExceeded:
 
     def test_budget_exceeded_returns_stop_reason_without_api_call(self):
         """
-        Given an IterationContext whose cost tracker reports budget_exceeded=True
+        Given an _IterationContext whose cost tracker reports budget_exceeded=True
         When _process_iteration is called
         Then it returns the string "budget_exceeded" immediately
         And the Anthropic API client is never called
@@ -731,7 +738,7 @@ class TestProcessIterationBudgetExceeded:
         mock_client = MagicMock()
 
         ctx = _make_iteration_context(cost_tracker=mock_cost_tracker)
-        client_setup = ClientSetup(
+        client_setup = _ClientSetup(
             client=mock_client,
             tools=[],
             beta_flag="computer-use-2025-11-24",
@@ -766,7 +773,7 @@ class TestProcessIterationBudgetExceeded:
         mock_client.beta.messages.create.return_value = mock_response
 
         ctx = _make_iteration_context(cost_tracker=mock_cost_tracker)
-        client_setup = ClientSetup(
+        client_setup = _ClientSetup(
             client=mock_client,
             tools=[],
             beta_flag="computer-use-2025-11-24",
@@ -780,6 +787,39 @@ class TestProcessIterationBudgetExceeded:
 
         mock_client.beta.messages.create.assert_called_once()
         assert stop_reason == "completed"
+
+
+class TestIterationCostUsesReportedUsage:
+    """Feature: Each iteration is charged what the API reported.
+
+    usage.input_tokens already counts every image block in the request,
+    screenshots included. Adding a screenshot estimate on top charged
+    each frame twice, and charged the first iteration for a screenshot
+    not yet sent.
+    """
+
+    def test_records_reported_input_tokens_without_a_screenshot_estimate(self):
+        tracker = CostTracker(model="claude-sonnet-5")
+        mock_response = MagicMock()
+        mock_response.content = []
+        mock_response.usage = MagicMock(input_tokens=2000, output_tokens=100)
+        mock_client = MagicMock()
+        mock_client.beta.messages.create.return_value = mock_response
+        client_setup = _ClientSetup(
+            client=mock_client, tools=[], beta_flag="computer-use-2025-11-24"
+        )
+
+        _process_iteration(
+            _make_iteration_config(),
+            _make_iteration_context(cost_tracker=tracker),
+            client_setup,
+            [{"role": "user", "content": "do a thing"}],
+            LoopResult(),
+        )
+
+        assert tracker.total_input_tokens == 2000
+        assert tracker.total_screenshot_tokens == 0
+        assert tracker.total_cost_usd == (2000 * 2.0 + 100 * 10.0) / 1_000_000
 
 
 class TestToolVersionsUseRealModelIds:
@@ -826,3 +866,188 @@ class TestToolVersionsUseRealModelIds:
         The fallback is deliberate and stays. New models get new tools.
         """
         assert resolve_tool_version("claude-opus-5") == "20251124"
+
+
+class TestExecuteToolErrorPaths:
+    """Feature: tool failures come back as is_error results."""
+
+    def test_bash_timeout_is_flagged_as_an_error(self, monkeypatch):
+        """
+        Scenario: A bash command runs past 30 seconds
+        Given subprocess.run raises TimeoutExpired
+        When _execute_tool runs the command
+        Then the result is an error that names the timeout
+        """
+
+        def time_out(cmd, **kwargs):
+            raise subprocess.TimeoutExpired(cmd, kwargs["timeout"])
+
+        monkeypatch.setattr("phantom.loop.subprocess.run", time_out)
+        result = _execute_tool(
+            "bash", {"command": "sleep 99"}, "id", MagicMock(spec=DisplayToolkit)
+        )
+        assert result["is_error"] is True
+        assert result["content"] == "Command timed out after 30s"
+
+    def test_failed_computer_action_skips_the_follow_up_screenshot(self):
+        display = MagicMock(spec=DisplayToolkit)
+        display.execute.return_value = ActionResult(success=False, error="no X")
+        result = _execute_tool(
+            "computer", {"action": "left_click", "coordinate": [1, 1]}, "id", display
+        )
+        display.take_screenshot.assert_not_called()
+        assert result["is_error"] is True
+        assert result["content"] == "no X"
+
+    def test_view_without_path_errors(self):
+        result = _handle_text_editor("id", {"command": "view"})
+        assert result["is_error"] is True
+        assert result["content"] == "path is required for view"
+
+    def test_view_of_a_missing_file_returns_the_os_error(self, tmp_path):
+        missing = tmp_path / "absent.txt"
+        result = _handle_text_editor("id", {"command": "view", "path": str(missing)})
+        assert result["is_error"] is True
+        assert "absent.txt" in result["content"]
+
+
+def _text_block(text):
+    return SimpleNamespace(type="text", text=text, model_dump=lambda: {"type": "text"})
+
+
+def _tool_block(block_id, action):
+    return SimpleNamespace(
+        type="tool_use",
+        id=block_id,
+        name="computer",
+        input=action,
+        model_dump=lambda: {"type": "tool_use", "id": block_id},
+    )
+
+
+def _response(*blocks):
+    return SimpleNamespace(
+        content=list(blocks),
+        usage=SimpleNamespace(input_tokens=10, output_tokens=5),
+    )
+
+
+class TestRunLoop:
+    """Feature: run_loop drives Claude and the display until a stop reason.
+
+    anthropic.Anthropic is the external dependency and is replaced with a
+    scripted client. The toolkit is a spec mock, so no input is sent.
+    """
+
+    def _run(self, monkeypatch, responses, **loop_kwargs):
+        client = MagicMock()
+        client.beta.messages.create.side_effect = list(responses)
+        monkeypatch.setattr("phantom.loop.anthropic.Anthropic", lambda api_key: client)
+        display = MagicMock(spec=DisplayToolkit)
+        display.execute.return_value = ActionResult(success=True)
+        display.take_screenshot.return_value = ActionResult(
+            success=True, screenshot_b64="frame"
+        )
+        result = run_loop(
+            "click the button",
+            api_key="test-key",
+            setup=LoopSetup(loop_config=LoopConfig(**loop_kwargs), toolkit=display),
+        )
+        return result, client, display
+
+    def test_text_only_reply_completes_after_one_iteration(self, monkeypatch):
+        result, client, display = self._run(
+            monkeypatch, [_response(_text_block("All done"))]
+        )
+        assert result.stopped_reason == "completed"
+        assert result.iterations == 1
+        assert result.final_text == "All done"
+        assert result.messages[0] == {"role": "user", "content": "click the button"}
+        display.execute.assert_not_called()
+
+    def test_tool_use_then_text_runs_the_action_and_stops(self, monkeypatch):
+        result, _client, display = self._run(
+            monkeypatch,
+            [
+                _response(
+                    _tool_block("t1", {"action": "left_click", "coordinate": [1, 2]})
+                ),
+                _response(_text_block("Clicked")),
+            ],
+        )
+        assert result.stopped_reason == "completed"
+        assert result.iterations == 2
+        assert result.actions_taken == 1
+        display.execute.assert_called_once_with(
+            {"action": "left_click", "coordinate": [1, 2]}
+        )
+        assert result.messages[2]["content"][0]["tool_use_id"] == "t1"
+
+    def test_loop_stops_at_max_iterations(self, monkeypatch):
+        clicks = [
+            _response(_tool_block(f"t{i}", {"action": "key", "text": f"k{i}"}))
+            for i in range(2)
+        ]
+        result, _client, _display = self._run(
+            monkeypatch, clicks, max_iterations=2, max_stuck=99
+        )
+        assert result.stopped_reason == "max_iterations"
+        assert result.iterations == 2
+
+    def test_identical_screenshots_stop_the_loop_as_stuck(self, monkeypatch):
+        clicks = [
+            _response(_tool_block(f"t{i}", {"action": "key", "text": "a"}))
+            for i in range(5)
+        ]
+        result, _client, _display = self._run(monkeypatch, clicks, max_stuck=2)
+        assert result.stopped_reason == "stuck"
+        assert result.iterations < 5
+
+    def test_max_stuck_one_does_not_abort_on_changing_screenshots(self, monkeypatch):
+        """A first screenshot is not a repeat, so it cannot be stuck."""
+        client = MagicMock()
+        client.beta.messages.create.side_effect = [
+            _response(_tool_block("t0", {"action": "key", "text": "a"})),
+            _response(_tool_block("t1", {"action": "key", "text": "b"})),
+            _response(_text_block("Done")),
+        ]
+        monkeypatch.setattr("phantom.loop.anthropic.Anthropic", lambda api_key: client)
+        display = MagicMock(spec=DisplayToolkit)
+        frames = [
+            ActionResult(success=True, screenshot_b64=f"frame{i}") for i in range(10)
+        ]
+        display.execute.side_effect = frames[:5]
+        display.take_screenshot.side_effect = frames[5:]
+        result = run_loop(
+            "type ab",
+            api_key="test-key",
+            setup=LoopSetup(loop_config=LoopConfig(max_stuck=1), toolkit=display),
+        )
+        assert result.stopped_reason == "completed"
+        assert result.actions_taken == 2
+
+    def test_system_prompt_and_thinking_budget_reach_the_api(self, monkeypatch):
+        _result, client, _display = self._run(
+            monkeypatch,
+            [_response(_text_block("ok"))],
+            system_prompt="Be careful",
+            thinking_budget=1024,
+        )
+        kwargs = client.beta.messages.create.call_args.kwargs
+        assert kwargs["system"] == "Be careful"
+        assert kwargs["thinking"] == {"type": "enabled", "budget_tokens": 1024}
+
+    def test_blocked_region_click_is_not_executed(self, monkeypatch):
+        result, _client, display = self._run(
+            monkeypatch,
+            [
+                _response(
+                    _tool_block("t1", {"action": "left_click", "coordinate": [5, 5]})
+                ),
+                _response(_text_block("gave up")),
+            ],
+            blocked_regions=[(0, 0, 10, 10)],
+        )
+        display.execute.assert_not_called()
+        assert result.actions_blocked == 1
+        assert result.messages[2]["content"][0]["is_error"] is True

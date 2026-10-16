@@ -17,6 +17,7 @@ from tome.channels.discourse import (
     build_hn_search_url,
     build_lobsters_search_url,
     build_lobsters_websearch_query,
+    build_reddit_rss_search_url,
     build_reddit_search_url,
     parse_blog_result,
     parse_hn_response,
@@ -24,7 +25,6 @@ from tome.channels.discourse import (
     parse_reddit_response,
     suggest_subreddits,
 )
-from tome.models import Finding
 
 
 class TestBuildHnSearchUrl:
@@ -304,16 +304,18 @@ class TestParseLobstersResult:
         assert "lobste.rs" in finding.url
 
     @pytest.mark.unit
-    def test_handles_empty_dict(self) -> None:
+    def test_skips_empty_dict(self) -> None:
         """
         Scenario: Empty result dict
         Given {}
         When parse_lobsters_result is called
-        Then a Finding is returned without raising
+        Then None is returned: a result with nothing to cite is skipped
         """
-        finding = parse_lobsters_result({})
+        assert parse_lobsters_result({}) is None
 
-        assert isinstance(finding, Finding)
+    @pytest.mark.unit
+    def test_skips_result_when_url_is_blank(self) -> None:
+        assert parse_lobsters_result({"title": "t", "url": ""}) is None
 
 
 class TestBuildRedditSearchUrl:
@@ -692,19 +694,30 @@ class TestParseBlogResult:
 
         finding = parse_blog_result(result)
 
-        assert finding.source in ("blog", "danluu.com", "danluu")
+        assert finding.source == "danluu.com"
 
     @pytest.mark.unit
-    def test_handles_empty_dict(self) -> None:
+    def test_skips_empty_dict(self) -> None:
         """
         Scenario: Empty result dict
         Given {}
         When parse_blog_result is called
-        Then a Finding is returned without raising
+        Then None is returned: a result with nothing to cite is skipped
         """
-        finding = parse_blog_result({})
+        assert parse_blog_result({}) is None
 
-        assert isinstance(finding, Finding)
+    @pytest.mark.unit
+    def test_skips_result_when_url_is_blank(self) -> None:
+        assert parse_blog_result({"title": "t", "url": ""}) is None
+
+    @pytest.mark.unit
+    def test_url_without_http_scheme_falls_back_to_blog_source(self) -> None:
+        """A URL the domain pattern cannot read still parses, as source 'blog'."""
+        finding = parse_blog_result({"title": "t", "url": "danluu.com/post"})
+
+        assert finding is not None
+        assert finding.source == "blog"
+        assert finding.url == "danluu.com/post"
 
     @pytest.mark.unit
     def test_relevance_in_valid_range(self) -> None:
@@ -723,3 +736,11 @@ class TestParseBlogResult:
         finding = parse_blog_result(result)
 
         assert 0.0 <= finding.relevance <= 1.0
+
+
+@pytest.mark.unit
+def test_reddit_rss_url_quotes_the_subreddit_name() -> None:
+    """A model-chosen name cannot add path segments or a query."""
+    url = build_reddit_rss_search_url("x", "../../api/v1?a=b")
+
+    assert url.startswith("https://www.reddit.com/r/..%2F..%2Fapi%2Fv1%3Fa%3Db/")

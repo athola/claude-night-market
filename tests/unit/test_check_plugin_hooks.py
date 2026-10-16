@@ -62,6 +62,25 @@ class TestCheckPluginHooks:
         manifest.write_text(json.dumps({"name": "test-plugin", "hooks": [spelling]}))
         assert check_file(manifest) == []
 
+    @pytest.mark.parametrize("spelling", ["../hooks/hooks.json", ".hooks/hooks.json"])
+    def test_allows_other_paths_that_end_in_hooks_json(
+        self, tmp_path: Path, spelling: str
+    ) -> None:
+        """
+        Scenario: plugin.json lists a hooks file in a different directory
+        Given a hooks entry that only resembles hooks/hooks.json after its
+            leading dots and slashes are stripped
+        When check_file runs
+        Then it returns no errors
+
+        The normaliser removed any run of leading "." and "/" characters, not
+        the "./" prefix, so these two paths compared equal to the auto-loaded
+        file and blocked a commit that was fine.
+        """
+        manifest = tmp_path / "plugin.json"
+        manifest.write_text(json.dumps({"name": "test-plugin", "hooks": [spelling]}))
+        assert check_file(manifest) == []
+
     def test_rejects_explicit_hooks_json(self, tmp_path: Path) -> None:
         """
         Scenario: plugin.json lists the auto-loaded hooks file

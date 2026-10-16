@@ -98,13 +98,16 @@ def _save_state(path: Path, state: dict) -> None:
     by another user.
     """
     try:
-        fd = secure_open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        # No O_TRUNC: truncating at open would empty a foreign file before
+        # the owner check below could refuse it.
+        fd = secure_open(path, os.O_WRONLY | os.O_CREAT, 0o600)
     except OSError as exc:  # ELOOP on a planted symlink, or other open failure
         print(f"[guard-scope-ramp] WARN: state open refused: {exc}", file=sys.stderr)
         return
     try:
         if not fd_owned_by_us(fd):
             return
+        os.ftruncate(fd, 0)
         os.write(fd, json.dumps(state).encode("utf-8"))
     except Exception as exc:  # noqa: S110 - state write is best-effort; hook must not crash
         print(f"[guard-scope-ramp] WARN: state write failed: {exc}", file=sys.stderr)

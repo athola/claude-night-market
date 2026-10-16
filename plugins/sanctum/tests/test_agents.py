@@ -1,447 +1,238 @@
 # ruff: noqa: D101,D102,D103,PLR2004,E501
-"""BDD-style tests for Sanctum agents.
+"""Contract tests for Sanctum agents.
 
-This module tests the agent implementations that coordinate
-multiple skills and tools to accomplish complex Git workflows.
+The agents are markdown definitions that the harness loads, so their
+behavior is what the definitions say. These tests pin the claims that
+callers and sibling skills depend on: the tools an agent may use, the
+skill it loads, the conventions it shares with that skill, and the
+sections it promises to return.
 """
 
 from __future__ import annotations
 
-from unittest.mock import Mock
+import re
+from pathlib import Path
+
+import pytest
+import yaml
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+AGENTS = PLUGIN_ROOT / "agents"
+SKILLS = PLUGIN_ROOT / "skills"
+
+
+def _load(path: Path) -> tuple[dict, str]:
+    """Split an agent or skill file into its frontmatter and body."""
+    _, frontmatter, body = path.read_text().split("---\n", 2)
+    return yaml.safe_load(frontmatter), body
+
+
+def _section(body: str, heading: str) -> str:
+    """Return the text under a markdown heading, up to the next heading."""
+    match = re.search(
+        rf"^#+ {re.escape(heading)}\n(.*?)(?=^#+ |\Z)", body, re.DOTALL | re.MULTILINE
+    )
+    assert match, f"heading {heading!r} not found"
+    return match.group(1)
+
+
+@pytest.fixture(scope="module")
+def workspace_agent() -> tuple[dict, str]:
+    return _load(AGENTS / "git-workspace-agent.md")
+
+
+@pytest.fixture(scope="module")
+def commit_agent() -> tuple[dict, str]:
+    return _load(AGENTS / "commit-agent.md")
+
+
+@pytest.fixture(scope="module")
+def pr_agent() -> tuple[dict, str]:
+    return _load(AGENTS / "pr-agent.md")
 
 
 class TestGitWorkspaceAgent:
     """BDD tests for the Git Workspace agent."""
 
-    def test_agent_initializes_with_correct_capabilities(self) -> None:
-        # Arrange
-        expected_capabilities = [
-            "repository_analysis",
-            "status_checking",
-            "change_detection",
-            "diff_analysis",
-            "todo_coordination",
-        ]
+    def test_workspace_agent_tool_list_is_read_only(
+        self, workspace_agent: tuple[dict, str]
+    ) -> None:
+        """GIVEN the agent promises read-only analysis.
 
-        # Act - Simulate agent initialization
-        agent_capabilities = {
-            "repository_analysis": True,
-            "status_checking": True,
-            "change_detection": True,
-            "diff_analysis": True,
-            "todo_coordination": True,
-            "git_operations": True,
-        }
+        WHEN its tool list is read
+        THEN it can read and run commands but has no tool that edits files.
+        """
+        meta, _body = workspace_agent
+        assert "read-only analysis" in meta["description"]
+        assert set(meta["tools"]) == {"Read", "Bash", "Glob", "Grep"}
 
-        # Assert
-        assert all(cap in agent_capabilities for cap in expected_capabilities)
+    def test_workspace_agent_documents_branch_status_and_upstream_check(
+        self, workspace_agent: tuple[dict, str]
+    ) -> None:
+        """GIVEN the agent's capabilities and output contract.
 
-    def test_agent_analyzes_repository_state(self, temp_git_repo) -> None:
-        # Arrange
-        temp_git_repo.add_file("test.py", "print('test')")
-        temp_git_repo.stage_file("test.py")
+        WHEN they are read
+        THEN it verifies branch, status and upstream and returns that summary.
+        """
+        _meta, body = workspace_agent
+        assert "branch, status, and upstream" in _section(body, "Capabilities")
+        assert "Repository state summary (branch, upstream, clean/dirty)" in _section(
+            body, "Output"
+        )
 
-        mock_bash = Mock()
-        mock_bash.side_effect = [
-            "On branch main\nChanges to be committed:\n  new file:   test.py",
-            "main",
-            "true",  # is git repo
-            "origin  https://github.com/test/repo.git (fetch)",
-        ]
-
-        # Act - simulate calling tools through mock
-        analysis = {
-            "status": mock_bash("git status"),
-            "branch": mock_bash("git branch --show-current"),
-            "is_git_repo": mock_bash("git rev-parse --git-dir") != "false",
-            "remotes": mock_bash("git remote -v"),
-        }
-
-        # Assert
-        assert "Changes to be committed" in analysis["status"]
-        assert analysis["branch"] == "main"
-        assert analysis["is_git_repo"] is True
-        assert "origin" in analysis["remotes"]
-
-    def test_agent_detects_and_categorizes_changes(
-        self, staged_changes_context
+    def test_workspace_agent_documents_staged_unstaged_separation_and_file_breakdown(
+        self, workspace_agent: tuple[dict, str]
     ) -> None:
         """GIVEN a repository with various types of changes.
 
         WHEN the agent analyzes the changes
-        THEN it should categorize them appropriately.
+        THEN it separates staged from unstaged and returns a per-file breakdown.
         """
-        # Arrange
-        mock_bash = Mock()
-        mock_bash.side_effect = [
-            "M src/main.py\nA README.md\nD old_file.py\n?? temp.tmp",
-            "src/main.py\nREADME.md\nold_file.py",
-            "150\n50\n25",
-        ]
+        _meta, body = workspace_agent
+        assert "Staged vs. unstaged change separation" in _section(
+            body, "Git State Analysis"
+        )
+        assert "Change statistics with file breakdown" in _section(body, "Output")
 
-        # Act - simulate calling tools through mock
-        porcelain_status = mock_bash("git status --porcelain")
-        mock_bash("git diff --cached --name-only")
-        stats = mock_bash("git diff --cached --stat")
+    def test_workspace_agent_skill_exists_and_lists_its_progress_items(
+        self, workspace_agent: tuple[dict, str]
+    ) -> None:
+        """GIVEN the agent loads a skill for its procedure.
 
-        # Parse and categorize changes
-        changes = self._parse_git_status(porcelain_status)
-        change_stats = self._parse_git_stats(stats)
+        WHEN that skill is resolved
+        THEN it exists and carries the progress items the agent works through.
+        """
+        meta, _body = workspace_agent
+        plugin, name = meta["skills"].split(":")
+        assert plugin == "sanctum"
+        _skill_meta, skill_body = _load(SKILLS / name / "SKILL.md")
+        tracking = _section(skill_body, "Required Progress Tracking")
+        assert "`git-review:repo-confirmed`" in tracking
+        assert "`git-review:diff-stat`" in tracking
 
-        # Assert
-        assert changes["modified"] == ["src/main.py"]
-        assert changes["added"] == ["README.md"]
-        assert changes["deleted"] == ["old_file.py"]
-        assert changes["untracked"] == ["temp.tmp"]
-        assert change_stats["total_additions"] == 150
-        assert change_stats["total_deletions"] == 75  # 50 + 25
+    def test_workspace_agent_skill_documents_merge_abort_and_forbids_no_verify(
+        self, workspace_agent: tuple[dict, str]
+    ) -> None:
+        """GIVEN a failing hook or a merge conflict during the review.
 
-    def test_agent_coordinates_todo_creation(self, mock_todo_tool) -> None:
-        # Arrange
-        analysis_result = {
-            "repository_status": "clean",
-            "has_staged_changes": True,
-            "staged_files": ["feature.py", "test_feature.py"],
-            "change_summary": "Added new feature with tests",
-        }
+        WHEN the agent's skill is consulted
+        THEN it names the recovery and rules out bypassing the hook.
+        """
+        meta, _body = workspace_agent
+        _skill_meta, skill_body = _load(
+            SKILLS / meta["skills"].split(":")[1] / "SKILL.md"
+        )
+        troubleshooting = _section(skill_body, "Troubleshooting")
+        assert "`git merge --abort`" in troubleshooting
+        assert re.search(r"instead\s+of using `--no-verify`", troubleshooting)
 
-        # Act
-        todos = self._create_analysis_todos(analysis_result)
-        mock_todo_tool(todos)
-
-        # Assert
-        assert len(todos) == 3
-        assert any("repository" in todo["content"].lower() for todo in todos)
-        assert any("staged" in todo["content"].lower() for todo in todos)
-        assert all(todo["status"] == "completed" for todo in todos)
-        mock_todo_tool.assert_called_once_with(todos)
-
-    def test_agent_handles_error_states_gracefully(self) -> None:
-        # Arrange
-        error_scenarios = [
-            {
-                "error": "fatal: not a git repository",
-                "recovery": ["git init", "git clone"],
-            },
-            {
-                "error": "fatal: couldn't find remote ref refs/heads/main",
-                "recovery": ["git branch -m main", "git push origin main"],
-            },
-            {
-                "error": "permission denied",
-                "recovery": ["Check file permissions", "Run as appropriate user"],
-            },
-        ]
-
-        # Act & Assert
-        for scenario in error_scenarios:
-            # Agent should catch error and suggest recovery
-            recovery_suggestions = self._handle_git_error(scenario["error"])
-            assert len(recovery_suggestions) > 0
-            assert any(
-                action in " ".join(recovery_suggestions)
-                for action in scenario["recovery"]
-            )
-
-    def test_agent_provides_workflow_recommendations(
-        self, staged_changes_context
+    def test_workspace_agent_documents_downstream_intent_and_next_step_output(
+        self, workspace_agent: tuple[dict, str]
     ) -> None:
         """GIVEN a repository state analysis.
 
         WHEN the agent provides recommendations
-        THEN it should suggest appropriate next steps.
+        THEN they follow the downstream intent the caller declared.
         """
-        # Arrange
-        contexts = [
-            {
-                "has_staged_changes": True,
-                "has_unstaged_changes": False,
-                "is_clean": False,
-                "expected_recommendations": ["commit", "commit-messages"],
-            },
-            {
-                "has_staged_changes": False,
-                "has_unstaged_changes": True,
-                "is_clean": False,
-                "expected_recommendations": ["stage", "git add"],
-            },
-            {
-                "has_staged_changes": False,
-                "has_unstaged_changes": False,
-                "is_clean": True,
-                "expected_recommendations": ["clean", "push", "pr"],
-            },
-        ]
+        _meta, body = workspace_agent
+        assert "Downstream intent (commit, PR, review, exploration)" in _section(
+            body, "Usage"
+        )
+        assert "Recommendations for next steps" in _section(body, "Output")
 
-        # Act & Assert
-        for ctx in contexts:
-            recommendations = self._generate_workflow_recommendations(ctx)
-            for expected in ctx["expected_recommendations"]:
-                assert any(expected in rec.lower() for rec in recommendations)
+    def test_agent_returns_early_for_a_single_git_command(
+        self, workspace_agent: tuple[dict, str]
+    ) -> None:
+        """GIVEN a request that one git command answers.
 
-    # Helper methods
-    def _parse_git_status(self, status: str) -> dict[str, list[str]]:
-        changes = {"modified": [], "added": [], "deleted": [], "untracked": []}
-        for line in status.splitlines():
-            if line.startswith("M "):
-                changes["modified"].append(line.split()[1])
-            elif line.startswith("A "):
-                changes["added"].append(line.split()[1])
-            elif line.startswith("D "):
-                changes["deleted"].append(line.split()[1])
-            elif line.startswith("?? "):
-                changes["untracked"].append(line.split()[1])
-        return changes
+        WHEN the agent runs its complexity check
+        THEN it hands the command back to the parent instead of analyzing.
+        """
+        _meta, body = workspace_agent
+        check = _section(body, "Step 0: Complexity Check (MANDATORY)")
+        assert '"SIMPLE: Parent runs command directly"' in check
 
-    def _parse_git_stats(self, stats: str) -> dict[str, int]:
-        lines = [line for line in stats.splitlines() if line.strip()]
-        additions = int(lines[0]) if lines and lines[0].isdigit() else 0
-        deletions = sum(int(line) for line in lines[1:] if line.isdigit())
-        return {
-            "total_additions": additions,
-            "total_deletions": deletions,
-        }
 
-    def _create_analysis_todos(self, analysis: dict) -> list[dict]:
-        return [
-            {"content": "Verify repository status", "status": "completed"},
-            {"content": "Check staged changes", "status": "completed"},
-            {"content": "Summarize change summary", "status": "completed"},
-        ]
+class TestCommitAgent:
+    """BDD tests for the Commit agent."""
 
-    def _handle_git_error(self, error: str) -> list[str]:
-        if "not a git repository" in error:
-            return ["git init", "git clone <repo>"]
-        if "couldn't find remote ref" in error:
-            return ["git branch -m main", "git push origin main"]
-        if "permission denied" in error.lower():
-            return ["Check file permissions", "Run as appropriate user"]
-        return ["Check Git status for details"]
-
-    def _generate_workflow_recommendations(self, context: dict) -> list[str]:
-        recs = []
-        if context.get("has_staged_changes"):
-            recs.append("Commit staged changes (use commit-messages)")
-        if context.get("has_unstaged_changes"):
-            recs.append("Stage pending changes (git add -p)")
-        if context.get("is_clean"):
-            recs.append("Workspace clean - push or open PR")
-        return recs
-
-    def _validate_commit_message(self, message: str) -> bool:
-        if not message or ":" not in message:
-            return False
-        type_part, _, description = message.partition(":")
-        if not type_part or not description.strip():
-            return False
-        return len(message) <= 80
-
-    def test_agent_generates_conventional_commits(self, staged_changes_context) -> None:
-        # Arrange
-        conventional_types = [
-            "feat",
-            "fix",
-            "docs",
-            "style",
-            "refactor",
-            "test",
-            "chore",
-            "perf",
-            "ci",
-            "build",
-        ]
-
-        mock_bash = Mock()
-        mock_bash.return_value = (
-            "feat(auth): Add OAuth2 authentication\n\nImplements secure login flow"
+    def test_commit_agent_types_match_commit_messages_skill(
+        self, commit_agent: tuple[dict, str]
+    ) -> None:
+        """The agent picks from the same commit types as the commit-messages skill."""
+        _meta, body = commit_agent
+        agent_types = re.search(
+            r"Type selection \(([a-z, ]+)\)", _section(body, "Conventional Commits")
+        )
+        assert agent_types
+        skill = (SKILLS / "commit-messages" / "SKILL.md").read_text()
+        classify = re.search(r"\*\*Classify\*\*.*?(?=\n\d\. )", skill, re.DOTALL)
+        assert classify
+        assert set(agent_types.group(1).split(", ")) == set(
+            re.findall(r"`([a-z]+)`", classify.group(0))
         )
 
-        # Act - simulate calling tools through mock
-        commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
+    def test_commit_agent_documents_50_char_subject_and_72_char_body(
+        self, commit_agent: tuple[dict, str]
+    ) -> None:
+        """The agent holds the subject to 50 characters and the body to 72."""
+        _meta, body = commit_agent
+        conventions = _section(body, "Conventional Commits")
+        assert "Subject line formatting (imperative, ≤50 chars)" in conventions
+        assert "Body wrapping at 72 characters" in conventions
 
-        # Assert
-        assert ":" in commit_msg
-        commit_type = commit_msg.split(":")[0]
-        # Handle scope: feat(auth) -> feat
-        base_type = commit_type.split("(")[0] if "(" in commit_type else commit_type
-        assert base_type in conventional_types
-        assert "Add OAuth2" in commit_msg
-
-    def test_agent_validates_commit_message_quality(self) -> None:
-        # Arrange
-        commit_messages = [
-            ("feat: Add new feature", True),  # Good
-            ("Fix bug", False),  # Missing type
-            ("feat:", False),  # Missing description
-            ("", False),  # Empty
-            ("feat: " + "x" * 100, False),  # Too long
-        ]
-
-        # Act & Assert
-        for msg, should_pass in commit_messages:
-            validation_result = self._validate_commit_message(msg)
-            assert validation_result == should_pass, f"Failed on: {msg}"
-
-    def test_agent_handles_complex_change_scenarios(self) -> None:
-        # Arrange
-        complex_context = {
-            "staged_files": [
-                {"path": "src/api.py", "type": "feature", "changes": 100},
-                {"path": "src/config.py", "type": "refactor", "changes": 50},
-                {"path": "tests/test_api.py", "type": "test", "changes": 75},
-                {"path": "README.md", "type": "docs", "changes": 25},
-            ],
-            "breaking_changes": True,
-        }
-
-        # Act
-        commit_msg = self._generate_complex_commit_message(complex_context)
-
-        # Assert
-        assert commit_msg.startswith("feat!")  # Breaking change
-        assert "api" in commit_msg.lower()
-        # Verify body contains appropriate change details
-        assert "test" in commit_msg.lower() or "tests" in commit_msg.lower()
-        assert "documentation" in commit_msg.lower() or "update" in commit_msg.lower()
-
-    def _generate_complex_commit_message(self, context: dict) -> str:
-        staged_files = context.get("staged_files", [])
-        has_breaking_changes = bool(context.get("breaking_changes"))
-
-        scope = (
-            "api" if any("api" in f.get("path", "") for f in staged_files) else "repo"
+    def test_commit_agent_documents_breaking_change_and_split_guidance(
+        self, commit_agent: tuple[dict, str]
+    ) -> None:
+        """A breaking change maps to a major bump, and a broad change gets split."""
+        _meta, body = commit_agent
+        assert "Breaking change detection → major bump" in _section(
+            body, "Semantic Versioning"
         )
-        bang = "!" if has_breaking_changes else ""
-
-        lines = [
-            f"feat{bang}({scope}): improve api workflow",
-            "",
-            "- api: add feature work",
-            "- tests: update test coverage",
-            "- docs: update documentation",
-        ]
-
-        if has_breaking_changes:
-            lines += ["", "BREAKING CHANGE: api behavior updated"]
-
-        return "\n".join(lines)
-
-    class TestPRAgent:
-        """BDD tests for the Pull Request agent."""
-
-    def test_agent_preparates_comprehensive_pr(self, pull_request_context) -> None:
-        # Arrange
-        pr_sections = [
-            "Summary",
-            "Changes Made",
-            "Test Plan",
-            "Breaking Changes",
-            "Checklist",
-        ]
-
-        # Act
-        pr_description = self._generate_pr_description(pull_request_context)
-
-        # Assert
-        for section in pr_sections:
-            assert f"## {section}" in pr_description
-
-    def test_agent_analyzes_pr_quality_gates(self, pull_request_context) -> None:
-        # Arrange
-        quality_gates = {
-            "has_description": True,
-            "has_tests": True,
-            "has_documentation": True,
-            "passes_ci": False,  # Simulate CI failure
-            "has_breaking_changes": False,
-        }
-
-        # Act
-        gate_status = self._check_quality_gates(quality_gates)
-
-        # Assert
-        assert gate_status["description_check"] == "passed"
-        assert gate_status["test_check"] == "passed"
-        assert gate_status["ci_check"] == "failed"
-        assert (
-            gate_status["overall_status"] == "failed"
-        )  # CI failure causes overall failure
-
-    def test_agent_suggests_reviewers(self, pull_request_context) -> None:
-        # Arrange
-        reviewer_map = {
-            "src/": ["@backend-team", "@tech-lead"],
-            "tests/": ["@qa-team"],
-            "docs/": ["@docs-team", "@technical-writers"],
-            "frontend/": ["@frontend-team"],
-        }
-
-        # Act
-        suggested_reviewers = self._suggest_reviewers(
-            pull_request_context,
-            reviewer_map,
+        assert "Format BREAKING CHANGE footers" in _section(body, "Capabilities")
+        assert "Suggestions for splitting if changes are too broad" in _section(
+            body, "Output"
         )
 
-        # Assert
-        assert "@backend-team" in suggested_reviewers
-        assert "@qa-team" in suggested_reviewers
-        assert "@docs-team" in suggested_reviewers
 
-    def _generate_pr_description(self, context: dict) -> str:
-        title = context.get("title", "Untitled")
-        description = context.get("description", "").strip()
-        changes = context.get("changes", []) or context.get("changed_files", [])
+class TestPRAgent:
+    """BDD tests for the Pull Request agent."""
 
-        changes_lines = "\n".join(f"- {c}" for c in changes) if changes else "- (none)"
-        breaking = "Yes" if "BREAKING" in title.upper() else "No"
+    def test_agent_prepares_pr_with_the_template_sections(
+        self, pr_agent: tuple[dict, str]
+    ) -> None:
+        """Every prose section the agent fills is a heading in pr-prep's template."""
+        _meta, body = pr_agent
+        agent_template = _section(body, "PR Template")
+        assert "sanctum:pr-prep/modules/pr-template.md" in agent_template
+        template = (SKILLS / "pr-prep" / "modules" / "pr-template.md").read_text()
+        # The structure is a fenced example whose own headings would end a
+        # heading-bounded section early, so slice up to the next section.
+        structure = template.split("## The structure", 1)[1].split(
+            "## Section guidance", 1
+        )[0]
+        for section in ("Why", "What and how", "Test plan", "Checklist"):
+            assert section in agent_template, section
+            assert f"## {section}\n" in structure, section
 
-        return "\n".join(
-            [
-                "## Summary",
-                f"{title}",
-                "",
-                "## Changes Made",
-                changes_lines,
-                "",
-                "## Test Plan",
-                "- `pytest`",
-                "",
-                "## Breaking Changes",
-                breaking,
-                "",
-                "## Checklist",
-                "- [ ] Tests added/updated",
-                "- [ ] Docs updated",
-                "",
-                description,
-            ]
-        ).strip()
+    def test_pr_agent_documents_quality_gates_and_reports_each_result(
+        self, pr_agent: tuple[dict, str]
+    ) -> None:
+        """The agent runs format, lint and tests, and reports each gate's result."""
+        _meta, body = pr_agent
+        assert "**Quality Execution**: Run formatting, linting, and tests" in body
+        assert "Quality gate results (pass/fail for each)" in _section(body, "Output")
+        assert (SKILLS / "pr-prep" / "modules" / "quality-gates.md").is_file()
 
-    def _check_quality_gates(self, gates: dict[str, bool]) -> dict[str, str]:
-        description_ok = bool(gates.get("has_description"))
-        tests_ok = bool(gates.get("has_tests"))
-        docs_ok = bool(gates.get("has_documentation"))
-        ci_ok = bool(gates.get("passes_ci"))
-        breaking_ok = True  # presence is informational for these tests
-
-        overall_ok = all([description_ok, tests_ok, docs_ok, ci_ok, breaking_ok])
-
-        return {
-            "description_check": "passed" if description_ok else "failed",
-            "test_check": "passed" if tests_ok else "failed",
-            "docs_check": "passed" if docs_ok else "failed",
-            "ci_check": "passed" if ci_ok else "failed",
-            "overall_status": "passed" if overall_ok else "failed",
-        }
-
-    def _suggest_reviewers(
-        self, context: dict, reviewer_map: dict[str, list[str]]
-    ) -> list[str]:
-        reviewers: set[str] = set()
-        # Conservative default: include docs reviewers to encourage documentation hygiene.
-        reviewers.update(reviewer_map.get("docs/", []))
-        for file_change in context.get("changes") or context.get("changed_files") or []:
-            for prefix, teams in reviewer_map.items():
-                if file_change.startswith(prefix):
-                    reviewers.update(teams)
-        return sorted(reviewers)
+    def test_agent_names_reviewers_only_outside_codeowners_routing(
+        self, pr_agent: tuple[dict, str]
+    ) -> None:
+        """The facts table's Who row names a reviewer only when codeowners will not."""
+        _meta, body = pr_agent
+        assert "Facts table: Who, Where (internal and external), When" in _section(
+            body, "PR Template"
+        )
+        template = (SKILLS / "pr-prep" / "modules" / "pr-template.md").read_text()
+        assert "Codeowners handle routine reviewer assignment" in _section(
+            template, "The facts table"
+        )

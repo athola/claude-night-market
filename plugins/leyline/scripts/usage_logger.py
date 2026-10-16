@@ -254,11 +254,21 @@ def main() -> None:
     logger = UsageLogger(service=args.service)
 
     if args.summary:
-        logger.get_usage_summary()
+        summary = logger.get_usage_summary()
+        print(f"Usage Summary ({args.service}):")
+        print(f"  Operations: {summary['total_operations']}")
+        print(f"  Total tokens: {summary['total_tokens']:,}")
+        print(f"  Success rate: {summary['success_rate']:.1%}")
+        print(f"  Total duration: {summary['total_duration']:.1f}s")
+        print(f"  Estimated cost: ${summary['estimated_cost']:.4f}")
     elif args.errors:
         errors = logger.get_recent_errors(args.errors)
-        for _err in errors:
-            pass
+        print(f"Recent Errors ({len(errors)}):")
+        for err in errors:
+            print(
+                f"  [{err['timestamp']}] {err.get('error_type', 'Unknown')}: "
+                f"{err.get('error_message', 'No message')}"
+            )
     elif args.log:
         operation, tokens, success, duration = args.log
         logger.log_usage(
@@ -271,8 +281,13 @@ def main() -> None:
         )
     else:
         operations = logger.get_recent_operations(hours=args.recent)
+        print(f"Recent Operations ({len(operations)} in last {args.recent}h):")
         for op in operations[-10:]:
-            "OK" if op.get("success") else "FAIL"
+            status = "OK" if op.get("success") else "FAIL"
+            print(
+                f"  {status} [{op['timestamp'][:19]}] {op['operation']} "
+                f"({op.get('tokens', 0)} tokens)"
+            )
 
 
 if __name__ == "__main__":

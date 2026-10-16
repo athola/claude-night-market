@@ -88,6 +88,10 @@ The plugin stores all state under `.gauntlet/` in your project root:
 No configuration file is required. The pre-commit hook activates
 automatically when `.gauntlet/knowledge.json` exists.
 
+Set `GAUNTLET_PRECOMMIT_MODE=off` to turn the pre-commit gate off. If the
+gate fails with an internal error, it denies the commit instead of letting
+it through, and the denial message names this variable.
+
 ## Architecture
 
 The plugin uses a three-layer design:

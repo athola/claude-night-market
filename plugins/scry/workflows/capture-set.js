@@ -43,7 +43,7 @@ const CAPTURE = {
 const captured = await parallel(
   flows.map((flow, index) => () =>
     agent(
-      `Capture one recording. Follow Skill(scribe:session-replay) for a terminal capture, or the browser recording path in scry for a browser one.\n\nFlow: ${flow.name || `flow-${index + 1}`}\nKind: ${flow.kind || 'terminal'}\nScript: ${flow.script || '(none given)'}\n\nConfirm the produced asset exists and is non-empty before reporting captured=true. A recorder that exits 0 having written nothing is the failure mode here, so check the file rather than the exit code. If the capture fails, report why and stop; do not retry with a different flow.`,
+      `Capture one recording. Follow Skill(scribe:session-replay) for a terminal capture, or the browser recording path in scry for a browser one.\n\nFlow: ${flow.name || `flow-${index + 1}`}\nKind: ${flow.kind || 'terminal'}\nScript: ${flow.script || '(none given)'}\n\nConfirm the produced asset exists and is non-empty before reporting captured=true. A recorder that exits 0 having written nothing is the failure mode here, so check the file rather than the exit code. If the capture fails, report why and stop. Do not retry with a different flow.`,
       { label: `capture:${flow.name || index + 1}`, phase: 'Capture', schema: CAPTURE },
     ),
   ),
@@ -60,7 +60,7 @@ const dropped = flows
   .map(({ flow, index }) => flow.name || `flow-${index + 1}`)
 
 log(`${results.length - failed.length} of ${flows.length} flows captured`)
-if (dropped.length) log(`no result for ${dropped.join(', ')}; those flows were not captured`)
+if (dropped.length) log(`no result for ${dropped.join(', ')}. Those flows were not captured`)
 
 return {
   assets: results.filter((result) => result.captured).map((result) => result.asset),

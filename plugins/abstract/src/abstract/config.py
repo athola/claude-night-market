@@ -260,6 +260,10 @@ class AbstractConfig:
                 msg,
             )
 
+        config_data = config_data or {}
+        if "environment" in config_data:
+            config_data["environment"] = Environment(config_data["environment"])
+
         _SUB_CONFIGS = {
             "skill_validation": SkillValidationConfig,
             "skill_analyzer": SkillAnalyzerConfig,
@@ -269,7 +273,18 @@ class AbstractConfig:
         }
         for key, sub_cls in _SUB_CONFIGS.items():
             if key in config_data:
-                config_data[key] = sub_cls(**config_data[key])
+                # Files hold tuple fields as lists; restore the declared type.
+                defaults = sub_cls()
+                section = {
+                    name: (
+                        tuple(raw)
+                        if isinstance(getattr(defaults, name, None), tuple)
+                        and isinstance(raw, list)
+                        else raw
+                    )
+                    for name, raw in config_data[key].items()
+                }
+                config_data[key] = sub_cls(**section)
 
         return cls(**config_data)
 
@@ -322,6 +337,9 @@ class AbstractConfig:
         # Convert enum to string
         if "environment" in config_dict:
             config_dict["environment"] = config_dict["environment"].value
+
+        # Tuples would be written as !!python/tuple tags that safe_load rejects.
+        config_dict = json.loads(json.dumps(config_dict, default=str))
 
         # Create directory if needed
         config_path.parent.mkdir(parents=True, exist_ok=True)

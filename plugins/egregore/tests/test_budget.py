@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -229,3 +230,13 @@ class TestAtomicBudgetWrite:
         path = tmp_path / "budget.json"
         save_budget(Budget(estimated_tokens_used=7), path)
         assert load_budget(path).estimated_tokens_used == 7
+
+
+def test_save_budget_keeps_the_mode_of_an_existing_file(tmp_path) -> None:
+    path = tmp_path / "budget.json"
+    save_budget(Budget(), path)
+    path.chmod(0o640)
+
+    save_budget(Budget(), path)
+
+    assert stat.S_IMODE(path.stat().st_mode) == 0o640

@@ -15,7 +15,7 @@ export const meta = {
   description:
     'Check each catalog rule against the codebase it governs and report the ones that no longer describe it',
   whenToUse:
-    'Run after a refactor that moved files a rule names, or periodically. args.categories narrows the sweep; args.root is the repository to check against. Returns stale rules with what changed under them.',
+    'Run after a refactor that moved files a rule names, or periodically. args.categories narrows the sweep. args.root is the repository to check against. Returns stale rules with what changed under them.',
   phases: [{ title: 'Sweep', detail: 'one agent per rule category' }],
 }
 
@@ -49,7 +49,7 @@ const STALENESS = {
 const swept = await parallel(
   categories.map((category) => () =>
     agent(
-      `Read every rule under plugins/hookify/skills/rule-catalog/rules/${category}/ and check each against ${root}.\n\nA rule names paths, commands, or patterns. For each, look for what it names. Report a rule as stale when what it describes is not there any more, when the path it guards has moved, or when the pattern it blocks no longer appears in a form the rule would match.\n\nDo not report a rule as stale because you disagree with it. Stale means the world moved, not that the rule is wrong.`,
+      `Read every rule under plugins/hookify/skills/rule-catalog/rules/${category}/ and check each against ${root}.\n\nA rule names paths, commands, or patterns. For each, look for what it names. Report a rule as stale in three cases. What it describes is not there any more. The path it guards has moved. The pattern it blocks no longer appears in a form the rule would match.\n\nDo not report a rule as stale because you disagree with it. Stale means the world moved, not that the rule is wrong.`,
       { label: `sweep:${category}`, phase: 'Sweep', schema: STALENESS },
     ),
   ),
@@ -64,6 +64,6 @@ const stale = reports.flatMap((report) =>
 )
 
 log(`${stale.length} stale rules across ${reports.length} of ${categories.length} categories`)
-if (missing.length) log(`no sweep from ${missing.join(', ')}; those categories are unswept, not clean`)
+if (missing.length) log(`no sweep from ${missing.join(', ')}. Those categories are unswept, not clean`)
 
 return { root, categories, stale, coverage: { swept: reports.map((r) => r.category), missing } }

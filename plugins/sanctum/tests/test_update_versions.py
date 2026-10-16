@@ -482,6 +482,27 @@ def test_attune_python_template_stays_at_its_own_version():
     assert template not in update_versions.find_version_files(repo_root)
 
 
+def test_update_version_field_toml_leaves_dependency_tables_alone():
+    """A `version =` line under [dependencies.x] is the dependency's, not ours."""
+    content = (
+        '[package]\nname = "x"\nversion = "1.0.0"\n\n'
+        '[dependencies.serde]\nversion = "1.0.200"\n'
+    )
+    result = update_versions.update_version_field(content, "version", "2.0.0")
+    assert '[package]\nname = "x"\nversion = "2.0.0"' in result
+    assert '[dependencies.serde]\nversion = "1.0.200"' in result
+
+
+def test_update_version_field_toml_updates_project_table_only():
+    """pyproject [project] is the repo's version; tool tables are not."""
+    content = (
+        '[project]\nname = "x"\nversion = "1.0.0"\n\n[tool.other]\nversion = "0.5.0"\n'
+    )
+    result = update_versions.update_version_field(content, "version", "2.0.0")
+    assert '[project]\nname = "x"\nversion = "2.0.0"' in result
+    assert '[tool.other]\nversion = "0.5.0"' in result
+
+
 if __name__ == "__main__":
     # Run tests
     test_find_version_files()

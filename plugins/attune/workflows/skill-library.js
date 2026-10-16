@@ -6,9 +6,10 @@
 // is disjoint by construction, so `.claude/rules/plan-before-large-dispatch.md`
 // says to skip it. The write fence in each prompt is what keeps that true.
 //
-// Authoring writes; reviewing and fixing do not. Subagents in a workflow run
-// in acceptEdits whatever the session's permission mode, so the only writes
-// this script permits are new files at paths that did not exist. Applying
+// Authoring writes; reviewing and fixing do not. Subagents in a workflow take
+// the session's permission mode, which in an accept-edits or auto session
+// approves every edit, so the only writes this script permits are new files
+// at paths that did not exist. Applying
 // review findings edits files that already exist, and that stays in the
 // session where the diff is visible.
 
@@ -17,7 +18,7 @@ export const meta = {
   description:
     'Discover what a project knows, author one skill per topic in parallel, and review each adversarially',
   whenToUse:
-    'Run from /attune:skill-library once the discovery brief exists. Requires an explicit request: a workflow never starts unasked. args carry topics (array of {name, brief}) and libraryRoot. Authoring agents create new skill directories; the review findings come back for the session to apply.',
+    'Run from /attune:skill-library once the discovery brief exists. Requires an explicit request: a workflow never starts unasked. args carry topics (array of {name, brief}) and libraryRoot. Authoring agents create new skill directories. The review findings come back for the session to apply.',
   phases: [
     { title: 'Author', detail: 'one agent per skill, writing only new files' },
     { title: 'Review', detail: 'two lenses per skill, reading only' },
@@ -116,7 +117,12 @@ const needFixes = authored.filter((a) =>
   a.reviews.some((r) => r.verdict === 'fix-required'),
 )
 
-log(`${authored.length} of ${topics.length} skills authored, ${needFixes.length} need fixes`)
+const partlyReviewed = authored.filter((a) => a.unreviewed.length > 0)
+
+log(
+  `${authored.length} of ${topics.length} skills authored, ${needFixes.length} need fixes, ` +
+    `${partlyReviewed.length} with lenses that returned nothing`,
+)
 
 return {
   libraryRoot,
@@ -125,6 +131,8 @@ return {
     path: a.path,
     blocking: a.reviews.flatMap((r) => r.findings.filter((f) => f.severity === 'blocking')),
     other: a.reviews.flatMap((r) => r.findings.filter((f) => f.severity !== 'blocking')),
+    // Lenses that returned nothing: no findings from them is not a pass.
+    unreviewed: a.unreviewed,
   })),
   failed,
   next: 'Apply the findings in the session, not here. Fixing edits files that already exist, which is the write this script deliberately does not make. Nothing above was verified by running anything.',

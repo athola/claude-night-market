@@ -41,6 +41,10 @@ SEVERITY_MAP: dict[str, str] = {
 # "this highlights a minor slowdown", "the highest-traffic path" and
 # "higher memory use" to high severity, because each contains "high".
 _HIGH_SEVERITY_WORDS = re.compile(r"\b(?:high|dangerous)\b")
+# The lookbehind keeps "non-critical" and "insecurity" from matching.
+_CRITICAL_SEVERITY_WORDS = re.compile(
+    r"(?<![\w-])(?:sql injection|security|critical)\b"
+)
 
 
 def categorize(
@@ -66,14 +70,15 @@ def categorize(
         issue_type = issue.get("type", "").lower()
         issue_copy["severity"] = severity_map.get(issue_type, "low")
 
-        # Override with issue description keywords
+        # Description keywords only escalate; a "high" keyword on a
+        # type already mapped critical must not lower it.
         issue_desc = issue.get("issue", "").lower()
-        if any(
-            keyword in issue_desc
-            for keyword in ["sql injection", "security", "critical"]
-        ):
+        if _CRITICAL_SEVERITY_WORDS.search(issue_desc):
             issue_copy["severity"] = "critical"
-        elif _HIGH_SEVERITY_WORDS.search(issue_desc):
+        elif (
+            _HIGH_SEVERITY_WORDS.search(issue_desc)
+            and issue_copy["severity"] != "critical"
+        ):
             issue_copy["severity"] = "high"
 
         categorized.append(issue_copy)
@@ -92,25 +97,33 @@ def get_severity_weight(severity: str) -> float:
     return weights.get(severity.lower(), 1.0)
 
 
+# harden emits ADVISORY for uncited findings, and the structured-output
+# format defines INFO. Neither has its own column in a summary.
+_LOW_ALIASES = frozenset({"advisory", "info"})
+_LEVELS = ("critical", "high", "medium", "low")
+
+
+def normalize_severity(raw: Any) -> str:
+    """Return the summary column for ``raw``, or raise ``ValueError``.
+
+    Folding an undefined level into low would hide a producer emitting a
+    level nothing defines.
+    """
+    severity = raw.strip().lower() if isinstance(raw, str) else None
+    if severity in _LOW_ALIASES:
+        return "low"
+    if severity not in _LEVELS:
+        raise ValueError(f"unknown severity {raw!r}")
+    return severity
+
+
 def count_by_severity(issues: list[dict[str, Any]]) -> dict[str, int]:
     """Count issues by severity level.
 
-    Args:
-        issues: List of categorized issues
-
-    Returns:
-        Dictionary mapping severity to count
+    An issue with no ``severity`` key counts as low. Other levels go
+    through ``normalize_severity``, which raises on an undefined one.
     """
-    counts: dict[str, int] = {
-        "critical": 0,
-        "high": 0,
-        "medium": 0,
-        "low": 0,
-    }
-
+    counts = dict.fromkeys(_LEVELS, 0)
     for issue in issues:
-        severity = issue.get("severity", "low").lower()
-        if severity in counts:
-            counts[severity] += 1
-
+        counts[normalize_severity(issue.get("severity", "low"))] += 1
     return counts

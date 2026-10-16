@@ -8,10 +8,34 @@ Provide the single source of truth for all frontmatter operations:
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
+
+from abstract.hook_events import HOOK_EVENTS
+
+_OPENING_RE = re.compile(r"---\r?\n")
+# The closing fence is a whole line, so "----" or "---foo" do not close.
+_CLOSING_RE = re.compile(r"\n---[ \t]*(?:\r?\n|\Z)")
+
+
+def _split_at(content: str, closing: re.Match[str]) -> tuple[str, str]:
+    """Split content at its closing fence into (raw frontmatter, body)."""
+    return content[: closing.start() + 4], content[closing.end() :].lstrip("\r\n")
+
+
+def _find_fences(content: str) -> tuple[int, re.Match[str]] | None:
+    """Return (yaml_start, closing_match), or None without a closing fence.
+
+    Raises ``ValueError`` when content does not open with a fence.
+    """
+    opening = _OPENING_RE.match(content)
+    if opening is None:
+        raise ValueError("no opening fence")
+    closing = _CLOSING_RE.search(content, opening.end())
+    return None if closing is None else (opening.end(), closing)
 
 
 @dataclass
@@ -73,28 +97,40 @@ class FrontmatterProcessor:
         "isolation",  # Git worktree isolation (2.1.33+)
     )
 
-    # Valid hook event types (tuple for immutability, Claude Code 2.1.50)
-    VALID_HOOK_EVENTS = (
-        "Setup",
-        "SessionStart",
-        "SessionEnd",
-        "UserPromptSubmit",
-        "PreToolUse",
-        "PostToolUse",
-        "PostToolUseFailure",
-        "PermissionRequest",
-        "Notification",
-        "SubagentStart",
-        "SubagentStop",
-        "Stop",
-        "TeammateIdle",
-        "TaskCompleted",
-        "ConfigChange",
-        "InstructionsLoaded",
-        "PreCompact",
-        "WorktreeCreate",
-        "WorktreeRemove",
+    # Valid hook event types, shared with scripts/hook_validator.py
+    VALID_HOOK_EVENTS = tuple(sorted(HOOK_EVENTS))
+
+    # Plugin agent frontmatter (docs: plugins/components, "Frontmatter fields
+    # in plugin agents"). Ignored fields load without error, which is why
+    # they are reported rather than passed.
+    PLUGIN_AGENT_FIELDS = (
+        "name",
+        "description",
+        "model",
+        "effort",
+        "maxTurns",
+        "tools",
+        "disallowedTools",
+        "skills",
+        "memory",
+        "background",
+        "omitClaudeMd",
+        "isolation",
+        "color",
+        "experimental",
     )
+    PLUGIN_AGENT_IGNORED_FIELDS = (
+        "permissionMode",
+        "hooks",
+        "mcpServers",
+        "initialPrompt",
+    )
+    # Names authors reached for that the harness never read.
+    PLUGIN_AGENT_MISNAMED_FIELDS = {
+        "allowed-tools": "tools",
+        "tools_allowed": "tools",
+        "max_iterations": "maxTurns",
+    }
 
     # Valid permission modes (tuple for immutability)
     VALID_PERMISSION_MODES = (
@@ -117,12 +153,10 @@ class FrontmatterProcessor:
             True if valid frontmatter structure exists, False otherwise.
 
         """
-        if not content.startswith("---\n"):
+        try:
+            return _find_fences(content) is not None
+        except ValueError:
             return False
-
-        # Find closing delimiter after the opening
-        closing_pos = content.find("\n---", 4)
-        return closing_pos != -1
 
     @staticmethod
     def parse(
@@ -147,7 +181,9 @@ class FrontmatterProcessor:
             required_fields = FrontmatterProcessor.DEFAULT_REQUIRED_FIELDS
 
         # Check for valid frontmatter structure
-        if not content.startswith("---\n"):
+        try:
+            fences = _find_fences(content)
+        except ValueError:
             return FrontmatterResult(
                 raw="",
                 parsed={},
@@ -157,9 +193,7 @@ class FrontmatterProcessor:
                 parse_error="Missing frontmatter: content does not start with ---",
             )
 
-        # Find closing delimiter
-        closing_pos = content.find("\n---", 4)
-        if closing_pos == -1:
+        if fences is None:
             return FrontmatterResult(
                 raw=content,
                 parsed={},
@@ -170,11 +204,11 @@ class FrontmatterProcessor:
             )
 
         # Extract raw frontmatter (with delimiters) and body
-        raw_frontmatter = content[: closing_pos + 4]
-        body = content[closing_pos + 4 :].lstrip("\n")
+        yaml_start, closing = fences
+        raw_frontmatter, body = _split_at(content, closing)
 
         # Extract YAML content (without delimiters)
-        yaml_content = content[4:closing_pos].strip()
+        yaml_content = content[yaml_start : closing.start()].strip()
 
         # Parse YAML
         try:
@@ -187,6 +221,16 @@ class FrontmatterProcessor:
                 is_valid=False,
                 missing_fields=list(required_fields),
                 parse_error=f"YAML parsing error: {e}",
+            )
+
+        if not isinstance(parsed, dict):
+            return FrontmatterResult(
+                raw=raw_frontmatter,
+                parsed={},
+                body=body,
+                is_valid=False,
+                missing_fields=list(required_fields),
+                parse_error="Frontmatter must be a mapping",
             )
 
         # Validate required fields
@@ -237,14 +281,13 @@ class FrontmatterProcessor:
             Returns ("", content) if no frontmatter found.
 
         """
-        if not FrontmatterProcessor.has_frontmatter(content):
+        try:
+            fences = _find_fences(content)
+        except ValueError:
+            fences = None
+        if fences is None:
             return "", content
-
-        closing_pos = content.find("\n---", 4)
-        raw_frontmatter = content[: closing_pos + 4]
-        body = content[closing_pos + 4 :].lstrip("\n")
-
-        return raw_frontmatter, body
+        return _split_at(content, fences[1])
 
     @staticmethod
     def get_field(
@@ -393,7 +436,11 @@ class FrontmatterProcessor:
 
     @staticmethod
     def _validate_hook_entries(event_type: str, hook_entries: list) -> list[str]:
-        """Validate hook entries for a specific event type."""
+        """Validate the matcher groups registered for one event.
+
+        Each group is ``{"matcher"?, "hooks": [{"type", ...}]}``, the shape
+        settings.json and hooks/hooks.json share.
+        """
         errors: list[str] = []
 
         if not isinstance(hook_entries, list):
@@ -403,15 +450,20 @@ class FrontmatterProcessor:
         for i, entry in enumerate(hook_entries):
             if not isinstance(entry, dict):
                 errors.append(f"Hook entry {i} for '{event_type}' must be a dict")
-            elif "command" not in entry:
-                errors.append(f"Hook entry {i} for '{event_type}' missing 'command'")
-
-            # Validate 'once' field if present
-            if isinstance(entry, dict) and "once" in entry:
-                if not isinstance(entry["once"], bool):
-                    errors.append(
-                        f"Hook entry {i} for '{event_type}': 'once' must be boolean"
-                    )
+                continue
+            handlers = entry.get("hooks")
+            if not isinstance(handlers, list):
+                errors.append(
+                    f"Hook entry {i} for '{event_type}' needs a 'hooks' list of "
+                    "handlers, e.g. [{'type': 'command', 'command': ...}]"
+                )
+                continue
+            for j, handler in enumerate(handlers):
+                where = f"Hook entry {i} handler {j} for '{event_type}'"
+                if not isinstance(handler, dict) or "type" not in handler:
+                    errors.append(f"{where} missing 'type'")
+                elif "once" in handler and not isinstance(handler["once"], bool):
+                    errors.append(f"{where}: 'once' must be boolean")
 
         return errors
 
@@ -440,6 +492,25 @@ class FrontmatterProcessor:
                 errors.append(
                     f"'allowed-tools' must be a list or string, got: {type_name}"
                 )
+        return errors
+
+    @staticmethod
+    def validate_plugin_agent(frontmatter: dict) -> list[str]:
+        """Report plugin agent fields the harness ignores or never reads."""
+        errors: list[str] = []
+        cls = FrontmatterProcessor
+        for key in frontmatter:
+            if key in cls.PLUGIN_AGENT_IGNORED_FIELDS:
+                errors.append(
+                    f"'{key}' is ignored in plugin agents; move it to the "
+                    "plugin's hooks/hooks.json, .mcp.json or settings"
+                )
+            elif key in cls.PLUGIN_AGENT_MISNAMED_FIELDS:
+                replacement = cls.PLUGIN_AGENT_MISNAMED_FIELDS[key]
+                errors.append(f"'{key}' is never read; use '{replacement}'")
+        isolation = frontmatter.get("isolation")
+        if isolation is not None and isolation != "worktree":
+            errors.append(f"'isolation' must be 'worktree', got: {isolation}")
         return errors
 
     @staticmethod

@@ -38,7 +38,10 @@ The SessionEnd payload carries a `transcript_path` and nothing else
 about the session: no prompt, no tool list, no counts. The transcript
 is where both conditions are read from. Records marked `isMeta` are
 skipped, because an expanded slash command or skill body is long
-enough to contain a research cue the user never typed.
+enough to contain a research cue the user never typed. Records marked
+`isCompactSummary` are skipped too. They hold the summary `/compact`
+writes of the private session, and a queue entry under `docs/` is a
+file that may be committed.
 
 ## Behavior
 

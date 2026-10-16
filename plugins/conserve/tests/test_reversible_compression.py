@@ -167,6 +167,29 @@ def test_archive_write_uses_atomic_replace(summarizer, tmp_path, monkeypatch):
     assert list(tmp_path.iterdir()) == []
 
 
+def test_failed_temp_cleanup_still_raises_the_original_error(
+    summarizer, tmp_path, monkeypatch
+):
+    """A failed temp-file cleanup never masks the rename error.
+
+    When both the rename and the unlink fail, the caller sees the rename
+    error, which is the one that says what went wrong.
+    """
+
+    def _rename_fails(*_args, **_kwargs):
+        raise OSError("rename failed")
+
+    def _unlink_fails(*_args, **_kwargs):
+        raise OSError("unlink failed")
+
+    monkeypatch.setattr(summarizer.os, "replace", _rename_fails)
+    monkeypatch.setattr(summarizer.os, "unlink", _unlink_fails)
+
+    with pytest.raises(OSError, match="rename failed"):
+        summarizer.archive_large_output("x" * 500, archive_dir=tmp_path)
+    assert list(tmp_path.glob("ccr-*.txt")) == []
+
+
 # ---------------------------------------------------------------------------
 # Retention cleanup (archives must not grow unbounded across sessions)
 # ---------------------------------------------------------------------------
@@ -224,6 +247,35 @@ def test_cleanup_only_touches_ccr_files(summarizer, tmp_path):
     assert other.exists()
 
 
+def test_cleanup_skips_an_archive_it_cannot_remove(
+    summarizer, tmp_path, monkeypatch, caplog
+):
+    """One undeletable archive is logged; the rest are still removed."""
+    stuck = tmp_path / "ccr-stuckstuckst.txt"
+    gone = tmp_path / "ccr-gonegonegone.txt"
+    for path in (stuck, gone):
+        path.write_text("stale", encoding="utf-8")
+        backdated = time.time() - OLD_AGE_DAYS * SECONDS_PER_DAY
+        os.utime(path, (backdated, backdated))
+    real_unlink = Path.unlink
+
+    def _refuse_stuck(self, *args, **kwargs):
+        if self == stuck:
+            raise PermissionError("immutable")
+        return real_unlink(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", _refuse_stuck)
+    with caplog.at_level("WARNING"):
+        removed = summarizer.context_archive_cleanup(
+            tmp_path, max_age_days=RETENTION_DAYS_DEFAULT
+        )
+
+    assert removed == 1
+    assert stuck.exists()
+    assert not gone.exists()
+    assert "CCR cleanup could not remove" in caplog.text
+
+
 def test_cleanup_missing_dir_returns_zero(summarizer, tmp_path):
     assert summarizer.context_archive_cleanup(tmp_path / "does-not-exist") == 0
 
@@ -262,6 +314,27 @@ def test_build_digest_short_text_is_not_elided(summarizer):
     assert "elided" not in digest
 
 
+def test_build_digest_caps_a_single_long_line(summarizer):
+    # Given one 50K-character line (a JSON-shaped tool result has no newlines)
+    text = "x" * 50_000
+    # When digested, Then the body is bounded by characters, not only lines,
+    # so the digest cannot echo the whole output back into context.
+    digest = summarizer.build_digest(text, "ccr-aaaaaaaaaaaa")
+    assert len(digest) < summarizer.DIGEST_MAX_CHARS + 1_000
+    assert "chars elided" in digest
+
+
+def test_build_digest_retrieve_command_names_a_real_script(summarizer):
+    # The model's Bash has no CLAUDE_PLUGIN_ROOT, so a literal placeholder in
+    # the hint is a command that cannot run. The path must be resolved.
+    digest = summarizer.build_digest("a\nb", "ccr-aaaaaaaaaaaa")
+    assert "${CLAUDE_PLUGIN_ROOT}" not in digest
+    script = next(
+        token for token in digest.split() if token.endswith("context_retrieve.py")
+    )
+    assert Path(script).is_file()
+
+
 # ---------------------------------------------------------------------------
 # tool_response extraction (handles str and dict shapes)
 # ---------------------------------------------------------------------------
@@ -276,6 +349,18 @@ def test_extract_tool_response_text_from_dict_stdout(summarizer):
     text = summarizer.extract_tool_response_text(payload)
     assert "out" in text
     assert "err" in text
+
+
+def test_extract_tool_response_text_from_read_file_content(summarizer):
+    # Read nests its text under file.content; a JSON dump of the envelope
+    # would hide line structure and defeat the line-based digest.
+    payload = {
+        "tool_response": {
+            "type": "text",
+            "file": {"filePath": "/x.md", "content": "first\nsecond"},
+        }
+    }
+    assert summarizer.extract_tool_response_text(payload) == "first\nsecond"
 
 
 def test_extract_tool_response_text_missing_is_empty(summarizer):
@@ -328,6 +413,26 @@ def test_main_archives_large_single_output(summarizer, monkeypatch, tmp_path, ca
     assert "context_retrieve.py" in ctx
 
 
+def test_main_large_read_does_not_echo_the_file_back(
+    summarizer, monkeypatch, tmp_path, capsys
+):
+    # Regression: a 27K-char Read came back whole as additionalContext.
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CONSERVE_CCR_THRESHOLD", str(SMALL_THRESHOLD))
+    body = "\n".join(f"row {i} " + "y" * 200 for i in range(200))
+    hook_input = {
+        "tool_name": "Read",
+        "tool_response": {"type": "text", "file": {"filePath": "/f", "content": body}},
+    }
+
+    rc, out = _run_main(summarizer, hook_input, monkeypatch, capsys)
+
+    assert rc == 0
+    ctx = json.loads(out)["hookSpecificOutput"]["additionalContext"]
+    assert len(ctx) < summarizer.DIGEST_MAX_CHARS + 1_000
+    assert "row 100 " not in ctx
+
+
 def test_main_small_output_not_archived(summarizer, monkeypatch, tmp_path, capsys):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("CONSERVE_CCR_THRESHOLD", str(DEFAULT_THRESHOLD))
@@ -348,16 +453,61 @@ def test_main_is_fail_open_when_archive_errors(
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("CONSERVE_CCR_THRESHOLD", str(SMALL_THRESHOLD))
 
-    def _boom(*_args, **_kwargs):
-        raise OSError("disk full")
-
-    monkeypatch.setattr(summarizer, "archive_large_output", _boom)
+    # A regular file where the archive directory belongs: mkdir raises a
+    # real OSError, the same one a read-only or full volume produces.
+    (tmp_path / ".claude").mkdir()
+    (tmp_path / ".claude" / "context-archive").write_text("not a directory")
     hook_input = {"tool_name": "Bash", "tool_response": {"stdout": "x" * 500}}
 
     rc, out = _run_main(summarizer, hook_input, monkeypatch, capsys)
 
     assert rc == 0
     assert out.strip() == ""  # no digest emitted, no crash
+
+
+def test_main_runs_the_retention_sweep_when_the_sample_hits(
+    summarizer, monkeypatch, tmp_path, capsys
+):
+    """The probabilistic sweep removes expired archives when it fires."""
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CONSERVE_CCR_THRESHOLD", str(SMALL_THRESHOLD))
+    archive_dir = tmp_path / ".claude" / "context-archive"
+    archive_dir.mkdir(parents=True)
+    expired = archive_dir / "ccr-expiredexpir.txt"
+    expired.write_text("stale", encoding="utf-8")
+    backdated = time.time() - OLD_AGE_DAYS * SECONDS_PER_DAY
+    os.utime(expired, (backdated, backdated))
+    # random is the nondeterministic input; pin it below the sampling gate.
+    monkeypatch.setattr(summarizer.random, "random", lambda: 0.0)
+    hook_input = {"tool_name": "Bash", "tool_response": {"stdout": "y" * 500}}
+
+    rc, out = _run_main(summarizer, hook_input, monkeypatch, capsys)
+
+    assert rc == 0
+    assert "ccr-" in out
+    assert not expired.exists()
+    assert len(list(archive_dir.glob("ccr-*.txt"))) == 1
+
+
+def test_main_skips_the_retention_sweep_when_the_sample_misses(
+    summarizer, monkeypatch, tmp_path, capsys
+):
+    """Above the sampling gate, expired archives are left for a later call."""
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CONSERVE_CCR_THRESHOLD", str(SMALL_THRESHOLD))
+    archive_dir = tmp_path / ".claude" / "context-archive"
+    archive_dir.mkdir(parents=True)
+    expired = archive_dir / "ccr-expiredexpir.txt"
+    expired.write_text("stale", encoding="utf-8")
+    backdated = time.time() - OLD_AGE_DAYS * SECONDS_PER_DAY
+    os.utime(expired, (backdated, backdated))
+    monkeypatch.setattr(summarizer.random, "random", lambda: 0.99)
+    hook_input = {"tool_name": "Bash", "tool_response": {"stdout": "y" * 500}}
+
+    rc, _ = _run_main(summarizer, hook_input, monkeypatch, capsys)
+
+    assert rc == 0
+    assert expired.exists()
 
 
 def test_main_ignores_non_target_tools(summarizer, monkeypatch, tmp_path, capsys):

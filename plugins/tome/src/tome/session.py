@@ -128,31 +128,52 @@ class SessionManager:
         """Serialize session to JSON and write to disk; returns the file path."""
         return self._store.save(session.id, session)
 
+    def _read(self, path: Path) -> ResearchSession:
+        """Parse one session file, raising ValueError when it is damaged.
+
+        An unreadable file (OSError) is not damaged and propagates, so a
+        permission problem is not reported as corruption and skipped.
+        """
+        text = path.read_text(encoding="utf-8")
+        try:
+            return ResearchSession.from_dict(json.loads(text))
+        except (json.JSONDecodeError, KeyError, ValueError, TypeError) as exc:
+            raise ValueError(f"corrupt session file {path}: {exc}") from exc
+
     def load(self, session_id: str) -> ResearchSession:
         """Deserialize and return a session by ID.
 
-        Raises FileNotFoundError if the session file does not exist.
+        Raises:
+            ValueError: If the ID is invalid or the session file is corrupt.
+            FileNotFoundError: If the session file does not exist.
         """
         # Validate eagerly so callers get ValueError on bad IDs (not FileNotFoundError)
-        if not validate_session_id(session_id):
-            raise ValueError(f"Invalid session ID: {session_id!r}")
-        result: ResearchSession | None = self._store.load(session_id)
-        if result is None:
+        path = self._path_for(session_id)
+        if not path.exists():
             raise FileNotFoundError(f"Session not found: {session_id}")
-        return result
+        return self._read(path)
 
     def load_latest(self) -> ResearchSession | None:
-        """Return the most recently modified session, or None."""
-        json_files = list(self._sessions_dir.glob("*.json"))
-        if not json_files:
-            return None
-        latest_file = max(json_files, key=lambda p: p.stat().st_mtime)
-        try:
-            data = json.loads(latest_file.read_text(encoding="utf-8"))
-            return ResearchSession.from_dict(data)
-        except (json.JSONDecodeError, OSError) as exc:
-            print(f"tome: corrupt session file {latest_file}: {exc}", file=sys.stderr)
-            return None
+        """Return the newest readable session, or None when there is none.
+
+        Corrupt files are logged to stderr and skipped, so an older valid
+        session is returned in preference to None.
+        """
+        json_files = sorted(
+            (
+                p
+                for p in self._sessions_dir.glob("*.json")
+                if validate_session_id(p.stem)
+            ),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        for path in json_files:
+            try:
+                return self._read(path)
+            except ValueError as exc:
+                print(f"tome: {exc}", file=sys.stderr)
+        return None
 
     def list_all(self) -> list[SessionSummary]:
         """Return summaries of all sessions, sorted by created_at descending.
@@ -163,12 +184,9 @@ class SessionManager:
         summaries: list[SessionSummary] = []
         for path in self._sessions_dir.glob("*.json"):
             try:
-                data = json.loads(path.read_text(encoding="utf-8"))
-                session = ResearchSession.from_dict(data)
-                summaries.append(session.to_summary())
-            except (json.JSONDecodeError, KeyError, OSError) as exc:
-                print(f"tome: corrupt session file {path}: {exc}", file=sys.stderr)
-                continue
+                summaries.append(self._read(path).to_summary())
+            except ValueError as exc:
+                print(f"tome: {exc}", file=sys.stderr)
         summaries.sort(
             key=lambda s: s.created_at or datetime.min.replace(tzinfo=timezone.utc),
             reverse=True,

@@ -34,6 +34,7 @@ __all__ = [
     "assess_packages",
     "levenshtein",
     "nearest_known",
+    "normalize_name",
     "parse_packages",
 ]
 
@@ -55,6 +56,22 @@ _FLAG_RE = re.compile(r"^-")
 # never a registry package name): -r req.txt, -c constraints.txt, -e path.
 _VALUE_FLAGS = frozenset(
     {"-r", "--requirement", "-c", "--constraint", "-e", "--editable"}
+)
+# Where one shell command ends and the next begins. A subshell or command
+# substitution opener and closer also start a new command, so the install
+# inside "(pip install x)" or "$(pip install x)" heads its own segment.
+_SHELL_SEPARATOR_RE = re.compile(r"&&|\|\||\$\(|[;|&\n()`]")
+# A descriptor duplication ("2>&1", ">&2") holds an "&" that is not a
+# separator; it is removed before the command is split.
+_FD_DUP_RE = re.compile(r"\d*[<>]&\d*-?")
+# A redirection operator; bare, its target is the next token.
+_REDIRECT_RE = re.compile(r"^\d*(?:>>?|<)")
+# Words that run the command after them: "sudo pip install x" fetches x.
+# Their flags and "NAME=value" assignments are skipped with them, and
+# the user, group and directory flags of sudo and env take a value.
+_COMMAND_PREFIX_RE = re.compile(
+    r"^\s*(?:(?:sudo|env|nohup|time|command|exec)\s+(?:-[ugC]\s+\S+\s+|-\S+\s+)*"
+    r"|[A-Za-z_][A-Za-z0-9_]*=\S*\s+)+"
 )
 # Targets that are local paths or VCS/URL references, never a registry name.
 _NON_REGISTRY_RE = re.compile(r"(^[./~])|(^[a-z]+\+)|(://)|(\.git$)|(^\.$)")
@@ -176,7 +193,18 @@ def parse_packages(command: str) -> list[tuple[str, str]]:
     Versions (``==``, ``@``, ``>=``...), flags, local paths, and VCS
     URLs are stripped. A non-install command returns an empty list.
     """
-    text = command.strip()
+    # Each command in a chain ("a && b; c | d") runs, so each is parsed on
+    # its own. "pip install x && pytest" reads only x; "pip install x &&
+    # pip install y" reads both.
+    packages: list[tuple[str, str]] = []
+    for segment in _SHELL_SEPARATOR_RE.split(_FD_DUP_RE.sub(" ", command)):
+        text = _COMMAND_PREFIX_RE.sub("", segment).strip()
+        packages.extend(_parse_install_segment(text))
+    return packages
+
+
+def _parse_install_segment(text: str) -> list[tuple[str, str]]:
+    """Parse one separator-free command; a non-install returns ``[]``."""
     ecosystem = None
     head = None
     for pattern, eco in _INSTALL_HEADS:
@@ -188,21 +216,28 @@ def parse_packages(command: str) -> list[tuple[str, str]]:
     if ecosystem is None or head is None:
         return []
 
-    remainder = text[len(head) :]
     packages: list[tuple[str, str]] = []
     skip_next = False
-    for token in remainder.split():
+    for token in text[len(head) :].split():
         if skip_next:
             skip_next = False
+            continue
+        if token.startswith("#"):
+            break  # the rest of the line is a comment
+        redirect = _REDIRECT_RE.match(token)
+        if redirect:
+            # Bare ("> log") names its file in the next token.
+            skip_next = redirect.end() == len(token)
             continue
         if token in _VALUE_FLAGS:
             skip_next = True
             continue
         if _FLAG_RE.match(token):
             continue
-        if _NON_REGISTRY_RE.search(token):
+        unquoted = token.strip("'\"")
+        if _NON_REGISTRY_RE.search(unquoted):
             continue
-        name = _strip_version(token)
+        name = _strip_version(unquoted)
         if name:
             packages.append((ecosystem, name))
     return packages
@@ -242,6 +277,22 @@ def levenshtein(a: str, b: str) -> int:
     return previous[-1]
 
 
+_PEP503_SEPARATORS = re.compile(r"[-_.]+")
+
+
+def normalize_name(name: str, ecosystem: str) -> str:
+    """Return the name a registry compares, so equivalent spellings match.
+
+    PyPI compares names after lowercasing and collapsing runs of ``-``,
+    ``_`` and ``.`` to ``-`` (PEP 503): ``scikit_learn`` and
+    ``Requests`` are ``scikit-learn`` and ``requests``. Other ecosystems
+    are compared as written.
+    """
+    if ecosystem == "pypi":
+        return _PEP503_SEPARATORS.sub("-", name).lower()
+    return name
+
+
 def nearest_known(name: str, ecosystem: str) -> str | None:
     """Return a popular package this name likely typosquats, else None.
 
@@ -249,6 +300,7 @@ def nearest_known(name: str, ecosystem: str) -> str | None:
     distant from every known one to be a plausible typo.
     """
     known = KNOWN_POPULAR.get(ecosystem, frozenset())
+    name = normalize_name(name, ecosystem)
     if name in known:
         return None
     best: str | None = None
@@ -294,7 +346,7 @@ def assess_packages(
     deadline = None if budget_seconds is None else time.monotonic() + budget_seconds
     for ecosystem, name in parse_packages(command):
         known = KNOWN_POPULAR.get(ecosystem, frozenset())
-        if name in known:
+        if normalize_name(name, ecosystem) in known:
             continue
 
         suspect = nearest_known(name, ecosystem)

@@ -287,8 +287,18 @@ def _graph_staleness_warning(
         try:
             data = json.loads(config_path.read_text())
             threshold = float(data.get("stale_threshold_hours", threshold))
-        except (json.JSONDecodeError, OSError, TypeError, ValueError):
-            pass
+        except (
+            json.JSONDecodeError,
+            OSError,
+            TypeError,
+            ValueError,
+            AttributeError,  # config.json holds JSON that is not an object
+        ) as exc:
+            print(
+                f"gauntlet: ignoring stale_threshold_hours in {config_path}: {exc}; "
+                f"using {default_threshold_hours:g}h",
+                file=sys.stderr,
+            )
 
     try:
         mtime = db_path.stat().st_mtime
@@ -343,6 +353,13 @@ def _graph_risk_context(gauntlet_dir: Path) -> str | None:
         )
         return None
 
+    if "error" in report:
+        print(
+            f"[gauntlet-precommit-gate] blast radius skipped: {report['error']}",
+            file=sys.stderr,
+        )
+        return None
+
     overall = report.get("overall_risk", "none")
     if overall in ("none", "low"):
         return None
@@ -368,6 +385,19 @@ def _graph_risk_context(gauntlet_dir: Path) -> str | None:
 # ---------------------------------------------------------------------------
 
 
+def _context_only(text: str) -> dict[str, Any]:
+    """Wrap *text* as PreToolUse context with no permission decision.
+
+    ``additionalContext`` is only recognized inside ``hookSpecificOutput``.
+    """
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "additionalContext": text,
+        }
+    }
+
+
 def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     """Process a PreToolUse hook event.
 
@@ -375,7 +405,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     - None to pass through (no decision).
     - hookSpecificOutput with permissionDecision "allow" to allow.
     - hookSpecificOutput with permissionDecision "deny" to block.
-    - {"additionalContext": ...} to nudge without blocking.
+    - hookSpecificOutput with additionalContext only, to nudge without blocking.
 
     """
     tool_input = hook_input.get("tool_input", {})
@@ -429,7 +459,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     if challenge is None:
         # No knowledge entries: still surface risk context if present.
         if risk_context:
-            return {"additionalContext": risk_context}
+            return _context_only(risk_context)
         return None
 
     # Persist pending challenge so the skill can present it.
@@ -449,7 +479,7 @@ def main(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     )
 
     if mode == "nudge":
-        return {"additionalContext": prompt_text}
+        return _context_only(prompt_text)
 
     # Default: gate mode, deny.
     return {
@@ -477,7 +507,13 @@ def run_gate(hook_input: dict[str, Any]) -> dict[str, Any] | None:
     The deny is emitted at the same place a normal denial is, so the
     caller cannot tell a refused commit from a broken gate. That is the
     intended failure direction.
+
+    ``GAUNTLET_PRECOMMIT_MODE=off`` is checked before ``main()`` runs, so
+    the bypass the deny reason names still works when ``main()`` is the
+    thing that is broken.
     """
+    if os.environ.get("GAUNTLET_PRECOMMIT_MODE") == "off":
+        return None
     try:
         return main(hook_input)
     except Exception as exc:  # a gate must not fall open on a defect

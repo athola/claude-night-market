@@ -1,6 +1,6 @@
 # Claude Night Market
 
-[![Version](https://img.shields.io/badge/version-1.9.21-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.10.0-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Plugins](https://img.shields.io/badge/plugins-23-orange)](book/src/plugins/)
 [![Skills](https://img.shields.io/badge/skills-206-teal)](book/src/reference/capabilities-reference.md)
@@ -25,8 +25,9 @@ design rationale behind a plugin, see
 ## Install
 
 Requires **Claude Code 2.1.16+** (2.1.32+ for agent teams, 2.1.38+
-for security features) and **Python 3.9+** for hooks, which is what
-macOS ships.
+for security features, 2.1.287+ for the context and loop bands that
+conserve and egregore draw above the prompt) and **Python 3.9+** for
+hooks, which is what macOS ships.
 
 ```bash
 # Add the marketplace, then install the plugins you want
@@ -35,6 +36,16 @@ macOS ships.
 /plugin install pensive@claude-night-market    # Code review
 /plugin install spec-kit@claude-night-market   # Spec-driven dev
 ```
+
+On Claude Code 2.1.275 or later one command adds the marketplace and
+installs a plugin: `/plugin install sanctum --marketplace
+athola/claude-night-market`.
+
+Updates are not automatic. Auto-update is off for third-party
+marketplaces until you turn it on: open `/plugin`, go to
+**Marketplaces**, select `claude-night-market`, and choose **Enable
+auto-update**. Without it, run `claude plugin update
+<plugin>@claude-night-market` to pick up a release.
 
 Run `claude --init` once after installing. Two other paths
 exist: [`npx skills`][skills-cli] pulls the skill files alone
@@ -128,7 +139,7 @@ The full skill, command, and agent inventory is in the
 > edit your repo, run shell commands, and call external services.
 > **Review any plugin before installing it.**
 
-Three guards reduce the blast radius, but none replace your own
+Five guards reduce the blast radius, but none replace your own
 review:
 
 - **TDD gates** (`imbue`) block implementation writes that lack a
@@ -136,6 +147,12 @@ review:
 - **Destructive-command blockers** (`conserve`, `hookify`)
   auto-approve safe commands and halt or warn on `rm -rf`,
   `git push --force`, and production-shaped targets.
+- **Credential-read denial** (`conserve`) refuses `cat`, `head`,
+  `grep`, `rg` and `git show` on `.env`, `.netrc`, credential files
+  and SSH keys.
+- **External-content sanitizing** (`leyline`) strips invisible
+  characters from web fetches and other external-tool output, and
+  blocks prompt-injection phrases before the model reads them.
 - **Additive-bias audits** (`leyline`) flag unjustified additions
   before commit.
 

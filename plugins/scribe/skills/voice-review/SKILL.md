@@ -42,7 +42,7 @@ Two agents run in parallel on the generated text:
 Hard failures (banned phrases, em dashes) are auto-fixed.
 Everything else returns as advisory tables for user decision.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `voice-review:text-loaded` - Generated text read
 2. `voice-review:register-loaded` - Voice register loaded
@@ -162,12 +162,12 @@ After the review completes, validate these conditions:
 
 ## Exit Criteria
 
-- Both review agents returned results without timeout
-- Hard failures auto-fixed and diff shown to user
-- Advisory tables presented with accept/reject/rewrite options
-- User decisions applied to the final text
-- Final text saved to disk
-- Every advisory row carries a `Line` (file:line) and verbatim `Anchor`;
+- [ ] Both review agents returned results without timeout
+- [ ] Hard failures auto-fixed and diff shown to user
+- [ ] Advisory tables presented with accept/reject/rewrite options
+- [ ] User decisions applied to the final text
+- [ ] Final text saved to disk
+- [ ] Every advisory row carries a `Line` (file:line) and verbatim `Anchor`;
   `citation_verifier.py` confirmed all citations (exit `0`) or unverified
   rows are dropped/labeled `UNVERIFIED`
 

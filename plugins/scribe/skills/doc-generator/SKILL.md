@@ -81,7 +81,7 @@ for living things.
 
 "Validate" not "Validates" (per PEP 257, pydocstyle, ruff).
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `doc-generator:scope-defined` - Target files and type identified
 2. `doc-generator:style-loaded` - Style profile applied (if available)
@@ -283,12 +283,12 @@ When editing code comments:
 
 ## Exit Criteria
 
-- Content created or remediated
-- Slop score < 1.5 (clean rating)
-- Audience tier declared in the request and honored in the draft
-- Document economy score >= 7/8, audience fit scoring 2/2
-- Every extraction landed in `modules/` or `docs/deep-dive/`
+- [ ] Content created or remediated
+- [ ] Slop score < 1.5 (clean rating)
+- [ ] Audience tier declared in the request and honored in the draft
+- [ ] Document economy score >= 7/8, audience fit scoring 2/2
+- [ ] Every extraction landed in `modules/` or `docs/deep-dive/`
   and is linked from the parent's lead
-- Quality gate checklist passed
-- User approval received
-- No emojis present (unless specified)
+- [ ] Quality gate checklist passed
+- [ ] User approval received
+- [ ] No emojis present (unless specified)

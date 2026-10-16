@@ -13,6 +13,7 @@ from __future__ import annotations
 import importlib
 import io
 import json
+import subprocess
 import sys
 import time
 from datetime import datetime, timezone
@@ -260,25 +261,33 @@ class TestAggregationExecution:
     """Test the actual aggregation trigger logic."""
 
     def test_run_aggregation_calls_aggregate_script(
-        self, hook_module, monkeypatch: pytest.MonkeyPatch
+        self, hook_module, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Given: Aggregation is due
         When: run_aggregation() is called
-        Then: It invokes aggregate_skill_logs.aggregate_logs and generates LEARNINGS.md
+        Then: It asks aggregate_logs for a 30-day window and writes LEARNINGS.md
+
+        Only the aggregator, which reads the log tree, is replaced. The
+        hook's own _run_aggregate and _write_learnings run for real, so a
+        dropped write or a changed window fails here.
         """
-        mock_aggregate = MagicMock()
-        mock_result = MagicMock()
-        mock_result.skills_analyzed = 5
-        mock_result.total_executions = 100
-        mock_aggregate.return_value = mock_result
+        result = AggregationResult(
+            timestamp=datetime(2026, 3, 1, 12, 0, 0, tzinfo=timezone.utc),
+            skills_analyzed=0,
+            total_executions=0,
+            high_impact_issues=[],
+            slow_skills=[],
+            low_rated_skills=[],
+            metrics_by_skill={},
+        )
+        mock_aggregate = MagicMock(return_value=result)
+        learnings_file = tmp_path / "LEARNINGS.md"
+        monkeypatch.setattr(hook_module, "aggregate_logs", mock_aggregate)
+        monkeypatch.setattr(hook_module, "get_learnings_path", lambda: learnings_file)
 
-        mock_generate = MagicMock(return_value="# Learnings\n")
-        monkeypatch.setattr(hook_module, "_run_aggregate", mock_aggregate)
-        monkeypatch.setattr(hook_module, "_write_learnings", mock_generate)
-
-        result = hook_module.run_aggregation()
-        assert result is True
-        mock_aggregate.assert_called_once()
+        assert hook_module.run_aggregation() is True
+        mock_aggregate.assert_called_once_with(days_back=30)
+        assert "# Skill Performance Learnings" in learnings_file.read_text()
 
     def test_run_aggregation_returns_false_on_error(
         self, hook_module, monkeypatch: pytest.MonkeyPatch
@@ -726,3 +735,127 @@ class TestWriteLearningsIntegration:
         assert "leyline:fmt" in content
         # No pinned section when there was no pre-existing file
         assert "## Pinned Learnings" not in content
+
+
+class TestScriptsUnavailable:
+    """With the sibling scripts unimportable, every stage declines quietly."""
+
+    def test_no_logs_reported_when_scripts_failed_to_import(
+        self, hook_module, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given: log files exist but the aggregator could not be imported
+        When: has_logs_to_aggregate() runs
+        Then: it returns False, so the pipeline never calls a missing name
+        """
+        log_file = tmp_path / "logs" / "abstract" / "skill" / "2026-03-01.jsonl"
+        log_file.parent.mkdir(parents=True)
+        log_file.write_text("{}\n")
+        assert hook_module.has_logs_to_aggregate() is True
+
+        monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", False)
+
+        assert hook_module.has_logs_to_aggregate() is False
+
+    @pytest.mark.parametrize(
+        ("runner", "target"),
+        [("run_auto_promote", "_promote"), ("run_post_learnings", "_post_learnings")],
+        ids=["auto-promote", "post-learnings"],
+    )
+    def test_chained_stage_is_skipped_when_scripts_failed_to_import(
+        self, hook_module, monkeypatch: pytest.MonkeyPatch, runner: str, target: str
+    ) -> None:
+        """Given: the posting scripts could not be imported
+        When: the chained stage runs
+        Then: the stage's script entry point is never called
+        """
+        calls: list[str] = []
+        monkeypatch.setattr(hook_module, target, lambda: calls.append(target))
+        monkeypatch.setattr(hook_module, "_HAS_SCRIPTS", False)
+
+        assert getattr(hook_module, runner)() is None
+
+        assert calls == []
+
+
+_YAML_BLOCKED_PROBE = """
+import importlib.abc
+import importlib.util
+import sys
+
+
+class _BlockYaml(importlib.abc.MetaPathFinder):
+    def find_spec(self, name, path=None, target=None):
+        if name == "yaml" or name.startswith("yaml."):
+            raise ModuleNotFoundError(f"No module named {name!r}")
+        return None
+
+
+sys.meta_path.insert(0, _BlockYaml())
+path = sys.argv[1]
+spec = importlib.util.spec_from_file_location("hook_under_test", path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["hook_under_test"] = module
+spec.loader.exec_module(module)
+print(module._HAS_SCRIPTS)
+"""
+
+
+def test_daily_aggregation_loads_its_scripts_without_yaml() -> None:
+    """The hook runs under an interpreter with no pyyaml, as operators' do.
+
+    Its scripts imported path helpers through ``abstract.utils``, which
+    imports yaml, so the import failed, the hook degraded to a no-op and
+    LEARNINGS.md was never regenerated.
+    """
+    hook = (
+        Path(__file__).resolve().parents[2] / "hooks" / "aggregate_learnings_daily.py"
+    )
+    proc = subprocess.run(
+        [sys.executable, "-c", _YAML_BLOCKED_PROBE, str(hook)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip() == "True", proc.stderr
+
+
+class TestConcurrentInvocations:
+    """Async UserPromptSubmit runs overlap; only one may aggregate."""
+
+    def test_overlapping_invocations_aggregate_only_once(
+        self, hook_module, monkeypatch: pytest.MonkeyPatch, timestamp_path: Path
+    ) -> None:
+        monkeypatch.setattr(
+            hook_module, "has_logs_to_aggregate", MagicMock(return_value=True)
+        )
+        runs: list[int] = []
+
+        def aggregate_while_a_second_prompt_arrives() -> bool:
+            runs.append(len(runs))
+            if len(runs) == 1:
+                hook_module.run_daily_pipeline()  # the overlapping invocation
+            return True
+
+        monkeypatch.setattr(
+            hook_module, "run_aggregation", aggregate_while_a_second_prompt_arrives
+        )
+
+        hook_module.run_daily_pipeline()
+
+        assert runs == [0]
+        assert timestamp_path.exists()
+
+    def test_failed_aggregation_leaves_the_run_due(
+        self, hook_module, monkeypatch: pytest.MonkeyPatch, timestamp_path: Path
+    ) -> None:
+        monkeypatch.setattr(
+            hook_module, "has_logs_to_aggregate", MagicMock(return_value=True)
+        )
+        monkeypatch.setattr(
+            hook_module, "run_aggregation", MagicMock(return_value=False)
+        )
+
+        hook_module.run_daily_pipeline()
+
+        assert hook_module.should_aggregate()

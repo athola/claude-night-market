@@ -73,6 +73,31 @@ def _extract_imports_from_file(filepath: Path, root: Path) -> list[str]:
     return raw
 
 
+def _resolve_relative_python(
+    raw_import: str, source_file: Path, root: Path
+) -> str | None:
+    """Resolve `from .x` / `from ..x` against the importer's own package.
+
+    The filename index cannot do this: two packages with a utils.py would
+    both resolve to whichever one was indexed first.
+    """
+    module = raw_import.lstrip(".")
+    base = source_file.parent
+    for _ in range(len(raw_import) - len(module) - 1):
+        base = base.parent
+    target = base.joinpath(*module.split(".")) if module else base
+    candidates = [target / "__init__.py"]
+    if module:
+        candidates.insert(0, target.with_name(target.name + ".py"))
+    for candidate in candidates:
+        if candidate.is_file():
+            try:
+                return str(candidate.relative_to(root))
+            except ValueError:
+                return None
+    return None
+
+
 def _resolve_import(
     raw_import: str,
     source_file: Path,
@@ -172,7 +197,11 @@ def build_import_graph(root: Path) -> ImportGraph:
         source_rel = str(fpath.relative_to(root))
         raw_imports = _extract_imports_from_file(fpath, root)
         for raw in raw_imports:
-            target = _resolve_import(raw, fpath, root, file_index)
+            # A Python relative import has dots and no slash; JS has "./".
+            if raw.startswith(".") and "/" not in raw:
+                target = _resolve_relative_python(raw, fpath, root)
+            else:
+                target = _resolve_import(raw, fpath, root, file_index)
             if target and target != source_rel:
                 graph.add_edge(source_rel, target)
 

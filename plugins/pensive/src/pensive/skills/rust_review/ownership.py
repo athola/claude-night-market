@@ -188,12 +188,19 @@ class OwnershipMixin(LineCacheMixin):
         lines = self._get_lines(content)
         async_start_depth = -1
         brace_depth = 0
+        # A rustfmt signature spans lines, so the body depth is recorded at
+        # the first brace after the `async fn`, not on the signature line.
+        pending_async = False
 
         for i, line in enumerate(lines):
+            depth_before = brace_depth
             brace_depth += line.count("{") - line.count("}")
 
             if ASYNC_FN_RE.search(line):
-                async_start_depth = brace_depth - line.count("{")
+                pending_async = True
+            if pending_async and "{" in line:
+                async_start_depth = depth_before
+                pending_async = False
 
             in_async_fn = async_start_depth >= 0
 

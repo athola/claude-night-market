@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import subprocess
 import sys
 import time
@@ -16,6 +17,7 @@ import traceback
 from pathlib import Path
 
 from _ledger_utils import get_ledger_path as _get_ledger_path
+from _ledger_utils import ledger_lock
 
 logger = logging.getLogger(__name__)
 
@@ -85,16 +87,27 @@ def call_capture_script(
         return {"status": "error", "message": str(exc)}
 
 
+def _read_entries_after(ledger_path: Path, count: int) -> list:
+    """Return ledger entries past the first *count*, or [] if unreadable."""
+    try:
+        current = json.loads(ledger_path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return []
+    return current[count:] if isinstance(current, list) else []
+
+
 def process_ledger(ledger_path: Path) -> dict:
     """Read ledger, retry unfiled entries, clean up.
 
-    Returns stats dict with keys: filed, already_filed, failed, duplicates.
+    Returns stats dict with keys: filed, already_filed, failed, duplicates,
+    deferred_to_next_sweep.
     """
     stats: dict[str, int] = {
         "filed": 0,
         "already_filed": 0,
         "failed": 0,
         "duplicates": 0,
+        "deferred_to_next_sweep": 0,
     }
 
     if not ledger_path.exists():
@@ -110,6 +123,7 @@ def process_ledger(ledger_path: Path) -> dict:
         ledger_path.unlink(missing_ok=True)
         return stats
 
+    original_count = len(entries)
     all_filed = True
     deadline = time.monotonic() + _SWEEP_BUDGET_SECONDS
     for entry in entries:
@@ -123,7 +137,7 @@ def process_ledger(ledger_path: Path) -> dict:
             # the state the next sweep reads, rather than being attempted in
             # a call the harness would kill halfway through.
             all_filed = False
-            stats["deferred_to_next_sweep"] = stats.get("deferred_to_next_sweep", 0) + 1
+            stats["deferred_to_next_sweep"] += 1
             continue
 
         result = call_capture_script(
@@ -144,13 +158,26 @@ def process_ledger(ledger_path: Path) -> dict:
             stats["failed"] += 1
             all_filed = False
 
-    if all_filed:
-        ledger_path.unlink(missing_ok=True)
-    else:
-        with open(ledger_path, "w") as f:
-            json.dump(entries, f, indent=2)
+    # The watcher appends to this ledger while the sweep runs (up to the
+    # sweep budget). Entries past the original length arrived after the
+    # read above; dropping them would lose a deferral nobody has filed.
+    # The lock keeps a watcher append from landing between this re-read
+    # and the unlink or replace below.
+    with ledger_lock(ledger_path):
+        late_entries = _read_entries_after(ledger_path, original_count)
+        if all_filed and not late_entries:
+            ledger_path.unlink(missing_ok=True)
+        else:
+            all_filed = False
+            entries = [*entries, *late_entries]
+            staged = ledger_path.with_name(f"{ledger_path.name}.{os.getpid()}.tmp")
+            with open(staged, "w") as f:
+                json.dump(entries, f, indent=2)
+            os.replace(staged, ledger_path)
+    if not all_filed:
+        unfiled = stats["failed"] + stats["deferred_to_next_sweep"] + len(late_entries)
         sys.stderr.write(
-            f"deferred_item_sweep: {stats['failed']} items remain unfiled. "
+            f"deferred_item_sweep: {unfiled} items remain unfiled. "
             f"Ledger preserved at {ledger_path}\n"
         )
 
@@ -163,11 +190,13 @@ def main() -> None:
     stats = process_ledger(ledger_path)
 
     total = stats["filed"] + stats["duplicates"]
-    if total > 0 or stats["failed"] > 0:
+    deferred = stats["deferred_to_next_sweep"]
+    if total > 0 or stats["failed"] > 0 or deferred > 0:
         sys.stderr.write(
             f"Deferred items: {total} filed, "
             f"{stats['duplicates']} duplicate, "
-            f"{stats['failed']} failed\n"
+            f"{stats['failed']} failed, "
+            f"{deferred} deferred to next sweep\n"
         )
 
 

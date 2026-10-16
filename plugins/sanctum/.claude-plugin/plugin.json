@@ -1,6 +1,6 @@
 {
   "name": "sanctum",
-  "version": "1.9.21",
+  "version": "1.10.0",
   "description": "Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates, and version management",
   "commands": [
     "./commands/acp.md",
@@ -73,6 +73,8 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
+  "homepage": "https://github.com/athola/claude-night-market/tree/master/plugins/sanctum",
+  "repository": "https://github.com/athola/claude-night-market",
   "dependencies": [
     "leyline",
     "abstract"

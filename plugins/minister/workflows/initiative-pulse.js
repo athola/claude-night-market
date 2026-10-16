@@ -5,15 +5,15 @@
 // six times the waiting, done in sequence, for a report nobody reads
 // until all six are in. The fan-out turns the wall clock into the
 // slowest single milestone, and the roll-up at the end is what a
-// programme lead actually asked for: not six reports, but the one
+// program lead actually asked for: not six reports, but the one
 // sentence about which initiative is in trouble.
 
 export const meta = {
   name: 'initiative-pulse',
   description:
-    'Gather delivery health for several GitHub milestones in parallel and roll them up into one programme view',
+    'Gather delivery health for several GitHub milestones in parallel and roll them up into one program view',
   whenToUse:
-    'Run for a programme review across more than one milestone. args.milestones lists them; args.repo overrides the current repository. Returns per-milestone health plus the roll-up; it changes no issue.',
+    'Run for a program review across more than one milestone. args.milestones lists them. args.repo overrides the current repository. Returns per-milestone health plus the roll-up. It changes no issue.',
   phases: [
     { title: 'Pulse', detail: 'one agent per milestone' },
     { title: 'Roll-up', detail: 'name the initiative in trouble' },
@@ -50,18 +50,18 @@ const PULSE = {
 const pulsed = await parallel(
   milestones.map((milestone) => () =>
     agent(
-      `Gather delivery health for milestone '${milestone}' in ${repo}, following Skill(minister:github-initiative-pulse).\n\nUse the gh CLI. Report open and closed counts, issues with no activity for over two weeks, and anything explicitly blocked. Classify risk from what you found, not from the count alone: a milestone with two open issues that are both blocked is worse than one with twenty that are moving.`,
+      `Gather delivery health for milestone '${milestone}' in ${repo}, following Skill(minister:github-initiative-pulse).\n\nUse the gh CLI. Report open and closed counts, issues with no activity for over two weeks, and anything explicitly blocked. Classify risk from what you found, not from the count alone. Two open issues that are both blocked are worse than twenty that are moving.`,
       { label: `pulse:${milestone}`, phase: 'Pulse', schema: PULSE },
     ),
   ),
 )
 
 // A milestone whose agent returned nothing has no pulse, and a roll-up
-// that omits it reads healthier than the programme is.
+// that omits it reads healthier than the program is.
 const missing = milestones.filter((milestone, index) => !pulsed[index])
 const pulses = pulsed.filter(Boolean)
 
-if (missing.length) log(`no pulse from ${missing.join(', ')}; the roll-up does not cover them`)
+if (missing.length) log(`no pulse from ${missing.join(', ')}. The roll-up does not cover them`)
 
 if (!pulses.length) {
   log('no milestone returned a pulse')
@@ -73,7 +73,7 @@ const digest = pulses
   .join('\n')
 
 const rollUp = await agent(
-  `These milestones were measured independently. Write the programme view.\n\n${digest}\n\nLead with the initiative most likely to miss and why. Where two milestones are blocked on the same thing, say so: that is the finding a per-milestone report cannot produce. Do not rank by issue count.`,
+  `These milestones were measured independently. Write the program view.\n\n${digest}\n\nLead with the initiative most likely to miss and why. Where two milestones are blocked on the same thing, say so: that is the finding a per-milestone report cannot produce. Do not rank by issue count.`,
   { label: 'roll-up', phase: 'Roll-up' },
 )
 

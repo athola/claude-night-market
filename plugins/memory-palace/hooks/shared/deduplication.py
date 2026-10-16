@@ -9,7 +9,6 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import os
-import re
 import subprocess
 import sys
 import tempfile
@@ -97,19 +96,26 @@ def get_content_hash(content: str | bytes) -> str:
     return f"sha256:{hashlib.sha256(content).hexdigest()[:16]}"
 
 
+_TRACKING_PARAMS = frozenset({"utm_source", "utm_medium", "utm_campaign", "ref"})
+
+
 def get_url_key(url: str) -> str:
     """Normalize URL for consistent keying."""
-    # Remove trailing slashes, fragments, common tracking params
-    url = url.rstrip("/")
-    if "#" in url:
-        url = url.split("#")[0]
+    # Fragment first: a trailing slash before "#" is still a trailing slash.
+    url = url.split("#", 1)[0]
 
-    # Remove common tracking parameters
-    for param in ["utm_source", "utm_medium", "utm_campaign", "ref"]:
-        if f"?{param}=" in url or f"&{param}=" in url:
-            url = re.sub(rf"[?&]{param}=[^&]*", "", url)
+    # Remove common tracking parameters, rebuilding the query so the
+    # first surviving parameter keeps the "?" separator.
+    base, has_query, query = url.partition("?")
+    if has_query:
+        kept = [
+            pair
+            for pair in query.split("&")
+            if pair and pair.split("=", 1)[0] not in _TRACKING_PARAMS
+        ]
+        url = f"{base}?{'&'.join(kept)}" if kept else base
 
-    return url.lower()
+    return url.rstrip("/").lower()
 
 
 def _warn_no_yaml_once() -> None:

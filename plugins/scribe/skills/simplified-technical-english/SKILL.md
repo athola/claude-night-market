@@ -20,6 +20,7 @@ modules:
 - modules/scope-boundaries.md
 - modules/reconciliation.md
 - modules/licensing.md
+- modules/evidence.md
 ---
 
 # Simplified Technical English
@@ -41,7 +42,9 @@ Use ASD-STE-100 when you speak to the operator.
 ```
 
 That works because the name pulls a whole register the model already
-knows, at a cost of one line. `Skill(imbue:latent-space-engineering)`
+knows, at a cost of one line. The public numbers for it measure how
+well output obeys the rules. Read `modules/evidence.md` before
+citing one. `Skill(imbue:latent-space-engineering)`
 covers the technique in its named-register-invocation module, together
 with the known failure mode: practitioners report that the constraint
 decays partway through a long session. The checks below exist because
@@ -73,6 +76,7 @@ docstrings and ADRs exist to carry.
 | Error messages and warnings | Book content and blog output |
 | Command and skill instructions | Commit message bodies |
 | Checklists | This repository's own prose docs |
+| Workflow prompts and log lines | Workflow header comments |
 
 The last row is the one that bites. These skill files are descriptive
 repo prose, so the house rules govern them, not STE. Full reasoning and

@@ -18,27 +18,6 @@ modules:
 - modules/compression-strategies.md
 - modules/reversible-compression.md
 - modules/log-debugging-hygiene.md
-hooks:
-  PreToolUse:
-  - matcher: Read
-    command: 'echo "[skill:context-optimization] 📊 Context analysis started: $(date)"
-      >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-
-      '
-    once: true
-  PostToolUse:
-  - matcher: Bash
-    command: "# Track context analysis tools\nif jq -r '.tool_input.command // empty' | grep\
-      \ -qE \"(wc|tokei|cloc|context)\"; then\n  echo \"[skill:context-optimization]\
-      \ Context measurement executed: $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\n\
-      fi\n"
-  Stop:
-  - command: 'echo "[skill:context-optimization] === Optimization completed at $(date)
-      ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-
-      # Could export: context pressure events over time
-
-      '
 model_hint: standard
 role: hook-target
 ---

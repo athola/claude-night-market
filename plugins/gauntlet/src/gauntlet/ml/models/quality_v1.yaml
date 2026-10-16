@@ -5,8 +5,8 @@
 # Negative weight on negation_density: wrong answers tend to
 # contain more negation words ("not", "never", "no").
 #
-# structural_depth is unbounded (raw count of code blocks + bullets).
-# Its coefficient (0.73) is calibrated assuming values 0-5.
+# structural_depth counts code blocks + bullets, capped at 5 in
+# features.py because its coefficient (0.73) is calibrated for 0-5.
 schema_version: 1
 model_type: logistic_regression
 

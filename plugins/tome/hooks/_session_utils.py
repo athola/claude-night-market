@@ -18,9 +18,13 @@ def load_active_session(tome_dir: Path) -> tuple[str, int] | None:
         return None
     try:
         data = json.loads(sessions[0].read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError) as exc:
+    except (ValueError, OSError) as exc:
+        # ValueError covers JSONDecodeError and UnicodeDecodeError.
         print(f"tome: corrupt session file {sessions[0]}: {exc}", file=sys.stderr)
         return None
+    if not isinstance(data, dict):
+        print(f"tome: session file {sessions[0]} is not an object", file=sys.stderr)
+        return None
     if data.get("status") == "active":
-        return data.get("topic", "unknown"), len(data.get("findings", []))
+        return data.get("topic", "unknown"), len(data.get("findings") or [])
     return None

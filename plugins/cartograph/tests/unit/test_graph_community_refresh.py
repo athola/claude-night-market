@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -96,7 +98,10 @@ class TestCommunityRefreshHook:
 
     @pytest.mark.unit
     def test_a_realistic_success_payload_is_not_discarded(
-        self, gauntlet_dir: Path, graph_with_data: GraphStore
+        self,
+        gauntlet_dir: Path,
+        graph_with_data: GraphStore,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """A payload in the harness's real shape must reach the refresh.
 
@@ -107,22 +112,22 @@ class TestCommunityRefreshHook:
         case is what discriminates, because the negative case held whether
         the hook worked or not.
         """
-        with patch(
-            "graph_community_refresh._find_graph_db",
-            return_value=gauntlet_dir / "graph.db",
-        ):
-            result = main(
-                {
-                    "tool_name": "Bash",
-                    "tool_input": {"command": "python3 scripts/graph_build.py ."},
-                    "tool_response": _bash_response(""),
-                }
-            )
+        monkeypatch.chdir(gauntlet_dir.parent)
+        result = main(
+            {
+                "tool_name": "Bash",
+                "tool_input": {"command": "python3 scripts/graph_build.py ."},
+                "tool_response": _bash_response(""),
+            }
+        )
         assert result is not None
 
     @pytest.mark.unit
     def test_returns_context_on_success(
-        self, gauntlet_dir: Path, graph_with_data: GraphStore
+        self,
+        gauntlet_dir: Path,
+        graph_with_data: GraphStore,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """
         Scenario: graph_build.py succeeds and graph.db exists
@@ -130,20 +135,19 @@ class TestCommunityRefreshHook:
         When graph_build.py completes successfully
         Then community detection runs and returns context
         """
-        with patch(
-            "graph_community_refresh._find_graph_db",
-            return_value=gauntlet_dir / "graph.db",
-        ):
-            result = main(
-                {
-                    "tool_name": "Bash",
-                    "tool_input": {"command": "python3 scripts/graph_build.py ."},
-                    "tool_response": _bash_response("{}"),
-                }
-            )
+        monkeypatch.chdir(gauntlet_dir.parent)
+        result = main(
+            {
+                "tool_name": "Bash",
+                "tool_input": {"command": "python3 scripts/graph_build.py ."},
+                "tool_response": _bash_response("{}"),
+            }
+        )
         assert result is not None
-        assert "Communities refreshed" in result["additionalContext"]
-        assert "clusters" in result["additionalContext"]
+        hook_output = result["hookSpecificOutput"]
+        assert hook_output["hookEventName"] == "PostToolUse"
+        assert "Communities refreshed" in hook_output["additionalContext"]
+        assert "clusters" in hook_output["additionalContext"]
 
     @pytest.mark.unit
     def test_ignores_non_bash_tools(self) -> None:
@@ -158,25 +162,174 @@ class TestCommunityRefreshHook:
 
     @pytest.mark.unit
     def test_exception_returns_none_and_logs(
-        self, capsys: pytest.CaptureFixture[str]
+        self,
+        gauntlet_dir: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
     ) -> None:
         """
         Scenario: Community detection raises an exception
-        Given graph_build.py succeeds but graph.db is missing
+        Given graph_build.py succeeds but graph.db cannot be opened
         When community detection fails
         Then None is returned and error is logged to stderr
         """
-        with patch(
-            "graph_community_refresh._find_graph_db",
-            return_value=Path("/nonexistent/graph.db"),
+        # A directory named graph.db passes the exists() walk but sqlite
+        # cannot open it, which is the real failure the handler guards.
+        (gauntlet_dir / "graph.db").mkdir()
+        monkeypatch.chdir(gauntlet_dir.parent)
+        result = main(
+            {
+                "tool_name": "Bash",
+                "tool_input": {"command": "python3 scripts/graph_build.py ."},
+                "tool_response": _bash_response("{}"),
+            }
+        )
+        assert result is None
+        captured = capsys.readouterr()
+        assert "community detection failed" in captured.err
+
+
+class TestGraphDiscovery:
+    """The hook finds graph.db by walking up from the working directory."""
+
+    @pytest.mark.unit
+    def test_returns_none_when_no_graph_db_above_cwd(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.chdir(tmp_path)
+        result = main(
+            {
+                "tool_name": "Bash",
+                "tool_input": {"command": "python3 scripts/graph_build.py ."},
+                "tool_response": _bash_response(""),
+            }
+        )
+        assert result is None
+
+    @pytest.mark.unit
+    def test_finds_graph_db_in_an_ancestor_directory(
+        self,
+        gauntlet_dir: Path,
+        graph_with_data: GraphStore,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        nested = gauntlet_dir.parent / "pkg" / "sub"
+        nested.mkdir(parents=True)
+        monkeypatch.chdir(nested)
+        result = main(
+            {
+                "tool_name": "Bash",
+                "tool_input": {"command": "python3 scripts/graph_build.py ."},
+                "tool_response": _bash_response(""),
+            }
+        )
+        assert result is not None
+        hook_output = result["hookSpecificOutput"]
+        assert hook_output["hookEventName"] == "PostToolUse"
+        assert "Communities refreshed" in hook_output["additionalContext"]
+
+    @pytest.mark.unit
+    def test_prefers_gauntlet_src_beside_the_graph_db(
+        self,
+        gauntlet_dir: Path,
+        graph_with_data: GraphStore,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A project that vendors gauntlet in ./src is put on sys.path first."""
+        local_src = gauntlet_dir.parent / "src"
+        (local_src / "gauntlet").mkdir(parents=True)
+        monkeypatch.setattr(sys, "path", list(sys.path))
+        monkeypatch.chdir(gauntlet_dir.parent)
+        main(
+            {
+                "tool_name": "Bash",
+                "tool_input": {"command": "python3 scripts/graph_build.py ."},
+                "tool_response": _bash_response(""),
+            }
+        )
+        assert sys.path[0] == str(local_src)
+
+
+class TestScriptEntryPoint:
+    """Run as the harness runs it: JSON on stdin, JSON or nothing on stdout."""
+
+    _SCRIPT = _HOOKS_DIR / "graph_community_refresh.py"
+
+    def _run(self, stdin: str, cwd: Path) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [sys.executable, str(self._SCRIPT)],
+            input=stdin,
+            capture_output=True,
+            text=True,
+            cwd=cwd,
+            check=False,
+            timeout=30,
+        )
+
+    @pytest.mark.unit
+    def test_malformed_stdin_exits_zero_with_no_output(self, tmp_path: Path) -> None:
+        proc = self._run("not json", tmp_path)
+        assert proc.returncode == 0
+        assert proc.stdout == ""
+
+    @pytest.mark.unit
+    def test_non_object_payload_is_logged_and_not_raised(self, tmp_path: Path) -> None:
+        """A JSON list makes main() raise; the entry point logs it and exits 0."""
+        proc = self._run("[]", tmp_path)
+        assert proc.returncode == 0
+        assert proc.stdout == ""
+        assert proc.stderr.startswith("graph_community_refresh: ")
+
+    @pytest.mark.unit
+    def test_context_is_printed_as_json(
+        self, gauntlet_dir: Path, graph_with_data: GraphStore
+    ) -> None:
+        payload = json.dumps(
+            {
+                "tool_name": "Bash",
+                "tool_input": {"command": "python3 scripts/graph_build.py ."},
+                "tool_response": _bash_response(""),
+            }
+        )
+        proc = self._run(payload, gauntlet_dir.parent)
+        assert proc.returncode == 0
+        hook_output = json.loads(proc.stdout)["hookSpecificOutput"]
+        assert hook_output["hookEventName"] == "PostToolUse"
+        assert "Communities refreshed" in hook_output["additionalContext"]
+
+
+class TestGraphStoreIsAlwaysClosed:
+    """A failing detector must not leak the open sqlite connection."""
+
+    @pytest.mark.unit
+    def test_store_is_closed_when_community_detection_raises(
+        self,
+        gauntlet_dir: Path,
+        graph_with_data: GraphStore,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        closed: list[bool] = []
+        real_close = GraphStore.close
+
+        def recording_close(self: GraphStore) -> None:
+            closed.append(True)
+            real_close(self)
+
+        monkeypatch.chdir(gauntlet_dir.parent)
+        with (
+            patch(
+                "gauntlet.communities.detect_communities",
+                side_effect=RuntimeError("boom"),
+            ),
+            patch.object(GraphStore, "close", recording_close),
         ):
             result = main(
                 {
                     "tool_name": "Bash",
                     "tool_input": {"command": "python3 scripts/graph_build.py ."},
-                    "tool_response": _bash_response("{}"),
+                    "tool_response": _bash_response(""),
                 }
             )
+
         assert result is None
-        captured = capsys.readouterr()
-        assert "community detection failed" in captured.err
+        assert closed == [True]

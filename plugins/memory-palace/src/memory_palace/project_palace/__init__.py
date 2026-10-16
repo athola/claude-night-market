@@ -17,7 +17,7 @@ Public API preserved verbatim from the prior 823-line
 
 from __future__ import annotations
 
-from .capture import _classify_finding, capture_pr_review_knowledge
+from .capture import capture_pr_review_knowledge
 from .entry import ReviewEntry
 from .manager import ProjectPalaceManager
 from .rooms import (
@@ -36,6 +36,5 @@ __all__ = [
     "ReviewSubroom",
     "RoomType",
     "SortBy",
-    "_classify_finding",
     "capture_pr_review_knowledge",
 ]

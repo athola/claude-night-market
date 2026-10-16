@@ -18,6 +18,7 @@ import argparse
 import bisect
 import hashlib
 import json
+import os
 import re
 import sys
 from collections import defaultdict
@@ -103,6 +104,11 @@ def hash_block(lines: list[str], lang: str) -> str:
     return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()
 
 
+def _report_unreadable(filepath: Path, exc: OSError) -> None:
+    """Name a file the scan skipped, so "no duplicates" is not read as clean."""
+    print(f"detect_duplicates: skipped unreadable {filepath}: {exc}", file=sys.stderr)
+
+
 def extract_blocks(
     filepath: Path, min_lines: int = 5, content: str | None = None
 ) -> list[tuple[str, int, int, str]]:
@@ -119,7 +125,8 @@ def extract_blocks(
     if content is None:
         try:
             content = filepath.read_text(encoding="utf-8", errors="ignore")
-        except (OSError, UnicodeDecodeError):
+        except OSError as exc:
+            _report_unreadable(filepath, exc)
             return []
 
     lines = content.splitlines()
@@ -146,6 +153,86 @@ def extract_blocks(
     return blocks
 
 
+CODE_EXTENSIONS = frozenset(
+    {
+        ".py",
+        ".js",
+        ".ts",
+        ".jsx",
+        ".tsx",
+        ".java",
+        ".c",
+        ".cpp",
+        ".h",
+        ".go",
+        ".rs",
+        ".rb",
+        ".php",
+    }
+)
+
+# Directories that hold build output, caches or vendored packages.
+EXCLUDED_DIRS = frozenset(
+    {
+        "__pycache__",
+        "node_modules",
+        ".git",
+        ".venv",
+        "venv",
+        "dist",
+        "build",
+        ".tox",
+        ".pytest_cache",
+        ".mypy_cache",
+    }
+)
+
+
+def _collect_files(
+    paths: list[Path], extensions: set[str] | frozenset[str]
+) -> list[Path]:
+    """Source files under ``paths`` with a wanted suffix, caches excluded."""
+    files: list[Path] = []
+    for path in paths:
+        if path.is_file():
+            if path.suffix.lower() in extensions:
+                files.append(path)
+        elif path.is_dir():
+            # Prune excluded dirs during the walk: rglob descends into
+            # node_modules and .git before the filter below drops them.
+            for dirpath, dirnames, filenames in os.walk(path):
+                dirnames[:] = [d for d in dirnames if d not in EXCLUDED_DIRS]
+                files.extend(
+                    f
+                    for f in (Path(dirpath, name) for name in filenames)
+                    if f.suffix.lower() in extensions and f.is_file()
+                )
+    return [f for f in files if not any(excl in f.parts for excl in EXCLUDED_DIRS)]
+
+
+def _drop_overlaps(
+    locations: list[tuple[Path, int, int, str]],
+    seen_by_file: dict[str, list[tuple[int, int]]],
+) -> list[tuple[Path, int, int, str]]:
+    """Keep locations that overlap no range already reported in their file.
+
+    ``seen_by_file`` holds each file's reported ranges sorted by start and
+    is updated with every location kept.
+    """
+    unique: list[tuple[Path, int, int, str]] = []
+    for filepath, start, end, content in locations:
+        seen = seen_by_file[str(filepath)]
+        idx = bisect.bisect_right(seen, (start,))
+        overlaps = any(
+            start <= seen[i][1] and end >= seen[i][0]
+            for i in range(max(0, idx - 1), min(len(seen), idx + 2))
+        )
+        if not overlaps:
+            unique.append((filepath, start, end, content))
+            bisect.insort(seen, (start, end))
+    return unique
+
+
 def find_duplicates(
     paths: list[Path],
     min_lines: int = 5,
@@ -159,113 +246,50 @@ def find_duplicates(
         extensions: File extensions to include (None = all code files)
 
     """
-    if extensions is None:
-        extensions = {
-            ".py",
-            ".js",
-            ".ts",
-            ".jsx",
-            ".tsx",
-            ".java",
-            ".c",
-            ".cpp",
-            ".h",
-            ".go",
-            ".rs",
-            ".rb",
-            ".php",
-        }
+    files = _collect_files(paths, CODE_EXTENSIONS if extensions is None else extensions)
 
-    # Collect all files (single walk per directory; filter by suffix)
-    files: list[Path] = []
-    for path in paths:
-        if path.is_file():
-            if path.suffix.lower() in extensions:
-                files.append(path)
-        elif path.is_dir():
-            files.extend(
-                f
-                for f in path.rglob("*")
-                if f.is_file() and f.suffix.lower() in extensions
-            )
-
-    # Exclude common non-source directories
-    exclude_patterns = {
-        "__pycache__",
-        "node_modules",
-        ".git",
-        ".venv",
-        "venv",
-        "dist",
-        "build",
-        ".tox",
-        ".pytest_cache",
-        ".mypy_cache",
-    }
-    files = [f for f in files if not any(excl in f.parts for excl in exclude_patterns)]
-
-    # Hash all blocks
     hash_to_locations: dict[str, list[tuple[Path, int, int, str]]] = defaultdict(list)
     total_lines = 0
-
     for filepath in files:
         try:
             file_content = filepath.read_text(encoding="utf-8", errors="ignore")
-        except (OSError, UnicodeDecodeError):
+        except OSError as exc:
+            _report_unreadable(filepath, exc)
             continue
-
-        lines = file_content.splitlines()
-        total_lines += len(lines)
-
-        blocks = extract_blocks(filepath, min_lines, content=file_content)
-        for block_hash, start, end, content in blocks:
+        total_lines += len(file_content.splitlines())
+        for block_hash, start, end, content in extract_blocks(
+            filepath, min_lines, content=file_content
+        ):
             hash_to_locations[block_hash].append((filepath, start, end, content))
 
-    # Find duplicates (blocks appearing in multiple locations)
+    # A block counts once per location that does not overlap one already
+    # reported, so a sliding window over one long run is not a duplicate.
     duplicates: list[DuplicateBlock] = []
     seen_by_file: dict[str, list[tuple[int, int]]] = defaultdict(list)
-
     for block_hash, locations in hash_to_locations.items():
         if len(locations) < 2:
             continue
-
-        # Check for duplicates across different files OR distant in same file
-        unique_locations: list[tuple[Path, int, int, str]] = []
-        for filepath, start, end, content in locations:
-            # Skip if overlaps with already-reported range in same file
-            file_key = str(filepath)
-            seen = seen_by_file[file_key]
-            # Binary search for potential overlaps (seen is sorted by start)
-            idx = bisect.bisect_right(seen, (start,))
-            overlaps = False
-            for i in range(max(0, idx - 1), min(len(seen), idx + 2)):
-                s, e = seen[i]
-                if start <= e and end >= s:
-                    overlaps = True
-                    break
-            if not overlaps:
-                unique_locations.append((filepath, start, end, content))
-                bisect.insort(seen, (start, end))
-
+        unique_locations = _drop_overlaps(locations, seen_by_file)
         if len(unique_locations) >= 2:
-            dup = DuplicateBlock(
-                content=unique_locations[0][3],
-                locations=[(str(loc[0]), loc[1], loc[2]) for loc in unique_locations],
-                line_count=min_lines,
-                normalized_hash=block_hash,
+            duplicates.append(
+                DuplicateBlock(
+                    content=unique_locations[0][3],
+                    locations=[
+                        (str(loc[0]), loc[1], loc[2]) for loc in unique_locations
+                    ],
+                    line_count=min_lines,
+                    normalized_hash=block_hash,
+                )
             )
-            duplicates.append(dup)
 
-    # Calculate duplicate line count (approximate, avoids double-counting)
+    # Approximate, avoids double-counting.
     duplicate_lines = sum(
         dup.line_count * (dup.occurrence_count - 1) for dup in duplicates
     )
-
-    # Sort by occurrence count (most duplicated first)
     duplicates.sort(key=lambda d: d.occurrence_count, reverse=True)
 
     return DuplicateReport(
-        duplicates=duplicates[:50],  # Limit to top 50
+        duplicates=duplicates[:50],
         files_scanned=len(files),
         total_lines=total_lines,
         duplicate_lines=duplicate_lines,
@@ -294,7 +318,8 @@ def find_similar_functions(
             try:
                 content = filepath.read_text(encoding="utf-8", errors="ignore")
                 func_names.extend(func_pattern.findall(content))
-            except (OSError, UnicodeDecodeError):
+            except OSError as exc:
+                _report_unreadable(filepath, exc)
                 continue
 
     # Group by common prefixes/suffixes

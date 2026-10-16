@@ -110,7 +110,7 @@ class Configuration:
         """
         merged = {**self._config}
         for key, value in other._config.items():
-            if key in merged and isinstance(merged[key], dict):
+            if isinstance(value, dict) and isinstance(merged.get(key), dict):
                 merged[key] = {**merged[key], **value}
             else:
                 merged[key] = value

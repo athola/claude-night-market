@@ -140,8 +140,8 @@ Otherwise append one new section at the bottom of `tasks.md`:
 Appended by `/speckit-converge` on review of the current codebase against
 spec/plan/tasks. Complete with `/speckit-implement`.
 
-- [ ] T-NNN: <traceable task> <!-- gap: <requirement or SC or plan-point> -->
-- [ ] T-NNN: <traceable task> <!-- gap: <requirement or SC or plan-point> -->
+- [ ] TNNN <traceable task> <!-- gap: <requirement or SC or plan-point> -->
+- [ ] TNNN <traceable task> <!-- gap: <requirement or SC or plan-point> -->
 ```
 
 Rules for the appended section:

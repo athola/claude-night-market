@@ -156,10 +156,10 @@ class TestMainRetrySignaling:
                 return_value=tmp_path / "logs",
             ),
         ):
-            try:
+            with pytest.raises(SystemExit) as exit_info:
                 main()
-            except SystemExit:
-                pass
+            # A logging hook never blocks the tool path it observes.
+            assert exit_info.value.code == 0
 
         output = captured_stdout.getvalue().strip()
         assert json.loads(output) == {"retry": True}
@@ -197,10 +197,10 @@ class TestMainLogging:
                 return_value=tmp_path / "logs",
             ),
         ):
-            try:
+            with pytest.raises(SystemExit) as exit_info:
                 main()
-            except SystemExit:
-                pass
+            # A logging hook never blocks the tool path it observes.
+            assert exit_info.value.code == 0
 
         stderr_output = captured_stderr.getvalue()
         assert "[PermissionDenied]" in stderr_output
@@ -228,10 +228,10 @@ class TestMainLogging:
             patch("sys.stderr", StringIO()),
             patch("permission_denied_logger.log_dir", return_value=log_dir),
         ):
-            try:
+            with pytest.raises(SystemExit) as exit_info:
                 main()
-            except SystemExit:
-                pass
+            # A logging hook never blocks the tool path it observes.
+            assert exit_info.value.code == 0
 
         log_file = log_dir / "permission_denials.jsonl"
         assert log_file.exists()
@@ -263,10 +263,10 @@ class TestMainLogging:
                 patch("sys.stderr", StringIO()),
                 patch("permission_denied_logger.log_dir", return_value=log_dir),
             ):
-                try:
+                with pytest.raises(SystemExit) as exit_info:
                     main()
-                except SystemExit:
-                    pass
+                # A logging hook never blocks the tool path it observes.
+                assert exit_info.value.code == 0
 
         log_file = log_dir / "permission_denials.jsonl"
         lines = log_file.read_text().strip().split("\n")
@@ -336,10 +336,10 @@ class TestMainErrorHandling:
                 return_value=tmp_path / "logs",
             ),
         ):
-            try:
+            with pytest.raises(SystemExit) as exit_info:
                 main()
-            except SystemExit:
-                pass
+            # A logging hook never blocks the tool path it observes.
+            assert exit_info.value.code == 0
 
         assert "tool=unknown" in captured_stderr.getvalue()
 

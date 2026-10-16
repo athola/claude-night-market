@@ -73,6 +73,13 @@ class TestParseReset:
         got = window.parse_reset({"retry-after": "1800"}, "", now=NOW)
         assert got == NOW + timedelta(seconds=1800)
 
+    def test_a_retry_after_that_is_not_a_number_is_no_answer(self) -> None:
+        """Retry-after also comes as an HTTP date; unread, it is not a wait."""
+        got = window.parse_reset(
+            {"retry-after": "Wed, 21 Oct 2026 07:28:00 GMT"}, "", now=NOW
+        )
+        assert got is None
+
     def test_rfc3339_token_reset_header(self) -> None:
         got = window.parse_reset(
             {"anthropic-ratelimit-tokens-reset": "2026-08-23T05:30:00Z"}, "", now=NOW
@@ -349,6 +356,12 @@ class TestAResumePlanCannotDescribeAResumeNothingPerforms:
     def test_an_unknown_mechanism_is_refused(self) -> None:
         with pytest.raises(ValueError, match="unknown resume mechanism"):
             window.ResumePlan(mechanism="somehow", fire_at=None, cron=None, why="w")
+
+    def test_a_plan_that_does_not_say_why_is_refused(self) -> None:
+        with pytest.raises(ValueError, match="must say why"):
+            window.ResumePlan(
+                mechanism=window.WATCHDOG, fire_at=self.FIRE, cron=None, why=""
+            )
 
     def test_the_planner_declines_with_no_time_attached(self) -> None:
         """The branch the invariant exists for, reached through the planner."""

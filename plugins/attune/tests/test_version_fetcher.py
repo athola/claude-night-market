@@ -19,6 +19,23 @@ from version_fetcher import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _cold_version_caches():
+    """Each test starts with empty lru_caches.
+
+    The fetchers cache by argument for the whole process, so without this
+    a test that looks up an action another test already fetched reads the
+    earlier test's mocked answer and passes or fails by run order.
+    """
+    for fetcher in (
+        fetch_github_action_version,
+        fetch_pypi_latest_version,
+        fetch_npm_latest_version,
+    ):
+        fetcher.cache_clear()
+    yield
+
+
 @pytest.mark.unit
 class TestFetchGitHubActionVersion:
     """Test GitHub Action version fetching behavior."""
@@ -194,18 +211,28 @@ class TestGetLatestActionVersions:
         for version in versions.values():
             assert version == "v5"
 
-    @patch("version_fetcher.fetch_github_action_version")
-    def test_get_latest_action_versions_respects_cache_parameter(self, mock_fetch):
-        """Given use_cache=False, when getting latest versions, then clears cache."""
+    @patch("urllib.request.urlopen")
+    def test_get_latest_action_versions_refetches_when_cache_disabled(
+        self, mock_urlopen
+    ):
+        """Given a warm cache, use_cache=False goes back to the network."""
         # Given
-        mock_fetch.return_value = "v4"
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps({"tag_name": "v9.0.0"}).encode()
+        mock_response.__enter__.return_value = mock_response
+        mock_urlopen.return_value = mock_response
+        actions = len(get_default_action_versions())
 
         # When
-        get_latest_action_versions(use_cache=False)
+        get_latest_action_versions()
+        get_latest_action_versions()
+        calls_with_cache = mock_urlopen.call_count
+        versions = get_latest_action_versions(use_cache=False)
 
         # Then
-        # Cache should be cleared and fetch called
-        assert mock_fetch.called
+        assert calls_with_cache == actions
+        assert mock_urlopen.call_count == 2 * actions
+        assert set(versions.values()) == {"v9"}
 
 
 @pytest.mark.unit

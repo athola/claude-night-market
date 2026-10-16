@@ -63,7 +63,10 @@ MAX_CONTINUATIONS = 10
 #: a typo can never silently disable the runaway-loop guard.
 MAX_CONTINUATIONS_ENV = "DOUBLE_SHOT_LATTE_MAX_CONTINUATIONS"
 
-#: Sliding window, in seconds, over which MAX_CONTINUATIONS is counted.
+#: Inactivity window, in seconds: the CONTINUE count resets once this long
+#: passes with no CONTINUE. It is not a sliding window. A loop continuing every
+#: 120 s would never hold MAX_CONTINUATIONS inside a sliding 300 s window, so
+#: it would never be stopped; counting until a quiet gap does stop it.
 THROTTLE_WINDOW_SECONDS = 300
 
 #: Filename prefix for per-session throttle state in the temp dir. Shared by
@@ -410,7 +413,9 @@ def _llm_second_shot(text: str) -> tuple[bool, str] | None:
             payload = json.loads(payload["result"])
         should = bool(payload["should_continue"])
         reason = str(payload.get("reasoning", "LLM second shot"))
-    except (json.JSONDecodeError, KeyError, ValueError, TypeError):
+    except (json.JSONDecodeError, KeyError, ValueError, TypeError, AttributeError):
+        # AttributeError: valid JSON that is not an object (a list, a number)
+        # has no .get, and must fall back like any other malformed reply.
         return None
     return should, f"LLM second shot: {reason}"
 

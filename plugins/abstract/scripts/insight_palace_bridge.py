@@ -14,14 +14,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from _vendored_leyline_sibling_plugins import sibling_plugin_dir
 from insight_types import Finding, finding_hash
 
 # ---------------------------------------------------------------------------
 # Memory-palace shared module imports (soft dependency)
 # ---------------------------------------------------------------------------
-_palace_hooks = (
-    Path(__file__).resolve().parents[2] / "memory-palace" / "hooks" / "shared"
+# Beside this plugin in the repo, or the newest install in the plugin cache.
+_PALACE_ROOT = (
+    sibling_plugin_dir(__file__, "memory-palace")
+    or Path(__file__).resolve().parents[2] / "memory-palace"
 )
+_palace_hooks = _PALACE_ROOT / "hooks" / "shared"
 if _palace_hooks.is_dir() and str(_palace_hooks) not in sys.path:
     sys.path.insert(0, str(_palace_hooks))
 
@@ -38,9 +42,7 @@ except ImportError:
     _HAS_PALACE = False
 
 # Palace staging directory
-_PALACE_STAGING = (
-    Path(__file__).resolve().parents[2] / "memory-palace" / "data" / "staging"
-)
+_PALACE_STAGING = _PALACE_ROOT / "data" / "staging"
 
 # Severity-to-score mapping (from project brief)
 _SEVERITY_SCORES: dict[str, int] = {

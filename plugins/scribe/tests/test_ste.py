@@ -789,3 +789,56 @@ def test_a_singular_label_still_reads_the_instruction_after_it(text):
 def test_the_enumeration_after_a_plural_label_gets_the_looser_limit():
     """End to end: the book-publishing item stops reporting."""
     assert check_sentence_length(TRIGGERS_ITEM) == []
+
+
+# ---------------------------------------------------------------------------
+# Abbreviation guard must match whole abbreviations only and leave the
+# author's casing alone.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("text", "first"),
+    [
+        ("Run the test. Check the output.", "Run the test."),
+        ("Add the items. Remove them.", "Add the items."),
+        ("Read the first. Then stop.", "Read the first."),
+        ("Visit Costco. Buy milk.", "Visit Costco."),
+    ],
+)
+def test_split_sentences_ends_a_sentence_on_a_word_that_merely_ends_like_an_abbreviation(
+    text, first
+):
+    """``test.`` ends in ``est.``, ``items.`` in ``ms.``, ``first.`` in ``st.``."""
+    sentences = split_sentences(text)
+
+    assert len(sentences) == 2
+    assert sentences[0].text == first
+
+
+def test_split_sentences_does_not_recase_a_protected_abbreviation():
+    """A lowercase ``vs.`` must not come back as the table's ``vs.`` spelling."""
+    assert split_sentences("Compare the VS. Then stop.")[0].text == (
+        "Compare the VS. Then stop."
+    )
+
+
+def test_main_reports_a_non_utf8_file_as_unreadable_instead_of_crashing(
+    tmp_path, capsys
+):
+    """The CLI promises exit 1 for a file it cannot read."""
+    binary = tmp_path / "blob.md"
+    binary.write_bytes(b"\xff\xfe\x00 not utf-8")
+
+    assert main([str(binary)]) == 1
+    assert "blob.md" in capsys.readouterr().err
+
+
+def test_sentence_length_finding_names_the_line_the_sentence_starts_on():
+    """A wrapped paragraph is one block, but each sentence has its own line."""
+    long_sentence = " ".join(["word"] * 30) + "."
+    text = f"Short one here.\nAnother short one.\n{long_sentence}\n"
+
+    findings = check_sentence_length(text)
+
+    assert [f.line for f in findings] == [3]

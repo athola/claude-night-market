@@ -6,6 +6,7 @@ Uses core functionality from src/abstract/skills_eval.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from cli_scaffold import create_parser, format_result, setup_src_path, write_output
@@ -37,4 +38,5 @@ if __name__ == "__main__":
         fmt=args.format,
         text_fn=lambda _: checker.generate_report(),
     )
-    write_output(output, args.output)
+    if not write_output(output, args.output):
+        sys.exit(1)

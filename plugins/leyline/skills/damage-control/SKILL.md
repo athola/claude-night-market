@@ -154,12 +154,12 @@ the next work phase begins.
 
 ## Exit Criteria
 
-- Agent state is unambiguously known (no unknown partial writes)
-- Git index is clean or all conflicts are resolved
-- Task list reflects actual completion status of all tasks
-- All artifacts expected by downstream agents are present and
+- [ ] Agent state is unambiguously known (no unknown partial writes)
+- [ ] Git index is clean or all conflicts are resolved
+- [ ] Task list reflects actual completion status of all tasks
+- [ ] All artifacts expected by downstream agents are present and
   verified
-- If rollback was taken, the rollback is committed and the
+- [ ] If rollback was taken, the rollback is committed and the
   reverted scope is documented in the task list
-- If escalation to human review was required, the escalation
+- [ ] If escalation to human review was required, the escalation
   record exists before the session closes

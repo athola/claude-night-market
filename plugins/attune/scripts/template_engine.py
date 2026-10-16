@@ -55,6 +55,16 @@ class TemplateEngine:
         output_path.write_text(rendered)
 
 
+def python_module_name(project_name: str) -> str:
+    """Turn a project name into a Python import name: my.app becomes my_app.
+
+    Every non-identifier character becomes an underscore, and a leading
+    digit gets an underscore prefix, so the result always imports.
+    """
+    module = re.sub(r"\W", "_", project_name).lower()
+    return f"_{module}" if module[:1].isdigit() else module
+
+
 def get_default_variables(  # noqa: PLR0913 - template variables need all defaults
     project_name: str,
     *,
@@ -86,8 +96,7 @@ def get_default_variables(  # noqa: PLR0913 - template variables need all defaul
         Dictionary of template variables
 
     """
-    # Convert project-name to project_name for module name
-    module_name = project_name.replace("-", "_").replace(" ", "_").lower()
+    module_name = python_module_name(project_name)
 
     # Short python version (e.g., "310" from "3.10")
     python_short = python_version.replace(".", "")

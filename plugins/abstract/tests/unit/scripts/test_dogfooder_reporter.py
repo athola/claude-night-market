@@ -730,11 +730,14 @@ class TestAnalyzeAllVerboseNoReadme:
     """
 
     @pytest.mark.unit
-    def test_verbose_skips_no_readme_plugin(self, tmp_path: Path) -> None:
+    def test_verbose_skips_no_readme_plugin(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
         """Scenario: Plugin without README does not crash verbose output
         Given a plugin directory without a README.md
         When analyze_all() is called with verbose=True
-        Then no KeyError is raised
+        Then no KeyError is raised, the plugin is counted, and no
+        per-plugin verbose block is printed for it
         """
         plugin_dir = tmp_path / "plugins" / "no-readme"
         plugin_dir.mkdir(parents=True)
@@ -743,7 +746,9 @@ class TestAnalyzeAllVerboseNoReadme:
         # Should not raise KeyError
         report = dogfooder.analyze_all()
 
-        assert isinstance(report, dict)
+        assert report["plugins_analyzed"] == 1
+        assert report["findings"] == []
+        assert "no-readme:" not in capsys.readouterr().out
 
 
 class TestAnalyzeAllVerbose:

@@ -105,3 +105,5 @@ def test_keyword_search_still_works_without_embeddings(corpus_dir, index_dir) ->
     # Query uses terms present in the konmari entry's keyword index
     results = lookup.search("konmari knowledge tidying", mode="unified")
     assert results
+    assert results[0]["entry_id"] == "konmari"
+    assert results[0]["source"] == "keywords"

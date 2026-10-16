@@ -109,11 +109,11 @@ dependencies: [leyline:pytest-config, leyline:testing-quality-standards]
 
 ## Exit Criteria
 
-- pytest configuration standardized across plugins
-- conftest.py provides reusable fixtures
-- test markers defined and documented
-- coverage configuration enforces quality thresholds
-- CI/CD integration configured for automated testing
+- [ ] pytest configuration standardized across plugins
+- [ ] conftest.py provides reusable fixtures
+- [ ] test markers defined and documented
+- [ ] coverage configuration enforces quality thresholds
+- [ ] CI/CD integration configured for automated testing
 ## Troubleshooting
 
 ### Common Issues

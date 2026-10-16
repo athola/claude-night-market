@@ -75,6 +75,12 @@ class ComplianceCLI(AbstractCLI):
         checker = ComplianceChecker(args.directory, args.rules_file)
         return _run(self, checker.check_compliance)
 
+    def exit_code(self, result: CLIResult, args: argparse.Namespace) -> int:
+        """Fail a non-compliant report so the command can gate CI."""
+        if result.success and not (result.data or {}).get("compliant"):
+            return 1
+        return super().exit_code(result, args)
+
     def format_text(self, data: dict) -> str:
         """Format compliance results as text."""
         lines = ["Compliance Report", "=" * 50]
@@ -127,7 +133,7 @@ class AuditCLI(AbstractCLI):
             "--min-score",
             type=float,
             default=0.0,
-            help="Minimum score threshold (0-100)",
+            help="Exit 1 when any skill scores below this (0-100)",
         )
 
     def execute(self, args: argparse.Namespace) -> CLIResult:
@@ -135,18 +141,29 @@ class AuditCLI(AbstractCLI):
         auditor = SkillsAuditor(args.directory)
         return _run(self, auditor.audit_skills)
 
+    def exit_code(self, result: CLIResult, args: argparse.Namespace) -> int:
+        """Fail when any skill scores below --min-score, or none were scored."""
+        data = result.data or {}
+        if result.success and args.min_score > 0 and not data.get("skill_metrics"):
+            return 1
+        if result.success and any(
+            m.score < args.min_score
+            for m in (result.data or {}).get("skill_metrics", [])
+        ):
+            return 1
+        return super().exit_code(result, args)
+
     def format_text(self, data: dict) -> str:
         """Format audit results as text."""
         lines = ["Skills Audit Report", "=" * 50]
 
-        if "skills" in data:
-            for skill in data["skills"]:
-                lines.append(f"\n{skill.get('name', 'Unknown')}:")
-                lines.append(f"  Score: {skill.get('score', 0):.1f}")
-                if skill.get("issues"):
-                    lines.append("  Issues:")
-                    for issue in skill["issues"]:
-                        lines.append(f"    - {issue}")
+        for skill in data.get("skill_metrics", []):
+            lines.append(f"\n{skill.name}:")
+            lines.append(f"  Score: {skill.score:.1f}")
+            if skill.issues:
+                lines.append("  Issues:")
+                for issue in skill.issues:
+                    lines.append(f"    - {issue}")
 
         lines.append(f"\nTotal skills: {data.get('total_skills', 0)}")
         lines.append(f"Average score: {data.get('average_score', 0):.1f}")
@@ -177,11 +194,6 @@ class SuggestCLI(AbstractCLI):
             "-o",
             type=Path,
             help="Output file path",
-        )
-        parser.add_argument(
-            "--priority",
-            choices=["critical", "high", "medium", "low"],
-            help="Filter by minimum priority",
         )
 
     def execute(self, args: argparse.Namespace) -> CLIResult:
@@ -252,20 +264,24 @@ class TokenCLI(AbstractCLI):
     def execute(self, args: argparse.Namespace) -> CLIResult:
         """Execute token usage tracking."""
         tracker = TokenUsageTracker(args.path)
-        return _run(self, tracker.analyze_all_skills)
+        return _run(
+            self,
+            lambda: {**tracker.analyze_all_skills(), "threshold": args.threshold},
+        )
 
     def format_text(self, data: dict) -> str:
         """Format token analysis as text."""
         lines = ["Token Usage Analysis", "=" * 50]
 
-        if "files" in data:
-            for file_info in data["files"]:
-                status = "OK" if file_info.get("under_threshold") else "OVER"
-                lines.append(f"\n{file_info.get('path', 'Unknown')}:")
-                lines.append(f"  Tokens: {file_info.get('token_count', 0)} [{status}]")
+        threshold = data["threshold"]
+        for skill in data["skills"]:
+            tokens = skill["total_tokens"]
+            status = "OK" if tokens <= threshold else "OVER"
+            lines.append(f"\n{skill['name']}:")
+            lines.append(f"  Tokens: {tokens} [{status}]")
 
-        lines.append(f"\nTotal tokens: {data.get('total_tokens', 0)}")
-        lines.append(f"Files analyzed: {data.get('file_count', 0)}")
+        lines.append(f"\nTotal tokens: {data['summary']['total_tokens']}")
+        lines.append(f"Files analyzed: {data['total_skills']}")
 
         return "\n".join(lines)
 
@@ -328,7 +344,12 @@ def _add_audit_subparser(subparsers: argparse._SubParsersAction) -> None:
     audit = subparsers.add_parser("audit", help="Audit skills")
     audit.add_argument("directory", type=Path, help="Directory to audit")
     audit.add_argument("--output", "-o", type=Path, help="Output file")
-    audit.add_argument("--min-score", type=float, default=0.0, help="Minimum score")
+    audit.add_argument(
+        "--min-score",
+        type=float,
+        default=0.0,
+        help="Exit 1 when any skill scores below this",
+    )
     audit.add_argument(
         "--format",
         "-f",
@@ -343,11 +364,6 @@ def _add_suggest_subparser(subparsers: argparse._SubParsersAction) -> None:
     suggest = subparsers.add_parser("suggest", help="Generate improvement suggestions")
     suggest.add_argument("skill_path", type=Path, help="Path to skill")
     suggest.add_argument("--output", "-o", type=Path, help="Output file")
-    suggest.add_argument(
-        "--priority",
-        choices=["critical", "high", "medium", "low"],
-        help="Filter by priority",
-    )
     suggest.add_argument(
         "--format",
         "-f",

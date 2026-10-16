@@ -28,6 +28,7 @@ from attune_init import (
 )
 from project_detector import ProjectDetector
 from template_customizer import TemplateCustomizer
+from template_engine import python_module_name
 
 
 def _select_from_menu(
@@ -224,7 +225,7 @@ def present_recommendation(recommendation: ArchitectureRecommendation) -> bool:
         print("\n🔄 Alternatives Considered:")
         for alt in recommendation.alternatives[:3]:
             print(
-                f"  - **{alt['paradigm'].replace('-', ' ').title()}**: {alt['reason']}"
+                f"  - **{alt['paradigm'].replace('-', ' ').title()}**: {alt['rationale']}"
             )
 
     print("\n" + "=" * 60)
@@ -572,8 +573,12 @@ def main() -> None:
     print("\n" + "=" * 60)
     print("🏗️  Customizing Templates")
     print("=" * 60)
+    # (paradigm, module, language): passing (language, project_name) as the
+    # last two put the language where the module name belongs.
     customizer = TemplateCustomizer(
-        recommendation.primary, context.language, project_name
+        recommendation.primary,
+        python_module_name(project_name),
+        context.language,
     )
     print(f"\nArchitecture: {customizer.get_paradigm_description()}")
 

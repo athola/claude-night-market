@@ -396,8 +396,10 @@ class TestErrorHandling:
         # When
         result = run_hook(hook_path, env)
 
-        # Then
+        # Then: unparseable input degrades to the unknown skill, still tracked
         assert result["returncode"] == 0, "Should exit gracefully"
+        output = json.loads(result["stdout"])
+        assert output["hookSpecificOutput"]["skill"] == "unknown:unknown"
 
     def test_should_exit_gracefully_with_exception(
         self, pre_skill_env: dict[str, str], tmp_path: Path
@@ -408,18 +410,24 @@ class TestErrorHandling:
         When: The exception is raised
         Then: It should exit with code 0 and write to stderr
         """
-        # Given - Use invalid CLAUDE_HOME to trigger error
+        # Given - CLAUDE_HOME is a regular file, so the state dir cannot be
+        # created. A path like /invalid relied on a read-only root, which a
+        # root-run Linux container does not have.
         hook_path = _PLUGIN_ROOT / "hooks" / "pre_skill_execution.py"
+        home_file = tmp_path / "not-a-dir"
+        home_file.write_text("")
         env = {
             **pre_skill_env,
-            "CLAUDE_HOME": "/invalid/path/that/does/not/exist",
+            "CLAUDE_HOME": str(home_file),
         }
 
         # When
         result = run_hook(hook_path, env)
 
-        # Then - should still exit 0 (never block Claude)
+        # Then - exit 0 (never block Claude), no verdict, labelled stderr
         assert result["returncode"] == 0
+        assert result["stdout"] == ""
+        assert "pre_skill_execution error:" in result["stderr"]
 
 
 class TestToolFiltering:

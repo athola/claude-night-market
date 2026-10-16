@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import subprocess
+import warnings
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -15,12 +16,30 @@ from typing import Any
 
 import anthropic
 
-from phantom.cost import CostTracker, estimate_screenshot_tokens
+from phantom.cost import CostTracker
 from phantom.display import ActionResult, DisplayConfig, DisplayToolkit
 from phantom.safety import ActionFilter, ConfirmationGate, no_confirm
 from phantom.stuck import ScreenshotTracker, StuckPolicy
 
 logger = logging.getLogger(__name__)
+
+__all__ = ["LoopConfig", "LoopHooks", "LoopResult", "LoopSetup", "run_loop"]
+
+_DEPRECATED_PLUMBING_NAMES = ("ClientSetup", "IterationConfig", "IterationContext")
+
+
+def __getattr__(name: str) -> Any:
+    """Keep the pre-underscore plumbing names importable, with a warning."""
+    if name in _DEPRECATED_PLUMBING_NAMES:
+        warnings.warn(
+            f"phantom.loop.{name} is internal and will be removed; "
+            "use run_loop and the names in phantom.loop.__all__",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return globals()[f"_{name}"]
+    msg = f"module {__name__!r} has no attribute {name!r}"
+    raise AttributeError(msg)
 
 
 def _extract_screenshot_b64(tool_result: dict) -> str | None:
@@ -178,7 +197,7 @@ class LoopSetup:
 
 
 @dataclass
-class ClientSetup:
+class _ClientSetup:
     """Anthropic client and per-run tool wiring."""
 
     client: Any
@@ -187,10 +206,10 @@ class ClientSetup:
 
 
 @dataclass(frozen=True)
-class IterationConfig:
+class _IterationConfig:
     """Immutable configuration shared across a run's iterations.
 
-    Kept separate from the mutable trackers in ``IterationContext`` so the
+    Kept separate from the mutable trackers in ``_IterationContext`` so the
     two concerns no longer share one bag: only ``_process_iteration`` reads
     config, while ``_run_tool_block`` touches trackers alone.
     """
@@ -200,7 +219,7 @@ class IterationConfig:
 
 
 @dataclass
-class IterationContext:
+class _IterationContext:
     """Mutable collaborators shared across a single agent-loop iteration."""
 
     cost_tracker: CostTracker
@@ -214,7 +233,7 @@ class IterationContext:
 
 def _run_tool_block(
     block: Any,
-    ctx: IterationContext,
+    ctx: _IterationContext,
     result: LoopResult,
 ) -> tuple[dict[str, Any] | None, bool]:
     """Process one block from the assistant response.
@@ -263,18 +282,18 @@ def _run_tool_block(
             if is_stuck:
                 logger.warning(
                     "Stuck detected: %d consecutive identical screenshots",
-                    ctx.screenshot_tracker.stuck_count,
+                    ctx.screenshot_tracker.identical_run,
                 )
-            if ctx.stuck_policy.should_abort(ctx.screenshot_tracker.stuck_count):
-                return tool_result, True
+                if ctx.stuck_policy.should_abort(ctx.screenshot_tracker.stuck_count):
+                    return tool_result, True
 
     return tool_result, False
 
 
 def _process_iteration(
-    cfg: IterationConfig,
-    ctx: IterationContext,
-    client_setup: ClientSetup,
+    cfg: _IterationConfig,
+    ctx: _IterationContext,
+    client_setup: _ClientSetup,
     messages: list[dict[str, Any]],
     result: LoopResult,
 ) -> str | None:
@@ -305,14 +324,12 @@ def _process_iteration(
 
     response = client_setup.client.beta.messages.create(**kwargs)
 
+    # input_tokens already counts the screenshots sent in this request,
+    # so no screenshot estimate is added on top of reported usage.
     usage = getattr(response, "usage", None)
     ctx.cost_tracker.record(
         input_tokens=getattr(usage, "input_tokens", 0) if usage else 0,
         output_tokens=getattr(usage, "output_tokens", 0) if usage else 0,
-        screenshot_tokens_est=estimate_screenshot_tokens(
-            cfg.display_config.width,
-            cfg.display_config.height,
-        ),
     )
 
     response_content = response.content
@@ -375,8 +392,8 @@ def run_loop(
     beta_flag = get_beta_flag(tool_version)
     tools = build_tools(config, d_config)
 
-    iter_config = IterationConfig(loop_config=config, display_config=d_config)
-    ctx = IterationContext(
+    iter_config = _IterationConfig(loop_config=config, display_config=d_config)
+    ctx = _IterationContext(
         cost_tracker=cost_tracker,
         action_filter=action_filter,
         gate=gate,
@@ -385,7 +402,7 @@ def run_loop(
         stuck_policy=stuck_policy,
         hooks=hooks,
     )
-    client_setup = ClientSetup(client=client, tools=tools, beta_flag=beta_flag)
+    client_setup = _ClientSetup(client=client, tools=tools, beta_flag=beta_flag)
 
     messages: list[dict[str, Any]] = [{"role": "user", "content": task}]
     result = LoopResult(stopped_reason="max_iterations")

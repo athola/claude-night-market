@@ -3,7 +3,6 @@ name: war-room-checkpoint
 description: Assesses decision reversibility and risk at critical checkpoints. Use when a workflow reaches a high-stakes branch needing escalation check.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model: sonnet
 category: strategic-planning
 tags: [checkpoint, embedded, escalation, reversibility, inline]
 dependencies:
@@ -92,14 +91,25 @@ Score each 1-5, calculate RS = Sum / 25.
 
 ### Step 3: Mode Selection
 
-Apply profile thresholds to determine mode:
+Apply profile thresholds, with any command adjustment, to determine
+mode. Compare in integer hundredths: in floats, the cautious express
+ceiling 0.30 with the do-issue adjustment -0.10 is
+0.19999999999999998, and an all-1s decision (RS = 0.2) would escalate.
 
 ```
-if RS <= profile.express_ceiling:
+# Inputs: score_sum (Step 2), profile (the profile table below), and
+# command_adjustment (Command-Specific Adjustments, 0 when none applies).
+rs_pct = 4 * score_sum  # RS * 100, exact for Sum / 25
+adjustment = command_adjustment
+
+def ceiling_pct(ceiling, adjustment):  # table values in hundredths
+    return round(ceiling * 100) + round(adjustment * 100)
+
+if rs_pct <= ceiling_pct(profile.express, adjustment):
     mode = "express"
-elif RS <= profile.lightweight_ceiling:
+elif rs_pct <= ceiling_pct(profile.lightweight, adjustment):
     mode = "lightweight"
-elif RS <= profile.full_council_ceiling:
+elif rs_pct <= ceiling_pct(profile.full_council, adjustment):
     mode = "full_council"
 else:
     mode = "delphi"

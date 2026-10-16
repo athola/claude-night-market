@@ -67,7 +67,7 @@ Retrieves issue content from the detected git platform (GitHub, GitLab, or Bitbu
 | 4. Quality | Code review gates between task batches | [quality-gates](modules/quality-gates.md) |
 | 5-6. Completion | Sequential tasks, final review, issue updates | [completion](modules/completion.md) |
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `do-issue:discovery-complete`
 2. `do-issue:tasks-planned`
@@ -132,7 +132,7 @@ fix_issue:
 
 ## Exit Criteria
 
-- [ ] All 6 required TodoWrite items (`do-issue:discovery-complete`
+- [ ] All 6 required progress items (`do-issue:discovery-complete`
       through `do-issue:issues-updated`) are created before execution
       starts and each marked complete when its phase finishes
 - [ ] Issue requirements fetched using the correct forge CLI (`gh` for

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import _ledger_utils
 import pytest
 from _ledger_utils import get_ledger_path
 
@@ -43,3 +44,20 @@ class TestGetLedgerPath:
         result = get_ledger_path()
         assert result.name == "deferred-items-session.json"
         assert ".claude" in str(result)
+
+
+class TestLedgerLockWithoutFlock:
+    """On a platform without fcntl the lock is a no-op, not an error."""
+
+    def test_lock_yields_and_creates_no_sidecar_without_fcntl(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        monkeypatch.setattr(_ledger_utils, "fcntl", None)
+        ledger = tmp_path / "state" / "ledger.json"
+        entered = []
+
+        with _ledger_utils.ledger_lock(ledger):
+            entered.append(True)
+
+        assert entered == [True]
+        assert not (tmp_path / "state").exists()

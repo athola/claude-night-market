@@ -33,17 +33,6 @@ script_dir() {
   (cd "${src:-/}" && pwd)
 }
 
-# Portable number extraction (works without grep -P)
-extract_stat_number() {
-  local stats="${1}"
-  local pattern="${2}"
-  if printf '%s\n' "test" | grep -oP '\d+' >/dev/null 2>&1; then
-    printf '%s\n' "${stats}" | grep -oP "\d+(?= ${pattern})" || printf '%s\n' "0"
-  else
-    printf '%s\n' "${stats}" | grep -oE "[0-9]+ ${pattern}" | sed 's/ .*//' || printf '%s\n' "0"
-  fi
-}
-
 # Portable hash: md5sum (Linux) or md5 (macOS)
 _hash_str() {
   if command -v md5sum >/dev/null 2>&1; then
@@ -75,7 +64,9 @@ main() {
     stdin_data=$(cat 2>/dev/null || true)
   fi
 
-  if printf '%s\n' "${stdin_data}" | grep -qiE "/(${MAINTENANCE_PATTERNS})" 2>/dev/null; then
+  # Only a prompt that starts with the command counts. A bare "/status"
+  # match also fired on paths like src/status_page.py.
+  if printf '%s\n' "${stdin_data}" | grep -qiE "\"prompt\"[[:space:]]*:[[:space:]]*\"[[:space:]]*/([a-z0-9-]+:)?(${MAINTENANCE_PATTERNS})([^a-z0-9-]|\$)" 2>/dev/null; then
     printf '%s\n' "${EMPTY_OUTPUT}"
     exit 0
   fi
@@ -128,7 +119,9 @@ main() {
   # --raw lines carry the status letter that says which files are new.
   # Two diffs cost two git start-ups, which is the whole budget here.
   lines_changed=0
-  diff_out=$(git diff "${base_branch}" --raw --numstat 2>/dev/null) || diff_out=""
+  # From the merge-base, not the base tip: commits that landed on the base
+  # after the fork are not this branch's work.
+  diff_out=$(git diff "${merge_base}" --raw --numstat 2>/dev/null) || diff_out=""
   if [ -n "${diff_out}" ]; then
     insertions=$(printf '%s\n' "${diff_out}" | awk -F'\t' '$0 !~ /^:/ && $1 ~ /^[0-9]+$/ { a += $1 } END { print a + 0 }')
     deletions=$(printf '%s\n' "${diff_out}" | awk -F'\t' '$0 !~ /^:/ && $2 ~ /^[0-9]+$/ { d += $2 } END { print d + 0 }')

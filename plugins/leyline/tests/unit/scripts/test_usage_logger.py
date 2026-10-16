@@ -248,7 +248,7 @@ class TestQueryMethods:
         The module still calls the deprecated ``datetime.utcnow``; these
         tests get the same naive reading without inheriting the warning,
         so the only DeprecationWarning in the run stays attributable to
-        the source (defect D-3).
+        the source.
         """
         return datetime.now(timezone.utc).replace(tzinfo=None)
 

@@ -104,7 +104,9 @@ def _analyze_improvement_memory(memory: Any) -> list[Finding]:
     if not effective and not failed:
         return findings
 
-    total = len(effective) + len(failed)
+    # Every recorded outcome is an attempt, not only the ones that cleared
+    # the effective bar or regressed.
+    total = sum(len(v) for v in memory.outcomes.values())
     rate = len(effective) / total if total else 0
 
     if rate < LOW_SUCCESS_RATE and total >= MIN_ATTEMPTS_FOR_RATE:
@@ -131,7 +133,7 @@ def _analyze_improvement_memory(memory: Any) -> list[Finding]:
 
     if failed and len(failed) >= MIN_FAILED_FOR_SUMMARY:
         # Summarize worst failures
-        worst = failed[:3]
+        worst = sorted(failed, key=lambda f: f.get("improvement", 0))[:3]
         lines = []
         for f in worst:
             summary = f.get("change_summary", "unknown")

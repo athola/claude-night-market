@@ -148,10 +148,10 @@ Verify that package-lock.json exists and that .npmrc does not set package-lock=f
             rule_template="""---
 name: block-any-type
 enabled: true
-event: file_write
+event: file
 conditions:
-  - field: path
-    operator: matches
+  - field: file_path
+    operator: regex_match
     pattern: '\\.tsx?$'
   - field: content
     operator: contains
@@ -207,10 +207,10 @@ Consider running `go mod tidy` before building to keep go.mod and go.sum consist
             rule_template="""---
 name: block-unsafe-import
 enabled: true
-event: file_write
+event: file
 conditions:
-  - field: path
-    operator: matches
+  - field: file_path
+    operator: regex_match
     pattern: '\\.go$'
   - field: content
     operator: contains
@@ -230,13 +230,13 @@ Blocked: Importing the `unsafe` package bypasses Go type safety. Justify usage w
             rule_template="""---
 name: block-clippy-bypass
 enabled: true
-event: file_write
+event: file
 conditions:
-  - field: path
-    operator: matches
+  - field: file_path
+    operator: regex_match
     pattern: '\\.rs$'
   - field: content
-    operator: matches
+    operator: regex_match
     pattern: '#\\[allow\\(clippy::'
 action: block
 ---
@@ -272,13 +272,13 @@ Consider running `cargo audit` to check for known vulnerabilities in your depend
             rule_template="""---
 name: block-unsafe-without-comment
 enabled: true
-event: file_write
+event: file
 conditions:
-  - field: path
-    operator: matches
+  - field: file_path
+    operator: regex_match
     pattern: '\\.rs$'
   - field: content
-    operator: matches
+    operator: regex_match
     pattern: 'unsafe \\{'
 action: block
 ---

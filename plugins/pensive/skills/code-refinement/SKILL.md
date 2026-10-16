@@ -114,7 +114,7 @@ Load modules based on refinement focus:
 
 Load all for thorough refinement. For focused work, load only relevant modules.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `refine:context-established`: Scope, language, framework detection
 2. `refine:scan-complete`: Findings across all dimensions
@@ -270,6 +270,6 @@ the verifier rejects.
 - [Code quality analysis](modules/code-quality-analysis.md) - duplication detection commands and consolidation strategies
 
 When optional plugins are not installed, the skill degrades gracefully:
-- Without `imbue`: Evidence captured inline, no TodoWrite proof-of-work
+- Without `imbue`: Evidence captured inline, no progress-item proof-of-work
 - Without `conserve`: Uses built-in clean code checks (subset)
 - Without `archetypes`: Skips paradigm-specific alignment, uses coupling/cohesion principles only

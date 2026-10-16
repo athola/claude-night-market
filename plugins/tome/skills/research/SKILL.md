@@ -105,7 +105,11 @@ Each agent prompt must include:
 1. The topic string
 2. The domain classification
 3. Any channel-specific context (subreddits for discourse,
-   triz_depth for triz)
+   triz_depth for triz). For triz, also run
+   `PYTHONPATH="${CLAUDE_PLUGIN_ROOT}/src" python3 -m tome.channels.triz analyze --topic "<topic>" --domain <domain>`
+   and include its JSON: the agent has no shell. When the
+   workflow runs the channels, pass that JSON as the
+   `trizAnalysis` arg
 4. The channel's card, from
    `render_card(get_card(channel))` in `tome.channels.cards`.
    It carries the channel's limitations and points the agent at
@@ -116,6 +120,18 @@ Each agent prompt must include:
 
 The rows above restate the cards. The cards are what the
 planner gates on, and a drift test holds the two together.
+
+**Named entities.** List every product, project, standard or
+method the question names or that a comparison will rank, and
+pass the list as the workflow's `entities` arg. The workflow
+searches each one no channel covered, and returns the rest as
+`coverage.unsearched`. When dispatching agents directly instead,
+run the same check yourself before synthesis: dispatch
+`tome:web-searcher` for each entity no finding mentions. Never
+rule an option in or out without a search behind it. A
+2026-10-05 report ruled Beartooth out on a description alone,
+because no channel happened to cover it. An entity still
+unsearched goes under the report's coverage gaps by name.
 
 ### Step 5: Collect and Synthesize
 

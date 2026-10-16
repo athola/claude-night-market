@@ -4,15 +4,16 @@
 
 ### modular-skills
 - **Purpose**: Provides structural analysis and modular design patterns
-- **Integration**: Uses `skill-analyzer` and `token-estimator` tools
+- **Integration**: Uses `scripts/skill_analyzer.py` and
+  `scripts/token_estimator.py`
 - **Workflow**: Run structural analysis before detailed evaluation
 - **Benefits**: validates proper modularization and token efficiency
 
 ```bash
-# Combined workflow example
-scripts/skill-analyzer --path skill.md --verbose
-skills/skills-eval/scripts/compliance-checker --skill-path skill.md
-skills/skills-eval/scripts/improvement-suggester --skill-path skill.md
+# Combined workflow, run from plugins/abstract
+python3 scripts/skill_analyzer.py --file skills/skills-eval/SKILL.md
+python3 scripts/compliance_checker.py skills/
+python3 scripts/improvement_suggester.py skills/skills-eval
 ```
 
 ### testing-skills
@@ -37,25 +38,26 @@ skills/skills-eval/scripts/improvement-suggester --skill-path skill.md
 
 ### Development Pipeline
 ```bash
-# Pre-commit evaluation
-skills/skills-eval/scripts/compliance-checker --skill-path skill.md --auto-fix
+# Pre-commit gate: exits 1 on a non-compliant report
+uv run abstract-skills check skills/
 
 # Post-development analysis
-skills/skills-eval/scripts/skills-auditor --scan-all --format markdown
-skills/skills-eval/scripts/improvement-suggester --skill-path skill.md --priority high
+python3 scripts/skills_auditor.py skills/
+python3 scripts/improvement_suggester.py skills/skills-eval
 ```
+
+`scripts/compliance_checker.py` reports the same findings but exits 0
+whatever it finds. It cannot gate a commit.
 
 ### Continuous Integration
 ```yaml
-# Example CI configuration
-evaluation_pipeline:
-  steps:
-    - name: "Compliance Check"
-      run: skills/skills-eval/scripts/compliance-checker --directory . --format json
-    - name: "Quality Assessment"
-      run: skills/skills-eval/scripts/skills-auditor --scan-all
-    - name: "Improvement Analysis"
-      run: skills/skills-eval/scripts/improvement-suggester --directory .
+# GitHub Actions steps
+- name: Compliance check
+  working-directory: plugins/abstract
+  run: uv run abstract-skills check skills/
+- name: Quality assessment
+  working-directory: plugins/abstract
+  run: python3 scripts/skills_auditor.py skills/ --format json
 ```
 
 ### Monitoring and Alerting

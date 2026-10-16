@@ -6,10 +6,18 @@ from abstract.tokens import TokenAnalyzer
 class TestTokenAnalyzerAnalyzeContent:
     """Tests for TokenAnalyzer.analyze_content method."""
 
-    def test_analyze_content_returns_dict(self) -> None:
+    def test_analyze_content_counts_chars_words_and_tokens_for_plain_text(self) -> None:
         """Test that analyze_content returns a dictionary."""
         result = TokenAnalyzer.analyze_content("Hello world")
-        assert isinstance(result, dict)
+        # 11 body chars at 4 chars per token, no frontmatter, no code
+        assert result == {
+            "total_tokens": 2,
+            "char_count": 11,
+            "word_count": 2,
+            "frontmatter_tokens": 0,
+            "body_tokens": 2,
+            "code_tokens": 0,
+        }
 
     def test_analyze_content_has_required_keys(self) -> None:
         """Test that result contains required token breakdown keys."""
@@ -73,10 +81,17 @@ Body text here."""
 class TestTokenAnalyzerCheckEfficiency:
     """Tests for TokenAnalyzer.check_efficiency method."""
 
-    def test_check_efficiency_returns_dict(self) -> None:
+    def test_check_efficiency_reports_optimal_status_at_1000_tokens(self) -> None:
         """Test that check_efficiency returns a dictionary."""
         result = TokenAnalyzer.check_efficiency(1000)
-        assert isinstance(result, dict)
+        assert result == {
+            "status": "OPTIMAL",
+            "rating": 1.0,
+            "is_efficient": True,
+            "message": "Token count (1000) is within optimal range",
+            "optimal_threshold": 2000,
+            "max_threshold": 4000,
+        }
 
     def test_check_efficiency_has_required_keys(self) -> None:
         """Test that result contains required keys."""

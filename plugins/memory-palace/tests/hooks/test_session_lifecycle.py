@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import io
 import json
+import logging
 import re
 import sys
 from pathlib import Path
@@ -469,3 +470,74 @@ class TestMainIntegration:
 
         sessions_dir = tmp_path / "sessions"
         assert not sessions_dir.exists() or not list(sessions_dir.glob("*.json"))
+
+
+def test_unparsable_staged_file_stays_in_place_when_move_aside_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A staged file that cannot be renamed to .corrupt is reported, not lost.
+
+    GIVEN a staged units file holding invalid JSON
+    AND a filesystem that refuses the rename to ``*.corrupt``
+    WHEN the file is read
+    THEN None is returned, the original file is untouched,
+    AND the warning says it cannot be moved aside.
+    """
+    staged = tmp_path / "units.json"
+    staged.write_text("{not json", encoding="utf-8")
+
+    def _refuse(src: object, dst: object) -> None:
+        raise OSError("read-only filesystem")
+
+    monkeypatch.setattr(lc.os, "replace", _refuse)
+
+    with caplog.at_level(logging.WARNING):
+        units = lc._read_staged_units(staged)
+
+    assert units is None
+    assert staged.read_text(encoding="utf-8") == "{not json"
+    assert "cannot be moved aside" in caplog.text
+
+
+def test_pid_owned_by_another_user_counts_as_running(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A PermissionError from signal 0 means the process exists.
+
+    GIVEN os.kill raises PermissionError for the probed pid
+    WHEN the pid is probed
+    THEN it is reported as running.
+    """
+
+    def _denied(pid: int, sig: int) -> None:
+        raise PermissionError(pid)
+
+    monkeypatch.setattr(lc.os, "kill", _denied)
+
+    assert lc._pid_is_running(12345) is True
+
+
+def test_claim_with_malformed_name_is_not_ours(tmp_path: Path) -> None:
+    """A claim file whose name lacks timestamp and pid fields is left alone.
+
+    GIVEN a claim file named with too few dot-separated parts
+    WHEN ownership is checked
+    THEN it is not ours.
+    """
+    claim = tmp_path / "claim"
+
+    assert lc._claim_is_ours(claim, now_ns=0) is False
+
+
+def test_claim_with_non_numeric_fields_is_not_ours(tmp_path: Path) -> None:
+    """A claim file whose timestamp field is not an integer is left alone.
+
+    GIVEN a claim file whose made-at and pid fields are not integers
+    WHEN ownership is checked
+    THEN it is not ours.
+    """
+    claim = tmp_path / "units.json.abc.def.claim"
+
+    assert lc._claim_is_ours(claim, now_ns=0) is False

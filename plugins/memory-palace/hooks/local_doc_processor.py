@@ -121,7 +121,11 @@ def main() -> None:  # noqa: PLR0912, PLR0915 - hook entry point with many valid
     if isinstance(tool_response, str):
         content = tool_response
     elif isinstance(tool_response, dict):
-        content = tool_response.get("content", "")
+        # Read returns {"type": "text", "file": {"content": ...}}
+        file_info = tool_response.get("file")
+        content = file_info.get("content", "") if isinstance(file_info, dict) else ""
+        if not content:
+            content = tool_response.get("content", "")
         # Sometimes response has different structure
         if not content and "output" in tool_response:
             content = tool_response["output"]

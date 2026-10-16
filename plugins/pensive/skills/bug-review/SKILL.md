@@ -55,7 +55,7 @@ Systematic bug identification and fixing with language-specific expertise.
 
 - Test coverage audit - use test-review instead
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `bug-review:language-detected`
 2. `bug-review:repro-plan`
@@ -191,8 +191,10 @@ the verifier rejects.
 
 ## Exit Criteria
 
-- All defects documented with precise references
-- Every defect carries a `file:line` + verbatim `Anchor`, and `citation_verifier.py` confirmed all citations (exit `0`) or unverified defects were dropped or labeled `UNVERIFIED`
-- Fixes prepared with test coverage verified
-- Verification plan includes commands and expected outputs
-- Remaining risks assessed and owners assigned
+- [ ] All defects documented with precise references
+- [ ] Every defect carries a `file:line` + verbatim `Anchor`, and
+      `citation_verifier.py` confirmed all citations (exit `0`) or unverified
+      defects were dropped or labeled `UNVERIFIED`
+- [ ] Fixes prepared with test coverage verified
+- [ ] Verification plan includes commands and expected outputs
+- [ ] Remaining risks assessed and owners assigned

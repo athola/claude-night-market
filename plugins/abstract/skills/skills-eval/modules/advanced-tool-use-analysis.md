@@ -1,35 +1,34 @@
 # Advanced Tool Use Analysis
 
+Two scripts measure part of what this module covers. Run them from
+`plugins/abstract`. Discovery patterns, programmatic calling and MCP
+compliance have no script and are judged by reading the skill.
+
 ## Dynamic Discovery Evaluation
 
 ### Tool Discovery Patterns
-```bash
-# Analyze tool discovery patterns and efficiency
-skills/skills-eval/scripts/tool-performance-analyzer --skill-path skill.md --focus discovery
 
-# Benchmark against optimal loading patterns
-skills/skills-eval/scripts/discovery-optimizer --skill-path skill.md --benchmark mcp-standards
+`tool_performance_analyzer.py` times each executable file under a
+directory by running it with `--help`. It executes what it finds:
+point it only at code you trust.
+
+```bash
+python3 scripts/tool_performance_analyzer.py skills/skills-eval
 ```
 
 ### Discovery Optimization Targets
 - **Loading Efficiency**: Minimize tool discovery latency
-- **Pattern Recognition**: Optimize keyword matching and categorization
+- **Pattern Recognition**: Tighten keyword matching and categorization
 - **Contextual Loading**: Load tools based on relevance to current context
 - **Memory Management**: Efficient tool caching and retrieval
 
 ## Programmatic Calling Assessment
 
-### Multi-Step Workflow Analysis
-```bash
-# Evaluate multi-step workflow optimization opportunities
-skills/skills-eval/scripts/tool-performance-analyzer --skill-path skill.md --focus programmatic-calling
+### Calling Metrics
 
-# Identify parallel execution opportunities
-skills/skills-eval/scripts/tool-performance-analyzer --skill-path skill.md --parallel-analysis
-```
+Review the skill's workflow steps by hand against these points:
 
-### Calling Optimization Metrics
-- **Sequential Efficiency**: Optimize ordered tool execution
+- **Sequential Efficiency**: Order tool calls so none waits needlessly
 - **Parallel Processing**: Identify concurrent tool opportunities
 - **Context Preservation**: Minimize context loss between calls
 - **Error Recovery**: production-grade error handling and retry mechanisms
@@ -37,12 +36,13 @@ skills/skills-eval/scripts/tool-performance-analyzer --skill-path skill.md --par
 ## Context Preservation Analysis
 
 ### Context Window Utilization
-```bash
-# Measure context window utilization efficiency
-skills/skills-eval/scripts/token-usage-tracker --skill-path skill.md --context-analysis
 
-# Identify pollution reduction opportunities
-skills/skills-eval/scripts/token-usage-tracker --skill-path skill.md --pollution-analysis
+`token_usage_tracker.py` estimates tokens per skill and lists the skills
+over a per-skill limit (default 2000).
+
+```bash
+python3 scripts/token_usage_tracker.py skills/
+python3 scripts/token_usage_tracker.py skills/ --optimal-limit 1500
 ```
 
 ### Optimization Strategies
@@ -68,16 +68,13 @@ skills/skills-eval/scripts/token-usage-tracker --skill-path skill.md --pollution
 ## Advanced Analysis Techniques
 
 ### Comparative Analysis
-```bash
-# Benchmark against best-in-class examples
-skills/skills-eval/scripts/performance-comparator --skill-path skill.md --baseline industry-standards
 
-# Trend tracking over time
-skills/skills-eval/scripts/performance-tracker --skill-path skill.md --metrics discovery,calling,context
-```
+No script compares a skill against a baseline or tracks it over time.
+Save the JSON output of `scripts/skills_auditor.py --format json` per
+release and compare the files.
 
 ### Optimization Recommendations
 1. **Tool Grouping**: Related tools should be discoverable together
 2. **Progressive Loading**: Load essential tools first, advanced tools later
 3. **Context Caching**: Preserve relevant context between tool calls
-4. **Error Patterns**: Analyze and optimize common error scenarios
+4. **Error Patterns**: Analyze common error scenarios and fix the frequent ones

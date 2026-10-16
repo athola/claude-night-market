@@ -27,17 +27,32 @@ _src = Path(__file__).resolve().parent.parent / "src"
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
 # AR-30: route gh invocations through leyline.git_platform.
-_LEYLINE_SRC = Path(__file__).resolve().parents[2] / "leyline" / "src"
-if str(_LEYLINE_SRC) not in sys.path:
-    sys.path.insert(0, str(_LEYLINE_SRC))
+# The repo keeps plugins side by side, the install cache nests them by
+# version: resolve leyline in either, falling back to the repo path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vendored_leyline_sibling_plugins import (  # noqa: E402 - after sys.path setup
+    add_sibling_src_to_path,
+)
+
+add_sibling_src_to_path(__file__, "leyline")
 
 from abstract.utils import (
     get_config_dir as _shared_get_config_dir,  # noqa: E402 - import after sys.path setup
 )
-from leyline.git_platform import (  # noqa: E402 - import after sys.path setup
-    GhCommandError,
-    gh_graphql,
-)
+
+try:
+    from leyline.git_platform import (  # noqa: E402 - import after sys.path setup
+        GhCommandError,
+        gh_graphql,
+    )
+except ImportError:
+    # ADR-0001: a direct run says what is missing instead of raising a
+    # traceback. An importer gets the ImportError to handle itself.
+    if __name__ != "__main__":
+        raise
+    sys.exit(
+        f"{Path(__file__).name}: requires the leyline plugin, which is not installed"
+    )
 
 # Hardcoded target repository
 TARGET_REPO = "athola/claude-night-market"

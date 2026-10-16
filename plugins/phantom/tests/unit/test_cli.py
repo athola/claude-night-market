@@ -8,7 +8,8 @@ Feature: CLI Entry Point
 
 from __future__ import annotations
 
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -100,9 +101,10 @@ class TestMain:
         with (
             patch("sys.argv", ["phantom", "do something"]),
             patch.dict("os.environ", {}, clear=True),
-            pytest.raises(SystemExit),
+            pytest.raises(SystemExit) as exc,
         ):
             main()
+        assert exc.value.code == 1
 
 
 class TestModelDefault:
@@ -137,3 +139,72 @@ class TestModelDefault:
         """
         action = next(a for a in build_parser()._actions if a.dest == "model")
         assert action.default in action.help
+
+
+class TestRunTask:
+    """Feature: a task on the command line runs the agent loop."""
+
+    def test_missing_api_key_names_the_variable(self, capsys, monkeypatch):
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+        monkeypatch.setattr("sys.argv", ["phantom", "do something"])
+        with pytest.raises(SystemExit):
+            main()
+        assert "ANTHROPIC_API_KEY" in capsys.readouterr().out
+
+    def test_blank_task_exits_before_calling_the_api(self, capsys, monkeypatch):
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+        monkeypatch.setattr("sys.argv", ["phantom", ""])
+
+        def no_client(api_key):
+            raise AssertionError("API client built for a blank task")
+
+        monkeypatch.setattr("phantom.loop.anthropic.Anthropic", no_client)
+        with pytest.raises(SystemExit) as exc:
+            main()
+        assert exc.value.code == 1
+        assert "No task provided" in capsys.readouterr().out
+
+    def test_flags_reach_the_api_request_and_the_reply_is_printed(
+        self, capsys, monkeypatch
+    ):
+        """
+        Scenario: A task runs to completion
+        Given a scripted Anthropic client that answers with text only
+        When main() runs with --model, --max-tokens and --system-prompt
+        Then the request carries those values and the reply is printed
+        """
+        client = MagicMock()
+        client.beta.messages.create.return_value = SimpleNamespace(
+            content=[
+                SimpleNamespace(
+                    type="text", text="Done it", model_dump=lambda: {"type": "text"}
+                )
+            ],
+            usage=SimpleNamespace(input_tokens=1, output_tokens=1),
+        )
+        monkeypatch.setattr("phantom.loop.anthropic.Anthropic", lambda api_key: client)
+        monkeypatch.setattr("phantom.display._check_command", lambda name: True)
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "phantom",
+                "--model",
+                "claude-opus-4-6",
+                "--max-tokens",
+                "512",
+                "--system-prompt",
+                "Be careful",
+                "open",
+                "firefox",
+            ],
+        )
+        main()
+        kwargs = client.beta.messages.create.call_args.kwargs
+        assert kwargs["model"] == "claude-opus-4-6"
+        assert kwargs["max_tokens"] == 512
+        assert kwargs["system"] == "Be careful"
+        assert kwargs["messages"][0]["content"] == "open firefox"
+        out = capsys.readouterr().out
+        assert "Stop reason: completed" in out
+        assert "Done it" in out

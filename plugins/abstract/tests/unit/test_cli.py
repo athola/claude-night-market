@@ -6,6 +6,7 @@ Covers create_main_parser(), main(), and subcommand dispatch routing.
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -20,10 +21,16 @@ from abstract.cli import (
     main,
 )
 from abstract.cli_framework import CLIResult
+from abstract.skills_eval.auditor import SkillMetrics
 
 # ---------------------------------------------------------------------------
 # create_main_parser
 # ---------------------------------------------------------------------------
+
+
+def _metrics(name: str, score: float, issues: list[str]) -> SkillMetrics:
+    """SkillMetrics as SkillsAuditor.audit_skills returns it."""
+    return SkillMetrics(name, f"{name}/SKILL.md", score, issues, [], 0, 0, 0, 0)
 
 
 class TestCreateMainParser:
@@ -84,11 +91,11 @@ class TestCreateMainParser:
         assert args.min_score == 75.5
 
     @pytest.mark.unit
-    def test_suggest_subcommand_accepts_priority(self):
-        """Given 'suggest' subcommand, --priority is accepted."""
+    def test_suggest_subcommand_rejects_priority(self):
+        """--priority is gone: suggestions carry no priority to filter on."""
         parser = create_main_parser()
-        args = parser.parse_args(["suggest", "/tmp/skill", "--priority", "high"])
-        assert args.priority == "high"
+        with pytest.raises(SystemExit):
+            parser.parse_args(["suggest", "/tmp/skill", "--priority", "high"])
 
     @pytest.mark.unit
     def test_tokens_subcommand_accepts_threshold(self):
@@ -183,7 +190,8 @@ class TestMainSubcommandDispatch:
     def test_audit_dispatches_to_audit_cli(self, tmp_path, capsys):
         """Given 'audit' subcommand, AuditCLI.execute() is called."""
         mock_result = CLIResult(
-            success=True, data={"skills": [], "total_skills": 0, "average_score": 0}
+            success=True,
+            data={"skill_metrics": [], "total_skills": 0, "average_score": 0},
         )
         with patch.object(AuditCLI, "execute", return_value=mock_result) as mock_exec:
             exit_code = main(["audit", str(tmp_path)])
@@ -207,12 +215,80 @@ class TestMainSubcommandDispatch:
     def test_tokens_dispatches_to_token_cli(self, tmp_path, capsys):
         """Given 'tokens' subcommand, TokenCLI.execute() is called."""
         mock_result = CLIResult(
-            success=True, data={"files": [], "total_tokens": 0, "file_count": 0}
+            success=True,
+            data={
+                "skills": [],
+                "total_skills": 0,
+                "summary": {"total_tokens": 0},
+                "threshold": 4000,
+            },
         )
         with patch.object(TokenCLI, "execute", return_value=mock_result) as mock_exec:
             exit_code = main(["tokens", str(tmp_path)])
         mock_exec.assert_called_once()
         assert exit_code == 0
+
+    @pytest.mark.unit
+    def test_check_exits_one_when_non_compliant(self, tmp_path, capsys):
+        """A NON-COMPLIANT report exits 1 so the CLI can gate CI."""
+        mock_result = CLIResult(
+            success=True,
+            data={"compliant": False, "issues": ["x"], "warnings": []},
+        )
+        with patch.object(ComplianceCLI, "execute", return_value=mock_result):
+            exit_code = main(["check", str(tmp_path)])
+        assert exit_code == 1
+        assert "NON-COMPLIANT" in capsys.readouterr().out
+
+    @pytest.mark.unit
+    def test_audit_exits_one_when_a_skill_is_under_min_score(self, tmp_path, capsys):
+        """--min-score fails the run when any skill scores below it."""
+        mock_result = CLIResult(
+            success=True,
+            data={
+                "skill_metrics": [_metrics("a", 90.0, []), _metrics("b", 40.0, [])],
+                "total_skills": 2,
+                "average_score": 65.0,
+            },
+        )
+        with patch.object(AuditCLI, "execute", return_value=mock_result):
+            assert main(["audit", str(tmp_path), "--min-score", "50"]) == 1
+            assert main(["audit", str(tmp_path), "--min-score", "30"]) == 0
+
+    @pytest.mark.unit
+    def test_output_flag_writes_report_to_file(self, tmp_path, capsys):
+        """--output writes the formatted report to that file, not stdout."""
+        mock_result = CLIResult(
+            success=True,
+            data={"compliant": True, "issues": [], "warnings": [], "total_skills": 0},
+        )
+        out_file = tmp_path / "report.txt"
+        with patch.object(ComplianceCLI, "execute", return_value=mock_result):
+            exit_code = main(["check", str(tmp_path), "-o", str(out_file)])
+        assert exit_code == 0
+        assert "Status: COMPLIANT" in out_file.read_text()
+        assert "Status: COMPLIANT" not in capsys.readouterr().out
+
+    @pytest.mark.unit
+    def test_audit_gate_fails_when_no_skills_were_found(self, tmp_path, capsys):
+        """--min-score cannot pass on an audit that scored nothing."""
+        mock_result = CLIResult(
+            success=True, data={"total_skills": 0, "average_score": 0.0}
+        )
+        with patch.object(AuditCLI, "execute", return_value=mock_result):
+            assert main(["audit", str(tmp_path), "--min-score", "90"]) == 1
+
+    @pytest.mark.unit
+    def test_unwritable_output_path_exits_one_without_traceback(self, tmp_path, capsys):
+        """A bad -o path is reported as an error, not raised."""
+        mock_result = CLIResult(
+            success=True,
+            data={"compliant": True, "issues": [], "warnings": [], "total_skills": 0},
+        )
+        out_file = tmp_path / "missing-dir" / "report.txt"
+        with patch.object(ComplianceCLI, "execute", return_value=mock_result):
+            assert main(["check", str(tmp_path), "-o", str(out_file)]) == 1
+        assert "report.txt" in capsys.readouterr().err
 
     @pytest.mark.unit
     def test_failed_execute_returns_one(self, tmp_path, capsys):
@@ -338,7 +414,7 @@ class TestAuditCLI:
         cli = AuditCLI()
         output = cli.format_text(
             {
-                "skills": [{"name": "my-skill", "score": 85.0, "issues": []}],
+                "skill_metrics": [_metrics("my-skill", 85.0, [])],
                 "total_skills": 1,
                 "average_score": 85.0,
             }
@@ -352,9 +428,7 @@ class TestAuditCLI:
         cli = AuditCLI()
         output = cli.format_text(
             {
-                "skills": [
-                    {"name": "bad-skill", "score": 40.0, "issues": ["missing overview"]}
-                ],
+                "skill_metrics": [_metrics("bad-skill", 40.0, ["missing overview"])],
                 "total_skills": 1,
                 "average_score": 40.0,
             }
@@ -367,7 +441,7 @@ class TestAuditCLI:
         cli = AuditCLI()
         mock_auditor = MagicMock()
         mock_auditor.audit_skills.return_value = {
-            "skills": [],
+            "skill_metrics": [],
             "total_skills": 0,
             "average_score": 0.0,
         }
@@ -493,18 +567,13 @@ class TestTokenCLI:
         cli = TokenCLI()
         output = cli.format_text(
             {
-                "files": [
-                    {
-                        "path": "/tmp/SKILL.md",
-                        "token_count": 500,
-                        "under_threshold": True,
-                    }
-                ],
-                "total_tokens": 500,
-                "file_count": 1,
+                "skills": [{"name": "group/small", "total_tokens": 500}],
+                "total_skills": 1,
+                "summary": {"total_tokens": 500},
+                "threshold": 4000,
             }
         )
-        assert "/tmp/SKILL.md" in output
+        assert "group/small" in output
         assert "500" in output
         assert "OK" in output
 
@@ -514,15 +583,10 @@ class TestTokenCLI:
         cli = TokenCLI()
         output = cli.format_text(
             {
-                "files": [
-                    {
-                        "path": "/tmp/BIG.md",
-                        "token_count": 9000,
-                        "under_threshold": False,
-                    }
-                ],
-                "total_tokens": 9000,
-                "file_count": 1,
+                "skills": [{"name": "big", "total_tokens": 9000}],
+                "total_skills": 1,
+                "summary": {"total_tokens": 9000},
+                "threshold": 4000,
             }
         )
         assert "OVER" in output
@@ -533,9 +597,9 @@ class TestTokenCLI:
         cli = TokenCLI()
         mock_tracker = MagicMock()
         mock_tracker.analyze_all_skills.return_value = {
-            "files": [],
-            "total_tokens": 0,
-            "file_count": 0,
+            "skills": [],
+            "total_skills": 0,
+            "summary": {"total_tokens": 0},
         }
         with patch("abstract.cli.TokenUsageTracker", return_value=mock_tracker):
             args = argparse.Namespace(path=tmp_path, output=None, threshold=4000)
@@ -565,3 +629,51 @@ class TestTokenCLI:
             args = argparse.Namespace(path=tmp_path, output=None, threshold=4000)
             with pytest.raises(RuntimeError, match="tracker error"):
                 cli.execute(args)
+
+
+def _two_skill_tree(root: Path) -> Path:
+    """One skill that meets the rubric and one that misses it."""
+    skills = root / "skills"
+    (skills / "alpha").mkdir(parents=True)
+    (skills / "beta").mkdir()
+    (skills / "alpha" / "SKILL.md").write_text(
+        "---\nname: alpha\ndescription: Use when testing the audit report.\n---\n"
+        "# Alpha\n\n## Exit Criteria\n\n- [ ] one\n- [ ] two\n- [ ] three\n"
+    )
+    (skills / "beta" / "SKILL.md").write_text("---\nname: beta\n---\n# Beta\n")
+    return skills
+
+
+class TestMainAgainstRealProducers:
+    """main() with the real auditor and tracker behind the formatters.
+
+    The other main() tests patch execute, which cuts the formatter off
+    from the dict the producers actually emit.
+    """
+
+    def test_audit_reports_each_skill_score_and_issue(self, tmp_path, capsys):
+        skills = _two_skill_tree(tmp_path)
+
+        assert main(["audit", str(skills)]) == 0
+        out = capsys.readouterr().out
+
+        assert "alpha:\n  Score: 100.0" in out
+        assert "beta:\n  Score: " in out
+        assert "    - Missing ## Exit Criteria section" in out
+        assert "Total skills: 2" in out
+
+    def test_audit_min_score_fails_on_the_weaker_skill(self, tmp_path, capsys):
+        skills = _two_skill_tree(tmp_path)
+
+        assert main(["audit", str(skills), "--min-score", "90"]) == 1
+        assert main(["audit", str(skills), "--min-score", "30"]) == 0
+
+    def test_tokens_reports_each_skill_against_the_threshold(self, tmp_path, capsys):
+        skills = _two_skill_tree(tmp_path)
+
+        assert main(["tokens", str(skills), "--threshold", "20"]) == 0
+        out = capsys.readouterr().out
+
+        assert re.search(r"alpha:\n  Tokens: \d+ \[OVER\]", out)
+        assert re.search(r"beta:\n  Tokens: \d+ \[OK\]", out)
+        assert "Files analyzed: 2" in out

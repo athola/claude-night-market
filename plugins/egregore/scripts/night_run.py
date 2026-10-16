@@ -158,6 +158,9 @@ class SubprocessRunner:
                 cwd=cwd,
                 capture_output=True,
                 text=True,
+                # A byte that is not UTF-8 must not discard the whole run's
+                # output: the output is the evidence.
+                errors="replace",
                 timeout=timeout or None,
                 check=False,
                 env=dict(env) if env is not None else None,
@@ -199,10 +202,49 @@ def _diff_line_count(runner: Runner, workdir: Path) -> int:
     return total
 
 
+_GIT_SIMPLE_ESCAPES = {"a": 7, "b": 8, "t": 9, "n": 10, "v": 11, "f": 12, "r": 13}
+# An octal escape is the longest run of up to three octal digits.
+_OCTAL_RUN = re.compile(r"[0-7]{1,3}")
+
+
+def _git_unquote(name: str) -> str:
+    """Return the real path from a name git printed in C-style quotes.
+
+    Git quotes a path holding a space (porcelain only), a quote, a control
+    character, or a non-ASCII byte, and spells the odd bytes as octal. A
+    quoted name matches no allowlist entry, and ``git clean`` given the
+    quoted spelling matches nothing and exits 0, which read as a revert
+    that never happened.
+    """
+    if len(name) < 2 or not (name.startswith('"') and name.endswith('"')):
+        return name
+    raw = bytearray()
+    body = name[1:-1]
+    index = 0
+    while index < len(body):
+        char = body[index]
+        if char != "\\" or index + 1 >= len(body):
+            raw += char.encode("utf-8")
+            index += 1
+            continue
+        escaped = body[index + 1]
+        octal = _OCTAL_RUN.match(body, index + 1)
+        if octal:
+            raw.append(int(octal.group(), 8) & 0xFF)
+            index = octal.end()
+        elif escaped in _GIT_SIMPLE_ESCAPES:
+            raw.append(_GIT_SIMPLE_ESCAPES[escaped])
+            index += 2
+        else:
+            raw += escaped.encode("utf-8")
+            index += 2
+    return raw.decode("utf-8", errors="replace")
+
+
 def _changed_files(runner: Runner, workdir: Path) -> list[str]:
     """List the tracked files the implementer modified."""
     names = _git_query(runner, workdir, "diff", "--name-only")
-    return [line.strip() for line in names.splitlines() if line.strip()]
+    return [_git_unquote(line.strip()) for line in names.splitlines() if line.strip()]
 
 
 def _touched_files(runner: Runner, workdir: Path) -> list[str]:
@@ -513,7 +555,7 @@ def _untracked(runner: Runner, workdir: Path) -> list[str]:
     """
     status = _git_query(runner, workdir, "status", "--porcelain", "-uall")
     return [
-        line[3:].strip()
+        _git_unquote(line[3:].strip())
         for line in status.splitlines()
         if line.startswith("??") and line[3:].strip()
     ]
@@ -646,10 +688,28 @@ def _metered_babysitter(
     by a whole task's cost, and a ceiling that can be exceeded is not a
     ceiling. ``spend`` is a one-element list so the count survives across
     calls without a class.
+
+    The charge is the judge prompt as rendered, which shows only the tail
+    of the diff and of the test output. Charging the whole of both parked
+    items on budget the judge never saw.
     """
+    # Imported at call time, as main() does, because claude_babysitter
+    # imports this module.
+    sitter_module = importlib.import_module("claude_babysitter")
+    tail_chars: int = (
+        babysitter.tail_chars
+        if isinstance(babysitter, sitter_module.ClaudeBabysitter)
+        else sitter_module.DEFAULT_TAIL_CHARS
+    )
 
     def metered(**kwargs: Any) -> tuple[str, str, str]:
-        shown = str(kwargs.get("diff", "")) + str(kwargs.get("test_output", ""))
+        shown: str = sitter_module.render_prompt(
+            kwargs.get("task", {}),
+            str(kwargs.get("diff", "")),
+            str(kwargs.get("test_output", "")),
+            kwargs.get("test_exit", 0),
+            tail_chars,
+        )
         cost = estimate_tokens(shown)
         if ceiling is not None and spend[0] + cost > ceiling:
             raise BudgetExhausted(
@@ -934,12 +994,13 @@ def write_proof(item_dir: Path, result: ItemResult) -> Path:
         lines += ["", "## Babysitter dissents (the evidence was green anyway)", ""]
         lines += [f"- {t.task_id}: {t.reason}" for t in dissenting]
     if result.full_suite:
-        lines += [
-            "",
-            "## Full suite",
-            "",
-            f"`{result.full_suite['command']}` exited {result.full_suite['exit']}",
-        ]
+        lines += ["", "## Full suite", ""]
+        if result.full_suite.get("skipped"):
+            lines.append(f"Skipped: {result.full_suite['reason']}")
+        else:
+            lines.append(
+                f"`{result.full_suite['command']}` exited {result.full_suite['exit']}"
+            )
     if result.discarded is not None:
         lines += [
             "",

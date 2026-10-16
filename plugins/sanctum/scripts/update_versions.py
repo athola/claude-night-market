@@ -24,6 +24,13 @@ from update_plugins_modules.constants import CACHE_EXCLUDES
 SCAFFOLD_EXCLUDES: frozenset[str] = frozenset({"templates"})
 
 
+_TOML_TABLE_HEADER = re.compile(r"^\s*\[+\s*([^\]]+?)\s*\]+\s*(?:#.*)?$")
+# "" is the region before any header, where bare test fixtures keep the field.
+_TOML_VERSION_TABLES = frozenset(
+    {"", "package", "project", "tool.poetry", "workspace.package"}
+)
+
+
 def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
     """Find all version files, excluding venvs and build dirs unless explicitly asked.
 
@@ -93,9 +100,19 @@ def update_version_field(
         pattern = rf'"{re.escape(field)}"\s*:\s*"{semver_pat}"'
         replacement = f'"{field}": "{new_version}"'
         return re.sub(pattern, replacement, content)
-    pattern = rf'^{re.escape(field)}\s*=\s*"{semver_pat}"'
+    pattern = re.compile(rf'^{re.escape(field)}\s*=\s*"{semver_pat}"')
     replacement = f'{field} = "{new_version}"'
-    return re.sub(pattern, replacement, content, flags=re.MULTILINE)
+    # Only the package's own table carries this repo's version. A
+    # `version =` under [dependencies.x] or [tool.y] belongs to something else.
+    section = ""
+    lines = content.splitlines(keepends=True)
+    for index, line in enumerate(lines):
+        header = _TOML_TABLE_HEADER.match(line)
+        if header:
+            section = header.group(1).strip()
+        elif section in _TOML_VERSION_TABLES:
+            lines[index] = pattern.sub(replacement, line)
+    return "".join(lines)
 
 
 def update_pyproject_version(content: str, new_version: str) -> str:

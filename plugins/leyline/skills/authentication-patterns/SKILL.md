@@ -166,6 +166,6 @@ See `modules/interactive-auth.md` for complete documentation.
 
 ## Exit Criteria
 
-- Credentials verified or clear failure message
-- Suggested action for auth failures
-- Smoke test confirms working auth
+- [ ] Credentials verified or clear failure message
+- [ ] Suggested action for auth failures
+- [ ] Smoke test confirms working auth

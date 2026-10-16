@@ -41,9 +41,11 @@ _MAX_TURNS_ANALYZED = 50
 _MAX_FILE_PATHS = 20
 
 # Patterns for extracting important information
+# Delimiters are lookarounds so a single space between two paths is not
+# consumed by the first match, which made findall skip every other path.
 _FILE_PATH_PATTERN = re.compile(
-    r"(?:^|\s|[\"'])([/~][\w/.-]+\.(?:py|md|json|yaml|yml|toml|txt|sh)"
-    r"|[\w-]+\.[\w]{1,4})(?:$|\s|[\"'])"
+    r"(?:^|(?<=[\s\"']))([/~][\w/.-]+\.(?:py|md|json|yaml|yml|toml|txt|sh)"
+    r"|[\w-]+\.[\w]{1,4})(?=$|[\s\"'])"
 )
 _DECISION_PATTERN = re.compile(
     r"(?:decision|decided|chose|selected|will use|going with|settled on)"
@@ -86,10 +88,15 @@ def extract_recent_content(
                 continue
             try:
                 entry = json.loads(stripped)
-                if entry.get("role") in ("user", "assistant"):
-                    entries.append(entry)
             except json.JSONDecodeError:
                 continue
+            # Claude Code session rows keep role and content under
+            # "message"; flat {"role", "content"} rows are also accepted.
+            message = entry.get("message") if isinstance(entry, dict) else None
+            if isinstance(message, dict):
+                entry = message
+            if isinstance(entry, dict) and entry.get("role") in ("user", "assistant"):
+                entries.append(entry)
 
         return entries[-max_turns:]
 
@@ -126,7 +133,8 @@ def extract_file_paths(entries: list[dict]) -> list[str]:
             expanded = Path(path).expanduser()
             if expanded.exists() and len(valid_paths) < _MAX_FILE_PATHS:
                 valid_paths.append(str(expanded))
-        except (OSError, ValueError):
+        # RuntimeError: expanduser on "~name/..." when name has no home.
+        except (OSError, ValueError, RuntimeError):
             continue
 
     return valid_paths

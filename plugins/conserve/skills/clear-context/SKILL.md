@@ -5,12 +5,6 @@ alwaysApply: false
 category: conservation
 token_budget: 200
 progressive_loading: true
-hooks:
-  PreToolUse:
-  - matcher: Task
-    command: 'echo "[skill:clear-context] Subagent delegation at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/clear-context-audit.log
-
-      '
 model_hint: standard
 role: library
 ---
@@ -77,7 +71,7 @@ Before triggering auto-clear, gather:
 - Progress made so far
 - Key decisions and rationale
 - Files being actively worked on
-- Open TodoWrite items
+- Open progress items
 
 ### Step 1.5: Finalize Task List Before Handoff
 
@@ -127,7 +121,7 @@ Reason: Context threshold exceeded (80%+)
 - path/to/file1.py - [status]
 - path/to/file2.md - [status]
 
-## Pending TodoWrite Items
+## Pending Progress Items
 - [ ] Item 1
 - [ ] Item 2
 

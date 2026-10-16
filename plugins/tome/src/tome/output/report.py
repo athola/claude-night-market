@@ -14,8 +14,17 @@ from tome.synthesis.frontier import (
     frontier_stories,
     frontier_verdict,
 )
-from tome.synthesis.quality import channel_outcomes, identify_gaps
-from tome.synthesis.ranker import compute_relevance_score, group_by_theme
+from tome.synthesis.quality import (
+    OUTCOME_DEGRADED,
+    OUTCOME_EMPTY,
+    OUTCOME_ERROR,
+    OUTCOME_OK,
+    OUTCOME_RATE_LIMITED,
+    OUTCOME_UNKNOWN,
+    channel_outcomes,
+    identify_gaps,
+)
+from tome.synthesis.ranker import compute_relevance_score, group_by_channel
 
 _WRAP = 80
 
@@ -39,35 +48,35 @@ _SECTIONS = [
 # queries all succeeded can still contribute nothing to the report. A
 # test holds the two vocabularies in step.
 _EMPTY_CHANNEL_NOTES = {
-    "ok": (
+    OUTCOME_OK: (
         "Returned results, none of which survived synthesis. "
         "Deduplication keeps one finding per URL, so everything this "
         "channel found was already reported by another. The search "
         "worked; the channel added no new sources."
     ),
-    "empty": (
+    OUTCOME_EMPTY: (
         "Searched, and found nothing. Every query for this channel "
         "completed, so this is the one outcome here that says something "
         "about the topic rather than about the search. It remains weak "
         "evidence: a field published under different words looks exactly "
         "like this."
     ),
-    "error": (
+    OUTCOME_ERROR: (
         "Could not be searched. Every query failed, so absence here is "
         "not evidence about the field, only about the run. Re-run before "
         "concluding anything from this gap."
     ),
-    "rate_limited": (
+    OUTCOME_RATE_LIMITED: (
         "Rate-limited before returning anything. The source refused us "
         "for volume, not for want of content, so this gap is not "
         "evidence about the field. Re-run this channel."
     ),
-    "degraded": (
+    OUTCOME_DEGRADED: (
         "Partially searched. Some queries failed and any findings above "
         "came through a fallback, so coverage is thinner than planned "
         "and this channel is not a clean probe either way."
     ),
-    "unknown": (
+    OUTCOME_UNKNOWN: (
         "No query record. This session predates outcome tracking, or the "
         "agent returned no envelope, so nothing can be concluded about "
         "this channel in either direction."
@@ -114,7 +123,7 @@ def _format_coverage(session: ResearchSession, outcomes: dict[str, str]) -> str:
     for f in session.findings:
         counts[f.channel] = counts.get(f.channel, 0) + 1
     for channel in session.channels:
-        status = outcomes.get(channel, "unknown")
+        status = outcomes.get(channel, OUTCOME_UNKNOWN)
         lines.append(f"| {channel} | {status} | {counts.get(channel, 0)} |")
 
     gaps = identify_gaps(session.findings, session.channels)
@@ -135,12 +144,14 @@ def _format_coverage(session: ResearchSession, outcomes: dict[str, str]) -> str:
     # that absence in a cleanly-searched channel proved nothing, three
     # paragraphs above the section saying it was weak evidence.
     unproven = [
-        c for c in session.channels if outcomes.get(c, "unknown") not in ("ok", "empty")
+        c
+        for c in session.channels
+        if outcomes.get(c, OUTCOME_UNKNOWN) not in (OUTCOME_OK, OUTCOME_EMPTY)
     ]
     if unproven:
         notes.append(
             "Channels that could not be searched cleanly: "
-            + ", ".join(f"{c} ({outcomes.get(c, 'unknown')})" for c in unproven)
+            + ", ".join(f"{c} ({outcomes.get(c, OUTCOME_UNKNOWN)})" for c in unproven)
             + ". Absence in these is not evidence about the field, only "
             "about the run."
         )
@@ -192,7 +203,7 @@ def _format_stories(stories: list[ResearchStory]) -> str:
 
 def format_report(session: ResearchSession) -> str:
     """Generate a full markdown research report."""
-    groups = group_by_theme(session.findings)
+    groups = group_by_channel(session.findings)
     date_str = (
         session.created_at.strftime("%Y-%m-%d") if session.created_at else "Unknown"
     )
@@ -236,7 +247,7 @@ def format_report(session: ResearchSession) -> str:
             # looks complete.
             parts.append(_section(heading))
             parts.append(
-                _wrap(_EMPTY_CHANNEL_NOTES[outcomes.get(group_key, "unknown")])
+                _wrap(_EMPTY_CHANNEL_NOTES[outcomes.get(group_key, OUTCOME_UNKNOWN)])
             )
 
     # --- Research Stories ---
@@ -269,7 +280,7 @@ def format_brief(session: ResearchSession) -> str:
     # Key Findings
     parts.append(_section("Key Findings"))
     if session.findings:
-        groups = group_by_theme(session.findings)
+        groups = group_by_channel(session.findings)
         for channel, findings in groups.items():
             top = max(findings, key=compute_relevance_score)
             parts.append(f"- **{channel.capitalize()}**: {top.summary}")
@@ -315,7 +326,7 @@ def format_transcript(session: ResearchSession) -> str:
     parts.append(f"- **Total findings**: {len(session.findings)}")
 
     # Findings grouped by channel
-    groups = group_by_theme(session.findings)
+    groups = group_by_channel(session.findings)
     for channel, findings in groups.items():
         parts.append(f"\n## Channel: {channel}\n")
         for i, f in enumerate(findings, start=1):
@@ -346,7 +357,7 @@ def generate_executive_summary(findings: list[Finding], topic: str) -> str:
             "Consider expanding the search channels or adjusting the query."
         )
 
-    groups = group_by_theme(findings)
+    groups = group_by_channel(findings)
 
     total = len(findings)
     channel_count = len(groups)

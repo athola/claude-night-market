@@ -90,7 +90,7 @@ class TokenUsageTracker:
         total_tokens = 0
 
         for skill_file in skill_files:
-            skill_name = skill_file.parent.name
+            skill_name = str(skill_file.parent.relative_to(self.skills_dir))
             analysis = self.analyze_skill_tokens(skill_name)
             skills.append(analysis)
             total_tokens += analysis.get("total_tokens", 0)
@@ -427,10 +427,10 @@ class TokenUsageTracker:
                 return ["Error reading skill file"]
 
             total_tokens = estimate_text_tokens(content)
-            if total_tokens > self.optimal_limit:
-                return ["Reduce content size for better performance"]
             if total_tokens > self.max_limit:
                 return ["CRITICAL: Skill exceeds maximum token limit"]
+            if total_tokens > self.optimal_limit:
+                return ["Reduce content size for better performance"]
             return ["Token usage is optimal"]
         # General suggestions
         stats = self.get_usage_statistics()

@@ -993,6 +993,13 @@ class TestWorkDestroyingGitCommandsAreRefused:
             "git stash list",
             "git --config-env=user.name=GIT_NAME status",
             "rm -r build",
+            # After "--" every word is a path, so a file named like a flag
+            # does not turn an ordinary command into a bypass.
+            "git commit -m x -- -n",
+            "git restore --staged -- --worktree",
+            "rm -r -- -f",
+            # Global options and no subcommand: nothing to judge.
+            "git -C .",
         ],
     )
     def test_an_ordinary_git_command_is_admitted(
@@ -1003,3 +1010,46 @@ class TestWorkDestroyingGitCommandsAreRefused:
         )
         result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
         assert result.state == "READY", (command, result.problems)
+
+
+class TestFrontmatterAndCommandEdgesAreRefused:
+    """Each way a document or command can be structurally empty is named."""
+
+    def test_an_unterminated_frontmatter_block_is_malformed(
+        self, tmp_path: Path
+    ) -> None:
+        body = "---\nschema: nightshift/handoff@1\nitem: NS-001\n"
+        result = gate.check_item(write_item(tmp_path, **{"handoff.md": body}))
+        assert result.code == gate.MALFORMED
+        assert any("unterminated" in p for p in result.problems)
+
+    def test_frontmatter_that_is_a_list_is_malformed(self, tmp_path: Path) -> None:
+        body = "---\n- schema\n- item\n---\n"
+        result = gate.check_item(write_item(tmp_path, **{"handoff.md": body}))
+        assert result.code == gate.MALFORMED
+        assert any("not a mapping" in p for p in result.problems)
+
+    def test_an_empty_command_is_refused(self, tmp_path: Path) -> None:
+        handoff = GOOD_HANDOFF.replace("test: uv run pytest tests/ -q", 'test: ""')
+        result = gate.check_item(write_item(tmp_path, **{"handoff.md": handoff}))
+        assert result.state == "UNSAFE"
+        assert "commands.test is empty" in result.problems
+
+    def test_from_frontmatter_names_a_missing_required_key(self) -> None:
+        """The type refuses on its own, not only behind check_item."""
+        data = gate.parse_frontmatter(GOOD_HANDOFF)
+        del data["branch"]
+        with pytest.raises(ValueError, match="'branch' is absent"):
+            gate.Handoff.from_frontmatter(data)
+
+    def test_the_cli_prints_state_and_problems_without_json(
+        self, tmp_path: Path, capsys
+    ) -> None:
+        item = write_item(tmp_path)
+        (item / "design.md").unlink()
+        code = gate.main(["--item-dir", str(item)])
+        out = capsys.readouterr().out
+        assert code == gate.MISSING
+        assert out.startswith(f"MISSING ({gate.MISSING})")
+        assert "  - " in out
+        assert "design.md" in out

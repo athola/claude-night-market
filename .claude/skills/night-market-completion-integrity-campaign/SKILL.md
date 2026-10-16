@@ -78,336 +78,33 @@ findings) and
 
 ## P0: baseline the gate and judge suites
 
-Run every suite from inside its plugin directory. Root pytest sets
-`norecursedirs = plugins/*`, so running from the repo root silently
-collects nothing (or raises `ImportPathMismatchError`). Every `cd`
-in this skill is relative to the repo root: start each command block
-from there.
-
-```bash
-cd plugins/egregore
-uv run pytest tests/ -q
-```
-
-Expected (2026-07-02): `477 passed` in about 2 seconds, preceded by a
-coverage table.
-
-```bash
-cd plugins/egregore
-uv run pytest tests/test_config.py tests/test_quality_gate.py -q
-```
-
-Expected: `27 passed`. `tests/test_config.py` alone is `13 passed` and
-includes the two completion-integrity guards:
-`test_completion_integrity_opt_in_roundtrip` and
-`test_completion_integrity_loads_from_raw_json` (the real user opt-in
-path, added in cd903cbf. It also guards the field against silent
-removal, because `_filter_fields` would drop the key).
-
-```bash
-cd plugins/herald
-uv run pytest tests/ -q
-```
-
-Expected: `105 passed` in under 2 seconds. This suite contains
-`test_llm_timeout_fits_within_hook_timeout`, which asserts
-`LLM_TIMEOUT_SECONDS` (8) is strictly below the Stop-hook timeout
-registered in `plugins/herald/hooks/hooks.json` (10).
-
-```bash
-cd plugins/imbue
-uv run pytest tests/unit/skills/test_proof_of_work.py -q
-```
-
-Expected: `17 passed`. Note: imbue's pytest addopts force coverage
-artifacts on every run. There is no dedicated test for the
-verifier-integrity module itself (verified 2026-07-02 by grepping
-`plugins/imbue/tests/` for `verifier-integrity`): the module is prose,
-covered only by the skill-structure test above.
-
-Smoke-test the herald judge directly. All three probes below were run
-and their outputs captured verbatim on 2026-07-02:
-
-```bash
-echo '{"session_id":"probe","transcript_path":"/nonexistent"}' \
-  | python3 plugins/herald/hooks/double_shot_latte.py
-```
-
-Expected:
-
-```json
-{"decision": "approve", "reason": "Double Shot Latte: No transcript available; allowing stop."}
-```
-
-```bash
-D=$(mktemp -d)
-printf '%s\n' '{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Now let me fix the failing tests."}]}}' \
-  > "$D/t.jsonl"
-echo "{\"session_id\":\"p1\",\"transcript_path\":\"$D/t.jsonl\"}" \
-  | python3 plugins/herald/hooks/double_shot_latte.py
-```
-
-Expected:
-
-```json
-{"decision": "block", "reason": "Double Shot Latte: Assistant stated explicit intent to keep working."}
-```
-
-Gate P0 branches:
-
-- Pass counts lower than stated, or any failure: the repo has drifted
-  since 2026-07-02. Stop the campaign. Triage with
-  `night-market-debugging-playbook`, then update the counts in this
-  skill's Provenance section before proceeding.
-- `ImportPathMismatchError` or `no tests ran`: you ran pytest from the
-  wrong directory. Re-run from inside the plugin.
-- Hook probe emits nothing or a traceback: the hook contract is broken
-  (it must always exit 0 and print a decision). That is a P0 incident,
-  not a campaign step. File it.
+Gate: exact pass counts reproduced, running every suite from inside its
+plugin directory.
+Commands, expected observations and branch instructions:
+`modules/p0-baseline.md`.
 
 ## P1: shadow observation, then opt-in on a bounded item
 
-### P1a: shadow read (no behavior change)
-
-Verdicts are recorded in the manifest even with the flag off (the
-`egregore:quality-gate` skill records every verdict as a decision entry
-`{"step": ..., "chose": ..., "why": ...}`). So the flag-off world
-already contains the shadow data: items that advanced to `completed`
-despite a `fix-required` verdict. Count them in any repo where egregore
-has run:
-
-```bash
-python3 - <<'EOF'
-import json
-from pathlib import Path
-
-path = Path(".egregore/manifest.json")
-if not path.exists():
-    print(json.dumps({"error": "no manifest; egregore has not run here"}))
-    raise SystemExit(0)
-data = json.loads(path.read_text())
-items = data.get("work_items") or data.get("items") or []
-flagged = [
-    {"id": i.get("id"), "status": i.get("status")}
-    for i in items
-    if any(d.get("chose") == "fix-required" for d in i.get("decisions", []))
-]
-print(json.dumps(
-    {"total_items": len(items), "items_with_fix_required": flagged},
-    indent=2,
-))
-EOF
-```
-
-Expected: a JSON summary. Any entry with `"status": "completed"` in
-`items_with_fix_required` is a shadow-mode false completion: the exact
-event the gate exists to prevent. Record the count as the P2 baseline.
-
-Branch: no manifest exists in this repo's root (egregore is typically
-summoned in target repos, and `.egregore/` state lives where it ran).
-If you have no manifest anywhere, skip to P1b and generate one.
-
-### P1b: enable the gate on a bounded run
-
-The opt-in path is hand-editing the config JSON. This exact shape is
-what `test_completion_integrity_loads_from_raw_json` covers:
-unspecified pipeline fields keep their defaults.
-
-```bash
-mkdir -p .egregore
-cat > .egregore/config.json <<'EOF'
-{"pipeline": {"completion_integrity": true}}
-EOF
-```
-
-Warning: if `.egregore/config.json` already exists, edit the existing
-`pipeline` object instead of overwriting the file, or you will reset
-overseer and alert settings to defaults.
-
-Then run a small, disposable work item in bounded mode (bounded mode
-stops when the time window expires, so the loop cannot run away while
-you observe):
-
-```
-/egregore:summon "<one small, well-specified task>" --bounded --window 5h
-```
-
-Before summoning, read "Stopping and relaunch machinery" at the end
-of this section: bounded mode expires on its own, but the watchdog
-and SessionStart hook can still resurrect the loop.
-
-What it logs and where:
-
-- `.egregore/manifest.json`: per-item `status` (`active`, `paused`,
-  `pending` count as unfinished for the Stop hook, while `completed`
-  and `failed` are terminal), `attempts`, `max_attempts` (default 3),
-  and the `decisions` array holding each quality verdict.
-- `.egregore/relaunch-prompt.md`: the re-injection prompt the egregore
-  Stop hook (`plugins/egregore/hooks/stop_hook.py`) uses when it blocks
-  an exit with active work remaining.
-- Overseer alerts per `.egregore/config.json` (`pipeline_failure`
-  fires when an item exhausts attempts).
-
-Expected observations with the flag on, per the documented contract in
-`plugins/egregore/skills/quality-gate/SKILL.md` and
-`agents/orchestrator.md`:
-
-1. A `fix-required` verdict routes to failure handling: the item
-   retries in place, and after `max_attempts` it is marked `failed`
-   with the overseer alerted. It is never silently `completed`.
-2. Merge is held for human review regardless of `auto_merge`: the PR
-   is prepared but left open.
-3. The loop itself does not halt: it continues with the next active
-   item.
-
-Gate P1 branches:
-
-- An item reaches `completed` with an unresolved `fix-required`
-  decision while the flag is true: the orchestrator ignored its
-  instructions. This confirms the prompt-level enforcement gap in the
-  problem statement. Record the manifest as evidence and carry it into
-  P3. The finding argues for solution (a) or (b) below, which move
-  enforcement out of the prompt.
-- The item loops in retry forever: `max_attempts` is not being
-  incremented. That is an orchestrator bug, not a gate result. File it
-  with the manifest attached.
-
-#### Stopping and relaunch machinery
-
-Know the stop path before you summon. The loop runs indefinitely by
-default and never stops on its own
-(`plugins/egregore/commands/dismiss.md`).
-
-- `/egregore:dismiss` is the only sanctioned stop. It pauses all
-  active items in the manifest, cancels the orchestrator's cron jobs,
-  and removes the pidfile (`.egregore/pid`).
-- The pidfile is what the watchdog daemon polls. If
-  `/egregore:install-watchdog` has run on the machine,
-  `plugins/egregore/scripts/watchdog.sh` fires every 5 minutes via
-  launchd or systemd and relaunches a session whenever the manifest
-  has unfinished work, the budget allows it, and no pidfile marks a
-  live session. Killing a session without dismissing therefore gets
-  you silently relaunched sessions.
-- A SessionStart hook (matcher `startup|resume` in
-  `plugins/egregore/hooks/hooks.json`) auto-resumes orchestration in
-  new and resumed sessions while egregore state is active. Closing
-  the terminal is not a stop either.
-- `.egregore/budget.json` bounds spend. The watchdog checks it before
-  relaunching, so an exhausted budget halts relaunches even without a
-  dismiss.
+Gate: the opt-in path exercised on a bounded item, with its logs
+captured. P1a reads verdicts in shadow, and P1b enables the gate on a
+bounded run.
+Commands, expected observations and branch instructions:
+`modules/p1-shadow-and-opt-in.md`.
 
 ## P2: measure false-stop and false-continue rates
 
-Fix the acceptance numbers before running anything. The numbers below
-are candidates recorded at authoring time. Whoever executes P2 must
-confirm or amend them, in writing, before the first measurement run.
-
-| Metric | Definition | Candidate gate |
-|--------|-----------|----------------|
-| Egregore false completions | Items `completed` with an unresolved `fix-required` verdict, flag on | 0 over N >= 20 work items |
-| Egregore false failures | Items `failed` whose findings a human reviewer judges non-blocking | <= 2 of 20 (candidate) |
-| Herald false continue | Judge blocks a stop on a turn a human labels finished | <= 5% over N >= 30 labeled transcripts (candidate) |
-| Herald false stop | Judge approves a stop on a turn with explicit stated intent to continue | <= 10% over the same set (candidate) |
-
-The asymmetry is deliberate: herald's false continue burns tokens and
-nags a finished session, while its false stop merely hands control to
-the human. The judge is biased to stop by design, so tolerate more
-false stops than false continues.
-
-Herald measurement harness (candidate, offline and read-only): collect
-real session transcripts, hand-label the final assistant message of
-each as finished / awaiting-user / continuing, then score the
-deterministic judge against the labels:
-
-```bash
-for t in "$HOME"/.claude/projects/*/*.jsonl; do
-  verdict=$(printf '{"session_id":"m","transcript_path":"%s"}' "$t" \
-    | python3 plugins/herald/hooks/double_shot_latte.py)
-  echo "$t $verdict"
-done
-```
-
-Notes for the harness: the event omits `stop_hook_active`, so the
-throttle counter is not consulted, and `DOUBLE_SHOT_LATTE_LLM` unset
-keeps the run deterministic and network-free. Compute the confusion
-matrix against your labels by hand or with a 20-line script. Commit the
-labeled set alongside the numbers so the measurement is reproducible.
-
-Egregore measurement: repeat P1b across N >= 20 items (candidate N) and
-tally the manifest with the P1a script. Do not curate which items go
-in. Take a contiguous slice of real backlog.
-
-Gate P2 branches:
-
-- Numbers met: proceed to P3.
-- Herald false-continue rate blows the gate: inspect which
-  `_CONTINUE_PATTERNS` regex fired on finished turns and tighten it.
-  That is deterministic gate expansion, solution (a); re-run the same
-  labeled set after the change.
-- Egregore false completions are nonzero: enforcement is not binding.
-  Do not tune thresholds to pass. Go to P3 and then to solution (a) or
-  (b).
+Gate: pre-registered numbers met. Write the thresholds down and date
+them before measuring.
+Commands, expected observations and branch instructions:
+`modules/p2-measure-rates.md`.
 
 ## P3: adversarial self-test (design the refutation)
 
-The question: can the loop satisfy the gate without doing the work? Run
-each attack, record the result, and either close the hole or document
-it as accepted residual risk with an owner.
-
-### Attack A: talk your way past the herald judge
-
-Verified on 2026-07-02: a transcript whose final assistant message is
-"Everything is done and verified, tests passing green." gets
-
-```json
-{"decision": "approve", "reason": "Double Shot Latte: Assistant signaled the work is complete."}
-```
-
-with zero checks run. The judge is a conversation-state classifier over
-the last 800 characters of assistant text (`TAIL_CHARS`), by design. It
-answers "does the agent intend to continue?", never "is the work
-actually done?". Conclusion, standing: herald's verdict must never be
-used as completion proof. Any design that treats a Stop-hook approve as
-evidence of completion fails this attack by construction.
-
-### Attack B: fake the egregore manifest
-
-With `completion_integrity` true, hand-edit one work item in
-`.egregore/manifest.json` from `active` to `completed` while its
-decisions still contain a `fix-required`. Then feed the egregore Stop
-hook a stop event:
-
-```bash
-echo '{}' | python3 plugins/egregore/hooks/stop_hook.py
-```
-
-Expected (run from a directory whose walk-up finds that manifest): the
-hook checks only `status in ("active", "paused", "pending")` via
-`has_active_work` and prints `{"decision": "approve"}`. Nothing
-cross-checks decisions against status. This demonstrates the residual
-hole: the manifest is agent-writable state, so an orchestrator that
-lies in the manifest defeats the gate. Candidate hardening (unbuilt):
-teach the Stop hook to refuse `completed` status on items whose most
-recent quality decision is `fix-required`, which moves one enforcement
-point out of the prompt and into code the agent does not author
-mid-loop. Treat that as a P4 prerequisite discussion item, not a given.
-
-### Attack C: mutation-prove every gate you add
-
-Any new deterministic check earns trust only by going red on a real
-break (verifier-integrity Guard 2). For each check added during this
-campaign, record evidence in the module's format:
-
-```markdown
-[V1] Check: <the test or gate>
-     Encodes requirement: <observable behavior, stated from intent>
-     Fake-resistance: <mutation applied> -> <check went RED: yes/no>
-     Independence: <executable / who verified>
-     Passing run: <command + output reference>
-```
-
-A single surviving mutation is a hole in the gate, not a rounding
-error.
+Gate: refutation attempts run, holes documented or closed. Attack A
+talks past the herald judge, Attack B fakes the egregore manifest, and
+Attack C mutation-proves every gate added.
+Commands, expected observations and branch instructions:
+`modules/p3-adversarial.md`.
 
 ## Solution menu, ranked
 
@@ -452,62 +149,15 @@ implementation must discharge.
 | Letting the generator judge its own output | arXiv 2402.08115, folded into `imbue:proof-of-work/verifier-integrity` | Self-verification is frequently no better than generation and self-critique can degrade output. Verdicts must come from an independent verifier |
 | Assuming hook payloads arrive in env vars | CHANGELOG 1.9.14 ("Hooks read the tool payload from stdin, not unset env vars") | Hooks reading `CLAUDE_TOOL_*` were silent no-ops for months (full record: night-market-failure-archaeology SB9). Payload is JSON on stdin. Use `shared/hook_io.read_hook_payload` |
 | Shipping an optional branch no test exercises | 268cff89 added 81 test lines for the LLM path | The deterministic suite was green while the opt-in LLM branch was broken by construction. Every opt-in branch needs at least one test that walks it |
-| Treating "done" text as a completion gate | Attack A above, plus the harness research: a completion promise must pair with an iteration cap and manual abort | String-matched completion is trivially fakeable and herald proves it live |
+| Treating "done" text as a completion gate | Attack A in `modules/p3-adversarial.md`, plus the harness research: a completion promise must pair with an iteration cap and manual abort | String-matched completion is trivially fakeable and herald proves it live |
 | Prompt-only enforcement of a code-level guarantee | P1/P3 findings in this campaign | The flag flips real code, but nothing in code blocks the transition, so a non-compliant orchestrator defeats it. Move at least one enforcement point into a hook or script |
 
 ## P4: promotion through change control
 
-Flipping `completion_integrity` to default-on changes the documented
-posture of every egregore deployment. It routes through
-`night-market-change-control`. Do not shortcut it.
-
-Preconditions, all required:
-
-- [ ] P2 numbers met at the pre-registered thresholds, raw data
-      committed.
-- [ ] P3 attacks run, with Attack B either closed by a code-side check
-      or formally accepted in the ADR with an owner.
-- [ ] The promotion decision drafted as a numbered ADR in `docs/adr/`
-      (next free number: ADR-0017 is the highest as of 2026-07-02),
-      because this reverses a deliberate recorded default.
-
-Implementation order (Iron Law: failing test first):
-
-1. Branch per convention: `<topic>-<version>`, from `master`.
-2. Turn the default's tests red first: in
-   `plugins/egregore/tests/test_config.py`, change
-   `test_pipeline_defaults` to expect `completion_integrity is True`
-   and run it. Expected: 1 failure, proving the test binds the default.
-3. Flip the default in `plugins/egregore/scripts/config.py`
-   (`PipelineConfig.completion_integrity: bool = True`) and re-run:
-
-   ```bash
-   cd plugins/egregore
-   uv run pytest tests/test_config.py tests/test_quality_gate.py -q
-   ```
-
-4. Update every document that states the default is off. Verified
-   list as of 2026-07-02 (re-derive with the rg command in Provenance):
-   `plugins/egregore/scripts/config.py` (comment),
-   `plugins/egregore/tests/test_config.py` (comment),
-   `plugins/egregore/agents/orchestrator.md`,
-   `plugins/egregore/skills/quality-gate/SKILL.md`,
-   `plugins/egregore/skills/summon/modules/pipeline.md`,
-   `plugins/egregore/README.md`.
-5. Add a CHANGELOG entry under `[Unreleased]` in Keep a Changelog
-   format. Never rewrite historical entries.
-6. Check the diff against the 200-line AI-commit cap (CONSTITUTION
-   rule 2). The code flip is tiny, but the doc sweep plus ADR may
-   exceed it: if so, the ADR itself is the required planning doc;
-   reference it in the commit body.
-7. Run the standard gates before committing (`make lint`,
-   `make typecheck`, plugin tests) and follow the PR flow in
-   `night-market-operations`.
-
-Rollback: the flag remains user-overridable either way
-(`{"pipeline": {"completion_integrity": false}}` in
-`.egregore/config.json`), so promotion is reversible per-deployment
-without a code change. State this in the ADR.
+Gate: change control passed. The default flip routes through
+`night-market-change-control`.
+Commands, expected observations and branch instructions:
+`modules/p4-promotion.md`.
 
 ## When NOT to use
 

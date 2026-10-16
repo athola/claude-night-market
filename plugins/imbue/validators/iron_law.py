@@ -71,16 +71,21 @@ def impl_to_test_paths(impl_path: str) -> list[str]:
     base = parts[-1]
     test_base = f"test_{base}"
     candidates: list[str] = []
-    # Mirror src/ -> tests/ (preserving subpath after src/).
+    # Mirror src/ -> tests/ (preserving subpath after src/). The part before
+    # src/ is the package root: "plugins/p/src/p/x.py" is tested under
+    # "plugins/p/tests/", not the repo-root "tests/".
     if "src" in parts:
         idx = parts.index("src")
+        root = parts[:idx]
         sub = parts[idx + 1 : -1]
-        candidates.append("/".join(["tests", *sub, test_base]))
-        candidates.append("/".join(["tests", "unit", *sub, test_base]))
-    # Sibling tests/ directory at the same depth.
-    candidates.append("/".join([*parts[:-1], "tests", test_base]))
-    candidates.append("/".join(["tests", test_base]))
-    candidates.append("/".join(["tests", "unit", test_base]))
+        candidates.append("/".join([*root, "tests", *sub, test_base]))
+        candidates.append("/".join([*root, "tests", "unit", *sub, test_base]))
+    # A tests/ directory beside the file, or at any ancestor, which is where
+    # the package root's tests sit for hooks/ and scripts/ modules.
+    for depth in range(len(parts) - 1, -1, -1):
+        prefix = parts[:depth]
+        candidates.append("/".join([*prefix, "tests", test_base]))
+        candidates.append("/".join([*prefix, "tests", "unit", test_base]))
     return list(dict.fromkeys(candidates))
 
 

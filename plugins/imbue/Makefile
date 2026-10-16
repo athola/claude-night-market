@@ -31,7 +31,7 @@ include $(ABSTRACT_DIR)/config/make/python.mk
 help: ## Show this help message
 	@echo "Imbue Plugin - Make Targets"
 	@echo "============================"
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' Makefile
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # Installation
 install: ## Install the package
@@ -59,10 +59,6 @@ test-all: ## Run detailed test suite with coverage
 test-parallel: ## Run tests in parallel for speed
 	$(PYTEST) tests/ -n auto
 
-# Code Quality
-format-check: ## Check if code is formatted correctly
-	$(RUFF) format --check .
-
 # Documentation
 docs: ## Generate documentation
 	@echo "Documentation available in tests/README.md"
@@ -84,7 +80,7 @@ ci: ## Run CI pipeline (all checks and tests)
 	$(MAKE) lint
 	$(MAKE) type-check
 	$(MAKE) security
-	$(MAKE) test-all
+	$(MAKE) test-coverage
 	@echo "CI pipeline completed successfully!"
 
 # Development Workflow
@@ -136,8 +132,7 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "UV: $(UV)"
 	@echo "UV_RUN: $(UV_RUN)"
 	@echo "SHELL: $(SHELL)"
-	@echo "SHELLFLAGS: $(SHELLFLAGS)"
-	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SHELLFLAGS: $(.SHELLFLAGS)"
 	@echo "SRC_DIRS: $(SRC_DIRS)"
 	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
 	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
@@ -199,8 +194,9 @@ demo-citation-verifier: ## Demo grounded-finding citation verifier (LIVE)
 	echo "Two findings cite the same file: one real anchor, one fabricated:"; \
 	cat "$$findings"; \
 	echo ""; \
-	$(UV_RUN) python scripts/citation_verifier.py \
-	  --findings "$$findings" --repo-root . || true
+	rc=0; $(UV_RUN) python scripts/citation_verifier.py \
+	  --findings "$$findings" --repo-root . || rc=$$?; \
+	[ $$rc -eq 1 ] || { echo "Expected the verifier to reject with exit 1, got $$rc"; exit 1; }
 	@echo ""
 	@echo ""
 	@echo "The fabricated citation was rejected (exit 1). This gate runs in"
@@ -226,8 +222,7 @@ demo-feature-review: ## Demo feature review with RICE scoring (LIVE)
 	@echo "Use /imbue:feature-review for full RICE/WSJF analysis."
 
 test-feature-review: ## Test feature review (runs feature review unit tests)
-	$(PYTEST) tests/unit/skills/test_feature_review.py -v || \
-		$(PYTEST) tests/ -v -k "feature_review or feature-review"
+	$(PYTEST) tests/unit/skills/test_feature_review.py -v
 
 plugin-check: demo-catchup demo-validator demo-citation-verifier demo-skills demo-feature-review ## Run all live demos
 	@echo ""
@@ -253,5 +248,4 @@ clean: ## Clean up generated files
 	rm -rf build/
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete
-	uv cache clean
 	@echo "Cleanup completed!"

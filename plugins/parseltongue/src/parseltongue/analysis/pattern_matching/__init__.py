@@ -16,25 +16,13 @@ _improvements.py   -- DSL, suggestions, consistency, variations,
 from __future__ import annotations
 
 from ._analysis import AnalysisPatternMixin
-from ._constants import (
-    _OBSERVER_METHODS,
-    MIN_FACTORY_RETURN_CLASSES,
-    MIN_OBSERVER_METHODS,
-    MIN_REPO_METHODS,
-)
 from ._core import PatternMatchingCoreMixin
 from ._ddd import DDDPatternMixin
 from ._gof import GoFPatternMixin
 from ._improvements import ImprovementsMixin
 from ._test_patterns import TestPatternMixin
 
-__all__ = [
-    "MIN_FACTORY_RETURN_CLASSES",
-    "MIN_OBSERVER_METHODS",
-    "MIN_REPO_METHODS",
-    "_OBSERVER_METHODS",
-    "PatternMatchingSkill",
-]
+__all__ = ["PatternMatchingSkill"]
 
 
 class PatternMatchingSkill(

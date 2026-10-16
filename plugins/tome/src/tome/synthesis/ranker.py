@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import itertools
 import re
+import warnings
 from datetime import datetime, timezone
 from typing import Any
 
@@ -114,6 +115,8 @@ _AUTHORITY_TIERS: dict[str, tuple[str, tuple[tuple[int, float], ...]]] = {
     "arxiv": ("citations", ((200, 0.2), (50, 0.1))),
     "academic": ("citations", ((200, 0.2), (50, 0.1))),
     "semantic_scholar": ("citations", ((200, 0.2), (50, 0.1))),
+    "semantic_scholar_chain": ("citations", ((200, 0.2), (50, 0.1))),
+    "openalex": ("citations", ((200, 0.2), (50, 0.1))),
     "reddit": ("score", ((200, 0.1), (50, 0.05))),
 }
 
@@ -137,7 +140,7 @@ def compute_relevance_score(finding: Finding) -> float:
     Authority bonuses:
     - github: stars > 1000 -> +0.1, stars > 5000 -> +0.2
     - hn: score > 100 -> +0.1, score > 500 -> +0.2
-    - arxiv/academic: citations > 50 -> +0.1, citations > 200 -> +0.2
+    - arxiv/academic/semantic_scholar/openalex: citations > 50 -> +0.1, citations > 200 -> +0.2
     - reddit: score > 50 -> +0.05, score > 200 -> +0.1
 
     Recency bonus: metadata "year" within 2 calendar years -> +0.05
@@ -182,8 +185,8 @@ def rank_findings(findings: list[Finding]) -> list[Finding]:
     )
 
 
-def group_by_theme(findings: list[Finding]) -> dict[str, list[Finding]]:
-    """Group findings by channel (code/discourse/academic/triz)."""
+def group_by_channel(findings: list[Finding]) -> dict[str, list[Finding]]:
+    """Group findings by channel (code/discourse/academic/triz/web)."""
     groups: dict[str, list[Finding]] = {}
     for finding in findings:
         channel = finding.channel
@@ -191,3 +194,13 @@ def group_by_theme(findings: list[Finding]) -> dict[str, list[Finding]]:
             groups[channel] = []
         groups[channel].append(finding)
     return groups
+
+
+def group_by_theme(findings: list[Finding]) -> dict[str, list[Finding]]:
+    """Deprecated alias for :func:`group_by_channel`."""
+    warnings.warn(
+        "group_by_theme is deprecated; use group_by_channel",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return group_by_channel(findings)

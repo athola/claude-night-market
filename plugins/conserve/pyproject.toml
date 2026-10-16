@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conserve-dev"
-version = "1.9.21"
+version = "1.10.0"
 description = "Development tools for the conserve Claude Code plugin - resource optimization and performance monitoring"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -27,7 +27,6 @@ dev = [
     "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
     "ty>=0.0.82",
-    "pytype>=2024.10.11 ; python_version >= '3.10'",
     "typos>=1.50.2",
 ]
 
@@ -39,20 +38,15 @@ dev = [
 [dependency-groups]
 dev = [
     "bandit>=1.8.6,<2.0",
-    "blacken-docs>=1.20.0,<2.0",
-    "interrogate>=1.7.0,<2.0",
     "pre-commit>=4.3.0",
     "ty>=0.0.82",
-    "safety>=3.8.1,<4.0",
     "typos>=1.50.2",
     "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
     "pytest-cov>=7.1.0",
-    "pytest-mock>=3.15.1",
-    "pytest-asyncio>=1.2.0",
-    "pytest-bdd>=8.1.0",
-    "pytest-xdist>=3.8.0",
+    # tests/test_filter_log_command.py imports yaml directly
+    "pyyaml>=6.0.3",
     "hypothesis>=6.152.7",
 ]
 
@@ -107,12 +101,8 @@ namespace_packages = true
 # Hooks inject their own directory onto sys.path at runtime before importing
 # sibling modules (e.g. `from shared.session_file import ...`). Mirror that here
 # so mypy resolves the real modules instead of reporting import-not-found.
-mypy_path = ["hooks"]
+mypy_path = ["hooks", "scripts"]
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
-
-[[tool.mypy.overrides]]
-module = ["coordination_workspace"]
-disable_error_code = ["no-any-return"]
 
 # leyline is an optional peer plugin resolved via sys.path at runtime; in an
 # isolated venv mypy cannot see it, so suppress import-not-found. Matches the
@@ -127,7 +117,6 @@ exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
 skips = ["B101"]  # Skip assert_used test for test files
 
 [tool.pytest.ini_options]
-asyncio_default_fixture_loop_scope = "function"
 minversion = "8.0"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
@@ -155,7 +144,6 @@ omit = [
     "*/tests/*",
     "*/__pycache__/*",
     "hooks/session-start.sh",  # Shell script, not Python
-    "hooks/permission_request.py",  # Covered by its own test module
 ]
 
 [tool.coverage.report]

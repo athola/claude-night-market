@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import http.client
 import json
 import math
 import threading
@@ -96,10 +97,10 @@ def daemon_no_port_file(tmp_path: Path):
         models_dir=models_dir,
         port_file=None,
     )
+    # No wait needed: InferenceDaemon.__init__ binds and listens, so a
+    # request sent before serve_forever runs queues in the backlog.
     t = threading.Thread(target=d.serve_forever, daemon=True)
     t.start()
-    # Give it a moment to bind
-    time.sleep(0.15)
     yield d
     d.shutdown()
     t.join(timeout=5.0)
@@ -526,6 +527,53 @@ class TestEdgeCasePaths:
         assert exc_info.value.code == 400
         body = json.loads(exc_info.value.read())
         assert "error" in body
+
+    @pytest.mark.integration
+    def test_non_numeric_content_length_returns_400(
+        self, daemon_instance: InferenceDaemon
+    ):
+        """
+        Scenario: POST /infer with a Content-Length that is not a number
+        Given the daemon is running
+        When POST /infer is sent with Content-Length "abc"
+        Then the response is 400 naming the bad header
+        """
+        conn = http.client.HTTPConnection("127.0.0.1", daemon_instance.port, timeout=5)
+        try:
+            conn.putrequest("POST", "/infer")
+            conn.putheader("Content-Length", "abc")
+            conn.endheaders()
+            resp = conn.getresponse()
+            body = json.loads(resp.read())
+        finally:
+            conn.close()
+
+        assert resp.status == 400
+        assert body["error"] == "Invalid Content-Length"
+
+    @pytest.mark.integration
+    def test_features_that_are_not_an_object_return_400(
+        self, daemon_instance: InferenceDaemon
+    ):
+        """
+        Scenario: POST /infer where 'features' is a list
+        Given the 'test' model
+        When POST /infer is sent with features=[1, 2]
+        Then the response is 400 rather than a score on a zero-filled vector
+        """
+        url = f"http://127.0.0.1:{daemon_instance.port}/infer"
+        payload = json.dumps({"model": "test", "features": [1, 2]}).encode()
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            method="POST",
+            headers={"Content-Type": "application/json"},
+        )
+        with pytest.raises(urllib.error.HTTPError) as exc_info:
+            urllib.request.urlopen(req, timeout=5)  # nosec B310 - localhost-only test server
+        assert exc_info.value.code == 400
+        body = json.loads(exc_info.value.read())
+        assert body["error"] == "'features' must be a JSON object"
 
 
 class TestNoPortFile:
