@@ -10,6 +10,8 @@ complexity: intermediate
 model_hint: standard
 estimated_tokens: 2100
 progressive_loading: true
+modules:
+- modules/subagent-fallback.md
 references:
 - references/mission-report.md
 role: library
@@ -157,20 +159,13 @@ the same TDD workflow below.
 The tests are the validation: a delegated implementation that fails the
 RED test is rejected exactly like a local one.
 
-If the result carries a `fallback_reason`, no external model ran.
+If the result's `fallback_reason` is `providers_exhausted`, no external
+model ran.
 Report which providers were tried, then hand the task to a subagent on the
-session's model.
-Use the host harness's own subagent tool.
-In Claude Code, dispatch `Agent(attune:project-implementer)` with `model`
-set to the session's own model (`opus`, `sonnet`, `haiku` or `fable`).
-The agent pins `sonnet`, and the override keeps the task on the model the
-operator chose.
-When the session model has no alias, dispatch `general-purpose` with no
-`model`, which inherits it.
-In Codex, OpenCode or another harness, use its subagent or task tool and
-leave the model unchanged.
-Implement the task here only when the harness has no subagent tool.
+session's model, following `modules/subagent-fallback.md`.
 Take the same path when conjure is not installed and its skill cannot load.
+If the reason is `delegation_disabled`, implement the task here: the
+operator declined delegation, and a subagent is still a delegation.
 An exhausted chain is not a blocked task and does not belong in
 `docs/lessons-learned.md`.
 
@@ -452,8 +447,8 @@ On track? = Estimated completion <= Sprint end date
   `docs/lessons-learned.md` as an `open` entry (a clean run needs none).
 - [ ] Every task was either delegated or held back by a named Keep Local
   clause.
-- [ ] Delegated output passed the same tests a local implementation
-  would have.
+- [ ] Delegated and fallback-subagent output passed the same tests a
+  local implementation would have.
 - [ ] No subsequent phase is auto-invoked (this is the terminal phase).
 
 ## Related Skills

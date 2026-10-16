@@ -165,22 +165,15 @@ Two outcomes need handling rather than reporting:
 
 - `fallback_reason` is `providers_exhausted`: no CLI answered. Say which
   were tried, then hand the task to a subagent on the session's model.
-  Use the host harness's own subagent tool.
-  In Claude Code, dispatch `Agent(attune:project-implementer)` with
-  `model` set to the session's own model (`opus`, `sonnet`, `haiku` or
-  `fable`). The agent pins `sonnet`, and without the override an Opus
-  mission runs its tasks on Sonnet. When the session model has no alias,
-  dispatch `general-purpose` with no `model`, which inherits it.
-  In Codex, OpenCode or another harness, use its subagent or task tool
-  and leave the model unchanged.
-  Validate what returns through the same TDD workflow as a delegated
-  result. Work inline only when the harness has no subagent tool.
-  This is the ordinary path on a machine with no CLI installed and it
-  does not fail the phase.
+  `Skill(attune:project-execution)` module `subagent-fallback.md`
+  carries the rule: which agent each phase uses, how to keep the model
+  and the branch, and when inline work is allowed. This is the ordinary
+  path on a machine with no CLI installed and it does not fail the phase.
   Take the same path when conjure is not installed and its skill cannot
   load.
 - `fallback_reason` is `delegation_disabled`: the operator declined.
-  Do the task locally and do not offer to re-enable it.
+  Do the task locally, because a subagent is still a delegation, and do
+  not offer to re-enable it.
 
 To run a whole mission without external models, set
 `CONJURE_DELEGATION=off` before invoking it.
@@ -378,5 +371,6 @@ mission-type baseline.
 - [ ] Execute-phase work either delegated or held back by a named Keep
   Local clause, never skipped for want of a delegation decision
 - [ ] Any `providers_exhausted` result completed by a session-model
-  subagent and reported with the providers it tried
+  subagent, or inline when the harness has no subagent tool, and
+  reported with the providers it tried
 - [ ] No unresolved errors or blockers
