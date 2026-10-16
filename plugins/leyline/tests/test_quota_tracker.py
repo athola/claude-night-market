@@ -473,6 +473,27 @@ class TestUsageStatsValidatesItsInput:
         with pytest.raises(ValueError):
             UsageStats(tokens_today=-1)
 
+    @pytest.mark.parametrize("field_name", ["last_request_time", "minute_window_start"])
+    def test_a_non_numeric_timestamp_is_rejected(self, field_name: str) -> None:
+        """A timestamp that is not a number must not construct.
+
+        GIVEN a window timestamp that arrived from JSON as a string
+        WHEN UsageStats is built from it
+        THEN a TypeError names the field and the offending type.
+        """
+        with pytest.raises(TypeError, match=f"{field_name} must be a number, got str"):
+            UsageStats(**{field_name: "yesterday"})
+
+    def test_a_boolean_timestamp_is_rejected(self) -> None:
+        """A bool passes isinstance(int) but is not a timestamp.
+
+        GIVEN last_request_time set to True
+        WHEN UsageStats is built from it
+        THEN a TypeError names bool.
+        """
+        with pytest.raises(TypeError, match="got bool"):
+            UsageStats(last_request_time=True)
+
     def test_a_corrupt_usage_file_falls_back_to_a_fresh_record(
         self, tmp_path: Path
     ) -> None:
