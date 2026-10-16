@@ -382,6 +382,18 @@ Fixed:
 - phantom prices `claude-haiku-5-5`, at its over-100K-token rate. It was
   billed at the $10/$50 fallback.
 - The egregore `loop-band` mod shows nothing for a work item with no `id`.
+- memory-palace's Stop hook records the session journey without networkx.
+  It imported the networkx-backed analyzer first, and in a stdlib-only hook
+  environment that dropped the journey along with the link predictions.
+- The slop ratchet compares against HEAD when a commit hook exports
+  `GIT_DIR`. In a linked worktree it read nothing at HEAD and gated every
+  edited file as new.
+- sanctum `quality_checker.py` runs a workspace member's tests from that
+  member's directory. abstract, conserve and leyline ran from the repo
+  root, without their pytest settings, and lost 20 points of score.
+- The sanctum registration audit accepts an `## Exit Criteria` section as
+  a skill's verification. It flagged `review-chamber` once the filler
+  "Verification:" lines were removed.
 
 Changed:
 
@@ -422,6 +434,9 @@ Changed:
 - **BREAKING** conjure `quota_tracker.py --validate-config` exits 1 on a
   non-positive limit.
 - **BREAKING** phantom `StuckPolicy` rejects `max_stuck` below 1.
+- Every `uv.lock` refreshed to current releases. anthropic 1.15 adds
+  `opentelemetry-api` as a runtime dependency of gauntlet, pensive and
+  phantom. mypy stays below 2 and bandit at 1.8.6, for the 3.9 floor.
 - attune task IDs follow spec-kit: `T001`, numbered across phases.
 - imbue's package-guard `if` filter starts the hook for `npm i`/`npm add`
   forms, not for every command containing `npm`.
