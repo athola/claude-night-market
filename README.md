@@ -139,7 +139,7 @@ The full skill, command, and agent inventory is in the
 > edit your repo, run shell commands, and call external services.
 > **Review any plugin before installing it.**
 
-Three guards reduce the blast radius, but none replace your own
+Five guards reduce the blast radius, but none replace your own
 review:
 
 - **TDD gates** (`imbue`) block implementation writes that lack a
@@ -147,6 +147,12 @@ review:
 - **Destructive-command blockers** (`conserve`, `hookify`)
   auto-approve safe commands and halt or warn on `rm -rf`,
   `git push --force`, and production-shaped targets.
+- **Credential-read denial** (`conserve`) refuses `cat`, `head`,
+  `grep`, `rg` and `git show` on `.env`, `.netrc`, credential files
+  and SSH keys.
+- **External-content sanitizing** (`leyline`) strips invisible
+  characters from web fetches and other external-tool output, and
+  blocks prompt-injection phrases before the model reads them.
 - **Additive-bias audits** (`leyline`) flag unjustified additions
   before commit.
 

@@ -186,6 +186,12 @@ imbue/
 │   ├── vow_no_ai_attribution.py  # PreToolUse: block AI attribution in commits
 │   ├── vow_no_edit_narration.py  # PreToolUse (Write/Edit/MultiEdit): flag edit narration in new text
 │   └── vow_no_emoji_commits.py   # PreToolUse: block emoji in commit messages
+├── scripts/
+│   ├── pre_pr_scope_check.sh     # Branch size vs scope-guard thresholds; works as a git pre-push hook
+│   ├── citation_verifier.py      # Check review findings cite real source lines
+│   ├── contract_validator.py     # Check agent findings against output contracts
+│   ├── imbue_validator.py        # Validate the review and evidence skills
+│   └── deferred_capture.py       # Record deferred items through leyline
 ├── commands/
 │   ├── full-review.md       # Structured review command
 │   ├── catchup.md           # Quick catchup command
