@@ -830,3 +830,49 @@ class TestConcurrentRotation:
         assert first.usage_backup.read_text() == full
         live = [json.loads(line)["command"] for line in first.usage_log.open()]
         assert sorted(live) == ["a", "b"]
+
+
+def test_recent_errors_skip_a_line_that_is_not_json(tmp_path: Path) -> None:
+    """A truncated log line does not hide the errors around it.
+
+    GIVEN a usage log holding an unparsable line and a failed request
+    WHEN recent errors are read
+    THEN only the failed request is returned.
+    """
+    with patch("pathlib.Path.home", return_value=tmp_path):
+        logger = GeminiUsageLogger()
+    failed = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "command": "c",
+        "success": False,
+        "error": "boom",
+    }
+    logger.usage_log.write_text('{"truncated": \n' + json.dumps(failed) + "\n")
+
+    errors = logger.get_recent_errors(5)
+
+    assert [entry["error"] for entry in errors] == ["boom"]
+
+
+def test_cli_log_rejects_a_success_value_that_is_not_true_or_false(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """--log exits 1 and names the bad success value instead of logging.
+
+    GIVEN --log arguments whose success field is "maybe"
+    WHEN the CLI runs
+    THEN it exits 1 AND stderr says success must be true or false
+    AND nothing is logged.
+    """
+    argv = ["usage_logger.py", "--log", "gemini test", "150", "maybe", "2.5"]
+
+    with (
+        patch("usage_logger.GeminiUsageLogger") as logger_class,
+        patch("sys.argv", argv),
+        pytest.raises(SystemExit) as exc_info,
+    ):
+        main()
+
+    assert exc_info.value.code == 1
+    assert "success must be true or false, got 'maybe'" in capsys.readouterr().err
+    logger_class.return_value.log_usage.assert_not_called()

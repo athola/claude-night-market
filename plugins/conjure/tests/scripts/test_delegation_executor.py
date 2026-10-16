@@ -1594,3 +1594,28 @@ class TestDelegationUsageLogRotation:
 
         assert summary["total_requests"] == 3
         assert summary["services"]["gemini"]["requests"] == 1
+
+
+def test_delegation_cli_rejects_an_unknown_service(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Naming a service that is not configured exits 1 with a pointer to the list.
+
+    GIVEN a delegator with its built-in services
+    WHEN the CLI is asked to run a service called "nosuchservice"
+    THEN it exits 1 AND stderr names the service and --list-services.
+    """
+    argv = ["delegation_executor.py", "nosuchservice", "hello"]
+
+    with (
+        patch("pathlib.Path.home", return_value=tmp_path),
+        patch("sys.argv", argv),
+        pytest.raises(SystemExit) as exc_info,
+    ):
+        main()
+
+    assert exc_info.value.code == 1
+    assert (
+        "Unknown service: nosuchservice (see --list-services)"
+        in capsys.readouterr().err
+    )
