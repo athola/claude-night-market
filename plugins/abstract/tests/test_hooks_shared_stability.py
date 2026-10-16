@@ -55,3 +55,13 @@ def test_a_non_numeric_outcome_is_rejected_not_skipped() -> None:
 def test_worst_window_rate_is_the_lowest_windowed_success_rate() -> None:
     assert worst_window_rate([1] * 20 + [0] * WINDOW) == 0.0
     assert worst_window_rate([1, 1, 1]) == 1.0
+
+
+def test_worst_window_rate_of_no_runs_is_zero_not_an_error() -> None:
+    """Averaging an empty history would divide by zero.
+
+    GIVEN no recorded runs
+    WHEN the worst window rate is asked for
+    THEN it is 0.0.
+    """
+    assert worst_window_rate([]) == 0.0

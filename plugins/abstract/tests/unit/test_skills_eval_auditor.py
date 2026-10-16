@@ -321,6 +321,45 @@ class TestCalculateCompletenessScore:
         score = auditor._calculate_completeness_score(frontmatter, "")
         assert 0.0 < score < 100.0
 
+    @pytest.mark.unit
+    def test_no_required_fields_scores_zero(self, tmp_path: Path) -> None:
+        """Scenario: nothing is required, so nothing can be complete.
+
+        GIVEN an auditor whose required_fields list is empty
+        WHEN a frontmatter that has every field is scored
+        THEN the score is 0, not a division by zero or a full mark.
+        """
+        auditor = SkillsAuditor(tmp_path)
+        auditor.audit_metrics["required_fields"] = []
+        frontmatter = {"name": "n", "description": "Use when testing"}
+
+        assert auditor._calculate_completeness_score(frontmatter, "") == 0
+
+
+class TestExitCriteriaBlockBoundary:
+    """Feature: the Exit Criteria block ends at the next top-level heading."""
+
+    @pytest.mark.unit
+    def test_block_stops_at_the_next_h2_but_not_at_an_h3(self) -> None:
+        """Scenario: a later section is not read as part of the criteria.
+
+        GIVEN Exit Criteria with an H3 inside it, followed by an H2 section
+        WHEN the block is extracted
+        THEN the H3 and its text stay in, and the H2 section is excluded.
+        """
+        _exit_criteria_block.cache_clear()
+        content = (
+            "## Exit Criteria\n\n- [ ] One\n\n### Detail\n\n- [ ] Two\n\n"
+            "## Troubleshooting\n\n- [ ] Not a criterion\n"
+        )
+
+        block = _exit_criteria_block(content)
+
+        assert block is not None
+        assert "- [ ] Two" in block
+        assert "Troubleshooting" not in block
+        assert "Not a criterion" not in block
+
 
 # ---------------------------------------------------------------------------
 # Tests: _calculate_structure_score
