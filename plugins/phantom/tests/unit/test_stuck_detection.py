@@ -165,3 +165,21 @@ def _make_png(pixel_bytes: bytes) -> str:
     Not a real PNG - just deterministic bytes for hash comparison.
     """
     return base64.standard_b64encode(pixel_bytes).decode("ascii")
+
+
+def test_reading_an_unknown_attribute_raises_attribute_error_naming_it() -> None:
+    """Only recovery_action is served by __getattr__; other names still fail.
+
+    GIVEN a StuckPolicy
+    WHEN an attribute it does not have is read
+    THEN AttributeError names the class and the attribute
+    AND hasattr reports it as absent.
+    """
+    policy = StuckPolicy()
+
+    with pytest.raises(
+        AttributeError, match="'StuckPolicy' object has no attribute 'nope'"
+    ):
+        _ = policy.nope  # type: ignore[attr-defined]  # reading a missing name is the point
+
+    assert hasattr(policy, "nope") is False
