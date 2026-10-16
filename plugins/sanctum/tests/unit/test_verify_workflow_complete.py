@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 import pytest
-from hooks.verify_workflow_complete import REMINDER, main
+from hooks.verify_workflow_complete import REMINDER, _turn_edited_files, main
 
 
 def _user_prompt(text: str) -> dict:
@@ -149,3 +149,56 @@ class TestReminderContent:
     def test_reminder_mentions_applicability_disclaimer(self) -> None:
         assert "not applicable" in REMINDER.lower()
         assert "simple fix" in REMINDER.lower()
+
+
+_EDIT_ROW = json.dumps(
+    {
+        "type": "assistant",
+        "message": {"content": [{"type": "tool_use", "name": "Edit", "input": {}}]},
+    }
+)
+
+
+def _write_rows(path: Path, lines: list[str]) -> str:
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return str(path)
+
+
+def test_edit_is_found_past_a_line_that_is_not_json(tmp_path: Path) -> None:
+    """A cut or garbled transcript line does not hide a later edit.
+
+    GIVEN a transcript tail with an unparsable last line after an Edit row
+    WHEN the turn is checked for file edits
+    THEN the edit is found.
+    """
+    transcript = _write_rows(tmp_path / "t.jsonl", [_EDIT_ROW, "not json {"])
+
+    assert _turn_edited_files(transcript) is True
+
+
+def test_edit_is_found_past_a_row_that_is_not_an_object(tmp_path: Path) -> None:
+    """A JSON line holding a list does not hide an earlier edit.
+
+    GIVEN a transcript whose last line is a JSON array
+    AND an Edit row before it
+    WHEN the turn is checked for file edits
+    THEN the edit is found.
+    """
+    transcript = _write_rows(tmp_path / "t.jsonl", [_EDIT_ROW, "[1, 2]"])
+
+    assert _turn_edited_files(transcript) is True
+
+
+def test_turn_without_prompt_or_edit_reports_no_edit(tmp_path: Path) -> None:
+    """A transcript of assistant text alone has no edit to remind about.
+
+    GIVEN a transcript holding only an assistant text row
+    WHEN the turn is checked for file edits
+    THEN no edit is reported.
+    """
+    text_row = json.dumps(
+        {"type": "assistant", "message": {"content": [{"type": "text", "text": "hi"}]}}
+    )
+    transcript = _write_rows(tmp_path / "t.jsonl", [text_row])
+
+    assert _turn_edited_files(transcript) is False

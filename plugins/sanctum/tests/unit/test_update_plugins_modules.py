@@ -405,3 +405,38 @@ class TestLogTimestampsWithAnOffset:
         result = PerformanceAnalyzer(log_dir=tmp_path).analyze_plugin("sanctum")
 
         assert result["low_success_rate"] == []
+
+
+@pytest.mark.parametrize("timestamp", ["", "yesterday-ish"])
+def test_log_entry_with_unreadable_timestamp_is_still_counted(
+    tmp_path: Path, timestamp: str
+) -> None:
+    """An entry whose timestamp is empty or unparsable is not dropped as old.
+
+    GIVEN a skill log entry for the plugin with a failure outcome
+    AND an empty or unparsable timestamp
+    WHEN the plugin is analyzed
+    THEN the failure appears in the recent failures.
+    """
+    entry = {"skill": "demo:skill", "timestamp": timestamp, "outcome": "failure"}
+    (tmp_path / "log.jsonl").write_text(json.dumps(entry) + "\n", encoding="utf-8")
+
+    report = PerformanceAnalyzer(log_dir=tmp_path).analyze_plugin("demo")
+
+    assert report["recent_failures"] == [{"skill": "demo:skill", "failures": 1}]
+
+
+def test_log_entry_older_than_the_window_is_ignored(tmp_path: Path) -> None:
+    """A readable timestamp still excludes entries before the cutoff.
+
+    GIVEN a failure logged 30 days ago
+    WHEN the plugin is analyzed over 7 days
+    THEN no failure is reported.
+    """
+    old = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    entry = {"skill": "demo:skill", "timestamp": old, "outcome": "failure"}
+    (tmp_path / "log.jsonl").write_text(json.dumps(entry) + "\n", encoding="utf-8")
+
+    report = PerformanceAnalyzer(log_dir=tmp_path).analyze_plugin("demo", days=7)
+
+    assert report["recent_failures"] == []

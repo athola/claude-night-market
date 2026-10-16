@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import argparse
 import ast
+import importlib.abc
 import importlib.util
 import json
+import runpy
 import sys
+from collections.abc import Iterator, Sequence
 from pathlib import Path
+from types import ModuleType
 from unittest.mock import patch
 
 import pytest
@@ -1306,6 +1310,31 @@ def test_project_interpreter_prefers_the_project_venv(tmp_path):
     assert cwd == project
 
 
+def test_workspace_member_runs_from_its_own_project_with_the_root_venv(tmp_path):
+    """A workspace member's tests run under its own pytest settings.
+
+    GIVEN a plugin project with no .venv inside a workspace root that has one
+    WHEN the runner resolves an interpreter
+    THEN it uses the root's python but runs from the plugin's directory,
+    where the plugin's pyproject supplies its pytest configuration
+    """
+    qc = _load_script()
+    (tmp_path / "pyproject.toml").write_text("[project]\nname = 'root'\n")
+    root_python = tmp_path / ".venv" / "bin" / "python"
+    root_python.parent.mkdir(parents=True)
+    root_python.write_text("#!/bin/sh\n")
+    root_python.chmod(0o755)
+    member = tmp_path / "plugins" / "member"
+    (member / "tests").mkdir(parents=True)
+    (member / "pyproject.toml").write_text("[project]\nname = 'member'\n")
+    test_file = member / "tests" / "test_member.py"
+    test_file.write_text("def test_x():\n    assert True\n")
+
+    interpreter, cwd = qc.resolve_project_interpreter(test_file)
+    assert interpreter == str(root_python)
+    assert cwd == member
+
+
 def test_project_interpreter_falls_back_to_the_running_one(tmp_path):
     """Without a project venv the checker uses the interpreter it runs under.
 
@@ -1570,3 +1599,62 @@ def test_every_issue_category_names_its_file_only_for_a_directory(tmp_path):
     }
     assert {i.file for i in directory_issues} == {str(noisy)}
     assert {i.file for issues in by_file.values() for i in issues} == {None}
+
+
+class _BlockPackage(importlib.abc.MetaPathFinder):
+    def __init__(self, package: str) -> None:
+        self.package = package
+
+    def find_spec(
+        self,
+        name: str,
+        path: Sequence[str] | None = None,
+        target: ModuleType | None = None,
+    ) -> None:
+        if name.split(".", maxsplit=1)[0] == self.package:
+            raise ModuleNotFoundError(f"No module named {name!r}")
+
+
+@pytest.fixture
+def block_leyline() -> Iterator[None]:
+    """Hide the leyline package, including any copy already imported."""
+    saved = {
+        n: sys.modules.pop(n) for n in list(sys.modules) if n.split(".")[0] == "leyline"
+    }
+    blocker = _BlockPackage("leyline")
+    sys.meta_path.insert(0, blocker)
+    yield
+    sys.meta_path.remove(blocker)
+    sys.modules.update(saved)
+
+
+def test_running_quality_checker_without_leyline_exits_naming_it(
+    block_leyline: None,
+) -> None:
+    """A direct run without leyline exits with a message, not a traceback.
+
+    GIVEN the leyline package cannot be imported
+    WHEN quality_checker.py is run as a script
+    THEN it exits with a message naming leyline.
+    """
+    with pytest.raises(SystemExit) as exc:
+        runpy.run_path(str(SCRIPT_PATH), run_name="__main__")
+
+    assert "requires the leyline plugin" in str(exc.value.code)
+
+
+def test_importing_quality_checker_without_leyline_raises_import_error(
+    block_leyline: None,
+) -> None:
+    """An importer gets the ImportError to handle itself.
+
+    GIVEN the leyline package cannot be imported
+    WHEN quality_checker.py is imported as a module
+    THEN ImportError propagates.
+    """
+    spec = importlib.util.spec_from_file_location("qc_no_leyline", SCRIPT_PATH)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+
+    with pytest.raises(ImportError):
+        spec.loader.exec_module(module)

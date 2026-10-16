@@ -95,8 +95,8 @@ def resolve_project_interpreter(test_path: Path) -> tuple[str, Path | None]:
     the ambient interpreter then exits 4 with a usage error, which reads as a
     broken suite when the suite is fine.
 
-    Returns the project's ``.venv`` interpreter and project root when there is
-    one, and the running interpreter otherwise.
+    Returns the nearest ``.venv`` interpreter at or above the test file, and
+    the nearest project root, and the running interpreter when no venv exists.
     """
     path = Path(test_path).resolve()
     start = path if path.is_dir() else path.parent
@@ -111,7 +111,9 @@ def resolve_project_interpreter(test_path: Path) -> tuple[str, Path | None]:
             directory / ".venv" / "Scripts" / "python.exe",
         ):
             if candidate.exists():
-                return str(candidate), directory
+                # A workspace member shares the root's venv but keeps its own
+                # pytest settings, so the run starts from the nearest project.
+                return str(candidate), project_root
     return _sys.executable, project_root
 
 
