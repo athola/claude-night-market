@@ -87,12 +87,15 @@ class MetaEvaluator:
         # per the 2026-04-08 plugin audit.  Skills loaded into model
         # context don't benefit from HTML anchor links.
 
-        # Check for verification steps
+        # Check for verification steps. An Exit Criteria section counts:
+        # .claude/rules/skill-exit-criteria.md makes it the required way a
+        # skill states how its work is checked.
         has_verification = bool(
             re.search(
-                r"verification|validate|check.*work|test.*correctness",
+                r"^## Exit Criteria|verification|validate|check.*work"
+                r"|test.*correctness",
                 content,
-                re.IGNORECASE,
+                re.IGNORECASE | re.MULTILINE,
             )
         )
         if not has_verification:

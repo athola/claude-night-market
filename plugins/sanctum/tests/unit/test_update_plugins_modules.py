@@ -162,6 +162,40 @@ class TestMetaEvaluator:
         assert not evaluator._is_eval_skill("helper")
 
     @pytest.mark.unit
+    def test_exit_criteria_section_counts_as_verification(self):
+        """
+        Scenario: A skill's Exit Criteria are how its work is checked
+
+        Given a skill whose only checking content is an Exit Criteria section
+        When its quality is audited
+        Then it is not reported as missing verification, since the repo's
+        exit-criteria rule makes that section the required check
+        """
+        evaluator = MetaEvaluator()
+        content = (
+            "# Room\n\nCapture findings.\n\n## Exit Criteria\n\n- [ ] Entry written\n"
+        )
+
+        issues = evaluator._check_skill_quality("room", content)
+
+        assert issues["missing_verification"] == []
+
+    @pytest.mark.unit
+    def test_skill_without_any_check_is_reported(self):
+        """
+        Scenario: A skill that never says how its work is checked
+
+        Given a skill with no Exit Criteria and no checking language
+        When its quality is audited
+        Then it is reported as missing verification
+        """
+        evaluator = MetaEvaluator()
+
+        issues = evaluator._check_skill_quality("bare", "# Bare\n\nDo the thing.\n")
+
+        assert issues["missing_verification"] == ["bare"]
+
+    @pytest.mark.unit
     def test_toc_check_disabled(self, temp_plugin_dir):
         """
         Scenario: TOC check is disabled ecosystem-wide
