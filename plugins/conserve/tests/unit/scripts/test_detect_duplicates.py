@@ -533,6 +533,24 @@ class TestCollectFilesExclusions:
 
         assert sorted(found) == sorted(keep)
 
+    def test_collect_files_filters_directly_named_files_by_suffix(
+        self, tmp_path: Path
+    ) -> None:
+        """A file path given on its own is kept only if its suffix is wanted.
+
+        GIVEN one .py file and one .txt file passed as paths, not directories
+        WHEN _collect_files filters for .py
+        THEN only the .py file, matched case-insensitively, is returned.
+        """
+        wanted = tmp_path / "Mod.PY"
+        unwanted = tmp_path / "notes.txt"
+        wanted.write_text("x = 1\n")
+        unwanted.write_text("x = 1\n")
+
+        found = detect_duplicates_module._collect_files([wanted, unwanted], {".py"})
+
+        assert found == [wanted]
+
 
 class TestUnreadableFilesAreNamed:
     """A file the scan cannot read is reported, not counted as clean."""

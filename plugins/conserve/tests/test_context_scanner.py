@@ -19,6 +19,10 @@ SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
 import context_scanner as cs  # noqa: E402 - sys.path extended above to reach scripts/
+from context_scanner.import_graph import (  # noqa: E402 - sys.path extended above
+    _resolve_relative_python,
+)
+from context_scanner.renderers import render_section  # noqa: E402 - sys.path extended above
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -744,6 +748,25 @@ class TestImportGraph:
         assert len(graph.edges) == 0
         assert len(graph.imported_by) == 0
 
+    def test_relative_import_resolving_outside_the_root_is_dropped(
+        self, tmp_path: Path
+    ) -> None:
+        """A `from ..x` that climbs out of the scanned root yields no edge.
+
+        GIVEN pkg/a.py doing `from ..sibling import y`, scanned with pkg/
+        as the root, and sibling.py living above that root
+        WHEN the relative import is resolved
+        THEN it resolves to None instead of a path outside the project.
+        """
+        pkg = tmp_path / "pkg"
+        pkg.mkdir()
+        (tmp_path / "sibling.py").write_text("y = 1\n")
+        source = pkg / "a.py"
+        source.write_text("from ..sibling import y\n")
+
+        assert _resolve_relative_python("..sibling", source, pkg) is None
+        assert _resolve_relative_python("..sibling", source, tmp_path) == "sibling.py"
+
 
 # ---------------------------------------------------------------------------
 # T009: Route Detection
@@ -1066,6 +1089,57 @@ class TestRendererIntegration:
         parsed = json.loads(j)
         assert "routes" in parsed
         assert "token_savings" in parsed
+
+    def test_hot_files_section_uses_recorded_counts_without_an_import_graph(
+        self,
+    ) -> None:
+        """A cached result has hot-file counts but no graph to recount from.
+
+        GIVEN a ScanResult with hot files and counts but import_graph None
+        WHEN the hot-files section is rendered
+        THEN each line shows the recorded importer count.
+        """
+        result = cs.ScanResult(
+            project_name="p",
+            total_files=2,
+            hot_files=["src/a.py", "src/b.py"],
+            hot_file_counts={"src/a.py": 7},
+        )
+
+        rendered = render_section(result, "hot-files")
+
+        assert rendered == "  - src/a.py (7 importers)\n  - src/b.py (0 importers)"
+
+    def test_middleware_section_lists_name_kind_and_file(self) -> None:
+        """Each detected middleware renders as name, kind, and location.
+
+        GIVEN a ScanResult with one auth middleware
+        WHEN the middleware section is rendered
+        THEN the line carries all three fields.
+        """
+        result = cs.ScanResult(
+            project_name="p",
+            total_files=1,
+            middleware=[cs.MiddlewareInfo(name="JWTGuard", kind="auth", file="a.py")],
+        )
+
+        assert render_section(result, "middleware") == "  - JWTGuard [auth] (a.py)"
+
+    def test_frameworks_section_lists_at_most_three_locations(self) -> None:
+        """A framework found in many places shows only the first three.
+
+        GIVEN a framework detected at four locations
+        WHEN the frameworks section is rendered
+        THEN three locations appear and the fourth does not.
+        """
+        framework = cs.FrameworkMatch(name="FastAPI", locations=["a", "b", "c", "d"])
+        result = cs.ScanResult(
+            project_name="p",
+            total_files=1,
+            ecosystems=[cs.EcosystemResult(name="Python", frameworks=[framework])],
+        )
+
+        assert render_section(result, "frameworks") == "  - FastAPI (a, b, c)"
 
 
 # ---------------------------------------------------------------------------
