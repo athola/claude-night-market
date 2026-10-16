@@ -600,3 +600,73 @@ class TestTier3Upgrade:
         callee.unlink()
 
         assert [f.severity for f in _analyze(caller, CALLER).issues] == ["HIGH"]
+
+
+TSX_NESTED = (
+    "export function Grid({ rows }: { rows: number[] }) {\n"
+    "  for (const a of rows) {\n"
+    "    for (const b of rows) {\n"
+    "      use(a, b);\n"
+    "    }\n"
+    "  }\n"
+    "  return <div>{rows.length}</div>;\n"
+    "}\n"
+)
+
+
+class TestTierEdges:
+    def test_tsx_file_is_parsed_with_the_tsx_grammar(self, tmp_path) -> None:
+        """
+        GIVEN a .tsx file with JSX and a nested loop over one iterable
+        WHEN the file is analyzed
+        THEN the nested loop is reported and no parse warning is added
+        """
+        path = _write(tmp_path, "grid.tsx", TSX_NESTED)
+
+        result = _analyze(path, TSX_NESTED)
+
+        hits = [f for f in result.issues if f.category == "time"]
+        assert [(f.severity, f.line) for f in hits] == [("HIGH", 3)], result.issues
+        assert not result.warnings
+
+    def test_language_for_tsx_returns_tsx_not_typescript(self) -> None:
+        """
+        GIVEN a .tsx path
+        WHEN the Tier 2 grammar is chosen
+        THEN it is "tsx", even though gauntlet maps the suffix to typescript
+        """
+        assert pr_mod._language_for("app/view.tsx") == "tsx"
+
+    def test_unknown_severity_is_returned_unchanged(self) -> None:
+        """
+        GIVEN a severity string outside the ladder
+        WHEN it is upgraded
+        THEN it comes back unchanged
+        """
+        assert pr_mod._upgrade_severity("UNRANKED") == "UNRANKED"
+
+    def test_hot_callee_beyond_the_call_depth_cap_is_not_found(self, project) -> None:
+        """
+        GIVEN a seed whose only hot callee sits 11 call hops away
+        WHEN Tier 3 searches the call graph
+        THEN the search stops at the depth cap and the finding stays HIGH
+        """
+        hops = pr_mod._MAX_CALL_DEPTH + 1
+        parts = [
+            "def entry(items):\n"
+            "    for x in items:\n"
+            "        for y in items:\n"
+            "            pass\n"
+            "    return hop1(items)\n"
+        ]
+        parts += [
+            f"def hop{n}(items):\n    return hop{n + 1}(items)\n"
+            for n in range(1, hops)
+        ]
+        parts.append(HOT_CALLEE.replace("helper", f"hop{hops}"))
+        code = "\n\n".join(parts)
+        path = _write(project, "chain.py", code)
+        _build_graph(project)
+
+        entry = [f for f in _analyze(path, code).issues if f.line == 3]
+        assert [f.severity for f in entry] == ["HIGH"]
