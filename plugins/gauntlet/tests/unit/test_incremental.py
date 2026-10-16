@@ -681,3 +681,22 @@ def test_incremental_update_reports_an_error_for_an_unknown_base_ref() -> None:
     assert report is not None
     assert "skipped" not in report
     assert "128" in report["error"]
+
+
+@pytest.mark.unit
+def test_strict_raises_when_git_is_missing_from_path() -> None:
+    """A missing git binary is "could not tell", not "no changes".
+
+    GIVEN subprocess cannot find the git executable
+    WHEN get_changed_files runs in strict mode
+    THEN ChangedFilesUnavailableError names the missing binary and keeps
+    the FileNotFoundError as its cause.
+    """
+    with patch(
+        "gauntlet.incremental.subprocess.run", side_effect=FileNotFoundError("git")
+    ):
+        with pytest.raises(
+            ChangedFilesUnavailableError, match="git not found on PATH"
+        ) as excinfo:
+            get_changed_files("HEAD", strict=True)
+    assert isinstance(excinfo.value.__cause__, FileNotFoundError)

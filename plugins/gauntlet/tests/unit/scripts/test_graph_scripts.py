@@ -214,6 +214,79 @@ class TestGraphQueryInProcess:
     def test_find_db_returns_none_without_a_gauntlet_dir(self, tmp_path: Path) -> None:
         assert graph_query._find_db(str(tmp_path)) is None
 
+    @pytest.mark.unit
+    def test_dispatch_impact_scores_with_the_weights_it_is_given(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """
+        Scenario: the impact action runs blast-radius analysis
+        Given a graph and a diff with no changed ranges
+        When _dispatch handles action=impact with custom weights
+        Then the empty-change report comes back and the weights reach analysis
+        """
+        seen: dict[str, object] = {}
+        real_analyze = graph_query.analyze_changes
+
+        def spy(graph, base_ref="HEAD", weights=None):
+            seen["base_ref"] = base_ref
+            seen["weights"] = weights
+            return real_analyze(graph, base_ref=base_ref, weights=weights)
+
+        monkeypatch.setattr(graph_query, "analyze_changes", spy)
+        monkeypatch.setattr(
+            "gauntlet.blast_radius.parse_git_diff_ranges", lambda *a, **k: {}
+        )
+        graph = GraphStore(tmp_path / "graph.db")
+        try:
+            args = argparse.Namespace(action="impact", base_ref="origin/main")
+            report = graph_query._dispatch(args, graph, weights={"test_gap": 0.9})
+        finally:
+            graph.close()
+
+        assert seen == {"base_ref": "origin/main", "weights": {"test_gap": 0.9}}
+        assert report["overall_risk"] == "none"
+
+    @pytest.mark.unit
+    def test_main_loads_risk_weights_from_the_graphs_gauntlet_dir(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """
+        Scenario: main reads config.json beside graph.db
+        Given a .gauntlet dir whose config.json overrides one risk weight
+        When main runs the impact action against that graph.db
+        Then analysis receives the override merged over the defaults
+        """
+        gauntlet_dir = tmp_path / ".gauntlet"
+        gauntlet_dir.mkdir()
+        db = gauntlet_dir / "graph.db"
+        GraphStore(db).close()
+        (gauntlet_dir / "config.json").write_text(
+            json.dumps({"risk_weights": {"test_gap": 0.5}})
+        )
+        seen: dict[str, object] = {}
+        real_analyze = graph_query.analyze_changes
+
+        def spy(graph, base_ref="HEAD", weights=None):
+            seen["weights"] = weights
+            return real_analyze(graph, base_ref=base_ref, weights=weights)
+
+        monkeypatch.setattr(graph_query, "analyze_changes", spy)
+        monkeypatch.setattr(
+            "gauntlet.blast_radius.parse_git_diff_ranges", lambda *a, **k: {}
+        )
+        monkeypatch.setattr(
+            sys, "argv", ["graph_query.py", "--action", "impact", "--db", str(db)]
+        )
+
+        graph_query.main()
+
+        assert seen["weights"]["test_gap"] == 0.5
+        assert seen["weights"]["security"] == 0.20
+        assert json.loads(capsys.readouterr().out)["overall_risk"] == "none"
+
 
 class TestABuildOfNothingIsNotAGreenBuild:
     """Feature: an empty graph is an error, not a report.
