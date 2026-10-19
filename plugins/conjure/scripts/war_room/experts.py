@@ -20,8 +20,8 @@ from scripts.war_room.config import (
     GEMINI_3_FLASH,
     GEMINI_3_PRO,
     GLM_53,
-    MINIMAX_M2_7,
     MINIMAX_M3,
+    MINIMAX_M3_1_FLASH,
     MUSE_SPARK,
     QWEN_MAX,
     QWEN_TURBO,
@@ -101,10 +101,10 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "skeptical_analyst": ExpertConfig(
         role="Skeptical Analyst",
         service="minimax",
-        model=MINIMAX_M2_7,
+        model=MINIMAX_M3_1_FLASH,
         description="Rapid second-opinion challenge of proposed courses of action",
         phases=["red_team"],
-        command=["mmx", "text", "chat", "--model", MINIMAX_M2_7, "--message"],
+        command=["mmx", "text", "chat", "--model", MINIMAX_M3_1_FLASH, "--message"],
         optional=True,
     ),
     # ``muse exec <prompt>`` takes the prompt positionally: Meta documents no

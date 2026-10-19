@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Conjure defaults MiniMax delegation and fast-response selection to
+  `MiniMax-M3.1-Flash`, with M3 retained for large context. The War Room
+  skeptical analyst uses Flash. Explicit saved and per-call models remain
+  supported, including legacy IDs.
+
 ## [1.9.21] - 2026-09-28
 
 ### Added

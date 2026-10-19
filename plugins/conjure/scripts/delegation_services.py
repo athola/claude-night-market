@@ -430,9 +430,9 @@ SERVICES: dict[str, ServiceConfig] = {
         install_hint="npm install -g mmx-cli",
         login_hint="mmx auth login",
         priority=30,
-        default_model="MiniMax-M3",
+        default_model="MiniMax-M3.1-Flash",
         large_context_model="MiniMax-M3",
-        fast_response_model="MiniMax-M2.7",
+        fast_response_model="MiniMax-M3.1-Flash",
         strengths=("code_execution",),
     ),
     # GLM has no CLI of its own. Z.ai serves an Anthropic-compatible
