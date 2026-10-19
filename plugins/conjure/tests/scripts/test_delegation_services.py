@@ -171,6 +171,26 @@ class TestSmartDelegateModel:
         assert _smart_delegate_model(service, "fast_response") == "d"
         assert _smart_delegate_model(service, "anything") == "d"
 
+    def test_minimax_routes_current_models_and_preserves_saved_overrides(
+        self, temp_config_dir
+    ) -> None:
+        """Smart selection must emit current IDs while saved choices remain authoritative."""
+        service = Delegator(config_dir=temp_config_dir).services["minimax"]
+        assert _smart_delegate_model(service, "anything") == "MiniMax-M3.1-Flash"
+        assert _smart_delegate_model(service, "fast_response") == "MiniMax-M3.1-Flash"
+        assert _smart_delegate_model(service, "large_context") == "MiniMax-M3"
+        saved = _apply_overrides(
+            service,
+            "minimax",
+            {"default_model": "MiniMax-M2.7", "fast_response_model": "custom-model"},
+        )
+        assert _smart_delegate_model(saved, "anything") == "MiniMax-M2.7"
+        assert _smart_delegate_model(saved, "fast_response") == "custom-model"
+        delegator = Delegator(config_dir=temp_config_dir)
+        delegator.services["minimax"] = saved
+        command = delegator.build_command("minimax", "question")
+        assert command[command.index("--model") + 1] == "MiniMax-M2.7"
+
     def test_service_with_no_models_yields_none(self) -> None:
         """None means the CLI's own default applies, which is degradation rather than the KeyError the old table raised."""
         assert _smart_delegate_model(_api_key_service(), "large_context") is None

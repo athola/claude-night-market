@@ -161,7 +161,13 @@ class TestDelegator:
         assert any("not authenticated" in issue for issue in issues)
 
     @pytest.mark.bdd
-    def test_build_minimax_command_matches_mmx_contract(self, temp_config_dir) -> None:
+    @pytest.mark.parametrize(
+        "model",
+        [None, "MiniMax-M3.1-Flash", "MiniMax-M3", "MiniMax-M2.7", "custom-model"],
+    )
+    def test_build_minimax_command_matches_mmx_contract(
+        self, temp_config_dir, model
+    ) -> None:
         """Given a model option when building the MiniMax command.
 
         then the argv matches ``mmx text chat --model M --message P``.
@@ -171,7 +177,7 @@ class TestDelegator:
         command = delegator.build_command(
             "minimax",
             "summarize this",
-            options={"model": "MiniMax-M3"},
+            options={"model": model} if model is not None else None,
         )
 
         assert command == [
@@ -179,7 +185,7 @@ class TestDelegator:
             "text",
             "chat",
             "--model",
-            "MiniMax-M3",
+            model or "MiniMax-M3.1-Flash",
             "--message",
             "summarize this",
         ]

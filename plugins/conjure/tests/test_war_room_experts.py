@@ -91,13 +91,13 @@ class TestCommandResolution:
         ]
 
         assert analyst.service == "minimax"
-        assert analyst.model == "MiniMax-M2.7"
+        assert analyst.model == "MiniMax-M3.1-Flash"
         assert get_expert_command(analyst) == [
             "mmx",
             "text",
             "chat",
             "--model",
-            "MiniMax-M2.7",
+            "MiniMax-M3.1-Flash",
             "--message",
         ]
 
