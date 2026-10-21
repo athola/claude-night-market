@@ -176,3 +176,43 @@ class TestPluginManifestRegistration:
     @pytest.mark.unit
     def test_skill_registered_in_manifest(self, manifest: str) -> None:
         assert "karpathy-principles" in manifest
+
+
+class TestSurgicalChangesMatchExistingPattern:
+    """Feature: a surgical change reuses the existing model of a concern.
+
+    Matching quote style while adding a second retry helper is still a
+    second model of one concern (docs/knowledge-corpus/decoherence.md).
+    These anchor on the clauses added for that, so a revert fails them.
+    """
+
+    @pytest.fixture
+    def skill_text(self) -> str:
+        return " ".join((_skill_root() / "SKILL.md").read_text().split())
+
+    @pytest.fixture
+    def anti_patterns(self) -> str:
+        path = _skill_root() / "modules" / "anti-patterns.md"
+        return " ".join(path.read_text().split())
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_principle_three_matches_pattern_as_well_as_style(
+        self, skill_text: str
+    ) -> None:
+        """Principle 3 asks for the module's existing pattern for the concern."""
+        assert "existing pattern for the concern as well as its style" in skill_text
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_principle_three_forbids_copying_the_superseded_variant(
+        self, skill_text: str
+    ) -> None:
+        """Mid-migration, the majority pattern is not the model to copy."""
+        assert "copy the superseded one" in skill_text
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_ap6_test_covers_pattern_drift(self, anti_patterns: str) -> None:
+        """AP-6's test line also checks for a second helper for one concern."""
+        assert "second helper, client or idiom" in anti_patterns

@@ -43,6 +43,7 @@ Ask questions only when ambiguity would **materially impair correctness** or cap
 | **Security-Critical** | Wrong choice = vulnerability | "Which auth method?" |
 | **Data Migration** | Data loss risk | "Preserve or transform?" |
 | **Breaking Changes** | Affects downstream users | "Deprecate or remove?" |
+| **Second Model of a Concern** | Both models persist, and every later change pays for both | "Replace this `estimate_tokens`, or keep both?" asked with the count of call sites |
 
 ### Ask Threshold Checklist
 
@@ -58,7 +59,7 @@ Before asking, verify:
 
 | Scenario | Why | Assumption |
 |----------|-----|------------|
-| **Standard Approach Exists** | Industry convention | Use conventional pattern |
+| **Standard Approach Exists** | Repository or industry convention | Use this repository's pattern for the concern. Use industry convention where the repository has none |
 | **Easily Reversible** | Low cost of error | Can undo via git/backup |
 | **Clear from Context** | Intent is obvious | Proceed with stated goal |
 | **User Can Review** | PR/dry-run available | Changes are inspectable |

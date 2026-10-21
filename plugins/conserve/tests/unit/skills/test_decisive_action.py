@@ -229,3 +229,35 @@ class TestDecisiveActionExamples:
             for indicator in proceed_example_indicators
         )
         assert has_proceed_examples, "Should-proceed examples not found"
+
+
+class TestRepositoryConventionFirst:
+    """Feature: the standard approach is this repository's approach.
+
+    A second model of a concern the codebase already handles is the
+    choice to ask about (docs/knowledge-corpus/decoherence.md). These
+    anchor on the added clauses, so a revert fails them.
+    """
+
+    @pytest.fixture
+    def skill_content(self) -> str:
+        """Return SKILL.md with whitespace collapsed."""
+        skill_file = (
+            Path(__file__).parents[3] / "skills" / "decisive-action" / "SKILL.md"
+        )
+        return " ".join(skill_file.read_text().split())
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_standard_approach_means_the_repository_pattern(
+        self, skill_content: str
+    ) -> None:
+        """The proceed row assumes this repository's pattern first."""
+        assert "Use this repository's pattern for the concern" in skill_content
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_second_model_is_an_always_ask_case(self, skill_content: str) -> None:
+        """Adding a second model of an existing concern is asked, with a count."""
+        assert "**Second Model of a Concern**" in skill_content
+        assert "with the count of call sites" in skill_content
