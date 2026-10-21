@@ -32,11 +32,14 @@ review. For whole-codebase cleanup, use `/unbloat`.
 3. For each added hunk, assign the lowest ladder rung that justifies
    it:
    1. Need-to-exist
-   2. Builtin / stdlib
-   3. Native platform
-   4. Installed dependency
-   5. A few lines
-   A new dependency is the last resort, below rung 5. If one was
+   2. Already in this repo
+   3. Builtin / stdlib
+   4. Native platform
+   5. Installed dependency
+   6. A few lines
+   A hunk that gives a concern a second implementation is flagged
+   unless the diff retires the first or records why both stand.
+   A new dependency is the last resort, below rung 6. If one was
    added, confirm it with `Skill(imbue:dependency-verification)` and
    check whether an installed dependency already covered the need.
 4. Cross-check deletability with a real tool when available, treating
