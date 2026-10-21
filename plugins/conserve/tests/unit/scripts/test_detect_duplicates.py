@@ -27,6 +27,8 @@ hash_block = detect_duplicates_module.hash_block
 get_language = detect_duplicates_module.get_language
 find_duplicates = detect_duplicates_module.find_duplicates
 find_similar_functions = detect_duplicates_module.find_similar_functions
+find_competing_implementations = detect_duplicates_module.find_competing_implementations
+CompetingImplementation = detect_duplicates_module.CompetingImplementation
 format_text = detect_duplicates_module.format_text
 format_json = detect_duplicates_module.format_json
 DuplicateBlock = detect_duplicates_module.DuplicateBlock
@@ -587,3 +589,192 @@ class TestUnreadableFilesAreNamed:
         """The similarity scan names the file it skipped on stderr."""
         find_similar_functions(locked.parent)
         assert f"skipped unreadable {locked}" in capsys.readouterr().err
+
+    @pytest.mark.unit
+    def test_find_competing_implementations_names_an_unreadable_file(
+        self, locked: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """The competing-implementations scan names the file it skipped."""
+        find_competing_implementations([locked.parent])
+        assert f"skipped unreadable {locked}" in capsys.readouterr().err
+
+
+class TestFindCompetingImplementations:
+    """Feature: one name defined with different bodies in several files.
+
+    Copy-paste clones share a body. A competing implementation shares a
+    name and differs in body: two models of one concern that later
+    changes must translate between.
+    """
+
+    @pytest.mark.unit
+    def test_same_name_different_bodies_is_reported_with_locations(
+        self, tmp_path: Path
+    ) -> None:
+        """Two files define estimate_tokens differently: one finding."""
+        (tmp_path / "a.py").write_text(
+            "def estimate_tokens(text):\n    return len(text) // 4\n"
+        )
+        (tmp_path / "b.py").write_text(
+            "\n\ndef estimate_tokens(text):\n    return len(text.split())\n"
+        )
+
+        found = find_competing_implementations([tmp_path])
+
+        assert [c.name for c in found] == ["estimate_tokens"]
+        assert found[0].body_count == 2
+        locations = sorted(loc for body in found[0].variants for loc in body)
+        assert locations == [
+            (str(tmp_path / "a.py"), 1),
+            (str(tmp_path / "b.py"), 3),
+        ]
+
+    @pytest.mark.unit
+    def test_identical_bodies_are_not_competing(self, tmp_path: Path) -> None:
+        """A shared body is a clone, which the block scan already reports."""
+        body = "def slugify(s):\n    return s.lower()\n"
+        (tmp_path / "a.py").write_text(body)
+        (tmp_path / "b.py").write_text(body)
+
+        assert find_competing_implementations([tmp_path]) == []
+
+    @pytest.mark.unit
+    def test_docstring_difference_alone_is_not_competing(self, tmp_path: Path) -> None:
+        """Bodies are compared without their docstrings."""
+        (tmp_path / "a.py").write_text(
+            'def slugify(s):\n    """Lower it."""\n    return s.lower()\n'
+        )
+        (tmp_path / "b.py").write_text(
+            'def slugify(s):\n    """Make a slug."""\n    return s.lower()\n'
+        )
+
+        assert find_competing_implementations([tmp_path]) == []
+
+    @pytest.mark.unit
+    def test_one_file_is_not_competing(self, tmp_path: Path) -> None:
+        """A redefinition inside one file is a different defect."""
+        (tmp_path / "a.py").write_text(
+            "def f():\n    return 1\n\n\ndef f():\n    return 2\n"
+        )
+
+        assert find_competing_implementations([tmp_path]) == []
+
+    @pytest.mark.unit
+    def test_entry_point_and_dunder_names_are_excluded(self, tmp_path: Path) -> None:
+        """Entry points and dunder hooks share a name by protocol."""
+        (tmp_path / "a.py").write_text(
+            "def main():\n    return 1\n\n\ndef __getattr__(n):\n    return 1\n"
+        )
+        (tmp_path / "b.py").write_text(
+            "def main():\n    return 2\n\n\ndef __getattr__(n):\n    return 2\n"
+        )
+
+        assert find_competing_implementations([tmp_path]) == []
+
+    @pytest.mark.unit
+    def test_test_modules_are_not_compared(self, tmp_path: Path) -> None:
+        """Test modules keep local helpers by convention."""
+        tests = tmp_path / "tests"
+        tests.mkdir()
+        (tests / "test_a.py").write_text("def _make():\n    return 1\n")
+        (tests / "test_b.py").write_text("def _make():\n    return 2\n")
+        (tests / "conftest.py").write_text("def _make():\n    return 3\n")
+
+        assert find_competing_implementations([tmp_path]) == []
+
+    @pytest.mark.unit
+    def test_methods_are_not_compared(self, tmp_path: Path) -> None:
+        """Only module-level functions are compared."""
+        (tmp_path / "a.py").write_text(
+            "class A:\n    def run(self):\n        return 1\n"
+        )
+        (tmp_path / "b.py").write_text(
+            "class B:\n    def run(self):\n        return 2\n"
+        )
+
+        assert find_competing_implementations([tmp_path]) == []
+
+    @pytest.mark.unit
+    def test_ranked_by_number_of_bodies(self, tmp_path: Path) -> None:
+        """The name with the most distinct bodies comes first."""
+        for i in range(3):
+            (tmp_path / f"m{i}.py").write_text(
+                f"def wide():\n    return {i}\n\n\ndef narrow():\n"
+                f"    return {min(i, 1)}\n"
+            )
+
+        found = find_competing_implementations([tmp_path])
+
+        assert [c.name for c in found] == ["wide", "narrow"]
+        assert [c.body_count for c in found] == [3, 2]
+
+    @pytest.mark.unit
+    def test_unparsable_file_is_named_and_skipped(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A syntax error is reported on stderr, and the scan goes on."""
+        bad = tmp_path / "bad.py"
+        bad.write_text("def broken(:\n")
+        (tmp_path / "a.py").write_text("def g():\n    return 1\n")
+        (tmp_path / "b.py").write_text("def g():\n    return 2\n")
+
+        found = find_competing_implementations([tmp_path])
+
+        assert [c.name for c in found] == ["g"]
+        assert f"skipped unparsable {bad}" in capsys.readouterr().err
+
+
+class TestCompetingImplementationsOutput:
+    """Feature: both report formats carry the competing implementations."""
+
+    @staticmethod
+    def _report() -> DuplicateReport:
+        return DuplicateReport(
+            duplicates=[], files_scanned=2, total_lines=10, duplicate_lines=0
+        )
+
+    @staticmethod
+    def _competing() -> list:
+        return [
+            CompetingImplementation(
+                name="estimate_tokens",
+                variants=[[("a.py", 1)], [("b.py", 3), ("c.py", 7)]],
+            )
+        ]
+
+    @pytest.mark.unit
+    def test_text_lists_name_body_count_and_a_location(self) -> None:
+        """The text report names each body's first location."""
+        output = format_text(self._report(), [], self._competing())
+
+        assert "COMPETING IMPLEMENTATIONS: 1 names" in output
+        assert "estimate_tokens: 2 bodies in 3 files" in output
+        assert "a.py:1" in output
+        assert "b.py:3" in output
+
+    @pytest.mark.unit
+    def test_text_omits_section_when_none(self) -> None:
+        """No competing names means no section."""
+        assert "COMPETING" not in format_text(self._report(), [])
+
+    @pytest.mark.unit
+    def test_json_carries_variants_with_locations(self) -> None:
+        """The JSON report has one entry per name with each body's sites."""
+        data = json.loads(format_json(self._report(), [], self._competing()))
+
+        assert data["competing_implementations"] == [
+            {
+                "name": "estimate_tokens",
+                "bodies": 2,
+                "variants": [
+                    [{"file": "a.py", "line": 1}],
+                    [{"file": "b.py", "line": 3}, {"file": "c.py", "line": 7}],
+                ],
+            }
+        ]
+
+    @pytest.mark.unit
+    def test_json_key_present_when_empty(self) -> None:
+        """CI consumers can rely on the key."""
+        data = json.loads(format_json(self._report(), []))
+        assert data["competing_implementations"] == []

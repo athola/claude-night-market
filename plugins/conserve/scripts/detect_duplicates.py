@@ -5,6 +5,7 @@ Detects repeated code blocks (Tab-completion bloat) using:
 1. Line-based hashing for exact/near duplicates
 2. Normalized comparison (ignoring whitespace/comments)
 3. Function signature similarity detection
+4. Competing implementations: one name, different bodies, several files
 
 Usage:
     python detect_duplicates.py [path] [--min-lines N] [--format text|json]
@@ -15,6 +16,7 @@ from __future__ import annotations
 
 # ruff: noqa: S324, PLR0912, PLR2004
 import argparse
+import ast
 import bisect
 import hashlib
 import json
@@ -40,6 +42,28 @@ class DuplicateBlock:
     def occurrence_count(self) -> int:
         """Number of times this block appears in the codebase."""
         return len(self.locations)
+
+
+@dataclass
+class CompetingImplementation:
+    """One module-level function name defined with different bodies.
+
+    Each variant is one distinct body, listed as the (file, line) sites
+    that define it. Two or more variants are two models of one concern.
+    """
+
+    name: str
+    variants: list[list[tuple[str, int]]] = field(default_factory=list)
+
+    @property
+    def body_count(self) -> int:
+        """Number of distinct bodies defined under this name."""
+        return len(self.variants)
+
+    @property
+    def file_count(self) -> int:
+        """Number of files that define this name."""
+        return len({f for body in self.variants for f, _ in body})
 
 
 @dataclass
@@ -335,12 +359,84 @@ def find_similar_functions(
     return [(base, names) for base, names in similar_groups.items() if len(names) >= 2]
 
 
+def _body_fingerprint(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:
+    """Hash a function's arguments and body, ignoring its docstring."""
+    body = node.body
+    if (
+        body
+        and isinstance(body[0], ast.Expr)
+        and isinstance(body[0].value, ast.Constant)
+        and isinstance(body[0].value.value, str)
+    ):
+        body = body[1:]
+    dumped = ast.dump(node.args) + ast.dump(ast.Module(body=body, type_ignores=[]))
+    return hashlib.md5(dumped.encode(), usedforsecurity=False).hexdigest()
+
+
+def find_competing_implementations(
+    paths: list[Path],
+) -> list[CompetingImplementation]:
+    """Find module-level Python functions that share a name but not a body.
+
+    Python only, through ``ast``, unlike the regex scan in
+    ``find_similar_functions``. ``main`` and dunder names are skipped
+    because they share a name by protocol, and test modules because they
+    keep local helpers by convention. Results are ranked by the number
+    of distinct bodies, then by the number of files.
+    """
+    sites: dict[str, dict[str, list[tuple[str, int]]]] = defaultdict(dict)
+    for filepath in _collect_files(paths, frozenset({".py"})):
+        if (
+            "tests" in filepath.parts
+            or filepath.name.startswith("test_")
+            or filepath.name == "conftest.py"
+        ):
+            continue
+        try:
+            source = filepath.read_text(encoding="utf-8", errors="ignore")
+        except OSError as exc:
+            _report_unreadable(filepath, exc)
+            continue
+        try:
+            tree = ast.parse(source)
+        except (SyntaxError, ValueError) as exc:
+            print(
+                f"detect_duplicates: skipped unparsable {filepath}: {exc}",
+                file=sys.stderr,
+            )
+            continue
+        for node in tree.body:
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            if node.name == "main" or (
+                node.name.startswith("__") and node.name.endswith("__")
+            ):
+                continue
+            by_body = sites[node.name]
+            by_body.setdefault(_body_fingerprint(node), []).append(
+                (str(filepath), node.lineno)
+            )
+
+    competing = [
+        CompetingImplementation(name=name, variants=list(by_body.values()))
+        for name, by_body in sites.items()
+        if len(by_body) >= 2
+    ]
+    competing = [c for c in competing if c.file_count >= 2]
+    competing.sort(key=lambda c: (-c.body_count, -c.file_count, c.name))
+    return competing
+
+
 def _format_location(file_path: str, start_line: int, end_line: int) -> str:
     """Format a location tuple as a human-readable string."""
     return f"{file_path}:{start_line}-{end_line}"
 
 
-def format_text(report: DuplicateReport, similar_funcs: list) -> str:
+def format_text(
+    report: DuplicateReport,
+    similar_funcs: list,
+    competing: list[CompetingImplementation] | None = None,
+) -> str:
     """Format report as human-readable text."""
     lines = [
         "=" * 60,
@@ -384,6 +480,19 @@ def format_text(report: DuplicateReport, similar_funcs: list) -> str:
             if len(names) > 5:
                 lines.append(f"    ... and {len(names) - 5} more")
 
+    if competing:
+        lines.append("")
+        lines.append(f"COMPETING IMPLEMENTATIONS: {len(competing)} names")
+        lines.append("-" * 40)
+        for impl in competing[:10]:
+            lines.append(
+                f"  {impl.name}: {impl.body_count} bodies in {impl.file_count} files"
+            )
+            first_sites = [f"{f}:{line}" for f, line in (b[0] for b in impl.variants)]
+            lines.append(f"    {', '.join(first_sites[:5])}")
+        if len(competing) > 10:
+            lines.append(f"  ... and {len(competing) - 10} more")
+
     # Recommendations
     lines.append("")
     lines.append("RECOMMENDATIONS")
@@ -402,7 +511,11 @@ def format_text(report: DuplicateReport, similar_funcs: list) -> str:
     return "\n".join(lines)
 
 
-def format_json(report: DuplicateReport, similar_funcs: list) -> str:
+def format_json(
+    report: DuplicateReport,
+    similar_funcs: list,
+    competing: list[CompetingImplementation] | None = None,
+) -> str:
     """Format report as JSON."""
     return json.dumps(
         {
@@ -425,6 +538,17 @@ def format_json(report: DuplicateReport, similar_funcs: list) -> str:
             ],
             "similar_functions": [
                 {"base_name": base, "variants": names} for base, names in similar_funcs
+            ],
+            "competing_implementations": [
+                {
+                    "name": impl.name,
+                    "bodies": impl.body_count,
+                    "variants": [
+                        [{"file": f, "line": line} for f, line in body]
+                        for body in impl.variants
+                    ],
+                }
+                for impl in competing or []
             ],
         },
         indent=2,
@@ -486,11 +610,13 @@ Examples:
         if path.is_dir():
             similar_funcs.extend(find_similar_functions(path))
 
+    competing = find_competing_implementations(paths)
+
     # Output
     if args.format == "json":
-        print(format_json(report, similar_funcs))
+        print(format_json(report, similar_funcs, competing))
     else:
-        print(format_text(report, similar_funcs))
+        print(format_text(report, similar_funcs, competing))
 
     # A scan of nothing is not a clean scan. The filters above can zero
     # out the file list silently, and tier 1 of the bloat stack gates on
