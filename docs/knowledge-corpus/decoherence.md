@@ -85,9 +85,8 @@ the essay's direction, and none tests it.
 
 `python3 plugins/conserve/scripts/detect_duplicates.py plugins`
 reports module-level functions that share a name but not a body. On
-2026-10-21, with vendored `.uv-cache` trees set aside, it listed 75
-names. Protocol names such as `_build_parser` lead the list and are
-expected. Competing models of one concern sit among them:
+2026-10-21 it listed 78 names. Protocol names such as `_build_parser`
+lead the list and are expected. Competing models of one concern sit among them:
 `parse_frontmatter` in 4 plugins, `estimate_tokens` in 3 with 4
 bodies, and the vendored `_version_key`, which has drifted to 3 bodies
 across 14 plugins.

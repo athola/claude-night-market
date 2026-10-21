@@ -18,6 +18,27 @@ A full-codebase API review found 98 grounded defects. 86 are fixed,
 
 ### Added
 
+- **One model per concern, from the decoherence research.** Kristen
+  Maevyn's essay "The Decoherence Trap" defines decoherence as locally
+  valid models of one concern piling up until each change costs mostly
+  translation. A tome research pass (academic, discourse, TRIZ) found
+  the essay's core claim unmeasured. Its cited studies agree in
+  direction. The evidence and its status are in
+  `docs/knowledge-corpus/decoherence.md`. `conserve:elegant-code`
+  gains rung 2, "Already in this repo", above the stdlib: a second
+  model of a concern retires the first or records why both stand, and
+  migration code never copies the superseded variant.
+  `imbue:karpathy-principles`, `conserve:decisive-action`,
+  `abstract:escalation-governance`, `leyline:evaluation-framework` and
+  `scribe:doc-generator` carry the same rule where each makes its
+  decision. The unified-review, bloat-sweep and doc-sweep workflows ask
+  for it in their prompts.
+- **conserve `detect_duplicates.py` reports competing implementations.**
+  Module-level Python functions that share a name across files with
+  different bodies are listed with every site, in text and in a
+  `competing_implementations` JSON key. `main`, dunder names and test
+  modules are skipped. `.uv-cache` joins the excluded directories. On
+  `plugins/` it lists 78 names.
 - **pensive performance review, Tiers 2 and 3.** Both were stubs that
   returned nothing. Tier 2 parses JS, TS, Go, Rust, Java, C and C++
   with tree-sitter and reports nested loops over one iterable, list
@@ -263,6 +284,9 @@ A full-codebase API review found 98 grounded defects. 86 are fixed,
 
 ### Changed (behavior visible to callers)
 
+- `conserve:elegant-code` has six rungs. Stdlib is rung 3, installed
+  dependency rung 5, and a new dependency sits below rung 6. A review
+  that names rungs by number reads them one higher from stdlib down.
 - attune `/mission` and `project-execution` hand a task to a subagent on
   the session's model when no conjure CLI answers or conjure is absent,
   where they did the work inline. `delegation_disabled` still works
