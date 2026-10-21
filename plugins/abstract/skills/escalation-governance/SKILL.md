@@ -71,6 +71,12 @@ Before escalating, answer these questions:
 - [ ] Did I read error messages/outputs carefully?
 - [ ] Did I check for similar solved problems?
 - [ ] Did I form and test a hypothesis?
+- [ ] How many ways does this codebase already model the concern,
+  and which one is current?
+
+Two coexisting models of one concern make a task look harder than it
+is. That is a knowledge gap: count them with a reference search and
+read both before escalating (`docs/knowledge-corpus/decoherence.md`).
 
 **If not investigated:** Complete investigation first.
 
