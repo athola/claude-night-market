@@ -91,17 +91,21 @@ harness loops most threaten.
 | DORA 2024 | Each 25% increase in AI adoption is associated with a 7.2% drop in delivery stability and a 1.5% drop in throughput, even as perceived productivity rose |
 | METR RCT 2025 (arXiv 2507.09089) | 16 experienced OSS developers, 246 tasks in mature repos: AI tools increased completion time 19% while developers believed they were 20% faster |
 | Cognitive-bias study (arXiv 2601.08045) | 48.8% of observed programmer actions were biased; developer-LLM interaction accounted for 56.4% of those |
+| Liu et al. 2026 (arXiv 2603.28592, preprint, 302,579 AI-authored commits) | Broad exception handling is the most common issue the commits introduce. It is a static-analysis count of a smell with no human baseline, and measures no hidden bug |
+| Patel et al. 2026 (arXiv 2606.21804, abstract only) | An agent extending agent-written code resolves fewer tasks. Changes to input validation and error handling explain more of the gap than maintainability metrics do |
 | Karpathy, "mortal terror of exceptions" | LLMs add defensive handlers for near-impossible cases because RL punishes exceptions. The primary source for this rule's core claim |
 
 Caveats that bound these numbers: GitClear and DORA are
 observational and establish correlation, not causation.
-Defensive bloat specifically is under-measured; duplication
-and churn are quantified, over-defensive code is mostly
-anecdotal plus Karpathy. A Google enterprise RCT (arXiv
-2410.12944) found AI sped 96 engineers about 21%, which cuts
-the other way; context explains the split, since that was a
-greenfield-style task rather than a mature repo with expert
-maintainers.
+Defensive bloat has one large count: Liu et al. find broad
+exception handling the most common smell AI commits add. That
+count has no human baseline. Over-defensive code as a cause of
+hidden bugs is still anecdotal plus Karpathy. Figures and
+status for both papers: `docs/knowledge-corpus/decoherence.md`.
+A Google enterprise RCT (arXiv 2410.12944) found AI sped 96
+engineers about 21%, which cuts the other way; context
+explains the split, since that was a greenfield-style task
+rather than a mature repo with expert maintainers.
 
 **References:**
 
