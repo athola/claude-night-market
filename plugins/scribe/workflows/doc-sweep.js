@@ -76,7 +76,7 @@ const LAYERS = [
     key: 'economy',
     agentType: 'scribe:doc-editor',
     brief:
-      'Judge whether the lead states the single takeaway, whether every sentence carries or bounds or instances the thesis, and whether anything but the thesis repeats. Report throat-clears, restated headings, and sections that could be cut whole.',
+      'Judge whether the lead states the single takeaway, whether every sentence carries or bounds or instances the thesis, and whether anything but the thesis repeats. Report throat-clears, restated headings, and sections that could be cut whole. Report each fact, such as a number or a threshold, that another file already states. Name that file and propose a link.',
   },
   {
     key: 'audience',

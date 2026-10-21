@@ -110,7 +110,7 @@ const digest = all
   .join('\n')
 
 const crossArea = await agent(
-  `These findings came from separate area scans that could not see each other. Report the duplication that spans more than one area, which no single scan could have found.\n\n${digest}\n\nRank what remains by the lines deleting it would save, and say for each whether deletion or integration is the better move. The repository prefers integration over deletion where integration is possible.`,
+  `These findings came from separate area scans that could not see each other. Report the duplication that spans more than one area, which no single scan could have found. A function name with different bodies in two areas is one concern modeled twice. Report it with each site.\n\n${digest}\n\nRank what remains by the lines deleting it would save, and say for each whether deletion or integration is the better move. The repository prefers integration over deletion where integration is possible.`,
   { label: 'consolidate', phase: 'Consolidate', schema: CROSS_AREA },
 )
 
