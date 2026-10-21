@@ -535,6 +535,18 @@ class TestCollectFilesExclusions:
 
         assert sorted(found) == sorted(keep)
 
+    def test_collect_files_skips_uv_cache(self, tmp_path: Path) -> None:
+        """A uv cache holds unpacked third-party packages, not project code."""
+        cached = tmp_path / "plugin" / ".uv-cache" / "archive-v0" / "pkg.py"
+        cached.parent.mkdir(parents=True)
+        cached.write_text("x = 1\n")
+        keep = tmp_path / "plugin" / "mod.py"
+        keep.write_text("x = 1\n")
+
+        found = detect_duplicates_module._collect_files([tmp_path], {".py"})
+
+        assert found == [keep]
+
     def test_collect_files_filters_directly_named_files_by_suffix(
         self, tmp_path: Path
     ) -> None:

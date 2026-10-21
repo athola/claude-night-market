@@ -208,6 +208,7 @@ EXCLUDED_DIRS = frozenset(
         ".tox",
         ".pytest_cache",
         ".mypy_cache",
+        ".uv-cache",
     }
 )
 
