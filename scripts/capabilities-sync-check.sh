@@ -152,6 +152,11 @@ main() {
       -x | -t)
         XTRACE=1
         ;;
+      *)
+        log 4 "Unknown option: ${1}"
+        usage
+        exit 1
+        ;;
     esac
     shift
   done

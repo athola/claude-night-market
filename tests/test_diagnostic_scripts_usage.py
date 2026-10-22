@@ -44,8 +44,10 @@ def test_help_prints_usage_and_exits_zero(script: Path, flag: str) -> None:
     assert "Usage:" in run.stdout + run.stderr
 
 
-def test_health_snapshot_rejects_an_unknown_option() -> None:
-    run = _run(SCRIPTS[1], "--bogus")
+@pytest.mark.parametrize("script", SCRIPTS, ids=lambda p: p.name)
+def test_unknown_option_is_rejected(script: Path) -> None:
+    """A mistyped flag must fail, not run the check as if absent."""
+    run = _run(script, "--bogus")
 
     assert run.returncode == 1
     assert "Unknown option: --bogus" in run.stdout + run.stderr
