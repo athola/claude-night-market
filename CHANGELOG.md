@@ -287,6 +287,9 @@ A full-codebase API review found 98 grounded defects. 86 are fixed,
 - `conserve:elegant-code` has six rungs. Stdlib is rung 3, installed
   dependency rung 5, and a new dependency sits below rung 6. A review
   that names rungs by number reads them one higher from stdlib down.
+- `scripts/capabilities-sync-check.sh` exits 1 with usage on an unknown
+  option, as `health-snapshot.sh` does. It ran the full check and
+  ignored the flag. Make, CI and the pre-commit hook pass no arguments.
 - attune `/mission` and `project-execution` hand a task to a subagent on
   the session's model when no conjure CLI answers or conjure is absent,
   where they did the work inline. `delegation_disabled` still works
