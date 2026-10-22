@@ -3,7 +3,7 @@
 Note: elegant-code is a markdown-only methodology skill with no Python
 source modules. The tests below validate:
   1. Skill file structure (SKILL.md exists, frontmatter, Exit Criteria).
-  2. Methodology concepts (the 5-rung ordered ladder, the never-cut
+  2. Methodology concepts (the 6-rung ordered ladder, the never-cut
      negligence floor, new-dependency-is-last-resort) using inline logic
      that mirrors the rules documented in the skill markdown.
 Structural and conceptual tests are the appropriate test type for skills

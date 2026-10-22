@@ -69,6 +69,8 @@ AI coding creates different problems than human coding:
 - **Repeated blocks**: 5+ line duplicates across files
 - **Similar functions**: Near-identical function signatures
 - **Copy-paste patterns**: Same logic with minor variations
+- **Competing implementations**: One function name with different
+  bodies in two or more files, listed in the same report
 
 Detection uses built-in `detect_duplicates.py` script (no external dependencies):
 ```bash
