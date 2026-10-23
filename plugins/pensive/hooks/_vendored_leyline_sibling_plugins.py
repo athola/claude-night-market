@@ -31,20 +31,31 @@ def _plugin_root(start: Path) -> Path | None:
 
 
 _LEADING_VERSION = re.compile(r"\d+(?:\.\d+)*")
+_POST_RELEASE = re.compile(r"[.-]?post(\d*)", re.IGNORECASE)
+
+# Rank of a suffix against the bare release, as PEP 440 orders them.
+_PRE_RELEASE, _RELEASE, _POST = 0, 1, 2
 
 
-def version_key(path: Path) -> tuple[tuple[int, ...], bool, str]:
+def version_key(path: Path) -> tuple[tuple[int, ...], int, int, str]:
     """Order directory names as versions.
 
     ``1.10.0`` sorts after ``1.9.21``, and ``2.0.0-rc1`` after both but
-    before ``2.0.0``. A name with no leading version (``latest``, a commit
+    before ``2.0.0``. ``1.10.0.post1`` sorts after ``1.10.0`` and before
+    ``1.10.1``. A name with no leading version (``latest``, a commit
     hash) sorts before every version, and such names sort by name.
     """
     match = _LEADING_VERSION.match(path.name)
     if match is None:
-        return ((), False, path.name)
+        return ((), _PRE_RELEASE, 0, path.name)
     numbers = tuple(int(part) for part in match.group().split("."))
-    return (numbers, match.end() == len(path.name), path.name)
+    suffix = path.name[match.end() :]
+    post = _POST_RELEASE.fullmatch(suffix)
+    if not suffix:
+        return (numbers, _RELEASE, 0, path.name)
+    if post:
+        return (numbers, _POST, int(post.group(1) or 0), path.name)
+    return (numbers, _PRE_RELEASE, 0, path.name)
 
 
 def sibling_plugin_dir(this_file: str | Path, name: str) -> Path | None:

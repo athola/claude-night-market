@@ -187,3 +187,18 @@ def test_version_key_orders_every_shape_of_cache_directory_name() -> None:
     ordered = [p.name for p in sorted((Path(n) for n in names), key=version_key)]
 
     assert ordered == ["latest", "1.9.21", "1.10.0", "1.10.1-rc1", "1.10.1"]
+
+
+def test_a_post_release_sorts_after_its_release() -> None:
+    """version_key follows PEP 440 for post-releases.
+
+    GIVEN a release and its post-release
+    WHEN they are sorted by version_key
+    THEN the post-release comes after the release and before the next
+    release, as packaging.version orders them.
+    """
+    names = ["1.10.1", "1.10.0.post1", "1.10.0", "1.10.0-post2"]
+
+    ordered = [p.name for p in sorted((Path(n) for n in names), key=version_key)]
+
+    assert ordered == ["1.10.0", "1.10.0.post1", "1.10.0-post2", "1.10.1"]
