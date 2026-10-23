@@ -253,7 +253,12 @@ class TestOneGraphRegistration:
         "hook", [local_doc_processor, web_research_handler], ids=lambda m: m.__name__
     )
     def test_each_hook_passes_its_own_label(self, hook: object) -> None:
-        """The wrapper names the hook, so a skipped write says where."""
+        """The wrapper names the hook, so a skipped write says where.
+
+        GIVEN an intake hook
+        WHEN its registration wrapper is called
+        THEN the shared helper receives the entity and the hook's name.
+        """
         with patch.object(hook, "try_register_graph_entity") as shared:
             hook._try_register_graph_entity(Path("/p"), "e1", "Name", "doc")
 
@@ -264,7 +269,12 @@ class TestOneGraphRegistration:
     def test_a_skipped_write_is_reported_under_the_label(
         self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
     ) -> None:
-        """A graph that cannot open is logged with the caller's label."""
+        """A graph that cannot open is logged with the caller's label.
+
+        GIVEN a palaces path that is a file, so no database can open
+        WHEN an entity is registered
+        THEN the skip reaches stderr under the caller's label.
+        """
         from shared.graph_entity import try_register_graph_entity
 
         blocker = tmp_path / "not-a-dir"
@@ -273,3 +283,19 @@ class TestOneGraphRegistration:
         try_register_graph_entity(blocker, "e1", "Name", "doc", source="probe")
 
         assert "probe: graph wiring skipped" in capsys.readouterr().err
+
+    def test_link_predictions_are_reported_under_the_label(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """GIVEN a graph that opens and an analyzer with suggestions
+        WHEN an entity is registered
+        THEN the suggestions reach stderr under the caller's label.
+        """
+        from shared.graph_entity import try_register_graph_entity  # noqa: PLC0415 - hooks dir joins sys.path at module import
+
+        analyzer = MagicMock()
+        analyzer.return_value.predict_links.return_value = [("a", "b", 0.9)]
+        with patch("memory_palace.graph_analyzer.PalaceGraphAnalyzer", analyzer):
+            try_register_graph_entity(tmp_path, "e1", "Name", "doc", source="probe")
+
+        assert "probe: link predictions: [('a', 'b', 0.9)]" in capsys.readouterr().err

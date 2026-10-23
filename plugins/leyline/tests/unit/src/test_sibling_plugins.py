@@ -14,7 +14,11 @@ from pathlib import Path
 
 import pytest
 
-from leyline.sibling_plugins import add_sibling_src_to_path, sibling_plugin_dir
+from leyline.sibling_plugins import (
+    add_sibling_src_to_path,
+    sibling_plugin_dir,
+    version_key,
+)
 
 
 def _plugin(root: Path) -> Path:
@@ -167,3 +171,19 @@ def test_cache_pick_orders_prereleases_and_named_versions(
     for version in installed:
         (market / "leyline" / version / ".claude-plugin").mkdir(parents=True)
     assert sibling_plugin_dir(script, "leyline") == market / "leyline" / expected
+
+
+def test_version_key_orders_every_shape_of_cache_directory_name() -> None:
+    """version_key is public because minister and memory-palace vendor it.
+
+    GIVEN cache directory names that are releases, a pre-release and a
+    name with no version
+    WHEN they are sorted by version_key
+    THEN the unversioned name sorts first, 1.10.0 follows 1.9.21, and
+    1.10.1-rc1 sits between 1.10.0 and 1.10.1.
+    """
+    names = ["1.10.1", "latest", "1.10.1-rc1", "1.9.21", "1.10.0"]
+
+    ordered = [p.name for p in sorted((Path(n) for n in names), key=version_key)]
+
+    assert ordered == ["latest", "1.9.21", "1.10.0", "1.10.1-rc1", "1.10.1"]

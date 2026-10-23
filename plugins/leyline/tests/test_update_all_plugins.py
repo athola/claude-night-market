@@ -665,6 +665,24 @@ class TestOneInstalledPluginsReader:
             "a@m": [{"version": "1.0.0"}]
         }
 
+    def test_a_v1_only_install_is_still_read(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """GIVEN only installed_plugins.json exists
+        WHEN the reader runs
+        THEN it falls back to the v1 name and returns its plugins.
+        """
+        plugins_dir = tmp_path / ".claude" / "plugins"
+        plugins_dir.mkdir(parents=True)
+        (plugins_dir / "installed_plugins.json").write_text(
+            json.dumps({"plugins": {"b@m": [{"version": "2.0.0"}]}})
+        )
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+
+        assert update_all_plugins.read_installed_plugins() == {
+            "b@m": [{"version": "2.0.0"}]
+        }
+
     def test_reinstall_uses_the_same_reader(self) -> None:
         import reinstall_all_plugins  # noqa: PLC0415 - script module, path set above
 

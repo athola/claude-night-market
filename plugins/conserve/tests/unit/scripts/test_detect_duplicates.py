@@ -691,6 +691,23 @@ class TestFindCompetingImplementations:
         assert find_competing_implementations([tmp_path]) == []
 
     @pytest.mark.unit
+    def test_star_argument_annotations_are_ignored_too(self, tmp_path: Path) -> None:
+        """Star-argument annotations do not split a body either.
+
+        GIVEN two bodies that differ only in *args and **kwargs annotations
+        WHEN the census runs
+        THEN they are one body, the same as a named argument's annotation.
+        """
+        (tmp_path / "a.py").write_text(
+            "def call(*args: int, **kwargs: str):\n    return args, kwargs\n"
+        )
+        (tmp_path / "b.py").write_text(
+            "def call(*args: object, **kwargs: object):\n    return args, kwargs\n"
+        )
+
+        assert find_competing_implementations([tmp_path]) == []
+
+    @pytest.mark.unit
     def test_docstring_difference_alone_is_not_competing(self, tmp_path: Path) -> None:
         """Bodies are compared without their docstrings."""
         (tmp_path / "a.py").write_text(
