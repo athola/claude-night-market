@@ -174,7 +174,9 @@ def _check_evidence(
     """Check evidence count meets minimum. Returns (warnings, failed)."""
     if evidence_count >= contract.min_evidence_count:
         return [], False
-    if contract.strictness in {"strict", "normal"}:
+    # Normal rejects only zero evidence, which validate_findings gates
+    # for every tier; a nonzero shortfall is a warning below strict.
+    if contract.strictness == "strict":
         return [], True
     return [
         f"Evidence count ({evidence_count}) below minimum "
@@ -189,7 +191,7 @@ def _check_artifacts(
     missing = [p for p in contract.expected_artifacts if not Path(p).exists()]
     if not missing:
         return [], [], False
-    if contract.strictness != "lenient":
+    if contract.strictness == "strict":
         return missing, [], True
     return missing, [f"Missing artifact: {a}" for a in missing], False
 

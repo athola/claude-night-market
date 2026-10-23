@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+import pytest
+
 from minister.project_tracker import ProjectTracker, Task
 
 
@@ -210,19 +212,20 @@ class TestUpdateTask:
         reloaded_task = next(t for t in reloaded_tracker.data.tasks if t.id == task_id)
         assert reloaded_task.status == "Done"
 
-    def test_update_nonexistent_task_does_nothing(
+    def test_update_nonexistent_task_raises_and_modifies_nothing(
         self, populated_tracker: ProjectTracker
     ) -> None:
         """GIVEN tracker with tasks.
 
         WHEN update is called with nonexistent task ID
-        THEN no tasks are modified.
+        THEN KeyError is raised and no tasks are modified.
         """
         # Arrange
         original_tasks = [t.status for t in populated_tracker.data.tasks]
 
         # Act
-        populated_tracker.update_task("NONEXISTENT-999", {"status": "Done"})
+        with pytest.raises(KeyError):
+            populated_tracker.update_task("NONEXISTENT-999", {"status": "Done"})
 
         # Assert
         updated_tasks = [t.status for t in populated_tracker.data.tasks]

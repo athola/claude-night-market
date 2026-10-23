@@ -246,6 +246,23 @@ def hook(context):
         assert analyzer.patterns[0].pattern_type == "equals"
         assert analyzer.patterns[0].pattern == "rm -rf /"
 
+    def test_inequality_check_is_not_extracted_as_equals_pattern(self):
+        """Given a guard clause using !=, no equals pattern is extracted.
+
+        `if tool_name != "Bash": return` skips Bash-free calls; turning it
+        into an `equals "Bash"` rule inverts what the hook does.
+        """
+        code = """
+def hook(context):
+    if context["tool_name"] != "Bash":
+        return None
+"""
+        tree = ast.parse(code)
+        analyzer = HookAnalyzer()
+        analyzer.visit(tree)
+
+        assert analyzer.patterns == []
+
     def test_detects_network_complexity(self):
         """Given a hook with HTTP calls, marks as complex with network."""
         code = """

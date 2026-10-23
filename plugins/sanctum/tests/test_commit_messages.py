@@ -1,179 +1,159 @@
 # ruff: noqa: D101,D102,D103,PLR2004,E501
-"""BDD-style tests for the Commit Messages skill.
+"""Contract tests for the commit-messages skill and the /commit-msg command.
 
-Tests the commit-messages skill, which generates conventional commit
-messages from staged changes. Each Mock is verified with
-assert_called_once_with or call_args checks.
+Both are instructions for the model, not code. A commit message is only as
+good as those instructions, so these tests pin the rules in them: the
+types, the subject and body format, and the slop lists. The skill and the
+command are two routes to the same message, so where both state a rule the
+tests also hold them to the same answer.
 """
 
 from __future__ import annotations
 
-from unittest.mock import Mock
+import re
+from pathlib import Path
+
+import pytest
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+SKILL_FILE = PLUGIN_ROOT / "skills" / "commit-messages" / "SKILL.md"
+COMMAND_FILE = PLUGIN_ROOT / "commands" / "commit-msg.md"
+
+
+def _step(text: str, heading: str) -> str:
+    """Return one numbered step, from its bold heading to the next step."""
+    match = re.search(
+        rf"^\d+[a-z]?\. \*\*{re.escape(heading)}\*\*.*?(?=^\d+[a-z]?\. \*\*|^## )",
+        text,
+        re.DOTALL | re.MULTILINE,
+    )
+    assert match, f"step {heading!r} not found"
+    return match.group(0)
+
+
+def _types(text: str, heading: str) -> set[str]:
+    return set(re.findall(r"`([a-z]+)`", _step(text, heading)))
+
+
+def _skill_slop_table(text: str) -> dict[str, str]:
+    """Map each word in the skill's Reject column to its replacement."""
+    table = {}
+    for reject, use in re.findall(
+        r"^\s*\| ([a-z, ]+) \| ([a-z]+) \|$", _step(text, "Slop check"), re.MULTILINE
+    ):
+        for word in reject.split(","):
+            table[word.strip()] = use
+    return table
+
+
+def _command_slop_list(text: str) -> set[str]:
+    step = _step(text, "Slop check")
+    banned = step.split("must NOT contain:", 1)[1].split("If found", 1)[0]
+    return {
+        item.strip().strip('"').lower()
+        for item in re.split(r",\s*", banned)
+        if item.strip()
+    }
+
+
+def _skill_slop_phrases(text: str) -> list[str]:
+    also = _step(text, "Slop check").split("Also reject:", 1)[1]
+    return [phrase.lower() for phrase in re.findall(r'"([^"]+)"', also)]
+
+
+@pytest.fixture(scope="module")
+def skill() -> str:
+    return SKILL_FILE.read_text()
+
+
+@pytest.fixture(scope="module")
+def command() -> str:
+    return COMMAND_FILE.read_text()
 
 
 class TestCommitMessagesSkill:
     """Behavior-driven tests for the commit-messages skill."""
 
-    # Test constants
-    CONVENTIONAL_COMMIT_TYPES = [
-        "feat",
-        "fix",
-        "docs",
-        "style",
-        "refactor",
-        "test",
-        "chore",
-        "perf",
-        "ci",
-        "build",
-    ]
-
-    def test_generates_conventional_commit_for_feature_changes(
-        self,
-        staged_changes_context,
+    def test_skill_and_command_both_offer_feat_and_the_type_scope_summary_format(
+        self, skill: str, command: str
     ) -> None:
-        """Given staged feature changes, generates a feat: commit message."""
-        mock_bash = Mock()
-        mock_bash.side_effect = [
-            "feat: Add new feature implementation\n\nImplements core functionality for XYZ feature",
-            "src/new_feature.py",
-        ]
+        """Both routes offer `feat` and draft `<type>(<scope>): <summary>`."""
+        assert "feat" in _types(skill, "Classify")
+        assert "feat" in _types(command, "Classify the change")
+        assert "`<type>(<scope>): <imperative summary>`" in skill
+        assert "<type>(<scope>): <imperative summary" in command
 
-        commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
-        changed_files = mock_bash("git diff --cached --name-only")
-
-        # Verify mock was called with expected git commands
-        assert mock_bash.call_count == 2
-        mock_bash.assert_any_call("git log -1 --pretty=format:%s%n%n%b")
-        mock_bash.assert_any_call("git diff --cached --name-only")
-
-        assert commit_msg.startswith("feat:")
-        assert "new feature" in commit_msg.lower()
-        assert "src/new_feature.py" in changed_files
-
-    def test_generates_conventional_commit_for_bug_fixes(
-        self, staged_changes_context
+    def test_skill_and_command_both_offer_fix_type(
+        self, skill: str, command: str
     ) -> None:
-        """Given staged bug-fix changes, generates a fix: commit message."""
-        mock_bash = Mock()
-        mock_bash.return_value = "fix: Resolve null pointer exception in module initialization\n\nFixes issue #123 where null values caused crashes"
+        """Both routes offer `fix` as a commit type."""
+        assert "fix" in _types(skill, "Classify")
+        assert "fix" in _types(command, "Classify the change")
 
-        commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
-
-        # Verify mock was called exactly once with expected command
-        mock_bash.assert_called_once_with("git log -1 --pretty=format:%s%n%n%b")
-
-        assert commit_msg.startswith("fix:")
-        assert "resolve" in commit_msg.lower()
-        assert "null pointer" in commit_msg.lower()
-
-    def test_generates_conventional_commit_for_documentation(
-        self,
-        staged_changes_context,
+    def test_skill_and_command_both_offer_docs_type(
+        self, skill: str, command: str
     ) -> None:
-        """Given staged doc changes, generates a docs: commit message."""
-        mock_bash = Mock()
-        mock_bash.return_value = "docs: Update README and add API documentation\n\nClarify installation steps and document new endpoints"
+        """Both routes offer `docs` as a commit type."""
+        assert "docs" in _types(skill, "Classify")
+        assert "docs" in _types(command, "Classify the change")
 
-        commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
-
-        mock_bash.assert_called_once_with("git log -1 --pretty=format:%s%n%n%b")
-
-        assert commit_msg.startswith("docs:")
-        assert "documentation" in commit_msg.lower() or "readme" in commit_msg.lower()
-
-    def test_generates_conventional_commit_for_refactoring(
-        self,
-        staged_changes_context,
+    def test_skill_and_command_offer_the_same_commit_types(
+        self, skill: str, command: str
     ) -> None:
-        """Given staged refactoring changes, generates a refactor: commit message."""
-        mock_bash = Mock()
-        mock_bash.return_value = "refactor: Simplify module structure and improve code organization\n\nExtract common utilities and remove duplicate code"
+        """Both routes offer `refactor`, and they offer the same type set."""
+        skill_types = _types(skill, "Classify")
+        assert "refactor" in skill_types
+        assert skill_types == _types(command, "Classify the change")
 
-        commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
+    def test_skill_documents_scope_in_subject_and_breaking_change_footer(
+        self, skill: str, command: str
+    ) -> None:
+        """The footer carries BREAKING CHANGE, and the scope sits in the subject."""
+        draft = _step(skill, "Draft the message")
+        assert "**Footer**: BREAKING CHANGE" in draft
+        assert "(<scope>)" in draft
+        assert "BREAKING CHANGE" in _step(command, "Draft the message")
 
-        mock_bash.assert_called_once_with("git log -1 --pretty=format:%s%n%n%b")
+    def test_skill_and_command_gather_context_from_the_staged_diff(
+        self, skill: str, command: str
+    ) -> None:
+        """Context comes from the staged diff, and stops when nothing is staged."""
+        for text in (skill, command):
+            gather = _step(text, "Gather context")
+            assert "`git diff --cached`" in gather
+            assert "`git diff --cached --stat`" in gather
+        assert "If nothing is staged, tell the user and stop." in skill
+        assert "If nothing is staged" in command
 
-        assert commit_msg.startswith("refactor:")
-        assert "simplify" in commit_msg.lower() or "improve" in commit_msg.lower()
-
-    def test_includes_scope_in_commit_message_when_appropriate(self) -> None:
-        """Given a breaking change, includes feat! prefix and BREAKING CHANGE footer."""
-        mock_bash = Mock()
-        mock_bash.return_value = "feat!: Change API endpoint structure\n\nBREAKING CHANGE: API endpoints now use camelCase instead of snake_case"
-
-        commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
-
-        mock_bash.assert_called_once_with("git log -1 --pretty=format:%s%n%n%b")
-
-        assert "feat!:" in commit_msg
-        assert "BREAKING CHANGE" in commit_msg
-
-    def test_analyzes_diff_content_for_context(self) -> None:
-        """Given a diff output, mock returns the staged diff content."""
-        mock_bash = Mock()
-        mock_bash.return_value = """diff --git a/src/calculator.py b/src/calculator.py
-@@ class Calculator:
-@@ def add(self, a, b):
-@@ def multiply(self, a, b):
-"""
-
-        diff = mock_bash("git diff")
-
-        mock_bash.assert_called_once_with("git diff")
-        assert "multiply" in diff
-        assert "Calculator" in diff
-
-    def test_uses_imperative_mood_in_subject(self) -> None:
-        """Given a well-formed commit, subject is between 20 and 72 chars."""
-        mock_bash = Mock()
-        mock_bash.return_value = "feat: Add detailed user authentication system"
-
-        subject = mock_bash("git log -1 --pretty=format:%s")
-
-        mock_bash.assert_called_once_with("git log -1 --pretty=format:%s")
-        assert 20 <= len(subject) <= 72
-        # Subject should start with a conventional type
-        commit_type = subject.split(":")[0]
-        assert commit_type in self.CONVENTIONAL_COMMIT_TYPES
-
-    def test_separates_subject_from_body_with_blank_line(self) -> None:
-        """Given a multi-line commit, subject and body are separated by blank line."""
-        mock_bash = Mock()
-        mock_bash.return_value = (
-            "feat: Add login\n\nImplements OAuth2 login with JWT sessions."
+    def test_skill_and_command_cap_the_imperative_subject_at_50_chars(
+        self, skill: str, command: str
+    ) -> None:
+        """The subject is an imperative summary capped at 50 characters."""
+        assert "imperative summary>` (50 chars max)" in _step(
+            skill, "Draft the message"
         )
+        assert "<imperative summary, ≤50 chars>" in _step(command, "Draft the message")
+        assert "is at most 50 characters" in skill
 
-        commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
-
-        mock_bash.assert_called_once_with("git log -1 --pretty=format:%s%n%n%b")
-        lines = commit_msg.split("\n")
-        assert len(lines) >= 3, "Commit message should have subject, blank, and body"
-        assert lines[0].startswith("feat:")
-        assert lines[1] == ""
-        assert len(lines[2]) > 0
-
-    def test_wraps_body_lines_at_72_characters(self) -> None:
-        """Given a commit with wrapped body, no body line exceeds 72 chars."""
-        mock_bash = Mock()
-        body_text = (
-            "fix: Resolve memory leak in data processing\n"
-            "\n"
-            "Fixed the memory leak caused by unclosed database connections.\n"
-            "The leak occurred when processing large datasets and would\n"
-            "eventually cause the application to crash after several hours.\n"
-            "\n"
-            "This fix validates connections are properly closed using context\n"
-            "managers, preventing resource exhaustion."
+    def test_command_template_has_a_blank_line_between_subject_and_body(
+        self, command: str
+    ) -> None:
+        """The command's template puts one blank line between subject and body."""
+        template = re.search(
+            r"```\n(.*?)```", _step(command, "Draft the message"), re.DOTALL
         )
-        mock_bash.return_value = body_text
+        assert template
+        lines = template.group(1).strip().splitlines()
+        assert lines[0].lstrip().startswith("<type>(<scope>):")
+        assert lines[1].strip() == ""
+        assert lines[2].lstrip().startswith("<body:")
 
-        commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
-
-        mock_bash.assert_called_once_with("git log -1 --pretty=format:%s%n%n%b")
-        assert "memory leak" in commit_msg.lower()
-        for line in commit_msg.split("\n"):
-            assert len(line) <= 72, f"Body line exceeds 72 chars: {line!r}"
+    def test_skill_and_command_wrap_the_body_at_72_chars(
+        self, skill: str, command: str
+    ) -> None:
+        """Both routes wrap the body at 72 characters."""
+        assert "wrapped at 72 chars" in _step(skill, "Draft the message")
+        assert "wrapped at 72 chars" in _step(command, "Draft the message")
 
 
 class TestCommitMessageSlopDetection:
@@ -200,55 +180,34 @@ class TestCommitMessageSlopDetection:
         "nuanced",
     ]
 
-    # Blocked phrases
-    BLOCKED_PHRASES = [
-        "it's worth noting",
-        "at its core",
-        "in essence",
-        "a testament to",
-        "navigate the complexities",
-    ]
+    def test_command_rejects_every_tier1_slop_word(self, command: str) -> None:
+        """Scenario: /commit-msg rejects every tier-1 slop word."""
+        missing = set(self.TIER1_SLOP_WORDS) - _command_slop_list(command)
+        assert not missing, f"/commit-msg does not reject: {sorted(missing)}"
 
-    def test_detects_tier1_slop_words_in_subject(self) -> None:
-        """Scenario: Reject commit subjects containing tier-1 slop words."""
-        bad_subjects = [
-            "feat: leverage new API for auth",
-            "fix: utilize helper function",
-            "docs: add comprehensive guide",
-        ]
+    def test_skill_replacement_words_are_not_themselves_rejected(
+        self, skill: str, command: str
+    ) -> None:
+        """Scenario: no replacement word the skill suggests is itself rejected."""
+        replacements = set(_skill_slop_table(skill).values())
+        banned = set(_skill_slop_table(skill)) | _command_slop_list(command)
+        assert replacements
+        assert not replacements & banned
 
-        for subject in bad_subjects:
-            has_slop = any(word in subject.lower() for word in self.TIER1_SLOP_WORDS)
-            assert has_slop, f"Should detect slop in: {subject}"
+    def test_command_rejects_every_slop_phrase_the_skill_rejects(
+        self, skill: str, command: str
+    ) -> None:
+        """Scenario: every phrase the skill rejects, the command rejects too."""
+        phrases = _skill_slop_phrases(skill)
+        assert "it's worth noting" in phrases
+        assert "at its core" in phrases
+        missing = set(phrases) - _command_slop_list(command)
+        assert not missing, f"/commit-msg does not reject: {sorted(missing)}"
 
-    def test_accepts_clean_commit_subjects(self) -> None:
-        """Scenario: Accept commit subjects without slop words."""
-        clean_subjects = [
-            "feat: add new API for auth",
-            "fix: use helper function",
-            "docs: add complete guide",
-        ]
-
-        for subject in clean_subjects:
-            has_slop = any(word in subject.lower() for word in self.TIER1_SLOP_WORDS)
-            assert not has_slop, f"Should not flag clean subject: {subject}"
-
-    def test_detects_slop_phrases_in_body(self) -> None:
-        """Scenario: Reject commit bodies containing blocked phrases."""
-        bad_body = """This change leverages the new API.
-
-It's worth noting that this improves performance.
-At its core, this is a refactoring effort."""
-
-        has_slop = any(phrase in bad_body.lower() for phrase in self.BLOCKED_PHRASES)
-        assert has_slop, "Should detect blocked phrases in body"
-        # Verify which specific phrases were found
-        found = [p for p in self.BLOCKED_PHRASES if p in bad_body.lower()]
-        assert "it's worth noting" in found
-        assert "at its core" in found
-
-    def test_provides_alternatives_for_slop_words(self) -> None:
-        """Scenario: Mapping from slop words to clean alternatives exists."""
+    def test_skill_maps_each_slop_word_to_a_plain_alternative_the_command_also_rejects(
+        self, skill: str, command: str
+    ) -> None:
+        """Scenario: the skill maps each rejected word to a plain alternative."""
         alternatives = {
             "leverage": "use",
             "utilize": "use",
@@ -259,8 +218,7 @@ At its core, this is a refactoring effort."""
             "delve": "explore",
         }
 
-        for slop, clean in alternatives.items():
-            assert slop in self.TIER1_SLOP_WORDS, f"{slop} should be in tier-1 list"
-            assert clean not in self.TIER1_SLOP_WORDS, f"{clean} should not be slop"
-        # Verify all tier-1 words with known alternatives are covered
-        assert len(alternatives) == 7
+        table = _skill_slop_table(skill)
+        assert {word: table.get(word) for word in alternatives} == alternatives
+        missing = set(table) - _command_slop_list(command)
+        assert not missing, f"/commit-msg does not reject: {sorted(missing)}"

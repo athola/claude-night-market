@@ -780,8 +780,11 @@ class TestAlert:
         assert "deploy" in body
         assert "Rollout complete" in body
 
+    @patch("notify.send_webhook", return_value=True)
     @patch("notify.create_github_alert", return_value=False)
-    def test_no_webhook_url_skips_webhook(self, mock_create: MagicMock) -> None:
+    def test_no_webhook_url_skips_webhook(
+        self, mock_create: MagicMock, mock_wh: MagicMock
+    ) -> None:
         """Scenario: No webhook URL means only GitHub is attempted.
 
         Given no webhook_url
@@ -794,9 +797,13 @@ class TestAlert:
         )
         assert result is False
         mock_create.assert_called_once()
+        mock_wh.assert_not_called()
 
+    @patch("notify.create_github_alert", return_value=True)
     @patch("notify.send_webhook", return_value=True)
-    def test_non_github_method_skips_github(self, mock_wh: MagicMock) -> None:
+    def test_non_github_method_skips_github(
+        self, mock_wh: MagicMock, mock_create: MagicMock
+    ) -> None:
         """Scenario: Non-github method skips issue creation.
 
         Given overseer_method="webhook-only"
@@ -810,6 +817,7 @@ class TestAlert:
         )
         assert result is True
         mock_wh.assert_called_once()
+        mock_create.assert_not_called()
 
     @patch("notify.create_github_alert", return_value=True)
     def test_custom_source_passed_to_github(self, mock_create: MagicMock) -> None:
@@ -885,3 +893,34 @@ class TestWebhookAddressPinning:
             send_webhook(url="https://example.com:8443/hook", event=AlertEvent.CRASH)
         cmd = mock_run.call_args[0][0]
         assert cmd[cmd.index("--resolve") + 1] == "example.com:8443:93.184.216.34"
+
+    @patch("subprocess.run")
+    def test_ipv6_pin_is_bracketed_for_curl(self, mock_run: MagicMock) -> None:
+        """Curl parses host:port:addr, so a bare IPv6 address would split."""
+        mock_run.return_value = MagicMock(returncode=0)
+        public_v6 = [
+            (socket.AF_INET6, socket.SOCK_STREAM, 6, "", ("2606:4700::1111", 0, 0, 0))
+        ]
+        with patch("socket.getaddrinfo", return_value=public_v6):
+            send_webhook(url="https://example.com/hook", event=AlertEvent.CRASH)
+        cmd = mock_run.call_args[0][0]
+        assert cmd[cmd.index("--resolve") + 1] == "example.com:443:[2606:4700::1111]"
+
+    @pytest.mark.parametrize("private", ["127.0.0.1", "10.0.0.5", "169.254.169.254"])
+    def test_hostname_resolving_to_a_private_address_is_rejected(
+        self, private: str
+    ) -> None:
+        """A public-looking name that resolves inward is refused."""
+        answer = [(socket.AF_INET, socket.SOCK_STREAM, 6, "", (private, 0))]
+        with patch("socket.getaddrinfo", return_value=answer):
+            with pytest.raises(WebhookURLError, match="resolves to private"):
+                validate_webhook_url("https://innocent.example.com/hook")
+
+    def test_one_private_answer_among_public_ones_is_rejected(self) -> None:
+        """Every resolved address is checked, not only the first."""
+        mixed = self._PUBLIC + [
+            (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("192.168.1.1", 0))
+        ]
+        with patch("socket.getaddrinfo", return_value=mixed):
+            with pytest.raises(WebhookURLError, match="192.168.1.1"):
+                validate_webhook_url("https://example.com/hook")

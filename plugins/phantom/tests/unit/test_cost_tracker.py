@@ -8,6 +8,8 @@ Feature: Cost Tracking
 
 from __future__ import annotations
 
+import pytest
+
 from phantom.cost import (
     DEPRECATED_MODELS,
     PRICING,
@@ -17,6 +19,7 @@ from phantom.cost import (
 )
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestEstimateScreenshotTokens:
     """Feature: Screenshot token estimation."""
 
@@ -41,9 +44,39 @@ class TestEstimateScreenshotTokens:
         large = estimate_screenshot_tokens(1920, 1080)
         assert large > small
 
+    def test_follows_anthropics_pixels_over_750_rule(self):
+        """
+        Scenario: Documented vision cost
+        Given Anthropic's estimate tokens = (width * height) / 750
+        When estimating screenshots inside the resize limit
+        Then the estimate matches it, rounded up for a budget guard
+        """
+        assert estimate_screenshot_tokens(1024, 768) == 1049
+        assert estimate_screenshot_tokens(1280, 800) == 1366
+        assert estimate_screenshot_tokens(1092, 1092) == 1590
+
+    def test_applies_the_rule_after_resizing_the_long_edge(self):
+        """
+        Scenario: Oversized screenshot
+        Given a 3136x1568 screenshot, resized to 1568x784 first
+        When estimating tokens
+        Then the estimate is 1568 * 784 / 750, rounded up
+        """
+        assert estimate_screenshot_tokens(3136, 1568) == 1640
+
     def test_zero_resolution(self):
         tokens = estimate_screenshot_tokens(0, 0)
         assert tokens == 0
+
+    def test_is_deprecated(self):
+        """
+        Scenario: A caller budgets a screenshot with this helper
+        Given the loop reads image cost from reported usage instead
+        When the helper is called
+        Then a DeprecationWarning names its removal
+        """
+        with pytest.warns(DeprecationWarning, match="estimate_screenshot_tokens"):
+            estimate_screenshot_tokens(10, 10)
 
 
 class TestIterationCost:
@@ -195,12 +228,25 @@ class TestPricingTracksTheModelCard:
         Then each has an explicit entry rather than falling to default
         """
         for model in (
-            "claude-opus-5",
-            "claude-sonnet-5",
-            "claude-fable-5",
+            "claude-opus-5-5",
+            "claude-sonnet-5-5",
+            "claude-fable-5-1",
+            "claude-haiku-5-5",
             "claude-haiku-4-5-20251001",
         ):
             assert model in PRICING, f"{model} falls through to default pricing"
+
+    def test_haiku_5_5_is_priced_at_its_long_prompt_tier(self):
+        """
+        Scenario: A run uses Haiku 5.5, which has two price tiers
+        Given the pricing page lists $0.10/$0.50 up to 100K prompt tokens
+        and $0.50/$2.50 above
+        When its flat entry is read
+        Then it carries the higher tier, so the budget guard stops early
+        rather than late
+        """
+        # platform.claude.com/docs/en/about-claude/pricing, 2026-10-14
+        assert PRICING["claude-haiku-5-5"] == {"input": 0.5, "output": 2.5}
 
     def test_published_rates_are_correct(self):
         """
@@ -209,9 +255,10 @@ class TestPricingTracksTheModelCard:
         When the pricing table is read
         Then the entries match the model card
         """
-        assert PRICING["claude-fable-5"] == {"input": 10.0, "output": 50.0}
-        assert PRICING["claude-opus-5"] == {"input": 5.0, "output": 25.0}
-        assert PRICING["claude-sonnet-5"] == {"input": 3.0, "output": 15.0}
+        # platform.claude.com/docs/en/about-claude/models/overview, 2026-10-04
+        assert PRICING["claude-fable-5-1"] == {"input": 10.0, "output": 50.0}
+        assert PRICING["claude-opus-5-5"] == {"input": 4.0, "output": 20.0}
+        assert PRICING["claude-sonnet-5-5"] == {"input": 2.0, "output": 10.0}
         assert PRICING["claude-haiku-4-5-20251001"] == {"input": 1.0, "output": 5.0}
 
     def test_legacy_opus_46_rate_is_not_opus_41_rate(self):
@@ -274,3 +321,23 @@ class TestPricingTracksTheModelCard:
         for model in DEPRECATED_MODELS:
             assert model in PRICING
         assert PRICING["claude-opus-4-1-20250805"] == {"input": 15.0, "output": 75.0}
+
+
+class TestLegacyRates:
+    """Legacy rows match the pricing page, not a scheduled change.
+
+    platform.claude.com/docs/en/about-claude/pricing, 2026-10-05, footnote
+    3: Sonnet 5's $2/$10 "is now the standard price" and the increase to
+    $3/$15 scheduled for 2026-09-01 "will not occur". The table carried the
+    $3/$15 that never took effect, over-costing Sonnet 5 runs 1.5x.
+    """
+
+    def test_sonnet_5_is_priced_at_its_standard_rate(self):
+        assert PRICING["claude-sonnet-5"] == {"input": 2.0, "output": 10.0}
+
+    def test_other_legacy_rows_match_the_pricing_page(self):
+        assert PRICING["claude-fable-5"] == {"input": 10.0, "output": 50.0}
+        assert PRICING["claude-opus-5"] == {"input": 5.0, "output": 25.0}
+        for model in ("claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6"):
+            assert PRICING[model] == {"input": 5.0, "output": 25.0}
+        assert PRICING["claude-sonnet-4-6"] == {"input": 3.0, "output": 15.0}

@@ -6,9 +6,9 @@
 .PHONY: all async-patterns-tests benchmark ci clean coverage coverage-check coverage-report \
 	debug-variables demo-analyze-tests demo-check-async demo-run-profiler \
 	demo-skills dev dev-install help install mutation-test \
-	plugin-check python-tests quality-check status test test-analyze-tests test-async \
+	plugin-check quality-check status test test-analyze-tests test-async \
 	test-check-async test-duplicates test-edge-case test-file test-fixtures test-integration \
-	test-parallel test-pattern test-perf test-performance test-run-profiler \
+	test-parallel test-pattern test-perf format-check test-performance test-run-profiler \
 	test-structure test-testing testing-guidance-tests demo-parseltongue-commands demo-tests demo-coverage demo-lint
 
 # Plugin-specific variables (must be before include)
@@ -38,19 +38,19 @@ test: ## Run all tests
 	$(PYTEST) $(PYTEST_TARGETS) -v
 
 test-integration: ## Run only integration tests
-	$(PYTEST) -v -m integration
+	@$(call pytest_selection,-v -m integration)
 
 test-async: ## Run async-focused tests
 	$(PYTEST) -v -m asyncio
 
 test-performance: ## Run performance tests
-	$(PYTEST) -v -m performance --benchmark-only
+	@$(call pytest_selection,-v -m performance --benchmark-only)
 
 test-testing: ## Run testing-focused tests
-	$(PYTEST) -v -m testing
+	@$(call pytest_selection,-v -m testing)
 
 test-edge-case: ## Run edge case tests
-	$(PYTEST) -v -m edge_case
+	@$(call pytest_selection,-v -m edge_case)
 
 coverage: ## Run tests with coverage report
 	$(PYTEST) --cov=src/parseltongue --cov-report=html --cov-report=term-missing
@@ -70,7 +70,9 @@ test-pattern: ## Run tests matching pattern (PATTERN=name)
 	$(PYTEST) -v -k "$(PATTERN)"
 
 # ---------- Code Quality ----------
-quality-check: format lint type-check coverage-check ## Run all quality checks
+# Gates check and never rewrite: `format` would fix the tree before lint
+# saw it, so committed violations passed and the tree came back modified.
+quality-check: format-check lint type-check coverage-check ## Run all quality checks
 	@echo "All quality checks passed!"
 
 # ---------- Installation ----------
@@ -81,8 +83,6 @@ install: ## Install for production
 	pip install .
 
 # ---------- Category Tests ----------
-python-tests: ## Run Python-specific tests
-	$(PYTEST) tests/skills/test_python_*.py -v
 
 async-patterns-tests: ## Run async pattern tests
 	$(PYTEST) tests/test_async_patterns.py tests/test_*.py -k "async" -v
@@ -109,9 +109,9 @@ benchmark: ## Run performance benchmarks
 
 mutation-test: ## Run mutation testing
 	@if command -v mutmut >/dev/null 2>&1; then \
-		mutmut run --paths-to-mutate parseltongue --tests-dir tests/; \
+		mutmut run --paths-to-mutate src/parseltongue --tests-dir tests/; \
 	else \
-		echo "mutmut not installed (pip install mutmut)"; \
+		echo "mutmut not installed (pip install mutmut)"; exit 1; \
 	fi
 
 test-structure: ## Verify test structure
@@ -142,7 +142,7 @@ coverage-report: ## Generate coverage report
 # ---------- Workflows ----------
 dev: format lint test-unit ## Quick development loop
 
-ci: format lint type-check security coverage-check ## Full CI pipeline
+ci: format-check lint type-check security coverage-check ## Full CI pipeline
 	@echo "CI pipeline completed successfully!"
 
 # ---------- Maintenance ----------
@@ -182,7 +182,10 @@ demo-tests: ## Run tests to demonstrate testing patterns (LIVE)
 demo-coverage: ## Run coverage analysis (LIVE)
 	@echo "=== Parseltongue Coverage Demo (LIVE) ==="
 	@echo ""
-	$(PYTEST) --cov=src/parseltongue --cov-report=term-missing -q | head -30
+	@# Capture, then trim with sed, which reads to EOF: under pipefail
+	@# `| head` fails a passing run once head closes the pipe early.
+	@out=$$($(PYTEST) --cov=src/parseltongue --cov-report=term-missing -q 2>&1) || st=$$?; \
+		printf '%s\n' "$$out" | sed -n '1,30p'; exit $${st:-0}
 
 demo-lint: ## Run linting on parseltongue code (LIVE)
 	@echo "=== Parseltongue Lint Demo (LIVE) ==="
@@ -248,11 +251,10 @@ demo-parseltongue-commands: demo-analyze-tests demo-run-profiler demo-check-asyn
 
 
 test-analyze-tests: ## Test analyze-tests command (runs test analysis tests)
-	$(PYTEST) tests/ -v -k "analyze" || $(PYTEST) tests/ -v --tb=short
+	$(PYTEST) tests/ -v -k "analyze"
 
 test-run-profiler: ## Test run-profiler command (runs performance tests)
-	$(PYTEST) tests/ -v -m "performance" --tb=short 2>/dev/null || \
-		$(PYTEST) tests/ -v -k "profiler or performance" --tb=short
+	$(PYTEST) tests/ -v -k "perf or profil" --tb=short
 
 test-check-async: ## Test check-async command (runs async pattern tests)
 	$(PYTEST) tests/test_async_patterns.py tests/test_async_edge_cases.py -v

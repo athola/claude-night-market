@@ -468,6 +468,31 @@ class TestSessionManagerCorruptFiles:
 
         assert manager.load_latest() is None
 
+    @pytest.mark.unit
+    @pytest.mark.skipif(os.geteuid() == 0, reason="root reads mode-000 files")
+    def test_load_latest_raises_when_newest_file_is_unreadable(
+        self, tmp_path: Path
+    ) -> None:
+        """
+        Scenario: Newest session cannot be read, an older one can
+        Given an older valid session and a newer unreadable one
+        When load_latest is called
+        Then the OSError propagates instead of returning the older session
+        """
+        manager = SessionManager(tmp_path)
+        older = manager.create("older topic", "domain", "light", [])
+        newer = manager.create("newer topic", "domain", "light", [])
+        sessions = tmp_path / ".tome" / "sessions"
+        now = datetime.now(tz=timezone.utc).timestamp()
+        os.utime(sessions / f"{older.id}.json", (now - 60, now - 60))
+        newest = sessions / f"{newer.id}.json"
+        newest.chmod(0)
+        try:
+            with pytest.raises(PermissionError):
+                manager.load_latest()
+        finally:
+            newest.chmod(0o644)
+
 
 class TestFindingRoundTrip:
     """

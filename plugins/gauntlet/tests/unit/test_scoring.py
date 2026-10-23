@@ -334,3 +334,42 @@ class TestMLEnhancedScoring:
         ch = _challenge("explain_why", answer)
         with patch("gauntlet.scoring.score_answer_quality", return_value=None):
             assert evaluate_answer(ch, answer) == "pass"
+
+
+class TestStructureCannotStandInForContent:
+    """
+    Feature: Formatting alone never earns a verdict
+
+    The ML model's content features are word overlap and keyword coverage,
+    so it cannot recognize a paraphrase. When it lifted an answer with no
+    overlap, structure and length were doing the lifting: eight bullets of
+    "banana" scored ML 0.98 and passed.
+    """
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("bullets", [5, 8])
+    def test_bulleted_junk_with_no_overlap_fails(self, bullets: int) -> None:
+        ch = Challenge(
+            id="c1",
+            type="explain_why",
+            knowledge_entry_id="k",
+            difficulty=2,
+            prompt="Why does the cache use an LRU eviction policy?",
+            context="cache eviction lru policy memory bound",
+            answer=(
+                "Because the cache must stay within a fixed memory bound and "
+                "recently used keys are most likely to be reused"
+            ),
+        )
+        junk = "\n".join(f"- banana {i}" for i in range(bullets))
+        assert evaluate_answer(ch, junk) == "fail"
+
+    @pytest.mark.unit
+    def test_ml_does_not_lift_an_answer_below_the_partial_overlap_bar(self) -> None:
+        # 1 of 10 reference words: overlap 0.1, under the 0.2 partial bar.
+        ch = _challenge("explain_why", "a b c d e f g h i alpha")
+        with (
+            patch("gauntlet.scoring.score_answer_quality", return_value=1.0),
+            patch("gauntlet.scoring.get_blend_weights", return_value=(0.4, 0.6)),
+        ):
+            assert evaluate_answer(ch, "alpha zulu yankee") == "fail"

@@ -77,11 +77,11 @@ Load specific modules based on your needs, or reference all for detailed guidanc
 
 ## Exit Criteria
 
-- Async patterns applied correctly
-- No blocking operations in async code
-- Proper error handling implemented
-- Rate limiting configured where needed
-- Tests pass with pytest-asyncio
+- [ ] Async patterns applied correctly
+- [ ] No blocking operations in async code
+- [ ] Proper error handling implemented
+- [ ] Rate limiting configured where needed
+- [ ] Tests pass with pytest-asyncio
 ## Troubleshooting
 
 ### Common Issues

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from pathlib import Path
 
@@ -21,6 +22,16 @@ import pytest
 # Constants for PLR2004 magic values
 ZERO = 0.0
 HUNDRED = 100
+
+
+def _row(entry: dict) -> str:
+    """Serialize a fixture row in the envelope Claude Code writes.
+
+    Role/content pairs go under ``message``.
+    """
+    if "role" in entry:
+        entry = {"type": entry["role"], "message": entry}
+    return json.dumps(entry)
 
 
 @pytest.fixture(autouse=True)
@@ -94,7 +105,7 @@ class TestFallbackContextEstimation:
         # Create the cwd directory and matching project dir using dash convention
         fakecwd = tmp_path / "fakecwd"
         fakecwd.mkdir(exist_ok=True)
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         real_project_dir = home / ".claude" / "projects" / project_dir_name
@@ -103,16 +114,16 @@ class TestFallbackContextEstimation:
         # Write valid JSONL to target file with fewer turns than the large file
         target_lines = []
         for _ in range(10):
-            target_lines.append(json.dumps({"role": "user", "content": "hello"}))
-            target_lines.append(json.dumps({"role": "assistant", "content": "hi"}))
+            target_lines.append(_row({"role": "user", "content": "hello"}))
+            target_lines.append(_row({"role": "assistant", "content": "hi"}))
         target_file = real_project_dir / "target-session-id.jsonl"
         target_file.write_text("\n".join(target_lines))
 
         # Large file has many more turns
         large_lines = []
         for _ in range(200):
-            large_lines.append(json.dumps({"role": "user", "content": "hello"}))
-            large_lines.append(json.dumps({"role": "assistant", "content": "hi"}))
+            large_lines.append(_row({"role": "user", "content": "hello"}))
+            large_lines.append(_row({"role": "assistant", "content": "hi"}))
         large_file = real_project_dir / "other-session.jsonl"
         large_file.write_text("\n".join(large_lines))
 
@@ -138,7 +149,7 @@ class TestFallbackContextEstimation:
         monkeypatch.delenv("CONSERVE_CONTEXT_ESTIMATION", raising=False)
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
 
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         real_project_dir = home / ".claude" / "projects" / project_dir_name
@@ -172,7 +183,7 @@ class TestFallbackContextEstimation:
         monkeypatch.delenv("CONSERVE_CONTEXT_ESTIMATION", raising=False)
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
 
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         real_project_dir = home / ".claude" / "projects" / project_dir_name
@@ -182,8 +193,8 @@ class TestFallbackContextEstimation:
         fresh_file = real_project_dir / "fresh-session.jsonl"
         lines = []
         for _ in range(200):
-            lines.append(json.dumps({"role": "user", "content": "hello world"}))
-            lines.append(json.dumps({"role": "assistant", "content": "hi there"}))
+            lines.append(_row({"role": "user", "content": "hello world"}))
+            lines.append(_row({"role": "assistant", "content": "hi there"}))
         fresh_file.write_text("\n".join(lines))
 
         result = context_warning_full_module.estimate_context_from_session()
@@ -223,7 +234,7 @@ class TestFallbackContextEstimationCoverage:
         fakecwd.mkdir(parents=True)
         home.mkdir(parents=True)
 
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         project_dir = home / ".claude" / "projects" / project_dir_name
@@ -249,14 +260,14 @@ class TestFallbackContextEstimationCoverage:
         fakecwd.mkdir(parents=True)
         home.mkdir(parents=True)
 
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         project_dir = home / ".claude" / "projects" / project_dir_name
         project_dir.mkdir(parents=True)
 
         fresh_file = project_dir / "other-session.jsonl"
-        fresh_file.write_text(json.dumps({"role": "user", "content": "hello"}) + "\n")
+        fresh_file.write_text(_row({"role": "user", "content": "hello"}) + "\n")
 
         monkeypatch.setenv("CLAUDE_SESSION_ID", "nonexistent-id")
         monkeypatch.setattr("pathlib.Path.cwd", staticmethod(lambda: fakecwd))
@@ -278,14 +289,14 @@ class TestFallbackContextEstimationCoverage:
         fakecwd = tmp_path / "fakecwd"
         fakecwd.mkdir(parents=True)
 
-        project_dir_name = str(fakecwd).replace(os.sep, "-")
+        project_dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(fakecwd))
         if not project_dir_name.startswith("-"):
             project_dir_name = "-" + project_dir_name
         project_dir = home / ".claude" / "projects" / project_dir_name
         project_dir.mkdir(parents=True)
 
         session = project_dir / "session.jsonl"
-        session.write_text(json.dumps({"role": "user", "content": "hi"}) + "\n")
+        session.write_text(_row({"role": "user", "content": "hi"}) + "\n")
 
         monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
         monkeypatch.setattr("pathlib.Path.cwd", staticmethod(lambda: fakecwd))
@@ -332,10 +343,10 @@ class TestEstimateFromRecentTurns:
     ) -> None:
         """Scenario: Turns contribute to token estimate."""
         lines = [
-            json.dumps({"role": "user", "content": "hello"}),
-            json.dumps({"role": "assistant", "content": "hi"}),
-            json.dumps({"role": "user", "content": "question"}),
-            json.dumps({"role": "assistant", "content": "answer"}),
+            _row({"role": "user", "content": "hello"}),
+            _row({"role": "assistant", "content": "hi"}),
+            _row({"role": "user", "content": "question"}),
+            _row({"role": "assistant", "content": "answer"}),
         ]
         session_file = tmp_path / "turns.jsonl"
         session_file.write_text("\n".join(lines))
@@ -350,7 +361,7 @@ class TestEstimateFromRecentTurns:
     def test_counts_tool_results(self, context_warning_full_module, tmp_path) -> None:
         """Scenario: Tool results add to token estimate."""
         lines = [
-            json.dumps(
+            _row(
                 {
                     "role": "user",
                     "content": [
@@ -367,7 +378,7 @@ class TestEstimateFromRecentTurns:
                     ],
                 }
             ),
-            json.dumps({"role": "assistant", "content": "response"}),
+            _row({"role": "assistant", "content": "response"}),
         ]
         session_file = tmp_path / "tools.jsonl"
         session_file.write_text("\n".join(lines))
@@ -389,7 +400,7 @@ class TestEstimateFromRecentTurns:
                 "role": "assistant",
                 "content": [{"type": "text", "text": big_text}],
             }
-            lines.append(json.dumps(entry))
+            lines.append(_row(entry))
         session_file = tmp_path / "large.jsonl"
         session_file.write_text("\n".join(lines))
 
@@ -406,9 +417,9 @@ class TestEstimateFromRecentTurns:
         """Scenario: Malformed JSON lines are skipped gracefully."""
         lines = [
             "not valid json",
-            json.dumps({"role": "user", "content": "hello"}),
+            _row({"role": "user", "content": "hello"}),
             "{bad json{",
-            json.dumps({"role": "assistant", "content": "hi"}),
+            _row({"role": "assistant", "content": "hi"}),
         ]
         session_file = tmp_path / "mixed.jsonl"
         session_file.write_text("\n".join(lines))
@@ -436,9 +447,9 @@ class TestEstimateFromRecentTurns:
         lines = [
             "",
             "   ",
-            json.dumps({"role": "user", "content": "hello"}),
+            _row({"role": "user", "content": "hello"}),
             "",
-            json.dumps({"role": "assistant", "content": "hi"}),
+            _row({"role": "assistant", "content": "hi"}),
         ]
         session_file = tmp_path / "blanks.jsonl"
         session_file.write_text("\n".join(lines))
@@ -454,7 +465,7 @@ class TestEstimateFromRecentTurns:
     ) -> None:
         """String items inside a content list contribute to content_chars."""
         lines = [
-            json.dumps({"role": "user", "content": ["hello world", "second string"]}),
+            _row({"role": "user", "content": ["hello world", "second string"]}),
         ]
         session_file = tmp_path / "strblocks.jsonl"
         session_file.write_text("\n".join(lines))
@@ -470,7 +481,7 @@ class TestEstimateFromRecentTurns:
     ) -> None:
         """String message content (not list) contributes to content_chars."""
         lines = [
-            json.dumps({"role": "assistant", "content": "a" * 4000}),
+            _row({"role": "assistant", "content": "a" * 4000}),
         ]
         session_file = tmp_path / "strcontents.jsonl"
         session_file.write_text("\n".join(lines))
@@ -491,15 +502,15 @@ class TestEstimateFromRecentTurns:
             "role": "assistant",
             "content": [{"type": "text", "text": old_text}],
         }
-        old_line = json.dumps(old_entry)
+        old_line = _row(old_entry)
         old_count = 10
         old_lines = [old_line] * old_count
 
         recent_lines = [
-            json.dumps({"role": "user", "content": "recent question"}),
-            json.dumps({"role": "assistant", "content": "recent answer"}),
-            json.dumps({"role": "user", "content": "follow-up"}),
-            json.dumps({"role": "assistant", "content": "response"}),
+            _row({"role": "user", "content": "recent question"}),
+            _row({"role": "assistant", "content": "recent answer"}),
+            _row({"role": "user", "content": "follow-up"}),
+            _row({"role": "assistant", "content": "response"}),
         ]
 
         session_file = tmp_path / "large_session.jsonl"
@@ -523,10 +534,10 @@ class TestEstimateFromRecentTurns:
     ) -> None:
         """Scenario: Only user and assistant roles count as turns."""
         lines = [
-            json.dumps({"role": "system", "content": "system prompt text"}),
-            json.dumps({"role": "tool", "content": "tool output text"}),
-            json.dumps({"role": "user", "content": "hello"}),
-            json.dumps({"role": "assistant", "content": "hi"}),
+            _row({"role": "system", "content": "system prompt text"}),
+            _row({"role": "tool", "content": "tool output text"}),
+            _row({"role": "user", "content": "hello"}),
+            _row({"role": "assistant", "content": "hi"}),
         ]
         session_file = tmp_path / "mixed_roles.jsonl"
         session_file.write_text("\n".join(lines))
@@ -543,7 +554,7 @@ class TestEstimateFromRecentTurns:
     ) -> None:
         """Content list with both dict and str blocks counts all."""
         lines = [
-            json.dumps(
+            _row(
                 {
                     "role": "user",
                     "content": [
@@ -567,9 +578,9 @@ class TestEstimateFromRecentTurns:
     ) -> None:
         """Multiple lines with string content all contribute."""
         lines = [
-            json.dumps({"role": "user", "content": "first message"}),
-            json.dumps({"role": "assistant", "content": "reply"}),
-            json.dumps({"role": "user", "content": "second message"}),
+            _row({"role": "user", "content": "first message"}),
+            _row({"role": "assistant", "content": "reply"}),
+            _row({"role": "user", "content": "second message"}),
         ]
         session_file = tmp_path / "multi_str.jsonl"
         session_file.write_text("\n".join(lines))
@@ -585,7 +596,7 @@ class TestEstimateFromRecentTurns:
     ) -> None:
         """Content list items that are neither dict nor str are silently skipped."""
         lines = [
-            json.dumps(
+            _row(
                 {
                     "role": "user",
                     "content": [
@@ -611,9 +622,9 @@ class TestEstimateFromRecentTurns:
     ) -> None:
         """Message content that is neither list nor str is skipped."""
         lines = [
-            json.dumps({"role": "user", "content": None}),
-            json.dumps({"role": "assistant", "content": 12345}),
-            json.dumps({"role": "user", "content": "real content"}),
+            _row({"role": "user", "content": None}),
+            _row({"role": "assistant", "content": 12345}),
+            _row({"role": "user", "content": "real content"}),
         ]
         session_file = tmp_path / "odd_content.jsonl"
         session_file.write_text("\n".join(lines))
@@ -839,7 +850,7 @@ class TestResolveSessionFile:
         """Scenario: Project dir exists but contains no JSONL files."""
         cwd = Path.cwd()
         projects = tmp_path / ".claude" / "projects"
-        dir_name = str(cwd).replace(os.sep, "-")
+        dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not dir_name.startswith("-"):
             dir_name = "-" + dir_name
         project_dir = projects / dir_name
@@ -860,7 +871,7 @@ class TestResolveSessionFile:
         """Scenario: Full directory structure exists with a fresh JSONL file."""
         cwd = Path.cwd()
         projects = tmp_path / ".claude" / "projects"
-        dir_name = str(cwd).replace(os.sep, "-")
+        dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not dir_name.startswith("-"):
             dir_name = "-" + dir_name
         project_dir = projects / dir_name
@@ -893,7 +904,7 @@ class TestResolveProjectDir:
         cwd = tmp_path / "home" / "user" / "project"
         cwd.mkdir(parents=True)
 
-        dir_name = str(cwd).replace(os.sep, "-")
+        dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         if not dir_name.startswith("-"):
             dir_name = "-" + dir_name
         expected = claude_projects / dir_name
@@ -925,7 +936,7 @@ class TestResolveProjectDir:
         """Scenario: Leading dash is added if path does not start with separator."""
         claude_projects = tmp_path / "projects"
         cwd = Path("relative/path")
-        dir_name = str(cwd).replace(os.sep, "-")
+        dir_name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
         # dir_name = "relative-path", no leading dash
         assert not dir_name.startswith("-")
 
@@ -935,3 +946,26 @@ class TestResolveProjectDir:
         result = context_warning_full_module._resolve_project_dir(cwd, claude_projects)
 
         assert result == expected_dir
+
+
+@pytest.mark.unit
+def test_estimate_reads_rows_in_the_shape_claude_code_writes(
+    context_warning_full_module, tmp_path
+) -> None:
+    """Rows are read under message, where Claude Code nests them.
+
+    Read at the top level, a session at roughly half the window estimated
+    0.015, so the 40% warning never fired on the fallback path.
+    """
+    row = {
+        "type": "user",
+        "message": {
+            "role": "user",
+            "content": [{"type": "tool_result", "content": "x" * 400_000}],
+        },
+    }
+    session_file = tmp_path / "real.jsonl"
+    session_file.write_text(json.dumps(row) + "\n")
+    result = context_warning_full_module._estimate_from_recent_turns(session_file)
+    assert result is not None
+    assert result >= 0.09

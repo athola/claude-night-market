@@ -122,9 +122,9 @@ the verifier rejects.
 
 ## Exit Criteria
 
-- Surface inventoried, exemplars researched, consistency audited,
+- [ ] Surface inventoried, exemplars researched, consistency audited,
   documentation governance checked, and evidence logged.
-- Every reported finding carries a `Location` + verbatim `Anchor`
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor`
   confirmed by `citation_verifier.py` (exit `0`), or unverified findings
   were dropped or labeled `UNVERIFIED`.
 

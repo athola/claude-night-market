@@ -1,13 +1,11 @@
 ---
 name: skill-auditor
-agent: true
-allowed-tools:
+tools:
   - Read
   - Grep
   - Glob
   - Bash
 escalation: opus-when-stuck
-context: fork
 description: |
   Agent for detailed skill quality auditing and improvement
   recommendations. Analyzes skill structure, content quality,

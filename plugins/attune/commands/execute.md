@@ -32,7 +32,7 @@ Avoid this command if:
 /attune:execute
 
 # Execute specific task
-/attune:execute --task TASK-003
+/attune:execute --task T003
 
 # Resume from checkpoint
 /attune:execute --resume
@@ -143,7 +143,7 @@ Agent(attune:project-implementer)
 
 ## Arguments
 
-- `--task <task-id>` - Execute specific task (e.g., TASK-003)
+- `--task <task-id>` - Execute specific task (e.g., T003)
 - `--phase <phase-name>` - Execute specific phase
 - `--resume` - Resume from last checkpoint
 - `--dry-run` - Preview execution without applying changes
@@ -171,32 +171,32 @@ Current sprint: Sprint 1 (Foundation)
 Phase 1: Foundation (10 tasks)
 ─────────────────────────────────────
 
-[✓] TASK-001: Initialize Project Structure
+[✓] T001: Initialize Project Structure
     ├─ Created project with /attune:project-init
     ├─ All tests passing
     └─ Duration: 45 minutes
 
-[▶] TASK-002: Database Schema Design
+[▶] T002: Database Schema Design
     ├─ Creating migration: migrations/001_initial.sql
     ├─ Running: alembic revision --autogenerate
     └─ Progress: 60%
 
 Checkpoint: 1/10 tasks complete (10%)
-Next: Complete TASK-002, start TASK-003
+Next: Complete T002, start T003
 Blockers: None
 ```
 
 ### Example 2: Execute Specific Task
 
 ```bash
-/attune:execute --task TASK-005
+/attune:execute --task T005
 ```
 
 **Detailed Task Execution**:
 ```
-📋 Executing TASK-005: Implement OAuth Flow
+📋 Executing T005: Implement OAuth Flow
 
-Dependencies: TASK-004 (Complete ✓)
+Dependencies: T004 (Complete ✓)
 
 Acceptance Criteria:
 - [ ] GitHub OAuth app configured
@@ -236,10 +236,10 @@ Loads state from `.attune/execution-state.json`:
 
 Last checkpoint: 2026-01-02 14:30:22
 Completed: 15/40 tasks (37.5%)
-Last task: TASK-015 (Complete)
-Next task: TASK-016
+Last task: T015 (Complete)
+Next task: T016
 
-Resuming with TASK-016...
+Resuming with T016...
 ```
 
 ### Example 4: Phase-Specific Execution
@@ -248,7 +248,7 @@ Resuming with TASK-016...
 /attune:execute --phase "Phase 2"
 ```
 
-Executes only Phase 2 tasks (TASK-011 through TASK-030).
+Executes only Phase 2 tasks (T011 through T030).
 
 ## Claude Code Tasks Integration (2.1.16+)
 
@@ -315,7 +315,7 @@ Progress is saved to `.attune/execution-state.json`:
   "current_sprint": "Sprint 1",
   "current_phase": "Phase 1",
   "tasks": {
-    "TASK-001": {
+    "T001": {
       "status": "complete",
       "started_at": "2026-01-02T10:05:00Z",
       "completed_at": "2026-01-02T10:50:00Z",
@@ -323,7 +323,7 @@ Progress is saved to `.attune/execution-state.json`:
       "acceptance_criteria_met": true,
       "tests_passing": true
     },
-    "TASK-002": {
+    "T002": {
       "status": "in_progress",
       "started_at": "2026-01-02T14:00:00Z",
       "progress_percent": 60,
@@ -350,13 +350,13 @@ Generated automatically:
 # Daily Standup - 2026-01-02
 
 ## Yesterday
-- ✅ TASK-001: Initialize Project Structure (45 min)
-- ✅ TASK-002: Database Schema Design (90 min)
-- ✅ TASK-003: Implement Data Models (60 min)
+- ✅ T001: Initialize Project Structure (45 min)
+- ✅ T002: Database Schema Design (90 min)
+- ✅ T003: Implement Data Models (60 min)
 
 ## Today
-- 🔄 TASK-004: Set up OAuth (60% complete)
-- 📋 TASK-005: Implement Auth Middleware (planned)
+- 🔄 T004: Set up OAuth (60% complete)
+- 📋 T005: Implement Auth Middleware (planned)
 
 ## Blockers
 - None
@@ -375,11 +375,11 @@ Generated automatically:
 **Goal**: Foundation - Working dev environment
 
 ## Completed (10 tasks)
-- TASK-001 through TASK-010 ✓
+- T001 through T010 ✓
 
 ## In Progress (2 tasks)
-- TASK-011: Issue import logic (40%)
-- TASK-012: GitHub webhook receiver (planning)
+- T011: Issue import logic (40%)
+- T012: GitHub webhook receiver (planning)
 
 ## Blocked (0 tasks)
 

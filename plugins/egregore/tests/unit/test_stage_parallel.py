@@ -123,6 +123,17 @@ class TestPlanStageExecution:
         assert plan.waves[0] == ["code-review"]
 
     @pytest.mark.unit
+    def test_a_step_whose_dependency_is_not_scheduled_still_runs(self) -> None:
+        """Scenario: A dependency outside the step list cannot deadlock.
+
+        Given update-tests without the code-review it depends on
+        When planning execution
+        Then the unresolvable steps land in one final wave, in input order.
+        """
+        plan = plan_stage_execution("quality", ["unbloat", "update-tests"])
+        assert plan.waves == [["unbloat"], ["update-tests"]]
+
+    @pytest.mark.unit
     def test_empty_steps_produces_no_waves(self) -> None:
         """Scenario: No steps means no waves."""
         plan = plan_stage_execution("quality", [])

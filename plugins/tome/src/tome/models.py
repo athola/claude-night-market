@@ -2,15 +2,45 @@
 
 from __future__ import annotations
 
+import functools
 import uuid
 import warnings
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, TypeVar, cast
+
+_FromDict = TypeVar("_FromDict", bound=Callable[..., Any])
 
 
 def _now() -> datetime:
     return datetime.now(tz=timezone.utc)
+
+
+class _MissingFieldError(KeyError):
+    """A KeyError already naming the record whose key was missing."""
+
+
+def _names_missing_key(from_dict: _FromDict) -> _FromDict:
+    """Wrap a ``from_dict`` so a missing key names the class and keys present.
+
+    An error from a nested record's ``from_dict`` passes through as it is:
+    it already names the record the key was missing from.
+    """
+
+    @functools.wraps(from_dict)
+    def wrapper(cls: Any, d: dict[str, Any]) -> Any:
+        try:
+            return from_dict(cls, d)
+        except _MissingFieldError:
+            raise
+        except KeyError as exc:
+            raise _MissingFieldError(
+                f"{cls.__name__}.from_dict missing required field {exc}: "
+                f"keys present = {sorted(d.keys())}"
+            ) from exc
+
+    return cast(_FromDict, wrapper)
 
 
 _VALID_CHANNELS = frozenset({"code", "discourse", "academic", "triz", "web"})
@@ -52,21 +82,17 @@ class Finding:
         return asdict(self)
 
     @classmethod
+    @_names_missing_key
     def from_dict(cls, d: dict[str, Any]) -> Finding:
-        try:
-            return cls(
-                source=d["source"],
-                channel=d["channel"],
-                title=d["title"],
-                url=d["url"],
-                relevance=d["relevance"],
-                summary=d["summary"],
-                metadata=d.get("metadata", {}),
-            )
-        except KeyError as exc:
-            raise KeyError(
-                f"Finding.from_dict missing required field {exc}: keys present = {sorted(d.keys())}"
-            ) from exc
+        return cls(
+            source=d["source"],
+            channel=d["channel"],
+            title=d["title"],
+            url=d["url"],
+            relevance=d["relevance"],
+            summary=d["summary"],
+            metadata=d.get("metadata", {}),
+        )
 
 
 @dataclass(frozen=True)
@@ -105,6 +131,7 @@ class CitationEdge:
         return {"citing_id": self.citing_id, "cited_id": self.cited_id}
 
     @classmethod
+    @_names_missing_key
     def from_dict(cls, d: dict[str, str]) -> CitationEdge:
         return cls(citing_id=d["citing_id"], cited_id=d["cited_id"])
 
@@ -126,6 +153,7 @@ class DomainClassification:
         return asdict(self)
 
     @classmethod
+    @_names_missing_key
     def from_dict(cls, d: dict[str, Any]) -> DomainClassification:
         return cls(
             domain=d["domain"],
@@ -158,6 +186,7 @@ class SessionSummary:
         }
 
     @classmethod
+    @_names_missing_key
     def from_dict(cls, d: dict[str, Any]) -> SessionSummary:
         raw_created = d.get("created_at")
         return cls(
@@ -227,30 +256,25 @@ class ResearchSession:
         }
 
     @classmethod
+    @_names_missing_key
     def from_dict(cls, d: dict[str, Any]) -> ResearchSession:
-        try:
-            raw_created: str | None = d.get("created_at")
-            raw_updated: str | None = d.get("updated_at")
-            return cls(
-                id=d["id"],
-                topic=d["topic"],
-                domain=d["domain"],
-                triz_depth=d["triz_depth"],
-                channels=list(d["channels"]),
-                findings=[Finding.from_dict(f) for f in d.get("findings", [])],
-                status=d.get("status", "pending"),
-                created_at=datetime.fromisoformat(raw_created) if raw_created else None,
-                updated_at=datetime.fromisoformat(raw_updated) if raw_updated else None,
-                # Sessions on disk predate this field. Defaulting to []
-                # makes them load as "no record", which channel_outcomes
-                # reads as unknown rather than as an empty field.
-                query_log=[QueryLog.from_dict(q) for q in d.get("query_log", [])],
-            )
-        except KeyError as exc:
-            raise KeyError(
-                f"ResearchSession.from_dict missing required field {exc}: "
-                f"keys present = {sorted(d.keys())}"
-            ) from exc
+        raw_created: str | None = d.get("created_at")
+        raw_updated: str | None = d.get("updated_at")
+        return cls(
+            id=d["id"],
+            topic=d["topic"],
+            domain=d["domain"],
+            triz_depth=d["triz_depth"],
+            channels=list(d["channels"]),
+            findings=[Finding.from_dict(f) for f in d.get("findings", [])],
+            status=d.get("status", "pending"),
+            created_at=datetime.fromisoformat(raw_created) if raw_created else None,
+            updated_at=datetime.fromisoformat(raw_updated) if raw_updated else None,
+            # Sessions on disk predate this field. Defaulting to []
+            # makes them load as "no record", which channel_outcomes
+            # reads as unknown rather than as an empty field.
+            query_log=[QueryLog.from_dict(q) for q in d.get("query_log", [])],
+        )
 
 
 @dataclass
@@ -270,6 +294,7 @@ class Citation:
         return asdict(self)
 
     @classmethod
+    @_names_missing_key
     def from_dict(cls, d: dict[str, Any]) -> Citation:
         return cls(
             source_type=d["source_type"],
@@ -321,6 +346,7 @@ class QueryLog:
         return asdict(self)
 
     @classmethod
+    @_names_missing_key
     def from_dict(cls, d: dict[str, Any]) -> QueryLog:
         return cls(
             channel=d["channel"],
@@ -345,6 +371,7 @@ class ResearchPlan:
         return asdict(self)
 
     @classmethod
+    @_names_missing_key
     def from_dict(cls, d: dict[str, Any]) -> ResearchPlan:
         return cls(
             channels=list(d["channels"]),

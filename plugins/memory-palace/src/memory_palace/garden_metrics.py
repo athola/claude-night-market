@@ -73,8 +73,15 @@ def parse_args() -> argparse.Namespace:
 
 
 def iso_to_datetime(value: str) -> datetime:
-    """Convert an ISO 8601 string to a timezone-aware datetime object."""
-    return datetime.fromisoformat(value).astimezone(timezone.utc)
+    """Convert an ISO 8601 string to a timezone-aware datetime object.
+
+    A naive timestamp is read as UTC, as decay_model and index_analytics
+    read it. ``astimezone`` would read it as host local time.
+    """
+    parsed = datetime.fromisoformat(value)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def compute_metrics(data: dict[str, Any], now: datetime) -> dict[str, Any]:
@@ -88,6 +95,8 @@ def compute_metrics(data: dict[str, Any], now: datetime) -> dict[str, Any]:
         A dictionary of computed metrics.
 
     """
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
     plots = data.get("garden", {}).get("plots", [])
     if not plots:
         return {"plots": 0, "link_density": 0.0, "avg_days_since_tend": None}
@@ -116,14 +125,18 @@ def compute_metrics(data: dict[str, Any], now: datetime) -> dict[str, Any]:
     }
 
 
-def summarize_tending_queue(queue_path: Path) -> dict[str, int]:
-    """Summarize tending queue entries for telemetry."""
+def summarize_tending_queue(queue_path: Path) -> dict[str, Any]:
+    """Summarize tending queue entries for telemetry.
+
+    A queue that exists but cannot be read or parsed adds an ``error`` key,
+    so it does not read as an empty queue.
+    """
     if not queue_path.exists():
         return {"stale": 0, "probation_overdue": 0}
     try:
         queue_data = json.loads(queue_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return {"stale": 0, "probation_overdue": 0}
+    except (json.JSONDecodeError, OSError) as exc:
+        return {"stale": 0, "probation_overdue": 0, "error": str(exc)}
     return {
         "stale": len(queue_data.get("stale", [])),
         "probation_overdue": len(queue_data.get("probation_overdue", [])),
@@ -163,7 +176,7 @@ def compute_garden_metrics(
 def main() -> int:
     """Parse arguments, compute metrics, and print the output."""
     args = parse_args()
-    now = datetime.fromisoformat(args.now) if args.now else datetime.now(timezone.utc)
+    now = iso_to_datetime(args.now) if args.now else datetime.now(timezone.utc)
 
     metrics = compute_garden_metrics(args.path, now, args.tending_queue)
     if args.format == "brief":

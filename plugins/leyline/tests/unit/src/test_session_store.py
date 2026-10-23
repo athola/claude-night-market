@@ -337,3 +337,12 @@ class TestSessionStoreAbstractContract:
         store = _Bare(tmp_path / "sessions")
         with pytest.raises(NotImplementedError):
             store.save("sess1", {"x": 1})
+
+
+@pytest.mark.unit
+def test_list_sessions_when_directory_was_removed(tmp_path: Path) -> None:
+    """A sessions directory deleted after construction lists nothing."""
+    sessions_dir = tmp_path / "sessions"
+    store = _SimpleStore(sessions_dir)
+    sessions_dir.rmdir()
+    assert store.list_sessions() == []

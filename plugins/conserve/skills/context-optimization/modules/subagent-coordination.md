@@ -115,44 +115,6 @@ Agents with `isolation: worktree` in their frontmatter run in a temporary git wo
 - **First-launch fix (2.1.53+)**: `--worktree` was sometimes silently ignored on first launch, now reliable
 - **Config and memory sharing (2.1.63+)**: Project configs and auto-memory are now shared across git worktrees of the same repository. Worktree-isolated agents inherit the parent repo's `.claude/` settings and memory.
 
-### Memory Stability in Long Sessions (Claude Code 2.1.47+)
-
-2.1.47 fixes an O(n^2) message accumulation issue and adds stream buffer release, reducing memory growth in long-running agent sessions. This is particularly relevant for multi-agent workflows where the parent dispatches many sequential subagents. Previously, memory usage could grow disproportionately as each subagent's results accumulated. The fix makes sustained orchestration sessions (e.g., large map-reduce pipelines) more stable without requiring manual session restarts.
-
-### Additional Memory Fixes (Claude Code 2.1.50+)
-
-2.1.50 patches several leaks relevant to Task-heavy
-workflows: completed TaskOutput and task state objects
-are now freed, CircularBuffer no longer retains cleared
-items, shell ChildProcess/AbortController references are
-released after cleanup, and agent team teammate tasks are
-garbage collected on completion. Internal caches are
-cleared after compaction, large tool results are freed
-after processing, and file history snapshots are capped.
-Parallel execution patterns and agent teams are more
-viable in long sessions as a result.
-
-### Memory Leak Fixes (Claude Code 2.1.63+)
-
-2.1.63 fixes 12+ memory leak sites: bridge polling,
-MCP OAuth cleanup, hooks config menu, permission handler
-auto-approvals, bash prefix cache, MCP tool/resource
-cache on reconnect, IDE host IP cache, WebSocket
-transport reconnect, git root detection cache, JSON
-parsing cache, long-running teammate messages in
-AppState, and MCP server fetch caches on disconnect.
-Heavy progress message payloads are now stripped during
-subagent context compaction. Long-running sessions and
-multi-agent workflows are significantly more stable.
-
-### Subagent Task State Release (Claude Code 2.1.59+)
-
-2.1.59 releases completed subagent task state from
-memory, further reducing RSS growth in Task-heavy
-workflows. Combined with the 2.1.50 leak fixes, this
-makes sustained multi-agent orchestration sessions more
-stable without requiring manual session restarts.
-
 ### Tool Result Disk Persistence (Claude Code 2.1.51+)
 
 Tool results larger than 50K characters are persisted to

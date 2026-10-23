@@ -1,6 +1,6 @@
 {
   "name": "gauntlet",
-  "version": "1.9.21",
+  "version": "1.10.0",
   "description": "Codebase learning through knowledge extraction, code knowledge graph, challenges, and spaced repetition. Prevents knowledge atrophy for experienced developers and accelerates onboarding for new ones.",
   "skills": [
     "./skills/challenge",
@@ -37,5 +37,7 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "homepage": "https://github.com/athola/claude-night-market/tree/master/plugins/gauntlet",
+  "repository": "https://github.com/athola/claude-night-market"
 }

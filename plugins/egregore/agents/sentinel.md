@@ -10,6 +10,7 @@ tools:
   - Bash
 model: haiku
 effort: low
+omitClaudeMd: true
 ---
 
 # Sentinel Agent

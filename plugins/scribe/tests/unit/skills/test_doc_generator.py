@@ -105,3 +105,36 @@ class TestDocGeneratorEatsItsOwnDogfood:
         assert h1_idx >= 0
         lead = skill_text[h1_idx : h1_idx + 800]
         assert "**" in lead, "Lead must contain a bolded thesis sentence"
+
+
+class TestOneTermOneHome:
+    """Feature: one authorized term per concept and one home per fact.
+
+    A restated fact is a second model of it that drifts, and code left
+    inconsistent with its comments is measurably more bug-prone
+    (docs/knowledge-corpus/decoherence.md). These anchor on the added
+    principle, so a revert fails them.
+    """
+
+    @pytest.fixture
+    def skill_text(self) -> str:
+        """Return SKILL.md with whitespace collapsed."""
+        path = Path(__file__).parents[3] / "skills" / "doc-generator" / "SKILL.md"
+        return " ".join(path.read_text().split())
+
+    @pytest.mark.unit
+    def test_principle_names_one_term_per_concept(self, skill_text: str) -> None:
+        """A synonym for an existing term is not introduced."""
+        assert "### 11. One Term per Concept, One Home per Fact" in skill_text
+        assert "use the term the repository already uses" in skill_text
+
+    @pytest.mark.unit
+    def test_restated_fact_becomes_a_link(self, skill_text: str) -> None:
+        """A number or threshold stated elsewhere is linked."""
+        assert "link to the file that states it" in skill_text
+
+    @pytest.mark.unit
+    def test_superseded_doc_carries_the_forward_pointer(self, skill_text: str) -> None:
+        """The old doc points forward; the new doc stays in the present."""
+        assert "The superseded document gets the forward pointer" in skill_text
+        assert "commit message records the supersession" in skill_text

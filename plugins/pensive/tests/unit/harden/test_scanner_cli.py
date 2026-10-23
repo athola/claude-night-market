@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import pathlib
+import subprocess
+import sys
 import textwrap
 from typing import TYPE_CHECKING
 
@@ -213,3 +215,25 @@ class TestTheScannerProvesItScannedSomething:
         code = run_cli(["--path", str(self._PLANTED.parent), "--strict"])
         out = capsys.readouterr().out
         assert code == 2, out
+
+
+class TestModuleEntryPoint:
+    """``python -m pensive.harden`` is how the skill invokes the scanner."""
+
+    def test_module_entry_point_propagates_the_strict_exit_code(self) -> None:
+        planted = TestTheScannerProvesItScannedSomething._PLANTED
+        proc = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pensive.harden",
+                "--path",
+                str(planted.parent),
+                "--strict",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=60,
+        )
+        assert proc.returncode == 2, proc.stdout + proc.stderr

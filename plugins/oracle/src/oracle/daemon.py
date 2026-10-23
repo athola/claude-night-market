@@ -25,10 +25,14 @@ class _ModelRegistry:
         self._load(models_dir)
 
     def _load(self, models_dir: Path) -> None:
+        if not models_dir.is_dir():
+            raise ValueError(f"models directory not found: {models_dir}")
         for path in sorted(models_dir.glob("*.yaml")):
             name = path.stem
             with path.open() as fh:
                 data = yaml.safe_load(fh)
+            if not isinstance(data, dict):
+                raise ValueError(f"model file {path} is empty or not a mapping")
             self._models[name] = data
 
     def list_models(self) -> list[str]:
@@ -71,6 +75,8 @@ class _ModelRegistry:
                 raise ValueError(
                     f"Feature {feat!r} is not a number: {features[feat]!r}"
                 ) from exc
+            if not math.isfinite(value):
+                raise ValueError(f"Feature {feat!r} is not finite: {value!r}")
             linear += w * value
 
         if model.get("sigmoid", False):
@@ -134,23 +140,38 @@ class _InferenceHandler(BaseHTTPRequestHandler):
         else:
             self._send_json(404, {"error": f"Not found: {self.path}"})
 
+    def _read_json_object(self) -> dict[str, Any] | None:
+        """Parse the request body as a JSON object, or send a 400 and return None."""
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+        except ValueError:
+            self._send_json(400, {"error": "Invalid Content-Length"})
+            return None
+        raw = self.rfile.read(length) if length else b""
+
+        if not raw:
+            self._send_json(400, {"error": "Empty request body"})
+            return None
+
+        try:
+            payload = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            self._send_json(400, {"error": f"Invalid JSON: {exc}"})
+            return None
+
+        if not isinstance(payload, dict):
+            self._send_json(400, {"error": "Request body must be a JSON object"})
+            return None
+        return payload
+
     def do_POST(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler requires uppercase verb methods
         """Dispatch POST requests."""
         if self.path != "/infer":
             self._send_json(404, {"error": f"Not found: {self.path}"})
             return
 
-        length = int(self.headers.get("Content-Length", 0))
-        raw = self.rfile.read(length) if length else b""
-
-        if not raw:
-            self._send_json(400, {"error": "Empty request body"})
-            return
-
-        try:
-            payload = json.loads(raw)
-        except json.JSONDecodeError as exc:
-            self._send_json(400, {"error": f"Invalid JSON: {exc}"})
+        payload = self._read_json_object()
+        if payload is None:
             return
 
         model_name: str | None = payload.get("model")
@@ -158,6 +179,9 @@ class _InferenceHandler(BaseHTTPRequestHandler):
 
         if not model_name:
             self._send_json(400, {"error": "Missing 'model' field"})
+            return
+        if not isinstance(model_name, str):
+            self._send_json(400, {"error": "'model' must be a string"})
             return
 
         try:

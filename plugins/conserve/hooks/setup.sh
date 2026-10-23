@@ -30,7 +30,8 @@ main() {
   # Read hook input to determine trigger type
   HOOK_INPUT=""
   TRIGGER_TYPE="init"
-  if read -t 1 -r HOOK_INPUT 2>/dev/null; then
+  # read fails on a line with no final newline but still stores it.
+  if read -t 1 -r HOOK_INPUT 2>/dev/null || [[ -n "${HOOK_INPUT}" ]]; then
     if command -v jq >/dev/null 2>&1; then
       TRIGGER_TYPE=$(printf '%s\n' "${HOOK_INPUT}" | jq -r '.trigger // "init"' 2>/dev/null || printf '%s\n' "init")
     fi

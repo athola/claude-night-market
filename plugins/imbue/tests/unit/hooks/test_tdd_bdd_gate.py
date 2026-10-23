@@ -393,6 +393,8 @@ class TestMainEntryPoint:
         self,
         tdd_gate_module,
         monkeypatch,
+        tmp_path,
+        capsys,
         tool_name,
     ) -> None:
         """Scenario: main() ignores non-write tool operations.
@@ -401,10 +403,15 @@ class TestMainEntryPoint:
         When running main
         Then it should exit 0 without output.
         """
+        # A new untested script inside a plugin: the reminder a Write
+        # would get, so silence here proves the tool filter ran.
+        plugin_root = tmp_path / "plugins" / "imbue"
+        (plugin_root / "scripts").mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
         input_data = json.dumps(
             {
                 "tool_name": tool_name,
-                "tool_input": {"file_path": "/some/file.py"},
+                "tool_input": {"file_path": str(plugin_root / "scripts" / "new.py")},
             }
         )
         monkeypatch.setattr("sys.stdin", StringIO(input_data))
@@ -413,6 +420,7 @@ class TestMainEntryPoint:
             tdd_gate_module.main()
 
         assert exc_info.value.code == 0
+        assert capsys.readouterr().out == ""
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -511,6 +519,7 @@ class TestMainEntryPoint:
         tdd_gate_module,
         monkeypatch,
         tmp_path,
+        capsys,
     ) -> None:
         """Scenario: main() ignores Write to non-implementation files.
 
@@ -518,7 +527,10 @@ class TestMainEntryPoint:
         When running main
         Then it should exit 0 (allow without warning).
         """
-        readme_path = tmp_path / "README.md"
+        plugin_root = tmp_path / "plugins" / "imbue"
+        plugin_root.mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
+        readme_path = plugin_root / "README.md"
         input_data = json.dumps(
             {
                 "tool_name": "Write",
@@ -531,6 +543,7 @@ class TestMainEntryPoint:
             tdd_gate_module.main()
 
         assert exc_info.value.code == 0
+        assert capsys.readouterr().out == ""
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -719,3 +732,58 @@ class TestHeadlessDefer:
         out = _run_gate(tmp_path, env_headless=False, payload_headless=False)
         assert "permissionDecision" not in out
         assert "IRON LAW" in out["additionalContext"]
+
+
+class TestMainSilentPaths:
+    """Feature: the gate stays quiet when it has nothing to say."""
+
+    def _run(self, module, monkeypatch, payload) -> int:
+        text = payload if isinstance(payload, str) else json.dumps(payload)
+        monkeypatch.setattr("sys.stdin", StringIO(text))
+        with pytest.raises(SystemExit) as exc_info:
+            module.main()
+        return exc_info.value.code
+
+    @pytest.mark.unit
+    def test_tested_implementation_gets_no_reminder(
+        self, tdd_gate_module, monkeypatch, tmp_path, capsys
+    ) -> None:
+        plugin_root = tmp_path / "plugins" / "imbue"
+        (plugin_root / "scripts").mkdir(parents=True)
+        (plugin_root / "tests" / "unit").mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
+        (plugin_root / "tests" / "unit" / "test_tool.py").touch()
+        impl = plugin_root / "scripts" / "tool.py"
+        code = self._run(
+            tdd_gate_module,
+            monkeypatch,
+            {"tool_name": "Write", "tool_input": {"file_path": str(impl)}},
+        )
+        assert code == 0
+        assert capsys.readouterr().out == ""
+
+    @pytest.mark.unit
+    def test_implementation_outside_any_plugin_is_ignored(
+        self, tdd_gate_module, monkeypatch, tmp_path, capsys
+    ) -> None:
+        impl = tmp_path / "scripts" / "tool.py"
+        code = self._run(
+            tdd_gate_module,
+            monkeypatch,
+            {"tool_name": "Write", "tool_input": {"file_path": str(impl)}},
+        )
+        assert code == 0
+        assert capsys.readouterr().out == ""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "payload",
+        ["[1, 2]", '{"tool_name": "Write", "tool_input": null}'],
+        ids=["non-object-payload", "null-tool-input"],
+    )
+    def test_malformed_payload_allows_the_write(
+        self, tdd_gate_module, monkeypatch, capsys, payload
+    ) -> None:
+        """A payload of the wrong shape exits 0 rather than raising."""
+        assert self._run(tdd_gate_module, monkeypatch, payload) == 0
+        assert capsys.readouterr().out == ""

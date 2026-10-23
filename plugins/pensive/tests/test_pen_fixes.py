@@ -395,4 +395,11 @@ class TestPen015AnalyzeDelegates:
     def test_analyze_no_repo_path_returns_empty(self):
         analyzer = RepositoryAnalyzer()
         result = analyzer.analyze()
-        assert result == {"files": [], "languages": [], "findings": []}
+        assert result == {
+            "files": [],
+            "languages": {},
+            "build_systems": [],
+            "test_frameworks": [],
+            "file_count": 0,
+            "findings": [],
+        }

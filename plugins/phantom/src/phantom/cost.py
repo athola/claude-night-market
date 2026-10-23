@@ -6,26 +6,37 @@ tracks cumulative costs, and enforces budget limits.
 
 from __future__ import annotations
 
+import math
+import warnings
 from dataclasses import dataclass
 
 # Anthropic list pricing (per million tokens, USD), verified 2026-08-02
 # against https://platform.claude.com/docs/en/about-claude/models/overview
+# and, for legacy rows the overview omits,
+# https://platform.claude.com/docs/en/about-claude/pricing
 #
 # Refresh via Skill(night-market-model-and-harness-updates), which reads
 # the model card as a mandatory source. Two entries here were wrong
 # before that sweep: Opus 4.6 carried Opus 4.1's $15/$75 rate, and
 # Haiku 4.5 was priced at $0.80/$4.00 rather than $1/$5.
 #
-# Sonnet 5 carries introductory pricing of $2/$10 through 2026-08-31.
-# List price is used deliberately: a budget guard that assumes the
-# promotional rate under-charges the moment it lapses.
+# Sonnet 5 standard price is $2/$10 (pricing page, checked 2026-10-14);
+# the announced rise to $3/$15 was cancelled.
+#
+# Haiku 5.5 is tiered: $0.10/$0.50 up to 100K prompt tokens, $0.50/$2.50
+# above. A flat row cannot carry both, so it holds the higher tier. The
+# budget guard then stops early on short prompts, never late on long ones.
 PRICING = {
-    # Current
-    "claude-fable-5": {"input": 10.0, "output": 50.0},
-    "claude-opus-5": {"input": 5.0, "output": 25.0},
-    "claude-sonnet-5": {"input": 3.0, "output": 15.0},
+    # Current (pricing page, 2026-10-14)
+    "claude-fable-5-1": {"input": 10.0, "output": 50.0},
+    "claude-opus-5-5": {"input": 4.0, "output": 20.0},
+    "claude-sonnet-5-5": {"input": 2.0, "output": 10.0},
+    "claude-haiku-5-5": {"input": 0.5, "output": 2.5},
     "claude-haiku-4-5-20251001": {"input": 1.0, "output": 5.0},
     # Legacy, still callable
+    "claude-fable-5": {"input": 10.0, "output": 50.0},
+    "claude-opus-5": {"input": 5.0, "output": 25.0},
+    "claude-sonnet-5": {"input": 2.0, "output": 10.0},
     "claude-opus-4-8": {"input": 5.0, "output": 25.0},
     "claude-opus-4-7": {"input": 5.0, "output": 25.0},
     "claude-opus-4-6": {"input": 5.0, "output": 25.0},
@@ -52,22 +63,29 @@ DEPRECATED_MODELS = frozenset({"claude-opus-4-1-20250805"})
 def estimate_screenshot_tokens(width: int, height: int) -> int:
     """Estimate tokens consumed by a screenshot at given resolution.
 
-    Anthropic's vision model processes images in tiles. A rough
-    estimate: ~0.85 tokens per 32x32 pixel tile, plus overhead.
-    This is an approximation for budget planning.
+    Anthropic's vision docs give tokens = (width px * height px) / 750,
+    applied after the API scales the long edge down to 1568 px. Models
+    with high-resolution vision (Opus 4.7 onward, Sonnet 5 onward) scale
+    to 2576 px instead, so this undercounts frames larger than 1568 px
+    for them. Rounded up: the estimate feeds a budget guard.
+
+    Reported usage already counts images sent, so this is for budgeting
+    before a call, not for adding to ``usage.input_tokens``. No phantom
+    code calls it, so it is deprecated.
     """
+    warnings.warn(
+        "estimate_screenshot_tokens has no caller in phantom and will be "
+        "removed in the next minor release",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if width == 0 or height == 0:
         return 0
 
-    # Approximate: image is resized so longest edge <= 1568px,
-    # then tiled into 32x32 blocks. Each tile ~ 0.85 tokens.
     scale = min(1.0, 1568 / max(width, height))
     scaled_w = int(width * scale)
     scaled_h = int(height * scale)
-
-    tiles = (scaled_w // 32 + 1) * (scaled_h // 32 + 1)
-    # Base token count per tile plus fixed overhead
-    return int(tiles * 0.85) + 85
+    return math.ceil(scaled_w * scaled_h / 750)
 
 
 @dataclass

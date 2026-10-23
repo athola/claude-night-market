@@ -208,44 +208,20 @@ class IntegrationTester:
 
 ### Command-Line Usage
 
+No script runs these integration tests. Exercise a skill in a fresh
+subagent with `Skill(abstract:subagent-testing)`. For the structural
+part, run from `plugins/abstract`:
+
 ```bash
-# Run complete integration test suite
-./scripts/integration-tester --skill-path path/to/skill/SKILL.md
-
-# Test specific categories
-./scripts/integration-tester --skill-path path/to/skill/SKILL.md \
-  --tests functionality,tools,context
-
-# Generate detailed report
-./scripts/integration-tester --skill-path path/to/skill/SKILL.md \
-  --format markdown --output results.md
-
-# Batch test all skills
-./scripts/integration-tester --scan-all --format table
+python3 scripts/skills_auditor.py skills/ --format json --output results.json
 ```
 
 ### Integration with CI/CD
 
 ```yaml
-# .github/workflows/skill-integration-tests.yml
-name: Skill Integration Tests
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run Integration Tests
-        run: |
-          cd skills/skills-eval
-          ./scripts/integration-tester --scan-all --format json > results.json
-      - name: Upload Results
-        uses: actions/upload-artifact@v3
-        with:
-          name: integration-test-results
-          path: results.json
+- name: Skill compliance
+  working-directory: plugins/abstract
+  run: uv run abstract-skills check skills/
 ```
 
 ## Best Practices

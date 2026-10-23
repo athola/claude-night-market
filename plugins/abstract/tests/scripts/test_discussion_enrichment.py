@@ -315,11 +315,16 @@ class TestRunLenses:
             ),
         }
         findings = run_lenses(metrics)
-        # Pattern lens should fire on shared frontmatter errors.
-        # Even if not, this asserts the runner does not crash.
-        assert isinstance(findings, list)
-        for f in findings:
-            assert isinstance(f, Finding)
+        # The two skills' errors share {validation, frontmatter, missing},
+        # which clears the pattern lens's similarity threshold.
+        pattern = [f for f in findings if f.source == "pattern-lens"]
+        assert len(pattern) == 1
+        assert isinstance(pattern[0], Finding)
+        assert pattern[0].summary == "2 skills share similar errors"
+        assert (
+            "Affected skills: abstract:rules-eval, abstract:skill-auditor"
+            in pattern[0].evidence
+        )
 
 
 class TestRankFindings:
@@ -693,21 +698,43 @@ class TestLensRunnerGracefulFailure:
     """Invariant: a broken lens MUST NOT prevent the post."""
 
     @pytest.mark.unit
-    def test_lens_exception_does_not_propagate(self) -> None:
+    def test_lens_exception_does_not_propagate(
+        self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+    ) -> None:
         """Scenario: a lens raises AttributeError during analyze()
-        Given metrics that trigger a bug in a hypothetical lens
+        Given one discovered lens that raises and one that returns a finding
         When run_lenses is invoked
-        Then the exception is caught and an empty list returned for that lens
+        Then the broken lens is logged to stderr and the other's finding kept
         """
-        # run_lenses catches (AttributeError, KeyError, TypeError, ValueError)
-        # around each lens module's analyze() call. We can't easily inject a
-        # broken lens without monkeypatching the import, but we can verify the
-        # signature accepts an empty metrics dict and produces a list.
-        result = run_lenses({})
-        assert isinstance(result, list), (
-            "INVARIANT VIOLATION: run_lenses must always return a list "
-            "so compose_enriched_body can safely extend its findings."
+        import lenses  # noqa: PLC0415 - the scripts dir is on sys.path only here
+
+        kept = Finding(
+            type="Pattern",
+            severity="low",
+            skill="",
+            summary="kept",
+            evidence="",
+            recommendation="",
+            source="good-lens",
         )
+
+        def _broken(_context):
+            raise AttributeError("no such field")
+
+        monkeypatch.setattr(
+            lenses,
+            "discover_lenses",
+            lambda weight_filter=None: [
+                {"meta": {}, "analyze": _broken, "module": "broken_lens"},
+                {"meta": {}, "analyze": lambda _c: [kept], "module": "good_lens"},
+            ],
+        )
+        result = run_lenses({})
+        assert result == [kept], (
+            "INVARIANT VIOLATION: a broken lens must not drop the other "
+            "lenses' findings or raise into compose_enriched_body."
+        )
+        assert "[lenses] broken_lens failed: no such field" in capsys.readouterr().err
 
 
 class TestTrendDeltaBoundary:

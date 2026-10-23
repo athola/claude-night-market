@@ -9,6 +9,7 @@ All tests call hook functions directly for branch coverage.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from io import StringIO
 from pathlib import Path
@@ -531,3 +532,52 @@ class TestMainErrorHandling:
                 code = e.code if e.code is not None else 0
 
         assert code == 0
+
+
+class TestSessionIdFromPayload:
+    """Feature: the ledger is per session even when no env var is exported."""
+
+    @pytest.mark.unit
+    def test_ledger_named_after_payload_session_id_when_env_unset(
+        self, tmp_path
+    ) -> None:
+        """
+        Given a TaskCreated payload carrying session_id and no CLAUDE_SESSION_ID,
+        When main() processes it,
+        Then the ledger is tasks_<session_id>.jsonl, not tasks_unknown.jsonl.
+        """
+        state_dir = tmp_path / "state"
+        input_data = json.dumps(
+            {"task_id": "7", "description": "Do it", "session_id": "sess-from-payload"}
+        )
+        env = {k: v for k, v in os.environ.items() if k != "CLAUDE_SESSION_ID"}
+        with (
+            patch("sys.stdin", StringIO(input_data)),
+            patch("sys.stdout", StringIO()),
+            patch("sys.stderr", StringIO()),
+            patch("task_created_tracker.STATE_DIR", state_dir),
+            patch.dict("os.environ", env, clear=True),
+            pytest.raises(SystemExit) as exc,
+        ):
+            main()
+
+        assert exc.value.code == 0
+        assert (state_dir / "tasks_sess-from-payload.jsonl").exists()
+
+
+class TestNonObjectPayload:
+    @pytest.mark.unit
+    def test_json_array_payload_exits_0_without_a_ledger(self, tmp_path) -> None:
+        """Given valid JSON that is not an object, main() exits 0 and writes nothing."""
+        with (
+            patch("sys.stdin", StringIO('["task"]')),
+            patch("sys.stderr", StringIO()) as err,
+            patch("task_created_tracker.STATE_DIR", tmp_path / "state"),
+            patch.dict(os.environ, {"CLAUDE_SESSION_ID": "sess-arr"}),
+            pytest.raises(SystemExit) as exc,
+        ):
+            main()
+
+        assert exc.value.code == 0
+        assert err.getvalue() == ""
+        assert not (tmp_path / "state").exists()

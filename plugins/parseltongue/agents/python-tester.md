@@ -10,20 +10,6 @@ tools:
 - Glob
 - Grep
 skills: parseltongue:python-testing, leyline:pytest-config
-hooks:
-  PreToolUse:
-  - matcher: Bash
-    command: "# Validate pytest commands before execution\nif echo \"$CLAUDE_TOOL_INPUT\"\
-      \ | grep -q \"pytest\"; then\n  echo \"[python-tester] pytest command validated\"\
-      \ >&2\nfi\n"
-    once: false
-  PostToolUse:
-  - matcher: Write|Edit
-    command: "# Auto-check for common test issues after writing\nif echo \"$CLAUDE_TOOL_INPUT\"\
-      \ | grep -q \"test_\"; then\n  echo \"[python-tester] Test file written\" >&2\n\
-      fi\n"
-  Stop:
-  - command: echo '[python-tester] Testing session completed' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/test-audit.log
 escalation:
   to: opus
   hints:

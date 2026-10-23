@@ -145,7 +145,10 @@ class TestTokenEstimatorCLI:
         result = estimator.analyze_file(skill_file)
         # format_text handles non-list data via the else branch
         output = cli.format_text(result)
-        assert isinstance(output, str)
+        assert output.startswith(f"=== {skill_file} ===\n")
+        assert f"Total tokens: {result['total_tokens']:,}" in output
+        # a single result is never followed by a separator
+        assert "-" * 50 not in output
 
     @pytest.mark.unit
     def test_format_text_good_token_range(self, tmp_path: Path) -> None:

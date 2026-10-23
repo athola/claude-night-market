@@ -34,7 +34,15 @@ from tome.synthesis.frontier import (
     canary_outcomes,
     frontier_verdict,
 )
-from tome.synthesis.quality import channel_outcomes
+from tome.synthesis.quality import (
+    CANARY_ABSENT,
+    CANARY_FAILED,
+    CANARY_PASSED,
+    OUTCOME_EMPTY,
+    OUTCOME_OK,
+    OUTCOME_UNKNOWN,
+    channel_outcomes,
+)
 
 __all__ = [
     "CONTINUE",
@@ -50,7 +58,7 @@ CONTINUE = "CONTINUE"
 
 DEFAULT_MAX_PASSES = 2
 
-_CLEAN = ("ok", "empty")
+_CLEAN = (OUTCOME_OK, OUTCOME_EMPTY)
 
 
 @dataclass(frozen=True)
@@ -129,19 +137,24 @@ def verify_context(
     verdict = frontier_verdict(session)
     controlled = {card.name for card in CHANNEL_CARDS if card.controlled}
 
-    unclean = {c for c in session.channels if outcomes.get(c, "unknown") not in _CLEAN}
+    unclean = {
+        c for c in session.channels if outcomes.get(c, OUTCOME_UNKNOWN) not in _CLEAN
+    }
     blind = {
         c
         for c, control in controls.items()
         if c in controlled
-        and (control == "fail" or (control == "absent" and outcomes.get(c) == "empty"))
+        and (
+            control == CANARY_FAILED
+            or (control == CANARY_ABSENT and outcomes.get(c) == OUTCOME_EMPTY)
+        )
     }
     mismatched: set[str] = set()
     if verdict.verdict == MISMATCH_SUSPECTED:
         mismatched = {
             c
             for c, control in controls.items()
-            if control == "pass" and outcomes.get(c) == "empty"
+            if control == CANARY_PASSED and outcomes.get(c) == OUTCOME_EMPTY
         }
     missing: set[str] = set()
     if verdict.verdict == THIN_CANDIDATE:
@@ -162,7 +175,8 @@ def verify_context(
             "completeness",
             not unclean,
             ", ".join(
-                f"{c} ({outcomes.get(c, 'unknown')})" for c in _in_card_order(unclean)
+                f"{c} ({outcomes.get(c, OUTCOME_UNKNOWN)})"
+                for c in _in_card_order(unclean)
             )
             or "every dispatched channel searched cleanly",
         ),

@@ -19,16 +19,23 @@ _PLATFORM_NAMES = {
 }
 
 
+_ACADEMIC_SOURCES = frozenset(
+    {"arxiv", "academic", "semantic_scholar", "semantic_scholar_chain", "openalex"}
+)
+
+
 def format_citation(finding: Finding) -> str:
     """Format a single finding as a citation string.
 
-    Academic: Author(s). "Title". Venue, Year. URL
-    GitHub:   Owner/Repo. "Title". GitHub, Stars stars. URL
-    Discourse: Username. "Title". Platform, Score points. URL
+    Academic (arxiv, academic, semantic_scholar, openalex):
+        Author(s). "Title". Venue, Year. URL
+    GitHub: "Title". GitHub, Stars stars. URL
+    Everything else (hn, reddit, lobsters, blog, web, you-web, triz):
+        Username. "Title". Platform, Score points. URL
     """
     source = finding.source.lower()
 
-    if source in ("arxiv", "academic", "semantic_scholar"):
+    if source in _ACADEMIC_SOURCES:
         return _format_academic(finding)
     if source == "github":
         return _format_github(finding)

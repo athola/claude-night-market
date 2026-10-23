@@ -180,13 +180,13 @@ class TestAnalyzeSkillReadError:
 
     @pytest.mark.unit
     def test_read_error_returns_error_dict(self, tmp_path: Path) -> None:
-        """Scenario: When _read_skill_content returns None, error dict returned."""
+        """Scenario: A SKILL.md that cannot be decoded yields an error dict."""
         d = tmp_path / "unreadable-skill"
         d.mkdir()
-        (d / "SKILL.md").write_text("content")
+        # Not UTF-8: the real read fails with UnicodeDecodeError
+        (d / "SKILL.md").write_bytes(b"\xff\xfe\xfa not utf-8")
         suggester = ImprovementSuggester(tmp_path)
-        with patch.object(suggester, "_read_skill_content", return_value=None):
-            result = suggester.analyze_skill("unreadable-skill")
+        result = suggester.analyze_skill("unreadable-skill")
         assert "issues" in result
         assert any("error" in i.lower() for i in result["issues"])
 
@@ -200,31 +200,54 @@ class TestAnalyzeSkillNamingConvention:
     """Feature: analyze_skill checks kebab-case naming conventions."""
 
     @pytest.mark.unit
-    def test_no_hyphen_skill_name_gets_naming_suggestion(self, tmp_path: Path) -> None:
-        """Scenario: Single-word skill name without hyphens gets naming suggestion."""
+    @pytest.mark.parametrize(
+        ("skill_name", "expect_suggestion"),
+        [
+            ("my_skill", True),
+            ("MySkill", True),
+            ("my-Skill", True),
+            ("-my-skill", True),
+            ("myskill", False),
+            ("my-skill-2", False),
+        ],
+        ids=[
+            "snake-case",
+            "camel-case",
+            "mixed-case-hyphen",
+            "leading-hyphen",
+            "single-lowercase-word-is-kebab",
+            "kebab-with-digit",
+        ],
+    )
+    def test_naming_suggestion_fires_only_for_non_kebab_names(
+        self, tmp_path: Path, skill_name: str, expect_suggestion: bool
+    ) -> None:
+        """Scenario: Only a name that is not kebab-case is told to rename.
+
+        A single lowercase word ("myskill") is valid kebab-case. The old
+        condition flagged it for having no hyphen.
+        """
         _make_skill(
             tmp_path,
-            "myskill",
-            "---\nname: myskill\ndescription: desc\n---\n\n"
+            skill_name,
+            f"---\nname: {skill_name}\ndescription: desc\n---\n\n"
             "## Overview\nContent.\n\n## Quick Start\nGo.\n\n"
             "```python\ncode\n```\n```python\nmore\n```\n\n"
             "1. Step one\n2. Step two\n",
         )
         suggester = ImprovementSuggester(tmp_path)
-        result = suggester.analyze_skill("myskill")
-        assert any(
-            "kebab" in s.lower() or "naming" in s.lower() for s in result["suggestions"]
-        )
+        result = suggester.analyze_skill(skill_name)
+        flagged = any("kebab" in s.lower() for s in result["suggestions"])
+        assert flagged is expect_suggestion
 
     @pytest.mark.unit
-    def test_lowercase_name_always_gets_naming_suggestion(
+    def test_kebab_case_name_gets_no_naming_suggestion(
         self, full_skill_dir: Path
     ) -> None:
-        """Scenario: The naming check fires when islower() is True (all lowercase).
+        """Scenario: A name already in kebab-case is not told to rename.
 
-        The condition is: if "-" not in skill_name OR skill_name.islower()
-        Since "good-skill" is all lowercase, islower() is True and the suggestion
-        is always included. This test documents that behaviour.
+        The old condition (no hyphen OR islower()) fired for every
+        lowercase name, so every valid name got the suggestion.
         """
         suggester = ImprovementSuggester(full_skill_dir)
         result = suggester.analyze_skill("good-skill")
@@ -233,8 +256,7 @@ class TestAnalyzeSkillNamingConvention:
             for s in result["suggestions"]
             if "kebab" in s.lower() or "naming" in s.lower()
         ]
-        # lowercase kebab names still trigger the suggestion (islower() is True)
-        assert len(naming_suggestions) == 1
+        assert naming_suggestions == []
 
 
 # ---------------------------------------------------------------------------
@@ -335,10 +357,10 @@ class TestSuggestModularizationAllPaths:
         """Scenario: Read error returns 'Error reading skill file'."""
         d = tmp_path / "err-skill"
         d.mkdir()
-        (d / "SKILL.md").write_text("content")
+        # Not UTF-8: the real read fails with UnicodeDecodeError
+        (d / "SKILL.md").write_bytes(b"\xff\xfe\xfa not utf-8")
         suggester = ImprovementSuggester(tmp_path)
-        with patch.object(suggester, "_read_skill_content", return_value=None):
-            result = suggester.suggest_modularization("err-skill")
+        result = suggester.suggest_modularization("err-skill")
         assert result == ["Error reading skill file"]
 
     @pytest.mark.unit
@@ -458,10 +480,10 @@ class TestSuggestImprovedStructureReadError:
         """Scenario: When skill content can't be read, error message returned."""
         d = tmp_path / "bad-skill"
         d.mkdir()
-        (d / "SKILL.md").write_text("content")
+        # Not UTF-8: the real read fails with UnicodeDecodeError
+        (d / "SKILL.md").write_bytes(b"\xff\xfe\xfa not utf-8")
         suggester = ImprovementSuggester(tmp_path)
-        with patch.object(suggester, "_read_skill_content", return_value=None):
-            result = suggester.suggest_improved_structure("bad-skill")
+        result = suggester.suggest_improved_structure("bad-skill")
         assert result == ["Error reading skill file"]
 
     @pytest.mark.unit
@@ -509,14 +531,10 @@ class TestGenerateImprovementPlanPriority:
             "perfect-skill",
             "---\n"
             "name: perfect-skill\n"
-            "description: A perfect skill\n"
+            "description: A perfect skill. Use when testing priorities.\n"
             "---\n\n"
-            "# Perfect\n\n"
-            "## Overview\nGreat.\n\n"
-            "## Quick Start\nGo.\n\n"
-            "## Examples\n```python\nx\n```\n```python\ny\n```\n\n"
-            "## Resources\nLinks.\n\n"
-            "1. Step one\n2. Step two\n",
+            "# Perfect\n\nGreat.\n\n"
+            "## Exit Criteria\n\n- [ ] Report exists\n- [ ] Exit code 0\n",
         )
         suggester = ImprovementSuggester(tmp_path)
         plan = suggester.generate_improvement_plan("perfect-skill")

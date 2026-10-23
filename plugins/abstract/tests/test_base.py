@@ -276,17 +276,22 @@ class TestAbstractScript:
         # Then: Handler is set
         assert script._error_handler is mock_handler
 
-    def test_find_project_root(self, tmp_path: Path) -> None:
-        """Test find_project_root method."""
-        # Given: An AbstractScript
+    def test_find_project_root(self, tmp_path: Path, monkeypatch) -> None:
+        """Test find_project_root walks up to the pyproject.toml marker."""
+        # Given: A project marked by pyproject.toml and a nested start path
+        (tmp_path / "pyproject.toml").write_text("[project]\n")
+        nested = tmp_path / "src" / "pkg"
+        nested.mkdir(parents=True)
         script = AbstractScript("test-script")
 
-        # When: Finding project root from tmp_path
-        # (This may find the actual project root, which is fine)
-        result = script.find_project_root(tmp_path)
+        # When: Searching from the nested path, and from cwd by default
+        result = script.find_project_root(nested)
+        monkeypatch.chdir(nested)
+        default_result = script.find_project_root()
 
-        # Then: Returns a Path (actual behavior depends on project structure)
-        assert isinstance(result, Path)
+        # Then: Both resolve to the marked directory
+        assert result == tmp_path.resolve()
+        assert default_result == tmp_path.resolve()
 
     def test_read_file_safe_success(self, tmp_path: Path) -> None:
         """Test read_file_safe with readable file."""

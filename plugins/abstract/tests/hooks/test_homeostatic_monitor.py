@@ -55,14 +55,14 @@ class TestCalculateStabilityGap:
         assert calculate_stability_gap(entry) == pytest.approx(0.0)
 
     def test_varied_accuracies_computes_gap(self) -> None:
-        """Scenario: Mixed accuracy results.
+        """Scenario: Two failures in ten pass/fail runs.
 
-        Given accuracies [1.0, 0.8, 0.6]
-        When calculating stability gap
-        Then gap = avg(0.8) - min(0.6) = 0.2
+        Given runs [1, 1, 1, 1, 1, 0, 0, 1, 1, 1]
+        When calculating stability gap over windows of five runs
+        Then the worst window rate is 0.6 and the gap is 1 - 0.6 = 0.4
         """
-        entry = {"accuracies": [1.0, 0.8, 0.6]}
-        assert calculate_stability_gap(entry) == pytest.approx(0.2)
+        entry = {"accuracies": [1, 1, 1, 1, 1, 0, 0, 1, 1, 1]}
+        assert calculate_stability_gap(entry) == pytest.approx(0.4)
 
     def test_single_accuracy_returns_zero(self) -> None:
         """Scenario: Only one accuracy measurement.
@@ -75,13 +75,13 @@ class TestCalculateStabilityGap:
         assert calculate_stability_gap(entry) == pytest.approx(0.0)
 
     def test_large_gap_detected(self) -> None:
-        """Scenario: One bad execution among good ones.
+        """Scenario: A reliable skill starts failing.
 
-        Given accuracies [1.0, 1.0, 0.2]
+        Given 20 passing runs followed by 5 failures
         When calculating stability gap
-        Then gap > 0.5 (critical threshold)
+        Then gap > 0.5 (critical threshold): the last window is all failures
         """
-        entry = {"accuracies": [1.0, 1.0, 0.2]}
+        entry = {"accuracies": [1] * 20 + [0] * 5}
         gap = calculate_stability_gap(entry)
         assert gap > 0.5
 

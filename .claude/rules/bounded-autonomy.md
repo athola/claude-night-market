@@ -24,10 +24,25 @@ Three parts, in this order:
   each one
 - **Exit criteria**: how anyone can check afterward that it worked
 
-Then stop. Do not narrate the steps between. A twelve-step procedure
-fails whole when step four meets a repository the author did not
-imagine, and it fails silently, because the instructions were
+Then stop. By default, do not narrate the steps between. A twelve-step
+procedure fails whole when step four meets a repository the author did
+not imagine, and it fails silently, because the instructions were
 followed.
+
+Steps belong where the order or the exact form is load-bearing: a
+destructive or fragile operation, a sequence that must run as written,
+a validate-fix-repeat loop against a checker. Anthropic's skill
+guidance draws the same line, "Match the level of specificity to the
+task's fragility and variability": exact instructions on a narrow
+bridge, general direction in an open field. A required sequence states
+where it applies and what to do when it does not fit. SkillsBench
+traced its skills that lowered pass rates to "a single 'correct'
+pipeline without applicability boundaries or lightweight fallbacks".
+
+An example earns its place the same way, when the output must match a
+form the model could not infer. A step list or code block is not a
+quality signal by itself, and `abstract`'s skill auditor does not
+score one.
 
 ## The strength budget
 
@@ -93,7 +108,7 @@ The concern is not stylistic. Instruction load measurably degrades
 reasoning, and the effect is largest where a working prompt gets
 surrounded by accumulated additions.
 
-Every row below was read from the paper's own abstract. An earlier
+Every arXiv row below was read from the paper's own abstract. An earlier
 version of this table claimed the first paper found a threshold of
 "roughly 15 simultaneous constraints". It contains no such number.
 That claim came from a research summary, was not checked against the
@@ -101,28 +116,42 @@ source, and was wrong. The real finding is sharper.
 
 | Source | Finding |
 |--------|---------|
-| "Prompt Complexity Dilutes Structured Reasoning" ([arXiv 2603.13351](https://arxiv.org/abs/2603.13351)) | A STAR-structured prompt scored 100% on a reasoning task in isolation, verified at n=100. The same reasoning scored 0% and 30% when placed inside a 60-line production prompt that had grown by iterative additions of style guidelines, format instructions and profile features. Claude Sonnet 4.6, 20 trials per condition |
+| "Prompt Complexity Dilutes Structured Reasoning" ([arXiv 2603.13351](https://arxiv.org/abs/2603.13351)) | A STAR-structured prompt scored 100% on a reasoning task in isolation, verified at n=100. The same reasoning scored 0% and 30% when placed inside a 60-line production prompt that had grown by iterative additions of style guidelines, format instructions and profile features. The abstract attributes the drop to competing instructions: directives like "Lead with specifics" forced conclusion-first output and reversed the reason-then-conclude order. Claude Sonnet 4.6, 20 trials per condition, one task, one author |
+| "SkillsBench" ([arXiv 2602.12670](https://arxiv.org/abs/2602.12670)) | Curated skills raised agent pass rates from 33.9% to 50.5%. Compact and standard-length skills (+19.0 and +21.5 points) beat detailed (+14.5) and comprehensive documentation (+0.7). Skills hurt when they prescribed a heavyweight pipeline with no applicability boundaries. Self-generated skills scored 8 to 11.5 points below no skill |
+| Anthropic, [Skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) | "Match the level of specificity to the task's fragility and variability." "Only add context Claude doesn't already have." Keep SKILL.md under 500 lines. Only `name` and `description` are pre-loaded for discovery |
 | "On the Paradoxical Interference between Instruction-Following and Task Solving" ([arXiv 2601.22047](https://arxiv.org/abs/2601.22047)) | Inserting a constraint that the model's own correct answer already satisfied still caused substantial performance drops, across mathematics, multi-hop QA and code generation, including on Claude Sonnet 4.5. Failed cases allocated significantly more attention to the constraint than successful ones |
 | "When Built-in Thinking Helps and Hurts" ([arXiv 2606.09662](https://arxiv.org/abs/2606.09662)) | On IFEval with Qwen3 1.7B-32B, reasoning moves the aggregate pass rate by only -0.55 to -3.52 points while 10-20% of individual prompts flip between pass and fail. It helps Planning constraints (counting, structure, coordination) and consistently hurts Precision constraints (exact local form) |
 | Matt Pocock, [mattpocock/skills](https://github.com/mattpocock/skills) | Skills should be "small, easy to adapt, and composable"; the reader is invited to "hack around with them, make them your own" |
 | Matt Pocock, "The Missing Manual: How to Write Great Skills" ([talk](https://youtu.be/UNzCG3lw6O0)) | Names pruning as one of four things separating good skill sets from bad: sediment accumulates when people add and never remove |
 
 The first row is the one to sit with. Nothing was wrong with the
-reasoning prompt, and nothing in the production prompt contradicted
-it. Style guidelines and format instructions were enough to take a
-task from solved to unsolved. That is the mechanism this rule exists
-to avoid, and this repository's session-start injections are the same
-shape as the prompt that caused it.
+reasoning prompt. Style and format directives added one at a time
+ended up reordering how the model reasoned, and that was enough to take
+a task from solved to unsolved. An earlier version of this paragraph
+said nothing in the production prompt contradicted the reasoning. The
+abstract says the opposite: the damage came from directives that
+competed with it. The lesson is narrower and sharper than "fewer
+instructions". Each added directive can override an order the task
+depends on, and nobody adding it checks. This repository's
+session-start injections are the same shape as the prompt that caused
+it.
 
-The second row removes the obvious defense. If the added constraint
-were merely redundant, the cost would be tokens. It is not: a
-constraint the model was already satisfying still cost accuracy, and
-the attention measurement says why. Constraints are not free even when
-they are right.
+The SkillsBench and Anthropic rows bound the rule from the other side.
+Skills help, and short ones help most, but a required sequence with no
+stated limits is where a skill starts to cost.
 
-The third row is the reason this rule keeps its exceptions. Precision
-constraints are exactly the trust boundaries and machine contracts
-listed above. Because added structure helps least there, stating them
+The Paradoxical Interference row removes the obvious defense. If the
+added constraint were merely redundant, the cost would be tokens. It is
+not: a constraint the model was already satisfying still cost accuracy,
+and the attention measurement says why. Constraints are not free even
+when they are right.
+
+The Built-in Thinking row is the reason this rule keeps its exceptions.
+The paper studies thinking on or off over IFEval, not instruction
+styles, and its Planning and Precision split is a post-hoc grouping.
+Reading Precision constraints as this rule's trust boundaries and
+machine contracts is this rule's extrapolation, not the paper's claim.
+On that reading, added structure helps least there, so stating them
 plainly and once matters more than stating them loudly.
 
 ### What GitSkills does and does not say

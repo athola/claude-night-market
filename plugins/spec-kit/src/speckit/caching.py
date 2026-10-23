@@ -5,7 +5,10 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
+import tempfile
 import time
+import warnings
 from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
@@ -15,6 +18,15 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 logger = logging.getLogger(__name__)
+
+# Distinguishes a cache miss from a cached None.
+_MISSING: Any = object()
+
+
+# Separator between category and digest in cache filenames. The digest is
+# fixed-width hex, so ``spec__<hex>`` cannot match category ``spec_extra``.
+_CATEGORY_SEP = "__"
+_DIGEST_GLOB = "[0-9a-f]" * 16
 
 
 class SpecKitCache:
@@ -54,11 +66,12 @@ class SpecKitCache:
         category = key.split(":", 1)[0]
         safe_category = "".join(c if c.isalnum() else "_" for c in category)
         digest = hashlib.sha256(key.encode()).hexdigest()[:16]
-        return self.cache_dir / f"{safe_category}_{digest}.json"
+        return self.cache_dir / f"{safe_category}{_CATEGORY_SEP}{digest}.json"
 
     def is_expired(self, key: str, ttl: int | None = None) -> bool:
         """Check if cached data is expired."""
-        ttl = ttl or self.default_ttl
+        if ttl is None:
+            ttl = self.default_ttl
 
         if key in self._cache_timestamps:
             return time.time() - self._cache_timestamps[key] > ttl
@@ -76,8 +89,9 @@ class SpecKitCache:
         key: str,
         data: Any | None = None,
         ttl: int | None = None,
+        default: Any = None,
     ) -> Any | None:
-        """Get cached data."""
+        """Get cached data, or ``default`` on a miss."""
         cache_key = self._get_cache_key(key, data)
 
         # Check memory cache first
@@ -95,15 +109,17 @@ class SpecKitCache:
             try:
                 with open(cache_path, encoding="utf-8") as f:
                     cached_data = json.load(f)
-                    # Load into memory cache for faster access
+                    # Load into memory cache for faster access. The entry
+                    # keeps the age it was written with, or every file hit
+                    # would restart its TTL.
                     self._memory_cache[cache_key] = cached_data
-                    self._cache_timestamps[cache_key] = time.time()
+                    self._cache_timestamps[cache_key] = cache_path.stat().st_mtime
                     return cached_data
             except (OSError, json.JSONDecodeError):
                 # Invalid cache file, remove it
                 cache_path.unlink(missing_ok=True)
 
-        return None
+        return default
 
     def set(
         self,
@@ -112,7 +128,16 @@ class SpecKitCache:
         data: Any | None = None,
         ttl: int | None = None,
     ) -> None:
-        """Cache data with optional TTL."""
+        """Cache a value; expiry is decided by the ``ttl`` given to ``get``.
+
+        ``ttl`` is deprecated and ignored here.
+        """
+        if ttl is not None:
+            warnings.warn(
+                "SpecKitCache.set(ttl=...) has no effect; pass ttl to get().",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         cache_key = self._get_cache_key(key, data)
 
         # Store in memory cache
@@ -121,10 +146,19 @@ class SpecKitCache:
 
         # Store in file-based cache
         cache_path = self._get_cache_path(cache_key)
+        tmp_name: str | None = None
         try:
-            with open(cache_path, "w", encoding="utf-8") as f:
+            # A per-call temp name: a fixed sibling let concurrent writers
+            # clobber each other and a leftover at that path break set().
+            fd, tmp_name = tempfile.mkstemp(
+                dir=cache_path.parent, prefix=cache_path.name + ".", suffix=".tmp"
+            )
+            with open(fd, "w", encoding="utf-8") as f:
                 json.dump(value, f, ensure_ascii=False, indent=2)
-        except OSError:
+            os.replace(tmp_name, cache_path)
+        except (OSError, TypeError, ValueError):
+            if tmp_name is not None:
+                Path(tmp_name).unlink(missing_ok=True)
             # The comment promised a log and the body dropped the error, so
             # a read-only cache directory meant the file cache silently
             # never populated and set() returned None either way. The
@@ -173,7 +207,7 @@ class SpecKitCache:
         if ":" in prefix:
             category = prefix.split(":", 1)[0]
             safe_category = "".join(c if c.isalnum() else "_" for c in category)
-            pattern = f"{safe_category}_*.json"
+            pattern = f"{safe_category}{_CATEGORY_SEP}{_DIGEST_GLOB}.json"
         else:
             safe_prefix = "".join(c if c.isalnum() else "_" for c in prefix)
             pattern = f"{safe_prefix}*.json"
@@ -247,13 +281,13 @@ def cached(
                             cache_data = args[arg_index]
 
             # Try to get from cache
-            cached_result = cache.get(cache_key, cache_data, ttl)
-            if cached_result is not None:
+            cached_result = cache.get(cache_key, cache_data, ttl, default=_MISSING)
+            if cached_result is not _MISSING:
                 return cached_result
 
             # Execute function and cache result
             result = func(*args, **kwargs)
-            cache.set(cache_key, result, cache_data, ttl)
+            cache.set(cache_key, result, cache_data)
 
             return result
 
@@ -275,12 +309,22 @@ class CacheManager:
     }
 
     @classmethod
+    def _require_category(cls, category: str) -> None:
+        if category not in cls.CACHE_CATEGORIES:
+            raise ValueError(
+                f"Unknown cache category {category!r}; "
+                f"expected one of {sorted(cls.CACHE_CATEGORIES)}"
+            )
+
+    @classmethod
     def cache_result(cls, category: str, key: str | None = None) -> Callable[[F], F]:
         """Create a decorator with category-based TTL and category-prefixed key."""
-        ttl = cls.CACHE_CATEGORIES.get(category, cls.CACHE_CATEGORIES["spec_parsing"])
+        cls._require_category(category)
+        ttl = cls.CACHE_CATEGORIES[category]
         return cached(ttl=ttl, key=key, key_prefix=category)
 
     @classmethod
     def invalidate_category(cls, category: str) -> None:
         """Invalidate all cache entries for a category."""
+        cls._require_category(category)
         get_cache().invalidate_prefix(f"{category}:")

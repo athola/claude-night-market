@@ -404,18 +404,8 @@ Each test targets a specific way agents might rationalize improper escalation.
 
 ### Automated Testing
 
-```bash
-# Run pressure tests for a skill
-python scripts/skills_eval/pressure_tester.py \
-  --skill-path path/to/skill/SKILL.md \
-  --test-dir path/to/skill/tests/ \
-  --format report
-
-# Validate test coverage
-python scripts/skills_eval/pressure_tester.py \
-  --skill-path path/to/skill/SKILL.md \
-  --coverage-check
-```
+No script runs pressure tests. Use the manual protocol above, or run the
+scenarios in fresh subagents with `Skill(abstract:subagent-testing)`.
 
 ## When Pressure Tests Fail
 

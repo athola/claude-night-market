@@ -55,10 +55,11 @@ repos:
       # =================================================================
 
       - id: check-hook-registrations
-        name: Verify Hook Registrations
+        name: Verify Plugin Registrations
         entry: python3 plugins/sanctum/scripts/update_plugin_registrations.py --dry-run
         language: system
-        files: ^plugins/.*/(hooks/|\.claude-plugin/plugin\.json)
+        # Registrations and skill modules both: hooks, manifests, SKILL.md.
+        files: ^plugins/.*/(hooks/|\.claude-plugin/plugin\.json|skills/.*SKILL\.md$)
         pass_filenames: false
         stages: [pre-commit]
 
@@ -168,14 +169,6 @@ repos:
         language: system
         files: ^plugins/memory-palace/docs/knowledge-corpus/.*\.md$
         pass_filenames: false
-
-      - id: meta-evaluation-check
-        name: Meta-Evaluation Quality Check
-        entry: python3 plugins/sanctum/scripts/update_plugin_registrations.py --dry-run
-        language: system
-        files: ^plugins/.*/skills/.*SKILL\.md$
-        pass_filenames: false
-        verbose: true
 
       - id: check-context-optimization
         name: Check Context Optimization

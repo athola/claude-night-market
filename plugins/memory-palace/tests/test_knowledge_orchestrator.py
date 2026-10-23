@@ -16,7 +16,6 @@ from memory_palace.corpus.knowledge_orchestrator import (
 from memory_palace.corpus.marginal_value import IntegrationDecision
 from memory_palace.corpus.source_lineage import (
     FullLineage,
-    SimpleLineage,
     SourceReference,
     SourceType,
 )
@@ -197,6 +196,61 @@ class TestKnowledgeOrchestrator:
         )
         assert event.context["cited_by"] == "article-123"
 
+    def test_assess_entry_applies_the_importance_floor(
+        self, orchestrator: KnowledgeOrchestrator
+    ) -> None:
+        """A constitutional entry (importance 95) decays no lower than 0.5.
+
+        Without its importance score the 200-day-old growing entry decays
+        to 0.1, which is what DecayModel gives an unimportant one.
+        """
+        old = datetime.now(timezone.utc) - timedelta(days=200)
+        entry = {
+            "id": "const",
+            "maturity": "growing",
+            "last_validated": old.isoformat(),
+            "importance_score": 95,
+        }
+
+        assessment = orchestrator.assess_entry(entry)
+
+        assert assessment.decay_score == pytest.approx(0.5)
+
+    def test_assess_entry_uses_the_entry_unit_type(
+        self, orchestrator: KnowledgeOrchestrator
+    ) -> None:
+        """An open-thread unit carries a 1.0 floor whatever its maturity."""
+        old = datetime.now(timezone.utc) - timedelta(days=200)
+        entry = {
+            "id": "thread",
+            "maturity": "seedling",
+            "last_validated": old.isoformat(),
+            "unit_type": "open-thread",
+        }
+
+        assessment = orchestrator.assess_entry(entry)
+
+        assert assessment.decay_score == pytest.approx(1.0)
+
+    def test_maintenance_queue_puts_flagged_entry_before_untouched(
+        self, orchestrator: KnowledgeOrchestrator
+    ) -> None:
+        """Worst first: an entry flagged stale ranks ahead of one never used."""
+        fresh = datetime.now(timezone.utc).isoformat()
+        orchestrator.record_usage("flagged", UsageSignal.STALE_FLAG)
+        orchestrator.record_usage("flagged", UsageSignal.NEGATIVE_FEEDBACK)
+
+        queue = orchestrator.get_maintenance_queue(
+            [
+                {"id": "untouched", "last_validated": fresh},
+                {"id": "flagged", "last_validated": fresh},
+            ]
+        )
+
+        # A fresh, never-used entry sits at the healthy boundary and may
+        # leave the queue; the flagged one must lead it either way.
+        assert queue[0].entry_id == "flagged"
+
     def test_get_maintenance_queue(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should return entries needing maintenance."""
         now = datetime.now(timezone.utc)
@@ -222,10 +276,10 @@ class TestKnowledgeOrchestrator:
             orchestrator.record_usage("healthy-1", UsageSignal.ACCESS)
 
         queue = orchestrator.get_maintenance_queue(entries)
-        assert isinstance(queue, list)
-        # Queue should be sorted by priority (worst first)
-        if len(queue) >= 2:
-            assert queue[0].overall_score <= queue[-1].overall_score
+        # The used, fresh entry is healthy and stays out; the decayed two
+        # are queued worst first
+        assert [a.entry_id for a in queue] == ["critical-1", "stale-1"]
+        assert queue[0].overall_score <= queue[1].overall_score
 
     def test_ingest_with_lineage_standalone(
         self, orchestrator: KnowledgeOrchestrator
@@ -244,13 +298,9 @@ class TestKnowledgeOrchestrator:
             source=source,
         )
 
-        assert isinstance(entry_id, str)
-        assert decision in [
-            IntegrationDecision.STANDALONE,
-            IntegrationDecision.MERGE,
-            IntegrationDecision.REPLACE,
-            IntegrationDecision.SKIP,
-        ]
+        # No marginal-value filter is configured, so new content stands alone
+        assert decision == IntegrationDecision.STANDALONE
+        assert entry_id.startswith("entry-")
 
     def test_ingest_creates_lineage(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should create lineage for ingested content."""
@@ -267,9 +317,10 @@ class TestKnowledgeOrchestrator:
             source=source,
         )
 
-        if decision != IntegrationDecision.SKIP:
-            lineage = orchestrator.lineage_manager.get_lineage(entry_id)
-            assert isinstance(lineage, (FullLineage, SimpleLineage))
+        # Research papers always get full lineage, whatever their importance
+        assert decision == IntegrationDecision.STANDALONE
+        lineage = orchestrator.lineage_manager.get_lineage(entry_id)
+        assert isinstance(lineage, FullLineage)
 
     def test_validate_entry(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should record validation and reset decay."""
@@ -309,18 +360,20 @@ class TestKnowledgeOrchestrator:
     def test_recommendations_for_low_usage(
         self, orchestrator: KnowledgeOrchestrator
     ) -> None:
-        """Should recommend usage for low-access entries."""
+        """Should recommend promoting or archiving content scored low on usage."""
         entry = {
             "id": "entry-1",
             "maturity": "growing",
             "created_at": datetime.now(timezone.utc).isoformat(),
             "last_validated": datetime.now(timezone.utc).isoformat(),
         }
+        # Usage is a sigmoid of raw/10 around a neutral 0.5, so reaching
+        # the 0.3 threshold takes raw < -8.5: 25 stale flags give -10.
+        for _ in range(25):
+            orchestrator.record_usage("entry-1", UsageSignal.STALE_FLAG)
 
         assessment = orchestrator.assess_entry(entry)
 
-        # A fresh entry with no recorded usage scores low on usage,
-        # so the orchestrator recommends promoting or archiving it.
         assert assessment.usage_score < 0.3, assessment.usage_score
         assert any("low-usage" in rec.lower() for rec in assessment.recommendations), (
             assessment.recommendations
@@ -455,10 +508,16 @@ class TestKnowledgeOrchestrator:
             source=source,
         )
 
-        # Should have emitted at least one signal
-        if decision != IntegrationDecision.SKIP:
-            # New entry should trigger access signal
-            assert len(emitted_signals) >= 0  # May or may not emit on ingest
+        # Novel content into an empty corpus is stored, and storing it
+        # emits exactly one ACCESS signal naming the entry and decision
+        assert decision != IntegrationDecision.SKIP
+        assert emitted_signals == [
+            (
+                entry_id,
+                UsageSignal.ACCESS,
+                {"action": "ingested", "decision": decision.value},
+            )
+        ]
 
     def test_get_entry_history(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should return full history for an entry."""

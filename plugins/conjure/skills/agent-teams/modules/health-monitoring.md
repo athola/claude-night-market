@@ -176,6 +176,14 @@ enables graceful teammate shutdown from hook logic
 without requiring the lead to send explicit kill
 signals.
 
+Since 2.1.290, `TeammateIdle` fires only for the teammate
+itself, never from a subagent or fork the teammate starts.
+A Stop budget no longer counts those children as idle
+teammates. In Agent results, an in-process teammate's
+`agent_id` is now its agent ID, and its `name@team`
+address moved to `teammate_id`. Match on `teammate_id`
+when routing by team name.
+
 Use cases for team health:
 
 - Stop a teammate that has been idle too long

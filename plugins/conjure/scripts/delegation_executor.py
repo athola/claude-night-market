@@ -39,6 +39,7 @@ from scripts.delegation_services import (
     resolve_env_overlay,
 )
 from scripts.delegation_verify import verify_service
+from scripts.usage_log_rotation import MAX_LOG_BYTES, append_line, read_lines
 
 # Public names only. A private helper is imported from the module that
 # defines it, so a new caller cannot come to depend on this module for it.
@@ -67,6 +68,10 @@ logger = logging.getLogger(__name__)
 # without editing a file they then have to remember to edit back.
 
 DELEGATION_ENV_VAR = "CONJURE_DELEGATION"
+
+# The usage log is the audit trail of prompts sent off the machine. It
+# keeps about the last two files' worth (see usage_log_rotation).
+MAX_USAGE_LOG_BYTES = MAX_LOG_BYTES
 _ENV_OFF_VALUES = frozenset({"0", "off", "false", "no"})
 _ENV_ON_VALUES = frozenset({"1", "on", "true", "yes"})
 
@@ -162,6 +167,7 @@ class Delegator:
         self.config_dir = config_dir or Path.home() / ".claude" / "hooks" / "delegation"
         self.config_file = self.config_dir / "config.json"
         self.usage_log = self.config_dir / "usage.jsonl"
+        self.usage_backup = self.config_dir / "usage.jsonl.1"
         self.config_dir.mkdir(parents=True, exist_ok=True)
 
         # Per-instance copy to avoid mutating class-level default
@@ -221,9 +227,16 @@ class Delegator:
         """
         try:
             with open(self.config_file) as handle:
-                return cast("dict[str, Any]", json.load(handle))
+                parsed = json.load(handle)
         except FileNotFoundError:
             return None
+        if not isinstance(parsed, dict):
+            # Valid JSON of the wrong shape is a switch that was thrown and
+            # cannot be read, which fails closed like a parse error.
+            raise ValueError(
+                f"top-level value is {type(parsed).__name__}, expected an object"
+            )
+        return cast("dict[str, Any]", parsed)
 
     def load_configurations(self) -> None:
         """Load custom service configurations from config file.
@@ -238,7 +251,7 @@ class Delegator:
         """
         try:
             custom_config = self._read_config()
-        except (json.JSONDecodeError, OSError) as exc:
+        except (ValueError, OSError) as exc:
             logger.error(
                 "Cannot read delegation config %s (%s). Delegation is off "
                 "until the file parses.",
@@ -377,6 +390,10 @@ class Delegator:
                 check=False,
                 capture_output=True,
                 text=True,
+                # Replace, never raise, on bytes that are not UTF-8: a
+                # provider that exited 0 answered, and one stray byte must
+                # not turn that answer into a reported failure.
+                errors="replace",
                 timeout=spec.timeout,
                 cwd=Path.cwd(),
                 env=spec.env,
@@ -472,8 +489,12 @@ class Delegator:
         }
 
         try:
-            with open(self.usage_log, "a") as f:
-                f.write(json.dumps(log_entry) + "\n")
+            append_line(
+                self.usage_log,
+                self.usage_backup,
+                json.dumps(log_entry),
+                MAX_USAGE_LOG_BYTES,
+            )
         except OSError as e:
             # Reported at warning, not debug. This is the audit trail: it
             # is what `--usage` reads and the only record that a prompt
@@ -527,7 +548,7 @@ class Delegator:
 
     def get_usage_summary(self, days: int = 7) -> dict[str, Any]:
         """Get usage summary for the last N days."""
-        if not self.usage_log.exists():
+        if not (self.usage_log.exists() or self.usage_backup.exists()):
             return {"total_requests": 0, "success_rate": 0, "services": {}}
 
         cutoff_time = datetime.now().timestamp() - (days * 24 * 60 * 60)
@@ -538,22 +559,23 @@ class Delegator:
         }
 
         try:
-            with open(self.usage_log) as f:
-                for line in f:
-                    try:
-                        entry = json.loads(line.strip())
-                        entry_time = datetime.fromisoformat(
-                            entry["timestamp"],
-                        ).timestamp()
+            for line in read_lines(self.usage_log, self.usage_backup):
+                try:
+                    entry = json.loads(line.strip())
+                    entry_time = datetime.fromisoformat(
+                        entry["timestamp"],
+                    ).timestamp()
 
-                        if entry_time >= cutoff_time:
-                            summary["total_requests"] += 1
-                            if entry["success"]:
-                                summary["successful_requests"] += 1
-                            self._update_service_stats(summary, entry)
+                    if entry_time >= cutoff_time:
+                        summary["total_requests"] += 1
+                        if entry["success"]:
+                            summary["successful_requests"] += 1
+                        self._update_service_stats(summary, entry)
 
-                    except (json.JSONDecodeError, KeyError):
-                        continue
+                except (ValueError, KeyError, TypeError):
+                    # One damaged line (bad JSON, a timestamp that does not
+                    # parse, a record that is not an object) is skipped.
+                    continue
 
             self._calculate_rates(summary)
 
@@ -800,7 +822,7 @@ def _create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "service",
         nargs="?",
-        help="Service name (gemini, qwen, minimax, auto)",
+        help="Service name, or auto (see --list-services)",
     )
     parser.add_argument("prompt", nargs="?", help="Prompt to send to the service")
     parser.add_argument("--files", nargs="+", help="Files to include")
@@ -845,6 +867,12 @@ def main() -> None:
             _report_fallback(result)
             raise SystemExit(1)
     else:
+        if args.service not in delegator.services:
+            print(
+                f"Unknown service: {args.service} (see --list-services)",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
         options: dict[str, Any] = {}
         if args.model:
             options["model"] = args.model

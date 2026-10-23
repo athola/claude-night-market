@@ -3,7 +3,7 @@
 Note: elegant-code is a markdown-only methodology skill with no Python
 source modules. The tests below validate:
   1. Skill file structure (SKILL.md exists, frontmatter, Exit Criteria).
-  2. Methodology concepts (the 5-rung ordered ladder, the never-cut
+  2. Methodology concepts (the 6-rung ordered ladder, the never-cut
      negligence floor, new-dependency-is-last-resort) using inline logic
      that mirrors the rules documented in the skill markdown.
 Structural and conceptual tests are the appropriate test type for skills
@@ -79,7 +79,7 @@ class TestLeastCodeStructure:
 
 
 class TestDecisionLadderContent:
-    """Feature: the documented ladder has five ordered rungs.
+    """Feature: the documented ladder has six ordered rungs.
 
     As a developer applying the skill
     I want the ladder rungs documented in order
@@ -88,6 +88,7 @@ class TestDecisionLadderContent:
 
     RUNGS = (
         "Need-to-exist",
+        "Already in this repo",
         "Builtin / stdlib",
         "Native platform",
         "Installed dependency",
@@ -96,12 +97,12 @@ class TestDecisionLadderContent:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_all_five_rungs_present_in_order(self, skill_text: str) -> None:
+    def test_all_six_rungs_present_in_order(self, skill_text: str) -> None:
         """Scenario: rungs appear in the documented order.
 
         Given the decision ladder table
         When scanning the rung labels
-        Then all five appear, each after the previous
+        Then all six appear, each after the previous
         """
         positions = [skill_text.find(rung) for rung in self.RUNGS]
         assert all(p != -1 for p in positions), f"missing rung: {positions}"
@@ -110,9 +111,9 @@ class TestDecisionLadderContent:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_new_dependency_is_last_resort(self, skill_text: str) -> None:
-        """Scenario: a new dependency is below rung 5, not rung 4.
+        """Scenario: a new dependency is below rung 6, not rung 5.
 
-        Given the rung-4 reuse rule
+        Given the rung-5 reuse rule
         When reading the ladder
         Then the skill states a new dependency is the last resort
         And points at dependency-verification before adding one
@@ -261,17 +262,18 @@ class TestLadderProcedure:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_five_rungs_documented_in_order(self, skill_text: str) -> None:
-        """Scenario: the five rungs appear in their documented order.
+    def test_six_rungs_documented_in_order(self, skill_text: str) -> None:
+        """Scenario: the six rungs appear in their documented order.
 
         Given the elegant-code SKILL.md
         When scanning for the rung names
-        Then need-to-exist, stdlib, native, installed dependency, and a
-        few lines appear in that order.
+        Then need-to-exist, already in this repo, stdlib, native,
+        installed dependency, and a few lines appear in that order.
         """
         low = skill_text.lower()
         rungs = [
             "need-to-exist",
+            "already in this repo",
             "builtin / stdlib",
             "native platform",
             "installed dependency",
@@ -305,3 +307,128 @@ class TestLadderProcedure:
         """
         normalized = " ".join(skill_text.split()).lower()
         assert "new" in normalized and "dependency is the last resort" in normalized
+
+
+class TestRepositoryRung:
+    """Feature: the ladder reuses the repository's own model of a concern.
+
+    A second way of doing something the codebase already does is the
+    redundant model that docs/knowledge-corpus/decoherence.md describes.
+    These assert the shipped SKILL.md, so reverting the rung fails them.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_repo_rung_precedes_stdlib(self, skill_text: str) -> None:
+        """Scenario: the repository rung comes before the stdlib rung.
+
+        Given the decision ladder table
+        When locating the repository and stdlib rows
+        Then the repository row is rung 2 and precedes the stdlib row
+        """
+        assert "| 2 | Already in this repo |" in skill_text
+        assert skill_text.find("Already in this repo") < skill_text.find(
+            "Builtin / stdlib"
+        )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_second_model_requires_retirement_or_reason(self, skill_text: str) -> None:
+        """Scenario: a second model of a concern must retire or justify.
+
+        Given the repository rung guidance
+        When an addition would give a concern a second implementation
+        Then the skill requires retiring the first in the same change
+        or writing down why both stand
+        """
+        normalized = " ".join(skill_text.split()).lower()
+        assert "retires the first in the same change" in normalized
+        assert "why both must stand" in normalized
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_migration_targets_new_pattern_only(self, skill_text: str) -> None:
+        """Scenario: during a migration new code uses only the target.
+
+        Given a concern with an old and a new pattern in flight
+        When new code is written
+        Then the skill says to use the target and never copy the
+        superseded variant, even when it is the majority
+        """
+        normalized = " ".join(skill_text.split()).lower()
+        assert "never copy the superseded variant" in normalized
+        assert "even when it is the majority" in normalized
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_exit_criteria_name_the_repository_search(self, skill_text: str) -> None:
+        """Scenario: exit criteria require the repository search.
+
+        Given the Exit Criteria section
+        When reading its items
+        Then one requires naming the existing model that was reused or
+        the search that found none
+        """
+        exit_section = skill_text[skill_text.index("## Exit Criteria") :]
+        assert "existing model" in exit_section
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_reuse_first_names_how_the_model_departs_from_the_standard(
+        self, skill_text: str
+    ) -> None:
+        """Scenario: a local model is compared with the standard before reuse.
+
+        Given the repository rung guidance
+        When an existing model is about to be reused
+        Then the skill asks what rungs 3 to 5 would do for the concern
+        And gives three outcomes: same contract, a recorded reason, or a
+        departure with no reason, which is raised rather than spread
+        """
+        normalized = " ".join(skill_text.split()).lower()
+        assert "what rungs 3 to 5 would do for the concern" in normalized
+        assert "same contract in a different spelling" in normalized
+        assert "a contract that differs with a recorded reason" in normalized
+        assert "a contract that differs with no recorded reason" in normalized
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_exit_criteria_name_the_standard_departed_from(
+        self, skill_text: str
+    ) -> None:
+        """Scenario: exit criteria record the standard that was compared.
+
+        Given the Exit Criteria section
+        When reading the reuse item
+        Then it asks for the standard the reused model matches or departs
+        from
+        """
+        exit_section = " ".join(
+            skill_text[skill_text.index("## Exit Criteria") :].split()
+        )
+        assert "the standard it matches or departs from" in exit_section
+
+
+class TestReviewCommandDepartureCheck:
+    """Feature: /elegant-code-review flags an unexplained departure.
+
+    The skill asks for the departure check where a model is chosen. The
+    review command applies the ladder to a diff, so it flags a reused
+    model whose contract departs from the standard with no reason.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_review_flags_a_reused_model_that_departs_without_a_reason(
+        self, skill_dir: Path
+    ) -> None:
+        """Scenario: the review names both models for a silent departure.
+
+        Given the elegant-code-review command
+        When a hunk reuses a repository model
+        Then a contract that departs from rungs 3 to 5 with no recorded
+        reason is flagged with both models named
+        """
+        command = skill_dir.parents[1] / "commands" / "elegant-code-review.md"
+        normalized = " ".join(command.read_text().split())
+        assert "departs from rungs 3 to 5 with no recorded reason" in normalized

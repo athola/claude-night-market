@@ -56,10 +56,11 @@ def get_config_dir(*, create: bool = False) -> Path:
         create: If True, create the directory if it doesn't exist.
 
     Returns:
-        Path to ~/.claude/skills/discussions/.
+        Path to ~/.claude/skills/discussions/ (or
+        ``$CLAUDE_HOME/skills/discussions/``).
 
     """
-    config_dir = Path.home() / ".claude" / "skills" / "discussions"
+    config_dir = _claude_home() / "skills" / "discussions"
     if create:
         config_dir.mkdir(parents=True, exist_ok=True)
     return config_dir

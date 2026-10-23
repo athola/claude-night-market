@@ -126,9 +126,9 @@ and synthesize them into the final report.
 ## Skill Performance Monitoring
 
 Pensive tracks skill execution to identify brittle tools by calculating the
-stability gap (the difference between average and worst-case accuracy).
-A gap below 0.2 indicates stable performance,
-while a gap above 0.3 requires investigation.
+stability gap: one minus the success rate of its worst 5-run window.
+A gap below 0.2 means no window held a failure,
+and a gap above 0.3 requires investigation.
 Data is stored in `~/.claude/skills/logs/` in JSONL format,
 with history aggregated in `.history.json`.
 

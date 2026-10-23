@@ -5,7 +5,7 @@ from __future__ import annotations
 import yaml
 
 from tome.models import ResearchSession
-from tome.synthesis.ranker import group_by_theme
+from tome.synthesis.ranker import group_by_channel
 
 
 def export_for_memory_palace(session: ResearchSession) -> str:
@@ -47,7 +47,7 @@ def export_for_memory_palace(session: ResearchSession) -> str:
         return "\n".join(lines)
 
     # Group findings by channel
-    by_channel = group_by_theme(session.findings)
+    by_channel = group_by_channel(session.findings)
 
     for channel, findings in by_channel.items():
         lines.append(f"## {channel.title()}")

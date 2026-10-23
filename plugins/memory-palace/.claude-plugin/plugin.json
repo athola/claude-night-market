@@ -1,6 +1,6 @@
 {
   "name": "memory-palace",
-  "version": "1.9.21",
+  "version": "1.10.0",
   "description": "Spatial knowledge organization using memory palace techniques - build, navigate, and maintain virtual memory structures for enhanced recall and information management. Includes PR Review Room for capturing review knowledge.",
   "commands": [
     "./commands/garden.md",
@@ -45,6 +45,8 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
+  "homepage": "https://github.com/athola/claude-night-market/tree/master/plugins/memory-palace",
+  "repository": "https://github.com/athola/claude-night-market",
   "dependencies": [
     "leyline"
   ]

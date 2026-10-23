@@ -64,8 +64,8 @@ File operations use `git rm` and `git mv` to maintain project history.
 ### `/ai-hygiene-audit`
 
 Detects AI-specific code quality issues such as tab-completion bloat (repeated
-similar blocks), "vibe coding" patterns (massive single commits),
-and happy-path-only tests.
+similar blocks), one function name with different bodies in several files,
+"vibe coding" patterns (massive single commits), and happy-path-only tests.
 It identifies problematic live code that traditional bloat detection might miss.
 
 ### `/filter-log`
@@ -110,7 +110,8 @@ token arithmetic behind it. Ported from ayghri/i-have-adhd (MIT).
 `decisive-action` uses a reversibility/ambiguity matrix to determine when to
 proceed autonomously versus asking for clarification.
 `elegant-code` guides minimal, elegant code via a decision ladder
-(need-to-exist, stdlib, native, installed dependency, one line) while
+(need-to-exist, already in this repo, stdlib, native, installed
+dependency, a few lines) while
 requiring full coverage of safety, performance, edge, and negative
 cases. Its `/elegant-code-review` command audits the current diff against
 that ladder.

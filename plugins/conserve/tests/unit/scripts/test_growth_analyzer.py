@@ -205,11 +205,14 @@ class TestGrowthAnalyzerImplementation:
     @pytest.mark.parametrize(
         "growth_rate,expected_severity",
         [
-            (0.01, "STABLE"),  # 1% growth (< 0.05)
-            (0.08, "STABLE"),  # 8% growth (< 0.10 threshold for MILD)
-            (0.12, "MILD"),  # 12% growth (>= 0.10, < 0.15)
-            (0.18, "MODERATE"),  # 18% growth (>= 0.15, < 0.20)
-            (0.30, "CRITICAL"),  # 30% growth (>= 0.25)
+            # Bands from growth_thresholds: stable < 5%, mild 5-10%,
+            # moderate 10-15%, severe 15-20%, critical above 20%.
+            (0.01, "STABLE"),
+            (0.07, "MILD"),
+            (0.12, "MODERATE"),
+            (0.18, "SEVERE"),
+            (0.22, "CRITICAL"),
+            (0.30, "CRITICAL"),
         ],
     )
     def test_severity_classification_thresholds(
@@ -351,7 +354,7 @@ class TestGrowthAnalyzerImplementation:
         severe_data = {
             "growth_trend": {
                 "current_usage": 6000,
-                "rate": 0.22,  # 22% - between 20-25%, should be SEVERE
+                "rate": 0.17,  # 17% - in the 15-20% severe band
                 "acceleration": 0.015,
             },
             "content_breakdown": {
@@ -625,3 +628,20 @@ class TestEstimateTurnsReturnType:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("usage", "rate", "turns"),
+    [(1.0, 0.99, 7.0), (1.0, 1.0, 7.0), (1.0, 3.0, 4.0)],
+)
+def test_turns_to_limit_holds_at_and_past_doubling(
+    usage: float, rate: float, turns: float
+) -> None:
+    """At 1% usage, 100% growth needs seven doublings to reach the limit.
+
+    A growth_rate >= 1.0 guard returned 1 turn regardless of usage, so the
+    estimate fell from 7 at 99% growth to 1 at 100%. log(1 + r) is defined
+    for every r > 0, so the closed form holds there too.
+    """
+    assert GrowthAnalyzer()._estimate_mecw_violation(usage, rate, 0.0) == turns

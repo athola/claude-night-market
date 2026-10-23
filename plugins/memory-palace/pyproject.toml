@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "memory-palace"
-version = "1.9.21"
+version = "1.10.0"
 description = "Spatial knowledge organization plugin for Claude Code using memory palace techniques"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -21,7 +21,10 @@ requires-python = ">=3.9"
 dependencies = [
     "pyyaml>=6.0.3",
     "networkx>=3.0",
-    "scipy>=1.11",
+    # Imported directly by corpus/semantic_deduplicator.py and
+    # corpus/embedding_index.py. It used to arrive only through scipy,
+    # which nothing here imports.
+    "numpy>=2.0.2",
 ]
 
 [project.optional-dependencies]
@@ -33,7 +36,8 @@ semantic = [
     # It went undeclared, so corpus/__init__.py caught the ImportError and
     # set SemanticDeduplicator = None on every install, and the test suite
     # skipped its coverage. faiss-cpu has no Python 3.9 wheel, hence the
-    # marker; on 3.9 the None fallback stays and the tests skip.
+    # marker; on 3.9 reading SemanticDeduplicator raises ImportError
+    # naming faiss, and the tests skip.
     "faiss-cpu>=1.15.1 ; python_version >= '3.10'",
 ]
 dev = [
@@ -41,18 +45,14 @@ dev = [
     "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
     "ty>=0.0.82",
-    "pytype>=2024.10.11 ; python_version >= '3.10'",
     "typos>=1.50.2",
 ]
 
 [dependency-groups]
 dev = [
     "bandit>=1.8.6,<2.0",
-    "blacken-docs>=1.20.0,<2.0",
-    "interrogate>=1.7.0,<2.0",
     "pre-commit>=4.3.0",
     "ty>=0.0.82",
-    "safety>=3.8.1,<4.0",
     "typos>=1.50.2",
     "ruff>=0.16.8",
     "mypy>=1.18.2,<2",

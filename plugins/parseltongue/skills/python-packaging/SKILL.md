@@ -149,9 +149,9 @@ See modules for detailed information:
 
 ## Exit Criteria
 
-- Modern pyproject.toml configuration
-- Clear dependency specification
-- Proper version management
-- Tests included and passing
-- Build process reproducible
-- Publishing pipeline automated
+- [ ] Modern pyproject.toml configuration
+- [ ] Clear dependency specification
+- [ ] Proper version management
+- [ ] Tests included and passing
+- [ ] Build process reproducible
+- [ ] Publishing pipeline automated

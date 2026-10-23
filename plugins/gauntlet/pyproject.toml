@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gauntlet-dev"
-version = "1.9.21"
+version = "1.10.0"
 description = "Codebase learning through knowledge extraction, challenges, and spaced repetition"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -84,6 +84,13 @@ disallow_untyped_defs = true
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = ["pydantic.json_schema", "pydantic._internal._discriminated_union"]
+# pydantic 2.14 writes `match` statements in these two modules, which mypy
+# cannot parse against the 3.9 floor. Skipping only them keeps BaseModel,
+# and the anthropic types built on it, checked.
+follow_imports = "skip"
+
+[[tool.mypy.overrides]]
 module = ["anyio", "anyio.*"]
 ignore_missing_imports = true
 # anyio's own source uses `match` statements (3.10+). Targeting the 3.9 floor,
@@ -115,6 +122,7 @@ exclude_lines = [
 
 [dependency-groups]
 dev = [
+    "bandit>=1.8.6,<2.0",
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
     "pytest-cov>=7.1.0",

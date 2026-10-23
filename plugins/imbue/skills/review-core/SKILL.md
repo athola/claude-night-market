@@ -40,7 +40,7 @@ estimated_tokens: 1500
 
 **Auto-Load When**: Any review-specific workflow is detected or when analysis methodologies are requested.
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `review-core:context-established`
 2. `review-core:scope-inventoried`
 3. `review-core:evidence-captured`
@@ -115,8 +115,16 @@ ship.
 - Note any outstanding approvals or data needed to complete the review.
 
 ## Exit Criteria
-- All TodoWrite items complete with concrete notes (commands run, files listed, evidence paths).
-- Every reported finding carries a `Location` + verbatim `Anchor` and was confirmed by `citation_verifier.py` (or a documented manual re-read); no unverified findings ship.
-- `.review/findings.json` exists and the verifier exited `0`, or every failed finding was dropped or labeled `UNVERIFIED`.
-- Domain-specific review can now assume consistent context/evidence/deliverable scaffolding and focus on specialized analysis.
-- Any rework, failed approach, or blocker uncovered during evidence capture is recorded to `docs/lessons-learned.md` (or the in-file template).
+
+- [ ] All progress items complete with concrete notes (commands run,
+  files listed, evidence paths).
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor`
+  and was confirmed by `citation_verifier.py` (or a documented manual
+  re-read). No unverified finding ships.
+- [ ] `.review/findings.json` exists and the verifier exited `0`, or
+  every failed finding was dropped or labeled `UNVERIFIED`.
+- [ ] The context, evidence log and deliverable template exist before
+  any domain-specific review starts.
+- [ ] Any rework, failed approach, or blocker uncovered during evidence
+  capture is recorded to `docs/lessons-learned.md` (or the in-file
+  template).

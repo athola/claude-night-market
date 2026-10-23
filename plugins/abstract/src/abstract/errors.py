@@ -58,6 +58,17 @@ class ErrorHandler:
         self.logger = logging.getLogger(tool_name)
         self.logger.setLevel(logging.INFO)
 
+        # The logger is process-global: a second handler would duplicate
+        # every line and a second FileHandler would leak an open file. One
+        # already writing where this caller asked is kept; one writing
+        # elsewhere is replaced, or a later log_file would never be created.
+        target = os.path.abspath(log_file) if log_file else None
+        for existing in list(self.logger.handlers):
+            if getattr(existing, "baseFilename", None) == target:
+                return
+            self.logger.removeHandler(existing)
+            existing.close()
+
         handler: logging.Handler
         handler = logging.FileHandler(log_file) if log_file else logging.StreamHandler()
 

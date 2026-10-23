@@ -174,7 +174,7 @@ efficiency:
 3. **Evidence required** - Every issue must have reproducible evidence
 4. **Rate limiting** - Max 5 issues per session
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `workflow-monitor:capture-complete`
 2. `workflow-monitor:analysis-complete`
@@ -232,7 +232,7 @@ efficiency:
 
 ## Exit Criteria
 
-- [ ] All 4 TodoWrite phases completed: `capture-complete`,
+- [ ] All 4 progress phases completed: `capture-complete`,
   `analysis-complete`, `report-generated`, and (if an issue is
   created) `issue-created`
 - [ ] Every issue filed contains reproducible evidence: the exact

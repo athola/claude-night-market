@@ -325,15 +325,16 @@ class TestEdgeCases:
     def test_search_with_special_characters(self, graph: KnowledgeGraph) -> None:
         """FTS punctuation cannot break the query into a syntax error."""
         graph.upsert_entity("e1", "concept", "Test (special)")
-        # FTS match may fail on special chars, should not raise
-        results = graph.search("special")
-        assert isinstance(results, list)
+        # Bare parentheses are FTS5 grouping syntax; the query must still match
+        results = graph.search("(special)")
+        assert [row["entity_id"] for row in results] == ["e1"]
 
     def test_upsert_entity_with_none_metadata(self, graph: KnowledgeGraph) -> None:
         """Absent metadata is stored without raising."""
         graph.upsert_entity("e1", "concept", "Test", metadata=None)
         entity = graph.get_entity("e1")
         assert entity is not None
+        assert entity["metadata"] == "{}"
 
     def test_get_synapse_nonexistent(self, graph: KnowledgeGraph) -> None:
         """A missing synapse id yields None."""
@@ -358,3 +359,19 @@ class TestBulkOperations:
         graph.create_synapse(source_id="e1", target_id="e2")
         assert graph.entity_count() == 2
         assert graph.synapse_count() == 1
+
+
+def test_search_falls_back_to_like_when_fts_index_is_unusable() -> None:
+    """Search still finds entities when the FTS table has gone missing.
+
+    GIVEN a graph whose FTS table was dropped after an entity was stored
+    WHEN the entity name is searched
+    THEN the entity is found through the LIKE fallback with rank 0.0.
+    """
+    with KnowledgeGraph(":memory:") as graph:
+        graph.upsert_entity("e1", "concept", "alpha beta")
+        graph._conn.execute("DROP TABLE entities_fts")
+
+        rows = graph.search("alpha")
+
+    assert [(r["entity_id"], r["rank"]) for r in rows] == [("e1", 0.0)]

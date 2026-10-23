@@ -6,6 +6,8 @@ import importlib.util
 import sys
 from pathlib import Path
 
+import pytest
+
 from memory_palace import cli as memory_palace_cli
 from memory_palace.lifecycle.autonomy_state import AutonomyStateStore
 
@@ -72,3 +74,23 @@ def test_regret_alerts_fire_for_garden_commands(tmp_path: Path, monkeypatch) -> 
     monkeypatch.setenv("MEMORY_PALACE_AUTONOMY_STATE", str(state_path))
     memory_palace_cli.main(["garden", "trust", "--domain", "cache", "--level", "2"])
     assert state_path.exists()
+
+
+def test_script_exits_with_one_line_message_on_unreadable_state(
+    tmp_path: Path, monkeypatch
+) -> None:
+    module = load_module()
+    state = tmp_path / "autonomy-state.yaml"
+    state.write_text("level: [unclosed\n", encoding="utf-8")
+    history = tmp_path / "history.jsonl"
+    history.write_text("[]", encoding="utf-8")
+    monkeypatch.setattr(
+        sys, "argv", ["update", "--history", str(history), "--state", str(state)]
+    )
+
+    with pytest.raises(SystemExit) as exited:
+        module.main()
+
+    message = str(exited.value.code)
+    assert "is unreadable" in message
+    assert "\n" not in message

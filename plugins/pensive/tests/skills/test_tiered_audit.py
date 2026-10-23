@@ -343,7 +343,7 @@ class TestModuleFromPath:
     @pytest.mark.unit
     def test_two_component_path(self) -> None:
         """Given 'hooks/pre-commit.py', return 'hooks/pre-commit.py'."""
-        assert _module_from_path("hooks/pre-commit.py") == "hooks/pre-commit.py"
+        assert _module_from_path("hooks/pre-commit.py") == "hooks"
 
     @pytest.mark.unit
     def test_deep_path(self) -> None:
@@ -359,3 +359,18 @@ class TestModuleFromPath:
     def test_empty_string(self) -> None:
         """Given an empty string, return empty string."""
         assert _module_from_path("") == ""
+
+
+class TestChurnInTopLevelDirectories:
+    """Files directly under a top-level directory group into that directory."""
+
+    def test_churning_hooks_directory_is_flagged(self) -> None:
+        """Three hooks/ files, one changed three times, flag `hooks`.
+
+        _module_from_path returned the file path for a two-part path, so
+        each file under hooks/ was its own one-file module and a churning
+        top-level directory could never reach the file threshold.
+        """
+        changes = ["hooks/a.py"] * 3 + ["hooks/b.py", "hooks/c.py"]
+        flags = check_churn_hotspots(changes)
+        assert [f.area for f in flags] == ["hooks"]

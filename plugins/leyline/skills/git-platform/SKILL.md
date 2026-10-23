@@ -133,6 +133,6 @@ Use the detected platform CLI (check session context for `git_platform`):
 
 ## Exit Criteria
 
-- Platform detected (or explicitly unknown)
-- Correct CLI tool used for all forge operations
-- Platform-appropriate terminology in user-facing output
+- [ ] Platform detected (or explicitly unknown)
+- [ ] Correct CLI tool used for all forge operations
+- [ ] Platform-appropriate terminology in user-facing output

@@ -1,10 +1,10 @@
 ---
 name: optimize-context
-description: Analyze and optimize context window usage using MECW principles
+description: Analyze context window usage against MECW principles and recommend reductions
 usage: /optimize-context [path]
 ---
 
-# Optimize Context Usage
+# Context Window Usage Review
 
 Analyzes context window usage and provides optimization recommendations based on Maximum Effective Context Window (MECW) principles.
 
@@ -94,7 +94,6 @@ claude --continue "$SESSION_ID" -p "/context" --verbose --output-format json
 Works with conservation plugin skills:
 - `context-optimization` - Core MECW implementation
 - `token-conservation` - Token reduction strategies
-- `optimizing-large-skills` - Modularization patterns
 
 ## Implementation
 

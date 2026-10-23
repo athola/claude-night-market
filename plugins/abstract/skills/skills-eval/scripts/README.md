@@ -1,273 +1,78 @@
 # Skills-Eval Scripts
 
-This directory contains evaluation and analysis tools for Claude Skills, along with shared utilities.
+The skills-eval tools are Python scripts in `plugins/abstract/scripts/`.
+This directory holds no executables. Run every command below from
+`plugins/abstract`. The scripts import PyYAML. If `python3` lacks it,
+prefix the command with `uv run`, which uses the plugin environment.
 
-## Shared Utilities
+Each script takes one path and writes its report to stdout, or to
+`--output FILE`. The `--format` flag, on the scripts that have it,
+accepts `text` (the default) or `json`.
 
-The parsing, token-estimation and formatting helpers this directory once
-documented live in the plugin package, not here. Import them from
-`abstract.utils` and `abstract.tokens`:
+## Tools
+
+### skills_auditor.py
+
+Scores every skill under a directory and lists the ones that need work.
+
+```bash
+python3 scripts/skills_auditor.py skills/
+python3 scripts/skills_auditor.py skills/ --format json --output audit.json
+```
+
+### compliance_checker.py
+
+Checks skills against the frontmatter and structure rules.
+`--rules-file` loads custom rules. The script exits 0 whatever it finds.
+To gate on the result, use `uv run abstract-skills check skills/`, which
+exits 1 on a non-compliant report.
+
+```bash
+python3 scripts/compliance_checker.py skills/
+python3 scripts/compliance_checker.py skills/ --format json
+```
+
+### improvement_suggester.py
+
+Builds an improvement plan for one skill. Pass the skill directory or its
+`SKILL.md`.
+
+```bash
+python3 scripts/improvement_suggester.py skills/skills-eval
+python3 scripts/improvement_suggester.py skills/skills-eval/SKILL.md --format json
+```
+
+### token_usage_tracker.py
+
+Estimates tokens per skill against a per-skill limit (default 2000).
+
+```bash
+python3 scripts/token_usage_tracker.py skills/
+python3 scripts/token_usage_tracker.py skills/ --optimal-limit 1500
+```
+
+### tool_performance_analyzer.py
+
+Times each executable file under the directory by running it with
+`--help`. Point it only at code you trust: it executes what it finds.
+
+```bash
+python3 scripts/tool_performance_analyzer.py skills/skills-eval
+```
+
+## Shared helpers
+
+The parsing and token helpers are in the plugin package:
 
 ```python
 from abstract.frontmatter import FrontmatterProcessor
 from abstract.tokens import estimate_text_tokens
 ```
 
-## Evaluation Tools
-
-### token-usage-tracker
-
-Advanced token optimization analysis tool for Claude Agent SDK compliance.
-
-**Features:**
-- Token efficiency grading (A-D scale)
-- Context compression analysis
-- Progressive disclosure scoring
-- Optimization suggestions with estimated savings
-- Benchmarking against 2024 targets
-
-**Usage:**
-```bash
-# Basic analysis
-./token-usage-tracker --skill-path path/to/SKILL.md
-
-# Markdown report
-./token-usage-tracker --skill-path path/to/SKILL.md --format markdown
-
-# JSON output
-./token-usage-tracker --skill-path path/to/SKILL.md --format json
-
-# With context analysis
-./token-usage-tracker --skill-path path/to/SKILL.md --context-analysis
-```
-
-### tool-performance-analyzer
-
-Analyzes tool use performance based on Claude Developer Platform research.
-
-**Features:**
-- Dynamic tool discovery efficiency
-- Programmatic calling patterns
-- Context preservation metrics
-- Token reduction potential
-- Latency optimization scores
-
-**Usage:**
-```bash
-# Basic analysis
-./tool-performance-analyzer --skill-path path/to/SKILL.md
-
-# Specific metrics
-./tool-performance-analyzer --skill-path path/to/SKILL.md --metrics discovery,calling
-
-# Markdown report
-./tool-performance-analyzer --skill-path path/to/SKILL.md --format markdown
-```
-
-### skills-auditor
-
-detailed skill discovery and analysis across all `~/.claude/` locations.
-
-**Features:**
-- Multi-dimensional quality scoring
-- Integration, scalability, and reliability metrics
-- API compliance checking
-- Context optimization analysis
-- Batch analysis of all skills
-
-**Usage:**
-```bash
-# Scan all skills
-./skills-auditor --scan-all --format table
-
-# Analyze specific skill
-./skills-auditor --skill-path path/to/SKILL.md --format markdown
-
-# High-priority issues only
-./skills-auditor --scan-all --priority high
-```
-
-### improvement-suggester
-
-Generates prioritized, actionable improvement recommendations.
-
-**Features:**
-- Category-based improvements (critical, high, medium, low)
-- Specific actions with code examples
-- Effort and impact estimates
-- Implementation order suggestions
-- 2024 SDK compliance improvements
-
-**Usage:**
-```bash
-# All improvements
-./improvement-suggester --skill-path path/to/SKILL.md
-
-# High-priority only
-./improvement-suggester --skill-path path/to/SKILL.md --priority critical,high
-
-# Markdown report
-./improvement-suggester --skill-path path/to/SKILL.md --format markdown
-```
-
-### compliance-checker
-
-Standards validation and security checking.
-
-**Features:**
-- Claude Skills v2 standards compliance
-- Frontmatter validation
-- Security issue detection
-- Auto-fix for common issues
-
-**Usage:**
-```bash
-# Check compliance
-./compliance-checker --skill-path path/to/SKILL.md
-
-# Auto-fix issues
-./compliance-checker --skill-path path/to/SKILL.md --auto-fix
-
-# Specific standard
-./compliance-checker --skill-path path/to/SKILL.md --standard claude-skills-v2
-```
-
-## Output Formats
-
-All tools support multiple output formats:
-
-- **table** (default): Clean, console-friendly output
-- **markdown**: Detailed reports with sections
-- **json**: Machine-readable for automation
-
-Example:
-```bash
-./token-usage-tracker --skill-path SKILL.md --format json > analysis.json
-```
-
-## Integration Examples
-
-### In Other Plugins
-
-Conservation plugin example:
-
-```python
-#!/usr/bin/env python3
-"""Conservation tool that uses abstract's utilities"""
-
-import sys
-from pathlib import Path
-
-from abstract.tokens import estimate_text_tokens
-
-
-def analyze_resource_usage(skill_path: str):
-    """Analyze resource usage using abstract's utilities"""
-    with open(skill_path) as f:
-        content = f.read()
-
-    tokens = estimate_text_tokens(content)
-    frontmatter = parse_frontmatter(content)
-
-    # Conservation-specific analysis
-    # ...
-```
-
-### In CI/CD Pipelines
+## CI example
 
 ```yaml
-name: Skill Quality Checks
-on: [push, pull_request]
-
-jobs:
-  evaluate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Token Budget Check
-        run: |
-          ./skills/skills-eval/scripts/token-usage-tracker \
-            --skill-path path/to/SKILL.md \
-            --format json > tokens.json
-          # Parse and fail if over budget
-      - name: Compliance Check
-        run: |
-          python plugins/abstract/scripts/compliance_checker.py \
-            plugins/<plugin>/skills
+- name: Skill compliance
+  working-directory: plugins/abstract
+  run: uv run abstract-skills check skills/
 ```
-
-### In Pre-commit Hooks
-
-```bash
-#!/bin/bash
-# .git/hooks/pre-commit
-
-for skill in $(git diff --cached --name-only | grep SKILL.md); do
-    echo "Checking $skill..."
-
-    # Run token analysis
-    ./skills/skills-eval/scripts/token-usage-tracker \
-        --skill-path "$skill" \
-        --format table
-
-    # Run compliance check
-    python plugins/abstract/scripts/compliance_checker.py \
-        "$(dirname "$skill")" || exit 1
-done
-```
-
-## Development
-
-### Adding New Utilities
-
-When adding new shared utilities to `src/abstract/`:
-
-1. Keep functions pure and focused
-2. Add type hints
-3. Include docstrings
-4. Consider backward compatibility
-5. Update this README
-
-Example:
-```python
-def new_utility_function(param: str) -> Dict:
-    """
-    Brief description of what this does.
-
-    Args:
-        param: Description of parameter
-
-    Returns:
-        Description of return value
-    """
-    # Implementation
-    pass
-```
-
-### Testing
-
-```bash
-# Test shared utilities
-python3 -c "from abstract.tokens import estimate_text_tokens; print(estimate_text_tokens('test' * 100))"
-
-# Test individual tools
-./token-usage-tracker --skill-path ../SKILL.md
-./tool-performance-analyzer --skill-path ../SKILL.md
-./skills-auditor --skill-path ../SKILL.md
-```
-
-## Dependencies
-
-All tools use:
-- Python 3.12+
-- Standard library modules
-- `yaml` library for frontmatter parsing
-
-No external dependencies required for basic usage.
-
-## See Also
-
-- **../SKILL.md** - Main skills-eval documentation
-- **../modules/** - Detailed evaluation frameworks and guides
-- **../2024-UPDATES.md** - Latest enhancements and standards
-- **../../DEDUPLICATION_REPORT.md** - Architecture and deduplication strategy

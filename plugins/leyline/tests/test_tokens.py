@@ -265,3 +265,41 @@ class TestTokenEncoderPath:
         # prompt(3) + file(3 + overhead)
         assert result == 3 + 3 + tokens.FILE_OVERHEAD_TOKENS
         # Note: can't call cache_clear() after monkeypatch replaces the function
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("suffix", [".go", ".rst", ".py", ".yaml", ".txt"])
+def test_file_estimate_uses_the_extension_ratio_table(
+    tmp_path: Path, suffix: str
+) -> None:
+    """Both file estimators read one ratio per extension.
+
+    ``QuotaTracker.estimate_file_tokens`` looks up EXTENSION_TOKEN_RATIOS;
+    a 32000-byte .go file must not cost 10000 tokens there and 8000 here.
+    """
+    source = tmp_path / f"sample{suffix}"
+    source.write_text("a" * 32000)
+    ratio = tokens.EXTENSION_TOKEN_RATIOS[suffix]
+
+    assert tokens.estimate_file_tokens(source) == (
+        int(32000 / ratio) + tokens.FILE_OVERHEAD_TOKENS
+    )
+
+
+@pytest.mark.unit
+def test_unreadable_file_is_counted_as_zero_and_named_in_a_warning(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """A per-file undercount is visible to whoever reads the estimate."""
+    missing = tmp_path / "gone.py"
+
+    class _Encoder:
+        def encode(self, text: str) -> list[int]:
+            return [1] * len(text)
+
+    with caplog.at_level("WARNING", logger=tokens.__name__):
+        assert tokens.estimate_file_tokens(missing) == 0
+        assert tokens._encode_file_with_tiktoken(_Encoder(), missing) == 0
+
+    named = [r for r in caplog.records if str(missing) in r.getMessage()]
+    assert len(named) == 2

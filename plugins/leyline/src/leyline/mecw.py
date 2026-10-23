@@ -22,9 +22,9 @@ GROWTH_WARNING_PERCENTAGE = 0.1
 # MECW threshold levels
 MECW_THRESHOLDS = {
     "LOW": 0.30,  # < 30%: Optimal performance, high accuracy
-    "MODERATE": 0.50,  # 30-50%: Good performance, within MECW limits
+    "MODERATE": 0.50,  # 30-50% inclusive: Good performance, within MECW limits
     "HIGH": 0.70,  # 50-70%: Degraded performance, risk zone
-    "CRITICAL": 0.95,  # > 95%: Severe degradation, high hallucination risk
+    # >= 70% is CRITICAL: severe degradation, high hallucination risk
 }
 
 
@@ -59,8 +59,8 @@ def calculate_context_pressure(current_tokens: int, max_tokens: int) -> str:
 
     if usage_ratio < MECW_THRESHOLDS["LOW"]:
         return "LOW"  # Plenty of headroom
-    if usage_ratio < MECW_THRESHOLDS["MODERATE"]:
-        return "MODERATE"  # Within MECW limits
+    if usage_ratio <= MECW_THRESHOLDS["MODERATE"]:
+        return "MODERATE"  # Within MECW limits (50% itself is compliant)
     if usage_ratio < MECW_THRESHOLDS["HIGH"]:
         return "HIGH"  # Exceeding MECW, risk zone
     return "CRITICAL"  # Severe hallucination risk

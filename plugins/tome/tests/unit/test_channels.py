@@ -122,10 +122,8 @@ class TestParseGitHubResult:
         assert f.title  # falls back to repo_name or url
 
     @pytest.mark.unit
-    def test_handles_empty_url(self) -> None:
-        f = parse_github_result({"title": "no url"})
-        assert f.relevance == 0.5
-        assert f.url == ""
+    def test_skips_result_without_url(self) -> None:
+        assert parse_github_result({"title": "no url"}) is None
 
 
 # ============================================================================
@@ -494,9 +492,8 @@ class TestParseBlogResult:
         assert f.source == "example.com"
 
     @pytest.mark.unit
-    def test_no_url_uses_blog_default(self) -> None:
-        f = parse_blog_result({"title": "no url"})
-        assert f.source == "blog"
+    def test_skips_result_without_url(self) -> None:
+        assert parse_blog_result({"title": "no url"}) is None
 
     @pytest.mark.unit
     def test_uses_description_alternative(self) -> None:

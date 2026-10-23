@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, Generic, TypeVar, cast
 
 from .base import AbstractScript
+from .cli_output import write_output
 from .config import AbstractConfig
 from .errors import ErrorHandler
 
@@ -33,6 +34,13 @@ class CLIResult(Generic[T]):  # noqa: UP046 - Generic[T] required for Python 3.9
     warnings: list[str] | None = None
 
 
+def _json_default(value: Any) -> Any:
+    """Encode what json cannot: dataclasses at any depth, else ``str``."""
+    if is_dataclass(value) and not isinstance(value, type):
+        return asdict(cast(Any, value))
+    return str(value)
+
+
 class OutputFormatter:
     """Handle output formatting for CLI results."""
 
@@ -47,13 +55,7 @@ class OutputFormatter:
             JSON string.
 
         """
-        if is_dataclass(data) and not isinstance(data, type):
-            data = asdict(cast(Any, data))
-        elif isinstance(data, list):
-            data = [
-                asdict(cast(Any, item)) if is_dataclass(item) else item for item in data
-            ]
-        return json.dumps(data, indent=2, default=str)
+        return json.dumps(data, indent=2, default=_json_default)
 
     @staticmethod
     def format_summary(
@@ -385,9 +387,13 @@ class AbstractCLI(ABC):
                 summary_func=getattr(self, "summary_func", None),
                 table_columns=getattr(self, "table_columns", None),
             )
-            if output:
-                print(output)
+            if output and not write_output(output, getattr(args, "output", None)):
+                return 1
 
+        return self.exit_code(result, args)
+
+    def exit_code(self, result: CLIResult, args: argparse.Namespace) -> int:
+        """Map a result to the process exit code; override to gate on content."""
         return 0 if result.success else 1
 
 

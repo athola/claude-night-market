@@ -108,13 +108,11 @@ class TestSidecarScorer:
 
         with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen:
             mock_urlopen.return_value = make_urlopen_response(b'{"status": "ok"}')
-            # First call populates _base_url cache.
-            scorer.available()
-            _ = mock_urlopen.call_count  # populate cache
+            # First call reads the port file and caches the URL.
+            assert scorer.available() is True
 
         # Remove the port file; a second available() must still work via cache.
         port_file.unlink()
-        scorer._base_url = "http://127.0.0.1:9000"
 
         with patch("gauntlet.ml.scorer.urlopen") as mock_urlopen2:
             mock_urlopen2.return_value = make_urlopen_response(b'{"status": "ok"}')
@@ -122,6 +120,8 @@ class TestSidecarScorer:
 
         assert result is True
         assert mock_urlopen2.call_count == 1
+        request = mock_urlopen2.call_args.args[0]
+        assert request.full_url == "http://127.0.0.1:9000/health"
 
     # ------------------------------------------------------------------
     # _resolve_url non-integer port file (line 71 - ValueError branch)

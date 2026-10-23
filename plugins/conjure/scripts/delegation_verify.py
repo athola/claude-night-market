@@ -67,7 +67,9 @@ def verify_service(service: ServiceConfig) -> tuple[bool, list[str]]:
                 else ""
             )
             issues.append(f"Command '{service.command}' not found{remedy}")
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError):
+            # OSError: the file exists but cannot be executed (permissions,
+            # wrong architecture). FileNotFoundError is handled above.
             issues.append(f"Command '{service.command}' not found or not working")
 
     if issues:

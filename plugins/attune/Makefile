@@ -31,7 +31,7 @@ help: ## Show this help message
 dev-setup: ## Install development dependencies
 	@echo "Installing development dependencies..."
 	$(UV) sync --all-extras
-	$(UV_RUN) pre-commit install || true
+	$(UV_RUN) pre-commit install
 
 # ---------- Testing ----------
 # Note: test, test-unit, test-coverage provided by python.mk include

@@ -17,6 +17,7 @@ Part of the improvement feedback loop (Issue #69).
 from __future__ import annotations
 
 # pyright: reportPossiblyUnboundVariable=false
+import fcntl
 import json
 import sys
 import time
@@ -38,6 +39,13 @@ for _d in _candidate_dirs:
 if str(_hooks_dir) not in sys.path:
     sys.path.insert(0, str(_hooks_dir))
 
+_src = _hooks_dir.parent / "src"
+if str(_src) not in sys.path:
+    sys.path.insert(0, str(_src))
+
+from abstract.paths import (  # noqa: E402 - import after path setup
+    get_log_directory as _claude_log_directory,
+)
 from shared.best_effort import best_effort  # noqa: E402 - import after path setup
 
 _HOOK = "aggregate_learnings_daily"
@@ -69,7 +77,7 @@ CADENCE_SECONDS = 24 * 3600
 
 def get_timestamp_path() -> Path:
     """Get path to the last-aggregation timestamp file."""
-    return Path.home() / ".claude" / "skills" / "logs" / ".last_aggregation"
+    return _claude_log_directory() / ".last_aggregation"
 
 
 def should_aggregate() -> bool:
@@ -202,12 +210,21 @@ def run_daily_pipeline() -> None:
     if not should_aggregate():
         return
 
-    if not has_logs_to_aggregate():
-        return
-
-    success = run_aggregation()
-    if success:
-        update_timestamp()
+    # Registered async, so two quick prompts overlap. The run is claimed
+    # with a non-blocking lock and the cadence re-checked inside it; the
+    # loser returns at once instead of writing LEARNINGS.md a second time.
+    ts_path = get_timestamp_path()
+    ts_path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = ts_path.with_name(ts_path.name + ".lock")
+    with open(lock_path, "a", encoding="utf-8") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return
+        if not should_aggregate() or not has_logs_to_aggregate():
+            return
+        if run_aggregation():
+            update_timestamp()
 
 
 def main() -> None:

@@ -44,12 +44,16 @@ from post_learnings_to_discussions import (  # noqa: E402 - sibling script
     resolve_category_id,
 )
 
-from abstract.utils import (
+# Stdlib-only modules, not abstract.utils: utils imports yaml, and the
+# daily learnings hook imports this module under interpreters without it.
+from abstract.markdown_fields import (  # noqa: E402 - import after sys.path setup
     extract_bold_field,
-    get_learnings_path,
 )
-from abstract.utils import (  # noqa: E402 - import after sys.path setup
+from abstract.markdown_fields import (  # noqa: E402 - import after sys.path setup
     extract_section as _extract_section,
+)
+from abstract.paths import (
+    get_learnings_path,  # noqa: E402 - import after sys.path setup
 )
 
 # Thresholds for severity tiers
@@ -384,7 +388,7 @@ def parse_improvement_items(content: str) -> list[dict[str, Any]]:  # noqa: PLR0
 def has_existing_issue(
     item: dict[str, Any],
     target_repo: str,
-) -> bool:
+) -> bool | None:
     """Check if a similar issue or discussion already exists.
 
     Searches open issues for matching skill name to prevent duplicates.
@@ -394,7 +398,9 @@ def has_existing_issue(
         target_repo: Repository in "owner/name" format.
 
     Returns:
-        True if a duplicate exists.
+        True if a duplicate exists, False if none does, None if the check
+        could not run. None is not False: reading a failed check as "no
+        duplicate" filed issues that already existed.
 
     """
     skill = item.get("skill", "")
@@ -421,12 +427,21 @@ def has_existing_issue(
             timeout=15,
             check=False,
         )
-        if result.returncode == 0:
-            issues = json.loads(result.stdout.strip() or "[]")
-            return len(issues) > 0
-    except Exception as exc:
+    except (OSError, subprocess.TimeoutExpired) as exc:
         print(f"[auto_promote] duplicate check: {exc}", file=sys.stderr)
-    return False
+        return None
+    if result.returncode != 0:
+        print(
+            f"[auto_promote] duplicate check: gh exited {result.returncode}",
+            file=sys.stderr,
+        )
+        return None
+    try:
+        issues = json.loads(result.stdout.strip() or "[]")
+    except json.JSONDecodeError as exc:
+        print(f"[auto_promote] duplicate check: {exc}", file=sys.stderr)
+        return None
+    return len(issues) > 0
 
 
 def promote_to_issue(
@@ -618,13 +633,21 @@ def run_auto_promote() -> list[str]:
         score = calculate_priority(item)
 
         # Check for duplicates before promoting
-        if has_existing_issue(item, target_repo):
+        duplicate = has_existing_issue(item, target_repo)
+        if duplicate is None:
+            # Not recorded, so the next run retries the check.
+            print(
+                f"[auto_promote] duplicate check failed for '{key}'; skipping",
+                file=sys.stderr,
+            )
+            continue
+        if duplicate:
             record.add(key, "duplicate-skipped")
             record.save()
             continue
 
         url: str | None = None
-        if score >= HIGH_PRIORITY_THRESHOLD:
+        if score > HIGH_PRIORITY_THRESHOLD:
             # Promotion gate: do not create an issue for a finding whose
             # every referenced location has already been removed. The
             # gate fails open (promotes) on any error or untrusted root,

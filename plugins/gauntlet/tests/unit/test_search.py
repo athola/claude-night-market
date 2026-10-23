@@ -47,16 +47,21 @@ class TestDetectKindBoost:
         assert boosts.get("Function") == 1.5
 
     @pytest.mark.unit
-    def test_dotted_path_boosts_qualified_name(self) -> None:
-        """Dotted queries boost qualified_name matches."""
-        boosts = detect_kind_boost("app.models.User")
-        assert boosts.get("qualified_name") == 2.0
-
-    @pytest.mark.unit
     def test_single_lowercase_word_no_boost(self) -> None:
         """Plain lowercase words get no special boost."""
         boosts = detect_kind_boost("users")
         assert boosts == {}
+
+    @pytest.mark.unit
+    def test_boost_keys_are_always_node_kinds(self) -> None:
+        """search() looks boosts up by node kind, so any other key is dead.
+
+        A dotted query used to add a ``qualified_name`` key that no node
+        kind could ever match.
+        """
+        kinds = {str(k) for k in NodeKind}
+        for query in ("app.models.User", "MyClass", "get_users", "a.b_c"):
+            assert set(detect_kind_boost(query)) <= kinds, query
 
     @pytest.mark.unit
     def test_empty_query_no_boost(self) -> None:

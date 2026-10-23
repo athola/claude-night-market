@@ -1,8 +1,4 @@
-"""Superpower wrapper infrastructure for translating between commands and superpowers.
-
-This module provides base classes and utilities for creating plugin command wrappers
-that delegate to superpowers with parameter translation and error handling.
-"""
+"""Detect breaking changes in public Python symbols against git HEAD."""
 
 from __future__ import annotations
 
@@ -179,7 +175,7 @@ def _extract_public_symbols(
     symbols: dict[str, dict[str, Any]] = {}
 
     for node in ast.iter_child_nodes(tree):
-        if isinstance(node, ast.FunctionDef):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             name = node.name
             if name.startswith("_"):
                 continue
@@ -203,7 +199,9 @@ def _extract_public_symbols(
     return symbols
 
 
-def _extract_param_names(func_node: ast.FunctionDef) -> list[str]:
+def _extract_param_names(
+    func_node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> list[str]:
     """Return the parameter names of a function (excluding 'self'/'cls').
 
     Args:
@@ -214,7 +212,7 @@ def _extract_param_names(func_node: ast.FunctionDef) -> list[str]:
 
     """
     names: list[str] = []
-    for arg in func_node.args.args:
+    for arg in [*func_node.args.posonlyargs, *func_node.args.args]:
         if arg.arg in ("self", "cls"):
             continue
         names.append(arg.arg)

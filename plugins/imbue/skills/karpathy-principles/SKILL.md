@@ -145,6 +145,11 @@ mess.**
 - Do not refactor things that aren't broken
 - Match existing style even when you would do it
   differently
+- Match the module's existing model of the concern
+  as well as its style. During a migration, use the
+  target model and never copy the superseded one,
+  even when it is the majority. See
+  `Skill(conserve:elegant-code)` rung 2
 - If you notice unrelated dead code, mention it; do
   not delete it
 - When your changes orphan imports or variables,
@@ -237,7 +242,7 @@ iterate.
   for the full gate-skill federation graph (this skill
   is the synthesis hub)
 
-## Required TodoWrite Items
+## Required Progress Items
 
 When invoked as a pre-flight gate, create:
 
@@ -249,12 +254,12 @@ When invoked as a pre-flight gate, create:
 
 ## Exit Criteria
 
-- Each of the four principles has been answered with a
+- [ ] Each of the four principles has been answered with a
   concrete artifact (assumption list, scope rationale,
   diff trace, verification plan).
-- The senior-engineer test was applied at least once.
-- Verifiable success criteria are written down before
+- [ ] The senior-engineer test was applied at least once.
+- [ ] Verifiable success criteria are written down before
   the implementation begins.
-- The chosen approach and its simplicity tradeoff are
+- [ ] The chosen approach and its simplicity tradeoff are
   recorded to `docs/tradeoffs.md` (or the in-file
   template) when real alternatives were weighed.

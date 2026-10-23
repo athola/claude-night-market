@@ -407,8 +407,10 @@ _CALL_DETECTORS = (
 )
 
 
-def scan_source(source: str, *, file: str = "<source>") -> list[Finding]:
+def scan_source(source: str | bytes, *, file: str = "<source>") -> list[Finding]:
     """Run all Python detectors on a source string. Returns Findings.
+
+    Bytes are decoded by the parser, which honors a PEP 263 coding cookie.
 
     Syntax errors are caught and reported as ADVISORY findings; the
     file is otherwise skipped.
@@ -416,15 +418,16 @@ def scan_source(source: str, *, file: str = "<source>") -> list[Finding]:
     ctx = _Context(file=file)
     try:
         tree = ast.parse(source, filename=file)
-    except SyntaxError as exc:
+    except (SyntaxError, ValueError) as exc:
+        # ValueError: a null byte, which Python before 3.12 raises as such.
         ctx.findings.append(
             Finding(
                 id="PYSX",
                 severity="ADVISORY",
                 citation=None,
                 file=file,
-                line=exc.lineno or 0,
-                detection_signal=f"could not parse: {exc.msg}",
+                line=getattr(exc, "lineno", None) or 0,
+                detection_signal=f"could not parse: {getattr(exc, 'msg', exc)}",
                 proposal=None,
             )
         )
@@ -440,4 +443,4 @@ def scan_source(source: str, *, file: str = "<source>") -> list[Finding]:
 def scan_path(path: Path) -> list[Finding]:
     """Convenience wrapper: read the file and scan its contents."""
     p = Path(path)
-    return scan_source(p.read_text(encoding="utf-8"), file=str(p))
+    return scan_source(p.read_bytes(), file=str(p))

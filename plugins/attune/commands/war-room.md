@@ -237,14 +237,8 @@ When brainstorm produces multiple strong approaches:
 ### With Memory Palace
 
 ```bash
-# Review past War Room sessions
-/memory-palace:strategeion list
-
-# Archive completed campaign
-/memory-palace:strategeion archive {session-id} --project payments
-
-# Extract patterns to doctrine
-/memory-palace:strategeion doctrine --extract {session-id}
+# Review past War Room sessions (each is a directory)
+ls ~/.claude/memory-palace/strategeion/war-table/
 ```
 
 ## Escalation

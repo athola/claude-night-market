@@ -34,7 +34,8 @@ Invoked as part of `/tome:research` or standalone.
 1. Build search queries using
    `tome.channels.github.build_github_search_queries()`
 2. Execute queries via WebSearch
-3. Parse results via `parse_github_result()`
+3. Parse results via `parse_github_result()` (returns `None` for a
+   result with no URL, which the caller drops)
 4. Optionally use GitHub API via
    `build_github_api_search()` for richer metadata
 5. Rank via `rank_github_findings()`

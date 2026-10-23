@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from itertools import zip_longest
 from typing import Any
 
 from ._constants import ACCEPTABLE_COVERAGE_RATIO, MIN_COVERAGE_RATIO
@@ -137,7 +138,9 @@ class StructureMixin:
         when_matches = re.findall(r"@when\(['\"](.+?)['\"]\)", content)
         then_matches = re.findall(r"@then\(['\"](.+?)['\"]\)", content)
 
-        for g, w, t in zip(given_matches, when_matches, then_matches):
+        for g, w, t in zip_longest(
+            given_matches, when_matches, then_matches, fillvalue=""
+        ):
             given_when_then.append({"given": g, "when": w, "then": t})
 
         inline_bdd = re.findall(

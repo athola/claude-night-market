@@ -75,6 +75,28 @@ class TestContextFiles:
         names = [p.name for p in _iter_context_files([str(tmp_path)])]
         assert names == ["a.py", "b.py"]
 
+    def test_nested_files_sort_by_path_parts_and_skip_nested_vcs_dirs(
+        self, tmp_path: Path
+    ) -> None:
+        """Order is by path parts, so `a/b.txt` precedes `a.txt`, and a skip directory is skipped at any depth."""
+        (tmp_path / "a").mkdir()
+        (tmp_path / "a" / "b.txt").write_text("1")
+        (tmp_path / "a.txt").write_text("2")
+        (tmp_path / "a" / "node_modules").mkdir()
+        (tmp_path / "a" / "node_modules" / "x.js").write_text("3")
+        found = _iter_context_files([str(tmp_path)])
+        assert [p.relative_to(tmp_path).as_posix() for p in found] == [
+            "a/b.txt",
+            "a.txt",
+        ]
+
+    def test_root_inside_a_skip_directory_yields_nothing(self, tmp_path: Path) -> None:
+        """The skip test reads every path part, the requested root included."""
+        root = tmp_path / "venv" / "proj"
+        root.mkdir(parents=True)
+        (root / "f.py").write_text("x")
+        assert _iter_context_files([str(root)]) == []
+
 
 class TestInlineContext:
     """Contract for inline context."""
@@ -401,3 +423,32 @@ class TestMissingContextIsDroppedWithoutASignal:
         assert "truncated" in delivered
         assert str(MAX_INLINE_CONTEXT_BYTES) in delivered
         assert len(delivered) < MAX_ARG_STRLEN
+
+
+class TestInlineContextLeavesRoomForThePrompt:
+    """The argv ceiling is per element, and the prompt shares the element."""
+
+    @pytest.mark.parametrize("name", ["minimax", *POSITIONAL_PROMPT_SERVICES])
+    def test_context_and_prompt_together_fit_one_argv_element(
+        self, tmp_path: Path, name: str
+    ) -> None:
+        """GIVEN a 240 KB context file and a 40 KB prompt.
+
+        WHEN the delivered prompt is turned into argv
+        THEN its longest element, with the NUL, fits MAX_ARG_STRLEN
+        AND the prompt is carried whole
+
+        Context was capped at 96 KiB and the
+        prompt appended to the same element, giving 139123 bytes.
+        """
+        big = tmp_path / "big.py"
+        big.write_text("x = 1\n" * 40000)
+        prompt = "Review this module.\n" + "Constraint: keep it.\n" * 2000
+        service = Delegator().services[name]
+
+        delivered = _delivered_prompt(service, prompt, [str(big)])
+        longest = max(_prompt_argv(service, delivered), key=len)
+
+        assert len(longest.encode("utf-8")) + 1 <= MAX_ARG_STRLEN
+        assert delivered.endswith(prompt)
+        assert "truncated" in delivered

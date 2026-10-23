@@ -9,6 +9,11 @@ from typing import Any
 from ._results import PluginValidationResult
 
 
+def _strip_dot_slash(rel_path: str) -> str:
+    """Drop one leading ``./``; ``lstrip`` would also eat dot-directory names."""
+    return rel_path[2:] if rel_path.startswith("./") else rel_path
+
+
 class PluginValidator:
     """Validator for plugin.json and plugin structure."""
 
@@ -92,13 +97,13 @@ class PluginValidator:
         # Check that referenced commands exist
         for cmd_path in content.get("commands", []):
             # Normalize path
-            cmd_full_path = path / cmd_path.lstrip("./")
+            cmd_full_path = path / _strip_dot_slash(cmd_path)
             if not cmd_full_path.exists():
                 errors.append(f"Referenced command file not found: {cmd_path}")
 
         # Check that referenced skills exist and have SKILL.md
         for skill_path in content.get("skills", []):
-            skill_dir = path / skill_path.lstrip("./")
+            skill_dir = path / _strip_dot_slash(skill_path)
             if not skill_dir.exists():
                 errors.append(f"Referenced skill directory not found: {skill_path}")
             elif not (skill_dir / "SKILL.md").exists():
@@ -106,7 +111,7 @@ class PluginValidator:
 
         # Check that referenced agents exist
         for agent_path in content.get("agents", []):
-            agent_full_path = path / agent_path.lstrip("./")
+            agent_full_path = path / _strip_dot_slash(agent_path)
             if not agent_full_path.exists():
                 errors.append(f"Referenced agent file not found: {agent_path}")
 

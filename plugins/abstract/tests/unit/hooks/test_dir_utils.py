@@ -98,6 +98,7 @@ class TestConfigDir:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Scenario: get_config_dir resolves under HOME."""
+        monkeypatch.delenv("CLAUDE_HOME", raising=False)
         monkeypatch.setenv("HOME", str(tmp_path))
         # Path.home() is cached on some platforms; force it to
         # reread HOME by clearing the lru_cache if present.
@@ -176,6 +177,7 @@ class TestNegativePaths:
         the hook surfaces the failure rather than swallowing it.
         Skipped under euid 0 because root ignores permission bits.
         """
+        monkeypatch.delenv("CLAUDE_HOME", raising=False)
         monkeypatch.setenv("HOME", str(tmp_path))
         # Read+execute only; no write bit.
         tmp_path.chmod(0o555)

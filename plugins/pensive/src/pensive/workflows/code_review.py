@@ -36,6 +36,10 @@ class CodeReviewWorkflow:
 
         Returns:
             Dictionary containing findings, summary, recommendations, and metrics.
+
+        A skill that raises ``AnalysisError`` (its way of reporting a
+        recoverable failure) or an ``OSError`` is skipped and named in
+        ``errors`` and ``skipped_skills``. Any other exception propagates.
         """
         repo_path = Path(repo_path)
         self._errors = []
@@ -96,7 +100,9 @@ class CodeReviewWorkflow:
             context: Execution context
 
         Returns:
-            List of results from each skill (None for failures)
+            One entry per skill name: its result, or None when the skill is
+            unknown or raised ``AnalysisError`` or ``OSError``. Any other
+            exception propagates.
         """
         results: list[Any] = []
 
@@ -238,11 +244,20 @@ class _ReviewContext:
         """Get list of files."""
         return self._files
 
-    def get_file_content(self, filename: str) -> str:
+    def get_file_content(self, filename: str = "") -> str:
+        """Return file content; an empty name selects the first listed file."""
+        if not filename:
+            if not self._files:
+                return ""
+            filename = self._files[0]
         cached = self._content_cache.get(filename)
         if cached is not None:
             return cached
         file_path = self.repo_path / filename
-        content = file_path.read_text() if file_path.exists() else ""
+        content = (
+            file_path.read_text(encoding="utf-8", errors="replace")
+            if file_path.exists()
+            else ""
+        )
         self._content_cache[filename] = content
         return content

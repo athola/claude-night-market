@@ -77,7 +77,7 @@ Load modules based on review scope:
 
 Load all modules for full reviews. For focused reviews, load only relevant modules.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `arch-review:context-established`: Repository, branch, motivation.
 2. `arch-review:adr-audit`: ADR verification and new ADR needs.
@@ -261,9 +261,9 @@ the verifier rejects.
 
 ## Exit Criteria
 
-- Context established, ADR audit complete, interaction mapping done,
+- [ ] Context established, ADR audit complete, interaction mapping done,
   invariant conflicts surfaced, principle checks run, risks and actions
   documented.
-- Every reported finding carries a `Location` + verbatim `Anchor`
+- [ ] Every reported finding carries a `Location` + verbatim `Anchor` confirmed
   confirmed by `citation_verifier.py` (exit `0`), or unverified findings
   were dropped or labeled `UNVERIFIED`.

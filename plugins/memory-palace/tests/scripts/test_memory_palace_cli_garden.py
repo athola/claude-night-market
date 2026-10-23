@@ -363,3 +363,27 @@ class TestComputeTendingActions:
         actions = cli._compute_tending_actions(plots, now, 2, 7, 30)
 
         assert all(len(v) == 0 for v in actions.values())
+
+
+class TestTendingTimestampShapes:
+    """garden.json documents offset-less timestamps, so tending must read them."""
+
+    def test_naive_last_tended_is_read_as_utc(self) -> None:
+        """Given an offset-less last_tended, classification does not raise."""
+        cli = MemoryPalaceCLI()
+        now = datetime(2025, 12, 1, 0, 0, 0, tzinfo=timezone.utc)
+        plots = [{"name": "docs", "last_tended": "2025-11-20T12:00:00"}]
+
+        actions = cli._compute_tending_actions(plots, now, 2, 7, 30)
+
+        assert [name for name, _ in actions["stale"]] == ["docs"]
+
+    def test_naive_now_does_not_raise_against_aware_last_tended(self) -> None:
+        """Given an offset-less --now, aware plot timestamps still compare."""
+        cli = MemoryPalaceCLI()
+        now = datetime(2025, 12, 1, 0, 0, 0)
+        plots = [{"name": "docs", "last_tended": "2025-11-20T12:00:00+00:00"}]
+
+        actions = cli._compute_tending_actions(plots, now, 2, 7, 30)
+
+        assert [name for name, _ in actions["stale"]] == ["docs"]

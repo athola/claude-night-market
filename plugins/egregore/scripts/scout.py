@@ -128,7 +128,7 @@ def _extract_items_from_section(text: str) -> list[str]:
             items.append(item)
     for match in _NUMBERED_ITEM.finditer(text):
         item = match.group(1).strip()
-        if len(item) > _MIN_ITEM_LENGTH and item not in items:
+        if len(item) >= _MIN_ITEM_LENGTH and item not in items:
             items.append(item)
     return items
 
@@ -224,7 +224,9 @@ def classify_technique(description: str) -> str | None:
     scores: dict[str, int] = {}
 
     for category, keywords in _CATEGORY_KEYWORDS.items():
-        score = sum(1 for kw in keywords if kw in lower)
+        # Anchor each keyword at a word start, so "ci" does not match inside
+        # "special" while "test" still matches "tests".
+        score = sum(1 for kw in keywords if re.search(rf"\b{re.escape(kw)}", lower))
         if score > 0:
             scores[category] = score
 
@@ -276,7 +278,7 @@ def format_discussion_body(
         )
 
     # Group by category
-    by_category: dict[str, list[ReviewTechnique]] = {}
+    by_category: dict[str | None, list[ReviewTechnique]] = {}
     for t in techniques:
         by_category.setdefault(t.category, []).append(t)
 
@@ -295,8 +297,11 @@ def format_discussion_body(
     )
     lines.append("")
 
-    for category in sorted(by_category):
-        lines.append(f"## {category.title()}")
+    # classify_technique returns None when no keyword matches; list those
+    # last under their own heading.
+    for category in sorted(by_category, key=lambda c: (c is None, c or "")):
+        heading = category.title() if category else "Uncategorized"
+        lines.append(f"## {heading}")
         lines.append("")
         for t in by_category[category]:
             lines.append(f"- {t.description}")
@@ -396,7 +401,7 @@ def post_discussion(
 
         repo_data = json.loads(result.stdout)
         repo_id = repo_data["data"]["repository"]["id"]
-    except (subprocess.TimeoutExpired, OSError, KeyError) as exc:
+    except (subprocess.TimeoutExpired, OSError, KeyError, TypeError, ValueError) as exc:
         _report("looking up the repository id", exc)
         return None
 
@@ -442,7 +447,7 @@ def post_discussion(
         data = json.loads(result.stdout)
         url: str = data["data"]["createDiscussion"]["discussion"]["url"]
         return url
-    except (subprocess.TimeoutExpired, OSError, KeyError) as exc:
+    except (subprocess.TimeoutExpired, OSError, KeyError, TypeError, ValueError) as exc:
         _report("creating the discussion", exc)
         return None
 

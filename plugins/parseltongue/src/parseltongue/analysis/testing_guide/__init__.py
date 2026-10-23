@@ -84,10 +84,10 @@ class TestingGuideSkill(TestStructureMixin):
         return _recommendations.generate_test_documentation(code, _tree=_tree)
 
 
-async def analyze_testing(code: str) -> dict[str, Any]:
+async def analyze_testing(code: str, test_code: str = "") -> dict[str, Any]:
     """Module-level entry point: analyze test quality for ``code``.
 
     Delegates to ``TestingGuideSkill().analyze_testing()`` so callers
     do not need to instantiate the skill directly.
     """
-    return await TestingGuideSkill().analyze_testing(code)
+    return await TestingGuideSkill().analyze_testing(code, test_code)

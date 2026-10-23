@@ -456,3 +456,23 @@ class TestFormatAutoDetection:
         turns = parse_session(path, format="codex", show="user,assistant")
         assert all(isinstance(t, (UserTurn, AssistantTurn)) for t in turns)
         assert not any(isinstance(t, ToolUse) for t in turns)
+
+
+def test_codex_assistant_with_null_tool_calls_keeps_its_text(tmp_path: Path) -> None:
+    """OpenAI-shaped records carry ``"tool_calls": null`` when no tool ran."""
+    path = _write_jsonl(
+        tmp_path,
+        [
+            _codex_user("hi"),
+            {
+                "type": "message",
+                "role": "assistant",
+                "content": "all done",
+                "tool_calls": None,
+            },
+        ],
+    )
+
+    turns = parse_session(path, show="user,assistant,tools")
+
+    assert [type(t) for t in turns] == [UserTurn, AssistantTurn]

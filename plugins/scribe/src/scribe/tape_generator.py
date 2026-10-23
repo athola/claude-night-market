@@ -26,6 +26,8 @@ from scribe.session_parser import (
 
 SUPPORTED_FORMATS: set[str] = {"gif", "mp4", "webm"}
 
+_MIN_SPEED = 0.01
+
 
 # --- Configuration ---
 
@@ -42,6 +44,24 @@ class TapeConfig:
     speed: float = 1.0
     max_duration: float | None = None
     output_format: str | None = None
+
+    def __post_init__(self) -> None:
+        # `not (x > 0)` rejects NaN, which passes `x <= 0`.
+        if self.max_duration is not None and not self.max_duration > 0:
+            raise ValueError(
+                f"max_duration must be positive or None, got {self.max_duration}"
+            )
+        if self.width < 1 or self.height < 1:
+            raise ValueError(
+                f"width and height must be positive, got width={self.width}, "
+                f"height={self.height}"
+            )
+        if not self.speed > 0:
+            raise ValueError(
+                f"Speed must be positive, got {self.speed}. "
+                f"Minimum allowed value is {_MIN_SPEED}."
+            )
+        _resolve_output_path(self)
 
 
 # --- String escaping ---
@@ -81,20 +101,13 @@ def escape_vhs(text: str) -> str:
 # --- Timing helpers ---
 
 
-_MIN_SPEED = 0.01
-
-
 def _scale_ms(base_ms: float, speed: float) -> int:
     """Scale a duration in ms by the speed multiplier.
 
-    Speed 2.0 halves durations. Speed 0.5 doubles them.
-    Speed is clamped to a minimum of 0.01 to avoid
-    ZeroDivisionError.
+    Speed 2.0 halves durations. Speed 0.5 doubles them. A speed below
+    0.01 is clamped to 0.01. TapeConfig has already refused a speed
+    that is not positive.
     """
-    if speed <= 0:
-        raise ValueError(
-            f"Speed must be positive, got {speed}. Minimum allowed value is {_MIN_SPEED}."
-        )
     return max(1, round(base_ms / max(speed, _MIN_SPEED)))
 
 
@@ -105,7 +118,8 @@ def _resolve_output_path(config: TapeConfig) -> str:
     """Resolve the output path, applying format override and validation.
 
     If output_format is set, replaces the extension in output_path.
-    Validates the resulting format is in SUPPORTED_FORMATS.
+    Validates the resulting format is in SUPPORTED_FORMATS. TapeConfig
+    calls it on construction, so a bad format fails before any render.
 
     Raises:
         ValueError: If the resolved format is not supported.
@@ -156,7 +170,7 @@ def generate_tape(turns: list[Turn], config: TapeConfig) -> str:
 
     # Duration tracking
     elapsed_ms: float = 0.0
-    max_ms = config.max_duration * 1000 if config.max_duration else None
+    max_ms = config.max_duration * 1000 if config.max_duration is not None else None
     turns_rendered = 0
     total_turns = len(turns)
 
@@ -244,7 +258,9 @@ def _render_assistant_turn(
 def _render_tool_use(lines: list[str], turn: ToolUse, config: TapeConfig) -> float:
     """Render a tool use summary. Returns duration in ms."""
     type_ms = _scale_ms(100, config.speed)
-    escaped = escape_vhs(f"  {turn.summary}")
+    # A summary can carry a multi-line command; a raw newline inside the
+    # quoted Type string ends the tape line early.
+    escaped = escape_vhs(f"  {' '.join(turn.summary.split())}")
     lines.append(f'Type@{type_ms}ms "{escaped}"')
     lines.append("Enter")
     return type_ms + _scale_ms(50, config.speed)

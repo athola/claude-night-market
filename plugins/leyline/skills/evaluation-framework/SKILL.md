@@ -103,6 +103,13 @@ thresholds:
   20-39: Reject with feedback
   0-19: Reject
 ```
+
+A score that gates a decision becomes the target. Agent output drifts
+from a visible proxy as the work grows, and standard maintainability
+metrics explain little of why agent code is harder to extend
+(`docs/knowledge-corpus/decoherence.md`). Pair each gating score with
+one check the score does not include: a held-out test, a run on real
+input, or a reviewer reading the output.
 **Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Start
@@ -174,4 +181,5 @@ Then customize the framework for your domain:
 - [ ] Weights assigned and sum to 1.0
 - [ ] Scoring guides documented for each criterion
 - [ ] Thresholds mapped to specific actions
+- [ ] Each gating score names its check outside the score
 - [ ] Evaluation process documented and reproducible

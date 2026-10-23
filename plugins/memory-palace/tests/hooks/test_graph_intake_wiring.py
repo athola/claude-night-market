@@ -71,12 +71,19 @@ class TestWebResearchHandlerGraphWiring:
                 "web_research_handler.store_webfetch_content",
                 return_value=str(tmp_path / "stored.md"),
             ),
-            patch("web_research_handler._try_register_graph_entity"),
+            # Block the graph import and let the real registration run, so
+            # the degradation path is what this test exercises.
+            patch.dict("sys.modules", {"memory_palace.knowledge_graph": None}),
+            patch(
+                "web_research_handler._try_register_graph_entity",
+                wraps=web_research_handler._try_register_graph_entity,
+            ) as register_spy,
             pytest.raises(SystemExit) as exc_info,
         ):
             web_research_handler.main()
 
         assert exc_info.value.code == 0
+        assert register_spy.call_count == 1
 
     def test_try_register_graph_entity_does_not_raise_on_import_error(
         self,
@@ -199,10 +206,96 @@ class TestSessionLifecycleGraphWiring:
             tools_used=["WebFetch", "Read"],
         )
 
-        # Journey should be recorded (no crash = success for non-crash test)
+        # WebFetch and Read are cross-palace tools, so one completed
+        # journey is recorded for the session
         graph2 = KnowledgeGraph(str(db_path))
         journeys = graph2._conn.execute("SELECT * FROM journeys").fetchall()
         graph2.close()
-        # May or may not create journey depending on navigation detection
-        # The key test is: no exception raised
-        assert isinstance(journeys, list)
+        assert len(journeys) == 1
+        assert "completed" in tuple(journeys[0])
+
+    def test_journey_is_recorded_without_networkx(self, tmp_path: Path) -> None:
+        """Link prediction needs networkx; the journey record does not.
+
+        The Python 3.9 hook environment has no networkx, and importing the
+        analyzer first dropped the journey along with the predictions.
+        """
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        db_path = palaces_dir / "knowledge_graph.db"
+        KnowledgeGraph(str(db_path)).close()
+
+        with patch.dict(
+            "sys.modules",
+            {"networkx": None, "memory_palace.graph_analyzer": None},
+        ):
+            session_lifecycle._try_record_journey_completion(
+                palaces_dir=palaces_dir,
+                session_id="no_networkx",
+                tools_used=["WebFetch"],
+            )
+
+        graph = KnowledgeGraph(str(db_path))
+        journeys = graph._conn.execute("SELECT * FROM journeys").fetchall()
+        graph.close()
+        assert len(journeys) == 1
+
+
+class TestOneGraphRegistration:
+    """Both intake hooks register through one shared helper.
+
+    The two hooks held byte-identical copies that differed only in the
+    label written to stderr, so the label is now the only argument
+    that varies.
+    """
+
+    @pytest.mark.parametrize(
+        "hook", [local_doc_processor, web_research_handler], ids=lambda m: m.__name__
+    )
+    def test_each_hook_passes_its_own_label(self, hook: object) -> None:
+        """The wrapper names the hook, so a skipped write says where.
+
+        GIVEN an intake hook
+        WHEN its registration wrapper is called
+        THEN the shared helper receives the entity and the hook's name.
+        """
+        with patch.object(hook, "try_register_graph_entity") as shared:
+            hook._try_register_graph_entity(Path("/p"), "e1", "Name", "doc")
+
+        shared.assert_called_once_with(
+            Path("/p"), "e1", "Name", "doc", source=hook.__name__
+        )
+
+    def test_a_skipped_write_is_reported_under_the_label(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A graph that cannot open is logged with the caller's label.
+
+        GIVEN a palaces path that is a file, so no database can open
+        WHEN an entity is registered
+        THEN the skip reaches stderr under the caller's label.
+        """
+        from shared.graph_entity import try_register_graph_entity
+
+        blocker = tmp_path / "not-a-dir"
+        blocker.write_text("")
+
+        try_register_graph_entity(blocker, "e1", "Name", "doc", source="probe")
+
+        assert "probe: graph wiring skipped" in capsys.readouterr().err
+
+    def test_link_predictions_are_reported_under_the_label(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """GIVEN a graph that opens and an analyzer with suggestions
+        WHEN an entity is registered
+        THEN the suggestions reach stderr under the caller's label.
+        """
+        from shared.graph_entity import try_register_graph_entity  # noqa: PLC0415 - hooks dir joins sys.path at module import
+
+        analyzer = MagicMock()
+        analyzer.return_value.predict_links.return_value = [("a", "b", 0.9)]
+        with patch("memory_palace.graph_analyzer.PalaceGraphAnalyzer", analyzer):
+            try_register_graph_entity(tmp_path, "e1", "Name", "doc", source="probe")
+
+        assert "probe: link predictions: [('a', 'b', 0.9)]" in capsys.readouterr().err

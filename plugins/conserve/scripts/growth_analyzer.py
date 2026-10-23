@@ -27,8 +27,7 @@ class GrowthAnalyzer:
             "stable": 0.05,  # < 5% growth per turn
             "mild": 0.10,  # 5-10% growth per turn
             "moderate": 0.15,  # 10-15% growth per turn
-            "severe": 0.20,  # 15-20% growth per turn
-            "critical": 0.25,  # > 20% growth per turn
+            "severe": 0.20,  # 15-20% growth per turn; above is critical
         }
 
         self.urgency_levels = {
@@ -39,7 +38,7 @@ class GrowthAnalyzer:
             "urgent": (1.0, 0.020),
         }
 
-    def analyze_growth_patterns(self, context_data: dict) -> dict:
+    def analyze_growth_patterns(self, context_data: dict, turns: int = 20) -> dict:
         """Analyze growth patterns and determine severity."""
         growth_trend = context_data.get("growth_trend", {})
         current_usage = growth_trend.get("current_usage", 0)
@@ -55,7 +54,9 @@ class GrowthAnalyzer:
         controllable_percentage = self._calculate_controllable_growth(content_breakdown)
 
         # Project future growth
-        projections = self._project_growth(current_usage, growth_rate, acceleration)
+        projections = self._project_growth(
+            current_usage, growth_rate, acceleration, turns
+        )
 
         return {
             "severity": severity,
@@ -71,13 +72,14 @@ class GrowthAnalyzer:
 
     def _assess_severity(self, growth_rate: float) -> str:
         """Determine growth severity level."""
-        if growth_rate < self.growth_thresholds["mild"]:
+        # Each threshold is the upper bound of the band it names.
+        if growth_rate < self.growth_thresholds["stable"]:
             return "STABLE"
-        if growth_rate < self.growth_thresholds["moderate"]:
+        if growth_rate < self.growth_thresholds["mild"]:
             return "MILD"
-        if growth_rate < self.growth_thresholds["severe"]:
+        if growth_rate < self.growth_thresholds["moderate"]:
             return "MODERATE"
-        if growth_rate < self.growth_thresholds["critical"]:
+        if growth_rate < self.growth_thresholds["severe"]:
             return "SEVERE"
         return "CRITICAL"
 
@@ -172,10 +174,6 @@ class GrowthAnalyzer:
         if growth_rate <= 0:
             return float("inf")
 
-        # Guard against log domain errors (growth_rate must be > 0 for log)
-        if growth_rate >= 1.0:
-            return 1.0  # Doubling+ per turn guarantees immediate violation
-
         # Simple estimation for positive growth without acceleration
         if acceleration <= 0:
             return float(
@@ -230,7 +228,7 @@ def main() -> None:
 
     # Analyze growth patterns
     analyzer = GrowthAnalyzer()
-    results = analyzer.analyze_growth_patterns(context_data)
+    results = analyzer.analyze_growth_patterns(context_data, turns=args.turns)
 
     if args.output_json:
         print(json.dumps(results, indent=2, default=str))

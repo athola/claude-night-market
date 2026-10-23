@@ -280,7 +280,15 @@ class TestEstimateTokens:
         skill_file.write_text(SIMPLE_SKILL_CONTENT)
 
         result = estimate_tokens(str(skill_file))
-        assert result["frontmatter_tokens"] >= 0
+        assert result["frontmatter_tokens"] > 0
+        assert result["total_tokens"] == (
+            result["frontmatter_tokens"] + result["body_tokens"] + result["code_tokens"]
+        )
+
+        # The same body with the frontmatter stripped counts none.
+        bare = tmp_path / "BARE.md"
+        bare.write_text(SIMPLE_SKILL_CONTENT.split("---\n", 2)[2])
+        assert estimate_tokens(str(bare))["frontmatter_tokens"] == 0
 
     @pytest.mark.unit
     def test_file_path_stored_in_result(self, tmp_path):

@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "herald-dev"
-version = "1.9.21"
+version = "1.10.0"
 description = "Standalone notification system for Claude Code plugins"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -19,6 +19,7 @@ dependencies = []
 
 [dependency-groups]
 dev = [
+    "bandit>=1.8.6,<2.0",
     "ruff>=0.16.8",
     "mypy>=1.18.2,<2",
     "pytest>=8.0",
@@ -56,13 +57,13 @@ disallow_untyped_defs = true
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["scripts"]
-addopts = "-v --cov=scripts --cov-report=term-missing"
+addopts = "-v --cov=scripts --cov=hooks --cov-report=term-missing"
 markers = [
     "unit: Unit tests",
 ]
 
 [tool.coverage.run]
-source = ["scripts"]
+source = ["scripts", "hooks"]
 omit = ["tests/*", "*/__pycache__/*"]
 
 [tool.coverage.report]

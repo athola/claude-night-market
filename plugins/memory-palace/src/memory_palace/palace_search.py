@@ -9,6 +9,9 @@ if TYPE_CHECKING:
     from memory_palace.palace_repository import PalaceRepository
 
 
+SEARCH_TYPES = ("semantic", "exact", "fuzzy")
+
+
 class PalaceSearchEngine:
     """Search across memory palaces using keyword, exact, or fuzzy matching."""
 
@@ -28,12 +31,21 @@ class PalaceSearchEngine:
 
         Args:
             query: The search query.
-            search_type: The type of search to perform.
+            search_type: One of "semantic" (substring of the entry's JSON
+                text), "exact" (whole JSON text equals the query), or
+                "fuzzy" (any query word is a substring).
 
         Returns:
             A list of search results, one entry per matching palace.
 
+        Raises:
+            ValueError: If ``search_type`` is not one of the values above.
+
         """
+        if search_type not in SEARCH_TYPES:
+            raise ValueError(
+                f"Unknown search_type {search_type!r}; expected one of {SEARCH_TYPES}"
+            )
         results = []
         query_lower = query.lower()
 

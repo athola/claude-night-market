@@ -51,6 +51,9 @@ PLUGIN_ROOT = SCRIPT_DIR.parent
 if str(PLUGIN_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(PLUGIN_ROOT / "src"))
 
+from memory_palace._vendored_leyline_sibling_plugins import (  # noqa: E402 - needs sys.path above
+    version_key,
+)
 from memory_palace.paths import persistent_root  # noqa: E402 - needs sys.path above
 
 DEFAULT_PLUGINS_DIR = Path.home() / ".claude" / "plugins"
@@ -111,7 +114,7 @@ class Plan:
         by_version: dict[str, int] = {}
         for item in self.copies:
             by_version[item.version] = by_version.get(item.version, 0) + 1
-        for version in sorted(by_version, key=_version_key):
+        for version in sorted(by_version, key=lambda name: version_key(Path(name))):
             lines.append(f"  from {version}: {by_version[version]}")
 
         if self.conflicts:
@@ -133,15 +136,6 @@ class Plan:
                 "captures that moved: python3 scripts/build_indexes.py"
             )
         return "\n".join(lines)
-
-
-def _version_key(version: str) -> tuple[int, ...]:
-    """Sort versions numerically so 1.9.9 ranks below 1.9.17.
-
-    Non-numeric segments sort as -1, which keeps a pre-release below the
-    release it precedes and keeps the comparison total either way.
-    """
-    return tuple(int(part) if part.isdigit() else -1 for part in version.split("."))
 
 
 def _file_hash(path: Path) -> str:
@@ -167,7 +161,7 @@ def _version_trees(plugins_dir: Path, plugin: str) -> list[tuple[str, Path]]:
         for version_dir in sorted(plugin_versions.iterdir()):
             if (version_dir / "data").is_dir():
                 trees.append((version_dir.name, version_dir))
-    trees.sort(key=lambda pair: _version_key(pair[0]), reverse=True)
+    trees.sort(key=lambda pair: version_key(pair[1]), reverse=True)
     return trees
 
 

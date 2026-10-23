@@ -9,7 +9,6 @@ Part of the self-adapting system. See: docs/adr/0006-self-adapting-skill-health.
 from __future__ import annotations
 
 import re
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -28,15 +27,9 @@ class SkillVersionManager:
 
     def _parse(self) -> None:
         """Parse YAML frontmatter and body from skill file."""
-        try:
-            content = self.skill_file.read_text()
-        except OSError as e:
-            sys.stderr.write(
-                f"skill_versioning: failed to read {self.skill_file}: {e}\n"
-            )
-            self.frontmatter = {}
-            self.body = ""
-            return
+        # An unreadable file must raise: empty state would let a later
+        # bump_version overwrite the real skill file with an empty body.
+        content = self.skill_file.read_text()
         match = re.match(r"^---\n(.*?)\n---\n?(.*)", content, re.DOTALL)
         if match:
             self.frontmatter = yaml.safe_load(match.group(1)) or {}
@@ -99,9 +92,4 @@ class SkillVersionManager:
     def _write(self) -> None:
         """Write frontmatter + body back to file."""
         fm_str = yaml.dump(self.frontmatter, default_flow_style=False, sort_keys=False)
-        try:
-            self.skill_file.write_text(f"---\n{fm_str}---\n{self.body}")
-        except OSError as e:
-            sys.stderr.write(
-                f"skill_versioning: failed to write {self.skill_file}: {e}\n"
-            )
+        self.skill_file.write_text(f"---\n{fm_str}---\n{self.body}")

@@ -852,7 +852,12 @@ class TestContradictoryPairingsDoNotConstruct:
     )
     def test_a_coherent_pairing_constructs(self, overrides: dict[str, Any]) -> None:
         """Each rule refuses only its contradiction, not its neighbors."""
-        ServiceConfig(name="probe", command="probe", auth_method="none", **overrides)
+        service = ServiceConfig(
+            name="probe", command="probe", auth_method="none", **overrides
+        )
+
+        for field_name, expected in overrides.items():
+            assert getattr(service, field_name) == expected
 
     def test_the_defaults_escape_a_dash_prompt(self) -> None:
         """The defaults claim the Gemini contract, whose long form is ``--prompt``."""

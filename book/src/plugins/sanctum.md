@@ -69,7 +69,7 @@ It's the plugin you'll use most during active coding.
 | `security_pattern_check.py` | PreToolUse | Security anti-pattern detection on Write/Edit |
 | `deferred_item_watcher.py` | PostToolUse | Detect deferred items in Skill output |
 | `config_change_audit.py` | ConfigChange | Audit configuration changes |
-| `verify_workflow_complete.py` | Stop | Verifies workflow completion |
+| `verify_workflow_complete.py` | Stop | Post-implementation checklist after a turn that edited files |
 | `session_complete_notify.py` | Stop | Toast notification when awaiting input |
 | `deferred_item_sweep.py` | Stop | Sweep session ledger and file GitHub issues |
 

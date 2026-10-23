@@ -48,7 +48,7 @@ This skill uses Playwright's built-in video recording to capture browser interac
 
 > **💡 Note**: Claude Code 2.0.72+ includes native Chrome integration for interactive browser control. This skill (Playwright) is designed for **automated recording workflows, CI/CD, and cross-browser support**. For interactive debugging and live testing, consider using native Chrome integration. Both approaches complement each other - develop interactively with Chrome, then automate with Playwright specs.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 When invoking this skill, create todos for:
 
@@ -164,10 +164,10 @@ export default defineConfig({
 
 ## Exit Criteria
 
-- Playwright spec executed successfully (exit code 0)
-- Video file exists in output directory
-- Video has non-zero file size
-- GIF conversion completed (if requested)
+- [ ] Playwright spec executed successfully (exit code 0)
+- [ ] Video file exists in output directory
+- [ ] Video has non-zero file size
+- [ ] GIF conversion completed (if requested)
 
 ## Error Handling
 

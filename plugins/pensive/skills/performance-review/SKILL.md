@@ -35,12 +35,13 @@ modules:
 Static-analysis review of time and space complexity hotspots.
 
 The skill runs in three escalating tiers. Tier 1 uses Python's
-stdlib `ast` and always runs. Tier 2 uses gauntlet's tree-sitter
-parser to extend detection across languages when gauntlet is
-installed. Tier 3 uses the gauntlet code graph to upgrade
-severity when hotspots reach other hotspots transitively. If
-gauntlet is missing, Tiers 2 and 3 no-op and Tier 1 still
-produces useful findings on Python source.
+stdlib `ast` and always runs. Tier 2 uses tree-sitter to extend
+detection to JS/TS, Go, Rust, Java, and C/C++ when the `tiers`
+extra is installed. Tier 3 walks the gauntlet call graph forward
+from each finding and raises its severity one step when a callee
+holds a hotspot, and runs when the gauntlet plugin is importable
+and a `.gauntlet/graph.db` exists. Without them, Tiers 2 and 3
+no-op and Tier 1 still produces findings on Python source.
 
 ## Quick Start
 
@@ -86,7 +87,7 @@ for f in result.issues:
 - Architecture-level performance (sharding, caching layers,
   queue placement): use `Skill(pensive:architecture-review)`.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `perf-review:context-established`
 2. `perf-review:scan-complete`
@@ -102,7 +103,7 @@ for f in result.issues:
 - Identify target files. If invoked with no argument, use
   `git diff --name-only`. If invoked with a path, scope to that.
 - Note language(s) involved. Tier 1 covers Python; non-Python
-  files need gauntlet for Tier 2 coverage.
+  files need the `tiers` extra for Tier 2 coverage.
 
 ### Step 2: Tier 1 AST scan (`perf-review:scan-complete`)
 
@@ -143,14 +144,17 @@ markers) at module-load time of the target.
 
 Load `modules/gauntlet-integration.md` for the contract.
 
-If gauntlet is installed, run Tier 2 on non-Python files that
-were skipped at Step 2. If a `.gauntlet/graph.db` exists in the
-working tree, run Tier 3 to upgrade severities based on
-transitive hotspot reachability.
+If `tree_sitter_language_pack` is importable, run Tier 2 on
+non-Python files that were skipped at Step 2. If gauntlet is
+importable and a `.gauntlet/graph.db` exists in the scanned
+file's directory or any parent, run Tier 3 to upgrade severities
+based on hotspots in transitive callees.
 
-If gauntlet is missing, this step is a no-op and the report
-notes "Tier 2/3 not available: install gauntlet for
-multi-language and call-chain coverage."
+Without the extra, this step is a no-op and the report notes
+"Tier 2/3 not available: install pensive with the `tiers` extra
+for multi-language and call-chain coverage." A file that
+tree-sitter cannot parse adds a warning and yields no Tier 2
+findings.
 
 ### Step 5: Report (`perf-review:report-generated`)
 
@@ -180,8 +184,8 @@ The report is informational. Apply fixes via
 | Tier | Source | When it runs | What it covers |
 |------|--------|--------------|----------------|
 | 1 | stdlib `ast` | Always (Python source only) | T1-T6, S1-S3 |
-| 2 | `gauntlet.treesitter_parser` | When gauntlet importable | Same patterns adapted to JS/TS, Go, Rust, Java, C/C++ |
-| 3 | `gauntlet.graph.GraphStore` | When `.gauntlet/graph.db` exists | Severity upgrade via transitive call chains |
+| 2 | `tree_sitter_language_pack` | When importable, non-Python files | T1, T2, S1 on JS/TS, Go, Rust, Java, C/C++ (Java and C: T1 only) |
+| 3 | `gauntlet.graph.GraphStore` | When importable and `.gauntlet/graph.db` is found above the file | One-step severity upgrade when a CALLS-reachable function holds a hotspot |
 
 ## Output Format
 
@@ -209,8 +213,8 @@ translation.
 
 | Dependency | Required? | Effect when missing |
 |------------|-----------|---------------------|
-| `gauntlet.treesitter_parser` | Optional | Tier 2 returns []; Python coverage unchanged |
-| `gauntlet.graph.GraphStore` | Optional | Tier 3 returns []; severities are not upgraded |
+| `tree_sitter_language_pack` | Optional (`tiers` extra) | Tier 2 returns []; Python coverage unchanged |
+| `gauntlet.graph.GraphStore` | Optional (gauntlet plugin, not on PyPI) | Tier 3 returns []; severities are not upgraded |
 
 The optional-import contract follows the precedent in
 `plugins/leyline/src/leyline/tokens.py:25-32`: try-import to a
@@ -290,7 +294,7 @@ the verifier rejects.
       suggestion the caller can act on.
 - [ ] Time-complexity (T1-T6) and space-complexity (S1-S3)
       detectors have been run; tier coverage is reported.
-- [ ] Tier 2 (gauntlet treesitter) and Tier 3 (graph store)
+- [ ] Tier 2 (tree-sitter) and Tier 3 (graph store)
       contracts honor the optional-import sentinel: missing
       modules return `[]` rather than raising.
 - [ ] Each new detector ships with a smallest-AST test that

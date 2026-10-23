@@ -134,13 +134,21 @@ def _render_graphql_variable(key: str, value: Any) -> tuple[str, str]:
 
 
 def _run_and_parse(cmd: list[str], *, timeout: int) -> Any:
-    result = subprocess.run(  # nosec B603 - argv built from typed params
-        cmd,
-        capture_output=True,
-        text=True,
-        check=False,
-        timeout=timeout,
-    )
+    try:
+        result = subprocess.run(  # nosec B603 - argv built from typed params
+            cmd,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=timeout,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise GhCommandError(
+            f"{' '.join(cmd[:3])} could not run: {exc}",
+            cmd=cmd,
+            returncode=None,
+            stderr=None,
+        ) from exc
     if result.returncode != 0:
         stderr = result.stderr.strip()
         raise GhCommandError(

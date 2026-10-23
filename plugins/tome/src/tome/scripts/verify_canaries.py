@@ -37,6 +37,7 @@ from dataclasses import dataclass
 from urllib.parse import urlparse
 
 from tome.channels.canary import CANARY_TARGETS, describe_canary_target
+from tome.channels.http import _https_only_opener
 
 __all__ = [
     "CHANNEL_ERROR",
@@ -154,36 +155,6 @@ def exit_code_for(results: list[str]) -> int:
     return 1 if any(r in _DEFECTS for r in results) else 0
 
 
-def _https_only_opener() -> urllib.request.OpenerDirector:
-    """An opener that can speak https and nothing else.
-
-    The default ``urlopen`` handles ``file:``, ``ftp:`` and ``data:``
-    too, so a canary target edited to a local path would read as a
-    passing control while touching no network: a control vouching for a
-    channel it never contacted. That is worse than a missing control,
-    because it looks like evidence.
-
-    Built handler by handler rather than with ``build_opener``, which
-    keeps the default ``FileHandler`` even when passed an
-    ``HTTPSHandler``. Verified rather than assumed: this director
-    returns ``None`` for a ``file://`` URL, while
-    ``build_opener(HTTPSHandler())`` reads the file.
-    """
-    director = urllib.request.OpenerDirector()
-    for handler in (
-        urllib.request.HTTPSHandler(),
-        urllib.request.HTTPDefaultErrorHandler(),
-        urllib.request.HTTPErrorProcessor(),
-    ):
-        director.add_handler(handler)
-    # Headers belong on the director rather than on a per-call Request.
-    # GitHub's API rejects requests without a User-Agent, and building a
-    # Request per fetch would reintroduce the arbitrary-scheme surface
-    # this function exists to remove.
-    director.addheaders = [("User-Agent", "tome-canary-check")]
-    return director
-
-
 _OPENER = _https_only_opener()
 
 
@@ -203,7 +174,13 @@ def _fetch(url: str) -> tuple[int, str]:
             "reaching the channel it claims to vouch for."
         )
     try:
-        with _OPENER.open(url, timeout=30) as resp:
+        # The User-Agent travels on the Request: GitHub's API rejects a
+        # request without one, and on the opener it would reach every
+        # redirect target too.
+        request = urllib.request.Request(  # noqa: S310 - opener is https-only
+            url, headers={"User-Agent": "tome-canary-check"}
+        )
+        with _OPENER.open(request, timeout=30) as resp:
             return resp.status, resp.read().decode("utf-8", errors="replace")
     except urllib.error.HTTPError as exc:
         return exc.code, exc.read().decode("utf-8", errors="replace")
@@ -232,6 +209,8 @@ def main() -> int:
     code = exit_code_for([o.result for o in outcomes])
     print(
         "\nAll targets verified."
+        if all(o.result == RETRIEVED for o in outcomes)
+        else "\nNo target moved and no channel is broken, but some were not checked."
         if not code
         else "\nAt least one target moved or one channel is broken. See remedies."
     )

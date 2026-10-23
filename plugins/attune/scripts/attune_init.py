@@ -8,6 +8,7 @@ import importlib
 import shutil
 import subprocess
 import sys
+from collections.abc import Collection
 from datetime import datetime
 from pathlib import Path
 
@@ -48,7 +49,9 @@ def initialize_git(project_path: Path, force: bool = False) -> bool:
         )
         print(f"✓ Git repository initialized: {git_dir}")
         return True
-    except subprocess.CalledProcessError as e:
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as e:
+        # OSError covers a missing git binary, which is a failure to
+        # report and not a reason to abort the whole init.
         print(f"✗ Failed to initialize git: {e}", file=sys.stderr)
         return False
 
@@ -62,6 +65,7 @@ def copy_templates(  # noqa: PLR0913 - template copying needs language, path, va
     force: bool = False,
     dry_run: bool = False,
     backup: bool = False,
+    only_paths: Collection[str] | None = None,
 ) -> list[str]:
     """Copy and render templates to project.
 
@@ -73,6 +77,8 @@ def copy_templates(  # noqa: PLR0913 - template copying needs language, path, va
         force: Overwrite existing files
         dry_run: Preview changes without writing files
         backup: Create backup before overwriting files
+        only_paths: When given, render only templates whose project-relative
+            output path (POSIX form) is in this collection
 
     Returns:
         List of created file paths
@@ -110,6 +116,8 @@ def copy_templates(  # noqa: PLR0913 - template copying needs language, path, va
             output_rel_str = ".github/" + output_rel_str
 
         output_rel = Path(output_rel_str)
+        if only_paths is not None and output_rel.as_posix() not in only_paths:
+            continue
         output_path = project_path / output_rel
 
         # Dry run - just print what would happen
@@ -341,6 +349,7 @@ def _run_post_init_git(
     no_git: bool,
     force: bool,
     detector: ProjectDetector,
+    dry_run: bool = False,
 ) -> None:
     """Initialize git repository if needed.
 
@@ -349,9 +358,13 @@ def _run_post_init_git(
         no_git: If True, skip git initialization
         force: Force re-initialization if .git already exists
         detector: Project detector instance
+        dry_run: Preview the step without running git
 
     """
     if not no_git and not detector.check_git_initialized():
+        if dry_run:
+            print(f"[DRY RUN] Would initialize git repository: {project_path}")
+            return
         initialize_git(project_path, force=force)
 
 
@@ -472,7 +485,9 @@ def main() -> None:
         description=args.description,
     )
 
-    _run_post_init_git(project_path, args.no_git, args.force, detector)
+    _run_post_init_git(
+        project_path, args.no_git, args.force, detector, dry_run=args.dry_run
+    )
 
     templates_root = Path(__file__).parent.parent / "templates"
     created_files = copy_templates(

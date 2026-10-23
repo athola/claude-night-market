@@ -126,7 +126,10 @@ def ensure_label(label: str, color: str) -> None:
 
 
 def find_duplicate(bare_title: str) -> dict[str, object] | None:
-    """Search open issues for an exact title match (case-insensitive)."""
+    """Search open issues for an exact title match (case-insensitive).
+
+    Raises ``RuntimeError`` when the lookup itself fails.
+    """
     result = subprocess.run(
         [
             "gh",
@@ -145,13 +148,17 @@ def find_duplicate(bare_title: str) -> dict[str, object] | None:
         check=False,
     )
 
+    # A failed lookup is not "no duplicate": returning None would let the
+    # caller file a duplicate issue.
     if result.returncode != 0:
-        return None
+        raise RuntimeError(
+            result.stderr.strip() or f"gh issue list failed (exit {result.returncode})"
+        )
 
     try:
         issues = json.loads(result.stdout)
-    except json.JSONDecodeError:
-        return None
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"gh issue list returned non-JSON: {exc}") from exc
 
     needle = bare_title.lower()
     for issue in issues:
@@ -192,7 +199,10 @@ def create_issue(title: str, body: str, labels: list[str]) -> dict[str, object]:
         check=False,
     )
     if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip())
+        raise RuntimeError(
+            result.stderr.strip()
+            or f"gh issue create failed (exit {result.returncode})"
+        )
     raw = result.stdout.strip()
     # gh prints the new issue URL (possibly with surrounding whitespace or a
     # trailing newline). Take the last non-empty line in case gh adds preamble.

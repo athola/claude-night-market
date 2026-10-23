@@ -3,10 +3,12 @@ SHELL := /bin/bash
 
 # .SHELLFLAGS arrived in GNU make 3.82. Stock macOS ships 3.81 from the
 # Xcode command line tools, which parses the assignment above and ignores
-# it, so every recipe here runs without -euo pipefail. Say so once per
-# invocation rather than pretend the gate holds.
+# it. 3.81 does honor flags written into SHELL itself, so for the releases
+# that ignore .SHELLFLAGS the flags go there, and every make runs recipes
+# under -euo pipefail. The filter names the releases that ignore the
+# assignment, so a make newer than 4.x keeps the plain form.
 ifneq ($(filter 3.7% 3.80 3.81,$(firstword $(MAKE_VERSION))),)
-$(warning GNU make $(MAKE_VERSION) ignores .SHELLFLAGS; recipes run without -euo pipefail. Install GNU make 3.82+ (brew install make) and run gmake.)
+SHELL := /bin/bash -euo pipefail
 endif
 
 .PHONY: help install test test-unit lint typecheck format check docker-build docker-run clean

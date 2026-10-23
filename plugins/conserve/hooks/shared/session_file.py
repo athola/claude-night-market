@@ -7,9 +7,20 @@ Used by multiple conserve hooks (`tool_output_summarizer`,
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 
-__all__ = ["resolve_session_file"]
+__all__ = ["project_dir_name", "resolve_session_file"]
+
+
+def project_dir_name(cwd: Path) -> str:
+    """Return the ``~/.claude/projects`` directory name Claude Code uses.
+
+    Claude Code maps every non-alphanumeric character to "-", not just
+    path separators: "/Users/a.b/my_repo" is "-Users-a-b-my-repo".
+    """
+    name = re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
+    return name if name.startswith("-") else "-" + name
 
 
 def resolve_session_file() -> Path | None:
@@ -22,11 +33,7 @@ def resolve_session_file() -> Path | None:
 
     # Try to find project directory from CWD
     cwd = Path.cwd()
-    project_dir_name = str(cwd).replace(os.sep, "-")
-    if not project_dir_name.startswith("-"):
-        project_dir_name = "-" + project_dir_name
-
-    project_dir = claude_projects / project_dir_name
+    project_dir = claude_projects / project_dir_name(cwd)
     if not project_dir.exists():
         # Fallback: list all project dirs and use most recent
         project_dirs = sorted(

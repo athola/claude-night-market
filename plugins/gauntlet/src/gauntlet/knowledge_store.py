@@ -116,7 +116,12 @@ class KnowledgeStore:
                 data = yaml.safe_load(yaml_path.read_text())
             except (OSError, yaml.YAMLError):
                 continue
-            if not data:
+            if not isinstance(data, dict) or not data:
+                continue
+            difficulty = data.get("difficulty", 1)
+            if isinstance(difficulty, float) and difficulty.is_integer():
+                difficulty = int(difficulty)
+            if isinstance(difficulty, bool) or not isinstance(difficulty, int):
                 continue
 
             module = data.get("module", "")
@@ -133,7 +138,7 @@ class KnowledgeStore:
                     module=module,
                     concept=concept,
                     detail=data.get("detail", ""),
-                    difficulty=data.get("difficulty", 1),
+                    difficulty=difficulty,
                     extracted_at=data.get("extracted_at", ""),
                     source="curated",
                     related_files=data.get("related_files", []),

@@ -198,8 +198,12 @@ def main() -> None:
     except (json.JSONDecodeError, OSError):
         sys.exit(0)
 
+    # A payload of the wrong shape exits quietly, as in the sibling vow
+    # hooks, instead of ending the hook with an AttributeError traceback.
+    if not isinstance(input_data, dict):
+        sys.exit(0)
     tool_name = input_data.get("tool_name", "")
-    tool_input = input_data.get("tool_input", {})
+    tool_input = input_data.get("tool_input") or {}
 
     # Only check Write and Edit operations
     if tool_name not in ["Write", "Edit", "MultiEdit"]:

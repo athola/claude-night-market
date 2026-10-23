@@ -408,15 +408,14 @@ class TestParseWebsearchResult:
         assert finding.summary == "real description"
 
     @pytest.mark.unit
-    def test_result_without_url_raises(self) -> None:
+    def test_result_without_url_is_skipped(self) -> None:
         """
         Scenario: WebSearch result missing its URL
         Given a dict with no url
         When parse_websearch_result is called
-        Then ValueError refuses the result rather than emitting a blank Finding
+        Then None is returned rather than a blank Finding
         """
-        with pytest.raises(ValueError, match="no URL"):
-            parse_websearch_result({"snippet": "s"}, "topic")
+        assert parse_websearch_result({"snippet": "s"}, "topic") is None
 
     @pytest.mark.unit
     def test_relevance_bounded(self) -> None:
@@ -432,6 +431,35 @@ class TestParseWebsearchResult:
         )
         assert 0.1 <= finding.relevance <= 0.95
         assert finding.metadata["relevance_basis"] == "measured"
+
+    @pytest.mark.unit
+    def test_title_punctuation_does_not_hide_topic_words(self) -> None:
+        """
+        Scenario: An on-topic title carries ordinary punctuation
+        Given the topic "kafka streams"
+        When the title is "Kafka: The Definitive Guide (Streams, Connect)"
+        Then it scores as high as the same words without punctuation
+
+        Whitespace splitting kept "kafka:" and
+        "(streams," as tokens, and the result fell to the 0.1 floor.
+        """
+        punctuated = parse_websearch_result(
+            {
+                "title": "Kafka: The Definitive Guide (Streams, Connect)",
+                "url": "https://example.com/a",
+                "snippet": "",
+            },
+            "kafka streams",
+        )
+        plain = parse_websearch_result(
+            {
+                "title": "Kafka The Definitive Guide Streams Connect",
+                "url": "https://example.com/b",
+                "snippet": "",
+            },
+            "kafka streams",
+        )
+        assert punctuated.relevance == plain.relevance == 0.95
 
     @pytest.mark.unit
     def test_abstention_is_distinguishable(self) -> None:

@@ -10,6 +10,7 @@ from typing import Any
 
 from ..frontmatter import FrontmatterProcessor
 from ..tokens import estimate_text_tokens
+from .auditor import DESCRIPTION_TRIGGER, EXIT_CRITERIA_HEADING, MAX_BODY_LINES
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,10 @@ MIN_SECTIONS = 5
 # Suggestions thresholds
 SUGGESTIONS_LOW = 3  # Timeline: 1-2 days
 SUGGESTIONS_MEDIUM = 6  # Timeline: 1 week
+
+
+# Same rule validate_plugin.py applies to plugin names.
+_KEBAB_CASE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 
 
 @dataclass
@@ -109,23 +114,21 @@ class ImprovementSuggester:
             issues.append(f"Missing required fields: {missing}")
             suggestions.append(f"Add missing fields to frontmatter: {missing}")
 
-        # Check structure
-        required_sections = ["## Overview", "## Quick Start"]
-        missing_sections = [
-            section for section in required_sections if section not in content
-        ]
-
-        if missing_sections:
-            issues.append(f"Missing required sections: {', '.join(missing_sections)}")
+        # Discovery reads the description, so it must say when to use it.
+        description = str((result.parsed or {}).get("description") or "")
+        if description and not DESCRIPTION_TRIGGER.search(description):
             suggestions.append(
-                "Add progressive disclosure structure with Overview "
-                "and Quick Start sections",
+                "Say when to use the skill in its description "
+                "(e.g. 'Use when ...'): discovery reads only name and description",
             )
 
-        # Check examples
-        code_blocks_found = len(re.findall(r"```", content))
-        if "## Examples" not in content and code_blocks_found < MIN_CODE_BLOCKS:
-            suggestions.append("Add practical examples and code blocks")
+        # Every skill in this repository carries checkable Exit Criteria.
+        if not EXIT_CRITERIA_HEADING.search(content):
+            issues.append("Missing ## Exit Criteria section")
+            suggestions.append(
+                "Add an ## Exit Criteria section with '- [ ]' items a reader "
+                "can verify",
+            )
 
         # Check token efficiency
         estimated_tokens = estimate_text_tokens(content)
@@ -136,7 +139,7 @@ class ImprovementSuggester:
             )
 
         # Check naming convention
-        if "-" not in skill_name or skill_name.islower():
+        if not _KEBAB_CASE.fullmatch(skill_name):
             suggestions.append(
                 "Use kebab-case naming (lowercase with hyphens) for better readability",
             )
@@ -186,26 +189,15 @@ class ImprovementSuggester:
         if content is None:
             return ["Error reading skill file"]
 
-        # Check sections
-        required_sections = {
-            "Overview": "Add overview section explaining skill purpose",
-            "Quick Start": "Add quick start section with basic usage steps",
-            "Examples": "Add examples section with concrete use cases",
-            "Resources": "Add resources section with detailed information",
-        }
-
-        missing_sections = []
-        for section, suggestion in required_sections.items():
-            if f"## {section}" not in content:
-                missing_sections.append(suggestion)
-
-        suggestions.extend(missing_sections)
-
-        # Check organization
-        section_count = len(re.findall(r"^#+ ", content, re.MULTILINE))
-        if section_count < MIN_SECTIONS:
+        # Size is the structural signal the evidence supports: Anthropic's
+        # skill guidance and the Agent Skills spec cap SKILL.md at 500
+        # lines. Optional sections are a layout choice and are not advised.
+        # The cap excludes frontmatter, matching the auditor's _body count.
+        line_count = len(FrontmatterProcessor.extract_raw(content)[1].splitlines())
+        if line_count > MAX_BODY_LINES:
             suggestions.append(
-                "Improve content organization with more structured sections",
+                f"SKILL.md is {line_count} lines; move detail into modules to "
+                f"get under {MAX_BODY_LINES}",
             )
 
         return suggestions

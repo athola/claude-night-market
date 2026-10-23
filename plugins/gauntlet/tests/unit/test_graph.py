@@ -601,3 +601,123 @@ class TestGraphStoreContextManager:
 
         with pytest.raises(sqlite3.ProgrammingError):
             g.upsert_node(_make_node())
+
+
+class TestResolveCallTargets:
+    """
+    Feature: Resolving call-site names to defining nodes
+
+    As a CALLS-edge consumer (flows, blast radius, perf Tier 3)
+    I want only calls that really reach a definition rewritten
+    So that `os.walk` is not linked to an unrelated `walk` closure
+    """
+
+    def _seed(self, store: GraphStore, target: str) -> None:
+        store.upsert_node(_make_node("a.py::main", file_path="a.py"))
+        store.upsert_node(_make_node("b.py::_find_cycle.walk", file_path="b.py"))
+        store.upsert_node(_make_node("walker.py::walk", file_path="walker.py"))
+        store.upsert_edge(
+            _make_edge(source="a.py::main", target=target, file_path="a.py")
+        )
+
+    @pytest.mark.unit
+    def test_module_receiver_call_stays_external_when_no_module_matches(
+        self, store: GraphStore
+    ) -> None:
+        """`os.walk` has candidates named walk, but none lives in os.py."""
+        store.upsert_node(_make_node("a.py::main", file_path="a.py"))
+        store.upsert_node(_make_node("b.py::_find_cycle.walk", file_path="b.py"))
+        store.upsert_edge(_make_edge(source="a.py::main", target="os.walk"))
+        assert store.resolve_call_targets() == 0
+        targets = [e.target_qn for e in store.get_edges_by_source("a.py::main")]
+        assert targets == ["os.walk"]
+
+    @pytest.mark.unit
+    def test_module_receiver_call_resolves_to_that_module(
+        self, store: GraphStore
+    ) -> None:
+        """`walker.walk` resolves to the walk defined in walker.py."""
+        self._seed(store, "walker.walk")
+        assert store.resolve_call_targets() == 1
+        targets = [e.target_qn for e in store.get_edges_by_source("a.py::main")]
+        assert targets == ["walker.py::walk"]
+
+    @pytest.mark.unit
+    def test_bare_call_with_unique_definition_still_resolves(
+        self, store: GraphStore
+    ) -> None:
+        """A bare name matching exactly one definition keeps resolving."""
+        store.upsert_node(_make_node("a.py::main", file_path="a.py"))
+        store.upsert_node(_make_node("c.py::helper", file_path="c.py"))
+        store.upsert_edge(_make_edge(source="a.py::main", target="helper"))
+        assert store.resolve_call_targets() == 1
+        targets = [e.target_qn for e in store.get_edges_by_source("a.py::main")]
+        assert targets == ["c.py::helper"]
+
+    @pytest.mark.unit
+    def test_self_method_call_resolves_in_same_file(self, store: GraphStore) -> None:
+        """`self.run` resolves to the run defined in the calling file."""
+        store.upsert_node(_make_node("a.py::Job.start", file_path="a.py"))
+        store.upsert_node(_make_node("a.py::Job.run", file_path="a.py"))
+        store.upsert_edge(
+            _make_edge(source="a.py::Job.start", target="self.run", file_path="a.py")
+        )
+        assert store.resolve_call_targets() == 1
+        targets = [e.target_qn for e in store.get_edges_by_source("a.py::Job.start")]
+        assert targets == ["a.py::Job.run"]
+
+
+class TestResolveCallTargetsReceivers:
+    """Receivers the first fix mishandled."""
+
+    @pytest.mark.unit
+    def test_module_call_does_not_resolve_to_a_local_function_of_that_name(
+        self, store: GraphStore
+    ) -> None:
+        """`os.walk` in a file that defines `walk` is still the stdlib call."""
+        store.upsert_node(_make_node("a.py::main", file_path="a.py"))
+        store.upsert_node(_make_node("a.py::walk", file_path="a.py"))
+        store.upsert_edge(
+            _make_edge(source="a.py::main", target="os.walk", file_path="a.py")
+        )
+        store.resolve_call_targets()
+        targets = [e.target_qn for e in store.get_edges_by_source("a.py::main")]
+        assert targets == ["os.walk"]
+
+    @pytest.mark.unit
+    def test_instance_receiver_resolves_to_a_unique_method(
+        self, store: GraphStore
+    ) -> None:
+        """`graph.upsert` reaches the one class method named upsert."""
+        store.upsert_node(_make_node("a.py::main", file_path="a.py"))
+        store.upsert_node(
+            _make_node("g.py::Graph", kind=NodeKind.CLASS, file_path="g.py")
+        )
+        store.upsert_node(_make_node("g.py::Graph.upsert", file_path="g.py"))
+        store.upsert_edge(_make_edge(source="a.py::main", target="graph.upsert"))
+        assert store.resolve_call_targets() == 1
+        targets = [e.target_qn for e in store.get_edges_by_source("a.py::main")]
+        assert targets == ["g.py::Graph.upsert"]
+
+    @pytest.mark.unit
+    def test_instance_receiver_never_resolves_to_a_nested_function(
+        self, store: GraphStore
+    ) -> None:
+        """A closure is not reachable through any receiver."""
+        store.upsert_node(_make_node("a.py::main", file_path="a.py"))
+        store.upsert_node(_make_node("b.py::_find_cycle", file_path="b.py"))
+        store.upsert_node(_make_node("b.py::_find_cycle.walk", file_path="b.py"))
+        store.upsert_edge(_make_edge(source="a.py::main", target="tree.walk"))
+        assert store.resolve_call_targets() == 0
+
+    @pytest.mark.unit
+    def test_package_receiver_resolves_to_its_init(self, store: GraphStore) -> None:
+        """`pkg.helper` reaches the helper defined in pkg/__init__.py."""
+        store.upsert_node(_make_node("a.py::main", file_path="a.py"))
+        store.upsert_node(
+            _make_node("pkg/__init__.py::helper", file_path="pkg/__init__.py")
+        )
+        store.upsert_edge(_make_edge(source="a.py::main", target="pkg.helper"))
+        assert store.resolve_call_targets() == 1
+        targets = [e.target_qn for e in store.get_edges_by_source("a.py::main")]
+        assert targets == ["pkg/__init__.py::helper"]

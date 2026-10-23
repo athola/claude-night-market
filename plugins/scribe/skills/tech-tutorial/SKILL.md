@@ -165,7 +165,7 @@ Audience (audience-targeting module):
 - [ ] Every section serves that tier
 - [ ] Off-tier detail extracted to a linked deep dive, not deleted
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `tech-tutorial:scope-defined` - Audience, goal, and out-of-scope noted
 2. `tech-tutorial:outline-approved` - Section outline confirmed
@@ -191,11 +191,11 @@ Audience (audience-targeting module):
 
 ## Exit Criteria
 
-- Tutorial outline confirmed before drafting begins
-- Audience tier declared before drafting, not after
-- All code snippets tested in a real environment
-- Slop score below 1.5 (clean)
-- Off-tier content was moved to a linked deep dive rather than
+- [ ] Tutorial outline confirmed before drafting begins
+- [ ] Audience tier declared before drafting, not after
+- [ ] All code snippets tested in a real environment
+- [ ] Slop score below 1.5 (clean)
+- [ ] Off-tier content was moved to a linked deep dive rather than
   left in the reader's path or deleted
-- Quality gate checklist passed
-- User approval received
+- [ ] Quality gate checklist passed
+- [ ] User approval received

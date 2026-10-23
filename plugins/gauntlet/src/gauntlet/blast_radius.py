@@ -42,7 +42,10 @@ def load_weights(gauntlet_dir: str | Path | None = None) -> dict[str, float]:
         return weights
     try:
         data = json.loads(config_path.read_text())
-        user_weights = data.get("risk_weights", {})
+        user_weights = data.get("risk_weights", {}) if isinstance(data, dict) else None
+        if not isinstance(user_weights, dict):
+            msg = "config.json and its risk_weights must be JSON objects"
+            raise TypeError(msg)
         for key in _DEFAULT_WEIGHTS:
             if key in user_weights:
                 weights[key] = float(user_weights[key])
@@ -68,11 +71,21 @@ _FILE_PATTERN = re.compile(r"^\+\+\+ b/(.+)$")
 DEFAULT_GIT_TIMEOUT_SECONDS = 10.0
 
 
+class GitDiffError(RuntimeError):
+    """git could not produce a diff (failure, timeout, or no git binary)."""
+
+
 def parse_git_diff_ranges(
     base_ref: str = "HEAD",
     timeout: float = DEFAULT_GIT_TIMEOUT_SECONDS,
 ) -> dict[str, list[tuple[int, int]]]:
-    """Parse git diff --unified=0 for changed line ranges per file."""
+    """Parse git diff --unified=0 for changed line ranges per file.
+
+    Raises:
+        GitDiffError: git did not run, timed out, or exited nonzero. An
+            empty dict means an empty diff, never a failure.
+
+    """
     ref = _validate_ref(base_ref)
     try:
         result = subprocess.run(
@@ -82,10 +95,12 @@ def parse_git_diff_ranges(
             timeout=timeout,
             check=False,
         )
-        if result.returncode != 0:
-            return {}
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        return {}
+    except (subprocess.TimeoutExpired, FileNotFoundError) as exc:
+        msg = f"git diff {ref} could not run: {exc!r}"
+        raise GitDiffError(msg) from exc
+    if result.returncode != 0:
+        msg = f"git diff {ref} exited with {result.returncode}"
+        raise GitDiffError(msg)
 
     ranges: dict[str, list[tuple[int, int]]] = {}
     current_file: str | None = None
@@ -181,20 +196,35 @@ def compute_risk_score(
     return min(round(score, 4), 1.0)
 
 
+def _empty_report(overall_risk: str) -> dict[str, Any]:
+    return {
+        "overall_risk": overall_risk,
+        "affected_nodes": [],
+        "risk_scores": {},
+        "untested_functions": [],
+        "review_priorities": [],
+        "direct_changes": 0,
+        "total_affected": 0,
+    }
+
+
 def analyze_changes(
     graph: GraphStore,
     base_ref: str = "HEAD",
     timeout: float = DEFAULT_GIT_TIMEOUT_SECONDS,
+    weights: dict[str, float] | None = None,
 ) -> dict[str, Any]:
-    """Full blast radius analysis pipeline."""
-    ranges = parse_git_diff_ranges(base_ref, timeout=timeout)
+    """Full blast radius analysis pipeline.
+
+    ``weights`` is what ``load_weights`` returns for the graph's
+    ``.gauntlet`` directory; None scores with the defaults.
+    """
+    try:
+        ranges = parse_git_diff_ranges(base_ref, timeout)
+    except GitDiffError as exc:
+        return {**_empty_report("unknown"), "error": str(exc)}
     if not ranges:
-        return {
-            "overall_risk": "none",
-            "affected_nodes": [],
-            "risk_scores": {},
-            "review_priorities": [],
-        }
+        return _empty_report("none")
 
     # Map to nodes
     direct = map_changes_to_nodes(graph, ranges)
@@ -206,7 +236,7 @@ def analyze_changes(
     # Risk scores
     risk_scores: dict[str, float] = {}
     for node in all_affected:
-        risk_scores[node.qualified_name] = compute_risk_score(node, graph)
+        risk_scores[node.qualified_name] = compute_risk_score(node, graph, weights)
 
     # Untested functions
     untested = [

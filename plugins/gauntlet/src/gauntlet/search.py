@@ -10,8 +10,7 @@ def detect_kind_boost(query: str) -> dict[str, float]:
     """Detect what node kinds a query likely targets.
 
     Returns a dict of kind -> boost multiplier.
-    PascalCase -> Class/Type, snake_case -> Function,
-    dotted path -> qualified_name boost.
+    PascalCase -> Class/Type, snake_case -> Function.
     """
     boosts: dict[str, float] = {}
 
@@ -26,10 +25,6 @@ def detect_kind_boost(query: str) -> dict[str, float]:
     # snake_case: likely a function
     if "_" in query and query == query.lower():
         boosts["Function"] = 1.5
-
-    # Dotted path: qualified name
-    if "." in query:
-        boosts["qualified_name"] = 2.0
 
     return boosts
 

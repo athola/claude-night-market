@@ -76,19 +76,20 @@ def test_dir_lists_every_export(root: ModuleType) -> None:
     assert set(root.__all__) <= listed
 
 
-def test_optional_corpus_exports_fall_back_when_the_dependency_is_absent(
+def test_optional_corpus_exports_degrade_when_the_dependency_is_absent(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """GIVEN semantic_deduplicator cannot be imported.
 
     WHEN the two exports it provides are read
-    THEN the threshold is 0.85 and the class is None, as before the
-         root went lazy
+    THEN the threshold keeps the real 0.8 and the class raises ImportError
+         naming the missing dependency instead of reading as None
     """
     monkeypatch.setitem(sys.modules, "memory_palace.corpus.semantic_deduplicator", None)
 
-    assert corpus.DEFAULT_THRESHOLD == 0.85
-    assert corpus.SemanticDeduplicator is None
+    assert corpus.DEFAULT_THRESHOLD == 0.8
+    with pytest.raises(ImportError, match="faiss"):
+        corpus.SemanticDeduplicator  # noqa: B018 - attribute access is the call
 
 
 def test_optional_corpus_exports_resolve_when_the_dependency_is_present() -> None:

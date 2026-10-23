@@ -43,7 +43,7 @@ estimated_tokens: 1000
 
 **Auto-Load When**: Finalizing any analysis deliverable or when consistent formatting is requested.
 
-## Required TodoWrite Items
+## Required Progress Items
 1. `structured-output:template-selected`
 2. `structured-output:findings-formatted`
 3. `structured-output:actions-assigned`
@@ -63,12 +63,12 @@ Mark each item complete as you finish the corresponding step.
 - Use consistent finding structure:
   ```markdown
   ### [SEVERITY] Finding Title
-  **Location**: file.rs:123
-  **Anchor**: `verbatim source text copied from line 123`
-  **Category**: Security | Performance | Correctness | Style
-  **Description**: Brief explanation of the issue.
-  **Evidence**: [E1, E2] - Reference to evidence log.
-  **Recommendation**: Specific remediation steps.
+  - **Location**: file.rs:123
+  - **Anchor**: `verbatim source text copied from line 123`
+  - **Category**: Security | Performance | Correctness | Style
+  - **Description**: Brief explanation of the issue.
+  - **Evidence**: [E1, E2] - Reference to evidence log.
+  - **Recommendation**: Specific remediation steps.
   ```
   **Verification:** Run the command with `--help` flag to verify availability.
 - Severity levels: CRITICAL, HIGH, MEDIUM, LOW, INFO.
@@ -121,6 +121,7 @@ Before finalizing:
 - [ ] Format renders correctly in target medium (GitHub, Confluence, etc.).
 
 ## Exit Criteria
-- Todos completed with formatted deliverable.
-- Output follows selected template structure.
-- Stakeholders can act on findings without clarification.
+
+- [ ] All `structured-output:` progress items are marked complete
+- [ ] The deliverable has every section of the selected template
+- [ ] Each finding carries a location and a recommended action

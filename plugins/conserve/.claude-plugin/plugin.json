@@ -1,6 +1,6 @@
 {
   "name": "conserve",
-  "version": "1.9.21",
+  "version": "1.10.0",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/action-first-output",
@@ -32,6 +32,7 @@
     "./agents/unbloat-remediator.md"
   ],
   "hooks": [],
+  "types": "./types/index.d.ts",
   "keywords": [
     "conserve",
     "performance",
@@ -54,5 +55,7 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "homepage": "https://github.com/athola/claude-night-market/tree/master/plugins/conserve",
+  "repository": "https://github.com/athola/claude-night-market"
 }

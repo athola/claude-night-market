@@ -9,7 +9,6 @@ from typing import Any
 
 import pytest
 
-import memory_palace.migration as migration_mod
 from memory_palace.migration import migrate_sensory_to_computational
 from memory_palace.palace_repository import PalaceRepository
 
@@ -177,6 +176,32 @@ class TestMigrateSensoryToComputational:
         assert "sensory_encoding" not in converted
         assert "computational_encoding" in converted
 
+    def test_a_failed_write_is_skipped_not_reported_as_rewritten(
+        self,
+        tmp_path: Path,
+        sample_palace_with_sensory: dict[str, Any],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A palace the migration could not write is not counted as migrated.
+
+        The writer once swallowed the OSError after the file had already
+        been listed as rewritten, so a full disk read as a clean run.
+        """
+        palaces_dir = tmp_path / "palaces"
+        palaces_dir.mkdir()
+        target = palaces_dir / "enc_test.json"
+        target.write_text(json.dumps(sample_palace_with_sensory))
+
+        def _refuse(*_args: object) -> None:
+            raise OSError("disk full")
+
+        monkeypatch.setattr(os, "replace", _refuse)
+        report = migrate_sensory_to_computational(palaces_dir, apply=True)
+
+        assert target not in report.rewritten
+        assert [path for path, _ in report.skipped] == [target]
+        assert "unwritable" in report.skipped[0][1]
+
     def test_a_dry_run_changes_nothing_on_disk(
         self,
         tmp_path: Path,
@@ -331,10 +356,10 @@ class TestMigrateSensoryToComputational:
         def _boom(src: str | os.PathLike[str], dst: str | os.PathLike[str]) -> None:
             raise OSError("simulated rename failure")
 
-        monkeypatch.setattr(migration_mod.os, "replace", _boom)
+        monkeypatch.setattr(os, "replace", _boom)
 
         # Must not crash the caller
-        migrate_sensory_to_computational(palaces_dir)
+        migrate_sensory_to_computational(palaces_dir, apply=True)
 
         # Original file still present, still valid JSON, still has sensory_encoding
         assert target.exists(), "original palace file was deleted"

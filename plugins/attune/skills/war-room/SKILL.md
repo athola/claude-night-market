@@ -3,7 +3,6 @@ name: war-room
 description: Convenes a multi-LLM expert panel to pressure-test hard-to-reverse decisions. Use when reversibility score is low and adversarial review is warranted.
 alwaysApply: false
 # Custom metadata (not used by Claude for matching):
-model: opus
 category: strategic-planning
 tags: [deliberation, multi-llm, strategy, decision-making, council, reversibility]
 complexity: advanced
@@ -17,6 +16,7 @@ modules:
   - modules/merkle-dag.md
   - modules/discussion-publishing.md
   - modules/deferred-capture.md
+  - modules/configuration.md
 dependencies:
   - conjure:delegation-core
   - leyline:git-platform
@@ -367,25 +367,8 @@ Equally important: identify decisions being over-deliberated:
 
 ## Configuration
 
-### User Settings
-
-```json
-{
-  "war_room": {
-    "default_mode": "lightweight",
-    "auto_escalate": true,
-    "delphi_threshold": 0.85,
-    "max_delphi_rounds": 5
-  }
-}
-```
-
-### Hook Auto-Trigger
-
-War Room can be auto-suggested via hook when:
-- Keywords detected ("strategic decision", "trade-off", etc.)
-- Complexity score exceeds threshold (0.7)
-- User has opted in via settings
+User settings and the hook auto-trigger conditions:
+[`modules/configuration.md`](modules/configuration.md).
 
 ## Agent Teams Execution Mode
 

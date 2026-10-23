@@ -15,7 +15,7 @@ export const meta = {
   description:
     'Score candidate architecture paradigms independently against one requirement set and return a ranked comparison',
   whenToUse:
-    'Run when an architecture decision is open and several paradigms are defensible. args.requirements states what the system must do; args.candidates names the paradigms to score, defaulting to a spread. Returns a ranking for a human to decide from.',
+    'Run when an architecture decision is open and several paradigms are defensible. args.requirements states what the system must do. args.candidates names the paradigms to score, defaulting to a spread. Returns a ranking for a human to decide from.',
   phases: [
     { title: 'Score', detail: 'one judge per candidate paradigm' },
     { title: 'Compare', detail: 'rank, and name what the winner gives up' },
@@ -58,7 +58,7 @@ const SCORE = {
 const scored = await parallel(
   candidates.map((paradigm) => () =>
     agent(
-      `Read Skill(archetypes:${paradigm}) and score it against these requirements, on a 0-10 scale.\n\nRequirements:\n${requirements}\n\nScore the fit, not the paradigm's reputation. List what it fits and what it costs. If a requirement disqualifies it outright, say which one and score it 0. Do not compare it to other paradigms; you are scoring one.`,
+      `Read Skill(archetypes:${paradigm}) and score it against these requirements, on a 0-10 scale.\n\nRequirements:\n${requirements}\n\nScore the fit, not the paradigm's reputation. List what it fits and what it costs. If a requirement disqualifies it outright, say which one and score it 0. Do not compare it to other paradigms. You are scoring one.`,
       { label: `score:${paradigm}`, phase: 'Score', schema: SCORE },
     ),
   ),
@@ -71,7 +71,7 @@ const ranked = scored
   .filter(Boolean)
   .sort((left, right) => right.score - left.score)
 
-if (unscored.length) log(`no score for ${unscored.join(', ')}; they are unscored, not last`)
+if (unscored.length) log(`no score for ${unscored.join(', ')}. They are unscored, not last`)
 
 if (!ranked.length) {
   return { started: true, ranked: [], comparison: null, unscored }
@@ -82,7 +82,7 @@ const summary = ranked
   .join('\n')
 
 const comparison = await agent(
-  `These paradigms were scored independently against one requirement set. Write the comparison a human needs to decide.\n\n${summary}\n\nRequirements:\n${requirements}\n\nName what the top-scoring paradigm gives up that the runner-up keeps. If the top two are within a point, say the choice is not determined by these requirements and name the requirement that would break the tie.`,
+  `These paradigms were scored independently against one requirement set. Write the comparison a human needs to decide.\n\n${summary}\n\nRequirements:\n${requirements}\n\nName what the top-scoring paradigm gives up that the runner-up keeps. If the top two are within a point, say these requirements do not determine the choice. Name the requirement that would break the tie.`,
   { label: 'compare', phase: 'Compare' },
 )
 

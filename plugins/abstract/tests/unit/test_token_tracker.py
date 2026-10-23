@@ -206,11 +206,17 @@ class TestGetUsageReport:
         assert "Total Skills" in report
 
     @pytest.mark.unit
-    def test_report_is_string(self, skills_dir_with_skill: Path) -> None:
-        """Scenario: Report is a string regardless of content."""
+    def test_report_summarizes_the_one_small_skill(
+        self, skills_dir_with_skill: Path
+    ) -> None:
+        """Scenario: Report summary reflects the one small skill present."""
         tracker = TokenUsageTracker(skills_dir_with_skill)
+        stats = tracker.get_usage_statistics()
         report = tracker.get_usage_report()
-        assert isinstance(report, str)
+        assert "- **Total Skills:** 1\n" in report
+        assert f"- **Total Tokens:** {stats['total_tokens']:,}\n" in report
+        assert stats["total_tokens"] > 0
+        assert f"- **Optimal Usage (≤{tracker.optimal_limit}):** 1\n" in report
 
 
 # ---------------------------------------------------------------------------
@@ -226,7 +232,7 @@ class TestOptimizeSuggestions:
         """Scenario: Empty directory returns general suggestions list."""
         tracker = TokenUsageTracker(tmp_path)
         suggestions = tracker.optimize_suggestions()
-        assert isinstance(suggestions, list)
+        assert suggestions == ["Token usage is within optimal limits"]
 
     @pytest.mark.unit
     def test_within_limit_returns_optimal_message(

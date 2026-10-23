@@ -130,6 +130,8 @@ def _load_units() -> list[dict]:
             record = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             continue
+        if not isinstance(record, dict):
+            continue
         for unit in record.get("handoff_units") or []:
             if isinstance(unit, dict) and unit.get("thread"):
                 units.append(unit)
@@ -152,7 +154,7 @@ def _weight_for(unit: dict) -> float:
         written = datetime.fromisoformat(unit.get("date", "")).replace(
             tzinfo=timezone.utc
         )
-    except ValueError:
+    except (TypeError, ValueError):
         return 1.0
     state = DecayModel().calculate_decay(
         entry_id=unit.get("thread", ""),

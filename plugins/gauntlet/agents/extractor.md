@@ -1,7 +1,6 @@
 ---
 name: extractor
-agent: true
-allowed-tools:
+tools:
   - Read
   - Grep
   - Glob

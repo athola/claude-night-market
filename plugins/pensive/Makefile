@@ -3,12 +3,12 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: all benchmark ci clean coverage coverage-check \
+.PHONY: all ci clean coverage coverage-check \
 	debug-variables demo-api-review demo-architecture-review demo-bug-review demo-fpf-review \
 	demo-full-review demo-makefile-review demo-math-review demo-pensive-commands demo-refine-code \
 	demo-rust-review demo-shell-review demo-skill-history demo-skill-review demo-skills \
 	demo-test-review deps-outdated deps-update dev dev-install \
-	help install mutation-test perf-test plugin-check quality-check \
+	help install mutation-test plugin-check quality-check \
 	status test test-api-review test-architecture-review test-bug-review test-edge-case \
 	test-file test-fpf-review test-full-review test-integration test-makefile-review test-math-review \
 	test-parallel test-pattern test-refine-code test-rust-review test-shell-review test-skill-history \
@@ -72,21 +72,21 @@ quality-check: format lint type-check coverage-check ## Run all quality checks
 
 # ---------- Installation ----------
 dev-install: ## Install in development mode
-	pip install -e ".[dev]"
+	$(UV) sync --group dev
 
 install: ## Install for production
 	pip install .
 
 # ---------- Analysis ----------
 
-perf-test: ## Run performance tests
-	$(PYTEST) -v -m performance --benchmark-only
 
-benchmark: ## Run performance benchmarks
-	$(PYTEST) --benchmark-only --benchmark-sort=mean
 
 mutation-test: ## Run mutation testing
-	mutmut run --paths-to-mutate src/ || echo "mutmut not installed"
+	@if command -v mutmut >/dev/null 2>&1; then \
+		mutmut run --paths-to-mutate src/; \
+	else \
+		echo "mutmut not installed (pip install mutmut)"; \
+	fi
 
 test-structure: ## Verify test structure
 	@echo "Checking test structure..."
@@ -96,8 +96,7 @@ test-structure: ## Verify test structure
 
 # ---------- Dependencies ----------
 deps-update: ## Update dependencies
-	pip install --upgrade pip
-	pip install --upgrade -e ".[dev]"
+	$(UV) sync --group dev --upgrade
 
 deps-outdated: ## Check for outdated dependencies
 	pip list --outdated
@@ -355,8 +354,8 @@ demo-skill-review: ## Demo skill quality review (LIVE)
 	@echo "Skill frontmatter validation:"
 	@for skill in skills/*/SKILL.md; do \
 		name=$$(basename $$(dirname "$$skill")); \
-		has_name=$$(head -20 "$$skill" | grep -c '^name:'); \
-		has_desc=$$(head -20 "$$skill" | grep -c '^description:'); \
+		has_name=$$(head -20 "$$skill" | grep -c '^name:' || true); \
+		has_desc=$$(head -20 "$$skill" | grep -c '^description:' || true); \
 		if [ "$$has_name" -gt 0 ] && [ "$$has_desc" -gt 0 ]; then \
 			echo "  [OK] $$name"; \
 		else \
@@ -377,31 +376,25 @@ test-full-review: ## Test full-review command (runs all review tests)
 	$(PYTEST) $(PYTEST_TARGETS) -v --tb=short
 
 test-api-review: ## Test api-review command (runs API review tests)
-	$(PYTEST) tests/skills/test_api_review.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "api_review or api-review"
+	$(PYTEST) tests/skills/test_api_review.py -v
 
 test-architecture-review: ## Test architecture-review command (runs architecture review tests)
-	$(PYTEST) tests/skills/test_architecture_review.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "architecture"
+	$(PYTEST) tests/skills/test_architecture_review.py -v
 
 test-bug-review: ## Test bug-review command (runs bug review tests)
-	$(PYTEST) tests/skills/test_bug_review.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "bug_review or bug-review"
+	$(PYTEST) tests/skills/test_bug_review.py -v
 
 test-rust-review: ## Test rust-review command (runs Rust review tests)
 	$(PYTEST) tests/skills/test_rust_review_*.py -v
 
 test-test-review: ## Test test-review command (runs test review tests)
-	$(PYTEST) tests/skills/test_test_review.py tests/skills/test_test_review_content.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "test_review"
+	$(PYTEST) tests/skills/test_test_review.py tests/skills/test_test_review_content.py -v
 
 test-math-review: ## Test math-review command (runs math review tests)
-	$(PYTEST) tests/skills/test_math_review.py -v 2>/dev/null || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "math_review or math-review"
+	$(PYTEST) tests/skills/test_math_review.py -v
 
 test-makefile-review: ## Test makefile-review command (runs Makefile review tests)
-	$(PYTEST) tests/skills/test_makefile_review.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "makefile_review or makefile-review"
+	$(PYTEST) tests/skills/test_makefile_review.py -v
 
 test-shell-review: ## Test shell-review command (not applicable: skill-only, no unit tests)
 	@echo "Not applicable: shell-review is a skill-only command with no unit tests"
@@ -410,8 +403,7 @@ test-fpf-review: ## Test fpf-review command (not applicable: skill-only, no unit
 	@echo "Not applicable: fpf-review is a skill-only command with no unit tests"
 
 test-refine-code: ## Test code refinement (runs refinement tests)
-	$(PYTEST) tests/test_code_refinement.py -v || \
-		$(PYTEST) $(PYTEST_TARGETS) -v -k "refine or refinement"
+	$(PYTEST) tests/test_code_refinement.py -v
 
 test-skill-history: ## Test skill history (not applicable: skill-only, no unit tests)
 	@echo "Not applicable: skill-history is a skill-only command with no unit tests"

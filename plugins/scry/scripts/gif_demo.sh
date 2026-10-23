@@ -3,7 +3,12 @@
 # Usage: gif_demo.sh [-h] [-x|-t]
 set -euo pipefail
 
-MYDIR="${0%/*}"
+# A bare name (`bash gif_demo.sh` from its own directory) has no slash,
+# and `${0%/*}` would return the name itself.
+case "${0}" in
+  */*) MYDIR="${0%/*}" ;;
+  *) MYDIR="." ;;
+esac
 readonly MYDIR
 
 REQUIRED_DEPENDENCIES="ffmpeg ffprobe mktemp du cut"

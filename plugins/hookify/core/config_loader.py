@@ -326,12 +326,17 @@ class ConfigLoader:
         # Extract conditions if present
         conditions = []
         if "conditions" in frontmatter:
-            conditions = [
-                Condition(
-                    field=c["field"], operator=c["operator"], pattern=c["pattern"]
-                )
-                for c in frontmatter["conditions"]
-            ]
+            try:
+                conditions = [
+                    Condition(
+                        field=c["field"], operator=c["operator"], pattern=c["pattern"]
+                    )
+                    for c in frontmatter["conditions"]
+                ]
+            except (KeyError, TypeError) as e:
+                # Callers skip a rule on ValueError; a raw KeyError would
+                # abort loading every rule after this one.
+                raise ValueError(f"Malformed conditions: {e!r}") from e
 
         return RuleConfig(
             name=frontmatter["name"],

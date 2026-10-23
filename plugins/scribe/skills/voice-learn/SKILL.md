@@ -61,7 +61,7 @@ These patterns inform register and rule updates.
 6. **Rule count check**: Suggest consolidation if any section
    has 8+ rules.
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `voice-learn:snapshots-loaded` - All three stages read
 2. `voice-learn:diff-analyzed` - Changes categorized
@@ -211,10 +211,10 @@ The post-edit snapshot is captured when the user runs
 
 ## Exit Criteria
 
-- Snapshots loaded and compared
-- Changes categorized
-- Accumulator checked and updated
-- Proposals generated for threshold patterns
-- User approved/rejected proposals
-- Approved changes applied to profile files
-- Stale accumulator entries pruned
+- [ ] Snapshots loaded and compared
+- [ ] Changes categorized
+- [ ] Accumulator checked and updated
+- [ ] Proposals generated for threshold patterns
+- [ ] User approved/rejected proposals
+- [ ] Approved changes applied to profile files
+- [ ] Stale accumulator entries pruned

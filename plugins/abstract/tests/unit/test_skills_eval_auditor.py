@@ -21,6 +21,8 @@ from abstract.skills_eval.auditor import (
     SCORE_WELL_STRUCTURED,
     SkillMetrics,
     SkillsAuditor,
+    _body_line_count,
+    _exit_criteria_block,
 )
 
 # ---------------------------------------------------------------------------
@@ -215,12 +217,25 @@ class TestAnalyzeSkillFile:
     """Feature: _analyze_skill_file produces correct SkillMetrics."""
 
     @pytest.mark.unit
-    def test_analyze_returns_skill_metrics(self, single_skill_dir: Path) -> None:
-        """Scenario: _analyze_skill_file returns a SkillMetrics instance."""
+    def test_analyzed_score_is_the_weighted_sum_of_its_components(
+        self, single_skill_dir: Path
+    ) -> None:
+        """Scenario: The overall score is the weighted sum of its components."""
         auditor = SkillsAuditor(single_skill_dir)
         skill_file = single_skill_dir / "my-skill" / "SKILL.md"
         result = auditor._analyze_skill_file(skill_file)
         assert isinstance(result, SkillMetrics)
+        assert result.path == str(skill_file)
+        weights = auditor.audit_metrics["scoring_weights"]
+        expected = (
+            result.completeness_score * weights["completeness"]
+            + result.structure_score * weights["structure"]
+            + result.documentation_score * weights["documentation"]
+            + auditor._calculate_token_score(result.token_count)
+            * weights["token_efficiency"]
+        )
+        assert result.score == pytest.approx(expected)
+        assert 0.0 <= result.score <= 100.0
 
     @pytest.mark.unit
     def test_analyze_uses_frontmatter_name(self, single_skill_dir: Path) -> None:
@@ -274,17 +289,14 @@ class TestCalculateCompletenessScore:
 
     @pytest.mark.unit
     def test_all_fields_present_returns_high_score(self, tmp_path: Path) -> None:
-        """Scenario: All required and recommended fields yield high score."""
+        """Scenario: name plus a description with a trigger scores full marks."""
         auditor = SkillsAuditor(tmp_path)
         frontmatter = {
             "name": "my-skill",
-            "description": "desc",
-            "category": "test",
-            "tags": ["a"],
-            "dependencies": [],
+            "description": "Audits widgets. Use when a widget changes.",
         }
         score = auditor._calculate_completeness_score(frontmatter, "")
-        assert score > 80.0
+        assert score == 100.0
 
     @pytest.mark.unit
     def test_empty_frontmatter_returns_zero(self, tmp_path: Path) -> None:
@@ -309,6 +321,45 @@ class TestCalculateCompletenessScore:
         score = auditor._calculate_completeness_score(frontmatter, "")
         assert 0.0 < score < 100.0
 
+    @pytest.mark.unit
+    def test_no_required_fields_scores_zero(self, tmp_path: Path) -> None:
+        """Scenario: nothing is required, so nothing can be complete.
+
+        GIVEN an auditor whose required_fields list is empty
+        WHEN a frontmatter that has every field is scored
+        THEN the score is 0, not a division by zero or a full mark.
+        """
+        auditor = SkillsAuditor(tmp_path)
+        auditor.audit_metrics["required_fields"] = []
+        frontmatter = {"name": "n", "description": "Use when testing"}
+
+        assert auditor._calculate_completeness_score(frontmatter, "") == 0
+
+
+class TestExitCriteriaBlockBoundary:
+    """Feature: the Exit Criteria block ends at the next top-level heading."""
+
+    @pytest.mark.unit
+    def test_block_stops_at_the_next_h2_but_not_at_an_h3(self) -> None:
+        """Scenario: a later section is not read as part of the criteria.
+
+        GIVEN Exit Criteria with an H3 inside it, followed by an H2 section
+        WHEN the block is extracted
+        THEN the H3 and its text stay in, and the H2 section is excluded.
+        """
+        _exit_criteria_block.cache_clear()
+        content = (
+            "## Exit Criteria\n\n- [ ] One\n\n### Detail\n\n- [ ] Two\n\n"
+            "## Troubleshooting\n\n- [ ] Not a criterion\n"
+        )
+
+        block = _exit_criteria_block(content)
+
+        assert block is not None
+        assert "- [ ] Two" in block
+        assert "Troubleshooting" not in block
+        assert "Not a criterion" not in block
+
 
 # ---------------------------------------------------------------------------
 # Tests: _calculate_structure_score
@@ -320,15 +371,11 @@ class TestCalculateStructureScore:
 
     @pytest.mark.unit
     def test_full_structure_yields_high_score(self, tmp_path: Path) -> None:
-        """Scenario: All required and recommended sections yield high score."""
+        """Scenario: Exit Criteria under the line cap yields full marks."""
         auditor = SkillsAuditor(tmp_path)
-        content = (
-            "## Overview\n## Quick Start\n## Examples\n"
-            "## Resources\n## Troubleshooting\n"
-            "# h1\n## h2\n## h3\n## h4\n"
-        )
+        content = "# Skill\n\nBody.\n\n## Exit Criteria\n\n- [ ] Done\n"
         score = auditor._calculate_structure_score(content)
-        assert score > 75.0
+        assert score == 100.0
 
     @pytest.mark.unit
     def test_empty_content_returns_zero(self, tmp_path: Path) -> None:
@@ -354,43 +401,28 @@ class TestCalculateStructureScore:
 
 
 class TestCalculateDocumentationScore:
-    """Feature: _calculate_documentation_score measures docs quality."""
+    """Feature: _calculate_documentation_score rewards checkable Exit Criteria."""
 
     @pytest.mark.unit
-    def test_full_docs_scores_100(self, tmp_path: Path) -> None:
-        """Scenario: 3+ code blocks, 3+ numbered steps, examples = max score."""
+    def test_two_checkable_items_score_100(self, tmp_path: Path) -> None:
+        """Scenario: Exit Criteria with two '- [ ]' items is a full score."""
         auditor = SkillsAuditor(tmp_path)
-        content = (
-            "## Examples\n"
-            "```python\ncode\n```\n"
-            "```bash\ncode\n```\n"
-            "```python\nmore\n```\n"
-            "1. Step one\n2. Step two\n3. Step three\n"
-        )
-        score = auditor._calculate_documentation_score(content)
-        assert score == 100.0
+        content = "## Exit Criteria\n\n- [ ] File exists\n- [ ] Tests pass\n"
+        assert auditor._calculate_documentation_score(content) == 100.0
 
     @pytest.mark.unit
-    def test_no_docs_returns_zero_unless_example_word(self, tmp_path: Path) -> None:
-        """Scenario: Content with no code blocks or lists scores low."""
+    def test_no_exit_criteria_scores_zero(self, tmp_path: Path) -> None:
+        """Scenario: Code blocks and examples alone earn nothing."""
         auditor = SkillsAuditor(tmp_path)
-        score = auditor._calculate_documentation_score("Just some text.")
-        # 'example' not in text, no code blocks, no numbered list
-        assert score == 0.0
+        content = "See this example.\n```python\ncode\n```\n1. Step\n2. Step\n"
+        assert auditor._calculate_documentation_score(content) == 0.0
 
     @pytest.mark.unit
-    def test_example_word_adds_points(self, tmp_path: Path) -> None:
-        """Scenario: Content containing 'example' gets documentation points."""
+    def test_one_checkable_item_scores_half(self, tmp_path: Path) -> None:
+        """Scenario: A single item is half of the minimum."""
         auditor = SkillsAuditor(tmp_path)
-        score = auditor._calculate_documentation_score("See this example.")
-        assert score == 25.0
-
-    @pytest.mark.unit
-    def test_one_code_block_adds_25(self, tmp_path: Path) -> None:
-        """Scenario: Single code block pair adds 25 points."""
-        auditor = SkillsAuditor(tmp_path)
-        score = auditor._calculate_documentation_score("```python\ncode\n```\n")
-        assert score >= 25.0
+        content = "## Exit Criteria\n\n- [ ] Done\n"
+        assert auditor._calculate_documentation_score(content) == 50.0
 
 
 # ---------------------------------------------------------------------------
@@ -457,15 +489,15 @@ class TestGenerateIssues:
         assert any("description" in i for i in issues)
 
     @pytest.mark.unit
-    def test_missing_recommended_field_reported(self, tmp_path: Path) -> None:
-        """Scenario: Missing recommended field appears in issues."""
+    def test_description_without_trigger_reported(self, tmp_path: Path) -> None:
+        """Scenario: A description that never says when to use it is flagged."""
         auditor = SkillsAuditor(tmp_path)
         issues = auditor._generate_issues(
             {"name": "x", "description": "d"},
             "---\nname: x\ndescription: d\n---\ncontent",
             100,
         )
-        assert any("category" in i or "tags" in i for i in issues)
+        assert any("trigger" in i for i in issues)
 
     @pytest.mark.unit
     def test_compact_convention_not_flagged_for_overview(self, tmp_path: Path) -> None:
@@ -505,15 +537,15 @@ class TestGenerateIssues:
         assert any("token" in i.lower() for i in issues)
 
     @pytest.mark.unit
-    def test_missing_code_examples_reported(self, tmp_path: Path) -> None:
-        """Scenario: No code blocks triggers missing examples issue."""
+    def test_missing_exit_criteria_reported(self, tmp_path: Path) -> None:
+        """Scenario: No Exit Criteria section is flagged."""
         auditor = SkillsAuditor(tmp_path)
         issues = auditor._generate_issues(
             {"name": "x", "description": "d"},
             "---\nname: x\ndescription: d\n---\ncontent",
             100,
         )
-        assert any("code" in i.lower() for i in issues)
+        assert any("Exit Criteria" in i for i in issues)
 
     @pytest.mark.unit
     def test_explicitly_configured_required_section_reported(
@@ -534,6 +566,68 @@ class TestGenerateIssues:
             100,
         )
         assert any("Custom" in i for i in issues)
+
+    @pytest.mark.unit
+    def test_overlong_description_reported_and_not_scored_usable(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: A description over the 1024-char limit is flagged."""
+        auditor = SkillsAuditor(tmp_path)
+        description = "Use when testing. " + "x" * 1024
+        frontmatter = {"name": "x", "description": description}
+        issues = auditor._generate_issues(
+            frontmatter, f"---\nname: x\ndescription: {description}\n---\n", 100
+        )
+        assert any("over 1024 characters" in i for i in issues)
+        # name and description present, but the description is not usable
+        assert auditor._calculate_completeness_score(frontmatter, "") == pytest.approx(
+            200 / 3
+        )
+
+
+class TestStructureScorePenalties:
+    """Feature: structure score drops for the line cap and missing sections."""
+
+    @pytest.mark.unit
+    def test_body_over_line_cap_loses_a_third(self, tmp_path: Path) -> None:
+        auditor = SkillsAuditor(tmp_path)
+        content = "## Exit Criteria\n\n- [ ] Done\n" + "Line.\n" * 501
+        assert auditor._calculate_structure_score(content) == pytest.approx(200 / 3)
+
+    @pytest.mark.unit
+    def test_missing_configured_section_lowers_the_score(self, tmp_path: Path) -> None:
+        auditor = SkillsAuditor(tmp_path)
+        auditor.audit_metrics["required_sections"] = ["Custom"]
+        content = "# Skill\n\n## Exit Criteria\n\n- [ ] Done\n"
+        assert auditor._calculate_structure_score(content) == pytest.approx(200 / 3)
+
+
+class TestSkillScannedOnce:
+    """Feature: one skill's Exit Criteria and body are scanned once."""
+
+    @pytest.mark.unit
+    def test_analysis_scans_exit_criteria_and_body_once_per_skill(
+        self, tmp_path: Path
+    ) -> None:
+        """Three scorers read the Exit Criteria block and two the body line
+        count, and each must parse the skill only once.
+        """
+        skill_file = tmp_path / "scan-once" / "SKILL.md"
+        skill_file.parent.mkdir()
+        skill_file.write_text(
+            "---\nname: scan-once\ndescription: Use when testing\n---\n\n"
+            "## Exit Criteria\n\n- [ ] One\n- [ ] Two\n",
+            encoding="utf-8",
+        )
+        _exit_criteria_block.cache_clear()
+        _body_line_count.cache_clear()
+
+        SkillsAuditor(tmp_path)._analyze_skill_file(skill_file)
+
+        block_scans = _exit_criteria_block.cache_info()
+        body_scans = _body_line_count.cache_info()
+        assert (block_scans.misses, block_scans.hits) == (1, 2)
+        assert (body_scans.misses, body_scans.hits) == (1, 1)
 
 
 # ---------------------------------------------------------------------------
@@ -649,7 +743,7 @@ class TestGenerateRecommendations:
             )
         ]
         recs = auditor._generate_recommendations(metrics)
-        assert any("structure" in r.lower() for r in recs)
+        assert any("Exit Criteria" in r for r in recs)
 
     @pytest.mark.unit
     def test_high_token_usage_triggers_recommendations(self, tmp_path: Path) -> None:

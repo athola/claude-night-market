@@ -2,7 +2,6 @@
 name: control-desktop
 description: Run a computer use task on the desktop via Claude's vision and action API
 args: task description
-user_invocable: true
 ---
 
 # /control-desktop

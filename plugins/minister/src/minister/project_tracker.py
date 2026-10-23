@@ -15,10 +15,12 @@ import json
 import logging
 import os
 import sys
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from minister._vendored_leyline_sibling_plugins import version_key
 
 
 @dataclass
@@ -65,14 +67,9 @@ def _leyline_src(plugin_root: Path) -> Path | None:
 
     versions = sorted(
         (plugin_root.parent.parent / "leyline").glob("*/src"),
-        key=lambda path: _version_key(path.parent.name),
+        key=lambda path: version_key(path.parent),
     )
     return versions[-1] if versions else None
-
-
-def _version_key(version: str) -> tuple[int, ...]:
-    """Order versions numerically so 1.9.9 ranks below 1.9.17."""
-    return tuple(int(part) if part.isdigit() else -1 for part in version.split("."))
 
 
 def _load_shared_resolver(plugin_root: Path) -> Any | None:
@@ -150,17 +147,23 @@ class ProjectTracker:
                 aside = self.data_file.with_name(
                     f"{self.data_file.stem}.corrupt-{stamp}{self.data_file.suffix}"
                 )
-                moved: Path | None = aside
+                logger = logging.getLogger(__name__)
                 try:
                     os.replace(self.data_file, aside)
                 except OSError:
-                    moved = None
-                logging.getLogger(__name__).warning(
-                    "minister: corrupt data file %s (%s); moved aside to %s",
-                    self.data_file,
-                    exc,
-                    moved,
-                )
+                    logger.warning(
+                        "minister: corrupt data file %s (%s); could not be "
+                        "moved aside, left in place",
+                        self.data_file,
+                        exc,
+                    )
+                else:
+                    logger.warning(
+                        "minister: corrupt data file %s (%s); moved aside to %s",
+                        self.data_file,
+                        exc,
+                        aside,
+                    )
                 return InitiativeTracker([], datetime.now(timezone.utc).isoformat())
             tasks = [Task(**task) for task in data.get("tasks", [])]
             return InitiativeTracker(
@@ -189,7 +192,16 @@ class ProjectTracker:
         self._save_data()
 
     def update_task(self, task_id: str, updates: dict[str, Any]) -> None:
-        """Update an existing task."""
+        """Update an existing task.
+
+        Raises:
+            KeyError: no task has ``task_id``.
+            ValueError: ``updates`` names a field Task does not have.
+
+        """
+        unknown = set(updates) - {f.name for f in fields(Task)}
+        if unknown:
+            raise ValueError(f"Unknown task fields: {sorted(unknown)}")
         for task in self.data.tasks:
             if task.id == task_id:
                 for key, value in updates.items():
@@ -197,6 +209,7 @@ class ProjectTracker:
                 task.updated_date = datetime.now(timezone.utc).isoformat()
                 self._save_data()
                 return
+        raise KeyError(task_id)
 
     def get_tasks_by_initiative(self, initiative: str) -> list[Task]:
         """Get all tasks for a specific initiative."""

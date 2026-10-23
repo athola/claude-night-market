@@ -68,3 +68,23 @@ def test_full_sweep_jobs_install_shell_tooling(tool: str) -> None:
             f"{workflow} job '{job_name}' runs `make test` without installing "
             f"{tool}; pensive's shell-review suite shells out to it"
         )
+
+
+def test_every_downloaded_shfmt_binary_is_checksum_verified() -> None:
+    """A binary installed into /usr/local/bin must match a pinned sha256."""
+    downloads = 0
+    for path in sorted(WORKFLOW_DIR.glob("*.y*ml")):
+        workflow = yaml.safe_load(path.read_text())
+        for job in (workflow.get("jobs") or {}).values():
+            for step in job.get("steps", []):
+                run = str(step.get("run", ""))
+                if "releases/download" not in run or "shfmt" not in run:
+                    continue
+                downloads += 1
+                assert re.search(r"[0-9a-f]{64}\s+/tmp/shfmt\" \| sha256sum -c", run), (
+                    f"{path.name}: shfmt is installed without a sha256 check"
+                )
+                assert run.index("sha256sum -c") < run.index("install -m"), (
+                    f"{path.name}: shfmt is installed before it is verified"
+                )
+    assert downloads, "no workflow downloads shfmt; this guard is vacuous"

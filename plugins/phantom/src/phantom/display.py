@@ -27,7 +27,6 @@ class DisplayConfig:
     width: int = 1920
     height: int = 1080
     display_number: int = 1
-    screenshot_format: str = "png"
     action_delay_ms: int = 100
 
 
@@ -249,7 +248,12 @@ class DisplayToolkit:
 
         _run(["xdotool", "mousemove", str(sx), str(sy)])
         _run(["xdotool", "mousedown", "1"])
-        _run(["xdotool", "mousemove", "--sync", str(ex), str(ey)])
+        try:
+            _run(["xdotool", "mousemove", "--sync", str(ex), str(ey)])
+        except BaseException:
+            # A move that times out must not leave the button held down.
+            _run(["xdotool", "mouseup", "1"], check=False)
+            raise
         _run(["xdotool", "mouseup", "1"])
         return ActionResult(success=True)
 

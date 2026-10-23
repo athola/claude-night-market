@@ -12,9 +12,11 @@ The system calculates a "stability gap" to detect inconsistent skill behavior.
 This metric identifies tools that succeed in common cases
 but fail predictably on edge cases.
 
-- **Stability Gap**: The difference between average accuracy
-  and worst-case accuracy. A gap above 0.3 triggers a stability warning.
-- **Worst-case accuracy**: The minimum recorded success score for a skill.
+- **Stability Gap**: `1 - worst window rate`, the shortfall from perfect of
+  the worst 5-run window. One failure in a window costs 0.2. A gap above 0.3
+  triggers a stability warning and above 0.5 marks the skill critical.
+- **Worst window rate**: The lowest success rate over any 5 consecutive
+  runs. `plugins/abstract/hooks/shared/stability.py` computes it.
 - **Average accuracy**: The mean success score across all tracked invocations.
 - **Average duration**: Mean execution time in milliseconds.
 - **Execution count**: Total number of tracked uses.

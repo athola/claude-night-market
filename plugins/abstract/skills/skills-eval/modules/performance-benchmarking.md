@@ -411,20 +411,15 @@ Overall Performance Score: 92/100 (Excellent)
 
 ### Command-Line Usage
 
+No script runs the full benchmark suite described above. Two scripts
+measure part of it. Run them from `plugins/abstract`:
+
 ```bash
-# Run complete benchmark suite
-./scripts/performance-benchmark --skill-path path/to/skill/SKILL.md
+# Tokens per skill against a per-skill limit
+python3 scripts/token_usage_tracker.py skills/ --optimal-limit 1500
 
-# Specific benchmark categories
-./scripts/performance-benchmark --skill-path path/to/skill/SKILL.md \
-  --benchmarks execution,memory,tokens
-
-# Generate detailed report
-./scripts/performance-benchmark --skill-path path/to/skill/SKILL.md \
-  --format markdown --output benchmark-report.md
-
-# Comparative benchmarking
-./scripts/performance-benchmark --scan-all --format table --compare
+# Run time of each executable under a directory (runs them with --help)
+python3 scripts/tool_performance_analyzer.py skills/skills-eval
 ```
 
 ### Integration with Monitoring

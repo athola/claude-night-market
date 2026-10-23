@@ -113,12 +113,28 @@ class TestUsageTracker:
         assert event.context["cited_by"] == "article-456"
 
     def test_get_score_no_events(self, tracker: UsageTracker) -> None:
-        """Should return zero score for entries with no events."""
+        """An entry with no events scores raw 0, which normalizes to neutral."""
         score = tracker.get_score("nonexistent-entry")
         assert score.raw_score == 0.0
-        assert score.normalized_score == 0.0
+        assert score.normalized_score == 0.5
         assert score.access_count == 0
         assert score.citation_count == 0
+
+    def test_negative_signals_score_below_an_untouched_entry(
+        self, tracker: UsageTracker
+    ) -> None:
+        """A stale flag and negative feedback lower the score below neutral.
+
+        An entry with no events is the neutral baseline. Scoring it 0.0
+        put it below an entry whose raw score was -0.7.
+        """
+        tracker.record_event("flagged", UsageSignal.STALE_FLAG)
+        tracker.record_event("flagged", UsageSignal.NEGATIVE_FEEDBACK)
+
+        untouched = tracker.get_score("untouched").normalized_score
+        flagged = tracker.get_score("flagged").normalized_score
+
+        assert flagged < untouched
 
     def test_get_score_with_events(self, tracker: UsageTracker) -> None:
         """Should calculate score from events."""

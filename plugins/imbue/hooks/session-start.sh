@@ -7,7 +7,7 @@
 #
 # Hook Input Schema (Claude Code 2.1.2+):
 # {
-#   "agent_type": "string",      // e.g., "code-reviewer", "implementation-agent"
+#   "agent_type": "string",      // only with `claude --agent`, e.g. "pensive:code-reviewer"
 #   "source": "string",          // e.g., "cli", "editor"
 #   "session_id": "string"       // Unique session identifier
 # }
@@ -66,19 +66,26 @@ main() {
   # Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
   HOOK_INPUT=""
   AGENT_TYPE=""
-  if read -t 1 -r HOOK_INPUT 2>/dev/null; then
+  # read fails on a line with no final newline but still stores it.
+  if read -t 1 -r HOOK_INPUT 2>/dev/null || [[ -n "${HOOK_INPUT}" ]]; then
     AGENT_TYPE=$(get_json_field "${HOOK_INPUT}" "agent_type")
   fi
 
   # Lightweight agents that skip full scope-guard methodology
-  case "${AGENT_TYPE}" in
+  # A plugin agent arrives scoped (`pensive:code-reviewer`); match on the
+  # name after the plugin prefix. Only `claude --agent <name>` sets this:
+  # subagents never fire SessionStart.
+  case "${AGENT_TYPE##*:}" in
     code-reviewer | architecture-reviewer | rust-auditor | bloat-auditor | context-optimizer)
-      # Review/optimization agents: minimal scope-guard context
+      # Review/optimization agents: minimal scope-guard context.
+      # Only the name after the last colon is matched, so the prefix
+      # is arbitrary input and is escaped like the rest of the output.
+      agent_escaped=$(escape_for_json "${AGENT_TYPE}")
       cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "SessionStart",
-    "additionalContext": "[imbue] Agent '${AGENT_TYPE}' - scope-guard abbreviated: Focus on review quality, not implementation scope."
+    "additionalContext": "[imbue] Agent '${agent_escaped}' - scope-guard abbreviated: Focus on review quality, not implementation scope."
   }
 }
 EOF
@@ -105,14 +112,18 @@ EOF
       commits=0
       days_on_branch=0
 
-      if git rev-parse --verify "${base_branch}" >/dev/null 2>&1; then
-        stat_line=$(git diff "${base_branch}" --stat 2>/dev/null | tail -1)
+      # Same base resolution as user-prompt-submit.sh: fall back to master,
+      # and measure from the merge-base so upstream commits do not count.
+      merge_base=$(git merge-base "${base_branch}" HEAD 2>/dev/null) ||
+        merge_base=$(git merge-base master HEAD 2>/dev/null) || merge_base=""
+      if [ -n "${merge_base}" ]; then
+        stat_line=$(git diff "${merge_base}" --stat 2>/dev/null | tail -1)
         insertions=$(extract_stat_number "${stat_line}" "insertion")
         deletions=$(extract_stat_number "${stat_line}" "deletion")
         lines_changed=$((insertions + deletions))
-        commits=$(git rev-list --count "${base_branch}"..HEAD 2>/dev/null || printf '%s\n' "0")
+        commits=$(git rev-list --count "${merge_base}"..HEAD 2>/dev/null || printf '%s\n' "0")
 
-        merge_base_date=$(git log -1 --format=%ct "$(git merge-base "${base_branch}" HEAD 2>/dev/null)" 2>/dev/null || date +%s)
+        merge_base_date=$(git log -1 --format=%ct "${merge_base}" 2>/dev/null || date +%s)
         current_date=$(date +%s)
         days_on_branch=$(((current_date - merge_base_date) / 86400))
       fi
@@ -128,10 +139,10 @@ EOF
       # Build zone-specific message
       case "${zone}" in
         red)
-          scope_guard_reminder="\\n\\n**SCOPE-GUARD RED ZONE**: Branch has ${lines_changed} lines, ${commits} commits, ${days_on_branch} days. Before adding features, run \`Skill(imbue:scope-guard)\` to evaluate scope."
+          scope_guard_reminder=$'\n\n'"**SCOPE-GUARD RED ZONE**: Branch has ${lines_changed} lines, ${commits} commits, ${days_on_branch} days. Before adding features, run \`Skill(imbue:scope-guard)\` to evaluate scope."
           ;;
         yellow)
-          scope_guard_reminder="\\n\\n**SCOPE-GUARD YELLOW ZONE**: Branch approaching thresholds (${lines_changed} lines, ${commits} commits, ${days_on_branch} days). Consider scope when adding features."
+          scope_guard_reminder=$'\n\n'"**SCOPE-GUARD YELLOW ZONE**: Branch approaching thresholds (${lines_changed} lines, ${commits} commits, ${days_on_branch} days). Consider scope when adding features."
           ;;
       esac
       ;;

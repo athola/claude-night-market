@@ -7,6 +7,7 @@ Uses core functionality from src/abstract/skills_eval.
 from __future__ import annotations
 
 import logging
+import sys
 from pathlib import Path
 
 from cli_scaffold import create_parser, setup_src_path, write_output
@@ -112,4 +113,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     tracker = TokenUsageTracker(args.skills_dir, args.optimal_limit)
-    write_output(tracker.get_usage_report(), args.output)
+    if not write_output(tracker.get_usage_report(), args.output):
+        sys.exit(1)

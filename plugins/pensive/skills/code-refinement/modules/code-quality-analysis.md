@@ -17,9 +17,9 @@ Shared patterns for code quality and deduplication analysis across review contex
 ### Duplication Detection
 
 ```bash
-# Python: Find similar function signatures
-grep -rn "^def \|^    def " --include="*.py" . | \
-  sed 's/(.*//' | sort -t: -k2 | uniq -f1 -d
+# Python: one name, different bodies, several files (conserve census)
+python3 plugins/conserve/scripts/detect_duplicates.py . --format json | \
+  python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin)['competing_implementations'], indent=1))"
 
 # TypeScript/JavaScript: Similar declarations
 grep -rn "function \|const .* = (" --include="*.ts" --include="*.js" . | \

@@ -10,6 +10,8 @@ across sessions without relying on ephemeral memory.
 
 from __future__ import annotations
 
+import json
+import threading
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -571,6 +573,13 @@ class TestSessionHistoryManager:
         assert mgr.get_session_chain("ghost") == []
 
     @pytest.mark.unit
+    def test_get_session_chain_raises_on_unsafe_id(self, tmp_path: Path) -> None:
+        """An unsafe id is rejected at the public entry, as get_session does."""
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.get_session_chain("../../../etc/passwd")
+
+    @pytest.mark.unit
     def test_get_session_chain_long_chain(self, tmp_path: Path) -> None:
         """Scenario: Chain correctness at scale.
 
@@ -828,16 +837,17 @@ class TestSessionIdSanitization:
         Given a session ID of '../../../etc/passwd'
         When record_session is called
         Then a ValueError is raised
-        And get_session returns None
-        And delete_session returns False.
+        And get_session and delete_session raise ValueError.
         """
         mgr = SessionHistoryManager(data_dir=tmp_path)
 
         with pytest.raises(ValueError, match="Invalid session_id"):
             mgr.record_session(_make_record("../../../etc/passwd"))
 
-        assert mgr.get_session("../../../etc/passwd") is None
-        assert mgr.delete_session("../../../etc/passwd") is False
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.get_session("../../../etc/passwd")
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.delete_session("../../../etc/passwd")
 
     @pytest.mark.unit
     def test_encoded_traversal_rejected(self, tmp_path: Path) -> None:
@@ -852,7 +862,8 @@ class TestSessionIdSanitization:
         with pytest.raises(ValueError, match="Invalid session_id"):
             mgr.record_session(_make_record("..%2F..%2Fetc"))
 
-        assert mgr.get_session("..%2F..%2Fetc") is None
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.get_session("..%2F..%2Fetc")
 
     @pytest.mark.unit
     def test_empty_session_id_rejected(self, tmp_path: Path) -> None:
@@ -861,14 +872,15 @@ class TestSessionIdSanitization:
         Given an empty session ID
         When record_session is called
         Then a ValueError is raised
-        And get_session returns None.
+        And get_session raises ValueError.
         """
         mgr = SessionHistoryManager(data_dir=tmp_path)
 
         with pytest.raises(ValueError, match="Invalid session_id"):
             mgr.record_session(_make_record(""))
 
-        assert mgr.get_session("") is None
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.get_session("")
 
     @pytest.mark.unit
     def test_session_id_with_path_separators_rejected(self, tmp_path: Path) -> None:
@@ -886,8 +898,10 @@ class TestSessionIdSanitization:
         with pytest.raises(ValueError, match="Invalid session_id"):
             mgr.record_session(_make_record("foo\\bar"))
 
-        assert mgr.get_session("foo/bar") is None
-        assert mgr.get_session("foo\\bar") is None
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.get_session("foo/bar")
+        with pytest.raises(ValueError, match="Invalid session_id"):
+            mgr.get_session("foo\\bar")
 
     @pytest.mark.unit
     def test_validate_session_id_helper(self) -> None:
@@ -1079,3 +1093,215 @@ class TestUnitDependencies:
             "state": "s",
         }
         assert SessionUnit.from_dict(legacy).files == []
+
+
+class TestSessionIndexPersistence:
+    """The index is a cache of the session files and must stay writable."""
+
+    @pytest.mark.unit
+    def test_save_does_not_depend_on_a_fixed_temp_path(self, tmp_path: Path) -> None:
+        """A directory where the old fixed temp file went does not break a save."""
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+        (mgr.sessions_dir / "session_index.tmp").mkdir()
+
+        mgr.record_session(_make_record("sess-a"))
+
+        assert [s.session_id for s in mgr.get_recent_sessions()] == ["sess-a"]
+
+    @pytest.mark.unit
+    def test_index_rebuilt_from_corruption_is_saved_so_later_loads_skip_the_scan(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """One load repairs a corrupt index; the next load reads no session file."""
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+        mgr.record_session(_make_record("sess-a"))
+        mgr.record_session(
+            _make_record("sess-b", started_at="2026-01-02T10:00:00+00:00")
+        )
+        mgr.index_path.write_text("{not json", encoding="utf-8")
+        scanned: list[str] = []
+        original_load = mgr._store.load
+
+        def counting_load(session_id: str) -> SessionRecord | None:
+            scanned.append(session_id)
+            return original_load(session_id)
+
+        monkeypatch.setattr(mgr._store, "load", counting_load)
+
+        mgr.get_stats()
+        repaired = json.loads(mgr.index_path.read_text(encoding="utf-8"))
+        scanned.clear()
+        mgr.get_stats()
+
+        assert [s["session_id"] for s in repaired["sessions"]] == ["sess-a", "sess-b"]
+        assert scanned == [], "a repaired index still triggered a rescan"
+
+    @pytest.mark.unit
+    def test_reads_survive_a_rebuilt_index_that_cannot_be_saved(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A corrupt index whose rebuilt copy cannot be written still answers.
+
+        The save is forced to fail rather than relying on a read-only
+        directory, which root ignores.
+        """
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+        mgr.record_session(_make_record("sess-a"))
+        mgr.index_path.write_text("{not json", encoding="utf-8")
+
+        def refuse_save(index: dict) -> None:
+            raise PermissionError("read-only sessions dir")
+
+        monkeypatch.setattr(mgr, "_save_index", refuse_save)
+        found = mgr.query_sessions(SessionQuery())
+        stats = mgr.get_stats()
+
+        assert [r.session_id for r in found] == ["sess-a"]
+        assert stats["total"] == 1
+
+    @pytest.mark.unit
+    def test_rebuild_does_not_treat_the_index_file_as_a_session(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Rebuilding from a corrupt index writes nothing about session_index."""
+        mgr = SessionHistoryManager(data_dir=tmp_path)
+        mgr.record_session(_make_record("sess-a"))
+        mgr.index_path.write_text("{not json", encoding="utf-8")
+        capsys.readouterr()
+
+        mgr.get_stats()
+
+        assert "session_index" not in capsys.readouterr().err
+
+
+# ---------------------------------------------------------------------------
+# Concurrent writers and unreadable records
+# ---------------------------------------------------------------------------
+
+
+def test_record_session_keeps_a_row_another_manager_wrote_after_its_load(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """B's row must survive A saving an index it loaded before B wrote."""
+    stale_writer = SessionHistoryManager(data_dir=tmp_path)
+    other_writer = SessionHistoryManager(data_dir=tmp_path)
+    real_load = SessionHistoryManager._load_index
+    racers: list[threading.Thread] = []
+
+    def load_then_let_other_write(self: SessionHistoryManager) -> dict:
+        index = real_load(self)
+        if self is stale_writer and not racers:
+            racer = threading.Thread(
+                target=other_writer.record_session, args=(_make_record("s1"),)
+            )
+            racers.append(racer)
+            racer.start()
+            # Unlocked, the other write lands here; locked, it waits.
+            racer.join(timeout=0.5)
+        return index
+
+    monkeypatch.setattr(SessionHistoryManager, "_load_index", load_then_let_other_write)
+    stale_writer.record_session(_make_record("s2"))
+    racers[0].join()
+    monkeypatch.undo()
+
+    index = json.loads(stale_writer.index_path.read_text(encoding="utf-8"))
+    assert sorted(row["session_id"] for row in index["sessions"]) == ["s1", "s2"]
+
+
+def test_rebuild_index_skips_an_undecodable_session_file(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    manager = SessionHistoryManager(data_dir=tmp_path)
+    manager.record_session(_make_record("good"))
+    (manager.sessions_dir / "bad.json").write_bytes(b"\xff\xfe{not utf-8")
+    manager.index_path.write_text("{corrupt", encoding="utf-8")
+
+    found = manager.query_sessions(SessionQuery())
+
+    assert [rec.session_id for rec in found] == ["good"]
+    assert "skipping unreadable session bad" in caplog.text
+
+
+def test_rebuild_index_skips_a_session_file_that_fails_to_deserialize(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manager = SessionHistoryManager(data_dir=tmp_path)
+    manager.record_session(_make_record("good"))
+    manager.record_session(_make_record("bad"))
+    manager.index_path.write_text("{corrupt", encoding="utf-8")
+    real_from_dict = SessionRecord.from_dict.__func__
+
+    def reject_bad(cls: type, data: dict) -> SessionRecord:
+        if data.get("session_id") == "bad":
+            raise ValueError("unparsable field")
+        return real_from_dict(cls, data)
+
+    monkeypatch.setattr(SessionRecord, "from_dict", classmethod(reject_bad))
+
+    found = manager.query_sessions(SessionQuery())
+
+    assert [rec.session_id for rec in found] == ["good"]
+
+
+def test_delete_session_keeps_a_row_another_manager_wrote_after_its_load(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A delete that loaded the index before B recorded must keep B's row."""
+    deleter = SessionHistoryManager(data_dir=tmp_path)
+    other_writer = SessionHistoryManager(data_dir=tmp_path)
+    deleter.record_session(_make_record("gone"))
+    real_load = SessionHistoryManager._load_index
+    racers: list[threading.Thread] = []
+
+    def load_then_let_other_write(self: SessionHistoryManager) -> dict:
+        index = real_load(self)
+        if self is deleter and not racers:
+            racer = threading.Thread(
+                target=other_writer.record_session, args=(_make_record("kept"),)
+            )
+            racers.append(racer)
+            racer.start()
+            # Unlocked, the other write lands here; locked, it waits.
+            racer.join(timeout=0.5)
+        return index
+
+    monkeypatch.setattr(SessionHistoryManager, "_load_index", load_then_let_other_write)
+    assert deleter.delete_session("gone") is True
+    racers[0].join()
+    monkeypatch.undo()
+
+    index = json.loads(deleter.index_path.read_text(encoding="utf-8"))
+    assert [row["session_id"] for row in index["sessions"]] == ["kept"]
+
+
+def test_prune_old_sessions_keeps_a_row_another_manager_wrote_after_its_load(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A prune that loaded the index before B recorded must keep B's row."""
+    pruner = SessionHistoryManager(data_dir=tmp_path)
+    other_writer = SessionHistoryManager(data_dir=tmp_path)
+    old_ts = (datetime.now(timezone.utc) - timedelta(days=100)).isoformat()
+    pruner.record_session(_make_record("stale", started_at=old_ts))
+    real_load = SessionHistoryManager._load_index
+    racers: list[threading.Thread] = []
+
+    def load_then_let_other_write(self: SessionHistoryManager) -> dict:
+        index = real_load(self)
+        if self is pruner and not racers:
+            racer = threading.Thread(
+                target=other_writer.record_session, args=(_make_record("kept"),)
+            )
+            racers.append(racer)
+            racer.start()
+            # Unlocked, the other write lands here; locked, it waits.
+            racer.join(timeout=0.5)
+        return index
+
+    monkeypatch.setattr(SessionHistoryManager, "_load_index", load_then_let_other_write)
+    assert pruner.prune_old_sessions(max_age_days=90) == 1
+    racers[0].join()
+    monkeypatch.undo()
+
+    index = json.loads(pruner.index_path.read_text(encoding="utf-8"))
+    assert [row["session_id"] for row in index["sessions"]] == ["kept"]

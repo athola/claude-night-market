@@ -213,7 +213,9 @@ and a flattened control flow.
 
 **Test**: the diff should not change quote style,
 type hint presence, docstring presence, or whitespace
-patterns unless the request named them.
+patterns unless the request named them. It also adds
+no second helper, client or idiom for a concern the
+module already handles.
 
 ## AP-7: Vague Success Criteria
 

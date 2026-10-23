@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import contextlib
 import datetime
 import json
+import logging
 import random
 import re
 from pathlib import Path
@@ -17,6 +19,8 @@ from gauntlet.models import (
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
+_log = logging.getLogger(__name__)
 
 _SAFE_RE = re.compile(r"[^a-zA-Z0-9_.-]")
 
@@ -53,10 +57,27 @@ class ProgressTracker:
         path = self._path_for(developer_id)
         if path.exists():
             try:
-                data = json.loads(path.read_text())
-                return DeveloperProgress.from_dict(data)
-            except (json.JSONDecodeError, OSError, KeyError):
-                pass
+                return DeveloperProgress.from_dict(json.loads(path.read_text()))
+            except (ValueError, TypeError, KeyError) as exc:
+                # JSONDecodeError and a retired enum value are both ValueError.
+                # Keep the unreadable file so the next save() cannot erase it.
+                # A second corruption gets a timestamped name so it cannot
+                # replace the first backup.
+                aside = path.with_suffix(".json.corrupt")
+                if aside.exists():
+                    stamp = datetime.datetime.now(datetime.timezone.utc).strftime(
+                        "%Y%m%dT%H%M%S%fZ"
+                    )
+                    aside = path.with_suffix(f".json.{stamp}.corrupt")
+                _log.warning(
+                    "unreadable progress file %s (%s); moved to %s",
+                    path,
+                    exc,
+                    aside,
+                )
+                # A concurrent load may already have moved it aside.
+                with contextlib.suppress(FileNotFoundError):
+                    path.replace(aside)
         return DeveloperProgress(developer_id=developer_id)
 
     def save(self, progress: DeveloperProgress) -> None:

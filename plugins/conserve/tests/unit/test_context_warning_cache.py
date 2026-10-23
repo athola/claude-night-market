@@ -16,6 +16,8 @@ sessions.
 
 from __future__ import annotations
 
+import re
+
 import pytest
 
 
@@ -33,7 +35,7 @@ def _fake_session(monkeypatch, tmp_path, session_id: str = "session-a"):
     home = tmp_path / "home"
     cwd = tmp_path / "work"
     cwd.mkdir(parents=True, exist_ok=True)
-    project_dir = home / ".claude" / "projects" / str(cwd).replace("/", "-")
+    project_dir = home / ".claude" / "projects" / re.sub(r"[^A-Za-z0-9]", "-", str(cwd))
     project_dir.mkdir(parents=True, exist_ok=True)
     (project_dir / f"{session_id}.jsonl").write_text("x" * 80000)
     monkeypatch.setenv("CLAUDE_SESSION_ID", session_id)
@@ -201,3 +203,32 @@ class TestCachePathIsNotFollowedThroughASymlink:
         module._cache_path(session_file).symlink_to(planted)
 
         assert module.estimate_context_from_session() == spy.value
+
+
+class TestCacheOwnedByAnotherUserIsRefused:
+    """Feature: a cache file someone else owns is never trusted.
+
+    The state directory can be shared (``/tmp/conserve-<uid>`` is
+    predictable). A file there that another account created could feed
+    the hook any number, so ``_open_cache`` refuses it by owner.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_a_foreign_owned_cache_is_ignored_and_recomputed(
+        self, context_warning_full_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: the cached file's owner is not the current user."""
+        module = context_warning_full_module
+        _fake_session(monkeypatch, tmp_path)
+        spy = _EstimatorSpy()
+        monkeypatch.setattr(module, "_estimate_from_recent_turns", spy)
+        module.estimate_context_from_session()
+        assert spy.calls == 1
+
+        real_uid = module.os.geteuid()
+        # The OS now reports a different effective user than the file's owner.
+        monkeypatch.setattr(module.os, "geteuid", lambda: real_uid + 1)
+
+        assert module.estimate_context_from_session() == spy.value
+        assert spy.calls == 2

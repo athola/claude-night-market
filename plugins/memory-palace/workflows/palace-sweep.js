@@ -14,7 +14,7 @@ export const meta = {
   description:
     'Ask one question of every memory palace in parallel and rank the answers, including the ones filed under an unexpected domain',
   whenToUse:
-    'Run when a search of the obvious palace came back empty or thin. args.question is what to look for; args.palaces narrows the set. Returns ranked findings with their palace of origin; it writes nothing.',
+    'Run when a search of the obvious palace came back empty or thin. args.question is what to look for. args.palaces narrows the set. Returns ranked findings with their palace of origin. It writes nothing.',
   phases: [
     { title: 'Search', detail: 'one agent per palace' },
     { title: 'Rank', detail: 'merge partial answers into one' },
@@ -39,7 +39,7 @@ if (!palaces.length) {
   return {
     started: false,
     reason: 'no-palaces',
-    next: 'Pass args.palaces as a list of palace names. Run /memory-palace:navigate to enumerate them; a workflow script cannot read the filesystem.',
+    next: 'Pass args.palaces as a list of palace names. Run /memory-palace:navigate to enumerate them. A workflow script cannot read the filesystem.',
   }
 }
 
@@ -88,7 +88,7 @@ const hits = results.flatMap((result) =>
 const empty = results.filter((result) => !(result.hits || []).length).map((result) => result.palace)
 const coverage = { searched: results.map((result) => result.palace), empty, missing }
 
-if (missing.length) log(`no result from ${missing.join(', ')}; those palaces were not searched`)
+if (missing.length) log(`no result from ${missing.join(', ')}. Those palaces were not searched`)
 
 if (!hits.length) {
   log(`no palace held anything on: ${question} (${results.length} of ${palaces.length} searched)`)
@@ -100,7 +100,7 @@ const digest = hits
   .join('\n')
 
 const answer = await agent(
-  `These palaces were searched independently for one question. Merge what they found into a single answer.\n\nQuestion: ${question}\n\n${digest}\n\nWhere two palaces hold the same fact, say so once. Where they disagree, report the disagreement with both dates rather than picking the newer one, because the older note may be the one that recorded why. Say plainly which parts of the question nothing here answers.`,
+  `These palaces were searched independently for one question. Merge what they found into a single answer.\n\nQuestion: ${question}\n\n${digest}\n\nWhere two palaces hold the same fact, say so once. Where they disagree, report the disagreement with both dates rather than picking the newer one. The older note may be the one that recorded why. Say plainly which parts of the question nothing here answers.`,
   { label: 'rank', phase: 'Rank' },
 )
 

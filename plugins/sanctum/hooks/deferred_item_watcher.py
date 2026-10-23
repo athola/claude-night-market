@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from _ledger_utils import get_ledger_path as _get_ledger_path
+from _ledger_utils import ledger_lock
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -88,10 +89,11 @@ def write_ledger_entry(path: Path, entry: dict) -> None:
         entry = dict(entry)
         entry["title"] = _normalize_title(entry["title"])
 
-    entries = read_ledger(path)
-    entries.append(entry)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(entries, indent=2), encoding="utf-8")
+    with ledger_lock(path):
+        entries = read_ledger(path)
+        entries.append(entry)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(entries, indent=2), encoding="utf-8")
 
 
 def update_ledger_entry(
@@ -106,17 +108,18 @@ def update_ledger_entry(
     is found the ledger is left unchanged.
     """
     normalised = _normalize_title(title)
-    entries = read_ledger(path)
-    changed = False
-    for entry in entries:
-        if _normalize_title(entry.get("title", "")) == normalised:
-            entry["filed"] = filed
-            if issue_number is not None:
-                entry["issue_number"] = issue_number
-            changed = True
-    if changed:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(entries, indent=2), encoding="utf-8")
+    with ledger_lock(path):
+        entries = read_ledger(path)
+        changed = False
+        for entry in entries:
+            if _normalize_title(entry.get("title", "")) == normalised:
+                entry["filed"] = filed
+                if issue_number is not None:
+                    entry["issue_number"] = issue_number
+                changed = True
+        if changed:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(entries, indent=2), encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -299,11 +302,8 @@ def main() -> None:
     if not scan_for_deferrals(tool_output):
         sys.exit(0)
 
-    tool_input = payload.get("tool_input", {})
-    if not isinstance(tool_input, dict):
-        tool_input = {}
-
-    source = _parse_skill_name(tool_input)
+    # read_payload already coerced tool_input to a dict at the stdin boundary.
+    source = _parse_skill_name(payload["tool_input"])
     titles = extract_deferred_titles(tool_output)
     ledger_path = get_ledger_path()
     timestamp = datetime.now(tz=timezone.utc).isoformat()

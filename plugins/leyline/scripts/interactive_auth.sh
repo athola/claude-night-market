@@ -141,9 +141,11 @@ check_cache() {
   local current_time
   current_time=$(get_timestamp)
 
-  if [[ -z "${last_verified}" ]]; then
-    return 1
-  fi
+  # Digits only: $(( )) evaluates any other text as an expression, and an
+  # array subscript in it runs a command.
+  case "${last_verified}" in
+    "" | *[!0-9]*) return 1 ;;
+  esac
 
   local cache_age=$((current_time - last_verified))
 
@@ -212,9 +214,9 @@ load_session() {
   local current_time
   current_time=$(get_timestamp)
 
-  if [[ -z "${session_created}" ]]; then
-    return 1
-  fi
+  case "${session_created}" in
+    "" | *[!0-9]*) return 1 ;;
+  esac
 
   local session_age=$((current_time - session_created))
 
@@ -281,6 +283,8 @@ check_auth_status() {
 
 # Prompt for GitHub authentication
 prompt_github_auth() {
+  # Local, so the token does not outlive the prompt or clobber a caller's.
+  local choice token
   cat <<'EOF'
 
 🔐 GitHub Authentication Required
@@ -390,8 +394,10 @@ ensure_auth() {
     return 1
   fi
 
-  # Retry loop with exponential backoff
-  while [[ ${attempt} -lt ${AUTH_MAX_ATTEMPTS} ]]; do
+  # Each pass re-checks first, so the check after the last login attempt
+  # still runs. Prompts and status go to stderr: callers capture stdout,
+  # as in out=$(gh_api_with_auth user).
+  while true; do
     # Check cache first (fast path)
     if check_cache "${service}"; then
       return 0
@@ -413,19 +419,17 @@ ensure_auth() {
       return 0
     fi
 
-    # Authentication failed - attempt to authenticate
-    attempt=$((attempt + 1))
-
     if [[ ${attempt} -ge ${AUTH_MAX_ATTEMPTS} ]]; then
       printf '%s\n' "❌ Maximum authentication attempts (${AUTH_MAX_ATTEMPTS}) reached for ${service}" >&2
       return 1
     fi
+    attempt=$((attempt + 1))
 
     # Check if we should prompt
     if is_ci; then
       # CI/CD: Use environment variables
       if [[ "${service}" == "github" ]] && [[ -n "${GITHUB_TOKEN:-}" ]]; then
-        printf '%s\n' "🔐 Using GITHUB_TOKEN from environment"
+        printf '%s\n' "🔐 Using GITHUB_TOKEN from environment" >&2
         # Subshell-scoped, so tracing is restored for the caller after the
         # credential has passed through.
         (
@@ -434,8 +438,11 @@ ensure_auth() {
         )
         continue
       elif [[ "${service}" == "gitlab" ]] && [[ -n "${GITLAB_TOKEN:-}" ]]; then
-        printf '%s\n' "🔐 Using GITLAB_TOKEN from environment"
-        # GitLab token handling depends on version
+        printf '%s\n' "🔐 Using GITLAB_TOKEN from environment" >&2
+        (
+          { set +x; } 2>/dev/null
+          printf '%s' "${GITLAB_TOKEN}" | glab auth login --stdin &>/dev/null
+        )
         continue
       else
         printf '%s\n' "❌ ${service} authentication required in CI/CD" >&2
@@ -450,12 +457,12 @@ ensure_auth() {
     fi
 
     # Prompt user for authentication
-    printf '%s\n' "🔐 ${service} authentication required (attempt ${attempt}/${AUTH_MAX_ATTEMPTS})"
+    printf '%s\n' "🔐 ${service} authentication required (attempt ${attempt}/${AUTH_MAX_ATTEMPTS})" >&2
 
     if [[ "${service}" == "github" ]]; then
-      prompt_github_auth || continue
+      prompt_github_auth >&2 || continue
     else
-      prompt_service_auth "${service}" || continue
+      prompt_service_auth "${service}" >&2 || continue
     fi
 
     # If we get here, auth succeeded, loop will verify and return
@@ -491,21 +498,3 @@ aws_with_auth() {
   ensure_auth aws || return 1
   aws "$@"
 }
-
-# ============================================================================
-# EXPORT FUNCTIONS
-# ============================================================================
-
-# Export main functions
-export -f ensure_auth
-export -f check_auth_status
-export -f invalidate_auth_cache
-export -f clear_all_auth_cache
-export -f is_interactive
-export -f is_ci
-
-# Export wrapper functions
-export -f gh_with_auth
-export -f gh_api_with_auth
-export -f glab_with_auth
-export -f aws_with_auth

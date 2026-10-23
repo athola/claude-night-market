@@ -224,7 +224,15 @@ class AutonomyStateStore:
         return max(_MIN_LEVEL, min(level, _MAX_LEVEL))
 
     def load(self) -> AutonomyState:
-        """Load autonomy state from disk, creating default if missing."""
+        """Load autonomy state from disk, creating default if missing.
+
+        Raises:
+            ValueError: The file exists but is not a YAML mapping. It holds
+                the operator's domain locks, so defaults are never
+                substituted: any save after that would write state with no
+                locks. The file is left in place for the operator to repair.
+
+        """
         if not self.state_path.exists():
             state = AutonomyState()
             self.save(state)
@@ -232,17 +240,37 @@ class AutonomyStateStore:
         try:
             with self.state_path.open("r", encoding="utf-8") as handle:
                 data = yaml.safe_load(handle) or {}
-        except yaml.YAMLError:
-            data = {}
         except FileNotFoundError:
             data = {}
+        except yaml.YAMLError as exc:
+            raise ValueError(
+                f"autonomy state {self.state_path} is unreadable: {exc}"
+            ) from exc
+        if not isinstance(data, dict):
+            raise ValueError(
+                f"autonomy state {self.state_path} is unreadable: "
+                f"expected a mapping, got {type(data).__name__}"
+            )
         return AutonomyState.from_dict(data)
 
     def save(self, state: AutonomyState) -> AutonomyState:
-        """Persist autonomy state to disk."""
+        """Persist autonomy state to disk.
+
+        Written beside and renamed, so a concurrent hook reading the file
+        never sees a truncated one and a failed dump keeps the old state.
+        """
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
-        with self.state_path.open("w", encoding="utf-8") as handle:
-            yaml.safe_dump(state.to_dict(), handle, sort_keys=False)
+        temporary = self.state_path.with_name(
+            f"{self.state_path.name}.{os.getpid()}.tmp"
+        )
+        try:
+            with temporary.open("w", encoding="utf-8") as handle:
+                yaml.safe_dump(state.to_dict(), handle, sort_keys=False)
+            os.replace(temporary, self.state_path)
+        except BaseException:
+            with contextlib.suppress(OSError):
+                temporary.unlink()
+            raise
         return state
 
     def snapshot(self, *, config_level: int | None = None) -> dict[str, Any]:
@@ -274,7 +302,15 @@ class AutonomyStateStore:
         lock: bool | None = None,
         reason: str | None = None,
     ) -> AutonomyState:
-        """Set global or domain-specific level and persist."""
+        """Set global or domain-specific level and persist.
+
+        Raises:
+            ValueError: ``lock`` is given without ``domain``; locks exist
+                only on domain controls.
+
+        """
+        if lock is not None and not domain:
+            raise ValueError("lock requires a domain; there is no global lock")
         state = self.load()
         next_level = self._clamp_level(level)
         if domain:
@@ -294,9 +330,6 @@ class AutonomyStateStore:
             state.domain_controls[key] = control
         else:
             state.current_level = next_level
-            if lock is not None and not domain:
-                # Ignore lock toggles without domain context on global level
-                pass
         state.last_updated = _iso_now()
         return self.save(state)
 

@@ -180,3 +180,82 @@ class TestPackageGuardGates:
     def test_gate_admits_a_compound_install(self):
         command = "cd /tmp && pip install reqeusts"
         assert _any_gate_matches(self._SCRIPT, command)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "cd /tmp && uv add reqeusts",
+            "cd /tmp; poetry add reqeusts",
+            "true || pdm add reqeusts",
+            "cd web && yarn add lodahs",
+            "cd crate && cargo add serd",
+        ],
+    )
+    def test_gate_admits_an_install_after_a_leading_command(self, command):
+        assert parse_packages(command), f"guard does not parse {command!r}"
+        assert _any_gate_matches(self._SCRIPT, command)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "uv  add reqeusts",
+            "uv\tadd reqeusts",
+            "poetry  add reqeusts",
+            "pdm  add reqeusts",
+            "yarn  add lodahs",
+            "cargo  add serd",
+            "npm\ti lodahs",
+        ],
+    )
+    def test_gate_admits_an_install_with_extra_whitespace(self, command):
+        """The guard's parser accepts any whitespace run, so the gate must."""
+        assert parse_packages(command), f"guard does not parse {command!r}"
+        assert _any_gate_matches(self._SCRIPT, command)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "npm add lodahs",
+            "npm\tadd\tlodahs",
+            "npm\ti\tlodahs",
+            "pnpm\tinstall lodahs",
+            "pnpm i lodahs",
+            "sudo npm install lodahs",
+            "env CI=1 npm i lodahs",
+            "NODE_ENV=dev npm add lodahs",
+            "(npm install lodahs)",
+            "echo $(npm add lodahs)",
+            "cd web && npm\tinstall lodahs",
+            "sudo cargo add serd",
+            "(cargo\tadd serd)",
+            "cd crate; env RUSTFLAGS=-g cargo add serd",
+        ],
+    )
+    def test_gate_admits_npm_and_cargo_installs_in_every_form(self, command):
+        """Prefixes, subshells, tabs and chains all reach the guard's parser."""
+        assert parse_packages(command), f"guard does not parse {command!r}"
+        assert _any_gate_matches(self._SCRIPT, command)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "cat npm-debug.log",
+            "rm -rf ~/.npm/_logs",
+            "tail npm-debug.log",
+            "npm test",
+            "cargo build --release",
+            "cargo test",
+            "cat Cargo.toml",
+        ],
+    )
+    def test_gate_skips_npm_and_cargo_commands_that_install_nothing(self, command):
+        assert not parse_packages(command)
+        assert not _any_gate_matches(self._SCRIPT, command)

@@ -302,6 +302,17 @@ class TestGetDefaultVariables:
         # Then
         assert variables["PROJECT_MODULE"] == "my_awesome_project"
 
+    @pytest.mark.parametrize(
+        "project_name,module",
+        [("my.app", "my_app"), ("2fast-app", "_2fast_app"), ("My App!", "my_app_")],
+    )
+    def test_project_name_becomes_a_python_identifier(self, project_name, module):
+        """Dots, punctuation and a leading digit cannot appear in an import name."""
+        variables = get_default_variables(project_name)
+
+        assert variables["PROJECT_MODULE"] == module
+        assert module.isidentifier()
+
     def test_python_version_short_removes_dot(self):
         """Given Python version with dot, when getting defaults, then creates short version."""
         # When

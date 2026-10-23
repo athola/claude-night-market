@@ -2,6 +2,7 @@
 name: reinstall-all-plugins
 description: Uninstall and reinstall all Claude Code plugins to refresh cache and resolve version mismatches.
 usage: /reinstall-all-plugins [--list-only] [--generate-script] [--dry-run]
+disable-model-invocation: true
 ---
 
 # Reinstall All Plugins
@@ -49,7 +50,8 @@ Bash("python3 /home/alext/claude-night-market/plugins/leyline/scripts/reinstall_
 ## Output
 
 The script will:
-1. Read `~/.claude/plugins/installed_plugins.json` (or v2 format)
+1. Read `~/.claude/plugins/installed_plugins_v2.json`, or
+   `installed_plugins.json` when only the v1 file exists
 2. Categorize plugins (reinstallable vs excluded)
 3. Uninstall each reinstallable plugin
 4. Reinstall each plugin

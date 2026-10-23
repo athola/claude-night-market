@@ -155,7 +155,14 @@ class TestExtractContentSummary:
             "# Section 2\n\nAnother line.\n"
         )
         result = optimizer.extract_content_summary(content, max_section_lines=2)
-        assert isinstance(result, str)
+        # Frontmatter kept whole, every header kept, and each section cut to
+        # its first two lines (the blank after the header counts as one).
+        assert result == (
+            "---\nname: test\n---\n"
+            "# Section 1\n\nFirst line.\n"
+            "# Section 2\n\nAnother line."
+        )
+        assert "Second line." not in result
 
     @pytest.mark.unit
     def test_includes_section_headers(self, optimizer) -> None:
@@ -186,9 +193,9 @@ class TestExtractContentSummary:
         assert "# Section" in result
 
     @pytest.mark.unit
-    def test_empty_content_returns_string(self, optimizer) -> None:
+    def test_empty_content_summarizes_to_an_empty_string(self, optimizer) -> None:
         result = optimizer.extract_content_summary("", max_section_lines=5)
-        assert isinstance(result, str)
+        assert result == ""
 
 
 # ---------------------------------------------------------------------------
@@ -348,10 +355,11 @@ class TestContextOptimizerCLI:
     """Tests for ContextOptimizerCLI instantiation and format_text."""
 
     @pytest.mark.unit
-    def test_cli_can_be_instantiated(self) -> None:
+    def test_cli_carries_its_name_and_version(self) -> None:
         """ContextOptimizerCLI instantiates without crash."""
         cli = ContextOptimizerCLI()
-        assert cli is not None
+        assert cli.name == "context-optimizer"
+        assert cli.version == "1.0.0"
 
     @pytest.mark.unit
     def test_cli_format_text_analyze_command(self, tmp_path: Path) -> None:
@@ -381,7 +389,9 @@ class TestContextOptimizerCLI:
             "optimizer": opt,
         }
         result = cli.format_text(data)
-        assert isinstance(result, str)
+        assert result.startswith("No skill files found.\n")
+        assert "Detailed Results:" in result
+        assert result.endswith("-" * 82 + "\n")
 
     @pytest.mark.unit
     def test_cli_format_text_stats_command(self, tmp_path: Path) -> None:
@@ -395,7 +405,8 @@ class TestContextOptimizerCLI:
             "optimizer": opt,
         }
         result = cli.format_text(data)
-        assert isinstance(result, str)
+        # stats prints the summary only, never the per-file table
+        assert result == "No skill files found.\n"
 
     @pytest.mark.unit
     def test_format_text_report_with_results(self, tmp_path: Path) -> None:

@@ -9,7 +9,6 @@ set -euo pipefail
 # Colors for output
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
 readonly NC='\033[0m' # No Color
 
 main() {
@@ -97,6 +96,8 @@ main() {
   printf '%s\n' "Test 4: Cache directory initialization"
 
   TEST_CACHE_DIR="/tmp/test-auth-cache-${$}"
+  # Any failing test below exits under set -e before the cleanup step.
+  trap 'rm -rf "${TEST_CACHE_DIR}"' EXIT
   export AUTH_CACHE_DIR="${TEST_CACHE_DIR}"
 
   init_cache_dir "github"
@@ -190,7 +191,8 @@ main() {
   if is_interactive; then
     printf '%b\n' "${GREEN}✓ Interactive mode detected (forced)${NC}"
   else
-    printf '%b\n' "${YELLOW}⚠ May not be a TTY${NC}"
+    printf '%b\n' "${RED}✗ AUTH_INTERACTIVE=true should force interactive mode${NC}"
+    exit 1
   fi
 
   export AUTH_INTERACTIVE=false
@@ -209,7 +211,8 @@ main() {
   if ! is_ci; then
     printf '%b\n' "${GREEN}✓ Correctly detected non-CI environment${NC}"
   else
-    printf '%b\n' "${YELLOW}⚠ Running in CI environment${NC}"
+    printf '%b\n' "${RED}✗ Detected CI with every CI variable unset${NC}"
+    exit 1
   fi
 
   export CI=true

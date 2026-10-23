@@ -77,7 +77,6 @@ HookEvent = Literal[
     "PreCompact",  # Before message compaction
 ]
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 **Note**: Python SDK does not support `SessionStart`, `SessionEnd`, or `Notification` hooks due to setup limitations. However, plugins can define `SessionStart` hooks via `hooks.json` using shell commands (e.g., leyline's `detect-git-platform.sh`).
 
@@ -98,7 +97,6 @@ async def my_hook(
 ) -> dict[str, Any]:  # Return decision/messages
     ...
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Return Values
 
@@ -112,7 +110,6 @@ return {
     }
 }
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Quality Scoring (100 points)
 
@@ -146,7 +143,6 @@ return {
 # 4. Check compliance
 /hooks-eval --compliance-report
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration with Other Tools
 
@@ -156,7 +152,6 @@ return {
 /analyze-hook hooks/specific.py      # Deep-dive on one hook
 /validate-plugin .                   # Validate overall structure
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Related Skills
 
@@ -171,7 +166,9 @@ return {
 Verify hook pattern matches the event. Check hook logs for errors
 
 **Syntax errors**
-Validate JSON/Python syntax before deployment
+Run `python3 plugins/abstract/scripts/hook_validator.py hooks/hooks.json`
+(or a Python hook file) before deployment. It parses the file and reports
+structure and SDK-signature problems.
 
 **Permission denied**
 Check hook file permissions and ownership

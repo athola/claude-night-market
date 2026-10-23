@@ -20,7 +20,7 @@ ideas from [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail)
   2506.11022 (+37.6% critical vulnerabilities after five refinement
   rounds). https://arxiv.org/abs/2506.11022
 
-## Rung 4: package hallucination and slopsquatting
+## Rung 5: package hallucination and slopsquatting
 
 - "We Have a Package for You! ... Package Hallucinations by Code
   Generating LLMs," USENIX Security 2025, arXiv 2406.10279

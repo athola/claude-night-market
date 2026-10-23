@@ -52,7 +52,7 @@ Intensive analysis ensuring numerical stability and alignment with standards.
   use architecture-review
 - Performance optimization - use parseltongue:python-performance
 
-## Required TodoWrite Items
+## Required Progress Items
 
 1. `math-review:context-synced`
 2. `math-review:requirements-mapped`
@@ -143,5 +143,8 @@ Every issue's `Anchor` is the exact source text at `Location`; it is what
 
 ## Exit Criteria
 
-- Context synced, requirements mapped, derivations verified, stability assessed, evidence logged with citations
-- Every reported issue carries a `Location` + verbatim `Anchor`, and `citation_verifier.py` confirmed all citations (exit `0`) or unverified issues were dropped or labeled `UNVERIFIED`
+- [ ] Context synced, requirements mapped, derivations verified, stability
+      assessed, evidence logged with citations
+- [ ] Every reported issue carries a `Location` + verbatim `Anchor`, and
+      `citation_verifier.py` confirmed all citations (exit `0`) or unverified
+      issues were dropped or labeled `UNVERIFIED`

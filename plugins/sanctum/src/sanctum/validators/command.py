@@ -132,15 +132,16 @@ class CommandValidator:
         errors: list[str] = []
         warnings: list[str] = []
 
-        refs = CommandValidator.extract_skill_references(content)
         skills_dir = plugin_path / "skills"
 
-        for ref in refs:
-            skill_dir = skills_dir / ref
-            if not skill_dir.exists():
-                # It might be a different plugin reference
-                if ":" not in ref:
-                    warnings.append(f"Referenced skill '{ref}' not found locally")
+        # The extractor drops the plugin prefix, so read it from the raw text.
+        for raw_ref in re.findall(r"Skill\(([^)]+)\)", content):
+            owner, sep, name = raw_ref.partition(":")
+            if sep and owner != plugin_path.name:
+                continue  # skill belongs to a different plugin
+            ref = name if sep else raw_ref
+            if not (skills_dir / ref).exists():
+                warnings.append(f"Referenced skill '{ref}' not found locally")
 
         # Parse for command name
         frontmatter = parse_frontmatter(content)

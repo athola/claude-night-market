@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -48,6 +49,13 @@ def main(argv: list[str] | None = None) -> int:
         help="Target Python version (for compat check)",
     )
 
+    parser.add_argument(
+        "--test-path",
+        type=Path,
+        default=None,
+        help="Test file to analyze alongside the source (test-guide only)",
+    )
+
     args = parser.parse_args(argv)
 
     path: Path = args.path
@@ -55,24 +63,39 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Error: {path} does not exist", file=sys.stderr)
         return 1
 
-    code = path.read_text() if path.is_file() else ""
+    if not re.fullmatch(r"\d+(\.\d+)*", args.target_version):
+        print(
+            f"Error: invalid target version {args.target_version!r}; "
+            "expected a dotted number such as 3.9",
+            file=sys.stderr,
+        )
+        return 1
+
+    code = path.read_text(encoding="utf-8", errors="replace") if path.is_file() else ""
     if not code and path.is_dir():
         # Concatenate all .py files in the directory
         parts = []
         for py_file in sorted(path.rglob("*.py")):
-            parts.append(py_file.read_text())
+            parts.append(py_file.read_text(encoding="utf-8", errors="replace"))
         code = "\n".join(parts)
 
     if not code:
         print("No Python code found.", file=sys.stderr)
         return 1
 
-    result = _run_command(args.command, code, args.target_version)
+    test_code = (
+        args.test_path.read_text(encoding="utf-8", errors="replace")
+        if args.test_path
+        else ""
+    )
+    result = _run_command(args.command, code, args.target_version, test_code)
     print(json.dumps(result, indent=2, default=str))
-    return 0
+    return 1 if "error" in result else 0
 
 
-def _run_command(command: str, code: str, target_version: str) -> dict:
+def _run_command(
+    command: str, code: str, target_version: str, test_code: str = ""
+) -> dict:
     if command == "analyze-async":
         return asyncio.run(analyze_async_functions(code))
 
@@ -83,7 +106,7 @@ def _run_command(command: str, code: str, target_version: str) -> dict:
         return asyncio.run(PatternMatchingSkill().find_patterns(code))
 
     if command == "test-guide":
-        return asyncio.run(analyze_testing(code))
+        return asyncio.run(analyze_testing(code, test_code))
 
     if command == "transform":
         return asyncio.run(CodeTransformationSkill().transform_code(code))

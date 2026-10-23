@@ -299,3 +299,128 @@ class TestFrontmatterWithoutPyYAML:
     ) -> None:
         with pytest.raises(ValueError, match="frontmatter"):
             _parse_frontmatter_subset(f"name: x\npattern: {value}\n")
+
+
+class TestFrontmatterSubsetRejectsMalformedLines:
+    """The stdlib parser refuses line shapes it cannot place, by line number.
+
+    A rule file is untrusted input. A line read into the wrong key would
+    turn a block rule into one that silently matches nothing.
+    """
+
+    @pytest.mark.parametrize(
+        ("text", "bad_line"),
+        [
+            pytest.param("name: x\njust words\n", 2, id="top-level-without-colon"),
+            pytest.param("name: x\n  stray: 1\n", 2, id="indented-under-scalar"),
+            pytest.param(
+                "name: x\nconditions:\n  field: command\n",
+                3,
+                id="continuation-before-any-item",
+            ),
+            pytest.param(
+                "name: x\nconditions:\n- field command\n", 3, id="item-without-colon"
+            ),
+        ],
+    )
+    def test_malformed_line_raises_with_its_number(
+        self, text: str, bad_line: int
+    ) -> None:
+        with pytest.raises(ValueError, match=f"line {bad_line}:"):
+            _parse_frontmatter_subset(text)
+
+    def test_comments_and_blank_lines_are_skipped(self) -> None:
+        text = "# leading comment\n\nname: x\n  # indented comment\nenabled: true\n"
+        assert _parse_frontmatter_subset(text) == {"name": "x", "enabled": True}
+
+
+class TestLoaderWithoutPyYAML:
+    """With PyYAML absent, rules are read through the stdlib subset parser."""
+
+    def test_rule_file_loads_through_subset_parser(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr("hookify.core.config_loader.yaml", None)
+        rule_file = tmp_path / "hookify.guard.local.md"
+        rule_file.write_text(
+            "---\nname: guard\nenabled: true\nevent: bash\naction: block\n"
+            "conditions:\n- field: command\n  operator: contains\n  pattern: rm\n"
+            "---\n\nNo rm.\n"
+        )
+
+        rule = ConfigLoader(user_rules_dir=tmp_path).load_rule(rule_file)
+
+        assert rule.action == "block"
+        assert rule.conditions == [
+            Condition(field="command", operator="contains", pattern="rm")
+        ]
+        assert rule.message == "No rm."
+
+    def test_malformed_rule_is_reported_without_pyyaml(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr("hookify.core.config_loader.yaml", None)
+        (tmp_path / "hookify.bad.local.md").write_text(
+            "---\nname: bad\nenabled: true\nevent: bash\nnonsense\n---\nx\n"
+        )
+
+        loader = ConfigLoader(user_rules_dir=tmp_path, include_bundled=False)
+
+        assert loader.load_all_rules() == []
+        assert len(loader.load_errors) == 1
+        assert loader.load_errors[0].startswith("hookify.bad.local.md: ")
+
+
+class TestLoaderErrorPaths:
+    """Rule sources that are missing or malformed degrade to a reported skip."""
+
+    def test_frontmatter_that_is_not_a_mapping_is_rejected(self) -> None:
+        pytest.importorskip("yaml")
+        with pytest.raises(ValueError, match="must be a YAML mapping"):
+            ConfigLoader()._parse_markdown("---\n- a\n- b\n---\nbody\n")
+
+    def test_missing_bundled_rules_dir_yields_no_bundled_rules(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        loader = ConfigLoader(user_rules_dir=tmp_path)
+        monkeypatch.setattr(loader, "bundled_rules_dir", tmp_path / "absent")
+
+        assert loader.get_bundled_rule_names() == []
+        assert loader.load_all_rules() == []
+
+    def test_malformed_bundled_rule_is_skipped_and_reported(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        category = tmp_path / "bundled" / "git"
+        category.mkdir(parents=True)
+        (category / "broken.md").write_text("no frontmatter at all\n")
+        (category / "good.md").write_text(
+            "---\nname: good\nenabled: true\nevent: bash\npattern: x\n---\nok\n"
+        )
+        loader = ConfigLoader(user_rules_dir=tmp_path / "user")
+        monkeypatch.setattr(loader, "bundled_rules_dir", tmp_path / "bundled")
+
+        rules = loader.load_all_rules()
+
+        assert [r.name for r in rules] == ["good"]
+        assert loader.load_errors == [
+            "broken.md: No valid YAML frontmatter found",
+        ]
+
+    def test_user_only_rule_status_is_custom(self, tmp_path: Path) -> None:
+        (tmp_path / "hookify.mine.local.md").write_text(
+            "---\nname: mine\nenabled: true\nevent: bash\npattern: x\n---\nm\n"
+        )
+
+        status = ConfigLoader(
+            user_rules_dir=tmp_path, include_bundled=False
+        ).get_rule_status()
+
+        assert status == {
+            "mine": {
+                "source": "user",
+                "category": "custom",
+                "path": str(tmp_path / "hookify.mine.local.md"),
+                "overridden": False,
+            }
+        }

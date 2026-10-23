@@ -354,9 +354,13 @@ def _protect_periods(text: str) -> str:
     """Replace periods that do not end sentences, preserving length."""
     protected = re.sub(r"\.(?=\d)", _DOT, text)
     for abbreviation in _ABBREVIATIONS:
+        # Whole abbreviations only: without the left boundary "est." ends
+        # "test." and "ms." ends "items.", so the sentence never closes.
+        # The replacement is the matched text, not the table entry, so the
+        # author's casing survives.
         protected = re.sub(
-            re.escape(abbreviation),
-            abbreviation.replace(".", _DOT),
+            rf"(?<!\w){re.escape(abbreviation)}",
+            lambda match: match.group(0).replace(".", _DOT),
             protected,
             flags=re.IGNORECASE,
         )
@@ -564,7 +568,9 @@ def _iter_blocks(text: str) -> list:
         if buffer:
             blocks.append(
                 _Block(
-                    text=" ".join(buffer),
+                    # Newlines kept so split_sentences can number the line
+                    # each sentence starts on.
+                    text="\n".join(buffer),
                     line=buffer_line,
                     is_list_item=is_list_item,
                     is_ordered=is_ordered,
@@ -645,7 +651,7 @@ def check_sentence_length(text: str) -> list:
                     Finding(
                         rule="sentence_length",
                         line=block.line + sentence.line - 1,
-                        text=sentence.text,
+                        text=" ".join(sentence.text.split()),
                         detail=(
                             f"{kind} sentence runs {actual} words against a "
                             f"{limit}-word limit"
@@ -675,7 +681,7 @@ def check_paragraph_length(text: str) -> list:
                 Finding(
                     rule="paragraph_length",
                     line=block.line,
-                    text=block.text[:80],
+                    text=" ".join(block.text.split())[:80],
                     detail=(
                         f"paragraph runs {count} sentences against a "
                         f"{PARAGRAPH_MAX_SENTENCES}-sentence limit"
@@ -821,8 +827,9 @@ def main(argv: list | None = None) -> int:
         path = Path(name)
         try:
             text = path.read_text(encoding="utf-8")
-        except OSError as error:
-            print(f"{path}: {error.strerror or error}", file=sys.stderr)
+        except (OSError, UnicodeDecodeError) as error:
+            reason = getattr(error, "strerror", None) or error
+            print(f"{path}: {reason}", file=sys.stderr)
             unreadable += 1
             continue
         for finding in check(text, noun_clusters=not args.no_noun_clusters):

@@ -7,9 +7,10 @@ Tests for Phase 2-4 functionality:
 """
 
 import json
+import os
 import tempfile
 import time
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -159,6 +160,40 @@ class TestMetaEvaluator:
         assert evaluator._is_eval_skill("quality-audit")
         assert not evaluator._is_eval_skill("data-processor")
         assert not evaluator._is_eval_skill("helper")
+
+    @pytest.mark.unit
+    def test_exit_criteria_section_counts_as_verification(self):
+        """
+        Scenario: A skill's Exit Criteria are how its work is checked
+
+        Given a skill whose only checking content is an Exit Criteria section
+        When its quality is audited
+        Then it is not reported as missing verification, since the repo's
+        exit-criteria rule makes that section the required check
+        """
+        evaluator = MetaEvaluator()
+        content = (
+            "# Room\n\nCapture findings.\n\n## Exit Criteria\n\n- [ ] Entry written\n"
+        )
+
+        issues = evaluator._check_skill_quality("room", content)
+
+        assert issues["missing_verification"] == []
+
+    @pytest.mark.unit
+    def test_skill_without_any_check_is_reported(self):
+        """
+        Scenario: A skill that never says how its work is checked
+
+        Given a skill with no Exit Criteria and no checking language
+        When its quality is audited
+        Then it is reported as missing verification
+        """
+        evaluator = MetaEvaluator()
+
+        issues = evaluator._check_skill_quality("bare", "# Bare\n\nDo the thing.\n")
+
+        assert issues["missing_verification"] == ["bare"]
 
     @pytest.mark.unit
     def test_toc_check_disabled(self, temp_plugin_dir):
@@ -336,7 +371,10 @@ class TestKnowledgeQueueChecker:
         low_file = temp_queue_dir / "low.md"
         low_content = "---\nstatus: pending\npriority: low\n---\n\nLow priority"
         low_file.write_text(low_content)
-        time.sleep(0.01)  # Ensure different timestamps
+        # Age the low item by setting its mtime, not by sleeping: the sort
+        # puts priority before age, and the age must be a known value.
+        three_days_ago = time.time() - 3 * 86400
+        os.utime(low_file, (three_days_ago, three_days_ago))
 
         # Create high priority item
         high_file = temp_queue_dir / "high.md"
@@ -352,3 +390,87 @@ class TestKnowledgeQueueChecker:
         assert len(result) == 2
         assert result[0]["priority"] == "high"
         assert result[1]["priority"] == "low"
+        assert result[1]["age_days"] == 3
+        assert result[0]["age_days"] == 0
+
+
+class TestLogTimestampsWithAnOffset:
+    """Logger output carries a UTC offset."""
+
+    @pytest.mark.unit
+    def test_offset_timestamps_are_compared_with_the_cutoff(
+        self, tmp_path: Path
+    ) -> None:
+        """'...+00:00' entries are analyzed, and old ones are excluded."""
+        now = datetime.now(timezone.utc)
+        entries = [
+            {
+                "skill": "sanctum:stack-create",
+                "timestamp": now.isoformat(),
+                "outcome": "failure",
+            },
+            {
+                "skill": "sanctum:stack-create",
+                "timestamp": (now - timedelta(days=30)).isoformat(),
+                "outcome": "success",
+            },
+        ]
+        (tmp_path / "2026-09-08.jsonl").write_text(
+            "\n".join(json.dumps(entry) for entry in entries) + "\n"
+        )
+
+        result = PerformanceAnalyzer(log_dir=tmp_path).analyze_plugin("sanctum")
+
+        (low,) = result["low_success_rate"]
+        assert low["skill"] == "sanctum:stack-create"
+        assert low["success_rate"] == 0.0
+
+    @pytest.mark.unit
+    def test_naive_timestamps_are_read_as_utc(self, tmp_path: Path) -> None:
+        """An entry without an offset still compares against the cutoff."""
+        stamp = (datetime.now(timezone.utc) - timedelta(days=30)).replace(tzinfo=None)
+        entry = {
+            "skill": "sanctum:stack-create",
+            "timestamp": stamp.isoformat(),
+            "outcome": "failure",
+        }
+        (tmp_path / "old.jsonl").write_text(json.dumps(entry) + "\n")
+
+        result = PerformanceAnalyzer(log_dir=tmp_path).analyze_plugin("sanctum")
+
+        assert result["low_success_rate"] == []
+
+
+@pytest.mark.parametrize("timestamp", ["", "yesterday-ish"])
+def test_log_entry_with_unreadable_timestamp_is_still_counted(
+    tmp_path: Path, timestamp: str
+) -> None:
+    """An entry whose timestamp is empty or unparsable is not dropped as old.
+
+    GIVEN a skill log entry for the plugin with a failure outcome
+    AND an empty or unparsable timestamp
+    WHEN the plugin is analyzed
+    THEN the failure appears in the recent failures.
+    """
+    entry = {"skill": "demo:skill", "timestamp": timestamp, "outcome": "failure"}
+    (tmp_path / "log.jsonl").write_text(json.dumps(entry) + "\n", encoding="utf-8")
+
+    report = PerformanceAnalyzer(log_dir=tmp_path).analyze_plugin("demo")
+
+    assert report["recent_failures"] == [{"skill": "demo:skill", "failures": 1}]
+
+
+def test_log_entry_older_than_the_window_is_ignored(tmp_path: Path) -> None:
+    """A readable timestamp still excludes entries before the cutoff.
+
+    GIVEN a failure logged 30 days ago
+    WHEN the plugin is analyzed over 7 days
+    THEN no failure is reported.
+    """
+    old = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    entry = {"skill": "demo:skill", "timestamp": old, "outcome": "failure"}
+    (tmp_path / "log.jsonl").write_text(json.dumps(entry) + "\n", encoding="utf-8")
+
+    report = PerformanceAnalyzer(log_dir=tmp_path).analyze_plugin("demo", days=7)
+
+    assert report["recent_failures"] == []

@@ -27,20 +27,17 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # Handle both SKILL.md files and directories
-    if args.skill_path.is_dir():
-        skill_file = args.skill_path / "SKILL.md"
-        if not skill_file.exists():
-            sys.exit(1)
-        skill_name = args.skill_path.name
-    else:
-        skill_name = args.skill_path.parent.name
+    # Accept a skill directory or its SKILL.md. ImprovementSuggester takes
+    # the directory that holds skills and looks up <dir>/<name>/SKILL.md.
+    skill_dir = args.skill_path if args.skill_path.is_dir() else args.skill_path.parent
+    if not (skill_dir / "SKILL.md").exists():
+        sys.exit(1)
 
-    suggester = ImprovementSuggester(
-        args.skill_path.parent if args.skill_path.is_file() else args.skill_path,
-    )
+    suggester = ImprovementSuggester(skill_dir.parent)
+    skill_name = skill_dir.name
     output = format_result(
         suggester.generate_improvement_plan(skill_name),
         fmt=args.format,
     )
-    write_output(output, args.output)
+    if not write_output(output, args.output):
+        sys.exit(1)

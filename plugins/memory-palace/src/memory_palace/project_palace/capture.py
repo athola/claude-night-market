@@ -115,4 +115,4 @@ def _classify_finding(finding: dict[str, Any]) -> str | None:
     return None
 
 
-__all__ = ["_classify_finding", "capture_pr_review_knowledge"]
+__all__ = ["capture_pr_review_knowledge"]

@@ -16,13 +16,25 @@ from token_estimator import TokenEstimator
 class TestTokenEstimator:
     """Test cases for TokenEstimator."""
 
-    def test_estimator_initialization(self) -> None:
-        """Test estimator initializes correctly."""
-        estimator = TokenEstimator()
-        assert estimator is not None
+    def test_estimator_initialization(self, tmp_path: Path) -> None:
+        """Test a fresh estimator needs no config and carries no state.
 
-    def test_analyze_file_basic(self, temp_skill_file) -> None:
-        """Test basic file analysis."""
+        One instance analyzing a second file must not change what it reports
+        for the first.
+        """
+        first = tmp_path / "a.md"
+        first.write_text("---\nname: a\n---\n\nShort.\n")
+        second = tmp_path / "b.md"
+        second.write_text("# B\n\n" + "Longer body text. " * 50)
+        estimator = TokenEstimator()
+        before = estimator.analyze_file(first)
+        estimator.analyze_file(second)
+        assert estimator.analyze_file(first) == before
+        assert before["file"] == str(first)
+        assert before["line_count"] == 5
+
+    def test_analyze_file_reports_every_token_field(self, temp_skill_file) -> None:
+        """analyze_file returns every field the formatters and CLI read."""
         estimator = TokenEstimator()
         result = estimator.analyze_file(temp_skill_file)
 
@@ -55,8 +67,10 @@ class TestTokenEstimator:
         with pytest.raises(FileNotFoundError):
             estimator.analyze_file(Path("/nonexistent/file.md"))
 
-    def test_format_analysis_basic(self, temp_skill_file) -> None:
-        """Test analysis formatting."""
+    def test_format_analysis_prints_totals_breakdown_and_recommendations(
+        self, temp_skill_file
+    ) -> None:
+        """The report gives the token total, the per-component split and next steps."""
         estimator = TokenEstimator()
         result = estimator.analyze_file(temp_skill_file)
         formatted = estimator.format_analysis(result)

@@ -227,7 +227,11 @@ def main() -> None:
     events = load_history(args.history)
     aggregate, per_domain = compute_stats(events)
     store = AutonomyStateStore(state_path=args.state)
-    changes = adjust_state(store, aggregate, per_domain, args.dry_run)
+    try:
+        changes = adjust_state(store, aggregate, per_domain, args.dry_run)
+    except ValueError as exc:
+        # An unreadable state file is the operator's to repair.
+        raise SystemExit(" ".join(str(exc).split())) from None
     alerts = compute_regret_alerts(
         events,
         global_threshold=args.alerts_threshold,

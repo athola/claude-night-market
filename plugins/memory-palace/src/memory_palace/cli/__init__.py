@@ -83,12 +83,17 @@ def main(argv: Sequence[str] | None = None) -> None:
         parser.print_help()
         return
 
-    if args.command == "autonomy":
-        _handle_autonomy(args)
-        return
-    if args.command == "garden":
-        _handle_garden(args)
-        return
+    # AutonomyStateStore.load raises ValueError for a state file the
+    # operator must repair; a traceback buries the path it names.
+    try:
+        if args.command == "autonomy":
+            _handle_autonomy(args)
+            return
+        if args.command == "garden":
+            _handle_garden(args)
+            return
+    except ValueError as exc:
+        raise SystemExit(" ".join(str(exc).split())) from None
 
     parser.print_help()
 
@@ -113,6 +118,8 @@ def _handle_autonomy(args: argparse.Namespace) -> None:
             lock_flag = False
         else:
             lock_flag = None
+        if lock_flag is not None and not getattr(args, "domain", None):
+            raise SystemExit("--lock and --unlock require --domain")
         store.set_level(
             args.level,
             domain=getattr(args, "domain", None),

@@ -153,7 +153,18 @@ def _check_grep(
 
         try:
             content = file_path.read_text(errors="replace")
-        except (OSError, UnicodeDecodeError):
+        except OSError as exc:
+            # Reported, so a file the check never read does not pass as clean.
+            findings.append(
+                Finding(
+                    convention_id=convention.id,
+                    convention_name=convention.name,
+                    file=file_path,
+                    line=0,
+                    message=f"{convention.name}: could not read file: {exc}",
+                    severity="skipped",
+                )
+            )
             continue
 
         for line_num, line in enumerate(content.splitlines(), start=1):

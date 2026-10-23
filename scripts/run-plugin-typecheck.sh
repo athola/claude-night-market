@@ -246,6 +246,7 @@ run_selected() {
           run_plugin_typecheck "${plugin_dir}" || true
         else
           log "✗ Plugin not found: ${plugin_name}"
+          FAILED_PLUGINS+=("${plugin_name}")
         fi
       done
       ;;

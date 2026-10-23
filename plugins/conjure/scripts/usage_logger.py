@@ -12,10 +12,22 @@ import json
 import logging
 import sys
 import time
+from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+# bin/status.sh imports this module with only scripts/ on the path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from scripts.usage_log_rotation import MAX_LOG_BYTES, append_line, read_lines
+except ImportError:  # bin/status.sh puts only scripts/ on sys.path
+    from usage_log_rotation import (  # type: ignore[import-not-found,no-redef]  # same module, loaded by bare name
+        MAX_LOG_BYTES,
+        append_line,
+        read_lines,
+    )
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -44,6 +56,7 @@ class GeminiUsageLogger:
         """Initialize the usage logger with default paths."""
         self.log_dir = Path.home() / ".claude" / "hooks" / "gemini" / "logs"
         self.usage_log = self.log_dir / "usage.jsonl"
+        self.usage_backup = self.log_dir / "usage.jsonl.1"
         self.session_file = self.log_dir / "current_session.json"
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
@@ -62,9 +75,9 @@ class GeminiUsageLogger:
             "session_id": self._get_session_id(),
         }
 
-        # Write to usage log
-        with open(self.usage_log, "a") as f:
-            f.write(json.dumps(log_entry) + "\n")
+        append_line(
+            self.usage_log, self.usage_backup, json.dumps(log_entry), MAX_LOG_BYTES
+        )
 
         # Update session stats
         self._update_session_stats(log_entry)
@@ -146,7 +159,7 @@ class GeminiUsageLogger:
 
     def get_usage_summary(self, hours: int = 24) -> dict:
         """Get usage summary for the last N hours."""
-        if not self.usage_log.exists():
+        if not (self.usage_log.exists() or self.usage_backup.exists()):
             return {"total_requests": 0, "total_tokens": 0, "success_rate": 0.0}
 
         cutoff_time = datetime.now(timezone.utc).timestamp() - (
@@ -156,24 +169,24 @@ class GeminiUsageLogger:
         total_tokens = 0
         successful_requests = 0
 
-        try:
-            with open(self.usage_log) as f:
-                for line in f:
-                    try:
-                        entry = json.loads(line.strip())
-                        entry_time = datetime.fromisoformat(
-                            entry["timestamp"],
-                        ).timestamp()
+        for line in read_lines(self.usage_log, self.usage_backup):
+            try:
+                entry = json.loads(line.strip())
+                if not isinstance(entry, dict):
+                    continue
+                entry_time = datetime.fromisoformat(
+                    entry["timestamp"],
+                ).timestamp()
 
-                        if entry_time >= cutoff_time:
-                            total_requests += 1
-                            total_tokens += entry.get("actual_tokens", 0)
-                            if entry.get("success", False):
-                                successful_requests += 1
-                    except (json.JSONDecodeError, KeyError):
-                        continue
-        except FileNotFoundError:
-            pass
+                if entry_time >= cutoff_time:
+                    total_requests += 1
+                    total_tokens += entry.get("actual_tokens", 0)
+                    if entry.get("success", False):
+                        successful_requests += 1
+            # ValueError covers JSONDecodeError and a non-ISO timestamp
+            # string; TypeError covers a non-string timestamp.
+            except (ValueError, KeyError, TypeError):
+                continue
 
         success_rate = (
             (successful_requests / total_requests * 100) if total_requests > 0 else 0.0
@@ -189,23 +202,20 @@ class GeminiUsageLogger:
 
     def get_recent_errors(self, count: int = 5) -> list:
         """Get recent error entries."""
-        if not self.usage_log.exists():
-            return []
+        # Bounded to ``count``: holding every error made a long log cost
+        # memory in proportion to its whole history.
+        errors: deque[dict[str, Any]] = deque(maxlen=max(count, 0))
+        for line in read_lines(self.usage_log, self.usage_backup):
+            try:
+                entry = json.loads(line.strip())
+                if not isinstance(entry, dict):
+                    continue
+                if not entry.get("success", True) and entry.get("error"):
+                    errors.append(entry)
+            except (json.JSONDecodeError, KeyError):
+                continue
 
-        errors = []
-        try:
-            with open(self.usage_log) as f:
-                for line in f:
-                    try:
-                        entry = json.loads(line.strip())
-                        if not entry.get("success", True) and entry.get("error"):
-                            errors.append(entry)
-                    except (json.JSONDecodeError, KeyError):
-                        continue
-        except FileNotFoundError:
-            pass
-
-        return errors[-count:]  # Return last N errors
+        return list(errors)
 
 
 def _validate_configuration(usage_logger: GeminiUsageLogger) -> list[str]:
@@ -283,6 +293,8 @@ def main() -> None:
         command, tokens, success, duration = args.log
         try:
             estimated_tokens = int(tokens)
+            if success.lower() not in ("true", "false"):
+                raise ValueError(f"success must be true or false, got {success!r}")
             success_bool = success.lower() == "true"
             duration_float = float(duration) if duration != "None" else None
 

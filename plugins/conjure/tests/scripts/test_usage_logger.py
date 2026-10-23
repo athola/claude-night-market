@@ -8,9 +8,11 @@ import json
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
+
+from tests.scripts._writer_race import race_two_writers
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
@@ -19,6 +21,14 @@ from usage_logger import (
     UsageEntry,
     main,
 )
+
+
+def _seed_live_session(logger: GeminiUsageLogger, session_id: str) -> None:
+    """Write a session file whose last activity is now, so it is reused."""
+    now = datetime.now(timezone.utc).isoformat()
+    logger.session_file.write_text(
+        json.dumps({"session_id": session_id, "start_time": now, "last_activity": now})
+    )
 
 
 class TestUsageEntry:
@@ -77,17 +87,14 @@ class TestGeminiUsageLogger:
         assert logger.session_file == expected_log_dir / "current_session.json"
 
     @pytest.mark.bdd
-    @patch("builtins.open", new_callable=mock_open)
-    @patch("usage_logger.GeminiUsageLogger._get_session_id")
-    def test_log_usage_success(self, mock_session_id, mock_file, tmp_path) -> None:
+    def test_log_usage_success(self, tmp_path) -> None:
         """Given successful entry when logging usage then should write to log and.
 
-        update session.
+        tag it with the live session.
         """
-        mock_session_id.return_value = "test_session_123"
-
         with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
+        _seed_live_session(logger, "test_session_123")
 
         entry = UsageEntry(
             command="gemini -p test",
@@ -99,14 +106,9 @@ class TestGeminiUsageLogger:
 
         logger.log_usage(entry)
 
-        # Verify log file was written to
-        mock_file.assert_called()
-
-        # Get the write calls and verify the log entry
-        write_calls = mock_file.return_value.write.call_args_list
-        written_data = write_calls[0][0][0]  # First write call, first argument
-
-        log_entry = json.loads(written_data.strip())
+        lines = logger.usage_log.read_text().splitlines()
+        assert len(lines) == 1
+        log_entry = json.loads(lines[0])
         assert log_entry["command"] == "gemini -p test"
         assert log_entry["estimated_tokens"] == 100
         assert log_entry["actual_tokens"] == 150
@@ -115,17 +117,14 @@ class TestGeminiUsageLogger:
         assert log_entry["session_id"] == "test_session_123"
 
     @pytest.mark.bdd
-    @patch("builtins.open", new_callable=mock_open)
-    @patch("usage_logger.GeminiUsageLogger._get_session_id")
-    def test_log_usage_failure(self, mock_session_id, mock_file, tmp_path) -> None:
+    def test_log_usage_failure(self, tmp_path) -> None:
         """Given failed entry when logging usage then should record error.
 
         information.
         """
-        mock_session_id.return_value = "test_session_123"
-
         with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
+        _seed_live_session(logger, "test_session_123")
 
         entry = UsageEntry(
             command="gemini -p test",
@@ -137,14 +136,11 @@ class TestGeminiUsageLogger:
 
         logger.log_usage(entry)
 
-        # Get the write calls and verify the log entry
-        write_calls = mock_file.return_value.write.call_args_list
-        written_data = write_calls[0][0][0]
-
-        log_entry = json.loads(written_data.strip())
+        log_entry = json.loads(logger.usage_log.read_text().splitlines()[0])
         assert log_entry["success"] is False
         assert log_entry["error"] == "API rate limit exceeded"
         assert log_entry["actual_tokens"] == 100  # Should fallback to estimated
+        assert log_entry["session_id"] == "test_session_123"
 
     @pytest.mark.bdd
     def test_get_session_id_new_session(self, tmp_path) -> None:
@@ -283,39 +279,28 @@ class TestGeminiUsageLogger:
         assert updated_session["total_tokens"] == 1200
         assert updated_session["successful_requests"] == 5
 
-    @patch("builtins.open", new_callable=mock_open)
-    @patch("usage_logger.GeminiUsageLogger._get_session_id")
-    def test_update_session_stats_no_file(
-        self, mock_session_id, mock_file, tmp_path
-    ) -> None:
+    def test_update_session_stats_no_file(self, tmp_path) -> None:
         """Given no session file when updating stats then should create new.
 
         session data.
         """
-        mock_session_id.return_value = "test_session"
-
         with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
-
-        # Mock file not existing for read
-        mock_file.side_effect = [FileNotFoundError, mock_open().return_value]
+        assert not logger.session_file.exists()
 
         log_entry = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "actual_tokens": 150,
             "success": False,
         }
 
         logger._update_session_stats(log_entry)
 
-        # Verify new session data was created
-        write_calls = mock_file.return_value.write.call_args_list
-        if write_calls:  # Only check if write was attempted
-            written_data = write_calls[0][0][0]
-            updated_session = json.loads(written_data)
-            assert updated_session["total_requests"] == 1
-            assert updated_session["total_tokens"] == 150
-            assert updated_session["successful_requests"] == 0
+        updated_session = json.loads(logger.session_file.read_text())
+        assert updated_session["session_id"].startswith("session_")
+        assert updated_session["total_requests"] == 1
+        assert updated_session["total_tokens"] == 150
+        assert updated_session.get("successful_requests", 0) == 0
 
     @pytest.mark.bdd
     def test_get_usage_summary_no_log(self, tmp_path) -> None:
@@ -507,6 +492,144 @@ class TestGeminiUsageLogger:
         assert errors[2]["error"] == "Error 9"
 
 
+class TestUsageLogRotation:
+    """The usage log rotates to one backup so it cannot grow without bound."""
+
+    @staticmethod
+    def _logger(tmp_path: Path) -> GeminiUsageLogger:
+        with patch("pathlib.Path.home", return_value=tmp_path):
+            return GeminiUsageLogger()
+
+    @staticmethod
+    def _write(path: Path, entries: list[dict]) -> None:
+        path.write_text("".join(json.dumps(e) + "\n" for e in entries))
+
+    @staticmethod
+    def _entry(name: str, success: bool = True) -> dict:
+        return {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "command": name,
+            "actual_tokens": 10,
+            "success": success,
+            "error": None if success else name,
+        }
+
+    @pytest.mark.unit
+    def test_log_usage_rotates_when_log_reaches_max_bytes(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A full log moves to usage.jsonl.1 and the new entry starts a fresh log."""
+        monkeypatch.setattr("usage_logger.MAX_LOG_BYTES", 100)
+        logger = self._logger(tmp_path)
+        old = "x" * 120 + "\n"
+        logger.usage_log.write_text(old)
+
+        logger.log_usage(UsageEntry(command="gemini new", estimated_tokens=5))
+
+        backup = logger.usage_log.with_name("usage.jsonl.1")
+        assert backup.read_text() == old
+        lines = logger.usage_log.read_text().splitlines()
+        assert len(lines) == 1
+        assert json.loads(lines[0])["command"] == "gemini new"
+
+    @pytest.mark.unit
+    def test_log_usage_keeps_appending_below_max_bytes(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Under the limit the log is appended to and no backup appears."""
+        monkeypatch.setattr("usage_logger.MAX_LOG_BYTES", 10_000)
+        logger = self._logger(tmp_path)
+        logger.log_usage(UsageEntry(command="a", estimated_tokens=1))
+        logger.log_usage(UsageEntry(command="b", estimated_tokens=1))
+
+        assert len(logger.usage_log.read_text().splitlines()) == 2
+        assert not logger.usage_log.with_name("usage.jsonl.1").exists()
+
+    @pytest.mark.unit
+    def test_rotation_replaces_the_previous_backup(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Only one backup is kept, so disk use stays near twice the limit."""
+        monkeypatch.setattr("usage_logger.MAX_LOG_BYTES", 100)
+        logger = self._logger(tmp_path)
+        backup = logger.usage_log.with_name("usage.jsonl.1")
+        backup.write_text("oldest\n")
+        logger.usage_log.write_text("y" * 120 + "\n")
+
+        logger.log_usage(UsageEntry(command="c", estimated_tokens=1))
+
+        assert backup.read_text() == "y" * 120 + "\n"
+
+    @pytest.mark.unit
+    def test_usage_summary_counts_entries_on_both_sides_of_a_rotation(
+        self, tmp_path: Path
+    ) -> None:
+        """A 24h window that spans a rotation still sees every entry in it."""
+        logger = self._logger(tmp_path)
+        self._write(logger.usage_log.with_name("usage.jsonl.1"), [self._entry("a")])
+        self._write(logger.usage_log, [self._entry("b"), self._entry("c")])
+
+        assert logger.get_usage_summary(hours=24)["total_requests"] == 3
+
+    @pytest.mark.unit
+    def test_recent_errors_read_backup_before_current_log(self, tmp_path: Path) -> None:
+        """Errors come back oldest first across the backup and the live log."""
+        logger = self._logger(tmp_path)
+        self._write(
+            logger.usage_log.with_name("usage.jsonl.1"),
+            [self._entry("e1", success=False), self._entry("e2", success=False)],
+        )
+        self._write(logger.usage_log, [self._entry("e3", success=False)])
+
+        errors = logger.get_recent_errors(count=2)
+
+        assert [e["error"] for e in errors] == ["e2", "e3"]
+
+
+class TestUsageLogRotationFailure:
+    """A rotation that cannot rename the log still records the entry."""
+
+    @pytest.mark.unit
+    def test_failed_rotation_keeps_appending(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Delegator already tolerates this; the Gemini logger must too."""
+        monkeypatch.setattr("usage_logger.MAX_LOG_BYTES", 10)
+        with patch("pathlib.Path.home", return_value=tmp_path):
+            logger = GeminiUsageLogger()
+        logger.usage_log.write_text("x" * 20 + "\n")
+
+        def _refuse(self: Path, target: Path) -> Path:
+            raise PermissionError("read-only log directory")
+
+        monkeypatch.setattr(Path, "replace", _refuse)
+        logger.log_usage(UsageEntry(command="gemini new", estimated_tokens=1))
+
+        assert "gemini new" in logger.usage_log.read_text()
+
+
+class TestUsageLogMalformedLines:
+    """A valid-JSON line that is not an object is skipped, not fatal."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("bad_line", ["[1, 2]", "42", "null", '"text"'])
+    def test_readers_skip_non_object_lines(self, tmp_path: Path, bad_line: str) -> None:
+        """Summary and error readers count only the object line."""
+        with patch("pathlib.Path.home", return_value=tmp_path):
+            logger = GeminiUsageLogger()
+        good = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "command": "c",
+            "actual_tokens": 3,
+            "success": False,
+            "error": "boom",
+        }
+        logger.usage_log.write_text(bad_line + "\n" + json.dumps(good) + "\n")
+
+        assert logger.get_usage_summary(hours=24)["total_requests"] == 1
+        assert [e["error"] for e in logger.get_recent_errors(5)] == ["boom"]
+
+
 class TestUsageLoggerCli:
     """Test CLI functionality of usage logger."""
 
@@ -653,3 +776,103 @@ class TestUsageLoggerCli:
 
         # Real CLI prints only "Use --help for available commands" when no args given
         mock_print.assert_any_call("Use --help for available commands")
+
+
+class TestUsageSummaryBadTimestamp:
+    """A line with an unparseable timestamp is skipped, not fatal to --summary."""
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize("bad_timestamp", ["yesterday", 123])
+    def test_summary_skips_line_with_bad_timestamp(
+        self, tmp_path: Path, bad_timestamp: object
+    ) -> None:
+        """A non-ISO string or a number skips that line, not the summary."""
+        with patch("pathlib.Path.home", return_value=tmp_path):
+            logger = GeminiUsageLogger()
+        good = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "actual_tokens": 7,
+            "success": True,
+        }
+        bad = {**good, "timestamp": bad_timestamp}
+        logger.usage_log.write_text(json.dumps(bad) + "\n" + json.dumps(good) + "\n")
+
+        summary = logger.get_usage_summary(hours=24)
+
+        assert summary["total_requests"] == 1
+        assert summary["total_tokens"] == 7
+
+
+class TestConcurrentRotation:
+    """Two processes that both find the log full must rotate it once."""
+
+    @pytest.mark.unit
+    def test_concurrent_writers_rotate_once_and_keep_the_full_backup(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """The second writer re-checks the size under the lock and appends."""
+        monkeypatch.setattr("usage_logger.MAX_LOG_BYTES", 1000)
+        with patch("pathlib.Path.home", return_value=tmp_path):
+            first = GeminiUsageLogger()
+            second = GeminiUsageLogger()
+        # Over the limit, while one appended entry stays under it.
+        full = "x" * 1100 + "\n"
+        first.usage_log.write_text(full)
+
+        errors = race_two_writers(
+            monkeypatch,
+            first.usage_log,
+            lambda: first.log_usage(UsageEntry(command="a", estimated_tokens=1)),
+            lambda: second.log_usage(UsageEntry(command="b", estimated_tokens=1)),
+        )
+
+        assert errors == []
+        assert first.usage_backup.read_text() == full
+        live = [json.loads(line)["command"] for line in first.usage_log.open()]
+        assert sorted(live) == ["a", "b"]
+
+
+def test_recent_errors_skip_a_line_that_is_not_json(tmp_path: Path) -> None:
+    """A truncated log line does not hide the errors around it.
+
+    GIVEN a usage log holding an unparsable line and a failed request
+    WHEN recent errors are read
+    THEN only the failed request is returned.
+    """
+    with patch("pathlib.Path.home", return_value=tmp_path):
+        logger = GeminiUsageLogger()
+    failed = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "command": "c",
+        "success": False,
+        "error": "boom",
+    }
+    logger.usage_log.write_text('{"truncated": \n' + json.dumps(failed) + "\n")
+
+    errors = logger.get_recent_errors(5)
+
+    assert [entry["error"] for entry in errors] == ["boom"]
+
+
+def test_cli_log_rejects_a_success_value_that_is_not_true_or_false(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """--log exits 1 and names the bad success value instead of logging.
+
+    GIVEN --log arguments whose success field is "maybe"
+    WHEN the CLI runs
+    THEN it exits 1 AND stderr says success must be true or false
+    AND nothing is logged.
+    """
+    argv = ["usage_logger.py", "--log", "gemini test", "150", "maybe", "2.5"]
+
+    with (
+        patch("usage_logger.GeminiUsageLogger") as logger_class,
+        patch("sys.argv", argv),
+        pytest.raises(SystemExit) as exc_info,
+    ):
+        main()
+
+    assert exc_info.value.code == 1
+    assert "success must be true or false, got 'maybe'" in capsys.readouterr().err
+    logger_class.return_value.log_usage.assert_not_called()
