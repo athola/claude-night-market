@@ -47,8 +47,8 @@ A full-codebase API review found 98 grounded defects. 86 are fixed,
   installed dependency, and raises a departure with no recorded reason.
   The corpus applies it to four concerns and raises two, both now
   fixed: leyline's `version_key` sorts `1.10.0.post1` after `1.10.0`
-  as PEP 440 does, and the four atomic writers call `os.fsync` before
-  the rename.
+  as PEP 440 does, and the four atomic writers call `os.fsync` on the
+  temp file before the rename and on the parent directory after it.
 - **conserve `detect_duplicates.py` reports competing implementations.**
   Module-level Python functions that share a name across files with
   different bodies are listed with every site, in text and in a

@@ -129,15 +129,15 @@ follows.
 | Concern | Repository model | Standard | Departure | Recorded reason | Outcome |
 |---------|------------------|----------|-----------|-----------------|---------|
 | Version ordering | leyline `version_key` | PEP 440, `packaging.version` | `1.10.0.post1` sorted below `1.10.0` | Stdlib-only, in the `sibling_plugins.py` docstring. The post-release order was not recorded | Raised, then fixed in `9140ab23f` |
-| Atomic file write | Temp file in the same directory, then `os.replace` (four writers) | The same, with `os.fsync` before the rename | None of the four flushed. A crash before the data reached disk could lose the write | None | Raised, then fixed in `b064bb5fc` |
+| Atomic file write | Temp file in the same directory, then `os.replace` (four writers) | The same, with `os.fsync` on the file before the rename and on the directory after | None of the four flushed. A crash before the data reached disk could lose the write | None | Raised, then fixed in `b064bb5fc` and the directory sync after it |
 | Frontmatter parsing | leyline `frontmatter.py`, PyYAML optional | `yaml.safe_load` on the fenced block | Parses with PyYAML absent | Hooks and pre-commit run on the system `python3` (`scripts/sync_vendored.py`, `skill_graph.py`) | Reuse, cite |
 | Token estimation | leyline `tokens.py`, `tiktoken` when installed | A tokenizer such as `tiktoken` | A size heuristic when `tiktoken` is absent | The `tokens.py` module docstring | Reuse, cite |
 
 Raise means the departure is named to a person, who decides whether to
 record a reason or move to the standard. Both raised cases moved to
 the standard. The version key now orders post-releases as PEP 440 does
-and stays stdlib-only. The four writers call `os.fsync` before the
-rename.
+and stays stdlib-only. The four writers call `os.fsync` on the temp
+file before the rename and on the parent directory after it.
 
 ## Limits
 
