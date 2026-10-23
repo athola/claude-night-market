@@ -31,14 +31,20 @@ A full-codebase API review found 98 grounded defects. 86 are fixed,
   `imbue:karpathy-principles`, `conserve:decisive-action`,
   `abstract:escalation-governance`, `leyline:evaluation-framework` and
   `scribe:doc-generator` carry the same rule where each makes its
-  decision. The unified-review, bloat-sweep and doc-sweep workflows ask
-  for it in their prompts.
+  decision. The unified-review, bloat-sweep and doc-sweep workflows and
+  the skill-library economy lens ask for it in their prompts. The
+  corpus names the concept once, a model of a concern, and the skills
+  use that term.
 - **conserve `detect_duplicates.py` reports competing implementations.**
   Module-level Python functions that share a name across files with
   different bodies are listed with every site, in text and in a
   `competing_implementations` JSON key. `main`, dunder names and test
-  modules are skipped. `.uv-cache` joins the excluded directories. On
-  `plugins/` it lists 78 names.
+  modules are skipped. `.uv-cache` joins the excluded directories.
+  Argument annotations do not count toward a body. `find_similar_functions`
+  in the same script reports only names with a suffixed variant such as
+  `_v2`, outside test modules, and the ai-hygiene auditor and pensive's
+  code-refinement modules read the census instead of grepping for
+  repeated names. On `plugins/` it lists 71 names.
 - **pensive performance review, Tiers 2 and 3.** Both were stubs that
   returned nothing. Tier 2 parses JS, TS, Go, Rust, Java, C and C++
   with tree-sitter and reports nested loops over one iterable, list
@@ -49,6 +55,26 @@ A full-codebase API review found 98 grounded defects. 86 are fixed,
 
 ### Fixed
 
+- **Cache versions sort the way leyline sorts them.** minister and
+  memory-palace kept hand-copied version keys that ranked `1.10.1-rc1`
+  below `1.10.0` when choosing a leyline cache directory or the
+  migration tree that wins a conflict. Both use leyline's vendored
+  `version_key`, which is now public.
+- **memory-palace migration no longer counts an unwritten palace as
+  migrated.** Its private JSON writer swallowed `OSError` after the file
+  was listed as rewritten. It uses `palace_repository`'s writer, and a
+  failed write lands in `skipped` with the reason.
+- **tome's github channel matches topic words inside repository
+  names.** It split on whitespace, so `apache/kafka` scored at the 0.1
+  floor for "kafka". Both channels use `tome.channels.estimate_relevance`.
+  The canary check uses the channels' https-only opener and sends its
+  User-Agent per request.
+- **`/leyline:update-all-plugins` reads `installed_plugins_v2.json`.** It
+  read only the v1 name and stopped on an install holding only v2. It
+  now shares one reader with reinstall-all-plugins.
+- **The structured-output finding template parses with the citation
+  verifier.** Its fields are bulleted, which `citation_verifier.py`
+  requires.
 - **Plugin coverage thresholds now gate.** `run-plugin-tests.sh` passed
   each plugin's `coverage_threshold` only to plugins run without a
   Makefile, and 22 of 23 run through `make test`, so no plugin was
