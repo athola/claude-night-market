@@ -45,8 +45,10 @@ A full-codebase API review found 98 grounded defects. 86 are fixed,
   Before reusing the repository's model, `conserve:elegant-code` asks
   how far its contract departs from the stdlib, platform or an
   installed dependency, and raises a departure with no recorded reason.
-  The corpus applies it to four concerns and raises two: leyline sorts
-  `1.10.0.post1` below `1.10.0`, and no atomic writer calls `fsync`.
+  The corpus applies it to four concerns and raises two, both now
+  fixed: leyline's `version_key` sorts `1.10.0.post1` after `1.10.0`
+  as PEP 440 does, and the four atomic writers call `os.fsync` before
+  the rename.
 - **conserve `detect_duplicates.py` reports competing implementations.**
   Module-level Python functions that share a name across files with
   different bodies are listed with every site, in text and in a
