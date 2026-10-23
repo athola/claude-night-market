@@ -64,8 +64,8 @@ File operations use `git rm` and `git mv` to maintain project history.
 ### `/ai-hygiene-audit`
 
 Detects AI-specific code quality issues such as tab-completion bloat (repeated
-similar blocks), "vibe coding" patterns (massive single commits),
-and happy-path-only tests.
+similar blocks), one function name with different bodies in several files,
+"vibe coding" patterns (massive single commits), and happy-path-only tests.
 It identifies problematic live code that traditional bloat detection might miss.
 
 ### `/filter-log`
