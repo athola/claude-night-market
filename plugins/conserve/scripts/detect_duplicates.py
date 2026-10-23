@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import ast
 import bisect
+import copy
 import hashlib
 import json
 import os
@@ -379,7 +380,12 @@ def find_similar_functions(
 
 
 def _body_fingerprint(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:
-    """Hash a function's arguments and body, ignoring its docstring."""
+    """Hash a function's arguments and body, ignoring docstring and annotations.
+
+    Annotations are dropped from the arguments for the same reason the
+    return annotation never counted: ``value: Any`` and ``value: object``
+    run the same logic.
+    """
     body = node.body
     if (
         body
@@ -388,7 +394,12 @@ def _body_fingerprint(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:
         and isinstance(body[0].value.value, str)
     ):
         body = body[1:]
-    dumped = ast.dump(node.args) + ast.dump(ast.Module(body=body, type_ignores=[]))
+    args = copy.deepcopy(node.args)
+    named = (*args.posonlyargs, *args.args, *args.kwonlyargs)
+    for arg in (*named, args.vararg, args.kwarg):
+        if arg is not None:
+            arg.annotation = None
+    dumped = ast.dump(args) + ast.dump(ast.Module(body=body, type_ignores=[]))
     return hashlib.md5(dumped.encode(), usedforsecurity=False).hexdigest()
 
 

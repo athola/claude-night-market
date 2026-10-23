@@ -677,6 +677,20 @@ class TestFindCompetingImplementations:
         assert find_competing_implementations([tmp_path]) == []
 
     @pytest.mark.unit
+    def test_annotation_difference_alone_is_not_competing(self, tmp_path: Path) -> None:
+        """``value: Any`` and ``value: object`` run the same logic.
+
+        The return annotation was already ignored, so an argument
+        annotation counting made the two inconsistent.
+        """
+        (tmp_path / "a.py").write_text(
+            "def coerce(value: Any) -> dict:\n    return {}\n"
+        )
+        (tmp_path / "b.py").write_text("def coerce(value: object):\n    return {}\n")
+
+        assert find_competing_implementations([tmp_path]) == []
+
+    @pytest.mark.unit
     def test_docstring_difference_alone_is_not_competing(self, tmp_path: Path) -> None:
         """Bodies are compared without their docstrings."""
         (tmp_path / "a.py").write_text(
