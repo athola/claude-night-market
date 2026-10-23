@@ -471,6 +471,8 @@ def _atomic_write(path: Path, content: str) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
         os.replace(tmp_name, path)
     except Exception:
         with contextlib.suppress(OSError):

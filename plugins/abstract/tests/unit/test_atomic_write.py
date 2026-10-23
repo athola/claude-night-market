@@ -58,3 +58,33 @@ def test_temp_name_is_unique_so_a_stale_sibling_does_not_block(
     write_text_atomic(target, "new")
 
     assert target.read_text(encoding="utf-8") == "new"
+
+
+def test_write_text_atomic_flushes_to_disk_before_the_rename(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The temp file reaches disk before it replaces the target.
+
+    GIVEN a target file to replace
+    WHEN it is written atomically
+    THEN os.fsync runs on the temp file before os.replace publishes it,
+    so a crash after the rename cannot leave an empty or stale file.
+    """
+    events: list[str] = []
+    real_fsync, real_replace = os.fsync, os.replace
+
+    def _fsync(fd: int) -> None:
+        events.append("fsync")
+        real_fsync(fd)
+
+    def _replace(src: str, dst: str) -> None:
+        events.append("replace")
+        real_replace(src, dst)
+
+    monkeypatch.setattr(os, "fsync", _fsync)
+    monkeypatch.setattr(os, "replace", _replace)
+    target = tmp_path / "state.json"
+
+    write_text_atomic(target, "{}")
+
+    assert events == ["fsync", "replace"]

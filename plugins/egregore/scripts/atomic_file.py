@@ -37,6 +37,8 @@ def write_text_atomic(path: Path, text: str) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
         os.chmod(tmp_name, mode)
         os.replace(tmp_name, path)
     except BaseException:

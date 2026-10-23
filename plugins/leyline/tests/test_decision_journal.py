@@ -7,6 +7,7 @@ entry append, supersession, idempotency) and the file-level apply helper
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import threading
@@ -15,6 +16,7 @@ from pathlib import Path
 import pytest
 
 from leyline.decision_journal import (
+    _atomic_write,
     append_entry,
     apply_append,
     new_file_content,
@@ -506,3 +508,33 @@ class TestLockfileIsNotAWorkingTreeArtifact:
                 f"bare '.lock' pattern does not match this suffix; '*.md.lock' "
                 f"does."
             )
+
+
+def test_journal_write_flushes_to_disk_before_the_rename(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The temp file reaches disk before it replaces the target.
+
+    GIVEN a target file to replace
+    WHEN it is written atomically
+    THEN os.fsync runs on the temp file before os.replace publishes it,
+    so a crash after the rename cannot leave an empty or stale file.
+    """
+    events: list[str] = []
+    real_fsync, real_replace = os.fsync, os.replace
+
+    def _fsync(fd: int) -> None:
+        events.append("fsync")
+        real_fsync(fd)
+
+    def _replace(src: str, dst: str) -> None:
+        events.append("replace")
+        real_replace(src, dst)
+
+    monkeypatch.setattr(os, "fsync", _fsync)
+    monkeypatch.setattr(os, "replace", _replace)
+    target = tmp_path / "journal.md"
+
+    _atomic_write(target, "entry\n")
+
+    assert events == ["fsync", "replace"]

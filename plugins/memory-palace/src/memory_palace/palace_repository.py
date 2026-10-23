@@ -80,6 +80,8 @@ def _atomic_write_json(path: str, payload: Any) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             json.dump(payload, handle, indent=2)
+            handle.flush()
+            os.fsync(handle.fileno())
         os.replace(tmp_name, path)
     except BaseException:  # re-raised; an interrupt must not leave the temp file
         with contextlib.suppress(OSError):
