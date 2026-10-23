@@ -23,7 +23,7 @@ import re
 from datetime import datetime, timezone
 from typing import Any
 
-from tome.channels import deduplicate_queries
+from tome.channels import deduplicate_queries, estimate_relevance
 from tome.models import Finding
 from tome.synthesis.ranker import compute_relevance_score
 
@@ -257,7 +257,7 @@ def parse_you_mcp_result(
 
         title: str = item.get("title") or url
         snippet: str = item.get("snippet") or item.get("description") or ""
-        relevance, basis = _estimate_relevance(title + " " + snippet, topic)
+        relevance, basis = estimate_relevance(title + " " + snippet, topic)
         metadata: dict[str, Any] = {
             "retrieved_via": "you-mcp",
             "relevance_basis": basis,
@@ -306,7 +306,7 @@ def parse_websearch_result(result: dict[str, Any], topic: str) -> Finding | None
         return None
     title: str = result.get("title") or url
     snippet: str = result.get("snippet") or result.get("description") or ""
-    relevance, basis = _estimate_relevance(title + " " + snippet, topic)
+    relevance, basis = estimate_relevance(title + " " + snippet, topic)
 
     return Finding(
         source="web",
@@ -317,27 +317,6 @@ def parse_websearch_result(result: dict[str, Any], topic: str) -> Finding | None
         summary=snippet or title,
         metadata={"retrieved_via": "websearch", "relevance_basis": basis},
     )
-
-
-def _estimate_relevance(text: str, topic: str) -> tuple[float, str]:
-    """Score text relevance to topic on [0.1, 0.95] by keyword overlap.
-
-    Returns ``(score, basis)``. ``basis`` is ``"measured"`` for a real
-    overlap measurement, and ``"abstained"`` when the topic yields no
-    scoreable words (short topics like ``AI vs ML`` whose words are all
-    filtered by the length floor), so an abstention's 0.5 is
-    distinguishable from an honest 0.5 via
-    ``metadata["relevance_basis"]``.
-    """
-    # Tokenize on letters and digits so "Kafka:" and "(Streams," still
-    # match the topic words they contain.
-    topic_words = {w for w in re.findall(r"[a-z0-9]+", topic.lower()) if len(w) > 2}
-    if not topic_words:
-        return 0.5, "abstained"
-    text_words = {w for w in re.findall(r"[a-z0-9]+", text.lower()) if len(w) > 2}
-    overlap = len(topic_words & text_words) / len(topic_words)
-    # Map to [0.1, 0.95] so heuristic scoring never emits 0.0 or 1.0
-    return round(0.1 + overlap * 0.85, 4), "measured"
 
 
 # ---------------------------------------------------------------------------

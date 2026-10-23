@@ -492,3 +492,26 @@ class TestADateWithoutAZoneIsUtc:
         )
 
         assert rank_github_findings([dated]) == [dated]
+
+
+def test_api_relevance_matches_a_topic_word_inside_a_repo_name() -> None:
+    """``apache/kafka`` is about kafka.
+
+    Relevance is scored the way the web channel scores it, on letters
+    and digits, so a word joined by ``/`` or followed by ``:`` still
+    counts. A whitespace split read ``apache/kafka`` as one unknown word
+    and scored the repository at the 0.1 floor.
+    """
+    data = {
+        "items": [
+            {
+                "html_url": "https://github.com/apache/kafka",
+                "full_name": "apache/kafka",
+                "description": "",
+            }
+        ]
+    }
+
+    findings = parse_github_api_response(data, "kafka")
+
+    assert findings[0].relevance == 0.95

@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import quote_plus
 
-from tome.channels import deduplicate_queries
+from tome.channels import deduplicate_queries, estimate_relevance
 from tome.models import Finding
 from tome.synthesis.ranker import compute_relevance_score
 
@@ -107,17 +107,6 @@ def _extract_repo_name(url: str) -> str:
     return url
 
 
-def _estimate_relevance(title: str, topic: str) -> float:
-    """Score title relevance to topic on [0.1, 0.95] by keyword overlap."""
-    topic_words = set(topic.lower().split())
-    title_words = set(title.lower().split())
-    if not topic_words:
-        return 0.5
-    overlap = len(topic_words & title_words) / len(topic_words)
-    # Map to [0.1, 0.95] so we never emit 0.0 or 1.0 from pure heuristics
-    return round(0.1 + overlap * 0.85, 4)
-
-
 def parse_github_result(result: dict[str, Any]) -> Finding | None:
     """Parse a single WebSearch result dict into a GitHub Finding.
 
@@ -144,7 +133,9 @@ def parse_github_result(result: dict[str, Any]) -> Finding | None:
     repo_name = _extract_repo_name(url)
     display_title = title or repo_name or url
     topic_guess = repo_name.replace("/", " ").replace("-", " ").replace("_", " ")
-    relevance = _estimate_relevance(display_title, topic_guess) if topic_guess else 0.5
+    relevance = (
+        estimate_relevance(display_title, topic_guess)[0] if topic_guess else 0.5
+    )
 
     summary = snippet or f"GitHub repository: {repo_name}"
 
@@ -205,7 +196,7 @@ def parse_github_api_response(data: dict[str, Any], topic: str) -> list[Finding]
         updated_at: str | None = item.get("updated_at")
 
         # Relevance: keyword overlap + star bonus (capped at 0.95)
-        base_relevance = _estimate_relevance(full_name + " " + description, topic)
+        base_relevance = estimate_relevance(full_name + " " + description, topic)[0]
         star_bonus = min(stars / 50_000, 0.15)
         relevance = round(min(base_relevance + star_bonus, 0.95), 4)
 
