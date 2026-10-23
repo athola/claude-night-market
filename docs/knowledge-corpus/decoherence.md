@@ -28,7 +28,7 @@ related_artifacts:
   - plugins/abstract/skills/escalation-governance/SKILL.md
   - plugins/leyline/skills/evaluation-framework/SKILL.md
   - plugins/scribe/skills/doc-generator/SKILL.md
-last_updated: 2026-10-21
+last_updated: 2026-10-22
 ---
 
 # Decoherence and Competing Models in Agent-Written Code
@@ -85,11 +85,17 @@ the essay's direction, and none tests it.
 
 `python3 plugins/conserve/scripts/detect_duplicates.py plugins`
 reports module-level functions that share a name but not a body. On
-2026-10-21 it listed 78 names. Protocol names such as `_build_parser`
-lead the list and are expected. Competing models of one concern sit among them:
-`parse_frontmatter` in 4 plugins, `estimate_tokens` in 3 with 4
-bodies, and the vendored `_version_key`, which has drifted to 3 bodies
-across 14 plugins.
+2026-10-21 it listed 78 names. A review read them on 2026-10-22 and
+found 26 to be competing models of one concern. The rest were protocol
+names such as `_build_parser`, unrelated functions sharing a generic
+verb, and thin wrappers over a single model.
+
+Among the 26 were two copies of a version ordering, in minister and
+memory-palace, that sorted `1.10.1-rc1` below `1.10.0`. leyline's
+vendored ordering already got it right. Both now use it, and the census
+lists 71 names on `plugins/` and 81 from the repository root.
+`parse_frontmatter` still has four bodies beside leyline's vendored
+parser.
 
 ## Rules the skills carry
 
@@ -119,6 +125,11 @@ that other fields already enforce.
   ask for the count and leave the call to the person.
 - The census matches names and can miss a second model saved under a
   new name. A practitioner report describes exactly that: an agent
-  rebuilt a helper under another name.
-- Bodies are compared without docstrings and with arguments. A
-  renamed parameter counts as a different body.
+  rebuilt a helper under another name. Here, atomic file writes sit
+  under 4 names at 7 sites and the census lists 3 of them as unrelated
+  entries. Frontmatter parsing has about 15 module-level functions under
+  11 names, and the census lists 2.
+- Bodies are compared without docstrings or argument annotations, and
+  with argument names. A renamed parameter counts as a different body,
+  and so does a wrapper that differs only in a constant, such as a log
+  label.
