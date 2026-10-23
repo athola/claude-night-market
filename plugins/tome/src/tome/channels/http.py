@@ -141,10 +141,12 @@ class _CredentialSafeRedirect(urllib.request.HTTPRedirectHandler):
 def _https_only_opener() -> urllib.request.OpenerDirector:
     """An opener with an https handler and nothing for file:, ftp: or data:.
 
-    Same construction as scripts/verify_canaries.py, for the same reason:
-    a URL edited to a local path must fail rather than read a file. The
-    redirect handler raises on a redirect to any other scheme, since no
-    handler here would answer it.
+    Built handler by handler rather than with ``build_opener``, which
+    keeps the default ``FileHandler`` even when passed an
+    ``HTTPSHandler``: a URL edited to a local path must fail rather than
+    read a file. The redirect handler raises on a redirect to any other
+    scheme, since no handler here would answer it. scripts/verify_canaries.py
+    uses this opener too.
     """
     director = urllib.request.OpenerDirector()
     for handler in (
