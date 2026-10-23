@@ -371,3 +371,64 @@ class TestRepositoryRung:
         """
         exit_section = skill_text[skill_text.index("## Exit Criteria") :]
         assert "existing model" in exit_section
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_reuse_first_names_how_the_model_departs_from_the_standard(
+        self, skill_text: str
+    ) -> None:
+        """Scenario: a local model is compared with the standard before reuse.
+
+        Given the repository rung guidance
+        When an existing model is about to be reused
+        Then the skill asks what rungs 3 to 5 would do for the concern
+        And gives three outcomes: same contract, a recorded reason, or a
+        departure with no reason, which is raised rather than spread
+        """
+        normalized = " ".join(skill_text.split()).lower()
+        assert "what rungs 3 to 5 would do for the concern" in normalized
+        assert "same contract in a different spelling" in normalized
+        assert "a contract that differs with a recorded reason" in normalized
+        assert "a contract that differs with no recorded reason" in normalized
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_exit_criteria_name_the_standard_departed_from(
+        self, skill_text: str
+    ) -> None:
+        """Scenario: exit criteria record the standard that was compared.
+
+        Given the Exit Criteria section
+        When reading the reuse item
+        Then it asks for the standard the reused model matches or departs
+        from
+        """
+        exit_section = " ".join(
+            skill_text[skill_text.index("## Exit Criteria") :].split()
+        )
+        assert "the standard it matches or departs from" in exit_section
+
+
+class TestReviewCommandDepartureCheck:
+    """Feature: /elegant-code-review flags an unexplained departure.
+
+    The skill asks for the departure check where a model is chosen. The
+    review command applies the ladder to a diff, so it flags a reused
+    model whose contract departs from the standard with no reason.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_review_flags_a_reused_model_that_departs_without_a_reason(
+        self, skill_dir: Path
+    ) -> None:
+        """Scenario: the review names both models for a silent departure.
+
+        Given the elegant-code-review command
+        When a hunk reuses a repository model
+        Then a contract that departs from rungs 3 to 5 with no recorded
+        reason is flagged with both models named
+        """
+        command = skill_dir.parents[1] / "commands" / "elegant-code-review.md"
+        normalized = " ".join(command.read_text().split())
+        assert "departs from rungs 3 to 5 with no recorded reason" in normalized

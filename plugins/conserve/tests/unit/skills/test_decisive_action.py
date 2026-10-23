@@ -254,6 +254,10 @@ class TestRepositoryConventionFirst:
     ) -> None:
         """The proceed row assumes this repository's pattern first."""
         assert "Use this repository's model of the concern" in skill_content
+        assert (
+            "Say how that model departs from industry convention, if it does"
+            in skill_content
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit

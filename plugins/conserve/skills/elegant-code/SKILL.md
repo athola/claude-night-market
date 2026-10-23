@@ -78,6 +78,14 @@ velocity gain fades (`docs/knowledge-corpus/decoherence.md`).
 
 - Reuse the model the codebase already uses for the concern, even when
   the stdlib offers a shorter spelling.
+- Before reusing it, name what rungs 3 to 5 would do for the concern
+  (stdlib, native platform, installed dependency) and compare the
+  contracts. The same contract in a different spelling is reused as it
+  is. A contract that differs with a recorded reason is reused, and the
+  reuse cites that reason. A contract that differs with no recorded
+  reason is raised with both models named before it spreads to new
+  code. A departure is an input the two handle differently: a copied
+  version key in minister ranked `1.10.1-rc1` below `1.10.0`.
 - When a migration is in flight, new code uses the target pattern.
   Never copy the superseded variant, even when it is the majority of
   call sites.
@@ -215,8 +223,9 @@ the current working diff.
 
 - [ ] Each addition was walked down the ladder, and the chosen
       rung is stated (for example, "rung 3: stdlib `zfill`").
-- [ ] Each addition names the existing model it reused, or the
-      search that found none. A second model of a concern carries its
+- [ ] Each addition names the existing model it reused and the
+      standard it matches or departs from, or the search that found
+      none. A second model of a concern carries its
       retirement of the first, or the recorded reason both stand.
 - [ ] Any new dependency passed `Skill(imbue:dependency-verification)`
       and reuse of an installed dependency was ruled out first.

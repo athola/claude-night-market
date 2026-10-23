@@ -39,6 +39,8 @@ review. For whole-codebase cleanup, use `/unbloat`.
    6. A few lines
    A hunk that gives a concern a second implementation is flagged
    unless the diff retires the first or records why both stand.
+   A hunk that reuses a repository model whose contract departs from
+   rungs 3 to 5 with no recorded reason is flagged too, naming both.
    A new dependency is the last resort, below rung 6. If one was
    added, confirm it with `Skill(imbue:dependency-verification)` and
    check whether an installed dependency already covered the need.
