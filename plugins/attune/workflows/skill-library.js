@@ -77,7 +77,7 @@ const LENSES = [
   {
     key: 'economy',
     brief:
-      'Check whether this earns a reader\'s time. A skill restating a general practice, or one whose exit criteria cannot be checked from outside a conversation, is important rather than blocking.',
+      'Check whether this earns a reader\'s time. A skill restating a general practice, or one whose exit criteria cannot be checked from outside a conversation, is important rather than blocking. Report each fact that another skill or file already states. Name that file and propose a link.',
   },
 ]
 

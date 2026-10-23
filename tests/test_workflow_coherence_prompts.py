@@ -1,6 +1,6 @@
 """Workflow prompts ask for a second model of a concern.
 
-Three workflows review code and docs through skills that now carry the
+Four workflows review code, docs and skills through skills that carry the
 one-model-per-concern rule (docs/knowledge-corpus/decoherence.md). A
 workflow agent receives its prompt string, not the skill text, so each
 lens that would see a second model has to ask for it. Each assertion
@@ -36,3 +36,9 @@ def test_doc_sweep_economy_layer_reports_a_restated_fact() -> None:
     """A fact another file already states belongs behind a link."""
     script = _script("scribe", "doc-sweep.js")
     assert "that another file already states" in script
+
+
+def test_skill_library_economy_lens_reports_a_restated_fact() -> None:
+    """An authored skill links a fact another file states, as doc-sweep asks."""
+    script = _script("attune", "skill-library.js")
+    assert "that another skill or file already states" in script
