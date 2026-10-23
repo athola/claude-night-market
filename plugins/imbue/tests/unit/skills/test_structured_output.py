@@ -9,10 +9,12 @@ Each test pins one of those claims, and where another file depends on it
 from __future__ import annotations
 
 import re
+import textwrap
 from pathlib import Path
 
 import pytest
 from _markdown_contract import section_to_same_level as _section
+from scripts.citation_verifier import parse_markdown_findings
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 SKILL = PLUGIN_ROOT / "skills" / "structured-output" / "SKILL.md"
@@ -98,7 +100,7 @@ class TestStructuredOutputSkill:
         """
         step = _finding_step(body)
         assert "### [SEVERITY] Finding Title" in step
-        fields = re.findall(r"^\s*\*\*(\w+)\*\*: ", step, re.MULTILINE)
+        fields = re.findall(r"^\s*(?:- )?\*\*(\w+)\*\*: ", step, re.MULTILINE)
         assert fields == [
             "Location",
             "Anchor",
@@ -110,6 +112,24 @@ class TestStructuredOutputSkill:
         assert "Format renders correctly in target medium" in _section(
             body, "Output Quality Checklist"
         )
+
+    @pytest.mark.unit
+    def test_the_template_parses_with_the_citation_verifier(self, body: str) -> None:
+        """Scenario: a report written to the template passes the verifier.
+
+        Given the finding template
+        When citation_verifier parses it as a findings document
+        Then it reads one finding at file.rs:123 with its anchor.
+
+        The verifier matches only a bulleted ``- **Location**:`` line, so
+        a template without the dash produced reports the guard rejected.
+        """
+        block = _finding_step(body).split("```markdown\n", 1)[1].split("```", 1)[0]
+        findings = parse_markdown_findings(textwrap.dedent(block))
+        assert len(findings) == 1
+        assert findings[0]["file"] == "file.rs"
+        assert findings[0]["line"] == 123
+        assert findings[0]["anchor"].startswith("verbatim source text")
 
     @pytest.mark.unit
     def test_action_item_conversion_and_assignment(self, body: str) -> None:

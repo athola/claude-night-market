@@ -63,12 +63,12 @@ Mark each item complete as you finish the corresponding step.
 - Use consistent finding structure:
   ```markdown
   ### [SEVERITY] Finding Title
-  **Location**: file.rs:123
-  **Anchor**: `verbatim source text copied from line 123`
-  **Category**: Security | Performance | Correctness | Style
-  **Description**: Brief explanation of the issue.
-  **Evidence**: [E1, E2] - Reference to evidence log.
-  **Recommendation**: Specific remediation steps.
+  - **Location**: file.rs:123
+  - **Anchor**: `verbatim source text copied from line 123`
+  - **Category**: Security | Performance | Correctness | Style
+  - **Description**: Brief explanation of the issue.
+  - **Evidence**: [E1, E2] - Reference to evidence log.
+  - **Recommendation**: Specific remediation steps.
   ```
   **Verification:** Run the command with `--help` flag to verify availability.
 - Severity levels: CRITICAL, HIGH, MEDIUM, LOW, INFO.
