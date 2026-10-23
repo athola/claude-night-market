@@ -239,3 +239,37 @@ class TestSessionLifecycleGraphWiring:
         journeys = graph._conn.execute("SELECT * FROM journeys").fetchall()
         graph.close()
         assert len(journeys) == 1
+
+
+class TestOneGraphRegistration:
+    """Both intake hooks register through one shared helper.
+
+    The two hooks held byte-identical copies that differed only in the
+    label written to stderr, so the label is now the only argument
+    that varies.
+    """
+
+    @pytest.mark.parametrize(
+        "hook", [local_doc_processor, web_research_handler], ids=lambda m: m.__name__
+    )
+    def test_each_hook_passes_its_own_label(self, hook: object) -> None:
+        """The wrapper names the hook, so a skipped write says where."""
+        with patch.object(hook, "try_register_graph_entity") as shared:
+            hook._try_register_graph_entity(Path("/p"), "e1", "Name", "doc")
+
+        shared.assert_called_once_with(
+            Path("/p"), "e1", "Name", "doc", source=hook.__name__
+        )
+
+    def test_a_skipped_write_is_reported_under_the_label(
+        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """A graph that cannot open is logged with the caller's label."""
+        from shared.graph_entity import try_register_graph_entity
+
+        blocker = tmp_path / "not-a-dir"
+        blocker.write_text("")
+
+        try_register_graph_entity(blocker, "e1", "Name", "doc", source="probe")
+
+        assert "probe: graph wiring skipped" in capsys.readouterr().err
