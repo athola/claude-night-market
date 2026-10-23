@@ -321,11 +321,23 @@ def find_duplicates(
     )
 
 
+def _is_test_module(filepath: Path) -> bool:
+    """Test modules keep local helpers and numbered cases by convention."""
+    return (
+        "tests" in filepath.parts
+        or filepath.name.startswith("test_")
+        or filepath.name == "conftest.py"
+    )
+
+
 def find_similar_functions(
     path: Path,
     extensions: list[str] | None = None,
 ) -> list[tuple[str, list[str]]]:
-    """Find functions with similar names (potential abstraction candidates).
+    """Find functions that differ only by a suffix such as ``_v2`` or ``_new``.
+
+    A name repeated with no suffix variant is left to
+    ``find_competing_implementations``, which compares bodies.
 
     Returns: list of (base_name, [full_names])
     """
@@ -339,6 +351,8 @@ def find_similar_functions(
         glob_pattern = f"*{ext}" if ext.startswith(".") else f"*.{ext}"
         for filepath in path.rglob(glob_pattern):
             if any(excl in filepath.parts for excl in ("__pycache__", ".venv", "venv")):
+                continue
+            if _is_test_module(filepath):
                 continue
             try:
                 content = filepath.read_text(encoding="utf-8", errors="ignore")
@@ -356,8 +370,12 @@ def find_similar_functions(
         base = re.sub(r"(_\d+|_v\d+|_new|_old|_backup|_copy|_2)$", "", name)
         similar_groups[base].append(name)
 
-    # Return groups with 2+ similar functions
-    return [(base, names) for base, names in similar_groups.items() if len(names) >= 2]
+    # Return groups with 2+ names, at least one of them a suffixed variant
+    return [
+        (base, names)
+        for base, names in similar_groups.items()
+        if len(names) >= 2 and any(name != base for name in names)
+    ]
 
 
 def _body_fingerprint(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:
@@ -387,11 +405,7 @@ def find_competing_implementations(
     """
     sites: dict[str, dict[str, list[tuple[str, int]]]] = defaultdict(dict)
     for filepath in _collect_files(paths, frozenset({".py"})):
-        if (
-            "tests" in filepath.parts
-            or filepath.name.startswith("test_")
-            or filepath.name == "conftest.py"
-        ):
+        if _is_test_module(filepath):
             continue
         try:
             source = filepath.read_text(encoding="utf-8", errors="ignore")

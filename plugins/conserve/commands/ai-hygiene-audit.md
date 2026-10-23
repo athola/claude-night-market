@@ -67,7 +67,8 @@ AI coding creates different problems than human coding:
 
 ### Duplication (Tab-Completion Bloat)
 - **Repeated blocks**: 5+ line duplicates across files
-- **Similar functions**: Near-identical function signatures
+- **Suffix variants**: names that differ only by `_v2`, `_new` or
+  `_old`, outside test modules
 - **Copy-paste patterns**: Same logic with minor variations
 - **Competing implementations**: One function name with different
   bodies in two or more files, listed in the same report

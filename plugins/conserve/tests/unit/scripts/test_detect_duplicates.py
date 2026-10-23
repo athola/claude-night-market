@@ -334,6 +334,32 @@ class TestFindSimilarFunctions:
 
         assert groups == []
 
+    @pytest.mark.unit
+    def test_a_name_repeated_without_a_suffix_is_not_a_group(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: one name in two files is the census's job, not this scan's.
+
+        Before this scan was scoped, 2875 of its 2960 groups on plugins/
+        were plain repeats with no suffix variant at all.
+        """
+        (tmp_path / "a.py").write_text("def load():\n    return 1\n")
+        (tmp_path / "b.py").write_text("def load():\n    return 2\n")
+
+        assert find_similar_functions(tmp_path) == []
+
+    @pytest.mark.unit
+    def test_test_modules_are_skipped(self, tmp_path: Path) -> None:
+        """Scenario: a test and its _v2 sibling are test cases, not variants."""
+        tests = tmp_path / "tests"
+        tests.mkdir()
+        (tests / "test_config.py").write_text(
+            "def test_read_config():\n    pass\n\n"
+            "def test_read_config_v2():\n    pass\n"
+        )
+
+        assert find_similar_functions(tmp_path) == []
+
 
 class TestFormatText:
     """Feature: format_text renders a human-readable report."""
