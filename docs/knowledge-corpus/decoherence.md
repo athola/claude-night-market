@@ -28,7 +28,7 @@ related_artifacts:
   - plugins/abstract/skills/escalation-governance/SKILL.md
   - plugins/leyline/skills/evaluation-framework/SKILL.md
   - plugins/scribe/skills/doc-generator/SKILL.md
-last_updated: 2026-10-22
+last_updated: 2026-10-23
 ---
 
 # Decoherence and Competing Models in Agent-Written Code
@@ -117,12 +117,35 @@ that other fields already enforce.
 | Pair a gating score with a check outside the score | `leyline:evaluation-framework` | Goodhart's law |
 | One authorized term per concept, and one home per fact | `scribe:doc-generator` | Library authority files |
 | The superseded document points forward and states its status | `scribe:doc-generator` | The RFC index records "Obsoleted by" |
+| Before reusing a model, compare its contract with the stdlib, platform or installed dependency, and raise a departure with no recorded reason | `conserve:elegant-code` rung 2, `conserve:decisive-action` | Departure disclosure in financial reporting (added by hand, not from the TRIZ pass) |
+
+## How far the repository's models depart from the standard
+
+Reusing the repository's model only beats the standard when the two
+agree, or when the difference has a reason someone wrote down. On
+2026-10-23 the four concerns this page already discusses compared as
+follows.
+
+| Concern | Repository model | Standard | Departure | Recorded reason | Outcome |
+|---------|------------------|----------|-----------|-----------------|---------|
+| Version ordering | leyline `version_key` | PEP 440, `packaging.version` | `1.10.0.post1` sorts below `1.10.0` | Stdlib-only, in the `sibling_plugins.py` docstring. The post-release order is not recorded | Raise |
+| Atomic file write | Temp file in the same directory, then `os.replace` (four writers) | The same, with `os.fsync` before the rename | None of the four flushes. A crash before the data reaches disk can lose the write | None | Raise |
+| Frontmatter parsing | leyline `frontmatter.py`, PyYAML optional | `yaml.safe_load` on the fenced block | Parses with PyYAML absent | Hooks and pre-commit run on the system `python3` (`scripts/sync_vendored.py`, `skill_graph.py`) | Reuse, cite |
+| Token estimation | leyline `tokens.py`, `tiktoken` when installed | A tokenizer such as `tiktoken` | A size heuristic when `tiktoken` is absent | The `tokens.py` module docstring | Reuse, cite |
+
+Raise means the departure is named to a person, who decides whether to
+record a reason or move to the standard. Neither raised case is fixed
+here: no plugin cache directory carries a post-release version today,
+and durability against power loss is a trade the writers' owners have
+not been asked about.
 
 ## Limits
 
 - No migration-share threshold is set. Building codes pick one for
   life safety, and software has no basis for a number yet. The rules
   ask for the count and leave the call to the person.
+- No departure threshold is set either. A departure is an input the two
+  models treat differently, named rather than scored.
 - The census matches names and can miss a second model saved under a
   new name. A practitioner report describes exactly that: an agent
   rebuilt a helper under another name. Here, atomic file writes sit
