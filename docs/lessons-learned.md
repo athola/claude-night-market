@@ -357,7 +357,12 @@ dependency probe that resolved over the network could hold the whole run.
   closed.
 - Action: wire the forced-eval skill-activation gate prototyped under
   `prototypes/forced-eval/`, which targets near-keyword-matching activation.
-  Owner: night-market maintainers. Due: unscheduled. Status: open.
+  Owner: night-market maintainers. Due: unscheduled. Status: closed
+  without wiring, prototype deleted 2026-10-22. Its one live run showed
+  100% baseline activation and no lift. The `superpowers:using-superpowers`
+  session-start text already asks for a skill check before every
+  response, and a second per-turn directive costs accuracy
+  (`.claude/rules/bounded-autonomy.md`).
 - Action: add a layer-count guard for the finite skill Discovery budget of
   about 16K characters, past which skills are dropped silently. Owner:
   night-market maintainers. Due: unscheduled. Status: open.

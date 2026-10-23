@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- `prototypes/forced-eval/`, the unwired skill-activation hook. Its live
+  measurement found no activation lift over baseline, and the
+  using-superpowers session-start text already asks for the same skill
+  check.
+
 ## [1.10.0] - 2026-10-14
 
 Sweep for Claude Code 2.1.220 to 2.1.289. Several fields this repo wrote
