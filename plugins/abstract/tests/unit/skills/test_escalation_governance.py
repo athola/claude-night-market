@@ -28,7 +28,7 @@ def test_investigation_step_counts_models_of_the_concern(skill_text: str) -> Non
             "### 3. Is escalation"
         )
     ]
-    assert "How many ways does this codebase already model the concern" in step_two
+    assert "How many ways does this codebase already implement the concern" in step_two
 
 
 def test_coexisting_models_are_a_knowledge_gap(skill_text: str) -> None:

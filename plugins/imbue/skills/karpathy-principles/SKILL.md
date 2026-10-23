@@ -145,9 +145,9 @@ mess.**
 - Do not refactor things that aren't broken
 - Match existing style even when you would do it
   differently
-- Match the module's existing pattern for the concern
+- Match the module's existing model of the concern
   as well as its style. During a migration, use the
-  target pattern and never copy the superseded one,
+  target model and never copy the superseded one,
   even when it is the majority. See
   `Skill(conserve:elegant-code)` rung 2
 - If you notice unrelated dead code, mention it; do

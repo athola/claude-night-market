@@ -201,7 +201,7 @@ class TestSurgicalChangesMatchExistingPattern:
         self, skill_text: str
     ) -> None:
         """Principle 3 asks for the module's existing pattern for the concern."""
-        assert "existing pattern for the concern as well as its style" in skill_text
+        assert "existing model of the concern as well as its style" in skill_text
 
     @pytest.mark.bdd
     @pytest.mark.unit

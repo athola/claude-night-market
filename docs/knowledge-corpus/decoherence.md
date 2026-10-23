@@ -93,6 +93,11 @@ across 14 plugins.
 
 ## Rules the skills carry
 
+The skills use one term, *model of a concern*: one way the codebase
+does one job. `abstract:escalation-governance` says implementation,
+because model there means an LLM tier. The census reports the same
+thing as competing implementations.
+
 Each rule is written into the skill that makes the decision. The analogies come
 from a TRIZ pass and are not evidence. They give the shape of a rule
 that other fields already enforce.
