@@ -42,7 +42,7 @@ const DIMENSIONS = [
   {
     key: 'architecture',
     agentType: 'pensive:architecture-reviewer',
-    prompt: 'Assess the changed code against the ADRs in docs/adr/ and the invariants in .claude/rules/. Report coupling that the change introduces. Report each second model of a concern the codebase already models. Name the existing model and its file.',
+    prompt: 'Assess the changed code against the ADRs in docs/adr/ and the invariants in .claude/rules/. Report coupling that the change introduces. Report each second model of a concern the codebase already models. Name the existing model and its file. Name the standard it departs from, if it departs from one.',
   },
   {
     key: 'tests',

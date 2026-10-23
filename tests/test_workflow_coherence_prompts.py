@@ -24,6 +24,7 @@ def test_unified_review_architecture_lens_reports_a_second_model() -> None:
     script = _script("pensive", "unified-review.js")
     assert "second model of a concern the codebase already models" in script
     assert "Name the existing model and its file" in script
+    assert "Name the standard it departs from" in script
 
 
 def test_bloat_sweep_consolidation_matches_names_across_areas() -> None:
