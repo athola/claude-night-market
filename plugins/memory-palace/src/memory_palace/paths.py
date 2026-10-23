@@ -38,6 +38,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from memory_palace._vendored_leyline_sibling_plugins import version_key
+
 #: An operator moving a palace, or the migration tool pointing at a
 #: destination, needs one lever that does not depend on where the code
 #: happens to be installed. It names the root that *contains* ``data/``.
@@ -70,14 +72,9 @@ def _leyline_src(plugin_root: Path) -> Path | None:
 
     versions = sorted(
         (plugin_root.parent.parent / "leyline").glob("*/src"),
-        key=lambda path: _numeric_version(path.parent.name),
+        key=lambda path: version_key(path.parent),
     )
     return versions[-1] if versions else None
-
-
-def _numeric_version(version: str) -> tuple[int, ...]:
-    """Order versions numerically so 1.9.9 ranks below 1.9.17."""
-    return tuple(int(part) if part.isdigit() else -1 for part in version.split("."))
 
 
 def _load_shared_resolver() -> Any | None:

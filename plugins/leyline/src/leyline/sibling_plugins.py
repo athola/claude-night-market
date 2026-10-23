@@ -31,7 +31,7 @@ def _plugin_root(start: Path) -> Path | None:
 _LEADING_VERSION = re.compile(r"\d+(?:\.\d+)*")
 
 
-def _version_key(path: Path) -> tuple[tuple[int, ...], bool, str]:
+def version_key(path: Path) -> tuple[tuple[int, ...], bool, str]:
     """Order directory names as versions.
 
     ``1.10.0`` sorts after ``1.9.21``, and ``2.0.0-rc1`` after both but
@@ -61,7 +61,7 @@ def sibling_plugin_dir(this_file: str | Path, name: str) -> Path | None:
     versions = [
         d for d in (root.parent.parent / name).glob("*") if (d / _MANIFEST_DIR).is_dir()
     ]
-    return max(versions, key=_version_key) if versions else None
+    return max(versions, key=version_key) if versions else None
 
 
 def add_sibling_src_to_path(anchor_file: str | Path, plugin_name: str) -> Path:

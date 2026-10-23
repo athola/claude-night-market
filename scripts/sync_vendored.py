@@ -51,6 +51,8 @@ VENDORED: dict[str, list[str]] = {
         "plugins/abstract/src/abstract/_vendored_leyline_sibling_plugins.py",
         "plugins/cartograph/hooks/_vendored_leyline_sibling_plugins.py",
         "plugins/pensive/hooks/_vendored_leyline_sibling_plugins.py",
+        "plugins/minister/src/minister/_vendored_leyline_sibling_plugins.py",
+        "plugins/memory-palace/src/memory_palace/_vendored_leyline_sibling_plugins.py",
     ],
 }
 

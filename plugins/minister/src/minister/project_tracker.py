@@ -20,6 +20,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from minister._vendored_leyline_sibling_plugins import version_key
+
 
 @dataclass
 class Task:
@@ -65,14 +67,9 @@ def _leyline_src(plugin_root: Path) -> Path | None:
 
     versions = sorted(
         (plugin_root.parent.parent / "leyline").glob("*/src"),
-        key=lambda path: _version_key(path.parent.name),
+        key=lambda path: version_key(path.parent),
     )
     return versions[-1] if versions else None
-
-
-def _version_key(version: str) -> tuple[int, ...]:
-    """Order versions numerically so 1.9.9 ranks below 1.9.17."""
-    return tuple(int(part) if part.isdigit() else -1 for part in version.split("."))
 
 
 def _load_shared_resolver(plugin_root: Path) -> Any | None:

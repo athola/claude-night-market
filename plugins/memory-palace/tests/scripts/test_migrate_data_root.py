@@ -188,6 +188,22 @@ class TestCollisions:
 
         assert (_dest(tmp_path) / "data" / "staging" / "a.md").read_text() == "new"
 
+    def test_a_later_prerelease_wins_a_conflict(self, tmp_path: Path) -> None:
+        """GIVEN differing copies in 1.10.0 and 1.10.1-rc1
+        WHEN the plan is built
+        THEN the rc's copy is chosen: it is the newer tree, as leyline
+        orders the cache.
+        """
+        _install(tmp_path, "1.10.0", {"staging/a.md": "release"})
+        _install(tmp_path, "1.10.1-rc1", {"staging/a.md": "prerelease"})
+
+        plan = plan_migration(tmp_path / "plugins", "memory-palace")
+        apply_plan(plan)
+
+        assert (
+            _dest(tmp_path) / "data" / "staging" / "a.md"
+        ).read_text() == "prerelease"
+
     def test_existing_destination_file_is_never_replaced(self, tmp_path: Path) -> None:
         """GIVEN the destination already holds a different file at that path
         WHEN the migration is applied
