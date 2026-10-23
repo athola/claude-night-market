@@ -7,6 +7,7 @@ homeostatic hook, which runs under a bare ``python3``.
 from __future__ import annotations
 
 import os
+import sys
 import tempfile
 from pathlib import Path
 
@@ -31,3 +32,19 @@ def write_text_atomic(path: Path, text: str) -> None:
     except BaseException:
         Path(tmp_name).unlink(missing_ok=True)
         raise
+    _fsync_directory(path.parent)
+
+
+def _fsync_directory(directory: str | os.PathLike[str]) -> None:
+    """Sync ``directory`` so a rename inside it survives a crash.
+
+    Windows cannot open a directory for fsync, and NTFS journals
+    metadata changes such as a rename. The sync is skipped there.
+    """
+    if sys.platform == "win32":
+        return
+    fd = os.open(directory, os.O_RDONLY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)

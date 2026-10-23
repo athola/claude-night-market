@@ -8,6 +8,7 @@ entry append, supersession, idempotency) and the file-level apply helper
 from __future__ import annotations
 
 import os
+import sys
 import re
 import subprocess
 import threading
@@ -518,7 +519,8 @@ def test_journal_write_flushes_to_disk_before_the_rename(
     GIVEN a target file to replace
     WHEN it is written atomically
     THEN os.fsync runs on the temp file before os.replace publishes it,
-    so a crash after the rename cannot leave an empty or stale file.
+    and on the directory after, so a crash cannot lose the data or the
+    rename.
     """
     events: list[str] = []
     real_fsync, real_replace = os.fsync, os.replace
@@ -537,4 +539,30 @@ def test_journal_write_flushes_to_disk_before_the_rename(
 
     _atomic_write(target, "entry\n")
 
-    assert events == ["fsync", "replace"]
+    assert events == ["fsync", "replace", "fsync"]
+
+
+def test_directory_sync_is_skipped_on_windows(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Windows cannot open a directory to fsync it.
+
+    GIVEN the platform reports win32
+    WHEN a file is written atomically
+    THEN only the temp file is synced, and the write still succeeds.
+    """
+    events: list[str] = []
+    real_fsync = os.fsync
+
+    def _fsync(fd: int) -> None:
+        events.append("fsync")
+        real_fsync(fd)
+
+    monkeypatch.setattr(os, "fsync", _fsync)
+    monkeypatch.setattr(sys, "platform", "win32")
+    target = tmp_path / "journal.md"
+
+    _atomic_write(target, "entry\n")
+
+    assert events == ["fsync"]
+    assert target.exists()
