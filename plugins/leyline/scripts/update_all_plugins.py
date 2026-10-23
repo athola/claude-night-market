@@ -13,8 +13,15 @@ from typing import Any
 
 
 def read_installed_plugins() -> dict[str, list[dict[str, Any]]]:
-    """Read the installed plugins configuration file."""
-    plugins_file = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
+    """Read the installed plugins configuration file.
+
+    The v2 file is tried first and the v1 name is the fallback.
+    ``reinstall_all_plugins.py`` imports this reader.
+    """
+    plugins_dir = Path.home() / ".claude" / "plugins"
+    plugins_file = plugins_dir / "installed_plugins_v2.json"
+    if not plugins_file.exists():
+        plugins_file = plugins_dir / "installed_plugins.json"
 
     if not plugins_file.exists():
         print(f"[ERROR] Plugins configuration file not found: {plugins_file}")

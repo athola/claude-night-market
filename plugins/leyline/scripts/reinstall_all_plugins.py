@@ -6,7 +6,6 @@ then reinstalls it. Useful for clearing cache corruption or version mismatches.
 """
 
 import argparse
-import json
 import os
 import subprocess
 import sys
@@ -14,6 +13,8 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from update_all_plugins import read_installed_plugins
 
 
 @dataclass(frozen=True)
@@ -90,33 +91,6 @@ def _execute_phase(
         failed.append(plugin)
 
     return failed
-
-
-def read_installed_plugins() -> dict[str, list[dict[str, Any]]]:
-    """Read the installed plugins configuration file."""
-    # Try v2 format first, fall back to v1
-    plugins_file = Path.home() / ".claude" / "plugins" / "installed_plugins_v2.json"
-    if not plugins_file.exists():
-        plugins_file = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
-
-    if not plugins_file.exists():
-        print("[ERROR] Plugins configuration file not found")
-        sys.exit(1)
-
-    try:
-        with plugins_file.open(encoding="utf-8") as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        print("[ERROR] Plugins configuration file is not valid JSON")
-        print(f"        {type(e).__name__}: {e}")
-        sys.exit(1)
-    except OSError as e:
-        print("[ERROR] Could not read plugins configuration file")
-        print(f"        {type(e).__name__}: {e}")
-        sys.exit(1)
-
-    plugins: dict[str, list[dict[str, Any]]] = data.get("plugins", {})
-    return plugins
 
 
 def categorize_plugins(

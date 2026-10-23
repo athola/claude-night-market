@@ -640,3 +640,35 @@ class TestMain:
         assert "[UPDATED]" in all_output
         # Also check that brackets are used consistently
         assert "[NOTE]" in all_output
+
+
+@pytest.mark.unit
+class TestOneInstalledPluginsReader:
+    """Update and reinstall read the installed-plugins file one way.
+
+    reinstall tried installed_plugins_v2.json first and update read only
+    the v1 name, so on an install holding only the v2 file update stopped
+    with "not found" while reinstall worked.
+    """
+
+    def test_a_v2_only_install_is_read(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        plugins_dir = tmp_path / ".claude" / "plugins"
+        plugins_dir.mkdir(parents=True)
+        (plugins_dir / "installed_plugins_v2.json").write_text(
+            json.dumps({"plugins": {"a@m": [{"version": "1.0.0"}]}})
+        )
+        monkeypatch.setattr(Path, "home", lambda: tmp_path)
+
+        assert update_all_plugins.read_installed_plugins() == {
+            "a@m": [{"version": "1.0.0"}]
+        }
+
+    def test_reinstall_uses_the_same_reader(self) -> None:
+        import reinstall_all_plugins  # noqa: PLC0415 - script module, path set above
+
+        assert (
+            reinstall_all_plugins.read_installed_plugins
+            is update_all_plugins.read_installed_plugins
+        )
