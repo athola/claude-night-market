@@ -249,7 +249,14 @@ def _load_config(gauntlet_dir: Path) -> dict[str, Any]:
 
 
 def _get_staged_files() -> list[str] | None:
-    """Return a list of staged file paths, or None on git failure."""
+    """Return a list of staged file paths, or None on git failure.
+
+    ``gauntlet.incremental`` keeps its own copy, and both stand on
+    purpose. The gate must tell a git failure (None, deny) from an empty
+    commit, while the graph's fallback wants an empty list. The gate runs
+    under a one-second git budget, and importing ``incremental`` would
+    add its graph and parser modules, about 60 ms, to every call.
+    """
     try:
         result = subprocess.run(
             ["git", "diff", "--cached", "--name-only"],
