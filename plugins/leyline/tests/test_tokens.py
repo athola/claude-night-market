@@ -152,17 +152,26 @@ class TestTokenEstimation:
     ) -> None:
         """Scenario: Heuristic estimation handles inaccessible files gracefully.
 
-        Given a file path that causes OSError
+        Given a path whose name is too long to stat, before a readable file
         When estimating with heuristic
-        Then it should skip the file and continue.
+        Then the unreadable entry is skipped
+        And the readable file after it is still counted.
+
+        A missing path does not reach the OSError branch: is_file() returns
+        False for it. A name past NAME_MAX makes stat raise ENAMETOOLONG,
+        which is_file() re-raises on Python 3.12 and swallows from 3.14 on.
+        Either way the readable file must be counted.
         """
         monkeypatch.setattr(tokens, "_get_encoder", lambda: None)
+        readable = tmp_path / "sample.py"
+        readable.write_text("a" * 32)
+        too_long = str(tmp_path / ("x" * 5000))
 
-        # Use a path that doesn't exist but won't raise until accessed
-        result = tokens.estimate_tokens(["/nonexistent/path/file.py"], prompt="test")
+        result = tokens.estimate_tokens([too_long, str(readable)], prompt="test")
 
-        # Should just return prompt tokens, no error
-        expected = int(len("test") / tokens.FILE_TOKEN_RATIOS["default"])
+        expected = int(
+            len("test") / tokens.FILE_TOKEN_RATIOS["default"]
+        ) + tokens.estimate_file_tokens(readable)
         assert result == expected
 
 
