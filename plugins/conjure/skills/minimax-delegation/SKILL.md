@@ -40,7 +40,7 @@ For shared delegation patterns, see `Skill(conjure:delegation-core)`.
 ## When To Use
 
 - After `Skill(conjure:delegation-core)` determines MiniMax is suitable
-- When you need MiniMax-M3's large context window (1M tokens)
+- When you need Flash or M3's large context window (1M tokens)
 - For batch processing, summarization, or multi-file analysis
 - If the `mmx` CLI is installed and authenticated
 
@@ -112,7 +112,7 @@ log.
 
 ```bash
 # Basic command
-mmx text chat --message "Analyze this code"
+mmx text chat --model MiniMax-M3.1-Flash --message "Analyze this code"
 
 # Specific model
 mmx text chat --model MiniMax-M3 --message "Summarize this design"

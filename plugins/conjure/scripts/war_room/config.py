@@ -27,7 +27,9 @@ QWEN_TURBO = "qwen-turbo"
 QWEN_MAX = "qwen-max"
 
 # MiniMax models (served via the official mmx CLI)
+MINIMAX_M3_1_FLASH = "MiniMax-M3.1-Flash"
 MINIMAX_M3 = "MiniMax-M3"
+# Retained for callers that explicitly pin the legacy model.
 MINIMAX_M2_7 = "MiniMax-M2.7"
 
 # Meta Muse models. muse-spark-1.2 is served by the muse CLI; the Glimmer
@@ -74,6 +76,7 @@ validate_model_ids(
         "GEMINI_3_FLASH": GEMINI_3_FLASH,
         "QWEN_TURBO": QWEN_TURBO,
         "QWEN_MAX": QWEN_MAX,
+        "MINIMAX_M3_1_FLASH": MINIMAX_M3_1_FLASH,
         "MINIMAX_M3": MINIMAX_M3,
         "MINIMAX_M2_7": MINIMAX_M2_7,
         "MUSE_SPARK": MUSE_SPARK,

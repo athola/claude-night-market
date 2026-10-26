@@ -340,6 +340,10 @@ class Delegator:
         """
         service = self.services[service_name]
         command = [service.command, *service.subcommand]
+        # Pin MiniMax's configured default instead of inheriting the installed
+        # CLI's model. Explicit options and saved service overrides still win.
+        if service_name == "minimax" and service.default_model:
+            options = {"model": service.default_model, **(options or {})}
 
         # Add options. Every flag spelling comes from the service config, so a
         # CLI that names things differently is a data change, not a new branch.
