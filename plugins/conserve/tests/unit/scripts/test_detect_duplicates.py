@@ -847,3 +847,62 @@ class TestCompetingImplementationsOutput:
         """CI consumers can rely on the key."""
         data = json.loads(format_json(self._report(), []))
         assert data["competing_implementations"] == []
+
+    @pytest.mark.unit
+    def test_text_lists_ten_names_and_counts_the_rest(self) -> None:
+        """A long competing list is capped at ten, with the remainder counted.
+
+        GIVEN twelve names that each have two bodies
+        WHEN the text report is built
+        THEN the first ten names are listed and the last two are not
+        AND a trailer states how many names were left out
+        """
+        competing = [
+            CompetingImplementation(
+                name=f"helper_{i:02d}", variants=[[("a.py", i)], [("b.py", i)]]
+            )
+            for i in range(12)
+        ]
+
+        output = format_text(self._report(), [], competing)
+
+        assert "COMPETING IMPLEMENTATIONS: 12 names" in output
+        assert "helper_09: 2 bodies" in output
+        assert "helper_10" not in output
+        assert "... and 2 more" in output
+
+
+class TestMainJsonOutput:
+    """Feature: the CLI emits the JSON report CI consumers parse."""
+
+    @pytest.mark.unit
+    def test_format_json_prints_a_parseable_report_with_competing_names(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        """--format json prints the whole report as one JSON document.
+
+        GIVEN two files defining estimate_tokens with different bodies
+        WHEN main runs with --format json
+        THEN stdout parses as JSON
+        AND it names the competing implementation and the files scanned
+        """
+        (tmp_path / "a.py").write_text(
+            "def estimate_tokens(text):\n    return len(text) // 4\n"
+        )
+        (tmp_path / "b.py").write_text(
+            "def estimate_tokens(text):\n    return len(text.split())\n"
+        )
+        monkeypatch.setattr(
+            sys, "argv", ["detect_duplicates.py", str(tmp_path), "--format", "json"]
+        )
+
+        detect_duplicates_module.main()
+        data = json.loads(capsys.readouterr().out)
+
+        assert data["summary"]["files_scanned"] == 2
+        assert [c["name"] for c in data["competing_implementations"]] == [
+            "estimate_tokens"
+        ]
