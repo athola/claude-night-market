@@ -15,8 +15,8 @@ from __future__ import annotations
 # left a constant whose name contradicted its value.
 #
 # Refreshed by Skill(night-market-model-and-harness-updates).
-CLAUDE_OPUS = "claude-opus-5"
-CLAUDE_SONNET = "claude-sonnet-5"
+CLAUDE_OPUS = "claude-opus-5-5"
+CLAUDE_SONNET = "claude-sonnet-5-5"
 
 # Gemini models (served via gemini CLI). Named by tier, like the Claude
 # constants. No stable 3.x Pro exists, so Pro is a preview id: watch
@@ -49,7 +49,7 @@ GLM_52 = "glm-5.2"
 GLM_53 = "glm-5.3"
 
 # Haiku fallback (used when external LLMs are unavailable)
-CLAUDE_HAIKU = "claude-haiku-4-5"
+CLAUDE_HAIKU = "claude-haiku-5-5"
 
 
 def validate_model_ids(model_ids: dict[str, str]) -> None:

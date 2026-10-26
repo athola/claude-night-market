@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Conjure's Muse service and the War Room Systems Engineer pass
   `--model muse-spark-1.3`. Muse Code otherwise runs its 1.2 default,
   while Meta recommends 1.3 for new work.
+- War Room's native experts and Haiku fallback name `claude-opus-5-5`,
+  `claude-sonnet-5-5` and `claude-haiku-5-5`, and gauntlet's challenge
+  variations use Haiku 5.5. The upstream ledger records Haiku 5.5.
+  Phantom stays on `claude-sonnet-5`: the 5.5 models accept only the
+  `computer_toolset_20260801` computer-use shape, which phantom does not
+  build yet.
 
 ### Fixed
 

@@ -19,7 +19,7 @@ related_artifacts:
   - docs/agent-model-matrix.md
   - plugins/phantom/src/phantom/cost.py
   - .claude/skills/night-market-model-and-harness-updates/SKILL.md
-last_updated: 2026-10-04
+last_updated: 2026-10-26
 ---
 
 ## Synopsis
@@ -29,7 +29,7 @@ names do not tell you where a model sits. This entry is the lookup
 table that settles both questions: which model to reach for, and what
 it costs when you do.
 
-Verified against the model card on 2026-10-04. Refresh through
+Verified against the models overview on 2026-10-26. Refresh through
 `Skill(night-market-model-and-harness-updates)`, which reads the card
 as a mandatory source.
 
@@ -40,11 +40,11 @@ as a mandatory source.
 | Frontier | `claude-fable-5-1` | $10 / $50 | 1M | 128k | Slower |
 | Deep | `claude-opus-5-5` | $4 / $20 | 1M | 128k | Moderate |
 | Standard | `claude-sonnet-5-5` | $2 / $10 | 1M | 128k | Fast |
-| Lightweight | `claude-haiku-4-5-20251001` | $1 / $5 | 200k | 64k | Fastest |
+| Lightweight | `claude-haiku-5-5` | $0.10 / $0.50 up to 100K, $0.50 / $2.50 above | 1M | 128k | Fastest |
 
 Cache reads cost 10% of the input rate, except Fable 5.1 at 2.5% and
-Opus 5.5 at 5%. Default API effort is `high` on Fable 5.1 and Sonnet
-5.5 and `medium` on Opus 5.5. Haiku 4.5 takes no effort parameter.
+Opus 5.5 and Sonnet 5.5 at 5%. Default API effort is `high` on Fable
+5.1 and Sonnet 5.5 and `medium` on Opus 5.5 and Haiku 5.5.
 
 Claude Code made each the default in its tier as it shipped: Fable 5.1
 in 2.1.257, Opus 5.5 in 2.1.280, Sonnet 5.5 in 2.1.284. Agent
@@ -64,9 +64,9 @@ cost, then corrected once the card was read.
 pricing but is invitation-only under Project Glasswing. It is not a
 Claude Code tier and belongs in no local vocabulary.
 
-**Haiku is the only current model under 1M context.** It holds 200k and
-64k max output, so a task sized for the other three does not
-necessarily fit it.
+**Every current model has a 1M context and 128k max output.** Haiku 5.5
+closed the gap Haiku 4.5 left at 200k and 64k. Its price is tiered by
+prompt length, so a flat budget row has to pick one tier.
 
 **Opus 5.5 defaults to `medium` effort**, one step below Opus 5. An
 agent that pins `effort: high` on `opus` now raises it above the
@@ -76,14 +76,13 @@ default.
 
 | Model | Status |
 |-------|--------|
-| `claude-haiku-4-5-20251001` | Retirement not sooner than 2026-10-15; still the only Haiku |
+| `claude-haiku-4-5-20251001` | Legacy, still callable. Its not-sooner-than date of 2026-10-15 has passed with no retirement date set |
 | `claude-opus-4-1-20250805` | Retired 2026-08-05, calls return 404 |
 | Fable 5 ($10 / $50), Opus 5 ($5 / $25), Sonnet 5 ($2 / $10) | Legacy, still callable |
 | Opus 4.8, 4.7, 4.6, 4.5; Sonnet 4.6 | Legacy, still callable |
 
-The Haiku date is the earliest retirement Anthropic commits to. Every
-agent pinned to `haiku` depends on that model, and the card lists no
-successor. Recheck this entry first.
+Haiku 4.5 can retire on short notice now. Code that names it rather
+than `claude-haiku-5-5` should move first.
 
 Sonnet 5's launch price of $2 / $10 became its standard price. The rise
 to $3 / $15 scheduled for 2026-09-01 was cancelled (pricing page,

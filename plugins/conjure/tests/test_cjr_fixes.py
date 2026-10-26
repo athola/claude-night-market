@@ -46,14 +46,14 @@ class TestModelIdConstants:
         THEN each constant equals its canonical model ID string
         AND all eight expected models are present
         """
-        assert CLAUDE_OPUS == "claude-opus-5"
-        assert CLAUDE_SONNET == "claude-sonnet-5"
+        assert CLAUDE_OPUS == "claude-opus-5-5"
+        assert CLAUDE_SONNET == "claude-sonnet-5-5"
         assert GEMINI_PRO == "gemini-3.1-pro-preview"
         assert GLM_52 == "glm-5.2"
         assert QWEN_CODER == "coder-model"
         assert GEMINI_FLASH == "gemini-3.8-flash"
         assert QWEN_MAX == "qwen-max"
-        assert CLAUDE_HAIKU == "claude-haiku-4-5"
+        assert CLAUDE_HAIKU == "claude-haiku-5-5"
 
     def test_validate_model_ids_rejects_empty_string(self) -> None:
         """Reject an empty model ID with a ValueError.
@@ -110,6 +110,7 @@ class TestModelIdConstants:
             "qwen-max",
             "coder-model",
             "claude-haiku-4-5",
+            "claude-haiku-5-5",
         }
         found = banned_model_ids & set(string_literals)
         assert not found, (

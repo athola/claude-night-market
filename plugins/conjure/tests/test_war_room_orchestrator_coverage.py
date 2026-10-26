@@ -135,7 +135,7 @@ class TestInvokeExpert:
         assert "Intelligence Officer" in _haiku_fallback_notices[0]
         # Merkle dag should record haiku model
         node = list(session.merkle_dag.nodes.values())[0]
-        assert node.expert_model == "claude-haiku-4-5"
+        assert node.expert_model == "claude-haiku-5-5"
 
 
 # -------------------------------------------------------------------
@@ -331,7 +331,7 @@ class TestInvokeHaikuFallback:
 
         with patch(
             "scripts.war_room.orchestrator.get_haiku_command",
-            return_value=["claude", "--model", "claude-haiku-4-5", "-p"],
+            return_value=["claude", "--model", "claude-haiku-5-5", "-p"],
         ):
             with patch(
                 "asyncio.create_subprocess_exec",
@@ -357,7 +357,7 @@ class TestInvokeHaikuFallback:
 
         with patch(
             "scripts.war_room.orchestrator.get_haiku_command",
-            return_value=["claude", "--model", "claude-haiku-4-5", "-p"],
+            return_value=["claude", "--model", "claude-haiku-5-5", "-p"],
         ):
             with patch(
                 "asyncio.create_subprocess_exec",
