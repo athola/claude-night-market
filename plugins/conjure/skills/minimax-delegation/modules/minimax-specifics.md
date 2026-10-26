@@ -2,24 +2,25 @@
 
 ## Model Reference
 
-`MiniMax-M3` is the default model.
+`MiniMax-M3.1-Flash` is the default and fast-response selection.
+`MiniMax-M3` remains the large-context selection. Explicit model options
+and saved service overrides remain authoritative, including legacy IDs.
 
 | Model | Use Case | Context | Input | Thinking |
 |-------|----------|---------|-------|----------|
-| `MiniMax-M3` | Complex analysis, large context | 1,000,000 tokens | Text, image, video | Adaptive or disabled |
-| `MiniMax-M2.7` | Fast, simple tasks | 204,800 tokens | Text | Always on |
+| `MiniMax-M3.1-Flash` | Default delegation | 1,000,000 tokens | Text, image, video | Adaptive only |
+| `MiniMax-M3` | Large-context selection | 1,000,000 tokens | Text, image, video | Adaptive or disabled |
 
-## Cost Reference (USD per 1M tokens)
+The executor exposes no thinking or effort flags. It leaves these to
+`mmx` and the API defaults; it does not request disabled thinking for
+Flash or inject a service tier.
 
-List prices for the standard tier. MiniMax bills requests above 512K
-input tokens at a higher long-context rate, so verify current pricing at
-`https://platform.minimax.io` before relying on these numbers for
-budgeting.
+## Cost Reference
 
-| Model | Input | Output |
-|-------|-------|--------|
-| `MiniMax-M3` | $0.60 | $2.40 |
-| `MiniMax-M2.7` | $0.30 | $1.20 |
+Use the [official pricing table](https://platform.minimax.io/docs/pricing/overview)
+for the selected model, service tier and input-length band. The former
+$0.60/$2.40 M3 example describes a short-context rate, not a universal
+standard rate. No price estimate is applied by the delegation executor.
 
 ## CLI Options
 
@@ -34,9 +35,9 @@ Text generation lives behind the `mmx text chat` subcommand.
 | `--stream` | Stream the response |
 | `--messages-file -` | Read a JSON message array from stdin |
 
-There is no `@path` file-reference syntax and no documented temperature
-flag. `delegation_executor.py` reads requested files and inlines their
-contents into `--message`.
+There is no `@path` file-reference syntax. The service contract supports
+`--temperature` when explicitly requested. `delegation_executor.py` reads
+requested files and inlines their contents into `--message`.
 
 ## Environment Variables
 
@@ -89,7 +90,7 @@ terminal, set `MMX_CONFIG_DIR` to the directory holding the credentials.
 
 ### Rate Limit (HTTP 429)
 
-- Consider `MiniMax-M2.7` to reduce request volume.
+- Reduce request concurrency or wait before retrying.
 - Check remaining quota with `mmx quota`.
 
 ### Wrong Region
