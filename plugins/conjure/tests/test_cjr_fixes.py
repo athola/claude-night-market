@@ -24,8 +24,8 @@ from scripts.war_room.config import (
     GEMINI_FLASH,
     GEMINI_PRO,
     GLM_52,
+    QWEN_CODER,
     QWEN_MAX,
-    QWEN_TURBO,
     validate_model_ids,
 )
 from scripts.war_room.phases import compute_borda_scores
@@ -50,7 +50,7 @@ class TestModelIdConstants:
         assert CLAUDE_SONNET == "claude-sonnet-5"
         assert GEMINI_PRO == "gemini-3.1-pro-preview"
         assert GLM_52 == "glm-5.2"
-        assert QWEN_TURBO == "qwen-turbo"
+        assert QWEN_CODER == "coder-model"
         assert GEMINI_FLASH == "gemini-3.8-flash"
         assert QWEN_MAX == "qwen-max"
         assert CLAUDE_HAIKU == "claude-haiku-4-5"
@@ -108,6 +108,7 @@ class TestModelIdConstants:
             "gemini-3.8-flash",
             "gemini-3.1-pro-preview",
             "qwen-max",
+            "coder-model",
             "claude-haiku-4-5",
         }
         found = banned_model_ids & set(string_literals)

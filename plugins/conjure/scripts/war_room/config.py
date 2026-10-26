@@ -24,8 +24,11 @@ CLAUDE_SONNET = "claude-sonnet-5"
 GEMINI_PRO = "gemini-3.1-pro-preview"
 GEMINI_FLASH = "gemini-3.8-flash"
 
-# Qwen models (served via qwen CLI)
-QWEN_TURBO = "qwen-turbo"
+# Qwen models (served via qwen CLI). Under Qwen OAuth, qwen-code accepts
+# only coder-model and swaps any other --model for it with a warning
+# (QWEN_OAUTH_ALLOWED_MODELS in qwen-code's models/constants.ts).
+QWEN_CODER = "coder-model"
+# Model Studio id, valid only when qwen-code authenticates with an API key.
 QWEN_MAX = "qwen-max"
 
 # MiniMax models (served via the official mmx CLI)
@@ -76,7 +79,7 @@ validate_model_ids(
         "CLAUDE_SONNET": CLAUDE_SONNET,
         "GEMINI_PRO": GEMINI_PRO,
         "GEMINI_FLASH": GEMINI_FLASH,
-        "QWEN_TURBO": QWEN_TURBO,
+        "QWEN_CODER": QWEN_CODER,
         "QWEN_MAX": QWEN_MAX,
         "MINIMAX_M3_1_FLASH": MINIMAX_M3_1_FLASH,
         "MINIMAX_M3": MINIMAX_M3,

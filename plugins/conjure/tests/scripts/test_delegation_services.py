@@ -200,6 +200,15 @@ class TestSmartDelegateModel:
             _smart_delegate_model(service, "large_context") == "gemini-3.1-pro-preview"
         )
 
+    def test_qwen_names_the_only_model_its_oauth_login_accepts(
+        self, temp_config_dir
+    ) -> None:
+        """qwen-code swaps any other OAuth model for coder-model, so naming another records a model that never ran."""
+        service = Delegator(config_dir=temp_config_dir).services["qwen"]
+        assert service.auth_files == ("~/.qwen/oauth_creds.json",)
+        for requirement in ("anything", "fast_response", "large_context"):
+            assert _smart_delegate_model(service, requirement) == "coder-model"
+
     def test_service_with_no_models_yields_none(self) -> None:
         """None means the CLI's own default applies, which is degradation rather than the KeyError the old table raised."""
         assert _smart_delegate_model(_api_key_service(), "large_context") is None

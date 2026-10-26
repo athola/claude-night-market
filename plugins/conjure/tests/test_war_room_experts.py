@@ -59,15 +59,27 @@ class TestCommandResolution:
         scout = EXPERT_CONFIGS["scout"]
         cmd = get_expert_command(scout)
 
-        assert cmd == ["qwen", "--model", "qwen-turbo", "-p"]
+        assert cmd == ["qwen", "--model", "coder-model", "-p"]
         # Verify it's a copy (not mutating original)
         cmd.append("test")
         assert EXPERT_CONFIGS["scout"].command == [
             "qwen",
             "--model",
-            "qwen-turbo",
+            "coder-model",
             "-p",
         ]
+
+    def test_qwen_experts_record_the_model_that_answers(self) -> None:
+        """Both Qwen experts run coder-model, so the sealed record must say so."""
+        for key in ("scout", "logistics_officer"):
+            expert = EXPERT_CONFIGS[key]
+            assert expert.model == "coder-model"
+            assert get_expert_command(expert) == [
+                "qwen",
+                "--model",
+                "coder-model",
+                "-p",
+            ]
 
     def test_gemini_experts_name_listed_gemini_models(self) -> None:
         """The deep-context expert takes the 1M Pro model, the red team the stable Flash."""

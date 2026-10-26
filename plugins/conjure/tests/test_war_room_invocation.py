@@ -301,7 +301,7 @@ class TestHaikuFallback:
     def test_get_fallback_notice_with_notices(self) -> None:
         """get_fallback_notice formats notices when present."""
         clear_availability_cache()
-        _haiku_fallback_notices.append("Scout (qwen-turbo) unavailable, using Haiku")
+        _haiku_fallback_notices.append("Scout (coder-model) unavailable, using Haiku")
         _haiku_fallback_notices.append("Red Team (gemini) unavailable, using Haiku")
 
         notice = get_fallback_notice()

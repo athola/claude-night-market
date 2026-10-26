@@ -23,8 +23,7 @@ from scripts.war_room.config import (
     MINIMAX_M3,
     MINIMAX_M3_1_FLASH,
     MUSE_SPARK,
-    QWEN_MAX,
-    QWEN_TURBO,
+    QWEN_CODER,
 )
 from scripts.war_room.models import ExpertConfig
 
@@ -65,10 +64,10 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "scout": ExpertConfig(
         role="Scout",
         service="qwen",
-        model=QWEN_TURBO,
+        model=QWEN_CODER,
         description="Rapid reconnaissance and data gathering",
         phases=["intel"],
-        command=["qwen", "--model", QWEN_TURBO, "-p"],
+        command=["qwen", "--model", QWEN_CODER, "-p"],
     ),
     "red_team": ExpertConfig(
         role="Red Team Commander",
@@ -81,10 +80,10 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "logistics_officer": ExpertConfig(
         role="Logistics Officer",
         service="qwen",
-        model=QWEN_MAX,
+        model=QWEN_CODER,
         description="Resource estimation and dependency analysis",
         phases=["coa"],
-        command=["qwen", "--model", QWEN_MAX, "-p"],
+        command=["qwen", "--model", QWEN_CODER, "-p"],
     ),
     # ``mmx text chat --message`` is the official MiniMax CLI contract; the
     # orchestrator appends the prompt as the final argv element, so the

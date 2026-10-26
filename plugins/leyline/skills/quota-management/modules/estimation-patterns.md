@@ -52,12 +52,13 @@ def estimate_file_tokens(path: Path) -> int:
 def estimate_cost(input_tokens: int, output_tokens: int, model: str) -> float:
     """Estimate cost in USD."""
     rates = {
-        "gemini-pro": {"input": 0.50, "output": 1.50},
-        "gemini-flash": {"input": 0.075, "output": 0.30},
-        "qwen-max": {"input": 0.40, "output": 1.20},
+        # USD per 1M tokens, published rates checked 2026-10-26
+        "gemini-3.1-pro-preview": {"input": 2.00, "output": 12.00},
+        "gemini-3.8-flash": {"input": 0.75, "output": 3.75},
+        "qwen3.8-max": {"input": 2.00, "output": 6.00},
     }
 
-    rate = rates.get(model, rates["gemini-pro"])
+    rate = rates.get(model, rates["gemini-3.1-pro-preview"])
     input_cost = (input_tokens / 1_000_000) * rate["input"]
     output_cost = (output_tokens / 1_000_000) * rate["output"]
 

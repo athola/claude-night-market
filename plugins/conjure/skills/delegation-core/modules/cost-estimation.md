@@ -19,9 +19,9 @@ dependencies:
 - `gemini-3.1-pro-preview`: $2.00 input, $12.00 output up to 200K
 - Context: 1M tokens
 
-**Qwen Models (per 1M tokens):**
-- Input: $0.20-0.50, Output: $0.60-1.20 (varies by provider)
-- Context: Up to 100K+ tokens
+**Qwen models:** the service uses Qwen OAuth, which has no per-token
+price. See `Skill(conjure:qwen-delegation)` module `qwen-specifics.md`
+for API-key rates.
 - Sandbox execution: Typically $0.001-0.01 per request
 
 ## Cost Decision Framework

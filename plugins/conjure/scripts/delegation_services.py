@@ -403,9 +403,10 @@ SERVICES: dict[str, ServiceConfig] = {
         install_hint="npm install -g @qwen-code/qwen-code",
         auth_failure_markers=("API Error: 401", "Incorrect API key"),
         priority=20,
-        default_model="qwen-max",
-        large_context_model="qwen-max",
-        fast_response_model="qwen-turbo",
+        # The auth file above is Qwen OAuth, which accepts only coder-model
+        # and silently replaces any other --model with it. One id serves
+        # every requirement, and naming it keeps the usage log truthful.
+        default_model="coder-model",
         strengths=("code_execution",),
     ),
     # The official MiniMax CLI is npm ``mmx-cli``, which installs a

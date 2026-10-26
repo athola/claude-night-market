@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   delegation now use the stable `gemini-3.8-flash`, and large-context
   work uses `gemini-3.1-pro-preview`. Gemini prices in the skill docs
   were 4 to 10 times below the published rates and are corrected.
+- Conjure's Qwen service and War Room experts asked for `qwen-max` and
+  `qwen-turbo` through Qwen OAuth, which runs only `coder-model` and
+  swaps any other model for it with a warning. Usage logs and sealed War
+  Room records named a model that never answered. Both now name
+  `coder-model`, and the Qwen skill's flag table drops `--format` and
+  `--temperature`, which qwen 0.4.0 rejects.
 
 ### Removed
 
