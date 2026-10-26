@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 
 # Import the module under test
 import sys
@@ -876,3 +878,46 @@ def test_cli_log_rejects_a_success_value_that_is_not_true_or_false(
     assert exc_info.value.code == 1
     assert "success must be true or false, got 'maybe'" in capsys.readouterr().err
     logger_class.return_value.log_usage.assert_not_called()
+
+
+class TestStatusScriptImportPath:
+    """Feature: bin/status.sh imports the logger with only scripts/ on the path."""
+
+    @pytest.mark.unit
+    def test_logger_imports_by_bare_name_with_only_scripts_on_the_path(
+        self, tmp_path: Path
+    ) -> None:
+        """The bare-name fallback import keeps the status report working.
+
+        GIVEN PYTHONPATH holding only the scripts directory, as status.sh sets it
+        WHEN a fresh interpreter imports usage_logger and asks for a summary
+        THEN it exits 0 and prints the summary keys
+
+        status.sh sends this interpreter's stderr to /dev/null and prints
+        "Usage logger unavailable" on any failure, so a broken fallback
+        import would never surface as an error. -S drops site-packages:
+        the venv's editable install would otherwise make the package
+        import succeed and the fallback would go unexercised.
+        """
+        scripts_dir = Path(__file__).resolve().parents[2] / "scripts"
+        probe = (
+            "from usage_logger import GeminiUsageLogger\n"
+            "print(sorted(GeminiUsageLogger().get_usage_summary()))\n"
+        )
+        env = {
+            **os.environ,
+            "PYTHONPATH": str(scripts_dir),
+            "HOME": str(tmp_path),
+        }
+
+        completed = subprocess.run(
+            [sys.executable, "-S", "-c", probe],
+            cwd=tmp_path,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        assert completed.returncode == 0, completed.stderr
+        assert "total_requests" in completed.stdout
