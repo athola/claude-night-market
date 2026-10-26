@@ -46,7 +46,7 @@ class TestDelegationExecutorIntegration:
             "gemini",
             "Analyze these files and provide recommendations",
             files=file_paths,
-            options={"model": "gemini-3-pro"},
+            options={"model": "gemini-3.1-pro-preview"},
         )
 
         # Step 3: Verify results
@@ -245,7 +245,7 @@ class TestUsageLoggerIntegration:
                 "gemini",
                 "Analyze these files and identify patterns",
                 files=file_paths,
-                options={"model": "gemini-3-pro"},
+                options={"model": "gemini-3.1-pro-preview"},
             )
 
             # Step 4: Log detailed usage

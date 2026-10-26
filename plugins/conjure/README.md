@@ -108,7 +108,7 @@ uv run python scripts/delegation_executor.py auto "Analyze this code" \
 
 # Force a specific service
 uv run python scripts/delegation_executor.py gemini "Summarize" \
-  --files docs/*.md --model gemini-3-pro
+  --files docs/*.md --model gemini-3.1-pro-preview
 ```
 
 ### Make Commands

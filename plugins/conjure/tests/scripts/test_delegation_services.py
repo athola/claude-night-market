@@ -191,6 +191,15 @@ class TestSmartDelegateModel:
         command = delegator.build_command("minimax", "question")
         assert command[command.index("--model") + 1] == "MiniMax-M2.7"
 
+    def test_gemini_routes_current_models(self, temp_config_dir) -> None:
+        """gemini-3-pro is not a Gemini API id, so every slot must name a listed model."""
+        service = Delegator(config_dir=temp_config_dir).services["gemini"]
+        assert _smart_delegate_model(service, "anything") == "gemini-3.8-flash"
+        assert _smart_delegate_model(service, "fast_response") == "gemini-3.8-flash"
+        assert (
+            _smart_delegate_model(service, "large_context") == "gemini-3.1-pro-preview"
+        )
+
     def test_service_with_no_models_yields_none(self) -> None:
         """None means the CLI's own default applies, which is degradation rather than the KeyError the old table raised."""
         assert _smart_delegate_model(_api_key_service(), "large_context") is None

@@ -14,6 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   skeptical analyst uses Flash. Explicit saved and per-call models remain
   supported, including legacy IDs.
 
+### Fixed
+
+- Conjure's Gemini service and War Room experts named `gemini-3-pro`,
+  which the Gemini API does not list. Default and fast-response
+  delegation now use the stable `gemini-3.8-flash`, and large-context
+  work uses `gemini-3.1-pro-preview`. Gemini prices in the skill docs
+  were 4 to 10 times below the published rates and are corrected.
+
 ### Removed
 
 - `prototypes/forced-eval/`, the unwired skill-activation hook. Its live

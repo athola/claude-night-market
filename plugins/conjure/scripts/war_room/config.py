@@ -18,9 +18,11 @@ from __future__ import annotations
 CLAUDE_OPUS = "claude-opus-5"
 CLAUDE_SONNET = "claude-sonnet-5"
 
-# Gemini models (served via gemini CLI)
-GEMINI_3_PRO = "gemini-3-pro"
-GEMINI_3_FLASH = "gemini-3-flash"
+# Gemini models (served via gemini CLI). Named by tier, like the Claude
+# constants. No stable 3.x Pro exists, so Pro is a preview id: watch
+# https://ai.google.dev/gemini-api/docs/deprecations for its shutdown date.
+GEMINI_PRO = "gemini-3.1-pro-preview"
+GEMINI_FLASH = "gemini-3.8-flash"
 
 # Qwen models (served via qwen CLI)
 QWEN_TURBO = "qwen-turbo"
@@ -72,8 +74,8 @@ validate_model_ids(
     {
         "CLAUDE_OPUS": CLAUDE_OPUS,
         "CLAUDE_SONNET": CLAUDE_SONNET,
-        "GEMINI_3_PRO": GEMINI_3_PRO,
-        "GEMINI_3_FLASH": GEMINI_3_FLASH,
+        "GEMINI_PRO": GEMINI_PRO,
+        "GEMINI_FLASH": GEMINI_FLASH,
         "QWEN_TURBO": QWEN_TURBO,
         "QWEN_MAX": QWEN_MAX,
         "MINIMAX_M3_1_FLASH": MINIMAX_M3_1_FLASH,

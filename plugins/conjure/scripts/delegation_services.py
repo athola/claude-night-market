@@ -372,9 +372,11 @@ SERVICES: dict[str, ServiceConfig] = {
         temperature_flag=None,
         install_hint="npm install -g @google/gemini-cli",
         priority=10,
-        default_model="gemini-3-pro",
-        large_context_model="gemini-3-pro",
-        fast_response_model="gemini-3-flash",
+        # gemini-3.8-flash is the newest stable model. The only 1M Pro is a
+        # preview; ai.google.dev/gemini-api/docs/deprecations dates its end.
+        default_model="gemini-3.8-flash",
+        large_context_model="gemini-3.1-pro-preview",
+        fast_response_model="gemini-3.8-flash",
         strengths=("large_context", "fast_response"),
     ),
     "qwen": ServiceConfig(

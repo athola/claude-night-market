@@ -152,10 +152,10 @@ class TestInvokeExternal:
         return ExpertConfig(
             role="Intelligence Officer",
             service="gemini",
-            model="gemini-3-pro",
+            model="gemini-3.1-pro-preview",
             description="Test expert",
             phases=["intel"],
-            command=["gemini", "--model", "gemini-3-pro", "-p"],
+            command=["gemini", "--model", "gemini-3.1-pro-preview", "-p"],
         )
 
     @pytest.mark.asyncio

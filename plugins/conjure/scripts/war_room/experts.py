@@ -17,8 +17,8 @@ from scripts.war_room.config import (
     CLAUDE_HAIKU,
     CLAUDE_OPUS,
     CLAUDE_SONNET,
-    GEMINI_3_FLASH,
-    GEMINI_3_PRO,
+    GEMINI_FLASH,
+    GEMINI_PRO,
     GLM_53,
     MINIMAX_M3,
     MINIMAX_M3_1_FLASH,
@@ -50,10 +50,10 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "intelligence_officer": ExpertConfig(
         role="Intelligence Officer",
         service="gemini",
-        model=GEMINI_3_PRO,
+        model=GEMINI_PRO,
         description="Deep context analysis with 1M+ token window",
         phases=["intel"],
-        command=["gemini", "--model", GEMINI_3_PRO, "-p"],
+        command=["gemini", "--model", GEMINI_PRO, "-p"],
     ),
     "field_tactician": ExpertConfig(
         role="Field Tactician",
@@ -73,10 +73,10 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
     "red_team": ExpertConfig(
         role="Red Team Commander",
         service="gemini",
-        model=GEMINI_3_FLASH,
+        model=GEMINI_FLASH,
         description="Adversarial challenge and failure mode identification",
         phases=["red_team", "premortem"],
-        command=["gemini", "--model", GEMINI_3_FLASH, "-p"],
+        command=["gemini", "--model", GEMINI_FLASH, "-p"],
     ),
     "logistics_officer": ExpertConfig(
         role="Logistics Officer",

@@ -21,8 +21,8 @@ from scripts.war_room.config import (
     CLAUDE_HAIKU,
     CLAUDE_OPUS,
     CLAUDE_SONNET,
-    GEMINI_3_FLASH,
-    GEMINI_3_PRO,
+    GEMINI_FLASH,
+    GEMINI_PRO,
     GLM_52,
     QWEN_MAX,
     QWEN_TURBO,
@@ -48,10 +48,10 @@ class TestModelIdConstants:
         """
         assert CLAUDE_OPUS == "claude-opus-5"
         assert CLAUDE_SONNET == "claude-sonnet-5"
-        assert GEMINI_3_PRO == "gemini-3-pro"
+        assert GEMINI_PRO == "gemini-3.1-pro-preview"
         assert GLM_52 == "glm-5.2"
         assert QWEN_TURBO == "qwen-turbo"
-        assert GEMINI_3_FLASH == "gemini-3-flash"
+        assert GEMINI_FLASH == "gemini-3.8-flash"
         assert QWEN_MAX == "qwen-max"
         assert CLAUDE_HAIKU == "claude-haiku-4-5"
 
@@ -105,6 +105,8 @@ class TestModelIdConstants:
             "glm-5.2",
             "qwen-turbo",
             "gemini-3-flash",
+            "gemini-3.8-flash",
+            "gemini-3.1-pro-preview",
             "qwen-max",
             "claude-haiku-4-5",
         }

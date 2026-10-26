@@ -42,7 +42,7 @@ class DeliberationNode:
 
     # Revealed after decision (sealed until then)
     expert_role: str  # "Intelligence Officer", "Red Team", etc.
-    expert_model: str  # "gemini-3-pro", "qwen-turbo", etc.
+    expert_model: str  # "gemini-3.1-pro-preview", "qwen-turbo", etc.
 
     # Merkle linkage
     content_hash: str  # SHA-256 of content only

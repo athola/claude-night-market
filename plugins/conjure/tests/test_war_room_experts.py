@@ -69,6 +69,24 @@ class TestCommandResolution:
             "-p",
         ]
 
+    def test_gemini_experts_name_listed_gemini_models(self) -> None:
+        """The deep-context expert takes the 1M Pro model, the red team the stable Flash."""
+        intel = EXPERT_CONFIGS["intelligence_officer"]
+        red_team = EXPERT_CONFIGS["red_team"]
+
+        assert get_expert_command(intel) == [
+            "gemini",
+            "--model",
+            "gemini-3.1-pro-preview",
+            "-p",
+        ]
+        assert get_expert_command(red_team) == [
+            "gemini",
+            "--model",
+            "gemini-3.8-flash",
+            "-p",
+        ]
+
     def test_minimax_experts_use_official_mmx_command(self) -> None:
         """MiniMax experts invoke the official ``mmx`` CLI contract.
 
