@@ -216,6 +216,11 @@ class TestSmartDelegateModel:
         assert _smart_delegate_model(service, "large_context") == "glm-5.3[1m]"
         assert _smart_delegate_model(service, "fast_response") == "glm-5.3-flash"
 
+    def test_muse_selects_the_recommended_spark(self, temp_config_dir) -> None:
+        """Muse Code defaults to Spark 1.2; 1.3 is the version Meta recommends for new work."""
+        service = Delegator(config_dir=temp_config_dir).services["muse"]
+        assert _smart_delegate_model(service, "large_context") == "muse-spark-1.3"
+
     def test_service_with_no_models_yields_none(self) -> None:
         """None means the CLI's own default applies, which is degradation rather than the KeyError the old table raised."""
         assert _smart_delegate_model(_api_key_service(), "large_context") is None
@@ -540,18 +545,17 @@ class TestRegisteredProviders:
     ) -> None:
         """Declaring no model id must degrade, not raise.
 
-        muse, codex and opencode document no --model flag for their headless
-        subcommand, so passing one would be inventing a contract.
+        codex declares no model id, so the CLI's own default must stand.
         """
         mock_execute.return_value = ExecutionResult(
             success=True, stdout="answered", stderr="", exit_code=0, duration=1.0
         )
         delegator = Delegator(config_dir=temp_config_dir)
-        mock_verify.side_effect = lambda name: (name == "muse", [])
+        mock_verify.side_effect = lambda name: (name == "codex", [])
 
         result = delegator.smart_delegate("p", requirements={"large_context": True})
 
-        assert result.service == "muse"
+        assert result.service == "codex"
         assert "model" not in mock_execute.call_args.args[3]
 
 

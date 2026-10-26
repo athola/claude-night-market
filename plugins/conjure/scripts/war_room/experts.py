@@ -107,17 +107,16 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
         optional=True,
     ),
     # ``muse exec <prompt>`` takes the prompt positionally: Meta documents no
-    # prompt flag, so the command ends at the subcommand and the orchestrator's
-    # trailing prompt lands in the right slot. No --model flag is documented
-    # for exec either, so the model here records what Muse Code runs on rather
-    # than selecting it.
+    # prompt flag, so the command ends at the --model value and the
+    # orchestrator's trailing prompt lands in the right slot. The model is
+    # passed because Muse Code's own default is the older muse-spark-1.2.
     "systems_engineer": ExpertConfig(
         role="Systems Engineer",
         service="muse",
         model=MUSE_SPARK,
         description="Repository-scale implementation review across a large codebase",
         phases=["intel", "coa"],
-        command=["muse", "exec"],
+        command=["muse", "exec", "--model", MUSE_SPARK],
         optional=True,
     ),
 }

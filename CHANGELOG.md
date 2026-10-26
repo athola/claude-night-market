@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   supported, including legacy IDs.
 - Conjure's GLM fast-response selection is `glm-5.3-flash`, replacing
   `glm-4.7`. The GLM skill states 5.3 and 5.3-Flash prices.
+- Conjure's Muse service and the War Room Systems Engineer pass
+  `--model muse-spark-1.3`. Muse Code otherwise runs its 1.2 default,
+  while Meta recommends 1.3 for new work.
 
 ### Fixed
 

@@ -473,10 +473,10 @@ SERVICES: dict[str, ServiceConfig] = {
     ),
     # Meta's Muse Code. `muse exec <prompt>` takes the prompt positionally
     # and META_API_KEY is the documented CI auth path. There is no
-    # `muse auth status`, hence the empty auth probe. No --model or
-    # output-format flag is documented for `exec`, so neither is declared:
-    # an undeclared model id means smart_delegate leaves the CLI default
-    # alone rather than passing a flag that may not exist.
+    # `muse auth status`, hence the empty auth probe. Muse Code documents
+    # `--model <id>` for exec and defaults to muse-spark-1.2
+    # (dev.meta.ai/docs/muse-code/configuration); dev.meta.ai/docs/models
+    # recommends 1.3 for new work, so the service passes it.
     "muse": ServiceConfig(
         name="muse",
         command="muse",
@@ -495,6 +495,7 @@ SERVICES: dict[str, ServiceConfig] = {
         auth_probe=(),
         install_hint="curl -fsSL https://dev.meta.ai/install.sh | sh",
         priority=50,
+        default_model="muse-spark-1.3",
         strengths=("code_execution", "large_context"),
     ),
     # `codex exec <prompt>`. auth_method is cli rather than api_key because

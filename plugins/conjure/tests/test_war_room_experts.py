@@ -322,14 +322,21 @@ class TestMuseExpert:
 
         The orchestrator appends the prompt as the final argv element, so a
         command ending in a flag would consume it as that flag's value.
-        Muse documents no prompt flag at all, so the command ends at
-        ``exec`` and the prompt lands in the right place.
+        Muse documents no prompt flag at all, so the command ends at the
+        ``--model`` value and the prompt lands in the right place. The model
+        is passed rather than recorded, because Muse Code's own default is
+        an older Spark than the one the sealed record names.
         """
         expert = EXPERT_CONFIGS["systems_engineer"]
 
         assert expert.service == "muse"
-        assert expert.model == "muse-spark-1.2"
-        assert get_expert_command(expert) == ["muse", "exec"]
+        assert expert.model == "muse-spark-1.3"
+        assert get_expert_command(expert) == [
+            "muse",
+            "exec",
+            "--model",
+            "muse-spark-1.3",
+        ]
 
     def test_muse_expert_is_optional(self) -> None:
         """Muse is not installed by default, so it must opt in.
