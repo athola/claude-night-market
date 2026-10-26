@@ -49,8 +49,6 @@ GLM-5.2 from post-training alone.
 - `ZAI_API_KEY` is unset. Verification refuses rather than sending an
   unauthenticated request
 - The `claude` binary is not installed. GLM has no fallback CLI
-- A pinned GLM-5.3 identifier is required in a script that must not
-  break: see the rollout note below
 
 ## Prerequisites
 
@@ -103,7 +101,7 @@ claude --model glm-5.3 -p "Review this design"
 `glm` declares `code_execution` and `large_context` strengths and ranks
 behind gemini, qwen and minimax in the candidate order. It declares
 `glm-5.3` as its default, `glm-5.3[1m]` for large context, and
-`glm-4.7` for fast response.
+`glm-5.3-flash` for fast response.
 
 ## GLM-Specific Details
 
@@ -114,6 +112,7 @@ behind gemini, qwen and minimax in the candidate order. It declares
 | Auth variable | `ANTHROPIC_AUTH_TOKEN`, from `ZAI_API_KEY` |
 | Default model | `glm-5.3` |
 | Large context | `glm-5.3[1m]` |
+| Fast response | `glm-5.3-flash` |
 | OpenAI-compatible URL | `https://api.z.ai/api/coding/paas/v4` |
 
 The `[1m]` suffix is what unlocks the 1M-token window. Omitting it is
@@ -127,11 +126,11 @@ Anthropic's real endpoint. And `claude` shows a first-run trust prompt
 when it sees a non-Anthropic base URL. The `-p` non-interactive form
 this service uses does not block on it.
 
-Rollout caveat: at the time of writing, `docs.z.ai/devpack/latest-model`
-documented `glm-5.3` while `docs.z.ai/guides/llm/glm-5.3` still read
-"coming soon" and the base connection page still showed `glm-5.2`.
-`GLM_52` stays defined for that reason, and `glm-4.7` remains the
-fast-response id rather than being promoted on assumption.
+Prices per 1M tokens, from the
+[Z.ai pricing page](https://docs.z.ai/guides/overview/pricing) on
+2026-10-26: `glm-5.3` is $1.40 input and $4.40 output, and
+`glm-5.3-flash` is $0.15 and $0.50. Both have a 1M-token context.
+`GLM_52` stays defined for callers that pin it.
 
 The same archetype generalizes: MiniMax, Moonshot/Kimi, DeepSeek and
 OpenRouter all expose Anthropic-compatible endpoints, so adding one is

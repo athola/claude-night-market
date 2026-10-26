@@ -442,11 +442,9 @@ SERVICES: dict[str, ServiceConfig] = {
     # endpoint, so the stock claude binary reaches it by environment
     # alone. ANTHROPIC_AUTH_TOKEN is the documented variable; putting the
     # key in ANTHROPIC_API_KEY is the most common way to get a 401 here.
-    # Model ids from https://docs.z.ai/devpack/latest-model. GLM-5.3 was
-    # mid-rollout at the time of writing: docs.z.ai/guides/llm/glm-5.3
-    # still read "coming soon" while the model-switch page documented
-    # glm-5.3, so glm-4.7 stays the fast-response id rather than being
-    # promoted on assumption.
+    # Model ids from https://docs.z.ai/devpack/latest-model. Z.ai's own
+    # Claude Code mapping (docs.z.ai/devpack/tool/claude) puts the Haiku
+    # slot on glm-5.3-flash, which is the fast-response id here.
     "glm": ServiceConfig(
         name="glm",
         command="claude",
@@ -470,7 +468,7 @@ SERVICES: dict[str, ServiceConfig] = {
         priority=40,
         default_model="glm-5.3",
         large_context_model="glm-5.3[1m]",
-        fast_response_model="glm-4.7",
+        fast_response_model="glm-5.3-flash",
         strengths=("code_execution", "large_context"),
     ),
     # Meta's Muse Code. `muse exec <prompt>` takes the prompt positionally

@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `MiniMax-M3.1-Flash`, with M3 retained for large context. The War Room
   skeptical analyst uses Flash. Explicit saved and per-call models remain
   supported, including legacy IDs.
+- Conjure's GLM fast-response selection is `glm-5.3-flash`, replacing
+  `glm-4.7`. The GLM skill states 5.3 and 5.3-Flash prices.
 
 ### Fixed
 

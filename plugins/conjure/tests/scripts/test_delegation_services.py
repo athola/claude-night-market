@@ -209,6 +209,13 @@ class TestSmartDelegateModel:
         for requirement in ("anything", "fast_response", "large_context"):
             assert _smart_delegate_model(service, requirement) == "coder-model"
 
+    def test_glm_fast_response_uses_the_5_3_flash_model(self, temp_config_dir) -> None:
+        """glm-5.3-flash is generally available, so fast work no longer falls back to 4.7."""
+        service = Delegator(config_dir=temp_config_dir).services["glm"]
+        assert _smart_delegate_model(service, "anything") == "glm-5.3"
+        assert _smart_delegate_model(service, "large_context") == "glm-5.3[1m]"
+        assert _smart_delegate_model(service, "fast_response") == "glm-5.3-flash"
+
     def test_service_with_no_models_yields_none(self) -> None:
         """None means the CLI's own default applies, which is degradation rather than the KeyError the old table raised."""
         assert _smart_delegate_model(_api_key_service(), "large_context") is None
