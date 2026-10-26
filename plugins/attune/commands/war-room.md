@@ -132,11 +132,11 @@ Or customize at session start when prompted.
 |--------|-------|------|
 | Supreme Commander | Claude Opus | Final synthesis |
 | Chief Strategist | Claude Sonnet | Approach generation |
-| Intelligence Officer | Gemini 2.5 Pro | Deep context analysis |
-| Field Tactician | GLM-5.2 | Implementation feasibility |
-| Scout | Qwen Turbo | Rapid reconnaissance |
-| Red Team Commander | Gemini Flash | Adversarial challenge |
-| Logistics Officer | Qwen Max | Resource estimation |
+| Intelligence Officer | Gemini 3.1 Pro (preview) | Deep context analysis |
+| Field Tactician | GLM-5.3 | Implementation feasibility |
+| Scout | Qwen `coder-model` | Rapid reconnaissance |
+| Red Team Commander | Gemini 3.8 Flash | Adversarial challenge |
+| Logistics Officer | Qwen `coder-model` | Resource estimation |
 
 ## Workflow
 

@@ -86,11 +86,11 @@ See `modules/reversibility-assessment.md` for full scoring guide.
 |------|-------|---------|
 | Supreme Commander | Claude Opus | Final synthesis |
 | Chief Strategist | Claude Sonnet | Approach generation |
-| Intelligence Officer | Gemini 3 Pro | Large context analysis (1M+) |
+| Intelligence Officer | Gemini 3.1 Pro (preview) | Large context analysis (1M) |
 | Field Tactician | GLM-5.3 | Implementation feasibility |
-| Scout | Qwen Turbo | Quick data gathering |
-| Red Team Commander | Gemini Flash | Adversarial challenge |
-| Logistics Officer | Qwen Max | Resource estimation |
+| Scout | Qwen `coder-model` | Quick data gathering |
+| Red Team Commander | Gemini 3.8 Flash | Adversarial challenge |
+| Logistics Officer | Qwen `coder-model` | Resource estimation |
 
 ## Deliberation Protocol
 
