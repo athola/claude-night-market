@@ -36,14 +36,16 @@ pipeline steps by the same tiers.
 | Tier | Alias | Effort | Task shape | Relative cost |
 |------|-------|--------|------------|---------------|
 | Lightweight | `haiku` | `low` | Mechanical, single-turn, deterministic output | 1x |
-| Standard | `sonnet` | `medium` | Judgment inside established patterns | 2x |
-| Deep | `opus` | `high` | Architecture, adversarial reasoning, orchestration | 4x |
-| Frontier | `fable` | `high` | Long-running agents where a miss is expensive | 10x |
+| Standard | `sonnet` | `medium` | Judgment inside established patterns | 4x |
+| Deep | `opus` | `high` | Architecture, adversarial reasoning, orchestration | 8x |
+| Frontier | `fable` | `high` | Long-running agents where a miss is expensive | 20x |
 
-Relative cost is input price per MTok from the model card (2026-10-04),
-normalized to Haiku: `haiku` $1, `sonnet` $2, `opus` $4, `fable` $10.
-Output prices scale the same way ($5 / $10 / $20 / $50). The aliases
-resolve to Haiku 4.5, Sonnet 5.5, Opus 5.5 and Fable 5.1. Opus 5.5
+Relative cost is input price per MTok from the models overview
+(2026-10-26), normalized to Haiku 5.5's rate above 100K prompt tokens:
+`haiku` $0.50, `sonnet` $2, `opus` $4, `fable` $10. Output prices scale
+the same way ($2.50 / $10 / $20 / $50). Under 100K prompt tokens Haiku
+costs a fifth of that, $0.10 / $0.50. The aliases resolve to Haiku 5.5,
+Sonnet 5.5, Opus 5.5 and Fable 5.1. Opus 5.5
 defaults to `medium` effort on the API, so the `high` pinned here raises
 it.
 

@@ -33,10 +33,10 @@
     "dated_ids_backlog": 70
   },
   "last_migration": {
-    "id": "2026-10-06-harness-2-1-291",
-    "trigger": "harness-update",
+    "id": "2026-10-26-model-refresh",
+    "trigger": "model-release",
     "from": {
-      "harness": "2.1.290",
+      "harness": "2.1.291",
       "model_tiers": [
         "haiku",
         "sonnet",
@@ -53,8 +53,8 @@
         "fable"
       ]
     },
-    "assets_changed": 0,
-    "report": "docs/migrations/2026-10-06-harness-2-1-291.md"
+    "assets_changed": 35,
+    "report": "docs/migrations/2026-10-26-model-refresh.md"
   },
   "history": [
     {
@@ -147,6 +147,30 @@
       },
       "assets_changed": 2,
       "report": "docs/migrations/2026-10-05-harness-2-1-290.md"
+    },
+    {
+      "id": "2026-10-06-harness-2-1-291",
+      "trigger": "harness-update",
+      "from": {
+        "harness": "2.1.290",
+        "model_tiers": [
+          "haiku",
+          "sonnet",
+          "opus",
+          "fable"
+        ]
+      },
+      "to": {
+        "harness": "2.1.291",
+        "model_tiers": [
+          "haiku",
+          "sonnet",
+          "opus",
+          "fable"
+        ]
+      },
+      "assets_changed": 0,
+      "report": "docs/migrations/2026-10-06-harness-2-1-291.md"
     }
   ],
   "deprecations": {
