@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking: `gauntlet:gauntlet-curate` is now `gauntlet:problem-bank`.**
+  The `/gauntlet-curate` command shares the old name and invokes
+  `gauntlet:curate`, so the problem-bank auditor could not be reached
+  by name (#618). The command keeps its name and behavior. No caller in
+  this repository used the old skill name.
+
 ## [1.10.0] - 2026-10-14
 
 Sweep for Claude Code 2.1.220 to 2.1.289. Several fields this repo wrote
