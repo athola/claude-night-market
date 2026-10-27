@@ -227,6 +227,53 @@ class TestHookEventTypes:
         )
 
 
+class TestHooksJsonShape:
+    """A hooks.json whose events are not an object registers no hook at all."""
+
+    @pytest.mark.parametrize(
+        "document",
+        [{"hooks": []}, {"hooks": "PreToolUse"}, ["PreToolUse"]],
+        ids=["hooks-list", "hooks-string", "top-level-list"],
+    )
+    def test_non_object_events_are_critical(
+        self, plugin_with_hooks: Path, document: object
+    ) -> None:
+        """A malformed events block is reported, not passed in silence.
+
+        GIVEN a hooks.json that parses but does not map events to handlers
+        WHEN the plugin is validated
+        THEN a critical issue names hooks.json and the expected shape
+        AND no "[OK] hooks.json" line claims the hooks were checked
+        """
+        hooks_json = plugin_with_hooks / "hooks" / "hooks.json"
+        hooks_json.write_text(json.dumps(document))
+
+        v = PluginValidator(plugin_with_hooks)
+        v.validate()
+
+        assert any(
+            "hooks.json" in msg and "object" in msg for msg in v.issues["critical"]
+        )
+        assert not any("[OK] hooks.json" in msg for msg in v.issues["info"])
+
+    def test_document_without_hooks_key_is_not_flagged(
+        self, plugin_with_hooks: Path
+    ) -> None:
+        """A hooks.json that registers nothing is empty, not malformed.
+
+        GIVEN a hooks.json holding only a description
+        WHEN the plugin is validated
+        THEN no critical issue mentions hooks.json
+        """
+        hooks_json = plugin_with_hooks / "hooks" / "hooks.json"
+        hooks_json.write_text(json.dumps({"description": "no hooks yet"}))
+
+        v = PluginValidator(plugin_with_hooks)
+        v.validate()
+
+        assert not any("hooks/hooks.json" in msg for msg in v.issues["critical"])
+
+
 # ---------------------------------------------------------------------------
 # Tests: Referenced path validation
 # ---------------------------------------------------------------------------

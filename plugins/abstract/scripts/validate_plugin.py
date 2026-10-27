@@ -309,8 +309,17 @@ class PluginValidator:
                 f"hooks/hooks.json is not valid JSON: {e}",
             )
             return
+        if isinstance(data, dict) and "hooks" not in data:
+            return
         events = data.get("hooks") if isinstance(data, dict) else None
         if not isinstance(events, dict):
+            # Claude Code reads "hooks" as an object keyed by event name.
+            # Any other shape registers none of the plugin's hooks.
+            found = events if isinstance(data, dict) else data
+            self.issues["critical"].append(
+                'hooks/hooks.json: "hooks" must be an object keyed by event '
+                f"name, got {type(found).__name__}",
+            )
             return
         for event, groups in events.items():
             if event not in HOOK_EVENTS:
