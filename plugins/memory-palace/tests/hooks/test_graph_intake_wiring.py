@@ -290,12 +290,17 @@ class TestOneGraphRegistration:
         """GIVEN a graph that opens and an analyzer with suggestions
         WHEN an entity is registered
         THEN the suggestions reach stderr under the caller's label.
+
+        The analyzer arrives as a stand-in module. Patching the real
+        memory_palace.graph_analyzer imports it, which imports networkx,
+        and hooks run under a system Python 3.9 that does not have it.
         """
         from shared.graph_entity import try_register_graph_entity  # noqa: PLC0415 - hooks dir joins sys.path at module import
 
         analyzer = MagicMock()
         analyzer.return_value.predict_links.return_value = [("a", "b", 0.9)]
-        with patch("memory_palace.graph_analyzer.PalaceGraphAnalyzer", analyzer):
+        stand_in = MagicMock(PalaceGraphAnalyzer=analyzer)
+        with patch.dict(sys.modules, {"memory_palace.graph_analyzer": stand_in}):
             try_register_graph_entity(tmp_path, "e1", "Name", "doc", source="probe")
 
         assert "probe: link predictions: [('a', 'b', 0.9)]" in capsys.readouterr().err
