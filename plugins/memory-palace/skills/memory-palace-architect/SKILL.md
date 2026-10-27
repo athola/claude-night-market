@@ -74,9 +74,13 @@ python scripts/memory_palace_cli.py status
 - Session-specific context - use
   session-palace-builder
 
-## Architectural Templates
+## Metaphor Choices
 
-| Template | Best For | Key Features |
+`--metaphor` is a free-form label stored on the palace as given, and it
+defaults to `building`. Nothing validates it or loads a template from
+it. These five are suggested starting points for the design:
+
+| Metaphor | Best For | Key Features |
 |----------|----------|--------------|
 | **Fortress** | Security, defense, production-grade systems | Strong boundaries, layered access |
 | **Library** | Knowledge, research, documentation | Organized shelves, categorized sections |
@@ -117,19 +121,19 @@ Works with:
 
 ### Common Issues
 
-If palace creation fails, check that the `metaphor` argument matches one of the supported templates (Fortress, Library, Workshop, Garden, Observatory). For script errors, ensure your Python environment meets the requirements listed in `pyproject.toml`.
+If palace creation fails, ensure your Python environment meets the requirements listed in `pyproject.toml`. The `metaphor` value cannot cause a failure, because any string is accepted.
 
 ## Exit Criteria
 
 - [ ] `scripts/memory_palace_cli.py create "<name>" "<domain>" --metaphor
-      <template>` completes without error and adds the palace to the
+      <metaphor>` completes without error and adds the palace to the
       index
 - [ ] `scripts/memory_palace_cli.py list` shows the newly created palace
       by the name supplied during creation
-- [ ] Created palace schema includes spatial coordinates, a sensory
-      encoding profile, and a navigation guide
-- [ ] The `metaphor` argument resolves to one of the five supported
-      templates (Fortress, Library, Workshop, Garden, Observatory);
-      if not, error is reported with the valid list
+- [ ] The created palace JSON has a `layout` (districts, buildings,
+      rooms, connections) and a `sensory_encoding` block, and both are
+      filled in from the design
+- [ ] The palace's `metaphor` field records the metaphor the design
+      chose
 - [ ] Recall testing results or optimization recommendations are
       produced as part of the Expected Outputs section

@@ -14,6 +14,8 @@ from pathlib import Path
 
 import pytest
 
+from memory_palace.palace_repository import PalaceRepository
+
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 SKILL_FILE = PLUGIN_ROOT / "skills" / "memory-palace-architect" / "SKILL.md"
 AGENT_FILE = PLUGIN_ROOT / "agents" / "palace-architect.md"
@@ -51,3 +53,36 @@ class TestDocumentedCommandsRun:
         text = doc.read_text(encoding="utf-8")
         assert "palace_manager.py" not in text
         assert "memory_palace_cli.py create" in text
+
+
+class TestMetaphorClaimsMatchTheCode:
+    """Feature: the skill describes the metaphor and schema create_palace writes."""
+
+    @pytest.mark.bdd
+    @pytest.mark.parametrize("metaphor", ["fortress", "submarine"])
+    def test_any_metaphor_is_stored_verbatim(
+        self, tmp_path: Path, metaphor: str
+    ) -> None:
+        """create_palace accepts any metaphor, so no template list can gate it."""
+        repo = PalaceRepository(str(tmp_path))
+        palace = repo.create_palace("P", "d", metaphor)
+        assert palace["metaphor"] == metaphor
+
+    @pytest.mark.bdd
+    def test_skill_does_not_claim_metaphor_validation(self) -> None:
+        """The skill must not say a metaphor outside five templates fails."""
+        text = SKILL_FILE.read_text(encoding="utf-8")
+        assert "supported templates" not in text
+        assert "resolves to one of the five" not in text
+
+    @pytest.mark.bdd
+    def test_exit_criteria_name_keys_create_palace_writes(self, tmp_path: Path) -> None:
+        """The schema criterion names keys the created palace actually has."""
+        palace = PalaceRepository(str(tmp_path)).create_palace("P", "d")
+        text = SKILL_FILE.read_text(encoding="utf-8")
+        criteria = text[text.index("## Exit Criteria") :]
+        for key in ("layout", "sensory_encoding"):
+            assert key in palace
+            assert f"`{key}`" in criteria
+        assert "navigation guide" not in criteria
+        assert "spatial coordinates" not in criteria
