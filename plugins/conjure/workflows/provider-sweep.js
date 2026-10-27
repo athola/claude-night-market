@@ -66,17 +66,23 @@ const probed = await parallel(
 
 const verdicts = probed.filter(Boolean)
 const ready = verdicts.filter((verdict) => verdict.callable).map((v) => v.provider)
-
-log(
-  ready.length
-    ? `available to conjure: ${ready.join(', ')}`
-    : 'no provider is callable on this machine',
+// A probe that returned nothing says nothing about the provider. Folding it
+// into "not callable" would report a dead agent as a broken machine.
+const unreported = providers.filter(
+  (provider) => !verdicts.some((verdict) => verdict.provider === provider),
 )
+
+if (unreported.length) {
+  log(`no verdict from ${unreported.join(', ')}. Those providers are unprobed, not uncallable`)
+}
+if (ready.length) {
+  log(`available to conjure: ${ready.join(', ')}`)
+} else if (verdicts.length) {
+  log(`no probed provider is callable on this machine (${verdicts.length} probed)`)
+}
 
 return {
   ready,
   blocked: verdicts.filter((verdict) => !verdict.callable),
-  unreported: providers.filter(
-    (provider) => !verdicts.some((verdict) => verdict.provider === provider),
-  ),
+  unreported,
 }

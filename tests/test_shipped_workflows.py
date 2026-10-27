@@ -595,3 +595,83 @@ class TestSurfaceCheckSelection:
         )
         assert out["result"]["started"] is True
         assert [v["surface"] for v in out["result"]["verdicts"]] == ["check:pointer"]
+
+
+# ---------------------------------------------------------------------------
+# Every workflow, run with every agent failing.
+# ---------------------------------------------------------------------------
+
+#: Arguments that make each script fan out, and the text that must name
+#: what was dropped when no agent answers. A new workflow fails
+#: ``test_every_workflow_has_a_dead_agent_case`` until it is listed here.
+_DEAD_AGENT_CASES: dict[str, tuple[dict, str]] = {
+    "abstract": ({"skills": ["abstract:skill-audit"]}, "no audit from discovery"),
+    "archetypes": (
+        {"candidates": ["hexagonal", "layered"], "requirements": "a small API"},
+        "no score for hexagonal, layered",
+    ),
+    "attune": (
+        {"topics": [{"name": "deploy", "brief": "how deploys run"}]},
+        "0 of 1 skills authored",
+    ),
+    "cartograph": (
+        {"root": ".", "lenses": ["architecture"]},
+        "no diagram from architecture",
+    ),
+    "conjure": ({"providers": ["gemini"]}, "no verdict from gemini"),
+    "conserve": ({"areas": ["plugins/conserve"]}, "no scan from plugins/conserve"),
+    "egregore": ({"gates": ["quality"]}, "no reading for quality"),
+    "gauntlet": (
+        {"subsystems": ["plugins/gauntlet"]},
+        "no corpus from plugins/gauntlet",
+    ),
+    "herald": ({"claim": "done", "evidence": "tests pass"}, "no judge returned"),
+    "hookify": ({"root": ".", "categories": ["bash"]}, "no sweep from bash"),
+    "imbue": ({"claims": ["tests pass"]}, "not checked: tests pass"),
+    "leyline": ({"plugins": ["leyline"]}, "no report from leyline"),
+    "memory-palace": ({"question": "q", "palaces": ["p"]}, "no result from p"),
+    "minister": ({"milestones": ["v1"], "repo": "o/r"}, "no pulse from v1"),
+    "oracle": ({"skills": ["a:b"]}, "no score for a:b"),
+    "parseltongue": (
+        {"paths": ["x.py"], "lenses": ["lint"]},
+        "no report from lint",
+    ),
+    "pensive": ({}, "no review from bugs"),
+    "phantom": ({"surfaces": ["screenshot"]}, "no verdict for screenshot"),
+    "sanctum": ({"slice": "s"}, "failed: recreate"),
+    "scribe": ({"docs": ["README.md"]}, "no report from critical"),
+    "scry": ({"flows": [{"name": "f", "steps": ["open"]}]}, "no result for f"),
+    "spec-kit": (
+        {"spec": "spec.md", "constitution": "c.md"},
+        "no reading from testability",
+    ),
+    "tome": ({"topic": "t", "channels": ["code"]}, "0 of 1 channels"),
+}
+
+
+def test_every_workflow_has_a_dead_agent_case() -> None:
+    """A workflow added without a dead-agent case would go unexercised."""
+    plugins = {script.parent.parent.name for script in _workflow_scripts()}
+    assert plugins == set(_DEAD_AGENT_CASES)
+
+
+@pytest.mark.parametrize("plugin", sorted(_DEAD_AGENT_CASES))
+def test_a_workflow_whose_agents_all_fail_says_what_it_dropped(plugin: str) -> None:
+    """Every agent returning nothing is reported, not passed off as a result.
+
+    GIVEN a workflow run with arguments that make it fan out
+    WHEN every agent call returns null
+    THEN the script finishes without throwing
+    AND its log, or its result's failed stage, names what went unanswered
+
+    The regex check above reads a script's text. This runs it, which is
+    the only way the branch that reports a dropped agent ever executes.
+    """
+    args, expected = _DEAD_AGENT_CASES[plugin]
+    (script,) = (PLUGINS / plugin / "workflows").glob("*.js")
+
+    out = _run_workflow(script, "return null;", args)
+
+    result = out["result"] if isinstance(out["result"], dict) else {}
+    reported = list(out["log"]) + [f"failed: {result.get('failed')}"]
+    assert any(expected in line for line in reported), reported
