@@ -103,7 +103,9 @@ def get_hook_event_types(hooks_json: Path) -> dict[str, list[str]]:
             for hook in matcher_group.get("hooks", []):
                 cmd = hook.get("command", "")
                 # Extract script filename from command
-                for part in cmd.split():
+                for token in cmd.split():
+                    # A quoted path keeps its quotes through split().
+                    part = token.strip("\"'")
                     if part.endswith(".py"):
                         filename = part.split("/")[-1]
                         script_events.setdefault(filename, []).append(event_name)

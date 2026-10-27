@@ -324,6 +324,39 @@ class TestGetHookEventTypes:
 
     @pytest.mark.bdd
     @pytest.mark.unit
+    def test_maps_a_quoted_script_path(self, tmp_path) -> None:
+        """
+        Given a Stop hook whose command quotes the script path,
+        When parsed,
+        Then the script maps to Stop, so no PostToolUse rule applies to it.
+
+        egregore and herald register their Stop hooks this way. Splitting
+        on spaces left the closing quote on the token, the script mapped
+        to no event, and "approve" was flagged as a PostToolUse error.
+        """
+        hooks_json = tmp_path / "hooks.json"
+        hooks_json.write_text(
+            json.dumps(
+                {
+                    "hooks": {
+                        "Stop": [
+                            {
+                                "hooks": [
+                                    {
+                                        "type": "command",
+                                        "command": 'python3 "${CLAUDE_PLUGIN_ROOT}/hooks/stop_hook.py"',
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            )
+        )
+        assert get_hook_event_types(hooks_json) == {"stop_hook.py": ["Stop"]}
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
     def test_handles_missing_file(self, tmp_path) -> None:
         """
         Given a nonexistent hooks.json path,
