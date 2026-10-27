@@ -38,6 +38,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Room records named a model that never answered. Both now name
   `coder-model`, and the Qwen skill's flag table drops `--format` and
   `--temperature`, which qwen 0.4.0 rejects.
+- `abstract`'s plugin validator passed a `hooks/hooks.json` whose
+  `"hooks"` value was a list or a string, or whose whole document was a
+  list, and printed "Plugin validation passed". Claude Code registers
+  none of that plugin's hooks. It is now a critical issue.
+- Conjure's `provider-sweep` workflow logged "no provider is callable on
+  this machine" when its probes returned nothing at all. It now names
+  the unanswered providers as unprobed and makes the "not callable"
+  claim only about providers a probe examined.
 
 ### Removed
 
