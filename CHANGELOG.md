@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   by name (#618). The command keeps its name and behavior. No caller in
   this repository used the old skill name.
 
+### Deprecated
+
+- **`pensive:shell-review` is a module of `pensive:unified-review`.**
+  It was the first of the two folds ADR-0014 planned (#615). The audit
+  workflow and its four rule modules moved to
+  `skills/unified-review/modules/shell-review.md` and `shell-*.md`.
+  `/shell-review` still works and routes to unified-review's shell
+  focus, the same as `/full-review shell`. `Skill(pensive:shell-review)`
+  is a redirect stub for one release and will be removed in the release
+  after.
+
 ## [1.10.0] - 2026-10-14
 
 Sweep for Claude Code 2.1.220 to 2.1.289. Several fields this repo wrote

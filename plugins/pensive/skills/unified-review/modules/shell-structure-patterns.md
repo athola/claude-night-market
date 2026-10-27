@@ -24,7 +24,7 @@ case "${__logging_loaded:-NULL}" in
 esac
 ```
 
-See also: `safety-patterns.md` → "Library loading check form".
+See also: `shell-safety-patterns.md` → "Library loading check form".
 
 | Property | Library | Executable |
 |----------|---------|------------|

@@ -32,7 +32,7 @@ Or reference from the marketplace:
 | **test-review** | Evaluates test suite coverage and quality. |
 | **math-review** | Reviews mathematical algorithms and numerical stability. |
 | **makefile-review** | Audits and optimizes build systems. |
-| **shell-review** | Checks shell scripts for correctness, portability, and safety. |
+| **shell-review** | Deprecated alias. Shell review is now unified-review's shell module. |
 | **fpf-review** | Functional/Practical/Foundation architecture review. |
 | **code-refinement** | Analyzes living code for duplication, algorithmic inefficiency, clean code violations, and architectural misfit. |
 | **blast-radius** | Analyzes code change blast radius with risk scoring, affected nodes, and untested functions. |

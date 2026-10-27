@@ -1,163 +1,33 @@
 ---
 name: shell-review
-description: Audits shell scripts for correctness, portability, and common pitfalls. Use when reviewing shell scripts or before committing shell changes.
-globs: "**/*.sh"
+description: Deprecated alias for unified-review's shell module. Use when an existing caller still names pensive:shell-review.
 alwaysApply: false
-  Use when reviewing shell scripts, CI scripts, hook scripts, wrapper scripts. Do
-  not use when creating new scripts - use attune:workflow-setup.
 category: build
-tags:
-- shell
-- bash
-- posix
-- scripting
-- ci
-- hooks
-tools: []
-complexity: intermediate
 model_hint: standard
-estimated_tokens: 200
-progressive_loading: true
-dependencies:
-- imbue:proof-of-work
-- imbue:review-core
-- imbue:structured-output
-modules:
-- modules/exit-codes.md
-- modules/portability.md
-- modules/safety-patterns.md
-- modules/structure-patterns.md
+estimated_tokens: 100
 role: entrypoint
 ---
 
-# Shell Script Review
+# Shell Script Review (Deprecated)
 
-Audit shell scripts for correctness, safety, and portability.
+> **Deprecated**. Shell review is now a module of unified-review
+> (ADR-0014, #615). This stub is kept for one release, then removed.
 
-## Verification
-
-After review, run `shellcheck <script>` to verify fixes address identified issues.
-
-## Testing
-
-Run `pytest plugins/pensive/tests/skills/test_shell_review.py -v` to validate review patterns.
-
-## Quick Start
-
-```bash
-/shell-review path/to/script.sh
-```
+Invoke `Skill(pensive:unified-review)` with the shell focus and follow
+its `modules/shell-review.md`. That module carries the workflow, the
+four rule modules, the output format and the verdict.
 
 ## When To Use
 
-- CI/CD pipeline scripts
-- Git hook scripts
-- Wrapper scripts (run-*.sh)
-- Build automation scripts
-- Pre-commit hook implementations
+- An existing caller still names `pensive:shell-review`
 
 ## When NOT To Use
 
-- Non-shell scripts (Python, JS, etc.)
-- One-liner commands that don't need review
-
-## Required Progress Items
-
-1. `shell-review:context-mapped`
-2. `shell-review:exit-codes-checked`
-3. `shell-review:portability-checked`
-4. `shell-review:safety-patterns-verified`
-5. `shell-review:structure-checked`
-6. `shell-review:evidence-logged`
-7. `shell-review:findings-verified`
-
-## Workflow
-
-### Step 1: Map Context (`shell-review:context-mapped`)
-
-Identify shell scripts:
-```bash
-# Find shell scripts
-find . -not -path "*/.venv/*" -not -path "*/__pycache__/*" \
-  -not -path "*/node_modules/*" -not -path "*/.git/*" \
-  -name "*.sh" -type f | head -20
-# Check shebangs
-rg -l "^#!/" scripts/ hooks/ 2>/dev/null | head -10
-# fallback: grep -l "^#!/" scripts/ hooks/ 2>/dev/null | head -10
-```
-
-Document:
-- Script purpose and trigger context
-- Integration points (make, pre-commit, CI)
-- Expected inputs and outputs
-
-### Step 2: Exit Code Audit (`shell-review:exit-codes-checked`)
-
-@include modules/exit-codes.md
-
-### Step 3: Portability Check (`shell-review:portability-checked`)
-
-@include modules/portability.md
-
-### Step 4: Safety Patterns (`shell-review:safety-patterns-verified`)
-
-@include modules/safety-patterns.md
-
-### Step 5: Structure Patterns (`shell-review:structure-checked`)
-
-@include modules/structure-patterns.md
-
-### Step 6: Evidence Log (`shell-review:evidence-logged`)
-
-Use `imbue:proof-of-work` to record findings with file:line references.
-
-Summarize:
-- Critical issues (failures masked, security risks)
-- Major issues (portability, maintainability)
-- Minor issues (style, documentation)
-
-## Output Format
-
-```markdown
-## Summary
-Shell script review findings
-
-## Scripts Reviewed
-- [list with line counts]
-
-## Exit Code Issues
-### [E1] Pipeline masks failure
-- Location: script.sh:42
-- Anchor: `verbatim source text at file:line`
-- Pattern: `cmd | grep` loses exit code
-- Fix: Use pipefail or capture separately
-
-## Portability Issues
-[cross-platform concerns]
-
-## Safety Issues
-[unquoted variables, missing set flags]
-
-## Recommendation
-Approve / Approve with actions / Block
-```
-
-## Verify Findings Are Grounded (`shell-review:findings-verified`)
-
-Write findings to `.review/findings.json`, run the citation verifier
-(`Skill(imbue:review-core)` Step 5), and drop or label `UNVERIFIED` any
-the verifier rejects.
+- New callers: invoke `Skill(pensive:unified-review)` with the shell
+  focus directly
 
 ## Exit Criteria
 
-- [ ] Exit code propagation verified (pipelines checked for pipefail or
-  capture-and-check)
-- [ ] Portability issues documented (Bash-isms in `#!/bin/sh` scripts flagged)
-- [ ] Safety patterns verified (no echo, braced vars, `:?` expansion, cd in
-  subshells, no basename/dirname)
-- [ ] Structure patterns verified (library/executable distinction, main call,
-  preamble, depcheck, shfmt formatting)
-- [ ] Evidence logged with file:line references via `imbue:proof-of-work`
-- [ ] Every reported finding carries a `Location` + verbatim `Anchor`
-  confirmed by `citation_verifier.py` (exit `0`), or unverified findings
-  were dropped or labeled `UNVERIFIED`
+- [ ] `Skill(pensive:unified-review)` was invoked with the shell focus
+- [ ] The exit criteria in unified-review's `modules/shell-review.md`
+  were met

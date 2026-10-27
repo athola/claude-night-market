@@ -201,7 +201,7 @@ check:
 	@$(MAKE) typecheck 2>&1 | grep -v "^make\["
 
 # Good - capture exit code explicitly in wrapper scripts
-# See shell-review skill for bash pipeline patterns
+# See unified-review's shell-review module for bash pipeline patterns
 check:
 	@$(MAKE) typecheck || { echo "Type check failed"; exit 1; }
 
