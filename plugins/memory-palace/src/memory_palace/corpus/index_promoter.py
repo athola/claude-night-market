@@ -44,7 +44,11 @@ from memory_palace.corpus.index_analytics import (
     load_capture_index,
     rank_promotion_candidates,
 )
-from memory_palace.corpus.titles import looks_like_title, slug_title_from_url
+from memory_palace.corpus.titles import (
+    TITLE_MAX_CHARS,
+    looks_like_title,
+    slug_title_from_url,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -296,7 +300,11 @@ def propose_title_repairs(index: dict[str, Any]) -> list[Proposal]:
         title = entry.get("title")
         if not isinstance(title, str) or not title.strip():
             continue
-        if looks_like_title(title.strip()):
+        # The old extractor stored ``line[:100]``, and a line cut to
+        # exactly the limit passes the length rule that rejects longer
+        # ones. Capture no longer slices, so only this pass needs the rule.
+        sliced = len(title.strip()) == TITLE_MAX_CHARS
+        if looks_like_title(title.strip()) and not sliced:
             continue
         replacement = slug_title_from_url(entry.get("url") or "")
         if replacement is None or not looks_like_title(replacement):
